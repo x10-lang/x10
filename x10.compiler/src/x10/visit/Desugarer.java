@@ -484,7 +484,7 @@ public class Desugarer extends ContextVisitor {
                     // qualifer doesn't have type info because it was created in Synthesizer.makeExpr
                     qualifer = (TypeNode) qualifer.visit(new X10TypeBuilder(job, ts, nf)).visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext));
                     ClassType ct =  qualifer.type().toClass();
-                    return nf.Call(pos,newReceiver, nf.Id(pos,X10ClassDecl_c.getThisMethod(ct.fullName())));
+                    return nf.Call(pos,newReceiver, nf.Id(pos,X10ClassDecl_c.getThisMethod(newReceiver.type().toClass().def().fullName(),ct.fullName())));
                 }
                 if (n instanceof AmbExpr) {
                     AmbExpr amb = (AmbExpr) n;

@@ -181,7 +181,7 @@ class Helper2330(p:Int) {
 		try { this(z+51) += z+0; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
 
 		// We already handle: Call, New, Binary, Unary, SettableAssign, Cast
-		// We still need to handle in the desugarer: ConstructorCall (XTENLANG_2376) , ClosureCall & Unary (XTENLANG_2329)
+		// We still need to handle in the desugarer: ConstructorCall (XTENLANG_2376) , ClosureCall (XTENLANG_2329)
 		// far to do: after XTENLANG_2376 is resolved, we should check runtime checks for guards for ctor calls (super&this)	
 		// todo: After XTENLANG_2329 is resolved, we could check guards for closure calls
 
@@ -248,13 +248,13 @@ class Helper2330(p:Int) {
 			super(i);
 			property(i);
 		}
-		def this(i1:Int, i2:Int) {i1!=i2, i1==p} : C { // testing 2 binary expressions
+		def this(i1:Int, i2:Int) {i1!=i2, i1==p}  { // testing 2 binary expressions
 			super(i1);
 			property(i2);
 		}
 
 		class D(d:Int) extends A {
-			def this(i1:Int, i2:Int) {i1!=i2, i1==p, i2==c} : D { // testing 3 binary expressions
+			def this(i1:Int, i2:Int) {i1!=i2, i1==p, i2==c}  { // testing 3 binary expressions
 				super(i1);
 				property(i2);
 			}
@@ -272,7 +272,6 @@ class Helper2330(p:Int) {
 
 // Here I just test that post-compilation works on more complicated examples (but I don't check runtime behaviour)
 class TestWithoutGenerics {
-	public static def main(argv:Array[String](1)) {}
 	static def m2(a:Int, b:Outer.A) {a==44, b.x.x.y==35} = 1;
 
 	class Outer(zz:Int) {

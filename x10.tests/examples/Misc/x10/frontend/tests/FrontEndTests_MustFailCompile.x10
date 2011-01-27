@@ -12,6 +12,9 @@
 package x10.frontend.tests;
 // TODO: We should put ALL our tests in different packages according to the directory structure
 
+// OPTIONS: -STATIC_CALLS 
+
+
 import harness.x10Test;
 
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
@@ -2233,10 +2236,10 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 		}
 	}
 	interface I2 extends I{p==2} {} // ShouldBeErr
-	interface I3 {p==3} extends I2 {} // ShouldBeErr
+	@ERR interface I3 {p==3} extends I2 {} // Class invariant is inconsistent.
 	static def test(i:I) {
-		@ShouldBeErr var i1:I{p==5} = i;
-		var i2:I{p==1} = i;
+		@ERR var i1:I{p==5} = i;
+		@ShouldNotBeERR var i2:I{p==1} = i;
 	}
 }
 
@@ -2248,8 +2251,8 @@ class OuterThisConstraint(i:Int) { // see XTENLANG-1932
 	static def test(a:OuterThisConstraint{i==3}) {
 		val inner:OuterThisConstraint{self.i==3}.Inner = a.new Inner();
 		val x1:OuterThisConstraint{i==3} = a.m1();
-		val x2:OuterThisConstraint{i==3} = inner.m2();
-		@ShouldBeErr val x3:OuterThisConstraint{i==4} = inner.m2();
+		@ShouldNotBeERR val x2:OuterThisConstraint{i==3} = inner.m2();
+		@ERR val x3:OuterThisConstraint{i==4} = inner.m2();
 	}
 }
 
@@ -3254,7 +3257,7 @@ class XTENLANG_967  {
 class XTENLANG_1574(v:Int) {v==1} {
 	static def m(a:XTENLANG_1574) {
 		val b:XTENLANG_1574{self.v==1} = a; 
-		@ERR val b2:XTENLANG_1574{self.v==2} = a;
+		@ERR @ERR val b2:XTENLANG_1574{self.v==2} = a; // [Semantic Error: Cannot assign expression to target.	 Expression: a	 Expected type: x10.frontend.tests.XTENLANG_1574{self.v==2}	 Found type: x10.frontend.tests.XTENLANG_1574{self==a}, Semantic Error: Invalid type; the real clause of x10.frontend.tests.XTENLANG_1574{self.v==2} is inconsistent.]
 	}
 }
 class TestMethodGuards[T](a:Int, p:Place) {
@@ -3585,13 +3588,13 @@ class BB(v:Int) {v==1} {
 static class A(v:Int) {v==1} {
 	static def m(a:A) {
 		val b:A{self.v==1} = a;
-		@ERR val b2:A{self.v==2} = a;
+		@ERR @ERR val b2:A{self.v==2} = a;
 	}
 	def m2(a:A) {
 		val b1:A{self.v==1} = this;
 		val b2:A{this.v==1} = this;
 		val b3:A{self.v==1} = a;
-		@ERR val b33:A{self.v==2} = a; 
+		@ERR @ERR val b33:A{self.v==2} = a; 
 		val b4:A{this.v==1} = a;
 	}
 }
@@ -4068,9 +4071,9 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	property i() = 5;
 	@ERR class R extends R {i()==5} {}
 	@ERR class R1 {i()==3} {}
-	@ERR class R2 {@ERR i()==3} extends R2 {}
+	@ERR class R2 {i()==3} extends R2 {} // [Semantic Error: Circular inheritance involving x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R2]
 	class R3 {}
-	@ERR @ERR @ERR class R4 extends R3 {@ERR i()==3} {}
+	@ERR @ERR class R4 extends R3 {i()==3} {} // [Semantic Error: Invalid type; the real clause of x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent., Semantic Error: Type x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent.]
 	
 	@ERR static class W extends W {}
 	static val i=3;
@@ -4496,4 +4499,38 @@ class XTENLANG_2379 {
 			property(6); // ShouldNotBeERR: Semantic Error: Instances created by this constructor do not satisfy return type	 Constraint satisfied: {X.C#this.b==5, X.C#this.c==6, i1!=i2}	 Constraint required: {X.C#this.b==5, X.C#this.c==6, i1!=i2}
 		}
 	}
+}
+class CodegenForHasZeroTest[T] { // see XTENLANG-2388
+	def m() {
+		@ShouldNotBeERR val b = T haszero; // Unhandled node type: class x10.ast.HasZeroTest_c
+	}
+}
+class XTENLANG_2389 { 
+	property foo()=A.this; 
+	class B {
+		property bar()=A.this; 
+		property foo2()=B.this; 
+	}
+	def bla(a1:A, a2:A{this==a1}) {
+		@ShouldBeErr val a3:A{self==a1} = a2;
+		@ShouldBeErr val a4:A{self!=a1} = a2;
+	}
+
+	def test1(a1:A, a2:A{self.foo()==a1}) {}
+	def test2(a1:A, a2:A{A.this==a1}) { 
+		@ERR { test1(a1,a2); }
+	}
+	def test3(a1:A, b2:B{self.bar()==a1}) {}
+	def test4(a:A, b:B{A.this==a}) {
+		@ShouldBeErr { test3(a,b); }
+	}
+}
+
+class XTENLANG_2390 {
+	protected val a:Int;
+	def this(x:Int) {
+		a = x;
+	}
+	def m1(i:Int{self==a}) {} // ShouldBeErr
+	def m2() {2==a} {} // ShouldBeErr
 }

@@ -501,33 +501,42 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
 
         // adding methods to access the outer instances (used in Desugarer.desugarCall)
-        // e.g.,
+        // The method name includes both the container name and the qualifier name to handle this nasty case:
+        //class A[T] {
+        //  public final def A$$A$this() = A.this;
+        //  class Inner extends A[Int] {
+        //    public final def Inner$$A$this() = A.this; // the return type is different!
+        //    public final def Inner$$Inner$this() = Inner.this;
+        //  }
+        //}
+        // Another simpler example:
         // class A {
-        //  public def A$this() = A.this;
+        //  public final def A$$A$this() = A.this;
         //  class B {
-        //   public def B$this() = B.this;
-        //   public def A$this() = A.this;
+        //   public final def B$$B$this() = B.this;
+        //   public final def B$$A$this() = A.this;
         //  }
         //  class D extends B {
-        //   public def D$this() = D.this;
-        //   public def A$this() = A.this; // this is why the methods cannot be FINAL
+        //   public final def D$$D$this() = D.this;
+        //   public final def D$$A$this() = A.this;
         //  }
         //  static class C {
-        //   public def C$this() = C.this;
+        //   public final def C$$C$this() = C.this;
         //  }
         // }
         {
             final Position pos = n.position().markCompilerGenerated();
-            final Flags flags = Flags.PUBLIC;
+            final Flags flags = Flags.PUBLIC.Final();
             final NodeFactory nf = tb.nodeFactory();
 
+            final QName containerName = def.fullName();
             ClassType curr = def.asType();
             while (curr!=null) {
                 if (curr.flags().isInterface())
                     break;
                 final UnknownTypeNode returnType = nf.UnknownTypeNode(pos);
                 final QName fullName = curr.fullName();
-                MethodDecl md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),returnType,nf.Id(pos,getThisMethod(fullName)),Collections.<Formal>emptyList(),
+                MethodDecl md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),returnType,nf.Id(pos,getThisMethod(containerName,fullName)),Collections.<Formal>emptyList(),
                         nf.Block(pos,nf.Return(pos,nf.Special(pos, Special.Kind.THIS, nf.TypeNodeFromQualifiedName(pos,fullName)))));
                 n = (X10ClassDecl_c) n.body(n.body().addMember(md));
 
@@ -539,8 +548,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
         return n;
     }
-    public static Name getThisMethod(QName n) {
-        return Name.make(n.toString().replace('.','$')+"$this");
+    public static Name getThisMethod(QName containerName, QName n) {
+        return Name.make(
+                containerName.toString().replace('.','$')+
+                        "$$"+
+                n.toString().replace('.','$')+
+                        "$this");
     }
     
     private X10ClassDecl_c superPreBuildTypes(TypeBuilder tb) throws SemanticException {

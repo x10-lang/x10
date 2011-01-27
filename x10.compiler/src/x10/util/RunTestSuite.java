@@ -151,13 +151,17 @@ public class RunTestSuite {
     public static String SOURCE_PATH_SEP = File.pathSeparator; // on MAC the separator is ":" and on windows it is ";"
 
     private static void println(String s) {
-        if (!QUIET) System.out.println(s);
+        if (!QUIET) {
+            System.out.println(s);
+            System.out.flush();
+        }
     }
     private static int EXIT_CODE = 0;
     private static java.lang.StringBuilder ALL_ERRORS = new StringBuilder();
     private static void err(String s) {
         EXIT_CODE = 1;
         System.err.println(s);
+        System.err.flush();
         ALL_ERRORS.append(s).append("\n");
     }
 
@@ -171,6 +175,8 @@ public class RunTestSuite {
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
     };
     private static final String[] EXCLUDE_FILES = {
+            "FrontEndTests_MustFailCompile.x10",
+            
             // difference on MAC and PC (on PC the compiler crashes, on MAC it outputs this error: Semantic Error: Type definition type static TypedefOverloading06_MustFailCompile.A = x10.lang.String has the same name as member class TypedefOverloading06_MustFailCompile.A.
             "TypedefOverloading04_MustFailCompile.x10",
             "TypedefOverloading06_MustFailCompile.x10",
@@ -181,6 +187,7 @@ public class RunTestSuite {
 
             // LangSpec is auto-generated, so I can't fix those files to make a clean test suite
             "Classes250.x10","Classes160.x10","Classes170.x10",
+            "Interfaces3l4a.x10", "Interfaces_static_val.x10", "Types2y3i.x10", "Types6a9m.x10",
             "InnerClasses5p9v.x10","Packages5t5g.x10","Stimulus.x10","Statements51.x10", "ClassCtor30_MustFailCompile.x10", "ThisEscapingViaAt_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES_WITH = {

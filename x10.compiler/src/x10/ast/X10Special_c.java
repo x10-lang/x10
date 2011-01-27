@@ -156,8 +156,8 @@ public class X10Special_c extends Special_c implements X10Special {
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
                 XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
-                assert var instanceof CThis;
                 if (var != null) {
+                    assert var instanceof CThis;
                     cc.addSelfBinding(var);
                     cc.setThisVar(var);
                     //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);

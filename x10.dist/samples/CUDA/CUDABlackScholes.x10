@@ -150,11 +150,11 @@ public class CUDABlackScholes {
 
         Console.OUT.println("Generating a second set of results at place " + cpu);
         doBlackScholes(cpu, 
-                new RemoteArray[Float](h_OptionYears),
-                new RemoteArray[Float](h_StockPrice),
-                new RemoteArray[Float](h_OptionStrike),
-                new RemoteArray[Float](h_CallResultCPU),
-                new RemoteArray[Float](h_PutResultCPU),
+                new RemoteArray[Float](h_OptionYears)   as RemoteArray[Float]{home==cpu && rank==1},
+                new RemoteArray[Float](h_StockPrice)    as RemoteArray[Float]{home==cpu && rank==1},
+                new RemoteArray[Float](h_OptionStrike)  as RemoteArray[Float]{home==cpu && rank==1},
+                new RemoteArray[Float](h_CallResultCPU) as RemoteArray[Float]{home==cpu && rank==1},
+                new RemoteArray[Float](h_PutResultCPU)  as RemoteArray[Float]{home==cpu && rank==1},
                 OPT_N,
                 RISKFREE,
                 VOLATILITY);

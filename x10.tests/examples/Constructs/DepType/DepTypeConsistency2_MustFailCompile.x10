@@ -20,8 +20,8 @@ import harness.x10Test;
 public class DepTypeConsistency2_MustFailCompile extends x10Test { 
 
 /* free variable i is not parametrically consistent */
-    class Tester(i:int{self == 2,self==3}) { // ERR ERR: Type x10.lang.Int{inconsistent} is inconsistent. Invalid type; the real clause of x10.lang.Int{inconsistent} is inconsistent.
-      public def this(arg:int):Tester = { property(arg);}
+    class Tester(i:int{self == 2,self==3}) { // ERR ERR ERR: Type x10.lang.Int{inconsistent} is inconsistent. Invalid type; the real clause of x10.lang.Int{inconsistent} is inconsistent.
+      public def this(arg:int):Tester = { property(arg);} // ShouldNotBeERR: Semantic Error: Invalid type; the real clause of DepTypeConsistency2_MustFailCompile.Tester{self.i==arg} is inconsistent.
     }
 	
     public def run()=true; 

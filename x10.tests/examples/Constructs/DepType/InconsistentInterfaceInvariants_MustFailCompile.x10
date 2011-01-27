@@ -17,6 +17,7 @@
  *
  */
 import harness.x10Test;
+import x10.compiler.tests.*; // err markers
 
 /** Tests that invariants due to a super constraint and a sub constraint are 
  * consistent with each other.
@@ -29,7 +30,7 @@ public class InconsistentInterfaceInvariants_MustFailCompile extends x10Test {
      public def put():int;
     }
     
-    public static interface Test1{this.l == 0, this.m == 1}  extends Test { 
+    @ERR public static interface Test1{this.l == 0, this.m == 1}  extends Test { // Semantic Error: Class invariant is inconsistent. 
      public def foo(): int;
     }
     
