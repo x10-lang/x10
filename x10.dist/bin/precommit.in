@@ -44,7 +44,7 @@ nice "$ROOT/x10.dist/bin/x10c++" -O -DEBUG \
 
 echo "Running"
 
-X10_NPLACES=2 X10_HOSTLIST=localhost "$TMP_DIR/PreCommit" || testFailed
+X10_NPLACES=2 X10_HOSTLIST=localhost "$ROOT/x10.dist/bin/runx10" "$TMP_DIR/PreCommit" || testFailed
 
 fi
 
