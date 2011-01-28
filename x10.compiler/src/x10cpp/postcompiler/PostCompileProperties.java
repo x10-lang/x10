@@ -17,7 +17,7 @@ public class PostCompileProperties {
     public final Collection<String> libs;
     public final Collection<String> ldFlags;
     
-    PostCompileProperties(Properties p) {
+    public PostCompileProperties(Properties p) {
         props = p;
         cxxFlags = split(p.getProperty("CXXFLAGS"));
         libs     = split(p.getProperty("LDLIBS"));

@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import polyglot.ast.Assert;
@@ -101,6 +102,7 @@ import x10cpp.postcompiler.AIX_CXXCommandBuilder;
 import x10cpp.postcompiler.CXXCommandBuilder;
 import x10cpp.postcompiler.Cygwin_CXXCommandBuilder;
 import x10cpp.postcompiler.Linux_CXXCommandBuilder;
+import x10cpp.postcompiler.PostCompileProperties;
 import x10cpp.postcompiler.SunOS_CXXCommandBuilder;
 import x10cpp.types.X10CPPContext_c;
 import static x10cpp.visit.ASTQuery.getCppRep;
@@ -519,7 +521,8 @@ public class X10CPPTranslator extends Translator {
 			    return false;
 			}
 
-			CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, eq);
+			PostCompileProperties x10rt = loadX10RTProperties(options);
+			CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, x10rt, eq);
 			String[] cxxCmd = ccb.buildCXXCommandLine(compilationUnits);
 
 			if (!doPostCompile(options, eq, compilationUnits, cxxCmd)) return false;
@@ -530,6 +533,42 @@ public class X10CPPTranslator extends Translator {
 		return true;
 	}
 
+	private static PostCompileProperties loadX10RTProperties(X10CPPCompilerOptions options) {
+
+	    // TODO: get options.distPath external to this method
+	    String dp = System.getProperty("x10.dist");
+	    options.setDistPath(dp);
+
+	    // TODO: get properties file external to this method and pass it as an argument
+	    String platform = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
+	    String rtimpl = System.getenv("X10RT_IMPL");
+	    if (rtimpl == null) {
+	        // assume pgas (default to old behavior)
+	        if (platform.startsWith("aix_")) {
+	            rtimpl = "pgas_lapi";
+	        } else {
+	            rtimpl = "sockets";
+	        }
+	    }
+	    // allow the user to give an explicit path, otherwise look in etc
+	    if (!rtimpl.endsWith(".properties")) {
+	        rtimpl = dp + "/etc/x10rt_"+rtimpl+".properties";
+	    }
+	    Properties x10rt = loadPropertyFile(rtimpl);
+	    PostCompileProperties x10rt_props = new PostCompileProperties(x10rt);
+	    return x10rt_props;
+	}
+	
+    private static Properties loadPropertyFile(String filename) {
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream(filename));
+        } catch(IOException e) {
+            throw new InternalCompilerError("Unable to load property file "+filename+" "+ e.getMessage(), e);
+        }
+        return properties;
+    }
+	
 	private static List<MethodDef> getMainMethods(Job job) {
 	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
 	    X10CPPJobExt jobext = (X10CPPJobExt) job.ext();

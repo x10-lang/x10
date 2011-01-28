@@ -39,8 +39,6 @@ public class CXXCommandBuilder {
     
     private static String UNKNOWN = "unknown";
     
-    public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
-
     protected static final boolean ENABLE_PROFLIB = System.getenv("X10_ENABLE_PROFLIB") != null;
 
     protected final X10CPPCompilerOptions options;
@@ -130,10 +128,6 @@ public class CXXCommandBuilder {
             cxxCmd.add("-qsuppress=1540-0809"    // Do not warn about empty sources
                                + ":1540-1101"    // Do not warn about non-void functions with no return
                                + ":1500-029");   // Do not warn about being unable to inline when optimizing
-
-            if (XLC_EXTRA_FLAGS != null) {
-                cxxCmd.add(XLC_EXTRA_FLAGS);
-            }
         } else {
             cxxCmd.add("-Wno-long-long");        // Do not warn about using long long
             cxxCmd.add("-Wno-unused-parameter"); // Do not warn about unused parameters
@@ -260,15 +254,7 @@ public class CXXCommandBuilder {
         return cxxCmd.toArray(new String[cxxCmd.size()]);
     }
 
-    private static Properties loadPropertyFile(String filename) {
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(filename));
-        } catch(IOException e) {
-            throw new InternalCompilerError("Unable to load property file "+filename+" "+ e.getMessage(), e);
-        }
-        return properties;
-    }
+
     
     /**
      * Construct a CXXCommandBuilder for the given platform and options.
@@ -278,50 +264,26 @@ public class CXXCommandBuilder {
      * @param eq
      * @return
      */
-    public static CXXCommandBuilder getCXXCommandBuilder(X10CompilerOptions options, ErrorQueue eq) {
-        // TODO: get options.distPath external to this method
-        String dp = System.getProperty("x10.dist");
-        options.setDistPath(dp);
-        
-        // TODO: get properties file external to this method and pass it as an argument
-        String platform = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
-        String rtimpl = System.getenv("X10RT_IMPL");
-        if (rtimpl == null) {
-            // assume pgas (default to old behavior)
-            if (platform.startsWith("aix_")) {
-                rtimpl = "pgas_lapi";
-            } else {
-                rtimpl = "sockets";
-            }
-        }
-        // allow the user to give an explicit path, otherwise look in etc
-        if (!rtimpl.endsWith(".properties")) {
-            rtimpl = dp + "/etc/x10rt_"+rtimpl+".properties";
-        }
-        Properties x10rt = loadPropertyFile(rtimpl);
-        PostCompileProperties x10rt_props = new PostCompileProperties(x10rt);  
-        
-        CXXCommandBuilder ccb;
+    public static CXXCommandBuilder getCXXCommandBuilder(X10CompilerOptions options, PostCompileProperties x10rt_props, ErrorQueue eq) {
+        String platform = x10rt_props.props.getProperty("PLATFORM", "unknown");
         
         if (platform.startsWith("win32_")) {
-            ccb = new Cygwin_CXXCommandBuilder(options, x10rt_props, eq);
+            return new Cygwin_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("linux_")) {
-            ccb = new Linux_CXXCommandBuilder(options, x10rt_props, eq);
+            return new Linux_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("aix_")) {
-            ccb =  new AIX_CXXCommandBuilder(options, x10rt_props, eq);
+            return new AIX_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("sunos_")) {
-            ccb =  new SunOS_CXXCommandBuilder(options, x10rt_props, eq);
+            return new SunOS_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("macosx_")) {
-            ccb = new MacOSX_CXXCommandBuilder(options, x10rt_props, eq);
+            return new MacOSX_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("freebsd_")) {
-            ccb =  new FreeBSD_CXXCommandBuilder(options, x10rt_props, eq);
+            return new FreeBSD_CXXCommandBuilder(options, x10rt_props, eq);
         } else {   
             eq.enqueue(ErrorInfo.WARNING,
                        "Unknown platform '"+platform+"'; using the default post-compiler (g++)");
-            ccb = new CXXCommandBuilder(options, x10rt_props, eq);
+            return new CXXCommandBuilder(options, x10rt_props, eq);
         }
-        
-        return ccb;
     }
 
 }
