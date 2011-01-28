@@ -34,12 +34,6 @@ ifdef JNI_INCLUDES
 endif
 endif
 
-ifdef ENABLE_X10RT_CUDA
-	override CXXFLAGS += -DENABLE_CUDA -isystem/usr/local/cuda/include
-	override LDFLAGS += -L/usr/local/cuda/lib
-	override LDLIBS += -lcuda
-endif
-
 # It is worth separating the linker flags for building the shared object from
 # the linker flags that should be used by an application
 # The MOV_ are the params that should be part of either SO or APP depending on X10_STATIC_LIB
@@ -51,6 +45,12 @@ APP_LDFLAGS := $(LDFLAGS)
 SO_LDLIBS := 
 SO_LDFLAGS = $(LDFLAGS_SHARED)
 X10RT_TEST_LDFLAGS := -L"$(X10_HOME)"/x10.runtime/x10rt/lib
+
+ifdef ENABLE_X10RT_CUDA
+	override CXXFLAGS += -DENABLE_CUDA -isystem/usr/local/cuda/include
+	override MOV_LDFLAGS += -L/usr/local/cuda/lib
+	override MOV_LDLIBS += -lcuda
+endif
 
 # avoid a lot of repetition in the */*.mk scripts
 ifeq ($(X10RT_PLATFORM),aix_xlc)
