@@ -120,6 +120,7 @@ public class Main
         source = new LinkedHashSet<String>();
 
         Compiler compiler = getCompiler(argv, ext, eq, source);
+        Report.start_reporting(Report.verbose);
         compiler.stats.initialize(startTime);
         boolean success = compiler.compileFiles(source);
 

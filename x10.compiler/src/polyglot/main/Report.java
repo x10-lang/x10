@@ -29,8 +29,8 @@ public class Report {
 
   /** A collection of string names of topics which we should always check
       if we should report. */
-  protected final static Stack<String> should_report = new Stack<String>();
-
+  protected static Stack<String> stackedTopics;
+  
   /** 
    * The topics that the user has selected to report, mapped to the level
    * they want to report them to.
@@ -70,7 +70,7 @@ public class Report {
   public final static String verbose = "verbose";
   
   // This topic is the level of detail that should be in messages.
-  public final static String debug = "debug";  
+  public final static String debug = "debug";
 
   static {
     topics.add(cfg);
@@ -89,10 +89,9 @@ public class Report {
     topics.add(visit);
     topics.add(verbose);
     topics.add(debug);
-
-    should_report.push(verbose);
   }
 
+ 
   /**
    * Return whether a message on <code>topic</code> of obscurity
    * <code>level</code> should be reported, based on use of the
@@ -109,52 +108,48 @@ public class Report {
    * <code>level</code> should be reported, based on use of the
    * -report command-line switches given by the user.
    */
-  public static boolean should_report(String[] topics, int level) {
-      if (noReporting)
-          return false;
-    return should_report(Arrays.asList(topics), level);
-  }
+    public static boolean should_report(Collection<String> topics, int level) {
+        if (noReporting) return false;
+        if (stackedTopics != null) {
+            synchronized (stackedTopics) {
+                for (String topic : stackedTopics) {
+                    if (level(topic) >= level) return true;                }
+            }
+        }
+        if (topics != null) {
+            synchronized (topics) {
+                for (String topic : topics) {
+                    if (level(topic) >= level) return true;
+                }
+            }
+        }
+        return false;
+    }
 
   /**
    * Start reporting messages on <code>topic</code>.
    */
-  public static void start_reporting(String topic) {
-    synchronized (should_report) {
-      should_report.push(topic);
+    public static void start_reporting(String topic) {
+        if (noReporting) return;
+        if (should_report(topic, 1)) {
+            if (stackedTopics == null) stackedTopics = new Stack<String>();
+            synchronized (stackedTopics) {
+                stackedTopics.push(topic);
+            }
+        }
     }
-  }
 
   /**
    * Stop reporting messages on <code>topic</code>.
    */
   public static void stop_reporting(String topic) {
-    synchronized (should_report) {
-      should_report.remove(topic);
+    if (stackedTopics == null)
+          return;
+    synchronized (stackedTopics) {
+      stackedTopics.remove(topic);
     }
   }
 
-  /**
-   * Return whether a message on <code>topics</code> of obscurity
-   * <code>level</code> should be reported, based on use of the
-   * -report command-line switches given by the user.
-   */
-  public static boolean should_report(Collection<String> topics, int level) {
-      if (noReporting)
-          return false;
-    synchronized (should_report) {
-	for (String topic : should_report) {
-	    if (level(topic) >= level) return true;
-	}
-    }
-    if (topics != null) {
-	synchronized (topics) {
-	    for (String topic : topics) {
-	        if (level(topic) >= level) return true;
-	    }
-	}
-    }
-    return false;
-  }
   
   public static void addTopic(String topic, int level) {
       synchronized (reportTopics) {
@@ -181,9 +176,9 @@ public class Report {
 
   public static int level(String name) {
       synchronized (reportTopics) {
-	  Object i = reportTopics.get(name);
-	  if (i == null) return 0;
-	  else return ((Integer)i).intValue();
+          Object i = reportTopics.get(name);
+          if (i == null) return 0;
+          else return ((Integer)i).intValue();
       }
   }
 
