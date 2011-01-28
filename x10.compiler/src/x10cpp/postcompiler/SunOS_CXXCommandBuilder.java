@@ -18,8 +18,8 @@ import polyglot.util.ErrorQueue;
 
 public class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
 
-    SunOS_CXXCommandBuilder(Options options, ErrorQueue eq) {
-        super(options, eq);
+    SunOS_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
+        super(options, x10rt, eq);
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {

@@ -19,8 +19,8 @@ import polyglot.util.ErrorQueue;
 public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
     protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
 
-    Linux_CXXCommandBuilder(Options options, ErrorQueue eq) {
-        super(options, eq);
+    Linux_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
+        super(options, x10rt, eq);
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
@@ -37,9 +37,14 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
 
-        // Support for loading shared libraries from x10.dist/lib
+        for (PrecompiledLibrary pcl:options.x10libs) {
+            cxxCmd.add("-Wl,--rpath");
+            cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib");
+        }
+        
+        // x10rt
         cxxCmd.add("-Wl,--rpath");
-        cxxCmd.add("-Wl,"+X10_DIST+"/lib");
+        cxxCmd.add("-Wl,"+options.distPath()+"/lib");
 
         cxxCmd.add("-Wl,-export-dynamic");
         cxxCmd.add("-lrt");

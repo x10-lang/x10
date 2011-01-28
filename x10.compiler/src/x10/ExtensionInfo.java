@@ -127,6 +127,7 @@ import x10.visit.InstanceInvariantChecker;
 import x10.visit.CheckEscapingThis;
 import x10.visit.AnnotationChecker;
 import x10.visit.ErrChecker;
+import x10cpp.postcompiler.PrecompiledLibrary;
 
 
 /**
@@ -324,33 +325,30 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             TopLevelResolver r = new X10SourceClassResolver(compiler, this, opts.constructFullClasspath(),
                                                             opts.compile_command_line_only,
                                                             opts.ignore_mod_times);
-            // FIXME: [IP] HACK
-            if (opts.x10_config.MANIFEST != null) {
-                try {
-                    FileReader fr = new FileReader(opts.x10_config.MANIFEST);
-                    BufferedReader br = new BufferedReader(fr);
-                    String file = "";
-                    while ((file = br.readLine()) != null)
-                        if (file.endsWith(".x10") || file.endsWith(".jar")) // FIXME: hard-codes the source extension.
-                            manifest.add(file);
-                } catch (IOException e) { }
-            } else {
-                for (File f : opts.source_path) {
-                    if (f.getName().endsWith("x10.jar")) {
-                        try {
-                            JarFile jf = new JarFile(f);
-                            manifest.add("x10.jar");
-                            Enumeration<JarEntry> entries = jf.entries();
-                            while (entries.hasMoreElements()) {
-                                JarEntry je = entries.nextElement();
-                                if (je.getName().endsWith(".x10")) { // FIXME: hard-codes the source extension.
-                                    manifest.add(je.getName());
-                                }
+            
+            for (PrecompiledLibrary pco:opts.x10libs) {
+               manifest.add(pco.sourceJar);
+               manifest.addAll(pco.sourceFiles);
+            }
+            
+            // TODO: Once the java backend also generates a proper lib property,
+            //       we could eliminate this stanza of code because it would be handled by the Library loop above.
+            for (File f : opts.source_path) {
+                if (f.getName().endsWith("x10.jar")) {
+                    try {
+                        JarFile jf = new JarFile(f);
+                        manifest.add("x10.jar");
+                        Enumeration<JarEntry> entries = jf.entries();
+                        while (entries.hasMoreElements()) {
+                            JarEntry je = entries.nextElement();
+                            if (je.getName().endsWith(".x10")) { // FIXME: hard-codes the source extension.
+                                manifest.add(je.getName());
                             }
-                        } catch (IOException e) { }
-                    }
+                        }
+                    } catch (IOException e) { }
                 }
             }
+
             // Resolver to handle lookups of member classes.
             if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
                 MemberClassResolver mcr = new MemberClassResolver(ts, r, true);

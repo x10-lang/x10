@@ -19,8 +19,8 @@ import x10cpp.X10CPPCompilerOptions;
 
 public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
     
-    AIX_CXXCommandBuilder(Options options, ErrorQueue eq) {
-        super(options, eq);
+    AIX_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
+        super(options, x10rt, eq);
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {

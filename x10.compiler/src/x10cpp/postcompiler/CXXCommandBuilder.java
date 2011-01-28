@@ -32,57 +32,33 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.Configuration;
+import x10.X10CompilerOptions;
 import x10cpp.X10CPPCompilerOptions;
 
 public class CXXCommandBuilder {
     
     private static String UNKNOWN = "unknown";
     
-    protected static class PostCompileOptions {
-        public final Properties props;
-        public final Collection<String> cxxFlags;
-        public final Collection<String> libs;
-        public final Collection<String> ldFlags;
-        
-        PostCompileOptions(Properties p) {
-            props = p;
-            cxxFlags = split(p.getProperty("CXXFLAGS"));
-            libs     = split(p.getProperty("LDLIBS"));
-            ldFlags  = split(p.getProperty("LDFLAGS"));
-        }
-
-        protected Collection<String> split(String s) {
-            ArrayList<String> l = new ArrayList<String>();
-            if (s==null) return l;
-            QuotedStringTokenizer q = new QuotedStringTokenizer(s);
-            while (q.hasMoreTokens()) l.add(q.nextToken());
-            return l;
-        }
-    }
-
-    public static final String X10_DIST = System.getenv("X10_DIST");
     public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
 
     protected static final boolean ENABLE_PROFLIB = System.getenv("X10_ENABLE_PROFLIB") != null;
 
-    public static final String MANIFEST = "libx10.mft";
-    public static final String[] MANIFEST_LOCATIONS = new String[] { X10_DIST+"/lib" };
-
-
     protected final X10CPPCompilerOptions options;
     
-    protected final Collection<PostCompileOptions> postCompileOptions = new ArrayList<PostCompileOptions>();
+    protected final PostCompileProperties x10rt;
     
-    protected CXXCommandBuilder(Options options, ErrorQueue eq) {
+    protected CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
         this.options = (X10CPPCompilerOptions) options;
+        this.x10rt = x10rt;
     }
 
     private String cxxCompiler = UNKNOWN;
     protected String defaultPostCompiler() {
-        String pc = null;
         if (cxxCompiler.equals(UNKNOWN)) {
-            for (PostCompileOptions pco: postCompileOptions) {
-                String pc2 = pco.props.getProperty("CXX");
+            String pc = x10rt.props.getProperty("CXX");
+            // Sanity check that x10rt and all the precompiled libraries were built with the same C++ compiler
+            for (PrecompiledLibrary pcl: options.x10libs) {
+                String pc2 = pcl.props.getProperty("CXX");
                 if (pc2 != null) {
                     if (pc != null && !pc2.equals(pc)) {
                         throw new InternalCompilerError("Conflicting postcompilers. Both "+pc+" and "+pc2+" requested");
@@ -97,10 +73,11 @@ public class CXXCommandBuilder {
     
     private String platform = UNKNOWN;
     protected String getPlatform() {
-        String p1 = null;
         if (platform.equals(UNKNOWN)) {
-            for (PostCompileOptions pco: postCompileOptions) {
-                String p2 = pco.props.getProperty("PLATFORM");
+            String p1 = x10rt.props.getProperty("PLATFORM");
+            // Sanity check that x10rt and all the precompiled libraries were built for the same platform
+            for (PrecompiledLibrary pcl: options.x10libs) {
+                String p2 = pcl.props.getProperty("PLATFORM");
                 if (p2 != null) {
                     if (p1 != null && !p2.equals(p1)) {
                         throw new InternalCompilerError("Conflicting platforms. Both "+p1+" and "+p2+" specified");
@@ -126,8 +103,13 @@ public class CXXCommandBuilder {
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         cxxCmd.add("-g");
 
-        // prebuilt XRX
-        cxxCmd.add("-I"+X10_DIST+"/include");
+        // x10rt and other misc header files
+        cxxCmd.add("-I"+options.distPath()+"/include");
+        
+        // header files for all prebuilt-libraries
+        for (PrecompiledLibrary pcl:options.x10libs) {
+            cxxCmd.add("-I"+pcl.absolutePathToRoot+"/include");
+        }
 
         // headers generated from user input
         cxxCmd.add("-I"+options.output_directory);
@@ -163,21 +145,25 @@ public class CXXCommandBuilder {
             cxxCmd.add("-DNO_CHECKS");
         }
 
-        for (PostCompileOptions pco:postCompileOptions) {
-            cxxCmd.addAll(pco.cxxFlags);
+        cxxCmd.addAll(x10rt.cxxFlags);
+        for (PrecompiledLibrary pcl:options.x10libs) {
+            cxxCmd.addAll(pcl.cxxFlags);
         }
     }
 
     /** Add the arguments that go after the output files */
     protected void addPostArgs(ArrayList<String> cxxCmd) {
-        // prebuilt XRX
-        cxxCmd.add("-L"+X10_DIST+"/lib");
-        cxxCmd.add("-lx10");
-
-        for (PostCompileOptions pco:postCompileOptions) {
-            cxxCmd.addAll(pco.ldFlags);
-            cxxCmd.addAll(pco.libs);
+        
+        for (PrecompiledLibrary pcl:options.x10libs) {
+            cxxCmd.add("-L"+pcl.absolutePathToRoot+"/lib");
+            cxxCmd.addAll(pcl.ldFlags);
+            cxxCmd.addAll(pcl.libs);
         }
+            
+        // x10rt
+        cxxCmd.add("-L"+options.distPath()+"/lib");
+        cxxCmd.addAll(x10rt.ldFlags);
+        cxxCmd.addAll(x10rt.libs);
 
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");
@@ -234,25 +220,14 @@ public class CXXCommandBuilder {
             addExecutablePath(cxxCmd);
         }
 
+        // TODO: do we really need this excludes logic here?
+        //       seems like putting the source file in the manifest 
+        //       would have been enough to squash the job from generating
+        //       the file in the first place
         Set<String> exclude = CollectionFactory.newHashSet();
-        try {
-            String manifest = options.x10_config.MANIFEST;
-            if (manifest == null) {
-                for (int i = 0; i < MANIFEST_LOCATIONS.length; i++) {
-                    File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+MANIFEST);
-                    if (!x10lang_m.exists())
-                        continue;
-                    manifest = x10lang_m.getPath();
-                }
-            }
-            if (manifest != null) {
-                FileReader fr = new FileReader(manifest);
-                BufferedReader br = new BufferedReader(fr);
-                String file = "";
-                while ((file = br.readLine()) != null)
-                    exclude.add(file);
-            }
-        } catch (IOException e) { }
+        for (PrecompiledLibrary pco:options.x10libs) {
+            exclude.addAll(pco.generatedFiles);
+        }
 
         Iterator<String> iter = outputFiles.iterator();
         for (; iter.hasNext(); ) {
@@ -303,9 +278,13 @@ public class CXXCommandBuilder {
      * @param eq
      * @return
      */
-    public static CXXCommandBuilder getCXXCommandBuilder(Options options, ErrorQueue eq) {
+    public static CXXCommandBuilder getCXXCommandBuilder(X10CompilerOptions options, ErrorQueue eq) {
+        // TODO: get options.distPath external to this method
+        String dp = System.getProperty("x10.dist");
+        options.setDistPath(dp);
+        
+        // TODO: get properties file external to this method and pass it as an argument
         String platform = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
-
         String rtimpl = System.getenv("X10RT_IMPL");
         if (rtimpl == null) {
             // assume pgas (default to old behavior)
@@ -317,34 +296,30 @@ public class CXXCommandBuilder {
         }
         // allow the user to give an explicit path, otherwise look in etc
         if (!rtimpl.endsWith(".properties")) {
-            rtimpl = X10_DIST + "/etc/x10rt_"+rtimpl+".properties";
+            rtimpl = dp + "/etc/x10rt_"+rtimpl+".properties";
         }
-        
         Properties x10rt = loadPropertyFile(rtimpl);
-        Properties stdlib = loadPropertyFile(X10_DIST + "/etc/libx10.properties");
+        PostCompileProperties x10rt_props = new PostCompileProperties(x10rt);  
         
         CXXCommandBuilder ccb;
         
         if (platform.startsWith("win32_")) {
-            ccb = new Cygwin_CXXCommandBuilder(options, eq);
+            ccb = new Cygwin_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("linux_")) {
-            ccb = new Linux_CXXCommandBuilder(options, eq);
+            ccb = new Linux_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("aix_")) {
-            ccb =  new AIX_CXXCommandBuilder(options, eq);
+            ccb =  new AIX_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("sunos_")) {
-            ccb =  new SunOS_CXXCommandBuilder(options, eq);
+            ccb =  new SunOS_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("macosx_")) {
-            ccb = new MacOSX_CXXCommandBuilder(options, eq);
+            ccb = new MacOSX_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("freebsd_")) {
-            ccb =  new FreeBSD_CXXCommandBuilder(options, eq);
+            ccb =  new FreeBSD_CXXCommandBuilder(options, x10rt_props, eq);
         } else {   
             eq.enqueue(ErrorInfo.WARNING,
                        "Unknown platform '"+platform+"'; using the default post-compiler (g++)");
-            ccb = new CXXCommandBuilder(options, eq);
+            ccb = new CXXCommandBuilder(options, x10rt_props, eq);
         }
-        
-        ccb.postCompileOptions.add(new PostCompileOptions(x10rt));
-        ccb.postCompileOptions.add(new PostCompileOptions(stdlib));
         
         return ccb;
     }

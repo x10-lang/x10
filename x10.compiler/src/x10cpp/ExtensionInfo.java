@@ -51,6 +51,7 @@ import x10.visit.X10InnerClassRemover;
 import x10cpp.ast.X10CPPDelFactory_c;
 import x10cpp.ast.X10CPPExtFactory_c;
 import x10cpp.postcompiler.CXXCommandBuilder;
+import x10cpp.postcompiler.PrecompiledLibrary;
 import x10cpp.types.X10CPPSourceClassResolver;
 import x10cpp.types.X10CPPTypeSystem_c;
 import x10cpp.visit.X10CPPTranslator;
@@ -84,28 +85,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         X10CPPCompilerOptions opts = (X10CPPCompilerOptions) getOptions();
         // Inline from superclass, replacing SourceClassResolver
         try {
-            if (opts.x10_config.MANIFEST == null) {
-                String[] MANIFEST_LOCATIONS = CXXCommandBuilder.MANIFEST_LOCATIONS;
-                for (int i = 0; i < MANIFEST_LOCATIONS.length; i++) {
-                    File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+CXXCommandBuilder.MANIFEST);
-                    if (!x10lang_m.exists())
-                        continue;
-                    opts.x10_config.MANIFEST = x10lang_m.getPath();
-                }
-            }
-            // FIXME: [IP] HACK
-            if (Report.should_report("manifest", 1))
-                Report.report(1, "Manifest is "+opts.x10_config.MANIFEST);
-            if (opts.x10_config.MANIFEST != null) {
-                try {
-                    FileReader fr = new FileReader(opts.x10_config.MANIFEST);
-                    BufferedReader br = new BufferedReader(fr);
-                    String file = "";
-                    while ((file = br.readLine()) != null)
-                        if (file.endsWith(".x10") || file.endsWith(".jar")) // FIXME: hard-codes the source extension.
-                            manifest.add(file);
-                } catch (IOException e) { }
-            }
+            for (PrecompiledLibrary pco:opts.x10libs) {
+                manifest.add(pco.sourceJar);
+                manifest.addAll(pco.sourceFiles);
+             }
+
             TopLevelResolver r =
                 new X10CPPSourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
                                               getOptions().compile_command_line_only,

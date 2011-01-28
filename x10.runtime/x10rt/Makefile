@@ -47,9 +47,10 @@ endif
 MOV_LDLIBS := -lpthread
 MOV_LDFLAGS :=
 APP_LDLIBS := $(LDLIBS) 
-APP_LDFLAGS := -L"$(X10_HOME)"/x10.runtime/x10rt/lib $(LDFLAGS) 
+APP_LDFLAGS := $(LDFLAGS) 
 SO_LDLIBS := 
 SO_LDFLAGS = $(LDFLAGS_SHARED)
+X10RT_TEST_LDFLAGS := -L"$(X10_HOME)"/x10.runtime/x10rt/lib
 
 # avoid a lot of repetition in the */*.mk scripts
 ifeq ($(X10RT_PLATFORM),aix_xlc)

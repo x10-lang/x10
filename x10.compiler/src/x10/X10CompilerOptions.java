@@ -11,18 +11,36 @@
 
 package x10;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
+import polyglot.util.InternalCompilerError;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
+import x10cpp.postcompiler.PrecompiledLibrary;
 
 public class X10CompilerOptions extends polyglot.main.Options {
     
     public String executable_path = null;
     public Configuration x10_config;
+    
+    /**
+     * Absolute path to the X10 distribution
+     */
+    private String distPath;
+    public void setDistPath(String dp) { distPath = dp; }
+    public String distPath() { return distPath; }
+    
+    public final List<PrecompiledLibrary> x10libs = new ArrayList<PrecompiledLibrary>();
     
 	public X10CompilerOptions(ExtensionInfo extension) {
 		super(extension);
@@ -46,6 +64,23 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		    ++i;
 		    executable_path = args[i];
 		    return ++i;
+		}
+		
+		if (args[i].equals("-x10lib")) {
+		    ++i;
+		    String libFile = args[i];
+	        try {
+	            Properties properties = new Properties();
+	            File f = new File(libFile);
+	            properties.load(new FileInputStream(f));
+	            PrecompiledLibrary libObj = new PrecompiledLibrary(f.getParentFile().getAbsolutePath(), properties);
+	            x10libs.add(libObj);
+	        } catch(IOException e) {
+	            UsageError ue = new UsageError("Unable to load x10library file "+libFile+" "+ e.getMessage());
+	            ue.initCause(e);
+	            throw ue;
+	        }
+	        return ++i;
 		}
 
 		try {
@@ -75,6 +110,8 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		super.usage(out);
 		usageForFlag(out, "-noassert", "turn off assertion generation");
 		usageForFlag(out, "-o <path>", "set generated executable path (for the post-compiler)");
+		usageForFlag(out, "-x10lib <lib.properties>", "use the precompiled x10 library described by <lib.properties>");
+
 		String[][] options = x10_config.options();
 		for (int i = 0; i < options.length; i++) {
 			String[] optinfo = options[i];

@@ -19,8 +19,8 @@ import x10cpp.X10CPPCompilerOptions;
 
 public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
 
-    MacOSX_CXXCommandBuilder(Options options, ErrorQueue eq) {
-        super(options,eq);
+    MacOSX_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
+        super(options, x10rt, eq);
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
@@ -32,10 +32,15 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
 
-        // Support for loading shared libraries from x10.dist/lib
+        for (PrecompiledLibrary pcl:options.x10libs) {
+            cxxCmd.add("-Wl,-rpath");
+            cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib");
+        }
+        
+        // x10rt
         cxxCmd.add("-Wl,-rpath");
-        cxxCmd.add("-Wl,"+X10_DIST+"/lib");
+        cxxCmd.add("-Wl,"+options.distPath()+"/lib");
         cxxCmd.add("-Wl,-rpath");
-        cxxCmd.add("-Wl,"+X10_DIST+""); // some libs end up with a "lib/" relative path
+        cxxCmd.add("-Wl,"+options.distPath()); // some libs end up with a "lib/" relative path
     }
 }

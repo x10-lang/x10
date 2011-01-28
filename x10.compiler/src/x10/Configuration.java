@@ -85,9 +85,6 @@ public final class Configuration extends x10.config.Configuration {
     public String PLUGIN_COMPILER = "";
     private static final String PLUGIN_COMPILER_desc = "Javac-like compiler to use to compile plugins";
 
-    public String MANIFEST = null;
-    private static final String MANIFEST_desc = "The path to the pre-built library manifest file";
-
     public boolean WORK_STEALING = false;
     private static final String WORK_STEALING_desc = "Code generation for work-stealing scheduling";
 

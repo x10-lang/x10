@@ -18,8 +18,8 @@ import polyglot.util.ErrorQueue;
 
 public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
 
-    Cygwin_CXXCommandBuilder(Options options, ErrorQueue eq) {
-        super(options, eq);
+    Cygwin_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
+        super(options, x10rt, eq);
     }
 
     protected String defaultPostCompiler() {

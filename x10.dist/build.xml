@@ -8,6 +8,7 @@
     <property name="etc" location="${basedir}/etc"/>
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
+    <property name="stdlib" location="${basedir}/stdlib"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime.java_2.0.20.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
@@ -45,6 +46,7 @@
         <mkdir dir="${etc}" />
         <mkdir dir="${incdir}" />
         <mkdir dir="${lib}" />
+        <mkdir dir="${stdlib}" />
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
         </condition>
@@ -85,6 +87,8 @@
     <target name="clean-java" depends="clean">
         <delete dir="${etc}" failonerror="false"/>
         <mkdir dir="${etc}" />
+        <delete dir="${stdlib}" failonerror="false"/>
+        <mkdir dir="${stdlib}" />
         <mkdir dir="${lib}" />
         <delete> <!-- TODO: download jars elsewhere and copy -->
             <fileset dir="${lib}">
@@ -113,13 +117,8 @@
                 <include name="*.dylib"/>
                 <include name="*.jnilib"/>
                 <include name="*.dll"/>
-                <include name="*.mft"/>
             </fileset>
         </delete>
-        <!-- TODO: remove generated libs, but not downloaded ones
-        <delete dir="${lib}" failonerror="false"/>
-        <mkdir dir="${lib}" />
-        -->
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
@@ -642,7 +641,7 @@ WALA4_URL='${wala4.jar.url}'
         <tar destfile="${src.tar.location}/x10-${src.tar.version}.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <tarfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
             <tarfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <tarfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
@@ -686,7 +685,7 @@ WALA4_URL='${wala4.jar.url}'
     	<property name="targetDir" value="../x10.dist.${platform}.${arch}.fragment"/>
     	<echo message="Copying include and lib files to ${targetDir}..."/>
         <copy todir="${targetDir}">
-            <fileset dir="." includes="include/**,lib/**"/>
+            <fileset dir="." includes="include/**,lib/**,stdlib/**"/>
         </copy>
     </target>
 
