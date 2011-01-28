@@ -32,7 +32,7 @@ INSTDIR = $(DISTDIR)/stdlib
 
 XRX_ARCHIVE = $(LIBPREFIX)x10$(LIBSUFFIX)
 ifeq ($(X10RT_PLATFORM),cygwin)
-  XRX_DEP_LIBS = -L"$(DISTDIR)"/lib -lx10rt_$(DEFAULT_X10RT_LIB)
+  XRX_DEP_LIBS = -L"$(DISTDIR)"/lib -L"$(INSTDIR)"/lib -lx10rt_$(DEFAULT_X10RT_LIB)
   ifdef ENABLE_GC
     override XRX_DEP_LIBS += -lgc
   endif
