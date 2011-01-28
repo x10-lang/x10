@@ -15,6 +15,8 @@
     <property name="jar" value="x10.jar"/>
     <property name="math.jar" value="${lib}/commons-math-2.1.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
+    <property name="bdwgc.tar" value="bdwgc-7.1.tar.gz"/>
+    <property name="bdwgc.url" value="http://dist.codehaus.org/x10/dependencies/${bdwgc.tar}"/>
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
     <property name="optimize" value="false" />
@@ -504,13 +506,13 @@
 
     <target name="download-bdwgc" depends="check-bdwgc" unless="bdwgc.skip.download">
         <sequential>
-            <cvs cvsRoot=":pserver:anonymous@bdwgc.cvs.sourceforge.net:/cvsroot/bdwgc"
-                 package="bdwgc"
-                 tag="gc7_1"
-                 dest="${bdwgc.dir}"
-                 failonerror="true"
-             />
-            <move file="${bdwgc.dir}/bdwgc" tofile="${bdwgc.dir}/src" />
+            <mkdir dir="${bdwgc.dir}/src" />
+            <get usetimestamp="true" src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
+            <!-- Can't use the untar rule in ant because it bungles symbolic links. Sigh -->
+            <exec executable="tar" dir="${bdwgc.dir}/src">
+                <arg value="xzf" />
+                <arg value="${bdwgc.dir}/${bdwgc.tar}" />
+            </exec>
             <if>
               <conditions>
                 <os family="unix" name="aix"/>
