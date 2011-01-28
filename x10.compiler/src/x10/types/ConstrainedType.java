@@ -69,7 +69,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 
 		private static final long serialVersionUID = -3797674072640450629L;
 
-		private Ref<CConstraint> constraint;
+		private Ref<CConstraint> constraint; // yoav todo: what about type constraints? We should keep the original expression as well so we will have accurate position info. 
 		private Ref<? extends Type> baseType;
 
 		public ConstrainedType(TypeSystem ts, Position pos, 

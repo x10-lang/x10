@@ -1434,7 +1434,7 @@ public class Synthesizer {
             final XVar receiver = field.receiver();
             res.addAll(getLocals(receiver));
 
-            if (receiver instanceof XLocal && ((XLocal)receiver).name.toString().endsWith("#this")) { // only if the receiver is "this"
+            if (receiver instanceof CThis) { // only if the receiver is "this"
                 final XName xName = field.field;
                 if (xName instanceof XNameWrapper) {
                     XNameWrapper wrapper = (XNameWrapper) xName;

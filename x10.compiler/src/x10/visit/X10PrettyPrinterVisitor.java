@@ -267,11 +267,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            "Unhandled node type: "+n.getClass(), n.position());
 	        return;
 	    }
-	    
-	    System.err.println(n.position() + ": Unhandled node type: " + n.getClass());
-	    // FIXME
-//    	    tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-// 	        "Unhandled node type: "+n.getClass(), n.position());
+
+        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+ 	        "Unhandled node type: "+n.getClass(), n.position());
 
 	    // Don't call through del; that would be recursive.
 	    n.translate(w, tr);

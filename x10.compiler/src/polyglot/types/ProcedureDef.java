@@ -49,7 +49,7 @@ public interface ProcedureDef extends CodeDef, X10CodeDef, X10MemberDef
     boolean inferReturnType();
     void inferReturnType(boolean r);
 
-    Ref<CConstraint> guard();
+    Ref<CConstraint> guard(); // yoav todo: I think the guard should be kept as a DepParameterExpr (and not as a CContstraint). see e.g., Desugarer.desugarCall that converts a constraint to an expression.
     void setGuard(Ref<CConstraint> s);
 
     Ref<TypeConstraint> typeGuard();

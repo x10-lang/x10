@@ -175,9 +175,7 @@ public class RunTestSuite {
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
     };
     private static final String[] EXCLUDE_FILES = {
-            "FrontEndTests_MustFailCompile.x10",
-            
-            // difference on MAC and PC (on PC the compiler crashes, on MAC it outputs this error: Semantic Error: Type definition type static TypedefOverloading06_MustFailCompile.A = x10.lang.String has the same name as member class TypedefOverloading06_MustFailCompile.A.
+            // difference on MAC and PC (on PC the compiler crashes on AssertionError, on MAC it outputs this error: Semantic Error: Type definition type static TypedefOverloading06_MustFailCompile.A = x10.lang.String has the same name as member class TypedefOverloading06_MustFailCompile.A.
             "TypedefOverloading04_MustFailCompile.x10",
             "TypedefOverloading06_MustFailCompile.x10",
             "TypedefOverloading08_MustFailCompile.x10",

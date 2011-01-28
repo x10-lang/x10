@@ -81,6 +81,12 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
         if (ts.typeEquals(t1, t2, context))
             return type(t1);
 
+        // def m(b:Boolean, x:Object{self!=null}, y:Object{self!=null}):Object{self!=null} {
+        //    val z:Object{self!=null} = b ? x : y; // should be ok, but the following test will return their baseType which is Object.
+        //Semantic Error: Cannot assign expression to target.
+        //     Expression: b ? x : y
+        //     Expected type: x10.lang.Object{self!=null}
+        //     Found type: x10.lang.Object        
         if (ts.typeBaseEquals(t1, t2, context)) {
             return type(Types.baseType(t1));
         }
