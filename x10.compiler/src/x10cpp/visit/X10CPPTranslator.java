@@ -509,7 +509,7 @@ public class X10CPPTranslator extends Translator {
 			    }
 			    assert (mainMethods.size() == 1);
 			    X10ClassType container = (X10ClassType) Types.get(mainMethods.get(0).container());
-			    MessagePassingCodeGenerator.processMain(container, sw);
+			    MessagePassingCodeGenerator.processMain(container, sw, options);
 			    sw.flush();
 			    sw.close();
 			    compilationUnits.add(file.getName());

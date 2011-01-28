@@ -1673,7 +1673,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-    public static void processMain(X10ClassType container, CodeWriter sw) {
+    public static void processMain(X10ClassType container, CodeWriter sw, X10CPPCompilerOptions options) {
         TypeSystem xts = container.typeSystem();
         if (container.isClass())
             container = getStaticMemberContainer(container.x10Def());
@@ -1681,15 +1681,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 Emitter.structMethodClass(container, true, true) :
                     Emitter.translateType(container);
         sw.write("#include <"+MessagePassingCodeGenerator.getHeader(container)+">"); sw.newline();
-        Emitter.dumpString(createMainStub(typeString), sw);
+        Emitter.dumpString(createMainStub(typeString, options), sw);
         sw.newline(0);
     }
 
-	public static String createMainStub(String container) {
+	public static String createMainStub(String container, X10CPPCompilerOptions options) {
 		StringBuilder sb = new StringBuilder();
         sb.append("#include <x10/lang/Runtime.h>\n");
         sb.append("#include <x10aux/bootstrap.h>\n");
 		String mainTypeArgs = "x10::lang::Runtime," + container;
+		if (options.x10_config.DEBUG)
+			sb.append("void __x10MainRef"+container+"() {};\n");
         sb.append("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
         return sb.toString();
 	}
