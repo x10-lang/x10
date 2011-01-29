@@ -3555,7 +3555,7 @@ class TreeUsingFieldNotProperty { this.left==null } { // ShouldBeErr
 }
 class XTENLANG_1149 {
     def m(b:Boolean, x:Object{self!=null}, y:Object{self!=null}):Object{self!=null} {
-        @ShouldNotBeERR val z:Object{self!=null} = b ? x : y;
+        val z:Object{self!=null} = b ? x : y;
         @ERR val z2:Object{self==null} = b ? x : y;
         return z;
     }
@@ -3567,10 +3567,10 @@ class XTENLANG_1149_2 {
 		val b1 = new B();
 		val b2 = new B();
 		@ERR val c0:B{self==null} = f ? b1 : b2;
-		@ShouldNotBeERR val c1:B{self!=null} = f ? b1 : b2;
+		val c1:B{self!=null} = f ? b1 : b2;
 		val c2:B = f ? b1 : b2;
-		@ShouldNotBeERR val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;
-		@ShouldNotBeERR val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});
+		val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;
+		val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});
 		val c5:B{self!=null} = f ? b1 : b1;
 		@ERR val c6:B{self==null} = f ? b1 : b1;
 
