@@ -37,9 +37,7 @@ import x10cpp.X10CPPCompilerOptions;
 
 public class CXXCommandBuilder {
     
-    private static String UNKNOWN = "unknown";
-    
-    protected static final boolean ENABLE_PROFLIB = System.getenv("X10_ENABLE_PROFLIB") != null;
+    private static final String UNKNOWN = "unknown";
 
     protected final X10CPPCompilerOptions options;
     
@@ -143,11 +141,17 @@ public class CXXCommandBuilder {
         if (options.x10_config.NO_CHECKS) {
             cxxCmd.add("-DNO_CHECKS");
         }
+        
+        if (options.pg) {
+            cxxCmd.add("-pg");
+        }
 
         cxxCmd.addAll(x10rt.cxxFlags);
         for (PrecompiledLibrary pcl:options.x10libs) {
             cxxCmd.addAll(pcl.cxxFlags);
         }
+        
+        cxxCmd.addAll(options.extraPreArgs);
     }
 
     /** 
@@ -174,9 +178,11 @@ public class CXXCommandBuilder {
         cxxCmd.add("-lm");
         cxxCmd.add("-lpthread");
 
-        if (ENABLE_PROFLIB) {
+        if (options.gpt) {
             cxxCmd.add("-lprofiler");
         }
+        
+        cxxCmd.addAll(options.extraPostArgs);
     }
 
     /**

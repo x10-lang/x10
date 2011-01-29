@@ -17,8 +17,6 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 
 public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
-    protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
-
     Linux_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
         super(options, x10rt, eq);
     }
@@ -48,7 +46,7 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
 
         cxxCmd.add("-Wl,-export-dynamic");
         cxxCmd.add("-lrt");
-        if (USE_BFD) {
+        if (options.use_bfd) {
             cxxCmd.add("-lbfd");
             cxxCmd.add("-liberty");
         }

@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
+
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
@@ -30,6 +32,26 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 
     public final Configuration x10cpp_config;
     
+    /**
+     * Enable gprof-style profiling by passing -pg to the 
+     * post compiler & linker.
+     */
+    public boolean pg = false;
+    
+    /**
+     * Enable profiling with google performance tools
+     */
+    public boolean gpt = false;
+    
+    /**
+     * Link in bfd library (GNU Binary File Descriptior Library) to 
+     * enable more detailed stack trace printing
+     */
+    public boolean use_bfd = false;
+
+    public final List<String> extraPreArgs = new ArrayList<String>();
+    public final List<String> extraPostArgs = new ArrayList<String>();
+    
     public X10CPPCompilerOptions(ExtensionInfo extension) {
         super(extension);
         x10cpp_config = new Configuration();
@@ -41,6 +63,31 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
         int i = super.parseCommand(args, index, source);
         if (i != index) return i;
         
+        if (args[i].equals("-pg")) {
+            pg = true;
+            return ++i;
+        }
+        
+        if (args[i].equals("-gpt")) {
+            gpt = true;
+            return ++i;
+        }
+
+        if (args[i].equals("-use-bfd")) {
+            use_bfd = true;
+            return ++i;
+        }
+
+        if (args[i].equals("-cxx-prearg")) {
+            extraPreArgs.add(args[++i]);
+            return ++i;
+        }
+ 
+        if (args[i].equals("-cxx-postarg")) {
+            extraPostArgs.add(args[++i]);
+            return ++i;
+        }
+
         // FIXME: [IP] allow overriding super's option processing
         try {
             x10cpp_config.parseArgument(args[index]);
@@ -56,6 +103,13 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 	 */
 	public void usage(PrintStream out) {
 		super.usage(out);
+		
+        usageForFlag(out, "-pg", "generate code with additional instrumentation to write profile data in gprof format");
+        usageForFlag(out, "-gpt", "link the google perftools library to the generated executable");
+        usageForFlag(out, "-use-bfd", "link the GNU BFD library to the generated executable to enable more detailed stack traces");
+        usageForFlag(out, "-cxx-prearg <arg>", "Add <arg> to the C++ compilation command line before the list of files");
+        usageForFlag(out, "-cxx-postarg <arg>", "Add <arg> to the C++ compilation command line after the list of files");
+
 		String[][] options = x10cpp_config.options();
 		for (int i = 0; i < options.length; i++) {
 			String[] optinfo = options[i];
