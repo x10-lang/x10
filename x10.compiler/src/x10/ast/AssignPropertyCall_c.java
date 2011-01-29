@@ -239,6 +239,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
                     // Add in the real clause of the initializer with [self.prop/self]
                     CConstraint c = Types.realX(initType);
+                    if (! c.consistent()) {
+                        Errors.issue(tc.job(), 
+                                     new Errors.InconsistentContext(initType, pos));
+                    }
                     if (c != null)
                         known.addIn(c.substitute(prop, c.self()));
 
@@ -249,6 +253,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
                 // Set the return type of the enclosing constructor to be this inferred type.
                 Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
+                if (! Types.consistent(inferredResultType)) {
+                    Errors.issue(tc.job(), 
+                                 new Errors.InconsistentType(inferredResultType, pos));
+                }
                 Ref <? extends Type> r = thisConstructor.returnType();
                 ((Ref<Type>) r).update(inferredResultType);
                 // bind this==self; sup clause may constrain this.

@@ -778,12 +778,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (local_self==null) return null;
 		if (local_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+local_self.toString();
 		// resolve to another variable, keep going
-		CConstraint projected;
-		try {
-			projected = context().constraintProjection(cc);
-		} catch (XFailure e) {
+		CConstraint projected= context().constraintProjection(cc);
+		if (! projected.consistent())
 			return null;
-		}
+		
 		XVar closed_self = projected.bindingForVar(local_self);
 		if (closed_self==null) return null;
 		if (closed_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+closed_self.toString();

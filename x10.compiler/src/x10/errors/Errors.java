@@ -768,4 +768,17 @@ public class Errors {
 			super("Class " + ct + " is not accessible.", p);
 		}
 	}
+	public static class InconsistentContext extends EqualByTypeAndPosException {
+	    public InconsistentContext(Type ct, Position p) {
+	        super("Context for type " + ct + " is inconsistent.", p);
+	    }
+	    public InconsistentContext(CConstraint c, Position p) {
+	        super("Context becomes inconsistent when " + c + " is added.", p);
+	    }
+	}
+	public static class InconsistentType extends EqualByTypeAndPosException {
+        public InconsistentType(Type t, Position p) {
+            super("The type " + t + " is inconsistent.", p);
+        }
+    }
 }

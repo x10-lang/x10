@@ -135,27 +135,33 @@ public class Types {
 	        return Types.xclause(Types.baseType(t), c); 
 	}
 
+	/**
+	 * Add t1 != t2 to the type t.
+	 * The type returned may be inconsistent.
+	 * @param t
+	 * @param t1
+	 * @param t2
+	 * @return
+	 */
 	public static Type addDisBinding(Type t, XTerm t1, XTerm t2) {
 	 	assert (! (t instanceof UnknownType));
-	    try {
-	        CConstraint c = Types.xclause(t);
-	        c = c == null ? new CConstraint() :c.copy();
-	        c.addDisBinding(t1, t2);
-	        return Types.xclause(Types.baseType(t), c);
-	    }
-	    catch (XFailure f) {
-	        throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
-	    }
+	 	CConstraint c = Types.xclause(t);
+	 	c = c == null ? new CConstraint() :c.copy();
+	 	c.addDisBinding(t1, t2);
+	 	return Types.xclause(Types.baseType(t), c);
 	}
 
+	/**
+     * Add c to t. Note: The type returned may have an inconsistent
+     * constraint.
+     * @param t
+     * @param t1
+     * @param t2
+     * @return
+     */
 	public static Type addConstraint(Type t, CConstraint xc) {
-	    try {
-	        CConstraint c = Types.tryAddingConstraint(t, xc);
-	        return Types.xclause(Types.baseType(t), c);
-	    }
-	    catch (XFailure f) {
-	        throw new InternalCompilerError("X10TypeMixin: Cannot add " + xc + "to " + t + ".", f);
-	    }
+	    CConstraint c = Types.tryAddingConstraint(t, xc);
+	    return Types.xclause(Types.baseType(t), c);
 	}
 
 	public static Type addTerm(Type t, XTerm term) {
@@ -233,9 +239,19 @@ public class Types {
 	}
 
 	public static boolean consistent(Type t) {
-	    CConstraint c = Types.xclause(t);
-	    if (c == null) return true;
-	    return c.consistent();
+	    if (t instanceof MacroType) {
+	        MacroType mt = (MacroType) t;
+	        return consistent(mt.definedType());
+	    }
+	    if (t instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) t;
+	        return ct.xclause().consistent();
+	    }
+	    if (t instanceof X10ParsedClassType) {
+	        X10ParsedClassType ct = (X10ParsedClassType) t;
+	        return ct.getXClause().consistent();
+	    }
+	    return true; // clause is null.
 	}
 
 	public static boolean eitherIsDependent(Type t1, Type t2) {
@@ -356,13 +372,9 @@ public class Types {
 	}
 
 	public static boolean areConsistent(Type t1, Type t2) {
-		try {
-			if ( Types.isConstrained(t1) &&  Types.isConstrained(t2))
-				Types.tryAddingConstraint(t1, Types.xclause(t2));
-			return true;
-		} catch (XFailure z) {
-			return false;
-		}
+	    if ( Types.isConstrained(t1) &&  Types.isConstrained(t2))
+	        return Types.tryAddingConstraint(t1, Types.xclause(t2)).consistent();
+		return true;
 	}
 
 
@@ -779,9 +791,8 @@ public class Types {
 	        XVar selfSize = ts.xtypeTranslator().translate(c.self(), sizeField);
 	        XLit sizeLiteral = XTypeTranslator.translate(size);
 	        c.addBinding(selfSize, sizeLiteral);
-	        return Types.xclause(t, c);
-	    } catch (XFailure z) {
-	        throw new InternalCompilerError("Could not create Array[T]{self.rail==true,self.size==size}");
+	        Type result = Types.xclause(t, c);
+	        return result;
 	    } catch (InternalCompilerError z) {
 	        throw new InternalCompilerError("Could not create Array[T]{self.rail==true,self.size==size}");
 	    }
@@ -795,8 +806,7 @@ public class Types {
 	 */
 	public static Type makeArrayRailOf(Type type, Position pos) {
 	    TypeSystem ts = type.typeSystem();
-	    X10ClassType r = ts.Array();
-	    X10ClassType t = instantiate(r, type);
+	    X10ClassType t = ts.Array(type);
 	    CConstraint c = new CConstraint();
 	    FieldInstance regionField = t.fieldNamed(Name.make("region"));
 	    if (regionField == null)
@@ -813,21 +823,20 @@ public class Types {
 	    FieldInstance railField = t.fieldNamed(Name.make("rail"));
 	    if (railField == null)
 	        throw new InternalCompilerError("Could not find rail field of " + t, pos);
-	    try {
-	        XVar selfRank = ts.xtypeTranslator().translate(c.self(), rankField);
-	        XVar selfRect = ts.xtypeTranslator().translate(c.self(), rectField);
-	        XVar selfZeroBased = ts.xtypeTranslator().translate(c.self(), zeroBasedField);
-	        XVar selfRail = ts.xtypeTranslator().translate(c.self(), railField);
-	
-	        XLit rankLiteral = XTerms.makeLit(1);
-	        c.addBinding(selfRank, rankLiteral);
-	        c.addBinding(selfRect, XTerms.TRUE);
-	        c.addBinding(selfZeroBased, XTerms.TRUE);
-	        c.addBinding(selfRail, XTerms.TRUE);
-	        return Types.xclause(t, c);
-	    } catch (XFailure z) {
-	        throw new InternalCompilerError("Could not create Array[T]{self.rank==1,self.rect==true,self.zeroBased==true,self.rail==true}");
-	    }
+
+	    XTypeTranslator xt = ts.xtypeTranslator();
+	    XVar self = c.self();
+	    XVar selfRank = xt.translate(self, rankField);
+	    XVar selfRect = xt.translate(self, rectField);
+	    XVar selfZeroBased = xt.translate(self, zeroBasedField);
+	    XVar selfRail = xt.translate(self, railField);
+
+	    XLit rankLiteral = XTerms.makeLit(1);
+	    c.addBinding(selfRank, rankLiteral);
+	    c.addBinding(selfRect, XTerms.TRUE);
+	    c.addBinding(selfZeroBased, XTerms.TRUE);
+	    c.addBinding(selfRail, XTerms.TRUE);
+	    return Types.xclause(t, c); 
 	}
 
 	public static TypeConstraint parameterBounds(Type t) {
@@ -861,12 +870,14 @@ public class Types {
 	}
 
 	/**
-	 * Returns the real constraint for the type t -- the specified constraint (if any), and
-	 * the root clause associated with the base type. 
-	 * If t has a constraint clause (is a ConstrainedType) then the returned constraint will have the same 
-	 * self var as t's clause.
-	 * @param t
-	 * @return
+	 * Returns the real constraint for the type t -- the specified constraint 
+	 * (if any), and the root clause of the base type. 
+	 * 
+	 * <p>If t has a constraint clause (is a ConstrainedType) 
+	 * then the returned constraint will have the same 
+	 * self var as t's clause. 
+	 * @param t - the type whose real clause is needed
+	 * @return -- always a non-null constraint. May be inconsistent.
 	 */
 	public static CConstraint realX(Type t) {
 	if (t instanceof ParameterType) {
@@ -884,14 +895,8 @@ public class Types {
 		    MacroType mt = (MacroType) t;
 		    CConstraint c = realX(mt.definedType());
 		    CConstraint w = mt.guard();
-		    if (w != null) {
-			c = c.copy();
-			try {
-			    c.addIn(w);
-			}
-			catch (XFailure e) {
-			    c.setInconsistent();
-			}
+		    if (w != null && ! w.valid()) {
+               c = c.copy().addIn(w); // c may have become inconsistent.
 		    }
 		    return c;
 		}
@@ -940,10 +945,6 @@ public class Types {
 	}
 
 	public static void setInconsistent(Type t) {
-		/*if (t instanceof AnnotatedType) {
-			AnnotatedType at = (AnnotatedType) t;
-			setInconsistent(at.baseType());
-		}*/
 		if (t instanceof MacroType) {
 			MacroType mt = (MacroType) t;
 			setInconsistent(mt.definedType());
@@ -1482,7 +1483,7 @@ public class Types {
 		return ((ClassType) t).superClass();
 	}
 
-	public static CConstraint tryAddingConstraint(Type t, CConstraint xc) throws XFailure {
+	public static CConstraint tryAddingConstraint(Type t, CConstraint xc)  {
 		 CConstraint c = Types.xclause(t);
 	     c = c == null ? new CConstraint() :c.copy();
 	     c.addIn(xc);
@@ -1531,10 +1532,6 @@ public class Types {
 	 * @return
 	 */
 	public static CConstraint xclause(Type t) {
-	        /*if (t instanceof AnnotatedType) {
-	            AnnotatedType at = (AnnotatedType) t;
-	            return xclause(at.baseType());
-	        }*/
 	        if (t instanceof MacroType) {
 	                MacroType mt = (MacroType) t;
 	                return xclause(mt.definedType());
@@ -1549,6 +1546,8 @@ public class Types {
 		}
 		return null;
 	}
+	
+
 
 	public static Type xclause(Type t, CConstraint c) {
 		if (t == null)

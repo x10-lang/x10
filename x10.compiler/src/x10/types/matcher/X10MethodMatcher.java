@@ -55,7 +55,7 @@ public class X10MethodMatcher extends TypeSystem_c.MethodMatcher {
             MethodInstance xmi = (MethodInstance) mi;
             Type c = container != null ? container : xmi.container();
             if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-                return Matcher.inferAndCheckAndInstantiate((Context) context, 
+                return Matcher.inferAndCheckAndInstantiate(context, 
                 		xmi, c, typeArgs, argTypes, mi.position());
         }
         return null;

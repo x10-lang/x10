@@ -191,11 +191,10 @@ public class ClosureSynthesizer {
                     assert false;
                 }
             }
-            try {
-                ((ClosureType_c)sup).getXClause().addIn(constraint);
-            } catch (XFailure xFailure) {
-                assert false;
-            }
+
+            CConstraint result = ((ClosureType_c)sup).getXClause().addIn(constraint);
+            assert result.consistent();
+
         }
         
         cd.addInterface(Types.ref(sup));

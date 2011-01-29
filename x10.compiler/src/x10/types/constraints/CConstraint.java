@@ -149,7 +149,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @param c -- the constraint to be added in.
 	 * @return the possibly modified constraint
 	 */
-	public CConstraint addIn(CConstraint c)  throws XFailure {
+	public CConstraint addIn(CConstraint c) {
 		return addIn(self(), c);
 	}
 
@@ -173,28 +173,17 @@ public class CConstraint extends XConstraint  implements ThisVar {
             }
         }
         public boolean visitEquals(XTerm t1, XTerm t2) {
-            try {
-                t1 = t1.subst(newSelf, cSelf);
-                t2 = t2.subst(newSelf, cSelf);
-                c2.addBinding(t1, t2);
-                return true;
-            } catch (XFailure z) {
-                c2.setInconsistent();
-                return false;
-            }
+            t1 = t1.subst(newSelf, cSelf);
+            t2 = t2.subst(newSelf, cSelf);
+            c2.addBinding(t1, t2);
+            return c2.consistent();     
         }
         public boolean visitDisEquals(XTerm t1, XTerm t2) {
-            try {
-                t1 = t1.subst(newSelf, cSelf);
-                t2 = t2.subst(newSelf, cSelf);
-                c2.addDisBinding(t1, t2);
-                return true;
-            } catch (XFailure z) {
-                c2.setInconsistent();
-                return false;
-            }
+            t1 = t1.subst(newSelf, cSelf);
+            t2 = t2.subst(newSelf, cSelf);
+            c2.addDisBinding(t1, t2);
+            return c2.consistent();
         }
-        
     }
 	/** 
 	 * Add constraint c into this, substituting newSelf for c.self. 
@@ -202,28 +191,28 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * 
 	 * Note: this is possibly side-effected by this operation.
 	 * 
-	 * No change is made to this if c==null
+	 * No change is made to this if c==null or c is valid.
 	 * 
 	 * @param c -- the constraint to be added in.
 	 * @return the possibly modified constraint
 	 * 
 	 * */
 	
-	public CConstraint addIn(XTerm newSelf, CConstraint c)  throws XFailure {
-		if (c != null && ! c.valid()) {
-		        AddInVisitor v = new AddInVisitor(this, newSelf, c.self());
-		        c.visit(true, false, v);
-		        /*
-		    List<XTerm> result = c.constraints();
-            if (result == null)
-                return this;
-            for (XTerm t : result) {
-                addTerm(t.subst(newSelf, c.self()));
-            }*/
-		}
-		// vj: What about thisVar for c? Should that be added?
-				// thisVar = getThisVar(this, c);
-		return this;
+	public CConstraint addIn(XTerm newSelf, CConstraint c)   {
+	    if (c== null)
+	        return this;
+	    if (! c.consistent()) {
+	        setInconsistent();
+            return this;
+	    }
+	    if (c.valid()) {
+	        return this;
+	    }
+	    AddInVisitor v = new AddInVisitor(this, newSelf, c.self());
+	    c.visit(true, false, v);
+	    // vj: What about thisVar for c? Should that be added?
+	    // thisVar = getThisVar(this, c);
+	    return this;
 	}
 
 	
@@ -671,15 +660,19 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @throws XFailure
 	 */
 	public void addSigma(CConstraint c, Map<XTerm, CConstraint> m) 
-	throws XFailure {
-		if (c != null && ! c.valid()) {
+	 {
+		if (! consistent())
+		    return;
+	    if (c != null && ! c.valid()) {
 			addIn(c);
 			addIn(c.constraintProjection(m));
 		}
 	}
 	public void addSigma(XConstrainedTerm ct, Map<XTerm, CConstraint> m) 
-	throws XFailure {
-		if (ct != null) {
+	 {
+		if (! consistent())
+		    return;
+	    if (ct != null) {
 			addSigma(ct.xconstraint(), m);
 		}
 	}
@@ -695,12 +688,12 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @throws XFailure -- if r becomes inconsistent.
 	 */
 	public CConstraint constraintProjection(Map<XTerm,CConstraint> m) 
-	throws XFailure {
+	 {
 		return constraintProjection(m, 0); // CollectionFactory.newHashSet());
 	}
 	public CConstraint constraintProjection(Map<XTerm,CConstraint> m, 
 	                                        int depth /*Set<XTerm> ancestors*/) 
-	throws XFailure {
+	 {
 		CConstraint r = new CConstraint();
 
 		for (XTerm t : constraints()) {
@@ -758,7 +751,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		return false;
 	}
 	private static int MAX_DEPTH=15;
-	private static CConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m, int depth /*Set<XTerm> ancestors*/) throws XFailure {
+	private static CConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m, int depth /*Set<XTerm> ancestors*/)  {
 		if (t == null)
 			return null;
 		if (depth > MAX_DEPTH) {
@@ -779,8 +772,13 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				Type ty = Types.get(ld.type());
 				ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ld.placeTerm());
 				CConstraint ci = Types.realX(ty);
+			    r = new CConstraint();
+				try {
 				ci = ci.substitute(v, ci.self());
-				r = new CConstraint();
+				} catch (XFailure z) {
+				    r.setInconsistent();
+				    return r;
+				}
 				r.addIn(ci);
 				// Recursively perform a constraintProjection on the new constraint ci
 				// only if one of the ancestor terms does not occur in it.
@@ -806,8 +804,18 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				Type ty = Types.get(fi.type());
 				ci = Types.realX(ty);
 				XVar v = ((X10ClassDef) Types.get(fi.container()).toClass().def()).thisVar();
+				try {
 				ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
+				} catch (XFailure z) {
+				    r.setInconsistent();
+				    return r;
+				}
+				try {
 				ci = ci.substitute(f, ci.self());
+				} catch (XFailure z) {
+				    r.setInconsistent();
+				    return r;
+				}
 				r = new CConstraint();
 				r.addIn(ci);
 				

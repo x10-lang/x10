@@ -447,6 +447,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 									CConstraint c = Types.xclause(domainType);
 									c=c.substitute(selfValue, c.self());
 									indexType = Types.addConstraint(indexType, c);
+									assert Types.consistent(indexType);
 									indexType = Subst.subst(indexType, XTerms.makeEQV(), selfValue);
 								}
 								

@@ -24,7 +24,7 @@ public class XNot extends XFormula  {
 		super(XTerms.notName, XTerms.asExprNotName, false, arg);
 	}
 	
-	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
 		assert false : "Should not intern " + this;
 		return super.internIntoConstraint(c, last);
 	}

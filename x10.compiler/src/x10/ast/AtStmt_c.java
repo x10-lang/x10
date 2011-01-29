@@ -148,12 +148,10 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         boolean isFinishPlace = false;
         if (null != finishPlaceTerm) {
             XConstraint constraint = new XConstraint();
-            try {
-                constraint.addBinding(finishPlaceTerm.term(),placeTerm.term());
-                if (placeTerm.constraint().entails(constraint)) {
-                    isFinishPlace = true;
-                }
-            } catch (XFailure xFailure) {}
+            constraint.addBinding(finishPlaceTerm.term(),placeTerm.term());
+            if (placeTerm.constraint().entails(constraint)) {
+                isFinishPlace = true;
+            }    
         }
         return isFinishPlace;
     }

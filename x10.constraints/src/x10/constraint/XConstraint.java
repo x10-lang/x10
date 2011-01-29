@@ -237,7 +237,8 @@ public class XConstraint implements Cloneable {
      * @param var -- t1
      * @param val -- t2
      */
-    public void addBinding(XTerm left, XTerm right) throws XFailure {
+    public void addBinding(XTerm left, XTerm right)  {
+        if (left == null)
     	assert left != null;
         assert right != null;
 
@@ -247,10 +248,21 @@ public class XConstraint implements Cloneable {
             roots = CollectionFactory.<XTerm, XPromise> newHashMap();
 
         XPromise p1 = intern(left);
+        if (p1==null) {
+            setInconsistent();
+            return;
+        }
         XPromise p2 = intern(right);
-        
-        boolean modified = p1.bind(p2);
-        valid &= !modified;
+        if (p2 == null) {
+            setInconsistent();
+            return;
+        }
+        try {
+            valid &= ! p1.bind(p2);
+        } catch (XFailure z) {
+            setInconsistent();
+        }
+       
     }
 
     /**
@@ -259,7 +271,7 @@ public class XConstraint implements Cloneable {
 	 * @param var
 	 * @param t
 	 */
-    public void addDisBinding(XTerm left, XTerm right) throws XFailure {
+    public void addDisBinding(XTerm left, XTerm right)  {
     	assert left != null;
     	assert right !=null;
     	if (! consistent)
@@ -267,12 +279,25 @@ public class XConstraint implements Cloneable {
     	if (roots == null)
     		roots = CollectionFactory.<XTerm,XPromise> newHashMap();
     	XPromise p1 = intern(left);
-    	XPromise p2 = intern(right);
-    	if (p1.equals(p2)) {
-    		throw new XFailure(this + " already entails " + left + "==" + right);
+    	if (p1 == null) {
+    	    setInconsistent();
+    	    return;
     	}
-    	boolean modified = p1.disBind(p2);
-        valid &= !modified;
+    	XPromise p2 = intern(right);
+    	if (p2 == null) {
+    	    setInconsistent();
+    	    return;
+    	}
+    	if (p1.equals(p2)) {
+    		setInconsistent();
+    		return;
+    	}
+    	try {
+    	    valid &= ! p1.disBind(p2);
+    	} catch (XFailure z) {
+    	    setInconsistent();
+    	}
+        
     }
     
 
@@ -875,7 +900,7 @@ public class XConstraint implements Cloneable {
 	 * @throws XFailure
 	 */
 
-    XPromise intern(XTerm term) throws XFailure {
+    XPromise intern(XTerm term)  {
         return intern(term, null);
     }
     
@@ -891,7 +916,7 @@ public class XConstraint implements Cloneable {
      * @param last
      * @return
      */
-    XPromise intern(XTerm term, XPromise last) throws XFailure {
+    XPromise intern(XTerm term, XPromise last)  {
     	assert term != null;
         if (term instanceof XPromise) {
             XPromise q = (XPromise) term;
@@ -902,18 +927,18 @@ public class XConstraint implements Cloneable {
                     last.bind(q);
                 }
                 catch (XFailure f) {
-                    throw new XFailure("A term ( " + term + ") cannot be interned to a promise (" 
-                                       + last + ") whose value is not null.");
+                    return null;
                 }
             }
             return q;
         }
 
         // let the term figure out what to do for itself.
+      
         return term.internIntoConstraint(this, last);
     }
 
-    XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure {
+    XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last)  {
         if (roots == null)
             roots = CollectionFactory.<XTerm,XPromise> newHashMap();
         XPromise p = (XPromise) roots.get(baseVar);
@@ -930,9 +955,9 @@ public class XConstraint implements Cloneable {
         roots.put(p, node);
     }
 
-     void internRecursively(XVar v) throws XFailure {
-        intern(v);
-    }
+   //  void internRecursively(XVar v) throws XFailure {
+   //     intern(v);
+   // }
     
      /**
  	 * Look this term up in the constraint graph. Return null if the term

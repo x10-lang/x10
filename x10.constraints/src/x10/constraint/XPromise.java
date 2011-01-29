@@ -69,7 +69,7 @@ interface XPromise extends Cloneable {
 	 * @return
 	 * @throws XFailure 
 	 */
-	XPromise intern(XVar[] vars, int index, XPromise last) throws XFailure;
+	XPromise intern(XVar[] vars, int index, XPromise last);
 
 	/**
 	 * vars and this must be as for intern. Return the node in the graph of constraint

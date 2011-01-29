@@ -151,16 +151,13 @@ public class PlaceChecker {
 	}*/
 	
 	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, TypeSystem ts) {
-		
-		XTerm h =  PlaceChecker.homeVar(thisVar, ts);
-		CConstraint c = new CConstraint();
-		if (h != null) {
-			try {
-				c.addBinding(h, here());
-			} catch (XFailure z) {
-			}
-		}
-		return c;
+
+	    XTerm h =  PlaceChecker.homeVar(thisVar, ts);
+	    CConstraint c = new CConstraint();
+	    if (h != null) {
+	        c.addBinding(h, here());
+	    }
+	    return c;
 	}
 	
 	/**
@@ -271,9 +268,11 @@ public class PlaceChecker {
          }
 	}
 	*/
-	public static void AddHereEqualsPlaceTerm(CConstraint c, Context xc) throws XFailure{
+	public static void AddHereEqualsPlaceTerm(CConstraint c, Context xc) {
+	    if (! c.consistent())
+	        return;
 		XConstrainedTerm placeTerm = xc.currentPlaceTerm();
-		if (placeTerm != null) 
+		if (placeTerm != null)  
 			c.addBinding(here(), placeTerm.term());
 	}
 	

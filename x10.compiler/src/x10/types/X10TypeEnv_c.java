@@ -694,12 +694,24 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean isSubtype(Type t1, Type t2) {
         return isSubtype(null, t1, t2);
     }
-
+     
+    public boolean isSubtype(XVar x, Type t1, Type t2) {
+        return isOldSubtype(x, t1,t2);
+        /*
+        boolean old = isOldSubtype(x, t1,t2);
+        boolean newEq = isNewSubtype(x, t1,t2);
+        if (old != newEq) {
+            System.out.println("isSubtype: now " + (old ? "not " : "") + " a subtype " 
+                               + "\n\t: t1=" + t1 
+                               + "\n\t: t2=" + t2);
+        }
+        return old;*/
+    }
 
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
-    boolean isSubtype(XVar x, Type t1, Type t2) {
+    boolean isOldSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
     	if (ts.hasUnknown(t1) || ts.hasUnknown(t2)) return true;
@@ -856,10 +868,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			try {
     				xcontext = (Context) xcontext.pushBlock();	
 
-    				CConstraint r;
-    				try {
-    				 r = c.addIn(c1);
-    				} catch (XFailure z) {
+    				CConstraint r=c.addIn(c1);
+    				if (! r.consistent()) {
     					return false;
     				}
     				xcontext.setCurrentConstraint(r);
@@ -990,20 +1000,21 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * @see x10.types.X10TypeEnv#typeEquals(polyglot.types.Type, polyglot.types.Type, java.util.List)
      */
   
-    @Override
+   /* @Override
     public boolean typeEquals(Type t1, Type t2) {
         return newTypeEquals(t1,t2);
-        /*boolean old = oldTypeEquals(t1,t2);
+        boolean old = oldTypeEquals(t1,t2);
         boolean newEq = newTypeEquals(t1,t2);
         if (old != newEq) {
             System.out.println("TypeEquals: now " + (old ? "not " : "") + "equal " 
                                + "\n\t: t1=" + t1 
                                + "\n\t: t2=" + t2);
         }
-        return old;*/
-    }
+        return old;
+    }*/
     
-    public boolean newTypeEquals(Type t1, Type t2) {    
+    @Override
+    public boolean typeEquals(Type t1, Type t2) {    
         t1 = ts.expandMacros(t1);
         t2 = ts.expandMacros(t2);
 
@@ -1613,6 +1624,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
             // we need to keep all the constraints except the one that says the type is not null
             final Type res = Types.addConstraint(baseType, Types.allowNull(ct));
+            assert Types.consistent(res);
             assert Types.permitsNull(res);
             return res;
         } else {
@@ -1624,6 +1636,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	CConstraint c = c1.leastUpperBound(c2);
     	if (! c.valid())
     		t = Types.addConstraint(t, c);
+    	assert Types.consistent(t);
     	return t;
     	
     }
@@ -1772,14 +1785,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      */
     public boolean clausesConsistent(CConstraint c1, CConstraint c2) {
         if (primitiveClausesConsistent(c1, c2)) {
-            CConstraint r = c1.copy();
-            try {
-                r.addIn(c2);
-                return r.consistent();
-            }
-            catch (x10.constraint.XFailure e) {
-                return false;
-            }
+            CConstraint r = c1.copy().addIn(c2);
+            return r.consistent();
         }
         return false;
     }
@@ -2160,6 +2167,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	                	try {
 	                		if ( y.length > 0 && y[0] instanceof XEQV)
 	                		newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
+
 	                	} catch (XFailure z) {
 	                		throw new InternalCompilerError("Unexpectedly inconsistent place constraint.");
 	                	}

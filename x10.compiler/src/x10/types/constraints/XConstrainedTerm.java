@@ -103,11 +103,7 @@ public class XConstrainedTerm  {
 	 * @param t2
 	 */
 	public void addBinding(XTerm t1, XTerm t2) {
-		try {
-		constraint.addBinding(t1, t2);
-		} catch (XFailure f) {
-			constraint.setInconsistent();
-		}
+	    constraint.addBinding(t1, t2);
 	}
 	public XConstrainedTerm copy() {
 		return new XConstrainedTerm(term(), constraint().copy());

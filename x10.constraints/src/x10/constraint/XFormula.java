@@ -122,7 +122,7 @@ public class XFormula extends XTerm {
 	        return false;
 	    }
 */
-	    public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+	    public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
 	        assert last == null;
 	        // Evaluate left == right, if both are literals.
 	        XPromise result = c.lookup(this);
@@ -137,6 +137,8 @@ public class XFormula extends XTerm {
 	            }
 	            	
 	            XPromise child = c.intern(arg);
+	            if (c == null)
+	                return null;
 	            fields.put(new XNameWrapper<Integer>(i), child);
 	        }
 	        // C_Local_c v = new C_Local_c(op);

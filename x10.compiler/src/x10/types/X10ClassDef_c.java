@@ -173,10 +173,10 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         this.rootClauseInvalid = null;
     }
 
-    public void setRootClause(Ref<CConstraint> c) {
+   /* public void setRootClause(Ref<CConstraint> c) {
     	this.rootClause = c;
     	this.rootClauseInvalid = null;
-    }
+    }*/
 
     public Ref<CConstraint> classInvariant() {
         return classInvariant;
@@ -187,6 +187,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 	    throw rootClauseInvalid;
     }
     
+  
     public CConstraint getRootClause() {
 	    if (rootClause == null) {
 		    if (computing) {
@@ -243,7 +244,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    XVar fiThis = fi.thisVar();
 					    CConstraint rs = Types.realX(type);
 					    if (rs != null) {
-						    // Given: C(:c) f
+						    // Given: f:C{c}
 						    // Add in: c[self.f/self,self/this]
 						    XTerm newSelf = xts.xtypeTranslator().translate(rs.self(), fi.asInstance());
 						    CConstraint rs1 = rs.substitute(newSelf, rs.self());

@@ -87,9 +87,9 @@ public class XLit extends XVar implements XPromise {
 		return intern(vars, index, null);
 	}
 
-	public XPromise intern(XVar[] vars, int index, XPromise last) throws XFailure {
+	public XPromise intern(XVar[] vars, int index, XPromise last){
 		if (index != vars.length) {
-			throw new XFailure("Cannot extend path " + vars + "index=" + index + " beyond the literal " + this + ".");
+			return null;
 		}
 		return this;
 	}
@@ -199,8 +199,9 @@ public class XLit extends XVar implements XPromise {
 
 	public void variables(List<XVar> result) {}
 
-	public XPromise internIntoConstraint(XConstraint constraint, XPromise last) throws XFailure {
-		throw new XFailure("Internal error -- should not be called.");
+	public XPromise internIntoConstraint(XConstraint constraint, XPromise last)  {
+	    return null;
+		//throw new XFailure("Internal error -- should not be called.");
 	}
 	public void addDisEquals(XPromise p) throws XFailure {
 		if (p instanceof XLit) {

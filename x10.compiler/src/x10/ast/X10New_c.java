@@ -687,19 +687,21 @@ public class X10New_c extends New_c implements X10New {
         TypeSystem ts = (TypeSystem) tc.typeSystem();
 
         if (ts.isStructType(type)) 
-	    return xci;
+            return xci;
         // Add self.home == here to the return type.
-	// Add this even in 2.1 -- the place where this object is created
-	// is tracked in the type through a fake field "here".
-	// This field does not exist at runtime in the object -- but that does not
-	// prevent the compiler from imagining that it exists.
-	ConstrainedType type1 = Types.toConstrainedType(type);
-	type1 = (ConstrainedType) PlaceChecker.AddIsHereClause(type1, tc.context());
-	// Add self != null
-	type1 = (ConstrainedType) Types.addDisBinding(type1, Types.selfVar(type1), XTerms.NULL);
+        // Add this even in 2.1 -- the place where this object is created
+        // is tracked in the type through a fake field "here".
+        // This field does not exist at runtime in the object -- but that does not
+        // prevent the compiler from imagining that it exists.
+        ConstrainedType type1 = Types.toConstrainedType(type);
+        type1 = (ConstrainedType) PlaceChecker.AddIsHereClause(type1, tc.context());
+        // Add self != null
+        type1 = (ConstrainedType) Types.addDisBinding(type1, Types.selfVar(type1), XTerms.NULL);
+        if (! Types.consistent(type1))
+            Errors.issue(tc.job(), new Errors.InconsistentType(type1, xci.position()));
         xci = (X10ConstructorInstance) xci.returnType(type1);
         return xci;
-        
+
     }
 
     // TODO: Move down into New_c

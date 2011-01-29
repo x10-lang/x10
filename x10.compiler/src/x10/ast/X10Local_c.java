@@ -93,14 +93,10 @@ public class X10Local_c extends Local_c {
                 final XTerm currentPlace = placeTerm.term();
                 XConstraint constraint = new XConstraint();
                 boolean isOk = false;
-                try {
-                    constraint.addBinding(origin,currentPlace);
-                    if (placeTerm.constraint().entails(constraint)) {
-                        //ok  origin == currentPlace
-                        isOk = true;
-                    }
-                } catch (XFailure xFailure) {
-                    // how can it happen? in any case, we should report an error so isOk=false
+                constraint.addBinding(origin,currentPlace);
+                if (placeTerm.constraint().entails(constraint)) {
+                    //ok  origin == currentPlace
+                    isOk = true;
                 }
                 if (!isOk)
                     Errors.issue(tc.job(), new SemanticException("Local variable \"" + liName +"\" is accessed at a different place, and must be declared final.",this.position()));
@@ -147,14 +143,9 @@ public class X10Local_c extends Local_c {
         			Type t = result.type();
 
         			CConstraint dep = Types.xclause(t);
-        			if (dep == null) dep = new CConstraint();
-        			else dep = dep.copy();
-//        			XTerm resultTerm = xts.xtypeTranslator().trans(result);
-//        			dep.addSelfBinding((XVar) resultTerm);
-        			try {
-        			    dep.addIn(c);
-        			} catch (XFailure e) {
-        			    throw new SemanticException(e.getMessage(), position());
+        			dep = dep == null? c.copy() : dep.copy().addIn(c);
+        			if (! dep.consistent()) {
+        			    throw new Errors.InconsistentType(t, position());
         			}
         			
         			t = Types.xclause(Types.baseType(t), dep);

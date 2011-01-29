@@ -138,8 +138,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
        
        <p> Throw an XFailure if the resulting constraint is inconsistent.
 	 */
-	abstract XPromise internIntoConstraint(XConstraint constraint, XPromise last)
-	throws XFailure;
+	abstract XPromise internIntoConstraint(XConstraint constraint, XPromise last);
 
 	public abstract int hashCode();
 	public abstract boolean equals(Object o);

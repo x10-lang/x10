@@ -74,10 +74,12 @@ import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import polyglot.util.Position;
+import x10.util.CollectionFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -142,7 +144,7 @@ public class X10Context_c extends Context_c {
 	}
 	
 
-	public CConstraint constraintProjection(CConstraint... cs) throws XFailure {
+	public CConstraint constraintProjection(CConstraint... cs)  {
 		 Map<XTerm, CConstraint> m = CollectionFactory.newHashMap();
 
 		 // add in the real clause of the type of any var mentioned in the constraint list cs
@@ -155,6 +157,8 @@ public class X10Context_c extends Context_c {
 				 r = ri;
 			 else
 				 r.addIn(ri);
+			 if (! r.consistent()) // r is inconsistent, no point going further.
+			     return r;
 		 }
 
 		 if (r == null) 
@@ -911,20 +915,18 @@ public class X10Context_c extends Context_c {
 		return v;
 	}
 
-	public Context pushAdditionalConstraint(CConstraint env)	throws SemanticException {
+	public Context pushAdditionalConstraint(CConstraint env, Position pos)	throws SemanticException {
 		// Now push the newly computed Gamma
 		Context xc = (Context) pushBlock();
 		CConstraint c = xc.currentConstraint();
 		if (c == null) {
 			c = env;
 		} else {
-			try {
-				c = c.copy().addIn(env);
-				// c.addIn(xc.constraintProjection(c));
-			}
-			catch (XFailure e) {
-				throw new SemanticException("Call invalid; calling environment is inconsistent.");
-			}
+		    c = c.copy().addIn(env);
+		    // c.addIn(xc.constraintProjection(c));
+		    if (! c.consistent())
+		        throw new Errors.InconsistentContext(env, pos);
+			
 		}
 		xc.setCurrentConstraint(c);
 		//            xc.setCurrentTypeConstraint(tenv);

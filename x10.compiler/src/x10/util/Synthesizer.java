@@ -760,10 +760,9 @@ public class Synthesizer {
 		try {
 			c.addBinding(id, XTerms.makeLit(0));
 			Type type = Types.xclause(xts.Place(), c);
+			assert Types.consistent(type);
 			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
 					Name.make("FIRST_PLACE"), type, (Context) xts.emptyContext());
-		} catch (XFailure z) {
-			// wont happen
 		} catch (SemanticException z) {
 			// wont happen
 		}

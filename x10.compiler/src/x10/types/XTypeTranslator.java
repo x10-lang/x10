@@ -527,14 +527,10 @@ public class XTypeTranslator {
         }
         CConstraint c2 = Types.xclause(x, r2.type()).copy();
         if (rb.operator()== Binary.EQ) {
-            try {
-                if (! c1.addIn(c2).consistent())
-                    result = XTerms.FALSE;
-                if (c1.entails(c2) && c2.entails(c1)) {
-                    result = XTerms.TRUE;
-                }
-            } catch (XFailure z) {
+            if (! c1.addIn(c2).consistent())
                 result = XTerms.FALSE;
+            if (c1.entails(c2) && c2.entails(c1)) {
+                result = XTerms.TRUE;
             }
         }
         return result;

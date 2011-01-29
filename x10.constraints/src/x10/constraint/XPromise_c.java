@@ -275,7 +275,7 @@ class XPromise_c implements XPromise, Serializable {
         return intern(vars, index, null);
     }
 
-    public XPromise intern(XVar[] vars, int index, XPromise last) throws XFailure {
+    public XPromise intern(XVar[] vars, int index, XPromise last)  {
         assert index >= 1;
 
         // follow the eq link if there is one.
@@ -285,7 +285,7 @@ class XPromise_c implements XPromise, Serializable {
             return this;
         // if not, we need to add this path here. Ensure fields is initialized.
         if (fields == null)
-            fields = new LinkedHashMap<XName, XPromise>();
+            fields = CollectionFactory.<XName, XPromise>newHashMap();
         assert vars[index] instanceof XField;
         XField f = (XField) vars[index];
         XName s = f.field();

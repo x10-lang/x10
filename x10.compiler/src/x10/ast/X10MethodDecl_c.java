@@ -429,7 +429,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				c = c.pushBlock();
 				try {
 					if (vc.known())
-						c = ((Context) c).pushAdditionalConstraint(vc.get());
+						c = ((Context) c).pushAdditionalConstraint(vc.get(), position());
 					if (tc.known())
 						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
 

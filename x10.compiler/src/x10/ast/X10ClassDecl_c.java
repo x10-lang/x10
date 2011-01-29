@@ -634,40 +634,29 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         // Add all the constraints on the supertypes into the invariant.
         c.setResolver(new Runnable() {
         	public void run() {
-        		CConstraint x = new CConstraint();
-        		try {
-        			if (ci != null) {
-        				CConstraint xi = ci.valueConstraint().get();
-        				x.addIn(xi);
-        				if (! xi.consistent())
-        				    x.setInconsistent();
-        				TypeConstraint ti = ci.typeConstraint().get();
-        			}
-        			if (nn.superClass != null) {
-        				Type t = nn.superClass.type();
-        				CConstraint tc = Types.xclause(t);
-        				if (tc != null) {
-        					x.addIn(tc);
-        					if (! tc.consistent()) {
-        					    x.setInconsistent();
-        					}
-        				}
-        			}
-        			for (TypeNode tn : nn.interfaces) {
-        				Type t = tn.type();
-        				CConstraint tc = Types.xclause(t);
-        				if (tc != null) {
-        					x.addIn(tc);
-        					if (! tc.consistent()) {
-                                                    x.setInconsistent();
-                                                }
-        				}
-        			}
-        		}
-        		catch (XFailure e) {
-        			x.setInconsistent();
-        		}
-        		c.update(x);
+        	    CConstraint x = new CConstraint();
+        	    if (ci != null) {
+        	        CConstraint xi = ci.valueConstraint().get();
+        	        if (xi != null && ! xi.valid())
+        	            x.addIn(xi);
+        	        TypeConstraint ti = ci.typeConstraint().get();
+        	        // TODO: Figure out what's happening with ti?!?
+        	    }
+        	    if (nn.superClass != null) {
+        	        Type t = nn.superClass.type();
+        	        CConstraint tc = Types.xclause(t);
+        	        if (tc != null && ! tc.valid()) {
+        	            x.addIn(tc);
+        	        }
+        	    }
+        	    for (TypeNode tn : nn.interfaces) {
+        	        Type t = tn.type();
+        	        CConstraint tc = Types.xclause(t);
+        	        if (tc != null && ! tc.valid()) {
+        	            x.addIn(tc);
+        	        }
+        	    }
+        	    c.update(x);
         	}
         });
         
@@ -675,20 +664,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         final LazyRef<TypeConstraint> tc = new LazyRef_c<TypeConstraint>(new TypeConstraint());
 
-        
         // Set the type bounds for the def.
        tc.setResolver(new Runnable() {
-        	public void run() {
-        		TypeConstraint x = new TypeConstraint();
-
+        	public void run() {	
         		if (ci != null) {
-
         			TypeConstraint ti = ci.typeConstraint().get();
-        			x.addIn(ti);
-        		} 
-
-
-        		tc.update(x);
+        			tc.update(ti.copy());
+        		} 	
         	}
         });
 
