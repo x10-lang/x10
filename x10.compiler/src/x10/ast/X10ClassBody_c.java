@@ -182,7 +182,7 @@ public class X10ClassBody_c extends ClassBody_c {
                 
                 if (hasCompatibleArguments(ci, cj, tc.context())) {
                     Errors.issue(tc.job(),
-                            new SemanticException("Duplicate constructor \"" + cj + "\"; previous declaration at " + ci.position() + ".", cj.position()));
+                            new Errors.DublicateConstructor(cj, ci, cj.position()));
                 }
             }
         }
@@ -198,13 +198,13 @@ public class X10ClassBody_c extends ClassBody_c {
         
         for (int i = 0; i < l.size(); i++) {
             X10MethodDef mi = (X10MethodDef) l.get(i);
-        
+            
             for (int j = i+1; j < l.size(); j++) {
                 X10MethodDef mj = (X10MethodDef) l.get(j);
         
                 if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj, tc.context())) {
                     Errors.issue(tc.job(),
-                            new SemanticException("Duplicate method \"" + mj + "\"; previous declaration at " + mi.position() + ".", mj.position()));
+                            new Errors.DuplicateMethod(mj, mi, mj.position()));
                 }
             }
         }

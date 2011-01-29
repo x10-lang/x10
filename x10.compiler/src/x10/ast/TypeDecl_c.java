@@ -208,7 +208,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		
 		if (topLevel && !ALLOW_TOP_LEVEL_TYPEDEFS) {
 		    Errors.issue(tb.job(),
-		                 new SemanticException("Type definitions must be static class or interface members.  This is a limitation of the current implementation.", position()));
+		                 new Errors.TypeDefinitionMustBeStaticClassOrInterfaceMembers(position()));
 		}
 /*
 		if (ALLOW_TOP_LEVEL_TYPEDEFS) {

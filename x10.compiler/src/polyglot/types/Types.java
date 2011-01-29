@@ -188,7 +188,8 @@ public class Types {
 	        if (var==variance || var==ParameterType.Variance.INVARIANT) {
 	            // ok
 	        } else {
-	            Errors.issue(errs, new SemanticException("Illegal variance! Type parameter has variance "+var+" but it is used in a "+variance+" position.",pos)); // todo: t.position() is incorrect (see XTENLANG-1439)
+	            Errors.issue(errs, 
+	            		new Errors.IllegalVarianceParameter(var, variance, pos)); // todo: t.position() is incorrect (see XTENLANG-1439)
 	        }
 	
 	    } else if (t instanceof X10ParsedClassType_c) {

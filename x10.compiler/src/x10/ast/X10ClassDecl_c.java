@@ -1009,7 +1009,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (c != null && ! c.consistent()) {
             Errors.issue(tc.job(), new Errors.InconsistentInvariant(cd, position()));
         }
-    
+        
     	// Check that we're in the right file.
     	if (flags.flags().isPublic() && type.isTopLevel()) {
     	    Job job = tc.job();
@@ -1020,7 +1020,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	                s.name().endsWith("/" + type.name() + ".x10")))
     	        {
     	            Errors.issue(tc.job(),
-    	                    new SemanticException("Public type " + type.fullName() + " must be declared in " + type.name() + ".x10.", result.position()));
+    	                    new Errors.PublicTypeMustBeDeclaredInX10(type, result.position()));
     	        }
     	    }
     	}
@@ -1032,7 +1032,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	if (flags.flags().isInterface() && superClass != null) {
     		Errors.issue(tc.job(),
-    		        new SemanticException("Interface " + this.type + " cannot have a superclass.", superClass.position()));
+    		        new Errors.InterfaceCannotHaveSuperclass(this.type, superClass.position()));
     	}
 
 
@@ -1044,8 +1044,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            if (fi instanceof X10FieldInstance) {
     	                X10FieldInstance xfi = (X10FieldInstance) fi;
     	                if (xfi.isProperty())
-    	                    ex = new SemanticException("Class " + type + " cannot override property " 
-    	                    		+ fi.name() + " of superclass " + Types.get(fi.def().container()) + ".");
+    	                    ex = new Errors.ClassCannotOerridePropertyOfSuperclass(type, fi, position());
     	            }
     	        }
     	        catch (SemanticException e) {

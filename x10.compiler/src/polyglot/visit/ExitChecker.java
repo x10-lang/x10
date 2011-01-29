@@ -19,6 +19,7 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
 import x10.ast.Closure;
+import x10.errors.Errors;
 
 /**
  * Visitor which checks that all (terminating) paths through a 
@@ -139,10 +140,9 @@ public class ExitChecker extends DataFlow
                     if (code.codeDef() instanceof FunctionDef) {
                         FunctionDef fd = (FunctionDef) code.codeDef();
                         String designator = (fd instanceof MethodDef) ? "Method" : "Closure";
-                        reportError(designator + " must return a value of type "+fd.returnType().get(),
-                                code.position());
+                        reportError(new Errors.MustReturnValueOfType(designator, fd, code.position()));
                     } else {
-                        reportError("Missing return statement.", code.position());
+                        reportError(new Errors.MissingReturnStatement(code.position()));
                     }
                 }
             }

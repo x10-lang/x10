@@ -567,11 +567,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             
             if (xts.isUnsigned(lbase) && xts.isSigned(rbase))
                 Errors.issue(tc.job(),
-                        new SemanticException("Cannot compare unsigned versus signed values.", position()));
+                        new Errors.CannotCompareUnsignedVersusSignedValues(position()));
 
             if (xts.isSigned(lbase) && xts.isUnsigned(rbase))
                 Errors.issue(tc.job(),
-                        new SemanticException("Cannot compare signed versus unsigned values.", position()));
+                        new Errors.CannotCompareSignedVersusUnsignedValues(position()));
             
             Type promoted = promote(xts, lbase, rbase);
             
@@ -603,7 +603,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 //            }
 
             Errors.issue(tc.job(),
-                    new SemanticException("Operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",position()));
+                    new Errors.OperatorMustHaveOperandsOfComparabletype(lbase, rbase, position()));
             return this.type(xts.Boolean());
         }
 
@@ -642,7 +642,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             }
 
             Errors.issue(tc.job(),
-                    new SemanticException("No operation " + op + " found for operands " + l + " and " + r + ".", position()));
+                    new Errors.NoOperationFoundForOperands(op, l, r, position()));
         }
         
         return this.type(xts.unknownType(position()));

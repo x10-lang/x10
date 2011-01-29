@@ -173,7 +173,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
         if (!(def instanceof CodeDef)) {
             Errors.issue(tb.job(),
-                         new SemanticException("At cannot occur outside code body.", position()));
+                         new Errors.CannotOccurOutsideCodeBody(Errors.CannotOccurOutsideCodeBody.Element.At, position()));
             // Fake it
             def = ts.initializerDef(position(), Types.ref(ct.asType()), Flags.STATIC);
         }

@@ -156,7 +156,7 @@ public class Async_c extends Stmt_c implements Async {
 	    }
 
 	    if (!(def instanceof CodeDef)) {
-	        Errors.issue(tb.job(), new SemanticException("Async cannot occur outside code body.", position()));
+	        Errors.issue(tb.job(), new Errors.CannotOccurOutsideCodeBody(Errors.CannotOccurOutsideCodeBody.Element.Async, position()));
 	        // Fake it
 	        def = ts.initializerDef(position(), Types.ref(ct.asType()), Flags.STATIC);
 	    }
@@ -215,13 +215,13 @@ public class Async_c extends Stmt_c implements Async {
 		Context c = tc.context();
 		if (clocked() && ! c.inClockedFinishScope())
 			Errors.issue(tc.job(),
-			        new SemanticException("clocked async must be invoked inside a statically enclosing clocked finish.", position()));
+			        new Errors.ClockedAsyncMustBeInvokedInsideAStaticallyEnclosingClockedFinish(position()));
 
 		for (Expr e : clocks()) {
 		    Type t = e.type();
 		    if (!t.isSubtype(ts.Clock(), tc.context())) {
 			Errors.issue(tc.job(),
-				new SemanticException("Type \"" + t + "\" must be x10.lang.clock.", e.position()));
+				new Errors.TypeMustBeX10LangClock(t, e.position()));
 		    }
 		}
 

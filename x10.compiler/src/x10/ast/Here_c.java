@@ -87,7 +87,7 @@ public class Here_c extends Expr_c
 			}
 			catch (XFailure e) {
 				Errors.issue(tc.job(),
-				        new SemanticException("Constraint on here is inconsistent; " + e.getMessage(), position()));
+				        new Errors.ConstraintInconsistency(e, position()));
 			}
 			tt = Types.xclause(Types.baseType(tt), cc);
 		}

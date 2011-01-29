@@ -214,7 +214,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 
             if (! t.isBoolean())
                 Errors.issue(tc.job(),
-                        new SemanticException("The type of the constraint "+ e + " must be boolean, not " + t + ".", position()));
+                        new Errors.TypeConstraintMustBeBoolean(e, t, position()));
 
             if (e instanceof Binary) {
                 Binary b = (Binary) e;

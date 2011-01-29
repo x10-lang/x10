@@ -21,15 +21,22 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.ContainerType;
+import polyglot.types.Def;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
+import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.QName;
@@ -46,19 +53,24 @@ import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import polyglot.visit.CFGBuildError;
+import x10.util.CollectionFactory;
 import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.DepParameterExpr;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldDecl;
+import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorDef;
 import x10.types.X10FieldInstance;
 import x10.types.MethodInstance;
+import x10.types.X10MethodDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
@@ -746,7 +758,6 @@ public class Errors {
 					p);
 		}
 	}
-	
 	public static class CannotAssignToStaticField extends EqualByTypeAndPosException {
 		public CannotAssignToStaticField(X10FieldInstance fd, Position p) {
 			super("Cannot assign to static field " + fd.name(),
@@ -766,6 +777,432 @@ public class Errors {
 	public static class ClassNotAccessible extends EqualByTypeAndPosException {
 		public ClassNotAccessible(ClassType ct, Position p) {
 			super("Class " + ct + " is not accessible.", p);
+		}
+	}	
+	public static class CannotDeclareConstructorInInterface extends EqualByTypeAndPosException {
+		public CannotDeclareConstructorInInterface(Position p) {
+			super("Cannot declare a constructor inside an interface.", p);
+		}
+	}
+	public static class CannotDeclareConstructorInAnonymousClass extends EqualByTypeAndPosException {
+		public CannotDeclareConstructorInAnonymousClass(Position p) {
+			super("Cannot declare a constructor inside an anonymous class.", p);
+		}
+	}
+	public static class ConstructorNameDoesNotMatchContainingClassName extends EqualByTypeAndPosException {
+		public ConstructorNameDoesNotMatchContainingClassName(Id name, polyglot.types.Name ctName, Position p) {
+			super("Constructor name \"" + name +"\" does not match name of containing class \"" + ctName + "\".", p);
+		}
+	}
+	public static class InterfaceMembersMustBePublic extends EqualByTypeAndPosException {
+		public InterfaceMembersMustBePublic(Position p) {
+			super("Interface members must be public.", p);
+		}
+	}
+	public static class InterfaceMethodsMustBePublic extends EqualByTypeAndPosException {
+		public InterfaceMethodsMustBePublic(Position p) {
+			super("Interface methods must be public.", p);
+		}
+	}
+	public static class InterfaceMethodsCannobBeStatic extends EqualByTypeAndPosException {
+		public InterfaceMethodsCannobBeStatic(Position p) {
+			super("Interface methods cannot be static.", p);
+		}
+	}
+	public static class InnerClassCannotDeclareStaticFields extends EqualByTypeAndPosException {
+		public InnerClassCannotDeclareStaticFields(Position p) {
+			super("Inner classes cannot declare static fields, unless they are compile-time constant fields.", p);
+		}
+	}
+	public static class InnerClassesCannotDeclareStaticMethod extends EqualByTypeAndPosException {
+		public InnerClassesCannotDeclareStaticMethod(Position p) {
+			super("Inner classes cannot declare static methods.", p);
+		}
+	}
+	public static class MissingMethodBody extends EqualByTypeAndPosException {
+		public MissingMethodBody(Position p) {
+			super("Missing method body.", p);
+		}
+	}
+	public static class InterfaceMethodsCannotHaveBody extends EqualByTypeAndPosException {
+		public InterfaceMethodsCannotHaveBody(Position p) {
+			super("Interface methods cannot have a body.", p);
+		}
+	}
+	public static class AbstractMethodCannotHaveBody extends EqualByTypeAndPosException {
+		public AbstractMethodCannotHaveBody(Position p) {
+			super("An abstract method cannot have a body.", p);
+		}
+	}
+	public static class NativeMethodCannotHaveBody extends EqualByTypeAndPosException {
+		public NativeMethodCannotHaveBody(Position p) {
+			super("A native method cannot have a body.", p);
+		}
+	}
+	public static class IllegalVarianceParameter extends EqualByTypeAndPosException {
+		public IllegalVarianceParameter(ParameterType.Variance var, ParameterType.Variance variance, Position p) {
+			super("Illegal variance! Type parameter has variance "+var+" but it is used in a "+variance+" position.",p);
+		}
+	}
+	public static class FinalFieldAlreadyInitialized extends EqualByTypeAndPosException {
+		public FinalFieldAlreadyInitialized(polyglot.types.Name name, Position p) {
+			super("Final field '"+name+"' might already have been initialized.",p);
+		}
+	}
+	public static class CannotReadFromFieldBeforeDefiniteAssignment extends EqualByTypeAndPosException {
+		public CannotReadFromFieldBeforeDefiniteAssignment(polyglot.types.Name name, Position p) {
+			super("Cannot read from field '"+name+"' before it is definitely assigned.",p);
+		}
+	}
+	public static class FieldNameWasNotDefinitelyAssigned extends EqualByTypeAndPosException {
+		public FieldNameWasNotDefinitelyAssigned(Boolean property, polyglot.types.Name name, Position p) {
+			super(property ? "property(...) might not have been called" :
+                "Field '"+name+"' was not definitely assigned.",p);
+		}
+	}
+	public static class ControlFlowGraphError extends EqualByTypeAndPosException {
+		public ControlFlowGraphError(String msg, Position p) {
+			super("Control flow graph had an error: "+msg, p);
+		}
+	}
+	public static class MustReturnValueOfType extends EqualByTypeAndPosException {
+		public MustReturnValueOfType(String designator, FunctionDef fd, Position p) {
+			super(designator + " must return a value of type "+fd.returnType().get(),p);
+		}
+	}
+	public static class MissingReturnStatement extends EqualByTypeAndPosException {
+		public MissingReturnStatement(Position p) {
+			super("Missing return statement.",p);
+		}
+	}
+	public static class MayNotHaveBeenInitialized extends EqualByTypeAndPosException {
+		public MayNotHaveBeenInitialized(polyglot.types.Name n, Position p) {
+			super("\"" + n + "\" may not have been initialized", p);
+		}
+	}
+	public static class FinalLocalVariableCannotBeAssignedTo extends EqualByTypeAndPosException {
+		public FinalLocalVariableCannotBeAssignedTo(polyglot.types.Name name, Position p) {
+			super("Final local variable \"" + name +
+                    "\" cannot be assigned to in an inner class.",
+                    p);
+		}
+	}
+	public static class FinalVariableAlreadyInitialized extends EqualByTypeAndPosException {
+		public FinalVariableAlreadyInitialized(polyglot.types.Name name, Position p) {
+			super("Final variable \"" + name +
+                    "\" might already have been initialized",
+                    p);
+		}
+	}
+	public static class LocalVariableMustBeInitializedBeforeClassDeclaration extends EqualByTypeAndPosException {
+		public LocalVariableMustBeInitializedBeforeClassDeclaration(polyglot.types.Name name, Position p) {
+			super("Local variable \"" + name +
+                    "\" must be initialized before the class " +
+                    "declaration.",
+                    p);
+		}
+	}
+	public static class UnreachableStatement extends EqualByTypeAndPosException {
+		public UnreachableStatement(Position p) {
+			super("Unreachable statement.",p);
+		}
+	}
+	public static class InitializersMustCompleteNormally extends EqualByTypeAndPosException {
+		public InitializersMustCompleteNormally(Position p) {
+			super("Initializers must be able to complete normally.",
+                    p);
+		}
+	}
+	public static class NumberTypeArgumentsNotSameAsNumberTypeParameters extends EqualByTypeAndPosException {
+		public NumberTypeArgumentsNotSameAsNumberTypeParameters(int size, QName name, int numParams, Position p) {
+			super("Number of type arguments (" + size + ") for " + name + 
+					" is not the same as number of type parameters (" + numParams + ").", 
+					p);
+		}
+	}
+	public static class AnnotationMustBeInterfacetype extends EqualByTypeAndPosException {
+		public AnnotationMustBeInterfacetype(Position p) {
+			super("Annotation must be an interface type.", p);
+		}
+	}
+	public static class TypeOfPropertyIsNotSubtypeOfPropertyType extends EqualByTypeAndPosException {
+		public TypeOfPropertyIsNotSubtypeOfPropertyType(Type type, List<FieldInstance> props, int i, Position p) {
+			super("The type " + type + " of the initializer for property " + props.get(i) + 
+					" is not a subtype of the property type " + props.get(i).type(), 
+					p);
+		}
+	}
+	public static class PropertyStatementMayOnlyOccurInBodyOfConstuctor extends EqualByTypeAndPosException {
+		public PropertyStatementMayOnlyOccurInBodyOfConstuctor(Position p) {
+			super("A property statement may only occur in the body of a constructor.", p);
+		}
+	}
+	public static class PropertyInitializerMustHaveSameNumberOfArgumentsAsPropertyForClass extends EqualByTypeAndPosException {
+		public PropertyInitializerMustHaveSameNumberOfArgumentsAsPropertyForClass(Position p) {
+			super("The property initializer must have the same number of arguments as properties for the class.", p);
+		}
+	}
+	public static class ClockedAsyncMustBeInvokedInsideAStaticallyEnclosingClockedFinish extends EqualByTypeAndPosException {
+		public ClockedAsyncMustBeInvokedInsideAStaticallyEnclosingClockedFinish(Position p) {
+			super("Clocked async must be invoked inside a statically enclosing clocked finish.", p);
+		}
+	}
+	public static class TypeMustBeX10LangClock extends EqualByTypeAndPosException {
+		public TypeMustBeX10LangClock(Type t, Position p) {
+			super("Type \"" + t + "\" must be x10.lang.clock.", p);
+		}
+	}
+	public static class CannotOccurOutsideCodeBody extends EqualByTypeAndPosException {
+		public static enum Element { Closure, At, Async};
+		public CannotOccurOutsideCodeBody(Element str, Position p) {
+			super(str + " cannot occur outside code body.", p);
+		}
+	}
+	public static class TypeConstraintMustBeBoolean extends EqualByTypeAndPosException {
+		public TypeConstraintMustBeBoolean(Expr e, Type t, Position p) {
+			super("The type of the constraint "+ e + " must be boolean, not " + t + ".", p);
+		}
+	}
+	public static class DomainIteratedForLoopMustBeLocal extends EqualByTypeAndPosException {
+		public DomainIteratedForLoopMustBeLocal(Position p) {
+			super("The domain of this iterated for loop must be local", p);
+		}
+	}
+	public static class ConstraintInconsistency extends EqualByTypeAndPosException {
+		public ConstraintInconsistency(XFailure e, Position p) {
+			super("Constraint on here is inconsistent; " + e.getMessage(), p);
+		}
+	}
+	public static class TypeDefinitionMustBeStaticClassOrInterfaceMembers extends EqualByTypeAndPosException {
+		public TypeDefinitionMustBeStaticClassOrInterfaceMembers(Position p) {
+			super("Type definitions must be static class or interface members.  This is a limitation of the current implementation.", p);
+		}
+	}
+	public static class CannotCompareUnsignedVersusSignedValues extends EqualByTypeAndPosException {
+		public CannotCompareUnsignedVersusSignedValues(Position p) {
+			super("Cannot compare unsigned versus signed values.",p);
+		}
+	}
+	public static class CannotCompareSignedVersusUnsignedValues extends EqualByTypeAndPosException {
+		public CannotCompareSignedVersusUnsignedValues(Position p) {
+			super("Cannot compare signed versus unsigned values.",p);
+		}
+	}
+	public static class OperatorMustHaveOperandsOfComparabletype extends EqualByTypeAndPosException {
+		public OperatorMustHaveOperandsOfComparabletype(Type lbase, Type rbase, Position p) {
+			super("Operator must have operands of comparable type; the types " + lbase + 
+					" and " + rbase + " do not share any values.", 
+					p);
+		}
+	}
+	public static class NoOperationFoundForOperands extends EqualByTypeAndPosException {
+		public NoOperationFoundForOperands(Operator op, Type l, Type r, Position p) {
+			super("No operation " + op + " found for operands " + l + " and " + r + ".", p);
+		}
+	}
+	public static class ArgumentOfWhenMustBeBoolean extends EqualByTypeAndPosException {
+		public ArgumentOfWhenMustBeBoolean(Position p) {
+			super("The type of the argument of a 'when' statement must be Boolean", p);
+		}
+	}
+	public static class InvalidType extends EqualByTypeAndPosException {
+		public InvalidType(Type t, Position p) {
+			super("Invalid type; the real clause of " + t + " is inconsistent.", p);
+		}
+	}
+	public static class TypeInconsistent extends EqualByTypeAndPosException {
+		public TypeInconsistent(Type t, Position p) {
+			super("Type " + t + " is inconsistent.", p);
+		}
+	}
+	public static class CannotReferToTypeParameterFromStaticContext extends EqualByTypeAndPosException {
+		public CannotReferToTypeParameterFromStaticContext(ParameterType pt, Def def, Position p) {
+			super("Cannot refer to type parameter "+ pt.fullName() + " of " + def + " from a static context.", p);
+		}
+	}
+	public static class CannotQualifyTypeParameter extends EqualByTypeAndPosException {
+		public CannotQualifyTypeParameter(ParameterType pt, Def def, Flags flags, Position p) {
+			super("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", p);
+		}
+	}
+	public static class DublicateConstructor extends EqualByTypeAndPosException {
+		public DublicateConstructor(X10ConstructorDef cj, X10ConstructorDef ci, Position p) {
+			super("Duplicate constructor \"" + cj + "\"; previous declaration at " + ci.position() + ".", p);
+		}
+	}
+	public static class DuplicateMethod extends EqualByTypeAndPosException {
+		public DuplicateMethod(X10MethodDef mj, X10MethodDef mi, Position p) {
+			super("Duplicate method \"" + mj + "\"; previous declaration at " + mi.position() + ".", p);
+		}
+	}
+	public static class PublicTypeMustBeDeclaredInX10 extends EqualByTypeAndPosException {
+		public PublicTypeMustBeDeclaredInX10(ClassDef type, Position p) {
+			super("Public type " + type.fullName() + " must be declared in " + type.name() + ".x10.", p);
+		}
+	}
+	public static class InterfaceCannotHaveSuperclass extends EqualByTypeAndPosException {
+		public InterfaceCannotHaveSuperclass(ClassDef type, Position p) {
+			super("Interface " + type + " cannot have a superclass.", p);
+		}
+	}
+	public static class ClassCannotOerridePropertyOfSuperclass extends EqualByTypeAndPosException {
+		public ClassCannotOerridePropertyOfSuperclass(ClassDef type, FieldInstance fi, Position p) {
+			super(type + " cannot override property " 
+            		+ fi.name() + " of superclass " + Types.get(fi.def().container()) + ".", p);
+		}
+	}
+	public static class CanOnlyQualifySuperConstructorInvocation extends EqualByTypeAndPosException {
+		public CanOnlyQualifySuperConstructorInvocation(Position p) {
+			super("Can only qualify a \"super\" constructor invocation.", p);
+		}
+	}
+	public static class ClassNotInnerClass extends EqualByTypeAndPosException {
+		public ClassNotInnerClass(Type superType, Position p) {
+			super("The class \"" + superType + "\" is not an inner class, or was declared in a static context; a qualified constructor invocation cannot be used.", p);
+		}
+	}
+	public static class QualifierDoesNotMatchEnclosingClass extends EqualByTypeAndPosException {
+		public QualifierDoesNotMatchEnclosingClass(Type qt, ContainerType container, Position p) {
+			super("The type of the qualifier \"" + qt + "\" does not match the immediately enclosing class of the super class \"" + container + "\".", p);
+		}
+	}
+	public static class ConstructorsCannotHaveTypeParameters extends EqualByTypeAndPosException {
+		public ConstructorsCannotHaveTypeParameters(Position p) {
+			super("Constructors cannot have type parameters.", p);
+		}
+	}
+	public static class ReturnTypeOfConstructorMustBeFromTypeOfClass extends EqualByTypeAndPosException {
+		public ReturnTypeOfConstructorMustBeFromTypeOfClass(Type retTypeBase, Type clazz, Position p) {
+			super("The return type of the constructor (" + retTypeBase + ") must be derived from the type of the class (" + clazz + ") on which the constructor is defined.",    p);
+		}
+	}
+	public static class CannotInferFieldType extends EqualByTypeAndPosException {
+		public CannotInferFieldType(Position p) {
+			super("Cannot infer field type; field has no initializer.", p);
+		}
+	}
+	public static class CannotInferNonFinalFieldType extends EqualByTypeAndPosException {
+		public CannotInferNonFinalFieldType(Position p) {
+			super("Cannot infer type of non-final fields.", p);
+		}
+	}
+	public static class CannotDeclareStaticNonFinalField extends EqualByTypeAndPosException {
+		public CannotDeclareStaticNonFinalField(Position p) {
+			super("Cannot declare static non-final field.", p);
+		}
+	}
+	public static class IllegalFieldDefinition extends EqualByTypeAndPosException {
+		public IllegalFieldDefinition(FieldDef fi, Position p) {
+			super("Illegal " + fi +  "; structs cannot have var fields.",p);
+		}
+	}
+	public static class FieldCannotHaveType extends EqualByTypeAndPosException {
+		public FieldCannotHaveType(Type type, Position p) {
+			super("Field cannot have type " + type + ".", p);
+		}
+	}
+	public static class StructMayNotHaveVarFields extends EqualByTypeAndPosException {
+		public StructMayNotHaveVarFields(Position p) {
+			super("A struct may not have var fields.", p);
+		}
+	}
+	public static class StaticFieldMustHaveInitializer extends EqualByTypeAndPosException {
+		public StaticFieldMustHaveInitializer(Id name, Position p) {
+			super("Static field "+name+" must have an initializer.", p);
+		}
+	}
+	public static class TransientFieldMustHaveTypeWithDefaultValue extends EqualByTypeAndPosException {
+		public TransientFieldMustHaveTypeWithDefaultValue(Id name, Position p) {
+			super("The transient field '"+ name +"' must have a type with a default value.", p);
+		}
+	}
+	public static class LocalVaraibleMultiplyDefined extends EqualByTypeAndPosException {
+		public LocalVaraibleMultiplyDefined(Id name, Position outerP, Position p) {
+			super("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerP + ".", p);
+		}
+	}
+	public static class CannotInferTypeForFormalParameter extends EqualByTypeAndPosException {
+		public CannotInferTypeForFormalParameter(Id name, Position p) {
+			super("Could not infer type for formal parameter " + name + ".", p);
+		}
+	}
+	public static class FormalParameterCannotHaveType extends EqualByTypeAndPosException {
+		public FormalParameterCannotHaveType(Type type, Position p) {
+			super("Formal parameter cannot have type " + type + ".", p);
+		}
+	}
+	public static class LocalVariableAccessedFromInnerClass extends EqualByTypeAndPosException {
+		public LocalVariableAccessedFromInnerClass(polyglot.types.Name liName, Position p) {
+			super("Local variable \"" + liName +"\" is accessed from an inner class or a closure, and must be declared final.", p);
+		}
+	}
+	public static class LocalVariableCannotBeCapturedInAsync extends EqualByTypeAndPosException {
+		public LocalVariableCannotBeCapturedInAsync(polyglot.types.Name liName, Position p) {
+			super("Local variable \"" + liName + 
+					"\" cannot be captured in an async if there is no enclosing finish in the same scoping-level as \"" + liName +
+					"\"; consider changing \"" + liName +"\" from var to val.", p);
+		}
+	}
+	public static class LocalVariableAccessedAtDifferentPlace extends EqualByTypeAndPosException {
+		public LocalVariableAccessedAtDifferentPlace(polyglot.types.Name liName, Position p) {
+			super("Local variable \"" + liName +"\" is accessed at a different place, and must be declared final.", p);
+		}
+	}
+	public static class CannotInferTypeofMutalVariable extends EqualByTypeAndPosException {
+		public CannotInferTypeofMutalVariable(Position p) {
+			super("Cannot infer type of a mutable (non-val) variable.", p);
+		}
+	}
+	public static class CannotInferVariableType extends EqualByTypeAndPosException {
+		public CannotInferVariableType(polyglot.types.Name name, Position p) {
+			super("Cannot infer variable type; variable "+ name +" has no initializer.", p);
+		}
+	}
+	public static class LocalVariableCannotHaveType extends EqualByTypeAndPosException {
+		public LocalVariableCannotHaveType(Type type, Position p) {
+			super("Local variable cannot have type " + type + ".", p);
+		}
+	}
+	public static class LoopDomainIsNotOfExpectedType extends EqualByTypeAndPosException {
+		public LoopDomainIsNotOfExpectedType(ConstrainedType formalType, Type domainType, Position p) {
+			super("Loop domain is not of expected type." 
+	                + "\n\t Expected type: Iterable[" + formalType + "]" 
+	                + "\n\t Actual type: " + domainType, p);
+		}
+	}
+	public static class CannotInferMethodReturnType extends EqualByTypeAndPosException {
+		public CannotInferMethodReturnType(Position p) {
+			super("Cannot infer method return type; method has no body.", p);
+		}
+	}
+	public static class MissingConstructorBody extends EqualByTypeAndPosException {
+		public MissingConstructorBody(Position p) {
+			super("Missing constructor body.", p);
+		}
+	}
+	public static class NativeConstructorCannotHaveABody extends EqualByTypeAndPosException {
+		public NativeConstructorCannotHaveABody(Position p) {
+			super("A native constructor cannot have a body.", p);
+		}
+	}
+	public static class LiteralOutOfRange extends EqualByTypeAndPosException {
+		public LiteralOutOfRange(String str, long value, Position p) {
+			super(str + " literal " + value + " is out of range.", p);
+		}
+	}
+	public static class NonAbstractPropertyMethodMustBeFinal extends EqualByTypeAndPosException {
+		public NonAbstractPropertyMethodMustBeFinal(Position p) {
+			super("A non-abstract property method must be final.", p);
+		}
+	}
+	public static class PropertyMethodCannotBeStatic extends EqualByTypeAndPosException {
+		public PropertyMethodCannotBeStatic(Position p) {
+			super("A property method cannot be static.", p);
+		}
+	}
+	public static class PropertyMethodCannotHaveGuard extends EqualByTypeAndPosException {
+		public PropertyMethodCannotHaveGuard(DepParameterExpr guard, Position p) {
+			super("A property method cannot have a guard.", guard != null ? guard.position() : p);
 		}
 	}
 	public static class InconsistentContext extends EqualByTypeAndPosException {

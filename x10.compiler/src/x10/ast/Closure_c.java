@@ -254,7 +254,7 @@ public class Closure_c extends Expr_c implements Closure {
 
 		if (! (def instanceof CodeDef)) {
 			Errors.issue(tb.job(),
-			             new SemanticException("Closure cannot occur outside code body.", position()));
+			             new Errors.CannotOccurOutsideCodeBody(Errors.CannotOccurOutsideCodeBody.Element.Closure, position()));
 			// Fake it
 			def = ts.initializerDef(position(), Types.ref(ct.asType()), Flags.STATIC);
 		}

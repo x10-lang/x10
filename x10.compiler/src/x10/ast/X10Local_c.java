@@ -72,14 +72,14 @@ public class X10Local_c extends Local_c {
             } else if (!context.isLocalIncludingAsyncAt(liName)) {
 	            // this local is defined in an outer class
                 isInClosure = true;
-	            Errors.issue(tc.job(), new SemanticException("Local variable \"" + liName +"\" is accessed from an inner class or a closure, and must be declared final.",this.position()));
+	            Errors.issue(tc.job(), new Errors.LocalVariableAccessedFromInnerClass(liName, this.position()));
 	        } else {
                 // if the access is in an async and the local-var is not local, then we must ensure that the scoping looks like this: var ... (no async) ... finish ... async
                 // algorithm: we go up the context (going outwards) looking for a finish
                 // (setting flag foundFinish to true when we find a finish, and to false when we find an async)
                 // when we get to the var definition, then foundFinish must be true.
                if (!context.isSequentialAccess(true,liName))
-                   Errors.issue(tc.job(), new SemanticException("Local variable \"" + liName +"\" cannot be captured in an async if there is no enclosing finish in the same scoping-level as \"" + liName +"\"; consider changing \"" + liName +"\" from var to val.",this.position()));
+                   Errors.issue(tc.job(), new Errors.LocalVariableCannotBeCapturedInAsync(liName, this.position()));
             }
 
             if (!isInClosure) {
@@ -99,7 +99,7 @@ public class X10Local_c extends Local_c {
                     isOk = true;
                 }
                 if (!isOk)
-                    Errors.issue(tc.job(), new SemanticException("Local variable \"" + liName +"\" is accessed at a different place, and must be declared final.",this.position()));
+                    Errors.issue(tc.job(), new Errors.LocalVariableAccessedAtDifferentPlace(liName, this.position()));
             }
             }
         }

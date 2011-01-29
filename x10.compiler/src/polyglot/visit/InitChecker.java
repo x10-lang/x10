@@ -24,6 +24,7 @@ import x10.ast.X10ClassDecl;
 import x10.ast.Async_c;
 import x10.ast.Finish_c;
 import x10.ast.X10Cast;
+import x10.errors.Errors;
 import x10.extension.X10Ext_c;
 import x10.types.X10LocalDef;
 import polyglot.types.TypeSystem;
@@ -818,9 +819,7 @@ public class InitChecker extends DataFlow
 
 
     private void reportVarNotInit(Name n, Position p) {
-        reportError("\"" + n +
-                                    "\" may not have been initialized",
-                                    p);
+        reportError(new Errors.MayNotHaveBeenInitialized(n, p));
     }
     private void reportVarNotInit(NamedVariable f) {
         reportVarNotInit(f.name().id(),f.position());
@@ -876,17 +875,13 @@ public class InitChecker extends DataFlow
                                     DataFlowItem dfOut) {
         LocalDef li = ((Local)a.local()).localInstance().def();
         if (!currCBI.localDeclarations.contains(li)) {
-            reportError("Final local variable \"" + li.name() +
-                    "\" cannot be assigned to in an inner class.",
-                    a.position());
+            reportError(new Errors.FinalLocalVariableCannotBeAssignedTo(li.name(),a.position()));
         }
 
         MinMaxInitCount initCount = dfOut.initStatus.get(li);
 
         if (li.flags().isFinal() && initCount.isIllegalVal()) {
-            reportError("Final variable \"" + li.name() +
-                                        "\" might already have been initialized",
-                                        a.position());
+            reportError(new Errors.FinalVariableAlreadyInitialized(li.name(), a.position()));
         }
     }
 
@@ -920,10 +915,7 @@ public class InitChecker extends DataFlow
                 // leave the inner class before we have performed flowLocalDecl
                 // for the local variable declaration.
 
-                reportError("Local variable \"" + li.name() +
-                        "\" must be initialized before the class " +
-                        "declaration.",
-                        cb.position());
+                reportError(new Errors.LocalVariableMustBeInitializedBeforeClassDeclaration(li.name(),cb.position()));
             }
         }
     }

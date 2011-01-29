@@ -421,8 +421,8 @@ public abstract class DataFlow extends ErrorHandlingVisitor
         this.dataflow((CodeNode) cd);
     }
 
-    public void reportError(String msg, Position p) {
-        Errors.issue(job, new SemanticException(msg,p));
+    public void reportError(SemanticException msg) {
+        Errors.issue(job, msg);
     }
     public void dataflow(CodeNode cd) {
         // only bother to do the flow analysis if the body is not null...
@@ -442,7 +442,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                 }
                 catch (CFGBuildError e) {
                     hadCFG_Error = true;
-                    if (reportCFG_Errors) reportError(e.getMessage(), e.position);
+                    if (reportCFG_Errors) reportError(new Errors.ControlFlowGraphError(e.getMessage(), e.position));
                     return;
                 }
                 finally {

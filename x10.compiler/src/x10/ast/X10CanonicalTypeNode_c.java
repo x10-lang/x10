@@ -118,11 +118,11 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    }
 	    if (p.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
 	        Errors.issue(tc.job(),
-	                new SemanticException("Cannot refer to type parameter "+ pt.fullName() + " of " + def + " from a static context.", position()));
+	                new Errors.CannotReferToTypeParameterFromStaticContext(pt, def, position()));
 	    }
 	    if (flags != null && ! flags.equals(Flags.NONE)) {
 	    	Errors.issue(tc.job(),
-	    	        new SemanticException("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", position()));
+	    	        new Errors.CannotQualifyTypeParameter(pt, def, flags, position()));
 	    }
 	}
 
@@ -178,7 +178,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
         
         if (! c.consistent()) {
             Errors.issue(tc.job(),
-                    new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position()));
+                    new Errors.InvalidType(t, position()));
         }
         
         TypeSystem ts = (TypeSystem) t.typeSystem();

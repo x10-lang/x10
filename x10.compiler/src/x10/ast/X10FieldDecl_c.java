@@ -203,7 +203,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         // should be reported as an error.
         if (flags().flags().isStatic() && (!flags().flags().isFinal())) {
             Errors.issue(tc.job(),
-                    new SemanticException("Cannot declare static non-final field.",position()));
+                    new Errors.CannotDeclareStaticNonFinalField(position()));
         }
         
         FieldDef fi = fieldDef();
@@ -215,7 +215,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             Flags x10flags = fi.flags();
             if (! x10flags.isFinal()) 
                 Errors.issue(tc.job(),
-                        new SemanticException("Illegal " + fi +  "; structs cannot have var fields.",position()));
+                        new Errors.IllegalFieldDefinition(fi, position()));
         }
         
         checkVariance(tc);
@@ -314,11 +314,11 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         // TODO: Could infer type of final fields as LCA of types assigned in the constructor.
         if (type instanceof UnknownTypeNode && init == null)
-        	Errors.issue(tb.job(), new SemanticException("Cannot infer field type; field has no initializer.", position()));
+        	Errors.issue(tb.job(), new Errors.CannotInferFieldType(position()));
         
         // Do not infer types of mutable fields, since there could be more than one assignment and the compiler might not see them all.
         if (type instanceof UnknownTypeNode && ! flags.flags().isFinal())
-        	Errors.issue(tb.job(), new SemanticException("Cannot infer type of non-final fields.", position()));
+        	Errors.issue(tb.job(), new Errors.CannotInferNonFinalFieldType(position()));
 
         return n;
     }
@@ -430,7 +430,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    	TypeSystem ts = (TypeSystem) tc.typeSystem();
 	    	if (type.isVoid()) {
-	    		Errors.issue(tc.job(), new SemanticException("Field cannot have type " + typeNode.type() + ".", position()));
+	    		Errors.issue(tc.job(), new Errors.FieldCannotHaveType(typeNode.type(), position()));
 	    		type = ts.unknownType(position()); 
 	    	}
 
@@ -439,12 +439,12 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    			!isMutable(ts, fieldDef().container().get()) &&
 	    			! f.isFinal())
 	    	{
-	    		Errors.issue(tc.job(), new SemanticException("A struct may not have var fields.", position()));
+	    		Errors.issue(tc.job(), new Errors.StructMayNotHaveVarFields(position()));
 	    	}
 
             final boolean noInit = init() == null;
             if (f.isStatic() && noInit) {
-                Errors.issue(tc.job(), new SemanticException("Static field "+name+" must have an initializer.", position()));
+                Errors.issue(tc.job(), new Errors.StaticFieldMustHaveInitializer(name, position()));
             } 
 
 
@@ -468,7 +468,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                 if (isTransient) {
                     // transient fields (not annotated with @SuppressTransientError) must have a default value
                     if (!hasZero)
-                        Errors.issue(tc.job(), new SemanticException("The transient field '"+n.name()+"' must have a type with a default value.",position()));
+                        Errors.issue(tc.job(), new Errors.TransientFieldMustHaveTypeWithDefaultValue(n.name(), position()));
                 }
 	    	}
 

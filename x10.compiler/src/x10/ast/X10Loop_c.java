@@ -198,9 +198,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		// The expected type is Iterable[Foo].  The constraints on domainType do matter
 		// for this failure, so don't strip them.
 		Errors.issue(tc.job(),
-		        new SemanticException("Loop domain is not of expected type." 
-		                + "\n\t Expected type: Iterable[" + formalType + "]" 
-		                + "\n\t Actual type: " + domainType, position()));
+		        new Errors.LoopDomainIsNotOfExpectedType(formalType, domainType, position()));
 		return this;
 	}
 

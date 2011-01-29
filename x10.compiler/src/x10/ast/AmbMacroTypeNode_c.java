@@ -355,7 +355,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         	if (numParams > 0) {
         	    if (numParams != typeArgs.size()) {
         	        Errors.issue(tc.job(),
-        	                new SemanticException("Number of type arguments (" + typeArgs.size() + ") for " + ct.fullName() + " is not the same as number of type parameters (" + numParams + ").", n.position()));
+        	                new Errors.NumberTypeArgumentsNotSameAsNumberTypeParameters(typeArgs.size(), ct.fullName(), numParams, n.position()));
         	        typeArgs = new ArrayList<TypeNode>(typeArgs);
         	        while (numParams < typeArgs.size()) {
         	            typeArgs.remove(typeArgs.size()-1);
