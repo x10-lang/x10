@@ -18,8 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
-
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
