@@ -85,6 +85,7 @@ gen/all-cpp-generated: $(XRX_REL_SRCS) $(subst $(SPACE),\$(SPACE),$(DISTDIR))/li
 
 $(XRX_PROPERTIES): $(XRX_REL_SRCS) gen/all-cpp-generated
 	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "TIMESTAMP=$(shell date)" >> $@
 	@echo "CXX=$(CXX)" >> $@
 	@echo "CXXFLAGS=$(XRX_PROPS_CXXFLAGS)" >> $@
 	@echo "LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
