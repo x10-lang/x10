@@ -3798,9 +3798,9 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 	static class TestAmbiguity {
 	    // there are two ways to implicitly convert Y to X (to either X{i==1} or X{i==2}), but we first search in X.
 		def test1(y:Y):X{i==1} = y;
-		@ShouldBeErr def test2(y:Y):X{i==2} = y;
-		@ShouldBeErr def test3(y:Y):X{i==3} = y;
-		@ShouldBeErr def test4(y:Y):X{i==4} = y;
+		@ERR def test2(y:Y):X{i==2} = y;
+		@ERR def test3(y:Y):X{i==3} = y;
+		@ERR def test4(y:Y):X{i==4} = y;
 
 		// there are 2 additional ways to explicitly convert Y to X (we first search in X)
 		@ERR def test5(y:Y):X{i==1} = y as X;
@@ -4074,8 +4074,8 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 
 	property i() = 5;
 	@ERR class R extends R {i()==5} {}
-	@ERR class R1 {i()==3} {}
-	@ERR @ERR class R2 {i()==3} extends R2 {} // [Semantic Error: Circular inheritance involving x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R2, Semantic Error: Class invariant is inconsistent.]
+	@ERR @ERR @ERR @ERR class R1 {i()==3} {}
+	@ERR @ERR @ERR @ERR @ERR class R2 {i()==3} extends R2 {} // [Semantic Error: Circular inheritance involving x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R2, Semantic Error: Class invariant is inconsistent.]
 	class R3 {}
 	@ERR @ERR @ERR class R4 extends R3 {i()==3} {} // [Semantic Error: Invalid type; the real clause of x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent., Semantic Error: Type x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent.]
 	
