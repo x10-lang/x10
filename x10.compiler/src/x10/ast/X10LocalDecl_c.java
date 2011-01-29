@@ -253,26 +253,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         return n;
     }
 
-    @Override
-    public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
-        if (type() instanceof UnknownTypeNode && init != null) {
-            UnknownTypeNode tn = (UnknownTypeNode) type();
-
-            NodeVisitor childv = v.enter(parent, this);
-            childv = childv.enter(this, init);
-
-            if (childv instanceof TypeCheckPreparer) {
-                TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
-                final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-                TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-                tc = (TypeChecker) tc.context(tcp.context().freeze());
-                r.setResolver(new TypeCheckExprGoal(this, init, tc, r));
-            }
-        }
-        return super.setResolverOverride(parent, v);
-    }
-
-
 	public String shortToString() {
 		return "<X10LocalDecl_c #" + hashCode()  // todo: using hashCode leads to non-determinism in the output of the compiler
 		// + " flags= |" + flags + "|"
