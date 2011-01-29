@@ -22,11 +22,11 @@ public class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
         super(options, x10rt, eq);
     }
 
-    protected void addPreArgs(ArrayList<String> cxxCmd) {
+    public void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
     }
 
-    protected void addPostArgs(ArrayList<String> cxxCmd) {
+    public void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
         cxxCmd.add("-lrt");
     }

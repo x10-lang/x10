@@ -23,7 +23,7 @@ public class FreeBSD_CXXCommandBuilder extends CXXCommandBuilder {
         super(options, x10rt, eq);
     }
 
-    protected void addPreArgs(ArrayList<String> cxxCmd) {
+    public void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
         cxxCmd.add("-pthread");
         if (getPlatform().endsWith("_x86")) {
@@ -32,7 +32,7 @@ public class FreeBSD_CXXCommandBuilder extends CXXCommandBuilder {
         }
     }
 
-    protected void addPostArgs(ArrayList<String> cxxCmd) {
+    public void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
 
         cxxCmd.remove("-ldl");
