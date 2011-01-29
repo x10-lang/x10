@@ -604,8 +604,8 @@ function main {
 		X10CPP="$X10CPP -NO_CHECKS -x10rt pgas_lapi"
 	fi
 
-	if [[ ! -f $X10_HOME/x10.dist/include/x10rt.h ]]; then
-		printf "\n[$prog: err]: unable to locate x10rt header files!\n"
+	if [[ ! -f $X10_HOME/x10.dist/stdlib/libx10.properties ]]; then
+		printf "\n[$prog: err]: unable to locate libx10.properties!\n"
 		cleanUpExitHarness 2
 	fi
 
