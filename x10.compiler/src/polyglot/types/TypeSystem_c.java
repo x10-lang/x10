@@ -27,8 +27,6 @@ import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XUQV;
@@ -85,6 +83,8 @@ import x10.types.X10TypeEnv_c;
 import x10.types.XTypeTranslator;
 import x10.types.XTypeTranslator.XTypeLit;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CField;
+import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
@@ -425,9 +425,8 @@ public class TypeSystem_c implements TypeSystem
     }
     
     public X10InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags) {
-        String fullNameWithThis = "<init>#this";
-        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
+       // String fullNameWithThis = "<init>#this";
+        XVar thisVar = CTerms.makeThis(); // XTerms.makeLocal(thisName);
 
         return initializerDef(pos, container, flags, thisVar);
     }
@@ -4153,7 +4152,15 @@ public class TypeSystem_c implements TypeSystem
                 return true;
             }
             ConstrainedType ct = (ConstrainedType) t;
-            for (XTerm x : Types.xclause(ct).constraints()) {
+            CConstraint c = Types.xclause(ct);
+            for (XVar x : c.vars()) {
+                if (hasUnknown(x)) {
+                    unknownTypeMap.put(t, true);
+                    return true;
+                }
+            }
+            
+            for (XFormula x : c.atoms()) {
                 if (hasUnknown(x)) {
                     unknownTypeMap.put(t, true);
                     return true;
@@ -4163,44 +4170,29 @@ public class TypeSystem_c implements TypeSystem
         return false;
     }
 
-    private boolean hasUnknown(XTerm x) {
-        if (x instanceof XFormula) {
-            for (XTerm a : ((XFormula) x).arguments()) {
-                if (hasUnknown(a))
-                    return true;
-            }
-        } else if (x instanceof XField) {
-            XField f = (XField) x;
-            if (hasUnknown(f.receiver()))
+    private boolean hasUnknown(XFormula<?> x) {
+        for (XTerm a : x.arguments()) {
+            if (hasUnknown(a))
                 return true;
-            return hasUnknown(f.field());
-        } else if (x instanceof XTypeLit) {
+        }
+        return false;
+    }
+    private boolean hasUnknown(XTerm x) {
+        if (x instanceof XField<?>) {     
+            if (hasUnknown(((XField<?>) x).receiver()))
+                return true;
+            if (x instanceof CField)
+                return hasUnknownType(((CField) x).type());
+        }
+        if (x instanceof XTypeLit) {
             return hasUnknownType(((XTypeLit) x).type());
-        } else if (x instanceof XEQV) {
-            return false;
-        } else if (x instanceof XUQV) {
-            return false;
-        }
-            else if (x instanceof XLocal) {
+        } 
+        if (x instanceof CLocal) 
+            return hasUnknownType(((CLocal) x).type());
         
-            return hasUnknown(((XLocal) x).name());
-        }
         return false;
     }
 
-    private boolean hasUnknown(XName n) {
-        if (n instanceof XNameWrapper<?>) {
-            Object v = ((XNameWrapper<?>) n).val();
-            if (v instanceof LocalDef) {
-                LocalDef ld = (LocalDef) v;
-                return hasUnknownType(Types.get(ld.type()));
-            } else if (v instanceof FieldDef) {
-                FieldDef fd = (FieldDef) v;
-                return hasUnknownType(Types.get(fd.type())) || hasUnknownType(Types.get(fd.container()));
-            }
-        }
-        return false;
-    }
 
     /** Return true if the constraint is consistent. */
     public boolean consistent(CConstraint c) {

@@ -24,9 +24,9 @@ import java.util.Map;
  * @author vj
  *
  */
-public class XFormula extends XTerm {
-	    public final XName op;
-	    public final XName asExprOp;
+public class XFormula<T> extends XTerm {
+	    public final T op;
+	    public final T asExprOp;
 	    public List<XTerm> arguments;
 	    public final boolean isAtomicFormula;
 
@@ -35,13 +35,13 @@ public class XFormula extends XTerm {
 	     * @param op
 	     * @param args
 	     */
-	    public XFormula(XName op, XName opAsExpr, List<XTerm> args, boolean isAtomicFormula) {
+	    public XFormula(T op, T opAsExpr, List<XTerm> args, boolean isAtomicFormula) {
 	    	  this.op = op;
 	    	  this.asExprOp = opAsExpr;
 	          this.arguments = args;
 	          this.isAtomicFormula = isAtomicFormula;
 	    }
-	    public XFormula(XName op, XName opAsExpr, boolean isAtomicFormula, XTerm... args) {
+	    public XFormula(T op, T opAsExpr, boolean isAtomicFormula, XTerm... args) {
 	        this.op = op;
 	        this.asExprOp = opAsExpr;
 	        this.isAtomicFormula = isAtomicFormula;
@@ -82,11 +82,11 @@ public class XFormula extends XTerm {
 	        return n;
 	    }
 
-	    public XName operator() {
+	    public Object operator() {
 	        return op;
 	    }
 	    
-	    public XName asExprOperator() {
+	    public Object asExprOperator() {
 	        return asExprOp;
 	    }
 
@@ -128,7 +128,7 @@ public class XFormula extends XTerm {
 	        XPromise result = c.lookup(this);
 	        if (result != null) // this term has already been interned.
 	            return result;
-	        Map<XName, XPromise> fields = CollectionFactory.newHashMap();
+	        Map<Object, XPromise> fields = CollectionFactory.newHashMap();
 	        for (int i = 0; i < arguments.size(); i++) {
 	            XTerm arg = arguments.get(i);
 	            if (arg == null) {
@@ -139,7 +139,7 @@ public class XFormula extends XTerm {
 	            XPromise child = c.intern(arg);
 	            if (c == null)
 	                return null;
-	            fields.put(new XNameWrapper<Integer>(i), child);
+	            fields.put(new Integer(i), child);
 	        }
 	        // C_Local_c v = new C_Local_c(op);
 	        XTerm v = this;
@@ -190,7 +190,7 @@ public class XFormula extends XTerm {
 	        if (this == o)
 	            return true;
 	        if (o instanceof XFormula) {
-	            XFormula c = (XFormula) o;
+	            XFormula<?> c = (XFormula<?>) o;
 	            if (! c.op.equals(op))
 	            	return false;
 	            if (c.arguments().size() == arguments().size()) {

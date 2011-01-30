@@ -14,14 +14,16 @@ package x10.types.constraints;
 import java.util.HashMap;
 
 import polyglot.ast.Field;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.LocalDef;
+import polyglot.types.MethodDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
-import x10.constraint.XName;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import polyglot.types.Context;
@@ -46,8 +48,6 @@ import x10.constraint.XFormula;
 import x10.constraint.XGraphVisitor;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
@@ -149,8 +149,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @param c -- the constraint to be added in.
 	 * @return the possibly modified constraint
 	 */
-	public CConstraint addIn(CConstraint c) {
-		return addIn(self(), c);
+	public void addIn(CConstraint c) {
+		addIn(self(), c);
 	}
 
 	static class AddInVisitor implements XGraphVisitor {
@@ -198,21 +198,21 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * 
 	 * */
 	
-	public CConstraint addIn(XTerm newSelf, CConstraint c)   {
+	public void addIn(XTerm newSelf, CConstraint c)   {
 	    if (c== null)
-	        return this;
+	        return;
 	    if (! c.consistent()) {
 	        setInconsistent();
-            return this;
+            return;
 	    }
 	    if (c.valid()) {
-	        return this;
+	        return;
 	    }
 	    AddInVisitor v = new AddInVisitor(this, newSelf, c.self());
 	    c.visit(true, false, v);
 	    // vj: What about thisVar for c? Should that be added?
 	    // thisVar = getThisVar(this, c);
-	    return this;
+	    return;
 	}
 
 	
@@ -409,7 +409,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	                t = t.subst(c1.self(), otherSelf);
 	                boolean myResult = c1.entails(t);
 	                if (! myResult && c2m!=null) {
-	                    c1 = c1.copy().addIn(c2m.make());
+	                    c1 = c1.copy();
+	                    c1.addIn(c2m.make());
 	                    c2m=null;
 	                    if (! c1.consistent())
 	                        return false;
@@ -429,7 +430,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	            boolean myResult = c1.entails(t1, t2);
 	            if (! myResult && c2m!=null) {
 	                try {
-	                    c1 = c1.copy().addIn(c2m.make());
+	                    c1 = c1.copy();
+	                    c1.addIn(c2m.make());
                         c2m=null;
                         if (! c1.consistent())
                             return false;
@@ -447,7 +449,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	            boolean myResult = c1.disEntails(t1, t2);
 	            if (! myResult && c2m!=null) {
                     try {
-                        c1 = c1.copy().addIn(c2m.make());
+                        c1 = c1.copy();
+                        c1.addIn(c2m.make());
                         c2m=null;
                         if (! c1.consistent())
                             return false;
@@ -544,9 +547,12 @@ public class CConstraint extends XConstraint  implements ThisVar {
         return ev.result();
         }
         */
-	public XTerm bindingForSelfField(XName varName)  {
-		return bindingForRootField(self(), varName);
+	public XTerm bindingForSelfField(FieldDef fd)  {
+		return bindingForRootField(self(), fd);
 	}
+	public XTerm bindingForSelfField(MethodDef fd)  {
+        return bindingForRootField(self(), fd);
+    }
 
 	/**
 	 * Return the term self.fieldName is bound to in the constraint, and null
@@ -558,12 +564,11 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 */
 	public XTerm bindingForSelfField(Field f) {
 		assert f != null;
-		return bindingForSelfField(XTerms.makeName(f.fieldInstance().def(), 
-		                                           f.name().id().toString()));
+		return bindingForSelfField(f.fieldInstance().def());
 	}
 	public XTerm bindingForSelfField(FieldInstance f) {
 		assert f != null;
-		return bindingForSelfField(XTerms.makeName(f.def(), f.name().toString()));
+		return bindingForSelfField(f.def());
 	}
 
 
@@ -704,37 +709,6 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		return r;
 	}
 
-	/**
-	 * If the XField was created with an X10FieldDef, extract and return it.
-	 * @param f
-	 * @return
-	 */
-	public static X10FieldDef getField(XField f) {
-		XName n = f.field();
-		if (n instanceof XNameWrapper<?>) {
-			XNameWrapper<?> w = (XNameWrapper<?>) n;
-			if (w.val() instanceof X10FieldDef) {
-				return (X10FieldDef) w.val();
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * If the XLocal was created with an X10LocalDef, extract and return it.
-	 * @param f
-	 * @return
-	 */
-	public static X10LocalDef getLocal(XLocal f) {
-		XName n = f.name();
-		if (n instanceof XNameWrapper<?>) {
-			XNameWrapper<?> w = (XNameWrapper<?>) n;
-			if (w.val() instanceof X10LocalDef) {
-				return (X10LocalDef) w.val();
-			}
-		}
-		return null;
-	}
 	
 	// ***************************************************************** Implementation
 	
@@ -765,9 +739,9 @@ public class CConstraint extends XConstraint  implements ThisVar {
 			return r;
 		// pre-fill the cache to avoid infinite recursion
 		m.put(t, new CConstraint());
-		if (t instanceof XLocal) {
-			XLocal v = (XLocal) t;
-			X10LocalDef ld = getLocal(v);
+		if (t instanceof CLocal) {
+			CLocal v = (CLocal) t;
+			X10LocalDef ld = v.localDef();
 			if (ld != null) {
 				Type ty = Types.get(ld.type());
 				ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ld.placeTerm());
@@ -790,33 +764,36 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		} else if (t instanceof CThis){ // no new info to contribute
 		} else if (t instanceof XEQV) { // no new info to contribute
 		} else if (t instanceof XUQV) { // no new info to contribute
-		} else if (t instanceof XField){
-			XField f = (XField) t;
+	
+		} else if (t instanceof CField){
+			CField f = (CField) t;
 			XTerm target = f.receiver();
 			//ancestors.add(target);
 			//ancestors.add(t);
 			CConstraint rt = constraintProjection(target, m, depth+1); //  ancestors);
-
-			X10FieldDef fi = getField(f);
+			Type ty = f.type();
+			
 			CConstraint ci = null;
 
-			if (fi != null) {
-				Type ty = Types.get(fi.type());
+			if (ty != null) {
 				ci = Types.realX(ty);
-				XVar v = ((X10ClassDef) Types.get(fi.container()).toClass().def()).thisVar();
-				try {
-				ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
-				} catch (XFailure z) {
-				    r.setInconsistent();
-				    return r;
-				}
-				try {
-				ci = ci.substitute(f, ci.self());
-				} catch (XFailure z) {
-				    r.setInconsistent();
-				    return r;
-				}
+				XVar v = f.thisVar();
 				r = new CConstraint();
+				if (v != null) {
+				    try {
+				        ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
+				    } catch (XFailure z) {
+				        r.setInconsistent();
+				        return r;
+				    }
+				}
+				try {
+				    ci = ci.substitute(f, ci.self());
+				} catch (XFailure z) {
+				    r.setInconsistent();
+				    return r;
+				}
+				
 				r.addIn(ci);
 				
 				// Recursively perform a constraintProjection on the new constraint ci
@@ -832,7 +809,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				r = rt;
 			}
 		} else if (t instanceof XFormula) {
-			XFormula f = (XFormula) t;
+			XFormula<?> f = (XFormula<?>) t;
 			for (XTerm a : f.arguments()) {
 				CConstraint ca = constraintProjection(a, m, depth+1); //ancestors);
 			//	if (m.get(a) == null)
@@ -845,7 +822,10 @@ public class CConstraint extends XConstraint  implements ThisVar {
 					r.addIn(ca);
 				}
 			}
-		} else {
+		} else if (t instanceof XField) {
+		    
+		}
+		else {
 			assert false : "unexpected " + t;
 		}
 		if (r != null) // update the entry

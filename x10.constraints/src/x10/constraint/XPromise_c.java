@@ -63,7 +63,7 @@ class XPromise_c implements XPromise, Serializable {
      * calls) as promises with fields representing the operator and the
      * operands.
      */
-    protected Map<XName, XPromise> fields;
+    protected Map<Object, XPromise> fields;
 
     /**
      * Create a new promise labeled with the external term c.
@@ -79,7 +79,7 @@ class XPromise_c implements XPromise, Serializable {
      * Create a new promise with the given fields. 
      * @param fields -- the fields of the promise
      */
-    public XPromise_c(Map<XName, XPromise> fields) {
+    public XPromise_c(Map<Object, XPromise> fields) {
         this(fields, null);
     }
 
@@ -88,7 +88,7 @@ class XPromise_c implements XPromise, Serializable {
      * @param fields -- the fields of the promise
      * @param term -- the term labeling the promise
      */
-    public XPromise_c(Map<XName, XPromise> fields, XTerm term) {
+    public XPromise_c(Map<Object, XPromise> fields, XTerm term) {
         this(term, null, fields);
     }
 
@@ -99,12 +99,12 @@ class XPromise_c implements XPromise, Serializable {
      * @param value -- the XTerm that this promise points to
      * @param fields -- the fields of the promise.
      */
-    public XPromise_c(XTerm var, XPromise value, Map<XName, XPromise> fields) {
+    public XPromise_c(XTerm var, XPromise value, Map<Object, XPromise> fields) {
     	assert value==null || fields == null;
         this.var = var;
         this.value = value;
         if (fields != null)
-            this.fields = new LinkedHashMap<XName, XPromise>(fields);
+            this.fields = new LinkedHashMap<Object, XPromise>(fields);
     }
 
     public XPromise_c cloneShallow() {
@@ -117,8 +117,8 @@ class XPromise_c implements XPromise, Serializable {
         XPromise_c newP = (XPromise_c) redirects.get(this);
         assert newP != null;
         if (fields != null) {
-            newP.fields = CollectionFactory.<XName, XPromise> newHashMap(fields.size());
-            for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
+            newP.fields = CollectionFactory.<Object, XPromise> newHashMap(fields.size());
+            for (Map.Entry<Object, XPromise> entry : fields.entrySet()) {
                 newP.fields.put(entry.getKey(), getOrClone(entry.getValue(), redirects));
             }
         }
@@ -160,17 +160,16 @@ class XPromise_c implements XPromise, Serializable {
     public void setTerm(XTerm term, Set<XPromise> visited) {
         var = term;
         if (var != null && fields != null) {
-            for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
-                XName key = entry.getKey();
+            for (Map.Entry<Object, XPromise> entry : fields.entrySet()) {
+                Object key = entry.getKey();
                 XPromise p = entry.getValue();
                 if (visited.contains(p))
                     continue;
                 visited.add(p);
                 assert p.term() instanceof XField : term + "." + key + " = " + p + " (not a field)";
-                XField f = (XField) p.term();
-                XName field = f.field();
-                assert field.equals(key) : term + "." + key + " = " + p + " (different field)";
-                p.setTerm(XConstraint.makeField(term, field), visited);
+                XField<?> f = (XField<?>) p.term();
+                assert f.field().equals(key) : term + "." + key + " = " + p + " (different field)";
+                p.setTerm(f.copy((XVar) term), visited);
             }
         }
     }
@@ -198,30 +197,6 @@ class XPromise_c implements XPromise, Serializable {
         return result;
     }
 
-  /*  public XPromise cloneRecursively(Map<XPromise, XPromise> env) {
-        XPromise q = env.get(this);
-        if (q != null)
-            return q;
-        XPromise_c clone = clone();
-        env.put(this, clone);
-        if (this.value != null) {
-            XPromise valueClone = value.cloneRecursively(env);
-            clone.value = valueClone;
-        }
-        if (this.fields != null) {
-            HashMap<XName, XPromise> cloneFields = new LinkedHashMap<XName, XPromise>();
-            for (Iterator<Map.Entry<XName, XPromise>> it = fields.entrySet().iterator(); it.hasNext();) {
-                Map.Entry<XName, XPromise> entry = it.next();
-                XName key = entry.getKey();
-                XPromise p = entry.getValue();
-                XPromise cloneP = p.cloneRecursively(env);
-                cloneFields.put(key, cloneP);
-            }
-            clone.fields = cloneFields;
-        }
-        return clone;
-    }*/
-
     int lookupReturnValue;
 
     public int lookupReturnValue() {
@@ -243,8 +218,8 @@ class XPromise_c implements XPromise, Serializable {
             return this;
         }
         assert vars[index] instanceof XField;
-        XField f = (XField) vars[index];
-        XName field = f.field();
+        XField<?> f = (XField<?>) vars[index];
+        Object field = f.field();
         // check this edge already exists.
         XPromise p = fields.get(field);
         if (p == null) {
@@ -260,7 +235,7 @@ class XPromise_c implements XPromise, Serializable {
         return this;
     }
 
-    public XPromise lookup(XName s) {
+    public XPromise lookup(Object s) {
         // follow the eq link if there is one.
         if (value != null)
             return value.lookup(s);
@@ -285,10 +260,10 @@ class XPromise_c implements XPromise, Serializable {
             return this;
         // if not, we need to add this path here. Ensure fields is initialized.
         if (fields == null)
-            fields = CollectionFactory.<XName, XPromise>newHashMap();
+            fields = CollectionFactory.<Object, XPromise>newHashMap();
         assert vars[index] instanceof XField;
-        XField f = (XField) vars[index];
-        XName s = f.field();
+        XField<?> f = (XField<?>) vars[index];
+        Object s = f.field();
         // check this edge already exists.
         XPromise p = (XPromise) fields.get(s);
         if (p == null) {
@@ -301,7 +276,7 @@ class XPromise_c implements XPromise, Serializable {
         return p.intern(vars, index + 1, last);
     }
 
-    public void addIn(XName s, XPromise orphan) throws XFailure {
+    public void addIn(Object s, XPromise orphan) throws XFailure {
         if (value != null) {
             // Alternative is to fwd it blindly, that would be correct, but i
             // want to know
@@ -312,7 +287,7 @@ class XPromise_c implements XPromise, Serializable {
         }
 
         if (fields == null)
-            fields = new LinkedHashMap<XName, XPromise>();
+            fields = new LinkedHashMap<Object, XPromise>();
         XPromise child = (XPromise) fields.get(s);
 
         if (child != null) {
@@ -358,7 +333,7 @@ class XPromise_c implements XPromise, Serializable {
             value = target;
         }
         if (fields != null) { // transfer fields
-            for (Map.Entry<XName, XPromise> i : fields.entrySet()) {
+            for (Map.Entry<Object, XPromise> i : fields.entrySet()) {
                 target.addIn(i.getKey(), i.getValue());
             }
             fields = null;
@@ -433,8 +408,8 @@ class XPromise_c implements XPromise, Serializable {
                 XVar v = t1 instanceof XVar ? (XVar) t1 : null;
                 // If t1 is not an XVar, it is an atomic formula, and the fields are its subterms.
                 // hence v shd be null.
-                for (Map.Entry<XName,XPromise> m : fields.entrySet()) {
-                    XName name = m.getKey();
+                for (Map.Entry<Object,XPromise> m : fields.entrySet()) {
+                    Object name = m.getKey();
                     XPromise p = m.getValue();
                     XTerm t = p.term();
                     XVar path2 = null;
@@ -443,9 +418,14 @@ class XPromise_c implements XPromise, Serializable {
 ////                        path2 = XTerms.makeField(v, name);
 //                  }
 //                  path2 = v == null ? null : (XVar) t;
-                    boolean hidden = t instanceof XField ? ((XField) t).isHidden() : false;
-                    path2 = v == null ? null :
-                        (hidden ? XTerms.makeFakeField(v, name) : XTerms.makeField(v, name));
+                  
+                    if (v == null) {
+                        path2 = null;
+                    } else {
+                        assert t instanceof XField<?>;
+                        XField<?> ft = (XField<?>) t;
+                        path2 = ft.copy(v);
+                    }
                     boolean result = p.visit(path2,dumpEQV, hideFake, xg);
                     if (!result)
                         return result;
@@ -463,54 +443,6 @@ class XPromise_c implements XPromise, Serializable {
         return true;
     }
     
-   /* public void dump(XVar path, List<XTerm> result, boolean dumpEQV, boolean hideFake) {
-        XTerm t1 = path == null? term() : path;
-        if (t1 == null)
-            return;
-        if (t1.isAtomicFormula()) {
-            result.add(t1);
-        }
-
-        if (value != null) {
-        		if (dumpEQV || ! t1.hasEQV()) {
-        			XTerm t2 = lookup().var();
-        			if (hideFake && t1 instanceof XField && ((XField) t1).isHidden())
-        				return;
-        			if (hideFake && t2 instanceof XField && ((XField) t2).isHidden())
-        				return;
-        			result.add( XTerms.makeEquals(t1, t2));
-        		}
-            return;
-        }
-        
-        if (fields != null) 
-        	if (dumpEQV || ! t1.hasEQV())  {
-        		XVar v = t1 instanceof XVar ? (XVar) t1 : null;
-        		// If t1 is not an XVar, it is an atomic formula, and the fields are its subterms.
-        		// hence v shd be null.
-        		for (Map.Entry<XName,XPromise> m : fields.entrySet()) {
-        			XName name = m.getKey();
-        			XPromise p = m.getValue();
-        			XTerm t = p.term();
-        			XVar path2 = null;
-//        			if (v != null && !(t instanceof XField && ((XField) t).receiver().equals(v))) {
-//        			    assert false;
-////        			    path2 = XTerms.makeField(v, name);
-//        			}
-//        			path2 = v == null ? null : (XVar) t;
-        			boolean hidden = t instanceof XField ? ((XField) t).isHidden() : false;
-        			path2 = v == null ? null :
-        			    (hidden ? XTerms.makeFakeField(v, name) : XTerms.makeField(v, name));
-        			p.dump(path2, result, dumpEQV, hideFake);
-        		}
-        	}
-        if (disEquals != null) {
-        	if (dumpEQV || ! t1.hasEQV())
-        		for (XPromise i : disEquals) 
-        			result.add(XTerms.makeDisEquals(t1, i.lookup().var()));
-        }
-    }
-*/
     private boolean toStringMark = false;
     public String toString() {
         if (toStringMark)
@@ -541,8 +473,8 @@ class XPromise_c implements XPromise, Serializable {
         }
 
         if (fields != null) {
-            for (Map.Entry<XName, XPromise> p : fields.entrySet()) {
-                XName key = p.getKey();
+            for (Map.Entry<Object, XPromise> p : fields.entrySet()) {
+                Object key = p.getKey();
                 XPromise val = p.getValue();
                 // doing this / self, and val == self.home -> this.home
                 // add this.home / self.home to the replacements to perform
@@ -564,7 +496,7 @@ class XPromise_c implements XPromise, Serializable {
         return var;
     }
 
-    public Map<XName, XPromise> fields() {
+    public Map<Object, XPromise> fields() {
         return fields;
     }
     public void addDisEquals(XPromise other) {

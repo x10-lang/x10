@@ -36,9 +36,6 @@ import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.X10Local_c;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
-import x10.constraint.XTerms;
 import x10.constraint.XLocal;
 import x10.constraint.XFailure;
 import x10.types.ClosureDef;
@@ -47,6 +44,7 @@ import x10.types.ClosureType_c;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.MethodInstance;
+import x10.types.X10LocalDef;
 
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
@@ -57,6 +55,8 @@ import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
+import x10.types.constraints.CTerms;
 import x10.extension.X10Ext;
 
 public class ClosureSynthesizer {
@@ -179,20 +179,21 @@ public class ClosureSynthesizer {
             // need to rename the guard variables according to the method parameters
             List<LocalDef> fromNames = def.formalNames();
             MethodInstance instance = sup.methods().get(0);
-            List<LocalDef> toNames = ((X10MethodDef) instance.def()).formalNames();
+            List<LocalDef> toNames =  ((X10MethodDef) instance.def()).formalNames();
             for (int i=0; i<fromNames.size(); i++) {
-                LocalDef fromName = fromNames.get(i);
-                LocalDef toName = toNames.get(i);
+                X10LocalDef fromName = (X10LocalDef) fromNames.get(i);
+                X10LocalDef toName = (X10LocalDef) toNames.get(i);
                 try {
-                    XLocal fromLocal = new XLocal(new XNameWrapper<LocalDef>(fromName,fromName.name().toString()));
-                    XLocal toLocal = new XLocal(new XNameWrapper<LocalDef>(toName,toName.name().toString()));
+                    CLocal fromLocal = CTerms.makeLocal(fromName);
+                    CLocal toLocal = CTerms.makeLocal(toName);
                     constraint = constraint.substitute(toLocal,fromLocal);
                 } catch (XFailure xFailure) {
                     assert false;
                 }
             }
 
-            CConstraint result = ((ClosureType_c)sup).getXClause().addIn(constraint);
+            CConstraint result = ((ClosureType_c)sup).getXClause();
+            result.addIn(constraint);
             assert result.consistent();
 
         }

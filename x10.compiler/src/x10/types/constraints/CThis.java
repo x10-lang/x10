@@ -4,6 +4,8 @@ package x10.types.constraints;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.types.Type;
+
 import x10.constraint.XEQV;
 import x10.constraint.XTerm;
 import x10.constraint.XTermKind;
@@ -27,13 +29,13 @@ public class CThis extends XVar {
     // The name may contain outer this qualifier information.
     // This will be used by the synthesizer to generate code
     // for constrained type casts.
-    public final String name;
+    public final Type type;
     public CThis(int n) {
        this(null, n);
     }
-    public CThis(String name, int n) {
+    public CThis(Type type, int n) {
         this.num=n;
-        this.name=name;
+        this.type=type;
     }
     
     @Override
@@ -50,9 +52,12 @@ public class CThis extends XVar {
         return false;
     }
 
+    public Type type() {
+        return type;
+    }
     @Override
     public String toString() {
-        return name == null ? CTerms.THIS_VAR_PREFIX : name;
+        return type == null ? CTerms.THIS_VAR_PREFIX : type.toString()+"#this";
       
     }
 }

@@ -33,7 +33,6 @@ import x10.ast.ParExpr;
 import x10.ast.SubtypeTest;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -897,7 +896,8 @@ public class Types {
 		    CConstraint c = realX(mt.definedType());
 		    CConstraint w = mt.guard();
 		    if (w != null && ! w.valid()) {
-               c = c.copy().addIn(w); // c may have become inconsistent.
+               c = c.copy();
+               c.addIn(w); // c may have become inconsistent.
 		    }
 		    return c;
 		}
@@ -1027,7 +1027,7 @@ public class Types {
 	public static XTerm propVal(Type t, Name name) {
 	    CConstraint c = Types.xclause(t);
 	    if (c == null) return null;
-		return c.bindingForSelfField(new XNameWrapper<Name>(name));
+		return c.bindingForSelfField(Types.getProperty(t, name).def());
 	}
 
 	public static Type promote(Unary.Operator op, JavaPrimitiveType t) throws SemanticException {

@@ -16,7 +16,7 @@ package x10.constraint;
    Not treated as an atomic formula.
    @author njnystrom
  */
-public class XEquals extends XFormula   {
+public class XEquals extends XFormula<String>  {
 	
 	public XEquals(XTerm left, XTerm right) {
 		super(XTerms.equalsName, XTerms.asExprEqualsName, false, left, right);

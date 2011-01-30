@@ -188,13 +188,13 @@ public class XConstraint implements Cloneable {
     	return null;
     }
     
-    protected XTerm bindingForRootField(XVar root, XName name) {
+    protected XTerm bindingForRootField(XVar root, Object o) {
     	 if (!consistent || roots == null)
              return null;
          XPromise self = (XPromise) roots.get(root);
          if (self == null)
              return null;
-         XPromise result = self.lookup(name);
+         XPromise result = self.lookup(o);
          return result == null ? null : result.term();
     }
 
@@ -202,18 +202,51 @@ public class XConstraint implements Cloneable {
 	 * Return the list of atoms (atomic formulas) in this constraint.
 	 * @return
 	 */
-    public List<XFormula> atoms() {
-    	List<XFormula> r = new LinkedList<XFormula>();
+    public List<XFormula<?>> atoms() {
+    	List<XFormula<?>> r = new LinkedList<XFormula<?>>();
     	if (roots == null)
     		return r;
     		
     	for (XTerm t : roots.keySet()) {
-    		if (t instanceof XFormula) {
-    			r.add((XFormula) t);
+    		if (t instanceof XFormula<?>) {
+    			r.add((XFormula<?>) t);
     		}
     	}
     	return r;
     }
+    /**
+     * Return the set of XVars mentioned in this constraint.
+     * @return
+     */
+    public Set<XVar> vars() {
+        List<XTerm> terms = constraints();
+        Set <XVar> result = CollectionFactory.newHashSet();
+        for (XTerm term : terms) {
+           addTerm(term, result);
+        }
+        return result;   
+    }
+    private void addTerm(XTerm term, Set<XVar> result) {
+        if (term==null)
+            return;
+        if (term instanceof XFormula) {
+            XFormula<?> form = (XFormula<?>) term;
+            for (XTerm arg : form.arguments())
+                addTerm(arg, result);
+            return;
+        } 
+        if (term instanceof XVar)
+            addVar((XVar) term, result);
+    }
+    private void addVar(XVar var, Set<XVar> result) {
+        if (var == null)
+            return;
+        result.add(var);
+        if (var instanceof XField) {
+            addVar(((XField)var).receiver(), result);
+        }
+    }
+   
     /**
 	 * Is the constraint consistent? That is, does it have a solution?
 	 * Implementation Note: In the body of XConstraint, we build in that consistent()
@@ -370,20 +403,6 @@ public class XConstraint implements Cloneable {
         EntailsVisitor ev = new EntailsVisitor(this);
         other.visit(false,false, ev);
         return ev.result();
-    }
-    
-    public boolean oldEntails(XConstraint other)  {
-        if (!consistent)
-            return true;
-        if (other == null || other.valid())
-            return true;
-        List<XTerm> otherConstraints = other.extConstraints();
-        for (XTerm t : otherConstraints) {
-            boolean result = entails(t);
-            if (! result)
-                return false;
-        }
-        return true;
     }
     
     public void setInconsistent() {
@@ -677,7 +696,7 @@ public class XConstraint implements Cloneable {
         }
         else if (t instanceof XFormula) {
         	XFormula f = (XFormula) t;
-        	XName op = f.operator();
+        	Object op = f.operator();
         	List<XTerm> args = f.arguments();
         	int n = args.size();
         	for (XFormula x : atoms()) {
@@ -1033,16 +1052,16 @@ public class XConstraint implements Cloneable {
     private Map<XTerm, XPromise> cloneRoots() {
         return ((Map<XTerm,XPromise>) ((SmallMap<XTerm,XPromise>)roots).clone());
     }
-*/	
-    static XTerm makeField(XTerm target, XName field) {
+	
+    static <T> XTerm makeField(XTerm target, XField<T> field) {
         XTerm t;
         if (target instanceof XVar) {
-            t = XTerms.makeField((XVar) target, field);
+            t = field.copy((XVar) target); 
         }
         else {
-            t = XTerms.makeAtom(field, target);
+            t = XTerms.makeAtom(field.field(), target);
         }
         return t;
     }
-
+*/
 }

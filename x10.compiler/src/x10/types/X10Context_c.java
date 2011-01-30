@@ -922,7 +922,8 @@ public class X10Context_c extends Context_c {
 		if (c == null) {
 			c = env;
 		} else {
-		    c = c.copy().addIn(env);
+		    c = c.copy();
+		    c.addIn(env);
 		    // c.addIn(xc.constraintProjection(c));
 		    if (! c.consistent())
 		        throw new Errors.InconsistentContext(env, pos);

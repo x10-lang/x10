@@ -90,7 +90,6 @@ import x10.config.ConfigurationError;
 import x10.config.OptionError;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -109,6 +108,7 @@ import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.checker.Converter;
+import x10.types.constraints.CTerms;
 import x10.types.matcher.Subst;
 import x10.util.AltSynthesizer;
 
@@ -556,9 +556,10 @@ public class Inliner extends ContextVisitor {
                     int i = 0;
                     for (Name n : vars) {
                         Name m = renamingMap.get(n);
-                        LocalDef ld = localDefMap.get(n);
-                        x[i] = XTerms.makeLocal(XTerms.makeName(ld, n.toString()));
-                        y[i] = XTerms.makeLocal(XTerms.makeName(ld, m.toString()));
+                        X10LocalDef ld = (X10LocalDef) localDefMap.get(n);
+                        
+                        x[i] = CTerms.makeLocal(ld, n.toString());
+                        y[i] = CTerms.makeLocal(ld, m.toString());
                         ++i;
                     }
                     x[i] = XTerms.makeUQV(); // to force substitution
@@ -1096,8 +1097,8 @@ public class Inliner extends ContextVisitor {
             XLocal[] Y = new XLocal[X.length];
             int i = 0;
             for (X10LocalDef ld : map.keySet()) {
-                X[i] = XTerms.makeLocal(new XNameWrapper<X10LocalDef>(ld));
-                Y[i] = XTerms.makeLocal(new XNameWrapper<X10LocalDef>(map.get(ld)));
+                X[i] = CTerms.makeLocal(ld);
+                Y[i] = CTerms.makeLocal(map.get(ld));
                 i++;
             }
             return new Pair<XLocal[], XLocal[]>(X, Y);
@@ -1364,8 +1365,7 @@ public class Inliner extends ContextVisitor {
     private void tieLocalDef(LocalDef d, LocalDef o) {
         Type type = Types.get(d.type());
         try {
-            type = Types.addSelfBinding(type, 
-                                        XTerms.makeLocal(XTerms.makeName(o, o.name().toString())));
+            type = Types.addSelfBinding(type, CTerms.makeLocal((X10LocalDef) o));
         } catch (XFailure e) {
         }
         ((Ref<Type>) d.type()).update(type);

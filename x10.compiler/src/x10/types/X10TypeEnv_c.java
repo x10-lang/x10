@@ -58,8 +58,6 @@ import polyglot.util.TransformingList;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -868,11 +866,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			try {
     				xcontext = (Context) xcontext.pushBlock();	
 
-    				CConstraint r=c.addIn(c1);
-    				if (! r.consistent()) {
+    				c.addIn(c1);
+    				if (! c.consistent()) {
     					return false;
     				}
-    				xcontext.setCurrentConstraint(r);
+    				xcontext.setCurrentConstraint(c);
 
     				X10TypeEnv_c tenv = copy();
     				tenv.context = xcontext;
@@ -1785,7 +1783,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      */
     public boolean clausesConsistent(CConstraint c1, CConstraint c2) {
         if (primitiveClausesConsistent(c1, c2)) {
-            CConstraint r = c1.copy().addIn(c2);
+            CConstraint r = c1.copy();
+            r.addIn(c2);
             return r.consistent();
         }
         return false;
@@ -1985,13 +1984,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     @Override
     public void checkOverride(MethodInstance r, MethodInstance other, boolean allowCovariantReturn) throws SemanticException {
-         MethodInstance mi = (MethodInstance) r;
-         MethodInstance mj = (MethodInstance) other;
-
-        String fullNameWithThis = mi.x10Def().thisVar().toString();
-        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
-        thisVar = mi.x10Def().thisVar(); // FIXME: should the above value be used?
+        MethodInstance mi = (MethodInstance) r;
+        MethodInstance mj = (MethodInstance) other;
+        XVar thisVar = mi.x10Def().thisVar(); 
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
@@ -2016,19 +2011,23 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             entails = mi.guard() == null || mi.guard().valid();
         }
         else {
-           
-                final MethodInstance mii = mi;
-                final MethodInstance mjj = mj;
-                entails = mi.guard() == null || mj.guard().entails(mi.guard(), 
-                                                                   new ConstraintMaker() {
-                    public CConstraint make() throws XFailure {
-                        return  context.constraintProjection(mjj.guard(), mii.guard());
-                    }
-                });          
+
+            final MethodInstance mii = mi;
+            final MethodInstance mjj = mj;
+            entails = mi.guard() == null 
+            || mj.guard().entails(mi.guard(), new ConstraintMaker() {
+                public CConstraint make() throws XFailure {
+                    return  context.constraintProjection(mjj.guard(), mii.guard());
+                }
+            });          
         }
 
         if (! entails) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; method guard is not entailed.",mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container()
+                                        +" cannot override " +mj.signature() 
+                                        + " in " + mj.container() 
+                                        +"; method guard is not entailed.",
+                                        mi.position());
         }
 
         Flags miF = mi.flags();
@@ -2038,7 +2037,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (! miF.hasAllAnnotationsOf(mjF)) {
             if (Report.should_report(Report.types, 3))
                 Report.report(3, mi.flags() + " is more liberal than " + mj.flags());
-            throw new SemanticException(mi.flags() + " " + mi.signature() + " in " + mi.container() +" cannot override " +mj.flags() + " " + mj.signature() + " in " + mj.container() +"; attempting to assign weaker behavioral annotations",mi.position());
+            throw new SemanticException(mi.flags() + " " + mi.signature() 
+                                        + " in " + mi.container() 
+                                        +" cannot override " +mj.flags() 
+                                        + " " + mj.signature() 
+                                        + " in " + mj.container() 
+                                        +"; attempting to assign weaker behavioral annotations",
+                                        mi.position());
         }
     }
 
@@ -2048,9 +2053,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     @Override
     public boolean isSameMethod(MethodInstance mi, MethodInstance mj) {
         if (mi.name().equals(mj.name())) {
-            String fullNameWithThis = mi.x10Def().thisVar().toString();
+           // String fullNameWithThis = mi.x10Def().thisVar().toString();
           //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-            XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
+            XVar thisVar = mi.x10Def().thisVar(); // CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
 
             List<XVar> ys = new ArrayList<XVar>(2);
             List<XVar> xs = new ArrayList<XVar>(2);

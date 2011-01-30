@@ -19,7 +19,7 @@ package x10.constraint;
  */
 
 
-public class XDisEquals extends XFormula {
+public class XDisEquals extends XFormula<String> {
 
 
 	public XDisEquals(XTerm left, XTerm right) {

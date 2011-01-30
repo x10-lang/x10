@@ -153,7 +153,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis("#this");
+        return CTerms.makeThis();
     }
 
     ThisDef thisDef;

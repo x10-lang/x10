@@ -101,7 +101,7 @@ public class XLit extends XVar implements XPromise {
 		return this;
 	}
 
-	public XPromise lookup(XName s) {
+	public XPromise lookup(Object s) {
 		return null;
 	}
 
@@ -157,7 +157,7 @@ public class XLit extends XVar implements XPromise {
 		// nothing to dump.
 	}
 */
-	public void addIn(XName s, XPromise orphan) throws XFailure {
+	public void addIn(Object s, XPromise orphan) throws XFailure {
 		throw new XFailure("Cannot add an " + s + " child " + orphan + " to a literal, " + this + ".");
 	}
 
@@ -186,7 +186,7 @@ public class XLit extends XVar implements XPromise {
 		return null;
 	}
 
-	public HashMap<XName, XPromise> fields() {
+	public HashMap<Object, XPromise> fields() {
 		return null;
 	}
 

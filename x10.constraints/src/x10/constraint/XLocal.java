@@ -22,10 +22,10 @@ import java.util.List;
  * @author vj
  * 
  */
-public final class XLocal extends XVar  {
+public class XLocal<T> extends XVar  {
     
-	public final XName name;
-	public XLocal(XName name) {
+	public final T name;
+	public XLocal(T name) {
 	    assert name != null;
 		this.name = name;
 	}
@@ -46,7 +46,7 @@ public final class XLocal extends XVar  {
 		return false;
 	}
 
-	public XName name() {
+	public T name() {
 		return name;
 	}
 

@@ -53,8 +53,7 @@ import x10.ast.X10New_c;
 import x10.ast.X10New_c.MatcherMaker;
 import x10.ast.X10ProcedureCall;
 import x10.constraint.XFailure;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
+import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -67,6 +66,7 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10LocalDef;
 import polyglot.types.Context;
 
 import x10.types.X10MemberDef;
@@ -76,6 +76,8 @@ import polyglot.types.TypeSystem;
 
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
+import x10.types.constraints.CTerms;
 import x10.types.matcher.DumbMethodMatcher;
 import x10.types.matcher.Subst;
 import x10.visit.X10TypeChecker;
@@ -280,7 +282,7 @@ public class Checker {
 				for (int i = 0; i < t.arguments().size(); i++) {
 					//XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
 					//XVar x = (XVar) xmi.formalTypes().get(i);
-					XVar x = (XVar) XTerms.makeLocal(new XNameWrapper<LocalDef>(xmi.formalNames().get(i).def()));
+					CLocal x =  CTerms.makeLocal((X10LocalDef) xmi.formalNames().get(i).def());
 					XTerm y = xt.translate(cs, t.arguments().get(i), xc);
 					if (y == null)
 						assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 
@@ -290,12 +292,12 @@ public class Checker {
 			} else 
 
 			if (t.arguments().size() == 0) {
-				XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
+			
 				if (r instanceof XVar) {
-					body = XTerms.makeField((XVar) r, field);
+					body = CTerms.makeField((XVar) r, xmi.def());
 				}
 				else {
-					body = XTerms.makeAtom(field, r);
+					body = CTerms.makeAtom(xmi.def(), r);
 				}
 			} else {
 			List<XTerm> terms = new ArrayList<XTerm>();
@@ -303,7 +305,7 @@ public class Checker {
 			for (Expr e : t.arguments()) {
 				terms.add(xt.translate(cs, e, xc));
 			}
-			body = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
+			body = CTerms.makeAtom(xmi.def(), terms);
 			}
 		}
 		CConstraint x = Types.xclause(type);

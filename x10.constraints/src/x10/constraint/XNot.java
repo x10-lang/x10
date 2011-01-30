@@ -18,7 +18,7 @@ package x10.constraint;
  * @author vijay
  *
  */
-public class XNot extends XFormula  {
+public class XNot extends XFormula<String>  {
 	
 	public XNot(XTerm arg) {
 		super(XTerms.notName, XTerms.asExprNotName, false, arg);

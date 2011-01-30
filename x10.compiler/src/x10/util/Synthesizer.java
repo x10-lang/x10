@@ -48,6 +48,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Def;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -76,13 +77,11 @@ import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XName;
 import x10.constraint.XNot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
-import x10.constraint.XNameWrapper;
 import x10.extension.X10Del;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
@@ -99,7 +98,10 @@ import x10.types.X10LocalDef;
 import x10.types.X10FieldDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CField;
+import x10.types.constraints.CLocal;
 import x10.types.constraints.CSelf;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.CThis;
 import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
@@ -205,8 +207,7 @@ public class Synthesizer {
 	    X10FieldInstance fi = Types.getProperty(type, Name.make(name));
 	    if (fi == null)
 	        return null;
-	    XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
-	    return XTerms.makeField(receiver, field);
+	    return CTerms.makeField(receiver, fi.def());
 	}
 
 	public XTerm makePointRankTerm(XVar receiver) {
@@ -1428,31 +1429,19 @@ public class Synthesizer {
     private static java.util.Set<VarDef> getLocals(XTerm t) {
         java.util.Set<VarDef> res = CollectionFactory.newHashSet();
         // FieldDef
-        if (t instanceof XField) {
-            final XField field = (XField) t;
+        if (t instanceof CField) {
+            final CField field = (CField) t;
             final XVar receiver = field.receiver();
             res.addAll(getLocals(receiver));
 
-            if (receiver instanceof CThis) { // only if the receiver is "this"
-                final XName xName = field.field;
-                if (xName instanceof XNameWrapper) {
-                    XNameWrapper wrapper = (XNameWrapper) xName;
-                    final Object v = wrapper.val();
-                    if (v instanceof X10FieldDef)
-                        res.add((X10FieldDef)v);
-                }
+            if (receiver instanceof CThis && field.def() instanceof VarDef) {  
+                res.add((VarDef) field.def());
             }
-        } else if (t instanceof XLocal) {
-            XLocal local = (XLocal) t;
-            final XName xName = local.name;
-            if (xName instanceof XNameWrapper) {
-                XNameWrapper wrapper = (XNameWrapper)xName;
-                final Object v = wrapper.val();
-                if (v instanceof X10LocalDef)
-                    res.add((X10LocalDef)v);
-            }
+        } else if (t instanceof CLocal) {
+            CLocal local = (CLocal) t;
+            res.add(local.localDef());
         } else if (t instanceof XFormula) {
-            final XFormula xFormula = (XFormula) t;
+            final XFormula<?> xFormula = (XFormula<?>) t;
             for (XTerm tt: xFormula.arguments())
                 res.addAll(getLocals(tt));
         }
@@ -1465,8 +1454,8 @@ public class Synthesizer {
      * @seeAlso X10TypeTranslator.constraint(...): it generates a constraint from an AST.
      */
     Expr makeExpr(XTerm t, Position pos) {
-        if (t instanceof XField) 
-            return makeExpr((XField) t, pos);
+        if (t instanceof CField) 
+            return makeExpr((CField) t, pos);
         if (t instanceof XLit)
             return makeExpr((XLit) t, pos);
         if (t instanceof XEquals)
@@ -1481,12 +1470,12 @@ public class Synthesizer {
             return makeExpr((XEQV) t, pos); // this must occur before XLocal_c
         if (t instanceof XUQV)
             return makeExpr((XUQV) t, pos); // this must occur before XLocal_c
-        if (t instanceof XLocal)
-            return makeExpr((XLocal) t, pos);
+        if (t instanceof CLocal)
+            return makeExpr((CLocal) t, pos);
         if (t instanceof XNot)
             return makeExpr((XNot) t, pos);
-        if (t instanceof XFormula)
-            return makeExpr((XFormula) t, pos);
+        if (t instanceof XFormula<?>)
+            return makeExpr((XFormula<?>) t, pos);
         // FIXME: warn about being unable to translate the term
         return null;
     }
@@ -1500,7 +1489,7 @@ public class Synthesizer {
         return xnf.TypeNodeFromQualifiedName(pos, (QName) val);
     }
 
-    Expr makeExpr(XField t, Position pos) {
+    Expr makeExpr(CField t, Position pos) {
         if (t.isHidden())
             return null;
         Receiver r = makeExpr(t.receiver(), pos);
@@ -1509,82 +1498,49 @@ public class Synthesizer {
         }
         if (r == null)
             return null;
-        String str = t.field().toString();
-        int i = str.indexOf("#");
-        //TypeNode tn = null;
-        if (i > 0) {
-            // FIXME: should we create a type node and cast?  Can we ever access fields of a superclass?
-            //String typeName = str.substring(0, i);
-            //tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
-            str = str.substring(i+1);
-            if (str.endsWith("()"))
-                str = str.substring(0, str.length()-2);
+        Def fd = t.def();
+        if (fd instanceof FieldDef) {
+            Name n = ((FieldDef) fd).name();
+            return xnf.Field(pos, r, xnf.Id(pos, n));
         }
-        return xnf.Field(pos, r, xnf.Id(pos, Name.make(str)));
+        if (fd instanceof MethodDef) {
+            Name n = ((MethodDef) fd).name();
+            return xnf.Call(pos, r, xnf.Id(pos, n));
+        }
+     return null;
     }
 
     // FIXME: merge with makeExpr(XLocal, Position)
     Expr makeExpr(CSelf t, Position pos) {
         return xnf.Special(pos, X10Special.SELF);
     }
-    Expr makeExpr(CThis t, Position pos) {
-        String str = t.toString();
-        //if (str.startsWith("_place"))
-        //  assert ! str.startsWith("_place") : "Place var: "+str;
-        int i = str.indexOf("#");
+    Expr makeExpr(CThis ct, Position pos) {
         TypeNode tn = null;
-        if (i > 0) {
-            String typeName = str.substring(0, i);
-            tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
-            str = str.substring(i+1);
+        Type type = ct.type();
+        if (type != null) {
+            tn = xnf.TypeNodeFromQualifiedName(pos,QName.make(type.toString()));
         }
-        X10Special.Kind kind = X10Special.THIS;
-        return tn == null ? xnf.Special(pos, kind) : xnf.Special(pos, kind, tn);
+        return tn == null ? xnf.Special(pos, X10Special.THIS)
+                : xnf.Special(pos, X10Special.THIS, tn);
      
     }
-    // FIXME: merge with makeExpr(XLocal, Position)
     Expr makeExpr(XEQV t, Position pos) {
-        String str = t.toString();
-        //if (str.startsWith("_place"))
-        //	assert ! str.startsWith("_place") : "Place var: "+str;
-        int i = str.indexOf("#");
-        TypeNode tn = null;
-        if (i > 0) {
-            String typeName = str.substring(0, i);
-            tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
-            str = str.substring(i+1);
-        }
-        return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
+        assert false;
+        return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
     }
     Expr makeExpr(XUQV t, Position pos) {
         String str = t.toString();
-        //if (str.startsWith("_place"))
-        //  assert ! str.startsWith("_place") : "Place var: "+str;
-        int i = str.indexOf("#");
-        TypeNode tn = null;
-        if (i > 0) {
-            String typeName = str.substring(0, i);
-            tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
-            str = str.substring(i+1);
-        }
-        return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
+        if (str.equals("here"))
+            return xnf.Here(pos);
+        return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
     }
 
     // FIXME: merge with makeExpr(XEQV, Position)
-    Expr makeExpr(XLocal t, Position pos) {
+    Expr makeExpr(CLocal t, Position pos) {
         String str = t.name().toString();
-        //if (str.startsWith("_place"))
-        //	assert ! str.startsWith("_place") : "Place var: "+str;
         if (str.equals("here"))
             return xnf.Here(pos);
-        int i = str.indexOf("#");
-        TypeNode tn = null;
-        if (i > 0) {
-            String typeName = str.substring(0, i);
-            tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
-            str = str.substring(i+1);
-        }
-        return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
+        return xnf.AmbExpr(pos, xnf.Id(pos,t.name().name()));
     }
 
     Expr makeExpr(XNot t, Position pos) {
@@ -1634,7 +1590,7 @@ public class Synthesizer {
         return xnf.Binary(pos, left, Binary.NE, right);
     }
 
-    Expr makeExpr(XFormula t, Position pos) {
+    Expr makeExpr(XFormula<?> t, Position pos) {
         List<Expr> args = new ArrayList<Expr>();
         for (XTerm a : t.arguments()) {
             Expr e = makeExpr(a, pos);

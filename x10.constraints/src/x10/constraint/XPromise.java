@@ -88,7 +88,7 @@ interface XPromise extends Cloneable {
 	 * @param s
 	 * @return
 	 */
-	XPromise lookup(XName s)  ;
+	XPromise lookup(Object s)  ;
 
 	XPromise lookup();
 
@@ -101,7 +101,7 @@ interface XPromise extends Cloneable {
 	 * @param s -- the name of the field
 	 * @param child -- the s child of the source of the eq link.
 	 */
-	void addIn(XName s, XPromise child) throws XFailure;
+	void addIn(Object s, XPromise child) throws XFailure;
 	
 	/**
 	 * An eq link entering this has just been established. Now the 
@@ -202,7 +202,7 @@ interface XPromise extends Cloneable {
 	XPromise value();
 
 	/** Map from field names f to promises term().f */
-	Map<XName, XPromise> fields();
+	Map<Object, XPromise> fields();
 
 	/**
 	 * Replace a reference to any descendant that is equal to x with a reference to y.

@@ -70,13 +70,14 @@ public class BuiltInTypeRules {
 	 * @return
 	 */
 	public static ConstrainedType adjustReturnTypeForRegionMult(Expr left, Expr right, Type type, Context context) {
-		TypeSystem ts = (TypeSystem) context.typeSystem();
+		TypeSystem ts =  context.typeSystem();
 		ConstrainedType ltype = Types.toConstrainedType(left.type());
 		ConstrainedType rtype = Types.toConstrainedType(right.type());
 		XTerm lrank = ltype.rank(context);
 		XTerm rrank = rtype.rank(context);
 		ConstrainedType ct = Types.toConstrainedType(type);
 		XVar selfVar = ct.selfVar();
+		
 		if (lrank instanceof XLit && rrank instanceof XLit) {
 			int xr = (Integer) ((XLit) lrank).val();
 			int yr = (Integer) ((XLit) rrank).val();

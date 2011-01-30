@@ -143,7 +143,12 @@ public class X10Local_c extends Local_c {
         			Type t = result.type();
 
         			CConstraint dep = Types.xclause(t);
-        			dep = dep == null? c.copy() : dep.copy().addIn(c);
+        			if (dep==null) {
+        			    dep = c.copy();
+        			} else {
+        			    dep = dep.copy();
+        			    dep.addIn(c);
+        			}
         			if (! dep.consistent()) {
         			    throw new Errors.InconsistentType(t, position());
         			}

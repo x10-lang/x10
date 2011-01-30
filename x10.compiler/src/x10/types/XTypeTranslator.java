@@ -54,8 +54,7 @@ import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
+import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -64,6 +63,7 @@ import x10.errors.Errors;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -158,7 +158,8 @@ public class XTypeTranslator {
      * @return
      */
     public XVar translate(XVar var, FieldInstance fi) {
-        return XTerms.makeField(var, XTerms.makeName(fi.def(),  fi.name().toString()));
+        // Warning -- used to have a string that did not contain container()#.
+        return CTerms.makeField(var, fi.def());
     }
 
     /**
@@ -173,8 +174,6 @@ public class XTypeTranslator {
         if (fi == null)
             return null;
         try {
-        
-            XName field = XTerms.makeName(fi.def(), fi.name().toString());
             if (fi.flags().isStatic()) {
                 Type container = Types.get(fi.def().container());
                 container = Types.baseType(container);
@@ -187,12 +186,13 @@ public class XTypeTranslator {
             }
             XTerm v;
             if (target instanceof XVar) {
-                v = XTerms.makeField((XVar) target, field);
+                v = CTerms.makeField((XVar) target, fi.def()); // hmm string was fi.name().toString(0 before.
             }
             else {
                 // this is odd....?
                 // TODO: Determine under what conditions is this path taken.
-                v = XTerms.makeAtom(field, target);
+              
+                v = CTerms.makeAtom(fi.def(), target);
             }
             return v;
         } catch (SemanticException z) {
@@ -210,17 +210,18 @@ public class XTypeTranslator {
      * @param fi
      * @return
      */
-    public XTerm translate(XTerm target, MethodInstance fi) {
-        assert fi.flags().isProperty() && fi.formalTypes().size() == 0;
-        XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString() + "()");
+    public XTerm translate(XTerm target, MethodInstance mi) {
+        assert mi.flags().isProperty() && mi.formalTypes().size() == 0;
+     
         XTerm v;
         if (target instanceof XVar) {
-            v = XTerms.makeField((XVar) target, field);
+            v = CTerms.makeField((XVar) target, mi.def());
         }
         else {
             // this is odd....?
             // TODO: Determine under what conditions is this path taken.
-            v = XTerms.makeAtom(field, target);
+           // XName field = XTerms.makeName(mi.def(), Types.get(mi.def().container()) + "#" + mi.name().toString() + "()");
+            v = CTerms.makeAtom(mi.def(), target);
         }
         return v;
     }
@@ -237,8 +238,7 @@ public class XTypeTranslator {
      * @return
      */
     public XTerm translateFakeField(XTerm target, String name)  {
-        XName field = XTerms.makeName(FAKE_KEY,  name);
-        return XTerms.makeFakeField((XVar) target, field);
+        return XTerms.makeFakeField((XVar) target, Name.make(name));
     }
 
     /** 
@@ -247,9 +247,9 @@ public class XTypeTranslator {
      * @param li
      * @return
      */
-     public XLocal translate(LocalInstance li) {
-        XLocal v = XTerms.makeLocal(XTerms.makeName(li.def(), li.name().toString()));
-        return v;
+     public CLocal translate(LocalInstance li) {
+        return CTerms.makeLocal((X10LocalDef) li.def());
+       
     }
      /**
       * Return an XLit representing the literal t.
@@ -282,8 +282,8 @@ public class XTypeTranslator {
         //  return XTerms.makeLit(t);
     }
     
-    public XLocal translateTypeParam(ParameterType t) {
-        return XTerms.makeLocal(XTerms.makeName(t));
+    public XUQV translateTypeParam(ParameterType t) {
+        return XTerms.makeUQV(t.toString()); //XTerms.makeLocal(XTerms.makeName(t));
     }
 
     
@@ -527,7 +527,8 @@ public class XTypeTranslator {
         }
         CConstraint c2 = Types.xclause(x, r2.type()).copy();
         if (rb.operator()== Binary.EQ) {
-            if (! c1.addIn(c2).consistent())
+            c1.addIn(c2);
+            if (! c1.consistent())
                 result = XTerms.FALSE;
             if (c1.entails(c2) && c2.entails(c1)) {
                 result = XTerms.TRUE;
@@ -563,10 +564,10 @@ public class XTypeTranslator {
             v = XTerms.makeAnd(lt, rt);
         }
         else if (t.operator() == Binary.IN) {
-            v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
+            v = XTerms.makeAtom(t.operator(), lt, rt);
         }
         else  {
-            v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
+            v = XTerms.makeAtom(t.operator(), lt, rt);
             return null;
         }
         return v;
@@ -580,7 +581,7 @@ public class XTypeTranslator {
                 return null;
             terms.add(v);
         }
-        return XTerms.makeAtom(XTerms.makeName("tuple"), terms);
+        return XTerms.makeAtom("tuple", terms);
     }
 
     /**
@@ -618,7 +619,7 @@ public class XTypeTranslator {
                 for (int i = 0; i < t.arguments().size(); i++) {
                     //XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
                     //XVar x = (XVar) xmi.formalTypes().get(i);
-                    XVar x = (XVar) XTerms.makeLocal(new XNameWrapper<LocalDef>(xmi.formalNames().get(i).def()));
+                    XVar x =  CTerms.makeLocal((X10LocalDef) xmi.formalNames().get(i).def());
                     XTerm y = translate(c, t.arguments().get(i), xc);
                     if (y == null)
                         assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 
@@ -629,13 +630,13 @@ public class XTypeTranslator {
             }
 
             if (t.arguments().size() == 0) {
-                XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
+              
                 XTerm v;
                 if (r instanceof XVar) {
-                    v = XTerms.makeField((XVar) r, field);
+                    v = CTerms.makeField((XVar) r, xmi.def());
                 }
                 else {
-                    v = XTerms.makeAtom(field, r);
+                    v = CTerms.makeAtom(xmi.def(), r);
                 }
                 return v;
             }
@@ -647,7 +648,7 @@ public class XTypeTranslator {
                     return null;
                 terms.add(v);
             }
-            XTerm v = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
+            XTerm v = CTerms.makeAtom(xmi.def(), terms);
             return v;
         }
         Type type = t.type();

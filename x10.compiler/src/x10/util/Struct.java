@@ -30,8 +30,6 @@ import polyglot.util.Position;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.TypeBuilder;
 import x10.ast.*;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.types.*;
@@ -74,10 +72,10 @@ public class Struct {
 
        final Position pos = Position.compilerGenerated(n.body().position());
 
-       String fullNameWithThis = fullName + "#this";
+       //String fullNameWithThis = fullName + "#this";
        //String fullNameWithThis = "this";
      //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-       XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
+       XVar thisVar = CTerms.makeThis(ct); // CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
 
 
 
