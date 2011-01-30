@@ -26,16 +26,25 @@ public class Expressions180 extends x10Test {
     }
 
 
-// file Expressions line 1022
- static   class Person {}
- static   class Child extends Person{}
- static   class Exampllllle {
-    def example(rhys:Child) =
-  rhys as Person
-;}
-
- static class Hook {
-   def run():Boolean = true;
+// file Expressions line 1264
+ static interface Personable {}
+ static class Person implements Personable {}
+ static interface Childlike extends Personable {}
+ static class Child extends Person implements Childlike {}
+ static struct Cyborg implements Personable {}
+ static interface Happy {}
+ static class HappyChild extends Child implements Happy {}
+ static class Example {
+  static def example() {
+    var p : Person = new HappyChild();
+    val cl : Childlike = p as Childlike; // static  class -> static  interface
+    val hc : Happy = cl as Happy; // static         interface -> static  interface
+    val ch : Child = hc as Child; // static         interface -> static  class
+    var r : Cyborg = Cyborg();
+    val rl : Personable = r as Personable;
+    // ERROR: r as Childlike
+  }
 }
+ static  class Hook{ def run(){ Example.example(); return true; } }
 
 }

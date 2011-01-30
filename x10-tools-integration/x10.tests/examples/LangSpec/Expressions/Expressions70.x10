@@ -26,7 +26,7 @@ public class Expressions70 extends x10Test {
     }
 
 
-// file Expressions line 287
+// file Expressions line 371
  static  class Example {
  static def exasmple() {
   var x : Int;
@@ -34,7 +34,7 @@ public class Expressions70 extends x10Test {
   x = 1;
   y = 2; // Correct; initializes y
   x = 3;
-  // Incorrect: y = 4;
+  // ERROR: y = 4;
  } }
 
  static class Hook {

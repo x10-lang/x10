@@ -144,7 +144,6 @@ abstract public class TestRegion extends x10Test {
     def prUnbounded(test: String, r: Region): void = {
         try {
             prRegion(test, r);
-            var s: Region.Scanner = r.scanners().next() as Region.Scanner; // XTENLANG-55
             var i: Iterator[Point] = r.iterator();
         } catch (e: UnboundedRegionException) {
             pr(e.toString());
@@ -186,66 +185,9 @@ abstract public class TestRegion extends x10Test {
 
         prRegion(test, r);
 
-        // scanner api
-        var grid: Grid = new Grid();
-        var it: Iterator[Region.Scanner] = r.scanners();
-        while (it.hasNext()) {
-            var s: Region.Scanner = it.next() as Region.Scanner; // XTENLANG-55
-            pr("  poly");
-            if (r.rank==0) {
-                pr("ERROR rank==0");
-            } else if (r.rank==1) {
-                val a2 = a as Array[double](1);
-                var min0: int = s.min(0);
-                var max0: int = s.max(0);
-                for (var i0: int = min0; i0<=max0; i0++) {
-                    if (bump) a2(i0) = a2(i0)+1;
-                    grid.set(i0, a2(i0));
-                }
-            } else if (r.rank==2) {
-                val a2 = a as Array[double](2);
-                var min0: int = s.min(0);
-                var max0: int = s.max(0);
-                for (var i0: int = min0; i0<=max0; i0++) {
-                    s.set(0, i0);
-                    var min1: int = s.min(1);
-                    var max1: int = s.max(1);
-                    for (var i1: int = min1; i1<=max1; i1++) {
-                        if (bump) a2(i0, i1) = a2(i0, i1) + 1;
-                        grid.set(i0, i1, a2(i0,i1));
-                    }
-                }
-            } else if (r.rank==3) {
-                val a2 = a as Array[double](3);
-                var min0: int = s.min(0);
-                var max0: int = s.max(0);
-                for (var i0: int = min0; i0<=max0; i0++) {
-                    s.set(0, i0);
-                    var min1: int = s.min(1);
-                    var max1: int = s.max(1);
-                    for (var i1: int = min1; i1<=max1; i1++) {
-                        s.set(1, i1);
-                        var min2: int = s.min(2);
-                        var max2: int = s.max(2);
-                        for (var i2: int = min2; i2<=max2; i2++) {
-                            if (bump) a2(i0, i1, i2) = a2(i0, i1, i2) + 1;
-                            grid.set(i0, i1, i2, a2(i0,i1,i2));
-                        }
-                    }
-                }
-            }
-        }
-        grid.pr(r.rank);
-
         pr("  iterator");
-        prArray1(a, /*bump*/ false); // XXX use bump, update tests
-    }
-
-    def prArray1(a: Array[double], bump: boolean): void = {
-        // iterator api
         var grid: Grid = new Grid();
         for (p:Point in a.region) {
-            //var v: double = a(p as Point(a.rank));
             if (p.rank==1) {
                 val a2 = a as Array[double](1);
                 if (bump) a2(p(0)) = a2(p(0)) + 1;

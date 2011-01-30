@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Functions9;
+/* Current test harness gets confused by packages, but it would be in package expsome_Functions11;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Functions90 extends x10Test {
     }
 
 
-// file Functions line 372
+// file Functions line 384
  static class Span(low:Int, high:Int) {def this(low:Int, high:Int) {property(low,high);} def between(n:Int) = low <= n && n <= high;}
- static class Functions9TestExp{
+ static class Functions11TestExp{
   def check(digit:Span)  = digit.between.(Int);  }
 
  static class Hook {

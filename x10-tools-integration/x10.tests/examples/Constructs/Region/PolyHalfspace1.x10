@@ -40,11 +40,6 @@ class PolyHalfspace1 extends TestRegion {
         "isConvex() true\n"+
         "size() 8\n"+
         "region: (x0+x1>=3 && x0-x1>=-1 && x0-x1<=1 && x0+x1<=7)\n"+
-        "  poly\n"+
-        "    1  . . 2 . . . . . . . \n"+
-        "    2  . 2 4 6 . . . . . . \n"+
-        "    3  . . 6 9 2 . . . . . \n"+
-        "    4  . . . 2 . . . . . . \n"+
         "  iterator\n"+
         "    1  . . 2 . . . . . . . \n"+
         "    2  . 2 4 6 . . . . . . \n"+

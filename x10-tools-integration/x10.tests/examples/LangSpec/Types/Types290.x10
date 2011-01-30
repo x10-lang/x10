@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Types30;
+/* Current test harness gets confused by packages, but it would be in package typesome_Types32;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Types290 extends x10Test {
     }
 
 
-// file Types line 808
+// file Types line 897
 
- static class Types30TypeTest{
+ static class Types32TypeTest{
   def check()  { 
      var checkycheck : String{self != null};  }}
 

@@ -48,6 +48,8 @@ import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -171,7 +173,7 @@ public class Matcher {
 	        		xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
 
 	        	if (xthis == null)
-	        		xthis = XTerms.makeLocal(XTerms.makeFreshName("this"));
+	        		xthis = CTerms.makeThis(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 		}
 		// update each type in formals, with ythiseqv substituted for xthis (if ! isStatic),
 		// and ySymbols substituted for x.
@@ -317,24 +319,23 @@ public class Matcher {
 		    }
 		    */
 
-		    Context context2 = context.pushAdditionalConstraint(returnEnv);
-		    CConstraint query = newMe.guard();
-		    try {
-		        CConstraint sigma = context2.constraintProjection(returnEnv, query);
-		        if (! returnEnv.copy().addIn(sigma).consistent())
-                    throw new SemanticException("Call invalid; calling environment is inconsistent.");
-		        if (! returnEnv.entails(query, sigma)) {
-		            X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
-                    if (!opts.x10_config.STATIC_CALLS &&
-                            !(newMe instanceof MacroType)) // MacroType cannot have its guard checked at runtime
-                        newMe = newMe.checkGuardAtRuntime(true);
-                    else
-		                throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+		    final Context context2 = context.pushAdditionalConstraint(returnEnv);
+		    final CConstraint query = newMe.guard();
+
+		    if (! returnEnv.entails(query, 
+		                            new ConstraintMaker() {
+		        public CConstraint make() throws XFailure {
+		            return context2.constraintProjection(returnEnv, query);
 		        }
-		    } catch (XFailure z) {
-		        // Substitution introduces inconsistency.
-		        throw new SemanticException("Call invalid; calling environment is inconsistent.");
-		    }
+		    })) {
+		        X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
+		        if (!opts.x10_config.STATIC_CALLS &&
+		                !(newMe instanceof MacroType)) // MacroType cannot have its guard checked at runtime
+		            newMe = newMe.checkGuardAtRuntime(true);
+		        else
+		            throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+		    } 
+
 
 		    List<Type> typeFormals2 = newMe.typeParameters();
 		    TypeConstraint tenv = new TypeConstraint();
@@ -435,10 +436,18 @@ public class Matcher {
 	public static XVar getSymbol(Type type) {
     	return getSymbol(type, "arg");
     }
+	/**
+	 * If the given type says that self == x, then return x. 
+	 * Otherwise make  up a new symbol (with no associated type
+	 * information) and return it. 
+	 * @param type
+	 * @param prefix
+	 * @return
+	 */
     private static XVar getSymbol(Type type, String prefix) {
     	  XVar symbol = Types.selfVarBinding(type);
           if (symbol == null) {
-        	  symbol = XTerms.makeLocal(XTerms.makeFreshName("arg"));
+        	  symbol = XTerms.makeUQV(); // XTerms.makeLocal(XTerms.makeFreshName("arg"));
               // symbol = XTerms.makeUQV(XTerms.makeFreshName(prefix));
           }
           return symbol;

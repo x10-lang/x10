@@ -13,6 +13,7 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 	String name;
 	private List<Goal> prereqs;
 	protected Scheduler scheduler = null;
+	private List<GoalListener> listeners;
 
 	public final Goal intern(Scheduler scheduler) {
 		this.scheduler = scheduler;
@@ -26,6 +27,29 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 		super(Status.NEW);
 		this.name = name==null ? StringUtil.getShortNameComponent(getClass().getName().replace('$', '.')) : name;
 		setResolver(this);
+	}
+
+	public boolean addListener(GoalListener listener) {
+		Goal g = this;
+		if (scheduler != null)
+			g = this.intern(scheduler);
+		if (g != this)
+			return g.addListener(listener);
+
+		boolean adding = true;
+		if (listeners == null) {
+			listeners = new ArrayList<GoalListener>();
+		} else {
+			for (GoalListener l : listeners) {
+				if (l == listener) {
+					adding = false;
+					break;
+				}
+			}
+		}
+		if (adding)
+			listeners.add(listener);
+		return adding;
 	}
 
 	public void run() {
@@ -100,6 +124,11 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 
 		boolean result = false;
 		try {
+			if (listeners != null) {
+			    for (GoalListener l : listeners) {
+			        l.taskStarted(this);
+			    }
+			}
 			result = scheduler.runPass(this);
 			if (state() == Goal.Status.RUNNING_WILL_FAIL)
 			    result = false;

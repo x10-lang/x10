@@ -26,7 +26,7 @@ public class Arrays110 extends x10Test {
     }
 
 
-// file Arrays line 213
+// file Arrays line 204
 
  static class Arrays12TestExp{
   def check()  = (1..2)*(3..4)*(5..6);  }

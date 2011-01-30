@@ -26,18 +26,17 @@ public class Classes160 extends x10Test {
     }
 
 
-// file Classes line 891
-
+// file Classes line 926
  // Integer-coefficient polynomials of one variable.
  static  class Poly {
    public val coeff : Array[Int](1);
    public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
    public def degree() = coeff.size()-1;
-   public  def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+   public def a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
 
    public static operator (c : Int) as Poly = new Poly([c]);
 
-   public def apply(x:Int) {
+   public operator this(x:Int) {
      val d = this.degree();
      var s : Int = this.a(d);
      for( [i] in 1 .. this.degree() ) {

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Arrays_Arrays_wombatsfromlemuria;
+/* Current test harness gets confused by packages, but it would be in package Arrays240;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class Arrays240 extends x10Test {
     }
 
 
-// file Arrays line 341
+// file Arrays line 338
  static class Example{
 def example(){
 val A1 = new Array[Int](1..10, 0);

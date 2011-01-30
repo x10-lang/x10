@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package stmtsome_Expressions28;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Statements19;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,22 +19,18 @@ import harness.x10Test;
 
 
 
-public class Expressions280 extends x10Test {
+public class Statements19 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Expressions280().execute();
+        new Statements19().execute();
     }
 
 
-// file Expressions.tex,  line 1164
+// file Statements.tex,  line 906
 
- static class Expressions28TestStmt{
-  def check()  {
-    
-val p  = [2, 2, 2, 2, 2] as Point;
-val q = [1, 1, 1, 1, 1] as Point;
-val a = p - q;    
-
+ static class Statements19TestStmt{
+  def check(B:Boolean)  {
+    assert B;
   }}
 
  static class Hook {

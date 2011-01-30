@@ -21,14 +21,15 @@ import java.util.Set;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
 
 public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 
     public final Configuration x10cpp_config;
-
+    
     public X10CPPCompilerOptions(ExtensionInfo extension) {
         super(extension);
         x10cpp_config = new Configuration();
@@ -39,7 +40,7 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
     {
         int i = super.parseCommand(args, index, source);
         if (i != index) return i;
-
+        
         // FIXME: [IP] allow overriding super's option processing
         try {
             x10cpp_config.parseArgument(args[index]);

@@ -636,6 +636,29 @@ public final class Array[T] (
 
 
     /**
+     * Map the given function onto the elements of this array for the subset
+     * of points contained in the filter region such that for all points <code>p</code>
+     * in <code>filter</code>,
+     * <code>dst(p) == op(this(p))</code>.<p>
+     * 
+     * @param dst the destination array for the results of the map operation
+     * @param filter the region to select the subset of points to include in the map
+     * @param op the function to apply to each element of the array
+     * @return dst after applying the map operation.
+     * 
+     * @see #reduce((U,T)=>U,U)
+     * @see #scan((U,T)=>U,U)
+     */
+    public def map[U](dst:Array[U](region), filter:Region(this.rank), op:(T)=>U):Array[U](region){self==dst} {
+        val fregion = region && filter;
+        for (p in fregion) {
+            dst(p) = op(this(p));
+        }
+        return dst;
+    }
+
+
+    /**
      * Map the given function onto the elements of this array
      * and the other src array, storing the results in a new result array 
      * such that for all points <code>p</code> in <code>this.region</code>,
@@ -682,12 +705,36 @@ public final class Array[T] (
         return dst;
     }
 
-
+    
+    /**
+     * Map the given function onto the elements of this array
+     * and the other src array for the subset of points contained in the filter region, 
+     * storing the results in the given dst array such that for all points <code>p</code> 
+     * in <code>filter</code>,
+     * <code>dst(p) == op(this(p), src(p))</code>.<p>
+     * 
+     * @param dst the destination array for the map operation
+     * @param src the second source array for the map operation
+     * @param filter the region to select the subset of points to include in the map
+     * @param op the function to apply to each element of the array
+     * @return destination after applying the map operation.
+     * @see #reduce((U,T)=>U,U)
+     * @see #scan((U,T)=>U,U)
+     */
+    public def map[S,U](dst:Array[S](region), src:Array[U](region), filter:Region(rank), op:(T,U)=>S):Array[S](region) {
+        val fregion = region && filter;
+        for (p in fregion) {
+            dst(p) = op(this(p), src(p));
+        }
+        return dst;
+    }
+    
+    
     /**
      * Reduce this array using the given function and the given initial value.
-     * Starting with the initial value, apply the operation pointwise to the current running value
-     * and each element of this array.
-     * Return the final result of the reduction.
+     * Each element of the array will be given as an argument to the reduction
+     * function exactly once, but in an arbitrary order.  The reduction function
+     * may be applied concurrently to implement a parallel reduction. 
      *
      * @param op the reduction function
      * @param unit the given initial value

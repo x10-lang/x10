@@ -26,7 +26,7 @@ public class Arrays300 extends x10Test {
     }
 
 
-// file Arrays line 458
+// file Arrays line 456
 
  static class Arrays33TestExp{
   def check(R:Region, P:Place)  = R->P;  }

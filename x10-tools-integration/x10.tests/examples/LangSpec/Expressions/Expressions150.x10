@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Expressions15;
+/* Current test harness gets confused by packages, but it would be in package typesome_Expressions22;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Expressions150 extends x10Test {
     }
 
 
-// file Expressions line 911
+// file Expressions line 1143
 
- static class Expressions15TypeTest{
+ static class Expressions22TypeTest{
   def check()  { 
      var checkycheck : Array[Int](1);  }}
 

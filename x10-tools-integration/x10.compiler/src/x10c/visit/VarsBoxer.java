@@ -110,7 +110,7 @@ public class VarsBoxer extends ContextVisitor {
                 
                 addPrivatizationDeclToBody(atSt.atDef(), context2, privatizations, outerLocals, newBody);
                 
-                Stmt body = addBoxValWriteBackCallToBody(context2, atSt);
+                Stmt body = addBoxValWriteBackCallToBody(context2, atSt, outerLocals);
                 
                 newBody.add(body);
                 
@@ -144,7 +144,7 @@ public class VarsBoxer extends ContextVisitor {
                     
                     addPrivatizationDeclToBody(atEx.closureDef(), context2, privatizations, outerLocals, newBody);
                     
-                    Stmt body = addBoxValWriteBackCallToBody(context2, atEx);
+                    Stmt body = addBoxValWriteBackCallToBody(context2, atEx, outerLocals);
                     
                     newBody.add(body);
                     
@@ -164,19 +164,19 @@ public class VarsBoxer extends ContextVisitor {
 
     // add write back call to box val in the body
     // TODO optimize write back once when returning the body
-    private Stmt addBoxValWriteBackCallToBody(Context context2, AtStmt atSt) {
-        Stmt body = (Stmt) atSt.body().visit(createAddWriteBackCallVisitor(context2));
+    private Stmt addBoxValWriteBackCallToBody(Context context2, AtStmt atSt, List<Name> outerLocals) {
+        Stmt body = (Stmt) atSt.body().visit(createAddWriteBackCallVisitor(context2, outerLocals));
         return body;
     }
 
     // add write back call to box val in the body
     // TODO optimize write back once when returning the body
-    private Stmt addBoxValWriteBackCallToBody(Context context2, AtExpr atEx) {
-        Stmt body = (Stmt) atEx.body().visit(createAddWriteBackCallVisitor(context2));
+    private Stmt addBoxValWriteBackCallToBody(Context context2, AtExpr atEx, List<Name> outerLocals) {
+        Stmt body = (Stmt) atEx.body().visit(createAddWriteBackCallVisitor(context2, outerLocals));
         return body;
     }
 
-    private ContextVisitor createAddWriteBackCallVisitor(Context context2) {
+    private ContextVisitor createAddWriteBackCallVisitor(Context context2, final List<Name> outerLocals) {
         return new ContextVisitor(job, ts, nf) {
             public Node override(Node parent, Node n) {
                 if (n instanceof AtStmt || n instanceof AtExpr) {
@@ -188,7 +188,7 @@ public class VarsBoxer extends ContextVisitor {
                 if (n instanceof LocalAssign) {
                     LocalAssign la = (LocalAssign) n;
                     Local local = la.local();
-                    if (!context.isLocal(local.name().id())) {
+                    if (outerLocals.contains(local.name().id())) {
                         LocalInstance libox = getBoxLocalDef(Position.COMPILER_GENERATED, local.localInstance()).asInstance();
                         return createSetCall(Position.COMPILER_GENERATED, local.localInstance(), libox, la);
                     }
@@ -199,20 +199,20 @@ public class VarsBoxer extends ContextVisitor {
                     if (expr instanceof Local) {
                         Local local = (Local) expr;
                         if (unary.operator() == X10Unary_c.PRE_DEC || unary.operator() == X10Unary_c.PRE_INC) {
-                            if (!context.isLocal(local.name().id())) {
+                            if (outerLocals.contains(local.name().id())) {
                                 LocalInstance libox = getBoxLocalDef(Position.COMPILER_GENERATED, local.localInstance()).asInstance();
                                 return createSetCall(Position.COMPILER_GENERATED, local.localInstance(), libox, unary);
                             }
                         }
                         else if (unary.operator() == X10Unary_c.POST_INC) {
-                            if (!context.isLocal(local.name().id())) {
+                            if (outerLocals.contains(local.name().id())) {
                                 LocalInstance libox = getBoxLocalDef(Position.COMPILER_GENERATED, local.localInstance()).asInstance();
                                 Expr one = getLiteral(Position.COMPILER_GENERATED, local.type(), 1);
                                 return xnf.Binary(Position.COMPILER_GENERATED, createSetCall(Position.COMPILER_GENERATED, local.localInstance(), libox, xnf.Binary(Position.COMPILER_GENERATED, unary, X10Binary_c.ADD, one).type(local.type())), X10Binary_c.SUB, one).type(local.type());
                             }
                         }
                         else if (unary.operator() == X10Unary_c.POST_DEC) {
-                            if (!context.isLocal(local.name().id())) {
+                            if (outerLocals.contains(local.name().id())) {
                                 LocalInstance libox = getBoxLocalDef(Position.COMPILER_GENERATED, local.localInstance()).asInstance();
                                 Expr one = getLiteral(Position.COMPILER_GENERATED, local.type(), 1);
                                 return xnf.Binary(Position.COMPILER_GENERATED, createSetCall(Position.COMPILER_GENERATED, local.localInstance(), libox, xnf.Binary(Position.COMPILER_GENERATED, unary, X10Binary_c.SUB, one).type(local.type())), X10Binary_c.ADD, one).type(local.type());

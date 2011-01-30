@@ -10,7 +10,6 @@
  */
 package x10c.visit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Assign;
@@ -20,14 +19,12 @@ import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.LocalDecl;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
-import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.CodeDef;
@@ -45,15 +42,14 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
 import x10.ast.SettableAssign;
 import x10.ast.X10Call;
-import x10.ast.X10Return_c;
 import x10.emitter.Emitter;
+import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
 import x10.types.X10ClassType;
-import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
-import polyglot.types.TypeSystem;
 import x10.types.constraints.SubtypeConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 
 // add cast node for java code generator
@@ -84,6 +80,7 @@ public class JavaCaster extends ContextVisitor {
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         n = typeConstraintsCast(parent, old, n);
         n = railAccessCast(parent, n);
+        n = typeBoundsReturnCast(parent, old, n);
         n = covReturnCast(parent, n);
         n = stringReturnCast(parent, n);
         if (X10PrettyPrinterVisitor.isSelfDispatch) {
@@ -92,6 +89,32 @@ public class JavaCaster extends ContextVisitor {
         return n;
     }
     
+    private Node typeBoundsReturnCast(Node parent, Node old, Node n) throws SemanticException {
+        if (n instanceof Return) {
+            Return return1 = (Return) n;
+            Expr e = return1.expr();
+            if (e == null) {
+                return n;
+            }
+            if (!xts.isParameterType(e.type())) {
+                return n;
+            }
+            CodeDef cd = context.currentCode();
+            if (cd instanceof FunctionDef) {
+                FunctionDef fd = (FunctionDef) cd;
+                Type expectedReturnType = ((FunctionInstance<?>) fd.asInstance()).returnType();
+                if (expectedReturnType.typeEquals(return1.expr().type(), context)) {
+                    return n;
+                }
+                Type rt = Types.baseType(return1.expr().type());
+                if (!expectedReturnType.typeEquals(rt, context)) {
+                    return return1.expr(cast(return1.expr(), expectedReturnType));  
+                }
+            }
+        }
+        return n;
+    }
+
     private Node stringReturnCast(Node parent, Node n) throws SemanticException {
         if (n instanceof Return) {
             Return return1 = (Return) n;
@@ -237,21 +260,6 @@ public class JavaCaster extends ContextVisitor {
     //   -> class C[T1,T2]{T1 <: T2} { def test(t1:T1):T2 {return (T2) t1;}}
     private Node typeConstraintsCast(Node parent, Node old, Node n) throws SemanticException {
         Expr e = null;
-        if (n instanceof MethodDecl) {
-            MethodDecl md = (MethodDecl) n;
-            if (md.body() == null) {
-                return n;
-            }
-            List<Stmt> stmts = md.body().statements();
-            for (Stmt stmt : stmts) {
-                if (stmt instanceof X10Return_c) {
-                    X10Return_c r = (X10Return_c) stmt;
-                    if (r.expr() != null && r.expr().type() != md.returnType().type()) {
-                        e = r.expr();
-                    }
-                }
-            }
-        }
         
         if (e == null) {
             if (!(old instanceof Expr)) {
@@ -265,37 +273,18 @@ public class JavaCaster extends ContextVisitor {
         }
 
         Type superType = null;
-        if (context.currentClass() instanceof X10ClassType) {
-            List<SubtypeConstraint> terms = ((X10ClassType) context.currentClass()).x10Def().typeBounds().get().terms();
-            for (SubtypeConstraint sc : terms) {
-                if (sc.isHaszero()) continue;
-                if (sc.subtype().typeEquals(Types.baseType(e.type()), context) && sc.subtype() instanceof ParameterType) {
-                    superType = sc.supertype();
-                }
+        TypeConstraint ctc = context.currentTypeConstraint();
+        List<SubtypeConstraint> terms = ctc.terms();
+        for (SubtypeConstraint sc : terms) {
+            if (sc.isHaszero()) continue;
+            if (sc.subtype().typeEquals(Types.baseType(e.type()), context) && sc.subtype() instanceof ParameterType) {
+                superType = sc.supertype();
             }
         }
         if (superType == null) {
             return n;
         }
 
-        if (n instanceof MethodDecl) {
-            MethodDecl md = (MethodDecl) n;
-            List<Stmt> stmts = md.body().statements();
-            List<Stmt> newstmts = new ArrayList<Stmt>();
-            for (Stmt stmt : stmts) {
-                if (stmt instanceof X10Return_c) {
-                    X10Return_c rt = (X10Return_c) stmt;
-                    Expr expr = rt.expr();
-                    if (expr.type() != md.returnType().type()) {
-                        newstmts.add(rt.expr(cast(expr, md.returnType().type())));
-                        return md.body(md.body().statements(newstmts));
-                    }
-                    return n;
-                }
-                newstmts.add(stmt);
-            }
-        }
-        
         if (n instanceof NullLit) {
             return n;
         }

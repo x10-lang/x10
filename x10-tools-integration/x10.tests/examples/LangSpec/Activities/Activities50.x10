@@ -26,7 +26,7 @@ public class Activities50 extends x10Test {
     }
 
 
-// file Activities line 397
+// file Activities line 402
  static  class GR {
   static def use(Any){}
   static def example() {
@@ -37,9 +37,6 @@ at (here) {
   }
 }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() { GR.example(); return true; } }
 
 }

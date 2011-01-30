@@ -13,12 +13,13 @@ package x10.constraint;
 
 /**
    Class representing left == right constraints.
+   Not treated as an atomic formula.
    @author njnystrom
  */
 public class XEquals extends XFormula   {
 	
 	public XEquals(XTerm left, XTerm right) {
-		super(XTerms.equalsName, XTerms.asExprEqualsName, left, right);
+		super(XTerms.equalsName, XTerms.asExprEqualsName, false, left, right);
 	}
 	
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {

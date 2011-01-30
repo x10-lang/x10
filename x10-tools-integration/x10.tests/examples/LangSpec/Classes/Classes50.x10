@@ -26,7 +26,7 @@ public class Classes50 extends x10Test {
     }
 
 
-// file Classes line 274
+// file Classes line 281
  static class Proper(t:Int) {
   def this(t:Int) {property(t);}
 }

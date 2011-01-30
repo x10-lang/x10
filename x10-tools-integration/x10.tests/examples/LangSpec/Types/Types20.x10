@@ -26,7 +26,7 @@ public class Types20 extends x10Test {
     }
 
 
-// file Types line 122
+// file Types line 128
  static class Triple { /* ... */ }
 
  static class Hook {

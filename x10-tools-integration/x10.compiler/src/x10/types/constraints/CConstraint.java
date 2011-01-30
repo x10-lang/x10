@@ -38,6 +38,7 @@ import polyglot.types.SemanticException;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XDisEquals;
+import x10.constraint.XEQV;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
@@ -47,6 +48,7 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
+import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -75,7 +77,7 @@ import x10.types.checker.PlaceChecker;
  */
 public class CConstraint extends XConstraint  implements ThisVar {
 
-	public static final String SELF_VAR_PREFIX="self";
+	
 	
 	/** Variable to use for self in the constraint. */
 	XVar self;
@@ -87,8 +89,9 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	public CConstraint(XVar self) {
 		this.self = self;
 	}
+	
 	public CConstraint() {
-		this(XTerms.makeUQV(SELF_VAR_PREFIX));
+		this(CTerms.makeSelf());
 	}
 
 	/**
@@ -150,6 +153,49 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		return addIn(self(), c);
 	}
 
+	static class AddInVisitor implements XGraphVisitor {
+        CConstraint c2;
+        XTerm newSelf;
+        XVar cSelf;
+        AddInVisitor(CConstraint c2, XTerm newSelf, XVar cSelf) {
+            this.c2=c2;
+            this.newSelf = newSelf;
+            this.cSelf = cSelf;
+        }
+        public boolean visitAtomicFormula(XTerm t) {
+            try {
+                t = t.subst(newSelf, cSelf);
+                c2.addTerm(t);
+                return true;
+            } catch (XFailure z) {
+                c2.setInconsistent();
+                return false;
+            }
+        }
+        public boolean visitEquals(XTerm t1, XTerm t2) {
+            try {
+                t1 = t1.subst(newSelf, cSelf);
+                t2 = t2.subst(newSelf, cSelf);
+                c2.addBinding(t1, t2);
+                return true;
+            } catch (XFailure z) {
+                c2.setInconsistent();
+                return false;
+            }
+        }
+        public boolean visitDisEquals(XTerm t1, XTerm t2) {
+            try {
+                t1 = t1.subst(newSelf, cSelf);
+                t2 = t2.subst(newSelf, cSelf);
+                c2.addDisBinding(t1, t2);
+                return true;
+            } catch (XFailure z) {
+                c2.setInconsistent();
+                return false;
+            }
+        }
+        
+    }
 	/** 
 	 * Add constraint c into this, substituting newSelf for c.self. 
 	 * Return this.
@@ -162,14 +208,18 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @return the possibly modified constraint
 	 * 
 	 * */
+	
 	public CConstraint addIn(XTerm newSelf, CConstraint c)  throws XFailure {
-		if (c != null) {
-			List<XTerm> result = c.constraints();
-			if (result == null)
-				return this;
-			for (XTerm t : result) {
-				addTerm(t.subst(newSelf, c.self()));
-			}
+		if (c != null && ! c.valid()) {
+		        AddInVisitor v = new AddInVisitor(this, newSelf, c.self());
+		        c.visit(true, false, v);
+		        /*
+		    List<XTerm> result = c.constraints();
+            if (result == null)
+                return this;
+            for (XTerm t : result) {
+                addTerm(t.subst(newSelf, c.self()));
+            }*/
 		}
 		// vj: What about thisVar for c? Should that be added?
 				// thisVar = getThisVar(this, c);
@@ -294,6 +344,11 @@ public class CConstraint extends XConstraint  implements ThisVar {
 					+ t2.thisVar());
 		return thisVar;
 	}
+	/**
+	 * TODO: Use an XGraphVisitor instead of constraints().
+	 * Note: The only vars that need to be changed are in roots!
+	 * So doing constraints() and iterating over its terms is really bad.
+	 */
 	public CConstraint substitute(XTerm[] ys, XVar[] xs) throws XFailure {
 		assert (ys != null && xs != null);
 		assert xs.length == ys.length;
@@ -349,18 +404,31 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		//		result.applySubstitution(y,x);
 		return result;
 	}
-
-	  static class EntailsVisitor implements XGraphVisitor{
+	
+	  static class CEntailsVisitor implements XGraphVisitor{
 	        CConstraint c1;
+	        ConstraintMaker c2m;
 	        XVar otherSelf;
 	        boolean result=true;
-	        EntailsVisitor(CConstraint c1, XVar otherSelf) {
+	        CEntailsVisitor(CConstraint c1, ConstraintMaker c2m, XVar otherSelf) {
 	            this.c1=c1;
+	            this.c2m = c2m;
+	            this.otherSelf=otherSelf;
 	        }
 	        public boolean visitAtomicFormula(XTerm t) {
 	            try {
 	                t = t.subst(c1.self(), otherSelf);
-	                result = c1.entails(t, otherSelf);
+	                boolean myResult = c1.entails(t);
+	                if (! myResult && c2m!=null) {
+	                    c1 = c1.copy().addIn(c2m.make());
+	                    c2m=null;
+	                    if (! c1.consistent())
+	                        return false;
+	                    
+	                    myResult = c1.entails(t);
+	                }
+	                result &=myResult;   
+	                    
 	            } catch (XFailure z) {
 	                return false;
 	            }
@@ -369,13 +437,37 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	        public boolean visitEquals(XTerm t1, XTerm t2) {
 	            t1 = t1.subst(c1.self(), otherSelf);
 	            t2 = t2.subst(c1.self(), otherSelf);
-	            result = c1.entails(t1, t2);
+	            boolean myResult = c1.entails(t1, t2);
+	            if (! myResult && c2m!=null) {
+	                try {
+	                    c1 = c1.copy().addIn(c2m.make());
+                        c2m=null;
+                        if (! c1.consistent())
+                            return false;
+	                    myResult = c1.entails(t1, t2);
+	                } catch (XFailure z) {
+	                    myResult=false;
+	                }
+	            }
+                result &=myResult;   
 	            return result;
 	        }
 	        public boolean visitDisEquals(XTerm t1, XTerm t2) {
 	            t1 = t1.subst(c1.self(), otherSelf);
                 t2 = t2.subst(c1.self(), otherSelf);
-	            result = c1.entails(t1, t2);
+	            boolean myResult = c1.disEntails(t1, t2);
+	            if (! myResult && c2m!=null) {
+                    try {
+                        c1 = c1.copy().addIn(c2m.make());
+                        c2m=null;
+                        if (! c1.consistent())
+                            return false;
+                        myResult = c1.disEntails(t1, t2);
+                    } catch (XFailure z) {
+                        myResult=false;
+                    }
+                }
+                result &=myResult;   
 	            return result;
 	        }
 	        public boolean result() {
@@ -389,10 +481,57 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @param other
 	 * @return
 	 */
+
+	public boolean entails(CConstraint other, ConstraintMaker sigma)  {
+        if (!consistent())
+            return true;
+        if (other == null || other.valid())
+            return true;
+        CEntailsVisitor ev = new CEntailsVisitor(this, sigma, other.self());
+        other.visit(false,false, ev);
+        return ev.result();
+	}
+
+	/*
+    // not being used currently. remove eventually if it remains unused.
+      static class EntailsVisitor implements XGraphVisitor{
+            CConstraint c1;
+            XVar otherSelf;
+            boolean result=true;
+            EntailsVisitor(CConstraint c1, XVar otherSelf) {
+                this.c1=c1;
+            }
+            public boolean visitAtomicFormula(XTerm t) {
+                try {
+                    t = t.subst(c1.self(), otherSelf);
+                    result = c1.entails(t, otherSelf);
+                } catch (XFailure z) {
+                    return false;
+                }
+                return result;
+            }
+            public boolean visitEquals(XTerm t1, XTerm t2) {
+                t1 = t1.subst(c1.self(), otherSelf);
+                t2 = t2.subst(c1.self(), otherSelf);
+                result = c1.entails(t1, t2);
+                return result;
+            }
+            public boolean visitDisEquals(XTerm t1, XTerm t2) {
+                t1 = t1.subst(c1.self(), otherSelf);
+                t2 = t2.subst(c1.self(), otherSelf);
+                result = c1.entails(t1, t2);
+                return result;
+            }
+            public boolean result() {
+                return result;
+            }
+        }
+        */
+	/*
 	public boolean entails(CConstraint other, CConstraint sigma)  {
-		if (!consistent())
-			return true;
-		if (other == null || other.valid())
+	    if (!consistent())
+	        return true;
+	    if (other == null || other.valid())
 			return true;
 		//       if (other.toString().equals(toString()))
 		//       	return true;
@@ -414,9 +553,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
         CConstraint.EntailsVisitor ev = new CConstraint.EntailsVisitor(me, other.self());
         other.visit(false,false, ev);
         return ev.result();
-    }
-
-
+        }
+        */
 	public XTerm bindingForSelfField(XName varName)  {
 		return bindingForRootField(self(), varName);
 	}
@@ -649,8 +787,12 @@ public class CConstraint extends XConstraint  implements ThisVar {
 			// if (! contains(ancestors, ci.terms()))
 					r.addIn(ci.constraintProjection(m, depth+1));
 			}
-		} else if (t instanceof XLit) {
-		} else if (t instanceof XField) {
+		} else if (t instanceof XLit) { // no new info to contribute
+		} else if (t instanceof CSelf){ // no new info to contribute
+		} else if (t instanceof CThis){ // no new info to contribute
+		} else if (t instanceof XEQV) { // no new info to contribute
+		} else if (t instanceof XUQV) { // no new info to contribute
+		} else if (t instanceof XField){
 			XField f = (XField) t;
 			XTerm target = f.receiver();
 			//ancestors.add(target);
@@ -749,7 +891,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 					result.addTerm(term);
 				}
 			} catch (XFailure z) {
-
+			    result.setInconsistent();
 			}
 		}
 		return result;

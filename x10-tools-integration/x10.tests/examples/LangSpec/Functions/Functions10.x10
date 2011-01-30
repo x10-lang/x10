@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Functions_Are_For_Spunctions;
+/* Current test harness gets confused by packages, but it would be in package Functions10;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class Functions10 extends x10Test {
     }
 
 
-// file Functions line 39
+// file Functions line 37
  static  class Examplllll {
  static
 val sq: (Int) => Int
@@ -37,9 +37,6 @@ val sq: (Int) => Int
            s
         };
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() { return Examplllll.sq(5) == 25; } }
 
 }

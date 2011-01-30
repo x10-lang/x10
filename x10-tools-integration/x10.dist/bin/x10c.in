@@ -59,6 +59,7 @@ fi
 
 CONFIG_DIR="${TOP}${FILE_SEP}etc"
 LIB_DIR="${TOP}${FILE_SEP}lib"
+STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
 
 #[ -z "$config" ] && config="${CONFIG_FILE}"
 [ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
@@ -79,8 +80,11 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 [ "$optimize" = "true" ] && args="-OPTIMIZE=true $args"
 
 # include x10.jar in sourcepath
-[ -z "$X10SOURCES" ] && export X10SOURCES="${LIB_DIR}${FILE_SEP}x10.jar"
+[ -z "$X10SOURCES" ] && export X10SOURCES="${STDLIB_DIR}${FILE_SEP}x10.jar"
 [ -z "$rtdev" ] && args="-sourcepath \"${X10SOURCES}\" $args"
+
+# include libx10.properties as a x10lib unless rtdev
+[ -z "$rtdev" ] && args="-x10lib ${STDLIB_DIR}/libx10.properties $args"
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 

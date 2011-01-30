@@ -26,8 +26,7 @@ import x10.io.Printer;
  *
  * @author bdlucas
  */
-
-public class PolyRow(rank:Int) extends ValRow {
+class PolyRow(rank:Int) extends ValRow {
 
     static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
     static type PolyRow(rank:Int) = PolyRow{self.rank==rank};

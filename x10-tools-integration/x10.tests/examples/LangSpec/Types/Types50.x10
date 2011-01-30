@@ -26,7 +26,7 @@ public class Types50 extends x10Test {
     }
 
 
-// file Types line 154
+// file Types line 160
  static class Outer {
  static   class Inner { /* ... */ }
 }

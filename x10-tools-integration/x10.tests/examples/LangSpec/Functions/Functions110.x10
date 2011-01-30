@@ -26,7 +26,7 @@ public class Functions110 extends x10Test {
     }
 
 
-// file Functions line 451
+// file Functions line 467
  static  class JustATest {
  val dummy = [String.+,
   Long.-,

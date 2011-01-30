@@ -22,33 +22,20 @@ import java.util.List;
  * @author vj
  * 
  */
-public class XLocal extends XVar  {
+public final class XLocal extends XVar  {
+    
 	public final XName name;
-
 	public XLocal(XName name) {
+	    assert name != null;
 		this.name = name;
 	}
-	public XTermKind kind() { return XTermKind.LOCAL;}
-	public XVar[] vars() {
-		return new XVar[] { this };
-	}
 	
-	public List<XEQV> eqvs() {
-	    return Collections.emptyList();
-	}
 
-	public XVar rootVar() {
-		return this;
-	}
-
+	@Override
 	public int hashCode() {
 		return name.hashCode();
 	}
-
-	public boolean hasVar(XVar v) {
-		return equals(v);
-	}
-
+	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
@@ -73,6 +60,7 @@ public class XLocal extends XVar  {
 		return s;
 	}
 
+	/*
 	public boolean prefixes(XTerm t) {
 		if (equals(t))
 			return true;
@@ -82,8 +70,6 @@ public class XLocal extends XVar  {
 
 		return vars.length > 0 && equals(vars[0]);
 	}
-
-	public void variables(List<XVar> vars) {
-		vars.add(this);
-	}
+*/
+	
 }

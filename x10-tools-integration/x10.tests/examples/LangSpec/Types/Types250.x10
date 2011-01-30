@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Types26;
+/* Current test harness gets confused by packages, but it would be in package typesome_Types28;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Types250 extends x10Test {
     }
 
 
-// file Types line 703
+// file Types line 792
 
- static class Types26TypeTest{
+ static class Types28TypeTest{
   def check(n:Int)  { 
      var checkycheck : Array[Int]{self.rank==1 && self.size == n};  }}
 

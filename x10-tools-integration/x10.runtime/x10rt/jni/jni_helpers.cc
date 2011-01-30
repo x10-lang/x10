@@ -1,5 +1,9 @@
-
+#ifndef __int64
 #define __int64 __int64_t
+#endif
+
+#undef __stdcall
+#define __stdcall
 #include "x10rt_jni_helpers.h"
 
 static JavaVM* theJVM;

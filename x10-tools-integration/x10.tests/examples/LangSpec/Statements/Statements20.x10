@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package statements_should_have_locals;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Statements20;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,16 +26,12 @@ public class Statements20 extends x10Test {
     }
 
 
-// file Statements line 57
- static  class LocalExample {
- def example(a:Int) {
-  if (a > 1) {
-     val b = a/2;
-     var c : Int = 0;
-     // b and c are defined here
-  }
-  // b and c are not defined here.
-} }
+// file Statements.tex,  line 912
+
+ static class Statements20TestStmt{
+  def check(B:Boolean, A:Any)  {
+    assert B:A;
+  }}
 
  static class Hook {
    def run():Boolean = true;

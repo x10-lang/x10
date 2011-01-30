@@ -26,7 +26,7 @@ public class Activities60 extends x10Test {
     }
 
 
-// file Activities line 424
+// file Activities line 430
  static  class GR2 {
   public static def main(argv: Array[String](1)) {
     val argref = GlobalRef[Array[String](1)](argv);
@@ -39,9 +39,6 @@ public class Activities60 extends x10Test {
     }
   }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() { GR2.main(["what, me weasel?"]); }}
 
 }

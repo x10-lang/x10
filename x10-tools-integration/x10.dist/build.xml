@@ -8,6 +8,7 @@
     <property name="etc" location="${basedir}/etc"/>
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
+    <property name="stdlib" location="${basedir}/stdlib"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime.java_2.0.20.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
@@ -45,6 +46,7 @@
         <mkdir dir="${etc}" />
         <mkdir dir="${incdir}" />
         <mkdir dir="${lib}" />
+        <mkdir dir="${stdlib}" />
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
         </condition>
@@ -76,7 +78,6 @@
             <fileset dir="${bin}">
                 <include name="defs"/>
                 <include name="setupX10"/>
-                <include name="java_x10rt"/>
                 <include name="x10"/>
                 <include name="x10c"/>
             </fileset>
@@ -86,6 +87,8 @@
     <target name="clean-java" depends="clean">
         <delete dir="${etc}" failonerror="false"/>
         <mkdir dir="${etc}" />
+        <delete dir="${stdlib}" failonerror="false"/>
+        <mkdir dir="${stdlib}" />
         <mkdir dir="${lib}" />
         <delete> <!-- TODO: download jars elsewhere and copy -->
             <fileset dir="${lib}">
@@ -112,14 +115,10 @@
                 <include name="*.la"/>
                 <include name="*.so"/>
                 <include name="*.dylib"/>
+                <include name="*.jnilib"/>
                 <include name="*.dll"/>
-                <include name="*.mft"/>
             </fileset>
         </delete>
-        <!-- TODO: remove generated libs, but not downloaded ones
-        <delete dir="${lib}" failonerror="false"/>
-        <mkdir dir="${lib}" />
-        -->
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
@@ -143,6 +142,7 @@
                 <include name="${bridge.jar}"/>
             </fileset>
         </delete>
+        <ant antfile="${x10.bridge.location}/build.xml" target="clean" inheritAll="false" dir="${x10.bridge.location}"/>
     </target>
 
     <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
@@ -151,9 +151,13 @@
     <target name="dist-java-cpp" depends="init,build,common-jar,constraints-jar,compiler-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
-    <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar,dist-java-cpp,dist-bridge"/>
+    <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar">
+        <parallel>
+            <antcall target="dist-java-cpp"/>
+            <antcall target="bridge-jar"/>
+        </parallel>
+    </target>
     <target name="dist-bridge" depends="dist-java,bridge-jar"/>
-
     <target name="check-jar-cache" depends="init">
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
@@ -347,7 +351,6 @@
         <antcall target="x10"/>
         <antcall target="x10c"/>
         <antcall target="precommit"/>
-        <antcall target="java_x10rt"/>
     </target>
 
     <target name="etc"
@@ -385,10 +388,6 @@
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/precommit.in"/>
         </uptodate>
-        <uptodate property="java_x10rt.up-to-date" targetfile="${bin}/java_x10rt">
-            <srcfiles file="${ant.file}"/>
-            <srcfiles file="${bin}/java_x10rt.in"/>
-        </uptodate>
         <condition property="bin.up-to-date">
             <and>
                 <isset property="setupX10.up-to-date"/>
@@ -396,7 +395,6 @@
                 <isset property="precommit.up-to-date"/>
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
-                <isset property="java_x10rt.up-to-date"/>
             </and>
         </condition>
     </target>
@@ -590,22 +588,6 @@ WALA4_URL='${wala4.jar.url}'
         <delete file="${bin}/defs"/>
     </target>
 
-    <target name="java_x10rt" unless="java_x10rt.up-to-date"
-            depends="executable-defs"
-            description="creates the executable script java_x10rt">
-        <echo message="Creating ${bin}/java_x10rt"/>
-        <concat destfile="${bin}/java_x10rt" append="no">
-            <filelist dir="${bin}" files="defs"/>
-        </concat>
-        <concat destfile="${bin}/java_x10rt" append="yes">
-            <filelist dir="${bin}" files="java_x10rt.in"/>
-        </concat>
-
-        <chmod perm="+x" file="${bin}/java_x10rt"/>
-
-        <delete file="${bin}/defs"/>
-    </target>
-
     <!-- the following lines have only ever been tested on AIX -->
     <!-- they build the LAPI support library -->
     <target name="buildLAPISupportTask">
@@ -659,7 +641,7 @@ WALA4_URL='${wala4.jar.url}'
         <tar destfile="${src.tar.location}/x10-${src.tar.version}.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <tarfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
             <tarfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <tarfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
@@ -703,7 +685,7 @@ WALA4_URL='${wala4.jar.url}'
     	<property name="targetDir" value="../x10.dist.${platform}.${arch}.fragment"/>
     	<echo message="Copying include and lib files to ${targetDir}..."/>
         <copy todir="${targetDir}">
-            <fileset dir="." includes="include/**,lib/**"/>
+            <fileset dir="." includes="include/**,lib/**,stdlib/**"/>
         </copy>
     </target>
 

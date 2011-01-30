@@ -26,7 +26,7 @@ public class Activities80 extends x10Test {
     }
 
 
-// file Activities line 716
+// file Activities line 708
  static  class EquivCode {
  static def S(pt:Point) {}
  static def example(D:Dist) {

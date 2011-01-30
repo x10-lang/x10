@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Structs_For_Gruckts;
+/* Current test harness gets confused by packages, but it would be in package Structs20;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,14 +26,14 @@ public class Structs20 extends x10Test {
     }
 
 
-// file Structs line 79
+// file Structs line 96
  static struct Pair[T,U](t:T, u:U) {
   def this(t:T, u:U) { property(t,u); }
   def diag(){T==U && t==u} = t;
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {
+   val p = Pair(3,3);
+   return p.diag() == 3;
+ }}
 
 }

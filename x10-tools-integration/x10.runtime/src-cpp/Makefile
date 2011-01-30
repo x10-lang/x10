@@ -9,19 +9,22 @@ XARGS ?= xargs
 
 INCLUDE_DIRS += -I. -I../x10rt/include
 
-BDWGC_PROPERTIES=bdwgc_off.properties
-
 ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
   BDWGC_INCLUDE_DIR= ./bdwgc/install/include
   INCLUDE_DIRS += -I"$(BDWGC_INCLUDE_DIR)"
-  BDWGC_PROPERTIES=bdwgc_on.properties
+  override XRX_PROPS_CXXFLAGS += -DX10_USE_BDWGC
+  override XRX_PROPS_LDLIBS += -lgc
+endif
+
+ifndef X10_STATIC_LIB
+  override XRX_PROPS_LDLIBS += -lx10
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -Igen
 
-
-INSTDIR = $(call abspath,../../x10.dist)
+DISTDIR = $(call abspath,../../x10.dist)
+INSTDIR = $(DISTDIR)/stdlib
 
 ###########
 # Targets #
@@ -29,17 +32,17 @@ INSTDIR = $(call abspath,../../x10.dist)
 
 XRX_ARCHIVE = $(LIBPREFIX)x10$(LIBSUFFIX)
 ifeq ($(X10RT_PLATFORM),cygwin)
-  XRX_DEP_LIBS = -L"$(INSTDIR)"/lib -lx10rt_$(DEFAULT_X10RT_LIB)
+  XRX_DEP_LIBS = -L"$(DISTDIR)"/lib -L"$(INSTDIR)"/lib -lx10rt_$(DEFAULT_X10RT_LIB)
   ifdef ENABLE_GC
     override XRX_DEP_LIBS += -lgc
   endif
 endif
-XRX_MANIFEST = libx10.mft
+XRX_PROPERTIES = libx10.properties
 
 # this builds everything
 xrx: $(XRX_ARCHIVE)
 
-.PHONY: xrx
+.PHONY: xrx 
 
 export CXX
 export MPICXX
@@ -51,7 +54,7 @@ export ARFLAGS
 # Generated Files #
 ###################
 
-# First thing to do: compile x10 files to cc,h,inc
+# First thing to do: compile x10 files to cc,h
 
 
 # A list of all .x10 files (relative to the src-cpp dir) that we should build
@@ -60,36 +63,35 @@ export ARFLAGS
 #
 # The sort is a workaround for XTENLANG-676.  The order in which files are listed on the x10c++ commandline
 # appears to affect the results of typechecking.  By sorting, we force a deterministic order of files.
-XRXFILES  = $(shell $(FIND) ../src-x10 -name .svn -prune -o -name '*.x10' -print | sort )
+XRX_REL_SRCS  = $(shell $(FIND) ../src-x10 -name .svn -prune -o -name '*.x10' -print | sort )
+XRX_SRCS = $(subst ../src-x10/,, $(XRX_REL_SRCS))
 
 #enable asserts, do not look in jar for x10 files
 X10CPPFLAGS += -J-Xmx1024M -J-ea -rtdev -commandlineonly
 
-# Generate .cc .inc and .h files for all the X10 classes defined in the above
-# .x10 files.  Rebuilding occurs if the x10 backend is updated or if any of the
+# Generate .cc and .h files for all the X10 classes defined in the above
+# .x10 files.  Rebuilding occurs if the x10 compiler is updated or if any of the
 # currently present x10 files are newer than the 'all-cpp-generated' file.
 # Note that nothing gets rebuilt if one of the .x10 files is deleted, however
 # this simply means there will be more symbols in the archive than there should
 # be.  This is harmless and equivalent to the old behaviour of this Makefile,
 # i.e. a make clean is needed.
 SPACE = $(EMPTY) $(EMPTY)
-gen/all-cpp-generated: $(XRXFILES) $(subst $(SPACE),\$(SPACE),$(INSTDIR))/lib/x10c.jar
+gen/all-cpp-generated: $(XRX_REL_SRCS) $(subst $(SPACE),\$(SPACE),$(DISTDIR))/lib/x10c.jar
 	@echo "Regenerating XRX cc/h files"
 	mkdir -p gen
-	"$(INSTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -sourcepath ../src-x10 -d ../src-cpp/gen \
-	    $(if $(filter %.jar,$?),$(XRXFILES),$?);
-	touch $@
+	cd ../src-x10 && "$(DISTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -d ../src-cpp/gen $(XRX_SRCS)
+	find gen -name "*.cc" -print > $@
 
-# $(XRX_MANIFEST) is a list of all .cc files (relative to the ./gen dir) that
-# should be included in the $(XRX_ARCHIVE).
-$(XRX_MANIFEST): gen/all-cpp-generated
-	(cd gen && $(FIND) * -name \*.cc -print) > $@
-	@#prune .svn dirs (they probably don't contain *.x10 files so this is just an optimisation)
-	(cd ../src-x10 && $(FIND) * -name .svn -prune -o -name '*.x10' -print) >> $@
-	echo x10.jar >> $@ # FIXME: hard-coded JAR name
-
-
-
+$(XRX_PROPERTIES): $(XRX_REL_SRCS) gen/all-cpp-generated
+	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "CXX=$(CXX)" >> $@
+	@echo "CXXFLAGS=$(XRX_PROPS_CXXFLAGS)" >> $@
+	@echo "LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
+	@echo "LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
+	@echo "SRC_JAR=x10.jar" >> $@
+	@echo "SRC_FILES=$(XRX_SRCS)" >> $@
+	@echo "GEN_FILES=$(shell sed -e's@^gen/\(.*\)\.cc$$@\1.o@' gen/all-cpp-generated)" >> $@
 
 ##########################
 # Manually-written Files #
@@ -162,36 +164,31 @@ ALL_XRCPP_OBJECTS = \
 ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS)
 
 # This target will build the XRX cc files into object files
-gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST) 
-	$(MAKE) CXX_NO_WARNINGS=1 $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) 
+gen/all-o-generated: gen/all-cpp-generated
+	$(MAKE) CXX_NO_WARNINGS=1 $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' gen/all-cpp-generated)
 	touch $@
 
 ifdef X10_STATIC_LIB
-$(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
-	$(AR) $(ARFLAGS) $@ \
-	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
-            $(ALL_MANUAL_OBJECTS)
+$(XRX_ARCHIVE): gen/all-o-generated $(ALL_MANUAL_OBJECTS)
+	$(AR) $(ARFLAGS) $@ $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' gen/all-cpp-generated) $(ALL_MANUAL_OBJECTS)
 else
-$(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
+$(XRX_ARCHIVE): gen/all-o-generated $(ALL_MANUAL_OBJECTS)
 ifeq ($(X10RT_PLATFORM),aix_xlc)
 	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ \
-	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
+	    $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' gen/all-cpp-generated) \
             $(ALL_MANUAL_OBJECTS) \
 	    $(XRX_DEP_LIBS)
 else
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ \
-	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
+	    $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' gen/all-cpp-generated) \
             $(ALL_MANUAL_OBJECTS) \
 	    $(XRX_DEP_LIBS)
 endif
 endif
 
-
-
 # The dummy files are needed to avoid rebuilds so must not be removed as
 # intermediate files usually are.
 .PRECIOUS: gen/all-cpp-generated gen/all-o-generated
-
 
 
 ################## 
@@ -204,24 +201,20 @@ else
   INC_FLAG=-T -
 endif
 
-# FIXME: remove the part of the rule that copies the .inc files as soon as we get rid of them..
-install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
+install: $(XRX_ARCHIVE) $(XRX_PROPERTIES)
 	@echo "Installing into $(INSTDIR)"
 	@mkdir -p "$(INSTDIR)"/include "$(INSTDIR)"/lib
 	@(cd gen && $(FIND) . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
 	@(cd gen && $(FIND) . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
-	@(cd gen && $(FIND) . -name \*.inc | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10 -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@cp -p x10rt.h "$(INSTDIR)"/include
 	@cp -p $(XRX_ARCHIVE) "$(INSTDIR)"/lib
-	@cp -p $(XRX_MANIFEST) "$(INSTDIR)"/lib
-	@cp -p $(BDWGC_PROPERTIES) "$(INSTDIR)"/etc/bdwgc.properties
+	@cp -p $(XRX_PROPERTIES) "$(INSTDIR)"/$(XRX_PROPERTIES)
 
 .PHONY: install
-
 
 
 ##################
@@ -236,7 +229,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 %:%.c
 %:%.cc
 
-# want to make sure the x10 code has been compiled to cc,h,inc since the
+# want to make sure the x10 code has been compiled to cc,h since the
 # manually written code may #include some of the generated headers
 
 %.o: %.cc gen/all-cpp-generated 
@@ -256,7 +249,7 @@ cleanobj:
 
 #nuke everything
 cleangen:
-	-$(RM) -r gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
+	-$(RM) -r gen $(XRX_ARCHIVE) $(XRX_PROPERTIES)
 
 clean: cleanobj cleangen
 

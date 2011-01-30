@@ -26,7 +26,7 @@ public class Vars40 extends x10Test {
     }
 
 
-// file Vars line 172
+// file Vars line 183
  static class Example {
   val n : Int; // not initialized here
   def this() { n = 1; }

@@ -26,7 +26,7 @@ public class ClassCtor30_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 796
+// file Classes line 830
 
  
  static class C(x:Int) {

@@ -11,7 +11,7 @@
 
 package x10.array;
 
-public class ValRow extends Row {
+class ValRow extends Row {
 
     private val row:Array[int](1);
 

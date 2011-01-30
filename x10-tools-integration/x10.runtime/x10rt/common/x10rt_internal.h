@@ -5,6 +5,21 @@
 
 #include <x10rt_types.h>
 
+#if 1
+#include <pthread.h>
+namespace {
+    struct Lock {
+        pthread_mutex_t lock;
+        Lock (void) { pthread_mutex_init(&lock, NULL); }
+        ~Lock (void) { pthread_mutex_destroy(&lock); }
+        void acquire (void) { pthread_mutex_lock(&lock); }
+        void release (void) { pthread_mutex_unlock(&lock); }
+    };
+}
+
+#else
+// win32 implementation
+#endif
 
 template<class T> static inline T* safe_malloc (size_t f=1, size_t a=0) {
     size_t sz = f*sizeof(T) + a;

@@ -32,18 +32,19 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 
 public class ThisDef_c extends VarDef_c implements ThisDef {
     private static final long serialVersionUID = 8939235355633300017L;
 
-    public static final Name THIS = Name.make("this");
+    
 
     public ThisDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> type) {
-        super(ts, pos, Flags.FINAL, type, THIS);
+        super(ts, pos, Flags.FINAL, type, ThisDef.THIS);
         String fullNameWithThis = Types.get(type).def().fullName() + "#this";
-        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        thisVar = XTerms.makeLocal(thisName);
+       // XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+        thisVar = CTerms.makeThis(fullNameWithThis); //XTerms.makeLocal(thisName);
     }
 
     public String toString() {

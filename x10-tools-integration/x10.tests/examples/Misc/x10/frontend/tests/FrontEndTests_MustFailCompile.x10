@@ -12,6 +12,10 @@
 package x10.frontend.tests;
 // TODO: We should put ALL our tests in different packages according to the directory structure
 
+// todo: if you change it to VERBOSE_CALLS, we're missing a lot of warnings (I should create a similar test case that checks VERBOSE_CALLS) 
+// OPTIONS: -STATIC_CALLS 
+
+
 import harness.x10Test;
 
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
@@ -1402,7 +1406,7 @@ class ConstraintPropagationToFields {
 	  val s1:S{y!=0} = S(0,1); 
 	  val s2:S{y!=0} = S(1,0); // ERR: The type of the field initializer is not a subtype of the field type.
 	  val z1:Int{self!=0} = s1.y;
-	  @ShouldBeErr val z2:Int{self==0} = s1.y;
+	  @ERR val z2:Int{self==0} = s1.y;
 	}
 }
 struct UserDefinedStruct {}
@@ -2232,11 +2236,11 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 			property(0); // ShouldBeErr
 		}
 	}
-	interface I2 extends I{p==2} {} // ShouldBeErr
-	interface I3 {p==3} extends I2 {} // ShouldBeErr
+	@ShouldBeErr interface I2 extends I{p==2} {}
+	@ShouldBeErr interface I3 {p==3} extends I2 {}
 	static def test(i:I) {
-		@ShouldBeErr var i1:I{p==5} = i;
-		var i2:I{p==1} = i;
+		@ERR var i1:I{p==5} = i;
+		@ShouldNotBeERR var i2:I{p==1} = i;
 	}
 }
 
@@ -2248,8 +2252,8 @@ class OuterThisConstraint(i:Int) { // see XTENLANG-1932
 	static def test(a:OuterThisConstraint{i==3}) {
 		val inner:OuterThisConstraint{self.i==3}.Inner = a.new Inner();
 		val x1:OuterThisConstraint{i==3} = a.m1();
-		val x2:OuterThisConstraint{i==3} = inner.m2();
-		@ShouldBeErr val x3:OuterThisConstraint{i==4} = inner.m2();
+		@ShouldNotBeERR val x2:OuterThisConstraint{i==3} = inner.m2();
+		@ERR val x3:OuterThisConstraint{i==4} = inner.m2();
 	}
 }
 
@@ -2488,7 +2492,7 @@ class ExplodingPointTest {
 	def test5() {
 		var r:Region = null;
 		for (p in r) {}
-		@ShouldBeErr for (p[i] in r) {} //  Loop domain is not of expected type.
+		@ERR for (p[i] in r) {} //  Loop domain is not of expected type.
 	}
 	// val p[i,j] = [1,2]; // doesn't parse for fields :)
 }
@@ -3254,7 +3258,7 @@ class XTENLANG_967  {
 class XTENLANG_1574(v:Int) {v==1} {
 	static def m(a:XTENLANG_1574) {
 		val b:XTENLANG_1574{self.v==1} = a; 
-		@ShouldBeErr val b2:XTENLANG_1574{self.v==2} = a;
+		@ERR @ERR val b2:XTENLANG_1574{self.v==2} = a; // [Semantic Error: Cannot assign expression to target.	 Expression: a	 Expected type: x10.frontend.tests.XTENLANG_1574{self.v==2}	 Found type: x10.frontend.tests.XTENLANG_1574{self==a}, Semantic Error: Invalid type; the real clause of x10.frontend.tests.XTENLANG_1574{self.v==2} is inconsistent.]
 	}
 }
 class TestMethodGuards[T](a:Int, p:Place) {
@@ -3390,7 +3394,7 @@ class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
 		property(1,2);
 	}  
 	def this(String):XTENLANG_685{self.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
-		property(2,1); // ERR (Semantic Error: Cannot bind literal 2 to 1) todo: better error message
+		property(2,1); // ShouldBeErr
 	}  
 	def this(Float):XTENLANG_685{this.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
 		property(2,1); // ShouldBeErr
@@ -3551,8 +3555,8 @@ class TreeUsingFieldNotProperty { this.left==null } { // ShouldBeErr
 }
 class XTENLANG_1149 {
     def m(b:Boolean, x:Object{self!=null}, y:Object{self!=null}):Object{self!=null} {
-        val z:Object{self!=null} = b ? x : y;
-        @ShouldBeErr val z2:Object{self==null} = b ? x : y;
+        @ShouldNotBeERR val z:Object{self!=null} = b ? x : y;
+        @ERR val z2:Object{self==null} = b ? x : y;
         return z;
     }
 }
@@ -3562,18 +3566,18 @@ class XTENLANG_1149_2 {
 	def test() {
 		val b1 = new B();
 		val b2 = new B();
-		@ShouldBeErr val c0:B{self==null} = f ? b1 : b2;
-		val c1:B{self!=null} = f ? b1 : b2;
+		@ERR val c0:B{self==null} = f ? b1 : b2;
+		@ShouldNotBeERR val c1:B{self!=null} = f ? b1 : b2;
 		val c2:B = f ? b1 : b2;
-		val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;
-		val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});
+		@ShouldNotBeERR val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;
+		@ShouldNotBeERR val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});
 		val c5:B{self!=null} = f ? b1 : b1;
 		@ERR val c6:B{self==null} = f ? b1 : b1;
 
 		val arr1 = new Array[B{self!=null}][b1,b2];
 		@ERR val arr2:Array[B{self!=null}] = [b1,b2]; //  we do not infer constraints, because then [1] will be Array[Int{self==1}]
 		val arr3:Array[B] = [b1,b2]; 
-		@ShouldBeErr val arr4 = new Array[B{self==b2}][b1,b2];
+		@ERR val arr4 = new Array[B{self==b2}][b1,b2];
 	}
 }
 
@@ -3585,14 +3589,14 @@ class BB(v:Int) {v==1} {
 static class A(v:Int) {v==1} {
 	static def m(a:A) {
 		val b:A{self.v==1} = a;
-		@ShouldBeErr val b2:A{self.v==2} = a;
+		@ERR @ERR val b2:A{self.v==2} = a;
 	}
 	def m2(a:A) {
 		val b1:A{self.v==1} = this;
 		val b2:A{this.v==1} = this;
 		val b3:A{self.v==1} = a;
-		@ShouldBeErr val b33:A{self.v==2} = a; 
-		val b4:A{this.v==1} = a;
+		@ERR @ERR val b33:A{self.v==2} = a; 
+		@ShouldNotBeERR val b4:A{this.v==1} = a;
 	}
 }
 }
@@ -3792,15 +3796,18 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		public static operator (p:Int) as ? :W{i==4} = null;
 	}
 	static class TestAmbiguity {
+	    // there are two ways to implicitly convert Y to X (to either X{i==1} or X{i==2}), but we first search in X.
 		def test1(y:Y):X{i==1} = y;
-		@ERR def test2(y:Y):X{i==2} = y; // Cannot return expression of given type.
-		@ERR def test3(y:Y):X{i==3} = y; // Cannot return expression of given type.
-		@ERR def test4(y:Y):X{i==4} = y; // Cannot return expression of given type.
-		
-		@ERR def test5(y:Y):X{i==1} = y as X; // Cannot return expression of given type.
-		@ERR def test6(y:Y):X{i==2} = y as X; // Cannot return expression of given type.
-		@ERR def test7(y:Y):X{i==3} = y as X; // Cannot return expression of given type.
+		@ShouldBeErr def test2(y:Y):X{i==2} = y;
+		@ShouldBeErr def test3(y:Y):X{i==3} = y;
+		@ShouldBeErr def test4(y:Y):X{i==4} = y;
+
+		// there are 2 additional ways to explicitly convert Y to X (we first search in X)
+		@ERR def test5(y:Y):X{i==1} = y as X;
+		@ERR def test6(y:Y):X{i==2} = y as X;
+		@ERR def test7(y:Y):X{i==3} = y as X;
 		def test8(y:Y):X{i==4} = y as X;
+		@ERR def test9(y:Y):X{i==5} = y as X;
 	}
 }
 
@@ -4068,9 +4075,9 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	property i() = 5;
 	@ERR class R extends R {i()==5} {}
 	@ERR class R1 {i()==3} {}
-	@ERR class R2 {@ERR i()==3} extends R2 {}
+	@ERR @ERR class R2 {i()==3} extends R2 {} // [Semantic Error: Circular inheritance involving x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R2, Semantic Error: Class invariant is inconsistent.]
 	class R3 {}
-	@ERR @ERR @ERR class R4 extends R3 {@ERR i()==3} {}
+	@ERR @ERR @ERR class R4 extends R3 {i()==3} {} // [Semantic Error: Invalid type; the real clause of x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent., Semantic Error: Type x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent.]
 	
 	@ERR static class W extends W {}
 	static val i=3;
@@ -4128,7 +4135,7 @@ class TestConstraintsAndProperties(i:Int, j:Int) {
 		x1 = @ERR x2;
 	}
 	def test3(var x1:TestConstraintsAndProperties{this.i==1}, var x2:TestConstraintsAndProperties{this.j==2}) {
-		x1 = @ShouldBeErr x2;
+		x1 = @ERR x2;
 	}
 }
 
@@ -4283,22 +4290,22 @@ class CyclicTypeDefs {
 }
 class XTENLANG_2277 {	
 	def m(a:Rail[Int]) {
-		val x:Int{self==2} = a(0)+=2; // ShouldBeErr
+		@ERR val x:Int{self==2} = a(0)+=2;
 	}
 }
 
 class TestSetAndApplyOperators {
-	static class OnlySet {
+	static class OnlyApply {
 		operator this(i:Int) = 0;
 	}
-	static class OnlyApply {
+	static class OnlySet {
 		operator this(i:Int)=(v:Int) = 1;
 	}
 	static class BothSetApply {
 		operator this(i:Int) = 2;
 		operator this(i:Int)=(v:Int):Int{self==v} = v;
 	}
-	def test(s:OnlySet, a:OnlyApply, sa:BothSetApply) {
+	def test(s:OnlyApply, a:OnlySet, sa:BothSetApply) {
 		s(2);
 		a(2); // ERR
 		sa(2);
@@ -4316,18 +4323,27 @@ class TestSetAndApplyOperators {
 
 class ArrayAndRegionTests {
 	def test(a1:Array[Int](0..10), r:Region{zeroBased, rect, rank==1}, a2:Array[Int](r), a3:Array[Int]{zeroBased, rect, rank==1}) {
+	    // check zero based
+		val reg1:Region{zeroBased} = 0..10;
+		@ERR val reg2:Region{zeroBased} = 5..10;
+		val reg3:Region{rail} = 0..10;
+		@ERR val reg4:Region{rail} = 5..10;
+		val reg5:Region{zeroBased, rail, rect, rank==1} = 0..10;
+		@ERR val reg6:Region{rank==2} = 0..10;
+		val reg7:Region{rank==2} = 0..10 * 0..10;
+
 		val reg:Region{zeroBased, rect, rank==1} = 0..10;
 		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0);
 		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0);
 		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0);
 		val arr4:Array[Int](reg) = null;
-		m1(a1);  // ShouldNotBeERR
+		m1(a1);
 		m1(a2);
 		m1(a3);
 		m1(arr3);
 		m1(arr4);
 
-		m2(a1); // ShouldNotBeERR
+		m2(a1);
 		m2(a2);
 		m2(a3);
 		m2(arr3);
@@ -4427,3 +4443,104 @@ class XTENLANG_2346[T](x:Int) {
 	}	
 }
 
+class XTENLANG_2376 {
+	class A {
+	  def test(b:Int) { 
+		val a = new A(b*3, b+5); // ERR: Warning: Generated a dynamic check for the method guard.
+	  }
+	  def this(i:Int, j:Int) {i==j} {}
+	  def this(i:Int) {
+		this(i*i, i*2); // ERR: The constructor guard was not satisfied.
+	  }
+	}
+	class B extends A {
+	  def this(m:Int) {
+		super(m*m, m*2); // ERR: The constructor guard was not satisfied.
+	  }
+	}
+}
+
+class TestInnerClassesThisQualifer {	
+	static class B {
+		static class B1 {
+			def BLA1() = B1.this;
+			def BLA2() = B.this; // ERR: The nested class "TestInnerClassesThisQualifer.A.B.B1" does not have an enclosing instance of type "TestInnerClassesThisQualifer.A.B".
+		}
+		class B2 {}
+	}
+	class A {
+		class C {
+			def BLA() = C.this;
+			static class C1 {} // ERR: Semantic Error: Inner classes cannot declare static member classes.
+			class C2 {}
+		}
+		class D extends C {
+			def BLA2() = C.this; // ERR: The nested class "TestInnerClassesThisQualifer.A.D" does not have an enclosing instance of type "TestInnerClassesThisQualifer.A.C".
+			def BLA3() = D.this;
+			def BLA4() = A.this;
+		}
+	}
+}
+
+class XTENLANG_2377 {
+class Outer {
+	class A[T] {
+		def this(b:A[T]) {
+		}
+		def test(i:A[Double], outer:Outer) {
+			val z1 = outer.new A(i); // works ok (infers the type arguments)
+			val z2 = new A[Double](i); // works ok
+
+
+			//Semantic Error: Constructor Outer.A.this(b: Outer.A[T]): Outer.A[T]
+			// cannot be invoked with arguments 
+			//(Outer.A[x10.lang.Double]{self==i}).
+			//Semantic Error: Type is missing parameters.
+			// Type: Outer.A
+			// Expected parameters: [T]			
+			val z3 = outer.new A[Double](i); // ShouldNotBeERR ShouldNotBeERR
+		}
+	}
+}
+}
+
+class XTENLANG_2379 {
+	class B(b:Int) {}
+	class C(c:Int) extends B {
+		def this(i1:Int, i2:Int) {i1!=i2} {
+			super(5);
+			property(6);
+		}
+	}
+}
+       class XTENLANG_2389 {
+       	class A {
+       		property foo()=A.this;
+       		class B {
+       			property bar()=A.this;
+       			property foo2()=B.this;
+       		}
+       		def bla(a1:A, a2:A{this==a1}) {
+       			@ERR val a3:A{self==a1} = a2;
+       			@ERR val a4:A{self!=a1} = a2;
+       		}
+
+       		def test1(a1:A, a2:A{self.foo()==a1}) {}
+       		def test2(a1:A, a2:A{A.this==a1}) {
+       			@ERR { test1(a1,a2); }
+       		}
+       		def test3(a1:A, b2:B{self.bar()==a1}) {}
+       		def test4(a:A, b:B{A.this==a}) {
+       			@ShouldBeErr { test3(a,b); }
+       		}
+       	}
+}
+
+class XTENLANG_2390 {
+	protected val a:Int;
+	def this(x:Int) {
+		a = x;
+	}
+	def m1(i:Int{self==a}) {} // ShouldBeErr
+	def m2() {2==a} {} // ShouldBeErr
+}

@@ -46,8 +46,8 @@ public class BuiltInTypeRules {
 	    if (selfTerm != null && selfTerm.equals(ts.ZERO())) {
 	        if (!ts.isUnknown(type)) {
 	        	ConstrainedType result = Types.toConstrainedType(type);
-	            result = (ConstrainedType) Types.addTerm(type, result.makeZeroBased());
-	            result = (ConstrainedType) Types.addTerm(type, result.makeRail());
+	            result = (ConstrainedType) Types.addTerm(result, result.makeZeroBased());
+	            result = (ConstrainedType) Types.addTerm(result, result.makeRail());
 	            return result;
 	        }
 	    }

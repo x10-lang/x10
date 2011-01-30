@@ -26,7 +26,7 @@ public class Statements90 extends x10Test {
     }
 
 
-// file Statements line 485
+// file Statements line 667
  static  class Example {
  def example(n:Int) {
   var sum : Int = 0;

@@ -41,6 +41,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
@@ -79,7 +80,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return XTerms.makeEQV("#this");
+        return CTerms.makeThis("#this"); // Why #this instead of this?
     }
 
     ThisDef thisDef;
@@ -208,7 +209,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         return (MethodInstance) asInstance;
     }
     
-    public static boolean hasVar(Type type, XVar var) {
+/*    public static boolean hasVar(Type type, XVar var) {
 	    if (type instanceof ConstrainedType) {
 		    XConstraint rc = Types.realX(type);
 		    if (rc != null && rc.hasVar(var))
@@ -230,7 +231,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 	    }
 	    return false;
     }
-    
+    */
 	public String toString() {
 		String s = designator() + " " + flags().prettyPrint() + container() + "." + 
 		signature() + (guard() != null ? guard() : "") 

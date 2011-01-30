@@ -52,12 +52,6 @@ class PolyContains1 extends TestRegion {
         "isConvex() true\n"+
         "size() 5\n"+
         "region: (x0-x1>=0 && x1>=0 && x0-x1<=0 && x0<=4)\n"+
-        "  poly\n"+
-        "    0  0 . . . . . . . . . \n"+
-        "    1  . 1 . . . . . . . . \n"+
-        "    2  . . 4 . . . . . . . \n"+
-        "    3  . . . 9 . . . . . . \n"+
-        "    4  . . . . 6 . . . . . \n"+
         "  iterator\n"+
         "    0  0 . . . . . . . . . \n"+
         "    1  . 1 . . . . . . . . \n"+
@@ -74,12 +68,6 @@ class PolyContains1 extends TestRegion {
         "isConvex() true\n"+
         "size() 9\n"+
         "region: (x0-x1>=0 && x1>=0 && x0-x1<=1 && x0<=4)\n"+
-        "  poly\n"+
-        "    0  0 . . . . . . . . . \n"+
-        "    1  0 1 . . . . . . . . \n"+
-        "    2  . 2 4 . . . . . . . \n"+
-        "    3  . . 6 9 . . . . . . \n"+
-        "    4  . . . 2 6 . . . . . \n"+
         "  iterator\n"+
         "    0  0 . . . . . . . . . \n"+
         "    1  0 1 . . . . . . . . \n"+
@@ -94,12 +82,6 @@ class PolyContains1 extends TestRegion {
         "isConvex() true\n"+
         "size() 9\n"+
         "region: (x0>=0 && x0-x1>=-1 && x1<=4 && x0-x1<=0)\n"+
-        "  poly\n"+
-        "    0  0 0 . . . . . . . . \n"+
-        "    1  . 1 2 . . . . . . . \n"+
-        "    2  . . 4 6 . . . . . . \n"+
-        "    3  . . . 9 2 . . . . . \n"+
-        "    4  . . . . 6 . . . . . \n"+
         "  iterator\n"+
         "    0  0 0 . . . . . . . . \n"+
         "    1  . 1 2 . . . . . . . \n"+

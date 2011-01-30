@@ -11,22 +11,28 @@ public interface Goal extends Ref<Goal.Status>, Runnable {
     };
 
     Status state();
-    
+
     Goal intern(Scheduler s);
-    
+
     String name();
 
     /** Return true if this goal is reachable. */
-    public boolean isReachable();
+    boolean isReachable();
 
     /** Return true if this goal has been reached. */
-    public boolean hasBeenReached();
-    
+    boolean hasBeenReached();
+
     /** Mark this pass as failed. */
-    public void fail();
-    
-    public List<Goal> prereqs();
-    public void addPrereq(Goal goal);
+    void fail();
+
+    List<Goal> prereqs();
+    void addPrereq(Goal goal);
 
     boolean runTask();
+
+    /**
+     * Add a listener object to the goal.
+     * @return true if the listener was added, false if the listener was already present
+     */
+    boolean addListener(GoalListener listener);
 }

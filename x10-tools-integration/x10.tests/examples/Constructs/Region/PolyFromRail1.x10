@@ -31,8 +31,6 @@ class PolyFromRail1 extends TestRegion {
         "isConvex() true\n"+
         "size() 5\n"+
         "region: [0..4]\n"+
-        "  poly\n"+
-        "5 4 3 2 1 . . . . . \n"+
         "  iterator\n"+
         "5 4 3 2 1 . . . . . \n";
     

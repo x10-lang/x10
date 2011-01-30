@@ -26,7 +26,7 @@ public class Activities_implicit_copy_from_at_example_1 extends x10Test {
     }
 
 
-// file Activities line 274
+// file Activities line 278
  static  class Example {
  static def example() {
 val c = new Cell[Int](9); // (1)

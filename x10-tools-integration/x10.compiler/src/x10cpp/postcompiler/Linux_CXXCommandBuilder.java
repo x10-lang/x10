@@ -17,23 +17,17 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 
 public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
-    protected static final boolean USE_X86 = CXXCommandBuilder.PLATFORM.endsWith("_x86");
     protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
 
-    public Linux_CXXCommandBuilder(Options options, ErrorQueue eq) {
-        super(options, eq);
-        assert (CXXCommandBuilder.PLATFORM.startsWith("linux_"));
-    }
-
-    protected String defaultPostCompiler() {
-        return USE_XLC ? "xlC_r" : super.defaultPostCompiler();
+    Linux_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
+        super(options, x10rt, eq);
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        if (!USE_XLC) {
+        if (!usingXLC()) {
             cxxCmd.add("-pthread");
-            if (USE_X86) {
+            if (getPlatform().endsWith("_x86")) {
                 cxxCmd.add("-msse2");
                 cxxCmd.add("-mfpmath=sse");
             }
@@ -43,9 +37,14 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
 
-        // Support for loading shared libraries from x10.dist/lib
+        for (PrecompiledLibrary pcl:options.x10libs) {
+            cxxCmd.add("-Wl,--rpath");
+            cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib");
+        }
+        
+        // x10rt
         cxxCmd.add("-Wl,--rpath");
-        cxxCmd.add("-Wl,"+X10_DIST+"/lib");
+        cxxCmd.add("-Wl,"+options.distPath()+"/lib");
 
         cxxCmd.add("-Wl,-export-dynamic");
         cxxCmd.add("-lrt");

@@ -26,12 +26,20 @@ public class Vars70 extends x10Test {
     }
 
 
-// file Vars line 257
- static class VarsForStars{
+// file Vars line 278
+abstract static  class VarsForStars{
+ abstract def cointoss(): Boolean;
 def check() {
-  var muta2 : Int;
-  muta2 = 4;
-  val use = muta2 * 10;
+  var muta : Int;
+  // ERROR: println(muta);
+  muta = 4;
+  val use2A = muta * 10;
+  val immu : Int;
+  // ERROR: println(immu);
+  if (cointoss())   {immu = 1;}
+  else              {immu = use2A;}
+  val use2B = immu * 10;
+  // ERROR: immu = 5;
 }}
 
  static class Hook {

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Vars_Local_lyproducedproduce;
+/* Current test harness gets confused by packages, but it would be in package Expressions3c4m;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,25 +19,23 @@ import harness.x10Test;
 
 
 
-public class Vars110 extends x10Test {
+public class Expressions3c4m extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Vars110().execute();
+        new Expressions3c4m().execute();
     }
 
 
-// file Vars line 443
- static  class NotInitVal {
-static def main(r: Array[String](1)):void {
-  val a : Int;
-  a = r.size;
-  val b : String;
-  if (a == 5) b = "five?"; else b = "" + a + " args";
-  // ...
-} }
-
- static class Hook {
-   def run():Boolean = true;
+// file Expressions line 1067
+ static class Cont {
+   operator this in (Int) = true;
+   operator (String) in this = false;
+   static operator (Cont) in (b:Boolean) = b;
+   static def example() {
+      val c:Cont = new Cont();
+      assert c in 4 && !("odd" in c) && (c in true);
+   }
 }
+ static class Hook{ def run() { Cont.example(); return true; } }
 
 }

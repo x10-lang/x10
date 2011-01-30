@@ -12,20 +12,29 @@
 package x10.constraint;
 
 public abstract class XVar extends XTerm  {
-	/** In case this is a field selection x.f1...fn, return x, x.f1, x.f1.f2, ... x.f1.f2...fn */
-	abstract XVar[] vars();
+	/** In case this is a field selection x.f1...fn, return x, 
+	 * x.f1, x.f1.f2, ... x.f1.f2...fn 
+	 * */
+	public XVar[] vars() {
+	     return new XVar[] { this };
+	}
 
 	/** In case this is a field selection x.f1...fn, return x, else this. */
-	abstract XVar rootVar();
+	//protected abstract XVar rootVar();
 
 	public XVar() {
 		super();
 	}
 
+	public XTermKind kind() { return XTermKind.LOCAL;}
+	  
 	public XTerm subst(XTerm y, XVar x, boolean propagate) {
 		return equals(x) ? y : super.subst(y, x, propagate);
 	}
 
+	public boolean isAtomicFormula() {
+	    return false;
+	}
 	@Override
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
 		XVar[] vars = vars();
