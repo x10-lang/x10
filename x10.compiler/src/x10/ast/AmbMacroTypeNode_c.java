@@ -128,15 +128,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         return n;
     }
     
-    @Override
-    public void setResolver(Node parent, final TypeCheckPreparer v) {
-    	if (typeRef() instanceof LazyRef<?>) {
-    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
-    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-    		tc = (TypeChecker) tc.context(v.context().freeze());
-    		r.setResolver(new X10TypeCheckTypeGoal(parent, this, tc, r));
-    	}
-    }
+    
     public Node visitChildren(NodeVisitor v) {
         Prefix prefix = (Prefix) visitChild(this.prefix, v);
         Id name = (Id) visitChild(this.name, v);

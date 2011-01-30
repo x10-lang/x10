@@ -365,6 +365,13 @@ public class Closure_c extends Expr_c implements Closure {
 		return super.enterChildScope(child, c);
 	}
 
+    // todo: this does have affect:
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Issues\XTENLANG_147.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\ArrayOfArraysShorthand.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\ArrayOfArraysShorthand.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\MultiDimensionalJavaArray.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Async\AsyncReturn.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Closures\ClosureBody1b.x10
 	@Override
 	public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
 		if (returnType() instanceof UnknownTypeNode && body() != null) {

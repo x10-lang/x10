@@ -90,26 +90,6 @@ public class AmbQualifierNode_c extends Node_c implements AmbQualifierNode
 		return qualifierRef().get();
 	}
 	
-	public void setResolver(Node parent, TypeCheckPreparer v) {
-		final LazyRef<Qualifier> r = (LazyRef<Qualifier>) qualifierRef();
-		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-		tc = (TypeChecker) tc.context(v.context().freeze());
-		r.setResolver(new TypeCheckFragmentGoal<Qualifier>(parent, this, tc, r, false) {
-		    private static final long serialVersionUID = -1753967384169577700L;
-		    @Override
-		    public boolean runTask() {
-		        boolean result = super.runTask();
-		        if (result) {
-		            if (r().getCached() instanceof UnknownType) {
-		                v().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not compute type.", n().position());
-		                return false;
-		            }
-		        }
-		        return result;
-		    }
-		});
-	}
-
 	public Node disambiguate(ContextVisitor ar) throws SemanticException {
 		SemanticException ex;
 		
