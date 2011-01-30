@@ -34,13 +34,6 @@ class PolyProduct2 extends TestRegion {
         "isConvex() true\n"+
         "size() 8\n"+
         "region: [1..2,3..4,5..6]\n"+
-        "  poly\n"+
-        "    --- 1\n"+
-        "    3  . . . . . 5 8 . . . \n"+
-        "    4  . . . . . 0 4 . . . \n"+
-        "    --- 2\n"+
-        "    3  . . . . . 0 6 . . . \n"+
-        "    4  . . . . . 0 8 . . . \n"+
         "  iterator\n"+
         "    --- 1\n"+
         "    3  . . . . . 5 8 . . . \n"+

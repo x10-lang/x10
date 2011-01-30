@@ -33,15 +33,6 @@ class PolyRectangular1 extends TestRegion {
         "isConvex() true\n" + 
         "size() 24\n" + 
         "region: [1..2,2..4,3..6]\n" + 
-        "  poly\n" + 
-        "    --- 1\n" + 
-        "    2  . . . 6 8 0 2 . . . \n" + 
-        "    3  . . . 9 2 5 8 . . . \n" + 
-        "    4  . . . 2 6 0 4 . . . \n" + 
-        "    --- 2\n" + 
-        "    2  . . . 2 6 0 4 . . . \n" + 
-        "    3  . . . 8 4 0 6 . . . \n" + 
-        "    4  . . . 4 2 0 8 . . . \n" + 
         "  iterator\n" + 
         "    --- 1\n" + 
         "    2  . . . 6 8 0 2 . . . \n" + 

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Types140_Types14;
+/* Current test harness gets confused by packages, but it would be in package Types140_Types15;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class Types140 extends x10Test {
     }
 
 
-// file Types line 374
+// file Types line 415
 
  static interface Named {
    def name():String;

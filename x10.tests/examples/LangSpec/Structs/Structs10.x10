@@ -26,11 +26,12 @@ public class Structs10 extends x10Test {
     }
 
 
-// file Structs line 61
+// file Structs line 75
  static struct Polar(r:Double, theta:Double){
   def this(r:Double, theta:Double) {property(r,theta);}
   static val Origin = Polar(0,0);
-  static val x0y1 = Polar(1, 3.14159/2);
+  static val x0y1   = Polar(1, 3.14159/2);
+  static val x1y0   = new Polar(1, 0);
 }
 
  static class Hook {

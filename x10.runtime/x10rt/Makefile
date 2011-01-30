@@ -19,9 +19,6 @@ GZIP            ?= gzip
 override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
 override CXXFLAGS += ${CXX_WARNING_FLAGS}
 
-# these are used only for building tests
-override LDFLAGS         += -L"$(X10_HOME)"/x10.runtime/x10rt/lib -lpthread
-
 BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology test/x10rt_coll
 
 EXECUTABLES     =
@@ -37,12 +34,31 @@ ifdef JNI_INCLUDES
 endif
 endif
 
+# It is worth separating the linker flags for building the shared object from
+# the linker flags that should be used by an application
+# The MOV_ are the params that should be part of either SO or APP depending on X10_STATIC_LIB
+# Note that Make.rules gives us APP_LDFLAGS as LDFLAGS and SO_LDFLAGS as LDFLAGS_SHARED
+MOV_LDLIBS := -lpthread
+MOV_LDFLAGS :=
+APP_LDLIBS := $(LDLIBS) 
+APP_LDFLAGS := $(LDFLAGS) 
+SO_LDLIBS := 
+SO_LDFLAGS = $(LDFLAGS_SHARED)
+X10RT_TEST_LDFLAGS := -L"$(X10_HOME)"/x10.runtime/x10rt/lib
+
 ifdef ENABLE_X10RT_CUDA
 	override CXXFLAGS += -DENABLE_CUDA -isystem/usr/local/cuda/include
-	override CUDA_LDFLAGS = -L/usr/local/cuda/lib
-	override CUDA_LDLIBS = -lcuda
-	override LDFLAGS += $(CUDA_LDFLAGS) $(CUDA_LDLIBS)
+	override MOV_LDFLAGS += -L/usr/local/cuda/lib
+	override MOV_LDLIBS += -lcuda
 endif
+
+# avoid a lot of repetition in the */*.mk scripts
+ifeq ($(X10RT_PLATFORM),aix_xlc)
+        LINKER_PROG=$(SHLINK)
+else
+        LINKER_PROG=$(CXX)
+endif
+
 
 default: all
 
@@ -66,6 +82,7 @@ ifndef ENABLE_CROSS_COMPILE_BGP
   endif
 endif
 
+
 install: $(LIBS) $(PROPERTIES)
 	(test -n "$(LIBS)" && $(CP) $(LIBS) "$(X10_HOME)"/x10.dist/lib) || true
 	$(CP) $(PROPERTIES) "$(X10_HOME)"/x10.dist/etc
@@ -86,6 +103,7 @@ debug::
 	@echo DISABLE_X10RT_PAMI = $(DISABLE_X10RT_PAMI)
 	@echo ENABLE_X10RT_PGAS = $(ENABLE_X10RT_PGAS)
 	@echo DISABLE_X10RT_PGAS = $(DISABLE_X10RT_PGAS)
+	@echo JNI_INCLUDES = $(JNI_INCLUDES)
 	@echo LIBS = $(LIBS)
 	@echo PROPERTIES = $(PROPERTIES)
 	@echo TESTS = $(TESTS)

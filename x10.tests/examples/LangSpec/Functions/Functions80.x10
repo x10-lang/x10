@@ -26,19 +26,16 @@ public class Functions80 extends x10Test {
     }
 
 
-// file Functions line 350
+// file Functions line 362
  static class Span(low:Int, high:Int) {
   def this(low:Int, high:Int) {property(low,high);}
   def between(n:Int) = low <= n && n <= high;
-  def example() {
+  static def example() {
     val digit = new Span(0,9);
     val isDigit : (Int) => Boolean = digit.between.(Int);
-    if (isDigit(8)) Console.OUT.println("8 is!");
+    assert isDigit(8);
   }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {Span.example(); return true;}}
 
 }

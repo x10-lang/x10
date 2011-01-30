@@ -58,6 +58,7 @@ import x10.types.constraints.TypeConstraint;
  */
 public interface TypeSystem {
     public static final boolean SERIALIZE_MEMBERS_WITH_CONTAINER = false;
+    public static final String CONSTRUCTOR_NAME="this";
 
     /**
      * Initialize the type system with the compiler.  This method must be
@@ -1085,8 +1086,8 @@ public interface TypeSystem {
 
     XTypeTranslator xtypeTranslator();
 
-    boolean entailsClause(Type me, Type other, Context context);
-    boolean entailsClause(CConstraint me, CConstraint other, Context context, Type selfType);
+   // boolean entailsClause(Type me, Type other, Context context);
+   // boolean entailsClause(CConstraint me, CConstraint other, Context context, Type selfType);
 
     /**
      * True if the two types are equal, ignoring their dep clauses.

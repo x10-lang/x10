@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_methodguardnadacastthingie;
+/* Current test harness gets confused by packages, but it would be in package Expressions1i5k;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,22 +19,24 @@ import harness.x10Test;
 
 
 
-public class Classes90 extends x10Test {
+public class Expressions1i5k extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Classes90().execute();
+        new Expressions1i5k().execute();
     }
 
 
-// file Classes line 476
- static  class Example {var f : String = ""; def example(x:Object){x != null} = {this.f = x.toString();}}
- static  class Eyample {
-  def exam(e:Example, x:Object) {
-    if (x != null)
-       e.example(x as Object{x != null});
-    // WRONG: if (x != null) e.example(x);
-  }
-}
+// file Expressions line 782
+ static  class Example{
+ def example( something: ()=>Int, something_else: ()=>Int,
+   any_code_at_all: () => Int) {
+val a = something();
+val b = something_else();
+val eq1 = (a == b);
+any_code_at_all();
+val eq2 = (a == b);
+assert eq1 == eq2;
+} }
 
  static class Hook {
    def run():Boolean = true;

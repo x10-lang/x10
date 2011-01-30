@@ -837,7 +837,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (options.post_compiler != null && !options.output_stdout) {
 			Collection<String> compilationUnits = options.compilationUnits();
 			String[] nvccCmd = { "nvcc", "--cubin", "-Xptxas", "-v",
-					"-I" + CXXCommandBuilder.X10_DIST + "/include", null };
+					"-I" + options.distPath() + "/include", null };
 			for (String f : compilationUnits) {
 				if (f.endsWith(".cu")) {
 					nvccCmd[5] = f;

@@ -26,7 +26,7 @@ public class InnerClasses5p9v extends x10Test {
     }
 
 
-// file InnerClasses line 225
+// file InnerClasses line 231
  static class Outer {
   val a = 1;
   def m() {
@@ -40,9 +40,10 @@ public class InnerClasses5p9v extends x10Test {
     assert l.m() == 123;
   }//end of m()
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {
+   val o <: Outer = new Outer();
+   o.m();
+   return true;
+ } }
 
 }

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Types17;
+/* Current test harness gets confused by packages, but it would be in package typesome_Types18;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Types170 extends x10Test {
     }
 
 
-// file Types line 450
+// file Types line 497
  static class Stack[T]{}
- static class Types17TypeTest{
+ static class Types18TypeTest{
   def check()  { 
      var checkycheck : Stack[Point {self!=null}];  }}
 

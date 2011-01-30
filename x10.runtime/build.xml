@@ -11,6 +11,7 @@
     <property name="gen" location="${src}/gen"/>
     <property name="inc" location="${x10.dist.location}/include"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="stdlib" location="${x10.dist.location}/stdlib"/>
     <property name="jar" value="x10.jar"/>
     <property name="math.jar" value="${lib}/commons-math-2.1.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
@@ -204,11 +205,12 @@
         </exec>
     </target>
     <target name="dist-java" depends="jar">
-        <mkdir dir="${lib}"/>
-        <copy todir="${lib}">
+        <mkdir dir="${stdlib}"/>
+        <copy todir="${stdlib}">
             <fileset dir="${gen}" includes="${jar}"/>
         </copy>
     </target>
+    <target name="dist-java-x10rt" depends="dist-java,dist-x10rt"/>
     <target name="dist-cpp" depends="dist-x10rt,build-cpp,available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j${available.procs}" />
@@ -237,8 +239,7 @@
     </target>
     <target name="dist-par" depends="init,available-procs">
         <parallel>
-            <antcall target="dist-java"/>
-            <antcall target="dist-x10rt"/>
+            <antcall target="dist-java-x10rt"/>
             <antcall target="dist-cpp-no-x10rt"/>
         </parallel>
     </target>
@@ -490,13 +491,14 @@
 
     <target name="dist-bdwgc" depends="build-bdwgc" if="bdwgc.enabled">
       <sequential>
-        <mkdir dir="${lib}"/>
-        <copy todir="${lib}" preservelastmodified="true" flatten="true" >
+        <mkdir dir="${stdlib}/lib"/>
+        <copy todir="${stdlib}/lib" preservelastmodified="true" flatten="true" >
            <!--<fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>-->
            <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*,lib/*gc*.dylib"/>
            <fileset dir="${bdwgc.dir}/install" includes="bin/*.dll"/> <!-- Cygwin -->
         </copy>
-        <copy todir="${inc}">
+        <mkdir dir="${stdlib}/include"/>
+        <copy todir="${stdlib}/include">
            <fileset dir="${bdwgc.dir}/install/include" includes="**/*.h"/>
         </copy>
       </sequential>

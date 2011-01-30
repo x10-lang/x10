@@ -41,14 +41,6 @@ class PolyIntersection1 extends TestRegion {
         "isConvex() true\n"+
         "size() 28\n"+
         "region: (x0>=2 && x1<=7 && x0-x1<=1)\n"+
-        "  poly\n"+
-        "    2  . 2 4 6 8 0 2 4 . . \n"+
-        "    3  . . 6 9 2 5 8 1 . . \n"+
-        "    4  . . . 2 6 0 4 8 . . \n"+
-        "    5  . . . . 0 5 0 5 . . \n"+
-        "    6  . . . . . 0 6 2 . . \n"+
-        "    7  . . . . . . 2 9 . . \n"+
-        "    8  . . . . . . . 6 . . \n"+
         "  iterator\n"+
         "    2  . 2 4 6 8 0 2 4 . . \n"+
         "    3  . . 6 9 2 5 8 1 . . \n"+
@@ -65,11 +57,6 @@ class PolyIntersection1 extends TestRegion {
         "isConvex() true\n"+
         "size() 20\n"+
         "region: [3..6,3..7]\n"+
-        "  poly\n"+
-        "    3  . . . 9 2 5 8 1 . . \n"+
-        "    4  . . . 2 6 0 4 8 . . \n"+
-        "    5  . . . 5 0 5 0 5 . . \n"+
-        "    6  . . . 8 4 0 6 2 . . \n"+
         "  iterator\n"+
         "    3  . . . 9 2 5 8 1 . . \n"+
         "    4  . . . 2 6 0 4 8 . . \n"+
@@ -83,11 +70,6 @@ class PolyIntersection1 extends TestRegion {
         "isConvex() true\n"+
         "size() 17\n"+
         "region: (x0>=3 && x1>=3 && x1<=7 && x0-x1<=1 && x0<=6)\n"+
-        "  poly\n"+
-        "    3  . . . 9 2 5 8 1 . . \n"+
-        "    4  . . . 2 6 0 4 8 . . \n"+
-        "    5  . . . . 0 5 0 5 . . \n"+
-        "    6  . . . . . 0 6 2 . . \n"+
         "  iterator\n"+
         "    3  . . . 9 2 5 8 1 . . \n"+
         "    4  . . . 2 6 0 4 8 . . \n"+

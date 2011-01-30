@@ -390,7 +390,7 @@ public class XConstraint implements Cloneable {
        				result.addTerm(term);
        			}
        		} catch (XFailure z) {
-
+       		    result.setInconsistent();
        		}
        	}
        	return result;
@@ -416,6 +416,7 @@ public class XConstraint implements Cloneable {
                 }
             } catch (XFailure z) {
                 // since other is consistent, result must be.
+                result.setInconsistent();
             }
         }
         return result;

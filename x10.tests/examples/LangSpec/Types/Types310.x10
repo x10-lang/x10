@@ -26,7 +26,7 @@ public class Types310 extends x10Test {
     }
 
 
-// file Types line 817
+// file Types line 906
  static  class Matrix(rows:Int, cols:Int){
  public static def someMatrix(): Matrix = null;
  public static def example(){

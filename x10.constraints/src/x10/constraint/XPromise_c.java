@@ -422,7 +422,8 @@ class XPromise_c implements XPromise, Serializable {
                         return true;
                     if (hideFake && t2 instanceof XField && ((XField) t2).isHidden())
                         return true;
-                    return xg.visitEquals(t1, t2);
+                    if (dumpEQV || ! t2.hasEQV())
+                        return xg.visitEquals(t1, t2);
                 }
             return true;
         }

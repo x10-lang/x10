@@ -27,6 +27,7 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.Flags;
+import polyglot.types.JavaArrayType;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
@@ -44,6 +45,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeEnv_c;
+import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.TypeSystem;
@@ -66,6 +68,8 @@ import polyglot.types.TypeSystem_c.Bound;
 import polyglot.types.TypeSystem_c.Kind;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.Matcher;
@@ -189,7 +193,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     
     public void checkOverride(ClassType ct, MethodInstance mi, MethodInstance mj) throws SemanticException {
-         XVar thisVar =  XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+         XVar thisVar =  XTerms.makeUQV(); // XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
          List<XVar> ys = new ArrayList<XVar>(2);
          List<XVar> xs = new ArrayList<XVar>(2);
@@ -826,7 +830,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			x = c2.selfVarBinding();
     		}*/
     		if (x == null) {
-    			x =  XTerms.makeFreshLocal(); // Why not EQV?
+    			x =  XTerms.makeUQV(); 
     		}
     		t2 = Types.instantiateSelf(x, t2);
     		c2 = Types.xclause(t2);
@@ -985,8 +989,149 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#typeEquals(polyglot.types.Type, polyglot.types.Type, java.util.List)
      */
+  
     @Override
-    public boolean typeEquals(Type t1, Type t2) { // yoav tood: why can't we define this in terms of t1<:t2 && t2<:t1 ? (I guess it's less efficient)
+    public boolean typeEquals(Type t1, Type t2) {
+        return newTypeEquals(t1,t2);
+        /*boolean old = oldTypeEquals(t1,t2);
+        boolean newEq = newTypeEquals(t1,t2);
+        if (old != newEq) {
+            System.out.println("TypeEquals: now " + (old ? "not " : "") + "equal " 
+                               + "\n\t: t1=" + t1 
+                               + "\n\t: t2=" + t2);
+        }
+        return old;*/
+    }
+    
+    public boolean newTypeEquals(Type t1, Type t2) {    
+        t1 = ts.expandMacros(t1);
+        t2 = ts.expandMacros(t2);
+
+        if (t1 == t2)
+            return true;
+        if (t1 == null || t2 == null)
+            return false;
+        
+        if (t1.isVoid())
+            return t2.isVoid();
+        if (t2.isVoid())
+            return false;
+          
+        if (((TypeObject) t1).equalsImpl((TypeObject) t2))
+            return true;
+       
+        
+        // A type parameter T might still be equal to Int if there is a type constraint in the context saying T==Int
+        //if (X10TypeMixin.isX10Struct(t1) != X10TypeMixin.isX10Struct(t2)) return false;
+
+        Context xc = (Context) context;
+        List<SubtypeConstraint> env = xc.currentTypeConstraint().terms();
+
+        // DO NOT check if env.entails(t1 == t2); it would be recursive
+        // Instead, iterate through the environment.
+        for (int i = 0; i < env.size(); i++) {
+            SubtypeConstraint term = env.get(i);
+            List<SubtypeConstraint> newEnv = new ArrayList<SubtypeConstraint>();
+            if (0 <= i-1 && i-1 < env.size()) newEnv.addAll(env.subList(0, i-1));
+            if (0 <= i+1 && i+1 < env.size()) newEnv.addAll(env.subList(i+1, env.size()));
+            //                    newEnv = env;
+            newEnv = Collections.<SubtypeConstraint>emptyList();
+
+            Context xc2 = ((X10Context_c) xc).pushTypeConstraint(newEnv);
+
+            if (term.isEqualityConstraint()) {
+                SubtypeConstraint eq = term;
+                Type l = eq.subtype();
+                Type r = eq.supertype();
+                if (l == null || r == null)
+                    continue;
+                if (ts.env(xc2).typeEquals(t1, l) && ts.env(xc2).typeEquals(r, t2)) {
+                    return true;
+                }
+                if (ts.env(xc2).typeEquals(t1, r) && ts.env(xc2).typeEquals(l, t2)) {
+                    return true;
+                }
+            }
+        }
+
+        
+        
+        if (t1 instanceof ParameterType && t2 instanceof ParameterType) {
+            ParameterType pt1 = (ParameterType) t1;
+            ParameterType pt2 = (ParameterType) t2;
+            if (TypeParamSubst.isSameParameter(pt1, pt2))
+                return true;
+        }
+        
+       
+
+        if (t1 instanceof ParameterType) {
+            for (Type s1 : equalBounds(t1)) {
+                if (typeEquals(s1, t2)) {
+                    return true;
+                }
+            }
+        }
+
+        if (t2 instanceof ParameterType) {
+            for (Type s2 : equalBounds(t2)) {
+                if (typeEquals(t1, s2)) {
+                    return true;
+                }
+            }
+        }
+        
+        if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
+            X10ClassType ct1 = (X10ClassType) t1;
+            X10ClassType ct2 = (X10ClassType) t2;
+            X10ClassDef def1 = ct1.x10Def();
+            X10ClassDef def2 = ct2.x10Def();
+            if (def1 != def2)
+                return false;
+            List<Type> ta1 = ct1.typeArguments();
+            if (ta1 == null) ta1 = Collections.<Type>emptyList();
+            List<Type> ta2 = ct2.typeArguments();
+            if (ta2 == null) ta2 = Collections.<Type>emptyList();
+            if (ta1.size() == 0 && ta2.size() == 0)
+                return true;
+            if (! CollectionUtil.allElementwise(ta1, ta2, new TypeSystem_c.TypeEquals(context))) {
+                return false;
+            }
+            return true;
+        }
+        Type baseType1 = Types.baseType(t1);
+        Type baseType2 = Types.baseType(t2);
+        if (baseType1 == t1 && baseType2 == t2)
+            return false; // they dont have constraints; i have no way left of showing they are equal.
+      
+        if (! typeEquals(baseType1, baseType2))
+            return false;
+        // We must take the realX because if I have a definition:
+        // class A(i:Int) {i==1} {}
+        // then the types A and A{self.i==1} are equal!
+        CConstraint c1 = Types.realX(t1);
+        CConstraint c2 = Types.realX(t2);
+
+        if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
+        if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
+        XVar temp = XTerms.makeUQV();
+        // instantiateSelf ensures that Int{self123==3} and A{self456==3} are equal.
+        if (c1 != null) {
+            c1 = c1.instantiateSelf(temp);
+        }
+        if (c2 != null) {
+            c2 = c2.instantiateSelf(temp);
+        }
+            
+        if (! entails( c1, c2))
+            return false;
+
+        if (! entails(c2, c1))
+            return false;
+        return true;
+    }
+    public boolean oldTypeEquals(Type t1, Type t2) { 
+        // yoav tood: why can't we define this in terms of t1<:t2 && t2<:t1 ? (I guess it's less efficient)
     	
         t1 = ts.expandMacros(t1);
         t2 = ts.expandMacros(t2);
@@ -1187,35 +1332,27 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#entails(x10.constraint.CConstraint, x10.constraint.CConstraint)
      */
-    public boolean entails(CConstraint c1, CConstraint c2) {
-        if (c1 != null || c2 != null) {
-            boolean result = true;
- 
-                try {
-                	 Context xc = (Context) context;
-                     CConstraint sigma = xc.constraintProjection(c1,c2);
-                     sigma.addIn(c1);
-                     result = sigma.entails(c2);
-                   /*  result = c1 == null ? 
-                    		 (sigma == null ? c2.valid() : sigma.entails(c2))
-                    		 : c1.entails(c2, sigma);
-                   */
-                    
-                    if (Report.should_report("sigma", 1)) {
-                        System.out.println("c1 = " + c1);
-                        System.out.println("c2 = " + c2);
-                    }
-                //                    result = c1.entails(c2, xc);
-                }
-                catch (XFailure e) {
-                    result = false;
-                }
-          
+    public boolean entails(final CConstraint c1, final CConstraint c2) {
+        if (c2 == null || c2.valid())
+            return true;
+        if (c1 != null && ! c1.consistent())
+            return false;
 
-            return result;
+        final Context xc = context;
+        if (c1 == null) {
+            try {
+                CConstraint sigma = xc.constraintProjection(c2);
+                return sigma.entails(c2);
+            } catch (XFailure z) {
+                return false;
+            }
         }
-
-        return true;
+        return c1.entails(c2, new ConstraintMaker() {
+                public CConstraint make() throws XFailure {
+                    return xc.constraintProjection(c1, c2);
+                }
+            });
+        
     }
 
     
@@ -1660,7 +1797,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = XTerms.makeLocal(XTerms.makeFreshName("this"));
+            thisVar = CTerms.makeThis(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
@@ -1695,7 +1832,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         MethodInstance mi = (MethodInstance) jmi;
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = XTerms.makeLocal(XTerms.makeFreshName("this"));
+            thisVar = CTerms.makeThis(); //XTerms.makeLocal(XTerms.makeFreshName("this"));
         return implemented(mi, mi.container(), thisVar);
     }
 
@@ -1741,9 +1878,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     
     XVar[] genSymbolicVars(int n) {
     	XVar[] result = new XVar[n];
-    	String prefix = "arg";
+    	//String prefix = "arg";
     	for (int i =0; i < n; ++i) {
-    		result[i] = XTerms.makeUQV(XTerms.makeFreshName(prefix));
+    		result[i] = XTerms.makeUQV();
     	}
     	return result;
     }
@@ -1841,12 +1978,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     @Override
     public void checkOverride(MethodInstance r, MethodInstance other, boolean allowCovariantReturn) throws SemanticException {
-        MethodInstance mi = (MethodInstance) r;
-        MethodInstance mj = (MethodInstance) other;
+         MethodInstance mi = (MethodInstance) r;
+         MethodInstance mj = (MethodInstance) other;
 
         String fullNameWithThis = mi.x10Def().thisVar().toString();
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XVar thisVar = XTerms.makeLocal(thisName);
+        XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
         thisVar = mi.x10Def().thisVar(); // FIXME: should the above value be used?
 
         List<XVar> ys = new ArrayList<XVar>(2);
@@ -1872,13 +2009,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             entails = mi.guard() == null || mi.guard().valid();
         }
         else {
-            try {
+           
+                final MethodInstance mii = mi;
+                final MethodInstance mjj = mj;
                 entails = mi.guard() == null || mj.guard().entails(mi.guard(), 
-                        ((Context) context).constraintProjection(mj.guard(), mi.guard()));
-            }
-            catch (XFailure e) {
-                entails = false;
-            }
+                                                                   new ConstraintMaker() {
+                    public CConstraint make() throws XFailure {
+                        return  context.constraintProjection(mjj.guard(), mii.guard());
+                    }
+                });          
         }
 
         if (! entails) {
@@ -1903,8 +2042,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean isSameMethod(MethodInstance mi, MethodInstance mj) {
         if (mi.name().equals(mj.name())) {
             String fullNameWithThis = mi.x10Def().thisVar().toString();
-            XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-            XVar thisVar = XTerms.makeLocal(thisName);
+          //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+            XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
 
             List<XVar> ys = new ArrayList<XVar>(2);
             List<XVar> xs = new ArrayList<XVar>(2);

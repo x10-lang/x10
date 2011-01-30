@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Types320_Types33;
+/* Current test harness gets confused by packages, but it would be in package Types320_Types35;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class Types320 extends x10Test {
     }
 
 
-// file Types line 845
+// file Types line 934
 
  static  class ConstraintsMayReferToValues {
  def thoseValues() {

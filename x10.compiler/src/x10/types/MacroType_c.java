@@ -285,6 +285,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			Type t = r.get();
 			if (t instanceof ParameterType) {
 				ParameterType pt = (ParameterType) t;
+				// TODO: Replace with XTerms.makeUQV(pt.name().toString());
 				return XTerms.makeLocal(new XNameWrapper<String>(pt.name().toString()));
 			}
 			throw new InternalCompilerError("Cannot translate non-parameter type into var.", t.position());

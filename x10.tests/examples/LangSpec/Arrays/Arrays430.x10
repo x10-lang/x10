@@ -26,7 +26,7 @@ public class Arrays430 extends x10Test {
     }
 
 
-// file Arrays line 742
+// file Arrays line 740
 
  static class Arrays46GenexpTest{
   def check[T](D:Dist, v:T)  = DistArray.make[T](D, (Point(D.rank))=>v);  }

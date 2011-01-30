@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// OPTIONS: -STATIC_CALLS  because without will just insert a cast: Warning: Expression 'p' was cast to type ...
+
 /**
  * Simple array test.
  * Testing that ia(p) gives an error, where ia:Array[int](1) and p:Point(2).
@@ -28,7 +30,7 @@ public class ArrayAccessWithMismatchingPointRank_MustFailCompile extends x10Test
 
 	    val p1 = [1] as Point;
 	    a(ia(p1)); // ok
-        a(ia(p)); // ERR ShouldNotBeERR should fail at compile time because of mismatching rank.
+        a(ia(p)); // ERR should fail at compile time because of mismatching rank.
 
         return true;
     }

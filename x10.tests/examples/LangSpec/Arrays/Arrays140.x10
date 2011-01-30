@@ -26,7 +26,7 @@ public class Arrays140 extends x10Test {
     }
 
 
-// file Arrays line 251
+// file Arrays line 242
  static  class Example{
 static def addInto(src: Array[Int], dest:Array[Int])
   {src.region == dest.region}
@@ -35,9 +35,11 @@ static def addInto(src: Array[Int], dest:Array[Int])
        dest(p) += src(p);
   }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{
+   def run() {
+     val a = [1,2,3]; val b = [10, 20, 30] as Array[Int]{self.region == a.region};
+     Example.addInto(a, b);
+     return b(0) == 11 && b(1) == 22 && b(2) == 33;
+ }}
 
 }

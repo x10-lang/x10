@@ -15,22 +15,20 @@ import java.util.ArrayList;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
+import x10cpp.X10CPPCompilerOptions;
 
 public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
-    public AIX_CXXCommandBuilder(Options options, ErrorQueue eq) {
-        super(options, eq);
-        assert (CXXCommandBuilder.PLATFORM.startsWith("aix_"));
+    
+    AIX_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
+        super(options, x10rt, eq);
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
 
-        if (USE_XLC) {
+        if (usingXLC()) {
             cxxCmd.add("-qrtti=all"); // AIX specific.
-            if (USE_32BIT) {
-                cxxCmd.add("-bmaxdata:0x80000000");
-            }
-            cxxCmd.add("-brtl"); // AIX specific.
+            cxxCmd.add("-brtl");      // AIX specific.
         } else {
             cxxCmd.add("-maix64"); // Assume 64-bit
             cxxCmd.add("-Wl,-brtl");
@@ -40,7 +38,7 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
 
-        if (USE_XLC) {
+        if (usingXLC()) {
             cxxCmd.add("-bbigtoc");
             cxxCmd.add("-lptools_ptr");
         } else {

@@ -39,7 +39,7 @@ public class XLit extends XVar implements XPromise {
 		return this;
 	}
 	
-	public boolean hasDisBindings() { return false; }
+	// public boolean hasDisBindings() { return false; }
 
 	public XTermKind kind() { return XTermKind.LITERAL;}
 	public List<XEQV> eqvs() {

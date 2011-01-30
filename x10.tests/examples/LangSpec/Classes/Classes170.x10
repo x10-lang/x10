@@ -26,7 +26,7 @@ public class Classes170 extends x10Test {
     }
 
 
-// file Classes line 992
+// file Classes line 1026
 
  // Integer-coefficient polynomials of one variable.
  static  class UglyPoly {
@@ -108,22 +108,6 @@ public class Classes170 extends x10Test {
    def minus(p:UglyPoly) = this - p;
    def minus(n:Int) = this - n;
    static def const(n:Int) = n as UglyPoly;
-
-   public static def Main(x:Rail[String]) = main(x);
-   public static def main(Rail[String]):void {
-      val X = new UglyPoly([0,1]);
-      val t <: UglyPoly = 7 * X + 6 * X * X * X;
-
-      val u <: UglyPoly = 3 + 5*X - 7*X*X;
-      val v <: UglyPoly = t * u - 1;
-      for( [i] in -3 .. 3) {
-        x10.io.Console.OUT.println(
-          "" + i + "	X:" + X(i) + "	t:" + t(i) + "	u:" + u(i) + "	v:" + v(i)
-          );
-      }
-      uglymain();
-   }
-
 
 
   public static def uglymain() {

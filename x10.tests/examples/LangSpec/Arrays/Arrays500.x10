@@ -26,7 +26,7 @@ public class Arrays500 extends x10Test {
     }
 
 
-// file Arrays line 891
+// file Arrays line 889
 
  static class Arrays53GenexpTest{
   def check[T](f:(T,T)=>T, a : Array[T], unit:T)  = a.reduce(f, unit);  }

@@ -26,16 +26,15 @@ public class Expressions40 extends x10Test {
     }
 
 
-// file Expressions line 203
+// file Expressions line 258
  static class Callsome {
-  static val closure = () => 1;
-  static def method () = 2;
-  static val closureEvaluated = Callsome.closure();
-  static val methodEvaluated = Callsome.method();
+  static val closure : () => Int = () => 1;
+  static def method()            = 2;
+  static def example() {
+     assert Callsome.closure() == 1;
+     assert Callsome.method()  == 2;
+  }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() { Callsome.example(); return true; } }
 
 }

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Expressions29;
+/* Current test harness gets confused by packages, but it would be in package Types2x6d;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,18 +19,20 @@ import harness.x10Test;
 
 
 
-public class Expressions290 extends x10Test {
+public class Types2x6d extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Expressions290().execute();
+        new Types2x6d().execute();
     }
 
 
-// file Expressions line 1168
-
- static class Expressions29TypeTest{
-  def check()  { 
-     var checkycheck : Point{self.rank==5};  }}
+// file Types line 2169
+ static interface ComparableTo[T] {
+  def eq(T):Boolean;
+}
+ static class A implements ComparableTo[A] {
+  public def eq(other:A) = this.equals(other);
+}
 
  static class Hook {
    def run():Boolean = true;

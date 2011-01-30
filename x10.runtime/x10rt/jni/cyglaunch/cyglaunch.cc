@@ -9,6 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+#ifndef __int64
+#define __int64 __int64_t
+#endif
+
 #include <sys/types.h>
 #include <jni.h>
 #include <stdio.h>
@@ -50,32 +54,37 @@ void* load_jvm_dll() {
 #endif
     void* jvm_dll = LoadLibrary(JVM_DLL);
     if (jvm_dll == NULL) {
-      fprintf(stderr, "JAVA_HOME is not set.  Unable to load '%s': %s\n", JVM_DLL, dlerror());
+      fprintf(stderr, "JAVA_HOME is not set.  Unable to load '%s': Error %d\n", JVM_DLL, GetLastError());
       exit(2);
     }
     return jvm_dll;
   }
+  int error = ERROR_MOD_NOT_FOUND;
   void* jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_SERVER_PATH);
   if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
   jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_CLIENT_PATH);
   if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
   jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_J9VM_PATH);
   if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
   jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_CLASSIC_PATH);
   if (jvm_dll != NULL) return jvm_dll;
-  fprintf(stderr, "JAVA_HOME ('%s') may not point to a JRE.  Unable to load '%s': %s\n", JAVA_HOME, JVM_DLL, dlerror());
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
+  fprintf(stderr, "JAVA_HOME ('%s') may not point to a JRE.  Unable to load '%s': Error %d\n", JAVA_HOME, JVM_DLL, error);
   exit(2);
 }
 void release_jvm_dll(void* jvm_dll) {
   if (dlclose(jvm_dll) != 0) {
-    fprintf(stderr, "Unable to unload '%s': %s\n", JVM_DLL, dlerror());
+    fprintf(stderr, "Unable to unload '%s': Error %d\n", JVM_DLL, GetLastError());
     exit(2);
   }
 }
 void* load_jni_symbol(void* jvm_dll, const char* symbol) {
   void* ptr = dlsym(jvm_dll, symbol);
   if (ptr == NULL) {
-    fprintf(stderr, "Unable to load symbol %s from %s: %s\n", symbol, JVM_DLL, dlerror());
+    fprintf(stderr, "Unable to load symbol %s from %s: Error %d\n", symbol, JVM_DLL, GetLastError());
     exit(2);
   }
   return ptr;
@@ -108,7 +117,7 @@ int main(int ac, char** av) {
     if (*av[c] != '-')
       break;
   }
-  args.nOptions = c - 1 + nomx;
+  args.nOptions = c - 1 + nomx + 1;
   args.options = (JavaVMOption*) malloc(args.nOptions * sizeof(JavaVMOption));
   int j = 0;
   for (i = 1; i < c; i++, j++) {
@@ -136,6 +145,9 @@ int main(int ac, char** av) {
     args.options[j].extraInfo = NULL;
     ++j;
   }
+  args.options[j].optionString = strdup("-D32");
+  args.options[j].extraInfo = NULL;
+  ++j;
   args.ignoreUnrecognized = JNI_TRUE;
   char* className = av[c];
   if (c == ac) {

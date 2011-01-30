@@ -92,6 +92,45 @@ import x10.util.Box;
         dealloc(closure);
     }
 
+
+    //Work-Stealing Runtime Related Interface
+    public static def wsProcessEvents():void {
+        event_probe();
+    }
+    /*
+     * Run a ws frame in local or remote.
+     * The frame is in the body, and should be in the heap
+     */
+    public static def wsRunAsync(id:Int, body:()=>void):void {
+        if(id == here.id){
+            val closure:()=>void = deepCopy(body);
+            closure();
+            dealloc(closure);
+        }
+        else{
+            val closure:()=>void = ()=>@x10.compiler.RemoteInvocation {
+                body(); //just execute the 
+            };
+            runClosureCopyAt(id, closure);
+            dealloc(closure);
+        }
+    }
+    /* 
+     * Run a ws command in local or remote, such as a finish join action, or stop all workers action
+     */
+    public static def wsRunCommand(id:Int, body:()=>void):void {
+        if(id == here.id){
+            body();
+        }
+        else {
+            val closure:()=>void = ()=>@x10.compiler.RemoteInvocation {
+                body(); //just execute the 
+            };
+            runClosureAt(id, closure);
+            dealloc(closure);
+        }
+    }
+    
     /**
      * Deep copy.
      */

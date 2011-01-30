@@ -28,16 +28,16 @@ produce an executable named "<class_name>" in the current
 directory[*].
 
 To run the compiled X10 executable in one place, invoke
-"bin/runx10 ./<class_name>".
-- To run in multiple places on Linux, run "bin/manager", and then
-  invoke "bin/launcher -t <nplaces> ./<class_name>".
-- To run in multiple places on AIX, run
-  "LAPI_USE_SHMEM=yes poe ./<class_name> -procs <nplaces> -hostfile HOSTFILE".
-  See "man poe" for additional options and the format of HOSTFILE.
-- If you have mpi available, you can use mpirun to run in multiple places.
-  Details will vary depending on the exact syntax of the mpirun command,
-  but something like: "mpirun -hostfile <hosts> -n <nplaces> ./<class_name>" 
-  should work
+./<class_name>.
+
+To run in multiple places on a single host, 
+export X10_NPLACES=<num_places>
+./<class_name>
+
+To run in multiple places, on multiple hosts,
+export X10_HOSTFILE=<hostfile>
+export X10_NPLACES=<num_places>
+./<class_name>
 
 [*] On Cygwin, the name will be "<class_name>.exe".  
 the -o argument may be omitted, but the compiler will then produce 

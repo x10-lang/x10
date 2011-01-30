@@ -26,7 +26,7 @@ public class Activities40 extends x10Test {
     }
 
 
-// file Activities line 359
+// file Activities line 364
  static class Trans {
    val a : Int = 1;
    transient val b : Int = 2;
@@ -38,9 +38,6 @@ public class Activities40 extends x10Test {
      }
    }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static class Hook{ def run() { (new Trans()).example(); return true; } }
 
 }

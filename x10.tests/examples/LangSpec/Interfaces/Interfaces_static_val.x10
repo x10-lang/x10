@@ -28,11 +28,15 @@ public class Interfaces_static_val extends x10Test {
 
 // file Interfaces line 11
  
- static interface Pushable(text:String, prio:Int) {
+ static interface Pushable(text:String, prio:Int){prio != 0} {
   def push(): void;
   static val MAX_PRIO = 100;
+  abstract static  class Pushedness{}
+ static   struct Pushy{}
+ static   interface Pushing{}
+  static type Shove = Int;
 }
- static class MessageButton(text:String, prio:Int)
+ static class MessageButton(text:String, prio:Int){
   implements Pushable{self.prio==Pushable.MAX_PRIO} {
   public def push() {
     x10.io.Console.OUT.println(text + " pushed");

@@ -26,7 +26,7 @@ public class Types150 extends x10Test {
     }
 
 
-// file Types line 408
+// file Types line 455
  static class Coords(x: Int, y: Int) {
   def this(x: Int, y: Int) :
     Coords{self.x==x, self.y==y} = {

@@ -41,11 +41,15 @@ public class X10RT {
       if (state != State.UNINITIALIZED) return;
 
       String libName = System.getProperty("X10RT_IMPL", "x10rt_sockets");
-      try {
-          System.loadLibrary(libName);
-      } catch (UnsatisfiedLinkError e) {
-          System.err.println("Unable to load "+libName+". Forcing single place execution");
+      if (libName.equals("disabled")) {
           forceSinglePlace = true;
+      } else {
+          try {
+              System.loadLibrary(libName);
+          } catch (UnsatisfiedLinkError e) {
+              System.err.println("Unable to load "+libName+". Forcing single place execution");
+              forceSinglePlace = true;
+          }
       }
 
       if (forceSinglePlace) {

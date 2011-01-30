@@ -26,30 +26,34 @@ public class Classes250 extends x10Test {
     }
 
 
-// file Classes line 1483
+// file Classes line 1510
  static class Oddvec {
   var v : Array[Int](1) = new Array[Int](3, (Int)=>0);
-  public def apply() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
-  public def apply(i:Int) = v(i);
-  public def apply(i:Int, j:Int) = [v(i),v(j)];
-  public def set(newval:Int, i:Int) = {v(i) = newval;}
-  public def set(newval:Int, i:Int, j:Int) = {
+  public operator this () = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
+  public operator this () = (newval: Int) {
+    for(p in v.region) v(p) = newval;
+  }
+  public operator this(i:Int) = v(i);
+  public operator this(i:Int, j:Int) = [v(i),v(j)];
+  public operator this(i:Int) = (newval:Int) = {v(i) = newval;}
+  public operator this(i:Int, j:Int) = (newval:Int) = {
        v(i) = newval; v(j) = newval+1;}
-  // ...
-  public static def main(argv:Rail[String]):void {
+  public def example() {
+    this(1) = 6;   assert this(1) == 6;
+    this(1) += 7;  assert this(1) == 13;
+  }
+ }
+ static   class Hook { def run() {
      val a = new Oddvec();
-     x10.io.Console.OUT.println(a() + " ... " + a(0));
-     a(1) = 20;
-     x10.io.Console.OUT.println(a());
-     a(0) = 30;
-     x10.io.Console.OUT.println(a());
-     a(0,1) = 100;
-     x10.io.Console.OUT.println(a());
+     assert a().equals("(0,0,0)");
+     a() = 1;
+     assert a().equals("(1,1,1)");
+     a(1) = 4;
+     assert a().equals("(1,4,1)");
+     a(0,2) = 5;
+     assert a().equals("(5,4,6)");
+     return true;
    }
  }
-
- static class Hook {
-   def run():Boolean = true;
-}
 
 }

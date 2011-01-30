@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Expressions_Calls_Guarded_By_Walls;
+/* Current test harness gets confused by packages, but it would be in package Statements3d9l;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,20 +19,20 @@ import harness.x10Test;
 
 
 
-public class Expressions60 extends x10Test {
+public class Statements3d9l extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Expressions60().execute();
+        new Statements3d9l().execute();
     }
 
 
-// file Expressions line 239
- static class DivideBy(denom:Int) {
-  def doIt(numer:Int){denom != 0} = numer / denom;
-  def example() {
-     //ERROR: denom might be zero: this.doIt(100);
-     (this as DivideBy{self.denom != 0}).doIt(100);
-  }
+// file Statements line 618
+ static  class Example {
+static def sum(a:x10.util.List[Int]):Int {
+  var s : Int = 0;
+  for(x in a) s += x;
+  return s;
+}
 }
 
  static class Hook {

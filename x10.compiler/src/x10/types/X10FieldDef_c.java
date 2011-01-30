@@ -29,6 +29,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 
 public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
@@ -49,7 +50,7 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return XTerms.makeEQV("#this");
+        return CTerms.makeThis("#this"); // Why #this instead of this?
     }
 
     ThisDef thisDef;

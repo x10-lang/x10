@@ -64,6 +64,7 @@ import x10.errors.Errors;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -328,10 +329,10 @@ public class XTypeTranslator {
             return (Type) val;
         }
 
-        public boolean hasVar(XVar v) {
+    /*    public boolean hasVar(XVar v) {
             return Types.hasVar(type(), v);
         }
-
+*/
         public XTypeLit subst(XTerm y, XVar x, boolean propagate) {
             XTypeLit n = (XTypeLit) super.subst(y, x, propagate);
             Type newVal = n.type();
@@ -435,15 +436,15 @@ public class XTypeTranslator {
         return result;
     }
 
-    public XLocal translateThisWithoutTypeConstraint() {
-        XLocal v = XTerms.makeLocal(XTerms.makeName("this"));
+    public XVar translateThisWithoutTypeConstraint() {
+        XVar v = CTerms.THIS_THIS; // XTerms.makeLocal(XTerms.makeName("this"));
         return v;
     }
 
-    public XLocal translateThis(Type t) throws SemanticException {
+    /*public XLocal translateThis(Type t) throws SemanticException {
         XLocal v = translateThisWithoutTypeConstraint();
         return v;
-    }
+    }*/
 
 
     public CConstraint binaryOp(Binary.Operator op, CConstraint cl, CConstraint cr) {

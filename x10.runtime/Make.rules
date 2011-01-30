@@ -55,6 +55,12 @@ ifdef USE_BFD
   CXXFLAGS += -DUSE_BFD
 endif
 
+ifndef JAVA_HOME
+  ifeq ($(shell uname -s),Darwin)
+    JAVA_HOME=$(shell /usr/libexec/java_home)
+  endif
+endif
+
 ifdef JAVA_HOME
   ifeq ($(shell uname -s),AIX)
       JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/aix
@@ -67,7 +73,13 @@ ifdef JAVA_HOME
     JNI_INCLUDES = -I"$(JAVA_CYGPATH)"/include -I"$(JAVA_CYGPATH)"/include/win32
   else
   ifeq ($(shell uname -s),Darwin)
-    # TODO!!
+    ifeq ($(shell test -r "$(JAVA_HOME)"/bundle/Headers/jni.h && printf hi),hi)
+      JNI_INCLUDES = -I"$(JAVA_HOME)"/bundle/Headers
+    else
+      ifeq ($(shell test -r "$(JAVA_HOME)"/include/jni.h && printf hi),hi)
+        JNI_INCLUDES = -I"$(JAVA_HOME)"/include
+      endif
+    endif
   else
   ifeq ($(shell uname -s),SunOS)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/solaris
@@ -127,8 +139,10 @@ else
     override CXXFLAGS -= -g
     ifndef USE_32BIT
       override CXXFLAGS += -q64
+      override XRX_PROPS_CXXFLAGS += -q64
     else
       override CXXFLAGS += -q32
+      override XRX_PROPS_CXXFLAGS += -q32 -bmaxdata:0x80000000
     endif
 
   endif
@@ -175,6 +189,7 @@ else
       endif
       ifdef USE_64BIT
         override CXXFLAGS += -m64
+        override XRX_PROPS_CXXFLAGS += -m64
       endif
       ifeq ($(shell uname -m),x86_64)
         export X10RT_PLATFORM=linux_x86_64
@@ -209,18 +224,17 @@ else
       export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt
       ifdef USE_32BIT
         override CXXFLAGS += -arch i386
+        override XRX_PROPS_CXXFLAGS += -arch i386
       endif
       ifdef USE_64BIT
         override CXXFLAGS += -arch x86_64
+        override XRX_PROPS_CXXFLAGS += -arch x86_64
       endif
       AR = libtool
       # Warning: Order matters!  The "-o" has to be at the end.
       ARFLAGS = -static -o
     else
     ifeq ($(shell uname -s),SunOS)
-      ifndef X10_SHARED_LIB_DEFAULT_OVERRIDE
-        export X10_STATIC_LIB=1
-      endif
       export X10RT_PLATFORM=sunos
       override CXXFLAGS_SHARED += -shared -fPIC
       override LDFLAGS += -lresolv -lnsl -lsocket -lrt

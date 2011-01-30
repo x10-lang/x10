@@ -206,7 +206,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         StringBuilder sb = new StringBuilder();
         sb.append(container().toString());
         sb.append(".");
-        sb.append("this");
+        sb.append(TypeSystem.CONSTRUCTOR_NAME);
         // [IP] Constructors don't have type parameters, they inherit them from the container.
         //List<String> params = new ArrayList<String>();
         //List<Type> typeParameters = typeParameters();

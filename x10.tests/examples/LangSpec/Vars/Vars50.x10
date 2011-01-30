@@ -26,7 +26,7 @@ public class Vars50 extends x10Test {
     }
 
 
-// file Vars line 197
+// file Vars line 208
  static class Examplement {
 static def whatever() {
 val sq = (x:Int) => x*x;

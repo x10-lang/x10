@@ -26,7 +26,7 @@ public class Functions30 extends x10Test {
     }
 
 
-// file Functions line 88
+// file Functions line 87
  abstract static  class FunctionsTooManyFlippingFunctions[T, T1, T2]{
  abstract def arg1():T1;
  abstract def arg2():T2;

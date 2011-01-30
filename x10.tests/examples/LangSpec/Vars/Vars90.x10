@@ -26,7 +26,7 @@ public class Vars90 extends x10Test {
     }
 
 
-// file Vars line 318
+// file Vars line 363
  static  class ForBear {
  def forbear() {
 var sum : Int = 0;

@@ -13,7 +13,6 @@ CC=gcc $(CCEXTRA)
 CXX=g++ $(CCEXTRA)
 override CFLAGS+=-I"${JAVA_HOME}/include" -I"${JAVA_HOME}/include/win32" $(CFLAGSEXTRA) -g -I"$(X10_HOME)/x10.runtime/x10rt/include"
 override CXXFLAGS+=-I"${JAVA_HOME}/include" -I"${JAVA_HOME}/include/win32" $(CFLAGSEXTRA) -g -I"$(X10_HOME)/x10.runtime/x10rt/include"
-CFLAGSEXTRA=-D__int64=__int64_t
 override LDFLAGS+="-L$(X10_HOME)/x10.runtime/x10rt/lib" -Wl,--add-stdcall-alias
 override LDLIBS+=-lx10rt_sockets
 #override LDLIBS+=-lx10rt_standalone
@@ -26,7 +25,7 @@ LIBSFX=.dll
 
 .SUFFIXES: .java .class .o .c .h $(LIBSFX)
 
-all: cyglaunch G.class H.class H.dll
+all: cyglaunch G.class H.class H.dll I.class
 .PHONY: all
 
 $(LIBPFX)%$(LIBSFX):	%.o
@@ -36,7 +35,7 @@ $(LIBPFX)%$(LIBSFX):	%.o
 	"${JAVA_HOME}/bin/javah" $(subst .class,,$^)
 
 %.class:	%.java
-	"${JAVA_HOME}/bin/javac" $^
+	"${JAVA_HOME}/bin/javac" -classpath "`cygpath -am "$(X10_HOME)/x10.runtime/classes"`" $^
 
 .PRECIOUS: %.class %.h
 

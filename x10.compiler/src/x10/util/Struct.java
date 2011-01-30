@@ -11,10 +11,10 @@
 
 package x10.util;
 
-import java.util.*;
-import java.util.HashSet;
-import java.util.List;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.*;
 
 import polyglot.ast.*;
 import polyglot.types.Flags;
@@ -35,6 +35,7 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.types.*;
+import x10.types.constraints.CTerms;
 import x10.extension.X10Ext;
 import x10cpp.visit.SharedVarsMethods;
 
@@ -75,8 +76,8 @@ public class Struct {
 
        String fullNameWithThis = fullName + "#this";
        //String fullNameWithThis = "this";
-       XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-       XVar thisVar = XTerms.makeLocal(thisName);
+     //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+       XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
 
 
 
@@ -168,7 +169,7 @@ public class Struct {
            }
 
         final Flags flags = Flags.PUBLIC.Final();
-        final NodeFactory nf = (NodeFactory)tb.nodeFactory();
+        final NodeFactory nf = tb.nodeFactory();
         final TypeNode intTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Int"));
         final TypeNode boolTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Boolean"));
         final TypeNode placeTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Place"));

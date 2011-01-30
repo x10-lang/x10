@@ -66,9 +66,6 @@ class PolyAlgebra2 extends TestRegion {
         "isConvex() true\n"+
         "size() 16\n"+
         "region: [0..1,0..7]\n"+
-        "  poly\n"+
-        "    0  1 1 1 1 1 1 1 1 . . \n"+
-        "    1  1 1 1 1 1 1 1 1 . . \n"+
         "  iterator\n"+
         "    0  1 1 1 1 1 1 1 1 . . \n"+
         "    1  1 1 1 1 1 1 1 1 . . \n"+
@@ -80,9 +77,6 @@ class PolyAlgebra2 extends TestRegion {
         "isConvex() true\n"+
         "size() 16\n"+
         "region: [4..5,0..7]\n"+
-        "  poly\n"+
-        "    4  1 1 1 1 1 1 1 1 . . \n"+
-        "    5  1 1 1 1 1 1 1 1 . . \n"+
         "  iterator\n"+
         "    4  1 1 1 1 1 1 1 1 . . \n"+
         "    5  1 1 1 1 1 1 1 1 . . \n"+
@@ -94,15 +88,6 @@ class PolyAlgebra2 extends TestRegion {
         "isConvex() true\n"+
         "size() 16\n"+
         "region: [0..7,4..5]\n"+
-        "  poly\n"+
-        "    0  . . . . 1 1 . . . . \n"+
-        "    1  . . . . 1 1 . . . . \n"+
-        "    2  . . . . 1 1 . . . . \n"+
-        "    3  . . . . 1 1 . . . . \n"+
-        "    4  . . . . 1 1 . . . . \n"+
-        "    5  . . . . 1 1 . . . . \n"+
-        "    6  . . . . 1 1 . . . . \n"+
-        "    7  . . . . 1 1 . . . . \n"+
         "  iterator\n"+
         "    0  . . . . 1 1 . . . . \n"+
         "    1  . . . . 1 1 . . . . \n"+
@@ -120,14 +105,6 @@ class PolyAlgebra2 extends TestRegion {
         "isConvex() false\n"+
         "size() 8\n"+
         "region: ([0..1,4..5] || [4..5,4..5])\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "    0  . . . . 1 1 . . . . \n"+
-        "    1  . . . . 1 1 . . . . \n"+
-        "    2\n"+
-        "    3\n"+
-        "    4  . . . . 1 1 . . . . \n"+
-        "    5  . . . . 1 1 . . . . \n"+
         "  iterator\n"+
         "    0  . . . . 1 1 . . . . \n"+
         "    1  . . . . 1 1 . . . . \n"+
@@ -143,14 +120,6 @@ class PolyAlgebra2 extends TestRegion {
         "isConvex() false\n"+
         "size() 8\n"+
         "region: ([0..1,4..5] || [4..5,4..5])\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "    0  . . . . 1 1 . . . . \n"+
-        "    1  . . . . 1 1 . . . . \n"+
-        "    2\n"+
-        "    3\n"+
-        "    4  . . . . 1 1 . . . . \n"+
-        "    5  . . . . 1 1 . . . . \n"+
         "  iterator\n"+
         "    0  . . . . 1 1 . . . . \n"+
         "    1  . . . . 1 1 . . . . \n"+
@@ -169,18 +138,6 @@ class PolyAlgebra2 extends TestRegion {
         "isConvex() false\n"+
         "size() 40\n"+
         "region: ([0..1,0..7] || [4..5,0..7] || [2..3,4..5] || [6..7,4..5])\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "    0  1 1 1 1 1 1 1 1 . . \n"+
-        "    1  1 1 1 1 1 1 1 1 . . \n"+
-        "    2  . . . . 1 1 . . . . \n"+
-        "    3  . . . . 1 1 . . . . \n"+
-        "    4  1 1 1 1 1 1 1 1 . . \n"+
-        "    5  1 1 1 1 1 1 1 1 . . \n"+
-        "    6  . . . . 1 1 . . . . \n"+
-        "    7  . . . . 1 1 . . . . \n"+
         "  iterator\n"+
         "    0  1 1 1 1 1 1 1 1 . . \n"+
         "    1  1 1 1 1 1 1 1 1 . . \n"+
@@ -198,18 +155,6 @@ class PolyAlgebra2 extends TestRegion {
         "isConvex() false\n"+
         "size() 40\n"+
         "region: ([0..1,0..7] || [4..5,0..7] || [2..3,4..5] || [6..7,4..5])\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "    0  1 1 1 1 1 1 1 1 . . \n"+
-        "    1  1 1 1 1 1 1 1 1 . . \n"+
-        "    2  . . . . 1 1 . . . . \n"+
-        "    3  . . . . 1 1 . . . . \n"+
-        "    4  1 1 1 1 1 1 1 1 . . \n"+
-        "    5  1 1 1 1 1 1 1 1 . . \n"+
-        "    6  . . . . 1 1 . . . . \n"+
-        "    7  . . . . 1 1 . . . . \n"+
         "  iterator\n"+
         "    0  1 1 1 1 1 1 1 1 . . \n"+
         "    1  1 1 1 1 1 1 1 1 . . \n"+
@@ -231,16 +176,6 @@ class PolyAlgebra2 extends TestRegion {
         "isConvex() false\n"+
         "size() 24\n"+
         "region: ([0..1,0..3] || [0..1,6..7] || [4..5,0..3] || [4..5,6..7])\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "    0  0 0 0 0 . . 0 0 . . \n"+
-        "    1  0 1 2 3 . . 6 7 . . \n"+
-        "    2\n"+
-        "    3\n"+
-        "    4  0 4 8 2 . . 4 8 . . \n"+
-        "    5  0 5 0 5 . . 0 5 . . \n"+
         "  iterator\n"+
         "    0  0 0 0 0 . . 0 0 . . \n"+
         "    1  0 1 2 3 . . 6 7 . . \n"+
@@ -256,16 +191,6 @@ class PolyAlgebra2 extends TestRegion {
         "isConvex() false\n"+
         "size() 24\n"+
         "region: ([0..1,0..3] || [0..1,6..7] || [4..5,0..3] || [4..5,6..7])\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "  poly\n"+
-        "    0  1 1 1 1 . . 1 1 . . \n"+
-        "    1  1 1 1 1 . . 1 1 . . \n"+
-        "    2\n"+
-        "    3\n"+
-        "    4  1 1 1 1 . . 1 1 . . \n"+
-        "    5  1 1 1 1 . . 1 1 . . \n"+
         "  iterator\n"+
         "    0  1 1 1 1 . . 1 1 . . \n"+
         "    1  1 1 1 1 . . 1 1 . . \n"+

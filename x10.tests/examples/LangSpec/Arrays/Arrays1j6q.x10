@@ -26,7 +26,7 @@ public class Arrays1j6q extends x10Test {
     }
 
 
-// file Arrays line 437
+// file Arrays line 435
 
  static class Arrays30TestExp{
   def check(somePlace:Place)  = new SparsePlaceGroup(somePlace);  }

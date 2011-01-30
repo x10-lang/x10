@@ -26,7 +26,7 @@ public class Vars60 extends x10Test {
     }
 
 
-// file Vars line 242
+// file Vars line 255
  static class VarsForBears{
 def check() {
   val immut : Int = 3;

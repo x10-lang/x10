@@ -54,10 +54,6 @@ final class EmptyRegion extends Region {
         return new ERIterator(rank);
     }
 
-    public def scanners():Iterator[Region.Scanner] {
-        throw new UnsupportedOperationException("scanners not defined for empty region");
-    }
-
     public def toString() = "empty(" + rank + ")";
 
 }

@@ -28,11 +28,13 @@ public class Statements10 extends x10Test {
 
 // file Statements line 18
  static  class EmptyStatementExample {
- def summizmo (a:Array[Int](1)){
-var sum: Int = 0;
-for (var i: Int = 0; i < a.size; i++, sum += a(i))
-    ;
-}}
+static def search[T](a: Array[T](1), v: T):Int {
+  var i : Int;
+  for(i = a.region.min(0); a(i) != v; i++)
+     ;
+  return i;
+}
+}
 
  static class Hook {
    def run():Boolean = true;

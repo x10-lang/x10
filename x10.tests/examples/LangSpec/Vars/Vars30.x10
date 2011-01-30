@@ -26,7 +26,7 @@ public class Vars30 extends x10Test {
     }
 
 
-// file Vars line 145
+// file Vars line 156
  static  class ABitTedious{
  def example() {
 val a : Int = 10;

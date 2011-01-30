@@ -2840,7 +2840,7 @@ public class Emitter {
 
         X10ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
                                                        xnf.FlagsNode(pos, Flags.PUBLIC),
-                                                       xnf.Id(pos, "this"), 
+                                                       xnf.Id(pos, TypeSystem.CONSTRUCTOR_NAME), 
                                                        returnType,
                                                        typeFormals,
                                                        formals,

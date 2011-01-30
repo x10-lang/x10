@@ -26,7 +26,7 @@ public class Activities70 extends x10Test {
     }
 
 
-// file Activities line 488
+// file Activities line 495
  abstract static  class Example {
  abstract def mathProcessor() : Place;
 def printRootsOfQuadratic(a:Complex, b:Complex, c:Complex) {

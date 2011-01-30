@@ -26,7 +26,7 @@ public class Types80 extends x10Test {
     }
 
 
-// file Types line 173
+// file Types line 179
  static class LinkedList[X] {
   val head : X;
   val tail : LinkedList[X];

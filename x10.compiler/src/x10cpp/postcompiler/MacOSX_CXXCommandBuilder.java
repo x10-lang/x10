@@ -15,26 +15,16 @@ import java.util.ArrayList;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
+import x10cpp.X10CPPCompilerOptions;
 
 public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
-    public static final boolean USE_32BIT = System.getenv("USE_32BIT")!=null;
-    public static final boolean USE_64BIT = System.getenv("USE_64BIT")!=null;
 
-    public MacOSX_CXXCommandBuilder(Options options, ErrorQueue eq) {
-        super(options,eq);
-        assert (CXXCommandBuilder.PLATFORM.startsWith("macosx_"));
+    MacOSX_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
+        super(options, x10rt, eq);
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        if (USE_32BIT) {
-            cxxCmd.add("-arch");
-            cxxCmd.add("i386");
-        }
-        if (USE_64BIT) {
-            cxxCmd.add("-arch");
-            cxxCmd.add("x86_64");
-        }
         cxxCmd.add("-msse2");
         cxxCmd.add("-mfpmath=sse");
     }
@@ -42,10 +32,15 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
 
-        // Support for loading shared libraries from x10.dist/lib
+        for (PrecompiledLibrary pcl:options.x10libs) {
+            cxxCmd.add("-Wl,-rpath");
+            cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib");
+        }
+        
+        // x10rt
         cxxCmd.add("-Wl,-rpath");
-        cxxCmd.add("-Wl,"+X10_DIST+"/lib");
+        cxxCmd.add("-Wl,"+options.distPath()+"/lib");
         cxxCmd.add("-Wl,-rpath");
-        cxxCmd.add("-Wl,"+X10_DIST+""); // some libs end up with a "lib/" relative path
+        cxxCmd.add("-Wl,"+options.distPath()); // some libs end up with a "lib/" relative path
     }
 }

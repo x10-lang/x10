@@ -18,7 +18,7 @@ import x10.compiler.CompilerFlags;
  * A RectRegion is a finite dense rectangular region with a specified rank.
  * This class implements a specialization of PolyRegion.
  */
-public final class RectRegion extends Region{rect} {
+final class RectRegion extends Region{rect} {
 
     private val size:int;           /* Will be < 0 iff the true size of the region is not expressible as an int */
     private val mins:Array[int](1); /* will be null if rank<5 */
@@ -44,7 +44,7 @@ public final class RectRegion extends Region{rect} {
     /**
      * Create a rectangular region containing all points p such that min <= p and p <= max.
      */
-    def this(minArg:Array[int](1), maxArg:Array[int](1)):RectRegion(minArg.size) {
+    def this(minArg:Array[int](1), maxArg:Array[int](1)):RectRegion{self.rank==minArg.size} {
         super(minArg.size, true, allZeros(minArg));
 
 	if (minArg.size != maxArg.size) throw new IllegalArgumentException("size of min and max args are not equal");
@@ -101,7 +101,7 @@ public final class RectRegion extends Region{rect} {
     /**
      * Create a 1-dim region min..max.
      */
-    def this(min:int, max:int):RectRegion(1){
+    def this(min:int, max:int):RectRegion{self.rank==1} {
         super(1, true, min==0);
 
         size = max - min + 1;
@@ -222,7 +222,7 @@ public final class RectRegion extends Region{rect} {
     // region operations
     //
 
-    protected def computeBoundingBox():RectRegion(rank)=this; 
+    protected def computeBoundingBox():Region(rank)=this; 
     
     public @TempNoInline_1 def min():(int)=>int = (i:int)=> min(i);
     public @TempNoInline_1 def max():(int)=>int = (i:int)=> max(i);
@@ -459,57 +459,4 @@ public final class RectRegion extends Region{rect} {
         s += "]";
         return s;
     }
-
-    /**
-     * The Scanner class supports efficient scanning. Usage:
-     *
-     *    for (s:Scanner in r.scanners()) {
-     *        int min0 = s.min(0);
-     *        int max0 = s.max(0);
-     *        for (var i0:int=min0; i0<=max0; i0++) {
-     *            s.set(0,i0);
-     *            int min1 = s.min(1);
-     *            int max1 = s.max(1);
-     *            for (var i1:int=min1; i1<=max1; i1++) {
-     *                ...
-     *            }
-     *        }
-     *    }
-     *
-     */
-
-    private class RectRegionScanner implements Region.Scanner {
-    	var axis:Int=0;
-        def this(){}
-
-        public def set(axis:int, position: int) {
-        	// ???
-        }
-        public @TempNoInline_1 def min(axis:int):int = RectRegion.this.min()(axis);
-        public @TempNoInline_1 def max(axis:int):int = RectRegion.this.max()(axis);
-    }
-    private class Scanners implements Iterator[Region.Scanner] {
-
-        var hasNext: boolean = true;
-
-        public def hasNext(): boolean {
-            return hasNext;
-        }
-
-        public def next(): Region.Scanner {
-            if (hasNext) {
-                hasNext = false;
-                return new RectRegionScanner();
-            } else
-                throw new x10.util.NoSuchElementException("in scanner");
-        }
-
-        public def remove(): void {
-            throw new UnsupportedOperationException("remove");
-        }
-    }
-
-    public def scanners()=new Scanners();
-  
-
 }

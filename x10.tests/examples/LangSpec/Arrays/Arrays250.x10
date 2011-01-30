@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Arrays_Arrays_mostly_dire_dreams_tonight;
+/* Current test harness gets confused by packages, but it would be in package Arrays250;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,14 +26,11 @@ public class Arrays250 extends x10Test {
     }
 
 
-// file Arrays line 362
+// file Arrays line 359
  static class Example{
-def example(A:Array[Int]) {
+static def example(A:Array[Int]) {
 for (p in A) A(p) = 2*A(p);
 }}
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() { val a = [1,2]; Example.example(a); return a(0)==2 && a(1)==4; }}
 
 }

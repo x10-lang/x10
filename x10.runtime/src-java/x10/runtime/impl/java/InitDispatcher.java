@@ -92,6 +92,11 @@ public class InitDispatcher {
     }
 
     public static void broadcastStaticField(final Object fieldValue, final int fieldId) {
+    	// no need for broadcast while running on a single place
+    	if (Runtime.MAX_PLACES <= 1) {
+    		return;
+    	}
+    	
         // if (X10RT.VERBOSE) System.out.println("@MultiVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
 
         // serialize to bytearray

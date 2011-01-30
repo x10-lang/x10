@@ -26,7 +26,7 @@ public class Classes40 extends x10Test {
     }
 
 
-// file Classes line 234
+// file Classes line 241
  static class Trans {
    val copied = "copied";
    transient var transy : String = "a very long string";

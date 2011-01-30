@@ -26,7 +26,7 @@ public class Activities30 extends x10Test {
     }
 
 
-// file Activities line 320
+// file Activities line 324
  static class example {
 static def Example() {
 val c = new Cell[Int](5);
@@ -41,9 +41,6 @@ at(here) {
 }
 assert(a(0)() == 6 && a(1)() == 6);     // (G)
 }}
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static class Hook{ def run() { example.Example(); return true; } }
 
 }

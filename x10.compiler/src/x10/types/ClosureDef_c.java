@@ -34,6 +34,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
@@ -152,7 +153,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return XTerms.makeEQV("#this");
+        return CTerms.makeThis("#this");
     }
 
     ThisDef thisDef;

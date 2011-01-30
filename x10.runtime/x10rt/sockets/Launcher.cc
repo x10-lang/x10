@@ -30,6 +30,10 @@
 #include <sched.h>
 #include <errno.h>
 
+#ifdef __MACH__
+#include <crt_externs.h>
+#endif
+
 #include "Launcher.h"
 #include "TCP.h"
 
@@ -249,7 +253,7 @@ void Launcher::startChildren()
 							newargv[3] = (char*)"-e";
 							newargv[4] = (char*)"gdb";
 							newargv[5] = _argv[0];
-							newargv[6] = '\0';
+							newargv[6] = (char*)NULL;
 						}
 						else
 						{
@@ -267,7 +271,7 @@ void Launcher::startChildren()
 							newargv[1] = colon;
 							for (int i=0; i<numArgs; i++)
 								newargv[i+2] = _argv[i];
-							newargv[numArgs+2] = '\0';
+							newargv[numArgs+2] = (char*)NULL;
 						}
 						if (execvp(newargv[0], newargv))
 							// can't get here, if the exec succeeded
@@ -957,31 +961,81 @@ static char *alloc_printf(const char *fmt, ...)
     return r;
 }
 
+
+// this escaping is for BLAH in the case of the following bash script
+// echo "${VAR-BLAH}"
+// (the double quotes are important)
+static char *escape_various_things (const char *in)
+{
+    size_t sz = strlen(in);
+    size_t out_sz = sz+3;
+    char *out = static_cast<char*>(malloc(out_sz+1));
+    size_t out_cnt = 0;
+    for (size_t i=0 ; i<sz ; ++i) {
+        if (out_cnt+3 >= out_sz) {
+            out_sz = out_cnt+3;
+            out = static_cast<char*>(realloc(out, out_sz+1));
+        }
+        switch (in[i]) {
+            case '\'': // ' will break bash, turn it into "'" (note that \' does not work for some reason)
+            out[out_cnt++] = '"';
+            out[out_cnt++] = in[i];
+            out[out_cnt++] = '"';
+            break;
+
+            case '$': // escape these with an additional backslash
+            case '\"':
+            case '\\':
+            out[out_cnt++] = '\\';
+
+            default: // everything else (probably) OK
+            out[out_cnt++] = in[i];
+            break;
+        }
+    }
+    out[out_cnt] = '\0';
+    return out;
+}
+
+// this escaping is for BLAH in the case of the following bash script
+// echo 'BLAH'
+static char *escape_various_things2 (const char *in)
+{
+    size_t sz = strlen(in);
+    size_t out_sz = sz+5;
+    char *out = static_cast<char*>(malloc(out_sz+1));
+    size_t out_cnt = 0;
+    for (size_t i=0 ; i<sz ; ++i) {
+        if (out_cnt+5 >= out_sz) {
+            out_sz = out_cnt+5;
+            out = static_cast<char*>(realloc(out, out_sz+1));
+        }
+        switch (in[i]) {
+            case '\'': // ' will break bash, turn it into "'" (but come out of the existing quote first)
+            out[out_cnt++] = '\'';
+            out[out_cnt++] = '"';
+            out[out_cnt++] = '\'';
+            out[out_cnt++] = '"';
+            out[out_cnt++] = '\'';
+            break;
+
+            default: // everything else (probably) OK
+            out[out_cnt++] = in[i];
+            break;
+        }
+    }
+    out[out_cnt] = '\0';
+    return out;
+}
+
 static char *alloc_env_assign(const char *var, const char *val)
 {
-    return alloc_printf("%s=${%s-'%s'}", var, var, val);
+    return alloc_printf("%s\"=${%s-%s}\"", var, var, escape_various_things(val));
 }
 
 static char *alloc_env_always_assign(const char *var, const char *val)
 {
-    return alloc_printf("%s='%s'", var, val);
-}
-
-// check with the environment variable name contains characters that bash does not allow (e.g. '.')
-bool is_env_var_valid (const char *var)
-{
-    // [a-zA-Z_]([a-zA-Z0-9_]*)
-
-    // number as first character not allowed
-    if (*var >= '0' && *var <= '9') return false;
-    for (const char *v=var ; *v != '\0' ; ++v) {
-        if (*v >= '0' && *v <= '9') continue;
-        if (*v >= 'A' && *v <= 'Z') continue;
-        if (*v >= 'a' && *v <= 'z') continue;
-        if (*v == '_') continue;
-        return false;
-    }
-    return true;
+    return alloc_printf("%s='%s'", var, escape_various_things2(val));
 }
 
 void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
@@ -991,9 +1045,12 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     // leak a bunch of memory, we're about to exec anyway and that will clean it up
     // on all OS that we care about
 
-    // get an array of environment variables in the form "VAR=val"
-    extern char **environ;
 	// find out how many environment variables there are
+#ifdef __MACH__
+    char** environ = *_NSGetEnviron();
+#else
+    extern char **environ;
+#endif
     unsigned environ_sz = 0;
     while (environ[environ_sz]!=NULL) environ_sz++;
 
@@ -1001,11 +1058,12 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	int z = 0;
 	argv[z] = _ssh_command;
 	argv[++z] = remotehost;
+    static char env_string[] = "env";
+	argv[++z] = env_string;
 
     // deal with the environment variables
     for (unsigned i=0 ; i<environ_sz ; ++i)
     {
-        if (!is_env_var_valid(environ[i])) continue;
         char *var = strdup(environ[i]);
         *strchr(var,'=') = '\0';
         if (strcmp(var,X10_HOSTFILE)==0) continue;

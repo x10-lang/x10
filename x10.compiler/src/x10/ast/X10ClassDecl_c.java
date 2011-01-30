@@ -36,6 +36,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Special;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
@@ -81,6 +82,7 @@ import x10.constraint.XFailure;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
@@ -111,7 +113,7 @@ import x10.visit.ChangePositionVisitor;
  *
  */
 public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
-    
+
     protected FlagsNode flags;
     protected Id name;
     protected TypeNode superClass;
@@ -460,7 +462,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         X10ClassDecl_c n = (X10ClassDecl_c) superPreBuildTypes(tb);
         
         final X10ClassDef def = (X10ClassDef) n.type;
-        
+
         def.setThisDef(tb.typeSystem().thisDef(n.position(), Types.ref(def.asType())));
         
         TypeBuilder childTb = tb.pushClass(def);
@@ -497,7 +499,61 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (flags().flags().isStruct())
             n = x10.util.Struct.addStructMethods(tb,n);
 
+
+        // adding methods to access the outer instances (used in Desugarer.desugarCall)
+        // The method name includes both the container name and the qualifier name to handle this nasty case:
+        //class A[T] {
+        //  public final def A$$A$this() = A.this;
+        //  class Inner extends A[Int] {
+        //    public final def Inner$$A$this() = A.this; // the return type is different!
+        //    public final def Inner$$Inner$this() = Inner.this;
+        //  }
+        //}
+        // Another simpler example:
+        // class A {
+        //  public final def A$$A$this() = A.this;
+        //  class B {
+        //   public final def B$$B$this() = B.this;
+        //   public final def B$$A$this() = A.this;
+        //  }
+        //  class D extends B {
+        //   public final def D$$D$this() = D.this;
+        //   public final def D$$A$this() = A.this;
+        //  }
+        //  static class C {
+        //   public final def C$$C$this() = C.this;
+        //  }
+        // }
+        {
+            final Position pos = n.position().markCompilerGenerated();
+            final Flags flags = Flags.PUBLIC.Final();
+            final NodeFactory nf = tb.nodeFactory();
+
+            final QName containerName = def.fullName();
+            ClassType curr = def.asType();
+            while (curr!=null) {
+                if (curr.flags().isInterface())
+                    break;
+                final UnknownTypeNode returnType = nf.UnknownTypeNode(pos);
+                final QName fullName = curr.fullName();
+                MethodDecl md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),returnType,nf.Id(pos,getThisMethod(containerName,fullName)),Collections.<Formal>emptyList(),
+                        nf.Block(pos,nf.Return(pos,nf.Special(pos, Special.Kind.THIS, nf.TypeNodeFromQualifiedName(pos,fullName)))));
+                n = (X10ClassDecl_c) n.body(n.body().addMember(md));
+
+                if (curr.flags().isStatic()) break; // a static class doesn't have an outer instance
+                curr = curr.outer();
+            }
+        }
+
+
         return n;
+    }
+    public static Name getThisMethod(QName containerName, QName n) {
+        return Name.make(
+                containerName.toString().replace('.','$')+
+                        "$$"+
+                n.toString().replace('.','$')+
+                        "$this");
     }
     
     private X10ClassDecl_c superPreBuildTypes(TypeBuilder tb) throws SemanticException {
@@ -967,7 +1023,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	Context context = (Context) tc.context();
     	
     	X10ClassDef cd = (X10ClassDef) classDef();
-        CConstraint c = cd.classInvariant().get();
+        CConstraint c =  cd.classInvariant().get();
         if (c != null && ! c.consistent()) {
             Errors.issue(tc.job(), new Errors.InconsistentInvariant(cd, position()));
         }
@@ -1280,7 +1336,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
         ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
                 nf.FlagsNode(pos, Flags.PUBLIC),
-                nf.Id(pos, "this"), 
+                nf.Id(pos, TypeSystem.CONSTRUCTOR_NAME), 
                 returnType,
                 typeFormals,
                 formals,

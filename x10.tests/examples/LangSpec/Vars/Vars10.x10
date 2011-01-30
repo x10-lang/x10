@@ -26,7 +26,7 @@ public class Vars10 extends x10Test {
     }
 
 
-// file Vars line 52
+// file Vars line 51
  static class Counter {
   private var n : Int = 0;
   public def bump() : Int {
@@ -35,9 +35,14 @@ public class Vars10 extends x10Test {
     return nxt;
     }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() { val c = new Counter(); val d = new Counter();
+   assert c.bump() == 1;
+   assert c.bump() == 2;
+   assert c.bump() == 3;
+   assert c.bump() == 4;
+   assert d.bump() == 1;
+   assert c.bump() == 5;
+   return true;
+ } }
 
 }

@@ -1,9 +1,15 @@
+#ifndef __int64
+#define __int64 __int64_t
+#endif
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <assert.h>
 
 #include <stdio.h>
 
+#undef __stdcall
+#define __stdcall
 #include "x10rt_jni_helpers.h"
 #include "x10_x10rt_TeamSupport.h"
 

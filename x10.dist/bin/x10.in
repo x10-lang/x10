@@ -63,18 +63,27 @@ fi
 
 CONFIG_DIR="${TOP}${FILE_SEP}etc"
 LIB_DIR="${TOP}${FILE_SEP}lib"
+STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
 
 [ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
 
 classpath=""
 [ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
-classpath=".${PATH_SEP}${classpath}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}"
+classpath=".${PATH_SEP}${classpath}${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}"
 
 if [ -n "$extra_cp" ]; then
    classpath="$extra_cp${PATH_SEP}$classpath"
 fi
 
 externpath="${LIB_DIR}${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${X10_PLATFORM}"
+if [ -n "$LD_LIBRARY_PATH" ] ; then
+    OLD_IFS="$IFS"
+    IFS=':'
+    for i in $LD_LIBRARY_PATH ; do
+       externpath="$i${PATH_SEP}$externpath"
+    done
+    IFS="$OLD_IFS"
+fi
 if [ -n "$extra_lib" ]; then
    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
@@ -102,13 +111,23 @@ java_args="${java_args} ${defs}"
 IBMJ9VM=`"$JAVA" -version 2>&1 | grep 'IBM J9 VM'`
 if [ -n "$IBMJ9VM" ]; then java_args="-Xjit:classLoadPhaseThreshold=10000 ${java_args}"; fi
 
-if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$TOP/bin/cyglaunch")"; fi
-
-command="\"$JAVA\" $java_args $config $args"
-
-[ -n "$verbose" ] && echo "$command"
-
-launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
-eval "$time$launcher $command"
+if [[ "$UNAME" = CYGWIN* ]]; then 
+   if [ -n "$ENABLE_CYGWIN_MULTIVM" ]; then
+       JAVA="$(cygpath -au "$TOP/bin/cyglaunch")"
+       command="\"$JAVA\" $java_args $config $args"
+       [ -n "$verbose" ] && echo "$command"
+       launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+       eval "$time$launcher $command"
+   else
+       command="\"$JAVA\" -DX10RT_IMPL=disabled $java_args $config $args"
+       [ -n "$verbose" ] && echo "$command"
+       eval "$time $command"
+   fi
+else 
+    command="\"$JAVA\" $java_args $config $args"
+    [ -n "$verbose" ] && echo "$command"
+    launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+    eval "$time$launcher $command"
+fi
 
 exit $?

@@ -26,7 +26,7 @@ public class Arrays390 extends x10Test {
     }
 
 
-// file Arrays line 708
+// file Arrays line 706
 
  static class Arrays42TestExp{
   def check(da:DistArray[Int](3), p:Point(3))  = da(p);  }

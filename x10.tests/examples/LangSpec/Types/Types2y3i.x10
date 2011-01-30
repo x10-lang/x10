@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_methodwithconstraintthingie;
+/* Current test harness gets confused by packages, but it would be in package Types2y3i;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,19 +19,25 @@ import harness.x10Test;
 
 
 
-public class Classes80 extends x10Test {
+public class Types2y3i extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Classes80().execute();
+        new Types2y3i().execute();
     }
 
 
-// file Classes line 451
+// file Types line 363
+ static interface Stat {
+  static val PI = 3.14159;
+  static type R = Double;
+  static static  class Pair(x:R, y:R) {}
+  // ERROR: static def meth():Int;
+  // ERROR: static def this();
+}
  static class Example {
-   var f : String = "";
-   def example(x:Object){x != null} = {
-      this.f = x.toString();
-   }
+  static def example() {
+     val p : Stat.Pair = new Stat.Pair(Stat.PI, Stat.PI);
+  }
 }
 
  static class Hook {

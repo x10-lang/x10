@@ -5,8 +5,6 @@
 #include <cstdarg>
 #include <new>
 
-#include <pthread.h>
-
 #include <x10rt_types.h>
 #include <x10rt_internal.h>
 #include <x10rt_cuda.h>
@@ -20,7 +18,7 @@
 namespace {
 
     // TODO: fine grained synchronisation, lock free datastructures
-    pthread_mutex_t big_lock_of_doom;
+    Lock big_lock_of_doom;
 
     inline void DEBUG(int level, const char *fmt, ...) {
         (void) fmt;
@@ -336,7 +334,6 @@ x10rt_cuda_ctx *x10rt_cuda_init (unsigned device)
 {
 #ifdef ENABLE_CUDA
     assert(device<x10rt_cuda_ndevs());
-    pthread_mutex_init(&big_lock_of_doom, NULL);
     return new (safe_malloc<x10rt_cuda_ctx>()) x10rt_cuda_ctx(device);
 #else
     // x10rt_ndevs would have returned 0 so x10rt_cuda_init should never have been called
@@ -358,7 +355,6 @@ void x10rt_cuda_finalize (x10rt_cuda_ctx *ctx)
     }
     ctx->~x10rt_cuda_ctx();
     free(ctx);
-    pthread_mutex_destroy(&big_lock_of_doom);
 #else
     (void) ctx;
     abort();
@@ -459,7 +455,7 @@ void *x10rt_cuda_device_alloc (x10rt_cuda_ctx *ctx,
                                size_t len)
 {
 #ifdef ENABLE_CUDA
-    pthread_mutex_lock(&big_lock_of_doom);
+    big_lock_of_doom.acquire();
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
     CUdeviceptr ptr;
     ctx->commit += len;
@@ -467,7 +463,7 @@ void *x10rt_cuda_device_alloc (x10rt_cuda_ctx *ctx,
     DEBUG(1,"CUDA allocated memory: %llu bytes (%p)\n", (unsigned long long)len, ptr);
     DEBUG(2,"CUDA committed memory: %llu bytes\n", (unsigned long long)ctx->commit);
     CU_SAFE(cuCtxPopCurrent(NULL));
-    pthread_mutex_unlock(&big_lock_of_doom);
+    big_lock_of_doom.release();
     return (void*)ptr;
 #else
     (void) ctx; (void) len;
@@ -481,12 +477,12 @@ void x10rt_cuda_device_free (x10rt_cuda_ctx *ctx,
                              void *ptr)
 {
 #ifdef ENABLE_CUDA
-    pthread_mutex_lock(&big_lock_of_doom);
+    big_lock_of_doom.acquire();
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
     DEBUG(1,"CUDA free'd memory: %p\n", ptr);
     CU_SAFE(cuMemFree((CUdeviceptr)(size_t)ptr));
     CU_SAFE(cuCtxPopCurrent(NULL));
-    pthread_mutex_unlock(&big_lock_of_doom);
+    big_lock_of_doom.release();
 #else
     (void) ctx; (void) ptr;
     abort();
@@ -515,7 +511,7 @@ void *do_buffer_finder (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x10
 void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
 #ifdef ENABLE_CUDA
-    pthread_mutex_lock(&big_lock_of_doom);
+    big_lock_of_doom.acquire();
 
     if (ctx->cbs.arrc <= p->type) {
         fprintf(stderr,"X10RT: Get %llu is invalid.\n", (unsigned long long)p->type);
@@ -540,9 +536,11 @@ void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x
         BaseOpGet *op = new (safe_malloc<BaseOpGet>()) BaseOpGet(p_,buf,len);
         op->src = remote;
         ctx->dma_q.push_back(op);
-        pthread_mutex_unlock(&big_lock_of_doom);
+        big_lock_of_doom.release();
 
         x10rt_cuda_probe(ctx);
+    } else {
+        big_lock_of_doom.release();
     }
 
 #else
@@ -554,7 +552,7 @@ void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x
 void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
 #ifdef ENABLE_CUDA
-    pthread_mutex_lock(&big_lock_of_doom);
+    big_lock_of_doom.acquire();
 
     if (ctx->cbs.arrc <= p->type) {
         fprintf(stderr,"X10RT: Put %llu is invalid.\n", (unsigned long long)p->type);
@@ -579,9 +577,11 @@ void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x
         BaseOpPut *op = new (safe_malloc<BaseOpPut>()) BaseOpPut(p_,buf,len);
         op->dst = remote;
         ctx->dma_q.push_back(op);
-        pthread_mutex_unlock(&big_lock_of_doom);
+        big_lock_of_doom.release();
 
         x10rt_cuda_probe(ctx);
+    } else {
+        big_lock_of_doom.release();
     }
 
 #else
@@ -625,9 +625,9 @@ void x10rt_cuda_send_msg (x10rt_cuda_ctx *ctx, x10rt_msg_params *p)
         &op->argc, &op->argv, &op->cmemc, &op->cmemv); /****CALLBACK****/
     DEBUG(2,"x10rt_cuda_send_msg: pre callback ends\n");
 
-    pthread_mutex_lock(&big_lock_of_doom);
+    big_lock_of_doom.acquire();
     ctx->kernel_q.push_back(op);
-    pthread_mutex_unlock(&big_lock_of_doom);
+    big_lock_of_doom.release();
 
     x10rt_cuda_probe(ctx);
 
@@ -653,7 +653,7 @@ void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dy
     }
     CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
 
-    pthread_mutex_lock(&big_lock_of_doom);
+    big_lock_of_doom.acquire();
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
 
     int mps, max_shm;
@@ -673,7 +673,7 @@ void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dy
     CU_SAFE(cuFuncGetAttribute(&regs, CU_FUNC_ATTRIBUTE_NUM_REGS, k));
 
     CU_SAFE(cuCtxPopCurrent(NULL));
-    pthread_mutex_unlock(&big_lock_of_doom);
+    big_lock_of_doom.release();
 
     // round up to 512 bytes (the granularity of shm allocation)
     int shm = round_up(dyn_shm + static_shm, 512);
@@ -706,7 +706,7 @@ void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dy
 void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
 {
 #ifdef ENABLE_CUDA
-    pthread_mutex_lock(&big_lock_of_doom);
+    big_lock_of_doom.acquire();
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
 
     // spool kernels
@@ -743,9 +743,9 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             x10rt_cuda_post *fptr = ctx->cbs[type].kernel_cbs.post;
             DEBUG(2,"probe: post callback begins\n");
             CU_SAFE(cuCtxPopCurrent(NULL));
-            pthread_mutex_unlock(&big_lock_of_doom);
+            big_lock_of_doom.release();
             fptr(&kop->p, kop->blocks, kop->threads, kop->shm, kop->argc, kop->argv, kop->cmemc, kop->cmemv); /****CALLBACK****/
-            pthread_mutex_lock(&big_lock_of_doom);
+            big_lock_of_doom.acquire();
             CU_SAFE(cuCtxPushCurrent(ctx->ctx));
             DEBUG(2,"probe: post callback ends\n");
             safe_free(kop->p.msg);
@@ -824,7 +824,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             x10rt_msg_type type = cop->p.type;
             x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
             CU_SAFE(cuCtxPopCurrent(NULL));
-            pthread_mutex_unlock(&big_lock_of_doom);
+            big_lock_of_doom.release();
             ch(&cop->p, len); /****CALLBACK****/
             safe_free(cop->p.msg);
             cop->~BaseOpCopy();
@@ -837,7 +837,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
     landingzone:
 
     CU_SAFE(cuCtxPopCurrent(NULL));
-    pthread_mutex_unlock(&big_lock_of_doom);
+    big_lock_of_doom.release();
 
 #else
     (void) ctx;

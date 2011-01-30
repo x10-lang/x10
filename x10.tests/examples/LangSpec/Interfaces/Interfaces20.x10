@@ -26,10 +26,13 @@ public class Interfaces20 extends x10Test {
     }
 
 
-// file Interfaces line 123
+// file Interfaces line 195
  static  interface KnowsPi {PI = 3.14159265358;}
  static class Circle implements KnowsPi {
   static def area(r:Double) = PI * r * r;
+}
+ static class UsesPi {
+  def circumf(r:Double) = 2 * r * KnowsPi.PI;
 }
 
  static class Hook {

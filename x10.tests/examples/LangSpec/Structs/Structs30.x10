@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Structs_Pairs_Are_For_Squares;
+/* Current test harness gets confused by packages, but it would be in package Structs30Pair;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class Structs30 extends x10Test {
     }
 
 
-// file Structs line 201
+// file Structs line 235
  static struct Pair[T,U] {
     public val first:T;
     public val second:U;
@@ -34,13 +34,20 @@ public class Structs30 extends x10Test {
         this.first = first;
         this.second = second;
     }
-    public def toString():String {
-        return "(" + first + ", " + second + ")";
-    }
+    public def toString() = "(" + first + ", " + second + ")";
 }
-
- static class Hook {
-   def run():Boolean = true;
+ static class Example {
+  static def divmod(var a:UInt, b:UInt): Pair[UInt, UInt] {
+     assert b > 0;
+     var q : UInt = 0;
+     while (a > b) {q++; a -= b;}
+     return Pair(q, a);
+  }
+  static def example() {
+     val qr = divmod(22, 7);
+     assert qr.first == 3 && qr.second == 1;
+  }
 }
+ static class Hook{ def run() { Example.example(); return true; } }
 
 }

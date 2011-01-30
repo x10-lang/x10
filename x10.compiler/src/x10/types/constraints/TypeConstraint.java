@@ -291,7 +291,7 @@ public class TypeConstraint implements Copy, Serializable {
 	        xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
 	
 	    if (xthis == null)
-	        xthis = XTerms.makeLocal(XTerms.makeFreshName("this"));
+	        xthis = CTerms.makeThis(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 	
 	    try {
 	        expandTypeConstraints(tenv, context);

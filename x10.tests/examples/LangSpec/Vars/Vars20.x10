@@ -26,7 +26,7 @@ public class Vars20 extends x10Test {
     }
 
 
-// file Vars line 96
+// file Vars line 103
  static class VarExample{
 static def example() {
 val a : Int = 0;               // Full 'val' syntax
