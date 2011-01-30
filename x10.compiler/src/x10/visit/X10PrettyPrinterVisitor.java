@@ -3259,19 +3259,31 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             return;
         }
 
-		if (op == Binary.EQ) {
-			// SYNOPSIS: #0 == #1 (for values, also works for reference == operations)
-			String regex = "x10.rtt.Equality.equalsequals(#0,#1)";
-			er.dumpRegex("equalsequals", new Object[] { left, right }, tr, regex);
-			return;
-		}
+        if (op == Binary.EQ) {
+            // SYNOPSIS: #0 == #1
+            String regex;
+            // TODO generalize for reference type
+            if (l.isNull() || r.isNull()) {
+                regex = "((#0) == (#1))";
+            } else {
+                regex = "x10.rtt.Equality.equalsequals(#0,#1)";
+            }
+            er.dumpRegex("equalsequals", new Object[] { left, right }, tr, regex);
+            return;
+        }
 
-		if (op == Binary.NE) {
-			// SYNOPSIS: #0 != #1 (for values, also works for reference != operations)
-			String regex = "(!x10.rtt.Equality.equalsequals(#0,#1))";
+        if (op == Binary.NE) {
+            // SYNOPSIS: #0 != #1
+            String regex;
+            // TODO generalize for reference type
+            if (l.isNull() || r.isNull()) {
+                regex = "((#0) != (#1))";
+            } else {
+                regex = "(!x10.rtt.Equality.equalsequals(#0,#1))";
+            }
             er.dumpRegex("notequalsequals", new Object[] { left, right }, tr, regex);
-			return;
-		}
+            return;
+        }
 
 		if (op == Binary.ADD && (l.isSubtype(xts.String(), tr.context()) || r.isSubtype(xts.String(), tr.context()))) {
             prettyPrint(n);
