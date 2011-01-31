@@ -243,21 +243,10 @@ public class CXXCommandBuilder {
             addExecutablePath(cxxCmd);
         }
 
-        // TODO: do we really need this excludes logic here?
-        //       seems like putting the source file in the manifest 
-        //       would have been enough to squash the job from generating
-        //       the file in the first place
-        Set<String> exclude = CollectionFactory.newHashSet();
-        for (PrecompiledLibrary pco:options.x10libs) {
-            exclude.addAll(pco.generatedFiles);
-        }
-
         Iterator<String> iter = outputFiles.iterator();
         for (; iter.hasNext(); ) {
             String file = (String) iter.next();
             file = file.replace(File.separatorChar,'/');
-            if (exclude.contains(file))
-                continue;
             if (file.endsWith(".cu")) continue;
             cxxCmd.add(file);
         }

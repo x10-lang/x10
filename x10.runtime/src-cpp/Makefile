@@ -83,7 +83,7 @@ gen/all-cpp-generated: $(XRX_REL_SRCS) $(subst $(SPACE),\$(SPACE),$(DISTDIR))/li
 	cd ../src-x10 && "$(DISTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -d ../src-cpp/gen $(XRX_SRCS)
 	find gen -name "*.cc" -print > $@
 
-$(XRX_PROPERTIES): $(XRX_REL_SRCS) gen/all-cpp-generated
+$(XRX_PROPERTIES): $(XRX_REL_SRCS)
 	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
 	@echo "TIMESTAMP=$(shell date)" >> $@
 	@echo "CXX=$(CXX)" >> $@
@@ -92,7 +92,6 @@ $(XRX_PROPERTIES): $(XRX_REL_SRCS) gen/all-cpp-generated
 	@echo "LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
 	@echo "SRC_JAR=x10.jar" >> $@
 	@echo "SRC_FILES=$(XRX_SRCS)" >> $@
-	@echo "GEN_FILES=$(shell sed -e's@^gen/\(.*\)\.cc$$@\1.o@' gen/all-cpp-generated)" >> $@
 
 ##########################
 # Manually-written Files #

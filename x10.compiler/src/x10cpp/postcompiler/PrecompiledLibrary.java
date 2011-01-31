@@ -16,14 +16,12 @@ public class PrecompiledLibrary extends PostCompileProperties {
     public final String absolutePathToRoot;
     public final String sourceJar;
     public final Collection<String> sourceFiles;
-    public final Collection<String> generatedFiles;
     
     public PrecompiledLibrary(String absPath, Properties p) {
         super (p);
         absolutePathToRoot = absPath;
         sourceJar = p.getProperty("SRC_JAR");
         sourceFiles = split(p.getProperty("SRC_FILES"));
-        generatedFiles = split(p.getProperty("GEN_FILES"));
     }
 
 }
