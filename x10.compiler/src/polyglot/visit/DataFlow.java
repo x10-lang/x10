@@ -18,6 +18,7 @@ import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.FlowGraph.*;
+import x10.ExtensionInfo;
 import x10.errors.Errors;
 import x10.util.CollectionFactory;
 
@@ -434,8 +435,8 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                 // Build the control flow graph.
                 CFGBuilder v = createCFGBuilder(ts, g);
 
-                Compiler c = job().extensionInfo().compiler();
-                c.stats.startTiming("DataFlow.dataflow", "DataFlow.dataflow");
+                x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
+                x10Info.stats.startTiming("DataFlow.dataflow", "DataFlow.dataflow");
                 try {
                     hadCFG_Error = false;
                     v.visitGraph();
@@ -446,16 +447,16 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                     return;
                 }
                 finally {
-                    c.stats.stopTiming();
+                    x10Info.stats.stopTiming();
                 }
                     
-                c.stats.startTiming("DataFlow.cfg.build", "DataFlow.cfg.build");
+                x10Info.stats.startTiming("DataFlow.cfg.build", "DataFlow.cfg.build");
                 dataflow(g);
-                c.stats.stopTiming();
+                x10Info.stats.stopTiming();
 
-                c.stats.startTiming("DataFlow.post", "DataFlow.post");
+                x10Info.stats.startTiming("DataFlow.post", "DataFlow.post");
                 post(g, cd);
-                c.stats.stopTiming();
+                x10Info.stats.stopTiming();
 
                 // push the CFG onto the stack if we are dataflowing on entry
                 if (dataflowOnEntry)

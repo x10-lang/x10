@@ -16,7 +16,9 @@ import polyglot.frontend.Compiler;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.ExtensionInfo;
+import x10.util.CollectionFactory;
 import polyglot.visit.FlowGraph.EdgeKey;
 import x10.ast.Finish;
 import x10.ast.ParExpr;
@@ -780,9 +782,9 @@ public class InitChecker extends DataFlow
             dfIn = createInitDFI();
         }
 
-        Compiler c = job().extensionInfo().compiler();
-        c.stats.incrFrequency("InitChecker.check", 1);
-        c.stats.startTiming("InitChecker.1","InitChecker.1");
+        x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
+        x10Info.stats.incrFrequency("InitChecker.check", 1);
+        x10Info.stats.startTiming("InitChecker.1","InitChecker.1");
 
         DataFlowItem dfOut;
         if (!entry && outItems != null && !outItems.isEmpty()) {
@@ -813,7 +815,7 @@ public class InitChecker extends DataFlow
             // probably a node in a finally block. Just ignore it.
         }
 
-        c.stats.stopTiming();
+        x10Info.stats.stopTiming();
     }
 
 
