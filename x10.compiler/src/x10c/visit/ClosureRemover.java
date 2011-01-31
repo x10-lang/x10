@@ -248,11 +248,12 @@ public class ClosureRemover extends ContextVisitor {
                                 if (var.def().equals(field.fieldInstance().def())) {
                                     Receiver target = field.target();
                                     if (target instanceof Local) {
-                                        for (Formal formal : formals) {
-                                            if (formal.name() != null && ((Local) target).name().id().equals(formal.name().id())) {
+                                          // XTENLANG-2359
+//                                        for (Formal formal : formals) {
+//                                            if (formal.name() != null && ((Local) target).name().id().equals(formal.name().id())) {
                                                 return n;
-                                            }
-                                        }
+//                                            }
+//                                        }
                                     }
                                     
                                     X10LocalDef li;
@@ -396,7 +397,7 @@ public class ClosureRemover extends ContextVisitor {
                     Block body2 = xnf.Block(pos);
                     
                     for (VarInstance<? extends VarDef> vi : capturedEnv) {
-                        if (vi instanceof ThisInstance) {
+                        if (vi instanceof ThisInstance || (vi instanceof FieldInstance && !vi.flags().isFinal())) { // the latter means the receiver fo vi should be this
                             Name name = OUTER_NAME;
                             
                             X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(vi.type()), name);
@@ -500,13 +501,13 @@ public class ClosureRemover extends ContextVisitor {
                                 if (var.def().equals(field.fieldInstance().def())) {
                                     Receiver target = field.target();
                                     if (target instanceof Local) {
-                                        for (Formal formal : formals) {
-                                            if (formal.name() != null && ((Local) target).name().id().equals(formal.name().id())) {
+                                        // XTENLANG-2359
+//                                        for (Formal formal : formals) {
+//                                            if (formal.name() != null && ((Local) target).name().id().equals(formal.name().id())) {
                                                 return n;
-                                            }
-                                        }
+//                                            }
+//                                        }
                                     }
-
                                     X10FieldDef fd;
                                     if (!contains(capturedVarsExThis, var.def())) {
                                         capturedVarsExThis.add((NamedVariable) old);
@@ -528,7 +529,6 @@ public class ClosureRemover extends ContextVisitor {
                             Local local = (Local) n;
                             for (VarInstance<? extends VarDef> var : capturedEnv) {
                                 if (var.def().equals(local.localInstance().def())) {
-                                    // TODO change to a field
                                     if (!contains(capturedVarsExThis, var.def())) {
                                         capturedVarsExThis.add((NamedVariable) old);
                                         return n;
