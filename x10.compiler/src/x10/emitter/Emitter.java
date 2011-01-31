@@ -556,25 +556,35 @@ public class Emitter {
 		return getJavaRepParam(def, 3);
 	}
 
-	private String getJavaRepParam(X10ClassDef def, int i) {
-		try {
-			TypeSystem xts = (TypeSystem) tr.typeSystem();
-			Type rep = (Type) xts.systemResolver().find(
-					QName.make("x10.compiler.NativeRep"));
-			List<Type> as = def.annotationsMatching(rep);
-			for (Type at : as) {
-				assertNumberOfInitializers(at, 4);
-				String lang = getPropertyInit(at, 0);
-				if (lang != null && lang.equals("java")) {
-					return getPropertyInit(at, i);
-				}
-			}
-		} catch (SemanticException e) {
-		}
-		return null;
-	}
+	private static String getJavaRepParam(X10ClassDef def, int i) {
+        try {
+            Type rep = (Type) def.typeSystem().systemResolver().find(
+                    QName.make("x10.compiler.NativeRep"));
+            List<Type> as = def.annotationsMatching(rep);
+            for (Type at : as) {
+                String lang = getPropertyInit(at, 0);
+                if (lang != null && lang.equals("java")) {
+                    return getPropertyInit(at, i);
+                }
+            }
+        } catch (SemanticException e) {
+        }
+        return null;
+    }
 
-	private String getPropertyInit(Type at, int index) {
+	public static boolean isNativeRepedToJava(Type ct) {
+	    Type bt = Types.baseType(ct);
+	    if (bt instanceof X10ClassType) {
+	        X10ClassDef cd = ((X10ClassType) bt).x10Def();
+	        String pat = getJavaRepParam(cd, 1);
+	        if (pat != null && pat.startsWith("java.")) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+	
+	private static String getPropertyInit(Type at, int index) {
 		at = Types.baseType(at);
 		if (at instanceof X10ClassType) {
 			X10ClassType act = (X10ClassType) at;

@@ -1016,7 +1016,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				        w.allowBreak(0);
 				    }
 				    alreadyPrintedTypes.add(tn.type());
-	                boolean isJavaNative = isJavaNative((X10ClassType) Types.baseType(tn.type()));
+	                boolean isJavaNative = Emitter.isNativeRepedToJava(tn.type());
 				    er.printType(tn.type(), (isSelfDispatch && !isJavaNative ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES | NO_VARIANCE);
 				}
 			}
@@ -1468,16 +1468,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
     }
 
-    private boolean isJavaNative(Type type) {
-    	X10ClassType type1  = (X10ClassType) Types.baseType(type);
-        X10ClassDef cd = type1.x10Def();
-        String pat = er.getJavaRep(cd);
-        if (pat != null && pat.startsWith("java.")) {
-            return true;
-        }
-        return false;
-    }
-
 	public void visit(Import_c c) {
 		// don't generate any code at all--we should fully qualify all type names
 	}
@@ -1902,7 +1892,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     		X10ClassType ct = (X10ClassType) mi.container();
     		
     		List<Type> ta = ct.typeArguments();
-    		boolean isJavaNative = isJavaNative(n.objectType().type());
+    		boolean isJavaNative = Emitter.isNativeRepedToJava(n.objectType().type());
             if (ta != null && ta.size() > 0 && !isJavaNative) {
     		    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
     		        final Type at = i.next();
