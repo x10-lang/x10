@@ -134,6 +134,7 @@ import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
+import x10cpp.postcompiler.PrecompiledLibrary;
 import x10cpp.types.X10CPPContext_c;
 import x10cpp.visit.Emitter;
 import x10cpp.visit.MessagePassingCodeGenerator;
@@ -478,7 +479,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					+ "::" + template
 					+ SharedVarsMethods.DESERIALIZE_CUDA_METHOD + ", " + cnamet
 					+ "::" + template + SharedVarsMethods.POST_CUDA_METHOD
-					+ ", " + "\"" + hostClassName + ".cubin\", \"" + cnamet
+					+ ", " + "\"" + hostClassName + "\", \"" + cnamet
 					+ "\");");
 			defn_s.newline();
 			defn_s.forceNewline();
@@ -829,17 +830,38 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		//System.out.println();
 		super.visit(n2);
 	}
+	
+	
+	private static String archs[] = {"sm_10", "sm_11", "sm_12", "sm_13", "sm_20", "sm_21", "sm_30" };
+	   
+	public static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq) {
+	    for (String arch : archs) {
+	        if (!postCompile(options, compiler, eq, arch)) return false;
+	    }       
+	    return true;
+	}
 
-	public static boolean postCompile(X10CPPCompilerOptions options,
-			Compiler compiler, ErrorQueue eq) {
+	private static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq, String arch) {
+
 		if (options.post_compiler != null && !options.output_stdout) {
 			Collection<String> compilationUnits = options.compilationUnits();
-			String[] nvccCmd = { "nvcc", "--cubin", "-Xptxas", "-v",
-					"-I" + options.distPath() + "/include", null };
+			ArrayList<String> nvccCmd = new ArrayList<String>();
+			nvccCmd.add("nvcc");
+			nvccCmd.add("--cubin");
+			nvccCmd.add("-Xptxas"); nvccCmd.add("-v");
+			nvccCmd.add("-arch="+arch);
+			nvccCmd.add("-I" + options.distPath() + "/include");
+	        for (PrecompiledLibrary pcl:options.x10libs) {
+	        	nvccCmd.add("-I"+pcl.absolutePathToRoot+"/include");
+	        }
+			nvccCmd.add("-o"); // will add the rest of this later
+			
+			String[] nvccCmd_ = nvccCmd.toArray(new String[nvccCmd.size()+2]);
 			for (String f : compilationUnits) {
 				if (f.endsWith(".cu")) {
-					nvccCmd[5] = f;
-					if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd, true)) {
+					nvccCmd_[nvccCmd.size()] = f.substring(0,f.length() - 3) + "_" + arch + ".cubin"; // rest of -o
+					nvccCmd_[nvccCmd.size()+1] = f; // source file
+					if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd_, true)) {
 						eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but not compiling for GPU because nvcc could not be run (check your $PATH).");
 						return true;
 					}

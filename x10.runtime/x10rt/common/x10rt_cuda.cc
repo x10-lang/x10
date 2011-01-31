@@ -364,11 +364,18 @@ void x10rt_cuda_finalize (x10rt_cuda_ctx *ctx)
 
 void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
                                        x10rt_cuda_pre *pre, x10rt_cuda_post *post,
-                                       const char *cubin, const char *kernel_name)
+                                       const char *cubin_, const char *kernel_name)
 {
 #ifdef ENABLE_CUDA
 
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
+
+    int major, minor;
+    CU_SAFE(cuDeviceComputeCapability(&major, &minor, ctx->hw));
+
+    static size_t suffix_len = 20;
+    char *cubin = safe_malloc<char>(strlen(cubin_)+suffix_len+1);
+    sprintf(cubin,"%s_sm_%d%d.cubin",cubin_,major,minor);
 
     CUmodule mod;
     CUresult r = cuModuleLoad(&mod, cubin);
@@ -408,6 +415,8 @@ void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
     fs.kernel_cbs.module = mod;
     fs.kernel_cbs.post = post;
     ctx->cbs.reg(msg_type,fs);
+
+    safe_free(cubin);
 #else
     (void) ctx; (void) msg_type; (void) pre; (void) post; (void) cubin; (void) kernel_name;
 #endif
