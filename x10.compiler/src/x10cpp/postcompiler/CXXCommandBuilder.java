@@ -52,15 +52,21 @@ public class CXXCommandBuilder {
     protected String defaultPostCompiler() {
         if (cxxCompiler.equals(UNKNOWN)) {
             String pc = x10rt.props.getProperty("CXX");
-            // Sanity check that x10rt and all the precompiled libraries were built with the same C++ compiler
-            for (PrecompiledLibrary pcl: options.x10libs) {
-                String pc2 = pcl.props.getProperty("CXX");
-                if (pc2 != null) {
-                    if (pc != null && !pc2.equals(pc)) {
-                        throw new InternalCompilerError("Conflicting postcompilers. Both "+pc+" and "+pc2+" requested");
-                    }
-                    pc = pc2;
-                } 
+            if (pc != null && (pc.startsWith("mpi") || pc.startsWith("mpCC"))) {
+                // ignore all other settings; mpicxx/mpCC win ties, and also
+                // prevent sanity checking because they will be a wrapper on an unknown compiler
+                // So, if things don't match, the user will just find out via link time errors.
+            } else {
+                // Sanity check that x10rt and all the precompiled libraries were built with the same C++ compiler
+                for (PrecompiledLibrary pcl: options.x10libs) {
+                    String pc2 = pcl.props.getProperty("CXX");
+                    if (pc2 != null) {
+                        if (pc != null && !pc2.equals(pc)) {
+                            throw new InternalCompilerError("Conflicting postcompilers. Both "+pc+" and "+pc2+" requested");
+                        }
+                        pc = pc2;
+                    } 
+                }
             }
             cxxCompiler = pc == null ? "g++" : pc;
         }
@@ -72,21 +78,14 @@ public class CXXCommandBuilder {
         if (platform.equals(UNKNOWN)) {
             String p1 = x10rt.props.getProperty("PLATFORM");
             // Sanity check that x10rt and all the precompiled libraries were built for the same platform
-            if (p1 != null && (p1.startsWith("mpi") || p1.startsWith("mpCC"))) {
-                // ignore all other settings; mpicxx/mpCC win ties, and also
-                // prevent sanity checking because they will be a wrapper on an unknown compiler
-                // So, if things don't match, the user will just find out via link time errors.
-                platform = p1;
-            } else {
-                for (PrecompiledLibrary pcl: options.x10libs) {
-                    String p2 = pcl.props.getProperty("PLATFORM");
-                    if (p2 != null) {
-                        if (p1 != null && !p2.equals(p1)) {
-                            throw new InternalCompilerError("Conflicting platforms. Both "+p1+" and "+p2+" specified");
-                        }
-                        p1 = p2;
-                    } 
-                }
+            for (PrecompiledLibrary pcl: options.x10libs) {
+                String p2 = pcl.props.getProperty("PLATFORM");
+                if (p2 != null) {
+                    if (p1 != null && !p2.equals(p1)) {
+                        throw new InternalCompilerError("Conflicting platforms. Both "+p1+" and "+p2+" specified");
+                    }
+                    p1 = p2;
+                } 
             }
             if (p1 == null) {
                 throw new InternalCompilerError("No platform specified by given property files");
