@@ -408,8 +408,10 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
  		if (waitpid(_pidlst[_numchildren], &status, 0) == _pidlst[_numchildren])
 		{
  			exitcode = WEXITSTATUS(status);
+			#ifdef DEBUG
 			if (exitcode != 0)
 				fprintf(stderr, "Launcher %d: Non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], exitcode, _returncode);
+			#endif
 			_pidlst[_numchildren] = -1;
 		}
 	}
@@ -897,10 +899,10 @@ void Launcher::cb_sighandler_cld(int signo)
 			if (i == _singleton->_numchildren)
 			{
 				#ifdef DEBUG
-					fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d), status=%d\n", _singleton->_myproc, pid, WEXITSTATUS(status));
-				#endif
+				fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d), status=%d\n", _singleton->_myproc, pid, WEXITSTATUS(status));
 				if (WEXITSTATUS(status) != 0)
 					fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _singleton->_myproc, pid, WEXITSTATUS(status), WEXITSTATUS(_singleton->_returncode));
+				#endif
 				_singleton->_returncode = WEXITSTATUS(status);
 				if (_singleton->_runtimePort)
 				{
