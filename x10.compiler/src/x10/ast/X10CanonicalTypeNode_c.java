@@ -158,7 +158,10 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	}
 	return n;
     }
-    
+
+    // todo: C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Benchmarks\SeqArray1.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Benchmarks\SeqArray2b.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\Array1.x10
     @Override
     public void setResolver(Node parent, final TypeCheckPreparer v) {
     	if (typeRef() instanceof LazyRef<?>) {

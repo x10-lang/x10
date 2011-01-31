@@ -26,7 +26,6 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.frontend.Globals;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -45,7 +44,7 @@ import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.SubtypeSet;
 import polyglot.util.TypedList;
@@ -55,23 +54,17 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
-import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
-import x10.constraint.XVar;
-import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.EnvironmentCapture;
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import x10.types.MethodInstance;
-import polyglot.types.Context;
 import x10.types.X10MemberDef;
-import polyglot.types.TypeSystem;
+import polyglot.types.LazyRef_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
 import x10.util.ClosureSynthesizer;
-import x10.visit.X10TypeChecker;
 
 /**
  * An implementation of a closure literal in the source text.
@@ -365,13 +358,6 @@ public class Closure_c extends Expr_c implements Closure {
 		return super.enterChildScope(child, c);
 	}
 
-    // todo: this does have affect:
-    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Issues\XTENLANG_147.x10
-    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\ArrayOfArraysShorthand.x10
-    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\ArrayOfArraysShorthand.x10
-    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\MultiDimensionalJavaArray.x10
-    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Async\AsyncReturn.x10
-    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Closures\ClosureBody1b.x10
 	@Override
 	public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
 		if (returnType() instanceof UnknownTypeNode && body() != null) {
@@ -382,11 +368,10 @@ public class Closure_c extends Expr_c implements Closure {
 			childv = childv.enter(this, tn);
 
 			if (childv instanceof TypeCheckPreparer) {
-				TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-				tc = (TypeChecker) tc.context(tcp.context().freeze());
-				r.setResolver(new TypeCheckReturnTypeGoal(this, new Node[] { guard() }, body(), tc, r));
+
+                // THROW_RESOLVER also tells UnknownTypeNode_c not to try and infer its type (because we visit the returnType first, then the closure)
+				r.setResolver(LazyRef_c.THROW_RESOLVER); // this resolver should never be called (we update the return type when inferring the closure body).
 			}
 		}
 		return super.setResolverOverride(parent, v);

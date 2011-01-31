@@ -26,6 +26,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
+import polyglot.types.Ref;
+import polyglot.types.LazyRef_c;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -55,15 +57,19 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 		NodeFactory nf = ar.nodeFactory();
 
 		// Dereference--this will cause type inference to be performed.
-		
-		Type t = typeRef().get();
+
+        final LazyRef_c<? extends Type> ref = (LazyRef_c) typeRef();
+        if (ref.isThrowResolver())
+            return this;
+        
+        Type t = ref.get();
 				
 		
 		if (t instanceof UnknownType) {
 		    return this;
 		}
 		
-		return nf.CanonicalTypeNode(position(), typeRef());
+		return nf.CanonicalTypeNode(position(), ref);
 	}
 
 	

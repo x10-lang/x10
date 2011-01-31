@@ -141,15 +141,6 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		return n;
 	}
 
-	@Override
-	  public void setResolver(Node parent, final TypeCheckPreparer v) {
-	    	if (typeRef() instanceof LazyRef<?>) {
-	    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
-	    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-	    		tc = (TypeChecker) tc.context(v.context().freeze());
-	    		r.setResolver(new X10TypeCheckTypeGoal(parent, this, tc, r));
-	    	}
-	    }
 	/* (non-Javadoc)
 	 * @see x10.ast.FunctionTypeNode#typeParameters()
 	 */
