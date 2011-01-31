@@ -72,14 +72,21 @@ public class CXXCommandBuilder {
         if (platform.equals(UNKNOWN)) {
             String p1 = x10rt.props.getProperty("PLATFORM");
             // Sanity check that x10rt and all the precompiled libraries were built for the same platform
-            for (PrecompiledLibrary pcl: options.x10libs) {
-                String p2 = pcl.props.getProperty("PLATFORM");
-                if (p2 != null) {
-                    if (p1 != null && !p2.equals(p1)) {
-                        throw new InternalCompilerError("Conflicting platforms. Both "+p1+" and "+p2+" specified");
-                    }
-                    p1 = p2;
-                } 
+            if (p1 != null && (p1.startsWith("mpi") || p1.startsWith("mpCC"))) {
+                // ignore all other settings; mpicxx/mpCC win ties, and also
+                // prevent sanity checking because they will be a wrapper on an unknown compiler
+                // So, if things don't match, the user will just find out via link time errors.
+                platform = p1;
+            } else {
+                for (PrecompiledLibrary pcl: options.x10libs) {
+                    String p2 = pcl.props.getProperty("PLATFORM");
+                    if (p2 != null) {
+                        if (p1 != null && !p2.equals(p1)) {
+                            throw new InternalCompilerError("Conflicting platforms. Both "+p1+" and "+p2+" specified");
+                        }
+                        p1 = p2;
+                    } 
+                }
             }
             if (p1 == null) {
                 throw new InternalCompilerError("No platform specified by given property files");
@@ -291,7 +298,7 @@ public class CXXCommandBuilder {
     public static CXXCommandBuilder getCXXCommandBuilder(X10CompilerOptions options, PostCompileProperties x10rt_props, ErrorQueue eq) {
         String platform = x10rt_props.props.getProperty("PLATFORM", "unknown");
         
-        if (platform.startsWith("win32_")) {
+        if (platform.startsWith("win32_") || platform.startsWith("cygwin")) {
             return new Cygwin_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("linux_")) {
             return new Linux_CXXCommandBuilder(options, x10rt_props, eq);
@@ -303,6 +310,9 @@ public class CXXCommandBuilder {
             return new MacOSX_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("freebsd_")) {
             return new FreeBSD_CXXCommandBuilder(options, x10rt_props, eq);
+        } else if (platform.startsWith("bgp")) {
+            // TODO: define specialized CXXCommandBuilder for bgp?
+            return new Linux_CXXCommandBuilder(options, x10rt_props, eq);            
         } else {   
             eq.enqueue(ErrorInfo.WARNING,
                        "Unknown platform '"+platform+"'; using the default post-compiler (g++)");
