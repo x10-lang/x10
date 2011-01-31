@@ -418,7 +418,7 @@ void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
 
     safe_free(cubin);
 #else
-    (void) ctx; (void) msg_type; (void) pre; (void) post; (void) cubin; (void) kernel_name;
+    (void) ctx; (void) msg_type; (void) pre; (void) post; (void) cubin_; (void) kernel_name;
 #endif
 }
 
