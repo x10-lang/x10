@@ -75,7 +75,7 @@ if [ -n "$extra_cp" ]; then
    classpath="$extra_cp${PATH_SEP}$classpath"
 fi
 
-externpath="${LIB_DIR}${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${X10_PLATFORM}"
+externpath="${LIB_DIR}"
 if [ -n "$LD_LIBRARY_PATH" ] ; then
     OLD_IFS="$IFS"
     IFS=':'

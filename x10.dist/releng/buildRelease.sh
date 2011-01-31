@@ -47,12 +47,12 @@ fi
 
 UNAME=`uname -smp | sed -e 's/ /,/g'`
 case "$UNAME" in
-  CYGWIN*,i*86,*) export X10_PLATFORM='cygwin_x86';;
-  Linux,*86_64*,*) export X10_PLATFORM='linux_x86_64';;
-  Linux,*86*,*) export X10_PLATFORM='linux_x86';;
-  Linux,ppc*,*) export X10_PLATFORM='linux_ppc';;
-  AIX,*,powerpc) export X10_PLATFORM='aix_ppc';;
-  Darwin,*,i*86) export X10_PLATFORM='macosx_x86'
+  CYGWIN*,i*86,*) X10_PLATFORM='cygwin_x86';;
+  Linux,*86_64*,*) X10_PLATFORM='linux_x86_64';;
+  Linux,*86*,*) X10_PLATFORM='linux_x86';;
+  Linux,ppc*,*) X10_PLATFORM='linux_ppc';;
+  AIX,*,powerpc) X10_PLATFORM='aix_ppc';;
+  Darwin,*,i*86) X10_PLATFORM='macosx_x86'
       export USE_32BIT=true
       export USE_64BIT=true
    ;;

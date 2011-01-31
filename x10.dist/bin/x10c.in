@@ -7,6 +7,11 @@ rtdev=""
 java_args=""
 args=""
 optimize=""
+x10rt_impl="sockets"
+
+if [[ "$UNAME" = AIX* ]]; then 
+  x10rt_impl="pgas_lapi"
+fi
 
 parse=true
 while [ -n "$1" ]; do
@@ -23,7 +28,7 @@ while [ -n "$1" ]; do
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
         -extclass) shift; ext=$1;;
-        -x10rt) shift; export X10RT_IMPL=$1;;
+        -x10rt) shift; x10rt_impl=$1;;
         -O|-optimize) optimize="true";;
         -rtdev) rtdev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
@@ -85,6 +90,9 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 
 # include libx10.properties as a x10lib unless rtdev
 [ -z "$rtdev" ] && args="-x10lib ${STDLIB_DIR}/libx10.properties $args"
+
+# pass x10rt_impl via environment variable
+export X10RT_IMPL=$x10rt_impl
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 

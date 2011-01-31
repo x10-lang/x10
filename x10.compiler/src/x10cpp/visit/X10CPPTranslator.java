@@ -534,22 +534,13 @@ public class X10CPPTranslator extends Translator {
 	}
 
 	private static PostCompileProperties loadX10RTProperties(X10CPPCompilerOptions options) {
-
 	    // TODO: get options.distPath external to this method
 	    String dp = System.getProperty("x10.dist");
 	    options.setDistPath(dp);
 
 	    // TODO: get properties file external to this method and pass it as an argument
-	    String platform = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
 	    String rtimpl = System.getenv("X10RT_IMPL");
-	    if (rtimpl == null) {
-	        // assume pgas (default to old behavior)
-	        if (platform.startsWith("aix_")) {
-	            rtimpl = "pgas_lapi";
-	        } else {
-	            rtimpl = "sockets";
-	        }
-	    }
+	    
 	    // allow the user to give an explicit path, otherwise look in etc
 	    if (!rtimpl.endsWith(".properties")) {
 	        rtimpl = dp + "/etc/x10rt_"+rtimpl+".properties";
