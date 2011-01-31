@@ -19,6 +19,7 @@
     <property name="bdwgc.url" value="http://dist.codehaus.org/x10/dependencies/${bdwgc.tar}"/>
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
+    <property name="tar.exe" value="tar"/>
     <property name="optimize" value="false" />
     <property name="INLINE_OPTIMIZATIONS" value="false" />
     <property name="EXPERIMENTAL" value="false" />
@@ -504,14 +505,14 @@
       </sequential>
     </target>
 
-    <target name="download-bdwgc" depends="check-bdwgc" unless="bdwgc.skip.download">
+    <target name="download-bdwgc" depends="check-bdwgc,convert-bdwgc-paths" unless="bdwgc.skip.download">
         <sequential>
             <mkdir dir="${bdwgc.dir}/src" />
             <get usetimestamp="true" src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
             <!-- Can't use the untar rule in ant because it bungles symbolic links. Sigh -->
-            <exec executable="tar" dir="${bdwgc.dir}/src">
+            <exec executable="${tar.exe}" dir="${bdwgc.dir}/src">
                 <arg value="xzf" />
-                <arg value="${bdwgc.dir}/${bdwgc.tar}" />
+                <arg value="${bdwgc.platform.dir}/${bdwgc.tar}" />
             </exec>
             <if>
               <conditions>
