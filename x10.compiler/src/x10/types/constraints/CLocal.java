@@ -36,4 +36,7 @@ public class CLocal extends XLocal<X10LocalDef> {
         return Types.get(name.type());
     }
 
+    @Override public String toString() {
+	return s;
+    }
 }
