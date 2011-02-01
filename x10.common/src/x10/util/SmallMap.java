@@ -164,6 +164,35 @@ public final class SmallMap<K,V> implements Map<K,V>, Cloneable {
     }
 
 
+    // Code copied from AbstractMap. I don't want to inherit from AbstractMap because it has two fields (keySet, values) and it's a waste of space becasue we do not use them. 
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("{");
+
+        Iterator<Map.Entry<K,V>> i = entrySet().iterator();
+            boolean hasNext = i.hasNext();
+            while (hasNext) {
+            Map.Entry<K,V> e = i.next();
+            K key = e.getKey();
+                V value = e.getValue();
+            if (key == this)
+            buf.append("(this Map)");
+            else
+            buf.append(key);
+            buf.append("=");
+            if (value == this)
+            buf.append("(this Map)");
+            else
+            buf.append(value);
+                hasNext = i.hasNext();
+                if (hasNext)
+                    buf.append(", ");
+            }
+
+        buf.append("}");
+        return buf.toString();
+    }
+
     static class Entry<K,V> implements Map.Entry<K,V> {
         final K key;
         V value;
