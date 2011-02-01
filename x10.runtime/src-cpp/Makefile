@@ -201,7 +201,10 @@ else
   INC_FLAG=-T -
 endif
 
-install: $(XRX_ARCHIVE) $(XRX_PROPERTIES)
+install_props: $(XRX_PROPERTIES)
+	@cp -p $(XRX_PROPERTIES) "$(INSTDIR)"/$(XRX_PROPERTIES)
+
+install: $(XRX_ARCHIVE) install_props
 	@echo "Installing into $(INSTDIR)"
 	@mkdir -p "$(INSTDIR)"/include "$(INSTDIR)"/lib
 	@(cd gen && $(FIND) . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
@@ -212,9 +215,8 @@ install: $(XRX_ARCHIVE) $(XRX_PROPERTIES)
 	@$(FIND) x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@cp -p x10rt.h "$(INSTDIR)"/include
 	@cp -p $(XRX_ARCHIVE) "$(INSTDIR)"/lib
-	@cp -p $(XRX_PROPERTIES) "$(INSTDIR)"/$(XRX_PROPERTIES)
 
-.PHONY: install
+.PHONY: install install_props
 
 
 ##################
