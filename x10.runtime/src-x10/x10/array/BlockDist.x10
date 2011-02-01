@@ -45,7 +45,7 @@ final class BlockDist extends Dist {
 
     def this(r:Region, axis:int, pg:PlaceGroup) {
         super(r);
-	this.axis = axis;
+        this.axis = axis;
         this.pg = pg;
     }
 
@@ -94,30 +94,30 @@ final class BlockDist extends Dist {
      */
     private def mapIndexToPlace(index:int):Place {
         val bb = region.boundingBox();
-	val min = bb.min(axis);
+        val min = bb.min(axis);
         val max = bb.max(axis);
-	val P = pg.numPlaces();
+        val P = pg.numPlaces();
         val numElems = max - min + 1;
         val blockSize = numElems/P;
         val leftOver = numElems - P*blockSize;
-	val normalizedIndex = index-min;
-
-	val nominalPlace = normalizedIndex/(blockSize+1);
-	if (nominalPlace < leftOver) {
-	    return pg(nominalPlace);
+        val normalizedIndex = index-min;
+        
+        val nominalPlace = normalizedIndex/(blockSize+1);
+        if (nominalPlace < leftOver) {
+            return pg(nominalPlace);
         } else {
-	    val indexFromTop = max-index;
-	    return pg(pg.numPlaces() - 1 - (indexFromTop/(blockSize)));
+            val indexFromTop = max-index;
+            return pg(pg.numPlaces() - 1 - (indexFromTop/(blockSize)));
         }
     }
-
-
+    
+    
     public def places():PlaceGroup = pg;
-
+    
     public def numPlaces():int = pg.numPlaces();
 
     public def regions():Sequence[Region(rank)] {
-	return new Array[Region(rank)](pg.numPlaces(), (i:int)=>blockRegionForPlace(pg(i))).sequence();
+        return new Array[Region(rank)](pg.numPlaces(), (i:int)=>blockRegionForPlace(pg(i))).sequence();
     }
 
     public def get(p:Place):Region(rank) {
@@ -125,57 +125,57 @@ final class BlockDist extends Dist {
             if (regionForHere == null) {
                 regionForHere = blockRegionForPlace(here);
             }
-	    return regionForHere;
+            return regionForHere;
         } else {
             return blockRegionForPlace(p);
         }
     }
-
+    
     public operator this(pt:Point(rank)):Place {
 	if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
         return mapIndexToPlace(pt(axis));
     }
 
     public operator this(i0:int){rank==1}:Place {
-	if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
-	return mapIndexToPlace(i0);
+        if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
+        return mapIndexToPlace(i0);
     }
 
     public operator this(i0:int, i1:int){rank==2}:Place {
-	if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
-	switch(axis) {
-	    case 0: return mapIndexToPlace(i0);
-	    case 1: return mapIndexToPlace(i1);
-	    default: return here; // UNREACHABLE
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
+        switch(axis) {
+        case 0: return mapIndexToPlace(i0);
+        case 1: return mapIndexToPlace(i1);
+        default: return here; // UNREACHABLE
         }
     }
 
     public operator this(i0:int, i1:int, i2:int){rank==3}:Place {
-	if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
-	switch(axis) {
-	    case 0: return mapIndexToPlace(i0);
-	    case 1: return mapIndexToPlace(i1);
-	    case 2: return mapIndexToPlace(i2);
-	    default: return here; // UNREACHABLE
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
+        switch(axis) {
+        case 0: return mapIndexToPlace(i0);
+        case 1: return mapIndexToPlace(i1);
+        case 2: return mapIndexToPlace(i2);
+        default: return here; // UNREACHABLE
         }
     }
 
     public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
-	if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) raiseBoundsError(i0,i1,i2,i3);
-	switch(axis) {
-	    case 0: return mapIndexToPlace(i0);
-	    case 1: return mapIndexToPlace(i1);
-	    case 2: return mapIndexToPlace(i2);
-	    case 3: return mapIndexToPlace(i3);
-	    default: return here; // UNREACHABLE
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) raiseBoundsError(i0,i1,i2,i3);
+        switch(axis) {
+        case 0: return mapIndexToPlace(i0);
+        case 1: return mapIndexToPlace(i1);
+        case 2: return mapIndexToPlace(i2);
+        case 3: return mapIndexToPlace(i3);
+        default: return here; // UNREACHABLE
         }
     }
 
     public def offset(pt:Point(rank)):int {
         val r = get(here);
-	val offset = r.indexOf(pt);
-	if (offset == -1) {
-	    if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
+        val offset = r.indexOf(pt);
+        if (offset == -1) {
+            if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
             if (CompilerFlags.checkPlace()) raisePlaceError(pt);
         }
         return offset;
@@ -184,9 +184,9 @@ final class BlockDist extends Dist {
 
     public def offset(i0:int){rank==1}:int {
         val r = get(here);
-	val offset = r.indexOf(i0);
-	if (offset == -1) {
-	    if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
+        val offset = r.indexOf(i0);
+        if (offset == -1) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0);
         }
         return offset;
@@ -194,9 +194,9 @@ final class BlockDist extends Dist {
 
     public def offset(i0:int, i1:int){rank==2}:int {
         val r = get(here);
-	val offset = r.indexOf(i0,i1);
-	if (offset == -1) {
-	    if (CompilerFlags.checkBounds() && !region.contains(i0,i1)) raiseBoundsError(i0,i1);
+        val offset = r.indexOf(i0,i1);
+        if (offset == -1) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0,i1)) raiseBoundsError(i0,i1);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1);
         }
         return offset;
@@ -204,9 +204,9 @@ final class BlockDist extends Dist {
 
     public def offset(i0:int, i1:int, i2:int){rank==3}:int {
         val r = get(here);
-	val offset = r.indexOf(i0,i1,i2);
-	if (offset == -1) {
-	    if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2)) raiseBoundsError(i0,i1,i2);
+        val offset = r.indexOf(i0,i1,i2);
+        if (offset == -1) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2)) raiseBoundsError(i0,i1,i2);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2);
         }
         return offset;
@@ -214,9 +214,9 @@ final class BlockDist extends Dist {
 
     public def offset(i0:int, i1:int, i2:int, i3:int){rank==4}:int {
         val r = get(here);
-	val offset = r.indexOf(i0,i1,i2,i3);
-	if (offset == -1) {
-	    if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2,i3)) raiseBoundsError(i0,i1,i2,i3);
+        val offset = r.indexOf(i0,i1,i2,i3);
+        if (offset == -1) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2,i3)) raiseBoundsError(i0,i1,i2,i3);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2,i3);
         }
         return offset;
@@ -224,23 +224,23 @@ final class BlockDist extends Dist {
 
     public def maxOffset() {
         val r = get(here);
-	return r.size()-1;
+        return r.size()-1;
     }
         
     public def restriction(r:Region(rank)):Dist(rank) {
-	return new WrappedDistRegionRestricted(this, r) as Dist(rank); // TODO: cast should not be needed
+        return new WrappedDistRegionRestricted(this, r) as Dist(rank); // TODO: cast should not be needed
     }
 
     public def restriction(p:Place):Dist(rank) {
-	return new WrappedDistPlaceRestricted(this, p) as Dist(rank); // TODO: cast should not be needed
+        return new WrappedDistPlaceRestricted(this, p) as Dist(rank); // TODO: cast should not be needed
     }
 
-
+    
     public def equals(thatObj:Any):boolean {
         if (this == thatObj) return true;
-	if (!(thatObj instanceof BlockDist)) return super.equals(thatObj);
+        if (!(thatObj instanceof BlockDist)) return super.equals(thatObj);
         val that = thatObj as BlockDist;
-	return this.axis.equals(that.axis) && this.region.equals(that.region);
+        return this.axis.equals(that.axis) && this.region.equals(that.region);
     }
 }
 
