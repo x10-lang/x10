@@ -401,7 +401,7 @@ class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
 	var z:Int = 2;
 	val q:Int;
 	def this(r:Int, c:Int{self == r}) 	{
-		val mShape:Region = null;
+		val mShape:Region(2) = null;
 		val mDist = Dist.makeBlock(mShape);
 		z++; // ERR: Can use 'this' only after 'property(...)'
 		val closure = () =>
@@ -413,7 +413,7 @@ class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
 		));
 		q=3;
 	}
-	val initMat : (Point) => int = ([x,y]:Point) => x+y;
+	val initMat : (Point(2)) => int = ([x,y]:Point(2)) => x+y;
 } 
 
 class TwoErrorsInOneLineTest(o:Int) {
@@ -2463,10 +2463,10 @@ static class LongB {
 
 
 class ExplodingPointTest {	
-    def f1([i,j]:Point,x:Int)= i+x+j;	
+    def f1([i,j]:Point(2),x:Int)= i+x+j;	
     def f2(p[i,j]:Point(2),x:Int)= p(0)+i+x+j;
 
-    def f3(p[i,j]:Point(1))=1; // ShouldBeErr 
+    def f3(p[i,j]:Point(1))=1; // ERR 
 
 	def test() {
 		val [i,j] = [1,2]; 
@@ -2481,9 +2481,15 @@ class ExplodingPointTest {
 			return p(0)+i+j;
 		for(p[i] in (3..4)) 
 			return p(0)+i;
-		for(p[i]:Point(2) in (3..4)*(3..4))  {} // ShouldBeErr (the type doesn't match the number of exploded ints
+		for(p[i]:Point(2) in (3..4)*(3..4))  {} // ERR XTENLANG-2399 (the type doesn't match the number of exploded ints
 		return 3;
 	}
+    def m(p:Point(1)) { // XTENLANG-2399
+		val [i,j] = p; // ShouldBeErr
+		val q[m]:Point(2) = [3,4]; // ShouldBeErr
+	}
+	def nonPointExploding(q[m]:Int) {} // ERR
+
 	def test4() {
 		for(p[i,j] in (3..4)) // ERR: Loop domain is not of expected type.  
 			return p(0)+i+j;
@@ -4543,4 +4549,15 @@ class XTENLANG_2390 {
 	}
 	def m1(i:Int{self==a}) {} // ShouldBeErr
 	def m2() {2==a} {} // ShouldBeErr
+}
+
+class XTENLANG_2401 {
+	def m(Int{self!=0}):String = "a";
+	def m(Double):Int = 1;
+	def test() {
+		val z1:String = m(1); 
+		val z2:Int = m(1); // ERR, but it should be a different error! The current error is: Semantic Error: Cannot assign expression to target.	 Expression: m(x10.lang.Double.implicit_operator_as(0))	 Expected type: x10.lang.String,  and it should complain about the constraint that is not satisfied.
+		val z3:String = m(0); // ShouldNotBeERR
+		val z4:Int = m(0); // ShouldBeErr
+	}
 }
