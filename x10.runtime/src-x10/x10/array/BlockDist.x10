@@ -56,8 +56,6 @@ final class BlockDist extends Dist {
      *
      * Assumption: Caller has done error checking to ensure that place is 
      *   actually a member of pg.
-     *
-     * TODO: Create an optimized fast-path for RectRegion.
      */
     private def blockRegionForPlace(place:Place):Region{self.rank==this.rank} {
         val b = region.boundingBox();
@@ -68,14 +66,23 @@ final class BlockDist extends Dist {
         val blockSize = numElems/P;
         val leftOver = numElems - P*blockSize;
         val i = pg.indexOf(place);
-
-        val r1 = Region.makeFull(axis);
         val low = min + blockSize*i + (i< leftOver ? i : leftOver);
         val hi = low + blockSize + (i < leftOver ? 0 : -1);
-        val r2 = low..hi;
-        val r3 = Region.makeFull(region.rank-axis-1);
-
-        return (r1.product(r2).product(r3) as Region(region.rank)).intersection(region);
+        
+        if (region instanceof RectRegion) {
+            // Optimize common case.
+            val newMin = new Array[Int](rank, (i:Int) => region.min(i));
+            val newMax = new Array[Int](rank, (i:Int) => region.max(i));
+            newMin(axis) = low;
+            newMax(axis) = hi;
+            return new RectRegion(newMin, newMax);
+        } else {
+            // General case handled via region algebra
+            val r1 = Region.makeFull(axis);
+            val r2 = low..hi;
+            val r3 = Region.makeFull(region.rank-axis-1);
+            return (r1.product(r2).product(r3) as Region(region.rank)).intersection(region);
+        }
     }
 
     /**

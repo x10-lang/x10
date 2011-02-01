@@ -61,8 +61,6 @@ final class BlockBlockDist extends Dist {
      *
      * Assumption: Caller has done error checking to ensure that place is 
      *   actually a member of pg.
-     *
-     * TODO: Create an optimized fast-path for RectRegion.
      */
     private def blockBlockRegionForPlace(place:Place):Region{self.rank==this.rank} {
         val b = region.boundingBox();
@@ -83,25 +81,45 @@ final class BlockBlockDist extends Dist {
         val leftOver = divisions0*divisions1 - P;
         val minFirst = (axis1 > axis0) ? min0 : min1;
         val maxFirst = (axis1 > axis0) ? max0 : max1;
-
         val minSecond = (axis1 > axis0) ? min1 : min0;
         val maxSecond = (axis1 > axis0) ? max1 : max0;
 
         val i = pg.indexOf(place);
 
-        val beforeAxes = (axis1 > axis0) ? Region.makeFull(axis0) : Region.makeFull(axis1);
-        val betweenAxes = (axis1 > axis0) ? Region.makeFull(axis1-axis0-1) : Region.makeFull(axis0-axis1-1);
-        val afterAxes = (axis1 > axis0) ? Region.makeFull(region.rank-axis1-1) : Region.makeFull(region.rank-axis0-1);
         val leftOverOddOffset = (divisions0 % 2 == 0) ? 0 : i*2/(divisions0+1);
         val lowFirst = Math.min(minFirst + (i < leftOver+leftOverOddOffset ? ((i*2-leftOverOddOffset) % divisions0) : ((i+leftOver) % divisions0)) * sizeFirst / divisionsFirst, maxFirst);
         val hiFirst = Math.min(lowFirst + sizeFirst / divisionsFirst - 1 + (i < leftOver+leftOverOddOffset ? sizeFirst / divisionsFirst : 0), maxFirst);
-        val rFirst = (Math.round(lowFirst) as Int)..(Math.round(hiFirst) as Int);
+
         val rawLowSecond = (minSecond + ((i < leftOver ? (i*2) / divisions0 : ((i+leftOver)/divisions0)) * sizeSecond / divisionsSecond));
         val lowSecond = maxSecond - Math.round(maxSecond - rawLowSecond);
         val hiSecond = Math.min(maxSecond - (Math.round(maxSecond - (rawLowSecond + sizeSecond / divisionsSecond)) + 1.0), maxSecond);
-        val rSecond = (lowSecond as Int)..(hiSecond as Int);
-                   
-        return (beforeAxes.product(rFirst).product(betweenAxes).product(rSecond).product(afterAxes) as Region(region.rank)).intersection(region);
+
+        if (region instanceof RectRegion) {
+            // Optimize common case.
+            val newMin = new Array[Int](rank, (i : Int) => region.min(i));
+            val newMax = new Array[Int](rank, (i : Int) => region.max(i));
+            if (axis0 < axis1) {
+                newMin(axis0) = (Math.round(lowFirst) as Int);
+                newMin(axis1) = (Math.round(lowSecond) as Int);
+                newMax(axis0) = (Math.round(hiFirst) as Int);
+                newMax(axis1) = (Math.round(hiSecond) as Int);
+            } else {
+                newMin(axis1) = (Math.round(lowFirst) as Int);
+                newMin(axis0) = (Math.round(lowSecond) as Int);
+                newMax(axis1) = (Math.round(hiFirst) as Int);
+                newMax(axis0) = (Math.round(hiSecond) as Int);
+            }
+            return new RectRegion(newMin, newMax) as Region(rank);
+        } else {
+            // General case handled via region algebra
+            val beforeAxes = (axis1 > axis0) ? Region.makeFull(axis0) : Region.makeFull(axis1);
+            val betweenAxes = (axis1 > axis0) ? Region.makeFull(axis1-axis0-1) : Region.makeFull(axis0-axis1-1);
+            val afterAxes = (axis1 > axis0) ? Region.makeFull(region.rank-axis1-1) : Region.makeFull(region.rank-axis0-1);
+            val rFirst = (Math.round(lowFirst) as Int)..(Math.round(hiFirst) as Int);
+            val rSecond = (lowSecond as Int)..(hiSecond as Int);
+            
+            return (beforeAxes.product(rFirst).product(betweenAxes).product(rSecond).product(afterAxes) as Region(region.rank)).intersection(region);
+        }
     }
 
     /**
