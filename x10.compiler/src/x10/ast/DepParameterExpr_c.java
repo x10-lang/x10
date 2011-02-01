@@ -41,6 +41,7 @@ import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
+import polyglot.types.LazyRef_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.visit.X10TypeChecker;
@@ -162,8 +163,10 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     	return n;
       }
 
+    // This is a challenge because DepParam is used both in methods and closures
+    // (for closures we shouldn't create a resolver, but for methods we should but without freezing).
     // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Issues\XTENLANG_2330.x10
-    // todo: C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Place\At_MustFailCompile.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Place\At_MustFailCompile.x10
     // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Misc\x10\frontend\tests\FrontEndTests_MustFailCompile.x10
       public void setResolver(Node parent, final TypeCheckPreparer v) {
     	  TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());

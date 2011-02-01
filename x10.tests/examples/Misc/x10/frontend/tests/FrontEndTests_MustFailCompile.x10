@@ -4075,7 +4075,7 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	property i() = 5;
 	@ERR class R extends R {i()==5} {}
 	@ERR @ERR @ERR @ERR class R1 {i()==3} {}
-	@ERR @ERR @ERR @ERR @ERR class R2 {i()==3} extends R2 {} // [Semantic Error: Circular inheritance involving x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R2, Semantic Error: Class invariant is inconsistent.]
+	@ERR @ERR @ERR @ERR class R2 {i()==3} extends R2 {} // [Semantic Error: Circular inheritance involving x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R2, Semantic Error: Class invariant is inconsistent.]
 	class R3 {}
 	@ERR @ERR @ERR class R4 extends R3 {i()==3} {} // [Semantic Error: Invalid type; the real clause of x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent., Semantic Error: Type x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent.]
 	

@@ -3,6 +3,7 @@ package polyglot.types;
 import java.io.*;
 
 import polyglot.util.TypeInputStream;
+import polyglot.util.InternalCompilerError;
 
 public class LazyRef_c<T> extends AbstractRef_c<T> implements LazyRef<T>, Serializable {
 	private static final long serialVersionUID = -7466682011826272737L;
@@ -20,7 +21,7 @@ public class LazyRef_c<T> extends AbstractRef_c<T> implements LazyRef<T>, Serial
 	};
     public static Runnable THROW_RESOLVER = new Runnable() {
 		public void run() {
-            throw new RuntimeException("This resolver should never be called! Use ref.update(...) before calling ref.get()");
+            throw new InternalCompilerError("This resolver should never be called! Use ref.update(...) before calling ref.get()");
 		}
 	};
 
