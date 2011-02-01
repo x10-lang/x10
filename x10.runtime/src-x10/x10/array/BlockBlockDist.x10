@@ -227,27 +227,62 @@ final class BlockBlockDist extends Dist {
     public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
         val pt = Point.make(i0, i1, i2, i3);
         if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
-            return mapIndexToPlace(pt(axis0), pt(axis1));
+        return mapIndexToPlace(pt(axis0), pt(axis1));
     }
 
-    // FIXME: Make this efficient
     public def offset(pt:Point(rank)):int {
-        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
-            raiseBoundsError(pt);
-        }
         val r = get(here);
-        if (CompilerFlags.checkPlace() && !r.contains(pt)) raisePlaceError(pt);
-        val localLayout = RectLayout(r);
-        return localLayout.offset(pt);
+        val offset = r.indexOf(pt);
+        if (offset == -1) {
+            if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
+            if (CompilerFlags.checkPlace()) raisePlaceError(pt);
+        }
+        return offset;
     }
 
-    // FIXME: Override offset for 1..3 ints to avoid useless Point creation in superclass method
+    public def offset(i0:int){rank==1}:int {
+        val r = get(here);
+        val offset = r.indexOf(i0);
+        if (offset == -1) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
+            if (CompilerFlags.checkPlace()) raisePlaceError(i0);
+        }
+        return offset;
+    }
 
-    // FIXME:  Make this efficient
+    public def offset(i0:int, i1:int){rank==2}:int {
+        val r = get(here);
+	    val offset = r.indexOf(i0,i1);
+	    if (offset == -1) {
+	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1)) raiseBoundsError(i0,i1);
+            if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1);
+        }
+        return offset;
+    }
+
+    public def offset(i0:int, i1:int, i2:int){rank==3}:int {
+        val r = get(here);
+	    val offset = r.indexOf(i0,i1,i2);
+	    if (offset == -1) {
+	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2)) raiseBoundsError(i0,i1,i2);
+            if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2);
+        }
+        return offset;
+    }
+
+    public def offset(i0:int, i1:int, i2:int, i3:int){rank==4}:int {
+        val r = get(here);
+	    val offset = r.indexOf(i0,i1,i2,i3);
+	    if (offset == -1) {
+	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2,i3)) raiseBoundsError(i0,i1,i2,i3);
+            if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2,i3);
+        }
+        return offset;
+    }
+
     public def maxOffset() {
         val r = get(here);
-        val localLayout = RectLayout(r);
-        return localLayout.size();
+        return r.size()-1;
     }
         
     public def restriction(r:Region(rank)):Dist(rank) {
