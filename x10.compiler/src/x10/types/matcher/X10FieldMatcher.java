@@ -43,10 +43,11 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
 
 
     @Override
-    public FieldInstance instantiate(FieldInstance mi) throws SemanticException {
-        X10FieldInstance fi = (X10FieldInstance) super.instantiate(mi);
-        if (fi == null)
-            return null;
+    public FieldInstance instantiate(FieldInstance mi) throws SemanticException {          
+	    if (! mi.name().equals(name)) {
+		return null;
+	    }
+        X10FieldInstance fi = (X10FieldInstance) mi;
         TypeSystem ts = (TypeSystem) fi.typeSystem();
         Type t = fi.type();
         Type rt = fi.rightType();

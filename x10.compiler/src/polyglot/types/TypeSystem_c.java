@@ -1095,21 +1095,9 @@ public class TypeSystem_c implements TypeSystem
 	    return container + argumentString();
 	}
 
-	public ConstructorInstance instantiate(ConstructorInstance ci) throws SemanticException {
-	    TypeSystem ts = ci.typeSystem();
-	    if (ci.formalTypes().size() != argTypes.size()) {
-		return null;
-	    }
-	    Context context = ts.emptyContext();
-	    if (! ts.callValid(ci, container, argTypes, context)) {
-		throw new SemanticException("Cannot invoke " + ci + " on " + signature() + ".");
-	    }
-	    return ci;
-	}
+	public abstract ConstructorInstance instantiate(ConstructorInstance ci) throws SemanticException;
 
-	public String argumentString() {
-	    return  "(" + CollectionUtil.listToString(argTypes) + ")";
-	}
+	public abstract String argumentString();
 
 	public String toString() {
 	    return signature();
@@ -1160,23 +1148,9 @@ public class TypeSystem_c implements TypeSystem
 	    return name;
 	}
 
-	public MethodInstance instantiate(MethodInstance mi) throws SemanticException {
-	    if (! mi.name().equals(name)) {
-		return null;
-	    }
-	    if (mi.formalTypes().size() != argTypes.size()) {
-		return null;
-	    }
-	    TypeSystem ts = mi.typeSystem();
-	    if (! ts.callValid(mi, container, argTypes, context)) {
-		throw new SemanticException("Cannot invoke " + mi + " on " + signature() + ".");
-	    }
-	    return mi;
-	}
+	public abstract MethodInstance instantiate(MethodInstance mi) throws SemanticException;
 
-	public String argumentString() {
-	    return  "(" + CollectionUtil.listToString(argTypes) + ")";
-	}
+	public abstract String argumentString();
 
 	public String toString() {
 	    return signature();
@@ -1233,12 +1207,7 @@ public class TypeSystem_c implements TypeSystem
 	    return name;
 	}
 
-	public FieldInstance instantiate(FieldInstance mi) throws SemanticException {
-	    if (! mi.name().equals(name)) {
-		return null;
-	    }
-	    return mi;
-	}
+	public abstract FieldInstance instantiate(FieldInstance mi) throws SemanticException;
 
 	public String toString() {
 	    return signature();
@@ -1262,7 +1231,7 @@ public class TypeSystem_c implements TypeSystem
             return true;
         }
     }
-    public static class MemberTypeMatcher extends BaseMatcher<Named> {
+    public static abstract class MemberTypeMatcher extends BaseMatcher<Named> {
 	protected Type container;
 	protected Name name;
 	protected Context context;
@@ -1285,12 +1254,7 @@ public class TypeSystem_c implements TypeSystem
 	    return name;
 	}
 
-	public Named instantiate(Named t) throws SemanticException {
-	    if (! t.name().equals(name)) {
-		return null;
-	    }
-	    return t;
-	}
+	public abstract Named instantiate(Named t) throws SemanticException;
 
 	public String toString() {
 	    return signature();
@@ -1309,7 +1273,7 @@ public class TypeSystem_c implements TypeSystem
     public Matcher<Named> TypeMatcher(Name name) {
         return new X10TypeMatcher(name);
     }
-    public static class TypeMatcher extends BaseMatcher<Named> {
+    public static abstract class TypeMatcher extends BaseMatcher<Named> {
 	protected Name name;
 
 	protected TypeMatcher(Name name) {
@@ -1326,12 +1290,7 @@ public class TypeSystem_c implements TypeSystem
 	}
 
 
-	public Named instantiate(Named t) throws SemanticException {
-	    if (! t.name().equals(name)) {
-		return null;
-	    }
-	    return t;
-	}
+	public abstract Named instantiate(Named t) throws SemanticException;
 
 	public String toString() {
 	    return signature();
