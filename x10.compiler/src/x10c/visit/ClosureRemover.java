@@ -248,12 +248,11 @@ public class ClosureRemover extends ContextVisitor {
                                 if (var.def().equals(field.fieldInstance().def())) {
                                     Receiver target = field.target();
                                     if (target instanceof Local) {
-                                          // XTENLANG-2359
-//                                        for (Formal formal : formals) {
-//                                            if (formal.name() != null && ((Local) target).name().id().equals(formal.name().id())) {
+                                        for (Formal formal : formals) {
+                                            if (formal.name() != null && ((Local) target).name().id().equals(formal.name().id())) {
                                                 return n;
-//                                            }
-//                                        }
+                                            }
+                                        }
                                     }
                                     
                                     X10LocalDef li;
