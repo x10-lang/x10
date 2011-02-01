@@ -16,6 +16,8 @@ import x10.compiler.TempNoInline_1;
 import x10.compiler.CompilerFlags;
 
 /**
+ * Representation of a place within the APGAS model.
+ *
  * @author Christian Grothoff
  * @author Raj Barik, Vivek Sarkar
  * @author tardieu
@@ -24,13 +26,20 @@ import x10.compiler.CompilerFlags;
  */
 public final struct Place(id: Int)  {
 
+    /** The number of places including accelerators.
+     * Accelerator places have limitations on the kinds of code they can run.
+     */
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_places")
     public static ALL_PLACES:Int = 4;
 
+    /** The number of places not including accelerators. */
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_hosts")
     public static MAX_PLACES:Int = 4;
+
+    /** The number of accelerators. */
+    public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
 
     /**
      * Find number of children under a place.
@@ -86,11 +95,25 @@ public final struct Place(id: Int)  {
                                    (p: Int) => new Array[Place](numChildren(p), (i:Int) => Place(child(p,i))));
 
     private static places:Array[Place](1) = new Array[Place](MAX_PLACES, ((id:Int) => Place(id)));
+
+    /**
+     * A convenience for iterating over all host places.
+     */
     public static def places():Sequence[Place]=places.sequence();
+
+    /**
+     * A convenience for iterating over all accelerators.
+     */
     public static children = childrenArray.values();
-    public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
+
+    /**
+     * The place that runs 'main'.
+     */
     public static FIRST_PLACE:Place(0) = Place(0);
 
+    /**
+     * Creates a Place struct from an integer place id.
+     */
     public def this(id: Int):Place(id) { 
         property(id); 
         if (CompilerFlags.checkPlace() && (id < 0 || id >= ALL_PLACES)) {
@@ -98,10 +121,29 @@ public final struct Place(id: Int)  {
         }
     }
 
+    /**
+     * Another way to get a place from an id. @deprecated
+     */
     public static def place(id: Int): Place(id) = Place(id);
+
+    /**
+     * Returns the place with the next higher integer index.
+     */
     public def next(): Place = next(1);
+
+    /**
+     * Returns the place with the next lower integer index.
+     */
     public def prev(): Place = next(-1);
+
+    /**
+     * Returns the same place as would be obtained by using prev() 'i' times.
+     */
     public def prev(i: Int): Place = next(-i);
+
+    /**
+     * Returns the same place as would be obtained by using next() 'i' times.
+     */
     public def next(i: Int): Place {
         // -1 % n == -1, not n-1, so need to add n
         if (@TempNoInline_1 isHost(id)) {
@@ -112,22 +154,43 @@ public final struct Place(id: Int)  {
         return this;
     }
 
+    /**
+     * The number of places including accelerators.
+     */
     public static def numPlaces():int = ALL_PLACES;
 
+    /**
+     * 
+     */
     public def isFirst(): Boolean = id == 0;
     public def isLast(): Boolean = id == MAX_PLACES - 1;
 
+    /** Is this place a host (i.e. not an accelerator)? */
     public def isHost(): Boolean = isHost(id);
+
+    /** Is this place a cell SPE (not implemented currently) */
     public def isSPE(): Boolean = isSPE(id);
+
+    /** Is this place a CUDA GPU? */
     public def isCUDA(): Boolean = isCUDA(id);
 
+    /** How many accelerators does this place have?
+     * Returns 0 if this place is an accelerator. */
     public def numChildren() = numChildren(id);
+
+    /** Get the child of this place at the given index.  0 is the first child, etc.
+     */
     public def child(i:Int) = Place(child(id,i));
 
+    /** A convenience for iterating over this place's children. */
     public def children() = childrenArray(id);
 
+    /** The host of this place if this place is an accelerator, otherwise returns this place. */
     public def parent() = Place(parent(id));
 
+    /** Returns the index of this child place amongst the other children of its parent.
+     * This function complements child(Int):Place.
+     * @throws BadPlaceException if this place is not an accelerator. */
     public def childIndex() {
         if (isHost()) {
             throw new BadPlaceException();
