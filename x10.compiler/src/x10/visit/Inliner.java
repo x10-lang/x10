@@ -299,6 +299,11 @@ public class Inliner extends ContextVisitor {
         }
         return null;
     }
+    
+    // returns true if @NoInline given on the node
+    boolean hasNoInlineAnnotation (Node n) {
+    	return !((X10Ext) n.ext()).annotationMatching(NoInlineType).isEmpty();
+    }
 
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         reasons.clear();
@@ -310,7 +315,7 @@ public class Inliner extends ContextVisitor {
                 if (null != result) 
                     return result;
             }
-            if (INLINE_METHODS) 
+            if (INLINE_METHODS && hasNoInlineAnnotation(n)) 
                 result = wrappedInlineMethodCall((X10Call) n);
         } else if (n instanceof ClosureCall && INLINE_CLOSURES) {
             result = inlineClosureCall((ClosureCall) n);
