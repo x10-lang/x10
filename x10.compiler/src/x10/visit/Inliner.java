@@ -96,6 +96,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
+import x10.optimizations.ForLoopOptimizer;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -702,6 +703,7 @@ public class Inliner extends ContextVisitor {
             return null;
         }
         ast = ast.visit(new Desugarer(job, ts, nf).begin());
+        ast = ast.visit(new ForLoopOptimizer(job, ts, nf).begin());
         decl = getDeclaration(candidate, ast);
         if (null == decl) {
             report("unable to find declaration for candidate: " +candidate, call);
