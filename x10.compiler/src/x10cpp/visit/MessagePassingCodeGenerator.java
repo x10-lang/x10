@@ -218,7 +218,9 @@ import x10.util.ClosureSynthesizer;
 import x10.util.StreamWrapper;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.X10CPPJobExt;
+import x10cpp.debug.LineNumberMap;
 import x10cpp.types.X10CPPContext_c;
+import x10cuda.types.X10CUDAContext_c;
 
 /**
  * Primary visitor for the C++ codegenerator.
@@ -1691,7 +1693,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sb.append("#include <x10aux/bootstrap.h>\n");
 		String mainTypeArgs = "x10::lang::Runtime," + container;
 		if (options.x10_config.DEBUG)
-			sb.append("void __x10MainRef"+container+"() {};\n");
+			sb.append("void* __x10MainRef = (void *) "+container+"::main;\n");
         sb.append("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
         return sb.toString();
 	}
@@ -4045,6 +4047,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("class "+cname+" : public "+CLOSURE_TYPE+" {");
         inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
+
+		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
+		{
+			// TODO - this "if" is a hack.  I want source code that has a real async to map to a closure, 
+			// but I want to hide closures that are generated under the covers.  I can't find a good way to 
+			// determine this, so in the meantime, I'm just throwing out all the 1-line closures.
+			if (c.currentCode().position().line() != c.currentCode().position().endLine())
+			{
+				String key = ((StreamWrapper)inc).getStreamName(StreamWrapper.CC);
+				Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
+			    if (fileToLineNumberMap != null) 
+			    {
+			        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
+			        if (lineNumberMap != null) 
+			        	lineNumberMap.addClosureMember(cname, cnamet, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+			    }
+			}
+		}
 
         /* ITables declarations */
         inc.write("static "+(in_template_closure ? "typename " : "")+superType+(in_template_closure ? "::template itable " : "::itable")+chevrons(cnamet)+" _itable;"); inc.newline();
