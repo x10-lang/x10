@@ -52,7 +52,6 @@ where [options] includes:
     -dev                     developer mode (use unpackaged X10 libraries)
     -J<arg>                  [USE WITH CAUTION] pass <arg> directly to java.
         e.g., use -J-verbose to make java execution verbose.
-    -NUMBER_OF_LOCAL_PLACES=<number>  set number of places in the system (default: 4)
     -INIT_THREADS=<number>   set number of threads to allocate in the thread pool (default: # of cores)
     -STATIC_THREADS          disable creating additional threads while blocking
     -NO_STEALS               disable steals
