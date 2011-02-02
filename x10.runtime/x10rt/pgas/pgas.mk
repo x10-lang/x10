@@ -10,7 +10,7 @@
 #
 
 #X10_VERSION=svn head
-X10_VERSION=2.1.1
+X10_VERSION=2.1.2
 VERSION=20100916
 
 #WPLATFORM is the string used to identify the platform in the web tarballs
