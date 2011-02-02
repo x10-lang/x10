@@ -130,6 +130,40 @@ public class X10Translator extends Translator {
 	        }
 
 	        w.flush();
+
+            X10CCompilerOptions options = (X10CCompilerOptions) ts.extensionInfo().getOptions();
+            if (options.post_compiler != null && !options.output_stdout && options.executable_path != null) {
+                // copy *.x10 to output_directory in order to add them in a jar file
+                File sourceFile = null; 
+                File targetFile = null;
+                java.io.FileInputStream sourceInputStream = null;
+                java.io.FileOutputStream targetOutputStream = null;
+                try {
+                    String sourceFilepath = sfn.source().toString();
+                    sourceFile = new File(sourceFilepath);
+                    
+                    String targetDirpath = options.output_directory.getAbsolutePath();
+                    if (pkg != null) {
+                        targetDirpath += File.separator + pkg.toString().replace('.', File.separatorChar);
+                    }
+                    File targetDir = new File(targetDirpath);
+//                    targetDir.mkdirs();
+                    targetFile = new File(targetDir, sfn.source().name());
+                    
+                    sourceInputStream = new java.io.FileInputStream(sourceFile);
+                    java.nio.channels.FileChannel sourceChannel = sourceInputStream.getChannel();
+                    targetOutputStream = new java.io.FileOutputStream(targetFile);
+                    java.nio.channels.FileChannel targetChannel = targetOutputStream.getChannel();
+                    sourceChannel.transferTo(0, sourceChannel.size(), targetChannel);
+                } finally {
+                    if (sourceInputStream != null) sourceInputStream.close();
+                    if (targetOutputStream != null) targetOutputStream.close();
+                    if (sourceFile != null && targetFile != null) { 
+                        targetFile.setLastModified(sourceFile.lastModified());
+                    }
+                }
+            }
+
 	        return true;
 	    }
 	    catch (IOException e) {
