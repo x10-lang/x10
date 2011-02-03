@@ -617,6 +617,15 @@ function main {
 	    X10CPP="$X10CPP -x10rt sockets"
 	fi
 
+	RUN_X10=$RUN_X10
+	if [[ -z "$RUN_X10" ]]; then
+		RUN_X10=$X10_HOME/x10.dist/bin/runx10
+	fi
+	if [[ ! -f $RUN_X10 ]]; then
+		printf "\n[$prog: err]: unable to locate runx10 script!\n"
+		cleanUpExitHarness 2
+	fi
+
 	if [[ ! -f $X10_HOME/x10.dist/stdlib/libx10.properties ]]; then
 		printf "\n[$prog: err]: unable to libx10.properties!\n"
 		cleanUpExitHarness 2
@@ -783,7 +792,7 @@ done
 			fi
 fi
 if [[ "$(uname -s)" == CYGWIN* ]]; then
-			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}.exe"
+			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p $RUN_X10 ./${tctarget}.exe"
 else
 			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}"
 fi
