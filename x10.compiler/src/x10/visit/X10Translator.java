@@ -258,12 +258,18 @@ public class X10Translator extends Translator {
                     
                     // create Main-Class attribute from main (= first) source name if MAIN_CLASS is not specified
                     String main_class = options.x10_config.MAIN_CLASS;
+                    // Fix for XTENLANG-2410
+                    // Guessing main_class from the first .x10 file is incorrect, because
+                    // 1) main_source may not be relative path from currect directory
+                    // 2) the first .x10 file may not have $Main class.
+                    /*
                     if (main_class == null) {
                         String main_source = ((X10CCompilerOptions) options).main_source;
                         if (main_source != null) {
                             main_class = main_source.substring(0, main_source.length() - ".x10".length());
                         }
                     }
+                    */
                     
                     // create manifest file
                     File manifest = File.createTempFile("x10c.manifest.", null);
