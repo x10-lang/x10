@@ -68,12 +68,14 @@ import x10.types.checker.Converter;
 public class VarsBoxer extends ContextVisitor {
 
     private static final String POSTFIX_BOXED_VAR = "$b";
-    private static final QName GLOBAL_REF = QName.make("x10.lang.GlobalRef");
+    private static final QName LOCAL_VAR = QName.make("x10.compiler.LocalVar");
+    private static final Name GET = Name.make("get");
+    private static final Name SET = Name.make("set");
     
     private final TypeSystem xts;
     private final NodeFactory xnf;
     private final Map<X10LocalDef,X10LocalDef> defToDef = CollectionFactory.newHashMap();
-    private X10ParsedClassType globalRefType;
+    private X10ParsedClassType localVarType;
     
     public VarsBoxer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -84,7 +86,7 @@ public class VarsBoxer extends ContextVisitor {
     @Override
     public NodeVisitor begin() {
         try {
-            globalRefType = (X10ParsedClassType) xts.typeForName(GLOBAL_REF);
+            localVarType = (X10ParsedClassType) xts.typeForName(LOCAL_VAR);
         } catch (SemanticException e) {
             throw new InternalCompilerError("Something is terribly wrong", e);
         }
@@ -383,8 +385,8 @@ public class VarsBoxer extends ContextVisitor {
     }
     
     private LocalDecl createBoxDecl(final Position pos, Name name, LocalInstance li) {
-        X10ParsedClassType grt = createGlobalRefType(li);
-        X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(pos, grt);
+        X10ParsedClassType lvt = createLocalVarType(li);
+        X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(pos, lvt);
         
         LocalDecl ldecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, Flags.FINAL), tn, xnf.Id(pos, name.toString() + POSTFIX_BOXED_VAR));
         
@@ -398,12 +400,12 @@ public class VarsBoxer extends ContextVisitor {
         
         X10ConstructorInstance ci;
         try {
-            ci = xts.findConstructor(grt, xts.ConstructorMatcher(grt, grt.typeArguments(), context));
+            ci = xts.findConstructor(lvt, xts.ConstructorMatcher(lvt, lvt.typeArguments(), context));
         } catch (SemanticException e) {
             throw new InternalCompilerError(""); // TODO
         }
-        ci = (X10ConstructorInstance) ci.container(grt);
-        New new1 = (New) xnf.New(pos, tn, args).constructorInstance(ci).type(grt);
+        ci = (X10ConstructorInstance) ci.container(lvt);
+        New new1 = (New) xnf.New(pos, tn, args).constructorInstance(ci).type(lvt);
         
         ldecl = ldecl.init(new1);
         return ldecl;
@@ -415,8 +417,8 @@ public class VarsBoxer extends ContextVisitor {
             return defToDef.get(def);
         }
         else {
-            X10ParsedClassType grt = createGlobalRefType(li);
-            X10LocalDef localDef = xts.localDef(pos, li.flags(), Types.ref(grt), Name.make(li.name().toString() + POSTFIX_BOXED_VAR));
+            X10ParsedClassType lvt = createLocalVarType(li);
+            X10LocalDef localDef = xts.localDef(pos, li.flags(), Types.ref(lvt), Name.make(li.name().toString() + POSTFIX_BOXED_VAR));
             defToDef.put(def, localDef);
             return localDef;
         }
@@ -447,11 +449,11 @@ public class VarsBoxer extends ContextVisitor {
     }
 
     private Call createGetCall(final Position pos, LocalInstance lilocal, LocalInstance libox) {
-        Name mname = ClosureCall.APPLY;
+        Name mname = GET;
         
-        X10ParsedClassType grt = createGlobalRefType(lilocal);
+        X10ParsedClassType lvt = createLocalVarType(lilocal);
         
-        MethodDef md = xts.methodDef(pos, Types.ref(grt), Flags.FINAL, Types.ref(lilocal.type()), mname, Collections.<Ref<? extends Type>>emptyList());
+        MethodDef md = xts.methodDef(pos, Types.ref(lvt), Flags.FINAL, Types.ref(lilocal.type()), mname, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = md.asInstance();
         
         Local local = (Local) xnf.Local(pos, xnf.Id(pos, lilocal.name().toString() + POSTFIX_BOXED_VAR)).type(libox.type());
@@ -459,14 +461,14 @@ public class VarsBoxer extends ContextVisitor {
     }
     
     private Call createSetCall(final Position pos, LocalInstance lilocal, LocalInstance libox, Expr arg) {
-        Name mname = SettableAssign.SET;
+        Name mname = SET;
         
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(arg.type()));
 
-        X10ParsedClassType grt = createGlobalRefType(lilocal);
+        X10ParsedClassType lvt = createLocalVarType(lilocal);
         
-        MethodDef md = xts.methodDef(pos, Types.ref(grt), Flags.FINAL, Types.ref(globalRefType.x10Def().typeParameters().get(0)), mname, argTypes);
+        MethodDef md = xts.methodDef(pos, Types.ref(lvt), Flags.FINAL, Types.ref(localVarType.x10Def().typeParameters().get(0)), mname, argTypes);
         MethodInstance mi = md.asInstance();
         
         Local local = (Local) xnf.Local(pos, xnf.Id(pos, lilocal.name().toString() + POSTFIX_BOXED_VAR)).localInstance(libox).type(libox.type());
@@ -474,14 +476,26 @@ public class VarsBoxer extends ContextVisitor {
         return (Call) xnf.Call(pos, local, xnf.Id(pos, mname), arg).methodInstance(mi).type(lilocal.type());
     }
 
+    private Call createApplyCall(final Position pos, LocalInstance lilocal, LocalInstance libox) {
+        Name mname = ClosureCall.APPLY;
+        
+        X10ParsedClassType lvt = createLocalVarType(lilocal);
+        
+        MethodDef md = xts.methodDef(pos, Types.ref(lvt), Flags.FINAL, Types.ref(lilocal.type()), mname, Collections.<Ref<? extends Type>>emptyList());
+        MethodInstance mi = md.asInstance();
+        
+        Local local = (Local) xnf.Local(pos, xnf.Id(pos, lilocal.name().toString() + POSTFIX_BOXED_VAR)).type(libox.type());
+        return (Call) xnf.Call(pos, local.localInstance(libox), xnf.Id(pos, mname)).methodInstance(mi).type(lilocal.type());
+    }
+
     private LocalAssign createWriteBack(final Position cg, LocalInstance li, LocalDecl ldecl) {
-        LocalAssign la = (LocalAssign) xnf.LocalAssign(cg, (Local) xnf.Local(cg, xnf.Id(cg, li.name())).localInstance(li).type(li.type()), Assign.ASSIGN, createGetCall(cg, li, ldecl.localDef().asInstance())).type(li.type());
+        LocalAssign la = (LocalAssign) xnf.LocalAssign(cg, (Local) xnf.Local(cg, xnf.Id(cg, li.name())).localInstance(li).type(li.type()), Assign.ASSIGN, createApplyCall(cg, li, ldecl.localDef().asInstance())).type(li.type());
         return la;
     }
 
-    private X10ParsedClassType createGlobalRefType(LocalInstance li) {
+    private X10ParsedClassType createLocalVarType(LocalInstance li) {
         List<Type> typeArgs = new ArrayList<Type>();
         typeArgs.add(li.type());
-        return globalRefType.typeArguments(typeArgs);
+        return localVarType.typeArguments(typeArgs);
     }
 }
