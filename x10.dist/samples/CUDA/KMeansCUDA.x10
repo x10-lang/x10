@@ -28,6 +28,7 @@ import x10.compiler.Unroll;
 import x10.compiler.CUDADirectParams;
 import x10.compiler.CUDA;
 import x10.compiler.Native;
+import x10.compiler.NoInline;
 
 
 public class KMeansCUDA {
@@ -153,7 +154,7 @@ public class KMeansCUDA {
                                                 var dist : Float = 0;
                                                 for ([d] in 0..3) { 
                                                     val tmp = gpu_points(p+d*num_local_points_stride) 
-                                                              - clustercache(k*4+d);
+                                                              - @NoInline clustercache(k*4+d);
                                                     dist += tmp * tmp;
                                                 }
                                                 // record closest cluster seen so far
