@@ -36,10 +36,11 @@ import x10.types.constraints.XConstrainedTerm;
  * scope is updated in place.  Names added to the context are added
  * in the current scope.
  */
-public interface Context extends Resolver, Copy
+public interface Context extends Resolver, Cloneable
 {
     /** Deep copy the context so that it can be saved away. */
     Context freeze();
+    Context shallowCopy(); // todo: we have both freeze and shallowCopy (that used to be called copy). why? get rid of shallowCopy.
     
     /** The type system. */
     TypeSystem typeSystem();

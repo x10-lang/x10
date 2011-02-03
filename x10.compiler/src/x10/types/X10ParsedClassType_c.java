@@ -149,7 +149,7 @@ implements X10ParsedClassType
         return false;
     }
     
-    public Object copy() {
+    public X10ParsedClassType_c copy() {
         X10ParsedClassType_c n = (X10ParsedClassType_c) super.copy();
         n.clearCache();
         return n;

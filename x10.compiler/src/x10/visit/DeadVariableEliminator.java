@@ -94,16 +94,16 @@ public class DeadVariableEliminator extends ContextVisitor {
         return super.begin();
     }
 
-    /* (non-Javadoc)
-     * @see polyglot.visit.NodeVisitor#copy()
-     */
+    /*
+    // unused code
     @Override
-    public Object copy() {
+    public DeadVariableEliminator copy() {
         DeadVariableEliminator copy = (DeadVariableEliminator) super.copy();
         copy.state = state;
         copy.root  = root;
         return copy;
     }
+    */
 
     /* (non-Javadoc)
      * @see polyglot.visit.NodeVisitor#override(polyglot.ast.Node)

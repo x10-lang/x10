@@ -54,7 +54,7 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
         return memberCache;
     }
     
-    public Object copy() {
+    public ClassType_c copy() {
         ClassType_c n = (ClassType_c) super.copy();
         n.memberCache = null;
         return n;

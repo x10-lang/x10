@@ -32,11 +32,14 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
         this.packageCache = CollectionFactory.newHashMap();
     }
 
+    /*
     public Object copy() {
         SystemResolver r = (SystemResolver) super.copy();
+        // todo: the inner resolver is not deep cloned. so I removed this copy method. If it is needed, then Resolver should extend Copy and we should implement copy for all Resolvers.
         r.packageCache = CollectionFactory.newHashMap(this.packageCache);
         return r;
     }
+    */
     
     public void installInAll(QName name, Named n) {
         this.install(name, n);

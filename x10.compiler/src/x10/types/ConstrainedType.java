@@ -74,6 +74,9 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		private Ref<CConstraint> constraint; // yoav todo: what about type constraints? We should keep the original expression as well so we will have accurate position info. 
 		private Ref<? extends Type> baseType;
 
+		protected CConstraint realXClause;
+		protected SemanticException realClauseInvalid;
+
 		public ConstrainedType(TypeSystem ts, Position pos, 
 				Ref<? extends Type> baseType, Ref<CConstraint> constraint) {
 			super(ts, pos);
@@ -98,6 +101,8 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			ConstrainedType result = (ConstrainedType) super.copy();
 			result.constraint = Types.ref(constraint.get().copy());
 			result.baseType = (Ref<? extends Type>) Types.ref((Type) baseType.get().copy());
+            result.realXClause = realXClause==null ? null : realXClause.copy();
+            // no need to copy realClauseInvalid because it is used to cache if a realXClause is inconsistent.
 			return result;
 		}
 		/**
@@ -165,9 +170,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			n.constraint = constraint;
 			return n;
 		}
-		
-		protected CConstraint realXClause;
-		protected SemanticException realClauseInvalid;
+
 		/**
 		Returns the real clause for this constrained type. The self variable for the returned constraint 
 		is the same as the self variable for the depclause.

@@ -67,9 +67,10 @@ public abstract class Context_c implements Context
         return ts;
     }
 
-    public Object copy() {
+    public Context_c shallowCopy() {
         try {
-            return super.clone();
+            return (Context_c) super.clone();
+            // it's a shallow copy cause we do not copy types or vars or deep copy the outer. that's what we do in freeze.
         }
         catch (CloneNotSupportedException e) {
             throw new InternalCompilerError("Java clone() weirdness.");
@@ -79,7 +80,7 @@ public abstract class Context_c implements Context
     public Context freeze() {
         if (true) return this;
         // todo: is freezing actually needed anymore? (the guard in closures might be a problem...)
-        Context_c c = (Context_c) this.copy();
+        Context_c c =  this.shallowCopy();
         c.types = types != null ? CollectionFactory.newHashMap(types) : null;
         c.vars = vars != null ? CollectionFactory.newHashMap(vars) : null;
         c.outer = outer != null ? outer.freeze() : null;
@@ -87,7 +88,7 @@ public abstract class Context_c implements Context
     }
 
     protected Context_c push() {
-        Context_c v = (Context_c) this.copy();
+        Context_c v = this.shallowCopy();
         v.outer = this;
         v.types = null;
         v.vars = null;

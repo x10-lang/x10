@@ -48,7 +48,6 @@ package x10.types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +61,6 @@ import polyglot.types.FieldInstance;
 import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodDef;
 
 import polyglot.types.Name;
 import polyglot.types.Named;
@@ -76,7 +74,6 @@ import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil; import polyglot.util.Position;
 import x10.util.CollectionFactory;
-import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -85,7 +82,6 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.constraints.SubtypeConstraint;
-import x10.ast.X10Return_c;
 
 public class X10Context_c extends Context_c {
 
@@ -682,14 +678,14 @@ public class X10Context_c extends Context_c {
 		return (Context) SUPER_pushStatic();
 	}
 
-	/**
+    /**
 	 * enters a method
 	 */
     public enum X10Kind { None, Async, At, Finish; }
     public X10Kind x10Kind = X10Kind.None;
 
-	public Object copy() {
-		X10Context_c res = (X10Context_c) super.copy();
+	public X10Context_c shallowCopy() {
+		X10Context_c res = (X10Context_c) super.shallowCopy();
         res.x10Kind = X10Kind.None;
         return res;
     }

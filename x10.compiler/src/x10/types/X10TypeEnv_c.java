@@ -13,8 +13,6 @@ package x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +25,6 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.Flags;
-import polyglot.types.JavaArrayType;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
@@ -72,7 +69,6 @@ import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
-import polyglot.types.Type;
 
 /**
  * A TypeSystem implementation for X10.
@@ -84,10 +80,6 @@ import polyglot.types.Type;
 public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public X10TypeEnv_c(Context c) {
         super(c);
-    }
-
-    public X10TypeEnv_c copy() {
-        return (X10TypeEnv_c) super.copy();
     }
 
 
@@ -782,7 +774,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		//                    newEnv = Collections.EMPTY_LIST;
 
     		Context xc2 = ((X10Context_c) xcontext).pushTypeConstraint(newEnv);
-    		X10TypeEnv_c tenv = copy();
+    		X10TypeEnv_c tenv = shallowCopy();
     		tenv.context = xc2;
 
     		if (term.isEqualityConstraint()) {
@@ -872,7 +864,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     				}
     				xcontext.setCurrentConstraint(c);
 
-    				X10TypeEnv_c tenv = copy();
+    				X10TypeEnv_c tenv = shallowCopy();
     				tenv.context = xcontext;
 
     				if (c2 != null)
@@ -2098,5 +2090,5 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	
 	    return mj;
 	}
-  
+
 }

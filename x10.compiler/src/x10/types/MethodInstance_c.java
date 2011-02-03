@@ -133,10 +133,6 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
         }
     }
 
-    public Object copy() { 
-        return super.copy();
-    }
-
     @Override
     public MethodInstance returnType(Type returnType) {
         return (MethodInstance) super.returnType(returnType);

@@ -41,7 +41,7 @@ public class TypeBuilder extends NodeVisitor
     }
     
     public TypeBuilder push() {
-        TypeBuilder tb = (TypeBuilder) this.copy();
+        TypeBuilder tb = (TypeBuilder) this.shallowCopy();
         tb.outer = this;
         return tb;
     }

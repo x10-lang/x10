@@ -16,7 +16,7 @@ import x10.util.CollectionFactory;
 /**
  * A <code>CachingResolver</code> memoizes another Resolver
  */
-public class AnotherCachingResolver implements Resolver, Copy {
+public class AnotherCachingResolver implements Resolver {
 
     protected Resolver inner;
     private Map<Object,Object> cache;
@@ -40,16 +40,18 @@ public class AnotherCachingResolver implements Resolver, Copy {
 	return Report.should_report(TOPICS, level);
     }
 
+    /*
     public Object copy() {
 	try {
 	   AnotherCachingResolver r = (AnotherCachingResolver) super.clone();
+	   // todo: the inner resolver is not deep cloned. so I removed this copy method. If it is needed, then Resolver should extend Copy and we should implement copy for all Resolvers. 
 	    r.cache = CollectionFactory.newHashMap(this.cache);
 	    return r;
 	}
 	catch (CloneNotSupportedException e) {
 	    throw new InternalCompilerError("clone failed");
 	}
-    }
+    }  */
 
     /**
      * The resolver whose results this resolver caches.

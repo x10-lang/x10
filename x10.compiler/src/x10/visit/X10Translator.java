@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
@@ -40,7 +39,6 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.visit.Translator;
-import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10c.X10CCompilerOptions;
 
@@ -85,7 +83,7 @@ public class X10Translator extends Translator {
 
 	public X10Translator inInnerClass(boolean inInnerClass) {
 		if (inInnerClass == this.inInnerClass) return this;
-		X10Translator tr = (X10Translator) copy();
+		X10Translator tr = (X10Translator) shallowCopy();
 		tr.inInnerClass = inInnerClass;
 		return tr;
 	}

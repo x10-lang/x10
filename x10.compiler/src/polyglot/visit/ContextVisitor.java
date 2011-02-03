@@ -68,7 +68,7 @@ public class ContextVisitor extends ErrorHandlingVisitor
      *  <code>c</code>.
      */
     public ContextVisitor context(Context c) {
-        ContextVisitor v = (ContextVisitor) this.copy();
+        ContextVisitor v = (ContextVisitor) this.shallowCopy();
         v.context = c;
         return v;
     }
@@ -115,7 +115,7 @@ public class ContextVisitor extends ErrorHandlingVisitor
         Context c = this.enterScope(parent, n);
 
         if (c != this.context) {
-            v = (ContextVisitor) this.copy();
+            v = (ContextVisitor) this.shallowCopy();
             v.context = c;
             v.outer = this;
             v.error = false;

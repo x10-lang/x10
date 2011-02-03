@@ -6,6 +6,7 @@ import polyglot.frontend.Globals;
 import polyglot.main.Report;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import x10.types.MethodInstance;
+import x10.types.X10TypeEnv_c;
 
 /**
  * Typing environment.
@@ -13,7 +14,7 @@ import x10.types.MethodInstance;
  * For a given typing rule Gamma |- Phi, this is Gamma. Phi is a method of
  * TypeEnv.
  */
-public abstract class TypeEnv_c implements TypeEnv {
+public abstract class TypeEnv_c implements TypeEnv, Cloneable {
     protected Context context; // the actual context. Eliminate this and merge
     // with Context.
     protected TypeSystem ts;
@@ -24,9 +25,9 @@ public abstract class TypeEnv_c implements TypeEnv {
 	this.ts = context.typeSystem();
     }
 
-    public TypeEnv_c copy() {
+    public X10TypeEnv_c shallowCopy() {
 	try {
-	    return (TypeEnv_c) super.clone();
+	    return (X10TypeEnv_c) super.clone();
 	}
 	catch (CloneNotSupportedException e) {
 	    assert false;
@@ -818,6 +819,5 @@ public abstract class TypeEnv_c implements TypeEnv {
 	throw new NoClassException(name.toString(), container);
     }
 
-  
-   
+
 }

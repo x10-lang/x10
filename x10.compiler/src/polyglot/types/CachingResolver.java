@@ -16,7 +16,7 @@ import x10.util.CollectionFactory;
 /**
  * A <code>CachingResolver</code> memoizes another Resolver
  */
-public class CachingResolver implements TopLevelResolver, Copy {
+public class CachingResolver implements TopLevelResolver {
     protected TopLevelResolver inner;
     private Map<QName,Object> cache;
     private boolean cacheNotFound;
@@ -44,9 +44,11 @@ public class CachingResolver implements TopLevelResolver, Copy {
         return inner.packageExists(name);
     }
 
+    /*
     public Object copy() {
         try {
             CachingResolver r = (CachingResolver) super.clone();
+	        // todo: the inner resolver is not deep cloned. so I removed this copy method. If it is needed, then Resolver should extend Copy and we should implement copy for all Resolvers.
             r.cache = CollectionFactory.newHashMap(this.cache);
             return r;
         }
@@ -54,6 +56,7 @@ public class CachingResolver implements TopLevelResolver, Copy {
             throw new InternalCompilerError("clone failed");
         }
     }
+    */
     
     /**
      * The resolver whose results this resolver caches.

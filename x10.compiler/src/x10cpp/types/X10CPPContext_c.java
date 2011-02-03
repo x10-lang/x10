@@ -22,7 +22,6 @@ package x10cpp.types;
  * @see X10Context_c
  */
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +34,7 @@ import x10.ast.PropertyDecl;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import x10.util.CollectionFactory;
 import x10.types.X10MethodDef;
 import x10.util.ClassifiedStream;
 import x10cpp.visit.ITable;
@@ -255,8 +254,8 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
 		}
 	}
     
-	public Object copy() {
-		X10CPPContext_c res = (X10CPPContext_c) super.copy();
+	public X10CPPContext_c shallowCopy() {
+		X10CPPContext_c res = (X10CPPContext_c) super.shallowCopy();
 		res.variables = new ArrayList<VarInstance<?>>();  // or whatever the initial value is
 		res.inClosure = false;
 		res.stackAllocateClosure = false;

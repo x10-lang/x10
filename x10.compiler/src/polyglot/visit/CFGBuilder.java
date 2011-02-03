@@ -19,7 +19,7 @@ import x10.ast.Async;
 /**
  * Class used to construct a CFG.
  */
-public class CFGBuilder implements Copy
+public class CFGBuilder implements Cloneable
 {
     /** The flowgraph under construction. */
     protected FlowGraph graph;
@@ -88,7 +88,7 @@ public class CFGBuilder implements Copy
     }
 
     /** Copy the CFGBuilder. */
-    public Object copy() {
+    private CFGBuilder shallowCopy() {
         try {
             return (CFGBuilder) super.clone();
         }
@@ -110,7 +110,7 @@ public class CFGBuilder implements Copy
      * try-block <code>n</code>, optionally skipping innermost catch blocks.
      */
     public CFGBuilder push(Stmt n, boolean skipInnermostCatches) {
-        CFGBuilder v = (CFGBuilder) copy();
+        CFGBuilder v = shallowCopy();
         v.outer = this;
         v.innermostTarget = n;
         v.skipInnermostCatches = skipInnermostCatches;
@@ -493,7 +493,7 @@ public class CFGBuilder implements Copy
      * Term <code>from</code> appended.
      */
     protected CFGBuilder enterFinally(Term from) {
-      CFGBuilder v = (CFGBuilder) this.copy();
+      CFGBuilder v = this.shallowCopy();
       v.path_to_finally = new ArrayList<Term>(path_to_finally.size()+1);
       v.path_to_finally.addAll(path_to_finally);
       v.path_to_finally.add(from);

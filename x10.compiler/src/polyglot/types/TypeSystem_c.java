@@ -11,28 +11,15 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 import polyglot.ast.Binary;
-import polyglot.ast.Id;
-import polyglot.ast.NodeFactory;
-import polyglot.ast.TypeNode;
 import polyglot.frontend.*;
 import polyglot.main.Report;
-import polyglot.types.reflect.ClassFile;
-import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
-import polyglot.visit.ContextVisitor;
-import polyglot.visit.TypeBuilder;
-import x10.constraint.XEQV;
-import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
-import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.errors.Errors;
-import x10.parser.X10ParsedName;
 import x10.types.AsyncDef;
 import x10.types.AsyncDef_c;
 import x10.types.AtDef;
@@ -86,7 +73,6 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
-import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.X10ConstructorMatcher;
@@ -96,7 +82,6 @@ import x10.types.matcher.X10MethodMatcher;
 import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
 import x10.util.CollectionFactory;
-import x10.visit.X10TypeBuilder;
 
 
 /**
@@ -1108,7 +1093,7 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public abstract static class MethodMatcher extends BaseMatcher<MethodInstance> implements Copy {
+    public abstract static class MethodMatcher extends BaseMatcher<MethodInstance> implements Cloneable {
 	protected Type container;
 	protected Name name;
 	protected List<Type> argTypes;
@@ -1123,7 +1108,7 @@ public class TypeSystem_c implements TypeSystem
 	}
 
 	public MethodMatcher container(Type container) {
-	    MethodMatcher n = copy();
+	    MethodMatcher n = shallowCopy();
 	    n.container = container;
 	    return n;
 	}
@@ -1131,7 +1116,7 @@ public class TypeSystem_c implements TypeSystem
 		return container;
 	}
 
-	public MethodMatcher copy() {
+	public MethodMatcher shallowCopy() {
 	    try {
 		return (MethodMatcher) super.clone();
 	    }
@@ -1165,7 +1150,7 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public abstract static class FieldMatcher extends BaseMatcher<FieldInstance> implements Copy {
+    public abstract static class FieldMatcher extends BaseMatcher<FieldInstance> implements Cloneable {
 	protected Type container;
 	protected Name name;
 	protected Context context;
@@ -1185,12 +1170,12 @@ public class TypeSystem_c implements TypeSystem
 		return container;
 	}
 	public FieldMatcher container(Type container) {
-	    FieldMatcher n = copy();
+	    FieldMatcher n = shallowCopy();
 	    n.container = container;
 	    return n;
 	}
 
-	public FieldMatcher copy() {
+	public FieldMatcher shallowCopy() {
 	    try {
 		return (FieldMatcher) super.clone();
 	    }

@@ -14,15 +14,12 @@ package x10.ast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
-import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorDecl;
@@ -66,7 +63,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -78,11 +75,9 @@ import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
-import x10.constraint.XFailure;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
-import x10.extension.X10Ext;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
@@ -91,7 +86,6 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType_c;
-import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 
 import x10.types.X10LocalDef;
@@ -99,7 +93,6 @@ import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 
-import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
@@ -796,8 +789,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	}
     	
     	TypeChecker childtc = (TypeChecker) v;
-    	TypeChecker oldchildtc = (TypeChecker) childtc.copy();
-    	ContextVisitor oldtc = (ContextVisitor) tc.copy();
+    	ContextVisitor oldtc = (ContextVisitor) tc.shallowCopy();
     	
     	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
     	TypeSystem xts = tc.typeSystem();

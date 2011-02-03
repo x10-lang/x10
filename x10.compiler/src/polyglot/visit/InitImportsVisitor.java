@@ -36,7 +36,7 @@ public class InitImportsVisitor extends ErrorHandlingVisitor
                 it = ts.importTable(sf.source().name(), null);
             }
             
-            InitImportsVisitor v = (InitImportsVisitor) copy();
+            InitImportsVisitor v = (InitImportsVisitor) shallowCopy();
             v.importTable = it;
             return v;
         }

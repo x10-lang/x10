@@ -443,7 +443,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		if (child == this.type) {
 			TypeSystem ts = c.typeSystem();
 			LocalDef li = localDef();
-			cxt = (Context) cxt.copy();
+			cxt = (Context) cxt.shallowCopy();
 			cxt.addVariable(li.asInstance());
 			cxt.setVarWhoseTypeIsBeingElaborated(li);
 		}
