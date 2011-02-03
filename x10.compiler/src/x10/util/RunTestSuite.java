@@ -290,19 +290,9 @@ public class RunTestSuite {
         String dirs = "";
         for (String dir : directories)
             dirs += SOURCE_PATH_SEP+dir;
-        int argsNum = remainingArgs.size();
-        boolean foundSourcePath = false;
-        for (int i=1; i<argsNum; i++) {
-            final String arg = remainingArgs.get(i);
-            if (arg.contains("/x10.runtime/src-x10")) {
-                final String sourcepath = arg + dirs;
-                remainingArgs.set(i, sourcepath);
-                println("sourcepath is: "+sourcepath);
-                foundSourcePath = true;
-                break;
-            }
-        }
-        Assert(foundSourcePath, "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'");
+        remainingArgs.add("-sourcepath");
+        remainingArgs.add(dirs);
+        println("sourcepath is: "+dirs);
 
         long start = System.currentTimeMillis();
         for (FileSummary f : summaries) {
