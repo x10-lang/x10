@@ -1384,11 +1384,12 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<FlagsNode> VarKeyword = (List<FlagsNode>) _VarKeyword;
         List<Object[]> VariableDeclarators = (List<Object[]>) _VariableDeclarators;
         List<Node> modifiers = checkVariableModifiers(Modifiersopt);
-        FlagsNode fn = extractFlags(modifiers, VarKeyword);
+        FlagsNode fn = VarKeyword==null ? extractFlags(modifiers, Flags.FINAL) : extractFlags(modifiers, VarKeyword);
         List<LocalDecl> l = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
         for (Object[] o : VariableDeclarators)
         {
             Position pos = (Position) o[0];
+            Position compilerGen = pos.markCompilerGenerated();
             Id name = (Id) o[1];
             if (name == null) name = nf.Id(pos, Name.makeFresh());
             List<Id> exploded = (List<Id>) o[2];
@@ -1401,9 +1402,12 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
             int index = 0;
             l.add(ld);
+            if (exploded.size()>0 && init==null) {
+                syntaxError("An exploded point must have an initializer.",pos);
+            }
             for (Id id : exploded) {
-                TypeNode tni = nf.UnknownTypeNode(id.position());
-                l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(JPGPosition.COMPILER_GENERATED, nf.Local(JPGPosition.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(JPGPosition.COMPILER_GENERATED, IntLit.INT, index))) : null));
+                TypeNode tni = explodedType(id.position());
+                l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name),  Collections.<Expr>singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
                 index++;
             }
         }
@@ -1411,67 +1415,11 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorsWithType
     void rule_LocalVariableDeclaration1(Object _Modifiersopt, Object _VariableDeclaratorsWithType) {
-        List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
-        List<Object[]> VariableDeclaratorsWithType = (List<Object[]>) _VariableDeclaratorsWithType;
-        List<Node> modifiers = checkVariableModifiers(Modifiersopt);
-        FlagsNode fn = extractFlags(modifiers, Flags.FINAL);
-        List<LocalDecl> l = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
-        for (Object[] o : VariableDeclaratorsWithType)
-        {
-            Position pos = (Position) o[0];
-            Id name = (Id) o[1];
-            if (name == null) name = nf.Id(pos, Name.makeFresh());
-            List<Id> exploded = (List<Id>) o[2];
-            DepParameterExpr guard = (DepParameterExpr) o[3];
-            TypeNode type = (TypeNode) o[4];
-            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
-            Expr init = (Expr) o[5];
-            LocalDecl ld = nf.LocalDecl(pos, fn,
-                    type, name, init);
-            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
-            int index = 0;
-            l.add(ld);
-            for (Id id : exploded) {
-                // HACK: if the local is non-final, assume the type is point and the component is int
-                TypeNode tni = nf.UnknownTypeNode(id.position());
-                l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(JPGPosition.COMPILER_GENERATED, nf.Local(JPGPosition.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(JPGPosition.COMPILER_GENERATED, IntLit.INT, index))) : null));
-                index++;
-            }
-        }
-        setResult(l);
+        rule_LocalVariableDeclaration0(_Modifiersopt,null, _VariableDeclaratorsWithType);
     }
     // Production: LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarators
     void rule_LocalVariableDeclaration2(Object _Modifiersopt, Object _VarKeyword, Object _FormalDeclarators) {
-        List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
-        List<FlagsNode> VarKeyword = (List<FlagsNode>) _VarKeyword;
-        List<Object[]> FormalDeclarators = (List<Object[]>) _FormalDeclarators;
-        List<Node> modifiers = checkVariableModifiers(Modifiersopt);
-        FlagsNode fn = extractFlags(modifiers, VarKeyword);
-        List<LocalDecl> l = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
-        for (Object[] o : FormalDeclarators)
-        {
-            Position pos = (Position) o[0];
-            Id name = (Id) o[1];
-            if (name == null) name = nf.Id(pos, Name.makeFresh());
-            List<Id> exploded = (List<Id>) o[2];
-            DepParameterExpr guard = (DepParameterExpr) o[3];
-            TypeNode type = (TypeNode) o[4];
-            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
-            Expr init = (Expr) o[5];
-            LocalDecl ld = nf.LocalDecl(pos, fn,
-                    type, name, init);
-            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
-            int index = 0;
-            l.add(ld);
-            for (Id id : exploded) {
-                // HACK: if the local is non-final, assume the type is point and the component is int
-                TypeNode tni = nf.UnknownTypeNode(id.position());
-                // todo: fixme: do this desugaring after type-checking, and remove this code duplication
-                l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(JPGPosition.COMPILER_GENERATED, nf.Local(JPGPosition.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(JPGPosition.COMPILER_GENERATED, IntLit.INT, index))) : null));
-                index++;
-            }
-        }
-        setResult(l);
+        rule_LocalVariableDeclaration0(_Modifiersopt,_VarKeyword, _FormalDeclarators);
     }
     // Production: InterfaceMemberDeclarationsopt ::= %Empty
     void rule_InterfaceMemberDeclarationsopt0() {
@@ -2310,6 +2258,20 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr UnaryExpressionNotPlusMinus = (Expr) _UnaryExpressionNotPlusMinus;
         setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
     }
+
+    TypeNode explodedType(Position p) {
+        return nf.TypeNodeFromQualifiedName(p,QName.make("x10.lang.Int"));// exploded formals/locals are always Int.  nf.UnknownTypeNode(id.position());
+
+    }
+    List<Formal> createExplodedFormals(List<Id> exploded) {
+        List<Formal> explodedFormals = new ArrayList<Formal>();
+        for (Id id : exploded) {
+            // exploded formals are always final (VAL)
+            explodedFormals.add(nf.Formal(id.position(), nf.FlagsNode(id.position(), Flags.FINAL), explodedType(id.position()), id));
+        }
+        return explodedFormals;
+    }
+
     // Production: LoopIndex ::= Modifiersopt LoopIndexDeclarator
     void rule_LoopIndex0(Object _Modifiersopt, Object _LoopIndexDeclarator) {
         List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
@@ -2326,10 +2288,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         DepParameterExpr guard = (DepParameterExpr) o[3];
         TypeNode type = (TypeNode) o[4];
         if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
-        List<Formal> explodedFormals = new ArrayList<Formal>();
-        for (Id id : exploded) {
-            explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
-        }
+        List<Formal> explodedFormals = createExplodedFormals(exploded);
         f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
         f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
         setResult(f);
@@ -2351,10 +2310,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         DepParameterExpr guard = (DepParameterExpr) o[3];
         TypeNode type = (TypeNode) o[4];
         if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
-        List<Formal> explodedFormals = new ArrayList<Formal>();
-        for (Id id : exploded) {
-            explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
-        }
+        List<Formal> explodedFormals = createExplodedFormals(exploded);
         f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
         f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
         setResult(f);
@@ -3442,10 +3398,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode type = (TypeNode) o[4];
         if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
         Expr init = (Expr) o[5];
-        List<Formal> explodedFormals = new ArrayList<Formal>();
-        for (Id id : exploded) {
-            explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
-        }
+        List<Formal> explodedFormals = createExplodedFormals(exploded);
         f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
         f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
         setResult(f);
@@ -3468,10 +3421,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode type = (TypeNode) o[4];
         if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
         Expr init = (Expr) o[5];
-        List<Formal> explodedFormals = new ArrayList<Formal>();
-        for (Id id : exploded) {
-            explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
-        }
+        List<Formal> explodedFormals = createExplodedFormals(exploded);
         f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
         f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
         setResult(f);
@@ -3723,7 +3673,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             Position pos = (Position) o[0];
             Id name = (Id) o[1];
             if (name == null) name = nf.Id(pos, Name.makeFresh());
-            List<Id> exploded = (List<Id>) o[2];
             TypeNode type = (TypeNode) o[3];
             if (type == null) type = nf.UnknownTypeNode(name.position());
             Expr init = (Expr) o[4];

@@ -63,11 +63,15 @@ import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import x10.types.ParameterType;
+import x10.types.ConstrainedType;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
+import x10.constraint.XTerm;
+import x10.constraint.XLit;
 
 /**
  * An immutable representation of an X10Formal, which is of the form
@@ -265,6 +269,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	    }
 
 	    TypeSystem ts = tc.typeSystem();
+        final Type myType = this.type().type();
 
 	    try {
 	        ts.checkLocalFlags(flags().flags());
@@ -272,13 +277,37 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	    catch (SemanticException e) {
 	        Errors.issue(tc.job(), e, this);
 	    }
-	    if (this.type() instanceof UnknownTypeNode || this.type().type() instanceof UnknownType) {
+        if (this.type() instanceof UnknownTypeNode || myType instanceof UnknownType) {
 	        Errors.issue(tc.job(),
 	                new Errors.CannotInferTypeForFormalParameter(this.name(), position()));
-	    }
-	    if (this.type().type().isVoid())
+	    } else
+	    if (myType.isVoid())
 	        Errors.issue(tc.job(),
-	                new Errors.FormalParameterCannotHaveType(this.type().type(), position()));
+	                new Errors.FormalParameterCannotHaveType(myType, position()));
+        else {
+            if (vars.size()>0) {
+                // check the type is a subtype of Point, and that it's rank is vars.size()
+                if (!ts.isSubtype(myType, ts.Point(), c))
+                    Errors.issue(tc.job(), new SemanticException("Only a formal of type Point can be exploded, however the formal's type is "+myType, position()));
+                else {
+                    // make sure there is an init expr
+                    ConstrainedType cType = Types.toConstrainedType(myType);
+                    XTerm rank = cType.rank(c);
+                    if (rank instanceof XLit) {
+			            int r = (Integer) ((XLit) rank).val();
+                        if (r!=vars.size())
+                            Errors.issue(tc.job(), new SemanticException("The rank of the exploded Point is "+r+" but it should be "+vars.size(), position()));
+                    } else {                                                                                                                                    
+                        if (false) { // todo: I think we should be strict and add constraint, but it breaks a lot of existing test cases
+                            cType = cType.addRank(vars.size());
+                            final Ref<Type> ref = (Ref<Type>)this.type().typeRef();
+                            ref.update(cType);
+                        }
+                    }
+                }
+            }
+        }
+
 	    return this;
 	}
 
@@ -447,14 +476,14 @@ public class X10Formal_c extends Formal_c implements X10Formal {
         Flags fs = flags.flags().clearFinal();
         if (!f) w.write("var ");
         w.write(fs.translate());
-        tr.print(this, name, w);
+        tr.print(this, name, w);  // todo: should we use translateVars() here?
         w.write(":");
         print(type, w, tr);
     }
 
     @Override
     public void translate(CodeWriter w, Translator tr) {
-        super.prettyPrint(w, tr);
+        super.prettyPrint(w, tr); // todo: why is it calling super and not the newly defined prettyPrint?
     }
 }
 

@@ -2482,14 +2482,13 @@ class ExplodingPointTest {
 		for(p[i] in (3..4)) 
 			return p(0)+i;
 		for(p[i]:Point(2) in (3..4)*(3..4))  {} // ERR XTENLANG-2399 (the type doesn't match the number of exploded ints
+		for(x[n]:Point in (3..4)*(3..4))  {} // causes the ForLoopOptimizer to crash.
 		return 3;
 	}
     def m(p:Point(1)) { // XTENLANG-2399
 		val [i,j] = p; // ShouldBeErr
 		val q[m]:Point(2) = [3,4]; // ShouldBeErr
 	}
-	def nonPointExploding(q[m]:Int) {} // ERR
-
 	def test4() {
 		for(p[i,j] in (3..4)) // ERR: Loop domain is not of expected type.  
 			return p(0)+i+j;
@@ -2499,6 +2498,35 @@ class ExplodingPointTest {
 		var r:Region = null;
 		for (p in r) {}
 		@ERR for (p[i] in r) {} //  Loop domain is not of expected type.
+	}
+	def testWithoutInitVal() {
+		var p[i,j,k]: Point; // ERR
+	}
+	def exactTest() {		
+        { val [i,j] = [1,2,3]; }
+        { val [i,j] = [1,2]; }
+        { val [i,j] = [1]; }
+        { val [i,j]:Point = [1,2,3]; }
+        { val [i,j]:Point = [1,2]; }
+        { val [i,j]:Point = [1]; }
+        { val [i,j]:Point(3) = [1,2,3]; }
+        { val [i,j]:Point(2) = [1,2]; }
+        { val [i,j]:Point(1) = [1]; }
+	}
+	
+	def checkVarPoint(var p[i,j] : Point(2)) {
+		p = [3,4];
+		i = 5; // ERR
+	}
+	def nonPointExploding(q[m]:Int) { // ERR
+		val z = m+1; // exploded variables are always assumed to be Int.
+	}
+	def closureTest() {		
+		val f: (Point) => Int  =   (p[i,j]:Point) => i+j;
+	}
+	def explodingLocal() {		
+        { val p[i,j]: Array[Int](1) = new Array[Int](2); }
+        { val p[i,j]: Array[Point](1) = new Array[Point](2); } // ERR ERR exploded elements are always assumed to be Int
 	}
 	// val p[i,j] = [1,2]; // doesn't parse for fields :)
 }
@@ -3182,6 +3210,20 @@ class Tran[X,Y,W,U,Z] {X==Z, Z==Y,Int==Y, W==Z} {
 	
 	var e1:Tran[U,Y,W,U,Z]; // ERR: Type Tran[U, Y, W, U, Z] is inconsistent.
 }
+
+class TestTransitivityInGuards[A,B,C,D, E] {
+	def m1() {A==B, B==C, C==D} {
+		m2(); // ShouldNotBeERR
+		m3(); // ERR
+	} 
+	def m2() {A==D} {}
+	def m3() {A==E} {}
+}
+}
+
+class XTENLANG_2397[K,V] { K <: Comparable[K] } {
+	def this(start:K, map:XTENLANG_2397[K,V]) {}
+	def this(map:XTENLANG_2397[K,V], end:K) {}
 }
 
 class HaszeroConstraints {
@@ -4560,4 +4602,10 @@ class XTENLANG_2401 {
 		val z3:String = m(0); // ShouldNotBeERR
 		val z4:Int = m(0); // ShouldBeErr
 	}
+}
+class XTENLANG_2403 {
+	def shouldFail(dist:Dist) {
+		test((0..2)*(0..3), (Point) => 3 ); // ShouldBeErr
+	}
+	def test(r: Region, init: (Point(r.rank)) => Int) {}
 }
