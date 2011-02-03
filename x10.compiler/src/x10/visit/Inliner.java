@@ -143,15 +143,12 @@ public class Inliner extends ContextVisitor {
 //  private static final boolean VERY_VERBOSE = VERBOSE && false;
     private static final boolean VERY_VERBOSE = VERBOSE && true;
 
+
     /**
-     * The size of the largest method to be considered small, if small methods
-     * are to be inlined.
+     * The size of the largest method to be considered small enough to be inlined implicitly, if
+     * implicit inlining is enabled.
      */
-//  private static final int SMALL_METHOD_MAX_SIZE = -1;
-    private static final int SMALL_METHOD_MAX_SIZE = 0;
-//  private static final int SMALL_METHOD_MAX_SIZE = 1;
-//  private static final int SMALL_METHOD_MAX_SIZE = 2;
-//  private static final int SMALL_METHOD_MAX_SIZE = 3;
+    private final int implicitMax;
 
     /**
      * 
@@ -168,12 +165,12 @@ public class Inliner extends ContextVisitor {
         xnf = nf;;
         syn = new AltSynthesizer(ts, nf);
         ice = new InlineCostEstimator(ts, nf);
-        X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
-        INLINE_CONSTANTS = opts.x10_config.INLINE_CONSTANTS;
-        INLINE_METHODS   = opts.x10_config.INLINE_METHODS;
-        INLINE_CLOSURES  = opts.x10_config.INLINE_CLOSURES && opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS;
-//      INLINE_IMPLICIT  = opts.x10_config.INLINE_METHODS_IMPLICIT;
-        INLINE_IMPLICIT  = opts.x10_config.EXPERIMENTAL || opts.x10_config.INLINE_METHODS_IMPLICIT;
+        Configuration config = ((X10CompilerOptions) job.extensionInfo().getOptions()).x10_config;
+        INLINE_CONSTANTS = config.OPTIMIZE && config.INLINE_CONSTANTS;
+        INLINE_METHODS   = config.OPTIMIZE && config.INLINE_METHODS;
+        INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
+        INLINE_IMPLICIT  = config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
+        implicitMax      = config.EXPERIMENTAL ? 1 : 0;
     }
 
     /**
@@ -724,7 +721,7 @@ public class Inliner extends ContextVisitor {
         if (!inliningRequired) { // decide whether to inline candidate
             if (INLINE_IMPLICIT) {
                 int cost = getCost(decl, candidateJob);
-                if (SMALL_METHOD_MAX_SIZE < cost) {
+                if (implicitMax < cost) {
                     report("of excessive cost, " + cost, call);
                     getInlinerCache().notInlinable(candidate);
                     return null;
