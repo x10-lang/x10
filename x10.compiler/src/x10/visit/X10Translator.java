@@ -142,6 +142,7 @@ public class X10Translator extends Translator {
                     String sourceFilepath = sfn.source().toString();
                     sourceFile = new File(sourceFilepath);
                     
+                    if (sourceFile.isFile()) {
                     String targetDirpath = options.output_directory.getAbsolutePath();
                     if (pkg != null) {
                         targetDirpath += File.separator + pkg.toString().replace('.', File.separatorChar);
@@ -155,6 +156,7 @@ public class X10Translator extends Translator {
                     targetOutputStream = new java.io.FileOutputStream(targetFile);
                     java.nio.channels.FileChannel targetChannel = targetOutputStream.getChannel();
                     sourceChannel.transferTo(0, sourceChannel.size(), targetChannel);
+                    }
                 } finally {
                     if (sourceInputStream != null) sourceInputStream.close();
                     if (targetOutputStream != null) targetOutputStream.close();
