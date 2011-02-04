@@ -130,7 +130,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	 * @param v -- the variable being checked.
 	 * @return true if v occurs in this
 	 */
-	//public abstract boolean hasVar(XVar v);
+	public abstract boolean hasVar(XVar v);
 
 	/**
        Intern this term into constraint and return the promise

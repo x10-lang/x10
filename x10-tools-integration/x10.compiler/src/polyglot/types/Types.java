@@ -489,7 +489,7 @@ public class Types {
 		return null;
 	}
 
-	/*public static boolean hasVar(Type t, XVar x) {
+	public static boolean hasVar(Type t, XVar x) {
 	    if (t instanceof ConstrainedType) {
 		ConstrainedType ct = (ConstrainedType) t;
 		Type b = baseType(t);
@@ -506,7 +506,7 @@ public class Types {
 	    }
 	    return false;
 	}
-*/
+
 	
 
 	/**

@@ -329,10 +329,10 @@ public class XTypeTranslator {
             return (Type) val;
         }
 
-    /*    public boolean hasVar(XVar v) {
+        public boolean hasVar(XVar v) {
             return Types.hasVar(type(), v);
         }
-*/
+
         public XTypeLit subst(XTerm y, XVar x, boolean propagate) {
             XTypeLit n = (XTypeLit) super.subst(y, x, propagate);
             Type newVal = n.type();

@@ -41,7 +41,10 @@ public class XEQV extends XVar  {
     public boolean prefersBeingBound() {
         return true;
     }
-    
+
+    public boolean hasVar(XVar v) {
+        return equals(v);
+    }
     @Override
     public boolean hasEQV() {
         return true;
