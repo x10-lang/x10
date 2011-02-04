@@ -26,7 +26,7 @@ public interface X10ConstructorInstance extends ConstructorInstance, X10Procedur
 	 * Return the depclause associated with the returntype of the constructor.
 	 * @return
 	 */
-	XConstraint constraint();
+	//XConstraint constraint();
 	
 	Type returnType();
 	X10ConstructorInstance returnType(Type retType);

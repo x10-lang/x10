@@ -26,7 +26,7 @@ public class Arrays180 extends x10Test {
     }
 
 
-// file Arrays line 293
+// file Arrays line 294
 
  static class Arrays19TestExp{
   def check(A:Array[Int])  = A.size;  }

@@ -87,9 +87,9 @@ public class XLit extends XVar implements XPromise {
 		return intern(vars, index, null);
 	}
 
-	public XPromise intern(XVar[] vars, int index, XPromise last) throws XFailure {
+	public XPromise intern(XVar[] vars, int index, XPromise last){
 		if (index != vars.length) {
-			throw new XFailure("Cannot extend path " + vars + "index=" + index + " beyond the literal " + this + ".");
+			return null;
 		}
 		return this;
 	}
@@ -101,7 +101,7 @@ public class XLit extends XVar implements XPromise {
 		return this;
 	}
 
-	public XPromise lookup(XName s) {
+	public XPromise lookup(Object s) {
 		return null;
 	}
 
@@ -157,7 +157,7 @@ public class XLit extends XVar implements XPromise {
 		// nothing to dump.
 	}
 */
-	public void addIn(XName s, XPromise orphan) throws XFailure {
+	public void addIn(Object s, XPromise orphan) throws XFailure {
 		throw new XFailure("Cannot add an " + s + " child " + orphan + " to a literal, " + this + ".");
 	}
 
@@ -186,7 +186,7 @@ public class XLit extends XVar implements XPromise {
 		return null;
 	}
 
-	public HashMap<XName, XPromise> fields() {
+	public HashMap<Object, XPromise> fields() {
 		return null;
 	}
 
@@ -199,8 +199,9 @@ public class XLit extends XVar implements XPromise {
 
 	public void variables(List<XVar> result) {}
 
-	public XPromise internIntoConstraint(XConstraint constraint, XPromise last) throws XFailure {
-		throw new XFailure("Internal error -- should not be called.");
+	public XPromise internIntoConstraint(XConstraint constraint, XPromise last)  {
+	    return null;
+		//throw new XFailure("Internal error -- should not be called.");
 	}
 	public void addDisEquals(XPromise p) throws XFailure {
 		if (p instanceof XLit) {

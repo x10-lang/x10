@@ -53,8 +53,6 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -241,7 +239,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         }
         
         if (n.typeParameters().size() > 0) {
-            Errors.issue(tb.job(), new SemanticException("Constructors cannot have type parameters.", n.position()));
+            Errors.issue(tb.job(), new Errors.ConstructorsCannotHaveTypeParameters(n.position()));
             n = (X10ConstructorDecl_c) n.typeParameters(Collections.<TypeParamNode>emptyList());
         }
         
@@ -317,7 +315,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 c = c.pushBlock();
                 try {
 					if (vc.known())
-						c = ((Context) c).pushAdditionalConstraint(vc.get());
+						c = ((Context) c).pushAdditionalConstraint(vc.get(), position());
 					if (tc.known())
 						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
                 } catch (SemanticException z) {
@@ -585,7 +583,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         clazz = Types.instantiateTypeParametersExplicitly(clazz);
         if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
             Errors.issue(tc.job(),
-                    new SemanticException("The return type of the constructor (" + retTypeBase + ") must be derived from the type of the class (" + clazz + ") on which the constructor is defined.",    n.position()));
+                    new Errors.ReturnTypeOfConstructorMustBeFromTypeOfClass(retTypeBase, clazz, n.position()));
         }
         
         X10MethodDecl_c.checkVisibility(tc, this);

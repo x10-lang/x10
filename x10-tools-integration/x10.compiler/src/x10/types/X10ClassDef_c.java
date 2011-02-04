@@ -20,6 +20,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassDef_c;
+import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ContainerType;
 import polyglot.types.Context;
@@ -31,13 +32,10 @@ import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.ClassType;
-import polyglot.types.ClassDef.Kind;
 import polyglot.util.FilteringList;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -46,12 +44,8 @@ import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import x10.constraint.XFailure;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
-import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
-import x10.types.constraints.CConstraint;
+import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
@@ -96,7 +90,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis("#this"); // Why #this instead of this?
+        return CTerms.makeThis(); // Why #this instead of this?
     }
 
     ThisDef thisDef;
@@ -173,10 +167,10 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         this.rootClauseInvalid = null;
     }
 
-    public void setRootClause(Ref<CConstraint> c) {
+   /* public void setRootClause(Ref<CConstraint> c) {
     	this.rootClause = c;
     	this.rootClauseInvalid = null;
-    }
+    }*/
 
     public Ref<CConstraint> classInvariant() {
         return classInvariant;
@@ -187,6 +181,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 	    throw rootClauseInvalid;
     }
     
+  
     public CConstraint getRootClause() {
 	    if (rootClause == null) {
 		    if (computing) {
@@ -243,7 +238,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    XVar fiThis = fi.thisVar();
 					    CConstraint rs = Types.realX(type);
 					    if (rs != null) {
-						    // Given: C(:c) f
+						    // Given: f:C{c}
 						    // Add in: c[self.f/self,self/this]
 						    XTerm newSelf = xts.xtypeTranslator().translate(rs.self(), fi.asInstance());
 						    CConstraint rs1 = rs.substitute(newSelf, rs.self());

@@ -26,6 +26,8 @@ import x10.ExtensionInfo;
 public class Main
 {
 
+  protected long startTime;
+  
   /** Source files specified on the command line */
   private Set<String> source;
 
@@ -103,6 +105,11 @@ public class Main
           throw new TerminationException(ue.exitCode);
       }
 
+      // Time as much of the setup as we can
+      ext.stats.initialize(startTime);
+      ext.stats.startTiming("getCompiler", "getCompiler");
+      Report.start_reporting(Report.verbose);
+
       if (eq == null) {
           eq = new StdErrorQueue(System.err,
                                  options.error_count,
@@ -111,21 +118,21 @@ public class Main
 
       Compiler compiler = new Compiler(ext, eq);
       Globals.initialize(compiler);
+      ext.stats.stopTiming();
       return compiler;
   }
   
   public void start(String[] argv, ExtensionInfo ext, ErrorQueue eq)
 			throws TerminationException {
-        long startTime = System.nanoTime();
+        startTime = System.nanoTime();
         source = new LinkedHashSet<String>();
 
         Compiler compiler = getCompiler(argv, ext, eq, source);
-        Report.start_reporting(Report.verbose);
-        compiler.stats.initialize(startTime);
         boolean success = compiler.compileFiles(source);
 
-        compiler.stats.reportFrequency();
-        compiler.stats.reportTime();
+        x10.ExtensionInfo x10Info = (x10.ExtensionInfo) compiler.sourceExtension();
+        x10Info.stats.reportFrequency();
+        x10Info.stats.reportTime();
 
         if (!success) {
             throw new TerminationException(1);

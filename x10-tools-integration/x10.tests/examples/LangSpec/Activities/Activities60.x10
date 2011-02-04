@@ -39,6 +39,6 @@ public class Activities60 extends x10Test {
     }
   }
 }
- static  class Hook{ def run() { GR2.main(["what, me weasel?"]); }}
+ static  class Hook{ def run() { GR2.main(["what, me weasel?"]); return true; }}
 
 }

@@ -132,6 +132,8 @@ public class StaticInitializer extends ContextVisitor {
     // mapping static field and corresponding initializer method
     private Map<Pair<Type,Name>, StaticFieldInfo> staticFinalFields = 
             CollectionFactory.newHashMap();
+    // for checking single vm mode
+    private X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
 
     public StaticInitializer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -157,6 +159,7 @@ public class StaticInitializer extends ContextVisitor {
         // collect static fields to deal with
         staticFinalFields.clear();
         // classBody.dump(System.err);
+        // System.out.println("StaticInitilizer for "+classDef);
         classBody = checkStaticFields(classBody, context);
 
         if (staticFinalFields.isEmpty())
@@ -206,7 +209,6 @@ public class StaticInitializer extends ContextVisitor {
             MethodDecl md = null; 
             if (fieldInfo.right != null) {
                 FieldDecl fdPLH = null;
-                X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
                 if (!opts.x10_config.MULTI_NODE) {
                     // create PlaceLocalHandle for SingleVM MultiPlace support
                     fdPLH = makeFieldVar4PLH(CG, fName, classDef);
@@ -368,20 +370,18 @@ public class StaticInitializer extends ContextVisitor {
         Expr newRhs = (Expr)rhs.visit(new NodeVisitor() {
             @Override
             public Node override(Node parent, Node n) {
+                if (found.get())
+                    // already found
+                    return n;
                 if (n instanceof Expr) {
                     if (isGlobalInit((Expr)n) || isConstraintToLiteral(((Expr)n).type()))
                         // initialization can be done in all places -- do not visit subtree further
                         // System.out.println("isGlobalInit true in checkFieldDeclRHS: "+(Expr)n);
                         return n;
                 }
-                return null;
-            }
-
-            @Override
-            public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
                 if (n instanceof X10Call_c) {
                     X10Call call = (X10Call)n;
-                    MethodInstance mi =  call.methodInstance();
+                    MethodInstance mi = call.methodInstance();
                     if (mi.container().isClass() && mi.flags().isStatic() && !mi.flags().isNative() && !call.target().type().isNumeric()) {
                         // found reference to static method
                         found.set(true);
@@ -401,7 +401,6 @@ public class StaticInitializer extends ContextVisitor {
                     X10ConstructorInstance ci = neu.constructorInstance();
                     // get declaration of constructor
                     X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
-                    X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
                     if (cdecl != null && checkProcedureBody(cdecl.body(), 0))
                         // constructor include static field references to be replaced
                         found.set(true);
@@ -409,7 +408,8 @@ public class StaticInitializer extends ContextVisitor {
                         found.set(true);
                     }
                 }
-                return n;
+                // continue traversal
+                return null;
             }
         });
 
@@ -519,7 +519,7 @@ public class StaticInitializer extends ContextVisitor {
         return ast;
     }
 
-    private boolean checkProcedureBody(Block body, final int count) {
+    private boolean checkProcedureBody(final Block body, final int count) {
         // check static field references in the body of constructor or method
         final AtomicBoolean found = new AtomicBoolean(false);
         body.visit(new NodeVisitor() {
@@ -528,8 +528,9 @@ public class StaticInitializer extends ContextVisitor {
                     // already found
                     return n;
                 if (n instanceof X10Call) {
-                    if (count > 0)
-                        // do not repeat more than once recursively (allow constructor --> __fieldInitializers)
+                    if (count > 1)
+                        // do not repeat too much recursively
+                        // (constructor --> __fieldInitializers --> another method)
                         return null;
 
                     X10Call call = (X10Call)n;
@@ -553,6 +554,18 @@ public class StaticInitializer extends ContextVisitor {
                         }
                     }
                     return n;
+                }
+                if (n instanceof X10New_c) {
+                    X10New_c neu = (X10New_c)n;
+                    X10ConstructorInstance ci = neu.constructorInstance();
+                    // get declaration of constructor
+                    X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
+                    if (cdecl != null && !cdecl.body().equals(body) && checkProcedureBody(cdecl.body(), 0))
+                        // constructor include static field references to be replaced
+                        found.set(true);
+                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
+                        found.set(true);
+                    }
                 }
                 // continue traversal
                 return null;

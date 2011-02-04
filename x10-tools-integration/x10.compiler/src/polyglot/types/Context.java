@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.util.Copy;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import polyglot.util.Position;
+import x10.util.CollectionFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.types.X10ClassDef;
@@ -248,10 +249,11 @@ public interface Context extends Resolver, Copy
      * Push a new block, and sets its currentConstraint to old currentConstraint + env.
      * 
      * @param env: The new constraint to be pushed. Should have no self var.
+     * @param env: The position in the AST this is being called (needed by SemanticException).
      * @return
      * @throw SemanticException if adding this constraint would cause inconsistency
      */
-    Context pushAdditionalConstraint(CConstraint env) throws SemanticException ;
+    Context pushAdditionalConstraint(CConstraint env, Position pos) throws SemanticException ;
     
     /** Enter the scope of a deptype. */
     Context pushDepType(Ref<? extends Type> ref);

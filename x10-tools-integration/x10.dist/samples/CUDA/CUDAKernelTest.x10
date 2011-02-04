@@ -13,6 +13,7 @@
 import x10.io.Console;
 import x10.util.CUDAUtilities;
 import x10.util.Random;
+import x10.compiler.NoInline;
 import x10.compiler.CUDA;
 import x10.compiler.CUDADirectParams;
 
@@ -28,7 +29,7 @@ public class CUDAKernelTest {
                     val tid = block*64 + thread;
                     val tids = 8*64;
                     for (var i:Int=tid ; i<len ; i+=tids) {
-                        remote(i) = Math.sqrt(init(i));
+                        remote(i) = Math.sqrt(@NoInline init(i));
                     }
                 }
             }
@@ -68,11 +69,11 @@ public class CUDAKernelTest {
                 clocked finish for ([thread] in 0..63) clocked async {
                     shm1(thread) = thread;
                     next;
-                    shm2(thread) = shm1(63-thread) as Int;
+                    shm2(thread) = @NoInline shm1(63-thread) as Int;
                     next;
-                    shm3(thread) = shm2(63-thread);
+                    shm3(thread) = @NoInline shm2(63-thread);
                     next;
-                    remote(thread) = shm3(63-thread);
+                    remote(thread) = @NoInline shm3(63-thread);
                 }
             }
         }
@@ -110,7 +111,7 @@ public class CUDAKernelTest {
             val ccache = arr1.sequence();
             finish for ([block] in 0..(blocks-1)) async {
                 clocked finish for ([thread] in 0..(threads-1)) clocked async {
-                    remote(threads*block + thread) = ccache(thread);
+                    remote(threads*block + thread) = @NoInline ccache(thread);
                 }
             }
         }

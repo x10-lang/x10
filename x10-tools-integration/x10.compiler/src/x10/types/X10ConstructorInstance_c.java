@@ -91,7 +91,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     /* (non-Javadoc)
      * @see x10.types.X10ConstructorInstance#depClause()
      */
-    public CConstraint constraint() { return Types.realX(returnType()); }
+   // public CConstraint constraint() { return Types.realX(returnType()); }
 
     public Ref<? extends Type> returnType;
     

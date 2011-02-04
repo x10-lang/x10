@@ -148,12 +148,10 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         boolean isFinishPlace = false;
         if (null != finishPlaceTerm) {
             XConstraint constraint = new XConstraint();
-            try {
-                constraint.addBinding(finishPlaceTerm.term(),placeTerm.term());
-                if (placeTerm.constraint().entails(constraint)) {
-                    isFinishPlace = true;
-                }
-            } catch (XFailure xFailure) {}
+            constraint.addBinding(finishPlaceTerm.term(),placeTerm.term());
+            if (placeTerm.constraint().entails(constraint)) {
+                isFinishPlace = true;
+            }    
         }
         return isFinishPlace;
     }
@@ -175,7 +173,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
         if (!(def instanceof CodeDef)) {
             Errors.issue(tb.job(),
-                         new SemanticException("At cannot occur outside code body.", position()));
+                         new Errors.CannotOccurOutsideCodeBody(Errors.CannotOccurOutsideCodeBody.Element.At, position()));
             // Fake it
             def = ts.initializerDef(position(), Types.ref(ct.asType()), Flags.STATIC);
         }

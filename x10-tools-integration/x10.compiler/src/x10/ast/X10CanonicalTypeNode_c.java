@@ -118,11 +118,11 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    }
 	    if (p.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
 	        Errors.issue(tc.job(),
-	                new SemanticException("Cannot refer to type parameter "+ pt.fullName() + " of " + def + " from a static context.", position()));
+	                new Errors.CannotReferToTypeParameterFromStaticContext(pt, def, position()));
 	    }
 	    if (flags != null && ! flags.equals(Flags.NONE)) {
 	    	Errors.issue(tc.job(),
-	    	        new SemanticException("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", position()));
+	    	        new Errors.CannotQualifyTypeParameter(pt, def, flags, position()));
 	    }
 	}
 
@@ -158,13 +158,17 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	}
 	return n;
     }
-    
+
+    // todo: C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Benchmarks\SeqArray1.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Benchmarks\SeqArray2b.x10
+    // C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Array\Array1.x10
     @Override
     public void setResolver(Node parent, final TypeCheckPreparer v) {
     	if (typeRef() instanceof LazyRef<?>) {
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
     		if (!r.isResolverSet()) {
     		    TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+                // similarly to TypeNode_c, freezing is not needed.
     		    tc = (TypeChecker) tc.context(v.context().freeze());
     		    r.setResolver(new X10TypeCheckTypeGoal(parent, this, tc, r));
     		}
@@ -178,7 +182,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
         
         if (! c.consistent()) {
             Errors.issue(tc.job(),
-                    new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position()));
+                    new Errors.InvalidType(t, position()));
         }
         
         TypeSystem ts = (TypeSystem) t.typeSystem();

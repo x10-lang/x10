@@ -118,7 +118,9 @@ public class TypeConstraint implements Copy, Serializable {
 
     public TypeConstraint copy() {
         try {
-            return (TypeConstraint) super.clone();
+            final TypeConstraint res = (TypeConstraint) super.clone();
+            res.terms = new ArrayList<SubtypeConstraint>(terms);
+            return res;
         }
         catch (CloneNotSupportedException e) {
             assert false;

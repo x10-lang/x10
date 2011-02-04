@@ -26,7 +26,7 @@ public class Arrays370 extends x10Test {
     }
 
 
-// file Arrays line 643
+// file Arrays line 644
  static  class Example {
  def example() {
 val data : DistArray[Int]

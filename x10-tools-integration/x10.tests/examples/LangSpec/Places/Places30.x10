@@ -26,7 +26,7 @@ public class Places30 extends x10Test {
     }
 
 
-// file Places line 45
+// file Places line 46
 
  static class Places3TestExp{
   def check()  = Place.places()(0);  }

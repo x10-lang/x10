@@ -45,10 +45,10 @@ import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 
 /**
@@ -274,8 +274,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 		public XVar transform(Integer i) {
 			final Ref<? extends Type> r = formalTypes.get(i);
-			LocalDef li = formalNames.get(i);
-			XVar v = XTerms.makeLocal(new XNameWrapper<LocalDef>(li, li.name().toString()));
+			X10LocalDef li = (X10LocalDef) formalNames.get(i);
+			XVar v = CTerms.makeLocal(li);
 			return v;
 		}
 	}
@@ -286,7 +286,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			if (t instanceof ParameterType) {
 				ParameterType pt = (ParameterType) t;
 				// TODO: Replace with XTerms.makeUQV(pt.name().toString());
-				return XTerms.makeLocal(new XNameWrapper<String>(pt.name().toString()));
+				return XTerms.makeUQV(pt.name().toString());
+				// return XTerms.makeLocal(new XNameWrapper<String>(pt.name().toString()));
 			}
 			throw new InternalCompilerError("Cannot translate non-parameter type into var.", t.position());
 		}

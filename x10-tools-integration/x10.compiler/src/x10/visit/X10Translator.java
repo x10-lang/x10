@@ -237,7 +237,7 @@ public class X10Translator extends Translator {
                     java.io.PrintWriter out = new java.io.PrintWriter(new java.io.FileWriter(manifest));
                     if (main_class != null) {
                         // add Main-Class attribute for executable jar
-                        out.println("Main-Class: " + main_class + "$Main");
+                        out.println("Main-Class: " + main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
                         // TODO Cannot add x10.jar in Class-Path attribute because it will be loaded by system class loader and static initialization will fail
                         //out.println("Class-Path: x10.jar commons-math-2.1.jar");
                     }

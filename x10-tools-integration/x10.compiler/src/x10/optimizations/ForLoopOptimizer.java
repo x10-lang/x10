@@ -507,23 +507,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         return ConstantPropagator.constantValue(propertyExpr);
     }
 
-    /**
-     * Add a constraint to the type that binds a given property to a given value.
-     * 
-     * @param type the Type to be constrained
-     * @param name the Name of a property of type
-     * @param value the value of the named property for this type
-     * @return the type with the additional constraint {name==value}, or null if no such property
-     * TODO: move into Synthesizer
-     */
-    public static Type addPropertyConstraint(Type type, Name name, XTerm value) throws XFailure {
-    	// Must ensure that arg to findOrSynthesize is a constrained type
-    	// since the synthesized property may need to refer to self.
-    	ConstrainedType type1 = Types.toConstrainedType(type);
-    	XTerm property = type1.findOrSynthesize(name);
-    	if (null == property) return null;
-    	return Types.addBinding(type1, property, value);
-    }
+   
 
     /**
      * Add a constraint to the type that binds a given property to a given value.

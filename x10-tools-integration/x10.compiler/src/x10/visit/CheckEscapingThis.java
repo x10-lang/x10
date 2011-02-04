@@ -27,6 +27,7 @@ import polyglot.types.Context;
 import polyglot.types.ProcedureDef_c;
 import polyglot.types.Types;
 import x10.ast.*;
+import x10.errors.Errors;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarDef;
 import polyglot.types.LocalDef;
@@ -168,7 +169,7 @@ public class CheckEscapingThis extends NodeVisitor
                             // check it is assigned exactly once
                             final MinMaxInitCount maxInitCount = res.initStatus.get(field);
                             if (maxInitCount.isIllegalVal())
-                                reportError("Final field '"+field.name()+"' might already have been initialized.",n.position());
+                                reportError(new Errors.FinalFieldAlreadyInitialized(field.name(),n.position()));
                         }
                     }
                 }
@@ -235,7 +236,7 @@ public class CheckEscapingThis extends NodeVisitor
                         final MinMaxInitCount fRes = res.initStatus.get(f);
                         if (!readBefore && fRes.isRead()) {
                             // wasn't read before, and we read it now (either because of Field access, or X10Call)
-                            reportError("Cannot read from field '"+f.name()+"' before it is definitely assigned.",n.position());
+                            reportError(new Errors.CannotReadFromFieldBeforeDefiniteAssignment(f.name(),n.position()));
                             // I want to report more errors with this field, so I remove the read status
                             res.initStatus.put(f,MinMaxInitCount.build(false, fRes.isWrite(),fRes.isSeqWrite()));
                             wasError = true;
@@ -270,8 +271,7 @@ public class CheckEscapingThis extends NodeVisitor
                         final Position pos = currDecl.position();
                         // could be an auto-generated ctor
                         wasError = true;
-                        reportError(f.flags().isProperty() ? "property(...) might not have been called" :
-                                "Field '"+f.name()+"' was not definitely assigned.", pos.isCompilerGenerated() ? f.position() : pos);
+                        reportError(new Errors.FieldNameWasNotDefinitelyAssigned(f.flags().isProperty(), f.name(), pos.isCompilerGenerated() ? f.position() : pos));
                     }
                 }
             } else {

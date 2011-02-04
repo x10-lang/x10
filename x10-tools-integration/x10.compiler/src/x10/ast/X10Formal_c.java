@@ -261,7 +261,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 
 	    if (outerLocal != null && ! li.equals(outerLocal.def()) && c.isLocal(li.name())) { // todo: give me a test case that shows this error?
 	        Errors.issue(tc.job(),
-	                new SemanticException("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerLocal.position() + ".", position()));
+	                new Errors.LocalVaraibleMultiplyDefined(name, outerLocal.position(), position()));
 	    }
 
 	    TypeSystem ts = tc.typeSystem();
@@ -274,11 +274,11 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	    }
 	    if (this.type() instanceof UnknownTypeNode || this.type().type() instanceof UnknownType) {
 	        Errors.issue(tc.job(),
-	                new SemanticException("Could not infer type for formal parameter " + this.name() + ".", position()));
+	                new Errors.CannotInferTypeForFormalParameter(this.name(), position()));
 	    }
 	    if (this.type().type().isVoid())
 	        Errors.issue(tc.job(),
-	                new SemanticException("Formal parameter cannot have type " + this.type().type() + ".", position()));
+	                new Errors.FormalParameterCannotHaveType(this.type().type(), position()));
 	    return this;
 	}
 

@@ -27,8 +27,6 @@ import polyglot.types.VarDef_c;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -42,9 +40,11 @@ public class ThisDef_c extends VarDef_c implements ThisDef {
 
     public ThisDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> type) {
         super(ts, pos, Flags.FINAL, type, ThisDef.THIS);
-        String fullNameWithThis = Types.get(type).def().fullName() + "#this";
+        ClassType t = Types.get(type);
+       // String fullNameWithThis = t.def().fullName() + "#this";
        // XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        thisVar = CTerms.makeThis(fullNameWithThis); //XTerms.makeLocal(thisName);
+        // TODO: Check -- do we really mean t here?
+        thisVar = CTerms.makeThis(t); // CTerms.makeThis(fullNameWithThis); //XTerms.makeLocal(thisName);
     }
 
     public String toString() {

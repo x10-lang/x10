@@ -401,7 +401,7 @@ class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
 	var z:Int = 2;
 	val q:Int;
 	def this(r:Int, c:Int{self == r}) 	{
-		val mShape:Region = null;
+		val mShape:Region(2) = null;
 		val mDist = Dist.makeBlock(mShape);
 		z++; // ERR: Can use 'this' only after 'property(...)'
 		val closure = () =>
@@ -413,7 +413,7 @@ class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
 		));
 		q=3;
 	}
-	val initMat : (Point) => int = ([x,y]:Point) => x+y;
+	val initMat : (Point(2)) => int = ([x,y]:Point(2)) => x+y;
 } 
 
 class TwoErrorsInOneLineTest(o:Int) {
@@ -2463,10 +2463,10 @@ static class LongB {
 
 
 class ExplodingPointTest {	
-    def f1([i,j]:Point,x:Int)= i+x+j;	
+    def f1([i,j]:Point(2),x:Int)= i+x+j;	
     def f2(p[i,j]:Point(2),x:Int)= p(0)+i+x+j;
 
-    def f3(p[i,j]:Point(1))=1; // ShouldBeErr 
+    def f3(p[i,j]:Point(1))=1; // ERR 
 
 	def test() {
 		val [i,j] = [1,2]; 
@@ -2481,9 +2481,15 @@ class ExplodingPointTest {
 			return p(0)+i+j;
 		for(p[i] in (3..4)) 
 			return p(0)+i;
-		for(p[i]:Point(2) in (3..4)*(3..4))  {} // ShouldBeErr (the type doesn't match the number of exploded ints
+		for(p[i]:Point(2) in (3..4)*(3..4))  {} // ERR XTENLANG-2399 (the type doesn't match the number of exploded ints
 		return 3;
 	}
+    def m(p:Point(1)) { // XTENLANG-2399
+		val [i,j] = p; // ShouldBeErr
+		val q[m]:Point(2) = [3,4]; // ShouldBeErr
+	}
+	def nonPointExploding(q[m]:Int) {} // ERR
+
 	def test4() {
 		for(p[i,j] in (3..4)) // ERR: Loop domain is not of expected type.  
 			return p(0)+i+j;
@@ -3555,7 +3561,7 @@ class TreeUsingFieldNotProperty { this.left==null } { // ShouldBeErr
 }
 class XTENLANG_1149 {
     def m(b:Boolean, x:Object{self!=null}, y:Object{self!=null}):Object{self!=null} {
-        @ShouldNotBeERR val z:Object{self!=null} = b ? x : y;
+        val z:Object{self!=null} = b ? x : y;
         @ERR val z2:Object{self==null} = b ? x : y;
         return z;
     }
@@ -3567,10 +3573,10 @@ class XTENLANG_1149_2 {
 		val b1 = new B();
 		val b2 = new B();
 		@ERR val c0:B{self==null} = f ? b1 : b2;
-		@ShouldNotBeERR val c1:B{self!=null} = f ? b1 : b2;
+		val c1:B{self!=null} = f ? b1 : b2;
 		val c2:B = f ? b1 : b2;
-		@ShouldNotBeERR val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;
-		@ShouldNotBeERR val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});
+		val c3:B{self!=null} = f ? (b1 as B{self!=null}) : b2;
+		val c4:B{self!=null} = f ? (b1 as B{self!=null}) : (b2 as B{self!=null});
 		val c5:B{self!=null} = f ? b1 : b1;
 		@ERR val c6:B{self==null} = f ? b1 : b1;
 
@@ -3798,9 +3804,9 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 	static class TestAmbiguity {
 	    // there are two ways to implicitly convert Y to X (to either X{i==1} or X{i==2}), but we first search in X.
 		def test1(y:Y):X{i==1} = y;
-		@ShouldBeErr def test2(y:Y):X{i==2} = y;
-		@ShouldBeErr def test3(y:Y):X{i==3} = y;
-		@ShouldBeErr def test4(y:Y):X{i==4} = y;
+		@ERR def test2(y:Y):X{i==2} = y;
+		@ERR def test3(y:Y):X{i==3} = y;
+		@ERR def test4(y:Y):X{i==4} = y;
 
 		// there are 2 additional ways to explicitly convert Y to X (we first search in X)
 		@ERR def test5(y:Y):X{i==1} = y as X;
@@ -4074,8 +4080,8 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 
 	property i() = 5;
 	@ERR class R extends R {i()==5} {}
-	@ERR class R1 {i()==3} {}
-	@ERR @ERR class R2 {i()==3} extends R2 {} // [Semantic Error: Circular inheritance involving x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R2, Semantic Error: Class invariant is inconsistent.]
+	@ERR @ERR @ERR @ERR class R1 {i()==3} {}
+	@ERR @ERR @ERR @ERR class R2 {i()==3} extends R2 {} // [Semantic Error: Circular inheritance involving x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R2, Semantic Error: Class invariant is inconsistent.]
 	class R3 {}
 	@ERR @ERR @ERR class R4 extends R3 {i()==3} {} // [Semantic Error: Invalid type; the real clause of x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent., Semantic Error: Type x10.frontend.tests.CircularityTestsWithInheritanceInterfacesAndStructs.R3{inconsistent} is inconsistent.]
 	
@@ -4543,4 +4549,15 @@ class XTENLANG_2390 {
 	}
 	def m1(i:Int{self==a}) {} // ShouldBeErr
 	def m2() {2==a} {} // ShouldBeErr
+}
+
+class XTENLANG_2401 {
+	def m(Int{self!=0}):String = "a";
+	def m(Double):Int = 1;
+	def test() {
+		val z1:String = m(1); 
+		val z2:Int = m(1); // ERR, but it should be a different error! The current error is: Semantic Error: Cannot assign expression to target.	 Expression: m(x10.lang.Double.implicit_operator_as(0))	 Expected type: x10.lang.String,  and it should complain about the constraint that is not satisfied.
+		val z3:String = m(0); // ShouldNotBeERR
+		val z4:Int = m(0); // ShouldBeErr
+	}
 }

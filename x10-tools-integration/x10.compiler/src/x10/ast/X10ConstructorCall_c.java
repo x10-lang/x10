@@ -173,20 +173,20 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        if (qualifier != null) {
 	            if (kind != SUPER) {
 	                Errors.issue(tc.job(),
-	                        new SemanticException("Can only qualify a \"super\" constructor invocation.", position()));
+	                        new Errors.CanOnlyQualifySuperConstructorInvocation(position()));
 	            }
 
 	            if (!superType.isClass() || !superType.toClass().isInnerClass() ||
 	                    superType.toClass().inStaticContext()) {
 	                Errors.issue(tc.job(),
-	                        new SemanticException("The class \"" + superType + "\" is not an inner class, or was declared in a static context; a qualified constructor invocation cannot be used.", position()));
+	                        new Errors.ClassNotInnerClass(superType, position()));
 	            }
 
 	            Type qt = qualifier.type();
 
 	            if (! qt.isClass() || !qt.isSubtype(superType.toClass().container(), context)) {
 	                Errors.issue(tc.job(),
-	                        new SemanticException("The type of the qualifier \"" + qt + "\" does not match the immediately enclosing class of the super class \"" +superType.toClass().container() + "\".", qualifier.position()),
+	                        new Errors.QualifierDoesNotMatchEnclosingClass(qt, superType.toClass().container(), qualifier.position()),
 	                        this);
 	            }
 	        }

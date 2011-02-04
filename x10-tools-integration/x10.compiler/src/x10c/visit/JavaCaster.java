@@ -217,9 +217,9 @@ public class JavaCaster extends ContextVisitor {
         return n;
     }
 
-    private boolean isDispatch(Type bt, MethodInstance mi) {
+    private boolean isDispatch(X10ClassType bt, MethodInstance mi) {
         boolean isDispatch = false;
-        if (((X10ClassType) bt).flags().isInterface()) {
+        if (bt.flags().isInterface() && !Emitter.isNativeRepedToJava(bt)) {
             List<Ref<? extends Type>> formalTypes = mi.def().formalTypes();
             for (Ref<? extends Type> ref : formalTypes) {
                 Type type = ref.get();

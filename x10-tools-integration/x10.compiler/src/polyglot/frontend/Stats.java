@@ -87,11 +87,18 @@ public class Stats {
     public void initialize(long startTime) {
         this.startTime = startTime;
         if (Report.should_report(Report.time, 1)) {
+            t2 = Report.should_report(Report.time, 2);
+            Report.removeTopic(Report.time);
+            if (Report.should_report(Report.threshold, 1)) {
+                reportTimeThreshold = Report.level(Report.threshold);
+                Report.removeTopic(Report.threshold);
+            }
             phase = new Counter();
             site = new Counter();
             start = new Stack<stackStruct>();
         }
         if (Report.should_report(Report.frequency, 1)) {
+            Report.removeTopic(Report.frequency);
             freq = new Counter();
         }
     }
@@ -160,9 +167,11 @@ public class Stats {
     /** Report the times. */
     public void reportTime() {
         totalTime = System.nanoTime() - startTime;
-        if (Report.should_report(Report.threshold, 1)) {
-            reportTimeThreshold = (Report.level(Report.threshold) * totalTime) / 100;
-        }
+        
+        // Scale the threshold to a percentage of total time
+        reportTimeThreshold *= totalTime;
+        reportTimeThreshold /= 100;
+
         if (phase != null) reportTiming();
 
         if (Report.should_report(Report.verbose, 1) || phase != null)
@@ -172,7 +181,6 @@ public class Stats {
     /** Report the times. */
     private void reportTiming() {
         if (currDepth != 0) Report.report(1, "\nWarning: mismatched start/stop times");
-        t2 = Report.should_report(Report.time, 2);
 
         Report.report(1, "\nPhase Statistics for X10c");
         String pad = "";
@@ -198,7 +206,7 @@ public class Stats {
         for (Iterator<Object> i = sortByCount(site.counts).iterator(); i.hasNext();) {
             Object key = i.next();
             Counts t = site.counts.get(key);
-            if (t.count > reportTimeThreshold) {
+            if (t.count >= reportTimeThreshold) {
                 Report.report(1, String.format("%9.3f", t.count / 1e9) + "  " + key.toString());
 
             }

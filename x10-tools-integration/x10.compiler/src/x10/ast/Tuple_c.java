@@ -204,6 +204,8 @@ public class Tuple_c extends Expr_c implements Tuple {
             me = this.reconstruct(indexType,newChildren);
         }
 	    Type resultType = Types.makeArrayRailOf(type, elements.size(), position());
+	    if (! Types.consistent(resultType))
+	        Errors.issue(tc.job(), new Errors.InconsistentType(resultType, position()));
 	    return me.type(resultType);
 	}
 

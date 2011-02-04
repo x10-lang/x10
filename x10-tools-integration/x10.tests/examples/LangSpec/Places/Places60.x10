@@ -26,7 +26,7 @@ public class Places60 extends x10Test {
     }
 
 
-// file Places line 71
+// file Places line 77
  static  class Example {
  def example() {
 val h0 = here;

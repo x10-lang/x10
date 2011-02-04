@@ -36,10 +36,12 @@ public abstract class XVar extends XTerm  {
 	    return false;
 	}
 	@Override
-	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+	public XPromise internIntoConstraint(XConstraint c, XPromise last) {
 		XVar[] vars = vars();
 		XVar baseVar = vars[0];
 		XPromise p = c.internBaseVar(baseVar, vars.length == 1, last);
+		if (p == null)
+		    return null;
 		return p.intern(vars, 1, last);
 	}
 	

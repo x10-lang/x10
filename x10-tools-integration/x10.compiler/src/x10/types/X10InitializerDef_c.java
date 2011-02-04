@@ -39,7 +39,7 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis("#this"); // Why #this instead of this?
+        return CTerms.makeThis(); // Why #this instead of this?
     }
 
     ThisDef thisDef;

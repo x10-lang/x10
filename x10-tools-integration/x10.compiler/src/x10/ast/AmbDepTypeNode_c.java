@@ -110,14 +110,6 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     	return (base != null ? base.toString() : "") + (dep != null ? dep.toString() : "");
     }
     
-    public void setResolver(Node parent, final TypeCheckPreparer v) {
-    	if (typeRef() instanceof LazyRef<?>) {
-    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
-    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-    		tc = (TypeChecker) tc.context(v.context().freeze());
-    		r.setResolver(new X10TypeCheckTypeGoal(parent, this, tc, r));
-    	}
-    }
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
         TypeSystem ts =  tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();

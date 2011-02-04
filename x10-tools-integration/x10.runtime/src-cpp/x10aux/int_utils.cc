@@ -25,8 +25,8 @@ const ref<String> x10aux::int_utils::toString(x10_int value, x10_int radix) {
                                'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
                                'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
                                'x', 'y', 'z' };
-    // worst case is binary -- needs 32 digits and a '\0'
-    char buf[33] = ""; //zeroes entire buffer (S6.7.8.21)
+    // worst case is binary of Int.MIN_VALUE -- - plus 32 digits and a '\0'
+    char buf[34] = ""; //zeroes entire buffer (S6.7.8.21)
     x10_long value2 = 0;
     if (value<0) {
         value2 = 0x80000000;
@@ -35,7 +35,7 @@ const ref<String> x10aux::int_utils::toString(x10_int value, x10_int radix) {
     value2 += value;
     char *b;
     // start on the '\0', will predecrement so will not clobber it
-    for (b=&buf[32] ; value2>0 ; value2/=radix) {
+    for (b=&buf[33] ; value2>0 ; value2/=radix) {
         *(--b) = numerals[value2 % radix];
     }
     return String::Steal(alloc_printf("%s",b));

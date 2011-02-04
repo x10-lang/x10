@@ -968,22 +968,6 @@ public class AltSynthesizer {
         return ConstantPropagator.constantValue(propertyExpr);
     }
 
-    /**
-     * Add a constraint to the type that binds a given property to a given value.
-     * 
-     * @param type the Type to be constrained
-     * @param name the Name of a property of type
-     * @param value the value of the named property for this type
-     * @return the type with the additional constraint {name==value}, or null if no such property
-     */
-    public static Type addPropertyConstraint(Type type, Name name, XTerm value) throws XFailure {
-        // Need to ensure that the argument to find or synthesize is a constrained type
-        // since the property may refer to the type's self variable.
-        ConstrainedType type1 = Types.toConstrainedType(type);
-        XTerm property = type1.findOrSynthesize(name);
-        if (null == property) return null;
-        return Types.addBinding(type1, property, value);
-    }
 
     /**
      * Add a self constraint to the type that binds self to a given value.

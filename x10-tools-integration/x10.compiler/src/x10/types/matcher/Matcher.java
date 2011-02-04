@@ -319,9 +319,10 @@ public class Matcher {
 		    }
 		    */
 
-		    final Context context2 = context.pushAdditionalConstraint(returnEnv);
+		    final Context context2 = context.pushAdditionalConstraint(returnEnv, me.position());
 		    final CConstraint query = newMe.guard();
-
+		    if ( query != null && ! query.consistent()) 
+		        throw new SemanticException("Call invalid; guard inconsistent for actual parameters of call.");
 		    if (! returnEnv.entails(query, 
 		                            new ConstraintMaker() {
 		        public CConstraint make() throws XFailure {
@@ -388,18 +389,14 @@ public class Matcher {
 		if (env == null)
 			env = new CConstraint();
 
-	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
-	    	
+	    for (int i = 0; i < actuals.size(); i++) { // conjoin ytype's realX
 	    		Type ytype = actuals.get(i);
 	    		final CConstraint yc = Types.realX(ytype);
-	    		try {
-	    			if (! ((yc == null) || yc.valid())){
-	    				env.addIn(y[i], yc);
-	    			}
-	    		} catch (XFailure f) {
-	    			throw new SemanticException("Call invalid; calling environment is inconsistent.");
-	    		}
-	    	
+	    		if (yc != null && ! yc.valid()) {
+	    		    env.addIn(y[i], yc);
+	    		    if (! env.consistent())
+	    		        throw new Errors.InconsistentContext(ytype, Position.COMPILER_GENERATED);
+	    		}	    	
 	    }
 	    return env;
 	}
@@ -421,12 +418,11 @@ public class Matcher {
 	    	if (! hasSymbol[i+1]) {
 	    		Type ytype = actuals.get(i);
 	    		final CConstraint yc = Types.realX(ytype);
-	    		try {
-	    			if (! ((yc == null) || yc.valid())){
-	    				env.addIn(y[i], yc);
-	    			}
-	    		} catch (XFailure f) {
-	    			throw new SemanticException("Call invalid; calling environment is inconsistent.");
+	    		if (yc != null && ! yc.valid()) {
+	    		    env.addIn(y[i], yc);
+	    		    if (! env.consistent()) {
+	    		        throw new Errors.InconsistentContext(ytype, Position.COMPILER_GENERATED); 
+	    		    }
 	    		}
 	    	}
 	    }

@@ -207,9 +207,23 @@ public interface ClassDef extends MemberDef
      */
     void kind(Kind kind);
     
-    /** Conjunction of the class invariant and property invariants. */
+    /** The root clause for a ClassDef is the conjunction of the invariant
+     * for the class, with the invariants for its superclass and the 
+     * interfaces it implements, and for each property f:C{c},
+     * the constraint c[self.f/self,self/this]
+     * @return
+     */
 	CConstraint getRootClause();
-    void setRootClause(Ref<CConstraint> c);
+	
+    //void setRootClause(Ref<CConstraint> c);
+    
+    /**
+     * Throw a SemanticException if the real clause is invalid.
+     * (The real clause would have been discovered to be invalid
+     * during its computation, and the reason would have been
+     * recorded as an exception. That exception is thrown.)
+     * @throws SemanticException
+     */
     void checkRealClause() throws SemanticException;
     
     /** The class invariant. */

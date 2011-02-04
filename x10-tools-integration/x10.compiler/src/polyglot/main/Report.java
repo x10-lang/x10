@@ -150,15 +150,25 @@ public class Report {
     }
   }
 
-  
+  /** Add a topic to report */
   public static void addTopic(String topic, int level) {
       synchronized (reportTopics) {
-	  Integer i = (Integer)reportTopics.get(topic);
-	  if (i == null || i.intValue() < level) {
-	      reportTopics.put(topic, new Integer(level));
-	  }
+      Integer i = (Integer)reportTopics.get(topic);
+      if (i == null || i.intValue() < level) {
+          reportTopics.put(topic, new Integer(level));
+      }
       }
       noReporting = false;
+  }
+
+  /** Remove a topic to report */
+  public static void removeTopic(String topic) {
+      synchronized (reportTopics) {
+        reportTopics.remove(topic);
+        if (reportTopics.isEmpty()) {
+            noReporting = true;
+        }
+      }
   }
 
   /** Get the error queue, possibly creating it if not set. */

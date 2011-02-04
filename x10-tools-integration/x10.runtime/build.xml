@@ -205,7 +205,7 @@
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
-    <target name="dist-java" depends="jar">
+    <target name="dist-java" depends="jar,dist-stdlibprops">
         <mkdir dir="${stdlib}"/>
         <copy todir="${stdlib}">
             <fileset dir="${gen}" includes="${jar}"/>
@@ -228,6 +228,17 @@
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j${available.procs}" />
             <arg value="install" />
+            <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.experimental}" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.use_bfd}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
+        </exec>
+    </target>
+    <target name="dist-stdlibprops" depends="init">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <arg value="install_props" />
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.experimental}" />
             <arg value="${cppmake.optimize}" />

@@ -60,6 +60,7 @@ import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
 import polyglot.frontend.SourceGoal;
 import polyglot.frontend.SourceGoal_c;
+import polyglot.frontend.Stats;
 import polyglot.frontend.TargetFactory;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
@@ -145,6 +146,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	public static final String XML_FILE_EXTENSION = "x10ml";
 	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
 
+    /*** Compiler statistics gatherer. */
+    public Stats stats;
+
 //	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = CollectionFactory.newHashMap();
     public static String clock = "clock";
 
@@ -152,6 +156,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         Report.topics.add(clock);
     }
 
+    /*** Construct an ExtensionInfo */
+    public ExtensionInfo() {
+        stats = new Stats();
+    }
+    
     public polyglot.main.Version version() {
     	return new Version();
     }

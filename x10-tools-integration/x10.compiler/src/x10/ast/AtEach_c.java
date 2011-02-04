@@ -114,7 +114,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 
 	    if (!(def instanceof CodeDef)) {
 	        Errors.issue(tb.job(),
-	                new SemanticException("At cannot occur outside code body.", position()));
+	                new Errors.CannotOccurOutsideCodeBody(Errors.CannotOccurOutsideCodeBody.Element.At, position()));
 	        // Fake it
 	        def = ts.initializerDef(position(), Types.ref(ct.asType()), Flags.STATIC);
 	    }

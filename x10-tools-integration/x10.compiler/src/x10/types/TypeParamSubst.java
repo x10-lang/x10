@@ -289,7 +289,7 @@ public class TypeParamSubst {
 				xs[i] = (XVar) p;
 			}
 			else {
-				xs[i] = XTerms.makeLit(XTerms.makeName("error"));
+				xs[i] = XTerms.makeLit("error");
 			}
 		}
 

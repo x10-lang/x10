@@ -282,7 +282,7 @@ public abstract class FieldDecl_c extends Term_c implements FieldDecl {
             if (container.flags().isInterface()) {
         	if (flags.isProtected() || flags.isPrivate()) {
         	    Errors.issue(tc.job(),
-        	            new SemanticException("Interface members must be public.", position()));
+        	            new Errors.InterfaceMembersMustBePublic(position()));
         	}
             }
 
@@ -292,7 +292,8 @@ public abstract class FieldDecl_c extends Term_c implements FieldDecl {
         	    container.isInnerClass()) {
         	// it's a static field in an inner class.
         	if (!flags.isFinal() || init == null || !init.isConstant()) {
-        	    Errors.issue(tc.job(), new SemanticException("Inner classes cannot declare static fields, unless they are compile-time constant fields.", position()));
+        	    Errors.issue(tc.job(), 
+        	    		new Errors.InnerClassCannotDeclareStaticFields(position()));
         	}
             }
         }
