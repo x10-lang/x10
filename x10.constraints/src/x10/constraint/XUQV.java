@@ -41,6 +41,9 @@ public class XUQV extends XVar {
         return false;
     }
 
+    public boolean hasVar(XVar v) {
+        return equals(v);
+    }
     @Override
     public String toString() {
         return str == null ? "uqv" + num: str;

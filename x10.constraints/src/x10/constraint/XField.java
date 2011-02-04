@@ -70,11 +70,11 @@ public class XField<T> extends XVar {
     public String name() {
         return field.toString();
     }
-/*
+
     public boolean hasVar(XVar v) {
         return equals(v) || receiver.hasVar(v);
     }
-*/
+
     public XVar receiver() {
         return receiver;
     }
