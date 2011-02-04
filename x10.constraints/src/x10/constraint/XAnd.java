@@ -25,7 +25,7 @@ public class XAnd extends XFormula {
 		super(XTerms.andName, XTerms.asExprAndName, false, left, right);
 	}
 	
-	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
 		return super.internIntoConstraint(c, last);
 	}
 

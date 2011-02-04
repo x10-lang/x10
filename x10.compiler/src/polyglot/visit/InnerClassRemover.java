@@ -25,7 +25,7 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 //Dup inner member to static
 //Remove inner member
 
-public class InnerClassRemover extends ContextVisitor {
+public abstract class InnerClassRemover extends ContextVisitor {
     // Name of field used to carry a pointer to the enclosing class.
     public static final Name OUTER_FIELD_NAME = Name.make("out$");
 
@@ -48,10 +48,7 @@ public class InnerClassRemover extends ContextVisitor {
         return getContainer(pos, f, currentContainer, containerClass);
     }
     
-    protected ContextVisitor localClassRemover() {
-    	LocalClassRemover lcv = new LocalClassRemover(this);
-    	return lcv;
-    }
+    protected abstract ContextVisitor localClassRemover();
 
     public Node override(Node parent, Node n) {
         if (n instanceof SourceFile) {

@@ -14,8 +14,6 @@ import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLocal;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;

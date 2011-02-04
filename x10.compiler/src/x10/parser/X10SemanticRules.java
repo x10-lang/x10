@@ -85,7 +85,6 @@ import polyglot.lex.LongLiteral;
 import polyglot.lex.NullLiteral;
 import polyglot.lex.Operator;
 import polyglot.lex.StringLiteral;
-import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
 import x10.types.checker.Converter;
 import x10.errors.Errors;
@@ -652,15 +651,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 prsStream.getFileName(),
                 prsStream.getIToken(i),
                 prsStream.getIToken(j));
-    }
-
-    /**
-     * Return the source position of the declaration.
-     */
-    public JPGPosition pos (VarDeclarator n)
-    {
-        if (n == null) return null;
-        return (JPGPosition) n.pos;
     }
 
     public JPGPosition pos(JPGPosition start, JPGPosition end) {

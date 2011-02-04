@@ -76,13 +76,13 @@ public class IntLit_c extends NumLit_c implements IntLit
         if (kind == signed) {
             if ((value > max  || value < min)) {
                 Errors.issue(tc.job(),
-                        new SemanticException(signed.toString()+" literal " + value + " is out of range.", position()));
+                        new Errors.LiteralOutOfRange(signed.toString(), value, position()));
             }
         }
         if (kind == unsigned) {
             if (value < 0 || value > boundary) {
                 Errors.issue(tc.job(),
-                        new SemanticException(unsigned.toString()+" literal " + value + " is out of range.", position()));
+                        new Errors.LiteralOutOfRange(unsigned.toString(), value, position()));
             }
         }
 

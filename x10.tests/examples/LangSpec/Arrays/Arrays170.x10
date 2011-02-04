@@ -26,7 +26,7 @@ public class Arrays170 extends x10Test {
     }
 
 
-// file Arrays line 291
+// file Arrays line 292
 
  static class Arrays18TestExp{
   def check(A:Array[Int])  = A.region;  }

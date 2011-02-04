@@ -37,6 +37,7 @@ public class Name  implements Serializable {
     }
     
     public static Name make(String name) {
+        if (! StringUtil.isNameShort(name))
 	assert StringUtil.isNameShort(name);
 	return makeUnchecked(name);
     }
@@ -60,7 +61,7 @@ public class Name  implements Serializable {
     public boolean equals(Object o) {
 	if (o == null)
 	    return false;
-	assert o instanceof Name;
+	// assert o instanceof Name;
         return this == o;
     }
 

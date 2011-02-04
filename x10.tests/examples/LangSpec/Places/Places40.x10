@@ -26,7 +26,7 @@ public class Places40 extends x10Test {
     }
 
 
-// file Places line 53
+// file Places line 54
 
  static class Places4TestExp{
   def check(pl:Place)  = pl.isSPE();  }

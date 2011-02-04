@@ -26,7 +26,7 @@ public class Arrays190 extends x10Test {
     }
 
 
-// file Arrays line 295
+// file Arrays line 296
 
  static class Arrays20TestExp{
   def check(A:Array[Int])  = A.rank;  }

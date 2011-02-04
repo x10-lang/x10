@@ -27,6 +27,7 @@ public class Types2y3i extends x10Test {
 
 
 // file Types line 363
+
  static interface Stat {
   static val PI = 3.14159;
   static type R = Double;

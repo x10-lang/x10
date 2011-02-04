@@ -98,7 +98,8 @@ public class Subst {
         base = addIn(base, in);
 
         if (c != null) {
-            c = c.copy().addIn(in);
+            c = c.copy();
+            c.addIn(in);
         }
 
         return Types.xclause(base, c);

@@ -26,7 +26,7 @@ public class Places20 extends x10Test {
     }
 
 
-// file Places line 43
+// file Places line 44
 
  static class Places2TestExp{
   def check()  = Place.FIRST_PLACE;  }

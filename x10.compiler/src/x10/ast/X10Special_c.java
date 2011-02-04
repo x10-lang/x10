@@ -194,14 +194,15 @@ public class X10Special_c extends Special_c implements X10Special {
         if (code instanceof X10ProcedureDef) {
             X10ProcedureDef pi = (X10ProcedureDef) code;
             CConstraint guard = Types.get(pi.guard());
-            if (guard != null) {
+            if (guard != null && ! guard.valid()) {
                 Type newType = result.type();
-                CConstraint dep = Types.xclause(newType).copy();
-                try {
+                CConstraint dep = Types.xclause(newType);
+                if (dep == null)
+                    dep = guard.copy();
+                else 
                     dep.addIn(guard);
-                }
-                catch (XFailure e) {
-                    Errors.issue(tc.job(), new SemanticException(e.getMessage(), position()));
+                if (! dep.consistent()) {
+                    Errors.issue(tc.job(), new Errors.InconsistentType(newType, position()));
                 }
                 newType = Types.xclause(Types.baseType(newType), dep);
                 return result.type(newType);

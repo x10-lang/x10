@@ -156,7 +156,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         X10ParsedClassType container = (X10ParsedClassType) ctx.currentClass();
         if (thisConstructor==null) {
             Errors.issue(job,
-                         new SemanticException("A property statement may only occur in the body of a constructor.", position()));
+                         new Errors.PropertyStatementMayOnlyOccurInBodyOfConstuctor(position()));
         } else {
             container = (X10ParsedClassType) thisConstructor.asInstance().container();
         }
@@ -167,7 +167,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         int aSize = arguments.size();
         if (aSize != pSize) {
             Errors.issue(job,
-                         new SemanticException("The property initializer must have the same number of arguments as properties for the class.", position()));
+                         new Errors.PropertyInitializerMustHaveSameNumberOfArgumentsAsPropertyForClass(position()));
         }
 
         checkAssignments(tc, pos, definedProperties, arguments);
@@ -201,7 +201,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         for (int i=0; i < args.size() && i < props.size(); ++i) {
             if (!xts.isSubtype(Types.baseType(args.get(i).type()), Types.baseType(props.get(i).type()))) {
                 Errors.issue(tc.job(),
-                             new SemanticException("The type " + args.get(i).type() + " of the initializer for property " + props.get(i) + " is not a subtype of the property type " + props.get(i).type(), pos));
+                             new Errors.TypeOfPropertyIsNotSubtypeOfPropertyType(args.get(i).type(), props, i, pos));
             }
         }
         // Now we check that the constraints are correct.
@@ -239,6 +239,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
                     // Add in the real clause of the initializer with [self.prop/self]
                     CConstraint c = Types.realX(initType);
+                    if (! c.consistent()) {
+                        Errors.issue(tc.job(), 
+                                     new Errors.InconsistentContext(initType, pos));
+                    }
                     if (c != null)
                         known.addIn(c.substitute(prop, c.self()));
 
@@ -249,6 +253,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
                 // Set the return type of the enclosing constructor to be this inferred type.
                 Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
+                if (! Types.consistent(inferredResultType)) {
+                    Errors.issue(tc.job(), 
+                                 new Errors.InconsistentType(inferredResultType, pos));
+                }
                 Ref <? extends Type> r = thisConstructor.returnType();
                 ((Ref<Type>) r).update(inferredResultType);
                 // bind this==self; sup clause may constrain this.

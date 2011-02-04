@@ -26,7 +26,10 @@ public class X10MemberTypeMatcher extends MemberTypeMatcher {
 
     @Override
     public Named instantiate(Named t) throws SemanticException {
-        Named n = super.instantiate(t);
+	    if (! t.name().equals(name)) {
+		return null;
+	    }
+        Named n = t;
         // Also check that the name is simple.
         if (n instanceof MacroType) {
             MacroType mt = (MacroType) n;

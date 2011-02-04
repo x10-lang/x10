@@ -4,6 +4,7 @@ import x10.util.Random;
 import x10.util.CUDAUtilities;
 import x10.compiler.CUDA;
 import x10.compiler.CUDADirectParams;
+import x10.compiler.NoInline;
 
 public class CUDA3DFD {
     public static def init_data(data:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int)
@@ -262,27 +263,27 @@ public class CUDA3DFD {
 
                             /////////////////////////////////////////
                             // compute the output value
-                            var valu:Float  = c_coeff(0) * current;
-                            val sd1a = s_data((ty-1)*S_DATA_STRIDE + tx);
-                            val sd1b = s_data((ty+1)*S_DATA_STRIDE + tx);
-                            val sd1c = s_data(ty*S_DATA_STRIDE + tx-1);
-                            val sd1d = s_data(ty*S_DATA_STRIDE + tx+1);
-                            val sd2a = s_data((ty-2)*S_DATA_STRIDE + tx);
-                            val sd2b = s_data((ty+2)*S_DATA_STRIDE + tx);
-                            val sd2c = s_data(ty*S_DATA_STRIDE + tx-2);
-                            val sd2d = s_data(ty*S_DATA_STRIDE + tx+2);
-                            val sd3a = s_data((ty-3)*S_DATA_STRIDE + tx);
-                            val sd3b = s_data((ty+3)*S_DATA_STRIDE + tx);
-                            val sd3c = s_data(ty*S_DATA_STRIDE + tx-3);
-                            val sd3d = s_data(ty*S_DATA_STRIDE + tx+3);
-                            val sd4a = s_data((ty-4)*S_DATA_STRIDE + tx);
-                            val sd4b = s_data((ty+4)*S_DATA_STRIDE + tx);
-                            val sd4c = s_data(ty*S_DATA_STRIDE + tx-4);
-                            val sd4d = s_data(ty*S_DATA_STRIDE + tx+4);
-                            valu += c_coeff(1)*( infront1 + behind1 + sd1a + sd1b + sd1c + sd1d );
-                            valu += c_coeff(2)*( infront2 + behind2 + sd2a + sd2b + sd2c + sd2d );
-                            valu += c_coeff(3)*( infront3 + behind3 + sd3a + sd3b + sd3c + sd3d );
-                            valu += c_coeff(4)*( infront4 + behind4 + sd4a + sd4b + sd4c + sd4d );
+                            var valu:Float  = @NoInline c_coeff(0) * current;
+                            val sd1a = @NoInline s_data((ty-1)*S_DATA_STRIDE + tx);
+                            val sd1b = @NoInline s_data((ty+1)*S_DATA_STRIDE + tx);
+                            val sd1c = @NoInline s_data(ty*S_DATA_STRIDE + tx-1);
+                            val sd1d = @NoInline s_data(ty*S_DATA_STRIDE + tx+1);
+                            val sd2a = @NoInline s_data((ty-2)*S_DATA_STRIDE + tx);
+                            val sd2b = @NoInline s_data((ty+2)*S_DATA_STRIDE + tx);
+                            val sd2c = @NoInline s_data(ty*S_DATA_STRIDE + tx-2);
+                            val sd2d = @NoInline s_data(ty*S_DATA_STRIDE + tx+2);
+                            val sd3a = @NoInline s_data((ty-3)*S_DATA_STRIDE + tx);
+                            val sd3b = @NoInline s_data((ty+3)*S_DATA_STRIDE + tx);
+                            val sd3c = @NoInline s_data(ty*S_DATA_STRIDE + tx-3);
+                            val sd3d = @NoInline s_data(ty*S_DATA_STRIDE + tx+3);
+                            val sd4a = @NoInline s_data((ty-4)*S_DATA_STRIDE + tx);
+                            val sd4b = @NoInline s_data((ty+4)*S_DATA_STRIDE + tx);
+                            val sd4c = @NoInline s_data(ty*S_DATA_STRIDE + tx-4);
+                            val sd4d = @NoInline s_data(ty*S_DATA_STRIDE + tx+4);
+                            valu += @NoInline c_coeff(1)*( infront1 + behind1 + sd1a + sd1b + sd1c + sd1d );
+                            valu += @NoInline c_coeff(2)*( infront2 + behind2 + sd2a + sd2b + sd2c + sd2d );
+                            valu += @NoInline c_coeff(3)*( infront3 + behind3 + sd3a + sd3b + sd3c + sd3d );
+                            valu += @NoInline c_coeff(4)*( infront4 + behind4 + sd4a + sd4b + sd4c + sd4d );
                             d_output(out_idx) = valu;
                         }
                     }

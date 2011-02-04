@@ -26,7 +26,7 @@ public class Places50 extends x10Test {
     }
 
 
-// file Places line 55
+// file Places line 56
 
  static class Places5TestExp{
   def check(pl:Place)  = pl.isCUDA();  }

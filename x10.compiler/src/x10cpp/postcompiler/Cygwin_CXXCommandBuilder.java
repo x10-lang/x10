@@ -26,7 +26,7 @@ public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
         return "g++-4";
     }
 
-    protected void addPreArgs(ArrayList<String> cxxCmd) {
+    public void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
         cxxCmd.add("-msse2");
         cxxCmd.add("-mfpmath=sse");

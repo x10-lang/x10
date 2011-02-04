@@ -15,6 +15,7 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.errors.Errors.InterfaceMethodsMustBePublic;
 import x10.types.MethodInstance;
 
 /**
@@ -212,11 +213,12 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
 
 	if (tc.context().currentClass().flags().isInterface()) {
             if (flags.isProtected() || flags.isPrivate()) {
-                Errors.issue(tc.job(), new SemanticException("Interface methods must be public.", position()));
+                Errors.issue(tc.job(), 
+                		new Errors.InterfaceMethodsMustBePublic(position()));
             }
             
             if (flags.isStatic()) {
-        	Errors.issue(tc.job(), new SemanticException("Interface methods cannot be static.", position()));
+        	Errors.issue(tc.job(), new Errors.InterfaceMethodsCannobBeStatic(position()));
             }
         }
 
@@ -231,26 +233,26 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
         ClassType ct = container.toClass();
 
 	if (body == null && ! (flags.isAbstract() || flags.isNative())) {
-	    Errors.issue(tc.job(), new SemanticException("Missing method body.", position()));
+	    Errors.issue(tc.job(), new Errors.MissingMethodBody(position()));
 	}
 
         if (body != null && ct.flags().isInterface()) {
-	    Errors.issue(tc.job(), new SemanticException("Interface methods cannot have a body.", position()));
+	    Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotHaveBody(position()));
         }
 
 	if (body != null && flags.isAbstract()) {
-	    Errors.issue(tc.job(), new SemanticException("An abstract method cannot have a body.", position()));
+	    Errors.issue(tc.job(), new Errors.AbstractMethodCannotHaveBody(position()));
 	}
 
 	if (body != null && flags.isNative()) {
-	    Errors.issue(tc.job(), new SemanticException("A native method cannot have a body.", position()));
+	    Errors.issue(tc.job(), new Errors.NativeMethodCannotHaveBody(position()));
 	}
 
         // check that inner classes do not declare static methods
         if (ct != null && flags.isStatic() && ct.isInnerClass()) {
             // it's a static method in an inner class.
             Errors.issue(tc.job(),
-                    new SemanticException("Inner classes cannot declare static methods.", position()));             
+                    new Errors.InnerClassesCannotDeclareStaticMethod(position()));             
         }
     }
 

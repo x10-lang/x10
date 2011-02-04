@@ -446,7 +446,6 @@
         <echo message="Creating ${bin}/defs"/>
         <echo message="FILE_SEP = '${file.separator}'"/>
         <echo message="PATH_SEP = '${path.separator}'"/>
-        <echo message="X10_PLATFORM = '${env.X10_PLATFORM}'"/>
         <echo message="TOP = '${basedir}'"/>
         <!-- TODO: some of this is x10c-specific; factor out into x10c.in -->
 	<echo file="${bin}/defs" append="no">#!/usr/bin/env bash
@@ -475,18 +474,6 @@ else
 fi
 if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; JAR="$(cygpath -au "$JAR")"; fi
 
-[ -n "$X10_PLATFORM" ] || \
-case "$UNAME" in
-  CYGWIN*,i*86,*) export X10_PLATFORM='win32_x86';;
-  Linux,*86*,*) export X10_PLATFORM='linux_x86';;
-  Linux,ppc*,*) export X10_PLATFORM='linux_ppc';;
-  AIX,*,powerpc) export X10_PLATFORM='aix_ppc';;
-  Darwin,*,i*86) export X10_PLATFORM='macosx_x86';;
-  Darwin,*,powerpc) export X10_PLATFORM='macosx_ppc';;
-  SunOS,*,sparc) export X10_PLATFORM='sunos_sparc';;
-  FreeBSD,*64*,*) export X10_PLATFORM='freebsd_amd64';;
-  *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
-esac
 # NOTE: the above assumes that Cygwin==win32 (probably valid)
 
 #CONFIG_FILE='${config}'

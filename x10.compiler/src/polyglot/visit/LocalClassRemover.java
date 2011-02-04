@@ -16,8 +16,8 @@ import x10.util.CollectionFactory;
 //Dup inner member to static
 //Remove inner member
 
-public class LocalClassRemover extends ContextVisitor {
-    protected class ConstructorCallRewriter extends NodeVisitor {
+public abstract class LocalClassRemover extends ContextVisitor {
+    protected abstract class ConstructorCallRewriter extends NodeVisitor {
 	protected final List<FieldDef> newFields;
 	protected final ClassDef theLocalClass;
 	protected ClassDef curr;
@@ -156,11 +156,9 @@ public class LocalClassRemover extends ContextVisitor {
 	return null;
     }
 
-    protected NodeVisitor localBoxer() {
-        return new LocalBoxer().context(context().freeze());
-    }
+    protected abstract NodeVisitor localBoxer();
 
-    protected class LocalBoxer extends ContextVisitor {
+    protected abstract class LocalBoxer extends ContextVisitor {
         public LocalBoxer() {
             super(LocalClassRemover.this.job, LocalClassRemover.this.ts, LocalClassRemover.this.nf);
         }
@@ -265,9 +263,7 @@ public class LocalClassRemover extends ContextVisitor {
         return cd.body(b.members(newMembers));
     }
 
-    protected boolean isLocal(Context c, Name name) {
-	return c.isLocal(name);
-    }
+    protected abstract boolean isLocal(Context c, Name name);
 
     protected Node leaveCall(Node old, Node n, NodeVisitor v) {
 
@@ -369,32 +365,20 @@ public class LocalClassRemover extends ContextVisitor {
         return neu.objectType(nf.CanonicalTypeNode(neu.objectType().position(), ct));
     }
 
-    protected ConstructorInstance computeConstructorInstance(ConstructorDef cd) {
-        return cd.asInstance();
-    }
+    protected abstract ConstructorInstance computeConstructorInstance(ConstructorDef cd);
 
-    protected ClassType computeConstructedType(ClassDef type, CodeDef codeDef) {
-        return type.asType();
-    }
+    protected abstract ClassType computeConstructedType(ClassDef type, CodeDef codeDef);
 
     /**
      * The type to be extended when translating an anonymous class that
      * implements an interface.
      */
-    protected TypeNode defaultSuperType(Position pos) {
-	return nf.CanonicalTypeNode(pos, ts.Object());
-    }
+    protected abstract TypeNode defaultSuperType(Position pos);
 
-    protected ClassDecl rewriteLocalClass(ClassDecl cd, List<FieldDef> newFields) {
-	cd = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), cd.classDef(), newFields));
-	return icrv.addFieldsToClass(cd, newFields, ts, nf, false);
-    }
+    protected abstract ClassDecl rewriteLocalClass(ClassDecl cd, List<FieldDef> newFields);
 
-    protected
-    Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields) {
-	Node r = s.visit(new ConstructorCallRewriter(fields, ct));
-	return r;
-    }
+    protected abstract
+    Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields);
 
     // Create a new constructor for an anonymous class.
     ConstructorDecl addConstructor(ClassDecl cd, New neu, ConstructorInstance superCI) {

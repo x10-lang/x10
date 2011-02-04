@@ -86,14 +86,18 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
         //Semantic Error: Cannot assign expression to target.
         //     Expression: b ? x : y
         //     Expected type: x10.lang.Object{self!=null}
-        //     Found type: x10.lang.Object        
-        if (ts.typeBaseEquals(t1, t2, context)) {
-            return type(Types.baseType(t1));
-        }
+        //     Found type: x10.lang.Object
+        //if (ts.typeBaseEquals(t1, t2, context)) {
+        //    return type(Types.baseType(t1));
+        //}
 
         // Otherwise, if the second and third operands have numeric type, then
         // there are several cases:
         if (t1.isNumeric() && t2.isNumeric()) {
+            if (ts.typeBaseEquals(t1, t2, context)) { // we need it for: public static def max(a:UInt, b:UInt)= a<b?b:a;
+                return type(Types.baseType(t1));
+            }
+
             // - If one of the operands is of type byte and the other is of
             // type short, then the type of the conditional expression is
             // short.

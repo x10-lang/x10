@@ -26,7 +26,7 @@ public class Types140 extends x10Test {
     }
 
 
-// file Types line 415
+// file Types line 416
 
  static interface Named {
    def name():String;

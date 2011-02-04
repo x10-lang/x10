@@ -26,7 +26,7 @@ public class Arrays450 extends x10Test {
     }
 
 
-// file Arrays line 761
+// file Arrays line 762
 
  static class Arrays48TestExp{
   def check(R:Region, da: DistArray[Int]{da.region.rank == R.rank})  = R && da.region;  }

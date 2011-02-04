@@ -26,7 +26,7 @@ public class Arrays440 extends x10Test {
     }
 
 
-// file Arrays line 757
+// file Arrays line 758
 
  static class Arrays47TestExp{
   def check(da:DistArray[Int](3), p:Point(3), R: Region(da.rank))  = da | R;  }

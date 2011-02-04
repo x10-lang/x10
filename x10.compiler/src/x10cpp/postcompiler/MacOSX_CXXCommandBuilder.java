@@ -23,13 +23,13 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
         super(options, x10rt, eq);
     }
 
-    protected void addPreArgs(ArrayList<String> cxxCmd) {
+    public void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
         cxxCmd.add("-msse2");
         cxxCmd.add("-mfpmath=sse");
     }
 
-    protected void addPostArgs(ArrayList<String> cxxCmd) {
+    public void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
 
         for (PrecompiledLibrary pcl:options.x10libs) {

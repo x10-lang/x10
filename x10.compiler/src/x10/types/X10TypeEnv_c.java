@@ -58,8 +58,6 @@ import polyglot.util.TransformingList;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -694,12 +692,24 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean isSubtype(Type t1, Type t2) {
         return isSubtype(null, t1, t2);
     }
-
+     
+    public boolean isSubtype(XVar x, Type t1, Type t2) {
+        return isOldSubtype(x, t1,t2);
+        /*
+        boolean old = isOldSubtype(x, t1,t2);
+        boolean newEq = isNewSubtype(x, t1,t2);
+        if (old != newEq) {
+            System.out.println("isSubtype: now " + (old ? "not " : "") + " a subtype " 
+                               + "\n\t: t1=" + t1 
+                               + "\n\t: t2=" + t2);
+        }
+        return old;*/
+    }
 
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
-    boolean isSubtype(XVar x, Type t1, Type t2) {
+    boolean isOldSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
     	if (ts.hasUnknown(t1) || ts.hasUnknown(t2)) return true;
@@ -856,13 +866,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			try {
     				xcontext = (Context) xcontext.pushBlock();	
 
-    				CConstraint r;
-    				try {
-    				 r = c.addIn(c1);
-    				} catch (XFailure z) {
+    				c.addIn(c1);
+    				if (! c.consistent()) {
     					return false;
     				}
-    				xcontext.setCurrentConstraint(r);
+    				xcontext.setCurrentConstraint(c);
 
     				X10TypeEnv_c tenv = copy();
     				tenv.context = xcontext;
@@ -990,20 +998,21 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * @see x10.types.X10TypeEnv#typeEquals(polyglot.types.Type, polyglot.types.Type, java.util.List)
      */
   
-    @Override
+   /* @Override
     public boolean typeEquals(Type t1, Type t2) {
         return newTypeEquals(t1,t2);
-        /*boolean old = oldTypeEquals(t1,t2);
+        boolean old = oldTypeEquals(t1,t2);
         boolean newEq = newTypeEquals(t1,t2);
         if (old != newEq) {
             System.out.println("TypeEquals: now " + (old ? "not " : "") + "equal " 
                                + "\n\t: t1=" + t1 
                                + "\n\t: t2=" + t2);
         }
-        return old;*/
-    }
+        return old;
+    }*/
     
-    public boolean newTypeEquals(Type t1, Type t2) {    
+    @Override
+    public boolean typeEquals(Type t1, Type t2) {    
         t1 = ts.expandMacros(t1);
         t2 = ts.expandMacros(t2);
 
@@ -1613,6 +1622,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
             // we need to keep all the constraints except the one that says the type is not null
             final Type res = Types.addConstraint(baseType, Types.allowNull(ct));
+            assert Types.consistent(res);
             assert Types.permitsNull(res);
             return res;
         } else {
@@ -1624,6 +1634,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	CConstraint c = c1.leastUpperBound(c2);
     	if (! c.valid())
     		t = Types.addConstraint(t, c);
+    	assert Types.consistent(t);
     	return t;
     	
     }
@@ -1773,13 +1784,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean clausesConsistent(CConstraint c1, CConstraint c2) {
         if (primitiveClausesConsistent(c1, c2)) {
             CConstraint r = c1.copy();
-            try {
-                r.addIn(c2);
-                return r.consistent();
-            }
-            catch (x10.constraint.XFailure e) {
-                return false;
-            }
+            r.addIn(c2);
+            return r.consistent();
         }
         return false;
     }
@@ -1978,13 +1984,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     @Override
     public void checkOverride(MethodInstance r, MethodInstance other, boolean allowCovariantReturn) throws SemanticException {
-         MethodInstance mi = (MethodInstance) r;
-         MethodInstance mj = (MethodInstance) other;
-
-        String fullNameWithThis = mi.x10Def().thisVar().toString();
-        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
-        thisVar = mi.x10Def().thisVar(); // FIXME: should the above value be used?
+        MethodInstance mi = (MethodInstance) r;
+        MethodInstance mj = (MethodInstance) other;
+        XVar thisVar = mi.x10Def().thisVar(); 
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
@@ -2009,19 +2011,23 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             entails = mi.guard() == null || mi.guard().valid();
         }
         else {
-           
-                final MethodInstance mii = mi;
-                final MethodInstance mjj = mj;
-                entails = mi.guard() == null || mj.guard().entails(mi.guard(), 
-                                                                   new ConstraintMaker() {
-                    public CConstraint make() throws XFailure {
-                        return  context.constraintProjection(mjj.guard(), mii.guard());
-                    }
-                });          
+
+            final MethodInstance mii = mi;
+            final MethodInstance mjj = mj;
+            entails = mi.guard() == null 
+            || mj.guard().entails(mi.guard(), new ConstraintMaker() {
+                public CConstraint make() throws XFailure {
+                    return  context.constraintProjection(mjj.guard(), mii.guard());
+                }
+            });          
         }
 
         if (! entails) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; method guard is not entailed.",mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container()
+                                        +" cannot override " +mj.signature() 
+                                        + " in " + mj.container() 
+                                        +"; method guard is not entailed.",
+                                        mi.position());
         }
 
         Flags miF = mi.flags();
@@ -2031,7 +2037,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (! miF.hasAllAnnotationsOf(mjF)) {
             if (Report.should_report(Report.types, 3))
                 Report.report(3, mi.flags() + " is more liberal than " + mj.flags());
-            throw new SemanticException(mi.flags() + " " + mi.signature() + " in " + mi.container() +" cannot override " +mj.flags() + " " + mj.signature() + " in " + mj.container() +"; attempting to assign weaker behavioral annotations",mi.position());
+            throw new SemanticException(mi.flags() + " " + mi.signature() 
+                                        + " in " + mi.container() 
+                                        +" cannot override " +mj.flags() 
+                                        + " " + mj.signature() 
+                                        + " in " + mj.container() 
+                                        +"; attempting to assign weaker behavioral annotations",
+                                        mi.position());
         }
     }
 
@@ -2041,9 +2053,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     @Override
     public boolean isSameMethod(MethodInstance mi, MethodInstance mj) {
         if (mi.name().equals(mj.name())) {
-            String fullNameWithThis = mi.x10Def().thisVar().toString();
+           // String fullNameWithThis = mi.x10Def().thisVar().toString();
           //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-            XVar thisVar = CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
+            XVar thisVar = mi.x10Def().thisVar(); // CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
 
             List<XVar> ys = new ArrayList<XVar>(2);
             List<XVar> xs = new ArrayList<XVar>(2);
@@ -2160,6 +2172,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	                	try {
 	                		if ( y.length > 0 && y[0] instanceof XEQV)
 	                		newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
+
 	                	} catch (XFailure z) {
 	                		throw new InternalCompilerError("Unexpectedly inconsistent place constraint.");
 	                	}

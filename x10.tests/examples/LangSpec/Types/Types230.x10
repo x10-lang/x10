@@ -26,7 +26,7 @@ public class Types230 extends x10Test {
     }
 
 
-// file Types line 760
+// file Types line 761
  static  class LnSn {
 
 static type LnSn = List[String{self!=null}]{self!=null};

@@ -14,7 +14,6 @@ package x10.visit;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +43,6 @@ import polyglot.ast.Field_c;
 import polyglot.ast.FlagsNode_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
-import polyglot.ast.Id;
 import polyglot.ast.Id_c;
 import polyglot.ast.If_c;
 import polyglot.ast.Import_c;
@@ -78,21 +76,20 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.frontend.Source;
-import polyglot.types.JavaArrayType;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
+import polyglot.types.JavaArrayType;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -102,12 +99,9 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
-import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
-import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
@@ -145,7 +139,6 @@ import x10.ast.X10ClassBody_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
-import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Initializer_c;
 import x10.ast.X10Instanceof_c;
@@ -153,7 +146,6 @@ import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New;
 import x10.ast.X10New_c;
-import x10.ast.X10Return_c;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
 import x10.emitter.CastExpander;
@@ -168,20 +160,19 @@ import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
+import x10.types.MethodInstance;
+import x10.types.MethodInstance_c;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
-import x10.types.constraints.SubtypeConstraint;
-
 import x10.types.X10ClassDef;
-import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10MethodDef;
-import x10.types.MethodInstance;
-import x10.types.MethodInstance_c;
 import x10.types.X10ParsedClassType_c;
+import x10.types.constraints.SubtypeConstraint;
+import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
 import x10c.ast.X10CBackingArrayAccess_c;
@@ -303,6 +294,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
 	            n.print(expr, w, tr);
 	            w.write(")");
+	        }
+	        else if (er.isMethodInlineTarget((TypeSystem) tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==SettableAssign.SET) {
+                n.print(expr, w, tr);
 	        }
 	        // support for @Native
 	        else if (expr instanceof X10Call && !expr.type().isVoid() && er.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
@@ -1016,7 +1010,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				        w.allowBreak(0);
 				    }
 				    alreadyPrintedTypes.add(tn.type());
-	                boolean isJavaNative = isJavaNative((X10ClassType) Types.baseType(tn.type()));
+	                boolean isJavaNative = Emitter.isNativeRepedToJava(tn.type());
 				    er.printType(tn.type(), (isSelfDispatch && !isJavaNative ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES | NO_VARIANCE);
 				}
 			}
@@ -1468,16 +1462,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
     }
 
-    private boolean isJavaNative(Type type) {
-    	X10ClassType type1  = (X10ClassType) Types.baseType(type);
-        X10ClassDef cd = type1.x10Def();
-        String pat = er.getJavaRep(cd);
-        if (pat != null && pat.startsWith("java.")) {
-            return true;
-        }
-        return false;
-    }
-
 	public void visit(Import_c c) {
 		// don't generate any code at all--we should fully qualify all type names
 	}
@@ -1902,7 +1886,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     		X10ClassType ct = (X10ClassType) mi.container();
     		
     		List<Type> ta = ct.typeArguments();
-    		boolean isJavaNative = isJavaNative(n.objectType().type());
+    		boolean isJavaNative = Emitter.isNativeRepedToJava(n.objectType().type());
             if (ta != null && ta.size() > 0 && !isJavaNative) {
     		    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
     		        final Type at = i.next();
@@ -3259,19 +3243,31 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             return;
         }
 
-		if (op == Binary.EQ) {
-			// SYNOPSIS: #0 == #1 (for values, also works for reference == operations)
-			String regex = "x10.rtt.Equality.equalsequals(#0,#1)";
-			er.dumpRegex("equalsequals", new Object[] { left, right }, tr, regex);
-			return;
-		}
+        if (op == Binary.EQ) {
+            // SYNOPSIS: #0 == #1
+            String regex;
+            // TODO generalize for reference type
+            if (l.isNull() || r.isNull()) {
+                regex = "((#0) == (#1))";
+            } else {
+                regex = "x10.rtt.Equality.equalsequals(#0,#1)";
+            }
+            er.dumpRegex("equalsequals", new Object[] { left, right }, tr, regex);
+            return;
+        }
 
-		if (op == Binary.NE) {
-			// SYNOPSIS: #0 != #1 (for values, also works for reference != operations)
-			String regex = "(!x10.rtt.Equality.equalsequals(#0,#1))";
+        if (op == Binary.NE) {
+            // SYNOPSIS: #0 != #1
+            String regex;
+            // TODO generalize for reference type
+            if (l.isNull() || r.isNull()) {
+                regex = "((#0) != (#1))";
+            } else {
+                regex = "(!x10.rtt.Equality.equalsequals(#0,#1))";
+            }
             er.dumpRegex("notequalsequals", new Object[] { left, right }, tr, regex);
-			return;
-		}
+            return;
+        }
 
 		if (op == Binary.ADD && (l.isSubtype(xts.String(), tr.context()) || r.isSubtype(xts.String(), tr.context()))) {
             prettyPrint(n);

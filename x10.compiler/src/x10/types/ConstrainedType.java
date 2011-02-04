@@ -29,6 +29,7 @@ import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef_c;
 
+import polyglot.types.FieldDef;
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.NullType;
@@ -50,6 +51,7 @@ import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
+import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -184,40 +186,23 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		protected CConstraint realX() {
 			// Now get the root clause and join it with the dep clause.
 			CConstraint rootClause = Types.realX(Types.get(this.baseType()));
-			if (rootClause == null)
-				assert rootClause != null;
-
 			if (!rootClause.consistent())
 			    return rootClause;
 			CConstraint depClause = Types.xclause(this);
 			if (depClause==null) {
-					depClause = new CConstraint();
-					depClause.setThisVar(rootClause.thisVar());
+			    return rootClause;
 			}
 			
-
 			try {
-				Types.getThisVar(rootClause, depClause);
+			XVar thisVar = Types.getThisVar(rootClause, depClause);
 			} catch (XFailure z) {
-				try {
-					rootClause = rootClause.copy().addIn(depClause);
-				} catch (XFailure z1) {
-				}
-				rootClause.setInconsistent();
-				return rootClause;
+			    rootClause.setInconsistent();
+			    return rootClause;
 			}
-			if (depClause == null) 
-				return rootClause;
-
-			try {
-				depClause.addIn(rootClause);
-			}
-			catch (XFailure f) {
-				depClause.setInconsistent();
-			}
-		
+			if (depClause.valid())
+			    return rootClause;
+			depClause.addIn(rootClause);
 			return depClause;
-
 		}
 		
 		public void checkRealClause() throws SemanticException {
@@ -314,16 +299,14 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 					TypeSystem xts = (TypeSystem) o.typeSystem();
 					CConstraint c2 = Types.xclause(o);
 					c2 = c2 != null ? c2.copy() : new CConstraint();
-					try {
-						if (c2.thisVar() != null)
-							c2.addBinding(c2.thisVar(), tt);
-						//c2.addSelfBinding(tt);
-						//  c2.substitute(tt, XTerms.)
-						return Types.xclause(o, c2);
-					}
-					catch (XFailure e) {
-					}
-					return o;
+					if (c2.thisVar() != null)
+					    c2.addBinding(c2.thisVar(), tt);
+					//c2.addSelfBinding(tt);
+					//  c2.substitute(tt, XTerms.)
+					// vj: 1/27/11 -- change from past behavior
+					// if c2 is inconsistent, we dont return o.
+					return Types.xclause(o, c2);
+					
 				}
 			});
 		}
@@ -466,7 +449,6 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		 * @return
 		 */
 		public  ConstrainedType addRank(XTerm x) {
-		    TypeSystem xts = typeSystem();
 		    XTerm xt = findOrSynthesize(Name.make("rank"));
 		    try {
 		        return addBinding(xt, x);
@@ -476,38 +458,38 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		    return this;
 		}
 		
-		public XTerm findOrSynthesize(Name propName) {
-		    return find(propName);
+		public XTerm findOrSynthesize(Name n) {
+		    return find(n);
 		}
 		/** Find the term t, if any, such that t entails {self.propName==t}.
 		 * 
 		 */
-		public  XTerm findProperty(Name propName) {
+		public  XTerm findProperty(Name name) {
 			CConstraint c = Types.realX(this);
-			if (c == null) return null;
+			if (c == null || ! c.consistent()) 
+			    return null;
 			
+			FieldInstance fi = Types.getProperty(this, name);
 			// TODO: check dist.region.p and region.p
-		
-			X10FieldInstance fi = Types.getProperty(this, propName);
 			if (fi != null)
-				return c.bindingForSelfField(XTerms.makeName(fi.def()));
+				return c.bindingForSelfField(fi.def());
 		
-			MethodInstance mi = Types.getPropertyMethod(this, propName);
+			MethodInstance mi = Types.getPropertyMethod(this, name);
 			if (mi != null) {
-			    return c.bindingForSelfField(XTerms.makeName(mi.def()));
+			    return c.bindingForSelfField(mi.def());
 			}
 			
 			return null;
 		}
 		/**
 		 * Ensure that t is ConstrainedType, so it has a self. The term returned may 
-		 * contain self sas receiver.
+		 * contain self as receiver.
 		 * @param t
 		 * @param propName
 		 * @return
 		 */
-		public  XTerm find(Name propName) {
-		    XTerm val = findProperty(propName);
+		public  XTerm find(Name name) {
+		    XTerm val = findProperty(name);
 		
 		    if (val == null) {
 		        TypeSystem xts = typeSystem();
@@ -515,14 +497,13 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		     
 		        if (c != null) {
 		            // build the synthetic term.
-		        	
+		            FieldInstance fi = Types.getProperty(this, name);
 		            XTerm var = selfVar();
 		            if (var !=null) {
-		                X10FieldInstance fi = Types.getProperty(this, propName);
 		                if (fi != null) {
 		                    val = xts.xtypeTranslator().translate(var, fi);
 		                } else {
-		                    MethodInstance mi = Types.getPropertyMethod(this, propName);
+		                    MethodInstance mi = Types.getPropertyMethod(this, name);
 		                    if (mi != null) {
 		                        val = xts.xtypeTranslator().translate(var, mi);
 		                    }
@@ -565,29 +546,22 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			return (ConstrainedType) Types.xclause(Types.baseType(this), c); 
 		}
 
-		public  ConstrainedType addDisBinding(Type t, XTerm t1, XTerm t2) {
-		 	assert (! (t instanceof UnknownType));
-		    try {
-		        CConstraint c = Types.xclause(t);
-		        c = c == null ? new CConstraint() :c.copy();
-		        c.addDisBinding(t1, t2);
-		        return (ConstrainedType) Types.xclause(Types.baseType(t), c);
-		    }
-		    catch (XFailure f) {
-		        throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
-		    }
-		}
+		/**
+		 * Add t1 != t2 to t. Note: The type returned may have an inconsistent
+		 * constraint.
+		 * @param t
+		 * @param t1
+		 * @param t2
+		 * @return
 
-		public ConstrainedType addConstraint(Type t, CConstraint xc) {
-		    try {
-		        CConstraint c = Types.tryAddingConstraint(t, xc);
-		        return xclause(Types.baseType(t), c);
-		    }
-		    catch (XFailure f) {
-		        throw new InternalCompilerError("X10TypeMixin: Cannot add " + xc + "to " + t + ".", f);
-		    }
-		}
-		
+		public  ConstrainedType addDisBinding(Type t, XTerm t1, XTerm t2) {
+		    assert (! (t instanceof UnknownType));
+		    CConstraint c = Types.xclause(t);
+		    c = c == null ? new CConstraint() :c.copy();
+		    c.addDisBinding(t1, t2);
+		    return (ConstrainedType) Types.xclause(Types.baseType(t), c);
+		}*/
+
 		// vj: 08/11/09 -- have to recursively walk the 
 		// type parameters and add the constraint to them.
 		public static ConstrainedType xclause(final Ref<? extends Type> t, final Ref<CConstraint> c) {
@@ -597,6 +571,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		
 		    if (t.known() && c != null && c.known()) {
 		        Type tx = Types.get(t);
+		        assert tx != null;
 		        TypeSystem ts = (TypeSystem) tx.typeSystem();
 		        tx = ts.expandMacros(tx);
 		
@@ -611,13 +586,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		        }
 		        else {
 		            newc = newc.copy();
-		            try {
-		                newc.addIn(oldc);
-		            }
-		            catch (XFailure e) {
-		                newc.setInconsistent();
-		            }
-		            assert tx != null;
+		            newc.addIn(oldc); //  may become inconsistent
 		            return new ConstrainedType(ts, tx.position(), Types.ref(Types.baseType(tx)), Types.ref(newc));
 		        }
 		    }
@@ -638,12 +607,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		                CConstraint newc = Types.get(c);
 		                if (newc != null) {
 		                    newc = newc.copy();
-		                    try {
-		                        newc.addIn(oldc);
-		                    }
-		                    catch (XFailure e) {
-		                        newc.setInconsistent();
-		                    }
+		                    newc.addIn(oldc); // newc may have become inconsistent
 		                    cref.update(newc);
 		                }
 		                else {
@@ -691,6 +655,10 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		}
 		
 
+		/**
+		 * Add the constraint self.zeroBased==true;
+		 * @return
+		 */
 		public ConstrainedType addZeroBased() {
 		    ConstrainedType result = this;
 		    XTerm xt = findOrSynthesize(Name.make("zeroBased"));
@@ -703,89 +671,124 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		    return result;
 		}
 		/**
-		 * Return self.rank, where self is the selfvar for t.
+		 * Return the term self.rank, where self is the selfvar for t.
 		 */
 		public XTerm rank(Context context) {
-		    return findOrSynthesize(Name.make("rank"));
-		}
+            return findOrSynthesize(Name.make("rank"));
+        }
 		
 
+		/**
+		 * Does this type entail self.rect? Use sigma
+		 * from the context if necessary.
+		 * @param context
+		 * @return
+		 */
 		public boolean isRect(Context context) {
 		    return amIProperty(Name.make("rect"), context);
 		}
 		
-		public XTerm onePlace(ConstrainedType t) {
-		    return find(Name.make("onePlace"));
-		}
-
+		/**
+         * Does this type entail self.zeroBased? Use sigma
+         * from the context if necessary.
+         * @param context
+         * @return
+         */
 		public boolean isZeroBased(Context context) {
 			return amIProperty(Name.make("zeroBased"), context);
 		}
 		
 		/**
-		 * Does t imply {self.rank==1}?
+		 * Does this type entail self.rank==1? Use sigma
+         * from the context if necessary.
 		 */
 		public boolean isRankOne(Context context) {
-		    return typeSystem().ONE().equals(rank(context));
+		    return isRank(typeSystem().ONE(), context);
 		}
 
 		/**
-		 * Does t imply {self.rank==2}?
-		 */
-		public boolean isRankTwo(Context context) {
-		        return typeSystem().TWO().equals(rank(context));
+         * Does this type entail self.rank==2? Use sigma
+         * from the context if necessary.
+         */
+		public boolean isRegionRankTwo(Context context) {
+		    return isRank(typeSystem().TWO(), context);
 		}
 
 		/**
-		 * Does t imply {self.rank==3}?
-		 */
-		public boolean isRankThree(Context context) {
-		    return typeSystem().THREE().equals(rank(context));
+         * Does this type entail self.rank==3? Use sigma
+         * from the context if necessary.
+         */
+		public boolean isRegionRankThee(Context context) {
+		    return isRank(typeSystem().THREE(), context);
+        }
+		/**
+         * Does this type entail self.rank==lit? Use sigma
+         * from the context if necessary.
+         */
+        public boolean isRank(XLit lit, Context context) {
+            return hasPropertyValue(Name.make("rank"), lit, context);
+        }
+        
+        /**
+         * Does this type entail self.propName? Use sigma
+         * from the context if necessary.
+         */
+		public boolean amIProperty(Name propName, Context context) {
+		    return hasPropertyValue(propName, XTypeTranslator.translate(true), context);
 		}
 		
-		 public  boolean amIProperty(Name propName, final Context context) {
-			    TypeSystem xts = typeSystem();
-			    final CConstraint r = realX();
-			
-			    // first try self.p
-			    X10FieldInstance fi = Types.getProperty(this, propName);
-			    if (fi != null) {
-				    try {
-					    final CConstraint c = new CConstraint();
-					    XVar term = xts.xtypeTranslator().translate(c.self(), fi);
-					    c.addBinding(term, xts.xtypeTranslator().translate(true));
-			            return r.entails(c, new ConstraintMaker() { 
-			                public CConstraint make() throws XFailure {
-			                    return context.constraintProjection(r, c);
-			                }
-			            });
-				    }
-				    catch (XFailure f) {
-					    return false;
-				    }
-			    }
-			    else {
-			        // try self.p()
-			            try {
-			                MethodInstance mi = xts.findMethod(this, xts.MethodMatcher(this, propName, Collections.<Type>emptyList(), xts.emptyContext()));
-			                XTerm body = mi.body();
-			                final CConstraint c = new CConstraint();
-			                body = body.subst(c.self(), mi.x10Def().thisVar());
-			                c.addTerm(body);
-			                return r.entails(c, new ConstraintMaker() { 
-	                            public CConstraint make() throws XFailure {
-	                                return context.constraintProjection(r, c);
-	                            }
-	                        });
-			            }
-			            catch (XFailure f) {
-			                return false;
-			            }
-			            catch (SemanticException f) {
-			                return false;
-			            }
-			    }
-			}
+		/**
+		 * Does this type entail self.propName == lit? Use sigma
+		 * from the context if necessary.
+		 */
+
+		public  boolean hasPropertyValue(Name propName, XLit lit, final Context context) {
+		    TypeSystem xts = typeSystem();
+		    final CConstraint r = realX();
+		    if (! r.consistent())
+		        return false;
+
+		    // first try self.p
+		    X10FieldInstance fi = Types.getProperty(this, propName);
+		    if (fi != null) {
+
+		        final CConstraint c = new CConstraint();
+		        XVar term = xts.xtypeTranslator().translate(c.self(), fi);
+		        c.addBinding(term, lit);
+		        if (! c.consistent())
+		            return false;
+		        return r.entails(c, new ConstraintMaker() { 
+		            public CConstraint make() throws XFailure {
+		                return context.constraintProjection(r, c);
+		            }
+		        });
+		    }
+		    else {
+		        // try self.p()
+		        try {
+		            MethodInstance mi = 
+		                xts.findMethod(this, 
+		                               xts.MethodMatcher(this, propName, 
+		                                                 Collections.<Type>emptyList(), 
+		                                                 xts.emptyContext()));
+		            XTerm body = mi.body();
+		            final CConstraint c = new CConstraint();
+		            body = body.subst(c.self(), mi.x10Def().thisVar());
+		            c.addTerm(body);
+		            return r.entails(c, new ConstraintMaker() { 
+		                public CConstraint make() throws XFailure {
+		                    return context.constraintProjection(r, c);
+		                }
+		            });
+		        }
+		        catch (XFailure f) {
+		            return false;
+		        }
+		        catch (SemanticException f) {
+		            return false;
+		        }
+		    }
+		}
 
 		 public XTerm makeProperty( String propStr) {
 			 Name propName = Name.make(propStr);

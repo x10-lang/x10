@@ -86,8 +86,6 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -260,7 +258,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		if (n.returnType() instanceof UnknownTypeNode && n.body() == null) {
 			Errors.issue(tb.job(),
-			             new SemanticException("Cannot infer method return type; method has no body.", position()));
+			             new Errors.CannotInferMethodReturnType(position()));
 			NodeFactory nf = tb.nodeFactory();
 			Position rtpos = n.returnType().position();
 			n = (X10MethodDecl_c) n.returnType(nf.CanonicalTypeNode(rtpos, ts.unknownType(rtpos)));
@@ -429,7 +427,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				c = c.pushBlock();
 				try {
 					if (vc.known())
-						c = ((Context) c).pushAdditionalConstraint(vc.get());
+						c = ((Context) c).pushAdditionalConstraint(vc.get(), position());
 					if (tc.known())
 						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
 
@@ -490,11 +488,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		if (xf.isProperty() && ! xf.isAbstract() && ! xf.isFinal()) {
 			Errors.issue(tc.job(),
-			        new SemanticException("A non-abstract property method must be final.", position()));
+			        new Errors.NonAbstractPropertyMethodMustBeFinal(position()));
 		}
 		if (xf.isProperty() && xf.isStatic()) {
 			Errors.issue(tc.job(),
-			        new SemanticException("A property method cannot be static.", position()));
+			        new Errors.PropertyMethodCannotBeStatic(position()));
 		}
 	}
 
@@ -642,7 +640,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			MethodInstance xmi = (MethodInstance) mi.asInstance();
 			if (xmi.guard() != null && ! xmi.guard().valid())
 				Errors.issue(tc.job(),
-				        new SemanticException("A property method cannot have a guard.", guard != null ? guard.position() : position()));
+				        new Errors.PropertyMethodCannotHaveGuard(guard, position()));
 		}
 
 		checkVisibility(tc, this);

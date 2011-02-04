@@ -173,7 +173,7 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	public XVar thisVar() {
 		if (this.thisDef != null)
 			return this.thisDef.thisVar();
-		return CTerms.makeThis("#this"); // Why #this instead of this?
+		return CTerms.makeThis(); 
 	}
 
 	ThisDef thisDef;

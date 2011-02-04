@@ -61,8 +61,6 @@ final class BlockBlockDist extends Dist {
      *
      * Assumption: Caller has done error checking to ensure that place is 
      *   actually a member of pg.
-     *
-     * TODO: Create an optimized fast-path for RectRegion.
      */
     private def blockBlockRegionForPlace(place:Place):Region{self.rank==this.rank} {
         val b = region.boundingBox();
@@ -83,25 +81,45 @@ final class BlockBlockDist extends Dist {
         val leftOver = divisions0*divisions1 - P;
         val minFirst = (axis1 > axis0) ? min0 : min1;
         val maxFirst = (axis1 > axis0) ? max0 : max1;
-
         val minSecond = (axis1 > axis0) ? min1 : min0;
         val maxSecond = (axis1 > axis0) ? max1 : max0;
 
         val i = pg.indexOf(place);
 
-        val beforeAxes = (axis1 > axis0) ? Region.makeFull(axis0) : Region.makeFull(axis1);
-        val betweenAxes = (axis1 > axis0) ? Region.makeFull(axis1-axis0-1) : Region.makeFull(axis0-axis1-1);
-        val afterAxes = (axis1 > axis0) ? Region.makeFull(region.rank-axis1-1) : Region.makeFull(region.rank-axis0-1);
         val leftOverOddOffset = (divisions0 % 2 == 0) ? 0 : i*2/(divisions0+1);
         val lowFirst = Math.min(minFirst + (i < leftOver+leftOverOddOffset ? ((i*2-leftOverOddOffset) % divisions0) : ((i+leftOver) % divisions0)) * sizeFirst / divisionsFirst, maxFirst);
         val hiFirst = Math.min(lowFirst + sizeFirst / divisionsFirst - 1 + (i < leftOver+leftOverOddOffset ? sizeFirst / divisionsFirst : 0), maxFirst);
-        val rFirst = (Math.round(lowFirst) as Int)..(Math.round(hiFirst) as Int);
+
         val rawLowSecond = (minSecond + ((i < leftOver ? (i*2) / divisions0 : ((i+leftOver)/divisions0)) * sizeSecond / divisionsSecond));
         val lowSecond = maxSecond - Math.round(maxSecond - rawLowSecond);
         val hiSecond = Math.min(maxSecond - (Math.round(maxSecond - (rawLowSecond + sizeSecond / divisionsSecond)) + 1.0), maxSecond);
-        val rSecond = (lowSecond as Int)..(hiSecond as Int);
-                   
-        return (beforeAxes.product(rFirst).product(betweenAxes).product(rSecond).product(afterAxes) as Region(region.rank)).intersection(region);
+
+        if (region instanceof RectRegion) {
+            // Optimize common case.
+            val newMin = new Array[Int](rank, (i : Int) => region.min(i));
+            val newMax = new Array[Int](rank, (i : Int) => region.max(i));
+            if (axis0 < axis1) {
+                newMin(axis0) = (Math.round(lowFirst) as Int);
+                newMin(axis1) = (Math.round(lowSecond) as Int);
+                newMax(axis0) = (Math.round(hiFirst) as Int);
+                newMax(axis1) = (Math.round(hiSecond) as Int);
+            } else {
+                newMin(axis1) = (Math.round(lowFirst) as Int);
+                newMin(axis0) = (Math.round(lowSecond) as Int);
+                newMax(axis1) = (Math.round(hiFirst) as Int);
+                newMax(axis0) = (Math.round(hiSecond) as Int);
+            }
+            return new RectRegion(newMin, newMax) as Region(rank);
+        } else {
+            // General case handled via region algebra
+            val beforeAxes = (axis1 > axis0) ? Region.makeFull(axis0) : Region.makeFull(axis1);
+            val betweenAxes = (axis1 > axis0) ? Region.makeFull(axis1-axis0-1) : Region.makeFull(axis0-axis1-1);
+            val afterAxes = (axis1 > axis0) ? Region.makeFull(region.rank-axis1-1) : Region.makeFull(region.rank-axis0-1);
+            val rFirst = (Math.round(lowFirst) as Int)..(Math.round(hiFirst) as Int);
+            val rSecond = (lowSecond as Int)..(hiSecond as Int);
+            
+            return (beforeAxes.product(rFirst).product(betweenAxes).product(rSecond).product(afterAxes) as Region(region.rank)).intersection(region);
+        }
     }
 
     /**
@@ -209,27 +227,62 @@ final class BlockBlockDist extends Dist {
     public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
         val pt = Point.make(i0, i1, i2, i3);
         if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
-            return mapIndexToPlace(pt(axis0), pt(axis1));
+        return mapIndexToPlace(pt(axis0), pt(axis1));
     }
 
-    // FIXME: Make this efficient
     public def offset(pt:Point(rank)):int {
-        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
-            raiseBoundsError(pt);
-        }
         val r = get(here);
-        if (CompilerFlags.checkPlace() && !r.contains(pt)) raisePlaceError(pt);
-        val localLayout = RectLayout(r);
-        return localLayout.offset(pt);
+        val offset = r.indexOf(pt);
+        if (offset == -1) {
+            if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
+            if (CompilerFlags.checkPlace()) raisePlaceError(pt);
+        }
+        return offset;
     }
 
-    // FIXME: Override offset for 1..3 ints to avoid useless Point creation in superclass method
+    public def offset(i0:int){rank==1}:int {
+        val r = get(here);
+        val offset = r.indexOf(i0);
+        if (offset == -1) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
+            if (CompilerFlags.checkPlace()) raisePlaceError(i0);
+        }
+        return offset;
+    }
 
-    // FIXME:  Make this efficient
+    public def offset(i0:int, i1:int){rank==2}:int {
+        val r = get(here);
+	    val offset = r.indexOf(i0,i1);
+	    if (offset == -1) {
+	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1)) raiseBoundsError(i0,i1);
+            if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1);
+        }
+        return offset;
+    }
+
+    public def offset(i0:int, i1:int, i2:int){rank==3}:int {
+        val r = get(here);
+	    val offset = r.indexOf(i0,i1,i2);
+	    if (offset == -1) {
+	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2)) raiseBoundsError(i0,i1,i2);
+            if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2);
+        }
+        return offset;
+    }
+
+    public def offset(i0:int, i1:int, i2:int, i3:int){rank==4}:int {
+        val r = get(here);
+	    val offset = r.indexOf(i0,i1,i2,i3);
+	    if (offset == -1) {
+	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2,i3)) raiseBoundsError(i0,i1,i2,i3);
+            if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2,i3);
+        }
+        return offset;
+    }
+
     public def maxOffset() {
         val r = get(here);
-        val localLayout = RectLayout(r);
-        return localLayout.size();
+        return r.size()-1;
     }
         
     public def restriction(r:Region(rank)):Dist(rank) {

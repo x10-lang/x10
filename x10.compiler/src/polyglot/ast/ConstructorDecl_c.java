@@ -219,19 +219,20 @@ public abstract class ConstructorDecl_c extends Term_c implements ConstructorDec
 	ClassType ct = c.currentClass();
 	
 	if (ct.flags().isInterface()) {
-	    Errors.issue(tc.job(),
-	            new SemanticException("Cannot declare a constructor inside an interface.",position()));
+	    Errors.issue(tc.job(), 
+	    		new Errors.CannotDeclareConstructorInInterface(position()));
 	}
 	
 	if (ct.isAnonymous()) {
 	    Errors.issue(tc.job(),
-	            new SemanticException("Cannot declare a constructor inside an anonymous class.",position()));
+	            new Errors.CannotDeclareConstructorInAnonymousClass(position()));
 	}
 	
 	Name ctName = ct.name();
 	
 	if (! ctName.equals(name.id())) {
-	    Errors.issue(tc.job(),new SemanticException("Constructor name \"" + name +"\" does not match name of containing class \"" + ctName + "\".", position()));
+	    Errors.issue(tc.job(), 
+	    		new Errors.ConstructorNameDoesNotMatchContainingClassName(name, ctName, position()));
 	}
 	
 	Flags flags = flags().flags();
@@ -244,11 +245,11 @@ public abstract class ConstructorDecl_c extends Term_c implements ConstructorDec
 	}
 	
 	if (body == null && ! flags.isNative()) {
-	    Errors.issue(tc.job(), new SemanticException("Missing constructor body.", position()));
+	    Errors.issue(tc.job(), new Errors.MissingConstructorBody(position()));
 	}
 	
 	if (body != null && flags.isNative()) {
-	    Errors.issue(tc.job(), new SemanticException("A native constructor cannot have a body.", position()));
+	    Errors.issue(tc.job(), new Errors.NativeConstructorCannotHaveABody(position()));
 	}
 	
 	return this;

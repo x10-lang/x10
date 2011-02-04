@@ -31,7 +31,6 @@ import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XName;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -60,10 +59,10 @@ import x10.util.Synthesizer;
  */
 public class PlaceChecker {
 
-	static final XLocal HERE = XTerms.makeLocal(XTerms.makeName("here"));
+	static final XVar HERE = XTerms.makeUQV("here");
 	//public static final XLit GLOBAL_PLACE = new XLit_c("globalPlace");
 
-	public static XLocal here() {
+	public static XVar here() {
 		return HERE;
 	}
 	
@@ -151,16 +150,13 @@ public class PlaceChecker {
 	}*/
 	
 	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, TypeSystem ts) {
-		
-		XTerm h =  PlaceChecker.homeVar(thisVar, ts);
-		CConstraint c = new CConstraint();
-		if (h != null) {
-			try {
-				c.addBinding(h, here());
-			} catch (XFailure z) {
-			}
-		}
-		return c;
+
+	    XTerm h =  PlaceChecker.homeVar(thisVar, ts);
+	    CConstraint c = new CConstraint();
+	    if (h != null) {
+	        c.addBinding(h, here());
+	    }
+	    return c;
 	}
 	
 	/**
@@ -271,9 +267,11 @@ public class PlaceChecker {
          }
 	}
 	*/
-	public static void AddHereEqualsPlaceTerm(CConstraint c, Context xc) throws XFailure{
+	public static void AddHereEqualsPlaceTerm(CConstraint c, Context xc) {
+	    if (! c.consistent())
+	        return;
 		XConstrainedTerm placeTerm = xc.currentPlaceTerm();
-		if (placeTerm != null) 
+		if (placeTerm != null)  
 			c.addBinding(here(), placeTerm.term());
 	}
 	

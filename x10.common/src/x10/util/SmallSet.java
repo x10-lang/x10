@@ -51,6 +51,10 @@ public final class SmallSet<K> extends AbstractSet<K> {
 
     // no need to override since the implementation in AbstractSet is efficient.
     @Override
+    public String toString() {
+        return super.toString(); // uses an iterator, and we do not care about efficiency of toString() anyway
+    }
+    @Override
     public boolean equals(Object o) {
         return super.equals(o); // uses containsAll
     }

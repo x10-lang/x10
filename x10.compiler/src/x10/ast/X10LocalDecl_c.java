@@ -92,14 +92,14 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		if (type instanceof UnknownTypeNode) {
 			if (init == null)
 			    Errors.issue(tb.job(),
-			            new SemanticException("Cannot infer variable type; variable "+name().id()+" has no initializer.", position()));
+			            new Errors.CannotInferVariableType(name().id(), position()));
 			// TODO: For now, since there can be more than once assignment to a mutable variable, 
 			// do not allow mutable variable types to be inferred.
 			// This can be fixed later for local variables by doing better 
 			// type inference.  This should never be done for fields.
 			if (! flags.flags().isFinal())
 			    Errors.issue(tb.job(),
-			            new SemanticException("Cannot infer type of a mutable (non-val) variable.", position()));
+			            new Errors.CannotInferTypeofMutalVariable(position()));
 		}
 
 		// This installs a LocalDef 
@@ -252,26 +252,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
         return n;
     }
-
-    @Override
-    public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
-        if (type() instanceof UnknownTypeNode && init != null) {
-            UnknownTypeNode tn = (UnknownTypeNode) type();
-
-            NodeVisitor childv = v.enter(parent, this);
-            childv = childv.enter(this, init);
-
-            if (childv instanceof TypeCheckPreparer) {
-                TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
-                final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-                TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-                tc = (TypeChecker) tc.context(tcp.context().freeze());
-                r.setResolver(new TypeCheckExprGoal(this, init, tc, r));
-            }
-        }
-        return super.setResolverOverride(parent, v);
-    }
-
 
 	public String shortToString() {
 		return "<X10LocalDecl_c #" + hashCode()  // todo: using hashCode leads to non-determinism in the output of the compiler

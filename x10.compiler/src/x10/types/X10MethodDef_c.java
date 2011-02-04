@@ -80,7 +80,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis("#this"); // Why #this instead of this?
+        return CTerms.makeThis(); // Why #this instead of this?
     }
 
     ThisDef thisDef;

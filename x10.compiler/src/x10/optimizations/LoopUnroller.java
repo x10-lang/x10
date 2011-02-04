@@ -63,6 +63,7 @@ import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import x10.util.Synthesizer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ForLoop;
@@ -75,8 +76,6 @@ import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
@@ -442,19 +441,11 @@ public class LoopUnroller extends ContextVisitor {
 
     private boolean checkDomainIs1D(Expr domain) {
         ConstrainedType type= (ConstrainedType) domain.type();
-
         if (xts.isRail(type)) {
             return true;
         }
 
-        CConstraint typeCons= type.constraint().get();
-        XTerm rankConstraint= findRankConstraint(typeCons);
-        if (rankConstraint != null) {
-            if (constraintEq1(rankConstraint)) {
-                return true;
-            }
-        }
-        return false;
+        return type.isRank(typeSystem().ONE(), context);
     }
 
     private boolean constraintEq1(XTerm term) {
@@ -473,7 +464,7 @@ public class LoopUnroller extends ContextVisitor {
             // Might we need to know what values flow into this RHS operand?
             XField rightField= (XField) right;
             XVar rightRcvr= rightField.receiver();
-            XName rightName= rightField.field();
+            //Object rightName= rightField.field();
 
             if (rightRcvr instanceof XLocal) {
                 XLocal rightRcvrLocal= (XLocal) rightRcvr;
@@ -481,44 +472,6 @@ public class LoopUnroller extends ContextVisitor {
             }
         }
         return false;
-    }
-
-    private String getFQN(XName name) {
-        if (name instanceof XNameWrapper<?>) {
-            Object val = ((XNameWrapper<?>) name).val();
-            assert (val instanceof FieldDef);
-            FieldDef fd = (FieldDef) val;
-            return Types.get(fd.container()) + "#" + fd.name().toString();
-        }
-        return name.toString();
-    }
-    private XTerm findRankConstraint(CConstraint typeCons) {
-        List<XTerm> consTerms= typeCons.constraints();
-        for(XTerm term: consTerms) {
-            if (term instanceof XEquals) {
-                XEquals eq= (XEquals) term;
-                List<XTerm> args= eq.arguments();
-                XTerm left= args.get(0);
-                XTerm right= args.get(1);
-
-                if (left instanceof XField) {
-                    XField leftField= (XField) left;
-                    XVar leftRcvr= leftField.receiver();
-                    XName leftName= leftField.field();
-
-                    // HACK Would like to know whether leftRcvr is on "self", but the only indication seems to be
-                    // that its name looks like "_selfNNNN"
-
-                    boolean isSelf= typeCons.entails(typeCons.self(), leftRcvr); //leftRcvr instanceof XLocal && ((XLocal) leftRcvr).name().toString().contains("self");
-                    boolean isRank= getFQN(leftName).equals("x10.array.Region#rank");
-                    if (isSelf && isRank) {
-                    	return term;
-                    }
-
-                }
-            }
-        }
-        return null;
     }
 
     private static Position PCG= Position.COMPILER_GENERATED;

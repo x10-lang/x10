@@ -18,13 +18,13 @@ package x10.constraint;
  * @author vijay
  *
  */
-public class XNot extends XFormula  {
+public class XNot extends XFormula<String>  {
 	
 	public XNot(XTerm arg) {
 		super(XTerms.notName, XTerms.asExprNotName, false, arg);
 	}
 	
-	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
 		assert false : "Should not intern " + this;
 		return super.internIntoConstraint(c, last);
 	}

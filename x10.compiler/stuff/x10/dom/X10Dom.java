@@ -105,6 +105,7 @@ import x10.types.constr.Constraint;
 import x10.types.constr.Constraint_c;
 import x10.types.constr.Promise;
 import x10.types.constr.Promise_c;
+import x10.types.constraints.CConstraint;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
@@ -1380,7 +1381,7 @@ public class X10Dom {
 			Type qualifier = get(new TypeRefLens(), e, "qualifier", v);
 			Boolean isThis = get(new BooleanLens(), e, "this", v);
 			Boolean isSuper = get(new BooleanLens(), e, "super", v);
-			Boolean isSelf = get(new BooleanLens(), e, "self", v);
+			Boolean isSelf = get(new BooleanLens(), e, CConstraint.SELF_VAR_PREFIX, v);
 			C_Special.C_Kind kind = isThis ? C_Special.THIS :
 				(isSuper ? C_Special.SUPER : C_Special.SELF);
 			return new C_Special_c(type, qualifier, kind);
@@ -1392,7 +1393,7 @@ public class X10Dom {
 			gen(v, "qualifier", n.qualifier());
 			gen(v, "this", n.kind() == C_Special.THIS);
 			gen(v, "super", n.kind() == C_Special.SUPER);
-			gen(v, "self", n.kind() == C_Special.SELF);
+			gen(v, CConstraint.SELF_VAR_PREFIX, n.kind() == C_Special.SELF);
 		}
 	}
 	

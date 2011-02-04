@@ -77,6 +77,8 @@ public abstract class Context_c implements Context
     }
     
     public Context freeze() {
+        if (true) return this;
+        // todo: is freezing actually needed anymore? (the guard in closures might be a problem...)
         Context_c c = (Context_c) this.copy();
         c.types = types != null ? CollectionFactory.newHashMap(types) : null;
         c.vars = vars != null ? CollectionFactory.newHashMap(vars) : null;

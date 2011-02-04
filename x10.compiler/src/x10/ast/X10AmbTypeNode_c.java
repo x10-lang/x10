@@ -215,15 +215,6 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       return nf.CanonicalTypeNode(position(), sym);
   }
   
-  @Override
-  public void setResolver(Node parent, final TypeCheckPreparer v) {
-  	if (typeRef() instanceof LazyRef<?>) {
-  		LazyRef<Type> r = (LazyRef<Type>) typeRef();
-  		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-  		tc = (TypeChecker) tc.context(v.context().freeze());
-  		r.setResolver(new X10TypeCheckTypeGoal(parent, this, tc, r));
-  	}
-  }
   static TypeNode postprocess(X10CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) {
 	  Flags  f = ((X10AmbTypeNode_c) n).flags;
 	  if (f != null) {

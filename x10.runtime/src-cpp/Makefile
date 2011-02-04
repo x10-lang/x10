@@ -83,15 +83,15 @@ gen/all-cpp-generated: $(XRX_REL_SRCS) $(subst $(SPACE),\$(SPACE),$(DISTDIR))/li
 	cd ../src-x10 && "$(DISTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -d ../src-cpp/gen $(XRX_SRCS)
 	find gen -name "*.cc" -print > $@
 
-$(XRX_PROPERTIES): $(XRX_REL_SRCS) gen/all-cpp-generated
+$(XRX_PROPERTIES): $(XRX_REL_SRCS)
 	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "TIMESTAMP=$(shell date)" >> $@
 	@echo "CXX=$(CXX)" >> $@
 	@echo "CXXFLAGS=$(XRX_PROPS_CXXFLAGS)" >> $@
 	@echo "LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
 	@echo "LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
 	@echo "SRC_JAR=x10.jar" >> $@
 	@echo "SRC_FILES=$(XRX_SRCS)" >> $@
-	@echo "GEN_FILES=$(shell sed -e's@^gen/\(.*\)\.cc$$@\1.o@' gen/all-cpp-generated)" >> $@
 
 ##########################
 # Manually-written Files #
@@ -201,7 +201,10 @@ else
   INC_FLAG=-T -
 endif
 
-install: $(XRX_ARCHIVE) $(XRX_PROPERTIES)
+install_props: $(XRX_PROPERTIES)
+	@cp -p $(XRX_PROPERTIES) "$(INSTDIR)"/$(XRX_PROPERTIES)
+
+install: $(XRX_ARCHIVE) install_props
 	@echo "Installing into $(INSTDIR)"
 	@mkdir -p "$(INSTDIR)"/include "$(INSTDIR)"/lib
 	@(cd gen && $(FIND) . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
@@ -212,9 +215,8 @@ install: $(XRX_ARCHIVE) $(XRX_PROPERTIES)
 	@$(FIND) x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@cp -p x10rt.h "$(INSTDIR)"/include
 	@cp -p $(XRX_ARCHIVE) "$(INSTDIR)"/lib
-	@cp -p $(XRX_PROPERTIES) "$(INSTDIR)"/$(XRX_PROPERTIES)
 
-.PHONY: install
+.PHONY: install install_props
 
 
 ##################

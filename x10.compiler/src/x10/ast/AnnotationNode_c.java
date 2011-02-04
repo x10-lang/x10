@@ -88,7 +88,7 @@ public class AnnotationNode_c extends Node_c implements AnnotationNode {
 //		System.out.println("Type checking " + this);
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		if (!xts.hasUnknown(tn.type()) && !(tn.type().isClass() && tn.type().toClass().flags().isInterface())) {
-			Errors.issue(tc.job(), new SemanticException("Annotation must be an interface type.", position()));
+			Errors.issue(tc.job(), new Errors.AnnotationMustBeInterfacetype(position()));
 		}
 		
 		return this;
