@@ -288,7 +288,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
             if (vars.size()>0) {
                 // check the type is a subtype of Point, and that it's rank is vars.size()
                 if (!ts.isSubtype(myType, ts.Point(), c))
-                    Errors.issue(tc.job(), new SemanticException("Only a formal of type Point can be exploded, however the formal's type is "+myType, position()));
+                    Errors.issue(tc.job(), new Errors.OnlyTypePointCanBeExploded(myType, position()));
                 else {
                     // make sure there is an init expr
                     ConstrainedType cType = Types.toConstrainedType(myType);

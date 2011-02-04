@@ -536,7 +536,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			}
 			if (! ok)
 				Errors.issue(tc.job(),
-				        new SemanticException("Property method body must be a constraint expression.", position()));
+				        new Errors.MethodBodyMustBeConstraintExpressiong(position()));
 		}
 
 		try {
@@ -586,7 +586,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             boolean isFormalWrong = !(argumentT instanceof X10ParsedClassType) || ((X10ParsedClassType)argumentT).def()!=((X10ParsedClassType)container).def();
             if (isReturnWrong && isFormalWrong) {
                 Errors.issue(tc.job(),
-				        new SemanticException("The return type or the formal type of an explicit or implicit operator 'as' must have the same class as the container.", n.position()));
+				        new Errors.MustHaveSameClassAsContainer(n.position()));
             }
         }
 		return n;
@@ -599,7 +599,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		for (TypeParamNode p : typeParams) {
 			Name name = p.name().id();
 			if (pnames.contains(name))
-				throw new SemanticException("Type parameter \"" + name + "\" multiply defined.", p.position());
+				throw new Errors.TypeParameterMultiplyDefined(name, p.position());
 			pnames.add(name);
 		}
 
@@ -615,7 +615,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			Name name = f.name().id();
 			if (! name.equals(Name.make(""))) {
 				if (names.contains(name))
-					throw new SemanticException("Local variable \"" + name + "\" multiply defined.", f.position());
+					throw new Errors.LocalVariableMultiplyDefined(name, f.position());
 				names.add(name);
 			}
 			if (f instanceof X10Formal) {

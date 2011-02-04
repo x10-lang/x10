@@ -194,7 +194,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        if (kind == SUPER) {
 	            if (! superType.isClass() && !ts.isUnknown(superType)) {
 	                Errors.issue(tc.job(),
-	                        new SemanticException("Super type of " + ct + " is not a class.", position()));
+	                        new Errors.SuperTypeIsNotAClass(ct, position()));
 	            }
 
 	            Expr q = qualifier;
@@ -221,11 +221,11 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 
 	                if (e == null) {
 	                    Errors.issue(tc.job(),
-	                            new SemanticException(ct + " must have an enclosing instance that is a subtype of " + superContainer, position()));
+	                            new Errors.ClassTypeMustHaveEnclosingInstance(ct, superContainer, position()));
 	                }               
 	                if (e == ct) {
 	                    Errors.issue(tc.job(),
-	                            new SemanticException(ct + " is a subtype of " + superContainer +"; an enclosing instance that is a subtype of " + superContainer + " must be specified in the super constructor call.", position()));
+	                            new Errors.ClassTypeMustBeSpecifiedInSuperConstructor(ct, superContainer, position()));
 	                }
 	            }
 

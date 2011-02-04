@@ -238,7 +238,7 @@ public class X10Field_c extends Field_c {
 						}
 					}
 
-					SemanticException e = new SemanticException("Cannot access field " + name + " of " + tCt+ " in class declaration header; the field may be a member of a superclass.", pos);
+					SemanticException e = new Errors.CannotAccessField(name, tCt, pos);
 					if (error == null) { error = e; }
 					Errors.issue(tc.job(), e);
 				}
@@ -249,7 +249,7 @@ public class X10Field_c extends Field_c {
 		        target instanceof TypeNode, Types.contextKnowsType(target));
 
 		if (fi.error() == null && !c.inDepType() && isInterfaceProperty(fi)) { // XTENLANG-945
-		    fi = fi.error(new SemanticException("Unable to find the implementing property method for interface property "+fi.name(), position()));
+		    fi = fi.error(new Errors.UnableToFindImplementingPropertyMethod(fi.name(), position()));
 		}
 
         if (fi.error() != null) {

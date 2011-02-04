@@ -190,11 +190,11 @@ public class X10Return_c extends Return_c {
 
 		    if (n.expr() == null && ! typeRef.getCached().isVoid()) {
 		        Errors.issue(tc.job(),
-		                new SemanticException("Must return value from non-void method.", n.position()));
+		                new Errors.MustReturnValueFromNonVoidMethod(n.position()));
 		    }
 		    if (n.expr() != null && typeRef.getCached().isVoid()) {
 		        Errors.issue(tc.job(),
-		                new SemanticException("Cannot return value from void method or closure.", n.position()));
+		                new Errors.CannotReturnValueFromVoidMethod(n.position()));
 		    }
 		}
 		

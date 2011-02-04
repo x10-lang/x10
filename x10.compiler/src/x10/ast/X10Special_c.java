@@ -69,7 +69,7 @@ public class X10Special_c extends Special_c implements X10Special {
 
             if (tt == null) {
                 Errors.issue(tc.job(),
-                        new SemanticException("self may only be used within a dependent type", position()));
+                        new Errors.SelfMayOnlyBeUsedWithinDependentType(position()));
                 tt = ts.unknownType(position());
             }
 
@@ -141,7 +141,7 @@ public class X10Special_c extends Special_c implements X10Special {
         if (t == null || (c.inStaticContext() && ts.typeEquals(t, c.currentClass(), c))) {
             // trying to access "this" or "super" from a static context.
             Errors.issue(tc.job(),
-                    new SemanticException("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", position()));
+                    new Errors.CannotAccessNonStaticFromStaticContext(position()));
         }
 
         X10Special result = this;
@@ -165,7 +165,7 @@ public class X10Special_c extends Special_c implements X10Special {
             }
             catch (XFailure e) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position()));
+                        new Errors.ConstraintOnThisIsInconsistent(e, position()));
             }
             tt = Types.xclause(Types.baseType(tt), cc);
             
@@ -183,7 +183,7 @@ public class X10Special_c extends Special_c implements X10Special {
             }
             catch (XFailure e) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position()));
+                        new Errors.ConstraintOnSuperIsInconsistent(e, position()));
             }
             tt = Types.xclause(Types.baseType(tt), cc);
             result = (X10Special) type(tt);

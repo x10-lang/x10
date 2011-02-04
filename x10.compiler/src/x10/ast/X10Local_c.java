@@ -112,9 +112,7 @@ public class X10Local_c extends Local_c {
 			if (context.inDepType()) {
 				li = result.localInstance();
 				if (! (li.def().equals(dli)) && ! li.flags().isFinal()) {
-					throw new SemanticException("A var local variable " + liName
-							+ " is not allowed in a constraint.", 
-							position());
+					throw new Errors.LocalVariableNotAllowedInContainer(liName, position());
 				}
 			}
 			

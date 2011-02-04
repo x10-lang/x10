@@ -113,7 +113,7 @@ public class X10Unary_c extends Unary_c {
                 Variable v = (Variable) expr;
                 if (v.flags().isFinal()) {
                     Errors.issue(tc.job(),
-                            new SemanticException("Cannot apply " + op + " to a final variable.", position()));
+                            new Errors.CannotApplyToFinalVariable(op, position()));
                 }
             }
             else {
@@ -132,7 +132,7 @@ public class X10Unary_c extends Unary_c {
                     X10Call e = (X10Call) expr;
                     if (!(e.target() instanceof Expr) || e.name().id() != ClosureCall.APPLY) {
                         Errors.issue(tc.job(),
-                                new SemanticException("Cannot apply " + op + " to an arbitrary method call.", position()));
+                                new Errors.CannotApplyToArbitraryMethodCall(op, position()));
                         t = ts.unknownType(position());
                         et = null;
                     } else {
@@ -142,7 +142,7 @@ public class X10Unary_c extends Unary_c {
                     }
                 } else {
                     Errors.issue(tc.job(),
-                            new SemanticException("Cannot apply " + op + " to an arbitrary expression.", position()));
+                            new Errors.CannotApplyToArbitraryExpression(op, position()));
                     t = ts.unknownType(position());
                     et = null;
                 }
@@ -166,7 +166,7 @@ public class X10Unary_c extends Unary_c {
                     for (int i = 0; i < actualTypes.size(); i++) {
                         if (!ts.isSubtype(actualTypes.get(i), fTypes.get(i), tc.context()))
                             Errors.issue(tc.job(),
-                                    new SemanticException("No "+SettableAssign.SET+" method found in " + target.type(), position()));
+                                    new Errors.NoMethodFoundInType(SettableAssign.SET, target.type(), position()));
                     }
                     t = mi.returnType();
                     et = fTypes.get(0);
@@ -185,14 +185,14 @@ public class X10Unary_c extends Unary_c {
                 Call c = X10Binary_c.desugarBinaryOp(nf.Binary(position(), expr, binaryOp, lit), tc);
                 if (c == null) {
                     Errors.issue(tc.job(),
-                            new SemanticException("No binary operator " + binaryOp + " found in type " + t, expr.position()));
+                            new Errors.NoBinaryOperatorFoundInType(binaryOp, t, expr.position()));
                 } else {
                     MethodInstance mi = (MethodInstance) c.methodInstance();
                     Warnings.checkErrorAndGuard(tc, mi, this);
                     Type resultType = mi.returnType();
                     if (!ts.isSubtype(resultType, et, tc.context())) {
                         Errors.issue(tc.job(),
-                                new SemanticException("Incompatible return type of binary operator "+binaryOp+" found:\n\t operator return type: " + resultType + "\n\t expression type: "+et, expr.position()));
+                                new Errors.IncompatibleReturnTypeOfBinaryOperator(binaryOp, resultType, et, expr.position()));
                     }
                 }
             }
@@ -217,7 +217,7 @@ public class X10Unary_c extends Unary_c {
 
         if (!ts.hasUnknown(t)) {
             Errors.issue(tc.job(),
-                    new SemanticException("No operation " + op + " found for operand " + t + ".", position()));
+                    new Errors.NoOperationFoundForOperand(op, t, position()));
         }
 
         return this.type(ts.unknownType(position()));

@@ -226,7 +226,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         r.update(type);
 
         if (type.isVoid()) {
-            SemanticException e = new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
+            SemanticException e = new Errors.LocalVariableCannotHaveType(this.type().type(), position());
             Errors.issue(tc.job(), e);
         }
 

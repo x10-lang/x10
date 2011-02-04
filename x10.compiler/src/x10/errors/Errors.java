@@ -58,6 +58,7 @@ import x10.util.CollectionFactory;
 import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.DepParameterExpr;
+import x10.ast.SettableAssign;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XFailure;
@@ -1216,6 +1217,164 @@ public class Errors {
 	public static class InconsistentType extends EqualByTypeAndPosException {
         public InconsistentType(Type t, Position p) {
             super("The type " + t + " is inconsistent.", p);
+        }
+    }
+	public static class CouldNotFindEnclosingClass extends EqualByTypeAndPosException {
+        public CouldNotFindEnclosingClass(Name id, Position p) {
+            super("Could not find enclosing class or package for type definition \"" + id + "\".", p);
+        }
+    }
+	public static class TypeIsconsistent extends EqualByTypeAndPosException {
+        public TypeIsconsistent(Type t, Position p) {
+            super("Type " + t + " is inconsistent.", p);
+        }
+    }
+	public static class SuperTypeIsNotAClass extends EqualByTypeAndPosException {
+        public SuperTypeIsNotAClass(ClassType ct, Position p) {
+            super("Super type of " + ct + " is not a class.", p);
+        }
+    }
+	public static class ClassTypeMustHaveEnclosingInstance extends EqualByTypeAndPosException {
+        public ClassTypeMustHaveEnclosingInstance(ClassType ct, ClassType superContainer, Position p) {
+            super(ct + " must have an enclosing instance that is a subtype of " + superContainer, p);
+        }
+    }
+	public static class ClassTypeMustBeSpecifiedInSuperConstructor extends EqualByTypeAndPosException {
+        public ClassTypeMustBeSpecifiedInSuperConstructor(ClassType ct, ClassType superContainer, Position p) {
+            super(ct + " is a subtype of " + superContainer +
+            		"; an enclosing instance that is a subtype of " + superContainer + 
+            		" must be specified in the super constructor call.", p);
+        }
+    }
+	public static class CannotAccessField extends EqualByTypeAndPosException {
+        public CannotAccessField(Id name, X10ClassType tCt, Position p) {
+            super("Cannot access field " + name + " of " + tCt+ 
+            		" in class declaration header; the field may be a member of a superclass.", p);
+        }
+    }
+	public static class UnableToFindImplementingPropertyMethod extends EqualByTypeAndPosException {
+        public UnableToFindImplementingPropertyMethod(Name name, Position p) {
+            super("Unable to find the implementing property method for interface property "+name, p);
+        }
+    }
+	public static class OnlyTypePointCanBeExploded extends EqualByTypeAndPosException {
+        public OnlyTypePointCanBeExploded(Type myType, Position p) {
+            super("Only a formal of type Point can be exploded, however the formal's type is "+myType, p);
+        }
+    }
+	public static class LocalVariableNotAllowedInContainer extends EqualByTypeAndPosException {
+        public LocalVariableNotAllowedInContainer(Name liName, Position p) {
+            super("A var local variable " + liName
+					+ " is not allowed in a constraint.", 
+					p);
+        }
+    }
+	public static class MethodBodyMustBeConstraintExpressiong extends EqualByTypeAndPosException {
+        public MethodBodyMustBeConstraintExpressiong(Position p) {
+            super("Property method body must be a constraint expression.", p);
+        }
+    }
+	public static class MustHaveSameClassAsContainer extends EqualByTypeAndPosException {
+        public MustHaveSameClassAsContainer(Position p) {
+            super("The return type or the formal type of an explicit or implicit operator 'as' " +
+            		"must have the same class as the container.", p);
+        }
+    }
+	public static class TypeParameterMultiplyDefined extends EqualByTypeAndPosException {
+        public TypeParameterMultiplyDefined(Name name, Position p) {
+            super("Type parameter \"" + name + "\" multiply defined.", p);
+        }
+    }
+	public static class LocalVariableMultiplyDefined extends EqualByTypeAndPosException {
+        public LocalVariableMultiplyDefined(Name name, Position p) {
+            super("Local variable \"" + name + "\" multiply defined.", p);
+        }
+    }
+	public static class CouldNotFindNonStaticMemberClass extends EqualByTypeAndPosException {
+        public CouldNotFindNonStaticMemberClass(Name name, Position p) {
+            super("Could not find non-static member class \"" + name + "\".", p);
+        }
+    }
+	public static class OnlySimplyNameMemberClassMayBeInstantiated extends EqualByTypeAndPosException {
+        public OnlySimplyNameMemberClassMayBeInstantiated(Position p) {
+            super("Only simply-named member classes may be instantiated by a qualified new expression.", p);
+        }
+    }
+	public static class CannotInstantiateMemberClass extends EqualByTypeAndPosException {
+        public CannotInstantiateMemberClass(Position p) {
+            super("Cannot instantiate member class of non-class type.", p);
+        }
+    }
+	public static class CannotInstantiateType extends EqualByTypeAndPosException {
+        public CannotInstantiateType(Type ct, Position p) {
+            super("Cannot instantiate type " + ct + "; incorrect number of type arguments.", p);
+        }
+    }
+	public static class MustReturnValueFromNonVoidMethod extends EqualByTypeAndPosException {
+        public MustReturnValueFromNonVoidMethod(Position p) {
+            super("Must return value from non-void method.", p);
+        }
+    }
+	public static class CannotReturnValueFromVoidMethod extends EqualByTypeAndPosException {
+        public CannotReturnValueFromVoidMethod(Position p) {
+            super("Cannot return value from void method or closure.", p);
+        }
+    }
+	public static class SelfMayOnlyBeUsedWithinDependentType extends EqualByTypeAndPosException {
+        public SelfMayOnlyBeUsedWithinDependentType(Position p) {
+            super("self may only be used within a dependent type", p);
+        }
+    }
+	public static class CannotAccessNonStaticFromStaticContext extends EqualByTypeAndPosException {
+        public CannotAccessNonStaticFromStaticContext(Position p) {
+            super("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", p);
+        }
+    }
+	public static class ConstraintOnThisIsInconsistent extends EqualByTypeAndPosException {
+        public ConstraintOnThisIsInconsistent(XFailure e, Position p) {
+            super("Constraint on this is inconsistent; " + e.getMessage(), p);
+        }
+    }
+	public static class ConstraintOnSuperIsInconsistent extends EqualByTypeAndPosException {
+        public ConstraintOnSuperIsInconsistent(XFailure e, Position p) {
+            super("Constraint on super is inconsistent; " + e.getMessage(), p);
+        }
+    }
+	public static class CannotApplyToFinalVariable extends EqualByTypeAndPosException {
+        public CannotApplyToFinalVariable(Unary.Operator op, Position p) {
+            super("Cannot apply " + op + " to a final variable.", p);
+        }
+    }
+	public static class CannotApplyToArbitraryMethodCall extends EqualByTypeAndPosException {
+        public CannotApplyToArbitraryMethodCall(Unary.Operator op, Position p) {
+            super("Cannot apply " + op + " to an arbitrary method call.", p);
+        }
+    }
+	public static class CannotApplyToArbitraryExpression extends EqualByTypeAndPosException {
+        public CannotApplyToArbitraryExpression(Unary.Operator op, Position p) {
+            super("Cannot apply " + op + " to an arbitrary expression.", p);
+        }
+    }
+	public static class NoMethodFoundInType extends EqualByTypeAndPosException {
+        public NoMethodFoundInType(Name name, Type type, Position p) {
+            super("No "+name+" method found in " + type, p);
+        }
+    }
+	public static class NoBinaryOperatorFoundInType extends EqualByTypeAndPosException {
+        public NoBinaryOperatorFoundInType(Binary.Operator binaryOp, Type t, Position p) {
+            super("No binary operator " + binaryOp + " found in type " + t, p);
+        }
+    }
+	public static class IncompatibleReturnTypeOfBinaryOperator extends EqualByTypeAndPosException {
+        public IncompatibleReturnTypeOfBinaryOperator(Binary.Operator binaryOp, Type resultType, Type et, Position p) {
+            super("Incompatible return type of binary operator "+binaryOp+
+            		" found:\n\t operator return type: " + resultType + 
+            		"\n\t expression type: "+ et, p);
+        }
+    }
+	public static class NoOperationFoundForOperand extends EqualByTypeAndPosException {
+        public NoOperationFoundForOperand(Unary.Operator op, Type t, Position p) {
+            super("No operation " + op + " found for operand " + t + ".", p);
         }
     }
 }
