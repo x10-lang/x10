@@ -249,14 +249,13 @@ public class RunTestSuite {
             println("Running each file with a separate (new) compiler object, so it's less efficient but more stable.");
 
 
-        final String dirName = args[0];
         ArrayList<File> files = new ArrayList<File>(10);
-        if (dirName.endsWith(".x10")) {
-            final File dir = new File(dirName);
-            Assert(dir.isFile(), "File doesn't not exists: "+dirName);
-            files.add(getCanonicalFile(dir));
-        } else {
-            for (String dirStr : dirName.split(",")) {
+        for (String dirStr : args[0].split(",")) {
+            if (dirStr.endsWith(".x10")) {
+                final File dir = new File(dirStr);
+                Assert(dir.isFile(), "File doesn't not exists: "+dirStr);
+                files.add(getCanonicalFile(dir));
+            } else {
                 File dir = new File(dirStr);
                 Assert(dir.isDirectory(), "The first command line argument must be a directory or x10 file, and you passed: "+dir);
                 int before = files.size();
