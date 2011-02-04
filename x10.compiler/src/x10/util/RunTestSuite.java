@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Comparator;
 import java.lang.*;
 import java.lang.StringBuilder;
 
@@ -303,6 +304,7 @@ public class RunTestSuite {
         remainingArgs.add("-CHECK_ERR_MARKERS"); // make sure we check @ERR annotations
         remainingArgs.add("-CHECK_INVARIANTS");
         println("sourcepath is: "+dirs);
+        println("Arguments are:"+remainingArgs);
 
         long start = System.currentTimeMillis();
         for (FileSummary f : summaries) {
@@ -505,7 +507,11 @@ public class RunTestSuite {
         if (files.size()>=MAX_FILES_NUM) return;
         // sort the result, so the output is identical for diff purposes (see SHOW_EXPECTED_ERRORS)
         final File[] filesInDir = dir.listFiles();
-        Arrays.sort(filesInDir); // todo: the sort is different on MAC and PC (on MAC: Array1DCodeGen.x10 < Array1b.x10, and on PC it's reverse) 
+        Arrays.sort(filesInDir, new Comparator<File>() {
+            public int compare(File o1, File o2) {
+                return o1.getName().compareTo(o2.getName());  // comparing o1.compareTo(o2) directly is different on MAC and PC (on MAC: Array1DCodeGen.x10 < Array1b.x10, and on PC it's reverse)
+            }
+        });
         for (File f : filesInDir) {
             String name = f.getName();
             final boolean isDir = f.isDirectory();
