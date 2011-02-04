@@ -169,8 +169,8 @@ public class Inliner extends ContextVisitor {
         INLINE_CONSTANTS = config.OPTIMIZE && config.INLINE_CONSTANTS;
         INLINE_METHODS   = config.OPTIMIZE && config.INLINE_METHODS;
         INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
-        INLINE_IMPLICIT  = config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
-        implicitMax      = config.EXPERIMENTAL ? 1 : 0;
+        INLINE_IMPLICIT  = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
+        implicitMax      = config.EXPERIMENTAL ? 0 : 0;
     }
 
     /**
@@ -312,7 +312,7 @@ public class Inliner extends ContextVisitor {
                 if (null != result) 
                     return result;
             }
-            if (INLINE_METHODS && hasNoInlineAnnotation(n)) 
+            if (INLINE_METHODS && !hasNoInlineAnnotation(n)) 
                 result = wrappedInlineMethodCall((X10Call) n);
         } else if (n instanceof ClosureCall && INLINE_CLOSURES) {
             result = inlineClosureCall((ClosureCall) n);
