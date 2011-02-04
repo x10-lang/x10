@@ -224,6 +224,14 @@ public class RunTestSuite {
     public static void Assert(boolean val, String msg) {
         if (!val) throw new RuntimeException(msg);
     }
+    public static void checkAssertionsEnabled() {
+        boolean isEA = true;
+        try {
+            assert false;
+            isEA = false;
+        } catch (Throwable e) {}
+        if (!isEA) throw new RuntimeException("You must run RunTestSuite with assertions enabled, i.e.,  java -ea RunTestSuite ...");                                                                                                                
+    }
     /**
      * Finds all *.x10 files in all sub-directories, and compiles them.
      * @param args
@@ -234,6 +242,7 @@ public class RunTestSuite {
      * @throws Throwable Can be a failed assertion or missing file.
      */
     public static void main(String[] args) throws Throwable {
+        checkAssertionsEnabled();
         Assert(args.length>0, "The first command line argument must be an x10 filename or a comma separated list of the directories.\n"+
                     "E.g.,\n"+
                     "C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10");
@@ -253,7 +262,7 @@ public class RunTestSuite {
         for (String dirStr : args[0].split(",")) {
             if (dirStr.endsWith(".x10")) {
                 final File dir = new File(dirStr);
-                Assert(dir.isFile(), "File doesn't not exists: "+dirStr);
+                Assert(dir.isFile(), "File does not exist: "+dirStr);
                 files.add(getCanonicalFile(dir));
             } else {
                 File dir = new File(dirStr);
@@ -291,6 +300,8 @@ public class RunTestSuite {
             dirs += SOURCE_PATH_SEP+dir;
         remainingArgs.add("-sourcepath");
         remainingArgs.add(dirs);
+        remainingArgs.add("-CHECK_ERR_MARKERS"); // make sure we check @ERR annotations
+        remainingArgs.add("-CHECK_INVARIANTS");
         println("sourcepath is: "+dirs);
 
         long start = System.currentTimeMillis();

@@ -469,7 +469,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   addParseSourceGoals(job, goals);
 
            X10CompilerOptions opts = extensionInfo().getOptions();
-           goals.add(ErrChecker(job)); // must be the first phase after parsing because later phases might fail and stop type checking (it shouldn't happen, but it does)
+           if (opts.x10_config.CHECK_ERR_MARKERS) goals.add(ErrChecker(job)); // must be the first phase after parsing because later phases might fail and stop type checking (it shouldn't happen, but it does)
            goals.add(ImportTableInitialized(job));
            goals.add(TypesInitialized(job));
 
