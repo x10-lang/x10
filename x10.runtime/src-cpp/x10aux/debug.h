@@ -129,7 +129,7 @@ struct _X10ClosureMap
   uint32_t _x10index;         // Index of X10 file name in _X10sourceList
   uint32_t _x10startLine; // the start line of the closure definition in the X10 source
   uint32_t _x10endLine; // the end line of the closure definition in the X10 source
-  const struct _X10TypeMember* const _x10members; // pointer to an array of individual member types
+  const struct _X10TypeMember* _x10members; // pointer to an array of individual member types
 };
 
 struct _X10ArrayMap
