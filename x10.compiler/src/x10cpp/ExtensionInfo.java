@@ -30,7 +30,6 @@ import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
-import polyglot.main.Report;
 import polyglot.types.MemberClassResolver;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
@@ -98,7 +97,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
             // Resolver to handle lookups of member classes.
             if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
+                MemberClassResolver mcr = new MemberClassResolver(ts, r, true, this);
                 r = mcr;
             }
 

@@ -53,6 +53,4 @@ public abstract class ParserlessJLExtensionInfo extends AbstractExtensionInfo {
      * <code>reader</code>.
      */
     public abstract Parser parser(Reader reader, FileSource source, ErrorQueue eq);
-    
-    static { Topics t = new Topics(); }
 }

@@ -136,10 +136,6 @@ import x10cpp.postcompiler.PrecompiledLibrary;
  */
 public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     static final boolean DEBUG_ = false;
-    static {
-        // force Topics to load
-        Topics t = new Topics();
-    }
     
     protected Map<QName,CompilerPlugin> plugins;
 
@@ -150,11 +146,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     public Stats stats;
 
 //	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = CollectionFactory.newHashMap();
-    public static String clock = "clock";
-
-    static {
-        Report.topics.add(clock);
-    }
 
     /*** Construct an ExtensionInfo */
     public ExtensionInfo() {
@@ -360,7 +351,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
             // Resolver to handle lookups of member classes.
             if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
+                MemberClassResolver mcr = new MemberClassResolver(ts, r, true, this);
                 r = mcr;
             }
 

@@ -9,7 +9,7 @@ package polyglot.types;
 
 import java.util.*;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 import x10.types.MethodInstance;
 import x10.util.CollectionFactory;
@@ -28,6 +28,7 @@ public abstract class Context_c implements Context
 {
     protected Context outer;
     protected TypeSystem ts;
+    protected Reporter reporter;
 
     public static enum Kind {
         BLOCK("block"),
@@ -55,6 +56,7 @@ public abstract class Context_c implements Context
         this.ts = ts;
         this.outer = null;
         this.kind = OUTER;
+        this.reporter = ts.extensionInfo().getOptions().reporter;
     }
     
     public boolean isBlock() { return kind == BLOCK; }
@@ -152,16 +154,16 @@ public abstract class Context_c implements Context
      * "argTypes".
      */
     public MethodInstance SUPER_findMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
-        if (Report.should_report(TOPICS, 3))
-          Report.report(3, "find-method " + matcher.signature() + " in " + this);
+        if (reporter.should_report(TOPICS, 3))
+          reporter.report(3, "find-method " + matcher.signature() + " in " + this);
 
         // Check for any method with the appropriate name.
         // If found, stop the search since it shadows any enclosing
         // classes method of the same name.
         if (this.currentClass() != null &&
             ts.hasMethodNamed(this.currentClass(), matcher.name())) {
-            if (Report.should_report(TOPICS, 3))
-              Report.report(3, "find-method " + matcher.signature() + " -> " +
+            if (reporter.should_report(TOPICS, 3))
+              reporter.report(3, "find-method " + matcher.signature() + " -> " +
                                 this.currentClass());
 
             // Found a class that has a method of the right name.
@@ -193,14 +195,14 @@ public abstract class Context_c implements Context
      * Finds the class which added a field to the scope.
      */
     public ClassType SUPER_findFieldScope(Name name) throws SemanticException {
-        if (Report.should_report(TOPICS, 3))
-          Report.report(3, "find-field-scope " + name + " in " + this);
+        if (reporter.should_report(TOPICS, 3))
+          reporter.report(3, "find-field-scope " + name + " in " + this);
 
         VarInstance<?> vi = findVariableInThisScope(name);
 
         if (vi instanceof FieldInstance) {
-            if (Report.should_report(TOPICS, 3))
-              Report.report(3, "find-field-scope " + name + " in " + vi);
+            if (reporter.should_report(TOPICS, 3))
+              reporter.report(3, "find-field-scope " + name + " in " + vi);
             return type;
         }
 
@@ -214,13 +216,13 @@ public abstract class Context_c implements Context
     /** Finds the class which added a method to the scope.
      */
     public ClassType SUPER_findMethodScope(Name name) throws SemanticException {
-        if (Report.should_report(TOPICS, 3))
-          Report.report(3, "find-method-scope " + name + " in " + this);
+        if (reporter.should_report(TOPICS, 3))
+          reporter.report(3, "find-method-scope " + name + " in " + this);
 
         if (this.currentClass() != null &&
             ts.hasMethodNamed(this.currentClass(), name)) {
-            if (Report.should_report(TOPICS, 3))
-              Report.report(3, "find-method-scope " + name + " -> " +
+            if (reporter.should_report(TOPICS, 3))
+              reporter.report(3, "find-method-scope " + name + " -> " +
                                 this.currentClass());
             return this.currentClass();
         }
@@ -245,8 +247,8 @@ public abstract class Context_c implements Context
                 throw new SemanticException("Field " + name + " not accessible.");
 	    }
 
-            if (Report.should_report(TOPICS, 3))
-              Report.report(3, "find-field " + name + " -> " + fi);
+            if (reporter.should_report(TOPICS, 3))
+              reporter.report(3, "find-field " + name + " -> " + fi);
 	    return fi;
 	}
 
@@ -260,8 +262,8 @@ public abstract class Context_c implements Context
         VarInstance<?> vi = findVariableSilent(name);
 
 	if (vi != null) {
-            if (Report.should_report(TOPICS, 3))
-              Report.report(3, "find-var " + name + " -> " + vi);
+            if (reporter.should_report(TOPICS, 3))
+              reporter.report(3, "find-var " + name + " -> " + vi);
             return vi;
 	}
 
@@ -272,14 +274,14 @@ public abstract class Context_c implements Context
      * Gets a local or field of a particular name.
      */
     public VarInstance<?> findVariableSilent(Name name) {
-        if (Report.should_report(TOPICS, 3))
-          Report.report(3, "find-var " + name + " in " + this);
+        if (reporter.should_report(TOPICS, 3))
+          reporter.report(3, "find-var " + name + " in " + this);
 
         VarInstance<?> vi = findVariableInThisScope(name);
 
         if (vi != null) {
-            if (Report.should_report(TOPICS, 3))
-              Report.report(3, "find-var " + name + " -> " + vi);
+            if (reporter.should_report(TOPICS, 3))
+              reporter.report(3, "find-var " + name + " -> " + vi);
             return vi;
         }
 
@@ -306,8 +308,8 @@ public abstract class Context_c implements Context
      * Finds the definition of a particular type.
      */
     public Named find(Matcher<Named> matcher) throws SemanticException {
-	if (Report.should_report(TOPICS, 3))
-            Report.report(3, "find-type " + matcher.signature() + " in " + this);
+	if (reporter.should_report(TOPICS, 3))
+            reporter.report(3, "find-type " + matcher.signature() + " in " + this);
 
         if (isOuter())
             return ts.systemResolver().find(QName.make(null, matcher.name())); // NOTE: looking up a short name
@@ -317,8 +319,8 @@ public abstract class Context_c implements Context
         Named type = findInThisScope(matcher);
 
         if (type != null) {
-            if (Report.should_report(TOPICS, 3))
-              Report.report(3, "find " + matcher.signature() + " -> " + type);
+            if (reporter.should_report(TOPICS, 3))
+              reporter.report(3, "find " + matcher.signature() + " -> " + type);
             return type;
         }
 
@@ -355,8 +357,8 @@ public abstract class Context_c implements Context
      * of type to type.
      */
     public Context SUPER_pushClass(ClassDef classScope, ClassType type) {
-        if (Report.should_report(TOPICS, 4))
-          Report.report(4, "push class " + classScope + " " + classScope.position());
+        if (reporter.should_report(TOPICS, 4))
+          reporter.report(4, "push class " + classScope + " " + classScope.position());
         Context_c v = push();
         v.kind = CLASS;
         v.scope = classScope;
@@ -375,8 +377,8 @@ public abstract class Context_c implements Context
      * pushes an additional block-scoping level.
      */
     public Context SUPER_pushBlock() {
-        if (Report.should_report(TOPICS, 4))
-          Report.report(4, "push block");
+        if (reporter.should_report(TOPICS, 4))
+          reporter.report(4, "push block");
         Context_c v = push();
         v.kind = BLOCK;
         return v;
@@ -386,8 +388,8 @@ public abstract class Context_c implements Context
      * pushes an additional static scoping level.
      */
     public Context SUPER_pushStatic() {
-        if (Report.should_report(TOPICS, 4))
-          Report.report(4, "push static");
+        if (reporter.should_report(TOPICS, 4))
+          reporter.report(4, "push static");
         Context_c v = push();
         v.staticContext = true;
         return v;
@@ -397,8 +399,8 @@ public abstract class Context_c implements Context
      * enters a method
      */
     public Context pushCode(CodeDef ci) {
-        if (Report.should_report(TOPICS, 4))
-          Report.report(4, "push code " + ci.position());
+        if (reporter.should_report(TOPICS, 4))
+          reporter.report(4, "push code " + ci.position());
         Context_c v = push();
         v.kind = CODE;
         v.code = ci;
@@ -454,8 +456,8 @@ public abstract class Context_c implements Context
      * Adds a symbol to the current scoping level.
      */
     public void addVariable(VarInstance<?> vi) {
-        if (Report.should_report(TOPICS, 3))
-          Report.report(3, "Adding " + vi.name() + " to context.");
+        if (reporter.should_report(TOPICS, 3))
+          reporter.report(3, "Adding " + vi.name() + " to context.");
         addVariableToThisScope(vi);
     }
 
@@ -463,8 +465,8 @@ public abstract class Context_c implements Context
      * Adds a named type object to the current scoping level.
      */
     public void addNamed(Named t) {
-        if (Report.should_report(TOPICS, 3))
-          Report.report(3, "Adding type " + t.name() + " to context.");
+        if (reporter.should_report(TOPICS, 3))
+          reporter.report(3, "Adding type " + t.name() + " to context.");
         addNamedToThisScope(t);
     }
 
@@ -547,6 +549,6 @@ public abstract class Context_c implements Context
     }
 
     private static final Collection<String> TOPICS = 
-                CollectionUtil.list(Report.types, Report.context);
+                CollectionUtil.list(Reporter.types, Reporter.context);
 
 }

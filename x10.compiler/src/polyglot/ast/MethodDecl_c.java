@@ -10,7 +10,7 @@ package polyglot.ast;
 
 import java.util.*;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
@@ -162,8 +162,9 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
     protected abstract MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags);
 
     public Context enterScope(Context c) {
-        if (Report.should_report(TOPICS, 5))
-	    Report.report(5, "enter scope of method " + name);
+        Reporter reporter = c.typeSystem().extensionInfo().getOptions().reporter;
+        if (reporter.should_report(TOPICS, 5))
+	        reporter.report(5, "enter scope of method " + name);
         c = c.pushCode(mi);
         return c;
     }
@@ -367,5 +368,5 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
     }
 
     private static final Collection<String> TOPICS = 
-            CollectionUtil.list(Report.types, Report.context);
+            CollectionUtil.list(Reporter.types, Reporter.context);
 }

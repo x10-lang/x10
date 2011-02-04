@@ -9,46 +9,22 @@
 package polyglot.main;
 
 import java.util.Arrays;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Stack;
-import polyglot.util.ErrorInfo;
-import polyglot.util.ErrorQueue;
-import polyglot.util.Position;
-import polyglot.util.SimpleErrorQueue;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 
 /** Class used for reporting debug messages. */
 public class Report {
-  /** A collection of string names of topics which can be used with the
-      -report command-line switch */
-  public final static Collection<String> topics = CollectionFactory.newHashSet();
+  
+  private static Reporter reporter;
 
-  /** A collection of string names of topics which we should always check
-      if we should report. */
-  protected static Stack<String> stackedTopics;
-  
-  /** 
-   * The topics that the user has selected to report, mapped to the level
-   * they want to report them to.
-   */
-  protected final static Map<String, Integer> reportTopics = CollectionFactory.newHashMap(); // Map[String, Integer]
-  
-  /** Error queue to which to write messages. */
-  protected static ErrorQueue eq;
-
-  /**
-   * Indicates if there is no reporting at all.
-   * The normal case is that we do not report anything, so for efficiency 
-   * reasons, since <code>should_report</code> is called so often, we'll use
-   * this flag to bypass a lot of the checking. When the options are processed,
-   * this flag should be changed.
-   */
-  protected static boolean noReporting = true;
-  
   /** Report topics understood by the base compiler. */
   public final static String cfg = "cfg";
   public final static String context = "context";
@@ -68,39 +44,29 @@ public class Report {
   public final static String types = "types";
   public final static String visit = "visit";
   public final static String verbose = "verbose";
-  
-  // This topic is the level of detail that should be in messages.
-  public final static String debug = "debug";
 
-  static {
-    topics.add(cfg);
-    topics.add(context);
-    topics.add(dataflow);
-    topics.add(errors);
-    topics.add(frontend);
-    topics.add(imports);
-    topics.add(loader);
-    topics.add(resolver);
-    topics.add(serialize);
-    topics.add(time);
-    topics.add(threshold);
-    topics.add(frequency);
-    topics.add(types);
-    topics.add(visit);
-    topics.add(verbose);
-    topics.add(debug);
+  public static void initialize(Reporter theReporter) {
+        // We're attempting to make Report not be static.
+        // Until this is completed, we're continuing to use a single
+        // Reporter to reproduce the behaviour of having a static Report.
+        if (reporter == null)
+            reporter = theReporter;
+        else {
+            synchronized (reporter) {
+                for (Map.Entry<String, Integer> e : theReporter.reportTopics.entrySet()) {
+                    reporter.addTopic(e.getKey(), e.getValue());
+                }
+            }
+        }
   }
-
- 
+  
   /**
    * Return whether a message on <code>topic</code> of obscurity
    * <code>level</code> should be reported, based on use of the
    * -report command-line switches given by the user.
    */
   public static boolean should_report(String topic, int level) {
-    if (noReporting)
-        return false;
-    return should_report(Collections.singletonList(topic), level); 
+    return reporter.should_report(topic,level);
   }
 
   /**
@@ -109,88 +75,9 @@ public class Report {
    * -report command-line switches given by the user.
    */
     public static boolean should_report(Collection<String> topics, int level) {
-        if (noReporting) return false;
-        if (stackedTopics != null) {
-            synchronized (stackedTopics) {
-                for (String topic : stackedTopics) {
-                    if (level(topic) >= level) return true;                }
-            }
-        }
-        if (topics != null) {
-            synchronized (topics) {
-                for (String topic : topics) {
-                    if (level(topic) >= level) return true;
-                }
-            }
-        }
-        return false;
+        return reporter.should_report(topics,level);
     }
 
-  /**
-   * Start reporting messages on <code>topic</code>.
-   */
-    public static void start_reporting(String topic) {
-        if (noReporting) return;
-        if (should_report(topic, 1)) {
-            if (stackedTopics == null) stackedTopics = new Stack<String>();
-            synchronized (stackedTopics) {
-                stackedTopics.push(topic);
-            }
-        }
-    }
-
-  /**
-   * Stop reporting messages on <code>topic</code>.
-   */
-  public static void stop_reporting(String topic) {
-    if (stackedTopics == null)
-          return;
-    synchronized (stackedTopics) {
-      stackedTopics.remove(topic);
-    }
-  }
-
-  /** Add a topic to report */
-  public static void addTopic(String topic, int level) {
-      synchronized (reportTopics) {
-      Integer i = (Integer)reportTopics.get(topic);
-      if (i == null || i.intValue() < level) {
-          reportTopics.put(topic, new Integer(level));
-      }
-      }
-      noReporting = false;
-  }
-
-  /** Remove a topic to report */
-  public static void removeTopic(String topic) {
-      synchronized (reportTopics) {
-        reportTopics.remove(topic);
-        if (reportTopics.isEmpty()) {
-            noReporting = true;
-        }
-      }
-  }
-
-  /** Get the error queue, possibly creating it if not set. */
-  public static ErrorQueue getQueue() {
-      if (eq == null) {
-          eq = new SimpleErrorQueue();
-      }
-      return eq;
-  }
-
-  /** Set the error queue. */
-  public static void setQueue(ErrorQueue eq) {
-      Report.eq = eq;
-  }
-
-  public static int level(String name) {
-      synchronized (reportTopics) {
-          Object i = reportTopics.get(name);
-          if (i == null) return 0;
-          else return ((Integer)i).intValue();
-      }
-  }
 
   /** This is the standard way to report debugging information in the
    *  compiler.  It reports a message of the specified level (which
@@ -202,24 +89,8 @@ public class Report {
    *  instead, to ensure the error is associated with the right file/location.
    */
   public static void report(int level, String message) {
-      report(level, message, null);
+      reporter.report(level, message, null);
   }
 
-  /** This is the standard way to report debugging information in the
-   *  compiler.  It reports a message of the specified level (which
-   *  controls the presentation of the message. To test whether such
-   *  message should be reported, use "should_report".
-   *
-   *  NOTE: This is a change of spec from earlier versions of Report.
-   *  NOTE: This version takes an explicit Position, so that position info gets
-   *  properly associated with the ErrorInfo that gets created by enqueue().
-   */
-  public static void report(int level, String message, Position pos) {
-      StringBuffer buf = new StringBuffer(message.length() + level);
-      for (int j = 1; j < level; j++) {
-          buf.append(" ");
-      }
-      buf.append(message);
-      getQueue().enqueue(ErrorInfo.DEBUG, buf.toString(), pos);
-  }
+
 }

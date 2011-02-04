@@ -9,8 +9,10 @@ package polyglot.types;
 
 import java.util.*;
 
-import polyglot.main.Report;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.frontend.ExtensionInfo;
+import polyglot.main.Reporter;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 
 /**
  * Loads member classes using a TopLevelResolver that can only handle
@@ -23,19 +25,22 @@ public class MemberClassResolver implements TopLevelResolver
     protected boolean allowRawClasses;
     protected Set<QName> nocache;
 
+    protected Reporter reporter;
+    
   protected final static Collection<String> report_topics =
-      CollectionUtil.list(Report.types, Report.resolver, Report.loader, "mcr");
+      CollectionUtil.list(Reporter.types, Reporter.resolver, Reporter.loader, "mcr");
 
   /**
    * Create a member class resolver.
    * @param ts The type system
    * @param inner The resolver for top-level classes
    */
-  public MemberClassResolver(TypeSystem ts, TopLevelResolver inner, boolean allowRawClasses) {
+  public MemberClassResolver(TypeSystem ts, TopLevelResolver inner, boolean allowRawClasses, ExtensionInfo ext) {
     this.ts = ts;
     this.inner = inner;
     this.allowRawClasses = allowRawClasses;
     this.nocache = CollectionFactory.newHashSet();
+    this.reporter = ext.getOptions().reporter;
   }
 
   public boolean packageExists(QName name) {
@@ -46,8 +51,8 @@ public class MemberClassResolver implements TopLevelResolver
    * Find a type by name.
    */
   public Named find(QName name) throws SemanticException {
-    if (Report.should_report(report_topics, 3))
-      Report.report(3, "MemberCR.find(" + name + ")");
+    if (reporter.should_report(report_topics, 3))
+      reporter.report(3, "MemberCR.find(" + name + ")");
 
 
     if (nocache.contains(name)) {
@@ -64,13 +69,13 @@ public class MemberClassResolver implements TopLevelResolver
 
     // First, just try the long name.
     try {
-        if (Report.should_report(report_topics, 2))
-            Report.report(2, "MCR: loading " + name + " from " + inner);
+        if (reporter.should_report(report_topics, 2))
+            reporter.report(2, "MCR: loading " + name + " from " + inner);
         return inner.find(name);
     }
     catch (SemanticException e) {
-        if (Report.should_report(report_topics, 2))
-            Report.report(2, "MCR: " + e.getMessage());
+        if (reporter.should_report(report_topics, 2))
+            reporter.report(2, "MCR: " + e.getMessage());
         if (name.qualifier() == null) {
             throw e;
         }
@@ -91,8 +96,8 @@ public class MemberClassResolver implements TopLevelResolver
     // so that encoded type information and source files are preferred
     // to the raw class file.
     try {
-        if (Report.should_report(report_topics, 2))
-            Report.report(2, "MCR: loading prefix " + prefix);
+        if (reporter.should_report(report_topics, 2))
+            reporter.report(2, "MCR: loading prefix " + prefix);
 
         n = find(prefix);
 
@@ -112,16 +117,16 @@ public class MemberClassResolver implements TopLevelResolver
       if (container instanceof ClassType) {
           ClassType ct = (ClassType) container;
 
-          if (Report.should_report(report_topics, 2))
-              Report.report(2, "MCR: found prefix " + ct);
+          if (reporter.should_report(report_topics, 2))
+              reporter.report(2, "MCR: found prefix " + ct);
 
           // Uncomment if we should search superclasses
           // return ct.resolver().find(name);
           Named n = ct.memberTypeMatching(ts.MemberTypeMatcher(ct, name, ts.emptyContext()));
 
           if (n != null) {
-              if (Report.should_report(report_topics, 2))
-                  Report.report(2, "MCR: found member of " + ct + ": " + n);
+              if (reporter.should_report(report_topics, 2))
+                  reporter.report(2, "MCR: found member of " + ct + ": " + n);
               return n;
           }
       }

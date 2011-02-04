@@ -10,7 +10,7 @@ package polyglot.types;
 
 import java.util.*;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 import x10.util.CollectionFactory;
 
@@ -25,6 +25,8 @@ import x10.util.CollectionFactory;
 public class ImportTable implements Resolver
 {
     protected TypeSystem ts;
+    
+    protected Reporter reporter;
     
     /** Map from names to classes found, or to the NOT_FOUND object. */
     protected Map<Object,Option<Named>> map;
@@ -76,6 +78,7 @@ public class ImportTable implements Resolver
 	this.onDemandImportPositions = new ArrayList<Position>();
 	this.explicitImports = new ArrayList<QName>();
 	this.explicitImportPositions = new ArrayList<Position>();
+    this.reporter = ts.extensionInfo().getOptions().reporter;
     }
 
     /**
@@ -96,8 +99,8 @@ public class ImportTable implements Resolver
      * Add a class import.
      */
     public void addExplicitImport(QName name, Position pos) {
-        if (Report.should_report(TOPICS, 2))
-            Report.report(2, this + ": lazy import " + name);
+        if (reporter.should_report(TOPICS, 2))
+            reporter.report(2, this + ": lazy import " + name);
 
 	explicitImports.add(name);
 	explicitImportPositions.add(pos);
@@ -167,8 +170,8 @@ public class ImportTable implements Resolver
      * Find a type by name, searching the import table.
      */
     public Named find(Matcher<Named> matcher) throws SemanticException {
-        if (Report.should_report(TOPICS, 2))
-           Report.report(2, this + ".find(" + matcher.signature() + ")");
+        if (reporter.should_report(TOPICS, 2))
+           reporter.report(2, this + ".find(" + matcher.signature() + ")");
 
         // The class name is short.
         // First see if we have a mapping already.
@@ -392,8 +395,8 @@ public class ImportTable implements Resolver
 		continue;
 	    tried.add(longName);
 
-            if (Report.should_report(TOPICS, 2))
-		Report.report(2, this + ": import " + longName);
+        if (reporter.should_report(TOPICS, 2))
+		    reporter.report(2, this + ": import " + longName);
 
             if (longName.name().equals(matcher.name()))
         	return findInContainer(matcher, longName.qualifier(), pos);
@@ -412,6 +415,6 @@ public class ImportTable implements Resolver
     }
 
     private static final Collection<String> TOPICS = 
-        CollectionUtil.list(Report.types, Report.resolver, Report.imports);
+        CollectionUtil.list(Reporter.types, Reporter.resolver, Reporter.imports);
 
 }

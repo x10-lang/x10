@@ -105,10 +105,14 @@ public class Main
           throw new TerminationException(ue.exitCode);
       }
 
+      // TODO: until we can get rid of static Report, give it
+      //    the reporter
+      Report.initialize(options.reporter);
+
       // Time as much of the setup as we can
-      ext.stats.initialize(startTime);
+      ext.stats.initialize(ext, startTime);
       ext.stats.startTiming("getCompiler", "getCompiler");
-      Report.start_reporting(Report.verbose);
+      options.reporter.start_reporting(Report.verbose);
 
       if (eq == null) {
           eq = new StdErrorQueue(System.err,
