@@ -284,6 +284,13 @@ public class X10Translator extends Translator {
                     out.println("Created-By: " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     out.close();
 
+                    // create directory for jar file
+                    File jarFile = new File(options.executable_path);
+                    File directoryHoldingJarFile = jarFile.getParentFile();
+                    if (directoryHoldingJarFile != null) {
+                    	directoryHoldingJarFile.mkdirs();
+                    }
+                    
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
                     jarCmdList.add("cmf");
                     jarCmdList.add(manifest.getAbsolutePath());
