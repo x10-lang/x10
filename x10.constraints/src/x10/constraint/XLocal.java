@@ -35,7 +35,11 @@ public class XLocal<T> extends XVar  {
 	public int hashCode() {
 		return name.hashCode();
 	}
-	@Override
+
+	public boolean hasVar(XVar v) {
+		return equals(v);
+	}
+
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;

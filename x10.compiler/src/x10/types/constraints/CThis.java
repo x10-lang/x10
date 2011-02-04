@@ -42,6 +42,11 @@ public class CThis extends XVar {
     public int hashCode() {
         return num;
     }
+    
+
+    public boolean hasVar(XVar v) {
+        return equals(v);
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o)

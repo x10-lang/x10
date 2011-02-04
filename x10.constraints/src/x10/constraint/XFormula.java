@@ -114,14 +114,14 @@ public class XFormula<T> extends XTerm {
 
 	    public List<XTerm> arguments() { return arguments; }
 
-/*	    public boolean hasVar(XVar v) {
+	    public boolean hasVar(XVar v) {
 	        for (XTerm arg : arguments) {
 	            if (arg.hasVar(v))
 	                return true;
 	        }
 	        return false;
 	    }
-*/
+	    
 	    public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
 	        assert last == null;
 	        // Evaluate left == right, if both are literals.
