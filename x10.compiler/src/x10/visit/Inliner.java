@@ -314,7 +314,7 @@ public class Inliner extends ContextVisitor {
                 if (null != result) 
                     return result;
             }
-            if (INLINE_METHODS && hasNoInlineAnnotation(n)) 
+            if (INLINE_METHODS && !hasNoInlineAnnotation(n)) 
                 result = wrappedInlineMethodCall((X10Call) n);
         } else if (n instanceof ClosureCall && INLINE_CLOSURES) {
             result = inlineClosureCall((ClosureCall) n);
