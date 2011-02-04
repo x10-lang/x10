@@ -32,6 +32,14 @@ public class ForgivingVisitorGoal extends VisitorGoal {
             }
             return false;
         }
+        catch (RuntimeException e) {
+            fail();
+            throw e;
+        }
+        catch (Error e) {
+            fail();
+            throw e;
+        }
         finally {
             job().ast(ast);
         }

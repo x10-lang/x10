@@ -60,6 +60,14 @@ public class VisitorGoal extends SourceGoal_c {
 		
 		    return false;
 		}
+		catch (RuntimeException e) {
+		    fail();
+		    throw e;
+		}
+		catch (Error e) {
+		    fail();
+		    throw e;
+		}
 		finally {
 		    job().ast(ast);
 		}
