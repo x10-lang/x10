@@ -7,10 +7,11 @@
 
 package polyglot.types.reflect;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.FileUtil;
 import polyglot.util.InternalCompilerError;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Resource;
 
@@ -27,9 +28,11 @@ public class ClassFileLoader
 {
     /** The extension info */
     protected ExtensionInfo extensionInfo;
+    protected Reporter reporter;
 
     public ClassFileLoader(ExtensionInfo ext) {
         this.extensionInfo = ext;
+        this.reporter = ext.getOptions().reporter;
     }
 
 
@@ -72,8 +75,8 @@ public class ClassFileLoader
         byte[] bytecode = out.toByteArray();
 
         try {
-            if (Report.should_report(verbose, 3))
-		Report.report(3, "defining class " + name);
+            if (reporter.should_report(Reporter.loader, 3))
+                reporter.report(3, "defining class " + name);
             return createClassFile(source, bytecode);
         }
         catch (ClassFormatError e) {
@@ -85,10 +88,4 @@ public class ClassFileLoader
         return new ClassFile(source, bytecode, extensionInfo);
     }
 
-    protected static Collection<String> verbose;
-
-    static {
-        verbose = CollectionFactory.newHashSet();
-        verbose.add("loader");
-    }
 }
