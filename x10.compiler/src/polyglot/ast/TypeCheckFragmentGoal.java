@@ -27,6 +27,7 @@ public class TypeCheckFragmentGoal<T> extends AbstractGoal_c implements SourceGo
     }
 
     public TypeCheckFragmentGoal(Node parent, Node[] prereqs, Node n, TypeChecker v, LazyRef<T> r, boolean mightFail) {
+        super(v.job().extensionInfo());
         this.parent = parent;
         this.prereqs = prereqs;
         this.n = n;

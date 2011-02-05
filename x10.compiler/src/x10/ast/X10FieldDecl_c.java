@@ -168,7 +168,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    TypeChecker tc0 = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 		    final TypeChecker tc = (TypeChecker) tc0.context(v.context().freeze());
 		    final Node n = this;
-		    r.setResolver(new AbstractGoal_c("ConstantValue") {
+		    r.setResolver(new AbstractGoal_c("ConstantValue", v.typeSystem().extensionInfo()) {
 		        private static final long serialVersionUID = -4839673421806815982L;
 		        { this.scheduler = tc.job().extensionInfo().scheduler(); }
 		        public boolean runTask() {

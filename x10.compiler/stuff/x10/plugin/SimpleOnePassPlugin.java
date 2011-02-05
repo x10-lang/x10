@@ -36,7 +36,7 @@ public abstract class SimpleOnePassPlugin implements CompilerPlugin {
 		private SimpleOnePassPlugin plugin;
 
 		private SimpleOnePassPluginGoal(Job job, SimpleOnePassPlugin plugin) {
-    		super(job, plugin.getClass().getName());
+    		super(job, plugin.getClass().getName(),job.extensionInfo());
     		this.plugin = plugin;
     	}
 
