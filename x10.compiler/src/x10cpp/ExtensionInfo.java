@@ -76,7 +76,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 	}
 
 	protected TypeSystem createTypeSystem() {
-		return new X10CPPTypeSystem_c();
+		return new X10CPPTypeSystem_c(this);
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 r = mcr;
             }
 
-            ts.initialize(r, this);
+            ts.initialize(r);
         }
         catch (SemanticException e) {
             throw new InternalCompilerError(

@@ -78,11 +78,6 @@ public class Reporter {
     public final static String visit = "visit";
     public final static String verbose = "verbose";
 
-    public static final String jl = "jl";
-    public static final String qq = "qq";
-    public static final String x10 = "x10";
-    public static final String clock = "clock";
-
     // This topic is the level of detail that should be in messages.
     public final static String debug = "debug";
 

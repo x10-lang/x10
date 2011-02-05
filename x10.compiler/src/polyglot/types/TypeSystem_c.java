@@ -12,7 +12,7 @@ import java.util.*;
 
 import polyglot.ast.Binary;
 import polyglot.frontend.*;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
@@ -98,14 +98,17 @@ public class TypeSystem_c implements TypeSystem
     protected SystemResolver systemResolver;
     protected TopLevelResolver loadedResolver;
     protected ExtensionInfo extInfo;
+    protected Reporter reporter;
 
     private Throwable creator;
     private int creationTime;
-    public TypeSystem_c() {
+    public TypeSystem_c(ExtensionInfo extInfo) {
         creator = new Throwable().fillInStackTrace();
         creationTime = counter++;
-        if (Report.should_report("TypeSystem", 1))
-            Report.report(1, "Creating " + getClass() + " at " + creationTime);
+        this.extInfo = extInfo;
+        this.reporter = extInfo.getOptions().reporter;
+        if (reporter.should_report(Reporter.types, 1))
+            reporter.report(1, "Creating " + getClass() + " at " + creationTime);
     }
 
 
@@ -113,13 +116,12 @@ public class TypeSystem_c implements TypeSystem
      * Initializes the type system and its internal constants (which depend on
      * the resolver).
      */
-    public void initialize(TopLevelResolver loadedResolver, ExtensionInfo extInfo)
+    public void initialize(TopLevelResolver loadedResolver)
     throws SemanticException {
 
-	if (Report.should_report(Report.types, 1))
-	    Report.report(1, "Initializing " + getClass().getName());
+	if (reporter.should_report(Reporter.types, 1))
+	    reporter.report(1, "Initializing " + getClass().getName());
 
-	this.extInfo = extInfo;
 
 	// The loaded class resolver.  This resolver automatically loads types
 	// from class files and from source files not mentioned on the command
@@ -1573,14 +1575,14 @@ public class TypeSystem_c implements TypeSystem
 
 		    visitedTypes.add(type);
 
-		    if (Report.should_report(Report.types, 2))
-			Report.report(2, "Searching type " + type + " for method " + matcher.signature());
+		    if (reporter.should_report(Reporter.types, 2))
+			reporter.report(2, "Searching type " + type + " for method " + matcher.signature());
 
 		    for (Iterator<MethodInstance> i = type.methodsNamed(matcher.name()).iterator(); i.hasNext(); ) {
 			MethodInstance mi = i.next();
 
-			if (Report.should_report(Report.types, 3))
-			    Report.report(3, "Trying " + mi);
+			if (reporter.should_report(Reporter.types, 3))
+			    reporter.report(3, "Trying " + mi);
 
 			try {
 				MethodInstance oldmi = mi;
@@ -1591,8 +1593,8 @@ public class TypeSystem_c implements TypeSystem
 			    }
 			    mi.setOrigMI(oldmi);
 			    if (isAccessible(mi, context)) {
-				if (Report.should_report(Report.types, 3)) {
-				    Report.report(3, "->acceptable: " + mi + " in "
+				if (reporter.should_report(Reporter.types, 3)) {
+				    reporter.report(3, "->acceptable: " + mi + " in "
 				                  + mi.container());
 				}
 
@@ -2888,7 +2890,7 @@ public class TypeSystem_c implements TypeSystem
     protected final Flags X10_METHOD_FLAGS = legalMethodFlags();
 
     public void checkMethodFlags(Flags f) throws SemanticException {
-        // Report.report(1, "X10TypeSystem_c:method_flags are |" +
+        // reporter.report(1, "X10TypeSystem_c:method_flags are |" +
         // X10_METHOD_FLAGS + "|");
         if (!f.clear(X10_METHOD_FLAGS).equals(Flags.NONE)) {
             throw new SemanticException("Cannot declare method with flags " + f.clear(X10_METHOD_FLAGS) + ".");

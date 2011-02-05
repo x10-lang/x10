@@ -355,7 +355,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                 r = mcr;
             }
 
-            ts.initialize(r, this);
+            ts.initialize(r);
         }
         catch (SemanticException e) {
             throw new InternalCompilerError(
@@ -368,7 +368,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     protected TypeSystem createTypeSystem() {
-        return new TypeSystem_c();
+        return new TypeSystem_c(this);
     }
 
 
