@@ -9,7 +9,7 @@ package polyglot.visit;
 
 import polyglot.ast.*;
 import polyglot.frontend.*;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.*;
@@ -22,12 +22,15 @@ public class ErrorHandlingVisitor extends NodeVisitor
     protected Job job;
     protected TypeSystem ts;
     protected NodeFactory nf;
+    protected Reporter reporter;
+    
 
     public ErrorHandlingVisitor(Job job, TypeSystem ts, NodeFactory nf) {
         super();
         this.job = job;
         this.ts = ts;
         this.nf = nf;
+        this.reporter = ts.extensionInfo().getOptions().reporter;
     }
     
     public Job job() {
@@ -98,8 +101,8 @@ public class ErrorHandlingVisitor extends NodeVisitor
      */
     protected NodeVisitor enterCall(Node parent, Node n)
                 throws SemanticException {
-        if (Report.should_report(Report.visit, 3))
-	    Report.report(3, "enter: " + parent + " -> " + n);
+        if (reporter.should_report(Reporter.visit, 3))
+            reporter.report(3, "enter: " + parent + " -> " + n);
         return enterCall(n);
     }
 
@@ -179,8 +182,8 @@ public class ErrorHandlingVisitor extends NodeVisitor
      * children of <code>n</code>.
      */
     public NodeVisitor enter(Node parent, Node n) {
-        if (Report.should_report(Report.visit, 5))
-	    Report.report(5, "enter(" + n + ")");
+        if (reporter.should_report(Reporter.visit, 5))
+            reporter.report(5, "enter(" + n + ")");
 
         if (catchErrors(n)) {
             this.error = false;
@@ -257,8 +260,8 @@ public class ErrorHandlingVisitor extends NodeVisitor
             if (v instanceof ErrorHandlingVisitor &&
                 ((ErrorHandlingVisitor) v).error) {
 
-                if (Report.should_report(Report.visit, 5))
-		    Report.report(5, "leave(" + n + "): error below");
+                if (reporter.should_report(Reporter.visit, 5))
+                    reporter.report(5, "leave(" + n + "): error below");
 
                 if (catchErrors(n)) {
                     this.error = false;
@@ -273,8 +276,8 @@ public class ErrorHandlingVisitor extends NodeVisitor
                 return n;
             }
 
-            if (Report.should_report(Report.visit, 5))
-		Report.report(5, "leave(" + n + "): calling leaveCall");
+            if (reporter.should_report(Reporter.visit, 5))
+                reporter.report(5, "leave(" + n + "): calling leaveCall");
 
             return leaveCall(parent, old, n, v);
 	}

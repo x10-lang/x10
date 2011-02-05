@@ -14,7 +14,7 @@ import polyglot.ast.*;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Compiler;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.FlowGraph.*;
@@ -574,15 +574,15 @@ public abstract class DataFlow extends ErrorHandlingVisitor
 		head = head + scc_size;
 	    }
 	}
-	if (Report.should_report(Report.dataflow, 2)) {
+	if (reporter.should_report(Reporter.dataflow, 2)) {
 	    for (int j = 0; j < n; j++) {
 		switch(scc_head[j]) {
-		    case -1: Report.report(2, j + "[HEAD] : " + by_scc[j]); break;
-		    case -2: Report.report(2, j + "       : " + by_scc[j]); break;
-		    default: Report.report(2, j + " ->"+ scc_head[j] + " : " + by_scc[j]);
+		    case -1: reporter.report(2, j + "[HEAD] : " + by_scc[j]); break;
+		    case -2: reporter.report(2, j + "       : " + by_scc[j]); break;
+		    default: reporter.report(2, j + " ->"+ scc_head[j] + " : " + by_scc[j]);
 		}
 		for (Edge edge : by_scc[j].succs()) {
-		    Report.report(3, "     successor: " + edge.getTarget());
+		    reporter.report(3, "     successor: " + edge.getTarget());
 		}
 	    }
 	}
@@ -594,8 +594,8 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      * Perform the dataflow on the flowgraph provided.
      */
     protected void dataflow(FlowGraph graph) {
-	if (Report.should_report(Report.dataflow, 1)) {
-	    Report.report(1, "Finding strongly connected components");
+	if (reporter.should_report(Reporter.dataflow, 1)) {
+	    reporter.report(1, "Finding strongly connected components");
 	}
 	Pair<Peer[], int[]> pair = findSCCs(graph);
 	Peer[] by_scc = pair.fst();
@@ -607,8 +607,8 @@ public abstract class DataFlow extends ErrorHandlingVisitor
 	   begins with a -1 and ends with the index of
 	   the beginning of the SCC.
 	*/
-	if (Report.should_report(Report.dataflow, 1)) {
-	    Report.report(1, "Iterating dataflow equations");
+	if (reporter.should_report(Reporter.dataflow, 1)) {
+	    reporter.report(1, "Iterating dataflow equations");
 	}
 
 	int current = 0;
@@ -670,8 +670,8 @@ public abstract class DataFlow extends ErrorHandlingVisitor
 		current++;
 	    }
         }
-	if (Report.should_report(Report.dataflow, 1)) {
-	    Report.report(1, "Done.");
+	if (reporter.should_report(Reporter.dataflow, 1)) {
+	    reporter.report(1, "Done.");
 	}
     }
 
@@ -768,7 +768,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      * been performed.
      */
     protected void post(FlowGraph graph, Term root) {
-        if (Report.should_report(Report.cfg, 2)) {
+        if (reporter.should_report(Reporter.cfg, 2)) {
             dumpFlowGraph(graph, root);
         }
         
@@ -1273,21 +1273,21 @@ public abstract class DataFlow extends ErrorHandlingVisitor
         }
 
 
-        Report.report(2, "digraph DataFlow" + name + " {");
-        Report.report(2, "  label=\"Dataflow: " + name + "\\n" + rootName +
+        reporter.report(2, "digraph DataFlow" + name + " {");
+        reporter.report(2, "  label=\"Dataflow: " + name + "\\n" + rootName +
             "\"; fontsize=20; center=true; ratio=auto; size = \"8.5,11\";");
 
         // Loop around the nodes...
         for (Peer p : graph.peers()) {
             // dump out this node
-            Report.report(2,
+            reporter.report(2,
                           p.hashCode() + " [ label = \"" +
                           StringUtil.escape(p.node.toString()) + "\\n(" + 
                           StringUtil.escape(StringUtil.getShortNameComponent(p.node.getClass().getName()))+ ")\" ];");
             
             // dump out the successors.
             for (Edge q : p.succs) {
-                Report.report(2,
+                reporter.report(2,
                               q.getTarget().hashCode() + " [ label = \"" +
                               StringUtil.escape(q.getTarget().node.toString()) + " (" + 
                               StringUtil.escape(StringUtil.getShortNameComponent(q.getTarget().node.getClass().getName()))+ ")\" ];");
@@ -1298,11 +1298,11 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                 else {
                     label += "\\n[no dataflow available]";
                 }
-                Report.report(2, p.hashCode() + " -> " + q.getTarget().hashCode() + 
+                reporter.report(2, p.hashCode() + " -> " + q.getTarget().hashCode() + 
                               " [label=\"" + label + "\"];");
             }
             
         }
-        Report.report(2, "}");
+        reporter.report(2, "}");
     }
 }
