@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import polyglot.frontend.SchedulerException;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import x10.util.CollectionFactory;
 
@@ -35,6 +35,7 @@ import x10.util.CollectionFactory;
 public class TypeEncoder
 {
     protected TypeSystem ts;
+    protected Reporter reporter;
     protected final boolean zip = true;
     protected final boolean base64 = true;
     protected final boolean test = false;
@@ -44,6 +45,7 @@ public class TypeEncoder
     
     public TypeEncoder(TypeSystem ts) {
         this.ts = ts;
+        this.reporter = ts.extensionInfo().getOptions().reporter;
         this.placeHolderCache = null;
     }
     
@@ -57,8 +59,8 @@ public class TypeEncoder
         ByteArrayOutputStream baos;
         ObjectOutputStream oos;
         
-        if (Report.should_report(Report.serialize, 1)) {
-            Report.report(1, "Encoding type " + t);
+        if (reporter.should_report(Reporter.serialize, 1)) {
+            reporter.report(1, "Encoding type " + t);
         }
         
         baos = new ByteArrayOutputStream();
@@ -76,8 +78,8 @@ public class TypeEncoder
         
         byte[] b = baos.toByteArray();
         
-        if (Report.should_report(Report.serialize, 2)) {
-            Report.report(2, "Size of serialization (with" 
+        if (reporter.should_report(Reporter.serialize, 2)) {
+            reporter.report(2, "Size of serialization (with" 
                           + (zip?"":"out") + " zipping) is " + b.length + " bytes");
         }
         
@@ -93,8 +95,8 @@ public class TypeEncoder
             s = sb.toString();
         }
         
-        if (Report.should_report(Report.serialize, 2)) {
-            Report.report(2, "Size of serialization after conversion to string is " 
+        if (reporter.should_report(Reporter.serialize, 2)) {
+            reporter.report(2, "Size of serialization after conversion to string is " 
                           + s.length() + " characters");
         }
         
@@ -151,8 +153,8 @@ public class TypeEncoder
             dependencies = CollectionFactory.newHashMap();
         }
 
-        if (Report.should_report(Report.serialize, 1))
-            Report.report(1, "TypeEncoder depth " + depth + " at " + name);
+        if (reporter.should_report(Reporter.serialize, 1))
+            reporter.report(1, "TypeEncoder depth " + depth + " at " + name);
         depth++;
         
         try {

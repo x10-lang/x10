@@ -1,7 +1,7 @@
 package polyglot.frontend;
 
 import polyglot.ast.Node;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.NodeVisitor;
 
@@ -24,8 +24,8 @@ public class ForgivingVisitorGoal extends VisitorGoal {
         try {
             NodeVisitor v_ = v.begin();
             if (v_ != null) {
-                if (Report.should_report(Report.frontend, 3))
-                    Report.report(3, "Running " + v_ + " on " + ast);
+                if (reporter.should_report(Reporter.frontend, 3))
+                    reporter.report(3, "Running " + v_ + " on " + ast);
                 ast = ast.visit(v_);
                 v_.finish(ast);
                 return true;

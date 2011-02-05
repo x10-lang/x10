@@ -19,7 +19,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.Flags;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
@@ -63,15 +63,15 @@ public class ParserGoal extends SourceGoal_c
 
 	Node ast = null;
 	try {
-	    if (Report.should_report("parser", 1))
-		Report.report(1, "" + source);
+	    if (reporter.should_report("parser", 1))
+	        reporter.report(1, "" + source);
 	    
 	    Reader reader = source.open();
             
             Parser p = job().extensionInfo().parser(reader, source, eq);
 
-	    if (Report.should_report(Report.frontend, 2))
-		Report.report(2, "Using parser " + p);
+	    if (reporter.should_report(Reporter.frontend, 2))
+	        reporter.report(2, "Using parser " + p);
 	    ast = p.parse();
 
 	    source.close();

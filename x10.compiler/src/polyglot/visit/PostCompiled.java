@@ -14,7 +14,7 @@ import java.util.Iterator;
 import polyglot.frontend.*;
 import polyglot.frontend.Compiler;
 import polyglot.main.Options;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 
 /** The post compiler pass runs after all jobs complete.  It invokes the post-compiler on the output files stored in compiler.outputFiles(). */
@@ -50,7 +50,7 @@ public class PostCompiled extends AllBarrierGoal
     public boolean runTask() {
         Compiler compiler = ext.compiler();
 
-        if (Report.should_report(postcompile, 2)) Report.report(2, "Output files: " + compiler.outputFiles());
+        if (reporter.should_report(postcompile, 2)) reporter.report(2, "Output files: " + compiler.outputFiles());
 
         return invokePostCompiler(ext.getOptions(), compiler, compiler.errorQueue());
 
@@ -76,11 +76,11 @@ public class PostCompiled extends AllBarrierGoal
                 javacCmd[j] = (String) iter.next();
             }
 
-            if (Report.should_report(postcompile, 1)) {
+            if (reporter.should_report(postcompile, 1)) {
                 StringBuffer cmdStr = new StringBuffer();
                 for (int i = 0; i < javacCmd.length; i++)
                     cmdStr.append(javacCmd[i]+" ");
-                Report.report(1, "Executing post-compiler " + cmdStr);
+                reporter.report(1, "Executing post-compiler " + cmdStr);
             }
 
             try {
