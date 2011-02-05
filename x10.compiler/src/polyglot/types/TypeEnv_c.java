@@ -3,7 +3,7 @@ package polyglot.types;
 import java.util.*;
 
 import polyglot.frontend.Globals;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import x10.types.MethodInstance;
 import x10.types.X10TypeEnv_c;
@@ -754,9 +754,11 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	                                + " in " + mj.container()+ "; incompatible " + "parameter types", mi.position());
 	}
 
+	Reporter reporter = ts.extensionInfo().getOptions().reporter;
+	boolean shouldReport = reporter.should_report(Reporter.types, 3);
 	if (allowCovariantReturn ? !isSubtype(mi.returnType(), mj.returnType()) : !typeEquals(mi.returnType(), mj.returnType())) {
-	    if (Report.should_report(Report.types, 3))
-		Report.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
+	    if (shouldReport)
+	        reporter.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
 	    throw new SemanticException(mi.signature() 
 	                                + " in " + mi.container() + " cannot override " + mj.signature() 
 	                                + " in " + mj.container()+ "; attempting to use incompatible return type." 
@@ -773,8 +775,8 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	}
 */
 	if (mi.flags().moreRestrictiveThan(mj.flags())) {
-	    if (Report.should_report(Report.types, 3))
-		Report.report(3, mi.flags() + " more restrictive than " + mj.flags());
+	    if (shouldReport)
+	        reporter.report(3, mi.flags() + " more restrictive than " + mj.flags());
 	    throw new SemanticException(mi.signature() 
 	                                + " in " + mi.container() + " cannot override " + mj.signature() 
 	                                + " in " + mj.container()+ "; attempting to assign weaker " 
@@ -782,17 +784,17 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	}
 
 	if (mi.flags().isStatic() != mj.flags().isStatic()) {
-	    if (Report.should_report(Report.types, 3))
-		Report.report(3, mi.signature() + " is " + (mi.flags().isStatic() ? "" : "not") + " static but " + mj.signature() + " is "
-			+ (mj.flags().isStatic() ? "" : "not") + " static");
+	    if (shouldReport)
+	        reporter.report(3, mi.signature() + " is " + (mi.flags().isStatic() ? "" : "not") + " static but " + mj.signature() + " is "
+	                      + (mj.flags().isStatic() ? "" : "not") + " static");
 	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; overridden method is " + (mj.flags().isStatic() ? "" : "not") + "static", mi.position());
 	}
 
 	if (!mi.def().equals(mj.def()) && mj.flags().isFinal()) {
 	    // mi can "override" a final method mj if mi and mj are the same
 	    // method instance.
-	    if (Report.should_report(Report.types, 3))
-		Report.report(3, mj.flags() + " final");
+	    if (shouldReport)
+	        reporter.report(3, mj.flags() + " final");
 	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; overridden method is final", mi.position());
 	}
     }

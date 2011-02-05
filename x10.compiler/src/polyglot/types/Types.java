@@ -21,7 +21,7 @@ import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.Variable;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -1210,8 +1210,9 @@ public class Types {
 	    if (descends && ! ts.hasSameClassDef(t1, t2) && flags1.isStatic() && flags2.isStatic()) {
 	        return true;
 	    }
+	    Reporter reporter = ts.extensionInfo().getOptions().reporter;
 	    boolean java = javaStyleMoreSpecificMethod(xp1, xp2, (Context) context, ct1, t1, t2,descends);
-	    if (Report.should_report("specificity", 1)) {
+	    if (reporter.should_report(Reporter.specificity, 1)) {
 	        boolean old = oldStyleMoreSpecificMethod(xp1, xp2, (Context) context, ts, ct1, t1, t2, descends);
 	        if (java != old) {
 	            String msg = Types.MORE_SPECIFIC_WARNING +
@@ -1224,7 +1225,7 @@ public class Types {
 	                    + "\n\t: t1 is  " + t1
 	                    + "\n\t: t2 is " + t2;
 	            //new Error().printStackTrace();
-	            Report.report(1, "Warning: "+msg);
+	            reporter.report(1, "Warning: "+msg);
 	        }
 	    }
 	    // Change this to return old to re-enable 2.0.6 style computation.
