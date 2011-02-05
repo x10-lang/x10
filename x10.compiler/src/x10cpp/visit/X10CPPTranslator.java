@@ -64,7 +64,7 @@ import polyglot.frontend.Source;
 import polyglot.frontend.TargetFactory;
 
 import polyglot.main.Options;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -594,11 +594,12 @@ public class X10CPPTranslator extends Translator {
     	return doPostCompile(options, eq, outputFiles, cxxCmd, false);
     }
     public static boolean doPostCompile(Options options, ErrorQueue eq, Collection<String> outputFiles, String[] cxxCmd, boolean noError) {
-        if (Report.should_report(postcompile, 1)) {
+        Reporter reporter = options.reporter;
+        if (reporter.should_report(postcompile, 1)) {
         	StringBuffer cmdStr = new StringBuffer();
         	for (int i = 0; i < cxxCmd.length; i++)
         		cmdStr.append(cxxCmd[i]+" ");
-        	Report.report(1, "Executing post-compiler " + cmdStr);
+        	reporter.report(1, "Executing post-compiler " + cmdStr);
         }
 
         try {

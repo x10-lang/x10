@@ -18,11 +18,13 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
     protected Context context; // the actual context. Eliminate this and merge
     // with Context.
     protected TypeSystem ts;
+    protected Reporter reporter;
 
     public TypeEnv_c(Context context) {
     	assert context != null; 
 	this.context = context;
 	this.ts = context.typeSystem();
+    this.reporter = this.ts.extensionInfo().getOptions().reporter;
     }
 
     public X10TypeEnv_c shallowCopy() {
@@ -754,7 +756,6 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	                                + " in " + mj.container()+ "; incompatible " + "parameter types", mi.position());
 	}
 
-	Reporter reporter = ts.extensionInfo().getOptions().reporter;
 	boolean shouldReport = reporter.should_report(Reporter.types, 3);
 	if (allowCovariantReturn ? !isSubtype(mi.returnType(), mj.returnType()) : !typeEquals(mi.returnType(), mj.returnType())) {
 	    if (shouldReport)

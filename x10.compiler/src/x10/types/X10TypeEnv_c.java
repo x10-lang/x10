@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
@@ -593,8 +593,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
                 visitedTypes.add(type);
 
-                if (Report.should_report(Report.types, 2))
-                    Report.report(2, "Searching type " + type + " for method " + matcher.signature());
+                if (reporter.should_report(Reporter.types, 2))
+                    reporter.report(2, "Searching type " + type + " for method " + matcher.signature());
 
                 for (Iterator<Type> i = type.typeMembers().iterator(); i.hasNext(); ) {
                     Type ti = i.next();
@@ -605,8 +605,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
                     MacroType mi = (MacroType) ti;
 
-                    if (Report.should_report(Report.types, 3))
-                        Report.report(3, "Trying " + mi);
+                    if (reporter.should_report(Reporter.types, 3))
+                        reporter.report(3, "Trying " + mi);
 
                     try {
                         mi = matcher.instantiate(mi);
@@ -616,8 +616,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                         }
 
                         if (isAccessible(mi)) {
-                            if (Report.should_report(Report.types, 3)) {
-                                Report.report(3, "->acceptable: " + mi + " in " + mi.container());
+                            if (reporter.should_report(Reporter.types, 3)) {
+                                reporter.report(3, "->acceptable: " + mi + " in " + mi.container());
                             }
 
                             acceptable.add(mi);
@@ -1815,23 +1815,23 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type miRet = Subst.subst(mi.returnType(), newSymbols, miSymbols);
         Type mjRet = Subst.subst(mj.returnType(), newSymbols, mjSymbols);
         if (! isSubtype(miRet, tps.reinstantiate(mjRet))) {
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
             throw new Errors.IncompatibleReturnType(mi, mj);
         } 
 
     
 
         if (mi.flags().moreRestrictiveThan(mj.flags())) {
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, mi.flags() + " more restrictive than " +
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, mi.flags() + " more restrictive than " +
                               mj.flags());
             throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; attempting to assign weaker " +"access privileges",mi.position());
         }
 
         if (mi.flags().isStatic() != mj.flags().isStatic()) {
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, mi.signature() + " is " + 
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, mi.signature() + " is " + 
                               (mi.flags().isStatic() ? "" : "not") + 
                               " static but " + mj.signature() + " is " +
                               (mj.flags().isStatic() ? "" : "not") + " static");
@@ -1840,8 +1840,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         if (! mi.def().equals(mj.def()) && mj.flags().isFinal()) {
             // mi can "override" a final method mj if mi and mj are the same method instance.
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, mj.flags() + " final");
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, mj.flags() + " final");
             throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; overridden method is final",mi.position());
         }
     }
@@ -1904,8 +1904,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         // Report.report(1, "X10MethodInstance_c: " + this + " canOverrideImpl " + mj);
         if (! miF.hasAllAnnotationsOf(mjF)) {
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, mi.flags() + " is more liberal than " + mj.flags());
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, mi.flags() + " is more liberal than " + mj.flags());
             throw new SemanticException(mi.flags() + " " + mi.signature() 
                                         + " in " + mi.container() 
                                         +" cannot override " +mj.flags() 
@@ -1961,8 +1961,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 	List<ConstructorInstance> acceptable = new ArrayList<ConstructorInstance>();
 
-	if (Report.should_report(Report.types, 2))
-	    Report.report(2, "Searching type " + container + " for constructor " + matcher.signature());
+	if (reporter.should_report(reporter.types, 2))
+	    reporter.report(2, "Searching type " + container + " for constructor " + matcher.signature());
 
 	if (!(container instanceof ClassType)) {
 	    return Collections.<ConstructorInstance>emptyList();
@@ -1970,8 +1970,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 	List<ConstructorInstance> list = ((ClassType) container).constructors();
 	for (ConstructorInstance ci : list) {
-	    if (Report.should_report(Report.types, 3))
-		Report.report(3, "Trying " + ci);
+	    if (reporter.should_report(Reporter.types, 3))
+		reporter.report(3, "Trying " + ci);
 
 	    try {
 	    	ConstructorInstance oldCI = ci;
@@ -1982,8 +1982,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    	}
 	    	ci.setOrigMI(oldCI);
 	    	if (isAccessible(ci)) {
-	    		if (Report.should_report(Report.types, 3))
-	    			Report.report(3, "->acceptable: " + ci);
+	    		if (reporter.should_report(Reporter.types, 3))
+	    			reporter.report(3, "->acceptable: " + ci);
 	    		acceptable.add(ci);
 	    	}
 	    	else {

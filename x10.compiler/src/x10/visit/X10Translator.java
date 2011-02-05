@@ -30,7 +30,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Job;
 import polyglot.frontend.TargetFactory;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.TypeSystem;
@@ -205,11 +205,12 @@ public class X10Translator extends Translator {
                 javacCmd[j] = (String) iter.next();
             }
 
-            if (Report.should_report(postcompile, 1)) {
+            Reporter reporter = options.reporter;
+            if (reporter.should_report(postcompile, 1)) {
                 StringBuffer cmdStr = new StringBuffer();
                 for (int i = 0; i < javacCmd.length; i++)
                     cmdStr.append(javacCmd[i]+" ");
-                Report.report(1, "Executing post-compiler " + cmdStr);
+                reporter.report(1, "Executing post-compiler " + cmdStr);
             }
 
             try {
