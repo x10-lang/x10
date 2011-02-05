@@ -112,7 +112,7 @@ public class Main
       // Time as much of the setup as we can
       ext.stats.initialize(ext, startTime);
       ext.stats.startTiming("getCompiler", "getCompiler");
-      options.reporter.start_reporting(Report.verbose);
+      options.reporter.start_reporting(Reporter.verbose);
 
       if (eq == null) {
           eq = new StdErrorQueue(System.err,

@@ -92,6 +92,7 @@ public class Reporter {
         topics.add(loader);
         topics.add(resolver);
         topics.add(serialize);
+        topics.add(specificity);
         topics.add(time);
         topics.add(threshold);
         topics.add(frequency);

@@ -43,7 +43,6 @@ public class Report {
   public final static String frequency = "frequency";
   public final static String types = "types";
   public final static String visit = "visit";
-  public final static String verbose = "verbose";
 
   public static void initialize(Reporter theReporter) {
         // We're attempting to make Report not be static.
