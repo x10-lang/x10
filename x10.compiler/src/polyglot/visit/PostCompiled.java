@@ -23,6 +23,7 @@ public class PostCompiled extends AllBarrierGoal
     private static final long serialVersionUID = -1965473009038288138L;
 
     ExtensionInfo ext;
+    Reporter reporter;
 
     /**
      * Create a Translator.  The output of the visitor is a collection of files
@@ -31,6 +32,7 @@ public class PostCompiled extends AllBarrierGoal
     public PostCompiled(ExtensionInfo ext) {
 	super("PostCompile",ext.scheduler());
 	this.ext = ext;
+	this.reporter = ext.getOptions().reporter;
     }
 
     public Goal prereqForJob(Job job) {

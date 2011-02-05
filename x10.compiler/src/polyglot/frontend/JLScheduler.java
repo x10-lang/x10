@@ -94,7 +94,7 @@ public class JLScheduler extends Scheduler {
     public Goal TypesInitializedForCommandLineBarrier() {
         TypeSystem ts = extInfo.typeSystem();
         NodeFactory nf = extInfo.nodeFactory();
-        return new BarrierGoal("TypesInitializedForCommandLineBarrier", commandLineJobs(), extInfo) {
+        return new BarrierGoal("TypesInitializedForCommandLineBarrier", commandLineJobs()) {
             private static final long serialVersionUID = 3109663087276641223L;
             public Goal prereqForJob(Job job) {
                 return PreTypeCheck(job);
@@ -206,7 +206,7 @@ public class JLScheduler extends Scheduler {
 
     @Override
     public Goal LookupGlobalType(LazyRef<Type> sym) {
-        return new LookupGlobalType("LookupGlobalType", sym, extInfo).intern(this);
+        return new LookupGlobalType("LookupGlobalType", sym).intern(this);
     }
 
     @Override
@@ -232,8 +232,8 @@ public class JLScheduler extends Scheduler {
     public class LookupGlobalType extends TypeObjectGoal_c<Type> {
         private static final long serialVersionUID = 3031200221165141846L;
 
-        public LookupGlobalType(String name, Ref<Type> v, ExtensionInfo ext) {
-            super(name, v, ext);
+        public LookupGlobalType(String name, Ref<Type> v) {
+            super(name, v);
             ref = Types.lazyRef(null);
 			Goal g = JLScheduler.this.LookupGlobalTypeDef(ref, null);
 			ref.setResolver(g);
@@ -255,7 +255,7 @@ public class JLScheduler extends Scheduler {
         protected Flags flags;
 
         private LookupGlobalTypeDefAndSetFlags(Ref<ClassDef> v, QName className, Flags flags) {
-            super(v, extInfo);
+            super(v);
             this.className = className;
             this.flags = flags;
         }

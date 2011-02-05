@@ -39,6 +39,7 @@ public class VisitorGoal extends SourceGoal_c {
 		
 		    if (v_ != null) {
 		        ErrorQueue q = job().compiler().errorQueue();
+		        Reporter reporter = scheduler.extensionInfo().getOptions().reporter;
 		        int nErrsBefore = q.errorCount();
 		
 		        if (reporter.should_report(Reporter.frontend, 3))

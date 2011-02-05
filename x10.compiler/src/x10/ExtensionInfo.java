@@ -741,7 +741,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal TypeCheckBarrier() {
            String name = "TypeCheckBarrier";
     	   if (extInfo.getOptions().compile_command_line_only) {
-               return new BarrierGoal(name, commandLineJobs(), extensionInfo()) {
+               return new BarrierGoal(name, commandLineJobs()) {
                    private static final long serialVersionUID = -1495893515710977644L;
                    @Override
                    public Goal prereqForJob(Job job) {
@@ -772,7 +772,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal CodeGenBarrier() {
            String name = "CodeGenBarrier";
            if (extInfo.getOptions().compile_command_line_only) {
-               return new BarrierGoal(name, commandLineJobs(), extensionInfo()) {
+               return new BarrierGoal(name, commandLineJobs()) {
                    private static final long serialVersionUID = 2258041064037983928L;
                    @Override
                    public Goal prereqForJob(Job job) {

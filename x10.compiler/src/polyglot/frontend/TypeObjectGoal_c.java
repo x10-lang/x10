@@ -13,13 +13,12 @@ public class TypeObjectGoal_c<T extends TypeObject> extends AbstractGoal_c imple
 
     Ref<T> v;
     
-    public TypeObjectGoal_c(String name, Ref<T> v, ExtensionInfo ext) {
-        super(name,ext);
+    public TypeObjectGoal_c(String name, Ref<T> v) {
+        super(name);
         this.v = v;
     }
 
-    public TypeObjectGoal_c(Ref<T> v, ExtensionInfo ext) {
-        super(ext);
+    public TypeObjectGoal_c(Ref<T> v) {
         this.v = v;
     }
     

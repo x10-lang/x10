@@ -44,7 +44,7 @@ public class LoadPlugins extends AbstractGoal_c {
 	private final ExtensionInfo extInfo;
     
 	public LoadPlugins(ExtensionInfo extInfo) {
-		super("LoadPlugins", extInfo);
+		super("LoadPlugins");
 		this.extInfo = extInfo;
 	}
 

@@ -98,6 +98,10 @@ public abstract class Scheduler {
         this.currentGoal = null;
     }
     
+    public ExtensionInfo extensionInfo() {
+        return this.extInfo;
+    }
+    
     public Collection<Job> commandLineJobs() {
         return this.commandLineJobs;
     }

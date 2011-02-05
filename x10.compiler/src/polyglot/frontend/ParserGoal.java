@@ -62,6 +62,7 @@ public class ParserGoal extends SourceGoal_c
 	FileSource source = (FileSource) job().source();
 
 	Node ast = null;
+	Reporter reporter = scheduler.extensionInfo().getOptions().reporter;
 	try {
 	    if (reporter.should_report("parser", 1))
 	        reporter.report(1, "" + source);

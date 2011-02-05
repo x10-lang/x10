@@ -24,6 +24,7 @@ public class ForgivingVisitorGoal extends VisitorGoal {
         try {
             NodeVisitor v_ = v.begin();
             if (v_ != null) {
+                Reporter reporter = scheduler.extensionInfo().getOptions().reporter;
                 if (reporter.should_report(Reporter.frontend, 3))
                     reporter.report(3, "Running " + v_ + " on " + ast);
                 ast = ast.visit(v_);

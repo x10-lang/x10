@@ -14,21 +14,19 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 	private List<Goal> prereqs;
 	protected Scheduler scheduler = null;
 	private List<GoalListener> listeners;
-	protected Reporter reporter;
 
 	public final Goal intern(Scheduler scheduler) {
 		this.scheduler = scheduler;
 		return scheduler.intern(this);
 	}
 
-	protected AbstractGoal_c(ExtensionInfo ext) {
-        this(null,ext);
+	protected AbstractGoal_c() {
+        this(null);
 	}
-	protected AbstractGoal_c(String name, ExtensionInfo ext) {
+	protected AbstractGoal_c(String name) {
 		super(Status.NEW);
 		this.name = name==null ? StringUtil.getShortNameComponent(getClass().getName().replace('$', '.')) : name;
 		setResolver(this);
-		this.reporter = ext.getOptions().reporter;
 	}
 
 	public boolean addListener(GoalListener listener) {
@@ -56,6 +54,7 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 
 	public void run() {
 		AbstractGoal_c goal = this;
+		Reporter reporter = scheduler.extensionInfo().getOptions().reporter;
 		if (reporter.should_report(reporter.frontend, 2))
 			reporter.report(2, "Running to goal " + goal);
 		

@@ -13,7 +13,7 @@ public abstract class AllBarrierGoal extends AbstractGoal_c {
     }
     
     public AllBarrierGoal(String name, Scheduler scheduler) {
-        super(name, scheduler.extInfo);
+        super(name);
         this.scheduler = scheduler;
         sources = scheduler.sources;
     }

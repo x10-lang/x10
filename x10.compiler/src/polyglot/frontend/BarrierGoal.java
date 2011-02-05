@@ -7,8 +7,8 @@ public abstract class BarrierGoal extends AbstractGoal_c {
 
     Collection<Job> jobs;
     
-    public BarrierGoal(String name, Collection<Job> jobs, ExtensionInfo ext) {
-        super(name,ext);
+    public BarrierGoal(String name, Collection<Job> jobs) {
+        super(name);
         assert jobs != null;
         this.jobs = jobs;
     }
@@ -27,8 +27,7 @@ public abstract class BarrierGoal extends AbstractGoal_c {
 		return false;
     }
 
-    public BarrierGoal(Collection<Job> jobs, ExtensionInfo ext) {
-        super(ext);
+    public BarrierGoal(Collection<Job> jobs) {
         assert jobs != null;
         this.jobs = jobs;
     }

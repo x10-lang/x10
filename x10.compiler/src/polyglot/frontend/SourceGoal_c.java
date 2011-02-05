@@ -8,13 +8,12 @@ public abstract class SourceGoal_c extends AbstractGoal_c implements SourceGoal 
     protected Job job;
 
     public SourceGoal_c(String name, Job job) {
-        super(name, job.extensionInfo());
+        super(name);
         assert job != null;
         this.job = job;
     }
     
     public SourceGoal_c(Job job) {
-        super(job.extensionInfo());
         assert job != null;
         this.job = job;
     }
