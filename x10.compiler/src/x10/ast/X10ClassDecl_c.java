@@ -36,7 +36,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Special;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -248,27 +248,28 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     private void superSetSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
         TypeNode superClass = this.superClass;
+        Reporter reporter = ts.extensionInfo().getOptions().reporter;
         
         QName objectName = ((ClassType) ts.Object()).fullName();
 
         if (superClass != null) {
             Ref<? extends Type> t = superClass.typeRef();
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "setting superclass of " + this.type + " to " + t);
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, "setting superclass of " + this.type + " to " + t);
             thisType.superType(t);
         }
         else if (thisType.asType().equals((Object) ts.Object()) || thisType.fullName().equals(objectName)) {
             // the type is the same as ts.Object(), so it has no superclass.
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "setting superclass of " + thisType + " to " + null);
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, "setting superclass of " + thisType + " to " + null);
             thisType.superType(null);
         }
         else {
             // the superclass was not specified, and the type is not the same
             // as ts.Object() (which is typically java.lang.Object)
             // As such, the default superclass is ts.Object().
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "setting superclass of " + this.type + " to " + ts.Object());
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, "setting superclass of " + this.type + " to " + ts.Object());
             thisType.superType(Types.<Type>ref(ts.Object()));
         }
     }
@@ -276,6 +277,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     @Override
     protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
     	final TypeSystem xts = (TypeSystem) ts;
+    	Reporter reporter = xts.extensionInfo().getOptions().reporter;
 
     	// For every struct and interface, add the implicit Any interface.
     	Flags flags =  flags().flags();
@@ -289,8 +291,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         for (TypeNode tn : interfaces) {
             Ref<? extends Type> t = tn.typeRef();
 
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "adding interface of " + thisType + " to " + t);
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, "adding interface of " + thisType + " to " + t);
 
             thisType.addInterface(t);
         }
