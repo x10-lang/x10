@@ -26,15 +26,9 @@ public class Report {
   private static Reporter reporter;
 
   /** Report topics understood by the base compiler. */
-  public final static String cfg = "cfg";
   public final static String context = "context";
-  public final static String dataflow = "dataflow";
-  public final static String errors = "errors";
   public final static String frontend = "frontend";
-  public final static String imports = "imports";
-  public final static String loader = "loader";
   public final static String resolver = "resolver";
-  public final static String serialize = "serialize";
   public final static String types = "types";
   public final static String visit = "visit";
 

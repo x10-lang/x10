@@ -24,14 +24,15 @@ import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Resource;
 import polyglot.frontend.Scheduler;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 
 /**
@@ -40,10 +41,11 @@ import polyglot.util.InternalCompilerError;
  */
 public class X10SourceClassResolver implements TopLevelResolver {
     protected TypeSystem ts;
+    protected Reporter reporter;
     protected String classpath;
     protected Set<QName> nocache;
 
-    protected final static Collection<String> report_topics = CollectionUtil.list(Report.types, Report.resolver, Report.loader);
+    protected final static Collection<String> report_topics = CollectionUtil.list(Reporter.types, Reporter.resolver, Reporter.loader);
 
     protected Compiler compiler;
     protected ExtensionInfo ext;
@@ -67,6 +69,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
     public X10SourceClassResolver(Compiler compiler, ExtensionInfo ext, String classpath, boolean compileCommandLineOnly, boolean ignoreModTimes) {
 
         this.ts = (TypeSystem) ext.typeSystem();
+        this.reporter = ext.getOptions().reporter;
         this.classpath = classpath;
         this.nocache = CollectionFactory.newHashSet();
 
@@ -95,20 +98,20 @@ public class X10SourceClassResolver implements TopLevelResolver {
             Resource clazz = loader.loadResource(fileName);
 
             if (clazz == null) {
-                if (Report.should_report(report_topics, 4)) {
-                    Report.report(4, "Class " + name + " not found in classpath " + loader.classpath());
+                if (reporter.should_report(report_topics, 4)) {
+                    reporter.report(4, "Class " + name + " not found in classpath " + loader.classpath());
                 }
             }
             else {
-                if (Report.should_report(report_topics, 4)) {
-                    Report.report(4, "Class " + name + " found in classpath " + loader.classpath());
+                if (reporter.should_report(report_topics, 4)) {
+                    reporter.report(4, "Class " + name + " found in classpath " + loader.classpath());
                 }
                 return clazz;
             }
         }
         catch (ClassFormatError e) {
-            if (Report.should_report(report_topics, 4))
-                Report.report(4, "Class " + name + " format error");
+            if (reporter.should_report(report_topics, 4))
+                reporter.report(4, "Class " + name + " format error");
         }
 
         nocache.add(name);
@@ -145,8 +148,8 @@ public class X10SourceClassResolver implements TopLevelResolver {
         if (name.equals(QName.make("void")))
             return (Named) ts.Void();
 
-        if (Report.should_report(report_topics, 3))
-            Report.report(3, "SourceCR.find(" + name + ")");
+        if (reporter.should_report(report_topics, 3))
+            reporter.report(3, "SourceCR.find(" + name + ")");
 
         Resource clazz = null;
         FileSource source = null;
@@ -174,8 +177,8 @@ public class X10SourceClassResolver implements TopLevelResolver {
             long sourceModTime = source.lastModified().getTime();
 
             if (!ignoreModTimes && classModTime < sourceModTime) {
-                if (Report.should_report(report_topics, 3))
-                    Report.report(3, "Source file version is newer than compiled for " + name + ".");
+                if (reporter.should_report(report_topics, 3))
+                    reporter.report(3, "Source file version is newer than compiled for " + name + ".");
                 clazz = null;
             } else {
                 handleUpToDateTarget(name, clazz);
@@ -185,22 +188,22 @@ public class X10SourceClassResolver implements TopLevelResolver {
         Named result = null;
         
         if (clazz != null) {
-            if (Report.should_report(report_topics, 4))
-                Report.report(4, "Using encoded class type for " + name);
+            if (reporter.should_report(report_topics, 4))
+                reporter.report(4, "Using encoded class type for " + name);
             
             try {
                 result = getEncodedType(clazz, name);
             }
             catch (SemanticException e) {
-                if (Report.should_report(report_topics, 4))
-                    Report.report(4, "Could not load encoded class " + name);
+                if (reporter.should_report(report_topics, 4))
+                    reporter.report(4, "Could not load encoded class " + name);
                 clazz = null;
             }
         }
         
         if (result == null && source != null) {
-            if (Report.should_report(report_topics, 4))
-                Report.report(4, "Using source file for " + name);
+            if (reporter.should_report(report_topics, 4))
+                reporter.report(4, "Using source file for " + name);
             result = getTypeFromSource(source, name, shouldCompile(name) && clazz == null);
         }
 
@@ -227,7 +230,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         Scheduler scheduler = ext.scheduler();
         Job job = scheduler.loadSource(source, compile);
         
-        if (Report.should_report("sourceloader", 3))
+        if (reporter.should_report("sourceloader", 3))
             new Exception("loaded " + source).printStackTrace();
         
         if (job != null) {

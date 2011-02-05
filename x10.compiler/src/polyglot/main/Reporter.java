@@ -65,6 +65,7 @@ public class Reporter {
     public final static String frontend = "frontend";
     public final static String imports = "imports";
     public final static String loader = "loader";
+    public final static String nativeclass = "nativeclass";
     public final static String resolver = "resolver";
     public final static String serialize = "serialize";
     public final static String specificity = "specificity";

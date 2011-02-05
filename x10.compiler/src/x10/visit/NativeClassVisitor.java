@@ -31,7 +31,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -147,8 +147,8 @@ public class NativeClassVisitor extends ContextVisitor {
         if (cname == null)
             return n;
 
-        if (Report.should_report("nativeclass", 1))
-            Report.report(1, "Processing @NativeClass " + cdecl);
+        if (reporter.should_report(Reporter.nativeclass, 1))
+            reporter.report(1, "Processing @NativeClass " + cdecl);
 
         ClassBody cbody = cdecl.body();
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
@@ -246,8 +246,8 @@ public class NativeClassVisitor extends ContextVisitor {
                     continue;
                 }
 
-                if (Report.should_report("nativeclass", 2))
-                    Report.report(1, "Processing @NativeDef " + mdecl);
+                if (reporter.should_report("nativeclass", 2))
+                    reporter.report(1, "Processing @NativeDef " + mdecl);
 
                 // clear native flag
                 mdecl = (X10MethodDecl) mdecl.flags(xnf.FlagsNode(p, clearNative(mdecl.flags().flags())));
@@ -300,8 +300,8 @@ public class NativeClassVisitor extends ContextVisitor {
 
                 hasNativeConstructor = true; // good!
 
-                if (Report.should_report("nativeclass", 2))
-                    Report.report(1, "Processing @NativeDef " + xdecl);
+                if (reporter.should_report("nativeclass", 2))
+                    reporter.report(1, "Processing @NativeDef " + xdecl);
 
                 // clear native flag
                 xdecl = (X10ConstructorDecl) xdecl.flags(xnf.FlagsNode(p, clearNative(xdecl.flags().flags())));
