@@ -11,19 +11,13 @@
 
 package x10cpp.types;
 
-import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Context;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem_c;
 
 
 public class X10CPPTypeSystem_c extends TypeSystem_c {
-
-    public X10CPPTypeSystem_c(ExtensionInfo extInfo) {
-        super(extInfo);
-    }
-
-    public Context emptyContext() {
+	public Context emptyContext() {
 		return new X10CPPContext_c(this);
 	}
 }
