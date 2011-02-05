@@ -51,7 +51,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -369,7 +369,7 @@ public class X10Context_c extends Context_c {
 	}
 
 	private static final Collection<String> TOPICS =
-		CollectionUtil.list(Report.types, Report.context);
+		CollectionUtil.list(Reporter.types, Reporter.context);
 
 	/**
 	 * Returns whether the particular symbol is defined locally.  If it isn't
@@ -428,8 +428,8 @@ public class X10Context_c extends Context_c {
 	     * "argTypes".
 	     */
 	    public MethodInstance superFindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
-	        if (Report.should_report(TOPICS, 3))
-	          Report.report(3, "find-method " + matcher.signature() + " in " + this);
+	        if (reporter.should_report(TOPICS, 3))
+	          reporter.report(3, "find-method " + matcher.signature() + " in " + this);
 
 	        // Check for any method with the appropriate name.
 	        // If found, stop the search since it shadows any enclosing
@@ -437,8 +437,8 @@ public class X10Context_c extends Context_c {
 	        ClassType currentClass = this.currentClass();
 	        if (currentClass != null &&
 	                typeSystem().hasMethodNamed(currentClass, matcher.name())) {
-	            if (Report.should_report(TOPICS, 3))
-	              Report.report(3, "find-method " + matcher.signature() + " -> " +
+	            if (reporter.should_report(TOPICS, 3))
+	              reporter.report(3, "find-method " + matcher.signature() + " -> " +
 	                                currentClass);
 
 	            // Override to change the type from C to C{self==this}.

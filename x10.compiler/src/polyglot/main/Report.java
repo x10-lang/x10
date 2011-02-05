@@ -35,12 +35,6 @@ public class Report {
   public final static String loader = "loader";
   public final static String resolver = "resolver";
   public final static String serialize = "serialize";
-  public final static String time = "time";
-  /** threshold specifies a percentage. Only report time that takes
-   *  more than the percent of total time specified by this threshold.
-   */
-  public final static String threshold = "threshold";
-  public final static String frequency = "frequency";
   public final static String types = "types";
   public final static String visit = "visit";
 

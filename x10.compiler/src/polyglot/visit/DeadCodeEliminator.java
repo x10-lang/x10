@@ -11,7 +11,7 @@ import java.util.*;
 
 import polyglot.ast.*;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
@@ -181,7 +181,7 @@ public class DeadCodeEliminator extends DataFlow {
 
     public void post(FlowGraph graph, Term root) {
 	// No need to do any checking.
-	if (Report.should_report(Report.cfg, 2)) {
+	if (reporter.should_report(Reporter.cfg, 2)) {
 	    dumpFlowGraph(graph, root);
 	}
     }
