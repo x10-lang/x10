@@ -81,7 +81,8 @@ for i in \
 	x10.constraints \
 	x10.dist \
 	x10.runtime \
-	x10.tests
+	x10.tests \
+	x10.wala
 do
     svn $svn_command https://x10.svn.sourceforge.net/svnroot/x10/tags/$X10_TAG/$i
 done
