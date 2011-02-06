@@ -49,7 +49,8 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
     
     public Resolver resolver() {
         if (memberCache == null) {
-            memberCache = new AnotherCachingResolver(ts.createClassContextResolver(this));
+            memberCache = new AnotherCachingResolver(ts.createClassContextResolver(this),
+                                                     ts.extensionInfo().getOptions().reporter);
         }
         return memberCache;
     }

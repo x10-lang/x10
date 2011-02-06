@@ -27,10 +27,7 @@ public class Report {
 
   /** Report topics understood by the base compiler. */
   public final static String context = "context";
-  public final static String frontend = "frontend";
-  public final static String resolver = "resolver";
   public final static String types = "types";
-  public final static String visit = "visit";
 
   public static void initialize(Reporter theReporter) {
         // We're attempting to make Report not be static.

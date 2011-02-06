@@ -9,7 +9,7 @@ package polyglot.types;
 
 import java.util.*;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 import x10.util.CollectionFactory;
 
@@ -21,23 +21,22 @@ public class AnotherCachingResolver implements Resolver {
     protected Resolver inner;
     private Map<Object,Object> cache;
     private boolean cacheNotFound;
+    protected Reporter reporter;
 
     /**
      * Create a caching resolver.
      * @param inner The resolver whose results this resolver caches.
      */
-    public AnotherCachingResolver(Resolver inner, boolean cacheNotFound) {
-	this.inner = inner;
-	this.cacheNotFound = cacheNotFound;
-	this.cache = new LinkedHashMap<Object, Object>();
-    }
-
-    public AnotherCachingResolver(Resolver inner) {
-	this(inner, true);
+ 
+    public AnotherCachingResolver(Resolver inner, Reporter reporter) {
+        this.inner = inner;
+        this.cacheNotFound = true;
+        this.cache = new LinkedHashMap<Object, Object>();
+        this.reporter = reporter;
     }
 
     protected boolean shouldReport(int level) {
-	return Report.should_report(TOPICS, level);
+	return reporter.should_report(TOPICS, level);
     }
 
     /*
@@ -79,7 +78,7 @@ public class AnotherCachingResolver implements Resolver {
       */
      public Named find(Matcher<Named> matcher) throws SemanticException {
 	 if (shouldReport(2))
-	     Report.report(2, "CachingResolver: find: " + matcher.signature());
+	     reporter.report(2, "CachingResolver: find: " + matcher.signature());
 
 	 Object o = null;
 	 if (matcher.key() != null)
@@ -91,15 +90,15 @@ public class AnotherCachingResolver implements Resolver {
 
 	 if (q == null) {
 	     if (shouldReport(3))
-		 Report.report(3, "CachingResolver: not cached: " + matcher.signature());
+		 reporter.report(3, "CachingResolver: not cached: " + matcher.signature());
 
 	     try {
 		 q = inner.find(matcher);
 	     }
 	     catch (NoClassException e) {
 		 if (shouldReport(3)) {
-		     Report.report(3, "CachingResolver: " + e.getMessage());
-		     Report.report(3, "CachingResolver: installing " + matcher.signature() + "-> (not found) in resolver cache");
+		     reporter.report(3, "CachingResolver: " + e.getMessage());
+		     reporter.report(3, "CachingResolver: installing " + matcher.signature() + "-> (not found) in resolver cache");
 		 }
 		 if (cacheNotFound) {
 		     if (matcher.key() != null)
@@ -112,11 +111,11 @@ public class AnotherCachingResolver implements Resolver {
 		 cache.put(matcher.key(), q);
 
 	     if (shouldReport(3))
-		 Report.report(3, "CachingResolver: loaded: " + matcher.signature());
+		 reporter.report(3, "CachingResolver: loaded: " + matcher.signature());
 	 }
 	 else {
 	     if (shouldReport(3))
-		 Report.report(3, "CachingResolver: cached: " + matcher.signature());
+		 reporter.report(3, "CachingResolver: cached: " + matcher.signature());
 	 }
 
 	 return q;
@@ -136,13 +135,13 @@ public class AnotherCachingResolver implements Resolver {
      }
 
      public void dump() {
-	 Report.report(1, "Dumping " + this);
+	 reporter.report(1, "Dumping " + this);
 	 for (Map.Entry<Object, Object> e : cache.entrySet()) {
-	     Report.report(2, e.toString());
+	     reporter.report(2, e.toString());
 	 }
      }
 
      private static final Collection<String> TOPICS =
-	 CollectionUtil.list(Report.types,
-	                     Report.resolver);
+	 CollectionUtil.list(Reporter.types,
+	                     Reporter.resolver);
 }

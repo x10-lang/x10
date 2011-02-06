@@ -67,7 +67,7 @@ public class LoadedClassResolver implements TopLevelResolver
     this.reporter = ts.extensionInfo().getOptions().reporter;
     this.te = new TypeEncoder(ts);
     this.loader = loader;
-    this.pathloader = new ClassPathResourceLoader(classpath);
+    this.pathloader = new ClassPathResourceLoader(classpath, this.reporter);
     this.version = version;
     this.nocache = CollectionFactory.newHashSet();
     this.allowRawClasses = allowRawClasses;

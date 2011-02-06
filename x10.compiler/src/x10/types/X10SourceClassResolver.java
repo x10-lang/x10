@@ -90,7 +90,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         }
         
         if (loader == null)
-            loader = new ClassPathResourceLoader(classpath);
+            loader = new ClassPathResourceLoader(classpath, reporter);
 
         try {
             String fileName = name.toString().replace('.', '/');

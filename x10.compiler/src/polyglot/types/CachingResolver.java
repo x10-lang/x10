@@ -9,7 +9,7 @@ package polyglot.types;
 
 import java.util.*;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 import x10.util.CollectionFactory;
 
@@ -20,24 +20,23 @@ public class CachingResolver implements TopLevelResolver {
     protected TopLevelResolver inner;
     private Map<QName,Object> cache;
     private boolean cacheNotFound;
+    protected Reporter reporter;
 
     /**
      * Create a caching resolver.
      * @param inner The resolver whose results this resolver caches.
      */
-    public CachingResolver(TopLevelResolver inner, boolean cacheNotFound) {
-	this.inner = inner;
-        this.cacheNotFound = cacheNotFound;
-	this.cache = new LinkedHashMap<QName, Object>();
-    }
 
-    public CachingResolver(TopLevelResolver inner) {
-        this(inner, true);
+    public CachingResolver(TopLevelResolver inner, Reporter reporter) {
+        this.inner = inner;
+        this.cacheNotFound = true;
+        this.cache = new LinkedHashMap<QName, Object>();
+        this.reporter = reporter;
     }
 
     protected boolean shouldReport(int level) {
-        return (Report.should_report("sysresolver", level) && this instanceof SystemResolver) ||
-               Report.should_report(TOPICS, level);
+        return (reporter.should_report(Reporter.sysresolver, level) && this instanceof SystemResolver) ||
+               reporter.should_report(TOPICS, level);
     }
     
     public boolean packageExists(QName name) {
@@ -84,7 +83,7 @@ public class CachingResolver implements TopLevelResolver {
      */
     public Named find(QName name) throws SemanticException {
         if (shouldReport(2))
-            Report.report(2, "CachingResolver: find: " + name);
+            reporter.report(2, "CachingResolver: find: " + name);
 
         Object o = cache.get(name);
 
@@ -94,15 +93,15 @@ public class CachingResolver implements TopLevelResolver {
 
         if (q == null) {
             if (shouldReport(3))
-                Report.report(3, "CachingResolver: not cached: " + name);
+                reporter.report(3, "CachingResolver: not cached: " + name);
 
             try {
                 q = inner.find(name);
             }
             catch (NoClassException e) {
                 if (shouldReport(3)) {
-                    Report.report(3, "CachingResolver: " + e.getMessage());
-                    Report.report(3, "CachingResolver: installing " + name + "-> (not found) in resolver cache");
+                    reporter.report(3, "CachingResolver: " + e.getMessage());
+                    reporter.report(3, "CachingResolver: installing " + name + "-> (not found) in resolver cache");
                 }
                 if (cacheNotFound) {
                     cache.put(name, e);
@@ -114,11 +113,11 @@ public class CachingResolver implements TopLevelResolver {
             addNamed(QName.make(q.fullName()), q);
 
             if (shouldReport(3))
-                Report.report(3, "CachingResolver: loaded: " + name);
+                reporter.report(3, "CachingResolver: loaded: " + name);
 	}
         else {
             if (shouldReport(3))
-                Report.report(3, "CachingResolver: cached: " + name);
+                reporter.report(3, "CachingResolver: cached: " + name);
         }
 
 	return q;
@@ -142,7 +141,7 @@ public class CachingResolver implements TopLevelResolver {
      */
     public void install(QName name, Named q) {
         if (shouldReport(3))
-            Report.report(3, "CachingResolver: installing " + name + "->" + q + " in resolver cache");
+            reporter.report(3, "CachingResolver: installing " + name + "->" + q + " in resolver cache");
         if (shouldReport(5))
             new Exception().printStackTrace();
 
@@ -163,13 +162,13 @@ public class CachingResolver implements TopLevelResolver {
     }
 
     public void dump() {
-        Report.report(1, "Dumping " + this);
+        reporter.report(1, "Dumping " + this);
         for (Map.Entry<QName, Object> e : cache.entrySet()) {
-            Report.report(2, e.toString());
+            reporter.report(2, e.toString());
         }
     }
 
     private static final Collection<String> TOPICS =
-                    CollectionUtil.list(Report.types,
-                                        Report.resolver);
+                    CollectionUtil.list(Reporter.types,
+                                        Reporter.resolver);
 }

@@ -9,7 +9,7 @@ package polyglot.types;
 
 import java.util.*;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 import x10.util.CollectionFactory;
 
@@ -20,6 +20,7 @@ import x10.util.CollectionFactory;
  */
 public class ClassContextResolver extends AbstractAccessControlResolver {
     protected Type type;
+    protected Reporter reporter;
     
     /**
      * Construct a resolver.
@@ -29,6 +30,7 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
     public ClassContextResolver(TypeSystem ts, Type type) {
         super(ts);
         this.type = type;
+        this.reporter = ts.extensionInfo().getOptions().reporter;
     }
     
     public String toString() {
@@ -42,8 +44,8 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
     public Named find(Matcher<Named> matcher, Context context) throws SemanticException {
 	Name name = matcher.name();
 	
-        if (Report.should_report(TOPICS, 2))
-	    Report.report(2, "Looking for " + name + " in " + this);
+        if (reporter.should_report(TOPICS, 2))
+	    reporter.report(2, "Looking for " + name + " in " + this);
         
         if (! (type instanceof ClassType)) {
             throw new NoClassException(name.toString(), type);
@@ -214,8 +216,8 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         
         Named t = acceptable.iterator().next();
         
-        if (Report.should_report(TOPICS, 2))
-            Report.report(2, "Found member type " + t);
+        if (reporter.should_report(TOPICS, 2))
+            reporter.report(2, "Found member type " + t);
         
         return t;
     }
@@ -235,6 +237,6 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
     }
 
     private static final Collection<String> TOPICS = 
-            CollectionUtil.list(Report.types, Report.resolver);
+            CollectionUtil.list(Reporter.types, Reporter.resolver);
 
 }

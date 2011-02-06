@@ -51,7 +51,8 @@ public class Package_c extends TypeObject_c implements Package
     
     public Resolver resolver() {
         if (memberCache == null) {
-            memberCache = new AnotherCachingResolver(ts.createPackageContextResolver(this));
+            memberCache = new AnotherCachingResolver(ts.createPackageContextResolver(this),
+                                                     ts.extensionInfo().getOptions().reporter);
         }
         return memberCache;
     }

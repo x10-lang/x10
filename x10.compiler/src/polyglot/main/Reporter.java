@@ -72,6 +72,7 @@ public class Reporter {
     public final static String resolver = "resolver";
     public final static String serialize = "serialize";
     public final static String specificity = "specificity";
+    public final static String sysresolver = "sysresolver";
     public final static String time = "time";
     /**
      * threshold specifies a percentage. Only report time that takes more than

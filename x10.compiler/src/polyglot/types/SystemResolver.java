@@ -10,7 +10,7 @@ package polyglot.types;
 import java.util.*;
 
 import polyglot.frontend.ExtensionInfo;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 import x10.util.CollectionFactory;
 
@@ -27,7 +27,7 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
      * @param inner The resolver whose results this resolver caches.
      */
     public SystemResolver(TopLevelResolver inner, ExtensionInfo extInfo) {
-        super(inner);
+        super(inner, extInfo.getOptions().reporter);
         this.extInfo = extInfo;
         this.packageCache = CollectionFactory.newHashMap();
     }
@@ -132,15 +132,15 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
     public Named find(QName name) throws SemanticException {
         Named n = super.find(name);
 
-        if (Report.should_report(TOPICS, 2))
-            Report.report(2, "Returning from SR.find(" + name + "): " + n);
+        if (reporter.should_report(TOPICS, 2))
+            reporter.report(2, "Returning from SR.find(" + name + "): " + n);
 
         return n;
     }
 
     public void install(QName name, Named q) {
-        if (Report.should_report(TOPICS, 2) && check(name) == null)
-            Report.report(2, "SR installing " + name + "->" + q);
+        if (reporter.should_report(TOPICS, 2) && check(name) == null)
+            reporter.report(2, "SR installing " + name + "->" + q);
         
         super.install(name, q);
     }
@@ -190,7 +190,7 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
     }
 
     private static final Collection<String> TOPICS =
-                    CollectionUtil.list(Report.types,
-                                        Report.resolver,
-                                        "sysresolver");
+                    CollectionUtil.list(Reporter.types,
+                                        Reporter.resolver,
+                                        Reporter.sysresolver);
 }
