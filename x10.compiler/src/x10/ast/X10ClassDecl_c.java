@@ -1094,9 +1094,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 // Something with the same name was declared locally.
                 // (but not in an enclosing class)
                 try {
-                    Named nm = context.find(ts.TypeMatcher(name));
-                    if (nm instanceof Type) {
-                        Type another = (Type) nm;
+                    List<Type> nm = context.find(ts.TypeMatcher(name));
+                    for (Type another : nm) {
                         if (another.isClass() && another.toClass().isLocal()) {
                             Errors.issue(tc.job(), new Errors.SameNameLocal(type, position()));
                         }

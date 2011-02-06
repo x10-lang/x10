@@ -244,13 +244,13 @@ public class Inliner extends ContextVisitor {
         }
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
         try {
-            ConstantType = (Type) ts.systemResolver().find(CONSTANT_ANNOTATION);
-            InlineType = (Type) ts.systemResolver().find(INLINE_ANNOTATION);
-            InlineOnlyType = (Type) ts.systemResolver().find(INLINE_ONLY_ANNOTATION);
-            NoInlineType = (Type) ts.systemResolver().find(NO_INLINE_ANNOTATION);
-            NativeType = (Type) ts.systemResolver().find(NATIVE_ANNOTATION);
-            NativeRepType = (Type) ts.systemResolver().find(NATIVE_REP_ANNOTATION);
-            NativeClassType = (Type) ts.systemResolver().find(NATIVE_CLASS_ANNOTATION);
+            ConstantType = ts.systemResolver().findOne(CONSTANT_ANNOTATION);
+            InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
+            InlineOnlyType = ts.systemResolver().findOne(INLINE_ONLY_ANNOTATION);
+            NoInlineType = ts.systemResolver().findOne(NO_INLINE_ANNOTATION);
+            NativeType = ts.systemResolver().findOne(NATIVE_ANNOTATION);
+            NativeRepType = ts.systemResolver().findOne(NATIVE_REP_ANNOTATION);
+            NativeClassType = ts.systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
         } catch (SemanticException e) {
             InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type");
             SemanticException se = new SemanticException(ice);		//TODO: internal compiler error, should be removed

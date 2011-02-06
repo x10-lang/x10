@@ -324,21 +324,21 @@ public class X10CPPTranslator extends Translator {
 		            String out_path = opts.output_directory.toString();
 		            if (out_path==null) out_path = ""; else out_path = out_path + '/';
 		            String pkg_ = packagePath(pkg);
-		            List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
+		            List<X10ClassType> as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPInclude")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String include = getStringPropertyInit(at, 0);
 		                outputFiles.add(pkg_+include);
 		                maybeCopyTo(include, path, out_path+pkg_);
 		            }
-		            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPOutputFile")));
+		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPOutputFile")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String file = getStringPropertyInit(at, 0);
 		                outputFiles.add(pkg_+file);
 		                maybeCopyTo(file, path, out_path+pkg_);
 		            }
-		            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPCompilationUnit")));
+		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPCompilationUnit")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String compilation_unit = getStringPropertyInit(at, 0);

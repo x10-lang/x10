@@ -477,8 +477,7 @@ public class Emitter {
 		if (n.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) n.ext();
 			try {
-				Type java = (Type) xts.systemResolver().find(
-						QName.make("x10.compiler.Native"));
+				Type java = xts.systemResolver().findOne(QName.make("x10.compiler.Native"));
 				List<X10ClassType> as = ext.annotationMatching(java);
 				for (Type at : as) {
 					assertNumberOfInitializers(at, 2);
@@ -497,8 +496,7 @@ public class Emitter {
 	public String getJavaImplForDef(X10Def o) {
 		TypeSystem xts = (TypeSystem) o.typeSystem();
 		try {
-			Type java = (Type) xts.systemResolver().find(
-					QName.make("x10.compiler.Native"));
+			Type java = xts.systemResolver().findOne(QName.make("x10.compiler.Native"));
 			List<Type> as = o.annotationsMatching(java);
 			for (Type at : as) {
 				assertNumberOfInitializers(at, 2);
@@ -558,8 +556,7 @@ public class Emitter {
 
 	private static String getJavaRepParam(X10ClassDef def, int i) {
         try {
-            Type rep = (Type) def.typeSystem().systemResolver().find(
-                    QName.make("x10.compiler.NativeRep"));
+            Type rep = def.typeSystem().systemResolver().findOne(QName.make("x10.compiler.NativeRep"));
             List<Type> as = def.annotationsMatching(rep);
             for (Type at : as) {
                 String lang = getPropertyInit(at, 0);
@@ -2499,8 +2496,7 @@ public class Emitter {
 		// Nate's code. This one.
 		if (o.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) o.ext();
-			X10ClassType baseType = (X10ClassType) ts.systemResolver().find(
-					name);
+			Type baseType = ts.systemResolver().findOne(name);
 			List<X10ClassType> ats = ext.annotationMatching(baseType);
 			if (ats.size() > 1) {
 				throw new SemanticException("Expression has more than one "+ name + " annotation.", o.position());

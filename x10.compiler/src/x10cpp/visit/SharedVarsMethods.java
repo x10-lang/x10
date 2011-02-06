@@ -44,7 +44,6 @@ import java.util.Collections;
  */
 public class SharedVarsMethods {
 	
-	public static final boolean WARN_NONSPMD_EXTERN = true;
 	private static int nextId_;
 	/* to provide a unique name for local variables introduce in the templates */
 	static Integer getUniqueId_() {
@@ -54,23 +53,7 @@ public class SharedVarsMethods {
 	public static String getId() {
 		return "__var" + getUniqueId_() + "__";
 	}
-	/* FIXME: -- SPMD compilation --
-	static boolean isUnique(Expr distribution) {
-		return ((X10ParsedClassType) distribution.type()).isUniqueDist();
-	}
-	*/
 
-	static final boolean asyncSwitchRequired = true;
-	static final boolean asyncRegistrationRequired = false;
-	static final boolean arrayCopySwitchRequired = true;
-	static final boolean useStructsForArrayInitArgs = true;
-	static final boolean useStructsForClosureArgs = true;
-	static final boolean useStructsForAsyncArgs = false;
-	static final boolean useStructsForArrayCopyArgs = false;
-	static final boolean useIndicesForArrayCopy = false;
-	static final boolean inlineArrayAccesses = true;
-	static final boolean arraysAsRefs = true;
-	static final boolean ignoreExceptions = false;
 	// FIXME: [IP] cannot enable refsAsPointers unless the library was also rebuilt
 	// without refs and the Main template was changed
 	static final boolean refsAsPointers = false;
@@ -128,94 +111,6 @@ public class SharedVarsMethods {
 	}
 	static String args_name(String prefix, int id) {
 		return closure_name(prefix, id) + "_args";
-	}
-
-	/* FIXME: -- SPMD compilation --
-	static boolean isLocal(Expr distribution) {
-		return distribution instanceof ConstantDistMaker_c ||
-		((X10ParsedClassType) distribution.type()).isConstantDist();
-	}
-	*/
-	static final ArrayList<ObjectType> knownSafeClasses = new ArrayList<ObjectType>();
-	static final ArrayList<MethodInstance> knownSafeMethods = new ArrayList<MethodInstance>();
-	static final ArrayList<FieldInstance> knownSafeFields = new ArrayList<FieldInstance>();
-	static void populateKnownSafeEntries(Translator tr){
-		populateKnownSafeClasses(tr);
-		populateKnownSafeMethodsAndFields(tr);
-	}
-	static void populateKnownSafeClasses(Translator tr){
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		TypeSystem ts = (TypeSystem) tr.typeSystem();
-		if (knownSafeClasses.size() == 0) {
-			try {
-				ObjectType j_l_Math = (ObjectType) ts.forName(QName.make("java.lang.Math"));
-				knownSafeClasses.add(j_l_Math);
-				ObjectType j_i_DIS = (ObjectType) ts.forName(QName.make("java.io.DataInputStream"));
-				knownSafeClasses.add(j_i_DIS);
-				ObjectType j_i_FIS = (ObjectType) ts.forName(QName.make("java.io.FileInputStream"));
-				knownSafeClasses.add(j_i_DIS);
-				ObjectType j_i_BAOS = (ObjectType) ts.forName(QName.make("java.io.ByteArrayOutputStream"));
-				knownSafeClasses.add(j_i_BAOS);
-				ObjectType j_i_PS = (ObjectType) ts.forName(QName.make("java.io.PrintStream"));
-				knownSafeClasses.add(j_i_PS);
-				ObjectType j_u_R = (ObjectType) ts.forName(QName.make("java.util.Random"));
-				knownSafeClasses.add(j_u_R);
-			} catch (SemanticException e) { assert (false); }
-		}
-	}	
-	static void populateKnownSafeMethodsAndFields(Translator tr){
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		TypeSystem ts =  tr.typeSystem();
-		if (knownSafeMethods.size() == 0 && knownSafeFields.size() == 0) {
-			try {
-//				Type[] II = { ts.Int(), ts.Int() };
-//				Type[] JJ = { ts.Long(), ts.Long() };
-//				Type[] FF = { ts.Float(), ts.Float() };
-//				Type[] DD = { ts.Double(), ts.Double() };
-//				knownSafeMethods.add(ts.findMethod(j_l_Math, "max", Arrays.asList(II), context.currentClass()));
-//				knownSafeMethods.add(ts.findMethod(j_l_Math, "max", Arrays.asList(JJ), context.currentClass()));
-//				knownSafeMethods.add(ts.findMethod(j_l_Math, "max", Arrays.asList(FF), context.currentClass()));
-//				knownSafeMethods.add(ts.findMethod(j_l_Math, "max", Arrays.asList(DD), context.currentClass()));
-//				knownSafeMethods.add(ts.findMethod(j_l_Math, "min", Arrays.asList(II), context.currentClass()));
-//				knownSafeMethods.add(ts.findMethod(j_l_Math, "min", Arrays.asList(JJ), context.currentClass()));
-//				knownSafeMethods.add(ts.findMethod(j_l_Math, "min", Arrays.asList(FF), context.currentClass()));
-//				knownSafeMethods.add(ts.findMethod(j_l_Math, "min", Arrays.asList(DD), context.currentClass()));
-				Type x_l_place = ts.Place();
-				knownSafeFields.add(ts.findField(x_l_place, ts.FieldMatcher(x_l_place, Name.make("MAX_PLACES"), context)));
-				Type x_l_region = ts.Region();
-				knownSafeMethods.add(ts.findMethod(x_l_region, ts.MethodMatcher(x_l_region, Name.make("toDistribution"), Collections.<Type>emptyList(), context)));
-				knownSafeFields.add(ts.findField(x_l_region, ts.FieldMatcher(x_l_region, Name.make("factory"), context)));
-				Type x_l_dist = ts.Dist();
-				Type[] X_L_P = { x_l_place };
-				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist, Name.make("restriction"), Arrays.asList(X_L_P), context)));
-				knownSafeFields.add(ts.findField(x_l_dist, ts.FieldMatcher(x_l_dist, Name.make("factory"), context)));
-				knownSafeFields.add(ts.findField(x_l_dist, ts.FieldMatcher(x_l_dist, Name.make("UNIQUE"), context)));
-				ObjectType x_l_dist_factory = (ObjectType) ts.forName(QName.make("x10.lang.dist.factory"));
-				Type[] X_L_R = { x_l_region };
-				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist_factory, Name.make("block"), Arrays.asList(X_L_R), context)));
-			} catch (SemanticException e) { assert (false); }
-		}
-	}	
-	
-	static final ArrayList<MethodInstance> knownInlinableMethods = new ArrayList<MethodInstance>();
-
-	static void populateIninableMethodsIfEmpty(Translator tr) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		TypeSystem ts =   tr.typeSystem();
-		if (knownInlinableMethods.size() == 0) {
-			try {
-				Type x_l_Runtime = (Type) ts.forName(QName.make("x10.lang.Runtime"));
-				Type[] A_I_A_I_I = { ts.Array(), ts.Int(), ts.Array(), ts.Int(), ts.Int() };
-				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_I_A_I_I), context)));
-				Type[] A_A = { ts.Array(), ts.Array() };
-				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_A), context)));
-				// TODO
-//				ReferenceType x_l_region = ts.region();
-//				Type[] A_R_A_R = { array, x_l_region, array, x_l_region };
-//				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_R_A_R), context.currentClass()));
-			} catch (SemanticException e) { //FIXME: assert (false); 
-			}
-		}
 	}
 }
 

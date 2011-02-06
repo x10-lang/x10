@@ -29,7 +29,7 @@ public class ImportTable implements Resolver
     protected Reporter reporter;
     
     /** Map from names to classes found, or to the NOT_FOUND object. */
-    protected Map<Object,Option<Named>> map;
+    protected Map<Object,Option<List<Type>>> map;
     
     /** A list of all on-demand imports. */
     protected List<QName> onDemandImports;
@@ -50,7 +50,7 @@ public class ImportTable implements Resolver
     /** Our package */
     protected Ref<? extends Package> pkg;
 
-    private static final Option<Named> NOT_FOUND = Option.<Named>None();
+    private static final Option<List<Type>> NOT_FOUND = Option.<List<Type>>None();
     
     /**
      * Create an import table.
@@ -154,28 +154,28 @@ public class ImportTable implements Resolver
      * Find a type by name, using the cache and the outer resolver,
      * but not the import table.
      */
-    protected Named cachedFind(Name name) throws SemanticException {
-        Option<Named> res = map.get(name);
+    protected List<Type> cachedFind(Name name) throws SemanticException {
+        Option<List<Type>> res = map.get(name);
 
         if (res != null && res != NOT_FOUND) {
             return res.get();
         }
 
-        Named t = ts.systemResolver().find(QName.make(null, name)); // NOTE: short name
-        map.put(name, Option.<Named>Some(t));
+        List<Type> t = ts.systemResolver().find(QName.make(null, name)); // NOTE: short name
+        map.put(name, Option.<List<Type>>Some(t));
         return t;
     }
 
     /**
      * Find a type by name, searching the import table.
      */
-    public Named find(Matcher<Named> matcher) throws SemanticException {
+    public List<Type> find(Matcher<Type> matcher) throws SemanticException {
         if (reporter.should_report(TOPICS, 2))
-           reporter.report(2, this + ".find(" + matcher.signature() + ")");
+            reporter.report(2, this + ".find(" + matcher.signature() + ")");
 
         // The class name is short.
         // First see if we have a mapping already.
-        Option<Named> res = matcher.key() != null ? map.get(matcher.key()) : null;
+        Option<List<Type>> res = matcher.key() != null ? map.get(matcher.key()) : null;
 
         if (res != null) {
             if (res == NOT_FOUND) {
@@ -185,15 +185,15 @@ public class ImportTable implements Resolver
         }
 
         SemanticException ex = null;
-        Named resolved = null;
-        
+        List<Type> resolved = null;
+
         try {
             resolved = lookupExplicit(matcher);
         }
         catch (NoClassException e) {
             ex = e;
         }
-        
+
         if (resolved == null) {
             Package p = Types.get(pkg);
 
@@ -212,142 +212,174 @@ public class ImportTable implements Resolver
         // It wasn't an explicit import.  Maybe it was on-demand?
         if (resolved == null) {
             try {
-        	resolved = lookupOnDemand(matcher);
+                resolved = lookupOnDemand(matcher);
             }
             catch (NoClassException e) {
-        	ex = e;
+                ex = e;
             }
         }
-        
+
         if (matcher.key() != null) {
             if (resolved != null) {
-        	map.put(matcher.key(), Option.<Named>Some(resolved));
+                map.put(matcher.key(), Option.<List<Type>>Some(resolved));
             }
             else {
-        	map.put(matcher.key(), NOT_FOUND);
+                map.put(matcher.key(), NOT_FOUND);
             }
         }
-        
+
         if (resolved != null)
             return resolved;
 
         if (ex != null)
             throw ex;
-        
+
         throw new NoClassException(matcher.name().toString(), sourcePos);
     }
 
-    protected Named lookupOnDemand(Matcher<Named> matcher) throws SemanticException, NoClassException {
-	List<QName> imports = new ArrayList<QName>(onDemandImports.size() + 5);
-	List<Position> positions = new ArrayList<Position>(onDemandImports.size() + 5);
-	
-	// Next search the default imports (e.g., java.lang)
-	imports.addAll(ts.defaultOnDemandImports());
-	positions.addAll(Arrays.asList(new Position[imports.size()]));
+    protected List<Type> lookupOnDemand(Matcher<Type> matcher) throws SemanticException, NoClassException {
+        List<QName> imports = new ArrayList<QName>(onDemandImports.size() + 5);
+        List<Position> positions = new ArrayList<Position>(onDemandImports.size() + 5);
 
-	// Then search the explicit p.* imports.
-	imports.addAll(onDemandImports);
-	positions.addAll(onDemandImportPositions);
+        // Next search the default imports (e.g., java.lang)
+        imports.addAll(ts.defaultOnDemandImports());
+        positions.addAll(Arrays.asList(new Position[imports.size()]));
 
-	assert imports.size() == positions.size();
+        // Then search the explicit p.* imports.
+        imports.addAll(onDemandImports);
+        positions.addAll(onDemandImportPositions);
 
-	Named resolved = null;
+        assert imports.size() == positions.size();
 
-	Set<QName> tried = CollectionFactory.newHashSet();
+        List<Type> resolved = null;
 
-	for (int i = 0; i < imports.size(); i++) {
-	    QName containerName = imports.get(i);
-	    Position pos = positions.get(i);
-	    
-	    if (tried.contains(containerName))
-		continue;
-	    tried.add(containerName);
-	    
-	    Named n = findInContainer(matcher, containerName, pos);
-	
-	    if (n != null) {
-		if (resolved == null) {
-		    // This is the first occurrence of name we've found
-		    // in a package import.
-		    // Record it, and keep going, to see if there
-		    // are any conflicts.
-		    resolved = n;
-		}
-		else {
-		    // This is the 2nd occurrence of name we've found
-		    // in an imported package.
-		    // That's bad.
-		    throw new SemanticException("Reference to " + 
-		                                matcher.signature() + " is ambiguous; both " + 
-		                                resolved + " and " + n + " match.");
-		}
-	    }
-	}
+        Set<QName> tried = CollectionFactory.newHashSet();
 
-//	// Search the empty package only if not already found.
-//	if (resolved == null) {
-//	    QName containerName = null;
-//	    Position pos = null;
+        for (int i = 0; i < imports.size(); i++) {
+            QName containerName = imports.get(i);
+            Position pos = positions.get(i);
+
+            if (tried.contains(containerName))
+                continue;
+            tried.add(containerName);
+
+            List<Type> n = findInContainer(matcher, containerName, pos);
+
+            if (n != null) {
+                if (resolved == null) {
+                    // This is the first occurrence of name we've found
+                    // in a package import.
+                    // Record it, and keep going, to see if there
+                    // are any conflicts.
+                    resolved = n;
+                }
+                else {
+                    // This is the 2nd occurrence of name we've found
+                    // in an imported package.
+                    // That's bad.
+                    throw new SemanticException("Reference to " + 
+                            matcher.signature() + " is ambiguous; both " + 
+                            resolved + " and " + n + " match.");
+                }
+            }
+        }
+
+//        // Search the empty package only if not already found.
+//        if (resolved == null) {
+//            QName containerName = null;
+//            Position pos = null;
 //
-//	    if (! tried.contains(containerName)) {
+//            if (! tried.contains(containerName)) {
 //
-//		Named n = findInContainer(matcher, containerName, pos);
+//                Named n = findInContainer(matcher, containerName, pos);
 //
-//		if (n != null) {
-//		    resolved = n;
-//		}
-//	    }
-//	}
+//                if (n != null) {
+//                    resolved = n;
+//                }
+//            }
+//        }
 
-	return resolved;
+        return resolved;
     }
     
-    protected Named findInContainer(Matcher<Named> matcher, QName containerName, Position containerPos) throws SemanticException  {
-	Named resolved = null;
+    protected List<Type> findInContainer(Matcher<Type> matcher, QName containerName, Position containerPos) throws SemanticException  {
+        List<Type> resolved = null;
 
-	if (containerName != null) {
-	    // Find the container, then search the container.
-	    Named container;
-	    
-	    try {
-		container = ts.systemResolver().find(containerName);
-		
-		Resolver r;
-		
-		if (container instanceof Package)
-		    r = ts.packageContextResolver((Package) container);
-		else if (container instanceof Type)
-		    r = ts.classContextResolver((Type) container);
-		else
-		    return null;
-		
-		resolved = r.find(matcher);
-	    }
-	    catch (SemanticException e) {
-	    }
-	}
+        if (containerName != null) {
+            // Find the container, then search the container.
+            Resolver r = null;
 
-	if (resolved == null) {
-	    Name name = matcher.name();
+            // We don't allow packages and classes to have the same name.  So, only look
+            // for a class if a package is not found.
+            try {
+                Package pkgContainer = ts.systemResolver().findPackage(containerName);
+                r = ts.packageContextResolver(pkgContainer);
+            }
+            catch (SemanticException e) {
+                try {
+                    List<Type> containers = ts.systemResolver().find(containerName);
+                    if (containers != null) {
+                        for (Type container : containers) {
+                            if (container instanceof ClassType) {
+                                r = ts.classContextResolver(container);
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (SemanticException z) {
+                }
+            }
 
-	    try {
-		resolved = ts.systemResolver().find(QName.make(containerName, name)); 
+            if (r == null)
+                return null;
 
-		// Now verify that what we found actually matches.
-		if (resolved != null)
-		    resolved = matcher.instantiate(resolved);
-	    }
-	    catch (SemanticException e) {
-		return null;
-	    }
-	}
+            try {
+                resolved = r.find(matcher);
+            }
+            catch (SemanticException e) {
+            }
+            
+        }
 
-	// Found something.  Now make sure we can actually see it.
-	if (resolved != null && isVisibleFromThisPackage(resolved, containerName)) {
-	    return resolved;
-	}
+        if (resolved == null) {
+            Name name = matcher.name();
 
-	return null;
+            try {
+                resolved = ts.systemResolver().find(QName.make(containerName, name)); 
+
+                // Now verify that what we found actually matches.
+                if (resolved != null) {
+                    List<Type> newResolved = new ArrayList<Type>();
+                    for (Type t : resolved) {
+                        t = matcher.instantiate(t);
+                        if (t != null)
+                            newResolved.add(t);
+                    }
+                    if (newResolved.isEmpty()) {
+                        resolved = null;
+                    } else {
+                        resolved = newResolved;
+                    }
+                }
+            }
+            catch (SemanticException e) {
+                return null;
+            }
+        }
+
+        // Found something.  Now make sure we can actually see it.
+        if (resolved != null) {
+            List<Type> newResolved = new ArrayList<Type>();
+            for (Type t : resolved) {
+                if (isVisibleFromThisPackage(t, containerName))
+                    newResolved.add(t);
+            }
+            if (!newResolved.isEmpty())
+                return newResolved;
+        }
+
+        return null;
     }
 
     /**
@@ -355,7 +387,7 @@ public class ImportTable implements Resolver
      * package <code>pkg</code>.  The empty string may
      * be passed in to represent the default package.
      */
-    protected boolean isVisibleFromThisPackage(Named n, QName containerName) {
+    protected boolean isVisibleFromThisPackage(Type t, QName containerName) {
         boolean isVisible = false;
         
         Package p = Types.get(this.pkg);
@@ -367,9 +399,6 @@ public class ImportTable implements Resolver
             isVisible = true;
         }
         else {
-            if (n instanceof Type) {
-        	Type t = (Type) n;
-
         	if (t.isClass()) {
         	    ClassType ct = t.toClass();
         	    isVisible = ts.classAccessibleFromPackage(ct.def(), Types.get(pkg));
@@ -378,31 +407,30 @@ public class ImportTable implements Resolver
         	    // Assume non-class types are always visible.
         	    isVisible = true;
         	}
-            }
         }
 
         return isVisible;
     }
 
-    protected Named lookupExplicit(Matcher<Named> matcher) throws SemanticException {
-	Set<QName> tried = CollectionFactory.newHashSet();
+    protected List<Type> lookupExplicit(Matcher<Type> matcher) throws SemanticException {
+        Set<QName> tried = CollectionFactory.newHashSet();
 
-	for (int i = 0; i < explicitImports.size(); i++) {
-	    QName longName = explicitImports.get(i);
-	    Position pos = explicitImportPositions.get(i);
+        for (int i = 0; i < explicitImports.size(); i++) {
+            QName longName = explicitImports.get(i);
+            Position pos = explicitImportPositions.get(i);
 
-	    if (tried.contains(longName))
-		continue;
-	    tried.add(longName);
+            if (tried.contains(longName))
+                continue;
+            tried.add(longName);
 
-        if (reporter.should_report(TOPICS, 2))
-		    reporter.report(2, this + ": import " + longName);
+            if (reporter.should_report(TOPICS, 2))
+                reporter.report(2, this + ": import " + longName);
 
             if (longName.name().equals(matcher.name()))
-        	return findInContainer(matcher, longName.qualifier(), pos);
-	}
-	
-	return null;
+                return findInContainer(matcher, longName.qualifier(), pos);
+        }
+
+        return null;
     }
 
     public String toString() {

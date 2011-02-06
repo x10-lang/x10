@@ -100,7 +100,7 @@ public class FieldInitializerMover extends ContextVisitor {
     
     protected static boolean mustCallSuper(X10ConstructorDecl cdecl) throws SemanticException {
         X10ConstructorDef def = cdecl.constructorDef();
-        Type t = (Type) def.typeSystem().systemResolver().find(QName.make("x10.compiler.NoSuperCall"));
+        Type t = def.typeSystem().systemResolver().findOne(QName.make("x10.compiler.NoSuperCall"));
         return def.annotationsMatching(t).isEmpty();
     }
     class FindProperty extends NodeVisitor {

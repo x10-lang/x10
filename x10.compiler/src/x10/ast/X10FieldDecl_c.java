@@ -229,7 +229,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         if (!(t instanceof X10ClassType)) return false;
         X10ClassType ct = (X10ClassType) t;
         try {
-            Type m = (Type) xts.systemResolver().find(QName.make("x10.compiler.Mutable"));
+            Type m = xts.systemResolver().findOne(QName.make("x10.compiler.Mutable"));
             return ct.annotations().contains(m);
         } catch (SemanticException e) {
             return false;
@@ -607,7 +607,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    }
 
 	    public Node checkConstants(ContextVisitor tc) throws SemanticException {
-	    	Type native_annotation_type = (Type)(tc.typeSystem()).systemResolver().find(QName.make("x10.compiler.Native"));
+	    	Type native_annotation_type = tc.typeSystem().systemResolver().findOne(QName.make("x10.compiler.Native"));
 			if (!((X10Ext)ext).annotationMatching(native_annotation_type).isEmpty()) {
 				fi.setNotConstant();
 				return this;

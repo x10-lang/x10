@@ -538,7 +538,7 @@ public class Types {
 
 	public static boolean isDefAnnotated(X10Def def,TypeSystem ts, String name) {
 	    try {
-	        Type at = (Type) ts.systemResolver().find(QName.make(name));
+	        Type at = ts.systemResolver().findOne(QName.make(name));
 	        return !def.annotationsMatching(at).isEmpty();
 	    } catch (SemanticException e) {
 	        return false;
@@ -691,8 +691,7 @@ public class Types {
 	        } else if (ts.isObjectOrInterfaceType(t, context)) {
 	            e = nf.NullLit(p);
 	        } else if (ts.isParameterType(t) || Types.isX10Struct(t)) {
-	            // call Zero.get[T]()  (e.g., "0 as T" doesn't work if T is String)
-	            TypeNode receiver = (TypeNode) nf.CanonicalTypeNode(p, (Type) ts.systemResolver().find(QName.make("x10.lang.Zero")));
+	            TypeNode receiver = nf.CanonicalTypeNode(p, ts.systemResolver().findOne(QName.make("x10.lang.Zero")));
 	            //receiver = (TypeNode) receiver.del().typeCheck(tc).checkConstants(tc);
 	            e = nf.X10Call(p,receiver, nf.Id(p,"get"),Collections.singletonList(typeNode), Collections.<Expr>emptyList());
 	        }

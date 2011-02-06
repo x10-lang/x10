@@ -8,6 +8,8 @@
 
 package polyglot.ast;
 
+import java.util.List;
+
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.*;
@@ -93,28 +95,30 @@ public abstract class Disamb_c implements Disamb
     protected Node disambiguatePackagePrefix(PackageNode pn) throws SemanticException {
         Resolver pc = ts.packageContextResolver(pn.package_().get());
 
-        Named n;
-        
+        List<Type> n;
+
         try {
             n = pc.find(ts.TypeMatcher(name.id()));
         }
         catch (SemanticException e) {
             n = null;
         }
-        
+
         Qualifier q = null;
 
-        if (n instanceof Qualifier) {
-            q = (Qualifier) n;
+        if (n != null) {
+            for (Type t : n) {
+                if (t.isClass()) {
+                    q = t;
+                    break;
+                }
+            }
         }
-        else if (n == null) {
-	    Package p = ts.createPackage(pn.package_(), name.id());
-	    q = p;
-	}
-	else {
-            return null;
+        if (q == null) {
+            Package p = ts.createPackage(pn.package_(), name.id());
+            q = p;
         }
-        
+
         if (q.isPackage() && packageOK()) {
             return nf.PackageNode(pos, Types.ref(q.toPackage()));
         }
@@ -149,16 +153,17 @@ public abstract class Disamb_c implements Disamb
         // Try member classes.
         if (t.isClass() && typeOK()) {
             Resolver tc = t.toClass().resolver();
-            Named n;
+            List<Type> tl;
             try {
-                n = tc.find(ts.MemberTypeMatcher(t, name.id(), c));
+                tl = tc.find(ts.MemberTypeMatcher(t, name.id(), c));
             }
             catch (NoClassException e) {
                 return null;
             }
-            if (n instanceof Type) {
-                Type type = (Type) n;
-                return makeTypeNode(type);
+            for (Type n : tl) {
+                if (n.isClass()) {
+                    return makeTypeNode(n);
+                }
             }
         }
 

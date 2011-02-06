@@ -18,11 +18,12 @@ import polyglot.types.BadSerializationException;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
-import polyglot.types.Named;
 import polyglot.types.NoClassException;
+import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
+import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.util.*;
@@ -30,8 +31,9 @@ import x10.types.MethodInstance;
 import x10.util.CollectionFactory;
 
 /**
- * Loads class information from class files, or serialized class infomation
+ * Loads class information from class files, or serialized class information
  * from within class files.  It does not load from source files.
+ * TODO: dead, remove
  */
 public class LoadedClassResolver implements TopLevelResolver
 {
@@ -75,6 +77,12 @@ public class LoadedClassResolver implements TopLevelResolver
 
   public boolean allowRawClasses() {
     return allowRawClasses;
+  }
+
+  public Package findPackage(QName name) throws SemanticException {
+    if (packageExists(name))
+      return ts.createPackage(name);
+    throw new SemanticException("Package "+name+" not found");
   }
 
   public boolean packageExists(QName name) {
@@ -121,11 +129,11 @@ public class LoadedClassResolver implements TopLevelResolver
   /**
    * Find a type by name.
    */
-  public Named find(QName name) throws SemanticException {
+  public List<Type> find(QName name) throws SemanticException {
     if (reporter.should_report(report_topics, 3))
       reporter.report(3, "LoadedCR.find(" + name + ")");
  
-    Named result = null;
+    Type result = null;
     
     // First try the class file.
     ClassFile clazz = loadFile(name);
@@ -150,10 +158,10 @@ public class LoadedClassResolver implements TopLevelResolver
     // for example, requesting a type through its mangled (class file) name.
     if (result != null) {
         if (name.equals(result.fullName())) {
-            return result;
+            return CollectionUtil.<Type>list(result);
         }
         if (result instanceof ClassType && name.equals(ts.getTransformedClassName(((ClassType) result).def()))) {
-            return result;
+            return CollectionUtil.<Type>list(result);
         }
     }
 
@@ -165,6 +173,16 @@ public class LoadedClassResolver implements TopLevelResolver
         + " language extension. If the source for this file is written"
         + " in the language extension, try recompiling the source code.");
     
+  }
+
+  /**
+   * Find a single type by name.
+   */
+  public Type findOne(QName name) throws SemanticException {
+    List<Type> res = find(name);
+    if (res == null || res.size() != 1)
+      throw new InternalCompilerError("Unexpected result when looking up "+name+": "+res);
+    return res.get(0);
   }
 
   protected boolean recursive = false;

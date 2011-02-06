@@ -17,29 +17,26 @@ import polyglot.types.Context;
 import polyglot.types.Matcher;
 import polyglot.types.Name;
 import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem_c;
+import polyglot.types.Types;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.errors.Warnings;
 
-public class TypeDefMatcher extends TypeSystem_c.BaseMatcher<Named> {
+public class TypeDefMatcher extends TypeSystem_c.NameMatcher<Type> {
     Type container;
-    Name name;
     List<Type> typeArgs;
     List<Type> argTypes;
     Context context;
 
     public TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
+        super(name);
         this.container = container;
-        this.name = name;
         this.typeArgs = typeArgs;
         this.argTypes = argTypes;
         this.context = context;
-    }
-
-    public Name name() {
-        return name;
     }
 
     public String argumentString() {
@@ -48,14 +45,46 @@ public class TypeDefMatcher extends TypeSystem_c.BaseMatcher<Named> {
     }
 
     public String signature() {
-        return name + argumentString();
+        if (container != null)
+            return container.fullName() + "." + name + argumentString();
+        else
+            return name + argumentString();
+    }
+
+    private boolean hasConstraintsOrParameterTypes() {
+        for (Type ta : typeArgs) {
+            if (hasConstraintsOrParameterTypes(ta)) return true;
+        }
+        for (Type at : argTypes) {
+            if (hasConstraintsOrParameterTypes(at)) return true;
+        }
+        return false;
+    }
+
+    private boolean hasConstraintsOrParameterTypes(Type t) {
+        if (Types.isConstrained(t)) return true;
+        if (t.isClass()) {
+            List<Type> tas = ((X10ParsedClassType) t.toClass()).typeArguments();
+            if (tas != null) {
+                for (Type ta : tas) {
+                    if (hasConstraintsOrParameterTypes(ta)) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public Object key() {
+        if (hasConstraintsOrParameterTypes()) return null;
+        QName containerName = container != null ? container.fullName() : null;
+        return "type " + QName.make(containerName, name) + argumentString();
     }
 
     public String toString() {
-        return signature();
+        return "type " + signature();
     }
 
-    public MacroType instantiate(Named n) throws SemanticException {
+    public MacroType instantiate(Type n) throws SemanticException {
         if (n instanceof MacroType) {
             MacroType mi = (MacroType) n;
             if (!mi.name().equals(name))
@@ -70,10 +99,6 @@ public class TypeDefMatcher extends TypeSystem_c.BaseMatcher<Named> {
                 return result;
             }
         }
-        return null;
-    }
-
-    public Object key() {
         return null;
     }
 }

@@ -80,7 +80,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected boolean isNativeDef(X10Def def) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeDef"));
+        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeDef"));
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -92,7 +92,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getNativeClassName(X10ClassDef def) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeClass"));
+        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeClass"));
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -104,7 +104,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getNativeClassPackage(X10ClassDef def) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeClass"));
+        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeClass"));
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -175,7 +175,7 @@ public class NativeClassVisitor extends ContextVisitor {
             fake.addTypeParameter(pp, vv);
         }
 
-        X10ClassType embed = (X10ClassType) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
+        X10ClassType embed = (X10ClassType) xts.systemResolver().findOne(QName.make("x10.compiler.Embed"));
         List<AnnotationNode> anodes = Collections.<AnnotationNode>singletonList(xnf.AnnotationNode(p, xnf.CanonicalTypeNode(p, embed)));
         
         // add field with native type

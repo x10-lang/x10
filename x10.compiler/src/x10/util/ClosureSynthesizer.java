@@ -28,6 +28,7 @@ import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.SystemResolver;
 import polyglot.types.Type;
 import polyglot.types.Types;
 
@@ -202,12 +203,14 @@ public class ClosureSynthesizer {
 
         return cd;
     }
-	  public static X10ClassDef closureBaseInterfaceDef(final TypeSystem xts, final int numTypeParams, final int numValueParams, 
-	    		final boolean isVoid) {
-	    	return ClosureSynthesizer.closureBaseInterfaceDef(xts, numTypeParams, numValueParams, isVoid, null, null);
-	    }
-	    		
-	 /**
+
+	public static X10ClassDef closureBaseInterfaceDef(final TypeSystem xts, final int numTypeParams,
+	        final int numValueParams, final boolean isVoid)
+	{
+	    return ClosureSynthesizer.closureBaseInterfaceDef(xts, numTypeParams, numValueParams, isVoid, null, null);
+	}
+
+	/**
      * Synthetic generated interface for the function types. Mimics an X10 source level definition of
      * the following interface, where numTypeParams=m, and numValueParams=n.
      * 
@@ -233,7 +236,8 @@ public class ClosureSynthesizer {
     		final boolean isVoid, 
     		List<LocalDef> formalNames1,
             // todo: the guard should not be included in the def
-    		final Ref<CConstraint> guard1) {
+    		final Ref<CConstraint> guard1)
+    {
         final Position pos = Position.COMPILER_GENERATED;
 
         String name = "Fun_" + numTypeParams + "_" + numValueParams;
@@ -244,7 +248,7 @@ public class ClosureSynthesizer {
 
         // Check if the class has already been defined.
         QName fullName = QName.make("x10.lang", name);
-        Named n = xts.systemResolver().check(fullName);
+        Type n = SystemResolver.first(xts.systemResolver().check(fullName));
 
         if (n instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) n;

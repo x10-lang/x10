@@ -263,16 +263,23 @@ public class TypeSystem_c implements TypeSystem
 
     protected void assert_(Ref<?> ref) { }
 
-    protected void assert_(TypeObject o) {
-	if (o != null && o.typeSystem() != this) {
+    private static void printTypeSystem(java.io.PrintStream out, TypeSystem_c ts) {
+        out.print(ts);
+        if (ts == null) return;
+        out.print("(" + ts.creationTime + "): ");
+        ts.creator.printStackTrace(out);
+    }
+
+	protected void assert_(TypeObject o) {
+	    if (o != null && o.typeSystem() != this) {
             TypeSystem_c ots = (TypeSystem_c) o.typeSystem();
-            System.err.print("we are " + this + "(" + creationTime + "): ");
-            this.creator.printStackTrace(System.err);
-            System.err.print(" but " + o + " ("+o.getClass()+")" + " is from " + ots + "(" + ots.creationTime + "): ");
-            ots.creator.printStackTrace(System.err);
+            System.err.print("we are ");
+            printTypeSystem(System.err, this);
+            System.err.print(" but " + o + " ("+o.getClass()+")" + " is from ");
+            printTypeSystem(System.err, ots);
             throw new InternalCompilerError("we are " + this + " but " + o + " ("+o.getClass()+")" +
                                             " is from " + ots);
-	}
+	    }
     }
 
     public String wrapperTypeString(Type t) {
@@ -331,7 +338,7 @@ public class TypeSystem_c implements TypeSystem
 		return ((ClassType) type).resolver();
 	    }
 	    return new Resolver() {
-		public Named find(Matcher<Named> matcher) throws SemanticException {
+		public List<Type> find(Matcher<Type> matcher) throws SemanticException {
 		    throw new NoClassException(matcher.name().toString(), type);
 		}
 	    };
@@ -849,7 +856,7 @@ public class TypeSystem_c implements TypeSystem
         }
 
         Collection<MacroType> maximal = findMostSpecificProcedures(acceptable,
-                new FilteringMatcher<Named, MacroType>(matcher, MacroType.class),
+                new FilteringMatcher<Type, MacroType>(matcher, MacroType.class),
                 context);
 
         if (maximal.size() > 1) { // remove references that resolve to the same type.
@@ -1209,7 +1216,6 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-
     // To prevent infinite recursion due to searching the field in the superclass/superinterface
     // e.g., class Q extends Q{i==1} {}
     public static abstract class BaseMatcher<T> implements Matcher<T> {
@@ -1222,77 +1228,72 @@ public class TypeSystem_c implements TypeSystem
             return true;
         }
     }
-    public static abstract class MemberTypeMatcher extends BaseMatcher<Named> {
-	protected Type container;
-	protected Name name;
-	protected Context context;
+    public static abstract class NameMatcher<T extends Named> extends BaseMatcher<T> {
+        protected Name name;
 
-	protected MemberTypeMatcher(Type container, Name name, Context context) {
-	    super();
-	    this.container = container;
-	    this.name = name;
-	    this.context = context;
-	}
+        protected NameMatcher(Name name) {
+            this.name = name;
+        }
+        
+        public String signature() {
+            return name.toString();
+        }
 
-	public Type container() {
-		return container;
-	}
-	public String signature() {
-	    return name.toString();
-	}
+        public Name name() {
+            return name;
+        }
 
-	public Name name() {
-	    return name;
-	}
+        public T instantiate(T t) throws SemanticException {
+            if (t.name() == null || !t.name().equals(name)) {
+                return null;
+            }
+            return t;
+        }
 
-	public abstract Named instantiate(Named t) throws SemanticException;
+        public String toString() {
+            return signature();
+        }
 
-	public String toString() {
-	    return signature();
-	}
-
-	public Object key() {
-	    return name;
-	}
+        public Object key() {
+            return name;
+        }
     }
 
-    public Matcher<Named> MemberTypeMatcher(Type container, Name name, Context context) {
+    public static abstract class MemberTypeMatcher extends NameMatcher<Type> {
+        protected Type container;
+        protected Context context;
+
+        protected MemberTypeMatcher(Type container, Name name, Context context) {
+            super(name);
+            this.container = container;
+            this.context = context;
+        }
+
+        public Type container() {
+            return container;
+        }
+
+        public String signature() {
+            return container.fullName() + "." + name;
+        }
+
+        public Object key() {
+            return QName.make(container.fullName(), name);
+        }
+    }
+    public static abstract class TypeMatcher extends NameMatcher<Type> {
+        protected TypeMatcher(Name name) {
+            super(name);
+        }
+    }
+
+    public Matcher<Type> MemberTypeMatcher(Type container, Name name, Context context) {
         return new X10MemberTypeMatcher(container, name, context);
     }
 
-
-    public Matcher<Named> TypeMatcher(Name name) {
+    public Matcher<Type> TypeMatcher(Name name) {
         return new X10TypeMatcher(name);
     }
-    public static abstract class TypeMatcher extends BaseMatcher<Named> {
-	protected Name name;
-
-	protected TypeMatcher(Name name) {
-	    super();
-	    this.name = name;
-	}
-
-	public String signature() {
-	    return name.toString();
-	}
-
-	public Name name() {
-	    return name;
-	}
-
-
-	public abstract Named instantiate(Named t) throws SemanticException;
-
-	public String toString() {
-	    return signature();
-	}
-
-	public Object key() {
-	    return name;
-	}
-    }
-
-
 
     public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher)
     throws SemanticException {
@@ -1984,29 +1985,36 @@ public class TypeSystem_c implements TypeSystem
             return createFakeClass(fullName, e);
         }
     }
-    public Named forName(QName name) throws SemanticException {
-	try {
-	    return systemResolver.find(name);
-	}
-	catch (SemanticException e) {
-	    if (name.qualifier() != null) {
-		try {
-		    Named container = forName(name.qualifier());
-		    if (container instanceof ClassType) {
-			return classContextResolver((ClassType) container).find(MemberTypeMatcher((ClassType) container, name.name(), emptyContext()));
-		    }
-		}
-		catch (SemanticException e2) {
-		}
-	    }
 
-	    // throw the original exception
-	    throw e;
-	}
+    public Type forName(QName name) throws SemanticException {
+        List<Type> res;
+        try {
+            res = systemResolver.find(name);
+        }
+        catch (SemanticException e) {
+            if (name.qualifier() != null) {
+                try {
+                    Type container = forName(name.qualifier());
+                    if (container instanceof ClassType) {
+                        res = classContextResolver(container).find(MemberTypeMatcher(container, name.name(), emptyContext()));
+                    }
+                }
+                catch (SemanticException e2) {
+                }
+            }
+
+            // throw the original exception
+            throw e;
+        }
+        return res.get(0); // FIXME
     }
 
+    /**
+     * {@inheritDoc}
+     * @deprecated
+     */
     public Type typeForName(QName name) throws SemanticException {
-	return (Type) forName(name);
+        return forName(name);
     }
 
     protected Type OBJECT_;
@@ -2660,7 +2668,7 @@ public class TypeSystem_c implements TypeSystem
 	    return arrayOf(typeForJavaClass(clazz.getComponentType()));
 	}
 
-	return (Type) systemResolver.find(QName.make(clazz.getName()));
+	return systemResolver.findOne(QName.make(clazz.getName()));
     }
 
     /**

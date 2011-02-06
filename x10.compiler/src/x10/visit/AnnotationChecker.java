@@ -29,6 +29,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassType;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -87,20 +88,20 @@ public class AnnotationChecker extends ContextVisitor {
 		return n;
 	}
 	
-	ClassType A, TA, EA, SA, MA, FA, CA, IA, PA;
+	Type A, TA, EA, SA, MA, FA, CA, IA, PA;
 	
 	public void init() {
 		if (A != null) return;
         try {
-            TA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.TypeAnnotation"));
-            EA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ExpressionAnnotation"));
-            SA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.StatementAnnotation"));
-            MA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.MethodAnnotation"));
-            FA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.FieldAnnotation"));
-            CA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ClassAnnotation"));
-            IA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.ImportAnnotation"));
-            PA = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.PackageAnnotation"));
-            A  = (ClassType) ts.systemResolver().find(QName.make("x10.lang.annotations.Annotation"));
+            TA = ts.systemResolver().findOne(QName.make("x10.lang.annotations.TypeAnnotation"));
+            EA = ts.systemResolver().findOne(QName.make("x10.lang.annotations.ExpressionAnnotation"));
+            SA = ts.systemResolver().findOne(QName.make("x10.lang.annotations.StatementAnnotation"));
+            MA = ts.systemResolver().findOne(QName.make("x10.lang.annotations.MethodAnnotation"));
+            FA = ts.systemResolver().findOne(QName.make("x10.lang.annotations.FieldAnnotation"));
+            CA = ts.systemResolver().findOne(QName.make("x10.lang.annotations.ClassAnnotation"));
+            IA = ts.systemResolver().findOne(QName.make("x10.lang.annotations.ImportAnnotation"));
+            PA = ts.systemResolver().findOne(QName.make("x10.lang.annotations.PackageAnnotation"));
+            A  = ts.systemResolver().findOne(QName.make("x10.lang.annotations.Annotation"));
         } catch (SemanticException e) {
             throw new RuntimeException(e);
         }

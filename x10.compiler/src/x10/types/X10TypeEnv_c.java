@@ -529,11 +529,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // FIXME: check for ambiguities
         for (Type t : upperBounds(container, true)) {
             try {
-                Named n = ts.classContextResolver(container, context)
+                List<Type> tl = ts.classContextResolver(container, context)
                 .find(ts.MemberTypeMatcher(container, name, context));
 
-                if (n instanceof ClassType) {
-                    return (ClassType) n;
+                for (Type n : tl) {
+                    if (n instanceof ClassType) {
+                        return (ClassType) n;
+                    }
                 }
             }
             catch (SemanticException e) {

@@ -619,7 +619,7 @@ public class Lowerer extends ContextVisitor {
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
     	if (annotations == null)
     		annotations = new ArrayList<X10ClassType>(1);
-    	annotations.add((X10ClassType) ts.systemResolver().find(ASYNC_CLOSURE));
+    	annotations.add((X10ClassType) ts.systemResolver().findOne(ASYNC_CLOSURE));
         Closure closure = synth.makeClosure(body.position(), ts.Void(),
                 synth.toBlock(body), context(), annotations);
         closure.closureDef().setCapturedEnvironment(env);
@@ -778,7 +778,7 @@ public class Lowerer extends ContextVisitor {
     private Expr specializedFinish2(Finish f) throws SemanticException {
         Position pos = f.position();
     	int p=0;
-        Type annotation = (Type) ts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
+        Type annotation = ts.systemResolver().findOne(QName.make("x10.compiler.FinishAsync"));
         if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
         	List<AnnotationNode> allannots = ((X10Ext)(f.ext())).annotations();
         	AnnotationNode a = null;
@@ -812,7 +812,7 @@ public class Lowerer extends ContextVisitor {
         		reporter.report(0,"annotation is not correct "+ allannots.size());
         	}
         }
-        Type atype = (Type) ts.systemResolver().find(PRAGMA);
+        Type atype = ts.systemResolver().findOne(PRAGMA);
         List<X10ClassType> atypes  = ((X10Ext) f.ext()).annotationMatching(atype);
         if (!atypes.isEmpty()) {
             return call(pos, START_FINISH, atypes.get(0).propertyInitializer(0), ts.FinishState());

@@ -161,7 +161,7 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
     }
 
     /** Get a member class of the class by name. */
-    public ClassType memberClassMatching(Matcher<Named> matcher) {
+    public ClassType memberClassMatching(Matcher<Type> matcher) {
 	for (ClassType t : memberClasses()) {
 	    try {
 		Named n = matcher.instantiate(t);
@@ -175,7 +175,7 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
 	return null;
     }
 
-    public Named memberTypeMatching(Matcher<Named> matcher) {
+    public Type memberTypeMatching(Matcher<Type> matcher) {
 	    return memberClassMatching(matcher);
     }
     
@@ -188,10 +188,11 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
             // Use the short name if it is unique.
             if (c != null && !typeSystem().extensionInfo().getOptions().fully_qualified_names) {
                 try {
-                    Named x = c.find(ts.TypeMatcher(name()));
-                    
-                    if (x instanceof ClassType && def().equals(((ClassType) x).def())) {
-                        return name().toString();
+                    List<Type> xl = c.find(ts.TypeMatcher(name()));
+                    for (Type x : xl) {
+                        if (x instanceof ClassType && def().equals(((ClassType) x).def())) {
+                            return name().toString();
+                        }
                     }
                 }
                 catch (SemanticException e) {
@@ -209,10 +210,11 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
             // Use the short name if it is unique.
             if (c != null && !typeSystem().extensionInfo().getOptions().fully_qualified_names) {
                 try {
-                    Named x = c.find(ts.TypeMatcher(name()));
-
-                    if (x instanceof ClassType && def().equals(((ClassType) x).def())) {
-                        return name().toString();
+                    List<Type> xl = c.find(ts.TypeMatcher(name()));
+                    for (Type x : xl) {
+                        if (x instanceof ClassType && def().equals(((ClassType) x).def())) {
+                            return name().toString();
+                        }
                     }
                 }
                 catch (SemanticException e) {

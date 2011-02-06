@@ -271,18 +271,20 @@ public class JLScheduler extends Scheduler {
         	LazyRef<ClassDef> ref = (LazyRef<ClassDef>) typeRef();
         	try {
         		TypeSystem ts = ref.get().typeSystem();
-			Named n = ts.systemResolver().find(QName.make(className));
-        		if (n instanceof ClassType) {
-        			ClassType ct = (ClassType) n;
-        			ClassDef def = ct.def();
-        			if (flags != null) {
-        				// The flags should be overwritten only for a member class.
-        				assert def.isMember();
-        				def.setFlags(flags);
-        			}
-        			ref.update(def);
-        			return true;
-        		}
+        		List<Type> tl = ts.systemResolver().find(QName.make(className));
+        		for (Type n : tl) {
+        		    if (n instanceof ClassType) {
+        		        ClassType ct = (ClassType) n;
+        		        ClassDef def = ct.def();
+        		        if (flags != null) {
+        		            // The flags should be overwritten only for a member class.
+        		            assert def.isMember();
+        		            def.setFlags(flags);
+        		        }
+        		        ref.update(def);
+        		        return true;
+        		    }
+                }
         	}
         	catch (SemanticException e) {
         		extInfo.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, e.getMessage(), e.position());

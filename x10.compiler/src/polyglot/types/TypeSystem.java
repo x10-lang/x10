@@ -112,15 +112,16 @@ public interface TypeSystem {
     /** Return class def of a type, or null. */
     ClassDef classDefOf(Type t);
 
-    /** Get the named type object with the following name.
-     * @param name The name of the type object to look for.
-     * @exception SemanticException when object is not found.
+    /** Get the type with the following name.
+     * @param name The name of the type to look for.
+     * @exception SemanticException when type is not found.
      */
-    Named forName(QName name) throws SemanticException;
+    Type forName(QName name) throws SemanticException;
 
     /** Get the  type with the following name.
      * @param name The name to create the type for.
      * @exception SemanticException when type is not found.
+     * @deprecated Use {@link #forName(QName)}
      */
     Type typeForName(QName name) throws SemanticException;
 
@@ -306,8 +307,8 @@ public interface TypeSystem {
     // Functions for type membership.
     ////
 
-    Matcher<Named> TypeMatcher(Name name);
-    Matcher<Named> MemberTypeMatcher(Type container, Name name, Context context);
+    Matcher<Type> TypeMatcher(Name name);
+    Matcher<Type> MemberTypeMatcher(Type container, Name name, Context context);
     TypeSystem_c.FieldMatcher FieldMatcher(Type container, Name name, Context context);
 
     /**

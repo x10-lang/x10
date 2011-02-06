@@ -105,7 +105,7 @@ public abstract class Context_c implements Context
     protected ClassType type;
     protected ClassDef scope;
     protected CodeDef code;
-    protected Map<Name,Named> types;
+    protected Map<Name,Type> types;
     protected Map<Name,VarInstance<?>> vars;
     protected boolean inCode;
 
@@ -307,7 +307,7 @@ public abstract class Context_c implements Context
     /**
      * Finds the definition of a particular type.
      */
-    public Named find(Matcher<Named> matcher) throws SemanticException {
+    public List<Type> find(Matcher<Type> matcher) throws SemanticException {
 	if (reporter.should_report(TOPICS, 3))
             reporter.report(3, "find-type " + matcher.signature() + " in " + this);
 
@@ -316,12 +316,12 @@ public abstract class Context_c implements Context
         if (isSource())
             return it.find(matcher);
 
-        Named type = findInThisScope(matcher);
+        Type type = findInThisScope(matcher);
 
         if (type != null) {
             if (reporter.should_report(TOPICS, 3))
               reporter.report(3, "find " + matcher.signature() + " -> " + type);
-            return type;
+            return CollectionUtil.<Type>list(type);
         }
 
         if (outer != null) {
@@ -464,19 +464,19 @@ public abstract class Context_c implements Context
     /**
      * Adds a named type object to the current scoping level.
      */
-    public void addNamed(Named t) {
+    public void addNamed(Type t) {
         if (reporter.should_report(TOPICS, 3))
           reporter.report(3, "Adding type " + t.name() + " to context.");
         addNamedToThisScope(t);
     }
 
-    public Named findInThisScope(Matcher<Named> matcher) {
-	Name name = matcher.name();
-	
-        Named t = null;
+    public Type findInThisScope(Matcher<Type> matcher) {
+        Name name = matcher.name();
+        
+        Type t = null;
         
         if (types != null) {
-            t = (Named) types.get(name);
+            t = types.get(name);
 
             if (t != null) {
         	try {
@@ -504,7 +504,8 @@ public abstract class Context_c implements Context
         
         if (t == null && isClass()) {
             try {
-        	t = ts.classContextResolver(this.currentClass(), this).find(matcher);
+        	List<Type> res = ts.classContextResolver(this.currentClass(), this).find(matcher);
+            t = SystemResolver.first(res);
             }
             catch (SemanticException e) {
             }
@@ -513,8 +514,8 @@ public abstract class Context_c implements Context
         return t;
     }
 
-    public void addNamedToThisScope(Named type) {
-        if (types == null) types = CollectionFactory.newHashMap();
+    public void addNamedToThisScope(Type type) {
+        if (types == null) types = CollectionFactory.<Name, Type>newHashMap();
         types.put(type.name(), type);
     }
 

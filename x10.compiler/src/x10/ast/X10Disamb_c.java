@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.Collections;
+import java.util.List;
 
 import polyglot.ast.Ambiguous;
 import polyglot.ast.Call;
@@ -194,22 +195,24 @@ public class X10Disamb_c extends Disamb_c {
 
 	    // no variable found. try types.
 	    if (typeOK()) {
-		try {
-			Named n = c.find(ts.TypeMatcher(name.id()));
-			if (n instanceof Type) {
-				Type type = (Type) n;
-				return makeTypeNode(type);
-			}
-		} catch (NoClassException e1) {
-		    if (!name.id().toString().equals(e1.getClassName())) {
-			// hmm, something else must have gone wrong
-			// rethrow the exception
-			throw e1;
-		    }
+	        try {
+	            List<Type> n = c.find(ts.TypeMatcher(name.id()));
+	            if (n.size() > 1) {
+	                throw new SemanticException("Ambiguous type "+name.id()+"\nPossible matches: "+n, pos);
+	            }
+	            for (Type type : n) {
+	                return makeTypeNode(type);
+	            }
+	        } catch (NoClassException e1) {
+	            if (!name.id().toString().equals(e1.getClassName())) {
+	                // hmm, something else must have gone wrong
+	                // rethrow the exception
+	                throw e1;
+	            }
 
-		    // couldn't find a type named name. 
-		    // It must be a package--ignore the exception.
-		}
+	            // couldn't find a type named name. 
+	            // It must be a package--ignore the exception.
+	        }
 	    }
 
 	    // Must be a package then...

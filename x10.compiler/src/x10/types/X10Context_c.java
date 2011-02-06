@@ -569,6 +569,7 @@ public class X10Context_c extends Context_c {
 	/**
 	 * Push a source file scope.
 	 */
+	@Override
 	public Context pushSource(ImportTable it) {
 		assert (depType == null);
 		return super.pushSource(it);
@@ -679,17 +680,19 @@ public class X10Context_c extends Context_c {
 	}
 
     /**
-	 * enters a method
-	 */
+     * enters a method
+     */
     public enum X10Kind { None, Async, At, Finish; }
     public X10Kind x10Kind = X10Kind.None;
 
-	public X10Context_c shallowCopy() {
-		X10Context_c res = (X10Context_c) super.shallowCopy();
+    @Override
+    public X10Context_c shallowCopy() {
+        X10Context_c res = (X10Context_c) super.shallowCopy();
         res.x10Kind = X10Kind.None;
         return res;
     }
-    
+
+	@Override
 	public Context pushCode(CodeDef ci) {
 		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
@@ -699,6 +702,7 @@ public class X10Context_c extends Context_c {
 	/**
 	 * Gets the current method
 	 */
+	@Override
 	public X10CodeDef currentCode() {
 		return (X10CodeDef) (depType == null ? super.currentCode() : pop().currentCode());
 	}
@@ -723,6 +727,7 @@ public class X10Context_c extends Context_c {
 		return inAssignment;
 	}
 
+	@Override
 	public boolean inStaticContext() {
 		return depType == null ? super.inStaticContext() : pop().inStaticContext();
 	}
@@ -744,6 +749,7 @@ public class X10Context_c extends Context_c {
 	/**
 	 * Adds a symbol to the current scoping level.
 	 */
+	@Override
 	public void addVariable(VarInstance<?> vi) {
 //		assert (depType == null);
 		super.addVariable(vi);
@@ -752,42 +758,43 @@ public class X10Context_c extends Context_c {
 	/**
 	 * Adds a named type object to the current scoping level.
 	 */
-	public void addNamed(Named t) {
+	@Override
+	public void addNamed(Type t) {
 		assert (depType == null);
 		super.addNamed(t);
 	}
 
-	    public Named findInThisScope(Name name) {
-	        if (types != null) {
-	            Named t = (Named) types.get(name);
-	            if (t != null)
-	        	return t;
-	        }
-	        if (isClass()) {
-	            if (! this.type.isAnonymous() &&
+	public Named findInThisScope(Name name) {
+	    if (types != null) {
+	        Named t = (Named) types.get(name);
+	        if (t != null)
+	            return t;
+	    }
+	    if (isClass()) {
+	        if (! this.type.isAnonymous() &&
 	                this.type.name().equals(name)) {
-	                return this.type;
-	            }
-	            else {
-	                ClassType container = this.currentClass();
-			Named t = findMemberTypeInThisScope(name, container);
-			if (t != null) return t;
-	            }
+	            return this.type;
 	        }
-	        if (inDepType()) {
-	            Type container = currentDepType();
+	        else {
+	            ClassType container = this.currentClass();
 	            Named t = findMemberTypeInThisScope(name, container);
 	            if (t != null) return t;
 	        }
-//	        if (supertypeDeclarationType() != null) {
-//	            ClassType container = supertypeDeclarationType().asType();
-//	            Named t = findMemberTypeInThisScope(name, container);
-//	            if (t != null) return t;
-//	        }
-	        return null;
 	    }
+	    if (inDepType()) {
+	        Type container = currentDepType();
+	        Named t = findMemberTypeInThisScope(name, container);
+	        if (t != null) return t;
+	    }
+//	    if (supertypeDeclarationType() != null) {
+//	        ClassType container = supertypeDeclarationType().asType();
+//	        Named t = findMemberTypeInThisScope(name, container);
+//	        if (t != null) return t;
+//	    }
+	    return null;
+	}
 
-	    private Named findMemberTypeInThisScope(Name name, Type container) {
+	private Named findMemberTypeInThisScope(Name name, Type container) {
 		TypeSystem ts = typeSystem();
 		ClassDef currentClassDef = this.currentClassDef();
 		if (container instanceof MacroType) {
@@ -810,19 +817,22 @@ public class X10Context_c extends Context_c {
 		catch (SemanticException e) {
 		}
 		return null;
-	    }
+	}
 
-	public void addNamedToThisScope(Named type) {
+	@Override
+	public void addNamedToThisScope(Type type) {
 //		assert (depType == null);
 		super.addNamedToThisScope(type);
 	}
 
+	@Override
 	public X10ClassType findMethodContainerInThisScope(Name name) {
 //		assert (depType == null);
 		return (X10ClassType) super.findMethodContainerInThisScope(name);
 
 	}
 
+	@Override
 	public VarInstance<?> findVariableInThisScope(Name name) {
 		//if (name.startsWith("val")) Report.report(1, "X10Context_c: searching for |" + name + " in " + this);
 		if (depType == null) return super.findVariableInThisScope(name);

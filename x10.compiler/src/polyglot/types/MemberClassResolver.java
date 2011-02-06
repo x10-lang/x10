@@ -11,6 +11,7 @@ import java.util.*;
 
 import polyglot.main.Reporter;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import x10.util.CollectionFactory;
 
 /**
@@ -39,6 +40,10 @@ public class MemberClassResolver implements TopLevelResolver
     this.nocache = CollectionFactory.newHashSet();
   }
 
+  public Package findPackage(QName name) throws SemanticException {
+    return inner.findPackage(name);
+  }
+
   public boolean packageExists(QName name) {
     return inner.packageExists(name);
   }
@@ -46,7 +51,7 @@ public class MemberClassResolver implements TopLevelResolver
   /**
    * Find a type by name.
    */
-  public Named find(QName name) throws SemanticException {
+  public List<Type> find(QName name) throws SemanticException {
     Reporter reporter = ts.extensionInfo().getOptions().reporter;
     if (reporter.should_report(report_topics, 3))
       reporter.report(3, "MemberCR.find(" + name + ")");
@@ -56,7 +61,7 @@ public class MemberClassResolver implements TopLevelResolver
         throw new NoClassException(name.toString());
     }
 
-    Named n = ts.systemResolver().check(name);
+    List<Type> n = ts.systemResolver().check(name);
 
     if (n != null) {
         return n;
@@ -98,7 +103,11 @@ public class MemberClassResolver implements TopLevelResolver
 
         n = find(prefix);
 
-        return findMember(n, suffix);
+        List<Type> result = new ArrayList<Type>();
+        for (Type q : n) {
+            result.addAll(findMember(q, suffix));
+        }
+        return result;
     }
     catch (SemanticException e) {
     }
@@ -110,7 +119,17 @@ public class MemberClassResolver implements TopLevelResolver
     throw error;
   }
 
-  protected Named findMember(Named container, Name name) throws SemanticException {
+  /**
+   * Find a single type by name.
+   */
+  public Type findOne(QName name) throws SemanticException {
+    List<Type> res = find(name);
+    if (res == null || res.size() != 1)
+      throw new InternalCompilerError("Unexpected result when looking up "+name+": "+res);
+    return res.get(0);
+  }
+
+  protected List<Type> findMember(Named container, Name name) throws SemanticException {
       if (container instanceof ClassType) {
           ClassType ct = (ClassType) container;
 
@@ -120,12 +139,12 @@ public class MemberClassResolver implements TopLevelResolver
 
           // Uncomment if we should search superclasses
           // return ct.resolver().find(name);
-          Named n = ct.memberTypeMatching(ts.MemberTypeMatcher(ct, name, ts.emptyContext()));
+          Type n = ct.memberTypeMatching(ts.MemberTypeMatcher(ct, name, ts.emptyContext()));
 
           if (n != null) {
               if (reporter.should_report(report_topics, 2))
                   reporter.report(2, "MCR: found member of " + ct + ": " + n);
-              return n;
+              return CollectionUtil.<Type>list(n);
           }
       }
 

@@ -27,7 +27,6 @@ import polyglot.types.Flags;
 import polyglot.types.Matcher;
 import polyglot.types.MemberInstance;
 
-import polyglot.types.Named;
 import polyglot.types.ParsedClassType_c;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -399,8 +398,8 @@ implements X10ParsedClassType
 	}
 	
 	@Override
-	public Named memberTypeMatching(Matcher<Named> matcher) {
-	    Named n = super.memberTypeMatching(matcher);
+	public Type memberTypeMatching(Matcher<Type> matcher) {
+	    Type n = super.memberTypeMatching(matcher);
 	    if (n != null)
 	        return n;
 	    
@@ -411,12 +410,12 @@ implements X10ParsedClassType
 	    return null;
 	}
 	
-	public MacroType typeMemberMatching(Matcher<Named> matcher) {
+	public MacroType typeMemberMatching(Matcher<Type> matcher) {
 	    for (Type t : typeMembers()) {
 	        if (t instanceof MacroType) {
 	            MacroType mt = (MacroType) t;
 	            try {
-	                Named n = matcher.instantiate(mt);
+	                Type n = matcher.instantiate(mt);
 	                if (n instanceof MacroType)
 	                    return (MacroType) n;
 	            }

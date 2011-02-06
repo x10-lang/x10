@@ -49,7 +49,7 @@ public interface Context extends Resolver, Cloneable
     void addVariable(VarInstance<?> vi);
 
     /** Add a named type object to the current scope. */
-    void addNamed(Named t);
+    void addNamed(Type t);
 
     /** Looks up a local variable or field in the current scope. */
     VarInstance<?> findVariable(Name name) throws SemanticException;

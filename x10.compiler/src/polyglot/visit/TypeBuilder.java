@@ -10,6 +10,7 @@ package polyglot.visit;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -298,7 +299,15 @@ public class TypeBuilder extends NodeVisitor
         	fullName = QName.make(null, ct.name());
             }
 
-            Named dup = typeSystem().systemResolver().check(fullName);
+            List<Type> dups = typeSystem().systemResolver().check(fullName);
+            Type dup = null;
+            if (dups != null) {
+                for (Type q : dups) {
+                    if (q instanceof ClassType && q.fullName().equals(fullName)) {
+                        dup = q;
+                    }
+                }
+            }
 
             if (dup != null && dup.fullName().equals(fullName)) {
                 job.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,

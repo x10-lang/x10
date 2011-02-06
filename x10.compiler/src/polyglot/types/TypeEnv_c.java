@@ -811,16 +811,5 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	return ((ProcedureInstance_c<?>) prototype).callValid(thisType, argTypes, context);
     }
 
-    public Type findMemberType(Type container, Name name) throws SemanticException {
-        assert false;
-	Named n = ts.classContextResolver(container, context).find(ts.MemberTypeMatcher(container, name, context));
-
-	if (n instanceof ClassType) {
-	    return (ClassType) n;
-	}
-
-	throw new NoClassException(name.toString(), container);
-    }
-
-
+    public abstract Type findMemberType(Type container, Name name) throws SemanticException;
 }

@@ -229,9 +229,12 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
             
             if (prefix == null) {
                 // Search the context.
-                Named n = c.find(ts.TypeDefMatcher(null, name.id(), typeArgs, argTypes, c));
-                if (n instanceof MacroType) {
-                    mt = (MacroType) n;
+                List<Type> tl = c.find(ts.TypeDefMatcher(null, name.id(), typeArgs, argTypes, c));
+                for (Type n : tl) {
+                    if (n instanceof MacroType) {
+                        mt = (MacroType) n;
+                        break;
+                    }
                 }
             }
             else {
@@ -262,7 +265,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         // Otherwise, look for a simply-named type.
         try {
             Disamb disamb = tc.nodeFactory().disamb();
-	    Node n = disamb.disambiguate(this, tc, pos, prefix, name);
+            Node n = disamb.disambiguate(this, tc, pos, prefix, name);
 
             if (n instanceof TypeNode) {
         	TypeNode tn = (TypeNode) n;

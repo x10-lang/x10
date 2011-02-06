@@ -7,6 +7,8 @@
 
 package polyglot.types;
 
+import java.util.List;
+
 /**
  * Abstract base class of concrete access control resolvers. Implements the
  * Resolver interface by delegating to the access control resolver interface,
@@ -19,7 +21,7 @@ public abstract class AbstractAccessControlResolver implements AccessControlReso
         this.ts = ts;
     }
     
-    public final Named find(Matcher<Named> matcher) throws SemanticException {
+    public final List<Type> find(Matcher<Type> matcher) throws SemanticException {
         return find(matcher, null);
     }
 }

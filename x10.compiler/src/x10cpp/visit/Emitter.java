@@ -615,7 +615,7 @@ public class Emitter {
 		    boolean noReturnPragma = false;
 		    try {
 		        TypeSystem xts = (TypeSystem)tr.typeSystem();
-		        Type annotation = (Type) xts.systemResolver().find(NORETURN_ANNOTATION);
+		        Type annotation = xts.systemResolver().findOne(NORETURN_ANNOTATION);
 		        if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
 		            noReturnPragma = true;
 		        }
@@ -650,7 +650,7 @@ public class Emitter {
 			X10ClassType c = (X10ClassType)param_type;
 			if (c.isX10Struct()) {
 		        try {
-					Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.ByRef"));
+					Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.ByRef"));
 					if (!c.annotationsMatching(annotation).isEmpty()) h.write("&");
 		        } catch (SemanticException e) {
 		            assert false : e;

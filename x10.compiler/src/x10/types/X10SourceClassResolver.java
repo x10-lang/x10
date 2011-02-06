@@ -13,6 +13,7 @@ package x10.types;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import polyglot.frontend.ClassPathResourceLoader;
@@ -25,11 +26,12 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Resource;
 import polyglot.frontend.Scheduler;
 import polyglot.main.Reporter;
-import polyglot.types.Named;
 import polyglot.types.NoClassException;
+import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import x10.util.CollectionFactory;
@@ -119,7 +121,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         return null;
     }
     
-    public Named getEncodedType(Resource clazz, QName name) throws SemanticException {
+    public Type getEncodedType(Resource clazz, QName name) throws SemanticException {
         return null;
     }
 
@@ -142,11 +144,11 @@ public class X10SourceClassResolver implements TopLevelResolver {
         return !compileCommandLineOnly && isOutput(name);
     }
 
-    public Named find(QName name) throws SemanticException {
+    public List<Type> find(QName name) throws SemanticException {
         TypeSystem ts = (TypeSystem) this.ts;
 
         if (name.equals(QName.make("void")))
-            return (Named) ts.Void();
+            return CollectionUtil.<Type>list(ts.Void());
 
         if (reporter.should_report(report_topics, 3))
             reporter.report(3, "SourceCR.find(" + name + ")");
@@ -163,7 +165,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         // Check if a job for the source already exists.
         if (source != null && ext.scheduler().sourceHasJob(source)) {
             // the source has already been compiled; what are we doing here?
-            return getTypeFromSource(source, name, shouldCompile(name));
+            return CollectionUtil.<Type>list(getTypeFromSource(source, name, shouldCompile(name)));
         }
         
         if (source == null) {
@@ -185,7 +187,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
             }
         }
 
-        Named result = null;
+        Type result = null;
         
         if (clazz != null) {
             if (reporter.should_report(report_topics, 4))
@@ -210,13 +212,26 @@ public class X10SourceClassResolver implements TopLevelResolver {
         // Verify that the type we loaded has the right name. This prevents,
         // for example, requesting a type through its mangled (class file) name.
         if (result != null) {
-            return result;
+            return CollectionUtil.<Type>list(result);
         }
 
         throw new NoClassException(name.toString());
     }
     
+    public Type findOne(QName name) throws SemanticException {
+        List<Type> res = find(name);
+        if (res == null || res.size() != 1)
+            throw new InternalCompilerError("Unexpected result when looking up "+name+": "+res);
+        return res.get(0);
+    }
+
     protected void handleUpToDateTarget(QName name, Resource file) {
+    }
+
+    public Package findPackage(QName name) throws SemanticException {
+        if (packageExists(name))
+            return ts.createPackage(name);
+        throw new SemanticException("Package "+name+" not found");
     }
 
     public boolean packageExists(QName name) {
@@ -226,7 +241,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         return false;
     }
     
-    protected Named getTypeFromSource(FileSource source, QName name, boolean compile) throws SemanticException {
+    protected Type getTypeFromSource(FileSource source, QName name, boolean compile) throws SemanticException {
         Scheduler scheduler = ext.scheduler();
         Job job = scheduler.loadSource(source, compile);
         
@@ -234,10 +249,13 @@ public class X10SourceClassResolver implements TopLevelResolver {
             new Exception("loaded " + source).printStackTrace();
         
         if (job != null) {
-            Named n = ts.systemResolver().check(name);
+            List<Type> n = ts.systemResolver().check(name);
         
             if (n != null) {
-                return n;
+                assert (n.size() == 1);
+                for (Type q : n) {
+                    return q;
+                }
             }
         
             Goal g = scheduler.PreTypeCheck(job);
@@ -254,7 +272,10 @@ public class X10SourceClassResolver implements TopLevelResolver {
             n = ts.systemResolver().check(name);
         
             if (n != null) {
-                return n;
+                assert (n.size() == 1);
+                for (Type q : n) {
+                    return q;
+                }
             }
         }
         

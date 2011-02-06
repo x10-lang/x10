@@ -7,6 +7,10 @@
 
 package polyglot.types;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import polyglot.util.InternalCompilerError;
 import polyglot.util.StringUtil;
 
@@ -25,7 +29,7 @@ public class PackageContextResolver extends AbstractAccessControlResolver
      */
     public PackageContextResolver(TypeSystem ts, Package p) {
         super(ts);
-	this.p = p;
+        this.p = p;
     }
 
     /**
@@ -40,34 +44,39 @@ public class PackageContextResolver extends AbstractAccessControlResolver
      * @param name Name of the class or package to find.
      * 
      */
-    public Named find(Matcher<Named> matcher, Context context) throws SemanticException {
-	Name name = matcher.name();
-	
-        Named n = null;
+    public List<Type> find(Matcher<Type> matcher, Context context) throws SemanticException {
+        Name name = matcher.name();
 
-	try {
-	    n = ts.systemResolver().find(QName.make(p.fullName(), name));
-	}
-	catch (NoClassException e) {
+        List<Type> tl = null;
+
+        try {
+            tl = ts.systemResolver().find(QName.make(p.fullName(), name));
+        }
+        catch (NoClassException e) {
             // Rethrow if some _other_ class or package was not found.
             if (!e.getClassName().equals(p.fullName() + "." + name)) {
                 throw e;
             }
-	}
-
-//        if (n == null) {
-//            n = ts.createPackage(p, name);
-//        }
-        
-        if (! canAccess(n, context)) {
-            throw new SemanticException("Cannot access " + n + " from " + context.currentClassDef() + ".");
         }
-        
-        if (n != null) {
-            n = matcher.instantiate(n);
+
+        if (tl != null) {
+            List<Type> newTL = new ArrayList<Type>();
+            for (Type n : tl) {
+                if (! canAccess(n, context)) {
+                    throw new SemanticException("Cannot access " + n + " from " + context.currentClassDef() + ".");
+                }
+                n = matcher.instantiate(n);
+                if (n != null)
+                    newTL.add(n);
+            }
+            if (newTL.isEmpty()) {
+                tl = null;
+            } else {
+                tl = newTL;
+            }
         }
    
-        return n;
+        return tl;
     }
 
     protected boolean canAccess(Named n, Context context) {
