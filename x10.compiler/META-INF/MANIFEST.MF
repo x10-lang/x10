@@ -6,14 +6,13 @@ Bundle-Version: 2.1.2.qualifier
 Bundle-Localization: plugin
 Require-Bundle: x10.common,
  x10.constraints,
- lpg.runtime.java;bundle-version="2.0.18"
+ lpg.runtime.java
 Export-Package: polyglot.ast,
  polyglot.frontend,
  polyglot.lex,
  polyglot.main,
  polyglot.parse,
  polyglot.types,
- polyglot.types.reflect,
  polyglot.util,
  polyglot.visit,
  x10,
