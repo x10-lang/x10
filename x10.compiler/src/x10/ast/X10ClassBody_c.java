@@ -14,7 +14,6 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -37,7 +36,8 @@ import java.util.ListIterator;
 import java.util.List;
 
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
@@ -440,6 +440,4 @@ public class X10ClassBody_c extends ClassBody_c {
         return succs;
     }
 
-    private static final Collection<String> TOPICS = 
-                CollectionUtil.list(Report.types, Report.context);
 }

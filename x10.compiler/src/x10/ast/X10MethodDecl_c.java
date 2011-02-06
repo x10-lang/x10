@@ -46,7 +46,7 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.SetResolverGoal;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -73,7 +73,8 @@ import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -956,7 +957,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 					}
 				}
 
-				// Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
+				// reporter.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
 
 				// Fold this's constraint (the class invariant) into the guard.
 				{
@@ -1026,7 +1027,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 
 
-		// Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
+		// reporter.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
 		// Step III. Check the body. 
 		// We must do it with the correct mi -- the return type will be
 		// checked by return e; statements in the body, and the offerType by offer e; statements in the body.
@@ -1035,7 +1036,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// Add the type params and formals to the context.
 		nn.visitList(nn.typeParameters(),childtc2);
 		nn.visitList(nn.formals(),childtc2);
-		//Report.report(1, "X10MethodDecl_c: after visiting formals " + childtc2.context());
+		//reporter.report(1, "X10MethodDecl_c: after visiting formals " + childtc2.context());
 		// Now process the body.
 		nn = (X10MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
 		nn = (X10MethodDecl) childtc2.leave(parent, old, nn, childtc2);
@@ -1059,7 +1060,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	private static final Collection<String> TOPICS = 
-		CollectionUtil.list(Report.types, Report.context);
+		CollectionUtil.list(Reporter.types, Reporter.context);
 
     /** Write the method to an output file. */
     public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
