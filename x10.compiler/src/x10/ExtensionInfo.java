@@ -351,7 +351,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
             // Resolver to handle lookups of member classes.
             if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-                MemberClassResolver mcr = new MemberClassResolver(ts, r, true, this);
+                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
                 r = mcr;
             }
 

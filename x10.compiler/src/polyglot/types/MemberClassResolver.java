@@ -9,7 +9,6 @@ package polyglot.types;
 
 import java.util.*;
 
-import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Reporter;
 import polyglot.util.CollectionUtil;
 import x10.util.CollectionFactory;
@@ -25,8 +24,6 @@ public class MemberClassResolver implements TopLevelResolver
     protected boolean allowRawClasses;
     protected Set<QName> nocache;
 
-    protected Reporter reporter;
-    
   protected final static Collection<String> report_topics =
       CollectionUtil.list(Reporter.types, Reporter.resolver, Reporter.loader, "mcr");
 
@@ -35,12 +32,11 @@ public class MemberClassResolver implements TopLevelResolver
    * @param ts The type system
    * @param inner The resolver for top-level classes
    */
-  public MemberClassResolver(TypeSystem ts, TopLevelResolver inner, boolean allowRawClasses, ExtensionInfo ext) {
+  public MemberClassResolver(TypeSystem ts, TopLevelResolver inner, boolean allowRawClasses) {
     this.ts = ts;
     this.inner = inner;
     this.allowRawClasses = allowRawClasses;
     this.nocache = CollectionFactory.newHashSet();
-    this.reporter = ext.getOptions().reporter;
   }
 
   public boolean packageExists(QName name) {
@@ -51,6 +47,7 @@ public class MemberClassResolver implements TopLevelResolver
    * Find a type by name.
    */
   public Named find(QName name) throws SemanticException {
+    Reporter reporter = ts.extensionInfo().getOptions().reporter;
     if (reporter.should_report(report_topics, 3))
       reporter.report(3, "MemberCR.find(" + name + ")");
 
@@ -117,6 +114,7 @@ public class MemberClassResolver implements TopLevelResolver
       if (container instanceof ClassType) {
           ClassType ct = (ClassType) container;
 
+          Reporter reporter = ts.extensionInfo().getOptions().reporter;
           if (reporter.should_report(report_topics, 2))
               reporter.report(2, "MCR: found prefix " + ct);
 
