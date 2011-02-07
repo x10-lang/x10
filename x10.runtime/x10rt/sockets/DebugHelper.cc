@@ -28,6 +28,11 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <signal.h>
+ 
+typedef void (*sighandler_t)(int);
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL 0
+#endif
 
 #include "DebugHelper.h"
 
