@@ -2462,7 +2462,58 @@ static class LongB {
 }
 
 
-class ExplodingPointTest {	
+class ExplodingPointTest[T] {	
+	// you can explode either a Point or an Array[T] into its components, 
+	// so the elements are either of type T or Int.
+	// The rank of the Point/Array must be EQUAL to the number of components.
+	// If you do not write in the type the rank of the Point/Array then it is assumed to be the number of components.
+	// You can explode either in:
+	// 1) a formal of a method where you must give the type
+	// 2) a local where you either give the type or an intializer and then we infer the type
+	// 3) a local in a loop (we look at the collection to infer the type of the index)
+	def explodeArray(a[i,j,k]:Array[Array[T]]{size==3,rank==1}) {
+		val z:Array[T] = i;
+		val z2:Int = i; // ERR
+
+		val w3:Array[Array[T]]{size==3,rank==1} = a; 
+		val w4:Array[Array[T]]{size==2,rank==1} = a; // ERR
+		val w5:Array[Array[T]]{size==3,rank==2} = a; // ERR
+	}
+	def explodePoint(a[i,j]:Point) {
+		val z2:Int = i;
+		val z:Array[T] = i;  // ERR
+		val w2:Point(2) = a; 
+		val w3:Point(3) = a; // ERR
+	}
+	def loopTest(a:ArrayList[Array[T]], b:Collection[Point], a2:ArrayList[Array[T](2)], b2:Collection[Point(2)]) {
+		for (x[i] in a) {} // ERR
+		for (x[i] in b) {} // ERR
+		for (x[i] in a2) {} // ERR
+		for (x[i] in b2) {} // ERR
+		for (x[i,j] in a) {} // ERR
+		for (x[i,j] in b) {} // ERR
+		for (x[i,j] in a2) {} // ShouldNotBeERR
+		for (x[i,j] in b2) {}
+	}
+	def testInconsistent(
+		a1[i1,j1]:Point(1), // ERR
+		a2[i2,j2]:Point(2),
+		a3[i3,j3]:Point(3), // ERR
+		a4[i4,j4]:Point{rank==2}, 
+		a5[i5,j5]:Point{rank!=2}, // ERR
+		a6[i6,j6]:Point{rank!=1}, // ok {rank!=1 && rank==2} is consistent
+		a7[i7,j7]:Point{rank==a2.rank}, 
+		a8[i8,j8]:Point{rank==a3.rank}, // ShouldBeErr
+		a9[i9,j9]:Point,
+		a10[i10,j10]:Point{rank==a9.rank},
+		a11[i11,j11]:Point{rank!=a9.rank}, // ShouldBeErr
+		a12:Point,
+		a13[i13,j13]:Point{rank==a12.rank},
+		a14[i14,j14]:Point{rank==a12.rank},
+		a15[i15,j15]:Point{rank!=a12.rank}) // ShouldBeErr
+		{}
+
+
     def f1([i,j]:Point(2),x:Int)= i+x+j;	
     def f2(p[i,j]:Point(2),x:Int)= p(0)+i+x+j;
 
@@ -2481,13 +2532,14 @@ class ExplodingPointTest {
 			return p(0)+i+j;
 		for(p[i] in (3..4)) 
 			return p(0)+i;
-		for(p[i]:Point(2) in (3..4)*(3..4))  {} // ERR XTENLANG-2399 (the type doesn't match the number of exploded ints
-		for(x[n]:Point in (3..4)*(3..4))  {} // causes the ForLoopOptimizer to crash.
+		for(p[i]:Point(2) in (3..4)*(3..4))  {} // ERR XTENLANG-2399 (the type doesn't match the number of exploded ints)
+		for(x[n]:Point in (3..4)*(3..4))  {} // ERR (otherwise it causes the ForLoopOptimizer to crash.)
+		for(x[n,m]:Point in (3..4)*(3..4))  {}
 		return 3;
 	}
     def m(p:Point(1)) { // XTENLANG-2399
-		val [i,j] = p; // ShouldBeErr
-		val q[m]:Point(2) = [3,4]; // ShouldBeErr
+		val [i,j] = p; // ERR
+		val q[m]:Point(2) = [3,4]; // ERR
 	}
 	def test4() {
 		for(p[i,j] in (3..4)) // ERR: Loop domain is not of expected type.  
@@ -2503,15 +2555,15 @@ class ExplodingPointTest {
 		var p[i,j,k]: Point; // ERR
 	}
 	def exactTest() {		
-        { val [i,j] = [1,2,3]; }
+        { val [i,j] = [1,2,3]; } // ERR
         { val [i,j] = [1,2]; }
-        { val [i,j] = [1]; }
-        { val [i,j]:Point = [1,2,3]; }
+        { val [i,j] = [1]; } // ERR
+        { val [i,j]:Point = [1,2,3]; } // ShouldBeErr
         { val [i,j]:Point = [1,2]; }
-        { val [i,j]:Point = [1]; }
-        { val [i,j]:Point(3) = [1,2,3]; }
+        { val [i,j]:Point = [1]; } // ShouldBeErr
+        { val [i,j]:Point(3) = [1,2,3]; } // ERR
         { val [i,j]:Point(2) = [1,2]; }
-        { val [i,j]:Point(1) = [1]; }
+        { val [i,j]:Point(1) = [1]; } // ERR
 	}
 	
 	def checkVarPoint(var p[i,j] : Point(2)) {
@@ -2522,14 +2574,56 @@ class ExplodingPointTest {
 		val z = m+1; // exploded variables are always assumed to be Int.
 	}
 	def closureTest() {		
-		val f: (Point) => Int  =   (p[i,j]:Point) => i+j;
+		val f1: (Point(2)) => Int  =   (p[i,j]:Point) => i+j;
+		val f2: (Point) => Int  =   (p[i,j]:Point) => i+j; // ERR
 	}
 	def explodingLocal() {		
-        { val p[i,j]: Array[Int](1) = new Array[Int](2); }
-        { val p[i,j]: Array[Point](1) = new Array[Point](2); } // ERR ERR exploded elements are always assumed to be Int
+        { val p[i,j]: Array[Int] = new Array[Int](2); } // ERR ERR ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
+        { val p[i,j]: Array[Int]{rank==1, size==2} = new Array[Int](2); }
+        { val p[i,j]: Array[Point] = new Array[Point](2); }  // ERR ERR ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
+        { val p[i,j]: Array[Point]{rank==1, size==2} = new Array[Point](2); } 
+        { val p[i,j]: Array[Point]{rank==1, size==2} = new Array[Point](3); } // ERR
+        { val p[i,j]: Array[Point]{rank==1, size==2} = new Array[Point](2); }
+        { val p[i,j]: Array[Point]{rank==2, size==2} = new Array[Point](2); } // ERR ERR ERR ERR 
+        { val p[i,j]: Array[Point]{rank==1, size==3} = new Array[Point](3); } // ERR 
+        { val p[i,j]: Array[Point] = new Array[Point](2..3*4..5); } // ERR ERR ERR 
 	}
+	def testArrayApplyMethod() {
+        { 
+			val p = new Array[Int](2); 
+			val i = p(0);
+		}
+        { 
+			val p:Array[Int]{self.rank==1} = new Array[Int](2); 
+			val i = p(0);
+		}
+	}
+	def testArrayIntCtor() {
+        { val p: Array[Int] = new Array[Int](3); } 
+        { val p: Array[Int]{rank==1} = new Array[Int](3); } 
+        { val p: Array[Int]{rank==3} = new Array[Int](3); } // ERR 
+        { val p: Array[Int]{size==3} = new Array[Int](3); } 
+        { val p: Array[Int]{size==2} = new Array[Int](3); } // ERR 
+        { val p: Array[Int]{region.rank==1} = new Array[Int](3); } 
+        { val p: Array[Int]{region.rank==3} = new Array[Int](3); } // ERR 
+        { val p: Array[Int]{region.rect} = new Array[Int](3); } 
+        { val p: Array[Int]{region.rect==false} = new Array[Int](3); } // ERR 
+        { val p: Array[Int]{region.zeroBased} = new Array[Int](3); } 
+        { val p: Array[Int]{region.zeroBased==false} = new Array[Int](3); } // ERR 
+        { val p: Array[Int]{region.rail} = new Array[Int](3); } 
+        { val p: Array[Int]{region.rail==false} = new Array[Int](3); } // ERR 
+        { val p: Array[Int]{rect} = new Array[Int](3); } 
+        { val p: Array[Int]{rect==false} = new Array[Int](3); } // ERR 
+        { val p: Array[Int]{zeroBased} = new Array[Int](3); } 
+        { val p: Array[Int]{zeroBased==false} = new Array[Int](3); } // ERR 
+        { val p: Array[Int]{rail} = new Array[Int](3); } 
+        { val p: Array[Int]{rail==false} = new Array[Int](3); } // ERR 
+	}
+
 	// val p[i,j] = [1,2]; // doesn't parse for fields :)
+
 }
+
 
 
 class TestOverloadingAndInterface {

@@ -13,6 +13,7 @@ import harness.x10Test;
 
 /**
  * Cannot bind point components in array declaration.
+ * Yoav todo: I don't understand why you can't explode an Array[T] into components of type T?
  *
  * @author igor, 1/2006
  */
@@ -20,12 +21,16 @@ import harness.x10Test;
 public class ArrayPointBinding_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
+        { val p[i,j]:Array[Point]{rank==1,size==2} = new Array[Point](2); }
+        { val p[i,j]:Array[Point]{size==2} = new Array[Point](2); } // ERR ERR: [Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}, Warning: Generated a dynamic check for the method guard.]
+        { val p[i,j]:Array[Point]{rank==1} = new Array[Point](2); } // ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
+        { val p[i,j]:Array[Point] = new Array[Point](2); }          // ERR ERR: [Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}, Warning: Generated a dynamic check for the method guard.]
 
-        val p[i,j]: Array[Point](1) = new Array[Point](2); // ERR ERR exploded elements are always assumed to be Int
+        val p[i,j] = new Array[Point](2);
         p(0) = [1,2];
         p(1) = [3,4];
 
-        return (i(0) == 1 && j(1) == 4);  // ERR ERR
+        return (i(0) == 1 && j(1) == 4);  
     }
 
     public static def main(args: Array[String](1)): void = {

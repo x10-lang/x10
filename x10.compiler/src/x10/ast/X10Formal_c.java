@@ -35,15 +35,13 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
-import polyglot.types.ConstructorDef;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
@@ -52,24 +50,15 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
-import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 
-import x10.types.FunctionType;
-import polyglot.types.Context;
 import x10.types.X10LocalDef;
-import x10.types.X10LocalInstance;
-import x10.types.MethodInstance;
-import x10.types.X10ParsedClassType_c;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import x10.types.ParameterType;
+import polyglot.types.TypeSystem_c;
 import x10.types.ConstrainedType;
-import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 import x10.visit.X10PrettyPrinterVisitor;
-import x10.visit.X10Translator;
 import x10.constraint.XTerm;
 import x10.constraint.XLit;
 
@@ -203,29 +192,15 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	            public void run() {
 	                Formal ff = (Formal) parent;
 	                Type containerType = ff.type().type();
-	                Type indexType = null;
+	                final Type indexType;
 
-	                if (ts.isFunctionType(containerType)) {
-	                    List<Type> actualTypes = Collections.singletonList(ts.Int());
-
-	                    try {
-	                        // Find the most-specific function type.
-	                        MethodInstance mi = ts.findMethod(containerType, 
-	                                ts.MethodMatcher(containerType, ClosureCall.APPLY, 
-	                                        Collections.<Type>emptyList(), actualTypes, context));
-	                        indexType = mi.returnType();
-
-	                    }
-	                    catch (SemanticException e) {
-	                    }
-	                }
-
-	                if (indexType != null) {
-	                    r.update(indexType);
-	                    return;
-	                }
-
-	                r.update(ts.unknownType(tn.position()));
+                    if (ts.isArray(containerType)) {
+                        indexType = TypeSystem_c.getArrayComponentType(containerType);
+                    } else {
+                        // must be a Point or we had complained when typeChecking the parent.
+                        indexType = ts.Int();
+                    }
+                    r.update(indexType); // It used to be: ts.unknownType(tn.position()), however now I complain in checkExplodedVars if the type of the parent is not Point nor Array, so no need to complain we cannot infer the type of the components. 
 	            }
 	        });
 	    } 
@@ -252,7 +227,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
 	    // Check if the variable is multiply defined.
-	    Context c = (Context)tc.context();
+	    Context c = tc.context();
 
 	    LocalInstance outerLocal = null;
 
@@ -285,31 +260,74 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	        Errors.issue(tc.job(),
 	                new Errors.FormalParameterCannotHaveType(myType, position()));
         else {
-            if (vars.size()>0) {
-                // check the type is a subtype of Point, and that it's rank is vars.size()
-                if (!ts.isSubtype(myType, ts.Point(), c))
-                    Errors.issue(tc.job(), new Errors.OnlyTypePointCanBeExploded(myType, position()));
-                else {
-                    // make sure there is an init expr
-                    ConstrainedType cType = Types.toConstrainedType(myType);
-                    XTerm rank = cType.rank(c);
-                    if (rank instanceof XLit) {
-			            int r = (Integer) ((XLit) rank).val();
-                        if (r!=vars.size())
-                            Errors.issue(tc.job(), new SemanticException("The rank of the exploded Point is "+r+" but it should be "+vars.size(), position()));
-                    } else {                                                                                                                                    
-                        if (false) { // todo: I think we should be strict and add constraint, but it breaks a lot of existing test cases
-                            cType = cType.addRank(vars.size());
-                            final Ref<Type> ref = (Ref<Type>)this.type().typeRef();
-                            ref.update(cType);
-                        }
-                    }
-                }
-            }
+            checkExplodedVars(vars.size(), (Ref<Type>)this.type().typeRef(), position(), tc);
         }
 
 	    return this;
 	}
+    public static void checkExplodedVars(int num, Ref<Type> ref, Position pos, ContextVisitor tc) {
+	    Context c = tc.context();
+	    TypeSystem ts = tc.typeSystem();
+        final Type myType = ref.get();
+
+        if (num>0) {
+            // check the type is a subtype of Point/Array, and that it's rank is vars.size()
+            final boolean isArray = ts.isArray(myType);
+            if (!ts.isSubtype(myType, ts.Point(), c) && !isArray)
+                Errors.issue(tc.job(), new Errors.OnlyTypePointOrArrayCanBeExploded(myType, pos));
+            else {
+                // make sure there is an init expr
+                ConstrainedType cType = Types.toConstrainedType(myType);
+                boolean okOrError = false;
+                if (isArray) {
+                    XTerm rank = cType.rank(c);
+                    XTerm size = cType.size(c);
+                    if (rank instanceof XLit && size instanceof XLit) {
+                        okOrError = true;
+                        int r = (Integer) ((XLit) rank).val();
+                        int s = (Integer) ((XLit) size).val();
+                        if (r!=1 || s!=num) {
+                            if (r!=1)
+                                Errors.issue(tc.job(), new SemanticException("The rank of the exploded Array is "+r+" but it should be 1", pos));
+                            else
+                                Errors.issue(tc.job(), new SemanticException("The size of the exploded Array is "+s+" but it should be "+num, pos));
+                        }
+                    }
+                } else {
+                    XTerm rank = cType.rank(c);
+                    if (rank instanceof XLit) {
+                        okOrError = true;
+                        int r = (Integer) ((XLit) rank).val();
+                        if (r!=num) {
+                            Errors.issue(tc.job(), new SemanticException("The rank of the exploded Point is "+r+" but it should be "+num, pos));
+                        }
+                    }
+                }
+                if (!okOrError) {
+                    if (isArray) {
+                        if (false) {
+                            // Just adding
+                            cType = cType.addRank(1).addSize(num);
+                            // is not enough, because it gives the type:
+                            //x10.array.Array[x10.lang.Int]{self.x10.array.Array#rank==1, self.x10.array.Array#size==2}
+                            // and we should get the type:
+                            //x10.array.Array[x10.lang.Int]{self.x10.array.Array#region.x10.array.Region#rank==1, self.x10.array.Array#region.x10.array.Region#rect==true, self.x10.array.Array#region.x10.array.Region#zeroBased==true, self.x10.array.Array#region.x10.array.Region#rail==true, self.x10.array.Array#rank==1, self.x10.array.Array#rect==true, self.x10.array.Array#zeroBased==true, self.x10.array.Array#rail==true, self.x10.array.Array#size==2, self!=null}
+                            // you can test it with this code:                            
+                            //{ val p[i,j]: Array[Int] = new Array[Int](2); } // ShouldNotBeERR: Message: Semantic Error: Method operator()(i0: x10.lang.Int){x10.array.Array#this.x10.array.Array#rank==1}[] in x10.array.Array[x10.lang.Int]{self.x10.array.Array#rank==1, self==p, p.x10.array.Array#size==2} cannot be called with arguments (x10.lang.Int{self==1}); Call invalid; calling environment does not entail the method guard.
+                        } else
+                            Errors.issue(tc.job(), new SemanticException("You can exploded the Array only if its has the constraint {rank==1,size="+num+"}", pos));
+                    } else {
+                        cType = cType.addRank(num);
+                    }
+                    if (cType.constraint().get().consistent()) {
+                        ref.update(cType);
+                    } else {
+                        Errors.issue(tc.job(), new SemanticException("The type after adding the rank is inconsistent. The type before is "+myType+" and after adding {rank=="+(isArray ? "1,size=":"")+num+"} is "+cType, pos));
+                    }
+                }
+            }
+        }
+    }
 
     public String toString() {
 	StringBuffer sb = new StringBuffer();

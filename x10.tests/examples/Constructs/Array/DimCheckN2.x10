@@ -21,7 +21,7 @@ import harness.x10Test;
 public class DimCheckN2 extends x10Test {
 
     def m(var r: Region(2)): void = {
-        val a1 = new Array[int](r, (p[i]: Point): int => { return i; });
+        val a1 = new Array[int](r, (p[i,j]: Point): int => { return i; });
     }
 
     public def run(): boolean = {

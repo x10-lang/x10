@@ -223,6 +223,7 @@ public interface NodeFactory
 
     LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name);
     LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
+    LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init, List<Id> exploded);
 
     New New(Position pos, TypeNode type, List<Expr> args);
     New New(Position pos, TypeNode type, List<Expr> args, ClassBody body);

@@ -1398,7 +1398,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
             Expr init = (Expr) o[5];
             LocalDecl ld = nf.LocalDecl(pos, fn,
-                    type, name, init);
+                    type, name, init, exploded);
             ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
             int index = 0;
             l.add(ld);
@@ -1406,7 +1406,9 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 syntaxError("An exploded point must have an initializer.",pos);
             }
             for (Id id : exploded) {
-                TypeNode tni = explodedType(id.position());
+                TypeNode tni =
+                        init==null ? nf.TypeNodeFromQualifiedName(compilerGen,QName.make("x10.lang.Int")) : // we infer the type of the exploded components, however if there is no init, then we just assume Int to avoid cascading errors.
+                        explodedType(id.position()); // UnknownType
                 l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name),  Collections.<Expr>singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
                 index++;
             }
@@ -2260,7 +2262,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
 
     TypeNode explodedType(Position p) {
-        return nf.TypeNodeFromQualifiedName(p,QName.make("x10.lang.Int"));// exploded formals/locals are always Int.  nf.UnknownTypeNode(id.position());
+        return nf.UnknownTypeNode(p);// exploded formals/locals are either Int or T (when exploding Array[T]).  nf.TypeNodeFromQualifiedName(p,QName.make("x10.lang.Int"));  
 
     }
     List<Formal> createExplodedFormals(List<Id> exploded) {

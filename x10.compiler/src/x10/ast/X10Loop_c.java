@@ -177,7 +177,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
         Type indexType;
         int length = ((X10Formal) formal).vars().size();
         if (length > 0) {
-            indexType = ts.Point();
+            indexType = ts.Point(); // todo: not true, it can also be an Array, e.g., for (x[i,j] in [[1,2],[3,4]])
 
             // Add a self.rank=n clause, if the formal
             // has n components.

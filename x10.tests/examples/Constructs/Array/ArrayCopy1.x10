@@ -128,7 +128,7 @@ public class ArrayCopy1 extends x10Test {
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(distType: Int, r: Region): Dist {
+        public static def getDist(distType: Int, r: Region): Dist(r) {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(r, 0);
                 //case CYCLIC: return Dist.makeCyclic(r, 0);

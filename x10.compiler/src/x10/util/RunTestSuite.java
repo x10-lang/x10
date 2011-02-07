@@ -228,7 +228,7 @@ public class RunTestSuite {
     public static void checkAssertionsEnabled() {
         boolean isEA = true;
         try {
-            assert false;
+            assert false : "Test if assertion work";
             isEA = false;
         } catch (Throwable e) {}
         if (!isEA) throw new RuntimeException("You must run RunTestSuite with assertions enabled, i.e.,  java -ea RunTestSuite ...");                                                                                                                

@@ -3651,11 +3651,14 @@ public class TypeSystem_c implements TypeSystem
         return hasSameClassDef(t, Array());
     }
 
-    public boolean isArrayOf(Type t, Type p) {
-        if (!isArray(t)) return false;
+    public static Type getArrayComponentType(Type t) {
         List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
         assert (ta.size() == 1);
-        return ta.get(0).typeEquals(p, createContext());
+        return ta.get(0);
+    }
+    public boolean isArrayOf(Type t, Type p) {
+        if (!isArray(t)) return false;
+        return getArrayComponentType(t).typeEquals(p, createContext());
     }
 
     public boolean isRemoteArray(Type t) {

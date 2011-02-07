@@ -1028,7 +1028,7 @@ public interface TypeSystem {
      */
     X10ClassType Mortal();
 
-    boolean isRail(Type t);
+    boolean isRail(Type t); // todo: Rail was removed!
 
     public boolean isRailOf(Type t, Type p);
 

@@ -445,6 +445,13 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		public  ConstrainedType addRank(int x) {
 		    return addRank(XTerms.makeLit(new Integer(x)));
 		}
+		public  ConstrainedType addSize(int x) {
+		    return addProperty(x, Name.make("size"));
+		}
+		public  ConstrainedType addProperty(int x, Name name) {
+		    return addProperty(XTerms.makeLit(new Integer(x)), name);
+
+        }
 		 /** Add the constraint self.rank==x to t unless
 		 * that causes an inconsistency.
 		 * @param t
@@ -452,7 +459,10 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		 * @return
 		 */
 		public  ConstrainedType addRank(XTerm x) {
-		    XTerm xt = findOrSynthesize(Name.make("rank"));
+            return addProperty(x, Name.make("rank"));
+		}
+		public  ConstrainedType addProperty(XTerm x, Name name) {
+		    XTerm xt = findOrSynthesize(name);
 		    try {
 		        return addBinding(xt, x);
 		    } catch (XFailure f) {
@@ -678,6 +688,9 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		 */
 		public XTerm rank(Context context) {
             return findOrSynthesize(Name.make("rank"));
+        }
+		public XTerm size(Context context) {
+            return findOrSynthesize(Name.make("size"));
         }
 		
 

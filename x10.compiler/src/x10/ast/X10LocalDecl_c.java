@@ -14,6 +14,7 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collections;
 
 import polyglot.ast.ArrayInit;
 import polyglot.ast.Expr;
@@ -65,11 +66,14 @@ import x10.visit.X10TypeChecker;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	TypeNode hasType;
-	public X10LocalDecl_c(NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
-			Id name, Expr init) {
+    private final List<Id> exploded;
+
+    public X10LocalDecl_c(NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
+			Id name, Expr init, List<Id> exploded) {
 		super(pos, flags, 
 				type instanceof HasTypeNode_c ? nf.UnknownTypeNode(type.position()) : type, name, init);
-		if (type instanceof HasTypeNode_c) 
+        this.exploded = exploded==null ? Collections.EMPTY_LIST : exploded;
+        if (type instanceof HasTypeNode_c)
 			hasType = ((HasTypeNode_c) type).typeNode();
 	}
 
@@ -228,6 +232,8 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         if (type.isVoid()) {
             SemanticException e = new Errors.LocalVariableCannotHaveType(this.type().type(), position());
             Errors.issue(tc.job(), e);
+        } else {
+            X10Formal_c.checkExplodedVars(exploded.size(), (Ref<Type>)this.type().typeRef(), position(), tc);
         }
 
         TypeSystem ts = tc.typeSystem();

@@ -1257,9 +1257,9 @@ public class Errors {
             super("Unable to find the implementing property method for interface property "+name, p);
         }
     }
-	public static class OnlyTypePointCanBeExploded extends EqualByTypeAndPosException {
-        public OnlyTypePointCanBeExploded(Type myType, Position p) {
-            super("Only a formal of type Point can be exploded, however the formal's type is "+myType, p);
+	public static class OnlyTypePointOrArrayCanBeExploded extends EqualByTypeAndPosException {
+        public OnlyTypePointOrArrayCanBeExploded(Type myType, Position p) {
+            super("Only a formal of type Point or Array can be exploded, however the formal's type is "+myType, p);
         }
     }
 	public static class LocalVariableNotAllowedInContainer extends EqualByTypeAndPosException {
