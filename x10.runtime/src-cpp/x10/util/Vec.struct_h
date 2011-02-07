@@ -1,0 +1,16 @@
+#ifndef Vec_struct_h
+#define Vec_struct_h
+
+#include <x10aux/config.h>
+#include <x10aux/ref.h>
+#include <x10aux/RTT.h>
+#include <x10aux/serialization.h>
+
+template <class T, int SZ> struct NativeVector {
+        T arr[SZ];
+        NativeVector () { };
+        const T &get (int i) const { return arr[i]; }
+        const T &set (const T &v, int i) { arr[i] = v; return v; }
+};
+
+#endif
