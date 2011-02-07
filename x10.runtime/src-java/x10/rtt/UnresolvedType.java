@@ -1,6 +1,5 @@
 package x10.rtt;
 
-import java.util.List;
 
 public final class UnresolvedType implements Type {
 
@@ -14,6 +13,10 @@ public final class UnresolvedType implements Type {
         return "UnresolvedType(" + index + ")";
     }
     
+    public final int getIndex() {
+    	return index;
+    }
+    
     public final int arrayLength(Object array) {
         throw new UnsupportedOperationException();
     }
@@ -25,10 +28,6 @@ public final class UnresolvedType implements Type {
     public final Class<?> getJavaClass() {
         throw new UnsupportedOperationException();
     }
-
-//    public final List getTypeParameters() {
-//        throw new UnsupportedOperationException();
-//    }
 
     public final boolean instanceof$(Object o) {
         throw new UnsupportedOperationException();
