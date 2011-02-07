@@ -74,8 +74,8 @@ public class InitDispatcher {
         try {
             Class<?> clazz = Class.forName(className);
             // register initializer and deserializer methods
-            Method initlaizer = clazz.getMethod(initializerPrefix+fieldName, (Class<?>[])null);
-            initializeMethods.add(initlaizer);
+            Method initializer = clazz.getMethod(initializerPrefix+fieldName, (Class<?>[])null);
+            initializeMethods.add(initializer);
 
             Method deserializer = clazz.getMethod(deserializerPrefix+fieldName, byte[].class);
             deserializeMethods.add(deserializer);
