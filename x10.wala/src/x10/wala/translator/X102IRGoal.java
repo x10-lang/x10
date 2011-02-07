@@ -14,6 +14,7 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal_c;
 import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.visit.NodeVisitor;
 import x10.compiler.ws.util.WSTransformationContent;
 import x10.wala.client.X10SourceAnalysisEngine;
@@ -54,13 +55,15 @@ public class X102IRGoal extends SourceGoal_c {
     @Override
     public boolean runTask() {
         ExtensionInfo extInfo = job.extensionInfo();
-        if(Report.should_report("verbose", 2))
-			Report.report(2,"translating " + job.source().name() + " x10 ast to wala ast ...");
+        Reporter reporter = extInfo.getOptions().reporter;
+        boolean shouldReport = reporter.should_report(Reporter.verbose, 2);
+        if(shouldReport)
+			reporter.report(2,"translating " + job.source().name() + " x10 ast to wala ast ...");
         X10toCAstTranslator fTranslator = new X10toCAstTranslator(X10LOADER, extInfo.nodeFactory(), extInfo.typeSystem(), mapper);
         CAstEntity entity = fTranslator.translate(job.ast(), job.source().name());
         
-        if(Report.should_report("verbose", 2))
-			Report.report(2,"translating " + job.source().name() + " wala ast to ir ...");
+        if(shouldReport)
+			reporter.report(2,"translating " + job.source().name() + " wala ast to ir ...");
         new X10CAst2IRTranslator(entity, fSourceLoader).translate();
         return true;
     }
