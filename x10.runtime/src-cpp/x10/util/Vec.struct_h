@@ -6,9 +6,9 @@
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
 
-template <class T, int SZ> struct NativeVector {
+template <class T, int SZ> struct NativeVec{
         T arr[SZ];
-        NativeVector () { };
+        NativeVec() { };
         const T &get (int i) const { return arr[i]; }
         const T &set (const T &v, int i) { arr[i] = v; return v; }
 };
