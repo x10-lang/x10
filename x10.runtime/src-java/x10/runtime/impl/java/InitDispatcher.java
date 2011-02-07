@@ -100,7 +100,7 @@ public class InitDispatcher {
         // if (X10RT.VERBOSE) System.out.println("@MultiVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
 
         // serialize to bytearray
-        final byte[] buf = serialize(fieldValue).toByteArray();
+        final byte[] buf = serializeField(fieldValue);
         x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
             public void $apply() {
                 // execute deserializer for fieldValue
@@ -128,18 +128,18 @@ public class InitDispatcher {
         }
     }
 
-    private static java.io.ByteArrayOutputStream serialize(Object object) {
-        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    private static byte[] serializeField(Object object) {
         try {
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(baos);
             out.writeObject(object);
             out.close();
+            return baos.toByteArray();
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();
             throw xe;
         }
-        return baos;
     }
 
     public static Object deserializeField(byte[] buf) {
