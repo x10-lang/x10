@@ -37,6 +37,7 @@
 #include <x10rt_net.h>
 #include <x10rt_internal.h>
 #include "Launcher.h"
+#include "DebugHelper.h"
 #include "TCP.h"
 
 // mechanisms for the callback functions used in the register and probe methods
@@ -336,6 +337,10 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
 	// If this is to be a launcher process, this method will not return.
 	Launcher::Setup(*argc, *argv);
+
+	// give parallel debugger opportunity to attach...
+	if (getenv(X10_DEBUGGER_ID))
+		DebugHelper::attachDebugger();
 
 	// determine the number of places
 	char* NPROCS = getenv(X10_NPLACES);

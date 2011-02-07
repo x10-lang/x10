@@ -22,7 +22,7 @@ endif
 endif
 
 PROPERTIES += etc/x10rt_sockets.properties
-LAUNCHER_OBJS = sockets/Launcher_Init.o sockets/Launcher.o sockets/tcp.o
+LAUNCHER_OBJS = sockets/Launcher_Init.o sockets/DebugHelper.o sockets/Launcher.o sockets/tcp.o 
 
 EXECUTABLES += sockets/X10Launcher
 
