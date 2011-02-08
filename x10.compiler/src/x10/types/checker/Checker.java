@@ -35,7 +35,6 @@ import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -426,7 +425,10 @@ public class Checker {
 	    if (haveUnknown)
 	        error = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
-	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        Name tName = targetType.name();
+	        if (tName == null) {
+	            tName = Name.make(targetType.toString());
+	        }
 	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
 	    }
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
@@ -511,7 +513,7 @@ public class Checker {
 	    if (haveUnknown)
 	        error = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
-	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        Name tName = targetType.name(); 
 	        if (tName == null) {
 	        	tName = Name.make(targetType.toString());
 	        }

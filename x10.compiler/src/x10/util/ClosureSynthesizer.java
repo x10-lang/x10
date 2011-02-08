@@ -24,7 +24,6 @@ import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;

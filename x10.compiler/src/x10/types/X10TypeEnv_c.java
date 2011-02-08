@@ -29,7 +29,6 @@ import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.NoClassException;
 import polyglot.types.NoMemberException;
 import polyglot.types.NullType;

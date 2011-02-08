@@ -32,7 +32,6 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
-import polyglot.types.Named;
 import polyglot.types.NoClassException;
 import polyglot.types.Package;
 import polyglot.types.QName;

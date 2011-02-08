@@ -21,7 +21,6 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
-import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -378,10 +377,8 @@ public class X10ClassBody_c extends ClassBody_c {
             for (int j = i+1; j < l.size(); j++) {
                 Type mj = l.get(j).get();
 
-                if (mi instanceof Named && mj instanceof Named) {
-                    if (((Named) mi).name().equals(((Named) mj).name())) {
-                        reportDuplicate(mj,tc);
-                    }
+                if (mi.name().equals(mj.name())) {
+                    reportDuplicate(mj,tc);
                 }
             }
         }

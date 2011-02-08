@@ -98,9 +98,6 @@ public abstract class TypeNode_c extends Term_c implements TypeNode
 
     public String nameString() {
         Type t = type();
-        if (t instanceof Named) {
-            return ((Named) t).name().toString();
-        }
-        return null;
+        return t.name().toString();
     }
 }

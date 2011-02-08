@@ -16,7 +16,6 @@ import java.util.List;
 import polyglot.types.Context;
 import polyglot.types.Matcher;
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;

@@ -89,7 +89,7 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
         }
         else if (isMember()) {
             Name name = name();
-            return QName.make(container() instanceof Named ? ((Named) container()).fullName() : null, name);
+            return QName.make(container().fullName(), name);
         }
         else if (isLocal()) {
             return QName.make(null, name());
@@ -164,7 +164,7 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
     public ClassType memberClassMatching(Matcher<Type> matcher) {
 	for (ClassType t : memberClasses()) {
 	    try {
-		Named n = matcher.instantiate(t);
+		Type n = matcher.instantiate(t);
 		if (n instanceof ClassType)
 		    return (ClassType) n;
 	    }

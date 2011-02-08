@@ -129,7 +129,7 @@ public class MemberClassResolver implements TopLevelResolver
     return res.get(0);
   }
 
-  protected List<Type> findMember(Named container, Name name) throws SemanticException {
+  protected List<Type> findMember(Type container, Name name) throws SemanticException {
       if (container instanceof ClassType) {
           ClassType ct = (ClassType) container;
 

@@ -30,7 +30,6 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
-import polyglot.types.Named;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;

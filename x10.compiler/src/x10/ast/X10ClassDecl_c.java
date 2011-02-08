@@ -53,7 +53,6 @@ import polyglot.types.MemberDef;
 import polyglot.types.TypeSystem_c;
 
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.QName;
 import polyglot.types.Ref;

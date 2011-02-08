@@ -11,7 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -31,7 +30,6 @@ import polyglot.types.LazyRef_c;
 
 import polyglot.types.FieldDef;
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.NullType;
 import polyglot.types.ObjectType;
 import polyglot.types.JavaPrimitiveType;
@@ -67,7 +65,7 @@ import x10.types.constraints.CConstraint;
  * @author vj
  *
  */
-public class ConstrainedType extends ReferenceType_c implements ObjectType, Named, X10ThisVar {
+public class ConstrainedType extends ReferenceType_c implements ObjectType, X10ThisVar {
 
 		private static final long serialVersionUID = -3797674072640450629L;
 
@@ -350,18 +348,12 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 
 		public QName fullName() {
 			Type base = baseType.get();
-			if (base instanceof Named) {
-				return ((Named) base).fullName();
-			}
-			return null;
+			return base.fullName();
 		}
 
 		public Name name() {
 			Type base = baseType.get();
-			if (base instanceof Named) {
-				return ((Named) base).name();
-			}
-			return null;
+			return base.name();
 		}
 		
 		@Override

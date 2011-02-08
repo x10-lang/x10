@@ -1,7 +1,5 @@
 package x10doc.doc;
 
-import polyglot.types.Named;
-
 import x10.types.constraints.TypeConstraint;
 
 import com.sun.javadoc.ClassDoc;
@@ -56,7 +54,7 @@ public class X10TypeVariable extends X10Type implements TypeVariable {
 	@Override
 	public String typeName() {
 		// return pType.toString() + (typeGuard == null ? "" : typeGuard.toString());
-		return ((Named) pType).name().toString();
+		return pType.name().toString();
 	}
 
 	@Override

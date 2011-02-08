@@ -31,7 +31,6 @@ import polyglot.types.Matcher;
 import polyglot.types.MethodAsTypeTransform;
 import polyglot.types.MethodDef;
 
-import polyglot.types.Named;
 import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;

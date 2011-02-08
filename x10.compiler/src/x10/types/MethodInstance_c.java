@@ -30,7 +30,6 @@ import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
 
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.JavaPrimitiveType;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
@@ -299,11 +298,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
         if (container instanceof FunctionType) {
             return "(" + container.toString() + ")";
         }
-        if (container instanceof Named) {
-            Named n = (Named) container;
-            return n.fullName().toString();
-        }
-        return container.toString();
+        return container.fullName().toString();
     }
 
     public String toString() {

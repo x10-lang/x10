@@ -190,7 +190,7 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         }
         else if (acceptable.size() > 1) {
             Set<Type> containers = CollectionFactory.newHashSet(acceptable.size());
-            for (Named n : acceptable) {
+            for (Type n : acceptable) {
                 if (n instanceof MemberInstance<?>) {
                     MemberInstance<?> mi = (MemberInstance<?>) n;
                     containers.add(mi.container());
@@ -226,7 +226,7 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         return t;
     }
 
-    protected boolean canAccess(Named n, ClassDef accessor, Context context) {
+    protected boolean canAccess(Type n, ClassDef accessor, Context context) {
         if (n instanceof MemberInstance<?>) {
             return accessor == null || ts.isAccessible((MemberInstance<?>) n, context);
         }

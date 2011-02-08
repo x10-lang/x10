@@ -63,7 +63,6 @@ import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -764,9 +763,9 @@ public class X10Context_c extends Context_c {
 		super.addNamed(t);
 	}
 
-	public Named findInThisScope(Name name) {
+	public Type findInThisScope(Name name) {
 	    if (types != null) {
-	        Named t = (Named) types.get(name);
+	        Type t = types.get(name);
 	        if (t != null)
 	            return t;
 	    }
@@ -777,13 +776,13 @@ public class X10Context_c extends Context_c {
 	        }
 	        else {
 	            ClassType container = this.currentClass();
-	            Named t = findMemberTypeInThisScope(name, container);
+	            Type t = findMemberTypeInThisScope(name, container);
 	            if (t != null) return t;
 	        }
 	    }
 	    if (inDepType()) {
 	        Type container = currentDepType();
-	        Named t = findMemberTypeInThisScope(name, container);
+	        Type t = findMemberTypeInThisScope(name, container);
 	        if (t != null) return t;
 	    }
 //	    if (supertypeDeclarationType() != null) {
@@ -794,7 +793,7 @@ public class X10Context_c extends Context_c {
 	    return null;
 	}
 
-	private Named findMemberTypeInThisScope(Name name, Type container) {
+	private Type findMemberTypeInThisScope(Name name, Type container) {
 		TypeSystem ts = typeSystem();
 		ClassDef currentClassDef = this.currentClassDef();
 		if (container instanceof MacroType) {
@@ -807,7 +806,7 @@ public class X10Context_c extends Context_c {
 		}
 		try {
 		    Type t = ts.findMemberType(container, name, this);
-		    if (t instanceof Named) return (Named) t;
+		    return t;
 		}
 		catch (SemanticException e) {
 		}

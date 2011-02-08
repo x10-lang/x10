@@ -32,7 +32,6 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
@@ -158,7 +157,7 @@ public class X10Field_c extends Field_c {
 	    if (haveUnknown)
 	        e = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
-	        Name tName = targetType instanceof Named ? ((Named) targetType).name() : Name.make(targetType.toString()); 
+	        Name tName = targetType.name(); 
 	        if (tName == null) {
 	        	tName = Name.make(targetType.toString());
 	        }

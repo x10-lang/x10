@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.types.DerefTransform;
-import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Type;
@@ -64,7 +63,7 @@ public class X10TypeObjectMixin {
         List<Type> l = new ArrayList<Type>();
         for (Iterator<Type> i = annotations.iterator(); i.hasNext(); ) {
             Type ct = i.next();
-            if (ct instanceof Named && ((Named) ct).fullName().equals(fullName)) {
+            if (ct.fullName().equals(fullName)) {
                 l.add(ct);
             }
         }
