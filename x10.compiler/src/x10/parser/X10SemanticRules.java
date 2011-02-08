@@ -2661,7 +2661,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: InterfaceMemberDeclaration ::= ';'
     void rule_InterfaceMemberDeclaration6() {
-        setResult(Collections.<ClassMember>emptyList());
+        setResult(new LinkedList<ClassMember>());
     }
     // Production: PackageDeclaration ::= Annotationsopt package PackageName ';'
     void rule_PackageDeclaration0(Object _Annotationsopt, Object _PackageName) {
