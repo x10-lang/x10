@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2010-2011.
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  */
@@ -23,7 +23,7 @@
 
 //#define DEBUG 1
 
-enum MSGTYPE {STANDARD=1, PUT, GET, PUT_COMPLETE, GET_COMPLETE}; // PAMI doesn't send messages with type=0... it just silently eats them.
+enum MSGTYPE {STANDARD=1, PUT, GET, GET_COMPLETE}; // PAMI doesn't send messages with type=0... it just silently eats them.
 //mechanisms for the callback functions used in the register and probe methods
 typedef void (*handlerCallback)(const x10rt_msg_params *);
 typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
@@ -41,6 +41,7 @@ struct x10rt_pami_header_data
 	x10rt_msg_params x10msg;
     uint32_t data_len;
     void* data_ptr;
+    void* callbackPtr; // stores the header address for GET_COMPLETE
 };
 
 struct x10PAMIState
@@ -124,8 +125,6 @@ static void local_msg_dispatch (
 	    pami_endpoint_t      origin,
 	    pami_recv_t         * recv)        /**< OUT: receive message structure */
 {
-	pami_result_t status = PAMI_ERROR;
-
 	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
 	{
 		struct x10rt_msg_params *hdr = (struct x10rt_msg_params *)malloc(sizeof(struct x10rt_msg_params));
@@ -349,7 +348,7 @@ static void local_get_dispatch (
 	state.recv_active = 1;
 
 	localParameters->dest_place = origin;
-	localParameters->msg = header->x10msg.msg; // cookie for the other side
+	localParameters->msg = header->callbackPtr; // cookie for the other side
 
 	if (header->data_len > 0) // PAMI doesn't like it if we try to RDMA zero sized messages
 	{
@@ -657,7 +656,17 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	header->x10msg.type = p->type;
 	header->x10msg.dest_place = p->dest_place;
 	header->x10msg.len = p->len;
-	header->x10msg.msg = header; // sneaking this along with the data
+	// save the msg data for the notifier
+	if (p->len > 0)
+	{
+		header->x10msg.msg = malloc(p->len);
+		if (header->x10msg.msg == NULL)
+			error("Unable to malloc msg space for a GET");
+		memcpy(header->x10msg.msg, p->msg, p->len);
+	}
+	else
+		header->x10msg.msg = NULL;
+	header->callbackPtr = header; // senging this along with the data
 
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a GET message from place %lu to %lu, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, len, buf, header);
@@ -683,16 +692,9 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	while (get_active)
 		PAMI_Context_advance(state.context[0], 100);
 
-	// save the msg data for the notifier
-	if (p->len > 0)
-	{
-		header->x10msg.msg = malloc(p->len);
-		if (header->x10msg.msg == NULL)
-			error("Unable to malloc msg space for a GET");
-		memcpy(header->x10msg.msg, p->msg, p->len);
-	}
-	else
-		header->x10msg.msg = NULL;
+	#ifdef DEBUG
+		fprintf(stderr, "GET message sent from place %lu to %lu, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, len, buf, header);
+	#endif
 }
 
 /** Handle any oustanding message from the network by calling the registered callbacks.  \see #x10rt_lgl_probe
@@ -762,9 +764,10 @@ void x10rt_net_finalize()
 
 int x10rt_net_supports (x10rt_opt o)
 {
-    return 0;
+//	if (o == X10RT_OPT_COLLECTIVES)
+//		return 1;
+	return 0;
 }
-
 
 void x10rt_net_internal_barrier (){} // DEPRECATED
 
@@ -775,6 +778,8 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 
 x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
 {
+	// TODO PAMI_Memregion_create
+	// need to call PAMI_Memregion_destroy at shutdown
 	error("x10rt_net_register_mem not implemented");
 	return NULL;
 }
@@ -782,17 +787,30 @@ x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
                          x10rt_completion_handler2 *ch, void *arg)
 {
+	// issue a call to PAMI_Geometry_world, followed by PAMI_Geometry_update to adjust it
+	pami_result_t status = PAMI_ERROR;
+	pami_geometry_t world;
+	status = PAMI_Geometry_world(state.client, &world);
+	if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
+
+	pami_configuration_t config;
+
+	//status = PAMI_Geometry_create_tasklist(state.client, );
+	if (status != PAMI_SUCCESS) error("Unable to reconfigure the world geometry");
+
 	error("x10rt_net_team_new not implemented");
 }
 
 void x10rt_net_team_del (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
+	// TODO PAMI_Geometry_destroy
 	error("x10rt_net_team_del not implemented");
 }
 
 x10rt_place x10rt_net_team_sz (x10rt_team team)
 {
+	// TODO issue PAMI_Geometry_query to get the number of members
 	error("x10rt_net_team_sz not implemented");
     return 0;
 }
@@ -800,35 +818,41 @@ x10rt_place x10rt_net_team_sz (x10rt_team team)
 void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_place color,
 		x10rt_place new_role, x10rt_completion_handler2 *ch, void *arg)
 {
+	// TODO PAMI_Geometry_update
 	error("x10rt_net_team_split not implemented");
 }
 
 void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
 {
+	// TODO PAMI_Collective
 	error("x10rt_net_barrier not implemented");
 }
 
 void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
 		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
+	// TODO PAMI_Collective
 	error("x10rt_net_bcast not implemented");
 }
 
 void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
 		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
+	// TODO PAMI_Collective
 	error("x10rt_net_scatter not implemented");
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
 		size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
+	// TODO PAMI_Collective
 	error("x10rt_net_alltoall not implemented");
 }
 
 void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
 		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *ch, void *arg)
 {
+	// TODO PAMI_Collective
 	error("x10rt_net_allreduce not implemented");
 }
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100
