@@ -353,6 +353,8 @@ public class LineNumberMap extends StringTable {
 			return 208;
 		if (type.startsWith("x10.array.Region"))
 			return 300;
+		if (type.contains("_closure_"))
+			return 100;			
 		return 101; // generic class
 	}
 	
@@ -381,6 +383,7 @@ public class LineNumberMap extends StringTable {
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle, int closureIndex)
 	{
 		if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
+		//if (name == null || name.contains("$"))
 			return; // skip variables with compiler-generated names.
 		
 		if (localVariables == null)
@@ -440,29 +443,43 @@ public class LineNumberMap extends StringTable {
 		members.add(v);
 	}
 	
-	public void addClosureMember(String name, String type, String file, int startLine, int endLine)
+	public void addClosureMember(String name, String type, String containingClass, String file, int startLine, int endLine)
 	{
+		// TODO - this "if" is a hack.  I want source code that has a real async to map to a closure, 
+		// but I want to hide closures that are generated under the covers.  I can't find a good way to 
+		// determine this, so in the meantime, I'm just throwing out all the 1-line closures.		
+		if (startLine == endLine) return;
+		
 		if (closureMembers == null)
 			closureMembers = new Hashtable<String, ClosureMapInfo>();
-		ClosureMapInfo cm = closureMembers.get(name);
+		ClosureMapInfo cm = closureMembers.get(containingClass);
 		if (cm == null)
 		{
-			addLocalVariableMapping("this", name, startLine, endLine, file, true, closureMembers.size());
+			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size());
 			cm = new ClosureMapInfo();			
 			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			cm._x10startLine = startLine;
-			cm._x10endLine = endLine;
-			cm._sizeOfArg = type.replaceAll("FMGL", "class FMGL");
-			closureMembers.put(name, cm);
+			cm._x10endLine = endLine;			
+			closureMembers.put(containingClass, cm);
 		}
 		
-		MemberVariableMapInfo v = new MemberVariableMapInfo();
-		v._x10type = 100;
-		v._x10typeIndex = -1;
-		v._x10memberName = stringId(name);
-		v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
-		v._cppClass = v._x10memberName;
-		cm.closureMembers.add(v);
+		if (name == null)
+			cm._sizeOfArg = type.replaceAll("FMGL", "class FMGL");
+		else
+		{
+			MemberVariableMapInfo v = new MemberVariableMapInfo();
+			v._x10type = determineTypeId(type);
+			if (v._x10type == 203)
+				v._x10typeIndex = determineSubtypeId(type, refMap);
+			else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
+				v._x10typeIndex = determineSubtypeId(type, arrayMap);
+			else 
+				v._x10typeIndex = -1;
+			v._x10memberName = stringId(name);
+			v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
+			v._cppClass = stringId(containingClass);
+			cm.closureMembers.add(v);
+		}
 	}
 
 	/**
@@ -947,8 +964,11 @@ public class LineNumberMap extends StringTable {
 		    for (String classname : closureMembers.keySet())
 		    {
 		    	ClosureMapInfo cmi = closureMembers.get(classname);
-	        	w.writeln("    { 100, "+offsets[cmi.closureMembers.get(0)._cppClass]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi.closureMembers.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
-	        	index++;
+		    	if (cmi.closureMembers.size() > 0)
+		    	{
+		    		w.writeln("    { 100, "+offsets[cmi.closureMembers.get(0)._cppClass]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi.closureMembers.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+		    		index++;
+		    	}
 		    }
 		    w.writeln("};");
 		    w.forceNewline();

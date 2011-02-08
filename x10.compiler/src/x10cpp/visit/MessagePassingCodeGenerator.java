@@ -4063,20 +4063,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
 		{
-			// TODO - this "if" is a hack.  I want source code that has a real async to map to a closure, 
-			// but I want to hide closures that are generated under the covers.  I can't find a good way to 
-			// determine this, so in the meantime, I'm just throwing out all the 1-line closures.
-			if (c.currentCode().position().line() != c.currentCode().position().endLine())
-			{
-				String key = ((StreamWrapper)inc).getStreamName(StreamWrapper.CC);
-				Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
-			    if (fileToLineNumberMap != null) 
-			    {
-			        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
-			        if (lineNumberMap != null) 
-			        	lineNumberMap.addClosureMember(cname, cnamet, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
-			    }
-			}
+			String key = ((StreamWrapper)inc).getStreamName(StreamWrapper.CC);
+			Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
+		    if (fileToLineNumberMap != null) 
+		    {
+		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
+		        if (lineNumberMap != null) 
+		        	lineNumberMap.addClosureMember(null, cnamet, cname, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+		    }
 		}
 
         /* ITables declarations */
