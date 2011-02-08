@@ -46,25 +46,25 @@ public final struct Place(id: Int)  {
      * For hosts, this returns the number of accelerators at that host.
      * For accelerators, it returns 0.
      */
-    @Native("c++", "x10aux::num_children(#1)")
+    @Native("c++", "x10aux::num_children(#id)")
     public static def numChildren(id:Int):Int = 0;
 
     /**
      * Returns whether a place is a host.
      */
-    @Native("c++", "x10aux::is_host(#1)")
+    @Native("c++", "x10aux::is_host(#id)")
     public static def isHost(id:Int):Boolean = true;
 
     /**
      * Returns whether a place is an SPE of a Cell CPU.
      */
-    @Native("c++", "x10aux::is_spe(#1)")
+    @Native("c++", "x10aux::is_spe(#id)")
     public static def isSPE(id:Int):Boolean = false;
 
     /**
      * Returns whether a place is a CUDA GPU.
      */
-    @Native("c++", "x10aux::is_cuda(#1)")
+    @Native("c++", "x10aux::is_cuda(#id)")
     public static def isCUDA(id:Int):Boolean = false;
 
     /**
@@ -72,7 +72,7 @@ public final struct Place(id: Int)  {
      * For hosts, this returns the host itself.
      * For accelerators, it is the host of the accelerator.
      */
-    @Native("c++", "x10aux::parent(#1)")
+    @Native("c++", "x10aux::parent(#id)")
     public static def parent(id:Int):Int = id;
 
     /**
@@ -80,14 +80,14 @@ public final struct Place(id: Int)  {
      * Use i between 0 and numChildren(p)-1 inclusive.
      * Throws BadPlaceException if i invalid.
      */
-    @Native("c++", "x10aux::child(#1,#2)")
+    @Native("c++", "x10aux::child(#p,#i)")
     public static def child(p:Int, i:Int):Int { throw new BadPlaceException(); }
 
     /**
      * Return the index of a given child, within a place.
      * Throws BadPlaceException if given place is not a child.
      */
-    @Native("c++", "x10aux::child_index(#1)")
+    @Native("c++", "x10aux::child_index(#id)")
     public static def childIndex(id:Int):Int { throw new BadPlaceException(); }
 
     private static childrenArray = 

@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+
 import polyglot.ast.AmbReceiver;
 import polyglot.ast.ArrayAccess_c;
 import polyglot.ast.ArrayInit_c;
@@ -143,6 +144,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.util.TypedList;
@@ -1568,11 +1570,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				assert (!dropzone.flags().isPrivate());
 				h.write("public: ");
 				List<Type> typeParameters = dropzone.typeParameters();
-				List<Type> newTypeParameters = new ArrayList<Type>();
+				List<ParameterType> newTypeParameters = new ArrayList<ParameterType>();
 				Map<Type, Type> typeMap = CollectionFactory.newHashMap();
 				for (Type t : typeParameters) {
 					assert (t instanceof ParameterType);
-					Type dummy = new ParameterType(xts, t.position(), Name.makeFresh("T"), null);
+					ParameterType dummy = new ParameterType(xts, t.position(), Name.makeFresh("T"), null);
 					newTypeParameters.add(dummy);
 					typeMap.put(t, dummy);
 				}
@@ -1620,16 +1622,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				String pat = getCppImplForDef(dropzone.x10Def());
 				if (pat != null) {
 					X10ClassType ct = (X10ClassType) dropzone.container().toClass();
-					List<Type> typeArguments = ct.typeArguments();
-					if (typeArguments == null) typeArguments = new ArrayList<Type>();
+					List<Type> classTypeArguments = ct.typeArguments();
+					if (classTypeArguments == null) classTypeArguments = new ArrayList<Type>();
 					Expr target = tr.nodeFactory().Super(Position.COMPILER_GENERATED).type(ct);
 					// FIXME: casts!
 					ArrayList<String> args = new ArrayList<String>();
+					ArrayList<String> params = new ArrayList<String>();
 					counter = 0;
 					for (Type formal : formals) {
 						args.add("p" + (counter++));
+						params.add(formal.name().toString());
 					}
-					emitNativeAnnotation(pat, newTypeParameters, target, args, typeArguments);
+					emitNativeAnnotation(pat, dropzone.x10Def().typeParameters(), dropzone.typeParameters(), target, params, args, ct.x10Def().typeParameters(), classTypeArguments);
 				} else {
 					sw.write(Emitter.translateType(superClass, false) +
 							"::" + mangled_method_name(mname.toString()));
@@ -2936,14 +2940,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        // This is a property getter method.  Translate as a field access.
 		        String pat = getCppImplForDef(fi.x10Def());
 		        if (pat != null) {
-		            Object[] components = new Object[] { target };
-		            emitter.dumpRegex("Native", components, tr, pat, sw);
+					Map<String,Object> components = new HashMap<String,Object>();
+					components.put("this", target);
+					components.put("0", target);
+		            emitter.nativeSubst("Native", components, tr, pat, sw);
 		            return;
 		        }
 		    }
 		}
 
 		NodeFactory nf = (NodeFactory) tr.nodeFactory();
+		List<String> params = new ArrayList<String>();
 		List<Expr> args = new ArrayList<Expr>();
 		int counter = 0;
 		for (Expr a : n.arguments()) {
@@ -2954,19 +2961,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            !xts.typeEquals(fType, a.type(), context) && !(xts.isParameterType(fType) && a.type().isNull())) {
 		        a = cast(a, fType);
 		    }
+		    params.add(mi.formalNames().get(counter).name().toString());
 		    args.add(a);
 		    counter++;
 		}
 
 		String pat = getCppImplForDef(md);
 		if (pat != null) {
-		    List<Type> typeArguments  = Collections.<Type>emptyList();
+		    List<Type> classTypeArguments  = Collections.<Type>emptyList();
+		    List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
 		    if (mi.container().isClass() && !mi.flags().isStatic()) {
 		        X10ClassType ct = (X10ClassType) mi.container().toClass();
-		        typeArguments = ct.typeArguments();
-		        if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+		        classTypeArguments = ct.typeArguments();
+		        classTypeParams = ct.x10Def().typeParameters();
+		        if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
+		        if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
 		    }
-			emitNativeAnnotation(pat, mi.typeParameters(), target, args, typeArguments);
+			emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments);
 			return;
 		}
 
@@ -3180,8 +3191,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String pat = getCppImplForDef(fd);
 		if (pat != null) {
-			Object[] components = new Object[] { target };
-			emitter.dumpRegex("Native", components, tr, pat, sw);
+			Map<String,Object> components = new HashMap<String,Object>();
+			components.put("this", target);
+			components.put("0", target);
+			emitter.nativeSubst("Native", components, tr, pat, sw);
 			return;
 		}
 
@@ -4843,30 +4856,43 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 	// FIXME: generic native methods will break
-	void emitNativeAnnotation(String pat, List<Type> types, Object receiver, List<? extends Object> args, List<Type> typeArguments) {
-	    Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
-	    assert (receiver != null);
-	    components[0] = receiver;
+	void emitNativeAnnotation(String pat, List<ParameterType> typeParams, List<Type> typeArgs, Object receiver, List<String> params, List<? extends Object> args, List<ParameterType> typeParams2, List<Type> typeArgs2) {
+		assert (receiver != null);
+
+		//Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
+		Map<String,Object> components = new HashMap<String,Object>();
+
+		components.put("this", receiver);
+		components.put("0", receiver);
+
+		// [DC] these ought to still work, but there may now be a better solution
 	    if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
 	        pat = pat.replaceAll("\\(#0\\)->", Emitter.translateType(tr.context().currentClass().superClass())+"::"); // FIXME: HACK
 	        pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(((X10Special_c)receiver).type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
 	    }
 
 	    int i = 1;
-	    for (Type at : types) {
-	        components[i++] = at;
-	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+	    Iterator<ParameterType> typeParams_ = typeParams.iterator();
+	    for (Type at : typeArgs) {
+			components.put(typeParams_.next().name().toString(), at);
+			components.put(Integer.toString(i++), at);
+			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
+			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
 	    }
+	    int j=0;
+	    Iterator<String> params_ = params.iterator();
 	    for (Object e : args) {
-	        components[i++] = e;
+			components.put(params_.next(), e);
+			components.put(Integer.toString(i++), e);
 	    }
-	    for (Type at : typeArguments) {
-	        components[i++] = at;
-	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+	    Iterator<ParameterType> typeParams2_ = typeParams2.iterator();
+	    for (Type at : typeArgs2) {
+			components.put(typeParams2_.next().name().toString(), at);
+			components.put(Integer.toString(i++), at);
+			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
+			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
 	    }
-	    emitter.dumpRegex("Native", components, tr, pat, sw);
+	    emitter.nativeSubst("Native", components, tr, pat, sw);
 	}
 
 	private static boolean isPODType(Type t) {

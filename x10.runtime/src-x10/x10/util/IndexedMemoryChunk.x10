@@ -30,7 +30,7 @@ import x10.compiler.NativeRep;
  * used when absolutely necessary for performance..<p>
  */
 @NativeRep("java", "x10.core.IndexedMemoryChunk<#1>", null, "new x10.rtt.ParameterizedType(x10.core.IndexedMemoryChunk._RTT, #2)")
-@NativeRep("c++", "x10::util::IndexedMemoryChunk<#1 >", "x10::util::IndexedMemoryChunk<#1 >", null)
+@NativeRep("c++", "x10::util::IndexedMemoryChunk<#T >", "x10::util::IndexedMemoryChunk<#T >", null)
 public struct IndexedMemoryChunk[T] {
 
     @Native("java", "null")
@@ -38,27 +38,27 @@ public struct IndexedMemoryChunk[T] {
     private native def this(); // unused; prevent instantiaton outside of native code
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, false)")
     public static native def allocate[T](numElements:int):IndexedMemoryChunk[T];
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #5)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, #zeroed)")
     public static native def allocate[T](numElements:int, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, #alignment, #congruent, #zeroed)")
     public static native def allocate[T](numElements:int, alignment:int, congruent:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, false)")
     public static native def allocate[T](numElements:long):IndexedMemoryChunk[T];
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #5)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, #zeroed)")
     public static native def allocate[T](numElements:long, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, #alignment, #congruent, #zeroed)")
     public static native def allocate[T](numElements:long, alignment:int, congruent:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
 
 
@@ -69,7 +69,7 @@ public struct IndexedMemoryChunk[T] {
      * @return The value at that index.
      */
     @Native("java", "(#0).$apply$G(#1)")
-    @Native("c++", "(#0)->__apply(#1)")
+    @Native("c++", "(#this)->__apply(#index)")
     public native operator this(index:int):T;
 
 
@@ -80,7 +80,7 @@ public struct IndexedMemoryChunk[T] {
      * @return The value at that index.
      */
     @Native("java", "(#0).$apply$G((int)(#1))")
-    @Native("c++", "(#0)->__apply(#1)")
+    @Native("c++", "(#this)->__apply(#index)")
     public native operator this(index:long):T;
 
 
@@ -92,7 +92,7 @@ public struct IndexedMemoryChunk[T] {
      * @return The new value.
      */
     @Native("java", "(#0).$set(#1, #2)")
-    @Native("c++", "(#0)->__set(#1, #2)")
+    @Native("c++", "(#this)->__set(#value, #index)")
     public native operator this(index:int)=(value:T):void;
 
 
@@ -104,7 +104,7 @@ public struct IndexedMemoryChunk[T] {
      * @return The new value.
      */
     @Native("java", "(#0).$set(#1, (int)(#2))")
-    @Native("c++", "(#0)->__set(#1, #2)")
+    @Native("c++", "(#this)->__set(#value, #index)")
     public native operator this(index:long)=(value:T):void;
 
 
@@ -115,7 +115,7 @@ public struct IndexedMemoryChunk[T] {
      * @return The value at that index.
      */
     @Native("java", "(#0).$apply$G(#1)")
-    @Native("c++", "(#0)->apply_unsafe(#1)")
+    @Native("c++", "(#this)->apply_unsafe(#index)")
     public native def apply_unsafe(index:int):T;
 
 
@@ -126,7 +126,7 @@ public struct IndexedMemoryChunk[T] {
      * @return The value at that index.
      */
     @Native("java", "(#0).$apply$G((int)(#1))")
-    @Native("c++", "(#0)->apply_unsafe(#1)")
+    @Native("c++", "(#this)->apply_unsafe(#index)")
     public native def apply_unsafe(index:long):T;
 
 
@@ -138,7 +138,7 @@ public struct IndexedMemoryChunk[T] {
      * @return The new value.
      */
     @Native("java", "(#0).$set(#1, #2)")
-    @Native("c++", "(#0)->set_unsafe(#1, #2)")
+    @Native("c++", "(#this)->set_unsafe(#value, #index)")
     public native def set_unsafe(value:T, index:int):void;
 
 
@@ -150,7 +150,7 @@ public struct IndexedMemoryChunk[T] {
      * @return The new value.
      */
     @Native("java", "(#0).$set(#1, (int)(#2))")
-    @Native("c++", "(#0)->set_unsafe(#1, #2)")
+    @Native("c++", "(#this)->set_unsafe(#value, #index)")
     public native def set_unsafe(value:T, index:long):void;
 
 
@@ -160,7 +160,7 @@ public struct IndexedMemoryChunk[T] {
      * @return the size of the IndexedMemoryChunk (in elements)
      */
     @Native("java", "((#0).length)")
-    @Native("c++", "(#0)->length()")
+    @Native("c++", "(#this)->length()")
     public native def length():int; /* TODO: We need to convert this to returning a long */
 
 
@@ -185,13 +185,13 @@ public struct IndexedMemoryChunk[T] {
      * @param numElems the number of elements to copy.
      */
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>asyncCopy(#4,#5,#6,#7,#8)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#1 >(#4,#5,#6,#7,#8)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#T >(#src,#srcIndex,#dst,#dstIndex,#numElems)")
     public static native def asyncCopy[T](src:IndexedMemoryChunk[T], srcIndex:int, 
                                           dst:RemoteIndexedMemoryChunk[T], dstIndex:int, 
                                           numElems:int):void;
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>asyncCopy(#4,#5,#6,#7,#8,#9)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#1 >(#4,#5,#6,#7,#8,#9)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#T >(#src,#srcIndex,#dst,#dstIndex,#numElems,#notifier)")
     public static native def uncountedCopy[T](src:IndexedMemoryChunk[T], srcIndex:int, 
                                               dst:RemoteIndexedMemoryChunk[T], dstIndex:int, 
                                               numElems:int,
@@ -218,13 +218,13 @@ public struct IndexedMemoryChunk[T] {
      * @param numElems the number of elements to copy.
      */
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>asyncCopy(#4,#5,#6,#7,#8)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#1 >(#4,#5,#6,#7,#8)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#T >(#src,#srcIndex,#dst,#dstIndex,#numElems)")
     public static native def asyncCopy[T](src:RemoteIndexedMemoryChunk[T], srcIndex:int, 
                                           dst:IndexedMemoryChunk[T], dstIndex:int, 
                                           numElems:int):void;
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>asyncCopy(#4,#5,#6,#7,#8,#9)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#1 >(#4,#5,#6,#7,#8,#9)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::asyncCopy<#T >(#src,#srcIndex,#dst,#dstIndex,#numElems,#notifier)")
     public static native def uncountedCopy[T](src:RemoteIndexedMemoryChunk[T], srcIndex:int, 
                                               dst:IndexedMemoryChunk[T], dstIndex:int, 
                                               numElems:int,
@@ -246,7 +246,7 @@ public struct IndexedMemoryChunk[T] {
      * @param numElems the number of elements to copy.
      */
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>copy(#4,#5,#6,#7,#8)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::copy<#1 >(#4,#5,#6,#7,#8)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::copy<#T >(#src,#srcIndex,#dst,#dstIndex,#numElems)")
     public static native def copy[T](src:IndexedMemoryChunk[T], srcIndex:int, 
                                      dst:IndexedMemoryChunk[T], dstIndex:int, 
                                      numElems:int):void;
@@ -258,20 +258,20 @@ public struct IndexedMemoryChunk[T] {
     */
 
     @Native("java", "(#0).toString()")
-    @Native("c++", "(#0)->toString()")
+    @Native("c++", "(#this)->toString()")
     public native def  toString():String;
 
     @Native("java", "(#0).equals(#1)")
-    @Native("c++", "(#0)->equals(#1)")
+    @Native("c++", "(#this)->equals(#that)")
     public native def equals(that:Any):Boolean;
 
     @Native("java", "(#0).hashCode()")
-    @Native("c++", "(#0)->hash_code()")
+    @Native("c++", "(#this)->hash_code()")
     public native def  hashCode():Int;
 
     @Native("java", "(#0).getCongruentSibling(#1)")
-    @Native("c++", "(#0)->getCongruentSibling(#1)")
-    public native def getCongruentSibling(Place):RemoteIndexedMemoryChunk[T];
+    @Native("c++", "(#this)->getCongruentSibling(#p)")
+    public native def getCongruentSibling(p:Place):RemoteIndexedMemoryChunk[T];
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

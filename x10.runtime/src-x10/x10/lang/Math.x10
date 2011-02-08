@@ -21,25 +21,25 @@ public final class Math {
    public static def abs(a:Double):Double = a<=0.0 ? 0.0-a : a;
    public static def abs(a:Int):Int = a<0 ? -a : a;
 
-   @Native("cuda", "fabsf(#1)")
+   @Native("cuda", "fabsf(#a)")
    public static def abs(a:Float):Float = a<=0.0f ? 0.0f-a : a;
 
    public static def abs(a:Long):Long = a<0l ? -a : a;
 
    @Native("java", "java.lang.Math.ceil(#1)")
-   @Native("c++", "x10aux::math_utils::ceil(#1)")
+   @Native("c++", "x10aux::math_utils::ceil(#a)")
    public static native def ceil(a:Double):Double;
 
    @Native("java", "java.lang.Math.floor(#1)")
-   @Native("c++", "x10aux::math_utils::floor(#1)")
+   @Native("c++", "x10aux::math_utils::floor(#a)")
    public static native def floor(a:Double):Double;
 
    @Native("java", "java.lang.Math.round(#1)")
-   @Native("c++", "x10aux::math_utils::round(#1)")
+   @Native("c++", "x10aux::math_utils::round(#a)")
    public static native def round(a:Double):Double;
 
    @Native("java", "java.lang.Math.pow(#1, #2)")
-   @Native("c++", "x10aux::math_utils::pow(#1,#2)")
+   @Native("c++", "x10aux::math_utils::pow(#a,#b)")
    public static native def pow(a:Double, b:Double):Double;
 
     /**
@@ -52,13 +52,13 @@ public final class Math {
     public static def pow(a:Complex, b:Complex) = Math.exp(Math.log(a) * b);
 
    @Native("java", "java.lang.Math.exp(#1)")
-   @Native("c++", "x10aux::math_utils::exp(#1)")
+   @Native("c++", "x10aux::math_utils::exp(#a)")
    public static native def exp(a:Double):Double;
 
    // GPUs don't like doubles
    @Native("java", "(float)java.lang.Math.exp(#1)")
-   @Native("c++", "(x10_float)x10aux::math_utils::exp(#1)")
-   @Native("cuda", "__expf(#1)")
+   @Native("c++", "(x10_float)x10aux::math_utils::exp(#a)")
+   @Native("cuda", "__expf(#a)")
    public static native def exp(a:Float):Float;
 
     /**
@@ -74,11 +74,11 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.expm1(#1)")
-   @Native("c++", "x10aux::math_utils::expm1(#1)")
+   @Native("c++", "x10aux::math_utils::expm1(#a)")
    public static native def expm1(a:Double):Double;
 
    @Native("java", "java.lang.Math.cos(#1)")
-   @Native("c++", "x10aux::math_utils::cos(#1)")
+   @Native("c++", "x10aux::math_utils::cos(#a)")
    public static native def cos(a:Double):Double;
 
     /**
@@ -94,7 +94,7 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.sin(#1)")
-   @Native("c++", "x10aux::math_utils::sin(#1)")
+   @Native("c++", "x10aux::math_utils::sin(#a)")
    public static native def sin(a:Double):Double;
 
     /**
@@ -110,7 +110,7 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.tan(#1)")
-   @Native("c++", "x10aux::math_utils::tan(#1)")
+   @Native("c++", "x10aux::math_utils::tan(#a)")
    public static native def tan(a:Double):Double;
 
     /**
@@ -128,7 +128,7 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.acos(#1)")
-   @Native("c++", "x10aux::math_utils::acos(#1)")
+   @Native("c++", "x10aux::math_utils::acos(#a)")
    public static native def acos(a:Double):Double;
 
     /**
@@ -148,7 +148,7 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.asin(#1)")
-   @Native("c++", "x10aux::math_utils::asin(#1)")
+   @Native("c++", "x10aux::math_utils::asin(#a)")
    public static native def asin(a:Double):Double;
 
     /**
@@ -168,7 +168,7 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.atan(#1)")
-   @Native("c++", "x10aux::math_utils::atan(#1)")
+   @Native("c++", "x10aux::math_utils::atan(#a)")
    public static native def atan(a:Double):Double;
 
     /**
@@ -192,11 +192,11 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.atan2(#1,#2)")
-   @Native("c++", "x10aux::math_utils::atan2(#1,#2)")
+   @Native("c++", "x10aux::math_utils::atan2(#a,#b)")
    public static native def atan2(a:Double, b:Double):Double;
 
    @Native("java", "java.lang.Math.cosh(#1)")
-   @Native("c++", "x10aux::math_utils::cosh(#1)")
+   @Native("c++", "x10aux::math_utils::cosh(#a)")
    public static native def cosh(a:Double):Double;
 
     /**
@@ -214,7 +214,7 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.sinh(#1)")
-   @Native("c++", "x10aux::math_utils::sinh(#1)")
+   @Native("c++", "x10aux::math_utils::sinh(#a)")
    public static native def sinh(a:Double):Double;
 
     /**
@@ -232,7 +232,7 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.tanh(#1)")
-   @Native("c++", "x10aux::math_utils::tanh(#1)")
+   @Native("c++", "x10aux::math_utils::tanh(#a)")
    public static native def tanh(a:Double):Double;
 
     /**
@@ -248,7 +248,7 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.sqrt(#1)")
-   @Native("c++", "x10aux::math_utils::sqrt(#1)")
+   @Native("c++", "x10aux::math_utils::sqrt(#a)")
    public static native def sqrt(a:Double):Double;
 
     /**
@@ -274,34 +274,34 @@ public final class Math {
 
    // GPUs don't like doubles
    @Native("java", "(float)java.lang.Math.sqrt(#1)")
-   @Native("c++", "(x10_float)x10aux::math_utils::sqrt(#1)")
-   @Native("cuda", "sqrtf(#1)")
+   @Native("c++", "(x10_float)x10aux::math_utils::sqrt(#a)")
+   @Native("cuda", "sqrtf(#a)")
    public static native def sqrt(a:Float):Float;
 
    @Native("java", "java.lang.Math.cbrt(#1)")
-   @Native("c++", "x10aux::math_utils::cbrt(#1)")
+   @Native("c++", "x10aux::math_utils::cbrt(#a)")
    public static native def cbrt(a:Double):Double;
 
    @Native("java", "x10.core.MathUtils.erf(#1)")
-   @Native("c++", "x10aux::math_utils::erf(#1)")
+   @Native("c++", "x10aux::math_utils::erf(#a)")
    public static native def erf(a:Double):Double;
 
    @Native("java", "x10.core.MathUtils.erfc(#1)")
-   @Native("c++", "x10aux::math_utils::erfc(#1)")
+   @Native("c++", "x10aux::math_utils::erfc(#a)")
    public static native def erfc(a:Double):Double;
 
    @Native("java", "java.lang.Math.hypot(#1,#2)")
-   @Native("c++", "x10aux::math_utils::hypot(#1,#2)")
+   @Native("c++", "x10aux::math_utils::hypot(#a,#b)")
    public static native def hypot(a:Double, b:Double):Double;
 
    @Native("java", "java.lang.Math.log(#1)")
-   @Native("c++", "x10aux::math_utils::log(#1)")
+   @Native("c++", "x10aux::math_utils::log(#a)")
    public static native def log(a:Double):Double;
 
    // GPUs don't like doubles
    @Native("java", "(float)java.lang.Math.log(#1)")
-   @Native("c++", "(x10_float)x10aux::math_utils::log(#1)")
-   @Native("cuda", "__logf(#1)")
+   @Native("c++", "(x10_float)x10aux::math_utils::log(#a)")
+   @Native("cuda", "__logf(#a)")
    public static native def log(a:Float):Float;
 
     /**
@@ -318,11 +318,11 @@ public final class Math {
     }
 
    @Native("java", "java.lang.Math.log10(#1)")
-   @Native("c++", "x10aux::math_utils::log10(#1)")
+   @Native("c++", "x10aux::math_utils::log10(#a)")
    public static native def log10(a:Double):Double;
 
    @Native("java", "java.lang.Math.log1p(#1)")
-   @Native("c++", "x10aux::math_utils::log1p(#1)")
+   @Native("c++", "x10aux::math_utils::log1p(#a)")
    public static native def log1p(a:Double):Double;
 
     public static def max(a:Int, b:Int)= a<b?b:a;
@@ -347,7 +347,7 @@ public final class Math {
      * @return the value of a with the sign of b
      */
     @Native("java", "java.lang.Math.signum(#1) == java.lang.Math.signum(#2) ? #1 : -1 * #1")
-    @Native("c++", "x10aux::math_utils::copysign(#1,#2)")
+    @Native("c++", "x10aux::math_utils::copysign(#a,#b)")
     public static native def copySign(a:Double, b:Double):Double;
 
    public static def nextPowerOf2(val p: int): int {

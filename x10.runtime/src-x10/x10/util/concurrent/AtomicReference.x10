@@ -15,7 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "x10.core.concurrent.AtomicReference<#1>", null, "new x10.rtt.ParameterizedType(x10.core.concurrent.AtomicReference._RTT, #2)")
-@NativeRep("c++", "x10aux::ref<x10::util::concurrent::AtomicReference<#1 > >", "x10::util::concurrent::AtomicReference<#1 >", null)
+@NativeRep("c++", "x10aux::ref<x10::util::concurrent::AtomicReference<#T > >", "x10::util::concurrent::AtomicReference<#T >", null)
 public final class AtomicReference[T]{T<:Object} {
 	
 	// Unusable due to compiler bug.  See http://jira.codehaus.org/browse/XTENLANG-127 (Yoav todo: this bug was fixed!)
@@ -24,36 +24,36 @@ public final class AtomicReference[T]{T<:Object} {
 	
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "new x10.core.concurrent.AtomicReference<#1>(#3)")
-	@Native("c++", "x10::util::concurrent::AtomicReference<#1 >::_make()")
+	@Native("c++", "x10::util::concurrent::AtomicReference<#T >::_make()")
 	public static native def newAtomicReference[T]() {T<:Object} :AtomicReference[T];
 
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "new x10.core.concurrent.AtomicReference<#1>(#3,#4)")
-	@Native("c++", "x10::util::concurrent::AtomicReference<#1 >::_make(#4)")
+	@Native("c++", "x10::util::concurrent::AtomicReference<#T >::_make(#v)")
 	public static  native def newAtomicReference[T](v:T) {T<:Object} :AtomicReference[T];
 
 	@Native("java", "#0.get()")
-	@Native("c++", "(#0)->get()")
+	@Native("c++", "(#this)->get()")
 	public native def get():T;
 
 	@Native("java", "#0.set(#1)")
-	@Native("c++", "(#0)->set(#1)")
+	@Native("c++", "(#this)->set(#v)")
 	public native def set(v:T):void;
 
 	@Native("java", "#0.compareAndSet(#1,#2)")
-	@Native("c++", "(#0)->compareAndSet(#1,#2)")
+	@Native("c++", "(#this)->compareAndSet(#expect,#update)")
 	public native def compareAndSet(expect:T, update:T):boolean;
 
 	@Native("java", "#0.weakCompareAndSet(#1,#2)")
-	@Native("c++", "(#0)->weakCompareAndSet(#1,#2)")
+	@Native("c++", "(#this)->weakCompareAndSet(#expect,#update)")
 	public native def weakCompareAndSet(expect:T, update:T):boolean;
 	
 	@Native("java", "#0.getAndSet(#1)")
-	@Native("c++", "(#0)->getAndSet(#1)")
+	@Native("c++", "(#this)->getAndSet(#v)")
 	public native def getAndSet(v:T):T;
 
 	@Native("java", "#0.toString()")
-	@Native("c++", "(#0)->toString()")
+	@Native("c++", "(#this)->toString()")
 	public native def toString():String;
 }
  

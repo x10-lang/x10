@@ -31,11 +31,11 @@ public final class AtomicLong {
     }
     
     @Native("java", "#0.compareAndSet(#1,#2)")
-    @Native("c++", "x10aux::atomic_long_funs::compareAndSet(#0,#1,#2)")
+    @Native("c++", "x10aux::atomic_long_funs::compareAndSet(#this,#expect,#update)")
     public native def compareAndSet(expect:long, update:long):boolean;
 
     @Native("java", "#0.weakCompareAndSet(#1,#2)")
-    @Native("c++", "x10aux::atomic_long_funs::weakCompareAndSet(#0,#1,#2)")
+    @Native("c++", "x10aux::atomic_long_funs::weakCompareAndSet(#this,#expect,#update)")
     public native def weakCompareAndSet(expect:long, update:long):boolean;
     
     @Native("java", "#0.getAndIncrement()")
@@ -45,7 +45,7 @@ public final class AtomicLong {
     public def getAndDecrement():long = getAndAdd(-1);
     
     @Native("java", "#0.getAndAdd(#1)")
-    @Native("c++", "x10aux::atomic_long_funs::getAndAdd(#0,#1)")
+    @Native("c++", "x10aux::atomic_long_funs::getAndAdd(#this,#delta)")
     public native def getAndAdd(delta:long):long;
     
     @Native("java", "#0.incrementAndGet()")
@@ -55,7 +55,7 @@ public final class AtomicLong {
     public def decrementAndGet():long = addAndGet(-1);
     
     @Native("java", "#0.addAndGet(#1)")
-    @Native("c++", "x10aux::atomic_long_funs::addAndGet(#0, #1)")
+    @Native("c++", "x10aux::atomic_long_funs::addAndGet(#this, #delta)")
     public native def addAndGet(delta:long):long;
     
     @Native("java", "#0.toString()")

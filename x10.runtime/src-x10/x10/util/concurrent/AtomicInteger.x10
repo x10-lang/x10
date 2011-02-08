@@ -33,11 +33,11 @@ public final class AtomicInteger {
     }
     
     @Native("java", "#0.compareAndSet(#1,#2)")
-    @Native("c++", "x10aux::atomic_int_funs::compareAndSet(#0,#1,#2)")
+    @Native("c++", "x10aux::atomic_int_funs::compareAndSet(#this,#expect,#update)")
     public native def compareAndSet(expect:int, update:int):boolean;
 
     @Native("java", "#0.weakCompareAndSet(#1,#2)")
-    @Native("c++", "x10aux::atomic_int_funs::weakCompareAndSet(#0,#1,#2)")
+    @Native("c++", "x10aux::atomic_int_funs::weakCompareAndSet(#this,#expect,#update)")
     public native def weakCompareAndSet(expect:int, update:int):boolean;
     
     @Native("java", "#0.getAndIncrement()")
@@ -47,7 +47,7 @@ public final class AtomicInteger {
     public def getAndDecrement() = getAndAdd(-1);
     
     @Native("java", "#0.getAndAdd(#1)")
-    @Native("c++", "x10aux::atomic_int_funs::getAndAdd(#0, #1)")
+    @Native("c++", "x10aux::atomic_int_funs::getAndAdd(#this, #delta)")
     public native def getAndAdd(delta:int):int;
     
     @Native("java", "#0.incrementAndGet()")
@@ -57,7 +57,7 @@ public final class AtomicInteger {
     public def decrementAndGet():int = addAndGet(-1);
     
     @Native("java", "#0.addAndGet(#1)")
-    @Native("c++", "x10aux::atomic_int_funs::addAndGet(#0, #1)")
+    @Native("c++", "x10aux::atomic_int_funs::addAndGet(#this, #delta)")
     public native def addAndGet(delta:int):int;
     
     @Native("java", "#0.toString()")

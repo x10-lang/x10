@@ -22,35 +22,35 @@ public class InputStreamReader extends Reader {
     @NativeRep("c++", "x10aux::ref<x10::io::InputStreamReader__InputStream>", "x10::io::InputStreamReader__InputStream", null)
     protected abstract static class InputStream {
         @Native("java", "#0.close()")
-        @Native("c++", "(#0)->close()")
+        @Native("c++", "(#this)->close()")
         public native def close(): void; //throws IOException;
 
         @Native("java", "#0.read()")
-        @Native("c++", "(#0)->read()")
+        @Native("c++", "(#this)->read()")
         public native def read(): Int; //throws IOException;
 
         @Native("java", "#0.read((#1).getByteArray(), #2, #3)")
-        @Native("c++", "(#0)->read(#1,#2,#3)")
+        @Native("c++", "(#this)->read(#r,#off,#len)")
         public native def read(r:Rail[Byte], off: Int, len: Int): void; //throws IOException;
 
         @Native("java", "#0.available()")
-        @Native("c++", "(#0)->available()")
+        @Native("c++", "(#this)->available()")
         public native def available(): Int; //throws IOException;
 
         @Native("java", "#0.skip(#1)")
-        @Native("c++", "(#0)->skip(#1)")
-        public native def skip(Int): void; //throws IOException;
+        @Native("c++", "(#this)->skip(#v)")
+        public native def skip(v:Int): void; //throws IOException;
 
         @Native("java", "#0.mark(#1)")
-        @Native("c++", "(#0)->mark(#1)")
-        public native def mark(Int): void;
+        @Native("c++", "(#this)->mark(#m)")
+        public native def mark(m:Int): void;
 
         @Native("java", "#0.reset()")
-        @Native("c++", "(#0)->reset()")
+        @Native("c++", "(#this)->reset()")
         public native def reset(): void; //throws IOException;
 
         @Native("java", "#0.markSupported()")
-        @Native("c++", "(#0)->markSupported()")
+        @Native("c++", "(#this)->markSupported()")
         public native def markSupported(): Boolean;
     }
 

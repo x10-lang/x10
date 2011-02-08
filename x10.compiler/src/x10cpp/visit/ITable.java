@@ -22,10 +22,12 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.types.Context;
+import polyglot.types.LocalInstance;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
@@ -225,16 +227,21 @@ public final class ITable {
                     String pat = cg.getCppImplForDef(implMeth.x10Def());
                     if (pat != null) {
                         X10ClassType ct = (X10ClassType) implMeth.container().toClass();
-                        List<Type> typeArguments = ct.typeArguments();
-                        if (typeArguments == null)
-                            typeArguments = new ArrayList<Type>(ct.x10Def().typeParameters());
+                        List<Type> classTypeArguments = ct.typeArguments();
+                        List<ParameterType> classTypeParams = ct.x10Def().typeParameters();
+                        if (classTypeArguments == null)
+                        	classTypeArguments = new ArrayList<Type>();
+                        if (classTypeParams == null)
+                        	classTypeParams = new ArrayList<ParameterType>();
                         ArrayList<String> args = new ArrayList<String>();
+                        ArrayList<String> params = new ArrayList<String>();
                         int numArgs = implMeth.formalTypes().size();
                         argNum = 0;
-                        for (Type f : meth.formalTypes()) {
+                        for (LocalInstance n : meth.formalNames()) {
                             args.add("arg"+(argNum++));
+                            params.add(n.name().toString());
                         }
-                        cg.emitNativeAnnotation(pat, implMeth.typeParameters(), recvArg, args, typeArguments);
+                        cg.emitNativeAnnotation(pat, implMeth.x10Def().typeParameters(), implMeth.typeParameters(), recvArg, params, args, classTypeParams, classTypeArguments);
                     } else {
                         sw.write(Emitter.structMethodClass(cls, true, true)+"::"+Emitter.mangled_method_name(meth.name().toString())+"("+recvArg);
                         for (int j=0; j<meth.formalTypes().size(); j++) {

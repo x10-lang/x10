@@ -30,9 +30,12 @@ import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import polyglot.ast.Call_c;
 import polyglot.ast.ConstructorDecl_c;
@@ -300,20 +303,17 @@ public class Emitter {
 		       	    return translateType(ct.superClass(), asRef);
 		       	}
 		    } else {
-				String pat = null;
-				if (!asRef)
-					pat = getCppBoxRep(cd);
-				else
-					pat = getCppRep(cd);
+				String pat = asRef ? getCppRep(cd) : getCppBoxRep(cd);
 				if (pat != null) {
-					Object[] o = new Object[typeArguments.size()+1];
-					int i = 0;
-					o[i++] = type;
+					Map<String, Object> env = new HashMap<String,Object>();
+					int counter=0;
+					env.put(Integer.toString(counter++), type);
+					Iterator<ParameterType> params = cd.typeParameters().iterator();
 					for (Type a : typeArguments) {
-					    o[i++] = a;
+						   env.put(params.next().name().toString(), a);
+						   env.put(Integer.toString(counter++), a);
 					}
-					// FIXME: [IP] Clean up this code!
-					return dumpRegex("NativeRep", o, pat);
+					return nativeSubst("NativeRep", env, pat);
 				}
 				else {
 					name = fullName(ct).toString();
@@ -1221,82 +1221,55 @@ public class Emitter {
 	    w.write(str.substring(pos));
 	}
 
-	private static String dumpRegex(String id, Object[] components, String regex) {
-	    String retVal = "";
-	    for (int i = 0; i < components.length; i++) {
-	        assert ! (components[i] instanceof Object[]);
-	    }
-	    int len = regex.length();
-	    int pos = 0;
-	    int start = 0;
-	    while (pos < len) {
-	    	if (regex.charAt(pos) == '\n') {
-	    		retVal +=regex.substring(start, pos);
-			retVal += "\n";
-	    		start = pos+1;
-	    	}
-	    	else
-	    	if (regex.charAt(pos) == '#') {
-	    		retVal += regex.substring(start, pos); //translateFQN(regex.substring(start, pos));
-	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
-	    		pos++;
-	    		start = pos+1;
-	    		if (idx.intValue() >= components.length){
-	    			throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
-                }
-                Object o = components[idx.intValue()];
-                if (o instanceof Type) {
-                    retVal += translateType((Type)o, true);
-                } else if (o != null) {
-                    retVal += o.toString();
-                }
-	    	}
-	    	pos++;
-	    }
-	    retVal += regex.substring(start); //translateFQN(regex.substring(start));
-	    return retVal;
-	}
-	public void dumpRegex(String id, Object[] components, Translator tr, String regex, CodeWriter w) {
-		for (int i = 0; i < components.length; i++) {
-			assert ! (components[i] instanceof Object[]);
-		}
-		int len = regex.length();
-		int pos = 0;
-		int start = 0;
-		while (pos < len) {
-		    if (regex.charAt(pos) == '\n') {
-		        w.write(regex.substring(start, pos));
-		        w.newline(0);
-		        start = pos+1;
-		    } else if (regex.charAt(pos) == '#') {
-		        w.write(regex.substring(start, pos));
-		        Integer idx;
-		        if (pos<len-2 && Character.isDigit(regex.charAt(pos+2))) {
-		            idx = new Integer(regex.substring(pos+1,pos+3));
-		            pos += 2;		            
-		        } else {
-		            idx = new Integer(regex.substring(pos+1,pos+2));
-		            pos++;
-		        }
-		        start = pos+1;
-		        if (idx.intValue() >= components.length) {
-		            throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
-		        }
-		        prettyPrint(components[idx.intValue()], tr, w);
-		    }
-		    pos++;
-		}
-		w.write(regex.substring(start));
-	}
-    private void prettyPrint(Object o, Translator tr, CodeWriter w) {
-        if (o instanceof Node) {
-            Node n = (Node) o;
-            tr.print(null, n, w);
-        } else if (o instanceof Type) {
-            w.write(translateType((Type)o, true));
-        } else if (o != null) {
-            w.write(o.toString());
+    private static final Pattern nativeSubstRegex = Pattern.compile("#[0-9A-Za-z_]+");
+
+    private static String nativeSubst(String annotation, Map<String,Object> components, String pattern) {
+		pattern = pattern.replaceAll("\n", "\\n");
+        Matcher m = nativeSubstRegex.matcher(pattern);
+        int last=0;
+        StringBuffer out = new StringBuffer();
+        while (m.find()) {
+            out.append(pattern.substring(last,m.start()));
+            last = m.end();
+            String name = m.group().substring(1);
+            Object val = components.get(name);
+            if (val==null) {
+    			throw new InternalCompilerError(annotation+" \""+pattern+"\" cannot find substitution for #"+name);
+            }
+            if (val instanceof Type) {
+                out.append(translateType((Type)val, true));
+            } else {
+                out.append(val);
+            }
         }
-    }
+        out.append(pattern.substring(last));
+        return out.toString();
+	}	
+	
+	public void nativeSubst(String annotation, Map<String, Object> components, Translator tr, String pattern, CodeWriter w) {
+	
+		pattern = pattern.replaceAll("\n", "\\n");
+        Matcher m = nativeSubstRegex.matcher(pattern);
+        int last=0;
+        while (m.find()) {
+        	w.write(pattern.substring(last,m.start()));
+            last = m.end();
+            String name = m.group().substring(1);
+            Object val = components.get(name);
+            if (val==null) {
+    			throw new InternalCompilerError(annotation+" \""+pattern+"\" cannot find substitution for #"+name);
+            }
+	        if (val instanceof Node) {
+	            Node n = (Node) val;
+	            tr.print(null, n, w);
+	        } else if (val instanceof Type) {
+	            w.write(translateType((Type)val, true));
+	        } else if (val != null) {
+	            w.write(val.toString());
+	        }
+        }
+        w.write(pattern.substring(last));
+	}
+
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -14,7 +14,7 @@ package x10.util;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("c++", "NativeVec<#1, 8>", "NativeVec<#1, 8>", null)
+@NativeRep("c++", "NativeVec<#T, 8>", "NativeVec<#T, 8>", null)
 public struct Vec[T] (@Native("c++","8")size:Int) {
 
     private backing : Array[T]{self.rank==1, self.size==this.size};
@@ -23,13 +23,13 @@ public struct Vec[T] (@Native("c++","8")size:Int) {
         backing = new Array[T](size);
     }
 
-    @Native("c++", "NativeVec<#1, #4>()")
+    @Native("c++", "NativeVec<#U, #s>()")
     public static def make[U](s:Int) {U haszero} = new Vec[U](s);
 
-    @Native("c++", "#0.get(#1)")
+    @Native("c++", "#this.get(#i)")
     public operator this(i:Int) : T = backing(i);
 
-    @Native("c++", "#0.set(#1,#2)")
+    @Native("c++", "#this.set(#v,#i)")
     public operator this(i:Int) = (v:T) : T = backing(i) = v;
 }
 

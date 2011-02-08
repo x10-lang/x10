@@ -11,11 +11,11 @@ import x10.util.Random;
 
 public abstract class Frame {
     @Native("java", "((#4) #7)")
-    @Native("c++", "static_cast<#4 >(#7)")
+    @Native("c++", "static_cast<#U >(#x)")
     public native static def cast[T,U](x:T):U;
 
     @Native("java", "((#4) #7)")
-    @Native("c++", "(#7)")
+    @Native("c++", "(#x)")
     public native static def upcast[T,U](x:T):U;
 
     @Native("java", "null")
@@ -23,7 +23,7 @@ public abstract class Frame {
     public native static def NULL[T]():T;
 
     @Native("java", "(#1 == #2)")
-    @Native("c++", "(#1 == #2)")
+    @Native("c++", "(#x == #y)")
     public native static def eq(x:Frame, y:FinishFrame):Boolean;
 
     public val up:Frame;
