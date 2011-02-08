@@ -1629,10 +1629,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					ArrayList<String> args = new ArrayList<String>();
 					ArrayList<String> params = new ArrayList<String>();
 					counter = 0;
-					for (Type formal : formals) {
+					for (LocalDef param : dropzone.x10Def().formalNames()) {
 						args.add("p" + (counter++));
-						params.add(formal.name().toString());
+						params.add(param.name().toString());
 					}
+					System.out.println(params);
 					emitNativeAnnotation(pat, dropzone.x10Def().typeParameters(), dropzone.typeParameters(), target, params, args, ct.x10Def().typeParameters(), classTypeArguments);
 				} else {
 					sw.write(Emitter.translateType(superClass, false) +
