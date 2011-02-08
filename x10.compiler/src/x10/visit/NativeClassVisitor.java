@@ -176,8 +176,12 @@ public class NativeClassVisitor extends ContextVisitor {
         }
 
         X10ClassType embed = (X10ClassType) xts.systemResolver().findOne(QName.make("x10.compiler.Embed"));
-        List<AnnotationNode> anodes = Collections.<AnnotationNode>singletonList(xnf.AnnotationNode(p, xnf.CanonicalTypeNode(p, embed)));
-        
+        List<AnnotationNode> anodes;
+        if (fake.isStruct()) {
+            anodes = Collections.<AnnotationNode>emptyList();
+        } else {
+            anodes = Collections.<AnnotationNode>singletonList(xnf.AnnotationNode(p, xnf.CanonicalTypeNode(p, embed)));
+        }
         // add field with native type
         Name fname = NATIVE_FIELD_NAME;
         Id fid = xnf.Id(p, fname);
