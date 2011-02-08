@@ -44,6 +44,7 @@ import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.LocalDecl_c;
+import polyglot.ast.Local_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
@@ -54,6 +55,8 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 
+import polyglot.types.Context_c;
+import polyglot.types.Def;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -72,17 +75,25 @@ import x10.ast.X10ClassDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
+import x10.constraint.XField;
+import x10.constraint.XLit;
+import x10.constraint.XVar;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
+import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
+import x10.types.X10Context_c;
+import x10.types.X10FieldDef;
 
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CField;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import x10.visit.StaticNestedClassRemover;
@@ -216,7 +227,10 @@ public class Emitter {
 	 * Print a type as a reference.
 	 */
 	void printType(Type type, CodeWriter w) {
-		w.write(translateType(type, true));
+		printType(type,w,null);
+	}	
+	void printType(Type type, CodeWriter w, X10Context_c ctx) {
+		w.write(translateType(type, true, ctx));
 	}
 
 	/**
@@ -247,6 +261,31 @@ public class Emitter {
 	    return full;
 	}
 
+	private static HashMap<String,String> exploreConstraints(X10Context_c context, ConstrainedType type) {
+		HashMap<String,String> r = new HashMap<String,String>();
+		CConstraint cc = type.getRealXClause();
+		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
+		CConstraint projected = cc; //context.constraintProjection(cc);
+		if (!projected.consistent()) return r;
+		for (XVar xvar : projected.vars()) {
+			XVar prefixes[] = xvar.vars();
+			if (prefixes.length!=2) continue;
+			if (!prefixes[0].toString().equals("self")) continue;
+			if (!(xvar instanceof CField)) continue;
+			CField xvarf = (CField)xvar;
+			// [DC] I believe that since we are only looking at constraints of the form self.f,
+			// there is no need to check the type of the class which this field is attached to as it will
+			// always be the type we are translating.
+			String property_name = ((X10FieldDef)xvarf.field()).name().toString();
+			// resolve to another variable, keep going
+			XVar closed_xvar = projected.bindingForVar(xvar);
+			if (closed_xvar!=null && closed_xvar instanceof XLit) {
+				r.put(property_name, closed_xvar.toString());
+			}
+		}
+		return r;
+	}
+	
 	/**
 	 * Translate a type.
 	 *
@@ -255,12 +294,17 @@ public class Emitter {
 	 * @return a string representation of the type
 	 */
 	public static String translateType(Type type, boolean asRef) {
-		assert (type != null);
-		TypeSystem xts = type.typeSystem();
-		type = xts.expandMacros(type);
+		return translateType(type, asRef, null);
+	}
+	public static String translateType(Type type_, boolean asRef, X10Context_c ctx) {
+		assert (type_ != null);
+		TypeSystem xts = type_.typeSystem();
+		Type type = xts.expandMacros(type_);
 		if (type.isVoid()) {
 			return "void";
 		}
+		HashMap<String,String> propertyKnowledge = null;
+		if (ctx!=null && type instanceof ConstrainedType) propertyKnowledge = exploreConstraints(ctx, (ConstrainedType)type);
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
@@ -312,6 +356,9 @@ public class Emitter {
 					for (Type a : typeArguments) {
 						   env.put(params.next().name().toString(), a);
 						   env.put(Integer.toString(counter++), a);
+					}
+					if (propertyKnowledge!=null) for (String key : propertyKnowledge.keySet()) {
+							env.put(key, propertyKnowledge.get(key));
 					}
 					return nativeSubst("NativeRep", env, pat);
 				}
@@ -907,7 +954,7 @@ public class Emitter {
 			assert (n != null);
 			assert (n.type() != null);
 			assert (n.type().type() != null);
-			printType(n.type().type(), h);
+			printType(n.type().type(), h, (X10Context_c)tr.context());
 			h.write(" ");
 		}
 		h.write(mangled_non_method_name(n.name().id().toString()));

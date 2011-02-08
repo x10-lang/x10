@@ -6,7 +6,8 @@
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
 
-template <class T, int SZ> struct NativeVec{
+template <class T, x10_int SZ> struct NativeVec{
+        static inline x10_int size() { return SZ; }
         T arr[SZ];
         NativeVec() { };
         const T &get (int i) const { return arr[i]; }

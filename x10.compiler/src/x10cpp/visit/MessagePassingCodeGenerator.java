@@ -1633,7 +1633,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						args.add("p" + (counter++));
 						params.add(param.name().toString());
 					}
-					System.out.println(params);
 					emitNativeAnnotation(pat, dropzone.x10Def().typeParameters(), dropzone.typeParameters(), target, params, args, ct.x10Def().typeParameters(), classTypeArguments);
 				} else {
 					sw.write(Emitter.translateType(superClass, false) +

@@ -14,8 +14,8 @@ package x10.util;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("c++", "NativeVec<#T, 8>", "NativeVec<#T, 8>", null)
-public struct Vec[T] (@Native("c++","8")size:Int) {
+@NativeRep("c++", "NativeVec<#T, #size>", "NativeVec<#T, #size>", null)
+public struct Vec[T] (@Native("c++","#this.size()")size:Int) {
 
     private backing : Array[T]{self.rank==1, self.size==this.size};
     private def this(s:Int) {T haszero} : Vec[T]{self.size==s} {
