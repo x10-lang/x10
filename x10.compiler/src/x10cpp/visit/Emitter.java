@@ -688,7 +688,7 @@ public class Emitter {
 		h.begin(0);
 //		if (flags.isFinal())
 //		h.write("const ");
-		printType(n.type().type(), h);
+		printType(n.type().type(), h, (X10Context_c)tr.context());
 		h.write(" ");
 		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Type param_type = n.type().type();
