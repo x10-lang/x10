@@ -1280,20 +1280,31 @@ public class Emitter {
 	    w.write(str.substring(pos));
 	}
 
-    private static final Pattern nativeSubstRegex = Pattern.compile("#[0-9A-Za-z_]+");
+	// Either #SOME_VAR123
+	// or ##SOME_VAR123#default value if var that key is not known#
+	// the second variation is only useful for properties
+    private static final Pattern nativeSubstRegex = Pattern.compile("#(#(([0-9A-Za-z_]+)#([^#]*)#)|([0-9A-Za-z_]+))");
 
     private static String nativeSubst(String annotation, Map<String,Object> components, String pattern) {
-		pattern = pattern.replaceAll("\n", "\\n");
         Matcher m = nativeSubstRegex.matcher(pattern);
         int last=0;
         StringBuffer out = new StringBuffer();
         while (m.find()) {
             out.append(pattern.substring(last,m.start()));
             last = m.end();
-            String name = m.group().substring(1);
-            Object val = components.get(name);
+            String key = m.group(5);
+            String default_ = null;
+            if (key==null) {
+            	// ## form
+                key = m.group(3);
+                default_ = m.group(4);
+            }
+
+            Object val = components.get(key);
+            if (val==null) val = default_;
+            
             if (val==null) {
-    			throw new InternalCompilerError(annotation+" \""+pattern+"\" cannot find substitution for #"+name);
+    			throw new InternalCompilerError(annotation+" \""+pattern+"\" cannot find substitution for #"+key);
             }
             if (val instanceof Type) {
                 out.append(translateType((Type)val, true));
@@ -1307,16 +1318,24 @@ public class Emitter {
 	
 	public void nativeSubst(String annotation, Map<String, Object> components, Translator tr, String pattern, CodeWriter w) {
 	
-		pattern = pattern.replaceAll("\n", "\\n");
         Matcher m = nativeSubstRegex.matcher(pattern);
         int last=0;
         while (m.find()) {
         	w.write(pattern.substring(last,m.start()));
             last = m.end();
-            String name = m.group().substring(1);
-            Object val = components.get(name);
+            String key = m.group(5);
+            String default_ = null;
+            if (key==null) {
+            	// ## form
+                key = m.group(3);
+                default_ = m.group(4);
+            }
+
+            Object val = components.get(key);
+            if (val==null) val = default_;
+
             if (val==null) {
-    			throw new InternalCompilerError(annotation+" \""+pattern+"\" cannot find substitution for #"+name);
+    			throw new InternalCompilerError(annotation+" \""+pattern+"\" cannot find substitution for #"+key);
             }
 	        if (val instanceof Node) {
 	            Node n = (Node) val;
