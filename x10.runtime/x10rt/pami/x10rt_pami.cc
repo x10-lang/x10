@@ -18,6 +18,7 @@
 #include <unistd.h> // sleep()
 #include <errno.h> // for the strerror function
 #include <sched.h> // for sched_yield()
+#include <pthread.h> // for lock on the team mapping table
 #include <x10rt_net.h>
 #include <pami.h>
 
@@ -28,6 +29,7 @@ enum MSGTYPE {STANDARD=1, PUT, GET, GET_COMPLETE}; // PAMI doesn't send messages
 typedef void (*handlerCallback)(const x10rt_msg_params *);
 typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
+typedef void (*teamCallback2)(x10rt_team, void *);
 
 struct x10rtCallback
 {
@@ -44,6 +46,19 @@ struct x10rt_pami_header_data
     void* callbackPtr; // stores the header address for GET_COMPLETE
 };
 
+struct x10rt_pami_team_create
+{
+	teamCallback2 ch2;
+	void *arg;
+	uint32_t teamIndex;
+};
+
+struct x10rt_pami_team
+{
+	pami_geometry_t geometry;
+	uint32_t size;
+};
+
 struct x10PAMIState
 {
 	uint32_t numPlaces;
@@ -54,6 +69,9 @@ struct x10PAMIState
 	// TODO associate a context with each worker thread
 	pami_context_t context[1]; // PAMI context associated with the client (currently only 1 context is used)
 	volatile unsigned recv_active;
+	x10rt_pami_team *teams;
+	uint32_t numTeams;
+	pthread_mutex_t teamLock;
 } state;
 
 
@@ -464,6 +482,14 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	fn4.p2p = get_complete_dispatch;
 	if ((status = PAMI_Dispatch_set(state.context[0], GET_COMPLETE, fn4, (void *) &state.recv_active, hints)) != PAMI_SUCCESS)
 		error("Unable to register get_complete_dispatch handler");
+
+	// create the world geometry
+	pthread_mutex_init(&state.teamLock, NULL);
+	state.teams = (x10rt_pami_team*)malloc(sizeof(x10rt_pami_team));
+	state.numTeams = 1;
+	state.teams[0].size = state.numPlaces;
+	status = PAMI_Geometry_world(state.client, &state.teams[0].geometry);
+	if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
 }
 
 
@@ -760,6 +786,8 @@ void x10rt_net_finalize()
 
 	if ((status = PAMI_Client_destroy(&state.client)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI client: %i\n", status);
+
+	free(state.teams);
 }
 
 int x10rt_net_supports (x10rt_opt o)
@@ -784,41 +812,68 @@ x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
 	return NULL;
 }
 
+static void team_creation_complete (pami_context_t   context,
+                       void          * cookie,
+                       pami_result_t    result)
+{
+//	#ifdef DEBUG
+		fprintf(stderr, "Team created at place %u, issuing callback\n", state.myPlaceId);
+//	#endif
+	x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
+	team->ch2(team->teamIndex, team->arg);
+	free(cookie);
+}
+
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
                          x10rt_completion_handler2 *ch, void *arg)
 {
-	// issue a call to PAMI_Geometry_world, followed by PAMI_Geometry_update to adjust it
 	pami_result_t status = PAMI_ERROR;
-	pami_geometry_t world;
-	status = PAMI_Geometry_world(state.client, &world);
-	if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
+
+//	#ifdef DEBUG
+		fprintf(stderr, "Creating a new team at place %u of size %u\n", state.myPlaceId, placec);
+//	#endif
+
+	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
+	cookie->ch2 = ch;
+	cookie->arg = arg;
+
+	pthread_mutex_lock(&state.teamLock);
+		void* newTeams = malloc((state.numTeams+1)*sizeof(x10rt_pami_team));
+		memcpy(newTeams, state.teams, sizeof(state.numTeams*sizeof(x10rt_pami_team)));
+		free(state.teams);
+		state.teams = (x10rt_pami_team*)newTeams;
+		state.teams[state.numTeams].size = placec;
+		cookie->teamIndex = state.numTeams;
+		state.numTeams++;
+	pthread_mutex_unlock(&state.teamLock);
 
 	pami_configuration_t config;
+	config.name = PAMI_GEOMETRY_OPTIMIZE;
 
-	//status = PAMI_Geometry_create_tasklist(state.client, );
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[cookie->teamIndex].geometry, state.teams[0].geometry, cookie->teamIndex, placev, placec, state.context[0], team_creation_complete, cookie);
 	if (status != PAMI_SUCCESS) error("Unable to reconfigure the world geometry");
-
-	error("x10rt_net_team_new not implemented");
 }
-
 void x10rt_net_team_del (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
-	// TODO PAMI_Geometry_destroy
-	error("x10rt_net_team_del not implemented");
+	pami_result_t status = PAMI_ERROR;
+	status = PAMI_Geometry_destroy(state.client, &state.teams[team].geometry);
+	if (status != PAMI_SUCCESS) error("Unable to destroy geometry");
+	state.teams[team].size = 0;
+	ch(arg);
 }
 
 x10rt_place x10rt_net_team_sz (x10rt_team team)
 {
-	// TODO issue PAMI_Geometry_query to get the number of members
-	error("x10rt_net_team_sz not implemented");
-    return 0;
+	if (team > state.numTeams)
+		return 0;
+	return state.teams[team].size;
 }
 
 void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_place color,
 		x10rt_place new_role, x10rt_completion_handler2 *ch, void *arg)
 {
-	// TODO PAMI_Geometry_update
+	// TODO PAMI_Geometry_create_taskrange?
 	error("x10rt_net_team_split not implemented");
 }
 
