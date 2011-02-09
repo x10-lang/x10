@@ -266,7 +266,7 @@ public struct IndexedMemoryChunk[T] {
     public native def equals(that:Any):Boolean;
 
     @Native("java", "(#0).hashCode()")
-    @Native("c++", "(#this)->hash_code()")
+    @Native("c++", "(#this)->hashCode()")
     public native def  hashCode():Int;
 
     @Native("java", "(#0).getCongruentSibling(#1)")
