@@ -1358,20 +1358,22 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     @Override
     public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
         w.begin(0);
-        Flags flags = type.flags();
+        if (type != null) {
+            Flags flags = type.flags();
         
-        if (flags.isInterface()) {
-            w.write(flags.clearInterface().clearAbstract().translate());
-        }
-        else {
-            w.write(flags.translate());
-        }
+            if (flags.isInterface()) {
+                w.write(flags.clearInterface().clearAbstract().translate());
+            }
+            else {
+                w.write(flags.translate());
+            }
         
-        if (flags.isInterface()) {
-            w.write("interface ");
-        }
-        else {
-            w.write("class ");
+            if (flags.isInterface()) {
+                w.write("interface ");
+            }
+            else {
+                w.write("class ");
+            }
         }
         
         tr.print(this, name, w);
@@ -1414,11 +1416,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         if (! interfaces.isEmpty()) {
             w.allowBreak(2);
-            if (flags.isInterface()) {
-                w.write("extends ");
-            }
-            else {
-                w.write("implements ");
+            if (type != null) {
+                if (type.flags().isInterface()) {
+                    w.write("extends ");
+                }
+                else {
+                    w.write("implements ");
+                }
             }
         
             w.begin(0);
