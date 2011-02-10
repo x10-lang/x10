@@ -211,7 +211,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         T = (x10.rtt.Type<?>) in.readObject();
         home = (x10.lang.Place) in.readObject();
         id = in.readLong();
-        if (x10.lang.Runtime.isLocal(home.id))
+        if (home.id == x10.lang.Runtime.hereInt())
             t = id2Object.get(id);//TODO waek reference
         else
             t = null;

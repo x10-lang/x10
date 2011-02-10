@@ -139,18 +139,6 @@ import x10.util.Box;
     static native def deepCopy[T](o:T):T;
 
     /**
-     * Java: run body. (no need for a native implementation)
-     * C++: run body. (no need for a native implementation)
-     */
-    @TempNoInline_1
-    static def runAtLocal(id:Int, body:()=>void):void { body(); }
-
-    /**
-     * Return true if place(id) is in the current node.
-     */
-    static def isLocal(id:Int):Boolean = id == here.id;
-
-    /**
      * Process one incoming message if any (non-blocking).
      */
     @Native("c++", "x10aux::event_probe()")
@@ -321,7 +309,7 @@ import x10.util.Box;
                     activity = pool.scan(random, this);
                     if (activity == null) return false;
                 }
-                runAtLocal(activity.home, activity.run.());
+                activity.run();
             }
             return true;
         }
@@ -338,7 +326,7 @@ import x10.util.Box;
                     activity = tmp; // restore current activity
                     return;
                 }
-                runAtLocal(activity.home, activity.run.());
+                activity.run();
             }
         }
 
@@ -361,7 +349,7 @@ import x10.util.Box;
                     push(activity);
                     return false;
                 }
-                runAtLocal(activity.home, activity.run.());
+                activity.run();
             }
             return true;
         }
@@ -567,13 +555,7 @@ import x10.util.Box;
 
         try {
             // initialize runtime
-            for (var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (isLocal(i)) {
-                    // we need to instantiate a runtime for each place hosted by the current process
-                    // all these runtimes share the same thread pool
-                    runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
-                }
-            }
+            runtime.set(new Runtime(pool));
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(pool.latch);
@@ -585,10 +567,8 @@ import x10.util.Box;
                 pool();
 
                 // root finish has terminated, kill remote processes if any
-                if (!isLocal(Place.MAX_PLACES - 1)) {
-                    for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {runtime().pool.latch.release();});
-                    }
+                for (var i:Int=1; i<Place.MAX_PLACES; i++) {
+                    runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {runtime().pool.latch.release();});
                 }
 
                 // we need to call waitForFinish here to see the exceptions thrown by main if any
