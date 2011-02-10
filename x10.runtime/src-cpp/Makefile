@@ -9,16 +9,14 @@ XARGS ?= xargs
 
 INCLUDE_DIRS += -I. -I../x10rt/include
 
+override XRX_PROPS_LDLIBS += -lx10
+
 ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
   BDWGC_INCLUDE_DIR= ./bdwgc/install/include
   INCLUDE_DIRS += -I"$(BDWGC_INCLUDE_DIR)"
   override XRX_PROPS_CXXFLAGS += -DX10_USE_BDWGC
   override XRX_PROPS_LDLIBS += -lgc
-endif
-
-ifndef X10_STATIC_LIB
-  override XRX_PROPS_LDLIBS += -lx10
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -Igen
