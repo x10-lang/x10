@@ -20,11 +20,19 @@ import x10.lang.annotations.ClassAnnotation;
  *     <dt>referencedType</dt><dd>the type of the native representation of T.</dd>
  *     <dt>constructedType</dt><dd><b>unused</b>.</dd>
  *     <dt>rtt</dt><dd>an expression that returns the runtime type for T.</dd>
+ *     <dt>SUBSTITUTION:</dt><dd>#0 is the name of the class, #1-#9 are type arguments.</dd>
  * </dl>
  * <dl><lh>For C++:</lh>
  *     <dt>referencedType</dt><dd>the type of the native representation of T when referenced.</dd>
  *     <dt>constructedType</dt><dd>the type of the native representation of T when constructed.</dd>
  *     <dt>rtt</dt><dd><b>unused</b>.</dd>
+ *     <dt>SUBSTITUTION:</dt><dd>As in Java, but also type arguments can be accessed through by name e.g. #T.
+                                 Properties can also be accessed using #prop.
+                                 Note that #prop will raise an error at compile time if the property
+                                 is not specified by the constraint of the type in question.  One can
+                                 also use ##prop#default# which will use either the value of the property
+                                 or the provided string if that property is not known.</dd>
  * </dl>
+ *
  */ 
 public interface NativeRep(lang: String, referencedType: String, constructedType: String, rtt: String) extends ClassAnnotation { }
