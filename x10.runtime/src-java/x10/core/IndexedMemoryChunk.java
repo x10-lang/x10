@@ -11,16 +11,11 @@
 
 package x10.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-
 import x10.core.fun.VoidFun_0_0;
-import x10.lang.FinishState;
 import x10.lang.UnsupportedOperationException;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
-import x10.x10rt.ActivityManagement;
 
 public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public final int length;
@@ -28,9 +23,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public final Type<T> type;
 
     public IndexedMemoryChunk(Type<T> type) {
-        this.length = 0;
-        this.type = type;
-        this.value = null;
+        this(type, 0, null);
     }
     public IndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;
