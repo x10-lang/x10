@@ -108,8 +108,8 @@ public class TypeSystem_c implements TypeSystem
         creationTime = counter++;
         // TODO: decide to either drop this reporting or determine a 
         // scheme to access the instance of Reporter.
-        if (Report.should_report("TypeSystem", 1))
-            Report.report(1, "Creating " + getClass() + " at " + creationTime);
+        if (Report.TypeSystem)
+            Report.reporter.report(1, "Creating " + getClass() + " at " + creationTime);
     }
 
 

@@ -46,13 +46,6 @@ import x10.ast.PlacedClosure;
  *
  */
 public class WSCallGraph {
-	public static final String WS_TOPIC = "workstealing";
-	public static final void wsReport(int level, String message){
-		if(Report.should_report(WS_TOPIC, level)){
-			Report.report(level, message);
-		}
-	}
-	
     
     static final String ignorePackages[] = {
         "x10",

@@ -76,11 +76,11 @@ import x10.visit.X10InnerClassRemover;
 public class WSCodeGenerator extends ContextVisitor {
     public static final int debugLevel = 5; //0: no; 3: little; 5: median; 7: heave; 9: verbose
 	public static final String WS_TOPIC = "workstealing";
-	public static final void wsReport(int level, String message){
-		if(Report.should_report(WS_TOPIC, level)){
-			Report.report(level, message);
-		}
-	}
+	//public static final void wsReport(int level, String message){
+	//	if(Report.should_report(WS_TOPIC, level)){
+	//		Report.report(level, message);
+	//	}
+	//}
     
     // Single static WSTransformState shared by all visitors (FIXME)
     public static WSTransformState wts; 

@@ -35,8 +35,8 @@ public class X102IRGoal extends SourceGoal_c {
     // TODO: get rid of static state
     // TODO: figure out whether we need multiple loaders
 	static {
-		if(Report.should_report("verbose", 1))
-			Report.report(5,"WALA is invoked!");
+		if(Report.verbose)
+			Report.reporter.report(5,"WALA is invoked!");
 	}
     private static final ClassLoaderReference X10LOADER = X10SourceLoaderImpl.X10SourceLoader;
 
@@ -140,8 +140,8 @@ public class X102IRGoal extends SourceGoal_c {
                         Descriptor.findOrCreateUTF8("(Lx10/array/Array;)V"));
                 entrypoints.add(new DefaultEntrypoint(mainRef, engine.getClassHierarchy()));
             }
-            if(Report.should_report("verbose", 1))
-    			Report.report(5,"building call graph ...");
+            if(Report.verbose)
+    			Report.reporter.report(5,"building call graph ...");
             return engine.buildCallGraph(entrypoints);
         }catch (Throwable t) {
         	System.err.println(t); 
@@ -170,27 +170,27 @@ public class X102IRGoal extends SourceGoal_c {
 		HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
 		X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 		CallGraph cg = buildCallGraph();
-		if(Report.should_report("verbose", 1))
-			Report.report(5,"call graph built!\nanalyzing programs ...");
+		if(Report.verbose)
+			Report.reporter.report(5,"call graph built!\nanalyzing programs ...");
 		calltable = x10fa.build(cg,calltable);
 		calltable = CallTableUtil.findPatterns(calltable);
 		if (ifDump) {
 			CallTableUtil.dumpCallTable(calltable);
 		}
 		if (ifExpanded) {
-			if(Report.should_report("verbose", 1))
-    			Report.report(5,"expanding talbe ...");
+			if(Report.verbose)
+    			Report.reporter.report(5,"expanding table ...");
 			CallTableUtil.expandCallTable(calltable, mask);
 			// CallTableUtil.updateAllArity(calltable);
 			// CallTableUtil.expandCallTable(calltable, mask);
 		}
 		if (ifDump && ifExpanded) {
-			if(Report.should_report("verbose", 1))
-    			Report.report(5,"New Talbe:");
+			if(Report.verbose)
+    			Report.reporter.report(5,"New Table:");
 			CallTableUtil.dumpCallTable(calltable);
 		}
-		if(Report.should_report("verbose", 1))
-			Report.report(5,"done!");
+		if(Report.verbose)
+			Report.reporter.report(5,"done!");
 		return calltable;
 	}
     */
