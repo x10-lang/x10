@@ -315,7 +315,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                             // you can test it with this code:                            
                             //{ val p[i,j]: Array[Int] = new Array[Int](2); } // ShouldNotBeERR: Message: Semantic Error: Method operator()(i0: x10.lang.Int){x10.array.Array#this.x10.array.Array#rank==1}[] in x10.array.Array[x10.lang.Int]{self.x10.array.Array#rank==1, self==p, p.x10.array.Array#size==2} cannot be called with arguments (x10.lang.Int{self==1}); Call invalid; calling environment does not entail the method guard.
                         } else
-                            Errors.issue(tc.job(), new SemanticException("You can exploded the Array only if its has the constraint {rank==1,size="+num+"}", pos));
+                            Errors.issue(tc.job(), new SemanticException("You can explode the Array only if it has the constraint {rank==1,size="+num+"}", pos));
                     } else {
                         cType = cType.addRank(num);
                     }
