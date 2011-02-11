@@ -112,7 +112,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                     } catch (java.lang.Error e) {
                         throw e;
                     } catch (java.lang.Throwable t) {
-                        throw new x10.runtime.impl.java.X10WrappedThrowable(t);
+                        throw new x10.runtime.impl.java.WrappedThrowable(t);
                     }
                 }
 
@@ -242,7 +242,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
 		} catch (java.io.IOException e){
 			e.printStackTrace();
-            throw new x10.runtime.impl.java.X10WrappedThrowable(e);
+            throw new x10.runtime.impl.java.WrappedThrowable(e);
 		} finally {
 			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
 		}
