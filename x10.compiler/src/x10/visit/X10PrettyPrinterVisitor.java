@@ -114,6 +114,7 @@ import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.Finish_c;
 import x10.ast.ForLoop_c;
+import x10.ast.HasZeroTest_c;
 import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
@@ -3180,6 +3181,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		new RuntimeTypeExpander(er, sup.type()).expand(tr);
 		w.write("))");
+	}
+
+	public void visit(HasZeroTest_c n) {
+	    TypeNode sub = n.parameter();
+
+	    w.write("((");
+	    new RuntimeTypeExpander(er, sub.type()).expand(tr);
+	    w.write(").hasZero())");
 	}
 
 	// This is an enhanced version of Binary_c#prettyPrint(CodeWriter, PrettyPrinter)

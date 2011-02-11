@@ -89,6 +89,10 @@ public class RuntimeType<T> implements Type<T> {
         return false;
     }
 
+    public boolean hasZero() {
+        return true;
+    }
+
     public boolean instanceof$(Object o) {
         if (o == null) {return false;}
         if (o.getClass() == base) {

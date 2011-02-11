@@ -164,6 +164,7 @@ import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.Finish_c;
 import x10.ast.ForLoop_c;
+import x10.ast.HasZeroTest_c;
 import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
@@ -3515,6 +3516,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             ));
 		}
 		sw.write("()");
+	}
+
+	public void visit(HasZeroTest_c n) {
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    sw.write("x10aux::haszero");
+	    sw.write(chevrons(
+	            Emitter.translateType(n.parameter().type(), true)
+	    ));
+	    sw.write("()");
 	}
 
 	public void visit(X10Instanceof_c n) {
