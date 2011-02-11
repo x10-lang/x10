@@ -51,15 +51,11 @@ endif
 
 ifdef DEBUG
   CXXFLAGS += -g
-else
-  ifdef USE_GCC
-    CXXFLAGS += -g1
-  endif
 endif
 
 ifdef USE_BFD
   CXXFLAGS += -DUSE_BFD
-  CXXFLAGS += -g2
+  CXXFLAGS += -g
 endif
 
 ifndef JAVA_HOME

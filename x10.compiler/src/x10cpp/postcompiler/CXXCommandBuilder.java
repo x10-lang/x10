@@ -111,10 +111,6 @@ public class CXXCommandBuilder {
     public void addPreArgs(ArrayList<String> cxxCmd) {
         if (options.x10_config.DEBUG) {
             cxxCmd.add("-g");
-        } else {
-            if (!usingXLC()) {
-                cxxCmd.add("-g1");
-            }
         }
 
         // x10rt and other misc header files
