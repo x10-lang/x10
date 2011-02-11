@@ -16,16 +16,16 @@ import harness.x10Test;
  */
 class XTENLANG_2299 extends x10Test {
 
-  def test[T](t0:T) {
-    var t:T;
+  def test[T](t0:T, t1:T) {
+    var t:T = t0;
     finish {
-      async t = t0;
+      async t = t1;
     }
     return t;
   }
 
   public def run(): boolean {
-    return test[String]("a") == "a";
+    return test[String]("a", "b").equals("b");
   }
             
   public static def main(Array[String](1)) {
