@@ -21,6 +21,7 @@
     <property name="bash.exe" value="bash"/>
     <property name="tar.exe" value="tar"/>
     <property name="optimize" value="false" />
+    <property name="debug" value="false" />
     <property name="INLINE_OPTIMIZATIONS" value="false" />
     <property name="EXPERIMENTAL" value="false" />
     <property name="DISABLE_GC" value="false" />
@@ -107,8 +108,11 @@
     <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
         <isset property="bdwgc.enabled" />
     </condition>
-    <condition property="cppmake.optimize" value="OPTIMIZE=1" else="DEBUG=1">
+    <condition property="cppmake.optimize" value="OPTIMIZE=1" else="DUMMY_ARG=1">
         <istrue value="${optimize}" />
+    </condition>
+    <condition property="cppmake.debug" value="DEBUG=1" else="DUMMY_ARG=1">
+        <istrue value="${debug}" />
     </condition>
     <condition property="cppmake.experimental" value="EXPERIMENTAL=1" else="DUMMY_ARG=1">
         <istrue value="${EXPERIMENTAL}" />
@@ -186,7 +190,7 @@
             <arg value="-j1" />
             <arg value="clean"/>
             <arg value="${cppmake.x10rt_mpi}" />
-        	<arg value="${cppmake.x10rt_pami}" />
+            <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_pgas}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
@@ -198,8 +202,9 @@
             <arg value="-j1" />
             <arg value="install" />
             <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.debug}" />
             <arg value="${cppmake.x10rt_mpi}" />
-        	<arg value="${cppmake.x10rt_pami}" />
+       	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_pgas}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
@@ -219,6 +224,7 @@
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.experimental}" />
             <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.debug}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.cross_compile_bgp}" />
@@ -231,6 +237,7 @@
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.experimental}" />
             <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.debug}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.cross_compile_bgp}" />
@@ -242,6 +249,7 @@
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.experimental}" />
             <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.debug}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.cross_compile_bgp}" />
@@ -347,6 +355,7 @@
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
             <arg value="-j1" />
             <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.debug}" />
             <arg value="${cppmake.x10rt_mpi}" />
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_pgas}" />
@@ -361,6 +370,7 @@
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.experimental}" />
             <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.debug}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.cross_compile_bgp}" />

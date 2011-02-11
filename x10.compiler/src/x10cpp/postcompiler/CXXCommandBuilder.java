@@ -109,7 +109,13 @@ public class CXXCommandBuilder {
      * @param cxxCmd the container to which to append the arguments.
      */
     public void addPreArgs(ArrayList<String> cxxCmd) {
-        cxxCmd.add("-g");
+        if (options.x10_config.DEBUG) {
+            cxxCmd.add("-g");
+        } else {
+            if (!usingXLC()) {
+                cxxCmd.add("-g1");
+            }
+        }
 
         // x10rt and other misc header files
         cxxCmd.add("-I"+options.distPath()+"/include");
