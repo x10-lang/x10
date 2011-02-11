@@ -382,7 +382,9 @@ public abstract class Scheduler {
             }
 
             // pretty-print this pass if we need to.
-            if (job != null && extInfo.getOptions().print_ast.contains(goal.name())) {
+            if (job != null &&
+                (extInfo.getOptions().print_ast.contains(goal.name()) ||
+                 extInfo.getOptions().print_ast.contains("printall"))) {
                 System.err.println("--------------------------------" +
                                    "--------------------------------");
                 System.err.println("Pretty-printing AST for " + job +
@@ -392,7 +394,9 @@ public abstract class Scheduler {
             }
 
             // dump this pass if we need to.
-            if (job != null && extInfo.getOptions().dump_ast.contains(goal.name())) {
+            if (job != null && 
+                (extInfo.getOptions().dump_ast.contains(goal.name()) ||
+                 extInfo.getOptions().dump_ast.contains("dumpall"))) {
                 System.err.println("--------------------------------" +
                                    "--------------------------------");
                 System.err.println("Dumping AST for " + job +

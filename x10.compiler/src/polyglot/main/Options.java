@@ -379,8 +379,8 @@ public class Options {
         usageForFlag(out, "-errors <num>", "set the maximum number of errors");
         usageForFlag(out, "-w <num>", 
                           "set the maximum width of the .java output files");
-        usageForFlag(out, "-dump <pass>", "dump the ast after pass <pass>");
-        usageForFlag(out, "-print <pass>",
+        usageForFlag(out, "-dump <pass>|dumpall", "dump the ast after pass <pass>");
+        usageForFlag(out, "-print <pass>|printall",
 	                  "pretty-print the ast after pass <pass>");
         usageForFlag(out, "-disable <pass>", "disable pass <pass>");
 //        usageForFlag(out, "-scramble [seed]", "scramble the ast (for testing)");
