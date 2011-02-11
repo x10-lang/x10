@@ -447,7 +447,7 @@ public class Converter {
 
 		if (ts.isUnknown(toType)) {
 		    if (opts.x10_config.CHECK_INVARIANTS)
-			Errors.issue(tc.job(), new SemanticException("Complaining about UnknownType", cast.position()));
+			Errors.issue(tc.job(), new Errors.UnknownType(cast.position()));
 		    return cast;
 		}
 
@@ -462,7 +462,7 @@ public class Converter {
 		        try {
 		        toType = Types.addSelfBinding((Type) toType.copy(), sv);
 		        } catch (XFailure f) {
-		            throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+		            throw new Errors.InconsistentTypeSelf(toType, sv, cast.position());
 		        }
 
 		    X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);

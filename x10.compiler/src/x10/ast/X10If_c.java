@@ -43,7 +43,7 @@ public class X10If_c extends If_c {
 
         if (! ts.isSubtype(cond.type(), ts.Boolean(), tc.context())) {
             Errors.issue(tc.job(),
-                    new SemanticException("Condition of if statement must have boolean type, and not " + cond.type() + ".", cond.position()),
+                    new Errors.IfStatementMustHaveBooleanType(cond.type(), cond.position()),
                     this);
         }
 

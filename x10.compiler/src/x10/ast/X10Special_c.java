@@ -102,7 +102,7 @@ public class X10Special_c extends Special_c implements X10Special {
             if (c.inSuperTypeDeclaration()) {
                 if (kind == SUPER) {
                     Errors.issue(tc.job(),
-                            new SemanticException("Cannot refer to \"super\" from within a class or interface declaration header."),
+                            new Errors.CannotReferToSuperFromDeclarationHeader(position()),
                             this);
                 }
                 t = c.supertypeDeclarationType().asType();
@@ -123,17 +123,14 @@ public class X10Special_c extends Special_c implements X10Special {
                 t=ct;
                 if (!c.currentClass().hasEnclosingInstance(ct)) {
                     Errors.issue(tc.job(),
-                            new SemanticException("The nested class \"" 
-                                                  +c.currentClass() 
-                                                  + "\" does not have an enclosing instance of type \"" 
-                                                  +ct + "\".", qualifier.position()),
+                            new Errors.NestedClassMissingEclosingInstance(c.currentClass(), ct, qualifier.position()),
                             this);
                 }
                 
             }
             else {
                 Errors.issue(tc.job(),
-                        new SemanticException("Invalid qualifier for \"this\" or \"super\".", qualifier.position()),
+                        new Errors.InvalidQualifierForSuper(qualifier.position()),
                         this);
             }
         }

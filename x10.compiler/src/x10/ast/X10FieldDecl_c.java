@@ -502,7 +502,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                     while (toExamine.size()>0) {
                         final X10ParsedClassType curr = toExamine.remove(toExamine.size() - 1);
                         if (!isFirstTime && Types.getDef(curr)==goalDef) {
-                            Errors.issue(tc.job(),new SemanticException("Circularity in the usage of structs will cause this field to have infinite size. Use a class instead of a struct.",position),this);
+                            Errors.issue(tc.job(),new Errors.StructsCircularity(position),this);
                             break;
                         }
                         isFirstTime = false;

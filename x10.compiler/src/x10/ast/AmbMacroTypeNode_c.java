@@ -396,7 +396,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
     	        result.visit(ac);
     	    } catch (InternalCompilerError e) {
     	        Errors.issue(childtc.job(),
-    	                new SemanticException(e.getMessage(), e.position()), result);
+    	                new Errors.GeneralError(e.getMessage(), e.position()), result);
     	    }
     	    
     	    if (ac.error != null) {

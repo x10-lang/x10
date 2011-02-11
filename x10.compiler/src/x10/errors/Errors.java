@@ -66,6 +66,7 @@ import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -1220,8 +1221,8 @@ public class Errors {
         }
     }
 	public static class CouldNotFindEnclosingClass extends EqualByTypeAndPosException {
-        public CouldNotFindEnclosingClass(Name id, Position p) {
-            super("Could not find enclosing class or package for type definition \"" + id + "\".", p);
+        public CouldNotFindEnclosingClass(polyglot.types.Name name, Position p) {
+            super("Could not find enclosing class or package for type definition \"" + name + "\".", p);
         }
     }
 	public static class TypeIsconsistent extends EqualByTypeAndPosException {
@@ -1253,7 +1254,7 @@ public class Errors {
         }
     }
 	public static class UnableToFindImplementingPropertyMethod extends EqualByTypeAndPosException {
-        public UnableToFindImplementingPropertyMethod(Name name, Position p) {
+        public UnableToFindImplementingPropertyMethod(polyglot.types.Name name, Position p) {
             super("Unable to find the implementing property method for interface property "+name, p);
         }
     }
@@ -1263,7 +1264,7 @@ public class Errors {
         }
     }
 	public static class LocalVariableNotAllowedInContainer extends EqualByTypeAndPosException {
-        public LocalVariableNotAllowedInContainer(Name liName, Position p) {
+        public LocalVariableNotAllowedInContainer(polyglot.types.Name liName, Position p) {
             super("A var local variable " + liName
 					+ " is not allowed in a constraint.", 
 					p);
@@ -1281,17 +1282,17 @@ public class Errors {
         }
     }
 	public static class TypeParameterMultiplyDefined extends EqualByTypeAndPosException {
-        public TypeParameterMultiplyDefined(Name name, Position p) {
+        public TypeParameterMultiplyDefined(polyglot.types.Name name, Position p) {
             super("Type parameter \"" + name + "\" multiply defined.", p);
         }
     }
 	public static class LocalVariableMultiplyDefined extends EqualByTypeAndPosException {
-        public LocalVariableMultiplyDefined(Name name, Position p) {
+        public LocalVariableMultiplyDefined(polyglot.types.Name name, Position p) {
             super("Local variable \"" + name + "\" multiply defined.", p);
         }
     }
 	public static class CouldNotFindNonStaticMemberClass extends EqualByTypeAndPosException {
-        public CouldNotFindNonStaticMemberClass(Name name, Position p) {
+        public CouldNotFindNonStaticMemberClass(polyglot.types.Name name, Position p) {
             super("Could not find non-static member class \"" + name + "\".", p);
         }
     }
@@ -1375,6 +1376,124 @@ public class Errors {
 	public static class NoOperationFoundForOperand extends EqualByTypeAndPosException {
         public NoOperationFoundForOperand(Unary.Operator op, Type t, Position p) {
             super("No operation " + op + " found for operand " + t + ".", p);
+        }
+    }
+	public static class UnknownType extends EqualByTypeAndPosException {
+        public UnknownType(Position p) {
+            super("Complaining about UnknownType", p);
+        }
+    }
+	public static class InconsistentTypeSelf extends EqualByTypeAndPosException {
+        public InconsistentTypeSelf(Type toType, XTerm sv, Position p) {
+            super("Inconsistent type: " + toType + " {self==" + sv+"}", p);
+        }
+    }
+	public static class AnnotationMustImplementType extends EqualByTypeAndPosException {
+		public static enum Element { types, expressions, statements, method_declarations, field_declarations,
+			class_declarations, package_declarations, imports;
+			public String toString() {
+				return name().replace('_', ' ');
+			}
+		};
+        public AnnotationMustImplementType(X10ClassType at, Element element, Type type, Position p) {
+            super("Annotation "+ at +" on " + element + " must implement " + type, p);
+        }
+        public AnnotationMustImplementType(X10ClassType at, Type type, Position p) {
+            super("Annotation "+ at +" must implement " + type, p);
+        }
+    }
+	public static class GeneralError extends EqualByTypeAndPosException {
+		public GeneralError(String str, Position p) {
+            super(str, p);
+        }
+    }
+	public static class RecursiveTypeDefinition extends EqualByTypeAndPosException {
+		public RecursiveTypeDefinition(Position p) {
+            super("Recursive type definition; type definition depends on itself.", p);
+        }
+    }
+	public static class MethodsOverrideWithCompatibleSignatures extends EqualByTypeAndPosException {
+		public MethodsOverrideWithCompatibleSignatures(MethodInstance mj, MethodInstance mi, Position p) {
+            super("Method " + mj.signature() + " in " + mj.container() + " and method " + mi.signature() + " in " + mi.container()
+                    + " override methods with compatible signatures.", p);
+        }
+    }
+	public static class DumplicateTypeDefinition extends EqualByTypeAndPosException {
+		public DumplicateTypeDefinition(TypeDef mj, TypeDef mi, Position p) {
+            super("Duplicate type definition \"" + mj + "\"; previous declaration at " + mi.position() + ".", p);
+        }
+    }
+	public static class TypeDefinitionSameNameAsMemberClass extends EqualByTypeAndPosException {
+		public TypeDefinitionSameNameAsMemberClass(TypeDef mi, Type ct, Position p) {
+            super("Type definition " + mi + " has the same name as member class " + ct + ".", p);
+        }
+    }
+	public static class ClockedLoopMayOnlyBeClockedOnClock extends EqualByTypeAndPosException {
+		public ClockedLoopMayOnlyBeClockedOnClock(Position p) {
+            super("Clocked loop may only be clocked on a clock.", p);
+        }
+    }
+	public static class TernaryExpressiongMustBeBoolean extends EqualByTypeAndPosException {
+		public TernaryExpressiongMustBeBoolean(Position p) {
+            super("Condition of ternary expression must be of type boolean.", p);
+        }
+    }
+	public static class ConstructorGuardNotSatisfied extends EqualByTypeAndPosException {
+		public ConstructorGuardNotSatisfied(Position p) {
+            super("The constructor guard was not satisfied.", p);
+        }
+    }
+	public static class DoStatementMustHaveBooleanType extends EqualByTypeAndPosException {
+		public DoStatementMustHaveBooleanType(Type type, Position p) {
+            super("Condition of do statement must have boolean type, and not " + type + ".", p);
+        }
+    }
+	public static class StructsCircularity extends EqualByTypeAndPosException {
+		public StructsCircularity(Position p) {
+            super("Circularity in the usage of structs will cause this field to have infinite size. Use a class instead of a struct.",p);
+        }
+    }
+	public static class IfStatementMustHaveBooleanType extends EqualByTypeAndPosException {
+		public IfStatementMustHaveBooleanType(Type type, Position p) {
+            super("Condition of if statement must have boolean type, and not " + type + ".", p);
+        }
+    }
+	public static class CannotReturnFromAsync extends EqualByTypeAndPosException {
+		public CannotReturnFromAsync(Position p) {
+            super("Cannot return from an async.",p);
+        }
+    }
+	public static class SourceContainsMoreThanOnePublicDeclaration extends EqualByTypeAndPosException {
+		public SourceContainsMoreThanOnePublicDeclaration(Position p) {
+            super("The source contains more than one public declaration.", p);
+        }
+    }
+	public static class CannotReferToSuperFromDeclarationHeader extends EqualByTypeAndPosException {
+		public CannotReferToSuperFromDeclarationHeader(Position p) {
+            super("Cannot refer to \"super\" from within a class or interface declaration header.", p);
+        }
+    }
+	public static class NestedClassMissingEclosingInstance extends EqualByTypeAndPosException {
+		public NestedClassMissingEclosingInstance(X10ClassType c, Type ct, Position p) {
+            super("The nested class \"" 
+                    +c 
+                    + "\" does not have an enclosing instance of type \"" 
+                    +ct + "\".", p);
+        }
+    }
+	public static class InvalidQualifierForSuper extends EqualByTypeAndPosException {
+		public InvalidQualifierForSuper(Position p) {
+            super("Invalid qualifier for \"this\" or \"super\".", p);
+        }
+    }
+	public static class WhileStatementMustHaveBooleanType extends EqualByTypeAndPosException {
+		public WhileStatementMustHaveBooleanType(Type type, Position p) {
+            super("Condition of while statement must have boolean type, and not " + type + ".", p);
+        }
+    }
+	public static class MaxMacroExpansionDepth extends EqualByTypeAndPosException {
+		public MaxMacroExpansionDepth(Type t, Position p) {
+            super("Reached max macro expansion depth with " + t, p);
         }
     }
 }

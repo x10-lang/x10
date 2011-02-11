@@ -54,34 +54,34 @@ public class AnnotationChecker extends ContextVisitor {
 		List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
 		
 		for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
-			AnnotationNode a = i.next(); 
+			AnnotationNode a = i.next();
 			X10ClassType at = a.annotationInterface();
 			if (n instanceof TypeNode && ! at.isSubtype(TA, context)) {
-				Errors.issue(job, new SemanticException("Annotation "+at+" on types must implement " + TA, n.position()));
+				Errors.issue(job, new Errors.AnnotationMustImplementType(at, Errors.AnnotationMustImplementType.Element.types, TA, n.position()));
 			}
 			else if (n instanceof Expr && ! at.isSubtype(EA, context)) {
-				Errors.issue(job, new SemanticException("Annotation "+at+" on expressions must implement " + EA, n.position()));
+				Errors.issue(job, new Errors.AnnotationMustImplementType(at, Errors.AnnotationMustImplementType.Element.expressions, EA, n.position()));
 			}
 			else if (n instanceof Stmt && ! at.isSubtype(SA, context)) {
-				Errors.issue(job, new SemanticException("Annotation "+at+" on statements must implement " + SA, n.position()));
+				Errors.issue(job, new Errors.AnnotationMustImplementType(at, Errors.AnnotationMustImplementType.Element.statements, SA, n.position()));
 			}
 			else if (n instanceof MethodDecl && ! at.isSubtype(MA, context)) {
-				Errors.issue(job, new SemanticException("Annotation "+at+" on method declarations must implement " + MA, n.position()));
+				Errors.issue(job, new Errors.AnnotationMustImplementType(at, Errors.AnnotationMustImplementType.Element.method_declarations, MA, n.position()));
 			}
 			else if (n instanceof FieldDecl && ! at.isSubtype(FA, context)) {
-				Errors.issue(job, new SemanticException("Annotation "+at+" on field declarations must implement " + FA, n.position()));
+				Errors.issue(job, new Errors.AnnotationMustImplementType(at, Errors.AnnotationMustImplementType.Element.field_declarations, FA, n.position()));
 			}
 			else if (n instanceof ClassDecl && ! at.isSubtype(CA, context)) {
-				Errors.issue(job, new SemanticException("Annotation "+at+" on class declarations must implement " + CA, n.position()));
+				Errors.issue(job, new Errors.AnnotationMustImplementType(at, Errors.AnnotationMustImplementType.Element.class_declarations, CA, n.position()));
 			}
 			else if (n instanceof PackageNode && parent instanceof SourceFile && ! at.isSubtype(PA, context)) {
-				Errors.issue(job, new SemanticException("Annotation "+at+" on package declarations must implement " + PA, n.position()));
+				Errors.issue(job, new Errors.AnnotationMustImplementType(at, Errors.AnnotationMustImplementType.Element.package_declarations, PA, n.position()));
 			}
 			else if (n instanceof Import && ! at.isSubtype(IA, context)) {
-				Errors.issue(job, new SemanticException("Annotation "+at+" on imports must implement " + IA, n.position()));
+				Errors.issue(job, new Errors.AnnotationMustImplementType(at, Errors.AnnotationMustImplementType.Element.imports, IA, n.position()));
 			}
 			else if (! at.isSubtype(A, context)) {
-				Errors.issue(job, new SemanticException("Annotation"+at+" must implement " + A, n.position()));
+				Errors.issue(job, new Errors.AnnotationMustImplementType(at, A, n.position()));
 			}
 		}
 		

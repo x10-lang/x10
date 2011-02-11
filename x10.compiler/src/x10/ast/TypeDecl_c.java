@@ -343,7 +343,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	    if (type instanceof MacroType) {
 		MacroType mt = (MacroType) type;
 		if (mt.def() == typeDef) {
-		    throw new SemanticException("Recursive type definition; type definition depends on itself.", position());
+		    throw new Errors.RecursiveTypeDefinition(position());
 		}
 	    }
 	    if (type instanceof ConstrainedType) {

@@ -279,7 +279,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 }
             }
             catch (XFailure e) {
-                Errors.issue(tc.job(), new SemanticException(e.getMessage(), e), this);
+                Errors.issue(tc.job(), new Errors.GeneralError(e.getMessage(), position), this);
             }
         }
     }

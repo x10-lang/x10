@@ -3961,7 +3961,7 @@ public class TypeSystem_c implements TypeSystem
     }
     private Type expandMacros(Type t, int depth) {
         if (depth > TypeSystem_c.EXPAND_MACROS_DEPTH) {
-            Errors.issue(t.typeSystem().extensionInfo(),new SemanticException("Reached max macro expansion depth with " + t),t.position());
+            Errors.issue(t.typeSystem().extensionInfo(),new Errors.MaxMacroExpansionDepth(t,t.position()),t.position());
             return unknownType(Position.COMPILER_GENERATED); // bottom
         }
         /*if (t instanceof AnnotatedType)

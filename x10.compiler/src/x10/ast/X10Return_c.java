@@ -97,7 +97,7 @@ public class X10Return_c extends Return_c {
 		CodeDef ci = c.currentCode();
 		
 		if (((X10Context_c)c).inAsyncScope()) { // can return from an at but not from an async
-		    Errors.issue(tc.job(), new SemanticException("Cannot return from an async."), this);
+		    Errors.issue(tc.job(), new Errors.CannotReturnFromAsync(position()), this);
 		    return this;
 		}
 

@@ -69,7 +69,6 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 		List<TypeNode> typeArguments, List<Expr> arguments) {
 		super(pos, kind, qualifier, arguments);
 		this.typeArguments = typeArguments;
-		
 	}
 	
 	// Override to remove reference to ts.Object(), which will cause resolver loop.
@@ -265,7 +264,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
         if (ci.checkGuardAtRuntime()) {
             // currently we can't do runtime code generation for a ctor call that needs to check a ctor guard,
             // see XTENLANG-2375 and XTENLANG-2376
-            Errors.issue(tc.job(), new SemanticException("The constructor guard was not satisfied."), n);
+            Errors.issue(tc.job(), new Errors.ConstructorGuardNotSatisfied(n.position()), n);
         } else {
             Warnings.checkErrorAndGuard(tc, ci, n);
         }
