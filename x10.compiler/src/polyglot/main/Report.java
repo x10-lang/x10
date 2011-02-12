@@ -18,7 +18,6 @@ public class Report {
    * We handle them individually here until uses go away.
    */
   public static boolean trace;
-  public static boolean TypeSystem;
   public static int workstealing;
   public static boolean verbose;
 
@@ -26,7 +25,6 @@ public class Report {
       reporter = theReporter;
       synchronized (reporter) {
           trace |= reporter.should_report("trace",1);
-          TypeSystem |= reporter.should_report("TypeSystem",1);
           if (reporter.should_report("workstealing",1)) {
               int level = reporter.level("workstealing");
               workstealing = (level > workstealing) ? level : workstealing;
