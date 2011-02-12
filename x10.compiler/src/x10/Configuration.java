@@ -54,6 +54,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean LOOP_OPTIMIZATIONS = true;
     private static final String LOOP_OPTIMIZATIONS_desc = "Optimize rectangular region iteration";
 
+    public boolean SPLIT_CONSTRUCTORS = false;
+    private static final String SPLIT_CONSTRUCTORS_desc = "Replace New with Allocation and ConstructorCall nodes";
+    
     public boolean EXPERIMENTAL = false;
     private static final String EXPERIMENTAL_desc = "Enable experimental optimizations";
 

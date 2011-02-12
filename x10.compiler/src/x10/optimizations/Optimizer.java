@@ -24,6 +24,7 @@ import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
+import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.DeadVariableEliminator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.Inliner;
@@ -39,7 +40,7 @@ public class Optimizer {
         if (config.INLINE_METHODS_IMPLICIT) return true;
         return false;
     }
-    
+
     public static boolean FLATTENING(ExtensionInfo extInfo, boolean javaBackEnd) {
         Configuration config = extInfo.getOptions().x10_config;
         if (config.FLATTEN_EXPRESSIONS)          return true;
@@ -71,6 +72,9 @@ public class Optimizer {
     private List<Goal> goals() {
         List<Goal> goals = new ArrayList<Goal>();
         Configuration config = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
+        if (config.SPLIT_CONSTRUCTORS) {
+            goals.add(ConstructorSplitter());
+        }
         if (config.LOOP_OPTIMIZATIONS) {
             goals.add(LoopUnrolling());
             goals.add(ForLoopOptimizations());
@@ -115,6 +119,12 @@ public class Optimizer {
     public Goal DeadVariableEliminator() {
         NodeVisitor visitor = new DeadVariableEliminator(job, ts, nf);
         Goal goal = new ValidatingVisitorGoal("Dead Variable Elimination", job, visitor);
+        return goal.intern(scheduler);
+    }
+
+    public Goal ConstructorSplitter() {
+        NodeVisitor visitor = new ConstructorSplitterVisitor(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("Constuctor Splitter", job, visitor);
         return goal.intern(scheduler);
     }
 
