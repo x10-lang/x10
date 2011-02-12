@@ -40,6 +40,16 @@ public interface Call extends Expr, ProcedureCall
      * Set the name of the method to call.
      */
     X10Call name(Id name);
+    
+    /**
+     * @return whether or not the non-virtual bit is set
+     */
+    boolean isNonVirtual();
+    
+    /**
+     * @return a copy of the Call node with the non-virtual bit set
+     */
+    X10Call markNonVirtual();
 
     /**
      * Indicates if the target of this call is implicit, that 

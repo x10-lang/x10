@@ -914,4 +914,23 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    w.write(")");
 	    w.end();
 	  }
+
+   private boolean nonVirtual = false;
+   
+    /* (non-Javadoc)
+     * @see polyglot.ast.Call#isNonVirtual()
+     */
+    public boolean isNonVirtual() {
+        return nonVirtual;
+    }
+
+    /* (non-Javadoc)
+     * @see polyglot.ast.Call#markNonVirtual()
+     */
+    public X10Call markNonVirtual() {
+        if (!nonVirtual) return this;
+        X10Call_c c = (X10Call_c) copy();
+        c.nonVirtual = true;
+        return c;
+    }
 }
