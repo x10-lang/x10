@@ -291,4 +291,11 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	public String toString() {
 	    return (qualifier != null ? qualifier + "." : "") + kind + arguments;
 	}
+
+    /* (non-Javadoc)
+     * @see polyglot.ast.ConstructorCall#target(polyglot.ast.Expr)
+     */
+    public X10ConstructorCall target(Expr target) {
+        return (X10ConstructorCall) super.target(target);
+    }
 }
