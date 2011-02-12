@@ -46,9 +46,5 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
 
         cxxCmd.add("-Wl,-export-dynamic");
         cxxCmd.add("-lrt");
-        if (options.use_bfd) {
-            cxxCmd.add("-lbfd");
-            cxxCmd.add("-liberty");
-        }
     }
 }

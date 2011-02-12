@@ -27,7 +27,6 @@
     <property name="DISABLE_GC" value="false" />
     <property name="NO_CHECKS" value="false" />
     <property name="MULTI_NODE" value="false" />	<!--managed x10 only-->
-    <property name="USE_BFD" value="false" />
     <property name="X10RT_MPI" value="false" />
     <property name="X10RT_PAMI" value="false" />
     <property name="X10RT_PGAS" value="true" />
@@ -119,9 +118,6 @@
     </condition>
     <condition property="cppmake.no_checks" value="NO_CHECKS=1" else="CHECKS=1">
         <istrue value="${NO_CHECKS}" />
-    </condition>
-    <condition property="cppmake.use_bfd" value="USE_BFD=1" else="AVOID_BFD=1">
-        <istrue value="${USE_BFD}" />
     </condition>
     <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">
         <istrue value="${X10RT_MPI}" />
@@ -226,7 +222,6 @@
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
             <arg value="${cppmake.no_checks}" />
-            <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
@@ -239,7 +234,6 @@
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
             <arg value="${cppmake.no_checks}" />
-            <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
@@ -251,7 +245,6 @@
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
             <arg value="${cppmake.no_checks}" />
-            <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
@@ -372,7 +365,6 @@
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
             <arg value="${cppmake.no_checks}" />
-            <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
