@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assert;
@@ -33,6 +34,7 @@ import polyglot.ast.FieldDecl;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
+import polyglot.ast.Id;
 import polyglot.ast.If;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Labeled;
@@ -40,6 +42,7 @@ import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.Loop;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -110,6 +113,21 @@ public final class ExpressionFlattener extends ContextVisitor {
     
     List<Labeled> labels = new ArrayList<Labeled>();
     Map<Node, List<Labeled>> labelMap = CollectionFactory.newHashMap();
+    
+    /*
+     * When flattening For statements we introduce a new label for the body of the
+     * for loop. Continue statements within the For statement must be rewritten as
+     * breaks to the new label. The Continues are processed before the For statements
+     * so we must create the new labels on enter in case it is needed. Other loops
+     * are not affected.
+     */
+    private class labelRewrite {
+        Id oldLabel;
+        Id newLabel;
+        boolean newLabelUsed;
+    }
+    
+    private Vector<labelRewrite> loopLabels = new Vector<labelRewrite>(10,10);
 
     /**
      * @param job the job to run
@@ -194,7 +212,17 @@ public final class ExpressionFlattener extends ContextVisitor {
     
     @Override
     protected NodeVisitor enterCall(Node parent, Node child) {
-        if (parent instanceof Labeled && child instanceof Stmt) {
+         if (child instanceof Loop) {
+             labelRewrite labelRewriteMap = new labelRewrite();
+             if (child instanceof For) {
+                labelRewriteMap.newLabel = syn.createLabel(child.position());
+             }
+             if (parent instanceof Labeled) {
+                 labelRewriteMap.oldLabel = ((Labeled)parent).labelNode();
+             }
+             loopLabels.add(labelRewriteMap);
+         }
+         if (parent instanceof Labeled && child instanceof Stmt) {
             labels.add((Labeled) parent);
             if (!(child instanceof Labeled)) {
                 List<Labeled> l = new ArrayList<Labeled>(labels);
@@ -215,8 +243,11 @@ public final class ExpressionFlattener extends ContextVisitor {
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
         if (n instanceof Labeled) 
             return flattenLabeled((Labeled) n);
-        if (parent instanceof Labeled && n instanceof Stmt) {
-            return flattenLabeledNode(n, labelMap.remove(old));
+        if (n instanceof Loop) {
+           Node returnNode = flattenLoop(n, parent instanceof Labeled ?
+                                                 labelMap.remove(old) : null);
+           loopLabels.setSize(loopLabels.size()-1);
+           return returnNode;
         }
         if (n instanceof Expr) return flattenExpr((Expr) n);
         if (n instanceof Stmt) return flattenStmt((Stmt) n);
@@ -236,11 +267,12 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param list
      * @return
      */
-    private Node flattenLabeledNode(Node n, List<Labeled> list) {
+    private Node flattenLoop(Node n, List<Labeled> list) {
         if (n instanceof For) return flattenFor((For) n, list);
         if (n instanceof ForLoop) return flattenForLoop((ForLoop) n, list);
-        if (n instanceof While) return flattenWhile((While_c) n, list);
-        if (n instanceof Do) return flattenDo((Do_c) n, list);
+        if (n instanceof While) return flattenWhile((While_c) n, list);  // TODO: fix polyglot to allow getters in the interface
+        if (n instanceof Do) return flattenDo((Do_c) n, list); // TODO: fix polyglot to allow getters in the interface
+        assert false;  
         return null;
     }
 
@@ -758,10 +790,6 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (stmt instanceof LocalDecl) return flattenLocalDecl((LocalDecl) stmt);
         else if (stmt instanceof Block)     return flattenBlock((Block) stmt);
         else if (stmt instanceof If)        return flattenIf((If) stmt);
-        else if (stmt instanceof For)       return flattenFor((For) stmt, null);
-        else if (stmt instanceof ForLoop)   return flattenForLoop((ForLoop) stmt, null);
-        else if (stmt instanceof While)     return flattenWhile((While_c) stmt, null);  // TODO: fix polyglot to allow getters in the interface
-        else if (stmt instanceof Do)        return flattenDo((Do_c) stmt, null);        // TODO: fix polyglot to allow getters in the interface
         else if (stmt instanceof Return)    return flattenReturn((Return) stmt);
         else if (stmt instanceof Throw)     return flattenThrow((Throw) stmt);
         else if (stmt instanceof Switch)    return flattenSwitch((Switch) stmt);
@@ -772,7 +800,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (stmt instanceof AtEach)    return flattenAtEach((AtEach) stmt);
         else if (stmt instanceof AssignPropertyCall) return flattenAssignPropertyCall((AssignPropertyCall) stmt);
         else if (stmt instanceof ConstructorCall)    return flattenConstructorCall((ConstructorCall) stmt);
-        else if (stmt instanceof Branch)             return syn.createStmtSeq(stmt);
+        else if (stmt instanceof Branch)             return redirectBranch((Branch) stmt);
         else if (stmt instanceof Finish)             return syn.createStmtSeq(stmt);
         else if (stmt instanceof Next)               return syn.createStmtSeq(stmt);
         else if (stmt instanceof Try) {
@@ -1148,31 +1176,23 @@ public final class ExpressionFlattener extends ContextVisitor {
         List<Stmt> stmts = new ArrayList<Stmt>();
         Position pos = stmt.position();
         stmts.addAll(stmt.inits());
-        LocalDecl firstLDecl = syn.createLocalDecl( pos, 
-                                                    Flags.NONE, 
-                                                    Name.makeFresh("firstTime"), 
-                                                    xts.Boolean(), 
-                                                    syn.createTrue(pos) );
-        stmts.add(firstLDecl);
-        
         List<Stmt> bodyStmts = new ArrayList<Stmt>();
-        bodyStmts.add(syn.createIf( pos, 
-                                    syn.createLocal(pos, firstLDecl), 
-                                    syn.createAssignment( pos, 
-                                                          syn.createLocal(pos, firstLDecl), 
-                                                          Assign.ASSIGN, 
-                                                          syn.createFalse(pos), 
-                                                          this ),
-                                    syn.createBlock(pos, new ArrayList<Stmt>(stmt.iters())) ));
         if ((null!=stmt.cond()) && !((stmt.cond() instanceof BooleanLit) && ((BooleanLit) stmt.cond()).value()) ) {
             Expr primary = getPrimaryAndStatements(stmt.cond(), bodyStmts);
             bodyStmts.add(syn.createIf( stmt.cond().position(), 
                                         syn.createNot(stmt.cond().position(), primary, this), 
                                         syn.createBreak(stmt.cond().position()), 
                                         null) );
-            stmt = stmt.cond(syn.createTrue(pos));
+            stmt = stmt.cond(syn.createTrue(pos)); 
         }
-        bodyStmts.add(stmt.body());
+        if (loopLabels.lastElement().newLabelUsed) {
+             bodyStmts.add(syn.createLabeledStmt(stmt.body().position(), 
+                                                 loopLabels.lastElement().newLabel, 
+                                                 stmt.body()));
+        } else {
+            bodyStmts.add(stmt.body());
+        }
+        bodyStmts.add(syn.createBlock( pos, new ArrayList<Stmt>(stmt.iters())));
         stmt = stmt.inits(Collections.<ForInit>emptyList());
         stmt = stmt.iters(Collections.<ForUpdate>emptyList());
         stmt = stmt.body(syn.createBlock(pos, bodyStmts));
@@ -1182,6 +1202,43 @@ public final class ExpressionFlattener extends ContextVisitor {
         return syn.createBlock(pos, stmts);
     }
 
+    /**
+     * Redirect a branch statement.
+     * <pre>
+     * continue Label1;   ->  break new-Label1;  // if Label1 is on a For
+     * continue;          ->  break new-Label1;  // if enclosing loop is a For 
+     * </pre>
+     * 
+     * @param stmt the branch statement to possibly be redirected
+     * @return either the original branch or the redirected branch with 
+     * the same semantics as stmt
+     */
+    private StmtSeq redirectBranch(Branch stmt) {
+        if (stmt.kind() == Branch.CONTINUE) {
+            Id continueLabel = stmt.labelNode();
+            labelRewrite loopLabel = null;
+            if (continueLabel == null) {
+                loopLabel = loopLabels.lastElement();
+            } else {
+                for (int i = loopLabels.size() - 1; i >= 0; i--) {
+                    loopLabel = loopLabels.elementAt(i);
+                    if (continueLabel.id().equals(loopLabel.oldLabel.id())) break;
+                }
+            }
+            // A null newLabel => loop was not a "For" - don't redirect
+            if (loopLabel.newLabel != null) {
+                if (DEBUG) {
+                    System.out.println("rewriting a continue from old label " + loopLabel.oldLabel);
+                    System.out.println("to break with label " + loopLabel.newLabel);
+                }
+                loopLabel.newLabelUsed = true;
+                return syn.createStmtSeq(syn.createBreak(stmt.position(), loopLabel.newLabel.toString()));
+            }
+        }
+
+        return syn.createStmtSeq(stmt);
+    }
+    
     /**
      * Flatten a remote activity invocation (Future, At, or Async).
      * 

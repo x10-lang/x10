@@ -2598,6 +2598,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Block_c b) {
+	    /* 
+	     * If this block had a label, it might have Break's in it, so we need
+	     * the L_end label at the end, as the Break's get written out as "goto L_end";
+	     */
+        String label = null;
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        if (context.getLabeledStatement() == b) {
+            label = context.getLabel();
+            context.setLabel(null, null);
+        }
+
         String s = getCppImplForStmt(b);
         if (s != null) {
             sw.write(s);
@@ -2605,6 +2616,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 		sw.write("{");
 		sw.newline();
+		
+        if (label != null) {
+            sw.write("{");
+            sw.newline(0);
+            sw.begin(0);
+        }
+
 		if (b.statements().size() > 0) {
 			sw.newline(4);
 			sw.begin(0);
@@ -2619,8 +2637,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		else
 			sw.write(" ");
-		sw.newline();
-		sw.write("}");
+        if (label != null) {
+            sw.newline(0);
+            sw.write("}");
+            printLabel(label + "_end_", sw);
+            sw.write(" ;");
+            sw.newline();
+        }
+        sw.newline();
+        sw.write("}");
 	}
 
 	public void visit(StmtSeq_c n) {

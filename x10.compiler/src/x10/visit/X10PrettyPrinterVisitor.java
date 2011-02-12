@@ -2695,12 +2695,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Labeled_c n) {
 	    Stmt statement = n.statement();
 	    if (statement instanceof Block_c) {
+	        w.write(n.labelNode() + ": ");
 	        w.write("{");
 	        Block_c block = (Block_c) statement;
 	        for (Stmt s : block.statements()) {
-	            if (s instanceof Loop_c) {
-	                w.write(n.labelNode() + ": ");
-	            }
 	            tr.print(n, s, w);
 	        }
             w.write("}");
