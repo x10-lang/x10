@@ -23,7 +23,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -75,12 +75,12 @@ import x10.visit.X10InnerClassRemover;
  */
 public class WSCodeGenerator extends ContextVisitor {
     public static final int debugLevel = 5; //0: no; 3: little; 5: median; 7: heave; 9: verbose
-	public static final String WS_TOPIC = "workstealing";
-	//public static final void wsReport(int level, String message){
-	//	if(Report.should_report(WS_TOPIC, level)){
-	//		Report.report(level, message);
-	//	}
-	//}
+    public static final String WS_TOPIC = "workstealing";
+    public static final void wsReport(Reporter reporter, int level, String message) {
+        if (reporter.should_report(WS_TOPIC, level)) {
+            reporter.report(level, message);
+        }
+    }
     
     // Single static WSTransformState shared by all visitors (FIXME)
     public static WSTransformState wts; 
@@ -102,8 +102,7 @@ public class WSCodeGenerator extends ContextVisitor {
     public static void setWALATransTarget(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent target){
     	//DEBUG
     	if(debugLevel > 3){
-        	//wsReport(5, "Use WALA CallGraph Data...");    
-    		System.out.println("[WS_INFO] Use WALA CallGraph Data...");
+        	wsReport(xts.extensionInfo().getOptions().reporter, 5, "Use WALA CallGraph Data...");    
     	}
     	wts = new WSTransformState(xts, xnf, theLanguage, target);
     }
@@ -111,8 +110,7 @@ public class WSCodeGenerator extends ContextVisitor {
     public static void buildCallGraph(TypeSystem xts, NodeFactory xnf, String theLanguage) {
     	//DEBUG
     	if(debugLevel > 3){
-        	//wsReport(5, "Build Simple Graph Graph..."); 
-    		System.out.println("[WS_INFO] Build Simple Graph Graph...");
+        	wsReport(xts.extensionInfo().getOptions().reporter, 5, "Build Simple Graph Graph..."); 
     	}
     	wts = new WSTransformState(xts, xnf, theLanguage);
     }
