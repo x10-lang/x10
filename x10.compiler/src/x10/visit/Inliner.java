@@ -170,7 +170,7 @@ public class Inliner extends ContextVisitor {
         INLINE_METHODS   = config.OPTIMIZE && config.INLINE_METHODS;
         INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
         INLINE_IMPLICIT  = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
-        implicitMax      = config.EXPERIMENTAL ? 0 : 0;
+        implicitMax      = config.EXPERIMENTAL ? 1 : 0;
     }
 
     /**
