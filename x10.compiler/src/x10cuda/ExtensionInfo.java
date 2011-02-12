@@ -49,7 +49,7 @@ public class ExtensionInfo extends x10cpp.ExtensionInfo {
 	}
 
     protected TypeSystem createTypeSystem() {
-        return new X10CUDATypeSystem_c();
+        return new X10CUDATypeSystem_c(this);
     }
 
     protected Scheduler createScheduler() {

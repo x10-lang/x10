@@ -98,18 +98,18 @@ public class TypeSystem_c implements TypeSystem
 
     protected SystemResolver systemResolver;
     protected TopLevelResolver loadedResolver;
-    protected ExtensionInfo extInfo;
-    protected Reporter reporter;
+    protected final ExtensionInfo extInfo;
+    protected final Reporter reporter;
 
-    private Throwable creator;
-    private int creationTime;
-    public TypeSystem_c() {
-        creator = new Throwable().fillInStackTrace();
-        creationTime = counter++;
-        // TODO: decide to either drop this reporting or determine a 
-        // scheme to access the instance of Reporter.
-        if (Report.TypeSystem)
-            Report.reporter.report(1, "Creating " + getClass() + " at " + creationTime);
+    private final Throwable creator;
+    private final int creationTime;
+    public TypeSystem_c(ExtensionInfo extInfo) {
+        this.extInfo = extInfo;
+        this.creator = new Throwable().fillInStackTrace();
+        this.creationTime = counter++;
+        this.reporter = extInfo.getOptions().reporter;
+        if (reporter.should_report("TypeSystem", 1))
+            reporter.report(1, "Creating " + getClass() + " at " + creationTime);
     }
 
 
@@ -117,15 +117,10 @@ public class TypeSystem_c implements TypeSystem
      * Initializes the type system and its internal constants (which depend on
      * the resolver).
      */
-    public void initialize(TopLevelResolver loadedResolver, ExtensionInfo extInfo)
-    throws SemanticException {
+    public void initialize(TopLevelResolver loadedResolver) {
 
-    this.reporter = extInfo.getOptions().reporter;
-    
     if (reporter.should_report(Reporter.types, 1))
         reporter.report(1, "Initializing " + getClass().getName());
-
-	this.extInfo = extInfo;
 
 	// The loaded class resolver.  This resolver automatically loads types
 	// from class files and from source files not mentioned on the command
@@ -152,14 +147,15 @@ public class TypeSystem_c implements TypeSystem
 	o = ClassDef.TOP_LEVEL;
     }
 
-   public enum Bound {
+    public enum Bound {
         UPPER, LOWER, EQUAL
     }
-   
-   public static enum Kind {
-       NEITHER, EITHER, OBJECT, STRUCT, INTERFACE
-   }
-    protected void initTypes() throws SemanticException {
+
+    public static enum Kind {
+        NEITHER, EITHER, OBJECT, STRUCT, INTERFACE
+    }
+
+    protected void initTypes() {
 	// FIXME: don't do this when rewriting a type system!
 
 	// Prime the resolver cache so that we don't need to check
@@ -185,7 +181,7 @@ public class TypeSystem_c implements TypeSystem
         systemResolver.find("java.lang.ArrayIndexOutOfBoundsException");
         systemResolver.find("java.lang.ArrayStoreException");
         systemResolver.find("java.lang.ArithmeticException");
-	 */
+	*/
     }
 
     /** Return the language extension this type system is for. */

@@ -320,47 +320,41 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     protected void initTypeSystem() {
-        try {
-            X10CompilerOptions opts = getOptions();
-            TopLevelResolver r = new X10SourceClassResolver(compiler, this, opts.constructFullClasspath(),
-                                                            opts.compile_command_line_only,
-                                                            opts.ignore_mod_times);
-            
-            for (PrecompiledLibrary pco:opts.x10libs) {
-               manifest.add(pco.sourceJar);
-               manifest.addAll(pco.sourceFiles);
-            }
-            
-            // TODO: Once the java backend also generates a proper lib property,
-            //       we could eliminate this stanza of code because it would be handled by the Library loop above.
-            for (File f : opts.source_path) {
-                if (f.getName().endsWith("x10.jar")) {
-                    try {
-                        JarFile jf = new JarFile(f);
-                        manifest.add("x10.jar");
-                        Enumeration<JarEntry> entries = jf.entries();
-                        while (entries.hasMoreElements()) {
-                            JarEntry je = entries.nextElement();
-                            if (je.getName().endsWith(".x10")) { // FIXME: hard-codes the source extension.
-                                manifest.add(je.getName());
-                            }
+        X10CompilerOptions opts = getOptions();
+        TopLevelResolver r = new X10SourceClassResolver(compiler, this, opts.constructFullClasspath(),
+                                                        opts.compile_command_line_only,
+                                                        opts.ignore_mod_times);
+
+        for (PrecompiledLibrary pco : opts.x10libs) {
+            manifest.add(pco.sourceJar);
+            manifest.addAll(pco.sourceFiles);
+        }
+
+        // TODO: Once the java backend also generates a proper lib property,
+        //       we could eliminate this stanza of code because it would be handled by the Library loop above.
+        for (File f : opts.source_path) {
+            if (f.getName().endsWith("x10.jar")) {
+                try {
+                    JarFile jf = new JarFile(f);
+                    manifest.add("x10.jar");
+                    Enumeration<JarEntry> entries = jf.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry je = entries.nextElement();
+                        if (je.getName().endsWith(".x10")) { // FIXME: hard-codes the source extension.
+                            manifest.add(je.getName());
                         }
-                    } catch (IOException e) { }
-                }
+                    }
+                } catch (IOException e) { }
             }
-
-            // Resolver to handle lookups of member classes.
-            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
-                r = mcr;
-            }
-
-            ts.initialize(r, this);
         }
-        catch (SemanticException e) {
-            throw new InternalCompilerError(
-                    "Unable to initialize type system: " + e.getMessage(), e);
+
+        // Resolver to handle lookups of member classes.
+        if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
+            MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
+            r = mcr;
         }
+
+        ts.initialize(r);
     }
 
     protected NodeFactory createNodeFactory() {
@@ -368,7 +362,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     protected TypeSystem createTypeSystem() {
-        return new TypeSystem_c();
+        return new TypeSystem_c(this);
     }
 
 

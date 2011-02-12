@@ -76,38 +76,31 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 	}
 
 	protected TypeSystem createTypeSystem() {
-		return new X10CPPTypeSystem_c();
+		return new X10CPPTypeSystem_c(this);
 	}
 
 	@Override
     protected void initTypeSystem() {
-        X10CPPCompilerOptions opts = (X10CPPCompilerOptions) getOptions();
-        // Inline from superclass, replacing SourceClassResolver
-        try {
-            for (PrecompiledLibrary pco:opts.x10libs) {
-                manifest.add(pco.sourceJar);
-                manifest.addAll(pco.sourceFiles);
-             }
+	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) getOptions();
+	    // Inline from superclass, replacing SourceClassResolver
+	    for (PrecompiledLibrary pco : opts.x10libs) {
+	        manifest.add(pco.sourceJar);
+	        manifest.addAll(pco.sourceFiles);
+	    }
 
-            TopLevelResolver r =
-                new X10CPPSourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
-                                              getOptions().compile_command_line_only,
-                                              getOptions().ignore_mod_times);
+	    TopLevelResolver r =
+	        new X10CPPSourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
+	                                      getOptions().compile_command_line_only,
+	                                      getOptions().ignore_mod_times);
 
+	    // Resolver to handle lookups of member classes.
+	    if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
+	        MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
+	        r = mcr;
+	    }
 
-            // Resolver to handle lookups of member classes.
-            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
-                r = mcr;
-            }
-
-            ts.initialize(r, this);
-        }
-        catch (SemanticException e) {
-            throw new InternalCompilerError(
-                "Unable to initialize type system: " + e.getMessage(), e);
-        }
-    }
+	    ts.initialize(r);
+	}
 
     @Override
     public JobExt jobExt() {

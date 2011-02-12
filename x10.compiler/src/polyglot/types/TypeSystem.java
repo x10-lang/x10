@@ -66,10 +66,8 @@ public interface TypeSystem {
      *
      * @param resolver The resolver to use for loading types from class files
      *                 or other source files.
-     * @param extInfo The ExtensionInfo the TypeSystem is being created for.
      */
-    void initialize(TopLevelResolver resolver, ExtensionInfo extInfo)
-                    throws SemanticException;
+    void initialize(TopLevelResolver resolver);
 
     /** Return the language extension this type system is for. */
     ExtensionInfo extensionInfo();
