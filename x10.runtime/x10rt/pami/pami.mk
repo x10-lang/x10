@@ -68,11 +68,11 @@ else
 endif
 
 etc/x10rt_pami.properties:
-	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	@echo "CXX=$(CXX)" >> $@
-	@echo "CXXFLAGS=" >> $@
-	echo "LDFLAGS=$(APP_LDFLAGS_PAMI)" >> $@
-	echo "LDLIBS=$(APP_LDLIBS_PAMI)" >> $@
+	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "X10LIB_CXX=$(CXX)" >> $@
+	@echo "X10LIB_CXXFLAGS=" >> $@
+	@echo "X10LIB_LDFLAGS=$(APP_LDFLAGS_PAMI)" >> $@
+	@echo "X10LIB_LDLIBS=$(APP_LDLIBS_PAMI)" >> $@
 
 .PRECIOUS: etc/x10rt_pami.properties
 

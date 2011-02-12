@@ -63,11 +63,11 @@ sockets/X10Launcher: $(LAUNCHER_OBJS) sockets/main.cc
 	$(CXX) $(CXXFLAGS) sockets/main.cc $(LAUNCHER_OBJS) -o sockets/X10Launcher $(LDFLAGS) $(SOLARIS_LDLIBS)
 
 etc/x10rt_sockets.properties:
-	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	@echo "CXX=$(CXX)" >> $@
-	@echo "CXXFLAGS=" >> $@
-	@echo "LDFLAGS=$(APP_LDFLAGS_SOCKETS)" >> $@
-	@echo "LDLIBS=$(APP_LDLIBS_SOCKETS)" >> $@
+	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "X10LIB_CXX=$(CXX)" >> $@
+	@echo "X10LIB_CXXFLAGS=" >> $@
+	@echo "X10LIB_LDFLAGS=$(APP_LDFLAGS_SOCKETS)" >> $@
+	@echo "X10LIB_LDLIBS=$(APP_LDLIBS_SOCKETS)" >> $@
 
 .PRECIOUS: etc/x10rt_sockets.properties
 

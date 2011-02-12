@@ -20,8 +20,8 @@ public class PrecompiledLibrary extends PostCompileProperties {
     public PrecompiledLibrary(String absPath, Properties p) {
         super (p);
         absolutePathToRoot = absPath;
-        sourceJar = p.getProperty("SRC_JAR");
-        sourceFiles = split(p.getProperty("SRC_FILES"));
+        sourceJar = p.getProperty("X10LIB_SRC_JAR");
+        sourceFiles = split(p.getProperty("X10LIB_SRC_FILES"));
     }
 
 }

@@ -82,14 +82,14 @@ gen/all-cpp-generated: $(XRX_REL_SRCS) $(subst $(SPACE),\$(SPACE),$(DISTDIR))/li
 	find gen -name "*.cc" -print > $@
 
 $(XRX_PROPERTIES): $(XRX_REL_SRCS)
-	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	@echo "TIMESTAMP=$(shell date)" >> $@
-	@echo "CXX=$(CXX)" >> $@
-	@echo "CXXFLAGS=$(XRX_PROPS_CXXFLAGS)" >> $@
-	@echo "LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
-	@echo "LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
-	@echo "SRC_JAR=x10.jar" >> $@
-	@echo "SRC_FILES=$(XRX_SRCS)" >> $@
+	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "X10LIB_TIMESTAMP=$(shell date)" >> $@
+	@echo "X10LIB_CXX=$(CXX)" >> $@
+	@echo "X10LIB_CXXFLAGS=$(XRX_PROPS_CXXFLAGS)" >> $@
+	@echo "X10LIB_LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
+	@echo "X10LIB_LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
+	@echo "X10LIB_SRC_JAR=x10.jar" >> $@
+	@echo "X10LIB_SRC_FILES=$(XRX_SRCS)" >> $@
 
 ##########################
 # Manually-written Files #
