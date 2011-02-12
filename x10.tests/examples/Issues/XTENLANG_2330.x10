@@ -19,9 +19,9 @@ import harness.x10Test;
 public class XTENLANG_2330 extends x10Test  
 { 
     public def run() {
-		new Helper2330(50).run(0);
-		return true;
-	}
+        new Helper2330(50).run(0);
+        return true;
+    }
 
     public static def main(Array[String](1)) {
         new XTENLANG_2330().execute();
@@ -29,13 +29,13 @@ public class XTENLANG_2330 extends x10Test
 }
 
 
-class Helper2330(p:Int) {	
+class Helper2330(p:Int) {
 	// test inner classes (both instance & nested), inheritance, overriding, generics (for generics I just checked codegen below, not runtime behaviour)
 	// new & call (with and without target/qualifier), operators
 
 	def fail():void { throw new RuntimeException("test failed!"); }
-    def run(z:Int) { // z is 0 at runtime (I use it to make sure the guard cannot be statically resolved)
-		
+	def run(z:Int) { // z is 0 at runtime (I use it to make sure the guard cannot be statically resolved)
+
 		/////////////////////////////////////////////////////////////
 		// testing method calls (that return void or non-void)
 		/////////////////////////////////////////////////////////////
@@ -158,10 +158,10 @@ class Helper2330(p:Int) {
 		try { use(-r); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
 
 		// implicit and explicit as (casting)
-		val dd1:Helper2330 = z+5.5; // ERR
-		val ss1:Helper2330 = ((z+'a') as Char) as Helper2330; // ERR
-		try { val dd2:Helper2330 = z+5.6; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
-		try { val ss2:Helper2330 = ((z+'b') as Char) as Helper2330; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
+		val dd1:Helper2330 = z+5.5; // ShouldBeErr
+		val ss1:Helper2330 = ((z+'a') as Char) as Helper2330; // ShouldBeErr
+		try { val dd2:Helper2330 = z+5.6; fail(); } catch (e:UnsatisfiedGuardException) {} // ShouldBeErr
+		try { val ss2:Helper2330 = ((z+'b') as Char) as Helper2330; fail(); } catch (e:UnsatisfiedGuardException) {} // ShouldBeErr
 
 		// apply & set (and SettableAssign)
 		this(z+50); // ERR
