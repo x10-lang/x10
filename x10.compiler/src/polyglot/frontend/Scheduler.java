@@ -122,6 +122,7 @@ public abstract class Scheduler {
 
     protected void completeJob(Job job) {
         if (job != null) {
+            job.setCompleted(true);
             jobs.put(job.source(), COMPLETED_JOB);
             Reporter reporter = extInfo.getOptions().reporter;
             if (reporter.should_report(Reporter.frontend, 1)) {

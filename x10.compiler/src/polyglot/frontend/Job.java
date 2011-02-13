@@ -41,12 +41,15 @@ public class Job
     /** True if all passes run so far have been successful. */
     protected boolean status;
 
-    /** Initial count of errors before running the current pass over the job. */
+    /** Initial count of errors before running the current pass over this job. */
     protected int initialErrorCount;
 
-    /** True if the the job has reported an error. */
+    /** True if this job has reported an error. */
     protected boolean reportedErrors;
 
+    /** True if this job was completely processed by the scheduler. */
+    protected boolean completed;
+    
     /** The <code>Source</code> that this <code>Job</code> represents. */
     protected Source source;
 
@@ -59,6 +62,7 @@ public class Job
         this.status = true;
         this.initialErrorCount = 0;
         this.reportedErrors = false;
+        this.completed = false;
     }
     
     public Map<Node,Node> nodeMemo() {
@@ -91,6 +95,16 @@ public class Job
         return reportedErrors;
     }
 
+    /** True if all passes have been completed. */
+    void setCompleted(boolean value) {
+        completed = value;
+    }
+    
+    /** True if all passes have been completed. */
+    public boolean completed() {
+        return completed;
+    }
+    
     public void dump(CodeWriter cw) {
 	if (ast != null) {
 	    ast.dump(cw);
