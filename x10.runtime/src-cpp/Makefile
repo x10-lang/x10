@@ -7,6 +7,10 @@ include ../Make.rules
 FIND ?= find
 XARGS ?= xargs
 
+#############
+# Variables #
+#############
+
 INCLUDE_DIRS += -I. -I../x10rt/include
 
 override XRX_PROPS_LDLIBS += -lx10
@@ -17,6 +21,24 @@ ifdef ENABLE_GC
   INCLUDE_DIRS += -I"$(BDWGC_INCLUDE_DIR)"
   override XRX_PROPS_CXXFLAGS += -DX10_USE_BDWGC
   override XRX_PROPS_LDLIBS += -lgc
+endif
+
+override XRX_PROPS_LDLIBS += -lm -lpthread
+
+# -lrt
+ifeq ($(X10RT_PLATFORM),sunos)
+  override XRX_PROPS_LDLIBS += -lrt
+endif
+ifeq ($(shell uname -s),Linux)
+  override XRX_PROPS_LDLIBS += -lrt
+endif
+ifeq ($(shell uname -s),FreeBSD)
+  override XRX_PROPS_LDLIBS += -lrt
+endif
+
+# -ldl
+ifneq ($(shell uname -s),FreeBSD)
+  override XRX_PROPS_LDLIBS += -ldl
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -Igen

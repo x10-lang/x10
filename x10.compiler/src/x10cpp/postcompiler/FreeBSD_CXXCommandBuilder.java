@@ -33,8 +33,6 @@ public class FreeBSD_CXXCommandBuilder extends CXXCommandBuilder {
 
     public void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
-
-        cxxCmd.remove("-ldl");
         
         for (PrecompiledLibrary pcl:options.x10libs) {
             cxxCmd.add("-Wl,--rpath");
@@ -46,6 +44,5 @@ public class FreeBSD_CXXCommandBuilder extends CXXCommandBuilder {
         cxxCmd.add("-Wl,"+options.distPath()+"/lib");
 
         cxxCmd.add("-Wl,-export-dynamic");
-        cxxCmd.add("-lrt");
     }
 }

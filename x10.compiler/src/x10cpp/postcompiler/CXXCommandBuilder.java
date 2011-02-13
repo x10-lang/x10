@@ -184,8 +184,6 @@ public class CXXCommandBuilder {
         cxxCmd.addAll(x10rt.libs);
 
         cxxCmd.add("-ldl");
-        cxxCmd.add("-lm");
-        cxxCmd.add("-lpthread");
 
         if (options.gpt) {
             cxxCmd.add("-lprofiler");
