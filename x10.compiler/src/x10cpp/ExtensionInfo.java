@@ -22,6 +22,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
+import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -39,6 +40,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.PostCompiled;
 import polyglot.util.InternalCompilerError;
 import x10.Configuration;
+import x10.visit.ExternAnnotationVisitor;
 import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
 import x10.ast.X10NodeFactory_c;
@@ -157,8 +159,15 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		        FinallyEliminator(job).addPrereq(g);
 		    }
 		    StaticNestedClassRemover(job).addPrereq(FinallyEliminator(job));
+		    NativeClassVisitor(job).addPrereq(ExternAnnotation(job));
 		    return goals;
 		}
+
+	       public Goal ExternAnnotation(Job job) {
+	           TypeSystem ts = extInfo.typeSystem();
+	           NodeFactory nf = extInfo.nodeFactory();
+	           return new ForgivingVisitorGoal("NativeAnnotation", job, new ExternAnnotationVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
+	       }
 	}
 
 	// TODO: [IP] Override targetFactory() (rather, add createTargetFactory to polyglot)
