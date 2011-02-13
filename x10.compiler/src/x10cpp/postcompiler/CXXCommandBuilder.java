@@ -183,8 +183,6 @@ public class CXXCommandBuilder {
         cxxCmd.addAll(x10rt.ldFlags);
         cxxCmd.addAll(x10rt.libs);
 
-        cxxCmd.add("-ldl");
-
         if (options.gpt) {
             cxxCmd.add("-lprofiler");
         }
