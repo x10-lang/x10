@@ -326,26 +326,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                                                         opts.ignore_mod_times);
 
         for (PrecompiledLibrary pco : opts.x10libs) {
-            manifest.add(pco.sourceJar);
-            manifest.addAll(pco.sourceFiles);
-        }
-
-        // TODO: Once the java backend also generates a proper lib property,
-        //       we could eliminate this stanza of code because it would be handled by the Library loop above.
-        for (File f : opts.source_path) {
-            if (f.getName().endsWith("x10.jar")) {
-                try {
-                    JarFile jf = new JarFile(f);
-                    manifest.add("x10.jar");
-                    Enumeration<JarEntry> entries = jf.entries();
-                    while (entries.hasMoreElements()) {
-                        JarEntry je = entries.nextElement();
-                        if (je.getName().endsWith(".x10")) { // FIXME: hard-codes the source extension.
-                            manifest.add(je.getName());
-                        }
-                    }
-                } catch (IOException e) { }
-            }
+            pco.updateManifset(manifest, this);
         }
 
         // Resolver to handle lookups of member classes.

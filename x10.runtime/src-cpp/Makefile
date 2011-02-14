@@ -111,7 +111,6 @@ $(XRX_PROPERTIES): $(XRX_REL_SRCS)
 	@echo "X10LIB_LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
 	@echo "X10LIB_LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
 	@echo "X10LIB_SRC_JAR=x10.jar" >> $@
-	@echo "X10LIB_SRC_FILES=$(XRX_SRCS)" >> $@
 
 ##########################
 # Manually-written Files #
