@@ -240,7 +240,10 @@ public class X10CPPTranslator extends Translator {
 		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false);
 		            	// include "this" for non-static methods		            	
 		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable())
+		            	{
 		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true);
+		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()));
+		            	}
 		            }
 		        }
 		    }
