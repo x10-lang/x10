@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
@@ -152,17 +153,23 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		}
 		@Override
 		public List<Goal> goals(Job job) {
-		    List<Goal> goals = super.goals(job);
+		    List<Goal> superGoals = super.goals(job);
+            ArrayList<Goal> goals = new ArrayList<Goal>(superGoals.size()+1);
+            for (Goal g : superGoals) {
+                if (g == NativeClassVisitor(job)) {
+                    goals.add(ExternAnnotationVisitor(job));
+                }
+                goals.add(g);
+            }
 		    FinallyEliminator(job).addPrereq(Lowerer(job));
 		    for (Goal g: Optimizer.goals(this, job)) {
 		        FinallyEliminator(job).addPrereq(g);
 		    }
 		    StaticNestedClassRemover(job).addPrereq(FinallyEliminator(job));
-		    NativeClassVisitor(job).addPrereq(ExternAnnotation(job));
 		    return goals;
 		}
 
-	       public Goal ExternAnnotation(Job job) {
+	       public Goal ExternAnnotationVisitor(Job job) {
 	           TypeSystem ts = extInfo.typeSystem();
 	           NodeFactory nf = extInfo.nodeFactory();
 	           return new ForgivingVisitorGoal("NativeAnnotation", job, new ExternAnnotationVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
