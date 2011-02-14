@@ -26,6 +26,7 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
+import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -41,6 +42,7 @@ import polyglot.visit.TypeBuilder;
 
 import x10.Configuration;
 import x10.constraint.XFailure;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -55,7 +57,9 @@ import x10.types.X10Context_c;
 import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
+import x10.types.matcher.Matcher;
 
 /**
  * @author vj
@@ -196,15 +200,39 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
     protected static void checkAssignments(ContextVisitor tc, Position pos,
                                            List<FieldInstance> props, List<Expr> args)
     {
-        TypeSystem xts = (TypeSystem) tc.typeSystem();
-        // First check that the base types are correct.
+        TypeSystem xts =  tc.typeSystem();
+        Context cxt = tc.context();
+
+        XVar thisVar = tc.context().thisVar();
+
+        Type thisType=null;
+        // Accumulate in curr constraint the bindings {arg1==this.prop1,..argi==this.propi}.
+        // If argi does not have a name, make up a name, and add the constraint from typei
+        // into curr, with argi/self.
+        CConstraint curr = new CConstraint();
+
         for (int i=0; i < args.size() && i < props.size(); ++i) {
-            if (!xts.isSubtype(Types.baseType(args.get(i).type()), Types.baseType(props.get(i).type()))) {
+            Type yType = args.get(i).type();
+            yType = Types.addConstraint(yType, curr);
+            Type xType = props.get(i).type();
+            if (!xts.isSubtype(yType, xType)) {
                 Errors.issue(tc.job(),
                              new Errors.TypeOfPropertyIsNotSubtypeOfPropertyType(args.get(i).type(), props, i, pos));
             }
+            XVar symbol = Types.selfVarBinding(yType);
+            if (symbol==null) {
+                symbol = XTerms.makeUQV();
+                CConstraint c = Types.xclause(yType);
+                curr.addIn(symbol, c);
+            } 
+            curr.addBinding(CTerms.makeField(thisVar, props.get(i).def()), symbol);
+
+            if (! curr.consistent()) {
+                Errors.issue(tc.job(),
+                             new SemanticException("Inconsistent environment for property assignment call.", pos));
+            }
+
         }
-        // Now we check that the constraints are correct.
     }
 
     protected void checkReturnType(ContextVisitor tc, Position pos,

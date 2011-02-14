@@ -139,7 +139,7 @@ class PolyRegion extends Region {
      * the result blockwise
      */
 
-    public def product(r: Region): Region {
+    public def product(r: Region): Region{self != null} {
         if (!(r instanceof PolyRegion))
             throw new UnsupportedOperationException("product(" + r/*.getClass().getName()*/ + ")");
         val that = r as PolyRegion;
@@ -300,7 +300,7 @@ class PolyRegion extends Region {
      * special-case subclasses, such as RectRegion, for efficiency
      */
 
-    public static @TempNoInline_3 def make(pm: PolyMat): Region(pm.rank) {
+    public static @TempNoInline_3 def make(pm: PolyMat): Region(pm.rank){self != null} {
         if (pm.isEmpty()) {
             return new EmptyRegion(pm.rank);
         } else {

@@ -929,9 +929,10 @@ public class Errors {
 	}
 	public static class TypeOfPropertyIsNotSubtypeOfPropertyType extends EqualByTypeAndPosException {
 		public TypeOfPropertyIsNotSubtypeOfPropertyType(Type type, List<FieldInstance> props, int i, Position p) {
-			super("The type " + type + " of the initializer for property " + props.get(i) + 
-					" is not a subtype of the property type " + props.get(i).type(), 
-					p);
+			super("Actual type of property initializer is not a subtype of declared type."
+			      + "\n\t Property: " + props.get(i).name()
+			      + "\n\t Actual Type: " +  type
+			      + "\n\t Declared Type: " + props.get(i).type(), p);
 		}
 	}
 	public static class PropertyStatementMayOnlyOccurInBodyOfConstuctor extends EqualByTypeAndPosException {

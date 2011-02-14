@@ -57,27 +57,27 @@ public final class Array[T] (
     /**
      * The region of this array.
      */
-    region:Region{self != null,self.rank==this.rank,self.rect==this.rect,self.zeroBased==this.zeroBased,self.rail==this.rail},
+    region:Region{self != null},
 
     /**
      * The rank of this array.
      */
-    rank:int,
+    rank:int{self==region.rank},
 
     /**
      * Is this array defined over a rectangular region?
      */
-    rect:boolean,
+    rect:boolean{self==region.rect},
 
     /**
      * Is this array's region zero-based?
      */
-    zeroBased:boolean,
+    zeroBased:boolean{self==region.zeroBased},
 
     /**
      * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
      */
-    rail:boolean,
+    rail:boolean{self==region.rail},
 
     /**
      * The number of points/data values in the array.
@@ -121,7 +121,7 @@ public final class Array[T] (
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region) {T haszero}
+    public def this(reg:Region{self !=null}) {T haszero}
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
@@ -138,7 +138,7 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:(Point(reg.rank))=>T)
+    public def this(reg:Region{self != null}, init:(Point(reg.rank))=>T)
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
@@ -159,7 +159,7 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:T)
+    public def this(reg:Region{self !=null}, init:T)
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
 
@@ -191,7 +191,7 @@ public final class Array[T] (
      * @param reg The region over which to define the array.
      * @param backingStore The backing storage for the array data.
      */
-    public def this(reg:Region, backingStore:IndexedMemoryChunk[T])
+    public def this(reg:Region{self != null}, backingStore:IndexedMemoryChunk[T])
     {
         property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         

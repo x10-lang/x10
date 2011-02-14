@@ -337,7 +337,7 @@ final class RectRegion extends Region{rect} {
     
 
     
-    public def product(that:Region):Region /*self.rank==this.rank+that.rank*/{
+    public def product(that:Region):Region{self != null} /*self.rank==this.rank+that.rank*/{
         if (that.isEmpty()) {
             return Region.makeEmpty(rank + that.rank);
         } else if (that instanceof RectRegion) {
