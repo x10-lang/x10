@@ -55,6 +55,11 @@ the subsequent releases:
   - Non-final generic instance methods
   - Exception stack traces on Cygwin
 
+There are known performance problems with x10.lang.GlobalRef caused
+by the changes to enable multi-VM mode. As a result, code containing a
+large number of finishes will not perform well with the Java backend 
+on version 2.1.2.  This issue will be corrected in the next release.
+
 The generated C++ code requires g++ 4.2 or better to be compiled; 
 we do almost all of our testing against g++ 4.3.2.  On AIX, you
 may either use g++ 4.2 or better or xlC 10.1.0.4 or better.
