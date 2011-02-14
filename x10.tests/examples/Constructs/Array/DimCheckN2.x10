@@ -17,10 +17,9 @@ import harness.x10Test;
  *
  * @author vj 12 2006
  */
-
 public class DimCheckN2 extends x10Test {
 
-    def m(var r: Region(2)): void = {
+    def m(var r:Region(2){self!=null}): void = {
         val a1 = new Array[int](r, (p[i,j]: Point): int => { return i; });
     }
 
