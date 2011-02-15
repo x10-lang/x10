@@ -11,7 +11,7 @@ package polyglot.visit;
 import java.util.*;
 
 import polyglot.ast.*;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.util.*;
 import x10.ast.Async;
@@ -19,7 +19,7 @@ import x10.ast.Async;
 /**
  * Class used to construct a CFG.
  */
-public class CFGBuilder implements Copy
+public class CFGBuilder implements Cloneable
 {
     /** The flowgraph under construction. */
     protected FlowGraph graph;
@@ -27,6 +27,9 @@ public class CFGBuilder implements Copy
     /** The type system. */
     protected TypeSystem ts;
 
+    /** The reporter */
+    protected Reporter reporter;
+    
     /**
      * The outer CFGBuilder.  We create a new inner CFGBuilder when entering a
      * loop or try-block and when entering a finally block.
@@ -69,6 +72,7 @@ public class CFGBuilder implements Copy
 
     public CFGBuilder(TypeSystem ts, FlowGraph graph, DataFlow df) {
         this.ts = ts;
+        this.reporter = ts.extensionInfo().getOptions().reporter;
         this.graph = graph;
         this.df = df;
         this.path_to_finally = Collections.<Term>emptyList();
@@ -88,7 +92,7 @@ public class CFGBuilder implements Copy
     }
 
     /** Copy the CFGBuilder. */
-    public Object copy() {
+    private CFGBuilder shallowCopy() {
         try {
             return (CFGBuilder) super.clone();
         }
@@ -110,7 +114,7 @@ public class CFGBuilder implements Copy
      * try-block <code>n</code>, optionally skipping innermost catch blocks.
      */
     public CFGBuilder push(Stmt n, boolean skipInnermostCatches) {
-        CFGBuilder v = (CFGBuilder) copy();
+        CFGBuilder v = shallowCopy();
         v.outer = this;
         v.innermostTarget = n;
         v.skipInnermostCatches = skipInnermostCatches;
@@ -218,7 +222,7 @@ public class CFGBuilder implements Copy
         String name = StringUtil.getShortNameComponent(df.getClass().getName());
         name += counter++;
 
-	if (Report.should_report(Report.cfg, 2)) {
+	if (reporter.should_report(Reporter.cfg, 2)) {
             String rootName = "";
             if (graph.root() instanceof CodeNode) {
                 CodeNode cd = (CodeNode)graph.root();
@@ -228,8 +232,8 @@ public class CFGBuilder implements Copy
                 }
             }
 
-            Report.report(2, "digraph CFGBuild" + name + " {");
-            Report.report(2, "  label=\"CFGBuilder: " + name + "\\n" + rootName +
+            reporter.report(2, "digraph CFGBuild" + name + " {");
+            reporter.report(2, "  label=\"CFGBuilder: " + name + "\\n" + rootName +
                 "\"; fontsize=20; center=true; ratio=auto; size = \"8.5,11\";");
         }
 
@@ -239,8 +243,8 @@ public class CFGBuilder implements Copy
 
         this.visitCFG(graph.root(), Collections.<EdgeKeyTermPair>emptyList());
 
-	if (Report.should_report(Report.cfg, 2))
-	    Report.report(2, "}");
+	if (reporter.should_report(Reporter.cfg, 2))
+	    reporter.report(2, "}");
     }
 
     /**
@@ -384,8 +388,8 @@ public class CFGBuilder implements Copy
             edge(this, a, Term.ENTRY, child, Term.ENTRY, FlowGraph.EDGE_KEY_OTHER);
         }
 
-        if (Report.should_report(Report.cfg, 2))
-            Report.report(2, "// node " + a + " -> " + succs);
+        if (reporter.should_report(Reporter.cfg, 2))
+            reporter.report(2, "// node " + a + " -> " + succs);
         
         succs = a.acceptCFG(this, succs);
 
@@ -493,7 +497,7 @@ public class CFGBuilder implements Copy
      * Term <code>from</code> appended.
      */
     protected CFGBuilder enterFinally(Term from) {
-      CFGBuilder v = (CFGBuilder) this.copy();
+      CFGBuilder v = this.shallowCopy();
       v.path_to_finally = new ArrayList<Term>(path_to_finally.size()+1);
       v.path_to_finally.addAll(path_to_finally);
       v.path_to_finally.add(from);
@@ -538,42 +542,42 @@ public class CFGBuilder implements Copy
      */
     public void edge(CFGBuilder p_visitor, Term p, int pEntry, 
             Term q, int qEntry, FlowGraph.EdgeKey edgeKey) {
-        if (Report.should_report(Report.cfg, 2))
-            Report.report(2, "//     edge " + p + " -> " + q);
+        if (reporter.should_report(Reporter.cfg, 2))
+            reporter.report(2, "//     edge " + p + " -> " + q);
         
         FlowGraph.Peer pp = graph.peer(p, p_visitor.path_to_finally, pEntry);
         FlowGraph.Peer pq = graph.peer(q, path_to_finally, qEntry);
         
-        if (Report.should_report(Report.cfg, 3)) {
+        if (reporter.should_report(Reporter.cfg, 3)) {
             // at level 3, use Peer.toString() as the label for the nodes
-            Report.report(2,
+            reporter.report(2,
                           pp.hashCode() + " [ label = \"" +
                           StringUtil.escape(pp.toString()) + "\" ];");
-            Report.report(2,
+            reporter.report(2,
                           pq.hashCode() + " [ label = \"" +
                           StringUtil.escape(pq.toString()) + "\" ];");
         }
-        else if (Report.should_report(Report.cfg, 2)) {
+        else if (reporter.should_report(Reporter.cfg, 2)) {
             // at level 2, use Node.toString() as the label for the nodes
             // which is more readable than Peer.toString(), but not as unique.
-            Report.report(2,
+            reporter.report(2,
                           pp.hashCode() + " [ label = \"" +
                           StringUtil.escape(pp.node.toString()) + "\" ];");
-            Report.report(2,
+            reporter.report(2,
                           pq.hashCode() + " [ label = \"" +
                           StringUtil.escape(pq.node.toString()) + "\" ];");
         }
         
         if (graph.forward()) {
-            if (Report.should_report(Report.cfg, 2)) {
-                Report.report(2, pp.hashCode() + " -> " + pq.hashCode() + " [label=\"" + edgeKey + "\"];");
+            if (reporter.should_report(Reporter.cfg, 2)) {
+                reporter.report(2, pp.hashCode() + " -> " + pq.hashCode() + " [label=\"" + edgeKey + "\"];");
             }
             pp.succs.add(new FlowGraph.Edge(edgeKey, pq));
             pq.preds.add(new FlowGraph.Edge(edgeKey, pp));
         }
         else {
-            if (Report.should_report(Report.cfg, 2)) {
-                Report.report(2, pq.hashCode() + " -> " + pp.hashCode() + " [label=\"" + edgeKey + "\"];");
+            if (reporter.should_report(Reporter.cfg, 2)) {
+                reporter.report(2, pq.hashCode() + " -> " + pp.hashCode() + " [label=\"" + edgeKey + "\"];");
             }
             pq.succs.add(new FlowGraph.Edge(edgeKey, pp));
             pp.preds.add(new FlowGraph.Edge(edgeKey, pq));

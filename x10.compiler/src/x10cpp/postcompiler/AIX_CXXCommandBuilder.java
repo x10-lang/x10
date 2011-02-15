@@ -27,8 +27,8 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
         super.addPreArgs(cxxCmd);
 
         if (usingXLC()) {
-            cxxCmd.add("-qrtti=all"); // AIX specific.
-            cxxCmd.add("-brtl");      // AIX specific.
+            cxxCmd.add("-qrtti=all");
+            cxxCmd.add("-brtl");
         } else {
             cxxCmd.add("-maix64"); // Assume 64-bit
             cxxCmd.add("-Wl,-brtl");

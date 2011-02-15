@@ -14,7 +14,6 @@ package x10.types;
 import java.util.List;
 
 import polyglot.types.MemberInstance;
-import polyglot.types.Named;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -26,7 +25,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 
-public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X10ProcedureInstance<TypeDef>, Named {
+public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X10ProcedureInstance<TypeDef> {
 	Type definedType();
 	MacroType definedType(Type t);
 	Ref<? extends Type> definedTypeRef();

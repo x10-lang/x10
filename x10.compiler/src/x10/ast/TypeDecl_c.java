@@ -30,7 +30,6 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
-import polyglot.types.Named;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -249,7 +248,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		if (!local) {
 		    if (ct == null) {
 		        Errors.issue(tb.job(),
-		                     new SemanticException("Could not find enclosing class or package for type definition \"" + name.id() + "\".", position()));
+		                     new Errors.CouldNotFindEnclosingClass(name.id(), position()));
 		    } else {
 		        ct.addMemberType(typeDef);
 		    }
@@ -344,7 +343,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	    if (type instanceof MacroType) {
 		MacroType mt = (MacroType) type;
 		if (mt.def() == typeDef) {
-		    throw new SemanticException("Recursive type definition; type definition depends on itself.", position());
+		    throw new Errors.RecursiveTypeDefinition(position());
 		}
 	    }
 	    if (type instanceof ConstrainedType) {

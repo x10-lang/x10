@@ -19,7 +19,6 @@ public class TypeObjectGoal_c<T extends TypeObject> extends AbstractGoal_c imple
     }
 
     public TypeObjectGoal_c(Ref<T> v) {
-        super();
         this.v = v;
     }
     

@@ -69,7 +69,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 
 	// Type from name
 	private Type getType(String name) throws SemanticException {
-		return (Type) xts().systemResolver().find(QName.make(name));
+		return xts().systemResolver().findOne(QName.make(name));
 	}
 
 	// does the block have the given annotation

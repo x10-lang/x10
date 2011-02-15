@@ -42,7 +42,7 @@ public class X10Do_c extends Do_c {
 
         if (! ts.isSubtype(cond.type(), ts.Boolean(), tc.context())) {
             Errors.issue(tc.job(),
-                    new SemanticException("Condition of do statement must have boolean type, and not " + cond.type() + ".", cond.position()),
+                    new Errors.DoStatementMustHaveBooleanType(cond.type(), cond.position()),
                     this);
         }
 

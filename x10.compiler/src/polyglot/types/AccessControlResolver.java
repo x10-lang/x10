@@ -13,11 +13,13 @@
  */
 package polyglot.types;
 
+import java.util.List;
+
 /** A resolver that also checks if the type found is accessible from the given class. */
 public interface AccessControlResolver extends Resolver {
     /**
-     * Find a type object by name, checking if the object is accessible from the accessor class.
+     * Find a type by name, checking if the object is accessible from the accessor class.
      * A null accessor indicates no access check should be performed.
      */
-    public Named find(Matcher<Named> matcher, Context context) throws SemanticException;
+    public List<Type> find(Matcher<Type> matcher, Context context) throws SemanticException;
 }

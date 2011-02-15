@@ -51,14 +51,14 @@ public abstract class Region(
      * Construct an empty region of the specified rank.
      */
 
-    public static @TempNoInline_0 def makeEmpty(rank: int): Region(rank) = new EmptyRegion(rank);
+    public static @TempNoInline_0 def makeEmpty(rank: int): Region(rank){self!=null} = new EmptyRegion(rank);
      
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
      */
 
-    public static def makeFull(rank: int): Region(rank) = new FullRegion(rank);
+    public static def makeFull(rank: int): Region(rank){self !=null} = new FullRegion(rank);
     
     /**
      * Construct a region of rank 0 that contains the single point of
@@ -333,7 +333,7 @@ public abstract class Region(
      * are a point in that region.
      */
 
-    abstract public def product(that: Region): Region;
+    abstract public def product(that: Region): Region{self!=null};
 
     /**
      * Returns the region shifted by a Point (vector). The Point has

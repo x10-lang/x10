@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.*;
 
 import polyglot.ast.*;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.main.Version;
 import polyglot.types.*;
 import polyglot.util.*;
@@ -33,11 +33,13 @@ public class ClassSerializer extends NodeVisitor
     protected ErrorQueue eq;
     protected Date date;
     protected TypeSystem ts;
+    protected Reporter reporter;
     protected NodeFactory nf;
     protected Version ver;
 
     public ClassSerializer(TypeSystem ts, NodeFactory nf, Date date, ErrorQueue eq, Version ver) {
         this.ts = ts;
+        this.reporter = ts.extensionInfo().getOptions().reporter;
         this.nf = nf;
         this.te = new TypeEncoder(ts);
         this.eq = eq;
@@ -191,7 +193,7 @@ public class ClassSerializer extends NodeVisitor
             return newMembers;
 	}
 	catch (IOException e) {
-            if (Report.should_report(Report.serialize, 1))
+            if (reporter.should_report(Reporter.serialize, 1))
                 e.printStackTrace();
 	    eq.enqueue(ErrorInfo.IO_ERROR,
 		       "Unable to serialize class information.");

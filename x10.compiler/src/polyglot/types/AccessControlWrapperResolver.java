@@ -13,6 +13,8 @@
  */
 package polyglot.types;
 
+import java.util.List;
+
 /** A Resolver that wraps an AccessControlResolver. */
 public class AccessControlWrapperResolver implements Resolver {
     protected AccessControlResolver inner;
@@ -23,7 +25,7 @@ public class AccessControlWrapperResolver implements Resolver {
         this.context = context;
     }
     
-    public Named find(Matcher<Named> matcher) throws SemanticException {
+    public List<Type> find(Matcher<Type> matcher) throws SemanticException {
         return inner.find(matcher, context);
     }
 }

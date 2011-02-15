@@ -83,11 +83,6 @@ class Activity {
     private var atomicDepth:int = 0;
 
     /**
-     * The place of the activity (for the java backend).
-     */
-    val home = Runtime.hereInt();
-
-    /**
      * Create activity.
      */
     def this(body:()=>void, finishState:FinishState) {

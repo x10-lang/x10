@@ -26,7 +26,7 @@ final class EmptyRegion extends Region {
     public def size() = 0;
     public def indexOf(Point) = -1;
     public def intersection(that: Region(rank)): Region(rank) = this;
-    public def product(that: Region): Region/*(this.rank+that.rank)*/ 
+    public def product(that: Region)/*: Region(this.rank+that.rank)*/ 
         = new EmptyRegion(this.rank + that.rank);
     public def projection(axis: int): Region(1) = new EmptyRegion(1);
     public def translate(p:Point(rank)): Region(rank) = this;

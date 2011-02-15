@@ -104,7 +104,8 @@ public abstract class AbstractExtensionInfo implements ExtensionInfo {
         if (target_factory == null) {
             target_factory = new TargetFactory(getOptions().output_directory,
                                                getOptions().output_ext,
-                                               getOptions().output_stdout);
+                                               getOptions().output_stdout,
+                                               getOptions().reporter);
         }
 
         return target_factory;

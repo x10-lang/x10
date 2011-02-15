@@ -18,7 +18,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
@@ -71,8 +71,8 @@ public class X10TypeChecker extends TypeChecker {
 	    }
 
 	    try {
-	        if (Report.should_report(Report.visit, 2))
-	            Report.report(2, ">> " + this + "::override " + n);
+	        if (reporter.should_report(reporter.visit, 2))
+	            reporter.report(2, ">> " + this + "::override " + n);
 
 	        Node m = n.del().typeCheckOverride(parent, this);
 

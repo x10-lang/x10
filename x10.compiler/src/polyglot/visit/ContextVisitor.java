@@ -10,7 +10,7 @@ package polyglot.visit;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
@@ -68,7 +68,7 @@ public class ContextVisitor extends ErrorHandlingVisitor
      *  <code>c</code>.
      */
     public ContextVisitor context(Context c) {
-        ContextVisitor v = (ContextVisitor) this.copy();
+        ContextVisitor v = (ContextVisitor) this.shallowCopy();
         v.context = c;
         return v;
     }
@@ -103,8 +103,8 @@ public class ContextVisitor extends ErrorHandlingVisitor
     }
     
     public final NodeVisitor enter(Node parent, Node n) {
-        if (Report.should_report(Report.visit, 5))
-	    Report.report(5, "enter(" + n + ")");
+        if (reporter.should_report(Reporter.visit, 5))
+            reporter.report(5, "enter(" + n + ")");
 
         if (prune) {
             return new PruningVisitor();
@@ -115,7 +115,7 @@ public class ContextVisitor extends ErrorHandlingVisitor
         Context c = this.enterScope(parent, n);
 
         if (c != this.context) {
-            v = (ContextVisitor) this.copy();
+            v = (ContextVisitor) this.shallowCopy();
             v.context = c;
             v.outer = this;
             v.error = false;

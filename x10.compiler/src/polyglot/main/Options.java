@@ -11,7 +11,8 @@ import java.io.PrintStream;
 import java.util.*;
 
 import polyglot.frontend.ExtensionInfo;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 
 /** 
  * This object encapsulates various polyglot options. 
@@ -66,6 +67,8 @@ public class Options {
     
     /** Use SimpleCodeWriter instead of OptimalCodeWriter */
     public boolean use_simple_code_writer = false;
+    
+    public Reporter reporter = new Reporter();
     
     /**
      * Constructor
@@ -317,7 +320,7 @@ public class Options {
         else if (args[i].equals("-v") || args[i].equals("-verbose"))
         {
             i++;
-            Report.addTopic("verbose", 1);
+            reporter.addTopic(Reporter.verbose, 1);
         }
         else if (args[i].equals("-report")) {
             i++;
@@ -331,7 +334,7 @@ public class Options {
                 } 
                 catch (NumberFormatException e) {}
             }
-            Report.addTopic(topic, level);
+            reporter.addTopic(topic, level);
             i++;
         }        
         else if (args[i].equals("-debugpositions")) {
@@ -376,8 +379,8 @@ public class Options {
         usageForFlag(out, "-errors <num>", "set the maximum number of errors");
         usageForFlag(out, "-w <num>", 
                           "set the maximum width of the .java output files");
-        usageForFlag(out, "-dump <pass>", "dump the ast after pass <pass>");
-        usageForFlag(out, "-print <pass>",
+        usageForFlag(out, "-dump <pass>|dumpall", "dump the ast after pass <pass>");
+        usageForFlag(out, "-print <pass>|printall",
 	                  "pretty-print the ast after pass <pass>");
         usageForFlag(out, "-disable <pass>", "disable pass <pass>");
 //        usageForFlag(out, "-scramble [seed]", "scramble the ast (for testing)");
@@ -394,7 +397,7 @@ public class Options {
                           "topic at specified verbosity");
 
         StringBuffer allowedTopics = new StringBuffer("Allowed topics: ");
-        for (Iterator<String> iter = Report.topics.iterator(); iter.hasNext(); ) {
+        for (Iterator<String> iter = reporter.topics.iterator(); iter.hasNext(); ) {
             allowedTopics.append(iter.next());
             if (iter.hasNext()) {
                 allowedTopics.append(", ");

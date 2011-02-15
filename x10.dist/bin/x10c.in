@@ -84,10 +84,6 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 # Set flags to generate optimized code if we've been asked to do so.
 [ "$optimize" = "true" ] && args="-OPTIMIZE=true $args"
 
-# include x10.jar in sourcepath
-[ -z "$X10SOURCES" ] && export X10SOURCES="${STDLIB_DIR}${FILE_SEP}x10.jar"
-[ -z "$rtdev" ] && args="-sourcepath \"${X10SOURCES}\" $args"
-
 # include libx10.properties as a x10lib unless rtdev
 [ -z "$rtdev" ] && args="-x10lib ${STDLIB_DIR}/libx10.properties $args"
 

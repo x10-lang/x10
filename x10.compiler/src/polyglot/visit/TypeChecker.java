@@ -11,7 +11,7 @@ import java.util.Map;
 
 import polyglot.ast.*;
 import polyglot.frontend.*;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
@@ -34,8 +34,8 @@ public class TypeChecker extends ContextVisitor
 		}
     	
         try {
-            if (Report.should_report(Report.visit, 2))
-                Report.report(2, ">> " + this + "::override " + n);
+            if (reporter.should_report(Reporter.visit, 2))
+                reporter.report(2, ">> " + this + "::override " + n);
             
             Node m = n.del().typeCheckOverride(parent, this);
             

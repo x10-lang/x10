@@ -59,7 +59,7 @@ public class LoadJobPlugins extends VisitorGoal {
 				X10ClassDef ct = (X10ClassDef) cd.classDef();
 				try {
 					TypeSystem ts = ct.typeSystem();
-					X10ClassType baseClass = (X10ClassType) ts.systemResolver().find(QName.make("x10.lang.annotation.PluginClass"));
+					Type baseClass = ts.systemResolver().findOne(QName.make("x10.lang.annotation.PluginClass"));
 					List<Type> pluginClasses = ct.annotationsMatching(baseClass);
 					for (Iterator<Type> i = pluginClasses.iterator(); i.hasNext(); ) {
 						Type pluginType = i.next();

@@ -14,6 +14,7 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal_c;
 import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.visit.NodeVisitor;
 import x10.compiler.ws.util.WSTransformationContent;
 import x10.wala.client.X10SourceAnalysisEngine;
@@ -34,8 +35,8 @@ public class X102IRGoal extends SourceGoal_c {
     // TODO: get rid of static state
     // TODO: figure out whether we need multiple loaders
 	static {
-		if(Report.should_report("verbose", 1))
-			Report.report(5,"WALA is invoked!");
+		if(Report.verbose)
+			Report.reporter.report(5,"WALA is invoked!");
 	}
     private static final ClassLoaderReference X10LOADER = X10SourceLoaderImpl.X10SourceLoader;
 
@@ -54,13 +55,15 @@ public class X102IRGoal extends SourceGoal_c {
     @Override
     public boolean runTask() {
         ExtensionInfo extInfo = job.extensionInfo();
-        if(Report.should_report("verbose", 2))
-			Report.report(2,"translating " + job.source().name() + " x10 ast to wala ast ...");
+        Reporter reporter = extInfo.getOptions().reporter;
+        boolean shouldReport = reporter.should_report(Reporter.verbose, 2);
+        if(shouldReport)
+			reporter.report(2,"translating " + job.source().name() + " x10 ast to wala ast ...");
         X10toCAstTranslator fTranslator = new X10toCAstTranslator(X10LOADER, extInfo.nodeFactory(), extInfo.typeSystem(), mapper);
         CAstEntity entity = fTranslator.translate(job.ast(), job.source().name());
         
-        if(Report.should_report("verbose", 2))
-			Report.report(2,"translating " + job.source().name() + " wala ast to ir ...");
+        if(shouldReport)
+			reporter.report(2,"translating " + job.source().name() + " wala ast to ir ...");
         new X10CAst2IRTranslator(entity, fSourceLoader).translate();
         return true;
     }
@@ -137,8 +140,8 @@ public class X102IRGoal extends SourceGoal_c {
                         Descriptor.findOrCreateUTF8("(Lx10/array/Array;)V"));
                 entrypoints.add(new DefaultEntrypoint(mainRef, engine.getClassHierarchy()));
             }
-            if(Report.should_report("verbose", 1))
-    			Report.report(5,"building call graph ...");
+            if(Report.verbose)
+    			Report.reporter.report(5,"building call graph ...");
             return engine.buildCallGraph(entrypoints);
         }catch (Throwable t) {
         	System.err.println(t); 
@@ -167,27 +170,27 @@ public class X102IRGoal extends SourceGoal_c {
 		HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
 		X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 		CallGraph cg = buildCallGraph();
-		if(Report.should_report("verbose", 1))
-			Report.report(5,"call graph built!\nanalyzing programs ...");
+		if(Report.verbose)
+			Report.reporter.report(5,"call graph built!\nanalyzing programs ...");
 		calltable = x10fa.build(cg,calltable);
 		calltable = CallTableUtil.findPatterns(calltable);
 		if (ifDump) {
 			CallTableUtil.dumpCallTable(calltable);
 		}
 		if (ifExpanded) {
-			if(Report.should_report("verbose", 1))
-    			Report.report(5,"expanding talbe ...");
+			if(Report.verbose)
+    			Report.reporter.report(5,"expanding table ...");
 			CallTableUtil.expandCallTable(calltable, mask);
 			// CallTableUtil.updateAllArity(calltable);
 			// CallTableUtil.expandCallTable(calltable, mask);
 		}
 		if (ifDump && ifExpanded) {
-			if(Report.should_report("verbose", 1))
-    			Report.report(5,"New Talbe:");
+			if(Report.verbose)
+    			Report.reporter.report(5,"New Table:");
 			CallTableUtil.dumpCallTable(calltable);
 		}
-		if(Report.should_report("verbose", 1))
-			Report.report(5,"done!");
+		if(Report.verbose)
+			Report.reporter.report(5,"done!");
 		return calltable;
 	}
     */

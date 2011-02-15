@@ -3,7 +3,6 @@ package polyglot.visit;
 import java.util.*;
 
 import polyglot.ast.*;
-import polyglot.frontend.Job;
 import polyglot.types.*;
 import polyglot.util.*;
 import x10.util.CollectionFactory;
@@ -29,7 +28,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
 
 	public NodeVisitor enter(Node n) {
 	    if (n instanceof ClassDecl) {
-		ConstructorCallRewriter v = (ConstructorCallRewriter) copy();
+		ConstructorCallRewriter v = (ConstructorCallRewriter) shallowCopy();
 		v.curr = ((ClassDecl) n).classDef();
 		return v;
 	    }
@@ -169,14 +168,14 @@ public abstract class LocalClassRemover extends ContextVisitor {
             LocalBoxer v = (LocalBoxer) super.enterCall(parent, n);
             if (n instanceof ConstructorCall) {
                 if (! inConstructorCall) {
-                    v = (LocalBoxer) v.copy();
+                    v = (LocalBoxer) v.shallowCopy();
                     v.inConstructorCall = true;
                     return v;
                 }
             }
             if (n instanceof ClassBody || n instanceof CodeNode) {
                 if (v.inConstructorCall) {
-                    v = (LocalBoxer) v.copy();
+                    v = (LocalBoxer) v.shallowCopy();
                     v.inConstructorCall = false;
                     return v;
                 }

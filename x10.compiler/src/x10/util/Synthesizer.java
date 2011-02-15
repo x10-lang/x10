@@ -794,8 +794,7 @@ public class Synthesizer {
 	 * @return 
 	 */
 	public int getPropertyNum(X10Def def, String name) throws SemanticException {
-		QName qName = QName.make(name);
-		Type t = (Type) xts.systemResolver().find(qName);
+		Type t = xts.systemResolver().findOne(QName.make(name));
 		List<Type> ts = def.annotationsMatching(t);
 		for (Type at : ts) {
 			Type bt = Types.baseType(at);
@@ -814,8 +813,7 @@ public class Synthesizer {
 	 * @return 
 	 */
 	public String getPropertyValue(X10Def def, String name, int index) throws SemanticException {
-		QName qName = QName.make(name);
-		Type t = (Type) xts.systemResolver().find(qName);
+		Type t = xts.systemResolver().findOne(QName.make(name));
 		List<Type> ts = def.annotationsMatching(t);
 		for (Type at : ts) {
 			Type bt = Types.baseType(at);

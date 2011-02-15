@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
@@ -31,7 +30,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Job;
 import polyglot.frontend.TargetFactory;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.TypeSystem;
@@ -40,7 +39,6 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.visit.Translator;
-import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10c.X10CCompilerOptions;
 
@@ -85,7 +83,7 @@ public class X10Translator extends Translator {
 
 	public X10Translator inInnerClass(boolean inInnerClass) {
 		if (inInnerClass == this.inInnerClass) return this;
-		X10Translator tr = (X10Translator) copy();
+		X10Translator tr = (X10Translator) shallowCopy();
 		tr.inInnerClass = inInnerClass;
 		return tr;
 	}
@@ -130,6 +128,42 @@ public class X10Translator extends Translator {
 	        }
 
 	        w.flush();
+
+            X10CCompilerOptions options = (X10CCompilerOptions) ts.extensionInfo().getOptions();
+            if (options.post_compiler != null && !options.output_stdout && options.executable_path != null) {
+                // copy *.x10 to output_directory in order to add them in a jar file
+                File sourceFile = null; 
+                File targetFile = null;
+                java.io.FileInputStream sourceInputStream = null;
+                java.io.FileOutputStream targetOutputStream = null;
+                try {
+                    String sourceFilepath = sfn.source().toString();
+                    sourceFile = new File(sourceFilepath);
+                    
+                    if (sourceFile.isFile()) {
+                    String targetDirpath = options.output_directory.getAbsolutePath();
+                    if (pkg != null) {
+                        targetDirpath += File.separator + pkg.toString().replace('.', File.separatorChar);
+                    }
+                    File targetDir = new File(targetDirpath);
+//                    targetDir.mkdirs();
+                    targetFile = new File(targetDir, sfn.source().name());
+                    
+                    sourceInputStream = new java.io.FileInputStream(sourceFile);
+                    java.nio.channels.FileChannel sourceChannel = sourceInputStream.getChannel();
+                    targetOutputStream = new java.io.FileOutputStream(targetFile);
+                    java.nio.channels.FileChannel targetChannel = targetOutputStream.getChannel();
+                    sourceChannel.transferTo(0, sourceChannel.size(), targetChannel);
+                    }
+                } finally {
+                    if (sourceInputStream != null) sourceInputStream.close();
+                    if (targetOutputStream != null) targetOutputStream.close();
+                    if (sourceFile != null && targetFile != null) { 
+                        targetFile.setLastModified(sourceFile.lastModified());
+                    }
+                }
+            }
+
 	        return true;
 	    }
 	    catch (IOException e) {
@@ -171,11 +205,12 @@ public class X10Translator extends Translator {
                 javacCmd[j] = (String) iter.next();
             }
 
-            if (Report.should_report(postcompile, 1)) {
+            Reporter reporter = options.reporter;
+            if (reporter.should_report(postcompile, 1)) {
                 StringBuffer cmdStr = new StringBuffer();
                 for (int i = 0; i < javacCmd.length; i++)
                     cmdStr.append(javacCmd[i]+" ");
-                Report.report(1, "Executing post-compiler " + cmdStr);
+                reporter.report(1, "Executing post-compiler " + cmdStr);
             }
 
             try {
@@ -224,12 +259,18 @@ public class X10Translator extends Translator {
                     
                     // create Main-Class attribute from main (= first) source name if MAIN_CLASS is not specified
                     String main_class = options.x10_config.MAIN_CLASS;
+                    // Fix for XTENLANG-2410
+                    // Guessing main_class from the first .x10 file is incorrect, because
+                    // 1) main_source may not be relative path from currect directory
+                    // 2) the first .x10 file may not have $Main class.
+                    /*
                     if (main_class == null) {
                         String main_source = ((X10CCompilerOptions) options).main_source;
                         if (main_source != null) {
                             main_class = main_source.substring(0, main_source.length() - ".x10".length());
                         }
                     }
+                    */
                     
                     // create manifest file
                     File manifest = File.createTempFile("x10c.manifest.", null);
@@ -244,6 +285,13 @@ public class X10Translator extends Translator {
                     out.println("Created-By: " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     out.close();
 
+                    // create directory for jar file
+                    File jarFile = new File(options.executable_path);
+                    File directoryHoldingJarFile = jarFile.getParentFile();
+                    if (directoryHoldingJarFile != null) {
+                    	directoryHoldingJarFile.mkdirs();
+                    }
+                    
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
                     jarCmdList.add("cmf");
                     jarCmdList.add(manifest.getAbsolutePath());

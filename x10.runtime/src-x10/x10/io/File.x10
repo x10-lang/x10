@@ -39,55 +39,55 @@ public class File {
         native def this(String);
 
         @Native("java", "#0.getName()")
-        @Native("c++", "(#0)->getName()")
+        @Native("c++", "(#this)->getName()")
         native def getName(): String;
         @Native("java", "#0.getParent()")
-        @Native("c++", "(#0)->getParent()")
+        @Native("c++", "(#this)->getParent()")
         native def getParent(): String;
         @Native("java", "#0.getPath()")
-        @Native("c++", "(#0)->getPath()")
+        @Native("c++", "(#this)->getPath()")
         native def getPath(): String;
 
         @Native("java", "#0.isAbsolute()")
-        @Native("c++", "(#0)->isAbsolute()")
+        @Native("c++", "(#this)->isAbsolute()")
         native def isAbsolute(): Boolean;
 
         @Native("java", "#0.getAbsolutePath()")
-        @Native("c++", "(#0)->getAbsolutePath()")
+        @Native("c++", "(#this)->getAbsolutePath()")
         native def getAbsolutePath(): String;
 
         @Native("java", "#0.getCanonicalPath()")
-        @Native("c++", "(#0)->getCanonicalPath()")
+        @Native("c++", "(#this)->getCanonicalPath()")
         native def getCanonicalPath(): String; //throws IOException;
 
         @Native("java", "#0.canRead()")
-        @Native("c++", "(#0)->canRead()")
+        @Native("c++", "(#this)->canRead()")
         native def canRead(): Boolean;
         @Native("java", "#0.canWrite()")
-        @Native("c++", "(#0)->canWrite()")
+        @Native("c++", "(#this)->canWrite()")
         native def canWrite(): Boolean;
         @Native("java", "#0.exists()")
-        @Native("c++", "(#0)->exists()")
+        @Native("c++", "(#this)->exists()")
         native def exists(): Boolean;
         @Native("java", "#0.isDirectory()")
-        @Native("c++", "(#0)->isDirectory()")
+        @Native("c++", "(#this)->isDirectory()")
         native def isDirectory(): Boolean;
         @Native("java", "#0.isFile()")
-        @Native("c++", "(#0)->isFile()")
+        @Native("c++", "(#this)->isFile()")
         native def isFile(): Boolean;
         @Native("java", "#0.isHidden()")
-        @Native("c++", "(#0)->isHidden()")
+        @Native("c++", "(#this)->isHidden()")
         native def isHidden(): Boolean;
         @Native("java", "#0.lastModified()")
-        @Native("c++", "(#0)->lastModified()")
+        @Native("c++", "(#this)->lastModified()")
         native def lastModified(): Long;
         @Native("java", "#0.length()")
-        @Native("c++", "(#0)->length()")
+        @Native("c++", "(#this)->length()")
         native def length(): Long;
 
         @Native("java", "#0.setLastModified(#1)")
-        @Native("c++", "(#0)->setLastModified(#1)")
-        native def setLastModified(Long): Boolean;
+        @Native("c++", "(#this)->setLastModified(#v)")
+        native def setLastModified(v:Long): Boolean;
     }
 
 /*

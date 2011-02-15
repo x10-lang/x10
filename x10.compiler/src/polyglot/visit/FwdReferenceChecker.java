@@ -7,13 +7,12 @@
 
 package polyglot.visit;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import polyglot.ast.*;
 import polyglot.frontend.Job;
 import polyglot.types.*;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import x10.util.CollectionFactory;
 
 /** Visitor which ensures that field intializers and initializers do not
  * make illegal forward references to fields.
@@ -35,7 +34,7 @@ public class FwdReferenceChecker extends ContextVisitor
         if (n instanceof FieldDecl) {
             FieldDecl fd = (FieldDecl)n;
             if (fd.flags().flags().isStatic()) {
-            FwdReferenceChecker frc = (FwdReferenceChecker)this.copy();
+            FwdReferenceChecker frc = (FwdReferenceChecker)this.shallowCopy();
             frc.declaredFields = CollectionFactory.newHashSet(declaredFields);
             declaredFields.add(fd.fieldDef());
             frc.inInitialization = true;
@@ -43,7 +42,7 @@ public class FwdReferenceChecker extends ContextVisitor
             }
         }
         else if (n instanceof Initializer && ((Initializer)n).flags().flags().isStatic()) {
-            FwdReferenceChecker frc = (FwdReferenceChecker)this.copy();
+            FwdReferenceChecker frc = (FwdReferenceChecker)this.shallowCopy();
             frc.inInitialization = true;
             return frc;
         }

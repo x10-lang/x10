@@ -92,7 +92,7 @@ public class ExceptionChecker extends ErrorHandlingVisitor
     
     public ExceptionChecker push() {
         throwsSet(); // force an instantiation of the throwsset.
-        ExceptionChecker ec = (ExceptionChecker) this.copy();
+        ExceptionChecker ec = (ExceptionChecker) this.shallowCopy();
         ec.outer = this;
         ec.catchable = null;
         ec.catchAllThrowable = false;

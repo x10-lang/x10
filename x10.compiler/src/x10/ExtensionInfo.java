@@ -136,10 +136,6 @@ import x10cpp.postcompiler.PrecompiledLibrary;
  */
 public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     static final boolean DEBUG_ = false;
-    static {
-        // force Topics to load
-        Topics t = new Topics();
-    }
     
     protected Map<QName,CompilerPlugin> plugins;
 
@@ -150,11 +146,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     public Stats stats;
 
 //	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = CollectionFactory.newHashMap();
-    public static String clock = "clock";
-
-    static {
-        Report.topics.add(clock);
-    }
 
     /*** Construct an ExtensionInfo */
     public ExtensionInfo() {
@@ -329,47 +320,22 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     protected void initTypeSystem() {
-        try {
-            X10CompilerOptions opts = getOptions();
-            TopLevelResolver r = new X10SourceClassResolver(compiler, this, opts.constructFullClasspath(),
-                                                            opts.compile_command_line_only,
-                                                            opts.ignore_mod_times);
-            
-            for (PrecompiledLibrary pco:opts.x10libs) {
-               manifest.add(pco.sourceJar);
-               manifest.addAll(pco.sourceFiles);
-            }
-            
-            // TODO: Once the java backend also generates a proper lib property,
-            //       we could eliminate this stanza of code because it would be handled by the Library loop above.
-            for (File f : opts.source_path) {
-                if (f.getName().endsWith("x10.jar")) {
-                    try {
-                        JarFile jf = new JarFile(f);
-                        manifest.add("x10.jar");
-                        Enumeration<JarEntry> entries = jf.entries();
-                        while (entries.hasMoreElements()) {
-                            JarEntry je = entries.nextElement();
-                            if (je.getName().endsWith(".x10")) { // FIXME: hard-codes the source extension.
-                                manifest.add(je.getName());
-                            }
-                        }
-                    } catch (IOException e) { }
-                }
-            }
+        X10CompilerOptions opts = getOptions();
+        TopLevelResolver r = new X10SourceClassResolver(compiler, this, opts.constructFullClasspath(),
+                                                        opts.compile_command_line_only,
+                                                        opts.ignore_mod_times);
 
-            // Resolver to handle lookups of member classes.
-            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
-                r = mcr;
-            }
+        for (PrecompiledLibrary pco : opts.x10libs) {
+            pco.updateManifset(manifest, this);
+        }
 
-            ts.initialize(r, this);
+        // Resolver to handle lookups of member classes.
+        if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
+            MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
+            r = mcr;
         }
-        catch (SemanticException e) {
-            throw new InternalCompilerError(
-                    "Unable to initialize type system: " + e.getMessage(), e);
-        }
+
+        ts.initialize(r);
     }
 
     protected NodeFactory createNodeFactory() {
@@ -377,7 +343,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     protected TypeSystem createTypeSystem() {
-        return new TypeSystem_c();
+        return new TypeSystem_c(this);
     }
 
 

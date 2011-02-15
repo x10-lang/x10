@@ -297,14 +297,15 @@ public class LineNumberMap extends StringTable {
 	{
 		int _x10startLine;     // First line number of X10 line range
 		int _x10endLine;       // Last line number of X10 line range
+		String _sizeOfArg;
 		ArrayList<MemberVariableMapInfo> closureMembers;
 	}
 	
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
 	private static ArrayList<Integer> refMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
-	private static Hashtable<String, ArrayList<MemberVariableMapInfo>> memberVariables;
-	private static Hashtable<String, ClosureMapInfo> closureMembers;
+	private static Hashtable<Integer, ArrayList<MemberVariableMapInfo>> memberVariables;
+	private static Hashtable<Integer, ClosureMapInfo> closureMembers;
 	
 	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
@@ -353,7 +354,7 @@ public class LineNumberMap extends StringTable {
 		if (type.startsWith("x10.array.Region"))
 			return 300;
 		if (type.contains("_closure_"))
-			return 100;
+			return 100;			
 		return 101; // generic class
 	}
 	
@@ -382,6 +383,7 @@ public class LineNumberMap extends StringTable {
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle, int closureIndex)
 	{
 		if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
+		//if (name == null || name.contains("$"))
 			return; // skip variables with compiler-generated names.
 		
 		if (localVariables == null)
@@ -419,13 +421,14 @@ public class LineNumberMap extends StringTable {
 	public void addClassMemberVariable(String name, String type, String containingClass)
 	{
 		if (memberVariables == null)
-			memberVariables = new Hashtable<String, ArrayList<LineNumberMap.MemberVariableMapInfo>>();
-		ArrayList<MemberVariableMapInfo> members = memberVariables.get(containingClass);
+			memberVariables = new Hashtable<Integer, ArrayList<LineNumberMap.MemberVariableMapInfo>>();
+		ArrayList<MemberVariableMapInfo> members = memberVariables.get(stringId(containingClass));
 		if (members == null)
 		{
 			members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
-			memberVariables.put(containingClass, members);
+			memberVariables.put(stringId(containingClass), members);
 		}
+		if (name == null) return; // special case for classes without members
 		
 		MemberVariableMapInfo v = new MemberVariableMapInfo();
 		v._x10type = determineTypeId(type);
@@ -443,31 +446,41 @@ public class LineNumberMap extends StringTable {
 	
 	public void addClosureMember(String name, String type, String containingClass, String file, int startLine, int endLine)
 	{
+		// TODO - this "if" is a hack.  I want source code that has a real async to map to a closure, 
+		// but I want to hide closures that are generated under the covers.  I can't find a good way to 
+		// determine this, so in the meantime, I'm just throwing out all the 1-line closures.		
+		if (startLine == endLine) return;
+		
 		if (closureMembers == null)
-			closureMembers = new Hashtable<String, ClosureMapInfo>();
-		ClosureMapInfo cm = closureMembers.get(containingClass);
+			closureMembers = new Hashtable<Integer, ClosureMapInfo>();
+		ClosureMapInfo cm = closureMembers.get(stringId(containingClass));
 		if (cm == null)
 		{
 			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size());
 			cm = new ClosureMapInfo();			
 			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			cm._x10startLine = startLine;
-			cm._x10endLine = endLine;
-			closureMembers.put(containingClass, cm);
+			cm._x10endLine = endLine;			
+			closureMembers.put(stringId(containingClass), cm);
 		}
 		
-		MemberVariableMapInfo v = new MemberVariableMapInfo();
-		v._x10type = determineTypeId(type);
-		if (v._x10type == 203)
-			v._x10typeIndex = determineSubtypeId(type, refMap);
-		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
-			v._x10typeIndex = determineSubtypeId(type, arrayMap);
-		else 
-			v._x10typeIndex = -1;
-		v._x10memberName = stringId(name);
-		v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
-		v._cppClass = stringId(containingClass);
-		cm.closureMembers.add(v);
+		if (name == null)
+			cm._sizeOfArg = type.replaceAll("FMGL", "class FMGL");
+		else
+		{
+			MemberVariableMapInfo v = new MemberVariableMapInfo();
+			v._x10type = determineTypeId(type);
+			if (v._x10type == 203)
+				v._x10typeIndex = determineSubtypeId(type, refMap);
+			else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
+				v._x10typeIndex = determineSubtypeId(type, arrayMap);
+			else 
+				v._x10typeIndex = -1;
+			v._x10memberName = stringId(name);
+			v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
+			v._cppClass = stringId(containingClass);
+			cm.closureMembers.add(v);
+		}
 	}
 
 	/**
@@ -921,26 +934,31 @@ public class LineNumberMap extends StringTable {
 	        
         if (memberVariables != null)
         {
-        	for (String classname : memberVariables.keySet())
+        	for (Integer classId : memberVariables.keySet())
         	{
+        		String classname = m.lookupString(classId);
 		        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		        for (MemberVariableMapInfo v : memberVariables.get(classname))
+		        for (MemberVariableMapInfo v : memberVariables.get(classId))
 		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 			    w.writeln("};");
 			    w.forceNewline();
         	}
         	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) = {");
-        	for (String classname : memberVariables.keySet())
-	        	w.writeln("    { 101, "+offsets[memberVariables.get(classname).get(0)._cppClass]+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classname).size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");	        
+        	for (Integer classId : memberVariables.keySet())
+        	{
+        		String classname = m.lookupString(classId);
+	        	w.writeln("    { 101, "+offsets[classId]+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classId).size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+        	}
         	w.writeln("};");
         	w.forceNewline();
         }
         	    
 	    if (closureMembers != null)
 	    {
-	    	for (String classname : closureMembers.keySet())
+	    	for (Integer classId : closureMembers.keySet())
         	{
-	    		ClosureMapInfo cmi = closureMembers.get(classname);
+	    		String classname = m.lookupString(classId);
+	    		ClosureMapInfo cmi = closureMembers.get(classId);
 	    		w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		        for (MemberVariableMapInfo v : cmi.closureMembers)
 		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
@@ -949,11 +967,12 @@ public class LineNumberMap extends StringTable {
         	}	    	
 		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
 		    int index = 0;
-		    for (String classname : closureMembers.keySet())
+		    for (Integer classId : closureMembers.keySet())
 		    {
-		    	ClosureMapInfo cmi = closureMembers.get(classname);
-	        	w.writeln("    { 100, "+offsets[cmi.closureMembers.get(0)._cppClass]+", sizeof("+classname.replace(".", "::")+"), "+cmi.closureMembers.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
-	        	index++;
+		    	String classname = m.lookupString(classId);
+		    	ClosureMapInfo cmi = closureMembers.get(classId);
+		    	w.writeln("    { 100, "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi.closureMembers.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+		    	index++;
 		    }
 		    w.writeln("};");
 		    w.forceNewline();

@@ -64,7 +64,7 @@ import polyglot.frontend.Source;
 import polyglot.frontend.TargetFactory;
 
 import polyglot.main.Options;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -239,8 +239,11 @@ public class X10CPPTranslator extends Translator {
 		            	for (int i=0; i<args.size(); i++)
 		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false);
 		            	// include "this" for non-static methods		            	
-		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable())
+		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable() && !c.inTemplate())
+		            	{
 		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true);
+		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()));
+		            	}
 		            }
 		        }
 		    }
@@ -324,21 +327,21 @@ public class X10CPPTranslator extends Translator {
 		            String out_path = opts.output_directory.toString();
 		            if (out_path==null) out_path = ""; else out_path = out_path + '/';
 		            String pkg_ = packagePath(pkg);
-		            List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
+		            List<X10ClassType> as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPInclude")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String include = getStringPropertyInit(at, 0);
 		                outputFiles.add(pkg_+include);
 		                maybeCopyTo(include, path, out_path+pkg_);
 		            }
-		            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPOutputFile")));
+		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPOutputFile")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String file = getStringPropertyInit(at, 0);
 		                outputFiles.add(pkg_+file);
 		                maybeCopyTo(file, path, out_path+pkg_);
 		            }
-		            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPCompilationUnit")));
+		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPCompilationUnit")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String compilation_unit = getStringPropertyInit(at, 0);
@@ -594,11 +597,12 @@ public class X10CPPTranslator extends Translator {
     	return doPostCompile(options, eq, outputFiles, cxxCmd, false);
     }
     public static boolean doPostCompile(Options options, ErrorQueue eq, Collection<String> outputFiles, String[] cxxCmd, boolean noError) {
-        if (Report.should_report(postcompile, 1)) {
+        Reporter reporter = options.reporter;
+        if (reporter.should_report(postcompile, 1)) {
         	StringBuffer cmdStr = new StringBuffer();
         	for (int i = 0; i < cxxCmd.length; i++)
         		cmdStr.append(cxxCmd[i]+" ");
-        	Report.report(1, "Executing post-compiler " + cmdStr);
+        	reporter.report(1, "Executing post-compiler " + cmdStr);
         }
 
         try {

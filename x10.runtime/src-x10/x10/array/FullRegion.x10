@@ -44,7 +44,7 @@ final class FullRegion extends Region{rect} {
         };
     }
     public def intersection(that: Region(rank)): Region(rank) = that;
-    public def product(that: Region): Region/*(this.rank+that.rank)*/{
+    public def product(that: Region):Region{self != null} /*: Region(this.rank+that.rank)*/{
         @TempNoInline_0
         if (that.isEmpty()) {
             return Region.makeEmpty(rank+that.rank);

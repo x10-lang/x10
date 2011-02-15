@@ -24,6 +24,7 @@ import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
+import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.DeadVariableEliminator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.Inliner;
@@ -31,20 +32,20 @@ import x10.visit.Inliner;
 public class Optimizer {
 
     public static boolean INLINING(ExtensionInfo extInfo) {
-        X10CompilerOptions opts = extInfo.getOptions();
-        if (opts.x10_config.INLINE_METHODS_IMPLICIT)                                        return true; // DEBUG
-        if (!opts.x10_config.OPTIMIZE)        return false;
-        if (opts.x10_config.INLINE_CONSTANTS) return true;
-        if (opts.x10_config.INLINE_METHODS)   return true;
-        if (opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS && opts.x10_config.INLINE_CLOSURES) return true;
+        Configuration config = extInfo.getOptions().x10_config;
+        if (!config.OPTIMIZE)        return false;
+        if (config.INLINE_CONSTANTS) return true;
+        if (config.INLINE_METHODS)   return true;
+        if (config.INLINE_CLOSURES)  return true;
+        if (config.INLINE_METHODS_IMPLICIT) return true;
         return false;
     }
-    
+
     public static boolean FLATTENING(ExtensionInfo extInfo, boolean javaBackEnd) {
-        X10CompilerOptions opts = extInfo.getOptions();
-        if (opts.x10_config.FLATTEN_EXPRESSIONS)            return true;
-        if (javaBackEnd && INLINING(extInfo))               return true;
-        if (!opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS)   return true; // don't let StmtExpr's reach the back end
+        Configuration config = extInfo.getOptions().x10_config;
+        if (config.FLATTEN_EXPRESSIONS)          return true;
+        if (javaBackEnd && INLINING(extInfo))    return true;
+        if (!config.ALLOW_STATEMENT_EXPRESSIONS) return true; // don't let StmtExpr's reach the back end
         return false;
     }
 
@@ -69,9 +70,12 @@ public class Optimizer {
     }
 
     private List<Goal> goals() {
-        X10CompilerOptions opts = (X10CompilerOptions) extInfo.getOptions();
         List<Goal> goals = new ArrayList<Goal>();
-        if (opts.x10_config.LOOP_OPTIMIZATIONS) {
+        Configuration config = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
+        if (config.SPLIT_CONSTRUCTORS) {
+            goals.add(ConstructorSplitter());
+        }
+        if (config.LOOP_OPTIMIZATIONS) {
             goals.add(LoopUnrolling());
             goals.add(ForLoopOptimizations());
         }
@@ -81,7 +85,7 @@ public class Optimizer {
         if (FLATTENING(extInfo, java)) {
             goals.add(ExpressionFlattener());
         }
-        if (opts.x10_config.EXPERIMENTAL && opts.x10_config.ELIMINATE_DEAD_VARIABLES) {
+        if (config.EXPERIMENTAL && config.ELIMINATE_DEAD_VARIABLES) {
             goals.add(DeadVariableEliminator());
         }
         // TODO: add an empty goal that prereqs the above
@@ -115,6 +119,12 @@ public class Optimizer {
     public Goal DeadVariableEliminator() {
         NodeVisitor visitor = new DeadVariableEliminator(job, ts, nf);
         Goal goal = new ValidatingVisitorGoal("Dead Variable Elimination", job, visitor);
+        return goal.intern(scheduler);
+    }
+
+    public Goal ConstructorSplitter() {
+        NodeVisitor visitor = new ConstructorSplitterVisitor(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("Constuctor Splitter", job, visitor);
         return goal.intern(scheduler);
     }
 

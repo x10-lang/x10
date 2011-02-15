@@ -14,7 +14,6 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -22,7 +21,6 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
-import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -37,7 +35,8 @@ import java.util.ListIterator;
 import java.util.List;
 
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
@@ -155,8 +154,7 @@ public class X10ClassBody_c extends ClassBody_c {
 
                         if (hasCompatibleArguments(mk.x10Def(), ml.x10Def(), tc.context()) && isParameterized(mk.x10Def()) && isParameterized(ml.x10Def())) {
                             Errors.issue(tc.job(),
-                                    new SemanticException("Method " + mj.signature() + " in " + mj.container() + " and method " + mi.signature() + " in " + mi.container()
-                                                        + " override methods with compatible signatures.", mi.position()),
+                                    new Errors.MethodsOverrideWithCompatibleSignatures(mj, mi, mi.position()),
                                     this);
                         }
                     }
@@ -286,7 +284,7 @@ public class X10ClassBody_c extends ClassBody_c {
 
                 if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj, tc.context())) {
                     Errors.issue(tc.job(),
-                            new SemanticException("Duplicate type definition \"" + mj + "\"; previous declaration at " + mi.position() + ".", mj.position()),
+                            new Errors.DumplicateTypeDefinition(mj, mi, mj.position()),
                             this);
                 }
             }
@@ -298,7 +296,7 @@ public class X10ClassBody_c extends ClassBody_c {
                     ClassType ct = (ClassType) t;
                     if (ct.name().equals(mi.name())) {
                         Errors.issue(tc.job(),
-                                new SemanticException("Type definition " + mi + " has the same name as member class " + ct + ".", mi.position()),
+                                new Errors.TypeDefinitionSameNameAsMemberClass(mi, ct, mi.position()),
                                 this);
                     }
                 }
@@ -378,10 +376,8 @@ public class X10ClassBody_c extends ClassBody_c {
             for (int j = i+1; j < l.size(); j++) {
                 Type mj = l.get(j).get();
 
-                if (mi instanceof Named && mj instanceof Named) {
-                    if (((Named) mi).name().equals(((Named) mj).name())) {
-                        reportDuplicate(mj,tc);
-                    }
+                if (mi.name().equals(mj.name())) {
+                    reportDuplicate(mj,tc);
                 }
             }
         }
@@ -440,6 +436,4 @@ public class X10ClassBody_c extends ClassBody_c {
         return succs;
     }
 
-    private static final Collection<String> TOPICS = 
-                CollectionUtil.list(Report.types, Report.context);
 }

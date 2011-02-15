@@ -43,7 +43,7 @@ public class X10While_c extends While_c {
 
 		if (! ts.isSubtype(cond.type(), ts.Boolean(), tc.context())) {
 		    Errors.issue(tc.job(),
-		            new SemanticException("Condition of while statement must have boolean type, and not " + cond.type() + ".", cond.position()),
+		            new Errors.WhileStatementMustHaveBooleanType(cond.type(), cond.position()),
 		            this);
 		}
 

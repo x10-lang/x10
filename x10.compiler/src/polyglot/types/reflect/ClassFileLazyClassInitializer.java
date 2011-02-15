@@ -10,7 +10,7 @@ package polyglot.types.reflect;
 import java.util.*;
 
 import polyglot.frontend.Globals;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.types.reflect.InnerClasses.Info;
 import polyglot.util.*;
@@ -27,6 +27,7 @@ import polyglot.util.*;
 public class ClassFileLazyClassInitializer {
     protected ClassFile clazz;
     protected TypeSystem ts;
+    protected Reporter reporter;
     protected ClassDef ct;
 
     protected boolean init;
@@ -37,11 +38,10 @@ public class ClassFileLazyClassInitializer {
     protected boolean methodsInitialized;
     protected boolean superclassInitialized;
 
-    protected static Collection<String> verbose = ClassFileLoader.verbose;
-
     public ClassFileLazyClassInitializer(ClassFile file, TypeSystem ts) {
         this.clazz = file;
         this.ts = ts;
+        this.reporter = ts.extensionInfo().getOptions().reporter;
     }
     
     public void setClass(ClassDef ct) {
@@ -66,8 +66,8 @@ public class ClassFileLazyClassInitializer {
         // The name is of the form "p.q.C$I$J".
         String name = clazz.classNameCP(clazz.getThisClass());
 
-        if (Report.should_report(verbose, 2))
-            Report.report(2, "creating ClassType for " + name);
+        if (reporter.should_report(Reporter.loader, 2))
+            reporter.report(2, "creating ClassType for " + name);
 
         // Create the ClassType.
         ClassDef ct = ts.createClassDef();
@@ -133,8 +133,8 @@ public class ClassFileLazyClassInitializer {
             }
         }
 
-        if (Report.should_report(verbose, 3))
-            Report.report(3, name + " is " + kind);
+        if (reporter.should_report(Reporter.loader, 3))
+            reporter.report(3, name + " is " + kind);
 
         ct.kind(kind);
 
@@ -252,8 +252,8 @@ public class ClassFileLazyClassInitializer {
             }
         }
 
-        if (Report.should_report(verbose, 4))
-            Report.report(4, "parsed \"" + str + "\" -> " + types);
+        if (reporter.should_report(Reporter.loader, 4))
+            reporter.report(4, "parsed \"" + str + "\" -> " + types);
 
         return types;
     }
@@ -284,8 +284,8 @@ public class ClassFileLazyClassInitializer {
     }
     
     protected Ref<ClassDef> defForName(String name, Flags flags) {
-        if (Report.should_report(verbose, 2))
-            Report.report(2, "resolving " + name);
+        if (reporter.should_report(Reporter.loader, 2))
+            reporter.report(2, "resolving " + name);
         
         LazyRef<ClassDef> sym = Types.lazyRef(ts.unknownClassDef(), null);
         
@@ -388,8 +388,8 @@ public class ClassFileLazyClassInitializer {
                     // A member class of this class
                     Ref<? extends Type> t = typeForName(name, ts.flagsForBits(c.modifiers));
 
-                    if (Report.should_report(verbose, 3))
-                        Report.report(3, "adding member " + t + " to " + ct);
+                    if (reporter.should_report(Reporter.loader, 3))
+                        reporter.report(3, "adding member " + t + " to " + ct);
 
                     ct.addMemberClass((Ref<? extends ClassType>) t);
                 }
@@ -425,8 +425,8 @@ public class ClassFileLazyClassInitializer {
             if (!fields[i].name().startsWith("jlc$")
                     && !fields[i].isSynthetic()) {
                 FieldDef fi = this.fieldInstance(fields[i], ct);
-                if (Report.should_report(verbose, 3))
-                    Report.report(3, "adding " + fi + " to " + ct);
+                if (reporter.should_report(Reporter.loader, 3))
+                    reporter.report(3, "adding " + fi + " to " + ct);
                 ct.addField(fi);
             }
         }
@@ -449,8 +449,8 @@ public class ClassFileLazyClassInitializer {
                     && !methods[i].name().equals("<clinit>")
                     && !methods[i].isSynthetic()) {
                 MethodDef mi = this.methodInstance(methods[i], ct);
-                if (Report.should_report(verbose, 3))
-                    Report.report(3, "adding " + mi + " to " + ct);
+                if (reporter.should_report(Reporter.loader, 3))
+                    reporter.report(3, "adding " + mi + " to " + ct);
                 ct.addMethod(mi);
             }
         }
@@ -474,8 +474,8 @@ public class ClassFileLazyClassInitializer {
                 ConstructorDef ci = this.constructorInstance(methods[i],
                                                                   ct,
                                                                   clazz.getFields());
-                if (Report.should_report(verbose, 3))
-                    Report.report(3, "adding " + ci + " to " + ct);
+                if (reporter.should_report(Reporter.loader, 3))
+                    reporter.report(3, "adding " + ci + " to " + ct);
                 ct.addConstructor(ci);
             }
         }

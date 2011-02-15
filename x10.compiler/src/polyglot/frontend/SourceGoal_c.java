@@ -14,7 +14,6 @@ public abstract class SourceGoal_c extends AbstractGoal_c implements SourceGoal 
     }
     
     public SourceGoal_c(Job job) {
-        super();
         assert job != null;
         this.job = job;
     }

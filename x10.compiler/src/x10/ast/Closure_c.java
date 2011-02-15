@@ -26,7 +26,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -86,7 +86,7 @@ public class Closure_c extends Expr_c implements Closure {
 	protected DepParameterExpr guard;
 
 	private static final Collection<String> TOPICS = 
-		CollectionUtil.list(Report.types, Report.context);
+		CollectionUtil.list(Reporter.types, Reporter.context);
 
 	public Closure_c(Position pos) {
 		super(pos);
@@ -326,8 +326,9 @@ public class Closure_c extends Expr_c implements Closure {
 	}
 
 	public Context enterScope(Context c) {
-		if (Report.should_report(TOPICS, 5))
-			Report.report(5, "enter scope of closure at " + position());
+	    Reporter reporter = c.typeSystem().extensionInfo().getOptions().reporter;
+		if (reporter.should_report(TOPICS, 5))
+			reporter.report(5, "enter scope of closure at " + position());
 		// TODO maybe we want a new type of "code context thingy" that is not a type system object, but can live on the Context stack.
 		c = c.pushCode(closureDef);
 		return c;

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.util.CodeWriter;
@@ -26,11 +26,13 @@ public class TargetFactory
     protected File outputDirectory;
     protected String outputExtension;
     protected boolean outputStdout;
+    protected Reporter reporter;
 
-    public TargetFactory(File outDir, String outExt, boolean so) {
+    public TargetFactory(File outDir, String outExt, boolean so, Reporter reporter) {
 	outputDirectory = outDir;
 	outputExtension = outExt;
 	outputStdout = so;
+	this.reporter = reporter;
     }
 
     /** Open a writer to the output file for the class in the given package. */
@@ -47,8 +49,8 @@ public class TargetFactory
 
     /** Open a writer to the output file. */
     public Writer outputWriter(File outputFile) throws IOException {
-	if (Report.should_report(Report.frontend, 2))
-	    Report.report(2, "Opening " + outputFile + " for output.");
+	if (reporter.should_report(Reporter.frontend, 2))
+	    reporter.report(2, "Opening " + outputFile + " for output.");
 
 	if (outputStdout) {
 	    return new UnicodeWriter(new PrintWriter(System.out));

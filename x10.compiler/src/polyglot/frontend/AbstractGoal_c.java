@@ -3,7 +3,7 @@ package polyglot.frontend;
 import java.util.*;
 
 import polyglot.frontend.Goal.Status;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.LazyRef_c;
 import polyglot.util.StringUtil;
 
@@ -54,8 +54,9 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 
 	public void run() {
 		AbstractGoal_c goal = this;
-		if (Report.should_report(Report.frontend, 2))
-			Report.report(2, "Running to goal " + goal);
+		Reporter reporter = scheduler.extensionInfo().getOptions().reporter;
+		if (reporter.should_report(reporter.frontend, 2))
+			reporter.report(2, "Running to goal " + goal);
 		
 		LinkedList<Goal> worklist = new LinkedList<Goal>(prereqs());
 
@@ -68,8 +69,8 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 			if (g.getCached() == Goal.Status.SUCCESS)
 			    continue;
 			    
-			if (Report.should_report(Report.frontend, 4))
-				Report.report(4, "running prereq: " + g + "->" + goal);
+			if (reporter.should_report(reporter.frontend, 4))
+				reporter.report(4, "running prereq: " + g + "->" + goal);
 			
 			Status s = g.get();
 
@@ -112,13 +113,13 @@ public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements G
 		
 		boolean recursive = oldStatus == Status.RUNNING_RECURSIVE;
 
-		if (Report.should_report(Report.frontend, 4))
-			Report.report(4, "running goal " + goal);
+		if (reporter.should_report(reporter.frontend, 4))
+			reporter.report(4, "running goal " + goal);
 
-		if (Report.should_report(Report.frontend, 5)) {
+		if (reporter.should_report(reporter.frontend, 5)) {
 			if (scheduler.currentGoal() != null) {
-				Report.report(5, "CURRENT = " + scheduler.currentGoal());
-				Report.report(5, "SPAWN   = " + goal);
+				reporter.report(5, "CURRENT = " + scheduler.currentGoal());
+				reporter.report(5, "SPAWN   = " + goal);
 			}
 		}
 

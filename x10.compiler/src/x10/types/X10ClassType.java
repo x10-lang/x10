@@ -17,7 +17,6 @@ import polyglot.ast.Expr;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Matcher;
-import polyglot.types.Named;
 import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
@@ -58,7 +57,7 @@ public interface X10ClassType extends ClassType,  X10Use<X10ClassDef> {
 	boolean hasParams();
 	List<Type> typeMembers();
 
-	MacroType typeMemberMatching(Matcher<Named> matcher);
+	MacroType typeMemberMatching(Matcher<Type> matcher);
 
 	boolean isJavaType();
 

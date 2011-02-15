@@ -12,17 +12,18 @@ import java.io.InvalidClassException;
 import java.util.*;
 
 import polyglot.frontend.*;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.main.Version;
 import polyglot.types.BadSerializationException;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
-import polyglot.types.Named;
 import polyglot.types.NoClassException;
+import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
+import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.util.*;
@@ -30,8 +31,9 @@ import x10.types.MethodInstance;
 import x10.util.CollectionFactory;
 
 /**
- * Loads class information from class files, or serialized class infomation
+ * Loads class information from class files, or serialized class information
  * from within class files.  It does not load from source files.
+ * TODO: dead, remove
  */
 public class LoadedClassResolver implements TopLevelResolver
 {
@@ -40,6 +42,7 @@ public class LoadedClassResolver implements TopLevelResolver
   protected final static int COMPATIBLE = 0;
 
   protected TypeSystem ts;
+  protected Reporter reporter;
   protected TypeEncoder te;
   protected ClassFileLoader loader;
   protected ClassPathResourceLoader pathloader;
@@ -48,7 +51,7 @@ public class LoadedClassResolver implements TopLevelResolver
   protected boolean allowRawClasses;
 
   protected final static Collection<String> report_topics = CollectionUtil.list(
-    Report.types, Report.resolver, Report.loader);
+    Reporter.types, Reporter.resolver, Reporter.loader);
 
   /**
    * Create a loaded class resolver.
@@ -63,9 +66,10 @@ public class LoadedClassResolver implements TopLevelResolver
                              boolean allowRawClasses)
   {
     this.ts = ts;
+    this.reporter = ts.extensionInfo().getOptions().reporter;
     this.te = new TypeEncoder(ts);
     this.loader = loader;
-    this.pathloader = new ClassPathResourceLoader(classpath);
+    this.pathloader = new ClassPathResourceLoader(classpath, this.reporter);
     this.version = version;
     this.nocache = CollectionFactory.newHashSet();
     this.allowRawClasses = allowRawClasses;
@@ -73,6 +77,12 @@ public class LoadedClassResolver implements TopLevelResolver
 
   public boolean allowRawClasses() {
     return allowRawClasses;
+  }
+
+  public Package findPackage(QName name) throws SemanticException {
+    if (packageExists(name))
+      return ts.createPackage(name);
+    throw new SemanticException("Package "+name+" not found");
   }
 
   public boolean packageExists(QName name) {
@@ -93,22 +103,22 @@ public class LoadedClassResolver implements TopLevelResolver
         ClassFile clazz = loader.loadClass(r);
 
         if (clazz == null) {
-            if (Report.should_report(report_topics, 4)) {
-                Report.report(4, "Class " + name + " not found in classpath "
+            if (reporter.should_report(report_topics, 4)) {
+                reporter.report(4, "Class " + name + " not found in classpath "
                         + pathloader.classpath());
             }
         }
         else {
-            if (Report.should_report(report_topics, 4)) {
-                Report.report(4, "Class " + name + " found in classpath "
+            if (reporter.should_report(report_topics, 4)) {
+                reporter.report(4, "Class " + name + " found in classpath "
                         + pathloader.classpath());
             }
             return clazz;
         }
     }
     catch (ClassFormatError e) {
-        if (Report.should_report(report_topics, 4))
-            Report.report(4, "Class " + name + " format error");
+        if (reporter.should_report(report_topics, 4))
+            reporter.report(4, "Class " + name + " format error");
     }
 
     nocache.add(name);
@@ -119,11 +129,11 @@ public class LoadedClassResolver implements TopLevelResolver
   /**
    * Find a type by name.
    */
-  public Named find(QName name) throws SemanticException {
-    if (Report.should_report(report_topics, 3))
-      Report.report(3, "LoadedCR.find(" + name + ")");
+  public List<Type> find(QName name) throws SemanticException {
+    if (reporter.should_report(report_topics, 3))
+      reporter.report(3, "LoadedCR.find(" + name + ")");
  
-    Named result = null;
+    Type result = null;
     
     // First try the class file.
     ClassFile clazz = loadFile(name);
@@ -133,14 +143,14 @@ public class LoadedClassResolver implements TopLevelResolver
 
     // Check for encoded type information.
     if (clazz.encodedClassType(version.name()) != null) {
-      if (Report.should_report(report_topics, 4))
-	Report.report(4, "Using encoded class type for " + name);
+      if (reporter.should_report(report_topics, 4))
+          reporter.report(4, "Using encoded class type for " + name);
       result = getEncodedType(clazz, name);
     }
     
     if (allowRawClasses) {
-      if (Report.should_report(report_topics, 4))
-	Report.report(4, "Using raw class file for " + name);
+      if (reporter.should_report(report_topics, 4))
+          reporter.report(4, "Using raw class file for " + name);
       result = new ClassFileLazyClassInitializer(clazz, ts).type().asType();
     }
     
@@ -148,10 +158,10 @@ public class LoadedClassResolver implements TopLevelResolver
     // for example, requesting a type through its mangled (class file) name.
     if (result != null) {
         if (name.equals(result.fullName())) {
-            return result;
+            return CollectionUtil.<Type>list(result);
         }
         if (result instanceof ClassType && name.equals(ts.getTransformedClassName(((ClassType) result).def()))) {
-            return result;
+            return CollectionUtil.<Type>list(result);
         }
     }
 
@@ -163,6 +173,16 @@ public class LoadedClassResolver implements TopLevelResolver
         + " language extension. If the source for this file is written"
         + " in the language extension, try recompiling the source code.");
     
+  }
+
+  /**
+   * Find a single type by name.
+   */
+  public Type findOne(QName name) throws SemanticException {
+    List<Type> res = find(name);
+    if (res == null || res.size() != 1)
+      throw new InternalCompilerError("Unexpected result when looking up "+name+": "+res);
+    return res.get(0);
   }
 
   protected boolean recursive = false;
@@ -191,14 +211,14 @@ public class LoadedClassResolver implements TopLevelResolver
     TypeObject dt;
 
     try {
-        if (Report.should_report(Report.serialize, 1))
-            Report.report(1, "Decoding " + name + " in " + clazz);
+        if (reporter.should_report(Reporter.serialize, 1))
+            reporter.report(1, "Decoding " + name + " in " + clazz);
 
         dt = te.decode(clazz.encodedClassType(version.name()), name);
 
         if (dt == null) {
-            if (Report.should_report(Report.serialize, 1))
-                Report.report(1, "* Decoding " + name + " failed");
+            if (reporter.should_report(Reporter.serialize, 1))
+                reporter.report(1, "* Decoding " + name + " failed");
 
             // Deserialization failed because one or more types could not
             // be resolved.  Abort this pass.  Dependencies have already
@@ -220,29 +240,29 @@ public class LoadedClassResolver implements TopLevelResolver
         // It will be installed into the old resolver below by putAll.
         ts.systemResolver().addNamed(name, ct);
 
-        if (Report.should_report(Report.serialize, 1))
-            Report.report(1, "* Decoding " + name + " succeeded");
+        if (reporter.should_report(Reporter.serialize, 1))
+            reporter.report(1, "* Decoding " + name + " succeeded");
 
-        if (Report.should_report("typedump", 1)) {
+        if (reporter.should_report("typedump", 1)) {
             new ObjectDumper(new SimpleCodeWriter(System.out, 72)).dump(dt);
         }
 
-        if (Report.should_report(Report.serialize, 2)) {
+        if (reporter.should_report(Reporter.serialize, 2)) {
             for (MethodInstance mi : ct.methods()) {
-                Report.report(2, "* " + mi);
+                reporter.report(2, "* " + mi);
             }
             for (Iterator<FieldInstance> i = ct.fields().iterator(); i.hasNext(); ) {
                 FieldInstance fi = (FieldInstance) i.next();
-                Report.report(2, "* " + fi);
+                reporter.report(2, "* " + fi);
             }
             for (Iterator<ConstructorInstance> i = ct.constructors().iterator(); i.hasNext(); ) {
                 ConstructorInstance ci = (ConstructorInstance) i.next();
-                Report.report(2, "* " + ci);
+                reporter.report(2, "* " + ci);
             }
         }
 
-        if (Report.should_report(report_topics, 2))
-            Report.report(2, "Returning serialized ClassType for " +
+        if (reporter.should_report(report_topics, 2))
+            reporter.report(2, "Returning serialized ClassType for " +
                           clazz.name() + ".");
 
         return ct;

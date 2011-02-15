@@ -3,7 +3,6 @@ INSTALL.txt
 README.txt
 RELEASE.NOTES.txt
 bin/runx10
-bin/setupX10
 bin/x10
 bin/x10c
 bin/x10c++

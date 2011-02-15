@@ -25,16 +25,16 @@ import x10.compiler.Native;
  * arguments returns its encapsulated value.
  */
 @NativeRep("java", "x10.core.GlobalRef<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef._RTT, #2)")
-@NativeRep("c++", "x10::lang::GlobalRef<#1 >", "x10::lang::GlobalRef<#1 >", null)
+@NativeRep("c++", "x10::lang::GlobalRef<#T >", "x10::lang::GlobalRef<#T >", null)
 public struct GlobalRef[+T](
     @Native("java", "(#0).home")
-    @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
+    @Native("c++", "x10::lang::Place_methods::place((#this)->location)")
     home:Place) {T <: Object} { 
 
    /** 
     * Create a value encapsulating the given object of type T.
     */
-   @Native("c++", "x10::lang::GlobalRef(#0)")
+   @Native("c++", "x10::lang::GlobalRef(#this)")
    public native def this(t:T):GlobalRef[T]{self.home==here}; 
 
    /** 
@@ -42,7 +42,7 @@ public struct GlobalRef[+T](
     * created. Returns the object encapsulated in the value.
     */
    @Native("java", "(#0).$apply$G()")
-   @Native("c++", "(#0)->__apply()")
+   @Native("c++", "(#this)->__apply()")
    public native operator this(){here == this.home}:T;
 
    /*
@@ -51,14 +51,14 @@ public struct GlobalRef[+T](
     */
 
     @Native("java", "(#0).toString()")
-    @Native("c++", "(#0)->toString()")
+    @Native("c++", "(#this)->toString()")
     public native def  toString():String;
 
     @Native("java", "(#0).equals(#1)")
-    @Native("c++", "(#0)->equals(#1)")
+    @Native("c++", "(#this)->equals(#that)")
     public native def equals(that:Any):Boolean;
 
     @Native("java", "(#0).hashCode()")
-    @Native("c++", "(#0)->hashCode()")
+    @Native("c++", "(#this)->hashCode()")
     public native def  hashCode():Int;
 }

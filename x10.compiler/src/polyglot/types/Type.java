@@ -14,7 +14,7 @@ import x10.types.Annotated;
  * A <code>Type</code> is the base type of all classes which represent
  * types.
  */
-public interface Type extends Qualifier, Annotated
+public interface Type extends Qualifier, Annotated, Named
 {
     public void equals(Type t);
     

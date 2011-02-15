@@ -17,7 +17,7 @@ import polyglot.util.Position;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.NodeVisitor;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.SemanticException;
 import x10.ast.AnnotationNode_c;
 import x10.ast.AssignPropertyCall;
@@ -29,14 +29,16 @@ import x10.ast.SettableAssign;
 public class InstanceInvariantChecker extends NodeVisitor
 {
     private Job job;
+    private Reporter reporter;
 
     public InstanceInvariantChecker(Job job) {
         this.job = job;
+        this.reporter = job.extensionInfo().getOptions().reporter;
     }
 
     public Node visitEdgeNoOverride(Node parent, Node n) {
-    	if (Report.should_report("InstanceInvariantChecker", 2))
-    		Report.report(2, "Checking invariants for: " + n);
+    	if (reporter.should_report(Reporter.InstanceInvariantChecker, 2))
+    		reporter.report(2, "Checking invariants for: " + n);
     	String m = checkInvariants(n);
 
     	if (m!=null) {

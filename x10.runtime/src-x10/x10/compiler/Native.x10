@@ -33,5 +33,14 @@ import x10.lang.annotations.*;
  * #6 = run-time Type object for B
  * #7 = a
  * #8 = b
+ *
+ * For "c++" annotations:
+ *
+ * As for "java" except boxed and run-time representations of type vars should not be used.  Also there is also the capability to refer to type params and method params by name:
+ * #this = o
+ * #X = A
+ * #Y = B
+ * #x = a
+ * #y = b
  */
 public interface Native(lang: String, code: String) extends StatementAnnotation, MethodAnnotation, FieldAnnotation { }

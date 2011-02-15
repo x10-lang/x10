@@ -19,7 +19,6 @@ import polyglot.ast.Term;
 import polyglot.ast.Term_c;
 import polyglot.types.Context;
 import polyglot.types.Def;
-import polyglot.types.Named;
 import polyglot.types.SemanticException;
 import polyglot.types.Types;
 import polyglot.types.Type;

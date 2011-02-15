@@ -45,11 +45,11 @@ else
 endif
 
 etc/x10rt_mpi.properties:
-	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	@echo "CXX=$(MPICXX)" >> $@
-	@echo "CXXFLAGS=" >> $@
-	@echo "LDFLAGS=$(APP_LDFLAGS_MPI)" >> $@
-	@echo "LDLIBS=$(APP_LDLIBS_MPI)" >> $@
+	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "X10LIB_CXX=$(MPICXX)" >> $@
+	@echo "X10LIB_CXXFLAGS=" >> $@
+	@echo "X10LIB_LDFLAGS=$(APP_LDFLAGS_MPI)" >> $@
+	@echo "X10LIB_LDLIBS=$(APP_LDLIBS_MPI)" >> $@
 
 .PRECIOUS: etc/x10rt_mpi.properties
 

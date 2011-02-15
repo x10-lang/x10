@@ -81,7 +81,7 @@ public class InlineHelper extends ContextVisitor {
     @Override
     public NodeVisitor begin() {
         try {
-            InlineType = (Type) ts.systemResolver().find(INLINE_ANNOTATION);
+            InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
         }
         catch (SemanticException e) {
             System.out.println("Unable to find "+INLINE_ANNOTATION+": "+e);

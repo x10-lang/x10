@@ -11,7 +11,7 @@ import java.util.*;
 
 import polyglot.ast.*;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
@@ -205,7 +205,7 @@ public class ReachChecker extends DataFlow
     public void post(FlowGraph graph, Term root) {
         // There is no need to do any checking in this method, as this will
         // be handled by leaveCall and checkReachability.
-        if (Report.should_report(Report.cfg, 2)) {
+        if (reporter.should_report(Reporter.cfg, 2)) {
             dumpFlowGraph(graph, root);
         }
     }

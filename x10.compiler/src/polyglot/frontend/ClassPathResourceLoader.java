@@ -10,8 +10,9 @@ package polyglot.frontend;
 import java.io.File;
 import java.util.*;
 
-import polyglot.main.Report;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.main.Reporter;
+import polyglot.util.CollectionUtil; 
+import x10.util.CollectionFactory;
 
 /**
  * We implement our own class loader. All this pain is so we can define the
@@ -20,14 +21,17 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 public class ClassPathResourceLoader {
 	protected List<File> classpath;
 	protected ResourceLoader loader;
+	protected Reporter reporter;
 
-	public ClassPathResourceLoader(List<File> classpath) {
+	public ClassPathResourceLoader(List<File> classpath, Reporter reporter) {
 		this.classpath = new ArrayList<File>(classpath);
-		this.loader = new ResourceLoader();
+		this.loader = new ResourceLoader(reporter);
+		this.reporter = reporter;
 	}
 
-	public ClassPathResourceLoader(String classpath) {
-		this.classpath = new ArrayList<File>();
+	public ClassPathResourceLoader(String classpath, Reporter reporter) {
+        this.classpath = new ArrayList<File>();
+        this.reporter = reporter;
 
 		StringTokenizer st = new StringTokenizer(classpath, File.pathSeparator);
 
@@ -36,7 +40,7 @@ public class ClassPathResourceLoader {
 			this.classpath.add(new File(s));
 		}
 
-		this.loader = new ResourceLoader();
+		this.loader = new ResourceLoader(reporter);
 	}
 
 	public String classpath() {
@@ -59,9 +63,9 @@ public class ClassPathResourceLoader {
 	 * <code>null</code> is returned.
 	 */
 	public Resource loadResource(String name) {
-		if (Report.should_report(verbose, 2)) {
-			Report.report(2, "attempting to load class " + name);
-			Report.report(2, "classpath = " + classpath);
+		if (reporter.should_report(Reporter.loader, 2)) {
+			reporter.report(2, "attempting to load class " + name);
+			reporter.report(2, "classpath = " + classpath);
 		}
 
 		for (Iterator<File> i = classpath.iterator(); i.hasNext();) {
@@ -74,11 +78,5 @@ public class ClassPathResourceLoader {
 
 		return null;
 	}
-
-	protected static Collection<String> verbose;
-
-	static {
-		verbose = CollectionFactory.newHashSet();
-		verbose.add("loader");
-	}
+	
 }

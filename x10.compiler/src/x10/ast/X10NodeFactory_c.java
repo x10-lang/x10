@@ -547,10 +547,13 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		n = (X10MethodDecl)n.del(delFactory().delMethodDecl());
 		return n;
 	}
-	
-	public LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init)
+
+	public LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init) {
+        return LocalDecl(pos, flags, type, name, init, null);
+    }
+	public LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init, List<Id> exploded)
 	{
-		LocalDecl n = new X10LocalDecl_c(this, pos, flags, type, name, init);
+		LocalDecl n = new X10LocalDecl_c(this, pos, flags, type, name, init, exploded);
 		n = (LocalDecl)n.ext(extFactory().extLocalDecl());
 		n = (LocalDecl)n.del(delFactory().delLocalDecl());
 		return n;

@@ -11,24 +11,18 @@
 package x10.optimizations;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
-import polyglot.ast.BooleanLit;
 import polyglot.ast.Branch;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
-import polyglot.ast.Field;
 import polyglot.ast.For;
-import polyglot.ast.ForInit;
-import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
-import polyglot.ast.IntLit;
 import polyglot.ast.Labeled;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -38,15 +32,9 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
-import polyglot.ast.Term;
-import polyglot.ast.TypeNode;
-import polyglot.ast.Unary;
-import polyglot.ast.Assign.Operator;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.Flags;
-import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -58,25 +46,16 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
 import x10.ast.ForLoop;
-import x10.ast.StmtExpr;
-import x10.ast.StmtSeq;
 import x10.ast.X10Binary_c;
-import x10.ast.X10Call;
-import x10.ast.X10Cast;
 import x10.ast.X10Formal;
 import x10.ast.SettableAssign;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
-import x10.types.MethodInstance;
 
-import x10.types.checker.Converter;
-import x10.types.constraints.CConstraint;
 import x10.util.AltSynthesizer;
 import x10.visit.ConstantPropagator;
-import x10.visit.Desugarer;
-import x10.visit.ExpressionFlattener;
 
 /**
  * Optimize loops of the form:  for (formal in domain) S.
@@ -112,7 +91,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     private Name label = null;
     protected Name label() { return label; }
     protected ForLoopOptimizer label(Name label) {
-        ForLoopOptimizer flo = (ForLoopOptimizer) copy();
+        ForLoopOptimizer flo = (ForLoopOptimizer) shallowCopy();
         flo.label = label;
         return flo;
     }

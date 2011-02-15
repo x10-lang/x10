@@ -37,8 +37,6 @@ else
   abspath=$(abspath $1)
 endif
 
-CXXFLAGS += -g
-
 ifdef OPTIMIZE
   CXXFLAGS += -DNO_TRACING
   X10CPPFLAGS += -optimize
@@ -51,8 +49,8 @@ ifdef EXPERIMENTAL
   X10CPPFLAGS += -EXPERIMENTAL
 endif
 
-ifdef USE_BFD
-  CXXFLAGS += -DUSE_BFD
+ifdef DEBUG
+  CXXFLAGS += -g
 endif
 
 ifndef JAVA_HOME
@@ -136,7 +134,6 @@ else
     override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
     override CXXFLAGS += -qminimaltoc
     override CXXFLAGS += $(XLC_EXTRA_FLAGS)
-    override CXXFLAGS -= -g
     ifndef USE_32BIT
       override CXXFLAGS += -q64
       override XRX_PROPS_CXXFLAGS += -q64

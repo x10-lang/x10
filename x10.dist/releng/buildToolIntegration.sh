@@ -29,18 +29,36 @@ done
 
 UNAME=`uname -smp | sed -e 's/ /,/g'`
 case "$UNAME" in
-  CYGWIN*,i*86,*) X10_PLATFORM='cygwin_x86';;
-  Linux,*86_64*,*) X10_PLATFORM='linux_x86_64';;
-  Linux,*86*,*) X10_PLATFORM='linux_x86';;
-  Linux,ppc*,*) X10_PLATFORM='linux_ppc';;
-  AIX,*,powerpc) X10_PLATFORM='aix_ppc';;
-  Darwin,*,i*86) X10_PLATFORM='macosx_x86'
-      export USE_32BIT=true
-      export USE_64BIT=true
-   ;;
+  CYGWIN*,i*86,*)
+	X10_PLATFORM='cygwin_x86'
+	numCPUs=$(cat /proc/cpuinfo | grep processor | wc -l)
+	numCPUs=$(($numCPUs * 2));;
+  Linux,*86_64*,*)
+	X10_PLATFORM='linux_x86_64'
+	numCPUs=$(cat /proc/cpuinfo | grep processor | wc -l)
+	numCPUs=$(($numCPUs + 1));;
+  Linux,*86*,*)
+	X10_PLATFORM='linux_x86'
+	numCPUs=$(cat /proc/cpuinfo | grep processor | wc -l)
+	numCPUs=$(($numCPUs + 1));;
+  Linux,ppc*,*)
+	X10_PLATFORM='linux_ppc'
+	numCPUs=$(cat /proc/cpuinfo | grep processor | wc -l)
+	numCPUs=$(($numCPUs + 1));;
+  AIX,*,powerpc)
+	X10_PLATFORM='aix_ppc'
+	numCPUs=2;;
+  Darwin,*,i*86)
+	X10_PLATFORM='macosx_x86'
+	numCPUs=$(sysctl -n hw.ncpu)
+	numCPUs=$(($numCPUs + 1))
+	export USE_32BIT=true
+	export USE_64BIT=true;;
     
   *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
 esac
+
+echo "Will use $numCPUs cores to build."
 
 distdir=$workdir/x10
 projectList="x10.common x10.compiler x10.constraints x10.dist x10.runtime x10.tests x10.wala"
@@ -94,7 +112,7 @@ fi
 echo "Building distribution"
 cd $distdir/x10.dist
 
-ant dist -Doptimize=true
+ant dist -Doptimize=true -Davailable.procs=$numCPUs
 
 if [ $? != 0 ]; then
     echo "Ant build failed; aborting build for this platform."

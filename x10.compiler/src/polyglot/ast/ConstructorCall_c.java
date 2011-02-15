@@ -24,6 +24,7 @@ public abstract class ConstructorCall_c extends Stmt_c implements ConstructorCal
     protected Expr qualifier;
     protected List<Expr> arguments;
     protected ConstructorInstance ci;
+    protected Expr target;
 
     public ConstructorCall_c(Position pos, Kind kind, Expr qualifier, List<Expr> arguments) {
 	super(pos);
@@ -186,4 +187,24 @@ public abstract class ConstructorCall_c extends Stmt_c implements ConstructorCal
         return succs;
     }
 
+    /* (non-Javadoc)
+     * @see polyglot.ast.ConstructorCall#target()
+     */
+    public Expr target() {
+        return target;
+    }
+
+    /* (non-Javadoc)
+     * @see polyglot.ast.ConstructorCall#target(polyglot.ast.Expr)
+     */
+    public ConstructorCall target(Expr target) {
+        assert this.qualifier == null;
+        if (target != this.target) {
+            ConstructorCall_c n = (ConstructorCall_c) copy();
+            n.target = target;
+            n.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
+            return n;
+        }
+        return this;
+    }
 }

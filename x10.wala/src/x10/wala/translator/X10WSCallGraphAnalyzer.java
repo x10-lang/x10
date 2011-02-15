@@ -39,17 +39,20 @@ import com.ibm.wala.util.graph.traverse.NumberedDFSDiscoverTimeIterator;
  */
 
 public class X10WSCallGraphAnalyzer {
-	public static final String WS_TOPIC = "workstealing";
 	public static final void wsReport(int level, String message){
-		if(Report.should_report(WS_TOPIC, level)){
-			Report.report(level, message);
+		if(Report.workstealing >= level){
+			Report.reporter.report(level, message);
 		}
 	}
 	public static final boolean wsShouldReport(int level){
-		return Report.should_report(WS_TOPIC, level);
+		return Report.workstealing >= level;
 	}
 	static{
-		Report.topics.add(WS_TOPIC);
+// TODO: stop using static Report
+// Report is being moved to Reporter to avoid Report's static data
+// Report.topics.add just adds this string to be displayed in the
+// help text. Skipping the following until this is resolved.
+//		Report.topics.add(WS_TOPIC);
 		wsReport(1, "[WS_CallGraph]X10WSCallGraphAnalyzer started...");
 	}
 	

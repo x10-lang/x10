@@ -75,6 +75,8 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	            properties.load(new FileInputStream(f));
 	            PrecompiledLibrary libObj = new PrecompiledLibrary(f.getParentFile().getAbsolutePath(), properties);
 	            x10libs.add(libObj);
+	            File jf = new File(libObj.absolutePathToRoot, libObj.sourceJar);
+	            source_path.add(jf);
 	        } catch(IOException e) {
 	            UsageError ue = new UsageError("Unable to load x10library file "+libFile+" "+ e.getMessage());
 	            ue.initCause(e);

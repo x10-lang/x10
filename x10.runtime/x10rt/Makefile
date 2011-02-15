@@ -109,7 +109,7 @@ debug::
 	@echo TESTS = $(TESTS)
 
 clean:
-	-$(RM) -r */*.o lib/* bin/* etc/*.properties test/*.mpi test/*.standalone test/*.sockets test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h ${EXECUTABLES}
+	-$(RM) -r */*.o lib/* bin/* etc/*.properties test/*.mpi test/*.standalone test/*.sockets test/*.pami test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h ${EXECUTABLES}
 
 depend:
 	makedepend -I include -I common -Y */*.cc

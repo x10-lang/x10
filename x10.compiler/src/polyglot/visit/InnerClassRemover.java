@@ -9,7 +9,7 @@ import java.util.Map;
 
 import polyglot.ast.*;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
@@ -56,7 +56,7 @@ public abstract class InnerClassRemover extends ContextVisitor {
             lcv = (ContextVisitor) lcv.begin();
             lcv = (ContextVisitor) lcv.context(context);
 
-            if (Report.should_report("innerremover", 1)) {
+            if (reporter.should_report(Reporter.innerremover, 1)) {
             	System.out.println(">>> output ----------------------");
             	n.prettyPrint(System.out);
             	System.out.println("<<< output ----------------------");
@@ -64,7 +64,7 @@ public abstract class InnerClassRemover extends ContextVisitor {
 
             n = n.visit(lcv);
 
-            if (Report.should_report("innerremover", 1)) {
+            if (reporter.should_report(Reporter.innerremover, 1)) {
             	System.out.println(">>> locals removed ----------------------");
             	n.prettyPrint(System.out);
             	System.out.println("<<< locals removed ----------------------");
@@ -72,7 +72,7 @@ public abstract class InnerClassRemover extends ContextVisitor {
 
             n = this.visitEdgeNoOverride(parent, n);
 
-            if (Report.should_report("innerremover", 1)) {
+            if (reporter.should_report(Reporter.innerremover, 1)) {
             	System.out.println(">>> inners removed ----------------------");
             	n.prettyPrint(System.out);
             	System.out.println("<<< inners removed ----------------------");

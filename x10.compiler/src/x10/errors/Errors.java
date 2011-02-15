@@ -58,6 +58,7 @@ import x10.util.CollectionFactory;
 import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.DepParameterExpr;
+import x10.ast.SettableAssign;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XFailure;
@@ -65,6 +66,7 @@ import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -927,9 +929,10 @@ public class Errors {
 	}
 	public static class TypeOfPropertyIsNotSubtypeOfPropertyType extends EqualByTypeAndPosException {
 		public TypeOfPropertyIsNotSubtypeOfPropertyType(Type type, List<FieldInstance> props, int i, Position p) {
-			super("The type " + type + " of the initializer for property " + props.get(i) + 
-					" is not a subtype of the property type " + props.get(i).type(), 
-					p);
+			super("Actual type of property initializer is not a subtype of declared type."
+			      + "\n\t Property: " + props.get(i).name()
+			      + "\n\t Actual Type: " +  type
+			      + "\n\t Declared Type: " + props.get(i).type(), p);
 		}
 	}
 	public static class PropertyStatementMayOnlyOccurInBodyOfConstuctor extends EqualByTypeAndPosException {
@@ -1216,6 +1219,282 @@ public class Errors {
 	public static class InconsistentType extends EqualByTypeAndPosException {
         public InconsistentType(Type t, Position p) {
             super("The type " + t + " is inconsistent.", p);
+        }
+    }
+	public static class CouldNotFindEnclosingClass extends EqualByTypeAndPosException {
+        public CouldNotFindEnclosingClass(polyglot.types.Name name, Position p) {
+            super("Could not find enclosing class or package for type definition \"" + name + "\".", p);
+        }
+    }
+	public static class TypeIsconsistent extends EqualByTypeAndPosException {
+        public TypeIsconsistent(Type t, Position p) {
+            super("Type " + t + " is inconsistent.", p);
+        }
+    }
+	public static class SuperTypeIsNotAClass extends EqualByTypeAndPosException {
+        public SuperTypeIsNotAClass(ClassType ct, Position p) {
+            super("Super type of " + ct + " is not a class.", p);
+        }
+    }
+	public static class ClassTypeMustHaveEnclosingInstance extends EqualByTypeAndPosException {
+        public ClassTypeMustHaveEnclosingInstance(ClassType ct, ClassType superContainer, Position p) {
+            super(ct + " must have an enclosing instance that is a subtype of " + superContainer, p);
+        }
+    }
+	public static class ClassTypeMustBeSpecifiedInSuperConstructor extends EqualByTypeAndPosException {
+        public ClassTypeMustBeSpecifiedInSuperConstructor(ClassType ct, ClassType superContainer, Position p) {
+            super(ct + " is a subtype of " + superContainer +
+            		"; an enclosing instance that is a subtype of " + superContainer + 
+            		" must be specified in the super constructor call.", p);
+        }
+    }
+	public static class CannotAccessField extends EqualByTypeAndPosException {
+        public CannotAccessField(Id name, X10ClassType tCt, Position p) {
+            super("Cannot access field " + name + " of " + tCt+ 
+            		" in class declaration header; the field may be a member of a superclass.", p);
+        }
+    }
+	public static class UnableToFindImplementingPropertyMethod extends EqualByTypeAndPosException {
+        public UnableToFindImplementingPropertyMethod(polyglot.types.Name name, Position p) {
+            super("Unable to find the implementing property method for interface property "+name, p);
+        }
+    }
+	public static class OnlyTypePointOrArrayCanBeExploded extends EqualByTypeAndPosException {
+        public OnlyTypePointOrArrayCanBeExploded(Type myType, Position p) {
+            super("Only a formal of type Point or Array can be exploded, however the formal's type is "+myType, p);
+        }
+    }
+	public static class LocalVariableNotAllowedInContainer extends EqualByTypeAndPosException {
+        public LocalVariableNotAllowedInContainer(polyglot.types.Name liName, Position p) {
+            super("A var local variable " + liName
+					+ " is not allowed in a constraint.", 
+					p);
+        }
+    }
+	public static class MethodBodyMustBeConstraintExpressiong extends EqualByTypeAndPosException {
+        public MethodBodyMustBeConstraintExpressiong(Position p) {
+            super("Property method body must be a constraint expression.", p);
+        }
+    }
+	public static class MustHaveSameClassAsContainer extends EqualByTypeAndPosException {
+        public MustHaveSameClassAsContainer(Position p) {
+            super("The return type or the formal type of an explicit or implicit operator 'as' " +
+            		"must have the same class as the container.", p);
+        }
+    }
+	public static class TypeParameterMultiplyDefined extends EqualByTypeAndPosException {
+        public TypeParameterMultiplyDefined(polyglot.types.Name name, Position p) {
+            super("Type parameter \"" + name + "\" multiply defined.", p);
+        }
+    }
+	public static class LocalVariableMultiplyDefined extends EqualByTypeAndPosException {
+        public LocalVariableMultiplyDefined(polyglot.types.Name name, Position p) {
+            super("Local variable \"" + name + "\" multiply defined.", p);
+        }
+    }
+	public static class CouldNotFindNonStaticMemberClass extends EqualByTypeAndPosException {
+        public CouldNotFindNonStaticMemberClass(polyglot.types.Name name, Position p) {
+            super("Could not find non-static member class \"" + name + "\".", p);
+        }
+    }
+	public static class OnlySimplyNameMemberClassMayBeInstantiated extends EqualByTypeAndPosException {
+        public OnlySimplyNameMemberClassMayBeInstantiated(Position p) {
+            super("Only simply-named member classes may be instantiated by a qualified new expression.", p);
+        }
+    }
+	public static class CannotInstantiateMemberClass extends EqualByTypeAndPosException {
+        public CannotInstantiateMemberClass(Position p) {
+            super("Cannot instantiate member class of non-class type.", p);
+        }
+    }
+	public static class CannotInstantiateType extends EqualByTypeAndPosException {
+        public CannotInstantiateType(Type ct, Position p) {
+            super("Cannot instantiate type " + ct + "; incorrect number of type arguments.", p);
+        }
+    }
+	public static class MustReturnValueFromNonVoidMethod extends EqualByTypeAndPosException {
+        public MustReturnValueFromNonVoidMethod(Position p) {
+            super("Must return value from non-void method.", p);
+        }
+    }
+	public static class CannotReturnValueFromVoidMethod extends EqualByTypeAndPosException {
+        public CannotReturnValueFromVoidMethod(Position p) {
+            super("Cannot return value from void method or closure.", p);
+        }
+    }
+	public static class SelfMayOnlyBeUsedWithinDependentType extends EqualByTypeAndPosException {
+        public SelfMayOnlyBeUsedWithinDependentType(Position p) {
+            super("self may only be used within a dependent type", p);
+        }
+    }
+	public static class CannotAccessNonStaticFromStaticContext extends EqualByTypeAndPosException {
+        public CannotAccessNonStaticFromStaticContext(Position p) {
+            super("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", p);
+        }
+    }
+	public static class ConstraintOnThisIsInconsistent extends EqualByTypeAndPosException {
+        public ConstraintOnThisIsInconsistent(XFailure e, Position p) {
+            super("Constraint on this is inconsistent; " + e.getMessage(), p);
+        }
+    }
+	public static class ConstraintOnSuperIsInconsistent extends EqualByTypeAndPosException {
+        public ConstraintOnSuperIsInconsistent(XFailure e, Position p) {
+            super("Constraint on super is inconsistent; " + e.getMessage(), p);
+        }
+    }
+	public static class CannotApplyToFinalVariable extends EqualByTypeAndPosException {
+        public CannotApplyToFinalVariable(Unary.Operator op, Position p) {
+            super("Cannot apply " + op + " to a final variable.", p);
+        }
+    }
+	public static class CannotApplyToArbitraryMethodCall extends EqualByTypeAndPosException {
+        public CannotApplyToArbitraryMethodCall(Unary.Operator op, Position p) {
+            super("Cannot apply " + op + " to an arbitrary method call.", p);
+        }
+    }
+	public static class CannotApplyToArbitraryExpression extends EqualByTypeAndPosException {
+        public CannotApplyToArbitraryExpression(Unary.Operator op, Position p) {
+            super("Cannot apply " + op + " to an arbitrary expression.", p);
+        }
+    }
+	public static class NoMethodFoundInType extends EqualByTypeAndPosException {
+        public NoMethodFoundInType(Name name, Type type, Position p) {
+            super("No "+name+" method found in " + type, p);
+        }
+    }
+	public static class NoBinaryOperatorFoundInType extends EqualByTypeAndPosException {
+        public NoBinaryOperatorFoundInType(Binary.Operator binaryOp, Type t, Position p) {
+            super("No binary operator " + binaryOp + " found in type " + t, p);
+        }
+    }
+	public static class IncompatibleReturnTypeOfBinaryOperator extends EqualByTypeAndPosException {
+        public IncompatibleReturnTypeOfBinaryOperator(Binary.Operator binaryOp, Type resultType, Type et, Position p) {
+            super("Incompatible return type of binary operator "+binaryOp+
+            		" found:\n\t operator return type: " + resultType + 
+            		"\n\t expression type: "+ et, p);
+        }
+    }
+	public static class NoOperationFoundForOperand extends EqualByTypeAndPosException {
+        public NoOperationFoundForOperand(Unary.Operator op, Type t, Position p) {
+            super("No operation " + op + " found for operand " + t + ".", p);
+        }
+    }
+	public static class UnknownType extends EqualByTypeAndPosException {
+        public UnknownType(Position p) {
+            super("Complaining about UnknownType", p);
+        }
+    }
+	public static class InconsistentTypeSelf extends EqualByTypeAndPosException {
+        public InconsistentTypeSelf(Type toType, XTerm sv, Position p) {
+            super("Inconsistent type: " + toType + " {self==" + sv+"}", p);
+        }
+    }
+	public static class AnnotationMustImplementType extends EqualByTypeAndPosException {
+		public static enum Element { types, expressions, statements, method_declarations, field_declarations,
+			class_declarations, package_declarations, imports;
+			public String toString() {
+				return name().replace('_', ' ');
+			}
+		};
+        public AnnotationMustImplementType(X10ClassType at, Element element, Type type, Position p) {
+            super("Annotation "+ at +" on " + element + " must implement " + type, p);
+        }
+        public AnnotationMustImplementType(X10ClassType at, Type type, Position p) {
+            super("Annotation "+ at +" must implement " + type, p);
+        }
+    }
+	public static class GeneralError extends EqualByTypeAndPosException {
+		public GeneralError(String str, Position p) {
+            super(str, p);
+        }
+    }
+	public static class RecursiveTypeDefinition extends EqualByTypeAndPosException {
+		public RecursiveTypeDefinition(Position p) {
+            super("Recursive type definition; type definition depends on itself.", p);
+        }
+    }
+	public static class MethodsOverrideWithCompatibleSignatures extends EqualByTypeAndPosException {
+		public MethodsOverrideWithCompatibleSignatures(MethodInstance mj, MethodInstance mi, Position p) {
+            super("Method " + mj.signature() + " in " + mj.container() + " and method " + mi.signature() + " in " + mi.container()
+                    + " override methods with compatible signatures.", p);
+        }
+    }
+	public static class DumplicateTypeDefinition extends EqualByTypeAndPosException {
+		public DumplicateTypeDefinition(TypeDef mj, TypeDef mi, Position p) {
+            super("Duplicate type definition \"" + mj + "\"; previous declaration at " + mi.position() + ".", p);
+        }
+    }
+	public static class TypeDefinitionSameNameAsMemberClass extends EqualByTypeAndPosException {
+		public TypeDefinitionSameNameAsMemberClass(TypeDef mi, Type ct, Position p) {
+            super("Type definition " + mi + " has the same name as member class " + ct + ".", p);
+        }
+    }
+	public static class ClockedLoopMayOnlyBeClockedOnClock extends EqualByTypeAndPosException {
+		public ClockedLoopMayOnlyBeClockedOnClock(Position p) {
+            super("Clocked loop may only be clocked on a clock.", p);
+        }
+    }
+	public static class TernaryExpressiongMustBeBoolean extends EqualByTypeAndPosException {
+		public TernaryExpressiongMustBeBoolean(Position p) {
+            super("Condition of ternary expression must be of type boolean.", p);
+        }
+    }
+	public static class ConstructorGuardNotSatisfied extends EqualByTypeAndPosException {
+		public ConstructorGuardNotSatisfied(Position p) {
+            super("The constructor guard was not satisfied.", p);
+        }
+    }
+	public static class DoStatementMustHaveBooleanType extends EqualByTypeAndPosException {
+		public DoStatementMustHaveBooleanType(Type type, Position p) {
+            super("Condition of do statement must have boolean type, and not " + type + ".", p);
+        }
+    }
+	public static class StructsCircularity extends EqualByTypeAndPosException {
+		public StructsCircularity(Position p) {
+            super("Circularity in the usage of structs will cause this field to have infinite size. Use a class instead of a struct.",p);
+        }
+    }
+	public static class IfStatementMustHaveBooleanType extends EqualByTypeAndPosException {
+		public IfStatementMustHaveBooleanType(Type type, Position p) {
+            super("Condition of if statement must have boolean type, and not " + type + ".", p);
+        }
+    }
+	public static class CannotReturnFromAsync extends EqualByTypeAndPosException {
+		public CannotReturnFromAsync(Position p) {
+            super("Cannot return from an async.",p);
+        }
+    }
+	public static class SourceContainsMoreThanOnePublicDeclaration extends EqualByTypeAndPosException {
+		public SourceContainsMoreThanOnePublicDeclaration(Position p) {
+            super("The source contains more than one public declaration.", p);
+        }
+    }
+	public static class CannotReferToSuperFromDeclarationHeader extends EqualByTypeAndPosException {
+		public CannotReferToSuperFromDeclarationHeader(Position p) {
+            super("Cannot refer to \"super\" from within a class or interface declaration header.", p);
+        }
+    }
+	public static class NestedClassMissingEclosingInstance extends EqualByTypeAndPosException {
+		public NestedClassMissingEclosingInstance(X10ClassType c, Type ct, Position p) {
+            super("The nested class \"" 
+                    +c 
+                    + "\" does not have an enclosing instance of type \"" 
+                    +ct + "\".", p);
+        }
+    }
+	public static class InvalidQualifierForSuper extends EqualByTypeAndPosException {
+		public InvalidQualifierForSuper(Position p) {
+            super("Invalid qualifier for \"this\" or \"super\".", p);
+        }
+    }
+	public static class WhileStatementMustHaveBooleanType extends EqualByTypeAndPosException {
+		public WhileStatementMustHaveBooleanType(Type type, Position p) {
+            super("Condition of while statement must have boolean type, and not " + type + ".", p);
+        }
+    }
+	public static class MaxMacroExpansionDepth extends EqualByTypeAndPosException {
+		public MaxMacroExpansionDepth(Type t, Position p) {
+            super("Reached max macro expansion depth with " + t, p);
         }
     }
 }
