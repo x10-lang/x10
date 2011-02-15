@@ -2461,7 +2461,13 @@ static class LongB {
 }
 }
 
-
+class XTENLANG_2399 {
+    def m(p:Point(1)) {
+		val [i,j] = p; // ERR
+		val q[m]:Point(2) = [3,4]; // ERR
+		for(x[n]:Point(2) in (3..4)*(3..4))  {} // ERR (the type doesn't match the number of exploded ints
+	}
+}
 class ExplodingPointTest[T] {	
 	// you can explode either a Point or an Array[T] into its components, 
 	// so the elements are either of type T or Int.
@@ -4702,4 +4708,68 @@ class XTENLANG_2403 {
 		test((0..2)*(0..3), (Point) => 3 ); // ShouldBeErr
 	}
 	def test(r: Region, init: (Point(r.rank)) => Int) {}
+}
+class RegionCastTests {
+	val e = (-10..10);
+	val r0:Region(2){rect} = e*e;
+	val r1 = (e*e) as Region(3); // ERR
+	val r2 = e*e as Region(2); // ERR
+}
+
+class TestOverridingAndHasType {
+	val i <: Double = 2; // ERR
+	class A {
+		def m():Int = 1;
+		def t():Int = 1;
+		def p():Double = 1;
+	}
+	class B extends A {
+		def m() {throw new Exception();	} // ShouldNotBeERR
+		def t() <: Int { throw new Exception();	} // ShouldNotBeERR ShouldNotBeERR
+		def p() = 2;  // ShouldNotBeERR
+	}
+	class C {	
+		def m() { throw new Exception();	} // infers void
+		def m1():void { throw new Exception();	}
+		def m2():Int { throw new Exception();	}
+		def m3() <: Int {throw new Exception();	} // ShouldNotBeERR ShouldNotBeERR 
+		def m3() <: Double = 2; // ShouldNotBeERR ShouldNotBeERR ShouldNotBeERR 
+		def m4() <: void {throw new Exception();	}
+	}
+}
+
+class CatchInitTest(a:Int) {
+	def this() { // ERR: property(...) might not have been called
+		try {
+			property(2); 
+		} catch(e:Throwable) {}
+	}
+}
+
+class TestStaticInitNoCycles {
+class A {
+	static val x13 = B.x5;//13
+	static val x3 = D.x2+2;//10
+	static val x10 = A.x3+C.x4;//20
+}
+class B {
+	static val x11 = A.x3+C.x4;//20
+	static val x8 = D.x1+A.x3;//16
+	static val x5 = C.x4+3; //13
+
+}
+class C {
+	static val x14 = B.x11;//20
+	static val x4 = D.x2+2; //10
+	static val x7 = D.x2+B.x5+C.x4;//31
+	static val x9 = D.x6+A.x3;//41
+
+}
+class D {
+	static val x12 = A.x3+C.x4;//20
+	static val x1 = Int.parse("6"); //6
+	static val x2 = x1+2;//8
+	static val x6 = x2+B.x5+C.x4; //31
+	static val x15 = A.x13+B.x11+C.x14+D.x12+x6+C.x7;//13+20+20+20+31+31=135
+}
 }
