@@ -13,8 +13,6 @@ package x10.visit;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +27,7 @@ import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.CodeBlock;
+import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Formal;
@@ -37,12 +36,15 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.Return;
+import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.Throw;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
+import polyglot.frontend.Source;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -53,7 +55,6 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -64,7 +65,6 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.SilentErrorQueue;
 import polyglot.util.SubtypeSet;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -97,6 +97,7 @@ import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
+import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -106,12 +107,12 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
-import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.checker.Converter;
 import x10.types.constraints.CTerms;
 import x10.types.matcher.Subst;
 import x10.util.AltSynthesizer;
+import x10.util.CollectionFactory;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -140,8 +141,8 @@ public class Inliner extends ContextVisitor {
 
     private static final boolean VERBOSE = false;
 //  private static final boolean VERBOSE = true;
-//  private static final boolean VERY_VERBOSE = VERBOSE && false;
-    private static final boolean VERY_VERBOSE = VERBOSE && true;
+    private static final boolean VERY_VERBOSE = VERBOSE && false;
+//  private static final boolean VERY_VERBOSE = VERBOSE && true;
 
 
     /**
@@ -272,6 +273,14 @@ public class Inliner extends ContextVisitor {
         if (null == InlineType) { // don't inline anything
             throw new InternalCompilerError("Inliner invoked without begin()");
         }
+        if (VERBOSE && node instanceof SourceFile) {
+            Source s = ((SourceFile) node).source();
+            Warnings.issue(this.job, "\nBegin inlining pass on " +s, node.position());
+        }
+        if (ExpressionFlattener.cannotFlatten(node)) { // TODO: check that flattening is actually required
+            debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
+            return node; // don't inline inside Nodes that cannot be Flattened
+        }
         if (node instanceof X10MethodDecl) {
             return null; // @NoInline annotation means something else
         }
@@ -279,14 +288,10 @@ public class Inliner extends ContextVisitor {
             return null; // will handle @NoInline annotation seperately
         }
         if (node instanceof ClassDecl) { // Don't try to inline native classes
-            if (!((X10Ext) node.ext()).annotationMatching(NativeClassType) .isEmpty() || 
+            if (!((X10Ext) node.ext()).annotationMatching(NativeClassType).isEmpty() || 
                 !((X10Ext) node.ext()).annotationMatching(NativeRepType).isEmpty() ) {
                 return node;
             }
-        }
-        if (ExpressionFlattener.cannotFlatten(node)) { // TODO: check that flattening is actually required
-            debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
-            return node; // don't inline inside Nodes that cannot be Flattened
         }
         if (node.ext() instanceof X10Ext) { // TODO: DEBUG only (remove this)
             if (!((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty()) { // short-circuit inlining decisions
@@ -523,6 +528,7 @@ public class Inliner extends ContextVisitor {
                         System.out.print(((ErrorInfo) o).getPosition());
                     System.out.println(": " + o);
                 }
+                System.out.println("\tend of speculative compilation errors in " + this.job);
                 System.out.flush();
                 java.lang.Thread.sleep(1);
             } else {
@@ -647,7 +653,6 @@ public class Inliner extends ContextVisitor {
      *         declaration cannot be found, or the call should not be inlined
      */
     private X10MethodDecl getInlineDecl(X10Call call) {
-        // System.out.println("                considering inlining "+ call);
         debug("Should " + call + " be inlined?", call);
         if (annotationsPreventInlining(call)) {
             report("of annotation at call site", call);
@@ -905,8 +910,6 @@ public class Inliner extends ContextVisitor {
             }
         } catch (Exception x) {
             String msg = "AST for job, " + job + " (for candidate " + candidate + ") does not typecheck (" + x + ")";
- //         System.err.println("SPECULATIVE COMPILATION FAILURE: " + msg);
- //         if (true) x.printStackTrace();
             debug(msg, null);
             SemanticException e = new SemanticException(msg, candidate.position());
             Errors.issue(job, e);
@@ -943,12 +946,15 @@ public class Inliner extends ContextVisitor {
                     }
                 });
         if (null == decl[0]) {
-            ;
-            if (VERBOSE) Warnings.issue(job, report("declaration not found for " +candidate, null), pos);
+            debug(report("declaration not found for " +candidate, null), null);
             return null;
         }
         if (null == decl[0].body()) {
-            if (VERBOSE) Warnings.issue(job, report("no declaration body for " +decl[0]+ " (" +candidate+ ")", null), pos);
+            debug(report("no declaration body for " +decl[0]+ " (" +candidate+ ")", null), null);
+            return null;
+        }
+        if (ExpressionFlattener.cannotFlatten(decl[0])) {
+            debug(report("unflattenable declaration body for " +decl[0]+ "  (" +candidate+ ")", null), null);
             return null;
         }
         return decl[0];
@@ -1081,7 +1087,6 @@ public class Inliner extends ContextVisitor {
             CodeBlock visitedDecl = (CodeBlock) code.visit(visitor);
             return visitedDecl;
         } catch (Exception e) {
-            
             String message = "Exception during instantiation of " +code+ " for " +call+ ": " +e;
             if (true) System.err.println("WARNING: " +message);
             Warnings.issue(job(), message, call.position());
@@ -1563,9 +1568,6 @@ public class Inliner extends ContextVisitor {
             if (!context.currentCode().equals(def)) return n;
             if (!n.isTargetImplicit()) return n;
             FieldInstance fi = n.fieldInstance();
-            if ((ths == null) != (fi.flags().isStatic())) {
-                // System.err.println("Bad field: " +n+ " at " +n.position());
-            }
             assert ((ths == null) == (fi.flags().isStatic()));
             NodeFactory xnf = nf;
             Position pos = n.position();
@@ -1581,10 +1583,6 @@ public class Inliner extends ContextVisitor {
             if (!context.currentCode().equals(def)) return n;
             if (!n.isTargetImplicit()) return n;
             MethodInstance mi = n.methodInstance();
-            if ((ths == null) != (mi.flags().isStatic())) {
-                System.out.println("DEBUG: visitCall assert failure at " + n.position() + " call=" + n + " method=" + mi);
-                System.out.println();
-            }
             assert ((ths == null) == (mi.flags().isStatic()));
             NodeFactory xnf = nf;
             Position pos = n.position();
@@ -1711,10 +1709,6 @@ public class Inliner extends ContextVisitor {
 
         boolean okayJob(Job job) {
             boolean result = !badSources.contains(job.source().toString().intern());
-            if (result != !badJobs.contains(job)) {
-   //           System.err.print("DEBUG: Inliner.okayJob: " +result+ " != " +!badJobs.contains(job)+ " for job " +job);
-   //           System.err.println();
-            }
             return result;
         }
 
