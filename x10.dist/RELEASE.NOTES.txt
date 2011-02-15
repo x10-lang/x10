@@ -81,6 +81,7 @@ Below is a summary of JIRA issues addressed for the X10 2.1.2
     * [XTENLANG-2272] - Standardize return codes when exiting after an uncaught exception
     * [XTENLANG-2308] - Implement GC for BG/P
     * [XTENLANG-2317] - Change C++ codegen strategy to generate a single .cc file for each input .x10 file
+    * [XTENLANG-2378] - Put .x10's into the -o .jar so that they can be used to avoid recompilation of library .jar's
     * [XTENLANG-2398] - Improve performance of BlockBlockDist
 
 ** Bug
@@ -104,16 +105,21 @@ Below is a summary of JIRA issues addressed for the X10 2.1.2
     * [XTENLANG-1804] - Contains expressions cannot be compiled
     * [XTENLANG-1822] - DYNAMIC_CALLS should automatically satisfy the method guard
     * [XTENLANG-1865] - Empty case statement breaks the C++ backend
+    * [XTENLANG-1883] - Instantiation of generic class with a missing operator
     * [XTENLANG-1907] - Compiling an empty file violates an assertion
     * [XTENLANG-1934] - InternalCompilerError: Cannot get FieldDef before type-checking field access.
+    * [XTENLANG-1948] - Type checking stops after the phase that reports an illegal qualifier
     * [XTENLANG-1965] - pretty printing of curly braces
     * [XTENLANG-1979] - c++ compiler errors - invalid template arguments
     * [XTENLANG-1981] - Compiler crashes with traceback on cast
     * [XTENLANG-1999] - InternalCompilerError: polyglot.types.SemanticException: Inconsistent constructor return type
     * [XTENLANG-2004] - Type inferencing for Regions as implementors of Iterable is inconsistent
+    * [XTENLANG-2013] - Parser crashes
     * [XTENLANG-2015] - DYNAMIC_CALLS don't work for method guards but do work if you move the guard to the formals.
+    * [XTENLANG-2036] - placeTerms are not calculated correctly
     * [XTENLANG-2115] - Make ".." a user-overloadable binary operator
     * [XTENLANG-2116] - Make "->" a user-overloadable binary operator
+    * [XTENLANG-2117] - Compiler should handle recursive constraints more efficiently
     * [XTENLANG-2125] - StructSpheres on Mac
     * [XTENLANG-2136] - seg-fault:IO on object constructed remotely
     * [XTENLANG-2140] - compiler internal error 
@@ -161,18 +167,26 @@ Below is a summary of JIRA issues addressed for the X10 2.1.2
     * [XTENLANG-2359] - Accessing field of enclosing class from function of inner class: cannot be resolved (SVN HEAD)
     * [XTENLANG-2360] - x10c generates bad Java code for generic classes with matching type parameters (SVN HEAD)
     * [XTENLANG-2365] - Post-compilation errors with async-initialization
+    * [XTENLANG-2367] - X10 thinks this method wants to override itself or something.
     * [XTENLANG-2381] - toString() on a selected method throws a ClassCastException at runtime
     * [XTENLANG-2386] - Static initialization bug with Java backend
     * [XTENLANG-2397] - Duplicate constructor error for not duplicated constructors
+    * [XTENLANG-2399] - Exploding a point doesn't check the point's rank properly.
+    * [XTENLANG-2410] - jar Main-Class should have the proper path within the jar, not from the command line
+    * [XTENLANG-2411] - GlobalRef doesn't return an appropriate object on ManagedX10
+    * [XTENLANG-2412] - -x10lib not working with libraries other than -stdlib
     * [XTENLANG-2422] - InternalCompilerError when referencing an unknown class
+    * [XTENLANG-2424] - Native X10 compiler: failed in compilation on method equals()
+    * [XTENLANG-2432] - Constraints on properties not statically enforced by property statement
 
-** Tasks and Sub-tasks
+** Misc.
     * [XTENLANG-453] - Create test cases for basic X10 constructs and libraries
     * [XTENLANG-731] - apply() should be an operator
     * [XTENLANG-732] - set() should be an operator
+    * [XTENLANG-1275] - Think about new structs again
+    * [XTENLANG-1751] - Why is "flat" not capitalized?
     * [XTENLANG-2271] - Disable warning message about genric method lookup changing from 2.0.6 to 2.1.0
     * [XTENLANG-2353] - Update Install/Usage insructions for 2.1.2
-
 
 For the details of JIRA issues fixed in this release, see
 http://jira.codehaus.org/browse/XTENLANG/fixforversion/16498
