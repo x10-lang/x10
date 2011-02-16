@@ -222,12 +222,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	private static int nextId_;
 	/* to provide a unique name for local variables introduce in the templates */
-	public static Integer getUniqueId_() {
-		return new Integer(nextId_++);
+	private static int getUniqueId_() {
+	    return nextId_++;
 	}
 
 	public static Name getId() {
-		return Name.make("__var" + getUniqueId_() + "__");
+		return Name.make("$var" + getUniqueId_());
 	}
 
 	public X10PrettyPrinterVisitor(CodeWriter w, Translator tr) {
@@ -2054,7 +2054,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
         }
 		if (isJavaCheckedExceptionCaught) {
-		    final String temp = "__$generated_wrappedex$__";
+		    final String temp = "$ex";
 		    expander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", temp, new Expander(er) {
 		        public void expand(Translator tr) {
                     w.newline();
