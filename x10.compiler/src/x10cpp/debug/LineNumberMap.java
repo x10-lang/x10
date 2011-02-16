@@ -460,7 +460,8 @@ public class LineNumberMap extends StringTable {
 			cm = new ClosureMapInfo();			
 			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			cm._x10startLine = startLine;
-			cm._x10endLine = endLine;			
+			cm._x10endLine = endLine;
+			cm._sizeOfArg = containingClass;
 			closureMembers.put(stringId(containingClass), cm);
 		}
 		
