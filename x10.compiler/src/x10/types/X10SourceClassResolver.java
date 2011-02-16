@@ -87,6 +87,9 @@ public class X10SourceClassResolver implements TopLevelResolver {
      * Load a class file for class <code>name</code>.
      */
     protected Resource loadFile(QName name) {
+        // DISABLE due to XTENLANG-2326.  See comment in X10CPPSourceClassResolver.loadFile(QName).
+        if (true) return null;
+
         if (nocache.contains(name)) {
             return null;
         }
