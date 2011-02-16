@@ -44,7 +44,7 @@ import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.Context;
@@ -619,7 +619,7 @@ public class Lowerer extends ContextVisitor {
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
     	if (annotations == null)
     		annotations = new ArrayList<X10ClassType>(1);
-    	annotations.add((X10ClassType) ts.systemResolver().find(ASYNC_CLOSURE));
+    	annotations.add((X10ClassType) ts.systemResolver().findOne(ASYNC_CLOSURE));
         Closure closure = synth.makeClosure(body.position(), ts.Void(),
                 synth.toBlock(body), context(), annotations);
         closure.closureDef().setCapturedEnvironment(env);
@@ -778,7 +778,7 @@ public class Lowerer extends ContextVisitor {
     private Expr specializedFinish2(Finish f) throws SemanticException {
         Position pos = f.position();
     	int p=0;
-        Type annotation = (Type) ts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
+        Type annotation = ts.systemResolver().findOne(QName.make("x10.compiler.FinishAsync"));
         if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
         	List<AnnotationNode> allannots = ((X10Ext)(f.ext())).annotations();
         	AnnotationNode a = null;
@@ -796,23 +796,23 @@ public class Lowerer extends ContextVisitor {
 						}
 					}
 					if(!isConsistent){
-						Report.report(0,"WARNING:compiler inferes different annotations from what the programer sets in "+job.source().name());
-						if(Report.should_report("verbose", 1)){
-							Report.report(5,"\tcompiler inferes "+p1);
-							Report.report(5,"\tprogrammer annotates "+p2);
+						reporter.report(0,"WARNING:compiler inferes different annotations from what the programer sets in "+job.source().name());
+						if(reporter.should_report("verbose", 1)){
+							reporter.report(5,"\tcompiler inferes "+p1);
+							reporter.report(5,"\tprogrammer annotates "+p2);
 						}
 					}
 				}
 				a = allannots.get(allannots.size()-1);
-				if(Report.should_report("", 1)) 
-					Report.report(1,a.toString());
+				if(reporter.should_report("", 1)) 
+					reporter.report(1,a.toString());
 				p = getPatternFromAnnotation(a);
 				
         	}else{
-        		Report.report(0,"annotation is not correct "+ allannots.size());
+        		reporter.report(0,"annotation is not correct "+ allannots.size());
         	}
         }
-        Type atype = (Type) ts.systemResolver().find(PRAGMA);
+        Type atype = ts.systemResolver().findOne(PRAGMA);
         List<X10ClassType> atypes  = ((X10Ext) f.ext()).annotationMatching(atype);
         if (!atypes.isEmpty()) {
             return call(pos, START_FINISH, atypes.get(0).propertyInitializer(0), ts.FinishState());

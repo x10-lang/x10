@@ -13,7 +13,6 @@ package x10.types.matcher;
 
 import polyglot.types.Context;
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem_c.MemberTypeMatcher;
@@ -25,11 +24,8 @@ public class X10MemberTypeMatcher extends MemberTypeMatcher {
     }
 
     @Override
-    public Named instantiate(Named t) throws SemanticException {
-	    if (! t.name().equals(name)) {
-		return null;
-	    }
-        Named n = t;
+    public Type instantiate(Type t) throws SemanticException {
+        Type n = super.instantiate(t);
         // Also check that the name is simple.
         if (n instanceof MacroType) {
             MacroType mt = (MacroType) n;

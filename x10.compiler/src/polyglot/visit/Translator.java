@@ -39,7 +39,7 @@ import polyglot.util.*;
  * </pre>
  * The <code>ast</code> must be either a SourceFile or a SourceCollection.
  */
-public class Translator extends PrettyPrinter implements Copy
+public class Translator extends PrettyPrinter implements Cloneable
 {
     protected Job job;
     protected NodeFactory nf;
@@ -74,9 +74,9 @@ public class Translator extends PrettyPrinter implements Copy
     }
 
     /** Copy the translator. */
-    public Object copy() {
+    protected Translator shallowCopy() {
         try {
-            return super.clone();
+            return (Translator) super.clone();
         }
         catch (CloneNotSupportedException e) {
             throw new InternalCompilerError("Java clone() weirdness.");
@@ -104,7 +104,7 @@ public class Translator extends PrettyPrinter implements Copy
         if (c == this.context) {
             return this;
         }
-        Translator tr = (Translator) copy();
+        Translator tr = shallowCopy();
         tr.context = c;
         return tr;
     }

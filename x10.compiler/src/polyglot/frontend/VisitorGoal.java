@@ -1,7 +1,7 @@
 package polyglot.frontend;
 
 import polyglot.ast.Node;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 import polyglot.visit.NodeVisitor;
 
@@ -39,10 +39,11 @@ public class VisitorGoal extends SourceGoal_c {
 		
 		    if (v_ != null) {
 		        ErrorQueue q = job().compiler().errorQueue();
+		        Reporter reporter = scheduler.extensionInfo().getOptions().reporter;
 		        int nErrsBefore = q.errorCount();
 		
-		        if (Report.should_report(Report.frontend, 3))
-		            Report.report(3, "Running " + v_ + " on " + ast);
+		        if (reporter.should_report(Reporter.frontend, 3))
+		            reporter.report(3, "Running " + v_ + " on " + ast);
 		
 		        ast = ast.visit(v_);
 		        v_.finish(ast);
@@ -59,6 +60,14 @@ public class VisitorGoal extends SourceGoal_c {
 		    }
 		
 		    return false;
+		}
+		catch (RuntimeException e) {
+		    fail();
+		    throw e;
+		}
+		catch (Error e) {
+		    fail();
+		    throw e;
 		}
 		finally {
 		    job().ast(ast);

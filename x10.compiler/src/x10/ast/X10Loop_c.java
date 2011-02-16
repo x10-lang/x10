@@ -148,7 +148,13 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
         final TypeSystem ts = tc.typeSystem();
         Type base = Types.baseType(domainType);
 
+        if (ts.isUnknown(base)) {
+            return ts.unknownType(base.position());
+        }
         if (base instanceof X10ClassType) {
+            if (((X10ClassType) base).error() != null) {
+                return ts.unknownType(base.position());
+            }
             if (ts.hasSameClassDef(base, ts.Iterable())) {
                 return Types.getParameterType(base, 0);
             }
@@ -177,7 +183,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
         Type indexType;
         int length = ((X10Formal) formal).vars().size();
         if (length > 0) {
-            indexType = ts.Point();
+            indexType = ts.Point(); // todo: not true, it can also be an Array, e.g., for (x[i,j] in [[1,2],[3,4]])
 
             // Add a self.rank=n clause, if the formal
             // has n components.

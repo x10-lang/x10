@@ -40,12 +40,6 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
      * Enable profiling with google performance tools
      */
     public boolean gpt = false;
-    
-    /**
-     * Link in bfd library (GNU Binary File Descriptior Library) to 
-     * enable more detailed stack trace printing
-     */
-    public boolean use_bfd = false;
 
     public final List<String> extraPreArgs = new ArrayList<String>();
     public final List<String> extraPostArgs = new ArrayList<String>();
@@ -68,11 +62,6 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
         
         if (args[i].equals("-gpt")) {
             gpt = true;
-            return ++i;
-        }
-
-        if (args[i].equals("-use-bfd")) {
-            use_bfd = true;
             return ++i;
         }
 
@@ -104,7 +93,6 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 		
         usageForFlag(out, "-pg", "generate code with additional instrumentation to write profile data in gprof format");
         usageForFlag(out, "-gpt", "link the google perftools library to the generated executable");
-        usageForFlag(out, "-use-bfd", "link the GNU BFD library to the generated executable to enable more detailed stack traces");
         usageForFlag(out, "-cxx-prearg <arg>", "Add <arg> to the C++ compilation command line before the list of files");
         usageForFlag(out, "-cxx-postarg <arg>", "Add <arg> to the C++ compilation command line after the list of files");
 

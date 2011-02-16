@@ -40,11 +40,11 @@ public final class AtomicBoolean {
     }
 
     @Native("java", "#0.compareAndSet(#1,#2)")
-    @Native("c++", "x10aux::atomic_boolean_funs::compareAndSet(#0, #1, #2)")
+    @Native("c++", "x10aux::atomic_boolean_funs::compareAndSet(#this, #expect, #update)")
     public native def compareAndSet(expect:boolean, update:boolean):boolean;
 
     @Native("java", "#0.weakCompareAndSet(#1,#2)")
-    @Native("c++", "x10aux::atomic_boolean_funs::weakCompareAndSet(#0, #1, #2)")
+    @Native("c++", "x10aux::atomic_boolean_funs::weakCompareAndSet(#this, #expect, #update)")
     public native def weakCompareAndSet(expect:boolean, update:boolean):boolean;
     
     @Native("java", "#0.getAndSet(#1)")

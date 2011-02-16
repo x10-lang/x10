@@ -68,7 +68,7 @@ public class AscriptionVisitor extends ContextVisitor
             t = parent.childExpectedType((Expr) n, this);
         }
 
-        AscriptionVisitor v = (AscriptionVisitor) copy();
+        AscriptionVisitor v = (AscriptionVisitor) shallowCopy();
         v.outerAscriptionVisitor = this;
         v.type = t;
 

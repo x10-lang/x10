@@ -7,12 +7,18 @@
 
 package polyglot.types;
 
+import java.util.List;
+
 public interface TopLevelResolver {
-    /** Find a Named thing by a qualified name. */
-    public Named find(QName name) throws SemanticException;
+    /** Find a Type by a qualified name. */
+    public List<Type> find(QName name) throws SemanticException;
     
-    /**
-     * Check if a package exists.
-     */
+    /** Find a single Type by a qualified name. */
+    public Type findOne(QName name) throws SemanticException;
+    
+    /** Find a Package by a qualified name. */
+    public Package findPackage(QName name) throws SemanticException;
+    
+    /** Check if a package exists. */
     public boolean packageExists(QName name);
 }

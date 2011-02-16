@@ -19,9 +19,9 @@ public class PostCompileProperties {
     
     public PostCompileProperties(Properties p) {
         props = p;
-        cxxFlags = split(p.getProperty("CXXFLAGS"));
-        libs     = split(p.getProperty("LDLIBS"));
-        ldFlags  = split(p.getProperty("LDFLAGS"));
+        cxxFlags = split(p.getProperty("X10LIB_CXXFLAGS"));
+        libs     = split(p.getProperty("X10LIB_LDLIBS"));
+        ldFlags  = split(p.getProperty("X10LIB_LDFLAGS"));
     }
 
     protected Collection<String> split(String s) {

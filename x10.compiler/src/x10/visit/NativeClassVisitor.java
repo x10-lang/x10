@@ -31,7 +31,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -80,7 +80,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected boolean isNativeDef(X10Def def) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeDef"));
+        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeDef"));
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -92,7 +92,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getNativeClassName(X10ClassDef def) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeClass"));
+        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeClass"));
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -104,7 +104,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getNativeClassPackage(X10ClassDef def) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeClass"));
+        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeClass"));
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -147,8 +147,8 @@ public class NativeClassVisitor extends ContextVisitor {
         if (cname == null)
             return n;
 
-        if (Report.should_report("nativeclass", 1))
-            Report.report(1, "Processing @NativeClass " + cdecl);
+        if (reporter.should_report(Reporter.nativeclass, 1))
+            reporter.report(1, "Processing @NativeClass " + cdecl);
 
         ClassBody cbody = cdecl.body();
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
@@ -175,9 +175,13 @@ public class NativeClassVisitor extends ContextVisitor {
             fake.addTypeParameter(pp, vv);
         }
 
-        X10ClassType embed = (X10ClassType) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
-        List<AnnotationNode> anodes = Collections.<AnnotationNode>singletonList(xnf.AnnotationNode(p, xnf.CanonicalTypeNode(p, embed)));
-        
+        X10ClassType embed = (X10ClassType) xts.systemResolver().findOne(QName.make("x10.compiler.Embed"));
+        List<AnnotationNode> anodes;
+        if (fake.isStruct()) {
+            anodes = Collections.<AnnotationNode>emptyList();
+        } else {
+            anodes = Collections.<AnnotationNode>singletonList(xnf.AnnotationNode(p, xnf.CanonicalTypeNode(p, embed)));
+        }
         // add field with native type
         Name fname = NATIVE_FIELD_NAME;
         Id fid = xnf.Id(p, fname);
@@ -246,8 +250,8 @@ public class NativeClassVisitor extends ContextVisitor {
                     continue;
                 }
 
-                if (Report.should_report("nativeclass", 2))
-                    Report.report(1, "Processing @NativeDef " + mdecl);
+                if (reporter.should_report("nativeclass", 2))
+                    reporter.report(1, "Processing @NativeDef " + mdecl);
 
                 // clear native flag
                 mdecl = (X10MethodDecl) mdecl.flags(xnf.FlagsNode(p, clearNative(mdecl.flags().flags())));
@@ -300,8 +304,8 @@ public class NativeClassVisitor extends ContextVisitor {
 
                 hasNativeConstructor = true; // good!
 
-                if (Report.should_report("nativeclass", 2))
-                    Report.report(1, "Processing @NativeDef " + xdecl);
+                if (reporter.should_report("nativeclass", 2))
+                    reporter.report(1, "Processing @NativeDef " + xdecl);
 
                 // clear native flag
                 xdecl = (X10ConstructorDecl) xdecl.flags(xnf.FlagsNode(p, clearNative(xdecl.flags().flags())));

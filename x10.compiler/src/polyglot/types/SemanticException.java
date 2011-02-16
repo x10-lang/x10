@@ -67,7 +67,7 @@ public class SemanticException extends Exception {
             return this;
         }
         if (! init) {
-            fillInStackTrace = Report.should_report("trace", 1);
+            fillInStackTrace = Report.trace;
             init = true;
             if (! fillInStackTrace) {
                 return this;

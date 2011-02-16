@@ -22,7 +22,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
@@ -198,8 +198,9 @@ public class Async_c extends Stmt_c implements Async {
 	 * The evaluation of place and list of clocks is not in the scope of the async.
 	 */
 	public Context enterChildScope(Node child, Context c) {
-	    if (Report.should_report(TOPICS, 5))
-	        Report.report(5, "enter async scope");
+	    Reporter reporter = c.typeSystem().extensionInfo().getOptions().reporter;
+	    if (reporter.should_report(TOPICS, 5))
+	        reporter.report(5, "enter async scope");
 	    if (child == this.body) {
 	        c = c.pushCode(asyncDef);
 	        ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.Async;
@@ -303,6 +304,6 @@ public class Async_c extends Stmt_c implements Async {
 	}
 
 	private static final Collection<String> TOPICS =
-		CollectionUtil.list(Report.types, Report.context);
+		CollectionUtil.list(Reporter.types, Reporter.context);
 }
 

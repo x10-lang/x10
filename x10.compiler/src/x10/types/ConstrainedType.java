@@ -11,7 +11,6 @@
 
 package x10.types;
 
-import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -31,7 +30,6 @@ import polyglot.types.LazyRef_c;
 
 import polyglot.types.FieldDef;
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.NullType;
 import polyglot.types.ObjectType;
 import polyglot.types.JavaPrimitiveType;
@@ -67,12 +65,15 @@ import x10.types.constraints.CConstraint;
  * @author vj
  *
  */
-public class ConstrainedType extends ReferenceType_c implements ObjectType, Named, X10ThisVar {
+public class ConstrainedType extends ReferenceType_c implements ObjectType, X10ThisVar {
 
 		private static final long serialVersionUID = -3797674072640450629L;
 
 		private Ref<CConstraint> constraint; // yoav todo: what about type constraints? We should keep the original expression as well so we will have accurate position info. 
 		private Ref<? extends Type> baseType;
+
+		protected CConstraint realXClause;
+		protected SemanticException realClauseInvalid;
 
 		public ConstrainedType(TypeSystem ts, Position pos, 
 				Ref<? extends Type> baseType, Ref<CConstraint> constraint) {
@@ -98,6 +99,8 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			ConstrainedType result = (ConstrainedType) super.copy();
 			result.constraint = Types.ref(constraint.get().copy());
 			result.baseType = (Ref<? extends Type>) Types.ref((Type) baseType.get().copy());
+            result.realXClause = realXClause==null ? null : realXClause.copy();
+            // no need to copy realClauseInvalid because it is used to cache if a realXClause is inconsistent.
 			return result;
 		}
 		/**
@@ -165,9 +168,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 			n.constraint = constraint;
 			return n;
 		}
-		
-		protected CConstraint realXClause;
-		protected SemanticException realClauseInvalid;
+
 		/**
 		Returns the real clause for this constrained type. The self variable for the returned constraint 
 		is the same as the self variable for the depclause.
@@ -347,18 +348,12 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 
 		public QName fullName() {
 			Type base = baseType.get();
-			if (base instanceof Named) {
-				return ((Named) base).fullName();
-			}
-			return null;
+			return base.fullName();
 		}
 
 		public Name name() {
 			Type base = baseType.get();
-			if (base instanceof Named) {
-				return ((Named) base).name();
-			}
-			return null;
+			return base.name();
 		}
 		
 		@Override
@@ -442,6 +437,13 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		public  ConstrainedType addRank(int x) {
 		    return addRank(XTerms.makeLit(new Integer(x)));
 		}
+		public  ConstrainedType addSize(int x) {
+		    return addProperty(x, Name.make("size"));
+		}
+		public  ConstrainedType addProperty(int x, Name name) {
+		    return addProperty(XTerms.makeLit(new Integer(x)), name);
+
+        }
 		 /** Add the constraint self.rank==x to t unless
 		 * that causes an inconsistency.
 		 * @param t
@@ -449,7 +451,10 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		 * @return
 		 */
 		public  ConstrainedType addRank(XTerm x) {
-		    XTerm xt = findOrSynthesize(Name.make("rank"));
+            return addProperty(x, Name.make("rank"));
+		}
+		public  ConstrainedType addProperty(XTerm x, Name name) {
+		    XTerm xt = findOrSynthesize(name);
 		    try {
 		        return addBinding(xt, x);
 		    } catch (XFailure f) {
@@ -675,6 +680,9 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, Name
 		 */
 		public XTerm rank(Context context) {
             return findOrSynthesize(Name.make("rank"));
+        }
+		public XTerm size(Context context) {
+            return findOrSynthesize(Name.make("size"));
         }
 		
 

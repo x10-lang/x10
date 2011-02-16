@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Comparator;
 import java.lang.*;
 import java.lang.StringBuilder;
 
@@ -224,6 +225,14 @@ public class RunTestSuite {
     public static void Assert(boolean val, String msg) {
         if (!val) throw new RuntimeException(msg);
     }
+    public static void checkAssertionsEnabled() {
+        boolean isEA = true;
+        try {
+            assert false : "Test if assertion work";
+            isEA = false;
+        } catch (Throwable e) {}
+        if (!isEA) throw new RuntimeException("You must run RunTestSuite with assertions enabled, i.e.,  java -ea RunTestSuite ...");                                                                                                                
+    }
     /**
      * Finds all *.x10 files in all sub-directories, and compiles them.
      * @param args
@@ -234,6 +243,7 @@ public class RunTestSuite {
      * @throws Throwable Can be a failed assertion or missing file.
      */
     public static void main(String[] args) throws Throwable {
+        checkAssertionsEnabled();
         Assert(args.length>0, "The first command line argument must be an x10 filename or a comma separated list of the directories.\n"+
                     "E.g.,\n"+
                     "C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10");
@@ -249,14 +259,13 @@ public class RunTestSuite {
             println("Running each file with a separate (new) compiler object, so it's less efficient but more stable.");
 
 
-        final String dirName = args[0];
         ArrayList<File> files = new ArrayList<File>(10);
-        if (dirName.endsWith(".x10")) {
-            final File dir = new File(dirName);
-            Assert(dir.isFile(), "File doesn't not exists: "+dirName);
-            files.add(getCanonicalFile(dir));
-        } else {
-            for (String dirStr : dirName.split(",")) {
+        for (String dirStr : args[0].split(",")) {
+            if (dirStr.endsWith(".x10")) {
+                final File dir = new File(dirStr);
+                Assert(dir.isFile(), "File does not exist: "+dirStr);
+                files.add(getCanonicalFile(dir));
+            } else {
                 File dir = new File(dirStr);
                 Assert(dir.isDirectory(), "The first command line argument must be a directory or x10 file, and you passed: "+dir);
                 int before = files.size();
@@ -290,19 +299,12 @@ public class RunTestSuite {
         String dirs = "";
         for (String dir : directories)
             dirs += SOURCE_PATH_SEP+dir;
-        int argsNum = remainingArgs.size();
-        boolean foundSourcePath = false;
-        for (int i=1; i<argsNum; i++) {
-            final String arg = remainingArgs.get(i);
-            if (arg.contains("/x10.runtime/src-x10")) {
-                final String sourcepath = arg + dirs;
-                remainingArgs.set(i, sourcepath);
-                println("sourcepath is: "+sourcepath);
-                foundSourcePath = true;
-                break;
-            }
-        }
-        Assert(foundSourcePath, "You must use an argument -sourcepath that includes '/x10.runtime/src-x10'");
+        remainingArgs.add("-sourcepath");
+        remainingArgs.add(dirs);
+        remainingArgs.add("-CHECK_ERR_MARKERS"); // make sure we check @ERR annotations
+        remainingArgs.add("-CHECK_INVARIANTS");
+        println("sourcepath is: "+dirs);
+        println("Arguments are:"+remainingArgs);
 
         long start = System.currentTimeMillis();
         for (FileSummary f : summaries) {
@@ -505,7 +507,11 @@ public class RunTestSuite {
         if (files.size()>=MAX_FILES_NUM) return;
         // sort the result, so the output is identical for diff purposes (see SHOW_EXPECTED_ERRORS)
         final File[] filesInDir = dir.listFiles();
-        Arrays.sort(filesInDir); // todo: the sort is different on MAC and PC (on MAC: Array1DCodeGen.x10 < Array1b.x10, and on PC it's reverse) 
+        Arrays.sort(filesInDir, new Comparator<File>() {
+            public int compare(File o1, File o2) {
+                return o1.getName().compareTo(o2.getName());  // comparing o1.compareTo(o2) directly is different on MAC and PC (on MAC: Array1DCodeGen.x10 < Array1b.x10, and on PC it's reverse)
+            }
+        });
         for (File f : filesInDir) {
             String name = f.getName();
             final boolean isDir = f.isDirectory();

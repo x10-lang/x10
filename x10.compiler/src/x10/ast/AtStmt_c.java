@@ -22,7 +22,6 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
-import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
@@ -37,7 +36,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
@@ -344,7 +344,5 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		return succs;
 	}
 
-	private static final Collection<String> TOPICS =
-		CollectionUtil.list(Report.types, Report.context);
 }
 

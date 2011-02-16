@@ -10,7 +10,7 @@ package polyglot.util;
 import java.io.*;
 import java.util.*;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import x10.util.CollectionFactory;
@@ -19,6 +19,7 @@ import x10.util.CollectionFactory;
 public class TypeOutputStream extends ObjectOutputStream
 {
     protected TypeSystem ts;
+    protected Reporter reporter;
     protected Set<TypeObject> roots;
     protected Map<Object,Object> placeHolders;
     
@@ -28,11 +29,12 @@ public class TypeOutputStream extends ObjectOutputStream
         super( out);
         
         this.ts = ts;
+        this.reporter = ts.extensionInfo().getOptions().reporter;
         this.roots = ts.getTypeEncoderRootSet(root);
         this.placeHolders = CollectionFactory.newHashMap();
         
-        if (Report.should_report(Report.serialize, 2)) {
-            Report.report(2, "Began TypeOutputStream with roots: " + roots);
+        if (reporter.should_report(Reporter.serialize, 2)) {
+            reporter.report(2, "Began TypeOutputStream with roots: " + roots);
         }
         
         enableReplaceObject( true);
@@ -53,8 +55,8 @@ public class TypeOutputStream extends ObjectOutputStream
             Object r;
             
             if (roots.contains(o)) {
-                if (Report.should_report(Report.serialize, 2)) {
-                    Report.report(2, "+ In roots: " + o + " : " + o.getClass());
+                if (reporter.should_report(Reporter.serialize, 2)) {
+                    reporter.report(2, "+ In roots: " + o + " : " + o.getClass());
                 }
                 
                 r = o;
@@ -63,21 +65,21 @@ public class TypeOutputStream extends ObjectOutputStream
                 r = placeHolder((TypeObject) o, true);
             }
             
-            if (Report.should_report(Report.serialize, 2)) {
+            if (reporter.should_report(Reporter.serialize, 2)) {
                 if (r != o) {
-                    Report.report(2, "+ Replacing: " + o + " : " + o.getClass()
+                    reporter.report(2, "+ Replacing: " + o + " : " + o.getClass()
                                   + " with " + r);
                 } 
                 else {
-                    Report.report(2, "+ " + o + " : " + o.getClass());
+                    reporter.report(2, "+ " + o + " : " + o.getClass());
                 }
             }
                 
             return r;
         }
         else {
-            if (Report.should_report(Report.serialize, 2)) {
-                Report.report(2, "+ " + o + " : " + o.getClass());
+            if (reporter.should_report(Reporter.serialize, 2)) {
+                reporter.report(2, "+ " + o + " : " + o.getClass());
             }
             return o;
         }

@@ -14,15 +14,12 @@ package x10.ast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
-import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorDecl;
@@ -39,7 +36,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Special;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -56,7 +53,6 @@ import polyglot.types.MemberDef;
 import polyglot.types.TypeSystem_c;
 
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -66,7 +62,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -78,11 +74,9 @@ import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 
-import x10.constraint.XFailure;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
-import x10.extension.X10Ext;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
@@ -91,7 +85,6 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType_c;
-import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 
 import x10.types.X10LocalDef;
@@ -99,7 +92,6 @@ import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 
-import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
@@ -255,27 +247,28 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     private void superSetSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
         TypeNode superClass = this.superClass;
+        Reporter reporter = ts.extensionInfo().getOptions().reporter;
         
         QName objectName = ((ClassType) ts.Object()).fullName();
 
         if (superClass != null) {
             Ref<? extends Type> t = superClass.typeRef();
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "setting superclass of " + this.type + " to " + t);
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, "setting superclass of " + this.type + " to " + t);
             thisType.superType(t);
         }
         else if (thisType.asType().equals((Object) ts.Object()) || thisType.fullName().equals(objectName)) {
             // the type is the same as ts.Object(), so it has no superclass.
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "setting superclass of " + thisType + " to " + null);
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, "setting superclass of " + thisType + " to " + null);
             thisType.superType(null);
         }
         else {
             // the superclass was not specified, and the type is not the same
             // as ts.Object() (which is typically java.lang.Object)
             // As such, the default superclass is ts.Object().
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "setting superclass of " + this.type + " to " + ts.Object());
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, "setting superclass of " + this.type + " to " + ts.Object());
             thisType.superType(Types.<Type>ref(ts.Object()));
         }
     }
@@ -283,6 +276,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     @Override
     protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
     	final TypeSystem xts = (TypeSystem) ts;
+    	Reporter reporter = xts.extensionInfo().getOptions().reporter;
 
     	// For every struct and interface, add the implicit Any interface.
     	Flags flags =  flags().flags();
@@ -296,8 +290,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         for (TypeNode tn : interfaces) {
             Ref<? extends Type> t = tn.typeRef();
 
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "adding interface of " + thisType + " to " + t);
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, "adding interface of " + thisType + " to " + t);
 
             thisType.addInterface(t);
         }
@@ -796,8 +790,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	}
     	
     	TypeChecker childtc = (TypeChecker) v;
-    	TypeChecker oldchildtc = (TypeChecker) childtc.copy();
-    	ContextVisitor oldtc = (ContextVisitor) tc.copy();
+    	ContextVisitor oldtc = (ContextVisitor) tc.shallowCopy();
     	
     	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
     	TypeSystem xts = tc.typeSystem();
@@ -1100,9 +1093,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 // Something with the same name was declared locally.
                 // (but not in an enclosing class)
                 try {
-                    Named nm = context.find(ts.TypeMatcher(name));
-                    if (nm instanceof Type) {
-                        Type another = (Type) nm;
+                    List<Type> nm = context.find(ts.TypeMatcher(name));
+                    for (Type another : nm) {
                         if (another.isClass() && another.toClass().isLocal()) {
                             Errors.issue(tc.job(), new Errors.SameNameLocal(type, position()));
                         }
@@ -1366,20 +1358,22 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     @Override
     public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
         w.begin(0);
-        Flags flags = type.flags();
+        if (type != null) {
+            Flags flags = type.flags();
         
-        if (flags.isInterface()) {
-            w.write(flags.clearInterface().clearAbstract().translate());
-        }
-        else {
-            w.write(flags.translate());
-        }
+            if (flags.isInterface()) {
+                w.write(flags.clearInterface().clearAbstract().translate());
+            }
+            else {
+                w.write(flags.translate());
+            }
         
-        if (flags.isInterface()) {
-            w.write("interface ");
-        }
-        else {
-            w.write("class ");
+            if (flags.isInterface()) {
+                w.write("interface ");
+            }
+            else {
+                w.write("class ");
+            }
         }
         
         tr.print(this, name, w);
@@ -1422,11 +1416,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         if (! interfaces.isEmpty()) {
             w.allowBreak(2);
-            if (flags.isInterface()) {
-                w.write("extends ");
-            }
-            else {
-                w.write("implements ");
+            if (type != null) {
+                if (type.flags().isInterface()) {
+                    w.write("extends ");
+                }
+                else {
+                    w.write("implements ");
+                }
             }
         
             w.begin(0);

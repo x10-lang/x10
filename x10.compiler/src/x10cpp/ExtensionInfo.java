@@ -16,12 +16,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
+import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -30,7 +32,6 @@ import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
-import polyglot.main.Report;
 import polyglot.types.MemberClassResolver;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
@@ -40,6 +41,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.PostCompiled;
 import polyglot.util.InternalCompilerError;
 import x10.Configuration;
+import x10.visit.ExternAnnotationVisitor;
 import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
 import x10.ast.X10NodeFactory_c;
@@ -77,38 +79,30 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 	}
 
 	protected TypeSystem createTypeSystem() {
-		return new X10CPPTypeSystem_c();
+		return new X10CPPTypeSystem_c(this);
 	}
 
 	@Override
     protected void initTypeSystem() {
-        X10CPPCompilerOptions opts = (X10CPPCompilerOptions) getOptions();
-        // Inline from superclass, replacing SourceClassResolver
-        try {
-            for (PrecompiledLibrary pco:opts.x10libs) {
-                manifest.add(pco.sourceJar);
-                manifest.addAll(pco.sourceFiles);
-             }
+	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) getOptions();
+	    // Inline from superclass, replacing SourceClassResolver
+	    for (PrecompiledLibrary pco : opts.x10libs) {
+	        pco.updateManifset(manifest, this);
+	    }
 
-            TopLevelResolver r =
-                new X10CPPSourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
-                                              getOptions().compile_command_line_only,
-                                              getOptions().ignore_mod_times);
+	    TopLevelResolver r =
+	        new X10CPPSourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
+	                                      getOptions().compile_command_line_only,
+	                                      getOptions().ignore_mod_times);
 
+	    // Resolver to handle lookups of member classes.
+	    if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
+	        MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
+	        r = mcr;
+	    }
 
-            // Resolver to handle lookups of member classes.
-            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
-                r = mcr;
-            }
-
-            ts.initialize(r, this);
-        }
-        catch (SemanticException e) {
-            throw new InternalCompilerError(
-                "Unable to initialize type system: " + e.getMessage(), e);
-        }
-    }
+	    ts.initialize(r);
+	}
 
     @Override
     public JobExt jobExt() {
@@ -159,7 +153,14 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		}
 		@Override
 		public List<Goal> goals(Job job) {
-		    List<Goal> goals = super.goals(job);
+		    List<Goal> superGoals = super.goals(job);
+            ArrayList<Goal> goals = new ArrayList<Goal>(superGoals.size()+1);
+            for (Goal g : superGoals) {
+                if (g == NativeClassVisitor(job)) {
+                    goals.add(ExternAnnotationVisitor(job));
+                }
+                goals.add(g);
+            }
 		    FinallyEliminator(job).addPrereq(Lowerer(job));
 		    for (Goal g: Optimizer.goals(this, job)) {
 		        FinallyEliminator(job).addPrereq(g);
@@ -167,6 +168,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		    StaticNestedClassRemover(job).addPrereq(FinallyEliminator(job));
 		    return goals;
 		}
+
+	       public Goal ExternAnnotationVisitor(Job job) {
+	           TypeSystem ts = extInfo.typeSystem();
+	           NodeFactory nf = extInfo.nodeFactory();
+	           return new ForgivingVisitorGoal("NativeAnnotation", job, new ExternAnnotationVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
+	       }
 	}
 
 	// TODO: [IP] Override targetFactory() (rather, add createTargetFactory to polyglot)

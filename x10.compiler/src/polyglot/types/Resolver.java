@@ -7,6 +7,8 @@
 
 package polyglot.types;
 
+import java.util.List;
+
 
 /**
  * A <code>Resolver</code> is responsible for looking up types and
@@ -16,5 +18,5 @@ public interface Resolver {
     /**
      * Find a Named type object, usually a package or a class.
      */
-    public Named find(Matcher<Named> matcher) throws SemanticException;
+    public List<Type> find(Matcher<Type> matcher) throws SemanticException;
 }

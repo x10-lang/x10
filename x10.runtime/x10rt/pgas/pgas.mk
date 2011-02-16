@@ -256,10 +256,10 @@ endif
 
 
 etc/x10rt_pgas_sockets.properties:
-	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	@echo "CXX=$(CXX)" >> $@
-	@echo "LDFLAGS=$(APP_LDFLAGS_PGAS_SOCKETS)" >> $@
-	@echo "LDLIBS=$(APP_LDLIBS_PGAS_SOCKETS)" >> $@
+	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "X10LIB_CXX=$(CXX)" >> $@
+	@echo "X10LIB_LDFLAGS=$(APP_LDFLAGS_PGAS_SOCKETS)" >> $@
+	@echo "X10LIB_LDLIBS=$(APP_LDLIBS_PGAS_SOCKETS)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_sockets.properties
 .PHONY: $(PGAS_SOCKETS_TGZ).phony
@@ -297,10 +297,10 @@ $(LIB_FILE_PGAS_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
 endif
 
 etc/x10rt_pgas_pane.properties:
-	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	@echo "CXX=$(CXX)" >> $@
-	@echo "LDFLAGS=$(APP_LDFLAGS_PGAS_PANE)" >> $@
-	@echo "LDLIBS=$(APP_LDLIBS_PGAS_PANE)" >> $@
+	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "X10LIB_CXX=$(CXX)" >> $@
+	@echo "X10LIB_LDFLAGS=$(APP_LDFLAGS_PGAS_PANE)" >> $@
+	@echo "X10LIB_LDLIBS=$(APP_LDLIBS_PGAS_PANE)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_pane.properties
 .PHONY: $(PGAS_PANE_TGZ).phony
@@ -353,10 +353,10 @@ $(LIB_FILE_PGAS_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 endif
 
 etc/x10rt_pgas_lapi.properties:
-	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	@echo "CXX=$(CXX)" >> $@
-	@echo "LDFLAGS=$(APP_LDFLAGS_PGAS_LAPI)" >> $@
-	@echo "LDLIBS=$(APP_LDLIBS_PGAS_LAPI)" >> $@
+	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "X10LIB_CXX=$(CXX)" >> $@
+	@echo "X10LIB_LDFLAGS=$(APP_LDFLAGS_PGAS_LAPI)" >> $@
+	@echo "X10LIB_LDLIBS=$(APP_LDLIBS_PGAS_LAPI)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_lapi.properties
 .PHONY: $(PGAS_LAPI_TGZ).phony
@@ -395,10 +395,10 @@ lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) lib/libxlpgas_bgp.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 
 etc/x10rt_pgas_bgp.properties:
-	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	@echo "CXX=$(CXX)" >> $@
-	@echo "LDFLAGS=$(APP_LDFLAGS_PGAS_BGP)" >> $@
-	@echo "LDLIBS=$(APP_LDLIBS_PGAS_BGP)" >> $@
+	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "X10LIB_CXX=$(CXX)" >> $@
+	@echo "X10LIB_LDFLAGS=$(APP_LDFLAGS_PGAS_BGP)" >> $@
+	@echo "X10LIB_LDLIBS=$(APP_LDLIBS_PGAS_BGP)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_bgp.properties
 .PHONY: $(PGAS_BGP_TGZ).phony

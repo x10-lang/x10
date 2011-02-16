@@ -18,7 +18,8 @@ import java.util.*;
 import polyglot.ast.Node;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Goal.Status;
-import polyglot.main.Report;
+import polyglot.main.Options;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Option;
@@ -97,6 +98,10 @@ public abstract class Scheduler {
         this.currentGoal = null;
     }
     
+    public ExtensionInfo extensionInfo() {
+        return this.extInfo;
+    }
+    
     public Collection<Job> commandLineJobs() {
         return this.commandLineJobs;
     }
@@ -117,9 +122,11 @@ public abstract class Scheduler {
 
     protected void completeJob(Job job) {
         if (job != null) {
+            job.setCompleted(true);
             jobs.put(job.source(), COMPLETED_JOB);
-            if (Report.should_report(Report.frontend, 1)) {
-                Report.report(1, "Completed job " + job);
+            Reporter reporter = extInfo.getOptions().reporter;
+            if (reporter.should_report(Reporter.frontend, 1)) {
+                reporter.report(1, "Completed job " + job);
             }
         }
     }
@@ -187,8 +194,9 @@ public abstract class Scheduler {
     	catch (CyclicDependencyException e) {
     	}
 
-        if (Report.should_report(Report.frontend, 1))
-            Report.report(1, "Finished all passes for " + this.getClass().getName() + " -- " +
+    	Reporter reporter = extInfo.getOptions().reporter;
+        if (reporter.should_report(Reporter.frontend, 1))
+            reporter.report(1, "Finished all passes for " + this.getClass().getName() + " -- " +
                         (okay ? "okay" : "failed"));
 
         return okay;
@@ -299,16 +307,18 @@ public abstract class Scheduler {
     protected boolean runPass(Goal goal) throws CyclicDependencyException {
         Job job = goal instanceof SourceGoal ? ((SourceGoal) goal).job() : null;
                 
-        if (extInfo.getOptions().disable_passes.contains(goal.name())) {
-            if (Report.should_report(Report.frontend, 1))
-                Report.report(1, "Skipping pass " + goal);
+        Options options = extInfo.getOptions();
+        Reporter reporter = options.reporter;
+        if (options.disable_passes.contains(goal.name())) {
+            if (reporter.should_report(Reporter.frontend, 1))
+                reporter.report(1, "Skipping pass " + goal);
             
             goal.update(Goal.Status.SUCCESS);
             return true;
         }
         
-        if (Report.should_report(Report.frontend, 1))
-            Report.report(1, "Running pass for " + goal);
+        if (reporter.should_report(Reporter.frontend, 1))
+            reporter.report(1, "Running pass for " + goal);
 
         if (reached(goal)) {
             throw new InternalCompilerError("Cannot run a pass for completed goal " + goal);
@@ -317,7 +327,7 @@ public abstract class Scheduler {
         boolean result = false;
 
         if (true || job == null || job.status()) {
-            Report.start_reporting(goal.name());
+            reporter.start_reporting(goal.name());
 
             if (job != null) {
 				    // We're starting to run the pass. 
@@ -343,15 +353,15 @@ public abstract class Scheduler {
 
                     goal.update(Status.SUCCESS);
 
-                    if (Report.should_report(Report.frontend, 1))
-                        Report.report(1, "Completed pass for " + goal);
+                    if (reporter.should_report(Reporter.frontend, 1))
+                        reporter.report(1, "Completed pass for " + goal);
                 }
                 else {
                     x10Info.stats.incrFrequency(key + " unreached", 1);
                     x10Info.stats.incrFrequency("total goal unreached", 1);
 
-                    if (Report.should_report(Report.frontend, 1))
-                        Report.report(1, "Completed (unreached) pass for " + goal);
+                    if (reporter.should_report(Reporter.frontend, 1))
+                        reporter.report(1, "Completed (unreached) pass for " + goal);
                 }
             }
             finally {
@@ -367,13 +377,15 @@ public abstract class Scheduler {
 				    }
 				}
 
-                Report.stop_reporting(goal.name());
+                reporter.stop_reporting(goal.name());
 
                 x10Info.stats.stopTiming();
             }
 
             // pretty-print this pass if we need to.
-            if (job != null && extInfo.getOptions().print_ast.contains(goal.name())) {
+            if (job != null &&
+                (extInfo.getOptions().print_ast.contains(goal.name()) ||
+                 extInfo.getOptions().print_ast.contains("printall"))) {
                 System.err.println("--------------------------------" +
                                    "--------------------------------");
                 System.err.println("Pretty-printing AST for " + job +
@@ -383,7 +395,9 @@ public abstract class Scheduler {
             }
 
             // dump this pass if we need to.
-            if (job != null && extInfo.getOptions().dump_ast.contains(goal.name())) {
+            if (job != null && 
+                (extInfo.getOptions().dump_ast.contains(goal.name()) ||
+                 extInfo.getOptions().dump_ast.contains("dumpall"))) {
                 System.err.println("--------------------------------" +
                                    "--------------------------------");
                 System.err.println("Dumping AST for " + job +
@@ -399,8 +413,8 @@ public abstract class Scheduler {
         
         // Record the progress made before running the pass and then update
         // the current progress.
-        if (Report.should_report(Report.frontend, 1)) {
-            Report.report(1, "Finished " + goal +
+        if (reporter.should_report(Reporter.frontend, 1)) {
+            reporter.report(1, "Finished " + goal +
                           " status=" + statusString(result));
         }
         
@@ -492,9 +506,10 @@ public abstract class Scheduler {
 
             // record the job in the map and the worklist.
             jobs.put(source, new Option.Some<Job>(job));
-    
-            if (Report.should_report(Report.frontend, 4)) {
-                Report.report(4, "Adding job for " + source + " at the " +
+
+            Reporter reporter = extInfo.getOptions().reporter;
+            if (reporter.should_report(Reporter.frontend, 4)) {
+                reporter.report(4, "Adding job for " + source + " at the " +
                     "request of goal " + currentGoal);
             }
         }

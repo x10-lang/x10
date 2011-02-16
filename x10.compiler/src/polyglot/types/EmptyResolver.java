@@ -7,6 +7,8 @@
 
 package polyglot.types;
 
+import java.util.List;
+
 
 /**
  * An <code>EmptyResolver</code> is a resolver that always fails.
@@ -25,7 +27,7 @@ public class EmptyResolver implements Resolver {
     /**
      * Find a type object by name.
      */
-    public Named find(Matcher<Named> matcher) throws SemanticException {
+    public List<Type> find(Matcher<Type> matcher) throws SemanticException {
         throw new SemanticException((kind != null ? (kind + " ") : "") +
                                     matcher.signature() + " not found.");
     }

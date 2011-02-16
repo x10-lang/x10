@@ -44,8 +44,6 @@ public class ClassFile {
     
     protected Map<String, JLCInfo> jlcInfoCache = CollectionFactory.newHashMap();
    
-    protected static Collection<String> verbose = ClassFileLoader.verbose;
-  
     /**
      * Constructor.  This constructor parses the class file from the byte array
      *

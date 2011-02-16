@@ -146,6 +146,7 @@ void RuntimeType::initStageTwo(const char* baseName_,
     parentsc = parentsc_;
     paramsc = paramsc_;
     containsPtrs = true; // TODO: Eventually the compiler should analyze structs and where possible set containsPtrs for their RTT's to false.
+    hasZ = true; // TODO: Eventually the compiler should analyze types and set hasZ for their RTT's appropriately.
     if (parentsc > 0) {
         parents = system_alloc<const RuntimeType*>(parentsc * sizeof(const RuntimeType*));
         for (int i=0; i<parentsc; i++) {

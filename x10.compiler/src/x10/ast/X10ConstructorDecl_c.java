@@ -487,7 +487,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	// we simply need to push in a non-null mi here.
     	TypeChecker childtc1 = (TypeChecker) tc.enter(parent, nn);
     	if (childtc1.context() == tc.context())
-    	    childtc1 = (TypeChecker) childtc1.context((Context) tc.context().copy());
+    	    childtc1 = (TypeChecker) childtc1.context((Context) tc.context().shallowCopy());
     	// Add the type params and formals to the context.
     	nn.visitList(nn.typeParameters(),childtc1);
     	nn.visitList(nn.formals(),childtc1);

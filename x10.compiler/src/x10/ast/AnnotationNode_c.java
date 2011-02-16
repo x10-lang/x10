@@ -54,7 +54,7 @@ public class AnnotationNode_c extends Node_c implements AnnotationNode {
 	}
 	
 	public X10ClassType annotationInterface() {
-		return (X10ClassType) annotationType().type();
+		return (X10ClassType) annotationType().type().toClass();
 	}
 	
 	@Override

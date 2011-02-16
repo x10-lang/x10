@@ -26,7 +26,7 @@ import polyglot.util.*;
  * @see polyglot.ast.Node#visit
  * @see polyglot.ast.Node
  */
-public abstract class NodeVisitor implements Copy
+public abstract class NodeVisitor implements Cloneable
 {
     /**
      * Given a tree rooted at <code>n</code>, the visitor has the option of
@@ -265,9 +265,10 @@ public abstract class NodeVisitor implements Copy
         
         return n;
     }
-    
 
-    public Object copy() {
+
+    // none of the subclasses override the copy, so it doesn't do a deep copy but a shallow copy.
+    public Object shallowCopy() {
         try {
             return (NodeVisitor) super.clone();
         }

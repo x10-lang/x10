@@ -102,7 +102,6 @@ import polyglot.types.MemberDef;
 import polyglot.types.JavaArrayType;
 
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.QName;

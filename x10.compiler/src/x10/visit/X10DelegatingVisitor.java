@@ -101,6 +101,7 @@ import x10.ast.Closure_c;
 import x10.ast.DepParameterExpr_c;
 import x10.ast.Finish_c;
 import x10.ast.ForLoop_c;
+import x10.ast.HasZeroTest_c;
 import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
@@ -219,6 +220,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Unary_c) { visit((Unary_c)n); return; }
 		if (n instanceof Tuple_c) { visit((Tuple_c)n); return; }
 		if (n instanceof SubtypeTest_c) { visit((SubtypeTest_c)n); return; }
+		if (n instanceof HasZeroTest_c) { visit((HasZeroTest_c)n); return; }
 		if (n instanceof X10Special_c) { visit((X10Special_c)n); return; }
 		if (n instanceof Special_c) { visit((Special_c)n); return; }
 		if (n instanceof ParExpr_c) { visit((ParExpr_c)n); return; }
@@ -356,6 +358,7 @@ public class X10DelegatingVisitor {
 				public void visit(Special_c n) { visit((Expr_c)n); }
 					public void visit(X10Special_c n) { visit((Special_c)n); }
 				public void visit(SubtypeTest_c n) { visit((Expr_c)n); }
+				public void visit(HasZeroTest_c n) { visit((Expr_c)n); }
 				public void visit(Tuple_c n) { visit((Expr_c)n); }
 				public void visit(Unary_c n) { visit((Expr_c)n); }
 					public void visit(X10Unary_c n) { visit((Unary_c)n); }

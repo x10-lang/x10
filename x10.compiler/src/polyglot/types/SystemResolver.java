@@ -10,7 +10,7 @@ package polyglot.types;
 import java.util.*;
 
 import polyglot.frontend.ExtensionInfo;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.*;
 import x10.util.CollectionFactory;
 
@@ -27,22 +27,25 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
      * @param inner The resolver whose results this resolver caches.
      */
     public SystemResolver(TopLevelResolver inner, ExtensionInfo extInfo) {
-        super(inner);
+        super(inner, extInfo.getOptions().reporter);
         this.extInfo = extInfo;
         this.packageCache = CollectionFactory.newHashMap();
     }
 
+    /*
     public Object copy() {
         SystemResolver r = (SystemResolver) super.copy();
+        // todo: the inner resolver is not deep cloned. so I removed this copy method. If it is needed, then Resolver should extend Copy and we should implement copy for all Resolvers.
         r.packageCache = CollectionFactory.newHashMap(this.packageCache);
         return r;
     }
+    */
     
-    public void installInAll(QName name, Named n) {
+    public void installInAll(QName name, Type n) {
         this.install(name, n);
     }
 
-    public boolean installedInAll(QName name, Named q) {
+    public boolean installedInAll(QName name, Type q) {
         if (check(name) != q) {
             return false;
         }
@@ -51,7 +54,7 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
 
     /** Check if a package exists in the resolver cache. */
     protected boolean packageExistsInCache(QName name) {
-        for (Named n : cachedObjects()) {
+        for (Type n : cachedTypes()) {
             if (n instanceof Importable) {
                 Importable im = (Importable) n;
                 if (im.package_() != null &&
@@ -69,6 +72,7 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
     /**
      * Check if a package exists.
      */
+    @Override
     public boolean packageExists(QName name) {
 	Boolean b = packageCache.get(name);
 	if (b != null) {
@@ -121,23 +125,55 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
     }
 
     /**
-     * Find a type (or package) by name. For most code, this should be called
+     * Return the first element in the given list, or null if the list is null or empty.
+     * @param l the given list
+     * @return the first element (if any)
+     */
+    public static <T> T first(List<T> l) {
+        if (l != null) {
+            for (T n : l) {
+                return n;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find a type by name. For most code, this should be called
      * with the Java source name (p.A.B), not the class file name (p.A$B). The
      * exceptions are for resolving names in deserialized types and in types
      * loaded from raw class files.
      */
-    public Named find(QName name) throws SemanticException {
-        Named n = super.find(name);
+    @Override
+    public List<Type> find(QName name) throws SemanticException {
+        List<Type> n = super.find(name);
 
-        if (Report.should_report(TOPICS, 2))
-            Report.report(2, "Returning from SR.find(" + name + "): " + n);
+        if (reporter.should_report(TOPICS, 2))
+            reporter.report(2, "Returning from SR.find(" + name + "): " + n);
 
         return n;
     }
 
-    public void install(QName name, Named q) {
-        if (Report.should_report(TOPICS, 2) && check(name) == null)
-            Report.report(2, "SR installing " + name + "->" + q);
+    /**
+     * Find a package by name. For most code, this should be called
+     * with the Java source name (p.A.B), not the class file name (p.A$B). The
+     * exceptions are for resolving names in deserialized types and in types
+     * loaded from raw class files.
+     */
+    @Override
+    public Package findPackage(QName name) throws SemanticException {
+        Package p = super.findPackage(name);
+
+        if (reporter.should_report(TOPICS, 2))
+            reporter.report(2, "Returning from SR.findPackage(" + name + "): " + p);
+
+        return p;
+    }
+
+    @Override
+    public void install(QName name, Type q) {
+        if (reporter.should_report(TOPICS, 2) && check(name) == null)
+            reporter.report(2, "SR installing " + name + "->" + q);
         
         super.install(name, q);
     }
@@ -147,7 +183,8 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
      * @param name The name of the qualifier to insert.
      * @param q The qualifier to insert.
      */
-    public void addNamed(QName name, Named q) throws SemanticException {
+    @Override
+    public void addNamed(QName name, Type q) throws SemanticException {
         super.addNamed(name, q);
 
         if (q instanceof ClassType) {
@@ -158,7 +195,7 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
                 Package p = ((ClassType) q).package_();
                 cachePackage(p);
                 if (p != null && containerName.equals(p.fullName())) {
-                    addNamed(containerName, p);
+                    addPackage(containerName, p);
                 }
             }
             else if (ct.isMember()) {
@@ -177,7 +214,7 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
             QName containerName = name.qualifier();
             Package prefix = Types.get(p.prefix());
             if (prefix != null && containerName.equals(prefix.fullName())) {
-                addNamed(containerName, prefix);
+                addPackage(containerName, prefix);
             }
         }
 
@@ -187,7 +224,7 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
     }
 
     private static final Collection<String> TOPICS =
-                    CollectionUtil.list(Report.types,
-                                        Report.resolver,
-                                        "sysresolver");
+                    CollectionUtil.list(Reporter.types,
+                                        Reporter.resolver,
+                                        Reporter.sysresolver);
 }

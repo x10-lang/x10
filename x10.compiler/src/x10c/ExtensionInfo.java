@@ -54,7 +54,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
     @Override
     protected TypeSystem createTypeSystem() {
-        return new X10CTypeSystem_c();
+        return new X10CTypeSystem_c(this);
     }
 
     @Override

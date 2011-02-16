@@ -65,4 +65,20 @@ public interface ConstructorCall extends Stmt, ProcedureCall
 
     /** Set the constructor to call. */
     ConstructorCall constructorInstance(ConstructorInstance ci);
+
+    /**
+     * The target of the constructor call.
+     * Until the ConstructorSplitterVisitor runs (after type checking), this call returns null.  
+     * Afterwards, it will return either an X10Allocation or this.
+     */
+    Expr target();
+
+    
+    /**
+     * Sets the target of this constructor call.
+     * 
+     * @param target the target (must be either X10Allocation or this.
+     * @return the modified constructor call.
+     */
+    ConstructorCall target(Expr target);
 }

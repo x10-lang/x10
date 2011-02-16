@@ -268,7 +268,7 @@ public class X10New_c extends New_c implements X10New {
         
         if (outer == null) {
             Errors.issue(ar.job(),
-                    new SemanticException("Could not find non-static member class \"" + name + "\".", position()));
+                    new Errors.CouldNotFindNonStaticMemberClass(name, position()));
             outer = c.currentClass();
         }
         
@@ -345,12 +345,12 @@ public class X10New_c extends New_c implements X10New {
 
             if (!(tn instanceof AmbTypeNode) || ((AmbTypeNode) tn).prefix() != null) {
                 Errors.issue(childtc.job(),
-                        new SemanticException("Only simply-named member classes may be instantiated by a qualified new expression.", tn.position()));
+                        new Errors.OnlySimplyNameMemberClassMayBeInstantiated(tn.position()));
             }
 
             if (!qualifier.type().isClass()) {
                 Errors.issue(childtc.job(),
-                        new SemanticException("Cannot instantiate member class of non-class type.", n.position()));
+                        new Errors.CannotInstantiateMemberClass(n.position()));
             }
 
             tn = nf.CanonicalTypeNode(tn.position(), tn.typeRef());
@@ -377,7 +377,7 @@ public class X10New_c extends New_c implements X10New {
                 name = Name.makeFresh();
             QName outer = qualifier == null ? null : qualifier.type().toClass().fullName();
             QName qname = QName.make(outer, name);
-            t = ts.createFakeClass(qname, new SemanticException("Cannot instantiate type " + tn.type() + "."));
+            t = ts.createFakeClass(qname, new Errors.CannotInstantiateType(tn.type(), position()));
         }
 
         X10ClassType ct = (X10ClassType) t;
@@ -398,7 +398,7 @@ public class X10New_c extends New_c implements X10New {
 
             if (typeArgs.size() != ct.x10Def().typeParameters().size()) {
                 Errors.issue(childtc.job(),
-                        new SemanticException("Cannot instantiate type " + ct + "; incorrect number of type arguments.", n.position()));
+                        new Errors.CannotInstantiateType(ct, n.position()));
                 // TODO: fake missing args or delete extra args
             }
 

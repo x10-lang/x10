@@ -48,11 +48,10 @@ package x10.types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -62,10 +61,8 @@ import polyglot.types.FieldInstance;
 import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodDef;
 
 import polyglot.types.Name;
-import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -76,7 +73,6 @@ import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil; import polyglot.util.Position;
 import x10.util.CollectionFactory;
-import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -85,7 +81,6 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.constraints.SubtypeConstraint;
-import x10.ast.X10Return_c;
 
 public class X10Context_c extends Context_c {
 
@@ -373,7 +368,7 @@ public class X10Context_c extends Context_c {
 	}
 
 	private static final Collection<String> TOPICS =
-		CollectionUtil.list(Report.types, Report.context);
+		CollectionUtil.list(Reporter.types, Reporter.context);
 
 	/**
 	 * Returns whether the particular symbol is defined locally.  If it isn't
@@ -432,8 +427,8 @@ public class X10Context_c extends Context_c {
 	     * "argTypes".
 	     */
 	    public MethodInstance superFindMethod(TypeSystem_c.MethodMatcher matcher) throws SemanticException {
-	        if (Report.should_report(TOPICS, 3))
-	          Report.report(3, "find-method " + matcher.signature() + " in " + this);
+	        if (reporter.should_report(TOPICS, 3))
+	          reporter.report(3, "find-method " + matcher.signature() + " in " + this);
 
 	        // Check for any method with the appropriate name.
 	        // If found, stop the search since it shadows any enclosing
@@ -441,8 +436,8 @@ public class X10Context_c extends Context_c {
 	        ClassType currentClass = this.currentClass();
 	        if (currentClass != null &&
 	                typeSystem().hasMethodNamed(currentClass, matcher.name())) {
-	            if (Report.should_report(TOPICS, 3))
-	              Report.report(3, "find-method " + matcher.signature() + " -> " +
+	            if (reporter.should_report(TOPICS, 3))
+	              reporter.report(3, "find-method " + matcher.signature() + " -> " +
 	                                currentClass);
 
 	            // Override to change the type from C to C{self==this}.
@@ -573,6 +568,7 @@ public class X10Context_c extends Context_c {
 	/**
 	 * Push a source file scope.
 	 */
+	@Override
 	public Context pushSource(ImportTable it) {
 		assert (depType == null);
 		return super.pushSource(it);
@@ -682,18 +678,20 @@ public class X10Context_c extends Context_c {
 		return (Context) SUPER_pushStatic();
 	}
 
-	/**
-	 * enters a method
-	 */
+    /**
+     * enters a method
+     */
     public enum X10Kind { None, Async, At, Finish; }
     public X10Kind x10Kind = X10Kind.None;
 
-	public Object copy() {
-		X10Context_c res = (X10Context_c) super.copy();
+    @Override
+    public X10Context_c shallowCopy() {
+        X10Context_c res = (X10Context_c) super.shallowCopy();
         res.x10Kind = X10Kind.None;
         return res;
     }
-    
+
+	@Override
 	public Context pushCode(CodeDef ci) {
 		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
@@ -703,6 +701,7 @@ public class X10Context_c extends Context_c {
 	/**
 	 * Gets the current method
 	 */
+	@Override
 	public X10CodeDef currentCode() {
 		return (X10CodeDef) (depType == null ? super.currentCode() : pop().currentCode());
 	}
@@ -727,6 +726,7 @@ public class X10Context_c extends Context_c {
 		return inAssignment;
 	}
 
+	@Override
 	public boolean inStaticContext() {
 		return depType == null ? super.inStaticContext() : pop().inStaticContext();
 	}
@@ -748,6 +748,7 @@ public class X10Context_c extends Context_c {
 	/**
 	 * Adds a symbol to the current scoping level.
 	 */
+	@Override
 	public void addVariable(VarInstance<?> vi) {
 //		assert (depType == null);
 		super.addVariable(vi);
@@ -756,42 +757,43 @@ public class X10Context_c extends Context_c {
 	/**
 	 * Adds a named type object to the current scoping level.
 	 */
-	public void addNamed(Named t) {
+	@Override
+	public void addNamed(Type t) {
 		assert (depType == null);
 		super.addNamed(t);
 	}
 
-	    public Named findInThisScope(Name name) {
-	        if (types != null) {
-	            Named t = (Named) types.get(name);
-	            if (t != null)
-	        	return t;
-	        }
-	        if (isClass()) {
-	            if (! this.type.isAnonymous() &&
+	public Type findInThisScope(Name name) {
+	    if (types != null) {
+	        Type t = types.get(name);
+	        if (t != null)
+	            return t;
+	    }
+	    if (isClass()) {
+	        if (! this.type.isAnonymous() &&
 	                this.type.name().equals(name)) {
-	                return this.type;
-	            }
-	            else {
-	                ClassType container = this.currentClass();
-			Named t = findMemberTypeInThisScope(name, container);
-			if (t != null) return t;
-	            }
+	            return this.type;
 	        }
-	        if (inDepType()) {
-	            Type container = currentDepType();
-	            Named t = findMemberTypeInThisScope(name, container);
+	        else {
+	            ClassType container = this.currentClass();
+	            Type t = findMemberTypeInThisScope(name, container);
 	            if (t != null) return t;
 	        }
-//	        if (supertypeDeclarationType() != null) {
-//	            ClassType container = supertypeDeclarationType().asType();
-//	            Named t = findMemberTypeInThisScope(name, container);
-//	            if (t != null) return t;
-//	        }
-	        return null;
 	    }
+	    if (inDepType()) {
+	        Type container = currentDepType();
+	        Type t = findMemberTypeInThisScope(name, container);
+	        if (t != null) return t;
+	    }
+//	    if (supertypeDeclarationType() != null) {
+//	        ClassType container = supertypeDeclarationType().asType();
+//	        Named t = findMemberTypeInThisScope(name, container);
+//	        if (t != null) return t;
+//	    }
+	    return null;
+	}
 
-	    private Named findMemberTypeInThisScope(Name name, Type container) {
+	private Type findMemberTypeInThisScope(Name name, Type container) {
 		TypeSystem ts = typeSystem();
 		ClassDef currentClassDef = this.currentClassDef();
 		if (container instanceof MacroType) {
@@ -804,7 +806,7 @@ public class X10Context_c extends Context_c {
 		}
 		try {
 		    Type t = ts.findMemberType(container, name, this);
-		    if (t instanceof Named) return (Named) t;
+		    return t;
 		}
 		catch (SemanticException e) {
 		}
@@ -814,19 +816,22 @@ public class X10Context_c extends Context_c {
 		catch (SemanticException e) {
 		}
 		return null;
-	    }
+	}
 
-	public void addNamedToThisScope(Named type) {
+	@Override
+	public void addNamedToThisScope(Type type) {
 //		assert (depType == null);
 		super.addNamedToThisScope(type);
 	}
 
+	@Override
 	public X10ClassType findMethodContainerInThisScope(Name name) {
 //		assert (depType == null);
 		return (X10ClassType) super.findMethodContainerInThisScope(name);
 
 	}
 
+	@Override
 	public VarInstance<?> findVariableInThisScope(Name name) {
 		//if (name.startsWith("val")) Report.report(1, "X10Context_c: searching for |" + name + " in " + this);
 		if (depType == null) return super.findVariableInThisScope(name);

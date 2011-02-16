@@ -7,7 +7,7 @@ import polyglot.util.Copy;
 import polyglot.types.Package;
 import x10.types.MethodInstance;
 
-public interface TypeEnv extends Copy {
+public interface TypeEnv  {
 
 //    Context context();
 //    TypeSystem typeSystem();

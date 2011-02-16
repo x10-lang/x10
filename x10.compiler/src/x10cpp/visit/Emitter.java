@@ -30,9 +30,12 @@ import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import polyglot.ast.Call_c;
 import polyglot.ast.ConstructorDecl_c;
@@ -41,6 +44,7 @@ import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.LocalDecl_c;
+import polyglot.ast.Local_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
@@ -51,6 +55,8 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 
+import polyglot.types.Context_c;
+import polyglot.types.Def;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -69,17 +75,25 @@ import x10.ast.X10ClassDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
+import x10.constraint.XField;
+import x10.constraint.XLit;
+import x10.constraint.XVar;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
+import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
+import x10.types.X10Context_c;
+import x10.types.X10FieldDef;
 
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CField;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import x10.visit.StaticNestedClassRemover;
@@ -213,7 +227,10 @@ public class Emitter {
 	 * Print a type as a reference.
 	 */
 	void printType(Type type, CodeWriter w) {
-		w.write(translateType(type, true));
+		printType(type,w,null);
+	}	
+	void printType(Type type, CodeWriter w, X10Context_c ctx) {
+		w.write(translateType(type, true, ctx));
 	}
 
 	/**
@@ -244,6 +261,31 @@ public class Emitter {
 	    return full;
 	}
 
+	private static HashMap<String,String> exploreConstraints(X10Context_c context, ConstrainedType type) {
+		HashMap<String,String> r = new HashMap<String,String>();
+		CConstraint cc = type.getRealXClause();
+		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
+		CConstraint projected = cc; //context.constraintProjection(cc);
+		if (!projected.consistent()) return r;
+		for (XVar xvar : projected.vars()) {
+			XVar prefixes[] = xvar.vars();
+			if (prefixes.length!=2) continue;
+			if (!prefixes[0].toString().equals("self")) continue;
+			if (!(xvar instanceof CField)) continue;
+			CField xvarf = (CField)xvar;
+			// [DC] I believe that since we are only looking at constraints of the form self.f,
+			// there is no need to check the type of the class which this field is attached to as it will
+			// always be the type we are translating.
+			String property_name = ((X10FieldDef)xvarf.field()).name().toString();
+			// resolve to another variable, keep going
+			XVar closed_xvar = projected.bindingForVar(xvar);
+			if (closed_xvar!=null && closed_xvar instanceof XLit) {
+				r.put(property_name, closed_xvar.toString());
+			}
+		}
+		return r;
+	}
+	
 	/**
 	 * Translate a type.
 	 *
@@ -252,12 +294,17 @@ public class Emitter {
 	 * @return a string representation of the type
 	 */
 	public static String translateType(Type type, boolean asRef) {
-		assert (type != null);
-		TypeSystem xts = type.typeSystem();
-		type = xts.expandMacros(type);
+		return translateType(type, asRef, null);
+	}
+	public static String translateType(Type type_, boolean asRef, X10Context_c ctx) {
+		assert (type_ != null);
+		TypeSystem xts = type_.typeSystem();
+		Type type = xts.expandMacros(type_);
 		if (type.isVoid()) {
 			return "void";
 		}
+		HashMap<String,String> propertyKnowledge = null;
+		if (ctx!=null && type instanceof ConstrainedType) propertyKnowledge = exploreConstraints(ctx, (ConstrainedType)type);
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
@@ -300,20 +347,20 @@ public class Emitter {
 		       	    return translateType(ct.superClass(), asRef);
 		       	}
 		    } else {
-				String pat = null;
-				if (!asRef)
-					pat = getCppBoxRep(cd);
-				else
-					pat = getCppRep(cd);
+				String pat = asRef ? getCppRep(cd) : getCppBoxRep(cd);
 				if (pat != null) {
-					Object[] o = new Object[typeArguments.size()+1];
-					int i = 0;
-					o[i++] = type;
+					Map<String, Object> env = new HashMap<String,Object>();
+					int counter=0;
+					env.put(Integer.toString(counter++), type);
+					Iterator<ParameterType> params = cd.typeParameters().iterator();
 					for (Type a : typeArguments) {
-					    o[i++] = a;
+						   env.put(params.next().name().toString(), a);
+						   env.put(Integer.toString(counter++), a);
 					}
-					// FIXME: [IP] Clean up this code!
-					return dumpRegex("NativeRep", o, pat);
+					if (propertyKnowledge!=null) for (String key : propertyKnowledge.keySet()) {
+							env.put(key, propertyKnowledge.get(key));
+					}
+					return nativeSubst("NativeRep", env, pat);
 				}
 				else {
 					name = fullName(ct).toString();
@@ -615,7 +662,7 @@ public class Emitter {
 		    boolean noReturnPragma = false;
 		    try {
 		        TypeSystem xts = (TypeSystem)tr.typeSystem();
-		        Type annotation = (Type) xts.systemResolver().find(NORETURN_ANNOTATION);
+		        Type annotation = xts.systemResolver().findOne(NORETURN_ANNOTATION);
 		        if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
 		            noReturnPragma = true;
 		        }
@@ -641,7 +688,7 @@ public class Emitter {
 		h.begin(0);
 //		if (flags.isFinal())
 //		h.write("const ");
-		printType(n.type().type(), h);
+		printType(n.type().type(), h, (X10Context_c)tr.context());
 		h.write(" ");
 		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Type param_type = n.type().type();
@@ -650,7 +697,7 @@ public class Emitter {
 			X10ClassType c = (X10ClassType)param_type;
 			if (c.isX10Struct()) {
 		        try {
-					Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.ByRef"));
+					Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.ByRef"));
 					if (!c.annotationsMatching(annotation).isEmpty()) h.write("&");
 		        } catch (SemanticException e) {
 		            assert false : e;
@@ -907,7 +954,7 @@ public class Emitter {
 			assert (n != null);
 			assert (n.type() != null);
 			assert (n.type().type() != null);
-			printType(n.type().type(), h);
+			printType(n.type().type(), h, (X10Context_c)tr.context());
 			h.write(" ");
 		}
 		h.write(mangled_non_method_name(n.name().id().toString()));
@@ -1233,82 +1280,74 @@ public class Emitter {
 	    w.write(str.substring(pos));
 	}
 
-	private static String dumpRegex(String id, Object[] components, String regex) {
-	    String retVal = "";
-	    for (int i = 0; i < components.length; i++) {
-	        assert ! (components[i] instanceof Object[]);
-	    }
-	    int len = regex.length();
-	    int pos = 0;
-	    int start = 0;
-	    while (pos < len) {
-	    	if (regex.charAt(pos) == '\n') {
-	    		retVal +=regex.substring(start, pos);
-			retVal += "\n";
-	    		start = pos+1;
-	    	}
-	    	else
-	    	if (regex.charAt(pos) == '#') {
-	    		retVal += regex.substring(start, pos); //translateFQN(regex.substring(start, pos));
-	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
-	    		pos++;
-	    		start = pos+1;
-	    		if (idx.intValue() >= components.length){
-	    			throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
-                }
-                Object o = components[idx.intValue()];
-                if (o instanceof Type) {
-                    retVal += translateType((Type)o, true);
-                } else if (o != null) {
-                    retVal += o.toString();
-                }
-	    	}
-	    	pos++;
-	    }
-	    retVal += regex.substring(start); //translateFQN(regex.substring(start));
-	    return retVal;
-	}
-	public void dumpRegex(String id, Object[] components, Translator tr, String regex, CodeWriter w) {
-		for (int i = 0; i < components.length; i++) {
-			assert ! (components[i] instanceof Object[]);
-		}
-		int len = regex.length();
-		int pos = 0;
-		int start = 0;
-		while (pos < len) {
-		    if (regex.charAt(pos) == '\n') {
-		        w.write(regex.substring(start, pos));
-		        w.newline(0);
-		        start = pos+1;
-		    } else if (regex.charAt(pos) == '#') {
-		        w.write(regex.substring(start, pos));
-		        Integer idx;
-		        if (pos<len-2 && Character.isDigit(regex.charAt(pos+2))) {
-		            idx = new Integer(regex.substring(pos+1,pos+3));
-		            pos += 2;		            
-		        } else {
-		            idx = new Integer(regex.substring(pos+1,pos+2));
-		            pos++;
-		        }
-		        start = pos+1;
-		        if (idx.intValue() >= components.length) {
-		            throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
-		        }
-		        prettyPrint(components[idx.intValue()], tr, w);
-		    }
-		    pos++;
-		}
-		w.write(regex.substring(start));
-	}
-    private void prettyPrint(Object o, Translator tr, CodeWriter w) {
-        if (o instanceof Node) {
-            Node n = (Node) o;
-            tr.print(null, n, w);
-        } else if (o instanceof Type) {
-            w.write(translateType((Type)o, true));
-        } else if (o != null) {
-            w.write(o.toString());
+	// Either #SOME_VAR123
+	// or ##SOME_VAR123#default value if var that key is not known#
+	// the second variation is only useful for properties
+    private static final Pattern nativeSubstRegex = Pattern.compile("#(#(([0-9A-Za-z_]+)#([^#]*)#)|([0-9A-Za-z_]+))");
+
+    private static String nativeSubst(String annotation, Map<String,Object> components, String pattern) {
+        Matcher m = nativeSubstRegex.matcher(pattern);
+        int last=0;
+        StringBuffer out = new StringBuffer();
+        while (m.find()) {
+            out.append(pattern.substring(last,m.start()));
+            last = m.end();
+            String key = m.group(5);
+            String default_ = null;
+            if (key==null) {
+            	// ## form
+                key = m.group(3);
+                default_ = m.group(4);
+            }
+
+            Object val = components.get(key);
+            if (val==null) val = default_;
+            
+            if (val==null) {
+    			throw new InternalCompilerError(annotation+" \""+pattern+"\" cannot find substitution for #"+key);
+            }
+            if (val instanceof Type) {
+                out.append(translateType((Type)val, true));
+            } else {
+                out.append(val);
+            }
         }
-    }
+        out.append(pattern.substring(last));
+        return out.toString();
+	}	
+	
+	public void nativeSubst(String annotation, Map<String, Object> components, Translator tr, String pattern, CodeWriter w) {
+	
+        Matcher m = nativeSubstRegex.matcher(pattern);
+        int last=0;
+        while (m.find()) {
+        	w.write(pattern.substring(last,m.start()));
+            last = m.end();
+            String key = m.group(5);
+            String default_ = null;
+            if (key==null) {
+            	// ## form
+                key = m.group(3);
+                default_ = m.group(4);
+            }
+
+            Object val = components.get(key);
+            if (val==null) val = default_;
+
+            if (val==null) {
+    			throw new InternalCompilerError(annotation+" \""+pattern+"\" cannot find substitution for #"+key);
+            }
+	        if (val instanceof Node) {
+	            Node n = (Node) val;
+	            tr.print(null, n, w);
+	        } else if (val instanceof Type) {
+	            w.write(translateType((Type)val, true));
+	        } else if (val != null) {
+	            w.write(val.toString());
+	        }
+        }
+        w.write(pattern.substring(last));
+	}
+
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

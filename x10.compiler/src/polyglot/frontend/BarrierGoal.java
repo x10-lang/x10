@@ -28,7 +28,6 @@ public abstract class BarrierGoal extends AbstractGoal_c {
     }
 
     public BarrierGoal(Collection<Job> jobs) {
-        super();
         assert jobs != null;
         this.jobs = jobs;
     }

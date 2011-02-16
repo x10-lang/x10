@@ -85,7 +85,9 @@ public interface NodeFactory
 
     Id Id(Position pos, Name id);
     Id Id(Position pos, String id); // for backward compat
-    
+
+    Allocation Allocation(Position pos);
+
     AmbExpr AmbExpr(Position pos, Id name);
     Expr ExprFromQualifiedName(Position pos, QName qualifiedName);
     
@@ -223,6 +225,7 @@ public interface NodeFactory
 
     LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name);
     LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
+    LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init, List<Id> exploded);
 
     New New(Position pos, TypeNode type, List<Expr> args);
     New New(Position pos, TypeNode type, List<Expr> args, ClassBody body);

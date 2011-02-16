@@ -21,7 +21,6 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MemberDef;
 
-import polyglot.types.Named;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 
@@ -92,8 +91,8 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 	public abstract MemberDef def();
 	
 	public QName fullName() {
-		if (container() instanceof Named) {
-			return QName.make(((Named) container()).fullName(), name());
+		if (container() != null) {
+			return QName.make(container().fullName(), name());
 		}
 		return QName.make(null, name());
 	}

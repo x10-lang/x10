@@ -35,7 +35,7 @@ import x10.util.Box;
     // Print methods for debugging
 
     @Native("java", "java.lang.System.err.println(#1)")
-    @Native("c++", "x10aux::system_utils::println(x10aux::to_string(#1)->c_str())")
+    @Native("c++", "x10aux::system_utils::println(x10aux::to_string(#any)->c_str())")
     public native static def println(any:Any) : void;
 
     @Native("java", "java.lang.System.err.println()")
@@ -43,7 +43,7 @@ import x10.util.Box;
     public native static def println() : void;
 
     @Native("java", "java.lang.System.err.printf(#4, #5)")
-    @Native("c++", "x10aux::system_utils::printf(#4, #5)")
+    @Native("c++", "x10aux::system_utils::printf(#fmt, #t)")
     public native static def printf[T](fmt:String, t:T) : void;
 
     // Configuration options
@@ -78,14 +78,14 @@ import x10.util.Box;
      * Body cannot spawn activities, use clocks, or raise exceptions.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#1, #2)")
-    @Native("c++", "x10aux::run_closure_at(#1, #2)")
+    @Native("c++", "x10aux::run_closure_at(#id, #body)")
     static def runClosureAt(id:Int, body:()=>void):void { body(); }
 
     @Native("java", "x10.runtime.impl.java.Runtime.runClosureCopyAt(#1, #2)")
-    @Native("c++", "x10aux::run_closure_at(#1, #2)")
+    @Native("c++", "x10aux::run_closure_at(#id, #body)")
     static def runClosureCopyAt(id:Int, body:()=>void):void { body(); }
 
-    @Native("c++", "x10aux::run_async_at(#1, #2, #3)")
+    @Native("c++", "x10aux::run_async_at(#id, #body, #finishState)")
     static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState):void {
         val closure = ()=> @x10.compiler.RemoteInvocation {execute(body, finishState);};
         runClosureCopyAt(id, closure);
@@ -135,20 +135,8 @@ import x10.util.Box;
      * Deep copy.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.<#1>deepCopy(#4)")
-    @Native("c++", "x10aux::deep_copy<#1 >(#4)")
+    @Native("c++", "x10aux::deep_copy<#T >(#o)")
     static native def deepCopy[T](o:T):T;
-
-    /**
-     * Java: run body. (no need for a native implementation)
-     * C++: run body. (no need for a native implementation)
-     */
-    @TempNoInline_1
-    static def runAtLocal(id:Int, body:()=>void):void { body(); }
-
-    /**
-     * Return true if place(id) is in the current node.
-     */
-    static def isLocal(id:Int):Boolean = id == here.id;
 
     /**
      * Process one incoming message if any (non-blocking).
@@ -162,36 +150,36 @@ import x10.util.Box;
     @Native("c++","x10aux::asyncs_sent")
     static def getAsyncsSent() = 0L;
 
-    @Native("c++","x10aux::asyncs_sent = #1")
+    @Native("c++","x10aux::asyncs_sent = #v")
     static def setAsyncsSent(v:Long) { }
 
     @Native("c++","x10aux::asyncs_received")
     static def getAsyncsReceived() = 0L;
 
-    @Native("c++","x10aux::asyncs_received = #1")
+    @Native("c++","x10aux::asyncs_received = #v")
     static def setAsyncsReceived(v:Long) { }
 
     @Native("c++","x10aux::serialized_bytes")
     static def getSerializedBytes() = 0L;
 
-    @Native("c++","x10aux::serialized_bytes = #1")
+    @Native("c++","x10aux::serialized_bytes = #v")
     static def setSerializedBytes(v:Long) { }
 
     @Native("c++","x10aux::deserialized_bytes")
     static def getDeserializedBytes() = 0L;
 
-    @Native("c++","x10aux::deserialized_bytes = #1")
+    @Native("c++","x10aux::deserialized_bytes = #v")
     static def setDeserializedBytes(v:Long) { }
 
     // Methods for explicit memory management
 
-    @Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#1.operator->())")
+    @Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#o.operator->())")
     public static def deallocObject (o:Object) { }
 
-    @Native("c++", "x10aux::dealloc(#4.operator->())")
+    @Native("c++", "x10aux::dealloc(#o.operator->())")
     public static def dealloc[T] (o:()=>T) { }
 
-    @Native("c++", "x10aux::dealloc(#1.operator->())")
+    @Native("c++", "x10aux::dealloc(#o.operator->())")
     public static def dealloc (o:()=>void) { }
 
 
@@ -321,7 +309,7 @@ import x10.util.Box;
                     activity = pool.scan(random, this);
                     if (activity == null) return false;
                 }
-                runAtLocal(activity.home, activity.run.());
+                activity.run();
             }
             return true;
         }
@@ -338,7 +326,7 @@ import x10.util.Box;
                     activity = tmp; // restore current activity
                     return;
                 }
-                runAtLocal(activity.home, activity.run.());
+                activity.run();
             }
         }
 
@@ -361,7 +349,7 @@ import x10.util.Box;
                     push(activity);
                     return false;
                 }
-                runAtLocal(activity.home, activity.run.());
+                activity.run();
             }
             return true;
         }
@@ -567,13 +555,7 @@ import x10.util.Box;
 
         try {
             // initialize runtime
-            for (var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (isLocal(i)) {
-                    // we need to instantiate a runtime for each place hosted by the current process
-                    // all these runtimes share the same thread pool
-                    runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
-                }
-            }
+            runtime.set(new Runtime(pool));
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(pool.latch);
@@ -585,10 +567,8 @@ import x10.util.Box;
                 pool();
 
                 // root finish has terminated, kill remote processes if any
-                if (!isLocal(Place.MAX_PLACES - 1)) {
-                    for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {runtime().pool.latch.release();});
-                    }
+                for (var i:Int=1; i<Place.MAX_PLACES; i++) {
+                    runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {runtime().pool.latch.release();});
                 }
 
                 // we need to call waitForFinish here to see the exceptions thrown by main if any

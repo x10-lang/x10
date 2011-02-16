@@ -21,13 +21,4 @@ public class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
     SunOS_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
         super(options, x10rt, eq);
     }
-
-    public void addPreArgs(ArrayList<String> cxxCmd) {
-        super.addPreArgs(cxxCmd);
-    }
-
-    public void addPostArgs(ArrayList<String> cxxCmd) {
-        super.addPostArgs(cxxCmd);
-        cxxCmd.add("-lrt");
-    }
 }

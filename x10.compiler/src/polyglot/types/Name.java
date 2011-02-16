@@ -59,9 +59,8 @@ public class Name  implements Serializable {
     public final void equals(final QName o) { }
 
     public boolean equals(Object o) {
-	if (o == null)
-	    return false;
-	// assert o instanceof Name;
+        if (o == null)
+            return false;
         return this == o;
     }
 

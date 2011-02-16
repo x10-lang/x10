@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+
 import polyglot.ast.AmbReceiver;
 import polyglot.ast.ArrayAccess_c;
 import polyglot.ast.ArrayInit_c;
@@ -143,6 +144,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.util.TypedList;
@@ -162,6 +164,7 @@ import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.Finish_c;
 import x10.ast.ForLoop_c;
+import x10.ast.HasZeroTest_c;
 import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
@@ -218,7 +221,9 @@ import x10.util.ClosureSynthesizer;
 import x10.util.StreamWrapper;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.X10CPPJobExt;
+import x10cpp.debug.LineNumberMap;
 import x10cpp.types.X10CPPContext_c;
+import x10cuda.types.X10CUDAContext_c;
 
 /**
  * Primary visitor for the C++ codegenerator.
@@ -672,7 +677,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // process annotations relating to additional h/c++ files
         try {
             X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
-            List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
+            List<X10ClassType> as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPInclude")));
             for (Type at : as) {
                 ASTQuery.assertNumberOfInitializers(at, 1);
                 String include = getStringPropertyInit(at, 0);
@@ -1566,11 +1571,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				assert (!dropzone.flags().isPrivate());
 				h.write("public: ");
 				List<Type> typeParameters = dropzone.typeParameters();
-				List<Type> newTypeParameters = new ArrayList<Type>();
+				List<ParameterType> newTypeParameters = new ArrayList<ParameterType>();
 				Map<Type, Type> typeMap = CollectionFactory.newHashMap();
 				for (Type t : typeParameters) {
 					assert (t instanceof ParameterType);
-					Type dummy = new ParameterType(xts, t.position(), Name.makeFresh("T"), null);
+					ParameterType dummy = new ParameterType(xts, t.position(), Name.makeFresh("T"), null);
 					newTypeParameters.add(dummy);
 					typeMap.put(t, dummy);
 				}
@@ -1618,16 +1623,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				String pat = getCppImplForDef(dropzone.x10Def());
 				if (pat != null) {
 					X10ClassType ct = (X10ClassType) dropzone.container().toClass();
-					List<Type> typeArguments = ct.typeArguments();
-					if (typeArguments == null) typeArguments = new ArrayList<Type>();
+					List<Type> classTypeArguments = ct.typeArguments();
+					if (classTypeArguments == null) classTypeArguments = new ArrayList<Type>();
 					Expr target = tr.nodeFactory().Super(Position.COMPILER_GENERATED).type(ct);
 					// FIXME: casts!
 					ArrayList<String> args = new ArrayList<String>();
+					ArrayList<String> params = new ArrayList<String>();
 					counter = 0;
-					for (Type formal : formals) {
+					for (LocalDef param : dropzone.x10Def().formalNames()) {
 						args.add("p" + (counter++));
+						params.add(param.name().toString());
 					}
-					emitNativeAnnotation(pat, newTypeParameters, target, args, typeArguments);
+					emitNativeAnnotation(pat, dropzone.x10Def().typeParameters(), dropzone.typeParameters(), target, params, args, ct.x10Def().typeParameters(), classTypeArguments);
 				} else {
 					sw.write(Emitter.translateType(superClass, false) +
 							"::" + mangled_method_name(mname.toString()));
@@ -1691,7 +1698,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sb.append("#include <x10aux/bootstrap.h>\n");
 		String mainTypeArgs = "x10::lang::Runtime," + container;
 		if (options.x10_config.DEBUG)
-			sb.append("void __x10MainRef"+container+"() {};\n");
+			sb.append("void* __x10MainRef = (void *) "+container+"::main;\n");
         sb.append("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
         return sb.toString();
 	}
@@ -1733,7 +1740,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         boolean inlineInClassDecl = false;
         boolean inlineDirective = false;
         try {
-            Type annotation = (Type) xts.systemResolver().find(HEADER_ANNOTATION);
+            Type annotation = xts.systemResolver().findOne(HEADER_ANNOTATION);
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
                 if (container.x10Def().typeParameters().size() == 0) {
                     inlineInClassDecl = true;
@@ -1826,7 +1833,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    boolean inlineInClassDecl = false;
 	    try {
-	        Type annotation = (Type) xts.systemResolver().find(HEADER_ANNOTATION);
+	        Type annotation = xts.systemResolver().findOne(HEADER_ANNOTATION);
 	        if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
 	            inlineInClassDecl = true;
 	        }
@@ -2004,7 +2011,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         
         boolean embed = false;
         try {
-            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
+            Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.Embed"));
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
                 embed = true;
 //                System.err.println("@StackAllocate " + dec);
@@ -2542,7 +2549,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    
         boolean stackAllocate = false;
         try {
-            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
+            Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.StackAllocate"));
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
                 stackAllocate = true;
 //                System.err.println("@StackAllocate " + dec);
@@ -2591,6 +2598,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Block_c b) {
+	    /* 
+	     * If this block had a label, it might have Break's in it, so we need
+	     * the L_end label at the end, as the Break's get written out as "goto L_end";
+	     */
+        String label = null;
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        if (context.getLabeledStatement() == b) {
+            label = context.getLabel();
+            context.setLabel(null, null);
+        }
+
         String s = getCppImplForStmt(b);
         if (s != null) {
             sw.write(s);
@@ -2598,6 +2616,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 		sw.write("{");
 		sw.newline();
+		
+        if (label != null) {
+            sw.write("{");
+            sw.newline(0);
+            sw.begin(0);
+        }
+
 		if (b.statements().size() > 0) {
 			sw.newline(4);
 			sw.begin(0);
@@ -2612,8 +2637,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		else
 			sw.write(" ");
-		sw.newline();
-		sw.write("}");
+        if (label != null) {
+            sw.newline(0);
+            sw.write("}");
+            printLabel(label + "_end_", sw);
+            sw.write(" ;");
+            sw.newline();
+        }
+        sw.newline();
+        sw.write("}");
 	}
 
 	public void visit(StmtSeq_c n) {
@@ -2934,14 +2966,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        // This is a property getter method.  Translate as a field access.
 		        String pat = getCppImplForDef(fi.x10Def());
 		        if (pat != null) {
-		            Object[] components = new Object[] { target };
-		            emitter.dumpRegex("Native", components, tr, pat, sw);
+					Map<String,Object> components = new HashMap<String,Object>();
+					components.put("this", target);
+					components.put("0", target);
+		            emitter.nativeSubst("Native", components, tr, pat, sw);
 		            return;
 		        }
 		    }
 		}
 
 		NodeFactory nf = (NodeFactory) tr.nodeFactory();
+		List<String> params = new ArrayList<String>();
 		List<Expr> args = new ArrayList<Expr>();
 		int counter = 0;
 		for (Expr a : n.arguments()) {
@@ -2952,19 +2987,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            !xts.typeEquals(fType, a.type(), context) && !(xts.isParameterType(fType) && a.type().isNull())) {
 		        a = cast(a, fType);
 		    }
+		    params.add(mi.formalNames().get(counter).name().toString());
 		    args.add(a);
 		    counter++;
 		}
 
 		String pat = getCppImplForDef(md);
 		if (pat != null) {
-		    List<Type> typeArguments  = Collections.<Type>emptyList();
+		    List<Type> classTypeArguments  = Collections.<Type>emptyList();
+		    List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
 		    if (mi.container().isClass() && !mi.flags().isStatic()) {
 		        X10ClassType ct = (X10ClassType) mi.container().toClass();
-		        typeArguments = ct.typeArguments();
-		        if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+		        classTypeArguments = ct.typeArguments();
+		        classTypeParams = ct.x10Def().typeParameters();
+		        if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
+		        if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
 		    }
-			emitNativeAnnotation(pat, mi.typeParameters(), target, args, typeArguments);
+			emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments);
 			return;
 		}
 
@@ -3178,8 +3217,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String pat = getCppImplForDef(fd);
 		if (pat != null) {
-			Object[] components = new Object[] { target };
-			emitter.dumpRegex("Native", components, tr, pat, sw);
+			Map<String,Object> components = new HashMap<String,Object>();
+			components.put("this", target);
+			components.put("0", target);
+			emitter.nativeSubst("Native", components, tr, pat, sw);
 			return;
 		}
 
@@ -3257,12 +3298,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // If the programmer was incorrect about the lifetime of the object, then
         // the program will almost certainly crash in some unexpected way.
 		try {
-		    Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
+		    Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.StackAllocate"));
 		    if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
 		        stackAllocate = true;
 //		        System.err.println("@StackAllocate " + n);
 		    }
-            Type annotation2 = (Type) xts.systemResolver().find(QName.make("x10.compiler.Embed"));
+            Type annotation2 = xts.systemResolver().findOne(QName.make("x10.compiler.Embed"));
             if (!((X10Ext) n.ext()).annotationMatching(annotation2).isEmpty()) {
                 embed = true;
 //              System.err.println("@StackAllocate " + n);
@@ -3383,7 +3424,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         boolean nativeString = false;
         try {
-            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeString"));
+            Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.NativeString"));
             if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
                 nativeString = true;
 //                System.err.println("@NativeString " + n);
@@ -3500,6 +3541,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             ));
 		}
 		sw.write("()");
+	}
+
+	public void visit(HasZeroTest_c n) {
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    sw.write("x10aux::haszero");
+	    sw.write(chevrons(
+	            Emitter.translateType(n.parameter().type(), true)
+	    ));
+	    sw.write("()");
 	}
 
 	public void visit(X10Instanceof_c n) {
@@ -4046,6 +4096,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
 
+		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
+		{
+			String key = ((StreamWrapper)inc).getStreamName(StreamWrapper.CC);
+			Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
+		    if (fileToLineNumberMap != null) 
+		    {
+		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
+		        if (lineNumberMap != null) 
+		        	lineNumberMap.addClosureMember(null, cnamet, cname, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+		    }
+		}
+
         /* ITables declarations */
         inc.write("static "+(in_template_closure ? "typename " : "")+superType+(in_template_closure ? "::template itable " : "::itable")+chevrons(cnamet)+" _itable;"); inc.newline();
         inc.write("static x10aux::itable_entry _itables[2];"); inc.newline(); inc.forceNewline();
@@ -4162,19 +4224,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		int kind = 0;
 		try {
-			if (!((X10Ext)(n.body()).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
+			if (!((X10Ext)(n.body()).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
 				kind = 1;
 			}
-			if (!((X10Ext)(n).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
+			if (!((X10Ext)(n).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
 				kind = 1;
 			}
 		} catch (SemanticException e) {
 		}
 		try {
-			if (!((X10Ext)(n.body()).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
+			if (!((X10Ext)(n.body()).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
 				kind = 2;
 			}
-			if (!((X10Ext)(n).ext()).annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
+			if (!((X10Ext)(n).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
 				kind = 2;
 			}
 		} catch (SemanticException e) {
@@ -4780,7 +4842,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	String getCppImplForDef(X10Def o) {
 	    TypeSystem xts = (TypeSystem) o.typeSystem();
 	    try {
-	        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
+	        Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.Native"));
             String[] our_langs = getCurrentNativeStrings();
             for (String our_lang : our_langs) {
     	        List<Type> as = o.annotationsMatching(annotation);
@@ -4803,7 +4865,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (n.ext() instanceof X10Ext) {
             X10Ext ext = (X10Ext) n.ext();
             try {
-                Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
+                Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.Native"));
                 List<X10ClassType> as = ext.annotationMatching(annotation);
                 String[] our_langs = getCurrentNativeStrings();
                 for (String our_lang : our_langs) {
@@ -4823,30 +4885,43 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 	// FIXME: generic native methods will break
-	void emitNativeAnnotation(String pat, List<Type> types, Object receiver, List<? extends Object> args, List<Type> typeArguments) {
-	    Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
-	    assert (receiver != null);
-	    components[0] = receiver;
+	void emitNativeAnnotation(String pat, List<ParameterType> typeParams, List<Type> typeArgs, Object receiver, List<String> params, List<? extends Object> args, List<ParameterType> typeParams2, List<Type> typeArgs2) {
+		assert (receiver != null);
+
+		//Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
+		Map<String,Object> components = new HashMap<String,Object>();
+
+		components.put("this", receiver);
+		components.put("0", receiver);
+
+		// [DC] these ought to still work, but there may now be a better solution
 	    if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
 	        pat = pat.replaceAll("\\(#0\\)->", Emitter.translateType(tr.context().currentClass().superClass())+"::"); // FIXME: HACK
 	        pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(((X10Special_c)receiver).type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
 	    }
 
 	    int i = 1;
-	    for (Type at : types) {
-	        components[i++] = at;
-	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+	    Iterator<ParameterType> typeParams_ = typeParams.iterator();
+	    for (Type at : typeArgs) {
+			components.put(typeParams_.next().name().toString(), at);
+			components.put(Integer.toString(i++), at);
+			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
+			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
 	    }
+	    int j=0;
+	    Iterator<String> params_ = params.iterator();
 	    for (Object e : args) {
-	        components[i++] = e;
+			components.put(params_.next(), e);
+			components.put(Integer.toString(i++), e);
 	    }
-	    for (Type at : typeArguments) {
-	        components[i++] = at;
-	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+	    Iterator<ParameterType> typeParams2_ = typeParams2.iterator();
+	    for (Type at : typeArgs2) {
+			components.put(typeParams2_.next().name().toString(), at);
+			components.put(Integer.toString(i++), at);
+			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
+			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
 	    }
-	    emitter.dumpRegex("Native", components, tr, pat, sw);
+	    emitter.nativeSubst("Native", components, tr, pat, sw);
 	}
 
 	private static boolean isPODType(Type t) {

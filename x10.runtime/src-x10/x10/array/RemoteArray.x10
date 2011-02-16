@@ -65,7 +65,7 @@ public class RemoteArray[T](
      * Create a RemoteArray wrapping the argument local Array.
      * @param a The array object to make accessible remotely.
      */
-    public def this(a:Array[T]) {
+    public def this(a:Array[T]{self!=null}) {
         property(a.region, a.size, GlobalRef[Array[T]](a));
         rawData = RemoteIndexedMemoryChunk.wrap(a.raw());
     }
@@ -82,7 +82,7 @@ public class RemoteArray[T](
      * simulates that semantics and provides an Array view on the chunk of
      * GPU memory represented by raw.
      */
-    public def this(reg:Region, raw:RemoteIndexedMemoryChunk[T]) {
+    public def this(reg:Region{self!=null}, raw:RemoteIndexedMemoryChunk[T]) {
         val arr:GlobalRef[Array[T]];
         if (raw.home().isCUDA()) @Native("c++", "{}") {
             // This block will never be executed; only here to placate the X10-level typechecker

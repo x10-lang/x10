@@ -48,7 +48,8 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; 
+import x10.util.CollectionFactory;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
 import x10.ast.Closure;
@@ -59,6 +60,7 @@ import x10.ast.StmtSeq;
 import x10.ast.When;
 import x10.ast.X10Call;
 import x10.compiler.ws.WSTransformState;
+import x10.types.ClosureDef;
 import x10.types.MethodInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -77,9 +79,22 @@ public class WSCodeGenUtility {
     private static String getMethodName(MethodDef methodDef){
         return methodDef.name().toString();
     }
+    
 
     static Map<ClassType, Map<String, Integer>> container2MethodNameMap;
     //              classType         methodName, number
+    
+    /**
+     * Form the closure's name by line & column number. Should be identical for a inner class
+     * @param closure
+     * @return
+     */
+    public static String getClosureBodyClassName(Closure closure){
+    	Position pos = closure.position();
+    	String posStr =  "L" + pos.line() + "_" + pos.column();   	
+        String tempName = "_$Closure_" + posStr;
+        return tempName;
+    }
     
     public static String getMethodBodyClassName(MethodDef methodDef){
         if(container2MethodNameMap == null){
@@ -570,7 +585,7 @@ public class WSCodeGenUtility {
             
             if (n instanceof Finish
                     //|| n instanceof Future //Future is translated from Async
-                    || n instanceof PlacedClosure // is An abstraction for future(p) Expr and at(p) Expr
+                    || n instanceof PlacedClosure // is An abstraction for at(p) Expr
                     || n instanceof Async  //direct async
                     || n instanceof When) {
                 isConcurrent = true;

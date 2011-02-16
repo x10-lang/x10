@@ -30,4 +30,5 @@ public interface X10ConstructorCall extends ConstructorCall, X10ProcedureCall {
 	X10ConstructorCall arguments(List<Expr> arguments);
 	X10ConstructorInstance constructorInstance();
 	X10ConstructorCall constructorInstance(ConstructorInstance ci);
+	X10ConstructorCall target(Expr target);
 }

@@ -77,6 +77,14 @@ public abstract class Type_c extends TypeObject_c implements Type
     public final boolean isFloat() { return ts.isFloat(this); }
     public final boolean isDouble() { return ts.isDouble(this); }
 
+    public Name name() { return null; }
+    public QName fullName() {
+        Name n = name();
+        if (n == null)
+            return null;
+        return QName.make(null, n);
+    }
+    public boolean isGloballyAccessible() { return true; }
 
     /**
      * Return true if a subclass of Throwable.

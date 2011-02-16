@@ -90,6 +90,7 @@ namespace x10aux {
         Variance *variances;
         const char* fullTypeName;
         const char* baseName;
+        bool hasZ;
 
         // Initialization protocol.
         // (a) Call initStageOne before attempting to acquire the RTT
@@ -132,6 +133,9 @@ namespace x10aux {
         // be scanned for pointers during the GC). Returning false incorrectly can cause memory corruption by hiding
         // pointers from the GC's scanning logic. 
         bool containsPointers() const { return containsPtrs; }
+
+        // Does the X10 type this RTT instance represents admit a 0 value?
+        bool hasZero() const { return hasZ; }
         
         static void initBooleanType();
         static void initByteType();
@@ -327,6 +331,10 @@ namespace x10aux {
 
     template<class T1,class T2> inline x10_boolean sametype() {
         return x10aux::getRTT<T1>()->equals(x10aux::getRTT<T2>());
+    }
+
+    template<class T> inline x10_boolean haszero() {
+        return x10aux::getRTT<T>()->hasZero();
     }
 
 }

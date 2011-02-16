@@ -10,11 +10,12 @@ package polyglot.visit;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.*;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.types.Package;
 import polyglot.util.*;
@@ -25,6 +26,7 @@ public class TypeBuilder extends NodeVisitor
     protected ImportTable importTable;
     protected Job job;
     protected TypeSystem ts;
+    protected Reporter reporter;
     protected NodeFactory nf;
     protected TypeBuilder outer;
     protected boolean inCode; // true if the last scope pushed as not a class.
@@ -36,12 +38,13 @@ public class TypeBuilder extends NodeVisitor
     public TypeBuilder(Job job, TypeSystem ts, NodeFactory nf) {
         this.job = job;
         this.ts = ts;
+        this.reporter = ts.extensionInfo().getOptions().reporter;
         this.nf = nf;
         this.outer = null;
     }
     
     public TypeBuilder push() {
-        TypeBuilder tb = (TypeBuilder) this.copy();
+        TypeBuilder tb = (TypeBuilder) this.shallowCopy();
         tb.outer = this;
         return tb;
     }
@@ -185,8 +188,8 @@ public class TypeBuilder extends NodeVisitor
     }
     
     public TypeBuilder pushPackage(Package p) {
-        if (Report.should_report(Report.visit, 4))
-	    Report.report(4, "TB pushing package " + p + ": " + context());
+        if (reporter.should_report(Reporter.visit, 4))
+            reporter.report(4, "TB pushing package " + p + ": " + context());
         TypeBuilder tb = push();
         tb.inCode = false;
         tb.package_ = p;
@@ -194,8 +197,8 @@ public class TypeBuilder extends NodeVisitor
     }
 
     public TypeBuilder pushCode(CodeDef def) {
-        if (Report.should_report(Report.visit, 4))
-	    Report.report(4, "TB pushing code: " + context());
+        if (reporter.should_report(Reporter.visit, 4))
+            reporter.report(4, "TB pushing code: " + context());
         TypeBuilder tb = pushDef(def);
         tb.inCode = true;
         tb.global = false;
@@ -203,8 +206,8 @@ public class TypeBuilder extends NodeVisitor
     }
 
     public TypeBuilder pushClass(ClassDef classDef) {
-        if (Report.should_report(Report.visit, 4))
-	    Report.report(4, "TB pushing class " + classDef + ": " + context());
+        if (reporter.should_report(Reporter.visit, 4))
+            reporter.report(4, "TB pushing class " + classDef + ": " + context());
 
         TypeBuilder tb = pushDef(classDef);
         tb.inCode = false;
@@ -296,7 +299,15 @@ public class TypeBuilder extends NodeVisitor
         	fullName = QName.make(null, ct.name());
             }
 
-            Named dup = typeSystem().systemResolver().check(fullName);
+            List<Type> dups = typeSystem().systemResolver().check(fullName);
+            Type dup = null;
+            if (dups != null) {
+                for (Type q : dups) {
+                    if (q instanceof ClassType && q.fullName().equals(fullName)) {
+                        dup = q;
+                    }
+                }
+            }
 
             if (dup != null && dup.fullName().equals(fullName)) {
                 job.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
@@ -317,8 +328,8 @@ public class TypeBuilder extends NodeVisitor
     }
 
     public TypeBuilder pushAnonClass(Position pos) {
-        if (Report.should_report(Report.visit, 4))
-	    Report.report(4, "TB pushing anon class: " + this);
+        if (reporter.should_report(Reporter.visit, 4))
+            reporter.report(4, "TB pushing anon class: " + this);
 
         if (! inCode) {
             throw new InternalCompilerError(

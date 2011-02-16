@@ -11,28 +11,16 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 import polyglot.ast.Binary;
-import polyglot.ast.Id;
-import polyglot.ast.NodeFactory;
-import polyglot.ast.TypeNode;
 import polyglot.frontend.*;
 import polyglot.main.Report;
-import polyglot.types.reflect.ClassFile;
-import polyglot.types.reflect.ClassFileLazyClassInitializer;
+import polyglot.main.Reporter;
 import polyglot.util.*;
-import polyglot.visit.ContextVisitor;
-import polyglot.visit.TypeBuilder;
-import x10.constraint.XEQV;
-import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
-import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.errors.Errors;
-import x10.parser.X10ParsedName;
 import x10.types.AsyncDef;
 import x10.types.AsyncDef_c;
 import x10.types.AtDef;
@@ -86,7 +74,6 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
-import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.X10ConstructorMatcher;
@@ -96,7 +83,6 @@ import x10.types.matcher.X10MethodMatcher;
 import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
 import x10.util.CollectionFactory;
-import x10.visit.X10TypeBuilder;
 
 
 /**
@@ -112,15 +98,18 @@ public class TypeSystem_c implements TypeSystem
 
     protected SystemResolver systemResolver;
     protected TopLevelResolver loadedResolver;
-    protected ExtensionInfo extInfo;
+    protected final ExtensionInfo extInfo;
+    protected final Reporter reporter;
 
-    private Throwable creator;
-    private int creationTime;
-    public TypeSystem_c() {
-        creator = new Throwable().fillInStackTrace();
-        creationTime = counter++;
-        if (Report.should_report("TypeSystem", 1))
-            Report.report(1, "Creating " + getClass() + " at " + creationTime);
+    private final Throwable creator;
+    private final int creationTime;
+    public TypeSystem_c(ExtensionInfo extInfo) {
+        this.extInfo = extInfo;
+        this.creator = new Throwable().fillInStackTrace();
+        this.creationTime = counter++;
+        this.reporter = extInfo.getOptions().reporter;
+        if (reporter.should_report("TypeSystem", 1))
+            reporter.report(1, "Creating " + getClass() + " at " + creationTime);
     }
 
 
@@ -128,13 +117,10 @@ public class TypeSystem_c implements TypeSystem
      * Initializes the type system and its internal constants (which depend on
      * the resolver).
      */
-    public void initialize(TopLevelResolver loadedResolver, ExtensionInfo extInfo)
-    throws SemanticException {
+    public void initialize(TopLevelResolver loadedResolver) {
 
-	if (Report.should_report(Report.types, 1))
-	    Report.report(1, "Initializing " + getClass().getName());
-
-	this.extInfo = extInfo;
+    if (reporter.should_report(Reporter.types, 1))
+        reporter.report(1, "Initializing " + getClass().getName());
 
 	// The loaded class resolver.  This resolver automatically loads types
 	// from class files and from source files not mentioned on the command
@@ -161,14 +147,15 @@ public class TypeSystem_c implements TypeSystem
 	o = ClassDef.TOP_LEVEL;
     }
 
-   public enum Bound {
+    public enum Bound {
         UPPER, LOWER, EQUAL
     }
-   
-   public static enum Kind {
-       NEITHER, EITHER, OBJECT, STRUCT, INTERFACE
-   }
-    protected void initTypes() throws SemanticException {
+
+    public static enum Kind {
+        NEITHER, EITHER, OBJECT, STRUCT, INTERFACE
+    }
+
+    protected void initTypes() {
 	// FIXME: don't do this when rewriting a type system!
 
 	// Prime the resolver cache so that we don't need to check
@@ -194,7 +181,7 @@ public class TypeSystem_c implements TypeSystem
         systemResolver.find("java.lang.ArrayIndexOutOfBoundsException");
         systemResolver.find("java.lang.ArrayStoreException");
         systemResolver.find("java.lang.ArithmeticException");
-	 */
+	*/
     }
 
     /** Return the language extension this type system is for. */
@@ -272,16 +259,23 @@ public class TypeSystem_c implements TypeSystem
 
     protected void assert_(Ref<?> ref) { }
 
-    protected void assert_(TypeObject o) {
-	if (o != null && o.typeSystem() != this) {
+    private static void printTypeSystem(java.io.PrintStream out, TypeSystem_c ts) {
+        out.print(ts);
+        if (ts == null) return;
+        out.print("(" + ts.creationTime + "): ");
+        ts.creator.printStackTrace(out);
+    }
+
+	protected void assert_(TypeObject o) {
+	    if (o != null && o.typeSystem() != this) {
             TypeSystem_c ots = (TypeSystem_c) o.typeSystem();
-            System.err.print("we are " + this + "(" + creationTime + "): ");
-            this.creator.printStackTrace(System.err);
-            System.err.print(" but " + o + " ("+o.getClass()+")" + " is from " + ots + "(" + ots.creationTime + "): ");
-            ots.creator.printStackTrace(System.err);
+            System.err.print("we are ");
+            printTypeSystem(System.err, this);
+            System.err.print(" but " + o + " ("+o.getClass()+")" + " is from ");
+            printTypeSystem(System.err, ots);
             throw new InternalCompilerError("we are " + this + " but " + o + " ("+o.getClass()+")" +
                                             " is from " + ots);
-	}
+	    }
     }
 
     public String wrapperTypeString(Type t) {
@@ -340,7 +334,7 @@ public class TypeSystem_c implements TypeSystem
 		return ((ClassType) type).resolver();
 	    }
 	    return new Resolver() {
-		public Named find(Matcher<Named> matcher) throws SemanticException {
+		public List<Type> find(Matcher<Type> matcher) throws SemanticException {
 		    throw new NoClassException(matcher.name().toString(), type);
 		}
 	    };
@@ -858,7 +852,7 @@ public class TypeSystem_c implements TypeSystem
         }
 
         Collection<MacroType> maximal = findMostSpecificProcedures(acceptable,
-                new FilteringMatcher<Named, MacroType>(matcher, MacroType.class),
+                new FilteringMatcher<Type, MacroType>(matcher, MacroType.class),
                 context);
 
         if (maximal.size() > 1) { // remove references that resolve to the same type.
@@ -1108,7 +1102,7 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public abstract static class MethodMatcher extends BaseMatcher<MethodInstance> implements Copy {
+    public abstract static class MethodMatcher extends BaseMatcher<MethodInstance> implements Cloneable {
 	protected Type container;
 	protected Name name;
 	protected List<Type> argTypes;
@@ -1123,7 +1117,7 @@ public class TypeSystem_c implements TypeSystem
 	}
 
 	public MethodMatcher container(Type container) {
-	    MethodMatcher n = copy();
+	    MethodMatcher n = shallowCopy();
 	    n.container = container;
 	    return n;
 	}
@@ -1131,7 +1125,7 @@ public class TypeSystem_c implements TypeSystem
 		return container;
 	}
 
-	public MethodMatcher copy() {
+	public MethodMatcher shallowCopy() {
 	    try {
 		return (MethodMatcher) super.clone();
 	    }
@@ -1165,7 +1159,7 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public abstract static class FieldMatcher extends BaseMatcher<FieldInstance> implements Copy {
+    public abstract static class FieldMatcher extends BaseMatcher<FieldInstance> implements Cloneable {
 	protected Type container;
 	protected Name name;
 	protected Context context;
@@ -1185,12 +1179,12 @@ public class TypeSystem_c implements TypeSystem
 		return container;
 	}
 	public FieldMatcher container(Type container) {
-	    FieldMatcher n = copy();
+	    FieldMatcher n = shallowCopy();
 	    n.container = container;
 	    return n;
 	}
 
-	public FieldMatcher copy() {
+	public FieldMatcher shallowCopy() {
 	    try {
 		return (FieldMatcher) super.clone();
 	    }
@@ -1218,7 +1212,6 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-
     // To prevent infinite recursion due to searching the field in the superclass/superinterface
     // e.g., class Q extends Q{i==1} {}
     public static abstract class BaseMatcher<T> implements Matcher<T> {
@@ -1231,77 +1224,72 @@ public class TypeSystem_c implements TypeSystem
             return true;
         }
     }
-    public static abstract class MemberTypeMatcher extends BaseMatcher<Named> {
-	protected Type container;
-	protected Name name;
-	protected Context context;
+    public static abstract class NameMatcher<T extends Named> extends BaseMatcher<T> {
+        protected Name name;
 
-	protected MemberTypeMatcher(Type container, Name name, Context context) {
-	    super();
-	    this.container = container;
-	    this.name = name;
-	    this.context = context;
-	}
+        protected NameMatcher(Name name) {
+            this.name = name;
+        }
+        
+        public String signature() {
+            return name.toString();
+        }
 
-	public Type container() {
-		return container;
-	}
-	public String signature() {
-	    return name.toString();
-	}
+        public Name name() {
+            return name;
+        }
 
-	public Name name() {
-	    return name;
-	}
+        public T instantiate(T t) throws SemanticException {
+            if (t.name() == null || !t.name().equals(name)) {
+                return null;
+            }
+            return t;
+        }
 
-	public abstract Named instantiate(Named t) throws SemanticException;
+        public String toString() {
+            return signature();
+        }
 
-	public String toString() {
-	    return signature();
-	}
-
-	public Object key() {
-	    return name;
-	}
+        public Object key() {
+            return name;
+        }
     }
 
-    public Matcher<Named> MemberTypeMatcher(Type container, Name name, Context context) {
+    public static abstract class MemberTypeMatcher extends NameMatcher<Type> {
+        protected Type container;
+        protected Context context;
+
+        protected MemberTypeMatcher(Type container, Name name, Context context) {
+            super(name);
+            this.container = container;
+            this.context = context;
+        }
+
+        public Type container() {
+            return container;
+        }
+
+        public String signature() {
+            return container.fullName() + "." + name;
+        }
+
+        public Object key() {
+            return QName.make(container.fullName(), name);
+        }
+    }
+    public static abstract class TypeMatcher extends NameMatcher<Type> {
+        protected TypeMatcher(Name name) {
+            super(name);
+        }
+    }
+
+    public Matcher<Type> MemberTypeMatcher(Type container, Name name, Context context) {
         return new X10MemberTypeMatcher(container, name, context);
     }
 
-
-    public Matcher<Named> TypeMatcher(Name name) {
+    public Matcher<Type> TypeMatcher(Name name) {
         return new X10TypeMatcher(name);
     }
-    public static abstract class TypeMatcher extends BaseMatcher<Named> {
-	protected Name name;
-
-	protected TypeMatcher(Name name) {
-	    super();
-	    this.name = name;
-	}
-
-	public String signature() {
-	    return name.toString();
-	}
-
-	public Name name() {
-	    return name;
-	}
-
-
-	public abstract Named instantiate(Named t) throws SemanticException;
-
-	public String toString() {
-	    return signature();
-	}
-
-	public Object key() {
-	    return name;
-	}
-    }
-
-
 
     public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher)
     throws SemanticException {
@@ -1588,14 +1576,14 @@ public class TypeSystem_c implements TypeSystem
 
 		    visitedTypes.add(type);
 
-		    if (Report.should_report(Report.types, 2))
-			Report.report(2, "Searching type " + type + " for method " + matcher.signature());
+		    if (reporter.should_report(Reporter.types, 2))
+			reporter.report(2, "Searching type " + type + " for method " + matcher.signature());
 
 		    for (Iterator<MethodInstance> i = type.methodsNamed(matcher.name()).iterator(); i.hasNext(); ) {
 			MethodInstance mi = i.next();
 
-			if (Report.should_report(Report.types, 3))
-			    Report.report(3, "Trying " + mi);
+			if (reporter.should_report(Reporter.types, 3))
+			    reporter.report(3, "Trying " + mi);
 
 			try {
 				MethodInstance oldmi = mi;
@@ -1606,8 +1594,8 @@ public class TypeSystem_c implements TypeSystem
 			    }
 			    mi.setOrigMI(oldmi);
 			    if (isAccessible(mi, context)) {
-				if (Report.should_report(Report.types, 3)) {
-				    Report.report(3, "->acceptable: " + mi + " in "
+				if (reporter.should_report(Reporter.types, 3)) {
+				    reporter.report(3, "->acceptable: " + mi + " in "
 				                  + mi.container());
 				}
 
@@ -1993,29 +1981,36 @@ public class TypeSystem_c implements TypeSystem
             return createFakeClass(fullName, e);
         }
     }
-    public Named forName(QName name) throws SemanticException {
-	try {
-	    return systemResolver.find(name);
-	}
-	catch (SemanticException e) {
-	    if (name.qualifier() != null) {
-		try {
-		    Named container = forName(name.qualifier());
-		    if (container instanceof ClassType) {
-			return classContextResolver((ClassType) container).find(MemberTypeMatcher((ClassType) container, name.name(), emptyContext()));
-		    }
-		}
-		catch (SemanticException e2) {
-		}
-	    }
 
-	    // throw the original exception
-	    throw e;
-	}
+    public Type forName(QName name) throws SemanticException {
+        List<Type> res;
+        try {
+            res = systemResolver.find(name);
+        }
+        catch (SemanticException e) {
+            if (name.qualifier() != null) {
+                try {
+                    Type container = forName(name.qualifier());
+                    if (container instanceof ClassType) {
+                        res = classContextResolver(container).find(MemberTypeMatcher(container, name.name(), emptyContext()));
+                    }
+                }
+                catch (SemanticException e2) {
+                }
+            }
+
+            // throw the original exception
+            throw e;
+        }
+        return res.get(0); // FIXME
     }
 
+    /**
+     * {@inheritDoc}
+     * @deprecated
+     */
     public Type typeForName(QName name) throws SemanticException {
-	return (Type) forName(name);
+        return forName(name);
     }
 
     protected Type OBJECT_;
@@ -2669,7 +2664,7 @@ public class TypeSystem_c implements TypeSystem
 	    return arrayOf(typeForJavaClass(clazz.getComponentType()));
 	}
 
-	return (Type) systemResolver.find(QName.make(clazz.getName()));
+	return systemResolver.findOne(QName.make(clazz.getName()));
     }
 
     /**
@@ -2903,7 +2898,7 @@ public class TypeSystem_c implements TypeSystem
     protected final Flags X10_METHOD_FLAGS = legalMethodFlags();
 
     public void checkMethodFlags(Flags f) throws SemanticException {
-        // Report.report(1, "X10TypeSystem_c:method_flags are |" +
+        // reporter.report(1, "X10TypeSystem_c:method_flags are |" +
         // X10_METHOD_FLAGS + "|");
         if (!f.clear(X10_METHOD_FLAGS).equals(Flags.NONE)) {
             throw new SemanticException("Cannot declare method with flags " + f.clear(X10_METHOD_FLAGS) + ".");
@@ -3652,11 +3647,14 @@ public class TypeSystem_c implements TypeSystem
         return hasSameClassDef(t, Array());
     }
 
-    public boolean isArrayOf(Type t, Type p) {
-        if (!isArray(t)) return false;
+    public static Type getArrayComponentType(Type t) {
         List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
         assert (ta.size() == 1);
-        return ta.get(0).typeEquals(p, createContext());
+        return ta.get(0);
+    }
+    public boolean isArrayOf(Type t, Type p) {
+        if (!isArray(t)) return false;
+        return getArrayComponentType(t).typeEquals(p, createContext());
     }
 
     public boolean isRemoteArray(Type t) {
@@ -3959,7 +3957,7 @@ public class TypeSystem_c implements TypeSystem
     }
     private Type expandMacros(Type t, int depth) {
         if (depth > TypeSystem_c.EXPAND_MACROS_DEPTH) {
-            Errors.issue(t.typeSystem().extensionInfo(),new SemanticException("Reached max macro expansion depth with " + t),t.position());
+            Errors.issue(t.typeSystem().extensionInfo(),new Errors.MaxMacroExpansionDepth(t,t.position()),t.position());
             return unknownType(Position.COMPILER_GENERATED); // bottom
         }
         /*if (t instanceof AnnotatedType)

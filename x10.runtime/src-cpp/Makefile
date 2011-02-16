@@ -7,7 +7,13 @@ include ../Make.rules
 FIND ?= find
 XARGS ?= xargs
 
+#############
+# Variables #
+#############
+
 INCLUDE_DIRS += -I. -I../x10rt/include
+
+override XRX_PROPS_LDLIBS += -lx10
 
 ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
@@ -17,8 +23,22 @@ ifdef ENABLE_GC
   override XRX_PROPS_LDLIBS += -lgc
 endif
 
-ifndef X10_STATIC_LIB
-  override XRX_PROPS_LDLIBS += -lx10
+override XRX_PROPS_LDLIBS += -lm -lpthread
+
+# -lrt
+ifeq ($(X10RT_PLATFORM),sunos)
+  override XRX_PROPS_LDLIBS += -lrt
+endif
+ifeq ($(shell uname -s),Linux)
+  override XRX_PROPS_LDLIBS += -lrt
+endif
+ifeq ($(shell uname -s),FreeBSD)
+  override XRX_PROPS_LDLIBS += -lrt
+endif
+
+# -ldl
+ifneq ($(shell uname -s),FreeBSD)
+  override XRX_PROPS_LDLIBS += -ldl
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -Igen
@@ -84,14 +104,13 @@ gen/all-cpp-generated: $(XRX_REL_SRCS) $(subst $(SPACE),\$(SPACE),$(DISTDIR))/li
 	find gen -name "*.cc" -print > $@
 
 $(XRX_PROPERTIES): $(XRX_REL_SRCS)
-	@echo "PLATFORM=$(X10RT_PLATFORM)" > $@
-	@echo "TIMESTAMP=$(shell date)" >> $@
-	@echo "CXX=$(CXX)" >> $@
-	@echo "CXXFLAGS=$(XRX_PROPS_CXXFLAGS)" >> $@
-	@echo "LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
-	@echo "LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
-	@echo "SRC_JAR=x10.jar" >> $@
-	@echo "SRC_FILES=$(XRX_SRCS)" >> $@
+	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
+	@echo "X10LIB_TIMESTAMP=$(shell date)" >> $@
+	@echo "X10LIB_CXX=$(CXX)" >> $@
+	@echo "X10LIB_CXXFLAGS=$(XRX_PROPS_CXXFLAGS)" >> $@
+	@echo "X10LIB_LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
+	@echo "X10LIB_LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
+	@echo "X10LIB_SRC_JAR=x10.jar" >> $@
 
 ##########################
 # Manually-written Files #

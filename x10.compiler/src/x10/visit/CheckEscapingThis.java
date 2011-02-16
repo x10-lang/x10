@@ -549,7 +549,7 @@ public class CheckEscapingThis extends NodeVisitor
                 if (args.size()==1 && isThis(args.get(0)) && // the first and only argument is "this"
                     typeNode instanceof X10CanonicalTypeNode_c) { // now checking the ctor is of GlobalRef
                     X10CanonicalTypeNode_c tn = (X10CanonicalTypeNode_c) typeNode;
-                    final Type type = tn.type();
+                    final Type type = Types.baseType(tn.type());
                     if (type instanceof X10ParsedClassType_c) {
                         X10ParsedClassType_c classType_c = (X10ParsedClassType_c) type;
                         final QName qName = classType_c.def().fullName();

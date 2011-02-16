@@ -72,6 +72,13 @@ public abstract class NodeFactory_c extends AbstractNodeFactory_c implements Nod
         return n;
     }
 
+    public Allocation Allocation(Position pos) {
+        Allocation a = new Allocation_c(pos);
+        a = (Allocation) a.ext(extFactory().extExpr());
+        a = (Allocation) a.del(delFactory().delExpr());
+        return a;
+    }
+
     public AmbPrefix AmbPrefix(Position pos, Prefix prefix, Id name) {
         AmbPrefix n = new AmbPrefix_c(pos, prefix, name);
         n = (AmbPrefix)n.ext(extFactory.extAmbPrefix());

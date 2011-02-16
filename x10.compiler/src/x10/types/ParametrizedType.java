@@ -27,13 +27,12 @@ import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 
 /**
- * Types with type and value parameters. The only such types in X10 are typdef calls.
- * 
+ * Types with type and value parameters. The only such types in X10 are typedef calls.
  *
  * Typedefs:
  *     type Int(x: Int) = Int{self==x};
  *     type nlist[T](x: Int) = List[T]{length==x};
- * 
+ *
  * Typedef calls:
  *     Int(4) == Int{self==x} with 4 substituted for x
  *            == Int{self == 4}
@@ -42,7 +41,7 @@ import x10.types.constraints.CConstraint;
  *            == List[int]{length==7}
  *
  */
-public interface ParametrizedType extends Named,  Type {
+public interface ParametrizedType extends Named, Type {
 	Name name();
 
 	List<Type> typeParameters();

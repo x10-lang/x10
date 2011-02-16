@@ -531,5 +531,5 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      */
     @Native("java", "x10.array.Region.makeRectangular(#1, #2)")
     @Native("c++", "x10::array::Region::makeRectangular(#1, #2)")
-    public native static operator (x:Int) .. (y:Int): Region{rect&&rank==1};
+    public native static operator (x:Int) .. (y:Int): Region{self!= null, rect,rank==1};
 }

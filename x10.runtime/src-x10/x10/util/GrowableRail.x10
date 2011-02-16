@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
 
 /** We make this a native class for efficiency. */
 @NativeRep("java", "x10.core.GrowableRail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GrowableRail._RTT, #2)")
-@NativeRep("c++", "x10aux::ref<x10::util::GrowableRail<#1 > >", "x10::util::GrowableRail<#1 >", null)
+@NativeRep("c++", "x10aux::ref<x10::util::GrowableRail<#T > >", "x10::util::GrowableRail<#T >", null)
 public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] {
     /** Return a rail of length 0 */
     public native def this();
@@ -26,37 +26,37 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
 
     /** Add an element to the rail, incrementing length. */
     @Native("java", "(#0).add(#1)")
-    @Native("c++", "(#0)->add(#1)")
-    public native def add(T): void;
+    @Native("c++", "(#this)->add(#v)")
+    public native def add(v:T): void;
 
     /** Insert an rail to the rail at specified location, incrementing length. */
     @Native("java", "(#0).insert(#1, #2)")
-    @Native("c++", "(#0)->insert(#1, #2)")
+    @Native("c++", "(#this)->insert(#p, #items)")
     public native def insert(p:Int, items:Rail[T]): void;
 
     /** Get the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
     @Native("java", "(#0).$apply$G(#1)")
-    @Native("c++", "(#0)->__apply(#1)")
-    public native operator this(Int): T;
+    @Native("c++", "(#this)->__apply(#idx)")
+    public native operator this(idx:Int): T;
 
     /** Set the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
     @Native("java", "(#0).$set$G(#1, #2)")
-    @Native("c++", "(#0)->__set(#1, #2)")
-    public native operator this(Int)=(T): T;
+    @Native("c++", "(#this)->__set(#v, #idx)")
+    public native operator this(idx:Int)=(v:T): T;
 
     /** Get the length of the rail (which may be less than the allocated storage for the rail. */
     @Native("java", "(#0).length()")
-    @Native("c++", "(#0)->length()")
+    @Native("c++", "(#this)->length()")
     public native def length(): Int;
 
     /** Set the length of the rail */
     @Native("java", "(#0).setLength(#1)")
-    @Native("c++", "(#0)->setLength(#1)")
-    public native def setLength(Int): void;
+    @Native("c++", "(#this)->setLength(#v)")
+    public native def setLength(v:Int): void;
 
     /** Remove the last element of the rail, decrementing the length. */
     @Native("java", "(#0).removeLast()")
-    @Native("c++", "(#0)->removeLast()")
+    @Native("c++", "(#this)->removeLast()")
     public native def removeLast(): void;
 
     /**
@@ -67,17 +67,17 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
      * On return the rail has s-(j-i+1) elements.
      */
     @Native("java", "(#0).moveSectionToRail(#1, #2)")
-    @Native("c++", "(#0)->moveSectionToRail(#1, #2)")
+    @Native("c++", "(#this)->moveSectionToRail(#i, #j)")
     public native def moveSectionToRail(i:Int, j:Int): Rail[T];
 
     /** Convert to a mutable rail.  This copies the content of the rail. */
     @Native("java", "(#0).toRail()")
-    @Native("c++", "(#0)->toRail()")
+    @Native("c++", "(#this)->toRail()")
     public native def toRail(): Rail[T];
 
     /** Convert to a mutable array.  This copies the content of the rail. */
     @Native("java", "(#0).toArray()")
-    @Native("c++", "(#0)->toArray()")
+    @Native("c++", "(#this)->toArray()")
     public native def toArray():Array[T](1){self.rail};
 }
 

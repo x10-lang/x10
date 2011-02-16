@@ -121,7 +121,7 @@ public class ASTQuery {
 		// Nate's code. This one.
 		if (o.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) o.ext();
-			X10ClassType baseType = (X10ClassType) ts.systemResolver().find(QName.make(name));
+			Type baseType = ts.systemResolver().findOne(QName.make(name));
 			List<X10ClassType> ats = ext.annotationMatching(baseType);
 			if (ats.size() > 1) {
 				throw new SemanticException("Expression has more than one " + name + " annotation.", o.position());
@@ -234,7 +234,7 @@ public class ASTQuery {
 	public static String getCppRepParam(X10ClassDef def, int i) {
 		try {
 			TypeSystem xts = (TypeSystem) def.typeSystem();
-			Type rep = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeRep"));
+			Type rep = xts.systemResolver().findOne(QName.make("x10.compiler.NativeRep"));
 			List<Type> as = def.annotationsMatching(rep);
 			for (Type at : as) {
 				assertNumberOfInitializers(at, 4);

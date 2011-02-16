@@ -8,7 +8,7 @@ import polyglot.util.Position;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.NodeVisitor;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.SemanticException;
 import x10.ast.AnnotationNode_c;
 import x10.ast.X10Formal_c;
@@ -16,16 +16,18 @@ import x10.ast.X10Formal_c;
 public class PositionInvariantChecker extends NodeVisitor
 {
     private final Job job;
+    private final Reporter reporter;
     private final String previousGoalName;
 
     public PositionInvariantChecker(Job job, String previousName) {
         this.job = job;
+        this.reporter = job.extensionInfo().getOptions().reporter;
         previousGoalName = previousName;
     }
 
     public Node visitEdgeNoOverride(Node parent, Node n) {
-        if (Report.should_report("PositionInvariantChecker", 2))
-            Report.report(2, "Checking invariants for: " + n);
+        if (reporter.should_report(Reporter.PositionInvariantChecker, 2))
+            reporter.report(2, "Checking invariants for: " + n);
         String m = checkInvariants(parent, n);
         if (m!=null) {
         	String msg;

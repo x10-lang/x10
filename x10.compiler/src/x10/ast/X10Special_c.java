@@ -69,7 +69,7 @@ public class X10Special_c extends Special_c implements X10Special {
 
             if (tt == null) {
                 Errors.issue(tc.job(),
-                        new SemanticException("self may only be used within a dependent type", position()));
+                        new Errors.SelfMayOnlyBeUsedWithinDependentType(position()));
                 tt = ts.unknownType(position());
             }
 
@@ -102,7 +102,7 @@ public class X10Special_c extends Special_c implements X10Special {
             if (c.inSuperTypeDeclaration()) {
                 if (kind == SUPER) {
                     Errors.issue(tc.job(),
-                            new SemanticException("Cannot refer to \"super\" from within a class or interface declaration header."),
+                            new Errors.CannotReferToSuperFromDeclarationHeader(position()),
                             this);
                 }
                 t = c.supertypeDeclarationType().asType();
@@ -123,17 +123,14 @@ public class X10Special_c extends Special_c implements X10Special {
                 t=ct;
                 if (!c.currentClass().hasEnclosingInstance(ct)) {
                     Errors.issue(tc.job(),
-                            new SemanticException("The nested class \"" 
-                                                  +c.currentClass() 
-                                                  + "\" does not have an enclosing instance of type \"" 
-                                                  +ct + "\".", qualifier.position()),
+                            new Errors.NestedClassMissingEclosingInstance(c.currentClass(), ct, qualifier.position()),
                             this);
                 }
                 
             }
             else {
                 Errors.issue(tc.job(),
-                        new SemanticException("Invalid qualifier for \"this\" or \"super\".", qualifier.position()),
+                        new Errors.InvalidQualifierForSuper(qualifier.position()),
                         this);
             }
         }
@@ -141,7 +138,7 @@ public class X10Special_c extends Special_c implements X10Special {
         if (t == null || (c.inStaticContext() && ts.typeEquals(t, c.currentClass(), c))) {
             // trying to access "this" or "super" from a static context.
             Errors.issue(tc.job(),
-                    new SemanticException("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", position()));
+                    new Errors.CannotAccessNonStaticFromStaticContext(position()));
         }
 
         X10Special result = this;
@@ -165,7 +162,7 @@ public class X10Special_c extends Special_c implements X10Special {
             }
             catch (XFailure e) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position()));
+                        new Errors.ConstraintOnThisIsInconsistent(e, position()));
             }
             tt = Types.xclause(Types.baseType(tt), cc);
             
@@ -178,12 +175,14 @@ public class X10Special_c extends Special_c implements X10Special {
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
                 XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
-                cc.addSelfBinding(var);
-                //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+                if (var != null) {
+                    cc.addSelfBinding(var);
+                    //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+                }
             }
             catch (XFailure e) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position()));
+                        new Errors.ConstraintOnSuperIsInconsistent(e, position()));
             }
             tt = Types.xclause(Types.baseType(tt), cc);
             result = (X10Special) type(tt);

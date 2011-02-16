@@ -71,24 +71,28 @@ public class ClosureDefReinstantiator extends NodeVisitor {
             
             ClosureDef cd = c.closureDef();
             
-            ClosureDef ncd = xts.closureDef(c.position(),
-                                            Types.ref(containerClassDef.asType()), 
-                                            Types.ref(containerMethodDef.asInstance()), 
-                                            cd.returnType(), 
-                                            cd.formalTypes(), 
-                                            cd.thisDef(), 
-                                            cd.formalNames(),
-                                            cd.guard(), 
-                                            //cd.throwTypes(),
-                                            cd.offerType());
+            ClosureDef ncd = (ClosureDef) cd.copy();
+            ncd.setTypeContainer(Types.ref(containerClassDef.asType()));
+            ncd.setMethodContainer(Types.ref(containerMethodDef.asInstance()));
+            
+//            ClosureDef ncd = xts.closureDef(c.position(),
+//                                            Types.ref(containerClassDef.asType()), 
+//                                            Types.ref(containerMethodDef.asInstance()), 
+//                                            cd.returnType(), 
+//                                            cd.formalTypes(), 
+//                                            cd.thisDef(), 
+//                                            cd.formalNames(),
+//                                            cd.guard(), 
+//                                            //cd.throwTypes(),
+//                                            cd.offerType());
             
             c = c.closureDef(ncd);
             //need set the ncd's captured environment variables
 
-            NodeVisitor captureEnvVisitor = new SimpleClosureCaptureVisitor(c.closureDef());
+            //NodeVisitor captureEnvVisitor = new SimpleClosureCaptureVisitor(c.closureDef());
             //FIXME: after the WS context is correct, use the following visitor
             //NodeVisitor captureEnvVisitor = new Desugarer.ClosureCaptureVisitor(context, c.closureDef());
-            c.visit(captureEnvVisitor);
+            //c.visit(captureEnvVisitor);
             n = c;
             //Use a simple closure capture visitor
             

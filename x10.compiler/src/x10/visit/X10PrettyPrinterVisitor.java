@@ -114,6 +114,7 @@ import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.Finish_c;
 import x10.ast.ForLoop_c;
+import x10.ast.HasZeroTest_c;
 import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
@@ -2054,7 +2055,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 		if (isJavaCheckedExceptionCaught) {
 		    final String temp = "__$generated_wrappedex$__";
-		    expander.addCatchBlock("x10.runtime.impl.java.X10WrappedThrowable", temp, new Expander(er) {
+		    expander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", temp, new Expander(er) {
 		        public void expand(Translator tr) {
                     w.newline();
 
@@ -2064,7 +2065,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		                if (!type.toString().startsWith("java") || type.isUncheckedException())
 //		                if (type.isSubtype(tr.typeSystem().Error(), tr.context()) || 
 //		                    type.isSubtype(tr.typeSystem().RuntimeException(), tr.context()))
-		                    // nothing to do, since X10WrappedThrowable wrap only Java checked exceptions
+		                    // nothing to do, since WrappedThrowable wrap only Java checked exceptions
 		                    continue;
 
 		                if (i > 0) {
@@ -2322,7 +2323,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 
                 TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
                 if (runAsync) {
-                    tryCatchExpander.addCatchBlock("x10.runtime.impl.java.X10WrappedThrowable", "ex", new Expander(er) {
+                    tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", "ex", new Expander(er) {
                         public void expand(Translator tr) {
                             w.write("x10.lang.Runtime.pushException(ex);");
                         }
@@ -2342,13 +2343,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //                    if (runAsync) {
 //                        tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
 //                            public void expand(Translator tr) {
-//                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(t));");
+//                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.WrappedThrowable(t));");
 //                            }
 //                        });
 //                    } else {
 //                        tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
 //                            public void expand(Translator tr) {
-//                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(t);");
+//                                w.write("throw new x10.runtime.impl.java.WrappedThrowable(t);");
 //                            }
 //                        });
 //                    }
@@ -2365,13 +2366,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //                    if (runAsync) {
 //                        tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
 //                            public void expand(Translator tr) {
-//                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(ex));");
+//                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.WrappedThrowable(ex));");
 //                            }
 //                        });
 //                    } else {
 //                        tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
 //                            public void expand(Translator tr) {
-//                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(ex);");
+//                                w.write("throw new x10.runtime.impl.java.WrappedThrowable(ex);");
 //                            }
 //                        });
 //                    }
@@ -2694,12 +2695,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Labeled_c n) {
 	    Stmt statement = n.statement();
 	    if (statement instanceof Block_c) {
+	        w.write(n.labelNode() + ": ");
 	        w.write("{");
 	        Block_c block = (Block_c) statement;
 	        for (Stmt s : block.statements()) {
-	            if (s instanceof Loop_c) {
-	                w.write(n.labelNode() + ": ");
-	            }
 	            tr.print(n, s, w);
 	        }
             w.write("}");
@@ -3180,6 +3179,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		new RuntimeTypeExpander(er, sup.type()).expand(tr);
 		w.write("))");
+	}
+
+	public void visit(HasZeroTest_c n) {
+	    TypeNode sub = n.parameter();
+
+	    w.write("((");
+	    new RuntimeTypeExpander(er, sub.type()).expand(tr);
+	    w.write(").hasZero())");
 	}
 
 	// This is an enhanced version of Binary_c#prettyPrint(CodeWriter, PrettyPrinter)

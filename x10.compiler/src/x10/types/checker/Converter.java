@@ -30,7 +30,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
@@ -198,6 +198,7 @@ public class Converter {
 			ContextVisitor tc, Type targetType, List<PI> methods, X10New_c.MatcherMaker<PI> maker) throws SemanticException {
 		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
+		Reporter reporter = ts.extensionInfo().getOptions().reporter;
 		Context xc = (Context) tc.context();
 		ClassDef currentClassDef = xc.currentClassDef();
 
@@ -214,8 +215,8 @@ public class Converter {
 			PI smi = i.next();
 			X10ProcedureInstance<?> xmi = (X10ProcedureInstance<?>) smi;
 
-			if (Report.should_report(Report.types, 3))
-				Report.report(3, "Trying " + smi);
+			if (reporter.should_report(Reporter.types, 3))
+				reporter.report(3, "Trying " + smi);
 
 			List<ParameterType> typeParameters = ((X10ProcedureDef) xmi.def()).typeParameters();
 			if (typeParameters.size() != typeArgs.size()) {
@@ -446,7 +447,7 @@ public class Converter {
 
 		if (ts.isUnknown(toType)) {
 		    if (opts.x10_config.CHECK_INVARIANTS)
-			Errors.issue(tc.job(), new SemanticException("Complaining about UnknownType", cast.position()));
+			Errors.issue(tc.job(), new Errors.UnknownType(cast.position()));
 		    return cast;
 		}
 
@@ -461,7 +462,7 @@ public class Converter {
 		        try {
 		        toType = Types.addSelfBinding((Type) toType.copy(), sv);
 		        } catch (XFailure f) {
-		            throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+		            throw new Errors.InconsistentTypeSelf(toType, sv, cast.position());
 		        }
 
 		    X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);

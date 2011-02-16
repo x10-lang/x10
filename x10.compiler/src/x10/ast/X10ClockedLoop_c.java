@@ -95,7 +95,7 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	        for (Expr clock : (List<Expr>) clocks) {
 	            if (! ts.isImplicitCastValid(clock.type(), ts.Clock(), tc.context())) {
 	        	Errors.issue(tc.job(),
-	        	        new SemanticException("Clocked loop may only be clocked on a clock.", clock.position()),
+	        	        new Errors.ClockedLoopMayOnlyBeClockedOnClock(clock.position()),
 	        	        this);
 	            }
 	        }

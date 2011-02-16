@@ -38,7 +38,7 @@ public interface Any {
      * @return a string representation of this entity.
      */
     @Native("java", "((java.lang.Object)(#0)).toString()")
-    @Native("c++", "x10aux::to_string(#0)")
+    @Native("c++", "x10aux::to_string(#this)")
     def toString():String;
 
     /**
@@ -48,7 +48,7 @@ public interface Any {
      * @return a string representation of the run-time type of this entity.
      */
     @Native("java", "x10.rtt.Types.typeName(#0)")
-    @Native("c++", "x10aux::type_name(#0)")
+    @Native("c++", "x10aux::type_name(#this)")
     @NoThisAccess
     def typeName():String;
 
@@ -76,7 +76,7 @@ public interface Any {
      * @return true if this entity is equal to the given entity.
      */
     @Native("java", "((java.lang.Object)(#0)).equals(#1)")
-    @Native("c++", "x10aux::equals(#0,#1)")
+    @Native("c++", "x10aux::equals(#this,#that)")
     def equals(that:Any):Boolean;
 
     /**
@@ -100,7 +100,7 @@ public interface Any {
      * @return the hash code of this entity.
      */
     @Native("java", "((java.lang.Object)(#0)).hashCode()")
-    @Native("c++", "x10aux::hash_code(#0)")
+    @Native("c++", "x10aux::hash_code(#this)")
     def hashCode():Int;
 }
 

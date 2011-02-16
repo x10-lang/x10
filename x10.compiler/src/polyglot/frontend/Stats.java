@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.Stack;
 
-import polyglot.main.Report;
+import polyglot.main.Reporter;
 import polyglot.util.CollectionUtil;
 import x10.util.CollectionFactory;
 
@@ -55,6 +55,7 @@ public class Stats {
         }
     }
 
+    private Reporter reporter;
     private Counter phase, site, freq;
     private long startTime, totalTime, reportTimeThreshold;
     private int currDepth, maxDepth;
@@ -84,21 +85,22 @@ public class Stats {
      * 
      * @param startTime
      */
-    public void initialize(long startTime) {
+    public void initialize(ExtensionInfo ext, long startTime) {
         this.startTime = startTime;
-        if (Report.should_report(Report.time, 1)) {
-            t2 = Report.should_report(Report.time, 2);
-            Report.removeTopic(Report.time);
-            if (Report.should_report(Report.threshold, 1)) {
-                reportTimeThreshold = Report.level(Report.threshold);
-                Report.removeTopic(Report.threshold);
+        reporter = ext.getOptions().reporter;
+        if (reporter.should_report(Reporter.time, 1)) {
+            t2 = reporter.should_report(Reporter.time, 2);
+            reporter.removeTopic(Reporter.time);
+            if (reporter.should_report(Reporter.threshold, 1)) {
+                reportTimeThreshold = reporter.level(Reporter.threshold);
+                reporter.removeTopic(Reporter.threshold);
             }
             phase = new Counter();
             site = new Counter();
             start = new Stack<stackStruct>();
         }
-        if (Report.should_report(Report.frequency, 1)) {
-            Report.removeTopic(Report.frequency);
+        if (reporter.should_report(Reporter.frequency, 1)) {
+            reporter.removeTopic(Reporter.frequency);
             freq = new Counter();
         }
     }
@@ -150,21 +152,21 @@ public class Stats {
         currDepth--;
     }
 
-    /** Report the frequency counts. */
+    /** Reporter the frequency counts. */
     public void reportFrequency() {
         if (freq == null) return;
-        Report.report(1, "\nFrequency Statistics for  X10c");
-        Report.report(1, String.format("%16s", "Count") + " Name");
-        Report.report(1, String.format("%16s", "-----") + " ----");
+        reporter.report(1, "\nFrequency Statistics for  X10c");
+        reporter.report(1, String.format("%16s", "Count") + " Name");
+        reporter.report(1, String.format("%16s", "-----") + " ----");
 
         for (Iterator<Object> i = freq.keys.iterator(); i.hasNext();) {
             Object key = i.next();
             Counts t = freq.counts.get(key);
-            Report.report(1, String.format("%16d", t.count) + " " + key.toString());
+            reporter.report(1, String.format("%16d", t.count) + " " + key.toString());
         }
     }
 
-    /** Report the times. */
+    /** Reporter the times. */
     public void reportTime() {
         totalTime = System.nanoTime() - startTime;
         
@@ -174,20 +176,20 @@ public class Stats {
 
         if (phase != null) reportTiming();
 
-        if (Report.should_report(Report.verbose, 1) || phase != null)
-            Report.report(1, "Total time=" + String.format("%.3f", totalTime / 1e9) + " seconds");
+        if (reporter.should_report(Reporter.verbose, 1) || phase != null)
+            reporter.report(1, "Total time=" + String.format("%.3f", totalTime / 1e9) + " seconds");
     }
 
-    /** Report the times. */
+    /** Reporter the times. */
     private void reportTiming() {
-        if (currDepth != 0) Report.report(1, "\nWarning: mismatched start/stop times");
+        if (currDepth != 0) reporter.report(1, "\nWarning: mismatched start/stop times");
 
-        Report.report(1, "\nPhase Statistics for X10c");
+        reporter.report(1, "\nPhase Statistics for X10c");
         String pad = "";
         for (int i = t2 ? maxDepth : 1; i > 0; i--)
             pad += "   ";
-        Report.report(1, "Percent" + pad + " Seconds   Name");
-        Report.report(1, "-------" + pad + "---------  ----");
+        reporter.report(1, "Percent" + pad + " Seconds   Name");
+        reporter.report(1, "-------" + pad + "---------  ----");
         reportPhase(0, phase);
         long unattributedTime = totalTime;
         for (Iterator<Object> i = phase.keys.iterator(); i.hasNext();) {
@@ -195,19 +197,19 @@ public class Stats {
             Counts t = phase.counts.get(key);
             unattributedTime -= t.count;
         }
-        Report.report(1,
+        reporter.report(1,
                       String.format("%6.3f%%", (unattributedTime * 100) / (double) totalTime) + pad
                               + String.format("%9.3f", unattributedTime / 1e9) + "  Unattributed");
 
-        Report.report(1, "\nSite Statistics for x10c");
-        Report.report(1, "  Seconds  Name");
-        Report.report(1, "  -------  ----");
+        reporter.report(1, "\nSite Statistics for x10c");
+        reporter.report(1, "  Seconds  Name");
+        reporter.report(1, "  -------  ----");
 
         for (Iterator<Object> i = sortByCount(site.counts).iterator(); i.hasNext();) {
             Object key = i.next();
             Counts t = site.counts.get(key);
             if (t.count >= reportTimeThreshold) {
-                Report.report(1, String.format("%9.3f", t.count / 1e9) + "  " + key.toString());
+                reporter.report(1, String.format("%9.3f", t.count / 1e9) + "  " + key.toString());
 
             }
         }
@@ -229,7 +231,7 @@ public class Stats {
             Object key = i.next();
             Counts t = c.counts.get(key);
             if (t.count > reportTimeThreshold) {
-                Report.report(1,
+                reporter.report(1,
                               indent + String.format("%6.3f%%", (t.count * 100) / (double) totalTime) + pad
                                       + String.format("%9.3f", t.count / 1e9) + "  " + key.toString());
                 if (t2 && t.counter != null) {

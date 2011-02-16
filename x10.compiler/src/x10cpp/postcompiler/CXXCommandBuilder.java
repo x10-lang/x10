@@ -52,7 +52,7 @@ public class CXXCommandBuilder {
     private String cxxCompiler = UNKNOWN;
     protected String defaultPostCompiler() {
         if (cxxCompiler.equals(UNKNOWN)) {
-            String pc = x10rt.props.getProperty("CXX");
+            String pc = x10rt.props.getProperty("X10LIB_CXX");
             if (pc != null && (pc.startsWith("mpi") || pc.startsWith("mpCC"))) {
                 // ignore all other settings; mpicxx/mpCC win ties, and also
                 // prevent sanity checking because they will be a wrapper on an unknown compiler
@@ -60,7 +60,7 @@ public class CXXCommandBuilder {
             } else {
                 // Sanity check that x10rt and all the precompiled libraries were built with the same C++ compiler
                 for (PrecompiledLibrary pcl: options.x10libs) {
-                    String pc2 = pcl.props.getProperty("CXX");
+                    String pc2 = pcl.props.getProperty("X10LIB_CXX");
                     if (pc2 != null) {
                         if (pc != null && !pc2.equals(pc)) {
                             throw new InternalCompilerError("Conflicting postcompilers. Both "+pc+" and "+pc2+" requested");
@@ -77,10 +77,10 @@ public class CXXCommandBuilder {
     private String platform = UNKNOWN;
     protected String getPlatform() {
         if (platform.equals(UNKNOWN)) {
-            String p1 = x10rt.props.getProperty("PLATFORM");
+            String p1 = x10rt.props.getProperty("X10LIB_PLATFORM");
             // Sanity check that x10rt and all the precompiled libraries were built for the same platform
             for (PrecompiledLibrary pcl: options.x10libs) {
-                String p2 = pcl.props.getProperty("PLATFORM");
+                String p2 = pcl.props.getProperty("X10LIB_PLATFORM");
                 if (p2 != null) {
                     if (p1 != null && !p2.equals(p1)) {
                         throw new InternalCompilerError("Conflicting platforms. Both "+p1+" and "+p2+" specified");
@@ -109,7 +109,9 @@ public class CXXCommandBuilder {
      * @param cxxCmd the container to which to append the arguments.
      */
     public void addPreArgs(ArrayList<String> cxxCmd) {
-        cxxCmd.add("-g");
+        if (options.x10_config.DEBUG) {
+            cxxCmd.add("-g");
+        }
 
         // x10rt and other misc header files
         cxxCmd.add("-I"+options.distPath()+"/include");
@@ -180,10 +182,6 @@ public class CXXCommandBuilder {
         cxxCmd.add("-L"+options.distPath()+"/lib");
         cxxCmd.addAll(x10rt.ldFlags);
         cxxCmd.addAll(x10rt.libs);
-
-        cxxCmd.add("-ldl");
-        cxxCmd.add("-lm");
-        cxxCmd.add("-lpthread");
 
         if (options.gpt) {
             cxxCmd.add("-lprofiler");
@@ -285,7 +283,7 @@ public class CXXCommandBuilder {
      * @return a CXXCommandBuilder instance that will use options and x10rt_props
      */
     public static CXXCommandBuilder getCXXCommandBuilder(X10CompilerOptions options, PostCompileProperties x10rt_props, ErrorQueue eq) {
-        String platform = x10rt_props.props.getProperty("PLATFORM", "unknown");
+        String platform = x10rt_props.props.getProperty("X10LIB_PLATFORM", "unknown");
         
         if (platform.startsWith("win32_") || platform.startsWith("cygwin")) {
             return new Cygwin_CXXCommandBuilder(options, x10rt_props, eq);

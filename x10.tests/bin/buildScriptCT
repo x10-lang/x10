@@ -103,8 +103,6 @@ main() {
 	(cd $X10_DIST/bin; \
 	mv x10c.in x10c.in.orig; \
 	sed -e 's/-Xmx512m/-Xmx1024m/g' x10c.in.orig > x10c.in; \
-	mv setupX10.in setupX10.in.orig; \
-	sed -e 's/-Xmx128m/-Xmx1024m/g' setupX10.in.orig > setupX10.in; \
 	)
 
 	X10_TESTS=$X10_HOME/x10.tests

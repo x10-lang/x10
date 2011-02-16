@@ -17,7 +17,6 @@ import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.FieldInstance_c;
 import polyglot.types.Flags;
-import polyglot.types.Named;
 import polyglot.types.Ref;
 
 import polyglot.types.SemanticException;
@@ -171,11 +170,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 	if (container instanceof FunctionType) {
 	    return "(" + container.toString() + ")";
 	}
-	if (container instanceof Named) {
-	    Named n = (Named) container;
-	    return n.fullName().toString();
-	}
-	return container.toString();
+	return container.fullName().toString();
     }
 
     public String toString() {
