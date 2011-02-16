@@ -947,7 +947,10 @@ public class LineNumberMap extends StringTable {
         	for (Integer classId : memberVariables.keySet())
         	{
         		String classname = m.lookupString(classId);
-	        	w.writeln("    { 101, "+offsets[classId]+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classId).size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+        		int stringIndex = offsets[classId];
+        		if (classname.contains("__")) // remove the prefix from the name, for debugger display purposes
+        			stringIndex = stringIndex+classname.lastIndexOf('_')+1;
+	        	w.writeln("    { 101, "+stringIndex+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classId).size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
         	}
         	w.writeln("};");
         	w.forceNewline();
