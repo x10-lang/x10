@@ -58,7 +58,8 @@ import polyglot.types.QName;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ClassType;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -152,7 +153,7 @@ public class Desugarer extends ContextVisitor {
 
     // desugar binary operators
     private Expr visitBinary(Binary n) {
-        return desugarCall(desugarBinary(n, this), this);
+        return desugarBinary(n, this);
     }
 
     public static Expr desugarBinary(Binary n, ContextVisitor v) {
@@ -161,7 +162,7 @@ public class Desugarer extends ContextVisitor {
             MethodInstance mi = (MethodInstance) c.methodInstance();
             if (mi.error() != null)
                 throw new InternalCompilerError("Unexpected exception when desugaring "+n, n.position(), mi.error());
-            return c;
+            return desugarCall(c, v);
         }
 
         return n;
@@ -246,7 +247,7 @@ public class Desugarer extends ContextVisitor {
             return unaryPost(n.position(), op, n.expr());
         }
 
-        return desugarCall(desugarUnary(n, this), this);
+        return desugarUnary(n, this);
     }
 
     public static Expr desugarUnary(Unary n, ContextVisitor v) {
@@ -255,7 +256,7 @@ public class Desugarer extends ContextVisitor {
             MethodInstance mi = (MethodInstance) c.methodInstance();
             if (mi.error() != null)
                 throw new InternalCompilerError("Unexpected exception when desugaring "+n, n.position(), mi.error());
-            return c;
+            return desugarCall(c, v);
         }
 
         return n;
@@ -379,7 +380,7 @@ public class Desugarer extends ContextVisitor {
         if (expr instanceof Call)
             return desugarCall((Call)expr, v);
         if (expr instanceof Binary)
-            return desugarCall(expr,null,null,(Binary)expr, v);
+            return desugarCall(expr, null, null, (Binary)expr, v);
         if (expr instanceof Unary) {
             Unary unary = (Unary) expr;
             // TODO: how to get the methodInstance out of an unary? do we even need to worry about it or is an unary always desugared into a Call (which I handle)?
@@ -391,10 +392,10 @@ public class Desugarer extends ContextVisitor {
         return expr;
     }
     private static Expr desugarCall(Call call_c, ContextVisitor v) {
-        return desugarCall(call_c,call_c,null,null, v);
+        return desugarCall(call_c, call_c, null, null, v);
     }                                       
     private static Expr desugarNew(final New new_c, ContextVisitor v) {
-        return desugarCall(new_c,null,new_c,null, v);
+        return desugarCall(new_c, null, new_c, null, v);
     }
     private static Expr desugarCall(final Expr n, final Call call_c, final New new_c, final Binary binary_c, ContextVisitor v) {
         final NodeFactory nf = v.nodeFactory();
@@ -500,7 +501,9 @@ public class Desugarer extends ContextVisitor {
         // if (!newDep) throw new UnsatisfiedGuardException(); return ...
         final Type resType = newExpr.type();
         newDep = nf.Unary(pos, Unary.Operator.NOT, newDep);
-        If anIf = nf.If(pos, newDep, nf.Throw(pos, nf.New(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.lang.UnsatisfiedGuardException")), Collections.EMPTY_LIST)));
+        If anIf = nf.If(pos, newDep, nf.Throw(pos,
+                nf.New(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.lang.UnsatisfiedGuardException")),
+                        CollectionUtil.<Expr>list(nf.StringLit(pos, guard.toString())))));
         // if resType is void, then we shouldn't use return
         Block body = nf.Block(pos, anIf, ts.isVoid(resType) ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
         body = (Block) body.visit(new X10TypeBuilder(job, ts, nf)).visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext)); // .pushDepType(tn.typeRef())
@@ -555,7 +558,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     protected Expr visitSettableAssign(SettableAssign n) {
-        return desugarCall(desugarSettableAssign(n, this), this);
+        return desugarSettableAssign(n, this);
     }
 
     // a(i)=v -> a.set(v, i) or a(i)op=v -> ((x:A,y:I,z:T)=>x.set(x.apply(y) op z,y))(a,i,v)
@@ -569,8 +572,8 @@ public class Desugarer extends ContextVisitor {
         if (n.operator() == Assign.ASSIGN) {
             // FIXME: this changes the order of evaluation, (a,i,v) -> (a,v,i)!
             args.add(0, n.right());
-            return nf.Call(pos, a, nf.Id(pos, mi.name()),
-                    args).methodInstance(mi).type(mi.returnType());
+            return desugarCall(nf.Call(pos, a, nf.Id(pos, mi.name()),
+                    args).methodInstance(mi).type(mi.returnType()), v);
         }
         Binary.Operator op = n.operator().binaryOperator();
         X10Call left = (X10Call) n.left();
@@ -627,7 +630,7 @@ public class Desugarer extends ContextVisitor {
         MethodInstance ci = c.closureDef().asType().applyMethod();
         args.add(0, a);
         args.add(n.right());
-        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(rType);
+        return desugarCall(nf.ClosureCall(pos, c, args).closureInstance(ci).type(rType), v);
     }
 
     /**
