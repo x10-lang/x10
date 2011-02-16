@@ -753,7 +753,7 @@ import x10.util.Box;
     public static def evalAt[T](place:Place, eval:()=>T):T {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
-            return deepCopy(eval)();
+            return deepCopy(deepCopy(eval)());
         }
         @StackAllocate val me = @StackAllocate new Remote[T]();
         val box = GlobalRef(me);
