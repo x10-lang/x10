@@ -80,6 +80,7 @@ import x10.constraint.XLit;
 import x10.constraint.XVar;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
+import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
@@ -102,7 +103,6 @@ import x10.util.StreamWrapper;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.debug.LineNumberMap;
 import x10cpp.types.X10CPPContext_c;
-import x10cuda.types.X10CUDAContext_c;
 
 public class Emitter {
 
@@ -1021,7 +1021,11 @@ public class Emitter {
 			    {
 			        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
 			        if (lineNumberMap != null) 
-			        	lineNumberMap.addClosureMember(name, t.toString(), ((X10CUDAContext_c)c).wrappingClosure(), c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+			        {
+			        	String hostClassName = translate_mangled_FQN(fullName(c.currentClass()).toString(), "_");
+			        	String wrappingClosure = MessagePassingCodeGenerator.getClosureName(hostClassName, c.closureId());
+			        	lineNumberMap.addClosureMember(name, t.toString(), wrappingClosure, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+			        } 
 			    }
 			}
 		}

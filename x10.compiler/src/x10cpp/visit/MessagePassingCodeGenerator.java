@@ -223,7 +223,6 @@ import x10cpp.X10CPPCompilerOptions;
 import x10cpp.X10CPPJobExt;
 import x10cpp.debug.LineNumberMap;
 import x10cpp.types.X10CPPContext_c;
-import x10cuda.types.X10CUDAContext_c;
 
 /**
  * Primary visitor for the C++ codegenerator.
