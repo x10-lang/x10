@@ -127,4 +127,5 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_initialize(JNIEnv *env, jc
 
     /* Register message receiver functions with X10RT native layer*/
     runClosureAt_HandlerID    = x10rt_register_msg_receiver(&jni_messageReceiver_runClosureAt, NULL, NULL, NULL, NULL);
+    x10rt_registration_complete();
 }
