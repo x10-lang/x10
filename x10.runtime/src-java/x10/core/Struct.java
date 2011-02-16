@@ -16,7 +16,7 @@ import x10.rtt.Type;
 import x10.rtt.Types;
 
 // Base class for all X10 structs
-public abstract class Struct implements Any {
+public abstract class Struct implements Any, Cloneable {
 
     public Struct() {}
 

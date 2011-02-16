@@ -1,6 +1,7 @@
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.CUDAUtilities;
+import x10.util.Vec;
 import x10.compiler.*;
 
 public class CUDAMatMul {
@@ -22,23 +23,6 @@ public class CUDAMatMul {
             for([i] in 0..(m-1))
                 err = Math.max( err, Math.abs( A(i+j*lda) - B(i+j*ldb) ) );
         return err;
-    }
-
-
-    static class MyRail[T] {
-        def this() {}
-
-        @Native("c++", "c")
-        static val c = new MyRail[Float]();
-
-        @Native("c++", "#1 #4[#5] = {0}")
-        native static def declare[U](MyRail[U], size:Int):void;
-
-        @Native("c++", "#4[#5]")
-        native static def get[U](MyRail[U], index:Int):U;
-
-        @Native("c++", "#4[#5] += #6")
-        native static def incr[U](MyRail[U], index:Int, value:U):void;
     }
 
     static def ourSgemm (gpu:Place, transa:Char, transb:Char, m:Int, n:Int, k:Int, alpha:Float,
@@ -67,345 +51,39 @@ public class CUDAMatMul {
                         val id = inx + iny*16;
 
                         var A_idx:Int = ibx + id;
-                        //var B_idx:Int = inx + CUDAUtilities.mul24( iby + iny, ldb );
-                        //var C_idx:Int = ibx + id  + CUDAUtilities.mul24( iby, ldc );
                         var B_idx:Int = inx + ( iby + iny) * ( ldb );
                         var C_idx:Int = ibx + id  + ( iby * ldc );
 
                         val Blast_idx = B_idx + k;
 
-                        MyRail.declare[Float](MyRail.c, 16);
+                        var c : Vec[Float]{size==16} = Vec.make[Float](16);
 
                         do
                         {
                             next;
-                            //@Unroll(4) for ([i] in 0..4-1) @NoInline bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb);
-                            { val i=0 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
-                            { val i=1 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
-                            { val i=2 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
-                            { val i=3 ; bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb); }
+
+                            @Unroll(4) for ([i] in 0..(4-1)) {
+                                bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb);
+                            }
+
                             next;
 
+                            @Unroll(16)for ([i] in 0..(16-1)) {
+                                @Unroll(16) for ([j] in 0..(16-1)) {
+                                    c(j) = c(j) + A(A_idx + i*lda) * bs(i*17 + j);
+                                }
+                            }
                             
-                            //@Unroll(16)for ([i] in 0..16-1) { 
-                            //    @Unroll(16) for ([j] in 0..16-1) {
-                            //        MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j));
-                            //    }
-                           // }
-                            
-                            { val i=0;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=1;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=2;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=3;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=4;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=5;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=6;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=7;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=8;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=9;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=10;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=11;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=12;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=13;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=14;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
-                            { val i=15;
-                                { val j=0 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=1 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=2 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=3 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=4 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=5 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=6 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=7 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=8 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=9 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=10 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=11 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=12 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=13 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=14 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                                { val j=15 ; MyRail.incr(MyRail.c, j, A(A_idx + i*lda) * @NoInline bs(i*17 + j)); }
-                            }
+                            // 4096 159.220289008341069 GF/s in 0.8632 seconds
 
                             A_idx += 16*lda;
                             B_idx += 16;
 
                         } while( B_idx < Blast_idx );
 
-                        //@Unroll(16)for ([i] in 0..16-1) { 
-                        //    C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc);
-                        //}
-                        { val i=0 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=1 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=2 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=3 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=4 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=5 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=6 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=7 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=8 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=9 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=10 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=11 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=12 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=13 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=14 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
-                        { val i=15 ; C(C_idx + i*ldc) = alpha*MyRail.get(MyRail.c,i) + beta*C(C_idx + i*ldc); }
+                        @Unroll(16) for ([i] in 0..(16-1)) { 
+                            C(C_idx + i*ldc) = alpha*c(i) + beta*C(C_idx + i*ldc);
+                        }
                     }
                 }
             }

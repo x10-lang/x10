@@ -159,6 +159,7 @@ import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
+import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MethodInstance;
@@ -464,6 +465,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write("} }.eval())");
 	}
 
+	private Type getType(String name) throws SemanticException {
+		return tr.typeSystem().systemResolver().findOne(QName.make(name));
+	}
+	
 	public void visit(LocalAssign_c n) {
 		Local l = n.local();
 		TypeSystem ts = tr.typeSystem();
@@ -473,6 +478,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(n.operator().toString());
 			w.write(" ");
 			er.coerce(n, n.right(), l.type());
+			if (isMutableStruct(l.type())) {
+				w.write(".clone()");
+			}
 		}
 		else {
 			Binary.Operator op = n.operator().binaryOperator();
@@ -486,6 +494,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			tr.print(n, n.right(), w);
 			w.write(")");
 		}
+	}
+
+	private boolean isMutableStruct(Type t) {
+		TypeSystem ts = tr.typeSystem();
+		t = Types.baseType(ts.expandMacros(t));
+		if (t.isClass()) {
+			X10ClassType ct = (X10ClassType) t;
+			try {
+				if (ct.isX10Struct()) {
+					X10ClassDef cd = (X10ClassDef) ct.def();
+					if (!cd.annotationsMatching(getType("x10.compiler.Mutable")).isEmpty()) {
+						return true;
+					}
+				}
+			} catch (SemanticException e) { }
+		}
+		return false;
 	}
 
 	public void visit(FieldAssign_c n) {
@@ -503,6 +528,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(n.operator().toString());
 			w.write(" ");
 			er.coerce(n, n.right(), n.fieldInstance().type());
+			if (isMutableStruct(n.fieldInstance().type())) {
+				w.write(".clone()");
+			}
 		}
 		else if (n.target() instanceof TypeNode || n.target() instanceof Local || n.target() instanceof Lit) {
 			// target has no side effects--evaluate it more than once
@@ -901,6 +929,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		X10ClassDef def = n.classDef();
 
+		boolean mutable_struct = false;
+		try {
+			if (def.isStruct() && !def.annotationsMatching(getType("x10.compiler.Mutable")).isEmpty()) {
+				mutable_struct = true;
+			}
+		} catch (SemanticException e) { }
+
 		// Do not generate code if the class is represented natively.
 		if (er.getJavaRep(def) != null) {
 			w.write(";");
@@ -1031,6 +1066,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //		if (def.isTopLevel()) {
 //			er.generateRTType(def);
 //		}
+
+		if (mutable_struct) {
+	        w.write("public ");
+			tr.print(n, n.name(), w);
+	        if (typeParameters.size() > 0) {
+				er.printTypeParams(n, context, typeParameters);
+			}
+	        w.write("clone() { try { return (");
+			tr.print(n, n.name(), w);
+	        if (typeParameters.size() > 0) {
+				er.printTypeParams(n, context, typeParameters);
+			}
+	        w.write(")super.clone(); } catch (CloneNotSupportedException e) { e.printStackTrace() ; return null; } }");
+	        w.newline();
+		}
 		
 		// XTENLANG-1102
 		er.generateRTTInstance(def);
@@ -1679,6 +1729,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     			            w.write("(");
     			            c.print(e, w, tr);
     			            w.write(")");
+    						if (isMutableStruct(e.type())) {
+    							w.write(".clone()");
+    						}
     			        }
     			        // XTENLANG-1704
     			        else {
@@ -1706,7 +1759,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     			            w.write("(");
     			            c.print(e, w, tr);
     			            w.write(")");
-    			            w.write(")");
+    						if (isMutableStruct(e.type())) {
+    							w.write(".clone()");
+    						}
+    						w.write(")");
     			        }
     			}
     			
@@ -1816,6 +1872,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             
             c.print(e, w, tr);
+			if (isMutableStruct(e.type())) {
+				w.write(".clone()");
+			}
             
             if(isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
                 w.write(")");
@@ -1931,6 +1990,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     			else {
                     c.print(e, w, tr);
     			}
+				if (isMutableStruct(e.type())) {
+					w.write(".clone()");
+				}
     			
     			if (i != l.size() - 1) {
     				w.write(",");
@@ -2575,6 +2637,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             
             //X10 unique
             er.coerce(n, n.init(), n.type().type());
+            
+			if (isMutableStruct(n.type().type())) {
+				w.write(".clone()");
+			}
+            
         }
         // assign default value for access vars in at or async
         else if (!n.flags().flags().isFinal()) {
