@@ -180,7 +180,7 @@ public class X10ClassBody_c extends ClassBody_c {
                 
                 if (hasCompatibleArguments(ci, cj, tc.context())) {
                     Errors.issue(tc.job(),
-                            new Errors.DublicateConstructor(cj, ci, cj.position()));
+                            new Errors.DuplicateConstructor(cj, ci, cj.position()));
                 }
             }
         }
@@ -284,7 +284,7 @@ public class X10ClassBody_c extends ClassBody_c {
 
                 if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj, tc.context())) {
                     Errors.issue(tc.job(),
-                            new Errors.DumplicateTypeDefinition(mj, mi, mj.position()),
+                            new Errors.DuplicateTypeDefinition(mj, mi, mj.position()),
                             this);
                 }
             }

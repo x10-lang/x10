@@ -705,6 +705,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     boolean isOldSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
+
+    	if (t1 == t2) 
+    		return true;
+
     	if (ts.hasUnknown(t1) || ts.hasUnknown(t2)) return true;
 
     	if (t1.isVoid())
@@ -740,10 +744,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		}
     	}
     	
-    	if (t1 == t2) 
-    		return true;
-
-
     	if (t1.isNull())
     		return Types.permitsNull(t2);
     	
@@ -1969,7 +1969,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    return Collections.<ConstructorInstance>emptyList();
 	}
 
-	List<ConstructorInstance> list = ((ClassType) container).constructors();
+	X10ParsedClassType containerClass = (X10ParsedClassType) container.toClass();
+	List<Type> tas = containerClass.typeArguments();
+	TypeConstraint tb = Types.get(containerClass.x10Def().typeBounds());
+	if (tas != null && tb != null) {
+	    TypeConstraint ntb = containerClass.subst().reinstantiate(tb);
+	    if (!ntb.consistent(context))
+	        error = new Errors.TypeGuardNotEntailed(tb, container);
+	}
+
+	List<ConstructorInstance> list = containerClass.constructors();
+	if (error != null) list = Collections.<ConstructorInstance>emptyList();
 	for (ConstructorInstance ci : list) {
 	    if (reporter.should_report(Reporter.types, 3))
 		reporter.report(3, "Trying " + ci);

@@ -77,6 +77,7 @@ import x10.types.X10ProcedureInstance;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 /**
  * Start at centralizing Error messages. Goal is to support standardization of error messages for
@@ -142,49 +143,41 @@ public class Errors {
     // todo Yoav added: I use serialVersionUID=1L like lpg parser. We should increment it if an class changes.
     
     public static class ClassCannotHaveSuperInterface extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public ClassCannotHaveSuperInterface(ClassType type, Position p) {
 			super("Class " + type + " cannot have a superinterface.", p);
 		}
 	}
     public static class SuperInterfaceNotInterface extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public SuperInterfaceNotInterface(Type t, ClassType type, Position p) {
 			super("Superinterface " + t + " of " + type + " is not an interface.", p);
 		}
 	}
     public static class CannotHaveSuperclass extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public CannotHaveSuperclass(ClassType type, Position p) {
 			super("Class \"" + type + "\" cannot have a superclass.", p);
 		}
 	}
     public static class ExtendedFinalClass extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public ExtendedFinalClass(ClassType type, Position p) {
 			super("Cannot extend final class \"" + type.superClass() + "\".", p);
 		}
 	}
     public static class ExtendedNonClass extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public ExtendedNonClass(ClassType type, Position p) {
 			super("Cannot extend non-class \"" + type.superClass() + "\".", p);
 		}
 	}
     public static class InnerDeclaredStatic extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public InnerDeclaredStatic(ClassType type, Position p) {
 			super("Inner classes cannot declare static member classes.", p);
 		}
 	}
     public static class InnerDeclaredInterface extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public InnerDeclaredInterface(ClassType type, Position p) {
 			super("Inner classes cannot declare member interfaces.", p);
 		}
 	}
     public static class SameNameLocal extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public SameNameLocal(ClassType type, Position p) {
 			super("Cannot declare local " +
                                     "class \"" + type + "\" within the same " +
@@ -194,7 +187,6 @@ public class Errors {
 	}
 
     public static class SameNameClass extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public SameNameClass(ClassType type, Position p) {
 			super("Cannot declare member " +
                                 "class \"" + type.fullName() +
@@ -203,7 +195,6 @@ public class Errors {
 		}
     }
 	public static class DuplicateMember extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = -1L;
 		public DuplicateMember(TypeObject def) {
 			super("Duplicate member " + def, def.position());
 		}
@@ -1028,8 +1019,8 @@ public class Errors {
 			super("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", p);
 		}
 	}
-	public static class DublicateConstructor extends EqualByTypeAndPosException {
-		public DublicateConstructor(X10ConstructorDef cj, X10ConstructorDef ci, Position p) {
+	public static class DuplicateConstructor extends EqualByTypeAndPosException {
+		public DuplicateConstructor(X10ConstructorDef cj, X10ConstructorDef ci, Position p) {
 			super("Duplicate constructor \"" + cj + "\"; previous declaration at " + ci.position() + ".", p);
 		}
 	}
@@ -1222,13 +1213,8 @@ public class Errors {
         }
     }
 	public static class CouldNotFindEnclosingClass extends EqualByTypeAndPosException {
-        public CouldNotFindEnclosingClass(polyglot.types.Name name, Position p) {
+        public CouldNotFindEnclosingClass(Name name, Position p) {
             super("Could not find enclosing class or package for type definition \"" + name + "\".", p);
-        }
-    }
-	public static class TypeIsconsistent extends EqualByTypeAndPosException {
-        public TypeIsconsistent(Type t, Position p) {
-            super("Type " + t + " is inconsistent.", p);
         }
     }
 	public static class SuperTypeIsNotAClass extends EqualByTypeAndPosException {
@@ -1255,7 +1241,7 @@ public class Errors {
         }
     }
 	public static class UnableToFindImplementingPropertyMethod extends EqualByTypeAndPosException {
-        public UnableToFindImplementingPropertyMethod(polyglot.types.Name name, Position p) {
+        public UnableToFindImplementingPropertyMethod(Name name, Position p) {
             super("Unable to find the implementing property method for interface property "+name, p);
         }
     }
@@ -1265,7 +1251,7 @@ public class Errors {
         }
     }
 	public static class LocalVariableNotAllowedInContainer extends EqualByTypeAndPosException {
-        public LocalVariableNotAllowedInContainer(polyglot.types.Name liName, Position p) {
+        public LocalVariableNotAllowedInContainer(Name liName, Position p) {
             super("A var local variable " + liName
 					+ " is not allowed in a constraint.", 
 					p);
@@ -1419,8 +1405,8 @@ public class Errors {
                     + " override methods with compatible signatures.", p);
         }
     }
-	public static class DumplicateTypeDefinition extends EqualByTypeAndPosException {
-		public DumplicateTypeDefinition(TypeDef mj, TypeDef mi, Position p) {
+	public static class DuplicateTypeDefinition extends EqualByTypeAndPosException {
+		public DuplicateTypeDefinition(TypeDef mj, TypeDef mi, Position p) {
             super("Duplicate type definition \"" + mj + "\"; previous declaration at " + mi.position() + ".", p);
         }
     }
@@ -1495,6 +1481,11 @@ public class Errors {
 	public static class MaxMacroExpansionDepth extends EqualByTypeAndPosException {
 		public MaxMacroExpansionDepth(Type t, Position p) {
             super("Reached max macro expansion depth with " + t, p);
+        }
+    }
+    public static class TypeGuardNotEntailed extends SemanticException {
+        public TypeGuardNotEntailed(TypeConstraint tb, Type container) {
+            super("Cannot instantiate type "+container+": type guard "+tb+" not entailed.");
         }
     }
 }
