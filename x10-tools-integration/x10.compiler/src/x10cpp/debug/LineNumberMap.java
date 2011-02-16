@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -304,8 +304,8 @@ public class LineNumberMap extends StringTable {
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
 	private static ArrayList<Integer> refMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
-	private static Hashtable<Integer, ArrayList<MemberVariableMapInfo>> memberVariables;
-	private static Hashtable<Integer, ClosureMapInfo> closureMembers;
+	private static LinkedHashMap<Integer, ArrayList<MemberVariableMapInfo>> memberVariables;
+	private static LinkedHashMap<Integer, ClosureMapInfo> closureMembers;
 	
 	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
@@ -421,7 +421,7 @@ public class LineNumberMap extends StringTable {
 	public void addClassMemberVariable(String name, String type, String containingClass)
 	{
 		if (memberVariables == null)
-			memberVariables = new Hashtable<Integer, ArrayList<LineNumberMap.MemberVariableMapInfo>>();
+			memberVariables = new LinkedHashMap<Integer, ArrayList<LineNumberMap.MemberVariableMapInfo>>();
 		ArrayList<MemberVariableMapInfo> members = memberVariables.get(stringId(containingClass));
 		if (members == null)
 		{
@@ -452,7 +452,7 @@ public class LineNumberMap extends StringTable {
 		if (startLine == endLine) return;
 		
 		if (closureMembers == null)
-			closureMembers = new Hashtable<Integer, ClosureMapInfo>();
+			closureMembers = new LinkedHashMap<Integer, ClosureMapInfo>();
 		ClosureMapInfo cm = closureMembers.get(stringId(containingClass));
 		if (cm == null)
 		{
@@ -926,7 +926,31 @@ public class LineNumberMap extends StringTable {
 	        {
 		        w.writeln("static const struct _X10LocalVarMap _X10variableNameList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		        for (LocalVariableMapInfo v : localVariables)
-		        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+(v._x10type==101?offsets[v._x10typeIndex]:v._x10typeIndex)+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" }, // "+m.lookupString(v._x10name));
+		        {
+		        	int typeIndex = 0;
+		        	if (v._x10type==101)
+		        	{
+		        		if (memberVariables != null && memberVariables.containsKey(v._x10typeIndex))
+		        		{
+		        			int index = 0;
+		        			for (Integer classId : memberVariables.keySet())
+		        			{
+		        				if (classId == v._x10typeIndex)
+		        				{
+		        					typeIndex = index;
+		        					break;
+		        				}
+		        				else
+		        					index++;
+		        			}
+		        		}
+		        		else
+		        			typeIndex = offsets[v._x10typeIndex] * -1;
+		        	}
+		        	else
+		        		typeIndex = v._x10typeIndex;
+		        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+typeIndex+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" }, // "+m.lookupString(v._x10name));
+		        }
 		        w.writeln("};");
 		        w.forceNewline();
 	        }
