@@ -47,6 +47,17 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1init(JNIEnv *env, jclass, jin
 
 /*
  * Class:     x10_x10rt_X10RT
+ * Method:    x10rt_registration_complete
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1registration_1complete(JNIEnv *, jclass) {
+    x10rt_registration_complete();
+    return 0;
+}
+
+
+/*
+ * Class:     x10_x10rt_X10RT
  * Method:    x10rt_finalize
  * Signature: ()I
  */

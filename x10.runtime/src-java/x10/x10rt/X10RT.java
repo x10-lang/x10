@@ -125,6 +125,8 @@ public class X10RT {
     
     private static native int x10rt_finalize();
 
+    public static native int x10rt_registration_complete();
+
     /*
      * Native method exported from x10rt_front.h that are related to Places
      */

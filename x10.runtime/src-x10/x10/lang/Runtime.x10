@@ -92,6 +92,10 @@ import x10.util.Box;
         dealloc(closure);
     }
 
+    // must be called once XRX is initialized prior to sending messages
+    @Native("c++", "x10rt_registration_complete()")
+    @Native("java", "x10.x10rt.X10RT.x10rt_registration_complete()")
+    static native def x10rt_registration_complete():void;
 
     //Work-Stealing Runtime Related Interface
     public static def wsProcessEvents():void {
@@ -556,6 +560,7 @@ import x10.util.Box;
         try {
             // initialize runtime
             runtime.set(new Runtime(pool));
+            x10rt_registration_complete();
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(pool.latch);
