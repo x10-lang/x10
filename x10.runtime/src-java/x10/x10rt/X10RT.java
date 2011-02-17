@@ -116,6 +116,13 @@ public class X10RT {
       return state.compareTo(State.BOOTED) >= 0;
     }
 
+    /**
+     * To be called once XRX is ready to process incoming asyncs.
+     */
+    public static void registration_complete() {
+        if (!forceSinglePlace) x10rt_registration_complete();
+    }
+
     /*
      * Native methods exported from x10rt_front.h that are 
      * related to initialization and finalization of the X10RT library.
@@ -125,7 +132,7 @@ public class X10RT {
     
     private static native int x10rt_finalize();
 
-    public static native int x10rt_registration_complete();
+    private static native int x10rt_registration_complete();
 
     /*
      * Native method exported from x10rt_front.h that are related to Places
