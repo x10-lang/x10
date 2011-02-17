@@ -63,3 +63,7 @@ do
     #ssh $host rm -rf /tmp/x10-rc-$USER 
 done
 
+echo "Packaging benchmarks"
+./packageBenchmarks.sh -dir /tmp/x10-bench-$USER -version $version -tag $tag
+echo "transfering benchmarks tar to orquesta"
+scp /tmp/x10-bench-$USER/x10-benchmarks-$version.tar.bz2 orquesta.watson.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version 

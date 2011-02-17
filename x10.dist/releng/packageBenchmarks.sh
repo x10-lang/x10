@@ -1,7 +1,7 @@
 #!/bin/bash
 
 svn_command=export
-workdir=/tmp/x10-distribution
+workdir=/tmp/x10-bench-dist
 
 while [ $# != 0 ]; do
 
@@ -61,9 +61,9 @@ do
 done
 )
 
-tarfile="x10-benchmarks-$X10_VERSION"".tgz"
+tarfile="x10-benchmarks-$X10_VERSION"".tar.bz2"
 echo "The benchmarks are now exported to the directory $workdir"
 
 cd $workdir
-eval tar -cvzf "$tarfile" x10-benchmarks-$X10_VERSION
+eval tar -cjf "$tarfile" x10-benchmarks-$X10_VERSION
 
