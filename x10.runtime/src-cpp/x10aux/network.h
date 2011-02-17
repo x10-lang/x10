@@ -20,6 +20,8 @@
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 namespace x10 { namespace lang { class Reference; } }
+namespace x10 { namespace lang { class String; } }
+namespace x10 { namespace util { template <class K, class V> class HashMap; } }
 
 namespace x10aux {
 
@@ -109,6 +111,8 @@ namespace x10aux {
 #include <x10aux/ref.h>
 
 namespace x10aux {
+
+    x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > loadenv();
 
     void run_closure_at (place p, x10aux::ref<x10::lang::Reference> body);
     void run_async_at (place p, x10aux::ref<x10::lang::Reference> body, x10aux::ref<x10::lang::Reference> fs);

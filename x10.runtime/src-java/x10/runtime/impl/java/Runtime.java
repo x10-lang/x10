@@ -14,6 +14,7 @@ package x10.runtime.impl.java;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 import x10.core.ThrowableUtilities;
 import x10.rtt.RuntimeType;
@@ -262,6 +263,20 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	 */
 	public static void eventProbe(){
 		X10RT.probe();
+	}
+
+	/**
+	 * Load environment variables.
+	 */
+	public static x10.util.HashMap<String,String> loadenv() {
+	    Map<String,String> env = System.getenv();
+	    x10.util.HashMap<String,String> map = new x10.util.HashMap<String,String>(x10.rtt.Types.STRING,x10.rtt.Types.STRING);
+	    for(Map.Entry<String, String> e : env.entrySet()) {
+	        if (e.getKey().startsWith("X10_")) {
+	            map.put_0_$$x10$util$HashMap_K_1_$$x10$util$HashMap_V(e.getKey(), e.getValue());
+	        }
+	    }
+	    return map;
 	}
 
 	/**

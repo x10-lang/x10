@@ -15,6 +15,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/basic_functions.h>
+#include <x10aux/string_utils.h>
 
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
@@ -27,6 +28,10 @@
 #include <x10/lang/Runtime.h>
 
 #include <strings.h>
+
+#ifdef __MACH__
+#include <crt_externs.h>
+#endif
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -509,6 +514,27 @@ void x10aux::coll_handler2(x10rt_team id, void *arg) {
     *t = id;
     x10aux::dealloc(p);
     fs->notifyActivityTermination();
+}
+
+
+x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > x10aux::loadenv() {
+#ifdef __MACH__
+    char** environ = *_NSGetEnviron();
+#else
+    extern char **environ;
+#endif
+    x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > map = x10::util::HashMap<x10aux::ref<x10::lang::String>, x10aux::ref<x10::lang::String> >::_make();
+    for (unsigned i=0 ; environ[i]!=NULL ; ++i) {
+        if (strncmp(environ[i], "X10_", 4)==0) {
+            char *var = x10aux::string_utils::strdup(environ[i]);
+            *strchr(var,'=') = '\0';
+            char* val = getenv(var);
+            assert(val!=NULL);
+//            fprintf(stderr, "Loading environment variable %s=%s\n", var, val);
+            map->put(x10::lang::String::Lit(var), x10::lang::String::Lit(val));
+        }
+    }
+    return map;
 }
 
 
