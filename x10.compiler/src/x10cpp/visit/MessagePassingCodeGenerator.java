@@ -57,6 +57,7 @@ import java.util.Set;
 import java.util.Map;
 
 
+import polyglot.ast.Allocation_c;
 import polyglot.ast.AmbReceiver;
 import polyglot.ast.ArrayAccess_c;
 import polyglot.ast.ArrayInit_c;
@@ -77,6 +78,7 @@ import polyglot.ast.ClassBody_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall;
+import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
@@ -253,8 +255,49 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		//n.translate(w, tr);
 	}
 
+    public void visit(Allocation_c n) {
+        Type type = n.type();
+        String typeName = Emitter.translateType(type);
+        ClassifiedStream b = sw.body();
+        b.allowBreak(0, " ");
+        if (Types.isX10Struct(type)) {
+            b.write(typeName+ "::" +SharedVarsMethods.ALLOC+ "()");
+        } else {
+            // XTENLANG-1407: Remove this memset call once we finish the default value specification/implementation.
+            //                Expect it to be more efficient to explicitly initialize all of the object fields instead
+            //                of first calling memset, then storing into most of the fields a second time.
+            b.write("(new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"())"); 
+        }
+    }
 
-
+    public void visit(ConstructorCall_c s) {
+        Expr target = s.target();
+        ConstructorCall call = (ConstructorCall)s;
+        if (call.kind() == ConstructorCall.SUPER) {
+            assert false; // For now, this case is handled by visit(ConstructorDecl_c)
+        } else if (call.kind() == ConstructorCall.THIS) {
+            sw.write("(");
+            s.print(target, sw, tr);
+            sw.write(")->" +SharedVarsMethods.CONSTRUCTOR+ "(");
+        }
+        if (call.arguments().size() > 0) {
+            sw.allowBreak(2, 2, "", 0); // miser mode
+            sw.begin(0);
+            boolean first = true;
+            for (Expr e : (List<Expr>) call.arguments() ) {
+                if (!first) {
+                    sw.write(",");
+                    sw.allowBreak(0, " ");
+                }
+                s.print(e, sw, tr);
+                first = false;
+            }
+            sw.end();
+        }
+        sw.write(");");
+        sw.newline();
+    }
+    
     public void visit(TypeDecl_c n) {
         // do nothing
         sw.write(" /* " + n + " *" + "/ ");
@@ -1367,6 +1410,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         generateITablesForStruct(currentClass, context, xts, sh, h);
 
+        // create static _alloc method
+        sh.newline();
+        sh.write("static " +StructCType+ " " +SharedVarsMethods.ALLOC+ "(){" +StructCType+ " t; return t; }");
+        sh.newline();
+        sh.forceNewline();
+        
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 

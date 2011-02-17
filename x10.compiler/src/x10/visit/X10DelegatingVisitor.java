@@ -12,6 +12,7 @@
 package x10.visit;
 
 import polyglot.ast.AbstractBlock_c;
+import polyglot.ast.Allocation_c;
 import polyglot.ast.AmbAssign_c;
 import polyglot.ast.AmbExpr_c;
 import polyglot.ast.AmbPrefix_c;
@@ -156,6 +157,7 @@ public class X10DelegatingVisitor {
 	 * Note that the order of invocation of the various visit() methods is significant!
 	 */
 	public void visitAppropriate(JL n) {
+	    if (n instanceof Allocation_c) { visit((Allocation_c)n); return; }
 		if (n instanceof Id_c) { visit((Id_c)n); return; }
 		if (n instanceof NodeList_c) { visit((NodeList_c)n); return; }
 		if (n instanceof AnnotationNode_c) { visit((AnnotationNode_c)n); return; }
@@ -313,6 +315,7 @@ public class X10DelegatingVisitor {
 			public void visit(ConstructorDecl_c n) { visit((Term_c)n); }
 				public void visit(X10ConstructorDecl_c n) { visit((ConstructorDecl_c)n); }
 			public void visit(Expr_c n) { visit((Term_c)n); }
+			    public void visit(Allocation_c n) { visit((Expr_c)n); }
 				public void visit(AmbExpr_c n) { visit((Expr_c)n); }
 				public void visit(ArrayAccess_c n) { visit((Expr_c)n); }
 				public void visit(ArrayInit_c n) { visit((Expr_c)n); }
