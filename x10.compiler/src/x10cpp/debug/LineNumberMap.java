@@ -356,7 +356,7 @@ public class LineNumberMap extends StringTable {
 		if (type.startsWith("x10.array.Region"))
 			return 300;
 		if (type.contains("_closure_"))
-			return 100;			
+			return 100;
 		return 101; // generic class
 	}
 	
@@ -472,7 +472,9 @@ public class LineNumberMap extends StringTable {
 				v._x10typeIndex = determineSubtypeId(type, refMap);
 			else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 				v._x10typeIndex = determineSubtypeId(type, arrayMap);
-			else 
+			else if (v._x10type == 101) // save the type for later - it may be a class in our class table
+				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type));
+			else
 				v._x10typeIndex = -1;
 			v._x10memberName = stringId(name);
 			v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
@@ -990,7 +992,30 @@ public class LineNumberMap extends StringTable {
 	    		{
 	    			w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 			        for (MemberVariableMapInfo v : cmi.closureMembers)
-			        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+			        {
+			        	int typeIndex;
+			        	if (v._x10type == 101) 
+			        	{
+			        		// see if this class is defined in our class mappings				        	
+			        		typeIndex = -1;
+				        	if (memberVariables != null)
+				        	{
+				        		int index = 0;
+				            	for (Integer memberId : memberVariables.keySet())
+				            	{
+				            		if (memberId == v._x10typeIndex)
+				            		{
+				            			typeIndex = index;
+				            			break;
+				            		}
+				            		index++;
+				            	}
+				        	}				        		
+			        	}
+			        	else
+			        		typeIndex = v._x10typeIndex;
+			        	w.writeln("    { "+v._x10type+", "+typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+			        }
 				    w.writeln("};");
 				    w.forceNewline();
 	    		}
