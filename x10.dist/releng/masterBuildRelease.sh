@@ -45,11 +45,21 @@ do
     scp buildRelease.sh $host:/tmp 
     ssh $host "bash -l -c 'cd /tmp; ./buildRelease.sh -dir /tmp/x10-rc-$USER -version $version -tag $tag'"
     ssh $host "(cd /tmp; rm ./buildRelease.sh)"
-    echo "transfering file from $host to localhost"
+    echo "transfering binary build from $host to localhost"
     scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.dist/x10-$version*.tgz" .
     echo "transfering from localhost to orquesta"
     scp x10-$version*.tgz orquesta.watson.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version
     rm x10-$version*.tgz
+
+    if [[ -z "$pushed_source" ]]; then
+	echo "transfering source build and testsuite from $host to localhost"
+	scp "$host:/tmp/x10-rc-$USER/x10-$version/x10-$version*.tar.bz2" .
+	echo "transfering from localhost to orquesta"
+	scp x10-$version*.tar.bz2 orquesta.watson.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version
+	rm x10-$version*.tar.bz2
+	export pushed_source="done"
+    fi
+
     #ssh $host rm -rf /tmp/x10-rc-$USER 
 done
 
