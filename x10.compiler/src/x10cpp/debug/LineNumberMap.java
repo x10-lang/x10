@@ -15,9 +15,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.Map;
@@ -446,11 +448,6 @@ public class LineNumberMap extends StringTable {
 	
 	public void addClosureMember(String name, String type, String containingClass, String file, int startLine, int endLine)
 	{
-		// TODO - this "if" is a hack.  I want source code that has a real async to map to a closure, 
-		// but I want to hide closures that are generated under the covers.  I can't find a good way to 
-		// determine this, so in the meantime, I'm just throwing out all the 1-line closures.		
-		if (startLine == endLine) return;
-		
 		if (closureMembers == null)
 			closureMembers = new LinkedHashMap<Integer, ClosureMapInfo>();
 		ClosureMapInfo cm = closureMembers.get(stringId(containingClass));
@@ -459,8 +456,6 @@ public class LineNumberMap extends StringTable {
 			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size());
 			cm = new ClosureMapInfo();			
 			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
-			cm._x10startLine = startLine;
-			cm._x10endLine = endLine;
 			cm._sizeOfArg = containingClass;
 			closureMembers.put(stringId(containingClass), cm);
 		}
@@ -469,6 +464,8 @@ public class LineNumberMap extends StringTable {
 			cm._sizeOfArg = type.replaceAll("FMGL", "class FMGL");
 		else
 		{
+			cm._x10startLine = startLine;
+			cm._x10endLine = endLine;
 			MemberVariableMapInfo v = new MemberVariableMapInfo();
 			v._x10type = determineTypeId(type);
 			if (v._x10type == 203)
@@ -987,11 +984,14 @@ public class LineNumberMap extends StringTable {
         	{
 	    		String classname = m.lookupString(classId);
 	    		ClosureMapInfo cmi = closureMembers.get(classId);
-	    		w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		        for (MemberVariableMapInfo v : cmi.closureMembers)
-		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
-			    w.writeln("};");
-			    w.forceNewline();
+	    		if (cmi._x10endLine != cmi._x10startLine) // this is a hack to skip generated closures
+	    		{
+	    			w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+			        for (MemberVariableMapInfo v : cmi.closureMembers)
+			        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+				    w.writeln("};");
+				    w.forceNewline();
+	    		}
         	}	    	
 		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
 		    int index = 0;
@@ -999,8 +999,11 @@ public class LineNumberMap extends StringTable {
 		    {
 		    	String classname = m.lookupString(classId);
 		    	ClosureMapInfo cmi = closureMembers.get(classId);
-		    	w.writeln("    { 100, "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi.closureMembers.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
-		    	index++;
+		    	if (cmi._x10endLine != cmi._x10startLine)
+		    	{
+		    		w.writeln("    { 100, "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi.closureMembers.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+		    		index++;
+		    	}
 		    }
 		    w.writeln("};");
 		    w.forceNewline();
