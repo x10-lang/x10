@@ -956,14 +956,16 @@ public class LineNumberMap extends StringTable {
 	        
         if (memberVariables != null)
         {
+        	int index = 0;
         	for (Integer classId : memberVariables.keySet())
         	{
         		String classname = m.lookupString(classId);
 		        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		        for (MemberVariableMapInfo v : memberVariables.get(classId))
-		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+		        	w.writeln("    { "+v._x10type+", "+index+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 			    w.writeln("};");
 			    w.forceNewline();
+			    index++;
         	}
         	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) = {");
         	for (Integer classId : memberVariables.keySet())
