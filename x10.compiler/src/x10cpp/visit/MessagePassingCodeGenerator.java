@@ -121,6 +121,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
+import polyglot.main.Reporter;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
@@ -234,11 +235,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	protected Emitter emitter;
 	protected ASTQuery query;
+	protected Reporter reporter;
+	
 	public MessagePassingCodeGenerator(StreamWrapper sw, Translator tr) {
 		this.sw = sw;
 		this.tr = tr;
 		this.emitter = new Emitter(tr);
 		this.query = new ASTQuery(tr);
+		this.reporter = tr.job().extensionInfo().getOptions().reporter;
 	}
 
 	public void visit(Node n) {
@@ -2683,8 +2687,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(For_c n) {
-		// FIXME: Generate normal for-loop code, without
-		// separating out the inits. [Krishna]
 
 		String label = null;
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -2695,36 +2697,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		sw.write("{");
 		sw.newline(4); sw.begin(0);
-		if (n.inits() != null) {
-			for (ForInit s : n.inits()) {
-				if (s instanceof LocalDecl_c) {
-					LocalDecl_c dec = (LocalDecl_c) s;
-					emitter.printHeader(dec, sw, tr, true);
-					sw.write(";");
-					sw.newline(0);
-				}
-			}
-		}
-
+		
 		sw.newline(0);
 		sw.write("for (");
 		sw.begin(0);
 
-		if (n.inits() != null) {
-			for (Iterator<ForInit> i = n.inits().iterator(); i.hasNext(); ) {
-				ForInit s = i.next();
-				boolean oldSemiColon = tr.appendSemicolon(false);
-				boolean oldPrintType = tr.printType(false);
-				n.printBlock(s, sw, tr);
-				tr.printType(oldPrintType);
-				tr.appendSemicolon(oldSemiColon);
-
-				if (i.hasNext()) {
-					sw.write(",");
-					sw.allowBreak(2, " ");
-				}
-			}
-		}
+        if (n.inits() != null) {
+            for (Iterator<ForInit> i = n.inits().iterator(); i.hasNext();) {
+                ForInit s = i.next();
+                boolean oldSemiColon = tr.appendSemicolon(false);
+                n.printBlock(s, sw, tr);
+                tr.appendSemicolon(oldSemiColon);
+                if (i.hasNext()) {
+                    sw.write(",");
+                    sw.allowBreak(2, " ");
+                }
+            }
+        }
 
 		sw.write(";");
 		sw.allowBreak(0);
