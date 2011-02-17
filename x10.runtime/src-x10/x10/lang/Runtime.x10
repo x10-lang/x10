@@ -94,7 +94,7 @@ import x10.util.Box;
 
     // must be called once XRX is initialized prior to sending messages
     @Native("c++", "x10rt_registration_complete()")
-    @Native("java", "x10.x10rt.X10RT.x10rt_registration_complete()")
+    @Native("java", "x10.x10rt.X10RT.registration_complete()")
     static native def x10rt_registration_complete():void;
 
     //Work-Stealing Runtime Related Interface
