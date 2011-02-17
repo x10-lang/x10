@@ -8,7 +8,7 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="X10RT_IMPL" value="pgas_sockets"/>
+<mapEntry key="X10RT_IMPL" value="sockets"/>
 <mapEntry key="X10_DIST" value="${project_loc:x10.dist}"/>
 </mapAttribute>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
