@@ -503,9 +503,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (expanded instanceof ParameterType) {
                 ParameterType pt = (ParameterType) expanded;
                 X10Def def = (X10Def) Types.get(pt.def());
-                Ref<TypeConstraint> ref = def.typeGuard();
-                if (ref != null) {
-                	 TypeConstraint c = Types.get(def.typeGuard());
+                TypeConstraint c = context.currentTypeConstraint();
+                if (c != null) {
                      List<Type> b = getBoundsFromConstraint(pt, c, kind);
                      worklist.addAll(b);
                 }

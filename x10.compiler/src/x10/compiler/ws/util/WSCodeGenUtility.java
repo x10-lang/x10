@@ -38,6 +38,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
@@ -366,7 +367,21 @@ public class WSCodeGenUtility {
                 methodDef.returnType(), 
                 Name.make(WSCodeGenUtility.getMethodFastPathName(methodDef)), 
                 formalTypes);
-        mDef.setFormalNames(new ArrayList<LocalDef>()); // FIXME
+
+        List<LocalDef> formalNames = new ArrayList<LocalDef>();
+        Name workerName = Name.make("worker");
+        LocalDef workerLDef = methodDef.typeSystem().localDef(methodDef.position(), Flags.FINAL, Types.ref(wts.workerType), workerName);
+        Name upName = Name.make("up");
+        LocalDef upLDef = methodDef.typeSystem().localDef(methodDef.position(), Flags.FINAL, Types.ref(wts.frameType), upName);
+        Name ffName = Name.make("ff");
+        LocalDef ffLDef = methodDef.typeSystem().localDef(methodDef.position(), Flags.FINAL, Types.ref(wts.finishFrameType), ffName);
+        formalNames.add(workerLDef);
+        formalNames.add(upLDef);
+        formalNames.add(ffLDef);
+        for(LocalDef f : methodDef.formalNames()){
+            formalNames.add(f); //all formals are added in
+        }
+        mDef.setFormalNames(formalNames);
     	return mDef;
     }
     

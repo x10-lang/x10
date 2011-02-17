@@ -92,6 +92,10 @@ import x10.util.Box;
         dealloc(closure);
     }
 
+    // must be called once XRX is initialized prior to sending messages
+    @Native("c++", "x10rt_registration_complete()")
+    @Native("java", "x10.x10rt.X10RT.registration_complete()")
+    static native def x10rt_registration_complete():void;
 
     //Work-Stealing Runtime Related Interface
     public static def wsProcessEvents():void {
@@ -556,6 +560,7 @@ import x10.util.Box;
         try {
             // initialize runtime
             runtime.set(new Runtime(pool));
+            x10rt_registration_complete();
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(pool.latch);
@@ -753,7 +758,7 @@ import x10.util.Box;
     public static def evalAt[T](place:Place, eval:()=>T):T {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
-            return deepCopy(eval)();
+            return deepCopy(deepCopy(eval)());
         }
         @StackAllocate val me = @StackAllocate new Remote[T]();
         val box = GlobalRef(me);
