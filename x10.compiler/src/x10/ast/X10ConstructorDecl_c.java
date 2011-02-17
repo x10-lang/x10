@@ -212,7 +212,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         // Set the constructor name to the short name of the class, to shut up the Java type-checker.
         // The X10 parser has "this" for the name.
-        n = (X10ConstructorDecl_c) n.name(nf.Id(n.position(), currentClass.name()));
+        n = (X10ConstructorDecl_c) n.name(nf.Id(n.position().markCompilerGenerated(), currentClass.name()));
 
         TypeNode htn = (TypeNode) n.visitChild(n.hasType, tb);
         n = (X10ConstructorDecl_c) n.hasType(htn);
@@ -224,9 +224,9 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             rType = Types.instantiateTypeParametersExplicitly(rType);
             if (ci.derivedReturnType()) {
                 ci.inferReturnType(true);
-                rtn = nf.CanonicalTypeNode(n.position(), Types.lazyRef(rType));
+                rtn = nf.CanonicalTypeNode(n.position().markCompilerGenerated(), Types.lazyRef(rType));
             } else {
-                rtn = nf.CanonicalTypeNode(n.position(), rType);
+                rtn = nf.CanonicalTypeNode(n.position().markCompilerGenerated(), rType);
             }
         }
         n = (X10ConstructorDecl_c) n.returnType(rtn);
