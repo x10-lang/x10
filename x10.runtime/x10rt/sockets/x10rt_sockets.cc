@@ -46,7 +46,6 @@ typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
 enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
-#define X10LAUNCHER_FORCEPORTS "X10LAUNCHER_FORCEPORTS"
 //#define DEBUG_MESSAGING 1
 
 struct x10SocketCallback
@@ -64,6 +63,7 @@ struct x10SocketState
 	x10rt_msg_type callBackTableSize; // length of the above array
 	char* myhost; // my own hostname, so I can detect places that are on the same machine and use localhost instead.
 	bool yieldAfterProbe; // a little flag that adds sched_yield() after probe, for better performance when there are more workers than processors on a machine (or when debugging).
+	bool linkAtStartup; // this flag tells us that we should establish all our connections at startup, not on-demand
 	pthread_mutex_t readLock; // a lock to prevent overlapping reads on each socket
 	uint32_t nextSocketToCheck; // this is used in the socket read loop so that we don't give preference to the low-numbered places
 	struct pollfd* socketLinks; // the file descriptors for each socket to other places
@@ -90,7 +90,7 @@ void error(const char* message)
 
 int getPortEnv(unsigned int whichPlace)
 {
-	char* p = getenv(X10LAUNCHER_FORCEPORTS);
+	char* p = getenv(X10_FORCEPORTS);
 	if (p != NULL)
 	{
 		// find our port number in the list
@@ -99,7 +99,7 @@ int getPortEnv(unsigned int whichPlace)
 		for (unsigned int i=1; i<=whichPlace; i++)
 		{
 			if (end == NULL)
-				error("Not enough ports defined in "X10LAUNCHER_FORCEPORTS);
+				error("Not enough ports defined in "X10_FORCEPORTS);
 
 			start = end+1;
 			end = strchr(start, ',');
@@ -119,6 +119,9 @@ int getPortEnv(unsigned int whichPlace)
 
 void handleConnectionRequest()
 {
+	#ifdef DEBUG
+		printf("X10rt.Sockets: place %u handling a connection request.\n", state.myPlaceId);
+	#endif
 	int newFD = TCP::accept(state.socketLinks[state.myPlaceId].fd, true);
 	if (newFD > 0)
 	{
@@ -243,7 +246,7 @@ int initLink(uint32_t remotePlace)
 			else
 			{
 				strcpy(link, "localhost\0");
-				if (getenv(X10_HOSTFILE)) fprintf(stderr, "WARNING: "X10_HOSTFILE" is ignored when using "X10LAUNCHER_FORCEPORTS);
+				if (getenv(X10_HOSTFILE)) fprintf(stderr, "WARNING: "X10_HOSTFILE" is ignored when using "X10_FORCEPORTS);
 			}
 		}
 
@@ -363,17 +366,23 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	}
 
 	// determine my place ID
-	char* ID = getenv(X10_PLACE);
+	char* ID = getenv(X10_LAUNCHER_PLACE);
 	if (ID == NULL)
-		error(X10_PLACE" not set!");
+		error(X10_LAUNCHER_PLACE" not set!");
 	else
 		state.myPlaceId = atol(ID);
 
-	char* y = getenv(X10RT_NOYIELD);
+	char* y = getenv(X10_NOYIELD);
 	if (y && !(strcasecmp("false", y) == 0))
 		state.yieldAfterProbe = false;
 	else
 		state.yieldAfterProbe = true;
+
+	y = getenv(X10_LAZYLINKS);
+	if (y && !(strcasecmp("false", y) == 0))
+		state.linkAtStartup = false;
+	else
+		state.linkAtStartup = true;
 
 	state.nextSocketToCheck = 0;
 	pthread_mutex_init(&state.readLock, NULL);
@@ -576,6 +585,12 @@ void x10rt_net_probe ()
 {
 	if (state.numPlaces == 1)
 		sched_yield(); // why is the runtime calling probe() with only one place?  It looses its CPU as punishment. ;-)
+	else if (state.linkAtStartup)
+	{
+		for (unsigned i=0; i<state.myPlaceId; i++)
+			initLink(i);
+		state.linkAtStartup = false;
+	}
 	else
 		probe(false);
 }
@@ -588,15 +603,14 @@ void probe (bool onlyProcessAccept)
 	int ret = poll(state.socketLinks, state.numPlaces, 0);
 	if (ret > 0)
 	{ // There is at least one socket with something interesting to look at
-		if (onlyProcessAccept)
+
+		// the listen port always gets priority
+		if ((state.socketLinks[state.myPlaceId].revents & POLLIN) || (state.socketLinks[state.myPlaceId].revents & POLLPRI))
+			whichPlaceToHandle = state.myPlaceId;
+		else if (onlyProcessAccept)
 		{
-			if ((state.socketLinks[state.myPlaceId].revents & POLLIN) || (state.socketLinks[state.myPlaceId].revents & POLLPRI))
-				whichPlaceToHandle = state.myPlaceId;
-			else
-			{
-				pthread_mutex_unlock(&state.readLock);
-				return;
-			}
+			pthread_mutex_unlock(&state.readLock);
+			return;
 		}
 		else
 		{
@@ -608,6 +622,12 @@ void probe (bool onlyProcessAccept)
 				whichPlaceToHandle++;
 				if (whichPlaceToHandle == state.numPlaces)
 					whichPlaceToHandle = 0;
+				if (whichPlaceToHandle == state.nextSocketToCheck)
+				{
+					// we should never get here, because if we do, it means that poll said there is something to do (ret > 0), but we didn't find it
+					pthread_mutex_unlock(&state.readLock);
+					return;
+				}
 			}
 
 			// Set nextSocketToCheck
@@ -615,19 +635,17 @@ void probe (bool onlyProcessAccept)
 				state.nextSocketToCheck = 0;
 			else
 				state.nextSocketToCheck = whichPlaceToHandle+1;
-
-			state.socketLinks[whichPlaceToHandle].events = 0; // disable any further polls on this socket
-		}
+		}		
+		state.socketLinks[whichPlaceToHandle].events = 0; // disable any further polls on this socket
 		pthread_mutex_unlock(&state.readLock);
 
 		if ((state.socketLinks[whichPlaceToHandle].revents & POLLIN) || (state.socketLinks[whichPlaceToHandle].revents & POLLPRI))
 		{
-			#ifdef DEBUG_MESSAGING
-				printf("X10rt.Sockets: place %u probe processing a message from place %u\n", state.myPlaceId, whichPlaceToHandle);
-			#endif
-
 			if (whichPlaceToHandle == state.myPlaceId) // special case.  This is an incoming connection request.
 			{
+				#ifdef DEBUG_MESSAGING
+					printf("X10rt.Sockets: place %u probe processing a connection request\n", state.myPlaceId);
+				#endif
 				handleConnectionRequest();
 				pthread_mutex_lock(&state.readLock);
 				state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
@@ -635,6 +653,9 @@ void probe (bool onlyProcessAccept)
 			}
 			else
 			{
+				#ifdef DEBUG_MESSAGING
+					printf("X10rt.Sockets: place %u probe processing a message from place %u\n", state.myPlaceId, whichPlaceToHandle);
+				#endif
 				// Format: type, p.type, p.len, p.msg
 				enum MSGTYPE t;
 				int r = TCP::read(state.socketLinks[whichPlaceToHandle].fd, &t, sizeof(enum MSGTYPE));

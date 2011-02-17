@@ -46,7 +46,7 @@ void Launcher::Setup(int argc, char ** argv)
 
 	// check to see if we need to launch stuff, or if we need to execute the runtime.
 	// we just skip the launcher and run the program if the user hasn't set X10LAUNCHER_NPROCS
-	if (getenv(X10LAUNCHER_RUNTIME) || !getenv(X10_NPLACES) ||
+	if ((!getenv(X10_LAUNCHER_RUNLAUNCHER) && getenv(X10_LAUNCHER_PLACE)) || !getenv(X10_NPLACES) ||
 			(strcmp(getenv(X10_NPLACES), "1")==0 && !getenv(X10_HOSTFILE) && !getenv(X10_HOSTLIST)))
 		return;
 
@@ -107,10 +107,10 @@ void Launcher::initialize(int argc, char ** argv)
 	}
 	else
 		_nplaces = atoi(getenv(X10_NPLACES));
-	if (!getenv(X10_PLACE))
+	if (!getenv(X10_LAUNCHER_PLACE))
 		_myproc = 0xFFFFFFFF;
 	else
-		_myproc = atoi(getenv(X10_PLACE));
+		_myproc = atoi(getenv(X10_LAUNCHER_PLACE));
 
 	/* -------------------------------------------- */
 	/*  decide who my children are                  */
@@ -139,7 +139,7 @@ void Launcher::initialize(int argc, char ** argv)
 	/* --------------------------------- */
 	/* copy SSH command from environment */
 	/* --------------------------------- */
-	const char * ssh_command = (const char *) getenv(X10LAUNCHER_SSH);
+	const char * ssh_command = (const char *) getenv(X10_LAUNCHER_SSH);
 	if (ssh_command && strlen(ssh_command) > 0)
 	{
 		if (strlen(ssh_command) > sizeof(_ssh_command) - 10)

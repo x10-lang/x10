@@ -52,13 +52,13 @@ int Launcher::setPort(uint32_t place, char* port)
 		// send this out to our local launcher
 		if (_parentLauncherControlLink <= 0)
 		{
-			if (getenv(X10LAUNCHER_PARENT) != NULL)
+			if (getenv(X10_LAUNCHER_PARENT) != NULL)
 			{
 				#ifdef DEBUG
-					fprintf(stderr, "Runtime %u connecting to launcher at \"%s\"\n", place, getenv(X10LAUNCHER_PARENT));
+					fprintf(stderr, "Runtime %u connecting to launcher at \"%s\"\n", place, getenv(X10_LAUNCHER_PARENT));
 				#endif
 
-				_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10, true);
+				_parentLauncherControlLink = TCP::connect((const char *) getenv(X10_LAUNCHER_PARENT), 10, true);
 			}
 			if (_parentLauncherControlLink <= 0)
 				return -1; // connection failed for some reason
@@ -169,11 +169,11 @@ void Launcher::startChildren()
 	_childCerrorLinks = (int *) malloc(sizeof(int) * (_numchildren+1));
 	_childControlLinks = (int *) malloc(sizeof(int) * (_numchildren+1));
 
-	if (!getenv(X10LAUNCHER_CWD))
+	if (!getenv(X10_LAUNCHER_CWD))
 	{
 		char dir[1024];
 		getcwd(dir, sizeof(dir));
-		setenv(X10LAUNCHER_CWD, dir, 1);
+		setenv(X10_LAUNCHER_CWD, dir, 1);
 	}
 
 	if (!_pidlst || !_childControlLinks || !_childCoutLinks || !_childCerrorLinks)
@@ -215,13 +215,13 @@ void Launcher::startChildren()
 			{ // start up the local x10 runtime
 				unsetenv(X10_HOSTFILE);
 				unsetenv(X10_HOSTLIST);
-				unsetenv(X10LAUNCHER_SSH);
-				setenv(X10LAUNCHER_PARENT, masterPort, 1);
-				setenv(X10LAUNCHER_RUNTIME, "1", 1);
-				chdir(getenv(X10LAUNCHER_CWD));
+				unsetenv(X10_LAUNCHER_SSH);
+				unsetenv(X10_LAUNCHER_RUNLAUNCHER);
+				setenv(X10_LAUNCHER_PARENT, masterPort, 1);
+				chdir(getenv(X10_LAUNCHER_CWD));
 
 				// check to see if we want to launch this in a debugger
-				char* which = getenv(X10LAUNCHER_DEBUG);
+				char* which = getenv(X10_GDB);
 				if (which != NULL)
 				{
 					char placenum[64];
@@ -288,15 +288,16 @@ void Launcher::startChildren()
 			}
 			else
 			{
+				setenv(X10_LAUNCHER_RUNLAUNCHER, "1", 1);
 				/* SSH children: call startSSH client */
 				if (_hostlist && strncmp(_hostlist[id], "localhost", 9) != 0)
 					startSSHclient(_firstchildproc+id, masterPort, _hostlist[id]);
 				else
 				{ // if the child is on the localhost, just exec it.  No need for ssh.
-					setenv(X10LAUNCHER_PARENT, masterPort, 1);
+					setenv(X10_LAUNCHER_PARENT, masterPort, 1);
 					char idString[24];
 					sprintf(idString, "%d", _firstchildproc+id);
-					setenv(X10_PLACE, idString, 1);
+					setenv(X10_LAUNCHER_PLACE, idString, 1);
 					#ifdef DEBUG
 						fprintf(stderr, "Launcher %u forked launcher %s on localhost.  Running exec.\n", _myproc, idString);
 					#endif
@@ -520,12 +521,12 @@ void Launcher::connectToParentLauncher(void)
 	}
 
 	/* case 2: the SOCK_PARENT env. var is set */
-	else if (getenv(X10LAUNCHER_PARENT) != NULL)
+	else if (getenv(X10_LAUNCHER_PARENT) != NULL)
 	{
 		#ifdef DEBUG
-			fprintf(stderr, "Launcher %u: connecting to parent via: %s\n", _myproc, getenv(X10LAUNCHER_PARENT));
+			fprintf(stderr, "Launcher %u: connecting to parent via: %s\n", _myproc, getenv(X10_LAUNCHER_PARENT));
 		#endif
-		_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10, true);
+		_parentLauncherControlLink = TCP::connect((const char *) getenv(X10_LAUNCHER_PARENT), 10, true);
 	}
 
 	/* case 3: launcher=-1 has no parent. We don't connect */
@@ -1088,9 +1089,9 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
         char *var = strdup(environ[i]);
         *strchr(var,'=') = '\0';
         if (strcmp(var,X10_HOSTFILE)==0) continue;
-        if (strcmp(var,X10LAUNCHER_SSH)==0) continue;
-        if (strcmp(var,X10LAUNCHER_PARENT)==0) continue;
-        if (strcmp(var,X10_PLACE)==0) continue;
+        if (strcmp(var,X10_LAUNCHER_SSH)==0) continue;
+        if (strcmp(var,X10_LAUNCHER_PARENT)==0) continue;
+        if (strcmp(var,X10_LAUNCHER_PLACE)==0) continue;
 		char* val = getenv(var);
         assert(val!=NULL);
         #ifdef DEBUG
@@ -1099,7 +1100,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
         bool x10_var = false;
         if (strncmp(var, "X10_", 4)==0) x10_var = true;
         if (strncmp(var, "X10RT_", 6)==0) x10_var = true;
-        if (strncmp(var, "X10LAUNCHER_", 12)==0) x10_var = true;
+        //if (strncmp(var, "X10LAUNCHER_", 12)==0) x10_var = true;
         argv[++z] = x10_var ? alloc_env_always_assign(var,val) : alloc_env_assign(var, val);
         
 	}
@@ -1108,9 +1109,9 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	{
         argv[++z] = alloc_env_assign(X10_HOSTFILE, _hostfname);
 	}
-    argv[++z] = alloc_env_always_assign(X10LAUNCHER_SSH, _ssh_command);
-    argv[++z] = alloc_env_always_assign(X10LAUNCHER_PARENT, masterPort);
-    argv[++z] = alloc_env_always_assign(X10_PLACE, alloc_printf("%d",id));
+    argv[++z] = alloc_env_always_assign(X10_LAUNCHER_SSH, _ssh_command);
+    argv[++z] = alloc_env_always_assign(X10_LAUNCHER_PARENT, masterPort);
+    argv[++z] = alloc_env_always_assign(X10_LAUNCHER_PLACE, alloc_printf("%d",id));
 	argv[++z] = cmd;
 	//argv[++z] = "env";
 	for (int i = 1; i < _argc; i++)
