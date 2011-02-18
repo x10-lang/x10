@@ -421,6 +421,15 @@ public class LineNumberMap extends StringTable {
 		v._x10index = file;
 		v._x10startLine = startline;
 		v._x10endLine = endline;
+		
+		// prevent duplicates
+		for (LocalVariableMapInfo existing : localVariables)
+		{			
+			if (existing._x10name == v._x10name && existing._x10type == v._x10type && existing._x10typeIndex == v._x10typeIndex
+					 && existing._cppName == v._cppName && existing._x10index.equals(v._x10index)
+					 && existing._x10startLine == v._x10startLine && existing._x10endLine == v._x10endLine)
+				return;
+		}
 		localVariables.add(v);
 	}
 	
