@@ -23,6 +23,7 @@ import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
+import polyglot.ast.Branch;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
@@ -31,6 +32,7 @@ import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -1484,12 +1486,25 @@ public class Inliner extends ContextVisitor {
                                            xnf.CanonicalTypeNode(pos, ret.type()),
                                            xnf.Id(pos, ret.name()) ).localDef(ret));
             }
- //         if (0 < returnCount) {
-            if (true) {
-                newBody.add(xnf.Labeled(pos, xnf.Id(pos, label), xnf.Do(pos, body, xnf.BooleanLit(pos, false).type(xts.Boolean()))));
-            } else {
-                newBody.addAll(body.statements());
+            // A return at the end of the method will have been converted to a
+            // break. It's not needed. Turf it.
+            List<Stmt> bodyStmts = body.statements();
+            if ((bodyStmts.get(bodyStmts.size() - 1) instanceof Branch)) {
+                Branch br = (Branch) bodyStmts.get(bodyStmts.size() - 1);
+                if (br.kind() == Branch.BREAK) {
+                    Id breakLabel = br.labelNode();
+                    if (breakLabel.id().equals(label)) {
+                        List<Stmt> statements = new ArrayList<Stmt>();
+                        for (Stmt stmt : bodyStmts) {
+                            if (stmt != br) {
+                                statements.add(stmt);
+                            }
+                        }
+                        body = xnf.Block(body.position(), statements);
+                    }
+                }
             }
+            newBody.add(xnf.Labeled(pos, xnf.Id(pos, label), body));
             if (ret != null) {
                 Expr rval = xnf.Local(pos, xnf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(ret.type().get());
                 newBody.add(xnf.Return(pos, rval));
@@ -1499,8 +1514,7 @@ public class Inliner extends ContextVisitor {
             return xnf.Block(body.position(), newBody);
         }
 
-        // def m(`x:`T):R=S -> def m(`x:`T)={r:R; L:do{ S[return v/r=v; break
-        // L;]; }while(false); return r;}
+        // def m(`x:`T):R=S -> def m(`x:`T)={r:R; L:{ S[return v/r=v; break L;]; }; return r;}
         private X10MethodDecl visitMethodDecl(X10MethodDecl n) {
             // First check that we are within the right method
             if (n.methodDef() != def)
@@ -1508,8 +1522,7 @@ public class Inliner extends ContextVisitor {
             return (X10MethodDecl) n.body(rewriteBody(n.position(), n.body()));
         }
 
-        // (`x:`T):R=>S -> (`x:`T)=>{r:R; L:do{ S[return v/r=v; break L;];
-        // }while(false); return r;}
+        // (`x:`T):R=>S -> (`x:`T)=>{r:R; L:{ S[return v/r=v; break L;]; }; return r;}
         private Closure visitClosure(Closure n) {
             // First check that we are within the right closure
             if (n.closureDef() != def) return n;

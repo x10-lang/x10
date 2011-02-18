@@ -249,6 +249,9 @@ public final class ExpressionFlattener extends ContextVisitor {
            loopLabels.setSize(loopLabels.size()-1);
            return returnNode;
         }
+        if (n instanceof Block)
+            return flattenBlock((Block) n, parent instanceof Labeled ?
+                                                labelMap.remove(old) : null);
         if (n instanceof Expr) return flattenExpr((Expr) n);
         if (n instanceof Stmt) return flattenStmt((Stmt) n);
         return n;
@@ -788,7 +791,6 @@ public final class ExpressionFlattener extends ContextVisitor {
     private Stmt flattenStmt(Stmt stmt) {
         if      (stmt instanceof Eval)      return flattenEval((Eval) stmt);
         else if (stmt instanceof LocalDecl) return flattenLocalDecl((LocalDecl) stmt);
-        else if (stmt instanceof Block)     return flattenBlock((Block) stmt);
         else if (stmt instanceof If)        return flattenIf((If) stmt);
         else if (stmt instanceof Return)    return flattenReturn((Return) stmt);
         else if (stmt instanceof Throw)     return flattenThrow((Throw) stmt);
@@ -820,7 +822,9 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     /**
      * Flatten a block.
-     * (Actually, this is a no-op, the only block with a value, StmtExpr, has already been handled.)
+     * If this is a labeled block, we stick the lables on it because flattenLabled
+     * is about to rip them off.
+     * (Otherwise, this is a no-op, the only block with a value, StmtExpr, has already been handled.)
      * <pre>
      * { S; ({s1; e1}) }  ->  { S; s1; e1 } 
      * </pre>
@@ -828,10 +832,13 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param stmt the block to be flattened
      * @return a block with all of its constituent statements flattened.
      */
-    private Stmt flattenBlock(Block stmt) {
+    private Stmt flattenBlock(Block stmt, List<Labeled> list) {
         assert (!(stmt instanceof StmtExpr));
         // return syn.toStmtSeq(stmt);
-        return stmt;
+
+        // we're about to strip off our parents label in flattenLabled.
+        // So, if this block is labeled we'd better cram it on here.
+        return label(stmt,list);
     }
 
     /**
