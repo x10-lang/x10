@@ -506,9 +506,9 @@ public class Desugarer extends ContextVisitor {
                         CollectionUtil.<Expr>list(nf.StringLit(pos, guard.toString())))));
         // if resType is void, then we shouldn't use return
         Block body = nf.Block(pos, anIf, ts.isVoid(resType) ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
-        body = (Block) body.visit(new X10TypeBuilder(job, ts, nf)).visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext)); // .pushDepType(tn.typeRef())
-
         Closure c = closure(pos, resType, params, body, v);
+        c = (Closure) c.visit(new X10TypeBuilder(job, ts, nf).pushClass(v.context().currentClassDef()).pushCode(v.context().currentCode()))
+                       .visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(v.context()));
         MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, args).closureInstance(ci).type(resType);
     }
