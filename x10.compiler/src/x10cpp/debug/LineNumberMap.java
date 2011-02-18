@@ -360,7 +360,7 @@ public class LineNumberMap extends StringTable {
 		return 101; // generic class
 	}
 	
-	static int determineSubtypeId(String type, ArrayList<Integer> list)
+	int determineSubtypeId(String type, ArrayList<Integer> list)
 	{
 		int bracketStart = type.indexOf('[');
 		int bracketEnd = type.lastIndexOf(']');
@@ -370,7 +370,11 @@ public class LineNumberMap extends StringTable {
 			int subtypeId = determineTypeId(subtype);
 			int position = list.size();
 			list.add(subtypeId);
-			list.add(determineSubtypeId(subtype, list));			
+			
+			int innerType = determineSubtypeId(subtype, list);
+			if (subtypeId == 101 && innerType == -1) // this may be a locally defined class.  Remember the whole name.
+				innerType = stringId(Emitter.mangled_non_method_name(subtype));
+			list.add(innerType);
 			return position/2;
 		}
 		else 
@@ -1041,7 +1045,30 @@ public class LineNumberMap extends StringTable {
 		    w.writeln("static const struct _X10ArrayMap _X10ArrayMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		    Iterator<Integer> iterator = arrayMap.iterator();
 		    while(iterator.hasNext())
-		    	w.writeln("    { "+iterator.next()+", "+iterator.next()+" },");
+		    {
+		    	int maintype = iterator.next();
+		    	int innertype = iterator.next();
+		    	if (maintype == 101 && innertype != -1)
+		    	{
+		    		int lookingFor = innertype;
+		    		innertype = -1;
+		    		// see if this is a local class
+		    		if (memberVariables != null)
+		        	{
+		        		int index = 0;
+		            	for (Integer memberId : memberVariables.keySet())
+		            	{
+		            		if (memberId == lookingFor)
+		            		{
+		            			innertype = index;
+		            			break;
+		            		}
+		            		index++;
+		            	}
+		        	}
+		    	}
+		    	w.writeln("    { "+maintype+", "+innertype+" },");
+		    }
 		    w.writeln("};");
 		    w.forceNewline();
 	    }
