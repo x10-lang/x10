@@ -44,7 +44,6 @@ APP_LDLIBS := $(LDLIBS)
 APP_LDFLAGS := $(LDFLAGS) 
 SO_LDLIBS := 
 SO_LDFLAGS = $(LDFLAGS_SHARED)
-X10RT_TEST_LDFLAGS := -L"$(X10_HOME)"/x10.runtime/x10rt/lib
 
 ifdef ENABLE_X10RT_CUDA
 	override CXXFLAGS += -DENABLE_CUDA -isystem/usr/local/cuda/include
