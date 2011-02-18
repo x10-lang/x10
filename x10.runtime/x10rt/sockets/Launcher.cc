@@ -1101,7 +1101,8 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
         if (strncmp(var, "X10_", 4)==0) x10_var = true;
         if (strncmp(var, "X10RT_", 6)==0) x10_var = true;
         //if (strncmp(var, "X10LAUNCHER_", 12)==0) x10_var = true;
-        argv[++z] = x10_var ? alloc_env_always_assign(var,val) : alloc_env_assign(var, val);
+        //argv[++z] = x10_var ? alloc_env_always_assign(var,val) : alloc_env_assign(var, val);
+        if (x10_var) argv[++z] = alloc_env_always_assign(var,val);
         
 	}
 
