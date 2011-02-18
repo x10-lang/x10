@@ -1085,9 +1085,9 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     // deal with the environment variables
     for (unsigned i=0 ; i<environ_sz ; ++i)
     {
-        if (!is_env_var_valid(environ[i])) continue;
         char *var = strdup(environ[i]);
         *strchr(var,'=') = '\0';
+        if (!is_env_var_valid(var)) continue;
         if (strcmp(var,X10_HOSTFILE)==0) continue;
         if (strcmp(var,X10_LAUNCHER_SSH)==0) continue;
         if (strcmp(var,X10_LAUNCHER_PARENT)==0) continue;
