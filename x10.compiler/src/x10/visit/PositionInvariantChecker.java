@@ -1,5 +1,14 @@
 package x10.visit;
 
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.Stack;
+import java.util.TreeSet;
+
 import polyglot.ast.FlagsNode_c;
 import polyglot.ast.Node;
 import polyglot.ast.LocalDecl;
@@ -18,14 +27,29 @@ public class PositionInvariantChecker extends NodeVisitor
     private final Job job;
     private final Reporter reporter;
     private final String previousGoalName;
+    private final boolean performOverlapCheck;
+    private final Stack<Set<Node>> children;
 
     public PositionInvariantChecker(Job job, String previousName) {
+        this(job, previousName, false);
+    }
+
+    public PositionInvariantChecker(Job job, String previousName, boolean performOverlapCheck) {
         this.job = job;
         this.reporter = job.extensionInfo().getOptions().reporter;
         previousGoalName = previousName;
+        this.performOverlapCheck = performOverlapCheck;
+        if (this.performOverlapCheck) {
+            children= new Stack<Set<Node>>();
+        } else {
+            children= null;
+        }
     }
 
     public Node visitEdgeNoOverride(Node parent, Node n) {
+        if (performOverlapCheck) {
+            children.push(new HashSet<Node>());
+        }
         if (reporter.should_report(Reporter.PositionInvariantChecker, 2))
             reporter.report(2, "Checking invariants for: " + n);
         String m = checkInvariants(parent, n);
@@ -48,8 +72,51 @@ public class PositionInvariantChecker extends NodeVisitor
         } else {
             n.del().visitChildren(this); // if there is an error, I don't recurse to the children
         }
+        if (performOverlapCheck) {
+            checkChildExtents();
+            children.pop();
+            if (!children.empty()) {
+                children.peek().add(n);
+            }
+        }
         return n;
     }
+
+    private void checkChildExtents() {
+        if (children.peek().size() == 0) {
+            return;
+        }
+        Set<Node> orderedChildren= new TreeSet<Node>(new Comparator<Node>() {
+            public int compare(Node n1, Node n2) {
+                Position p1 = n1.position();
+                Position p2 = n2.position();
+                if (p1.offset() == p2.offset()) {
+                    return p1.endOffset() - p2.endOffset();
+                }
+                return p1.offset() - p2.offset();
+            }
+        });
+        orderedChildren.addAll(children.peek());
+
+        List<Node> orderedChildList = new LinkedList<Node>();
+
+        orderedChildList.addAll(orderedChildren);
+
+        for(int i=0; i < orderedChildList.size() - 1; i++) {
+            Node n1 = orderedChildList.get(i);
+            Node n2 = orderedChildList.get(i+1);
+            Position p1 = n1.position();
+            Position p2 = n2.position();
+            int end1 = p1.endOffset();
+            int end2 = p2.endOffset();
+
+            if (end2 < end1 && !p1.isCompilerGenerated() && !p2.isCompilerGenerated()) {
+                String msg = "Positions overlap for non-synthetic nodes " + n1 + " and " + n2 + "\n position 1 = " + p1 + "\n position 2 = " + p2;
+                job.compiler().errorQueue().enqueue(ErrorInfo.INVARIANT_VIOLATION_KIND, msg, p1);
+            }
+        }
+    }
+
     private String checkInvariants(Node parent, Node n) {
         if (parent == null) return null;
         if (n == null) return "Cannot visit null";

@@ -3394,7 +3394,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Position pos = (Position) o[0];
         Id name = (Id) o[1];
         boolean unnamed = name == null;
-        if (name == null) name = nf.Id(pos, Name.makeFresh());
+        if (name == null) name = nf.Id(pos.markCompilerGenerated(), Name.makeFresh());
         List<Id> exploded = (List<Id>) o[2];
         DepParameterExpr guard = (DepParameterExpr) o[3];
         TypeNode type = (TypeNode) o[4];
@@ -3417,7 +3417,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Position pos = (Position) o[0];
         Id name = (Id) o[1];
         boolean unnamed = name == null;
-        if (name == null) name = nf.Id(pos, Name.makeFresh());
+        if (name == null) name = nf.Id(pos.markCompilerGenerated(), Name.makeFresh());
         List<Id> exploded = (List<Id>) o[2];
         DepParameterExpr guard = (DepParameterExpr) o[3];
         TypeNode type = (TypeNode) o[4];
@@ -3432,7 +3432,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_FormalParameter2(Object _Type) {
         TypeNode Type = (TypeNode) _Type;
         Formal f;
-        f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh("id$")), Collections.<Formal>emptyList(), true);
+        f = nf.X10Formal(pos().markCompilerGenerated(), nf.FlagsNode(pos().markCompilerGenerated(), Flags.FINAL), Type, nf.Id(pos().markCompilerGenerated(), Name.makeFresh("id$")), Collections.<Formal>emptyList(), true);
         setResult(f);
     }
     // Production: BasicForStatement ::= for '(' ForInitopt ';' Expressionopt ';' ForUpdateopt ')' Statement
