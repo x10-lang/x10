@@ -150,7 +150,7 @@ else
       override CXXFLAGS += -maix64
       override CXXFLAGS_SHARED += -shared -fPIC -Wl,-bbigtoc -Wl,-G -Wl,-lptools_ptr
       override LDFLAGS += -Wl,-brtl
-      export X10RT_TEST_LDFLAGS = -L"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,-L"$(X10_HOME)"/x10.runtime/x10rt/lib
+      export X10RT_TEST_LDFLAGS = -Wl,-L"$(X10_HOME)"/x10.runtime/x10rt/lib
     endif
     ifdef USE_XLC
       export X10RT_PLATFORM=aix_xlc
@@ -177,12 +177,12 @@ else
       ifdef USE_GCC
         override CXXFLAGS += -pthread
         override CXXFLAGS_SHARED += -shared -fPIC
-        export X10RT_TEST_LDFLAGS = -L"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
+        export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
       endif
       ifdef USE_XLC
         override CXXFLAGS += -qpic
         override CXXFLAGS_SHARED += -qmkshrobj
-        export X10RT_TEST_LDFLAGS = -L"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
+        export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
       endif
       ifdef USE_64BIT
         override CXXFLAGS += -m64
@@ -220,7 +220,7 @@ else
       export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
       override CXXFLAGS_SHARED += -fPIC
       override LDFLAGS_SHARED += -dynamiclib -undefined dynamic_lookup -install_name '@rpath/$@'
-      export X10RT_TEST_LDFLAGS = -L"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt
+      export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt
       ifdef USE_32BIT
         override CXXFLAGS += -arch i386
         override XRX_PROPS_CXXFLAGS += -arch i386
@@ -238,12 +238,12 @@ else
       override CXXFLAGS_SHARED += -shared -fPIC
       override LDFLAGS += -lresolv -lnsl -lsocket -lrt
       override LDFLAGS_SHARED += -lresolv -lnsl -lsocket -lrt
-      export X10RT_TEST_LDFLAGS = -L"$(X10_HOME)"/x10.runtime/x10rt/lib -lrt
+      export X10RT_TEST_LDFLAGS = -lrt
     else
     ifeq ($(shell uname -s),FreeBSD)
       override CXXFLAGS += -pthread
       override CXXFLAGS_SHARED += -shared -fPIC
-      export X10RT_TEST_LDFLAGS = -L"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
+      export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
       ifeq ($(shell uname -m),amd64)
         export X10RT_PLATFORM=freebsd_amd64
       endif
