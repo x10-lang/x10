@@ -250,7 +250,7 @@ public final class ExpressionFlattener extends ContextVisitor {
            return returnNode;
         }
         if (n instanceof Block)
-            return flattenBlock((Block) n, parent instanceof Labeled ?
+            n = flattenBlock((Block) n, parent instanceof Labeled ?
                                                 labelMap.remove(old) : null);
         if (n instanceof Expr) return flattenExpr((Expr) n);
         if (n instanceof Stmt) return flattenStmt((Stmt) n);
@@ -822,7 +822,7 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     /**
      * Flatten a block.
-     * If this is a labeled block, we stick the lables on it because flattenLabled
+     * If this is a labeled block, we stick the labels on it because flattenLabeled
      * is about to rip them off.
      * (Otherwise, this is a no-op, the only block with a value, StmtExpr, has already been handled.)
      * <pre>
@@ -833,12 +833,9 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @return a block with all of its constituent statements flattened.
      */
     private Stmt flattenBlock(Block stmt, List<Labeled> list) {
-        assert (!(stmt instanceof StmtExpr));
-        // return syn.toStmtSeq(stmt);
-
-        // we're about to strip off our parents label in flattenLabled.
+        // we're about to strip off our parents label in flattenLabeled.
         // So, if this block is labeled we'd better cram it on here.
-        return label(stmt,list);
+        return label(stmt, list);
     }
 
     /**
