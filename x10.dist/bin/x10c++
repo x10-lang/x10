@@ -16,6 +16,6 @@ export X10_DIST="$(cd "$(dirname "$prog")/.." && pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then X10_DIST="$(cygpath -aw "$X10_DIST")"; fi
 
 export CP_OVERRIDE="${X10_DIST}${FILE_SEP}lib${FILE_SEP}x10c.jar${PATH_SEP}${X10_DIST}${FILE_SEP}classes${PATH_SEP}"
-export DEXT="x10cpp.ExtensionInfo"
+export DEXT="x10cuda.ExtensionInfo"
 
 exec "${X10_DIST}/bin/x10c" "$@"
