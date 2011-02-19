@@ -1375,10 +1375,7 @@ public class Inliner extends ContextVisitor {
 
     private void tieLocalDef(LocalDef d, LocalDef o) {
         Type type = Types.get(d.type());
-        try {
-            type = Types.addSelfBinding(type, CTerms.makeLocal((X10LocalDef) o));
-        } catch (XFailure e) {
-        }
+        type = Types.addSelfBinding(type, CTerms.makeLocal((X10LocalDef) o));
         ((Ref<Type>) d.type()).update(type);
     }
 

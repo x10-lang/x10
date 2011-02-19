@@ -842,13 +842,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			c1 = c1.copy().instantiateSelf(x);
 
     		CConstraint c = null;
-    		try {
-    			c = xcontext.constraintProjection(c1, c2);
-//    			c1 = xcontext.constraintProjection(c1);
-//    			c2 = xcontext.constraintProjection(c2);
-    		} catch (XFailure z) {
-    			return false;
-    		}
+    		c = xcontext.constraintProjection(c1, c2);
+//  		c1 = xcontext.constraintProjection(c1);
+//  		c2 = xcontext.constraintProjection(c2);
 
     		if (c1 != null && ! c.entails(c1)) {
     			// Update the context, by adding the
@@ -1218,12 +1214,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         final Context xc = context;
         if (c1 == null) {
-            try {
-                CConstraint sigma = xc.constraintProjection(c2);
-                return sigma.entails(c2);
-            } catch (XFailure z) {
-                return false;
-            }
+            CConstraint sigma = xc.constraintProjection(c2);
+            return sigma.entails(c2);
         }
         return c1.entails(c2, new ConstraintMaker() {
                 public CConstraint make() throws XFailure {
@@ -1407,15 +1399,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             
             XLit val = XTerms.makeLit(value);
 
-            try {
-                CConstraint c = new CConstraint();
-                c.addSelfBinding(val);
-                return entails(c, Types.realX(toType));
-            }
-            catch (XFailure f) {
-                // Adding binding makes real clause inconsistent.
-                return false;
-            }
+            CConstraint c = new CConstraint();
+            c.addSelfBinding(val);
+            return entails(c, Types.realX(toType));
     }
 
     protected boolean typeRefListEquals(List<Ref<? extends Type>> l1, List<Ref<? extends Type>> l2) {

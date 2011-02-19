@@ -208,9 +208,7 @@ public class Desugarer extends ContextVisitor {
         type = Types.baseType(type);
         if (ts.isBoolean(type)) {
             Type t = ts.Boolean();
-            try {
-                t = Types.addSelfBinding(t, val ? ts.TRUE() : ts.FALSE());
-            } catch (XFailure e) { }
+            t = Types.addSelfBinding(t, val ? ts.TRUE() : ts.FALSE());
             return nf.BooleanLit(pos, val).type(t);
         } else
             throw new InternalCompilerError(pos, "Unknown literal type: "+type);

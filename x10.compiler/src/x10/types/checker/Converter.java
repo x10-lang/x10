@@ -459,12 +459,7 @@ public class Converter {
 		    // since for these casts we know the result is identical to expr.
 		    XTerm sv = Types.selfBinding(fromType);
 		    if (sv != null) 
-		        try {
 		        toType = Types.addSelfBinding((Type) toType.copy(), sv);
-		        } catch (XFailure f) {
-		            throw new Errors.InconsistentTypeSelf(toType, sv, cast.position());
-		        }
-
 		    X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);
 		    return n.type(toType);
 		}
@@ -482,11 +477,7 @@ public class Converter {
 				X10Cast n = cast.conversionType(ConversionType.CHECKED); 
 				XTerm sv = Types.selfBinding(fromType);
 				if (sv != null) 
-				    try {
-				        toType = Types.addSelfBinding((Type) toType.copy(), sv);
-				    } catch (XFailure f) {
-				        throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
-				    }
+				    toType = Types.addSelfBinding((Type) toType.copy(), sv);
 				return n.type(toType);
 			}
 		}
@@ -606,12 +597,8 @@ public class Converter {
 					X10Cast n = cast.conversionType(ConversionType.CHECKED); 
 					XVar sv = Types.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
 					if (sv != null)
-						try {
-							toType = Types.addSelfBinding((Type) toType.copy(), sv);
-						} catch (XFailure f) {
-							throw new SemanticException("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
-						}
-						return n.type(toType);
+					    toType = Types.addSelfBinding((Type) toType.copy(), sv);
+					return n.type(toType);
 				}
 		throw new Errors.CannotConvertExprToType(cast.expr(), cast.conversionType(), toType, cast.position());
 	}

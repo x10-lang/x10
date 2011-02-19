@@ -191,11 +191,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
             Synthesizer synth = new Synthesizer(nf, ts);
             XTerm v = synth.makePointRankTerm((XVar) self);
             XTerm rank = XTerms.makeLit(new Integer(length));
-            try {
-                indexType = Types.addBinding(indexType, v, rank);
-            } catch (XFailure z) {
-                throw new InternalCompilerError("Unexpected error: " + z);
-            }
+            indexType = Types.addBinding(indexType, v, rank);
             r.update(indexType);
             return;
         }

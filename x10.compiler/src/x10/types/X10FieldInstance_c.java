@@ -122,24 +122,19 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         assert receiver != null;
                     }
 
-                   try {
-                        CConstraint c = rc.copy();
+                    CConstraint c = rc.copy();
 
-                        // ### pass in the type rather than letting XField call fi.type();
-                        // otherwise, we'll get called recursively.
-                        XTerm self = xts.xtypeTranslator().translate(receiver, this);
-                        // Add {self = receiver.field} clause.
-                        c.addSelfBinding(self);
-                        if (receiver instanceof XVar) {
-                        	// this is the case if we are not in static context.
-                        	c.setThisVar((XVar) receiver);
-                        }
+                    // ### pass in the type rather than letting XField call fi.type();
+                    // otherwise, we'll get called recursively.
+                    XTerm self = xts.xtypeTranslator().translate(receiver, this);
+                    // Add {self = receiver.field} clause.
+                    c.addSelfBinding(self);
+                    if (receiver instanceof XVar) {
+                        // this is the case if we are not in static context.
+                        c.setThisVar((XVar) receiver);
+                    }
 
-                        rightType = Types.xclause(Types.baseType(t), c);
-                    }
-                    catch (XFailure f) {
-                        throw new InternalCompilerError("Could not add self binding: " + f.getMessage(), f);
-                    }
+                    rightType = Types.xclause(Types.baseType(t), c);
                 }
             }
             else {

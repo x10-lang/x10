@@ -104,34 +104,27 @@ public class Types {
         return new LazyRef_c<T>(defaultValue, resolver);
     }
 
-	public static Type addBinding(Type t, XTerm t1, XTerm t2) throws XFailure {
+	public static Type addBinding(Type t, XTerm t1, XTerm t2) {
 		//assert (! (t instanceof UnknownType));
-	
-	        CConstraint c = Types.xclause(t);
-	        c = c == null ? new CConstraint() :c.copy();
-	        c.addBinding(t1, t2);
-	        return Types.xclause(Types.baseType(t), c);
-	
+	    CConstraint c = Types.xclause(t);
+	    c = c == null ? new CConstraint() :c.copy();
+	    c.addBinding(t1, t2);
+	    return Types.xclause(Types.baseType(t), c);
 	}
 
 	public static Type addBinding(Type t, XTerm t1, XConstrainedTerm t2) {
 	 	assert (! (t instanceof UnknownType));
-	    try {
-	        CConstraint c = new CConstraint();
-	        c.addBinding(t1, t2);
-	        return Types.xclause(t, c);
-	    }
-	    catch (XFailure f) {
-	        throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
-	    }
+	 	CConstraint c = new CConstraint();
+	 	c.addBinding(t1, t2);
+	 	return Types.xclause(t, c);
 	}
 
-	public static Type addSelfBinding(Type t, XTerm t1) throws XFailure {
+	public static Type addSelfBinding(Type t, XTerm t1) {
 	    assert (! (t instanceof UnknownType));
-	        CConstraint c = Types.xclause(t);
-	        c = c == null ? new CConstraint() :c.copy();
-	        c.addSelfBinding(t1);
-	        return Types.xclause(Types.baseType(t), c); 
+	    CConstraint c = Types.xclause(t);
+	    c = c == null ? new CConstraint() :c.copy();
+	    c.addSelfBinding(t1);
+	    return Types.xclause(Types.baseType(t), c); 
 	}
 
 	/**
@@ -644,13 +637,8 @@ public class Types {
 	    final CConstraint constraint = Types.xclause(t);
 	    final CConstraint zeroCons = new CConstraint(constraint.self());
 	    // make sure the zeroLit is not in the constraint
-	    try {
-	        zeroCons.addSelfBinding(zeroLit);
-	        return zeroCons.entails(constraint);
-	    } catch (XFailure xFailure) {
-	        return false;
-	    }
-	
+	    zeroCons.addSelfBinding(zeroLit);
+	    return zeroCons.entails(constraint);
 	}
 
 	public static Expr getZeroVal(TypeNode typeNode, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
@@ -994,12 +982,7 @@ public class Types {
 		else {
 			c = c.copy();
 		}
-		try {
-			c.addSelfBinding(v);
-		}
-		catch (XFailure e) {
-			throw new SemanticException(e.getMessage(), t.position());
-		}
+		c.addSelfBinding(v);
 		return Types.xclause(baseType(t), c);
 	}
 

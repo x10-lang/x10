@@ -180,14 +180,9 @@ public class PlaceChecker {
 		    }
 		}*/
 		XTerm locVar = homeVar(selfVar, (TypeSystem) cxt.typeSystem());
-		try {
-			
-			XConstrainedTerm pt = (((Context) cxt).currentPlaceTerm());
-			if (locVar != null && pt != null)
-			    type = Types.addBinding(type1, locVar, pt.term()); // here());// here, not pt); // pt, not PlaceChecker.here()
-		} catch (XFailure z) {
-			// caller responsibility to ensure that this could be consistently added.
-		}
+		XConstrainedTerm pt = (((Context) cxt).currentPlaceTerm());
+		if (locVar != null && pt != null)
+		    type = Types.addBinding(type1, locVar, pt.term()); // here());// here, not pt); // pt, not PlaceChecker.here()
 		return type;
 	}
 	

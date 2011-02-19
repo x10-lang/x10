@@ -511,11 +511,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public static Type addSelfConstraint(Type type, XTerm value) {
-        try {
-            return Types.addSelfBinding(type, value);
-        } catch (XFailure e) {
-            return null;
-        }
+        return Types.addSelfBinding(type, value);
     }
 
 }

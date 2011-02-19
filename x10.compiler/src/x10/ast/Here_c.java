@@ -82,13 +82,7 @@ public class Here_c extends Expr_c
 		XConstrainedTerm h = xc.currentPlaceTerm();
 		if (h != null) {
 			CConstraint cc = new CConstraint();
-			try {
-				cc.addSelfBinding(h);
-			}
-			catch (XFailure e) {
-				Errors.issue(tc.job(),
-				        new Errors.ConstraintInconsistency(e, position()));
-			}
+			cc.addSelfBinding(h);
 			tt = Types.xclause(Types.baseType(tt), cc);
 		}
 		

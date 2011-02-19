@@ -51,11 +51,7 @@ public class BooleanLit_c extends Lit_c implements BooleanLit
 	 
 	  CConstraint c = new CConstraint();
 	  XTerm term = xts.xtypeTranslator().translate(c, this.type(Boolean), (Context) tc.context());
-	  try {
-		  c.addSelfBinding(term);
-	  }
-	  catch (XFailure e) {
-	  }
+	  c.addSelfBinding(term);
 
 	  Type newType = Types.xclause(Boolean, c);
 	  return type(newType);

@@ -50,11 +50,7 @@ public class X10FloatLit_c extends FloatLit_c {
 
 	    CConstraint c = new CConstraint();
 	    XTerm term = xts.xtypeTranslator().translate(c, this.type(type), (Context) tc.context());
-	    try {
-	        c.addSelfBinding(term);
-	    }
-	    catch (XFailure e) {
-	    }
+	    c.addSelfBinding(term);
 	    Type newType = Types.xclause(type, c);
 	    return type(newType);
 	}

@@ -296,7 +296,7 @@ public interface Context extends Resolver, Cloneable
 
     XVar thisVar();
 
-    CConstraint constraintProjection(CConstraint... cs) throws XFailure;
+    CConstraint constraintProjection(CConstraint... cs);
     
     /** 
      * Is the current code context clocked?

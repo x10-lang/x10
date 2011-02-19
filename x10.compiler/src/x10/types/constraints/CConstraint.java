@@ -198,7 +198,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * 
 	 * */
 	
-	public void addIn(XTerm newSelf, CConstraint c)   {
+	public void addIn(XTerm newSelf, CConstraint c) {
 	    if (c== null)
 	        return;
 	    if (! c.consistent()) {
@@ -221,18 +221,16 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * Add the binding selfVar == var to this constraint, possibly
 	 * modifying it in place.
 	 * @param var
-	 * @throws XFailure
 	 */
-	public void addSelfBinding(XTerm var) throws XFailure {
+	public void addSelfBinding(XTerm var) {
 		addBinding(self(), var);
 	}
 	/**
 	 * Add the binding selfVar == var to this constraint, possibly
 	 * modifying it in place.
 	 * @param var
-	 * @throws XFailure
 	 */
-	public void addSelfBinding(XConstrainedTerm var) throws XFailure {
+	public void addSelfBinding(XConstrainedTerm var) {
 		addBinding(self(), var);
 	}
 
@@ -240,9 +238,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * Add the binding thisVar == term to this constraint, possibly
 	 * modifying it in place.
 	 * @param var
-	 * @throws XFailure
 	 */
-	public void addThisBinding(XTerm term) throws XFailure {
+	public void addThisBinding(XTerm term) {
 		addBinding(thisVar(), term);
 	}
 
@@ -261,9 +258,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * is possibly modified in place.
 	 * @param s
 	 * @param t
-	 * @throws XFailure
 	 */
-	public void addBinding(XTerm s, XConstrainedTerm t) throws XFailure {
+	public void addBinding(XTerm s, XConstrainedTerm t) {
 		addBinding(s, t.term());
 		addIn(s, t.constraint());
 
@@ -272,9 +268,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * Add the binding s=t to this. This constraint is possibly modified in place.
 	 * @param s
 	 * @param t
-	 * @throws XFailure
 	 */
-	public void addBinding(XConstrainedTerm s, XTerm t) throws XFailure {
+	public void addBinding(XConstrainedTerm s, XTerm t) {
 		addBinding(t,s);
 	}
 	/**
@@ -282,9 +277,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * This constraint is possibly modified in place.
 	 * @param s
 	 * @param t
-	 * @throws XFailure
 	 */
-	public void addBinding(XConstrainedTerm s, XConstrainedTerm t) throws XFailure {
+	public void addBinding(XConstrainedTerm s, XConstrainedTerm t) {
 		addBinding(s.term(), t.term());
 		addIn(s.term(), s.constraint());
 		addIn(t.term(), t.constraint());

@@ -111,13 +111,7 @@ public class BuiltInTypeRules {
 			if (xt != null) {
 				XTerm yt = Types.selfBinding(r);
 				if (yt != null) {
-
-					try {
-						result = Types.addSelfBinding(result, 
-								XTerms.makeAnd(xt, yt));
-					} catch (XFailure z) {
-						Types.setInconsistent(result);
-					}
+				    result = Types.addSelfBinding(result, XTerms.makeAnd(xt, yt));
 				}
 			}
 		}

@@ -277,11 +277,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    cref.setResolver(new Runnable() {
 		        public void run() {
 		            CConstraint c = new CConstraint();
-		            try {
-		                c.addSelfBinding(ts.xtypeTranslator().translate(f2.localDef().asInstance()));
-		            }
-		            catch (XFailure e) {
-		            }
+		            c.addSelfBinding(ts.xtypeTranslator().translate(f2.localDef().asInstance()));
 		            cref.update(c);
 		        }
 		    });

@@ -47,14 +47,11 @@ public class CharLit_c extends NumLit_c implements CharLit
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		Type charType = xts.Char();
 
-			  CConstraint c = new CConstraint();
-			  XTerm term = xts.xtypeTranslator().translate(c, this.type(charType), (Context) tc.context());
-			  try {
-				  c.addSelfBinding(term);
-			  }
-			  catch (XFailure e) {
-			  }
-			  Type newType = Types.xclause(charType, c);
+		CConstraint c = new CConstraint();
+		XTerm term = xts.xtypeTranslator().translate(c, this.type(charType), (Context) tc.context());
+		c.addSelfBinding(term);
+		Type newType = Types.xclause(charType, c);
+
 	    return type(newType);
     }  
 
