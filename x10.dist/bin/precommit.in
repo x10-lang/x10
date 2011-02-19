@@ -18,7 +18,7 @@ target=dist
 [ "$1" = "cpp" -o "$1" = "-cpp" -o "$1" = "-c++" ] && target=dist-cpp && shift
 [ "$1" = "java" -o "$1" = "-java" ] && target=dist-java && shift
 nice ant "$@" squeakyclean || testFailed
-nice ant "$@" $target || testFailed
+nice ant -Doptimize=true "$@" $target || testFailed
 
 echo "Making temp dir"
 if [ -z "$TMP_DIR" ]; then
