@@ -143,41 +143,65 @@ public class Errors {
     // todo Yoav added: I use serialVersionUID=1L like lpg parser. We should increment it if an class changes.
     
     public static class ClassCannotHaveSuperInterface extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -807398966257098427L;
+
 		public ClassCannotHaveSuperInterface(ClassType type, Position p) {
 			super("Class " + type + " cannot have a superinterface.", p);
 		}
 	}
     public static class SuperInterfaceNotInterface extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 366164325571822130L;
+
 		public SuperInterfaceNotInterface(Type t, ClassType type, Position p) {
 			super("Superinterface " + t + " of " + type + " is not an interface.", p);
 		}
 	}
     public static class CannotHaveSuperclass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 260938668864591547L;
+
 		public CannotHaveSuperclass(ClassType type, Position p) {
 			super("Class \"" + type + "\" cannot have a superclass.", p);
 		}
 	}
     public static class ExtendedFinalClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 6885425460129173909L;
+
 		public ExtendedFinalClass(ClassType type, Position p) {
 			super("Cannot extend final class \"" + type.superClass() + "\".", p);
 		}
 	}
     public static class ExtendedNonClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5529507748253686721L;
+
 		public ExtendedNonClass(ClassType type, Position p) {
 			super("Cannot extend non-class \"" + type.superClass() + "\".", p);
 		}
 	}
     public static class InnerDeclaredStatic extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 1937596402969387888L;
+
 		public InnerDeclaredStatic(ClassType type, Position p) {
 			super("Inner classes cannot declare static member classes.", p);
 		}
 	}
     public static class InnerDeclaredInterface extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -7633854120689783816L;
+
 		public InnerDeclaredInterface(ClassType type, Position p) {
 			super("Inner classes cannot declare member interfaces.", p);
 		}
 	}
     public static class SameNameLocal extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -8305278484313725894L;
+
 		public SameNameLocal(ClassType type, Position p) {
 			super("Cannot declare local " +
                                     "class \"" + type + "\" within the same " +
@@ -187,6 +211,9 @@ public class Errors {
 	}
 
     public static class SameNameClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 189016834316504798L;
+
 		public SameNameClass(ClassType type, Position p) {
 			super("Cannot declare member " +
                                 "class \"" + type.fullName() +
@@ -195,6 +222,9 @@ public class Errors {
 		}
     }
 	public static class DuplicateMember extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -729466352124876376L;
+
 		public DuplicateMember(TypeObject def) {
 			super("Duplicate member " + def, def.position());
 		}
@@ -746,134 +776,212 @@ public class Errors {
 	
 
 	public static class CannotAssignValueToFinalField extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 4045368984085560378L;
+
 		public CannotAssignValueToFinalField(X10FieldInstance fd, Position p) {
 			super("Cannot assign a value to final field " + fd.name(),
 					p);
 		}
 	}
 	public static class CannotAssignToStaticField extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5570402789549272603L;
+
 		public CannotAssignToStaticField(X10FieldInstance fd, Position p) {
 			super("Cannot assign to static field " + fd.name(),
 					p);
 		}
 	}
 	public static class CannotDisambiguateNodeWithAmbiguousPrefix extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -6293236891329098614L;
+
 		public CannotDisambiguateNodeWithAmbiguousPrefix( Position p) {
 			super("Cannot disambiguate node with ambiguous prefix.", p);
 		}
 	}
 	public static class PackageOrClassNameNotFound extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -611328678350338960L;
+
 		public PackageOrClassNameNotFound(QName name, Position p) {
 			super("Package or class " + name + " not found.", p);
 		}
 	}
 	public static class ClassNotAccessible extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 9178778259435324030L;
+
 		public ClassNotAccessible(ClassType ct, Position p) {
 			super("Class " + ct + " is not accessible.", p);
 		}
 	}	
 	public static class CannotDeclareConstructorInInterface extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -7065380944831259236L;
+
 		public CannotDeclareConstructorInInterface(Position p) {
 			super("Cannot declare a constructor inside an interface.", p);
 		}
 	}
 	public static class CannotDeclareConstructorInAnonymousClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -8669218725974059793L;
+
 		public CannotDeclareConstructorInAnonymousClass(Position p) {
 			super("Cannot declare a constructor inside an anonymous class.", p);
 		}
 	}
 	public static class ConstructorNameDoesNotMatchContainingClassName extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 1150096677241770933L;
+
 		public ConstructorNameDoesNotMatchContainingClassName(Id name, polyglot.types.Name ctName, Position p) {
 			super("Constructor name \"" + name +"\" does not match name of containing class \"" + ctName + "\".", p);
 		}
 	}
 	public static class InterfaceMembersMustBePublic extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -538590971149553273L;
+
 		public InterfaceMembersMustBePublic(Position p) {
 			super("Interface members must be public.", p);
 		}
 	}
 	public static class InterfaceMethodsMustBePublic extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -3459623861298751099L;
+
 		public InterfaceMethodsMustBePublic(Position p) {
 			super("Interface methods must be public.", p);
 		}
 	}
 	public static class InterfaceMethodsCannobBeStatic extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 4347802795939587694L;
+
 		public InterfaceMethodsCannobBeStatic(Position p) {
 			super("Interface methods cannot be static.", p);
 		}
 	}
 	public static class InnerClassCannotDeclareStaticFields extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 3312267938190028022L;
+
 		public InnerClassCannotDeclareStaticFields(Position p) {
 			super("Inner classes cannot declare static fields, unless they are compile-time constant fields.", p);
 		}
 	}
 	public static class InnerClassesCannotDeclareStaticMethod extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 7722988292280217208L;
+
 		public InnerClassesCannotDeclareStaticMethod(Position p) {
 			super("Inner classes cannot declare static methods.", p);
 		}
 	}
 	public static class MissingMethodBody extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 2685352756896202435L;
+
 		public MissingMethodBody(Position p) {
 			super("Missing method body.", p);
 		}
 	}
 	public static class InterfaceMethodsCannotHaveBody extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -5941791865765677859L;
+
 		public InterfaceMethodsCannotHaveBody(Position p) {
 			super("Interface methods cannot have a body.", p);
 		}
 	}
 	public static class AbstractMethodCannotHaveBody extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -1327030950553878150L;
+
 		public AbstractMethodCannotHaveBody(Position p) {
 			super("An abstract method cannot have a body.", p);
 		}
 	}
 	public static class NativeMethodCannotHaveBody extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5462359406781071209L;
+
 		public NativeMethodCannotHaveBody(Position p) {
 			super("A native method cannot have a body.", p);
 		}
 	}
 	public static class IllegalVarianceParameter extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 1409712863344639826L;
+
 		public IllegalVarianceParameter(ParameterType.Variance var, ParameterType.Variance variance, Position p) {
 			super("Illegal variance! Type parameter has variance "+var+" but it is used in a "+variance+" position.",p);
 		}
 	}
 	public static class FinalFieldAlreadyInitialized extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -7376028111845924644L;
+
 		public FinalFieldAlreadyInitialized(polyglot.types.Name name, Position p) {
 			super("Final field '"+name+"' might already have been initialized.",p);
 		}
 	}
 	public static class CannotReadFromFieldBeforeDefiniteAssignment extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -4917415669609512489L;
+
 		public CannotReadFromFieldBeforeDefiniteAssignment(polyglot.types.Name name, Position p) {
 			super("Cannot read from field '"+name+"' before it is definitely assigned.",p);
 		}
 	}
 	public static class FieldNameWasNotDefinitelyAssigned extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -6033353295414568038L;
+
 		public FieldNameWasNotDefinitelyAssigned(Boolean property, polyglot.types.Name name, Position p) {
 			super(property ? "property(...) might not have been called" :
                 "Field '"+name+"' was not definitely assigned.",p);
 		}
 	}
 	public static class ControlFlowGraphError extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5439909487709510158L;
+
 		public ControlFlowGraphError(String msg, Position p) {
 			super("Control flow graph had an error: "+msg, p);
 		}
 	}
 	public static class MustReturnValueOfType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 755005770475489356L;
+
 		public MustReturnValueOfType(String designator, FunctionDef fd, Position p) {
 			super(designator + " must return a value of type "+fd.returnType().get(),p);
 		}
 	}
 	public static class MissingReturnStatement extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 8740091192627749311L;
+
 		public MissingReturnStatement(Position p) {
 			super("Missing return statement.",p);
 		}
 	}
 	public static class MayNotHaveBeenInitialized extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -1027258040225227536L;
+
 		public MayNotHaveBeenInitialized(polyglot.types.Name n, Position p) {
 			super("\"" + n + "\" may not have been initialized", p);
 		}
 	}
 	public static class FinalLocalVariableCannotBeAssignedTo extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -3082608693293011502L;
+
 		public FinalLocalVariableCannotBeAssignedTo(polyglot.types.Name name, Position p) {
 			super("Final local variable \"" + name +
                     "\" cannot be assigned to in an inner class.",
@@ -881,6 +989,9 @@ public class Errors {
 		}
 	}
 	public static class FinalVariableAlreadyInitialized extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -1058095715107803234L;
+
 		public FinalVariableAlreadyInitialized(polyglot.types.Name name, Position p) {
 			super("Final variable \"" + name +
                     "\" might already have been initialized",
@@ -888,6 +999,9 @@ public class Errors {
 		}
 	}
 	public static class LocalVariableMustBeInitializedBeforeClassDeclaration extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5116419341545721859L;
+
 		public LocalVariableMustBeInitializedBeforeClassDeclaration(polyglot.types.Name name, Position p) {
 			super("Local variable \"" + name +
                     "\" must be initialized before the class " +
@@ -896,17 +1010,26 @@ public class Errors {
 		}
 	}
 	public static class UnreachableStatement extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -6391490184776236536L;
+
 		public UnreachableStatement(Position p) {
 			super("Unreachable statement.",p);
 		}
 	}
 	public static class InitializersMustCompleteNormally extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -7371091355744661118L;
+
 		public InitializersMustCompleteNormally(Position p) {
 			super("Initializers must be able to complete normally.",
                     p);
 		}
 	}
 	public static class NumberTypeArgumentsNotSameAsNumberTypeParameters extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 8325356137110702559L;
+
 		public NumberTypeArgumentsNotSameAsNumberTypeParameters(int size, QName name, int numParams, Position p) {
 			super("Number of type arguments (" + size + ") for " + name + 
 					" is not the same as number of type parameters (" + numParams + ").", 
@@ -914,11 +1037,17 @@ public class Errors {
 		}
 	}
 	public static class AnnotationMustBeInterfacetype extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -2706879539123602875L;
+
 		public AnnotationMustBeInterfacetype(Position p) {
 			super("Annotation must be an interface type.", p);
 		}
 	}
 	public static class TypeOfPropertyIsNotSubtypeOfPropertyType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 3524201314606970604L;
+
 		public TypeOfPropertyIsNotSubtypeOfPropertyType(Type type, List<FieldInstance> props, int i, Position p) {
 			super("Actual type of property initializer is not a subtype of declared type."
 			      + "\n\t Property: " + props.get(i).name()
@@ -927,62 +1056,97 @@ public class Errors {
 		}
 	}
 	public static class PropertyStatementMayOnlyOccurInBodyOfConstuctor extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 898188824542430216L;
+
 		public PropertyStatementMayOnlyOccurInBodyOfConstuctor(Position p) {
 			super("A property statement may only occur in the body of a constructor.", p);
 		}
 	}
 	public static class PropertyInitializerMustHaveSameNumberOfArgumentsAsPropertyForClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 4412871355070658372L;
+
 		public PropertyInitializerMustHaveSameNumberOfArgumentsAsPropertyForClass(Position p) {
 			super("The property initializer must have the same number of arguments as properties for the class.", p);
 		}
 	}
 	public static class ClockedAsyncMustBeInvokedInsideAStaticallyEnclosingClockedFinish extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 8536832971895629265L;
+
 		public ClockedAsyncMustBeInvokedInsideAStaticallyEnclosingClockedFinish(Position p) {
 			super("Clocked async must be invoked inside a statically enclosing clocked finish.", p);
 		}
 	}
 	public static class TypeMustBeX10LangClock extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -989345877838120199L;
+
 		public TypeMustBeX10LangClock(Type t, Position p) {
 			super("Type \"" + t + "\" must be x10.lang.clock.", p);
 		}
 	}
 	public static class CannotOccurOutsideCodeBody extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 7040386157583672803L;
 		public static enum Element { Closure, At, Async};
 		public CannotOccurOutsideCodeBody(Element str, Position p) {
 			super(str + " cannot occur outside code body.", p);
 		}
 	}
 	public static class TypeConstraintMustBeBoolean extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -4432551623865573205L;
+
 		public TypeConstraintMustBeBoolean(Expr e, Type t, Position p) {
 			super("The type of the constraint "+ e + " must be boolean, not " + t + ".", p);
 		}
 	}
 	public static class DomainIteratedForLoopMustBeLocal extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -6213470792884695982L;
+
 		public DomainIteratedForLoopMustBeLocal(Position p) {
 			super("The domain of this iterated for loop must be local", p);
 		}
 	}
 	public static class ConstraintInconsistency extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -421661579077052018L;
+
 		public ConstraintInconsistency(XFailure e, Position p) {
 			super("Constraint on here is inconsistent; " + e.getMessage(), p);
 		}
 	}
 	public static class TypeDefinitionMustBeStaticClassOrInterfaceMembers extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -8425838279855302691L;
+
 		public TypeDefinitionMustBeStaticClassOrInterfaceMembers(Position p) {
 			super("Type definitions must be static class or interface members.  This is a limitation of the current implementation.", p);
 		}
 	}
 	public static class CannotCompareUnsignedVersusSignedValues extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -6839731064051520711L;
+
 		public CannotCompareUnsignedVersusSignedValues(Position p) {
 			super("Cannot compare unsigned versus signed values.",p);
 		}
 	}
 	public static class CannotCompareSignedVersusUnsignedValues extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5435194048939904628L;
+
 		public CannotCompareSignedVersusUnsignedValues(Position p) {
 			super("Cannot compare signed versus unsigned values.",p);
 		}
 	}
 	public static class OperatorMustHaveOperandsOfComparabletype extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -703338348089918290L;
+
 		public OperatorMustHaveOperandsOfComparabletype(Type lbase, Type rbase, Position p) {
 			super("Operator must have operands of comparable type; the types " + lbase + 
 					" and " + rbase + " do not share any values.", 
@@ -990,147 +1154,234 @@ public class Errors {
 		}
 	}
 	public static class NoOperationFoundForOperands extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -6078304801274669515L;
+
 		public NoOperationFoundForOperands(Operator op, Type l, Type r, Position p) {
 			super("No operation " + op + " found for operands " + l + " and " + r + ".", p);
 		}
 	}
 	public static class ArgumentOfWhenMustBeBoolean extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 9030879119428159594L;
+
 		public ArgumentOfWhenMustBeBoolean(Position p) {
 			super("The type of the argument of a 'when' statement must be Boolean", p);
 		}
 	}
 	public static class InvalidType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -6767519992326274592L;
+
 		public InvalidType(Type t, Position p) {
 			super("Invalid type; the real clause of " + t + " is inconsistent.", p);
 		}
 	}
 	public static class TypeInconsistent extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 3885914351359414398L;
+
 		public TypeInconsistent(Type t, Position p) {
 			super("Type " + t + " is inconsistent.", p);
 		}
 	}
 	public static class CannotReferToTypeParameterFromStaticContext extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 3614407683430453528L;
+
 		public CannotReferToTypeParameterFromStaticContext(ParameterType pt, Def def, Position p) {
 			super("Cannot refer to type parameter "+ pt.fullName() + " of " + def + " from a static context.", p);
 		}
 	}
 	public static class CannotQualifyTypeParameter extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 456124673024566425L;
+
 		public CannotQualifyTypeParameter(ParameterType pt, Def def, Flags flags, Position p) {
 			super("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", p);
 		}
 	}
 	public static class DuplicateConstructor extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -1776900732090690450L;
+
 		public DuplicateConstructor(X10ConstructorDef cj, X10ConstructorDef ci, Position p) {
 			super("Duplicate constructor \"" + cj + "\"; previous declaration at " + ci.position() + ".", p);
 		}
 	}
 	public static class DuplicateMethod extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 6494663346170675010L;
+
 		public DuplicateMethod(X10MethodDef mj, X10MethodDef mi, Position p) {
 			super("Duplicate method \"" + mj + "\"; previous declaration at " + mi.position() + ".", p);
 		}
 	}
 	public static class PublicTypeMustBeDeclaredInX10 extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 8500972101236417810L;
+
 		public PublicTypeMustBeDeclaredInX10(ClassDef type, Position p) {
 			super("Public type " + type.fullName() + " must be declared in " + type.name() + ".x10.", p);
 		}
 	}
 	public static class InterfaceCannotHaveSuperclass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -951041327107684237L;
+
 		public InterfaceCannotHaveSuperclass(ClassDef type, Position p) {
 			super("Interface " + type + " cannot have a superclass.", p);
 		}
 	}
 	public static class ClassCannotOerridePropertyOfSuperclass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -9107279168454654750L;
+
 		public ClassCannotOerridePropertyOfSuperclass(ClassDef type, FieldInstance fi, Position p) {
 			super(type + " cannot override property " 
             		+ fi.name() + " of superclass " + Types.get(fi.def().container()) + ".", p);
 		}
 	}
 	public static class CanOnlyQualifySuperConstructorInvocation extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 334170215245078545L;
+
 		public CanOnlyQualifySuperConstructorInvocation(Position p) {
 			super("Can only qualify a \"super\" constructor invocation.", p);
 		}
 	}
 	public static class ClassNotInnerClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 6916790928445022813L;
+
 		public ClassNotInnerClass(Type superType, Position p) {
 			super("The class \"" + superType + "\" is not an inner class, or was declared in a static context; a qualified constructor invocation cannot be used.", p);
 		}
 	}
 	public static class QualifierDoesNotMatchEnclosingClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 416764378363096062L;
+
 		public QualifierDoesNotMatchEnclosingClass(Type qt, ContainerType container, Position p) {
 			super("The type of the qualifier \"" + qt + "\" does not match the immediately enclosing class of the super class \"" + container + "\".", p);
 		}
 	}
 	public static class ConstructorsCannotHaveTypeParameters extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -4268091774047965360L;
+
 		public ConstructorsCannotHaveTypeParameters(Position p) {
 			super("Constructors cannot have type parameters.", p);
 		}
 	}
 	public static class ReturnTypeOfConstructorMustBeFromTypeOfClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 7385763817970282185L;
+
 		public ReturnTypeOfConstructorMustBeFromTypeOfClass(Type retTypeBase, Type clazz, Position p) {
 			super("The return type of the constructor (" + retTypeBase + ") must be derived from the type of the class (" + clazz + ") on which the constructor is defined.",    p);
 		}
 	}
 	public static class CannotInferFieldType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -8796440936111998457L;
+
 		public CannotInferFieldType(Position p) {
 			super("Cannot infer field type; field has no initializer.", p);
 		}
 	}
 	public static class CannotInferNonFinalFieldType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5501955726545364951L;
+
 		public CannotInferNonFinalFieldType(Position p) {
 			super("Cannot infer type of non-final fields.", p);
 		}
 	}
 	public static class CannotDeclareStaticNonFinalField extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 3538350155759773020L;
+
 		public CannotDeclareStaticNonFinalField(Position p) {
 			super("Cannot declare static non-final field.", p);
 		}
 	}
 	public static class IllegalFieldDefinition extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -50506600138976230L;
+
 		public IllegalFieldDefinition(FieldDef fi, Position p) {
 			super("Illegal " + fi +  "; structs cannot have var fields.",p);
 		}
 	}
 	public static class FieldCannotHaveType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -9171923663121438344L;
+
 		public FieldCannotHaveType(Type type, Position p) {
 			super("Field cannot have type " + type + ".", p);
 		}
 	}
 	public static class StructMayNotHaveVarFields extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5225038908218676956L;
+
 		public StructMayNotHaveVarFields(Position p) {
 			super("A struct may not have var fields.", p);
 		}
 	}
 	public static class StaticFieldMustHaveInitializer extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -3124433917653058159L;
+
 		public StaticFieldMustHaveInitializer(Id name, Position p) {
 			super("Static field "+name+" must have an initializer.", p);
 		}
 	}
 	public static class TransientFieldMustHaveTypeWithDefaultValue extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -5733384133852266861L;
+
 		public TransientFieldMustHaveTypeWithDefaultValue(Id name, Position p) {
 			super("The transient field '"+ name +"' must have a type with a default value.", p);
 		}
 	}
 	public static class LocalVaraibleMultiplyDefined extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -8355701958648705245L;
+
 		public LocalVaraibleMultiplyDefined(Id name, Position outerP, Position p) {
 			super("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerP + ".", p);
 		}
 	}
 	public static class CannotInferTypeForFormalParameter extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -61727884585436624L;
+
 		public CannotInferTypeForFormalParameter(Id name, Position p) {
 			super("Could not infer type for formal parameter " + name + ".", p);
 		}
 	}
 	public static class FormalParameterCannotHaveType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -8535626024832234896L;
+
 		public FormalParameterCannotHaveType(Type type, Position p) {
 			super("Formal parameter cannot have type " + type + ".", p);
 		}
 	}
 	public static class LocalVariableAccessedFromInnerClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -7354209819609788973L;
+
 		public LocalVariableAccessedFromInnerClass(polyglot.types.Name liName, Position p) {
 			super("Local variable \"" + liName +"\" is accessed from an inner class or a closure, and must be declared final.", p);
 		}
 	}
 	public static class LocalVariableCannotBeCapturedInAsync extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5334856744559947168L;
+
 		public LocalVariableCannotBeCapturedInAsync(polyglot.types.Name liName, Position p) {
 			super("Local variable \"" + liName + 
 					"\" cannot be captured in an async if there is no enclosing finish in the same scoping-level as \"" + liName +
@@ -1138,26 +1389,41 @@ public class Errors {
 		}
 	}
 	public static class LocalVariableAccessedAtDifferentPlace extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5809300848963559701L;
+
 		public LocalVariableAccessedAtDifferentPlace(polyglot.types.Name liName, Position p) {
 			super("Local variable \"" + liName +"\" is accessed at a different place, and must be declared final.", p);
 		}
 	}
 	public static class CannotInferTypeofMutalVariable extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -3533052492291300618L;
+
 		public CannotInferTypeofMutalVariable(Position p) {
 			super("Cannot infer type of a mutable (non-val) variable.", p);
 		}
 	}
 	public static class CannotInferVariableType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 7697089332559732619L;
+
 		public CannotInferVariableType(polyglot.types.Name name, Position p) {
 			super("Cannot infer variable type; variable "+ name +" has no initializer.", p);
 		}
 	}
 	public static class LocalVariableCannotHaveType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 3830132151835663781L;
+
 		public LocalVariableCannotHaveType(Type type, Position p) {
 			super("Local variable cannot have type " + type + ".", p);
 		}
 	}
 	public static class LoopDomainIsNotOfExpectedType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -5004964287663095964L;
+
 		public LoopDomainIsNotOfExpectedType(ConstrainedType formalType, Type domainType, Position p) {
 			super("Loop domain is not of expected type." 
 	                + "\n\t Expected type: Iterable[" + formalType + "]" 
@@ -1165,42 +1431,65 @@ public class Errors {
 		}
 	}
 	public static class CannotInferMethodReturnType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -8730396959303696191L;
+
 		public CannotInferMethodReturnType(Position p) {
 			super("Cannot infer method return type; method has no body.", p);
 		}
 	}
 	public static class MissingConstructorBody extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 862315945431530111L;
+
 		public MissingConstructorBody(Position p) {
 			super("Missing constructor body.", p);
 		}
 	}
 	public static class NativeConstructorCannotHaveABody extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -1270399751516286108L;
+
 		public NativeConstructorCannotHaveABody(Position p) {
 			super("A native constructor cannot have a body.", p);
 		}
 	}
 	public static class LiteralOutOfRange extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -3537322791102086322L;
+
 		public LiteralOutOfRange(String str, long value, Position p) {
 			super(str + " literal " + value + " is out of range.", p);
 		}
 	}
 	public static class NonAbstractPropertyMethodMustBeFinal extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 4289076973488728361L;
+
 		public NonAbstractPropertyMethodMustBeFinal(Position p) {
 			super("A non-abstract property method must be final.", p);
 		}
 	}
 	public static class PropertyMethodCannotBeStatic extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 7332775749673910302L;
+
 		public PropertyMethodCannotBeStatic(Position p) {
 			super("A property method cannot be static.", p);
 		}
 	}
 	public static class PropertyMethodCannotHaveGuard extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5402119335168435666L;
+
 		public PropertyMethodCannotHaveGuard(DepParameterExpr guard, Position p) {
 			super("A property method cannot have a guard.", guard != null ? guard.position() : p);
 		}
 	}
 	public static class InconsistentContext extends EqualByTypeAndPosException {
-	    public InconsistentContext(Type ct, Position p) {
+	    
+		private static final long serialVersionUID = -7025023968245938435L;
+		public InconsistentContext(Type ct, Position p) {
 	        super("Context for type " + ct + " is inconsistent.", p);
 	    }
 	    public InconsistentContext(CConstraint c, Position p) {
@@ -1208,174 +1497,272 @@ public class Errors {
 	    }
 	}
 	public static class InconsistentType extends EqualByTypeAndPosException {
-        public InconsistentType(Type t, Position p) {
+        
+		private static final long serialVersionUID = 3896496971389234633L;
+
+		public InconsistentType(Type t, Position p) {
             super("The type " + t + " is inconsistent.", p);
         }
     }
 	public static class CouldNotFindEnclosingClass extends EqualByTypeAndPosException {
-        public CouldNotFindEnclosingClass(Name name, Position p) {
+        
+		private static final long serialVersionUID = 317419599469665541L;
+
+		public CouldNotFindEnclosingClass(Name name, Position p) {
             super("Could not find enclosing class or package for type definition \"" + name + "\".", p);
         }
     }
 	public static class SuperTypeIsNotAClass extends EqualByTypeAndPosException {
-        public SuperTypeIsNotAClass(ClassType ct, Position p) {
+        
+		private static final long serialVersionUID = 3060814244759215072L;
+
+		public SuperTypeIsNotAClass(ClassType ct, Position p) {
             super("Super type of " + ct + " is not a class.", p);
         }
     }
 	public static class ClassTypeMustHaveEnclosingInstance extends EqualByTypeAndPosException {
-        public ClassTypeMustHaveEnclosingInstance(ClassType ct, ClassType superContainer, Position p) {
+        
+		private static final long serialVersionUID = 752361659281947668L;
+
+		public ClassTypeMustHaveEnclosingInstance(ClassType ct, ClassType superContainer, Position p) {
             super(ct + " must have an enclosing instance that is a subtype of " + superContainer, p);
         }
     }
 	public static class ClassTypeMustBeSpecifiedInSuperConstructor extends EqualByTypeAndPosException {
-        public ClassTypeMustBeSpecifiedInSuperConstructor(ClassType ct, ClassType superContainer, Position p) {
+        
+		private static final long serialVersionUID = -3843224005059646945L;
+
+		public ClassTypeMustBeSpecifiedInSuperConstructor(ClassType ct, ClassType superContainer, Position p) {
             super(ct + " is a subtype of " + superContainer +
             		"; an enclosing instance that is a subtype of " + superContainer + 
             		" must be specified in the super constructor call.", p);
         }
     }
 	public static class CannotAccessField extends EqualByTypeAndPosException {
-        public CannotAccessField(Id name, X10ClassType tCt, Position p) {
+        
+		private static final long serialVersionUID = 7876206253367118844L;
+
+		public CannotAccessField(Id name, X10ClassType tCt, Position p) {
             super("Cannot access field " + name + " of " + tCt+ 
             		" in class declaration header; the field may be a member of a superclass.", p);
         }
     }
 	public static class UnableToFindImplementingPropertyMethod extends EqualByTypeAndPosException {
-        public UnableToFindImplementingPropertyMethod(Name name, Position p) {
+        
+		private static final long serialVersionUID = 2542687322009212061L;
+
+		public UnableToFindImplementingPropertyMethod(Name name, Position p) {
             super("Unable to find the implementing property method for interface property "+name, p);
         }
     }
 	public static class OnlyTypePointOrArrayCanBeExploded extends EqualByTypeAndPosException {
-        public OnlyTypePointOrArrayCanBeExploded(Type myType, Position p) {
+        
+		private static final long serialVersionUID = 2954246035729867260L;
+
+		public OnlyTypePointOrArrayCanBeExploded(Type myType, Position p) {
             super("Only a formal of type Point or Array can be exploded, however the formal's type is "+myType, p);
         }
     }
 	public static class LocalVariableNotAllowedInContainer extends EqualByTypeAndPosException {
-        public LocalVariableNotAllowedInContainer(Name liName, Position p) {
+        
+		private static final long serialVersionUID = 9188013965362151860L;
+
+		public LocalVariableNotAllowedInContainer(Name liName, Position p) {
             super("A var local variable " + liName
 					+ " is not allowed in a constraint.", 
 					p);
         }
     }
 	public static class MethodBodyMustBeConstraintExpressiong extends EqualByTypeAndPosException {
-        public MethodBodyMustBeConstraintExpressiong(Position p) {
+        
+		private static final long serialVersionUID = -4319645748289940419L;
+
+		public MethodBodyMustBeConstraintExpressiong(Position p) {
             super("Property method body must be a constraint expression.", p);
         }
     }
 	public static class MustHaveSameClassAsContainer extends EqualByTypeAndPosException {
-        public MustHaveSameClassAsContainer(Position p) {
+        
+		private static final long serialVersionUID = 8988805819997786489L;
+
+		public MustHaveSameClassAsContainer(Position p) {
             super("The return type or the formal type of an explicit or implicit operator 'as' " +
             		"must have the same class as the container.", p);
         }
     }
 	public static class TypeParameterMultiplyDefined extends EqualByTypeAndPosException {
-        public TypeParameterMultiplyDefined(polyglot.types.Name name, Position p) {
+        
+		private static final long serialVersionUID = 3322184703494765738L;
+
+		public TypeParameterMultiplyDefined(polyglot.types.Name name, Position p) {
             super("Type parameter \"" + name + "\" multiply defined.", p);
         }
     }
 	public static class LocalVariableMultiplyDefined extends EqualByTypeAndPosException {
-        public LocalVariableMultiplyDefined(polyglot.types.Name name, Position p) {
+        
+		private static final long serialVersionUID = -8530740127048586198L;
+
+		public LocalVariableMultiplyDefined(polyglot.types.Name name, Position p) {
             super("Local variable \"" + name + "\" multiply defined.", p);
         }
     }
 	public static class CouldNotFindNonStaticMemberClass extends EqualByTypeAndPosException {
-        public CouldNotFindNonStaticMemberClass(polyglot.types.Name name, Position p) {
+        
+		private static final long serialVersionUID = -8483611596874182943L;
+
+		public CouldNotFindNonStaticMemberClass(polyglot.types.Name name, Position p) {
             super("Could not find non-static member class \"" + name + "\".", p);
         }
     }
 	public static class OnlySimplyNameMemberClassMayBeInstantiated extends EqualByTypeAndPosException {
-        public OnlySimplyNameMemberClassMayBeInstantiated(Position p) {
+        
+		private static final long serialVersionUID = 6821123540936733094L;
+
+		public OnlySimplyNameMemberClassMayBeInstantiated(Position p) {
             super("Only simply-named member classes may be instantiated by a qualified new expression.", p);
         }
     }
 	public static class CannotInstantiateMemberClass extends EqualByTypeAndPosException {
-        public CannotInstantiateMemberClass(Position p) {
+        
+		private static final long serialVersionUID = -6547512782619290457L;
+
+		public CannotInstantiateMemberClass(Position p) {
             super("Cannot instantiate member class of non-class type.", p);
         }
     }
 	public static class CannotInstantiateType extends EqualByTypeAndPosException {
-        public CannotInstantiateType(Type ct, Position p) {
+        
+		private static final long serialVersionUID = -2172383355204979418L;
+
+		public CannotInstantiateType(Type ct, Position p) {
             super("Cannot instantiate type " + ct + "; incorrect number of type arguments.", p);
         }
     }
 	public static class MustReturnValueFromNonVoidMethod extends EqualByTypeAndPosException {
-        public MustReturnValueFromNonVoidMethod(Position p) {
+        
+		private static final long serialVersionUID = 8449016684539457751L;
+
+		public MustReturnValueFromNonVoidMethod(Position p) {
             super("Must return value from non-void method.", p);
         }
     }
 	public static class CannotReturnValueFromVoidMethod extends EqualByTypeAndPosException {
-        public CannotReturnValueFromVoidMethod(Position p) {
+        
+		private static final long serialVersionUID = -2211763341228911088L;
+
+		public CannotReturnValueFromVoidMethod(Position p) {
             super("Cannot return value from void method or closure.", p);
         }
     }
 	public static class SelfMayOnlyBeUsedWithinDependentType extends EqualByTypeAndPosException {
-        public SelfMayOnlyBeUsedWithinDependentType(Position p) {
+        
+		private static final long serialVersionUID = 5580046365659081850L;
+
+		public SelfMayOnlyBeUsedWithinDependentType(Position p) {
             super("self may only be used within a dependent type", p);
         }
     }
 	public static class CannotAccessNonStaticFromStaticContext extends EqualByTypeAndPosException {
-        public CannotAccessNonStaticFromStaticContext(Position p) {
+        
+		private static final long serialVersionUID = -6660349817801232916L;
+
+		public CannotAccessNonStaticFromStaticContext(Position p) {
             super("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", p);
         }
     }
 	public static class ConstraintOnThisIsInconsistent extends EqualByTypeAndPosException {
-        public ConstraintOnThisIsInconsistent(XFailure e, Position p) {
+        
+		private static final long serialVersionUID = 1741711946479260959L;
+
+		public ConstraintOnThisIsInconsistent(XFailure e, Position p) {
             super("Constraint on this is inconsistent; " + e.getMessage(), p);
         }
     }
 	public static class ConstraintOnSuperIsInconsistent extends EqualByTypeAndPosException {
-        public ConstraintOnSuperIsInconsistent(XFailure e, Position p) {
+        
+		private static final long serialVersionUID = -7105890838233828297L;
+
+		public ConstraintOnSuperIsInconsistent(XFailure e, Position p) {
             super("Constraint on super is inconsistent; " + e.getMessage(), p);
         }
     }
 	public static class CannotApplyToFinalVariable extends EqualByTypeAndPosException {
-        public CannotApplyToFinalVariable(Unary.Operator op, Position p) {
+        
+		private static final long serialVersionUID = 4142666893804299390L;
+
+		public CannotApplyToFinalVariable(Unary.Operator op, Position p) {
             super("Cannot apply " + op + " to a final variable.", p);
         }
     }
 	public static class CannotApplyToArbitraryMethodCall extends EqualByTypeAndPosException {
-        public CannotApplyToArbitraryMethodCall(Unary.Operator op, Position p) {
+        
+		private static final long serialVersionUID = 2978452858686727693L;
+
+		public CannotApplyToArbitraryMethodCall(Unary.Operator op, Position p) {
             super("Cannot apply " + op + " to an arbitrary method call.", p);
         }
     }
 	public static class CannotApplyToArbitraryExpression extends EqualByTypeAndPosException {
-        public CannotApplyToArbitraryExpression(Unary.Operator op, Position p) {
+        
+		private static final long serialVersionUID = 8563392445054545327L;
+
+		public CannotApplyToArbitraryExpression(Unary.Operator op, Position p) {
             super("Cannot apply " + op + " to an arbitrary expression.", p);
         }
     }
 	public static class NoMethodFoundInType extends EqualByTypeAndPosException {
-        public NoMethodFoundInType(Name name, Type type, Position p) {
+        
+		private static final long serialVersionUID = 3121851317077909122L;
+
+		public NoMethodFoundInType(Name name, Type type, Position p) {
             super("No "+name+" method found in " + type, p);
         }
     }
 	public static class NoBinaryOperatorFoundInType extends EqualByTypeAndPosException {
-        public NoBinaryOperatorFoundInType(Binary.Operator binaryOp, Type t, Position p) {
+        
+		private static final long serialVersionUID = 1526054057818012596L;
+
+		public NoBinaryOperatorFoundInType(Binary.Operator binaryOp, Type t, Position p) {
             super("No binary operator " + binaryOp + " found in type " + t, p);
         }
     }
 	public static class IncompatibleReturnTypeOfBinaryOperator extends EqualByTypeAndPosException {
-        public IncompatibleReturnTypeOfBinaryOperator(Binary.Operator binaryOp, Type resultType, Type et, Position p) {
+        
+		private static final long serialVersionUID = 3142770652264041803L;
+
+		public IncompatibleReturnTypeOfBinaryOperator(Binary.Operator binaryOp, Type resultType, Type et, Position p) {
             super("Incompatible return type of binary operator "+binaryOp+
             		" found:\n\t operator return type: " + resultType + 
             		"\n\t expression type: "+ et, p);
         }
     }
 	public static class NoOperationFoundForOperand extends EqualByTypeAndPosException {
-        public NoOperationFoundForOperand(Unary.Operator op, Type t, Position p) {
+        
+		private static final long serialVersionUID = -6350714420202167451L;
+
+		public NoOperationFoundForOperand(Unary.Operator op, Type t, Position p) {
             super("No operation " + op + " found for operand " + t + ".", p);
         }
     }
 	public static class UnknownType extends EqualByTypeAndPosException {
-        public UnknownType(Position p) {
+        
+		private static final long serialVersionUID = -7259950887160518778L;
+
+		public UnknownType(Position p) {
             super("Complaining about UnknownType", p);
         }
     }
 	public static class InconsistentTypeSelf extends EqualByTypeAndPosException {
-        public InconsistentTypeSelf(Type toType, XTerm sv, Position p) {
+        
+		private static final long serialVersionUID = -2272052142358768489L;
+
+		public InconsistentTypeSelf(Type toType, XTerm sv, Position p) {
             super("Inconsistent type: " + toType + " {self==" + sv+"}", p);
         }
     }
 	public static class AnnotationMustImplementType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 2306390786578072500L;
 		public static enum Element { types, expressions, statements, method_declarations, field_declarations,
 			class_declarations, package_declarations, imports;
 			public String toString() {
@@ -1390,77 +1777,122 @@ public class Errors {
         }
     }
 	public static class GeneralError extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 2155276761588484310L;
+
 		public GeneralError(String str, Position p) {
             super(str, p);
         }
     }
 	public static class RecursiveTypeDefinition extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -842340018775625795L;
+
 		public RecursiveTypeDefinition(Position p) {
             super("Recursive type definition; type definition depends on itself.", p);
         }
     }
 	public static class MethodsOverrideWithCompatibleSignatures extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 7345146936277355750L;
+
 		public MethodsOverrideWithCompatibleSignatures(MethodInstance mj, MethodInstance mi, Position p) {
             super("Method " + mj.signature() + " in " + mj.container() + " and method " + mi.signature() + " in " + mi.container()
                     + " override methods with compatible signatures.", p);
         }
     }
 	public static class DuplicateTypeDefinition extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 3601200386807354680L;
+
 		public DuplicateTypeDefinition(TypeDef mj, TypeDef mi, Position p) {
             super("Duplicate type definition \"" + mj + "\"; previous declaration at " + mi.position() + ".", p);
         }
     }
 	public static class TypeDefinitionSameNameAsMemberClass extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 3624067897043533607L;
+
 		public TypeDefinitionSameNameAsMemberClass(TypeDef mi, Type ct, Position p) {
             super("Type definition " + mi + " has the same name as member class " + ct + ".", p);
         }
     }
 	public static class ClockedLoopMayOnlyBeClockedOnClock extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -1335837449324934323L;
+
 		public ClockedLoopMayOnlyBeClockedOnClock(Position p) {
             super("Clocked loop may only be clocked on a clock.", p);
         }
     }
 	public static class TernaryExpressiongMustBeBoolean extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -1877025742518675776L;
+
 		public TernaryExpressiongMustBeBoolean(Position p) {
             super("Condition of ternary expression must be of type boolean.", p);
         }
     }
 	public static class ConstructorGuardNotSatisfied extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 6434865257883772504L;
+
 		public ConstructorGuardNotSatisfied(Position p) {
             super("The constructor guard was not satisfied.", p);
         }
     }
 	public static class DoStatementMustHaveBooleanType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -9135430610071222757L;
+
 		public DoStatementMustHaveBooleanType(Type type, Position p) {
             super("Condition of do statement must have boolean type, and not " + type + ".", p);
         }
     }
 	public static class StructsCircularity extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 9009031466278739441L;
+
 		public StructsCircularity(Position p) {
             super("Circularity in the usage of structs will cause this field to have infinite size. Use a class instead of a struct.",p);
         }
     }
 	public static class IfStatementMustHaveBooleanType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -5594198395865204963L;
+
 		public IfStatementMustHaveBooleanType(Type type, Position p) {
             super("Condition of if statement must have boolean type, and not " + type + ".", p);
         }
     }
 	public static class CannotReturnFromAsync extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -2159259054519115441L;
+
 		public CannotReturnFromAsync(Position p) {
             super("Cannot return from an async.",p);
         }
     }
 	public static class SourceContainsMoreThanOnePublicDeclaration extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 919717419009474300L;
+
 		public SourceContainsMoreThanOnePublicDeclaration(Position p) {
             super("The source contains more than one public declaration.", p);
         }
     }
 	public static class CannotReferToSuperFromDeclarationHeader extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -8299709535638160197L;
+
 		public CannotReferToSuperFromDeclarationHeader(Position p) {
             super("Cannot refer to \"super\" from within a class or interface declaration header.", p);
         }
     }
 	public static class NestedClassMissingEclosingInstance extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -7130506706943788378L;
+
 		public NestedClassMissingEclosingInstance(X10ClassType c, Type ct, Position p) {
             super("The nested class \"" 
                     +c 
@@ -1469,22 +1901,34 @@ public class Errors {
         }
     }
 	public static class InvalidQualifierForSuper extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 4857358619197913454L;
+
 		public InvalidQualifierForSuper(Position p) {
             super("Invalid qualifier for \"this\" or \"super\".", p);
         }
     }
 	public static class WhileStatementMustHaveBooleanType extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 387625309316860312L;
+
 		public WhileStatementMustHaveBooleanType(Type type, Position p) {
             super("Condition of while statement must have boolean type, and not " + type + ".", p);
         }
     }
 	public static class MaxMacroExpansionDepth extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5186067047134099233L;
+
 		public MaxMacroExpansionDepth(Type t, Position p) {
             super("Reached max macro expansion depth with " + t, p);
         }
     }
     public static class TypeGuardNotEntailed extends SemanticException {
-        public TypeGuardNotEntailed(TypeConstraint tb, Type container) {
+        
+		private static final long serialVersionUID = 7217492191556883816L;
+
+		public TypeGuardNotEntailed(TypeConstraint tb, Type container) {
             super("Cannot instantiate type "+container+": type guard "+tb+" not entailed.");
         }
     }
