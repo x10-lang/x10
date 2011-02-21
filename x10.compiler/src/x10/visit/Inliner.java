@@ -1486,7 +1486,7 @@ public class Inliner extends ContextVisitor {
             // A return at the end of the method will have been converted to a
             // break. It's not needed. Turf it.
             List<Stmt> bodyStmts = body.statements();
-            if ((bodyStmts.get(bodyStmts.size() - 1) instanceof Branch)) {
+            if (!bodyStmts.isEmpty() && (bodyStmts.get(bodyStmts.size() - 1) instanceof Branch)) {
                 Branch br = (Branch) bodyStmts.get(bodyStmts.size() - 1);
                 if (br.kind() == Branch.BREAK) {
                     Id breakLabel = br.labelNode();
