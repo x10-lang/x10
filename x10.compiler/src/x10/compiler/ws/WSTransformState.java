@@ -13,6 +13,7 @@
 package x10.compiler.ws;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -78,6 +79,9 @@ public class WSTransformState {
     public final ClassType finishFrameType;
     public final ClassType rootFinishType;
     public final ClassType mainFrameType;
+    public final ClassType remoteMainFrameType;
+    public final ClassType remoteRootFinishType;
+    public final ClassType remoteRootFrameType;
     public final ClassType regularFrameType;
     public final ClassType asyncFrameType;
     public final ClassType boxedBooleanType;
@@ -87,11 +91,15 @@ public class WSTransformState {
     public final ClassType transientType; //annotation type
     public final ClassType headerType; //annotation type
     public final ClassType uninitializedType; //annotation type
+    public final ClassType globalRefFFType;  //GlobalRef[FinishFrame]
+    public final ClassType globalRefBBType;  //GloobalRef[BoxedBoolean]
     public final Boolean realloc; // whether or not to generate code for frame migration
 
     private String theLanguage; //c++ or java path
     private WSCallGraph callGraph;
     private WSTransformationContent transTarget;
+    
+    protected TypeSystem xts;
     
     public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent transTarget){
         this(xts, theLanguage);
@@ -167,12 +175,16 @@ public class WSTransformState {
      * @param theLanguage
      */
     protected WSTransformState(TypeSystem xts, String theLanguage){
+        this.xts = xts;
     	this.theLanguage = theLanguage;
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
             rootFinishType = xts.load("x10.compiler.ws.RootFinish");
             mainFrameType = xts.load("x10.compiler.ws.MainFrame");
+            remoteMainFrameType = xts.load("x10.compiler.ws.RemoteMainFrame");
+            remoteRootFinishType = xts.load("x10.compiler.ws.RemoteRootFinish");
+            remoteRootFrameType = xts.load("x10.compiler.ws.RemoteRootFrame");
             regularFrameType = xts.load("x10.compiler.ws.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
             boxedBooleanType = xts.load("x10.compiler.ws.BoxedBoolean");
@@ -183,6 +195,9 @@ public class WSTransformState {
             finishFrameType = xts.load("x10.compiler.ws.java.FinishFrame");
             rootFinishType = xts.load("x10.compiler.ws.java.RootFinish");
             mainFrameType = xts.load("x10.compiler.ws.java.MainFrame");
+            remoteMainFrameType = xts.load("x10.compiler.ws.java.RemoteMainFrame");
+            remoteRootFinishType = xts.load("x10.compiler.ws.java.RemoteRootFinish");
+            remoteRootFrameType = xts.load("x10.compiler.ws.java.RemoteRootFrame");
             regularFrameType = xts.load("x10.compiler.ws.java.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.java.AsyncFrame");
             boxedBooleanType = xts.load("x10.compiler.ws.java.BoxedBoolean");
@@ -194,8 +209,22 @@ public class WSTransformState {
         transientType = xts.load("x10.compiler.Ephemeral");
         headerType = xts.load("x10.compiler.Header");
         uninitializedType = xts.load("x10.compiler.Uninitialized");
+        
+        //Process two global ref
+        List<Type> ffTypeList = new ArrayList<Type>();
+        ffTypeList.add(finishFrameType);
+        globalRefFFType = xts.GlobalRef().typeArguments(ffTypeList);
+
+        List<Type> boxedBooleanTypeList = new ArrayList<Type>();
+        boxedBooleanTypeList.add(boxedBooleanType);
+        globalRefBBType = xts.GlobalRef().typeArguments(boxedBooleanTypeList);
+    
     }
 
+
+    public TypeSystem getX10TypeSystem() {
+        return xts;
+    }
 
     /**
      * Get the backend used

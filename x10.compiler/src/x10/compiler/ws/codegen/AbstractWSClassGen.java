@@ -64,6 +64,7 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.ast.Async;
+import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.Finish;
 import x10.ast.When;
@@ -119,13 +120,18 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name RESUME = Name.make("resume");
     static final protected Name BACK = Name.make("back");
     static final protected Name MOVE = Name.make("move");
+    static final protected Name REMOTE_RUN_FRAME = Name.make("remoteRunFrame");
+    static final protected Name REMOTE_AT_NOTIFY = Name.make("remoteAtNotify");    
     static final protected Name WORKER = Name.make("worker");
     static final protected Name FRAME = Name.make("frame");
     static final protected Name PC = Name.make("_pc");
     static final protected Name FF = Name.make("ff");
     static final protected Name UP = Name.make("up");
+    static final protected Name BLOCK_FLAG = Name.make("_bf");
     static final protected Name ASYNCS = Name.make("asyncs");
+    static final protected Name REDIRECT = Name.make("redirect");
     static final protected Name REDO = Name.make("redo");
+    static final protected Name INIT = Name.make("init");
     static final protected Name OPERATOR = Name.make("operator()");
 
     final protected Job job;
@@ -176,7 +182,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         
         fastMSynth = classSynth.createMethod(compilerPos, FAST.toString());
         fastMSynth.setFlag(Flags.PUBLIC);
-        if (!(xts.isSubtype(frameType, wts.mainFrameType))) {
+        if (!(xts.isSubtype(frameType, wts.mainFrameType))
+                && !(xts.isSubtype(frameType, wts.remoteMainFrameType))) {
+            //only set inline to inner frames, not top frames
             fastMSynth.addAnnotation(genInlineAnnotation());
         }
         fastMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
@@ -244,6 +252,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             WSAsyncClassGen aFrame = (WSAsyncClassGen)this;
             
             sb.append(" (k = ").append(aFrame.parentK.className).append(')');
+        }
+        if(this instanceof WSRemoteMainFrameClassGen){
+            WSRemoteMainFrameClassGen rFrame = (WSRemoteMainFrameClassGen)this;
+            
+            sb.append(" (r = ").append(rFrame.parentR.className).append(')');
         }
         sb.append(System.getProperty("line.separator"));
 
@@ -427,14 +440,32 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             }
             else if(stmt instanceof Async){
                 //Two situations:
-                //1) current frame is finish (? including async or not??) stmt, we need wrap async into a block
+                //1) current frame is aysnc frame stmt or finish frame, we need wrap async into a block, 
+                //   no matter the async is async or async at, and use the current name as prefix
                 //2) current frame is normal stmt, just transform it directly
-                if(xts.isSubtype(getClassType(), wts.finishFrameType)){
-                    childClassGen = new WSRegularFrameClassGen(this, synth.toBlock(stmt), namePrefix);
+                if(xts.isSubtype(getClassType(), wts.asyncFrameType)
+                        || xts.isSubtype(getClassType(), wts.finishFrameType)){
+                    childClassGen = new WSRegularFrameClassGen(this, synth.toBlock(stmt),
+                                                               WSCodeGenUtility.getBlockFrameClassName(this.getClassName()));
                 }
                 else{
-                    childClassGen = new WSAsyncClassGen(this, (Async)stmt);                    
+                    Async async = (Async)stmt;
+                    Stmt asyncBody = WSCodeGenUtility.unrollToOneStmt(async.body());
+                    //need check the frame is pure async or async at(p)
+                    if(asyncBody instanceof AtStmt){
+                        //async at(p), transform it as a remote frame
+                        childClassGen = new WSRemoteMainFrameClassGen(this, (AtStmt)asyncBody, true);
+                    }
+                    else{
+                        //pure async
+                        childClassGen = new WSAsyncClassGen(this, (Async)stmt); 
+                    }
+                   
                 }
+            }
+            else if(stmt instanceof AtStmt){
+                //Transform it as at remoteframe
+                childClassGen = new WSRemoteMainFrameClassGen(this, (AtStmt)stmt, false);
             }
             else{
                 //stmt.prettyPrint(System.out);               
@@ -719,6 +750,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     protected Stmt transLocalDecl(LocalDecl ld){
         //Create fields
         if (((X10LocalDef) ld.localDef()).annotationsMatching(wts.transientType).isEmpty()) {
+            //The local is not annotated as "@Transient", and should be transformed as field
             Name fieldName = ld.name().id();
             FieldSynth localFieldSynth = classSynth.createField(ld.position(), fieldName.toString(), ld.type().type());
             localFieldSynth.addAnnotation(genUninitializedAnnotation()); 
@@ -735,6 +767,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             Expr assign = xnf.LocalAssign(localInit.position(), local, Assign.ASSIGN, localInit).type(localInit.type());
             return xnf.Eval(ld.position(), assign);      
         } else {
+            //the local is annoated as "@Transient", no need transformation
             return ld;
         }
     }
@@ -1273,8 +1306,8 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         //look for up field first, then continuation
         
         AbstractWSClassGen parentClassFrame = classFrame.getUpFrame();
-        if(parentClassFrame != null){ //it's possible the parent is null, for an async has no direct finish
-            refContainer.push("up", parentClassFrame);
+        if(parentClassFrame != null){ //it's possible the parent is null, for an async has no direct finish, and remote main frame
+            refContainer.push(UP.toString(), parentClassFrame);
             lookForField(fieldName, refContainer, parentClassFrame);
             refContainer.pop();
         }
@@ -1291,6 +1324,18 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 refContainer.pop();
             }
         }
+        
+        //remote frame type should search it's remote parent frame
+        if(classFrame instanceof WSRemoteMainFrameClassGen){
+            WSRemoteMainFrameClassGen remoteFrame = (WSRemoteMainFrameClassGen)classFrame;
+            parentClassFrame = remoteFrame.parentR;
+            if(parentClassFrame != null){
+                refContainer.push("r", parentClassFrame);
+                lookForField(fieldName, refContainer, parentClassFrame);
+                refContainer.pop();
+            }
+        }
+        
     }
     
     /**
@@ -1391,13 +1436,8 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             //now gothourgh the refStructure
             AbstractWSClassGen classFrame = startFrame;
             for(Pair<String, Type> p : refStructure){
-                if(p.fst().equals("up")){
-                    classFrame = classFrame.getUpFrame();
-                }
-                else{
-                    System.err.println("[WS_ERR]Async frame move():should not use k to reference a field!!!");
-                    classFrame = ((WSAsyncClassGen)classFrame).parentK;
-                }
+                assert(p.fst().equals(UP.toString()));
+                classFrame = classFrame.getUpFrame();
                 Expr upField = synth.makeFieldAccess(compilerPos, castedRef, Name.make(p.fst()), xct);
                 castedRef = genCastCall(wts.frameType, p.snd(), upField);   
             }
@@ -1420,16 +1460,16 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             refToDeclMap = CollectionFactory.newHashMap();
         }
         AbstractWSClassGen frame = localToFieldFrameMap.get(fieldName);     //use cache    
-        if(frame != null){
+        if(frame != null){ //found it in cache, no need build the reference again
             return fieldFrameToRefMap.get(frame);
         }
         else {
             ReferenceContainer refContainer = new ReferenceContainer(this);
             lookForField(fieldName, refContainer, this); //start from here
-            //here the refStructure should be both the shortest, but also has no "k"
-            //So we use some other logical to process the refStructure, remove "k" and create local in async frames 
+            //here the refStructure should be both the shortest, but also has no "k/r"
+            //So we use some other logical to process the refStructure, remove "k/r" and create local in async or remote frames 
             List<Pair<String, Type>> refStructure = refContainer.getBestRefStructure(); 
-            refStructure = processRefStructureForAsync(refStructure, fieldName, type);
+            refStructure = processRefStructureForAsyncAndRemoteFrame(refStructure, fieldName, type);
             
             Expr ref = xnf.This(compilerPos).type(this.getClassDef().asType());
             if(refStructure != null){ //found the ref
@@ -1442,12 +1482,8 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                     AbstractWSClassGen classFrame = this;
                     
                     for(Pair<String, Type> p : refStructure){
-                        if(p.fst().equals("up")){
-                            classFrame = classFrame.getUpFrame();
-                        }
-                        else{
-                            classFrame = ((WSAsyncClassGen)classFrame).parentK;
-                        }
+                        assert(p.fst().equals(UP.toString()));
+                        classFrame = classFrame.getUpFrame();
                         Expr upField = synth.makeFieldAccess(compilerPos, ref, Name.make(p.fst()), xct);
                         ref = genCastCall(wts.frameType, p.snd(), upField);
                     }
@@ -1475,7 +1511,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     }  
     
     
-    List<Pair<String, Type>> processRefStructureForAsync(List<Pair<String, Type>> refStructure, Name name, Type type){
+    //Async frame's "up" field point to the finish frame
+    //And the local variables between finish frame and itself should be copied into the async frame as formals
+    //Remote frame has no up, all ref structure contains up should be copied into the remote frame as formals
+    //The return structure will only contains "up". No "k" or "r"
+    List<Pair<String, Type>> processRefStructureForAsyncAndRemoteFrame(List<Pair<String, Type>> refStructure, Name name, Type type){
         
         if(refStructure == null || refStructure.size() == 0){
             return refStructure; // no need process
@@ -1484,20 +1524,30 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         ArrayList<Pair<String, Type>> result = new ArrayList<Pair<String, Type>>();
        
         //identify the field container frame according to the refstructure
-        boolean foundKInRef = false; //if found, no need 
+        boolean foundKRInRef = false; //if found, no need additional search
         AbstractWSClassGen classFrame = this;
         for(Pair<String, Type> pair : refStructure){
-            if(pair.fst().equals("up")){
+            if(pair.fst().equals(UP.toString())){
                 classFrame = classFrame.up;
             }
-            else{
-                foundKInRef = true;
-                WSAsyncClassGen asyncFrame = (WSAsyncClassGen)classFrame;
-                classFrame = asyncFrame.parentK;
-                //and we need create the fields in the async frame
-                asyncFrame.addFormal(name, type);
+            else{ //"from parentK" or from "parentR"
+                foundKRInRef = true;
+                
+                if(pair.fst().equals("k")){
+                    WSAsyncClassGen asyncFrame = (WSAsyncClassGen)classFrame;
+                    classFrame = asyncFrame.parentK;
+                    //and we need create the fields in the async frame
+                    asyncFrame.addFormal(name, type);
+                }
+                else{ //"r"
+                    WSRemoteMainFrameClassGen remoteFrame = (WSRemoteMainFrameClassGen)classFrame;
+                    classFrame = remoteFrame.parentR;
+                    //and we need create the fields in the async frame
+                    remoteFrame.addFormal(name, type);
+                }
+                //cannot break yet, still do more search
             }
-            if(!foundKInRef){ //as soon as found "k", we stop copy the ref to result.
+            if(!foundKRInRef){ //as soon as found "k/r", we stop copy the ref to result.
                 result.add(pair);                    
             }
         }        

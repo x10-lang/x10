@@ -40,6 +40,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
 import x10.ast.Async;
+import x10.ast.AtStmt;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
 import x10.ast.ForLoop;
@@ -79,7 +80,9 @@ import polyglot.types.TypeSystem;
 public class CodePatternDetector {
     public static enum Pattern{ Finish,
                   FinishAssign, //used in collecting finish
-                  Async,  
+                  Async,
+                  At, // at(p) S
+                  AsyncAt, // async at(p) S
                   When,
                   LocalDecl, //local declare with the initializer is concurrent call
                   Call, //only the first level call is target call;
@@ -114,10 +117,18 @@ public class CodePatternDetector {
             return Pattern.LocalDecl;
         }
         
-        
-        //TODO: Check home == here;
         if(stmt instanceof Async){
-            return Pattern.Async;
+            Stmt asyncBodyStmt = WSCodeGenUtility.unrollToOneStmt(((Async)stmt).body());
+            if(asyncBodyStmt instanceof AtStmt){
+                return Pattern.AsyncAt; //async at one place
+            }
+            else{           
+                return Pattern.Async;
+            }
+        }
+        
+        if(stmt instanceof AtStmt){
+            return Pattern.At;
         }
         
         if(stmt instanceof Finish){

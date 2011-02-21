@@ -40,9 +40,11 @@ import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.ast.Async;
+import x10.ast.AtStmt;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
 import x10.ast.When;
@@ -61,6 +63,9 @@ import polyglot.types.Context;
 import x10.util.synthesizer.ClassSynth;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.ConstructorSynth;
+import x10.util.synthesizer.InstanceCallSynth;
+import x10.util.synthesizer.NewInstanceSynth;
+import x10.util.synthesizer.NewLocalVarSynth;
 import x10.util.synthesizer.SuperCallSynth;
 import x10.util.synthesizer.SwitchSynth;
 
@@ -95,6 +100,13 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     // nested frames
     protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt stmt, String classNamePrefix) {
         super(parent, parent, classNamePrefix, parent.wts.regularFrameType, stmt);
+        
+        addPCField();
+    }
+    
+    // remote frames: at(p) & async at(p)
+    protected WSRegularFrameClassGen(AbstractWSClassGen parent, AbstractWSClassGen up, Stmt stmt, String classNamePrefix, ClassType frameType) {
+        super(parent, up, classNamePrefix, frameType, stmt);
         
         addPCField();
     }
@@ -137,21 +149,24 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                             // inner class is created
         int prePcValue = 0; // The current pc value. Will increase every time an
                             // inner class is created
-
+        boolean isFrameOnHeap = false; //For c++ path, "at" & "async at" transform need the frame on heap first
         Set<Name> localDeclaredVar = CollectionFactory.newHashSet(); //all locals with these names will not be replaced
         
         while (bodyStmts.size() > 0) {
 
             Stmt s = bodyStmts.remove(0); //always remove the first one
             isReturnPathChanged = false; //have one statement, and should have return path
-            TransCodes codes;
+            TransCodes codes; //the main codes
+            TransCodes codes2 = null; //only used in at stmt transformation, which need additional check
 
             // need process local declare first
             if (s instanceof LocalDecl) { // Pre-processing
                 s = transLocalDecl((LocalDecl) s);
                 if(s == null) continue;
-                if (s instanceof LocalDecl)
+                if (s instanceof LocalDecl){
+                    //this local is not transformed as a field. Record it
                     localDeclaredVar.add(((LocalDecl) s).name().id());
+                }
            }
             // need analyze out-finish scope local assign
             if(s instanceof Eval){
@@ -174,6 +189,31 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 break;
             case Async:
                 codes = transAsync((Async)s, prePcValue);
+                break;
+            case At:
+                if(!isFrameOnHeap){
+                    codes = genMoveFrameToHeapCodes(prePcValue);
+                    isFrameOnHeap = true;
+                    bodyStmts.add(0, s); //transform the statement next loop
+                }
+                else{
+                    Pair<TransCodes, TransCodes> codesPair = transAtAsyncAt((AtStmt)s, prePcValue, false, null, localDeclaredVar);
+                    codes = codesPair.fst();
+                    codes2 = codesPair.snd();
+                    //At stmt need additional block check
+                }
+                break;
+            case AsyncAt:
+                if(!isFrameOnHeap){
+                    codes = genMoveFrameToHeapCodes(prePcValue);
+                    isFrameOnHeap = true;
+                    bodyStmts.add(0, s); //transform the statement next loop
+                }
+                else{
+                    Async async = (Async)s;
+                    Pair<TransCodes, TransCodes> codesPair = transAtAsyncAt(s, prePcValue, true, async.clocks(), localDeclaredVar);
+                    codes = codesPair.fst();
+                }
                 break;
             case When:
                 codes = transWhen((When)s, prePcValue);
@@ -223,6 +263,15 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 backSwitchSynth.insertStatementInCondition(pcValue, xnf.Break(compilerPos));
             }
             prePcValue = pcValue;
+            
+            if(codes2 != null){
+                //Process atstmt's condition check
+                pcValue = codes2.getPcValue();
+                fastBodySynth.addStmts(codes2.first());
+                resumeSwitchSynth.insertStatementsInCondition(pcValue, codes2.second());
+                prePcValue = pcValue;
+                codes2 = null;
+            }
         } // for loop end
 
         //processing the return if the return was impacted by return check stmt;
@@ -424,9 +473,210 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         
         return childCallCodes;
     }
+    
+    //Generate move to heap codes
+    //_pc = x;
+    //if(ff.redirect == null){
+    //    redo(worker);
+    //}
+    protected TransCodes genMoveFrameToHeapCodes(int prePcValue) throws SemanticException{
+        TransCodes transCodes = new TransCodes(prePcValue + 1);
+        
+        //_pc = x;
+        try{
+            //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
+            Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
+                                  synth.intValueExpr(transCodes.getPcValue(), compilerPos), xct).type(xts.Int());
+            transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
+            transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));   
+        }
+        catch(polyglot.types.NoMemberException e){
+            //Just ignore the pc assign statement if there is no pc field in the frame
+        }
+        
+        // if statement and redo
+        
+        //if stmt
+        Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
+        Expr redirectRef = synth.makeFieldAccess(compilerPos, ffRef, REDIRECT, xct);
+        Expr redoCheck = xnf.Binary(compilerPos, redirectRef, Binary.EQ,
+                                    xnf.NullLit(compilerPos)).type(wts.finishFrameType);
+        
+        Expr thisRef = genUpcastCall(getClassType(), wts.regularFrameType, getThisRef());
+        
+        InstanceCallSynth fastRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, REDO.toString());
+        Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
+        fastRedoCallSynth.addArgument(wts.workerType, fastWorkerRef);
+        Stmt fastIfRedoStmt = xnf.If(compilerPos, redoCheck, fastRedoCallSynth.genStmt());        
+        transCodes.addFirst(fastIfRedoStmt);
+        
+        InstanceCallSynth resumeRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, REDO.toString());
+        Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
+        resumeRedoCallSynth.addArgument(wts.workerType, resumeWorkerRef);
+        Stmt resumeIfRedoStmt = xnf.If(compilerPos, redoCheck, resumeRedoCallSynth.genStmt());        
+        transCodes.addSecond(resumeIfRedoStmt);
+        
+        return transCodes;
+    }
 
-
-
+    
+    /**
+     * @param atStmt the at stmt or the async at stmt
+     * @param prePcValue
+     * @param isAsync true: async at(P) S; false: at(P)S
+     * @param clocks: only useful when isAsync == true
+     * @return two transcodes, because the pc will change more than once
+     * @throws SemanticException
+     */
+    protected Pair<TransCodes, TransCodes> transAtAsyncAt(Stmt stmt, int prePcValue,
+                                                          boolean isAsync, 
+                                                          List<Expr> clocks, //not use clocks now
+                                                          Set<Name> declaredLocals) throws SemanticException{
+        TransCodes transCodes = new TransCodes(prePcValue); //remote call doesn't need increase pc
+        
+        //transformation step by step:
+        
+        //create ff's global ref
+        Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
+        
+        NewInstanceSynth globalFFRefSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.globalRefFFType);
+        globalFFRefSynth.addArgument(wts.finishFrameType, ffRef);
+        NewLocalVarSynth globalFFRefLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, globalFFRefSynth.genExpr());
+        transCodes.addFirst(globalFFRefLocalSynth.genStmt());
+        transCodes.addSecond(globalFFRefLocalSynth.genStmt());
+        Expr globalFFRef = globalFFRefLocalSynth.getLocal();
+        
+        //create the frame class gen
+        WSRemoteMainFrameClassGen remoteClassGen = (WSRemoteMainFrameClassGen) genChildFrame(wts.remoteMainFrameType, stmt, null); //no need prefix gen here
+        
+        Expr flagRef = null; //used in at transformation
+        if(!isAsync){
+            //need create a flag as field in the current frame
+            Name flagName = xct.getNewVarName();
+            classSynth.createField(compilerPos, flagName.toString(), wts.boxedBooleanType);
+            fieldNames.add(flagName);
+            flagRef = synth.makeFieldAccess(compilerPos, getThisRef(), flagName, xct);
+            
+            //need initial the flag: _bb = new BoxedBoolean();
+            NewInstanceSynth flagSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.boxedBooleanType);
+            Expr flagAssingExpr = synth.makeFieldAssign(compilerPos, getThisRef(), flagName, flagSynth.genExpr(), xct);
+            transCodes.addFirst(xnf.Eval(compilerPos, flagAssingExpr));
+            transCodes.addSecond(xnf.Eval(compilerPos, flagAssingExpr));
+        }
+        
+        //prepare val rRootFinish:RemoteRootFinish = new RemoteRootFinish(ffRef);
+        NewInstanceSynth remoteRootFFSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.remoteRootFinishType);
+        remoteRootFFSynth.addArgument(wts.globalRefFFType, globalFFRef);
+        NewLocalVarSynth remoteRootFFRefLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, remoteRootFFSynth.genExpr());
+        transCodes.addFirst(remoteRootFFRefLocalSynth.genStmt());
+        transCodes.addSecond(remoteRootFFRefLocalSynth.genStmt());
+        Expr remoteRootFFRef = remoteRootFFRefLocalSynth.getLocal();
+        
+        //call rRootFinish.init();
+        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, remoteRootFFRef, INIT.toString());
+        transCodes.addFirst(icSynth.genStmt());
+        transCodes.addSecond(icSynth.genStmt());        
+        
+        //Prepare the instance
+        //val rFrame = new _mainR0(rRootFinish, rRootFinish, n1);
+        NewInstanceSynth remoteMainSynth = new NewInstanceSynth(xnf, xct, compilerPos, remoteClassGen.getClassType());
+        remoteMainSynth.addArgument(wts.remoteRootFinishType, remoteRootFFRef);
+        remoteMainSynth.addArgument(wts.remoteRootFinishType, remoteRootFFRef);
+        
+        if(!isAsync){ //block's flag's global ref as one formal
+            //prepare the flag's global ref:val bbRef = GlobalRef[BoxedBoolean](_bb1);
+            NewInstanceSynth globalFlagRefSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.globalRefBBType);
+            globalFlagRefSynth.addArgument(wts.boxedBooleanType, flagRef);
+            NewLocalVarSynth globalFlagRefLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, globalFlagRefSynth.genExpr());
+            transCodes.addFirst(globalFlagRefLocalSynth.genStmt());
+            transCodes.addSecond(globalFlagRefLocalSynth.genStmt());
+            Expr globalFlagRef = globalFlagRefLocalSynth.getLocal();
+            remoteMainSynth.addArgument(wts.globalRefBBType, globalFlagRef);
+        }
+        
+        //iterate add all formals required
+        for(Pair<Name, Type> formal : remoteClassGen.formals){
+            //make an access to the value;
+            Expr fieldContainerRef = this.getFieldContainerRef(formal.fst(), formal.snd());
+            Expr fieldRef = synth.makeFieldAccess(compilerPos, fieldContainerRef, formal.fst(), xct).type(formal.snd());
+            remoteMainSynth.addArgument(formal.snd(), fieldRef);
+        }
+        
+        //prepare local declare stmt        
+        NewLocalVarSynth remoteMainLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, remoteMainSynth.genExpr());
+        transCodes.addFirst(remoteMainLocalSynth.genStmt());
+        transCodes.addSecond(remoteMainLocalSynth.genStmt());
+        Expr remoteMainRef = remoteMainLocalSynth.getLocal();
+        
+        
+        //Prepare worker call
+        //worker.remoteRunFrame(here.next(), rFrame, ff);
+        //need change place to place.home if place is a GlobalRef
+        Expr place = (Expr) this.replaceLocalVarRefWithFieldAccess(remoteClassGen.getPlace(), declaredLocals);
+        if (xts.hasSameClassDef(Types.baseType(place.type()), xts.GlobalRef())) {
+                place = synth.makeFieldAccess(stmt.position(),place, xts.homeName(), xct);
+        }
+        { //fast
+            Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
+            InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, fastWorkerRef, REMOTE_RUN_FRAME.toString());
+            callSynth.addArgument(xts.Place(), place);
+            callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
+            callSynth.addArgument(wts.finishFrameType, ffRef);
+            transCodes.addFirst(callSynth.genStmt());
+        }
+        { //resume
+            Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
+            InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, resumeWorkerRef, REMOTE_RUN_FRAME.toString());
+            callSynth.addArgument(xts.Place(), place);
+            callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
+            callSynth.addArgument(wts.finishFrameType, ffRef);
+            transCodes.addSecond(callSynth.genStmt());
+        }
+        
+        //prepare atstmt's block check
+        TransCodes transCodes2 = null;
+        if(!isAsync){
+            transCodes2 = new TransCodes(prePcValue + 1);
+            //block on the flag 
+            //_pc = x; increase pc first
+            try{
+                //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
+                Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
+                                      synth.intValueExpr(transCodes2.getPcValue(), compilerPos), xct).type(xts.Int());
+                //Note: the pc assign is in transCodes, not in transCodes2
+                transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
+                transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));   
+            }
+            catch(polyglot.types.NoMemberException e){
+                //Just ignore the pc assign statement if there is no pc field in the frame
+            }
+            
+            // if statement and redo, in transCodes2
+            //if stmt
+            //need get the flag(BoxedBoolean's value)
+            Expr flagValueRef = synth.makeFieldAccess(compilerPos, flagRef, Name.make("value"), xct);
+            Expr redoCheck = xnf.Binary(compilerPos, flagValueRef, Binary.EQ,
+                                        synth.booleanValueExpr(false, compilerPos));
+            
+            Expr thisRef = genUpcastCall(getClassType(), wts.regularFrameType, getThisRef());
+            
+            InstanceCallSynth fastRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, REDO.toString());
+            Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
+            fastRedoCallSynth.addArgument(wts.workerType, fastWorkerRef);
+            Stmt fastIfRedoStmt = xnf.If(compilerPos, redoCheck, fastRedoCallSynth.genStmt());        
+            transCodes2.addFirst(fastIfRedoStmt);
+            
+            InstanceCallSynth resumeRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, REDO.toString());
+            Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
+            resumeRedoCallSynth.addArgument(wts.workerType, resumeWorkerRef);
+            Stmt resumeIfRedoStmt = xnf.If(compilerPos, redoCheck, resumeRedoCallSynth.genStmt());        
+            transCodes2.addSecond(resumeIfRedoStmt);
+        }
+        
+        
+        return new Pair<TransCodes, TransCodes>(transCodes, transCodes2);
+    }
+    
     protected TransCodes transAsync(Stmt a, int prePcValue) throws SemanticException {
 
         TransCodes transCodes = new TransCodes(prePcValue + 1);
@@ -614,8 +864,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         // add all constructors
         CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
 
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up");
-        Expr ffRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameType, "ff");
+        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, UP.toString());
+        Expr ffRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameType, FF.toString());
         SuperCallSynth superCallSynth = conCodeSynth.createSuperCall(compilerPos, classSynth.getDef());
         superCallSynth.addArgument(wts.frameType, upRef);
         superCallSynth.addArgument(wts.finishFrameType, ffRef);
