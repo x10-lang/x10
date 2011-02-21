@@ -248,6 +248,26 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
 		}
 	}
+    // Special version of runAt for broadcast type communication
+    // (Serialize once, run everywhere)
+    public static void runAtAll(boolean includeHere, x10.core.fun.VoidFun_0_0 body) {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			(new java.io.ObjectOutputStream(baos)).writeObject(body);
+			byte[] msg = baos.toByteArray();
+			int hereId = X10RT.here();
+	        for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
+	        	x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
+	        }
+	        int endPlace = includeHere ? hereId : hereId - 1;
+	        for (int place = 0; place <= endPlace; ++place) {
+	        	x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
+	        }
+		} catch (java.io.IOException e){
+			e.printStackTrace();
+            throw new x10.runtime.impl.java.WrappedThrowable(e);
+		}
+    }
 
 	/**
 	 * @MultiVM: Return true if place(id) is local to this node

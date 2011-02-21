@@ -122,10 +122,8 @@ public class InitDispatcher {
             }
         };
 
-        for (int place = 1; place < Runtime.MAX_PLACES; place++) {
-            // call x10rt API to invoke the closure at specified place
-            Runtime.runClosureAt(place, body);
-        }
+        // Invoke the closure at all places except here
+        Runtime.runAtAll(false, body);
     }
 
     private static byte[] serializeField(Object object) {
