@@ -1,0 +1,19 @@
+package x10.compiler.ws;
+
+import x10.compiler.Header;
+
+public final class RemoteRootFrame extends Frame {
+    public val ffRef:GlobalRef[FinishFrame];
+    @Header public def this(ffRef:GlobalRef[FinishFrame]) {
+        super(null);
+        this.ffRef = ffRef; 
+    }
+
+    public def remap():Frame = upcast[RemoteRootFrame,Frame](this);
+
+    public def resume(worker:Worker) {
+        //need call back to update the ff's asyncs count
+        worker.remoteFinishJoin(ffRef);
+    }
+
+}
