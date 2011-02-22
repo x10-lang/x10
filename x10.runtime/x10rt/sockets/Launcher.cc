@@ -987,7 +987,6 @@ static char *escape_various_things (const char *in)
             break;
 
             case '$': // escape these with an additional backslash
-            case '`':
             case '\"':
             case '\\':
             out[out_cnt++] = '\\';
@@ -1086,9 +1085,9 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     // deal with the environment variables
     for (unsigned i=0 ; i<environ_sz ; ++i)
     {
+        if (!is_env_var_valid(environ[i])) continue;
         char *var = strdup(environ[i]);
         *strchr(var,'=') = '\0';
-        if (!is_env_var_valid(var)) continue;
         if (strcmp(var,X10_HOSTFILE)==0) continue;
         if (strcmp(var,X10_LAUNCHER_SSH)==0) continue;
         if (strcmp(var,X10_LAUNCHER_PARENT)==0) continue;
@@ -1101,7 +1100,9 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
         bool x10_var = false;
         if (strncmp(var, "X10_", 4)==0) x10_var = true;
         if (strncmp(var, "X10RT_", 6)==0) x10_var = true;
+        //if (strncmp(var, "X10LAUNCHER_", 12)==0) x10_var = true;
         argv[++z] = x10_var ? alloc_env_always_assign(var,val) : alloc_env_assign(var, val);
+        
 	}
 
 	if (_hostfname != '\0')

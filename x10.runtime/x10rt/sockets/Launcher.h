@@ -30,16 +30,19 @@
 /* ************************************************************************ */
 
 // Environment variable names
-#define X10_PLACE "X10_PLACE" // a number for the "place" of this process.  Set by the launcher.
 #define X10_NPLACES "X10_NPLACES" // the number of places in this process
 #define X10_HOSTFILE "X10_HOSTFILE" // full path name of a file containing a list of hostnames
 #define X10_HOSTLIST "X10_HOSTLIST" // an alternative to HOSTFILE above.  This is a comma-separated list of hostnames
-#define X10LAUNCHER_SSH "X10LAUNCHER_SSH" // the ssh command.  This doesn't normally need to be set.
-#define X10LAUNCHER_PARENT "X10LAUNCHER_PARENT" // the hostname:port of the parent launcher.  This is set by the launcher.
-#define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME" // this is a flag to run as a runtime or a launcher.  Set by the launcher.
-#define X10LAUNCHER_CWD "X10LAUNCHER_CWD" // the working directory of the program
-#define X10LAUNCHER_DEBUG "X10LAUNCHER_DEBUG" // This flag causes the runtime to launch under gdb in a new xterm
-#define X10RT_NOYIELD "X10RT_NOYIELD"
+#define X10_LAUNCHER_PLACE "X10_LAUNCHER_PLACE" // a number for the "place" of this process.  Set by the launcher.
+#define X10_LAUNCHER_SSH "X10_LAUNCHER_SSH" // the ssh command.  This doesn't normally need to be set.
+#define X10_LAUNCHER_PARENT "X10_LAUNCHER_PARENT" // the hostname:port of the parent launcher.  This is set by the launcher.
+#define X10_LAUNCHER_RUNLAUNCHER "X10_LAUNCHER_RUNLAUNCHER" // this is a flag to run as a runtime or a launcher.  Set by the launcher.
+#define X10_LAUNCHER_CWD "X10_LAUNCHER_CWD" // the working directory of the program
+#define X10_GDB "X10_GDB" // This flag causes the runtime to launch under gdb in a new xterm
+#define X10_FORCEPORTS "X10_FORCEPORTS" // a way to force specific listen ports, to run without the launcher
+#define X10_NOYIELD "X10_NOYIELD" // setting this flag means "don't issue a sched_yield() after a probe comes up empty".
+#define X10_LAZYLINKS "X10_LAZYLINKS" // flag to establish place to place links to be at startup, instead of lazily.
+// don't miss X10_DEBUGGER_ID over in DebugHelper.h
 
 // Enable/disable debug information
 //#define DEBUG 1
