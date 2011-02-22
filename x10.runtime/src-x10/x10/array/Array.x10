@@ -121,9 +121,9 @@ Iterable[Point(region.rank)] {
      * 
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region{self !=null}) {T haszero}
+    public def this(reg:Region) {T haszero}
     {
-        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+        property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
         layout = RectLayout(reg);
         val n = layout.size();
@@ -138,9 +138,9 @@ Iterable[Point(region.rank)] {
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region{self != null}, init:(Point(reg.rank))=>T)
+    public def this(reg:Region, init:(Point(reg.rank))=>T)
     {
-        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+        property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
         layout = RectLayout(reg);
         val n = layout.size();
@@ -159,9 +159,9 @@ Iterable[Point(region.rank)] {
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region{self !=null}, init:T)
+    public def this(reg:Region, init:T)
     {
-        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+        property(reg as Region{self!=null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
         layout = RectLayout(reg);
         val n = layout.size();
@@ -191,9 +191,9 @@ Iterable[Point(region.rank)] {
      * @param reg The region over which to define the array.
      * @param backingStore The backing storage for the array data.
      */
-    public def this(reg:Region{self != null}, backingStore:IndexedMemoryChunk[T])
+    public def this(reg:Region, backingStore:IndexedMemoryChunk[T])
     {
-        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+        property(reg as Region{self!=null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
         layout = RectLayout(reg);
         val n = layout.size();
