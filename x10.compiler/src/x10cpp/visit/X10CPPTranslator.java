@@ -176,15 +176,14 @@ public class X10CPPTranslator extends Translator {
 		}
 		
 		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
-        if (opts.x10_config.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block)
-                && !(n instanceof Catch) && !(parent instanceof If)
-                && !(n instanceof LocalDecl && parent instanceof For)) {
-            w.write("_X10_STATEMENT_HOOK()");
-            if (!(parent instanceof For))
-                w.write("; ");
-            else
-                w.write(", ");
-        }
+		if (opts.x10_config.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch) && !(parent instanceof If))
+		{
+			w.write("_X10_STATEMENT_HOOK()");
+			if (!(parent instanceof For))
+				w.write("; ");
+			else
+				w.write(", ");
+		}
 		
 		final int startLine = w.currentStream().getStreamLineNumber(); // for debug info
 

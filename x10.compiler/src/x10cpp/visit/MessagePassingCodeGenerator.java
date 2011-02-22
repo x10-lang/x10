@@ -2721,10 +2721,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write("(__extension__ ({");
 	    sw.newline(4); sw.begin(0);
 	    List<Stmt> stmts = n.statements();
+	    boolean oldPrintType = tr.printType(true);
 	    for (Stmt stmt : stmts) {
 	        n.printBlock(stmt, sw, tr);
 	        sw.newline();
 	    }
+	    tr.printType(oldPrintType);
 	    Expr e = n.result();
 	    if (e != null) {
 	        n.print(e, sw, tr);
@@ -2736,6 +2738,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(For_c n) {
+        // FIXME: Generate normal for-loop code, without
+        // separating out the inits. [Krishna]
 
 		String label = null;
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -2746,7 +2750,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		sw.write("{");
 		sw.newline(4); sw.begin(0);
-		
+        if (n.inits() != null) {
+            for (ForInit s : n.inits()) {
+                if (s instanceof LocalDecl_c) {
+                    LocalDecl_c dec = (LocalDecl_c) s;
+                    emitter.printHeader(dec, sw, tr, true);
+                    sw.write(";");
+                    sw.newline(0);
+                }
+            }
+        }
+
 		sw.newline(0);
 		sw.write("for (");
 		sw.begin(0);
@@ -2755,8 +2769,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             for (Iterator<ForInit> i = n.inits().iterator(); i.hasNext();) {
                 ForInit s = i.next();
                 boolean oldSemiColon = tr.appendSemicolon(false);
+                boolean oldPrintType = tr.printType(false);
                 n.printBlock(s, sw, tr);
+                tr.printType(oldPrintType);
                 tr.appendSemicolon(oldSemiColon);
+
                 if (i.hasNext()) {
                     sw.write(",");
                     sw.allowBreak(2, " ");
