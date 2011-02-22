@@ -2867,7 +2867,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write("\"");
 	    w.write(StringUtil.escape(n.stringValue()));
 	    w.write("\"");
-        w.write(".toString()"); // workaround for XTENLANG-2006. TODO remove this when the bug get fixed.
+	    // removed it since now we pass captured environment explicitly, therefore the workaround is no longer needed.  
+//        w.write(".toString()"); // workaround for XTENLANG-2006. TODO remove this when the bug get fixed.
 	}
 
 	//	private Stmt optionalBreak(Stmt s) {
