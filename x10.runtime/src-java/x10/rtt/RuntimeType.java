@@ -150,7 +150,7 @@ public class RuntimeType<T> implements Type<T> {
     private final boolean checkParents(Object o, Type<?>... params) {
         if (o instanceof Any) {
             Any any = (Any) o;
-            RuntimeType<?> rtt = any.$getRTT(); // o._RTT
+            RuntimeType<?> rtt = any.$getRTT(); // o.$RTT
             if (rtt == null) {
                 return true;
             }

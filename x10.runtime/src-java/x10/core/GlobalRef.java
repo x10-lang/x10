@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 public final class GlobalRef<T> extends x10.core.Struct implements
         Externalizable {
 
-    public static final x10.rtt.RuntimeType<GlobalRef<?>> _RTT = new x10.rtt.RuntimeType<GlobalRef<?>>(
+    public static final x10.rtt.RuntimeType<GlobalRef<?>> $RTT = new x10.rtt.RuntimeType<GlobalRef<?>>(
             GlobalRef.class,
             new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT }) {
         @Override
@@ -31,7 +31,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     };
 
     public x10.rtt.RuntimeType<GlobalRef<?>> $getRTT() {
-        return _RTT;
+        return $RTT;
     }
 
     public x10.rtt.Type<?> $getParam(int i) {
@@ -182,7 +182,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     }
 
     final public boolean _struct_equals(java.lang.Object other) {
-        if (!x10.core.GlobalRef._RTT.instanceof$(other, T)) {
+        if (!x10.core.GlobalRef.$RTT.instanceof$(other, T)) {
             return false;
         }
         return this._struct_equals((x10.core.GlobalRef<T>) other);

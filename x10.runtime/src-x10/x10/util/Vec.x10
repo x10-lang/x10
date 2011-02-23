@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
 import x10.compiler.Mutable;
 
 @NativeRep("c++", "x10::util::NativeVec<#T, ##size#-1#>", "x10::util::NativeVec<#T, ##size#-1#>", null)
-@NativeRep("java", "x10.core.Vec<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Vec._RTT, #2)")
+@NativeRep("java", "x10.core.Vec<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Vec.$RTT, #2)")
 @Mutable public struct Vec[T] (@Native("c++","#this.size()")size:Int) {
 
     private backing : Array[T]{self.rank==1, self.size==this.size};

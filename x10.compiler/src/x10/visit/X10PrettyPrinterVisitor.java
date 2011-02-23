@@ -208,7 +208,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
     public static final String MAIN_CLASS = "$Main";
-    public static final String RTT_NAME = "_RTT";
+    public static final String RTT_NAME = "$RTT";
     public static final String GETRTT_NAME = "$getRTT";
     public static final String GETPARAM_NAME = "$getParam";
 

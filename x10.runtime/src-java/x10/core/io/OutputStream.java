@@ -71,7 +71,7 @@ public class OutputStream extends Ref {
     //
     // Runtime type information
     //
-    public static final RuntimeType<OutputStream> _RTT = new RuntimeType<OutputStream>(
+    public static final RuntimeType<OutputStream> $RTT = new RuntimeType<OutputStream>(
         OutputStream.class,
         new Type[] { x10.rtt.Types.OBJECT }
     ) {
@@ -80,7 +80,7 @@ public class OutputStream extends Ref {
             return "x10.io.OutputStreamWriter.OutputStream";
         }
     };
-    public RuntimeType<?> $getRTT() { return _RTT; }
+    public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 
 }

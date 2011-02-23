@@ -194,7 +194,7 @@ public class Deque extends Ref {
     //
     // Runtime type information
     //
-    public static final RuntimeType<Deque> _RTT = new RuntimeType<Deque>(
+    public static final RuntimeType<Deque> $RTT = new RuntimeType<Deque>(
         Deque.class 
     ) {
         @Override
@@ -202,7 +202,7 @@ public class Deque extends Ref {
             return "x10.lang.Deque";
         }
     };
-    public RuntimeType<Deque> $getRTT() {return _RTT;}
+    public RuntimeType<Deque> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return null; }
 
     // Temporary Unsafe mechanics for preliminary release

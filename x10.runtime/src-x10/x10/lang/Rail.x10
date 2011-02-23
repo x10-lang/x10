@@ -24,7 +24,7 @@ import x10.util.Pair;
  * future Rail may be deprecated in favor of single-place, zero-based linear
  * specialization of the array library.
  */
-@NativeRep("java", "x10.core.Rail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Rail._RTT, #2)")
+@NativeRep("java", "x10.core.Rail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Rail.$RTT, #2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Rail<#T > >", "x10::lang::Rail<#T >", null)
 public final class Rail[T](length: Int)
     implements Settable[Int,T], Iterable[T]

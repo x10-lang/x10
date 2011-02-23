@@ -85,7 +85,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
             int dstId = dst.id;
             Object srcData = dataToCopy;
             
-            public RuntimeType<?> $getRTT() { return VoidFun_0_0._RTT; }
+            public RuntimeType<?> $getRTT() { return VoidFun_0_0.$RTT; }
             public Type<?> $getParam(int i) { return null; }
             
             public void $apply() {
@@ -113,7 +113,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         
         VoidFun_0_0 copyBody1 = new VoidFun_0_0() {
             
-            public RuntimeType<?> $getRTT() { return VoidFun_0_0._RTT; }
+            public RuntimeType<?> $getRTT() { return VoidFun_0_0.$RTT; }
             public Type<?> $getParam(int i) { return null; }
             
             public void $apply() {
@@ -136,7 +136,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                     int dstId = dstWrapper.id;
                     Object srcData = dataToCopy;
                     
-                    public RuntimeType<?> $getRTT() { return VoidFun_0_0._RTT; }
+                    public RuntimeType<?> $getRTT() { return VoidFun_0_0.$RTT; }
                     public Type<?> $getParam(int i) { return null; }
                     
                     public void $apply() {
@@ -171,7 +171,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         return o != null && this.value == ((IndexedMemoryChunk<?>) o).value;
     }
 
-    public static final RuntimeType<IndexedMemoryChunk<?>> _RTT = new RuntimeType<IndexedMemoryChunk<?>>(
+    public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = new RuntimeType<IndexedMemoryChunk<?>>(
         IndexedMemoryChunk.class,
         new RuntimeType.Variance[] { Variance.INVARIANT }
     ) {
@@ -183,7 +183,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     
     @Override
     public RuntimeType<IndexedMemoryChunk<?>> $getRTT() {
-        return _RTT;
+        return $RTT;
     }
 
     @Override

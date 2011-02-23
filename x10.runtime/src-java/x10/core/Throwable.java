@@ -50,7 +50,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super(message, cause);
     }
 
-    public static final RuntimeType<Throwable> _RTT = new RuntimeType<Throwable>(
+    public static final RuntimeType<Throwable> $RTT = new RuntimeType<Throwable>(
         Throwable.class,
         new Type[] { x10.rtt.Types.OBJECT }
     ) {
@@ -60,7 +60,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         }
     };
     public RuntimeType<?> $getRTT() {
-        return _RTT;
+        return $RTT;
     }
     public Type<?> $getParam(int i) {
         return null;

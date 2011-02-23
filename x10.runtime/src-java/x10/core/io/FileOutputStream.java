@@ -23,16 +23,16 @@ public class FileOutputStream extends OutputStream {
     //
     // Runtime type information
     //
-    public static final RuntimeType<FileOutputStream> _RTT = new RuntimeType<FileOutputStream>(
+    public static final RuntimeType<FileOutputStream> $RTT = new RuntimeType<FileOutputStream>(
         FileOutputStream.class,
-        new Type[] { OutputStream._RTT }
+        new Type[] { OutputStream.$RTT }
     ) {
         @Override
         public String typeName() {
             return "x10.io.FileWriter.FileOutputStream";
         }
     };
-    public RuntimeType<?> $getRTT() { return _RTT; }
+    public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 
 }

@@ -17,9 +17,9 @@ final public class String extends x10.core.Ref implements
     x10.core.fun.Fun_0_1<java.lang.Integer, java.lang.Character>,
     java.lang.Comparable<java.lang.String>
 {
-    public static final x10.rtt.RuntimeType<java.lang.String> _RTT = Types.STRING;
+    public static final x10.rtt.RuntimeType<java.lang.String> $RTT = Types.STRING;
     
-    public x10.rtt.RuntimeType<?> $getRTT() {return _RTT;}
+    public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     public x10.rtt.Type<?> $getParam(int i) {return null;}
     
     public static String box(java.lang.String str) {

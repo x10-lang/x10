@@ -82,7 +82,7 @@ public class InputStream extends Ref {
     //
     // Runtime type information
     //
-    public static final RuntimeType<InputStream> _RTT = new RuntimeType<InputStream>(
+    public static final RuntimeType<InputStream> $RTT = new RuntimeType<InputStream>(
         InputStream.class,
         new Type[] { x10.rtt.Types.OBJECT }
     ) {
@@ -91,7 +91,7 @@ public class InputStream extends Ref {
             return "x10.io.InputStreamReader.InputStream";
         }
     };
-    public RuntimeType<?> $getRTT() { return _RTT; }
+    public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 
 }

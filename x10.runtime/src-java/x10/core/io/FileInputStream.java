@@ -23,16 +23,16 @@ public class FileInputStream extends InputStream {
     //
     // Runtime type information
     //
-    public static final RuntimeType<FileInputStream> _RTT = new RuntimeType<FileInputStream>(
+    public static final RuntimeType<FileInputStream> $RTT = new RuntimeType<FileInputStream>(
         FileInputStream.class,
-        new Type[] { InputStream._RTT }
+        new Type[] { InputStream.$RTT }
     ) {
         @Override
         public String typeName() {
             return "x10.io.FileReader.FileInputStream";
         }
     };
-    public RuntimeType<?> $getRTT() { return _RTT; }
+    public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 
 }

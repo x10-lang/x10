@@ -33,7 +33,7 @@ public class NativeFile extends java.io.File implements RefI {
     //
     // Runtime type information
     //
-    public static final RuntimeType<NativeFile> _RTT = new RuntimeType<NativeFile>(
+    public static final RuntimeType<NativeFile> $RTT = new RuntimeType<NativeFile>(
         NativeFile.class,
         new Type[] { x10.rtt.Types.OBJECT }
     ) {
@@ -42,7 +42,7 @@ public class NativeFile extends java.io.File implements RefI {
             return "x10.io.File.NativeFile";
         }
     };
-    public RuntimeType<NativeFile> $getRTT() { return _RTT; }
+    public RuntimeType<NativeFile> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 
 }

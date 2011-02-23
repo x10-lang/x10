@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class LocalVar<T> extends x10.core.Ref {
 
-    public static final x10.rtt.RuntimeType<LocalVar<?>> _RTT =
+    public static final x10.rtt.RuntimeType<LocalVar<?>> $RTT =
         new x10.rtt.NamedType<LocalVar<?>>(
                 "x10.compiler.LocalVar",
                 /* base class */ LocalVar.class,
@@ -25,7 +25,7 @@ public class LocalVar<T> extends x10.core.Ref {
     );
 
     public x10.rtt.RuntimeType<?> $getRTT() {
-        return _RTT;
+        return $RTT;
     }
 
     public x10.rtt.Type<?> $getParam(int i) {

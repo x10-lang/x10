@@ -24,13 +24,13 @@ public class Ref implements RefI {
     // XTENLANG-1858: every Java class that could be an (non-static) inner class must have constructors with the outer instance parameter
     public Ref(Object out$) {}
 
-    public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class) {
+    public static RuntimeType<Ref> $RTT = new RuntimeType<Ref>(Ref.class) {
         @Override
         public java.lang.String typeName() {
             return "x10.lang.Object";
         }
     };
-    public RuntimeType<?> $getRTT() {return _RTT;}
+    public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}
 
     @Override

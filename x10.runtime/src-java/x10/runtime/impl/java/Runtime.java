@@ -94,7 +94,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 }
 
                 public x10.rtt.RuntimeType<?> $getRTT() {
-                    return _RTT;
+                    return $RTT;
                 }
 
                 public x10.rtt.Type<?> $getParam(int i) {
@@ -118,7 +118,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 }
 
                 public x10.rtt.RuntimeType<?> $getRTT() {
-                    return _RTT;
+                    return $RTT;
                 }
 
                 public x10.rtt.Type<?> $getParam(int i) {

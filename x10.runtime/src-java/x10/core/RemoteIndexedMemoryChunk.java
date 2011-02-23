@@ -69,7 +69,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
         return this.id == that.id && this.home == that.home;
     }
 
-    public static final RuntimeType<RemoteIndexedMemoryChunk<?>> _RTT = new RuntimeType<RemoteIndexedMemoryChunk<?>>(
+    public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = new RuntimeType<RemoteIndexedMemoryChunk<?>>(
         RemoteIndexedMemoryChunk.class,
         new RuntimeType.Variance[] { Variance.INVARIANT }
     ) {
@@ -81,7 +81,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
     
     @Override
     public RuntimeType<RemoteIndexedMemoryChunk<?>> $getRTT() {
-        return _RTT;
+        return $RTT;
     }
 
     @Override

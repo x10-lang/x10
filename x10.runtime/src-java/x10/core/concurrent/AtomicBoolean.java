@@ -28,7 +28,7 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     //
     // Runtime type information
     //
-    public static final RuntimeType<AtomicBoolean> _RTT = new RuntimeType<AtomicBoolean>(
+    public static final RuntimeType<AtomicBoolean> $RTT = new RuntimeType<AtomicBoolean>(
         AtomicBoolean.class,
         new x10.rtt.Type[] { x10.rtt.Types.OBJECT }
     ) {
@@ -37,7 +37,7 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
             return "x10.util.concurrent.AtomicBoolean";
         }
     };
-    public RuntimeType<AtomicBoolean> $getRTT() {return _RTT;}
+    public RuntimeType<AtomicBoolean> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {
         return null;
     }
