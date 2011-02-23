@@ -448,8 +448,8 @@ public class LineNumberMap extends StringTable {
 	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle, int closureIndex)
 	{
-		if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
-		//if (name == null || name.contains("$"))
+		//if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
+		if (name == null || name.contains("$"))
 			return; // skip variables with compiler-generated names.
 		
 		if (localVariables == null)
