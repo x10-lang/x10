@@ -295,20 +295,20 @@ public class LineNumberMap extends StringTable {
 		int _cppClass; // Index of the C++ containing struct/class name in _X10strings
 	}
 	
-	private class ClosureMapInfo
+	private class ClassMapInfo
 	{
 		int _x10startLine;     // First line number of X10 line range
 		int _x10endLine;       // Last line number of X10 line range
 		String _sizeOfArg;
-		ArrayList<MemberVariableMapInfo> closureMembers;
+		ArrayList<MemberVariableMapInfo> _members;
 	}
 	
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
 	//private static ArrayList<Integer> refMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
 	private static LinkedHashMap<Integer, ArrayList<MemberVariableMapInfo>> memberVariables;
-	private static LinkedHashMap<Integer, ClosureMapInfo> placeLocalHandles;
-	private static LinkedHashMap<Integer, ClosureMapInfo> closureMembers;	
+	private static LinkedHashMap<Integer, ClassMapInfo> placeLocalHandles;
+	private static LinkedHashMap<Integer, ClassMapInfo> closureMembers;	
 	
 	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
@@ -351,9 +351,12 @@ public class LineNumberMap extends StringTable {
 		if (type.startsWith("x10.util.Random"))
 			return 205;
 		if (type.startsWith("x10.lang.String"))
-			return 206;		
+			return 206;
+		// 207 = valrail
 		if (type.startsWith("x10.array.Point"))
 			return 208;
+		if (type.startsWith("x10.lang.Any"))
+			return 209;
 		if (type.startsWith("x10.array.Region"))
 			return 300;
 		if (type.contains("_closure_"))
@@ -393,13 +396,13 @@ public class LineNumberMap extends StringTable {
 	public int addPlaceLocalHandle(String name, String type, int startline, int endline)
 	{
 		if (placeLocalHandles == null)
-			placeLocalHandles = new LinkedHashMap<Integer, ClosureMapInfo>();
+			placeLocalHandles = new LinkedHashMap<Integer, ClassMapInfo>();
 		
-		ClosureMapInfo cm = placeLocalHandles.get(stringId(name));
+		ClassMapInfo cm = placeLocalHandles.get(stringId(name));
 		if (cm == null)
 		{
-			cm = new ClosureMapInfo();			
-			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+			cm = new ClassMapInfo();			
+			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			cm._sizeOfArg = type.replace(".", "::").replace('[', '<').replace("]", " >");
 			int properties = cm._sizeOfArg.indexOf('{');
 			if (properties > -1)
@@ -436,9 +439,9 @@ public class LineNumberMap extends StringTable {
 			v._x10memberName = stringId(name);
 			v._cppMemberName = v._x10memberName;
 			v._cppClass = stringId(cm._sizeOfArg);
-			cm.closureMembers.add(v);
+			cm._members.add(v);
 		}
-		return cm.closureMembers.size()-1;
+		return cm._members.size()-1;
 	}
 	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle)
@@ -484,11 +487,19 @@ public class LineNumberMap extends StringTable {
 		
 		// prevent duplicates
 		for (LocalVariableMapInfo existing : localVariables)
-		{			
-			if (existing._x10name == v._x10name && existing._x10type == v._x10type && existing._x10typeIndex == v._x10typeIndex
-					 && existing._cppName == v._cppName && existing._x10index.equals(v._x10index)
+		{
+			if (existing._x10name == v._x10name && existing._cppName == v._cppName && existing._x10index.equals(v._x10index)
 					 && existing._x10startLine == v._x10startLine && existing._x10endLine == v._x10endLine)
-				return;
+			{
+				if ((existing._x10type == v._x10type && existing._x10typeIndex == v._x10typeIndex) || v._x10type == 209)
+					return; // exact duplicate, or less specific type
+				else if (existing._x10type == 209)
+				{	// replace "Any" with the more specific type
+					existing._x10type = v._x10type;
+					existing._x10typeIndex = v._x10typeIndex; 
+					return;
+				}
+			}
 		}
 		localVariables.add(v);
 	}
@@ -522,13 +533,13 @@ public class LineNumberMap extends StringTable {
 	public void addClosureMember(String name, String type, String containingClass, String file, int startLine, int endLine)
 	{
 		if (closureMembers == null)
-			closureMembers = new LinkedHashMap<Integer, ClosureMapInfo>();
-		ClosureMapInfo cm = closureMembers.get(stringId(containingClass));
+			closureMembers = new LinkedHashMap<Integer, ClassMapInfo>();
+		ClassMapInfo cm = closureMembers.get(stringId(containingClass));
 		if (cm == null)
 		{
 			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size());
-			cm = new ClosureMapInfo();			
-			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+			cm = new ClassMapInfo();			
+			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			cm._sizeOfArg = containingClass;
 			closureMembers.put(stringId(containingClass), cm);
 		}
@@ -552,7 +563,7 @@ public class LineNumberMap extends StringTable {
 			v._x10memberName = stringId(name);
 			v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
 			v._cppClass = stringId(containingClass);
-			cm.closureMembers.add(v);
+			cm._members.add(v);
 		}
 	}
 
@@ -1029,7 +1040,7 @@ public class LineNumberMap extends StringTable {
 		        			int index = 0;
 		        			for (Integer classId : closureMembers.keySet())
 		        			{
-		        				ClosureMapInfo value = closureMembers.get(classId);
+		        				ClassMapInfo value = closureMembers.get(classId);
 		        				if (value._x10startLine == v._x10startLine && value._x10endLine == v._x10endLine)
 		        				{
 		        					typeIndex = index;
@@ -1082,11 +1093,11 @@ public class LineNumberMap extends StringTable {
 	    	for (Integer classId : closureMembers.keySet())
         	{
 	    		String classname = m.lookupString(classId);
-	    		ClosureMapInfo cmi = closureMembers.get(classId);
+	    		ClassMapInfo cmi = closureMembers.get(classId);
 	    		if (cmi._x10endLine != cmi._x10startLine) // this is a hack to skip generated closures
 	    		{
 	    			w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-			        for (MemberVariableMapInfo v : cmi.closureMembers)
+			        for (MemberVariableMapInfo v : cmi._members)
 			        {
 			        	int typeIndex;
 			        	if (v._x10type == 101) 
@@ -1120,10 +1131,10 @@ public class LineNumberMap extends StringTable {
 		    for (Integer classId : closureMembers.keySet())
 		    {
 		    	String classname = m.lookupString(classId);
-		    	ClosureMapInfo cmi = closureMembers.get(classId);
+		    	ClassMapInfo cmi = closureMembers.get(classId);
 		    	if (cmi._x10endLine != cmi._x10startLine)
 		    	{
-		    		w.writeln("    { 100, "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi.closureMembers.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+		    		w.writeln("    { 100, "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi._members.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
 		    		index++;
 		    	}
 		    }
@@ -1169,9 +1180,9 @@ public class LineNumberMap extends StringTable {
     		for (Integer classId : placeLocalHandles.keySet())
         	{
 	    		String classname = m.lookupString(classId);
-	    		ClosureMapInfo cmi = placeLocalHandles.get(classId);
+	    		ClassMapInfo cmi = placeLocalHandles.get(classId);
     			w.writeln("static const struct _X10TypeMember _X10PLH"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		        for (MemberVariableMapInfo v : cmi.closureMembers)
+		        for (MemberVariableMapInfo v : cmi._members)
 		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 			    w.writeln("};");
 			    w.forceNewline();
@@ -1181,8 +1192,8 @@ public class LineNumberMap extends StringTable {
 		    for (Integer classId : placeLocalHandles.keySet())
 		    {
 		    	String classname = m.lookupString(classId);
-		    	ClosureMapInfo cmi = placeLocalHandles.get(classId);
-		    	w.writeln("    { 203, "+offsets[classId]+", sizeof("+cmi._sizeOfArg+"), "+cmi.closureMembers.size()+", _X10PLH"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");		    																		    
+		    	ClassMapInfo cmi = placeLocalHandles.get(classId);
+		    	w.writeln("    { 203, "+offsets[classId]+", sizeof("+cmi._sizeOfArg+"), "+cmi._members.size()+", _X10PLH"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");		    																		    
 		    	index++;
 		    }
 		    w.writeln("};");
