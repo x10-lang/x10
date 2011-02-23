@@ -179,7 +179,7 @@ public class MakeFun {
 			}
 			voidfun_unknowntypes += ">";
 			voidfun_ps.print("    public static final RuntimeType<" + voidfun_name + voidfun_unknowntypes);
-			voidfun_ps.println("> _RTT = new VoidFunType<" + voidfun_name + voidfun_unknowntypes + ">(");
+			voidfun_ps.println("> " + RTT_NAME + " = new VoidFunType<" + voidfun_name + voidfun_unknowntypes + ">(");
 			
 			//         VoidFun_0_2.class,
 			voidfun_ps.println("        " + voidfun_name + ".class,");
