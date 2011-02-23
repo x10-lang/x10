@@ -129,9 +129,8 @@ public class Emitter {
 	                "const",    "for",      "new",        "switch",
 	                "continue", "goto",     "package",    "synchronized",
 	                "null",     "true",     "false",
-	                // X10 implementation names        
+	                // X10 implementation names (not needed since they include reserved character $)         
 //	                X10PrettyPrinterVisitor.GETRTT_NAME, X10PrettyPrinterVisitor.RTT_NAME, X10PrettyPrinterVisitor.GETPARAM_NAME
-	                X10PrettyPrinterVisitor.RTT_NAME
 	        }
 	        )
 	);
