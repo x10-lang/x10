@@ -23,8 +23,8 @@ import x10.runtime.impl.java.Thread;
 import x10.x10rt.X10RT;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
-    public RuntimeType<?> getRTT() { return null; }
-    public Type<?> getParam(int i) { return null; }
+    public RuntimeType<?> $getRTT() { return null; }
+    public Type<?> $getParam(int i) { return null; }
 
     private String[] args;
 
@@ -93,11 +93,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                     x10.runtime.impl.java.InitDispatcher.runInitializer();
                 }
 
-                public x10.rtt.RuntimeType<?> getRTT() {
+                public x10.rtt.RuntimeType<?> $getRTT() {
                     return _RTT;
                 }
 
-                public x10.rtt.Type<?> getParam(int i) {
+                public x10.rtt.Type<?> $getParam(int i) {
                     return null;
                 }
             },
@@ -117,11 +117,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                     }
                 }
 
-                public x10.rtt.RuntimeType<?> getRTT() {
+                public x10.rtt.RuntimeType<?> $getRTT() {
                     return _RTT;
                 }
 
-                public x10.rtt.Type<?> getParam(int i) {
+                public x10.rtt.Type<?> $getParam(int i) {
                     return null;
                 }
             });

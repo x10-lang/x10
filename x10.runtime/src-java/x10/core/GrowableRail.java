@@ -193,8 +193,8 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
             return "x10.lang.GrowableRail";
         }
     };
-    public RuntimeType<GrowableRail<?>> getRTT() {return _RTT;}
-    public Type<?> getParam(int i) {
+    public RuntimeType<GrowableRail<?>> $getRTT() {return _RTT;}
+    public Type<?> $getParam(int i) {
         return i == 0 ? elementType : null;
     }
 }

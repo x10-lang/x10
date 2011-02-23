@@ -80,7 +80,7 @@ public class OutputStream extends Ref {
             return "x10.io.OutputStreamWriter.OutputStream";
         }
     };
-    public RuntimeType<?> getRTT() { return _RTT; }
-    public Type<?> getParam(int i) { return null; }
+    public RuntimeType<?> $getRTT() { return _RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

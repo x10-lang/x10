@@ -30,11 +30,11 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         }
     };
 
-    public x10.rtt.RuntimeType<GlobalRef<?>> getRTT() {
+    public x10.rtt.RuntimeType<GlobalRef<?>> $getRTT() {
         return _RTT;
     }
 
-    public x10.rtt.Type<?> getParam(int i) {
+    public x10.rtt.Type<?> $getParam(int i) {
         if (i == 0)
             return T;
         return null;

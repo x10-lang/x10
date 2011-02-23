@@ -37,8 +37,8 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
             return "x10.util.concurrent.AtomicLong";
         }
     };
-    public RuntimeType<AtomicLong> getRTT() {return _RTT;}
-    public Type<?> getParam(int i) {
+    public RuntimeType<AtomicLong> $getRTT() {return _RTT;}
+    public Type<?> $getParam(int i) {
         return null;
     }
 

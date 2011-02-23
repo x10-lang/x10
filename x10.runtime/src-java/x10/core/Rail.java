@@ -223,8 +223,8 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
             return "x10.lang.Rail";
         }
     };
-    public RuntimeType<Rail<?>> getRTT() {return _RTT;}
-    public Type<?> getParam(int i) {
+    public RuntimeType<Rail<?>> $getRTT() {return _RTT;}
+    public Type<?> $getParam(int i) {
         return i == 0 ? type : null;
     }
 }

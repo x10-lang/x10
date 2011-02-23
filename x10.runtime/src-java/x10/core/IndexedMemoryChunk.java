@@ -85,8 +85,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
             int dstId = dst.id;
             Object srcData = dataToCopy;
             
-            public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
-            public Type<?> getParam(int i) { return null; }
+            public RuntimeType<?> $getRTT() { return VoidFun_0_0._RTT; }
+            public Type<?> $getParam(int i) { return null; }
             
             public void $apply() {
                 Object dstData = RemoteIndexedMemoryChunk.getValue(dstId);
@@ -113,8 +113,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         
         VoidFun_0_0 copyBody1 = new VoidFun_0_0() {
             
-            public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
-            public Type<?> getParam(int i) { return null; }
+            public RuntimeType<?> $getRTT() { return VoidFun_0_0._RTT; }
+            public Type<?> $getParam(int i) { return null; }
             
             public void $apply() {
                 // This body runs at src's home.  It accesses the data for src and then does
@@ -136,8 +136,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                     int dstId = dstWrapper.id;
                     Object srcData = dataToCopy;
                     
-                    public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
-                    public Type<?> getParam(int i) { return null; }
+                    public RuntimeType<?> $getRTT() { return VoidFun_0_0._RTT; }
+                    public Type<?> $getParam(int i) { return null; }
                     
                     public void $apply() {
                         // This body runs back at dst's home.  It does the actual assignment of values.
@@ -182,12 +182,12 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     };
     
     @Override
-    public RuntimeType<IndexedMemoryChunk<?>> getRTT() {
+    public RuntimeType<IndexedMemoryChunk<?>> $getRTT() {
         return _RTT;
     }
 
     @Override
-    public Type<?> getParam(int i) {
+    public Type<?> $getParam(int i) {
         return i == 0 ? type : null;
     }
 

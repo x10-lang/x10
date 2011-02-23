@@ -27,8 +27,8 @@ public abstract class Struct implements Any, Cloneable {
     abstract public boolean _struct_equals(Object o);
 
     public static final RuntimeType<Struct> _RTT = new RuntimeType<Struct>(Struct.class);
-    public RuntimeType<?> getRTT() {return _RTT;}
-    public Type<?> getParam(int i) {return null;}
+    public RuntimeType<?> $getRTT() {return _RTT;}
+    public Type<?> $getParam(int i) {return null;}
 
     @Override
     public java.lang.String toString() {

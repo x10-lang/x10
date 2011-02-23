@@ -80,12 +80,12 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
     };
     
     @Override
-    public RuntimeType<RemoteIndexedMemoryChunk<?>> getRTT() {
+    public RuntimeType<RemoteIndexedMemoryChunk<?>> $getRTT() {
         return _RTT;
     }
 
     @Override
-    public Type<?> getParam(int i) {
+    public Type<?> $getParam(int i) {
         return i == 0 ? type : null;
     }
 }

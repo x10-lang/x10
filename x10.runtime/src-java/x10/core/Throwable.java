@@ -59,10 +59,10 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
             return "x10.lang.Throwable";
         }
     };
-    public RuntimeType<?> getRTT() {
+    public RuntimeType<?> $getRTT() {
         return _RTT;
     }
-    public Type<?> getParam(int i) {
+    public Type<?> $getParam(int i) {
         return null;
     }
 

@@ -42,7 +42,7 @@ public class NativeFile extends java.io.File implements RefI {
             return "x10.io.File.NativeFile";
         }
     };
-    public RuntimeType<NativeFile> getRTT() { return _RTT; }
-    public Type<?> getParam(int i) { return null; }
+    public RuntimeType<NativeFile> $getRTT() { return _RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

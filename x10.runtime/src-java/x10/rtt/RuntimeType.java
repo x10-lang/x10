@@ -110,13 +110,13 @@ public class RuntimeType<T> implements Type<T> {
             for (int i = 0, s = params.length; i < s; i ++) {
                 switch (variances[i]) {
                 case INVARIANT:
-                    if (!params[i].equals(any.getParam(i))) {return false;}
+                    if (!params[i].equals(any.$getParam(i))) {return false;}
                     break;
                 case COVARIANT:
-                    if (!any.getParam(i).isSubtype(params[i])) {return false;}
+                    if (!any.$getParam(i).isSubtype(params[i])) {return false;}
                     break;
                 case CONTRAVARIANT:
-                    if (!params[i].isSubtype(any.getParam(i))) {return false;}
+                    if (!params[i].isSubtype(any.$getParam(i))) {return false;}
                     break;
                 }
             }
@@ -150,7 +150,7 @@ public class RuntimeType<T> implements Type<T> {
     private final boolean checkParents(Object o, Type<?>... params) {
         if (o instanceof Any) {
             Any any = (Any) o;
-            RuntimeType<?> rtt = any.getRTT(); // o._RTT
+            RuntimeType<?> rtt = any.$getRTT(); // o._RTT
             if (rtt == null) {
                 return true;
             }
@@ -216,7 +216,7 @@ public class RuntimeType<T> implements Type<T> {
                         for (int i = 0; i < paramsT.length; i ++ ) {
                             if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
                                 int index = ((UnresolvedType) paramsT[i]).getIndex();
-                                newParamsT[i]= index == -1 ? rtt : any.getParam(index);
+                                newParamsT[i]= index == -1 ? rtt : any.$getParam(index);
                             }
                             else {
                                 newParamsT[i] = paramsT[i];
@@ -330,10 +330,10 @@ public class RuntimeType<T> implements Type<T> {
         int i;
         for (i = 0; i < variances.length - 1; i++) {
             if (i != 0) str += ",";
-            str += ((Any) o).getParam(i).typeName();
+            str += ((Any) o).$getParam(i).typeName();
         }
         str += ")=>";
-        str += ((Any) o).getParam(i).typeName();
+        str += ((Any) o).$getParam(i).typeName();
         return str;
     }
     protected final String typeNameForVoidFun(Object o) {
@@ -341,7 +341,7 @@ public class RuntimeType<T> implements Type<T> {
         if (variances != null && variances.length > 0) {
             for (int i = 0; i < variances.length; i++) {
                 if (i != 0) str += ",";
-                str += ((Any) o).getParam(i).typeName();
+                str += ((Any) o).$getParam(i).typeName();
             }
         }
         str += ")=>void";
@@ -354,7 +354,7 @@ public class RuntimeType<T> implements Type<T> {
                 str += "[";
                 for (int i = 0; i < variances.length; i ++) {
                     if (i != 0) str += ",";
-                    str += ((Any) o).getParam(i).typeName();
+                    str += ((Any) o).$getParam(i).typeName();
                 }
                 str += "]";
             }
@@ -373,13 +373,13 @@ public class RuntimeType<T> implements Type<T> {
         if (target == base || checkAnonymous(target)) {
             Any any = (Any) o;
             if (variances[0].equals(Variance.INVARIANT)) {
-                if (!param0.equals(any.getParam(0))) {return false;}
+                if (!param0.equals(any.$getParam(0))) {return false;}
             }
             else if(variances[0].equals(Variance.COVARIANT)) {
-                if (!any.getParam(0).isSubtype(param0)) {return false;}
+                if (!any.$getParam(0).isSubtype(param0)) {return false;}
             }
             else if(variances[0].equals(Variance.CONTRAVARIANT)) {
-                if (!param0.isSubtype(any.getParam(0))) {return false;}
+                if (!param0.isSubtype(any.$getParam(0))) {return false;}
             }
             return true;
         }
@@ -403,22 +403,22 @@ public class RuntimeType<T> implements Type<T> {
         if (target == base || checkAnonymous(target)) {
             Any any = (Any) o;
             if (variances[0].equals(Variance.INVARIANT)) {
-                if (!param0.equals(any.getParam(0))) {return false;}
+                if (!param0.equals(any.$getParam(0))) {return false;}
             }
             else if(variances[0].equals(Variance.COVARIANT)) {
-                if (!any.getParam(0).isSubtype(param0)) {return false;}
+                if (!any.$getParam(0).isSubtype(param0)) {return false;}
             }
             else if(variances[0].equals(Variance.CONTRAVARIANT)) {
-                if (!param0.isSubtype(any.getParam(0))) {return false;}
+                if (!param0.isSubtype(any.$getParam(0))) {return false;}
             }
             if (variances[1].equals(Variance.INVARIANT)) {
-                if (!param1.equals(any.getParam(1))) {return false;}
+                if (!param1.equals(any.$getParam(1))) {return false;}
             }
             else if(variances[1].equals(Variance.COVARIANT)) {
-                if (!any.getParam(1).isSubtype(param1)) {return false;}
+                if (!any.$getParam(1).isSubtype(param1)) {return false;}
             }
             else if(variances[1].equals(Variance.CONTRAVARIANT)) {
-                if (!param1.isSubtype(any.getParam(1))) {return false;}
+                if (!param1.isSubtype(any.$getParam(1))) {return false;}
             }
             return true;
         }
@@ -443,33 +443,33 @@ public class RuntimeType<T> implements Type<T> {
         if (target == base || checkAnonymous(target)) {
             Any any = (Any) o;
             if (variances[0].equals(Variance.INVARIANT)) {
-                if (!param0.equals(any.getParam(0))) {return false;}
+                if (!param0.equals(any.$getParam(0))) {return false;}
             }
             else if(variances[0].equals(Variance.COVARIANT)) {
-                if (!any.getParam(0).isSubtype(param0)) {return false;}
+                if (!any.$getParam(0).isSubtype(param0)) {return false;}
             }
             else if(variances[0].equals(Variance.CONTRAVARIANT)) {
-                if (!param0.isSubtype(any.getParam(0))) {return false;}
+                if (!param0.isSubtype(any.$getParam(0))) {return false;}
             }
             
             if (variances[1].equals(Variance.INVARIANT)) {
-                if (!param1.equals(any.getParam(1))) {return false;}
+                if (!param1.equals(any.$getParam(1))) {return false;}
             }
             else if(variances[1].equals(Variance.COVARIANT)) {
-                if (!any.getParam(1).isSubtype(param1)) {return false;}
+                if (!any.$getParam(1).isSubtype(param1)) {return false;}
             }
             else if(variances[1].equals(Variance.CONTRAVARIANT)) {
-                if (!param1.isSubtype(any.getParam(1))) {return false;}
+                if (!param1.isSubtype(any.$getParam(1))) {return false;}
             }
             
             if (variances[2].equals(Variance.INVARIANT)) {
-                if (!param2.equals(any.getParam(2))) {return false;}
+                if (!param2.equals(any.$getParam(2))) {return false;}
             }
             else if(variances[2].equals(Variance.COVARIANT)) {
-                if (!any.getParam(2).isSubtype(param2)) {return false;}
+                if (!any.$getParam(2).isSubtype(param2)) {return false;}
             }
             else if(variances[2].equals(Variance.CONTRAVARIANT)) {
-                if (!param2.isSubtype(any.getParam(2))) {return false;}
+                if (!param2.isSubtype(any.$getParam(2))) {return false;}
             }
             return true;
         }

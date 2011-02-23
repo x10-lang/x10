@@ -37,8 +37,8 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
             return "x10.util.concurrent.AtomicInteger";
         }
     };
-    public RuntimeType<AtomicInteger> getRTT() {return _RTT;}
-    public Type<?> getParam(int i) {
+    public RuntimeType<AtomicInteger> $getRTT() {return _RTT;}
+    public Type<?> $getParam(int i) {
         return null;
     }
 

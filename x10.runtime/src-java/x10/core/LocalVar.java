@@ -24,11 +24,11 @@ public class LocalVar<T> extends x10.core.Ref {
                 /* parents */ new x10.rtt.Type[] { x10.rtt.Types.OBJECT }
     );
 
-    public x10.rtt.RuntimeType<?> getRTT() {
+    public x10.rtt.RuntimeType<?> $getRTT() {
         return _RTT;
     }
 
-    public x10.rtt.Type<?> getParam(int i) {
+    public x10.rtt.Type<?> $getParam(int i) {
         if (i == 0) return T;
         return null;
     }

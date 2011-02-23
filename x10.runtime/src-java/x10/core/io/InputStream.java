@@ -91,7 +91,7 @@ public class InputStream extends Ref {
             return "x10.io.InputStreamReader.InputStream";
         }
     };
-    public RuntimeType<?> getRTT() { return _RTT; }
-    public Type<?> getParam(int i) { return null; }
+    public RuntimeType<?> $getRTT() { return _RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

@@ -32,7 +32,7 @@ public class FileOutputStream extends OutputStream {
             return "x10.io.FileWriter.FileOutputStream";
         }
     };
-    public RuntimeType<?> getRTT() { return _RTT; }
-    public Type<?> getParam(int i) { return null; }
+    public RuntimeType<?> $getRTT() { return _RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

@@ -30,8 +30,8 @@ public class Ref implements RefI {
             return "x10.lang.Object";
         }
     };
-    public RuntimeType<?> getRTT() {return _RTT;}
-    public Type<?> getParam(int i) {return null;}
+    public RuntimeType<?> $getRTT() {return _RTT;}
+    public Type<?> $getParam(int i) {return null;}
 
     @Override
     public java.lang.String toString() {

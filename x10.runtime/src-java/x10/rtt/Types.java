@@ -35,7 +35,7 @@ public class Types {
     public static String typeName(Object obj) {
         String s;
         if (obj instanceof Any) {
-            s = ((Any) obj).getRTT().typeName(obj);
+            s = ((Any) obj).$getRTT().typeName(obj);
         } else if (Types.getNativeRepRTT(obj) != null) {
             s = Types.getNativeRepRTT(obj).typeName();
         } else {

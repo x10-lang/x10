@@ -32,7 +32,7 @@ public class FileInputStream extends InputStream {
             return "x10.io.FileReader.FileInputStream";
         }
     };
-    public RuntimeType<?> getRTT() { return _RTT; }
-    public Type<?> getParam(int i) { return null; }
+    public RuntimeType<?> $getRTT() { return _RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

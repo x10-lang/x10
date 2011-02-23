@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import sun.misc.Unsafe;
 import x10.core.Ref;
 import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 
 public class Deque extends Ref {
     /**
@@ -201,8 +202,8 @@ public class Deque extends Ref {
             return "x10.lang.Deque";
         }
     };
-    public RuntimeType<Deque> getRTT() {return _RTT;}
-
+    public RuntimeType<Deque> $getRTT() {return _RTT;}
+    public Type<?> $getParam(int i) { return null; }
 
     // Temporary Unsafe mechanics for preliminary release
 

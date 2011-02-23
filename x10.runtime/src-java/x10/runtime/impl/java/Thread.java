@@ -23,8 +23,8 @@ import x10.x10rt.X10RT;
  * @author tardieu
  */
 public class Thread extends java.lang.Thread {
-    public RuntimeType<?> getRTT() { return null; }
-    public Type<?> getParam(int i) { return null; }
+    public RuntimeType<?> $getRTT() { return null; }
+    public Type<?> $getParam(int i) { return null; }
 
 	public static Thread currentThread() {
 		return (Thread) java.lang.Thread.currentThread();

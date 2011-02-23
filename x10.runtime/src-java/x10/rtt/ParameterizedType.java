@@ -113,9 +113,9 @@ public final class ParameterizedType<T> implements Type<T>{
         if (t instanceof UnresolvedType) {
             int index = ((UnresolvedType) t).getIndex();
             if (index >= 0) {
-                t = ((Any) o).getParam(index);
+                t = ((Any) o).$getParam(index);
             } else {
-                t = ((Any) o).getRTT();
+                t = ((Any) o).$getRTT();
             }
         }
         

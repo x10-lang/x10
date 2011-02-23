@@ -50,10 +50,10 @@ public class InitDispatcher {
                         throw new java.lang.Error(e);
                     }
                 }
-                public x10.rtt.RuntimeType<?> getRTT() {
+                public x10.rtt.RuntimeType<?> $getRTT() {
                     return _RTT;
                 }
-                public x10.rtt.Type<?> getParam(int i) {
+                public x10.rtt.Type<?> $getParam(int i) {
                     return null;
                 }
             };
@@ -114,10 +114,10 @@ public class InitDispatcher {
                     throw new java.lang.Error(e);
                 }
             }
-            public x10.rtt.RuntimeType<?> getRTT() {
+            public x10.rtt.RuntimeType<?> $getRTT() {
                 return _RTT;
             }
-            public x10.rtt.Type<?> getParam(int i) {
+            public x10.rtt.Type<?> $getParam(int i) {
                 return null;
             }
         };

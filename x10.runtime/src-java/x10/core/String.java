@@ -19,7 +19,8 @@ final public class String extends x10.core.Ref implements
 {
     public static final x10.rtt.RuntimeType<java.lang.String> _RTT = Types.STRING;
     
-    public x10.rtt.RuntimeType<?> getRTT() {return _RTT;}
+    public x10.rtt.RuntimeType<?> $getRTT() {return _RTT;}
+    public x10.rtt.Type<?> $getParam(int i) {return null;}
     
     public static String box(java.lang.String str) {
         return str == null ? null : new String(str);
