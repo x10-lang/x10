@@ -53,6 +53,8 @@ public class MakeFun {
 	private static final int MIN_METHOD_PARAMS = 10;
 	private static final int MAX_METHOD_PARAMS = 127;
 
+	// should be same as X10PrettyPrinterVisitor.RTT_NAME
+    public static final String RTT_NAME = "_RTT";
 
 	public static void main(String[] args) throws FileNotFoundException {
 		int min = MIN_METHOD_PARAMS;
@@ -110,7 +112,7 @@ public class MakeFun {
 			}
 			fun_unknowntypes += ">";
 			fun_ps.print("    public static final RuntimeType<" + fun_name + fun_unknowntypes);
-			fun_ps.println("> _RTT = new FunType<" + fun_name + fun_unknowntypes + ">(");
+			fun_ps.println("> " + RTT_NAME + " = new FunType<" + fun_name + fun_unknowntypes + ">(");
 
 			//         Fun_0_2.class,
 			fun_ps.println("        " + fun_name + ".class,");

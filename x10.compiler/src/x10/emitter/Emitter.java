@@ -130,7 +130,7 @@ public class Emitter {
 	                "continue", "goto",     "package",    "synchronized",
 	                "null",     "true",     "false",
 	                // X10 implementation names        
-	                "getRTT", "_RTT", "getParam"
+	                X10PrettyPrinterVisitor.GETRTT_NAME, X10PrettyPrinterVisitor.RTT_NAME, X10PrettyPrinterVisitor.GETPARAM_NAME
 	        }
 	        )
 	);
@@ -2651,16 +2651,16 @@ public class Emitter {
         w.write(">");
         if (isStaticFunType) {
             // Option for closures
-//            w.write(" _RTT = new x10.rtt.RuntimeType");
+//            w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.RuntimeType");
             if (isVoidFun) {
-                w.write(" _RTT = new x10.rtt.StaticVoidFunType");
+                w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.StaticVoidFunType");
             } else {
-                w.write(" _RTT = new x10.rtt.StaticFunType");
+                w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.StaticFunType");
             }
         } else {
             // Option for non-closures
-//            w.write(" _RTT = new x10.rtt.RuntimeType");
-            w.write(" _RTT = new x10.rtt.NamedType");
+//            w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.RuntimeType");
+            w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.NamedType");
         }
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
@@ -2747,14 +2747,14 @@ public class Emitter {
         w.newline();
         
         if (!def.flags().isInterface()) {
-            w.write("public x10.rtt.RuntimeType<?> getRTT() {");
-            w.write("return _RTT;");
+            w.write("public x10.rtt.RuntimeType<?> " + X10PrettyPrinterVisitor.GETRTT_NAME + "() {");
+            w.write("return " + X10PrettyPrinterVisitor.RTT_NAME + ";");
             w.write("}");
             w.newline();
             w.newline();
             
             if (!def.typeParameters().isEmpty()) {
-              w.write("public x10.rtt.Type<?> getParam(int i) {");
+              w.write("public x10.rtt.Type<?> " + X10PrettyPrinterVisitor.GETPARAM_NAME + "(int i) {");
               for (int i = 0; i < def.typeParameters().size(); i++) {
                   ParameterType pt = def.typeParameters().get(i);
                   w.write("if (i ==" + i + ")");
@@ -2858,7 +2858,7 @@ public class Emitter {
 
 	public void generateCustomSerializer(X10ClassDef def, X10ClassDecl_c n) {
 	    X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
-	    String fieldName = "__serialdata";
+	    String fieldName = "$$serialdata";
 	    w.write("// custom serializer");
 	    w.newline();
         w.write("private transient x10.io.SerialData " + fieldName + ";");
@@ -3128,7 +3128,7 @@ public class Emitter {
                     }
                     w.write("_" + ft.typeParameters().size());
                     w.write("_" + args.size());
-                    w.write("._RTT");
+                    w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
                 }
                 else {
                     if (getJavaRep(cd) != null) {
@@ -3139,7 +3139,7 @@ public class Emitter {
                     }
                     else {
                         printType(x10Type, 0);
-                        w.write("._RTT");
+                        w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
                     }
                 }
                 for (int i = 0; i < x10Type.typeArguments().size(); i++) {

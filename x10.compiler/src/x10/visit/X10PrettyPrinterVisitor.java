@@ -208,6 +208,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
     public static final String MAIN_CLASS = "$Main";
+    public static final String RTT_NAME = "_RTT";
+    public static final String GETRTT_NAME = "getRTT";
+    public static final String GETPARAM_NAME = "getParam";
 
 	final public CodeWriter w;
 	final public Translator tr;
@@ -1436,10 +1439,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        }
 		        w.write("_" + ft.typeParameters().size());
 		        w.write("_" + args.size());
-		        w.write("._RTT");
+		        w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
 		    }
 		    else if (pat == null && er.getJavaRep(cd) == null && ct.isGloballyAccessible() && cd.typeParameters().size() != 0) {
-		        w.write(cd.fullName().toString() + "." + "_RTT");
+		        w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
 		    }
 		    else {
 		        new RuntimeTypeExpander(er, t).expand(tr);
@@ -2493,8 +2496,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 }
                                 // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).  
 //                                if (types.size() > 0) {
-                                    w.write("public x10.rtt.RuntimeType<?> getRTT() { return _RTT;}");
-                                    w.write("public x10.rtt.Type<?> getParam(int i) {");
+                                    w.write("public x10.rtt.RuntimeType<?> " + X10PrettyPrinterVisitor.GETRTT_NAME + "() { return " + X10PrettyPrinterVisitor.RTT_NAME + "; }");
+                                    w.write("public x10.rtt.Type<?> " + X10PrettyPrinterVisitor.GETPARAM_NAME + "(int i) {");
                                     for (int i = 0; i < types.size(); i++) {
                                         w.write("if (i ==" + i + ")");
                                         Type t = types.get(i);
