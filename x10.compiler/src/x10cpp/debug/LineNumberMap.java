@@ -1020,9 +1020,31 @@ public class LineNumberMap extends StringTable {
 		        		else
 		        			typeIndex = offsets[v._x10typeIndex] * -1;
 		        	}
+		        	else if (v._x10type==100)
+		        	{
+			        	if (v._x10startLine == v._x10endLine) // skip generated closures
+			        		continue;
+			        	if (closureMembers != null)
+		        		{
+		        			int index = 0;
+		        			for (Integer classId : closureMembers.keySet())
+		        			{
+		        				ClosureMapInfo value = closureMembers.get(classId);
+		        				if (value._x10startLine == v._x10startLine && value._x10endLine == v._x10endLine)
+		        				{
+		        					typeIndex = index;
+		        					break;
+		        				}
+		        				else if (value._x10startLine != value._x10endLine)
+		        					index++;
+		        			}
+		        		}
+		        		else
+		        			typeIndex = offsets[v._x10typeIndex] * -1;
+		        	}
 		        	else
 		        		typeIndex = v._x10typeIndex;
-		        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+typeIndex+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" }, // "+m.lookupString(v._x10name));
+	        		w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+typeIndex+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" }, // "+m.lookupString(v._x10name));
 		        }
 		        w.writeln("};");
 		        w.forceNewline();
