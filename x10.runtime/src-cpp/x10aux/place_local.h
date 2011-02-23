@@ -29,10 +29,10 @@ namespace x10aux {
 
         static x10_int _nextId;
         static Bucket **_buckets;
-        static void** _fastData;
         static x10aux::reentrant_lock* _lock;
 
     public:
+        static void** _fastData;
         static void initialize();
         static x10_int nextId();
         static void* lookupData(x10_int id);

@@ -304,10 +304,11 @@ public class LineNumberMap extends StringTable {
 	}
 	
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
-	private static ArrayList<Integer> refMap = new ArrayList<Integer>();
+	//private static ArrayList<Integer> refMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
 	private static LinkedHashMap<Integer, ArrayList<MemberVariableMapInfo>> memberVariables;
-	private static LinkedHashMap<Integer, ClosureMapInfo> closureMembers;
+	private static LinkedHashMap<Integer, ClosureMapInfo> placeLocalHandles;
+	private static LinkedHashMap<Integer, ClosureMapInfo> closureMembers;	
 	
 	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
@@ -360,14 +361,22 @@ public class LineNumberMap extends StringTable {
 		return 101; // generic class
 	}
 	
-	int determineSubtypeId(String type, ArrayList<Integer> list)
+	static String getInnerType(String type)
 	{
 		int bracketStart = type.indexOf('[');
 		int bracketEnd = type.lastIndexOf(']');
 		if (bracketStart != -1 && bracketEnd != -1)
+			return type.substring(bracketStart+1, bracketEnd);
+		else
+			return null;
+	}
+	
+	int determineSubtypeId(String type, ArrayList<Integer> list)
+	{
+		String subtype = getInnerType(type);
+		if (subtype != null)
 		{
-			String subtype = type.substring(bracketStart+1, bracketEnd);
-			int subtypeId = determineTypeId(subtype);
+			int subtypeId = determineTypeId(subtype);			
 			int position = list.size();
 			list.add(subtypeId);
 			
@@ -379,6 +388,57 @@ public class LineNumberMap extends StringTable {
 		}
 		else 
 			return -1;
+	}
+	
+	public int addPlaceLocalHandle(String name, String type, int startline, int endline)
+	{
+		if (placeLocalHandles == null)
+			placeLocalHandles = new LinkedHashMap<Integer, ClosureMapInfo>();
+		
+		ClosureMapInfo cm = placeLocalHandles.get(stringId(name));
+		if (cm == null)
+		{
+			cm = new ClosureMapInfo();			
+			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+			cm._sizeOfArg = type.replace(".", "::").replace('[', '<').replace("]", " >");
+			int properties = cm._sizeOfArg.indexOf('{');
+			if (properties > -1)
+			{
+				String end = cm._sizeOfArg.substring(cm._sizeOfArg.lastIndexOf('}')+1);				
+				cm._sizeOfArg = cm._sizeOfArg.substring(0, properties);
+				cm._sizeOfArg = cm._sizeOfArg.concat(end);
+			}
+			int comma = cm._sizeOfArg.indexOf(',');
+			if (comma > -1)
+			{
+				// this has template arguments.  Add in the FMGL stuff
+				int start = cm._sizeOfArg.indexOf('<');
+				while (start < comma)
+				{
+					int nextStart = cm._sizeOfArg.indexOf('<', start+1);
+					if (nextStart < comma && nextStart != -1)
+						start = nextStart;
+					else
+						break;
+				}
+				String temp = cm._sizeOfArg.substring(start+1).replace(",", "), FMGL(").replaceFirst(">", ")>");
+				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("FMGL(").concat(temp);
+			}
+			placeLocalHandles.put(stringId(name), cm);
+		
+			String innerType = getInnerType(type);
+			MemberVariableMapInfo v = new MemberVariableMapInfo();
+			v._x10type = determineTypeId(innerType);
+			if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
+				v._x10typeIndex = determineSubtypeId(innerType, arrayMap);
+			else
+				v._x10typeIndex = -1;
+			v._x10memberName = stringId(name);
+			v._cppMemberName = v._x10memberName;
+			v._cppClass = stringId(cm._sizeOfArg);
+			cm.closureMembers.add(v);
+		}
+		return cm.closureMembers.size()-1;
 	}
 	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle)
@@ -399,7 +459,7 @@ public class LineNumberMap extends StringTable {
 		v._x10name = stringId(name);
 		v._x10type = determineTypeId(type);
 		if (v._x10type == 203)
-			v._x10typeIndex = determineSubtypeId(type, refMap);
+			v._x10typeIndex = addPlaceLocalHandle(name, type, startline, endline);
 		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else if (v._x10type == 101)
@@ -448,7 +508,7 @@ public class LineNumberMap extends StringTable {
 		MemberVariableMapInfo v = new MemberVariableMapInfo();
 		v._x10type = determineTypeId(type);
 		if (v._x10type == 203)
-			v._x10typeIndex = determineSubtypeId(type, refMap);
+			v._x10typeIndex = addPlaceLocalHandle(name, type, 0, 0);
 		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else 
@@ -482,7 +542,7 @@ public class LineNumberMap extends StringTable {
 			MemberVariableMapInfo v = new MemberVariableMapInfo();
 			v._x10type = determineTypeId(type);
 			if (v._x10type == 203)
-				v._x10typeIndex = determineSubtypeId(type, refMap);
+				v._x10typeIndex = addPlaceLocalHandle(name, type, startLine, endLine);
 			else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 				v._x10typeIndex = determineSubtypeId(type, arrayMap);
 			else if (v._x10type == 101) // save the type for later - it may be a class in our class table
@@ -1082,16 +1142,30 @@ public class LineNumberMap extends StringTable {
 		    w.forceNewline();
 	    }
 	    
-	    if (!refMap.isEmpty())
+	    if (placeLocalHandles != null)
 	    {
-		    w.writeln("static const struct _X10RefMap _X10RefMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		    Iterator<Integer> iterator = refMap.iterator();
-		    while(iterator.hasNext())
-		    	w.writeln("    { "+iterator.next()+", "+iterator.next()+" },");
+    		for (Integer classId : placeLocalHandles.keySet())
+        	{
+	    		String classname = m.lookupString(classId);
+	    		ClosureMapInfo cmi = placeLocalHandles.get(classId);
+    			w.writeln("static const struct _X10TypeMember _X10PLH"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		        for (MemberVariableMapInfo v : cmi.closureMembers)
+		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+			    w.writeln("};");
+			    w.forceNewline();
+        	}	    	
+		    w.writeln("static const struct _X10ClassMap _X10RefMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
+		    int index = 0;
+		    for (Integer classId : placeLocalHandles.keySet())
+		    {
+		    	String classname = m.lookupString(classId);
+		    	ClosureMapInfo cmi = placeLocalHandles.get(classId);
+		    	w.writeln("    { 203, "+offsets[classId]+", sizeof("+cmi._sizeOfArg+"), "+cmi.closureMembers.size()+", _X10PLH"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");		    																		    
+		    	index++;
+		    }
 		    w.writeln("};");
 		    w.forceNewline();
-	    }	    
-
+	    }
         // A meta-structure that refers to all of the above
         w.write("static const struct _MetaDebugInfo_t _MetaDebugInfo __attribute__((used)) "+debugSectionAttr+" = {");
         w.newline(4); w.begin(0);
@@ -1129,7 +1203,7 @@ public class LineNumberMap extends StringTable {
         	w.writeln("sizeof(_X10ArrayMapList),");
         else
         	w.writeln("0, // no array mappings");
-        if (!refMap.isEmpty())
+        if (placeLocalHandles != null)
         	w.writeln("sizeof(_X10RefMapList),");
         else
         	w.writeln("0, // no reference mappings");
@@ -1185,9 +1259,10 @@ public class LineNumberMap extends StringTable {
         }
         else
         	w.writeln("NULL,");
-        if (!refMap.isEmpty())
+        if (placeLocalHandles != null)
         {
-        	refMap.clear();
+        	placeLocalHandles.clear();
+        	placeLocalHandles = null;
         	w.write("_X10RefMapList");
         }
         else

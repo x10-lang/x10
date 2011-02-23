@@ -1749,9 +1749,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sb.append("#include <x10/lang/Runtime.h>\n");
         sb.append("#include <x10aux/bootstrap.h>\n");
 		String mainTypeArgs = "x10::lang::Runtime," + container;
-		if (options.x10_config.DEBUG)
-			sb.append("void* __x10MainRef = (void *) "+container+"::main;\n");
         sb.append("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
+        if (options.x10_config.DEBUG)
+		{
+			sb.append("\n// Debugger stuff\n");
+			sb.append("void* x10aux_place_local__fastData = &x10aux::place_local::_fastData;\n");
+			sb.append("void* __x10MainRef = (void *) "+container+"::main;\n");
+		}
         return sb.toString();
 	}
 
