@@ -929,7 +929,7 @@ public class Emitter {
 				h.write(flags.retain(Flags.STATIC).translateJava());
 		}
 
-		if (query.hasAnnotation(n, "x10.lang.shared") || query.hasAnnotation(n, "x10.compiler.Volatile")) {
+		if (query.hasAnnotation(n, "x10.compiler.Volatile")) {
 			h.write("volatile ");
 		}
 

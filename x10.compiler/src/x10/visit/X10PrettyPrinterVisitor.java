@@ -2574,10 +2574,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	    
 	public void visit(FieldDecl_c n) {
-		if (er.hasAnnotation(n, QName.make("x10.lang.shared"))) {
-			w.write ("volatile ");
-		}
-
 		Flags flags;
 		if (!n.flags().flags().isStatic()) {
 		    flags = n.flags().flags().clearFinal();
