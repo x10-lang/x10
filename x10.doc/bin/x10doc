@@ -34,6 +34,7 @@ export X10SOURCES=$TOP/../x10.runtime/src-x10
 
 
 [ -z "$TOOLSJAR" ] && export TOOLSJAR="$JAVA_HOME/lib/tools.jar"
+if [[ "$UNAME" = CYGWIN* ]]; then TOOLSJAR="$(cygpath -aw "$TOOLSJAR")"; fi
 
 
 export CP_OVERRIDE="${TOP}${FILE_SEP}lib${FILE_SEP}x10c.jar${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}${TOOLSJAR}${PATH_SEP}"
