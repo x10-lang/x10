@@ -4915,3 +4915,144 @@ class TestInterfaceInvariants_1930 { // XTENLANG-1930
 }
 
 
+// method overloading
+interface TestOverloadingAndConstraints {
+	static class Foo[T] {}
+
+	def m00():void; // ERR
+	def m00():Int; // ERR ERR
+
+	def m0(Int):void;
+	def m0(Int):void; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	
+	def m1(Int):void;
+	def m1(Int{self!=0}):void; // ERR
+
+	def m11(j:Int):void;
+	def m11(i:Int) {i!=0} :void; // ERR ERR
+	
+	def m2(Foo[Int]):void;
+	def m2(Foo[Double]):void;
+
+	def m3(Foo[Int]):void;
+	def m3(Foo[Int]{self!=null}):void; // ERR
+
+	def m4(Foo[Int]):void;
+	def m4(Foo[Int{self!=0}]):void; // ERR
+	
+	def m5(Foo[Foo[Int]]):void;
+	def m5(Foo[Foo[Int{self!=0}]]):void; // ERR
+}
+class TestOverloadingAndConstraints_static {
+	static class Foo[T] {}
+
+	static def m00():void {} // ERR
+	static def m00():Int {} // ERR ERR ERR
+
+	static def m0(Int):void {}
+	static def m0(Int):void {} // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void" {} previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	
+	static def m1(Int):void {}
+	static def m1(Int{self!=0}):void {} // ERR
+	
+	static def m11(j:Int):void {}
+	static def m11(i:Int) {i!=0} :void {} // ERR ERR	
+	
+	static def m2(Foo[Int]):void {}
+	static def m2(Foo[Double]):void {}
+
+	static def m3(Foo[Int]):void {}
+	static def m3(Foo[Int]{self!=null}):void {} // ERR
+
+	static def m4(Foo[Int]):void {}
+	static def m4(Foo[Int{self!=0}]):void {} // ERR
+	
+	static def m5(Foo[Foo[Int]]):void {}
+	static def m5(Foo[Foo[Int{self!=0}]]):void {} // ERR
+}
+interface TestOverloadingAndConstraints_macros {
+	static type Int1 = Int;
+	static type Int2 = Int1;
+	static type Int3Not0 = Int2{self!=0};
+	static type IntNot0 = Int3Not0;
+	static type FooNotNull[T] = Foo[T]{self!=null};
+	
+	static class Foo[T] {}
+
+	def m1(Int):void;
+	def m1(IntNot0):void; // ERR
+	
+	def m2(Foo[Int]):void;
+	def m2(Foo[Double]):void;
+
+	def m3(Foo[Int]):void;
+	def m3(FooNotNull[Int]):void; // ERR
+
+	def m4(Foo[Int]):void;
+	def m4(Foo[IntNot0]):void; // ERR
+	
+	def m5(Foo[Foo[Int]]):void;
+	def m5(Foo[Foo[IntNot0]]):void; // ERR
+}
+// constructor overloading
+class TestOverloadingAndConstraints_ctors {
+	static class Foo[T] {}
+	class A0 {
+		def this(Int) {}
+		def this(Int) {} // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	}	
+	class A1 {
+		def this(Int) {}
+		def this(Int{self!=0}) {} // ERR
+	}	
+	class A11 {
+		def this(j:Int) {}
+		def this(i:Int) {i!=0} {} // ERR
+	}
+	class A2 {	
+		def this(Foo[Int]) {}
+		def this(Foo[Double]) {}
+	}
+	class A3 {	
+		def this(Foo[Int]) {}
+		def this(Foo[Int]{self!=null}) {} // ERR
+	}
+	class A4 {	
+		def this(Foo[Int]) {}
+		def this(Foo[Int{self!=0}]) {} // ERR
+	}
+	class A5 {		
+		def this(Foo[Foo[Int]]) {}
+		def this(Foo[Foo[Int{self!=0}]]) {} // ERR
+	}
+}
+class TestOverloadingAndConstraints_ctors_macros {
+	static type Int1 = Int;
+	static type Int2 = Int1;
+	static type Int3Not0 = Int2{self!=0};
+	static type IntNot0 = Int3Not0;
+	static type FooNotNull[T] = Foo[T]{self!=null};
+	
+	static class Foo[T] {}
+	
+	class A1 {
+		def this(Int) {}
+		def this(IntNot0) {} // ERR
+	}
+	class A2 {	
+		def this(Foo[Int]) {}
+		def this(Foo[Double]) {}
+	}
+	class A3 {	
+		def this(Foo[Int]) {}
+		def this(FooNotNull[Int]) {} // ERR
+	}
+	class A4 {	
+		def this(Foo[Int]) {}
+		def this(Foo[IntNot0]) {} // ERR
+	}
+	class A5 {		
+		def this(Foo[Foo[Int]]) {}
+		def this(Foo[Foo[IntNot0]]) {} // ERR
+	}
+}
