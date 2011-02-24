@@ -89,9 +89,9 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
     x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems-1, src.len);
+    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
     x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems-1, dst.len);
+    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
     IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, X10_NULL);
 }
 
@@ -104,9 +104,9 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
     x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems-1, src.len);
+    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
     x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems-1, dst.len);
+    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
     IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, notif);
 }
 
@@ -118,9 +118,9 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
     x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems-1, src.len);
+    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
     x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems-1, dst.len);
+    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
     IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, X10_NULL);
 }
 
@@ -132,9 +132,9 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
     x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems-1, src.len);
+    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
     x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems-1, dst.len);
+    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
     IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, notif);
 }
 
@@ -145,9 +145,9 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::copy(x10::util::Inde
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
     x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems-1, src.len);
+    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
     x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems-1, dst.len);
+    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
     IMC_copyBody(srcAddr, dstAddr, numBytes, src->data == dst->data);
 }
 
