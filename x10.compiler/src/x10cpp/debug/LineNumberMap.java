@@ -398,7 +398,8 @@ public class LineNumberMap extends StringTable {
 		if (placeLocalHandles == null)
 			placeLocalHandles = new LinkedHashMap<Integer, ClassMapInfo>();
 		
-		ClassMapInfo cm = placeLocalHandles.get(stringId(name));
+		int id = stringId(name);
+		ClassMapInfo cm = placeLocalHandles.get(id);
 		if (cm == null)
 		{
 			cm = new ClassMapInfo();			
@@ -427,7 +428,7 @@ public class LineNumberMap extends StringTable {
 				String temp = cm._sizeOfArg.substring(start+1).replace(",", "), FMGL(").replaceFirst(">", ")>");
 				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("FMGL(").concat(temp);
 			}
-			placeLocalHandles.put(stringId(name), cm);
+			placeLocalHandles.put(id, cm);
 		
 			String innerType = getInnerType(type);
 			MemberVariableMapInfo v = new MemberVariableMapInfo();
@@ -436,12 +437,23 @@ public class LineNumberMap extends StringTable {
 				v._x10typeIndex = determineSubtypeId(innerType, arrayMap);
 			else
 				v._x10typeIndex = -1;
-			v._x10memberName = stringId(name);
+			v._x10memberName = id;
 			v._cppMemberName = v._x10memberName;
 			v._cppClass = stringId(cm._sizeOfArg);
 			cm._members.add(v);
+			return placeLocalHandles.size()-1;
 		}
-		return cm._members.size()-1;
+		
+		int index = 0;
+		for (int key : placeLocalHandles.keySet())
+		{
+			if (id == key)
+				return index;
+			else
+				index++;
+		}
+		// should never reach here
+		return -1;
 	}
 	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle)
