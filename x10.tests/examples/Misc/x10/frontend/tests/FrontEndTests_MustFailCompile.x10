@@ -1099,7 +1099,7 @@ struct TestStructCtor[T] { T <: Object } {
 	}
 	def use(Any) {}
 	def test2() {
-		use( TestStructCtor[TestStructCtor[String]]() ); // ERR (Semantic Error: Inconsistent constructor return type)// ERR (Semantic Error: Method or static constructor not found for given call.		 Call: TestStructCtor[TestStructCtor[x10.lang.String]]())
+		use( TestStructCtor[TestStructCtor[String]]() ); // ERR (Semantic Error: Inconsistent constructor return type)
 	}
 }
 class MyBOX[T] {
@@ -2684,7 +2684,7 @@ class C2 implements (Any)=>Int, (String)=>String {
 
 class TestPropertyAssignment(x:Int, y:Int{self==3}) {
     def this(a:Int, b:Int) {
-		property(a,b); // ShouldBeErr
+		property(a,b); // ERR
     }
 }
 
@@ -3542,13 +3542,13 @@ class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
 		property(1,2);
 	}  
 	def this(String):XTENLANG_685{self.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
-		property(2,1); // ShouldBeErr
+		property(2,1); // ERR
 	}  
 	def this(Float):XTENLANG_685{this.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
-		property(2,1); // ShouldBeErr
+		property(2,1); // ERR
 	}  
 	def this(Double) {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
-		property(2,1); // ShouldBeErr
+		property(2,1); // ERR
 	}  
 }
 
@@ -4480,10 +4480,10 @@ class ArrayAndRegionTests {
 		@ERR val reg6:Region{rank==2} = 0..10;
 		val reg7:Region{rank==2} = 0..10 * 0..10;
 
-		val reg:Region{zeroBased, rect, rank==1} = 0..10;
+		val reg:Region{self!=null, zeroBased, rect, rank==1} = 0..10;
 		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0);
-		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0);
-		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0);
+		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0); 
+		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0); 
 		val arr4:Array[Int](reg) = null;
 		m1(a1);
 		m1(a2);
@@ -4747,25 +4747,25 @@ class CatchInitTest(a:Int) {
 }
 
 class TestStaticInitNoCycles {
-class A {
+static class A {
 	static val x13 = B.x5;//13
 	static val x3 = D.x2+2;//10
 	static val x10 = A.x3+C.x4;//20
 }
-class B {
+static class B {
 	static val x11 = A.x3+C.x4;//20
 	static val x8 = D.x1+A.x3;//16
 	static val x5 = C.x4+3; //13
 
 }
-class C {
+static class C {
 	static val x14 = B.x11;//20
 	static val x4 = D.x2+2; //10
 	static val x7 = D.x2+B.x5+C.x4;//31
 	static val x9 = D.x6+A.x3;//41
 
 }
-class D {
+static class D {
 	static val x12 = A.x3+C.x4;//20
 	static val x1 = Int.parse("6"); //6
 	static val x2 = x1+2;//8
@@ -4773,3 +4773,145 @@ class D {
 	static val x15 = A.x13+B.x11+C.x14+D.x12+x6+C.x7;//13+20+20+20+31+31=135
 }
 }
+
+class CopyBackTest {
+    public def valTest() {
+        val result1 : Int; // Uninitialized
+        val result2 : Int; // Uninitialized
+        val start = here;
+        at(here.next()) {
+            result1 = 3; // ShouldBeErr
+            at(start) {
+	            result2 = 3; // ShouldBeErr
+            }
+        }
+		use(result1); // ERR
+		use(result2); // ERR
+    }
+    public def varTest() {
+        var result1 : Int; // Uninitialized
+        var result2 : Int; // Uninitialized
+        val start = here;
+		use(result1); // ERR
+		use(result2); // ERR
+        at(here.next()) {
+            result1 = 3; // ERR
+			use(result1); // ERR
+            at(start) {
+	            result2 = 3;
+				use(result1); // ShouldBeErr
+				use(result2);
+            }
+			use(result1); // ERR
+			use(result2); // ERR ERR
+        }
+		use(result1); // ERR
+		use(result2); // ShouldNotBeERR
+	}
+	def use(Any) {}
+}
+
+class XTENLANG_2447(a:Int) {a==1} {
+	def this(x:Int):XTENLANG_2447{self.a==x} {
+		property(x);
+	}
+	def test() {
+		val y:XTENLANG_2447 = new XTENLANG_2447(2); // ShouldBeErr
+	}
+
+	
+
+	class X[T] {T haszero} {
+		def this() {
+		}	
+		def test() {
+			val y = new X[Int{self!=0}](); // ERR ERR ERR [Semantic Error: Inconsistent constructor return type, Semantic Error: Type X[x10.lang.Int{self!=0}] is inconsistent.]
+		}
+	}
+
+}
+
+
+
+class XTENLANG_2456 {
+class Test1[T] {T haszero} {
+	val z = Zero.get[T]();
+}
+class Test2[T] {T haszero, T<:Object} { // ShouldNotBeERR ShouldNotBeERR
+	val z = Zero.get[T](); // ShouldNotBeERR
+}
+
+class LikeGlobalRef[T] {
+	val t:T;
+	def this(t:T) {
+		this.t = t;
+	}
+}
+class Test3[T] {
+	var test:Test3[T] = null;
+	val root = new LikeGlobalRef[Test3[T]](test);
+}
+class Test4[T] {T haszero} {
+	var test:Test4[T] = null;
+	val root = new LikeGlobalRef[Test4[T]](test); // ShouldNotBeERR [Inconsistent constructor return type]
+}
+class Accumulator1 {
+  private val root = GlobalRef(this);
+}
+class Accumulator2 {
+  private val root = GlobalRef[Accumulator2](this);
+}
+class Accumulator3[T] {
+  private val root = GlobalRef(this);
+}
+class Accumulator4[T] {
+  private val root = GlobalRef[Accumulator4[T]](this);
+}
+class Accumulator5[T] {T haszero} {
+  private val root = GlobalRef[Accumulator5[T]](this); // ShouldNotBeERR ShouldNotBeERR ShouldNotBeERR [Inconsistent constructor return type, Method or static constructor not found for given call., Semantic Error: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor]
+}
+}
+
+
+class CollectingFinishTests {
+    static struct Reducer implements Reducible[Int] {
+     	public   def zero()=0;
+     	public   operator this(a:Int,b:Int)=a+b;
+    }
+    static struct ReducerDouble implements Reducible[Double] {
+     	public   def zero()=0.0;
+     	public   operator this(a:Double,b:Double)=a+b;
+    }
+	public def run() {
+		val x = finish (Reducer()){
+			val y = finish (ReducerDouble()) {
+					async offer 6.0;
+			};
+			async offer (y as Int)+1;
+		};
+	}
+	def normalFinishInside() {//	XTENLANG-2457
+		val x = finish (Reducer()){
+			finish // ShouldBeErr (XTENLANG-2457)
+				offer 6;
+		};
+	}
+}
+
+
+class TestInterfaceInvariants_1930 { // XTENLANG-1930
+	interface I(p:Int) {p==1} {}
+	class C(p:Int) implements I {
+		def this() { 
+			property(0); // ShouldBeErr
+		}
+	}
+	interface I2 extends I{p==2} {} // ShouldBeErr
+	interface I3 {p==3} extends I2 {} // ShouldBeErr
+	static def test(i:I) {
+		var i2:I{p==1} = i; // ShouldNotBeERR
+		var i3:I{p==4} = i; // ERR
+	}
+}
+
+
