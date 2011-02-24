@@ -82,9 +82,6 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
                 tc.addIn(v, c);
 
             t = Types.constrainedType(Types.baseType(t), tc);
-            if (! tc.consistent()) {
-                throw new Errors.InconsistentType(t, fi.position());
-            }
             t = Subst.subst(t, 
                             new XVar[] {v},
                             new XVar[] {oldThis},
@@ -95,6 +92,11 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
                                 new XVar[] {vv},
                                 new Type[] {}, new ParameterType[] {});
             }
+            final CConstraint tmpTc = Types.realX(t).copy();
+            tmpTc.addIn(v,c);
+            if (! tmpTc.consistent()) {
+                throw new Errors.InconsistentType(t, fi.position());
+            }
         }
 
         { // Update rt
@@ -103,9 +105,6 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
             if (! contextKnowsReceiver)
                 tc.addIn(v, c);
             rt = Types.constrainedType(Types.baseType(rt), tc);
-            if (! tc.consistent()) {
-                throw new Errors.InconsistentType(t, Position.COMPILER_GENERATED);
-            }
             XVar w = XTerms.makeEQV();
             rt = Subst.subst(rt, 
                              (v != null ? new XVar[] {v} : new XVar[] { w, w}),
@@ -117,6 +116,11 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
                                  new XVar[] {vv},
                                  new Type[] {}, new ParameterType[] {});
             }
+            final CConstraint tmpTc = Types.realX(rt).copy();
+            tmpTc.addIn(v,c);
+            if (! tmpTc.consistent()) {
+                throw new Errors.InconsistentType(rt, Position.COMPILER_GENERATED);
+            }
         } 
         
         //rt = Subst.subst(rt, (new XVar[] { w }), (new XVar[] { oldThis }), new Type[] {}, new ParameterType[] {});
@@ -124,8 +128,11 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         //	rt = X10TypeMixin.setThisVar(rt, v);
         // }
 
-        if (!ts.consistent(t, (Context) context) || !ts.consistent(rt, (Context) context)) {
-        	throw new SemanticException("Type of field access is not consistent.");
+        if (!ts.consistent(t, (Context) context)) {
+            throw new Errors.InconsistentType(t, Position.COMPILER_GENERATED);
+        }
+        if (!ts.consistent(rt, (Context) context)) {
+            throw new Errors.InconsistentType(rt, Position.COMPILER_GENERATED);
         }
 
         return fi.type(t, rt);

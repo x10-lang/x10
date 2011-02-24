@@ -5056,3 +5056,20 @@ class TestOverloadingAndConstraints_ctors_macros {
 		def this(Foo[Foo[IntNot0]]) {} // ERR
 	}
 }
+
+class TestMemberTypeResolution {
+	static type Foo(i:Int{self!=0}) = Int;
+	var y:Foo(1);
+	var x:Foo(0); // ERR, todo: improve message: Could not find type "Foo".
+}
+class TestFieldResolution(p:Int) {
+	val f = 2;
+	val f2:Int{self==1 && self==this.p} = p as Int{self==1};
+	def test1(me2:TestFieldResolution{self.p==2}) {
+		use(me2.f2); // ERR, todo: improve message: Field f2 not found in type "TestFieldResolution{self==me2, me2.TestFieldResolution#p==2}".
+	}
+	static def test() {
+		use(f); // ERR [Cannot access a non-static field f from a static context.]
+	}
+	static def use(Any) {}
+}

@@ -147,6 +147,7 @@ public class RunTestSuite {
     public static boolean SEPARATE_COMPILER = getBoolProp("SEPARATE_COMPILER");
     public static boolean SHOW_EXPECTED_ERRORS = getBoolProp("SHOW_EXPECTED_ERRORS");
     public static boolean SHOW_RUNTIMES = getBoolProp("SHOW_RUNTIMES");
+    public static boolean SKIP_CRASHES = getBoolProp("SKIP_CRASHES");
     public static boolean QUIET = !SHOW_EXPECTED_ERRORS && getBoolProp("QUIET");
 
     public static String SOURCE_PATH_SEP = File.pathSeparator; // on MAC the separator is ":" and on windows it is ";"
@@ -341,7 +342,10 @@ public class RunTestSuite {
         long start = System.currentTimeMillis();
         Throwable err = null;
         try {
-            COMPILER.compileFiles(sources);
+            if (COMPILER_CRASHES && SKIP_CRASHES) {
+                err = new RuntimeException("We do not want to compile crashes when SKIP_CRASHES=true");
+            } else
+                COMPILER.compileFiles(sources);
         } catch (Throwable e) {
             err = e;
         }

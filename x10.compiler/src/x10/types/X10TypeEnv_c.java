@@ -208,15 +208,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#consistent(x10.types.constraints.CConstraint)
      */
-    public boolean consistent(CConstraint c) {
-        return c.consistent();
+    public boolean consistent(CConstraint c) { // todo: this is a horrible (!!!) signature because we do not use "this"! Make is static, or rename it, or use the context!
+        return c.consistent(); // todo: why is a TypeConstraint behaviour below different from a CConstraint here?
     }
 
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#consistent(x10.types.constraints.TypeConstraint)
      */
     public boolean consistent(TypeConstraint c) {
-        return c.consistent((Context) context);
+        return c.consistent(context);
     }
 
     /* (non-Javadoc)
