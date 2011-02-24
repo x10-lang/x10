@@ -124,10 +124,8 @@ public class Struct {
         boolean isPrim = (qualifier!=null && qualifier.toString().equals("x10.lang") && ignoreTypes.contains(strName));
         boolean seenToString = isPrim;
         boolean seenHashCode = isPrim;
-        boolean seenEquals = isPrim;
-
-
-
+        boolean seenEqualsAny = isPrim;
+        boolean seenEqualsSelf = isPrim;
 
        for (ClassMember member : n.body().members())
            if (member instanceof MethodDecl_c) {
@@ -146,10 +144,10 @@ public class Struct {
                     mdecl.formals().isEmpty()) {
                     seenHashCode = true;
                 }
-                if (mdecl.name().id().toString().equals("equals") &&
-                    mdecl.formals().size() == 1) {
-                    seenEquals = true;
-                }
+                if (mdecl.name().id().toString().equals("equals") && mdecl.formals().size() == 1) {
+                    seenEqualsAny = true; // XTENLANG-2441: Needs to be a test to see if the type of formal is Any.
+                    seenEqualsSelf = true; // XTENLANG-2441: Needs to be a test to see if the type of the formal is the Struct ct 
+                }      
             }
 
 
@@ -265,42 +263,46 @@ public class Struct {
         // (both backends need to convert == to _struct_equals)
         for (boolean isStructEquals : new boolean[]{false,true}) {
             methodName = isStructEquals ? SharedVarsMethods.STRUCT_EQUALS_METHOD : "equals";
-            if (!isStructEquals && seenEquals) continue;
 
-            // final public global safe def equals(other:Any):Boolean {
-            //  if (!(other instanceof NAME)) return false;
-            //  return equals(other as NAME);
-            // }
-            bodyStmts = new ArrayList<Stmt>();
-            Expr other =nf.Local(pos,nf.Id(pos,"other"));
-            bodyStmts.add(nf.If(pos, nf.Unary(pos, Unary.NOT,
-                    nf.Instanceof(pos,other,structTypeNode)),
-                    nf.Return(pos,nf.BooleanLit(pos,false))));
-            bodyStmts.add(nf.Return(pos,nf.Call(pos,nf.Id(pos,methodName),nf.Cast(pos,structTypeNode,other))));
-            block = nf.Block(pos).statements(bodyStmts);
-            Formal formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),anyTypeNode,nf.Id(pos,"other"));
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)), Collections.singletonList(formal),block);
-            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
-
-            // final public global safe def equals(other:NAME):Boolean {
-            //  return true && FIELD1==other.FIELD1 && ...;
-            // }
-            bodyStmts = new ArrayList<Stmt>();
-            Expr res = fields.isEmpty() ? nf.BooleanLit(pos, true) : null;
-            for (FieldDecl fi : fields) {
-                String name = fi.name().toString();
-                final Id id = nf.Id(pos, name);
-                Expr right = nf.Binary(pos,nf.Field(pos,nf.This(pos),id),Binary.EQ,nf.Field(pos,other,id));
-                if (res==null)
-                    res = right;
-                else
-                    res = nf.Binary(pos,res,Binary.COND_AND,right);
+            if (isStructEquals || !seenEqualsAny) {
+                // final public global safe def equals(other:Any):Boolean {
+                //  if (!(other instanceof NAME)) return false;
+                //  return equals(other as NAME);
+                // }
+                bodyStmts = new ArrayList<Stmt>();
+                Expr other =nf.Local(pos,nf.Id(pos,"other"));
+                bodyStmts.add(nf.If(pos, nf.Unary(pos, Unary.NOT,
+                                                  nf.Instanceof(pos,other,structTypeNode)),
+                                                  nf.Return(pos,nf.BooleanLit(pos,false))));
+                bodyStmts.add(nf.Return(pos,nf.Call(pos,nf.Id(pos,methodName),nf.Cast(pos,structTypeNode,other))));
+                block = nf.Block(pos).statements(bodyStmts);
+                Formal formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),anyTypeNode,nf.Id(pos,"other"));
+                md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)), Collections.singletonList(formal),block);
+                n = (X10ClassDecl_c) n.body(n.body().addMember(md));
             }
-            bodyStmts.add(nf.Return(pos, res));
-            block = nf.Block(pos).statements(bodyStmts);
-            formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),structTypeNode,nf.Id(pos,"other"));
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),block);
-            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
+
+            if (isStructEquals || !seenEqualsSelf) {
+                // final public global safe def equals(other:NAME):Boolean {
+                //  return true && FIELD1==other.FIELD1 && ...;
+                // }
+                bodyStmts = new ArrayList<Stmt>();
+                Expr other =nf.Local(pos,nf.Id(pos,"other"));
+                Expr res = fields.isEmpty() ? nf.BooleanLit(pos, true) : null;
+                for (FieldDecl fi : fields) {
+                    String name = fi.name().toString();
+                    final Id id = nf.Id(pos, name);
+                    Expr right = nf.Binary(pos,nf.Field(pos,nf.This(pos),id),Binary.EQ,nf.Field(pos,other,id));
+                    if (res==null)
+                        res = right;
+                    else
+                        res = nf.Binary(pos,res,Binary.COND_AND,right);
+                }
+                bodyStmts.add(nf.Return(pos, res));
+                block = nf.Block(pos).statements(bodyStmts);
+                Formal formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),structTypeNode,nf.Id(pos,"other"));
+                md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),block);
+                n = (X10ClassDecl_c) n.body(n.body().addMember(md));
+            }
         }
 
        return n;
