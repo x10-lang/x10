@@ -14,9 +14,13 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+
+import x10.lang.Runtime.Mortal;
 
 public final class GlobalRef<T> extends x10.core.Struct implements
         Externalizable {
@@ -60,6 +64,21 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         return t;
     }
 
+    private static class WeakGlobalRefEntry extends WeakReference {
+        long id;
+        final int hashCode;
+
+        public WeakGlobalRefEntry(long id, Object referent,
+                ReferenceQueue<WeakGlobalRefEntry> referenceQueue) {
+            super(referent, referenceQueue);
+            hashCode = System.identityHashCode(referent);
+        }
+
+        public int hashCode() {
+            return hashCode;
+        }
+    }
+
     private static class GlobalRefEntry {
         private final Object t;
 
@@ -76,15 +95,11 @@ public final class GlobalRef<T> extends x10.core.Struct implements
                 return true;
             if (!(obj instanceof GlobalRefEntry))
                 return false;
-            if (((GlobalRefEntry) obj).t == t)
-                return true;
-            // Note: GlobalRef does not refer structs
-            //            if (Types.isStruct(((GlobalRefEntry) obj).t)
-            //        		&& ((GlobalRefEntry) obj).t.equals(t))
-            //            	return true;
-            return false;
+            return ((GlobalRefEntry) obj).t == t;
         }
     }
+
+    private static final ReferenceQueue<WeakGlobalRefEntry> referenceQueue = new ReferenceQueue<WeakGlobalRefEntry>();
 
     private static final GlobalRefEntry $nullEntry = new GlobalRefEntry($null);
 
@@ -97,6 +112,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     private static AtomicLong lastId = new AtomicLong(0L);
     private static ConcurrentHashMap<Long, Object> id2Object = new ConcurrentHashMap<Long, Object>();
     private static ConcurrentHashMap<GlobalRefEntry, Long> object2Id = new ConcurrentHashMap<GlobalRefEntry, Long>();
+    private static WeakHashMap<GlobalRefEntry, Long> mortal2Id = new WeakHashMap<GlobalRefEntry, Long>();
 
     private x10.rtt.Type<?> T;
     public x10.lang.Place home;
@@ -112,8 +128,15 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
     public GlobalRef(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {
         this.T = T;
-        this.t = t;
         this.home = x10.lang.Runtime.home();
+        this.t = t;
+    }
+
+    private static void poll() {
+        WeakGlobalRefEntry weakRef = null;
+        while ((weakRef = (WeakGlobalRefEntry) referenceQueue.poll()) != null) {
+            id2Object.remove(weakRef.id);
+        }
     }
 
     private void globalize() {
@@ -122,20 +145,37 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
         assert (T != null);
         assert (home != null);
-        assert (t != null);
 
         t = encodeNull(t);
 
         Long tmpId = lastId.incrementAndGet();
 
-        id2Object.put(tmpId, t);//set id first.
-
-        Long existingId = object2Id.putIfAbsent(wrapObject(t), tmpId);//set object second.
-        if (existingId != null) {
-            this.id = existingId;
-            id2Object.remove(tmpId);
+        if (t instanceof Mortal) {
+            WeakGlobalRefEntry weakEntry = new WeakGlobalRefEntry(tmpId, t,
+                    referenceQueue);
+            id2Object.put(tmpId, weakEntry);
+            synchronized (referenceQueue) {
+                GlobalRefEntry entry = wrapObject(t);
+                Long existingId = mortal2Id.get(entry);
+                if (existingId != null) {
+                    this.id = existingId;
+                    mortal2Id.remove(tmpId);
+                } else {
+                    this.id = tmpId;
+                    mortal2Id.put(entry, tmpId);
+                }
+                poll();
+            }
         } else {
-            this.id = tmpId;
+            id2Object.put(tmpId, t);//set id first.
+
+            Long existingId = object2Id.putIfAbsent(wrapObject(t), tmpId);//set object second.
+            if (existingId != null) {
+                this.id = existingId;
+                id2Object.remove(tmpId);
+            } else {
+                this.id = tmpId;
+            }
         }
     }
 
@@ -145,13 +185,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
     final public T $apply$G() {
         return (T) t;
-    }
-
-    //this is not an api. only for implementing local assign in at body.
-    final public T $set$G(T t) {
-        this.t = t;
-        id = 0L;
-        return t;
+        //return decodeNull((T) t);
     }
 
     final public x10.lang.Place home() {
@@ -208,13 +242,32 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
     public void readExternal(ObjectInput in) throws IOException,
             ClassNotFoundException {
+
         T = (x10.rtt.Type<?>) in.readObject();
         home = (x10.lang.Place) in.readObject();
         id = in.readLong();
-        if (home.id == x10.lang.Runtime.hereInt())
-            t = id2Object.get(id);//TODO waek reference
-        else
+
+        if (home.id == x10.lang.Runtime.home().id) {
+            t = id2Object.get(id);
+            if (t instanceof WeakGlobalRefEntry) {
+                t = ((WeakGlobalRefEntry) t).get();
+            }
+            if (t == null) {
+                throw new IllegalStateException(
+                        "referenced object doesn't exist. id=" + id
+                                + ", mortal="
+                                + (t instanceof WeakGlobalRefEntry));
+            }
+
+            t = decodeNull(t);
+
+        } else {
             t = null;
+        }
+
+        //System.out.println("GlobalRef is deserialized. home="
+        //        + x10.lang.Runtime.home().id + ", ref.home=" + id + ", tgt="
+        //        + t);
     }
 
 }
