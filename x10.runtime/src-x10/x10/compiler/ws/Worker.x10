@@ -4,43 +4,38 @@ import x10.util.Random;
 import x10.lang.Lock;
 import x10.compiler.SuppressTransientError;
 import x10.compiler.RemoteInvocation;
-import x10.compiler.InlineOnly;
+
 public final class Worker {
     public val workers:Rail[Worker];
-    private val id:Int;
+    private val id:Int; //Could be removed finally ?
     private val random:Random;
 
     public val deque = new Deque();
     public val fifo = new Deque();
     public val lock = new Lock();
     
-    //static place local handle
-    //or these are shared part among all workers in one place
     public val finished:BoxedBoolean;
-    public val intaskque:Deque; //store remoteMainFrame, BoxedBoolean, and finishframe
-                                //will be merged into fifo soon
-    //and the primary worker for other places
-    public var pWorkerRefs:Rail[GlobalRef[Worker]];
 
-    public def this(i:Int, workers:Rail[Worker], finished:BoxedBoolean, intaskque:Deque) {
+    public def this(i:Int, workers:Rail[Worker], finished:BoxedBoolean) {
         random = new Random(i + (i << 8) + (i << 16) + (i << 24));
         this.id = i;
         this.workers = workers;
         this.finished = finished;
-        this.intaskque = intaskque;
     }
 
     public def pushRemoteFrame(frame:RemoteMainFrame){
-        intaskque.push(Frame.upcast[RemoteMainFrame, Object](frame));
+        //Runtime.println(here + ": worker(" + id + ") was pushed a remote Frame");
+        fifo.push(Frame.upcast[RemoteMainFrame, Object](frame));
     }
 
     public def pushRemoteFF(ff:FinishFrame){
-        intaskque.push(Frame.upcast[FinishFrame, Object](ff));
+        //Runtime.println(here + ": worker(" + id + ") was pushed a Finish Join Frame");
+        fifo.push(Frame.upcast[FinishFrame, Object](ff));
     }
 
     public def notifyStop(){
         finished.value = true;
-        //Runtime.println(here +" was notified to stop()");
+        //Runtime.println(here +": was notified to stop()");
     }
     
     public def migrate() {
@@ -53,21 +48,84 @@ public final class Worker {
             fifo.push(Frame.upcast[RegularFrame,Object](r));
         }
         lock.unlock();
+        //And try process remote msg: add jobs into fifo
+        Runtime.wsProcessEvents();
+        if(fifo.size() > 0){
+            return; //at least there are some jobs in fifo, which the worker could get from find();
+            //but other worker may still steal them.
+        }
+        
+        //Try a mini steal from other threads
+        k = Frame.cast[Object,RegularFrame](workers(random.nextInt(Runtime.INIT_THREADS)).fifo.steal());
+        if (null != k){
+            fifo.push(Frame.upcast[RegularFrame,Object](k));
+            return;
+        }
+        
+        if(fifo.size() > 0){
+            return; //at least there are some jobs in fifo, which the worker could get from find();
+            //but other worker may still steal them.
+        }
+        
+        val i = random.nextInt(Runtime.INIT_THREADS);
+        if (workers(i).lock.tryLock()) {
+            k = Frame.cast[Object,RegularFrame](workers(i).deque.steal());
+            if (null!= k) {
+                val r = k.remap();
+                atomic r.ff.asyncs++;
+                fifo.push(Frame.upcast[RegularFrame,Object](r));
+            }
+            workers(i).lock.unlock();
+        }
     }                            
 
     public def run() {
+        //Runtime.println(here + ": Worker(" + id + ") started..." );
+        Runtime.wsBindWorker(this, id);
         try {
             while (true) {
                 val k = find();
                 if (null == k) {
-                    //Runtime.println(here + ":Worker(" + id + ") terminated");
+                    //Runtime.println(here + " :Worker(" + id + ") terminated");
                     return;
                 }
-                try {
-                    k.resume(this);
-                    unstack(Frame.upcast[RegularFrame,Frame](k)); // top frames are meant to be on the stack
-                } catch (Stolen) {}
-                purge(Frame.upcast[RegularFrame,Frame](k), k.ff); // needed because we did not stack allocate those frames
+                if(k instanceof RemoteMainFrame
+                        && Frame.cast[Object, RemoteMainFrame](k).fresh){
+                    val p:RemoteMainFrame = Frame.cast[Object, RemoteMainFrame](k);
+                    p.fresh = false;
+                    try{
+                        //Runtime.println(here+" :Execute remote task");
+                        p.fast(this);
+                        //if the app goes here, it means the app is always in fast.
+                        //need check whether the current ff.asyncs is only 1
+                        var asyncs:Int;
+                        atomic asyncs = --p.ff.asyncs;
+                        if(asyncs == 0){
+                            val root:RemoteRootFrame = Frame.cast[Frame, RemoteRootFrame](Frame.cast[Frame, RemoteRootFinish](p.up).up);
+                            val ffRef = root.ffRef; //a global ref
+                            remoteFinishJoin(ffRef); //invoke the remote one   
+                        }
+                        //else still run the app
+                    }catch (Stolen) {}
+                    //may need do some memory cleaning here
+                }
+                else if(k instanceof RegularFrame){
+                    //sequence, regular frame must be checked later. Because remote main frame is a regular frame, too
+                    val r:RegularFrame = Frame.cast[Object,RegularFrame](k);
+                    try {
+                        r.resume(this);
+                        unstack(Frame.upcast[RegularFrame,Frame](r)); // top frames are meant to be on the stack
+                    } catch (Stolen) {}
+                    purge(Frame.upcast[RegularFrame,Frame](r), r.ff); // needed because we did not stack allocate those frames
+                }
+                else if(k instanceof FinishFrame){
+                    //finish frame, need run the finish frame's unroll
+                    val p:FinishFrame = Frame.cast[Object, FinishFrame](k);
+                    try{
+                        //Runtime.println(here+" :Execute remote finish join");
+                        unroll(p);
+                    } catch (Stolen){}
+                }
             }
         } catch (t:Throwable) {
             Runtime.println(here + "Uncaught exception in worker: " + t);
@@ -75,14 +133,26 @@ public final class Worker {
         }
     }
 
-    public def find():RegularFrame {
+    /*
+     * The find could return
+     * - RegularFrame: continue execution
+     * - RemoteMainFrame: start a new remote task
+     * - FinishFrame: from remote join
+     */
+    public def find():Object {
         var k:Object = Frame.NULL[Object]();
 //        if (deque.poll() != null) Runtime.println("deque.poll() != null");
+    
+        //The following sequence decides which type of task has the highest priority
+        //right now: 1) cur thread fifo; 2) other thread fifo; 3) other thread deque; 4) remote job 
+        //1) cur thread fifo
         k = fifo.steal();
         while (null == k) {
-            if (finished.value) return Frame.NULL[RegularFrame](); // TODO: termination condition
+            if (finished.value) return Frame.NULL[Object](); // TODO: termination condition
+            //2) other thread fifo
             k = workers(random.nextInt(Runtime.INIT_THREADS)).fifo.steal();
             if (null != k) break;
+            //3) other thread deque
             val i = random.nextInt(Runtime.INIT_THREADS);
             if (workers(i).lock.tryLock()) {
                 k = workers(i).deque.steal();
@@ -95,46 +165,13 @@ public final class Worker {
                 }
                 workers(i).lock.unlock();
             }
-            if( null != k) break;
-            //now process native event in case nothing to do
-            Runtime.wsProcessEvents();
-            //now regular frame or finish frame may in inque
-            var remoteK:Object = intaskque.steal();
-            if(null != remoteK){
-                if(remoteK instanceof RemoteMainFrame){
-                    //regular frame, should run as normal, not process stolen
-                    val p = Frame.cast[Object, RemoteMainFrame](remoteK);
-                    try{
-                        //Runtime.println(here+":Got one remote task");
-                        p.fast(this);
-                        //if the app goes here, it means the app is always in fast.
-                        //need check whether the current ff.asyncs is only 1
-                        var asyncs:Int;
-                        atomic asyncs = --p.ff.asyncs;
-                        if(asyncs == 0){
-                            val root:RemoteRootFrame = Frame.cast[Frame, RemoteRootFrame](Frame.cast[Frame, RemoteRootFinish](p.up).up);
-                            val ffRef = root.ffRef; //a global ref
-                            remoteFinishJoin(ffRef); //invoke the remote one   
-                        }
-                        //else still run the app
-                    }catch (Stolen) {
-                        //not sure whether need handle
-                    }
-                }
-                else if(remoteK instanceof FinishFrame){
-                    //finish frame, need run the finish frame's unroll
-                    val p = Frame.cast[Object, FinishFrame](remoteK);
-                    try{
-                        //Runtime.println(here+":Got remote finish join");
-                        unroll(p);
-                    } catch (Stolen){
-                        //not sure what to do
-                    }
-                }
-            }
+            if (null != k) break;
+            //4) remote again
+            Runtime.wsProcessEvents();    
+            k = fifo.steal();
         }
 //        Runtime.println(k + " stolen");
-        return Frame.cast[Object,RegularFrame](k);
+        return k;
     }
 
     public static def purge(var frame:Frame, ff:FinishFrame) {
@@ -196,15 +233,15 @@ public final class Worker {
     public def remoteRunFrame(place:Place, frame:RemoteMainFrame, ff:FinishFrame){
         atomic ff.asyncs++; //need add the frame's structure
         val id:Int = place.id;
-        //need get the right worker
-        val remoteWorkerRef = pWorkerRefs(id);
-        //right now, the frame's up should be RemoteRootFinish, and upper RemoteRootFrame.
-        //And the RemoteRootFrame contains the global ref to ff
         val body:()=>void = ()=> {
             //Worker.pushRemoteFrame(frame); //place local handle version
-            val obj:Object = Frame.upcast[RemoteMainFrame, Object](frame);
-            deref[Worker](remoteWorkerRef).pushRemoteFrame(frame);
+            val worker = Runtime.wsWorker() as Worker;
+            if(worker == null){
+                throw new RuntimeException(here + "[WSRT_ERR]The current X10 thread has no bound WS Worker");
+            }
+            worker.pushRemoteFrame(frame);
         };
+        //Runtime.println(here + " :Run Remote job at place:" + id);
         Runtime.wsRunAsync(id, body);
         Runtime.dealloc(body);
         //need clean the heap allocated frame, too.
@@ -216,13 +253,15 @@ public final class Worker {
 
     public def remoteFinishJoin(ffRef:GlobalRef[FinishFrame]) {
         val id:Int = ffRef.home.id;
-        //need push the frame back to its inque
-        //locate the remote worker
-        val remoteWorkerRef = pWorkerRefs(id);
-        val body:()=>void = ()=>{            
-            deref[Worker](remoteWorkerRef).pushRemoteFF(derefFrame[FinishFrame](ffRef));
+        val body:()=>void = ()=>{       
+            val worker = Runtime.wsWorker() as Worker;
+            if(worker == null){
+                throw new RuntimeException(here + "[WSRT_ERR]The current X10 thread has no bound WS Worker");
+            }
+            worker.pushRemoteFF(derefFrame[FinishFrame](ffRef));
+            //Runtime.println(here + " :FF join frame pushed");
         };
-        //Runtime.println(here + ":Run Finish Join back to place:" + id);
+        //Runtime.println(here + " :Run Finish Join back to place:" + id);
         Runtime.wsRunCommand(id, body);
         Runtime.dealloc(body);
     }
@@ -238,92 +277,69 @@ public final class Worker {
         //locate the remote worker
         val body:()=>void = ()=>{            
             derefBB[BoxedBoolean](bbRef).value = true;
+            //Runtime.println(here + " :At Notify executed");
         };
-        //Runtime.println(here + ":Run At Notify back to place:" + id);
+        //Runtime.println(here + " :Run At Notify back to place:" + id);
         Runtime.wsRunCommand(id, body);
         Runtime.dealloc(body);
     }
     
     public static def allStop(worker:Worker){
-        for( var id:Int = 0; id < Place.MAX_PLACES; id++ ) {
-            val remoteWorkerRef = worker.pWorkerRefs(id);
+        for(var id:Int = 0; id < Place.MAX_PLACES; id++ ) {
             val idd:Int = id;
             val body:()=>void = ()=>{
-                deref[Worker](remoteWorkerRef).notifyStop();
-                //Worker.notifyStop(); //place local handle version
+                val worker = Runtime.wsWorker() as Worker;
+                if(worker == null){
+                    throw new RuntimeException(here + "[WSRT_ERR]The current X10 thread has no bound WS Worker");
+                }
+                worker.notifyStop();
             };
             Runtime.wsRunCommand(idd, body);
             Runtime.dealloc(body);
         }
     }
 
-    //Primary workers
-    //public static val pWorkers:Rail[GlobalRef[Worker]] = Rail.make[GlobalRef[Worker]](Place.MAX_PLACES);
-    //public static val pWorkers = PlaceLocalHandle.make[Rail[GlobalRef[Worker]]](Dist.makeUnique(), () => Rail.make[GlobalRef[Worker]](Place.MAX_PLACES));
-
     public static def main(frame:MainFrame) {
-        //create all workers in all places
-        val worker0s = Rail.make[GlobalRef[Worker]](Place.MAX_PLACES);
-        val worker0sRef = GlobalRef[Rail[GlobalRef[Worker]]](worker0s);
-
         //First iteration, create all workers, and get the globalRef array
-        finish for (p in Place.places()) {
+        for (p in Place.places()) {
+            if(p == here){
+                continue; //in later loop
+            }
             async at(p) {
                 val workers = Rail.make[Worker](Runtime.INIT_THREADS);
                 val finished = new BoxedBoolean();
-                val intaskque = new Deque();
                 for (var i:Int = 0; i<Runtime.INIT_THREADS; i++) {
-                    workers(i) = new Worker(i, workers, finished, intaskque);
+                    workers(i) = new Worker(i, workers, finished);
                 }
-                //Need store the first worker back
-                val worker0Ref = GlobalRef[Worker](workers(0));
-                val placeId = here.id;
-                at(worker0sRef) {
-                    //store the global ref to place 0;
-                    worker0sRef()(placeId) = worker0Ref;
-                }
-            }
-        }
-        //Second iteration, assign(copy) the globalRef array back to each place
-        finish for (var id:Int = 0; id < Place.MAX_PLACES; id++) {
-            val idd:Int = id;
-            val worker0Ref = worker0s(idd);
-            async at(worker0Ref) {
-                //store the worker0s to local
-                val workers = worker0Ref().workers;
-                for(var i:Int = 0; i < Runtime.INIT_THREADS; i++){
-                    val ii:Int = i;
-                    workers(ii).pWorkerRefs = worker0s;
-                }
-            }
-        }
-        //now the worker0s should contains all refs
-        //3rd iteration, aysnc start all workers
-        for (var id:Int = 0; id < Place.MAX_PLACES; id++) {
-            val idd:Int = id;
-            val worker0Ref = worker0s(idd);
-            async at(worker0Ref) {
-                val workers = worker0Ref().workers;
-                for (var i:Int = 0; i<Runtime.INIT_THREADS; i++) {
+                for( var i:Int = 0; i<Runtime.INIT_THREADS; i++) {
                     val ii = i;
-                    if(ii == 0 && here.id == 0){
-                        continue; //not start the 1st worker;
-                    }
-                    //Runtime.println(here + ":Worker(" + i + ") started..." );
                     async workers(ii).run();
                 }
             }
         }
+
+        //2nd iteration, current place
+        val workers = Rail.make[Worker](Runtime.INIT_THREADS);
+        val finished = new BoxedBoolean();
+        for (var i:Int = 0; i<Runtime.INIT_THREADS; i++) {
+            workers(i) = new Worker(i, workers, finished);
+        }
+        for( var i:Int = 1; i<Runtime.INIT_THREADS; i++) {
+            val ii = i;
+            async workers(ii).run();
+        }
+
         //start first worker at place0
-        val worker00 = deref[Worker](worker0s(0));
+        val worker00 = workers(0);
         try {
+            Runtime.wsBindWorker(worker00, 0);
             frame.fast(worker00);
             //If the app goes here, it means it always in fast path. 
             //We need process the ff.asyncs to make sure it can quit correctly
             var asyncs:Int;
             atomic asyncs = --frame.ff.asyncs;
             if(asyncs > 0) {
-                //Runtime.println(here + ":Worker(0) started after main's fast..." );
+                //Runtime.println(here + " :Worker(0) will start after main's fast..." );
                 worker00.run();
             }
             else {
@@ -333,7 +349,7 @@ public final class Worker {
                 //Runtime.println(here + ":Worker(0) terminated in fast");    
             }
         } catch (Stolen) {
-            //Runtime.println(here + ":Worker(0) started after main's fast's stolen..." );
+            //Runtime.println(here + " :Worker(0) will start after main's fast's stolen..." );
             worker00.run();
         } catch (t:Throwable) {
             Runtime.println(here +"Uncaught exception in main: " + t);
