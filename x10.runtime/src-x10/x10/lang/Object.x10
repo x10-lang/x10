@@ -18,7 +18,8 @@ import x10.compiler.NonEscaping;
 /**
  * The base class for all reference classes.
  */
-@NativeRep("java", "java.lang.Object", null, "x10.rtt.Types.OBJECT")
+// Fix for XTENLANG-1916
+@NativeRep("java", "x10.core.RefI", null, "x10.rtt.Types.OBJECT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Object>", "x10::lang::Object", null)
 public class Object 
         implements Any 

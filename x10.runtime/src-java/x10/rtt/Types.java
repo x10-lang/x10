@@ -13,6 +13,7 @@ package x10.rtt;
 
 import x10.core.Any;
 import x10.core.IndexedMemoryChunk;
+import x10.core.RefI;
 import x10.core.fun.Fun_0_1;
 
 
@@ -91,7 +92,8 @@ public class Types {
             return "x10.lang.String";
         }
     };
-    public static final RuntimeType<Object> OBJECT = new RuntimeType<Object>(Object.class) {
+    // Fix for XTENLANG-1916
+    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class) {
         @Override
         public String typeName() {
             return "x10.lang.Object";
