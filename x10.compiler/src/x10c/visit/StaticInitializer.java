@@ -929,7 +929,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // create MethodDef
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-        argTypes.add(Types.ref(xts.Object()));
+        argTypes.add(Types.ref(xts.Any()));
         argTypes.add(Types.ref(xts.Int()));
         Type returnType = (fdPLH == null) ? xts.Void() : PlaceLocalHandle();
         MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()), 
