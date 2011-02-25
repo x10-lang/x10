@@ -65,6 +65,47 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	/**
 	 * Body of main x10 thread
 	 */
+    // static init activity
+	static class $Closure$Init implements x10.core.fun.VoidFun_0_0 {
+		public void $apply() {
+            // execute X10-level static initialization
+            x10.runtime.impl.java.InitDispatcher.runInitializer();
+		}
+		public x10.rtt.RuntimeType<?> $getRTT() {
+			return $RTT;
+		}
+		public x10.rtt.Type<?> $getParam(int i) {
+			return null;
+		}		
+	}
+    // body of main activity
+	static class $Closure$Main implements x10.core.fun.VoidFun_0_0 {
+		private final Runtime out$;
+		private final x10.array.Array<String> aargs;
+		public void $apply() {
+			// catch and rethrow checked exceptions (closures cannot throw checked exceptions)
+			try {
+				// execute root x10 activity
+				out$.runtimeCallback(aargs);
+			} catch (java.lang.RuntimeException e) {
+				throw e;
+			} catch (java.lang.Error e) {
+				throw e;
+			} catch (java.lang.Throwable t) {
+				throw new x10.runtime.impl.java.WrappedThrowable(t);
+			}
+		}
+		$Closure$Main(Runtime out$, x10.array.Array<String> aargs) {
+			this.out$ = out$;
+			this.aargs = aargs;
+		}
+		public x10.rtt.RuntimeType<?> $getRTT() {
+			return $RTT;
+		}
+		public x10.rtt.Type<?> $getParam(int i) {
+			return null;
+		}
+	}
 	public void $apply() {
 //		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
@@ -87,46 +128,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             // start xrx
             x10.lang.Runtime.start(
             // static init activity
-            // TODO translate this to a static nested class
-            new x10.core.fun.VoidFun_0_0() {
-                public void $apply() {
-                    // execute X10-level static initialization
-                    x10.runtime.impl.java.InitDispatcher.runInitializer();
-                }
-
-                public x10.rtt.RuntimeType<?> $getRTT() {
-                    return $RTT;
-                }
-
-                public x10.rtt.Type<?> $getParam(int i) {
-                    return null;
-                }
-            },
+            new $Closure$Init(),
             // body of main activity
-            // TODO translate this to a static nested class
-            new x10.core.fun.VoidFun_0_0() {
-                public void $apply() {
-                    // catch and rethrow checked exceptions (closures cannot throw checked exceptions)
-                    try {
-                        // execute root x10 activity
-                        runtimeCallback(aargs);
-                    } catch (java.lang.RuntimeException e) {
-                        throw e;
-                    } catch (java.lang.Error e) {
-                        throw e;
-                    } catch (java.lang.Throwable t) {
-                        throw new x10.runtime.impl.java.WrappedThrowable(t);
-                    }
-                }
-
-                public x10.rtt.RuntimeType<?> $getRTT() {
-                    return $RTT;
-                }
-
-                public x10.rtt.Type<?> $getParam(int i) {
-                    return null;
-                }
-            });
+            new $Closure$Main(this, aargs)
+            );
         } catch (java.lang.Throwable t) {
             t.printStackTrace();
             setExitCode(1);

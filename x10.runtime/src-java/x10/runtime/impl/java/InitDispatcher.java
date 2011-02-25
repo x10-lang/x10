@@ -34,31 +34,36 @@ public abstract class InitDispatcher {
     /**
      * Executed only in place 0
      */
+    static class $Closure$Initialize implements x10.core.fun.VoidFun_0_0 {
+    	private final Method initializer;
+        public void $apply() {
+            // execute X10-level static initialization
+            try {
+                initializer.invoke(null, (Object[])null);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+                throw new java.lang.Error(e);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                throw new java.lang.Error(e);
+            }
+        }
+        $Closure$Initialize(Method initializer) {
+        	this.initializer = initializer;
+        }
+        public x10.rtt.RuntimeType<?> $getRTT() {
+            return $RTT;
+        }
+        public x10.rtt.Type<?> $getParam(int i) {
+            return null;
+        }
+    }
     public static void runInitializer() {
         for (final Method initializer : initializeMethods) {
             // System.out.println("runInitializer executes " + initializer.getName());
-            // TODO translate this to a static nested class
-            x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
-                public void $apply() {
-                    // execute X10-level static initialization
-                    try {
-                        initializer.invoke(null, (Object[])null);
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                        throw new java.lang.Error(e);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                        throw new java.lang.Error(e);
-                    }
-                }
-                public x10.rtt.RuntimeType<?> $getRTT() {
-                    return $RTT;
-                }
-                public x10.rtt.Type<?> $getParam(int i) {
-                    return null;
-                }
-            };
-            // execute asynchronously to resolve any dependencies
+        	// create an initialization closure
+        	x10.core.fun.VoidFun_0_0 body = new $Closure$Initialize(initializer);
+            // execute the closure asynchronously to resolve any dependencies
             x10.lang.Runtime.runAsync(body);
         }
         // static initialization all finished
@@ -92,6 +97,32 @@ public abstract class InitDispatcher {
         return fieldId-1;
     }
 
+    static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
+    	private final int fieldId;
+    	private final byte[] buf;
+        public void $apply() {
+            // execute deserializer for fieldValue
+            try {
+                deserializeMethods.get(fieldId).invoke(null, buf);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+                throw new java.lang.Error(e);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                throw new java.lang.Error(e);
+            }
+        }
+        $Closure$Deserialize(int fieldId, byte[] buf) {
+        	this.fieldId = fieldId;
+        	this.buf = buf;
+        }
+        public x10.rtt.RuntimeType<?> $getRTT() {
+            return $RTT;
+        }
+        public x10.rtt.Type<?> $getParam(int i) {
+            return null;
+        }
+    }
     public static void broadcastStaticField(final Object fieldValue, final int fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
@@ -102,28 +133,10 @@ public abstract class InitDispatcher {
 
         // serialize to bytearray
         final byte[] buf = serializeField(fieldValue);
-        // TODO translate this to a static nested class
-        x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
-            public void $apply() {
-                // execute deserializer for fieldValue
-                try {
-                    deserializeMethods.get(fieldId).invoke(null, buf);
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                    throw new java.lang.Error(e);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                    throw new java.lang.Error(e);
-                }
-            }
-            public x10.rtt.RuntimeType<?> $getRTT() {
-                return $RTT;
-            }
-            public x10.rtt.Type<?> $getParam(int i) {
-                return null;
-            }
-        };
-
+        
+        // create a deserialization closure
+        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        
         // Invoke the closure at all places except here
         Runtime.runAtAll(false, body);
     }
