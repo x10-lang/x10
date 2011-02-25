@@ -5066,10 +5066,28 @@ class TestFieldResolution(p:Int) {
 	val f = 2;
 	val f2:Int{self==1 && self==this.p} = p as Int{self==1};
 	def test1(me2:TestFieldResolution{self.p==2}) {
-		use(me2.f2); // ERR, todo: improve message: Field f2 not found in type "TestFieldResolution{self==me2, me2.TestFieldResolution#p==2}".
+		use(me2.f2); // ERR: Type inconsistent
 	}
 	static def test() {
 		use(f); // ERR [Cannot access a non-static field f from a static context.]
 	}
 	static def use(Any) {}
+}
+
+class TestMultipleImplementAndFields {
+	interface I1(z:Int) { static val a = 1;}
+	interface I2 extends I1 {}
+	interface I3 extends I1 {}
+	interface I4 extends I2,I3 {}
+	interface I5 extends I4 {
+		def m() {z==1} : void;
+	}
+	class Example1(z:Int) implements I5 {
+	  def example() = a;
+	  public def m() {z==1} {};
+	}
+	class Example2(z:Int) implements I5,I3 {
+	  def example() = a;
+	  public def m() {z==1} {};
+	}
 }

@@ -1545,7 +1545,7 @@ public class Types {
 	    TypeSystem xts = t.typeSystem();
 	    try {
 	        Context c = xts.emptyContext();
-	        X10FieldInstance fi = xts.findField(t, xts.FieldMatcher(t, propName, c));
+	        X10FieldInstance fi = xts.findField(t, t, propName, c);
 	        if (fi != null && fi.isProperty()) {
 	            return fi;
 	        }

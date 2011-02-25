@@ -847,7 +847,7 @@ public class X10Context_c extends Context_c {
 			if (depType instanceof X10ClassType) {
 				X10ClassType dep = (X10ClassType) this.depType;
 				TypeSystem ts = typeSystem();
-                X10FieldInstance myVi = ts.findField(dep, ts.FieldMatcher(dep, name, this));
+                X10FieldInstance myVi = ts.findField(dep, dep, name, this);
 				if (myVi != null) {
 					return myVi;
 				}

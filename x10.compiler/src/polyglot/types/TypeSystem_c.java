@@ -917,7 +917,7 @@ public class TypeSystem_c implements TypeSystem
      * in type <code>container</code> or a supertype.  The list
      * returned may be empty.
      */
-    public Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
+    private Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
         assert_(container);
 
         Set<FieldInstance> candidates = CollectionFactory.newHashSet();
@@ -934,7 +934,6 @@ public class TypeSystem_c implements TypeSystem
         
 	Name name = matcher.name();
 
-	Context context = matcher.context();
 	assert_(container);
 
 	if (container == null) {
@@ -1159,7 +1158,7 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public abstract static class FieldMatcher extends BaseMatcher<FieldInstance> implements Cloneable {
+    public static class FieldMatcher extends BaseMatcher<FieldInstance> implements Cloneable {
 	protected Type container;
 	protected Name name;
 	protected Context context;
@@ -1201,7 +1200,12 @@ public class TypeSystem_c implements TypeSystem
 	    return name;
 	}
 
-	public abstract FieldInstance instantiate(FieldInstance mi) throws SemanticException;
+	public FieldInstance instantiate(FieldInstance mi) throws SemanticException {
+	    if (! mi.name().equals(name)) {
+		    return null;
+	    }
+        return mi;
+    }
 
 	public String toString() {
 	    return signature();
@@ -1785,17 +1789,6 @@ public class TypeSystem_c implements TypeSystem
     public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
         return new X10ConstructorMatcher(container, typeArgs, argTypes, context);
     }
-
-    public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {
-    	//container = X10TypeMixin.ensureSelfBound( container);
-        return new X10FieldMatcher(container, name, context);
-    }
-
-    public X10FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context) {
-    	//container = X10TypeMixin.ensureSelfBound( container);
-        return new X10FieldMatcher(container, contextKnowsReceiver, name, context);
-    }
-    
 
     /** Return true if t overrides mi */
     public boolean hasFormals(ProcedureInstance<? extends ProcedureDef> pi, List<Type> formalTypes, Context context) {
@@ -3142,23 +3135,31 @@ public class TypeSystem_c implements TypeSystem
             if (fi.def()==fi2.def()) return true;
         return false;
    }
-    public X10FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
-	throws SemanticException {
+    public X10FieldInstance findField(Type container, Type receiver, Name name, Context context) throws SemanticException {
+        return findField(container, false, new FieldMatcher(receiver, name, context));
+    }
+    public X10FieldInstance findField(Type container, Type receiver, Name name, Context context, boolean receiverInContext) throws SemanticException {
+        return findField(container, receiverInContext, new FieldMatcher(receiver, name, context));
+    }
+    public Set<FieldInstance>  findFields(Type container, Type receiver, Name name, Context context) {
+        return findFields(container, new FieldMatcher(receiver, name, context));
+    }
+    private X10FieldInstance findField(Type container, boolean receiverInContext, TypeSystem_c.FieldMatcher matcher) throws SemanticException {
 		Context context = matcher.context();
 
 		Collection<FieldInstance> fields = findFields(container, matcher);
 
 		if (fields.size() >= 2) {
             // if the field is defined in a class, then it will appear only once in "fields".
-            // if it is defined in an interface (then it is either a "static val" or a property such as home), then it may appear multiple times in "fields", so we need to filter duplicates.
+            // if it is defined in an interface (then it is either a "static val" or a property field), then it may appear multiple times in "fields", so we need to filter duplicates.
             // e.g.,
-//            interface I1 { static val a = 1;}
+//            interface I1(z:Int) { static val a = 1;}
 //            interface I2 extends I1 {}
 //            interface I3 extends I1 {}
 //            interface I4 extends I2,I3 {}
 //            class Example implements I4 {
 //              def example() = a;
-//              def m(a:Example{self.home.home.home==here}) = 1;
+//              def m(a:Example{self.z==1}) = 1;
 //            }
 			Collection<FieldInstance> newFields = CollectionFactory.newHashSet();
 			for (FieldInstance fi : fields) {
@@ -3198,6 +3199,10 @@ public class TypeSystem_c implements TypeSystem
 		if (context != null && ! isAccessible(fi, context)) {
 		    throw new SemanticException("Cannot access " + fi + ".");
 		}
+
+        // todo: check it is consistent   receiverInContext
+        fi = X10FieldMatcher.instantiateAccess(fi,matcher.name,matcher.container,receiverInContext,context);
+        
 
 		return fi;
 

@@ -138,7 +138,7 @@ public abstract class Disamb_c implements Disamb
 
         if (exprOK()) {
             try {
-                FieldInstance fi = ts.findField(t, ts.FieldMatcher(t, name.id(), c));
+                FieldInstance fi = ts.findField(t, t, name.id(), c);
                 return nf.Field(pos, tn, name).fieldInstance(fi);
             } catch (NoMemberException e) {
                 if (e.getKind() != NoMemberException.FIELD) {

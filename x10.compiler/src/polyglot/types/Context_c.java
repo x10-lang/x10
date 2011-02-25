@@ -535,7 +535,7 @@ public abstract class Context_c implements Context
         
         if (vi == null && isClass()) {
             try {
-                return ts.findField(this.currentClass(), ts.FieldMatcher(this.currentClass(), name, this));
+                return ts.findField(this.currentClass(), this.currentClass(), name, this);
             }
             catch (SemanticException e) {
                 return null;// todo: we loose the error message! e.g., "Field XXX is ambiguous; it is defined in both ..." 

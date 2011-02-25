@@ -14,7 +14,6 @@ import polyglot.ast.Unary;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Source;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
-import polyglot.types.TypeSystem_c.FieldMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
@@ -307,7 +306,6 @@ public interface TypeSystem {
 
     Matcher<Type> TypeMatcher(Name name);
     Matcher<Type> MemberTypeMatcher(Type container, Name name, Context context);
-    TypeSystem_c.FieldMatcher FieldMatcher(Type container, Name name, Context context);
 
     /**
      * Find a member class.
@@ -821,7 +819,6 @@ public interface TypeSystem {
 
     Type futureOf(Position p, Ref<? extends Type> t);
 
-    FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
 
@@ -833,14 +830,15 @@ public interface TypeSystem {
      * @exception SemanticException if the field cannot be found or is
      * inaccessible.
      */
-    X10FieldInstance findField(Type container, FieldMatcher matcher) throws SemanticException;
+    X10FieldInstance findField(Type container, Type receiver, Name name, Context context) throws SemanticException;
+    X10FieldInstance findField(Type container, Type receiver, Name name, Context context, boolean receiverInContext) throws SemanticException;
 
     /**
      * Find matching fields.
      *
      * @exception SemanticException if no matching field can be found.
      */
-    Set<FieldInstance> findFields(Type container, FieldMatcher matcher);
+    Set<FieldInstance> findFields(Type container, Type receiver, Name name, Context context);
 
     /**
      * Find a method. We need to pass the class from which the method is being

@@ -31,23 +31,11 @@ import x10.types.X10FieldInstance;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 
-public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
-	boolean contextKnowsReceiver;
-    public X10FieldMatcher(Type container, Name name, Context context) {
-       this(container, false, name, context);
-    }
-    public X10FieldMatcher(Type container, boolean p, Name name, Context context) {
-        super(container, name, context);
-        this.contextKnowsReceiver = p;
-    }
-
-
-    @Override
-    public FieldInstance instantiate(FieldInstance mi) throws SemanticException {          
-	    if (! mi.name().equals(name)) {
+public class X10FieldMatcher {
+    public static X10FieldInstance instantiateAccess(X10FieldInstance fi, Name name, Type container, boolean contextKnowsReceiver, Context context) throws SemanticException {
+	    if (! fi.name().equals(name)) {
 		return null;
 	    }
-        X10FieldInstance fi = (X10FieldInstance) mi;
         TypeSystem ts = (TypeSystem) fi.typeSystem();
         Type t = fi.type();
         Type rt = fi.rightType();
