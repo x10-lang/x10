@@ -81,6 +81,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
             System.arraycopy(src.value, srcIndex, dataToCopy, 0, numElems);
         }
         
+        // TODO translate this to a static nested class
         VoidFun_0_0 copyBody = new VoidFun_0_0() {
             int dstId = dst.id;
             Object srcData = dataToCopy;
@@ -111,6 +112,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         final RemoteIndexedMemoryChunk<T> dstWrapper = RemoteIndexedMemoryChunk.wrap(dst);
         final int srcId = src.id;
         
+        // TODO translate this to a static nested class
         VoidFun_0_0 copyBody1 = new VoidFun_0_0() {
             
             public RuntimeType<?> $getRTT() { return VoidFun_0_0.$RTT; }
@@ -132,6 +134,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                     System.arraycopy(srcData, srcIndex, dataToCopy, 0, numElems);
                 }
                 
+                // TODO translate this to a static nested class
                 VoidFun_0_0 copyBody2 = new VoidFun_0_0() {
                     int dstId = dstWrapper.id;
                     Object srcData = dataToCopy;

@@ -87,6 +87,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             // start xrx
             x10.lang.Runtime.start(
             // static init activity
+            // TODO translate this to a static nested class
             new x10.core.fun.VoidFun_0_0() {
                 public void $apply() {
                     // execute X10-level static initialization
@@ -102,6 +103,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 }
             },
             // body of main activity
+            // TODO translate this to a static nested class
             new x10.core.fun.VoidFun_0_0() {
                 public void $apply() {
                     // catch and rethrow checked exceptions (closures cannot throw checked exceptions)

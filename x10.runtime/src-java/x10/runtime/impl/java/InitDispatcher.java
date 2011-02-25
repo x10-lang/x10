@@ -18,7 +18,7 @@ import java.util.List;
 
 import x10.core.ThrowableUtilities;
 
-public class InitDispatcher {
+public abstract class InitDispatcher {
 
     public static final int UNINITIALIZED = 0;
     public static final int INITIALIZING = 1;
@@ -37,6 +37,7 @@ public class InitDispatcher {
     public static void runInitializer() {
         for (final Method initializer : initializeMethods) {
             // System.out.println("runInitializer executes " + initializer.getName());
+            // TODO translate this to a static nested class
             x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
                 public void $apply() {
                     // execute X10-level static initialization
@@ -101,6 +102,7 @@ public class InitDispatcher {
 
         // serialize to bytearray
         final byte[] buf = serializeField(fieldValue);
+        // TODO translate this to a static nested class
         x10.core.fun.VoidFun_0_0 body = new x10.core.fun.VoidFun_0_0() {
             public void $apply() {
                 // execute deserializer for fieldValue
