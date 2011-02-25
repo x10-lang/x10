@@ -129,8 +129,10 @@ public class Emitter {
 	                "const",    "for",      "new",        "switch",
 	                "continue", "goto",     "package",    "synchronized",
 	                "null",     "true",     "false",
-	                // X10 implementation names (not needed since they include reserved character $)         
-//	                X10PrettyPrinterVisitor.GETRTT_NAME, X10PrettyPrinterVisitor.RTT_NAME, X10PrettyPrinterVisitor.GETPARAM_NAME
+                    // X10 implementation names
+	                "serialVersionUID",
+	                // X10 implementation names (rename is not needed since they include reserved character $)
+//	                X10PrettyPrinterVisitor.GETRTT_NAME, X10PrettyPrinterVisitor.RTT_NAME, X10PrettyPrinterVisitor.GETPARAM_NAME,
 	        }
 	        )
 	);
@@ -158,6 +160,7 @@ public class Emitter {
 	}
 
 	private static Name mangleIdentifier(Name n) {
+	    // TODO is a new hashmap really needed at every call?
 		Map<Name,Name> map = CollectionFactory.newHashMap();
 		map.put(Converter.operator_as, Name.make("$convert"));
 		map.put(Converter.implicit_operator_as, Name.make("$implicit_convert"));
@@ -1055,6 +1058,7 @@ public class Emitter {
 		return false;
 	}
 
+	/*
 	@Deprecated
 	public void generateRTTMethods(X10ClassDef def) {
 		generateRTTMethods(def, false);
@@ -1134,6 +1138,7 @@ public class Emitter {
 			}
 		}
 	}
+	*/
 	
 	/*
 	 * For "java" annotations:

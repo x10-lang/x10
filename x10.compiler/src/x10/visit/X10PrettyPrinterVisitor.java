@@ -1060,6 +1060,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("{");
 		w.newline(4); w.begin(0);
 
+        if (!flags.isInterface()) {
+            // TODO compute serialVersionUID with the same logic as javac
+            long serialVersionUID = 1L;
+            w.write("private static final long serialVersionUID = " + serialVersionUID + "L;");
+            w.newline();
+        }
+
 		// Generate the run-time type.  We have to wrap in a class since n might be an interface
 		// and interfaces can't have static methods.
 
