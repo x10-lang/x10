@@ -14,6 +14,7 @@ import polyglot.ast.Assert;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
+import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit;
 import polyglot.ast.Branch;
 import polyglot.ast.Call;
@@ -840,7 +841,11 @@ public final class ExpressionFlattener extends ContextVisitor {
             boolean outerStmtSeq = stmt instanceof StmtSeq;
             boolean innerStmtSeq = inner instanceof StmtSeq;
             if (!outerStmtSeq || innerStmtSeq) {
-                stmt.statements(inner.statements());
+                if (outerStmtSeq) {
+                    stmt = syn.createStmtSeq(stmt.position(), inner.statements());
+                } else if (stmt instanceof Block_c) {
+                    stmt = syn.createBlock(stmt.position(), inner.statements());
+                }
             }
         }
 
