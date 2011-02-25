@@ -5057,10 +5057,66 @@ class TestOverloadingAndConstraints_ctors_macros {
 	}
 }
 
+// typedef overloading
+interface TestTypeDefOverloadingAndConstraints {
+	static class Foo[T] {}
+
+	static type m00() = Int; 
+	static type m00() = Double; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m00 = x10.lang.Double"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:13,5-28.]
+
+	static type m0(Int) = Int;
+	static type m0(Int) = Int; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	
+	static type m1(Int) = Int;
+	static type m1(Int{self!=0}) = Int; // ERR
+
+	static type m11(j:Int) = Int;
+	static type m11(i:Int) {i!=0}  = Int; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m11(x10.lang.Int){i!=0} = x10.lang.Int"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:22,5-33.]
+	
+	static type m2(Foo[Int]) = Int;
+	static type m2(Foo[Double]) = Int;
+
+	static type m3(Foo[Int]) = Int;
+	static type m3(Foo[Int]{self!=null}) = Int; // ERR
+
+	static type m4(Foo[Int]) = Int;
+	static type m4(Foo[Int{self!=0}]) = Int; // ERR
+	
+	static type m5(Foo[Foo[Int]]) = Int;
+	static type m5(Foo[Foo[Int{self!=0}]]) = Int; // ERR
+}
+interface TestTypeDefOverloadingAndConstraints_macros {
+	static type Int1 = Int;
+	static type Int2 = Int1;
+	static type Int3Not0 = Int2{self!=0};
+	static type IntNot0 = Int3Not0;
+	static type FooNotNull[T] = Foo[T]{self!=null};
+	
+	static class Foo[T] {}
+
+	static type m1(Int) = Int;
+	static type m1(IntNot0) = Int; // ERR
+	
+	static type m2(Foo[Int]) = Int;
+	static type m2(Foo[Double]) = Int;
+
+	static type m3(Foo[Int]) = Int;
+	static type m3(FooNotNull[Int]) = Int; // ERR
+
+	static type m4(Foo[Int]) = Int;
+	static type m4(Foo[IntNot0]) = Int; // ERR
+	
+	static type m5(Foo[Foo[Int]]) = Int;
+	static type m5(Foo[Foo[IntNot0]]) = Int; // ERR
+}
+
 class TestMemberTypeResolution {
 	static type Foo(i:Int{self!=0}) = Int;
+	var x:Foo(0); // ERR: todo: improve error: Semantic Error: Could not find type "Foo".
+	static type Foo(i:Double) = Int;
 	var y:Foo(1);
-	var x:Foo(0); // ERR, todo: improve message: Could not find type "Foo".
+	var x:Foo(0); // ERR: todo: improve error: Semantic Error: Could not find type "Foo".
+	var z:Foo(0.1); 
 }
 class TestFieldResolution(p:Int) {
 	val f = 2;

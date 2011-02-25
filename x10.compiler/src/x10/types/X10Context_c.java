@@ -811,7 +811,7 @@ public class X10Context_c extends Context_c {
 		catch (SemanticException e) {
 		}
 		try {
-		    return ts.findTypeDef(container, ts.TypeDefMatcher(container, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), this), this);
+		    return ts.findTypeDef(container, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), this);
 		}
 		catch (SemanticException e) {
 		}

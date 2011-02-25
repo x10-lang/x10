@@ -31,7 +31,6 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.ThisDef;
 import x10.types.ThisInstance;
-import x10.types.TypeDefMatcher;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
@@ -1109,9 +1108,7 @@ public interface TypeSystem {
 
     Type performUnaryOperation(Type t, Type l, Unary.Operator op);
 
-    TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
-
-    MacroType findTypeDef(Type t, TypeDefMatcher matcher, Context context) throws SemanticException;
+    MacroType findTypeDef(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) throws SemanticException;
 
     List<MacroType> findTypeDefs(Type container, Name name, ClassDef currClass) throws SemanticException;
 

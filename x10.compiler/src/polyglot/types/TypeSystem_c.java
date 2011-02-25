@@ -843,8 +843,9 @@ public class TypeSystem_c implements TypeSystem
     public boolean isSubtype(Type t1, Type t2) {
         return isSubtype(t1, t2, emptyContext());
     }
-    
-    public MacroType findTypeDef(Type container, TypeDefMatcher matcher, Context context) throws SemanticException {
+
+    public MacroType findTypeDef(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) throws SemanticException {
+        TypeDefMatcher matcher = new TypeDefMatcher(container,name,typeArgs,argTypes,context);
         List<MacroType> acceptable = findAcceptableTypeDefs(container, matcher, context);
 
         if (acceptable.size() == 0) {
@@ -892,8 +893,8 @@ public class TypeSystem_c implements TypeSystem
             throw new SemanticException("Reference to " + matcher.name() + " is ambiguous, multiple type defintions match: " + sb.toString());
         }
 
-        MacroType mi = maximal.iterator().next();
-
+        MacroType mi = maximal.iterator().next();        
+        mi = matcher.instantiateAccess(mi);
         return mi;
     }
 
@@ -974,10 +975,6 @@ public class TypeSystem_c implements TypeSystem
 
 	return fields;
     }
-   
-    public TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        return new TypeDefMatcher(container, name, typeArgs, argTypes, context);
-    }
 
     public List<MacroType> findAcceptableTypeDefs(Type container, TypeDefMatcher matcher, Context context) throws SemanticException {
         assert_(container);
@@ -993,7 +990,7 @@ public class TypeSystem_c implements TypeSystem
             catch (SemanticException e) {
             }
             try {
-                return this.findTypeDef(t, this.TypeDefMatcher(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context), context);
+                return this.findTypeDef(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context);
             }
             catch (SemanticException e) {
             }

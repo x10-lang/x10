@@ -539,7 +539,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             catch (SemanticException e) {
             }
             try {
-                return ts.findTypeDef(t, ts.TypeDefMatcher(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context), context);
+                return ts.findTypeDef(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context);
             }
             catch (SemanticException e) {
             }

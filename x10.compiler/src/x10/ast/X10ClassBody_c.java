@@ -225,48 +225,34 @@ public class X10ClassBody_c extends ClassBody_c {
         return false;
     }
 
+    public static boolean hasCompatibleArguments(List<Type> l1, List<Type> l2, Context context) {        
+        TypeConstraint tc = context.currentTypeConstraint().copy();
+        TypeSystem ts = context.typeSystem();
+        for (int i = 0; i < l1.size(); i++) {
+            Type t1 = l1.get(i);
+            Type t2 = l2.get(i);
+            if (!tc.unify(t1,t2,ts) || !tc.consistent(context))
+        	    return false;
+        }
+        return true;
+    }
     public static boolean hasCompatibleArguments(X10ProcedureDef p1, X10ProcedureDef p2, Context context) {
         if (p1.typeParameters().size() != p2.typeParameters().size())
             return false;
-        
-        if (p1.formalTypes().size() != p2.formalTypes().size())
+
+        final int size = p1.formalTypes().size();
+        if (size != p2.formalTypes().size())
             return false;
 
-        TypeSystem ts = (TypeSystem) p1.typeSystem();
-        Context xcontext = (Context) context;
-        TypeConstraint tc = (TypeConstraint) xcontext.currentTypeConstraint().copy();
-        
-        for (int i = 0; i < p1.formalTypes().size(); i++) {
+        ArrayList<Type> l1 = new ArrayList<Type>(size);
+        ArrayList<Type> l2 = new ArrayList<Type>(size);
+        for (int i = 0; i < size; i++) {
             Type t1 = Types.get(p1.formalTypes().get(i));
             Type t2 = Types.get(p2.formalTypes().get(i));
-            
-            // Erase types and expand formals.
-            //t1 = X10TypeMixin.baseType(t1);
-            //t2 = X10TypeMixin.baseType(t2);
-            
-            // Parameters conflict with everything
-            //if (t1 instanceof ParameterType || t2 instanceof ParameterType)
-            //    continue;
-            
-            if (!tc.unify(t1,t2,ts) || !tc.consistent(xcontext))
-        	return false;
-           /*
-            // Uninstantiate the parameterized types.
-            if (t1 instanceof X10ClassType) {
-                X10ClassType ct = (X10ClassType) t1;
-                t1 = ct.x10Def().asType();
-            }
-            
-            if (t2 instanceof X10ClassType) {
-                X10ClassType ct = (X10ClassType) t2;
-                t2 = ct.x10Def().asType();
-            }
-            
-            if (! ts.typeEquals(t1, t2, context))
-                return false;*/
+            l1.add(t1);
+            l2.add(t2);
         }
-        
-        return true;
+        return hasCompatibleArguments(l1,l2,context);
     }
     
     protected void duplicateTypeDefCheck(ContextVisitor tc) {

@@ -67,8 +67,11 @@ import polyglot.types.Context;
 import x10.types.X10Def;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
+import polyglot.types.NoClassException;
 
 import x10.types.X10Use;
+import x10.types.TypeDefMatcher;
 import x10.visit.X10TypeChecker;
 import x10.visit.ChangePositionVisitor;
 import x10.types.checker.VarChecker;
@@ -228,10 +231,12 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
             
             if (prefix == null) {
                 // Search the context.
-                List<Type> tl = c.find(ts.TypeDefMatcher(null, name.id(), typeArgs, argTypes, c));
+                TypeDefMatcher matcher = new TypeDefMatcher(null, name.id(), typeArgs, argTypes, c);
+                List<Type> tl = c.find(matcher);
                 for (Type n : tl) {
                     if (n instanceof MacroType) {
                         mt = (MacroType) n;
+                        mt = matcher.instantiateAccess(mt);
                         break;
                     }
                 }
@@ -240,7 +245,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
                 if (prefix instanceof TypeNode) {
                     TypeNode tn = (TypeNode) prefix;
                     Type container = tn.type();
-                    mt = ts.findTypeDef(container, ts.TypeDefMatcher(container, name.id(), typeArgs, argTypes, c), c);
+                    mt = ts.findTypeDef(container, name.id(), typeArgs, argTypes, c);
                 }
             }
             
@@ -257,8 +262,20 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
 
                 return nf.CanonicalTypeNode(pos, sym);
             }
-        }
-        catch (SemanticException e) {
+        } catch (SemanticException e) {
+            // These can happen normally:
+            // polyglot.types.SemanticException: No type defintion found in x10.util.Map for x10.util.Map.Entry[K, V].
+            // NoClassException
+            // But in other cases we want to report the error, e.g.,
+            //class TestMemberTypeResolution {
+            //	static type Foo(i:Int{self!=0}) = Int;
+            //	var x:Foo(0); // ERR: todo: improve error: Semantic Error: Could not find type "Foo".
+            //}
+            //  throw the error: (but we ignore it)
+            // x10.errors.Errors$InvalidParameter:    Invalid Parameter.
+            //     Expected type: x10.lang.Int{self!=0}
+            //     Found type: x10.lang.Int{self==0}
+            Throwable e2 = e; // so I can break-point
         }
         
         // Otherwise, look for a simply-named type.
