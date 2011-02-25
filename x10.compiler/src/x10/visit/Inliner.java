@@ -364,6 +364,8 @@ public class Inliner extends ContextVisitor {
      * @return
      */
     private Node getCompileTimeConstant(X10Call call) {
+        x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
+        x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
         try {
             X10MethodDef def = call.methodInstance().x10Def();
             List<Type> annotations = def.annotationsMatching(ConstantType);
@@ -384,6 +386,9 @@ public class Inliner extends ContextVisitor {
             return null;
         } catch (OptionError e) {
             return null;
+        }
+        finally {
+            x10Info.stats.stopTiming();
         }
     }
 
@@ -1008,7 +1013,11 @@ public class Inliner extends ContextVisitor {
     }
 
     private Node propagateConstants(Node n) {
-        return n.visit(new ConstantPropagator(job, ts, nf).context(context()));
+        x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
+        x10Info.stats.startTiming("ConstantPropagator.context", "ConstantPropagator.context");
+        Node retNode = n.visit(new ConstantPropagator(job, ts, nf).context(context()));
+        x10Info.stats.stopTiming();
+        return retNode;
     }
 
     /**
