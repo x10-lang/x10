@@ -44,14 +44,25 @@ public final class IntRange(
      * The product of two int ranges is interpreted as if the IntRanges
      * were first converted to Region(1) and then the * operator applied.
      */
-    // TODO: Strictly speaking, this operator shouldn't be needed,
-    //       but the compiler doesn't find the conversion from IntRange to
-    //       Region(1){rect} without it.  This may be a symptom of a bug
-    //       in the interaction of method resolution and implicit conversions.
     public operator this * (that:IntRange):Region(2){rect} {
         return Region.makeRectangular([min, that.min], [max, that.max]);
     }
+    
+    public operator this + (i:int) = new IntRange(min+i, max+i);
+    public operator this + (p:Point(1)) = new IntRange(min+p(0), max+p(0));
+    public operator (i:int) + this = new IntRange(min+i, max+i);
+    public operator (p:Point(1)) + this = new IntRange(min+p(0), max+p(0));
 
+    public operator this - (i:int) = new IntRange(min-i, max-i);
+    public operator this - (p:Point(1)) = new IntRange(min-p(0), max-p(0));
+    
+    public operator this && (that:Region(1)): Region(1) = (this as Region(1)) && that;
+
+    public operator this -> (p:Place) = Dist.makeConstant(this as Region(1), p);
+
+    public operator (i:Int) in this = min <= i && i <= max;
+    public operator (p:Point(1)) in this = min <= p(0) && p(0) <= max;
+    
     public def toString():String = min+".."+max;
     
     public def equals(that:Any):Boolean {
