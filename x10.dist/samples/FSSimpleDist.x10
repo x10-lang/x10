@@ -39,7 +39,7 @@ public class FSSimpleDist {
 
         finish {
 
-            for ([p] in 0..(NUM_PLACES-1)) {
+            for (p in 0..(NUM_PLACES-1)) {
                 
                 async at(Place.place(p)) {
                     
@@ -47,12 +47,12 @@ public class FSSimpleDist {
                     val b = new Array[double](localSize);
                     val c = new Array[double](localSize);
                     
-                    for (var i:int=0; i<localSize; i++) {
+                    for (i in 0..(localSize-1)) {
                         b(i) = 1.5 * (p*localSize+i);
                         c(i) = 2.5 * (p*localSize+i);
                     }
                     
-                    for ([j] in 0..(NUM_TIMES-1)) {
+                    for (j in 0..(NUM_TIMES-1)) {
                         if (p==0) {
                         	val t = times as GlobalRef[Array[double](1)]{self.home==here};
                         	t()(j) = -now(); 
