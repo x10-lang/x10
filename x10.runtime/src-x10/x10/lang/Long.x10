@@ -519,4 +519,15 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
    @Native("c++", "x10aux::long_utils::compareTo(#0, #1)")
    public native def compareTo(x:Long):Int;
+   
+   /**
+    * Constructs a LongRange from
+    * the lower bound to the upper bound, inclusive.
+    * @param lower the lower bound
+    * @param upper the upper bound
+    * @return a range from lower to upper, inclusive.
+    */
+   @Native("java", "new x10.lang.LongRange(#1, #2)")
+   @Native("c++", "x10::lang::LongRange::_make(#1, #2)")
+   public native static operator (x:Long) .. (y:Long):LongRange{min==x,max==y,self!=null};
 }

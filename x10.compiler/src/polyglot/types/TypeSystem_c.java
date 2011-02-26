@@ -2459,6 +2459,22 @@ public class TypeSystem_c implements TypeSystem
             distArrayType_ = load("x10.array.DistArray");
         return distArrayType_;
     }
+    
+    protected X10ClassType intRangeType_ = null;
+    public X10ClassType IntRange() {
+        if (intRangeType_ == null) {
+            intRangeType_ = load("x10.lang.IntRange");
+        }
+        return intRangeType_;
+    }
+
+    protected X10ClassType longRangeType_ = null;
+    public X10ClassType LongRange() {
+        if (longRangeType_ == null) {
+            longRangeType_ = load("x10.lang.LongRange");
+        }
+        return longRangeType_;
+    }
 
     protected X10ClassType mortalType_ = null;
 
@@ -3723,6 +3739,28 @@ public class TypeSystem_c implements TypeSystem
         }
     }
 
+    public boolean isIntRange(Type me) {
+        if (hasSameClassDef(me, IntRange())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isIntRange(parent);
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean isLongRange(Type me) {
+        if (hasSameClassDef(me, LongRange())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isLongRange(parent);
+        } else {
+            return false;
+        }
+    }
+  
     public boolean isTypeConstrained(Type me) {
         return me instanceof ConstrainedType;
     }

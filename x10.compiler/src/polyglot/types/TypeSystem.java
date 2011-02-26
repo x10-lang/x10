@@ -1177,6 +1177,10 @@ public interface TypeSystem {
     boolean isX10Array(Type me);
 
     boolean isX10DistArray(Type me);
+    
+    boolean isIntRange(Type me);
+
+    boolean isLongRange(Type me);
 
     Context emptyContext();
     boolean isExactlyFunctionType(Type t);

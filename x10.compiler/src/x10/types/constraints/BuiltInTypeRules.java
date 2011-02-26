@@ -28,7 +28,7 @@ public class BuiltInTypeRules {
 	 * constraint propagation rules for operators. 
 	 * 
 	 * For an IntRange left..right, if we can staticaly establish that left is zero, then we assert
-	 *  self.isZeroBased and self.rail in the return type.
+	 *  self.isZeroBased in the return type.
 	 *
 	 * class IntRange {
 	 *    public static (left:Int) .. (right:Int) : IntRange{self.zeroBased==(left == 0)} {...}
@@ -47,7 +47,6 @@ public class BuiltInTypeRules {
 	        if (!ts.isUnknown(type)) {
 	        	ConstrainedType result = Types.toConstrainedType(type);
 	            result = (ConstrainedType) Types.addTerm(result, result.makeZeroBased());
-	            result = (ConstrainedType) Types.addTerm(result, result.makeRail());
 	            return result;
 	        }
 	    }

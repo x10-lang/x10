@@ -188,38 +188,46 @@ public class ForLoopOptimizer extends ContextVisitor {
             domain = syn.createFieldRef(pos, domain, REGION);
             assert (null != domain);
         }
-
+        
         Id           label      = syn.createLabel(pos);
         Context      context    = (Context) context();
         List<Formal> formalVars = formal.vars();
         boolean      named      = !formal.isUnnamed();
         ConstrainedType domainType = Types.toConstrainedType(domain.type());
-        boolean      isRect     = domainType.isRect(context);
-        Integer      domainRank = (Integer) getPropertyConstantValue(domain, RANK);
-        int          rank       = (null != domainRank) ? (int) domainRank :
-                                  (null != formalVars) ? formalVars.size() : 
-                                  -1;
+        boolean isRect     = domainType.isRect(context);
+        Integer domainRank = (Integer) getPropertyConstantValue(domain, RANK);
+        int rank       = (null != domainRank) ? (int) domainRank :
+            (null != formalVars) ? formalVars.size() : 
+                -1;
         assert null == formalVars || formalVars.isEmpty() || formalVars.size() == rank;
 
-        // SPECIAL CASE (XTENLANG-1340):
-        // for (p(i) in e1..e2) S  =>
-        //     val min=e1; val max=e2; for(var z:Int=min; z<=max; z++){ val p=Point.make(z); val i=z; S }
-        // TODO inline (min and max), scalar replace Region object and its constituent Arrays then delete this code
-        //
-        if (1 == rank && domain instanceof Call && ((Call)domain).target().type().isInt() &&
-                ((Call)domain).name().id().equals(X10Binary_c.binaryMethodName(Binary.DOT_DOT))) {
-            List<Expr> args = ((Call) loop.domain()).arguments();
-            assert (args.size() == 2);
-            Expr low = args.get(0);
-            Expr high = args.get(1);
-            Name varName  = null == formalVars || formalVars.isEmpty() ? Name.makeFresh("i") 
-                                                                       : Name.makeFresh(formalVars.get(0).name().id());
+        // Transform loops over IntRange and LongRange into counted for loops
+        if (xts.isIntRange(domainType) || xts.isLongRange(domainType)) {
+            Name varName  = null == formalVars || formalVars.isEmpty() ? Name.makeFresh("i") : Name.makeFresh(formalVars.get(0).name().id());
             Name minName  = Name.makeFresh(varName+ "min");
             Name maxName  = Name.makeFresh(varName+ "max");
+            boolean isLong = xts.isLongRange(domainType);
+            
+            Expr low;
+            Expr high;
+            LocalDecl  domLDecl;
+            if (domain instanceof Call && ((Call)domain).name().id().equals(X10Binary_c.binaryMethodName(Binary.DOT_DOT))) {
+                // SPECIAL CASE: if The IntRange is being created in the for loop header itself with the .. operator, avoid creating it entirely.
+                List<Expr> args = ((Call) loop.domain()).arguments();
+                assert (args.size() == 2);
+                low = args.get(0);
+                high = args.get(1);
+                domLDecl = null;
+            } else {
+                domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(varName+"domain"), domain);
+                low = syn.createFieldRef(pos, syn.createLocal(pos, domLDecl), MIN);
+                high =  syn.createFieldRef(pos, syn.createLocal(pos, domLDecl), MAX);
+            }
+            
             LocalDecl minLDecl = syn.createLocalDecl(pos, Flags.FINAL, minName, low);
             LocalDecl maxLDecl = syn.createLocalDecl(pos, Flags.FINAL, maxName, high);
-            
-            LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, xts.Int(), syn.createLocal(pos, minLDecl));
+           
+            LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, isLong ? xts.Long() : xts.Int(), syn.createLocal(pos, minLDecl));
             Expr cond = syn.createBinary( domain.position(),
                                           syn.createLocal(pos, varLDecl),
                                           Binary.LE,
@@ -228,18 +236,14 @@ public class ForLoopOptimizer extends ContextVisitor {
             Expr update = syn.createAssign( domain.position(),
                                             syn.createLocal(pos, varLDecl),
                                             Assign.ADD_ASSIGN,
-                                            syn.createIntLit(1),
+                                            isLong ? syn.createLongLit(1) : syn.createIntLit(1),
                                             this);
             
             List<Stmt> bodyStmts = new ArrayList<Stmt>();
             if (named) {
                 // declare the formal variable as a local and initialize it 
-                Expr formExpr = syn.createStaticCall(pos, formal.declType(), MAKE, syn.createLocal(pos, varLDecl));
-                LocalDecl formalLDecl = syn.createLocalDecl(formal, formExpr);
+                LocalDecl formalLDecl = syn.createLocalDecl(formal, syn.createLocal(pos, varLDecl));
                 bodyStmts.add(formalLDecl);
-            }
-            if (null != formalVars && !formalVars.isEmpty()) {
-                bodyStmts.add(syn.createLocalDecl((X10Formal) formalVars.get(0), syn.createLocal(pos, varLDecl)));
             }
             bodyStmts.add(body);
             body = syn.createBlock(loop.body().position(), bodyStmts);
@@ -248,10 +252,14 @@ public class ForLoopOptimizer extends ContextVisitor {
             if (label() != null) {
                 newLoop = syn.createLabeledStmt(pos, label(), forLoop);
             }
-            return syn.createBlock(pos, minLDecl, maxLDecl, newLoop);
+            if (domLDecl == null ) {
+                return syn.createBlock(pos, minLDecl, maxLDecl, newLoop);
+            } else {
+                return syn.createBlock(pos, domLDecl, minLDecl, maxLDecl, newLoop);
+            }
         }
-
-        // transform rectangular regions of known rank 
+        
+        // transform loops over rectangular regions of known rank 
         if (xts.isRegion(domainType) && isRect && rank > 0) {
             assert xts.isPoint(formal.declType());
             if (VERBOSE) System.out.println("  rectangular region, rank=" +rank+ " point=" +formal);

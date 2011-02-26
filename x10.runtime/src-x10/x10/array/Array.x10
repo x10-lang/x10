@@ -209,7 +209,8 @@ Iterable[Point(region.rank)] {
      */
     public def this(size:int) {T haszero}
     {
-        property(0..(size-1), 1, true, true, true, size);
+        val myReg = new RectRegion(0, size-1);
+        property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
@@ -226,7 +227,8 @@ Iterable[Point(region.rank)] {
      */    
     public def this(size:int, init:(int)=>T)
     {
-        property(0..(size-1), 1, true, true, true, size);
+        val myReg = new RectRegion(0, size-1);
+        property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
@@ -247,7 +249,8 @@ Iterable[Point(region.rank)] {
      */    
     public def this(size:int, init:T)
     {
-        property(0..(size-1), 1, true, true, true, size);
+        val myReg = new RectRegion(0, size-1);
+        property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
