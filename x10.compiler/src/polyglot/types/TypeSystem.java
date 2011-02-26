@@ -1164,6 +1164,8 @@ public interface TypeSystem {
 
     X10ClassType Region();
 
+    X10ClassType IntRange();
+
     X10ClassType Iterator(Type formalType);
 
     boolean isUnsigned(Type r);

@@ -91,6 +91,43 @@ public class BuiltInTypeRules {
 		assert selfVar == ct.selfVar();
 		return ct;
 	}
+	   /**
+     * 
+     * 
+     * For a region mult left*right, we build in that the rank of the result is l+r if we can statically
+     * establish that the rank of left is an value l, and the rank of right is a value r.
+     * 
+     * If both left and right are rect, then we establish that the result is rect.
+     * 
+     * If both left and right are zeroBased, then we establish that the result is zeroBased.
+     * @param left
+     * @param right
+     * @param type
+     * @param context
+     * @return
+     */
+    public static ConstrainedType adjustReturnTypeForRegionRangeMult(Expr region, Expr range, Type type, Context context) {
+        TypeSystem ts =  context.typeSystem();
+        ConstrainedType regiontype = Types.toConstrainedType(region.type());
+        ConstrainedType rangetype = Types.toConstrainedType(range.type());
+        XTerm regionrank = regiontype.rank(context);
+        ConstrainedType ct = Types.toConstrainedType(type);
+        XVar selfVar = ct.selfVar();
+        
+        if (regionrank instanceof XLit) {
+            int x = (Integer) ((XLit) regionrank).val();
+            ct = ct.addRank(x+1);
+        }
+        if (regiontype.isRect(context)) {
+            ct = ct.addRect();
+        }
+        if (regiontype.isZeroBased(context) && rangetype.isZeroBased(context)) {
+            ct = ct.addZeroBased();
+        }
+        assert selfVar == ct.selfVar();
+        return ct;
+    }
+	
 	/**
 	 * 
 	 * @param l

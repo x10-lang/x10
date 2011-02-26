@@ -128,9 +128,9 @@ Iterable[Point(region.rank)] {
         layout = RectLayout(reg);
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
-    }
-    
-    
+    }   
+
+
     /**
      * Construct an Array over the region reg whose
      * values are initialized as specified by the init function.
@@ -150,8 +150,11 @@ Iterable[Point(region.rank)] {
         }
         raw = r;
     }
-    
-    
+    // TODO: This should not be needed.  Compiler should apply implict coercion at call site, but it doesn't.
+    public def this(ir:IntRange, init:(Point(1))=>T):Array[T](1){this.rect,self!=null} {
+        this(ir as Region(1){self.rect}, init);
+    }
+
     /**
      * Construct an Array over the region reg whose
      * values are initialized to be init.
@@ -179,8 +182,8 @@ Iterable[Point(region.rank)] {
         }
         raw = r;
     }
-    
-    
+
+
     /**
      * Construct an Array view of a backing IndexedMemoryChunk
      * using the argument region to define how to map Points into
