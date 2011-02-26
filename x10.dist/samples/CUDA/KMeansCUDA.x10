@@ -101,7 +101,7 @@ public class KMeansCUDA {
                         val num_local_points = num_global_points / team.size();
                         val offset = role * num_local_points;
 
-                        for ([p] in 0..(team.size()-1)) {
+                        for (p in 0..(team.size()-1)) {
                             if (p==role && !quiet) {
                                 Console.OUT.println("GPU known as "+gpu+" gets role "+role+" offset "+offset+" len "+num_local_points);
                             }
@@ -141,18 +141,18 @@ public class KMeansCUDA {
                             finish async at (gpu) @CUDA @CUDADirectParams {
                                 val blocks = CUDAUtilities.autoBlocks(),
                                     threads = CUDAUtilities.autoThreads();
-                                finish for ([block] in 0..(blocks-1)) async {
+                                finish for (block in 0..(blocks-1)) async {
                                     val clustercache = new Array[Float](clusters_copy);
-                                    clocked finish for ([thread] in 0..(threads-1)) clocked async {
+                                    clocked finish for (thread in 0..(threads-1)) clocked async {
                                         val tid = block * threads + thread;
                                         val tids = blocks * threads;
                                         for (var p:Int=tid ; p<num_local_points ; p+=tids) {
                                             var closest:Int = -1;
                                             var closest_dist:Float = Float.MAX_VALUE;
-                                            @Unroll(20) for ([k] in 0..(num_clusters-1)) { 
+                                            @Unroll(20) for (k in 0..(num_clusters-1)) { 
                                                 // Pythagoras (in 4 dimensions)
                                                 var dist : Float = 0;
-                                                for ([d] in 0..3) { 
+                                                for (d in 0..3) { 
                                                     val tmp = gpu_points(p+d*num_local_points_stride) 
                                                               - @NoInline clustercache(k*4+d);
                                                     dist += tmp * tmp;

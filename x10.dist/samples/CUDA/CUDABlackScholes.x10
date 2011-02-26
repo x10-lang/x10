@@ -40,8 +40,8 @@ public class CUDABlackScholes {
         finish async at (p) @CUDA @CUDADirectParams {
             //val blocks = CUDAUtilities.autoBlocks(),
             //    threads = CUDAUtilities.autoThreads();
-            finish for ([block] in 0..(blocks-1)) async {
-                clocked finish for ([thread] in 0..(threads-1)) clocked async {
+            finish for (block in 0..(blocks-1)) async {
+                clocked finish for (thread in 0..(threads-1)) clocked async {
                     val tid = block * threads + thread;
                     val tids = blocks * threads;
                     for (var opt:Int=tid; opt < opt_N; opt+=tids) {
