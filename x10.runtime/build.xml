@@ -267,7 +267,10 @@
             <fileset dir="${gen}" includes="${jar}"/>
         </copy>
     </target>
-    <target name="build-java" depends="init,gen-xrx">
+    <target name="gen-xrj" depends="init">
+        <java classname="x10c.util.MakeFun" classpath="${x10.dist.location}/lib/x10c.jar" fork="true" dir="${gen}"/>
+    </target>
+    <target name="build-java" depends="init,gen-xrx,gen-xrj">
         <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${src}"/>
             <size value="50" when="more"/>
