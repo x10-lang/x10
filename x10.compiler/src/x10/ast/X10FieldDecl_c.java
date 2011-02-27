@@ -363,7 +363,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                            t = ct.superClass();
 	                    }
 	                }
-	                Context xc = (Context) enterChildScope(type(), tc.context());
+	                Context xc = enterChildScope(type(), tc.context());
 	                t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
 	                LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
 	                r.update(t);
@@ -373,10 +373,17 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                    if (hasType != null) {
 	                        htn = (TypeNode) visitChild(hasType, childtc);
 	                        if (! htn.type().typeSystem().isSubtype(type().type(), htn.type(),tc.context())) {
-	                            Errors.issue(tc.job(),
-	                                         new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
-	                                                                                 htn.type(),
-	                                                                                 position()));
+	                            xc = (Context) enterChildScope(init, tc.context());
+	                            Expr newInit = Converter.attemptCoercion(tc.context(xc), init, htn.type());
+	                            if (newInit == null) {
+	                                Errors.issue(tc.job(),
+	                                             new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
+	                                                                                     htn.type(),
+	                                                                                     position()));
+	                            } else {
+                                    init = newInit;
+                                    r.update(newInit.type()); 
+	                            }
 	                        }
 	                    }
 	                }
