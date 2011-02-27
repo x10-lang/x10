@@ -4717,7 +4717,7 @@ class RegionCastTests {
 }
 
 class TestOverridingAndHasType {
-	val i <: Double = 2; // ERR
+	val i <: Double = 2;
 	class A {
 		def m():Int = 1;
 		def t():Int = 1;

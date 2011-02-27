@@ -377,7 +377,7 @@ public abstract class Region(
     //
     public static operator (a:Array[Region(1){self.rect}](1)):Region(a.size){self.rect} = make(a);
 
-    public static operator (r:IntRange):Region(1){rect} {
+    public static operator (r:IntRange):Region(1){rect&&self!=null} {
         return new RectRegion(r.min, r.max);
     }
 
