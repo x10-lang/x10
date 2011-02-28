@@ -572,21 +572,6 @@ public class Errors {
 	                pos);
 	    }
 	}
-	public static class AmbiguousCall extends EqualByTypeAndPosException {
-	    private static final long serialVersionUID = 2449179239460432298L;
-        public AmbiguousCall(ProcedureInstance<?> pi,  Expr cc, Position pos) {
-            super("Ambiguous call: the given procedure and closure match."
-                  + "\n\t Procedure: "  + pi
-                  + "\n\t Closure: "  + cc,
-                  pos);
-        }
-	    public AmbiguousCall(MethodInstance pi, ConstructorInstance ci, Position pos) {
-	        super("Ambiguous call: cannot resolve between struct constructor and method."
-	              + "\n\t Method: " + pi
-	              + "\n\t Struct constructor: " + ci,
-	              pos);
-	    }
-	}
 	public static class AmbiguousOperator extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = 2747145999189438964L;
 	    private static String matchingMethods(List<MethodInstance> mis) {

@@ -755,9 +755,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		final X10New structCall = findStructConstructor(tc, target, typeArgs, argTypes, arguments);
         methodResolution.structCall = structCall;
 		// We have both a struct constructor and a closure call.  Spec section 8.2.
-		if (structCall != null && cc != null) {
-		    throw new Errors.AmbiguousCall(structCall.constructorInstance(), cc, position());
-		}
+        // the user can disambiguate using: "new StructCtor(...)
+        // therefore we give precedence to the closure-call
 
         // Now trying a method call
 		Type targetType = this.target() == null ? null : this.target().type();
@@ -800,11 +799,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		}
 
 		// OK so now we have mi and args that correspond to a success.
-		if (structCall != null) {
-		    // We have both a method and a struct constructor.
-		    // Have to report an ambiguity, as there is no way for the user to resolve it.
-		    throw new Errors.AmbiguousCall(mi, structCall.constructorInstance(), position());
-		}
+        // We have both a method and a struct constructor, so we give precedence to the method (the user can chose the struct ctor with "new")
 
 		// if the target is null, and thus implicit, find the target using the context
 		Receiver target = this.target() == null ? computeReceiver(tc, mi) : this.target();
