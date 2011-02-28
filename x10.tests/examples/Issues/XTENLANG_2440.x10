@@ -31,7 +31,7 @@ public class XTENLANG_2440(x:Int) extends x10Test  {
         result = heavyMath;
       }
     }
-    return result == 2; // ShouldNotBeERR (it will be fixed with athome proposal)
+    return result == 2; 
   }
 
     public def run()= oughttowork();

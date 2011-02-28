@@ -2000,7 +2000,7 @@ class TestValInitUsingAt { // see XTENLANG-1942
 		val x:Int;
 		at (here.next()) 
 			x = 2;
-		val y = x; // ShouldNotBeERR: Semantic Error: "x" may not have been initialized
+		val y = x; 
 	}
     static def test2() {
         var x_tmp:Int = 0; // we have to initialize it (otherwise, the dataflow
@@ -2101,6 +2101,7 @@ class ReturnStatementTest {
 	class A {
 	  def m() {
 		at (here.next()) return here;// ShouldNotBeERR (Semantic Error: Cannot return value from void method or closure.)// ShouldNotBeERR (Semantic Error: Cannot return a value from method public x10.lang.Runtime.$dummyAsync(): void.)
+		val x = 3; // ERR (unreachable statement)
 	  }
 	  def test() {
 			val x1 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type void.)
@@ -2111,6 +2112,12 @@ class ReturnStatementTest {
 	}
 	
 	static def ok(b:Boolean):Int {
+		finish {
+			async { val y=1; }
+			return 3;
+		}
+	}
+	static def ok2(b:Boolean):Int {
 		if (b) 
 			return 1;
 		else {
@@ -2121,11 +2128,7 @@ class ReturnStatementTest {
 			}
 		}
 		at (here.next())
-			return 2; // ShouldNotBeERR ERR todo: we get 2 errors: Cannot return value from void method or closure.		Cannot return a value from method public static x10.lang.Runtime.$dummyAsync(): void
-		finish {
-			async { val y=1; }
-			return 3;
-		}
+			return 2; // ShouldNotBeERR ERR todo: we get 2 errors: Cannot return value from void method or closure.		Cannot return a value from method public static x10.lang.Runtime.$dummyAsync(): void		
 	}
 	static def err1(b:Boolean):Int {
 		if (b) return 1;
@@ -3757,7 +3760,7 @@ class TestDuplicateClass { // XTENLANG-2132
 class TestSerialization {
 class TestAt {
 	var i:Int{self!=0};
-	def this() { // ERR: Semantic Error: Field 'i' was not definitely assigned.
+	def this() { 
 		at (here.next()) 
 			i=2; // ERR: 'this' or 'super' cannot escape via an 'at' statement during construction.
 	}
@@ -4785,8 +4788,8 @@ class CopyBackTest {
 	            result2 = 3; // ShouldBeErr
             }
         }
-		use(result1); // ERR
-		use(result2); // ERR
+		use(result1); 
+		use(result2);
     }
     public def varTest() {
         var result1 : Int; // Uninitialized
@@ -4803,10 +4806,10 @@ class CopyBackTest {
 				use(result2);
             }
 			use(result1); // ERR
-			use(result2); // ERR ERR
+			use(result2); // ERR [Local variable is accessed at a different place, and must be declared final.]
         }
-		use(result1); // ERR
-		use(result2); // ShouldNotBeERR
+		use(result1);
+		use(result2);
 	}
 	def use(Any) {}
 }
@@ -5304,7 +5307,7 @@ class Call_resolution_tests {
 }
 
 
-class CallResolution {	 
+class CallResolution_method_field_local {	 
 	var f: ()=>Int;
 	def f():Double = 0.1;
 	def m(f: ()=>String) {
@@ -5314,20 +5317,29 @@ class CallResolution {
 		val x4:Int = (this.f)();
 	}
 }
-class CallResolution2 {	 
+class CallResolution_struct_vs_field_and_local {	 
+	static struct f {}
+	var f: ()=>Int;
+	def m(f: ()=>String) {
+		val x1:String = f();
+		val x2:Int = this.f();
+		val x3:f = new f();
+	}
+}
+class CallResolution_struct_method_field_local {	 
 	static struct f {}
 	var f: ()=>Int;
 	def f():Double = 0.1;
 	def m(f: ()=>String) {
 		val x1:Double = this.f();
-		val x2:Double = f(); // ERR [Ambiguous call: the given procedure and closure match.]
+		val x2:Double = f(); 
 		val x22:f = new f();
-		val x222:f = new CallResolution2.f();
+		val x222:f = new CallResolution_struct_method_field_local.f();
 		val x3:String = (f)();
 		val x4:Int = (this.f)();
 	}
 }
-class CallResolution3 {	 
+class CallResolution_typeParam_struct_method_field_local {	 
 	static struct f {}
 	var f: ()=>Int;
 	def f():Double = 0.1;
@@ -5335,9 +5347,8 @@ class CallResolution3 {
 		val x1:Double = this.f();
 		val x2:Double = f(); // because the struct ctor is hidden
 		val x22 = new f(); // ERR [Semantic Error: No valid constructor found for f().]
-		val x222:CallResolution3.f = new CallResolution3.f();
+		val x222:CallResolution_typeParam_struct_method_field_local.f = new CallResolution_typeParam_struct_method_field_local.f();
 		val x3:String = (f)();
 		val x4:Int = (this.f)();
 	}
 }
-
