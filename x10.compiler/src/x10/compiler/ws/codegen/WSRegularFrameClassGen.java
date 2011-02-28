@@ -14,7 +14,6 @@ package x10.compiler.ws.codegen;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,21 +35,19 @@ import polyglot.ast.Try;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Pair;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.ast.Async;
 import x10.ast.AtStmt;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
 import x10.ast.When;
-import x10.ast.X10Formal;
 import x10.ast.X10Loop;
-import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.ClosureDefReinstantiator;
@@ -59,10 +56,8 @@ import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.Triple;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.optimizations.ForLoopOptimizer;
-import polyglot.types.Context;
-import x10.util.synthesizer.ClassSynth;
+import x10.util.CollectionFactory;
 import x10.util.synthesizer.CodeBlockSynth;
-import x10.util.synthesizer.ConstructorSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.NewInstanceSynth;
 import x10.util.synthesizer.NewLocalVarSynth;
@@ -547,7 +542,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         Expr globalFFRef = globalFFRefLocalSynth.getLocal();
         
         //create the frame class gen
-        WSRemoteMainFrameClassGen remoteClassGen = (WSRemoteMainFrameClassGen) genChildFrame(wts.remoteMainFrameType, stmt, null); //no need prefix gen here
+        WSRemoteMainFrameClassGen remoteClassGen = (WSRemoteMainFrameClassGen) genChildFrame(wts.regularFrameType, stmt, null); //no need prefix gen here
         
         Expr flagRef = null; //used in at transformation
         if(!isAsync){
@@ -870,4 +865,18 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         superCallSynth.addArgument(wts.frameType, upRef);
         superCallSynth.addArgument(wts.finishFrameType, ffRef);
     }
+    
+    /* 
+     * Cannot inline RemoteMainFrame's fast path
+     * @see x10.compiler.ws.codegen.AbstractWSClassGen#isFastPathInline()
+     */
+    public boolean isFastPathInline(ClassType frameType){
+        if(xts.isSubtype(frameType, wts.mainFrameType)){
+            return false; //cannot inline main frame
+        }
+        else{
+            return super.isFastPathInline(frameType); //default true;   
+        }
+    }
+    
 }

@@ -24,6 +24,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.If;
 import polyglot.ast.Local;
 import polyglot.ast.Stmt;
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -58,7 +59,7 @@ public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
     public WSRemoteMainFrameClassGen(AbstractWSClassGen parent, AtStmt atStmt, boolean isAsync) {
         super(parent, null, //up frame is null
               atStmt.body(),
-              WSCodeGenUtility.getRemoteRemoteClassName(parent.getClassName()), parent.wts.remoteMainFrameType);
+              WSCodeGenUtility.getRemoteRemoteClassName(parent.getClassName()), parent.wts.regularFrameType);
         this.atStmt = atStmt;
         this.isAsync = isAsync;
         this.parentR = parent; //the parent is not the real parent
@@ -99,6 +100,7 @@ public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
 
     /* 
      * Need add blockFlag and other accessed outside local var as formals.
+     * And need set the _pc = 0, to make sure the resume could be called directly
      * @see x10.compiler.ws.codegen.WSRegularFrameClassGen#genClassConstructor()
      */
     protected void genClassConstructor() throws SemanticException{
@@ -129,6 +131,10 @@ public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
                               synth.makeFieldAssign(compilerPos, thisRef, formalName, fRef, xct));
             conCodeSynth.addStmt(s);
         }
+        //assign pc
+        Stmt pcAssignS = xnf.Eval(compilerPos, 
+                                  synth.makeFieldAssign(compilerPos, thisRef, PC, synth.intValueExpr(0, compilerPos), xct));
+        conCodeSynth.addStmt(pcAssignS);
     }
 
     /* 
@@ -164,6 +170,14 @@ public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
         return xnf.Eval(compilerPos, call);
     }
 
+    
+    /* 
+     * Cannot inline RemoteMainFrame's fast path
+     * @see x10.compiler.ws.codegen.AbstractWSClassGen#isFastPathInline()
+     */
+    public boolean isFastPathInline(ClassType frameType){
+        return false; //default true;
+    }
 
 
 

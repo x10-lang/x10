@@ -182,8 +182,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         
         fastMSynth = classSynth.createMethod(compilerPos, FAST.toString());
         fastMSynth.setFlag(Flags.PUBLIC);
-        if (!(xts.isSubtype(frameType, wts.mainFrameType))
-                && !(xts.isSubtype(frameType, wts.remoteMainFrameType))) {
+        if (isFastPathInline(frameType)){
             //only set inline to inner frames, not top frames
             fastMSynth.addAnnotation(genInlineAnnotation());
         }
@@ -1402,7 +1401,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 
                 System.out.print("[WS_INFO] \"");
                 localAssign.prettyPrint(System.out);
-                System.out.println("\" is out-finish scope assign, and will be moved in " + sb.toString());                
+                System.out.println("\" is an out-finish scope assign expr, and will be moved into " + sb.toString());                
             }
         }
     }
@@ -1552,6 +1551,13 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             }
         }        
         return result;
+    }
+    
+    
+    //=============================== This Section is used to control optimizaiton config
+    //Sub class gen should override the method to control the opimization parameter.
+    public boolean isFastPathInline(ClassType frameType){
+        return true; //default true;
     }
     
 }
