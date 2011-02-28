@@ -23,16 +23,6 @@ public final class Worker {
         this.finished = finished;
     }
 
-    public def pushRemoteFrame(frame:RemoteMainFrame){
-        //Runtime.println(here + ": worker(" + id + ") was pushed a remote Frame");
-        fifo.push(Frame.upcast[RemoteMainFrame, Object](frame));
-    }
-
-    public def pushRemoteFF(ff:FinishFrame){
-        //Runtime.println(here + ": worker(" + id + ") was pushed a Finish Join Frame");
-        fifo.push(Frame.upcast[FinishFrame, Object](ff));
-    }
-
     public def notifyStop(){
         finished.value = true;
         //Runtime.println(here +": was notified to stop()");
@@ -89,28 +79,8 @@ public final class Worker {
                     //Runtime.println(here + " :Worker(" + id + ") terminated");
                     return;
                 }
-                if(k instanceof RemoteMainFrame
-                        && Frame.cast[Object, RemoteMainFrame](k).fresh){
-                    val p:RemoteMainFrame = Frame.cast[Object, RemoteMainFrame](k);
-                    p.fresh = false;
-                    try{
-                        //Runtime.println(here+" :Execute remote task");
-                        p.fast(this);
-                        //if the app goes here, it means the app is always in fast.
-                        //need check whether the current ff.asyncs is only 1
-                        var asyncs:Int;
-                        atomic asyncs = --p.ff.asyncs;
-                        if(asyncs == 0){
-                            val root:RemoteRootFrame = Frame.cast[Frame, RemoteRootFrame](Frame.cast[Frame, RemoteRootFinish](p.up).up);
-                            val ffRef = root.ffRef; //a global ref
-                            remoteFinishJoin(ffRef); //invoke the remote one   
-                        }
-                        //else still run the app
-                    }catch (Stolen) {}
-                    //may need do some memory cleaning here
-                }
-                else if(k instanceof RegularFrame){
-                    //sequence, regular frame must be checked later. Because remote main frame is a regular frame, too
+                if(k instanceof RegularFrame){
+                    //could be a regular frame of local, or remote one. Just call resume
                     val r:RegularFrame = Frame.cast[Object,RegularFrame](k);
                     try {
                         r.resume(this);
@@ -230,7 +200,7 @@ public final class Worker {
     static def derefBB[T](root:GlobalRef[BoxedBoolean]) = (root as GlobalRef[BoxedBoolean]{home==here})() as T;
     
     //the frame should be in heap, and could be copied deeply
-    public def remoteRunFrame(place:Place, frame:RemoteMainFrame, ff:FinishFrame){
+    public def remoteRunFrame(place:Place, frame:RegularFrame, ff:FinishFrame){
         atomic ff.asyncs++; //need add the frame's structure
         val id:Int = place.id;
         val body:()=>void = ()=> {
@@ -239,7 +209,7 @@ public final class Worker {
             if(worker == null){
                 throw new RuntimeException(here + "[WSRT_ERR]The current X10 thread has no bound WS Worker");
             }
-            worker.pushRemoteFrame(frame);
+            worker.fifo.push(Frame.upcast[RegularFrame, Object](frame));
         };
         //Runtime.println(here + " :Run Remote job at place:" + id);
         Runtime.wsRunAsync(id, body);
@@ -258,7 +228,7 @@ public final class Worker {
             if(worker == null){
                 throw new RuntimeException(here + "[WSRT_ERR]The current X10 thread has no bound WS Worker");
             }
-            worker.pushRemoteFF(derefFrame[FinishFrame](ffRef));
+            worker.fifo.push(Frame.upcast[FinishFrame, Object](derefFrame[FinishFrame](ffRef)));
             //Runtime.println(here + " :FF join frame pushed");
         };
         //Runtime.println(here + " :Run Finish Join back to place:" + id);
