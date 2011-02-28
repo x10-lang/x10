@@ -728,8 +728,12 @@ import x10.util.Box;
     public static def runAt(place:Place, body:()=>void):void {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
-            deepCopy(body)();
-            return;
+            try {
+                deepCopy(body)();
+                return;
+            } catch (t:Throwable) {
+                throw deepCopy(t);
+            }
         }
         @StackAllocate val me = @StackAllocate new RemoteControl();
         val box = GlobalRef(me);
@@ -778,7 +782,11 @@ import x10.util.Box;
     public static def evalAt[T](place:Place, eval:()=>T):T {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
-            return deepCopy(deepCopy(eval)());
+            try {
+                return deepCopy(deepCopy(eval)());
+            } catch (t:Throwable) {
+                throw deepCopy(t);
+            }
         }
         @StackAllocate val me = @StackAllocate new Remote[T]();
         val box = GlobalRef(me);
