@@ -12,6 +12,7 @@
 package x10.core.concurrent;
 
 import x10.core.RefI;
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
@@ -30,15 +31,11 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
     //
     // Runtime type information
     //
-    public static final RuntimeType<AtomicInteger> $RTT = new RuntimeType<AtomicInteger>(
+    public static final RuntimeType<AtomicInteger> $RTT = new NamedType<AtomicInteger>(
+        "x10.util.concurrent.AtomicInteger",
         AtomicInteger.class,
         new x10.rtt.Type[] { x10.rtt.Types.OBJECT }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.util.concurrent.AtomicInteger";
-        }
-    };
+    );
     public RuntimeType<AtomicInteger> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {
         return null;

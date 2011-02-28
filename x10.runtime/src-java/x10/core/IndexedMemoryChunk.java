@@ -13,6 +13,7 @@ package x10.core;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.UnsupportedOperationException;
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
@@ -177,15 +178,11 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         return o != null && this.value == ((IndexedMemoryChunk<?>) o).value;
     }
 
-    public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = new RuntimeType<IndexedMemoryChunk<?>>(
+    public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = new NamedType<IndexedMemoryChunk<?>>(
+        "x10.util.IndexedMemoryChunk",
         IndexedMemoryChunk.class,
         new RuntimeType.Variance[] { Variance.INVARIANT }
-    ) {
-        @Override
-        public java.lang.String typeName() {
-            return "x10.util.IndexedMemoryChunk";
-        }
-    };
+    );
     
     @Override
     public RuntimeType<IndexedMemoryChunk<?>> $getRTT() {

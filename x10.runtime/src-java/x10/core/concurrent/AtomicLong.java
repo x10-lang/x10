@@ -12,6 +12,7 @@
 package x10.core.concurrent;
 
 import x10.core.RefI;
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
@@ -30,15 +31,11 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     //
     // Runtime type information
     //
-    public static final RuntimeType<AtomicLong> $RTT = new RuntimeType<AtomicLong>(
+    public static final RuntimeType<AtomicLong> $RTT = new NamedType<AtomicLong>(
+        "x10.util.concurrent.AtomicLong",
         AtomicLong.class,
         new x10.rtt.Type[] { x10.rtt.Types.OBJECT }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.util.concurrent.AtomicLong";
-        }
-    };
+    );
     public RuntimeType<AtomicLong> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {
         return null;

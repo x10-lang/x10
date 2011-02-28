@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import sun.misc.Unsafe;
 import x10.core.Ref;
 import x10.core.RefI;
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
@@ -199,14 +200,10 @@ public class Deque extends Ref {
     //
     // Runtime type information
     //
-    public static final RuntimeType<Deque> $RTT = new RuntimeType<Deque>(
+    public static final RuntimeType<Deque> $RTT = new NamedType<Deque>(
+        "x10.lang.Deque",
         Deque.class 
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Deque";
-        }
-    };
+    );
     public RuntimeType<Deque> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return null; }
 

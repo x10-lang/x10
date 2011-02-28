@@ -25,14 +25,11 @@ import x10.lang.Runtime.Mortal;
 public final class GlobalRef<T> extends x10.core.Struct implements
         Externalizable {
 
-    public static final x10.rtt.RuntimeType<GlobalRef<?>> $RTT = new x10.rtt.RuntimeType<GlobalRef<?>>(
-            GlobalRef.class,
-            new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT }) {
-        @Override
-        public java.lang.String typeName() {
-            return "x10.lang.GlobalRef";
-        }
-    };
+    public static final x10.rtt.RuntimeType<GlobalRef<?>> $RTT = new x10.rtt.NamedType<GlobalRef<?>>(
+        "x10.lang.GlobalRef",
+        GlobalRef.class,
+        new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT }
+    );
 
     public x10.rtt.RuntimeType<GlobalRef<?>> $getRTT() {
         return $RTT;

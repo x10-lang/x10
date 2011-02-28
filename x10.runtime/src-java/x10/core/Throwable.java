@@ -11,6 +11,7 @@
 
 package x10.core;
 
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
@@ -52,15 +53,11 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super(message, cause);
     }
 
-    public static final RuntimeType<Throwable> $RTT = new RuntimeType<Throwable>(
+    public static final RuntimeType<Throwable> $RTT = new NamedType<Throwable>(
+        "x10.lang.Throwable",
         Throwable.class,
         new Type[] { x10.rtt.Types.OBJECT }
-    ) {
-        @Override
-        public java.lang.String typeName() {
-            return "x10.lang.Throwable";
-        }
-    };
+    );
     public RuntimeType<?> $getRTT() {
         return $RTT;
     }

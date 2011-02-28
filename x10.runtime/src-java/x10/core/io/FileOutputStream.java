@@ -11,6 +11,7 @@
 
 package x10.core.io;
 
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
@@ -25,15 +26,11 @@ public class FileOutputStream extends OutputStream {
     //
     // Runtime type information
     //
-    public static final RuntimeType<FileOutputStream> $RTT = new RuntimeType<FileOutputStream>(
+    public static final RuntimeType<FileOutputStream> $RTT = new NamedType<FileOutputStream>(
+        "x10.io.FileWriter.FileOutputStream",
         FileOutputStream.class,
         new Type[] { OutputStream.$RTT }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.io.FileWriter.FileOutputStream";
-        }
-    };
+    );
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 

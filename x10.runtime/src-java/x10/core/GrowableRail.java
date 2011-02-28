@@ -12,6 +12,7 @@
 package x10.core;
 
 
+import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
@@ -182,7 +183,8 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
     //
     // Runtime type information
     //
-    public static final RuntimeType<GrowableRail<?>> $RTT = new RuntimeType<GrowableRail<?>>(
+    public static final RuntimeType<GrowableRail<?>> $RTT = new NamedType<GrowableRail<?>>(
+        "x10.lang.GrowableRail",
         GrowableRail.class,
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
@@ -190,12 +192,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
             new ParameterizedType(x10.lang.Iterable.$RTT, new UnresolvedType(0)),
             new ParameterizedType(x10.lang.Settable.$RTT, Types.INT, new UnresolvedType(0))
         }
-    ) {
-        @Override
-        public java.lang.String typeName() {
-            return "x10.lang.GrowableRail";
-        }
-    };
+    );
     public RuntimeType<GrowableRail<?>> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {
         return i == 0 ? elementType : null;

@@ -12,6 +12,7 @@
 package x10.core.concurrent;
 
 import x10.core.RefI;
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
@@ -33,16 +34,12 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     //
     // Runtime type information
     //
-    public static final RuntimeType<AtomicReference> $RTT = new RuntimeType<AtomicReference>(
+    public static final RuntimeType<AtomicReference> $RTT = new NamedType<AtomicReference>(
+        "x10.util.concurrent.AtomicReference",
         AtomicReference.class,
         new Variance[] { Variance.INVARIANT },
         new Type[] { x10.rtt.Types.OBJECT }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.util.concurrent.AtomicReference";
-        }
-    };
+    );
     public RuntimeType<AtomicReference> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {
         return i == 0 ? T : null;

@@ -12,6 +12,7 @@
 package x10.core;
 
 import x10.lang.Place;
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
@@ -72,15 +73,11 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
         return this.id == that.id && this.home == that.home;
     }
 
-    public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = new RuntimeType<RemoteIndexedMemoryChunk<?>>(
+    public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = new NamedType<RemoteIndexedMemoryChunk<?>>(
+        "x10.util.RemoteIndexedMemoryChunk",
         RemoteIndexedMemoryChunk.class,
         new RuntimeType.Variance[] { Variance.INVARIANT }
-    ) {
-        @Override
-        public java.lang.String typeName() {
-            return "x10.util.RemoteIndexedMemoryChunk";
-        }
-    };
+    );
     
     @Override
     public RuntimeType<RemoteIndexedMemoryChunk<?>> $getRTT() {

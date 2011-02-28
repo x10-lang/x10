@@ -12,6 +12,7 @@
 package x10.core.io;
 
 import x10.core.RefI;
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
@@ -35,15 +36,11 @@ public class NativeFile extends java.io.File implements RefI {
     //
     // Runtime type information
     //
-    public static final RuntimeType<NativeFile> $RTT = new RuntimeType<NativeFile>(
+    public static final RuntimeType<NativeFile> $RTT = new NamedType<NativeFile>(
+        "x10.io.File.NativeFile",
         NativeFile.class,
         new Type[] { x10.rtt.Types.OBJECT }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.io.File.NativeFile";
-        }
-    };
+    );
     public RuntimeType<NativeFile> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 

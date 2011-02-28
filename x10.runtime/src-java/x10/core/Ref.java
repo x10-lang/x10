@@ -11,6 +11,7 @@
 
 package x10.core;
 
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
@@ -26,12 +27,7 @@ public class Ref implements RefI {
     // XTENLANG-1858: every Java class that could be an (non-static) inner class must have constructors with the outer instance parameter
     public Ref(Object out$) {}
 
-    public static RuntimeType<Ref> $RTT = new RuntimeType<Ref>(Ref.class) {
-        @Override
-        public java.lang.String typeName() {
-            return "x10.lang.Object";
-        }
-    };
+    public static RuntimeType<Ref> $RTT = new NamedType<Ref>("x10.lang.Object", Ref.class);
     public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}
 
