@@ -87,6 +87,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         
         // TODO translate this to a static nested class
         VoidFun_0_0 copyBody = new VoidFun_0_0() {
+            private static final long serialVersionUID = 1L;
             int dstId = dst.id;
             Object srcData = dataToCopy;
             
@@ -118,7 +119,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         
         // TODO translate this to a static nested class
         VoidFun_0_0 copyBody1 = new VoidFun_0_0() {
-            
+            private static final long serialVersionUID = 1L;
             public RuntimeType<?> $getRTT() { return VoidFun_0_0.$RTT; }
             public Type<?> $getParam(int i) { return null; }
             
@@ -140,6 +141,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                 
                 // TODO translate this to a static nested class
                 VoidFun_0_0 copyBody2 = new VoidFun_0_0() {
+                    private static final long serialVersionUID = 1L;
                     int dstId = dstWrapper.id;
                     Object srcData = dataToCopy;
                     
