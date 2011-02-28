@@ -44,12 +44,11 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.util.ErrorInfo;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -76,10 +75,6 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.ErrorRef_c;
 import x10.types.checker.Checker;
-import x10.types.checker.PlaceChecker;
-import x10.visit.X10TypeChecker;
-import x10.X10CompilerOptions;
-import x10.ExtensionInfo;
 
 /**
  * Representation of an X10 method call.
@@ -583,6 +578,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
                 Warnings.checkErrorAndGuard(tc, (X10Use)pi, n);
             }
 	    } catch (SemanticException e) {
+            e.setPosition(this.position);
 	        Errors.issue(tc.job(), e, this);
 	        TypeSystem ts = tc.typeSystem();
 	        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
@@ -602,6 +598,33 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    }
 	    return n;
 	}
+
+    /**
+     * MethodResolution represents the process of method resolution.
+     * We use this object for better error reporting.
+     * A call:  target.m(arguments)
+     * can be resolved to:
+     * 1) closure call on a field or a local
+     * 2) method call on a static or instance method
+     * 3) struct constructor invocation
+     * Note that the instances might have an error object in them (i.e., li.error() may contain an error)
+     */
+    class MethodResolution {
+        // option 1
+        X10LocalInstance li;
+        X10FieldInstance fi;
+        Expr variable; // either a local or field access
+        MethodInstance closureInstance;
+        MethodInstance closureInstanceWithImplicit;
+        Expr closureCall; // might reference a call (after we typecheck a ClosureCall it might return X10Call_c)
+
+        // option 2
+        MethodInstance methodInstance;
+        MethodInstance methodInstanceWithImplicit;
+
+        // option 3
+        X10New structCall;
+    }
 	private Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		NodeFactory xnf = (NodeFactory) tc.nodeFactory();
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
@@ -609,24 +632,26 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 		Name name = this.name().id();
 
+        MethodResolution methodResolution = new MethodResolution();
 		Expr cc = null;
 
 		{
 			// Check if target.name is a field or local of function type;
 			// if so, convert to a closure call.
 			NodeFactory nf = (NodeFactory) tc.nodeFactory();
-			TypeSystem ts = (TypeSystem) tc.typeSystem();
 
 			Expr e = null;
 
 			if (target() == null) {
-			    X10LocalInstance li = X10Local_c.findAppropriateLocal(tc, name);
+			    final X10LocalInstance li = X10Local_c.findAppropriateLocal(tc, name);
+                methodResolution.li = li;
 			    if (li.error() == null) {
 			        //e = xnf.Local(name().position(), name()).localInstance(li).type(li.type());
 			        try {
 			            e = xnf.Local(name().position(), name()).localInstance(li);
 			            e = (Expr) e.del().typeCheck(tc);
 			            e = (Expr) e.del().checkConstants(tc);
+                        methodResolution.variable = e;
 			        } catch (SemanticException cause) {
 			            throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
 			        }
@@ -636,7 +661,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			    boolean isStatic = target() instanceof TypeNode || (target() == null && c.inStaticContext());
 			    X10FieldInstance fi = null;
 			    if (target() == null) {
-			        fi = (X10FieldInstance) c.findVariableSilent(name);
+			        fi = (X10FieldInstance) c.findVariableSilent(name); // we didn't find a local, so it must be a field
 		            if (fi != null && isStatic && !fi.flags().isStatic())
 		                fi = null;
 			    }
@@ -646,6 +671,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			                isStatic,
 			                Types.contextKnowsType(target()));
 			    }
+                methodResolution.fi = fi;
 			    if (fi.error() == null) {
 			        try {
 			            Receiver target = this.target() == null ?
@@ -657,6 +683,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			                    name()).fieldInstance(fi).targetImplicit(target()==null);
 			            e = (Expr) e.del().typeCheck(tc);
 			            e = (Expr) e.del().checkConstants(tc);
+                        methodResolution.variable = e;
 			        } catch (SemanticException cause) {
 			            throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
 			        }
@@ -672,13 +699,13 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			    }
 			    // First try to find the method without implicit conversions.
 			    MethodInstance ci = Checker.findAppropriateMethod(tc, e.type(), ClosureCall.APPLY, typeArgs, actualTypes);
-			    List<Expr> args = this.arguments;
-			    if (ci.error() != null) {
+                methodResolution.closureInstance = ci;
+                if (ci.error() != null) {
 			        // Now, try to find the method with implicit conversions, making them explicit.
 			        try {
 			            Pair<MethodInstance,List<Expr>> p = Checker.tryImplicitConversions(this, tc, e.type(), ClosureCall.APPLY, typeArgs, actualTypes);
 			            ci =  p.fst();
-			            args = p.snd();
+                        methodResolution.closureInstanceWithImplicit = ci;
 			        }
 			        catch (SemanticException se) { }
 			    }
@@ -695,6 +722,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			            //n = n.del().disambiguate(tc);
 			            n = n.del().typeCheck(tc);
 			            cc = (Expr) n;
+                        methodResolution.closureCall = cc;
 			        }
 			        catch (SemanticException cause) {
 			            throw new InternalCompilerError("Unexpected exception when typechecking "+ccx, ccx.position(), cause);
@@ -703,17 +731,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 		}
 
-		// We have a cc and a valid call with no target. The one with //todo: fill in this comment
-		if (cc instanceof ClosureCall) {
-			ClosureCall call = (ClosureCall) cc;
-			if (call.target() instanceof Local) {
-				// cc is of the form r() where r is a local variable.
-				// This overrides any other possibility for this call, e.g. a static or an instance method call.
-				Types.checkMissingParameters(cc);
-				Checker.checkOfferType(position(), call.closureInstance(), tc);
-				return cc;
-			}
-		}
 
 		if (target instanceof TypeNode) {
 		    Type t = ((TypeNode) target).type();
@@ -735,24 +752,28 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		}
 
 		// TODO: Need to try struct call with implicit conversions as well.
-		X10New structCall = findStructConstructor(tc, target, typeArgs, argTypes, arguments);
+		final X10New structCall = findStructConstructor(tc, target, typeArgs, argTypes, arguments);
+        methodResolution.structCall = structCall;
 		// We have both a struct constructor and a closure call.  Spec section 8.2.
 		if (structCall != null && cc != null) {
 		    throw new Errors.AmbiguousCall(structCall.constructorInstance(), cc, position());
 		}
 
+        // Now trying a method call
 		Type targetType = this.target() == null ? null : this.target().type();
 		MethodInstance mi = null;
 		List<Expr> args = null;
 		// First try to find the method without implicit conversions.
 		Pair<MethodInstance, List<Expr>> p = Checker.findMethod(tc, this, targetType, name, typeArgs, argTypes);
 		mi =  p.fst();
+        methodResolution.methodInstance = mi;
 		args = p.snd();
 		if (mi.error() != null) {
 		    // Now, try to find the method with implicit conversions, making them explicit.
 		    try {
 		        p = Checker.tryImplicitConversions(this, tc, targetType, name, typeArgs, argTypes);
 		        mi = p.fst();
+                methodResolution.methodInstanceWithImplicit = mi;
 		        args = p.snd();
 		    }
 		    catch (SemanticException e2) {

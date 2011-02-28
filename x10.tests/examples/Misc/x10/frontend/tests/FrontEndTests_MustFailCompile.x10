@@ -5112,7 +5112,6 @@ interface TestTypeDefOverloadingAndConstraints_macros {
 
 class TestMemberTypeResolution {
 	static type Foo(i:Int{self!=0}) = Int;
-	var x:Foo(0); // ERR: todo: improve error: Semantic Error: Could not find type "Foo".
 	static type Foo(i:Double) = Int;
 	var y:Foo(1);
 	var x:Foo(0); // ERR: todo: improve error: Semantic Error: Could not find type "Foo".
@@ -5147,3 +5146,198 @@ class TestMultipleImplementAndFields {
 	  public def m() {z==1} {};
 	}
 }
+
+
+class ResolutionAndInference {
+	def m[T](Int) = 1;
+	def m(Double) = "1";
+
+	def test(){
+		val x2 = m(0);  // resolves to m(Double) because generic-type-inference failed on m[T](Int)
+		val x3:Int = x2; // ERR
+		val x5:String = m(0.0);
+	}
+}
+
+// resolution should ignore constraints and method guards
+class TestMethodResolutionAndConstraints_instance {
+	def m(Int{self!=0}) = 1;
+	def m(Double) = "1";
+	def test() {
+		val x1:Int = m(1);
+		val x2 = m(0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+}
+class TestMethodResolutionAndConstraints_static {
+	static def m(Int{self!=0}) = 1;
+	static def m(Double) = "1";
+	static def test() {
+		val x1:Int = m(1);
+		val x2 = m(0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+}
+class TestMethodResolutionAndConstraints_param_guard {
+	static def m(i:Int) {i!=0} = 1;
+	static def m(Double) = "1";
+	static def test() {
+		val x1:Int = m(1);
+		val x2 = m(0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+}
+class TestMethodResolutionAndConstraints_this_guard(p:Int) {
+	def m(i:Int) {p!=0} = 1;
+	def m(Double) = "1";
+	def test() {
+		val x1:Int = (this as TestMethodResolutionAndConstraints_this_guard{self.p==1}).m(1);
+		val x2 = (this as TestMethodResolutionAndConstraints_this_guard{this.p==1}).m(0); 
+		val x3:Int = x2;
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+	static def test(me0:TestMethodResolutionAndConstraints_this_guard{p==0}, me1:TestMethodResolutionAndConstraints_this_guard{p==1}) {
+		val x1:Int = me1.m(1);
+		val x2 = me0.m(0); // resolves to m(Double):String
+		val x3:Int = x2; // ERR
+		val x33:String = x2; 
+		val x4:String = me0.m(0 as Double);
+		val x5:String = me1.m(0.0);
+	}
+}
+// type constraints
+class TestMethodResolutionAndTypeConstraints_instance[T] {
+	def m(Int) {T haszero} = 1;
+	def m(Double) = "1";
+	def test1() {T haszero} {
+		val x1:Int = m(1);
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+	def test2() {
+		val x2 = m(0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+	}
+}
+class TestMethodResolutionAndTypeConstraints_static {
+	static def m[T](Int{self!=0}) {T haszero} = 1;
+	static def m[T](Double) = "1";
+	static def test() {
+		val x1:Int = m[Int{self==1}](1);// ERR (Semantic Error: Cannot assign expression to target.		 Expression: m[x10.lang.Int{self==1}](x10.lang.Double.implicit_operator_as(1))		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1"})
+		val x2 = m[Int{self==0}](0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x4:String = m[Int{self==1}](0 as Double);
+		val x5:String = m[Int{self==0}](0.0);
+	}
+}
+
+// method overloading
+class TestStaticErr {
+	def test(b:Int) {}
+    static def test(b:Long) {}
+    static def x() {
+        test(1); // ERR todo: should be:
+			//Cannot access a non-static member or refer to "this" or "super" from a static context.
+			// but it is: Method or static constructor not found for given call.
+    }
+}
+
+
+class Call_resolution_tests {	
+	class ClosureField {
+		var test:()=>Int;
+		def m() {
+			val x:Int = test();
+		}
+	}
+	class MethodTest {
+		def T():String = "a";
+		def m1[T]() {
+			val y:String = T(); // method takes precedence over type-param
+		}
+		var U:()=>String;
+		def m2[U]() {
+			val y:String = U(); // closure takes precedence over type-param
+		}
+	}
+	class LocalTest {
+		def m1[T](T:String) {
+			val y = T.substring(1); // local takes precedence over type-param
+		}
+		def m2[T](T:()=>Int) {
+			val y = T(); // local takes precedence over type-param
+		}
+		def m3[T](x:String) {
+			val y = T.substring(1); // ERR [Cannot invoke a static method of a type parameter.]
+		}
+		
+		def test():String = "a";
+		def vsMethod(test:()=>Int) {
+			val x:String = test();
+			val y:Int = (test)();
+		}
+	}
+	class FieldTest {
+		var T:String;
+		def m1[T]() {
+			val y = T.substring(1); // fields takes precedence over type-param
+		}
+		var U:()=>Int;
+		def m2[U]() {
+			val y = U(); // fields takes precedence over type-param
+		}
+		
+		var test:()=>Int;
+		def test():String = "a";
+		def vsMethod() {
+			val x:String = test();
+			val y:Int = (test)();
+		}
+	}
+}
+
+
+class CallResolution {	 
+	var f: ()=>Int;
+	def f():Double = 0.1;
+	def m(f: ()=>String) {
+		val x1:Double = this.f();
+		val x2:Double = f();
+		val x3:String = (f)();
+		val x4:Int = (this.f)();
+	}
+}
+class CallResolution2 {	 
+	static struct f {}
+	var f: ()=>Int;
+	def f():Double = 0.1;
+	def m(f: ()=>String) {
+		val x1:Double = this.f();
+		val x2:Double = f(); // ERR [Ambiguous call: the given procedure and closure match.]
+		val x22:f = new f();
+		val x222:f = new CallResolution2.f();
+		val x3:String = (f)();
+		val x4:Int = (this.f)();
+	}
+}
+class CallResolution3 {	 
+	static struct f {}
+	var f: ()=>Int;
+	def f():Double = 0.1;
+	def m[f](f: ()=>String) {
+		val x1:Double = this.f();
+		val x2:Double = f(); // because the struct ctor is hidden
+		val x22 = new f(); // ERR [Semantic Error: No valid constructor found for f().]
+		val x222:CallResolution3.f = new CallResolution3.f();
+		val x3:String = (f)();
+		val x4:Int = (this.f)();
+	}
+}
+
