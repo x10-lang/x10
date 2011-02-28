@@ -570,8 +570,6 @@ public class LineNumberMap extends StringTable {
 			cm._sizeOfArg = type.replaceAll("FMGL", "class FMGL");
 		else
 		{
-			cm._x10startLine = startLine;
-			cm._x10endLine = endLine;
 			MemberVariableMapInfo v = new MemberVariableMapInfo();
 			v._x10type = determineTypeId(type);
 			if (v._x10type == 203 || v._x10type == 210)
@@ -585,6 +583,26 @@ public class LineNumberMap extends StringTable {
 			v._x10memberName = stringId(name);
 			v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
 			v._cppClass = stringId(containingClass);
+
+			// prevent duplicates
+			for (MemberVariableMapInfo existing : cm._members)
+			{
+				if (existing._x10memberName == v._x10memberName && existing._cppMemberName == v._cppMemberName && existing._cppClass == v._cppClass)
+				{
+					if ((existing._x10type == v._x10type && existing._x10typeIndex == v._x10typeIndex) || v._x10type == 209)
+						return; // exact duplicate, or less specific type
+					else if (existing._x10type == 209)
+					{	// replace "Any" with the more specific type
+						existing._x10type = v._x10type;
+						existing._x10typeIndex = v._x10typeIndex; 
+						cm._x10startLine = startLine;
+						cm._x10endLine = endLine;
+						return;
+					}
+				}
+			}
+			cm._x10startLine = startLine;
+			cm._x10endLine = endLine;
 			cm._members.add(v);
 		}
 	}
