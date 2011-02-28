@@ -42,6 +42,12 @@ x10aux::place x10aux::num_hosts = 0;
 x10aux::place x10aux::here = -1;
 bool x10aux::x10rt_initialized = false;
 
+x10_int x10aux::num_threads;
+x10_int x10aux::max_threads;
+x10_boolean x10aux::no_steals;
+x10_boolean x10aux::static_threads;
+
+
 // keep a counter for the session.
 volatile x10_long x10aux::asyncs_sent = 0;
 volatile x10_long x10aux::asyncs_received = 0;
@@ -152,6 +158,11 @@ void x10aux::network_init (int ac, char **av) {
     x10aux::here = x10rt_here();
     x10aux::num_places = x10rt_nplaces();
     x10aux::num_hosts = x10rt_nhosts();
+
+    x10aux::num_threads = x10aux::get_num_threads();
+    x10aux::max_threads = x10aux::get_max_threads();
+    x10aux::no_steals = x10aux::get_no_steals();
+    x10aux::static_threads = x10aux::get_static_threads();
 }
 
 void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10aux::ref<x10::lang::Reference> fs_) {
@@ -245,7 +256,7 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
     x10rt_send_put(&p, data, len);
 }
 
-x10_int x10aux::num_threads() {
+x10_int x10aux::get_num_threads() {
 #ifdef __bg__
     x10_int default_nthreads = 1;
 #else
@@ -258,7 +269,7 @@ x10_int x10aux::num_threads() {
     return num;
 }
 
-x10_int x10aux::max_threads() {
+x10_int x10aux::get_max_threads() {
 #ifdef __bg__
     x10_int default_max_threads = 1;
 #else
@@ -276,7 +287,7 @@ x10_int x10aux::max_threads() {
     return num;
 }
 
-x10_boolean x10aux::no_steals()
+x10_boolean x10aux::get_no_steals()
 {
     char* s = getenv("X10_NO_STEALS");
     if (s && !(strcasecmp("false", s) == 0))
@@ -284,7 +295,7 @@ x10_boolean x10aux::no_steals()
     return false;
 }
 
-x10_boolean x10aux::static_threads() { 
+x10_boolean x10aux::get_static_threads() {
 #ifdef __bg__
     return true;
 #else

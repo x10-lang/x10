@@ -92,13 +92,15 @@ namespace x10aux {
     extern volatile x10_long serialized_bytes;
     extern volatile x10_long deserialized_bytes;
 
-    x10_int num_threads();
+    extern x10_int num_threads;
+    extern x10_int max_threads;
+    extern x10_boolean no_steals;
+    extern x10_boolean static_threads;
 
-    x10_int max_threads();
-
-    x10_boolean no_steals();
-
-    x10_boolean static_threads();
+    x10_int get_num_threads();
+    x10_int get_max_threads();
+    x10_boolean get_no_steals();
+    x10_boolean get_static_threads();
 
     inline void shutdown() {
         _X_("X10RT shutdown starting");
