@@ -82,6 +82,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
 	public AtStmt_c(Position pos, Expr place, Stmt body) {
 		super(pos);
+        assert place!=null && body!=null;
 		this.place = place;
 		this.body = body;
 	}
@@ -318,27 +319,14 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	 * term.
 	 */
 	public Term firstChild() {
-		if (place != null) {
-			return place;
-		}
-
-		return body;
+		return place;
 	}
 
 	/**
 	 * Visit this term in evaluation order.
-	 * [IP] Treat this as a conditional to make sure the following
-	 *      statements are always reachable.
-	 * FIXME: We should really build our own CFG, push a new context,
-	 * and disallow uses of "continue", "break", etc. in asyncs.
 	 */
 	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
-
-		if (place != null) {
-			v.visitCFG(place, FlowGraph.EDGE_KEY_TRUE, body,
-					ENTRY, FlowGraph.EDGE_KEY_FALSE, this, EXIT);
-		}
-
+        v.visitCFG(place, body, ENTRY);
 		v.visitCFG(body, this, EXIT);
 
 		return succs;
