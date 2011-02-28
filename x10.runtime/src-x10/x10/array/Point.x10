@@ -316,3 +316,4 @@ public final class Point(rank:Int) implements (Int) => Int,
         return s;
     }
 }
+public type Point(r: Int) = Point{self.rank==r};

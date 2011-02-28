@@ -533,3 +533,4 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
     @Native("c++", "x10::lang::IntRange::_make(#1, #2)")
     public native static operator (x:Int) .. (y:Int):IntRange{min==x,max==y,self!=null};
 }
+public type Int(b:Int) = Int{self==b};

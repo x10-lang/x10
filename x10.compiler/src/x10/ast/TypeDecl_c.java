@@ -192,7 +192,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	    return super.enterChildScope(child, c);
 	}
 
-	private static final boolean ALLOW_TOP_LEVEL_TYPEDEFS = false;
+	private static final boolean ALLOW_TOP_LEVEL_TYPEDEFS = true;
     
 	@Override
 	public Node buildTypesOverride(TypeBuilder tb) {
@@ -209,30 +209,6 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    Errors.issue(tb.job(),
 		                 new Errors.TypeDefinitionMustBeStaticClassOrInterfaceMembers(position()));
 		}
-/*
-		if (ALLOW_TOP_LEVEL_TYPEDEFS) {
-		    // If this is a top-level typedef, add it to a dummy class for the package.
-		    // When looking up types, we'll look for the package class then walk through the members.
-		    QName dummyClass = QName.make(package_ != null ? package_.fullName() : null, X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
-
-		    if (ct == null) {
-		    	Named n = ts.systemResolver().check(dummyClass);
-		    	if (n instanceof X10ParsedClassType) {
-		    		ct = ((X10ParsedClassType) n).x10Def();
-		    	}
-		    }
-
-		    if (ct == null) {
-			ct = (X10ClassDef) ts.createClassDef();
-			ct.kind(ClassDef.TOP_LEVEL);
-			ct.setPackage(package_ != null ? Types.ref(package_) : null);
-			ct.name(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
-			ct.superType(Types.ref(ts.Value()));
-			ct.flags(Flags.PUBLIC.Abstract());
-			ts.systemResolver().install(dummyClass, ct.asType());
-		    }
-		}
-*/		
 
 		// FIXME: also check if the current method is static
 		XVar thisVar = ct == null ? null : ct.thisVar();
@@ -245,13 +221,8 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		                                Collections.<ParameterType>emptyList(),
 		                                thisVar, Collections.<LocalDef>emptyList(),
 		                                Collections.<Ref<? extends Type>>emptyList(), null, null, null);
-		if (!local) {
-		    if (ct == null) {
-		        Errors.issue(tb.job(),
-		                     new Errors.CouldNotFindEnclosingClass(name.id(), position()));
-		    } else {
-		        ct.addMemberType(typeDef);
-		    }
+		if (!local && ct != null) {
+		    ct.addMemberType(typeDef);
 		}
 		
 		typeDef.setPackage(package_ != null ? Types.ref(package_) : null);
@@ -300,21 +271,16 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 
 		n = (TypeDecl_c) n.typeDef(typeDef);
 
-		if (ALLOW_TOP_LEVEL_TYPEDEFS) {
-		    assert (ct != null);
-		}
-
-		// Add to the system resolver if the type def takes no arguments.
-		// Otherwise, we'll search through the container.
-		if (!local && ct != null && ct.asType().isGloballyAccessible() && formalTypes.size() == 0 && typeParameters.size() == 0) {
-		    if (ALLOW_TOP_LEVEL_TYPEDEFS) {
-		        if (ct.name().equals(TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() != null)
-		            ts.systemResolver().install(QName.make(ct.package_().get().fullName(), name.id()), typeDef.asType());
-		        else if (ct.name().equals(TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() == null)
-		            ts.systemResolver().install(QName.make(null, name.id()), typeDef.asType());
+		// Add to the system resolver.
+		if (!local && typeDef.asType().isGloballyAccessible()) {
+		    if (ct == null) {
+		        if (ALLOW_TOP_LEVEL_TYPEDEFS) {
+		            QName pkgName = typeDef.package_() == null ? null : typeDef.package_().get().fullName();
+		            ts.systemResolver().install(QName.make(pkgName, name.id()), typeDef.asType());
+		        }
+		    } else {
+		        ts.systemResolver().install(QName.make(ct.fullName(), name.id()), typeDef.asType());
 		    }
-
-		    ts.systemResolver().install(QName.make(ct.fullName(), name.id()), typeDef.asType());
 		}
 
 		return n;

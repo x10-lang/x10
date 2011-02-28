@@ -65,7 +65,11 @@ public class PackageContextResolver extends AbstractAccessControlResolver
                 if (! canAccess(n, context)) {
                     throw new SemanticException("Cannot access " + n + " from " + context.currentClassDef() + ".");
                 }
-                n = matcher.instantiate(n);
+                try {
+                    n = matcher.instantiate(n);
+                } catch (SemanticException e) {
+                    n = null;
+                }
                 if (n != null)
                     newTL.add(n);
             }

@@ -711,6 +711,10 @@ public class Types {
 			MethodInstance mi = (MethodInstance) me;
 			return mi.flags().isStatic();
 		}
+		if (me instanceof MacroType) {
+			MacroType mt = (MacroType) me;
+			return mt.container()==null || mt.flags().isStatic();
+		}
 		return false;
 	}
 

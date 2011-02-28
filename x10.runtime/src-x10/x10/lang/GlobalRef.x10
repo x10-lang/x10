@@ -62,3 +62,4 @@ public struct GlobalRef[+T](
     @Native("c++", "(#this)->hashCode()")
     public native def  hashCode():Int;
 }
+public type GlobalRef[T](p:Place) {T<:Object} = GlobalRef[T]{self.home==p};

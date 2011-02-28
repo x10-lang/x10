@@ -531,3 +531,4 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
    @Native("c++", "x10::lang::LongRange::_make(#1, #2)")
    public native static operator (x:Long) .. (y:Long):LongRange{min==x,max==y,self!=null};
 }
+public type Long(b:Long) = Long{self==b};

@@ -168,7 +168,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         // Check if a job for the source already exists.
         if (source != null && ext.scheduler().sourceHasJob(source)) {
             // the source has already been compiled; what are we doing here?
-            return CollectionUtil.<Type>list(getTypeFromSource(source, name, shouldCompile(name)));
+            return getTypesFromSource(source, name, shouldCompile(name));
         }
         
         if (source == null) {
@@ -190,14 +190,14 @@ public class X10SourceClassResolver implements TopLevelResolver {
             }
         }
 
-        Type result = null;
+        List<Type> result = null;
         
         if (clazz != null) {
             if (reporter.should_report(report_topics, 4))
                 reporter.report(4, "Using encoded class type for " + name);
             
             try {
-                result = getEncodedType(clazz, name);
+                result = CollectionUtil.<Type>list(getEncodedType(clazz, name));
             }
             catch (SemanticException e) {
                 if (reporter.should_report(report_topics, 4))
@@ -209,13 +209,13 @@ public class X10SourceClassResolver implements TopLevelResolver {
         if (result == null && source != null) {
             if (reporter.should_report(report_topics, 4))
                 reporter.report(4, "Using source file for " + name);
-            result = getTypeFromSource(source, name, shouldCompile(name) && clazz == null);
+            result = getTypesFromSource(source, name, shouldCompile(name) && clazz == null);
         }
 
         // Verify that the type we loaded has the right name. This prevents,
         // for example, requesting a type through its mangled (class file) name.
         if (result != null) {
-            return CollectionUtil.<Type>list(result);
+            return result;
         }
 
         throw new NoClassException(name.toString());
@@ -244,7 +244,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         return false;
     }
     
-    protected Type getTypeFromSource(FileSource source, QName name, boolean compile) throws SemanticException {
+    protected List<Type> getTypesFromSource(FileSource source, QName name, boolean compile) throws SemanticException {
         Scheduler scheduler = ext.scheduler();
         Job job = scheduler.loadSource(source, compile);
         
@@ -255,10 +255,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
             List<Type> n = ts.systemResolver().check(name);
         
             if (n != null) {
-                assert (n.size() == 1);
-                for (Type q : n) {
-                    return q;
-                }
+                return n;
             }
         
             Goal g = scheduler.PreTypeCheck(job);
@@ -275,10 +272,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
             n = ts.systemResolver().check(name);
         
             if (n != null) {
-                assert (n.size() == 1);
-                for (Type q : n) {
-                    return q;
-                }
+                return n;
             }
         }
         

@@ -140,68 +140,50 @@ public class Errors {
         }
     }
 
-    // todo Yoav added: I use serialVersionUID=1L like lpg parser. We should increment it if an class changes.
-    
     public static class ClassCannotHaveSuperInterface extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = -807398966257098427L;
-
 		public ClassCannotHaveSuperInterface(ClassType type, Position p) {
 			super("Class " + type + " cannot have a superinterface.", p);
 		}
 	}
     public static class SuperInterfaceNotInterface extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 366164325571822130L;
-
 		public SuperInterfaceNotInterface(Type t, ClassType type, Position p) {
 			super("Superinterface " + t + " of " + type + " is not an interface.", p);
 		}
 	}
     public static class CannotHaveSuperclass extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 260938668864591547L;
-
 		public CannotHaveSuperclass(ClassType type, Position p) {
 			super("Class \"" + type + "\" cannot have a superclass.", p);
 		}
 	}
     public static class ExtendedFinalClass extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 6885425460129173909L;
-
 		public ExtendedFinalClass(ClassType type, Position p) {
 			super("Cannot extend final class \"" + type.superClass() + "\".", p);
 		}
 	}
     public static class ExtendedNonClass extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 5529507748253686721L;
-
 		public ExtendedNonClass(ClassType type, Position p) {
 			super("Cannot extend non-class \"" + type.superClass() + "\".", p);
 		}
 	}
     public static class InnerDeclaredStatic extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 1937596402969387888L;
-
 		public InnerDeclaredStatic(ClassType type, Position p) {
 			super("Inner classes cannot declare static member classes.", p);
 		}
 	}
     public static class InnerDeclaredInterface extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = -7633854120689783816L;
-
 		public InnerDeclaredInterface(ClassType type, Position p) {
 			super("Inner classes cannot declare member interfaces.", p);
 		}
 	}
     public static class SameNameLocal extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = -8305278484313725894L;
-
 		public SameNameLocal(ClassType type, Position p) {
 			super("Cannot declare local " +
                                     "class \"" + type + "\" within the same " +
@@ -211,9 +193,7 @@ public class Errors {
 	}
 
     public static class SameNameClass extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 189016834316504798L;
-
 		public SameNameClass(ClassType type, Position p) {
 			super("Cannot declare member " +
                                 "class \"" + type.fullName() +
@@ -222,9 +202,7 @@ public class Errors {
 		}
     }
 	public static class DuplicateMember extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = -729466352124876376L;
-
 		public DuplicateMember(TypeObject def) {
 			super("Duplicate member " + def, def.position());
 		}
@@ -242,7 +220,6 @@ public class Errors {
 	}
 	public static class FieldInitTypeWrong extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 4778277210134359519L;
-
 		public FieldInitTypeWrong(Expr expr, Type targetType, Position pos) {
 			super("The type of the field initializer is not a subtype of the field type."
 					+ "\n\t Expression: " + expr
@@ -253,7 +230,6 @@ public class Errors {
 	}
 	public static class IncompatibleReturnType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -6220163900080278288L;
-
 		public IncompatibleReturnType(MethodInstance mi, MethodInstance mj) {
 			super(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
 			        + "; attempting to use incompatible return type."
@@ -1506,7 +1482,6 @@ public class Errors {
 		}
 	}
 	public static class InconsistentContext extends EqualByTypeAndPosException {
-	    
 		private static final long serialVersionUID = -7025023968245938435L;
 		public InconsistentContext(Type ct, Position p) {
 			super("Context for type is inconsistent." +
@@ -1518,27 +1493,14 @@ public class Errors {
 	    }
 	}
 	public static class InconsistentType extends EqualByTypeAndPosException {
-        
 		private static final long serialVersionUID = 3896496971389234633L;
-
 		public InconsistentType(Type t, Position p) {
 			super("Type is inconsistent." +
 					"\n\t Type: " + t, p);
         }
     }
-	public static class CouldNotFindEnclosingClass extends EqualByTypeAndPosException {
-        
-		private static final long serialVersionUID = 317419599469665541L;
-
-		public CouldNotFindEnclosingClass(Name name, Position p) {
-			super("Could not find enclosing class or package for type definition." +
-					"\n\t Type definition name: " + name, p);
-        }
-    }
 	public static class SuperTypeIsNotAClass extends EqualByTypeAndPosException {
-        
 		private static final long serialVersionUID = 3060814244759215072L;
-
 		public SuperTypeIsNotAClass(ClassType ct, Position p) {
 			super("Super type is not a class." +
 					"\n\t Class type: " + ct, p);
@@ -1937,7 +1899,7 @@ public class Errors {
 		private static final long serialVersionUID = 919717419009474300L;
 
 		public SourceContainsMoreThanOnePublicDeclaration(Position p) {
-            super("The source contains more than one public declaration.", p);
+            super("The source contains more than one public class declaration.", p);
         }
     }
 	public static class CannotReferToSuperFromDeclarationHeader extends EqualByTypeAndPosException {
@@ -1953,7 +1915,7 @@ public class Errors {
 		private static final long serialVersionUID = -7130506706943788378L;
 
 		public NestedClassMissingEclosingInstance(X10ClassType c, Type ct, Position p) {
-			super( "Nested class must have an ecnlosing instance." +
+			super( "Nested class must have an enclosing instance." +
 					"\n\t Actual nested Class: " + c +
 					"\n\t Expected instance type: " + ct, p) ;
         }

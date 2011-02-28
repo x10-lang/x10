@@ -214,3 +214,4 @@ public final class Rail[T](length: Int)
     @Native("c++", "(#this)->indexedMemoryChunk()")
     public native def raw(): IndexedMemoryChunk[T];
 }
+public type Rail[T](n:Int) = Rail[T]{self.length==n};

@@ -1125,5 +1125,8 @@ Iterable[Point(region.rank)] {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
 }
+public type Array[T](r:Int) = Array[T]{self.rank==r};
+public type Array[T](r:Region) = Array[T]{self.region==r};
+public type Array[T](a:Array[T]) = Array[T]{self==a};
 
 // vim:tabstop=4:shiftwidth=4:expandtab

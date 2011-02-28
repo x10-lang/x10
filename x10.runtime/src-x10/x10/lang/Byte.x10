@@ -416,3 +416,4 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
    @Native("c++", "x10aux::byte_utils::compareTo(#0, #1)")
    public native def compareTo(x:Byte):Int;
 }
+public type Byte(b:Byte) = Byte{self==b};

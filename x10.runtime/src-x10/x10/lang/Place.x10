@@ -203,3 +203,5 @@ public final struct Place(id: Int)  {
     public def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
     public def hashCode()=id;
 }
+public type Place(id:Int) = Place{self.id==id};
+public type Place(p:Place) = Place{self==p};

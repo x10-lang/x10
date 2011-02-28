@@ -80,7 +80,9 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return null;
 	}
 	public boolean isGloballyAccessible() {
-	    return false;
+	    if (container != null && !container.isGloballyAccessible())
+	        return false;
+	    return flags().isPublic();
 	}
 
 	@Override

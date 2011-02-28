@@ -150,3 +150,4 @@ public struct Boolean implements Comparable[Boolean] {
 //    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) || ((#2) ? 1 : 0)))")
 //    public native static operator (x:Boolean) || (y:Boolean): Boolean;
 }
+public type Boolean(b:Boolean) = Boolean{self==b};

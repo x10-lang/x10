@@ -448,4 +448,6 @@ public abstract class Region(
      */
     public operator (p:Point) in this = this.contains(p);
 }
+public type Region(r:Int) = Region{self.rank==r};
+public type Region(r:Region) = Region{self==r};
 

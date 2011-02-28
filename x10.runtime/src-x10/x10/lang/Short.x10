@@ -426,3 +426,4 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
    @Native("c++", "x10aux::_utils::compareTo(#0, #1)")
    public native def compareTo(x:Short):Int;
 }
+public type Short(b:Short) = Short{self==b};
