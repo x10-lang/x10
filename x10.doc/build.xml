@@ -91,12 +91,15 @@
     <target name="xrx-xdoc" depends="build">
         <mkdir dir="${xrx.xdoc.output.dir}"/>
         <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10" excludes="**/compiler/ws/**/*.x10" />
+        <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" ">
+            <map from="${xrx.src.dir}${file.separator}" to=""/>
+        </pathconvert>
         <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" "/>
-        <echo message="x10doc -d ${xrx.xdoc.output.dir} ${xrx.list}"/>
-        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/bin">
+        <echo message="x10doc -d '${xrx.xdoc.output.dir}' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}"/>
+        <exec executable="${bash.exe}" failonerror="true" dir="${xrx.src.dir}">
             <env key="X10_ROOT" value="${x10.home}" />
             <arg value="-c" />
-            <arg value="'${basedir}/bin/x10doc' -d '${xrx.xdoc.output.dir}' ${xrx.list}" />
+            <arg value="'${basedir}/bin/x10doc' -d '${xrx.xdoc.output.dir}' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}" />
         </exec>
     </target>
 </project>
