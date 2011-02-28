@@ -124,6 +124,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         Id newLabel;
         boolean oldLabelUsed;
         boolean newLabelUsed;
+        boolean loop;
     }
     
     private Vector<labelInfoStruct> labelInfo = new Vector<labelInfoStruct>(10,10);
@@ -219,6 +220,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             if (parent instanceof Labeled) {
                 lblInfo.oldLabel = ((Labeled) parent).labelNode();
             }
+            lblInfo.loop = true;
             labelInfo.add(lblInfo);
         } else if (child instanceof Block && parent instanceof Labeled) {
             labelInfoStruct lblInfo = new labelInfoStruct();
@@ -1241,7 +1243,6 @@ public final class ExpressionFlattener extends ContextVisitor {
             // Find the target in our label stack. It must be there.
             for ( ; ; i--) {
                 Id oldLbl = labelInfo.elementAt(i).oldLabel;
-                // There are Labeled nodes with null labels. Perhaps, erroneously.
                 if (oldLbl == null) continue;
                 if (branchTarget.id().equals(oldLbl.id())) {
                     saveoldLabelUsed = labelInfo.elementAt(i).oldLabelUsed;
@@ -1251,6 +1252,10 @@ public final class ExpressionFlattener extends ContextVisitor {
             }            
         }
         if (stmt.kind() == Branch.CONTINUE) {
+            // If the continue did not have a taget and we had labeled blocks,
+            // we are not yet at the scope we want to target.
+            for (; !labelInfo.elementAt(i).loop; i--)
+                ;
             // A null newLabel => loop was not a "For" - don't redirect
             if (labelInfo.elementAt(i).newLabel != null) {
                 if (DEBUG) {
