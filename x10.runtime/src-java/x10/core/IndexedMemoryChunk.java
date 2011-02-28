@@ -18,6 +18,9 @@ import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 
 public final class IndexedMemoryChunk<T> extends x10.core.Struct {
+
+	private static final long serialVersionUID = 1L;
+
     public final int length;
     public final Object value;
     public final Type<T> type;

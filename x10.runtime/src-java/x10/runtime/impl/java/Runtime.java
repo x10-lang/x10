@@ -23,6 +23,9 @@ import x10.runtime.impl.java.Thread;
 import x10.x10rt.X10RT;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
+
+	private static final long serialVersionUID = 1L;
+
     public RuntimeType<?> $getRTT() { return null; }
     public Type<?> $getParam(int i) { return null; }
 

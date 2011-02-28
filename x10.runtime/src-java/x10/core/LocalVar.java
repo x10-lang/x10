@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class LocalVar<T> extends x10.core.Ref {
 
+	private static final long serialVersionUID = 1L;
+
     public static final x10.rtt.RuntimeType<LocalVar<?>> $RTT =
         new x10.rtt.NamedType<LocalVar<?>>(
                 "x10.compiler.LocalVar",

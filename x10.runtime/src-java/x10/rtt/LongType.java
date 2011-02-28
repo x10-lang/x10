@@ -13,6 +13,9 @@ package x10.rtt;
 
 
 public class LongType extends RuntimeType<Long> {
+
+	private static final long serialVersionUID = 1L;
+
     public LongType() {
         super(long.class,
               new Type[] {

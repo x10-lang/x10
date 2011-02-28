@@ -17,6 +17,8 @@ import x10.rtt.Types;
 
 public class Throwable extends java.lang.RuntimeException implements RefI {
 
+	private static final long serialVersionUID = 1L;
+
     public Throwable() {
         super();
     }

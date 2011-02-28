@@ -19,6 +19,8 @@ import x10.rtt.Types;
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref implements RefI {
     
+	private static final long serialVersionUID = 1L;
+
     public Ref() {}
      
     // XTENLANG-1858: every Java class that could be an (non-static) inner class must have constructors with the outer instance parameter

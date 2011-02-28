@@ -11,7 +11,7 @@
 
 package x10.core;
 
-public class MathUtils {
+public abstract class MathUtils {
     
     public static double erf(double a) {
         try {

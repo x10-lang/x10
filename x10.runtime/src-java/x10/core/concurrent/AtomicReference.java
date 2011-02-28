@@ -18,6 +18,8 @@ import x10.rtt.Type;
 
 public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements RefI {
 
+	private static final long serialVersionUID = 1L;
+
     public AtomicReference(Type<T> T) {
         super();
         this.T = T;

@@ -17,6 +17,8 @@ import x10.rtt.Type;
 
 public class InputStream extends Ref {
   
+	private static final long serialVersionUID = 1L;
+
     private final java.io.InputStream stream;
 
     public InputStream(java.io.InputStream stream) {

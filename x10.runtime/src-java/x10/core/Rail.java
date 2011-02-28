@@ -22,6 +22,9 @@ import x10.rtt.UnresolvedType;
 import x10.rtt.RuntimeType.Variance;
 
 public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<Integer,T> {
+
+	private static final long serialVersionUID = 1L;
+
     public final int length;
     
     public final Object value;

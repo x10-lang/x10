@@ -20,6 +20,9 @@ import x10.rtt.Type;
 
 // Fix for XTENLANG-1916 (map x10.lang.Object to x10.core.RefI)
 public class Deque extends Ref {
+
+	private static final long serialVersionUID = 1L;
+
     /**
      * Capacity of work-stealing queue array upon initialization.
      * Must be a power of two. Initial size must be at least 2, but is

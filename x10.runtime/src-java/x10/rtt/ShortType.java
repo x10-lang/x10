@@ -13,6 +13,9 @@ package x10.rtt;
 
 
 public class ShortType extends RuntimeType<Short> {
+
+	private static final long serialVersionUID = 1L;
+
     public ShortType() {
         super(short.class,
               new Type[] {

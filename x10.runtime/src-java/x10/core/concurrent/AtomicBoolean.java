@@ -17,6 +17,8 @@ import x10.rtt.Type;
 
 public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoolean implements RefI {
 
+	private static final long serialVersionUID = 1L;
+
     public AtomicBoolean() {
         super();
     }

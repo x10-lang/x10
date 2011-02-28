@@ -21,6 +21,9 @@ import x10.rtt.UnresolvedType;
 import x10.array.Array;
 
 public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Integer,T>, x10.lang.Iterable<T>, x10.lang.Settable<Integer, T> {
+
+	private static final long serialVersionUID = 1L;
+
     private Type<T> elementType;
     private Object array;
     private int length;

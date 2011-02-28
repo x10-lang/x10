@@ -5,6 +5,8 @@ import x10.core.Any;
 
 public final class ParameterizedType<T> implements Type<T>{
 
+	private static final long serialVersionUID = 1L;
+
     private RuntimeType<T> rtt;
     private Type<?>[] params;
     

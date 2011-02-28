@@ -17,6 +17,8 @@ import x10.rtt.Type;
 
 public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements RefI {
 
+	private static final long serialVersionUID = 1L;
+
     public AtomicLong() {
         super();
     }

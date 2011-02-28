@@ -11,7 +11,7 @@
 
 package x10.core;
 
-public class Floats {
+public abstract class Floats {
     public static byte toByte(float a) {
         int ia = (int)a;
         if (ia > Byte.MAX_VALUE) return Byte.MAX_VALUE;

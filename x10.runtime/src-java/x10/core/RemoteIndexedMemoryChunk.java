@@ -17,6 +17,9 @@ import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 
 public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
+
+	private static final long serialVersionUID = 1L;
+
     private static final java.util.ArrayList<Object> objects = new java.util.ArrayList<Object>(); // all referenced objects in this place
 
     public final int length;

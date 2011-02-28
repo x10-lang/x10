@@ -17,6 +17,8 @@ import x10.core.Any;
 
 public class RuntimeType<T> implements Type<T> {
 
+	private static final long serialVersionUID = 1L;
+
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
     
     Type<?>[] parents;

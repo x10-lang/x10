@@ -16,6 +16,8 @@ import x10.rtt.Type;
 
 public class FileInputStream extends InputStream {
     
+	private static final long serialVersionUID = 1L;
+
     public FileInputStream(String name) throws java.io.FileNotFoundException {
         super(new java.io.FileInputStream(name));
     }

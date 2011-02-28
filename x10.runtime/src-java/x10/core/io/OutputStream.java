@@ -17,6 +17,8 @@ import x10.rtt.Type;
 
 public class OutputStream extends Ref {
   
+	private static final long serialVersionUID = 1L;
+
     private final java.io.OutputStream stream;
 
     // NOTE: be careful when using this constructor, all APIs must be overridden.

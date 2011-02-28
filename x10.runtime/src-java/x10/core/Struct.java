@@ -18,6 +18,8 @@ import x10.rtt.Types;
 // Base class for all X10 structs
 public abstract class Struct implements Any, Cloneable {
 
+	private static final long serialVersionUID = 1L;
+
     public Struct() {}
 
     public boolean equals(Object o) {

@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 
 import x10.rtt.RuntimeType;
 
-public class ThrowableUtilities {
+public abstract class ThrowableUtilities {
     
     static public x10.core.Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
         java.lang.String newExcName = "x10.lang.RuntimeException";

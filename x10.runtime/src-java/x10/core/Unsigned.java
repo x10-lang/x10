@@ -11,7 +11,7 @@
 
 package x10.core;
 
-public class Unsigned {
+public abstract class Unsigned {
     public static int toUInt(byte a) {
         return a & 0xFF;
     }

@@ -17,6 +17,8 @@ import x10.rtt.Type;
 
 public class NativeFile extends java.io.File implements RefI {
 
+	private static final long serialVersionUID = 1L;
+
     public NativeFile(String pathname) {
         super(pathname);
     }

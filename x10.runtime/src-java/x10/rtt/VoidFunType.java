@@ -13,6 +13,8 @@ package x10.rtt;
 
 public class VoidFunType<T> extends RuntimeType<T> {
     
+	private static final long serialVersionUID = 1L;
+
     public VoidFunType(Class<?> c) {
         super(c);
     }
