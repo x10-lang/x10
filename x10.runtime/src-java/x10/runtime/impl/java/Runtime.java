@@ -326,7 +326,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	            System.setProperty(key, value);
 	        } else {
 	            int dotx10 = arg.indexOf(".x10");
-	            className = (dotx10<0 ? arg : arg.substring(0, dotx10)) + "$Main";
+	            className = (dotx10<0 ? arg : arg.substring(0, dotx10)) + "$$Main";
 	            int len = args.length-i-1;
 	            System.arraycopy(args, i+1, args = new String[len], 0, len);
 	        }
