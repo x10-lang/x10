@@ -369,10 +369,10 @@ import x10.util.Box;
                 if (latch()) return false;
                 activity = poll();
                 if (activity == null) return false;
-                if (activity.finishState().simpleLatch() != latch) {
-                    push(activity);
-                    return false;
-                }
+//                if (activity.finishState().simpleLatch() != latch) {
+//                    push(activity);
+//                    return false;
+//                }
                 activity.run();
             }
             return true;
