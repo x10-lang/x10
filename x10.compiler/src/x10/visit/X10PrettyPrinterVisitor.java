@@ -1819,15 +1819,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    er.printType(mi.container(), PRINT_TYPE_PARAMS);
 		    w.write(")");
 		    
-            w.write(X10_RTT_TYPES);
-            w.write(".conversion(");
-            new RuntimeTypeExpander(er, Types.baseType(mi.container())).expand(tr);
-            w.write(",");
-
-            c.printSubExpr(target, w, tr);
-
-            w.write(")");
-            
+		    if (xts.isParameterType(targetType)) {
+		        w.write(X10_RTT_TYPES);
+		        w.write(".conversion(");
+		        new RuntimeTypeExpander(er, Types.baseType(mi.container())).expand(tr);
+		        w.write(",");
+		        c.printSubExpr(target, w, tr);
+		        w.write(")");
+		    }
+		    else {
+		        c.printSubExpr(target, w, tr);
+		    }
 		    w.write(")");
 		}
 		else {
