@@ -134,7 +134,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       }
 
       Prefix prefix = this.prefix;
-      // First look for a typedef.
+      // First look for a typedef.  FIXME: remove
       try {
           X10ParsedClassType typeDefContainer = null;
     
