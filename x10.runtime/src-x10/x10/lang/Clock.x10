@@ -61,9 +61,15 @@ public class Clock(name:String) {
     }
     // should be accessed through root()
     @Pinned private def dropLocal(ph:Int) {
-        --count;
-        if (-ph != phase)
-            resumeLocal();
+        atomic {
+            --count;
+            if (-ph != phase) {
+                if (--alive == 0) {
+                    alive = count;
+                    ++phase;
+                }
+            }
+        }
     }
 
     @Global private def get() = Runtime.activity().clockPhases().get(this).value;
