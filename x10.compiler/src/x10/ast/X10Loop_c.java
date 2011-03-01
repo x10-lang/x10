@@ -14,6 +14,8 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Call;
@@ -60,6 +62,7 @@ import x10.types.MethodInstance;
 
 import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
+import x10.types.X10ParsedClassType_c;
 import polyglot.types.TypeSystem;
 import polyglot.types.LazyRef_c;
 import x10.types.checker.Converter;
@@ -245,10 +248,19 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 			domainType = domain.type();
 		}
 		ConstrainedType formalType = Types.toConstrainedType(formal.declType());
-		Type Iterable = ts.Iterable(formalType);
-		assert domainType != null 
+		assert domainType != null
 		: "formal=" + formal + " domain = " + domain + " position = " + position();
-		if (ts.isSubtype(domainType, Iterable, tc.context())) {
+        final Context context = tc.context();
+
+		boolean oldRes = ts.isSubtype(domainType, ts.Iterable(formalType), tc.context());        
+        HashSet<Type> iterableIndex = Types.getIterableIndex(domainType, context);
+        boolean newRes = false;
+        for (Type tt : iterableIndex)
+            newRes |= ts.isSubtype(tt, formalType, context);
+        if (newRes!=oldRes) {
+            int putBreakPointHere = 1;
+        }
+		if (oldRes) {
 		//	if (X10TypeMixin.areConsistent(formalType, domainType)
 		    return this;
 		}
@@ -260,10 +272,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 //		if (! mi.flags().isStatic() && ts.isSubtype(rt, Iterator))
 //		    return this;
 
-		if (ts.isSubtype(formalType, ts.Point(), tc.context())) {
+		if (ts.isSubtype(formalType, ts.Point(), context)) {
 		    try {
 		        ConstrainedType Region = Types.toConstrainedType(ts.Region());
-		        Region = Region.addRank(formalType.rank(tc.context()));
+		        Region = Region.addRank(formalType.rank(context));
 		        Expr newDomain = Converter.attemptCoercion(tc, domain, Region);
 		        if (newDomain != null && newDomain != domain) {
 		            domainTypeRef = Types.lazyRef(null);
@@ -275,7 +287,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		    }
 		    try {
 		        ConstrainedType Dist = Types.toConstrainedType(ts.Dist());
-		        Dist = Dist.addRank(formalType.rank(tc.context()));
+		        Dist = Dist.addRank(formalType.rank(context));
 		        Expr newDomain = Converter.attemptCoercion(tc, domain, Dist);
 		        if (newDomain != null && newDomain != domain) {
 		            domainTypeRef = Types.lazyRef(null);
@@ -289,7 +301,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		// The expected type is Iterable[Foo].  The constraints on domainType do matter
 		// for this failure, so don't strip them.
 		Errors.issue(tc.job(),
-		        new Errors.LoopDomainIsNotOfExpectedType(formalType, domainType, position()));
+		        new Errors.LoopDomainIsNotOfExpectedType(formalType, domainType, iterableIndex, position()));
 		return this;
 	}
 

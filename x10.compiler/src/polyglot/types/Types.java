@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Binary.Operator;
@@ -63,6 +65,8 @@ import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Matcher;
+import x10.types.matcher.Subst;
+import x10.X10CompilerOptions;
 
 
 public class Types {
@@ -1447,6 +1451,24 @@ public class Types {
 	    return typeArg(baseType(t), i);
 	}
 
+    ////////////////////////////////////////////////////////////////
+    // For better error reporting, we remove the constraints if we ran with DYNAMIC_CALLS.
+    public static Type stripConstraintsIfDynamicCalls(Type t) {
+        if (t==null) return null;
+	    if (((X10CompilerOptions)t.typeSystem().extensionInfo().getOptions()).x10_config.STATIC_CALLS)
+            return t;
+        return stripConstraints(t);
+    }
+	public static Collection<Type> stripConstraintsIfDynamicCalls(Collection<Type> t) {
+        if (t==null) return null;
+        if (t.size()==0) return t;
+	    if (((X10CompilerOptions)t.iterator().next().typeSystem().extensionInfo().getOptions()).x10_config.STATIC_CALLS)
+            return t;
+        ArrayList<Type> res = new ArrayList<Type>(t.size());
+        for (Type tt : t)
+            res.add(stripConstraints(tt));
+        return res;
+    }
 	public static Type stripConstraints(Type t) {
 	    TypeSystem ts = (TypeSystem) t.typeSystem();
 	    t = ts.expandMacros(t);
@@ -1598,6 +1620,48 @@ public class Types {
 	 */
 	public static String MORE_SPECIFIC_WARNING = "Please check definitions p1 and p2.  ";
 
+
+    //abstract class A implements Iterable<A> {}
+    //abstract class B extends A implements Iterable<B> {} // ERR in Java, but ok in X10
+
+    // There can be at most one Iterable[T] because the method signature is "iterator()",
+    // therefore you cannot implement Iterable[U] and Iterable[V]
+    public static HashSet<Type> getIterableIndex(Type t, Context context) {
+        HashSet<Type> res = new HashSet<Type>();
+        final TypeSystem ts = t.typeSystem();
+        Type base = Types.baseType(t);
+        if (ts.isParameterType(base)) {
+            // Now get the upper bound.
+            List<Type> upperBounds = ts.env(context).upperBounds(t, false); // should return non-parameter types
+            for (Type upper : upperBounds)
+                res.addAll(getIterableIndex(upper, context));
+        }
+        if (t instanceof ObjectType) {
+            ObjectType ot = (ObjectType) t;
+            final Type superType = ot.superClass();
+            if (superType!=null) res.addAll(getIterableIndex(superType,context));
+            final List<Type> interfaces = ot.interfaces();
+            for (Type tt : interfaces)
+                res.addAll(getIterableIndex(tt,context));
+
+            if (base instanceof X10ParsedClassType) {
+                X10ParsedClassType classType = (X10ParsedClassType) base;
+                final ClassDef iterable = ts.Iterable().def();
+                if (classType.def()==iterable && classType.typeArguments().size()==1) {
+                    Type arg = classType.typeArguments().get(0);
+                    CConstraint xclause = Types.xclause(t);
+			        final XVar tt = XTerms.makeEQV();
+                    try {
+                        xclause = Subst.subst(xclause, tt, xclause.self());
+                    } catch (SemanticException e) {
+                        assert false;
+                    }
+                    res.add(Types.xclause(arg, xclause));
+                }
+            }
+        }
+        return res;
+    }
 	
 
 }

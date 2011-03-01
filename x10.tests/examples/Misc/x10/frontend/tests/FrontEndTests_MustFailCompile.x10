@@ -5352,3 +5352,4 @@ class CallResolution_typeParam_struct_method_field_local {
 		val x4:Int = (this.f)();
 	}
 }
+

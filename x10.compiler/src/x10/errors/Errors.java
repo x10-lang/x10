@@ -14,6 +14,7 @@ package x10.errors;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Call;
@@ -1402,10 +1403,13 @@ public class Errors {
 		
 		private static final long serialVersionUID = -5004964287663095964L;
 
-		public LoopDomainIsNotOfExpectedType(ConstrainedType formalType, Type domainType, Position p) {
+		public LoopDomainIsNotOfExpectedType(ConstrainedType formalType, Type domainType, HashSet<Type> iterableIndex, Position p) {
 			super("Loop domain is not of expected type." 
-	                + "\n\t Expected type: Iterable[" + formalType + "]" 
-	                + "\n\t Actual type: " + domainType, p);
+	                + "\n\t Expected type: Iterable[" + Types.stripConstraintsIfDynamicCalls(formalType) + "]"
+	                + "\n\t Actual type: " + Types.stripConstraintsIfDynamicCalls(domainType) + " "+
+                    (iterableIndex.size()==0 ? "(must implement Iterable[...])" :
+                        "(implements Iterable["+Types.stripConstraintsIfDynamicCalls(iterableIndex.iterator().next())+"])")
+                    , p);
 		}
 	}
 	public static class CannotInferMethodReturnType extends EqualByTypeAndPosException {

@@ -26,23 +26,12 @@
 	import x10.types.MethodInstance;
 
 	public class X10NamelessMethodMatcher extends TypeSystem_c.MethodMatcher {
-	    protected List<Type> typeArgs;
 
-	   
 
 	    public X10NamelessMethodMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
-	        super(container, null, argTypes, context);
-	        this.typeArgs = typeArgs;
+	        super(container, null, typeArgs, argTypes, context);
 	    }
 
-	    public List<Type> arguments() {
-	        return argTypes;
-	    }
-
-	    @Override
-	    public String argumentString() {
-	        return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]") + "(" + CollectionUtil.listToString(argTypes) + ")";
-	    }
 
 	    @Override
 	    public MethodInstance instantiate(MethodInstance mi) throws SemanticException {

@@ -168,7 +168,7 @@ public class CollectionUtil
 		return Collections.<T>emptyList();
 	}
 
-	public static String listToString(List<?> l) {
+	public static String listToString(Collection<?> l) {
 		StringBuffer sb = new StringBuffer();
 
 		for (Iterator<?> i = l.iterator(); i.hasNext(); ) {

@@ -35,6 +35,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.Context;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
@@ -89,16 +90,20 @@ implements X10ParsedClassType
         
         cacheAllSupertypes = CollectionFactory.newHashSet(cacheDirectSupertypes);
         for (X10ParsedClassType_c t : cacheDirectSupertypes)
-            cacheAllSupertypes.addAll(t.allSuperTypes());
+            cacheAllSupertypes.addAll(t.allSuperTypes(false));
     }
     public Set<X10ParsedClassType_c> directSuperTypes() {
         if (cacheDirectSupertypes==null) calcSuperTypes();
         return cacheDirectSupertypes;
     }
-    public Set<X10ParsedClassType_c> allSuperTypes() {
+    public Set<X10ParsedClassType_c> allSuperTypes(boolean includingMe) {
         if (cacheAllSupertypes==null) calcSuperTypes();
-        final List<MethodInstance> list = methods();
-        return cacheAllSupertypes;
+        Set<X10ParsedClassType_c> res = cacheAllSupertypes;
+        if (includingMe) {
+            res = new HashSet<X10ParsedClassType_c>(res);
+            res.add(this);
+        }
+        return res;
     }
 
     /**
@@ -106,7 +111,7 @@ implements X10ParsedClassType
      */
     public List<MethodInstance> getAllMethods() {
         ArrayList<MethodInstance> res = new ArrayList<MethodInstance>(methods());
-        for (X10ParsedClassType_c supertype : allSuperTypes())
+        for (X10ParsedClassType_c supertype : allSuperTypes(false)) // using "false" because I already added my methods()
             res.addAll(supertype.methods());
         return res;
     }

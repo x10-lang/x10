@@ -83,6 +83,7 @@ import x10.types.matcher.X10MethodMatcher;
 import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
 import x10.util.CollectionFactory;
+import x10.X10CompilerOptions;
 
 
 /**
@@ -1102,13 +1103,15 @@ public class TypeSystem_c implements TypeSystem
 	protected Type container;
 	protected Name name;
 	protected List<Type> argTypes;
+    protected List<Type> typeArgs;
 	protected Context context;
 
-	protected MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
+	protected MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
 	    super();
 	    this.container = container;
 	    this.name = name;
 	    this.argTypes = argTypes;
+        this.typeArgs = typeArgs;
 	    this.context = context;
 	}
 
@@ -1140,7 +1143,18 @@ public class TypeSystem_c implements TypeSystem
 
 	public abstract MethodInstance instantiate(MethodInstance mi) throws SemanticException;
 
-	public abstract String argumentString();
+    public final String typeArgsString() {
+        return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]");
+    }
+    public String stripConstraints() {
+	    return name + typeArgsString() + "(" + CollectionUtil.listToString(Types.stripConstraintsIfDynamicCalls(argTypes)) + ")";
+    }
+    public final String argumentString() {
+        return typeArgsString() + "(" + CollectionUtil.listToString(argTypes) + ")";
+    }
+    public final List<Type> arguments() {
+        return argTypes;
+    }
 
 	public String toString() {
 	    return signature();
@@ -1304,8 +1318,8 @@ public class TypeSystem_c implements TypeSystem
 	if (acceptable.size() == 0) {
 	    throw new NoMemberException(NoMemberException.METHOD,
 	                                "No valid method call found for call in given type."
-	    		+ "\n\t Call: " + matcher.signature()
-	    		+ "\n\t Type: " + container);
+	    		+ "\n\t Call: " + matcher.stripConstraints()
+	    		+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
 
 	}
 
@@ -1660,8 +1674,8 @@ public class TypeSystem_c implements TypeSystem
 	    if (error == null) {
 	    	  throw new NoMemberException(NoMemberException.METHOD,
                       "No valid method call found for call in given type."
-	+ "\n\t Call: " + matcher.signature()
-	+ "\n\t Type: " + container);
+	+ "\n\t Call: " + matcher.stripConstraints()
+	+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
 	    }
 	    throw error;
 	}
@@ -1758,8 +1772,8 @@ public class TypeSystem_c implements TypeSystem
         if (acceptable.size() == 0) {
               throw new NoMemberException(NoMemberException.METHOD,
                       "No valid method call found for call in given type."
-                      + "\n\t Call: " + matcher.signature()
-                      + "\n\t Type: " + container);
+                      + "\n\t Call: " + matcher.stripConstraints()
+                      + "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
         }
         Collection<MethodInstance> maximal =
             findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);

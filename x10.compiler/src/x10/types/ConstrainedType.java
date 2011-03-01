@@ -54,6 +54,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+import x10.types.matcher.Subst;
 
 
 /**
@@ -291,7 +292,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			XTerm t = c.bindingForVar(c.self());
 			if (t == null) {
 				t = XTerms.makeEQV();
-				
+
 			}
 			final XTerm tt = t;
 
@@ -307,10 +308,32 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 					// vj: 1/27/11 -- change from past behavior
 					// if c2 is inconsistent, we dont return o.
 					return Types.xclause(o, c2);
-					
+
 				}
 			});
 		}
+
+        public List<Type> attemptToFixInterfaces() {
+            final Type base = baseType.get();
+            if (! (base instanceof ObjectType))
+                return Collections.emptyList();
+
+            List<Type> l = ((ObjectType) base).interfaces();
+            final XVar tt = XTerms.makeEQV();
+            // replace c.self with tt
+            final CConstraint c = constraint.get().copy();
+            c.addSelfBinding(tt);
+
+            return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
+                public Type transform(Type interfaceType) {
+                    CConstraint c2 = Types.xclause(interfaceType).copy();
+                    if (c2.thisVar()!=null) c2.addThisBinding(tt);
+                    interfaceType = Types.xclause(Types.baseType(interfaceType), c2);
+                    return Types.xclause(interfaceType, c);
+                }
+            });
+        }
+
 
 		@Override
 		public List<MethodInstance> methods() {
