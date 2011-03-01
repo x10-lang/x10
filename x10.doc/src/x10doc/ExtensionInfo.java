@@ -44,10 +44,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		@Override
 		public List<Goal> goals(Job job) {
 			List<Goal> goals = new ArrayList<Goal>(typecheckSourceGoals(job));
+			Goal endGoal = goals.remove(goals.size()-1);
 			goals.add(EnsureNoErrors(job));
 			
 			goals.add(X10DocGenerated(job));
-			goals.add(End(job));
+			goals.add(endGoal);
 			
 			// the barrier will handle prereqs on its own
 			X10DocGenerated(job).addPrereq(TypeCheckBarrier());
