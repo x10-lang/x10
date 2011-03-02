@@ -56,7 +56,7 @@ abstract public class TestArray extends x10Test {
         def this(o:Printer, test: String, run: ()=>String ): R = {
             var r: String;
             try {
-                r = run();
+                r = (run)();
             } catch (e: Throwable) {
                 r = e.getMessage();
             }
