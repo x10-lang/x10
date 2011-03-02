@@ -541,14 +541,6 @@ public class X10Context_c extends Context_c {
 		return (X10FieldInstance) SUPER_findField(name);
 	}
 
-	/**
-	 * Gets a local or field of a particular name.
-	 */
-	@Override
-	public VarInstance<?> findVariable(Name name) throws SemanticException {
-		VarInstance<?> vi = super.findVariable(name);
-		return vi;
-	}
 
 	/**
 	 * Gets a local or field of a particular name.

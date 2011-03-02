@@ -255,20 +255,6 @@ public abstract class Context_c implements Context
         throw new NoMemberException(NoMemberException.FIELD, "Field " + name + " not found.");
     }
 
-    /**
-     * Gets a local or field of a particular name.
-     */
-    public VarInstance<?> findVariable(Name name) throws SemanticException {
-        VarInstance<?> vi = findVariableSilent(name);
-
-	if (vi != null) {
-            if (reporter.should_report(TOPICS, 3))
-              reporter.report(3, "find-var " + name + " -> " + vi);
-            return vi;
-	}
-
-        throw new SemanticException("Variable " + name + " not found.");
-    }
 
     /**
      * Gets a local or field of a particular name.

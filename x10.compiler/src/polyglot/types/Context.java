@@ -52,9 +52,6 @@ public interface Context extends Resolver, Cloneable
     void addNamed(Type t);
 
     /** Looks up a local variable or field in the current scope. */
-    VarInstance<?> findVariable(Name name) throws SemanticException;
-
-    /** Looks up a local variable or field in the current scope. */
     VarInstance<?> findVariableSilent(Name name);
 
     /** Get import table currently in scope. */
