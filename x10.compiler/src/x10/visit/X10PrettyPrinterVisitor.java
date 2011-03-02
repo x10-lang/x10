@@ -607,6 +607,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 			// SYNOPSIS: main(#0) #3 #1    #0=args #1=body #2=class name 
 			String regex = "public static class " + MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
+			    "private static final long serialVersionUID = 1L;\n" +
 			    "public static void main(java.lang.String[] args) {\n" +
 			        "// start native runtime\n" +
 			        "new " + MAIN_CLASS + "().start(args);\n" +
