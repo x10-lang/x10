@@ -442,11 +442,16 @@ static void team_creation_complete (pami_context_t   context,
                        void          * cookie,
                        pami_result_t    result)
 {
-	fprintf(stderr, "Team created at place %u, issuing callback\n", state.myPlaceId);
+	#ifdef DEBUG
+		fprintf(stderr, "Team created at place %u\n", state.myPlaceId);
+	#endif
 
-	x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
-	team->cb2(team->teamIndex, team->arg);
-	free(cookie);
+	if (cookie != NULL)
+	{
+		x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
+		team->cb2(team->teamIndex, team->arg);
+		free(cookie);
+	}
 }
 
 /*
@@ -462,32 +467,36 @@ static void team_create_dispatch (
 	    pami_endpoint_t      origin,
 	    pami_recv_t         * recv)        /**< OUT: receive message structure */
 {
-	uint32_t newTeamId = *(uint32_t*)header_addr;
-	if (newTeamId >= state.lastTeamIndex) error("Team indexing issue");
-	// extend our list of team ID's
-	pthread_mutex_lock(&state.teamLock);
-		void* oldTeams = state.teams;
-		int oldSize = (state.lastTeamIndex)*sizeof(x10rt_pami_team);
-		int newSize = newTeamId*sizeof(x10rt_pami_team);
-		void* newTeams = malloc(newSize);
-		memcpy(newTeams, oldTeams, oldSize);
-		memset(((char*)newTeams)+oldSize, 0, newSize-oldSize);
-		state.teams = (x10rt_pami_team*)newTeams;
-		state.lastTeamIndex = newTeamId;
-	pthread_mutex_unlock(&state.teamLock);
-	free(oldTeams);
+	uint32_t newTeamId = ((uint32_t*)header_addr)[0];
+	if (newTeamId > state.lastTeamIndex) // the same place may have multiple roles in one team
+	{
+		// extend our list of team ID's
+		pthread_mutex_lock(&state.teamLock);
+			void* oldTeams = state.teams;
+			int oldSize = (state.lastTeamIndex)*sizeof(x10rt_pami_team);
+			int newSize = newTeamId*sizeof(x10rt_pami_team);
+			void* newTeams = malloc(newSize);
+			memcpy(newTeams, oldTeams, oldSize);
+			memset(((char*)newTeams)+oldSize, 0, newSize-oldSize);
+			state.teams = (x10rt_pami_team*)newTeams;
+			state.lastTeamIndex = newTeamId;
+		pthread_mutex_unlock(&state.teamLock);
+		free(oldTeams);
 
-	// save the members of the new team
-	state.teams[newTeamId].places = (pami_task_t*)malloc(pipe_size);
-	memcpy(state.teams[newTeamId].places, pipe_addr, pipe_size);
+		// save the members of the new team
+		state.teams[newTeamId].places = (pami_task_t*)malloc(pipe_size);
+		memcpy(state.teams[newTeamId].places, pipe_addr, pipe_size);
+	}
 
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
 
-	fprintf(stderr, "creating a new team %u at place %u of size %lu\n", newTeamId, state.myPlaceId, pipe_size/(sizeof(uint32_t)));
+	#ifdef DEBUG
+		fprintf(stderr, "creating a new team %u at place %u of size %lu, index %u\n", newTeamId, state.myPlaceId, pipe_size/(sizeof(uint32_t)), ((uint32_t*)header_addr)[1]);
+	#endif
 
 	pami_result_t   status = PAMI_ERROR;
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, pipe_size, state.context[0], (cookie==NULL)?NULL:team_creation_complete, cookie);
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, ((uint32_t*)header_addr)[1]+1, state.teams[newTeamId].places, pipe_size/(sizeof(uint32_t)), state.context[0], team_creation_complete, cookie);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
 
@@ -905,11 +914,23 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	uint32_t newTeamId = state.lastTeamIndex+1;
 	pthread_mutex_unlock(&state.teamLock);
 
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u preparing to create a new team with %u members\n", state.myPlaceId, placec);
+	#endif
+
+	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
+	cookie->cb2 = ch;
+	cookie->arg = arg;
+	cookie->teamIndex = newTeamId;
+
+	uint32_t header[2];
+	header[0] = newTeamId;
+
 	pami_send_t parameters;
 	volatile unsigned send_active = 1;
 	parameters.send.dispatch        = NEW_TEAM;
-	parameters.send.header.iov_base = &newTeamId;
-	parameters.send.header.iov_len  = sizeof(newTeamId);
+	parameters.send.header.iov_base = &header;
+	parameters.send.header.iov_len  = 2*sizeof(uint32_t);
 	parameters.send.data.iov_base   = placev; // team members
 	parameters.send.data.iov_len    = placec*sizeof(x10rt_place);
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
@@ -920,6 +941,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	bool inTeam = false;
 	for (unsigned i=0; i<placec; i++)
 	{
+		header[1] = i;
 		if (placev[i] != state.myPlaceId)
 		{
 			if ((status = PAMI_Endpoint_create(state.client, placev[i], 0, &parameters.send.dest)) != PAMI_SUCCESS)
@@ -930,21 +952,20 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 
 			while (send_active) // hold up until the message has been copied out
 				PAMI_Context_advance(state.context[0], 1);
+			#ifdef DEBUG
+				fprintf(stderr, "Place %u sent a NEW_TEAM message to place %u\n", state.myPlaceId, placev[i]);
+			#endif
 			send_active = 1;
 		}
 		else
+		{
+			team_create_dispatch(state.context[0], cookie, &header, 2*sizeof(uint32_t), placev, placec*sizeof(x10rt_place), (pami_endpoint_t)state.myPlaceId, NULL);
 			inTeam = true;
+		}
 	}
 	// at this point, all the places that are to be a part of this new team have been sent a message to join it.
-
 	if (!inTeam)
 		error("A team was created that did not include the creator");
-
-	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
-	cookie->cb2 = ch;
-	cookie->arg = arg;
-	cookie->teamIndex = newTeamId;
-	team_create_dispatch(state.context[0], cookie, &newTeamId, sizeof(newTeamId), placev, placec*sizeof(x10rt_place), (pami_endpoint_t)state.myPlaceId, NULL);
 }
 
 static void split_stage2 (pami_context_t   context,
@@ -1070,8 +1091,9 @@ static void collective_operation_complete (pami_context_t   context,
                        void          * cookie,
                        pami_result_t    result)
 {
-	fprintf(stderr, "Place %u completed collective operation\n", state.myPlaceId);
-
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u completed collective operation\n", state.myPlaceId);
+	#endif
 	x10rt_pami_team_callback *cbd = (x10rt_pami_team_callback*)cookie;
 	cbd->tcb(cbd->arg);
 	free(cookie);
@@ -1105,7 +1127,9 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
 	cbd->operation.algorithm = always_works_alg[0];
 
-	fprintf(stderr, "Place %u executing barrier (%s)\n", state.myPlaceId, always_works_md[0].name);
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing barrier (%s)\n", state.myPlaceId, always_works_md[0].name);
+	#endif
 
 	status = PAMI_Collective(state.context[0], &cbd->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue a barrier on team %u", team);
