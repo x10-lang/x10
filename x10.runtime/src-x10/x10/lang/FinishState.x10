@@ -326,7 +326,7 @@ abstract class FinishState {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 val _ref = ref;
-                me = Runtime.runtime().finishStates(ref, ()=>new RemoteFinish(_ref));
+                me = Runtime.finishStates(ref, ()=>new RemoteFinish(_ref));
             }
         }
     }
@@ -390,7 +390,7 @@ abstract class FinishState {
             latch.await();
             if (null != counts) {
                 val root = ref();
-                val closure = ()=>@RemoteInvocation { Runtime.runtime().finishStates.remove(root); };
+                val closure = ()=>@RemoteInvocation { Runtime.finishStates.remove(root); };
                 seen(Runtime.hereInt()) = false;
                 for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                     if (seen(i)) Runtime.runClosureAt(i, closure);
@@ -591,7 +591,7 @@ abstract class FinishState {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 val _ref = ref;
-                me = Runtime.runtime().finishStates(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
+                me = Runtime.finishStates(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
             }
         }
         public def serialize():SerialData = new SerialData(reducer, super.serialize());

@@ -338,8 +338,6 @@ import x10.util.NoSuchElementException;
         //Worker Id for CollectingFinish
         val workerId:Int;
 
-        var pool:Pool;
-        
         //1:1 mapping WorkStealing Worker and X10 Worker
         var wsWorker:Object = null;
 
@@ -449,8 +447,8 @@ import x10.util.NoSuchElementException;
     }
 
     @Pinned static class Pool {
-        val latch:SimpleLatch;
-
+        val latch = new SimpleLatch();
+        
         private var size:Int; // the number of workers in the pool
 
         private var spares:Int = 0; // the number of spare workers in the pool
@@ -462,30 +460,15 @@ import x10.util.NoSuchElementException;
         private val semaphore = new Semaphore(0);
 
         // the workers in the pool
-        private val workers:Array[Worker](1){rail};
+        private val workers = new Array[Worker](MAX_THREADS);
 
-        def this(size:Int) {
+        operator this(size:Int):void {
             this.size = size;
-            this.latch = new SimpleLatch();
-            val workers = new Array[Worker](MAX_THREADS);
-
-            // main worker
             workers(0) = worker();
-
-            // other workers
             for (var i:Int = 1; i<size; i++) {
                 workers(i) = new Worker(i);
-            }
-            this.workers = workers;
-        }
-
-        operator this():void {
-            val s = size;
-            for (var i:Int = 1; i<s; i++) {
-                workers(i).pool = this;
                 workers(i).start();
             }
-            workers(0).pool = this;
             workers(0)();
             while (size > dead) Worker.park();
         }
@@ -507,7 +490,6 @@ import x10.util.NoSuchElementException;
                     System.exit(1);
                 }
                 val worker = new Worker(i);
-                worker.pool = this;
                 workers(i) = worker;
                 worker.start();
             }
@@ -555,21 +537,9 @@ import x10.util.NoSuchElementException;
         def size() = size;
     }
 
-    // runtime instance associated with each place
-    public static runtime = PlaceLocalHandle[Runtime]();
-
-    // instance fields
-    transient val pool:Pool;
-    private transient val atomicMonitor:Monitor;
-    public transient val finishStates:FinishState.FinishStates;
-
-    // constructor
-
-    private def this(pool:Pool):Runtime {
-        this.pool = pool;
-        this.atomicMonitor = new Monitor();
-        this.finishStates = new FinishState.FinishStates();
-    }
+    @PerProcess static pool = new Pool();
+    @PerProcess static atomicMonitor = new Monitor();
+    @PerProcess static finishStates = new FinishState.FinishStates();
 
     /**
      * Return the current worker
@@ -585,7 +555,7 @@ import x10.util.NoSuchElementException;
      * Return the number of workers currently in the pool
      * (can increase, cannot decrease)
      */
-    public static def poolSize():Int = runtime().pool.size();
+    public static def poolSize():Int = pool.size();
 
     /**
      * Return the current activity
@@ -619,10 +589,7 @@ import x10.util.NoSuchElementException;
     public static def start(init:()=>void, body:()=>void):void {
         try {
             // initialize thread pool for the current process
-            val pool = new Pool(NTHREADS);
-
             // initialize runtime
-            runtime.set(new Runtime(pool));
             x10rt_registration_complete();
 
             if (hereInt() == 0) {
@@ -632,11 +599,11 @@ import x10.util.NoSuchElementException;
 
                 // wait for thread pool to die
                 // (happens when main activity terminates)
-                pool();
+                pool(NTHREADS);
 
                 // root finish has terminated, kill remote processes if any
                 for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                    runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {runtime().pool.latch.release();});
+                    runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {pool.latch.release();});
                 }
 
                 // we need to call waitForFinish here to see the exceptions thrown by main if any
@@ -644,7 +611,7 @@ import x10.util.NoSuchElementException;
             } else {
                 // wait for thread pool to die
                 // (happens when a kill signal is received from place 0)
-                pool();
+                pool(NTHREADS);
             }
         } finally {
             if (PRINT_STATS) {
@@ -884,7 +851,7 @@ import x10.util.NoSuchElementException;
     // atomic and when
 
     public static def enterAtomic() {
-        runtime().atomicMonitor.lock();
+        atomicMonitor.lock();
         val a = activity();
         if (a != null)
            a.pushAtomic();
@@ -900,11 +867,11 @@ import x10.util.NoSuchElementException;
         val a = activity();
         if (a != null)
            a.popAtomic();
-        runtime().atomicMonitor.release();
+        atomicMonitor.release();
     }
 
     public static def awaitAtomic():void {
-        runtime().atomicMonitor.await();
+        atomicMonitor.await();
     }
 
     // clocks
@@ -1009,14 +976,14 @@ import x10.util.NoSuchElementException;
     // notify the pool a worker is about to execute a blocking operation
     static def increaseParallelism():void {
         if (!STATIC_THREADS) {
-            runtime().pool.increase();
+            pool.increase();
         }
     }
 
     // notify the pool a worker resumed execution after a blocking operation
     static def decreaseParallelism(n:Int) {
         if (!STATIC_THREADS) {
-            runtime().pool.decrease(n);
+            pool.decrease(n);
         }
     }
 }
