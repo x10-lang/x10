@@ -20,12 +20,14 @@ import polyglot.ast.Expr_c;
 import polyglot.ast.TypeNode;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.errors.Errors;
 
 /**
  * @author vj Feb 4, 2005
@@ -99,8 +101,21 @@ public class SubtypeTest_c extends Expr_c implements SubtypeTest {
 
 	/** Type check the statement. */
 	public Node typeCheck(ContextVisitor tc) {
-		TypeSystem ts = tc.typeSystem();
-		return type(ts.Boolean());
+	    TypeSystem ts = tc.typeSystem();
+
+	    try {
+	        Types.checkMissingParameters(this.subtype());
+	    } catch (SemanticException e) {
+	        Errors.issue(tc.job(), e, this.subtype());
+	    }
+
+	    try {
+	        Types.checkMissingParameters(this.supertype());
+	    } catch (SemanticException e) {
+	        Errors.issue(tc.job(), e, this.supertype());
+	    }
+
+	    return type(ts.Boolean());
 	}
 
 	public boolean isConstant() {

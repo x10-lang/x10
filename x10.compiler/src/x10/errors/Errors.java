@@ -799,7 +799,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = 1150096677241770933L;
 
-		public ConstructorNameDoesNotMatchContainingClassName(Id name, polyglot.types.Name ctName, Position p) {
+		public ConstructorNameDoesNotMatchContainingClassName(Id name, Name ctName, Position p) {
 			super("Constructor name \"" + name +"\" does not match name of containing class \"" + ctName + "\".", p);
 		}
 	}
@@ -887,7 +887,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = -7376028111845924644L;
 
-		public FinalFieldAlreadyInitialized(polyglot.types.Name name, Position p) {
+		public FinalFieldAlreadyInitialized(Name name, Position p) {
 			super("Final field '"+name+"' might already have been initialized.",p);
 		}
 	}
@@ -895,7 +895,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = -4917415669609512489L;
 
-		public CannotReadFromFieldBeforeDefiniteAssignment(polyglot.types.Name name, Position p) {
+		public CannotReadFromFieldBeforeDefiniteAssignment(Name name, Position p) {
 			super("Cannot read from field '"+name+"' before it is definitely assigned.",p);
 		}
 	}
@@ -903,7 +903,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = -6033353295414568038L;
 
-		public FieldNameWasNotDefinitelyAssigned(Boolean property, polyglot.types.Name name, Position p) {
+		public FieldNameWasNotDefinitelyAssigned(Boolean property, Name name, Position p) {
 			super(property ? "property(...) might not have been called" :
                 "Field '"+name+"' was not definitely assigned.",p);
 		}
@@ -936,7 +936,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = -1027258040225227536L;
 
-		public MayNotHaveBeenInitialized(polyglot.types.Name n, Position p) {
+		public MayNotHaveBeenInitialized(Name n, Position p) {
 			super("\"" + n + "\" may not have been initialized", p);
 		}
 	}
@@ -944,7 +944,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = -3082608693293011502L;
 
-		public FinalLocalVariableCannotBeAssignedTo(polyglot.types.Name name, Position p) {
+		public FinalLocalVariableCannotBeAssignedTo(Name name, Position p) {
 			super("Final local variable \"" + name +
                     "\" cannot be assigned to in an inner class.",
                     p);
@@ -954,7 +954,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = -1058095715107803234L;
 
-		public FinalVariableAlreadyInitialized(polyglot.types.Name name, Position p) {
+		public FinalVariableAlreadyInitialized(Name name, Position p) {
 			super("Final variable \"" + name +
                     "\" might already have been initialized",
                     p);
@@ -964,7 +964,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = 5116419341545721859L;
 
-		public LocalVariableMustBeInitializedBeforeClassDeclaration(polyglot.types.Name name, Position p) {
+		public LocalVariableMustBeInitializedBeforeClassDeclaration(Name name, Position p) {
 			super("Local variable \"" + name +
                     "\" must be initialized before the class " +
                     "declaration.",
@@ -1317,15 +1317,6 @@ public class Errors {
 					"\n\t Transient field name: " + name, p);
 		}
 	}
-	public static class LocalVaraibleMultiplyDefined extends EqualByTypeAndPosException {
-		
-		private static final long serialVersionUID = -8355701958648705245L;
-
-		public LocalVaraibleMultiplyDefined(Id name, Position outerP, Position p) {
-			super("Local variable multiply defined." +
-					"\n\t Previous definition: " + outerP, p);
-		}
-	}
 	public static class CannotInferTypeForFormalParameter extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = -61727884585436624L;
@@ -1349,7 +1340,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = -7354209819609788973L;
 
-		public LocalVariableAccessedFromInnerClass(polyglot.types.Name liName, Position p) {
+		public LocalVariableAccessedFromInnerClass(Name liName, Position p) {
 			super("Local variable is accessed from an inner class or a closure, and must be declared final." +
 					"\n\t Local variable name: " + liName, p);
 		}
@@ -1358,7 +1349,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = 5334856744559947168L;
 
-		public LocalVariableCannotBeCapturedInAsync(polyglot.types.Name liName, Position p) {
+		public LocalVariableCannotBeCapturedInAsync(Name liName, Position p) {
 			super("Local variable cannot be captured in an async if there is no enclosing finish in the same scoping-level; " +
 					"consider changing variable from var to val." +
 					"\n\t Variable name: " + liName, p);
@@ -1368,7 +1359,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = 5809300848963559701L;
 
-		public LocalVariableAccessedAtDifferentPlace(polyglot.types.Name liName, Position p) {
+		public LocalVariableAccessedAtDifferentPlace(Name liName, Position p) {
 			super("Local variable is accessed at a different place, and must be declared final." +
 					"\n\t Variable name: " + liName, p);
 		}
@@ -1385,7 +1376,7 @@ public class Errors {
 		
 		private static final long serialVersionUID = 7697089332559732619L;
 
-		public CannotInferVariableType(polyglot.types.Name name, Position p) {
+		public CannotInferVariableType(Name name, Position p) {
 			super("Cannot infer variable type; variable has no initializer." + 
 					"\n\t Name" + name, p);
 		}
@@ -1574,7 +1565,7 @@ public class Errors {
         
 		private static final long serialVersionUID = 3322184703494765738L;
 
-		public TypeParameterMultiplyDefined(polyglot.types.Name name, Position p) {
+		public TypeParameterMultiplyDefined(Name name, Position p) {
 			super("Type parameter multiply defined." +
 					"\n\t Name: " + name, p);
         }
@@ -1583,16 +1574,21 @@ public class Errors {
         
 		private static final long serialVersionUID = -8530740127048586198L;
 
-		public LocalVariableMultiplyDefined(polyglot.types.Name name, Position p) {
+		public LocalVariableMultiplyDefined(Name name, Position p) {
 			super("Local variable multiply defined." +
 					"\n\t Name: " + name, p);
-        }
-    }
+		}
+		public LocalVariableMultiplyDefined(Name name, Position outerP, Position p) {
+		    super("Local variable multiply defined." +
+		            "\n\t Name: " + name +
+		            "\n\t Previous definition: " + outerP, p);
+		}
+	}
 	public static class CouldNotFindNonStaticMemberClass extends EqualByTypeAndPosException {
         
 		private static final long serialVersionUID = -8483611596874182943L;
 
-		public CouldNotFindNonStaticMemberClass(polyglot.types.Name name, Position p) {
+		public CouldNotFindNonStaticMemberClass(Name name, Position p) {
 			super("Could not find non-static member class." +
 					"\n\t Name: " + name, p);
         }

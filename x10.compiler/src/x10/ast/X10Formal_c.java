@@ -240,11 +240,18 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 
 	    if (outerLocal != null && ! li.equals(outerLocal.def()) && c.isLocal(li.name())) { // todo: give me a test case that shows this error?
 	        Errors.issue(tc.job(),
-	                new Errors.LocalVaraibleMultiplyDefined(name, outerLocal.position(), position()));
+	                new Errors.LocalVariableMultiplyDefined(name.id(), outerLocal.position(), position()));
 	    }
 
 	    TypeSystem ts = tc.typeSystem();
-        final Type myType = this.type().type();
+	    TypeNode typeNode = this.type();
+	    final Type myType = typeNode.type();
+
+	    try {
+	        Types.checkMissingParameters(typeNode);
+	    } catch (SemanticException e) {
+	        Errors.issue(tc.job(), e, this);
+	    }
 
 	    try {
 	        ts.checkLocalFlags(flags().flags());
@@ -252,7 +259,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	    catch (SemanticException e) {
 	        Errors.issue(tc.job(), e, this);
 	    }
-        if (this.type() instanceof UnknownTypeNode || myType instanceof UnknownType) {
+	    if (typeNode instanceof UnknownTypeNode || myType instanceof UnknownType) {
 	        Errors.issue(tc.job(),
 	                new Errors.CannotInferTypeForFormalParameter(this.name(), position()));
 	    } else
@@ -260,7 +267,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	        Errors.issue(tc.job(),
 	                new Errors.FormalParameterCannotHaveType(myType, position()));
         else {
-            checkExplodedVars(vars.size(), (Ref<Type>)this.type().typeRef(), position(), tc);
+            checkExplodedVars(vars.size(), (Ref<Type>)typeNode.typeRef(), position(), tc);
         }
 
 	    return this;

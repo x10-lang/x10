@@ -298,6 +298,11 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	    } catch (SemanticException z) {
 	        Errors.issue(tc.job(), z, this);
 	    }
+	    try {
+	        Types.checkMissingParameters(type);
+	    } catch (SemanticException e) {
+	        Errors.issue(tc.job(), e, type);
+	    }
 	    return this;
 	}
 

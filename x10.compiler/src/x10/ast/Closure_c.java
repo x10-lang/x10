@@ -407,6 +407,18 @@ public class Closure_c extends Expr_c implements Closure {
 			n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), t));
 		}
 
+		try {
+		    X10MethodDecl_c.dupFormalCheck(Collections.<TypeParamNode>emptyList(), formals);
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e, n);
+		}
+
+		try {
+		    Types.checkMissingParameters(n.returnType());
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e, n.returnType());
+		}
+
 		// Create an anonymous subclass of the closure type.
 		ClosureDef def = n.closureDef;
 		//if (!def.capturedEnvironment().isEmpty()) {
