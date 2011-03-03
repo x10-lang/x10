@@ -24,7 +24,7 @@
 
 //#define DEBUG 1
 
-enum MSGTYPE {STANDARD=1, PUT, GET, GET_COMPLETE}; // PAMI doesn't send messages with type=0... it just silently eats them.
+enum MSGTYPE {STANDARD=1, PUT, GET, GET_COMPLETE, NEW_TEAM}; // PAMI doesn't send messages with type=0... it just silently eats them.
 //mechanisms for the callback functions used in the register and probe methods
 typedef void (*handlerCallback)(const x10rt_msg_params *);
 typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
@@ -58,7 +58,9 @@ struct x10rt_pami_team_create
 {
 	teamCallback2 cb2;
 	void *arg;
+	x10rt_place *colors;
 	uint32_t teamIndex;
+	x10rt_place parent_role;
 };
 
 struct x10rt_pami_team_callback
@@ -71,9 +73,9 @@ struct x10rt_pami_team_callback
 
 struct x10rt_pami_team
 {
-	pami_geometry_t geometry;
-	uint32_t size;
-	x10rt_place *places;
+	pami_geometry_t geometry; // abstract geometry ID
+	uint32_t size; // number of members in the team
+	pami_task_t *places; // list of team members
 };
 
 struct x10PAMIState
@@ -87,7 +89,7 @@ struct x10PAMIState
 	pami_context_t context[1]; // PAMI context associated with the client (currently only 1 context is used)
 	volatile unsigned recv_active;
 	x10rt_pami_team *teams;
-	uint32_t numTeams;
+	uint32_t lastTeamIndex;
 	pthread_mutex_t teamLock;
 } state;
 
@@ -436,6 +438,59 @@ static void get_complete_dispatch (
 	free(header);
 }
 
+static void team_creation_complete (pami_context_t   context,
+                       void          * cookie,
+                       pami_result_t    result)
+{
+	fprintf(stderr, "Team created at place %u, issuing callback\n", state.myPlaceId);
+
+	x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
+	team->cb2(team->teamIndex, team->arg);
+	free(cookie);
+}
+
+/*
+ * This method is used to create a new team
+ */
+static void team_create_dispatch (
+	    pami_context_t       context,      /**< IN: PAMI context */
+	    void               * cookie,       /**< IN: dispatch cookie */
+	    const void         * header_addr,  /**< IN: header address */
+	    size_t               header_size,  /**< IN: header size */
+	    const void         * pipe_addr,    /**< IN: address of PAMI pipe buffer */
+	    size_t               pipe_size,    /**< IN: size of PAMI pipe buffer */
+	    pami_endpoint_t      origin,
+	    pami_recv_t         * recv)        /**< OUT: receive message structure */
+{
+	uint32_t newTeamId = *(uint32_t*)header_addr;
+	if (newTeamId >= state.lastTeamIndex) error("Team indexing issue");
+	// extend our list of team ID's
+	pthread_mutex_lock(&state.teamLock);
+		void* oldTeams = state.teams;
+		int oldSize = (state.lastTeamIndex)*sizeof(x10rt_pami_team);
+		int newSize = newTeamId*sizeof(x10rt_pami_team);
+		void* newTeams = malloc(newSize);
+		memcpy(newTeams, oldTeams, oldSize);
+		memset(((char*)newTeams)+oldSize, 0, newSize-oldSize);
+		state.teams = (x10rt_pami_team*)newTeams;
+		state.lastTeamIndex = newTeamId;
+	pthread_mutex_unlock(&state.teamLock);
+	free(oldTeams);
+
+	// save the members of the new team
+	state.teams[newTeamId].places = (pami_task_t*)malloc(pipe_size);
+	memcpy(state.teams[newTeamId].places, pipe_addr, pipe_size);
+
+	pami_configuration_t config;
+	config.name = PAMI_GEOMETRY_OPTIMIZE;
+
+	fprintf(stderr, "creating a new team %u at place %u of size %lu\n", newTeamId, state.myPlaceId, pipe_size/(sizeof(uint32_t)));
+
+	pami_result_t   status = PAMI_ERROR;
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, pipe_size, state.context[0], (cookie==NULL)?NULL:team_creation_complete, cookie);
+	if (status != PAMI_SUCCESS) error("Unable to create a new team");
+}
+
 
 
 /** Initialize the X10RT API logical layer.
@@ -500,11 +555,17 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	if ((status = PAMI_Dispatch_set(state.context[0], GET_COMPLETE, fn4, (void *) &state.recv_active, hints)) != PAMI_SUCCESS)
 		error("Unable to register get_complete_dispatch handler");
 
+	pami_dispatch_callback_function fn5;
+	fn5.p2p = team_create_dispatch;
+	if ((status = PAMI_Dispatch_set(state.context[0], NEW_TEAM, fn5, (void *) &state.recv_active, hints)) != PAMI_SUCCESS)
+		error("Unable to register team_create_dispatch handler");
+
 	// create the world geometry
-	pthread_mutex_init(&state.teamLock, NULL);
+	if (pthread_mutex_init(&state.teamLock, NULL) != 0) error("Unable to initialize the team lock");
 	state.teams = (x10rt_pami_team*)malloc(sizeof(x10rt_pami_team));
-	state.numTeams = 1;
+	state.lastTeamIndex = 0;
 	state.teams[0].size = state.numPlaces;
+	state.teams[0].places = NULL;
 	status = PAMI_Geometry_world(state.client, &state.teams[0].geometry);
 	if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
 }
@@ -805,7 +866,7 @@ void x10rt_net_finalize()
 		fprintf(stderr, "Error closing PAMI client: %i\n", status);
 
 	// wipe out any leftover teams
-	for (unsigned int i=0; i<state.numTeams; i++)
+	for (unsigned int i=1; i<=state.lastTeamIndex; i++)
 		if (state.teams[i].places != NULL)
 			free(state.teams[i].places);
 
@@ -834,47 +895,158 @@ x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
 	return NULL;
 }
 
-static void team_creation_complete (pami_context_t   context,
-                       void          * cookie,
-                       pami_result_t    result)
-{
-	fprintf(stderr, "Team created at place %u, issuing callback\n", state.myPlaceId);
-
-	x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
-	team->cb2(team->teamIndex, team->arg);
-	free(cookie);
-}
-
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
                          x10rt_completion_handler2 *ch, void *arg)
 {
 	pami_result_t status = PAMI_ERROR;
 
-	fprintf(stderr, "Creating a new team at place %u of size %u\n", state.myPlaceId, placec);
+	// send the list of team members to all places
+	pthread_mutex_lock(&state.teamLock);
+	uint32_t newTeamId = state.lastTeamIndex+1;
+	pthread_mutex_unlock(&state.teamLock);
+
+	pami_send_t parameters;
+	volatile unsigned send_active = 1;
+	parameters.send.dispatch        = NEW_TEAM;
+	parameters.send.header.iov_base = &newTeamId;
+	parameters.send.header.iov_len  = sizeof(newTeamId);
+	parameters.send.data.iov_base   = placev; // team members
+	parameters.send.data.iov_len    = placec*sizeof(x10rt_place);
+	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	parameters.events.cookie        = (void *) &send_active;
+	parameters.events.local_fn      = cookie_decrement;
+	parameters.events.remote_fn     = NULL;
+
+	bool inTeam = false;
+	for (unsigned i=0; i<placec; i++)
+	{
+		if (placev[i] != state.myPlaceId)
+		{
+			if ((status = PAMI_Endpoint_create(state.client, placev[i], 0, &parameters.send.dest)) != PAMI_SUCCESS)
+				error("Unable to create an endpoint for team creation");
+
+			if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
+				error("Unable to send a NEW_TEAM message from %u to %u: %i\n", state.myPlaceId, placev[i], status);
+
+			while (send_active) // hold up until the message has been copied out
+				PAMI_Context_advance(state.context[0], 1);
+			send_active = 1;
+		}
+		else
+			inTeam = true;
+	}
+	// at this point, all the places that are to be a part of this new team have been sent a message to join it.
+
+	if (!inTeam)
+		error("A team was created that did not include the creator");
 
 	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
 	cookie->cb2 = ch;
 	cookie->arg = arg;
+	cookie->teamIndex = newTeamId;
+	team_create_dispatch(state.context[0], cookie, &newTeamId, sizeof(newTeamId), placev, placec*sizeof(x10rt_place), (pami_endpoint_t)state.myPlaceId, NULL);
+}
 
+static void split_stage2 (pami_context_t   context,
+                       void          * cookie,
+                       pami_result_t    result)
+{
+	// at this point, we have completed our all-to-all, and know which members will be in which new teams
+	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *)cookie;
+
+	// find how many new teams we're creating
+	unsigned numNewTeams = 0;
+	unsigned myNewTeamSize = 0;
+	for (unsigned i=0; i<x10rt_net_team_sz(cbd->teamIndex); i++)
+	{
+		if (cbd->colors[i] > numNewTeams)
+			numNewTeams = cbd->colors[i];
+		if (cbd->colors[i] == cbd->colors[cbd->parent_role])
+			myNewTeamSize++;
+	}
+
+	// extend our list of team ID's
 	pthread_mutex_lock(&state.teamLock);
 		void* oldTeams = state.teams;
-		void* newTeams = malloc((state.numTeams+1)*sizeof(x10rt_pami_team));
-		memcpy(newTeams, oldTeams, sizeof(state.numTeams*sizeof(x10rt_pami_team)));
+		int oldSize = (state.lastTeamIndex)*sizeof(x10rt_pami_team);
+		int newSize = (state.lastTeamIndex+numNewTeams+1)*sizeof(x10rt_pami_team);
+		void* newTeams = malloc(newSize);
+		memcpy(newTeams, oldTeams, oldSize);
+		memset(((char*)newTeams)+oldSize, 0, newSize-oldSize);
 		state.teams = (x10rt_pami_team*)newTeams;
-		state.numTeams++;
+		int myNewTeamIndex = state.lastTeamIndex+1+cbd->colors[cbd->parent_role];
+		state.lastTeamIndex = state.lastTeamIndex+numNewTeams+1;
 	pthread_mutex_unlock(&state.teamLock);
 	free(oldTeams);
-	cookie->teamIndex = state.numTeams-1;
-	state.teams[cookie->teamIndex].size = placec;
-	// pami requires that we keep this array of places around for as long as the team exists, so we make a copy
-	state.teams[cookie->teamIndex].places = (x10rt_place*)malloc(placec*sizeof(x10rt_place));
-	memcpy(state.teams[cookie->teamIndex].places, placev, placec*sizeof(x10rt_place));
 
+	// save the members of the team that matches my color.  Skip the other teams
+	state.teams[myNewTeamIndex].places = (pami_task_t*)malloc(myNewTeamSize*sizeof(pami_task_t));
+	int index = 0;
+	for (unsigned i=0; i<x10rt_net_team_sz(cbd->teamIndex); i++)
+	{
+		if (cbd->colors[i] == cbd->colors[cbd->parent_role])
+		{
+			state.teams[myNewTeamIndex].places[index] = i;
+			index++;
+		}
+	}
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[cookie->teamIndex].geometry, state.teams[0].geometry, cookie->teamIndex, state.teams[cookie->teamIndex].places, placec, state.context[0], team_creation_complete, cookie);
-	if (status != PAMI_SUCCESS) error("Unable to reconfigure the world geometry");
+
+	pami_result_t   status = PAMI_ERROR;
+	pami_geometry_t parentGeometry = state.teams[cbd->teamIndex].geometry;
+	cbd->teamIndex = myNewTeamIndex;
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, state.context[0], team_creation_complete, cookie);
+	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
+
+void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_place color,
+		x10rt_place new_role, x10rt_completion_handler2 *ch, void *arg)
+{
+	// we need to determine how many new teams are getting created (# of colors), and who is in each team.
+	// we learn this through an all-to-all
+
+	// allocate a buffer to hold the color for each place
+	x10rt_place *colors = (x10rt_place*) malloc(sizeof(x10rt_place) * x10rt_net_team_sz(parent));
+	colors[parent_role] = color;
+
+	// determine an algorithm for the all-to-all
+	pami_result_t status = PAMI_ERROR;
+	// figure out how many different algorithms are available for the barrier
+	size_t num_algorithms[2]; // [0]=always works, and [1]=sometimes works lists
+	status = PAMI_Geometry_algorithms_num(state.context[0], state.teams[parent].geometry, PAMI_XFER_ALLTOALL, num_algorithms);
+	if (status != PAMI_SUCCESS || num_algorithms[0]==0) error("Unable to query the algorithm counts for team %u", parent);
+	pami_algorithm_t *always_works_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[0]);
+	pami_metadata_t *always_works_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[0]);
+	pami_algorithm_t *must_query_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[1]);
+	pami_metadata_t *must_query_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[1]);
+	status = PAMI_Geometry_algorithms_query(state.context[0], state.teams[parent].geometry, PAMI_XFER_ALLTOALL, always_works_alg,
+			always_works_md, num_algorithms[0], must_query_alg, must_query_md, num_algorithms[1]);
+	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", parent);
+
+	// select a algorithm, and issue the collective
+	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *)malloc(sizeof(x10rt_pami_team_create));
+	cbd->cb2 = ch;
+	cbd->arg = arg;
+	cbd->colors = colors;
+	cbd->teamIndex = parent;
+	cbd->parent_role = parent_role;
+
+	pami_xfer_t operation;
+	operation.cb_done = split_stage2;
+	operation.cookie = cbd;
+	operation.algorithm = always_works_alg[0];
+	operation.cmd.xfer_alltoall.rcvbuf = (char*)colors;
+	operation.cmd.xfer_alltoall.rtype = PAMI_BYTE;
+	operation.cmd.xfer_alltoall.rtypecount = sizeof(x10rt_place);
+	operation.cmd.xfer_alltoall.sndbuf = (char*)colors;
+	operation.cmd.xfer_alltoall.stype = PAMI_BYTE;
+	operation.cmd.xfer_alltoall.stypecount = sizeof(x10rt_place);
+
+	status = PAMI_Collective(state.context[0], &operation);
+	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all for team_split");
+}
+
 void x10rt_net_team_del (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
@@ -889,16 +1061,9 @@ void x10rt_net_team_del (x10rt_team team, x10rt_place role,
 
 x10rt_place x10rt_net_team_sz (x10rt_team team)
 {
-	if (team >= state.numTeams)
+	if (team > state.lastTeamIndex)
 		return 0;
 	return state.teams[team].size;
-}
-
-void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_place color,
-		x10rt_place new_role, x10rt_completion_handler2 *ch, void *arg)
-{
-	// TODO PAMI_Geometry_create_taskrange?
-	error("x10rt_net_team_split not implemented");
 }
 
 static void collective_operation_complete (pami_context_t   context,
