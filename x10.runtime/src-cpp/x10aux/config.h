@@ -84,6 +84,12 @@
 #define PLACE_CHECK_BOOL true
 #endif
 
+#ifdef __bg__
+#define DEFAULT_STATIC_THREADS true
+#else
+#define DEFAULT_STATIC_THREADS false
+#endif
+
 #ifndef NO_IOSTREAM
 #  include <iostream>
 #  include <sstream>

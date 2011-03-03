@@ -51,10 +51,10 @@ import x10.util.NoSuchElementException;
 
     // Native runtime interface
 
-    @Native("c++", "x10aux::platform_max_threads")
+    @Native("c++", "PLATFORM_MAX_THREADS")
     private static PLATFORM_MAX_THREADS = Int.MAX_VALUE;
 
-    @Native("c++", "x10aux::default_static_threads")
+    @Native("c++", "DEFAULT_STATIC_THREADS")
     private static DEFAULT_STATIC_THREADS = false;
 
     @Native("java", "x10.runtime.impl.java.Runtime.loadenv()")

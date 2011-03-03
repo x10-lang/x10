@@ -251,21 +251,6 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
     x10rt_send_put(&p, data, len);
 }
 
-#ifdef __bg__
-    x10_boolean x10aux::default_static_threads = true;
-#else
-    x10_boolean x10aux::default_static_threads = false;
-#endif
-
-#ifdef THREAD_TABLE_SZ
-    // bdwgc cap on the number of threads
-    // we need to cap the number of threads potentially created by XRX
-    // here we assume there will be no more than 16 threads created outside of XRX (transport maybe?)
-    x10_int x10aux::platform_max_threads = THREAD_TABLE_SZ - 16;
-#else
-    x10_int x10aux::platform_max_threads = 0x7fffffff; // no cap
-#endif
-
 static void receive_async (const x10rt_msg_params *p) {
     _X_(ANSI_X10RT<<"Receiving an async, id ("<<p->type<<"), deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
