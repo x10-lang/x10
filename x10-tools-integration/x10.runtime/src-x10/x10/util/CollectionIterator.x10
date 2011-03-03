@@ -11,6 +11,6 @@
 
 package x10.util;
 
-public interface CollectionIterator[+T] extends Iterator[T] {
+public interface CollectionIterator[T] extends Iterator[T] {
     public def remove(): void;
 }

@@ -159,6 +159,7 @@ import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
+import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MethodInstance;
@@ -207,6 +208,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
     public static final String MAIN_CLASS = "$Main";
+    public static final String RTT_NAME = "$RTT";
+    public static final String GETRTT_NAME = "$getRTT";
+    public static final String GETPARAM_NAME = "$getParam";
 
 	final public CodeWriter w;
 	final public Translator tr;
@@ -222,12 +226,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	private static int nextId_;
 	/* to provide a unique name for local variables introduce in the templates */
-	public static Integer getUniqueId_() {
-		return new Integer(nextId_++);
+	private static int getUniqueId_() {
+	    return nextId_++;
 	}
 
 	public static Name getId() {
-		return Name.make("__var" + getUniqueId_() + "__");
+		return Name.make("$var" + getUniqueId_());
 	}
 
 	public X10PrettyPrinterVisitor(CodeWriter w, Translator tr) {
@@ -464,6 +468,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write("} }.eval())");
 	}
 
+	private Type getType(String name) throws SemanticException {
+		return tr.typeSystem().systemResolver().findOne(QName.make(name));
+	}
+	
 	public void visit(LocalAssign_c n) {
 		Local l = n.local();
 		TypeSystem ts = tr.typeSystem();
@@ -473,6 +481,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(n.operator().toString());
 			w.write(" ");
 			er.coerce(n, n.right(), l.type());
+			if (isMutableStruct(l.type())) {
+				w.write(".clone()");
+			}
 		}
 		else {
 			Binary.Operator op = n.operator().binaryOperator();
@@ -486,6 +497,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			tr.print(n, n.right(), w);
 			w.write(")");
 		}
+	}
+
+	private boolean isMutableStruct(Type t) {
+		TypeSystem ts = tr.typeSystem();
+		t = Types.baseType(ts.expandMacros(t));
+		if (t.isClass()) {
+			X10ClassType ct = (X10ClassType) t;
+			try {
+				if (ct.isX10Struct()) {
+					X10ClassDef cd = (X10ClassDef) ct.def();
+					if (!cd.annotationsMatching(getType("x10.compiler.Mutable")).isEmpty()) {
+						return true;
+					}
+				}
+			} catch (SemanticException e) { }
+		}
+		return false;
 	}
 
 	public void visit(FieldAssign_c n) {
@@ -503,6 +531,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(n.operator().toString());
 			w.write(" ");
 			er.coerce(n, n.right(), n.fieldInstance().type());
+			if (isMutableStruct(n.fieldInstance().type())) {
+				w.write(".clone()");
+			}
 		}
 		else if (n.target() instanceof TypeNode || n.target() instanceof Local || n.target() instanceof Lit) {
 			// target has no side effects--evaluate it more than once
@@ -576,6 +607,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 			// SYNOPSIS: main(#0) #3 #1    #0=args #1=body #2=class name 
 			String regex = "public static class " + MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
+			    "private static final long serialVersionUID = 1L;\n" +
 			    "public static void main(java.lang.String[] args) {\n" +
 			        "// start native runtime\n" +
 			        "new " + MAIN_CLASS + "().start(args);\n" +
@@ -901,6 +933,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		X10ClassDef def = n.classDef();
 
+		boolean mutable_struct = false;
+		try {
+			if (def.isStruct() && !def.annotationsMatching(getType("x10.compiler.Mutable")).isEmpty()) {
+				mutable_struct = true;
+			}
+		} catch (SemanticException e) { }
+
 		// Do not generate code if the class is represented natively.
 		if (er.getJavaRep(def) != null) {
 			w.write(";");
@@ -1022,6 +1061,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("{");
 		w.newline(4); w.begin(0);
 
+        if (!flags.isInterface()) {
+            // TODO compute serialVersionUID with the same logic as javac
+            long serialVersionUID = 1L;
+            w.write("private static final long serialVersionUID = " + serialVersionUID + "L;");
+            w.newline();
+        }
+
 		// Generate the run-time type.  We have to wrap in a class since n might be an interface
 		// and interfaces can't have static methods.
 
@@ -1031,6 +1077,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //		if (def.isTopLevel()) {
 //			er.generateRTType(def);
 //		}
+
+		if (mutable_struct) {
+	        w.write("public ");
+			tr.print(n, n.name(), w);
+	        if (typeParameters.size() > 0) {
+				er.printTypeParams(n, context, typeParameters);
+			}
+	        w.write("clone() { try { return (");
+			tr.print(n, n.name(), w);
+	        if (typeParameters.size() > 0) {
+				er.printTypeParams(n, context, typeParameters);
+			}
+	        w.write(")super.clone(); } catch (CloneNotSupportedException e) { e.printStackTrace() ; return null; } }");
+	        w.newline();
+		}
 		
 		// XTENLANG-1102
 		er.generateRTTInstance(def);
@@ -1386,10 +1447,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        }
 		        w.write("_" + ft.typeParameters().size());
 		        w.write("_" + args.size());
-		        w.write("._RTT");
+		        w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
 		    }
 		    else if (pat == null && er.getJavaRep(cd) == null && ct.isGloballyAccessible() && cd.typeParameters().size() != 0) {
-		        w.write(cd.fullName().toString() + "." + "_RTT");
+		        w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
 		    }
 		    else {
 		        new RuntimeTypeExpander(er, t).expand(tr);
@@ -1679,6 +1740,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     			            w.write("(");
     			            c.print(e, w, tr);
     			            w.write(")");
+    						if (isMutableStruct(e.type())) {
+    							w.write(".clone()");
+    						}
     			        }
     			        // XTENLANG-1704
     			        else {
@@ -1706,7 +1770,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     			            w.write("(");
     			            c.print(e, w, tr);
     			            w.write(")");
-    			            w.write(")");
+    						if (isMutableStruct(e.type())) {
+    							w.write(".clone()");
+    						}
+    						w.write(")");
     			        }
     			}
     			
@@ -1753,15 +1820,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    er.printType(mi.container(), PRINT_TYPE_PARAMS);
 		    w.write(")");
 		    
-            w.write(X10_RTT_TYPES);
-            w.write(".conversion(");
-            new RuntimeTypeExpander(er, Types.baseType(mi.container())).expand(tr);
-            w.write(",");
-
-            c.printSubExpr(target, w, tr);
-
-            w.write(")");
-            
+		    if (xts.isParameterType(targetType)) {
+		        w.write(X10_RTT_TYPES);
+		        w.write(".conversion(");
+		        new RuntimeTypeExpander(er, Types.baseType(mi.container())).expand(tr);
+		        w.write(",");
+		        c.printSubExpr(target, w, tr);
+		        w.write(")");
+		    }
+		    else {
+		        c.printSubExpr(target, w, tr);
+		    }
 		    w.write(")");
 		}
 		else {
@@ -1816,6 +1885,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             
             c.print(e, w, tr);
+			if (isMutableStruct(e.type())) {
+				w.write(".clone()");
+			}
             
             if(isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
                 w.write(")");
@@ -1931,6 +2003,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     			else {
                     c.print(e, w, tr);
     			}
+				if (isMutableStruct(e.type())) {
+					w.write(".clone()");
+				}
     			
     			if (i != l.size() - 1) {
     				w.write(",");
@@ -2054,7 +2129,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
         }
 		if (isJavaCheckedExceptionCaught) {
-		    final String temp = "__$generated_wrappedex$__";
+		    final String temp = "$ex";
 		    expander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", temp, new Expander(er) {
 		        public void expand(Translator tr) {
                     w.newline();
@@ -2431,8 +2506,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 }
                                 // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).  
 //                                if (types.size() > 0) {
-                                    w.write("public x10.rtt.RuntimeType<?> getRTT() { return _RTT;}");
-                                    w.write("public x10.rtt.Type<?> getParam(int i) {");
+                                    w.write("public x10.rtt.RuntimeType<?> " + X10PrettyPrinterVisitor.GETRTT_NAME + "() { return " + X10PrettyPrinterVisitor.RTT_NAME + "; }");
+                                    w.write("public x10.rtt.Type<?> " + X10PrettyPrinterVisitor.GETPARAM_NAME + "(int i) {");
                                     for (int i = 0; i < types.size(); i++) {
                                         w.write("if (i ==" + i + ")");
                                         Type t = types.get(i);
@@ -2512,10 +2587,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	    
 	public void visit(FieldDecl_c n) {
-		if (er.hasAnnotation(n, QName.make("x10.lang.shared"))) {
-			w.write ("volatile ");
-		}
-
 		Flags flags;
 		if (!n.flags().flags().isStatic()) {
 		    flags = n.flags().flags().clearFinal();
@@ -2575,6 +2646,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             
             //X10 unique
             er.coerce(n, n.init(), n.type().type());
+            
+			if (isMutableStruct(n.type().type())) {
+				w.write(".clone()");
+			}
+            
         }
         // assign default value for access vars in at or async
         else if (!n.flags().flags().isFinal()) {
@@ -2800,7 +2876,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write("\"");
 	    w.write(StringUtil.escape(n.stringValue()));
 	    w.write("\"");
-        w.write(".toString()"); // workaround for XTENLANG-2006. TODO remove this when the bug get fixed.
+	    // removed it since now we pass captured environment explicitly, therefore the workaround is no longer needed.  
+//        w.write(".toString()"); // workaround for XTENLANG-2006. TODO remove this when the bug get fixed.
 	}
 
 	//	private Stmt optionalBreak(Stmt s) {

@@ -49,25 +49,25 @@ import x10.util.Box;
     // Configuration options
 
     @Native("java", "x10.runtime.impl.java.Runtime.NO_STEALS")
-    @Native("c++", "x10aux::no_steals()")
+    @Native("c++", "x10aux::no_steals")
     public static NO_STEALS = false;
 
     /**
      * The initial number of worker threads
      */
     @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS")
-    @Native("c++", "x10aux::num_threads()")
+    @Native("c++", "x10aux::num_threads")
     public static INIT_THREADS = 1;
 
     /**
      * An upper bound on the number of worker threads
      */
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_THREADS")
-    @Native("c++", "x10aux::max_threads()")
+    @Native("c++", "x10aux::max_threads")
     public static MAX_WORKERS = 1000;
 
     @Native("java", "x10.runtime.impl.java.Runtime.STATIC_THREADS")
-    @Native("c++", "x10aux::static_threads()")
+    @Native("c++", "x10aux::static_threads")
     public static STATIC_THREADS = false;
 
     // Native runtime interface
@@ -98,6 +98,23 @@ import x10.util.Box;
     static native def x10rt_registration_complete():void;
 
     //Work-Stealing Runtime Related Interface
+    /*
+     * Return the WS worker binded to current Thread(Worker).
+     * Note, because WS worker could be C++ worker or Java worker. It will only return as Object
+     */
+    public static def wsWorker():Object {
+        return worker().wsWorker;
+    }
+    
+    public static def wsBindWorker(w:Object, i:Int):void {
+        if(worker().wsWorker != null && !(here.id == 0 && i == 0)){
+            println(here+"[WSRT_ERR]N:1 Thread Binding Request from WS Worker");
+        }
+        else{
+            worker().wsWorker = w;            
+        }
+    }
+    
     public static def wsProcessEvents():void {
         event_probe();
     }
@@ -269,6 +286,9 @@ import x10.util.Box;
         val workerId:Int;
 
         var pool:Pool;
+        
+        //1:1 mapping WorkStealing Worker and X10 Worker
+        var wsWorker:Object = null;
 
         def this(workerId:Int) {
             super("thread-" + workerId);
@@ -349,10 +369,10 @@ import x10.util.Box;
                 if (latch()) return false;
                 activity = poll();
                 if (activity == null) return false;
-                if (activity.finishState().simpleLatch() != latch) {
-                    push(activity);
-                    return false;
-                }
+//                if (activity.finishState().simpleLatch() != latch) {
+//                    push(activity);
+//                    return false;
+//                }
                 activity.run();
             }
             return true;
@@ -708,8 +728,12 @@ import x10.util.Box;
     public static def runAt(place:Place, body:()=>void):void {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
-            deepCopy(body)();
-            return;
+            try {
+                deepCopy(body)();
+                return;
+            } catch (t:Throwable) {
+                throw deepCopy(t);
+            }
         }
         @StackAllocate val me = @StackAllocate new RemoteControl();
         val box = GlobalRef(me);
@@ -758,7 +782,11 @@ import x10.util.Box;
     public static def evalAt[T](place:Place, eval:()=>T):T {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
-            return deepCopy(deepCopy(eval)());
+            try {
+                return deepCopy(deepCopy(eval)());
+            } catch (t:Throwable) {
+                throw deepCopy(t);
+            }
         }
         @StackAllocate val me = @StackAllocate new Remote[T]();
         val box = GlobalRef(me);
@@ -769,7 +797,7 @@ import x10.util.Box;
                 val result = eval();
                 async at(box.home) {
                     val me2 = box();
-                    me2.t = result;
+                    me2.t = new Box[T](result);
                     me2.clockPhases = clockPhases;
                     me2.release();
                 }

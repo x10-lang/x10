@@ -377,6 +377,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        protected List<Goal> parseSourceGoals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
            addParseSourceGoals(job, goals);
+           goals.add(End(job));
            return goals;
        }
        /**
@@ -386,6 +387,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        protected List<Goal> typecheckSourceGoals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
            addTypecheckSourceGoals(job, goals);
+           goals.add(End(job));
            return goals;
        }
        /**
@@ -395,11 +397,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        protected List<Goal> semanticCheckSourceGoals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
            addSemanticCheckSourceGoals(job, goals);
+           goals.add(End(job));
            return goals;
        }
        /**
         * Given a list of goals and a job, append the goal that performs position checking
-        * to the end of that list.
+        * to the end of that list (just before the End goal).
         * @return the new list of goals that includes all of the original goals plus the new one
         */
        protected List<Goal> appendPositionCheckGoal(Job job, List<Goal> goals) {
@@ -407,24 +410,32 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        /**
         * Given a list of goals and a job, append the goal that performs position checking
-        * with a given name to the end of that list.  A unique name is required if there
-        * will be multiple such goals added.
+        * with a given name to the end of that list (just before the End goal).  A unique name
+        * is required if there will be multiple such goals added.
         * @param name the name of the position checker goal
         * @return the new list of goals that includes all of the original goals plus the new one
         */
        protected List<Goal> appendPositionCheckGoal(Job job, List<Goal> goals, String name) {
-    	   List<Goal> newgoals = new ArrayList<Goal>(goals);
-    	   addPositionCheckGoal(name, job, newgoals);
-    	   return newgoals;
+           List<Goal> newgoals = new ArrayList<Goal>(goals);
+           assert (newgoals.size() > 0);
+           Goal endGoal = newgoals.remove(goals.size()-1);
+           assert (endGoal.name().equals("End"));
+           addPositionCheckGoal(name, job, newgoals);
+           newgoals.add(endGoal);
+           return newgoals;
        }
        /**
         * Given a list of goals and a job, append the goal that performs full invariant checking
-        * to the end of that list.
+        * to the end of that list (just before the End goal).
         * @return the new list of goals that includes all of the original goals plus the new one
         */
        protected List<Goal> appendInvariantCheckGoal(Job job, List<Goal> goals) {
            List<Goal> newgoals = new ArrayList<Goal>(goals);
+           assert (newgoals.size() > 0);
+           Goal endGoal = newgoals.remove(goals.size()-1);
+           assert (endGoal.name().equals("End"));
            addInvariantCheckGoal(job, newgoals);
+           newgoals.add(endGoal);
            return newgoals;
        }
 
@@ -472,8 +483,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(AnnotationChecker(job));
            goals.add(CheckASTForErrors(job));
            //goals.add(TypeCheckBarrier());
-
-           goals.add(End(job));
        }
        private void addPositionCheckGoal(Job job, List<Goal> goals) {
            addPositionCheckGoal("PositionInvariantChecker", job, goals);
@@ -496,7 +505,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            List<Goal> goals = new ArrayList<Goal>();
 
            addSemanticCheckSourceGoals(job, goals);
-           Goal endGoal = goals.remove(goals.size()-1);
 
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
 
@@ -584,7 +592,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            }
 
-           goals.add(endGoal);
+           goals.add(End(job));
 
            if (opts.x10_config.CHECK_INVARIANTS) {
                ArrayList<Goal> newGoals = new ArrayList<Goal>(goals.size()*2);

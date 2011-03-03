@@ -208,27 +208,21 @@ public class TypeConstraint implements Copy, Serializable {
 	public static <PI extends X10ProcedureInstance<?>> Type[] inferTypeArguments(PI me, 
 			Type thisType, List<Type> actuals, List<Type> formals, 
 			List<Type> typeFormals, Context context) throws SemanticException {
-	    TypeSystem xts = (TypeSystem) thisType.typeSystem();
+	    TypeSystem xts = (TypeSystem) me.typeSystem();
 	
 	    TypeConstraint tenv = new TypeConstraint();
 	    CConstraint env = new CConstraint();
 	
-	    ConstrainedType thisType1 = Types.toConstrainedType(thisType);
 	    XVar ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
 	
 	    if (ythis == null) {
 	        CConstraint c = Types.xclause(thisType);
 	        c = (c == null) ? new CConstraint() : c.copy();
-	
-	        try {
-	            ythis = XTerms.makeUQV();  
-	            c.addSelfBinding(ythis);
-	            c.setThisVar(ythis);
-	        }
-	        catch (XFailure e) {
-	            throw new SemanticException(e.getMessage(), me.position());
-	        }
-	
+
+	        ythis = XTerms.makeUQV();  
+	        c.addSelfBinding(ythis);
+	        c.setThisVar(ythis);
+
 	        thisType = Types.xclause(Types.baseType(thisType), c);
 	    }
 	

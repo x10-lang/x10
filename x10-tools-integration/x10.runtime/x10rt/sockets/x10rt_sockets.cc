@@ -63,7 +63,7 @@ struct x10SocketState
 	x10rt_msg_type callBackTableSize; // length of the above array
 	char* myhost; // my own hostname, so I can detect places that are on the same machine and use localhost instead.
 	bool yieldAfterProbe; // a little flag that adds sched_yield() after probe, for better performance when there are more workers than processors on a machine (or when debugging).
-	bool linkAtStartup; // this flag tells us that we should establish all our connections at startup, not on-demand
+	bool linkAtStartup; // this flag tells us that we should establish all our connections at startup, not on-demand.  It gets flipped after all links are up.
 	pthread_mutex_t readLock; // a lock to prevent overlapping reads on each socket
 	uint32_t nextSocketToCheck; // this is used in the socket read loop so that we don't give preference to the low-numbered places
 	struct pollfd* socketLinks; // the file descriptors for each socket to other places
@@ -81,40 +81,56 @@ void probe (bool onlyProcessAccept);
 void error(const char* message)
 {
 	if (errno)
-		fprintf(stderr, "Fatal Error: %s: %s\n", message, strerror(errno));
+		fprintf(stderr, "Fatal Error at place %u: %s: %s\n", state.myPlaceId, message, strerror(errno));
 	else
-		fprintf(stderr, "Fatal Error: %s\n", message);
+		fprintf(stderr, "Fatal Error at place %u: %s\n", state.myPlaceId, message);
 	fflush(stderr);
 	abort();
 }
 
+/*
+ * This method determines if we should use a specific port number, or ask the OS
+ * for one.  It looks at the X10_FORCEPORTS environment variable, which can take two forms.
+ * Either it has a comma-separated list of numbers, one per place, or it has a single number,
+ * and each place will use that port number + their place ID.
+ */
 int getPortEnv(unsigned int whichPlace)
 {
+	int lp = 0;
 	char* p = getenv(X10_FORCEPORTS);
 	if (p != NULL)
 	{
 		// find our port number in the list
 		char * start = p;
 		char * end = strchr(start, ',');
-		for (unsigned int i=1; i<=whichPlace; i++)
-		{
-			if (end == NULL)
-				error("Not enough ports defined in "X10_FORCEPORTS);
 
-			start = end+1;
-			end = strchr(start, ',');
-		}
 		if (end == NULL)
-			return atoi(start);
+			lp = atoi(start)+whichPlace;
 		else
 		{
-			char port[16];
-			strncpy(port, start, end-start);
-			port[end-start]='\0';
-			return atoi(port);
+			for (unsigned int i=1; i<=whichPlace; i++)
+			{
+				if (end == NULL)
+					error("Not enough ports defined in "X10_FORCEPORTS);
+				start = end+1;
+				end = strchr(start, ',');
+			}
+			if (end == NULL)
+				lp = atoi(start);
+			else
+			{
+				char port[16];
+				strncpy(port, start, end-start);
+				port[end-start]='\0';
+				lp = atoi(port);
+			}
 		}
+		#ifdef DEBUG
+		if (whichPlace == state.myPlaceId)
+			fprintf(stderr, "Place %u forced to port %i\n", whichPlace, lp);
+		#endif
 	}
-	return 0;
+	return lp;
 }
 
 void handleConnectionRequest()
@@ -180,7 +196,7 @@ int initLink(uint32_t remotePlace)
 	if (remotePlace > state.numPlaces || remotePlace == state.myPlaceId)
 		return -1;
 
-	if (state.socketLinks[remotePlace].fd <= 0)
+	if (!state.linkAtStartup || state.socketLinks[remotePlace].fd <= 0)
 		probe(true); // handle any incoming connection requests - we may be able to skip a lookup.
 
 	if (state.socketLinks[remotePlace].fd <= 0)
@@ -588,7 +604,10 @@ void x10rt_net_probe ()
 	else if (state.linkAtStartup)
 	{
 		for (unsigned i=0; i<state.myPlaceId; i++)
-			initLink(i);
+			initLink(i); // connect to all lower places
+		for (unsigned i=state.myPlaceId+1; i<state.numPlaces; i++)
+			while (state.socketLinks[i].fd <= 0)
+				probe(true); // wait for connections from all upper places
 		state.linkAtStartup = false;
 	}
 	else
@@ -600,7 +619,7 @@ void probe (bool onlyProcessAccept)
 	if (pthread_mutex_lock(&state.readLock) < 0)
 		return;
 	uint32_t whichPlaceToHandle = state.nextSocketToCheck;
-	int ret = poll(state.socketLinks, state.numPlaces, 0);
+	int ret = poll(state.socketLinks, state.numPlaces, state.linkAtStartup?100:0);
 	if (ret > 0)
 	{ // There is at least one socket with something interesting to look at
 

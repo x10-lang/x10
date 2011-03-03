@@ -48,7 +48,7 @@ public class X10SourceFile_c extends SourceFile_c {
 		// caught during type building. But, we need to allow duplicates to handle
 		// overloaded typedefs.
 		for (TopLevelDecl d : decls) {
-			if (d.flags().flags().isPublic()) {
+			if (d instanceof X10ClassDecl && d.flags().flags().isPublic()) {
 				if (hasPublic) {
 					Errors.issue(tc.job(),
 					        new Errors.SourceContainsMoreThanOnePublicDeclaration(d.position()),

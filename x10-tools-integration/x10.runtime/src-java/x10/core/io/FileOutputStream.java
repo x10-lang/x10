@@ -11,11 +11,14 @@
 
 package x10.core.io;
 
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
 public class FileOutputStream extends OutputStream {
     
+	private static final long serialVersionUID = 1L;
+
     public FileOutputStream(String name) throws java.io.FileNotFoundException {
         super(new java.io.FileOutputStream(name));
     }
@@ -23,16 +26,12 @@ public class FileOutputStream extends OutputStream {
     //
     // Runtime type information
     //
-    public static final RuntimeType<FileOutputStream> _RTT = new RuntimeType<FileOutputStream>(
+    public static final RuntimeType<FileOutputStream> $RTT = new NamedType<FileOutputStream>(
+        "x10.io.FileWriter.FileOutputStream",
         FileOutputStream.class,
-        new Type[] { OutputStream._RTT }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.io.FileWriter.FileOutputStream";
-        }
-    };
-    public RuntimeType<?> getRTT() { return _RTT; }
-    public Type<?> getParam(int i) { return null; }
+        new Type[] { OutputStream.$RTT }
+    );
+    public RuntimeType<?> $getRTT() { return $RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

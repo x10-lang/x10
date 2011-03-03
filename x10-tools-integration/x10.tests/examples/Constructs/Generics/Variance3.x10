@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Variance3 extends x10Test {
-        interface Set[-T] { def set(y: T): void; }
+        interface Set[T] { def set(y: T): void; }
         class SetImpl[T] implements Set[T] {
                         var x: T;
                         def this(y: T) = { x = y; }
@@ -36,7 +36,7 @@ public class Variance3 extends x10Test {
                 sa.set(b);
                 sb.set(b);
 
-                val sx: Set[B] = sa;
+                val sx: Set[A] = sa;
                 sx.set(b);
 
                 val sy: Set[B] = sb;

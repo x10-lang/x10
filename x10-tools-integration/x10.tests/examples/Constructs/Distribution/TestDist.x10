@@ -76,7 +76,7 @@ abstract public class TestDist extends x10Test {
         var os: Rail[Object] = Rail.make[Object](10);
 
         def set(i0: int, vue: double): void = {
-            os(i0) = vue as Box[double];
+            os(i0) = new Box[double](vue);
         }
 
         def set(i0: int, i1: int, vue: double): void = {
@@ -120,7 +120,7 @@ abstract public class TestDist extends x10Test {
                     }
                     (o as Grid).pr(rank-1);
                 } else {
-                    val d = (o as Box[double]).value;
+                    val d = (new Box[double](o)).value;
                     out.print(""+(d as int));
                 }
 

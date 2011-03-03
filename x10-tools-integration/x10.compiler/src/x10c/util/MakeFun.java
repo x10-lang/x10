@@ -9,12 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-package x10.runtime.util;
+package x10c.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+
+import x10.visit.X10PrettyPrinterVisitor;
 
 /**
  * Generator of x10/core/fun/{Fun,VoidFun}_0_n.java
@@ -49,10 +51,9 @@ public class MakeFun {
 			+ "import x10.rtt.Type;\n"
 			+ "import x10.rtt.VoidFunType;\n";
 
-	// Functions that take less than MIN_METHOD_PARAMS are exist in the repository
+	// Functions that take less than MIN_METHOD_PARAMS are already in a repository
 	private static final int MIN_METHOD_PARAMS = 10;
 	private static final int MAX_METHOD_PARAMS = 127;
-
 
 	public static void main(String[] args) throws FileNotFoundException {
 		int min = MIN_METHOD_PARAMS;
@@ -101,7 +102,7 @@ public class MakeFun {
 
 			fun_ps.println();
 
-			//     public static final RuntimeType<Fun_0_2<?,?,?>> _RTT = new FunType<Fun_0_2<?,?,?>>(
+			//     public static final RuntimeType<Fun_0_2<?,?,?>> $RTT = new FunType<Fun_0_2<?,?,?>>(
 			String fun_unknowntypes = "<";
 			for (int i = 1; i <= n + 1; ++i) {
 				fun_unknowntypes += "?";
@@ -110,7 +111,7 @@ public class MakeFun {
 			}
 			fun_unknowntypes += ">";
 			fun_ps.print("    public static final RuntimeType<" + fun_name + fun_unknowntypes);
-			fun_ps.println("> _RTT = new FunType<" + fun_name + fun_unknowntypes + ">(");
+			fun_ps.println("> " + X10PrettyPrinterVisitor.RTT_NAME + " = new FunType<" + fun_name + fun_unknowntypes + ">(");
 
 			//         Fun_0_2.class,
 			fun_ps.println("        " + fun_name + ".class,");
@@ -168,7 +169,7 @@ public class MakeFun {
 
 			voidfun_ps.println();
 
-			//     public static final RuntimeType<VoidFun_0_2<?,?>> _RTT = new VoidFunType<VoidFun_0_2<?,?>>(
+			//     public static final RuntimeType<VoidFun_0_2<?,?>> $RTT = new VoidFunType<VoidFun_0_2<?,?>>(
 			String voidfun_unknowntypes = "<";
 			for (int i = 1; i <= n; ++i) {
 				voidfun_unknowntypes += "?";
@@ -177,7 +178,7 @@ public class MakeFun {
 			}
 			voidfun_unknowntypes += ">";
 			voidfun_ps.print("    public static final RuntimeType<" + voidfun_name + voidfun_unknowntypes);
-			voidfun_ps.println("> _RTT = new VoidFunType<" + voidfun_name + voidfun_unknowntypes + ">(");
+			voidfun_ps.println("> " + X10PrettyPrinterVisitor.RTT_NAME + " = new VoidFunType<" + voidfun_name + voidfun_unknowntypes + ">(");
 			
 			//         VoidFun_0_2.class,
 			voidfun_ps.println("        " + voidfun_name + ".class,");

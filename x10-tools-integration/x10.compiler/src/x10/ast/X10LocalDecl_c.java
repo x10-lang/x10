@@ -186,10 +186,17 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
                 if (hasType != null) {
                     htn = (TypeNode) visitChild(hasType, childtc);
                     if (! tc.typeSystem().isSubtype(type().type(), htn.type(), tc.context())) {
-                        Errors.issue(tc.job(),
-                                     new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
-                                                                             htn.type(),
-                                                                             position()));
+                        Context xc = (Context) enterChildScope(init, tc.context());
+                        Expr newInit = Converter.attemptCoercion(tc.context(xc), init, htn.type());
+                        if (newInit == null) {
+                            Errors.issue(tc.job(),
+                                         new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
+                                                                                 htn.type(),
+                                                                                 position()));
+                        } else {
+                            init = newInit;
+                            r.update(newInit.type()); 
+                        }
                     }
                 }
 

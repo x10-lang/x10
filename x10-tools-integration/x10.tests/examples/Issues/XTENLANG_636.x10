@@ -18,8 +18,8 @@ import harness.x10Test;
 
 public class XTENLANG_636 extends x10Test {
 
-      interface ISet[-X] { def set(x:X):void; }
-      interface IGet[+X] { def get():X; }
+      interface ISet[X] { def set(x:X):void; }
+      interface IGet[X] { def get():X; }
 
        class Cell[X] implements ISet[X], IGet[X] {
         var x : X;
@@ -28,7 +28,7 @@ public class XTENLANG_636 extends x10Test {
         public def set(x:X) = {this.x = x;} 
       }
 
-       class Get[+X] implements IGet[X]{
+       class Get[X] implements IGet[X]{
         val x : X; // val fields are covariant
         def this(x:X) { this.x = x; }
         public def get() : X = x;
@@ -58,7 +58,7 @@ public class XTENLANG_636 extends x10Test {
         val test3 = ISet[Sub] <: ISet[Int];
         val test4 = ISet[Sub] :> ISet[Int];
         val test5 = ISet[Sub] == ISet[Int];
-        return test1 && test2 && (!test3) && (!test4) && (!test5);
+        return test1 && !test2 && (!test3) && (!test4) && (!test5);
     }
 
     public static def main(var args: Array[String](1)): void = {

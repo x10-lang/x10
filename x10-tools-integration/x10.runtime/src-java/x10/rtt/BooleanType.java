@@ -13,6 +13,9 @@ package x10.rtt;
 
 
 public class BooleanType extends RuntimeType<Boolean> {
+
+	private static final long serialVersionUID = 1L;
+
     public BooleanType() {
         super(boolean.class,
               new Type[] {

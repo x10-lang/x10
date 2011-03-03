@@ -11,6 +11,7 @@
 package x10.util.synthesizer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Expr;
@@ -30,6 +31,7 @@ import x10.ast.AnnotationNode;
 import x10.extension.X10Del;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
+import x10.types.X10ClassType;
 import x10.types.checker.PlaceChecker;
 
 /**
@@ -76,18 +78,24 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
 
         TypeSystem xts = (TypeSystem) xct.typeSystem();
 
-        ConstructorDef constructorDef = xts.findConstructor(classType, // receiver's
-                                                                       // type
-                                                            xts.ConstructorMatcher(classType, argTypes, xct))
-                                                            .def();
-        ConstructorInstance constructorIns = constructorDef.asInstance();
-        
-        //need set formals to the constructorIns
-        List<Type> formalTypes = new ArrayList<Type>();
-        for(Ref<? extends Type> r : constructorDef.formalTypes()){
-            formalTypes.add(r.get());
+        List<Type> typeArgs = ((X10ClassType)classType).typeArguments();
+        if (typeArgs == null) {
+            typeArgs = Collections.<Type>emptyList();
         }
-        constructorIns = constructorIns.formalTypes(formalTypes);
+        
+
+        ConstructorInstance constructorIns = xts.findConstructor(classType, // receiver's
+                                                                 // type
+                                                                 xts.ConstructorMatcher(classType, typeArgs, argTypes, xct));
+//        ConstructorDef constructorDef = constructorIns.def();
+        
+//        //need set formals to the constructorIns
+//        List<Type> formalTypes = new ArrayList<Type>();
+//        for(Ref<? extends Type> r : constructorDef.formalTypes()){
+//            formalTypes.add(r.get());
+//        }
+//        constructorIns = constructorIns.formalTypes(formalTypes);
+//        constructorIns.typeParameters(typeArgs);
         
         New aNew = xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(classType)), args);
         

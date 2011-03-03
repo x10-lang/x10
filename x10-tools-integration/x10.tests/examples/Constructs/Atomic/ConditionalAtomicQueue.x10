@@ -103,7 +103,7 @@ public class ConditionalAtomicQueue extends x10Test {
 			async {
 				for (val p in D2.region) {
 					var t: Box[T];
-					when (!empty()) { t = remove(); }
+					when (!empty()) { t = new Box[T](remove()); }
 					val t1 = t.value;
 					async   { t1.consume(); } // consume the T
 					val m =  t1.getval();

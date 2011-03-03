@@ -61,7 +61,6 @@ that a test case is expected to fail, use a file name with a
 _MustFail*.x10 suffix.  For example:
 
 testName_MustFailCompile.x10 // expecting a compiler error
-testName_MustFailRun.x10   // expecting a run-time error
 testName_MustFailTimeout.x10 // expecting deadlock or nonterminating loop
 
 It is recommended that test cases that are expected to succeed

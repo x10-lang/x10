@@ -43,20 +43,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
 		@Override
 		public List<Goal> goals(Job job) {
-			List<Goal> goals = new ArrayList<Goal>();
-			
-			goals.add(Parsed(job));
-			goals.add(TypesInitialized(job));
-			goals.add(ImportTableInitialized(job));
-			
-			goals.add(PreTypeCheck(job));
-			goals.add(TypesInitializedForCommandLineBarrier());
-			goals.add(TypeChecked(job));
-			goals.add(ReassembleAST(job));
+			List<Goal> goals = new ArrayList<Goal>(typecheckSourceGoals(job));
+			Goal endGoal = goals.remove(goals.size()-1);
 			goals.add(EnsureNoErrors(job));
 			
 			goals.add(X10DocGenerated(job));
-			goals.add(End(job));
+			goals.add(endGoal);
 			
 			// the barrier will handle prereqs on its own
 			X10DocGenerated(job).addPrereq(TypeCheckBarrier());

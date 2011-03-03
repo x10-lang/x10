@@ -124,11 +124,7 @@ public class IntLit_c extends NumLit_c implements IntLit
         }
         CConstraint c = new CConstraint();
         XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), (Context) tc.context());
-        try {
-            c.addSelfBinding(term);
-        }
-        catch (XFailure e) {
-        }
+        c.addSelfBinding(term);
         Type newType = Types.xclause(Type, c);
         return type(newType);
     }

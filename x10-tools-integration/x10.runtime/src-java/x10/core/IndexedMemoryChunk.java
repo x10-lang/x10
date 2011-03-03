@@ -13,11 +13,15 @@ package x10.core;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.UnsupportedOperationException;
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 
 public final class IndexedMemoryChunk<T> extends x10.core.Struct {
+
+	private static final long serialVersionUID = 1L;
+
     public final int length;
     public final Object value;
     public final Type<T> type;
@@ -81,12 +85,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
             System.arraycopy(src.value, srcIndex, dataToCopy, 0, numElems);
         }
         
+        // TODO translate this to a static nested class
         VoidFun_0_0 copyBody = new VoidFun_0_0() {
+            private static final long serialVersionUID = 1L;
             int dstId = dst.id;
             Object srcData = dataToCopy;
             
-            public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
-            public Type<?> getParam(int i) { return null; }
+            public RuntimeType<?> $getRTT() { return VoidFun_0_0.$RTT; }
+            public Type<?> $getParam(int i) { return null; }
             
             public void $apply() {
                 Object dstData = RemoteIndexedMemoryChunk.getValue(dstId);
@@ -111,10 +117,11 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         final RemoteIndexedMemoryChunk<T> dstWrapper = RemoteIndexedMemoryChunk.wrap(dst);
         final int srcId = src.id;
         
+        // TODO translate this to a static nested class
         VoidFun_0_0 copyBody1 = new VoidFun_0_0() {
-            
-            public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
-            public Type<?> getParam(int i) { return null; }
+            private static final long serialVersionUID = 1L;
+            public RuntimeType<?> $getRTT() { return VoidFun_0_0.$RTT; }
+            public Type<?> $getParam(int i) { return null; }
             
             public void $apply() {
                 // This body runs at src's home.  It accesses the data for src and then does
@@ -132,12 +139,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                     System.arraycopy(srcData, srcIndex, dataToCopy, 0, numElems);
                 }
                 
+                // TODO translate this to a static nested class
                 VoidFun_0_0 copyBody2 = new VoidFun_0_0() {
+                    private static final long serialVersionUID = 1L;
                     int dstId = dstWrapper.id;
                     Object srcData = dataToCopy;
                     
-                    public RuntimeType<?> getRTT() { return VoidFun_0_0._RTT; }
-                    public Type<?> getParam(int i) { return null; }
+                    public RuntimeType<?> $getRTT() { return VoidFun_0_0.$RTT; }
+                    public Type<?> $getParam(int i) { return null; }
                     
                     public void $apply() {
                         // This body runs back at dst's home.  It does the actual assignment of values.
@@ -171,23 +180,19 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         return o != null && this.value == ((IndexedMemoryChunk<?>) o).value;
     }
 
-    public static final RuntimeType<IndexedMemoryChunk<?>> _RTT = new RuntimeType<IndexedMemoryChunk<?>>(
+    public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = new NamedType<IndexedMemoryChunk<?>>(
+        "x10.util.IndexedMemoryChunk",
         IndexedMemoryChunk.class,
         new RuntimeType.Variance[] { Variance.INVARIANT }
-    ) {
-        @Override
-        public java.lang.String typeName() {
-            return "x10.util.IndexedMemoryChunk";
-        }
-    };
+    );
     
     @Override
-    public RuntimeType<IndexedMemoryChunk<?>> getRTT() {
-        return _RTT;
+    public RuntimeType<IndexedMemoryChunk<?>> $getRTT() {
+        return $RTT;
     }
 
     @Override
-    public Type<?> getParam(int i) {
+    public Type<?> $getParam(int i) {
         return i == 0 ? type : null;
     }
 

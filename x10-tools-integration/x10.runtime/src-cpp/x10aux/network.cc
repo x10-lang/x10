@@ -15,6 +15,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/basic_functions.h>
+#include <x10aux/string_utils.h>
 
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
@@ -28,6 +29,10 @@
 
 #include <strings.h>
 
+#ifdef __MACH__
+#include <crt_externs.h>
+#endif
+
 using namespace x10::lang;
 using namespace x10aux;
 
@@ -36,6 +41,12 @@ x10aux::place x10aux::num_places = 0;
 x10aux::place x10aux::num_hosts = 0;
 x10aux::place x10aux::here = -1;
 bool x10aux::x10rt_initialized = false;
+
+x10_int x10aux::num_threads;
+x10_int x10aux::max_threads;
+x10_boolean x10aux::no_steals;
+x10_boolean x10aux::static_threads;
+
 
 // keep a counter for the session.
 volatile x10_long x10aux::asyncs_sent = 0;
@@ -147,6 +158,11 @@ void x10aux::network_init (int ac, char **av) {
     x10aux::here = x10rt_here();
     x10aux::num_places = x10rt_nplaces();
     x10aux::num_hosts = x10rt_nhosts();
+
+    x10aux::num_threads = x10aux::get_num_threads();
+    x10aux::max_threads = x10aux::get_max_threads();
+    x10aux::no_steals = x10aux::get_no_steals();
+    x10aux::static_threads = x10aux::get_static_threads();
 }
 
 void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10aux::ref<x10::lang::Reference> fs_) {
@@ -240,7 +256,7 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
     x10rt_send_put(&p, data, len);
 }
 
-x10_int x10aux::num_threads() {
+x10_int x10aux::get_num_threads() {
 #ifdef __bg__
     x10_int default_nthreads = 1;
 #else
@@ -253,7 +269,7 @@ x10_int x10aux::num_threads() {
     return num;
 }
 
-x10_int x10aux::max_threads() {
+x10_int x10aux::get_max_threads() {
 #ifdef __bg__
     x10_int default_max_threads = 1;
 #else
@@ -271,7 +287,7 @@ x10_int x10aux::max_threads() {
     return num;
 }
 
-x10_boolean x10aux::no_steals()
+x10_boolean x10aux::get_no_steals()
 {
     char* s = getenv("X10_NO_STEALS");
     if (s && !(strcasecmp("false", s) == 0))
@@ -279,7 +295,7 @@ x10_boolean x10aux::no_steals()
     return false;
 }
 
-x10_boolean x10aux::static_threads() { 
+x10_boolean x10aux::get_static_threads() {
 #ifdef __bg__
     return true;
 #else
@@ -509,6 +525,27 @@ void x10aux::coll_handler2(x10rt_team id, void *arg) {
     *t = id;
     x10aux::dealloc(p);
     fs->notifyActivityTermination();
+}
+
+
+x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > x10aux::loadenv() {
+#ifdef __MACH__
+    char** environ = *_NSGetEnviron();
+#else
+    extern char **environ;
+#endif
+    x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > map = x10::util::HashMap<x10aux::ref<x10::lang::String>, x10aux::ref<x10::lang::String> >::_make();
+    for (unsigned i=0 ; environ[i]!=NULL ; ++i) {
+        if (strncmp(environ[i], "X10_", 4)==0) {
+            char *var = x10aux::string_utils::strdup(environ[i]);
+            *strchr(var,'=') = '\0';
+            char* val = getenv(var);
+            assert(val!=NULL);
+//            fprintf(stderr, "Loading environment variable %s=%s\n", var, val);
+            map->put(x10::lang::String::Lit(var), x10::lang::String::Lit(val));
+        }
+    }
+    return map;
 }
 
 

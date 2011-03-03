@@ -166,30 +166,26 @@ public class CUDAPatternMatcher extends NodeVisitor {
 		MultipleValues r = new MultipleValues();
 		Formal loop_formal = loop.formal();
 		complainIfNot(loop_formal instanceof X10Formal,
-				"Exploded point syntax", loop);
+				"named loop formal", loop);
 		X10Formal loop_x10_formal = (X10Formal) loop_formal;
-		complainIfNot(loop_x10_formal.hasExplodedVars(),
-				"Exploded point syntax", loop_formal);
-		complainIfNot(loop_x10_formal.vars().size() == 1,
-				"A 1 dimensional iteration", loop_formal);
-		r.var = loop_x10_formal.vars().get(0);
+		r.var = loop_x10_formal;
 		Expr domain = loop.domain();
 		complainIfNot(domain instanceof X10Binary,
-				"An iteration over a region literal of the form 0..", domain);
+				"An iteration over a int range literal of the form 0..", domain);
 		X10Binary region = (X10Binary) domain;
 		complainIfNot(region.operator() == X10Binary.DOT_DOT,
-				"An iteration over a region literal of the form 0..", domain);
+				"An iteration over an int range literal of the form 0..", domain);
 		MethodInstance mi = region.methodInstance();
 		ClassType target_type = mi.container().toClass();
 		complainIfNot(target_type.isInt(),
-				"An iteration over a region literal of the form 0..", domain);
+				"An iteration over an int range literal of the form 0..", domain);
 		Expr from_ = region.left();
 		Expr to_ = region.right();
 		complainIfNot(from_ instanceof IntLit,
-				"An iteration over a region literal of the form 0..", from_);
+				"An iteration over an int range literal of the form 0..", from_);
 		IntLit from = (IntLit) from_;
 		complainIfNot(from.value() == 0,
-				"An iteration over a region literal of the form 0..", from_);
+				"An iteration over an int range literal of the form 0..", from_);
 		r.max = to_;
 		r.body = (Block) loop.body();
 		return r;

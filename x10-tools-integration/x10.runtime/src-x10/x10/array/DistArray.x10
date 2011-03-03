@@ -706,5 +706,9 @@ public class DistArray[T] (
      */
     public def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 }
+public type DistArray[T](r:Int) = DistArray[T]{self.rank==r};
+public type DistArray[T](r:Region) = DistArray[T]{self.region==r};
+public type DistArray[T](d:Dist) = DistArray[T]{self.dist==d};
+public type DistArray[T](a:DistArray[T]) = DistArray[T]{self==a};
 
 // vim:tabstop=4:shiftwidth=4:expandtab

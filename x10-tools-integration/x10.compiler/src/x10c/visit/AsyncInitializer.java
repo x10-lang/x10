@@ -1,8 +1,6 @@
 package x10c.visit;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +31,6 @@ import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
@@ -46,9 +43,10 @@ import x10.ast.X10LocalAssign_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
 import x10.extension.X10Ext_c;
+import x10.types.MethodInstance;
 import x10.types.X10ClassType;
 import x10.types.X10LocalDef;
-import x10.types.MethodInstance;
+import x10.util.CollectionFactory;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.BackingArrayAccessAssign;
 import x10c.ast.BackingArrayNewArray;
@@ -248,8 +246,15 @@ public class AsyncInitializer extends ContextVisitor {
         // box async init vals
         tcfBlock = (Try)tcfBlock.visit(new NodeVisitor() {
             private final Map<Name, X10LocalDef> nameToBoxDef = CollectionFactory.newHashMap();
+            private final List<LocalDef> localDeclList = new ArrayList<LocalDef>();
             @Override
             public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
+                if (n instanceof X10LocalDecl_c) {
+                    X10LocalDecl_c ld = (X10LocalDecl_c)n;
+                    if (ld.localDef().flags() == null || !ld.localDef().flags().equals(Flags.FINAL))
+                        localDeclList.add(ld.localDef());
+                    return n;
+                }
                 if (n instanceof X10LocalAssign_c) {
                     X10LocalAssign_c la = (X10LocalAssign_c) n;
                     Type type = Types.baseType(la.type());
@@ -259,7 +264,8 @@ public class AsyncInitializer extends ContextVisitor {
                         return n;
                     }
 
-                    VarDef initVal = checkIfIncluded((Local)left, asyncInitVal);
+                    Local local = (Local)left;
+                    VarDef initVal = checkIfIncluded(local, asyncInitVal);
                     if (initVal == null)
                         return n;
 
@@ -268,6 +274,11 @@ public class AsyncInitializer extends ContextVisitor {
                     BackingArrayType arrayType = xts.createBackingArray(n.position(), Types.ref(type));
                     LocalDef ldef = getBoxLocalDef(n, arrayType, initVal, id);
                     IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
+                    
+                    for (LocalDef localDefVar : localDeclList) {
+                        if (isLocalInstanceEquals(localDefVar.asInstance(), local.localInstance()))
+                            return n;
+                    }
                     return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType),
                                  idx0, la.operator(), la.right()).type(type);
                 }
@@ -276,16 +287,22 @@ public class AsyncInitializer extends ContextVisitor {
                         // should be processed in the above
                         return n;
 
-                    VarDef initVal = checkIfIncluded((Local)n, asyncInitVal);
+                    X10Local_c local = (X10Local_c) n;
+                    VarDef initVal = checkIfIncluded(local, asyncInitVal);
                     if (initVal == null)
                         return n;
 
-                    Type type = Types.baseType(((X10Local_c) n).type());
+                    Type type = Types.baseType(local.type());
 
                     Id id = getBoxId(initVal);
                     BackingArrayType arrayType = xts.createBackingArray(n.position(), Types.ref(type));
                     LocalDef ldef = getBoxLocalDef(n, arrayType, initVal, id);
                     IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
+                    
+                    for (LocalDef localDefVar : localDeclList) {
+                        if (isLocalInstanceEquals(localDefVar.asInstance(), local.localInstance()))
+                            return n;
+                    }
                     return xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType), idx0, type);
                 }
                 if (n instanceof Closure) {
@@ -301,6 +318,8 @@ public class AsyncInitializer extends ContextVisitor {
                         }
                     }
                     closure.closureDef().setCapturedEnvironment(newCaps);
+                    
+                    localDeclList.clear();
                 }
                 return n;
             }

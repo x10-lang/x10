@@ -520,11 +520,7 @@ public class XTypeTranslator {
 
         CConstraint c1 = Types.xclause(r1.type()).copy();
         XVar x = XTerms.makeUQV();
-        try {
-            c1.addSelfBinding(x);
-        } catch (XFailure z) {
-            throw new InternalCompilerError("Unexpected failure", z); // can't happen
-        }
+        c1.addSelfBinding(x);
         CConstraint c2 = Types.xclause(x, r2.type()).copy();
         if (rb.operator()== Binary.EQ) {
             c1.addIn(c2);

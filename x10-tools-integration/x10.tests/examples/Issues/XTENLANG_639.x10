@@ -22,19 +22,14 @@ class XTENLANG_639 extends x10Test {
         else x10.io.Console.OUT.println("YES: " + s);
     }
     public def test() {
-        yes(A[Pare] :> A[Chil], "A[Pare] :> A[Chil] by covariance");
-        yes(B[Pare] :> B[Chil], "B[Pare] :> B[Chil] by covariance");
         yes(A[Pare] :> B[Pare], "A[Pare] :> B[Pare] by inheritance");
         yes(A[Chil] :> B[Chil], "A[Chil] :> B[Chil] by inheritance");
-        yes(A[Pare] :> B[Chil], "A[Pare] :> B[Chil] by transitivity");
         val chil : Chil = new Chil();
         val pare : Pare = new Pare();
 
         //FAILS: val xap : A[Pare] = new A[Pare](chil);
         val xap : A[Pare] = new A[Pare](pare);         
         val xbp : A[Pare] = new B[Pare](pare);
-        val xac : A[Pare] = new A[Chil](chil);
-        val xbc : A[Pare] = new B[Chil](chil);
 
         // FAILS: val ap : A[Pare] = new B[Chil](chil);
         //val bc : B[Chil] = new B[Chil](chil);
@@ -44,13 +39,13 @@ class XTENLANG_639 extends x10Test {
         //yes(ap.whut().equals("bChil"), "whut is it");
     }
 
-    class A[+X]{
+    class A[X]{
         val x : X;
         def this(x:X){this.x=x;}
         def whut() = "a" + x.typeName();
     }
 
-    class B[+X] extends A[X] {
+    class B[X] extends A[X] {
         def this(x:X) { super(x); }
         def whut() = "b" + x.typeName();
     }

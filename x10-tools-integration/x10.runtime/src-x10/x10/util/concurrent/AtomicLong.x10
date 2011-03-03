@@ -15,7 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.Volatile;
 
-@NativeRep("java", "x10.core.concurrent.AtomicLong", null, "x10.core.concurrent.AtomicLong._RTT")
+@NativeRep("java", "x10.core.concurrent.AtomicLong", null, "x10.core.concurrent.AtomicLong.$RTT")
 public final class AtomicLong {
     private @Volatile var value:long;
     

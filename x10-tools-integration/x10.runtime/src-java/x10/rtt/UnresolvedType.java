@@ -3,6 +3,8 @@ package x10.rtt;
 
 public final class UnresolvedType implements Type {
 
+	private static final long serialVersionUID = 1L;
+
     int index = -1;
     
     public UnresolvedType(int index) {

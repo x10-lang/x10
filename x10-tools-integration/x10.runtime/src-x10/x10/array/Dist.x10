@@ -692,5 +692,8 @@ public abstract class Dist(
         throw new BadPlaceException("point " + pt + " not defined at " + here);
     }    
 }
+public type Dist(r:Int) = Dist{self.rank==r};
+public type Dist(r:Region) = Dist{self.region==r};
+public type Dist(d:Dist) = Dist{self==d};
 
 // vim:shiftwidth=4:tabstop=4:expandtab

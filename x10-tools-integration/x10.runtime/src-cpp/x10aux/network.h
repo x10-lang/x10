@@ -20,6 +20,8 @@
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 namespace x10 { namespace lang { class Reference; } }
+namespace x10 { namespace lang { class String; } }
+namespace x10 { namespace util { template <class K, class V> class HashMap; } }
 
 namespace x10aux {
 
@@ -90,13 +92,15 @@ namespace x10aux {
     extern volatile x10_long serialized_bytes;
     extern volatile x10_long deserialized_bytes;
 
-    x10_int num_threads();
+    extern x10_int num_threads;
+    extern x10_int max_threads;
+    extern x10_boolean no_steals;
+    extern x10_boolean static_threads;
 
-    x10_int max_threads();
-
-    x10_boolean no_steals();
-
-    x10_boolean static_threads();
+    x10_int get_num_threads();
+    x10_int get_max_threads();
+    x10_boolean get_no_steals();
+    x10_boolean get_static_threads();
 
     inline void shutdown() {
         _X_("X10RT shutdown starting");
@@ -109,6 +113,8 @@ namespace x10aux {
 #include <x10aux/ref.h>
 
 namespace x10aux {
+
+    x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > loadenv();
 
     void run_closure_at (place p, x10aux::ref<x10::lang::Reference> body);
     void run_async_at (place p, x10aux::ref<x10::lang::Reference> body, x10aux::ref<x10::lang::Reference> fs);

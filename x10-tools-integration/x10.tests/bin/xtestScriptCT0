@@ -89,7 +89,7 @@ define auxiliary classes that are not themselves test cases.
 
 It is possible to specify that a test case must fail. You
 can specify the kind of expected failure in the file
-name, fn_MustFailCompile.x10, fn_MustFailRun.x10, or
+name, fn_MustFailCompile.x10, or
 fn_MustFailTimeout.x10. If there is no _MustFail* suffix, the
 test case must succeed.  Each test case is expected to meet
 the specified expectation (Succeed, FailCompile, FailRun, and
@@ -623,8 +623,6 @@ determineExpectedResult() {
   local className="$1"
   if [[ "$className" = *MustFailCompile* ]]; then
 	RESULT="FailCompile"
-  elif [[ "$className" = *MustFailRun* ]]; then
-	RESULT="FailRun"
   elif [[ "$className" = *MustFailTimeout* ]]; then
 	RESULT="FailTimeout"
   elif [[ "$className" = *MustFail* ]]; then

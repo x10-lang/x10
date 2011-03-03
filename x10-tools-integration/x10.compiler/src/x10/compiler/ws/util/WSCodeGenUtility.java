@@ -53,6 +53,7 @@ import polyglot.util.CollectionUtil;
 import x10.util.CollectionFactory;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
+import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
@@ -84,6 +85,34 @@ public class WSCodeGenUtility {
 
     static Map<ClassType, Map<String, Integer>> container2MethodNameMap;
     //              classType         methodName, number
+    
+    
+    static Map<String, Integer> dupNameCountMap;
+    
+    /**
+     * Check whether the current name is used, if used, add the count number to it.
+     * @param name
+     * @return
+     */
+    public static String checkDupName(String name){
+        if(dupNameCountMap == null){
+            dupNameCountMap = new HashMap<String, Integer>();
+        }
+        
+        if(dupNameCountMap.containsKey(name)){
+            //the name is used,
+            int count = dupNameCountMap.get(name);
+            String newName = name + count;
+            dupNameCountMap.put(name, count+1);
+            dupNameCountMap.put(newName, 1); //in the newname is not used by user
+            return newName;
+        }
+        else{
+            dupNameCountMap.put(name, 1);
+            return name;
+        }
+    }
+    
     
     /**
      * Form the closure's name by line & column number. Should be identical for a inner class
@@ -132,8 +161,12 @@ public class WSCodeGenUtility {
         return getMethodName(methodDef) + "_S";
     }
 
-    public static String getFAsyncStmtClassName(String parentName){
+    public static String getAsyncStmtClassName(String parentName){
         return parentName + "A";
+    }
+    
+    public static String getRemoteRemoteClassName(String parentName){
+        return parentName + "R";
     }
     
     public static String getFinishStmtClassName(String parentName){
@@ -382,7 +415,7 @@ public class WSCodeGenUtility {
             formalNames.add(f); //all formals are added in
         }
         mDef.setFormalNames(formalNames);
-    	return mDef;
+        return mDef;
     }
     
     /**
@@ -601,6 +634,7 @@ public class WSCodeGenUtility {
             if (n instanceof Finish
                     //|| n instanceof Future //Future is translated from Async
                     || n instanceof PlacedClosure // is An abstraction for at(p) Expr
+                    || n instanceof AtStmt  // at stmt
                     || n instanceof Async  //direct async
                     || n instanceof When) {
                 isConcurrent = true;

@@ -134,7 +134,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       }
 
       Prefix prefix = this.prefix;
-      // First look for a typedef.
+      // First look for a typedef.  FIXME: remove
       try {
           X10ParsedClassType typeDefContainer = null;
     
@@ -160,7 +160,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
     
           if (typeDefContainer != null) {
               Context context = tc.context();
-              MacroType mt = ts.findTypeDef(typeDefContainer, ts.TypeDefMatcher(typeDefContainer, name.id(), Collections.<Type>emptyList(), Collections.<Type>emptyList(), context), context);
+              MacroType mt = ts.findTypeDef(typeDefContainer, name.id(), Collections.<Type>emptyList(), Collections.<Type>emptyList(), context);
               
               LazyRef<Type> sym = (LazyRef<Type>) type;
               sym.update(mt);

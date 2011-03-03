@@ -1099,7 +1099,7 @@ struct TestStructCtor[T] { T <: Object } {
 	}
 	def use(Any) {}
 	def test2() {
-		use( TestStructCtor[TestStructCtor[String]]() ); // ERR (Semantic Error: Inconsistent constructor return type)// ERR (Semantic Error: Method or static constructor not found for given call.		 Call: TestStructCtor[TestStructCtor[x10.lang.String]]())
+		use( TestStructCtor[TestStructCtor[String]]() ); // ERR (Semantic Error: Inconsistent constructor return type)
 	}
 }
 class MyBOX[T] {
@@ -2000,7 +2000,7 @@ class TestValInitUsingAt { // see XTENLANG-1942
 		val x:Int;
 		at (here.next()) 
 			x = 2;
-		val y = x; // ShouldNotBeERR: Semantic Error: "x" may not have been initialized
+		val y = x; 
 	}
     static def test2() {
         var x_tmp:Int = 0; // we have to initialize it (otherwise, the dataflow
@@ -2101,6 +2101,7 @@ class ReturnStatementTest {
 	class A {
 	  def m() {
 		at (here.next()) return here;// ShouldNotBeERR (Semantic Error: Cannot return value from void method or closure.)// ShouldNotBeERR (Semantic Error: Cannot return a value from method public x10.lang.Runtime.$dummyAsync(): void.)
+		val x = 3; // ERR (unreachable statement)
 	  }
 	  def test() {
 			val x1 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type void.)
@@ -2111,6 +2112,12 @@ class ReturnStatementTest {
 	}
 	
 	static def ok(b:Boolean):Int {
+		finish {
+			async { val y=1; }
+			return 3;
+		}
+	}
+	static def ok2(b:Boolean):Int {
 		if (b) 
 			return 1;
 		else {
@@ -2121,11 +2128,7 @@ class ReturnStatementTest {
 			}
 		}
 		at (here.next())
-			return 2; // ShouldNotBeERR ERR todo: we get 2 errors: Cannot return value from void method or closure.		Cannot return a value from method public static x10.lang.Runtime.$dummyAsync(): void
-		finish {
-			async { val y=1; }
-			return 3;
-		}
+			return 2; // ShouldNotBeERR ERR todo: we get 2 errors: Cannot return value from void method or closure.		Cannot return a value from method public static x10.lang.Runtime.$dummyAsync(): void		
 	}
 	static def err1(b:Boolean):Int {
 		if (b) return 1;
@@ -2295,124 +2298,6 @@ class TestXtenLang1938 { // see XTENLANG-1938
 	}
 	static operator (p:TestXtenLang1938) + (q:TestXtenLang1938) { // ShouldBeErr: operators results are parsed as expressions (so now they can't return void)
 		Console.OUT.println("overloaded +");
-	}
-}
-/**
-see: 
-http://jira.codehaus.org/browse/XTENLANG-1445
-http://jira.codehaus.org/browse/XTENLANG-865
-http://jira.codehaus.org/browse/XTENLANG-638
-http://jira.codehaus.org/browse/XTENLANG-1470
-http://jira.codehaus.org/browse/XTENLANG-1519
-*/
-class TestCoAndContraVarianceInInterfaces {
-	
-	 class CtorTest[+T] {
-	  val t1:T;
-	  def this(t:T) { t1 = t; } // ok
-	  class Inner {
-		val t2:T;
-		def this(t:T) { t2 = t; } // ok
-	  }
-	}
-	class Bar[T] {
-		def bar[U]() {}
-		//def bar2[+U]() {} // parsing error, which is good :)
-		def foo(z:T, y:Bar[T],x:Box[Bar[Bar[T]{self!=null}]]{x!=null}) {}
-	}
-
-	interface Covariant[+T] {
-		def get():T;
-		def set(t:T):void; // ERR
-	}
-	interface Contravariant[-T] {
-		def get():T; // ERR
-		def set(t:T):void; 
-	}
-	interface Invariant[T] {
-		def get():T;
-		def set(t:T):void;
-	}
-
-	// check extends
-	interface E1[+T] extends Covariant[T] {}
-	interface E2[-T] extends Covariant[T] {} // ERR
-	interface E3[+T] extends Contravariant[T] {} // ERR
-	interface E4[-T] extends Contravariant[T] {} 
-	interface E5[+T] extends 
-		Contravariant[T], // ERR
-		Covariant[T] {} 
-	interface E6[-T] extends 
-		Contravariant[T],
-		Covariant[T] {} // ERR
-	interface E7[T] extends Contravariant[T],Covariant[T] {}
-	interface E8[+T] extends Contravariant[Contravariant[T]] {}
-	interface E9[-T] extends 
-		Contravariant[Contravariant[T]] {}  // ERR (todo: error should be on the use of T, and not on the entire TypeNode, see XTENLANG-1439): "Cannot use contravariant type parameter T in a covariant position"
-	interface E10[-T] extends Invariant[T] {} // ERR: "Cannot use contravariant type parameter T in an invariant position"
-
-	interface GenericsAndVariance[+CO,-CR,IN] {
-		def ok1(CR,IN):CO;
-		def ok2(CR,IN):IN;
-		def ok3(CR,IN):void;
-		def ok4():Contravariant[CR];
-		def ok5():Contravariant[IN];
-		def ok6():Contravariant[Contravariant[Contravariant[CR]]];
-		def ok7():Covariant[CO];
-		def ok8():Covariant[IN];
-		def ok9(GenericsAndVariance[CR,CO,IN]):void;
-		def ok10():GenericsAndVariance[CO,CR,IN];
-		def ok11(GenericsAndVariance[IN,IN,IN]):void;
-		def ok12():GenericsAndVariance[IN,IN,IN];
-		def ok13( (CO)=>void, ()=>CR, ()=>IN, (IN)=>IN ): ((CR)=>CO);
-
-		def err1():CR; // ERR
-		def err2(CO):void; // ERR
-		def err3():Contravariant[CO]; // ERR
-		def err4():Covariant[CR]; // ERR
-		def err5(GenericsAndVariance[CO,IN,IN]):void; // ERR
-		def err6(GenericsAndVariance[IN,CR,IN]):void; // ERR
-		def err7(GenericsAndVariance[IN,IN,CO]):void; // ERR
-		def err8(GenericsAndVariance[IN,IN,CR]):void; // ERR
-		def err9():GenericsAndVariance[CR,IN,IN]; // ERR
-		def err10(): ( (CO)=>void ); // ERR
-		def err11(): ( ()=>CR ); // ERR
-		def err12((CR)=>void):void; // ERR
-		def err13(()=>CO):void; // ERR
-	}
-
-	// todo: what about constraints? and properties fields and methods?
-	interface Constraints[+CO,-CR,IN](p1:CO,p2:IN,p3:(CR)=>void) 
-		// todo: can we variance in the constraint?
-		{ CO <: CR ,
-		  CO <: IN ,
-  		  CR <: CO ,
-  		  CR <: IN ,
-  		  IN <: CO ,
-  		  IN <: CR ,
-		  IN <: String,
-		  CO <: String,
-		  CR <: String,
-		  String <: CO,
-		  String <: CR,
-		  String <: IN,
-  		  CO <: Contravariant[CO] ,
-  		  CR <: Covariant[CR]
-		}
-	{
-		// todo: can we use variance in method guards?
-		def m() { CO <: CR } :void;
-		// todo: property methods?
-		property pm():CO;
-	}
-
-	interface Comparable[+T] {}
-	static class Foo implements Comparable[Foo] {
-		def test() {
-			val x:Comparable[Foo] = this;
-			val y:Comparable[Comparable[Foo]] = this;
-			val z:Comparable[Comparable[Comparable[Foo]]] = this;
-		}
 	}
 }
 
@@ -2684,7 +2569,7 @@ class C2 implements (Any)=>Int, (String)=>String {
 
 class TestPropertyAssignment(x:Int, y:Int{self==3}) {
     def this(a:Int, b:Int) {
-		property(a,b); // ShouldBeErr
+		property(a,b); // ERR
     }
 }
 
@@ -3542,13 +3427,13 @@ class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
 		property(1,2);
 	}  
 	def this(String):XTENLANG_685{self.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
-		property(2,1); // ShouldBeErr
+		property(2,1); // ERR
 	}  
 	def this(Float):XTENLANG_685{this.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
-		property(2,1); // ShouldBeErr
+		property(2,1); // ERR
 	}  
 	def this(Double) {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
-		property(2,1); // ShouldBeErr
+		property(2,1); // ERR
 	}  
 }
 
@@ -3757,7 +3642,7 @@ class TestDuplicateClass { // XTENLANG-2132
 class TestSerialization {
 class TestAt {
 	var i:Int{self!=0};
-	def this() { // ERR: Semantic Error: Field 'i' was not definitely assigned.
+	def this() { 
 		at (here.next()) 
 			i=2; // ERR: 'this' or 'super' cannot escape via an 'at' statement during construction.
 	}
@@ -4473,25 +4358,25 @@ class ArrayAndRegionTests {
 	def test(a1:Array[Int](0..10), r:Region{zeroBased, rect, rank==1}, a2:Array[Int](r), a3:Array[Int]{zeroBased, rect, rank==1}) {
 	    // check zero based
 		val reg1:Region{zeroBased} = 0..10;
-		@ERR val reg2:Region{zeroBased} = 5..10;
+		@ShouldBeErr val reg2:Region{zeroBased} = 5..10;
 		val reg3:Region{rail} = 0..10;
-		@ERR val reg4:Region{rail} = 5..10;
+		@ShouldBeErr val reg4:Region{rail} = 5..10;
 		val reg5:Region{zeroBased, rail, rect, rank==1} = 0..10;
 		@ERR val reg6:Region{rank==2} = 0..10;
 		val reg7:Region{rank==2} = 0..10 * 0..10;
 
-		val reg:Region{zeroBased, rect, rank==1} = 0..10;
-		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0);
-		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0);
-		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0);
+		val reg:Region{self!=null, zeroBased, rect, rank==1} = 0..10;
+		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0); // ShouldNotBeERR
+		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0); 
+		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0); 
 		val arr4:Array[Int](reg) = null;
-		m1(a1);
+		m1(a1); // ShouldNotBeERR
 		m1(a2);
 		m1(a3);
 		m1(arr3);
 		m1(arr4);
 
-		m2(a1);
+		m2(a1);// ShouldNotBeERR
 		m2(a2);
 		m2(a3);
 		m2(arr3);
@@ -4717,7 +4602,7 @@ class RegionCastTests {
 }
 
 class TestOverridingAndHasType {
-	val i <: Double = 2; // ERR
+	val i <: Double = 2;
 	class A {
 		def m():Int = 1;
 		def t():Int = 1;
@@ -4747,29 +4632,675 @@ class CatchInitTest(a:Int) {
 }
 
 class TestStaticInitNoCycles {
-class A {
+static class A {
 	static val x13 = B.x5;//13
 	static val x3 = D.x2+2;//10
 	static val x10 = A.x3+C.x4;//20
 }
-class B {
+static class B {
 	static val x11 = A.x3+C.x4;//20
 	static val x8 = D.x1+A.x3;//16
 	static val x5 = C.x4+3; //13
 
 }
-class C {
+static class C {
 	static val x14 = B.x11;//20
 	static val x4 = D.x2+2; //10
 	static val x7 = D.x2+B.x5+C.x4;//31
 	static val x9 = D.x6+A.x3;//41
 
 }
-class D {
+static class D {
 	static val x12 = A.x3+C.x4;//20
 	static val x1 = Int.parse("6"); //6
 	static val x2 = x1+2;//8
 	static val x6 = x2+B.x5+C.x4; //31
 	static val x15 = A.x13+B.x11+C.x14+D.x12+x6+C.x7;//13+20+20+20+31+31=135
 }
+}
+
+class CopyBackTest {
+    public def valTest() {
+        val result1 : Int; // Uninitialized
+        val result2 : Int; // Uninitialized
+        val start = here;
+        at(here.next()) {
+            result1 = 3; // ShouldBeErr
+            at(start) {
+	            result2 = 3; // ShouldBeErr
+            }
+        }
+		use(result1); 
+		use(result2);
+    }
+    public def varTest() {
+        var result1 : Int; // Uninitialized
+        var result2 : Int; // Uninitialized
+        val start = here;
+		use(result1); // ERR
+		use(result2); // ERR
+        at(here.next()) {
+            result1 = 3; // ERR
+			use(result1); // ERR
+            at(start) {
+	            result2 = 3;
+				use(result1); // ShouldBeErr
+				use(result2);
+            }
+			use(result1); // ERR
+			use(result2); // ERR [Local variable is accessed at a different place, and must be declared final.]
+        }
+		use(result1);
+		use(result2);
+	}
+	def use(Any) {}
+}
+
+class XTENLANG_2447(a:Int) {a==1} {
+	def this(x:Int):XTENLANG_2447{self.a==x} {
+		property(x);
+	}
+	def test() {
+		val y:XTENLANG_2447 = new XTENLANG_2447(2); // ShouldBeErr
+	}
+
+	
+
+	class X[T] {T haszero} {
+		def this() {
+		}	
+		def test() {
+			val y = new X[Int{self!=0}](); // ERR ERR ERR [Semantic Error: Inconsistent constructor return type, Semantic Error: Type X[x10.lang.Int{self!=0}] is inconsistent.]
+		}
+	}
+
+}
+
+
+
+class XTENLANG_2456 {
+class Test1[T] {T haszero} {
+	val z = Zero.get[T]();
+}
+class Test2[T] {T haszero, T<:Object} { // ShouldNotBeERR ShouldNotBeERR
+	val z = Zero.get[T](); // ShouldNotBeERR
+}
+
+class LikeGlobalRef[T] {
+	val t:T;
+	def this(t:T) {
+		this.t = t;
+	}
+}
+class Test3[T] {
+	var test:Test3[T] = null;
+	val root = new LikeGlobalRef[Test3[T]](test);
+}
+class Test4[T] {T haszero} {
+	var test:Test4[T] = null;
+	val root = new LikeGlobalRef[Test4[T]](test); // ShouldNotBeERR [Inconsistent constructor return type]
+}
+class Accumulator1 {
+  private val root = GlobalRef(this);
+}
+class Accumulator2 {
+  private val root = GlobalRef[Accumulator2](this);
+}
+class Accumulator3[T] {
+  private val root = GlobalRef(this);
+}
+class Accumulator4[T] {
+  private val root = GlobalRef[Accumulator4[T]](this);
+}
+class Accumulator5[T] {T haszero} {
+  private val root = GlobalRef[Accumulator5[T]](this); // ShouldNotBeERR ShouldNotBeERR ShouldNotBeERR [Inconsistent constructor return type, Method or static constructor not found for given call., Semantic Error: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor]
+}
+}
+
+
+class CollectingFinishTests {
+    static struct Reducer implements Reducible[Int] {
+     	public   def zero()=0;
+     	public   operator this(a:Int,b:Int)=a+b;
+    }
+    static struct ReducerDouble implements Reducible[Double] {
+     	public   def zero()=0.0;
+     	public   operator this(a:Double,b:Double)=a+b;
+    }
+	public def run() {
+		val x = finish (Reducer()){
+			val y = finish (ReducerDouble()) {
+					async offer 6.0;
+			};
+			async offer (y as Int)+1;
+		};
+	}
+	def normalFinishInside() {//	XTENLANG-2457
+		val x = finish (Reducer()){
+			finish // ShouldBeErr (XTENLANG-2457)
+				offer 6;
+		};
+	}
+}
+
+
+class TestInterfaceInvariants_1930 { // XTENLANG-1930
+	interface I(p:Int) {p==1} {}
+	class C(p:Int) implements I {
+		def this() { 
+			property(0); // ShouldBeErr
+		}
+	}
+	interface I2 extends I{p==2} {} // ShouldBeErr
+	interface I3 {p==3} extends I2 {} // ShouldBeErr
+	static def test(i:I) {
+		var i2:I{p==1} = i; // ShouldNotBeERR
+		var i3:I{p==4} = i; // ERR
+	}
+}
+
+
+// method overloading
+interface TestOverloadingAndConstraints {
+	static class Foo[T] {}
+
+	def m00():void; // ERR
+	def m00():Int; // ERR ERR
+
+	def m0(Int):void;
+	def m0(Int):void; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	
+	def m1(Int):void;
+	def m1(Int{self!=0}):void; // ERR
+
+	def m11(j:Int):void;
+	def m11(i:Int) {i!=0} :void; // ERR ERR
+	
+	def m2(Foo[Int]):void;
+	def m2(Foo[Double]):void;
+
+	def m3(Foo[Int]):void;
+	def m3(Foo[Int]{self!=null}):void; // ERR
+
+	def m4(Foo[Int]):void;
+	def m4(Foo[Int{self!=0}]):void; // ERR
+	
+	def m5(Foo[Foo[Int]]):void;
+	def m5(Foo[Foo[Int{self!=0}]]):void; // ERR
+}
+class TestOverloadingAndConstraints_static {
+	static class Foo[T] {}
+
+	static def m00():void {} // ERR
+	static def m00():Int {} // ERR ERR ERR
+
+	static def m0(Int):void {}
+	static def m0(Int):void {} // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void" {} previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	
+	static def m1(Int):void {}
+	static def m1(Int{self!=0}):void {} // ERR
+	
+	static def m11(j:Int):void {}
+	static def m11(i:Int) {i!=0} :void {} // ERR ERR	
+	
+	static def m2(Foo[Int]):void {}
+	static def m2(Foo[Double]):void {}
+
+	static def m3(Foo[Int]):void {}
+	static def m3(Foo[Int]{self!=null}):void {} // ERR
+
+	static def m4(Foo[Int]):void {}
+	static def m4(Foo[Int{self!=0}]):void {} // ERR
+	
+	static def m5(Foo[Foo[Int]]):void {}
+	static def m5(Foo[Foo[Int{self!=0}]]):void {} // ERR
+}
+interface TestOverloadingAndConstraints_macros {
+	static type Int1 = Int;
+	static type Int2 = Int1;
+	static type Int3Not0 = Int2{self!=0};
+	static type IntNot0 = Int3Not0;
+	static type FooNotNull[T] = Foo[T]{self!=null};
+	
+	static class Foo[T] {}
+
+	def m1(Int):void;
+	def m1(IntNot0):void; // ERR
+	
+	def m2(Foo[Int]):void;
+	def m2(Foo[Double]):void;
+
+	def m3(Foo[Int]):void;
+	def m3(FooNotNull[Int]):void; // ERR
+
+	def m4(Foo[Int]):void;
+	def m4(Foo[IntNot0]):void; // ERR
+	
+	def m5(Foo[Foo[Int]]):void;
+	def m5(Foo[Foo[IntNot0]]):void; // ERR
+}
+// constructor overloading
+class TestOverloadingAndConstraints_ctors {
+	static class Foo[T] {}
+	class A0 {
+		def this(Int) {}
+		def this(Int) {} // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	}	
+	class A1 {
+		def this(Int) {}
+		def this(Int{self!=0}) {} // ERR
+	}	
+	class A11 {
+		def this(j:Int) {}
+		def this(i:Int) {i!=0} {} // ERR
+	}
+	class A2 {	
+		def this(Foo[Int]) {}
+		def this(Foo[Double]) {}
+	}
+	class A3 {	
+		def this(Foo[Int]) {}
+		def this(Foo[Int]{self!=null}) {} // ERR
+	}
+	class A4 {	
+		def this(Foo[Int]) {}
+		def this(Foo[Int{self!=0}]) {} // ERR
+	}
+	class A5 {		
+		def this(Foo[Foo[Int]]) {}
+		def this(Foo[Foo[Int{self!=0}]]) {} // ERR
+	}
+}
+class TestOverloadingAndConstraints_ctors_macros {
+	static type Int1 = Int;
+	static type Int2 = Int1;
+	static type Int3Not0 = Int2{self!=0};
+	static type IntNot0 = Int3Not0;
+	static type FooNotNull[T] = Foo[T]{self!=null};
+	
+	static class Foo[T] {}
+	
+	class A1 {
+		def this(Int) {}
+		def this(IntNot0) {} // ERR
+	}
+	class A2 {	
+		def this(Foo[Int]) {}
+		def this(Foo[Double]) {}
+	}
+	class A3 {	
+		def this(Foo[Int]) {}
+		def this(FooNotNull[Int]) {} // ERR
+	}
+	class A4 {	
+		def this(Foo[Int]) {}
+		def this(Foo[IntNot0]) {} // ERR
+	}
+	class A5 {		
+		def this(Foo[Foo[Int]]) {}
+		def this(Foo[Foo[IntNot0]]) {} // ERR
+	}
+}
+
+// typedef overloading
+interface TestTypeDefOverloadingAndConstraints {
+	static class Foo[T] {}
+
+	static type m00() = Int; 
+	static type m00() = Double; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m00 = x10.lang.Double"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:13,5-28.]
+
+	static type m0(Int) = Int;
+	static type m0(Int) = Int; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	
+	static type m1(Int) = Int;
+	static type m1(Int{self!=0}) = Int; // ERR
+
+	static type m11(j:Int) = Int;
+	static type m11(i:Int) {i!=0}  = Int; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m11(x10.lang.Int){i!=0} = x10.lang.Int"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:22,5-33.]
+	
+	static type m2(Foo[Int]) = Int;
+	static type m2(Foo[Double]) = Int;
+
+	static type m3(Foo[Int]) = Int;
+	static type m3(Foo[Int]{self!=null}) = Int; // ERR
+
+	static type m4(Foo[Int]) = Int;
+	static type m4(Foo[Int{self!=0}]) = Int; // ERR
+	
+	static type m5(Foo[Foo[Int]]) = Int;
+	static type m5(Foo[Foo[Int{self!=0}]]) = Int; // ERR
+}
+interface TestTypeDefOverloadingAndConstraints_macros {
+	static type Int1 = Int;
+	static type Int2 = Int1;
+	static type Int3Not0 = Int2{self!=0};
+	static type IntNot0 = Int3Not0;
+	static type FooNotNull[T] = Foo[T]{self!=null};
+	
+	static class Foo[T] {}
+
+	static type m1(Int) = Int;
+	static type m1(IntNot0) = Int; // ERR
+	
+	static type m2(Foo[Int]) = Int;
+	static type m2(Foo[Double]) = Int;
+
+	static type m3(Foo[Int]) = Int;
+	static type m3(FooNotNull[Int]) = Int; // ERR
+
+	static type m4(Foo[Int]) = Int;
+	static type m4(Foo[IntNot0]) = Int; // ERR
+	
+	static type m5(Foo[Foo[Int]]) = Int;
+	static type m5(Foo[Foo[IntNot0]]) = Int; // ERR
+}
+
+class TestMemberTypeResolution {
+	static type Foo(i:Int{self!=0}) = Int;
+	static type Foo(i:Double) = Int;
+	var y:Foo(1);
+	var x:Foo(0); // ERR: todo: improve error: Semantic Error: Could not find type "Foo".
+	var z:Foo(0.1); 
+}
+class TestFieldResolution(p:Int) {
+	val f = 2;
+	val f2:Int{self==1 && self==this.p} = p as Int{self==1};
+	def test1(me2:TestFieldResolution{self.p==2}) {
+		use(me2.f2); // ERR: Type inconsistent
+	}
+	static def test() {
+		use(f); // ERR [Cannot access a non-static field f from a static context.]
+	}
+	static def use(Any) {}
+}
+
+class TestMultipleImplementAndFields {
+	interface I1(z:Int) { static val a = 1;}
+	interface I2 extends I1 {}
+	interface I3 extends I1 {}
+	interface I4 extends I2,I3 {}
+	interface I5 extends I4 {
+		def m() {z==1} : void;
+	}
+	class Example1(z:Int) implements I5 {
+	  def example() = a;
+	  public def m() {z==1} {};
+	}
+	class Example2(z:Int) implements I5,I3 {
+	  def example() = a;
+	  public def m() {z==1} {};
+	}
+}
+
+
+class ResolutionAndInference {
+	def m[T](Int) = 1;
+	def m(Double) = "1";
+
+	def test(){
+		val x2 = m(0);  // resolves to m(Double) because generic-type-inference failed on m[T](Int)
+		val x3:Int = x2; // ERR
+		val x5:String = m(0.0);
+	}
+}
+
+// resolution should ignore constraints and method guards
+class TestMethodResolutionAndConstraints_instance {
+	def m(Int{self!=0}) = 1;
+	def m(Double) = "1";
+	def test() {
+		val x1:Int = m(1);
+		val x2 = m(0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+}
+class TestMethodResolutionAndConstraints_static {
+	static def m(Int{self!=0}) = 1;
+	static def m(Double) = "1";
+	static def test() {
+		val x1:Int = m(1);
+		val x2 = m(0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+}
+class TestMethodResolutionAndConstraints_param_guard {
+	static def m(i:Int) {i!=0} = 1;
+	static def m(Double) = "1";
+	static def test() {
+		val x1:Int = m(1);
+		val x2 = m(0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+}
+class TestMethodResolutionAndConstraints_this_guard(p:Int) {
+	def m(i:Int) {p!=0} = 1;
+	def m(Double) = "1";
+	def test() {
+		val x1:Int = (this as TestMethodResolutionAndConstraints_this_guard{self.p==1}).m(1);
+		val x2 = (this as TestMethodResolutionAndConstraints_this_guard{this.p==1}).m(0); 
+		val x3:Int = x2;
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+	static def test(me0:TestMethodResolutionAndConstraints_this_guard{p==0}, me1:TestMethodResolutionAndConstraints_this_guard{p==1}) {
+		val x1:Int = me1.m(1);
+		val x2 = me0.m(0); // resolves to m(Double):String
+		val x3:Int = x2; // ERR
+		val x33:String = x2; 
+		val x4:String = me0.m(0 as Double);
+		val x5:String = me1.m(0.0);
+	}
+}
+// type constraints
+class TestMethodResolutionAndTypeConstraints_instance[T] {
+	def m(Int) {T haszero} = 1;
+	def m(Double) = "1";
+	def test1() {T haszero} {
+		val x1:Int = m(1);
+		val x4:String = m(0 as Double);
+		val x5:String = m(0.0);
+	}
+	def test2() {
+		val x2 = m(0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+	}
+}
+class TestMethodResolutionAndTypeConstraints_static {
+	static def m[T](Int{self!=0}) {T haszero} = 1;
+	static def m[T](Double) = "1";
+	static def test() {
+		val x1:Int = m[Int{self==1}](1);// ERR (Semantic Error: Cannot assign expression to target.		 Expression: m[x10.lang.Int{self==1}](x10.lang.Double.implicit_operator_as(1))		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1"})
+		val x2 = m[Int{self==0}](0); 
+		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x4:String = m[Int{self==1}](0 as Double);
+		val x5:String = m[Int{self==0}](0.0);
+	}
+}
+
+// method overloading
+class TestStaticErr {
+	def test(b:Int) {}
+    static def test(b:Long) {}
+    static def x() {
+        test(1); // ERR todo: should be:
+			//Cannot access a non-static member or refer to "this" or "super" from a static context.
+			// but it is: Method or static constructor not found for given call.
+    }
+}
+
+
+class Call_resolution_tests {	
+	class ClosureField {
+		var test:()=>Int;
+		def m() {
+			val x:Int = test();
+		}
+	}
+	class MethodTest {
+		def T():String = "a";
+		def m1[T]() {
+			val y:String = T(); // method takes precedence over type-param
+		}
+		var U:()=>String;
+		def m2[U]() {
+			val y:String = U(); // closure takes precedence over type-param
+		}
+	}
+	class LocalTest {
+		def m1[T](T:String) {
+			val y = T.substring(1); // local takes precedence over type-param
+		}
+		def m2[T](T:()=>Int) {
+			val y = T(); // local takes precedence over type-param
+		}
+		def m3[T](x:String) {
+			val y = T.substring(1); // ERR [Cannot invoke a static method of a type parameter.]
+		}
+		
+		def test():String = "a";
+		def vsMethod(test:()=>Int) {
+			val x:String = test();
+			val y:Int = (test)();
+		}
+	}
+	class FieldTest {
+		var T:String;
+		def m1[T]() {
+			val y = T.substring(1); // fields takes precedence over type-param
+		}
+		var U:()=>Int;
+		def m2[U]() {
+			val y = U(); // fields takes precedence over type-param
+		}
+		
+		var test:()=>Int;
+		def test():String = "a";
+		def vsMethod() {
+			val x:String = test();
+			val y:Int = (test)();
+		}
+	}
+}
+
+
+class CallResolution_method_field_local {	 
+	var f: ()=>Int;
+	def f():Double = 0.1;
+	def m(f: ()=>String) {
+		val x1:Double = this.f();
+		val x2:Double = f();
+		val x3:String = (f)();
+		val x4:Int = (this.f)();
+	}
+}
+class CallResolution_struct_vs_field_and_local {	 
+	static struct f {}
+	var f: ()=>Int;
+	def m(f: ()=>String) {
+		val x1:String = f();
+		val x2:Int = this.f();
+		val x3:f = new f();
+	}
+}
+class CallResolution_struct_method_field_local {	 
+	static struct f {}
+	var f: ()=>Int;
+	def f():Double = 0.1;
+	def m(f: ()=>String) {
+		val x1:Double = this.f();
+		val x2:Double = f(); 
+		val x22:f = new f();
+		val x222:f = new CallResolution_struct_method_field_local.f();
+		val x3:String = (f)();
+		val x4:Int = (this.f)();
+	}
+}
+class CallResolution_typeParam_struct_method_field_local {	 
+	static struct f {}
+	var f: ()=>Int;
+	def f():Double = 0.1;
+	def m[f](f: ()=>String) {
+		val x1:Double = this.f();
+		val x2:Double = f(); // because the struct ctor is hidden
+		val x22 = new f(); // ERR [Semantic Error: No valid constructor found for f().]
+		val x222:CallResolution_typeParam_struct_method_field_local.f = new CallResolution_typeParam_struct_method_field_local.f();
+		val x3:String = (f)();
+		val x4:Int = (this.f)();
+	}
+}
+
+class TestConstraintErrMessage {
+	class A(a:Int) {}
+	class B[T](b:Int) {}
+	class F(r:Int) {
+		var b:B[A{self.a==this.r}]{self.b==this.r};
+		def test(f:F{self.r==1}) {
+			val bb:B[A{self.a==1}]{self.b==1} = f.b;
+			val err1:String = f;  // ERR
+			val err2:String = f.b;// ERR: todo: the error message doesn't mention the constraint that f.r==1
+		}
+	}
+}
+
+class LoopTests {
+	def bug(d:Dist(1)) {
+		for (p:Point(1) in d) {}
+	}
+    public def run() {
+        val r:Region(2){self!=null}  = (0..2)*(0..3);// ShouldNotBeERR
+	}
+
+	class P(r:Int) {}
+	abstract class D(q:Int) implements Iterable[P{self.r==this.q}] {}
+	def m2(d:D{q==1}) {
+		for (p:P{r==1} in d) {}
+	}
+
+	
+	class NonIterable {}
+	interface Int2Iterable2 extends Iterable[Int{self==2}] {}
+	abstract class Int2Iterable implements Int2Iterable2 {}
+
+	def m0(x:NonIterable) {
+		for (p:Any in x) {} // ERR
+	}
+	def m00(x:Int2Iterable) {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:Int in x) {}
+		for (p:Int{self==2} in x) {}
+		for (p:Int{self==1} in x) {} // ERR
+	}
+	def m1[T,U](x:T) {T <:Iterable[U]} {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:U in x) {}
+		for (p:T in x) {} // ERR
+	}
+	def m11[T,U](x:T) {T <:Iterable[U]} {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:U in x) {}
+		for (p:T in x) {} // ERR
+	}
+	def m2[T](x:T) {T <:Iterable[Int{self==2}]} {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:Int in x) {}
+		for (p:Int{self==2} in x) {}
+		for (p:Int{self==1} in x) {} // ERR
+	}
+	def m3(x:Iterable[Int{self==2}]) {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:Int in x) {}
+		for (p:Int{self==2} in x) {}
+		for (p:Int{self==1} in x) {} // ERR
+	}
 }

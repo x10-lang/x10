@@ -414,3 +414,4 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
    @Native("c++", "x10aux::float_utils::compareTo(#0, #1)")
    public native def compareTo(x:Float):Int;
 }
+public type Float(b:Float) = Float{self==b};

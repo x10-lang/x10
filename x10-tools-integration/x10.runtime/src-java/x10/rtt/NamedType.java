@@ -12,6 +12,8 @@
 package x10.rtt;
 
 public class NamedType<T> extends RuntimeType<T> {
+
+	private static final long serialVersionUID = 1L;
     
     private final String typeName;
 

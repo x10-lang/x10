@@ -92,7 +92,7 @@ import x10.io.SerialData;
     public def get(k: K): Box[V] {
         val e = getEntry(k);
         if (e == null || e.removed) return null;
-        return e.value as Box[V];
+        return new Box[V](e.value);
     }
     
     public def getOrElse(k: K, orelse: V): V {
@@ -176,7 +176,7 @@ import x10.io.SerialData;
                     size++;
                     return null;
                 }
-                return (old as V) as Box[V];
+                return new Box[V](old);
             }
         }
     }
@@ -213,7 +213,7 @@ import x10.io.SerialData;
         if (e != null && ! e.removed) {
             size--;
             e.removed = true;
-            return e.value as Box[V];
+            return new Box[V](e.value);
         }
         return null;
     }

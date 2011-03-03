@@ -451,7 +451,7 @@ public class Synthesizer {
 	 * @throws SemanticException
 	 */
 	public Expr makeFieldAccess(Position pos, Receiver r, Name name, Context context) throws SemanticException {
-		FieldInstance fi = xts.findField(r.type(), xts.FieldMatcher(r.type(), name, context));
+		FieldInstance fi = xts.findField(r.type(), r.type(), name, context);
 		 Expr result = xnf.Field(pos, r, xnf.Id(pos, name)).fieldInstance(fi)
 		 .type(fi.type());
 		 return result;
@@ -469,7 +469,7 @@ public class Synthesizer {
 	 * @throws SemanticException
 	 */
 	public Expr makeSuperTypeFieldAccess(Position pos, Type superType, Receiver r, Name name, Context context) throws SemanticException {
-            FieldInstance fi = xts.findField(superType, xts.FieldMatcher(superType, name, context));
+            FieldInstance fi = xts.findField(superType, superType, name, context);
             Expr result = xnf.Field(pos, r, xnf.Id(pos, name)).fieldInstance(fi)
             .type(fi.type());
             return result;
@@ -776,8 +776,7 @@ public class Synthesizer {
 			Type returnType,
 			Context xc) throws SemanticException {
 
-		FieldInstance fi = xts.findField(receiver,
-				xts.FieldMatcher(receiver, name, xc));
+		FieldInstance fi = xts.findField(receiver, receiver, name, xc);
 		Field result=  (Field) xnf.Field(pos, 
 				xnf.CanonicalTypeNode(pos, receiver),
 				xnf.Id(pos, name))

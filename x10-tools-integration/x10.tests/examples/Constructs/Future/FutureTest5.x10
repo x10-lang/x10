@@ -42,7 +42,7 @@ public class FutureTest5 extends x10Test {
 		atomic fut = null;
 		async {
 			val t1 = Future.make[Int]( () => 42 );
-			atomic fut = t1 as Box[Future[Int]];
+			atomic fut = new Box[Future[Int]](t1);
 			if (del)
 				System.sleep(500);
 		};
@@ -72,7 +72,7 @@ public class FutureTest5 extends x10Test {
 		atomic fut = null;
 		async {
 			val t1= Future.make[Int]( () => 42 );
-			atomic fut = t1 as Box[Future[Int]];
+			atomic fut = new Box[Future[Int]](t1);
 			if (del)
 				System.sleep(500);
 		}

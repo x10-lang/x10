@@ -39,8 +39,6 @@ import harness.x10Test;
  * clock use exceptions will
  * definitely occur, or will likely occur.
  *
- * Hence this file is renamed as *MustFailRun.x10
- *
  * @author kemal 3/2005
  */
 public class ClockTest7 extends x10Test {

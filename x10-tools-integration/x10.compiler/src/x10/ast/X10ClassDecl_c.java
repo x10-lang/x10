@@ -1033,7 +1033,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    for (PropertyDecl pd : properties()) {
     	        SemanticException ex = null;
     	        try {
-    	            FieldInstance fi = ts.findField(superClass, ts.FieldMatcher(type.asType(), pd.name().id(), tc.context()));
+    	            FieldInstance fi = ts.findField(superClass, type.asType(), pd.name().id(), tc.context());
     	            if (fi instanceof X10FieldInstance) {
     	                X10FieldInstance xfi = (X10FieldInstance) fi;
     	                if (xfi.isProperty())
@@ -1305,6 +1305,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             List<Type> typeArgs = new ArrayList<Type>(typeParams);
             resultType = (X10ClassType) resultType.typeArguments(typeArgs);
         }
+        // FIXME: bind properties!
         X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
 
         ConstructorDecl cd = xnf.X10ConstructorDecl(pos,

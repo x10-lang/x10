@@ -14,7 +14,6 @@ import polyglot.ast.Unary;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Source;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
-import polyglot.types.TypeSystem_c.FieldMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
@@ -32,7 +31,6 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.ThisDef;
 import x10.types.ThisInstance;
-import x10.types.TypeDefMatcher;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
@@ -307,7 +305,6 @@ public interface TypeSystem {
 
     Matcher<Type> TypeMatcher(Name name);
     Matcher<Type> MemberTypeMatcher(Type container, Name name, Context context);
-    TypeSystem_c.FieldMatcher FieldMatcher(Type container, Name name, Context context);
 
     /**
      * Find a member class.
@@ -821,7 +818,6 @@ public interface TypeSystem {
 
     Type futureOf(Position p, Ref<? extends Type> t);
 
-    FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
 
@@ -833,14 +829,15 @@ public interface TypeSystem {
      * @exception SemanticException if the field cannot be found or is
      * inaccessible.
      */
-    X10FieldInstance findField(Type container, FieldMatcher matcher) throws SemanticException;
+    X10FieldInstance findField(Type container, Type receiver, Name name, Context context) throws SemanticException;
+    X10FieldInstance findField(Type container, Type receiver, Name name, Context context, boolean receiverInContext) throws SemanticException;
 
     /**
      * Find matching fields.
      *
      * @exception SemanticException if no matching field can be found.
      */
-    Set<FieldInstance> findFields(Type container, FieldMatcher matcher);
+    Set<FieldInstance> findFields(Type container, Type receiver, Name name, Context context);
 
     /**
      * Find a method. We need to pass the class from which the method is being
@@ -1111,9 +1108,7 @@ public interface TypeSystem {
 
     Type performUnaryOperation(Type t, Type l, Unary.Operator op);
 
-    TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
-
-    MacroType findTypeDef(Type t, TypeDefMatcher matcher, Context context) throws SemanticException;
+    MacroType findTypeDef(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) throws SemanticException;
 
     List<MacroType> findTypeDefs(Type container, Name name, ClassDef currClass) throws SemanticException;
 
@@ -1169,6 +1164,8 @@ public interface TypeSystem {
 
     X10ClassType Region();
 
+    X10ClassType IntRange();
+
     X10ClassType Iterator(Type formalType);
 
     boolean isUnsigned(Type r);
@@ -1182,6 +1179,10 @@ public interface TypeSystem {
     boolean isX10Array(Type me);
 
     boolean isX10DistArray(Type me);
+    
+    boolean isIntRange(Type me);
+
+    boolean isLongRange(Type me);
 
     Context emptyContext();
     boolean isExactlyFunctionType(Type t);

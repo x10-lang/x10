@@ -24,9 +24,9 @@ import x10.compiler.Native;
  * <p> At its home place, the value when applied to the empty list of
  * arguments returns its encapsulated value.
  */
-@NativeRep("java", "x10.core.GlobalRef<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef._RTT, #2)")
+@NativeRep("java", "x10.core.GlobalRef<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef.$RTT, #2)")
 @NativeRep("c++", "x10::lang::GlobalRef<#T >", "x10::lang::GlobalRef<#T >", null)
-public struct GlobalRef[+T](
+public struct GlobalRef[T](
     @Native("java", "(#0).home")
     @Native("c++", "x10::lang::Place_methods::place((#this)->location)")
     home:Place) {T <: Object} { 
@@ -62,3 +62,4 @@ public struct GlobalRef[+T](
     @Native("c++", "(#this)->hashCode()")
     public native def  hashCode():Int;
 }
+public type GlobalRef[T](p:Place) {T<:Object} = GlobalRef[T]{self.home==p};

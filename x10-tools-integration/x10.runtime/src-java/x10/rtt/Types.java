@@ -13,6 +13,7 @@ package x10.rtt;
 
 import x10.core.Any;
 import x10.core.IndexedMemoryChunk;
+import x10.core.RefI;
 import x10.core.fun.Fun_0_1;
 
 
@@ -35,7 +36,7 @@ public class Types {
     public static String typeName(Object obj) {
         String s;
         if (obj instanceof Any) {
-            s = ((Any) obj).getRTT().typeName(obj);
+            s = ((Any) obj).$getRTT().typeName(obj);
         } else if (Types.getNativeRepRTT(obj) != null) {
             s = Types.getNativeRepRTT(obj).typeName();
         } else {
@@ -82,7 +83,7 @@ public class Types {
     public static final RuntimeType<String> STRING = new RuntimeType<String>(
         String.class,
         new Type[] {
-            new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR),
+            new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
             new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
         }
     ) {
@@ -91,7 +92,8 @@ public class Types {
             return "x10.lang.String";
         }
     };
-    public static final RuntimeType<Object> OBJECT = new RuntimeType<Object>(Object.class) {
+    // Fix for XTENLANG-1916
+    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class) {
         @Override
         public String typeName() {
             return "x10.lang.Object";
@@ -131,19 +133,19 @@ public class Types {
             Class<?> c;
             java.lang.reflect.Field f;
             UBYTE_CLASS = c = Class.forName("x10.lang.UByte");
-            f = c.getDeclaredField("_RTT");
+            f = c.getDeclaredField("$RTT");
             UBYTE = (RuntimeType<?>) f.get(null);
             UBYTE_ZERO = c.getConstructor(new Class[]{byte.class}).newInstance(new Object[]{(byte)0});
             USHORT_CLASS = c = Class.forName("x10.lang.UShort");
-            f = c.getDeclaredField("_RTT");
+            f = c.getDeclaredField("$RTT");
             USHORT = (RuntimeType<?>) f.get(null);
             USHORT_ZERO = c.getConstructor(new Class[]{short.class}).newInstance(new Object[]{(short)0});
             UINT_CLASS = c = Class.forName("x10.lang.UInt");
-            f = c.getDeclaredField("_RTT");
+            f = c.getDeclaredField("$RTT");
             UINT = (RuntimeType<?>) f.get(null);
             UINT_ZERO = c.getConstructor(new Class[]{int.class}).newInstance(new Object[]{0});
             ULONG_CLASS = c = Class.forName("x10.lang.ULong");
-            f = c.getDeclaredField("_RTT");
+            f = c.getDeclaredField("$RTT");
             ULONG = (RuntimeType<?>) f.get(null);
             ULONG_ZERO = c.getConstructor(new Class[]{long.class}).newInstance(new Object[]{0L});
         } catch (Exception e) {}
@@ -173,7 +175,7 @@ public class Types {
         return false;
     }
     static boolean isStructType(Type<?> rtt) {
-        return rtt.isSubtype(x10.core.Struct._RTT) || isPrimitiveStructType(rtt);
+        return rtt.isSubtype(x10.core.Struct.$RTT) || isPrimitiveStructType(rtt);
     }
     */
     static boolean isStructType(Type<?> rtt) {
@@ -182,7 +184,7 @@ public class Types {
             rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
             return true;
         }
-        else if (rtt.isSubtype(x10.core.Struct._RTT)) {
+        else if (rtt.isSubtype(x10.core.Struct.$RTT)) {
             return true;
         }
         return false;
@@ -193,7 +195,7 @@ public class Types {
     }
 
     public static boolean isStruct(Object o) {
-        return x10.core.Struct._RTT.instanceof$(o) ||
+        return x10.core.Struct.$RTT.instanceof$(o) ||
         BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
         FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
     }
@@ -386,7 +388,7 @@ public class Types {
             if (rtt == DOUBLE) return DOUBLE_ZERO;
             if (rtt == CHAR) return CHAR_ZERO;
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
-            if (rtt == IndexedMemoryChunk._RTT) return new IndexedMemoryChunk(typeParams[0]);
+            if (rtt == IndexedMemoryChunk.$RTT) return new IndexedMemoryChunk(typeParams[0]);
             //            if (isPrimitiveStructType(rtt)) return zeroValue(rtt.getJavaClass());
             // for user-defined structs, call zero value constructor
             try {

@@ -18,7 +18,7 @@ import x10.compiler.NativeRep;
  * The compiler accepts the syntax 'for (x in s)' if x is a formal
  * parameter of type T, and if s implements Iterable[T].
  */
-public interface Iterable[+T] {
+public interface Iterable[T] {
     @Native("java", "(#0).iterator()")
     def iterator(): Iterator[T];
 }

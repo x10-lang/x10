@@ -11,7 +11,7 @@
 
 package x10.core;
 
-public class Signed {
+public abstract class Signed {
     
     public static java.lang.String toString(byte a, int radix) {
         if (a >= 0) {

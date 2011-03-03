@@ -75,7 +75,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
     public WSAsyncClassGen(AbstractWSClassGen parent, Async a) {
         //Note in building the tree, we use parentFinish as async frame's up frame
         super(parent, getFinishFrameOfAsyncFrame(parent),
-                WSCodeGenUtility.getFAsyncStmtClassName(parent.getClassName()),
+                WSCodeGenUtility.getAsyncStmtClassName(parent.getClassName()),
                 parent.wts.asyncFrameType, a.body());
         inFrameTransform = canInFrameTransform(codeBlock);
         

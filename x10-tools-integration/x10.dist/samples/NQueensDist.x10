@@ -62,7 +62,7 @@ public class NQueensDist {
         }
         def safe(j: int) {
             val n = q.size;
-            for ([k] in 0..(n-1)) {
+            for (k in 0..(n-1)) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
                     return false;
             }

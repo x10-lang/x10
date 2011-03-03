@@ -54,6 +54,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+import x10.types.matcher.Subst;
 
 
 /**
@@ -291,13 +292,12 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			XTerm t = c.bindingForVar(c.self());
 			if (t == null) {
 				t = XTerms.makeEQV();
-				
+
 			}
 			final XTerm tt = t;
 
 			return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
 				public Type transform(Type o) {
-					TypeSystem xts = (TypeSystem) o.typeSystem();
 					CConstraint c2 = Types.xclause(o);
 					c2 = c2 != null ? c2.copy() : new CConstraint();
 					if (c2.thisVar() != null)
@@ -307,10 +307,11 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 					// vj: 1/27/11 -- change from past behavior
 					// if c2 is inconsistent, we dont return o.
 					return Types.xclause(o, c2);
-					
+
 				}
 			});
 		}
+
 
 		@Override
 		public List<MethodInstance> methods() {
@@ -332,13 +333,9 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			    if (t != null) {
 			        CConstraint c2 = Types.xclause(o);
 			        c2 = c2 != null ? c2.copy() : new CConstraint();
-			        try {
-			            TypeSystem xts = (TypeSystem) o.typeSystem();
-			            c2.addSelfBinding(t);
-			            return Types.xclause(o, c2);
-			        }
-			        catch (XFailure e) {
-			        }
+			        TypeSystem xts = (TypeSystem) o.typeSystem();
+			        c2.addSelfBinding(t);
+			        return Types.xclause(o, c2);
 			    }
 			    }
 			    return o;
@@ -455,12 +452,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		}
 		public  ConstrainedType addProperty(XTerm x, Name name) {
 		    XTerm xt = findOrSynthesize(name);
-		    try {
-		        return addBinding(xt, x);
-		    } catch (XFailure f) {
-		        // without the binding added.
-		    }
-		    return this;
+		    return addBinding(xt, x);
 		}
 		
 		public XTerm findOrSynthesize(Name n) {
@@ -525,26 +517,19 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		
 		
 		
-		public ConstrainedType addBinding(XTerm t1, XTerm t2) throws XFailure {
-		        CConstraint c = Types.xclause(this);
-		        c = c == null ? new CConstraint() :c.copy();
-		        c.addBinding(t1, t2);
-		        return (ConstrainedType) Types.xclause(Types.baseType(this), c);
-		
+		public ConstrainedType addBinding(XTerm t1, XTerm t2) {
+		    CConstraint c = Types.xclause(this);
+		    c = c == null ? new CConstraint() :c.copy();
+		    c.addBinding(t1, t2);
+		    return (ConstrainedType) Types.xclause(Types.baseType(this), c);
 		}
 
 		public ConstrainedType addBinding(XTerm t1, XConstrainedTerm t2) {
-		    try {
-		        CConstraint c = new CConstraint();
-		        c.addBinding(t1, t2);
-		        return (ConstrainedType) Types.xclause(this, c);
-		    }
-		    catch (XFailure f) {
-		        throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
-		    }
+		    CConstraint c = new CConstraint();
+		    c.addBinding(t1, t2);
+		    return (ConstrainedType) Types.xclause(this, c);
 		}
-		public  ConstrainedType addSelfBinding(XTerm t1) throws XFailure {
-
+		public ConstrainedType addSelfBinding(XTerm t1) {
 			CConstraint c = Types.xclause(this);
 			c = c == null ? new CConstraint() :c.copy();
 			c.addSelfBinding(t1);
@@ -651,11 +636,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    ConstrainedType result=this;
 		    XTerm xt = findOrSynthesize(Name.make("rect"));
 		    if (xt != null)
-		    	try {
-		    		result = addBinding(xt, XTerms.TRUE);
-		    	} catch (XFailure f) {
-		    		// without the binding added.
-		    	}
+		        result = addBinding(xt, XTerms.TRUE);
 		    return result;
 		}
 		
@@ -668,11 +649,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    ConstrainedType result = this;
 		    XTerm xt = findOrSynthesize(Name.make("zeroBased"));
 		    if (xt != null)
-		    	try {
-		    		result =  addBinding(xt, XTerms.TRUE);
-		    	} catch (XFailure f) {
-		    		// without the binding added.
-		    	}
+		        result =  addBinding(xt, XTerms.TRUE);
 		    return result;
 		}
 		/**

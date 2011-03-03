@@ -13,6 +13,8 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.io.Console;
+import x10.util.HashMap;
+import x10.util.Map;
 import x10.util.Timer;
 import x10.util.Pair;
 
@@ -80,6 +82,18 @@ public class System {
     @Native("java", "java.lang.Runtime.totalMemory()")
     @Native("c++", "x10aux::heap_size()")
     public static native def heapSize():long;
+
+    @Native("java", "x10.runtime.impl.java.Runtime.loadenv()")
+    @Native("c++", "x10aux::loadenv()")
+    private static native def loadenv():HashMap[String,String];
+
+    private static env = loadenv();
+
+    /**
+     * Returns an immutable map from environment variables to values.
+     * Only environment variables whose names start with X10_ are reported.
+     */
+    public static def getenv():Map[String,String] = env;
 
     /**
      * Sets the system property with the given name to the given value.

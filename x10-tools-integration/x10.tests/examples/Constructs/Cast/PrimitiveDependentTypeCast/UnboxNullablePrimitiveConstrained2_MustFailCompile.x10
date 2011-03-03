@@ -21,7 +21,7 @@ import x10.util.Box;
 	public def run(): boolean = {
 		var res4: boolean = false;
 		
-      var ni: Box[int(4)] = 4;
+      var ni: Box[int(4)] = new Box[int(4)](4);
 
 		try {
 			// (nullable<int(:self==3)>) <-- nullable<int(:c)>

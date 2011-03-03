@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class GenericInstanceof14 extends GenericTest {
 
-    interface I[-T] {
+    interface I[T] {
         def m(T):int;
     }
 
@@ -32,7 +32,7 @@ public class GenericInstanceof14 extends GenericTest {
     
     public def run() = {
         var a:Object = new A();
-        return !(a instanceof I[I[Sub]]) && a instanceof I[I[Super]] && a instanceof I[I[Object]];
+        return !(a instanceof I[I[Sub]]) && a instanceof I[I[Super]];
     }
     
     public static def main(var args: Array[String](1)): void = {

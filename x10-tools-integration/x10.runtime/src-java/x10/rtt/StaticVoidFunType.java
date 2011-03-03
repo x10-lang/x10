@@ -14,6 +14,8 @@ package x10.rtt;
 // for static inner classes that are compiled from closures
 public class StaticVoidFunType<T> extends RuntimeType<T> {
     
+	private static final long serialVersionUID = 1L;
+
     public StaticVoidFunType(Class<?> c) {
         super(c);
     }

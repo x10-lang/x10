@@ -121,16 +121,16 @@ Iterable[Point(region.rank)] {
      * 
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region{self !=null}) {T haszero}
+    public def this(reg:Region) {T haszero}
     {
-        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+        property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
         layout = RectLayout(reg);
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
-    }
-    
-    
+    }   
+
+
     /**
      * Construct an Array over the region reg whose
      * values are initialized as specified by the init function.
@@ -138,9 +138,9 @@ Iterable[Point(region.rank)] {
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region{self != null}, init:(Point(reg.rank))=>T)
+    public def this(reg:Region, init:(Point(reg.rank))=>T)
     {
-        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+        property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
         layout = RectLayout(reg);
         val n = layout.size();
@@ -150,8 +150,11 @@ Iterable[Point(region.rank)] {
         }
         raw = r;
     }
-    
-    
+    // TODO: This should not be needed.  Compiler should apply implict coercion at call site, but it doesn't.
+    public def this(ir:IntRange, init:(Point(1))=>T):Array[T](1){this.rect,self!=null} {
+        this(ir as Region(1){self.rect}, init);
+    }
+
     /**
      * Construct an Array over the region reg whose
      * values are initialized to be init.
@@ -159,9 +162,9 @@ Iterable[Point(region.rank)] {
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region{self !=null}, init:T)
+    public def this(reg:Region, init:T)
     {
-        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+        property(reg as Region{self!=null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
         layout = RectLayout(reg);
         val n = layout.size();
@@ -179,8 +182,8 @@ Iterable[Point(region.rank)] {
         }
         raw = r;
     }
-    
-    
+
+
     /**
      * Construct an Array view of a backing IndexedMemoryChunk
      * using the argument region to define how to map Points into
@@ -191,9 +194,9 @@ Iterable[Point(region.rank)] {
      * @param reg The region over which to define the array.
      * @param backingStore The backing storage for the array data.
      */
-    public def this(reg:Region{self != null}, backingStore:IndexedMemoryChunk[T])
+    public def this(reg:Region, backingStore:IndexedMemoryChunk[T])
     {
-        property(reg, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+        property(reg as Region{self!=null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
         layout = RectLayout(reg);
         val n = layout.size();
@@ -209,7 +212,8 @@ Iterable[Point(region.rank)] {
      */
     public def this(size:int) {T haszero}
     {
-        property(0..(size-1), 1, true, true, true, size);
+        val myReg = new RectRegion(0, size-1);
+        property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
@@ -226,7 +230,8 @@ Iterable[Point(region.rank)] {
      */    
     public def this(size:int, init:(int)=>T)
     {
-        property(0..(size-1), 1, true, true, true, size);
+        val myReg = new RectRegion(0, size-1);
+        property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
@@ -247,7 +252,8 @@ Iterable[Point(region.rank)] {
      */    
     public def this(size:int, init:T)
     {
-        property(0..(size-1), 1, true, true, true, size);
+        val myReg = new RectRegion(0, size-1);
+        property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
@@ -1119,5 +1125,8 @@ Iterable[Point(region.rank)] {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
 }
+public type Array[T](r:Int) = Array[T]{self.rank==r};
+public type Array[T](r:Region) = Array[T]{self.region==r};
+public type Array[T](a:Array[T]) = Array[T]{self==a};
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -16,7 +16,9 @@ import x10.rtt.Type;
 import x10.rtt.Types;
 
 // Base class for all X10 structs
-public abstract class Struct implements Any {
+public abstract class Struct implements Any, Cloneable {
+
+	private static final long serialVersionUID = 1L;
 
     public Struct() {}
 
@@ -26,9 +28,9 @@ public abstract class Struct implements Any {
 
     abstract public boolean _struct_equals(Object o);
 
-    public static final RuntimeType<Struct> _RTT = new RuntimeType<Struct>(Struct.class);
-    public RuntimeType<?> getRTT() {return _RTT;}
-    public Type<?> getParam(int i) {return null;}
+    public static final RuntimeType<Struct> $RTT = new RuntimeType<Struct>(Struct.class);
+    public RuntimeType<?> $getRTT() {return $RTT;}
+    public Type<?> $getParam(int i) {return null;}
 
     @Override
     public java.lang.String toString() {

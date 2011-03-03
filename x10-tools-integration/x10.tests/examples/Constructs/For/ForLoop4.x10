@@ -27,7 +27,7 @@ public class ForLoop4 extends x10Test {
 		var prev: Box[Point] = null;
 		for (p in 0..(N-1)*0..(N-1)*0..(N-1)->here) {
 			if (!successor(prev, p)) return false;
-			prev = p;
+			prev = new Box[Point](p);
 			n++;
 		}
 		if (n != N*N*N) return false;

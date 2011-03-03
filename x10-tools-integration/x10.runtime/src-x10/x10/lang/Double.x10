@@ -411,3 +411,4 @@ public struct Double implements Comparable[Double] /*TODO implements Arithmetic[
    @Native("c++", "x10aux::double_utils::compareTo(#0, #1)")
    public native def compareTo(x:Double):Int;
 }
+public type Double(b:Double) = Double{self==b};
