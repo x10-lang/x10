@@ -51,9 +51,9 @@ public final class Worker {
         k = fifo.steal();
         while (null == k) {
             if (finished.value) return null; // TODO: termination condition
-            k = workers(random.nextInt(Runtime.INIT_THREADS)).fifo.steal();
+            k = workers(random.nextInt(Runtime.NTHREADS)).fifo.steal();
             if (null != k) break;
-            val i = random.nextInt(Runtime.INIT_THREADS);
+            val i = random.nextInt(Runtime.NTHREADS);
             if (workers(i).lock.tryLock()) {
                 k = workers(i).deque.steal();
                 if (null != k) {
@@ -83,12 +83,12 @@ public final class Worker {
     }
 
     public static def main(frame:MainFrame) {
-        val workers = Rail.make[Worker](Runtime.INIT_THREADS);
+        val workers = Rail.make[Worker](Runtime.NTHREADS);
         val finished = new BoxedBoolean();
-        for (var i:Int = 0; i<Runtime.INIT_THREADS; i++) {
+        for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
             workers(i) = new Worker(i, workers, finished);
         }
-        for (var i:Int = 1; i<Runtime.INIT_THREADS; i++) {
+        for (var i:Int = 1; i<Runtime.NTHREADS; i++) {
             val ii = i;
             async workers(ii).run();
         }

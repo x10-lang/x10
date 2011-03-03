@@ -345,7 +345,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
 	            isConstant(fd.init()) &&
 	            (fd.init().type().isNumeric() || fd.init().type().isBoolean() ||
-	             fd.init().type().isChar() || fd.init().type().isNull()));
+	             fd.init().type().isChar() || fd.init().type().isNull()))
+	             || isPerProcess((X10FieldDef) fd.fieldDef());
 	}
 
     private void extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream h) {
@@ -3329,7 +3330,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
 		    sw.write(mangled_field_name(name));
 		} else {
-		    sw.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX) + "()");
+		    if (isPerProcess((X10Def) n.fieldInstance().def())) {
+		        sw.write(mangled_field_name(name));
+		    } else {
+		        sw.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX) + "()");
+		    }
 		}
 		sw.end();
 	}
@@ -5044,5 +5049,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         assert (false) : ("At expression should have been desugared earlier");
     }
 
+    protected boolean isPerProcess(X10Def def) {
+        try {
+            Type t = tr.typeSystem().systemResolver().findOne(QName.make("x10.compiler.PerProcess"));
+            return !def.annotationsMatching(t).isEmpty();
+        } catch (SemanticException e) {
+            return false;
+        }
+    }
 } // end of MessagePassingCodeGenerator
 // vim:tabstop=4:shiftwidth=4:expandtab

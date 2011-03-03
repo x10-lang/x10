@@ -158,11 +158,6 @@ void x10aux::network_init (int ac, char **av) {
     x10aux::here = x10rt_here();
     x10aux::num_places = x10rt_nplaces();
     x10aux::num_hosts = x10rt_nhosts();
-
-    x10aux::num_threads = x10aux::get_num_threads();
-    x10aux::max_threads = x10aux::get_max_threads();
-    x10aux::no_steals = x10aux::get_no_steals();
-    x10aux::static_threads = x10aux::get_static_threads();
 }
 
 void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10aux::ref<x10::lang::Reference> fs_) {
@@ -256,55 +251,20 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
     x10rt_send_put(&p, data, len);
 }
 
-x10_int x10aux::get_num_threads() {
 #ifdef __bg__
-    x10_int default_nthreads = 1;
+    x10_boolean x10aux::default_static_threads = true;
 #else
-    x10_int default_nthreads = 2;
+    x10_boolean x10aux::default_static_threads = false;
 #endif
-    const char* env = getenv("X10_NTHREADS");
-    if (env==NULL) return default_nthreads;
-    x10_int num = strtol(env, NULL, 10);
-    assert (num > 0);
-    return num;
-}
 
-x10_int x10aux::get_max_threads() {
-#ifdef __bg__
-    x10_int default_max_threads = 1;
-#else
-    x10_int default_max_threads = 1000;
-#endif
-    const char* env = getenv("X10_MAX_THREADS");
-    if (env==NULL) return default_max_threads;
-    x10_int num = strtol(env, NULL, 10);
-    assert (num > 0);
-#ifdef THREAD_TABLE_SZ // bdwgc cap on the number of threads
+#ifdef THREAD_TABLE_SZ
+    // bdwgc cap on the number of threads
     // we need to cap the number of threads potentially created by XRX
-    // here we assume there will be no more than 16 threads created outside of XRX (e.g., transport)
-    if (num > THREAD_TABLE_SZ - 16) num = THREAD_TABLE_SZ - 16;
-#endif
-    return num;
-}
-
-x10_boolean x10aux::get_no_steals()
-{
-    char* s = getenv("X10_NO_STEALS");
-    if (s && !(strcasecmp("false", s) == 0))
-        return true;
-    return false;
-}
-
-x10_boolean x10aux::get_static_threads() {
-#ifdef __bg__
-    return true;
+    // here we assume there will be no more than 16 threads created outside of XRX (transport maybe?)
+    x10_int x10aux::platform_max_threads = THREAD_TABLE_SZ - 16;
 #else
-    char* s = getenv("X10_STATIC_THREADS");
-    if (s && !(strcasecmp("false", s) == 0))
-        return true;
-    return false;
+    x10_int x10aux::platform_max_threads = 0x7fffffff; // no cap
 #endif
-}
 
 static void receive_async (const x10rt_msg_params *p) {
     _X_(ANSI_X10RT<<"Receiving an async, id ("<<p->type<<"), deserialising..."<<ANSI_RESET);
