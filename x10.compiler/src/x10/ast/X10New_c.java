@@ -493,6 +493,12 @@ public class X10New_c extends New_c implements X10New {
             result = (X10New_c) result.objectType(result.objectType().typeRef(Types.ref(t)));
         }
 
+        try {
+            Types.checkMissingParameters(result.objectType());
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, result.objectType());
+        }
+
         TypeSystem ts = (TypeSystem) tc.typeSystem();
         Type tp = ci.returnType();
         final Context context = tc.context();
