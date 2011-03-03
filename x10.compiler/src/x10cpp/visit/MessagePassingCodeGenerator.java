@@ -600,7 +600,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    for (Type pt : ct.typeArguments())
 		        extractAllClassTypes(pt, types, dupes);
 		}
-		if (ct.isNested())
+		if (ct.isMember() || ct.isLocal())
 			extractAllClassTypes(ct.container(), types, dupes);
 	}
 
