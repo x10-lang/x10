@@ -4,7 +4,7 @@ class AClass extends Struct1 {} // ERR: Struct1 cannot be the superclass for ACl
 
 class Bla[T] extends Throwable
 	{T<:
-		Bla} // ShouldBeErr
+		Bla} // ERR
 	{
 	var x1:
 		Bla; // ERR
@@ -17,7 +17,7 @@ class Bla[T] extends Throwable
 	var x5:Bla[Bla[Bla[Int]]];
 	var x6:Bla[Int]{T<:Bla[Int]};
 	var x7:Bla[Int]{T<:
-		Bla}; // ShouldBeErr
+		Bla}; // ERR
 
 	static def m() {}
 	static def m2():Bla[Int] {
@@ -45,22 +45,22 @@ class Bla[T] extends Throwable
 		val c1 = // ShouldNotBeERR 
 		    (x:Bla[Int],
 				y:
-					Bla, // ShouldBeErr
+					Bla, // ERR
 				z:Bla[Bla[Int]]):
-					Bla // ShouldBeErr
+					Bla // ERR
 				=> null;
 
 		return new Bla[Int]();
 	}
 	static def m3(x:
-		Bla, // ShouldBeErr
+		Bla, // ERR
 		y:Bla[Int]):
 			Bla // ERR
 		= null;
 
 	def m5[U]() {U<:Bla[T]} {}
 	static def m6[U]() {U<:
-		Bla} // ShouldBeErr
+		Bla} // ERR
 		{}
 
 
@@ -68,9 +68,9 @@ class Bla[T] extends Throwable
 	static type Bla2 =
 		Bla[Bla]; // ERR
 	static type Bla3 =
-		Bla; // ShouldBeErr
+		Bla; // ERR
 	static type Bla4(x:
-		Bla // ShouldBeErr
+		Bla // ERR
 		) = Int;
 
 	static class S {}

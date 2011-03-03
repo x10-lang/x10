@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-// COMPILER_CRASHES: the compiler now crashes on this file.
 
 /**
  * Simple test that generic local classes can compile.
@@ -21,7 +20,7 @@ public class GenericLocal4_MustFailCompile extends x10Test {
 	public class Hello[X] {
 		def m[X]() {
 			class Local[A]{}
-			return new Local(); // this should not compile -- need a type argument.
+			return new Local(); // ERR this should not compile -- need a type argument.
 		}
 
 	}
