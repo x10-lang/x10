@@ -113,7 +113,7 @@ abstract public class TestArray extends x10Test {
                     }
                     (o as Grid).pr(rank-1);
                 } else {
-                    val d = (new Box[double](o)).value;
+                    val d = (o as Box[double]).value;
                     out.print("" + (d as int));
                 }
 
@@ -165,7 +165,7 @@ abstract public class TestArray extends x10Test {
     @Global def prUnbounded(test: String, r: Region): void = {
         try {
             prRegion(test, r);
-            var i: Iterator[Point] = r.iterator();
+            val i = r.iterator();
         } catch (e: UnboundedRegionException) {
             pr(e.toString());
         }
