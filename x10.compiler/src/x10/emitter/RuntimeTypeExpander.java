@@ -109,10 +109,10 @@ final public class RuntimeTypeExpander extends Expander {
             if (pat == null) {
                 // XTENLANG-1102
                 if (ct.isGloballyAccessible() && typeArgs.size() == 0) {
-                    er.w.write(cd.fullName().toString() + "." + "_RTT");
+                    er.w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
                 } else {
                     er.w.write("new x10.rtt.ParameterizedType(");
-                    er.w.write(cd.fullName().toString() + "." + "_RTT");
+                    er.w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
                     for (int i = 0; i < typeArgs.size(); i++) {
                         er.w.write(", ");
                         new RuntimeTypeExpander(er, typeArgs.get(i)).expand(tr);
@@ -155,7 +155,7 @@ final public class RuntimeTypeExpander extends Expander {
         }
         er.w.write("_" + ct.typeParameters().size());
         er.w.write("_" + args.size());
-        er.w.write("._RTT");
+        er.w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
     }
 
     String typeof(Type t) {

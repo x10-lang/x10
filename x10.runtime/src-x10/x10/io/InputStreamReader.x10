@@ -18,7 +18,7 @@ import x10.compiler.NativeRep;
 public class InputStreamReader extends Reader {
     val stream: InputStream;
 
-    @NativeRep("java", "x10.core.io.InputStream", null, "x10.core.io.InputStream._RTT")
+    @NativeRep("java", "x10.core.io.InputStream", null, "x10.core.io.InputStream.$RTT")
     @NativeRep("c++", "x10aux::ref<x10::io::InputStreamReader__InputStream>", "x10::io::InputStreamReader__InputStream", null)
     protected abstract static class InputStream {
         @Native("java", "#0.close()")

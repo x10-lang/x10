@@ -12,6 +12,7 @@
 package x10.visit;
 
 import polyglot.ast.AbstractBlock_c;
+import polyglot.ast.Allocation_c;
 import polyglot.ast.AmbAssign_c;
 import polyglot.ast.AmbExpr_c;
 import polyglot.ast.AmbPrefix_c;
@@ -270,6 +271,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Closure_c) { visit((Closure_c)n); return; }
 		if (n instanceof ClosureCall_c) { visit((ClosureCall_c)n); return; }
 		if (n instanceof StmtExpr_c) { visit((StmtExpr_c)n); return; }
+		if (n instanceof Allocation_c) { visit((Allocation_c)n); return; }
 		if (n instanceof Expr_c) { visit((Expr_c)n); return; }
 		if (n instanceof X10ConstructorDecl_c) { visit((X10ConstructorDecl_c)n); return; }
 		if (n instanceof ConstructorDecl_c) { visit((ConstructorDecl_c)n); return; }
@@ -313,6 +315,7 @@ public class X10DelegatingVisitor {
 			public void visit(ConstructorDecl_c n) { visit((Term_c)n); }
 				public void visit(X10ConstructorDecl_c n) { visit((ConstructorDecl_c)n); }
 			public void visit(Expr_c n) { visit((Term_c)n); }
+				public void visit(Allocation_c n) { visit((Expr_c)n); }
 				public void visit(AmbExpr_c n) { visit((Expr_c)n); }
 				public void visit(ArrayAccess_c n) { visit((Expr_c)n); }
 				public void visit(ArrayInit_c n) { visit((Expr_c)n); }

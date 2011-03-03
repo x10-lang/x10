@@ -20,6 +20,7 @@ import polyglot.ast.Call;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
@@ -100,19 +101,19 @@ public class WSCodeGenerator extends ContextVisitor {
     }
 
     public static void setWALATransTarget(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent target){
-    	//DEBUG
-    	if(debugLevel > 3){
-        	wsReport(xts.extensionInfo().getOptions().reporter, 5, "Use WALA CallGraph Data...");    
-    	}
-    	wts = new WSTransformState(xts, xnf, theLanguage, target);
+        //DEBUG
+        if(debugLevel > 3){
+            wsReport(xts.extensionInfo().getOptions().reporter, 5, "Use WALA CallGraph Data...");    
+        }
+        wts = new WSTransformState(xts, xnf, theLanguage, target);
     }
     
     public static void buildCallGraph(TypeSystem xts, NodeFactory xnf, String theLanguage) {
-    	//DEBUG
-    	if(debugLevel > 3){
-        	wsReport(xts.extensionInfo().getOptions().reporter, 5, "Build Simple Graph Graph..."); 
-    	}
-    	wts = new WSTransformState(xts, xnf, theLanguage);
+        //DEBUG
+        if(debugLevel > 3){
+            wsReport(xts.extensionInfo().getOptions().reporter, 5, "Build Simple Graph Graph..."); 
+        }
+        wts = new WSTransformState(xts, xnf, theLanguage);
     }
 
     /** 
@@ -128,12 +129,14 @@ public class WSCodeGenerator extends ContextVisitor {
                 throw new SemanticException("Work Stealing doesn't support concurrent constructor: " + cDecl, n.position());
             }
         }
-        if(n instanceof RemoteActivityInvocation){
-            RemoteActivityInvocation r = (RemoteActivityInvocation)n;
-            if(!(r.place() instanceof Here)){
-                throw new SemanticException("Work-Stealing doesn't support at: " + r, n.position());
-            }
-        }
+        
+        //20110214: Remove at stmt check, now we could work on at stmt 
+//        if(n instanceof RemoteActivityInvocation){
+//            RemoteActivityInvocation r = (RemoteActivityInvocation)n;
+//            if(!(r.place() instanceof Here)){
+//                throw new SemanticException("Work-Stealing doesn't support at: " + r, n.position());
+//            }
+//        }
         if(n instanceof Closure && !(n instanceof PlacedClosure)){
             //match with WSCallGraph, not handle PlacedClosure
             Closure closure = (Closure)n;           
@@ -150,31 +153,31 @@ public class WSCodeGenerator extends ContextVisitor {
         
         // transform call site
         if(n instanceof Call){
-        	Call call = (Call)n;
-        	switch(wts.getCallSiteType(call)){
-        	case MATCHED_CALL: //change the target
-        		//two steps, create a new method def, and change the call
-        		X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(call.methodInstance().def(), wts);
-        		List<Expr> newArgs = new ArrayList<Expr>();
-        		newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.workerType));
-        		newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.frameType));
-        		newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.finishFrameType));
-        		return WSCodeGenUtility.replaceMethodCallWithWSMethodCall(nf, (X10Call) call, mDef, newArgs);
-        	case CONCURRENT_CALL:  //do nothing, leave the transformation in method decl transformation
-        	case NORMAL:
-        	default:
-        	}
+            Call call = (Call)n;
+            switch(wts.getCallSiteType(call)){
+            case MATCHED_CALL: //change the target
+                //two steps, create a new method def, and change the call
+                X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(call.methodInstance().def(), wts);
+                List<Expr> newArgs = new ArrayList<Expr>();
+                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.workerType));
+                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.frameType));
+                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.finishFrameType));
+                return WSCodeGenUtility.replaceMethodCallWithWSMethodCall(nf, (X10Call) call, mDef, newArgs);
+            case CONCURRENT_CALL:  //do nothing, leave the transformation in method decl transformation
+            case NORMAL:
+            default:
+            }
         }
 
         // transform methods
         if(n instanceof X10MethodDecl) {
-        	
+            
             X10MethodDecl mDecl = (X10MethodDecl)n;
             X10MethodDef mDef = mDecl.methodDef();
             
             switch(wts.getMethodType(mDecl)){
             case BODYDEF_TRANSFORMATION:
-            	//traditional transform
+                //traditional transform
                 if(debugLevel > 3){
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
                 }
@@ -195,13 +198,13 @@ public class WSCodeGenerator extends ContextVisitor {
                 }
                 break;
             case DEFONLY_TRANSFORMATION:
-            	//only change the method's interface
-            	n = changeMethodDefOnly(mDecl);
-            	break;
+                //only change the method's interface
+                n = changeMethodDefOnly(mDecl);
+                break;
             case NORMAL:
             default:
             }
-        	return n;
+            return n;
         }
 
         // transform classes
@@ -228,10 +231,10 @@ public class WSCodeGenerator extends ContextVisitor {
                 //get the right desuguar
                 Desugarer desugarer;
                 if(wts.getTheLanguage().equals("java")){
-                	desugarer = new x10c.visit.Desugarer(job, ts, nf);
+                    desugarer = new x10c.visit.Desugarer(job, ts, nf);
                 }
                 else{
-                	desugarer = new x10.visit.Desugarer(job, ts, nf);
+                    desugarer = new x10.visit.Desugarer(job, ts, nf);
                 }
                 desugarer.begin();
                 desugarer.context(context()); //copy current context
@@ -281,25 +284,25 @@ public class WSCodeGenerator extends ContextVisitor {
      * @return
      */
     protected X10MethodDecl changeMethodDefOnly(X10MethodDecl methodDecl){
-    	//need change the def's formals definition and decl's formals
-    	//three new formals, worker/upframe/finishframe
-    	Position pos = Position.COMPILER_GENERATED;
-    	
-    	Name workerName = Name.make("worker");
+        //need change the def's formals definition and decl's formals
+        //three new formals, worker/upframe/finishframe
+        Position pos = Position.COMPILER_GENERATED;
+        
+        Name workerName = Name.make("worker");
         LocalDef workerLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.workerType), workerName);
         Formal workerF = nf.Formal(pos,
                               nf.FlagsNode(pos, Flags.FINAL), 
                               nf.CanonicalTypeNode(pos, wts.workerType), 
                               nf.Id(pos, workerName)).localDef(workerLDef);
 
-    	Name upName = Name.make("up");
+        Name upName = Name.make("up");
         LocalDef upLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.frameType), upName);
         Formal upF = nf.Formal(pos,
                               nf.FlagsNode(pos, Flags.FINAL), 
                               nf.CanonicalTypeNode(pos, wts.frameType), 
                               nf.Id(pos, upName)).localDef(upLDef);
-    	
-    	Name ffName = Name.make("ff");
+        
+        Name ffName = Name.make("ff");
         LocalDef ffLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.finishFrameType), ffName);
         Formal ffF = nf.Formal(pos,
                               nf.FlagsNode(pos, Flags.FINAL), 
@@ -339,7 +342,7 @@ public class WSCodeGenerator extends ContextVisitor {
         methodDef.setName(name);
         methodDecl = methodDecl.name(nf.Id(pos, name));
         
-    	return methodDecl;
+        return methodDecl;
     }
     
     

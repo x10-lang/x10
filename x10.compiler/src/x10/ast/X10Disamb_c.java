@@ -50,6 +50,7 @@ import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 
 import x10.types.MethodInstance;
+import x10.types.matcher.X10FieldMatcher;
 
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
@@ -92,7 +93,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		// Now try properties.
 	    		FieldInstance fi = null;
 	    		try {
-	    		     fi = ts.findField(t, ts.FieldMatcher(t, this.name.id(), c));
+	    		     fi = ts.findField(t, t, this.name.id(), c);
 	    		}
 	    		catch (SemanticException ex) {
 	    		}
@@ -262,7 +263,7 @@ public class X10Disamb_c extends Disamb_c {
 				for (FieldDef fd : tCt.x10Def().properties()) {
 				    if (fd.name().equals(name.id())) {
 					FieldInstance fi = fd.asInstance();
-					fi = ts.FieldMatcher(tType, name.id(), c).instantiate(fi);
+					fi = X10FieldMatcher.instantiateAccess((X10FieldInstance)fi,name.id(),tType,false,c);
 					if (fi != null) {
 					    // Found!
 					    X10Field_c result = (X10Field_c) nf.Field(pos, e, name);

@@ -241,9 +241,7 @@ public class CXXCommandBuilder {
             addExecutablePath(cxxCmd);
         }
 
-        Iterator<String> iter = outputFiles.iterator();
-        for (; iter.hasNext(); ) {
-            String file = (String) iter.next();
+        for (String file : outputFiles) {
             file = file.replace(File.separatorChar,'/');
             if (file.endsWith(".cu")) continue;
             cxxCmd.add(file);
@@ -270,7 +268,32 @@ public class CXXCommandBuilder {
         return cxxCmd.toArray(new String[cxxCmd.size()]);
     }
 
+    /**
+     * @return the name of the C++ compiler (g++/xlC/mpcixx, etc)
+     */
+    public String getPostCompiler() {
+        return defaultPostCompiler();
+    }
+    
+    /**
+     * @return all command line arguments for a compilation command that go
+     *         before the files to be compiled (typically compilation options).
+     */
+    public List<String> getPreFileArgs() {
+        ArrayList<String> ans = new ArrayList<String>();
+        addPreArgs(ans);
+        return ans;
+    }
 
+    /**
+     * @return all command line arguments for a compilation command that go
+     *         after the files to be compiled  (typically linker options). 
+     */
+    public List<String> getPostFileArgs() {
+        ArrayList<String> ans = new ArrayList<String>();
+        addPostArgs(ans);
+        return ans;
+    }
     
     /**
      * Return a CXXCommandBuilder that will use the given options and x10rt properties to

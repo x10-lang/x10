@@ -217,6 +217,17 @@ public class AltSynthesizer {
         IntLit lit = nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, val);
         return (IntLit) lit.type(ts.Int());
     }
+    
+    /**
+     * Create an IntLit node representing a given long literal.
+     * 
+     * @param val the long value to be represented
+     * @return an IntLit node representing the literal long val
+     */
+    public IntLit createLongLit(long val) {
+        IntLit lit = nf.IntLit(Position.COMPILER_GENERATED, IntLit.LONG, val);
+        return (IntLit) lit.type(ts.Long());
+    }
 
     /**
      * Create a StringLit node representing a given String literal.
@@ -978,11 +989,7 @@ public class AltSynthesizer {
      * binding is inconsistent
      */
     public static Type addSelfConstraint(Type type, XTerm value) {
-        try {
-            return Types.addSelfBinding(type, value);
-        } catch (XFailure e) {
-            return null;
-        }
+        return Types.addSelfBinding(type, value);
     }
 
     // helper methods that return method instances

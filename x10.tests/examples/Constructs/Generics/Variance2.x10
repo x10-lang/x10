@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Variance2 extends x10Test {
-        class Get[+T] {
+        class Get[T] {
                 val x: T;
                 def this(y: T) = { x = y; }
                 def get(): T = x; }
@@ -27,16 +27,12 @@ public class Variance2 extends x10Test {
 
         public def run(): boolean = {
                 val ga = new Get[A](new A());
-                val gb = new Get[B](new B());
                 val a = ga.get();
-                val b = gb.get();
 
                 val gx : Get[A] = ga;
                 val x = gx.get();
-                val gy : Get[A] = gb; // covariance
-                val y = gy.get();
 
-                return gx == ga && gy == gb && x == a && y == b;
+                return gx == ga && x == a;
         }
 
 	public static def main(var args: Array[String](1)): void = {

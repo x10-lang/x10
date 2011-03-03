@@ -20,8 +20,6 @@ class XTENLANG_637 extends x10Test {
     public def run(): boolean {
         val sub = new Sub_637();
         val csub = new Get_637[Sub_637](sub);
-        val csup1 : Get_637[Super_637] = csub;
-        val csup2 : Get_637[Super_637] = csub;
         return true;
     }
 
@@ -30,7 +28,7 @@ class XTENLANG_637 extends x10Test {
     }
 }
 
-class Get_637[+X] {
+class Get_637[X] {
   val x : X;
   def this(x:X) { this.x = x; }
 }        

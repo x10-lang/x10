@@ -389,6 +389,8 @@ public class TypeParamSubst {
 		if (isIdentityInstantiation()) {
 			return list;
 		}
+		if (list == null)
+		    return null;
 		if (eager) {
 		    boolean changed = false;
 		    List<T> res = new ArrayList<T>();
@@ -401,8 +403,6 @@ public class TypeParamSubst {
 		        return list;
 		    return res;
 		}
-		if (list == null)
-		    return null;
 		return new TransformingList<T, T>(list, new Transformation<T, T>() {
 			public T transform(T o) {
 				return reinstantiate(o);

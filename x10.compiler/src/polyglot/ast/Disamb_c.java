@@ -8,6 +8,7 @@
 
 package polyglot.ast;
 
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.frontend.Globals;
@@ -107,13 +108,28 @@ public abstract class Disamb_c implements Disamb
         Qualifier q = null;
 
         if (n != null) {
-            for (Type t : n) {
-                if (t.isClass()) {
-                    q = t;
-                    break;
+            if (n.size() > 1) {
+                StringBuffer sb = new StringBuffer(); // FIXME: copied from TypeSystem_c.findTypeDef()
+                for (Iterator<Type> i = n.iterator(); i.hasNext();) {
+                    Type ma = i.next();
+                    sb.append(n.toString());
+                    if (i.hasNext()) {
+                        if (n.size() == 2) {
+                            sb.append(" and ");
+                        }
+                        else {
+                            sb.append(", ");
+                        }
+                    }
                 }
+                throw new SemanticException("Reference to " + name.id() + " is ambiguous, multiple type defintions match: " + sb.toString());
+            }
+            for (Type t : n) {
+                q = t;
+                break;
             }
         }
+
         if (q == null) {
             Package p = ts.createPackage(pn.package_(), name.id());
             q = p;
@@ -138,7 +154,7 @@ public abstract class Disamb_c implements Disamb
 
         if (exprOK()) {
             try {
-                FieldInstance fi = ts.findField(t, ts.FieldMatcher(t, name.id(), c));
+                FieldInstance fi = ts.findField(t, t, name.id(), c);
                 return nf.Field(pos, tn, name).fieldInstance(fi);
             } catch (NoMemberException e) {
                 if (e.getKind() != NoMemberException.FIELD) {

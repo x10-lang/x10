@@ -82,7 +82,7 @@ public class AllReduce extends x10Test {
     public def run(): boolean {
         Console.OUT.println("Doing all reduce for World ("+Place.numPlaces()+" places)");
         val res:Cell[Boolean] = new Cell[Boolean](true);
-        val gr:GlobalRef[Cell[Boolean]] = GlobalRef(res);
+        val gr:GlobalRef[Cell[Boolean]] = GlobalRef[Cell[Boolean]](res);
         finish for (p in Place.places()) {
             async at(p) allReduceTest(Team.WORLD, here.id, gr);
         }

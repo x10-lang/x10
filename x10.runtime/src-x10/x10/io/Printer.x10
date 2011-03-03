@@ -39,6 +39,11 @@ public class Printer extends FilterWriter {
     public final def println(o:Any): void {
         print(o==null? "null\n" : o.toString()+"\n");
     }
+    // this is needed to avoid extra boxing in Managed X10
+    public final def println(s:String): void {
+    	print(s==null? "null\n" : s+"\n");
+    }
+    
     public final def print(o:Any): void {
     	print(o==null? "null" : o.toString());
     }
@@ -46,7 +51,8 @@ public class Printer extends FilterWriter {
     public def print(s:String): void {
         lock.lock();
         try {
-            val b = s.bytes();
+        	val ss = s != null ? s : "null";
+            val b = ss.bytes();
             write(b, 0, b.size);
         }
         catch (e: IOException) {

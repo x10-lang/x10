@@ -16,7 +16,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class LocalVar<T> extends x10.core.Ref {
 
-    public static final x10.rtt.RuntimeType<LocalVar<?>> _RTT =
+	private static final long serialVersionUID = 1L;
+
+    public static final x10.rtt.RuntimeType<LocalVar<?>> $RTT =
         new x10.rtt.NamedType<LocalVar<?>>(
                 "x10.compiler.LocalVar",
                 /* base class */ LocalVar.class,
@@ -24,11 +26,11 @@ public class LocalVar<T> extends x10.core.Ref {
                 /* parents */ new x10.rtt.Type[] { x10.rtt.Types.OBJECT }
     );
 
-    public x10.rtt.RuntimeType<?> getRTT() {
-        return _RTT;
+    public x10.rtt.RuntimeType<?> $getRTT() {
+        return $RTT;
     }
 
-    public x10.rtt.Type<?> getParam(int i) {
+    public x10.rtt.Type<?> $getParam(int i) {
         if (i == 0) return T;
         return null;
     }

@@ -56,7 +56,7 @@ abstract public class TestArray extends x10Test {
         def this(o:Printer, test: String, run: ()=>String ): R = {
             var r: String;
             try {
-                r = run();
+                r = (run)();
             } catch (e: Throwable) {
                 r = e.getMessage();
             }
@@ -69,7 +69,7 @@ abstract public class TestArray extends x10Test {
         transient var os: Rail[Object] = Rail.make[Object](10);
 
         @Pinned def set(i0: int, vue: double): void = {
-            os(i0) = vue as Box[Double]; 
+            os(i0) = new Box[Double](vue);
         }
 
         @Pinned def set(i0: int, i1: int, vue: double): void = {
@@ -113,7 +113,7 @@ abstract public class TestArray extends x10Test {
                     }
                     (o as Grid).pr(rank-1);
                 } else {
-                    val d = (o as Box[double]).value;
+                    val d = (new Box[double](o)).value;
                     out.print("" + (d as int));
                 }
 

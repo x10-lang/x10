@@ -33,7 +33,7 @@ import x10.compiler.Incomplete;
  * catch (IOException) { }
  */
 public class File {
-    @NativeRep("java", "x10.core.io.NativeFile", null, "x10.core.io.NativeFile._RTT")
+    @NativeRep("java", "x10.core.io.NativeFile", null, "x10.core.io.NativeFile.$RTT")
     @NativeRep("c++", "x10aux::ref<x10::io::File__NativeFile>", "x10::io::File__NativeFile", null)
     protected final static class NativeFile {
         native def this(String);

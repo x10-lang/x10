@@ -59,6 +59,7 @@ import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.matcher.Subst;
+import x10.types.matcher.X10FieldMatcher;
 import x10.visit.X10TypeChecker;
 import x10.errors.Errors;
 
@@ -102,7 +103,7 @@ public class X10Field_c extends Field_c {
             XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
             XVar currentPlace = XTerms.makeUQV("place");
             Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
-            fi = (X10FieldInstance) ts.findField(targetType, ts.FieldMatcher(tType2, receiverInContext, name, c));
+            fi = (X10FieldInstance) ts.findField(targetType, tType2, name, c, receiverInContext);
             if (isStatic && !fi.flags().isStatic())
                 throw new SemanticException("Cannot access non-static field "+name+" in static context");
             assert (fi != null);
@@ -121,7 +122,7 @@ public class X10Field_c extends Field_c {
 	    TypeSystem xts =  tc.typeSystem();
 	    Context context = tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
-	    Set<FieldInstance> fis = xts.findFields(targetType, xts.FieldMatcher(targetType, name, context));
+	    Set<FieldInstance> fis = xts.findFields(targetType, targetType, name, context);
 	    // If exception was not thrown, there is at least one match.  Fake it.
 	    // See if all matches have the same type, and save that to avoid losing information.
 	    Type rt = null;
@@ -222,7 +223,7 @@ public class X10Field_c extends Field_c {
 						if (fd.name().equals(name.id())) {
 							X10FieldInstance fi = (X10FieldInstance) fd.asInstance();
 							try {
-							    fi = (X10FieldInstance) ts.FieldMatcher(tType, name.id(), c).instantiate(fi);
+					            fi = X10FieldMatcher.instantiateAccess((X10FieldInstance)fi,name.id(),tType,false,c);
 							}
 							catch (SemanticException e) {
 							}
@@ -271,6 +272,7 @@ public class X10Field_c extends Field_c {
                 catch (SemanticException ex) {
                 }
             }
+            fi.error().setPosition(position); // because in X10FieldMatcher.instantiateAccess the position is of the instance which is incorrect.
             Errors.issue(tc.job(), fi.error(), this);
         }
 

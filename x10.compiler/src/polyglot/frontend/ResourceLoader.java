@@ -16,7 +16,8 @@ import java.util.zip.ZipFile;
 import polyglot.main.Reporter;
 import polyglot.util.FileUtil;
 import polyglot.util.InternalCompilerError;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 
 /**
  * We implement our own class loader.  All this pain is so
@@ -40,6 +41,18 @@ public class ResourceLoader
      * so that we get less FileNotFoundExceptions
      */
     protected Map<File, Set<String>> dirContentsCache;
+
+    protected static final Set<String> DOES_NOT_EXIST = new AbstractSet<String>() {
+        public Iterator<String> iterator() {
+            return new Iterator<String>() {
+                public boolean hasNext() { return false; }
+                public String next() { throw new NoSuchElementException(); }
+                public void remove() { throw new UnsupportedOperationException(); }
+            };
+        }
+        public int size() { return 0; }
+        public boolean contains(String s) { return false; }
+    };
 
     /**
      * Cache File.canRead()
@@ -205,32 +218,39 @@ public class ResourceLoader
     }
 
     Resource loadFromFile(String name, File dir) throws IOException {
-	int sepIndex = name.indexOf(File.separatorChar);
-	if (sepIndex > 0) {
-	    File newDir = new File(dir, name.substring(0, sepIndex));
-	    String newName = name.substring(sepIndex+1);
-	    return loadFromFile(newName, newDir);
-	}
+        int sepIndex = name.indexOf('/');
+        if (sepIndex < 0) {
+            sepIndex = name.indexOf(File.separatorChar);
+        }
+        if (sepIndex > 0) {
+            String firstPart = name.substring(0, sepIndex);
+            Set<String> contents = dirContentsCache.get(dir);
+            if (contents != null && !contents.contains(firstPart)) {
+                return null;
+            }
+            File newDir = new File(dir, firstPart);
+            String newName = name.substring(sepIndex+1);
+            return loadFromFile(newName, newDir);
+        }
         Set<String> dirContents = dirContentsCache.get(dir);
         if (dirContents == null) {
-            dirContents = CollectionFactory.newHashSet();
-            dirContentsCache.put(dir, dirContents);
             if (dir.exists() && dir.isDirectory()) {
+                dirContents = CollectionFactory.newHashSet();
                 String[] contents = dir.list();
                 if (contents != null) {
                     for (int j = 0; j < contents.length; j++) {
                         dirContents.add(contents[j]);
                     }
                 }
+            } else {
+                dirContents = DOES_NOT_EXIST;
             }
+            dirContentsCache.put(dir, dirContents);
         }
-        
-        // otherwise, try and open the thing.
-        File file = new File(dir, name);
-        
-        if (! file.exists())
+        if (dirContents == DOES_NOT_EXIST) {
             return null;
-        
+        }
+
         String firstPart = name;
 
         // check to see if the directory has the first part of the filename,
@@ -239,13 +259,18 @@ public class ResourceLoader
             return null;
         }
 
+        // otherwise, try and open the thing.
+        File file = new File(dir, name);
+
+        if (! file.exists())
+            return null;
 
         if (reporter.should_report(Reporter.loader, 3)) {
             reporter.report(3, "found " + file);
             reporter.report(3, "defining class " + name);
         }
-	
-	Resource c = new FileResource(file);
+
+        Resource c = new FileResource(file);
         return c;
     }
 

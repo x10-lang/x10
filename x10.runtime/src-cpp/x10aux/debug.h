@@ -138,12 +138,6 @@ struct _X10ArrayMap
 	uint32_t _x10typeIndex;  // Index of the X10 type into appropriate _X10typeMap (if applicable)
 };
 
-struct _X10RefMap
-{
-	uint32_t _x10type; // Classification of the type inside the reference
-	uint32_t _x10typeIndex; // Index of the X10 type into appropriate _X10typeMap (if applicable)
-};
-
 struct _X10TypedefMap
 {
 	uint32_t _x10type; // Classification of this type
@@ -186,7 +180,7 @@ struct _MetaDebugInfo_t {
   const struct _X10ClassMap*    x10classMapList;   // The class mapping list
   const struct _X10ClosureMap*  x10closureMapList; // The async closure mapping list
   const struct _X10ArrayMap*    x10arrayMapList;   // The array mapping list
-  const struct _X10RefMap*      x10refMapList;     // The reference mapping list
+  const struct _X10ClassMap*    x10refMapList;     // The reference mapping list
 };
 
 //extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.

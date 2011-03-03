@@ -268,7 +268,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @return this UShort shifted right by count with high bits zero-filled.
      */
     // @Native("java", "((short) ((#0) >>> (#1)))")
-    @Native("c++",  "((x10_ushort) ((#this) >> (#x)))")
+    @Native("c++",  "((x10_ushort) ((#this) >> (#count)))")
     public operator this >>> (count:Int): UShort = UShort(shortVal >>> count);
 
     /**

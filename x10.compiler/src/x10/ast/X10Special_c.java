@@ -151,18 +151,12 @@ public class X10Special_c extends Special_c implements X10Special {
             Type tt = Types.baseType(t);
             CConstraint cc = Types.xclause(t);
             cc = cc == null ? new CConstraint() : cc.copy();
-            try {
-                XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
-                if (var != null) {
-                    assert var instanceof CThis;
-                    cc.addSelfBinding(var);
-                    cc.setThisVar(var);
-                    //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
-                }
-            }
-            catch (XFailure e) {
-                Errors.issue(tc.job(),
-                        new Errors.ConstraintOnThisIsInconsistent(e, position()));
+            XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
+            if (var != null) {
+                assert var instanceof CThis;
+                cc.addSelfBinding(var);
+                cc.setThisVar(var);
+                //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             tt = Types.xclause(Types.baseType(tt), cc);
             
@@ -173,16 +167,10 @@ public class X10Special_c extends Special_c implements X10Special {
             Type tt = Types.baseType(superClass);
             CConstraint cc = Types.xclause(superClass);
             cc = cc == null ? new CConstraint() : cc.copy();
-            try {
-                XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
-                if (var != null) {
-                    cc.addSelfBinding(var);
-                    //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
-                }
-            }
-            catch (XFailure e) {
-                Errors.issue(tc.job(),
-                        new Errors.ConstraintOnSuperIsInconsistent(e, position()));
+            XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
+            if (var != null) {
+                cc.addSelfBinding(var);
+                //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             tt = Types.xclause(Types.baseType(tt), cc);
             result = (X10Special) type(tt);

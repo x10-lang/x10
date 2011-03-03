@@ -54,10 +54,10 @@ import x10.util.Box;
 		// }
 		
 		// (nullable<int>) <-- nullable<int>
-		var case3a: Box[int] = ni as Box[int]; // no check
+		//var case3a: Box[int] = ni as Box[int]; // requires Box to be covariant, and variance was removed 
 
 		// (nullable<int>) <-- nullable<int> (null)
-		var case3b: Box[int] = nn as Box[int]; // no check
+		//var case3b: Box[int] = nn as Box[int]; // no check
 
 
 		// (nullable<int(:self==3)>) <-- nullable<int>

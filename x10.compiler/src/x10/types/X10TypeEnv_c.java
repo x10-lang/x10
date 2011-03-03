@@ -208,15 +208,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#consistent(x10.types.constraints.CConstraint)
      */
-    public boolean consistent(CConstraint c) {
-        return c.consistent();
+    public boolean consistent(CConstraint c) { // todo: this is a horrible (!!!) signature because we do not use "this"! Make is static, or rename it, or use the context!
+        return c.consistent(); // todo: why is a TypeConstraint behaviour below different from a CConstraint here?
     }
 
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#consistent(x10.types.constraints.TypeConstraint)
      */
     public boolean consistent(TypeConstraint c) {
-        return c.consistent((Context) context);
+        return c.consistent(context);
     }
 
     /* (non-Javadoc)
@@ -539,7 +539,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             catch (SemanticException e) {
             }
             try {
-                return ts.findTypeDef(t, ts.TypeDefMatcher(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context), context);
+                return ts.findTypeDef(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context);
             }
             catch (SemanticException e) {
             }
@@ -704,6 +704,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     boolean isOldSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
+
+    	if (t1 == t2) 
+    		return true;
+
     	if (ts.hasUnknown(t1) || ts.hasUnknown(t2)) return true;
 
     	if (t1.isVoid())
@@ -739,10 +743,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		}
     	}
     	
-    	if (t1 == t2) 
-    		return true;
-
-
     	if (t1.isNull())
     		return Types.permitsNull(t2);
     	
@@ -842,13 +842,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			c1 = c1.copy().instantiateSelf(x);
 
     		CConstraint c = null;
-    		try {
-    			c = xcontext.constraintProjection(c1, c2);
-//    			c1 = xcontext.constraintProjection(c1);
-//    			c2 = xcontext.constraintProjection(c2);
-    		} catch (XFailure z) {
-    			return false;
-    		}
+    		c = xcontext.constraintProjection(c1, c2);
+//  		c1 = xcontext.constraintProjection(c1);
+//  		c2 = xcontext.constraintProjection(c2);
 
     		if (c1 != null && ! c.entails(c1)) {
     			// Update the context, by adding the
@@ -1218,12 +1214,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         final Context xc = context;
         if (c1 == null) {
-            try {
-                CConstraint sigma = xc.constraintProjection(c2);
-                return sigma.entails(c2);
-            } catch (XFailure z) {
-                return false;
-            }
+            CConstraint sigma = xc.constraintProjection(c2);
+            return sigma.entails(c2);
         }
         return c1.entails(c2, new ConstraintMaker() {
                 public CConstraint make() throws XFailure {
@@ -1407,15 +1399,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             
             XLit val = XTerms.makeLit(value);
 
-            try {
-                CConstraint c = new CConstraint();
-                c.addSelfBinding(val);
-                return entails(c, Types.realX(toType));
-            }
-            catch (XFailure f) {
-                // Adding binding makes real clause inconsistent.
-                return false;
-            }
+            CConstraint c = new CConstraint();
+            c.addSelfBinding(val);
+            return entails(c, Types.realX(toType));
     }
 
     protected boolean typeRefListEquals(List<Ref<? extends Type>> l1, List<Ref<? extends Type>> l2) {
@@ -1968,7 +1954,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    return Collections.<ConstructorInstance>emptyList();
 	}
 
-	List<ConstructorInstance> list = ((ClassType) container).constructors();
+	X10ParsedClassType containerClass = (X10ParsedClassType) container.toClass();
+	List<Type> tas = containerClass.typeArguments();
+	TypeConstraint tb = Types.get(containerClass.x10Def().typeBounds());
+	if (tas != null && tb != null) {
+	    TypeConstraint ntb = containerClass.subst().reinstantiate(tb);
+	    if (!ntb.consistent(context))
+	        error = new Errors.TypeGuardNotEntailed(tb, container);
+	}
+
+	List<ConstructorInstance> list = containerClass.constructors();
+	if (error != null) list = Collections.<ConstructorInstance>emptyList();
 	for (ConstructorInstance ci : list) {
 	    if (reporter.should_report(Reporter.types, 3))
 		reporter.report(3, "Trying " + ci);

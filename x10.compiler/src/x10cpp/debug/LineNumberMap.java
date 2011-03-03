@@ -15,9 +15,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.Map;
@@ -293,19 +295,21 @@ public class LineNumberMap extends StringTable {
 		int _cppClass; // Index of the C++ containing struct/class name in _X10strings
 	}
 	
-	private class ClosureMapInfo
+	private class ClassMapInfo
 	{
 		int _x10startLine;     // First line number of X10 line range
 		int _x10endLine;       // Last line number of X10 line range
+		int _type;			   // used to store the wrapping type id
 		String _sizeOfArg;
-		ArrayList<MemberVariableMapInfo> closureMembers;
+		ArrayList<MemberVariableMapInfo> _members;
 	}
 	
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
-	private static ArrayList<Integer> refMap = new ArrayList<Integer>();
+	//private static ArrayList<Integer> refMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
 	private static LinkedHashMap<Integer, ArrayList<MemberVariableMapInfo>> memberVariables;
-	private static LinkedHashMap<Integer, ClosureMapInfo> closureMembers;
+	private static LinkedHashMap<Integer, ClassMapInfo> referenceMembers;
+	private static LinkedHashMap<Integer, ClassMapInfo> closureMembers;	
 	
 	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
@@ -348,31 +352,117 @@ public class LineNumberMap extends StringTable {
 		if (type.startsWith("x10.util.Random"))
 			return 205;
 		if (type.startsWith("x10.lang.String"))
-			return 206;		
+			return 206;
+		// 207 = valrail
 		if (type.startsWith("x10.array.Point"))
 			return 208;
+		if (type.startsWith("x10.lang.Any"))
+			return 209;
+		if (type.startsWith("x10.lang.GlobalRef"))
+			return 210;
 		if (type.startsWith("x10.array.Region"))
 			return 300;
 		if (type.contains("_closure_"))
-			return 100;			
+			return 100;
 		return 101; // generic class
 	}
 	
-	static int determineSubtypeId(String type, ArrayList<Integer> list)
+	static String getInnerType(String type)
 	{
 		int bracketStart = type.indexOf('[');
 		int bracketEnd = type.lastIndexOf(']');
 		if (bracketStart != -1 && bracketEnd != -1)
+			return type.substring(bracketStart+1, bracketEnd);
+		else
+			return null;
+	}
+	
+	int determineSubtypeId(String type, ArrayList<Integer> list)
+	{
+		String subtype = getInnerType(type);
+		if (subtype != null)
 		{
-			String subtype = type.substring(bracketStart+1, bracketEnd);
-			int subtypeId = determineTypeId(subtype);
+			int subtypeId = determineTypeId(subtype);			
 			int position = list.size();
 			list.add(subtypeId);
-			list.add(determineSubtypeId(subtype, list));			
+			
+			int innerType = determineSubtypeId(subtype, list);
+			if (subtypeId == 101 && innerType == -1) // this may be a locally defined class.  Remember the whole name.
+				innerType = stringId(Emitter.mangled_non_method_name(subtype));
+			list.add(innerType);
 			return position/2;
 		}
 		else 
 			return -1;
+	}
+	
+	public int addReferenceMap(String name, String type, int startline, int endline, int refType)
+	{
+		if (referenceMembers == null)
+			referenceMembers = new LinkedHashMap<Integer, ClassMapInfo>();
+		
+		int id = stringId(name);
+		ClassMapInfo cm = referenceMembers.get(id);
+		if (cm == null)
+		{
+			cm = new ClassMapInfo();			
+			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+			cm._type = refType;
+			cm._sizeOfArg = type.replace(".", "::").replace('[', '<').replace("]", " >");
+			int properties = cm._sizeOfArg.indexOf('{');
+			if (properties > -1)
+			{
+				String end;
+				while (properties > -1)
+				{
+					end = cm._sizeOfArg.substring(cm._sizeOfArg.indexOf('}')+1);
+					cm._sizeOfArg = cm._sizeOfArg.substring(0, properties);
+					cm._sizeOfArg = cm._sizeOfArg.concat(end);
+					properties = cm._sizeOfArg.indexOf('{');
+				}
+			}
+			int comma = cm._sizeOfArg.indexOf(',');
+			if (comma > -1)
+			{
+				// this has template arguments.  Add in the FMGL stuff
+				int start = cm._sizeOfArg.indexOf('<');
+				while (start < comma)
+				{
+					int nextStart = cm._sizeOfArg.indexOf('<', start+1);
+					if (nextStart < comma && nextStart != -1)
+						start = nextStart;
+					else
+						break;
+				}
+				String temp = cm._sizeOfArg.substring(start+1).replace(",", "), FMGL(").replaceFirst(">", ")>");
+				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("FMGL(").concat(temp);
+			}
+			referenceMembers.put(id, cm);
+		
+			String innerType = getInnerType(type);
+			MemberVariableMapInfo v = new MemberVariableMapInfo();
+			v._x10type = determineTypeId(innerType);
+			if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
+				v._x10typeIndex = determineSubtypeId(innerType, arrayMap);
+			else
+				v._x10typeIndex = -1;
+			v._x10memberName = id;
+			v._cppMemberName = v._x10memberName;
+			v._cppClass = stringId(cm._sizeOfArg);
+			cm._members.add(v);
+			return referenceMembers.size()-1;
+		}
+		
+		int index = 0;
+		for (int key : referenceMembers.keySet())
+		{
+			if (id == key)
+				return index;
+			else
+				index++;
+		}
+		// should never reach here
+		return -1;
 	}
 	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle)
@@ -382,8 +472,8 @@ public class LineNumberMap extends StringTable {
 	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle, int closureIndex)
 	{
-		if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
-		//if (name == null || name.contains("$"))
+		//if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
+		if (name == null || name.contains("$"))
 			return; // skip variables with compiler-generated names.
 		
 		if (localVariables == null)
@@ -392,8 +482,8 @@ public class LineNumberMap extends StringTable {
 		LocalVariableMapInfo v = new LocalVariableMapInfo();
 		v._x10name = stringId(name);
 		v._x10type = determineTypeId(type);
-		if (v._x10type == 203)
-			v._x10typeIndex = determineSubtypeId(type, refMap);
+		if (v._x10type == 203 || v._x10type == 210)
+			v._x10typeIndex = addReferenceMap(name, type, startline, endline, v._x10type);
 		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else if (v._x10type == 101)
@@ -415,6 +505,23 @@ public class LineNumberMap extends StringTable {
 		v._x10index = file;
 		v._x10startLine = startline;
 		v._x10endLine = endline;
+		
+		// prevent duplicates
+		for (LocalVariableMapInfo existing : localVariables)
+		{
+			if (existing._x10name == v._x10name && existing._cppName == v._cppName && existing._x10index.equals(v._x10index)
+					 && existing._x10startLine == v._x10startLine && existing._x10endLine == v._x10endLine)
+			{
+				if ((existing._x10type == v._x10type && existing._x10typeIndex == v._x10typeIndex) || v._x10type == 209)
+					return; // exact duplicate, or less specific type
+				else if (existing._x10type == 209)
+				{	// replace "Any" with the more specific type
+					existing._x10type = v._x10type;
+					existing._x10typeIndex = v._x10typeIndex; 
+					return;
+				}
+			}
+		}
 		localVariables.add(v);
 	}
 	
@@ -432,8 +539,8 @@ public class LineNumberMap extends StringTable {
 		
 		MemberVariableMapInfo v = new MemberVariableMapInfo();
 		v._x10type = determineTypeId(type);
-		if (v._x10type == 203)
-			v._x10typeIndex = determineSubtypeId(type, refMap);
+		if (v._x10type == 203 || v._x10type == 210)
+			v._x10typeIndex = addReferenceMap(name, type, 0, 0, v._x10type);
 		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else 
@@ -446,22 +553,16 @@ public class LineNumberMap extends StringTable {
 	
 	public void addClosureMember(String name, String type, String containingClass, String file, int startLine, int endLine)
 	{
-		// TODO - this "if" is a hack.  I want source code that has a real async to map to a closure, 
-		// but I want to hide closures that are generated under the covers.  I can't find a good way to 
-		// determine this, so in the meantime, I'm just throwing out all the 1-line closures.		
-		if (startLine == endLine) return;
-		
 		if (closureMembers == null)
-			closureMembers = new LinkedHashMap<Integer, ClosureMapInfo>();
-		ClosureMapInfo cm = closureMembers.get(stringId(containingClass));
+			closureMembers = new LinkedHashMap<Integer, ClassMapInfo>();
+		ClassMapInfo cm = closureMembers.get(stringId(containingClass));
 		if (cm == null)
 		{
 			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size());
-			cm = new ClosureMapInfo();			
-			cm.closureMembers = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
-			cm._x10startLine = startLine;
-			cm._x10endLine = endLine;
+			cm = new ClassMapInfo();			
+			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			cm._sizeOfArg = containingClass;
+			cm._type = 100; // all closures are type 100
 			closureMembers.put(stringId(containingClass), cm);
 		}
 		
@@ -471,16 +572,38 @@ public class LineNumberMap extends StringTable {
 		{
 			MemberVariableMapInfo v = new MemberVariableMapInfo();
 			v._x10type = determineTypeId(type);
-			if (v._x10type == 203)
-				v._x10typeIndex = determineSubtypeId(type, refMap);
+			if (v._x10type == 203 || v._x10type == 210)
+				v._x10typeIndex = addReferenceMap(name, type, startLine, endLine, v._x10type);
 			else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 				v._x10typeIndex = determineSubtypeId(type, arrayMap);
-			else 
+			else if (v._x10type == 101) // save the type for later - it may be a class in our class table
+				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type));
+			else
 				v._x10typeIndex = -1;
 			v._x10memberName = stringId(name);
 			v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
 			v._cppClass = stringId(containingClass);
-			cm.closureMembers.add(v);
+
+			// prevent duplicates
+			for (MemberVariableMapInfo existing : cm._members)
+			{
+				if (existing._x10memberName == v._x10memberName && existing._cppMemberName == v._cppMemberName && existing._cppClass == v._cppClass)
+				{
+					if ((existing._x10type == v._x10type && existing._x10typeIndex == v._x10typeIndex) || v._x10type == 209)
+						return; // exact duplicate, or less specific type
+					else if (existing._x10type == 209)
+					{	// replace "Any" with the more specific type
+						existing._x10type = v._x10type;
+						existing._x10typeIndex = v._x10typeIndex; 
+						cm._x10startLine = startLine;
+						cm._x10endLine = endLine;
+						return;
+					}
+				}
+			}
+			cm._x10startLine = startLine;
+			cm._x10endLine = endLine;
+			cm._members.add(v);
 		}
 	}
 
@@ -948,9 +1071,31 @@ public class LineNumberMap extends StringTable {
 		        		else
 		        			typeIndex = offsets[v._x10typeIndex] * -1;
 		        	}
+		        	else if (v._x10type==100)
+		        	{
+			        	if (v._x10startLine == v._x10endLine) // skip generated closures
+			        		continue;
+			        	if (closureMembers != null)
+		        		{
+		        			int index = 0;
+		        			for (Integer classId : closureMembers.keySet())
+		        			{
+		        				ClassMapInfo value = closureMembers.get(classId);
+		        				if (value._x10startLine == v._x10startLine && value._x10endLine == v._x10endLine)
+		        				{
+		        					typeIndex = index;
+		        					break;
+		        				}
+		        				else if (value._x10startLine != value._x10endLine)
+		        					index++;
+		        			}
+		        		}
+		        		else
+		        			typeIndex = offsets[v._x10typeIndex] * -1;
+		        	}
 		        	else
 		        		typeIndex = v._x10typeIndex;
-		        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+typeIndex+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" }, // "+m.lookupString(v._x10name));
+	        		w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+typeIndex+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" }, // "+m.lookupString(v._x10name));
 		        }
 		        w.writeln("};");
 		        w.forceNewline();
@@ -959,14 +1104,16 @@ public class LineNumberMap extends StringTable {
 	        
         if (memberVariables != null)
         {
+        	int index = 0;
         	for (Integer classId : memberVariables.keySet())
         	{
         		String classname = m.lookupString(classId);
 		        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		        for (MemberVariableMapInfo v : memberVariables.get(classId))
-		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+		        	w.writeln("    { "+v._x10type+", "+index+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 			    w.writeln("};");
 			    w.forceNewline();
+			    index++;
         	}
         	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) = {");
         	for (Integer classId : memberVariables.keySet())
@@ -986,21 +1133,50 @@ public class LineNumberMap extends StringTable {
 	    	for (Integer classId : closureMembers.keySet())
         	{
 	    		String classname = m.lookupString(classId);
-	    		ClosureMapInfo cmi = closureMembers.get(classId);
-	    		w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		        for (MemberVariableMapInfo v : cmi.closureMembers)
-		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
-			    w.writeln("};");
-			    w.forceNewline();
+	    		ClassMapInfo cmi = closureMembers.get(classId);
+	    		if (cmi._x10endLine != cmi._x10startLine) // this is a hack to skip generated closures
+	    		{
+	    			w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+			        for (MemberVariableMapInfo v : cmi._members)
+			        {
+			        	int typeIndex;
+			        	if (v._x10type == 101) 
+			        	{
+			        		// see if this class is defined in our class mappings				        	
+			        		typeIndex = -1;
+				        	if (memberVariables != null)
+				        	{
+				        		int index = 0;
+				            	for (Integer memberId : memberVariables.keySet())
+				            	{
+				            		if (memberId == v._x10typeIndex)
+				            		{
+				            			typeIndex = index;
+				            			break;
+				            		}
+				            		index++;
+				            	}
+				        	}				        		
+			        	}
+			        	else
+			        		typeIndex = v._x10typeIndex;
+			        	w.writeln("    { "+v._x10type+", "+typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+			        }
+				    w.writeln("};");
+				    w.forceNewline();
+	    		}
         	}	    	
 		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
 		    int index = 0;
 		    for (Integer classId : closureMembers.keySet())
 		    {
 		    	String classname = m.lookupString(classId);
-		    	ClosureMapInfo cmi = closureMembers.get(classId);
-		    	w.writeln("    { 100, "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi.closureMembers.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
-		    	index++;
+		    	ClassMapInfo cmi = closureMembers.get(classId);
+		    	if (cmi._x10endLine != cmi._x10startLine)
+		    	{
+		    		w.writeln("    { "+cmi._type+", "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi._members.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+		    		index++;
+		    	}
 		    }
 		    w.writeln("};");
 		    w.forceNewline();
@@ -1011,21 +1187,58 @@ public class LineNumberMap extends StringTable {
 		    w.writeln("static const struct _X10ArrayMap _X10ArrayMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		    Iterator<Integer> iterator = arrayMap.iterator();
 		    while(iterator.hasNext())
-		    	w.writeln("    { "+iterator.next()+", "+iterator.next()+" },");
+		    {
+		    	int maintype = iterator.next();
+		    	int innertype = iterator.next();
+		    	if (maintype == 101 && innertype != -1)
+		    	{
+		    		int lookingFor = innertype;
+		    		innertype = -1;
+		    		// see if this is a local class
+		    		if (memberVariables != null)
+		        	{
+		        		int index = 0;
+		            	for (Integer memberId : memberVariables.keySet())
+		            	{
+		            		if (memberId == lookingFor)
+		            		{
+		            			innertype = index;
+		            			break;
+		            		}
+		            		index++;
+		            	}
+		        	}
+		    	}
+		    	w.writeln("    { "+maintype+", "+innertype+" },");
+		    }
 		    w.writeln("};");
 		    w.forceNewline();
 	    }
 	    
-	    if (!refMap.isEmpty())
+	    if (referenceMembers != null)
 	    {
-		    w.writeln("static const struct _X10RefMap _X10RefMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		    Iterator<Integer> iterator = refMap.iterator();
-		    while(iterator.hasNext())
-		    	w.writeln("    { "+iterator.next()+", "+iterator.next()+" },");
+    		for (Integer classId : referenceMembers.keySet())
+        	{
+	    		String classname = m.lookupString(classId);
+	    		ClassMapInfo cmi = referenceMembers.get(classId);
+    			w.writeln("static const struct _X10TypeMember _X10Ref"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		        for (MemberVariableMapInfo v : cmi._members)
+		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+			    w.writeln("};");
+			    w.forceNewline();
+        	}	    	
+		    w.writeln("static const struct _X10ClassMap _X10RefMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
+		    int index = 0;
+		    for (Integer classId : referenceMembers.keySet())
+		    {
+		    	String classname = m.lookupString(classId);
+		    	ClassMapInfo cmi = referenceMembers.get(classId);
+		    	w.writeln("    { "+cmi._type+", "+offsets[classId]+", sizeof("+cmi._sizeOfArg+"), "+cmi._members.size()+", _X10Ref"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");		    																		    
+		    	index++;
+		    }
 		    w.writeln("};");
 		    w.forceNewline();
-	    }	    
-
+	    }
         // A meta-structure that refers to all of the above
         w.write("static const struct _MetaDebugInfo_t _MetaDebugInfo __attribute__((used)) "+debugSectionAttr+" = {");
         w.newline(4); w.begin(0);
@@ -1063,7 +1276,7 @@ public class LineNumberMap extends StringTable {
         	w.writeln("sizeof(_X10ArrayMapList),");
         else
         	w.writeln("0, // no array mappings");
-        if (!refMap.isEmpty())
+        if (referenceMembers != null)
         	w.writeln("sizeof(_X10RefMapList),");
         else
         	w.writeln("0, // no reference mappings");
@@ -1119,9 +1332,10 @@ public class LineNumberMap extends StringTable {
         }
         else
         	w.writeln("NULL,");
-        if (!refMap.isEmpty())
+        if (referenceMembers != null)
         {
-        	refMap.clear();
+        	referenceMembers.clear();
+        	referenceMembers = null;
         	w.write("_X10RefMapList");
         }
         else

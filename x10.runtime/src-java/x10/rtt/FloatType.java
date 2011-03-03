@@ -13,6 +13,9 @@ package x10.rtt;
 
 
 public class FloatType extends RuntimeType<Float> {
+
+	private static final long serialVersionUID = 1L;
+
     public FloatType() {
         super(float.class,
               new Type[] {

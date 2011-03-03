@@ -12,7 +12,9 @@
 package x10.rtt;
 
 public class FunType<T> extends RuntimeType<T> {
-    
+
+	private static final long serialVersionUID = 1L;
+
     public FunType(Class<?> c) {
         super(c);
     }

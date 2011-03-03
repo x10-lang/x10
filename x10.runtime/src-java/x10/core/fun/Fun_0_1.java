@@ -19,7 +19,7 @@ import x10.rtt.Type;
 public interface Fun_0_1<T1,U> extends Fun {
     U $apply(T1 o1, Type t1);
     
-    public static final RuntimeType<Fun_0_1<?,?>> _RTT = new FunType<Fun_0_1<?,?>>(
+    public static final RuntimeType<Fun_0_1<?,?>> $RTT = new FunType<Fun_0_1<?,?>>(
         Fun_0_1.class,
         new RuntimeType.Variance[] {
             Variance.CONTRAVARIANT,

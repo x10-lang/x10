@@ -14,6 +14,7 @@ package x10.core;
 import java.util.Arrays;
 
 import x10.core.fun.Fun_0_1;
+import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -22,6 +23,9 @@ import x10.rtt.UnresolvedType;
 import x10.rtt.RuntimeType.Variance;
 
 public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<Integer,T> {
+
+	private static final long serialVersionUID = 1L;
+
     public final int length;
     
     public final Object value;
@@ -209,22 +213,18 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
     //
     // Runtime type information
     //
-    public static final RuntimeType<Rail<?>> _RTT = new RuntimeType<Rail<?>>(
+    public static final RuntimeType<Rail<?>> $RTT = new NamedType<Rail<?>>(
+        "x10.lang.Rail",
         Rail.class, 
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
-            new ParameterizedType(x10.lang.Indexable._RTT, Types.INT, new UnresolvedType(0)),
-            new ParameterizedType(x10.lang.Iterable._RTT, new UnresolvedType(0)),
-            new ParameterizedType(x10.lang.Settable._RTT, Types.INT, new UnresolvedType(0))
+            new ParameterizedType(x10.lang.Indexable.$RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(x10.lang.Iterable.$RTT, new UnresolvedType(0)),
+            new ParameterizedType(x10.lang.Settable.$RTT, Types.INT, new UnresolvedType(0))
         }
-    ) {
-        @Override
-        public java.lang.String typeName() {
-            return "x10.lang.Rail";
-        }
-    };
-    public RuntimeType<Rail<?>> getRTT() {return _RTT;}
-    public Type<?> getParam(int i) {
+    );
+    public RuntimeType<Rail<?>> $getRTT() {return $RTT;}
+    public Type<?> $getParam(int i) {
         return i == 0 ? type : null;
     }
 }

@@ -27,7 +27,7 @@ public class Variance10 extends x10Test {
 
 
 // file Variance line 93
- static class Get[+T] {
+ static class Get[T] {
   val x: T;
   def this(x: T) { this.x = x; }
   def get(): T = x;

@@ -26,7 +26,7 @@ public class XTENLANG_473 extends x10Test {
     }
 
     public def run(): boolean {
-        val x: Box[String] = "aaa";
+        val x: Box[String] = new Box[String]("aaa");
         val y = new G[String]().foo(x);
         val z = x();
         return y == z;

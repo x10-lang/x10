@@ -539,3 +539,4 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     @Native("c++",  "((#x) + (#y))")
     public native static operator[T] (x:T) + (y:String): String;
 }
+public type String(s:String) = String{self==s};

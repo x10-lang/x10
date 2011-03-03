@@ -23,7 +23,7 @@ public class PrimitiveToBoxPrimitive1_MustFailCompile extends x10Test {
 	    3 instanceof Box[int]; // ERR: Left operand of instanceof must be castable to right type.
     def test() {
         val y = 3 instanceof Box[int]; // ERR: Left operand of instanceof must be castable to right type.
-        val x = 3 as Box[int]; // 3 is not castable to Box[Int], but it is coercible to it.
+        val x = 3 as Box[int]; // ERR: Box is no longer covariant
     }
 	
 	public static def main(var args: Array[String](1)): void = {

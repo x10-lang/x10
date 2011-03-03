@@ -103,5 +103,6 @@ public interface Any {
     @Native("c++", "x10aux::hash_code(#this)")
     def hashCode():Int;
 }
+public type Any(x:Any) = Any{self==x};
 
 // vim:shiftwidth=4:tabstop=4:expandtab

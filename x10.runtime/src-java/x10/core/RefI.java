@@ -11,7 +11,10 @@
 
 package x10.core;
 
+import x10.rtt.RuntimeType;
+import x10.rtt.Types;
+
 // Base interface of all X10 ref objects
 public interface RefI extends Any {
-
+	public static final RuntimeType<RefI> $RTT = Types.OBJECT;
 }

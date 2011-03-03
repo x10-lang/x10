@@ -27,10 +27,10 @@ public class Variance20 extends x10Test {
 
 
 // file Variance line 116
- static interface OutputStream[-T] {
+ static interface OutputStream[T] {
    def write(T) : void;
 }
- static interface ComparableTo[-T] {
+ static interface ComparableTo[T] {
    def compare(T) : Int;
 }
 

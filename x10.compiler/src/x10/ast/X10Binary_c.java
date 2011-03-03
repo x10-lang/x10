@@ -904,6 +904,26 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             mi = mi.returnType(type);
             result = (X10Call_c) result.methodInstance(mi).type(type);
         }
+        // Add support for patching up the return type of IntRegion's operator*().
+        // The rank of the result is rr+1, if the rank of the region is rr and rr is a literal.
+        // Further the result is rect if the region is rect.
+        if (op == Binary.MUL && xts.typeEquals(xts.IntRange(), lbase, context)
+                && xts.typeEquals(xts.Region(), rbase, context)) {
+            Type type = result.type();
+            type = BuiltInTypeRules.adjustReturnTypeForRegionRangeMult(right, left, type, context);
+            mi = mi.returnType(type);
+            result = (X10Call_c) result.methodInstance(mi).type(type);
+        }
+        // Add support for patching up the return type of IntRegion's operator*().
+        // The rank of the result is rr+1, if the rank of the region is rr and rr is a literal.
+        // Further the result is rect if the region is rect.
+        if (op == Binary.MUL && xts.typeEquals(xts.Region(), lbase, context)
+                && xts.typeEquals(xts.IntRange(), rbase, context)) {
+            Type type = result.type();
+            type = BuiltInTypeRules.adjustReturnTypeForRegionRangeMult(left, right, type, context);
+            mi = mi.returnType(type);
+            result = (X10Call_c) result.methodInstance(mi).type(type);
+        }
         // Add support for patching up the return type of Int's operator..(),
         // The result is zeroBased if the left arg is 0.
         if (op == Binary.DOT_DOT && xts.typeEquals(xts.Int(), lbase, context)

@@ -13,7 +13,7 @@ package x10.util;
 
 import x10.compiler.TempNoInline_3;
 
-public final class Box[+T](value: T) implements ()=> T {
+public final class Box[T](value: T) implements ()=> T {
     public def this(x: T) { property(x); }
 
     public operator this()=value;
@@ -36,5 +36,5 @@ public final class Box[+T](value: T) implements ()=> T {
         return false;
     }
 
-    public static @TempNoInline_3 operator[T](x:T):Box[T] = new Box[T](x);
+    //public static @TempNoInline_3 operator[T](x:T):Box[T] = new Box[T](x);
 }

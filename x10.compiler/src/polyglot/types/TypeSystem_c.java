@@ -83,6 +83,7 @@ import x10.types.matcher.X10MethodMatcher;
 import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
 import x10.util.CollectionFactory;
+import x10.X10CompilerOptions;
 
 
 /**
@@ -843,8 +844,9 @@ public class TypeSystem_c implements TypeSystem
     public boolean isSubtype(Type t1, Type t2) {
         return isSubtype(t1, t2, emptyContext());
     }
-    
-    public MacroType findTypeDef(Type container, TypeDefMatcher matcher, Context context) throws SemanticException {
+
+    public MacroType findTypeDef(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) throws SemanticException {
+        TypeDefMatcher matcher = new TypeDefMatcher(container,name,typeArgs,argTypes,context);
         List<MacroType> acceptable = findAcceptableTypeDefs(container, matcher, context);
 
         if (acceptable.size() == 0) {
@@ -892,8 +894,8 @@ public class TypeSystem_c implements TypeSystem
             throw new SemanticException("Reference to " + matcher.name() + " is ambiguous, multiple type defintions match: " + sb.toString());
         }
 
-        MacroType mi = maximal.iterator().next();
-
+        MacroType mi = maximal.iterator().next();        
+        mi = matcher.instantiateAccess(mi);
         return mi;
     }
 
@@ -917,7 +919,7 @@ public class TypeSystem_c implements TypeSystem
      * in type <code>container</code> or a supertype.  The list
      * returned may be empty.
      */
-    public Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
+    private Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
         assert_(container);
 
         Set<FieldInstance> candidates = CollectionFactory.newHashSet();
@@ -934,7 +936,6 @@ public class TypeSystem_c implements TypeSystem
         
 	Name name = matcher.name();
 
-	Context context = matcher.context();
 	assert_(container);
 
 	if (container == null) {
@@ -975,10 +976,6 @@ public class TypeSystem_c implements TypeSystem
 
 	return fields;
     }
-   
-    public TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        return new TypeDefMatcher(container, name, typeArgs, argTypes, context);
-    }
 
     public List<MacroType> findAcceptableTypeDefs(Type container, TypeDefMatcher matcher, Context context) throws SemanticException {
         assert_(container);
@@ -994,7 +991,7 @@ public class TypeSystem_c implements TypeSystem
             catch (SemanticException e) {
             }
             try {
-                return this.findTypeDef(t, this.TypeDefMatcher(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context), context);
+                return this.findTypeDef(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context);
             }
             catch (SemanticException e) {
             }
@@ -1106,13 +1103,15 @@ public class TypeSystem_c implements TypeSystem
 	protected Type container;
 	protected Name name;
 	protected List<Type> argTypes;
+    protected List<Type> typeArgs;
 	protected Context context;
 
-	protected MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
+	protected MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
 	    super();
 	    this.container = container;
 	    this.name = name;
 	    this.argTypes = argTypes;
+        this.typeArgs = typeArgs;
 	    this.context = context;
 	}
 
@@ -1144,7 +1143,18 @@ public class TypeSystem_c implements TypeSystem
 
 	public abstract MethodInstance instantiate(MethodInstance mi) throws SemanticException;
 
-	public abstract String argumentString();
+    public final String typeArgsString() {
+        return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]");
+    }
+    public String stripConstraints() {
+	    return name + typeArgsString() + "(" + CollectionUtil.listToString(Types.stripConstraintsIfDynamicCalls(argTypes)) + ")";
+    }
+    public final String argumentString() {
+        return typeArgsString() + "(" + CollectionUtil.listToString(argTypes) + ")";
+    }
+    public final List<Type> arguments() {
+        return argTypes;
+    }
 
 	public String toString() {
 	    return signature();
@@ -1159,7 +1169,7 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public abstract static class FieldMatcher extends BaseMatcher<FieldInstance> implements Cloneable {
+    public static class FieldMatcher extends BaseMatcher<FieldInstance> implements Cloneable {
 	protected Type container;
 	protected Name name;
 	protected Context context;
@@ -1201,7 +1211,12 @@ public class TypeSystem_c implements TypeSystem
 	    return name;
 	}
 
-	public abstract FieldInstance instantiate(FieldInstance mi) throws SemanticException;
+	public FieldInstance instantiate(FieldInstance mi) throws SemanticException {
+	    if (! mi.name().equals(name)) {
+		    return null;
+	    }
+        return mi;
+    }
 
 	public String toString() {
 	    return signature();
@@ -1303,8 +1318,8 @@ public class TypeSystem_c implements TypeSystem
 	if (acceptable.size() == 0) {
 	    throw new NoMemberException(NoMemberException.METHOD,
 	                                "No valid method call found for call in given type."
-	    		+ "\n\t Call: " + matcher.signature()
-	    		+ "\n\t Type: " + container);
+	    		+ "\n\t Call: " + matcher.stripConstraints()
+	    		+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
 
 	}
 
@@ -1659,8 +1674,8 @@ public class TypeSystem_c implements TypeSystem
 	    if (error == null) {
 	    	  throw new NoMemberException(NoMemberException.METHOD,
                       "No valid method call found for call in given type."
-	+ "\n\t Call: " + matcher.signature()
-	+ "\n\t Type: " + container);
+	+ "\n\t Call: " + matcher.stripConstraints()
+	+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
 	    }
 	    throw error;
 	}
@@ -1757,8 +1772,8 @@ public class TypeSystem_c implements TypeSystem
         if (acceptable.size() == 0) {
               throw new NoMemberException(NoMemberException.METHOD,
                       "No valid method call found for call in given type."
-                      + "\n\t Call: " + matcher.signature()
-                      + "\n\t Type: " + container);
+                      + "\n\t Call: " + matcher.stripConstraints()
+                      + "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
         }
         Collection<MethodInstance> maximal =
             findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);
@@ -1785,17 +1800,6 @@ public class TypeSystem_c implements TypeSystem
     public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
         return new X10ConstructorMatcher(container, typeArgs, argTypes, context);
     }
-
-    public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {
-    	//container = X10TypeMixin.ensureSelfBound( container);
-        return new X10FieldMatcher(container, name, context);
-    }
-
-    public X10FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context) {
-    	//container = X10TypeMixin.ensureSelfBound( container);
-        return new X10FieldMatcher(container, contextKnowsReceiver, name, context);
-    }
-    
 
     /** Return true if t overrides mi */
     public boolean hasFormals(ProcedureInstance<? extends ProcedureDef> pi, List<Type> formalTypes, Context context) {
@@ -2468,6 +2472,22 @@ public class TypeSystem_c implements TypeSystem
         if (distArrayType_ == null)
             distArrayType_ = load("x10.array.DistArray");
         return distArrayType_;
+    }
+    
+    protected X10ClassType intRangeType_ = null;
+    public X10ClassType IntRange() {
+        if (intRangeType_ == null) {
+            intRangeType_ = load("x10.lang.IntRange");
+        }
+        return intRangeType_;
+    }
+
+    protected X10ClassType longRangeType_ = null;
+    public X10ClassType LongRange() {
+        if (longRangeType_ == null) {
+            longRangeType_ = load("x10.lang.LongRange");
+        }
+        return longRangeType_;
     }
 
     protected X10ClassType mortalType_ = null;
@@ -3142,23 +3162,31 @@ public class TypeSystem_c implements TypeSystem
             if (fi.def()==fi2.def()) return true;
         return false;
    }
-    public X10FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
-	throws SemanticException {
+    public X10FieldInstance findField(Type container, Type receiver, Name name, Context context) throws SemanticException {
+        return findField(container, false, new FieldMatcher(receiver, name, context));
+    }
+    public X10FieldInstance findField(Type container, Type receiver, Name name, Context context, boolean receiverInContext) throws SemanticException {
+        return findField(container, receiverInContext, new FieldMatcher(receiver, name, context));
+    }
+    public Set<FieldInstance>  findFields(Type container, Type receiver, Name name, Context context) {
+        return findFields(container, new FieldMatcher(receiver, name, context));
+    }
+    private X10FieldInstance findField(Type container, boolean receiverInContext, TypeSystem_c.FieldMatcher matcher) throws SemanticException {
 		Context context = matcher.context();
 
 		Collection<FieldInstance> fields = findFields(container, matcher);
 
 		if (fields.size() >= 2) {
             // if the field is defined in a class, then it will appear only once in "fields".
-            // if it is defined in an interface (then it is either a "static val" or a property such as home), then it may appear multiple times in "fields", so we need to filter duplicates.
+            // if it is defined in an interface (then it is either a "static val" or a property field), then it may appear multiple times in "fields", so we need to filter duplicates.
             // e.g.,
-//            interface I1 { static val a = 1;}
+//            interface I1(z:Int) { static val a = 1;}
 //            interface I2 extends I1 {}
 //            interface I3 extends I1 {}
 //            interface I4 extends I2,I3 {}
 //            class Example implements I4 {
 //              def example() = a;
-//              def m(a:Example{self.home.home.home==here}) = 1;
+//              def m(a:Example{self.z==1}) = 1;
 //            }
 			Collection<FieldInstance> newFields = CollectionFactory.newHashSet();
 			for (FieldInstance fi : fields) {
@@ -3198,6 +3226,10 @@ public class TypeSystem_c implements TypeSystem
 		if (context != null && ! isAccessible(fi, context)) {
 		    throw new SemanticException("Cannot access " + fi + ".");
 		}
+
+        // todo: check it is consistent   receiverInContext
+        fi = X10FieldMatcher.instantiateAccess(fi,matcher.name,matcher.container,receiverInContext,context);
+        
 
 		return fi;
 
@@ -3721,6 +3753,28 @@ public class TypeSystem_c implements TypeSystem
         }
     }
 
+    public boolean isIntRange(Type me) {
+        if (hasSameClassDef(me, IntRange())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isIntRange(parent);
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean isLongRange(Type me) {
+        if (hasSameClassDef(me, LongRange())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isLongRange(parent);
+        } else {
+            return false;
+        }
+    }
+  
     public boolean isTypeConstrained(Type me) {
         return me instanceof ConstrainedType;
     }

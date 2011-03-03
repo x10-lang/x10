@@ -11,37 +11,37 @@
 
 import harness.x10Test;
 
-abstract class Writer {
-    public abstract def write(x: Byte): void;
+public class XTENLANG_547_MustFailCompile extends x10Test {
+    static abstract class Writer {
+        public abstract def write(x: Byte): void;
 
-    public def write(buf: GlobalRef[Rail[Byte]]): void {
-        val mybuf = buf as GlobalRef[Rail[Byte]]{self.home==here};
-        write(mybuf, 0, mybuf().length);
-    }
+        public def write(buf: GlobalRef[Rail[Byte]]): void {
+            val mybuf = buf as GlobalRef[Rail[Byte]]{self.home==here};
+            write(mybuf, 0, mybuf().length);
+        }
 
-    public def write(buf: GlobalRef[Rail[Byte]]{self.home==here}, off: Int, len: Int) {
-        for (var i: Int = off; i < off+len; i++) {
-            write(buf()(i));
+        public def write(buf: GlobalRef[Rail[Byte]]{self.home==here}, off: Int, len: Int) {
+            for (var i: Int = off; i < off+len; i++) {
+                write(buf()(i));
+            }
         }
     }
-}
 
-class OutputStreamWriter extends Writer {
-    public def write(x: Byte): void { }
+    static class OutputStreamWriter extends Writer {
+        public def write(x: Byte): void { }
 
-    public def write(buf: GlobalRef[Rail[Byte]]): void {
+        public def write(buf: GlobalRef[Rail[Byte]]): void {
+        }
+
+        // This should cause the compiler to issue an error.
+        // OutputStreamWriter inherits def write(buf:GlobalRef[Rail[Byte]]{self.home==here}, Int, Int)
+        // and its constraint erasure is identical with the method below. But a class cant have two
+        // different method definitions whose constraint erasures are identical. And a method
+        // can only be overridden by a method which has the same constrained type signature.
+        public def write(buf:GlobalRef[Rail[Byte]], off: Int, len: Int): void {
+        }
     }
 
-    // This should cause the compiler to issue an error.
-    // OutputStreamWriter inherits def write(buf:GlobalRef[Rail[Byte]]{self.home==here}, Int, Int)
-    // and its constraint erasure is identical with the method below. But a class cant have two
-    // different method definitions whose constraint erasures are identical. And a method
-   // can only be overridden by a method which has the same constrained type signature.
-    public def write(buf:GlobalRef[Rail[Byte]], off: Int, len: Int): void {
-    }
-}
-
-public class XTENLANG_547_MustFailCompile extends x10Test {
     public static def main(Array[String](1)) {
         new XTENLANG_547_MustFailCompile().execute();
     }

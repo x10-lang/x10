@@ -12,11 +12,14 @@
 package x10.core.io;
 
 import x10.core.Ref;
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
 public class OutputStream extends Ref {
   
+	private static final long serialVersionUID = 1L;
+
     private final java.io.OutputStream stream;
 
     // NOTE: be careful when using this constructor, all APIs must be overridden.
@@ -71,16 +74,12 @@ public class OutputStream extends Ref {
     //
     // Runtime type information
     //
-    public static final RuntimeType<OutputStream> _RTT = new RuntimeType<OutputStream>(
+    public static final RuntimeType<OutputStream> $RTT = new NamedType<OutputStream>(
+        "x10.io.OutputStreamWriter.OutputStream",
         OutputStream.class,
         new Type[] { x10.rtt.Types.OBJECT }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.io.OutputStreamWriter.OutputStream";
-        }
-    };
-    public RuntimeType<?> getRTT() { return _RTT; }
-    public Type<?> getParam(int i) { return null; }
+    );
+    public RuntimeType<?> $getRTT() { return $RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

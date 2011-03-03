@@ -24,26 +24,15 @@ import polyglot.types.Context;
 import x10.types.MethodInstance;
 
 public class X10MethodMatcher extends TypeSystem_c.MethodMatcher {
-    protected List<Type> typeArgs;
 
     public X10MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
         this(container, name, Collections.<Type>emptyList(), argTypes, context);
     }
 
     public X10MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        super(container, name, argTypes, context);
-        this.typeArgs = typeArgs;
+        super(container, name, typeArgs, argTypes, context);
     }
 
-    
-    public List<Type> arguments() {
-        return argTypes;
-    }
-
-    @Override
-    public String argumentString() {
-        return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]") + "(" + CollectionUtil.listToString(argTypes) + ")";
-    }
 
     @Override
     public MethodInstance instantiate(MethodInstance mi) throws SemanticException {

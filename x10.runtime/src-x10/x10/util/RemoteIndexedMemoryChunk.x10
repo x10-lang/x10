@@ -30,7 +30,7 @@ import x10.compiler.NativeRep;
  * X10 level when absolutely required for performance. This class
  * is not intended for general usage, since it is inherently unsafe.<p>
  */
-@NativeRep("java", "x10.core.RemoteIndexedMemoryChunk<#1>", null, "new x10.rtt.ParameterizedType(x10.core.RemoteIndexedMemoryChunk._RTT, #2)")
+@NativeRep("java", "x10.core.RemoteIndexedMemoryChunk<#1>", null, "new x10.rtt.ParameterizedType(x10.core.RemoteIndexedMemoryChunk.$RTT, #2)")
 @NativeRep("c++", "x10::util::RemoteIndexedMemoryChunk<#T >", "x10::util::RemoteIndexedMemoryChunk<#T >", null)
 public struct RemoteIndexedMemoryChunk[T] {
 

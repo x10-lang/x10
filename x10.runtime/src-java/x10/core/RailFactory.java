@@ -72,12 +72,12 @@ public abstract class RailFactory {
 //        if (value instanceof String[]) {
 //            return new Rail<T>((Type) Types.STRING, ((String[]) value).length, value);
 //        }
-//        // subtype of RefI should have _RTT field 
+//        // subtype of RefI should have $RTT field 
 //        Class<?> componentType = value.getClass().getComponentType();
 //        if (x10.core.RefI.class.isAssignableFrom(componentType)) {
 //            try {
-//                RuntimeType _RTT = (RuntimeType) componentType.getDeclaredField("_RTT").get(null);
-//                return new Rail<T>(_RTT, ((Object[]) value).length, value);
+//                RuntimeType $RTT = (RuntimeType) componentType.getDeclaredField("$RTT").get(null);
+//                return new Rail<T>($RTT, ((Object[]) value).length, value);
 //            } catch (Exception e) {
 //                e.printStackTrace();
 //                throw ThrowableUtilities.getCorrespondingX10Exception(e);

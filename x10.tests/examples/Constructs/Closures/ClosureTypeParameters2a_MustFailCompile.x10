@@ -30,7 +30,7 @@ public class ClosureTypeParameters2a_MustFailCompile extends ClosureTest {
         
         class C[T]{T==Y} {val f = ()=> "hi";}
         check("new C[Z]().f()",
-            new C[Z] // ERR: Type C[ClosureTypeParameters2a_MustFailCompile.Z] is inconsistent.   Inconsistent constructor return type
+            new C[Z] // ERR ERR: Type C[ClosureTypeParameters2a_MustFailCompile.Z] is inconsistent.   Actual type of property initializer is not a subtype of declared type.
             ().f(), "hi");
 
         return result;

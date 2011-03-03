@@ -57,6 +57,7 @@ import java.util.Set;
 import java.util.Map;
 
 
+import polyglot.ast.Allocation_c;
 import polyglot.ast.AmbReceiver;
 import polyglot.ast.ArrayAccess_c;
 import polyglot.ast.ArrayInit_c;
@@ -77,6 +78,7 @@ import polyglot.ast.ClassBody_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall;
+import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
@@ -121,6 +123,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
+import polyglot.main.Reporter;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
@@ -234,11 +237,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	protected Emitter emitter;
 	protected ASTQuery query;
+	protected Reporter reporter;
+	
 	public MessagePassingCodeGenerator(StreamWrapper sw, Translator tr) {
 		this.sw = sw;
 		this.tr = tr;
 		this.emitter = new Emitter(tr);
 		this.query = new ASTQuery(tr);
+		this.reporter = tr.job().extensionInfo().getOptions().reporter;
 	}
 
 	public void visit(Node n) {
@@ -249,8 +255,49 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		//n.translate(w, tr);
 	}
 
+    public void visit(Allocation_c n) {
+        Type type = n.type();
+        String typeName = Emitter.translateType(type);
+        ClassifiedStream b = sw.body();
+        b.allowBreak(0, " ");
+        if (Types.isX10Struct(type)) {
+            b.write(typeName+ "::" +SharedVarsMethods.ALLOC+ "()");
+        } else {
+            // XTENLANG-1407: Remove this memset call once we finish the default value specification/implementation.
+            //                Expect it to be more efficient to explicitly initialize all of the object fields instead
+            //                of first calling memset, then storing into most of the fields a second time.
+            b.write("(new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"())"); 
+        }
+    }
 
-
+    public void visit(ConstructorCall_c s) {
+        Expr target = s.target();
+        ConstructorCall call = (ConstructorCall)s;
+        if (call.kind() == ConstructorCall.SUPER) {
+            assert false; // For now, this case is handled by visit(ConstructorDecl_c)
+        } else if (call.kind() == ConstructorCall.THIS) {
+            sw.write("(");
+            s.print(target, sw, tr);
+            sw.write(")->" +SharedVarsMethods.CONSTRUCTOR+ "(");
+        }
+        if (call.arguments().size() > 0) {
+            sw.allowBreak(2, 2, "", 0); // miser mode
+            sw.begin(0);
+            boolean first = true;
+            for (Expr e : (List<Expr>) call.arguments() ) {
+                if (!first) {
+                    sw.write(",");
+                    sw.allowBreak(0, " ");
+                }
+                s.print(e, sw, tr);
+                first = false;
+            }
+            sw.end();
+        }
+        sw.write(");");
+        sw.newline();
+    }
+    
     public void visit(TypeDecl_c n) {
         // do nothing
         sw.write(" /* " + n + " *" + "/ ");
@@ -1363,6 +1410,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         generateITablesForStruct(currentClass, context, xts, sh, h);
 
+        // create static _alloc method
+        sh.newline();
+        sh.write("static " +StructCType+ " " +SharedVarsMethods.ALLOC+ "(){" +StructCType+ " t; return t; }");
+        sh.newline();
+        sh.forceNewline();
+        
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 
@@ -1696,9 +1749,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sb.append("#include <x10/lang/Runtime.h>\n");
         sb.append("#include <x10aux/bootstrap.h>\n");
 		String mainTypeArgs = "x10::lang::Runtime," + container;
-		if (options.x10_config.DEBUG)
-			sb.append("void* __x10MainRef = (void *) "+container+"::main;\n");
         sb.append("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
+        if (options.x10_config.DEBUG)
+		{
+			sb.append("\n// Debugger stuff\n");
+			sb.append("void* x10aux_place_local__fastData = &x10aux::place_local::_fastData;\n");
+			sb.append("void* __x10MainRef = (void *) "+container+"::main;\n");
+		}
         return sb.toString();
 	}
 
@@ -2668,10 +2725,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write("(__extension__ ({");
 	    sw.newline(4); sw.begin(0);
 	    List<Stmt> stmts = n.statements();
+	    boolean oldPrintType = tr.printType(true);
 	    for (Stmt stmt : stmts) {
 	        n.printBlock(stmt, sw, tr);
 	        sw.newline();
 	    }
+	    tr.printType(oldPrintType);
 	    Expr e = n.result();
 	    if (e != null) {
 	        n.print(e, sw, tr);
@@ -2683,8 +2742,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(For_c n) {
-		// FIXME: Generate normal for-loop code, without
-		// separating out the inits. [Krishna]
+        // FIXME: Generate normal for-loop code, without
+        // separating out the inits. [Krishna]
 
 		String label = null;
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -2695,36 +2754,36 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		sw.write("{");
 		sw.newline(4); sw.begin(0);
-		if (n.inits() != null) {
-			for (ForInit s : n.inits()) {
-				if (s instanceof LocalDecl_c) {
-					LocalDecl_c dec = (LocalDecl_c) s;
-					emitter.printHeader(dec, sw, tr, true);
-					sw.write(";");
-					sw.newline(0);
-				}
-			}
-		}
+        if (n.inits() != null) {
+            for (ForInit s : n.inits()) {
+                if (s instanceof LocalDecl_c) {
+                    LocalDecl_c dec = (LocalDecl_c) s;
+                    emitter.printHeader(dec, sw, tr, true);
+                    sw.write(";");
+                    sw.newline(0);
+                }
+            }
+        }
 
 		sw.newline(0);
 		sw.write("for (");
 		sw.begin(0);
 
-		if (n.inits() != null) {
-			for (Iterator<ForInit> i = n.inits().iterator(); i.hasNext(); ) {
-				ForInit s = i.next();
-				boolean oldSemiColon = tr.appendSemicolon(false);
-				boolean oldPrintType = tr.printType(false);
-				n.printBlock(s, sw, tr);
-				tr.printType(oldPrintType);
-				tr.appendSemicolon(oldSemiColon);
+        if (n.inits() != null) {
+            for (Iterator<ForInit> i = n.inits().iterator(); i.hasNext();) {
+                ForInit s = i.next();
+                boolean oldSemiColon = tr.appendSemicolon(false);
+                boolean oldPrintType = tr.printType(false);
+                n.printBlock(s, sw, tr);
+                tr.printType(oldPrintType);
+                tr.appendSemicolon(oldSemiColon);
 
-				if (i.hasNext()) {
-					sw.write(",");
-					sw.allowBreak(2, " ");
-				}
-			}
-		}
+                if (i.hasNext()) {
+                    sw.write(",");
+                    sw.allowBreak(2, " ");
+                }
+            }
+        }
 
 		sw.write(";");
 		sw.allowBreak(0);
@@ -4897,6 +4956,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
 	        pat = pat.replaceAll("\\(#0\\)->", Emitter.translateType(tr.context().currentClass().superClass())+"::"); // FIXME: HACK
 	        pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(((X10Special_c)receiver).type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
+            pat = pat.replaceAll("\\(#this\\)->", Emitter.translateType(tr.context().currentClass().superClass())+"::"); // FIXME: HACK
+            pat = pat.replaceAll("\\(#this\\)", "("+Emitter.translateType(((X10Special_c)receiver).type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
 	    }
 
 	    int i = 1;

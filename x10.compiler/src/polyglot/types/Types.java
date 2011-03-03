@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Binary.Operator;
@@ -63,6 +65,9 @@ import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Matcher;
+import x10.types.matcher.Subst;
+import x10.types.matcher.X10FieldMatcher;
+import x10.X10CompilerOptions;
 
 
 public class Types {
@@ -104,34 +109,27 @@ public class Types {
         return new LazyRef_c<T>(defaultValue, resolver);
     }
 
-	public static Type addBinding(Type t, XTerm t1, XTerm t2) throws XFailure {
+	public static Type addBinding(Type t, XTerm t1, XTerm t2) {
 		//assert (! (t instanceof UnknownType));
-	
-	        CConstraint c = Types.xclause(t);
-	        c = c == null ? new CConstraint() :c.copy();
-	        c.addBinding(t1, t2);
-	        return Types.xclause(Types.baseType(t), c);
-	
+	    CConstraint c = Types.xclause(t);
+	    c = c == null ? new CConstraint() :c.copy();
+	    c.addBinding(t1, t2);
+	    return Types.xclause(Types.baseType(t), c);
 	}
 
 	public static Type addBinding(Type t, XTerm t1, XConstrainedTerm t2) {
 	 	assert (! (t instanceof UnknownType));
-	    try {
-	        CConstraint c = new CConstraint();
-	        c.addBinding(t1, t2);
-	        return Types.xclause(t, c);
-	    }
-	    catch (XFailure f) {
-	        throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
-	    }
+	 	CConstraint c = new CConstraint();
+	 	c.addBinding(t1, t2);
+	 	return Types.xclause(t, c);
 	}
 
-	public static Type addSelfBinding(Type t, XTerm t1) throws XFailure {
+	public static Type addSelfBinding(Type t, XTerm t1) {
 	    assert (! (t instanceof UnknownType));
-	        CConstraint c = Types.xclause(t);
-	        c = c == null ? new CConstraint() :c.copy();
-	        c.addSelfBinding(t1);
-	        return Types.xclause(Types.baseType(t), c); 
+	    CConstraint c = Types.xclause(t);
+	    c = c == null ? new CConstraint() :c.copy();
+	    c.addSelfBinding(t1);
+	    return Types.xclause(Types.baseType(t), c); 
 	}
 
 	/**
@@ -644,13 +642,8 @@ public class Types {
 	    final CConstraint constraint = Types.xclause(t);
 	    final CConstraint zeroCons = new CConstraint(constraint.self());
 	    // make sure the zeroLit is not in the constraint
-	    try {
-	        zeroCons.addSelfBinding(zeroLit);
-	        return zeroCons.entails(constraint);
-	    } catch (XFailure xFailure) {
-	        return false;
-	    }
-	
+	    zeroCons.addSelfBinding(zeroLit);
+	    return zeroCons.entails(constraint);
 	}
 
 	public static Expr getZeroVal(TypeNode typeNode, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
@@ -722,6 +715,10 @@ public class Types {
 		if (me instanceof MethodInstance) {
 			MethodInstance mi = (MethodInstance) me;
 			return mi.flags().isStatic();
+		}
+		if (me instanceof MacroType) {
+			MacroType mt = (MacroType) me;
+			return mt.container()==null || mt.flags().isStatic();
 		}
 		return false;
 	}
@@ -994,12 +991,7 @@ public class Types {
 		else {
 			c = c.copy();
 		}
-		try {
-			c.addSelfBinding(v);
-		}
-		catch (XFailure e) {
-			throw new SemanticException(e.getMessage(), t.position());
-		}
+		c.addSelfBinding(v);
 		return Types.xclause(baseType(t), c);
 	}
 
@@ -1460,6 +1452,24 @@ public class Types {
 	    return typeArg(baseType(t), i);
 	}
 
+    ////////////////////////////////////////////////////////////////
+    // For better error reporting, we remove the constraints if we ran with DYNAMIC_CALLS.
+    public static Type stripConstraintsIfDynamicCalls(Type t) {
+        if (t==null) return null;
+	    if (((X10CompilerOptions)t.typeSystem().extensionInfo().getOptions()).x10_config.STATIC_CALLS)
+            return t;
+        return stripConstraints(t);
+    }
+	public static Collection<Type> stripConstraintsIfDynamicCalls(Collection<Type> t) {
+        if (t==null) return null;
+        if (t.size()==0) return t;
+	    if (((X10CompilerOptions)t.iterator().next().typeSystem().extensionInfo().getOptions()).x10_config.STATIC_CALLS)
+            return t;
+        ArrayList<Type> res = new ArrayList<Type>(t.size());
+        for (Type tt : t)
+            res.add(stripConstraints(tt));
+        return res;
+    }
 	public static Type stripConstraints(Type t) {
 	    TypeSystem ts = (TypeSystem) t.typeSystem();
 	    t = ts.expandMacros(t);
@@ -1562,7 +1572,7 @@ public class Types {
 	    TypeSystem xts = t.typeSystem();
 	    try {
 	        Context c = xts.emptyContext();
-	        X10FieldInstance fi = xts.findField(t, xts.FieldMatcher(t, propName, c));
+	        X10FieldInstance fi = xts.findField(t, t, propName, c);
 	        if (fi != null && fi.isProperty()) {
 	            return fi;
 	        }
@@ -1611,6 +1621,56 @@ public class Types {
 	 */
 	public static String MORE_SPECIFIC_WARNING = "Please check definitions p1 and p2.  ";
 
+
+    //abstract class A implements Iterable<A> {}
+    //abstract class B extends A implements Iterable<B> {} // ERR in Java, but ok in X10
+
+    // There can be at most one Iterable[T] because the method signature is "iterator()",
+    // therefore you cannot implement Iterable[U] and Iterable[V]
+    private static Type instantiateThis(X10ParsedClassType_c classType, Type t, Type superType) {
+        try {
+            return X10FieldMatcher.instantiateAccess(t,superType,classType.x10Def().thisVar(),false);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError(e);
+        }
+    }
+    public static HashSet<Type> getIterableIndex(Type t, Context context) {
+        HashSet<Type> res = new HashSet<Type>();
+        final TypeSystem ts = t.typeSystem();
+        Type base = Types.baseType(t);
+        if (ts.isParameterType(base)) {
+            // Now get the upper bound.
+            List<Type> upperBounds = ts.env(context).upperBounds(t, false); // should return non-parameter types
+            for (Type upper : upperBounds)
+                res.addAll(getIterableIndex(upper, context));
+        }
+        if (t instanceof ObjectType && base instanceof X10ParsedClassType_c) {
+            X10ParsedClassType_c classType_c = (X10ParsedClassType_c) base;
+            ObjectType ot = (ObjectType) t;
+            final Type superType = ot.superClass();
+            if (superType!=null) res.addAll(getIterableIndex(instantiateThis(classType_c,t,superType),context));
+            final List<Type> interfaces = ot.interfaces();
+            for (Type tt : interfaces)
+                res.addAll(getIterableIndex(instantiateThis(classType_c,t,tt),context));
+
+            if (base instanceof X10ParsedClassType) {
+                X10ParsedClassType classType = (X10ParsedClassType) base;
+                final ClassDef iterable = ts.Iterable().def();
+                if (classType.def()==iterable && classType.typeArguments().size()==1) {
+                    Type arg = classType.typeArguments().get(0);
+                    CConstraint xclause = Types.xclause(t);
+			        final XVar tt = XTerms.makeEQV();
+                    try {
+                        xclause = Subst.subst(xclause, tt, xclause.self());
+                    } catch (SemanticException e) {
+                        assert false;
+                    }
+                    res.add(Types.xclause(arg, xclause));
+                }
+            }
+        }
+        return res;
+    }
 	
 
 }

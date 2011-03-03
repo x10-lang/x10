@@ -541,14 +541,6 @@ public class X10Context_c extends Context_c {
 		return (X10FieldInstance) SUPER_findField(name);
 	}
 
-	/**
-	 * Gets a local or field of a particular name.
-	 */
-	@Override
-	public VarInstance<?> findVariable(Name name) throws SemanticException {
-		VarInstance<?> vi = super.findVariable(name);
-		return vi;
-	}
 
 	/**
 	 * Gets a local or field of a particular name.
@@ -811,7 +803,7 @@ public class X10Context_c extends Context_c {
 		catch (SemanticException e) {
 		}
 		try {
-		    return ts.findTypeDef(container, ts.TypeDefMatcher(container, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), this), this);
+		    return ts.findTypeDef(container, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), this);
 		}
 		catch (SemanticException e) {
 		}
@@ -847,7 +839,7 @@ public class X10Context_c extends Context_c {
 			if (depType instanceof X10ClassType) {
 				X10ClassType dep = (X10ClassType) this.depType;
 				TypeSystem ts = typeSystem();
-                X10FieldInstance myVi = ts.findField(dep, ts.FieldMatcher(dep, name, this));
+                X10FieldInstance myVi = ts.findField(dep, dep, name, this);
 				if (myVi != null) {
 					return myVi;
 				}

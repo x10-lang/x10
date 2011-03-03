@@ -19,7 +19,7 @@ public class FileReader extends InputStreamReader {
     //       What does it mean to send a File to another node?
     val file:File;
 
-    @NativeRep("java", "x10.core.io.FileInputStream", null, "x10.core.io.FileInputStream._RTT")
+    @NativeRep("java", "x10.core.io.FileInputStream", null, "x10.core.io.FileInputStream.$RTT")
     @NativeRep("c++", "x10aux::ref<x10::io::FileReader__FileInputStream>", "x10::io::FileReader__FileInputStream", null)
     protected final static class FileInputStream extends InputStream {
         @Native("java", "new java.lang.Object() { x10.core.io.FileInputStream eval(String s) { try { return new x10.core.io.FileInputStream(s); } catch (java.io.FileNotFoundException e) { throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e); } } }.eval(#1)")

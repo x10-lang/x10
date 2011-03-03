@@ -238,9 +238,6 @@ function resolveParams {
 		*_MustFailCompile)
 			tcvcode=FAIL_COMPILE
 			;;
-		*_MustFailRun)
-			tcvcode=FAIL_RUN
-			;;
 		*_MustFailTimeout)
 			tcvcode=FAIL_TIMEOUT
 			;;
@@ -256,9 +253,6 @@ function resolveParams {
 			;;
 		"FAIL_COMPILE")
 			let 'xtcfcompcnt += 1'
-			;;
-		"FAIL_RUN")
-			let 'xtcfexeccnt += 1'
 			;;
 		"FAIL_TIMEOUT")
 			let 'xtcftoutcnt += 1'
@@ -425,8 +419,6 @@ tcfcompcnt=0
 
 # number of test cases successfully executed
 tcexeccnt=0
-# number of expected execution failures
-xtcfexeccnt=0
 # number of actual execution failures
 tcfexeccnt=0
 
@@ -642,17 +634,6 @@ function main {
 				printf " *** X ***"
 				printf "\n[$prog: err]: failed to execute ${tctarget}\n"
 				continue
-			elif [[ $rc == 0 && $tcvcode == "FAIL_RUN" ]]; then
-				printf " *** X ***"
-				let 'tcfailcnt += 1'
-				let 'tcfvcodecnt += 1'
-				printf "\n[$prog: err]: invalid validation code for ${tctarget}\n"
-				continue
-			elif [[ $rc > 0 && $tcvcode == "FAIL_RUN" ]]; then
-				printf " *** Y ***"
-				let 'tcfexeccnt += 1'
-				let 'tcpasscnt += 1'
-				continue
 			else
 				printf " *** X ***"
 				let 'tcfailcnt += 1'
@@ -673,24 +654,6 @@ function main {
 				let 'tcfailcnt += 1'
 				let 'tcfexeccnt += 1'
 				printf "\n[$prog: err]: failed to execute ${tctarget}\n"
-				continue
-			elif [[ $rc == 0 && $tcvcode == "FAIL_RUN" ]]; then
-				printf " *** X ***"
-				let 'tcfailcnt += 1'
-				let 'tcfvcodecnt += 1'
-				printf "\n[$prog: err]: invalid validation code ${tcvcode}\n"
-				continue
-			elif [[ $rc > 128 && $tcvcode == "FAIL_RUN" ]]; then
-				printf " *** X ***"
-				let 'tcfailcnt += 1'
-				let 'tcftoutcnt += 1'
-				let 'tcfexeccnt += 1'
-				printf "\n[$prog: err]: ${tctarget} is killed due to timeout\n"
-				continue
-			elif [[ $rc > 0 && $tcvcode == "FAIL_RUN" ]]; then
-				printf " *** Y ***"
-				let 'tcfexeccnt += 1'
-				let 'tcpasscnt += 1'
 				continue
 			elif [[ $rc == 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
 				printf " *** X ***"
@@ -729,7 +692,7 @@ function main {
 	printf " / ${tcfcompcnt} Actual Failures\n" >> ${tctmpreport}
 
 	printf "\n**EXECUTION      : " >> ${tctmpreport}
-	printf "${tcexeccnt} Successes / ${xtcfexeccnt} Expected Failures" >> ${tctmpreport}
+	printf "${tcexeccnt} Successes" >> ${tctmpreport}
 	printf " / ${tcfexeccnt} Actual Failures\n" >> ${tctmpreport}
 
 	printf "\n**TIME-OUT       : " >> ${tctmpreport}

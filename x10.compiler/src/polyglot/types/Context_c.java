@@ -255,20 +255,6 @@ public abstract class Context_c implements Context
         throw new NoMemberException(NoMemberException.FIELD, "Field " + name + " not found.");
     }
 
-    /**
-     * Gets a local or field of a particular name.
-     */
-    public VarInstance<?> findVariable(Name name) throws SemanticException {
-        VarInstance<?> vi = findVariableSilent(name);
-
-	if (vi != null) {
-            if (reporter.should_report(TOPICS, 3))
-              reporter.report(3, "find-var " + name + " -> " + vi);
-            return vi;
-	}
-
-        throw new SemanticException("Variable " + name + " not found.");
-    }
 
     /**
      * Gets a local or field of a particular name.
@@ -535,7 +521,7 @@ public abstract class Context_c implements Context
         
         if (vi == null && isClass()) {
             try {
-                return ts.findField(this.currentClass(), ts.FieldMatcher(this.currentClass(), name, this));
+                return ts.findField(this.currentClass(), this.currentClass(), name, this);
             }
             catch (SemanticException e) {
                 return null;// todo: we loose the error message! e.g., "Field XXX is ambiguous; it is defined in both ..." 

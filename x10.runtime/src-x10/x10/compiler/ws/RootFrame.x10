@@ -10,6 +10,8 @@ public final class RootFrame extends Frame {
     public def remap():Frame = upcast[RootFrame,Frame](this);
 
     public def resume(worker:Worker) {
-        atomic worker.finished.value = true;
+        //atomic worker.finished.value = true;
+        //Runtime.println(here+":Fire all stop from root's slow");
+        Worker.allStop(worker);
     }
 }

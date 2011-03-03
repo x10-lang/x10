@@ -12,6 +12,7 @@
 package x10.core;
 
 
+import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
@@ -21,6 +22,9 @@ import x10.rtt.UnresolvedType;
 import x10.array.Array;
 
 public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Integer,T>, x10.lang.Iterable<T>, x10.lang.Settable<Integer, T> {
+
+	private static final long serialVersionUID = 1L;
+
     private Type<T> elementType;
     private Object array;
     private int length;
@@ -179,22 +183,18 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
     //
     // Runtime type information
     //
-    public static final RuntimeType<GrowableRail<?>> _RTT = new RuntimeType<GrowableRail<?>>(
+    public static final RuntimeType<GrowableRail<?>> $RTT = new NamedType<GrowableRail<?>>(
+        "x10.lang.GrowableRail",
         GrowableRail.class,
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
-            new ParameterizedType(x10.lang.Indexable._RTT, Types.INT, new UnresolvedType(0)),
-            new ParameterizedType(x10.lang.Iterable._RTT, new UnresolvedType(0)),
-            new ParameterizedType(x10.lang.Settable._RTT, Types.INT, new UnresolvedType(0))
+            new ParameterizedType(x10.lang.Indexable.$RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(x10.lang.Iterable.$RTT, new UnresolvedType(0)),
+            new ParameterizedType(x10.lang.Settable.$RTT, Types.INT, new UnresolvedType(0))
         }
-    ) {
-        @Override
-        public java.lang.String typeName() {
-            return "x10.lang.GrowableRail";
-        }
-    };
-    public RuntimeType<GrowableRail<?>> getRTT() {return _RTT;}
-    public Type<?> getParam(int i) {
+    );
+    public RuntimeType<GrowableRail<?>> $getRTT() {return $RTT;}
+    public Type<?> $getParam(int i) {
         return i == 0 ? elementType : null;
     }
 }

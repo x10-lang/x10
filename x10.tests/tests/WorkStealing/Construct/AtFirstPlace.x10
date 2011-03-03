@@ -1,4 +1,3 @@
-//LIMITATION: Not support "at (Place.FIRST_PLACE)" right now
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -15,12 +14,8 @@ package WorkStealing.Construct;
 public class AtFirstPlace {
     public def run():boolean {
         
-        val t:Int;
-        finish {
-            async t = 0;
-        }
-        at (Place.FIRST_PLACE) System.setExitCode(t);
-	return true;
+        at (Place.FIRST_PLACE) Console.OUT.println("At first place");
+	    return true;
     }
 
     public static def main(args:Array[String](1)) {

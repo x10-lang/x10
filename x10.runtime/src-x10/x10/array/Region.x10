@@ -377,6 +377,9 @@ public abstract class Region(
     //
     public static operator (a:Array[Region(1){self.rect}](1)):Region(a.size){self.rect} = make(a);
 
+    public static operator (r:IntRange):Region(1){rect&&self!=null} {
+        return new RectRegion(r.min, r.max);
+    }
 
     //
     // ops
@@ -388,6 +391,12 @@ public abstract class Region(
     //public operator this - (that: Region(rank)): Region(rank) = difference(that);
 
     public operator this * (that: Region) = product(that);
+    
+    // These next two * operators are only defined so the hacks in BuiltinTypeRules
+    // for special cases where we need arithmetic to be done on known ranks will kick in.
+    public operator this * (that:IntRange) = product(that as Region(1));
+    public operator (that:IntRange) * this  = (that as Region(1)).product(this);
+
     public operator this + (v: Point(rank)) = translate(v);
     public operator (v: Point(rank)) + this = translate(v);
     public operator this - (v: Point(rank)) = translate(-v);
@@ -439,4 +448,6 @@ public abstract class Region(
      */
     public operator (p:Point) in this = this.contains(p);
 }
+public type Region(r:Int) = Region{self.rank==r};
+public type Region(r:Region) = Region{self==r};
 

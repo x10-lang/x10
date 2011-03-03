@@ -13,6 +13,8 @@ package x10.runtime.impl.java;
 
 public class WrappedThrowable extends x10.core.Throwable {
     
+	private static final long serialVersionUID = 1L;
+
     public WrappedThrowable(java.lang.Throwable t) {
         super(t);
     }

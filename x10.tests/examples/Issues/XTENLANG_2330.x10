@@ -158,10 +158,10 @@ class Helper2330(p:Int) {
 		try { use(-r); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
 
 		// implicit and explicit as (casting)
-		val dd1:Helper2330 = z+5.5; // ShouldBeErr
-		val ss1:Helper2330 = ((z+'a') as Char) as Helper2330; // ShouldBeErr
-		try { val dd2:Helper2330 = z+5.6; fail(); } catch (e:UnsatisfiedGuardException) {} // ShouldBeErr
-		try { val ss2:Helper2330 = ((z+'b') as Char) as Helper2330; fail(); } catch (e:UnsatisfiedGuardException) {} // ShouldBeErr
+		val dd1:Helper2330 = z+5.5; // ERR
+		val ss1:Helper2330 = ((z+'a') as Char) as Helper2330; // ERR
+		try { val dd2:Helper2330 = z+5.6; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { val ss2:Helper2330 = ((z+'b') as Char) as Helper2330; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
 
 		// apply & set (and SettableAssign)
 		this(z+50); // ERR

@@ -18,6 +18,9 @@ import java.util.HashMap;
  * Implementation of PlaceLocalHandle service for Java-based runtime.
  */
 public final class PlaceLocalHandle<T> implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+
     private static final HashMap<Integer,Object> data = new HashMap<Integer,Object>();
     
 	private static final int placeShift = 20;

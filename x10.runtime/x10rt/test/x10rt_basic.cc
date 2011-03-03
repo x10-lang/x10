@@ -273,9 +273,9 @@ int main(int argc, char **argv)
     if (x10rt_here()==0) {
 
         if (automatic) {
-            std::cout << "         ";
+            std::cout << "        ";
             for (int j=1 ; j<=16 ; ++j) {
-                    std::cout << std::setw(5) << j;
+				std::cout << std::setw(7) << j << " ";
             }
             std::cout << " b/w (MB)" << std::endl;
             for (int l=0 ; l<512*1024 ; l=(l*2)>0?(l*2):1) {
@@ -284,7 +284,7 @@ int main(int argc, char **argv)
                 for (int j=1 ; j<=16 ; ++j) {
                     micros = run_test(iterations/j, j, l, put, get)
                              / 1E3 / (iterations/j*j) / 2 / (x10rt_nhosts() - 1);
-                    std::cout << std::setw(6) << std::setprecision(3) << micros << " ";
+                    std::cout << std::setw(7) << std::setprecision(3) << micros << " ";
                 }
                 std::cout << std::setprecision(3) << l/micros << std::endl;
             }
