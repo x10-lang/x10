@@ -28,7 +28,7 @@ import x10.compiler.Native;
  * 1-d array.
  * @author vj 10/10
  */
-public interface Sequence[+T](size:int) extends (Int)=> T, Iterable[T] {
+public interface Sequence[T](size:int) extends (Int)=> T, Iterable[T] {
     @Native("cuda", "(#0).raw[#1]")
     public operator this(Int) : T;
 }

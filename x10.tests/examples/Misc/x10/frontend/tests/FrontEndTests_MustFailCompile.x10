@@ -2300,124 +2300,6 @@ class TestXtenLang1938 { // see XTENLANG-1938
 		Console.OUT.println("overloaded +");
 	}
 }
-/**
-see: 
-http://jira.codehaus.org/browse/XTENLANG-1445
-http://jira.codehaus.org/browse/XTENLANG-865
-http://jira.codehaus.org/browse/XTENLANG-638
-http://jira.codehaus.org/browse/XTENLANG-1470
-http://jira.codehaus.org/browse/XTENLANG-1519
-*/
-class TestCoAndContraVarianceInInterfaces {
-	
-	 class CtorTest[+T] {
-	  val t1:T;
-	  def this(t:T) { t1 = t; } // ok
-	  class Inner {
-		val t2:T;
-		def this(t:T) { t2 = t; } // ok
-	  }
-	}
-	class Bar[T] {
-		def bar[U]() {}
-		//def bar2[+U]() {} // parsing error, which is good :)
-		def foo(z:T, y:Bar[T],x:Box[Bar[Bar[T]{self!=null}]]{x!=null}) {}
-	}
-
-	interface Covariant[+T] {
-		def get():T;
-		def set(t:T):void; // ERR
-	}
-	interface Contravariant[-T] {
-		def get():T; // ERR
-		def set(t:T):void; 
-	}
-	interface Invariant[T] {
-		def get():T;
-		def set(t:T):void;
-	}
-
-	// check extends
-	interface E1[+T] extends Covariant[T] {}
-	interface E2[-T] extends Covariant[T] {} // ERR
-	interface E3[+T] extends Contravariant[T] {} // ERR
-	interface E4[-T] extends Contravariant[T] {} 
-	interface E5[+T] extends 
-		Contravariant[T], // ERR
-		Covariant[T] {} 
-	interface E6[-T] extends 
-		Contravariant[T],
-		Covariant[T] {} // ERR
-	interface E7[T] extends Contravariant[T],Covariant[T] {}
-	interface E8[+T] extends Contravariant[Contravariant[T]] {}
-	interface E9[-T] extends 
-		Contravariant[Contravariant[T]] {}  // ERR (todo: error should be on the use of T, and not on the entire TypeNode, see XTENLANG-1439): "Cannot use contravariant type parameter T in a covariant position"
-	interface E10[-T] extends Invariant[T] {} // ERR: "Cannot use contravariant type parameter T in an invariant position"
-
-	interface GenericsAndVariance[+CO,-CR,IN] {
-		def ok1(CR,IN):CO;
-		def ok2(CR,IN):IN;
-		def ok3(CR,IN):void;
-		def ok4():Contravariant[CR];
-		def ok5():Contravariant[IN];
-		def ok6():Contravariant[Contravariant[Contravariant[CR]]];
-		def ok7():Covariant[CO];
-		def ok8():Covariant[IN];
-		def ok9(GenericsAndVariance[CR,CO,IN]):void;
-		def ok10():GenericsAndVariance[CO,CR,IN];
-		def ok11(GenericsAndVariance[IN,IN,IN]):void;
-		def ok12():GenericsAndVariance[IN,IN,IN];
-		def ok13( (CO)=>void, ()=>CR, ()=>IN, (IN)=>IN ): ((CR)=>CO);
-
-		def err1():CR; // ERR
-		def err2(CO):void; // ERR
-		def err3():Contravariant[CO]; // ERR
-		def err4():Covariant[CR]; // ERR
-		def err5(GenericsAndVariance[CO,IN,IN]):void; // ERR
-		def err6(GenericsAndVariance[IN,CR,IN]):void; // ERR
-		def err7(GenericsAndVariance[IN,IN,CO]):void; // ERR
-		def err8(GenericsAndVariance[IN,IN,CR]):void; // ERR
-		def err9():GenericsAndVariance[CR,IN,IN]; // ERR
-		def err10(): ( (CO)=>void ); // ERR
-		def err11(): ( ()=>CR ); // ERR
-		def err12((CR)=>void):void; // ERR
-		def err13(()=>CO):void; // ERR
-	}
-
-	// todo: what about constraints? and properties fields and methods?
-	interface Constraints[+CO,-CR,IN](p1:CO,p2:IN,p3:(CR)=>void) 
-		// todo: can we variance in the constraint?
-		{ CO <: CR ,
-		  CO <: IN ,
-  		  CR <: CO ,
-  		  CR <: IN ,
-  		  IN <: CO ,
-  		  IN <: CR ,
-		  IN <: String,
-		  CO <: String,
-		  CR <: String,
-		  String <: CO,
-		  String <: CR,
-		  String <: IN,
-  		  CO <: Contravariant[CO] ,
-  		  CR <: Covariant[CR]
-		}
-	{
-		// todo: can we use variance in method guards?
-		def m() { CO <: CR } :void;
-		// todo: property methods?
-		property pm():CO;
-	}
-
-	interface Comparable[+T] {}
-	static class Foo implements Comparable[Foo] {
-		def test() {
-			val x:Comparable[Foo] = this;
-			val y:Comparable[Comparable[Foo]] = this;
-			val z:Comparable[Comparable[Comparable[Foo]]] = this;
-		}
-	}
-}
 
 
 class ConstraintsBugs {
@@ -4476,25 +4358,25 @@ class ArrayAndRegionTests {
 	def test(a1:Array[Int](0..10), r:Region{zeroBased, rect, rank==1}, a2:Array[Int](r), a3:Array[Int]{zeroBased, rect, rank==1}) {
 	    // check zero based
 		val reg1:Region{zeroBased} = 0..10;
-		@ERR val reg2:Region{zeroBased} = 5..10;
+		@ShouldBeErr val reg2:Region{zeroBased} = 5..10;
 		val reg3:Region{rail} = 0..10;
-		@ERR val reg4:Region{rail} = 5..10;
+		@ShouldBeErr val reg4:Region{rail} = 5..10;
 		val reg5:Region{zeroBased, rail, rect, rank==1} = 0..10;
 		@ERR val reg6:Region{rank==2} = 0..10;
 		val reg7:Region{rank==2} = 0..10 * 0..10;
 
 		val reg:Region{self!=null, zeroBased, rect, rank==1} = 0..10;
-		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0);
+		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0); // ShouldNotBeERR
 		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0); 
 		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0); 
 		val arr4:Array[Int](reg) = null;
-		m1(a1);
+		m1(a1); // ShouldNotBeERR
 		m1(a2);
 		m1(a3);
 		m1(arr3);
 		m1(arr4);
 
-		m2(a1);
+		m2(a1);// ShouldNotBeERR
 		m2(a2);
 		m2(a3);
 		m2(arr3);
@@ -5353,3 +5235,72 @@ class CallResolution_typeParam_struct_method_field_local {
 	}
 }
 
+class TestConstraintErrMessage {
+	class A(a:Int) {}
+	class B[T](b:Int) {}
+	class F(r:Int) {
+		var b:B[A{self.a==this.r}]{self.b==this.r};
+		def test(f:F{self.r==1}) {
+			val bb:B[A{self.a==1}]{self.b==1} = f.b;
+			val err1:String = f;  // ERR
+			val err2:String = f.b;// ERR: todo: the error message doesn't mention the constraint that f.r==1
+		}
+	}
+}
+
+class LoopTests {
+	def bug(d:Dist(1)) {
+		for (p:Point(1) in d) {}
+	}
+    public def run() {
+        val r:Region(2){self!=null}  = (0..2)*(0..3);// ShouldNotBeERR
+	}
+
+	class P(r:Int) {}
+	abstract class D(q:Int) implements Iterable[P{self.r==this.q}] {}
+	def m2(d:D{q==1}) {
+		for (p:P{r==1} in d) {}
+	}
+
+	
+	class NonIterable {}
+	interface Int2Iterable2 extends Iterable[Int{self==2}] {}
+	abstract class Int2Iterable implements Int2Iterable2 {}
+
+	def m0(x:NonIterable) {
+		for (p:Any in x) {} // ERR
+	}
+	def m00(x:Int2Iterable) {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:Int in x) {}
+		for (p:Int{self==2} in x) {}
+		for (p:Int{self==1} in x) {} // ERR
+	}
+	def m1[T,U](x:T) {T <:Iterable[U]} {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:U in x) {}
+		for (p:T in x) {} // ERR
+	}
+	def m11[T,U](x:T) {T <:Iterable[U]} {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:U in x) {}
+		for (p:T in x) {} // ERR
+	}
+	def m2[T](x:T) {T <:Iterable[Int{self==2}]} {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:Int in x) {}
+		for (p:Int{self==2} in x) {}
+		for (p:Int{self==1} in x) {} // ERR
+	}
+	def m3(x:Iterable[Int{self==2}]) {
+		for (p:Any in x) {}
+		for (p:String in x) {} // ERR
+		for (p:Int in x) {}
+		for (p:Int{self==2} in x) {}
+		for (p:Int{self==1} in x) {} // ERR
+	}
+}

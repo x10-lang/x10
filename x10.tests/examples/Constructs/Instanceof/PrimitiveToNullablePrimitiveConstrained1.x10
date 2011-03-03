@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author vcave
  **/
 public class PrimitiveToNullablePrimitiveConstrained1 extends x10Test {
-	val three:Box[Int(3)] = 3;
+	val three:Box[Int(3)] = new Box[int(3)](3);
 	public def run()= three instanceof Box[Int(3)];
 	
 	public static def main(var args: Array[String](1)): void = {

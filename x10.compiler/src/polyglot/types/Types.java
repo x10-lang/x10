@@ -66,6 +66,7 @@ import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
+import x10.types.matcher.X10FieldMatcher;
 import x10.X10CompilerOptions;
 
 
@@ -1626,6 +1627,13 @@ public class Types {
 
     // There can be at most one Iterable[T] because the method signature is "iterator()",
     // therefore you cannot implement Iterable[U] and Iterable[V]
+    private static Type instantiateThis(X10ParsedClassType_c classType, Type t, Type superType) {
+        try {
+            return X10FieldMatcher.instantiateAccess(t,superType,classType.x10Def().thisVar(),false);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError(e);
+        }
+    }
     public static HashSet<Type> getIterableIndex(Type t, Context context) {
         HashSet<Type> res = new HashSet<Type>();
         final TypeSystem ts = t.typeSystem();
@@ -1636,13 +1644,14 @@ public class Types {
             for (Type upper : upperBounds)
                 res.addAll(getIterableIndex(upper, context));
         }
-        if (t instanceof ObjectType) {
+        if (t instanceof ObjectType && base instanceof X10ParsedClassType_c) {
+            X10ParsedClassType_c classType_c = (X10ParsedClassType_c) base;
             ObjectType ot = (ObjectType) t;
             final Type superType = ot.superClass();
-            if (superType!=null) res.addAll(getIterableIndex(superType,context));
+            if (superType!=null) res.addAll(getIterableIndex(instantiateThis(classType_c,t,superType),context));
             final List<Type> interfaces = ot.interfaces();
             for (Type tt : interfaces)
-                res.addAll(getIterableIndex(tt,context));
+                res.addAll(getIterableIndex(instantiateThis(classType_c,t,tt),context));
 
             if (base instanceof X10ParsedClassType) {
                 X10ParsedClassType classType = (X10ParsedClassType) base;

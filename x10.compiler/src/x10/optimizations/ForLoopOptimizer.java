@@ -369,7 +369,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             return result;
         }
 
-        assert (xts.isSubtype(domainType, xts.Iterable(xts.Any()), context)); 
+        assert Types.getIterableIndex(domainType, context).size()>=1; // When Iterable was covariant:  (xts.isSubtype(domainType, xts.Iterable(xts.Any()), context)); 
         Name iterName        = named ? Name.makeFresh(formal.name().id()) : Name.makeFresh();
         Expr iterInit        = syn.createInstanceCall(pos, domain, ITERATOR, context);
         LocalDecl iterLDecl  = syn.createLocalDecl(pos, Flags.FINAL, iterName, iterInit);

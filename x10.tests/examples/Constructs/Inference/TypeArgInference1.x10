@@ -24,9 +24,6 @@ public class TypeArgInference1 extends x10Test {
            chk( ArrayList[Int] <: Collection[Int], "pre-2");
            chk( Sub <: Super, "pre-3");
            val intSet = new HashSet[Int]();
-           val stringList = new ArrayList[String]();
-           val x = choose[Collection[Any]](intSet, stringList);
-           val xx : Collection[Any] = x;
            val intList = new ArrayList[Int]();
            val y = choose[Collection[Int]](intSet, intList);
            val yy : Collection[Int] = y;
@@ -37,9 +34,9 @@ public class TypeArgInference1 extends x10Test {
 		new TypeArgInference1().execute();
 	}
     
-   private static interface Collection[+T] {}
-   private static class HashSet[+T] implements Collection[T] {}
-   private static class ArrayList[+T] implements Collection[T] {}
+   private static interface Collection[T] {}
+   private static class HashSet[T] implements Collection[T] {}
+   private static class ArrayList[T] implements Collection[T] {}
 
    private static class Super {}
    private static class Sub extends Super{}

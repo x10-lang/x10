@@ -21,7 +21,7 @@ class XTENLANG_210 extends x10Test {
     var os:Rail[Object] = Rail.make[Object](10);
     
     operator this(i0:int)=(vue:double): void = {
-        os(i0) = vue as Box[double];
+        os(i0) = new Box[double](vue);
     }
 
     public def run(): boolean {

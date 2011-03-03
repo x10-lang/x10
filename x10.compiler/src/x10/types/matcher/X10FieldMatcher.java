@@ -32,6 +32,51 @@ import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 
 public class X10FieldMatcher {
+    public static Type instantiateAccess(Type container, Type t, XVar oldThis, boolean contextKnowsReceiver) throws SemanticException {
+        assert container!=null && t!=null;
+        CConstraint c = Types.xclause(container);
+        
+        // Let v be the symbolic name for the target. If there is none, we make one up.
+        // Let t = T{tc}, and ct = U{c}.
+        // If c does not have a selfVarBinding, then we want to set t to
+        // t = T{exists vv. (tc,this==vv),ct[vv/self]}
+        // If c does have a selfVarBinding, v, then we want to set t to
+        // t = T{exists v. (tc, this=v, ct)}
+        XVar v = Types.selfVarBinding(container);
+        XVar vv = null;
+        if (v == null) {
+        	v = vv =XTerms.makeUQV();
+        }
+        if (oldThis != null && v == null && vv==null)
+        	assert false;
+        /*if (c != null)
+        	c = c.copy().instantiateSelf(v);*/
+
+        { // Update t
+            CConstraint tc = Types.realX(t).copy();
+
+            if (! contextKnowsReceiver)
+                tc.addIn(v, c);
+
+            t = Types.constrainedType(Types.baseType(t), tc);
+            t = Subst.subst(t,
+                            new XVar[] {v},
+                            new XVar[] {oldThis},
+                            new Type[] {}, new ParameterType[] {});
+            if (vv != null) { // Hide vv, i.e. substitute in an anonymous EQV
+                t = Subst.subst(t,
+                                new XVar[] {XTerms.makeEQV()},
+                                new XVar[] {vv},
+                                new Type[] {}, new ParameterType[] {});
+            }
+            final CConstraint tmpTc = Types.realX(t).copy();
+            tmpTc.addIn(v,c);
+            if (! tmpTc.consistent()) {
+                throw new Errors.InconsistentType(t, t.position());
+            }
+        }
+        return t;
+    }
     public static X10FieldInstance instantiateAccess(X10FieldInstance fi, Name name, Type container, boolean contextKnowsReceiver, Context context) throws SemanticException {
 	    if (! fi.name().equals(name)) {
 		return null;
@@ -45,9 +90,9 @@ public class X10FieldMatcher {
         // The task is to transfer constraints from the target to the field.
         Type ct = container != null ? container : fi.container();
         CConstraint c = Types.xclause(ct);
-        
+
         // Let v be the symbolic name for the target. If there is none, we make one up.
-        // Let t = T{tc}, and ct = U{c}. 
+        // Let t = T{tc}, and ct = U{c}.
         // If c does not have a selfVarBinding, then we want to set t to
         // t = T{exists vv. (tc,this==vv),ct[vv/self]}
         // If c does have a selfVarBinding, v, then we want to set t to
@@ -60,56 +105,11 @@ public class X10FieldMatcher {
         XVar oldThis = fi.x10Def().thisVar();
         if (oldThis != null && v == null && vv==null)
         	assert false;
-        /*if (c != null) 
+        /*if (c != null)
         	c = c.copy().instantiateSelf(v);*/
 
-        { // Update t 
-            CConstraint tc = Types.realX(t).copy();
-
-            if (! contextKnowsReceiver)
-                tc.addIn(v, c);
-
-            t = Types.constrainedType(Types.baseType(t), tc);
-            t = Subst.subst(t, 
-                            new XVar[] {v},
-                            new XVar[] {oldThis},
-                            new Type[] {}, new ParameterType[] {});
-            if (vv != null) { // Hide vv, i.e. substitute in an anonymous EQV
-                t = Subst.subst(t, 
-                                new XVar[] {XTerms.makeEQV()},
-                                new XVar[] {vv},
-                                new Type[] {}, new ParameterType[] {});
-            }
-            final CConstraint tmpTc = Types.realX(t).copy();
-            tmpTc.addIn(v,c);
-            if (! tmpTc.consistent()) {
-                throw new Errors.InconsistentType(t, fi.position());
-            }
-        }
-
-        { // Update rt
-            CConstraint tc = Types.realX(rt).copy();
-
-            if (! contextKnowsReceiver)
-                tc.addIn(v, c);
-            rt = Types.constrainedType(Types.baseType(rt), tc);
-            XVar w = XTerms.makeEQV();
-            rt = Subst.subst(rt, 
-                             (v != null ? new XVar[] {v} : new XVar[] { w, w}),
-                             (v != null ? new XVar[] {oldThis} : new XVar[] { vv, oldThis}),
-                             new Type[] {}, new ParameterType[] {});
-            if (vv != null) {
-                rt = Subst.subst(rt, 
-                                 new XVar[] {XTerms.makeEQV()},
-                                 new XVar[] {vv},
-                                 new Type[] {}, new ParameterType[] {});
-            }
-            final CConstraint tmpTc = Types.realX(rt).copy();
-            tmpTc.addIn(v,c);
-            if (! tmpTc.consistent()) {
-                throw new Errors.InconsistentType(rt, Position.COMPILER_GENERATED);
-            }
-        } 
+        t = instantiateAccess(ct,t,oldThis, contextKnowsReceiver);
+        rt = instantiateAccess(ct,rt,oldThis, contextKnowsReceiver);
         
         //rt = Subst.subst(rt, (new XVar[] { w }), (new XVar[] { oldThis }), new Type[] {}, new ParameterType[] {});
         //if (v != null)

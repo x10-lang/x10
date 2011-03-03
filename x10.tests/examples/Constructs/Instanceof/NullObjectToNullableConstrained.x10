@@ -35,9 +35,9 @@ public class NullObjectToNullableConstrained extends x10Test {
 		// this will statically fail.
 	
 		// nullableVarNull is null hence it is an instance of the nullable type
-		var res4: boolean = !(getNullNullable() instanceof Box[X10DepTypeClassOneB{p==1}]);
+		//var res4: boolean = !(getNullNullable() instanceof Box[X10DepTypeClassOneB{p==1}]); // requires Box to be covariant, and variance was removed
 
-		return res1 && res2  && res4;
+		return res1 && res2;
 	}
 	
 	public def getNullNullable(): Box[X10DepTypeClassOneB] = null;

@@ -298,7 +298,6 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 
 			return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
 				public Type transform(Type o) {
-					TypeSystem xts = (TypeSystem) o.typeSystem();
 					CConstraint c2 = Types.xclause(o);
 					c2 = c2 != null ? c2.copy() : new CConstraint();
 					if (c2.thisVar() != null)
@@ -312,27 +311,6 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 				}
 			});
 		}
-
-        public List<Type> attemptToFixInterfaces() {
-            final Type base = baseType.get();
-            if (! (base instanceof ObjectType))
-                return Collections.emptyList();
-
-            List<Type> l = ((ObjectType) base).interfaces();
-            final XVar tt = XTerms.makeEQV();
-            // replace c.self with tt
-            final CConstraint c = constraint.get().copy();
-            c.addSelfBinding(tt);
-
-            return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
-                public Type transform(Type interfaceType) {
-                    CConstraint c2 = Types.xclause(interfaceType).copy();
-                    if (c2.thisVar()!=null) c2.addThisBinding(tt);
-                    interfaceType = Types.xclause(Types.baseType(interfaceType), c2);
-                    return Types.xclause(interfaceType, c);
-                }
-            });
-        }
 
 
 		@Override

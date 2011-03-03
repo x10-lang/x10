@@ -39,7 +39,7 @@ import x10.util.Box;
 
 		// test 3 to nullable primitive
 		// (nullable<int>) <-- int(:c)
-		var case3a: Box[int] = ni as Box[int]; // no check
+		// var case3a: Box[int] = ni as Box[int];  // requires Box to be covariant, and variance was removed 
 
 		// test 4 to nullable primitive constrained
 		// must fail compile @see	

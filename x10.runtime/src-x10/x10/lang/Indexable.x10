@@ -14,6 +14,6 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-public interface Indexable[-I,+V] extends (I)=>V {
+public interface Indexable[I,V] extends (I)=>V {
 }
 

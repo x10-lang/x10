@@ -14,6 +14,6 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-public interface Settable[-I,V] {
+public interface Settable[I,V] {
     operator this(i: I)=(v: V): V;
 }

@@ -35,7 +35,7 @@ public class ForLoop2 extends x10Test {
 		var prev: Box[Point] = null;
 		for (p in d3) {
 			if (!successor(prev, p)) return false;
-			prev = p;
+			prev = new Box[Point](p);
 			if (P0 != d3(p)) return false;
 			n++;
 		}

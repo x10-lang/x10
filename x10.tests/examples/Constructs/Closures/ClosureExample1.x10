@@ -29,7 +29,7 @@ public class ClosureExample1 extends x10Test {
     static def find[T](f:(T)=>Boolean, xs: List[T]): Box[T] {
         for (x in xs)
             // if (f(x)) return x;
-            if (f(x)) return x as Box[T];
+            if (f(x)) return new Box[T](x);
         return null;
     }
 

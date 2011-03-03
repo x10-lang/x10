@@ -1773,11 +1773,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: TypeParamWithVariance ::= '+' Identifier
     void rule_TypeParamWithVariance1(Object _Identifier) {
         Id Identifier = (Id) _Identifier;
+        syntaxError("Covariance was removed from the language.",pos());
         setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.COVARIANT));
     }
     // Production: TypeParamWithVariance ::= '-' Identifier
     void rule_TypeParamWithVariance2(Object _Identifier) {
         Id Identifier = (Id) _Identifier;
+        syntaxError("Contravariance was removed from the language.",pos());
         setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.CONTRAVARIANT));
     }
     // Production: VariableDeclaratorsWithType ::= VariableDeclaratorWithType

@@ -797,7 +797,7 @@ import x10.util.Box;
                 val result = eval();
                 async at(box.home) {
                     val me2 = box();
-                    me2.t = result;
+                    me2.t = new Box[T](result);
                     me2.clockPhases = clockPhases;
                     me2.release();
                 }

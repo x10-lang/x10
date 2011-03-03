@@ -252,15 +252,12 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		: "formal=" + formal + " domain = " + domain + " position = " + position();
         final Context context = tc.context();
 
-		boolean oldRes = ts.isSubtype(domainType, ts.Iterable(formalType), tc.context());        
         HashSet<Type> iterableIndex = Types.getIterableIndex(domainType, context);
         boolean newRes = false;
         for (Type tt : iterableIndex)
             newRes |= ts.isSubtype(tt, formalType, context);
-        if (newRes!=oldRes) {
-            int putBreakPointHere = 1;
-        }
-		if (oldRes) {
+        //assert newRes==ts.isSubtype(domainType, ts.Iterable(formalType), tc.context()); // when Iterable was covariant (i.e., Iterable[+T])
+		if (newRes) {
 		//	if (X10TypeMixin.areConsistent(formalType, domainType)
 		    return this;
 		}
