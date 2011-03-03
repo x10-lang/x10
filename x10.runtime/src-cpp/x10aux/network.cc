@@ -42,12 +42,6 @@ x10aux::place x10aux::num_hosts = 0;
 x10aux::place x10aux::here = -1;
 bool x10aux::x10rt_initialized = false;
 
-x10_int x10aux::num_threads;
-x10_int x10aux::max_threads;
-x10_boolean x10aux::no_steals;
-x10_boolean x10aux::static_threads;
-
-
 // keep a counter for the session.
 volatile x10_long x10aux::asyncs_sent = 0;
 volatile x10_long x10aux::asyncs_received = 0;
