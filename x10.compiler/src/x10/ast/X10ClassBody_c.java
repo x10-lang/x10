@@ -268,22 +268,27 @@ public class X10ClassBody_c extends ClassBody_c {
             for (int j = i + 1; j < l.size(); j++) {
                 TypeDef mj = l.get(j);
 
-                if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj, tc.context())) {
+                if (mi.name().equals(mj.name()) &&
+                        mi.typeParameters().size()==mj.typeParameters().size() &&
+                        hasCompatibleArguments(mi, mj, tc.context())) {
                     Errors.issue(tc.job(),
                             new Errors.DuplicateTypeDefinition(mj, mi, mj.position()),
                             this);
                 }
             }
 
-            for (Ref<? extends Type> tref : type.memberClasses()) {
-                Type t = Types.get(tref);
-                t = Types.baseType(t);
-                if (t instanceof ClassType) {
-                    ClassType ct = (ClassType) t;
-                    if (ct.name().equals(mi.name())) {
-                        Errors.issue(tc.job(),
-                                new Errors.TypeDefinitionSameNameAsMemberClass(mi, ct, mi.position()),
-                                this);
+            if (mi.formalTypes().isEmpty()) {
+                for (Ref<? extends Type> tref : type.memberClasses()) {
+                    Type t = Types.get(tref);
+                    t = Types.baseType(t);
+                    if (t instanceof ClassType) {
+                        ClassType ct = (ClassType) t;
+                        if (ct.name().equals(mi.name()) &&
+                                ct.def().typeParameters().size()==mi.typeParameters().size()) {
+                            Errors.issue(tc.job(),
+                                    new Errors.TypeDefinitionSameNameAsMemberClass(mi, ct, mi.position()),
+                                    this);
+                        }
                     }
                 }
             }
