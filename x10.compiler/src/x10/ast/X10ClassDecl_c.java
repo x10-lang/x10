@@ -531,7 +531,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 final UnknownTypeNode returnType = nf.UnknownTypeNode(pos);
                 final QName fullName = curr.fullName();
                 MethodDecl md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),returnType,nf.Id(pos,getThisMethod(containerName,fullName)),Collections.<Formal>emptyList(),
-                        nf.Block(pos,nf.Return(pos,nf.Special(pos, Special.Kind.THIS, nf.TypeNodeFromQualifiedName(pos,fullName)))));
+                        nf.Block(pos,nf.Return(pos,nf.Special(pos, Special.Kind.THIS, nf.CanonicalTypeNode(pos, curr)))));
                 n = (X10ClassDecl_c) n.body(n.body().addMember(md));
 
                 if (curr.flags().isStatic()) break; // a static class doesn't have an outer instance
