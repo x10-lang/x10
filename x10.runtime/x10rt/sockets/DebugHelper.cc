@@ -174,7 +174,7 @@ void DebugHelper::attachDebugger()
 	if (!debugger_id)
 		return;		// No debugger available.
 
-	const char* debugger_name = ::getenv("X10_DEBUGGER_NAME");
+	const char* debugger_name = ::getenv(X10_DEBUGGER_NAME);
 	if (debugger_name == 0)
 		debugger_name = "gdia";
 
@@ -183,7 +183,7 @@ void DebugHelper::attachDebugger()
 
 	debugger_pid = strtol(debugger_id, 0, 10);
 #ifdef DEBUG
-	fprintf(stderr, "DebugHelper::debugger(%d) X10_DEBUGGER_ID=%d\n", getpid(), debugger_pid);
+	fprintf(stderr, "DebugHelper::debugger(%d) "X10_DEBUGGER_ID"=%d\n", getpid(), debugger_pid);
 #endif
 	int retry = 5;
 	int s;

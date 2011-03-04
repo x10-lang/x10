@@ -219,6 +219,7 @@ void Launcher::startChildren()
 				unsetenv(X10_LAUNCHER_RUNLAUNCHER);
 				setenv(X10_LAUNCHER_PARENT, masterPort, 1);
 				chdir(getenv(X10_LAUNCHER_CWD));
+				unsetenv(X10_LAUNCHER_CWD);
 
 				// check to see if we want to launch this in a debugger
 				char* which = getenv(X10_GDB);
