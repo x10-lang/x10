@@ -90,6 +90,9 @@
 #define DEFAULT_STATIC_THREADS false
 #endif
 
+#define ENV_CONGRUENT_BASE "X10_CONGRUENT_BASE"
+#define ENV_CONGRUENT_SIZE "X10_CONGRUENT_SIZE"
+
 #ifndef NO_IOSTREAM
 #  include <iostream>
 #  include <sstream>
@@ -150,49 +153,41 @@ typedef uint64_t x10_ulong;
 namespace x10aux {
     typedef x10_ulong x10_addr_t;
 
-    extern bool init_config_bools_done;
-    void init_config_bools (void);
-    extern bool use_ansi_colors_;
-    extern bool disable_dealloc_;
-    extern bool trace_init_;
-    extern bool trace_x10rt_;
-    extern bool trace_ser_;
-    extern bool trace_static_init_;
+    extern const bool trace_ansi_colors;
+    extern const bool trace_init;
+    extern const bool trace_static_init;
+    extern const bool trace_x10rt;
+    extern const bool trace_ser;
+    extern const bool trace_rxtx;
+    extern const bool disable_dealloc;
+    extern const bool x10__assertions_enabled;
 
-    extern inline bool use_ansi_colors()
-    { if (!init_config_bools_done) init_config_bools() ; return use_ansi_colors_; }
-    extern inline bool trace_init()
-    { if (!init_config_bools_done) init_config_bools() ; return trace_init_; }
-    extern inline bool trace_x10rt()
-    { if (!init_config_bools_done) init_config_bools() ; return trace_x10rt_; }
-    extern inline bool trace_ser()
-    { if (!init_config_bools_done) init_config_bools() ; return trace_ser_; }
-    extern inline bool trace_static_init()
-    { if (!init_config_bools_done) init_config_bools() ; return trace_static_init_; }
+    char *get_congruent_base();
+    char *get_congruent_size();
 
     extern x10_int here;
     extern bool x10rt_initialized;
 }
 
-#define ANSI_RESET       (::x10aux::use_ansi_colors()?"\x1b[0m" :"")
+#define ANSI_RESET       (::x10aux::trace_ansi_colors?"\x1b[0m" :"")
 
-#define ANSI_BOLD        (::x10aux::use_ansi_colors()?"\x1b[1m" :"")
-#define ANSI_NOBOLD      (::x10aux::use_ansi_colors()?"\x1b[22m":"")
+#define ANSI_BOLD        (::x10aux::trace_ansi_colors?"\x1b[1m" :"")
+#define ANSI_NOBOLD      (::x10aux::trace_ansi_colors?"\x1b[22m":"")
 
-#define ANSI_UNDERLINE   (::x10aux::use_ansi_colors()?"\x1b[4m" :"")
-#define ANSI_NOUNDERLINE (::x10aux::use_ansi_colors()?"\x1b[24m":"")
+#define ANSI_UNDERLINE   (::x10aux::trace_ansi_colors?"\x1b[4m" :"")
+#define ANSI_NOUNDERLINE (::x10aux::trace_ansi_colors?"\x1b[24m":"")
 
-#define ANSI_REVERSE     (::x10aux::use_ansi_colors()?"\x1b[6m" :"")
-#define ANSI_NOREVERSE   (::x10aux::use_ansi_colors()?"\x1b[27m":"")
+#define ANSI_REVERSE     (::x10aux::trace_ansi_colors?"\x1b[6m" :"")
+#define ANSI_NOREVERSE   (::x10aux::trace_ansi_colors?"\x1b[27m":"")
 
-#define ANSI_BLACK       (::x10aux::use_ansi_colors()?"\x1b[30m":"")
-#define ANSI_RED         (::x10aux::use_ansi_colors()?"\x1b[31m":"")
-#define ANSI_GREEN       (::x10aux::use_ansi_colors()?"\x1b[32m":"")
-#define ANSI_YELLOW      (::x10aux::use_ansi_colors()?"\x1b[33m":"")
-#define ANSI_BLUE        (::x10aux::use_ansi_colors()?"\x1b[34m":"")
-#define ANSI_MAGENTA     (::x10aux::use_ansi_colors()?"\x1b[35m":"")
-#define ANSI_CYAN        (::x10aux::use_ansi_colors()?"\x1b[36m":"")
-#define ANSI_WHITE       (::x10aux::use_ansi_colors()?"\x1b[37m":"")
+#define ANSI_BLACK       (::x10aux::trace_ansi_colors?"\x1b[30m":"")
+#define ANSI_RED         (::x10aux::trace_ansi_colors?"\x1b[31m":"")
+#define ANSI_GREEN       (::x10aux::trace_ansi_colors?"\x1b[32m":"")
+#define ANSI_YELLOW      (::x10aux::trace_ansi_colors?"\x1b[33m":"")
+#define ANSI_BLUE        (::x10aux::trace_ansi_colors?"\x1b[34m":"")
+#define ANSI_MAGENTA     (::x10aux::trace_ansi_colors?"\x1b[35m":"")
+#define ANSI_CYAN        (::x10aux::trace_ansi_colors?"\x1b[36m":"")
+#define ANSI_WHITE       (::x10aux::trace_ansi_colors?"\x1b[37m":"")
 
 #define _MAYBE_DEBUG_MSG(col,type,msg,doit) do { \
     if (doit) _DEBUG_MSG(col,type,msg); \
@@ -230,7 +225,7 @@ namespace x10aux {
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
 #include <stdio.h>
-#define _I_(x) _MAYBE_DEBUG_MSG(ANSI_INIT,"INIT",x,::x10aux::trace_init())
+#define _I_(x) _MAYBE_DEBUG_MSG(ANSI_INIT,"INIT",x,::x10aux::trace_init)
 #else
 #define _I_(x)
 #endif
@@ -244,7 +239,7 @@ namespace x10aux {
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
 #include <stdio.h>
-#define _S_(x) _MAYBE_DEBUG_MSG(ANSI_SER,"SS",x,::x10aux::trace_ser())
+#define _S_(x) _MAYBE_DEBUG_MSG(ANSI_SER,"SS",x,::x10aux::trace_ser)
 #define _Sd_(x) x
 #else
 #define _S_(x)
@@ -253,7 +248,7 @@ namespace x10aux {
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
 #include <stdio.h>
-#define _SI_(x) _MAYBE_DEBUG_MSG(ANSI_SER,"SI",x,::x10aux::trace_static_init())
+#define _SI_(x) _MAYBE_DEBUG_MSG(ANSI_SER,"SI",x,::x10aux::trace_static_init)
 #define _SId_(x) x
 #else
 #define _SI_(x)
@@ -262,7 +257,7 @@ namespace x10aux {
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
 #include <stdio.h>
-#define _X_(x) _MAYBE_DEBUG_MSG(ANSI_X10RT,"XX",x,::x10aux::trace_x10rt())
+#define _X_(x) _MAYBE_DEBUG_MSG(ANSI_X10RT,"XX",x,::x10aux::trace_x10rt)
 #else
 #define _X_(x)
 #endif

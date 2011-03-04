@@ -14,22 +14,21 @@
 
 #include <x10aux/config.h>
 
-bool x10aux::use_ansi_colors_;
-bool x10aux::trace_init_;
-bool x10aux::trace_x10rt_;
-bool x10aux::trace_ser_;
-bool x10aux::trace_static_init_;
-bool x10aux::disable_dealloc_;
+const bool x10aux::trace_ansi_colors = getenv("X10_TRACE_ANSI_COLORS");
+const bool x10aux::trace_init = getenv("X10_TRACE_INIT") || getenv("X10_TRACE_ALL");
+const bool x10aux::trace_static_init = getenv("X10_TRACE_STATIC_INIT") || getenv("X10_TRACE_ALL");
+const bool x10aux::trace_x10rt = getenv("X10_TRACE_X10RT") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
+const bool x10aux::trace_ser = getenv("X10_TRACE_SER") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
+const bool x10aux::trace_rxtx = getenv("X10_TRACE_RXTX") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
 
-bool x10aux::init_config_bools_done;
+const bool x10aux::disable_dealloc = getenv("X10_DISABLE_DEALLOC");
 
-void x10aux::init_config_bools (void)
-{
-    use_ansi_colors_ = NULL==getenv("X10_NO_ANSI_COLORS");
-    disable_dealloc_ = getenv("X10_DISABLE_DEALLOC");
-    trace_init_ = getenv("X10_TRACE_INIT") || getenv("X10_TRACE_ALL");
-    trace_x10rt_ = getenv("X10_TRACE_X10RT") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
-    trace_ser_ = getenv("X10_TRACE_SER") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
-    trace_static_init_ = getenv("X10_TRACE_STATIC_INIT") || getenv("X10_TRACE_ALL");
-    init_config_bools_done = true;
+const bool x10aux::x10__assertions_enabled = !getenv("X10_DISABLE_ASSERTIONS");
+
+char* x10aux::get_congruent_base() {
+    return getenv(ENV_CONGRUENT_BASE);
+}
+
+char* x10aux::get_congruent_size() {
+    return getenv(ENV_CONGRUENT_SIZE);
 }
