@@ -146,7 +146,7 @@ import x10.util.NoSuchElementException;
     private static def x10_strict_finish():Boolean {
         try {
             val v = env.getOrThrow("X10_STRICT_FINISH");
-            return !(v.equals("false") || v.equals("0"));
+            return !(v.equalsIgnoreCase("false") || v.equalsIgnoreCase("f") || v.equals("0"));
         } catch (NoSuchElementException) {
         }
         return false;
@@ -186,7 +186,7 @@ import x10.util.NoSuchElementException;
     private static def x10_static_threads():Boolean {
         try {
             val v = env.getOrThrow("X10_STATIC_THREADS");
-            return !(v.equals("false") || v.equals("0"));
+            return !(v.equalsIgnoreCase("false") || v.equalsIgnoreCase("f") || v.equals("0"));
         } catch (NoSuchElementException) {
         }
         return DEFAULT_STATIC_THREADS;

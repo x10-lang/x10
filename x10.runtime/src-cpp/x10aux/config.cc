@@ -14,16 +14,21 @@
 
 #include <x10aux/config.h>
 
-const bool x10aux::trace_ansi_colors = getenv("X10_TRACE_ANSI_COLORS");
-const bool x10aux::trace_init = getenv("X10_TRACE_INIT") || getenv("X10_TRACE_ALL");
-const bool x10aux::trace_static_init = getenv("X10_TRACE_STATIC_INIT") || getenv("X10_TRACE_ALL");
-const bool x10aux::trace_x10rt = getenv("X10_TRACE_X10RT") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
-const bool x10aux::trace_ser = getenv("X10_TRACE_SER") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
-const bool x10aux::trace_rxtx = getenv("X10_TRACE_RXTX") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
+bool getBoolEnvVar(const char* name) {
+    char* value = getenv(name);
+    return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));
+}
 
-const bool x10aux::disable_dealloc = getenv("X10_DISABLE_DEALLOC");
+const bool x10aux::trace_ansi_colors = getBoolEnvVar("X10_TRACE_ANSI_COLORS");
+const bool x10aux::trace_init = getBoolEnvVar("X10_TRACE_INIT") || getBoolEnvVar("X10_TRACE_ALL");
+const bool x10aux::trace_static_init = getBoolEnvVar("X10_TRACE_STATIC_INIT") || getBoolEnvVar("X10_TRACE_ALL");
+const bool x10aux::trace_x10rt = getBoolEnvVar("X10_TRACE_X10RT") || getBoolEnvVar("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
+const bool x10aux::trace_ser = getBoolEnvVar("X10_TRACE_SER") || getBoolEnvVar("X10_TRACE_NET") || getBoolEnvVar("X10_TRACE_ALL");
+const bool x10aux::trace_rxtx = getBoolEnvVar("X10_TRACE_RXTX") || getBoolEnvVar("X10_TRACE_NET") || getBoolEnvVar("X10_TRACE_ALL");
 
-const bool x10aux::x10__assertions_enabled = !getenv("X10_DISABLE_ASSERTIONS");
+const bool x10aux::disable_dealloc = getBoolEnvVar("X10_DISABLE_DEALLOC");
+
+const bool x10aux::x10__assertions_enabled = !getBoolEnvVar("X10_DISABLE_ASSERTIONS");
 
 char* x10aux::get_congruent_base() {
     return getenv(ENV_CONGRUENT_BASE);
