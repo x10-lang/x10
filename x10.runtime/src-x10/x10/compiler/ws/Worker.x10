@@ -10,11 +10,10 @@ public final class Worker {
     private val id:Int; //Could be removed finally ?
     private val random:Random;
 
+    public val finished:BoxedBoolean;
     public val deque = new Deque();
     public val fifo = new Deque();
     public val lock = new Lock();
-    
-    public val finished:BoxedBoolean;
 
     public def this(i:Int, workers:Rail[Worker], finished:BoxedBoolean) {
         random = new Random(i + (i << 8) + (i << 16) + (i << 24));
