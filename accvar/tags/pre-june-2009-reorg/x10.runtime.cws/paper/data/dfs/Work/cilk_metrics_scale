@@ -1,0 +1,82 @@
+cilk results on rand graphs:
+5000000 20000000 1 processor
+n_vertics=5000000, n_edges=20000000
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 11.569014 s
+5000000 20000000 2 processor
+n_vertics=5000000, n_edges=20000000
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 5.911780 s
+5000000 20000000 4 processor
+n_vertics=5000000, n_edges=20000000
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 3.089494 s
+5000000 20000000 8 processor
+n_vertics=5000000, n_edges=20000000
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.955250 s
+5000000 20000000 16 processor
+5000000 20000000 16 processor
+n_vertics=5000000, n_edges=20000000
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.542230 s

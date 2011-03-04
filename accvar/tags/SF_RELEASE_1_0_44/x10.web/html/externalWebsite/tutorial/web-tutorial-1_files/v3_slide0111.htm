@@ -1,0 +1,205 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=PowerPoint.Slide>
+<meta name=Generator content="Microsoft PowerPoint 10">
+<link id=Main-File rel=Main-File href="../web-tutorial-1.htm">
+<link rel=Preview href=preview.wmf>
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+p\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+v\:textbox {display:none;}
+</style>
+<![endif]-->
+<title>Slide 1</title>
+<meta name=Description content="12/8/2006: DistributedHashMap - operations">
+<link rel=next href="v3_slide0112.htm">
+</head>
+
+<body background="v3_master06_background.gif" bgcolor=white alink="#2DB6B3"
+link="#996633" vlink="#D18213" text=black topmargin=0 leftmargin=0>
+
+<table border=0 valign=top width=650 height=487 cellpadding=0 cellspacing=0>
+ <tr>
+  <td width=17 height=0 nowrap><img src="v3_space.gif" border=0></td>
+  <td width=9 height=0 nowrap><img src="v3_space.gif" border=0></td>
+  <td width=2 height=0 nowrap><img src="v3_space.gif" border=0></td>
+  <td width=6 height=0 nowrap><img src="v3_space.gif" border=0></td>
+  <td width=10 height=0 nowrap><img src="v3_space.gif" border=0></td>
+  <td width=374 height=0 nowrap><img src="v3_space.gif" border=0></td>
+  <td width=105 height=0 nowrap><img src="v3_space.gif" border=0></td>
+ </tr>
+ <tr>
+  <td width=650 height=27 colspan=8></td>
+ </tr>
+ <tr>
+  <td width=26 height=437 colspan=2 rowspan=5><map name="map_m14"></map><img
+  src="v3_master06_image348.gif" border=0 usemap="#map_m14" width=26
+  height=437 alt="Text Box: Software Technology Department"></td>
+  <td width=624 height=17 colspan=6></td>
+ </tr>
+ <tr>
+  <td width=2 height=29></td>
+  <td width=390 height=29 colspan=3>
+  <table border=0 valign=top cellpadding=0 cellspacing=0>
+   <tr>
+    <td width=390 height=29><font face=Arial color="#7889FB" size=5>DistributedHashMap
+    - operations</font><br>
+    </td>
+   </tr>
+  </table>
+  </td>
+  <td width=232 height=29 colspan=2></td>
+ </tr>
+ <tr>
+  <td width=624 height=33 colspan=6></td>
+ </tr>
+ <tr>
+  <td width=18 height=324 colspan=3></td>
+  <td width=479 height=324 colspan=2>
+  <table border=0 valign=top cellpadding=0 cellspacing=0>
+   <tr>
+    <td width=17 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=16 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=1 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=147 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=16 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=109 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=7 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=90 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=34 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=2 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=11 height=0 nowrap><img src="v3_space.gif" border=0></td>
+    <td width=8 height=0 nowrap><img src="v3_space.gif" border=0></td>
+   </tr>
+   <tr>
+    <td width=181 height=21 colspan=4><font face=Arial size=3><b>Selected
+    operations</b></font><br>
+    </td>
+    <td width=298 height=21 colspan=9></td>
+   </tr>
+   <tr>
+    <td width=479 height=22 colspan=13></td>
+   </tr>
+   <tr>
+    <td width=17 height=21><font face=Wingdings color="#6666FF" size=3>§</font></td>
+    <td width=433 height=21 colspan=10><font face="Courier New" size=3><b>boolean
+    containsValue(final value key)</b></font><br>
+    </td>
+    <td width=29 height=21 colspan=2></td>
+   </tr>
+   <tr>
+    <td width=17 height=21></td>
+    <td width=16 height=21><font face=Arial color="#6666FF" size=3>–</font></td>
+    <td width=280 height=21 colspan=5><font face=Arial size=3>must not suffer
+    from aba problem</font><br>
+    </td>
+    <td width=166 height=21 colspan=6></td>
+   </tr>
+   <tr>
+    <td width=479 height=1 colspan=13></td>
+   </tr>
+   <tr>
+    <td width=17 height=21></td>
+    <td width=16 height=21><font face=Arial color="#6666FF" size=3>–</font></td>
+    <td width=404 height=21 colspan=7><font face=Arial size=3>optimization:
+    internal concurrency across places</font><br>
+    </td>
+    <td width=42 height=21 colspan=4></td>
+   </tr>
+   <tr>
+    <td width=479 height=1 colspan=13></td>
+   </tr>
+   <tr>
+    <td width=17 height=21></td>
+    <td width=16 height=21><font face=Arial color="#6666FF" size=3>–</font></td>
+    <td width=164 height=21 colspan=3><font face=Arial size=3>reader
+    concurrency</font><br>
+    </td>
+    <td width=282 height=21 colspan=8></td>
+   </tr>
+   <tr>
+    <td width=479 height=22 colspan=13></td>
+   </tr>
+   <tr>
+    <td width=17 height=21><font face=Wingdings color="#6666FF" size=3>§</font></td>
+    <td width=422 height=21 colspan=9><font face="Courier New" size=3><b>nullable&lt;Object&gt;
+    put(final value key,</b></font><br>
+    </td>
+    <td width=40 height=21 colspan=3></td>
+   </tr>
+   <tr>
+    <td width=479 height=1 colspan=13></td>
+   </tr>
+   <tr>
+    <td width=479 height=21 colspan=13><font face="Courier New" size=3><b><span
+    style='mso-spacerun:yes'>                       </span>final Object value)</b></font><br>
+    </td>
+   </tr>
+   <tr>
+    <td width=17 height=21></td>
+    <td width=16 height=21><font face=Arial color="#6666FF" size=3>–</font></td>
+    <td width=425 height=21 colspan=10><font face=Arial size=3>concurrent
+    across places, sequential in each place</font><br>
+    </td>
+    <td width=21 height=21></td>
+   </tr>
+   <tr>
+    <td width=479 height=22 colspan=13></td>
+   </tr>
+   <tr>
+    <td width=17 height=21><font face=Wingdings color="#6666FF" size=3>§</font></td>
+    <td width=422 height=21 colspan=9><font face="Courier New" size=3><b>nullable&lt;Object&gt;
+    get(final value key)</b></font><br>
+    </td>
+    <td width=40 height=21 colspan=3></td>
+   </tr>
+   <tr>
+    <td width=479 height=1 colspan=13></td>
+   </tr>
+   <tr>
+    <td width=17 height=21></td>
+    <td width=16 height=21><font face=Arial color="#6666FF" size=3>–</font></td>
+    <td width=370 height=21 colspan=6><font face=Arial size=3>concurrent intra
+    and inter-place read access</font><br>
+    </td>
+    <td width=76 height=21 colspan=5></td>
+   </tr>
+   <tr>
+    <td width=479 height=23 colspan=13></td>
+   </tr>
+   <tr>
+    <td width=17 height=21><font face=Wingdings color="#6666FF" size=3>§</font></td>
+    <td width=289 height=21 colspan=5><font face=Arial size=3>others that we do
+    not discuss here</font><br>
+    </td>
+    <td width=173 height=21 colspan=7></td>
+   </tr>
+  </table>
+  </td>
+  <td width=127 height=324></td>
+ </tr>
+ <tr>
+  <td width=624 height=34 colspan=6></td>
+ </tr>
+ <tr>
+  <td width=650 height=2 colspan=8></td>
+ </tr>
+ <tr>
+  <td width=17 height=11></td>
+  <td width=17 height=11 colspan=3><img src="v3_master06_image349.gif"
+  border=0 width=17 height=11></td>
+  <td width=616 height=11 colspan=4></td>
+ </tr>
+ <tr>
+  <td width=650 height=10 colspan=8></td>
+ </tr>
+</table>
+
+</body>
+
+</html>

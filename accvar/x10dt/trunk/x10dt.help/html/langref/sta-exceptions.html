@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Exceptions in X10</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc15">
+15</a>&nbsp;&nbsp;Exceptions in X10</h2>
+
+
+<div class="p"><!----></div>
+X10 programs can throw <em>Exceptions</em> to indicate unusual or problematic
+situations.  Exceptions, as data values, are objects which which inherit from
+<b>x10.lang.Throwable</b>.    Exceptions may be thrown intentionally with the
+<b>throw</b> statement. Many primitives and library functions throw exceptions
+if they encounter problems; <em>e.g.</em>, dividing by zero throws an instance of
+<b>x10.lang.ArithmeticException</b>. 
+
+<div class="p"><!----></div>
+When an exception is thrown, statically and dynamically enclosing
+<b>try</b>-<b>catch</b> blocks in the same activity can attempt to handle it.   If the throwing
+statement in inside some <b>try</b> clause, and some matching <b>catch</b>
+clause catches that type of exception, the corresponding <b>catch</b> body will
+be executed, and the process of throwing is finished.  
+If no statically-enclosing <b>try</b>-<b>catch</b> block can handle the
+exception, the current method call returns (abnormally), throwing the same
+exception from the point at which the method was called.  
+
+<div class="p"><!----></div>
+This process continues until the exception is handled or there are no more
+calling methods in the activity. In the latter case, the activity will
+terminate abnormally, and the exception will propagate to the activity's root;
+see &#167; for details.
+
+<div class="p"><!----></div>
+Unlike some statically-typed languages with exceptions, X10's exceptions are
+all <em>unchecked</em>. Methods do not declare which exceptions they might throw;
+any method can, potentially, throw any exception.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+   0:M=17 SQRTN=131072 N=17179869184 nRows=2048 localSize=536870912 MAX_PLACES=64 Mem=524288.0 mem/MAX_PLACES=8192.0
+   0:Start FFT
+   0:execution time=126.995308000000009 secs Gigaflops=22.997524926511456
+   0:Step transpose1 took 19.955920000000003 s
+   0:Step row_ffts1 took 25.331626 s
+   0:Step transpose2 took 20.966406000000003 s
+   0:Step twiddle took 15.423314000000001 s
+   0:Step row_ffts2 took 25.273158000000002 s
+   0:Step transpose3 took 20.044884 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=117.788742000000013 secs Gigaflops=24.795050118456988
+   0:Step transpose1 took 20.734331000000001 s
+   0:Step row_ffts1 took 20.512799000000001 s
+   0:Step transpose2 took 20.093292000000002 s
+   0:Step twiddle took 15.403837000000001 s
+   0:Step row_ffts2 took 20.624675 s
+   0:Step transpose3 took 20.419808 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=244.784050000000036 secs Gigaflops=23.862484187838213
+   0:M=17 SQRTN=131072 N=17179869184 nRows=2048 localSize=536870912 MAX_PLACES=64 Mem=524288.0 mem/MAX_PLACES=8192.0
+   0:Start FFT
+   0:execution time=124.35261100000001 secs Gigaflops=23.486260061559943
+   0:Step transpose1 took 19.080265000000001 s
+   0:Step row_ffts1 took 25.02542 s
+   0:Step transpose2 took 19.698167000000002 s
+   0:Step twiddle took 15.404088000000002 s
+   0:Step row_ffts2 took 25.241342000000003 s
+   0:Step transpose3 took 19.903329000000003 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=115.637382000000002 secs Gigaflops=25.256346267680115
+   0:Step transpose1 took 20.062328000000001 s
+   0:Step row_ffts1 took 20.467902000000002 s
+   0:Step transpose2 took 19.350041000000001 s
+   0:Step twiddle took 15.406265000000001 s
+   0:Step row_ffts2 took 20.607690000000002 s
+   0:Step transpose3 took 19.743156000000003 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=239.989993000000027 secs Gigaflops=24.339162852344426

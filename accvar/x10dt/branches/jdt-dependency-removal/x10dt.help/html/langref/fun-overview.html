@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Overview</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Overview</h2>
+Functions, the last of the three kinds of values in X10, encapsulate pieces of
+code which can be applied to a vector of arguments to produce a value.
+Functions, when applied, can do nearly anything that any other code could do:
+fail to terminate, throw an exception, modify variables, spawn activities,
+execute in several places, and so on. X10 functions are not mathematical
+functions: the <b>f(1)</b> may return <b>true</b> on one call and <b>false</b> on
+an immediately following call.
+
+<div class="p"><!----></div>
+A <em>function literal</em> <b>(x1:T1,..,xn:Tn){c}:T=&#62;e</b> creates a function of
+type<br /><b>(x1:T1,...,xn:Tn){c}=&#62;T</b> (&#167;).  For example, 
+<b>(x:Int):Int =&#62; x*x</b> is a function literal describing the squaring function on
+integers.   
+<b>null</b> is also a function value.
+
+<div class="p"><!----></div>
+<em>Limitation</em> X10 functions cannot have type arguments or constraints. 
+
+<div class="p"><!----></div>
+Function application is written <b>f(a,b,c)</b>, following common mathematical
+usage. 
+
+
+<div class="p"><!----></div>
+The function body may be a block.  To compute integer squares by repeated
+addition (inefficiently), one may write: 
+<pre>
+val sq: (Int) =&#62; Int 
+      = (n:Int) =&#62; {
+           var s : Int = 0;
+           val abs_n = n &lt; 0 ? -n : n;
+           for ([i] in 1..abs_n) s += abs_n;
+           s
+        };
+</pre>
+
+<div class="p"><!----></div>
+A function literal evaluates to a function entity <b>f</b>. When <b>f</b> is
+applied to a suitable list of actual parameters <b>a1</b> through <b>an</b>, it
+evaluates <b>e</b> with the formal parameters bound to the actual parameters.
+So, the following are equivalent, where <b>e</b> is an expression involving
+<b>x1</b> and <b>x2</b><a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+
+<div class="p"><!----></div>
+<pre>
+{
+  val f = (x1:T1,x2:T2){true}:T =&#62; e;
+  val a1 : T1 = arg1();
+  val a2 : T2 = arg2();
+  result = f(a1,a2);
+}
+</pre>
+and 
+<pre>
+{
+  val a1 : T1 = arg1();
+  val a2 : T2 = arg2();
+  {
+     val x1 : T1 = a1;
+     val x2 : T2 = a2;
+     result = e;
+  }  
+}
+</pre>
+
+This equivalence does not hold if the body is a statement rather than an expression.
+A few language features are forbidden (<b>break</b> or <b>continue</b> of a loop
+that surrounds the function literal) or mean something different (<b>return</b>
+inside a function returns from the function, not the surrounding block). 
+
+<div class="p"><!----></div>
+The <em>method selector expression</em> <b>e.m.(x1:T1,...,xn:Tn)</b> (&#167;)
+permits the specification of the function underlying
+the method <b>m</b>, which takes arguments of type <b>(x1:T1,..., xn:Tn)</b>.
+Within this function, <b>this</b> is bound to the result of evaluating {e}.
+
+<div class="p"><!----></div>
+Function types may be used in <b>implements</b> clauses of class
+definitions. Instances of such classes may be used as functions of the
+given type.  Indeed, an object may behave like any (fixed) number of
+functions, since the class it is an instance of may implement any
+(fixed) number of function types.
+
+Instances of the <b>Funny</b> class behave like two functions: 
+a constant function on Booleans, and a linear function on 
+pairs of <b>Int</b>s.  
+<pre>
+class Funny implements (Boolean) =&#62; Int, 
+                       (Int, Int) =&#62; Int
+{
+  public def apply(Boolean) = 1;
+  public def apply(x:Int, y:Int) = 10*x+y;
+  static def example() {
+    val f &lt;: Funny  = new Funny();
+    assert f(true) == 1; // (Boolean)=&#62;Int behavior
+    assert f(1,2) == 12; // (Int,Int)=&#62;Int behavior
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+\begin{tightcode}
+\quad\num{1}/**
+\quad\num{2}
+\quad\num{3} * This class implements the notion of places in X10. The maximum
+\quad\num{4} * number of places is determined by a configuration parameter
+\quad\num{5} * (MAX\_PLACES). Each place is indexed by a nat, from 0 to MAX\_PLACES;
+\quad\num{6} * thus there are MAX\_PLACES+1 places. This ensures that there is
+\quad\num{7} * always at least 1 place, the 0'th place.
+\quad\num{8}
+\quad\num{9} * We use a dependent parameter to ensure that the compiler can track
+\quad\num{10} * indices for places.
+\quad\num{11} *
+\quad\num{12} * Note that place(i), for i <= MAX\_PLACES, can now be used as a non-empty type.
+\quad\num{13} * Thus it is possible to run an async at another place, without using arays---
+\quad\num{14} * just use async(place(i)) \{\ldots{}\} for an appropriate i.
+\quad\num{15}
+\quad\num{16} * @author Christoph von Praun
+\quad\num{17} * @author vj
+\quad\num{18} */
+\quad\num{19}
+\quad\num{20}package x10.lang;
+\quad\num{21}
+\quad\num{22}import x10.util.List;
+\quad\num{23}import x10.util.Set;
+\quad\num{24}
+\quad\num{25}public value class place (nat i : i <= MAX\_PLACES)\{
+\quad\num{26}
+\quad\num{27}    /** The number of places in this run of the system. Set on
+\quad\num{28}     * initialization, through the command line/init parameters file.
+\quad\num{29}     */
+\quad\num{30}    config nat MAX\_PLACES;
+\quad\num{31}
+\quad\num{32}    \emph{// Create this array at the very beginning.}
+\quad\num{33}    private constant place value [] myPlaces = new place[MAX\_PLACES+1] fun place (int i) \{
+\quad\num{34}	return new place( i )(); \};
+\quad\num{35}
+\quad\num{36}    /** The last place in this program execution.
+\quad\num{37}     */
+\quad\num{38}    public static final place LAST\_PLACE = myPlaces[MAX\_PLACES];
+\quad\num{39}
+\quad\num{40}    /** The first place in this program execution.
+\quad\num{41}     */
+\quad\num{42}    public static final place FIRST\_PLACE = myPlaces[0];
+\quad\num{43}    public static final Set<place> places = makeSet( MAX\_PLACES );
+\quad\num{44}
+\quad\num{45}    /** Returns the set of places from first place to last place.
+\quad\num{46}     */
+\quad\num{47}    public static Set<place> makeSet( nat lastPlace ) \{
+\quad\num{48}	Set<place> result = new Set<place>();
+\quad\num{49}	for ( int i : 0 .. lastPlace ) \{
+\quad\num{50}	    result.add( myPlaces[i] );
+\quad\num{51}	\}
+\quad\num{52}	return result;
+\quad\num{53}    \}
+\quad\num{54}
+\quad\num{55}    /**  Return the current place for this activity.
+\quad\num{56}     */
+\quad\num{57}    public static place here() \{
+\quad\num{58}	return activity.currentActivity().place();
+\quad\num{59}    \}
+\quad\num{60}
+\quad\num{61}    /** Returns the next place, using modular arithmetic. Thus the
+\quad\num{62}     * next place for the last place is the first place.
+\quad\num{63}     */
+\quad\num{64}    public place(i+1 % MAX\_PLACES) next()  \{ return next( 1 ); \}
+\quad\num{65}
+\quad\num{66}    /** Returns the previous place, using modular arithmetic. Thus the
+\quad\num{67}     * previous place for the first place is the last place.
+\quad\num{68}     */
+\quad\num{69}    public place(i-1 % MAX\_PLACES) prev()  \{ return next( -1 ); \}
+\quad\num{70}
+\quad\num{71}    /** Returns the k'th next place, using modular arithmetic. k may
+\quad\num{72}     * be negative.
+\quad\num{73}     */
+\quad\num{74}    public place(i+k % MAX\_PLACES) next( int k ) \{
+\quad\num{75}	return places[ (i + k) % MAX\_PLACES];
+\quad\num{76}    \}
+\quad\num{77}
+\quad\num{78}    /**  Is this the first place?
+\quad\num{79}     */
+\quad\num{80}    public boolean isFirst() \{ return i==0; \}
+\quad\num{81}
+\quad\num{82}    /** Is this the last place?
+\quad\num{83}     */
+\quad\num{84}    public boolean isLast() \{ return i==MAX\_PLACES; \}
+\quad\num{85}\}
+\end{tightcode}

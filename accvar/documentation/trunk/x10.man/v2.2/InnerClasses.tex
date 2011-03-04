@@ -1,0 +1,357 @@
+\section{Static Nested Classes}
+\label{StaticNestedClasses}
+\index{class!static nested}
+\index{class!nested}
+\index{static nested class}
+
+One class (or struct or interface) may be nested within another.  The simplest
+way to do this is as a \xcd`static` nested class, written by putting one class
+definition at top level inside another, with the inner one having a
+\xcd`static` modifier.  
+For most purposes, a static nested class behaves like a top-level class.
+However, a static inner class has access to private static
+fields and methods of its containing class.  
+
+Nested interfaces and static structs are permitted as well.
+
+%~~gen ^^^ InnerClasses10
+% package Classes.StaticNested; 
+% NOTEST
+%~~vis
+\begin{xten}
+class Outer {
+  private static val priv = 1;
+  private static def special(n:Int) = n*n;
+  public static class StaticNested {
+     static def reveal(n:Int) = special(n) + priv;
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+\section{Inner Classes}
+\label{InnerClasses}
+\index{class!inner}
+\index{inner class}
+
+
+Non-static nested classes are called {\em inner classes}. An inner class
+instance can be thought of as a very elaborate member of an object --- one
+with a full class structure of its own.   The crucial characteristic of an
+inner class instance is that it has an implicit reference to an instance of
+its containing class.  
+
+
+This feature is particularly useful when an instance of the inner class makes
+no sense without reference to an instance of the outer, and is closely tied to
+it.  For example, consider a range class, describing a span of integers {$m$}
+to {$n$}, and an iterator over the range.  The iterator might as well have
+access to the range object, and there is little point to discussing
+iterators-over-ranges without discussing ranges as well.
+In the following example, the inner class \xcd`RangeIter` iterates over the
+enclosing \xcd`Range`.  
+
+It has its own private cursor field \xcd`n`, telling
+where it is in the iteration; different iterations over the same \xcd`Range`
+can exist, and will each have their own cursor.
+It is perhaps unwise to use the name \xcd`n` for a field of the inner class,
+since it is also a field of the outer class, but it is legal.  (It can happen
+by accident as well -- \eg, if a programmer were to add a field \xcd`n` to a
+superclass of the  outer class, the inner class would still work.)
+It does not even
+interfere with the inner class's ability to refer to the outer class's \xcd`n`
+field: the cursor initialization 
+refers to the \xcd`Range`'s lower bound through a fully qualified name
+\xcd`Range.this.n`.
+Its \xcd`hasNext()` method refers to the outer class's \xcd`m` field, which is
+not shadowed.
+
+
+%~~gen ^^^ InnerClasses20
+% package Classes.InnerClasses_a; 
+% NOTEST
+%~~vis
+\begin{xten}
+class Range(m:Int, n:Int) implements Iterable[Int]{
+  public def iterator ()  = new RangeIter();
+  private class RangeIter implements Iterator[Int] {
+     private var n : Int = m;
+     public def hasNext() = n <= Range.this.n;
+     public def next() = n++;
+  }
+  public static def main(argv:Array[String](1)) {
+    val r = new Range(3,5);
+    for(i in r) Console.OUT.println("i=" + i);
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+An inner class has full access to the members of its enclosing class, both
+static and instance.  In particular, it can access \xcd`private` information,
+just as methods of the enclosing class can.  
+
+An inner class can have its own members.  
+Inside instance methods of an inner class, \xcd`this` refers to the instance
+of the {\em inner} class.  The instance of the outer class can be accessed as
+{\em Outer}\xcd`.this` (where {\em Outer} is the name of the outer class).
+If, for some dire reason, it is necessary to have an inner class within an inner
+class, the innermost class can refer to the \xcd`this` of either outer class
+by using its name.
+
+An inner class can inherit from any class in scope,
+with no special restrictions. \xcd`super` inside an inner class refers to the
+inner class's superclass. If it is necessary to refer to the outer classes's
+superclass, use a qualified name of the form {\em Outer}\xcd`.super`.
+
+The only restriction placed on the members of inner classes is that the static
+fields of an inner class must be compile-time constant expressions. 
+
+\index{inner class!extending}
+An inner class \xcd`IC1` of some outer class \xcd`OC1` can be extended by
+another class \xcd`IC2`. However, since an \xcd`IC1` only exists as a
+dependent of an \xcd`OC1`, each \xcd`IC2` must be associated with an \xcd`OC1`
+--- or a subtype thereof --- as well.   For example, one often extends an
+inner class when one extends its outer class: 
+%~~gen ^^^ InnerClasses30
+% package Classes.Innerclasses.Are.For.Innermasses;
+%~~vis
+\begin{xten}
+class OC1 {
+   class IC1 {}
+}
+class OC2 extends OC1 {
+   class IC2 extends IC1 {} 
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+The hiding of method names has one fine point.  If an inner class defines a
+method named \xcd`doit`, then {\em all} methods named \xcd`doit` from the
+outer class are hidden --- even if they have different argument types than the
+one defined in the inner class.
+They are still accessible via
+\xcd`Outer.this.doit()`, but not simply via \xcd`doit()`.  The following code
+is correct, but would not be correct if the ERROR line were uncommented.
+
+%~~gen ^^^ InnerClasses40
+% package Classes.Innerclasses.StupidOverloading; 
+% NOTEST
+%~~vis
+\begin{xten}
+class Outer {
+  def doit() {}
+  def doit(String) {}
+  class Inner { 
+     def doit(Boolean, Outer) {}
+     def example() {
+        doit(true, Outer.this);
+        Outer.this.doit();
+        //ERROR: doit("fails");
+     }
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+\subsection{Constructors and Inner Classes}
+\index{inner class!constructor}
+
+If \xcd`IC` is an inner class of \xcd`OC`, then instance code in the body of
+\xcd`OC` can create instances of \xcd`IC` simply by calling a constructor
+\xcd`new IC(...)`: 
+%~~gen ^^^ InnerClasses50
+% package Classes.Innerclasses.Constructors.Easy;
+%~~vis
+\begin{xten}
+class OC {
+  class IC {}
+  def method(){
+    val ic = new IC();
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+Instances of \xcd`IC` can be constructed from elsewhere as well.  Since every
+instance of \xcd`IC` is associated with an instance of \xcd`OC`, an \xcd`OC`
+must be supplied to the \xcd`IC` constructor.  The syntax for doing so is: 
+\xcd`oc.new IC()`.  For example: 
+%~~gen ^^^ InnerClasses60
+% package Classes.Inner_a; 
+% NOTEST
+%~~vis
+\begin{xten}
+/*NONSTATIC*/class OC {
+  class IC {}
+  static val oc1 = new OC();
+  static val oc2 = new OC();
+  static val ic1 = oc1.new IC();
+  static val ic2 = oc2.new IC();
+}
+class Elsewhere{
+  def method(oc : OC) {
+    val ic = oc.new IC();
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+\section{Local Classes}
+\label{sect:LocalClasses}
+
+Classes can be defined and instantiated in the middle of methods and other
+code blocks.
+A local class in a static method is a static class; a local class in an
+instance method is an inner class.
+ Local classes are local to the block in which they are defined.
+They have access to almost everything defined at that point in the method; the
+one exception is that they cannot use \xcd`var` variables. Local classes
+cannot be \xcd`public` \xcd`protected`, or \xcd`private`, because they are
+only visible from within the block of declaration. They cannot be
+\xcd`static`.
+
+\begin{ex}
+The following example illustrates the use of a local class \xcd`Local`, 
+defined inside the body of method \xcd`m()`. 
+%~~gen ^^^ InnerClasses5p9v
+% package InnerClasses5p9v;
+% NOTEST
+%~~vis
+\begin{xten}
+class Outer {
+  val a = 1;
+  def m() {
+    val a = -2; 
+    val b = 2;
+    class Local {
+      val a = 3;
+      def m() = 100*Outer.this.a + 10*b + a; 
+    }
+    val l : Local = new Local();
+    assert l.m() == 123;
+  }//end of m()
+}
+\end{xten}
+%~~siv
+% class Hook{ def run() {
+%   val o <: Outer = new Outer();
+%   o.m();
+%   return true;
+% } }
+%~~neg
+Note that the middle \xcd`a`,
+whose value is \xcd`-2`, is not accessible inside of \xcd`Local`; it is
+shadowed by \xcd`Local`'s \xcd`a` field.  \xcd`Outer`'s \xcd`a` is also
+shadowed, but the notation \xcd`Outer.this` gives a reference to the enclosing
+\xcd`Outer` object.  There is no corresponding notation to access shadowed local
+variables from the enclosing block; if you need to get them, rename the fields
+of \xcd`Local`.    
+\end{ex}
+
+
+
+
+
+\section{Anonymous Classes}
+\index{class!anonymous}
+\index{anonymous class}
+
+It is possible to define a new class and instantiate it as part of an
+expression.  The new class can extend an extant class or interface.  Its body
+can include all of the usual members of a class. It can refer to any
+identifiers available at that point in the expression --- except for \xcd`var`
+variables.  An anonymous class in a static context is a static inner class.
+
+Anonymous classes are useful when you want to package several pieces of
+behavior together (a single piece of behavior can often be expressed as a
+function, which is syntactically lighter-weight), or if you want to extend and
+vary an extant class without going through the trouble of actually defining a
+whole new class.
+
+The syntax for an anonymous class is a constructor call followed immediately
+by a braced class body: \xcd`new C(1){def foo()=2;}`.
+
+In the following minimalist example, the abstract class \xcd`Choice`
+encapsulates a decision.   A \xcd`Choice` has a \xcd`yes()` and a \xcd`no()`
+method.  The \xcd`choose(b)` method will invoke one of the two.  \xcd`Choice`s
+also have names.
+
+The \xcd`main()` method creates a specific \xcd`Choice`.  \xcd`c` is not a
+immediate instance of \xcd`Choice` --- as an abstract class, \xcd`Choice` has
+no immediate instances. \xcd`c` is an instance of an anonymous class which
+inherits from \xcd`Choice`, but supplies \xcd`yes()` and \xcd`no()` methods.
+These methods modify the contents of the \xcd`Cell[Int]` \xcd`n`.  (Note that,
+as \xcd`n` is a local variable, it would take a few lines more coding to
+extract \xcd`c`'s class, name it, and make it an inner class.)  The call to
+\xcd`c.choose(true)`  will call \xcd`c.yes()`, incrementing \xcd`n()`, in a
+rather roundabout manner.
+
+%~~gen ^^^ InnerClasses70
+% package ClassInnnerclassAnonclassOw; 
+%~~vis
+\begin{xten}
+abstract class Choice(name: String) {
+  def this(name:String) {property(name);}
+  def choose(b:Boolean) { if (b) this.yes(); else this.no(); }
+  abstract def yes():void;
+  abstract def no():void;
+}
+
+class Example {
+  static def main(Array[String]) {
+    val n = new Cell[Int](0);
+    val c = new Choice("Inc Or Dec") {
+      def yes() { n() += 1; }
+      def no()  { n() -= 1; }
+      };
+    c.choose(true);
+    Console.OUT.println("n=" + n());
+  }
+}
+
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+Anonymous classes have many of the features of classes in general.  A few
+features are unavailable because they don't make sense.
+
+\begin{itemize}
+
+\item Anonymous classes don't have constructors.  Since they don't have names,
+      there's no way a constructor could get called in the ordinary way.
+      Instead, the \xcd`new C(...)` expression must match a constructor of the
+      parent class \xcd`C`, which will be called to initialize the
+      newly-created object of the anonymous class.
+
+\item Certain modifiers don't make sense for anonymous classes: \xcd`public`,
+      \xcd`private`, and \xcd`protected.`  Anonymous classes, being anonymous,
+      cannot be referenced at all.
+
+\item Anonymous classes cannot be \xcd`abstract`.  Since they only exist in
+      combination with a constructor call, they must be constructable.  The
+      parent class of the anonymous class may be abstract, or may be an
+      interface; in this case, the anonymous class must provide all the
+      methods that the parent demands.
+
+\item Anonymous classes cannot have explicit \xcd`extends` or \xcd`implements`
+      clauses; there's no place in the syntax for them. They have a single
+      parent and that is that. 
+\end{itemize}

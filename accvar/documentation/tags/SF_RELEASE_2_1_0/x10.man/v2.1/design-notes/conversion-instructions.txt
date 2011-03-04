@@ -1,0 +1,157 @@
+9/7/2010 12:43:16 PM
+
+Rules to follow when converting from 2.0 object model to 2.1 object
+model.
+
+Delete ! types -- replace T! with T. Almost certainly these are not
+needed any more.
+
+Get rid of the "global" modifier on methods in interfaces. Methods are
+global by default.
+
+Get rid of "global" modifier on methods in a class. Mark at
+@Global. Methods not marked with global may now want to be marked
+@Pinned (see below). 
+
+Get rid of "global" modifier on fields. You may want to use the
+"transient" modifier for fields that were not marked before. 
+See "Three basic idioms" below. 
+
+Examine each at and ateach carefully.
+
+  Is an object being accessed across an at?  If so, read "Three Basic
+  Idioms" below and determine how you will handle this access. 
+
+    (Note: In 2.0 an object is global. Therefore an access across an
+     at boundary gets you a remote reference. Now it results in the
+     object being copied, with all the non-transient fields being
+     represented on the wire. So you have to determine how the 
+     programmer intended to operate on this object and decide which
+     2.1 idiom to use.)
+
+     Note that most tests that have nothing to do with
+     at/async/clocks/ateach -- have nothing to do with at! Therefore
+     the tests should "just work" in 2.1 a long as you take care of
+     removing "!"s and "global" modifiers.
+
+
+While you are looking at the test please try to clean up other
+oddities as well: 
+
+  -- Local variables and method parameters should be val's unless
+     there is a reason for them not to be.
+
+  -- The main method signature should be 
+           def main(Array[String](1)) {..}
+     unless the arg is being used in the body, in which case name it.
+
+  -- Replace all uses of at(P) S with async at(P) S.
+
+  -- Make sure that "this" is not being accessed across an at. This is
+     almost always the wrong thing to do because across the at you
+     will get a "copy" of the current object. Usually it is much
+     better to copy the fields of this that are being accessed across
+     an at into local variables and then access these fields.
+
+THREE BASIC IDIOMS
+
+  -- Copy-on-Remote-Access. The class C has mutable state (e.g. Array,
+     HashMap etc). When an instance of the class is accessed across a
+     boundary the user's intent is that the object be copied over to
+     the remote side.
+
+     The user has to do nothing special. Write "Java" or "Scala" style
+     code. If the user is a bit picky, s/he may provide a pickling
+     method to generate an efficient on-the-wire representation.
+
+     Most code should be of this type.
+
+  -- Global reference. The class C has mutable state and the
+     programmer intends that it should be possible to operate on an
+     instance of this class from remote places. See Single class
+     global objects idiom below.
+
+     (Most of the rest of the code should be of this type.)
+
+  -- The class C is a "wrapper" for another class D. C itself
+     typically has no mutable state. It internally refers to an
+     instance of D (via a GlobalRef) and may have other immutable
+     state referring to D (e.g. if D is an array then C may carry
+     around the region). The state of C may itself be copied around
+     freely from place to place. See Double Class global object idiom
+     below.
+
+     (This should be the remaining very small fraction of the
+     code. Name such classes with a Global or Remote prefix.)
+
+Single class global objects idiom (for the second case above)
+(See x10.runtime/src-x10/x10/compile/Pinned.x10 x10doc comments.)
+
+  -- Add a field val root = GlobalRef[ClassName](this). This is a
+     globally valid reference to the root object. Now an idiom for
+     operating on the root object is 
+
+      at (root) { 
+         val me = root();
+         ..use me.. as a handle on the root object ....
+         ... invoking pinned methods and accessing mutable state...
+      }
+
+  -- Consider optionally adding an equals and hashCode method. These
+     should be safe and global. Use equality on root to determine
+     equality on objects.
+
+  -- Most if not all other fields should be marked
+     transient. Note: Code that reads/writes transient fields should
+     live within @Pinned methods or should acces the fields through
+     root(). 
+
+  -- Examine the methods. Some methods will operate on the mutable
+     state of the object in the place in which it was created. Mark
+     these methods @Pinned. @Pinned methods should not be invoked on
+     this (unless the invocation is within an @Pinned method), they
+     should be invoked on root(). Typically, within an at(root)
+     ... construct.
+
+  -- Other methods are intended to be invoked from anywhere and
+     internally move to the place where the root object is to operate
+     on it. These methods should be marked @Global.
+
+  -- If the class C has no @Global method then your code will be safe
+     if no object of type C crosses an at boundary. Objects of type
+     GlobalRef[C] may of course always cross at boundaries.
+
+Double class global objects idiom
+
+A class D serves as a "proxy" class for objects of another class C. D
+should typically be called RemoteC or GlobalC. You may wish to annotate
+it @Global. D should contain internally a GlobalRef[C] to point to its 
+root object(s) e.g.
+
+  protected val root: GlobalRef[C];
+
+This should be initialized in the constructor with a reference to the
+C instance that will become the root object for this global
+object. (Note you may have many root objects, e.g. for a distributed
+data structure. Or you could use a PlaceLocalHandle[C].)
+
+You may want to define
+  public safe def home()=root.home
+
+You could define other methods on D. These should be designed to be
+executed at any place. If they need to operate on the mutable state of
+the root object, they should internally use the idiom:
+
+    at (root) {
+      val me = root();
+      // now invoke the C methods on the root object me.
+    }
+
+D may have fields (could be mutable or immutable). Note that instances
+of D are going to be copied across places, so be very careful about
+having mutable fields on D. 
+
+Use the @Pinned annotation on a class if you are very sure you do not
+want to see instances of this class cross at boundaries. (e.g. you may
+intend that the class is to be used as a root class in a Double Class
+global objects idiom.)

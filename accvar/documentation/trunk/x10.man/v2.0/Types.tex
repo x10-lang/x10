@@ -1,0 +1,1630 @@
+\chapter{Types}
+\label{XtenTypes}\index{types}
+
+{}\Xten{} is a {\em strongly typed} object-oriented language: every
+variable and expression has a type that is known at compile-time.
+Types limit the values that variables can hold and specify the places
+at which these values can lie.
+
+
+{}\Xten{} supports three kinds of runtime entities, {\em objects},
+{\em structs}, and {\em functions}. Objects are instances of {\em
+  classes} (\Sref{ReferenceClasses}). They may contain mutable fields
+and stay resident in the place in which they were
+created. 
+Objects are said to be {\em boxed} in that variables of a
+class type are implemented through a single memory location that
+contains a reference to the memory containing the declared state of
+the object (and other meta-information such as the list of methods of
+the object). Thus objects are represented through an extra level of
+indirection. A consequence of this flexibility is that every class
+type contains the value \Xcd{null} corresponding to the invalid
+reference. \Xcd{null} is often useful as a default value. Further, two
+objects may be compared for identity (\Xcd{==}) in constant time by
+simply containing references to the memory used to represent the
+objects.
+
+Structs are instances of {\em struct types} (\Sref{StructClasses}). They are a
+restricted variant of classes, lacking meta-information; this makes them less
+flexible, but in many cases more efficient. When it is semantically
+meaningful, converting a class into a struct or vice-versa is quite easy.
+Structs are immutable and may be freely copied from place to place. Further,
+they may be allocated inline, using only as much memory as necessary to hold
+and align the fields of the struct.
+
+Functions, called closures or lambda-expressions in other languages, are
+instances of {\em function types|} (\Sref{Functions}). Functions can refer to
+%~~exp~~`~~`~~y:Int ~~
+variables from the surrounding environment; \eg, \xcd`(x:Int)=>x*y` is a unary
+integer function which multiplies its argument by the variable \xcd`y` from
+the surrounding block.  
+Functions may be freely copied from place to place and may be repeatedly
+applied to a set of arguments.
+
+These runtime entities are classified by {\em types}. Types are used in
+variable declarations, explicit coercions and conversions, object creation,
+array creation, class literals, static state and method accessors, and
+\xcd"instanceof" expressions.
+
+The basic relationship between values and types is {\em instantiation}. For
+example, \xcd`1` is an instance of type of integers, \xcd`Int`. It is also an
+instance of type of all entities \xcd`Any`, and of type of nonzero integers
+\xcd`Int{self != 0}`, and many others.
+
+The basic relationship between types is {\em subtyping}: \xcd`T <: U` holds if
+every instance of \xcd`T` is also an instance of \xcd`U`. Two important kinds
+of subtyping are {\em subclassing} and {\em strengthening}.  Subclassing is a
+familiar notion from object-oriented programming.  In a class
+hierarchy with classes \xcd`Animal` and \xcd`Cat` arranged in the usual way,
+every \xcd`Cat` is an \xcd`Animal`, so \xcd`Cat <: Animal` by subclassing.  
+Strengthening is an equally familiar notion from logic.   The instances of
+\xcd`Int{self != 0}` are all elements of \xcd`Int{true}` as well, because
+\xcd`self != 0` logically implies \xcd`true`; so 
+\xcd`Int{self != 0} <: Int{true} == Int` by strengthening.  X10 uses both
+notions of subtyping.  See \Sref{DepType:Equivalence} for the full definition
+of subtyping in X10.
+
+
+
+
+\subsection*{The Grammar of Types}
+
+Types are described by the following grammar: \\
+\bard{Is this still correct?}
+\begin{grammar}
+Type \: FunctionType \\
+    \| ConstrainedType  \\
+
+FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")"
+Constraint\opt Throws\opt Offers\opt \xcd"=>" TypeOrVoid \\
+TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
+TypeParameter \: Identifier \\
+Throws \: \xcd"throws" TypeName ( \xcd"," TypeName )\star \\
+
+ConstrainedType \: Annotation\star BaseType Constraint\opt
+PlaceConstraint\opt \\
+
+BaseType \: ClassBaseType \\
+     \| InterfaceBaseType \\
+     \| PathType \\
+     \| \xcd"(" Type \xcd")" \\
+TypeOrVoid \: Type \\
+     \| \xcd`Void`\\
+ClassType \: Annotation\star ClassBaseType Constraint\opt
+PlaceConstraint\opt \\
+InterfaceType \: Annotation\star InterfaceBaseType Constraint\opt
+PlaceConstraint\opt \\
+
+PathType \: Expression \xcd"." Identifier \\
+
+Annotation \: \xcd"@" InterfaceBaseType Constraint\opt \\
+
+ClassOrInterfaceType \: ClassType \\ \| InterfaceType \\
+ClassBaseType \: TypeName \\
+InterfaceBaseType \: TypeName \\
+\end{grammar}
+
+% \section{Type definitions and type constructors}
+% 
+% Types in \Xten{} are specified through declarations and through
+% type constructors:
+
+% \paragraph{Class types.}
+
+
+
+\section{Classes and interfaces}
+\label{ReferenceTypes}
+
+\subsection{Class types}
+
+\index{types!class types}
+\index{class}
+\index{class declaration}
+\index{declaration!class declaration}
+\index{declaration!reference class declaration}
+
+A {\em class declaration} (\Sref{XtenClasses}) introduces a {\em class type}
+containing all instances of the class.  The \xcd`Position` class below
+could describe the position of a slider control, for example.
+
+%~~gen
+% package Types.By.Cripes.Classes;
+%~~vis
+\begin{xten}
+class Position {
+  private var x : Int = 0;
+  public def move(dx:Int) { x += dx; }
+  public def pos() : Int = x;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+Class instances, also called objects, are created via constructor calls. Class
+instances have fields and methods, type members, and value properties bound at
+construction time. In addition, classes have static members: constant fields,
+type definitions, and member classes and member interfaces.
+
+A class with type parameters is {\em generic}. A class type is instantiatable
+only if all of its parameters are instantiated on concrete types.  The
+\xcd`Cell[T]` class provides a container capable of holding a value of type
+\xcd`T`, or being empty.
+
+%~~gen
+% package Types.For.Gripes.Of.Wesley.Snipes;
+%~~vis
+\begin{xten}
+class Cell[T] {
+  var empty : Boolean = true;
+  var contents : T;
+  public def putIn(t:T) { 
+    contents = t; empty = false; 
+  }
+  public def emptyOut() { empty = true; }
+  public def isEmpty() = empty;
+  public def getOut():T throws Exception {
+     if (empty) throw new Exception("Empty!");
+     return contents ;
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+\Xten{} does not permit mutable static state. A fundamental principle of the
+X10 model of computation is that all mutable state be local to some place
+(\Sref{XtenPlaces}), and, as static variables are globally available, they
+cannot be mutable. When mutable global state is necessary, programmers should
+use singleton classes, putting the state in an object and using place-shifting
+commands (\Sref{AtStatement}) and atomicity (\Sref{AtomicBlocks}) as necessary
+to mutate it safely.
+
+\index{\Xcd{Object}}
+\index{\Xcd{x10.lang.Object}}
+
+Classes are structured in a single-inheritance hierarchy. All classes extend
+the class \xcd"x10.lang.Object", directly or indirectly. Each class other than
+\xcd`Object` extends a single parent class.  \xcd`Object` provides no behavior
+of its own, beyond that required by \xcd`Any`.
+
+\index{class!reference class}
+\index{reference class type}
+\index{\Xcd{Object}}
+\index{\Xcd{x10.lang.Object}}
+
+
+\index{null}
+\bard{We've got to say this better.}
+Variables of class type may contain the value \xcd"null". 
+
+\subsection{Interface types}
+\label{InterfaceTypes}
+
+\index{types!interface types}
+\index{interface}
+\index{interface declaration}
+\index{declaration!interface declaration}
+
+An {\em interface declaration} (\Sref{XtenInterfaces}) defines an {\em
+interface type}, specifying a set of methods, type members, and
+properties which must be provided by any class declared to implement the
+interface. 
+
+
+Interfaces can also have static members: constant fields, type definitions,
+and member classes and interfaces.  However, interfaces cannot specify that
+implementing classes must provide static members.
+
+An interface may extend multiple interfaces.  
+%~~gen
+%package Types.For.Snipes.Interfaces;
+%~~vis
+\begin{xten}
+interface Named {
+  def name():String;
+}
+interface Mobile {
+  def move(howFar:Int):Void;
+}
+interface Person extends Named, Mobile {}
+interface NamedPoint extends Named, Mobile{} 
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+Classes may be declared to implement multiple interfaces.
+Semantically, the interface type is the set of all objects that are
+instances of classes that implement the interface. A class implements
+an interface if it is declared to and if it implements all the methods
+and properties defined in the interface.  For example, \xcd`KimThePoint`
+implements \xcd`Person`, and hence \xcd`Named` and \xcd`Mobile`.  It would be
+a static error if \xcd`KimThePoint` had no \xcd`name` method.
+
+%~~gen
+%interface Named {
+%   def name():String;
+% }
+% interface Mobile {
+%   def move(howFar:Int):Void;
+% }
+% interface Person extends Named, Mobile {}
+% interface NamedPoint extends Named, Mobile{} 
+%~~vis
+\begin{xten}
+class KimThePoint implements Person {
+   var pos : Int = 0;
+   public def name() = "Kim (" + pos + ")";
+   public def move(dPos:Int) { pos += dPos; }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+\subsection{Properties}
+\index{properties}
+\label{properties}
+
+Classes, interfaces, and structs may have {\em properties}, public \xcd`val` instance
+fields bound on object creation. For example, the following code declares a
+class named \xcd"Coords" with properties \xcd"x" and \xcd"y" and a \xcd"move"
+method. The properties are bound using the \xcd"property" statement in the
+constructor.
+
+%~~gen
+%package not.x10.lang;
+%~~vis
+\begin{xten}
+class Coords(x: Int, y: Int) {
+  def this(x: Int, y: Int) : Coords{self.x==x, self.y==y} 
+    = { property(x, y); }
+  def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy);
+}
+\end{xten}
+%~~siv
+%~~neg
+
+Properties, unlike other public \xcd`val` fields, can be used  
+at compile time in {\em constraints}. This allows us
+to specify subtypes based on properties, by appending a boolean expression to
+the type. For example, the type \xcd"Coords{x==0}" is the set of all points
+whose \xcd"x" property is \xcd"0".  Details of this substantial topic are
+found in \Sref{ConstrainedTypes}.
+
+
+
+\section{Type parameters and Generic Types}
+\label{TypeParameters}
+
+\index{types!type parameters}
+\index{methods!parametrized methods}
+\index{constructors!parametrized constructors}
+\index{closures!parametrized closures}
+\label{Generics}
+\index{types!generic types}
+
+A class, interface, method, closure, or type definition  may have type
+parameters.  Type parameters can be used as types, and will be bound to types
+on instantiation.  For example, a generic stack class may be defined as 
+\xcd`Stack[T]{...}`.  Stacks can hold values of any type; \eg, 
+%~~type~~`~~`~~ ~~class Stack[T]{}
+\xcd`Stack[Int]` is a stack of integers, and 
+%~~type~~`~~`~~ ~~class Stack[T]{}
+\xcd`Stack[Point{self!=null}]`is a stack of non-null \xcd`Point`s.
+Generics {\em must} be instantiated when they are used: \xcd`Stack`, by
+itself, is not a valid type.
+Type parameters may be constrained by a guard on the declaration
+(\Sref{TypeDefGuard},
+\Sref{MethodGuard},\Sref{ClosureGuard}).
+
+\index{types!concrete types}
+\index{concrete type}
+A {\em generic type} is a class, struct,  interface, or type declared with one or
+more type parameters.  When instantiated with concrete (\viz, non-generic)
+types for its parameters, a generic type becomes a concrete type and can be
+used like any other type. For example,
+\xcd`Stack` is a generic type, 
+%~~type~~`~~`~~ ~~class Stack[T]{}
+\xcd`Stack[Int]` is a concrete type, and can be used as one: 
+%~~stmt~~`~~`~~ ~~class Stack[T]{}
+\xcd`var stack : Stack[Int];`
+
+
+A \xcd`Cell[T]` is a generic object, capable of holding a value of type
+\xcd`T`.  For example, a \xcd`Cell[Int]` can hold an \xcd`Int`, and a
+\xcd`Cell[Cell[Int{self!=0}]]` can hold a \xcd`Cell` which in turn can
+only hold non-zero numbers.  \xcd`Cell`s are actually useful in situations
+where values must be bound immutably for one reason, but need to be mutable.
+%~~gen
+% package ch4;
+%~~vis
+\begin{xten}
+class Cell[T] {
+    var x: T;
+    def this(x: T) { this.x = x; }
+    def get(): T = x;
+    def set(x: T) = { this.x = x; }
+}
+\end{xten}
+%~~siv
+%~~neg
+
+
+\xcd"Cell[Int]" is the type of \xcd`Int`-holding cells.  
+The \xcd"get" method on a \xcd`Cell[Int]` returns an \xcd"Int"; the
+\xcd"set" method takes an \xcd"Int" as argument.  Note that
+\xcd"Cell" alone is not a legal type because the parameter is
+not bound.
+
+Methods may be generic, even methods in non-generic classes: 
+%~~gen
+% package Types.For.Cripes.Sake.Generic.Methods;
+% import x10.util.*;
+%~~vis
+\begin{xten}
+class NonGeneric {
+  static def first[T](x:List[T]!):T = x(0);
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+\subsection{Variance of Type Parameters}
+\index{covariant}
+\index{contravariant}
+\index{invariant}
+\index{type parameter!covariant}
+\index{type parameter!contravariant}
+\index{type parameter!invariant}
+
+Consider classes \xcd`Person :> Child`.  Every child is a person, but there
+are people who are not children.  What is the relationship between
+\xcd`Cell[Person]` and \xcd`Cell[Child]`?  
+
+\subsubsection{Why Variance Is Necessary}
+
+In this case, \xcd`Cell[Person]` and \xcd`Cell[Child]` should be unrelated.  
+If we had \xcd`Cell[Person] :> Cell[Child]`, the following code would let us
+assign a \xcd`old` (a \xcd`Person` but not a \xcd`Child`) to a
+variable \xcd`young` of type \xcd`Child`, thereby breaking the type system: 
+\begin{xten}
+// INCORRECTLY assuming Cell[Person] :> Cell[Child]
+val cc : Cell[Child] = new Cell[Child]();
+val cp : Cell[Person] = cc; // legal upcast
+cp.set(old);       // legal since old : Person
+val young : Child = cc.get(); 
+\end{xten}
+
+Similarly, if \xcd`Cell[Person] <: Cell[Child]`: 
+\begin{xten}
+// INCORRECTLY assuming Cell[Person] <: Cell[Child]
+val cp : Cell[Person] = new Cell[Person];
+val cc : Cell[Child] = cp; // legal upcast
+val cp.set(old); 
+val young : Child = cc.get();
+\end{xten}
+
+So, there cannot be a subtyping relationship in either direction between the
+two. And indeed, neither of these programs passes the X10 typechecker.
+
+
+\subsubsection{Legitimate Variance}
+
+The \xcd`Cell[Person]`-vs-\xcd`Cell[Child]` problems occur because it is
+possible to both store and retrieve values from the same object. However,
+entities with only one of the two capabilities {\em can} sensibly have some
+subtyping relations. Furthermore, both sorts of entity are useful. An entity
+which can store values but not retrieve them can nonetheless summarize them.
+An object which can retrieve values but not store values can be constructed
+with an initial value, providing a read-only cell.
+
+So, X10 provides {\em variance} to support these options.  Type parameters
+may be defined in one of three forms.  
+\begin{enumerate}
+\item {\em invariant}: Given a definition \xcd`class C[T]{...}`, \xcd`C[Person]` and
+      \xcd`C[Child]` are unrelated classes; neither is a subclass of the
+      other.
+\item {\em covariant}: Given a definition \xcd`class C[+T]{...}` (the \xcd`+` indicates
+      covariance), \xcd`C[Person] :> C[Child]`.  This is appropriate when
+      \xcd`C` allows retrieving values but not setting them.
+\item {\em contravariant}: Given a definition \xcd`class C[-T]{...}` (the \xcd`-` indicates
+      contravariance), \xcd`C[Person] <: C[Child]`.  This is appropriate when
+      \xcd`C` allows storing values but not retrieving them.
+\end{enumerate}
+
+
+The \xcd"T" parameter of \xcd"Cell" above is
+invariant.  
+
+A typical example of covariance is \xcd`Get`.  As the \xcd`example()` method
+shows, a \xcd`Get[T]` must be constructed with its value, and will return that
+value whenever desired.
+%~~gen
+% package ch4;
+%~~vis
+\begin{xten}
+class Get[+T] {
+  val x: T;
+  def this(x: T) { this.x = x; }
+  def get(): T = x;
+  static def example() {
+     val g : Get[Int]! = new Get[Int](31);
+     val n : Int = g.get();
+     x10.io.Console.OUT.print("It's " + n);
+     x10.io.Console.OUT.print("It's still " + g.get());
+  }
+}
+\end{xten}
+%~~siv
+%~~neg
+
+
+A typical example of contravariance is \xcd`Set`.  As the \xcd`example()`
+method shows,  a variety of objects\footnote{Objects but no structs.  If we
+had wanted structs too, we could have used a \xcd`Cell[Any]`.}  can be put into a
+\xcd`Set[Object]`.  While the object itself cannot be retrieved, some summary
+information about it -- in this case, its \xcd`typeName` -- can be.  
+%~~gen
+% package ch4;
+%~~vis
+\begin{xten}
+class Set[-T] {
+  var x: T;
+  def this(x: T) { this.x = x; }
+  def set(x: T) = { this.x = x; } 
+  def summary(): String = this.x.typeName();
+  static def example() {
+    val s : Set[Object]! = new Set[Object](new Throwable());
+    s.summary(); // == "x10.lang.Throwable"
+    s.set("A String");
+    s.summary(); // == "x10.lang.String";
+  }    
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+Given types \xcd"S" and \xcd"T": 
+\begin{itemize}
+\item
+If the parameter of \xcd"Get" is covariant, then
+\xcd"Get[S]" is a subtype of \xcd"Get[T]" if
+\xcd"S" is a {\em subtype} of \xcd"T".
+
+\item
+If the parameter of \xcd"Set" is contravariant, then
+\xcd"Set[S]" is a subtype of \xcd"Set[T]" if
+\xcd"S" is a {\em supertype} of \xcd"T".
+
+\item
+If the parameter of \xcd"Cell" is invariant, then
+\xcd"Cell[S]" is a subtype of \xcd"Cell[T]" if
+\xcd"S" is a {\em equal} to \xcd"T".
+\end{itemize}
+
+
+In order to make types marked as covariant and contravariant semantically
+sound, X10 performs extra checks.  
+A covariant type parameter is permitted to appear only in covariant type positions,
+and a contravariant type parameter in contravariant positions. 
+\begin{itemize}
+\item The return type of a method is a covariant position.
+\item The argument types of a method are contravariant positions.
+\item Whether a type argument position of a generic class, interface or struct type \Xcd{C}
+is covariant or contravariant is determined by the \Xcd{+} or \Xcd{-} annotation
+at that position in the declaration of \Xcd{C}.
+\end{itemize}
+
+There are similar restrictions on use of covariant and contravariant values. 
+\bard{Get them!  What are they?}
+
+
+\section{Function Types}
+
+For every sequence of types \xcd"T1,..., Tn,T", and \xcd"n" distinct variables
+\xcd"x1,...,xn" and constraint \xcd"c", the expression
+\xcd"(x1:T1,...,xn:Tn){c}=>T" is a \emph{function type}. It stands for
+ the set of all functions \xcd"f" which can be applied to a
+ list of values \xcd"(v1,...,vn)" provided that the constraint
+ \xcd"c[v1,...,vn,p/x1,...,xn]" is true, and which returns a value of
+ type \xcd"T[v1,...vn/x1,...,xn]". When \xcd"c" is true, the clause \xcd"{c}" can be
+ omitted. When \xcd"x1,...,xn" do not occur in \xcd"c" or \xcd"T", they can be
+ omitted. Thus the type \xcd"(T1,...,Tn)=>T" is actually shorthand for
+ \xcd"(x1:T1,...,xn:Tn){true}=>T", for some variables \xcd"x1,...,xn".
+
+
+
+
+\section{Type definitions}
+\label{TypeDefs}
+
+\index{types!type definitions}
+\index{declarations!type definitions}
+\input{TypeDefs.tex}
+
+
+\section{Constrained types}
+\label{ConstrainedTypes}
+\label{DepType:DepType}
+\label{DepTypes}
+
+\index{dependent types}
+\index{constrained types}
+\index{generic types}
+\index{types!constrained types}
+\index{types!dependent types}
+\index{types!generic types}
+
+
+Basic types, like \xcd`Int` and \xcd`List[String]`, provide useful
+descriptions of data.  Indeed, most typed programming languages get by with no
+more specific descriptions.
+
+However, there are a lot of things that one frequently wants to say about
+data.  One might want to know that a \xcd`String` variable is not \xcd`null`,
+or that a matrix is square, or that one matrix has the same number of columns
+that another has rows (so they can be multiplied).  In the multicore setting,
+one might wish to know that two values are located at the same processor, or
+that one is located at the same place as the current computation.
+
+In most languages, there is simply no way to say these things statically.
+Programmers must made do with comments, \xcd`assert` statements, and dynamic
+tests.  X10 can do better, with {\em constraints} on types (and methods and
+other things).
+
+A constraint is a boolean expression \xcd`e` attached to a basic type \xcd`T`,
+written \xcd`T{e}`.  (Only a limited selection of boolean expressions is
+available.)  The values of type \xcd`T{e}` are the values of \xcd`T` for which
+\xcd`e` is true.  For example: 
+
+\begin{itemize}
+%~~type~~`~~`~~ ~~
+\item \xcd`String{self != null}` is the type of non-null strings.  \xcd`self`
+      is a special variable available only in constraints; it refers to the
+      datum being constrained.   
+\item If \xcd`Matrix` has properties \xcd`rows` and \xcd`cols`, 
+%~~type~~`~~`~~ ~~class Matrix(rows:Int,cols:Int){}
+      \xcd`Matrix{rows == cols}` is the type of square matrices.
+\item One way to say that \xcd`a` has the same number of columns that \xcd`b`
+      has rows (so that \xcd`a*b` is a valid matrix product), one could say: 
+%~~gen
+% package Types.cripes.whered.you.get.those.gripes;
+% class Matrix(rows:Int, cols:Int){
+% public static def someMatrix(): Matrix = null;
+% public static def example(){
+%~~vis
+\begin{xten}
+  val a : Matrix = someMatrix() ;
+  var b : Matrix{b.rows == a.cols} ;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+\item Every object has a \xcd`home` property telling where it is located.
+      One way to say that objects \xcd`c` and \xcd`d` are located at the same
+      place is: 
+%~~gen
+% package Types.flipes.knipes.shipes.wipes;
+% class Exampler {
+% static def someObject(): Object = null;
+% static def example() {
+%~~vis
+\begin{xten}
+  val a : Object = someObject();
+  var b : Object{a.home == b.home};
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+\item  As explained in \Sref{XtenPlaces}, certain operations
+can only be performed at an object's home, so having this expressible as a
+type is crucial. One way to say that \xcd`e` is located \xcd`here`, \viz, the same place
+      as the current computation, is: 
+%~~gen
+% package Types.cripes.wipes.lipes;
+% class Examplorator {
+% static def someObject() : Object{self.home==here} = null;
+% static def example() {
+%~~vis
+\begin{xten}
+  val e : Object{self.home == here} = someObject();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\end{itemize}
+
+\index{self}When constraining a value of type \xcd`T`, \xcd`self` refers to the object of
+type \xcd`T` which is being constrained.  For example, \xcd`Int{self == 4}` is
+the type of \xcd`Int`s which are equal to 4 -- the best possible description
+of \xcd`4`, and a very difficult type to express without using \xcd`self`.  
+
+
+
+
+
+
+\xcd"T{e}" is a {\em dependent type}, that is, a type dependent on values. The
+type \xcd"T" is called the {\em base type} and \xcd"e" is called the {\em
+  constraint}. If the constraint is omitted, it is \xcd`true`---that is, the
+  base type is unconstrained.
+
+Constraints may refer to values in the local environment: 
+%~~gen
+% class ConstraintsMayReferToValues {
+% def thoseValues() {
+%~~vis
+\begin{xten}
+     val n = 1;
+     var p : Point{rank == n};
+\end{xten}
+%~~siv
+%}}
+%~~neg
+Indeed, there is technically no need for a constraint to refer to the
+properties of its type; it can refer entirely to the environment, thus: 
+%~~gen
+% class ConstraintsMayReferToValuesTwo {
+% def thoseValues() {
+%~~vis
+\begin{xten}
+     val m = 1;
+     val n = 2;
+     var p : Point{m != n};
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+Constraints on properties induce a natural subtyping relationship:
+\xcd"C{c}" is a subtype of
+\xcd"D{d}" if \xcd"C" is a subclass of \xcd"D" and
+\xcd"c" entails \xcd"d".
+For example: 
+\begin{itemize}
+\item \xcd`Int{self == 3} <: Int{self != 14}`.  The only value of
+      \xcd`Int{self ==3}` is 3.  All integers but 14 are members of
+      \xcd`Int{self != 14}`, and in particular 3 is.  
+\item Suppose we have classes \xcd`Child <: Person`, and \xcd`Person` has a
+      long \xcd`ssn` property.  If \xcd`rhys : Child{ssn == 123456789}`, then
+      \xcd`rhys` is also a \xcd`Person` and still has \xcd`ssn==123456789`, so 
+      \xcd`rhys : Person{ssn==123456789}` as well.  
+      So, \xcd`Child{ssn == 123456789} <: Person{ssn == 123456789}`.
+\item Furthermore, since \xcd`123456789 != 555555555`, 
+      \xcd`rhys : Person{ssn != 555555555}`.  
+      So, \xcd`Child{ssn == 123456789} <: Person{ssn != 555555555}`.  
+\item \xcd`T{e} <: T` for any type \xcd`T`.  That is, if you have a value
+      \xcd`v` of some base type \xcd`T` which satisfied \xcd`e`, then \xcd`v`
+      is of that base type \xcd`T` (with the constraint ignored).
+\item If \xcd`A <: B`, then \xcd`A{c} <: B{c}` for every constraint \xcd`{c}`
+      for which \xcd`A{c}` and \xcd`B{c}` are defined.  That is, if every
+      \xcd`A` is also a \xcd`B`, and \xcd`a : A{c}`, then 
+      \xcd`a` is an \xcd`A` and \xcd`c` is true of it. So \xcd`a` is also a
+      \xcd`B` (and \xcd`c` is still true of 
+      it), so \xcd`a : B{c}`.  
+
+\end{itemize}
+
+
+\subsection{Constraint Expressions}
+
+
+
+
+Only a few kinds of expressions can appear in constraints.  For fundamental
+reasons of mathematical logic, the more kinds of expressions that can appear
+in constraints, the harder it is to compute the essential properties of
+constrained type -- in particular, the harder it is to compute 
+\xcd`A{c} <: B{d}`.  It doesn't take much to make this basic fact undecidable.
+In order to
+make sure that it stays decidable, X10 places quite stringent restrictions on
+constraints.  
+
+Only the following forms of expression are allowed in constraints.  
+
+{\bf Value expressions in constraints} may be: 
+\begin{enumerate}
+\item Literal constants, like \xcd`3` and \xcd`true`;
+\item Accessible and immutable variables and parameters;
+\item Accessible and immutable fields of the containing object;
+\item Properties of the type being constrained;
+\item Property methods;
+\item \xcd`this`, if the constraint is in a place where \xcd`this` is defined.
+\item \xcd`here`
+\item \xcd`self`
+\end{enumerate}
+
+
+{\bf Boolean expressions in constraints} may be any of the following, where
+all value expressions are of the forms which may appear in constraints: 
+\begin{enumerate}
+\item Equalities \xcd`e == f`,
+\item Inequalities of the form \xcd`e != f`.\footnote{Currently inequalities
+      of the form \xcd`e < f` are not supported.}
+\item Conjunctions of Boolean expressions
+\item Subtyping and supertyping expressions: \xcd`T <: U` and \xcd`T :> U`. 
+\item Type equalities and inequalities: \xcd`T == U` and \xcd`T != U`.
+\item Boolean value expressions.
+\end{enumerate}
+
+All variables appearing in a constraint expression must be visible wherever
+that expression can used.  \Eg, properties and public fields of an object are
+always permitted, but private fields of an object can only constrain private
+members.  (Consider a class \xcd`PriVio` with a private field \xcd`p` and a
+public method \xcd`m(x: Int{self != p})`, and a call \xcd`ob.m(10)` made
+outside of the class. Since \xcd`p` is only visible inside the class, there is
+no way to tell if \xcd`10` is of type \xcd`Int{self != p}` at the call site.)
+
+
+
+
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% \begin{grammar}
+%%TYPES-CONSTR-EXP%% Constraint \: ValueArguments     Guard\opt \\
+%%TYPES-CONSTR-EXP%%            \| ValueArguments\opt Guard     \\
+%%TYPES-CONSTR-EXP%%            \\
+%%TYPES-CONSTR-EXP%% ValueArguments   \:  \xcd"(" ArgumentList\opt \xcd")" \\
+%%TYPES-CONSTR-EXP%% ArgumentList     \:  Expression ( \xcd"," Expression )\star \\
+%%TYPES-CONSTR-EXP%% Guard            \: \xcd"{" DepExpression \xcd"}" \\
+%%TYPES-CONSTR-EXP%% DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
+%%TYPES-CONSTR-EXP%% \end{grammar}
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% In \XtenCurrVer{} value constraints may be equalities (\xcd"=="),
+%%TYPES-CONSTR-EXP%% disequalities (\xcd"!=") and conjunctions thereof.  The terms over
+%%TYPES-CONSTR-EXP%% which these constraints are specified include literals and
+%%TYPES-CONSTR-EXP%% (accessible, immutable) variables and fields, property methods, and the special
+%%TYPES-CONSTR-EXP%% constants {\tt here}, {\tt self}, and {\tt this}. Additionally, place
+%%TYPES-CONSTR-EXP%% types are permitted (\Sref{PlaceTypes}).
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% \index{self}
+
+%%TYPES-CONSTR-EXP%% Type constraints may be subtyping and supertyping (\xcd"<:" and
+%%TYPES-CONSTR-EXP%% \xcd":>") expressions over types.
+
+The static constraint checker approximates computational reality in some
+cases.  For example, it assumes that built-in types are infinite. This is a
+good approximation for \xcd`Int`.  It is a poor approximation for \xcd`Boolean`,
+as the checker believes that \xcd`a != b && a != c && b != c` is satisfiable
+over \xcd`Boolean`, which it is not.  However, the checker is always correct
+when computing the truth or falsehood of a constraint.
+
+
+% //, and existential quantification over typed variables.
+
+%%TYPES-CONSTR-EXP%% \emph{
+%%TYPES-CONSTR-EXP%% Subsequent implementations are intended to support boolean algebra,
+%%TYPES-CONSTR-EXP%% arithmetic, relational algebra, etc., to permit types over regions and
+%%TYPES-CONSTR-EXP%% distributions. We envision this as a major step towards removing most,
+%%TYPES-CONSTR-EXP%% if not all, dynamic array bounds and place checks from \Xten{}.
+%%TYPES-CONSTR-EXP%% }
+
+
+\subsubsection{Acyclicity restriction}
+
+To ensure that type-checking is decidable, we require that property graphs be
+acyclic.  The property graph, at an instant in an X10 execution, is the graph
+whose nodes are all objects in existence at that instance, with an edge from
+{$x$} to {$y$} if {$x$} is an object with a property whose value is {$y$}{. 
+
+\bard{I think that \xcd`proto` handles this now ...? }
+
+Currently this restriction is not checked by the compiler. Future
+versions of the compiler will check this restriction by introducing
+rules on escaping of \Xcd{this} (\Sref{protorules}) before the invocation of
+\Xcd{property} calls.
+
+
+\subsection{Place constraints}
+\label{PlaceTypes}
+\label{PlaceType}
+\index{place types}
+\label{DepType:PlaceType}\index{placetype}
+
+An \Xten{} computation spans multiple places (\Sref{XtenPlaces}). Much data
+can only be accessed from the proper place, and often it is preferable to
+determine this statically. So, X10 has special syntax for working with places.
+\xcd`T!` is a value of type \xcd`T` located at the right place for the current
+computation, and \xcd`T!p` is one located at place \xcd`p`.
+
+\begin{grammar}
+PlaceConstraint     \: \xcd"!" Place\opt \\
+Place              \:   Expression \\
+\end{grammar}
+
+More specifically, All \Xten{} classes extend the class \xcd"x10.lang.Object",
+which defines a property \xcd"home" of type \xcd"Place".  \xcd`T!p`, when
+\xcd`T` is a class, is \xcd`T{self.home==p}`.  If \xcd`p` is omitted, it
+defaults to \xcd`here`.   \xcd`T!` is far and away the most common usage of
+\xcd`!`. 
+
+Structs don't have \xcd`home`; they are available everywhere.  For structs, 
+\xcd`T!` and \xcd`T!p` are synonyms for \xcd`T`. Since \xcd`T` is available
+everywhere, it is available \xcd`here` and at \xcd`p`. 
+
+\xcd`!` may be combined with other constraints.  \xcd`T{c}!` is the type of
+values of \xcd`T!` which satisfy \xcd`c`; it is \xcd`T{c && self.home==here}`
+for an object type and \xcd`T{c}` for a struct type.  
+\xcd`T{c}!p` is the type of
+values of \xcd`T!p` which satisfy \xcd`c`; it is \xcd`T{c && self.home==p}`
+for an object type and \xcd`T{c}` for a struct type.  
+
+
+
+% The place specifier \xcd"any" specifies that the object can be
+% located anywhere.  Thus, the location is unconstrained; that is,
+% \xcd"C{c}!any" is equivalent to \xcd"C{c}".
+
+% XXX ARRAY
+%The place specifier \xcd"current" on an array base type
+%specifies that an object with that type at point \xcd"p"
+%in the array 
+%is located at \xcd"dist(p)".  The \xcd"current" specifier can be
+%used only with array types.
+
+
+
+
+\subsection{Variables in Constraints}
+
+X10 permits a \xcd`val` variable to appear in constraints on its own type as
+%~~stmt~~`~~`~~ ~~
+it is being declared.  For example, \xcd`val nz: Int{nz != 0} = 1;` declares a
+non-zero variable \xcd`nz`.
+\bard{This will need to be explained further once the language issues are
+sorted out..}
+
+
+
+%%TYPES-CONSTR-EXP%% We permit variable declarations \xcd"v: T" where \xcd"T" is obtained
+%%TYPES-CONSTR-EXP%% from a dependent type \xcd"C{c}" by replacing one or more occurrences
+%%TYPES-CONSTR-EXP%% of \xcd"self" in \xcd"c" by \xcd"v". (If such a declaration \xcd"v: T"
+%%TYPES-CONSTR-EXP%% is type-correct, it must be the case that the variable \xcd"v" is not
+%%TYPES-CONSTR-EXP%% visible at the type \xcd"T". Hence we can always recover the
+%%TYPES-CONSTR-EXP%% underlying dependent type \xcd"C{c}" by replacing all occurrences of \xcd"v"
+%%TYPES-CONSTR-EXP%% in the constraint of \xcd"T" by \xcd"self".)
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% For instance, \xcd"v: Int{v == 0}" is shorthand for \xcd"v: Int{self == 0}".
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% A variable occurring in the constraint \xcd"c" of a dependent type, other than
+%%TYPES-CONSTR-EXP%% \xcd"self" or a property of \xcd"self", is said to be a {\em
+%%TYPES-CONSTR-EXP%% parameter} of \xcd"c".\label{DepType:Parameter} \index{parameter}
+
+\subsection{Operations on Constrained Types}
+
+An instance \xcd"o" of \xcd"C" is said to be of type \xcd"C{c}" (or: {\em
+belong to} \xcd"C{c}") if the constraint \xcd"c" evaluates to \xcd"true" in
+the current lexical environment, augmented with the binding \xcd"self"
+$\mapsto$ \xcd"o".
+
+The \xcd`instanceof` operation lets programs test type membership.  
+\xcd`e instanceof C{c}` returns true if \xcd`e` belongs to \xcd`C{c}`, and
+false otherwise.  
+%~~exp~~`~~`~~ ~~
+\xcd`1 instanceof Int{self != 2}` returns true, 
+and 
+%~~exp~~`~~`~~x:Int ~~
+\xcd`x instanceof Int{self == 1}` returns false if 
+\xcd`x==2`.
+
+However, it is a static error if \xcd`e` cannot possibly be an instance of
+\xcd`C{c}`; the compiler will reject \xcd`1 instanceof Int{self == 2}` because
+\xcd`1` can never satisfy \xcd`Int{self == 2}`. Similarly, \Xcd{1 instanceof
+String} is a static error, rather than an expression always returning false. 
+
+
+\limitation{
+X10 does not currently handle \xcd`instanceof` of generics in the way you
+%~~exp~~`~~`~~r:ValRail[Int] ~~
+might expect.  For example, \xcd`r instanceof ValRail[Int{self != 0}]` does
+not test that every element of \xcd`r` is non-zero.
+}
+
+The \xcd`as` operation attempts to convert a value to a given constrained
+type, as described in \Sref{ClassCast}.   As with \xcd`instanceof`, it may
+succeed, fail with a dynamic error, or, in the case where the cast is
+impossible, fail to compile.
+
+
+\subsection{Example of Constraints}
+
+\begin{example}
+
+Constraints can be used to express simple relationships between objects,
+enforcing some class invariants statically.  For example, in geometry, a line
+is determined by two {\em distinct} points; a \xcd`Line` class can specify the
+distinctness in a type constraint:\footnote{We call them
+\xcd`Position` to avoid confusion with the built-in class \xcd`Point`}
+
+%~~gen
+% 
+%~~vis
+\begin{xten}
+class Position(x: Int, y: Int) {
+   def this(x:Int,y:Int){property(x,y);}
+   }
+class Line(start: Position, 
+           end: Position{self != start}) {}
+\end{xten}
+
+%~~siv
+%~~neg
+
+Extending this concept, a \xcd`Triangle` can be defined as a figure with three
+line segments which match up end-to-end.  Note that the degenerate case in
+which two or three of the triangle's vertices coincide is excluded by the
+constraint on \xcd`Line`.  However, not all degenerate cases can be excluded
+by the type system; in particular, it is impossible to check that the three
+vertices are not collinear. 
+
+%~~gen
+%package triangleExample;
+% class Position(x: Int, y: Int) {
+%    def this(x:Int,y:Int){property(x,y);}
+%    }
+% class Line(start: Position, 
+%            end: Position{self != start}) {}
+% 
+%~~vis
+\begin{xten}
+class Triangle 
+ (a: Line, 
+  b: Line{a.end == b.start}, 
+  c: Line{b.end == c.start && c.end == a.start})  {
+   def this(a:Line,
+            b: Line{a.end == b.start}, 
+            c: Line{b.end == c.start && c.end == a.start}) 
+   {property(a,b,c);}
+ }
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+
+\end{example}
+
+\section{Function types}
+\label{FunctionTypes}
+\label{FunctionType}
+\index{function!types}
+\index{types!function types}
+
+X10 functions, like mathematical functions, take some arguments and produce a
+result.  X10 functions, like other X10 code, can change mutable state and
+throw exceptions.  Closures (\Sref{Closures}) and method
+selectors (\Sref{MethodSelectors}) are of function type.
+Typical functions are the reciprocal function: 
+%~~gen
+% package Types.Functions;
+% class RecipEx {
+% static 
+%~~vis
+\begin{xten}
+val recip = (x : Double) => 1/x;
+\end{xten}
+%~~siv
+%}
+%~~neg
+and a function which increments  element \xcd`i` of a rail \xcd`r`, or throws an exception
+if there is no such element, where, for the sake of example, we constrain the
+type of \xcd`i`:  
+%~~gen
+% package Types.Functions;
+% class IncrElEx {
+% static def example() throws DoomExn {
+%~~vis
+\begin{xten}
+val inc = (r:Rail[Int]!, i: Int{i != r.length}) => {
+  if (i < 0 || i >= r.length) throw new DoomExn();
+  r(i)++;
+};
+\end{xten}
+%~~siv
+%}}
+%class DoomExn extends Exception{}
+%~~neg
+
+So, in general, a function type needs to list the types 
+\xcdmath"T$_i$"
+of all the formal parameters,
+and their distinct names \xcdmath"x$_i$" in case other types refer to them; a
+constraint 
+\xcd"c" on the
+function as a whole; a return type \xcd"T"; and the exceptions \xcdmath"EX$_j$"
+that the function might throw when applied: 
+
+
+\limitation{The \xcd`throws` clause is not currently implemented.  Also,
+some method modifiers (\xcd`safe`, \xcd`atomic`, etc.) will apply to function
+types as well.}
+
+\begin{xtenmath}
+(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => T
+        throws EX$_1$, $\dots$, EX$_k$
+\end{xtenmath}
+
+
+The names \xcdmath"x$_i$" of the formal parameters are not relevant.  Types
+which differ only in the names of formals (following the usual rules for
+renaming of variables, as in {$\alpha$}-renaming in the {$\lambda$} calculus
+\bard{cite something}) are considered equal.  \Eg, 
+%~~type~~`~~`~~ ~~
+\xcd`(a:Int, b:Rail[String]{b.length==a}) => Boolean`
+and 
+%~~type~~`~~`~~ ~~
+\xcd`(b:Int, a:Rail[String]{a.length==b}) => Boolean`
+are equivalent types.
+
+The formal parameter names are in scope from the point of definition to the
+end of the function type---they may be used in the types of other formal parameters
+and in the return type. 
+Value parameters names may be
+omitted if they are not used; the type of the reciprocal function can be
+written as
+%~~type~~`~~`~~ ~~
+\xcd`(Double)=>Double`. 
+
+\begin{grammar}
+FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")" Constraint\opt
+\xcd"=>" Type Throws\opt \\
+TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter
+)\star \xcd"]" \\
+TypeParameter \: Identifier \\
+Formals \: Formal ( \xcd"," Formal )\star \\
+\end{grammar}
+
+
+
+
+
+
+A function type is covariant in its result type and contravariant in
+each of its argument types. That is, let 
+\xcd"S1,...,Sn,S,T1,...Tn,T" be any
+types satisfying \xcd"Si <: Ti" and \xcd"S <: T". Then
+\xcd"(x1:T1,...,xn:Tn){c}=>S" is a subtype of
+\xcd"(x1:S1,...,xn:Sn){c}=>T".
+
+
+
+A class or struct definition may use a function type 
+\xcd"F = (x1:T1,...,xn:Tn){c}=>T" in its 
+implements clause; 
+this is equivalent to implementing an interface requiring the single method
+\xcd"def apply(x1:T1,...,xn:Tn){c}:T". 
+Similarly, an interface
+definition may specify a function type \xcd"F" in its \xcd"extends" clause.
+Values of a class or struct implementing \xcd`F` 
+can be used as functions of type \xcd`F` in all ways.  
+In particular, applying one to suitable arguments calls the \xcd`apply`
+method. 
+
+
+
+A function type \xcd"F" is not a class type in that it does not extend any
+type or implement any interfaces, or support equality tests. 
+\xcd`F` may be implemented, but not extended, by a class or function type. 
+Nor is it a struct type, for it has no predefined notion of equality.
+
+
+
+
+\section{Annotated types}
+\label{AnnotatedTypes}
+
+\index{types!annotated types}
+\index{annotations!type annotations}
+
+        Any \Xten{} type may be annotated with zero or more
+        user-defined \emph{type annotations}
+        (\Sref{XtenAnnotations}).  
+
+        Annotations are defined as (constrained) interface types and are
+        processed by compiler plugins, which may interpret the
+        annotation symbolically.
+
+        A type \xcd"T" is annotated by interface types
+        \xcdmath"A$_1$", \dots,
+        \xcdmath"A$_n$"
+        using the syntax
+        \xcdmath"@A$_1$ $\dots$ @A$_n$ T".
+
+\section{Subtyping and type equivalence}\label{DepType:Equivalence}
+\index{type equivalence}
+\index{subtyping}
+
+Intuitively, type \xcdmath"T$_1$" is a subtype of type \xcdmath"T$_2$", 
+written \xcdmath"T$_1$ <: T$_2$", 
+if
+every instance of \xcdmath"T$_1$" is also an instance of \xcdmath"T$_2$".  For
+example, \xcd`Child` is a subtype of \xcd`Person` (assuming a suitably defined
+class hierarchy): every child is a person.  Similarly, \xcd`Int{self != 0}`
+is a subtype of \xcd`Int` -- every non-zero integer is an integer.  
+
+This section formalizes the concept of subtyping. Subtyping of types depends
+on a {\em type context}, \viz. a set of constraints which may say something
+about types.   For example: 
+
+%~fails~gen
+% package Types.subtyping.cons;
+%~fails~vis
+\begin{xten}
+class ConsTy[T,U] {
+   def upcast(t:T){T <: U} :U = t;
+}
+\end{xten}
+%~fails~siv
+%
+%~fails~neg
+\noindent
+Inside \xcd`upcast`, \xcd`T` is constrained to be a subtype of \xcd`U`, and so
+\xcd`T <: U` is true, and \xcd`t` can be treated as a value of type \xcd`U`.  
+Outside of \xcd`upcast`, there is no reason to expect any relationship between
+them, and \xcd`T <: U` may be false.
+However, subtyping of types that have no free variables does not depend
+on the context.    \xcd`Int{self != 0} <: Int` is always
+true, regardless of what else is going on.
+
+\limitation{Subtyping of type variables does not currently work.}
+
+
+
+\begin{itemize}
+\item {\bf Reflexivity:} Every type \xcd`T` is a subtype of itself: \xcd`T <: T`.
+
+\item {\bf Transitivity:} If \xcd`T <: U` and \xcd`U <: V`, then \xcd`T <: V`. 
+
+\iffalse
+{\bf Class types:}  
+Given the definition 
+\xcd`class C[$\vec{X}$] extends D[$\vec{Y}$]{d} implements I1, ..., In {...}`
+where {$\vec{X}$} is a vector of type variables, and 
+{$\vec{Y$} a vector of types possibly involving variables from {$\vec{X}$}, 
+and {$\vec{T$} an instantiation of {$\vec{X$} and {$\vec{U$} the corresponding
+instantiation of {$\vec{Y$}, 
+then 
+\xcdmath"C[$\vec{T}$]`"is a subtype of \xcd`D[$\vec{U}$]{d}`, \xcd`I1`, ..., \xcd`In`. 
+
+\item
+{\bf Interface types:}  
+Given the definition 
+\xcdmath"interface I[$\vec{X}$] extends I1, ... In {...}`"
+then \xcdmath"I` is a subtype of \xcd`"1`, ..., \xcd`In`.
+
+\item 
+{\bf Struct types:} 
+Given the definition 
+\xcdmath"struct S implements I1, ..., In {...}`"then \xcd`S` is a 
+subtype of \xcd`I1`, ..., \xcd`In`. 
+\fi
+
+\item {\bf Direct Subclassing:} 
+Let {$\vec{X}$} be a (possibly empty) vector of type variables, and
+{$\vec{Y}$}, {$\vec{Y_i}$} be vectors of type terms over {$\vec{X}$}.
+Let {$\vec{T}$} be an instantiation of {$\vec{X}$}, 
+and {$\vec{U}$}, {$\vec{U_i}$} the corresponding instantiation of 
+{$\vec{Y}$}, {$\vec{Y_i}$}.  Let \xcd`c` be a constraint, and \xcdmath"c$'$"
+be the corresponding instantiation.
+We elide properties, and interpret empty vectors as absence of the relevant
+clauses. 
+Suppose that \xcd`C` is declared by one of the
+forms: 
+\begin{enumerate}
+\item \xcdmath"class C[$\vec{X}$]{c} extends D[$\vec{Y}$]{d} implements I$_1[\vec{Y_1}]${i$_1$},...,I$_n[\vec{Y_n}]${i$_n$}{"
+\item \xcdmath"interface C[$\vec{X}$]{c} extends I$_1[\vec{Y_1}]${i$_1$},...,I$_n[\vec{Y_n}]${i$_n$}{"
+\item \xcdmath"struct C[$\vec{X}$]{c} implements I$_1[\vec{Y_1}]${i$_1$},...,I$_n[\vec{Y_n}]${i$_n$}{"
+\end{enumerate}
+Then: 
+\begin{enumerate}
+\item \xcdmath"C[$\vec{T}$] <: D[$\vec{U}$]{d}" for a class
+\item \xcdmath"C[$\vec{T}$] <: I$_i$[$\vec{U_i}$]{i$_i$}" for all cases.
+\item \xcdmath"C[$\vec{T}$] <: C[$\vec{T}$]{c$'$}" for all cases.
+\end{enumerate}
+
+
+\item
+{\bf Function types:}
+\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => T throws EX$_1$, $\dots$,EX$_k$"
+is a  subtype of 
+\xcdmath"(x$'_1$: T$'_1$, $\dots$, x$'_n$: T$'_n$){c$'$} => T$'$ throws EX$'_1$, $\dots$, EX$'_{k'}$"
+if: 
+\begin{enumerate}
+\item Each \xcdmath"T$_i$ <: T$'_i$";
+\item \xcd`c` entails \xcdmath"c$'$";
+\item \xcdmath"T$'$ <: T";
+\item Each  \xcdmath"EX$_j$ <: EX$'_{j'}$".
+\end{enumerate}
+
+\item
+{\bf Constrained types:}
+\xcd`T{c}` is a subtype of \xcd`T{d}` if \xcd`c` entails \xcd`d`. 
+
+\item {\bf Any:} 
+Every type \xcd`T` is a subtype of \xcd`x10.lang.Any`.
+
+\item 
+{\bf Type Variables:}
+Inside the scope of a constraint \xcd`c` which entails \xcd`A <: B`, we have
+\xcd`A <: B`.  \eg, \xcd`upcast` above.
+
+
+\item 
+{\bf Covariant Generic Types:} 
+If \xcd`C` is a generic type whose {$i$}th type parameter is covariant, 
+and {\xcdmath"T$'_i$ <: T$_i$"}
+and  {\xcdmath"T$'_j$ == T$_j$"} for all {$j \ne i$}, 
+then {\xcdmath"C[T$'_1$, $\ldots$, T$'_n$] <: C[T$'_1$, $\ldots$, T$'_n$]"}.
+\Eg, \xcd`class C[T1, +T2, T3]` with {$i=2$}, and \xcd"U2 <: T2", then
+\xcd`C[T1,U2,T3] <: C[T1,T2,T3]`.
+
+\item 
+{\bf Contravariant Generic Types:} 
+If \xcd`C` is a generic type whose {$i$}th type parameter is contravariant, 
+and \xcdmath"T$'_i$ <: T$_i$"
+and  \xcdmath"T$'_j$ == T$_j$" for all {$j \ne i$}, 
+then \xcdmath"C[T$'_1$, $\ldots$, T$'_n$] :> C[T$'_1$, $\ldots$, T$'_n$]".
+\Eg, \xcd`class C[T1, -T2, T3]` with {$i=2$}, and \xcdmath"U2 <: T2", then
+\xcd`C[T1,U2,T3] :> C[T1,T2,T3]`.
+
+\end{itemize}
+
+
+Two types are {\em equivalent}, \xcd`T == U`, if \xcd`T <: U` and \xcd`U <: T`. 
+
+
+\section{Common ancestors of types}
+\label{LCA}
+
+There are several situations where X10 must find a type \xcd`T` that describes
+values of two or more different types.  This arises when X10 is trying to find
+a good type to describe: 
+\begin{itemize}
+%~~exp~~`~~`~~test:Boolean ~~
+\item Conditional expressions, like \xcd`test ? 0 : "non-zero"` or even 
+%~~exp~~`~~`~~test:Boolean ~~
+      \xcd`test ? 0 : 1`;
+%~~exp~~`~~`~~ ~~
+\item ValRail construction, like \xcd`[0, "non-zero"]` and 
+%~~exp~~`~~`~~ ~~
+      \xcd`[0,1]`;
+\item Functions with multiple returns, like
+%~~gen
+% package Types.For.Gripes.About.Pipes;
+% class Examplerator {
+%~~vis
+\begin{xten}
+def f(a:Int) {
+  if (a == 0) return 0;
+  else return "non-zero";
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+\end{itemize}
+
+In some cases, there is a unique best type describing the expression.  For
+example, if \xcd`B` and \xcd`C` are direct subclasses of \xcd`A`, \xcd`pick`
+will have return type \xcd`A`: 
+%~~gen
+% package Types.For.Gripes.About.Pipes;
+%  class A {} class B extends A{} class C extends A{}
+% class D {
+%~~vis
+\begin{xten}
+static def pick(t:Boolean, b:B, c:C) = t ? b : c;  
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+However, in many common cases, there is no unique best type describing the
+expression.  For example, consider the expression {$E=$} \xcd`b ? 0 : 1`.  The
+best type of \xcd`0` 
+is \xcd`Int{self==0}`, and the best type of 1 is \xcd`Int{self==1}`.
+Certainly {$E$} could be given the type \xcd`Int`, or even \xcd`Any`, and that
+would describe all possible results.  However, we actually know more.
+\xcd`Int{self != 2}` is a better description of the type of {$E$}---certainly
+the result of {$E$} can never be \xcd`2`.   \xcd`Int{self != 2, self != 3}` is
+an even better description; {$E$} can't be \xcd`3` either.  We can continue
+this process forever, adding integers which {$E$} will definitely not return
+and getting better and better approximations. (If the constraint
+sublanguage had \xcd`||`, we could give it the type 
+\xcd`Int{self == 0 || self == 1`, which would be nearly perfect.  But 
+\xcd`||` makes typechecking far more expensive, so it is excluded.)
+No X10 type is the best description of {$E$}; there is always a better one.
+
+Similarly, consider two unrelated interfaces: 
+%~~gen
+% package Types.For.Gripes.About.Snipes;
+%~~vis
+\begin{xten}
+interface I1 {}
+interface I2 {}
+class A implements I1, I2 {}
+class B implements I1, I2 {}
+class C {
+  static def example(t:Boolean, a:A, b:B) = t ? a : b;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\xcd`I1` and \xcd`I2` are both perfectly good descriptions of \xcd`t ? a : b`, 
+but neither one is better than the other, and there is no single X10 type
+which is better than both. (Some languages have {\em conjunctive
+    types}, and could say that the return type of \xcd`example` was 
+\xcd`I1 && I2`.  This, too, complicates typechecking.)
+}
+
+So, when confronted with expressions like this, X10 computes {\em some}
+satisfactory type for the expression, but not necessarily the {\em best} type.  
+X10 provides certain guarantees about the common type \xcd`V{v}` computed for 
+\xcd`T{t}` and \xcd`U{u}`: 
+\begin{itemize}
+\item If \xcd`T{t} == U{u}`, then \xcd`V{v} == T{t} == U{u}`.  So, if X10's
+      algorithm produces an utterly untenable type for \xcd`a ? b : c`, and
+      you want the result to have type \xcd`T{t}`, you can 
+      (in the worst case) rewrite it to 
+      \xcd`a ? b as T{t} : c as T{t}`.
+\item If \xcd`T == U`, then \xcd`V == T == U`.  For example, 
+      X10 will compute the type of \xcd`b ? 0 : 1` as 
+      \xcd`Int{c}` for some constraint \xcd`c`---perhaps simply 
+      picking \xcd`Int{true}`, \viz, \xcd`Int`. 
+\item X10 preserves place information, because it is so important. If both
+      \xcd`t` and \xcd`u` entail \xcd`self.home==p`, then  
+      \xcd`v` will also entail \xcd`self.home==p`.  In particular, the common
+      type for \xcd`T!` and \xcd`U!` has the form \xcd`V!`. 
+\item X10 similarly preserves nullity information.  If \xcd`t` and \xcd`u`
+      both entail \xcd`x == null` or \xcd`x != null` for some variable
+      \xcd`x`, then \xcd`v` will also entail it as well.
+
+\end{itemize}
+
+%\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
+
+\section{Fundamental types}
+
+Certain types are used in fundamental ways by X10.  
+
+\subsection{The interface \xcd`Any`}
+
+It is quite convenient to have a type which all values are instances of; that
+is, a supertype of all types.\footnote{Java, for one, suffers a number of
+  inconveniences because some built-in types like \xcd`int` and \xcd`char`
+  aren't subtypes of anything else.}  X10's universal supertype is the
+  interface \xcd`Any`. 
+
+\begin{xten}
+package x10.lang;
+public interface Any {
+  property def home():Place;
+  property def at(p:Object):Boolean;
+  property def at(p:Place):Boolean;
+  global safe def toString():String;
+  global safe def typeName():String;
+  global safe def equals(Any):Boolean;
+  global safe def hashCode():Int;
+}
+\end{xten}
+
+\xcd`Any` provides a handful of essential methods that make sense and are
+useful for everything.\footnote{The behavioral annotation \xcd`property` is
+  explained in \Sref{properties}; \xcd`safe` in \Sref{SafeAnnotation}, and
+  \xcd`global` in \Sref{GlobalAnnotation}.} \xcd`a.toString()` produces a
+string representation of \xcd`a`, and \xcd`a.typeName()` the string
+representation of its type; both are useful for debugging.  \xcd`aequals(b)`
+is the programmer-overridable equality test, and \xcd`a.hashCode()` an integer
+useful for hashing.  \xcd`at()` and \xcd`home()` are used in multi-place
+computing. 
+
+
+\subsection{The class \Xcd{Object}}
+\label{Object}
+\index{\Xcd{Object}}
+\index{\Xcd{x10.lang.Object}}
+
+The class \xcd"x10.lang.Object" is the supertype of all classes.
+A variable of this type can hold a reference to any object.
+\xcd`Object` implements \xcd`Any`. It also has a property \xcd`home:Place`,
+described more in \Sref{XtenPlaces}.
+
+
+
+\section{Type inference}
+\label{TypeInference}
+\index{types!inference}
+\index{type inference}
+
+\XtenCurrVer{} supports limited local type inference, permitting
+certain variable types and return types to be elided.
+It is a static error if an omitted type cannot be inferred or
+uniquely determined.
+
+\subsection{Variable declarations}
+
+The type of a \xcd`val` variable declaration can be omitted if the
+declaration has an initializer.  The inferred type of the
+variable is the computed type of the initializer.
+For example, 
+%~~stmt~~`~~`~~ ~~
+\xcd`val seven = 7;`
+is identical to 
+%~~stmt~~`~~`~~ ~~
+\xcd`val seven: Int{self==7} = 7;`
+Note that type inference gives the most precise X10 type, which might be more
+specific than the type that a programmer would write.
+
+\limitation{At the moment, only \xcd`val` declarations can have their types
+elided in this way.  
+}
+
+\subsection{Return types}
+
+The return type of a method can be omitted if the method has a body (\ie, is
+not \xcd"abstract" or \xcd"native"). The inferred return type is the computed
+type of the body.  In the following example, the return type inferred for
+\xcd`isTriangle` is 
+%~~type~~`~~`~~ ~~
+\xcd`Boolean{self==false}`
+%~~gen
+% package Types.Inferred.Return;
+%~~vis
+\begin{xten}
+class Shape {
+  def isTriangle() = false; 
+}  
+\end{xten}
+%~~siv
+%
+%~~neg
+Note that, as with other type inference, methods are given the most specific
+type.  In many cases, this interferes with subtyping.  For example, if one
+tried to write: 
+\begin{xten}
+class Triangle extends Shape {
+  def isTriangle() = true;
+}
+\end{xten}
+\noindent
+the X10 compiler would reject this program for attempting to override
+\xcd`isTriangle()` by a method with the wrong type, \viz,
+\xcd`Boolean{self==true}`.  In this case, supply the type that is actually
+intended for \xcd`isTriangle`, such as 
+\xcd`def isTriangle() :Boolean =false;`. 
+
+The return type of a closure can be omitted.
+The inferred return type is the computed type of the body.
+
+The return type of a constructor can be omitted if the
+constructor has a body.
+The inferred return type is the enclosing class type with
+properties bound to the arguments in the constructor's \xcd"property"
+statement, if any, or to the unconstrained class type.
+For example, the \xcd`Spot` class has two constructors, the first of which has
+inferred return type \xcd`Spot{x==0}` and the second of which has 
+inferred return type \xcd`Spot{x==xx}`. 
+%~~gen
+% package Types.Inferred.By.Phone;
+%~~vis
+\begin{xten}
+class Spot(x:Int) {
+  def this() {property(0);}
+  def this(xx: Int) { property(xx); }
+}
+\end{xten}
+%~~siv
+%class Confirm{ 
+% static val s0 : Spot{x==0} = new Spot();
+% static val s1 : Spot{x==1} = new Spot(1);
+%}
+%~~neg
+
+
+\index{Void}
+
+A method or closure that has expression-free \xcd`return` statements
+(\xcd`return;` rather than \xcd`return e;`) is said to return \xcd`Void`.
+\xcd`Void` is not a type; there are no \xcd`Void` values, nor can \xcd`Void`
+be used as the argument of a generic type. However, \xcd`Void` takes the
+syntactic place of a type. A method returning \xcd`Void` can be specified by
+\xcd`def m():Void`: 
+
+%~~gen
+% package Types.Voidd;
+% class Voidddd {
+% static 
+%~~vis
+\begin{xten}
+val f : () => Void = () => {return;};
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+By a convenient abuse of language, \xcd`Void` is sometimes
+lumped in with types; \eg, we may say ``return type of a method'' rather than
+the formally correct but rather more awkward ``return type of a method, or
+\xcd`Void`''.   Despite this informal usage, \xcd`Void` is not a type.  For
+example, given 
+%~~gen
+% package Types.Voidd;
+% class EEEEVil {
+%~~vis
+\begin{xten}
+  static def eval[T] (f:()=>T):T = f();
+\end{xten}
+%~~siv
+% }
+%~~neg
+\noindent
+The call \xcd`eval[Void](f)` does {\em not} typecheck; \xcd`Void` is not a
+type and thus cannot be used as a type argument.  There is no way in X10 to
+write a generic function which works with both functions which return a value
+and functions which do not.  In most cases, functions which have no sensible
+return value can be provided with a dummy return value.
+
+\subsection{Type arguments}
+
+\limitation{This does not seem to work at all currently.}
+\bard{Is this material even currently under consideration?}
+
+A call to a polymorphic method %, closure, or constructor 
+may omit the
+explicit type arguments.  If the method has a type parameter
+\xcd"T", the type argument corresponding to \xcd"T" is inferred
+to be the least common ancestor of the types of any formal
+parameters of type \xcd"T".
+\bard{Not least!}
+
+%TODO--check this!
+Consider the following method:
+\begin{xten}
+def choose[T](a: T, b: T): T { ... }
+\end{xten}
+%
+Given \xcd"Set[T] <: Collection[T]", 
+\xcd"List[T] <: Collection[T]",
+and \xcd"SubClass <: SuperClass",
+in the following snippet, the algorithm will infer the type
+\xcd"Collection[Any]" for \xcd"x".
+\begin{xten}
+def m(intSet: Set[Int], stringList: List[String]) {
+  val x = choose(intSet, stringList);
+...
+}
+\end{xten}
+%
+And in this snippet, the algorithm should infer the type
+\xcd"Collection[Int]" for \xcd"y".
+\begin{xten}
+def m(intSet: Set[Int], intList: List[Int]) {
+  val y = choose(intSet, intList);
+  ...
+}
+\end{xten}
+%
+Finally, in this snippet, the algorithm should infer the type
+\xcd"Collection{T <: SuperClass}" for \xcd"z".
+\begin{xten}
+def m(intSet: Set[SubClass], numList: List{T <: SuperClass}) {
+  val z = choose(intSet, numList);
+  ...
+}
+\end{xten}
+

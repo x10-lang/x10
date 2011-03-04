@@ -1,0 +1,372 @@
+Local classes with an orthogonal design v 0.4
+
+(Based on discussions with Steve Blackburn and co at ANU, Dave Grove,
+Olivier Tardieu.)
+
+Started: 9/2/2010 12:06:15 PM
+Last edit: 9/3/2010 9:18:11 AM
+
+ABSTRACT
+
+Question: Is it possible to integrate local classes into X10 without
+introducing a distinction between local and global classes in the type
+system?
+
+Answer: Yes. We use encapsulation/wrapping, rather than inheritance to
+define global behavior.
+
+The details follow.
+
+A. BASIC PROPOSAL
+
+There are only local classes. Classes may have transient fields.
+
+When an at(P) statement/expression is executed, the subgraph of
+objects referenced by variables in the body (including "this" in the
+case of instance methods) is copied over to P.
+
+However there is a very convenient struct, x10.lang.GlobalRef, that
+implements a global reference to an encapsulated local object. By
+virtue of how GlobalRef it is designed and implemented, copying an
+instance does not involve copying the encapsulated object. In essence,
+a GlobalRef instance is a globally usable reference to the
+encapsulated object.
+
+package x10.lang;
+/**
+
+ Create a global reference encapsulating a given object.  The ref has
+ the property home specifying the place at which it was
+ created. Besides that, the ref offers only the operations of Any at a
+ place other than the one where it was created (its home place).  Two
+ such refs are == if and only if they were created at the same place
+ and at that place the objects they encapsulate are ==.
+
+ <p> At its home place, the value when applied to the empty list of
+ arguments returns its encapsulated value.
+
+*/
+type GlobalRef[T](p:Place) = GlobalRef[T]{self.home==p};
+public struct GlobalRef[T](home:Place) { 
+
+   private id: Address;
+   /** Create a value encapsulating the given object of type T.
+   */
+   public this(t:T) { ... } 
+
+   /** Can only be invoked at the place at which the value was
+     created. Returns the object encapsulated in the value.
+   */
+   public def apply(){here == this.home}:T {...} 
+}
+
+B. BASIC IDIOMS
+
+Example 1
+
+Suppose we want to get a global counter, c.  From any place we would
+like to be able to update c.
+
+That is, we would like to define a method: (P)
+
+  def incAll(c:Counter) {
+     finish ateach(p in Dist.makeUnique()) {
+            c.inc();
+  }
+
+In 2.0 we could write:
+
+class Counter { // class is global by default, has a home property
+  var i:Int=0;
+  global def inc() { // method can be invoked anywhere
+     at (this) 
+       // move to the home where non-global properties like 
+       // are kept and operate on them.
+       atomic i++;
+  }
+}
+
+In 2.1 with global classes we could write:
+
+global class Counter { // global class has a home property
+  transient var i:Int=0;
+  def inc() { // method can be invoked anywhere
+     at (this) 
+       // move to the home where transient fields
+       // are kept and operate on them.
+       atomic i++;
+  }
+}
+
+In this proposal, all classes are local, so the above code will not
+work. 
+
+There are several ways of writing this code with the current proposal.
+
+First, we can mimic a "global" class, i.e. write Counter in a global
+style, so it can be operated upon from everywhere.
+
+// Counter written in a gobal style
+class Counter {
+  // we stash a reference to the original object inside a global
+  // reference.
+  // root is the "global this"
+  // Use it to access all mutable state on the "original object".
+  // Use at to move to the right place.
+  private val root = GlobalRef[Counter](this);
+
+  transient var i:Int=0; // mark the field transient, only needed at root.home
+
+  def inc() {
+     at (root) 
+       // go to the home of the global reference
+       atomic {
+         // fetch the real object, "this"
+         val me = root();
+         // operate on it
+         me.i++;
+       }
+  }
+}
+
+And now (P) will work unchanged:
+
+  def incAll(c:Counter) {
+     finish ateach(p in Dist.makeUnique()) {
+            c.inc();
+  }
+
+Note that if we wanted to make a home method available for Counter we
+would simply add the method definition:
+
+   def home() = root.home;
+
+This can be invoked from anywhere. Thus if we wish to define "global"
+methods, we can do that directly; these methods may need to access
+some state on the private root containing the global reference to the
+original object. (More examples below.)
+
+There are other ways of writing this code. Suppose we wish to write
+"local code". That is, we want to design our classes as if they are
+intended for execution in a local context. We do not want to think of
+multiple places or at boundaries. Then we would write:
+
+// a local class -- what could be simpler?
+class Counter { 
+  var i:Int=0;
+  def inc() { 
+       atomic i++;
+  }
+}
+
+Now we have to do a little bit more work if we want to operate on this
+object across multiple places. We must make the code that uses the
+counter do all the work of operating at the right place:
+
+  // communicate a global val, so we have a reference to the original object.
+  val c = GlobalRef[Counter](e);
+  finish ateach(p in Dist.makeUnique()) {
+         // c is a global reference, not a local copy of a Counter object
+         at (c) // go to where the real object is
+           // fetch it
+           c()
+           // and operate on it
+           .inc();
+  }
+
+Or we could have written a "bridge" global struct that just reuses the
+existing local class: 
+
+struct GlobalCounter {
+  private val counter:GlobalRef[Counter];
+  def this(c:Counter) {
+    counter = GlobalRef[Counter](c);
+  }
+  def inc() { // bridge method that uses counter to locate original object
+     at (counter) counter().inc();
+  } 
+  def home()=counter.home;
+}
+
+Note that GlobalCounter has no state other than counter; in particular when
+it is serialized and re-created on the remote side, there is no reason
+to allocate space for the transient field i.
+
+And now the code that uses it in multiple places is very easy: 
+
+  val c = GlobalCounter(e);
+  finish ateach(p in Dist.makeUnique()) {
+         c.inc();
+  }
+
+END OF EXAMPLE
+
+Suppose we want to add more state to the class that is accessible
+everywhere. This can be done by just adding more fields. If we desire
+that the objects contained in this fields should be referenced, not
+copied, we should encapsulate them in GlobalRef's.
+
+For instance here is an implementation of an owned counter. It is
+desired that the identity of the owner (a local object) should
+be preserved across places. Hence it should be wrapped in a GlobalRef.
+
+Example 2
+
+struct OwnedGlobalCounter {
+  private val counter:GlobalRef[Counter];
+  private val owner:GlobalRef[Object];
+  def this(c:Counter, o:Object) {
+    root =  GlobalRef[Counter](c);
+    owner = GlobalRef[Object](o);
+  }
+  def inc() { // bridge method that uses root to locate original object
+     at (counter) counter().inc();
+  } 
+  def home()=root.home;
+
+  // a global method -- returns the same result when invoked
+  // at any place.
+  def owner()=owner;
+}
+
+If we had defined private val owner:Object, then at each place owner()
+would return a local copy of the owner object, not a global reference
+to the original owner.
+
+Note that if we try to write this code as below, we have a problem
+with owner(). It must involve a communication to reconstruct a global
+reference:
+
+clas OwnedGlobalCounter {
+  private val root = new GlobalRef[OwnedGlobalCounter](this);
+  private transient val counter:Counter;
+
+  // no GlobalRef to owner
+  private transient val owner:Object;
+  def this(c:Counter, o:Object) {
+    counter =  c;
+    owner = o;
+  }
+  def inc() { // bridge method that uses root to locate original object
+     at (root) root().counter.inc();
+  } 
+  def home()=root.home;
+
+  // a global method -- returns the same result when invoked
+  // at any place.
+  def owner()= at (root) new GlobalRef[Object](root().owner);
+}
+
+END OF EXAMPLE
+
+In some cases state intended to be accessed in a global method has no
+mutable component, and does not need a notion of global
+identity. Hence a wrapping GlobalRef is not needed.
+
+Example 3
+struct RemoteArray[T] {
+   private val array: GlobalRef[Array[T]];
+
+   // no need to wrap this in a GlobalRef.
+   private val region:Region;
+   def this(a:Array[T]) {
+        array = GlobalRef[Array[T]](a);
+        region = a.region;
+   }
+   def apply() = array;
+   def region()=region;
+}
+
+Now the remote reference to the array carries information about the
+region of the underlying array. There is no particular reason to wrap
+it in a GlobalRef, since it has no mutable state and we do not care
+about location identity (==).
+
+Note we can selectively expose as much information about the
+encapsulated object as wish.
+END OF EXAMPLE
+
+GlobalCounter is an example of a "global" class. A global class is one
+who's non-transient fields are immutable and refers only to global
+classes. Some of these fields may be global references. Typically
+these are used within the methods of the class to perform remote
+operation on the data referenced by the global references.
+
+Example 4
+class UniqueArray[T] {
+   private val root:GlobalRef[UniqueArray[T]];
+   static val map = new HashMap[GlobalRef[UniqueArray[T]], Any]();
+   def this(initializer:(int)=> T) {
+      val root = GlobalRef[UniqueArray[T]](this);
+      this.root=root;
+      val d = Dist.makeUnique();
+      finish ateach(p in d) {
+         map.put(root, initializer(here.id)); 
+      }
+   }
+   def apply():T = map.get(root); 
+   def update(t:T) = map.put(root, t);
+}
+
+In the code above, the reference to map (in the body of apply() and
+update) obtains the contents of the static map field in the local copy
+of the class UniqueArray. 
+
+END OF EXAMPLE
+
+C ADDITIONAL NOTES
+
+We may want to add the construct
+
+  iftype (c) Stm [ else Stm ]
+
+c must be an admissible constraint. If the else clause is present,
+then !c must be an admissible constraint. The compiler assumes c in
+the "then" branch, and !c in the else branch (if present). At runtime,
+c is evaluated and the branch taken.
+
+This avoids unneessary casts in the code, at the cost of making the
+type checker path sensitive.
+
+This helps us tolerate the consequence of at(here)S not being the same
+as S. Now the user would write 
+
+   iftype (here==this.home)
+       S
+   else 
+      at (this.home)
+        S
+
+to express the desire to exeute S at this.home. 
+
+D DISCUSSION
+
+The major advantage of this proposal over the 2.1 proposal (with
+global classes) is its simplicity. Objects are copied across at
+boundaries -- period. GlobalRef lets you control precisely when what
+is copied is a globally usable reference. 
+
+No more mechanism is built into the language. The programmer uses the
+flexibility of the OO language (encapsulation, inheritance) to use
+this raw material. 
+
+Guidelines are supplied to help the programmer. For instance, the
+programmer should in general avoid defining a class with a non-transient
+field f which refers to local objects with mutable state. Whenever an
+instance of this class o is accessed across an at boundary, the target
+place will contain a copy o' of o, with o'.f a copy of o.f.  This may
+lead to subtle programming errors. It is up to the programmer to avoid
+such errors. 
+
+   It is possible we could provide some tooling (e.g. tool-tips in
+   X10DT) to point out such errors for the X10 programmer.
+
+Note that GlobalRef has no such field.
+
+The type GlobalRef[T]! is shorthand for GlobalRef[T](here). It may not
+be needed at all, in which case we can flush support for !.
+
+Nesting GlobalRef's does not raise any complications. The type
+GlobalRef[GlobalRef[T]] simply represents a global reference with some
+home p1 encapsulating a global reference with some home p2. There is
+no requirement that p1 be the same as p2 or distinct from p2.

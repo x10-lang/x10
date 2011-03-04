@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+
+<title>An Introduction To Programming With \Xten </title>
+    
+<h1 align="center">An Introduction To Programming With X10 </h1>
+
+<h3 align="center">
+ Draft  <br />
+   Jonathan Brezin, <tt>brezin@us.ibm.com</tt> <br />
+   Stephen J. Fink, <tt>sjfink@us.ibm.com</tt> <br />
+   with<br />
+      Bard Bloom, <tt>bardb@us.ibm.com</tt><br />
+      Cal Swart, <tt>cals@us.ibm.com</tt><br />
+   <br />
+   Please send comments to <tt>brezin@us.ibm.com</tt>.
+ </h3>
+
+
+<div class="p"><!----></div>
+This is a draft of the Part I of the Guide. This draft focusses on core features of the 
+X10 language and programming model.  This Guide is a work-in-progress.  We anticipate that
+a complete draft of Part I and a substantial part of Part II will be available
+in early first quarter 2011.
+
+<div class="p"><!----></div>
+Copyright &#169; 2010 The IBM Corporation
+
+<div class="p"><!----></div>
+All rights reserved.
+
+<div class="p"><!----></div>
+This work is part of the X10 project (http://x10-lang.org).
+
+<div class="p"><!----></div>
+
+<h1>Preface</h1>
+
+<h2>Who This Book Is For</h2>
+The X10 programming language was introduced to try to bring to programming
+in the  high-performance world the latest in programming language technology. 
+This text is an attempt to start programmers who have some experience with an 
+object-oriented language on the road to writing X10.  We'll talk about Java
+and C++ from time to time, since they seem to be the most broadly taught for the
+likely audience for this book, but we'll do so only to help translate from these
+languages into X10, not to explain X10 itself. So, even
+familiarity with "scripting" languages like JavaScript, Python, Ruby, or
+Smalltalk will give you the background we need, although you may find that the
+X10 syntax takes some getting used to if come from as far away as Python or
+Smalltalk.
+
+<div class="p"><!----></div>
+Those familiar with C, but not C++, may find this book useful,
+but some minimal knowledge of object-oriented programming really is a must-
+classes, objects, class methods versus instance methods, and so on, but nothing deep. 
+
+<div class="p"><!----></div>
+
+<h2>The Scope Of The Book</h2>
+Just as programmers using the MPI library can go a long way with only a
+half-dozen or so  of the more than one hundred entries in that library, 
+the new X10 programmer can get a lot of mileage out of a carefully
+chosen subset of  X10  constructs.  Our aim here is to get you started, so
+we stick to what we need to do that 80 or 90<br />going to have to face. The final chapter surveys what we don't cover here 
+in detail.
+
+<div class="p"><!----></div>
+Here is a quick outline of what we are going to do.
+
+<blockquote>
+The first chapter is a
+sampling of a  few simple X10 programs so you can get a feeling for the
+language.   It introduces concurrency, both local and distributed.  The
+emphasis  here is on the basic constructs, not on performance, except to the
+extent that  it comes up as a reason for choosing one construct over another.
+
+<div class="p"><!----></div>
+The next several chapters flesh out the critical parts of the language:
+types, expressions, control flow, and so on.  
+
+<div class="p"><!----></div>
+</blockquote>
+<h2>Trademarks</h2>
+The following is a list of the trademarked names that appear in the text:
+
+<dl compact="compact">
+ <dt><b>Mac OS</b></dt>
+	<dd> registered trademark of Apple Computer Inc.</dd>
+ <dt><b>Linux</b></dt>
+	<dd>  registered trademark of Linus Torvalds.</dd>
+ <dt><b>Unix</b></dt>
+	<dd> registered trademark licensed through X/Open Company, Ltd</dd>
+ <dt><b>Windows</b></dt>
+	<dd> a shorthand for one of a number of operating systems,
+Windows XP, Windows Vista, and Windows 7, that are registered trademarks of
+Microsoft Corporation.</dd>
+</dl>
+
+<div class="p"><!----></div>
+
+<h2>Getting X10 Onto Your Machine</h2>
+
+<div class="p"><!----></div>
+We've put together some installation guides for various platforms that show in
+detail how to set up your workstation to develop X10 programs. The
+platforms supported are
+
+<dl compact="compact">
+ <dt><b>Mac:</b></dt>
+	<dd><a href="http://dist.codehaus.org/x10/documentation/install/mac-cl-install.html">http://dist.codehaus.org/x10/documentation/install/mac-cl-install.html</a></dd>
+ <dt><b>Linux:</b></dt>
+	<dd><a href="http://dist.codehaus.org/x10/documentation/install/linux-cl-install.html">http://dist.codehaus.org/x10/documentation/install/linux-cl-install.html</a></dd>
+ <dt><b>Windows:</b></dt>
+	<dd><a href="http://dist.codehaus.org/x10/documentation/install/windows-cl-install.html">http://dist.codehaus.org/x10/documentation/install/windows-cl-install.html</a></dd>
+</dl>
+
+<div class="p"><!----></div>
+Once you have the environment set up, you will be able to run the programs in
+this guide.
+
+<div class="p"><!----></div>
+For Windows users, we have also developed a batch installation of the Cygwin
+environment that X10requires.  This will make it easier to get started than
+getting what you need piecemeal off the Web. The installer can be downloaded
+from
+
+<blockquote>
+<a href="http://dist.codehaus.org/x10/documentation/install/cygwin-install.zip">http://dist.codehaus.org/x10/documentation/install/cygwin-install.zip</a>
+</blockquote>
+You can refer to the Windows installation guide above for more details about its
+use.
+
+<div class="p"><!----></div>
+If you are an Eclipse user, the X10 Development Toolkit (X10DT) is a
+plugin that can be installed
+into Eclipse 3.5.x (Galileo) or Eclipse 3.6.x (Helios).  If you are unfamiliar
+with Eclipse, it is a free Open Source IDE, and we recommend you take a look at
+its introductory Web page, <a href="http://www.eclipse.org/home/newcomers.php">http://www.eclipse.org/home/newcomers.php</a>.  
+If you have Eclipse installed, you can go to the 
+<tt>Help</tt> menu and select "<tt>Install New Software</tt>".  You will be asked
+to add an update site.  The url to use for X10DT is:
+
+<blockquote>
+<a href="http://dist.codehaus.org/x10/x10dt/2.1/updateSite/">http://dist.codehaus.org/x10/x10dt/2.1/updateSite/</a>.
+</blockquote>
+If you want to install both Eclipse and X10DT together from scratch, there is
+an all-in-one installation that contains everything you need to start
+building X10 programs.  It can be downloaded from the X10 web site:
+
+<blockquote>
+<a href="http://x10.codehaus.org/X10DT+2.1+Installation">http://x10.codehaus.org/X10DT+2.1+Installation</a>.
+</blockquote>
+
+<div class="p"><!----></div>
+The X10 web site, <a href="http://x10.codehaus.org/">http://x10.codehaus.org/</a>, is a source for the latest news about
+X10. 
+The X10 mailing lists are all hosted at <a href="http://x10.codehaus.org/For+Users">http://x10.codehaus.org/For+Users</a>. 
+You can subscribe to any of them, but the ones most likely 
+to be of interest are
+
+<ul>
+<li> x10-announce: for (infrequent) announcements of X10 releases, and
+<div class="p"><!----></div>
+</li>
+
+<li> x10-users: for a general X10 user list.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<h2>Acknowledgements</h2>
+Particular thanks go to David Grove and Igor Peshansky, who have gone out of their
+way to answer our questions and to lay out the rationale behind X10's design.  Rachel
+Bellamy, Vijay Saraswat, Mandana Vaziri, and Yoav Zibin were kind enough to read a very early
+version carefully, and this draft is much the better for their comments.
+
+
+</html>

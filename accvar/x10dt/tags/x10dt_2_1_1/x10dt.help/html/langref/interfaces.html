@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Interfaces</title>
+</head>
+
+<body>
+ <h1><a name="tth_chAp1">
+Chapter 7 </a><br />Interfaces</h1>
+<a name="XtenInterfaces">
+</a>
+
+<div class="p"><!----></div>
+An interface specifies signatures for public methods, properties,
+<b>static val</b>s, and an invariant. 
+
+<div class="p"><!----></div>
+The following puny example illustrates all these features: 
+<pre>
+interface Pushable(text:String, prio:Int){prio != 0} {
+  def push(): void;
+  static val MAX_PRIO = 100;
+}
+class MessageButton(text:String, prio:Int){
+  implements Pushable{self.prio==Pushable.MAX_PRIO} {
+  public def push() { 
+    x10.io.Console.OUT.println(text + " pushed");
+  }
+}
+</pre>
+
+<b>Pushable</b> defines two properties, a method, and a static value.  It also
+establishes an invariant, that <b>prio != 0</b>. 
+<b>MessageButton</b> implements a constrained version of <b>Pushable</b>,
+<em>viz</em>&nbsp;one with maximum priority.  It also has <b>Pushable</b>'s properties.  It
+defines the <b>push()</b> method given in the interface, as a <b>public</b>
+method-interface methods are implicitly <b>public</b>.
+
+<div class="p"><!----></div>
+A concrete type-a class or struct-can <em>implement</em> an interface,
+typically by having all the methods and properties that the interface
+requires.
+
+<div class="p"><!----></div>
+A variable may be declared to be of interface type.  Such a variable has all
+the properties and methods declared (directly or indirectly) by the interface;
+nothing else is statically available.  Values of any concrete type which
+implement the interface may be stored in the variable.  
+
+<div class="p"><!----></div>
+The following code puts two quite different objects into the variable
+<b>star</b>, both of which satisfy the interface <b>Star</b>.
+<pre>
+interface Star { def rise():void; }
+class AlphaCentauri implements Star {
+   public def rise() {}
+}
+class ElvisPresley implements Star {
+   public def rise() {}
+}
+class Example {
+   static def example() {
+      var star : Star;
+      star = new AlphaCentauri();
+      star.rise();
+      star = new ElvisPresley();
+      star.rise();
+   }
+}
+</pre>
+
+An interface may extend several interfaces, giving
+X10 a large fraction of the power of multiple inheritance at a tiny fraction
+of the cost.
+
+<div class="p"><!----></div>
+<pre>
+interface Star{}
+interface Dog{}
+class Sirius implements Dog, Star{}
+class Lassie implements Dog, Star{}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Interface Syntax</h2>  
+
+<div class="p"><!----></div>
+<a name="DepType:Interface">
+</a> 
+<em>
+<table>
+
+<tr><td align="right">NormalInterfaceDecl ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right">TypeParamsWithVariance ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
+<tr><td align="right">Properties ::= <b>(</b> PropertyList <b>)</b> </td></tr>
+<tr><td align="right">PropertyList ::= Property </td></tr>
+<tr><td align="right">&#124; PropertyList <b>,</b> Property </td></tr>
+<tr><td align="right">WhereClause ::= DepParams </td></tr>
+<tr><td align="right">ExtendsInterfaces ::= <b>extends</b> Type </td></tr>
+<tr><td align="right">&#124; ExtendsInterfaces <b>,</b> Type </td></tr>
+<tr><td align="right">InterfaceBody ::= <b>{</b> InterfaceMemberDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">InterfaceMemberDecl ::= MethodDecl </td></tr>
+<tr><td align="right">&#124; PropertyMethodDecl </td></tr>
+<tr><td align="right">&#124; FieldDecl </td></tr>
+<tr><td align="right">&#124; ClassDecl </td></tr>
+<tr><td align="right">&#124; InterfaceDecl </td></tr>
+<tr><td align="right">&#124; TypeDefDecl </td></tr>
+<tr><td align="right">&#124; <b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Each interface implicitly defines a nullary getter method
+<b>def p(): T</b> for each property <b>p: T</b>. The interface may not have
+another definition of a method <b>p()</b>. 
+
+<div class="p"><!----></div>
+A class <b>C</b>  implements an interface <b>I</b> if
+
+<ul>
+<li> <b>I</b>, or a subtype of <b>I</b>, appears in the <b>implements</b> list
+      of <b>C</b>,
+<div class="p"><!----></div>
+</li>
+
+<li> <b>C</b>'s properties include all the properties of <b>I</b>,
+<div class="p"><!----></div>
+</li>
+
+<li> Each method <b>m</b> defined by <b>I</b> is also a method of <b>C</b> -
+      with the <em><b>public</b></em> modifier added.   These methods may be
+      <b>abstract</b> if <b>C</b> is <b>abstract</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+If <b>C</b> implements <b>I</b>, then the class invariant
+(&#167;) for <b>C</b>,   <i>inv</i>(<b>C</b>), implies
+the class invariant for <b>I</b>, <i>inv</i>(<b>I</b>).  That is, if the
+interface <b>I</b> specifies some requirement, then every class <b>C</b> that
+implements it satisfies that requirement.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

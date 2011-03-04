@@ -1,0 +1,140 @@
+\chapter{Definite Assignment}
+\label{sect:DefiniteAssignment}
+\index{definite assignment}
+\index{assignment!definite}
+\index{definitely assigned}
+\index{definitely not assigned}
+
+X10 requires, reasonably enough, that every variable be set before it is read.
+Sometimes this is easy, as when a variable is declared and assigned together: 
+%~~gen ^^^ DefiniteAssignment4x1u
+% package DefiniteAssignment4x1u;
+% class Example {
+% def example() {
+%~~vis
+\begin{xten}
+  var x : Int = 0;
+  assert x == 0;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+However, it is convenient to allow programs to make decisions before
+initializing variables.
+%~~gen ^^^ DefiniteAssignment4u7z
+% package DefiniteAssignment4u7z;
+% class Example {
+%~~vis
+\begin{xten}
+def example(a:Int, b:Int) {
+  val max:Int;
+  // max cannot be read here.
+  if (a > b) max = a;
+  else max = b;
+  assert max >= a && max >= b;
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+This is particularly useful for \xcd`val` variables.  \xcd`var`s could be
+initialized to a default value and then reassigned with the right value, but
+\xcd`val`s must be initialized once correctly and cannot be changed. 
+
+However, one must be careful -- and the X10 compiler enforces this care.
+Without the \xcd`else` clause, the preceding code might not give \xcd`max` a
+value by the \xcd`assert`.  
+
+This leads to the concept of {\em definite assignment} \cite{Javasomething}.
+A variable is definitely assigned at a point in code if, no matter how that
+point in code is reached, the variable has been assigned to.  In X10,
+variables must be definitely assigned before they can be read.
+
+
+As X10 requires that \xcd`val` variables {\em not} be initialized
+twice,  we need the dual concept as well.  A variable is {\em definitely
+unassigned} at a point in code if it cannot have been assigned there.  For
+example, immediately after \xcd`val x:Int`, \xcd`x` is definitely unassigned.  
+
+At some points in code, a variable might be neither definitely assigned nor
+definitely unassigned.    Such states are not always useful.  
+%~~gen ^^^ DefiniteAssignment4f5z
+% package DefiniteAssignment4f5z;
+% class Example {
+% 
+%~~vis
+\begin{xten}
+def example(flag : Boolean) {
+  var x : Int;
+  if (flag) x = 1;
+  // x is neither def. assigned nor unassigned.
+  x = 2; 
+  // x is def. assigned.
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+This shows that we cannot simply define ``definitely unassigned'' as ``not
+definitely assigned''.   If \xcd`x` had been a \xcd`val` rather than a
+\xcd`var`, the previous example would not be allowed.  
+
+Unfortunately, a completely accurate definition of ``definitely assigned''
+or ``definitely unassigned'' is undecidable -- impossible for the compiler to
+determine.  So, X10 takes a {\em conservative approximation} of these
+concepts.  If X10's definition says that \xcd`x` is definitely assigned (or
+definitely unassigned), then it will be assigned (or not assigned) in every
+execution of the program.  
+
+However, there are programs which X10's algorithm says are incorrect, but
+which actually would behave properly if they were executed.   In the following
+example, \xcd`flag` is either \xcd`true` or \xcd`false`, and in either case
+\xcd`x` will be initialized.  However, X10's analysis does not understand this
+--- thought it {\em would} understand if the example were coded with an
+\xcd`if-else` rather than a pair of \xcd`if`s.  So, after the two \xcd`if`
+statements, \xcd`x` is not definitely assigned, and thus the \xcd`assert`
+statement, which reads it, is forbidden.  
+%~~gen ^^^ DefiniteAssignment3x6i
+% package DefiniteAssignment3x6i;
+% class Example{ 
+%~~vis
+\begin{xten}
+def example(flag:Boolean) {
+  var x : Int;
+  if (flag) x = 1;
+  if (!flag) x = 2;
+  // Not Allowed: assert x < 3;
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+\section{Technical Details of Definite Assignment}
+
+Definite assignedness for local variables is determined by one algorithm;
+definited assignedness for fields by a different one.  
+
+Local variables (but not fields) allow {\em asynchronous assignment}. A local
+variable can be assigned in an \xcd`async` statement, and, when the
+\xcd`async` is \xcd`finish`ed, the variable is definitely assigned.  
+\begin{ex}
+%~~gen ^^^ DefiniteAssignment4a6n
+% package DefiniteAssignment4a6n;
+% class Example {
+% def example() {
+%~~vis
+\begin{xten}
+val a : Int;
+finish {
+  async {
+    a = 1;
+  } 
+  // a is not definitely assigned here
+}
+assert a==1;
+\end{xten}
+%~~siv
+%} } 
+%~~neg
+
+\end{ex}

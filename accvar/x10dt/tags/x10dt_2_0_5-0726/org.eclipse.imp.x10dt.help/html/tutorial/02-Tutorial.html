@@ -1,0 +1,718 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="./x10tutorial.css" />
+</head>
+
+<body>
+
+<h1>Getting Started With Concurrency</h1>
+
+<p> The point of X10 is concurrent programming: giving you great power and
+control over your multiprocessor. There's a lot to the sequential language
+that we haven't covered, but other languages do sequential computing just as
+well as X10. Let's write a program that does something concurrent.
+</p>
+
+<h2>Warning About Concurrency</h2>
+
+<p>
+Concurrency is hard, and shared-memory concurrency (which X10 does) is very
+hard. The main reason for doing concurrency at all is performance: if you want
+your program to run ten times as fast, one good way to do it nowadays is to
+buy ten processors and have each of them do a tenth of the work.
+</p>
+
+<p>
+Some languages and systems try to automatically make code concurrent.  That's
+great when it works.  Often, it doesn't work: automatically-parallelized code
+isn't as good as parallelized code written by a skilled programmer.
+Eventually, perhaps, it will be, but probably not for a while.
+</p>
+
+<p>
+X10 is a language which lets you write good concurrent code.  You can work in
+high-level terms, thinking about things like "atomic sections" and "logical
+clocks", which are good for writing and understanding concurrent programs. You
+don't have to work with lower-level concepts like "threads" and "locks", which
+are much harder to deal with.  So, coding in X10 will generally be easier than
+doing the same concurrent task in Java or C++.
+</p>
+
+
+
+<h2>Concurrent "Hello, World"</h2>
+
+<p> The first program we'll make concurrent is, of course, "Hello, World".
+We'll write a version of the program which prints that phrase in three
+different languages, concurrently.  
+</p>
+
+<p>
+Now, it actually makes no sense to do this from any practical point of view,
+but there are about six things we need to discuss before we can do <a
+href="#para-sum"><span class="todo">something sensible</span></a>.  "Hello, World" lets us do half of them.
+</p>
+
+<p> If you're not used to concurrent programming, this will look surprisingly
+painful and complicated. That's the fault of concurrent programming, not X10.
+If you <i>are</i> used to concurrent programming in Java or C++, this will
+look surprisingly painless and simple. 
+</p>
+
+
+<p>
+X10 makes heavy use of <i>activities</i>.  In other languages, these might
+be called <i>threads</i> or <i>processes</i>.  There may be many activities
+running at a single place (think: on a single processor).  If there are many
+places, each one will have different activities running there.
+</p>
+
+<p>
+Making an activity in X10 is quite easy.  The command <kbd>async S</kbd>
+spawns a new activity which
+executes <kbd>S</kbd> and then stops.  The new activity is located at the same
+place as the spawner -- they have the same value of <kbd>here</kbd>. 
+There are various restrictions on what
+can go in <kbd>S</kbd> and ways for <kbd>S</kbd> to coordinate and communicate
+with other activities, but we don't need those for concurrent "Hello, World".  
+</p>
+
+<p>
+So here's a first attempt.  (It won't work right.)
+</p>
+
+
+<!--
+import x10.io.Console;
+
+public class ConcHello1 {
+  public static def main(argv:Rail[String]!) {
+    async Console.OUT.println("Hello, World");
+    async Console.OUT.println("Bore Da, Byd");
+    async Console.OUT.println("Bonjour, Monde");
+  }
+}
+
+-->
+<table class="ex">
+<a name="src-conchello1-1"/>
+<tr class="ex"><td><a href="#conchello1-1" class="ex">1</a></td><td class="ex"><code>import x10.io.Console;</code></td></tr>
+<a name="src-conchello1-2"/>
+<tr class="ex"><td><a href="#conchello1-2" class="ex">2</a></td><td class="ex"><code>public class ConcHello1 {</code></td></tr>
+<a name="src-conchello1-3"/>
+<tr class="ex"><td><a href="#conchello1-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]!) {</code></td></tr>
+<a name="src-conchello1-4"/>
+<tr class="ex"><td><a href="#conchello1-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;async Console.OUT.println("Hello, World");</code></td></tr>
+<a name="src-conchello1-5"/>
+<tr class="ex"><td><a href="#conchello1-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;async Console.OUT.println("Bore Da, Byd");</code></td></tr>
+<a name="src-conchello1-6"/>
+<tr class="ex"><td><a href="#conchello1-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;async Console.OUT.println("Bonjour, Monde");</code></td></tr>
+<a name="src-conchello1-7"/>
+<tr class="ex"><td><a href="#conchello1-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<a name="src-conchello1-8"/>
+<tr class="ex"><td><a href="#conchello1-8" class="ex">8</a></td><td class="ex"><code>}</code></td></tr>
+</table>
+
+<a name="conchello1-1"/>
+<p>  <a href="#src-conchello1-1">line 1: </a><kbd class="ex">import
+x10.io.Console;</kbd><br/>
+With this incantation, we can refer to the console as simply
+<kbd>Console</kbd> rather than <kbd>x10.io.Console</kbd>.
+</p>
+<a name="conchello1-2"/>
+<!--<p>  <a href="#src-conchello1-2">line 2: </a><kbd class="ex">public class ConcHello1 {</kbd><br/></p>-->
+<a name="conchello1-3"/>
+<!--<p>  <a href="#src-conchello1-3">line 3: </a><kbd class="ex">  public static def main(argv:Rail[String]!) {</kbd><br/></p>-->
+<a name="conchello1-4"/>
+<p>  <a href="#src-conchello1-4">line 4: </a><kbd class="ex">    async
+Console.OUT.println("Hello, World");</kbd><br/>
+Spawn a concurrent activity to print the message in English.
+</p>
+<a name="conchello1-5"/>
+<p>  <a href="#src-conchello1-5">line 5: </a><kbd class="ex">    async Console.OUT.println("Bore Da, Byd");</kbd><br/>
+Spawn a concurrent activity to print the message in Welsh. 
+</p>
+<a name="conchello1-6"/>
+<p>  <a href="#src-conchello1-6">line 6: </a><kbd class="ex">    async Console.OUT.println("Bonjour, Monde");</kbd><br/>
+Spawn a concurrent activity to print the message in French. 
+</p>
+<a name="conchello1-7"/>
+<!--<p>  <a href="#src-conchello1-7">line 7: </a><kbd class="ex">  }</kbd><br/></p>-->
+<a name="conchello1-8"/>
+<!--<p>  <a href="#src-conchello1-8">line 8: </a><kbd class="ex">}</kbd><br/></p>-->
+
+<p>
+The output from my first run is: 
+</p>
+
+<pre class="output">
+%x10c ConcHello.x10
+% x10 ConcHello
+BHelonlo,j oWuorr,l dM
+onde
+Bore Da, Byd
+% 
+</pre>
+
+<p>
+Well, <i>that</i> didn't work.
+</p>
+
+<p>
+This illustrates the central pitfall of concurrency, which sounds obvious, but
+isn't: 
+</p>
+<blockquote class="xiom">
+<b>Xiom:</b> In concurrent programs, lots of stuff is happening at the same time.
+</blockquote>
+
+<p>
+In this case, the attempts to print the English <kbd>"Hello, World"</kbd> and
+French <kbd>"Bonjour, Monde"</kbd> were going at the same time.  X10 let
+French go for one character (<kbd>B</kbd>), then English for three
+(<kbd>Hel</kbd>), then French for two (<kbd>on</kbd>), and so on.  Somehow the
+Welsh got delayed to the end.  
+</p>
+
+<a name="02-footnote-1-back"></a><p>
+Most concurrent programs (in nearly all languages) are buggy <a href="#02-footnote-1">(1)</a>because there's
+some way that activities (threads, processes, etc.) can execute that will do
+the wrong thing.  Here it's pretty obvious.  In most programs, the bad
+schedule doesn't happen very often, and the bugs can be latent for years.  
+</p>
+
+
+
+<h3>Atomic Power</h3>
+
+<p>
+What we need is to have each <kbd>println</kbd> happen <i>atomically</i>.
+That means that, once one activity has started doing its <kbd>println</kbd>,
+no other activity will get in its way -- once it has started, it will finish.
+So, rather than <i>interleaving</i> the printing of the English and French,
+X10 will print one of them, then another, then a third.
+</p>
+
+<p>
+(The program will still be <i>nondeterministic</i>.  Any one of the three
+activities might get to go first.  If we wanted them to go
+English-Welsh-French, we would do them sequentially, without the <kbd>async</kbd>s.)
+</p>
+
+<p> X10's basic mechanism for making things atomic is the <kbd>atomic S</kbd>
+block, which executes <kbd>S</kbd> atomically. This might sound obvious, but
+it's actually a rarity among programming languages. Java, for example, uses
+monitors on all objects, and you need to do some careful programming to use
+them. X10's approach is somewhat easier. </p>
+
+<p>
+There are some restrictions on what can go in  <kbd>atomic S</kbd>.
+When X10 does this, it stops other activies that might interfere with
+<kbd>S</kbd>.  So, if <kbd>S</kbd> takes a long time (like forever, say), a
+bunch of other activities will be stopped for a long time (also forever) --
+through no fault of their own.   This is generally a Bad Thing.  So, X10
+forbids commands that might <i>block</i>: that is, that might wait
+indefinitely for something else.  
+</p>
+
+<p> Unfortunately, <kbd>println</kbd> is a blocking command: the console isn't
+always ready to take a message, and there is no guaranteed bound on how long
+it will wait. (The compiler makes a pretty good analysis of what is allowed;
+see <span class="todo">Unwritten Chapter on atomic</span>.) This is a shame;
+otherwise we could write code like <kbd> async atomic
+Console.OUT.println("Hello, World"); </kbd>, and we'd be done. See
+<kbd>ConcHello2.x10</kbd> for this failed attempt.</p>  
+
+<a name="using-atomic"></a>
+<h2>Using Atomic Power Safely</h2>
+
+<p>
+When you write an <kbd>atomic S</kbd> command, try to have as little code as
+possible inside of <kbd>S</kbd>.  The more code in <kbd>S</kbd>, the worse
+your program will tend to perform.  (The same advice goes for any concurrent
+language and locking.  Conversely, make sure that you have <i>enough</i> code
+in your <kbd>atomic</kbd> blocks.  Leaving things non-atomic that should be
+atomic gives you bugs.)
+</p>
+
+<p>
+A good approach to "little code" is to have one simple assignment to a
+variable.   So, what we'll do is, have a buffer -- a String-valued variable --
+and asynchronously, atomically append each translation of "Hello, World" to
+it.    When we're done, we'll print the buffer.
+</p>
+
+<p> For subtle reasons, X10 doesn't exactly let us have a <i>variable</i>
+here. Asynchronous activities (like threads and anonymous objects in Java,
+say) can refer to <i>constants</i>, but not <i>variables</i>. There's an
+established idiom to sneak around this restriction: instead of a
+<kbd>String</kbd> variable, use a one-element <kbd>Rail[String]</kbd> -- that
+is, an array with one element.  The Rail is constant (in the sense that its
+location never changes, which is what the asynchronous activities would have
+trouble with), but its contents are allowed to change.
+</p>
+
+
+<!--
+public class ConcHello3 {
+  public static def main(argv:Rail[String]!) {
+    val buffer = Rail.make[String](1);
+    buffer(0) = "";
+    async atomic buffer(0) = buffer(0) + "Hello, World\n";
+    async atomic buffer(0) = buffer(0) + "Bore Da, Byd\n";
+    async atomic buffer(0) = buffer(0) + "Bonjour, Monde\n";
+    x10.io.Console.OUT.println(buffer(0));
+  }
+} 
+
+-->
+<table class="ex">
+<a name="src-conchello3-1"/>
+<tr class="ex"><td><a href="#conchello3-1" class="ex">1</a></td><td class="ex"><code>public class ConcHello3 {</code></td></tr>
+<a name="src-conchello3-2"/>
+<tr class="ex"><td><a href="#conchello3-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]!) {</code></td></tr>
+<a name="src-conchello3-3"/>
+<tr class="ex"><td><a href="#conchello3-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val buffer = Rail.make[String](1);</code></td></tr>
+<a name="src-conchello3-4"/>
+<tr class="ex"><td><a href="#conchello3-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;buffer(0) = "";</code></td></tr>
+<a name="src-conchello3-5"/>
+<tr class="ex"><td><a href="#conchello3-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;async atomic buffer(0) = buffer(0) + "Hello, World\n";</code></td></tr>
+<a name="src-conchello3-6"/>
+<tr class="ex"><td><a href="#conchello3-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;async atomic buffer(0) = buffer(0) + "Bore Da, Byd\n";</code></td></tr>
+<a name="src-conchello3-7"/>
+<tr class="ex"><td><a href="#conchello3-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;async atomic buffer(0) = buffer(0) + "Bonjour, Monde\n";</code></td></tr>
+<a name="src-conchello3-8"/>
+<tr class="ex"><td><a href="#conchello3-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println(buffer(0));</code></td></tr>
+<a name="src-conchello3-9"/>
+<tr class="ex"><td><a href="#conchello3-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<a name="src-conchello3-10"/>
+<tr class="ex"><td><a href="#conchello3-10" class="ex">10</a></td><td class="ex"><code>} </code></td></tr>
+</table>
+
+<a name="conchello3-1"/>
+<!--<p>  <a href="#src-conchello3-1">line 1: </a><kbd class="ex">public class ConcHello3 {</kbd><br/></p>-->
+<a name="conchello3-2"/>
+<!--<p>  <a href="#src-conchello3-2">line 2: </a><kbd class="ex">  public static def main(argv:Rail[String]!) {</kbd><br/></p>-->
+<a name="conchello3-3"/>
+<p>  <a href="#src-conchello3-3">line 3: </a><kbd class="ex">    val buffer =
+Rail.make[String](1);</kbd><br/>
+Create a one-element <kbd>Rail[String]</kbd>.  So, <kbd>buffer(0)</kbd> is our
+buffer "variable".  
+</p>
+<a name="conchello3-4"/>
+<p>  <a href="#src-conchello3-4">line 4: </a><kbd class="ex">    buffer(0) =
+"";</kbd><br/>
+Here we are, using that "variable" -- initializing it to an empty string.
+</p>
+<a name="conchello3-5"/>
+<p>  <a href="#src-conchello3-5">line 5: </a><kbd class="ex">    async atomic
+buffer(0) = buffer(0) + "Hello, World\n";</kbd><br/>
+Our first asynchronous activity (first-defined -- it may or may not
+<i>execute</i> first) appends the English text to the buffer.
+</p>
+<a name="conchello3-6"/>
+<p>  <a href="#src-conchello3-6">line 6: </a><kbd class="ex">    async atomic
+buffer(0) = buffer(0) + "Bore Da, Byd\n";</kbd><br/>
+Same for Welsh...
+</p>
+<a name="conchello3-7"/>
+<p>  <a href="#src-conchello3-7">line 7: </a><kbd class="ex">    async atomic
+buffer(0) = buffer(0) + "Bonjour, Monde\n";</kbd><br/>
+...and French
+</p>
+<a name="conchello3-8"/>
+<p>  <a href="#src-conchello3-8">line 8: </a><kbd class="ex">
+x10.io.Console.OUT.println(buffer(0));</kbd><br/>
+Now, print the contents of the buffer.  (This line is buggy, though the bug
+won't show up very often.  See if you can figure out  why before the next
+section, if you like.)
+</p>
+<a name="conchello3-9"/>
+<!--<p>  <a href="#src-conchello3-9">line 9: </a><kbd class="ex">  }</kbd><br/></p>-->
+<a name="conchello3-10"/>
+<!--<p>  <a href="#src-conchello3-10">line 10: </a><kbd class="ex">} </kbd><br/></p>-->
+
+<h4>Running <kbd>ConcHello3</kbd></h4>
+We can compile and run <kbd>ConcHello3</kbd>, and it usually seems to work fine.
+<pre class="output">
+% x10c ConcHello3.x10
+% x10 ConcHello3
+Hello, World
+Bore Da, Byd
+Bonjour, Monde
+</pre>
+
+<p>
+Once in a while, the activities happen in a different order.  This is
+perfectly normal and nothing to be worried about.  Asynchronous activities are
+allowed to happen in whatever order they want, unless we somehow tell them
+otherwise: 
+</p>
+<pre class="output">
+% x10c ConcHello3.x10
+% x10 ConcHello3
+Bonjour, Monde
+Bore Da, Byd
+Hello, World
+</pre>
+
+<h4>Running <kbd>ConcHello3</kbd> When It Goes Wrong</h4>
+
+<p>
+However, sometimes some of the greetings get left off altogether: 
+</p>
+<pre class="output">
+% x10c ConcHello3.x10
+% x10 ConcHello3
+Bore Da, Byd
+</pre>
+
+<p>
+This is wrong!
+</p>
+
+<p>
+It's wrong in a pretty characteristic way for asynchrony: you could have this
+bug in any language.  Our program starts off with the main activity running.
+The main activity spawns off three sub-activities, for English, Welsh, and
+French.  So, there are <i>four</i> activities happening.  
+</p>
+
+<p>
+And they happen independently.  They can go in any order.
+</p>
+
+<p>
+Sometimes, the main activity will be allowed to go quickly, and it will get to
+the <kbd>println</kbd> before the other ones are all finished.   When this
+happens, some of the greetings won't get appended onto the buffer <i>until
+after the buffer is printed</i>.  So, those greetings don't get printed.
+</p>
+
+<p>
+So, we need to make sure that all the sub-activities have finished before we
+print the final message. 
+</p>
+
+<p>
+In many concurrent languages, this is a groanworthy problem, involving locks
+or clocks or semaphores or something.  
+</p>
+
+<p>
+In X10, it's easy.  The command <kbd>finish S</kbd> evaluates <kbd>S</kbd>,
+and then waits for all of <kbd>S</kbd>'s sub-activities (and
+sub-sub-activities, sub-sub-sub-activities, etc.) to finish.  Then, and only
+then, does <kbd>finish</kbd> finish.
+</p>
+
+<p>
+So, the X10 idiom for starting a bunch of asynchronous computations and
+waiting for them to all finish is simply: 
+</p>
+<pre>
+   finish {
+     async Computation1;
+     async Computation2;
+     async Computation3;
+   }
+</pre>
+
+<p>
+And, for our example, that is: 
+</p>
+
+<!--
+//Tutorial file 10/ConcHello4.x10
+public class ConcHello4 {
+  public static def main(argv:Rail[String]!) {
+    val buffer = Rail.make[String](1);
+    buffer(0) = "";
+    finish{
+      async atomic buffer(0) = buffer(0) + "Hello, World\n";
+      async atomic buffer(0) = buffer(0) + "Bore Da, Byd\n";
+      async atomic buffer(0) = buffer(0) + "Bonjour, Monde\n ";
+    }
+    x10.io.Console.OUT.println(buffer(0));
+  }
+} 
+
+-->
+<table class="ex">
+<a name="src-10-conchello4-1"/>
+<tr class="ex"><td><a href="#10-conchello4-1" class="ex">1</a></td><td class="ex"><code>//Tutorial file 10/ConcHello4.x10</code></td></tr>
+<a name="src-10-conchello4-2"/>
+<tr class="ex"><td><a href="#10-conchello4-2" class="ex">2</a></td><td class="ex"><code>public class ConcHello4 {</code></td></tr>
+<a name="src-10-conchello4-3"/>
+<tr class="ex"><td><a href="#10-conchello4-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]!) {</code></td></tr>
+<a name="src-10-conchello4-4"/>
+<tr class="ex"><td><a href="#10-conchello4-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val buffer = Rail.make[String](1);</code></td></tr>
+<a name="src-10-conchello4-5"/>
+<tr class="ex"><td><a href="#10-conchello4-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;buffer(0) = "";</code></td></tr>
+<a name="src-10-conchello4-6"/>
+<tr class="ex"><td><a href="#10-conchello4-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;finish{</code></td></tr>
+<a name="src-10-conchello4-7"/>
+<tr class="ex"><td><a href="#10-conchello4-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async atomic buffer(0) = buffer(0) + "Hello, World\n";</code></td></tr>
+<a name="src-10-conchello4-8"/>
+<tr class="ex"><td><a href="#10-conchello4-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async atomic buffer(0) = buffer(0) + "Bore Da, Byd\n";</code></td></tr>
+<a name="src-10-conchello4-9"/>
+<tr class="ex"><td><a href="#10-conchello4-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async atomic buffer(0) = buffer(0) + "Bonjour, Monde\n ";</code></td></tr>
+<a name="src-10-conchello4-10"/>
+<tr class="ex"><td><a href="#10-conchello4-10" class="ex">10</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<a name="src-10-conchello4-11"/>
+<tr class="ex"><td><a href="#10-conchello4-11" class="ex">11</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println(buffer(0));</code></td></tr>
+<a name="src-10-conchello4-12"/>
+<tr class="ex"><td><a href="#10-conchello4-12" class="ex">12</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<a name="src-10-conchello4-13"/>
+<tr class="ex"><td><a href="#10-conchello4-13" class="ex">13</a></td><td class="ex"><code>} </code></td></tr>
+</table>
+
+<a name="10-conchello4-1"/>
+<!--<p>  <a href="#src-10-conchello4-1">line 1: </a><kbd class="ex">//Tutorial file 10/ConcHello4.x10</kbd><br/></p>-->
+<a name="10-conchello4-2"/>
+<!--<p>  <a href="#src-10-conchello4-2">line 2: </a><kbd class="ex">public class ConcHello4 {</kbd><br/></p>-->
+<a name="10-conchello4-3"/>
+<!--<p>  <a href="#src-10-conchello4-3">line 3: </a><kbd class="ex">  public static def main(argv:Rail[String]!) {</kbd><br/></p>-->
+<a name="10-conchello4-4"/>
+<!--<p>  <a href="#src-10-conchello4-4">line 4: </a><kbd class="ex">    val buffer = Rail.make[String](1);</kbd><br/></p>-->
+<a name="10-conchello4-5"/>
+<!--<p>  <a href="#src-10-conchello4-5">line 5: </a><kbd class="ex">    buffer(0) = "";</kbd><br/></p>-->
+<a name="10-conchello4-6"/>
+<p>  <a href="#src-10-conchello4-6">line 6: </a><kbd class="ex">
+finish{</kbd><br/>
+Start up the following activities, and wait for them all to finish...
+</p>
+<a name="10-conchello4-7"/>
+<p>  <a href="#src-10-conchello4-7">line 7: </a><kbd class="ex">      async atomic buffer(0) = buffer(0) + "Hello, World\n";</kbd><br/></p>
+<a name="10-conchello4-8"/>
+<p>  <a href="#src-10-conchello4-8">line 8: </a><kbd class="ex">      async atomic buffer(0) = buffer(0) + "Bore Da, Byd\n";</kbd><br/></p>
+<a name="10-conchello4-9"/>
+<p>  <a href="#src-10-conchello4-9">line 9: </a><kbd class="ex">      async atomic buffer(0) = buffer(0) + "Bonjour, Monde\n ";</kbd><br/></p>
+<a name="10-conchello4-10"/>
+<p>  <a href="#src-10-conchello4-10">line 10: </a><kbd class="ex">
+}</kbd><br/>
+After they're all done, <kbd>finish</kbd> will also finish, and we can proceed
+to print them safely:
+</p>
+<a name="10-conchello4-11"/>
+<p>  <a href="#src-10-conchello4-11">line 11: </a><kbd class="ex">    x10.io.Console.OUT.println(buffer(0));</kbd><br/></p>
+<a name="10-conchello4-12"/>
+<!--<p>  <a href="#src-10-conchello4-12">line 12: </a><kbd class="ex">  }</kbd><br/></p>-->
+<a name="10-conchello4-13"/>
+<!--<p>  <a href="#src-10-conchello4-13">line 13: </a><kbd class="ex">} </kbd><br/></p>-->
+
+
+<p>
+And this program is correct!
+</p>
+<pre class="output">
+% x10 ConcHello4
+Hello, World
+Bonjour, Monde
+Bore Da, Byd
+</pre>
+
+<p>
+And, because of that <kbd>finish</kbd>, it will never leave out one of the greetings.
+</p>
+
+<h2>Summary of Concurrency</h2>
+
+<p>
+Many X10 concurrent programs can be built on just three X10 primitives: 
+</p>
+<ul>
+<li><kbd>async S</kbd> to spawn asynchronous activities.</li>
+<li><kbd>atomic T</kbd> to make sure that only one activity at a time modifies
+shared data structures.</li>
+<li><kbd>finish U</kbd> to spawn a bunch of activities and wait until they all
+finish.</li>
+</ul>
+
+<p>
+Also, shared data structures can be things like <kbd>Rail[String]</kbd>s,
+providing a place to store a bit of mutable data.
+</p>
+
+<h1>The More Things Change, The More They Stay The Same</h1>
+
+<p>
+X10 has two keywords for introducing new variables.  <kbd>var</kbd> introduces
+a variable that you can assign to; <kbd>val</kbd> introduces one that you
+cannot change.  The core syntax for the two is parallel: 
+</p>
+
+<pre class="ex">
+    val a : Int = 1;
+    var b : Int = 2;
+    b += a;
+</pre>
+
+<p>
+<kbd>a</kbd> is a <kbd>val</kbd>, meaning that it can't be
+changed.  An assignment like <kbd>a += b;</kbd> would be illegal. <kbd>b</kbd>
+is a <kbd>var</kbd>, meaning that it can be changed.  <kbd>b += a</kbd> is
+legal. 
+</p>
+
+<h2>Shorter Forms of <kbd>val</kbd></h2>
+
+<p>
+<kbd>val</kbd> can be abbreviated in two ways.  First, the <kbd>val</kbd> is
+optional, if the type is provided: 
+</p>
+<pre class="ex">
+    c : Int = 3;
+</pre>
+
+<p>
+Second, the type is optional if <kbd>val</kbd> is provided.  In this case, the
+type will be exactly the type of the expression.  
+</p>
+<pre class="ex">
+    val d = 4;
+</pre>
+<p>
+This gives <kbd>d</kbd> the same type as <kbd>4</kbd> -- which
+is <kbd>Int{self==4}</kbd>, not just <kbd>Int</kbd>.  This is particularly
+relevant when you assign to an object: 
+</p>
+<pre class="ex">
+    val e = Rail.make[Int](10);
+</pre>
+<p>
+gives <kbd>e</kbd> the type <kbd>x10.lang.Rail[x10.lang.Int]{self==e,
+    e.length==10, e.home==_place2}</kbd>.  This type records everything that
+    X10 knows about <kbd>e</kbd> -- what variables it's equal to, how long it
+is, and where it lives. 
+</p>
+
+<p>
+Note that, if you <i>do</i> write the type down, X10 (as of version 2.0.3)
+will use the type you wrote, rather than the more exact type that it could
+have inferred.  If you have a method <kbd>takeTen(x)</kbd> which requires a
+Rail of length exactly 10:
+</p>
+<pre class="ex">
+  static def takeTen(Rail[Int]{length==10}) = "Yay ten!";
+</pre>
+<p>
+Then you can call <kbd>takeTen(e)</kbd> without any trouble, but if you have:
+</p>
+<pre class="ex">
+    val f : Rail[Int] = Rail.make[Int](10);
+</pre>
+<p>
+Then calling <kbd>takeTen(f)</kbd> will not compile
+(with <kbd>-STATIC_CALLS</kbd>, at least).  
+</p>
+
+<h2>Approximate Types in <kbd>val</kbd></h2>
+
+<p>
+X10's <kbd>val</kbd> statement allows an <i>approximate type bound</i>, which
+use a <kbd>&lt;:</kbd> rather than simply <kbd>:</kbd>.  You
+can write a less precise type, like <kbd>Rail[Int]</kbd>, and still get X10 to
+use the more precise type with all the constraints: 
+</p>
+<pre class="ex">
+    val g <: Rail[Int] = Rail.make[Int](10);
+    takeTen(g);
+</pre>
+
+<p>
+In general, this makes sure that the type you have written for <kbd>g</kbd>
+is <i>correct</i>, but it uses the full type that it infers. 
+</p>
+
+<p>
+If you are using types in <kbd>val</kbd> statements, we strongly recommend
+that you use <kbd>&lt;:</kbd> rather than <kbd>:</kbd>.
+</p>
+
+<h2>Shorter forms of <kbd>var</kbd></h2>
+
+<p>
+<kbd>var</kbd> can't support the same short forms, because it does different
+things.  However, it has a different short form.
+</p>
+
+<p>
+First of all, it can't do type inference the same way that <kbd>val</kbd>
+does. Recall that <kbd>val d = 4;</kbd> gave <kbd>d</kbd> the
+type <kbd>Int{self==4}</kbd>; that is, an integer whose value is 4.
+If <kbd>var h = 4</kbd> were to do the same thing with a <kbd>var</kbd>, it
+would give <kbd>h</kbd> the type <kbd>Int{self==4}</kbd> -- that is, the only
+value you could ever assign to <kbd>h</kbd> is 4.  That makes it pretty
+useless as a <kbd>var</kbd>.  
+</p>
+<p>
+So, X10 doesn't do type inference on <kbd>var</kbd>s -- yet.  A future version
+might do some inference, though it will have to be a different kind of
+inference than is done for <kbd>val</kbd>.  
+</p>
+
+<p>
+However, <kbd>var</kbd> doesn't require an initializer.  You don't need to
+initialize a <kbd>var</kbd> when you create it; you simply need to give it a
+value before you first try to <i>read</i> it.  So, suppose you have: 
+</p>
+<pre class="ex">
+  static def use(a:Int) = 1;
+</pre>
+<p>
+The code 
+</p>
+<pre class="ex">
+    var i : Int;
+    use(i);
+</pre>
+<p>
+doesn't compile, because <kbd>i</kbd> doesn't have a value when it is used.
+However, if it is obvious to X10 that <kbd>i</kbd> <i>has</i> been given a
+value before it is used, that's OK.  The following code works,
+because <kbd>i</kbd> will be assigned to before it is used, even though we
+don't know until runtime which assignment will be taken.
+</p>
+<pre class="ex">
+    var i : Int;
+    if (a < b) i = a; else i = b;
+    use(i);
+</pre>
+
+<h2>Using <kbd>var</kbd> and <kbd>val</kbd></h2>
+
+<p>
+There are a few guidelines for using <kbd>var</kbd> and <kbd>val</kbd> in X10.
+</p>
+<ol>
+<li>Use <kbd>val</kbd> whenever you can, which should be nearly all the
+  time.  <kbd>val</kbd>s can be used in ways that <kbd>var</kbd>s can't
+  (<i>e.g.,</i> they can be captured by functions), and the compiler can
+  optimize them better. 
+</li>
+<li>Use <kbd>var x ...</kbd> <i>only</i> when you mean for the value
+  of <kbd>x</kbd> to change.    
+  (If, somehow, you declared <kbd>x</kbd> to be <kbd>val</kbd> and need it to
+  be <kbd>var</kbd> later on, it's only a one-character change.)
+</li>
+<li>If you give a <kbd>val</kbd> a type, use <kbd>&lt;:</kbd>.  This lets X10
+  use all the information that it knows about, while documenting to yourself
+  and X10 what you know the variable ought to be. 
+</li>
+</ol>
+
+<h1>Footnotes</h1>
+
+<ul>
+<li><a name="02-footnote-1"></a> <b>(1)</b> Yes, I do mean that most
+concurrent programs are buggy.  I don't have any concrete evidence for this
+claim, but concurrent programs are <i>very</i> hard to get right, even the
+simplest ones.  X10's structures help more than those of most languages, at
+least. <a href="#02-footnote-1-back">back</a>
+</li>
+</ul>
+
+</body>
+
+</html>

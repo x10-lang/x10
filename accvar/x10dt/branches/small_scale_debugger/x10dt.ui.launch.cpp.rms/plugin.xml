@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ptp.launch.rmLaunchConfigurations">
+      <launchConfiguration
+            class="x10dt.ui.launch.cpp.rms.launch_configuration.SocketsRMLaunchConfigurationFactory"
+            id="x10dt.ui.launch.cpp.rms.launch.config.sockets">
+      </launchConfiguration>
+   </extension>
+   <extension
+         point="org.eclipse.ptp.launch.rmLaunchConfigurations">
+      <launchConfiguration
+            class="x10dt.ui.launch.cpp.rms.launch_configuration.StandaloneRMLaunchConfigurationFactory"
+            id="x10dt.ui.launch.cpp.rms.launch.config.standalone">
+      </launchConfiguration>
+   </extension>
+   <extension
+         point="org.eclipse.ptp.services.core.providers">
+      <provider
+            class="x10dt.ui.launch.cpp.rms.provider.SocketsServiceProvider"
+            id="x10dt.ui.launch.cpp.rms.provider.sockets"
+            name="Sockets"
+            serviceId="org.eclipse.ptp.core.LaunchService">
+      </provider>
+   </extension>
+   <extension
+         point="org.eclipse.ptp.services.core.providers">
+      <provider
+            class="x10dt.ui.launch.cpp.rms.provider.StandaloneServiceProvider"
+            id="x10dt.ui.launch.cpp.rms.provider.standalone"
+            name="Standalone"
+            serviceId="org.eclipse.ptp.core.LaunchService">
+      </provider>
+   </extension>
+   <extension
+         point="org.eclipse.ptp.services.ui.providerContributors">
+      <providerContributor
+            class="x10dt.ui.launch.cpp.rms.provider.SocketsProviderContributor"
+            id="x10dt.ui.launch.cpp.rms.provider.sockets.contributor">
+      </providerContributor>
+   </extension>
+   <extension
+         point="org.eclipse.ptp.services.ui.providerContributors">
+      <providerContributor
+            class="x10dt.ui.launch.cpp.rms.provider.StandaloneProviderContributor"
+            id="x10dt.ui.launch.cpp.rms.provider.standalone.contributor">
+      </providerContributor>
+   </extension>
+
+</plugin>

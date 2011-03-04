@@ -1,0 +1,334 @@
+\chapter{Change Log}
+
+\section{Changes from \Xten{} v2.0.6}
+
+This document summarizes the main changes between X10 2.0.6 and X10 2.1.  The
+descriptions are intended to be suggestive rather than definitive; see the
+language specification for full details.
+
+\subsection{Object Model}
+
+\begin{enumerate}
+\item Objects are now local rather than global.
+   
+    \begin{enumerate}
+    \item The \Xcd{home} property is gone.
+    \item \Xcd{at(P)S} produces deep copies of all objects reachable from
+          lexically exposed variables in \xcd`S` 
+          when it executes \Xcd{S}.  ({\bf Warning:} They are copied even in  
+          \Xcd{at(here)S}.)
+    \end{enumerate}
+
+\item The \Xcd{GlobalRef[T]} struct is the only way to produce or manipulate
+      cross-place references.
+    \begin{enumerate}
+    \item \Xcd{GlobalRef}'s have a \Xcd{home} property.
+    \item Use \Xcd{GlobalRef[Foo](foo)} to make a new global reference.
+    \item Use \Xcd{myGlobalRef()} to access the object referenced; this
+          requires \Xcd{here == myGlobalRef.home}. 
+    \end{enumerate}
+
+
+\item  The \xcd`!` type modifier is no longer needed or present.
+
+\item \Xcd{global} modifiers are now gone:
+    
+    \begin{enumerate}
+    \item \Xcd{global} methods in {\em interfaces} are now the default. 
+    \item \Xcd{global} {\em fields} are gone.  In some cases object copying
+          will produce the same effect as global fields.  In other cases code
+          must be rewritten.  It may be desirable to mark nonglobal fields
+          \Xcd{transient} in many cases.
+    \item \Xcd{global} {\em methods} are now marked \Xcd{@Global} instead.  
+          Methods intended to be non-global may be marked \Xcd{@Pinned}.
+    \end{enumerate}
+
+
+\end{enumerate}
+
+\subsection{Constructors}
+
+
+\begin{enumerate}
+\item \Xcd{proto} types are gone.
+\item Constructors and the methods they call must satisfy a number of static
+      checks.  
+    
+    \begin{enumerate}
+    \item Constructors can only invoke \Xcd{private} or \Xcd{final} methods, 
+          or methods annotated \xcd`@NonEscaping`.  
+    \item Methods invoked by constructors cannot read fields before they are
+          written. 
+    \item The compiler ensures this with a detailed protocol. 
+    \end{enumerate}
+
+\item It is still impossible for X10 constructors to leak references to
+      \Xcd{this} or observe uninitialized fields of an object.  Now, however,
+      the mechanisms enforcing this are less obtrusive than in 2.0.6; the
+      burden is largely on the compiler, not the programmer.
+\end{enumerate}
+
+
+
+
+%REF> \subsection{Call by Reference}
+%REF> 
+%REF> A very limited form of call-by-reference is now available.
+%REF> 
+%REF> 
+%REF> \begin{enumerate}
+%REF> 
+%REF> \item Formal parameters to functions and methods may be \Xcd{ref} rather than
+%REF>       \Xcd{var} or \Xcd{val}.  
+%REF> \item Assignment to a \Xcd{ref} parameter \Xcd{x} changes the original
+%REF>       location that the \Xcd{ref} refers to.  \eg, 
+%REF>       \xcd`def inc(ref x:Int) { x ++; }`
+%REF>       allows a call \Xcd{inc(n)} to increment a local \Xcd{var} \Xcd{n}.
+%REF> \item Only local variables or \Xcd{ref} parameters can be passed as actual
+%REF>       \Xcd{ref} parameters.  Fields, array elements, and other variable-like
+%REF>       items cannot be. 
+%REF> \item External \Xcd{ref} variables cannot be captured in closures. However,
+%REF>       closures may have \Xcd{ref} parameters.
+%REF> \item \Xcd{ref}s are {\em not} first-class objects in X10. They cannot be
+%REF>       returned from functions, stored in data structures, etc.
+%REF> \item These restrictions limit the possibilities of aliasing and the need for
+%REF>       boxing of \Xcd{ref} parameters.  \Xcd{ref}s to stack locations cannot,
+%REF>       with these restrictions, live past the death of the location's
+%REF>       containing stack frame.      
+%REF> \item This allows the implementation of many core constructs as syntactic
+%REF>       sugar on library calls.   Programmers may use it, but mutability should
+%REF>       generally be encapsulated inside objects rather than \Xcd{ref}
+%REF>       parameters. 
+%REF> \end{enumerate}
+%REF> 
+
+%ACC> \subsection{Accumulator Variables}
+%ACC> 
+%ACC> Accumulator variables generalize and make explicit collecting \Xcd{finish} in
+%ACC> X10 2.0.6.  An \Xcd{acc} variable is declared: 
+%ACC> \begin{xten}
+%ACC> acc(r) A;
+%ACC> \end{xten}
+%ACC> where \Xcd{r} is a {\em reducer} (much as in 2.0.6): 
+%ACC> \begin{xten}
+%ACC> struct Reducer[T](zero:T, apply:global (T,T)=>T){}
+%ACC> \end{xten}
+%ACC> 
+%ACC> Usage of \Xcd{A} is restricted in ways that make it determinate in the
+%ACC> intended case of a pure, associative, commutative \Xcd{apply} with unit
+%ACC> element \Xcd{zero}.  
+%ACC> 
+%ACC> \begin{enumerate}
+%ACC> \item \Xcd{A} is initialized to \Xcd{r.zero}.  
+%ACC> \item Multiple activities can {\em write} into \Xcd{A}.  In particular, the
+%ACC>       ``assignment'' \Xcd{A = v} is approximately interpreted as 
+%ACC>       \xcd`atomic{A = r.apply(A, v)}` --- that is, it accumulates \Xcd{v} into
+%ACC>       \Xcd{A} using \Xcd{r.apply.}
+%ACC> \item {\em Reading} of \Xcd{A} is restricted to situations where it makes
+%ACC>       sense.  Specifically, only the activity in which \Xcd{A} is declared can
+%ACC>       read from it, and it can only do so when all asyncs which it has spawned
+%ACC>       have terminated -- \eg, outside of the scope of all \Xcd{async}s and
+%ACC>       \Xcd{finish}es.  
+%ACC> \item Formal parameters of functions may be marked \Xcd{acc x:T}.  The reducer
+%ACC>       \Xcd{r} must not be specified; it is passed as an implicit parameter
+%ACC>       going with the actual \Xcd{acc} variable.  
+%ACC> \item X10 provides protocols for indexed collections of \Xcd{acc} variables,
+%ACC>       presented as objects.
+%ACC> \end{enumerate}
+%ACC> 
+
+
+\subsection{Implicit clocks for each finish}
+
+
+Most clock operations can be accomplished using the new implicit clocks.
+
+\begin{enumerate}
+\item A \Xcd{finish} may be qualified with \Xcd{clocked}, which gives it a
+      clock.
+\item An \Xcd{async} in a \Xcd{clocked finish} may be marked \Xcd{clocked}.
+      This registers it on the same clock as the enclosing \Xcd{finish}.  
+\item \xcd`clocked async S` and \xcd`clocked finish S` may use \xcd`next` in
+      the body of \Xcd{S} to advance the clock.
+\item When the body of a \Xcd{clocked finish} completes, the \Xcd{clocked
+      finish} is dropped form the clock.  It will still wait for spawned
+      asyncs to terminate, but such asyncs need to wait for it.
+\end{enumerate}
+
+
+%CLOCAL>\subsection{Clocked local variables}
+%CLOCAL>
+%CLOCAL>Local \Xcd{val} and \Xcd{acc} variables may be \Xcd{clocked}.  They are
+%CLOCAL>associated with the clock of the surrounding \Xcd{clocked finish}.  
+%CLOCAL>Clocked variables have a {\em current} value and an {\em upcoming} value.  The
+%CLOCAL>current value may be read at suitable times; the upcoming value may be
+%CLOCAL>updated.  The \Xcd{next} phase makes the upcoming value current.
+
+\subsection{Asynchronous initialization of val}
+
+\Xcd{val}s can be initialized asynchronously.   As always with \Xcd{val}s,
+they can only be read after it is guaranteed that they have been initialized.
+For example, both of the \Xcd{print}s below are good.  However, the
+commented-out \Xcd{print} in the \Xcd{async} is bad, since it is possible that
+it will be executed before the initialization of \Xcd{a}. 
+\begin{xten}
+val a:Int;
+finish {
+  async {
+     a = 1; 
+     print("a=" + a);
+  }
+  async {
+     // WRONG: print("a=" + a);
+  }
+}
+print("a=" + a);
+\end{xten}
+
+
+
+\subsection{Main Method}
+
+The signature for the \Xcd{main} method is now: 
+\begin{xten}
+           def main(Array[String]) {..}
+\end{xten}
+or, if the arguments are actually used, 
+\begin{xten}
+           def main(argv: Array[String](1)) {..}
+\end{xten}
+
+\subsection{Assorted Changes}
+
+
+\begin{enumerate}
+\item The syntax for destructuring a point now uses brackets rather than
+      braces: \Xcd{for( [i] in 1..10 )}, rather than the prior \Xcd{(i)}.  
+\end{enumerate}
+
+\subsection{Safety of atomic and when blocks}
+
+
+\begin{enumerate}
+\item Static effect annotations (\Xcd{safe}, \Xcd{sequential},
+      \Xcd{nonblocking}, \Xcd{pinned}) are no longer used. They have been
+      replaced by dynamic checks.
+\item Using an inappropriate operation in the scope of an \Xcd{atomic} or
+      \Xcd{when} construct will throw \Xcd{IllegalOperationException}.  
+      The following are inappropriate:      
+      \begin{itemize}
+      \item \Xcd{when}
+      \item \Xcd{resume()} or \Xcd{next} on clocks
+      \item async
+      \item \Xcd{Future.make()}, or \Xcd{Future.force()}.
+      \item \Xcd{at}
+      \end{itemize}
+
+\end{enumerate}
+
+
+\subsection{Removed Topics}
+
+The following are gone: 
+
+\begin{enumerate}
+\item \Xcd{foreach} is gone.
+\item All \Xcd{var}s are effectively \Xcd{shared}, so \Xcd{shared} is gone.
+\item The place clause on \Xcd{async} is gone.  \Xcd{async (P) S} should be
+      written \Xcd{at(P) async S}.
+\item Checked exceptions are gone.
+\item \Xcd{future} is gone.
+\item \Xcd{await ... or ... } is gone.
+\item \Xcd{const} is gone.
+
+\end{enumerate}
+
+\subsection{Deprecated}
+
+The following constructs are still available, but are likely to be replaced in
+a future version: 
+
+
+\begin{enumerate}
+\item \Xcd{ValRail}.
+\item \Xcd{Rail}.
+\item \xcd`ateach`
+\item \xcd`offers`.  \index{offers}  The \xcd`offers` concept was experimental
+      in 2.1, but was determined inadequate.  It has not been removed from the
+      compiler yet, but it will be soon.  In the meantime, traces of it are
+      still visible in the grammar.  They should not be used and can safely be ignored.
+\end{enumerate}
+
+\section{Changes from \Xten{} v2.0}
+
+\begin{itemize}
+\item \Xcd{Any} is now the top of the type hierarchy (every object,
+  struct and function has a type that is a subtype of
+  \Xcd{Any}). \Xcd{Any} defines \Xcd{home}, \Xcd{at}, \Xcd{toString},
+  \Xcd{typeName}, \Xcd{equals} and \Xcd{hashCode}. \Xcd{Any} also defines the methods
+  of \Xcd{Equals}, so \Xcd{Equals} is not needed any more.
+\item Revised discussion of incomplete types.
+\item The manual has been revised and brought into line with the current implementation. 
+\end{itemize}
+\section{Changes from \Xten{} v1.7}
+
+The language has changed in the following way:
+\begin{itemize}
+
+\item {\bf Type system changes}: There are now three kinds of entities
+  in an \Xten{} computation: objects, structs and functions. Their
+  associated types are class types, struct types and function
+  types. 
+
+  Class and struct types are called {\em container types} in that they
+  specify a collection of fields and methods. Container types have a
+  name and a signature (the collection of members accessible on that
+  type). Collection types support primitive equality \Xcd{==} and may
+  support user-defined equality if they implement the {\tt
+    x10.lang.Equals} interface. 
+
+  Container types (and interface types) may be further qualified with
+  constraints.
+
+  A function type specifies a set of arguments and their type, the
+  result type, and (optionally) a guard. A function application
+  type-checks if the arguments are of the given type and the guard is
+  satisfied, and the return value is of the given type.  A function
+  type does not permit \Xcd{==} checks. Closure literals create
+  instances of the corresponding function type.
+
+  Container types may implement interfaces and zero or more function
+  types.
+
+  All types support a basic set of operations that return a string
+  representation, a type name, and specify the home place of the entity.
+
+  The type system is not unitary. However, any type may be used to
+  instantiate a generic type. 
+
+  There is no longer any notion of \Xcd{value} classes. \Xcd{value}
+  classes must be re-written into structs or (reference) classes. 
+
+\item {\bf Global object model}: Objects are instances of
+  classes. Each object is associated with a globally unique
+  identifier. Two objects are considered identical \Xcd{==} if their
+  ids are identical. Classes may specify \Xcd{global} fields and
+  methods. These can be accessed at any place. (\Xcd{global} fields
+  must be immutable.)
+
+\item{\bf Proto types.} For the decidability of dependent type
+  checking it is necessary that the property graph is acyclic. This is
+  ensured by enforcing rules on the leakage of \Xcd{this} in
+  constructors. The rules are flexible enough to permit cycles to be
+  created with normal fields, but not with properties.
+
+\item{Place types.} Place types are now implemented. This means that
+  non-global methods can be invoked on a variable, only if the
+  variable's type is either a struct type or a function type, or a
+  class type whose constraint specifies that the object is located in
+  the current place.
+
+  There is still no support for statically checking array access
+  bounds, or performing place checks on array accesses.
+
+\end{itemize}

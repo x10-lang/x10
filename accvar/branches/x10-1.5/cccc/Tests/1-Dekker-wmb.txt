@@ -1,0 +1,11 @@
+# Dekker example from Doug Lea's and Vijay Saraswat's writeups, but with wmb.
+
+1.1 w x 1
+1.2 wmb
+1.3 r y 0
+2.4 w y 1
+2.5 wmb
+2.6 r x 0
+
+1.3 -> 2.4
+2.6 -> 1.1

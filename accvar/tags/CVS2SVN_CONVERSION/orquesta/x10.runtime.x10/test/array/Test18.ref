@@ -1,0 +1,38 @@
+--- Test18: makeUpperTriangular(4)
+rank 2
+rect false
+zeroBased false
+rail false
+isConvex() true
+size() x10.array.PolyRegion does not support size
+region: (x0>=0 && x1<=3 && x0-x1<=0)
+  poly
+    0  0 0 0 0 . . . . . . 
+    1  . 1 2 3 . . . . . . 
+    2  . . 4 6 . . . . . . 
+    3  . . . 9 . . . . . . 
+  iterator
+    0  0 0 0 0 . . . . . . 
+    1  . 1 2 3 . . . . . . 
+    2  . . 4 6 . . . . . . 
+    3  . . . 9 . . . . . . 
+contains (0,0)(0,1)(0,2)(0,3)(1,1)(1,2)(1,3)(2,2)(2,3)(3,3)
+does not contain (1,0)(2,0)(2,1)(3,0)(3,1)(3,2)
+--- Test18: makeLowerTriangular(4)
+rank 2
+rect false
+zeroBased false
+rail false
+isConvex() true
+size() x10.array.PolyRegion does not support size
+region: (x0-x1>=0 && x1>=0 && x0<=3)
+  poly
+    0  0 . . . . . . . . . 
+    1  0 1 . . . . . . . . 
+    2  0 2 4 . . . . . . . 
+    3  0 3 6 9 . . . . . . 
+  iterator
+    0  0 . . . . . . . . . 
+    1  0 1 . . . . . . . . 
+    2  0 2 4 . . . . . . . 
+    3  0 3 6 9 . . . . . . 

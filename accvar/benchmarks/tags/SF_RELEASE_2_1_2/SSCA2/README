@@ -1,0 +1,56 @@
+o openMP -- the original version in C + OpenMP
+
+o smp -- Shared memory version of SSCA2 
+   o kernel 4 not impelemented
+
+o par-1d - 1d distributed version of SSCA2
+  o (dist-1d) is it's older version
+
+o par-1d-hybrid -- hybrid of SMP and par-1d (only KERNEL 3 is hybrid)
+
+=====================
+
+
+o Command Line Arguments for openmp with openmp disabled:
+
+arg -1 : SCALE = Log of the size of the graph
+     2 : set it to 1 always
+     3 : set it to 1 always
+
+o Command Line Arguments for openmp with openmp enabled:
+
+arg -1: THREADS = # of THREADS
+     2 : SCALE = Log of the size of the graph
+     3 : set it to 1 always
+     4 : set it to 1 always
+
+
+o Command Line Arguments for par-1d and par-1d-hybrid:
+
+arg -1 : SCALE = Log of the size of the graph
+
+     2 : DUMP = true implies output is dumped (for checking correctness)
+              = false implies no dump
+
+     3 : SERIAL_GRAPH GEN = true if you want sequential graph 
+                            false otherwise (RECOMMENDED for large graphs)
+
+     4: FILTER = set it to TRUE always 
+
+     5: CUT_SHORT = set it to TRUE always
+
+     6: NO_SELF = true if you dont' want self loop
+                  false otherwise
+
+     7: ALLGATHER = set it to TRUE always 
+
+     (4, 5, 6 and 7 are for debugging)
+
+     8: USE_ASYNC = true implies async version of Betweness (It is very slow)
+                  = false implies alltoall version (DEFAULT and RECOMMENDED)       
+
+     9 : NTHREADS = # of threads per place (useful only for hybrid version) 
+
+o Command Line Arguments for smp: (SMP version semantics is outdated and not in sync with the other versions)
+arg -1: THREADS = # of THREADS
+     2: SCALE = log of size of the graph

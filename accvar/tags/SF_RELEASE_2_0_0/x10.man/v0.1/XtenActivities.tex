@@ -1,0 +1,332 @@
+\chapter{Activities}\label{XtenActivities}
+
+An \Xten{} computation may have many concurrent {\em activities} ``in
+flight'' at any give time. We use the term activity to denote a piece
+of code (with references to data) that is intended to execute in
+parallel with other pieces of code. Activities are much lighter-weight
+than threads. In particular, there is no object associated with an
+activity. Activities may not be interrupted, suspended or resumed from
+outside. There is no notion of ``activity groups''. 
+
+An activity is spawned in a given place and stays in that place for
+its lifetime.  An activity may be {\em running}, {\em blocked} on some
+condition or {\em terminated}.
+
+An activity may be long-running and may invoke recursive methods (thus
+may have a stack associated with it). (On the other hand, many
+activities may contain a single atomic section with a dozen or so
+operations.)
+
+An activity may have local variables (just like a stack frame) that
+are not accessible from outside the activity.
+
+An activity may asynchronously and in parallel launch activities at
+other places.
+
+\section{Spawning an activity}\label{AsynchronousActivity}\label{AsyncActivity}
+An activity is created by executing the statement:
+\begin{x10}
+{\cf\em{}AsyncStatement::}
+   async {\cf\em{}PlaceDesignator} {\cf\em{}BlockStatement}
+{\cf\em{}BlockStatement::}
+  `\{'{\cf\em{}Statement}`\}' 
+{\cf\em{}PlaceDesignator::}
+    {\cf\em{}empty}
+    `('\_`)'
+    `('{\cf\em{}PlaceExpr}`)'
+    `('{\cf\em{}NonFinalVariable}`)'
+\end{x10} 
+
+In many cases the compiler may infer the unique place at which the
+statement is to be executed by an analysis of the types of the
+variables occuring in the statement. In such cases the programmer may
+omit the place designator; the compiler will throw an error if it
+cannot uniquely determine the designated place. The programmer may use
+the anonymous place syntax {\tt (\_)} to explicitly indicate that the
+compiler should infer the designated place. In all other circumstances
+the designated place is determined by examining the specified
+expression.
+
+The place designator may be any place expression (\S~\ref{XtenPlaces})
+designating a place (e.g.{} {\tt here}, or a place constant). Or it
+may be any non-final variable; the designated place is then the
+location of this variable.
+
+The statement is subject to the restriction that it must be acceptable
+as the body of a {\cf void} method for an anoymous inner class
+declared at that point in the code. As such, it may reference
+variables in lexically enclosing scopes (including {\cf clock}
+variables, \S~\ref{XtenClocks}) provided that such variables
+are declared {\cf final}.
+
+
+Such a statement is executed by launching a new activity at the
+designated place, to execute the specified statement. Any exception
+thrown by the statement is trapped and an error message printed out in
+the standard error file. (Programmers would typically wish to wrap the 
+statement in a {\cf try/catch} clause which catches those exceptions
+the code should explicitly manage.)
+
+
+\section{Asynchronous Expression and Futures}\label{XtenFutures}
+
+An asynchronous expression is of the form:
+\begin{x10}
+ {\cf\em AsyncExpr::} 
+    future {\cf\em{}PlaceDesignator} `\{'{\cf\em{}Expr}`\}' 
+\end{x10} 
+\def\Hat{{\tt \char`\^}}
+If {\tt T@P} is the type of {\cf Expr} then the type of this
+expression is {\tt\Hat T@P}, read as {\em future {\cf T} at {\cf P}}.
+The expression is evaluated at the designated place
+asynchronously. The calling activity continues immediately with a 
+future\index{future} for the real value (of the given type). 
+
+A future\index{future} may be stored in variables, communicated in
+method calls and returned from method invocations. The value computed
+by the future may be retrieved by invoking the method {\cf force}:
+
+\begin{x10}
+ ^T@P promise = future (P) \{ a[3];\};
+ T@P value = promise.force();
+\end{x10}
+The invocation of this method suspends until the value has been
+computed by the asynchronous activity. This value is returned by {\tt
+force}, and memoized so that subsequent invocations return the same
+value. We also provide the alternate notation {\tt ! p} 
+as shorthand for {\tt p.promise()}.
+
+\subsection{Implementation notes}
+Futures are provided in \Xten{} for convenience; they may be
+programmed using conditional atomic sections as follows. Nevertheless
+introducing futures directly is useful because they use conditional
+atomic sections in a circumscribed way that is guaranteed not to
+create deadlocks.
+
+Consider the class:
+\begin{x10}
+public class Future<T@P> \{
+    ?Box<T> b := null;
+
+    public Future(Runnable<Runnable<T@P>> r) \{
+        r.run(new Runnable<T@P>() \{
+            public void run(T@P t) \{
+                // respond with the value.
+                asynch (Future.this) atomic \{
+                    Future.this.b := new Box<T@P>(t);
+                \}
+            \}
+        \});
+    \}
+    public T force() \{
+        when (b != null) \{
+            return b.value;
+        \}
+    \}
+\}
+\end{x10}
+\noindent Assume the interface {\cf Runnable} is defined by:
+\begin{x10}
+ value interface Runnable<T@P> \{
+   void run(T@P value);
+ \}
+\end{x10}
+
+\noindent An object of the class {\cf Future} is created with a 
+runnable object {\cf r} which represents the computation to be run to
+determine the underlying value. {\cf r} is given a runnable object
+which represents the capability to write the boxed value enapsulated
+in the future. An attempt to force a future is blocked until such time as the value is known; this value is then returned.
+
+Now an expression {\cf future (P) E}, where the type of {\cf E} is
+{\cf T@Q} may be translated as follows (assuming that {\cf reply} is
+not a free variable in {\cf E}). Return a future created with a
+runnable object (say {\tt q}) which expects a reply object {\tt reply}
+and which on being run will evaluate the expression {\tt E} at the
+location {\tt P} and use the {\cf reply} object to communicate the
+result back to the future.
+
+\begin{x10}
+ new Future<T@Q>(new Runable<Runnable<T@Q>>() \{
+     public void run(Runnable<T@Q> reply) \{
+         async (P) \{ 
+             T@Q t = E;
+             reply.run(t);
+         \}
+     \}
+ \})
+\end{x10}
+
+\section{Atomic sections}\label{AtomicSections}\index{atomic sections}
+Languages such as \java{} use low-level synchronization locks to allow
+multiple interacting threads to coordinate the mutation of shared
+data. \Xten{{ eschews locks in favor of a very simple high-level
+construct, the {\em atomic section}.
+
+A programmer may use atomic sections to guarantee that invariants of
+shared data-structures are maintained even as they are being accessed
+simultaneously by multiple activities running in the same place.
+
+\subsection{Unconditional atomic sections}
+The simplest form of an atomic section is the {\em unconditional
+atomic section}:
+
+\begin{x10}
+  {\cf\em{}UnconditionalAtomicSection::}
+    atomic {\cf\em{}BlockStatement}
+\end{x10}
+
+{\cf BlockStatement} may include method calls, conditionals,
+asynchronous method invocations etc. However, it should not include
+invocations of conditional atomic sections (see below) which may
+suspend. (Recall that the invocation of {\cf force} on a future may
+invoke a conditional atomic section.) Also for the sake of efficient
+implementation \XtenCurrVer{} requires that the atomic section be {\em
+analyzable}, that is, the set of locations that are read and written
+by the {\cf BlockStatement} are bounded and determined statically.
+
+Such a statement is executed by an activity as if in a single step
+during which all other concurrent activities in the same place are
+suspended. If execution of the statement may throw an exception, it is
+the programmer's responsibility to wrap the atomic section within a
+{\cf try/finally} clause and include undo code in the finally clause.
+
+
+The \Xten{} compiler guarantees that if a program compiles correctly
+then either all memory locations accessed within an atomic section are
+local or the runtime will throw a {\cf BadPlaceException} because of a
+failed classcast.
+
+We allow methods of an object to be annotated with {\cf atomic}. Such
+a method is taken to stand for a method whose body is wrapped within an
+{\cf atomic} statement.
+
+Note an important property of an (unconditonal) atomic section:
+
+\begin{eqnarray}
+ {\cf atomic \{ atomic \{ S\}\}} &=& {\cf atomic \{S\}}
+\end{eqnarray}
+
+Further, an atomic section will eventually terminate successfully or
+thrown an exception; it may not introduce a deadlock.
+
+Atomic sections are closely related to non-blocking synchronization
+constructs \cite{Herlihy-non-block}, and can be used to implement 
+non-blocking concurrent algorithms.
+
+\subsubsection{Example}
+
+The following class method implements a (generic) compare and swap (CAS) operation:
+\begin{x10}
+  public atomic <T> boolean CAS(T target, T old, T new) \{
+     if (target.equals(old)) \{
+       target = new;
+       return true;
+     \}
+     return false;
+  \}
+\end{x10}
+\subsection{Conditional atomic sections}
+
+Conditional atomic sections are of the form:
+\begin{x10}
+  {\cf\em{}ConditionalAtomicSection}::
+    `when' `('{\cf\em{}Expression}`)'{\cf\em{}BlockStatement}
+    [`or' `('{\cf\em{}Expression}`)' {\cf\em{}BlockStatement}]*
+\end{x10}
+
+In such a statement the one or more expressions are called {\em
+guards} and must be {\cf boolean} expressions. The statements are the
+corresponding {\em guarded statements}. The first pair of expression
+and statement is called the {\em main clause} and the additional pairs
+are called {\em auxiliary clauses}. A statement must have a main
+clause and may have no auxiliary clauses.
+
+An activity executing such a statement suspends until such time as any
+one of the guards is true in the current state. In that state, the
+statement corresponding to the first guard that is true is executed.
+The checking of the guards and the execution of the corresponding
+guarded statement is done atomically. 
+
+We note two common abbreviations. The statement {\cf when (true) S} is
+behaviorally identical to {\cf atomic S}: it never suspends. Second,
+{\cf when (c) \{;\}} may be abbreviated to {\cf await(c);} -- it
+simply indicates that the thread must await the occurrence of a
+certain condition before proceeding.  
+
+\paragraph{Conditions on {\tt when} clauses.} 
+
+For the sake of efficient implementation certain restrictions are
+placed on the guards and statements in a conditional atomic
+section. First, guards are required not to have side-effects, not to
+spawn asynchronous activities and to have a statically determinable
+upper bound $k$ on their execution. These conditions are expected to
+be checked statically by the compiler which may impose additionl
+restrictions (e.g.{} all method invocations are recursion-free).
+
+Second, as for unconditional atomic sections, guarded statements are
+required to be bounded and statically anlayzable.
+
+Third, guarded statements are required to be {\em flat}, that is, they
+may not contain conditional atomic sections. (The implementation of
+nested conditional atomic sections may require sophisticated
+operational techniques such as rollbacks.)
+
+Third, \Xten{} guarantees only {\em weak fairness} when executing
+conditional atomic sections. Let $c$ be the guard of some conditional
+atomic section $A$. $A$ is required to make forward progress only if
+$c$ is {\em eventually stable}. That is, any execution $s_1, s_2,
+\ldots$ of the system is considered illegal only if there is a $j$
+such that $c$ holds in all states $s_k$ for $k > j$ and in which $A$
+does not execute. Specifically, if the system executes in such a way
+that $c$ holds only intermmitently (that is, for some state in which
+$c$ holds there is always a later state in which $c$ does not hold),
+$A$ is not required to be executed.
+
+\begin{rationale}
+The guarantee provided by {\cf wait/notify} in \java{} is no
+stronger. Indeed conditional atomic sections may be thought of as a
+replacement for \java's wait/notify functionality.
+\end{rationale} 
+
+\paragraph{Sample usage.} 
+There are many ways to ensure that a guard is eventually
+stable. Typically the set of activities are divided into those that
+may enable a condition and those that are blocked on the
+condition. Then it is sufficient to require that the threads that may
+enable a condition do not disable it once it is enabled. Instead the
+condition may be disabled in a guarded statement guarded by the
+condition. This will ensure forward progress, given the weak-fairness
+guarantee.
+
+\paragraph{Example.}
+
+The following class shows how to implement a bounded buffer of size
+$1$ in \Xten{} for repeated communication between a sender and a
+receiver.
+
+\begin{x10}
+class OneBuffer<value T> \{
+  ?Box<T> datum = null;
+  public 
+     void send(T v) \{
+     when (this.datum == null) \{
+       this.datum := new Box<T>(datum);
+    \}
+ \}
+  public
+    T receive() \{
+      when (this.datum != null) \{
+        T v  = datum.datum;
+        value := null;
+        return v;
+      \}
+  \}
+\}
+\end{x10}
+
+Similar techniques may be used to implement semaphores and other
+inter-process communication mechanisms.
+
+
+\todo{Conditional atomic sections should be powerful enough to implement clocks as well.}

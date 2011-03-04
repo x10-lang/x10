@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Immutable variables</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Immutable variables</h2>
+<a name="FinalVariables">
+</a>
+
+<div class="p"><!----></div>
+
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">LocalVariableDeclStatement ::= LocalVariableDecl <b>;</b> </td></tr>
+<tr><td align="right">LocalVariableDecl ::= Mods<sup>?</sup>&nbsp;VarKeyword VariableDeclarators </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VariableDeclaratorsWithType </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword FormalDeclarators </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+
+<div class="p"><!----></div>
+An immutable (<b>val</b>) variable can be given a value (by initialization or
+assignment) at 
+most once, and must be given a value before it is used.  Usually this is
+achieved by declaring and initializing the variable in a single statement,
+such as <b>val x = 3</b>, with syntax 
+using the <em>VariableDeclarators</em> or 
+<em>VariableDeclaratorsWithType</em> alternatives.
+
+<div class="p"><!----></div>
+After these declarations, <b>a</b> and <b>b</b> cannot be assigned to further,
+or even redeclared: 
+<pre>
+val a : Int = 10;
+val b = (a+1)*(a-1);
+// NO: a = 11;  - vals cannot be assigned to.
+// NO: val a = 11; - no redeclaration.
+</pre>
+
+<div class="p"><!----></div>
+In two special cases, the declaration and assignment are separate.  One 
+case is how constructors give values to <b>val</b> fields of objects.  In this
+case, production is taken, with the 
+<em>FormalDeclarators</em> option, such as  <b>var n:Int;</b>.  
+
+<div class="p"><!----></div>
+The
+<b>Example</b> class has an immutable field <b>n</b>, which is given different
+values depending on which constructor was called. <b>n</b> can't be given its
+value by initialization when it is declared, since it is not knowable which
+constructor is called at that point.  
+<pre>
+class Example {
+  val n : Int; // not initialized here
+  def this() { n = 1; }
+  def this(dummy:Boolean) { n = 2;}
+}
+</pre>
+
+<div class="p"><!----></div>
+The other case of separating declaration and assignment is in function
+and method call, described in <em>formal-parameters</em>.  The formal
+parameters are bound to the corresponding actual 
+parameters, but the binding does not happen until the function is called.  
+
+<div class="p"><!----></div>
+In
+the code below, <b>x</b> is initialized to <b>3</b> in the first call and
+<b>4</b> in the second.
+<pre>
+val sq = (x:Int) =&#62; x*x;
+x10.io.Console.OUT.println("3 squared = " + sq(3));
+x10.io.Console.OUT.println("4 squared = " + sq(4));
+</pre>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

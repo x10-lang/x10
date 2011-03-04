@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: @plugin.id@.source
+Bundle-Localization: plugin
+Bundle-Name: @plugin.name@ Source
+Bundle-Version: @plugin.version@
+Eclipse-SourceBundle: @plugin.id@;version="@plugin.version@";roots:="."
+Bundle-Vendor: @provider.name@

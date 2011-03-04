@@ -1,0 +1,17 @@
+<project name="Dependencies Repository" basedir="." default="main">
+
+  <property file="common.properties" />
+  <property file="build.properties" />
+
+  <target name="main">
+    <p2.mirror destination="file:${repoBaseLocation}/mirror">
+      <source>
+        <repository location="${lpg.update.url}" />
+      </source>
+      <iu id="lpg.runtime.feature.group" version="${lpg.version}" />
+
+      <slicingOptions followStrict="true" includeOptional="false" />
+    </p2.mirror>
+  </target>
+
+</project>

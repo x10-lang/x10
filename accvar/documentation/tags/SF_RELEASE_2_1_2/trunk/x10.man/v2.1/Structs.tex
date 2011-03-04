@@ -1,0 +1,350 @@
+\chapter{Structs}
+\label{XtenStructs}
+\label{StructClasses}
+\label{Structs}
+\index{struct}
+
+X10 objects are a powerful general-purpose programming tool. However, the
+power must be paid for in space and time. In space, a typical object
+implementation requires some extra memory for run-time class information, as
+well as a pointer for each reference to the object. In time, a typical object
+requires an extra indirection to read or write data, and some run-time
+computation to figure out which method body to call.
+
+For high-performance computing, this overhead may not be acceptable for all
+objects. X10 provides structs, which are stripped-down objects. They are less
+powerful than objects; in particular they lack inheritance and mutable fields.
+Without inheritance, method calls do not need to do any lookup; they can be
+implemented directly. Accordingly, structs can be implemented and used more
+cheaply than objects, potentially avoiding the space and time overhead.
+(Currently, the C++ back end avoids the overhead, but the Java back end
+implements structs as Java objects and does not avoid it.)
+
+Structs and classes are interoperable. Both can implement interfaces (in
+particular, like all X10 values they implement \xcd`Any`), and subprocedures
+whose arguments are defined by interfaces can take both structs and classes.
+(Some caution is necessary here: referring to a struct through an interface
+requires overhead similar to that required for an object.)
+
+In many cases structs can be converted to classes or classes to structs,
+within the constraints of structs. If you start off defining a struct and
+decide you need a class instead, the code change required is simply changing
+the keyword \xcd`struct` to \xcd`class`. If you have a class that does not use
+inheritance or mutable fields, it can be converted to a struct by changing its
+keyword. Client code using the struct that was a class will need certain
+changes: \eg, the \xcd`new` keyword must be added in constructor calls, and
+structs (unlike classes) do not have default values.
+
+
+
+\section{Struct declaration}
+\index{struct!declaration}
+
+%##(StructDecl TypeParamsWithVariance Properties WhereClause Interfaces ClassBody
+\begin{bbgrammar}
+%(FROM #(prod:StructDecl)#)
+          StructDecl \: Mods\opt \xcd"struct" Id TypeParamsWithVariance\opt Properties\opt WhereClause\opt Interfaces\opt ClassBody & (\ref{prod:StructDecl}) \\
+%(FROM #(prod:TypeParamsWithVariance)#)
+TypeParamsWithVariance \: \xcd"[" TypeParamWithVarianceList \xcd"]" & (\ref{prod:TypeParamsWithVariance}) \\
+%(FROM #(prod:Properties)#)
+          Properties \: \xcd"(" PropertyList \xcd")" & (\ref{prod:Properties}) \\
+%(FROM #(prod:WhereClause)#)
+         WhereClause \: DepParams & (\ref{prod:WhereClause}) \\
+%(FROM #(prod:Interfaces)#)
+          Interfaces \: \xcd"implements" InterfaceTypeList & (\ref{prod:Interfaces}) \\
+%(FROM #(prod:ClassBody)#)
+           ClassBody \: \xcd"{" ClassBodyDecls\opt \xcd"}" & (\ref{prod:ClassBody}) \\
+\end{bbgrammar}
+%##)
+
+
+
+All fields of a struct must be \xcd`val`.
+
+A struct \Xcd{S} cannot contain a field of type \Xcd{S}, or a field of struct
+type \Xcd{T} which, recursively, contains a field of type \Xcd{S}.  This
+restriction is necessary to permit \xcd`S` to be implemented as a contiguous
+block of memory of size equal to the sum of the sizes of its fields.  
+
+
+Values of a struct \Xcd{C} type can be created by invoking a constructor
+defined in \Xcd{C}.  Unlike for classes, the  \Xcd{new} keyword is optional
+for struct constructors.
+
+\begin{ex}
+%~~gen ^^^ Structs10
+% package Structs.For.Muckts;
+%~~vis
+\begin{xten}
+struct Polar(r:Double, theta:Double){
+  def this(r:Double, theta:Double) {property(r,theta);}
+  static val Origin = Polar(0,0);
+  static val x0y1   = Polar(1, 3.14159/2);
+  static val x1y0   = new Polar(1, 0); 
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\end{ex}
+Structs support the same notions of generics, properties, and constrained
+types that classes do.  
+
+\begin{ex}The \xcd`Pair` type below provides pairs
+of values; the \xcd`diag()` method applies only when the two elements of the
+pair are equal, and returns that common value: 
+%~~gen ^^^ Structs20
+% package Structs20;
+%~~vis
+\begin{xten}
+struct Pair[T,U](t:T, u:U) {
+  def this(t:T, u:U) { property(t,u); }
+  def diag(){T==U && t==u} = t;
+}
+\end{xten}
+%~~siv
+% class Hook{ def run() {
+%   val p = Pair(3,3); 
+%   return p.diag() == 3;
+% }}
+%~~neg
+\end{ex}
+
+\section{Boxing of structs}
+\index{auto-boxing!struct to interface}
+\index{struct!auto-boxing}
+\index{struct!casting to interface}
+\label{auto-boxing} 
+If a struct \Xcd{S} implements an interface \Xcd{I} (\eg, \Xcd{Any}),
+a value \Xcd{v} of type \Xcd{S} can be assigned to a variable of type
+\Xcd{I}. The implementation creates an object \Xcd{o} that is an
+instance of an anonymous class implementing \Xcd{I} and containing
+\Xcd{v}.  The result of invoking a method of \Xcd{I} on \Xcd{o} is the
+same as invoking it on \Xcd{v}. This operation is termed {\em auto-boxing}.
+It allows full interoperability of structs and objects---at the cost of losing
+the extra efficiency of the structs when they are boxed.
+
+In a generic class or struct obtained by instantiating a type parameter
+\Xcd{T} with a struct \Xcd{S}, variables declared at type \Xcd{T} in the body
+of the class are not boxed. They are implemented as if they were declared at
+type \Xcd{S}.
+
+\section{Optional Implementation of {\tt Any} methods}
+\label{StructAnyMethods}
+\index{Any!structs}
+
+Two
+structs are equal (\Xcd{==}) if and only if their corresponding fields
+are equal (\Xcd{==}). 
+
+All structs implement \Xcd{x10.lang.Any}. 
+Structs are required to implement the following methods from \xcd`Any`.  
+Programmers need not provide them; X10 will produce them automatically if 
+the program does not include them. 
+\begin{xten}
+  public def equals(Any):Boolean;
+  public def hashCode():Int;
+  public def typeName():String;
+  public def toString():String;  
+\end{xten}
+
+
+A programmer who provides an explicit implementation
+of \Xcd{equals(Any)} for a struct \Xcd{S} should also consider
+supplying a definition for \Xcd{equals(S):Boolean}. This will often
+yield better performance since the cost of an upcast to \Xcd{Any} and
+then a downcast to \Xcd{S} can be avoided.
+
+\section{Primitive Types}
+\index{types!primitive}
+\index{primitive types}
+\index{Int}
+\index{UInt}
+\index{Long}
+\index{ULong}
+\index{Char}
+\index{Byte}
+\index{UByte}
+\index{Boolean}
+\index{Short}
+\index{UShort}
+\index{Float}
+\index{Double}
+
+Certain types that might be built in to other languages are in fact
+implemented as structs in package \xcd`x10.lang` in X10. Their methods and
+operations are often provided with \xcd`@Native` (\Sref{NativeCode}) rather
+than X10 code, however. These types are:
+\begin{xten}
+Boolean, Char, Byte, Short, Int, Long
+Float, Double, UByte, UShort, UInt, ULong
+\end{xten}
+
+\subsection{Signed and Unsigned Integers}
+\index{types!unsigned}
+\index{integers!unsigned}
+\index{unsigned}
+
+X10 has an unsigned integer type corresponding to each integer type:
+\xcd`UInt` is an unsigned \xcd`Int`, and so on. These types can be used for
+binary programming, or when an extra bit of precision for counters or other
+non-negative numbers is needed in integer arithmetic. However, X10 does not
+otherwise encourage the use of unsigned arithmetic.
+
+
+
+
+ 
+\section{Generic programming with structs}
+\index{struct!generic}
+\index{generic!struct}
+
+
+
+\noo{The rest of this section is under discussion.  The example is wrong; it
+ignores the fact that values can be functions.}
+The programmer must be aware of the different interpretations of
+equality for structs and classes and ensure that the code is correctly
+written for both cases. If necessary the programmer can write code
+that distinguishes between the two cases (a type parameter \Xcd{X} is
+instantiated to a struct or not) as follows:
+
+\begin{xten}
+val x:X = ...;
+if (x instanceof Object) { // x is a real object
+   val x2 = x as Object; // this cast will always succeed.
+   ...
+} else { // x is a struct
+   ...
+}
+\end{xten}
+ 
+  
+\section{Example structs}
+
+\xcd`x10.lang.Complex` provides a detailed example of a practical struct,
+suitable for use in a library.  For a shorter example, we define the
+\xcd`Pair` struct---available in \xcd`x10.util.Pair`.  A \xcd`Pair` packages
+two values of possibly unrelated type together in a single value, \eg, to
+return two values from a function.  
+
+\xcd`divmod` computes the quotient and remainder of \xcd`a \div b` (naively).
+It returns both, packaged as a \xcd`Pair[UInt, UInt]`.  Note that the
+constructor uses type inference, and that the quotient and remainder are
+accessed through the \xcd`first` and \xcd`second` fields.
+%~~gen ^^^ Structs30
+% package Structs30Pair;
+%~~vis
+\begin{xten}
+struct Pair[T,U] {
+    public val first:T;
+    public val second:U;
+    public def this(first:T, second:U):Pair[T,U] {
+        this.first = first;
+        this.second = second;
+    }
+    public def toString() = "(" + first + ", " + second + ")";
+}
+class Example {
+  static def divmod(var a:UInt, b:UInt): Pair[UInt, UInt] {
+     assert b > 0;
+     var q : UInt = 0;
+     while (a > b) {q++; a -= b;}
+     return Pair(q, a); 
+  }
+  static def example() {
+     val qr = divmod(22, 7);
+     assert qr.first == 3 && qr.second == 1;
+  }
+}
+\end{xten}
+%~~siv
+%class Hook{ def run() { Example.example(); return true; } } 
+%~~neg
+
+\section{Nested Structs}
+\index{struct!static nested}
+\index{static nested struct}
+
+Static nested structs may be defined, essentially as static nested classes
+except for making them structs
+(\Sref{StaticNestedClasses}).  Inner structs may be defined, essentially as
+inner classes except making them structs (\Sref{InnerClasses}).
+
+\section{Converting Between Classes And Structs}
+
+Code written using structs can be modified to use classes, or vice versa.
+Caution must be used in certain places. 
+
+Class and struct {\em definitions} are syntactically nearly identical:
+change the \xcd`class` keyword to \xcd`struct` or vice versa.  Of course,
+certain important class features can't be used with structs, such as
+inheritance and \xcd`var` fields. 
+
+Converting code that {\em uses} the class or struct requires a certain amount
+of caution.
+Suppose, in particular, that we want to convert the class \xcd`Class2Struct`
+to a struct, and \xcd`Struct2Class` to a class.
+%~~gen ^^^ Structs40
+%package Structs.Converting;
+%~~vis
+\begin{xten}
+class Class2Struct {
+  val a : Int;
+  def this(a:Int) { this.a = a; }
+  def m() = a;
+}
+struct Struct2Class { 
+  val a : Int;
+  def this(a:Int) { this.a = a; }
+  def m() = a;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+\begin{enumerate}
+
+\item Class constructors require the \xcd`new` keyword; struct constructors
+      allow  it but do not require it.  
+      \xcd`Struct2Class(3)` to will need to be converted to 
+      \xcd`new Struct2Class(3)`.
+
+\item Objects and structs have different notions of \xcd`==`.  
+      For objects, \xcd`==` means ``same object''; for structs, it means
+      ``same contents''. Before conversion, both \xcd`assert`s in the
+      following program succeed.  After converting and fixing constructors,
+      both of them fail.
+%~~gen ^^^ Structs50
+%package Structs.Converting.And.Conniving;
+% class Class2Struct {
+%   val a : Int;
+%   def this(a:Int) { this.a = a; }
+%   def m() = a;
+% }
+% struct Struct2Class { 
+%   val a : Int;
+%   def this(a:Int) { this.a = a; }
+%   def m() = a;
+% }
+%class Example {
+% static def Examplle() {
+%~~vis
+\begin{xten}
+val a = new Class2Struct(2);
+val b = new Class2Struct(2);
+assert a != b;
+val c = Struct2Class(3);
+val d = Struct2Class(3);
+assert c==d;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+\item Objects can be set to \xcd`null`.  Structs cannot.  There is no
+      default value like \xcd`null` available for structs.  
+
+
+\end{enumerate}

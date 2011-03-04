@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Consistency of Deptypes</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Consistency of deptypes</h2><a name="DepType:Consistency">
+</a>
+
+<div class="p"><!----></div>
+A dependent type <tt>C(:c)</tt> may contain zero or more parameters. We require
+that a type never be empty - so that it is possible for a variable of
+the type to contain a value. This is accomplished by requiring that
+the constraint c must be satisfiable <em>regardless</em> of the value assumed
+by parameters to the contraint (if any). Formally, consider a type
+<tt>T=C(: c)</tt>, with the variables <tt>F1 f1, ..., Fk fk</tt> free in <tt>c</tt>.  Let 
+<tt>S=F1 f1, .., Fk fk, Fk+1 fk+1, ... Fn fn</tt> be the smallest set of
+declarations containing <tt>F1 f1, ..., Fk fk</tt> and closed under the rule: <tt>F
+f</tt> in <tt>S</tt> if a reference to variable <tt>f</tt> (which is declared as <tt>F f</tt>) occurs
+in a type in <tt>S</tt>.
+
+<div class="p"><!----></div>
+(NOTE: The syntax rules for the language ensure that <tt>S</tt> is always
+finite. The type for a variable <tt>v</tt> cannot reference a variable whose
+type depends on <tt>v</tt>.)
+
+<div class="p"><!----></div>
+We say that <tt>T=C(:c)</tt> is <em>parametrically consistent</em> (in brief:
+<em>consistent</em>) if
+
+<div class="p"><!----></div>
+
+<ul>
+<li> Each type <tt>F1, ..., Fn</tt> is (recursively) parametrically consistent, and
+<div class="p"><!----></div>
+</li>
+
+<li> It can be established that <tt>forall F1 f1, .., Fn fn. exists C self. c &amp;&amp; i(C)</tt>.
+<div class="p"><!----></div>
+</li>
+</ul>
+ where <tt>i(C)</tt> is the invariant associated with the type <tt>C</tt>
+(&#167;&nbsp;4.5</a>).  Note by definition of <tt>S</tt> the formula on the
+above has no free variables.
+
+<div class="p"><!----></div>
+
+<blockquote>    Static Semantics Rule:
+    For a declaration <tt>T v</tt> to be type-correct, <tt>T</tt> must be parametrically
+    consistent. The compiler issues an error if it cannot determine
+    the type is parametrically consistent.
+</blockquote>
+
+<div class="p"><!----></div>
+<b>Example 6.1</b> A class that represents a line has two distinct points:
+<pre>
+class Array(int  rank, 
+    region(:rank==this.rank) region) {...}  
+</pre>
+
+<div class="p"><!----></div>
+One can use deptypes to define other closed geometric figures as well.
+
+<div class="p"><!----></div>
+<b>Example 6.2</b> Here is an example:
+<pre>
+ class Point(int x, int y) {...}
+ class Line( Point start, 
+        Point(: self != this.start) end) 
+{...}      
+</pre>
+
+<div class="p"><!----></div>
+To see that the declaration <tt>Point(: self != start) end</tt> is
+parametrically consistent, note that the following formula is valid:
+<pre>
+forall Line this. 
+  exists Point self. self != this.start  
+</pre>
+
+<div class="p"><!----></div>
+ since the set of all <tt>Points</tt> has more than one element.
+
+<div class="p"><!----></div>
+<b>Example 6.3</b> A triangle has three lines sharing three vertices.
+<pre>
+class Triangle 
+ (Line a, 
+  Line(: a.end == b.start) b, 
+  Line(: b.end == c.start &amp;&amp; c.end == a.start) c) 
+ { ...}
+</pre>
+
+<div class="p"><!----></div>
+Given <tt>Line a</tt>, the type <tt>Line(: a.end == b.start) b</tt> is consistent, and
+given the two, the type <tt>Line(: b.end == c.start &amp;&amp; c.end == a.start) c</tt>
+is consistent.
+
+</body>
+</html>

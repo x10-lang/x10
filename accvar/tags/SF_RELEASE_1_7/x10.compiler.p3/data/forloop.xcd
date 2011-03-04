@@ -1,0 +1,7 @@
+// SYNOPSIS: for (#0 #1 #2 : #3) #4 #0=modifiers #1=type #2=var
+
+for (java.util.Iterator #2__ = (#3).iterator(); #2__.hasNext(); ) {
+	#0 #1 #2 = (#1) #2__.next();
+	#4
+}
+

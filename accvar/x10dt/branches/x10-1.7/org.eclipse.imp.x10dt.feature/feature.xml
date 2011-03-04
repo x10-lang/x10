@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.imp.x10dt"
+      label="%featureName"
+      version="1.7.7.0"
+      provider-name="%providerName"
+      image="eclipse_update_120.jpg">
+
+   <description url="http://x10-lang.org">
+      %description
+   </description>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <requires>
+      <import feature="lpg.runtime" version="2.0.17" match="greaterOrEqual"/>
+      <import feature="polyglot3" version="3.1.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.imp.runtime" version="0.1.101" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="x10.compiler.p3"
+         download-size="910"
+         install-size="910"
+         version="1.7.7.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.runtime.17"
+         download-size="319"
+         install-size="319"
+         version="1.7.7.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.core"
+         download-size="68"
+         install-size="68"
+         version="1.7.7.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.ui"
+         download-size="115"
+         install-size="115"
+         version="1.7.6.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt"
+         download-size="2"
+         install-size="2"
+         version="1.7.7.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.help"
+         download-size="0"
+         install-size="0"
+         version="1.7.5.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.constraints"
+         download-size="0"
+         install-size="0"
+         version="1.7.7.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.common.17"
+         download-size="0"
+         install-size="0"
+         version="1.7.7.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.analysis.p3"
+         download-size="0"
+         install-size="0"
+         version="1.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.debug"
+         download-size="0"
+         install-size="0"
+         version="1.7.7.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.effects"
+         download-size="0"
+         install-size="0"
+         version="1.7.7.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.refactoring"
+         download-size="0"
+         install-size="0"
+         version="1.7.7.0"
+         unpack="false"/>
+
+</feature>

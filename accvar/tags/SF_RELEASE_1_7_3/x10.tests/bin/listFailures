@@ -1,0 +1,35 @@
+#!/bin/sh
+
+if [ "$1" = "-log" ]
+then
+  shift
+  log=1
+else
+  log=0
+fi
+
+f=${1-logSummary}
+
+if [ ! -f "$f" ]; then
+  echo "$f not found"
+  exit 1
+fi
+
+perl -e '
+        $log = shift;
+        while (<>) {
+                next unless (/did not meet/);
+                next if /LIMITATION/;
+                if (/(\S+)\s(\S+)\s/) {
+                        $file = "$1.$2";
+                        if ($log) {
+                            $file = "logDetail.$file";
+                        }
+                        else {
+                            $file =~ s!\.!/!g;
+                            $file .= ".x10";
+                        }
+                        print "$file\n";
+                }
+        }
+' $log "$f"

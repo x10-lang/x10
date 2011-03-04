@@ -1,0 +1,386 @@
+############################################################
+# Benchmark Host: r28n01.pbm.ihost.com
+# Number Of Processors: 64
+# Usable Physical Memory: 513792 MBytes
+# SMT Enabled: false
+# SMT Threads: 2
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 01/14/2008 - 01:08:42
+############################################################
+#
+# Run: 1
+#
+
+## Size: 100000
+
+### nproc: 1
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms4G -Xmx4G BFSRef 1 E 100000
+Number of procs=1
+graphType=E
+N=100000
+N=100000 t=301382098 ns 0.001 GE/s
+N=100000 t=87188267 ns 0.005 GE/s
+N=100000 t=87049718 ns 0.005 GE/s
+N=100000 t=87110828 ns 0.005 GE/s
+N=100000 t=87078402 ns 0.005 GE/s
+N=100000 t=87120706 ns 0.005 GE/s
+N=100000 t=87101921 ns 0.005 GE/s
+N=100000 t=87037926 ns 0.005 GE/s
+N=100000 t=87099135 ns 0.005 GE/s
+N=100000 t=6248632490 ns 0.000 GE/s
+Completed iterations for N=100000
+
+### nproc: 2
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms4G -Xmx4G BFSRef 2 E 100000
+Number of procs=2
+graphType=E
+N=100000
+N=100000 t=366063169 ns 0.001 GE/s
+N=100000 t=120590905 ns 0.003 GE/s
+N=100000 t=107984158 ns 0.004 GE/s
+N=100000 t=78987689 ns 0.005 GE/s
+N=100000 t=3744814842 ns 0.000 GE/s
+N=100000 t=2570655904 ns 0.000 GE/s
+N=100000 t=88828967 ns 0.005 GE/s
+N=100000 t=128930305 ns 0.003 GE/s
+N=100000 t=118355166 ns 0.003 GE/s
+N=100000 t=130071344 ns 0.003 GE/s
+Completed iterations for N=100000
+
+### nproc: 4
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms4G -Xmx4G BFSRef 4 E 100000
+Number of procs=4
+graphType=E
+N=100000
+N=100000 t=393824687 ns 0.001 GE/s
+N=100000 t=48780954 ns 0.008 GE/s
+N=100000 t=56338341 ns 0.007 GE/s
+N=100000 t=53297698 ns 0.008 GE/s
+N=100000 t=6279140326 ns 0.000 GE/s
+N=100000 t=71764280 ns 0.006 GE/s
+N=100000 t=170310739 ns 0.002 GE/s
+N=100000 t=69457690 ns 0.006 GE/s
+N=100000 t=54250780 ns 0.007 GE/s
+N=100000 t=57134073 ns 0.007 GE/s
+Completed iterations for N=100000
+
+### nproc: 8
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms4G -Xmx4G BFSRef 8 E 100000
+Number of procs=8
+graphType=E
+N=100000
+N=100000 t=503107969 ns 0.001 GE/s
+N=100000 t=6223103392 ns 0.000 GE/s
+N=100000 t=36856159 ns 0.011 GE/s
+N=100000 t=162166375 ns 0.002 GE/s
+N=100000 t=33605128 ns 0.012 GE/s
+N=100000 t=30675988 ns 0.013 GE/s
+N=100000 t=31319688 ns 0.013 GE/s
+N=100000 t=33417673 ns 0.012 GE/s
+N=100000 t=35744612 ns 0.011 GE/s
+N=100000 t=36554865 ns 0.011 GE/s
+Completed iterations for N=100000
+
+### nproc: 16
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms4G -Xmx4G BFSRef 16 E 100000
+Number of procs=16
+graphType=E
+N=100000
+N=100000 t=750038100 ns 0.001 GE/s
+N=100000 t=28663384 ns 0.014 GE/s
+N=100000 t=6061425113 ns 0.000 GE/s
+N=100000 t=28588386 ns 0.014 GE/s
+N=100000 t=17069269 ns 0.023 GE/s
+N=100000 t=22988683 ns 0.017 GE/s
+N=100000 t=22877196 ns 0.017 GE/s
+N=100000 t=23824620 ns 0.017 GE/s
+N=100000 t=26795899 ns 0.015 GE/s
+N=100000 t=159751278 ns 0.003 GE/s
+Completed iterations for N=100000
+
+### nproc: 32
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms4G -Xmx4G BFSRef 32 E 100000
+Number of procs=32
+graphType=E
+N=100000
+N=100000 t=10703673305 ns 0.000 GE/s
+N=100000 t=19227263 ns 0.021 GE/s
+N=100000 t=2322037394 ns 0.000 GE/s
+N=100000 t=21907280 ns 0.018 GE/s
+N=100000 t=15374852 ns 0.026 GE/s
+N=100000 t=552250422 ns 0.001 GE/s
+N=100000 t=21686062 ns 0.018 GE/s
+N=100000 t=16073981 ns 0.025 GE/s
+N=100000 t=22273957 ns 0.018 GE/s
+N=100000 t=461771577 ns 0.001 GE/s
+Completed iterations for N=100000
+
+### nproc: 64
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms4G -Xmx4G BFSRef 64 E 100000
+Number of procs=64
+graphType=E
+N=100000
+N=100000 t=14063546926 ns 0.000 GE/s
+N=100000 t=33585031 ns 0.012 GE/s
+N=100000 t=142139419 ns 0.003 GE/s
+N=100000 t=30543434 ns 0.013 GE/s
+N=100000 t=2381967657 ns 0.000 GE/s
+N=100000 t=622107197 ns 0.001 GE/s
+N=100000 t=579177435 ns 0.001 GE/s
+N=100000 t=22045361 ns 0.018 GE/s
+N=100000 t=29531509 ns 0.014 GE/s
+N=100000 t=375022512 ns 0.001 GE/s
+Completed iterations for N=100000
+
+
+
+## Size: 1000000
+
+### nproc: 1
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms16G -Xmx16G BFSRef 1 E 1000000
+Number of procs=1
+graphType=E
+N=1000000
+N=1000000 t=7928826374 ns 0.001 GE/s
+N=1000000 t=1696100130 ns 0.002 GE/s
+N=1000000 t=1698915135 ns 0.002 GE/s
+N=1000000 t=1696302121 ns 0.002 GE/s
+N=1000000 t=1696352801 ns 0.002 GE/s
+N=1000000 t=1696024412 ns 0.002 GE/s
+N=1000000 t=1696297704 ns 0.002 GE/s
+N=1000000 t=1697033292 ns 0.002 GE/s
+N=1000000 t=1697991331 ns 0.002 GE/s
+N=1000000 t=1696302783 ns 0.002 GE/s
+Completed iterations for N=1000000
+
+### nproc: 2
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms16G -Xmx16G BFSRef 2 E 1000000
+Number of procs=2
+graphType=E
+N=1000000
+N=1000000 t=7358238198 ns 0.001 GE/s
+N=1000000 t=1172004700 ns 0.003 GE/s
+N=1000000 t=995233690 ns 0.004 GE/s
+N=1000000 t=991563187 ns 0.004 GE/s
+N=1000000 t=1011059557 ns 0.004 GE/s
+N=1000000 t=1013914467 ns 0.004 GE/s
+N=1000000 t=1527695140 ns 0.003 GE/s
+N=1000000 t=1007552948 ns 0.004 GE/s
+N=1000000 t=992297383 ns 0.004 GE/s
+N=1000000 t=1021991914 ns 0.004 GE/s
+Completed iterations for N=1000000
+
+### nproc: 4
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms16G -Xmx16G BFSRef 4 E 1000000
+Number of procs=4
+graphType=E
+N=1000000
+N=1000000 t=7213528210 ns 0.001 GE/s
+N=1000000 t=760876431 ns 0.005 GE/s
+N=1000000 t=552098114 ns 0.007 GE/s
+N=1000000 t=608541337 ns 0.007 GE/s
+N=1000000 t=620236889 ns 0.006 GE/s
+N=1000000 t=620960510 ns 0.006 GE/s
+N=1000000 t=1121521524 ns 0.004 GE/s
+N=1000000 t=638485988 ns 0.006 GE/s
+N=1000000 t=589827038 ns 0.007 GE/s
+N=1000000 t=554822871 ns 0.007 GE/s
+Completed iterations for N=1000000
+
+### nproc: 8
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms16G -Xmx16G BFSRef 8 E 1000000
+Number of procs=8
+graphType=E
+N=1000000
+N=1000000 t=6998792404 ns 0.001 GE/s
+N=1000000 t=582558335 ns 0.007 GE/s
+N=1000000 t=352346528 ns 0.011 GE/s
+N=1000000 t=333842483 ns 0.012 GE/s
+N=1000000 t=346357753 ns 0.012 GE/s
+N=1000000 t=867928360 ns 0.005 GE/s
+N=1000000 t=337143700 ns 0.012 GE/s
+N=1000000 t=340111057 ns 0.012 GE/s
+N=1000000 t=752858307 ns 0.005 GE/s
+N=1000000 t=340711624 ns 0.012 GE/s
+Completed iterations for N=1000000
+
+### nproc: 16
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms16G -Xmx16G BFSRef 16 E 1000000
+Number of procs=16
+graphType=E
+N=1000000
+N=1000000 t=7423299484 ns 0.001 GE/s
+N=1000000 t=173067536 ns 0.023 GE/s
+N=1000000 t=706769395 ns 0.006 GE/s
+N=1000000 t=185974055 ns 0.022 GE/s
+N=1000000 t=602871796 ns 0.007 GE/s
+N=1000000 t=194022895 ns 0.021 GE/s
+N=1000000 t=202702802 ns 0.020 GE/s
+N=1000000 t=200328887 ns 0.020 GE/s
+N=1000000 t=190385127 ns 0.021 GE/s
+N=1000000 t=196192162 ns 0.020 GE/s
+Completed iterations for N=1000000
+
+### nproc: 32
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms16G -Xmx16G BFSRef 32 E 1000000
+Number of procs=32
+graphType=E
+N=1000000
+N=1000000 t=11305127526 ns 0.000 GE/s
+N=1000000 t=2455317283 ns 0.002 GE/s
+N=1000000 t=616137048 ns 0.006 GE/s
+N=1000000 t=571484731 ns 0.007 GE/s
+N=1000000 t=115304934 ns 0.035 GE/s
+N=1000000 t=107626401 ns 0.037 GE/s
+N=1000000 t=115940515 ns 0.035 GE/s
+N=1000000 t=2117822994 ns 0.002 GE/s
+N=1000000 t=694060981 ns 0.006 GE/s
+N=1000000 t=2390710340 ns 0.002 GE/s
+Completed iterations for N=1000000
+
+### nproc: 64
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms16G -Xmx16G BFSRef 64 E 1000000
+Number of procs=64
+graphType=E
+N=1000000
+N=1000000 t=15264246270 ns 0.000 GE/s
+N=1000000 t=2813391563 ns 0.001 GE/s
+N=1000000 t=143571949 ns 0.028 GE/s
+N=1000000 t=636877396 ns 0.006 GE/s
+N=1000000 t=449540640 ns 0.009 GE/s
+N=1000000 t=2842762861 ns 0.001 GE/s
+N=1000000 t=3144564997 ns 0.001 GE/s
+N=1000000 t=547016309 ns 0.007 GE/s
+N=1000000 t=95471981 ns 0.042 GE/s
+N=1000000 t=99648681 ns 0.040 GE/s
+Completed iterations for N=1000000
+
+
+
+## Size: 10000000
+
+### nproc: 1
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms64G -Xmx64G BFSRef 1 E 10000000
+Number of procs=1
+graphType=E
+N=10000000
+N=10000000 t=30039027901 ns 0.001 GE/s
+N=10000000 t=23760464710 ns 0.002 GE/s
+N=10000000 t=23761500344 ns 0.002 GE/s
+N=10000000 t=23759628522 ns 0.002 GE/s
+N=10000000 t=23760667280 ns 0.002 GE/s
+N=10000000 t=23761222312 ns 0.002 GE/s
+N=10000000 t=23760538245 ns 0.002 GE/s
+N=10000000 t=23758860493 ns 0.002 GE/s
+N=10000000 t=23761428567 ns 0.002 GE/s
+N=10000000 t=23867014672 ns 0.002 GE/s
+Completed iterations for N=10000000
+
+### nproc: 2
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms64G -Xmx64G BFSRef 2 E 10000000
+Number of procs=2
+graphType=E
+N=10000000
+N=10000000 t=18809162347 ns 0.002 GE/s
+N=10000000 t=13043532870 ns 0.003 GE/s
+N=10000000 t=12656195243 ns 0.003 GE/s
+N=10000000 t=12712328386 ns 0.003 GE/s
+N=10000000 t=12719377970 ns 0.003 GE/s
+N=10000000 t=12703729941 ns 0.003 GE/s
+N=10000000 t=12706172587 ns 0.003 GE/s
+N=10000000 t=12725808369 ns 0.003 GE/s
+N=10000000 t=12732260881 ns 0.003 GE/s
+N=10000000 t=12661593887 ns 0.003 GE/s
+Completed iterations for N=10000000
+
+### nproc: 4
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms64G -Xmx64G BFSRef 4 E 10000000
+Number of procs=4
+graphType=E
+N=10000000
+N=10000000 t=13648625349 ns 0.003 GE/s
+N=10000000 t=6741604680 ns 0.006 GE/s
+N=10000000 t=6976288691 ns 0.006 GE/s
+N=10000000 t=6543408355 ns 0.006 GE/s
+N=10000000 t=6575565907 ns 0.006 GE/s
+N=10000000 t=6623139939 ns 0.006 GE/s
+N=10000000 t=6543810435 ns 0.006 GE/s
+N=10000000 t=6617660155 ns 0.006 GE/s
+N=10000000 t=6479682462 ns 0.006 GE/s
+N=10000000 t=6608764960 ns 0.006 GE/s
+Completed iterations for N=10000000
+
+### nproc: 8
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms64G -Xmx64G BFSRef 8 E 10000000
+Number of procs=8
+graphType=E
+N=10000000
+N=10000000 t=10244598254 ns 0.004 GE/s
+N=10000000 t=4008746354 ns 0.010 GE/s
+N=10000000 t=3847684656 ns 0.010 GE/s
+N=10000000 t=3319680346 ns 0.012 GE/s
+N=10000000 t=3430022209 ns 0.012 GE/s
+N=10000000 t=3395660412 ns 0.012 GE/s
+N=10000000 t=3399274262 ns 0.012 GE/s
+N=10000000 t=3383710752 ns 0.012 GE/s
+N=10000000 t=3419187624 ns 0.012 GE/s
+N=10000000 t=3358755513 ns 0.012 GE/s
+Completed iterations for N=10000000
+
+### nproc: 16
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms64G -Xmx64G BFSRef 16 E 10000000
+Number of procs=16
+graphType=E
+N=10000000
+N=10000000 t=9906366393 ns 0.004 GE/s
+N=10000000 t=1804173093 ns 0.022 GE/s
+N=10000000 t=1804139535 ns 0.022 GE/s
+N=10000000 t=1827760830 ns 0.022 GE/s
+N=10000000 t=1791099332 ns 0.022 GE/s
+N=10000000 t=1936700301 ns 0.021 GE/s
+N=10000000 t=1821035794 ns 0.022 GE/s
+N=10000000 t=1841030951 ns 0.022 GE/s
+N=10000000 t=1881266028 ns 0.021 GE/s
+N=10000000 t=1779477137 ns 0.022 GE/s
+Completed iterations for N=10000000
+
+### nproc: 32
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms64G -Xmx64G BFSRef 32 E 10000000
+Number of procs=32
+graphType=E
+N=10000000
+N=10000000 t=15379492918 ns 0.003 GE/s
+N=10000000 t=1112432331 ns 0.036 GE/s
+N=10000000 t=1053577273 ns 0.038 GE/s
+N=10000000 t=1125177114 ns 0.036 GE/s
+N=10000000 t=1062440466 ns 0.038 GE/s
+N=10000000 t=1113874836 ns 0.036 GE/s
+N=10000000 t=1110427653 ns 0.036 GE/s
+N=10000000 t=1138391922 ns 0.035 GE/s
+N=10000000 t=1092154625 ns 0.037 GE/s
+N=10000000 t=1070498647 ns 0.037 GE/s
+Completed iterations for N=10000000
+
+### nproc: 64
+/vol/x10/ibm.java6.64/bin/java -d64 -Xgcpolicy:optavgpause -Xdisableexplicitgc -Xms64G -Xmx64G BFSRef 64 E 10000000
+Number of procs=64
+graphType=E
+N=10000000
+N=10000000 t=19892052797 ns 0.002 GE/s
+N=10000000 t=1713151095 ns 0.023 GE/s
+N=10000000 t=1496930441 ns 0.027 GE/s
+N=10000000 t=808702655 ns 0.049 GE/s
+N=10000000 t=783736869 ns 0.051 GE/s
+N=10000000 t=799609402 ns 0.050 GE/s
+N=10000000 t=792438393 ns 0.050 GE/s
+N=10000000 t=804514047 ns 0.050 GE/s
+N=10000000 t=800048870 ns 0.050 GE/s
+N=10000000 t=806561190 ns 0.050 GE/s
+Completed iterations for N=10000000
+
+
+
+############################################################
+# End Time: 01/14/2008 - 02:23:16
+############################################################

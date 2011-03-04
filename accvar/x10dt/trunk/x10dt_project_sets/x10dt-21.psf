@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+<provider id="org.tigris.subversion.subclipse.core.svnnature">
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt,x10dt"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.core,x10dt.core"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.feature,x10dt.feature"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.help,x10dt.help"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.help.dt,x10dt.help.dt"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.refactoring,x10dt.refactoring"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.search.core,x10dt.search.core"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.search.ui,x10dt.search.ui"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.ui,x10dt.ui"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.ui.launch.core,x10dt.ui.launch.core"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.ui.launch.cpp,x10dt.ui.launch.cpp"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10dt.ui.launch.java,x10dt.ui.launch.java"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.effects,x10.effects"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.host,x10.dist.host"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.linux.x86.fragment,x10.dist.linux.x86.fragment"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.linux.x86_64.fragment,x10.dist.linux.x86_64.fragment"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.macosx.x86.fragment,x10.dist.macosx.x86.fragment"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.win32.x86.fragment,x10.dist.win32.x86.fragment"/>
+
+</provider>
+</psf>

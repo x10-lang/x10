@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style/help.css">
+<title>X10 Preferences</title>
+</head>
+
+<body>
+<a href="contents.html">Back to Table of Contents</a>
+
+ <h1>X10 Preferences</h1>
+ <ul>
+<li><a href="#general">X10 General Preferences Page</a></li>
+<li><a href="#compiler">Compiler Preferences</a></li>
+<li><a href="#opt">Optimizations Preferences</a></li>
+<li><a href="#format">Formatting Preferences</a></li>
+<li><a href="#runtime">Runtime preferences page</a></li>
+
+ </ul>
+<p>To modify how your X10DT operates, bring up the X10 preferences page.
+<p>On most platforms, Window > Preferences.
+<p>On Mac, Eclipse > Preferences.
+<p><img src="images/prefs.png">
+</p>
+<p>Generic preferences concepts:  The X10DT preferences show when values have been modified, and show at what level the 
+preferences are set - See the main X10 preferences page, shown above, for more information.  As you change a preference setting, for example,
+its color changes to red indicating its value has changed.
+<br><img src="images/prefsChange.png"></img></br>
+<!--  BRT need words from Bob about levels -->
+</p>
+<p>Some of the preferences options are described below.
+</p>
+<h2 id=general>X10 general Preferences</h2>
+<p>On the main X10 preference page, you can set the tab width, and whether or not to use spaces for tabs. (See above.)
+</p>
+<h2 id=compiler>Compiler Preferences</h2>
+<br><img src="images/prefsCompiler.png"></img></br>
+<h3 id=conservative>Conservative Build </h3>
+<p>This is a new compiler option "Conservative Build", which is turned
+on by default. When turned on, this option causes each file that has no
+generated code in a project to be re-submitted for compilation on every
+build. This ensures that all the files that need to be recompiled are
+indeed compiled when the user saves in an editor, and overcomes some
+shortcomings of the compiler which make it difficult to compute
+dependencies between files. However, this feature is overly
+conservative, and thus can cause the builder to be slower. 
+
+To make builds faster, this option may be turned off. In this case, the user may
+occasionally observe stale compilation errors. This of course can be
+easily remedied by doing a clean every now and then.
+</p>
+
+
+<h3 id=echo>Echo Compile Arguments to Console </h3>
+<p>To see the x10 compiler arguments, check this option.
+<br><img src="images/prefsEchoCompileArgs.png">
+</p>
+<p>Then, each time you build, the compile options will appear 
+in the Console view.
+<p><img src="images/prefsBuildAutoConsole.png">
+</p>
+<h2 id=opt>Optimizations preferences</h2>
+<br><img src="images/prefsOpts.png"></img></br>
+
+
+
+
+
+<h2 id=format>Formatting Preferences</h2>
+<br><img src="images/prefsFormat.png"></img>
+<h2 id=runtime>Runtime Preferences</h2>
+<br><img src="images/prefsRuntime.png"></img>
+<p>&nbsp;
+<p>&nbsp;
+<p>&nbsp;
+<p><a href="contents.html">Back to X10DT Table of Contents</a></p>
+</body>
+</html>

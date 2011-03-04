@@ -1,0 +1,1137 @@
+This is pdfeTeX, Version 3.141592-1.11b-2.1 (MiKTeX 2.4) (preloaded format=latex 2000.11.28)  11 JUL 2004 18:09
+entering extended mode
+**r4rs
+(r4rs.tex{pdftex.cfg}
+LaTeX2e <2001/06/01>
+Babel <v3.7m> and hyphenation patterns for english, french, german, ngerman, du
+mylang, nohyphenation, loaded.
+(C:\texmf\tex\latex\base\latex209.def
+File: latex209.def 1998/05/13 v0.52 Standard LaTeX file
+
+
+          Entering LaTeX 2.09 COMPATIBILITY MODE
+ *************************************************************
+    !!WARNING!!    !!WARNING!!    !!WARNING!!    !!WARNING!!   
+ 
+ This mode attempts to provide an emulation of the LaTeX 2.09
+ author environment so that OLD documents can be successfully
+ processed. It should NOT be used for NEW documents!
+ 
+ New documents should use Standard LaTeX conventions and start
+ with the \documentclass command.
+ 
+ Compatibility mode is UNLIKELY TO WORK with LaTeX 2.09 style
+ files that change any internal macros, especially not with
+ those that change the FONT SELECTION or OUTPUT ROUTINES.
+ 
+ Therefore such style files MUST BE UPDATED to use
+          Current Standard LaTeX: LaTeX2e.
+ If you suspect that you may be using such a style file, which
+ is probably very, very old by now, then you should attempt to
+ get it updated by sending a copy of this error message to the
+ author of that file.
+ *************************************************************
+
+\footheight=\dimen102
+\@maxsep=\dimen103
+\@dblmaxsep=\dimen104
+\@cla=\count79
+\@clb=\count80
+\mscount=\count81
+(C:\texmf\tex\latex\base\tracefnt.sty
+Package: tracefnt 1997/05/29 v3.0j Standard LaTeX package (font tracing)
+\tracingfonts=\count82
+LaTeX Info: Redefining \selectfont on input line 96.
+)
+\symbold=\mathgroup4
+\symsans=\mathgroup5
+\symtypewriter=\mathgroup6
+\symitalic=\mathgroup7
+\symsmallcaps=\mathgroup8
+\symslanted=\mathgroup9
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 288.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 289.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 290.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 296.
+LaTeX Info: Redefining \em on input line 306.
+ (C:\texmf\tex\latex\base\latexsym.sty
+Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
+\symlasy=\mathgroup10
+LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
+(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 42.
+)
+LaTeX Font Info:    Redeclaring math delimiter \lgroup on input line 370.
+LaTeX Font Info:    Redeclaring math delimiter \rgroup on input line 372.
+LaTeX Font Info:    Redeclaring math delimiter \bracevert on input line 374.
+)
+Compatibility mode: loading algol60.sty rather than algol60.cls.
+
+(algol60.sty
+Document Style 'algol60'.
+\descriptionmargin=\dimen105
+\c@chapter=\count83
+\c@section=\count84
+\c@subsection=\count85
+\c@subsubsection=\count86
+\c@paragraph=\count87
+\c@subparagraph=\count88
+\c@figure=\count89
+\c@table=\count90
+)
+\@indexfile=\write3
+
+Writing index file r4rs.idx
+(commands.tex) (r4rs.aux)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+ (first.tex
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <20.74> on input line 39.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <14.4> on input line 39.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 39.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 39.
+ (C:\texmf\tex\latex\base\ulasy.fd
+File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
+)
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 39.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 39.
+
+
+LaTeX Warning: Reference `expressionchapter' on page 1 undefined on input line 
+59.
+
+
+LaTeX Warning: Reference `programchapter' on page 1 undefined on input line 59.
+
+
+
+LaTeX Warning: Reference `builtinchapter' on page 1 undefined on input line 62.
+
+
+
+LaTeX Warning: Reference `formalchapter' on page 1 undefined on input line 66.
+
+(r4rs.toc)
+\tf@toc=\write4
+ [1{psfonts.map}
+
+
+]) (intro.tex
+
+LaTeX Warning: Citation `Scheme75' on page 2 undefined on input line 59.
+
+
+LaTeX Warning: Citation `Scheme78' on page 2 undefined on input line 59.
+
+
+LaTeX Warning: Citation `Rabbit' on page 2 undefined on input line 62.
+
+
+LaTeX Warning: Citation `Rees82' on page 2 undefined on input line 64.
+
+
+LaTeX Warning: Citation `MITScheme' on page 2 undefined on input line 64.
+
+
+LaTeX Warning: Citation `Scheme311' on page 2 undefined on input line 64.
+
+
+LaTeX Warning: Citation `SICP' on page 2 undefined on input line 66.
+
+
+LaTeX Warning: Citation `RRRS' on page 2 undefined on input line 93.
+
+
+LaTeX Warning: Citation `R3RS' on page 2 undefined on input line 95.
+
+) (struct.tex
+ 1.
+
+LaTeX Warning: Reference `basicchapter' on page 2 undefined on input line 10.
+
+
+LaTeX Warning: Reference `builtinchapter' on page 2 undefined on input line 10.
+
+
+
+LaTeX Warning: Reference `formalsemanticssection' on page 2 undefined on input 
+line 11.
+
+[2
+
+
+! Incomplete \iffalse; all text was ignored after line 25.
+<inserted text> 
+                \fi 
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+! Incomplete \iffalse; all text was ignored after line 25.
+<inserted text> 
+                \fi 
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                    #4  \errhelp \@err@     ...
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \let \@err@               ...
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \@empty \def \MessageBreak...
+l.25 
+     
+? 
+! Argument of \@sect has an extra }.
+<inserted text> 
+                \par 
+l.25 
+     
+? 
+Runaway argument?
+{\large \bf }{\@item }\def \reserved@b {\@noitemargtrue \@item [\@itemlabel \ET
+C.
+! Paragraph ended before \@sect was complete.
+<to be read again> 
+                   \par 
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                    #4  \errhelp \@err@     ...
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \let \@err@               ...
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \@empty \def \MessageBreak...
+l.25 
+     
+? 
+! Argument of \@sect has an extra }.
+<inserted text> 
+                \par 
+l.25 
+     
+? 
+Runaway argument?
+{\large \bf }{\@item }\def \reserved@b {\@noitemargtrue \@item [\@itemlabel \ET
+C.
+! Paragraph ended before \@sect was complete.
+<to be read again> 
+                   \par 
+l.25 
+     
+? 
+! Incomplete \iffalse; all text was ignored after line 25.
+<inserted text> 
+                \fi 
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+]
+! Extra \else.
+\@opcol ->\if@twocolumn \@outputdblcol \else 
+                                             \@outputpage \fi \global \@mpar...
+l.25 
+     
+? 
+[3]
+
+LaTeX Warning: Reference `continuations' on page 4 undefined on input line 52.
+
+
+LaTeX Warning: Reference `datumsyntax' on page 4 undefined on input line 88.
+
+
+LaTeX Warning: Reference `BNF' on page 4 undefined on input line 90.
+
+
+LaTeX Warning: Reference `keywordsection' on page 4 undefined on input line 107
+.
+
+[4
+! Incomplete \iffalse; all text was ignored after line 142.
+<inserted text> 
+                \fi 
+l.142 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.142 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.142 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.142 
+      
+? 
+! Incomplete \iffalse; all text was ignored after line 142.
+<inserted text> 
+                \fi 
+l.142 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.142 
+      
+? h
+I suspect you have forgotten a `}', causing me
+to read past where you wanted me to stop.
+I'll try to recover; but if the error is serious,
+you'd better type `E' or `X' now and fix your file.
+
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.142 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.142 
+      
+? 
+]
+! Extra \else.
+\@opcol ->\if@twocolumn \@outputdblcol \else 
+                                             \@outputpage \fi \global \@mpar...
+l.142 
+      
+? 
+[5]
+
+LaTeX Warning: Reference `expressionchapter' on page 6 undefined on input line 
+150.
+
+
+LaTeX Warning: Reference `builtinchapter' on page 6 undefined on input line 150
+.
+
+
+LaTeX Warning: Reference `disjointness' on page 6 undefined on input line 201.
+
+
+LaTeX Warning: Reference `listsection' on page 6 undefined on input line 209.
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <9> on input line 228.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 228.
+
+LaTeX Warning: Reference `externalreps' on page 6 undefined on input line 235.
+
+
+LaTeX Warning: Reference `storagemodel' on page 6 undefined on input line 245.
+
+) (lex.tex
+ 2.
+
+LaTeX Warning: Reference `BNF' on page 6 undefined on input line 8.
+
+[6
+! Incomplete \iffalse; all text was ignored after line 25.
+<inserted text> 
+                \fi 
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                    #4  \errhelp \@err@     ...
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \let \@err@               ...
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \@empty \def \MessageBreak...
+l.25 
+     
+? 
+! Argument of \@sect has an extra }.
+<inserted text> 
+                \par 
+l.25 
+     
+? 
+Runaway argument?
+{\large \bf }{\@item }\def \reserved@b {\@noitemargtrue \@item [\@itemlabel \ET
+C.
+! Paragraph ended before \@sect was complete.
+<to be read again> 
+                   \par 
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                    #4  \errhelp \@err@     ...
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \let \@err@               ...
+l.25 
+     
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \@empty \def \MessageBreak...
+l.25 
+     
+? 
+! Argument of \@sect has an extra }.
+<inserted text> 
+                \par 
+l.25 
+     
+? 
+Runaway argument?
+{\large \bf }{\@item }\def \reserved@b {\@noitemargtrue \@item [\@itemlabel \ET
+C.
+! Paragraph ended before \@sect was complete.
+<to be read again> 
+                   \par 
+l.25 
+     
+? 
+]
+! Extra \else.
+\@opcol ->\if@twocolumn \@outputdblcol \else 
+                                             \@outputpage \fi \global \@mpar...
+l.25 
+     
+? 
+[7]
+
+LaTeX Warning: Reference `extendedalphas' on page 8 undefined on input line 43.
+
+
+
+LaTeX Warning: Reference `variablesection' on page 8 undefined on input line 53
+.
+
+
+LaTeX Warning: Reference `quote' on page 8 undefined on input line 56.
+
+
+LaTeX Warning: Reference `symbolsection' on page 8 undefined on input line 57.
+
+
+Underfull \hbox (badness 1226) in paragraph at lines 62--64
+[]/cmr10/The fol-low-ing iden-ti-fiers are syn-tac-tic key-words, and
+
+\hbox(6.94444+1.94444)x254.0, glue set 2.30664 []
+
+
+LaTeX Warning: Reference `numbersection' on page 8 undefined on input line 117.
+
+
+
+LaTeX Warning: Reference `listsection' on page 8 undefined on input line 126.
+
+
+LaTeX Warning: Reference `lambda' on page 8 undefined on input line 127.
+
+
+LaTeX Warning: Reference `listsection' on page 8 undefined on input line 132.
+
+
+LaTeX Warning: Reference `quote' on page 8 undefined on input line 135.
+
+
+LaTeX Warning: Reference `quasiquote' on page 8 undefined on input line 139.
+
+
+LaTeX Warning: Reference `quasiquote' on page 8 undefined on input line 143.
+
+
+LaTeX Warning: Reference `stringsection' on page 8 undefined on input line 146.
+
+
+
+LaTeX Warning: Reference `charactersection' on page 8 undefined on input line 1
+50.
+
+
+LaTeX Warning: Reference `stringsection' on page 8 undefined on input line 151.
+
+
+
+LaTeX Warning: Reference `booleansection' on page 8 undefined on input line 162
+.
+
+
+LaTeX Warning: Reference `charactersection' on page 8 undefined on input line 1
+65.
+
+[8
+! Incomplete \iffalse; all text was ignored after line 167.
+<inserted text> 
+                \fi 
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+! Incomplete \iffalse; all text was ignored after line 167.
+<inserted text> 
+                \fi 
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+! Incomplete \iffalse; all text was ignored after line 167.
+<inserted text> 
+                \fi 
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+]
+! Extra \else.
+\@opcol ->\if@twocolumn \@outputdblcol \else 
+                                             \@outputpage \fi \global \@mpar...
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+[9]
+! Extra \else.
+\addpenalty ...tskip =\z@ \penalty #1\relax \else 
+                                                  \@tempskipb \lastskip \vsk...
+l.167 \item[\sharpsign\tt(]
+                           
+? 
+
+LaTeX Warning: Reference `vectorsection' on page 10 undefined on input line 168
+.
+
+
+LaTeX Warning: Reference `numbernotations' on page 10 undefined on input line 1
+72.
+
+) (basic.tex
+ 3.
+
+LaTeX Warning: Reference `keywordsection' on page 10 undefined on input line 10
+.
+
+
+LaTeX Warning: Reference `lambda' on page 10 undefined on input line 34.
+
+
+LaTeX Warning: Reference `letrec' on page 10 undefined on input line 34.
+
+
+LaTeX Warning: Reference `do' on page 10 undefined on input line 34.
+
+
+LaTeX Warning: Reference `initialenv' on page 10 undefined on input line 50.
+
+
+LaTeX Warning: Reference `booleansection' on page 10 undefined on input line 71
+.
+
+
+LaTeX Warning: Reference `listsection' on page 10 undefined on input line 101.
+
+
+LaTeX Warning: Reference `quote' on page 10 undefined on input line 108.
+
+
+LaTeX Warning: Reference `read' on page 10 undefined on input line 111.
+
+
+LaTeX Warning: Reference `write' on page 10 undefined on input line 112.
+
+
+LaTeX Warning: Reference `initialenv' on page 10 undefined on input line 130.
+
+[10
+! Incomplete \iffalse; all text was ignored after line 159.
+<inserted text> 
+                \fi 
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                    #4  \errhelp \@err@     ...
+l.159 
+      
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \let \@err@               ...
+l.159 
+      
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \@empty \def \MessageBreak...
+l.159 
+      
+? 
+! Argument of \@sect has an extra }.
+<inserted text> 
+                \par 
+l.159 
+      
+? 
+Runaway argument?
+{\large \bf }{\@item }\def \reserved@b {\@noitemargtrue \@item [\@itemlabel \ET
+C.
+! Paragraph ended before \@sect was complete.
+<to be read again> 
+                   \par 
+l.159 
+      
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                    #4  \errhelp \@err@     ...
+l.159 
+      
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \let \@err@               ...
+l.159 
+      
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \@empty \def \MessageBreak...
+l.159 
+      
+? 
+! Argument of \@sect has an extra }.
+<inserted text> 
+                \par 
+l.159 
+      
+? 
+Runaway argument?
+{\large \bf }{\@item }\def \reserved@b {\@noitemargtrue \@item [\@itemlabel \ET
+C.
+! Paragraph ended before \@sect was complete.
+<to be read again> 
+                   \par 
+l.159 
+      
+? 
+! Incomplete \iffalse; all text was ignored after line 159.
+<inserted text> 
+                \fi 
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+! Incomplete \iffalse; all text was ignored after line 159.
+<inserted text> 
+                \fi 
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+! Incomplete \iffalse; all text was ignored after line 159.
+<inserted text> 
+                \fi 
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+! Incomplete \iffalse; all text was ignored after line 159.
+<inserted text> 
+                \fi 
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.159 
+      
+? 
+]
+! Extra \else.
+\@opcol ->\if@twocolumn \@outputdblcol \else 
+                                             \@outputpage \fi \global \@mpar...
+l.159 
+      
+? 
+[11]
+
+LaTeX Warning: Reference `equivalencesection' on page 12 undefined on input lin
+e 162.
+
+) (expr.tex
+ 4.
+
+LaTeX Warning: Reference `derivedsection' on page 12 undefined on input line 15
+.
+
+
+LaTeX Warning: Reference `variablesection' on page 12 undefined on input line 2
+8.
+
+
+LaTeX Warning: Reference `externalreps' on page 12 undefined on input line 50.
+
+
+LaTeX Warning: Reference `storagemodel' on page 12 undefined on input line 84.
+
+
+LaTeX Warning: Reference `lambda' on page 12 undefined on input line 110.
+
+[12
+! Incomplete \iffalse; all text was ignored after line 121.
+<inserted text> 
+                \fi 
+l.121 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.121 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.121 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 1.5em\relax \ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.121 
+      
+? 
+! Incomplete \iffalse; all text was ignored after line 121.
+<inserted text> 
+                \fi 
+l.121 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.121 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.121 
+      
+? 
+Runaway text?
+\@writefile{toc}{\protect \vskip \z@ plus.2\p@ {\leftskip 0em\relax \rightskip 
+\ETC.
+! Forbidden control sequence found while scanning text of \write.
+<inserted text> 
+                }
+l.121 
+      
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                    #4  \errhelp \@err@     ...
+l.121 
+      
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \let \@err@               ...
+l.121 
+      
+? 
+! Undefined control sequence.
+\GenericError  ...                                
+                                                  \@empty \def \MessageBreak...
+l.121 
+      
+? 
+! TeX capacity exceeded, sorry [input stack size=1500].
+\@nomath ...e \@font@warning {Command \noexpand #1
+                                                  invalid in math mode}\fi 
+l.121 
+      
+If you really absolutely need more capacity,
+you can ask a wizard to enlarge me.
+
+ 
+Here is how much of TeX's memory you used:
+ 576 strings out of 95518
+ 5604 string characters out of 1189726
+ 59553 words of memory out of 1052864
+ 3625 multiletter control sequences out of 35000
+ 23599 words of font info for 86 fonts, out of 500000 for 1000
+ 14 hyphenation exceptions out of 607
+ 1500i,8n,2226p,168b,237s stack positions out of 1500i,500n,5000p,200000b,32768s
+ 77 PDF objects out of 65536
+ 0 named destinations out of 20000
+ 1 words of extra memory for PDF output out of 65536
+!  ==> Fatal error occurred, the output PDF file is not finished!

@@ -1,0 +1,3 @@
+// SYNOPSIS: new #0[#1]
+// SYNOPSIS: UNUSED!!!
+Runtime.runtime.new#0Array(#1, null);

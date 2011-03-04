@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse.ant.import?>
+<project name="smoketest" default="testall">
+	
+    <target name="testall" depends="init_smoketest,get_dependencies_archives,test_all-in-one,test-helios-update" />
+    <target name="testAllInOne" depends="init_smoketest,get_dependencies_archives,test_all-in-one" />
+    <target name="testUpdates" depends="init_smoketest,get_dependencies_archives,test-helios-update" />
+
+    <property name="ECLIPSE_HOME" value="../../rtc_eclipse"/>
+
+    <property name="workspace"                  value="${basedir}/../" />
+    <property name="smoketest.folder"           value="/Users/lesniakr/x10dt/x10dt-smoketest" />
+    <property name="all-in-one.folder"          value="${smoketest.folder}/all-in-one" />
+    <property name="helios.folder"              value="${smoketest.folder}/helios" />
+    <property name="dependencies.folder"        value="${smoketest.folder}/dependencies" />
+                                                
+    <property name="base.all-in-one.url"        value="http://orquesta.watson.ibm.com/x10dt/2.1/releases/20110222-1357" />
+    <property name="unzipped.all-in-one"        value="${all-in-one.folder}/x10dt" />
+                                                
+    <property name="base.helios.url"            value="http://download.eclipse.org/eclipse/downloads/drops/R-3.6.1-201009090800" />
+    <property name="unzipped.helios"            value="${helios.folder}/eclipse" />
+                                                
+    <property name="base.swtbot.url"            value="http://download.eclipse.org/technology/swtbot/helios/dev-build" />
+    <property name="zipped.swtbot"              value="org.eclipse.swtbot.eclipse-2.0.3.20110219_0655-4d933cf-dev-e36.zip" />
+    <property name="zipped.headless"            value="org.eclipse.swtbot.eclipse.test.junit4-2.0.3.20110219_0655-4d933cf-dev-e36.zip" />
+    <property name="swtbot.folder"              value="${dependencies.folder}/swtbot" />
+    <property name="headless.folder"            value="${dependencies.folder}/headless" />
+    <property name="unzipped.swtbot"            value="${swtbot.folder}/eclipse" />
+    <property name="unzipped.headless"          value="${headless.folder}/eclipse" />
+	                                        
+<!--    <property name="all-in-one.plugins.dir"     value="${unzipped.all-in-one}/dropins/plugins" />  -->
+<!--    <property name="helios.plugins.dir"         value="${unzipped.helios}/dropins/plugins" />      -->
+    <property name="all-in-one.plugins.dir"     value="${unzipped.all-in-one}/plugins" />   
+    <property name="helios.plugins.dir"         value="${unzipped.helios}/plugins" />       
+    <property name="swtbot.plugins.dir"         value="${unzipped.swtbot}/plugins" />
+    <property name="headless.plugins.dir"       value="${unzipped.headless}/plugins" />
+                                                
+    <property name="all-in-one.features.dir"    value="${unzipped.all-in-one}/features" />
+    <property name="helios.features.dir"        value="${unzipped.helios}/features" />
+    <property name="swtbot.features.dir"        value="${unzipped.swtbot}/features" />
+    <property name="headless.features.dir"      value="${unzipped.headless}/features" />
+                                                
+	<property name="x10dt.ui.tests"             value="x10dt.ui.tests" />
+    <property name="x10dt.ui.tests.dir"         value="${basedir}/smoketest" />
+	<property name="swtbot.testlib.dir"         value="${smoketest.folder}/data" />
+	
+    <property name="testname"                   value="CppBackendSmokeTest" />
+    <property name="x10dtname"                  value="x10dt" />
+    <property name="eclipsename"                value="eclipse" />
+	
+<!--    
+    <path id="all-in-one.classpath">
+        <pathelement location="${all-in-one.plugins.dir}/org.junit_4.8.1.v4_8_1_v20100427-1100/junit.jar"/>
+        <pathelement location="${all-in-one.plugins.dir}" />
+    </path>
+
+    <path id="helios.classpath">
+        <pathelement location="${helios.plugins.dir}/org.junit_4.8.1.v4_8_1_v20100427-1100/junit.jar"/>
+        <pathelement location="${helios.plugins.dir}" />
+    </path>
+-->
+	
+    <condition property="isMac">
+      <os family="mac" />
+    </condition>
+    
+    <condition property="isWindows">
+      <os family="windows" />
+    </condition>
+    
+    <condition property="isUnix">
+      <os family="unix" />
+    </condition>
+  
+    <target name="setMac" if="isMac">
+        <property name="os" value="macosx" />    
+        <property name="ws" value="cocoa" />    
+        <property name="zipped.all-in-one"      value="x10dt-2.1.2-macosx.cocoa.x86.zip" />
+        <property name="tarred.helios"          value="eclipse-SDK-3.6.1-macosx-cocoa.tar" />
+        <property name="zipped.helios"          value="${tarred.helios}.gz" />
+    </target>
+    
+    <target name="setWin" if="isWindows">
+        <property name="os" value="win32" />    
+        <property name="ws" value="win32" />    
+        <property name="zipped.all-in-one"     value="x10dt-2.1.2-win32.win32.x86.zip" />
+        <property name="zipped.helios"         value="eclipse-SDK-3.6.1-win32.zip" />
+    </target>
+    
+    <target name="setLinux" if="isUnix" unless="isMac,isX86_64">
+        <property name="os" value="linux" />    
+        <property name="ws" value="gtk" />
+        <property name="zipped.all-in-one"     value="x10dt-2.1.2-linux.gtk.x86.zip" />
+        <property name="tarred.helios"         value="eclipse-SDK-3.6.1-linux-gtk.tar.gz" />
+        <property name="zipped.helios"         value="${tarred.helios}.gz" />
+    </target>
+    
+    <target name="setLinux_64" if="isUnix" unless="isMac,isX86">
+        <property name="os" value="linux" />    
+        <property name="ws" value="gtk" />
+        <property name="zipped.all-in-one"     value="x10dt-2.1.2-linux.gtk.x86_64.zip" />
+        <property name="tarred.helios"         value="eclipse-SDK-3.6.1-linux-gtk-x86_64.tar.gz" />
+        <property name="zipped.helios"         value="${tarred.helios}.gz" />
+    </target>
+    
+    <target name="setOS" 
+        depends="setMac,setWin,setLinux,setLinux_64" >
+        <property name="all-in-one.url"         value="${base.all-in-one.url}/${zipped.all-in-one}" />
+        <property name="helios.url"             value="${base.helios.url}/${zipped.helios}" />
+    </target>
+    
+    <condition property="isX86">
+      <os arch="i386" />
+    </condition>
+  
+    <condition property="isX86_64">
+      <os arch="???" />         <!-- TODO: figure out how to distinguish x86_64 -->
+    </condition>
+  
+    <condition property="isPPC">
+      <os arch="ppc" />         <!-- just guessing here - I don't know what it really returns -->
+    </condition>
+  
+    <target name="setX86_64" if="isX86_64">
+        <property name="arch" value="x86_64" />    
+    </target>
+    
+    <target name="setX86" if="isX86" unless="isX86_64">
+        <property name="arch" value="x86" />    
+    </target>
+    
+    <target name="setPPC" if="isPPC">
+        <property name="arch" value="ppc" />    
+    </target>
+    
+    <target name="setArch" depends="setX86,setX86_64,setPPC" >
+    </target>
+
+    <target name="init_smoketest" depends="clean_dependencies,clean_all-in-one,clean_helios,clean_smoketest" >
+        <echo message="eclipse.home is ${eclipse.home}" />
+        <antcall target="create_smoketest_folder" />
+    </target>
+
+    <target name="create_smoketest_folder" unless="smoketest.folder.present" >
+        <mkdir dir="${smoketest.folder}"/>
+        <available property="smoketest.folder.present" file="${smoketest.folder}"/>
+        <fail message="Unable to create directory ${smoketest.folder} " unless="smoketest.folder.present"/>
+        <mkdir dir="${swtbot.testlib.dir}"/>
+    </target>
+
+    <target name="clean_smoketest"  >
+        <delete dir="${smoketest.folder}" failonerror="false"/>
+        <available property="smoketest.folder.present" file="${smoketest.folder}"/>
+        <fail message="Unable to delete directory ${smoketest.folder} " if="smoketest.folder.present"/>
+    </target>
+
+	<!--  -->
+	<!-- Targets for downloading swtbot dependencies -->
+	<!--  -->
+
+    <target name="get_dependencies_archives" depends="init_dependencies" >
+        <mkdir dir="${swtbot.folder}"/>
+        <mkdir dir="${headless.folder}"/>
+    	
+        <antcall target="get_swtbot_archive" />
+        <antcall target="get_headless_archive" />
+    </target>    
+
+    <target name="get_swtbot_archive" depends="download_swtbot_archive" unless="unzipped.swtbot.present" >
+        <unzip src="${swtbot.folder}/${zipped.swtbot}" dest="${swtbot.folder}"/>
+        <available property="unzipped.swtbot.present" file="${unzipped.swtbot}"/>
+        <fail message="Unable to extract ${swtbot.folder}/${zipped.swtbot} into ${swtbot.folder}" unless="unzipped.swtbot.present"/>
+        </target>    
+
+    <target name="get_headless_archive" depends="download_headless_archive" unless="unzipped.headless.present" >
+        <unzip src="${headless.folder}/${zipped.headless}" dest="${headless.folder}"/>
+        <available property="unzipped.headless.present" file="${unzipped.headless}"/>
+        <fail message="Unable to extract ${headless.folder}/${zipped.headless} into ${headless.folder}" unless="unzipped.headless.present"/>
+    </target>
+
+    <target name="download_swtbot_archive" >
+        <get usetimestamp="true" src="${base.swtbot.url}/${zipped.swtbot}" dest="${swtbot.folder}"/>
+        <available property="zipped.swtbot.present" file="${swtbot.folder}/${zipped.swtbot}"/>
+        <fail message="Unable to get ${zipped.swtbot} from ${dependencies.url}" unless="zipped.swtbot.present"/>        
+    </target>
+
+    <target name="download_headless_archive" >
+        <get usetimestamp="true" src="${base.swtbot.url}/${zipped.headless}" dest="${headless.folder}"/>
+        <available property="zipped.headless.present" file="${headless.folder}/${zipped.headless}"/>
+        <fail message="Unable to get ${zipped.headless} from ${unzipped.headless.url}" unless="zipped.headless.present"/>
+    </target>    
+    
+    <target name="init_dependencies" unless="dependencies.folder.present" >
+        <mkdir dir="${dependencies.folder}"/>
+        <available property="dependencies.folder.present" file="${dependencies.folder}"/>
+        <fail message="Unable to create directory ${dependencies.folder} " unless="dependencies.folder.present"/>
+    </target>
+
+    <target name="clean_dependencies" >
+        <delete dir="${dependencies.folder}" failonerror="false"/>
+        <available property="dependencies.folder.present" file="${dependencies.folder}"/>
+        <fail message="Unable to delete directory ${dependencies.folder} " if="dependencies.folder.present"/>
+    </target>
+        
+
+<!--  -->
+<!-- compile tests into jar files -->
+<!--  -->
+        
+    <target name="build-x10dt-ui-tests" >
+        <!-- TODO: write this -->
+    </target>
+    
+<!--  -->
+<!-- Targets for running tests on all-in-one release build of x10dt -->
+<!--  -->
+
+
+<!-- these are a couple of convenience targets for debugging purposes.             --> 
+<!-- eventually need to get rid of these two and restore the real "test_all-in-one -->	
+	<target name="test_all-in-one_no-download" depends="setOS,setArch,build-x10dt-ui-tests">
+		<antcall target="run_all-in-one_test" />
+    </target>
+  	
+    <target name="test_all-in-one" depends="init_smoketest,setOS,setArch,build-x10dt-ui-tests,setup_all-in-one">
+        <antcall target="run_all-in-one_test" />
+    </target>
+    	
+<!--  this is the real target declaration  <target name="test_all-in-one" depends="setOS,setArch,build-x10dt-ui-tests,setup_all-in-one"> -->
+	<target name="run_all-in-one_test" >
+
+        <property name="eclipse-home"        value="${unzipped.all-in-one}" />
+        <property name="data-dir"            value="${swtbot.testlib.dir}/eclipse-data" />
+        <property name="plugin-name"         value="${x10dt.ui.tests}" />
+        <property name="classname"           value="${testname}" />
+        <property name="testProduct"         value="${x10dtname}.product" />
+        <property name="plugin-path"         value="${all-in-one.plugins.dir}" />
+        <property name="junit-report-output" value="${swtbot.testlib.dir}" />    
+        <property name="vmargs"              value="-XX:MaxPermSize=256m -Xmx1500m" />
+        <property name="os"                  value="${os}" />    
+        <property name="ws"                  value="${ws}" />    
+        <property name="arch"                value="${arch}" />
+		<antcall target="echo_test_params" />
+		
+		<mkdir dir="${swtbot.testlib.dir}/eclipse-data" />
+		
+    	<subant target="swtbot-test" antfile="library.xml" verbose="true" >
+    		<fileset dir="${all-in-one.plugins.dir}" includes="*headless*/library.xml" />                          
+            <property name="eclipse-home"        value="${eclipse-home}" />
+            <property name="data-dir"            value="${data-dir}" />
+            <property name="plugin-name"         value="${plugin-name}" />
+            <property name="classname"           value="${classname}" />
+            <property name="testProduct"         value="${testProduct}" />
+            <property name="plugin-path"         value="${plugin-path}" />
+            <property name="junit-report-output" value="${junit-report-output}" />
+            <property name="vmargs"              value="${vmargs}" />
+            <property name="os"                  value="${os}" />
+            <property name="ws"                  value="${ws}" />
+            <property name="arch"                value="${arch}" />
+    	</subant>
+    </target>
+    
+    <target name="setup_all-in-one" depends="unzip_all-in-one_archive,get_all-in-one_dependencies">
+        <mkdir dir="${all-in-one.plugins.dir}"/>
+        <echo message="Copying ${x10dt.ui.tests.dir}/plugins to ${all-in-one.plugins.dir}"/>
+        <copy todir="${all-in-one.plugins.dir}" failonerror="false">
+            <fileset dir="${x10dt.ui.tests.dir}" includes="**/*.jar" />
+        </copy>
+        <echo message="Copying ${x10dt.ui.tests.dir}/features to ${all-in-one.features.dir}"/>
+        <copy todir="${all-in-one.features.dir}" failonerror="false">
+            <fileset dir="${x10dt.ui.tests.dir}/features" />
+        </copy>
+    </target>
+
+    <target name="get_all-in-one_dependencies" depends="get_dependencies_archives">
+        <echo message="Copying ${swtbot.plugins.dir} to ${all-in-one.plugins.dir}"/>
+        <copy todir="${all-in-one.plugins.dir}" failonerror="false">
+            <fileset dir="${swtbot.plugins.dir}"  />
+        </copy>
+        <echo message="Copying ${headless.plugins.dir} to ${all-in-one.plugins.dir}"/>
+        <copy todir="${all-in-one.plugins.dir}" failonerror="false">
+            <fileset dir="${headless.plugins.dir}" />
+        </copy>
+        <echo message="Copying ${swtbot.features.dir} to ${all-in-one.features.dir}"/>
+        <copy todir="${all-in-one.features.dir}" failonerror="false">
+            <fileset dir="${swtbot.features.dir}" />
+        </copy>
+        <echo message="Copying ${headless.features.dir} to ${all-in-one.features.dir}"/>
+        <copy todir="${all-in-one.features.dir}" failonerror="false">
+            <fileset dir="${headless.features.dir}" />
+        </copy>
+    </target>
+
+    <target name="unzip_all-in-one_archive" depends="get_all-in-one_archive">
+        <unzip src="${all-in-one.folder}/${zipped.all-in-one}" dest="${all-in-one.folder}"/>
+    </target>
+
+    <target name="get_all-in-one_archive" depends="init_all-in-one_smoketest" >
+        <mkdir dir="${all-in-one.folder}"/>
+        <get usetimestamp="true" src="${all-in-one.url}" dest="${all-in-one.folder}"/>
+        <available property="zipped.all-in-one.present" file="${all-in-one.folder}/${zipped.all-in-one}"/>
+        <fail message="Unable to get ${zipped.all-in-one} from ${all-in-one.url}" unless="zipped.all-in-one.present"/>
+    </target>    
+
+    <target name="init_all-in-one_smoketest" unless="all-in-one.folder.present" >
+        <mkdir dir="${all-in-one.folder}"/>
+        <available property="all-in-one.folder.present" file="${all-in-one.folder}"/>
+        <fail message="Unable to create directory ${all-in-one.folder} " unless="all-in-one.folder.present"/>
+    </target>
+
+    <target name="clean_all-in-one" >
+        <delete dir="${all-in-one.folder}" failonerror="false"/>
+        <available property="all-in-one.folder.present" file="${all-in-one.folder}"/>
+        <fail message="Unable to delete directory ${all-in-one.folder} " if="all-in-one.folder.present"/>
+    </target>
+        
+<!--  -->
+<!-- Targets for running tests on x10dt when installed into stock eclipse release -->
+<!--  -->
+
+    <target name="test-helios-update" depends="setOS,setArch,build-x10dt-ui-tests,setup_helios"> 
+    	
+        <property name="eclipse-home"        value="${unzipped.helios}" />
+        <property name="data-dir"            value="${swtbot.testlib.dir}/eclipse-data" />
+        <property name="plugin-name"         value="${x10dt.ui.tests}" />
+        <property name="classname"           value="${testname}" />
+        <property name="testProduct"         value="${eclipsename}.product" />
+        <property name="plugin-path"         value="${helios-plugins-dir}/" />
+        <property name="junit-report-output" value="${swtbot.testlib.dir}" />     
+        <property name="vmargs"              value="-XX:MaxPermSize=256m -Xmx1500m" />         
+        <property name="os"                  value="${os}" />    
+        <property name="ws"                  value="${ws}" />    
+        <property name="arch"                value="${arch}" />
+        <antcall target="echo_test_params" />
+    	
+        <subant target="swtbot-test" antfile="library.xml" >
+            <fileset dir="${helios.plugins.dir}" />
+            <property name="eclipse-home"        value="${eclipse-home}" />
+            <property name="data-dir"            value="${data-dir}" />
+            <property name="plugin-name"         value="${plugin-name}" />
+            <property name="classname"           value="${classname}" />
+            <property name="testProduct"         value="${testProduct}" />
+            <property name="plugin-path"         value="${plugin-path}" />
+            <property name="junit-report-output" value="${junit-report-output}" />
+            <property name="vmargs"              value="${vmargs}" />
+            <property name="os"                  value="${os}" />
+            <property name="ws"                  value="${ws}" />
+            <property name="arch"                value="${arch}" />
+        </subant>
+    </target>
+    
+    <target name="setup_helios" depends="install-x10dt-update,get_helios_dependencies">
+        <echo message="Copying ${x10dt.ui.tests.dir}/plugins to ${helios.plugins.dir}..."/>
+        <copy todir="${helios.plugins.dir}">
+            <fileset dir="${x10dt.ui.tests.dir}/plugins" includes="**/*.jar" />
+        </copy>
+    </target>
+
+    <target name="install-x10dt-update" depends="unzip-helios-archive,untar-helios-archive">
+        <!-- TODO -->
+    </target>
+
+    <target name="get_helios_dependencies" depends="get_dependencies_archives">
+        <echo message="Copying ${swtbot.plugins.dir} to ${helios.plugins.dir}..."/>
+        <copy todir="${helios.plugins.dir}">
+            <fileset dir="${swtbot.plugins.dir}" includes="**/*.jar" />
+        </copy>
+        <echo message="Copying ${headless.plugins.dir} to ${helios.plugins.dir}..."/>
+        <copy todir="${helios.plugins.dir}">
+            <fileset dir="${headless.plugins.dir}" includes="**/*.jar" />
+        </copy>
+    </target>
+
+
+    <target name="unzip-helios-archive" if="isWindows" depends="get_helios_archive" >
+        <unzip src="${helios.folder}/${zipped.helios}" dest="${helios.folder}"/>
+    </target>
+
+    <target name="untar-helios-archive" if="isMac,isUnix" depends="get_helios_archive" >
+        <gunzip src="${helios.folder}/${zipped.helios}" dest="${helios.folder}"/>
+        <untar src="${helios.folder}/${tarred.helios}" dest="${helios.folder}"/>
+    </target>
+
+    <target name="get_helios_archive" depends="init-helios-smoketest" >
+        <mkdir dir="${helios.folder}"/>
+<!-- during script development, just get local copy rather than downloading -->
+        <copy file="${smoketest.folder}/../${zipped.helios}" todir="${helios.folder}" />
+<!--        <get usetimestamp="true" src="${helios.url}" dest="${helios.folder}"/>  -->
+        <available property="zipped.helios.present" file="${helios.folder}/${zipped.helios}"/>
+        <fail message="Unable to get ${zipped.helios} from ${helios.url}" unless="zipped.helios.present"/>
+    </target>
+
+    <target name="init-helios-smoketest" unless="helios.folder.present" >
+        <mkdir dir="${helios.folder}"/>
+        <available property="helios.folder.present" file="${helios.folder}"/>
+        <fail message="Unable to create directory ${helios.folder} " unless="helios.folder.present"/>
+    </target>
+
+    <target name="clean_helios"  >
+        <delete dir="${helios.folder}" failonerror="false"/>
+        <available property="helios.folder.present" file="${helios.folder}"/>
+        <fail message="Unable to delete directory ${helios.folder} " if="helios.folder.present"/>
+    </target>
+
+	<!--  -->
+	<!-- Miscellaneous targets -->
+	<!--  -->
+
+	<target name="echo_test_params" >
+        <echo message="eclipse-home        is ${eclipse-home}       " />
+        <echo message="data-dir            is ${data-dir}           " />
+        <echo message="plugin-name         is ${plugin-name}        " />
+        <echo message="classname           is ${classname}          " />
+        <echo message="testProduct         is ${testProduct}        " />
+        <echo message="plugin-path         is ${plugin-path}        " />
+        <echo message="junit-report-output is ${junit-report-output}" />
+        <echo message="vmargs              is ${vmargs}             " />
+        <echo message="os                  is ${os}                 " />
+        <echo message="ws                  is ${ws}                 " />
+        <echo message="arch                is ${arch}               " />
+	</target>
+	
+</project>

@@ -1,0 +1,969 @@
+X10 LANGUAGE CHANGES FOR X10 2.1, v 0.5
+Vijay
+Fri Aug 06 13:59:18 2010
+Tue Aug 17 08:20:24 2010
+
+ABSTRACT
+
+  We simplify and generalize X10 concurrency constructs to better
+  support determinacy. 
+
+  We acknowledge the fundamental difficulty of statically verifying
+  determinacy for heap-based data-structures, because of aliasing
+  issues.
+
+  Instead we promote stack-based communication of values, without
+  aliasing.  This ties in very well with the stack-based discipline of
+  finish and clocks.
+
+  We introduce call-by-reference as a way for callees to modify up-stack
+  local variables.
+
+  We integrate clocks with finish; finish now lets a programmer
+  specify computations that run over multiple phases.
+
+O. GOALS OF THE DESIGN
+
+  -- Support asynchronous initialization of vals.
+  -- Support collecting finish over multiple explicitly named
+     locations. Use same mechanism to support summing clocked final
+     variables. (This basically points to integrating finish and clocks.)
+  -- Simplify clock definition and usage to make the common case (an
+     async is clocked on a single clock) simple, while ensuring
+     deadlock freedom and supporting determinacy.
+  -- Support simple, general syntax for user even if it means the
+     compiler has to do more work.
+  -- Syntax and semantics for immutable local variables (val's) that
+     are initialized in sequential code, and used only in sequential
+     code should remain unchanged.
+  -- Syntax and semantics for mutable local variables (var's) should 
+     remain unchanged.
+  -- The bodies of X10 combinators -- finish _, async _, at (p) _,
+     atomic _ -- should be representable as closures.
+
+I. DESIGN
+
+We remove the following from X10 v2.0.x.
+
+  x10.lang.clock  -- including Clock.make().
+  clocked clause on async's, ateach's and foreach's
+
+  shared qualifier on var declarations
+    var's can be freely accessed and written into from async bodies.
+   (the user is encouraged to use @det instead.)
+
+  collecting finish, including the offer statement
+    current syntax permits only a single implicitly named location to
+    be a reducing location. Use acc variables instead.
+
+We retain:
+
+  S ::= finish S
+        async S
+        at (e) S
+
+(with arbitrary nesting).
+
+We add
+  I.A Asynchronous initialization of val's 
+     this permits arguments to calls to be evaluated in parallel
+
+  I.B Call by reference for local variables 
+     Also var fields in stucts (mutable structs) to take advantage of
+     call by reference. (Sec I.F)
+
+  I.C Accumulator variables
+     This provides an explicit syntax for reducing locations; permits
+     multiple collecting locations for collecting finish, unification
+     with clocked final variables.
+
+  I.D Implicit clock for each finish
+     Supports simple rules for unifying collecting finish and clocked
+     final variables. introduce clocked qualifiers on: val and acc
+     declarations (local variables and fields), finish, class/struct
+     definitions and methods/closure definitions.
+
+  I.F @det annotations on statements 
+     Records programmer intent that the statement is intended to be
+     determinate. (checked by the compiler)
+
+The following language changes/cleanup/fixes (also for 2.1) are not
+discussed in this note. See
+
+http://xj.watson.ibm.com/twiki/bin/view/Main/X10LanguageDesign.
+
+  Replace 
+    foreach( a in P) S (now the idiom becomes:  for (a in P) async S) 
+    ateach( a in P) S  (now the idiom becomes:  for (a in P) at(a) async S) 
+    async (p) S        (now the idiom becmes:   at (p) async S)
+
+  Java interop. (design in progress)
+  Fix default values. (implementation in progress)
+  Move to an implicit proto to ensure this does not escape from
+    constructors. (implementation in progress)
+  Get rid of self in favor of x#Type syntax.
+  Fix at semantics (implementation in progress ... jira number?) 
+  atcopy  (design completed.)
+  Fix types for closures.
+  Static imports.
+  Syntax for multi-dimensional arrays.
+  The "immutable" property for classes and structs.
+  Introduce "by name" arguments (closures with empty arg list) into X10 
+   So async and finish can be syntactically defined in the language as
+   taking "by name" arguments, e.g. def async(body: => Void):Void
+   {...body...} User may define their own such methods. Helps with
+   DSLs (ref: usage in Scala). (Olivier has asked for something like this.)
+
+
+I.A ASYNCHRONOUS INITIALIZATION OF VALS.
+
+See http://xj.watson.ibm.com/twiki/bin/view/Main/XtenLangAsyncExpressions
+
+We permit parallel initialization of val's.
+
+val x1:T1,...., xn:Tn;
+ S1; // xi are not readable unless assigned to sequentially (outside a finish)
+finish { 
+  S 
+  // S may spawn asyncs that can write into xi, and read only after xi
+  // has been definitely written into.
+}
+// xi are readable now
+
+Example 1
+ def fib(n:Int):Int {
+   if (n < 2) return n;
+   val f1, f2:Int;
+   finish {
+      async f1 = fib(n-1);
+      f2 = fib(n-2);
+   }
+   return f1+f2;
+ }
+EndOfExample
+
+Note the following is illegal -- compiler generates an error:
+Example 1
+   val f1, f2:Int;
+   async f1=2;
+   // use f1 ...ILLEGAL
+EndOfExample
+
+That is, a blank final variable cannot be read/written in an async
+before it has been definitely initialized. It can be definitely
+initialized only in sequential code or in concurrent code within the
+scope of a finish.
+  This is natural. After the async statement above, we cannot say that
+  f1 has been definitely initialized. There is no governing finish
+  after which we can say it has been initialized.
+
+Note that synchronous initialization continues to be permitted. The
+following is legal:
+
+Example
+  val f:Int;
+  S; // does not read or write f.
+  f=2;
+  // f can be used as usual, it is definitely initialized.
+EndOfExample
+
+I.B CALL BY REFERENCE 
+
+A parameter x of a method may be marked as a ref. 
+
+An actual argument for such a parameter must be either a ref parameter, or
+a local variable that is passed ``by reference''.
+
+   An actual may not be a field of an object or a field of a struct.
+
+Assignments to x (use of x as an LHS term) change the value of the
+location whose address was passed into the call.
+
+Reads from x (use of x as an RHS term) read the value of the 
+location referred to by x.
+
+If the type of x is a class or struct, methods may be invoked on x,
+and fields dereferenced; these operations are performed on the class
+or struct instance currently stored in the location reached through x.
+
+There is no operation for changing the location referred to by x.
+
+There is no provision for fields or local variables that "contain a
+ref". Thus, ref's cannot escape into the heap.
+
+A use of a ref within an async is legal only if the lifetime of the
+governing finish for the async does not exceed the lifetime of the
+referenced location. The compiler ensures this by checking that when a
+ref to a local variable is passed as an actual to a method invocation,
+the method call is within the scope of a finish that occurs afterthe
+variable declaration. Thus the compiler ensures there are no dangling
+references to local variables.
+
+   This condition is liberal enough to permit the method to spawn
+   asyncs with this ref, or call other methods which spawn asyncs,
+   without fear of outliving the lifetime of the referenced location.
+
+There is no mechanism for "returning a ref" from a method or closure
+invocation. 
+
+ def fib(ref n:Int):Void {
+   if (n < 2) return n;
+   var x:Int=n-1;
+   n -= 2;
+   finish {
+      async fib(x); // modifies x
+      fib(n);       //  modifies through the ref passed in n
+   }
+   // modifies through the ref passed in n
+   n += x;
+ }
+
+ref parameters cannot be "captured". That is, a closure or nested
+class is not permitted to refer to a ref parameter declared in an
+outer scope. Otherwise such a parameter may be used once the location
+referred to has been deallocated.
+
+Example: 
+
+def m(ref x:Int):(Int)=> Void = 
+   (n:Int) => x=n;  // ILLEGAL: Cannot capture a ref variable.
+
+def update():(Int)=>Void {
+  var x:Int=0;
+  // Returns a function that captures a ref to x, but x does not 
+  // exist after the return.
+  return m(x);  
+}
+def use() {
+ update()(3);  // Error! referencing a location that does not exist.
+}
+
+In the above pattern, it would also be illegal to define m(ref x:Int) as:
+def m(ref x:Int) = 
+   new Runnable[Int]() {
+     public def run():Int= x;
+   };
+
+However, we do permit a closure to have a ref argument:
+
+Example
+class F {
+ val rest = (ref a:Int) => 
+     finish {
+       async fib(x); // modifies x
+       fib(n);       //  modifies through the ref passed in n
+    };
+
+ def fib(ref n:Int):Void {
+   if (n < 2) return n;
+   var x:Int=n-1;
+   n -= 2;
+   rest(n);
+   // modifies through the ref passed in n
+   n += x;
+ }
+}
+EndOfExample
+
+Note that bodies of asyncs are permitted to read and write local
+variables. They do this implicitly through a ref.  We can represent
+async bodies as closures which take as many args as variables that are
+written in the body of the async. The closure is then applied (during
+async invocation) to refs for the corresponding local variables.
+
+Example
+The program:
+
+  val n=10;
+  var x=2;
+  val y:Int;
+  finish {
+   async y = fib(x+n);
+  }
+
+can also be written as:
+
+  val n=10;
+  var x=2;
+  val y:Int;
+  finish 
+   Runtime.runAsync((ref y:Int, ref x:Int):Void=> {y=fib(x+n)}, x, y);
+
+Note that n is "captured", but x and y are not.
+
+Assume we have the following definitions in Runtime.
+
+def runAsync[T1](body: (ref T1)=>Void, arg: ref T1) {...}def runAsync[T1,T2](body: (ref T1, ref T2)=>Void, arg1: ref T1, arg2:ref T2);
+...
+EndOfExample
+
+This may help in resolving the problem that code in the body of
+closures/asyncs/ats can do subtly different things.
+
+I.C ACC VARIABLES
+
+I.C.1 acc local variables 
+
+A local variable may be declared as acc (accumulator) variables.
+
+  acc(r) x:Int;
+
+Such a declaration takes a reducer r, an instance of the struct:
+
+  package x10.lang;
+  struct Reducer[T](zero:T, apply:global (T,T)=>T){}
+
+The value zero represents the reduction of the empty set of
+T-values. 
+
+The function apply specifies how two values should be reduced to
+obtain a single value. apply should be pure (no side-effects) and
+associative and commutative.  It must also be the case that
+r(zero,w)=w=r(w,zero) for any value w. These conditions are not
+checked by the compiler.
+
+If the reducer is of type Reducer[T], then the declared type of the
+variable must be S, where S <: T.
+
+The governing activity for an acc variable is the activity that
+declares the variable. Such an activity may read and write into the
+variable with no restrictions in any synchronous state. 
+
+  A synchronous state is one in which all asyncs spawmed by the
+  governing activity have terminated.
+
+The initial value of an acc variable is r.zero. A write of a value v
+into an acc variable causes the value r(v,w) to be written into it,
+where w is the value already stored in the variable. (This is why the
+variable is called an "accumulator".) Read always returns the current
+value of the variable.
+
+An async spawned within the scope of a finish executed by the
+governing activity is permitted to write into the variable. It may not
+read from the variable. An acc variable may be read/written from any
+place, not just the place it was created.
+
+Example
+  acc(Int.+) result:Int=0;
+  r=1;
+  print(r); // writes 1.
+  finish {
+     for (p in 2..10) 
+       async {
+          // cannot read result but can write into it.
+          ...
+         result=p(0); 
+       }
+     // cannot read result because state is not synchronous, but can
+     // write into it.  
+    ...
+  }
+  // state is synchronous. can read and write into r.
+  print(r); // prints out 1+2..+ 10.
+EndOfExample 
+
+Acc variables cannot cause any races. They can only be read in a
+synchronous state; the value returned is the value stored in the
+variable. Thus there are no read-write conflicts. There are no
+write-write conflicts since writes are accumulating.
+
+I.C.2 acc method and closure parameters
+
+Formal parameters of methods and closures may be marked acc (instead
+of var or val). The compiler checks that the actuals for such
+parameters are acc local variables or acc parameters. 
+
+acc parameters are always passed by reference.  acc parameters may not
+be read, but they can be written into.
+
+
+Example
+Here is an example showing the "collecting finish" idiom:
+
+def fib(n:Int):Int {
+  val r= Reducer[Int](0, Int.+);
+  acc(r) x:Int;
+  finish fib1(n, x); // fib1 may write into x.
+  // read the value in x and return it.
+  return x;
+}
+def fib1(n, acc x:Int) {
+   if (n < 2) x=n;
+   async fib1(n-1, x);
+   fib1(n-2, x);
+}
+EndOfExample
+
+I.C.3 acc fields 
+
+Classes and structs may define acc fields, but these are of limited
+use.
+
+In every constructor, an acc field is treated as as local acc
+variable. Thus the constructor may read and write into the field (in
+synchronous states) and spawn asyncs (within a finish) to write into
+the field. Once the constructor returns, an acc field becomes
+immutable. It cannot be written into. It can be read by any activity
+which can access the parent object.
+
+See also clocked acc fields below; such fields may be initialized
+repeatedly, once for each phase of the governing clock.
+
+Example
+We may wish to write fib thus:
+struct Fib {
+  static val r= Reducer[Int](0, Int.+);
+  public acc result:Int{result.reducer==r}; 
+  def this(n:Int) {
+   finish 
+      // result may be assigned within fib1 multiple times asynchronously
+      // but cannot be read.
+     fib1(n);
+  }
+
+  private def fib1(n:Int) {
+    if (n < 2) result=n;
+    async fib1(n-1);
+    fib1(n-2);
+  }
+}
+// usage: the result field can be read once the instance has been created.
+val fibn = Fib(n).result;
+
+EndOfExample
+
+I.C.4 Meta-protocol for acc variables
+
+Consider aggregate data-structures such as arrays or hash-maps. These
+support a notion of indexed locations, i.e. families of locations
+indexed by values from some type, for example Int or Key.  Programmers
+may wish to specify accumulation for such locations.
+
+For this X10 supports the notion that a class may implement the 
+accumulator protocol on its own. 
+
+To do this, the class C must implement
+x10.lang.imp.SelfAccumulator[K,V], for some type K and V.
+
+package x10.lang.imp;
+public interface SelfAccumulator[K,V] {K <: Comparable[K]} {
+  global def update(k:K,v:Value):Void;
+  global def update(k:ValRail[K],v:ValRail[V](k.length)):Void;
+  global def reducer():Reducer[V];
+  global def apply(k:K):V;
+}
+
+An accumulator instance of this class is declared as:
+
+acc o:C = ...;
+
+(Note that no reducer is specified with the acc.)
+
+Updates to the variable are performed by:
+
+o(key) = value;
+
+(where key:K and value:V). 
+
+The X10 implementation has the licence to replace two update
+operations o(key1)=value1 and o(key2)=value2 by o(key) =
+o.reducer().f(value1,value2) provided that key1.compareTo(key2)==0 and
+the wo operations are executed in the scope of the controlling finish
+(if the finish is unclocked) or the current phase (if the finish is
+clocked).
+
+It also has the licence to replace two such update calls
+o(key1)=value1 and o(key2)=value2 with o.update([key1, key2], [value1,
+value2]).
+
+  Thus the implementation may perform an inspector-executor
+  optimization, aggregating multiple updates to the object as long as
+  they occur in the same phase. This generalizes the current
+  implementation of clocked finish.
+
+Example
+ class HashMap[K,V](r:Reducer[V]) implements SelfAccumulator[K,V] {
+ ..
+ }
+ // usage
+ acc o = new HashMap[String,Int](Reducer[Int](0, Int.+));
+ finish {
+     async o("a")=1;
+     async o("b")=2;
+     async o("a")=3;
+ }
+// o can now be "read". o("a") will return 4 and o("b") will return 2.
+...
+// The declaraing activity may enter another finish scope and write into
+// o. o may not be read during this time.
+ finish {
+     async o("a")=5;
+ }
+// Now o("a") will return 9.
+
+EndOfExample
+I.D CLOCKED VALUES AND STATEMENTS
+
+I.D.1 Clocked finish and async
+A finish statement may be qualified with "clocked". Such a finish is
+associated with a clock.
+
+An async spawned in the scope of a clocked finish may be marked as
+"clocked". Such an async (and only such an async) is registered on the
+same clock as the enclosing finish. 
+
+The body of a clocked async and clocked finish may use the next
+statement to advance the clock.
+
+When the body of a clocked finish completes, the activity executing
+the finish implicitly drops the clock. (It is waiting for its spawned
+asyncs to terminate.) 
+
+   An occurrence of next oustide a clocked finish, clocked async or
+   clocked method (see below) generates a compile-time error.
+ 
+I.D.2 Clocked local variables
+
+val and acc local variables may be qualified with "clocked".  Such
+variables have a governing clock. This is the clock of the current
+clocked finish being executed by the governing activity for the
+variable, at the scope at which the variable is declared.  Such
+variables are implemented with two locations -- the current location
+and the next location. The declaration of a clocked val variable must
+explictly supply a value; this is used to initialize the current
+location.
+
+Within a clocked next, a read of a val/acc is always performed against
+the current location, and a write against the next location. These two
+locations are switched instantaneously on the execution of next for
+the govening clock. In the case of a clocked val, if the next location
+is uninitialized (there has been no write in the previous phase) 
+the value of the current location is copied into it before the switch.
+In the case of a clocked acc, if the next location is uninitialized
+then the reducer's zero is copied into it before the switch.
+
+  def m() {
+    clocked val x:Int;
+    clocked finish {  // A
+       // the clock for x is that of the finish A
+       clocked finish { // B
+           // the clock for x is still that of the finish A
+       }
+    }
+    // no governing clock
+ }
+
+For every clocked val the compiler performs a particular static
+analysis to ensure that it is written into at most once during a
+phase.  This ensures that in no phase is there a write-write conflict.
+
+   Note an async is not permitted to write twice into a val variable
+   in the same phase.
+
+The analysis will assume that a method call into which a
+val is communicated by reference writes unconditionally into that val.
+
+No such analysis is performed for acc's, indeed they may be written
+into multiple times during each phase (these multiple writes are
+reduced as usual for acc's).
+
+A clocked val/acc x can only be written into inside a clocked finish at
+the same scope as the clocked val/acc, since the next necessary to
+publish the value can only be executed inside such a clocked finish.
+Only those asyncs spawned within such a finish can read/write x that are 
+marked "clocked". 
+
+  Note: It is good practice to ensure that clocked finish's terminate
+  after performing a next so that the current location reflects the
+  last write performed to the clocked val/acc.
+
+Outside such a clocked finish, x can be read by the governing activity
+and by asyncs spawned by it, without introducing any race conditions.
+The value returned is the value of the current location.
+
+A clocked val/acc x can only be passed by reference to method
+invocations inside a clocked finish at the same scope as x.
+
+Mutable local variables ("var"s) cannot be "clocked". They are
+assigned and read from with no regard to clock phases. That is, reads
+always return the "current" value of the location as determined by the
+"last write" to the location, subject to memory model rules. This will
+typically cause races.
+
+Example
+The following (determinate) program returns the first number that is
+both fibonacci and a perfect square. (I dont actually know if this
+program terminates!)  It computes fib(i) in parallel with the
+evaluation of perfectSquare(fib(i-1)).
+
+  def perfectSquareFib():Int {
+    clocked val n:Int;
+    clocked finish {
+      var i:Int=2;
+      n = fib(i++); // n initialized to fib(2) after next.
+      next;
+      while (true) {
+        clocked async n = fib(i++); // assignment occurs after next.
+        if (perfectSquare(n))
+	  return n;
+        next; // wait for n to be computed for the next value of i.
+      }    
+    }
+  }
+
+EndOfExample
+
+Note: Integrating an implicit clock with finish does not take care of
+all clock-based idioms. In particular, data-flow computations require
+an activity to be simultaneously registered on (and active on)
+multiple clocks. Olivier is proposing that library writers be
+permitted to define and use their own clock (and finish)
+implementations. This is a possibility -- to be pursued after we have
+a better handle on current efforts to obtain scalable finish.
+
+I.D.3 clocked objects, fields, methods and types
+
+Class and struct declarations may be qualified with clocked. Such
+classes and structs may have val/acc fields and methods marked with
+clocked. An instance of such a class/struct must be created inside a
+clocked finish -- it has a governing clock which is the clock of the
+finish it was created in. 
+
+clocked fields can only be accessed within (and only within) clocked
+methods.
+
+clocked val and acc fields may be initialized repeatedly, once per
+phase (just liked clocked local variables). It is not a compile-time
+error for multiple async to simultaneously invoke methods on a clocked
+object that write into a clocked acc field. All such writes belong to
+the current phase and are reduced.
+
+Note that simultaneous
+execution of multiple clocked methods of an object does not cause any
+problems.
+
+clocked methods can only be invoked by asyncs spawned within the
+finish governing the object.
+
+In the body of clocked finish/class/struct, the expression
+Z{clocked} is a type if Z is a type whose base class/struct is
+"clocked". A value is of this type if it is of type Z and its
+governing clock is that of the clocked finish/class/struct.
+
+The type argument of a dynamic cast (as) is permitted to be a clocked
+type. The cast succeeds if the expression evaluates to an instance of
+a clocked class/struct whose clock is the same as the current clock. 
+
+Similarly, the type argument of an instanceof expression is permitted
+to be a clocked type.
+
+Example
+
+The 1-d Heat transfer problem can be written like this. 
+
+  val A:Array[Double]; 
+  val r = Reducer(0.0, Double.absMax);
+  acc delta:Double{delta.reducer==r};
+  clocked finish  {
+    A  = Array.make[Double](0...n+1);//to be initialized in finish block.
+    for (p in A.region) clocked async {
+      A(p) = p(0)==n+1 ? 1.0 : 0.0;
+      next;
+      if (p(0) != 0 && p(0) != n+1) {
+        while (delta > eps) { // the delta read here is the sum 
+          val z = (A(p-1)+A(p+1))/2 - A(p);
+          delta = z; // this is my contribution to delta
+          A(p) += z;
+          next;
+       }
+    }
+  }}
+  // A(i) can be read now, contains the final value. 
+
+EndOfExample
+
+
+Example
+
+The NBody problem can be implemented determinately. 
+
+clocked class Body {
+  val mass:Double;
+  val bodies:ValRail[Body{clocked}]; // all the other bodies in the system
+  clocked val pos:Position
+  def this(..){...}
+  def setBodies(bodies;ValRail[Body{clocked}]){ ..}
+  clocked def pos()=pos;
+  private clocked def calcForce(oMass:Double, oPos:Position)=...;
+  private clocked def calcPos(force:Double, deltaT:Double)=...;
+  clocked def newPos(deltaT:Double):Position {
+     var force:Double=0.0D;
+     acc force:Double{force.reducer==Double.Summer};
+     finish for (body in Bodies) async {
+         // body.pos() invocation is ok because body:Body{clocked}
+         // hence body is clocked on the same clock as this.
+         force = calcForce(body.mass, body.pos());
+     }
+     val newPos = calPos(force, deltaT);
+     val delta = newPos - pos;
+     pos = newPos;
+     return delta;
+  }
+}
+class NBodySystem {
+  static val eps = ...;
+  def main(ValRail[String]) {
+     val N = ...;
+     val deltaT = ...;
+     val bodies:ValRail[Body];
+     clocked finish {
+       // bodies will be created and operated on within this finish.
+       bodies = ValRail.make[Body{clocked}](N, (i:Int)=> new Body(...));
+       // each body is created on the same clock
+       for (body in bodies) body.setBodies(bodies);
+       acc delta:Pos{delta.reducer==Pos.absMax};
+       for (body in bodies) clocked async {
+          // each of these asyncs has the same clock as the
+          // enclosing finish
+          while (delta > eps) {
+             delta = body.newPos(deltaT);
+             next;
+          }
+       }
+    }
+    // bodies can be read now and have their final position value.
+  }
+}
+EndOfExample
+
+I.D.4 Meta-protocol for clocked instances
+
+A clocked instance (object/struct) is implemented by creating two
+copies of clocked fields -- red and black.  The instance is either in
+the red phase or in the black phase. In any phase X, reads of clocked
+fields are directed to the field's X copy, and writes to the other
+(non-X) copy. Initially the instance is created in the red phase. When
+the clock is ready to transition (and before it transitions), it
+visits each instance registered with it (possibly in parallel) and
+advances its phase (to black from red, and to red from black).
+
+The programmer is permitted to override this default behavior in
+certain conditions. (This flexibility is useful, for instance, in
+implementing ClockedArray, ClockedArrayList etc.)  S/he does this by
+having a clocked class/struct implement the interface
+x10.lang.SelfClocked.
+
+package x10.lang;
+public interface SelfClocked {
+   def advance():Void;
+}
+
+It is a compile time error for a class/struct implementing SelfClocked
+to have any clocked fields. It is the programmer's responsibility for
+ensuring that the clocked idiom is implemented correctly by recording
+the current phase in the state of the object, ensuring that reads and
+writes of mutable state are dealt with correctly according to the
+clocked idiom, and providing an implementation of advance() that
+correctly advances the state of the object.
+
+Example
+Here is a schematic implementation of ClockedArray. 
+
+public clocked class ClockedArray[T] implements SelfClocked {
+  protected val red: Array[T];
+  protected val black:Array[T];
+  protected var phase:Boolean=true;
+  def this(..) {...}
+  public def advance() {
+     phase = !phase;
+  }
+  public clocked def get(p:Point) = phase? red.get() : black.get();
+  public clocked def put(p:Point, t:T) = phase ? black.put(p,t) : red.put(p,t);
+}
+EndOfExample
+
+I.D.5 clocked static semantics rules.
+
+(1) A method must be marked clocked if it overrides a clocked method.
+(2) If a method is marked clocked, it must be an instance method, and 
+    the class must be clocked.
+(3) If a field is marked clocked, it must be an instance field, and 
+    the class must be clocked.
+(4) A clocked field can be accessed only within a clocked method.
+(5) A constructor for a clocked class may be invoked only in a clocked
+    context.
+(6) 
+
+I.E @det annotations on statements
+
+Statements may be marked with @det to document user intention that the
+statement is intended to be determinate. Compiler will emit warnings
+if it is unable to establish this. 
+
+The compiler will use commutativity analysis (based on a
+clock-sensitive effects analysis) to establish determinacy. The rules
+followed by this analysis are simple to state (compositionally) for
+the alias-free language presented above.
+
+    Each statement is associated with read/write effect sets (together
+    with an @fun or a @parfun annotation). An effect set is a set of
+    names of mutable locations. Commutativit involves establishing
+    disjointness of these sets.
+
+I.F var fields in structs
+
+We permit structs to have var fields.  This is of some programmer
+value since structs can be passed by reference.
+
+The assignment operator at type T (where T is a struct type) copies
+the contents of the rhs into the lhs.
+ 
+Example 
+Here is how one may compute the maximum value in an array and its
+associated index.
+
+   struct MaxI[T](min:T, comp:(T,T)=>Boolean) {
+      var index:Int=0;
+      var max:Double=min;
+      def addIn(i:Int, d:T) {
+         if (comp(d, max)) {
+           index=i;
+           max=d;
+         }
+      }
+   }
+
+   def maxI(a:Array[Double](1)): MaxI {
+     val x = MaxI[Double](0.0D, Double.>);
+     maxI(a, x);
+     return x;
+   }
+
+   def maxI(a:Array[Double](1), ref m:MaxI) {
+     for (var i=0; i < a.size(); i++) 
+          m.addIn(i, a(i));
+   }
+EndOfExample
+
+IMPLEMENTATION CONSIDERATIONS
+
+I.A Asynchronous Initialization
+
+Need a definition of definite assignment in the presence of asyncs and
+finish blocks.
+
+The definite assignment rules need to consider assignment of array
+locations as well.
+
+This is only a Front End change. 
+
+However, the front end will need to inform the middle/back-end that
+certain local variables are going to be asynchronously
+initialized. These variables will need to be boxed in the Managed
+backend.
+
+I.B Call by Reference
+In the C++ backend this should be easy to implement using C++ refs.
+
+In the Java backend the most straightforward implementation is to
+create a Box on the heap containing a mutable field. 
+
+I.C Acc Variables
+
+My high-level plan is that the implementation of acc variables will
+use the current collecting finish implementation. The compiler will
+need to associate with each finish the acc variables that are to be
+operated upon by the body of the finish. 
+
+   This can be determined intra-procedurally: it is simply the set of
+   local variables used within the body of the finish, plus any ref
+   parameters used within the body of the finish.
+
+The local/remote finish records associated with the finish will have
+space for each of these variables. The messages sent to signal
+quiescence of a place for that particular finish will carry the values
+of these variables from the quiesced place.
+
+Details TBD.
+
+I.D Implicit clock with finish
+
+A clocked finish can re-use the last clock created by this activity at
+the same scope. If there is none, a new clock should be
+created. (Using the current implementation of clock.)
+
+For every clocked val/acc local variable or field two locations need
+to be allocated.
+
+Details TBD.
+
+I.D.3 clocked classes
+
+A clocked class has an implicit hidden property that is initialized
+(on object creation) with the current clock.
+
+I.E @det annotation
+ 
+Implementation effort confined to integrating effects checker into
+static semantics checker (Front end).
+
+I.F var fields in structs
+
+This should have minor implementation consequences. 
+
+Java: Structs are implemented as objects, they can have mutable
+fields. If a struct has a mutable field, then it must be passed by
+copy into a call (unless the parameter is marked by @ref). 
+   But this should not be surprising.
+
+DISCUSSION
+
+Q1. Why introduce sum, why not just have a Sum[T] class with .offer(T)
+   and getResult():T methods? (Yoav)
+
+A. Because we want to guarantee determinacy. As soon as we create an
+  associated object, we need special rules to ensure it does not
+  escape into the heap. (Once it escapes into the heap, any
+  asynchronous activity can pick it up at any time and offer to it --
+  we lose determinacy.)
+
+Q2. Why cant clocked variables be explicit, e.g. Clocked[T], with
+  .set(T) and .get():T methods? (Yoav)
+
+A Same reason as above. Clocked variables have to be tied to clocks
+  for determinacy reasons. Every activity reading/writing a clocked
+  variable needs to have a determinately known phase in which it is
+  performing the operation. 
+
+  The insight underlying this current proposal is that lexical scope
+  offers substantial power for dealing with this issue, through an
+  appropriate combination of local variable declarations, and nesting
+  of finish/async/next. We use call-by-ref to permit methods to access
+  local variables. But we avoid the heap. 
+
+
+Q3. Why do you use the assignment operator (=) for acc variables, when
+  the semantics is that of offer?
+
+A. Yes, there is a semantic distinction -- not clear it should
+  translate to a syntactic distinction. One could use := or <-. But on
+  the other hand, the acc declaration is already telling you that
+  assignments are going to be accumulated.
+
+
+====
+
+Issues raised
+
+--- need to think about the protocol for classes that permits their
+    component locations to be accumulatable, clockable etc.
+
+--- Need ot ensure that clocked variables are initialized in each
+    phase? No. onlyin the initial phase? No, not at all, because we
+    can always start them off with a concrete value, and hten have the
+    activities perform next before they write to it again. However, we
+    do want to ensure determinacy in the multple writes, so for that
+    they use @det.
+
+--- Is there a need to distinguish a ref to a val from a ref to a
+    clocked val?

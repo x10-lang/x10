@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Destructuring syntax</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Destructuring syntax</h2>
+
+
+X10 permits a <em>destructuring</em> syntax for local variable
+declarations with explicit initializers,  and for formal parameters, of type <b>Point</b>, &#167;.
+(Future versions of X10 may allow destructuring of other types as well.) 
+A point is a sequence of zero or more <b>Int</b>-valued coordinates.  
+It is often useful to get at the coordinates directly, in variables. 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+The syntax "val [a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;" declares n
+<b>Int</b> variables, bound to the first n components of the <b>Point</b> value of
+<b>e</b>; it is an error if <b>e</b> is not a <b>Point</b> with at least n components.
+The syntax "val p[a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;"  is similar, but also
+declares the variable <b>p</b> as "Point".  
+
+<div class="p"><!----></div>
+The following code makes an anonymous point with one coordinate <b>11</b>, and
+binds <b>i</b> to <b>11</b>.  Then it makes a point with coordinates <b>22</b>
+and <b>33</b>, binds <b>p</b> to that point, and <b>j</b> and <b>k</b> to <b>22</b>
+and <b>33</b> respectively.
+<pre>
+val [i] : Point = Point.make(11);
+val p[j,k] = Point.make(22,33);
+val q[l,m] = [44,55]; // coerces an array to a point.
+</pre>
+
+<div class="p"><!----></div>
+A useful idiom for iterating over a range of numbers is: 
+<pre>
+var sum : Int = 0;
+for ([i] in 1..100) sum += i;
+</pre>
+
+The brackets in <b>[i]</b> introduce destructuring, making X10 treat <b>i</b>
+as an <b>Int</b>; without them, it would be a <b>Point</b>.  
+
+<div class="p"><!----></div>
+
+</body>
+</html>

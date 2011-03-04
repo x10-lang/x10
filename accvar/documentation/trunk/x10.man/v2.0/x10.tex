@@ -1,0 +1,228 @@
+%\documentclass[10pt,twoside,twocolumn,notitlepage]{report}
+\documentclass[12pt,twoside,notitlepage]{report}
+\usepackage{x10}
+\usepackage{tenv}
+\def\Hat{{\tt \char`\^}}
+\usepackage{url}
+\usepackage{times}
+\usepackage{txtt}
+\usepackage{ifpdf}
+\usepackage{tocloft}
+\usepackage{bcprules}
+\usepackage{xspace}
+
+\newif\ifdraft
+%\drafttrue
+\draftfalse
+
+\pagestyle{headings}
+\showboxdepth=0
+\makeindex
+
+\usepackage{commands}
+
+\usepackage[
+pdfauthor={Vijay Saraswat, Bard Bloom, Igor Peshansky, Olivier Tardieu, and David Grove},
+pdftitle={Report on the Language X10},
+pdfcreator={pdftex},
+pdfkeywords={X10},
+linkcolor=blue,
+citecolor=blue,
+urlcolor=blue
+]{hyperref}
+
+\ifpdf
+          \pdfinfo {
+              /Author   (Vijay Saraswat, Bard Bloom, Igor Peshansky, Olivier Tardieu, and David Grove)
+              /Title    (Report on the Language X10)
+              /Keywords (X10)
+              /Subject  ()
+              /Creator  (TeX)
+              /Producer (PDFLaTeX)
+          }
+\fi
+
+\def\headertitle{The \XtenCurrVer{} Report (Draft) }
+\def\integerversion{2.0.6}
+
+% Sizes and dimensions
+
+%\topmargin -.375in       %    Nominal distance from top of page to top of
+                         %    box containing running head.
+%\headsep 15pt            %    Space between running head and text.
+
+%\textheight 9.0in        % Height of text (including footnotes and figures, 
+                         % excluding running head and foot).
+
+%\textwidth 5.5in         % Width of text line.
+\columnsep 15pt          % Space between columns 
+\columnseprule 0pt       % Width of rule between columns.
+
+\parskip 5pt plus 2pt minus 2pt % Extra vertical space between paragraphs.
+\parindent 0pt                  % Width of paragraph indentation.
+%\topsep 0pt plus 2pt            % Extra vertical space, in addition to 
+                                % \parskip, added above and below list and
+                                % paragraphing environments.
+
+
+\newif\iftwocolumn
+
+\makeatletter
+\twocolumnfalse
+\if@twocolumn
+\twocolumntrue
+\fi
+\makeatother
+
+\iftwocolumn
+
+\oddsidemargin  0in    % Left margin on odd-numbered pages.
+\evensidemargin 0in    % Left margin on even-numbered pages.
+
+\else
+
+\oddsidemargin  .5in    % Left margin on odd-numbered pages.
+\evensidemargin .5in    % Left margin on even-numbered pages.
+
+\fi
+
+
+\newtenv{example}{Example}[section]
+\newtenv{planned}{Planned}[section]
+
+\begin{document}
+
+% \parindent 0pt %!! 15pt                    % Width of paragraph indentation.
+
+%\hfil {\bf 7 Feb 2005}
+%\hfil \today{}
+
+\input{first} 
+
+\clearpage
+
+{\parskip 0pt
+\addtolength{\cftsecnumwidth}{0.5em}
+\addtolength{\cftsubsecnumwidth}{0.5em}
+%\addtolength{\cftsecindent}{0.5em}
+\addtolength{\cftsubsecindent}{0.5em}
+\tableofcontents
+}
+
+\input{Intro}
+\input{Overview}
+\input{Lex}
+\input{Types}	
+\input{Vars}
+\input{Packages}
+\input{Interfaces}
+\input{Classes}
+\input{Structs}
+\input{Functions2}
+\input{Expressions}	
+\input{Statements}	
+\input{Places}	
+\input{Activities}	
+\input{Clocks}	
+\input{Arrays}	
+\input{Annotations}
+\input{extern}
+\input{Lost}
+%\input{Grammar}
+\renewcommand{\bibname}{References}
+\bibliographystyle{plain}
+\bibliography{master}
+
+%\input{bib}	
+
+% Adjustment to avoid having the last index entry on a page by itself.
+%\addtolength{\baselineskip}{-0.1pt}
+
+\clearpage
+\input{x10.ind}
+
+\appendix
+
+\chapter{Change Log}
+
+\section{Changes from \Xten{} v2.0}
+
+\begin{itemize}
+\item \Xcd{Any} is now the top of the type hierarchy (every object,
+  struct and function has a type that is a subtype of
+  \Xcd{Any}). \Xcd{Any} defines \Xcd{home}, \Xcd{at}, \Xcd{toString},
+  \Xcd{typeName}, \Xcd{equals} and \Xcd{hashCode}. \Xcd{Any} also defines the methods
+  of \Xcd{Equals}, so \Xcd{Equals} is not needed any more.
+\item Revised discussion of incomplete types (\Sref{ProtoRules}).
+\item The manual has been revised and brought into line with the current implementation. 
+\end{itemize}
+\section{Changes from \Xten{} v1.7}
+
+The language has changed in the following way:
+\begin{itemize}
+
+\item {\bf Type system changes}: There are now three kinds of entities
+  in an \Xten{} computation: objects, structs and functions. Their
+  associated types are class types, struct types and function
+  types. 
+
+  Class and struct types are called {\em container types} in that they
+  specify a collection of fields and methods. Container types have a
+  name and a signature (the collection of members accessible on that
+  type). Collection types support primitive equality \Xcd{==} and may
+  support user-defined equality if they implement the {\tt
+    x10.lang.Equals} interface. 
+
+  Container types (and interface types) may be further qualified with
+  constraints.
+
+  A function type specifies a set of arguments and their type, the
+  result type, and (optionally) a guard. A function application
+  type-checks if the arguments are of the given type and the guard is
+  satisfied, and the return value is of the given type.  A function
+  type does not permit \Xcd{==} checks. Closure literals create
+  instances of the corresponding function type.
+
+  Container types may implement interfaces and zero or more function
+  types.
+
+  All types support a basic set of operations that return a string
+  representation, a type name, and specify the home place of the entity.
+
+  The type system is not unitary. However, any type may be used to
+  instantiate a generic type. 
+
+  There is no longer any notion of \Xcd{value} classes. \Xcd{value}
+  classes must be re-written into structs or (reference) classes. 
+
+\item {\bf Global object model}: Objects are instances of
+  classes. Each object is associated with a globally unique
+  identifier. Two objects are considered identical \Xcd{==} if their
+  ids are identical. Classes may specify \Xcd{global} fields and
+  methods. These can be accessed at any place. (\Xcd{global} fields
+  must be immutable.)
+
+\item{\bf Proto types.} For the decidability of dependent type
+  checking it is necessary that the property graph is acyclic. This is
+  ensured by enforcing rules on the leakage of \Xcd{this} in
+  constructors. The rules are flexible enough to permit cycles to be
+  created with normal fields, but not with properties.
+
+\item{Place types.} Place types are now implemented. This means that
+  non-global methods can be invoked on a variable, only if the
+  variable's type is either a struct type or a function type, or a
+  class type whose constraint specifies that the object is located in
+  the current place.
+
+  There is still no support for statically checking array access
+  bounds, or performing place checks on array accesses.
+
+\end{itemize}
+{\em The \Xten{} language has been developed as part of the IBM PERCS
+Project, which is supported in part by the Defense Advanced Research
+Projects Agency (DARPA) under contract No. NBCH30390004.}
+
+{\em Java and all Java-based trademarks are trademarks of Sun Microsystems,
+Inc. in the United States, other countries, or both.}
+\end{document}
+

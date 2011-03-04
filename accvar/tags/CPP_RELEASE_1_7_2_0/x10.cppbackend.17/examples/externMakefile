@@ -1,0 +1,8 @@
+include ../$(X10REL)/examples/Constructs/Extern/Makefile
+MAKE:=$(MAKE) -f externMakefile
+CFLAGS+=-isystem out -I../FFTW3/include -L../FFTW3/lib
+
+$(LIBPFX)HWExtern_externs.$(LIBEXT):	HWExtern_externs.o out/HWExtern_x10stub.c
+
+$(LIBPFX)FtStatic.$(LIBEXT):	LDLIBS+=-lfftw3
+$(LIBPFX)FtStatic.$(LIBEXT):	c_randdp.o fft_fftw3.o FtStatic_externs.o out/FtStatic_x10stub.c

@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="X10JavaBuilder"
+         name="X10 Java Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="false"
+            hasNature="true"
+            isConfigurable="false">
+         <run
+               class="x10dt.ui.launch.java.builder.X10JavaBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="x10nature"
+         name="X10 Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="x10dt.ui.launch.java.nature.X10ProjectNature">
+         </run>
+      </runtime>
+      <builder
+            id="x10dt.ui.launch.java.X10JavaBuilder">
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.imp.model.ISourceProject"
+            id="x10dt.ui.launch.java.add.builder">
+         <action
+               label="%add.x10.java-back-end.builder"
+               tooltip="%add.x10.java-back-end.builder.descr"
+               class="x10dt.ui.launch.java.actions.BuilderEnable"
+               menubarPath="org.eclipse.ui.projectConfigure/additions"
+               enablesFor="+"
+               id="x10dt.ui.launch.java.actions.enableBuilderAction">
+         </action>
+         <visibility>
+            <not>
+               <or>
+                  <objectState
+                        name="projectNature"
+                        value="x10dt.ui.launch.java.x10nature">
+                  </objectState>
+                  <objectState
+                        name="projectNature"
+                        value="x10dt.ui.launch.cpp.x10nature">
+                  </objectState>
+               </or>
+            </not>
+         </visibility>
+      </objectContribution>
+      <objectContribution
+            adaptable="false"
+            id="x10dt.ui.launch.java.obj.contrib.convert-to-cpp"
+            objectClass="org.eclipse.imp.model.ISourceProject">
+         <action
+               class="x10dt.ui.launch.java.actions.ConvertToCppBackEndAction"
+               enablesFor="+"
+               id="x10dt.ui.launch.java.actions.ConvertToCppBackEndAction"
+               label="%convert.cpp.back-end"
+               menubarPath="org.eclipse.ui.projectConfigure/additions">
+         </action>
+         <visibility>
+            <objectState
+                  name="projectNature"
+                  value="x10dt.ui.launch.java.x10nature">
+            </objectState>
+         </visibility>
+      </objectContribution>
+   </extension>
+   <extension
+         point="x10dt.ui.launch.core.x10ProjectConvert">
+      <converter
+            backEndType="java"
+            class="x10dt.ui.launch.java.actions.JavaBackEndProjectConverter">
+      </converter>
+   </extension>
+   <extension
+         point="x10dt.ui.launch.core.x10ToggleBreakpointHandler">
+      <x10ToggleBreakpointHandler
+            backEndType="java"
+            class="x10dt.ui.launch.java.debug.X10JavaToggleBreakpointHandler">
+      </x10ToggleBreakpointHandler>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="x10dt.ui.launch.java.launching.X10LaunchConfigurationDelegate"
+            id="x10dt.ui.launch.java.launching.X10LaunchConfigurationType"
+            modes="run"
+            name="X10 Application (Java back-end)"
+            public="true"
+            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            icon="icons/x10_application.gif"
+            configTypeID="x10dt.ui.launch.java.launching.X10LaunchConfigurationType"
+            id="x10dt.ui.launch.java.launching.X10LaunchConfigurationTypeImage">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            type="x10dt.ui.launch.java.launching.X10LaunchConfigurationType"
+            class="x10dt.ui.launch.java.launching.X10LaunchConfigurationTabGroup"
+            id="x10dt.ui.launch.java.launching.X10LaunchConfigurationTabGroup">
+         <launchMode
+               description="%run.launch.mode.descr"
+               mode="run"
+               perspective="x10dt.ui.perspective">
+         </launchMode>
+         <launchMode
+               description="%debug.launch.mode.descr"
+               mode="debug"
+               perspective="x10dt.ui.perspective">
+         </launchMode>
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            label="X10 Application (Java back-end)"
+            icon="icons/x10_application.gif"
+            modes="run"
+            class="x10dt.ui.launch.java.launching.X10JavaLaunchShortcut"
+            id="x10dt.ui.launch.java.launching.x10LaunchShortcut">
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1">
+                  </count>
+                  <iterate>
+                     <and>
+                        <or>
+                           <instanceof value="org.eclipse.imp.model.ISourceFolder"></instanceof>
+                           <instanceof value="org.eclipse.imp.model.ISourceRoot"></instanceof>
+                           <instanceof value="org.eclipse.imp.model.ISourceProject"></instanceof>
+                           <adapt type="org.eclipse.core.resources.IResource">
+                              <test property="x10dt.ui.hasMain"></test>
+                           </adapt>
+                           <adapt type="org.eclipse.ui.IFileEditorInput">
+                              <test property="x10dt.ui.hasMain"></test>
+                           </adapt>
+                        </or>
+                        <adapt type="org.eclipse.core.resources.IResource">
+                           <test property="org.eclipse.debug.ui.projectNature" 
+                                 value="x10dt.ui.launch.java.x10nature">
+                           </test>
+                        </adapt>
+                     </and>
+                  </iterate>
+               </with>
+            </enablement>
+         </contextualLaunch>
+         <configurationType
+               id="x10dt.ui.launch.java.launching.X10LaunchConfigurationType">
+         </configurationType>
+      </shortcut>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="x10dt.ui.launch.java.X10ElementCreation"
+            label="%perspective.actionsets">
+         <action
+               class="x10dt.ui.launch.java.actions.OpenX10ProjectJavaBCWizardToolbarAction"
+               icon="icons/newx10prj_java.gif"
+               id="x10dt.ui.NewX10ProjectJavaToolbarAction"
+               label="%new.project.java.label"
+               style="push"
+               toolbarPath="Normal/X10Wizards"
+               tooltip="%new.project.java.tooltip">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            name="X10"
+            id="x10dt.wizards.category">
+      </category>
+      <wizard
+            canFinishEarly="false"
+            category="x10dt.wizards.category"
+            class="x10dt.ui.launch.java.wizards.JavaProjectWizard"
+            finalPerspective="x10dt.ui.perspective"
+            hasPages="true"
+            icon="icons/newproject.gif"
+            id="x10dt.ui.java.launch.wizards.NewX10Project"
+            name="X10 Project (Java back-end)"
+            project="true">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="x10dt.ui.perspective">
+         <actionSet
+               id="x10dt.ui.launch.java.X10ElementCreation">
+         </actionSet>
+         <newWizardShortcut
+               id="x10dt.ui.java.launch.wizards.NewX10Project">
+         </newWizardShortcut>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="x10dt.ui.launch.java.launching.x10LaunchShortcut.run"
+            contextId="org.eclipse.ui.contexts.window"
+            sequence="M2+M3+X X"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="x10dt.ui.launch.java.launching.x10LaunchShortcut.run"
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+X X">
+      </key>
+      <key
+            commandId="x10dt.ui.launch.java.launching.x10LaunchShortcut.debug"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+D X">
+      </key>
+      <key
+            commandId="x10dt.ui.launch.java.launching.x10LaunchShortcut.debug"
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+M4+D X">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            name="Run X10 Application (Java Back-End)"
+            description="Run the selected main type as an X10 application"
+            categoryId="org.eclipse.debug.ui.category.run"
+            id="x10dt.ui.launch.java.launching.x10LaunchShortcut.run">
+      </command>
+      <command
+            name="Debug X10 Application (Java Back-End)"
+            description="Run the selected main type as an X10 application"
+            categoryId="org.eclipse.debug.ui.category.run"
+            id="x10dt.ui.launch.java.launching.x10LaunchShortcut.debug">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ptp.services.core.providers">
+      <provider
+            class="x10dt.ui.launch.java.launching.rms.MultiVMServiceProvider"
+            id="x10dt.ui.launch.java.provider"
+            name="MultiVM"
+            serviceId="org.eclipse.ptp.core.LaunchService">
+      </provider>
+   </extension>
+   <extension
+         point="org.eclipse.ptp.launch.rmLaunchConfigurations">
+      <launchConfiguration
+            class="x10dt.ui.launch.java.launching.rms.MultiVMLaunchConfigurationFactory"
+            id="x10dt.ui.launch.java.launching.rms.config.multi_vm">
+      </launchConfiguration>
+   </extension>
+   <extension
+         point="org.eclipse.ptp.services.ui.providerContributors">
+      <providerContributor
+            class="x10dt.ui.launch.java.launching.rms.MultiVMProviderContributor"
+            id="x10dt.ui.launch.java.launching.rms.multi_vm.contributor">
+      </providerContributor>
+   </extension>
+</plugin>

@@ -1,0 +1,16 @@
+HPC Challenge Benchmark: FFT
+
+Usage:
+	
+    a) x10c -d directoryForGeneratedFiles -BAD_PLACE_RUNTIME_CHECK=false fftDist.x10
+	* directoryForGeneratedFiles contains the generated .class and .java files;
+	* add other x10c flags if necessary 
+
+    b) make 
+	* update the locations of the required libraries beforehand
+		
+    c) x10 -J-mx2000m -J-ms2000m -libpath . -classpath directoryForGeneratedfiles -NUMBER_OF_LOCAL_PLACES=mmm 
+	-INIT_THREADS_PER_PLACE=1 -PRELOAD_CLASSES=true fftDist 
+        * mmm is the number of places to use
+	* problem size is hardwired in the code
+        * add other x10 flags if necessary 

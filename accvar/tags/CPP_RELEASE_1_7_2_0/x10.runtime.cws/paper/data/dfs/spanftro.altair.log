@@ -1,0 +1,262 @@
+$ which java
+/usr/jdk/latest/bin/java
+$ java -version
+java version "1.5.0_12"
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_12-b04)
+Java HotSpot(TM) Server VM (build 1.5.0_12-b04, mixed mode)
+$ source *path
+source: not found
+$ csh
+altair% which java
+/usr/jdk/latest/bin/java
+altair% source *path
+*path: No match
+altair% source *paths
+altair% which java
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java
+altair% foreach p (1 2 4 6 8 )
+? foreach n (2000000 3000000 4000000 5000000)
+? java -da -cp cws.jar -Xmx2G SpanFTRO $p $n;
+? end
+? end
+Number of procs=1
+N=2000000
+N=2000000 t=8.106
+N=2000000 t=1.981
+N=2000000 t=1.951
+N=2000000 t=1.930
+N=2000000 t=1.935
+N=2000000 t=2.005
+N=2000000 t=1.946
+N=2000000 t=1.942
+N=2000000 t=1.939
+Completed iterations for N=2000000
+Number of procs=1
+N=3000000
+N=3000000 t=10.361
+N=3000000 t=2.396
+N=3000000 t=2.462
+N=3000000 t=3.123
+N=3000000 t=2.746
+N=3000000 t=2.836
+N=3000000 t=2.936
+N=3000000 t=2.870
+N=3000000 t=2.425
+Completed iterations for N=3000000
+Number of procs=1
+N=4000000
+N=4000000 t=4.057
+N=4000000 t=3.626
+N=4000000 t=3.539
+N=4000000 t=3.542
+N=4000000 t=3.570
+N=4000000 t=3.639
+N=4000000 t=3.640
+N=4000000 t=3.628
+N=4000000 t=3.625
+Completed iterations for N=4000000
+Number of procs=1
+N=5000000
+N=5000000 t=6.625
+N=5000000 t=6.133
+N=5000000 t=4.939
+N=5000000 t=4.895
+N=5000000 t=4.904
+N=5000000 t=4.945
+N=5000000 t=4.897
+N=5000000 t=6.115
+N=5000000 t=5.840
+Completed iterations for N=5000000
+Number of procs=2
+N=2000000
+N=2000000 t=1.131
+N=2000000 t=1.101
+N=2000000 t=1.095
+N=2000000 t=1.053
+N=2000000 t=1.047
+N=2000000 t=1.038
+N=2000000 t=1.067
+N=2000000 t=1.040
+N=2000000 t=1.075
+Completed iterations for N=2000000
+Number of procs=2
+N=3000000
+N=3000000 t=1.582
+N=3000000 t=1.707
+N=3000000 t=1.743
+N=3000000 t=1.824
+N=3000000 t=1.552
+N=3000000 t=2.157
+N=3000000 t=1.507
+N=3000000 t=2.035
+N=3000000 t=1.593
+Completed iterations for N=3000000
+Number of procs=2
+N=4000000
+N=4000000 t=2.444
+N=4000000 t=2.101
+N=4000000 t=2.100
+N=4000000 t=2.102
+N=4000000 t=2.165
+N=4000000 t=2.087
+N=4000000 t=2.130
+N=4000000 t=2.983
+N=4000000 t=2.284
+Completed iterations for N=4000000
+Number of procs=2
+N=5000000
+N=5000000 t=3.017
+N=5000000 t=2.794
+N=5000000 t=2.787
+N=5000000 t=2.880
+N=5000000 t=2.797
+N=5000000 t=2.897
+N=5000000 t=2.991
+N=5000000 t=2.802
+N=5000000 t=3.226
+Completed iterations for N=5000000
+Number of procs=4
+N=2000000
+N=2000000 t=0.761
+N=2000000 t=0.529
+N=2000000 t=0.498
+N=2000000 t=0.484
+N=2000000 t=0.486
+N=2000000 t=0.485
+N=2000000 t=0.494
+N=2000000 t=0.488
+N=2000000 t=0.486
+Completed iterations for N=2000000
+Number of procs=4
+N=3000000
+N=3000000 t=1.464
+N=3000000 t=0.823
+N=3000000 t=0.809
+N=3000000 t=0.972
+N=3000000 t=0.814
+N=3000000 t=0.814
+N=3000000 t=0.815
+N=3000000 t=1.129
+N=3000000 t=0.794
+Completed iterations for N=3000000
+Number of procs=4
+N=4000000
+N=4000000 t=10.979
+N=4000000 t=0.979
+N=4000000 t=0.961
+N=4000000 t=0.980
+N=4000000 t=1.265
+N=4000000 t=0.984
+N=4000000 t=0.954
+N=4000000 t=0.950
+N=4000000 t=0.950
+Completed iterations for N=4000000
+Number of procs=4
+N=5000000
+N=5000000 t=1.367
+N=5000000 t=1.338
+N=5000000 t=1.316
+N=5000000 t=1.312
+N=5000000 t=1.598
+N=5000000 t=1.478
+N=5000000 t=1.566
+N=5000000 t=1.325
+N=5000000 t=1.328
+Completed iterations for N=5000000
+Number of procs=6
+N=2000000
+N=2000000 t=5.784
+N=2000000 t=0.392
+N=2000000 t=0.392
+N=2000000 t=0.388
+N=2000000 t=0.392
+N=2000000 t=0.786
+N=2000000 t=0.384
+N=2000000 t=0.389
+N=2000000 t=0.384
+Completed iterations for N=2000000
+Number of procs=6
+N=3000000
+N=3000000 t=8.247
+N=3000000 t=0.863
+N=3000000 t=0.683
+N=3000000 t=0.679
+N=3000000 t=0.748
+N=3000000 t=0.702
+N=3000000 t=0.695
+N=3000000 t=0.658
+N=3000000 t=0.705
+Completed iterations for N=3000000
+Number of procs=6
+N=4000000
+N=4000000 t=0.938
+N=4000000 t=0.853
+N=4000000 t=0.872
+N=4000000 t=0.854
+N=4000000 t=1.340
+N=4000000 t=0.849
+N=4000000 t=0.841
+N=4000000 t=0.877
+N=4000000 t=0.812
+Completed iterations for N=4000000
+Number of procs=6
+N=5000000
+N=5000000 t=1.064
+N=5000000 t=1.051
+N=5000000 t=1.027
+N=5000000 t=1.041
+N=5000000 t=1.611
+N=5000000 t=2.377
+N=5000000 t=1.063
+N=5000000 t=1.116
+N=5000000 t=1.113
+Completed iterations for N=5000000
+Number of procs=8
+N=2000000
+N=2000000 t=1.265
+N=2000000 t=0.435
+N=2000000 t=0.429
+N=2000000 t=0.346
+N=2000000 t=6.613
+N=2000000 t=0.402
+N=2000000 t=0.384
+N=2000000 t=0.346
+N=2000000 t=0.387
+Completed iterations for N=2000000
+Number of procs=8
+N=3000000
+N=3000000 t=1.097
+N=3000000 t=0.698
+N=3000000 t=0.630
+N=3000000 t=0.654
+N=3000000 t=0.680
+N=3000000 t=0.604
+N=3000000 t=0.612
+N=3000000 t=0.613
+N=3000000 t=0.606
+Completed iterations for N=3000000
+Number of procs=8
+N=4000000
+N=4000000 t=11.816
+N=4000000 t=0.958
+N=4000000 t=0.888
+N=4000000 t=0.876
+N=4000000 t=0.875
+N=4000000 t=0.872
+N=4000000 t=0.863
+N=4000000 t=0.862
+N=4000000 t=0.851
+Completed iterations for N=4000000
+Number of procs=8
+N=5000000
+N=5000000 t=1.075
+N=5000000 t=0.958
+N=5000000 t=0.971
+N=5000000 t=0.962
+N=5000000 t=0.969
+N=5000000 t=0.955
+N=5000000 t=0.961
+N=5000000 t=0.970
+N=5000000 t=0.960
+Completed iterations for N=5000000
+altair% 

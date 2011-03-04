@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Types</title>
+</head>
+
+<body>
+ <h1><a name="tth_chAp1">
+Chapter 4 </a><br />Types</h1>
+<a name="XtenTypes">
+</a>
+
+<div class="p"><!----></div>
+X10 is a <em>strongly typed</em> object-oriented language: every
+variable and expression has a type that is known at compile-time.
+Types limit the values that variables can hold.
+
+<div class="p"><!----></div>
+X10 supports three kinds of runtime entities, <em>objects</em>,
+<em>structs</em>, and <em>functions</em>. Objects are instances of <em>
+  classes</em> (&#167;). They may contain zero or
+more mutable fields, and a reference to the list of methods defined on them.
+
+<div class="p"><!----></div>
+An object is represented by some (contiguous) memory chunk on the
+heap. Entities (such as variables and fields) contain a <em>
+  reference</em> to this chunk. That is, objects are represented through
+an extra level of indirection.  A consequence of this flexibility is
+that an entity containing a reference to an object  needs only
+one word of memory to represent that reference, regardess of the
+number of fields in . An assignment to this entity simply
+overwrites the reference with another reference (thus taking constant
+time). Another consequence is that every class type contains the value
+<b>null</b> corresponding to the invalid reference. <b>null</b> is often
+useful as a default value. Further, two objects may be compared for
+identity (<b>==</b>) in constant time by simply comparing references to
+the memory used to represent the objects. The default hash code for an
+object is based on the value of this reference. A downside of this
+flexibility is that the operations of accessing a field and invoking a
+method are more expensive than simply reading a register and
+invoking a static function.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Structs are instances of <em>struct types</em> (&#167;).  A
+struct is represented without the extra level of indirection, with a
+memory chunk of size N words precisely big enough to store the value
+of every field of the struct (modulo alignment), plus whatever padding is needed. Thus structs cannot
+be shared. Entities (such as variables and fields) refering to the
+struct must allocate N words to directly contain the chunk.  An
+assignment to this entity must copy the N words representing the
+right hand side into the left hand side. Since there are no references
+to structs, <b>null</b> is not a legal value for a struct
+type. Comparison for identity (<b>==</b>) involves examining N
+words. Additionally, structs do not have any mutable fields, hence
+they can be freely copied. The payoff for these restrictions lies in
+that fields can be stored in registers or local variables, and 
+and method invocation is implemented by invoking a static function.
+
+<div class="p"><!----></div>
+Functions, called closures or lambda-expressions in other languages, are
+instances of <em>function types</em> (&#167;). 
+A function has zero or more <em>formal parameters</em> (or <em>arguments</em>) and a
+<em>body</em>, which is 
+an expression that can reference the formal parameters and also other
+variables in the surrounding block. For instance, <b>(x:Int)=&#62;x*y</b>
+is a unary integer function which multiplies its argument by the
+variable <b>y</b> from the surrounding block.  Functions may be freely
+copied from place to place and may be repeatedly applied. 
+
+<div class="p"><!----></div>
+These runtime entities are classified by <em>types</em>. Types are used in
+variable declarations, coercions and  explicit conversions, object creation,
+array creation, static state and method accessors, and
+<b>instanceof</b> and <b>as</b> expressions.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+The basic relationship between values and types is the <em>is an
+  element of</em> relation.  We also often say "e has type T" to
+mean "e is an element of type T".  For example, <b>1</b> has type
+<b>Int</b> (the type of all integers representible in 32 bits). It also
+has type <b>Any</b> (since all entitites have type <b>Any</b>), type
+<b>Int{self != 0}</b> (the type of nonzero integers), type
+<b>Int{self == 1}</b> (the type of integers which are equal to <b>1</b>, which
+contains only one element), and many others. 
+
+<div class="p"><!----></div>
+The basic relationship between types is <em>subtyping</em>: <b>T &lt;: U</b>
+holds if every instance of <b>T</b> is also an instance of <b>U</b>. Two
+important kinds of subtyping are <em>subclassing</em> and <em>
+  strengthening</em>. Subclassing is a familiar notion from
+object-oriented programming. Here we use it to refer to the
+relationship between a class and another class it extends, and the
+relationship between a class and another interface it implements. For
+instance, in a class hierarchy with classes <b>Animal</b> and <b>Cat</b>
+such that <b>Cat</b> extends <b>Mammal</b> and <b>Mammal</b> extends
+<b>Animal</b>, every instance of <b>Cat</b> is by definition an instance
+of <b>Animal</b> (and <b>Mammal</b>). We say that <b>Cat</b> is a
+subclass of <b>Animal</b>, or <b>Cat &lt;: Animal</b> by subclassing. If
+<b>Animal</b> implements <b>Thing</b>, then <b>Cat</b> also implements
+<b>Thing</b>, and we say <b>Cat &lt;: Thing</b> by subclassing.
+Strengthening is an equally familiar notion from logic.  The instances
+of <b>Int{self == 1}</b> are all elements of <b>Int{self != 0}</b> as well,
+because <b>self == 1</b> logically implies <b>self != 0</b>; so 
+<b>Int{self  == 1} &lt;: Int{self !=0}</b> by strengthening.  X10 uses both notions
+of subtyping.  See &#167; for the full definition
+of subtyping in X10.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.1">
+0.1</a>&nbsp;&nbsp;Type System</h3>
+
+The types in X10 are as follows.  
+These are the <em>elementary</em> types. Other
+syntactic forms for types exist, but they are simply abbreviations for types
+in the following system.  For example, <b>Array[Int](1)</b> is the type of
+one-dimensional integer-valued arrays; it is an abbreviation for
+<b>Array[Int]{rank==1}</b>.<br />
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+
+<tr><td align="right">Type ::= FunctionType </td></tr>
+<tr><td align="right">&#124; ConstrainedType </td></tr>
+<tr><td align="right">FunctionType ::= TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> Type </td></tr>
+<tr><td align="right">ConstrainedType ::= NamedType </td></tr>
+<tr><td align="right">&#124; AnnotatedType </td></tr>
+<tr><td align="right">&#124; <b>(</b> Type <b>)</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+Types may be given by name. 
+For example,  
+<b>Int</b>
+is the type of 32-bit integers.
+Given a class declaration 
+<pre>
+class Triple { /* ... */ }
+</pre>
+the identifier <b>Triple</b> may be used as a type.
+
+<div class="p"><!----></div>
+The type <em>TypeName <b>[</b> Types<sup>?</sup> <b>]</b></em> is an instance of
+a <em>generic</em> (or <em>parameterized</em>) type. 
+ For example,
+<b>Array[Int]</b> is the type of arrays of integers. 
+<b>HashMap[String,Int]</b> is the type of hash maps from strings to
+integers.
+
+<div class="p"><!----></div>
+The type <em>Type <b>{</b> Constraint <b>}</b></em> refers to a constrained type.
+<em>Constraint</em> is a Boolean expression - written in a <em>very</em> limited
+subset of X10 - describing the acceptable values of the constrained type.
+For example, <b>var n : Int{self != 0};</b> guarantees that <b>n</b> is always a
+non-zero integer. 
+Similarly, <b>var x : Triple{x != null};</b> defines a <b>Triple</b>-valued
+variable <b>x</b> whose value is never null.
+
+<div class="p"><!----></div>
+The qualified type <em>Type <b>.</b> Type</em> refers to an instance of a <em>
+nested</em> type; that is, a class or struct defined inside of another class or
+struct, and holding an implicit reference to the outer.  For example, given
+the type declaration 
+<pre>
+class Outer {
+  class Inner { /* ... */ }
+}
+</pre>
+then 
+<b>(new Outer()).new Inner()</b> creates a value of type 
+<b>Outer.Inner</b>.
+
+<div class="p"><!----></div>
+Type variables, <em>TypeVar</em>, refer to types that are parameters.  For
+example, the following class defines a cell in a linked list.  
+<pre>
+class LinkedList[X] {
+  val head : X;
+  val tail : LinkedList[X];
+  def this(head:X, tail:LinkedList[X]) {
+     this.head = head; this.tail = tail;
+  }
+}
+</pre>
+It doesn't
+matter what type the cell is, but it has to have <em>some</em> type.
+<b>LinkedList[Int]</b> is a linked list of integers;
+<b>LinkedList[LinkedList[String]]</b> a list of lists of strings.
+Note that <b>LinkedList</b> is <em>not</em> a type - it is missing a type parameter.
+
+<div class="p"><!----></div>
+The function type 
+<em><b>(</b> Formals<sup>?</sup> <b>) =&#62;</b>  Type</em> 
+refers to functions taking the
+listed formal parameters and returning a result of <em>Type</em>.  In
+X10 v2.1, function types may not be generic.
+The closely-related void function type 
+<em><b>(</b> Formals<sup>?</sup> <b>) =&#62;</b>  <b>void</b></em>  takes the listed
+parameters and returns no value.
+For example, 
+<b>(x:Int) =&#62; Int{self != x}</b> 
+is the type of integer-valued functions which have no fixed points.  
+An example of such a function is <b>(x:Int) =&#62; x+1</b>.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

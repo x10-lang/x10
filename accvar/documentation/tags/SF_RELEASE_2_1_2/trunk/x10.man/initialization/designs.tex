@@ -1,0 +1,57 @@
+
+
+\subsection{Default values design}
+every type has a default value.
+(when reading a val field, you may get the default value or its final value.)
+
+\subsection{proto design}
+A proto modifier for locals
+allowed cyclic immutable objects.
+
+\subsection{Hardhat design}
+\label{Section:hardhat}
+
+Discuss why we didn't allow aliasing of \this (to avoid an alias analysis).
+
+A method is non-escaping, if it is called from a constructor or from another non-escaping method.
+A non-escaping method must be private, final, or in a final class.
+Constructors and non-escaping methods cannot leak \this.
+
+
+- "this" cannot escape, no dynamic dispatching, etc.
+- Dataflow for definite-assignment for locals (similarity to Java, with the extension for async-initialization)
+- Dataflow for definite-assignment for fields:
+  + @NoThisAccess and @NonEscaping
+  + The fixed-point algorithm to infer the sets of fields that are written, async-written, and read, on each private method that is transitively called from a ctor or field-init. Maybe also add a nice proof :)
+
+
+Property design (what would happen if we use val fields instead of properties.)
+
+Fields are partition into two: property fields and normal fields. Property fields are assigned together before any other field.
+\begin{lstlisting}
+class A(x:Int) {
+  val y:Int{self!=x};
+  val z = x*x;
+}
+\end{lstlisting}
+Vs.
+Fields are ordered, and all ctors need to assign in the same order as the fields declaration.
+\begin{lstlisting}
+class A {
+  val x:Int;
+  val y:Int{self!=x};
+  val z = x*x;
+}
+\end{lstlisting}
+
+
+
+what can you read before (inclusive), and what after.
+
+
+Hardhat claims:
+* \this is the only accessible raw object (there could be several raw objects in the heap but only \this is accessible). Reason: \this cannot be aliased or leaked.
+* only cooked objects cross places. Reason: \this is the only non-cooked object and it cannot have any aliases and it cannot cross an \code{at}.
+* there is no dynamic dispatch during construction. Reason: only calling private or final methods.
+* all field writes finish by the time the ctor ends. Reason: data flow ensures that any write within an async has an enclosing finish.
+* one cannot read an uninitialized field. Reason: reading from \this is ok by data-flow, any other read is from a cooked object.

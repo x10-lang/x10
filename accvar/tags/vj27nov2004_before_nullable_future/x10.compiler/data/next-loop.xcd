@@ -1,0 +1,6 @@
+// expansion for each argument; note that this
+// execution is done sequentially, which may not
+// be ok unless the X10 compiler (re)orders the clocks
+// properly!
+#0.doNext();
+     

@@ -1,0 +1,1373 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006-2008
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+/**
+ * 
+ */
+package polyglot.ext.x10.types;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import polyglot.ext.x10.ast.X10ClassBody_c;
+import polyglot.ext.x10.types.SubtypeSolver.XSubtype_c;
+import polyglot.main.Report;
+import polyglot.types.ArrayType;
+import polyglot.types.DerefTransform;
+import polyglot.types.FieldDef;
+import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
+import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
+import polyglot.types.MemberInstance;
+import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
+import polyglot.types.MethodInstance_c;
+import polyglot.types.Name;
+import polyglot.types.Named;
+import polyglot.types.PrimitiveType;
+import polyglot.types.ProcedureInstance;
+import polyglot.types.Ref;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.Types;
+import polyglot.types.UnknownType;
+import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
+import polyglot.util.Transformation;
+import polyglot.util.TransformingList;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XEquals;
+import x10.constraint.XFailure;
+import x10.constraint.XLit;
+import x10.constraint.XLocal;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
+import x10.constraint.XRef_c;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
+
+/**
+ * A representation of a MethodInstance. This implements the requirement that method
+ * annotations such as sequential, local, nonblocking, safe are preserved on overriding.
+ * @author vj
+ *
+ */
+public class X10MethodInstance_c extends MethodInstance_c implements X10MethodInstance {
+
+    public X10MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
+        super(ts, pos, def);
+    }
+    
+    @Override
+    public boolean moreSpecific(ProcedureInstance<MethodDef> p) {
+        return moreSpecificImpl(this, p);
+    }
+    
+    public static boolean moreSpecificImpl(ProcedureInstance<?> p1, ProcedureInstance<?> p2) {
+        X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
+
+        // rule 1:
+        Type t1 = null;
+        Type t2 = null;
+        
+        t1 = p1 instanceof MethodInstance ? ((MethodInstance)  p1).container() : null;
+        t1 = p2 instanceof MethodInstance ? ((MethodInstance)  p2).container() : null;
+
+        if (t1 != null && t2 != null) {
+            t1 = X10TypeMixin.baseType(t1);
+            t2 = X10TypeMixin.baseType(t2);
+            
+            if (t1.isClass() && t2.isClass()) {
+                if (! t1.descendsFrom(t2) &&
+                        ! t1.toClass().isEnclosed(t2.toClass())) {
+                    return false;
+                }
+            }
+            else {
+                if (! t1.descendsFrom(t2)) {
+                    return false;
+                }
+            }
+        }
+
+        // rule 2:
+        // if the formal params of p1 can be used to call p2, p1 is more specific
+
+        if (p1.formalTypes().size() == p2.formalTypes().size() ) {
+            for (int i = 0; i < p1.formalTypes().size(); i++) {
+                Type f1 = p1.formalTypes().get(i);
+                Type f2 = p2.formalTypes().get(i);
+                if (! ts.isImplicitCastValid(f1, f2))
+                    return false;
+            }
+            return true;
+        }
+        
+        return false;
+    }
+
+    @Override
+    protected void checkOverride(MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
+        super.checkOverride(mj, allowCovariantReturn);
+
+        X10MethodInstance xmi = this;
+        X10MethodInstance xmj = (X10MethodInstance) mj;
+        boolean entails = true;
+        if (xmj.guard() == null) {
+            entails = xmi.guard() == null || xmi.guard().valid();
+        }
+        else {
+            try {
+                entails = xmi.guard() == null || xmj.guard().entails(xmi.guard());
+            }
+            catch (XFailure e) {
+                entails = false;
+            }
+        }
+
+        if (! entails) {
+            throw new SemanticException(xmi.signature() + " in " + xmi.container() +
+                                        " cannot override " + 
+                                        xmj.signature() + " in " + xmj.container() + 
+                                        "; method guard is not entailed.",
+                                        xmi.position());
+        }
+    }
+
+	public static class NoClauseVariant implements Transformation<Type, Type> {
+		public Type transform(Type o) {
+			if (o instanceof ArrayType) {
+				ArrayType at = (ArrayType) o;
+				return at.base(Types.ref(transform(at.base())));
+			}
+			if (o instanceof ConstrainedType) {
+				ConstrainedType ct = (ConstrainedType) o;
+				return transform(Types.get(ct.baseType()));
+			}
+			return ((X10Type) o);
+		}
+	}
+	
+	public Object copy() { 
+		return super.copy();
+	}
+	
+	@Override
+	public X10MethodInstance returnType(Type returnType) {
+		return (X10MethodInstance) super.returnType(returnType);
+	}
+
+	public List<Type> annotations() {
+	    return X10TypeObjectMixin.annotations(this);
+	}
+	public List<Type> annotationsMatching(Type t) {
+	    return X10TypeObjectMixin.annotationsMatching(this, t);
+	}
+	
+	XTerm body;
+
+	public XTerm body() {
+	    if (this.body == null)
+		body = Types.get(x10Def().body());
+	    return body;
+	}
+
+	public X10MethodInstance body(XTerm body) {
+	    X10MethodInstance_c n = (X10MethodInstance_c) copy();
+	    n.body = body;
+	    return n;
+	}
+
+	/** Constraint on formal parameters. */
+	protected XConstraint guard;
+	public XConstraint guard() { return guard; }
+	public X10MethodInstance guard(XConstraint s) { 
+	    X10MethodInstance_c n = (X10MethodInstance_c) copy();
+	    n.guard = s; 
+	    return n;
+	}
+	
+	    public List<Type> typeParameters;
+
+	    public List<Type> typeParameters() {
+		    if (this.typeParameters == null) {
+			    this.typeParameters = new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
+		    }
+
+		    return typeParameters;
+	    }
+
+	    public X10MethodInstance typeParameters(List<Type> typeParameters) {
+		    X10MethodInstance_c n = (X10MethodInstance_c) copy();
+		    n.typeParameters = typeParameters;
+		    return n;
+	    }
+
+	    public List<LocalInstance> formalNames;
+	    
+	    public List<LocalInstance> formalNames() {
+		if (this.formalNames == null) {
+		    this.formalNames = new TransformingList<LocalDef,LocalInstance>(x10Def().formalNames(),
+		            new Transformation<LocalDef,LocalInstance>() {
+		        public LocalInstance transform(LocalDef o) {
+		            return o.asInstance();
+		        }
+		    });
+		}
+		
+		return formalNames;
+	    }
+	    
+	    public X10MethodInstance formalNames(List<LocalInstance> formalNames) {
+		X10MethodInstance_c n = (X10MethodInstance_c) copy();
+		n.formalNames = formalNames;
+		return n;
+	    }
+
+	public void checkOverride(MethodInstance other) throws SemanticException {
+	    X10MethodInstance mi = this;
+	    X10MethodInstance mj = (X10MethodInstance) other;
+
+	    super.checkOverride(mj, true);
+
+	    X10Flags miF = X10Flags.toX10Flags(mi.flags());
+	    X10Flags mjF = X10Flags.toX10Flags(mj.flags());
+
+	    // Report.report(1, "X10MethodInstance_c: " + this + " canOVerrideImpl " + mj);
+	    if (! miF.hasAllAnnotationsOf(mjF)) {
+	        if (Report.should_report(Report.types, 3))
+	            Report.report(3, mi.flags() + " is more liberal than " +
+	                          mj.flags());
+	        throw new SemanticException(mi.signature() + " in " + mi.container() +
+	                                    " cannot override " + 
+	                                    mj.signature() + " in " + mj.container() + 
+	                                    "; attempting to assign weaker " + 
+	                                    "behavioral annotations", 
+	                                    mi.position());
+	    }
+	}
+
+	public boolean isPropertyGetter() {
+		assert container instanceof X10ParsedClassType;
+		if (isJavaMethod()) return false;
+		if (!formalTypes.isEmpty()) return false;
+		for (FieldInstance fi : container.fields()) {
+		    FieldDef fd = fi.def();
+		    if (fd instanceof X10FieldDef) {
+		        X10FieldDef xfd = (X10FieldDef) fd;
+		        if (xfd.isProperty()) {
+		            return true;
+		        }
+		    }
+		}
+		return false;
+	}
+	public boolean isJavaMethod() {
+		assert container instanceof X10ParsedClassType;
+		boolean result = ((X10ParsedClassType) container).isJavaType();
+		return result;
+	}
+	public boolean isSafe() {
+		assert container instanceof X10ParsedClassType;
+		boolean result = ((X10ParsedClassType) container).safe();
+		if (result) return true;
+		X10Flags f = X10Flags.toX10Flags(flags());
+		result = f.isSafe();
+		return result;
+	}
+	protected static String myListToString(List l) {
+		StringBuffer sb = new StringBuffer();
+		
+		for (Iterator i = l.iterator(); i.hasNext(); ) {
+			Object o = i.next();
+			sb.append(o.toString());
+			
+			if (i.hasNext()) {
+				sb.append(", ");
+			}
+		}
+		
+		return sb.toString();
+	}
+
+	  /** Returns true if a call can be made with the given argument types. 
+	   * Specialized to deal with the possibility of dependent types in the 
+	   * arguments of the method which may contain references to arguments
+	   * to the method.
+	   * TODO: Take into account the deptype in the parameter list of the method.
+	   */
+	@Override
+	public boolean callValid(Type thisType, List<Type> argTypes) {
+		return X10MethodInstance_c.callValidImpl(this, thisType, argTypes);
+	}
+	
+	public static boolean callValidImpl(X10ProcedureInstance<?> me, Type thisType, final List<Type> args) {
+		// me should have been instantiated correctly; if so, the call is valid
+	    if (true) return true;
+	    try {
+		assert false : "need to rewrite";
+			instantiate(me, thisType, Collections.EMPTY_LIST, args, true);
+			return true;
+		}
+		catch (SemanticException e) {
+			return false;
+		}
+	}
+
+	public boolean callValidNoClauses(Type thisType, List<Type> argTypes) {
+	    X10MethodInstance_c me = (X10MethodInstance_c) this.formalTypes(new TransformingList<Type,Type>(this.formalTypes(), new X10MethodInstance_c.NoClauseVariant()));
+	    return me.superCallValid(thisType, new TransformingList<Type,Type>(argTypes, new X10MethodInstance_c.NoClauseVariant()));
+	}
+
+	protected boolean superCallValid(Type thisType, List<Type> argTypes) {
+	    return super.callValid(thisType, argTypes);
+	}
+
+    public X10MethodDef x10Def() {
+        return (X10MethodDef) def();
+    }
+    
+    public String containerString() {
+	Type container = container();
+	container = X10TypeMixin.baseType(container);
+	if (container instanceof ClosureType) {
+	    return "(" + container.toString() + ")";
+	}
+	if (container instanceof Named) {
+	    Named n = (Named) container;
+	    return n.fullName().toString();
+	}
+	return container.toString();
+    }
+    
+    public String toString() {
+	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + signature();
+	
+	    if (! throwTypes().isEmpty()) {
+		    s += " throws " + CollectionUtil.listToString(throwTypes());
+	    }
+	    
+	    if (body != null)
+		s += " = " + body;
+	
+	    return s;
+    }
+    
+    public String signature() {
+	StringBuilder sb = new StringBuilder();
+	sb.append(name != null ? name : def().name());
+	List<String> params = new ArrayList<String>();
+	if (typeParameters != null) {
+	    for (int i = 0; i < typeParameters.size(); i++) {
+		params.add(typeParameters.get(i).toString());
+	    }
+	}
+	else {
+	    for (int i = 0; i < x10Def().typeParameters().size(); i++) {
+		params.add(x10Def().typeParameters().get(i).toString());
+	    }
+	}
+	if (params.size() > 0) {
+	    sb.append("[");
+	    sb.append(CollectionUtil.listToString(params));
+	    sb.append("]");
+	}
+	List<String> formals = new ArrayList<String>();
+	if (formalTypes != null) {
+	    for (int i = 0; i < formalTypes.size(); i++) {
+		String s = "";
+		String t = formalTypes.get(i).toString();
+		if (formalNames != null && i < formalNames.size()) {
+		    LocalInstance a = formalNames.get(i);
+		    if (a != null && ! a.name().toString().equals(""))
+			s = a.name() + ": " + t; 
+		    else
+			s = t;
+		}
+		else {
+		    s = t;
+		}
+		formals.add(s);
+	    }
+	}
+	else {
+	    for (int i = 0; i < def().formalTypes().size(); i++) {
+		formals.add(def().formalTypes().get(i).toString());
+	    }
+	}
+	sb.append("(");
+	sb.append(CollectionUtil.listToString(formals));
+	sb.append(")");
+	if (guard != null)
+	    sb.append(guard);
+	else if (x10Def().guard() != null)
+	    sb.append(x10Def().guard());
+	sb.append(": ");
+	if (returnType != null)
+	    sb.append(returnType);
+	else
+	    sb.append(def().returnType());
+	return sb.toString();
+    }
+    
+
+    private static void addTypeParameterBindings(X10ClassDef xcd, X10ClassType xct, Type ytype, XConstraint env) throws XFailure {
+	if (ytype == null)
+	    return;
+
+	if (ytype instanceof ConstrainedType) {
+	    ConstrainedType ct = (ConstrainedType) ytype;
+	    addTypeParameterBindings(xcd, xct, ct.baseType().get(), env);
+	}
+
+	if (ytype instanceof MacroType) {
+	    MacroType mt = (MacroType) ytype;
+	    addTypeParameterBindings(xcd, xct, mt.definedType(), env);
+	}
+
+	if (ytype instanceof X10ClassType) {
+	    X10ClassType yct = (X10ClassType) ytype;
+	    X10ClassDef ycd = yct.x10Def();
+	    if (ycd == xcd) {
+		for (int i = 0; i < yct.typeArguments().size(); i++) {
+		    Type xt = xct.typeArguments().get(i);
+		    Type yt = yct.typeArguments().get(i);
+		    TypeProperty.Variance v = xcd.variances().get(i);
+		    X10TypeSystem xts = (X10TypeSystem) xcd.typeSystem();
+		    switch (v) {
+		    case INVARIANT: {
+		        XTerm Xi = xts.xtypeTranslator().trans(xt);
+		        XTerm Yi = xts.xtypeTranslator().trans(yt);
+		        env.addBinding(Xi, Yi);
+		        break;
+		    }
+		    case CONTRAVARIANT: {
+		        XTerm tt = xts.xtypeTranslator().transSubtype(xt, yt);
+		        env.addTerm(tt);
+		        break;
+		    }
+		    case COVARIANT: {
+		        XTerm tt = xts.xtypeTranslator().transSubtype(yt, xt);
+		        env.addTerm(tt);
+		        break;
+		    }
+		    }
+		}
+	    }
+	    else {
+		addTypeParameterBindings(xcd, xct, yct.superClass(), env);
+		for (Type t: yct.interfaces()) {
+		    addTypeParameterBindings(xcd, xct, t, env);
+		}
+	    }
+	}
+    }
+
+    private static void addTypeParameterBindings(Type xtype, Type ytype, XConstraint env) throws XFailure {
+	if (xtype instanceof ParameterType) {
+	    X10TypeSystem xts = (X10TypeSystem) xtype.typeSystem();
+//	    XRoot Xi = xts.xtypeTranslator().transTypeParam((ParameterType) xtype);
+//	    XTerm Yi = xts.xtypeTranslator().trans(ytype);
+//	    env.addBinding(Xi, Yi);
+	    XTerm tt = xts.xtypeTranslator().transSubtype(ytype, xtype);
+	    env.addTerm(tt);
+	}
+	if (xtype instanceof X10ClassType) {
+	    X10ClassType xct = (X10ClassType) xtype;
+	    X10ClassDef xcd = xct.x10Def();
+	    addTypeParameterBindings(xcd, xct, ytype, env);
+	}
+	if (xtype instanceof ConstrainedType) {
+	    ConstrainedType ct = (ConstrainedType) xtype;
+	    addTypeParameterBindings(ct.baseType().get(), ytype, env);
+	}
+	if (xtype instanceof MacroType) {
+	    MacroType mt = (MacroType) xtype;
+	    addTypeParameterBindings(mt.definedType(), ytype, env);
+	}
+	if (xtype instanceof PathType) {
+	    // TODO
+	}
+	if (xtype instanceof PrimitiveType) {
+	    // Nothing to do
+	}
+    }
+
+    public static <PI extends X10ProcedureInstance<?>> PI instantiate(PI me, Type thisType, List<Type> actualTypeArgs, final List<Type> actuals, boolean tryCoercionFunction) throws SemanticException {
+            final X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
+	    final List<Type> formals = me.formalTypes();
+	    final List<LocalInstance> formalNames = me.formalNames();
+	    final List<Type> typeFormals = me.typeParameters();
+	    List<XVar> actualTypeVars = new ArrayList<XVar>();
+	    boolean needTypeInference = typeFormals.size() > 0 && actualTypeArgs.size() == 0;
+
+	    if (actuals.size() != formals.size()) {
+		throw new SemanticException("Call not valid; incorrect number of actual arguments.", me.position());
+	    }
+
+	    if (actualTypeArgs.size() != 0 && actualTypeArgs.size() != typeFormals.size()) {
+		throw new SemanticException("Call not valid; incorrect number of actual type arguments.", me.position());
+	    }
+
+	    for (Type type : me.throwTypes()) {
+		XConstraint rc = X10TypeMixin.xclause(type);
+		if (rc != null && ! rc.valid())
+		    throw new SemanticException("Cannot throw a dependent type.", me.position());
+	    }
+	    
+	    XVar ythis = X10TypeMixin.selfVar(thisType);
+	    XVar ythiseqv = ythis;
+	    XConstraint selfConstraint = null;
+	    
+	    if (ythis != null) {
+	        try {
+	            selfConstraint = ythis.selfConstraint();
+	            if (selfConstraint == null) {
+	                final Type t = thisType;
+	                ythis.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return X10TypeMixin.realX(t); } });
+	                selfConstraint = ythis.selfConstraint();
+	            }
+	            selfConstraint = ythiseqv.selfConstraint();
+	            if (selfConstraint == null) {
+	                final Type t = thisType;
+	                ythiseqv.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return X10TypeMixin.realX(t); } });
+	                selfConstraint = ythiseqv.selfConstraint();
+	            }
+	        }
+	        catch (XFailure e) {
+	            throw new SemanticException("Call not valid; the receiver type is inconsistent.", me.position());
+	        }
+	    }
+	    
+	    if (ythis == null) {
+		XConstraint c = X10TypeMixin.xclause(thisType);
+		c = (c == null) ? new XConstraint_c() : c.copy();
+
+		try {
+		    ythis = xts.xtypeTranslator().genEQV(c, thisType, false);
+		    c.addSelfBinding(ythis);
+		}
+		catch (XFailure e) {
+		    throw new SemanticException(e.getMessage(), me.position());
+		}
+
+		thisType = X10TypeMixin.xclause(thisType, c);
+	    }
+	    
+	    if (ythiseqv == null) {
+	        ythiseqv = xts.xtypeTranslator().genEQV(new XConstraint_c(), thisType, true);
+	    }
+	    
+	    XConstraint env = new XConstraint_c();
+	    
+	    if (ythis != null && selfConstraint != null) {
+		try {
+		    final XConstraint yc = selfConstraint;
+		    XConstraint yc2 = yc.substitute(ythis, yc.self());
+		    env.addIn(yc2);
+		}
+		catch (XFailure f) {
+		    // environment is inconsistent.
+		    throw new SemanticException("Call invalid; calling environment is inconsistent.");
+		}
+	    }
+
+	    for (Type t : actualTypeArgs) {
+		XVar lit = (XVar) xts.xtypeTranslator().trans(t);
+		actualTypeVars.add(lit);
+	    }
+	    
+	    Set<Type> dummyTypes = new HashSet<Type>();
+	    
+	    if (actualTypeVars.size() == 0) {
+		// Generate a list of type vars to use for the type actuals.
+		// After checking if the call is valid, we'll solve for the vars.   
+		for (int i = 0; i < typeFormals.size(); i++) {
+		    ParameterType pt = (ParameterType) typeFormals.get(i);
+		    Type dummy = new ParameterType_c(xts, pt.position(), Name.makeFresh("__" + pt.name() + "__"), null);
+		    dummyTypes.add(dummy);
+		    XVar v = env.genEQV(XTerms.makeName(dummy), true);
+		    actualTypeVars.add(v);
+		}
+	    }
+	    
+	    // Given call e.m[T1,...,Tk](e1,...,en)
+	    // and method T.m[X1,...,Xk](x1: S1,...,xn: Sn){c}
+	    // We build the following environment:
+	    // env = {X1==T1,...,Xk==Tk,x1==e1,...,xn==en}
+	    // and check
+	    // {e1.type <: S1, ..., en.type <: Sn, c}
+	    
+	    assert actualTypeVars.size() == typeFormals.size();
+	    assert actuals.size() == formals.size();
+	    
+	    XRoot[] X = new XRoot[typeFormals.size()];
+	    XVar[] Y = new XVar[typeFormals.size()];
+	    XRoot[] x = new XRoot[formals.size()];
+	    XVar[] y = new XVar[formals.size()];
+	    XVar[] yeqv = new XVar[formals.size()];
+	    
+	    for (int i = 0; i < typeFormals.size(); i++) {
+		Type xtype = typeFormals.get(i);
+
+		// TODO: should enforce this statically
+		assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " + (xtype != null ? xtype.getClass().getName() : "null");
+
+		XRoot Xi = xts.xtypeTranslator().transTypeParam((ParameterType) xtype);
+		XVar Yi = actualTypeVars.get(i);
+		
+                try {
+                    env.addBinding(Xi, Yi);
+                }
+                catch (XFailure e) {
+                    throw new SemanticException("Call invalid; calling environment is inconsistent.");
+                }
+                
+                X[i] = Xi;
+                Y[i] = Yi;
+	    }
+
+	    for (int i = 0; i < formals.size(); i++) {
+		Type xtype = formals.get(i);
+		Type ytype = actuals.get(i);
+	    
+		// Be sure to copy the constraints since we use the self vars
+		// in other constraints and don't want to conflate them if
+		// realX returns the same constraint twice.
+		final XConstraint yc = X10TypeMixin.realX(ytype).copy();
+		
+		XRoot xi;
+		XVar yi;
+		XVar yieqv;
+
+		yi = X10TypeMixin.selfVar(yc);
+		yieqv = yi;
+		
+		if (yi == null) {
+		    // This must mean that yi was not final, hence it cannot occur in 
+		    // the dependent clauses of downstream yi's.
+		    yi = xts.xtypeTranslator().genEQV(env, ytype, false);
+		    yieqv = xts.xtypeTranslator().genEQV(env, ytype, true);
+		}
+		
+		yi = (XVar) yi.clone();
+		
+		yi.setSelfConstraint(new XRef_c<XConstraint>() {
+		    @Override
+		    public XConstraint compute() {
+		        return yc;
+		    }
+		});
+		
+		yieqv = (XVar) yieqv.clone();
+		
+		yieqv.setSelfConstraint(new XRef_c<XConstraint>() {
+		    @Override
+		    public XConstraint compute() {
+		        return yc;
+		    }
+		});
+		
+		// To help debugging, force evaluation so yi.toString().
+
+		try {
+		    yi.selfConstraint();
+		    yieqv.selfConstraint();
+		}
+		catch (XFailure f) {
+		}
+
+		try {
+		    addTypeParameterBindings(xtype, ytype, env);
+		}
+		catch (XFailure f) {
+		}
+
+		XConstraint xc = X10TypeMixin.realX(xtype).copy();
+		XVar self = X10TypeMixin.selfVar(xc);
+		xi = xc.self();
+		
+		try {
+		    if (self instanceof XRoot) {
+		        env.addBinding(xi, self);
+		    }
+		    if (i < formalNames.size() && formalNames.get(i) != null) {
+		        try {
+		            xi = xts.xtypeTranslator().trans(xc, formalNames.get(i));
+		            env.addBinding(xc.self(), xi);
+		        }
+		        catch (SemanticException e) {
+		        }
+		    }
+
+		    XConstraint yc2 = yc.substitute(yi, yc.self());
+		    env.addIn(yc2);
+		    env.addBinding(xi, yi);
+		}
+		catch (XFailure f) {
+		    // environment is inconsistent.
+		    throw new SemanticException("Call invalid; calling environment is inconsistent.");
+		}
+
+		x[i] = xi;
+		y[i] = yi;
+		yeqv[i] = yieqv;
+	    }
+
+	    // We'll subst selfVar for THIS.
+	    XRoot xthis = xts.xtypeTranslator().transThis(thisType);
+	    
+	    if (needTypeInference) {
+	        // Create a big query for inferring type parameters.
+                // LIMITATION: can only infer types when actuals are subtypes of formals.
+	        // This updates Y with new actual type arguments.
+                inferTypeArguments(me, actuals, formals, typeFormals, actualTypeVars, ythis, env, X, Y, x, y, xthis, dummyTypes);
+	    }
+	    
+	    if (! needTypeInference && tryCoercionFunction) {
+	        XRoot[] x2 = new XRoot[x.length+1];
+	        XVar[] y2 = new XVar[y.length+1];
+	        x2[0] = xthis;
+	        y2[0] = ythis;
+
+	        System.arraycopy(x, 0, x2, 1, x.length);
+	        System.arraycopy(yeqv, 0, y2, 1, yeqv.length);
+
+	        List<Type> newFormals = new ArrayList<Type>();
+
+	        for (Type t : me.formalTypes()) {
+	            Type newT = subst(t, y2, x2, Y, X, typeFormals);
+	            newFormals.add(newT);
+	        }
+
+	        // After inferring the types, check that the assignment is allowed.
+	        boolean converted = false;
+	        List<Type> newActuals = new ArrayList<Type>();
+
+	        for (int i = 0; i < formals.size(); i++) {
+	            Type ytype = actuals.get(i);
+	            Type xtype = newFormals.get(i);
+
+	            // Inline ts.isImplicitCastValid
+	            if (xts.isSubtype(ytype, xtype, env.constraints())) {
+	                newActuals.add(ytype);
+	            }
+	            else {
+	                List<Type> c = xts.converterChain(ytype, xtype);
+	                // There is no conversion.
+	                if (c.size() == 0) {
+	                    throw new SemanticException("Call invalid; actual parameter of type " + ytype + " cannot be assigned to formal parameter type " + xtype + ".");
+	                }
+
+	                converted = true;
+	                newActuals.add(c.get(c.size()-1));
+	            }
+	        }
+
+	        if (converted) {
+	            return instantiate(me, thisType, actualTypeArgs, newActuals, false);
+	        }
+	    }
+    
+	    if (! needTypeInference) {
+	        try {
+	            XConstraint query = me.guard();
+	            if (query != null) {
+	                XConstraint query2 = query.substitute(ythis, xthis);
+	                XConstraint query3 = query2.substitute(Y, X);
+	                XConstraint query4 = query3.substitute(y, x);
+
+	                if (! env.entails(query4)) {
+	                    throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+	                }
+	            }
+	        }
+	        catch (XFailure f) {
+	            // Substitution introduces inconsistency.
+	            throw new SemanticException("Call invalid; calling environment is inconsistent.");
+	        }
+	    }
+		    
+	    XRoot[] x2 = new XRoot[x.length+1];
+	    XVar[] y2 = new XVar[y.length+1];
+	    x2[0] = xthis;
+	    y2[0] = ythiseqv;
+
+	    System.arraycopy(x, 0, x2, 1, x.length);
+	    System.arraycopy(yeqv, 0, y2, 1, y.length);
+
+	    List<Type> newFormals = new ArrayList<Type>();
+
+	    for (Type t : me.formalTypes()) {
+		Type newT = subst(t, y2, x2, Y, X, typeFormals);
+		newFormals.add(newT);
+	    }
+
+	    Type newReturnType = subst(me.returnType(), y2, x2, Y, X, typeFormals);
+	    XConstraint newWhere = subst(me.guard(), y2, x2, Y, X, typeFormals);
+
+	    for (Type t : newFormals) {
+	        if (! xts.consistent(newReturnType)) {
+	            throw new SemanticException("Parameter type " + t + " of call is inconsistent in calling context.");
+	        }
+	    }
+	    if (! xts.consistent(newReturnType)) {
+	        throw new SemanticException("Result type " + newReturnType + " of call is inconsistent in calling context.");
+	    }
+	    if (newWhere != null && ! xts.consistent(newWhere)) {
+	        throw new SemanticException("Guard " + newWhere + " cannot be established; inconsistent in calling context.");
+	    }
+
+	    me = (PI) me.copy();
+	    me = (PI) me.typeParameters(getTypes(Y));
+	    me = (PI) me.returnType(newReturnType);
+	    me = (PI) me.formalTypes(newFormals);
+	    me = (PI) me.guard(newWhere);
+
+	    // After inferring the types, check that the assignment is allowed.
+	    for (int i = 0; i < formals.size(); i++) {
+		Type ytype = actuals.get(i);
+		Type xtype = me.formalTypes().get(i);
+		if (! xts.isImplicitCastValid(ytype, xtype, tryCoercionFunction)) {
+		    throw new SemanticException("Call invalid; actual parameter of type " + ytype + " cannot be assigned to formal parameter type " + xtype + ".");
+		}
+	    }
+	    
+	    return me;
+    }
+
+    private static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(PI me, final List<Type> actuals, final List<Type> formals,
+            final List<Type> typeFormals, List<XVar> actualTypeVars, XVar ythis, XConstraint env, XRoot[] X, XVar[] Y, XRoot[] x, XVar[] y, XRoot xthis, Set<Type> dummyTypes)
+            throws SemanticException {
+        
+        X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
+        
+        XConstraint bigquery = new XConstraint_c();
+
+//        for (int i = 0; i < formals.size(); i++) {
+//            Type xtype = formals.get(i);
+//            Type ytype = actuals.get(i);
+//
+//            XConstraint yc = X10TypeMixin.xclause(ytype);
+//            try {
+//                yc = yc != null ? yc.copy() : new XConstraint_c();
+//                yc.addBinding(x[i], y[i]);
+//                yc.addSelfBinding(y[i]);
+//            }
+//            catch (XFailure e) {
+//            }
+//
+//            ytype = X10TypeMixin.xclause(ytype, yc);
+//
+//            XConstraint query = new XConstraint_c();
+//
+//            try {
+//                query.addAtom(xts.xtypeTranslator().transSubtype(ytype, xtype));
+//                addTypeParameterBindings(xtype, ytype, query);
+//            }
+//            catch (XFailure f) {
+//                throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//            }
+//
+//            try {
+//                XConstraint query2 = query.substitute(ythis, xthis);
+//                XConstraint query3 = query2.substitute(Y, X);
+//                XConstraint query4 = query3.substitute(y, x);
+//                bigquery.addIn(query4);
+//                
+//                // BUG: <: constraints not being output in XConstraint.toString()
+//                // BUG: <: constraints not being added correctly with addIn
+//            }
+//            catch (XFailure f) {
+//                // Substitution introduces inconsistency.
+//                throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//            }
+//        }
+//
+//        for (int i = 0; i < formals.size(); i++) {
+//            XVar yi = y[i];
+//            XRoot xi = x[i];
+//
+//            Type xtype = formals.get(i);
+//            XConstraint query = X10TypeMixin.xclause(xtype);
+//
+//            if (query != null && ! query.valid()) {
+//                try {
+//                    XConstraint query2 = query.substitute(ythis, xthis);
+//                    XConstraint query3 = query2.substitute(Y, X);
+//                    XConstraint query4 = query3.substitute(y, x);
+//                    XConstraint query5 = query4.substitute(yi, query4.self());
+//                    bigquery.addIn(query5);
+//                }
+//                catch (XFailure f) {
+//                    // Substitution introduces inconsistency.
+//                    throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//                }
+//            }
+//        }
+//
+//        try {
+//            XConstraint query = me.guard();
+//            if (query != null) {
+//                XConstraint query2 = query.substitute(ythis, xthis);
+//                XConstraint query3 = query2.substitute(Y, X);
+//                XConstraint query4 = query3.substitute(y, x);
+//                bigquery.addIn(query4);
+//            }
+//        }
+//        catch (XFailure f) {
+//            // Substitution introduces inconsistency.
+//            throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//        }
+//
+//        try {
+//            boolean result = env.entails(bigquery);
+//            if (! result)
+//                throw new SemanticException("Call invalid.");
+//        }
+//        catch (XFailure f) {
+//            throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//        }
+        
+        try {
+        	XConstraint env2 = env.copy();
+            env2.addIn(bigquery);
+
+//            for (int i = 0; i < X.length; i++) {
+//                env2.addBinding(X[i], Y[i]);
+//            }
+//            for (int i = 0; i < x.length; i++) {
+//                env2.addBinding(x[i], y[i]);
+//            }
+
+            for (int i = 0; i < actualTypeVars.size(); i++) {
+                XVar v = actualTypeVars.get(i);
+
+                List<XVar> upper = new ArrayList<XVar>();
+                List<XVar> lower = new ArrayList<XVar>();
+                
+                List<XVar> worklist = new ArrayList<XVar>();
+                worklist.add(v);
+                
+                for (int j = 0; j < worklist.size(); j++) {
+                    XVar m = worklist.get(j);
+                    for (XTerm term : env2.constraints()) {
+                        if (term instanceof XEquals) {
+                            XEquals eq = (XEquals) term;
+                            if (m.equals(eq.left()) && eq.right() instanceof XVar) {
+                                if (! upper.contains(eq.right()))
+                                    upper.add((XVar) eq.right());
+                                if (! lower.contains(eq.right()))
+                                    lower.add((XVar) eq.right());
+                                if (! worklist.contains(eq.right()))
+                                    worklist.add((XVar) eq.right());
+                            }
+                            if (m.equals(eq.right()) && eq.left() instanceof XVar) {
+                                if (! upper.contains(eq.left()))
+                                    upper.add((XVar) eq.left());
+                                if (! lower.contains(eq.left()))
+                                    lower.add((XVar) eq.left());
+                                if (! worklist.contains(eq.right()))
+                                    worklist.add((XVar) eq.right());
+                            }
+                        }
+                        if (term instanceof XSubtype_c) {
+                            XSubtype_c eq = (XSubtype_c) term;
+                            if (m.equals(eq.left()) && eq.right() instanceof XVar) {
+                                if (! upper.contains(eq.right()))
+                                    upper.add((XVar) eq.right());
+                                if (! worklist.contains(eq.right()))
+                                    worklist.add((XVar) eq.right());
+                            }
+                            if (m.equals(eq.right()) && eq.left() instanceof XVar) {
+                                if (! lower.contains(eq.left()))
+                                    lower.add((XVar) eq.left());
+                                if (! worklist.contains(eq.right()))
+                                    worklist.add((XVar) eq.right());
+                            }
+                        }
+                    }
+                }
+                
+                upper.removeAll(actualTypeVars);
+                lower.removeAll(actualTypeVars);
+                for (XRoot Xi : X) {
+                    upper.remove(Xi);
+                    lower.remove(Xi);
+                }
+                
+//                      // BUG: may return an existential even though there is a better type in there.
+//                      // Should iterate through all matching terms.
+//                      XPromise p = env2.lookup(v);
+//                      
+//                      
+//                      if (p instanceof XTypeLit_c) {
+//                          matches.add(((XTypeLit_c) p).term());
+//                      }
+//                      else {
+//                          for (XPromise q = p; q != null; q = q.value()) {
+//                              if (q.term() instanceof XVar) {
+//                                  matches.add((XVar) q.term());
+//                              }
+//                          }
+//                      }
+                
+                Type upperBound = null;
+                Type lowerBound = null;
+                
+                for (XVar var : upper) {
+                    Type t = getType(var);
+                    if (t != null && ! dummyTypes.contains(t)) {
+                        if (upperBound == null)
+                            upperBound = t;
+                        else
+                            upperBound = meetTypes(xts, upperBound, t);
+                    }
+                }
+                
+                for (XVar var : lower) {
+                    Type t = getType(var);
+                    if (t != null && ! dummyTypes.contains(t)) {
+                        if (lowerBound == null)
+                            lowerBound = t;
+                        else
+                            lowerBound = xts.leastCommonAncestor(lowerBound, t);
+                    }
+                }
+                
+                if (upperBound != null)
+                    Y[i] = (XVar) xts.xtypeTranslator().trans(upperBound);
+                else if (lowerBound != null)
+                    Y[i] = (XVar) xts.xtypeTranslator().trans(lowerBound);
+                else
+                    throw new SemanticException("Could not infer type for type parameter " + typeFormals.get(i) + ".", me.position());
+            }
+        }
+        catch (XFailure f) {
+            throw new SemanticException("Call invalid; calling environment and callee is inconsistent.");
+        }
+    }
+    
+    static Type meetTypes(X10TypeSystem xts, Type t1, Type t2) {
+        if (xts.isSubtype(t1, t2))
+            return t1;
+        if (xts.isSubtype(t2, t1))
+            return t2;
+        return null;
+    }
+    
+    static List<Type> getTypes(XVar[] Y) {
+	    return new TransformingList<XVar, Type>(Arrays.asList(Y), new Transformation<XVar, Type>() {
+		    public Type transform(XVar o) {
+			    return getType(o);
+		    }
+	    });
+    }
+    
+    static Type getType(XVar Y) {
+	if (Y instanceof XLit) {
+	    XLit lit = (XLit) Y;
+
+	    if (lit != null && lit.val() instanceof Type) {
+		return (Type) lit.val();
+	    }
+	}
+	if (Y instanceof XLocal) {
+	    // A type parameter.
+	    XLocal local = (XLocal) Y;
+	    XName name = local.name();
+	    if (name instanceof XNameWrapper) {
+		XNameWrapper w = (XNameWrapper) name;
+		if (w.val() instanceof Type) {
+		    return (Type) w.val();
+		}
+	    }
+	}
+
+	return null;
+    }
+
+    private static XConstraint subst(XConstraint c, XVar[] y, XRoot[] x, XVar[] Y, XRoot[] X, List<Type> typeFormals) throws SemanticException {
+	    assert y.length == x.length;
+	    assert Y.length == X.length;
+	    
+	    if (c == null)
+		    return null;
+
+	    for (int i = 0; i < X.length; i++) {
+		    Type ty = getType(Y[i]);
+		    if (ty == null)
+			    throw new SemanticException("Cannot infer type for parameter " + X[i] + ".");
+		    c = subst(c, ty, X[i], typeFormals.get(i));
+	    }
+	    
+	    try {
+		    c = c.substitute(y, x);
+		    c = c.saturate();
+	    }
+	    catch (XFailure e) {
+		    throw new SemanticException("Cannot instantiate formal parameters on actuals.");
+	    }
+	    
+
+	    return c;
+    }
+
+    static Type subst(Type t,  XVar[] y, XRoot[] x, XVar[] Y, XRoot[] X, List<Type> typeFormals) throws SemanticException {
+	    assert y.length == x.length;
+	    assert Y.length == X.length;
+
+	    for (int i = 0; i < X.length; i++) {
+		    Type ty = getType(Y[i]);
+		    if (ty == null)
+			    throw new SemanticException("Cannot infer type for parameter " + X[i] + ".");
+		    assert typeFormals.get(i) instanceof ParameterType : "type parameter " + typeFormals.get(i) + " is not a parameter type";
+		    t = subst(t, ty, X[i], (ParameterType) typeFormals.get(i));
+	    }
+	    
+	    t = subst(t, y, x);
+
+	    return t;
+    }
+    
+    static Type subst(Type t, XVar[] actual, XRoot[] var) throws SemanticException {
+	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+	    
+	    Type base = X10TypeMixin.baseType(t);
+	    XConstraint c = X10TypeMixin.xclause(t);
+	    
+	    if (c != null) {
+		base = subst(base, actual, var);
+
+		try {
+		    c = c.substitute(actual, var);
+//		    c = c.saturate();
+		}
+		catch (XFailure e) {
+		    throw new SemanticException("Cannot instantiate formal parameters on actuals.");
+		}
+		
+		return X10TypeMixin.xclause(base, c);
+	    }
+
+	    if (t instanceof ArrayType) {
+		    ArrayType at = (ArrayType) t;
+		    Type newBase = subst(at.base(), actual, var);
+		    return at.base(Types.ref(newBase));
+	    }
+	    if (t instanceof X10ParsedClassType) {
+		X10ParsedClassType ct = (X10ParsedClassType) t;
+		List<Type> newArgs = new ArrayList<Type>();
+		for (Type at : ct.typeArguments()) {
+		    Type at2 = subst(at, actual, var);
+		    newArgs.add(at2);
+		}
+		if (! newArgs.isEmpty())
+		    return ct.typeArguments(newArgs);
+	    }
+	    if (t instanceof PathType) {
+		PathType pt = (PathType) t;
+		Type baseType = subst(pt.baseType(), actual, var);
+		    XVar v2 = pt.base();
+		    for (int i = 0; i < actual.length; i++) {
+			    v2 = (XVar) v2.subst(actual[i], var[i]);
+		    }
+		    return pt.base(v2, baseType);
+	    }
+	    if (t instanceof ParametrizedType) {
+		    ParametrizedType pt = (ParametrizedType) t;
+		    List<Type> typeParams = new ArrayList<Type>();
+		    List<Type> formalTypes = new ArrayList<Type>();
+		    List<XVar> formals = new ArrayList<XVar>();
+		    for (Type p : pt.typeParameters()) {
+			    Type p2 = subst(p, actual, var);
+			    typeParams.add(p2);
+		    }
+		    for (Type p : pt.formalTypes()) {
+			    Type p2 = subst(p, actual, var);
+			    formalTypes.add(p2);
+		    }
+		    for (XVar v : pt.formals()) {
+			    XVar v2 = v;
+			    for (int i = 0; i < actual.length; i++) {
+				    v2 = (XVar) v2.subst(actual[i], var[i]);
+			    }
+			    formals.add(v2);
+		    }
+		    t = pt.newTypeParameters(typeParams).formals(formals).newFormalTypes(formalTypes);
+	    }
+	    return t;
+    }
+
+    static Type subst(Type t, Type actual, XRoot var, ParameterType formal) throws SemanticException {
+	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+	    
+	    Type base = X10TypeMixin.baseType(t);
+	    XConstraint c = X10TypeMixin.xclause(t);
+	    
+	    if (c != null) {
+		base = subst(base, actual, var, formal);
+		c = subst(c, actual, var, formal);
+		return X10TypeMixin.xclause(base, c);
+	    }
+	    
+	    if (t instanceof ParameterType) {
+		if (TypeParamSubst.isSameParameter((ParameterType) t, formal))
+		    return actual;
+	    }
+
+	    if (t instanceof ArrayType) {
+		    ArrayType at = (ArrayType) t;
+		    Type newBase = subst(at.base(), actual, var, formal);
+		    return at.base(Types.ref(newBase));
+	    }
+
+	    if (t instanceof PathType) {
+	        PathType pt = (PathType) t;
+	        Type baseType = subst(pt.baseType(), actual, var, formal);
+	        return pt.base(pt.base(), baseType);
+	    }
+
+//	    if (t instanceof ParametrizedType) {
+//	        ParametrizedType at = (ParametrizedType) t;
+////	        List<XVar> newFormals = new ArrayList<XVar>();
+////	        for (XVar v : at.formals()) {
+////	            XVar v2 = subst(v, actual, var, formal);
+////	            newFormals.add(v2);
+////	        }
+////	        at = at.formals(newFormals);
+//	        List<Type> newTypeArgs = new ArrayList<Type>(at.typeParameters());
+//	        for (Type ti : at.typeParameters()) {
+//	            Type ti2 = subst(ti, actual, var, formal);
+//	            newTypeArgs.add(ti2);
+//	        }
+//	        Type newT = subst(at.returnType(), actual, var, formal);
+//	        Type newBase = subst(at.base(), actual, var, formal);
+//	        return at.base(Types.ref(newBase));
+//	    }
+	    
+	    if (t instanceof MacroType) {
+	        MacroType at = (MacroType) t;
+	        List<Type> newFormals = new ArrayList<Type>(at.formalTypes());
+	        for (Type ti : at.formalTypes()) {
+	            Type ti2 = subst(ti, actual, var, formal);
+	            newFormals.add(ti2);
+	        }
+	        List<Type> newTypeArgs = new ArrayList<Type>(at.typeParameters());
+	        for (Type ti : at.typeParameters()) {
+	            Type ti2 = subst(ti, actual, var, formal);
+	            newTypeArgs.add(ti2);
+	        }
+	        Type newT = subst(at.definedType(), actual, var, formal);
+	        return at.formalTypes(newFormals).typeParameters(newTypeArgs).definedType(newT);
+	    }
+	    
+	    if (t instanceof X10ParsedClassType) {
+		X10ParsedClassType ct = (X10ParsedClassType) t;
+		List<Type> newArgs = new ArrayList<Type>();
+		for (Type at : ct.typeArguments()) {
+		    Type at2 = subst(at, actual, var, formal);
+		    newArgs.add(at2);
+		}
+		if (! newArgs.isEmpty())
+		    return ct.typeArguments(newArgs);
+	    }
+
+	    return t;
+    }
+
+    private static XConstraint subst(XConstraint c, Type actual, XRoot var, Type formal) throws SemanticException {
+	    X10TypeSystem ts = (X10TypeSystem) actual.typeSystem();
+	    if (c == null)
+		    return c;
+	    try {
+		    // FIXME: replace parameterType with a var elsewhere!
+		    c = c.substitute(ts.xtypeTranslator().trans(actual), var);
+//		    c = c.saturate();
+		    return c;
+	    }
+	    catch (XFailure e) {
+		    throw new SemanticException("Cannot instantiate type parameter " + formal + " on type " + actual + "; " + e.getMessage());
+	    }
+    }
+    
+    Type rightType;
+
+    public Type rightType() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+
+        if (rightType == null) {
+            Type t = returnType();
+
+            // If a property method, replace T with T{self==this}.
+            X10Flags flags = X10Flags.toX10Flags(flags());
+
+            if (flags.isProperty() && formalTypes.size() == 0) {
+                if (t instanceof UnknownType) {
+                    rightType = t;
+                }
+                else {
+                    XConstraint rc = X10TypeMixin.xclause(t);
+                    if (rc == null)
+                        rc = new XConstraint_c();
+
+                    try {
+                        XTerm receiver;
+
+                        if (flags.isStatic()) {
+                            receiver = xts.xtypeTranslator().trans(container());
+                        }
+                        else {
+                            receiver = xts.xtypeTranslator().transThis(container());
+                        }
+                        
+                        // ### pass in the type rather than letting XField call fi.type();
+                        // otherwise, we'll get called recursively.
+                        XTerm self = body();
+                        
+                        XConstraint c = rc.copy();
+
+                        // TODO: handle non-vars, like rail().body
+                        if (self == null || ! (self instanceof XVar)) {
+                            self = xts.xtypeTranslator().trans(c, receiver, this, t);
+                        }
+                        
+                        c.addSelfBinding(self);
+                        rightType = X10TypeMixin.xclause(t, c);
+                    }
+                    catch (XFailure f) {
+                        throw new InternalCompilerError("Could not add self binding.", f);
+                    }
+                    catch (SemanticException f) {
+                        throw new InternalCompilerError("Could not add self binding.", f);
+                    }
+                }
+            }
+            else {
+                rightType = t;
+            }
+            
+            assert rightType != null;
+        }
+
+        return rightType;
+    }
+
+    
+
+}

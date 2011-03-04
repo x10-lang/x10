@@ -1,0 +1,10 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{WSM{\etalchar{+}}05}
+
+\bibitem[WSM{\etalchar{+}}05]{ppc-2}
+Joe Wetzel, Ed~Silha, Cathy May, Brad Frey, Junichi Furukawa, and Giles
+  Frazier.
+\newblock Powerpc virutal environment architecture, book ii, version 2.02.
+\newblock Technical report, IBM Corporation, January 2005.
+
+\end{thebibliography}

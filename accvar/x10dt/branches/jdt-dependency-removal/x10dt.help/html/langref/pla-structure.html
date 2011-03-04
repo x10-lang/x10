@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>The Structure of Places</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;The Structure of Places</h2>
+
+<div class="p"><!----></div>
+Places are numbered 0 through <b>Place.MAX_PLACES-1</b>, stored in the field
+<b>pl.id</b>.  The <b>ValRail</b> <b>Place.places</b> contains the places of the
+program, in numeric order. 
+The program starts by executing a <b>main</b> method at
+<b>Place.FIRST_PLACE</b>, which is <b>Place.places(0)</b>; see
+&#167;. 
+
+<div class="p"><!----></div>
+Operations on places include <b>pl.next()</b>, which gives the next entry
+(looping around) in <b>Place.places</b> and its opposite <b>pl.prev()</b>. In
+particular, <b>here.next()</b> means &#228; place other than <b>here</b>", except
+in single-place executions.
+There are also a number of tests, like <b>pl.isSPE()</b> and 
+<b>pl.isCUDA()</b>, which test for particular kinds of processors.
+
+<div class="p"><!----></div>
+Future versions of the language may permit user-definable
+places, and the ability to dynamically create places.
+
+<div class="p"><!----></div>
+Place expressions  (, expressions of type
+<b>Place</b>), such as <b>here</b> 
+and <b>globRef.home</b>, are used in <b>at</b> and
+<b>async</b> statements.  
+
+<div class="p"><!----></div>
+
+</body>
+</html>

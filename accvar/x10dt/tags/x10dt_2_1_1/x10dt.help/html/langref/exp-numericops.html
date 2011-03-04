@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Numeric Operations</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;Numeric Operations</h2>
+<a name="XtenPromotions">
+</a>
+
+
+
+
+
+<div class="p"><!----></div>
+Numeric types (<b>Byte</b>, <b>Short</b>, <b>Int</b>, <b>Long</b>, <b>Float</b>,
+<b>Double</b>, and unsigned variants of fixed-point types) are normal X10
+structs, though most of their methods are implemented via native code. They
+obey the same general rules as other X10 structs. For example, numeric
+operations are defined by <b>operator</b> definitions, the same way you could
+for any struct.
+
+<div class="p"><!----></div>
+Promoting a numeric value to a longer numeric type preserves the sign of the
+value.  For example, <b>(255 as UByte) as UInt</b> is 255.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc9.1">
+9.1</a>&nbsp;&nbsp;Conversions and coercions</h3>
+
+<div class="p"><!----></div>
+Specifically, each numeric type can be converted or coerced into each other
+numeric type, perhaps with loss of accuracy.
+<pre>
+val n : Byte = 123 as Byte; // explicit 
+val f : (Int)=&#62;Boolean = (Int) =&#62; true; 
+val ok = f(n); // implicit
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc9.2">
+9.2</a>&nbsp;&nbsp;Unary plus and unary minus</h3>
+
+<div class="p"><!----></div>
+The unary <b>+</b> operation on numbers is an identity function.
+The unary <b>-</b> operation on numbers is a negation function.
+On unsigned numbers, these are two's-complement.  For example, 
+<b>-(0x0F as UByte)</b> is 
+<b>(0xF1 as UByte)</b>.
+
+
+<div class="p"><!----></div>
+
+</body>
+</html>

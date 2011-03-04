@@ -1,0 +1,11 @@
+#!/bin/bash
+OUTPUT=traversal_metrics
+echo traversal results on rand graphs: >$OUTPUT
+hostname >>$OUTPUT
+uptime >>$OUTPUT
+for n in 1000000 2000000 3000000 4000000 5000000
+do
+    m=`expr $n \* 4`
+    echo $n $m 16 processor >>$OUTPUT
+    ./span -t 32 -- 0 $n $m >> $OUTPUT 
+done

@@ -1,0 +1,15 @@
+
+Techniques
+
+(I) Allocate frames on the stack. Fib
+(II) Use global termination detection. DFS
+(III) Use global termination detection with area-specific counter. NQueens
+(III) Use global quiescence detection. BFS
+(IV) Use area-specific data-structures. LU
+
+Other ideas
+
+-- (Guojing) Use sloppy tasks. It is ok to execute a task multiple times. 
+   You can use faster mechanism for work-stealing, dont have to do Dekker.
+
+--(Guojing) Copy multiple tasks at a time.

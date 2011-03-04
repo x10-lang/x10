@@ -1,0 +1,4263 @@
+############################################################
+# Benchmark Host: sunbird
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 02/01/2008 - 06:00:42
+############################################################
+#
+# Run: 1
+#
+
+## Size: 300
+
+### nproc: 1
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 1 T 300 4 false false true
+Number of procs=1
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.4516 s
+stealCount=0 N=300 t=0.1229 s 2.9296 MegaEdges/s
+stealCount=0  (verification 0.1436 s)
+stealCount=0 N=300 t=0.0437 s 8.2340 MegaEdges/s
+stealCount=0  (verification 0.2305 s)
+stealCount=0 N=300 t=0.0429 s 8.3901 MegaEdges/s
+stealCount=0  (verification 0.0385 s)
+stealCount=0 N=300 t=0.0426 s 8.4448 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0420 s 8.5657 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0425 s 8.4667 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0425 s 8.4758 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0423 s 8.5153 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0422 s 8.5219 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0423 s 8.5152 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0423 s 8.5097 MegaEdges/s
+stealCount=0  (verification 0.0384 s)
+stealCount=0 N=300 t=0.0422 s 8.5211 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0423 s 8.5112 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0423 s 8.5077 MegaEdges/s
+stealCount=0  (verification 0.0385 s)
+stealCount=0 N=300 t=0.0428 s 8.4180 MegaEdges/s
+stealCount=0  (verification 0.0384 s)
+stealCount=0 N=300 t=0.0423 s 8.5142 MegaEdges/s
+stealCount=0  (verification 0.0383 s)
+stealCount=0 N=300 t=0.0423 s 8.5107 MegaEdges/s
+stealCount=0  (verification 0.0384 s)
+stealCount=0 N=300 t=0.0427 s 8.4238 MegaEdges/s
+stealCount=0  (verification 0.0385 s)
+stealCount=0 N=300 t=0.0412 s 8.7431 MegaEdges/s
+stealCount=0  (verification 0.0384 s)
+stealCount=0 N=300 t=0.0411 s 8.7655 MegaEdges/s
+stealCount=0  (verification 0.0384 s)
+Completed iterations for N=300
+
+### nproc: 2
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 2 T 300 4 false false true
+Number of procs=2
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.4519 s
+stealCount=13 N=300 t=0.0783 s 4.5979 MegaEdges/s
+stealCount=0  (verification 0.1216 s)
+stealCount=30 N=300 t=0.0237 s 15.1899 MegaEdges/s
+stealCount=0  (verification 0.0413 s)
+stealCount=24 N=300 t=0.0233 s 15.4778 MegaEdges/s
+stealCount=0  (verification 0.0939 s)
+stealCount=30 N=300 t=0.0233 s 15.4464 MegaEdges/s
+stealCount=0  (verification 0.0435 s)
+stealCount=17 N=300 t=0.0227 s 15.8821 MegaEdges/s
+stealCount=1  (verification 0.0086 s)
+stealCount=29 N=300 t=0.0237 s 15.1696 MegaEdges/s
+stealCount=0  (verification 0.0144 s)
+stealCount=15 N=300 t=0.0227 s 15.8506 MegaEdges/s
+stealCount=1  (verification 0.0079 s)
+stealCount=6 N=300 t=0.0219 s 16.4523 MegaEdges/s
+stealCount=0  (verification 0.0091 s)
+stealCount=6 N=300 t=0.0218 s 16.5150 MegaEdges/s
+stealCount=1  (verification 0.0062 s)
+stealCount=13 N=300 t=0.0221 s 16.2832 MegaEdges/s
+stealCount=0  (verification 0.0138 s)
+stealCount=10 N=300 t=0.0221 s 16.3147 MegaEdges/s
+stealCount=1  (verification 0.0098 s)
+stealCount=10 N=300 t=0.0220 s 16.3605 MegaEdges/s
+stealCount=0  (verification 0.0124 s)
+stealCount=10 N=300 t=0.0220 s 16.3518 MegaEdges/s
+stealCount=1  (verification 0.0098 s)
+stealCount=4 N=300 t=0.0224 s 16.0644 MegaEdges/s
+stealCount=0  (verification 0.0076 s)
+stealCount=26 N=300 t=0.0230 s 15.6615 MegaEdges/s
+stealCount=0  (verification 0.0149 s)
+stealCount=8 N=300 t=0.0221 s 16.2873 MegaEdges/s
+stealCount=0  (verification 0.0148 s)
+stealCount=5 N=300 t=0.0229 s 15.7456 MegaEdges/s
+stealCount=1  (verification 0.0081 s)
+stealCount=55 N=300 t=0.0257 s 14.0105 MegaEdges/s
+stealCount=0  (verification 0.0123 s)
+stealCount=7 N=300 t=0.0214 s 16.8547 MegaEdges/s
+stealCount=1  (verification 0.0064 s)
+stealCount=3 N=300 t=0.0213 s 16.9156 MegaEdges/s
+stealCount=1  (verification 0.0100 s)
+Completed iterations for N=300
+
+### nproc: 4
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 4 T 300 4 false false true
+Number of procs=4
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.4433 s
+stealCount=42 N=300 t=0.0715 s 5.0341 MegaEdges/s
+stealCount=2  (verification 0.0241 s)
+stealCount=13 N=300 t=0.0124 s 29.1314 MegaEdges/s
+stealCount=2  (verification 0.0029 s)
+stealCount=17 N=300 t=0.0122 s 29.4022 MegaEdges/s
+stealCount=2  (verification 0.0031 s)
+stealCount=27 N=300 t=0.0126 s 28.6433 MegaEdges/s
+stealCount=2  (verification 0.0096 s)
+stealCount=47 N=300 t=0.0131 s 27.5629 MegaEdges/s
+stealCount=2  (verification 0.0020 s)
+stealCount=23 N=300 t=0.0127 s 28.2640 MegaEdges/s
+stealCount=2  (verification 0.0036 s)
+stealCount=43 N=300 t=0.0129 s 27.9426 MegaEdges/s
+stealCount=2  (verification 0.0027 s)
+stealCount=14 N=300 t=0.0121 s 29.7880 MegaEdges/s
+stealCount=3  (verification 0.0052 s)
+stealCount=30 N=300 t=0.0126 s 28.5164 MegaEdges/s
+stealCount=2  (verification 0.0034 s)
+stealCount=73 N=300 t=0.0161 s 22.4162 MegaEdges/s
+stealCount=2  (verification 0.0028 s)
+stealCount=16 N=300 t=0.0125 s 28.9150 MegaEdges/s
+stealCount=3  (verification 0.0026 s)
+stealCount=29 N=300 t=0.0126 s 28.5723 MegaEdges/s
+stealCount=2  (verification 0.0037 s)
+stealCount=90 N=300 t=0.0139 s 25.9372 MegaEdges/s
+stealCount=2  (verification 0.0020 s)
+stealCount=40 N=300 t=0.0130 s 27.6111 MegaEdges/s
+stealCount=3  (verification 0.0031 s)
+stealCount=97 N=300 t=0.0143 s 25.1715 MegaEdges/s
+stealCount=2  (verification 0.0019 s)
+stealCount=20 N=300 t=0.0123 s 29.3770 MegaEdges/s
+stealCount=2  (verification 0.0051 s)
+stealCount=8 N=300 t=0.0121 s 29.7320 MegaEdges/s
+stealCount=2  (verification 0.0029 s)
+stealCount=29 N=300 t=0.0128 s 28.1449 MegaEdges/s
+stealCount=2  (verification 0.0027 s)
+stealCount=28 N=300 t=0.0127 s 28.2912 MegaEdges/s
+stealCount=2  (verification 0.0041 s)
+stealCount=80 N=300 t=0.0135 s 26.7026 MegaEdges/s
+stealCount=2  (verification 0.0017 s)
+Completed iterations for N=300
+
+### nproc: 8
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 8 T 300 4 false false true
+Number of procs=8
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.4513 s
+stealCount=48 N=300 t=0.0602 s 5.9815 MegaEdges/s
+stealCount=6  (verification 0.0100 s)
+stealCount=36 N=300 t=0.0073 s 49.6450 MegaEdges/s
+stealCount=6  (verification 0.0213 s)
+stealCount=48 N=300 t=0.0073 s 49.0745 MegaEdges/s
+stealCount=6  (verification 0.0105 s)
+stealCount=39 N=300 t=0.0074 s 48.5173 MegaEdges/s
+stealCount=6  (verification 0.0199 s)
+stealCount=52 N=300 t=0.0074 s 48.8288 MegaEdges/s
+stealCount=6  (verification 0.0120 s)
+stealCount=44 N=300 t=0.0076 s 47.2930 MegaEdges/s
+stealCount=5  (verification 0.0016 s)
+stealCount=68 N=300 t=0.0081 s 44.3943 MegaEdges/s
+stealCount=5  (verification 0.0021 s)
+stealCount=52 N=300 t=0.0076 s 47.6254 MegaEdges/s
+stealCount=4  (verification 0.0013 s)
+stealCount=112 N=300 t=0.0084 s 42.7353 MegaEdges/s
+stealCount=5  (verification 0.0019 s)
+stealCount=22 N=300 t=0.0073 s 49.1401 MegaEdges/s
+stealCount=4  (verification 0.0019 s)
+stealCount=55 N=300 t=0.0078 s 46.0080 MegaEdges/s
+stealCount=5  (verification 0.0020 s)
+stealCount=35 N=300 t=0.0072 s 49.7684 MegaEdges/s
+stealCount=5  (verification 0.0025 s)
+stealCount=42 N=300 t=0.0080 s 44.8088 MegaEdges/s
+stealCount=6  (verification 0.0019 s)
+stealCount=53 N=300 t=0.0074 s 48.7386 MegaEdges/s
+stealCount=5  (verification 0.0014 s)
+stealCount=28 N=300 t=0.0071 s 50.4333 MegaEdges/s
+stealCount=5  (verification 0.0015 s)
+stealCount=40 N=300 t=0.0071 s 50.3804 MegaEdges/s
+stealCount=5  (verification 0.0024 s)
+stealCount=38 N=300 t=0.0074 s 48.5729 MegaEdges/s
+stealCount=4  (verification 0.0024 s)
+stealCount=59 N=300 t=0.0075 s 47.8160 MegaEdges/s
+stealCount=5  (verification 0.0017 s)
+stealCount=38 N=300 t=0.0075 s 48.0353 MegaEdges/s
+stealCount=5  (verification 0.0021 s)
+stealCount=40 N=300 t=0.0073 s 49.1085 MegaEdges/s
+stealCount=5  (verification 0.0021 s)
+Completed iterations for N=300
+
+### nproc: 16
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 16 T 300 4 false false true
+Number of procs=16
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.4413 s
+stealCount=115 N=300 t=0.0557 s 6.4615 MegaEdges/s
+stealCount=14  (verification 0.0110 s)
+stealCount=56 N=300 t=0.0055 s 65.3110 MegaEdges/s
+stealCount=14  (verification 0.0075 s)
+stealCount=81 N=300 t=0.0060 s 60.3698 MegaEdges/s
+stealCount=14  (verification 0.0059 s)
+stealCount=71 N=300 t=0.0068 s 53.1110 MegaEdges/s
+stealCount=13  (verification 0.0037 s)
+stealCount=67 N=300 t=0.0053 s 67.6198 MegaEdges/s
+stealCount=13  (verification 0.0082 s)
+stealCount=72 N=300 t=0.0059 s 60.6407 MegaEdges/s
+stealCount=12  (verification 0.0100 s)
+stealCount=67 N=300 t=0.0053 s 67.3854 MegaEdges/s
+stealCount=14  (verification 0.0056 s)
+stealCount=89 N=300 t=0.0054 s 66.0674 MegaEdges/s
+stealCount=13  (verification 0.0063 s)
+stealCount=74 N=300 t=0.0054 s 66.2010 MegaEdges/s
+stealCount=13  (verification 0.0043 s)
+stealCount=103 N=300 t=0.0057 s 63.1563 MegaEdges/s
+stealCount=14  (verification 0.0046 s)
+Worker(8,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@133796,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(15,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@133796,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=102 N=300 t=0.0064 s 56.5301 MegaEdges/s
+stealCount=14  (verification 0.0072 s)
+stealCount=68 N=300 t=0.0057 s 63.2398 MegaEdges/s
+stealCount=13  (verification 0.0074 s)
+stealCount=96 N=300 t=0.0057 s 63.1214 MegaEdges/s
+stealCount=13  (verification 0.0043 s)
+stealCount=36 N=300 t=0.0053 s 67.4459 MegaEdges/s
+stealCount=13  (verification 0.0024 s)
+stealCount=67 N=300 t=0.0054 s 66.4441 MegaEdges/s
+stealCount=12  (verification 0.0041 s)
+stealCount=78 N=300 t=0.0053 s 68.3805 MegaEdges/s
+stealCount=14  (verification 0.0067 s)
+stealCount=78 N=300 t=0.0056 s 64.5237 MegaEdges/s
+stealCount=14  (verification 0.0037 s)
+stealCount=72 N=300 t=0.0054 s 67.1017 MegaEdges/s
+stealCount=13  (verification 0.0085 s)
+stealCount=62 N=300 t=0.0053 s 67.4455 MegaEdges/s
+stealCount=14  (verification 0.0050 s)
+stealCount=67 N=300 t=0.0055 s 65.0629 MegaEdges/s
+stealCount=14  (verification 0.0071 s)
+Completed iterations for N=300
+
+### nproc: 20
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 20 T 300 4 false false true
+Number of procs=20
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.4424 s
+stealCount=140 N=300 t=0.0641 s 5.6136 MegaEdges/s
+stealCount=17  (verification 0.0085 s)
+stealCount=95 N=300 t=0.0055 s 65.0729 MegaEdges/s
+stealCount=17  (verification 0.0078 s)
+stealCount=73 N=300 t=0.0051 s 70.7427 MegaEdges/s
+stealCount=8  (verification 0.0023 s)
+stealCount=92 N=300 t=0.0052 s 69.8723 MegaEdges/s
+stealCount=10  (verification 0.0023 s)
+stealCount=63 N=300 t=0.0064 s 56.4938 MegaEdges/s
+stealCount=11  (verification 0.0023 s)
+stealCount=107 N=300 t=0.0060 s 59.6632 MegaEdges/s
+stealCount=12  (verification 0.0023 s)
+stealCount=95 N=300 t=0.0052 s 69.1793 MegaEdges/s
+stealCount=8  (verification 0.0018 s)
+stealCount=113 N=300 t=0.0055 s 65.5985 MegaEdges/s
+stealCount=9  (verification 0.0020 s)
+stealCount=111 N=300 t=0.0055 s 65.1706 MegaEdges/s
+stealCount=6  (verification 0.0040 s)
+stealCount=114 N=300 t=0.0054 s 66.2071 MegaEdges/s
+stealCount=10  (verification 0.0017 s)
+stealCount=83 N=300 t=0.0051 s 70.3986 MegaEdges/s
+stealCount=10  (verification 0.0019 s)
+stealCount=90 N=300 t=0.0050 s 72.1412 MegaEdges/s
+stealCount=12  (verification 0.0025 s)
+stealCount=84 N=300 t=0.0050 s 72.3172 MegaEdges/s
+stealCount=13  (verification 0.0024 s)
+stealCount=81 N=300 t=0.0051 s 70.3706 MegaEdges/s
+stealCount=11  (verification 0.0020 s)
+stealCount=79 N=300 t=0.0051 s 70.0187 MegaEdges/s
+stealCount=10  (verification 0.0022 s)
+stealCount=91 N=300 t=0.0052 s 69.1913 MegaEdges/s
+stealCount=12  (verification 0.0019 s)
+stealCount=83 N=300 t=0.0051 s 70.1260 MegaEdges/s
+stealCount=11  (verification 0.0024 s)
+stealCount=169 N=300 t=0.0087 s 41.2246 MegaEdges/s
+stealCount=12  (verification 0.0016 s)
+stealCount=105 N=300 t=0.0048 s 75.6314 MegaEdges/s
+stealCount=15  (verification 0.0017 s)
+stealCount=76 N=300 t=0.0045 s 79.5160 MegaEdges/s
+stealCount=14  (verification 0.0016 s)
+Completed iterations for N=300
+
+### nproc: 24
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 24 T 300 4 false false true
+Number of procs=24
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.4485 s
+stealCount=95 N=300 t=0.0601 s 5.9902 MegaEdges/s
+stealCount=20  (verification 0.0073 s)
+stealCount=90 N=300 t=0.0057 s 62.7663 MegaEdges/s
+Worker(1,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@82c01f,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(4,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@82c01f,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(17,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@82c01f,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=16  (verification 0.0211 s)
+stealCount=113 N=300 t=0.0053 s 68.1005 MegaEdges/s
+stealCount=21  (verification 0.0081 s)
+stealCount=107 N=300 t=0.0052 s 69.3123 MegaEdges/s
+stealCount=21  (verification 0.0059 s)
+stealCount=99 N=300 t=0.0049 s 73.3042 MegaEdges/s
+stealCount=21  (verification 0.0067 s)
+stealCount=120 N=300 t=0.0059 s 61.2702 MegaEdges/s
+Worker(16,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@80f4cb,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(3,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@80f4cb,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(18,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@80f4cb,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(8,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@80f4cb,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=17  (verification 0.0073 s)
+stealCount=115 N=300 t=0.0053 s 67.4250 MegaEdges/s
+stealCount=21  (verification 0.0052 s)
+stealCount=114 N=300 t=0.0053 s 67.3512 MegaEdges/s
+stealCount=20  (verification 0.0051 s)
+stealCount=120 N=300 t=0.0053 s 67.5720 MegaEdges/s
+stealCount=20  (verification 0.0093 s)
+stealCount=86 N=300 t=0.0048 s 75.3368 MegaEdges/s
+stealCount=19  (verification 0.0050 s)
+stealCount=129 N=300 t=0.0053 s 67.6114 MegaEdges/s
+stealCount=19  (verification 0.0050 s)
+stealCount=110 N=300 t=0.0051 s 69.9291 MegaEdges/s
+stealCount=19  (verification 0.0055 s)
+stealCount=102 N=300 t=0.0053 s 67.7196 MegaEdges/s
+stealCount=22  (verification 0.0053 s)
+stealCount=114 N=300 t=0.0065 s 55.2583 MegaEdges/s
+stealCount=21  (verification 0.0057 s)
+stealCount=103 N=300 t=0.0049 s 73.2993 MegaEdges/s
+stealCount=21  (verification 0.0040 s)
+stealCount=80 N=300 t=0.0046 s 77.7479 MegaEdges/s
+stealCount=22  (verification 0.0070 s)
+stealCount=108 N=300 t=0.0049 s 73.1859 MegaEdges/s
+stealCount=21  (verification 0.0065 s)
+stealCount=73 N=300 t=0.0042 s 85.0359 MegaEdges/s
+stealCount=20  (verification 0.0052 s)
+stealCount=104 stealCount=105 N=300 t=0.0044 s 81.6369 MegaEdges/s
+stealCount=17  (verification 0.0027 s)
+stealCount=111 N=300 t=0.0048 s 74.9239 MegaEdges/s
+stealCount=21  (verification 0.0045 s)
+Completed iterations for N=300
+
+### nproc: 30
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.4464 s
+stealCount=79 N=300 t=0.0602 s 5.9823 MegaEdges/s
+stealCount=25  (verification 0.0093 s)
+stealCount=121 N=300 t=0.0065 s 55.2776 MegaEdges/s
+stealCount=24  (verification 0.0055 s)
+stealCount=155 N=300 t=0.0104 s 34.5983 MegaEdges/s
+stealCount=26  (verification 0.0056 s)
+stealCount=126 N=300 t=0.0046 s 78.6637 MegaEdges/s
+stealCount=22  (verification 0.0021 s)
+stealCount=110 N=300 t=0.0044 s 82.3736 MegaEdges/s
+stealCount=14  (verification 0.0019 s)
+stealCount=125 N=300 t=0.0054 s 66.7263 MegaEdges/s
+stealCount=17  (verification 0.0022 s)
+stealCount=115 N=300 t=0.0047 s 76.0904 MegaEdges/s
+stealCount=16  (verification 0.0018 s)
+stealCount=116 N=300 t=0.0047 s 76.2167 MegaEdges/s
+stealCount=16  (verification 0.0018 s)
+stealCount=129 stealCount=130 N=300 t=0.0047 s 76.0762 MegaEdges/s
+stealCount=16  (verification 0.0019 s)
+stealCount=103 N=300 t=0.0044 s 82.0816 MegaEdges/s
+stealCount=21  (verification 0.0019 s)
+stealCount=104 N=300 t=0.0046 s 78.4963 MegaEdges/s
+stealCount=15  (verification 0.0018 s)
+stealCount=115 N=300 t=0.0046 s 78.4120 MegaEdges/s
+stealCount=24  (verification 0.0021 s)
+stealCount=115 N=300 t=0.0046 s 77.5805 MegaEdges/s
+stealCount=17  (verification 0.0021 s)
+stealCount=105 N=300 t=0.0046 s 78.6626 MegaEdges/s
+stealCount=18  (verification 0.0019 s)
+stealCount=51 N=300 t=0.0061 s 58.7978 MegaEdges/s
+stealCount=17  (verification 0.0019 s)
+stealCount=128 N=300 t=0.0047 s 76.4912 MegaEdges/s
+stealCount=18  (verification 0.0026 s)
+stealCount=99 N=300 t=0.0045 s 80.4617 MegaEdges/s
+stealCount=20  (verification 0.0020 s)
+stealCount=111 N=300 t=0.0048 s 75.6974 MegaEdges/s
+stealCount=19  (verification 0.0019 s)
+stealCount=120 N=300 t=0.0050 s 71.9153 MegaEdges/s
+stealCount=24  (verification 0.0023 s)
+stealCount=85 N=300 t=0.0045 s 80.6330 MegaEdges/s
+stealCount=21  (verification 0.0020 s)
+Completed iterations for N=300
+
+#<<<< BEGIN BATCHING >>>>
+
+#### bsize: 1
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 1
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=1
+Generating graph...
+Graph generated.
+Creation time:0.4475 s
+stealCount=3803 N=300 t=0.1515 s 2.3761 MegaEdges/s
+stealCount=24  (verification 0.0083 s)
+stealCount=1689 N=300 t=0.0717 s 5.0198 MegaEdges/s
+stealCount=24  (verification 0.0052 s)
+stealCount=3890 stealCount=3891 N=300 t=0.1225 s 2.9393 MegaEdges/s
+stealCount=26  (verification 0.0037 s)
+stealCount=3517 N=300 t=0.0599 s 6.0102 MegaEdges/s
+stealCount=26  (verification 0.0035 s)
+stealCount=4992 N=300 t=0.0837 s 4.2990 MegaEdges/s
+stealCount=26  (verification 0.0039 s)
+stealCount=4842 stealCount=4842 N=300 t=0.0725 s 4.9639 MegaEdges/s
+stealCount=26  (verification 0.0033 s)
+stealCount=6311 N=300 t=0.0813 s 4.4272 MegaEdges/s
+stealCount=19  (verification 0.0018 s)
+stealCount=4235 N=300 t=0.0616 s 5.8464 MegaEdges/s
+stealCount=21  (verification 0.0015 s)
+stealCount=2581 N=300 t=0.0311 s 11.5700 MegaEdges/s
+stealCount=21  (verification 0.0015 s)
+stealCount=3020 N=300 t=0.0414 s 8.6977 MegaEdges/s
+stealCount=22  (verification 0.0014 s)
+stealCount=4473 N=300 t=0.0531 s 6.7833 MegaEdges/s
+stealCount=20  (verification 0.0016 s)
+stealCount=5116 N=300 t=0.0354 s 10.1581 MegaEdges/s
+stealCount=23  (verification 0.0014 s)
+stealCount=2519 N=300 t=0.0326 s 11.0579 MegaEdges/s
+stealCount=24  (verification 0.0015 s)
+stealCount=3147 N=300 t=0.0183 s 19.7225 MegaEdges/s
+stealCount=24  (verification 0.0014 s)
+stealCount=2258 N=300 t=0.0244 s 14.7426 MegaEdges/s
+stealCount=25  (verification 0.0014 s)
+stealCount=1705 N=300 t=0.0177 s 20.3868 MegaEdges/s
+stealCount=29  (verification 0.0016 s)
+stealCount=2702 N=300 t=0.0226 s 15.9579 MegaEdges/s
+stealCount=20  (verification 0.0014 s)
+stealCount=2779 N=300 t=0.0177 s 20.3549 MegaEdges/s
+stealCount=25  (verification 0.0014 s)
+stealCount=1653 N=300 t=0.0132 s 27.3474 MegaEdges/s
+stealCount=24  (verification 0.0013 s)
+stealCount=1311 stealCount=1311 N=300 t=0.0176 s 20.4778 MegaEdges/s
+stealCount=22  (verification 0.0013 s)
+Completed iterations for N=300
+
+#### bsize: 10
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 10
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=10
+Generating graph...
+Graph generated.
+Creation time:0.4460 s
+stealCount=685 N=300 t=0.0539 s 6.6740 MegaEdges/s
+stealCount=25  (verification 0.0084 s)
+stealCount=277 N=300 t=0.0116 s 31.0290 MegaEdges/s
+stealCount=25  (verification 0.0099 s)
+stealCount=254 N=300 t=0.0072 s 49.8230 MegaEdges/s
+stealCount=25  (verification 0.0066 s)
+stealCount=331 N=300 t=0.0111 s 32.4586 MegaEdges/s
+stealCount=27  (verification 0.0115 s)
+stealCount=347 N=300 t=0.0107 s 33.7127 MegaEdges/s
+stealCount=23  (verification 0.0095 s)
+stealCount=340 N=300 t=0.0075 s 48.1069 MegaEdges/s
+stealCount=24  (verification 0.0059 s)
+stealCount=340 N=300 t=0.0118 s 30.5098 MegaEdges/s
+stealCount=23  (verification 0.0073 s)
+stealCount=348 N=300 t=0.0102 s 35.3864 MegaEdges/s
+stealCount=25  (verification 0.0077 s)
+stealCount=352 N=300 t=0.0094 s 38.3424 MegaEdges/s
+stealCount=24  (verification 0.0094 s)
+stealCount=432 N=300 t=0.0101 s 35.5455 MegaEdges/s
+stealCount=24  (verification 0.0077 s)
+stealCount=399 N=300 t=0.0098 s 36.5749 MegaEdges/s
+stealCount=22  (verification 0.0059 s)
+stealCount=395 N=300 t=0.0099 s 36.5310 MegaEdges/s
+stealCount=25  (verification 0.0068 s)
+stealCount=363 N=300 t=0.0099 s 36.4552 MegaEdges/s
+stealCount=25  (verification 0.0074 s)
+stealCount=358 N=300 t=0.0085 s 42.2406 MegaEdges/s
+stealCount=25  (verification 0.0094 s)
+stealCount=536 N=300 t=0.0134 s 26.8500 MegaEdges/s
+stealCount=25  (verification 0.0058 s)
+stealCount=490 N=300 t=0.0082 s 44.0500 MegaEdges/s
+stealCount=25  (verification 0.0053 s)
+stealCount=424 N=300 t=0.0072 s 50.0839 MegaEdges/s
+stealCount=26  (verification 0.0072 s)
+stealCount=416 N=300 t=0.0068 s 52.6731 MegaEdges/s
+stealCount=25  (verification 0.0064 s)
+stealCount=487 N=300 t=0.0081 s 44.2851 MegaEdges/s
+stealCount=25  (verification 0.0062 s)
+stealCount=400 N=300 t=0.0064 s 56.2294 MegaEdges/s
+stealCount=24  (verification 0.0064 s)
+Completed iterations for N=300
+
+#### bsize: 20
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 20
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=20
+Generating graph...
+Graph generated.
+Creation time:0.4485 s
+stealCount=125 N=300 t=0.0509 s 7.0739 MegaEdges/s
+stealCount=25  (verification 0.0085 s)
+stealCount=142 N=300 t=0.0055 s 65.1511 MegaEdges/s
+Worker(21,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(23,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(10,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(28,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(9,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(18,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(14,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(16,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(29,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(6,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+Worker(2,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@e102dc,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=16  (verification 0.0093 s)
+stealCount=199 N=300 t=0.0096 s 37.3408 MegaEdges/s
+stealCount=26  (verification 0.0071 s)
+stealCount=191 N=300 t=0.0050 s 71.3839 MegaEdges/s
+stealCount=26  (verification 0.0040 s)
+stealCount=174 N=300 t=0.0055 s 65.0165 MegaEdges/s
+stealCount=25  (verification 0.0047 s)
+stealCount=184 N=300 t=0.0052 s 68.9621 MegaEdges/s
+stealCount=26  (verification 0.0055 s)
+stealCount=140 stealCount=141 N=300 t=0.0047 s 76.6987 MegaEdges/s
+stealCount=27  (verification 0.0063 s)
+stealCount=200 N=300 t=0.0050 s 71.9983 MegaEdges/s
+stealCount=25  (verification 0.0033 s)
+stealCount=168 N=300 t=0.0046 s 78.2594 MegaEdges/s
+stealCount=26  (verification 0.0027 s)
+stealCount=171 N=300 t=0.0047 s 76.9727 MegaEdges/s
+stealCount=26  (verification 0.0031 s)
+stealCount=165 N=300 t=0.0047 s 76.8050 MegaEdges/s
+stealCount=25  (verification 0.0044 s)
+stealCount=147 N=300 t=0.0045 s 79.6239 MegaEdges/s
+stealCount=25  (verification 0.0031 s)
+stealCount=172 N=300 t=0.0047 s 76.5500 MegaEdges/s
+stealCount=25  (verification 0.0035 s)
+stealCount=207 N=300 t=0.0046 s 78.1865 MegaEdges/s
+stealCount=25  (verification 0.0042 s)
+stealCount=195 N=300 t=0.0047 s 76.1258 MegaEdges/s
+stealCount=25  (verification 0.0062 s)
+stealCount=142 N=300 t=0.0046 s 78.2379 MegaEdges/s
+stealCount=26  (verification 0.0044 s)
+stealCount=139 N=300 t=0.0046 s 77.7563 MegaEdges/s
+stealCount=27  (verification 0.0044 s)
+stealCount=164 N=300 t=0.0048 s 75.4551 MegaEdges/s
+stealCount=27  (verification 0.0038 s)
+stealCount=153 N=300 t=0.0042 s 86.2751 MegaEdges/s
+stealCount=26  (verification 0.0049 s)
+stealCount=162 N=300 t=0.0049 s 73.8652 MegaEdges/s
+stealCount=26  (verification 0.0060 s)
+Completed iterations for N=300
+
+#### bsize: 30
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 30
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=30
+Generating graph...
+Graph generated.
+Creation time:0.4483 s
+stealCount=44 N=300 t=0.0727 s 4.9497 MegaEdges/s
+stealCount=24  (verification 0.0095 s)
+stealCount=87 N=300 t=0.0059 s 61.0001 MegaEdges/s
+stealCount=25  (verification 0.0063 s)
+stealCount=78 N=300 t=0.0081 s 44.5229 MegaEdges/s
+stealCount=26  (verification 0.0067 s)
+stealCount=79 N=300 t=0.0043 s 84.1693 MegaEdges/s
+stealCount=17  (verification 0.0019 s)
+stealCount=72 N=300 t=0.0044 s 81.1258 MegaEdges/s
+stealCount=17  (verification 0.0019 s)
+stealCount=86 N=300 t=0.0044 s 81.7786 MegaEdges/s
+stealCount=15  (verification 0.0017 s)
+stealCount=67 N=300 t=0.0042 s 86.1905 MegaEdges/s
+stealCount=23  (verification 0.0020 s)
+stealCount=68 N=300 t=0.0047 s 76.5689 MegaEdges/s
+stealCount=25  (verification 0.0023 s)
+stealCount=69 N=300 t=0.0045 s 79.8029 MegaEdges/s
+stealCount=29  (verification 0.0027 s)
+stealCount=78 stealCount=79 N=300 t=0.0046 s 77.7764 MegaEdges/s
+stealCount=22  (verification 0.0021 s)
+stealCount=63 N=300 t=0.0041 s 88.4526 MegaEdges/s
+stealCount=22  (verification 0.0019 s)
+stealCount=44 N=300 t=0.0039 s 93.0843 MegaEdges/s
+stealCount=19  (verification 0.0018 s)
+stealCount=63 N=300 t=0.0041 s 88.1112 MegaEdges/s
+stealCount=17  (verification 0.0014 s)
+stealCount=57 N=300 t=0.0041 s 87.2584 MegaEdges/s
+stealCount=22  (verification 0.0017 s)
+stealCount=71 N=300 t=0.0045 s 79.7903 MegaEdges/s
+stealCount=21  (verification 0.0018 s)
+stealCount=68 N=300 t=0.0042 s 85.8055 MegaEdges/s
+stealCount=23  (verification 0.0025 s)
+stealCount=52 N=300 t=0.0042 s 86.5750 MegaEdges/s
+stealCount=21  (verification 0.0017 s)
+stealCount=66 N=300 t=0.0041 s 88.7155 MegaEdges/s
+stealCount=20  (verification 0.0018 s)
+stealCount=64 N=300 t=0.0039 s 91.4415 MegaEdges/s
+stealCount=21  (verification 0.0019 s)
+stealCount=63 N=300 t=0.0041 s 88.7455 MegaEdges/s
+stealCount=23  (verification 0.0026 s)
+Completed iterations for N=300
+
+#### bsize: 40
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 40
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=40
+Generating graph...
+Graph generated.
+Creation time:0.4486 s
+stealCount=31 N=300 t=0.0859 s 4.1910 MegaEdges/s
+stealCount=19  (verification 0.0119 s)
+stealCount=27 N=300 t=0.0084 s 42.8380 MegaEdges/s
+stealCount=16  (verification 0.0087 s)
+stealCount=39 N=300 t=0.0052 s 69.7658 MegaEdges/s
+stealCount=24  (verification 0.0054 s)
+stealCount=41 N=300 t=0.0051 s 70.5962 MegaEdges/s
+stealCount=24  (verification 0.0061 s)
+stealCount=28 N=300 t=0.0046 s 77.9508 MegaEdges/s
+stealCount=24  (verification 0.0037 s)
+stealCount=25 N=300 t=0.0048 s 75.5692 MegaEdges/s
+stealCount=24  (verification 0.0038 s)
+stealCount=44 N=300 t=0.0050 s 71.4568 MegaEdges/s
+stealCount=22  (verification 0.0047 s)
+stealCount=35 N=300 t=0.0047 s 76.7813 MegaEdges/s
+stealCount=21  (verification 0.0032 s)
+stealCount=35 N=300 t=0.0050 s 72.5436 MegaEdges/s
+stealCount=24  (verification 0.0045 s)
+stealCount=36 N=300 t=0.0051 s 69.9691 MegaEdges/s
+stealCount=16  (verification 0.0021 s)
+stealCount=33 N=300 t=0.0049 s 73.5430 MegaEdges/s
+stealCount=13  (verification 0.0020 s)
+stealCount=30 N=300 t=0.0044 s 81.8113 MegaEdges/s
+stealCount=12  (verification 0.0015 s)
+stealCount=37 N=300 t=0.0050 s 72.6669 MegaEdges/s
+stealCount=21  (verification 0.0020 s)
+stealCount=36 N=300 t=0.0048 s 74.5106 MegaEdges/s
+stealCount=20  (verification 0.0034 s)
+stealCount=29 N=300 t=0.0049 s 72.8270 MegaEdges/s
+stealCount=13  (verification 0.0015 s)
+stealCount=28 N=300 t=0.0050 s 72.0054 MegaEdges/s
+stealCount=21  (verification 0.0018 s)
+stealCount=30 N=300 t=0.0046 s 78.8174 MegaEdges/s
+stealCount=20  (verification 0.0017 s)
+stealCount=36 N=300 t=0.0047 s 76.4204 MegaEdges/s
+stealCount=24  (verification 0.0027 s)
+stealCount=27 N=300 t=0.0046 s 78.5360 MegaEdges/s
+stealCount=13  (verification 0.0014 s)
+stealCount=31 N=300 t=0.0046 s 78.4318 MegaEdges/s
+stealCount=23  (verification 0.0020 s)
+Completed iterations for N=300
+
+#### bsize: 50
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 50
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=50
+Generating graph...
+Graph generated.
+Creation time:0.4482 s
+stealCount=30 N=300 t=0.1021 s 3.5259 MegaEdges/s
+stealCount=25  (verification 0.0070 s)
+stealCount=30 N=300 t=0.0891 s 4.0382 MegaEdges/s
+stealCount=24  (verification 0.0047 s)
+stealCount=39 N=300 t=0.0206 s 17.4803 MegaEdges/s
+stealCount=24  (verification 0.0073 s)
+stealCount=48 N=300 t=0.0202 s 17.8408 MegaEdges/s
+stealCount=25  (verification 0.0047 s)
+stealCount=46 N=300 t=0.0246 s 14.6626 MegaEdges/s
+stealCount=11  (verification 0.0016 s)
+stealCount=42 N=300 t=0.0179 s 20.1496 MegaEdges/s
+stealCount=14  (verification 0.0022 s)
+stealCount=41 N=300 t=0.0199 s 18.0996 MegaEdges/s
+stealCount=20  (verification 0.0022 s)
+stealCount=28 N=300 t=0.0062 s 57.6112 MegaEdges/s
+stealCount=28  (verification 0.0032 s)
+stealCount=27 N=300 t=0.0058 s 62.0838 MegaEdges/s
+stealCount=21  (verification 0.0017 s)
+stealCount=22 N=300 t=0.0056 s 64.0563 MegaEdges/s
+stealCount=20  (verification 0.0019 s)
+stealCount=19 N=300 t=0.0055 s 65.8654 MegaEdges/s
+stealCount=11  (verification 0.0016 s)
+stealCount=23 N=300 t=0.0057 s 63.3347 MegaEdges/s
+stealCount=15  (verification 0.0016 s)
+stealCount=23 N=300 t=0.0061 s 59.1447 MegaEdges/s
+stealCount=17  (verification 0.0016 s)
+stealCount=23 N=300 t=0.0057 s 62.6669 MegaEdges/s
+stealCount=28  (verification 0.0023 s)
+stealCount=25 N=300 t=0.0054 s 66.4104 MegaEdges/s
+stealCount=19  (verification 0.0022 s)
+stealCount=29 N=300 t=0.0058 s 62.5285 MegaEdges/s
+stealCount=28  (verification 0.0023 s)
+stealCount=25 N=300 t=0.0059 s 61.1472 MegaEdges/s
+stealCount=22  (verification 0.0020 s)
+stealCount=29 N=300 t=0.0057 s 63.1747 MegaEdges/s
+stealCount=18  (verification 0.0019 s)
+stealCount=24 N=300 t=0.0057 s 63.0243 MegaEdges/s
+stealCount=16  (verification 0.0020 s)
+stealCount=27 N=300 t=0.0056 s 64.1252 MegaEdges/s
+stealCount=11  (verification 0.0020 s)
+Completed iterations for N=300
+
+#### bsize: 60
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 60
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=60
+Generating graph...
+Graph generated.
+Creation time:0.4454 s
+stealCount=16 N=300 t=0.1250 s 2.8803 MegaEdges/s
+stealCount=24  (verification 0.0100 s)
+stealCount=20 N=300 t=0.0663 s 5.4307 MegaEdges/s
+stealCount=25  (verification 0.0068 s)
+stealCount=26 N=300 t=0.0634 s 5.6789 MegaEdges/s
+stealCount=25  (verification 0.0051 s)
+stealCount=24 N=300 t=0.0645 s 5.5799 MegaEdges/s
+stealCount=14  (verification 0.0018 s)
+stealCount=7 N=300 t=0.0116 s 31.0109 MegaEdges/s
+stealCount=24  (verification 0.0021 s)
+stealCount=38 N=300 t=0.0078 s 46.4429 MegaEdges/s
+stealCount=19  (verification 0.0019 s)
+stealCount=24 N=300 t=0.0068 s 53.1566 MegaEdges/s
+stealCount=19  (verification 0.0018 s)
+stealCount=21 N=300 t=0.0071 s 50.4150 MegaEdges/s
+stealCount=16  (verification 0.0017 s)
+stealCount=19 N=300 t=0.0068 s 52.6605 MegaEdges/s
+stealCount=21  (verification 0.0019 s)
+stealCount=18 N=300 t=0.0067 s 53.9866 MegaEdges/s
+stealCount=19  (verification 0.0019 s)
+stealCount=18 N=300 t=0.0069 s 52.3035 MegaEdges/s
+stealCount=18  (verification 0.0019 s)
+stealCount=21 N=300 t=0.0067 s 53.4049 MegaEdges/s
+stealCount=18  (verification 0.0019 s)
+stealCount=8 N=300 t=0.0087 s 41.3136 MegaEdges/s
+stealCount=18  (verification 0.0019 s)
+stealCount=25 N=300 t=0.0132 s 27.1903 MegaEdges/s
+stealCount=23  (verification 0.0020 s)
+stealCount=19 N=300 t=0.0065 s 55.1389 MegaEdges/s
+stealCount=18  (verification 0.0019 s)
+stealCount=12 N=300 t=0.0069 s 52.4090 MegaEdges/s
+stealCount=18  (verification 0.0019 s)
+stealCount=4 N=300 t=0.0109 s 33.1764 MegaEdges/s
+stealCount=21  (verification 0.0021 s)
+stealCount=34 N=300 t=0.0077 s 46.4644 MegaEdges/s
+stealCount=18  (verification 0.0015 s)
+stealCount=29 N=300 t=0.0073 s 49.5032 MegaEdges/s
+stealCount=19  (verification 0.0017 s)
+stealCount=29 N=300 t=0.0072 s 49.8907 MegaEdges/s
+stealCount=18  (verification 0.0016 s)
+Completed iterations for N=300
+
+#### bsize: 70
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 70
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=70
+Generating graph...
+Graph generated.
+Creation time:0.4458 s
+stealCount=14 N=300 t=0.1408 s 2.5565 MegaEdges/s
+stealCount=24  (verification 0.0089 s)
+stealCount=13 N=300 t=0.0115 s 31.1889 MegaEdges/s
+stealCount=26  (verification 0.0099 s)
+stealCount=15 N=300 t=0.0074 s 48.6818 MegaEdges/s
+stealCount=21  (verification 0.0040 s)
+stealCount=20 N=300 t=0.0131 s 27.4407 MegaEdges/s
+stealCount=23  (verification 0.0025 s)
+stealCount=11 N=300 t=0.0077 s 46.4949 MegaEdges/s
+stealCount=16  (verification 0.0015 s)
+stealCount=12 N=300 t=0.0091 s 39.7016 MegaEdges/s
+stealCount=16  (verification 0.0027 s)
+stealCount=23 N=300 t=0.0084 s 42.8242 MegaEdges/s
+stealCount=16  (verification 0.0017 s)
+stealCount=18 N=300 t=0.0068 s 53.0191 MegaEdges/s
+stealCount=15  (verification 0.0017 s)
+stealCount=18 N=300 t=0.0067 s 53.9675 MegaEdges/s
+stealCount=15  (verification 0.0018 s)
+stealCount=18 N=300 t=0.0070 s 51.2311 MegaEdges/s
+stealCount=16  (verification 0.0015 s)
+stealCount=20 N=300 t=0.0070 s 51.4540 MegaEdges/s
+stealCount=19  (verification 0.0016 s)
+stealCount=17 N=300 t=0.0069 s 52.1420 MegaEdges/s
+stealCount=17  (verification 0.0017 s)
+stealCount=11 N=300 t=0.0093 s 38.5997 MegaEdges/s
+stealCount=18  (verification 0.0017 s)
+stealCount=21 N=300 t=0.0101 s 35.7005 MegaEdges/s
+stealCount=17  (verification 0.0023 s)
+stealCount=19 N=300 t=0.0070 s 51.7711 MegaEdges/s
+stealCount=13  (verification 0.0014 s)
+stealCount=13 N=300 t=0.0069 s 52.1631 MegaEdges/s
+stealCount=19  (verification 0.0019 s)
+stealCount=7 N=300 t=0.0086 s 41.6593 MegaEdges/s
+stealCount=17  (verification 0.0019 s)
+stealCount=31 N=300 t=0.0123 s 29.3167 MegaEdges/s
+stealCount=28  (verification 0.0024 s)
+stealCount=16 N=300 t=0.0067 s 53.7703 MegaEdges/s
+stealCount=11  (verification 0.0013 s)
+stealCount=23 N=300 t=0.0068 s 52.9852 MegaEdges/s
+stealCount=11  (verification 0.0013 s)
+Completed iterations for N=300
+
+#### bsize: 80
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 80
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=80
+Generating graph...
+Graph generated.
+Creation time:0.4462 s
+stealCount=11 N=300 t=0.1802 s 1.9977 MegaEdges/s
+stealCount=29  (verification 0.0062 s)
+stealCount=17 N=300 t=0.0280 s 12.8660 MegaEdges/s
+stealCount=26  (verification 0.0044 s)
+stealCount=15 N=300 t=0.0243 s 14.8095 MegaEdges/s
+stealCount=25  (verification 0.0041 s)
+stealCount=17 N=300 t=0.0105 s 34.3299 MegaEdges/s
+stealCount=21  (verification 0.0043 s)
+stealCount=18 N=300 t=0.0122 s 29.4055 MegaEdges/s
+stealCount=20  (verification 0.0046 s)
+stealCount=25 N=300 t=0.0119 s 30.2496 MegaEdges/s
+stealCount=20  (verification 0.0047 s)
+stealCount=27 N=300 t=0.0117 s 30.7597 MegaEdges/s
+stealCount=19  (verification 0.0023 s)
+stealCount=4 N=300 t=0.0112 s 32.0597 MegaEdges/s
+stealCount=18  (verification 0.0038 s)
+stealCount=14 N=300 t=0.0091 s 39.3888 MegaEdges/s
+stealCount=15  (verification 0.0017 s)
+stealCount=22 N=300 t=0.0133 s 27.0783 MegaEdges/s
+stealCount=18  (verification 0.0022 s)
+stealCount=27 N=300 t=0.0143 s 25.1608 MegaEdges/s
+stealCount=13  (verification 0.0019 s)
+stealCount=33 N=300 t=0.0138 s 26.1630 MegaEdges/s
+stealCount=21  (verification 0.0023 s)
+stealCount=10 N=300 t=0.0097 s 37.2509 MegaEdges/s
+stealCount=14  (verification 0.0017 s)
+stealCount=20 N=300 t=0.0109 s 32.9160 MegaEdges/s
+stealCount=14  (verification 0.0018 s)
+stealCount=15 N=300 t=0.0135 s 26.6303 MegaEdges/s
+stealCount=19  (verification 0.0026 s)
+stealCount=8 N=300 t=0.0100 s 36.1433 MegaEdges/s
+stealCount=18  (verification 0.0020 s)
+stealCount=18 N=300 t=0.0126 s 28.6117 MegaEdges/s
+stealCount=20  (verification 0.0025 s)
+stealCount=23 N=300 t=0.0141 s 25.5769 MegaEdges/s
+stealCount=17  (verification 0.0023 s)
+stealCount=12 N=300 t=0.0111 s 32.3870 MegaEdges/s
+stealCount=21  (verification 0.0027 s)
+stealCount=15 N=300 t=0.0095 s 37.8464 MegaEdges/s
+stealCount=13  (verification 0.0015 s)
+Completed iterations for N=300
+
+#### bsize: 90
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 90
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=90
+Generating graph...
+Graph generated.
+Creation time:0.4454 s
+stealCount=9 N=300 t=0.1958 s 1.8385 MegaEdges/s
+stealCount=20  (verification 0.0086 s)
+stealCount=9 N=300 t=0.0109 s 32.9182 MegaEdges/s
+stealCount=21  (verification 0.0062 s)
+stealCount=5 N=300 t=0.0117 s 30.8470 MegaEdges/s
+stealCount=28  (verification 0.0047 s)
+stealCount=9 N=300 t=0.0103 s 34.8384 MegaEdges/s
+stealCount=14  (verification 0.0019 s)
+stealCount=17 N=300 t=0.0116 s 31.0337 MegaEdges/s
+stealCount=15  (verification 0.0019 s)
+stealCount=10 N=300 t=0.0082 s 43.6667 MegaEdges/s
+stealCount=7  (verification 0.0012 s)
+stealCount=24 N=300 t=0.0142 s 25.2923 MegaEdges/s
+stealCount=23  (verification 0.0029 s)
+stealCount=4 N=300 t=0.0109 s 33.1392 MegaEdges/s
+stealCount=29  (verification 0.0025 s)
+stealCount=14 N=300 t=0.0116 s 31.0238 MegaEdges/s
+stealCount=16  (verification 0.0019 s)
+stealCount=14 N=300 t=0.0112 s 32.2703 MegaEdges/s
+stealCount=17  (verification 0.0024 s)
+stealCount=13 N=300 t=0.0116 s 31.1465 MegaEdges/s
+stealCount=12  (verification 0.0017 s)
+stealCount=3 N=300 t=0.0130 s 27.7229 MegaEdges/s
+stealCount=29  (verification 0.0033 s)
+stealCount=10 N=300 t=0.0092 s 39.3131 MegaEdges/s
+stealCount=12  (verification 0.0016 s)
+stealCount=20 N=300 t=0.0143 s 25.2190 MegaEdges/s
+stealCount=22  (verification 0.0029 s)
+stealCount=7 N=300 t=0.0104 s 34.6741 MegaEdges/s
+stealCount=17  (verification 0.0020 s)
+stealCount=17 N=300 t=0.0120 s 29.9769 MegaEdges/s
+stealCount=8  (verification 0.0014 s)
+stealCount=9 N=300 t=0.0117 s 30.8888 MegaEdges/s
+stealCount=12  (verification 0.0017 s)
+stealCount=16 N=300 t=0.0114 s 31.4800 MegaEdges/s
+stealCount=19  (verification 0.0016 s)
+stealCount=7 N=300 t=0.0099 s 36.2161 MegaEdges/s
+stealCount=16  (verification 0.0015 s)
+stealCount=19 N=300 t=0.0136 s 26.4740 MegaEdges/s
+stealCount=11  (verification 0.0013 s)
+Completed iterations for N=300
+
+#### bsize: 100
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 300 4 false false true 100
+Number of procs=30
+graphType=T
+N=300
+D=4
+verification=true
+BATCH_SIZE=100
+Generating graph...
+Graph generated.
+Creation time:0.4415 s
+stealCount=6 N=300 t=0.2297 s 1.5674 MegaEdges/s
+stealCount=27  (verification 0.0085 s)
+stealCount=7 N=300 t=0.0131 s 27.5438 MegaEdges/s
+stealCount=25  (verification 0.0060 s)
+stealCount=11 N=300 t=0.0115 s 31.2654 MegaEdges/s
+stealCount=25  (verification 0.0048 s)
+stealCount=11 N=300 t=0.0122 s 29.4917 MegaEdges/s
+stealCount=25  (verification 0.0042 s)
+stealCount=11 N=300 t=0.0131 s 27.5664 MegaEdges/s
+stealCount=25  (verification 0.0051 s)
+stealCount=11 N=300 t=0.0123 s 29.1741 MegaEdges/s
+stealCount=25  (verification 0.0046 s)
+stealCount=7 N=300 t=0.0141 s 25.5157 MegaEdges/s
+stealCount=25  (verification 0.0054 s)
+stealCount=9 N=300 t=0.0108 s 33.3996 MegaEdges/s
+stealCount=25  (verification 0.0044 s)
+stealCount=6 N=300 t=0.0150 s 24.0644 MegaEdges/s
+stealCount=24  (verification 0.0058 s)
+stealCount=7 N=300 t=0.0107 s 33.5719 MegaEdges/s
+stealCount=25  (verification 0.0046 s)
+stealCount=9 N=300 t=0.0114 s 31.5265 MegaEdges/s
+stealCount=25  (verification 0.0059 s)
+stealCount=11 N=300 t=0.0115 s 31.2959 MegaEdges/s
+stealCount=19  (verification 0.0023 s)
+stealCount=15 N=300 t=0.0140 s 25.7105 MegaEdges/s
+stealCount=19  (verification 0.0021 s)
+stealCount=17 N=300 t=0.0153 s 23.5841 MegaEdges/s
+stealCount=20  (verification 0.0024 s)
+stealCount=13 N=300 t=0.0141 s 25.5109 MegaEdges/s
+stealCount=18  (verification 0.0022 s)
+stealCount=18 N=300 t=0.0148 s 24.3966 MegaEdges/s
+stealCount=20  (verification 0.0026 s)
+stealCount=5 N=300 t=0.0118 s 30.3846 MegaEdges/s
+stealCount=20  (verification 0.0026 s)
+stealCount=9 N=300 t=0.0104 s 34.6259 MegaEdges/s
+stealCount=19  (verification 0.0019 s)
+stealCount=14 N=300 t=0.0127 s 28.3842 MegaEdges/s
+stealCount=17  (verification 0.0020 s)
+stealCount=18 N=300 t=0.0144 s 24.9629 MegaEdges/s
+stealCount=23  (verification 0.0024 s)
+Completed iterations for N=300
+
+#<<<< END BATCHING >>>>
+
+### nproc: 32
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 32 T 300 4 false false true
+Number of procs=32
+graphType=T
+N=300
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:0.4452 s
+stealCount=95 N=300 t=0.0563 s 6.3892 MegaEdges/s
+stealCount=30  (verification 0.0115 s)
+stealCount=88 N=300 t=0.0352 s 10.2396 MegaEdges/s
+stealCount=26  (verification 0.0045 s)
+stealCount=170 N=300 t=0.0096 s 37.5859 MegaEdges/s
+stealCount=29  (verification 0.0052 s)
+stealCount=131 N=300 t=0.0044 s 82.3326 MegaEdges/s
+stealCount=25  (verification 0.0020 s)
+stealCount=116 N=300 t=0.0045 s 80.6456 MegaEdges/s
+stealCount=24  (verification 0.0019 s)
+stealCount=160 N=300 t=0.0055 s 64.9196 MegaEdges/s
+stealCount=29  (verification 0.0034 s)
+stealCount=158 N=300 t=0.0044 s 81.3890 MegaEdges/s
+stealCount=20  (verification 0.0019 s)
+stealCount=144 N=300 t=0.0044 s 81.0133 MegaEdges/s
+stealCount=22  (verification 0.0023 s)
+stealCount=115 N=300 t=0.0043 s 83.9506 MegaEdges/s
+stealCount=20  (verification 0.0023 s)
+stealCount=122 N=300 t=0.0043 s 82.9666 MegaEdges/s
+stealCount=22  (verification 0.0018 s)
+stealCount=127 N=300 t=0.0043 s 83.9644 MegaEdges/s
+stealCount=25  (verification 0.0020 s)
+stealCount=112 N=300 t=0.0043 s 82.9883 MegaEdges/s
+stealCount=22  (verification 0.0019 s)
+stealCount=105 N=300 t=0.0043 s 83.2502 MegaEdges/s
+stealCount=21  (verification 0.0025 s)
+stealCount=108 N=300 t=0.0044 s 82.2009 MegaEdges/s
+stealCount=23  (verification 0.0022 s)
+stealCount=118 N=300 t=0.0044 s 81.6737 MegaEdges/s
+stealCount=23  (verification 0.0020 s)
+stealCount=143 N=300 t=0.0045 s 80.8960 MegaEdges/s
+stealCount=21  (verification 0.0022 s)
+stealCount=115 N=300 t=0.0044 s 82.6594 MegaEdges/s
+stealCount=22  (verification 0.0017 s)
+stealCount=98 N=300 t=0.0042 s 85.1320 MegaEdges/s
+stealCount=31  (verification 0.0022 s)
+stealCount=138 N=300 t=0.0045 s 80.4300 MegaEdges/s
+stealCount=29  (verification 0.0028 s)
+stealCount=110 N=300 t=0.0044 s 82.1728 MegaEdges/s
+stealCount=20  (verification 0.0018 s)
+Completed iterations for N=300
+
+## Size: 900
+
+### nproc: 1
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 1 T 900 4 false false true
+Number of procs=1
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.7856 s
+stealCount=0 N=900 t=0.4816 s 6.7281 MegaEdges/s
+stealCount=0  (verification 0.1911 s)
+stealCount=0 N=900 t=0.3982 s 8.1356 MegaEdges/s
+stealCount=0  (verification 0.1790 s)
+stealCount=0 N=900 t=0.3787 s 8.5552 MegaEdges/s
+stealCount=0  (verification 0.0840 s)
+stealCount=0 N=900 t=0.3708 s 8.7374 MegaEdges/s
+stealCount=0  (verification 0.0852 s)
+stealCount=0 N=900 t=0.3685 s 8.7923 MegaEdges/s
+stealCount=0  (verification 0.0838 s)
+stealCount=0 N=900 t=0.3787 s 8.5553 MegaEdges/s
+stealCount=0  (verification 0.0838 s)
+stealCount=0 N=900 t=0.3685 s 8.7932 MegaEdges/s
+stealCount=0  (verification 0.0838 s)
+stealCount=0 N=900 t=0.3684 s 8.7956 MegaEdges/s
+stealCount=0  (verification 0.0837 s)
+stealCount=0 N=900 t=0.3684 s 8.7951 MegaEdges/s
+stealCount=0  (verification 0.0843 s)
+stealCount=0 N=900 t=0.3685 s 8.7932 MegaEdges/s
+stealCount=0  (verification 0.0837 s)
+stealCount=0 N=900 t=0.3689 s 8.7840 MegaEdges/s
+stealCount=0  (verification 0.0838 s)
+stealCount=0 N=900 t=0.3684 s 8.7944 MegaEdges/s
+stealCount=0  (verification 0.0838 s)
+stealCount=0 N=900 t=0.3688 s 8.7853 MegaEdges/s
+stealCount=0  (verification 0.0840 s)
+stealCount=0 N=900 t=0.3684 s 8.7959 MegaEdges/s
+stealCount=0  (verification 0.0843 s)
+stealCount=0 N=900 t=0.3687 s 8.7873 MegaEdges/s
+stealCount=0  (verification 0.0828 s)
+stealCount=0 N=900 t=0.3684 s 8.7953 MegaEdges/s
+stealCount=0  (verification 0.0829 s)
+stealCount=0 N=900 t=0.3685 s 8.7912 MegaEdges/s
+stealCount=0  (verification 0.0833 s)
+stealCount=0 N=900 t=0.3685 s 8.7926 MegaEdges/s
+stealCount=0  (verification 0.0857 s)
+stealCount=0 N=900 t=0.3688 s 8.7844 MegaEdges/s
+stealCount=0  (verification 0.0826 s)
+stealCount=0 N=900 t=0.3683 s 8.7960 MegaEdges/s
+stealCount=0  (verification 0.0826 s)
+Completed iterations for N=900
+
+### nproc: 2
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 2 T 900 4 false false true
+Number of procs=2
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.7601 s
+stealCount=338 N=900 t=0.2634 s 12.3010 MegaEdges/s
+stealCount=0  (verification 0.3359 s)
+stealCount=286 N=900 t=0.2135 s 15.1737 MegaEdges/s
+stealCount=1  (verification 0.0681 s)
+stealCount=206 N=900 t=0.2025 s 16.0023 MegaEdges/s
+stealCount=0  (verification 0.0959 s)
+stealCount=258 N=900 t=0.2011 s 16.1136 MegaEdges/s
+stealCount=0  (verification 0.1234 s)
+stealCount=294 N=900 t=0.1989 s 16.2864 MegaEdges/s
+stealCount=0  (verification 0.1233 s)
+stealCount=292 N=900 t=0.1991 s 16.2704 MegaEdges/s
+stealCount=0  (verification 0.1234 s)
+stealCount=290 N=900 t=0.1991 s 16.2773 MegaEdges/s
+stealCount=0  (verification 0.1233 s)
+stealCount=291 N=900 t=0.1990 s 16.2832 MegaEdges/s
+stealCount=0  (verification 0.1233 s)
+stealCount=289 N=900 t=0.1990 s 16.2797 MegaEdges/s
+stealCount=0  (verification 0.1233 s)
+stealCount=282 N=900 t=0.1991 s 16.2741 MegaEdges/s
+stealCount=1  (verification 0.0680 s)
+stealCount=283 N=900 t=0.1991 s 16.2695 MegaEdges/s
+stealCount=1  (verification 0.0681 s)
+stealCount=279 N=900 t=0.1992 s 16.2643 MegaEdges/s
+stealCount=0  (verification 0.1234 s)
+stealCount=280 N=900 t=0.1992 s 16.2682 MegaEdges/s
+stealCount=1  (verification 0.0689 s)
+stealCount=331 N=900 t=0.2058 s 15.7451 MegaEdges/s
+stealCount=1  (verification 0.1060 s)
+stealCount=319 N=900 t=0.1988 s 16.2963 MegaEdges/s
+stealCount=1  (verification 0.0676 s)
+stealCount=319 N=900 t=0.2088 s 15.5207 MegaEdges/s
+stealCount=0  (verification 0.1224 s)
+stealCount=321 N=900 t=0.1987 s 16.3053 MegaEdges/s
+stealCount=0  (verification 0.1226 s)
+stealCount=318 N=900 t=0.1987 s 16.3046 MegaEdges/s
+stealCount=1  (verification 0.0703 s)
+stealCount=201 N=900 t=0.1934 s 16.7529 MegaEdges/s
+stealCount=1  (verification 0.0535 s)
+stealCount=355 stealCount=356 N=900 t=0.1979 s 16.3720 MegaEdges/s
+stealCount=0  (verification 0.1221 s)
+Completed iterations for N=900
+
+### nproc: 4
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 4 T 900 4 false false true
+Number of procs=4
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.7008 s
+stealCount=977 N=900 t=0.1876 s 17.2753 MegaEdges/s
+stealCount=2  (verification 0.1310 s)
+stealCount=320 N=900 t=0.1092 s 29.6581 MegaEdges/s
+stealCount=3  (verification 0.1549 s)
+stealCount=213 N=900 t=0.1019 s 31.8095 MegaEdges/s
+stealCount=2  (verification 0.0487 s)
+stealCount=331 N=900 t=0.1046 s 30.9660 MegaEdges/s
+stealCount=3  (verification 0.0164 s)
+stealCount=262 N=900 t=0.1008 s 32.1397 MegaEdges/s
+stealCount=2  (verification 0.0350 s)
+stealCount=436 N=900 t=0.1041 s 31.1151 MegaEdges/s
+stealCount=2  (verification 0.0124 s)
+stealCount=521 N=900 t=0.1033 s 31.3594 MegaEdges/s
+stealCount=2  (verification 0.0581 s)
+stealCount=711 N=900 t=0.1101 s 29.4384 MegaEdges/s
+stealCount=2  (verification 0.0225 s)
+stealCount=551 N=900 t=0.1063 s 30.4937 MegaEdges/s
+stealCount=2  (verification 0.0367 s)
+stealCount=749 N=900 t=0.1073 s 30.1919 MegaEdges/s
+stealCount=2  (verification 0.0106 s)
+stealCount=759 N=900 t=0.1014 s 31.9428 MegaEdges/s
+stealCount=2  (verification 0.0031 s)
+stealCount=1173 N=900 t=0.1014 s 31.9392 MegaEdges/s
+stealCount=2  (verification 0.0305 s)
+stealCount=583 N=900 t=0.0978 s 33.1386 MegaEdges/s
+stealCount=3  (verification 0.0243 s)
+stealCount=655 N=900 t=0.0981 s 33.0115 MegaEdges/s
+stealCount=2  (verification 0.0396 s)
+stealCount=858 N=900 t=0.1103 s 29.3729 MegaEdges/s
+stealCount=2  (verification 0.0171 s)
+stealCount=1087 N=900 t=0.0993 s 32.6266 MegaEdges/s
+stealCount=2  (verification 0.0126 s)
+stealCount=959 N=900 t=0.0960 s 33.7603 MegaEdges/s
+stealCount=2  (verification 0.0247 s)
+stealCount=396 N=900 t=0.0945 s 34.2697 MegaEdges/s
+stealCount=2  (verification 0.0043 s)
+stealCount=403 N=900 t=0.0970 s 33.3929 MegaEdges/s
+stealCount=2  (verification 0.0035 s)
+stealCount=750 N=900 t=0.0968 s 33.4860 MegaEdges/s
+stealCount=2  (verification 0.0319 s)
+Completed iterations for N=900
+
+### nproc: 8
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 8 T 900 4 false false true
+Number of procs=8
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.7220 s
+stealCount=864 N=900 t=0.1144 s 28.3160 MegaEdges/s
+stealCount=6  (verification 0.0924 s)
+stealCount=669 N=900 t=0.0698 s 46.4513 MegaEdges/s
+stealCount=6  (verification 0.0638 s)
+stealCount=918 N=900 t=0.0767 s 42.2537 MegaEdges/s
+stealCount=6  (verification 0.1014 s)
+stealCount=424 N=900 t=0.0621 s 52.2123 MegaEdges/s
+stealCount=6  (verification 0.0594 s)
+stealCount=750 N=900 t=0.0625 s 51.8461 MegaEdges/s
+stealCount=6  (verification 0.0445 s)
+stealCount=425 N=900 t=0.0576 s 56.2782 MegaEdges/s
+stealCount=6  (verification 0.0059 s)
+stealCount=500 N=900 t=0.0582 s 55.6797 MegaEdges/s
+stealCount=6  (verification 0.0146 s)
+stealCount=782 N=900 t=0.0658 s 49.2636 MegaEdges/s
+stealCount=6  (verification 0.0103 s)
+stealCount=492 N=900 t=0.0574 s 56.4646 MegaEdges/s
+stealCount=7  (verification 0.0050 s)
+stealCount=638 N=900 t=0.0587 s 55.2295 MegaEdges/s
+stealCount=6  (verification 0.0101 s)
+stealCount=811 N=900 t=0.0576 s 56.2374 MegaEdges/s
+stealCount=6  (verification 0.0067 s)
+stealCount=1162 N=900 t=0.0619 s 52.3296 MegaEdges/s
+stealCount=6  (verification 0.0074 s)
+stealCount=793 N=900 t=0.0573 s 56.5705 MegaEdges/s
+stealCount=6  (verification 0.0070 s)
+stealCount=1168 N=900 t=0.0605 s 53.5625 MegaEdges/s
+stealCount=6  (verification 0.0047 s)
+stealCount=958 N=900 t=0.0554 s 58.4785 MegaEdges/s
+stealCount=6  (verification 0.0096 s)
+stealCount=1084 N=900 t=0.0561 s 57.7608 MegaEdges/s
+stealCount=7  (verification 0.0019 s)
+stealCount=660 N=900 t=0.0534 s 60.6479 MegaEdges/s
+stealCount=7  (verification 0.0093 s)
+stealCount=1134 N=900 t=0.0599 s 54.0462 MegaEdges/s
+stealCount=6  (verification 0.0170 s)
+stealCount=981 N=900 t=0.0561 s 57.7083 MegaEdges/s
+stealCount=6  (verification 0.0099 s)
+stealCount=801 N=900 t=0.0554 s 58.5121 MegaEdges/s
+stealCount=6  (verification 0.0059 s)
+Completed iterations for N=900
+
+### nproc: 16
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 16 T 900 4 false false true
+Number of procs=16
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.7313 s
+stealCount=845 N=900 t=0.0933 s 34.7384 MegaEdges/s
+stealCount=14  (verification 0.0364 s)
+stealCount=753 N=900 t=0.0431 s 75.0905 MegaEdges/s
+stealCount=14  (verification 0.0307 s)
+stealCount=833 N=900 t=0.0398 s 81.4557 MegaEdges/s
+stealCount=14  (verification 0.0099 s)
+stealCount=991 N=900 t=0.0374 s 86.5533 MegaEdges/s
+stealCount=14  (verification 0.0228 s)
+stealCount=775 N=900 t=0.0342 s 94.6698 MegaEdges/s
+stealCount=14  (verification 0.0353 s)
+stealCount=654 N=900 t=0.0346 s 93.6321 MegaEdges/s
+stealCount=13  (verification 0.0049 s)
+stealCount=477 N=900 t=0.0377 s 86.0081 MegaEdges/s
+stealCount=14  (verification 0.0018 s)
+stealCount=1157 N=900 t=0.0361 s 89.6598 MegaEdges/s
+stealCount=14  (verification 0.0039 s)
+stealCount=1004 N=900 t=0.0329 s 98.5061 MegaEdges/s
+stealCount=14  (verification 0.0028 s)
+stealCount=988 N=900 t=0.0343 s 94.5655 MegaEdges/s
+stealCount=11  (verification 0.0024 s)
+stealCount=868 N=900 t=0.0320 s 101.2195 MegaEdges/s
+stealCount=14  (verification 0.0034 s)
+stealCount=820 N=900 t=0.0327 s 98.9488 MegaEdges/s
+stealCount=13  (verification 0.0059 s)
+stealCount=1021 N=900 t=0.0311 s 104.3170 MegaEdges/s
+stealCount=14  (verification 0.0045 s)
+stealCount=924 N=900 t=0.0314 s 103.3086 MegaEdges/s
+stealCount=12  (verification 0.0036 s)
+stealCount=1128 N=900 t=0.0315 s 102.7444 MegaEdges/s
+stealCount=13  (verification 0.0108 s)
+stealCount=904 N=900 t=0.0316 s 102.6728 MegaEdges/s
+stealCount=14  (verification 0.0025 s)
+stealCount=1073 N=900 t=0.0312 s 103.7415 MegaEdges/s
+stealCount=13  (verification 0.0046 s)
+stealCount=820 N=900 t=0.0312 s 103.8948 MegaEdges/s
+stealCount=11  (verification 0.0025 s)
+stealCount=897 N=900 t=0.0314 s 103.1906 MegaEdges/s
+stealCount=13  (verification 0.0046 s)
+stealCount=943 N=900 t=0.0311 s 104.0383 MegaEdges/s
+stealCount=14  (verification 0.0022 s)
+Completed iterations for N=900
+
+### nproc: 20
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 20 T 900 4 false false true
+Number of procs=20
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.7017 s
+stealCount=773 N=900 t=0.0891 s 36.3711 MegaEdges/s
+stealCount=18  (verification 0.0452 s)
+stealCount=1090 N=900 t=0.0417 s 77.6681 MegaEdges/s
+stealCount=18  (verification 0.0280 s)
+stealCount=949 N=900 t=0.0318 s 101.9907 MegaEdges/s
+stealCount=18  (verification 0.0667 s)
+stealCount=991 N=900 t=0.0337 s 96.1214 MegaEdges/s
+stealCount=18  (verification 0.0320 s)
+stealCount=824 N=900 t=0.0315 s 102.8855 MegaEdges/s
+stealCount=18  (verification 0.0297 s)
+stealCount=1109 N=900 t=0.0326 s 99.4078 MegaEdges/s
+stealCount=18  (verification 0.0249 s)
+stealCount=842 N=900 t=0.0399 s 81.1402 MegaEdges/s
+stealCount=16  (verification 0.0030 s)
+stealCount=812 N=900 t=0.0276 s 117.1903 MegaEdges/s
+stealCount=16  (verification 0.0032 s)
+stealCount=975 N=900 t=0.0271 s 119.4129 MegaEdges/s
+stealCount=17  (verification 0.0037 s)
+stealCount=1145 N=900 t=0.0282 s 115.0903 MegaEdges/s
+stealCount=17  (verification 0.0066 s)
+stealCount=891 N=900 t=0.0276 s 117.5889 MegaEdges/s
+stealCount=17  (verification 0.0020 s)
+stealCount=1166 N=900 t=0.0269 s 120.6516 MegaEdges/s
+stealCount=17  (verification 0.0023 s)
+stealCount=929 N=900 t=0.0270 s 120.0858 MegaEdges/s
+stealCount=17  (verification 0.0039 s)
+stealCount=1131 N=900 t=0.0263 s 123.2388 MegaEdges/s
+stealCount=16  (verification 0.0030 s)
+stealCount=1345 N=900 t=0.0271 s 119.3627 MegaEdges/s
+stealCount=17  (verification 0.0035 s)
+stealCount=1164 N=900 t=0.0269 s 120.6157 MegaEdges/s
+stealCount=16  (verification 0.0036 s)
+stealCount=935 N=900 t=0.0273 s 118.6287 MegaEdges/s
+stealCount=17  (verification 0.0040 s)
+stealCount=1095 N=900 t=0.0271 s 119.3866 MegaEdges/s
+stealCount=17  (verification 0.0035 s)
+stealCount=819 N=900 t=0.0261 s 123.9662 MegaEdges/s
+stealCount=16  (verification 0.0042 s)
+stealCount=1012 N=900 t=0.0274 s 118.1418 MegaEdges/s
+stealCount=17  (verification 0.0023 s)
+Completed iterations for N=900
+
+### nproc: 24
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 24 T 900 4 false false true
+Number of procs=24
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.7008 s
+stealCount=788 N=900 t=0.0860 s 37.6550 MegaEdges/s
+stealCount=22  (verification 0.0291 s)
+stealCount=922 N=900 t=0.0333 s 97.2933 MegaEdges/s
+stealCount=22  (verification 0.0228 s)
+stealCount=954 N=900 t=0.0291 s 111.4596 MegaEdges/s
+stealCount=22  (verification 0.0439 s)
+stealCount=890 N=900 t=0.0302 s 107.3521 MegaEdges/s
+stealCount=22  (verification 0.0154 s)
+stealCount=802 N=900 t=0.0282 s 115.0898 MegaEdges/s
+stealCount=22  (verification 0.0221 s)
+stealCount=1010 N=900 t=0.0308 s 105.0817 MegaEdges/s
+stealCount=20  (verification 0.0034 s)
+stealCount=1057 N=900 t=0.0266 s 121.9879 MegaEdges/s
+stealCount=21  (verification 0.0034 s)
+stealCount=1128 N=900 t=0.0379 s 85.4655 MegaEdges/s
+stealCount=20  (verification 0.0058 s)
+stealCount=1266 N=900 t=0.0289 s 112.1938 MegaEdges/s
+stealCount=20  (verification 0.0032 s)
+stealCount=1105 N=900 t=0.0278 s 116.6981 MegaEdges/s
+stealCount=20  (verification 0.0017 s)
+stealCount=1148 N=900 t=0.0254 s 127.4314 MegaEdges/s
+stealCount=21  (verification 0.0029 s)
+stealCount=1172 N=900 t=0.0249 s 129.8830 MegaEdges/s
+stealCount=21  (verification 0.0022 s)
+stealCount=1168 N=900 t=0.0253 s 127.9730 MegaEdges/s
+stealCount=23  (verification 0.0032 s)
+stealCount=1175 N=900 t=0.0245 s 132.4822 MegaEdges/s
+stealCount=20  (verification 0.0025 s)
+stealCount=1166 N=900 t=0.0246 s 131.7574 MegaEdges/s
+stealCount=16  (verification 0.0015 s)
+stealCount=1141 N=900 t=0.0243 s 133.0823 MegaEdges/s
+stealCount=15  (verification 0.0020 s)
+stealCount=1390 N=900 t=0.0357 s 90.8760 MegaEdges/s
+stealCount=18  (verification 0.0026 s)
+stealCount=1336 N=900 t=0.0247 s 131.4311 MegaEdges/s
+stealCount=18  (verification 0.0016 s)
+stealCount=1164 N=900 t=0.0238 s 136.0558 MegaEdges/s
+stealCount=17  (verification 0.0041 s)
+stealCount=1033 N=900 t=0.0235 s 137.8885 MegaEdges/s
+stealCount=18  (verification 0.0012 s)
+Completed iterations for N=900
+
+### nproc: 30
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.7045 s
+stealCount=1269 N=900 t=0.2418 s 13.4022 MegaEdges/s
+stealCount=26  (verification 0.0310 s)
+stealCount=965 N=900 t=0.0266 s 121.6575 MegaEdges/s
+stealCount=28  (verification 0.0222 s)
+stealCount=736 N=900 t=0.0246 s 131.7248 MegaEdges/s
+stealCount=28  (verification 0.0287 s)
+stealCount=1081 N=900 t=0.0267 s 121.3149 MegaEdges/s
+stealCount=27  (verification 0.0127 s)
+stealCount=911 N=900 t=0.0252 s 128.7867 MegaEdges/s
+stealCount=27  (verification 0.0160 s)
+stealCount=1131 N=900 t=0.0265 s 122.1047 MegaEdges/s
+stealCount=28  (verification 0.0257 s)
+stealCount=1033 N=900 t=0.0252 s 128.4171 MegaEdges/s
+stealCount=25  (verification 0.0033 s)
+stealCount=1131 N=900 t=0.0373 s 86.8665 MegaEdges/s
+stealCount=25  (verification 0.0032 s)
+stealCount=885 N=900 t=0.0225 s 144.1616 MegaEdges/s
+stealCount=25  (verification 0.0030 s)
+stealCount=1242 N=900 t=0.0238 s 136.3944 MegaEdges/s
+stealCount=25  (verification 0.0038 s)
+stealCount=1134 N=900 t=0.0222 s 146.0055 MegaEdges/s
+stealCount=26  (verification 0.0029 s)
+stealCount=1191 N=900 t=0.0220 s 147.3830 MegaEdges/s
+stealCount=27  (verification 0.0029 s)
+stealCount=1237 N=900 t=0.0226 s 143.0653 MegaEdges/s
+stealCount=26  (verification 0.0028 s)
+stealCount=1323 N=900 t=0.0223 s 145.3417 MegaEdges/s
+stealCount=27  (verification 0.0026 s)
+stealCount=1232 N=900 t=0.0222 s 145.6282 MegaEdges/s
+stealCount=27  (verification 0.0031 s)
+stealCount=1322 N=900 t=0.0219 s 147.9022 MegaEdges/s
+stealCount=25  (verification 0.0026 s)
+stealCount=1350 N=900 t=0.0224 s 144.6591 MegaEdges/s
+stealCount=24  (verification 0.0036 s)
+stealCount=1189 N=900 t=0.0220 s 147.1897 MegaEdges/s
+stealCount=27  (verification 0.0032 s)
+stealCount=1219 N=900 t=0.0219 s 148.1031 MegaEdges/s
+stealCount=25  (verification 0.0024 s)
+stealCount=1068 N=900 t=0.0224 s 144.9280 MegaEdges/s
+stealCount=25  (verification 0.0041 s)
+Completed iterations for N=900
+
+#<<<< BEGIN BATCHING >>>>
+
+#### bsize: 1
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 1
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=1
+Generating graph...
+Graph generated.
+Creation time:1.7081 s
+stealCount=41195 stealCount=41195 N=900 t=0.9751 s 3.3228 MegaEdges/s
+stealCount=28  (verification 0.0216 s)
+stealCount=17484 N=900 t=0.2221 s 14.5861 MegaEdges/s
+stealCount=28  (verification 0.0174 s)
+stealCount=46362 N=900 t=0.4646 s 6.9740 MegaEdges/s
+stealCount=28  (verification 0.0165 s)
+stealCount=23556 N=900 t=0.2089 s 15.5109 MegaEdges/s
+stealCount=26  (verification 0.0025 s)
+stealCount=20551 N=900 t=0.1204 s 26.9051 MegaEdges/s
+stealCount=29  (verification 0.0024 s)
+stealCount=23725 stealCount=23725 N=900 t=0.1033 s 31.3535 MegaEdges/s
+stealCount=25  (verification 0.0023 s)
+stealCount=21633 N=900 t=0.1724 s 18.7982 MegaEdges/s
+stealCount=27  (verification 0.0026 s)
+stealCount=19208 N=900 t=0.1652 s 19.6157 MegaEdges/s
+stealCount=27  (verification 0.0024 s)
+stealCount=14933 N=900 t=0.0703 s 46.0921 MegaEdges/s
+stealCount=27  (verification 0.0024 s)
+stealCount=13970 N=900 t=0.0726 s 44.6059 MegaEdges/s
+stealCount=26  (verification 0.0023 s)
+stealCount=26100 N=900 t=0.1708 s 18.9660 MegaEdges/s
+stealCount=26  (verification 0.0026 s)
+stealCount=21027 N=900 t=0.2299 s 14.0955 MegaEdges/s
+stealCount=27  (verification 0.0030 s)
+stealCount=18485 N=900 t=0.0729 s 44.4274 MegaEdges/s
+stealCount=25  (verification 0.0022 s)
+stealCount=16538 N=900 t=0.0950 s 34.0918 MegaEdges/s
+stealCount=26  (verification 0.0021 s)
+stealCount=21092 N=900 t=0.0673 s 48.1097 MegaEdges/s
+stealCount=26  (verification 0.0024 s)
+stealCount=17504 N=900 t=0.0830 s 39.0299 MegaEdges/s
+stealCount=27  (verification 0.0025 s)
+stealCount=19690 N=900 t=0.0760 s 42.6185 MegaEdges/s
+stealCount=27  (verification 0.0022 s)
+stealCount=17537 N=900 t=0.1229 s 26.3539 MegaEdges/s
+stealCount=27  (verification 0.0023 s)
+stealCount=28241 N=900 t=0.1895 s 17.0983 MegaEdges/s
+stealCount=25  (verification 0.0038 s)
+stealCount=18253 N=900 t=0.1410 s 22.9737 MegaEdges/s
+stealCount=24  (verification 0.0019 s)
+Completed iterations for N=900
+
+#### bsize: 10
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 10
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=10
+Generating graph...
+Graph generated.
+Creation time:1.7041 s
+stealCount=2508 N=900 t=0.1347 s 24.0610 MegaEdges/s
+stealCount=27  (verification 0.0897 s)
+stealCount=3794 N=900 t=0.0572 s 56.6515 MegaEdges/s
+stealCount=28  (verification 0.0783 s)
+stealCount=4032 N=900 t=0.0602 s 53.7903 MegaEdges/s
+stealCount=28  (verification 0.1022 s)
+stealCount=3035 N=900 t=0.0479 s 67.6600 MegaEdges/s
+stealCount=27  (verification 0.0301 s)
+stealCount=3963 N=900 t=0.0434 s 74.6785 MegaEdges/s
+stealCount=27  (verification 0.0286 s)
+stealCount=4482 N=900 t=0.0288 s 112.6006 MegaEdges/s
+stealCount=28  (verification 0.0305 s)
+stealCount=3738 N=900 t=0.0261 s 124.1844 MegaEdges/s
+stealCount=25  (verification 0.0033 s)
+stealCount=4114 N=900 t=0.0290 s 111.7158 MegaEdges/s
+stealCount=25  (verification 0.0042 s)
+stealCount=4398 N=900 t=0.0300 s 107.9795 MegaEdges/s
+stealCount=26  (verification 0.0061 s)
+stealCount=3634 N=900 t=0.0284 s 114.0128 MegaEdges/s
+stealCount=26  (verification 0.0048 s)
+stealCount=4141 N=900 t=0.0298 s 108.6762 MegaEdges/s
+stealCount=25  (verification 0.0039 s)
+stealCount=5179 N=900 t=0.0294 s 110.3728 MegaEdges/s
+stealCount=25  (verification 0.0047 s)
+stealCount=2886 N=900 t=0.0252 s 128.5938 MegaEdges/s
+stealCount=25  (verification 0.0042 s)
+stealCount=4334 N=900 t=0.0366 s 88.5808 MegaEdges/s
+stealCount=26  (verification 0.0044 s)
+stealCount=4357 N=900 t=0.0273 s 118.5822 MegaEdges/s
+stealCount=26  (verification 0.0034 s)
+stealCount=4306 N=900 t=0.0322 s 100.5541 MegaEdges/s
+stealCount=24  (verification 0.0044 s)
+stealCount=3482 N=900 t=0.0273 s 118.5336 MegaEdges/s
+stealCount=25  (verification 0.0048 s)
+stealCount=5291 N=900 t=0.0280 s 115.8571 MegaEdges/s
+stealCount=24  (verification 0.0064 s)
+stealCount=4458 N=900 t=0.0311 s 104.0740 MegaEdges/s
+stealCount=26  (verification 0.0057 s)
+stealCount=4278 N=900 t=0.0378 s 85.6632 MegaEdges/s
+stealCount=25  (verification 0.0052 s)
+Completed iterations for N=900
+
+#### bsize: 20
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 20
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=20
+Generating graph...
+Graph generated.
+Creation time:1.7028 s
+stealCount=1037 N=900 t=0.1112 s 29.1363 MegaEdges/s
+stealCount=26  (verification 0.0313 s)
+stealCount=1501 N=900 t=0.0321 s 101.0395 MegaEdges/s
+stealCount=28  (verification 0.0316 s)
+stealCount=1365 N=900 t=0.0282 s 114.7116 MegaEdges/s
+stealCount=28  (verification 0.0164 s)
+stealCount=1328 N=900 t=0.0259 s 125.2660 MegaEdges/s
+stealCount=28  (verification 0.0308 s)
+stealCount=1530 N=900 t=0.0297 s 109.0838 MegaEdges/s
+stealCount=28  (verification 0.0106 s)
+stealCount=1631 N=900 t=0.0257 s 125.9910 MegaEdges/s
+stealCount=28  (verification 0.0207 s)
+stealCount=1859 N=900 t=0.0236 s 137.3036 MegaEdges/s
+stealCount=28  (verification 0.0157 s)
+stealCount=1512 N=900 t=0.0226 s 143.2827 MegaEdges/s
+stealCount=27  (verification 0.0246 s)
+stealCount=1625 N=900 t=0.0225 s 144.0753 MegaEdges/s
+stealCount=26  (verification 0.0023 s)
+stealCount=1556 N=900 t=0.0218 s 148.4150 MegaEdges/s
+stealCount=26  (verification 0.0024 s)
+stealCount=1577 N=900 t=0.0226 s 143.3666 MegaEdges/s
+stealCount=26  (verification 0.0025 s)
+stealCount=1584 N=900 t=0.0229 s 141.5953 MegaEdges/s
+stealCount=27  (verification 0.0033 s)
+stealCount=1848 N=900 t=0.0228 s 142.2724 MegaEdges/s
+stealCount=26  (verification 0.0030 s)
+stealCount=1781 N=900 t=0.0218 s 148.7116 MegaEdges/s
+stealCount=24  (verification 0.0026 s)
+stealCount=1688 N=900 t=0.0215 s 150.5047 MegaEdges/s
+stealCount=26  (verification 0.0028 s)
+stealCount=1556 N=900 t=0.0211 s 153.4174 MegaEdges/s
+stealCount=26  (verification 0.0025 s)
+stealCount=1811 N=900 t=0.0219 s 148.2473 MegaEdges/s
+stealCount=24  (verification 0.0024 s)
+stealCount=1666 N=900 t=0.0231 s 140.4347 MegaEdges/s
+stealCount=27  (verification 0.0028 s)
+stealCount=1712 N=900 t=0.0215 s 150.6987 MegaEdges/s
+stealCount=27  (verification 0.0058 s)
+stealCount=1739 N=900 t=0.0217 s 149.4737 MegaEdges/s
+stealCount=23  (verification 0.0023 s)
+Completed iterations for N=900
+
+#### bsize: 30
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 30
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=30
+Generating graph...
+Graph generated.
+Creation time:1.7024 s
+stealCount=888 N=900 t=0.2555 s 12.6832 MegaEdges/s
+stealCount=28  (verification 0.0331 s)
+stealCount=692 N=900 t=0.0239 s 135.7039 MegaEdges/s
+stealCount=28  (verification 0.0320 s)
+stealCount=725 N=900 t=0.0244 s 132.6520 MegaEdges/s
+stealCount=27  (verification 0.0152 s)
+stealCount=749 N=900 t=0.0245 s 132.3637 MegaEdges/s
+stealCount=25  (verification 0.0032 s)
+stealCount=664 N=900 t=0.0229 s 141.2754 MegaEdges/s
+stealCount=22  (verification 0.0031 s)
+stealCount=737 N=900 t=0.0232 s 139.4291 MegaEdges/s
+stealCount=23  (verification 0.0044 s)
+stealCount=774 N=900 t=0.0243 s 133.1606 MegaEdges/s
+stealCount=24  (verification 0.0035 s)
+stealCount=710 N=900 t=0.0235 s 137.8049 MegaEdges/s
+stealCount=24  (verification 0.0031 s)
+stealCount=739 N=900 t=0.0234 s 138.3275 MegaEdges/s
+stealCount=24  (verification 0.0030 s)
+stealCount=682 N=900 t=0.0227 s 142.8783 MegaEdges/s
+stealCount=21  (verification 0.0020 s)
+stealCount=757 N=900 t=0.0253 s 127.8846 MegaEdges/s
+stealCount=26  (verification 0.0041 s)
+stealCount=603 N=900 t=0.0217 s 149.2809 MegaEdges/s
+stealCount=27  (verification 0.0034 s)
+stealCount=754 N=900 t=0.0225 s 144.1012 MegaEdges/s
+stealCount=25  (verification 0.0036 s)
+stealCount=719 N=900 t=0.0226 s 143.5526 MegaEdges/s
+stealCount=1 stealCount=23  (verification 0.0042 s)
+stealCount=725 N=900 t=0.0226 s 143.1713 MegaEdges/s
+stealCount=25  (verification 0.0029 s)
+stealCount=741 N=900 t=0.0214 s 151.2741 MegaEdges/s
+stealCount=26  (verification 0.0026 s)
+stealCount=926 N=900 t=0.0215 s 150.8287 MegaEdges/s
+stealCount=26  (verification 0.0041 s)
+stealCount=868 N=900 t=0.0317 s 102.0839 MegaEdges/s
+stealCount=26  (verification 0.0026 s)
+stealCount=795 N=900 t=0.0209 s 155.2381 MegaEdges/s
+stealCount=26  (verification 0.0036 s)
+stealCount=671 N=900 t=0.0206 s 157.6633 MegaEdges/s
+stealCount=29  (verification 0.0019 s)
+Completed iterations for N=900
+
+#### bsize: 40
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 40
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=40
+Generating graph...
+Graph generated.
+Creation time:1.7032 s
+stealCount=382 N=900 t=0.0981 s 33.0401 MegaEdges/s
+stealCount=28  (verification 0.0848 s)
+stealCount=518 N=900 t=0.0286 s 113.1443 MegaEdges/s
+stealCount=27  (verification 0.0478 s)
+stealCount=364 N=900 t=0.0214 s 151.2582 MegaEdges/s
+stealCount=27  (verification 0.0214 s)
+stealCount=382 N=900 t=0.0211 s 153.2946 MegaEdges/s
+stealCount=23  (verification 0.0042 s)
+stealCount=385 N=900 t=0.0212 s 152.5160 MegaEdges/s
+stealCount=22  (verification 0.0032 s)
+stealCount=444 N=900 t=0.0217 s 149.1867 MegaEdges/s
+stealCount=23  (verification 0.0032 s)
+stealCount=454 N=900 t=0.0222 s 146.0787 MegaEdges/s
+stealCount=23  (verification 0.0042 s)
+stealCount=478 N=900 t=0.0224 s 144.7802 MegaEdges/s
+stealCount=23  (verification 0.0029 s)
+stealCount=405 N=900 t=0.0210 s 154.0046 MegaEdges/s
+stealCount=23  (verification 0.0029 s)
+stealCount=328 N=900 t=0.0208 s 155.4966 MegaEdges/s
+stealCount=24  (verification 0.0032 s)
+stealCount=408 N=900 t=0.0214 s 151.6340 MegaEdges/s
+stealCount=23  (verification 0.0032 s)
+stealCount=473 N=900 t=0.0210 s 153.9624 MegaEdges/s
+stealCount=21  (verification 0.0030 s)
+stealCount=474 N=900 t=0.0211 s 153.6963 MegaEdges/s
+stealCount=23  (verification 0.0029 s)
+stealCount=437 N=900 t=0.0204 s 159.1817 MegaEdges/s
+stealCount=23  (verification 0.0026 s)
+stealCount=398 N=900 t=0.0205 s 158.0127 MegaEdges/s
+stealCount=24  (verification 0.0036 s)
+stealCount=492 N=900 t=0.0227 s 142.9982 MegaEdges/s
+stealCount=25  (verification 0.0040 s)
+stealCount=545 N=900 t=0.0205 s 158.3754 MegaEdges/s
+stealCount=25  (verification 0.0035 s)
+stealCount=593 N=900 t=0.0210 s 154.2245 MegaEdges/s
+stealCount=25  (verification 0.0030 s)
+stealCount=485 N=900 t=0.0206 s 156.9575 MegaEdges/s
+stealCount=25  (verification 0.0037 s)
+stealCount=442 N=900 t=0.0207 s 156.4185 MegaEdges/s
+stealCount=24  (verification 0.0061 s)
+Completed iterations for N=900
+
+#### bsize: 50
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 50
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=50
+Generating graph...
+Graph generated.
+Creation time:1.7031 s
+stealCount=291 N=900 t=0.3957 s 8.1872 MegaEdges/s
+stealCount=24  (verification 0.0320 s)
+stealCount=371 N=900 t=0.0481 s 67.4088 MegaEdges/s
+stealCount=27  (verification 0.0296 s)
+stealCount=226 N=900 t=0.0215 s 150.6589 MegaEdges/s
+stealCount=27  (verification 0.0086 s)
+stealCount=231 N=900 t=0.0211 s 153.2297 MegaEdges/s
+stealCount=27  (verification 0.0177 s)
+stealCount=301 N=900 t=0.0233 s 139.1511 MegaEdges/s
+stealCount=26  (verification 0.0036 s)
+stealCount=290 N=900 t=0.0212 s 152.6316 MegaEdges/s
+stealCount=25  (verification 0.0029 s)
+stealCount=232 N=900 t=0.0212 s 153.0477 MegaEdges/s
+stealCount=28  (verification 0.0036 s)
+stealCount=279 N=900 t=0.0214 s 151.0513 MegaEdges/s
+stealCount=24  (verification 0.0033 s)
+stealCount=312 N=900 t=0.0223 s 145.4626 MegaEdges/s
+stealCount=24  (verification 0.0034 s)
+stealCount=241 N=900 t=0.0253 s 128.3070 MegaEdges/s
+stealCount=24  (verification 0.0034 s)
+stealCount=237 N=900 t=0.0224 s 144.4872 MegaEdges/s
+stealCount=23  (verification 0.0029 s)
+stealCount=321 N=900 t=0.0214 s 151.6325 MegaEdges/s
+stealCount=22  (verification 0.0023 s)
+stealCount=133 N=900 t=0.0203 s 159.5936 MegaEdges/s
+stealCount=19  (verification 0.0023 s)
+stealCount=320 N=900 t=0.0211 s 153.6707 MegaEdges/s
+stealCount=19  (verification 0.0025 s)
+stealCount=255 N=900 t=0.0211 s 153.6827 MegaEdges/s
+stealCount=23  (verification 0.0032 s)
+stealCount=235 N=900 t=0.0227 s 142.8032 MegaEdges/s
+stealCount=25  (verification 0.0038 s)
+stealCount=323 N=900 t=0.0211 s 153.9091 MegaEdges/s
+stealCount=23  (verification 0.0024 s)
+stealCount=314 N=900 t=0.0206 s 157.2362 MegaEdges/s
+stealCount=28  (verification 0.0020 s)
+stealCount=291 N=900 t=0.0208 s 156.1095 MegaEdges/s
+stealCount=20  (verification 0.0037 s)
+stealCount=279 N=900 t=0.0262 s 123.8019 MegaEdges/s
+stealCount=27  (verification 0.0029 s)
+Completed iterations for N=900
+
+#### bsize: 60
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 60
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=60
+Generating graph...
+Graph generated.
+Creation time:1.7037 s
+stealCount=225 N=900 t=0.2825 s 11.4684 MegaEdges/s
+stealCount=27  (verification 0.0478 s)
+stealCount=171 N=900 t=0.0257 s 125.9641 MegaEdges/s
+stealCount=28  (verification 0.0244 s)
+stealCount=157 N=900 t=0.0226 s 143.3208 MegaEdges/s
+stealCount=27  (verification 0.0183 s)
+stealCount=207 N=900 t=0.0260 s 124.4167 MegaEdges/s
+stealCount=28  (verification 0.0266 s)
+stealCount=151 N=900 t=0.0223 s 145.5094 MegaEdges/s
+stealCount=22  (verification 0.0032 s)
+stealCount=164 N=900 t=0.0234 s 138.5358 MegaEdges/s
+stealCount=25  (verification 0.0033 s)
+stealCount=177 N=900 t=0.0235 s 137.9453 MegaEdges/s
+stealCount=25  (verification 0.0031 s)
+stealCount=174 N=900 t=0.0234 s 138.7028 MegaEdges/s
+stealCount=25  (verification 0.0031 s)
+stealCount=195 N=900 t=0.0243 s 133.4088 MegaEdges/s
+stealCount=26  (verification 0.0039 s)
+stealCount=142 N=900 t=0.0233 s 138.9694 MegaEdges/s
+stealCount=29  (verification 0.0035 s)
+stealCount=206 N=900 t=0.0231 s 139.9597 MegaEdges/s
+stealCount=29  (verification 0.0033 s)
+stealCount=188 N=900 t=0.0226 s 143.3789 MegaEdges/s
+stealCount=23  (verification 0.0031 s)
+stealCount=185 N=900 t=0.0233 s 138.7860 MegaEdges/s
+stealCount=24  (verification 0.0038 s)
+stealCount=165 N=900 t=0.0232 s 139.8341 MegaEdges/s
+stealCount=24  (verification 0.0031 s)
+stealCount=199 N=900 t=0.0248 s 130.5620 MegaEdges/s
+stealCount=24  (verification 0.0032 s)
+stealCount=239 N=900 t=0.0251 s 129.0634 MegaEdges/s
+stealCount=26  (verification 0.0038 s)
+stealCount=144 N=900 t=0.0275 s 117.8255 MegaEdges/s
+stealCount=26  (verification 0.0153 s)
+stealCount=196 N=900 t=0.0250 s 129.7287 MegaEdges/s
+stealCount=24  (verification 0.0031 s)
+stealCount=259 N=900 t=0.0245 s 132.1431 MegaEdges/s
+stealCount=25  (verification 0.0046 s)
+stealCount=159 N=900 t=0.0264 s 122.6782 MegaEdges/s
+stealCount=23  (verification 0.0032 s)
+Completed iterations for N=900
+
+#### bsize: 70
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 70
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=70
+Generating graph...
+Graph generated.
+Creation time:1.7033 s
+stealCount=158 N=900 t=0.3184 s 10.1748 MegaEdges/s
+stealCount=28  (verification 0.0311 s)
+stealCount=104 N=900 t=0.0249 s 130.1204 MegaEdges/s
+stealCount=28  (verification 0.0320 s)
+stealCount=102 N=900 t=0.0249 s 129.9830 MegaEdges/s
+stealCount=27  (verification 0.0254 s)
+stealCount=121 N=900 t=0.0233 s 138.9621 MegaEdges/s
+stealCount=24  (verification 0.0035 s)
+stealCount=93 N=900 t=0.0228 s 141.9604 MegaEdges/s
+stealCount=24  (verification 0.0032 s)
+stealCount=163 N=900 t=0.0254 s 127.7395 MegaEdges/s
+stealCount=25  (verification 0.0043 s)
+stealCount=152 N=900 t=0.0245 s 132.0149 MegaEdges/s
+stealCount=25  (verification 0.0037 s)
+stealCount=133 N=900 t=0.0236 s 137.1366 MegaEdges/s
+stealCount=26  (verification 0.0035 s)
+stealCount=103 N=900 t=0.0230 s 140.7693 MegaEdges/s
+stealCount=25  (verification 0.0041 s)
+stealCount=104 N=900 t=0.0238 s 136.0374 MegaEdges/s
+stealCount=26  (verification 0.0031 s)
+stealCount=114 N=900 t=0.0234 s 138.4842 MegaEdges/s
+stealCount=25  (verification 0.0033 s)
+stealCount=105 N=900 t=0.0229 s 141.4226 MegaEdges/s
+stealCount=24  (verification 0.0035 s)
+stealCount=122 N=900 t=0.0238 s 136.0500 MegaEdges/s
+stealCount=23  (verification 0.0034 s)
+stealCount=112 N=900 t=0.0231 s 140.2774 MegaEdges/s
+stealCount=25  (verification 0.0027 s)
+stealCount=141 N=900 t=0.0243 s 133.5236 MegaEdges/s
+stealCount=25  (verification 0.0032 s)
+stealCount=131 N=900 t=0.0231 s 140.3501 MegaEdges/s
+stealCount=25  (verification 0.0034 s)
+stealCount=147 N=900 t=0.0234 s 138.5678 MegaEdges/s
+stealCount=25  (verification 0.0033 s)
+stealCount=124 N=900 t=0.0241 s 134.4921 MegaEdges/s
+stealCount=27  (verification 0.0034 s)
+stealCount=83 N=900 t=0.0224 s 144.4172 MegaEdges/s
+stealCount=22  (verification 0.0050 s)
+stealCount=151 N=900 t=0.0248 s 130.7289 MegaEdges/s
+stealCount=27  (verification 0.0033 s)
+Completed iterations for N=900
+
+#### bsize: 80
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 80
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=80
+Generating graph...
+Graph generated.
+Creation time:1.7095 s
+stealCount=53 N=900 t=0.3920 s 8.2643 MegaEdges/s
+stealCount=28  (verification 0.0274 s)
+stealCount=101 N=900 t=0.0314 s 103.0624 MegaEdges/s
+stealCount=27  (verification 0.0181 s)
+stealCount=111 N=900 t=0.0285 s 113.7356 MegaEdges/s
+stealCount=27  (verification 0.0173 s)
+stealCount=123 N=900 t=0.0283 s 114.5601 MegaEdges/s
+stealCount=23  (verification 0.0032 s)
+stealCount=120 N=900 t=0.0296 s 109.4278 MegaEdges/s
+stealCount=25  (verification 0.0048 s)
+stealCount=102 N=900 t=0.0269 s 120.4036 MegaEdges/s
+stealCount=24  (verification 0.0035 s)
+stealCount=52 N=900 t=0.0279 s 115.9353 MegaEdges/s
+stealCount=26  (verification 0.0037 s)
+stealCount=83 N=900 t=0.0260 s 124.4993 MegaEdges/s
+stealCount=24  (verification 0.0030 s)
+stealCount=85 N=900 t=0.0291 s 111.4754 MegaEdges/s
+stealCount=24  (verification 0.0049 s)
+stealCount=67 N=900 t=0.0281 s 115.4281 MegaEdges/s
+stealCount=23  (verification 0.0040 s)
+stealCount=99 N=900 t=0.0259 s 125.0426 MegaEdges/s
+stealCount=27  (verification 0.0032 s)
+stealCount=80 N=900 t=0.0276 s 117.3211 MegaEdges/s
+stealCount=25  (verification 0.0031 s)
+stealCount=105 N=900 t=0.0250 s 129.5673 MegaEdges/s
+stealCount=16  (verification 0.0024 s)
+stealCount=86 N=900 t=0.0281 s 115.3761 MegaEdges/s
+stealCount=25  (verification 0.0031 s)
+stealCount=107 N=900 t=0.0279 s 116.2452 MegaEdges/s
+stealCount=25  (verification 0.0043 s)
+stealCount=81 N=900 t=0.0305 s 106.3765 MegaEdges/s
+stealCount=23  (verification 0.0038 s)
+stealCount=76 N=900 t=0.0287 s 112.7541 MegaEdges/s
+stealCount=24  (verification 0.0042 s)
+stealCount=125 N=900 t=0.0285 s 113.6109 MegaEdges/s
+stealCount=22  (verification 0.0055 s)
+stealCount=124 N=900 t=0.0254 s 127.4333 MegaEdges/s
+stealCount=20  (verification 0.0039 s)
+stealCount=107 N=900 t=0.0288 s 112.5068 MegaEdges/s
+stealCount=20  (verification 0.0025 s)
+Completed iterations for N=900
+
+#### bsize: 90
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 90
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=90
+Generating graph...
+Graph generated.
+Creation time:1.7041 s
+stealCount=91 N=900 t=0.3293 s 9.8385 MegaEdges/s
+stealCount=25  (verification 0.0375 s)
+stealCount=56 N=900 t=0.0286 s 113.1055 MegaEdges/s
+stealCount=28  (verification 0.0112 s)
+stealCount=66 N=900 t=0.0287 s 113.0864 MegaEdges/s
+stealCount=27  (verification 0.0106 s)
+stealCount=61 N=900 t=0.0294 s 110.2029 MegaEdges/s
+stealCount=24  (verification 0.0035 s)
+stealCount=60 N=900 t=0.0299 s 108.2391 MegaEdges/s
+stealCount=26  (verification 0.0029 s)
+stealCount=83 N=900 t=0.0287 s 112.8068 MegaEdges/s
+stealCount=25  (verification 0.0035 s)
+stealCount=88 N=900 t=0.0301 s 107.6609 MegaEdges/s
+stealCount=25  (verification 0.0037 s)
+stealCount=55 N=900 t=0.0291 s 111.2983 MegaEdges/s
+stealCount=23  (verification 0.0034 s)
+stealCount=63 N=900 t=0.0293 s 110.4749 MegaEdges/s
+stealCount=21  (verification 0.0055 s)
+stealCount=67 N=900 t=0.0281 s 115.2315 MegaEdges/s
+stealCount=17  (verification 0.0019 s)
+stealCount=76 N=900 t=0.0295 s 109.9829 MegaEdges/s
+stealCount=19  (verification 0.0030 s)
+stealCount=62 N=900 t=0.0287 s 112.7202 MegaEdges/s
+stealCount=21  (verification 0.0027 s)
+stealCount=85 N=900 t=0.0312 s 103.9244 MegaEdges/s
+stealCount=22  (verification 0.0034 s)
+stealCount=67 N=900 t=0.0280 s 115.5599 MegaEdges/s
+stealCount=16  (verification 0.0019 s)
+stealCount=57 N=900 t=0.0289 s 112.1388 MegaEdges/s
+stealCount=25  (verification 0.0028 s)
+stealCount=48 N=900 t=0.0288 s 112.4777 MegaEdges/s
+stealCount=14  (verification 0.0017 s)
+stealCount=65 N=900 t=0.0282 s 114.8513 MegaEdges/s
+stealCount=23  (verification 0.0033 s)
+stealCount=97 N=900 t=0.0328 s 98.9063 MegaEdges/s
+stealCount=24  (verification 0.0032 s)
+stealCount=54 N=900 t=0.0279 s 116.2970 MegaEdges/s
+stealCount=16  (verification 0.0037 s)
+stealCount=59 N=900 t=0.0294 s 110.2395 MegaEdges/s
+stealCount=19  (verification 0.0017 s)
+Completed iterations for N=900
+
+#### bsize: 100
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 900 4 false false true 100
+Number of procs=30
+graphType=T
+N=900
+D=4
+verification=true
+BATCH_SIZE=100
+Generating graph...
+Graph generated.
+Creation time:1.7051 s
+stealCount=70 N=900 t=0.3532 s 9.1725 MegaEdges/s
+stealCount=27  (verification 0.0275 s)
+stealCount=63 N=900 t=0.0306 s 106.0463 MegaEdges/s
+stealCount=27  (verification 0.0214 s)
+stealCount=62 N=900 t=0.0302 s 107.2961 MegaEdges/s
+stealCount=28  (verification 0.0223 s)
+stealCount=58 N=900 t=0.0303 s 107.0210 MegaEdges/s
+stealCount=25  (verification 0.0035 s)
+stealCount=40 N=900 t=0.0299 s 108.3834 MegaEdges/s
+stealCount=25  (verification 0.0033 s)
+stealCount=49 N=900 t=0.0287 s 113.0520 MegaEdges/s
+stealCount=24  (verification 0.0034 s)
+stealCount=58 N=900 t=0.0289 s 112.2216 MegaEdges/s
+stealCount=24  (verification 0.0031 s)
+stealCount=56 N=900 t=0.0326 s 99.4920 MegaEdges/s
+stealCount=25  (verification 0.0035 s)
+stealCount=55 N=900 t=0.0304 s 106.5774 MegaEdges/s
+stealCount=25  (verification 0.0047 s)
+stealCount=47 N=900 t=0.0311 s 104.2853 MegaEdges/s
+stealCount=25  (verification 0.0034 s)
+stealCount=63 N=900 t=0.0291 s 111.4766 MegaEdges/s
+stealCount=25  (verification 0.0034 s)
+stealCount=58 N=900 t=0.0284 s 114.2823 MegaEdges/s
+stealCount=25  (verification 0.0029 s)
+stealCount=46 N=900 t=0.0296 s 109.5281 MegaEdges/s
+stealCount=25  (verification 0.0031 s)
+stealCount=44 N=900 t=0.0287 s 113.0805 MegaEdges/s
+stealCount=25  (verification 0.0027 s)
+stealCount=63 N=900 t=0.0289 s 112.2165 MegaEdges/s
+stealCount=23  (verification 0.0032 s)
+stealCount=58 N=900 t=0.0303 s 106.8662 MegaEdges/s
+stealCount=24  (verification 0.0029 s)
+stealCount=45 N=900 t=0.0286 s 113.1891 MegaEdges/s
+stealCount=26  (verification 0.0040 s)
+stealCount=57 N=900 t=0.0295 s 109.7506 MegaEdges/s
+stealCount=24  (verification 0.0027 s)
+stealCount=55 N=900 t=0.0289 s 112.3001 MegaEdges/s
+stealCount=24  (verification 0.0051 s)
+stealCount=67 N=900 t=0.0289 s 112.1566 MegaEdges/s
+stealCount=25  (verification 0.0026 s)
+Completed iterations for N=900
+
+#<<<< END BATCHING >>>>
+
+### nproc: 32
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 32 T 900 4 false false true
+Number of procs=32
+graphType=T
+N=900
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:1.7008 s
+stealCount=772 N=900 t=0.0972 s 33.3361 MegaEdges/s
+stealCount=30  (verification 0.0302 s)
+stealCount=1033 N=900 t=0.0290 s 111.6762 MegaEdges/s
+stealCount=26  (verification 0.0032 s)
+stealCount=985 N=900 t=0.0237 s 136.9163 MegaEdges/s
+stealCount=23  (verification 0.0027 s)
+stealCount=1022 N=900 t=0.0239 s 135.3885 MegaEdges/s
+stealCount=26  (verification 0.0031 s)
+stealCount=1003 N=900 t=0.0241 s 134.7119 MegaEdges/s
+stealCount=27  (verification 0.0054 s)
+stealCount=1066 N=900 t=0.0224 s 144.3657 MegaEdges/s
+stealCount=27  (verification 0.0031 s)
+stealCount=1181 N=900 t=0.0236 s 137.4283 MegaEdges/s
+stealCount=27  (verification 0.0030 s)
+stealCount=1191 N=900 t=0.0215 s 150.7960 MegaEdges/s
+stealCount=28  (verification 0.0026 s)
+stealCount=1225 N=900 t=0.0212 s 152.5207 MegaEdges/s
+stealCount=28  (verification 0.0026 s)
+stealCount=1135 N=900 t=0.0219 s 148.1123 MegaEdges/s
+stealCount=28  (verification 0.0026 s)
+stealCount=1221 N=900 t=0.0211 s 153.4177 MegaEdges/s
+stealCount=28  (verification 0.0025 s)
+stealCount=1008 N=900 t=0.0206 s 157.0452 MegaEdges/s
+stealCount=28  (verification 0.0030 s)
+stealCount=1348 N=900 t=0.0221 s 146.8514 MegaEdges/s
+stealCount=27  (verification 0.0024 s)
+stealCount=1193 N=900 t=0.0201 s 161.3568 MegaEdges/s
+stealCount=29  (verification 0.0022 s)
+stealCount=1178 N=900 t=0.0203 s 159.4968 MegaEdges/s
+stealCount=26  (verification 0.0023 s)
+stealCount=1475 N=900 t=0.0217 s 149.3080 MegaEdges/s
+stealCount=26  (verification 0.0029 s)
+stealCount=1045 N=900 t=0.0205 s 157.9660 MegaEdges/s
+stealCount=26  (verification 0.0026 s)
+stealCount=1109 N=900 t=0.0209 s 155.0695 MegaEdges/s
+stealCount=27  (verification 0.0027 s)
+stealCount=1376 N=900 t=0.0211 s 153.3705 MegaEdges/s
+stealCount=29  (verification 0.0045 s)
+stealCount=1299 N=900 t=0.0212 s 152.8920 MegaEdges/s
+stealCount=27  (verification 0.0030 s)
+Completed iterations for N=900
+
+## Size: 2100
+
+### nproc: 1
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 1 T 2100 4 false false true
+Number of procs=1
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:8.4835 s
+stealCount=0 N=2100 t=2.1877 s 8.0634 MegaEdges/s
+stealCount=0  (verification 0.8336 s)
+stealCount=0 N=2100 t=2.0372 s 8.6590 MegaEdges/s
+stealCount=0  (verification 0.7175 s)
+stealCount=0 N=2100 t=2.0313 s 8.6840 MegaEdges/s
+stealCount=0  (verification 0.6730 s)
+stealCount=0 N=2100 t=2.0307 s 8.6867 MegaEdges/s
+stealCount=0  (verification 0.6716 s)
+stealCount=0 N=2100 t=2.0302 s 8.6886 MegaEdges/s
+stealCount=0  (verification 0.6716 s)
+stealCount=0 N=2100 t=2.0304 s 8.6881 MegaEdges/s
+stealCount=0  (verification 0.6723 s)
+stealCount=0 N=2100 t=2.0300 s 8.6897 MegaEdges/s
+stealCount=0  (verification 0.6811 s)
+stealCount=0 N=2100 t=2.0300 s 8.6897 MegaEdges/s
+stealCount=0  (verification 0.6740 s)
+stealCount=0 N=2100 t=2.0302 s 8.6889 MegaEdges/s
+stealCount=0  (verification 0.6729 s)
+stealCount=0 N=2100 t=2.0299 s 8.6900 MegaEdges/s
+stealCount=0  (verification 0.6703 s)
+stealCount=0 N=2100 t=2.0362 s 8.6632 MegaEdges/s
+stealCount=0  (verification 0.6688 s)
+stealCount=0 N=2100 t=2.0301 s 8.6891 MegaEdges/s
+stealCount=0  (verification 0.6689 s)
+stealCount=0 N=2100 t=2.0302 s 8.6888 MegaEdges/s
+stealCount=0  (verification 0.6694 s)
+stealCount=0 N=2100 t=2.0299 s 8.6900 MegaEdges/s
+stealCount=0  (verification 0.6779 s)
+stealCount=0 N=2100 t=2.0468 s 8.6184 MegaEdges/s
+stealCount=0  (verification 0.6751 s)
+stealCount=0 N=2100 t=2.0463 s 8.6205 MegaEdges/s
+stealCount=0  (verification 0.6764 s)
+stealCount=0 N=2100 t=2.0469 s 8.6179 MegaEdges/s
+stealCount=0  (verification 0.6736 s)
+stealCount=0 N=2100 t=2.0471 s 8.6170 MegaEdges/s
+stealCount=0  (verification 0.6734 s)
+stealCount=0 N=2100 t=2.0464 s 8.6199 MegaEdges/s
+stealCount=0  (verification 0.6735 s)
+stealCount=0 N=2100 t=2.0462 s 8.6207 MegaEdges/s
+stealCount=0  (verification 0.6740 s)
+Completed iterations for N=2100
+
+### nproc: 2
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 2 T 2100 4 false false true
+Number of procs=2
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:8.4556 s
+stealCount=937 N=2100 t=1.1525 s 15.3063 MegaEdges/s
+stealCount=0  (verification 1.0637 s)
+stealCount=930 N=2100 t=1.0574 s 16.6831 MegaEdges/s
+stealCount=0  (verification 2.3161 s)
+stealCount=905 N=2100 t=1.0565 s 16.6970 MegaEdges/s
+stealCount=1  (verification 0.6432 s)
+stealCount=889 N=2100 t=1.0566 s 16.6954 MegaEdges/s
+stealCount=0  (verification 2.3243 s)
+stealCount=994 N=2100 t=1.0653 s 16.5580 MegaEdges/s
+stealCount=0  (verification 2.3015 s)
+stealCount=1003 N=2100 t=1.0557 s 16.7091 MegaEdges/s
+stealCount=1  (verification 0.6473 s)
+stealCount=21 N=2100 t=1.0221 s 17.2594 MegaEdges/s
+stealCount=0  (verification 0.1701 s)
+stealCount=762 N=2100 t=1.0475 s 16.8400 MegaEdges/s
+stealCount=1  (verification 0.5241 s)
+stealCount=862 N=2100 t=1.0493 s 16.8116 MegaEdges/s
+stealCount=0  (verification 0.6436 s)
+stealCount=39 N=2100 t=1.0287 s 17.1474 MegaEdges/s
+stealCount=0  (verification 0.2851 s)
+stealCount=473 N=2100 t=1.0363 s 17.0219 MegaEdges/s
+stealCount=0  (verification 0.4281 s)
+stealCount=74 N=2100 t=1.0281 s 17.1578 MegaEdges/s
+stealCount=1  (verification 0.2258 s)
+stealCount=528 N=2100 t=1.0319 s 17.0952 MegaEdges/s
+stealCount=1  (verification 0.1766 s)
+stealCount=705 N=2100 t=1.0340 s 17.0593 MegaEdges/s
+stealCount=0  (verification 0.4279 s)
+stealCount=541 N=2100 t=1.0334 s 17.0694 MegaEdges/s
+stealCount=0  (verification 0.4279 s)
+stealCount=451 N=2100 t=1.0336 s 17.0668 MegaEdges/s
+stealCount=0  (verification 0.4282 s)
+stealCount=462 N=2100 t=1.0309 s 17.1119 MegaEdges/s
+stealCount=0  (verification 0.4280 s)
+stealCount=546 N=2100 t=1.0328 s 17.0791 MegaEdges/s
+stealCount=0  (verification 0.4280 s)
+stealCount=1643 N=2100 t=1.0389 s 16.9787 MegaEdges/s
+stealCount=0  (verification 0.4280 s)
+stealCount=557 N=2100 t=1.0309 s 17.1115 MegaEdges/s
+stealCount=1  (verification 0.2257 s)
+Completed iterations for N=2100
+
+### nproc: 4
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 4 T 2100 4 false false true
+Number of procs=4
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:10.6004 s
+stealCount=582 N=2100 t=0.6439 s 27.3972 MegaEdges/s
+stealCount=2  (verification 0.4370 s)
+stealCount=1490 N=2100 t=0.5737 s 30.7479 MegaEdges/s
+stealCount=2  (verification 0.2567 s)
+stealCount=1626 N=2100 t=0.5775 s 30.5460 MegaEdges/s
+stealCount=2  (verification 0.0759 s)
+stealCount=622 N=2100 t=0.5526 s 31.9241 MegaEdges/s
+stealCount=2  (verification 0.1182 s)
+stealCount=3451 N=2100 t=0.6001 s 29.3953 MegaEdges/s
+stealCount=2  (verification 0.0658 s)
+stealCount=2042 N=2100 t=0.5609 s 31.4506 MegaEdges/s
+stealCount=2  (verification 0.1408 s)
+stealCount=2695 N=2100 t=0.5464 s 32.2829 MegaEdges/s
+stealCount=2  (verification 0.1138 s)
+stealCount=3432 N=2100 t=0.5505 s 32.0423 MegaEdges/s
+stealCount=2  (verification 0.1313 s)
+stealCount=3482 N=2100 t=0.5515 s 31.9882 MegaEdges/s
+stealCount=2  (verification 0.0092 s)
+stealCount=4596 N=2100 t=0.5525 s 31.9296 MegaEdges/s
+stealCount=2  (verification 0.0891 s)
+stealCount=2589 N=2100 t=0.5476 s 32.2162 MegaEdges/s
+stealCount=2  (verification 0.1212 s)
+stealCount=2262 N=2100 t=0.5446 s 32.3884 MegaEdges/s
+stealCount=2  (verification 0.0368 s)
+stealCount=2276 N=2100 t=0.5448 s 32.3806 MegaEdges/s
+stealCount=2  (verification 0.1784 s)
+stealCount=4756 N=2100 t=0.5506 s 32.0371 MegaEdges/s
+stealCount=2  (verification 0.1530 s)
+stealCount=3374 N=2100 t=0.5520 s 31.9539 MegaEdges/s
+stealCount=2  (verification 0.2258 s)
+stealCount=2325 N=2100 t=0.5481 s 32.1840 MegaEdges/s
+stealCount=2  (verification 0.0071 s)
+stealCount=3184 N=2100 t=0.5497 s 32.0930 MegaEdges/s
+stealCount=2  (verification 0.0069 s)
+stealCount=5116 N=2100 t=0.5524 s 31.9349 MegaEdges/s
+stealCount=2  (verification 0.0069 s)
+stealCount=1825 N=2100 t=0.5434 s 32.4601 MegaEdges/s
+stealCount=2  (verification 0.0524 s)
+stealCount=2965 N=2100 t=0.5488 s 32.1410 MegaEdges/s
+stealCount=2  (verification 0.1387 s)
+Completed iterations for N=2100
+
+### nproc: 8
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 8 T 2100 4 false false true
+Number of procs=8
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:10.3370 s
+stealCount=3477 N=2100 t=0.4232 s 41.6844 MegaEdges/s
+stealCount=6  (verification 0.1334 s)
+stealCount=1463 N=2100 t=0.3244 s 54.3727 MegaEdges/s
+stealCount=6  (verification 0.2968 s)
+stealCount=3767 N=2100 t=0.2953 s 59.7347 MegaEdges/s
+stealCount=6  (verification 0.0828 s)
+stealCount=4157 N=2100 t=0.3068 s 57.4951 MegaEdges/s
+stealCount=6  (verification 0.2111 s)
+stealCount=4514 N=2100 t=0.2935 s 60.1053 MegaEdges/s
+stealCount=6  (verification 0.0425 s)
+stealCount=2908 N=2100 t=0.2897 s 60.8911 MegaEdges/s
+stealCount=6  (verification 0.0287 s)
+stealCount=3718 N=2100 t=0.2857 s 61.7412 MegaEdges/s
+stealCount=6  (verification 0.0637 s)
+stealCount=6061 N=2100 t=0.2924 s 60.3247 MegaEdges/s
+stealCount=6  (verification 0.0359 s)
+stealCount=4034 N=2100 t=0.2904 s 60.7407 MegaEdges/s
+stealCount=6  (verification 0.0580 s)
+stealCount=3667 N=2100 t=0.2862 s 61.6404 MegaEdges/s
+stealCount=6  (verification 0.0475 s)
+stealCount=2786 N=2100 t=0.2909 s 60.6450 MegaEdges/s
+stealCount=6  (verification 0.0287 s)
+stealCount=4353 N=2100 t=0.2881 s 61.2384 MegaEdges/s
+stealCount=6  (verification 0.0310 s)
+stealCount=3856 N=2100 t=0.2824 s 62.4576 MegaEdges/s
+stealCount=6  (verification 0.0165 s)
+stealCount=4579 N=2100 t=0.2940 s 59.9987 MegaEdges/s
+stealCount=6  (verification 0.0141 s)
+stealCount=3919 N=2100 t=0.2870 s 61.4537 MegaEdges/s
+stealCount=6  (verification 0.0451 s)
+stealCount=3201 N=2100 t=0.2840 s 62.1190 MegaEdges/s
+stealCount=6  (verification 0.0708 s)
+stealCount=1559 N=2100 t=0.2839 s 62.1453 MegaEdges/s
+stealCount=6  (verification 0.1165 s)
+stealCount=3905 N=2100 t=0.2914 s 60.5438 MegaEdges/s
+stealCount=6  (verification 0.0841 s)
+stealCount=2864 N=2100 t=0.2852 s 61.8489 MegaEdges/s
+stealCount=6  (verification 0.0494 s)
+stealCount=2939 N=2100 t=0.2822 s 62.5189 MegaEdges/s
+stealCount=6  (verification 0.0375 s)
+Completed iterations for N=2100
+
+### nproc: 16
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 16 T 2100 4 false false true
+Number of procs=16
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:8.0737 s
+stealCount=3664 N=2100 t=0.2642 s 66.7761 MegaEdges/s
+stealCount=14  (verification 0.1628 s)
+stealCount=4365 N=2100 t=0.2096 s 84.1645 MegaEdges/s
+stealCount=14  (verification 0.1209 s)
+stealCount=3689 N=2100 t=0.1835 s 96.1542 MegaEdges/s
+stealCount=14  (verification 0.1032 s)
+stealCount=4201 N=2100 t=0.1643 s 107.3711 MegaEdges/s
+stealCount=14  (verification 0.0603 s)
+stealCount=4438 N=2100 t=0.1686 s 104.6322 MegaEdges/s
+stealCount=14  (verification 0.0205 s)
+stealCount=3805 N=2100 t=0.1648 s 107.0098 MegaEdges/s
+stealCount=14  (verification 0.0191 s)
+stealCount=4267 N=2100 t=0.1675 s 105.3365 MegaEdges/s
+stealCount=14  (verification 0.0194 s)
+stealCount=4154 N=2100 t=0.1698 s 103.9135 MegaEdges/s
+stealCount=14  (verification 0.0170 s)
+stealCount=4256 N=2100 t=0.1632 s 108.1060 MegaEdges/s
+stealCount=14  (verification 0.0197 s)
+stealCount=5639 N=2100 t=0.1711 s 103.1086 MegaEdges/s
+stealCount=14  (verification 0.0180 s)
+stealCount=5444 N=2100 t=0.1644 s 107.2824 MegaEdges/s
+stealCount=14  (verification 0.0125 s)
+stealCount=4218 N=2100 t=0.1662 s 106.1357 MegaEdges/s
+stealCount=14  (verification 0.0167 s)
+stealCount=4889 N=2100 t=0.1724 s 102.3033 MegaEdges/s
+stealCount=14  (verification 0.0246 s)
+stealCount=4221 N=2100 t=0.1664 s 105.9916 MegaEdges/s
+stealCount=14  (verification 0.0118 s)
+stealCount=3959 N=2100 t=0.1659 s 106.2988 MegaEdges/s
+stealCount=14  (verification 0.0285 s)
+stealCount=4747 N=2100 t=0.1693 s 104.2100 MegaEdges/s
+stealCount=14  (verification 0.0116 s)
+stealCount=4799 N=2100 t=0.1700 s 103.7923 MegaEdges/s
+stealCount=14  (verification 0.0318 s)
+stealCount=4860 N=2100 t=0.1681 s 104.9611 MegaEdges/s
+stealCount=14  (verification 0.0127 s)
+stealCount=4714 N=2100 t=0.1676 s 105.2346 MegaEdges/s
+stealCount=14  (verification 0.0089 s)
+stealCount=4847 N=2100 t=0.1663 s 106.0973 MegaEdges/s
+stealCount=14  (verification 0.0145 s)
+Completed iterations for N=2100
+
+### nproc: 20
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 20 T 2100 4 false false true
+Number of procs=20
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:7.9544 s
+stealCount=3701 N=2100 t=0.2356 s 74.8732 MegaEdges/s
+stealCount=18  (verification 0.1538 s)
+stealCount=5071 N=2100 t=0.1998 s 88.2862 MegaEdges/s
+stealCount=18  (verification 0.1444 s)
+stealCount=5030 N=2100 t=0.1426 s 123.7343 MegaEdges/s
+stealCount=18  (verification 0.1313 s)
+stealCount=5089 N=2100 t=0.1337 s 131.9520 MegaEdges/s
+stealCount=17  (verification 0.0075 s)
+stealCount=3636 N=2100 t=0.1311 s 134.5151 MegaEdges/s
+stealCount=18  (verification 0.0100 s)
+stealCount=5030 N=2100 t=0.1349 s 130.8039 MegaEdges/s
+stealCount=18  (verification 0.0180 s)
+stealCount=4972 N=2100 t=0.1339 s 131.6914 MegaEdges/s
+stealCount=18  (verification 0.0223 s)
+stealCount=6173 N=2100 t=0.1425 s 123.8188 MegaEdges/s
+stealCount=18  (verification 0.0110 s)
+stealCount=4999 N=2100 t=0.1358 s 129.9339 MegaEdges/s
+stealCount=18  (verification 0.0080 s)
+stealCount=4246 N=2100 t=0.1323 s 133.3049 MegaEdges/s
+stealCount=18  (verification 0.0029 s)
+stealCount=5266 N=2100 t=0.1392 s 126.7104 MegaEdges/s
+stealCount=18  (verification 0.0383 s)
+stealCount=3875 N=2100 t=0.1347 s 130.9236 MegaEdges/s
+stealCount=18  (verification 0.0106 s)
+stealCount=4581 N=2100 t=0.1327 s 132.8920 MegaEdges/s
+stealCount=17  (verification 0.0211 s)
+stealCount=5417 N=2100 t=0.1404 s 125.6579 MegaEdges/s
+stealCount=17  (verification 0.0110 s)
+stealCount=4596 N=2100 t=0.1403 s 125.6975 MegaEdges/s
+stealCount=16  (verification 0.0041 s)
+stealCount=4553 N=2100 t=0.1348 s 130.8727 MegaEdges/s
+stealCount=18  (verification 0.0110 s)
+stealCount=4438 N=2100 t=0.1318 s 133.8895 MegaEdges/s
+stealCount=17  (verification 0.0243 s)
+stealCount=4326 N=2100 t=0.1332 s 132.4660 MegaEdges/s
+stealCount=17  (verification 0.0139 s)
+stealCount=5478 N=2100 t=0.1390 s 126.8711 MegaEdges/s
+stealCount=18  (verification 0.0076 s)
+stealCount=4961 N=2100 t=0.1360 s 129.6721 MegaEdges/s
+stealCount=18  (verification 0.0123 s)
+Completed iterations for N=2100
+
+### nproc: 24
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 24 T 2100 4 false false true
+Number of procs=24
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:8.0580 s
+stealCount=4003 N=2100 t=0.2224 s 79.3315 MegaEdges/s
+stealCount=22  (verification 0.1932 s)
+stealCount=4158 N=2100 t=0.1480 s 119.1945 MegaEdges/s
+stealCount=22  (verification 0.2994 s)
+stealCount=5605 N=2100 t=0.1531 s 115.2323 MegaEdges/s
+stealCount=22  (verification 0.0673 s)
+stealCount=4704 N=2100 t=0.1241 s 142.1118 MegaEdges/s
+stealCount=21  (verification 0.0092 s)
+stealCount=5085 N=2100 t=0.1261 s 139.9115 MegaEdges/s
+stealCount=21  (verification 0.0086 s)
+stealCount=5936 N=2100 t=0.1280 s 137.8179 MegaEdges/s
+stealCount=21  (verification 0.0217 s)
+stealCount=4751 N=2100 t=0.1263 s 139.6447 MegaEdges/s
+stealCount=22  (verification 0.0117 s)
+stealCount=5643 N=2100 t=0.1308 s 134.8529 MegaEdges/s
+stealCount=22  (verification 0.0081 s)
+stealCount=5487 N=2100 t=0.1294 s 136.2954 MegaEdges/s
+stealCount=21  (verification 0.0066 s)
+stealCount=5663 N=2100 t=0.1285 s 137.2877 MegaEdges/s
+stealCount=21  (verification 0.0126 s)
+stealCount=5585 N=2100 t=0.1270 s 138.8825 MegaEdges/s
+stealCount=22  (verification 0.0102 s)
+stealCount=5136 N=2100 t=0.1267 s 139.2669 MegaEdges/s
+stealCount=21  (verification 0.0094 s)
+stealCount=5210 N=2100 t=0.1258 s 140.2585 MegaEdges/s
+stealCount=22  (verification 0.0084 s)
+stealCount=4852 N=2100 t=0.1252 s 140.8859 MegaEdges/s
+stealCount=21  (verification 0.0102 s)
+stealCount=5779 N=2100 t=0.1248 s 141.3297 MegaEdges/s
+stealCount=22  (verification 0.0092 s)
+stealCount=5416 N=2100 t=0.1250 s 141.0680 MegaEdges/s
+stealCount=22  (verification 0.0055 s)
+stealCount=4971 N=2100 t=0.1218 s 144.7824 MegaEdges/s
+stealCount=22  (verification 0.0087 s)
+stealCount=5162 N=2100 t=0.1315 s 134.1446 MegaEdges/s
+stealCount=21  (verification 0.0113 s)
+stealCount=5645 N=2100 t=0.1291 s 136.6000 MegaEdges/s
+stealCount=22  (verification 0.0094 s)
+stealCount=4929 N=2100 t=0.1214 s 145.3630 MegaEdges/s
+stealCount=22  (verification 0.0143 s)
+Completed iterations for N=2100
+
+### nproc: 30
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:8.0062 s
+stealCount=5218 N=2100 t=0.4941 s 35.6978 MegaEdges/s
+stealCount=28  (verification 0.1124 s)
+stealCount=5627 N=2100 t=0.1170 s 150.7147 MegaEdges/s
+stealCount=28  (verification 0.0928 s)
+stealCount=5675 N=2100 t=0.1240 s 142.2374 MegaEdges/s
+stealCount=28  (verification 0.0898 s)
+stealCount=5431 N=2100 t=0.1082 s 162.9895 MegaEdges/s
+stealCount=27  (verification 0.0075 s)
+stealCount=5680 N=2100 t=0.1091 s 161.6881 MegaEdges/s
+stealCount=27  (verification 0.0110 s)
+stealCount=5711 N=2100 t=0.1237 s 142.5541 MegaEdges/s
+stealCount=27  (verification 0.0108 s)
+stealCount=5339 N=2100 t=0.1124 s 156.9005 MegaEdges/s
+stealCount=27  (verification 0.0074 s)
+stealCount=5465 N=2100 t=0.1141 s 154.6311 MegaEdges/s
+stealCount=26  (verification 0.0110 s)
+stealCount=4895 N=2100 t=0.1112 s 158.5913 MegaEdges/s
+stealCount=26  (verification 0.0070 s)
+stealCount=5586 N=2100 t=0.1082 s 162.9623 MegaEdges/s
+stealCount=27  (verification 0.0043 s)
+stealCount=6600 N=2100 t=0.1143 s 154.3113 MegaEdges/s
+stealCount=26  (verification 0.0081 s)
+stealCount=5846 N=2100 t=0.1098 s 160.5862 MegaEdges/s
+stealCount=26  (verification 0.0156 s)
+stealCount=5259 N=2100 t=0.1093 s 161.3877 MegaEdges/s
+stealCount=27  (verification 0.0096 s)
+stealCount=5621 N=2100 t=0.1123 s 157.1227 MegaEdges/s
+stealCount=25  (verification 0.0021 s)
+stealCount=5107 N=2100 t=0.1083 s 162.9129 MegaEdges/s
+stealCount=27  (verification 0.0077 s)
+stealCount=5624 N=2100 t=0.1096 s 161.0195 MegaEdges/s
+stealCount=26  (verification 0.0090 s)
+stealCount=4918 N=2100 t=0.1108 s 159.2424 MegaEdges/s
+stealCount=26  (verification 0.0071 s)
+stealCount=5249 N=2100 t=0.1136 s 155.2783 MegaEdges/s
+stealCount=27  (verification 0.0095 s)
+stealCount=6269 N=2100 t=0.1076 s 163.8896 MegaEdges/s
+stealCount=27  (verification 0.0112 s)
+stealCount=5814 N=2100 t=0.1118 s 157.7325 MegaEdges/s
+stealCount=27  (verification 0.0077 s)
+Completed iterations for N=2100
+
+#<<<< BEGIN BATCHING >>>>
+
+#### bsize: 1
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 1
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=1
+Generating graph...
+Graph generated.
+Creation time:8.0607 s
+stealCount=184566 N=2100 t=2.1993 s 8.0206 MegaEdges/s
+stealCount=28  (verification 0.1121 s)
+stealCount=156252 N=2100 t=1.5200 s 11.6052 MegaEdges/s
+stealCount=28  (verification 0.0897 s)
+stealCount=164687 N=2100 t=1.4368 s 12.2772 MegaEdges/s
+stealCount=28  (verification 0.0562 s)
+stealCount=172749 N=2100 t=1.2574 s 14.0293 MegaEdges/s
+stealCount=27  (verification 0.0075 s)
+stealCount=168641 N=2100 t=1.0992 s 16.0481 MegaEdges/s
+stealCount=27  (verification 0.0078 s)
+stealCount=142514 N=2100 t=1.3030 s 13.5377 MegaEdges/s
+stealCount=28  (verification 0.0075 s)
+stealCount=114644 N=2100 t=1.1022 s 16.0048 MegaEdges/s
+stealCount=27  (verification 0.0073 s)
+stealCount=126089 stealCount=126089 N=2100 t=0.7830 s 22.5294 MegaEdges/s
+stealCount=27  (verification 0.0088 s)
+stealCount=167349 stealCount=167349 N=2100 t=0.9099 s 19.3865 MegaEdges/s
+stealCount=26  (verification 0.0077 s)
+stealCount=128014 stealCount=128014 N=2100 t=1.1037 s 15.9826 MegaEdges/s
+stealCount=29  (verification 0.0066 s)
+stealCount=140812 N=2100 t=0.8985 s 19.6335 MegaEdges/s
+stealCount=28  (verification 0.0067 s)
+stealCount=192704 N=2100 t=1.0094 s 17.4750 MegaEdges/s
+stealCount=28  (verification 0.0071 s)
+stealCount=134489 N=2100 t=1.6517 s 10.6797 MegaEdges/s
+stealCount=27  (verification 0.0063 s)
+stealCount=187499 N=2100 t=1.5646 s 11.2745 MegaEdges/s
+stealCount=27  (verification 0.0068 s)
+stealCount=204260 N=2100 t=1.5841 s 11.1359 MegaEdges/s
+stealCount=27  (verification 0.0061 s)
+stealCount=119036 N=2100 t=0.4944 s 35.6766 MegaEdges/s
+stealCount=27  (verification 0.0064 s)
+stealCount=118723 N=2100 t=0.6477 s 27.2348 MegaEdges/s
+stealCount=28  (verification 0.0067 s)
+stealCount=105718 N=2100 t=0.7663 s 23.0188 MegaEdges/s
+stealCount=26  (verification 0.0066 s)
+stealCount=192376 N=2100 t=1.4254 s 12.3758 MegaEdges/s
+stealCount=27  (verification 0.0070 s)
+stealCount=178590 N=2100 t=1.0680 s 16.5168 MegaEdges/s
+stealCount=28  (verification 0.0068 s)
+Completed iterations for N=2100
+
+#### bsize: 10
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 10
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=10
+Generating graph...
+Graph generated.
+Creation time:8.2870 s
+stealCount=8849 N=2100 t=0.4546 s 38.8060 MegaEdges/s
+stealCount=26  (verification 0.3035 s)
+stealCount=18043 N=2100 t=0.2333 s 75.6175 MegaEdges/s
+stealCount=28  (verification 0.2556 s)
+stealCount=20531 N=2100 t=0.1967 s 89.6981 MegaEdges/s
+stealCount=26  (verification 0.0248 s)
+stealCount=22327 N=2100 t=0.1397 s 126.2774 MegaEdges/s
+stealCount=27  (verification 0.0287 s)
+stealCount=13743 N=2100 t=0.1356 s 130.0499 MegaEdges/s
+stealCount=27  (verification 0.0203 s)
+stealCount=18686 N=2100 t=0.1420 s 124.2664 MegaEdges/s
+stealCount=27  (verification 0.0159 s)
+stealCount=21076 N=2100 t=0.1390 s 126.8791 MegaEdges/s
+stealCount=27  (verification 0.0183 s)
+stealCount=19548 N=2100 t=0.1581 s 111.5557 MegaEdges/s
+stealCount=27  (verification 0.0262 s)
+stealCount=22763 N=2100 t=0.1679 s 105.0497 MegaEdges/s
+stealCount=26  (verification 0.0229 s)
+stealCount=18869 N=2100 t=0.1454 s 121.2851 MegaEdges/s
+stealCount=27  (verification 0.0142 s)
+stealCount=16595 N=2100 t=0.1478 s 119.3858 MegaEdges/s
+stealCount=27  (verification 0.0370 s)
+stealCount=22281 N=2100 t=0.1786 s 98.7680 MegaEdges/s
+stealCount=27  (verification 0.0286 s)
+stealCount=18133 N=2100 t=0.1762 s 100.0874 MegaEdges/s
+stealCount=27  (verification 0.0228 s)
+stealCount=14399 N=2100 t=0.1366 s 129.1742 MegaEdges/s
+stealCount=27  (verification 0.0142 s)
+stealCount=16791 N=2100 t=0.1585 s 111.2997 MegaEdges/s
+stealCount=27  (verification 0.0177 s)
+stealCount=21248 N=2100 t=0.1754 s 100.5938 MegaEdges/s
+stealCount=27  (verification 0.0331 s)
+stealCount=23534 N=2100 t=0.1526 s 115.6046 MegaEdges/s
+stealCount=27  (verification 0.0177 s)
+stealCount=18483 N=2100 t=0.1683 s 104.8411 MegaEdges/s
+stealCount=27  (verification 0.0372 s)
+stealCount=15256 N=2100 t=0.1468 s 120.1999 MegaEdges/s
+stealCount=27  (verification 0.0143 s)
+stealCount=20300 N=2100 t=0.1541 s 114.4755 MegaEdges/s
+stealCount=27  (verification 0.0641 s)
+Completed iterations for N=2100
+
+#### bsize: 20
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 20
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=20
+Generating graph...
+Graph generated.
+Creation time:8.0482 s
+stealCount=8561 N=2100 t=0.3390 s 52.0372 MegaEdges/s
+stealCount=28  (verification 0.1645 s)
+stealCount=7228 N=2100 t=0.1328 s 132.8040 MegaEdges/s
+stealCount=28  (verification 0.0071 s)
+stealCount=8223 N=2100 t=0.1217 s 144.9006 MegaEdges/s
+stealCount=27  (verification 0.0074 s)
+stealCount=7369 N=2100 t=0.1132 s 155.7984 MegaEdges/s
+stealCount=27  (verification 0.0091 s)
+stealCount=7455 N=2100 t=0.1093 s 161.3575 MegaEdges/s
+stealCount=26  (verification 0.0077 s)
+stealCount=6821 N=2100 t=0.1084 s 162.7945 MegaEdges/s
+stealCount=27  (verification 0.0098 s)
+stealCount=7205 N=2100 t=0.1073 s 164.4604 MegaEdges/s
+stealCount=27  (verification 0.0103 s)
+stealCount=7447 N=2100 t=0.1075 s 164.0631 MegaEdges/s
+stealCount=26  (verification 0.0107 s)
+stealCount=8100 N=2100 t=0.1158 s 152.3164 MegaEdges/s
+stealCount=27  (verification 0.0125 s)
+stealCount=8014 N=2100 t=0.1108 s 159.2063 MegaEdges/s
+stealCount=28  (verification 0.0027 s)
+stealCount=9073 N=2100 t=0.1231 s 143.3442 MegaEdges/s
+stealCount=27  (verification 0.0054 s)
+stealCount=8208 N=2100 t=0.1111 s 158.7167 MegaEdges/s
+stealCount=28  (verification 0.0035 s)
+stealCount=8632 N=2100 t=0.1118 s 157.7156 MegaEdges/s
+stealCount=27  (verification 0.0072 s)
+stealCount=8225 N=2100 t=0.1207 s 146.1119 MegaEdges/s
+stealCount=28  (verification 0.0033 s)
+stealCount=8855 N=2100 t=0.1097 s 160.7360 MegaEdges/s
+stealCount=27  (verification 0.0073 s)
+stealCount=8272 N=2100 t=0.1148 s 153.5941 MegaEdges/s
+stealCount=27  (verification 0.0081 s)
+stealCount=8038 N=2100 t=0.1073 s 164.3639 MegaEdges/s
+stealCount=27  (verification 0.0060 s)
+stealCount=7887 N=2100 t=0.1098 s 160.6385 MegaEdges/s
+stealCount=27  (verification 0.0092 s)
+stealCount=8930 N=2100 t=0.1184 s 148.9630 MegaEdges/s
+stealCount=27  (verification 0.0046 s)
+stealCount=8085 N=2100 t=0.1169 s 150.8574 MegaEdges/s
+stealCount=27  (verification 0.0121 s)
+Completed iterations for N=2100
+
+#### bsize: 30
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 30
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=30
+Generating graph...
+Graph generated.
+Creation time:8.0034 s
+stealCount=3857 N=2100 t=0.2358 s 74.7938 MegaEdges/s
+stealCount=28  (verification 0.1018 s)
+stealCount=3482 N=2100 t=0.1132 s 155.8324 MegaEdges/s
+stealCount=28  (verification 0.1582 s)
+stealCount=3445 N=2100 t=0.1044 s 168.9133 MegaEdges/s
+stealCount=27  (verification 0.0043 s)
+stealCount=3653 N=2100 t=0.1034 s 170.5510 MegaEdges/s
+stealCount=28  (verification 0.0053 s)
+stealCount=3803 N=2100 t=0.1008 s 174.9740 MegaEdges/s
+stealCount=27  (verification 0.0045 s)
+stealCount=3846 N=2100 t=0.0996 s 177.1263 MegaEdges/s
+stealCount=27  (verification 0.0088 s)
+stealCount=4075 N=2100 t=0.1025 s 172.0996 MegaEdges/s
+stealCount=27  (verification 0.0153 s)
+stealCount=3624 N=2100 t=0.1018 s 173.2315 MegaEdges/s
+stealCount=27  (verification 0.0098 s)
+stealCount=3253 N=2100 t=0.0995 s 177.3329 MegaEdges/s
+stealCount=27  (verification 0.0097 s)
+stealCount=4037 N=2100 t=0.1034 s 170.6223 MegaEdges/s
+stealCount=27  (verification 0.0108 s)
+stealCount=4007 N=2100 t=0.1041 s 169.4053 MegaEdges/s
+stealCount=26  (verification 0.0092 s)
+stealCount=3680 N=2100 t=0.1034 s 170.5379 MegaEdges/s
+stealCount=27  (verification 0.0086 s)
+stealCount=4231 N=2100 t=0.1010 s 174.6310 MegaEdges/s
+stealCount=27  (verification 0.0056 s)
+stealCount=3813 N=2100 t=0.1002 s 176.0948 MegaEdges/s
+stealCount=27  (verification 0.0060 s)
+stealCount=3909 N=2100 t=0.1036 s 170.3456 MegaEdges/s
+stealCount=27  (verification 0.0194 s)
+stealCount=4435 N=2100 t=0.1025 s 172.1099 MegaEdges/s
+stealCount=27  (verification 0.0084 s)
+stealCount=4830 N=2100 t=0.1044 s 168.9563 MegaEdges/s
+stealCount=27  (verification 0.0116 s)
+stealCount=4148 N=2100 t=0.1019 s 173.1541 MegaEdges/s
+stealCount=27  (verification 0.0131 s)
+stealCount=3668 N=2100 t=0.1004 s 175.7280 MegaEdges/s
+stealCount=27  (verification 0.0093 s)
+stealCount=3656 N=2100 t=0.1003 s 175.8358 MegaEdges/s
+stealCount=27  (verification 0.0109 s)
+Completed iterations for N=2100
+
+#### bsize: 40
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 40
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=40
+Generating graph...
+Graph generated.
+Creation time:8.0141 s
+stealCount=1851 N=2100 t=0.1960 s 89.9850 MegaEdges/s
+stealCount=28  (verification 0.2850 s)
+stealCount=1945 N=2100 t=0.1097 s 160.7566 MegaEdges/s
+stealCount=28  (verification 0.2445 s)
+stealCount=2070 N=2100 t=0.1130 s 156.0376 MegaEdges/s
+stealCount=28  (verification 0.0599 s)
+stealCount=2077 N=2100 t=0.0994 s 177.4103 MegaEdges/s
+stealCount=27  (verification 0.0209 s)
+stealCount=2385 N=2100 t=0.1019 s 173.0967 MegaEdges/s
+stealCount=2 stealCount=26  (verification 0.0190 s)
+stealCount=2369 N=2100 t=0.0992 s 177.8736 MegaEdges/s
+stealCount=25  (verification 0.0101 s)
+stealCount=2197 N=2100 t=0.0985 s 179.1451 MegaEdges/s
+stealCount=26  (verification 0.0295 s)
+stealCount=2218 N=2100 t=0.1001 s 176.1522 MegaEdges/s
+stealCount=27  (verification 0.0144 s)
+stealCount=2209 N=2100 t=0.0991 s 178.0027 MegaEdges/s
+stealCount=26  (verification 0.0122 s)
+stealCount=2578 N=2100 t=0.0988 s 178.5071 MegaEdges/s
+stealCount=27  (verification 0.0173 s)
+stealCount=2162 N=2100 t=0.0987 s 178.8013 MegaEdges/s
+stealCount=26  (verification 0.0144 s)
+stealCount=2483 N=2100 t=0.0997 s 177.0119 MegaEdges/s
+stealCount=27  (verification 0.0119 s)
+stealCount=2116 N=2100 t=0.0995 s 177.3085 MegaEdges/s
+stealCount=26  (verification 0.0164 s)
+stealCount=2155 N=2100 t=0.0982 s 179.5660 MegaEdges/s
+stealCount=26  (verification 0.0153 s)
+stealCount=2653 N=2100 t=0.0981 s 179.8218 MegaEdges/s
+stealCount=26  (verification 0.0235 s)
+stealCount=2645 N=2100 t=0.0998 s 176.8131 MegaEdges/s
+stealCount=27  (verification 0.0089 s)
+stealCount=2156 N=2100 t=0.0990 s 178.1717 MegaEdges/s
+stealCount=27  (verification 0.0244 s)
+stealCount=2378 N=2100 t=0.0988 s 178.4902 MegaEdges/s
+stealCount=26  (verification 0.0133 s)
+stealCount=2503 N=2100 t=0.0988 s 178.5787 MegaEdges/s
+stealCount=27  (verification 0.0292 s)
+stealCount=2941 N=2100 t=0.1001 s 176.1798 MegaEdges/s
+stealCount=27  (verification 0.0076 s)
+Completed iterations for N=2100
+
+#### bsize: 50
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 50
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=50
+Generating graph...
+Graph generated.
+Creation time:8.0528 s
+stealCount=1891 N=2100 t=0.1970 s 89.5578 MegaEdges/s
+stealCount=28  (verification 0.0887 s)
+stealCount=1890 N=2100 t=0.1095 s 161.1501 MegaEdges/s
+stealCount=28  (verification 0.0840 s)
+stealCount=1735 N=2100 t=0.1058 s 166.7355 MegaEdges/s
+stealCount=28  (verification 0.0706 s)
+stealCount=1923 N=2100 t=0.1060 s 166.3574 MegaEdges/s
+stealCount=27  (verification 0.0135 s)
+stealCount=1713 N=2100 t=0.1054 s 167.2922 MegaEdges/s
+stealCount=26  (verification 0.0094 s)
+stealCount=1779 N=2100 t=0.1064 s 165.8071 MegaEdges/s
+stealCount=24  (verification 0.0081 s)
+stealCount=1619 N=2100 t=0.1024 s 172.2825 MegaEdges/s
+stealCount=25  (verification 0.0041 s)
+stealCount=1587 N=2100 t=0.0974 s 181.0270 MegaEdges/s
+stealCount=23  (verification 0.0073 s)
+stealCount=1576 N=2100 t=0.1003 s 175.8173 MegaEdges/s
+stealCount=27  (verification 0.0158 s)
+stealCount=1504 N=2100 t=0.0978 s 180.3427 MegaEdges/s
+stealCount=27  (verification 0.0096 s)
+stealCount=1954 N=2100 t=0.1015 s 173.7660 MegaEdges/s
+stealCount=27  (verification 0.0103 s)
+stealCount=1813 N=2100 t=0.0987 s 178.6359 MegaEdges/s
+stealCount=26  (verification 0.0109 s)
+stealCount=1969 N=2100 t=0.0986 s 178.9267 MegaEdges/s
+stealCount=26  (verification 0.0047 s)
+stealCount=1808 N=2100 t=0.1014 s 174.0040 MegaEdges/s
+stealCount=27  (verification 0.0070 s)
+stealCount=1917 N=2100 t=0.1025 s 172.1164 MegaEdges/s
+stealCount=25  (verification 0.0082 s)
+stealCount=1899 N=2100 t=0.1036 s 170.2513 MegaEdges/s
+stealCount=25  (verification 0.0063 s)
+stealCount=1691 N=2100 t=0.1006 s 175.3753 MegaEdges/s
+stealCount=26  (verification 0.0058 s)
+stealCount=1382 N=2100 t=0.0985 s 179.0776 MegaEdges/s
+stealCount=24  (verification 0.0026 s)
+stealCount=1805 N=2100 t=0.1015 s 173.8509 MegaEdges/s
+stealCount=26  (verification 0.0142 s)
+stealCount=2131 N=2100 t=0.1023 s 172.4193 MegaEdges/s
+stealCount=26  (verification 0.0102 s)
+Completed iterations for N=2100
+
+#### bsize: 60
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 60
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=60
+Generating graph...
+Graph generated.
+Creation time:8.0364 s
+stealCount=1147 N=2100 t=0.4469 s 39.4686 MegaEdges/s
+stealCount=28  (verification 0.1259 s)
+stealCount=1409 N=2100 t=0.1065 s 165.6677 MegaEdges/s
+stealCount=28  (verification 0.0620 s)
+stealCount=1271 N=2100 t=0.1103 s 159.9532 MegaEdges/s
+stealCount=27  (verification 0.0124 s)
+stealCount=1242 N=2100 t=0.1050 s 168.0650 MegaEdges/s
+stealCount=27  (verification 0.0077 s)
+stealCount=1209 N=2100 t=0.1054 s 167.4113 MegaEdges/s
+stealCount=27  (verification 0.0105 s)
+stealCount=1202 N=2100 t=0.1054 s 167.3613 MegaEdges/s
+stealCount=27  (verification 0.0110 s)
+stealCount=1338 N=2100 t=0.1041 s 169.4211 MegaEdges/s
+stealCount=28  (verification 0.0095 s)
+stealCount=992 N=2100 t=0.1037 s 170.0849 MegaEdges/s
+stealCount=27  (verification 0.0148 s)
+stealCount=1202 N=2100 t=0.1019 s 173.0536 MegaEdges/s
+stealCount=26  (verification 0.0086 s)
+stealCount=1413 N=2100 t=0.1037 s 170.1729 MegaEdges/s
+stealCount=28  (verification 0.0151 s)
+stealCount=1476 N=2100 t=0.1021 s 172.7151 MegaEdges/s
+stealCount=27  (verification 0.0125 s)
+stealCount=1553 N=2100 t=0.1053 s 167.4586 MegaEdges/s
+stealCount=27  (verification 0.0062 s)
+stealCount=964 N=2100 t=0.0997 s 176.9351 MegaEdges/s
+stealCount=27  (verification 0.0078 s)
+stealCount=1322 N=2100 t=0.1005 s 175.5088 MegaEdges/s
+stealCount=28  (verification 0.0105 s)
+stealCount=1515 N=2100 t=0.1012 s 174.3817 MegaEdges/s
+stealCount=27  (verification 0.0127 s)
+stealCount=1295 N=2100 t=0.1012 s 174.2563 MegaEdges/s
+stealCount=27  (verification 0.0084 s)
+stealCount=1516 N=2100 t=0.1014 s 173.9822 MegaEdges/s
+stealCount=27  (verification 0.0109 s)
+stealCount=1166 N=2100 t=0.1035 s 170.4058 MegaEdges/s
+stealCount=27  (verification 0.0192 s)
+stealCount=1500 N=2100 t=0.1020 s 172.9553 MegaEdges/s
+stealCount=27  (verification 0.0100 s)
+stealCount=1259 N=2100 t=0.1034 s 170.5696 MegaEdges/s
+stealCount=27  (verification 0.0075 s)
+Completed iterations for N=2100
+
+#### bsize: 70
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 70
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=70
+Generating graph...
+Graph generated.
+Creation time:8.0655 s
+stealCount=771 N=2100 t=0.4744 s 37.1869 MegaEdges/s
+stealCount=28  (verification 0.1343 s)
+stealCount=792 N=2100 t=0.1048 s 168.3098 MegaEdges/s
+stealCount=28  (verification 0.0757 s)
+stealCount=744 N=2100 t=0.1036 s 170.3298 MegaEdges/s
+stealCount=27  (verification 0.0184 s)
+stealCount=850 N=2100 t=0.1043 s 169.1223 MegaEdges/s
+stealCount=26  (verification 0.0159 s)
+stealCount=927 N=2100 t=0.1007 s 175.2150 MegaEdges/s
+stealCount=27  (verification 0.0175 s)
+stealCount=900 N=2100 t=0.1019 s 173.1024 MegaEdges/s
+stealCount=26  (verification 0.0178 s)
+stealCount=1027 N=2100 t=0.1619 s 108.9802 MegaEdges/s
+stealCount=24  (verification 0.0275 s)
+stealCount=766 N=2100 t=0.1109 s 159.0848 MegaEdges/s
+stealCount=27  (verification 0.0112 s)
+stealCount=921 N=2100 t=0.0988 s 178.4565 MegaEdges/s
+stealCount=27  (verification 0.0138 s)
+stealCount=851 N=2100 t=0.1030 s 171.2723 MegaEdges/s
+stealCount=26  (verification 0.0167 s)
+stealCount=914 N=2100 t=0.0992 s 177.7796 MegaEdges/s
+stealCount=28  (verification 0.0169 s)
+stealCount=881 N=2100 t=0.1012 s 174.3748 MegaEdges/s
+stealCount=27  (verification 0.0140 s)
+stealCount=818 N=2100 t=0.0991 s 177.9553 MegaEdges/s
+stealCount=27  (verification 0.0080 s)
+stealCount=1027 N=2100 t=0.0998 s 176.6941 MegaEdges/s
+stealCount=27  (verification 0.0210 s)
+stealCount=978 N=2100 t=0.1019 s 173.1577 MegaEdges/s
+stealCount=27  (verification 0.0079 s)
+stealCount=799 N=2100 t=0.0982 s 179.6863 MegaEdges/s
+stealCount=27  (verification 0.0137 s)
+stealCount=839 N=2100 t=0.0993 s 177.6551 MegaEdges/s
+stealCount=27  (verification 0.0195 s)
+stealCount=816 N=2100 t=0.0990 s 178.1269 MegaEdges/s
+stealCount=27  (verification 0.0095 s)
+stealCount=973 N=2100 t=0.0997 s 176.9889 MegaEdges/s
+stealCount=27  (verification 0.0132 s)
+stealCount=933 N=2100 t=0.1009 s 174.7708 MegaEdges/s
+stealCount=27  (verification 0.0222 s)
+Completed iterations for N=2100
+
+#### bsize: 80
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 80
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=80
+Generating graph...
+Graph generated.
+Creation time:8.0658 s
+stealCount=716 N=2100 t=0.5234 s 33.7036 MegaEdges/s
+stealCount=28  (verification 0.1449 s)
+stealCount=690 N=2100 t=0.1057 s 166.8516 MegaEdges/s
+stealCount=23  (verification 0.0091 s)
+stealCount=662 N=2100 t=0.1042 s 169.2888 MegaEdges/s
+stealCount=26  (verification 0.0080 s)
+stealCount=855 N=2100 t=0.1048 s 168.2917 MegaEdges/s
+stealCount=24  (verification 0.0070 s)
+stealCount=796 N=2100 t=0.1061 s 166.3157 MegaEdges/s
+stealCount=25  (verification 0.0054 s)
+stealCount=811 N=2100 t=0.1057 s 166.8723 MegaEdges/s
+stealCount=24  (verification 0.0087 s)
+stealCount=841 N=2100 t=0.1059 s 166.5604 MegaEdges/s
+stealCount=25  (verification 0.0090 s)
+stealCount=759 N=2100 t=0.1051 s 167.8128 MegaEdges/s
+stealCount=27  (verification 0.0101 s)
+stealCount=670 N=2100 t=0.1049 s 168.1431 MegaEdges/s
+stealCount=27  (verification 0.0102 s)
+stealCount=817 N=2100 t=0.1052 s 167.6505 MegaEdges/s
+stealCount=25  (verification 0.0112 s)
+stealCount=616 N=2100 t=0.1042 s 169.2587 MegaEdges/s
+stealCount=24  (verification 0.0067 s)
+stealCount=678 N=2100 t=0.1054 s 167.4017 MegaEdges/s
+stealCount=26  (verification 0.0095 s)
+stealCount=844 N=2100 t=0.1062 s 166.1147 MegaEdges/s
+stealCount=27  (verification 0.0095 s)
+stealCount=812 N=2100 t=0.1046 s 168.6734 MegaEdges/s
+stealCount=27  (verification 0.0081 s)
+stealCount=721 N=2100 t=0.1022 s 172.5707 MegaEdges/s
+stealCount=27  (verification 0.0051 s)
+stealCount=766 N=2100 t=0.1026 s 171.8621 MegaEdges/s
+stealCount=28  (verification 0.0040 s)
+stealCount=944 N=2100 t=0.1046 s 168.6693 MegaEdges/s
+stealCount=28  (verification 0.0095 s)
+stealCount=731 N=2100 t=0.1044 s 168.9006 MegaEdges/s
+stealCount=26  (verification 0.0071 s)
+stealCount=844 N=2100 t=0.1051 s 167.8861 MegaEdges/s
+stealCount=27  (verification 0.0113 s)
+stealCount=863 N=2100 t=0.1046 s 168.5829 MegaEdges/s
+stealCount=27  (verification 0.0068 s)
+Completed iterations for N=2100
+
+#### bsize: 90
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 90
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=90
+Generating graph...
+Graph generated.
+Creation time:8.0400 s
+stealCount=679 N=2100 t=0.5135 s 34.3495 MegaEdges/s
+stealCount=28  (verification 0.1294 s)
+stealCount=505 N=2100 t=0.1135 s 155.3963 MegaEdges/s
+stealCount=28  (verification 0.1139 s)
+stealCount=603 N=2100 t=0.1120 s 157.5122 MegaEdges/s
+stealCount=28  (verification 0.0729 s)
+stealCount=611 N=2100 t=0.1146 s 153.9835 MegaEdges/s
+stealCount=24  (verification 0.0107 s)
+stealCount=554 N=2100 t=0.1130 s 156.1663 MegaEdges/s
+stealCount=26  (verification 0.0103 s)
+stealCount=555 N=2100 t=0.1123 s 157.0651 MegaEdges/s
+stealCount=27  (verification 0.0108 s)
+stealCount=579 N=2100 t=0.1118 s 157.7723 MegaEdges/s
+stealCount=25  (verification 0.0042 s)
+stealCount=601 N=2100 t=0.1133 s 155.6820 MegaEdges/s
+stealCount=23  (verification 0.0079 s)
+stealCount=572 N=2100 t=0.1132 s 155.8002 MegaEdges/s
+stealCount=27  (verification 0.0072 s)
+stealCount=554 N=2100 t=0.1251 s 141.0515 MegaEdges/s
+stealCount=26  (verification 0.0071 s)
+stealCount=595 N=2100 t=0.1158 s 152.2877 MegaEdges/s
+stealCount=27  (verification 0.0121 s)
+stealCount=557 N=2100 t=0.1132 s 155.8130 MegaEdges/s
+stealCount=24  (verification 0.0045 s)
+stealCount=669 N=2100 t=0.1132 s 155.8502 MegaEdges/s
+stealCount=26  (verification 0.0074 s)
+stealCount=676 N=2100 t=0.1121 s 157.3762 MegaEdges/s
+stealCount=27  (verification 0.0062 s)
+stealCount=594 N=2100 t=0.1115 s 158.2719 MegaEdges/s
+stealCount=24  (verification 0.0095 s)
+stealCount=617 N=2100 t=0.1110 s 158.9816 MegaEdges/s
+stealCount=25  (verification 0.0065 s)
+stealCount=668 N=2100 t=0.1108 s 159.1609 MegaEdges/s
+stealCount=27  (verification 0.0106 s)
+stealCount=629 N=2100 t=0.1103 s 159.9340 MegaEdges/s
+stealCount=26  (verification 0.0067 s)
+stealCount=637 N=2100 t=0.1095 s 161.0296 MegaEdges/s
+stealCount=25  (verification 0.0038 s)
+stealCount=680 N=2100 t=0.1512 s 116.6865 MegaEdges/s
+stealCount=27  (verification 0.0078 s)
+Completed iterations for N=2100
+
+#### bsize: 100
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2100 4 false false true 100
+Number of procs=30
+graphType=T
+N=2100
+D=4
+verification=true
+BATCH_SIZE=100
+Generating graph...
+Graph generated.
+Creation time:8.4877 s
+stealCount=483 N=2100 t=0.4995 s 35.3181 MegaEdges/s
+stealCount=28  (verification 0.1310 s)
+stealCount=460 N=2100 t=0.1127 s 156.5315 MegaEdges/s
+stealCount=28  (verification 0.1628 s)
+stealCount=454 N=2100 t=0.1134 s 155.5233 MegaEdges/s
+stealCount=27  (verification 0.0079 s)
+stealCount=429 N=2100 t=0.1196 s 147.4992 MegaEdges/s
+stealCount=27  (verification 0.0161 s)
+stealCount=376 N=2100 t=0.1128 s 156.3167 MegaEdges/s
+stealCount=27  (verification 0.0122 s)
+stealCount=526 N=2100 t=0.1213 s 145.3992 MegaEdges/s
+stealCount=27  (verification 0.0130 s)
+stealCount=465 N=2100 t=0.1174 s 150.2093 MegaEdges/s
+stealCount=27  (verification 0.0116 s)
+stealCount=448 N=2100 t=0.1162 s 151.7508 MegaEdges/s
+stealCount=27  (verification 0.0143 s)
+stealCount=463 N=2100 t=0.1147 s 153.7758 MegaEdges/s
+stealCount=27  (verification 0.0108 s)
+stealCount=541 N=2100 t=0.1152 s 153.1733 MegaEdges/s
+stealCount=27  (verification 0.0105 s)
+stealCount=469 N=2100 t=0.1127 s 156.5364 MegaEdges/s
+stealCount=26  (verification 0.0136 s)
+stealCount=469 N=2100 t=0.1118 s 157.7494 MegaEdges/s
+stealCount=27  (verification 0.0108 s)
+stealCount=580 N=2100 t=0.1130 s 156.1449 MegaEdges/s
+stealCount=27  (verification 0.0117 s)
+stealCount=423 N=2100 t=0.1116 s 158.1349 MegaEdges/s
+stealCount=27  (verification 0.0125 s)
+stealCount=411 N=2100 t=0.1100 s 160.3637 MegaEdges/s
+stealCount=27  (verification 0.0074 s)
+stealCount=440 N=2100 t=0.1093 s 161.3224 MegaEdges/s
+stealCount=27  (verification 0.0109 s)
+stealCount=529 N=2100 t=0.1537 s 114.7848 MegaEdges/s
+stealCount=27  (verification 0.0284 s)
+stealCount=550 N=2100 t=0.1760 s 100.2208 MegaEdges/s
+stealCount=26  (verification 0.0170 s)
+stealCount=551 N=2100 t=0.1463 s 120.5374 MegaEdges/s
+stealCount=26  (verification 0.0124 s)
+stealCount=538 N=2100 t=0.1273 s 138.6167 MegaEdges/s
+stealCount=24  (verification 0.0176 s)
+Completed iterations for N=2100
+
+#<<<< END BATCHING >>>>
+
+### nproc: 32
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 32 T 2100 4 false false true
+Number of procs=32
+graphType=T
+N=2100
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:8.5188 s
+stealCount=3948 N=2100 t=0.2787 s 63.2840 MegaEdges/s
+stealCount=30  (verification 0.0867 s)
+stealCount=5747 N=2100 t=0.1216 s 145.0696 MegaEdges/s
+stealCount=29  (verification 0.0082 s)
+stealCount=6144 N=2100 t=0.1185 s 148.8608 MegaEdges/s
+stealCount=29  (verification 0.0119 s)
+stealCount=6392 N=2100 t=0.1105 s 159.5871 MegaEdges/s
+stealCount=30  (verification 0.0082 s)
+stealCount=4979 N=2100 t=0.1126 s 156.5979 MegaEdges/s
+stealCount=30  (verification 0.0114 s)
+stealCount=5212 N=2100 t=0.1142 s 154.4662 MegaEdges/s
+stealCount=28  (verification 0.0050 s)
+stealCount=5948 N=2100 t=0.1158 s 152.2873 MegaEdges/s
+stealCount=30  (verification 0.0073 s)
+stealCount=5453 N=2100 t=0.1105 s 159.6811 MegaEdges/s
+stealCount=29  (verification 0.0115 s)
+stealCount=4917 N=2100 t=0.1239 s 142.3850 MegaEdges/s
+stealCount=28  (verification 0.0047 s)
+stealCount=5685 N=2100 t=0.1328 s 132.8605 MegaEdges/s
+stealCount=29  (verification 0.0100 s)
+stealCount=5445 N=2100 t=0.1134 s 155.4968 MegaEdges/s
+stealCount=29  (verification 0.0086 s)
+stealCount=5916 N=2100 t=0.1153 s 152.9327 MegaEdges/s
+stealCount=29  (verification 0.0095 s)
+stealCount=6543 N=2100 t=0.1145 s 154.1077 MegaEdges/s
+stealCount=30  (verification 0.0120 s)
+stealCount=5614 N=2100 t=0.1124 s 156.8749 MegaEdges/s
+stealCount=29  (verification 0.0072 s)
+stealCount=5876 N=2100 t=0.1189 s 148.3791 MegaEdges/s
+stealCount=30  (verification 0.0115 s)
+stealCount=5899 N=2100 t=0.1169 s 150.9384 MegaEdges/s
+stealCount=30  (verification 0.0039 s)
+stealCount=6213 N=2100 t=0.1099 s 160.4550 MegaEdges/s
+stealCount=28  (verification 0.0079 s)
+stealCount=6443 N=2100 t=0.1073 s 164.3916 MegaEdges/s
+stealCount=29  (verification 0.0062 s)
+stealCount=5515 N=2100 t=0.1109 s 159.0114 MegaEdges/s
+stealCount=29  (verification 0.0068 s)
+stealCount=5209 N=2100 t=0.1106 s 159.4377 MegaEdges/s
+stealCount=26  (verification 0.0024 s)
+Completed iterations for N=2100
+
+## Size: 2700
+
+### nproc: 1
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 1 T 2700 4 false false true
+Number of procs=1
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:27.2610 s
+stealCount=0 N=2700 t=3.8846 s 7.5066 MegaEdges/s
+stealCount=0  (verification 0.8882 s)
+stealCount=0 N=2700 t=3.4701 s 8.4033 MegaEdges/s
+stealCount=0  (verification 0.9018 s)
+stealCount=0 N=2700 t=3.3617 s 8.6742 MegaEdges/s
+stealCount=0  (verification 0.8708 s)
+stealCount=0 N=2700 t=3.4635 s 8.4192 MegaEdges/s
+stealCount=0  (verification 0.7706 s)
+stealCount=0 N=2700 t=3.5008 s 8.3295 MegaEdges/s
+stealCount=0  (verification 0.7897 s)
+stealCount=0 N=2700 t=3.5570 s 8.1980 MegaEdges/s
+stealCount=0  (verification 0.8927 s)
+stealCount=0 N=2700 t=3.3623 s 8.6726 MegaEdges/s
+stealCount=0  (verification 0.7708 s)
+stealCount=0 N=2700 t=3.5264 s 8.2690 MegaEdges/s
+stealCount=0  (verification 0.7695 s)
+stealCount=0 N=2700 t=3.5696 s 8.1690 MegaEdges/s
+stealCount=0  (verification 0.7659 s)
+stealCount=0 N=2700 t=3.3667 s 8.6613 MegaEdges/s
+stealCount=0  (verification 0.7747 s)
+stealCount=0 N=2700 t=3.4970 s 8.3385 MegaEdges/s
+stealCount=0  (verification 0.7643 s)
+stealCount=0 N=2700 t=3.6091 s 8.0796 MegaEdges/s
+stealCount=0  (verification 0.7603 s)
+stealCount=0 N=2700 t=3.3775 s 8.6335 MegaEdges/s
+stealCount=0  (verification 0.7804 s)
+stealCount=0 N=2700 t=3.4547 s 8.4407 MegaEdges/s
+stealCount=0  (verification 0.7608 s)
+stealCount=0 N=2700 t=3.6135 s 8.0697 MegaEdges/s
+stealCount=0  (verification 0.7548 s)
+stealCount=0 N=2700 t=3.4245 s 8.5152 MegaEdges/s
+stealCount=0  (verification 0.7910 s)
+stealCount=0 N=2700 t=3.4106 s 8.5497 MegaEdges/s
+stealCount=0  (verification 0.7586 s)
+stealCount=0 N=2700 t=3.6268 s 8.0401 MegaEdges/s
+stealCount=0  (verification 0.7553 s)
+stealCount=0 N=2700 t=3.4516 s 8.4483 MegaEdges/s
+stealCount=0  (verification 0.8134 s)
+stealCount=0 N=2700 t=3.3774 s 8.6340 MegaEdges/s
+stealCount=0  (verification 0.8707 s)
+Completed iterations for N=2700
+
+### nproc: 2
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 2 T 2700 4 false false true
+Number of procs=2
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:26.9772 s
+stealCount=1819 N=2700 t=2.1244 s 13.7262 MegaEdges/s
+stealCount=0  (verification 3.2773 s)
+stealCount=1435 N=2700 t=1.9342 s 15.0762 MegaEdges/s
+stealCount=1  (verification 0.3517 s)
+stealCount=1984 N=2700 t=1.9085 s 15.2788 MegaEdges/s
+stealCount=1  (verification 0.3375 s)
+stealCount=1827 N=2700 t=1.8265 s 15.9651 MegaEdges/s
+stealCount=1  (verification 0.3242 s)
+stealCount=1714 N=2700 t=1.8104 s 16.1073 MegaEdges/s
+stealCount=1  (verification 0.3242 s)
+stealCount=2277 N=2700 t=1.7982 s 16.2158 MegaEdges/s
+stealCount=0  (verification 2.0327 s)
+stealCount=976 N=2700 t=1.7817 s 16.3667 MegaEdges/s
+stealCount=0  (verification 0.4031 s)
+stealCount=1291 N=2700 t=1.7742 s 16.4353 MegaEdges/s
+stealCount=0  (verification 0.4008 s)
+stealCount=1967 N=2700 t=1.7886 s 16.3030 MegaEdges/s
+stealCount=0  (verification 0.4011 s)
+stealCount=2259 N=2700 t=1.7874 s 16.3138 MegaEdges/s
+stealCount=0  (verification 0.4009 s)
+stealCount=4360 N=2700 t=1.7790 s 16.3917 MegaEdges/s
+stealCount=1  (verification 0.3049 s)
+stealCount=1950 N=2700 t=1.7734 s 16.4434 MegaEdges/s
+stealCount=0  (verification 0.4008 s)
+stealCount=5351 N=2700 t=1.7855 s 16.3313 MegaEdges/s
+stealCount=0  (verification 0.4011 s)
+stealCount=2496 N=2700 t=1.7843 s 16.3422 MegaEdges/s
+stealCount=1  (verification 0.3050 s)
+stealCount=2056 N=2700 t=1.7765 s 16.4145 MegaEdges/s
+stealCount=0  (verification 0.4011 s)
+stealCount=4516 N=2700 t=1.9136 s 15.2381 MegaEdges/s
+stealCount=0  (verification 0.4464 s)
+stealCount=2294 N=2700 t=1.8361 s 15.8816 MegaEdges/s
+stealCount=0  (verification 0.4012 s)
+stealCount=1821 N=2700 t=1.8245 s 15.9822 MegaEdges/s
+stealCount=0  (verification 0.4143 s)
+stealCount=3564 N=2700 t=1.9411 s 15.0225 MegaEdges/s
+stealCount=1  (verification 0.3186 s)
+stealCount=2123 N=2700 t=1.8140 s 16.0747 MegaEdges/s
+stealCount=1  (verification 0.3069 s)
+Completed iterations for N=2700
+
+### nproc: 4
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 4 T 2700 4 false false true
+Number of procs=4
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:25.7610 s
+stealCount=5215 N=2700 t=1.1008 s 26.4892 MegaEdges/s
+stealCount=2  (verification 0.3606 s)
+stealCount=793 N=2700 t=0.8925 s 32.6731 MegaEdges/s
+stealCount=2  (verification 0.1000 s)
+stealCount=1688 N=2700 t=0.8890 s 32.8019 MegaEdges/s
+stealCount=2  (verification 0.2549 s)
+stealCount=2546 N=2700 t=0.8899 s 32.7683 MegaEdges/s
+stealCount=2  (verification 1.4939 s)
+stealCount=4970 N=2700 t=0.8953 s 32.5685 MegaEdges/s
+stealCount=2  (verification 0.1769 s)
+stealCount=3688 N=2700 t=0.8873 s 32.8619 MegaEdges/s
+stealCount=2  (verification 0.1795 s)
+stealCount=3722 N=2700 t=0.8953 s 32.5715 MegaEdges/s
+stealCount=2  (verification 0.0095 s)
+stealCount=2408 N=2700 t=0.8854 s 32.9338 MegaEdges/s
+stealCount=2  (verification 0.1641 s)
+stealCount=2960 N=2700 t=0.8872 s 32.8692 MegaEdges/s
+stealCount=2  (verification 0.0076 s)
+stealCount=1947 N=2700 t=0.8848 s 32.9572 MegaEdges/s
+stealCount=2  (verification 0.3804 s)
+stealCount=3716 N=2700 t=0.8920 s 32.6908 MegaEdges/s
+stealCount=2  (verification 0.3743 s)
+stealCount=2643 N=2700 t=0.8851 s 32.9447 MegaEdges/s
+stealCount=2  (verification 0.5747 s)
+stealCount=2027 N=2700 t=0.8831 s 33.0186 MegaEdges/s
+stealCount=2  (verification 0.5715 s)
+stealCount=4637 N=2700 t=0.8897 s 32.7754 MegaEdges/s
+stealCount=2  (verification 0.3040 s)
+stealCount=1819 N=2700 t=0.8857 s 32.9239 MegaEdges/s
+stealCount=2  (verification 0.3798 s)
+stealCount=4088 N=2700 t=0.8835 s 33.0049 MegaEdges/s
+stealCount=2  (verification 0.1607 s)
+stealCount=8833 N=2700 t=0.8986 s 32.4502 MegaEdges/s
+stealCount=2  (verification 0.0305 s)
+stealCount=1145 N=2700 t=0.8840 s 32.9870 MegaEdges/s
+stealCount=2  (verification 0.3798 s)
+stealCount=5230 N=2700 t=0.8873 s 32.8630 MegaEdges/s
+stealCount=3  (verification 0.0774 s)
+stealCount=5172 N=2700 t=0.8898 s 32.7730 MegaEdges/s
+stealCount=2  (verification 0.4866 s)
+Completed iterations for N=2700
+
+### nproc: 8
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 8 T 2700 4 false false true
+Number of procs=8
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:25.2829 s
+stealCount=3067 N=2700 t=0.6004 s 48.5659 MegaEdges/s
+stealCount=6  (verification 0.1298 s)
+stealCount=5903 N=2700 t=0.6126 s 47.6023 MegaEdges/s
+stealCount=6  (verification 0.1294 s)
+stealCount=5481 N=2700 t=0.4864 s 59.9518 MegaEdges/s
+stealCount=6  (verification 0.0257 s)
+stealCount=6556 N=2700 t=0.4854 s 60.0731 MegaEdges/s
+stealCount=6  (verification 0.0389 s)
+stealCount=5888 N=2700 t=0.4853 s 60.0910 MegaEdges/s
+stealCount=6  (verification 0.1171 s)
+stealCount=5009 N=2700 t=0.4803 s 60.7127 MegaEdges/s
+stealCount=6  (verification 0.0513 s)
+stealCount=5618 N=2700 t=0.4772 s 61.1006 MegaEdges/s
+stealCount=6  (verification 0.0336 s)
+stealCount=6325 N=2700 t=0.4799 s 60.7600 MegaEdges/s
+stealCount=6  (verification 0.0569 s)
+stealCount=5081 N=2700 t=0.4764 s 61.2069 MegaEdges/s
+stealCount=6  (verification 0.1333 s)
+stealCount=5302 N=2700 t=0.4825 s 60.4311 MegaEdges/s
+stealCount=6  (verification 0.0068 s)
+stealCount=4151 N=2700 t=0.4784 s 60.9555 MegaEdges/s
+stealCount=6  (verification 0.0342 s)
+stealCount=5279 N=2700 t=0.4909 s 59.3985 MegaEdges/s
+stealCount=6  (verification 0.1981 s)
+stealCount=5773 N=2700 t=0.4853 s 60.0854 MegaEdges/s
+stealCount=6  (verification 0.1017 s)
+stealCount=4627 N=2700 t=0.4855 s 60.0596 MegaEdges/s
+stealCount=6  (verification 0.0591 s)
+stealCount=5256 N=2700 t=0.4818 s 60.5257 MegaEdges/s
+stealCount=6  (verification 0.0762 s)
+stealCount=4951 N=2700 t=0.4861 s 59.9842 MegaEdges/s
+stealCount=6  (verification 0.0517 s)
+stealCount=5591 N=2700 t=0.4765 s 61.1974 MegaEdges/s
+stealCount=6  (verification 0.0902 s)
+stealCount=6164 N=2700 t=0.4896 s 59.5633 MegaEdges/s
+stealCount=6  (verification 0.0754 s)
+stealCount=6272 N=2700 t=0.4864 s 59.9452 MegaEdges/s
+stealCount=6  (verification 0.0404 s)
+stealCount=7721 N=2700 t=0.4877 s 59.7925 MegaEdges/s
+stealCount=6  (verification 0.1610 s)
+Completed iterations for N=2700
+
+### nproc: 16
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 16 T 2700 4 false false true
+Number of procs=16
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:42.1704 s
+stealCount=7744 N=2700 t=0.4364 s 66.8176 MegaEdges/s
+stealCount=14  (verification 0.3670 s)
+stealCount=8076 N=2700 t=0.2778 s 104.9654 MegaEdges/s
+stealCount=14  (verification 0.0134 s)
+stealCount=6205 N=2700 t=0.2667 s 109.3399 MegaEdges/s
+stealCount=14  (verification 0.0110 s)
+stealCount=8614 N=2700 t=0.2766 s 105.4088 MegaEdges/s
+stealCount=14  (verification 0.0169 s)
+stealCount=7724 N=2700 t=0.2592 s 112.4920 MegaEdges/s
+stealCount=14  (verification 0.0449 s)
+stealCount=7362 N=2700 t=0.2614 s 111.5504 MegaEdges/s
+stealCount=14  (verification 0.0282 s)
+stealCount=7290 N=2700 t=0.2648 s 110.1233 MegaEdges/s
+stealCount=14  (verification 0.0135 s)
+stealCount=6873 N=2700 t=0.2557 s 114.0475 MegaEdges/s
+stealCount=14  (verification 0.0467 s)
+stealCount=7087 N=2700 t=0.2647 s 110.1663 MegaEdges/s
+stealCount=14  (verification 0.0154 s)
+stealCount=7383 N=2700 t=0.2639 s 110.4759 MegaEdges/s
+stealCount=14  (verification 0.0195 s)
+stealCount=7647 N=2700 t=0.2639 s 110.5060 MegaEdges/s
+stealCount=14  (verification 0.0521 s)
+stealCount=9389 N=2700 t=0.2818 s 103.4781 MegaEdges/s
+stealCount=14  (verification 0.0118 s)
+stealCount=5849 N=2700 t=0.2598 s 112.2244 MegaEdges/s
+stealCount=14  (verification 0.0279 s)
+stealCount=8438 N=2700 t=0.2700 s 107.9916 MegaEdges/s
+stealCount=14  (verification 0.0266 s)
+stealCount=6940 N=2700 t=0.2615 s 111.5247 MegaEdges/s
+stealCount=14  (verification 0.0236 s)
+stealCount=4719 N=2700 t=0.2478 s 117.6733 MegaEdges/s
+stealCount=14  (verification 0.0269 s)
+stealCount=6002 N=2700 t=0.2540 s 114.8245 MegaEdges/s
+stealCount=14  (verification 0.0581 s)
+stealCount=6917 N=2700 t=0.2611 s 111.6960 MegaEdges/s
+stealCount=14  (verification 0.0180 s)
+stealCount=7438 N=2700 t=0.2565 s 113.6738 MegaEdges/s
+stealCount=14  (verification 0.0158 s)
+stealCount=6091 N=2700 t=0.2502 s 116.5348 MegaEdges/s
+stealCount=14  (verification 0.0258 s)
+Completed iterations for N=2700
+
+### nproc: 20
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 20 T 2700 4 false false true
+Number of procs=20
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:44.3644 s
+stealCount=5360 N=2700 t=0.3676 s 79.3313 MegaEdges/s
+stealCount=18  (verification 0.4175 s)
+stealCount=7682 N=2700 t=0.2597 s 112.2727 MegaEdges/s
+stealCount=18  (verification 0.0102 s)
+stealCount=8676 N=2700 t=0.2344 s 124.3962 MegaEdges/s
+stealCount=18  (verification 0.0031 s)
+stealCount=7906 N=2700 t=0.2213 s 131.7711 MegaEdges/s
+stealCount=18  (verification 0.0421 s)
+stealCount=10208 N=2700 t=0.2411 s 120.9249 MegaEdges/s
+stealCount=17  (verification 0.0213 s)
+stealCount=7449 N=2700 t=0.2255 s 129.2977 MegaEdges/s
+stealCount=18  (verification 0.0150 s)
+stealCount=8909 N=2700 t=0.2249 s 129.6744 MegaEdges/s
+stealCount=18  (verification 0.0281 s)
+stealCount=7400 N=2700 t=0.2337 s 124.7644 MegaEdges/s
+stealCount=18  (verification 0.0106 s)
+stealCount=6517 N=2700 t=0.2266 s 128.6673 MegaEdges/s
+stealCount=18  (verification 0.0425 s)
+stealCount=8287 N=2700 t=0.2321 s 125.6413 MegaEdges/s
+stealCount=18  (verification 0.0182 s)
+stealCount=7607 N=2700 t=0.2209 s 131.9890 MegaEdges/s
+stealCount=18  (verification 0.0168 s)
+stealCount=9062 N=2700 t=0.2277 s 128.0589 MegaEdges/s
+stealCount=18  (verification 0.0167 s)
+stealCount=5478 N=2700 t=0.2195 s 132.8698 MegaEdges/s
+stealCount=18  (verification 0.0142 s)
+stealCount=6424 N=2700 t=0.2249 s 129.6622 MegaEdges/s
+stealCount=18  (verification 0.0168 s)
+stealCount=8100 N=2700 t=0.2226 s 131.0242 MegaEdges/s
+stealCount=18  (verification 0.0121 s)
+stealCount=4055 N=2700 t=0.2169 s 134.4696 MegaEdges/s
+stealCount=18  (verification 0.0301 s)
+stealCount=7314 N=2700 t=0.2261 s 128.9526 MegaEdges/s
+stealCount=18  (verification 0.0153 s)
+stealCount=6291 N=2700 t=0.2234 s 130.5294 MegaEdges/s
+stealCount=18  (verification 0.0194 s)
+stealCount=7726 N=2700 t=0.2389 s 122.0365 MegaEdges/s
+stealCount=18  (verification 0.0133 s)
+stealCount=7342 N=2700 t=0.2225 s 131.0302 MegaEdges/s
+stealCount=18  (verification 0.0028 s)
+Completed iterations for N=2700
+
+### nproc: 24
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 24 T 2700 4 false false true
+Number of procs=24
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:45.3874 s
+stealCount=6585 N=2700 t=0.3151 s 92.5389 MegaEdges/s
+stealCount=22  (verification 0.3780 s)
+stealCount=7647 N=2700 t=0.2379 s 122.5483 MegaEdges/s
+stealCount=22  (verification 0.3186 s)
+stealCount=7516 N=2700 t=0.2073 s 140.6484 MegaEdges/s
+stealCount=21  (verification 0.0046 s)
+stealCount=8114 N=2700 t=0.2130 s 136.9325 MegaEdges/s
+stealCount=22  (verification 0.0247 s)
+stealCount=6997 N=2700 t=0.3882 s 75.1176 MegaEdges/s
+stealCount=22  (verification 0.0398 s)
+stealCount=6110 N=2700 t=0.2043 s 142.6969 MegaEdges/s
+stealCount=21  (verification 0.0114 s)
+stealCount=7109 N=2700 t=0.2072 s 140.7012 MegaEdges/s
+stealCount=21  (verification 0.0230 s)
+stealCount=9090 N=2700 t=0.2158 s 135.1077 MegaEdges/s
+stealCount=22  (verification 0.0111 s)
+stealCount=7647 N=2700 t=0.2058 s 141.6634 MegaEdges/s
+stealCount=22  (verification 0.0208 s)
+stealCount=7401 N=2700 t=0.2087 s 139.7182 MegaEdges/s
+stealCount=22  (verification 0.0207 s)
+stealCount=6732 N=2700 t=0.2030 s 143.6772 MegaEdges/s
+stealCount=22  (verification 0.0136 s)
+stealCount=9189 N=2700 t=0.2093 s 139.3338 MegaEdges/s
+stealCount=21  (verification 0.0159 s)
+stealCount=7200 N=2700 t=0.2057 s 141.7356 MegaEdges/s
+stealCount=22  (verification 0.0135 s)
+stealCount=8110 N=2700 t=0.2196 s 132.7927 MegaEdges/s
+stealCount=22  (verification 0.0144 s)
+stealCount=6466 N=2700 t=0.2011 s 144.9807 MegaEdges/s
+stealCount=22  (verification 0.0127 s)
+stealCount=7055 N=2700 t=0.2114 s 137.9386 MegaEdges/s
+stealCount=22  (verification 0.0121 s)
+stealCount=8553 N=2700 t=0.2125 s 137.2196 MegaEdges/s
+stealCount=22  (verification 0.0073 s)
+stealCount=8880 N=2700 t=0.2250 s 129.6208 MegaEdges/s
+stealCount=21  (verification 0.0220 s)
+stealCount=7118 N=2700 t=0.2144 s 135.9882 MegaEdges/s
+stealCount=22  (verification 0.0220 s)
+stealCount=5898 N=2700 t=0.2070 s 140.8754 MegaEdges/s
+stealCount=22  (verification 0.0172 s)
+Completed iterations for N=2700
+
+### nproc: 30
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:40.5426 s
+stealCount=7045 N=2700 t=0.5972 s 48.8254 MegaEdges/s
+stealCount=28  (verification 0.2339 s)
+stealCount=8428 N=2700 t=0.2207 s 132.1001 MegaEdges/s
+stealCount=28  (verification 0.2142 s)
+stealCount=8355 N=2700 t=0.1939 s 150.3557 MegaEdges/s
+stealCount=27  (verification 0.0146 s)
+stealCount=9578 N=2700 t=0.1848 s 157.8173 MegaEdges/s
+stealCount=27  (verification 0.0097 s)
+stealCount=6580 N=2700 t=0.1801 s 161.8895 MegaEdges/s
+stealCount=27  (verification 0.0099 s)
+stealCount=9194 N=2700 t=0.1855 s 157.2021 MegaEdges/s
+stealCount=27  (verification 0.0124 s)
+stealCount=7714 N=2700 t=0.1763 s 165.3564 MegaEdges/s
+stealCount=27  (verification 0.0212 s)
+stealCount=7007 N=2700 t=0.1826 s 159.6882 MegaEdges/s
+stealCount=27  (verification 0.0115 s)
+stealCount=8007 N=2700 t=0.1779 s 163.8870 MegaEdges/s
+stealCount=28  (verification 0.0163 s)
+stealCount=9545 N=2700 t=0.1987 s 146.7543 MegaEdges/s
+stealCount=27  (verification 0.0119 s)
+stealCount=8972 N=2700 t=0.1793 s 162.6723 MegaEdges/s
+stealCount=27  (verification 0.0089 s)
+stealCount=7780 N=2700 t=0.1821 s 160.1594 MegaEdges/s
+stealCount=25  (verification 0.0080 s)
+stealCount=8575 N=2700 t=0.1778 s 164.0337 MegaEdges/s
+stealCount=27  (verification 0.0020 s)
+stealCount=7198 N=2700 t=0.1754 s 166.2180 MegaEdges/s
+stealCount=27  (verification 0.0116 s)
+stealCount=8481 N=2700 t=0.1816 s 160.5571 MegaEdges/s
+stealCount=26  (verification 0.0142 s)
+stealCount=8742 N=2700 t=0.1834 s 158.9783 MegaEdges/s
+stealCount=26  (verification 0.0168 s)
+stealCount=7808 N=2700 t=0.1833 s 159.1122 MegaEdges/s
+stealCount=27  (verification 0.0133 s)
+stealCount=7215 N=2700 t=0.1802 s 161.8618 MegaEdges/s
+stealCount=27  (verification 0.0095 s)
+stealCount=9190 N=2700 t=0.1922 s 151.7023 MegaEdges/s
+stealCount=27  (verification 0.0089 s)
+stealCount=7763 N=2700 t=0.1810 s 161.1298 MegaEdges/s
+stealCount=27  (verification 0.0077 s)
+Completed iterations for N=2700
+
+#<<<< BEGIN BATCHING >>>>
+
+#### bsize: 1
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 1
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=1
+Generating graph...
+Graph generated.
+Creation time:42.1569 s
+stealCount=235100 N=2700 t=3.7370 s 7.8031 MegaEdges/s
+stealCount=28  (verification 0.1421 s)
+stealCount=222684 N=2700 t=2.0577 s 14.1712 MegaEdges/s
+stealCount=28  (verification 0.0969 s)
+stealCount=284879 N=2700 t=2.8311 s 10.2998 MegaEdges/s
+stealCount=28  (verification 0.0130 s)
+stealCount=183913 stealCount=183913 N=2700 t=1.6099 s 18.1126 MegaEdges/s
+stealCount=28  (verification 0.0104 s)
+stealCount=280151 N=2700 t=2.5546 s 11.4147 MegaEdges/s
+stealCount=27  (verification 0.0132 s)
+stealCount=224212 N=2700 t=2.1877 s 13.3293 MegaEdges/s
+stealCount=28  (verification 0.0113 s)
+stealCount=287831 N=2700 t=2.5977 s 11.2254 MegaEdges/s
+stealCount=27  (verification 0.0132 s)
+stealCount=248364 N=2700 t=2.5334 s 11.5101 MegaEdges/s
+stealCount=27  (verification 0.0111 s)
+stealCount=222930 N=2700 t=1.9106 s 15.2625 MegaEdges/s
+stealCount=28  (verification 0.0099 s)
+stealCount=271083 N=2700 t=3.1833 s 9.1602 MegaEdges/s
+stealCount=27  (verification 0.0105 s)
+stealCount=272089 N=2700 t=2.0606 s 14.1511 MegaEdges/s
+stealCount=28  (verification 0.0103 s)
+stealCount=264689 stealCount=264689 N=2700 t=1.9617 s 14.8647 MegaEdges/s
+stealCount=27  (verification 0.0108 s)
+stealCount=248268 N=2700 t=2.4431 s 11.9357 MegaEdges/s
+stealCount=28  (verification 0.0099 s)
+stealCount=232063 N=2700 t=1.9438 s 15.0018 MegaEdges/s
+stealCount=24  (verification 0.0170 s)
+stealCount=272987 stealCount=272987 N=2700 t=1.9741 s 14.7711 MegaEdges/s
+stealCount=28  (verification 0.0106 s)
+stealCount=293236 stealCount=293237 N=2700 t=2.5942 s 11.2405 MegaEdges/s
+stealCount=27  (verification 0.0120 s)
+stealCount=144478 N=2700 t=2.1283 s 13.7012 MegaEdges/s
+stealCount=29  (verification 0.0116 s)
+stealCount=228413 N=2700 t=2.9089 s 10.0245 MegaEdges/s
+stealCount=27  (verification 0.0106 s)
+stealCount=224152 N=2700 t=3.2797 s 8.8912 MegaEdges/s
+stealCount=28  (verification 0.0103 s)
+stealCount=211158 N=2700 t=2.7799 s 10.4896 MegaEdges/s
+stealCount=27  (verification 0.0112 s)
+Completed iterations for N=2700
+
+#### bsize: 10
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 10
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=10
+Generating graph...
+Graph generated.
+Creation time:41.9097 s
+stealCount=16383 N=2700 t=0.5136 s 56.7810 MegaEdges/s
+stealCount=28  (verification 0.3187 s)
+stealCount=21954 N=2700 t=0.3071 s 94.9427 MegaEdges/s
+stealCount=23  (verification 0.0884 s)
+stealCount=32910 N=2700 t=0.3248 s 89.7708 MegaEdges/s
+stealCount=26  (verification 0.0461 s)
+stealCount=34048 N=2700 t=0.2846 s 102.4764 MegaEdges/s
+stealCount=27  (verification 0.0405 s)
+stealCount=32695 N=2700 t=0.2528 s 115.3389 MegaEdges/s
+stealCount=27  (verification 0.0482 s)
+stealCount=29800 N=2700 t=0.2420 s 120.4936 MegaEdges/s
+stealCount=28  (verification 0.0337 s)
+stealCount=33045 N=2700 t=0.2851 s 102.2918 MegaEdges/s
+stealCount=27  (verification 0.0306 s)
+stealCount=26093 N=2700 t=0.2680 s 108.8154 MegaEdges/s
+stealCount=27  (verification 0.0503 s)
+stealCount=25978 N=2700 t=0.2379 s 122.5682 MegaEdges/s
+stealCount=27  (verification 0.0451 s)
+stealCount=32552 N=2700 t=0.3157 s 92.3517 MegaEdges/s
+stealCount=27  (verification 0.0631 s)
+stealCount=28121 N=2700 t=0.2577 s 113.1761 MegaEdges/s
+stealCount=27  (verification 0.0340 s)
+stealCount=26471 N=2700 t=0.2366 s 123.2438 MegaEdges/s
+stealCount=26  (verification 0.0454 s)
+stealCount=31298 N=2700 t=0.2951 s 98.7982 MegaEdges/s
+stealCount=27  (verification 0.0975 s)
+stealCount=34792 N=2700 t=0.2661 s 109.5733 MegaEdges/s
+stealCount=27  (verification 0.0796 s)
+stealCount=24618 N=2700 t=0.2452 s 118.9282 MegaEdges/s
+stealCount=27  (verification 0.0741 s)
+stealCount=36928 N=2700 t=0.4413 s 66.0743 MegaEdges/s
+stealCount=25  (verification 0.1440 s)
+stealCount=36003 N=2700 t=0.3667 s 79.5263 MegaEdges/s
+stealCount=24  (verification 0.1141 s)
+stealCount=31676 N=2700 t=0.2432 s 119.9244 MegaEdges/s
+stealCount=28  (verification 0.0465 s)
+stealCount=32527 N=2700 t=0.2492 s 117.0360 MegaEdges/s
+stealCount=27  (verification 0.0347 s)
+stealCount=30978 N=2700 t=0.2288 s 127.4501 MegaEdges/s
+stealCount=27  (verification 0.0506 s)
+Completed iterations for N=2700
+
+#### bsize: 20
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 20
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=20
+Generating graph...
+Graph generated.
+Creation time:40.4337 s
+stealCount=10665 N=2700 t=0.4379 s 66.5893 MegaEdges/s
+stealCount=28  (verification 0.2858 s)
+stealCount=11782 N=2700 t=0.1892 s 154.1121 MegaEdges/s
+stealCount=26  (verification 0.0150 s)
+stealCount=13755 N=2700 t=0.1891 s 154.2254 MegaEdges/s
+stealCount=28  (verification 0.0041 s)
+stealCount=13184 N=2700 t=0.1921 s 151.7646 MegaEdges/s
+stealCount=28  (verification 0.0090 s)
+stealCount=14659 N=2700 t=0.1871 s 155.8839 MegaEdges/s
+stealCount=28  (verification 0.0103 s)
+stealCount=10909 N=2700 t=0.1836 s 158.8442 MegaEdges/s
+stealCount=28  (verification 0.0049 s)
+stealCount=12716 N=2700 t=0.2022 s 144.2304 MegaEdges/s
+stealCount=28  (verification 0.0184 s)
+stealCount=10378 N=2700 t=0.1881 s 155.0567 MegaEdges/s
+stealCount=27  (verification 0.0193 s)
+stealCount=11243 N=2700 t=0.1756 s 166.0888 MegaEdges/s
+stealCount=28  (verification 0.0076 s)
+stealCount=11537 N=2700 t=0.1785 s 163.3784 MegaEdges/s
+stealCount=28  (verification 0.0246 s)
+stealCount=12312 N=2700 t=0.1733 s 168.2695 MegaEdges/s
+stealCount=28  (verification 0.0179 s)
+stealCount=13119 N=2700 t=0.1946 s 149.8535 MegaEdges/s
+stealCount=27  (verification 0.0095 s)
+stealCount=11661 N=2700 t=0.1779 s 163.9482 MegaEdges/s
+stealCount=28  (verification 0.0108 s)
+stealCount=11644 N=2700 t=0.1825 s 159.7404 MegaEdges/s
+stealCount=26  (verification 0.0110 s)
+stealCount=11067 N=2700 t=0.1744 s 167.2153 MegaEdges/s
+stealCount=28  (verification 0.0112 s)
+stealCount=10559 N=2700 t=0.1794 s 162.5300 MegaEdges/s
+stealCount=28  (verification 0.0083 s)
+stealCount=11961 N=2700 t=0.1752 s 166.4790 MegaEdges/s
+stealCount=28  (verification 0.0243 s)
+stealCount=14351 N=2700 t=0.1768 s 164.9158 MegaEdges/s
+stealCount=26  (verification 0.0174 s)
+stealCount=12357 N=2700 t=0.1827 s 159.5828 MegaEdges/s
+stealCount=27  (verification 0.0113 s)
+stealCount=13470 N=2700 t=0.1893 s 154.0261 MegaEdges/s
+stealCount=27  (verification 0.0143 s)
+Completed iterations for N=2700
+
+#### bsize: 30
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 30
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=30
+Generating graph...
+Graph generated.
+Creation time:40.5603 s
+stealCount=5003 N=2700 t=0.5108 s 57.0891 MegaEdges/s
+stealCount=28  (verification 0.2010 s)
+stealCount=7045 N=2700 t=0.1946 s 149.8697 MegaEdges/s
+stealCount=28  (verification 0.0103 s)
+stealCount=5696 N=2700 t=0.1770 s 164.7559 MegaEdges/s
+stealCount=27  (verification 0.0074 s)
+stealCount=6081 N=2700 t=0.1818 s 160.3886 MegaEdges/s
+stealCount=28  (verification 0.0096 s)
+stealCount=5667 N=2700 t=0.1810 s 161.1323 MegaEdges/s
+stealCount=27  (verification 0.0098 s)
+stealCount=4870 N=2700 t=0.1691 s 172.4607 MegaEdges/s
+stealCount=27  (verification 0.0126 s)
+stealCount=6336 N=2700 t=0.1707 s 170.7852 MegaEdges/s
+stealCount=27  (verification 0.0203 s)
+stealCount=6104 N=2700 t=0.1717 s 169.7901 MegaEdges/s
+stealCount=26  (verification 0.0163 s)
+stealCount=7277 N=2700 t=0.1820 s 160.2136 MegaEdges/s
+stealCount=27  (verification 0.0136 s)
+stealCount=6137 N=2700 t=0.1730 s 168.5956 MegaEdges/s
+stealCount=28  (verification 0.0107 s)
+stealCount=6465 N=2700 t=0.1728 s 168.7646 MegaEdges/s
+stealCount=27  (verification 0.0185 s)
+stealCount=5399 N=2700 t=0.1680 s 173.5338 MegaEdges/s
+stealCount=27  (verification 0.0142 s)
+stealCount=5938 N=2700 t=0.1745 s 167.0918 MegaEdges/s
+stealCount=27  (verification 0.0180 s)
+stealCount=7318 N=2700 t=0.1718 s 169.7539 MegaEdges/s
+stealCount=27  (verification 0.0150 s)
+stealCount=5966 N=2700 t=0.1684 s 173.1127 MegaEdges/s
+stealCount=27  (verification 0.0162 s)
+stealCount=5794 N=2700 t=0.1734 s 168.1887 MegaEdges/s
+stealCount=28  (verification 0.0094 s)
+stealCount=6129 N=2700 t=0.1723 s 169.2160 MegaEdges/s
+stealCount=27  (verification 0.0211 s)
+stealCount=6508 N=2700 t=0.1719 s 169.5983 MegaEdges/s
+stealCount=27  (verification 0.0151 s)
+stealCount=7314 N=2700 t=0.1759 s 165.7830 MegaEdges/s
+stealCount=27  (verification 0.0111 s)
+stealCount=5998 N=2700 t=0.1677 s 173.8836 MegaEdges/s
+stealCount=27  (verification 0.0032 s)
+Completed iterations for N=2700
+
+#### bsize: 40
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 40
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=40
+Generating graph...
+Graph generated.
+Creation time:40.2761 s
+stealCount=3248 N=2700 t=0.2732 s 106.7503 MegaEdges/s
+stealCount=28  (verification 0.4454 s)
+stealCount=3669 N=2700 t=0.1830 s 159.3706 MegaEdges/s
+stealCount=27  (verification 0.0234 s)
+stealCount=3343 N=2700 t=0.1699 s 171.6530 MegaEdges/s
+stealCount=27  (verification 0.0464 s)
+stealCount=3870 N=2700 t=0.1640 s 177.7859 MegaEdges/s
+stealCount=27  (verification 0.0137 s)
+stealCount=3335 N=2700 t=0.1613 s 180.7676 MegaEdges/s
+stealCount=27  (verification 0.0357 s)
+stealCount=3261 N=2700 t=0.1610 s 181.1648 MegaEdges/s
+stealCount=27  (verification 0.0450 s)
+stealCount=3628 N=2700 t=0.1614 s 180.6506 MegaEdges/s
+stealCount=27  (verification 0.0378 s)
+stealCount=3870 N=2700 t=0.1629 s 179.0221 MegaEdges/s
+stealCount=27  (verification 0.0307 s)
+stealCount=4167 N=2700 t=0.1636 s 178.2838 MegaEdges/s
+stealCount=27  (verification 0.0449 s)
+stealCount=3564 N=2700 t=0.1650 s 176.7242 MegaEdges/s
+stealCount=27  (verification 0.0382 s)
+stealCount=3328 N=2700 t=0.1594 s 182.9139 MegaEdges/s
+stealCount=27  (verification 0.0267 s)
+stealCount=3787 N=2700 t=0.1620 s 179.9977 MegaEdges/s
+stealCount=27  (verification 0.0290 s)
+stealCount=3701 N=2700 t=0.1610 s 181.1694 MegaEdges/s
+stealCount=27  (verification 0.0521 s)
+stealCount=4297 N=2700 t=0.1610 s 181.0842 MegaEdges/s
+stealCount=27  (verification 0.0423 s)
+stealCount=3712 N=2700 t=0.1609 s 181.2114 MegaEdges/s
+stealCount=27  (verification 0.0674 s)
+stealCount=4219 N=2700 t=0.1608 s 181.3642 MegaEdges/s
+stealCount=28  (verification 0.0272 s)
+stealCount=3152 N=2700 t=0.1589 s 183.5331 MegaEdges/s
+stealCount=27  (verification 0.0230 s)
+stealCount=3386 N=2700 t=0.1600 s 182.2660 MegaEdges/s
+stealCount=27  (verification 0.0357 s)
+stealCount=3671 N=2700 t=0.1612 s 180.9439 MegaEdges/s
+stealCount=28  (verification 0.0112 s)
+stealCount=3571 N=2700 t=0.1626 s 179.3277 MegaEdges/s
+stealCount=27  (verification 0.0230 s)
+Completed iterations for N=2700
+
+#### bsize: 50
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 50
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=50
+Generating graph...
+Graph generated.
+Creation time:40.1555 s
+stealCount=2638 N=2700 t=0.6127 s 47.5910 MegaEdges/s
+stealCount=28  (verification 0.1451 s)
+stealCount=2587 N=2700 t=0.1651 s 176.6030 MegaEdges/s
+stealCount=28  (verification 0.0979 s)
+stealCount=2856 N=2700 t=0.1780 s 163.8481 MegaEdges/s
+stealCount=27  (verification 0.0109 s)
+stealCount=2349 N=2700 t=0.1762 s 165.5263 MegaEdges/s
+stealCount=27  (verification 0.0156 s)
+stealCount=2329 N=2700 t=0.1634 s 178.4078 MegaEdges/s
+stealCount=27  (verification 0.0140 s)
+stealCount=2991 N=2700 t=0.1623 s 179.6975 MegaEdges/s
+stealCount=24  (verification 0.0062 s)
+stealCount=2415 N=2700 t=0.1639 s 177.8751 MegaEdges/s
+stealCount=27  (verification 0.0080 s)
+stealCount=2787 N=2700 t=0.1620 s 180.0550 MegaEdges/s
+stealCount=27  (verification 0.0135 s)
+stealCount=3047 N=2700 t=0.1629 s 178.9888 MegaEdges/s
+stealCount=25  (verification 0.0053 s)
+stealCount=3170 N=2700 t=0.1638 s 178.0156 MegaEdges/s
+stealCount=25  (verification 0.0030 s)
+stealCount=2797 N=2700 t=0.1623 s 179.6825 MegaEdges/s
+stealCount=26  (verification 0.0035 s)
+stealCount=2514 N=2700 t=0.1621 s 179.8566 MegaEdges/s
+stealCount=26  (verification 0.0159 s)
+stealCount=2667 N=2700 t=0.1624 s 179.5550 MegaEdges/s
+stealCount=27  (verification 0.0108 s)
+stealCount=2699 N=2700 t=0.1664 s 175.2469 MegaEdges/s
+stealCount=27  (verification 0.0146 s)
+stealCount=3507 N=2700 t=0.1623 s 179.7199 MegaEdges/s
+stealCount=27  (verification 0.0066 s)
+stealCount=2981 N=2700 t=0.1625 s 179.4055 MegaEdges/s
+stealCount=27  (verification 0.0127 s)
+stealCount=3243 N=2700 t=0.1632 s 178.6414 MegaEdges/s
+stealCount=26  (verification 0.0195 s)
+stealCount=3330 N=2700 t=0.1659 s 175.7893 MegaEdges/s
+stealCount=27  (verification 0.0094 s)
+stealCount=2788 N=2700 t=0.1629 s 179.0265 MegaEdges/s
+stealCount=26  (verification 0.0123 s)
+stealCount=2998 N=2700 t=0.1623 s 179.6555 MegaEdges/s
+stealCount=27  (verification 0.0173 s)
+Completed iterations for N=2700
+
+#### bsize: 60
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 60
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=60
+Generating graph...
+Graph generated.
+Creation time:40.7718 s
+stealCount=1999 N=2700 t=0.4795 s 60.8126 MegaEdges/s
+stealCount=28  (verification 0.1370 s)
+stealCount=1818 N=2700 t=0.1695 s 172.0247 MegaEdges/s
+stealCount=28  (verification 0.1104 s)
+stealCount=2071 N=2700 t=0.1777 s 164.0545 MegaEdges/s
+stealCount=27  (verification 0.0236 s)
+stealCount=2428 N=2700 t=0.1719 s 169.6329 MegaEdges/s
+stealCount=27  (verification 0.0226 s)
+stealCount=2180 N=2700 t=0.1660 s 175.6650 MegaEdges/s
+stealCount=27  (verification 0.0196 s)
+stealCount=2050 N=2700 t=0.1637 s 178.0914 MegaEdges/s
+stealCount=28  (verification 0.0423 s)
+stealCount=1876 N=2700 t=0.1748 s 166.8487 MegaEdges/s
+stealCount=27  (verification 0.0158 s)
+stealCount=1929 N=2700 t=0.1611 s 180.9948 MegaEdges/s
+stealCount=28  (verification 0.0259 s)
+stealCount=2245 N=2700 t=0.1606 s 181.5356 MegaEdges/s
+stealCount=28  (verification 0.0208 s)
+stealCount=2097 N=2700 t=0.1596 s 182.7011 MegaEdges/s
+stealCount=28  (verification 0.0162 s)
+stealCount=2094 N=2700 t=0.1621 s 179.8836 MegaEdges/s
+stealCount=27  (verification 0.0137 s)
+stealCount=2216 N=2700 t=0.1610 s 181.0990 MegaEdges/s
+stealCount=27  (verification 0.0131 s)
+stealCount=2182 N=2700 t=0.1628 s 179.1408 MegaEdges/s
+stealCount=28  (verification 0.0183 s)
+stealCount=2243 N=2700 t=0.1590 s 183.4447 MegaEdges/s
+stealCount=27  (verification 0.0268 s)
+stealCount=2247 N=2700 t=0.1632 s 178.7142 MegaEdges/s
+stealCount=27  (verification 0.0110 s)
+stealCount=2213 N=2700 t=0.1601 s 182.1488 MegaEdges/s
+stealCount=27  (verification 0.0118 s)
+stealCount=2650 N=2700 t=0.1621 s 179.9104 MegaEdges/s
+stealCount=27  (verification 0.0192 s)
+stealCount=2045 N=2700 t=0.1618 s 180.2473 MegaEdges/s
+stealCount=27  (verification 0.0121 s)
+stealCount=1726 N=2700 t=0.1606 s 181.6184 MegaEdges/s
+stealCount=27  (verification 0.0121 s)
+stealCount=2007 N=2700 t=0.1624 s 179.5453 MegaEdges/s
+stealCount=27  (verification 0.0268 s)
+Completed iterations for N=2700
+
+#### bsize: 70
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 70
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=70
+Generating graph...
+Graph generated.
+Creation time:40.5827 s
+stealCount=1434 N=2700 t=0.5217 s 55.8908 MegaEdges/s
+stealCount=28  (verification 0.1381 s)
+stealCount=1456 N=2700 t=0.1674 s 174.2021 MegaEdges/s
+stealCount=28  (verification 0.1236 s)
+stealCount=1212 N=2700 t=0.1664 s 175.2551 MegaEdges/s
+stealCount=28  (verification 0.0160 s)
+stealCount=1284 N=2700 t=0.1666 s 175.0388 MegaEdges/s
+stealCount=27  (verification 0.0285 s)
+stealCount=1363 N=2700 t=0.1656 s 176.0447 MegaEdges/s
+stealCount=27  (verification 0.0194 s)
+stealCount=1325 N=2700 t=0.1627 s 179.2030 MegaEdges/s
+stealCount=27  (verification 0.0353 s)
+stealCount=1516 N=2700 t=0.1743 s 167.3326 MegaEdges/s
+stealCount=27  (verification 0.0176 s)
+stealCount=1511 N=2700 t=0.1631 s 178.7947 MegaEdges/s
+stealCount=27  (verification 0.0198 s)
+stealCount=1322 N=2700 t=0.1615 s 180.5445 MegaEdges/s
+stealCount=28  (verification 0.0216 s)
+stealCount=1198 N=2700 t=0.1709 s 170.5807 MegaEdges/s
+stealCount=28  (verification 0.0351 s)
+stealCount=1256 N=2700 t=0.1616 s 180.4756 MegaEdges/s
+stealCount=27  (verification 0.0223 s)
+stealCount=1368 N=2700 t=0.1596 s 182.7411 MegaEdges/s
+stealCount=27  (verification 0.0135 s)
+stealCount=1707 N=2700 t=0.1612 s 180.9418 MegaEdges/s
+stealCount=28  (verification 0.0153 s)
+stealCount=1555 N=2700 t=0.1606 s 181.5356 MegaEdges/s
+stealCount=27  (verification 0.0129 s)
+stealCount=1714 N=2700 t=0.1653 s 176.4462 MegaEdges/s
+stealCount=27  (verification 0.0182 s)
+stealCount=1213 N=2700 t=0.1591 s 183.2588 MegaEdges/s
+stealCount=27  (verification 0.0199 s)
+stealCount=1297 N=2700 t=0.1587 s 183.7111 MegaEdges/s
+stealCount=27  (verification 0.0188 s)
+stealCount=1255 N=2700 t=0.1614 s 180.6425 MegaEdges/s
+stealCount=27  (verification 0.0252 s)
+stealCount=1502 N=2700 t=0.1596 s 182.7080 MegaEdges/s
+stealCount=27  (verification 0.0306 s)
+stealCount=1360 N=2700 t=0.1579 s 184.7244 MegaEdges/s
+stealCount=28  (verification 0.0260 s)
+Completed iterations for N=2700
+
+#### bsize: 80
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 80
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=80
+Generating graph...
+Graph generated.
+Creation time:40.3474 s
+stealCount=1470 N=2700 t=0.5793 s 50.3361 MegaEdges/s
+stealCount=28  (verification 0.0554 s)
+stealCount=1100 N=2700 t=0.1685 s 173.0413 MegaEdges/s
+stealCount=28  (verification 0.1722 s)
+stealCount=1151 N=2700 t=0.1648 s 176.9332 MegaEdges/s
+stealCount=26  (verification 0.0147 s)
+stealCount=1284 N=2700 t=0.1655 s 176.2139 MegaEdges/s
+stealCount=27  (verification 0.0049 s)
+stealCount=1480 N=2700 t=0.1644 s 177.3489 MegaEdges/s
+stealCount=28  (verification 0.0160 s)
+stealCount=1130 N=2700 t=0.1638 s 177.9941 MegaEdges/s
+stealCount=28  (verification 0.0212 s)
+stealCount=1536 N=2700 t=0.1755 s 166.1394 MegaEdges/s
+stealCount=27  (verification 0.0203 s)
+stealCount=1162 N=2700 t=0.1642 s 177.5433 MegaEdges/s
+stealCount=27  (verification 0.0265 s)
+stealCount=1330 N=2700 t=0.1640 s 177.8255 MegaEdges/s
+stealCount=27  (verification 0.0126 s)
+stealCount=1236 N=2700 t=0.1629 s 179.0498 MegaEdges/s
+stealCount=27  (verification 0.0076 s)
+stealCount=1298 N=2700 t=0.1619 s 180.0702 MegaEdges/s
+stealCount=27  (verification 0.0028 s)
+stealCount=1174 N=2700 t=0.1621 s 179.9262 MegaEdges/s
+stealCount=27  (verification 0.0140 s)
+stealCount=1159 N=2700 t=0.1599 s 182.3178 MegaEdges/s
+stealCount=26  (verification 0.0086 s)
+stealCount=1288 N=2700 t=0.1606 s 181.5858 MegaEdges/s
+stealCount=26  (verification 0.0057 s)
+stealCount=1190 N=2700 t=0.1626 s 179.3872 MegaEdges/s
+stealCount=25  (verification 0.0043 s)
+stealCount=1228 N=2700 t=0.1594 s 182.9835 MegaEdges/s
+stealCount=27  (verification 0.0046 s)
+stealCount=1456 N=2700 t=0.1625 s 179.4679 MegaEdges/s
+stealCount=24  (verification 0.0052 s)
+stealCount=1306 N=2700 t=0.1618 s 180.2557 MegaEdges/s
+stealCount=27  (verification 0.0085 s)
+stealCount=1088 N=2700 t=0.1620 s 179.9529 MegaEdges/s
+stealCount=27  (verification 0.0160 s)
+stealCount=1535 N=2700 t=0.1614 s 180.6554 MegaEdges/s
+stealCount=27  (verification 0.0053 s)
+Completed iterations for N=2700
+
+#### bsize: 90
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 90
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=90
+Generating graph...
+Graph generated.
+Creation time:40.2694 s
+stealCount=933 N=2700 t=0.5017 s 58.1185 MegaEdges/s
+stealCount=28  (verification 0.1402 s)
+stealCount=832 N=2700 t=0.1666 s 175.0094 MegaEdges/s
+stealCount=28  (verification 0.0165 s)
+stealCount=987 N=2700 t=0.1659 s 175.7726 MegaEdges/s
+stealCount=26  (verification 0.0042 s)
+stealCount=1104 N=2700 t=0.1690 s 172.5303 MegaEdges/s
+stealCount=27  (verification 0.0152 s)
+stealCount=796 N=2700 t=0.1654 s 176.2636 MegaEdges/s
+stealCount=27  (verification 0.0143 s)
+stealCount=891 N=2700 t=0.1645 s 177.3004 MegaEdges/s
+stealCount=27  (verification 0.0154 s)
+stealCount=1244 N=2700 t=0.1657 s 176.0143 MegaEdges/s
+stealCount=27  (verification 0.0135 s)
+stealCount=1085 N=2700 t=0.1656 s 176.0812 MegaEdges/s
+stealCount=24  (verification 0.0031 s)
+stealCount=934 N=2700 t=0.1670 s 174.5996 MegaEdges/s
+stealCount=28  (verification 0.0241 s)
+stealCount=967 N=2700 t=0.1653 s 176.4596 MegaEdges/s
+stealCount=27  (verification 0.0199 s)
+stealCount=912 N=2700 t=0.1750 s 166.6092 MegaEdges/s
+stealCount=28  (verification 0.0236 s)
+stealCount=978 N=2700 t=0.1621 s 179.8479 MegaEdges/s
+stealCount=26  (verification 0.0031 s)
+stealCount=969 N=2700 t=0.1649 s 176.7936 MegaEdges/s
+stealCount=27  (verification 0.0203 s)
+stealCount=927 N=2700 t=0.1646 s 177.1447 MegaEdges/s
+stealCount=25  (verification 0.0186 s)
+stealCount=1339 N=2700 t=0.1634 s 178.4901 MegaEdges/s
+stealCount=26  (verification 0.0123 s)
+stealCount=968 N=2700 t=0.1625 s 179.4909 MegaEdges/s
+stealCount=26  (verification 0.0207 s)
+stealCount=961 N=2700 t=0.1622 s 179.7835 MegaEdges/s
+stealCount=27  (verification 0.0302 s)
+stealCount=1040 N=2700 t=0.1636 s 178.2579 MegaEdges/s
+stealCount=28  (verification 0.0085 s)
+stealCount=1074 N=2700 t=0.1620 s 179.9488 MegaEdges/s
+stealCount=27  (verification 0.0113 s)
+stealCount=805 N=2700 t=0.1613 s 180.7376 MegaEdges/s
+stealCount=26  (verification 0.0025 s)
+Completed iterations for N=2700
+
+#### bsize: 100
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 30 T 2700 4 false false true 100
+Number of procs=30
+graphType=T
+N=2700
+D=4
+verification=true
+BATCH_SIZE=100
+Generating graph...
+Graph generated.
+Creation time:40.3715 s
+stealCount=792 N=2700 t=0.5492 s 53.0937 MegaEdges/s
+stealCount=28  (verification 0.1692 s)
+stealCount=822 N=2700 t=0.1670 s 174.5635 MegaEdges/s
+stealCount=28  (verification 0.1194 s)
+stealCount=658 N=2700 t=0.1674 s 174.2073 MegaEdges/s
+stealCount=27  (verification 0.0297 s)
+stealCount=872 N=2700 t=0.1675 s 174.1352 MegaEdges/s
+stealCount=27  (verification 0.0309 s)
+stealCount=887 N=2700 t=0.1679 s 173.6406 MegaEdges/s
+stealCount=27  (verification 0.0195 s)
+stealCount=728 N=2700 t=0.1699 s 171.6296 MegaEdges/s
+stealCount=27  (verification 0.0260 s)
+stealCount=830 N=2700 t=0.1649 s 176.8246 MegaEdges/s
+stealCount=27  (verification 0.0191 s)
+stealCount=699 N=2700 t=0.1647 s 177.0269 MegaEdges/s
+stealCount=27  (verification 0.0208 s)
+stealCount=787 N=2700 t=0.1666 s 175.0426 MegaEdges/s
+stealCount=27  (verification 0.0313 s)
+stealCount=905 N=2700 t=0.1670 s 174.5637 MegaEdges/s
+stealCount=27  (verification 0.0182 s)
+stealCount=621 N=2700 t=0.1657 s 176.0176 MegaEdges/s
+stealCount=27  (verification 0.0342 s)
+stealCount=733 N=2700 t=0.1658 s 175.8435 MegaEdges/s
+stealCount=27  (verification 0.0246 s)
+stealCount=833 N=2700 t=0.1655 s 176.2309 MegaEdges/s
+stealCount=27  (verification 0.0227 s)
+stealCount=893 N=2700 t=0.1653 s 176.3977 MegaEdges/s
+stealCount=26  (verification 0.0125 s)
+stealCount=725 N=2700 t=0.1646 s 177.1176 MegaEdges/s
+stealCount=27  (verification 0.0195 s)
+stealCount=857 N=2700 t=0.1655 s 176.1739 MegaEdges/s
+stealCount=27  (verification 0.0164 s)
+stealCount=866 N=2700 t=0.1643 s 177.4570 MegaEdges/s
+Worker(28,job=x10.runtime.cws.Job$GloballyQuiescentVoidJob@1fdc96c,phase=0,checkedIn=true,nextPhaseHasWork=false) switching jobs on steal...
+stealCount=28  (verification 0.0292 s)
+stealCount=713 N=2700 t=0.1685 s 173.1044 MegaEdges/s
+stealCount=28  (verification 0.0398 s)
+stealCount=806 N=2700 t=0.1641 s 177.7394 MegaEdges/s
+stealCount=28  (verification 0.0165 s)
+stealCount=675 N=2700 t=0.1660 s 175.6950 MegaEdges/s
+stealCount=27  (verification 0.0212 s)
+Completed iterations for N=2700
+
+#<<<< END BATCHING >>>>
+
+### nproc: 32
+java -cp ../../../../../xwsn.jar -Xms2G -Xmx3G SpanFTROLev 32 T 2700 4 false false true
+Number of procs=32
+graphType=T
+N=2700
+D=4
+verification=true
+Generating graph...
+Graph generated.
+Creation time:47.6295 s
+stealCount=6196 N=2700 t=0.5429 s 53.7067 MegaEdges/s
+stealCount=30  (verification 0.1848 s)
+stealCount=8087 N=2700 t=0.2096 s 139.1450 MegaEdges/s
+stealCount=30  (verification 0.2377 s)
+stealCount=7361 N=2700 t=0.1776 s 164.1482 MegaEdges/s
+stealCount=30  (verification 0.1042 s)
+stealCount=9895 N=2700 t=0.1751 s 166.5673 MegaEdges/s
+stealCount=30  (verification 0.0105 s)
+stealCount=8736 N=2700 t=0.1717 s 169.8632 MegaEdges/s
+stealCount=30  (verification 0.0110 s)
+stealCount=8395 N=2700 t=0.1762 s 165.4550 MegaEdges/s
+stealCount=29  (verification 0.0125 s)
+stealCount=7921 N=2700 t=0.1793 s 162.6349 MegaEdges/s
+stealCount=29  (verification 0.0110 s)
+stealCount=7784 N=2700 t=0.1840 s 158.4994 MegaEdges/s
+stealCount=29  (verification 0.0177 s)
+stealCount=9925 N=2700 t=0.1754 s 166.2825 MegaEdges/s
+stealCount=30  (verification 0.0028 s)
+stealCount=7721 N=2700 t=0.1733 s 168.2546 MegaEdges/s
+stealCount=29  (verification 0.0152 s)
+stealCount=9414 N=2700 t=0.1859 s 156.8612 MegaEdges/s
+stealCount=29  (verification 0.0111 s)
+stealCount=8924 N=2700 t=0.1755 s 166.1303 MegaEdges/s
+stealCount=28  (verification 0.0226 s)
+stealCount=7711 N=2700 t=0.1720 s 169.5125 MegaEdges/s
+stealCount=29  (verification 0.0020 s)
+stealCount=10586 N=2700 t=0.1814 s 160.7671 MegaEdges/s
+stealCount=29  (verification 0.0107 s)
+stealCount=9596 N=2700 t=0.1746 s 166.9876 MegaEdges/s
+stealCount=30  (verification 0.0106 s)
+stealCount=8627 N=2700 t=0.1709 s 170.6212 MegaEdges/s
+stealCount=29  (verification 0.0077 s)
+stealCount=7997 N=2700 t=0.1687 s 172.8218 MegaEdges/s
+stealCount=29  (verification 0.0152 s)
+stealCount=8811 N=2700 t=0.1758 s 165.8633 MegaEdges/s
+stealCount=29  (verification 0.0101 s)
+stealCount=8739 N=2700 t=0.1753 s 166.3127 MegaEdges/s
+stealCount=28  (verification 0.0040 s)
+stealCount=10202 N=2700 t=0.1932 s 150.9626 MegaEdges/s
+stealCount=29  (verification 0.0124 s)
+Completed iterations for N=2700
+
+############################################################
+# End Time: 02/01/2008 - 06:57:37
+############################################################

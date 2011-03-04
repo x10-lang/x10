@@ -1,0 +1,82 @@
+\begin{figure*}
+\begin{minipage}{0.25\textwidth}
+\scriptsize
+\begin{verbatim}
+int fib(int n) {
+  int x, y;
+  if(n<2) return n;
+  finish {
+    async x=fib(n-1);
+    async y=fib(n-2);
+ }
+  return x+y;
+}
+    (a)
+\end{verbatim}
+\end{minipage}%
+\begin{minipage}{0.4\textwidth}
+\scriptsize
+\begin{verbatim}
+int fib(Worker w, int n) 
+ throws StealAbort { 
+  int x, y;
+  if (n < 2) return n;
+
+  FibFrame frame = new FibFrame(n);
+  frame.PC=LABEL_1;
+  w.pushFrame(frame);
+
+  x = fib(w, n-1);
+  w.abortOnSteal(x);
+
+  frame.x=x;
+  frame.PC=LABEL_2;
+
+  y=fib(w, n-2);
+  w.abortOnSteal(y);
+
+  w.popFrame();
+  return frame.x+y;
+}
+
+      (b)
+\end{verbatim}
+\end{minipage}%
+\begin{minipage}{0.45\textwidth}
+\scriptsize
+\begin{verbatim}
+void compute(Worker w, 
+ Frame frm) throws StealAbort {
+  int x, y;
+  FibFrame f=(FibFrame)frm;
+  int n = f.n;
+  switch (f.PC) {
+  case ENTRY: 
+    if (n < 2) {
+      result = n;
+      setupReturn();
+      return;
+   }
+    f.PC=LABEL_1;
+    x = fib(w, n-1);
+    w.abortOnSteal(x);
+    f.x=x;
+  case LABEL_1: 
+    f.PC=LABEL_2;
+    int y=fib(w,n-2);
+    w.abortOnSteal(y);
+    f.y=y;
+  case LABEL_2: 
+    f.PC=LABEL_3;
+    if (sync(w)) return;
+  case LABEL_3:
+    result=f.x+f.y;
+    setupReturn();
+ }
+}
+       (c)
+\end{verbatim}
+\end{minipage}%
+\caption{(a) \Xten{} program for Fibonacci. (b) Fast version. (c) Slow version}%
+\label{fig:fib-ill}
+\end{figure*}

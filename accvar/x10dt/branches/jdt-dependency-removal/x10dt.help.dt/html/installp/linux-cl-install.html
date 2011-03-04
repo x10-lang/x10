@@ -1,0 +1,89 @@
+<html>
+<body>
+
+<h1>Linux X10 Command Line Installation</h1>
+In order to run X10 on Linux, you need to satisfy the follow pre-requisites.
+<h2>Prereqs</h2>
+<ul>
+	<li>gcc/g++</li>
+	<li>java</li>
+	<li>open MPI</li>
+</ul>
+
+<h4>gcc/g++</h4>
+gcc is included with the os. Do the following to verify the location and version
+<pre>
+whereis gcc
+gcc -v
+</pre>
+In my case, running Fedora 9, gcc version 4.3.0 is installed
+
+<h4>java</h4>
+Although Java is often times included with Linux, it usually is the OpenJDK runtime
+environment. Do the following to verify the location and version
+<pre>
+	whereis java
+	java -version
+</pre>
+In the case of Fedora 9, java version 1.6.0 is installed.
+However, it is recommended that you download and install the latest Sun JDK for 1.5.0_x or 1.6.0_x.
+<pre>
+	cd /usr
+	mkdir java
+	cd java
+	cp ~/Download/jdk-1_5_0_11-linux-i586.bin .
+	chmod 777 jdk-1_5_0_11-linux-i586.bin
+	./jdk-1_5_0_11-linux-i586.bin
+	...license...
+	yes
+</pre>
+Then you should modify your .bash_profile file to contain this directory in the PATH statement.
+<pre>
+.bash_profile
+PATH=/usr/java/jdk1.5.0_11/bin:$PATH
+export PATH
+</pre>
+Then modify your .bashrc file to define JAVA_HOME
+<pre>
+.bashrc
+JAVA_HOME=/usr/java/jdk1.5.0_11
+export JAVA_HOME
+</pre>
+
+<h4>openmpi</h4>
+OpenMPI is often not included with Linux. To check do the following
+<pre>
+	whereis mpirun
+	mpirun -version
+</pre>
+In the case of Fedora 9, you should download version 1.3.x or later from the openmpi web site -
+http://www.open-mpi.org/software/ompi/
+<p>
+You should retrieve the openmpi-1.3.3.tar file or later version and unpack it.
+<pre>
+	tar -xvf openmpi-1.3.3.tar
+</pre>
+This will create an openmpi-1.3.3 directory.  Now you need to compile and
+install openmpi using the following command sequence.
+<pre>
+	cd openmpi-1.3.3
+	./configure --prefix=/usr/local
+	
+  ...lots of output...
+	
+	make all
+	make install
+</pre>
+Note that the configure script supports a lot of different command line options. 
+For example, the --prefix option in the above example tells Open MPI to install under the directory /usr/local/. 
+
+</p>
+
+<h2>Comments</h2>
+Comments and suggestions are welcome. 
+Please send email to 
+<a href="mailto:cals@us.ibm.com">Cal Swart (cals@us.ibm.com)</a>
+
+</body>
+
+</html>

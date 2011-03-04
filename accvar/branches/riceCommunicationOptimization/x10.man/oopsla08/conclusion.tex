@@ -1,0 +1,29 @@
+%V. Conclusion and future work. (0.5 page)
+%
+%state-dependent constrained types.
+%
+%use of dependent types for optimization. 
+%
+%type-inference.
+%
+%Bibliography (1.5 page)
+
+We have presented the design and implementation of 
+constrained types in \Xten{}.
+The design considerably enriches the space of
+statically checkable types expressible in the language. This is
+particularly important for data-structures such as lists and arrays.
+% We have formalized constrained types in a sound extension of FJ,
+% Constrained FJ.
+Several examples of constrained types were presented.
+Constrained types have been implemented in \Xten{}
+and used for place types, clocked types, and array types.
+
+The implementation supports extension with constraint solver plugins.
+In future work,
+we plan to further investigate
+optimizations enabled by constrained types.
+We also plan to explore type inference for constrained types
+and to pursue more expressive constraint systems and
+extensions of constrained types for handling mutable state,
+control flow, and effects.

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+
+  <!DOCTYPE platformConfigs [ 
+    <!ATTLIST config 
+        id ID #IMPLIED 
+    > 
+  ]>
+   
+<platformConfigs> 
+
+    <config id="ber
+    "> 
+        <configName> Linux 32-bit x86 </configName> 
+        <description> remote Linux VM </description> 
+        
+        <useLocalConnection> no </useLocalConnection> 
+        
+        <target> 
+            <osType> Linux </osType>      
+            <architectureType> x86 </architectureType> 
+            <set64BitSpace> no </set64BitSpace> 
+       </target> 
+          
+        <x10> 
+            <numPlaces> 8 </numPlaces> 
+        </x10> 
+     
+        <commInterface> 
+            <interfaceType> Sockets </interfaceType> 
+            <interfaceMode> Launch </interfaceMode> 
+        </commInterface> 
+       
+        <remoteConnection> 
+            <connectionName> VMRoot </connectionName> 
+            <remoteHostName> 9.12.178.129 </remoteHostName> 
+            <remoteHostPort> 22 </remoteHostPort> 
+            <remoteHostUser> root </remoteHostUser> 
+            <usePassword> no </usePassword> 
+            <remoteHostPassword>  </remoteHostPassword> 
+            
+            <portForwarding> 
+                <usePortForwarding> no </usePortForwarding> 
+                <portForwardingTimeout> </portForwardingTimeout> 
+                <portForwardingLocalAddress> </portForwardingLocalAddress> 
+            </portForwarding> 
+
+            <remotePlatform> 
+                <outputFolder> /root/x10/sandbox </outputFolder> 
+                <useSelectedPGAS> no </useSelectedPGAS> 
+                <remoteDistribution> /root/x10/x10-trunk/x10.dist </remoteDistribution> 
+                <remotePGASDist> </remotePGASDist> 
+                <debuggerFolder> /root/x10/sandbox/debug </debuggerFolder> 
+                <debuggingPort> 8888 </debuggingPort> 
+           </remotePlatform> 
+
+       </remoteConnection> 
+   </config>
+
+    <config id="localStandaloneConfig"> 
+        <configName> Local Standalone </configName> 
+        <description> local host using standalone runtime </description> 
+        
+        <useLocalConnection> yes</useLocalConnection> 
+        
+        <target> 
+            <osType> </osType>      
+            <architectureType> </architectureType> 
+            <set64BitSpace> no </set64BitSpace> 
+       </target> 
+       
+        <x10> 
+            <numPlaces> 4 </numPlaces> 
+       </x10> 
+                
+        <commInterface> 
+            <interfaceMode> Launch </interfaceMode> 
+            <interfaceType> Standalone </interfaceType> 
+       </commInterface>    
+    </config> 
+
+    <config id="localSocketsConfig"> 
+        <configName> Local Sockets </configName> 
+        <description> local host using sockets runtime </description> 
+        
+        <useLocalConnection> yes </useLocalConnection> 
+        
+        <target> 
+            <osType> </osType>      
+            <architectureType> </architectureType> 
+            <set64BitSpace> no </set64BitSpace> 
+       </target> 
+         
+       <x10> 
+            <numPlaces> 8 </numPlaces> 
+       </x10> 
+       
+        <commInterface> 
+            <interfaceMode> Launch </interfaceMode> 
+            <interfaceType> Sockets </interfaceType> 
+            
+            <mpich2Config>      <!-- only include this node if you're using it -->
+                <useDefaultCommands> yes </useDefaultCommands>
+                <useDefaultLocation> yes </useDefaultLocation>
+                <!-- TODO: design the MPICH2 config schema -->
+            </mpich2Config>
+            
+            <openMPIConfig>      <!-- only include this node if you're using it -->
+                <useDefaultCommands> yes </useDefaultCommands>
+                <useDefaultLocation> yes </useDefaultLocation>
+                <!-- TODO: design the Open MPI config schema -->
+            </openMPIConfig>
+            
+            <ibmParallelConfig>      <!-- only include this node if you're using it -->
+                 <!-- TODO: design the IBM Parallel config schema -->
+            </ibmParallelConfig>
+            
+            <ibmLoadLevelerConfig>      <!-- only include this node if you're using it -->
+                 <!-- TODO: design the IBM Load Leveler config schema -->
+            </ibmLoadLevelerConfig>
+            
+       </commInterface> 
+        
+   </config> 
+
+</platformConfigs> 

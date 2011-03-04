@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
+<project name="x10dt.update" default="copyjars" basedir=".">
+		<property name="build.qualifier" value="v201003091327"/>
+
+	<target name="copyjars" description="Copy the X10 Jars to your eclipse installation for testing">
+		<echo message="BRT copyjars basedir= ${basedir}; build qualifier is ${build.qualifier}" />
+		<property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar" />
+
+		<antcall target="copyjar">
+			<param name="proj" value="x10.common" />
+		</antcall>
+		<antcall target="copyjar">
+			<param name="proj" value="x10.compiler" />
+		</antcall>
+		<antcall target="copyjar">
+			<param name="proj" value="x10.constraints" />
+		</antcall>
+		<antcall target="copyjar">
+			<param name="proj" value="x10.runtime" />
+		</antcall>
+
+		<echo message="X10 jars copied" />
+
+	</target>
+
+	<target name="copyjar">
+		<loadfile property="plugin.id" srcfile="../${proj}/META-INF/MANIFEST.MF">
+			<filterchain>
+				<containsregex pattern="Bundle-SymbolicName:" />
+				<replaceregex pattern="Bundle-SymbolicName: ([^;]*)(;.*)?" replace="\1" />
+				<striplinebreaks />
+			</filterchain>
+		</loadfile>
+
+		<loadfile property="plugin.version" srcfile="../${proj}/META-INF/MANIFEST.MF">
+			<filterchain>
+				<containsregex pattern="Bundle-Version:" />
+				<replaceregex pattern="Bundle-Version: (.*)" replace="\1" />
+				<striplinebreaks />
+			</filterchain>
+		</loadfile>
+		<!-- replace the '.qualifier' with proper build qualifier-->
+		<propertyRegexp name="plugin.version" input="${plugin.version}" regexp="(.*).qualifier" value="\1.${build.qualifier}"/>
+		<!-- <echo message="proj=${proj}; Plugin ID = ${plugin.id}; Plugin version = ${plugin.version}" /> -->
+		<!-- <echo message="copy to = ${x10dt.eclipse.target}/plugins" /> -->
+		<copy file="../${proj}/${plugin.id}_${plugin.version}.jar" todir="${x10dt.eclipse.target}/plugins" failonerror="true" overwrite="false" />
+		<echo message="Copied ../${proj}/${plugin.id}_${plugin.version}.jar -- to -- ${x10dt.eclipse.target}/plugins" />
+
+	</target>
+
+</project>

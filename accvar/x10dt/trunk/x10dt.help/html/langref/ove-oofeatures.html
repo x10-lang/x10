@@ -1,0 +1,258 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Object-oriented features</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Object-oriented features</h2>
+
+<div class="p"><!----></div>
+The sequential core of X10 is a <em>container-based</em> object-oriented language
+similar to Java and C++, and more recent language such as Scala.  
+Programmers write X10 code by defining containers for data and behavior called
+<em>interfaces</em>
+(&#167;),
+<em>classes</em>
+(&#167;) and
+<em>structs</em>
+(&#167;).
+X10 provides inheritance and subtyping in fairly traditional ways. 
+
+<div class="p"><!----></div>
+<b>Normed</b> describes entities with a <b>norm()</b> method. <b>Normed</b> is
+intended to be used for entities with a position in some coordinate system,
+and <b>norm()</b> gives the distance between the entity and the origin. A
+<b>Slider</b> is an object which can be moved around on a line; a
+<b>PlanePoint</b> is a fixed position in a plane. Both <b>Slider</b>s and
+<b>PlanePoint</b>s have a sensible <b>norm()</b> method, and implement
+<b>Normed</b>.
+
+<div class="p"><!----></div>
+<pre>
+interface Normed {
+  def norm():Double;
+}
+class Slider implements Normed {
+  var x : Double = 0;
+  public def norm() = Math.abs(x);
+  public def move(dx:Double) { x += dx; }
+}
+struct PlanePoint implements Normed {
+  val x : Double, y:Double;
+  public def this(x:Double, y:Double) {
+    this.x = x; this.y = y;
+  }
+  public def norm() = Math.sqrt(x*x+y*y);
+}
+</pre>
+
+
+<div class="p"><!----></div>
+
+<b>Interfaces&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+An X10 interface specifies a collection of abstract methods; <b>Normed</b>
+specifies just <b>norm()</b>. Classes and
+structs can be specified to <em>implement</em> interfaces, as <b>Slider</b> and
+<b>PlanePoint</b> implement <b>Normed</b>, and, when they do so, must provide
+all the methods that the interface demands.
+
+<div class="p"><!----></div>
+Interfaces are
+purely abstract. Every value of type <b>Normed</b> must be an instance of some
+class like <b>Slider</b> or some struct like <b>PlanePoint</b> which implements
+<b>Normed</b>; no value can be <b>Normed</b> and nothing else. 
+
+<div class="p"><!----></div>
+
+<b>Classes and Structs&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+There are two kinds of concrete containers: <em>classes</em>
+(&#167;) and <em>structs</em> (&#167;). Concrete
+containers hold data in <em>fields</em>, and give concrete implementations of
+methods, as <b>Slider</b> and <b>PlainPoint</b> above.
+
+<div class="p"><!----></div>
+Classes are organized in a single-inheritance tree: a class may have only a
+single parent class, though it may implement many interfaces and have many
+subclasses. Classes may have mutable fields, as <b>Slider</b> does.
+
+<div class="p"><!----></div>
+In contrast, structs are headerless values, lacking the internal organs
+which give objects their intricate behavior.  This makes them less powerful
+than objects (<em>e.g.</em>, structs cannot inherit methods, though objects can), but also
+cheaper (<em>e.g.</em>, they can be inlined, and they require less space than objects).  
+Structs are immutable, though their fields may be immutably set to objects
+which are themselves mutable.  They behave like objects in all ways consistent
+with these limitations; <em>e.g.</em>, while they cannot <em>inherit</em> methods, they can
+have them - as <b>PlanePoint</b> does.
+
+<div class="p"><!----></div>
+X10 has no primitive classes per se. However, the standard library
+<b>x10.lang</b> supplies structs and objects <b>Boolean</b>, <b>Byte</b>,
+<b>Short</b>, <b>Char</b>, <b>Int</b>, <b>Long</b>, <b>Float</b>, <b>Double</b>,
+<b>Complex</b> and <b>String</b>. The user may defined additional arithmetic
+structs using the facilities of the language.
+
+<div class="p"><!----></div>
+
+<b>Functions.&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+X10 provides functions (&#167;) to allow code to be used
+as values.  Functions are first-class data: they can be stored in lists,
+passed between activities, and so on.  <b>square</b>, below, is a function
+which squares an <b>Int</b>.  <b>of4</b> takes an <b>Int</b>-to-<b>Int</b>
+function and applies it to the number <b>4</b>.  So, <b>fourSquared</b> computes
+<b>of4(square)</b>, which is <b>square(4)</b>, which is 16, in a fairly
+complicated way.
+<pre>
+  val square = (i:Int) =&#62; i*i;
+  val of4 = (f: (Int)=&#62;Int) =&#62; f(4);
+  val fourSquared = of4(square);
+</pre>
+
+<div class="p"><!----></div>
+They are used extensively in X10
+programs.  For example, the normal way to construct an <b>Array[Int](1)</b> -
+that is, a fixed-length array of numbers, like an <b>int[]</b> in Java - is to
+pass two arguments to a factory method: the first argument being the length of
+the array, and the second being a function which computes the initial value of
+the <b>i</b><sup>th</sup> element.  The following code constructs a 1-dimensional
+array 
+initialized to the squares of 0,1,...,9: <b>r(0) == 0</b>, <b>r(5)==25</b>, etc. 
+<pre>
+  val r : Array[Int](1) = new Array[Int](10, square);
+</pre>
+
+<div class="p"><!----></div>
+
+<b>Constrained Types&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+X10 containers may declare <em>properties</em>, which are fields bound immutably
+at the creation of the container.  The static analysis system understands
+properties, and can work with them logically.   
+
+<div class="p"><!----></div>
+For example, an implementation of matrices <b>Mat</b> might have the numbers of
+rows and columns as properties.  A little bit of care in definitions allows
+the definition of a <b>+</b> operation that works on matrices of the same
+shape, and <b>*</b> that works on matrices with appropriately matching shapes.
+<pre>
+abstract class Mat(rows:Int, cols:Int) {
+ static type Mat(r:Int, c:Int) = Mat{rows==r&amp;&amp;cols==c};
+ abstract operator this + (y:Mat(this.rows,this.cols))
+                 :Mat(this.rows, this.cols);
+ abstract operator this * (y:Mat) {this.cols == y.rows} 
+                 :Mat(this.rows, y.cols);
+</pre>
+
+<div class="p"><!----></div>
+The following code typechecks, but an attempt to compute <b>axb1 + bxc</b> or
+<b>bxc * axb1</b> would result in a compile-time type error:
+<pre>
+  static def example(a:Int, b:Int, c:Int) {
+    val axb1 : Mat(a,b) = makeMat(a,b);
+    val axb2 : Mat(a,b) = makeMat(a,b);
+    val bxc  : Mat(b,c) = makeMat(b,c);
+    val axc  : Mat(a,c) = (axb1 +axb2) * bxc;
+  }
+
+<div class="p"><!----></div>
+</pre>
+
+<div class="p"><!----></div>
+The "little bit of care" shows off many of the features of constrained
+types.    
+The <b>(rows:Int, cols:Int)</b> in the class definition declares two
+properties, <b>rows</b> and <b>cols</b>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>  
+
+<div class="p"><!----></div>
+A constrained type looks like <b>Mat{rows==r &amp;&amp; cols==c}</b>: a type
+name, followed by a Boolean expression in braces.  
+The <b>type</b> declaration on the second line makes
+<b>Mat(r,c)</b> be a synonym for <b>Mat{rows==r &amp;&amp; cols==c}</b>,
+allowing for compact types in many places.
+
+<div class="p"><!----></div>
+Functions can return constrained types.  
+The <b>makeMat(r,c)</b> method returns a <b>Mat(r,c)</b> - a matrix whose shape
+is given by the arguments to the method.    In
+particular, constructors can have constrained return types to provide specific
+information about the constructed values.
+
+<div class="p"><!----></div>
+The arguments of methods can have type constraints as well.  The 
+<b>operator this +</b> line lets <b>A+B</b> add two matrices.  The type of the
+second argument <b>y</b> is constrained to have the same number of rows and
+columns as the first argument <b>this</b>. Attempts to add mismatched matrices
+will be flagged as type errors at compilation.
+
+<div class="p"><!----></div>
+At times it is more convenient to put the constraint on the method as a whole,
+as seen in the <b>operator this *</b> line. Unlike for <b>+</b>, there is no
+need to constrain both dimensions; we simply need to check that the columns of
+the left factor match the rows of the right. This constraint is written in
+<b>{...}</b> after the argument list.  The shape of the result is computed from
+the shapes of the arguments.
+
+<div class="p"><!----></div>
+And that is all that is necessary for a user-defined class of matrices to have
+shape-checking for matrix addition and multiplication.  The <b>example</b>
+method compiles under those definitions.
+
+<div class="p"><!----></div>
+
+<b>Generic types&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+Containers may have type parameters, permitting the definition of
+<em>generic types</em>.  Type parameters may be instantiated by any X10 type.  It
+is thus possible to make a list of integers <b>List[Int]</b>, a list of
+non-zero integers <b>List[Int{self != 0}]</b>, or a list of people
+<b>List[Person]</b>.  In the definition of <b>List</b>, <b>T</b> is a type
+parameter; it can be instantiated with any type.
+<pre>
+class List[T] {
+    var head: T;
+    var tail: List[T];
+    def this(h: T, t: List[T]) { head = h; tail = t; }
+    def add(x: T) {
+        if (this.tail == null)
+            this.tail = new List(x, null);
+        else
+            this.tail.add(x);
+    }
+}
+</pre>
+The constructor (<b>def this</b>) initializes the fields of the new object.
+The <b>add</b> method appends an element to the list.
+<b>List</b> is a generic type.  When  instances of <b>List</b> are
+allocated, the type parameter <b>T</b> must be bound to a concrete
+type.  <b>List[Int]</b> is the type of lists of element type
+<b>Int</b>, <b>List[List[String]]</b> is the type of lists whose elements are
+themselves lists of string, and so on.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

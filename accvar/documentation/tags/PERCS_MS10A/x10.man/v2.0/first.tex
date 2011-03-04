@@ -1,0 +1,142 @@
+% First page
+
+\thispagestyle{empty}
+
+% \todo{"another" report?}
+
+\title{Report on the Programming Language \Xten \\
+\large Version \integerversion}
+%\ifdraft
+\author{\textsc{Draft} --- \today \\
+\\
+Vijay Saraswat, Bard Bloom, Igor Peshansky, Olivier Tardieu, and David Grove\\
+\\
+Please send comments to 
+\texttt{bardb@us.ibm.com}}
+%\else
+%\author{
+%Vijay Saraswat \\
+%Please send comments to \\
+%\texttt{vsaraswa@us.ibm.com}}
+%\fi
+%\date{\today}
+
+\maketitle
+
+\newcommand\authorsc[1]{#1}
+%\newcommand\authorsc[1]{\textsc{#1}}
+
+This report provides a description of the programming
+language \Xten. \Xten{} is a class-based object-oriented
+programming language designed for high-performance, high-productivity
+computing on high-end computers supporting $\approx 10^5$ hardware threads
+and $\approx 10^{15}$ operations per second. 
+
+\Xten{} is based on state-of-the-art object-oriented programming
+languages and deviates from them only as necessary to support its
+design goals. The language is intended to have a simple and clear
+semantics and be readily accessible to mainstream OO programmers. It
+is intended to support a wide variety of concurrent programming
+idioms.
+%, incuding data parallelism, task parallelism, pipelining.
+%producer/consumer and divide and conquer.
+
+%We expect to revise this document in the light of experience gained in implementing
+%and using this language.
+
+The \Xten{} design team consists of
+\authorsc{Bard Bloom}, 
+\authorsc{Ganesh Bikshandi}, 
+\authorsc{David Cunningham},
+\authorsc{Robert Fuhrer},
+\authorsc{David Grove},
+\authorsc{Sreedhar Kodali}, 
+\authorsc{Nathaniel Nystrom},
+\authorsc{Igor Peshansky}, 
+\authorsc{Vijay Saraswat},
+\authorsc{Olivier Tardieu}.
+
+Past members include
+\authorsc{Shivali Agarwal}, 
+\authorsc{David Bacon}, 
+\authorsc{Raj Barik}, 
+\authorsc{Bob Blainey}, 
+\authorsc{Philippe Charles}, 
+\authorsc{Perry Cheng}, 
+\authorsc{Christopher Donawa}, 
+\authorsc{Julian Dolby}, 
+\authorsc{Kemal Ebcio\u{g}lu},
+\authorsc{Patrick Gallop}, 
+\authorsc{Christian Grothoff}, 
+\authorsc{Allan Kielstra}, 
+\authorsc{Sriram Krishnamoorthy}, 
+\authorsc{Bruce Lucas},
+\authorsc{Vivek Sarkar},
+\authorsc{Armando Solar-Lezama},  
+\authorsc{S. Alexander Spoon}, 
+\authorsc{Sayantan Sur}, 
+\authorsc{Christoph von Praun},
+\authorsc{Pradeep Varma}, 
+\authorsc{Krishna Nandivada Venkata},
+\authorsc{Jan Vitek}, and
+\authorsc{Tong Wen}.
+
+For extended discussions and support we would like to thank: 
+Gheorghe Almasi,
+Robert Blackmore,
+Robert Callahan, 
+Calin Cascaval, 
+Norman Cohen, 
+Elmootaz Elnozahy, 
+John Field,
+Kevin Gildea,
+Chulho Kim,
+Orren Krieger, 
+Doug Lea, 
+John McCalpin, 
+Paul McKenney, 
+Andrew Myers,
+Filip Pizlo, 
+Ram Rajamony,
+R.~K. Shyamasundar, 
+V.~T. Rajan, 
+Frank Tip,
+Mandana Vaziri,
+and
+Hanhong Xue.
+
+
+We thank Jonathan Rhees and William Clinger with help in obtaining the
+\LaTeX{} style file and macros used in producing the Scheme report,
+on which this document is based. We acknowledge the influence of
+the $\mbox{\Java}^{\mbox{\textsc{tm}}}$ Language
+Specification \cite{jls2}.
+%document, as evidenced by the numerous citations in the text.
+
+This document revises Version 1.7 of the Report, released in
+September 2008.  It documents the language corresponding to Version
+2.0 of the implementation. Version 1.7 of the report was co-authored by
+Nathaniel Nystrom. The design of structs in \Xten{} was led by Olivier Tardieu
+and Nathaniel Nystrom.
+
+Earlier implementations benefited from significant contributions by
+Raj Barik, 
+Philippe Charles, 
+David Cunningham,
+Christopher Donawa, 
+Robert Fuhrer,
+Christian Grothoff,
+Nathaniel Nystrom,  
+Igor Peshansky,  
+Vijay Saraswat,
+Vivek Sarkar, 
+Olivier Tardieu,  
+Pradeep Varma, 
+Krishna Nandivada Venkata, and
+Christoph von Praun.
+Tong Wen has written many application programs
+in \Xten{}. Guojing Cong has helped in the
+development of many applications.
+The implementation of generics in \Xten{} was influenced by the
+implementation of PolyJ~\cite{polyj} by Andrew Myers and Michael Clarkson.
+

@@ -1,0 +1,1244 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 02/17/2008 - 08:47:13
+############################################################
+#
+# Run: 1
+#
+
+## Size: 500
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.061622 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.063332 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.063364 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.081717 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.067796 s
+Work = 0.000000 s
+
+## Size: 1000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.276956 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.306207 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.343740 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.338794 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.289700 s
+Work = 0.000000 s
+
+## Size: 2000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.870169 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.791099 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.017042 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.986227 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.228410 s
+Work = 0.000000 s
+
+## Size: 3000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.471064 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.257718 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.167084 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.512813 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.503082 s
+Work = 0.000000 s
+#
+# Run: 2
+#
+
+## Size: 500
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.061496 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.068281 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.061901 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.061882 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.068580 s
+Work = 0.000000 s
+
+## Size: 1000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.282223 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.315560 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.320749 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.282958 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.325974 s
+Work = 0.000000 s
+
+## Size: 2000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.723667 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.968213 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.002887 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.971377 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.986706 s
+Work = 0.000000 s
+
+## Size: 3000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 4.631480 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 4.813832 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.614393 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.475863 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.498849 s
+Work = 0.000000 s
+#
+# Run: 3
+#
+
+## Size: 500
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.061306 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.066746 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.063047 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.062077 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 501  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.072775 s
+Work = 0.000000 s
+
+## Size: 1000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.282341 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.300979 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.321903 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.340248 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.299462 s
+Work = 0.000000 s
+
+## Size: 2000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.864447 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.968421 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.016707 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.015171 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 2001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.121805 s
+Work = 0.000000 s
+
+## Size: 3000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 4.608045 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 4.730766 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.334132 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.266799 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+torus returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3001  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.421430 s
+Work = 0.000000 s
+
+############################################################
+# End Time: 02/17/2008 - 08:53:33
+############################################################

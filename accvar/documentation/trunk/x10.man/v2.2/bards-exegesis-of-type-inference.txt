@@ -1,0 +1,39 @@
+Try to match the actual types of the parameters in the method call against
+the formal parameters.   Whenever a subterm of an actual type looks like
+   Foo[Q]
+and the corresponding subterm of a formal type looks like 
+   Foo[X]
+then add a constraint Q == X (pace co- and contravariance).
+
+And whenever the actual looks like 
+  Q 
+and the formal is just a variable
+  X
+then add Q <: X.
+
+If an actual subterm looks like: 
+   Foo[A, B, C]
+and a formal subterm looks like: 
+   Foo[D, E, F]
+Then try to match A vs D, B vs. E, C vs. F (pace co- and contravariance,  and
+inheritance of Foo); each of these will induce some constraints too.
+
+(Those are the interesting cases.)
+
+This gives a set of constraints.  If we can find a solution to these
+constraints, then we can typecheck the call with the values of the variables
+X. 
+
+The solution is derived from the set of constraints: 
+
+(1) If the constraints imply X==T for some closed type T, then try setting X=T
+    in the solution.
+
+(2) If not, but if there are 1 or more constraints X <: Ti, then try setting X
+    to the greatest lower bound of the Ti's.
+
+(3) Absent both of those, take the least upper bound of the lower bounds on X.
+
+This gives us one guess for each variable.  If these guesses result in a
+solution to the constraints, we win and have inferred the type.  If not, we
+lose.  

@@ -1,0 +1,91 @@
+help=""
+time=""
+verbose=""
+extra_cp=""
+ext=""
+dev=""
+java_args=""
+args=""
+
+parse=true
+while [ -n "$1" ]; do
+    if [ -z "$parse" ]; then
+        args="$args '$1'"
+        shift
+        continue
+    fi
+    case "$1" in
+        -h|-help|--help) help="1"; break;;
+        -v|-verbose|--verbose) verbose="1";;
+        -t|-time) time="time ";;
+        -classpath|-cp) shift; extra_cp="$1";;
+        -profile) profile="-Xrunhprof:cpu=samples";;
+        -config) shift; config="$1.cfg";;
+        -ext) shift; ext=$1;;
+        -dev) dev="true";;
+        -J*) java_args="${java_args} '${1##-J}'";;
+        --) parse=;;
+        *) args="$args '$1'";;
+    esac
+    shift
+done
+
+if [ -n "$help" -o -z "$args" ]; then
+    cat << EOF
+Usage: x10c [options] <source-file>.x10 ...
+where [options] includes:
+    -sourcepath <path>       source path
+    -classpath <path>        search path for class files
+    -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
+    -version                 print version info
+    -t -time                 display execution time
+    -v -verbose --verbose    print verbose debugging information
+    -h -help --help          print this message
+    -disable <pass>          disable compiler pass <pass>
+                             valid passes are: async-elimination
+    -dev                     developer mode (use unpackaged X10 libraries)
+
+    Use "x10c -- -help" to get more detailed help on compiler options
+EOF
+    exit 1
+fi
+
+[ -z "$DEXT" ] && DEXT="x10"
+
+CONFIG_DIR="${TOP}${FILE_SEP}etc"
+LIB_DIR="${TOP}${FILE_SEP}lib"
+
+#[ -z "$config" ] && config="${CONFIG_FILE}"
+[ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
+
+if [ -n "$extra_cp" ]; then
+    extra_cp="${PATH_SEP}${extra_cp}"
+fi
+
+ext_cp=""
+if [ -z "$ext" ]; then
+    ext="$DEXT"
+else
+    ext_cp="${PATH_SEP}${LIB_DIR}${FILE_SEP}${ext}.jar"
+fi
+extargs="-ext ${ext}"
+extargs="$extargs -assert"
+# FIXME: HACK (at Vijay's request)
+# To be removed once serialization of types is fixed in x10c
+# HACK!!! HACK!!! HACK!!! vvv
+extargs="$extargs -noserial"
+# HACK!!! HACK!!! HACK!!! ^^^
+
+classpath="${CP_OVERRIDE}"
+[ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler.p3${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime.x10${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot3-dev${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
+classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10constraints.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${POLYGLOT_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${ext_cp}${extra_cp}"
+
+[ -z "$MAIN" ] && MAIN="polyglot.main.Main"
+
+command="\"$JAVA\" -Xmx128m $config $profile -classpath \"$classpath\" ${java_args} $MAIN $extargs $args"
+
+[ -n "$verbose" ] && echo "$command"
+
+eval "$time$command"
+exit $?
+

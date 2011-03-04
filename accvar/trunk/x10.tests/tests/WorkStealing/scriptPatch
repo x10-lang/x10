@@ -1,0 +1,26 @@
+Index: newpgrp
+===================================================================
+--- newpgrp	(revision 17627)
++++ newpgrp	(working copy)
+@@ -29,7 +29,7 @@
+ 
+ if ($#_ != 0 ) {usage "newpgrp: wrong number of arguments\n";};
+ 
+-if ("$_[0]" =~ /-[-]?h.*/ ) {usage "";};
++#if ("$_[0]" =~ /-[-]?h.*/ ) {usage "";};
+ 
+ my ($cmd) = @_;
+ 
+Index: testScript0
+===================================================================
+--- testScript0	(revision 17627)
++++ testScript0	(working copy)
+@@ -713,7 +713,7 @@
+   then
+       runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$testDir\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
+   else
+-      runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c++ -x10rt standalone -o "$testDir/$className" -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$testDir\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
++      runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c++ -x10rt standalone -o "$testDir/$className" -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$testDir\" $classpath -d $testDir -MAIN_CLASS=$className $X10C_EXTRA_OPTS $options $x10FileName" "" ""
+   fi
+ 
+   if [[ $? != 0 ]]; then

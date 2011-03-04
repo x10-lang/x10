@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Translating MPI programs to X10</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Translating MPI programs to X10</h2>
+
+<div class="p"><!----></div>
+While X10 permits considerably greater flexibility in writing
+distributed programs and data structures than MPI, it is instructive
+to examine how to translate MPI programs to X10.
+
+<div class="p"><!----></div>
+Each separate MPI process can be translated into an X10
+place. Async activities may be used to read and write variables
+located at different processes. A single clock may be used for barrier
+synchronization between multiple MPI processes. X10 collective
+operations may be used to implement MPI collective operations.
+X10 is more general than MPI in (a)&nbsp;not requiring synchronization
+between two processes in order to enable one to read and write the
+other's values, (b)&nbsp;permitting the use of high-level atomic blocks
+within a process to obtain mutual exclusion between multiple
+activities running in the same node (c)&nbsp;permitting the use of multiple
+clocks to combine the expression of different physics (e.g.,
+computations modeling blood coagulation together with computations
+involving the flow of blood), (d)&nbsp;not requiring an SPMD style of
+computation.
+
+<div class="p"><!----></div>
+
+
+</body>
+</html>

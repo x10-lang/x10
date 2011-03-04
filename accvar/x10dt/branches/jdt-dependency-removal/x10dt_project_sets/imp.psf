@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+<provider id="org.tigris.subversion.subclipse.core.svnnature">
+<project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.java.hosted,org.eclipse.imp.java.hosted"/>
+<project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.pdb,org.eclipse.imp.pdb"/>
+<project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.pdb.values,org.eclipse.imp.pdb.values"/>
+<project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.runtime,org.eclipse.imp.runtime"/>
+<project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.smapi,org.eclipse.imp.smapi"/>
+<project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.smapifier,org.eclipse.imp.smapifier"/>
+<project reference="0.9.3,http://wala.svn.sourceforge.net/svnroot/wala/tags/R_1.1.3/com.ibm.wala.shrike,com.ibm.wala.shrike"/>
+</provider>
+</psf>

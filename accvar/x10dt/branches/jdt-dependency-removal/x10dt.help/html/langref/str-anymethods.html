@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Optional Implementation of Any methods</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Optional Implementation of <b>Any</b> methods</h2>
+<a name="StructAnyMethods">
+</a>
+
+
+<div class="p"><!----></div>
+Two
+structs are equal (<b>==</b>) if and only if their corresponding fields
+are equal (<b>==</b>). 
+
+<div class="p"><!----></div>
+All structs implement <b>x10.lang.Any</b>. 
+Structs are required to implement the following methods from <b>Any</b>.  
+Programmers need not provide them; X10 will produce them automatically if 
+the program does not include them. 
+<pre>
+  public def equals(Any):Boolean;
+  public def hashCode():Int;
+  public def typeName():String;
+  public def toString():String;  
+</pre>
+
+<div class="p"><!----></div>
+A programmer who provides an explicit implementation
+of <b>equals(Any)</b> for a struct <b>S</b> should also consider
+supplying a definition for <b>equals(S):Boolean</b>. This will often
+yield better performance since the cost of an upcast to <b>Any</b> and
+then a downcast to <b>S</b> can be avoided.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

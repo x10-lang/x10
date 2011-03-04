@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Subtyping expressions</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc24">
+24</a>&nbsp;&nbsp;Subtyping expressions</h2>
+
+
+
+
+<div class="p"><!----></div>
+
+<em>
+  
+<table>
+
+<tr><td align="right">SubtypeConstraint ::= Type  <b>&lt;:</b> Type  </td></tr>
+<tr><td align="right">&#124; Type  <b>:&#62;</b> Type  </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The subtyping expression  evaluates to <b>true</b> if
+"T<sub>1</sub>" is a subtype of "T<sub>2</sub>".
+
+<div class="p"><!----></div>
+The expression  evaluates to <b>true</b> if
+"T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
+
+<div class="p"><!----></div>
+The expression "T<sub>1</sub> == T<sub>2</sub>"
+evaluates to  <b>true</b> if 
+"T<sub>1</sub>" is a subtype of "T<sub>2</sub>" and
+if "T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
+
+<div class="p"><!----></div>
+Subtyping expressions are particularly useful in giving constraints on generic
+types.  <b>x10.util.Ordered[T]</b> is an interface whose values can be compared
+with values of type <b>T</b>. 
+In particular, <b>T &lt;: x10.util.Ordered[T]</b> is
+true if values of type <b>T</b> can be compared to other values of type
+<b>T</b>.  So, if we wish to define a generic class <b>OrderedList[T]</b>, of
+lists whose elements are kept in the right order, we need the elements to be
+ordered.  This is phrased as a constraint on <b>T</b>: 
+<pre>
+class OrderedList[T]{T &lt;: x10.util.Ordered[T]} {
+  // ...
+}
+</pre>
+
+
+<div class="p"><!----></div>
+
+</body>
+</html>

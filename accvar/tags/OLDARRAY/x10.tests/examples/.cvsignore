@@ -1,0 +1,11 @@
+log*
+ErrorsLog
+*_x10stub.c
+*.class
+*.java
+TMP_XXX_*
+*.swp
+.*.swp
+*.swo
+.*.swo
+x10

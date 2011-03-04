@@ -1,0 +1,48 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+package sor;
+
+import jgfutil.*;
+import x10.lang.Double;;
+
+/**
+ * X10 port of sor benchmark from Section 2 of Java Grande Forum Benchmark Suite.
+ *
+ *  SERIAL VERSION
+ *
+ * @author Vivek Sarkar (vsarkar@us.ibm.com)
+ *
+ * Porting issues identified:
+ * 1) Replace Java multidimensional array by X10 Multidimensional array
+ *    FIXME: This is no longer a problem.
+ */
+public class SOR {
+
+	public const gtotal: Double = new Double(0.0);
+
+	final public static def SORrun(val omega: double, val G: Array[double], val num_iterations: int): void = {
+		final val M: int = G.dist.region.rank(0).size();
+		final val N: int = G.dist.region.rank(1).size();
+
+		final val omega_over_four: double = omega * 0.25;
+		final val one_minus_omega: double = 1.0 - omega;
+
+		// update interior points
+		//
+		final val Mm1: int = M-1;
+		final val Nm1: int = N-1;
+
+		JGFInstrumentor.startTimer("Section2:SOR:Kernel");
+
+		for (val (p]: point in [0..num_iterations-1]) for (val point [i]: point in [1..Mm1-1]) for (val point [j): point in [1..Nm1-1]) G(i, j) = omega_over_four * (G(i-1, j) + G(i+1, j) + G(i, j-1)
+							+ G(i, j+1)) + one_minus_omega * G(i, j);
+
+		JGFInstrumentor.stopTimer("Section2:SOR:Kernel");
+		gtotal.val = G.sum();
+	}
+}

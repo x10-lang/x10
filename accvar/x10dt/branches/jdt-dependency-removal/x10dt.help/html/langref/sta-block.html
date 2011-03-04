@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Block statement</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Block statement</h2>
+
+<a name="Blocks">
+</a>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+
+<tr><td align="right">Block ::= <b>{</b> BlockStatements<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">BlockStatements ::= BlockStatement </td></tr>
+<tr><td align="right">&#124; BlockStatements BlockStatement </td></tr>
+<tr><td align="right">BlockStatement ::= LocalVariableDeclStatement </td></tr>
+<tr><td align="right">&#124; ClassDecl </td></tr>
+<tr><td align="right">&#124; TypeDefDecl </td></tr>
+<tr><td align="right">&#124; Statement </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+A block statement consists of a sequence of statements delimited by
+"<b>{</b>" and "<b>}</b>". When a block is evaluated, the statements inside
+of it are evaluated in order.  Blocks are useful for putting several
+statements in a place where X10 asks for a single one, such as the consequent
+of an <b>if</b>, and for limiting the scope of local variables.
+<pre>
+if (b) {
+  // This is a block
+  val v = 1;
+  S1(v); 
+  S2(v);
+}
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

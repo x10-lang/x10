@@ -1,0 +1,351 @@
+\section{Place types and Type reconstruction}\label{PlaceTypes}\index{place types}
+
+\Xten{} distinguishes two kinds of places: {\em shared places}\index{places!shared}\label{SharedPlaces}, 
+which correspond to the memory of individual processors which is
+shared across multiple activities, and {\em scoped
+places}\index{places!scoped}\label{ScopedPlaces} such as threadlocal
+memory and method memory which is available only in limited
+scope. \XtenCurrVer{} supports only {\tt threadlocal} scoped memory,
+i.e.{} memory accessible only to the current activity.  Future
+versions may support {\tt methodlocal} and {\tt blocklocal} memory.
+
+\subsection{Place expressions}
+The following are place expressions:
+\begin{itemize}
+
+\item {\tt here}: the place of the current computation
+(in a method) or the place of the current object (in field
+declarations).  At the top level of a method, {\tt here} is the place
+at which the method invocation's object lives. Inside an {\tt async},
+{\tt here} is the place of the nearest enclosing {\tt async}.
+
+{}\item {\tt threadlocal}: the scoped place for the current thread
+(only in scope for method activations)
+
+{}\item {\tt D[i]}: where {\tt D} is a distribution
+(\S~\ref{XtenDistributions}) and {\tt i} is a point in the region of
+the distribution.
+
+{}\item {\tt e.place} where {\tt e} is a variable
+(\S~\ref{XtenVariables}) at a reference type. \Xten{} allows the use
+of the expression {\tt e} in contexts expecting a {\tt place}
+parameter as shorthand for {\tt e.place}.
+\end{itemize}
+Note that \XtenCurrVer{} does not permit the dynamic creation of a
+place. Each \Xten{} computation is initiated with a fixed number of
+places, as determined by a configuration parameter. The number is available
+from {\tt place.MAX\_PLACES}.  The set of places is available 
+
+Place expressions are used in the following contexts: 
+\begin{itemize}
+\item As a  place type in a reference type (\S~\ref{ReferenceTypes}).
+\item As a target for an {\tt async} activity (\S~\ref{AsyncActivity}).
+\item In a class cast expression  (\S~\ref{ClassCast}).
+\item In an {\tt instanceof} expression (\S~\ref{instanceOf}).
+\item In stable equality comparisons, at type {\tt place}.
+\item As a parameter to a method invocation (\S~\ref{MethodInvocation}).
+{}\item As a type parameter to a generic class or interface
+(\S~\ref{TypeParameter}), or an actual argument to a generic class or interface (\S~\ref{ClassCreation}).
+\end{itemize}
+
+An example:
+\begin{x10}
+<P> void foo(Foo@P foo, Bar@P bar) \{
+   int x = async (P) \{ return foo.f + bar.b; \};
+   ...
+\}
+\end{x10}
+
+
+Places can be passed as parameters to classes. The place where the
+object lives is an implicit parameter, accessible within constructors
+and instance initializers as here:
+
+\begin{x10}
+    class Foo <place P, place Q> \{
+        Bar@P bar;
+        Baz@Q baz;
+        Qux@here qux;
+    \}
+\end{x10}
+
+A reference type {\tt Foo} (with no place annotation) is always taken
+as shorthand for {\tt Foo@here}.
+
+An object can be cast to a particular place. If the object is not at
+the right place, a {\tt BadPlaceException} is thrown:
+
+\begin{x10}
+    <P> m(Object@P obj) \{
+        Object@here h = (Object@here)obj;
+        h.blah();
+    \}
+\end{x10}
+
+Places can be checked for equality. One can view this as the analog of
+the {\tt instanceof} operator for places.
+
+\begin{x10}
+ <P> m(Object@P obj) \{
+     if (here == P) \{
+        // will never throw an exception
+       Object@here h = (Object@here)obj;
+       h.m();
+   \}
+\}
+\end{x10}
+
+A special form of object reference type, {\tt anywhere} or {\tt ?}, 
+constrains the object to be at a shared place but does not constrain
+the place. This allows collections of objects at heterogenous places.
+
+\begin{x10}
+    Object@?[] objects;
+\end{x10}
+
+We allow {\tt async} and {\tt future} statements to use {\tt ?} to
+stand for any place. For instance:
+
+\begin{x10}
+     Object o = !future(?)\{new Object();\}
+\end{x10}
+
+\noindent spawns an activity at some arbitrary place and return an object created at that place.
+
+Similarly the object reference type {\tt current} can be used in
+(i)~constructing a distribution for a reference array or (ii)
+specifying the location of the base type of a reference array. In the
+first case points mapped to {\tt current} by the distribution will
+reside in the same place as the array object itself, and in the second
+case the value of the array at a particular point is an object in the
+same place as that array component. Example:
+\begin{x10}
+    Object@current[] objects;
+\end{x10}
+
+\subsubsection{Type reconstruction}\index{type!reconstruction}
+
+{}\Xten{} permits the use of the generic method syntax in variable
+declarations. Any variable declaration may be prefixed with a type
+parameter list and may use these parameters in type expressions in the
+declaration. Such a parameterized variable declaration succeeds at
+compile time if it is possible for the compiler to assign unique types
+to the parameters in such a way that the declaration type-checks.  The
+scope of the parameter is the scope of the variable introduced by the
+declaration. Throughout this scope the parameter has the value
+inferred by the compiler.
+
+For instance:
+\begin{x10}
+  // This introduces P as a constant place, the
+  // location of objects[0]
+ <P> Object@P obj = objects[0];
+ async (P) { obj.blah(); };
+\end{x10}
+
+Often it is the case that a type parameter is not referenced after it
+is introduced. In such cases \Xten{} permits the use of ``\_'' (the
+{\em anonymous
+parameter})\label{AnonymousParameter}\index{parameter!anonymous@{\tt\_}}
+as a parameter. Multiple occurrences of ``\_'' are taken to stand for
+``fresh names'' in each occurrence.  For instance:
+\begin{x10}
+ <P> \_@P obj = objects[0];
+ async (P) { obj.blah(); };
+\end{x10}
+\noindent should be taken as shorthand for
+\begin{x10}
+ <P,Q> Q@P obj = objects[0];
+ async (P) { obj.blah(); };
+\end{x10}
+{}\noindent where {\tt Q} does not occur anywhere else in the
+program. If a declaration only uses the anoymous parameter the angle
+brackets may be omitted. Thus for example the often used special case:
+\begin{x10}
+  \_ obj = new int[D];
+\end{x10}
+\noindent is shorthand for:
+\begin{x10}
+  <> \_@\_ obj = new int[D];
+\end{x10}
+
+{}\noindent By default, objects are created {\tt here}. An object can
+be created in thread local storage by using an {\tt @threadlocal}
+suffix to the data type name:
+\begin{x10}
+   new Foo@threadlocal<here, here>();
+\end{x10}
+
+
+Note that the effect of creating an object at a place {\tt P} and
+returning a reference to it may be obtained by:
+\begin{x10}
+    Foo@P x = future (P) { new Foo();}
+\end{x10}
+
+{}\Xten{} imposes the rule that the lifetime of places passed as place
+parameters to objects must be no shorter than the lifetime of the
+object itself. It also maintains the invariant that all place variables
+in scope are guaranteed to last longer than this method. This implies
+that given an invocation:
+\begin{x10}
+    new Foo@P<..., Q, ...>
+\end{x10}
+\noindent the following constraints must be true
+\begin{itemize}
+\item {\cf P} is {\cf threadlocal},  or
+\item {\cf P} is {\cf here} (and not in an {\cf async}) and {\cf Q} is a parameter to this class, or {\cf Q} is {\cf shared} or {\cf P} is {\cf Q}
+\end{itemize}
+
+In a generic object constructor invocation, a type parameter is always
+replaced with a type which includes the place. For instance
+
+\begin{x10}
+    \_ s = new Stack<Point@P>();
+\end{x10}
+
+Constructor calls, method calls and field accesses have the following place constraints.
+\begin{x10}
+  Foo@P foo = new Foo@P();
+  int[]@P data;
+  foo.m();
+  int i = foo.f;
+  foo.f = i;
+  int i = data[j];
+  data[j] = i;
+\end{x10}
+Here {\tt P} is scoped or {\tt here} or {\tt accessible}. {\tt f}
+must be a final field.
+
+\Xten{} also provides place inference for {\tt asyncs} and {\tt futures} (\S~\ref{AsyncActivity}):
+
+\begin{x10}
+  async \{{\cf\em{}Statement;}\} 
+  async (\_) \{{\cf\em{}Statement;}\}
+  future \{{\cf\em{}Statement;}\} 
+  future (\_) \{{\cf\em{}Statement;}\} 
+\end{x10}
+
+In the {\tt async} ({\tt future}) statement, the target place of the
+{\tt async} ({\tt future}) is the unique place that will satisfy the
+place constraints of the body; if there is more than one such place,
+an error is thrown at compile-time. We permit the second form so as to
+allow the programmer to document that s/he intends the compiler to
+infer the location.
+
+Place variables outside an async are accessible inside the async.
+
+\paragraph{Examples}
+Consider a {\tt Stack} containing elements of some type {\tt T} which must
+all be located at a given place {\tt P}:
+\begin{x10}
+ class Stack<T@P> \{
+     ?T@P[] elements;
+     int size;
+     Stack() \{
+         // filled with nulls.
+         elements = new ?T@P[1000]; 
+         size = 0;
+     \}
+     void push(T@P t) \{ elements[size++] = t; \}
+     T@P pop() \{ return elements[--size]; \}
+     void fill(T@P v) \{ 
+         for (int i : elements) \{ 
+            elements[i] = v; 
+         \} 
+     \}
+ \}
+\end{x10}
+
+Consider the following array initializers (\S~\ref{ArrayInitializer}):
+\begin{x10}
+  distribution D = block(1000);
+  // region 1..1000 treated as 1..1000 here
+  \_ data = new int@current[1000](i){ return i*i; }; 
+    // gives in P the place to which data[2] was 
+    // mapped, i.e. the first place.
+  <P> int@P q = data[2]; 
+    // initialize the array with 10 times 
+    // the index value
+  float[D] d = new float[D] (i){ return 10.0*i; };
+  float[D] d2 = new float[D] (i){ return i*i; };
+  float[D] result = 
+    new float[D] (i){ return di] + d2[i]; };
+\end{x10}
+
+The code fragments type-check because the compiler may make the
+inference that {\tt here} inside the {\tt ateach} is {\tt D[i]}, and
+that the place of the elements {\tt d[i]} and {\tt d2[i]} is also 
+{\tt D[i]}. The \Xten{} compiler uses only syntactic equality and simple
+intraprocedural dataflow identities to determine which places are the
+same.  
+
+The place associated with a particular distribution element may be
+accessed using array syntax.
+\begin{x10}
+  place P = D[i];
+  Object@P obj = async { new Object@P(); };
+  int x = async (D[77]) { return data[77]; };
+\end{x10}
+Distributions can be passed as parameters much as places can.
+
+\begin{x10}
+ <P> void m(Object@P f) \{
+    \_ stack = new Stack@local <Object@P>();
+    fill(stack);
+ \}
+\end{x10}
+
+In the following, the type specifier for the argument expands to
+{\tt Stack<Object@P>@here}:
+
+\begin{x10}
+ <P> void fill(Stack<Object@P> stack) \{
+    for (int i : 1000 ) \{
+        stack.push( new Object@P(););
+    \}
+ \}
+
+ <P> void unordered\_fill(Stack<Object@P> stack) \{
+    ^Object@P[] futures = new ^Object@P[1000] 
+          \{return new Object@P();\}; 
+    for (^Object@P f : futures) \{
+        stack.push(f);
+    \}
+ \}
+\end{x10}
+
+\paragraph{Examples with type inference}
+\begin{x10}
+ <P> void m() \{
+    \_ stack = new Stack@threadlocal<Object, P>();
+    fill(stack);
+\}
+
+ <P> void fill(Stack@threadlocal<Object@P> stack) \{
+    for (int i = 0; i < 1000; i++) \{
+        stack.push(async \{return new Object@P();\});
+    \}
+\}
+
+<P> void unordered\_fill(Stack@local<Object@P> stack) \{
+    \_ values = new \_[1000] \{return new Object@P();\};
+    for (\_ f : values) \{
+        stack.push(f);
+    \}
+\}
+
+ // Use of anywhere types and newplace 
+ // to create heterogenous collections
+ void anywhere\_test() \{
+    // create 1000 objects at 
+    // 1000 different shared places
+   \_ objs = new Object@?[1000]@local 
+          (i)\{ async(?) \{ return new Object();\}\};
+    for (\_ o : objs) \{
+        <P> Object@P v = o;
+        async \{v.blah(); \};
+    \}
+ \}
+\end{x10}
+

@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Atomic blocks</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Atomic blocks</h2><a name="AtomicBlocks">
+</a>
+
+
+<div class="p"><!----></div>
+X10's <b>atomic</b> blocks provide a high-level construct for coordinating
+the mutation of shared data. 
+A programmer may use atomic blocks to guarantee that invariants of
+shared data-structures are maintained even as they are being accessed
+simultaneously by multiple activities running in the same place.  
+
+<div class="p"><!----></div>
+<em>  
+<table>
+
+<tr><td align="right">AtomicStatement ::= <b>atomic</b> Statement </td></tr>
+<tr><td align="right">WhenStatement ::= <b>when</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+For example, consider a class <b>Redund[T]</b>, which encapsulates a list
+<b>list</b> and, (redundantly) keeps the size of the list in a second field
+<b>size</b>.  Then <b>r:Redund[T]</b> has the invariant 
+<b>r.list.size() == r.size</b>, which must be true at any point at which
+no method calls on <b>r</b> are active.
+
+<div class="p"><!----></div>
+If the <b>add</b> method on <b>Redund</b> (which adds an element to the list) 
+were defined as: 
+<pre>
+def add(x:T) { //Incorrect
+		this.list.add(x);
+		this.size = this.size + 1;
+}
+</pre>
+Then two activities simultaneously adding elements to the same <b>r</b> could break the
+invariant.  Suppose that <b>r</b> starts out empty.  Let the first activity
+perform the <b>list.add</b>, and compute <b>this.size+1</b>, which is 1, but not store it
+back into <b>this.size</b> yet.  
+(At this point, <b>r.list.size()==1</b> and <b>r.size==0</b>; the invariant
+expression is false, but, as the first call to <b>r.add()</b> is active, the
+invariant does not need to be true - it only needs to be true when the
+call finishes.)
+Now, let the second activity do its call to
+<b>add</b> to completion, which finishes with <b>r.size==1</b>.  
+(As before, the invariant expression is false, but a call to <b>r.add()</b> is
+still active, so the invariant need not be true.)
+Finally, let
+the first activity finish, which assigns the <b>1</b> computed before back into
+<b>this.size</b>.  At the end, there are two elements in <b>r.list</b>, but
+<b>r.size==1</b>. Since there are no calls to <b>r.add()</b> active, the
+invariant must be true, but it is not.
+
+<div class="p"><!----></div>
+In this case, the invariant can be maintained by making the increment atomic.
+Doing so forbids that sequence of events; the <b>atomic</b> block cannot be
+stopped partway.  
+<pre>
+def add(x:T) { 
+	atomic {
+  this.list.add(x);
+   this.size = this.size + 1; 
+	}
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.1">
+7.1</a>&nbsp;&nbsp;Unconditional atomic blocks</h3>
+The simplest form of an atomic block is the <em>unconditional
+atomic block</em>: <b>atomic S</b>.
+When <b>atomic S</b> is executing at some place <b>p</b>, no other activity at
+<b>p</b> may enter an atomic block.  
+So, other activities may continue, even at the same place, but code protected
+by atomic blocks is not subject to interference from other code in atomic
+blocks. 
+
+<div class="p"><!----></div>
+If execution of the statement may throw an exception, it is
+the programmer's responsibility to wrap the atomic block within a
+<b>try</b>/<b>finally</b> clause and include undo code in the finally
+clause. Thus the <b>atomic</b> statement only guarantees atomicity on
+successful execution, not on a faulty execution.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Atomic blocks are closely related to non-blocking synchronization
+constructs [], and can be used to implement 
+non-blocking concurrent algorithms.
+
+<div class="p"><!----></div>
+Code executed inside of <b>atomic S</b> and <b>when S</b> is subject
+to certain restrictions. A violation of these restrictions causes an 
+<b>IllegalOperationException</b> to be thrown at the point of the violation.
+
+<div class="p"><!----></div>
+
+<ul>
+<li> <b>S</b> may not spawn another activity.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>S</b> may not use any blocking statements; <b>when</b>, <b>next</b>,
+      <b>finish</b>.  (The use of a nested <b>atomic</b> is permitted.)
+<div class="p"><!----></div>
+</li>
+
+<li> <b>S</b> may not <b>force()</b> a <b>Future</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>S</b> may not use <b>at</b> expressions.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<b>Consequences.&nbsp;&nbsp;</b>
+Note an important property of an (unconditional) atomic block:
+
+<div class="p"><!----></div>
+
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table border="0" cellspacing="0" cellpadding="0">
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table><tr><td nowrap="nowrap" align="right" colspan="1"> <b><b>atomic</b> {<b>s</b><b>1</b><b>;</b> <b>atomic</b> <b>s</b><b>2</b>}</b> = <b><b>atomic</b> {<b>s</b><b>1</b><b>;</b> <b>s</b><b>2</b>}</b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr></table>
+</td></tr></table>
+
+
+
+<div class="p"><!----></div>
+Atomic blocks do not introduce deadlocks.    They may exhibit all the bad
+behavior of sequential programs, including throwing exceptions and running
+forever, but they are guaranteed not to deadlock.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc7.1.1">
+7.1.1</a>&nbsp;&nbsp;Example</h4>
+
+<div class="p"><!----></div>
+The following class method implements a (generic) compare and swap (CAS) operation:
+
+<div class="p"><!----></div>
+<pre>
+var target:Object = null;
+public atomic def CAS(old1: Object, new1: Object): Boolean {
+   if (target.equals(old1)) {
+     target = new1;
+     return true;
+   }
+   return false;
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.2">
+7.2</a>&nbsp;&nbsp;Conditional atomic blocks</h3>
+
+
+
+<div class="p"><!----></div>
+Conditional atomic blocks allow the activity to wait for some condition to be
+satisfied before executing an atomic block. For example, consider a
+<b>Redund</b> class holding a list <b>r.list</b> and, redundantly, its length
+<b>r.size</b>.  A <b>pop</b> operation will delay until the <b>Redund</b> is
+nonempty, and then remove an element and update the length.  
+<pre>
+def pop():T {
+  var ret : T;
+  when(size&#62;0) {
+    ret = list.removeAt(0);
+    size -;
+    }
+  return ret;
+}
+</pre>
+
+<div class="p"><!----></div>
+The execution of the test is atomic with the execution of the block.  This is
+important; it means that no other activity can sneak in and make the condition
+be false before the block is executed.  In this example, two <b>pop</b>s
+executing on a list with one element would work properly. Without the
+conditional atomic block - even doing the decrement atomically - one call to
+<b>pop</b> could pass the <b>size&#62;0</b> guard; then the other call could run to
+completion (removing the only element of the list); then, when the first call
+proceeds, its <b>removeAt</b> will fail.  
+
+<div class="p"><!----></div>
+Note that <b>if</b> would not work here.  
+<b>if(size&#62;0) atomic{size--; return list.removeAt(0);}</b> allows another
+activity to act between the test and the atomic block.  
+And 
+<b>atomic{ if(size&#62;0) {size--; ret = list.removeAt(0);}}</b> 
+does not wait for <b>size&#62;0</b> to become true.
+
+<div class="p"><!----></div>
+Conditional atomic blocks are of the form <b>when(b)S</b>; 
+<b>b</b> is called the <em>guard</em>, and <b>S</b> the <em>body</em>.
+
+<div class="p"><!----></div>
+An activity executing such a statement suspends until such time as the  guard
+is true in the current state. In that state, the 
+body is executed. 
+The checking of the guards and the execution of the corresponding
+guarded statement is done atomically. 
+
+<div class="p"><!----></div>
+X10 does not guarantee that a conditional atomic block
+will execute if its condition holds only intermittently. For, based on
+the vagaries of the scheduler, the precise instant at which a
+condition holds may be missed. Therefore the programmer is advised to
+ensure that conditions being tested by conditional atomic blocks are
+eventually stable, , they will continue to hold until the block
+executes (the action in the body of the block may cause the condition
+to not hold any more).
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+The statement <b>when (true) S</b> is
+behaviorally identical to <b>atomic S</b>: it never suspends.
+
+<div class="p"><!----></div>
+The body <b>S</b> of <b>when(b)S</b> is subject to the same restrictions that
+the body of <b>atomic S</b> is.  The guard is subject to the same restrictions
+as well.  Furthermore, guards should not have side effects.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Note that this implies that guarded statements are required to be <em>
+flat</em>, that is, they may not contain conditional atomic blocks. (The
+implementation of nested conditional atomic blocks may require
+sophisticated operational techniques such as rollbacks.)
+
+<div class="p"><!----></div>
+The following class shows how to implement a bounded buffer of size
+1 in X10 for repeated communication between a sender and a
+receiver.  The call <b>buf.send(ob)</b> waits until the buffer has space, and
+then puts <b>ob</b> into it.  Dually, <b>buf.receive()</b> waits until the
+buffer has something in it, and then returns that thing.
+
+<div class="p"><!----></div>
+<pre>
+class OneBuffer[T] {
+  var datum: T;
+  def this(t:T) { this.datum = t; this.filled = true; }
+  var filled: Boolean;
+  public def send(v: T) {
+    when (!filled) {
+      this.datum = v;
+      this.filled = true;
+    }
+  }
+  public def receive(): T {
+    when (filled) {
+      v: T = datum;
+      filled = false;
+      return v;
+    }
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+
+</body>
+</html>

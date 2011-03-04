@@ -1,0 +1,45 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Checks force for grand-children.
+ * @author Christoph von Praun
+ */
+public class FutureForce extends x10Test {
+
+	var flag: boolean;
+	var foo: int;
+
+	public def bar(): int = {
+		System.out.print("waiting ...");
+		x10.lang.Runtime.sleep(2000);
+		System.out.println("done.");
+		atomic flag = true;
+		return 42;
+	}
+
+	public def foo(): int = {
+		var r2: future<int> = future(here) { bar() };
+		return 42;
+	}
+
+	public def run(): boolean = {
+		atomic flag = false;
+		var r1: future<int> = future(here) { foo() };
+		r1.force();
+		var b: boolean;
+		atomic b = flag;
+		System.out.println("The flag is b=" + b + " (should be true).");
+		return (b == true);
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new FutureForce().execute();
+	}
+}

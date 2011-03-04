@@ -1,0 +1,126 @@
+<html>
+<title>X10 Frequently Asked Questions (FAQs)</title>
+<br>
+
+<body>
+<h1>X10 Frequently Asked Questions (FAQs)</h1>
+
+<a href="#faq1">How to show compiler options...</a><br>
+<a href="#faq2">How to show where dynamic checks are...</a><br>
+<a href="#faq3">How to show compile time errors...</a><br>
+<a href="#faq4">Struct initialization...</a><br>
+<a href="#faq5">Using manager and launcher...</a><br>
+<a href="#faq6">Running X10 programs in more than 1 place...</a><br>
+
+<h2><a name="faq1">How to show compiler options...<a></h2>
+<p>
+<pre>
+$ x10c -- -help
+</pre>
+will print details of the various compiler options.
+</p>
+
+<h2><a name="faq2">How to show where dynamic checks are...<a></h2>
+<p>
+the compilers shows me how many dynamic checks it inserted:
+<pre>
+$ x10c DataFlowExample.x10 
+x10c: 7 dynamically checked calls or field accesses.
+</pre>
+Is there a way to tell, where exactly those dynamic checks are?
+<br>
+You should compile with 
+<pre>
+-VERBOSE_CALLS=true
+</pre>
+This will print details of all inserted dynamic casts.
+
+</p>
+
+<h2><a name="faq3">How to show compile time errors...<a></h2>
+<p>
+As it is, the compiler inserts a dynamic check for you, 
+which then fails at runtime.
+If you run the compiler with the -STATIC_CALLS flag,
+you will get a compile-time error.  
+</p>
+
+<!--
+<h2><a name="faq4">How to use ! ...<a></h2>
+<p>
+Every object has a place, that's the point of the PGAS paradigm. You
+can access fields and methods of the object only in it's home place. 
+Only "global" methods and fields can be accessed everywhere.
+</p>
+<p>
+You should use "!" to make sure you don't have ClassCastException for home
+constraints. When you compile your program, you may see the warning: 
+ZZZ dynamic checks added. If you compile with the parameter -STATIC_CALLS then 
+the compiler will give you errors instead of warnings, and 
+you will know what to mark as "!".
+</p>
+-->
+
+<h2><a name="faq4">Struct initialization...<a></h2>
+<p>
+For structs you do not need to use "new". Simply write:
+<pre>
+val x = Pair[Int,Int](3,4);
+</pre>
+We have a proposal that would allow also using "new" for creating a struct
+(which will be more comfortable for Java users).
+</p>
+
+<h2><a name="faq5">Using manager and launcher...<a></h2>
+<p>
+The basic idea is the following.
+<ol>
+<li>Make a hostlist.txt containing A and B on separate lines
+	<ul>
+	<li> A
+	<li> B
+	</ul>
+<li>In one window/console/xterm run the command manager hostlist.txt
+<li>In a different window/console do: launcher -t 2 HelloWholeWorld
+</ol>
+<p>
+It helps a lot to have passwordless ssh working between the machine
+where the manager process is running and the compute nodes.
+<p>
+When you do (3) you should see some output in the manager window
+telling you that jobs are starting stopping.
+</p>
+
+<h2><a name="faq6">Running x10 programs in more than 1 place...<a></h2>
+<ul>
+<li>
+To run the compiled X10 executable in one place, invoke
+<pre>
+    bin/runx10 ./&lt;class_name&gt;
+</pre>
+<li>
+To run in multiple places on Linux, run "bin/manager", and then invoke 
+<pre>
+    bin/launcher -t &lt;nplaces&gt; ./&lt;class_name&gt;
+</pre>
+<p>
+Refer to <a href="#faq5">using manager and launcher above.</a>
+<br><br>
+<li>
+To run in multiple places on AIX, run
+<pre>
+  "LAPI_USE_SHMEM=yes poe ./&lt;class_name&gt; -procs &lt;nplaces&gt; -hostfile HOSTFILE".
+</pre>
+  See "man poe" for additional options and the format of HOSTFILE.
+<br><br>
+<li>
+If you have mpi available, you can use mpirun to run in multiple places.
+  Details will vary depending on the exact syntax of the mpirun command,
+  but something like this should work:
+<pre>  
+  mpirun -hostfile &lt;hosts&gt; -n &lt;nplaces&gt; ./&lt;class_name&gt;
+</pre>
+</ul>
+
+</body>
+</html>

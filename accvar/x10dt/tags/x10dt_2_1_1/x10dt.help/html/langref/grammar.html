@@ -1,0 +1,813 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Grammar</title>
+</head>
+
+<body>
+ <h1><a name="tth_chAp1">
+Chapter 19 </a><br />Grammar</h1>
+
+<div class="p"><!----></div>
+In this grammar, X<sup>?</sup> denotes an optional X element.
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">MethodInvocation  <a name="prod:MethodInvocation">
+</a>  ::= MethodPrimaryPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; MethodSuperPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; MethodClassNameSuperPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">Mod  <a name="prod:Mod">
+</a>  ::= <b>abstract</b></td></tr>
+<tr><td align="right">&#124; Annotation</td></tr>
+<tr><td align="right">&#124; <b>atomic</b></td></tr>
+<tr><td align="right">&#124; <b>final</b></td></tr>
+<tr><td align="right">&#124; <b>native</b></td></tr>
+<tr><td align="right">&#124; <b>private</b></td></tr>
+<tr><td align="right">&#124; <b>protected</b></td></tr>
+<tr><td align="right">&#124; <b>public</b></td></tr>
+<tr><td align="right">&#124; <b>static</b></td></tr>
+<tr><td align="right">&#124; <b>transient</b></td></tr>
+<tr><td align="right">&#124; <b>clocked</b></td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">MethMods  <a name="prod:MethMods">
+</a>  ::= Mods<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; MethMods <b>property</b> </td></tr>
+<tr><td align="right">&#124; MethMods Mod</td></tr>
+<tr><td align="right">TypeDefDecl  <a name="prod:TypeDefDecl">
+</a>  ::= Mods<sup>?</sup>&nbsp;<b>type</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;<b>=</b> Type <b>;</b></td></tr>
+<tr><td align="right">Properties  <a name="prod:Properties">
+</a>  ::= <b>(</b> PropertyList <b>)</b></td></tr>
+<tr><td align="right">PropertyList  <a name="prod:PropertyList">
+</a>  ::= Property</td></tr>
+<tr><td align="right">&#124; PropertyList <b>,</b> Property</td></tr>
+<tr><td align="right">Property  <a name="prod:Property">
+</a>  ::= Annotations<sup>?</sup>&nbsp;Id ResultType</td></tr>
+<tr><td align="right">MethodDecl  <a name="prod:MethodDecl">
+</a>  ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">PropertyMethodDecl  <a name="prod:PropertyMethodDecl">
+</a>  ::= MethMods Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">&#124; MethMods Id WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">ExplicitCtorInvocation  <a name="prod:ExplicitCtorInvocation">
+</a>  ::= <b>this</b> TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> <b>;</b></td></tr>
+<tr><td align="right">&#124; <b>super</b> TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> <b>;</b></td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> <b>this</b> TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> <b>;</b></td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> <b>super</b> TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> <b>;</b></td></tr>
+<tr><td align="right">NormalInterfaceDecl  <a name="prod:NormalInterfaceDecl">
+</a>  ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody</td></tr>
+<tr><td align="right">ClassInstCreationExp  <a name="prod:ClassInstCreationExp">
+</a>  ::= <b>new</b> TypeName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; <b>new</b> TypeName <b>[</b> Type <b>]</b> <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b></td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> <b>new</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; AmbiguousName <b>.</b> <b>new</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">AssignPropertyCall  <a name="prod:AssignPropertyCall">
+</a>  ::= <b>property</b> TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> <b>;</b></td></tr>
+<tr><td align="right">Type  <a name="prod:Type">
+</a>  ::= FunctionType</td></tr>
+<tr><td align="right">&#124; ConstrainedType</td></tr>
+<tr><td align="right">FunctionType  <a name="prod:FunctionType">
+</a>  ::= TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> Type</td></tr>
+<tr><td align="right">ClassType  <a name="prod:ClassType">
+</a>  ::= NamedType</td></tr>
+<tr><td align="right">AnnotatedType  <a name="prod:AnnotatedType">
+</a>  ::= Type Annotations</td></tr>
+<tr><td align="right">ConstrainedType  <a name="prod:ConstrainedType">
+</a>  ::= NamedType</td></tr>
+<tr><td align="right">&#124; AnnotatedType</td></tr>
+<tr><td align="right">&#124; <b>(</b> Type <b>)</b></td></tr>
+<tr><td align="right">PlaceType  <a name="prod:PlaceType">
+</a>  ::= PlaceExp</td></tr>
+<tr><td align="right">SimpleNamedType  <a name="prod:SimpleNamedType">
+</a>  ::= TypeName</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">&#124; Primary <b>.</b> Id</td></tr>
+<tr><td align="right">&#124; DepNamedType <b>.</b> Id</td></tr>
+<tr><td align="right">DepNamedType  <a name="prod:DepNamedType">
+</a>  ::= SimpleNamedType DepParams</td></tr>
+<tr><td align="right">&#124; SimpleNamedType Arguments</td></tr>
+<tr><td align="right">&#124; SimpleNamedType Arguments DepParams</td></tr>
+<tr><td align="right">&#124; SimpleNamedType TypeArguments</td></tr>
+<tr><td align="right">&#124; SimpleNamedType TypeArguments DepParams</td></tr>
+<tr><td align="right">&#124; SimpleNamedType TypeArguments Arguments</td></tr>
+<tr><td align="right">&#124; SimpleNamedType TypeArguments Arguments DepParams</td></tr>
+<tr><td align="right">NamedType  <a name="prod:NamedType">
+</a>  ::= SimpleNamedType</td></tr>
+<tr><td align="right">&#124; DepNamedType</td></tr>
+<tr><td align="right">DepParams  <a name="prod:DepParams">
+</a>  ::= <b>{</b> ExistentialList<sup>?</sup>&nbsp;Conjunction<sup>?</sup>&nbsp;<b>}</b></td></tr>
+<tr><td align="right">TypeParamsWithVariance  <a name="prod:TypeParamsWithVariance">
+</a>  ::= <b>[</b> TypeParamWithVarianceList <b>]</b></td></tr>
+<tr><td align="right">TypeParams  <a name="prod:TypeParams">
+</a>  ::= <b>[</b> TypeParamList <b>]</b></td></tr>
+<tr><td align="right">FormalParams  <a name="prod:FormalParams">
+</a>  ::= <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">Conjunction  <a name="prod:Conjunction">
+</a>  ::= Exp</td></tr>
+<tr><td align="right">&#124; Conjunction <b>,</b> Exp</td></tr>
+<tr><td align="right">SubtypeConstraint  <a name="prod:SubtypeConstraint">
+</a>  ::= Type  <b>&lt;:</b> Type </td></tr>
+<tr><td align="right">&#124; Type  <b>:&#62;</b> Type </td></tr>
+<tr><td align="right">WhereClause  <a name="prod:WhereClause">
+</a>  ::= DepParams</td></tr>
+<tr><td align="right">ExistentialList  <a name="prod:ExistentialList">
+</a>  ::= FormalParam</td></tr>
+<tr><td align="right">&#124; ExistentialList <b>;</b> FormalParam</td></tr>
+<tr><td align="right">ClassDecl  <a name="prod:ClassDecl">
+</a>  ::= StructDecl</td></tr>
+<tr><td align="right">&#124; NormalClassDecl</td></tr>
+<tr><td align="right">NormalClassDecl  <a name="prod:NormalClassDecl">
+</a>  ::= Mods<sup>?</sup>&nbsp;<b>class</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;Super<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody</td></tr>
+<tr><td align="right">StructDecl  <a name="prod:StructDecl">
+</a>  ::= Mods<sup>?</sup>&nbsp;<b>struct</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody</td></tr>
+<tr><td align="right">CtorDecl  <a name="prod:CtorDecl">
+</a>  ::= Mods<sup>?</sup>&nbsp;<b>def</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;CtorBody</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">Super  <a name="prod:Super">
+</a>  ::= <b>extends</b> ClassType</td></tr>
+<tr><td align="right">FieldKeyword  <a name="prod:FieldKeyword">
+</a>  ::= <b>val</b></td></tr>
+<tr><td align="right">&#124; <b>var</b></td></tr>
+<tr><td align="right">VarKeyword  <a name="prod:VarKeyword">
+</a>  ::= <b>val</b></td></tr>
+<tr><td align="right">&#124; <b>var</b></td></tr>
+<tr><td align="right">FieldDecl  <a name="prod:FieldDecl">
+</a>  ::= Mods<sup>?</sup>&nbsp;FieldKeyword FieldDeclarators <b>;</b></td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;FieldDeclarators <b>;</b></td></tr>
+<tr><td align="right">Statement  <a name="prod:Statement">
+</a>  ::= AnnotationStatement</td></tr>
+<tr><td align="right">&#124; ExpStatement</td></tr>
+<tr><td align="right">AnnotationStatement  <a name="prod:AnnotationStatement">
+</a>  ::= Annotations<sup>?</sup>&nbsp;NonExpStatement</td></tr>
+<tr><td align="right">NonExpStatement  <a name="prod:NonExpStatement">
+</a>  ::= Block</td></tr>
+<tr><td align="right">&#124; EmptyStatement</td></tr>
+<tr><td align="right">&#124; AssertStatement</td></tr>
+<tr><td align="right">&#124; SwitchStatement</td></tr>
+<tr><td align="right">&#124; DoStatement</td></tr>
+<tr><td align="right">&#124; BreakStatement</td></tr>
+<tr><td align="right">&#124; ContinueStatement</td></tr>
+<tr><td align="right">&#124; ReturnStatement</td></tr>
+<tr><td align="right">&#124; ThrowStatement</td></tr>
+<tr><td align="right">&#124; TryStatement</td></tr>
+<tr><td align="right">&#124; LabeledStatement</td></tr>
+<tr><td align="right">&#124; IfThenStatement</td></tr>
+<tr><td align="right">&#124; IfThenElseStatement</td></tr>
+<tr><td align="right">&#124; WhileStatement</td></tr>
+<tr><td align="right">&#124; ForStatement</td></tr>
+<tr><td align="right">&#124; AsyncStatement</td></tr>
+<tr><td align="right">&#124; AtStatement</td></tr>
+<tr><td align="right">&#124; AtomicStatement</td></tr>
+<tr><td align="right">&#124; WhenStatement</td></tr>
+<tr><td align="right">&#124; AtEachStatement</td></tr>
+<tr><td align="right">&#124; FinishStatement</td></tr>
+<tr><td align="right">&#124; NextStatement</td></tr>
+<tr><td align="right">&#124; ResumeStatement</td></tr>
+<tr><td align="right">&#124; AssignPropertyCall</td></tr>
+<tr><td align="right">&#124; OfferStatement</td></tr>
+<tr><td align="right">OfferStatement  <a name="prod:OfferStatement">
+</a>  ::= <b>offer</b> Exp <b>;</b></td></tr>
+<tr><td align="right">IfThenStatement  <a name="prod:IfThenStatement">
+</a>  ::= <b>if</b> <b>(</b> Exp <b>)</b> Statement</td></tr>
+<tr><td align="right">IfThenElseStatement  <a name="prod:IfThenElseStatement">
+</a>  ::= <b>if</b> <b>(</b> Exp <b>)</b> Statement  <b>else</b> Statement </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">EmptyStatement  <a name="prod:EmptyStatement">
+</a>  ::= <b>;</b></td></tr>
+<tr><td align="right">LabeledStatement  <a name="prod:LabeledStatement">
+</a>  ::= Id <b>:</b> LoopStatement</td></tr>
+<tr><td align="right">LoopStatement  <a name="prod:LoopStatement">
+</a>  ::= ForStatement</td></tr>
+<tr><td align="right">&#124; WhileStatement</td></tr>
+<tr><td align="right">&#124; DoStatement</td></tr>
+<tr><td align="right">&#124; AtEachStatement</td></tr>
+<tr><td align="right">ExpStatement  <a name="prod:ExpStatement">
+</a>  ::= StatementExp <b>;</b></td></tr>
+<tr><td align="right">StatementExp  <a name="prod:StatementExp">
+</a>  ::= Assignment</td></tr>
+<tr><td align="right">&#124; PreIncrementExp</td></tr>
+<tr><td align="right">&#124; PreDecrementExp</td></tr>
+<tr><td align="right">&#124; PostIncrementExp</td></tr>
+<tr><td align="right">&#124; PostDecrementExp</td></tr>
+<tr><td align="right">&#124; MethodInvocation</td></tr>
+<tr><td align="right">&#124; ClassInstCreationExp</td></tr>
+<tr><td align="right">AssertStatement  <a name="prod:AssertStatement">
+</a>  ::= <b>assert</b> Exp <b>;</b></td></tr>
+<tr><td align="right">&#124; <b>assert</b> Exp  <b>:</b> Exp  <b>;</b></td></tr>
+<tr><td align="right">SwitchStatement  <a name="prod:SwitchStatement">
+</a>  ::= <b>switch</b> <b>(</b> Exp <b>)</b> SwitchBlock</td></tr>
+<tr><td align="right">SwitchBlock  <a name="prod:SwitchBlock">
+</a>  ::= <b>{</b> SwitchBlockStatementGroups<sup>?</sup>&nbsp;SwitchLabels<sup>?</sup>&nbsp;<b>}</b></td></tr>
+<tr><td align="right">SwitchBlockStatementGroups  <a name="prod:SwitchBlockStatementGroups">
+</a>  ::= SwitchBlockStatementGroup</td></tr>
+<tr><td align="right">&#124; SwitchBlockStatementGroups SwitchBlockStatementGroup</td></tr>
+<tr><td align="right">SwitchBlockStatementGroup  <a name="prod:SwitchBlockStatementGroup">
+</a>  ::= SwitchLabels BlockStatements</td></tr>
+<tr><td align="right">SwitchLabels  <a name="prod:SwitchLabels">
+</a>  ::= SwitchLabel</td></tr>
+<tr><td align="right">&#124; SwitchLabels SwitchLabel</td></tr>
+<tr><td align="right">SwitchLabel  <a name="prod:SwitchLabel">
+</a>  ::= <b>case</b> ConstantExp <b>:</b></td></tr>
+<tr><td align="right">&#124; <b>default</b> <b>:</b></td></tr>
+<tr><td align="right">WhileStatement  <a name="prod:WhileStatement">
+</a>  ::= <b>while</b> <b>(</b> Exp <b>)</b> Statement</td></tr>
+<tr><td align="right">DoStatement  <a name="prod:DoStatement">
+</a>  ::= <b>do</b> Statement <b>while</b> <b>(</b> Exp <b>)</b> <b>;</b></td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">ForStatement  <a name="prod:ForStatement">
+</a>  ::= BasicForStatement</td></tr>
+<tr><td align="right">&#124; EnhancedForStatement</td></tr>
+<tr><td align="right">BasicForStatement  <a name="prod:BasicForStatement">
+</a>  ::= <b>for</b> <b>(</b> ForInit<sup>?</sup>&nbsp;<b>;</b> Exp<sup>?</sup>&nbsp;<b>;</b> ForUpdate<sup>?</sup>&nbsp;<b>)</b> Statement</td></tr>
+<tr><td align="right">ForInit  <a name="prod:ForInit">
+</a>  ::= StatementExpList</td></tr>
+<tr><td align="right">&#124; LocalVariableDecl</td></tr>
+<tr><td align="right">ForUpdate  <a name="prod:ForUpdate">
+</a>  ::= StatementExpList</td></tr>
+<tr><td align="right">StatementExpList  <a name="prod:StatementExpList">
+</a>  ::= StatementExp</td></tr>
+<tr><td align="right">&#124; StatementExpList <b>,</b> StatementExp</td></tr>
+<tr><td align="right">BreakStatement  <a name="prod:BreakStatement">
+</a>  ::= <b>break</b> Id<sup>?</sup>&nbsp;<b>;</b></td></tr>
+<tr><td align="right">ContinueStatement  <a name="prod:ContinueStatement">
+</a>  ::= <b>continue</b> Id<sup>?</sup>&nbsp;<b>;</b></td></tr>
+<tr><td align="right">ReturnStatement  <a name="prod:ReturnStatement">
+</a>  ::= <b>return</b> Exp<sup>?</sup>&nbsp;<b>;</b></td></tr>
+<tr><td align="right">ThrowStatement  <a name="prod:ThrowStatement">
+</a>  ::= <b>throw</b> Exp <b>;</b></td></tr>
+<tr><td align="right">TryStatement  <a name="prod:TryStatement">
+</a>  ::= <b>try</b> Block Catches</td></tr>
+<tr><td align="right">&#124; <b>try</b> Block Catches<sup>?</sup>&nbsp;Finally</td></tr>
+<tr><td align="right">Catches  <a name="prod:Catches">
+</a>  ::= CatchClause</td></tr>
+<tr><td align="right">&#124; Catches CatchClause</td></tr>
+<tr><td align="right">CatchClause  <a name="prod:CatchClause">
+</a>  ::= <b>catch</b> <b>(</b> FormalParam <b>)</b> Block</td></tr>
+<tr><td align="right">Finally  <a name="prod:Finally">
+</a>  ::= <b>finally</b> Block</td></tr>
+<tr><td align="right">ClockedClause  <a name="prod:ClockedClause">
+</a>  ::= <b>clocked</b> <b>(</b> ClockList <b>)</b></td></tr>
+<tr><td align="right">AsyncStatement  <a name="prod:AsyncStatement">
+</a>  ::= <b>async</b> ClockedClause<sup>?</sup>&nbsp;Statement</td></tr>
+<tr><td align="right">&#124; <b>clocked</b> <b>async</b> Statement</td></tr>
+<tr><td align="right">AtStatement  <a name="prod:AtStatement">
+</a>  ::= <b>at</b> PlaceExpSingleList Statement</td></tr>
+<tr><td align="right">AtomicStatement  <a name="prod:AtomicStatement">
+</a>  ::= <b>atomic</b> Statement</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">WhenStatement  <a name="prod:WhenStatement">
+</a>  ::= <b>when</b> <b>(</b> Exp <b>)</b> Statement</td></tr>
+<tr><td align="right">AtEachStatement  <a name="prod:AtEachStatement">
+</a>  ::= <b>ateach</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> ClockedClause<sup>?</sup>&nbsp;Statement</td></tr>
+<tr><td align="right">&#124; <b>ateach</b> <b>(</b> Exp <b>)</b> Statement</td></tr>
+<tr><td align="right">EnhancedForStatement  <a name="prod:EnhancedForStatement">
+</a>  ::= <b>for</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> Statement</td></tr>
+<tr><td align="right">&#124; <b>for</b> <b>(</b> Exp <b>)</b> Statement</td></tr>
+<tr><td align="right">FinishStatement  <a name="prod:FinishStatement">
+</a>  ::= <b>finish</b> Statement</td></tr>
+<tr><td align="right">&#124; <b>clocked</b> <b>finish</b> Statement</td></tr>
+<tr><td align="right">PlaceExpSingleList  <a name="prod:PlaceExpSingleList">
+</a>  ::= <b>(</b> PlaceExp <b>)</b></td></tr>
+<tr><td align="right">PlaceExp  <a name="prod:PlaceExp">
+</a>  ::= Exp</td></tr>
+<tr><td align="right">NextStatement  <a name="prod:NextStatement">
+</a>  ::= <b>next</b> <b>;</b></td></tr>
+<tr><td align="right">ResumeStatement  <a name="prod:ResumeStatement">
+</a>  ::= <b>resume</b> <b>;</b></td></tr>
+<tr><td align="right">ClockList  <a name="prod:ClockList">
+</a>  ::= Clock</td></tr>
+<tr><td align="right">&#124; ClockList <b>,</b> Clock</td></tr>
+<tr><td align="right">Clock  <a name="prod:Clock">
+</a>  ::= Exp</td></tr>
+<tr><td align="right">CastExp  <a name="prod:CastExp">
+</a>  ::= Primary</td></tr>
+<tr><td align="right">&#124; ExpName</td></tr>
+<tr><td align="right">&#124; CastExp <b>as</b> Type</td></tr>
+<tr><td align="right">TypeParamWithVarianceList  <a name="prod:TypeParamWithVarianceList">
+</a>  ::= TypeParamWithVariance</td></tr>
+<tr><td align="right">&#124; TypeParamWithVarianceList <b>,</b> TypeParamWithVariance</td></tr>
+<tr><td align="right">TypeParamList  <a name="prod:TypeParamList">
+</a>  ::= TypeParam</td></tr>
+<tr><td align="right">&#124; TypeParamList <b>,</b> TypeParam</td></tr>
+<tr><td align="right">TypeParamWithVariance  <a name="prod:TypeParamWithVariance">
+</a>  ::= Id</td></tr>
+<tr><td align="right">&#124; <b>+</b> Id</td></tr>
+<tr><td align="right">&#124; <b>-</b> Id</td></tr>
+<tr><td align="right">TypeParam  <a name="prod:TypeParam">
+</a>  ::= Id</td></tr>
+<tr><td align="right">AssignmentExp  <a name="prod:AssignmentExp">
+</a>  ::= Exp  <b>-&#62;</b> Exp </td></tr>
+<tr><td align="right">ClosureExp  <a name="prod:ClosureExp">
+</a>  ::= FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> ClosureBody</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">LastExp  <a name="prod:LastExp">
+</a>  ::= Exp</td></tr>
+<tr><td align="right">ClosureBody  <a name="prod:ClosureBody">
+</a>  ::= ConditionalExp</td></tr>
+<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;<b>{</b> BlockStatements<sup>?</sup>&nbsp;LastExp <b>}</b></td></tr>
+<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;Block</td></tr>
+<tr><td align="right">AtExp  <a name="prod:AtExp">
+</a>  ::= <b>at</b> PlaceExpSingleList ClosureBody</td></tr>
+<tr><td align="right">FinishExp  <a name="prod:FinishExp">
+</a>  ::= <b>finish</b> <b>(</b> Exp <b>)</b> Block</td></tr>
+<tr><td align="right">identifier  <a name="prod:identifier">
+</a>  ::= <b>IDENTIFIER</b> </td></tr>
+<tr><td align="right">TypeName  <a name="prod:TypeName">
+</a>  ::= Id</td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> Id</td></tr>
+<tr><td align="right">ClassName  <a name="prod:ClassName">
+</a>  ::= TypeName</td></tr>
+<tr><td align="right">TypeArguments  <a name="prod:TypeArguments">
+</a>  ::= <b>[</b> TypeArgumentList <b>]</b></td></tr>
+<tr><td align="right">TypeArgumentList  <a name="prod:TypeArgumentList">
+</a>  ::= Type</td></tr>
+<tr><td align="right">&#124; TypeArgumentList <b>,</b> Type</td></tr>
+<tr><td align="right">PackageName  <a name="prod:PackageName">
+</a>  ::= Id</td></tr>
+<tr><td align="right">&#124; PackageName <b>.</b> Id</td></tr>
+<tr><td align="right">ExpName  <a name="prod:ExpName">
+</a>  ::= Id</td></tr>
+<tr><td align="right">&#124; AmbiguousName <b>.</b> Id</td></tr>
+<tr><td align="right">MethodName  <a name="prod:MethodName">
+</a>  ::= Id</td></tr>
+<tr><td align="right">&#124; AmbiguousName <b>.</b> Id</td></tr>
+<tr><td align="right">PackageOrTypeName  <a name="prod:PackageOrTypeName">
+</a>  ::= Id</td></tr>
+<tr><td align="right">&#124; PackageOrTypeName <b>.</b> Id</td></tr>
+<tr><td align="right">AmbiguousName  <a name="prod:AmbiguousName">
+</a>  ::= Id</td></tr>
+<tr><td align="right">&#124; AmbiguousName <b>.</b> Id</td></tr>
+<tr><td align="right">CompilationUnit  <a name="prod:CompilationUnit">
+</a>  ::= PackageDecl<sup>?</sup>&nbsp;TypeDecls<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; PackageDecl<sup>?</sup>&nbsp;ImportDecls TypeDecls<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; ImportDecls PackageDecl  ImportDecls<sup>?</sup>&nbsp;TypeDecls<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; PackageDecl ImportDecls PackageDecl  ImportDecls<sup>?</sup>&nbsp;TypeDecls<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">ImportDecls  <a name="prod:ImportDecls">
+</a>  ::= ImportDecl</td></tr>
+<tr><td align="right">&#124; ImportDecls ImportDecl</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">TypeDecls  <a name="prod:TypeDecls">
+</a>  ::= TypeDecl</td></tr>
+<tr><td align="right">&#124; TypeDecls TypeDecl</td></tr>
+<tr><td align="right">PackageDecl  <a name="prod:PackageDecl">
+</a>  ::= Annotations<sup>?</sup>&nbsp;<b>package</b> PackageName <b>;</b></td></tr>
+<tr><td align="right">ImportDecl  <a name="prod:ImportDecl">
+</a>  ::= SingleTypeImportDecl</td></tr>
+<tr><td align="right">&#124; TypeImportOnDemandDecl</td></tr>
+<tr><td align="right">SingleTypeImportDecl  <a name="prod:SingleTypeImportDecl">
+</a>  ::= <b>import</b> TypeName <b>;</b></td></tr>
+<tr><td align="right">TypeImportOnDemandDecl  <a name="prod:TypeImportOnDemandDecl">
+</a>  ::= <b>import</b> PackageOrTypeName <b>.</b> <b>*</b> <b>;</b></td></tr>
+<tr><td align="right">TypeDecl  <a name="prod:TypeDecl">
+</a>  ::= ClassDecl</td></tr>
+<tr><td align="right">&#124; InterfaceDecl</td></tr>
+<tr><td align="right">&#124; TypeDefDecl</td></tr>
+<tr><td align="right">&#124; <b>;</b></td></tr>
+<tr><td align="right">Interfaces  <a name="prod:Interfaces">
+</a>  ::= <b>implements</b> InterfaceTypeList</td></tr>
+<tr><td align="right">InterfaceTypeList  <a name="prod:InterfaceTypeList">
+</a>  ::= Type</td></tr>
+<tr><td align="right">&#124; InterfaceTypeList <b>,</b> Type</td></tr>
+<tr><td align="right">ClassBody  <a name="prod:ClassBody">
+</a>  ::= <b>{</b> ClassBodyDecls<sup>?</sup>&nbsp;<b>}</b></td></tr>
+<tr><td align="right">ClassBodyDecls  <a name="prod:ClassBodyDecls">
+</a>  ::= ClassBodyDecl</td></tr>
+<tr><td align="right">&#124; ClassBodyDecls ClassBodyDecl</td></tr>
+<tr><td align="right">ClassBodyDecl  <a name="prod:ClassBodyDecl">
+</a>  ::= ClassMemberDecl</td></tr>
+<tr><td align="right">&#124; CtorDecl</td></tr>
+<tr><td align="right">ClassMemberDecl  <a name="prod:ClassMemberDecl">
+</a>  ::= FieldDecl</td></tr>
+<tr><td align="right">&#124; MethodDecl</td></tr>
+<tr><td align="right">&#124; PropertyMethodDecl</td></tr>
+<tr><td align="right">&#124; TypeDefDecl</td></tr>
+<tr><td align="right">&#124; ClassDecl</td></tr>
+<tr><td align="right">&#124; InterfaceDecl</td></tr>
+<tr><td align="right">&#124; <b>;</b></td></tr>
+<tr><td align="right">FormalDeclarators  <a name="prod:FormalDeclarators">
+</a>  ::= FormalDeclarator</td></tr>
+<tr><td align="right">&#124; FormalDeclarators <b>,</b> FormalDeclarator</td></tr>
+<tr><td align="right">FieldDeclarators  <a name="prod:FieldDeclarators">
+</a>  ::= FieldDeclarator</td></tr>
+<tr><td align="right">&#124; FieldDeclarators <b>,</b> FieldDeclarator</td></tr>
+<tr><td align="right">VariableDeclaratorsWithType  <a name="prod:VariableDeclaratorsWithType">
+</a>  ::= VariableDeclaratorWithType</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">&#124; VariableDeclaratorsWithType <b>,</b> VariableDeclaratorWithType</td></tr>
+<tr><td align="right">VariableDeclarators  <a name="prod:VariableDeclarators">
+</a>  ::= VariableDeclarator</td></tr>
+<tr><td align="right">&#124; VariableDeclarators <b>,</b> VariableDeclarator</td></tr>
+<tr><td align="right">VariableInitializer  <a name="prod:VariableInitializer">
+</a>  ::= Exp</td></tr>
+<tr><td align="right">ResultType  <a name="prod:ResultType">
+</a>  ::= <b>:</b> Type</td></tr>
+<tr><td align="right">HasResultType  <a name="prod:HasResultType">
+</a>  ::= <b>:</b> Type</td></tr>
+<tr><td align="right">&#124; <b>&lt;:</b> Type</td></tr>
+<tr><td align="right">FormalParamList  <a name="prod:FormalParamList">
+</a>  ::= FormalParam</td></tr>
+<tr><td align="right">&#124; FormalParamList <b>,</b> FormalParam</td></tr>
+<tr><td align="right">LoopIndexDeclarator  <a name="prod:LoopIndexDeclarator">
+</a>  ::= Id HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">LoopIndex  <a name="prod:LoopIndex">
+</a>  ::= Mods<sup>?</sup>&nbsp;LoopIndexDeclarator</td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword LoopIndexDeclarator</td></tr>
+<tr><td align="right">FormalParam  <a name="prod:FormalParam">
+</a>  ::= Mods<sup>?</sup>&nbsp;FormalDeclarator</td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword FormalDeclarator</td></tr>
+<tr><td align="right">&#124; Type</td></tr>
+<tr><td align="right">Offers  <a name="prod:Offers">
+</a>  ::= <b>offers</b> Type</td></tr>
+<tr><td align="right">ExceptionTypeList  <a name="prod:ExceptionTypeList">
+</a>  ::= ExceptionType</td></tr>
+<tr><td align="right">&#124; ExceptionTypeList <b>,</b> ExceptionType</td></tr>
+<tr><td align="right">ExceptionType  <a name="prod:ExceptionType">
+</a>  ::= ClassType</td></tr>
+<tr><td align="right">MethodBody  <a name="prod:MethodBody">
+</a>  ::= <b>=</b> LastExp <b>;</b></td></tr>
+<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;<b>{</b> BlockStatements<sup>?</sup>&nbsp;LastExp <b>}</b></td></tr>
+<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;Block</td></tr>
+<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;Block</td></tr>
+<tr><td align="right">&#124; <b>;</b></td></tr>
+<tr><td align="right">CtorBody  <a name="prod:CtorBody">
+</a>  ::= <b>=</b> CtorBlock</td></tr>
+<tr><td align="right">&#124; CtorBlock</td></tr>
+<tr><td align="right">&#124; <b>=</b> ExplicitCtorInvocation</td></tr>
+<tr><td align="right">&#124; <b>=</b> AssignPropertyCall</td></tr>
+<tr><td align="right">&#124; <b>;</b></td></tr>
+<tr><td align="right">CtorBlock  <a name="prod:CtorBlock">
+</a>  ::= <b>{</b> ExplicitCtorInvocation<sup>?</sup>&nbsp;BlockStatements<sup>?</sup>&nbsp;<b>}</b></td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">Arguments  <a name="prod:Arguments">
+</a>  ::= <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">InterfaceDecl  <a name="prod:InterfaceDecl">
+</a>  ::= NormalInterfaceDecl</td></tr>
+<tr><td align="right">ExtendsInterfaces  <a name="prod:ExtendsInterfaces">
+</a>  ::= <b>extends</b> Type</td></tr>
+<tr><td align="right">&#124; ExtendsInterfaces <b>,</b> Type</td></tr>
+<tr><td align="right">InterfaceBody  <a name="prod:InterfaceBody">
+</a>  ::= <b>{</b> InterfaceMemberDecls<sup>?</sup>&nbsp;<b>}</b></td></tr>
+<tr><td align="right">InterfaceMemberDecls  <a name="prod:InterfaceMemberDecls">
+</a>  ::= InterfaceMemberDecl</td></tr>
+<tr><td align="right">&#124; InterfaceMemberDecls InterfaceMemberDecl</td></tr>
+<tr><td align="right">InterfaceMemberDecl  <a name="prod:InterfaceMemberDecl">
+</a>  ::= MethodDecl</td></tr>
+<tr><td align="right">&#124; PropertyMethodDecl</td></tr>
+<tr><td align="right">&#124; FieldDecl</td></tr>
+<tr><td align="right">&#124; ClassDecl</td></tr>
+<tr><td align="right">&#124; InterfaceDecl</td></tr>
+<tr><td align="right">&#124; TypeDefDecl</td></tr>
+<tr><td align="right">&#124; <b>;</b></td></tr>
+<tr><td align="right">Annotations  <a name="prod:Annotations">
+</a>  ::= Annotation</td></tr>
+<tr><td align="right">&#124; Annotations Annotation</td></tr>
+<tr><td align="right">Annotation  <a name="prod:Annotation">
+</a>  ::= <b>@</b> NamedType</td></tr>
+<tr><td align="right">Id  <a name="prod:Id">
+</a>  ::= identifier</td></tr>
+<tr><td align="right">Block  <a name="prod:Block">
+</a>  ::= <b>{</b> BlockStatements<sup>?</sup>&nbsp;<b>}</b></td></tr>
+<tr><td align="right">BlockStatements  <a name="prod:BlockStatements">
+</a>  ::= BlockStatement</td></tr>
+<tr><td align="right">&#124; BlockStatements BlockStatement</td></tr>
+<tr><td align="right">BlockStatement  <a name="prod:BlockStatement">
+</a>  ::= LocalVariableDeclStatement</td></tr>
+<tr><td align="right">&#124; ClassDecl</td></tr>
+<tr><td align="right">&#124; TypeDefDecl</td></tr>
+<tr><td align="right">&#124; Statement</td></tr>
+<tr><td align="right">IdList  <a name="prod:IdList">
+</a>  ::= Id</td></tr>
+<tr><td align="right">&#124; IdList <b>,</b> Id</td></tr>
+<tr><td align="right">FormalDeclarator  <a name="prod:FormalDeclarator">
+</a>  ::= Id ResultType</td></tr>
+<tr><td align="right">&#124; <b>[</b> IdList <b>]</b> ResultType</td></tr>
+<tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> ResultType</td></tr>
+<tr><td align="right">FieldDeclarator  <a name="prod:FieldDeclarator">
+</a>  ::= Id HasResultType</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">&#124; Id HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer</td></tr>
+<tr><td align="right">VariableDeclarator  <a name="prod:VariableDeclarator">
+</a>  ::= Id HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer</td></tr>
+<tr><td align="right">&#124; <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer</td></tr>
+<tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer</td></tr>
+<tr><td align="right">VariableDeclaratorWithType  <a name="prod:VariableDeclaratorWithType">
+</a>  ::= Id HasResultType <b>=</b> VariableInitializer</td></tr>
+<tr><td align="right">&#124; <b>[</b> IdList <b>]</b> HasResultType <b>=</b> VariableInitializer</td></tr>
+<tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> HasResultType <b>=</b> VariableInitializer</td></tr>
+<tr><td align="right">LocalVariableDeclStatement  <a name="prod:LocalVariableDeclStatement">
+</a>  ::= LocalVariableDecl <b>;</b></td></tr>
+<tr><td align="right">LocalVariableDecl  <a name="prod:LocalVariableDecl">
+</a>  ::= Mods<sup>?</sup>&nbsp;VarKeyword VariableDeclarators</td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VariableDeclaratorsWithType</td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword FormalDeclarators</td></tr>
+<tr><td align="right">Primary  <a name="prod:Primary">
+</a>  ::= <b>here</b></td></tr>
+<tr><td align="right">&#124; <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b></td></tr>
+<tr><td align="right">&#124; Literal</td></tr>
+<tr><td align="right">&#124; <b>self</b></td></tr>
+<tr><td align="right">&#124; <b>this</b></td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>this</b></td></tr>
+<tr><td align="right">&#124; <b>(</b> Exp <b>)</b></td></tr>
+<tr><td align="right">&#124; ClassInstCreationExp</td></tr>
+<tr><td align="right">&#124; FieldAccess</td></tr>
+<tr><td align="right">&#124; MethodInvocation</td></tr>
+<tr><td align="right">&#124; MethodSelection</td></tr>
+<tr><td align="right">&#124; OperatorFunction</td></tr>
+<tr><td align="right">OperatorFunction  <a name="prod:OperatorFunction">
+</a>  ::= TypeName <b>.</b> <b>+</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>-</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>*</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>/</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>%</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>&amp;</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b></td><td align="center">&#124;</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>^</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>&lt;&lt;</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>&#62;&#62;</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>&#62;&#62;&#62;</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>&lt;</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>&lt;=</b></td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>&#62;=</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>&#62;</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>==</b></td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> <b>!=</b></td></tr>
+<tr><td align="right">Literal  <a name="prod:Literal">
+</a>  ::= <b>IntegerLiteral</b> </td></tr>
+<tr><td align="right">&#124; <b>LongLiteral</b> </td></tr>
+<tr><td align="right">&#124; <b>UnsignedIntegerLiteral</b> </td></tr>
+<tr><td align="right">&#124; <b>UnsignedLongLiteral</b> </td></tr>
+<tr><td align="right">&#124; <b>FloatingPointLiteral</b> </td></tr>
+<tr><td align="right">&#124; <b>DoubleLiteral</b> </td></tr>
+<tr><td align="right">&#124; BooleanLiteral</td></tr>
+<tr><td align="right">&#124; <b>CharacterLiteral</b> </td></tr>
+<tr><td align="right">&#124; <b>StringLiteral</b> </td></tr>
+<tr><td align="right">&#124; <b>null</b></td></tr>
+<tr><td align="right">BooleanLiteral  <a name="prod:BooleanLiteral">
+</a>  ::= <b>true</b> </td></tr>
+<tr><td align="right">&#124; <b>false</b> </td></tr>
+<tr><td align="right">ArgumentList  <a name="prod:ArgumentList">
+</a>  ::= Exp</td></tr>
+<tr><td align="right">&#124; ArgumentList <b>,</b> Exp</td></tr>
+<tr><td align="right">FieldAccess  <a name="prod:FieldAccess">
+</a>  ::= Primary <b>.</b> Id</td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id</td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id</td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> <b>class</b> </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> <b>class</b> </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> <b>class</b> </td></tr>
+<tr><td align="right">MethodInvocation  <a name="prod:MethodInvocation">
+</a>  ::= MethodName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; Primary TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">MethodSelection  <a name="prod:MethodSelection">
+</a>  ::= MethodName <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">PostfixExp  <a name="prod:PostfixExp">
+</a>  ::= CastExp</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">&#124; PostIncrementExp</td></tr>
+<tr><td align="right">&#124; PostDecrementExp</td></tr>
+<tr><td align="right">PostIncrementExp  <a name="prod:PostIncrementExp">
+</a>  ::= PostfixExp <b>++</b></td></tr>
+<tr><td align="right">PostDecrementExp  <a name="prod:PostDecrementExp">
+</a>  ::= PostfixExp <b>-</b></td></tr>
+<tr><td align="right">UnannotatedUnaryExp  <a name="prod:UnannotatedUnaryExp">
+</a>  ::= PreIncrementExp</td></tr>
+<tr><td align="right">&#124; PreDecrementExp</td></tr>
+<tr><td align="right">&#124; <b>+</b> UnaryExpNotPlusMinus</td></tr>
+<tr><td align="right">&#124; <b>-</b> UnaryExpNotPlusMinus</td></tr>
+<tr><td align="right">&#124; UnaryExpNotPlusMinus</td></tr>
+<tr><td align="right">UnaryExp  <a name="prod:UnaryExp">
+</a>  ::= UnannotatedUnaryExp</td></tr>
+<tr><td align="right">&#124; Annotations UnannotatedUnaryExp</td></tr>
+<tr><td align="right">PreIncrementExp  <a name="prod:PreIncrementExp">
+</a>  ::= <b>++</b> UnaryExpNotPlusMinus</td></tr>
+<tr><td align="right">PreDecrementExp  <a name="prod:PreDecrementExp">
+</a>  ::= <b>-</b> UnaryExpNotPlusMinus</td></tr>
+<tr><td align="right">UnaryExpNotPlusMinus  <a name="prod:UnaryExpNotPlusMinus">
+</a>  ::= PostfixExp</td></tr>
+<tr><td align="right">&#124; <b>&#126;</b> UnaryExp</td></tr>
+<tr><td align="right">&#124; <b>!</b> UnaryExp</td></tr>
+<tr><td align="right">MultiplicativeExp  <a name="prod:MultiplicativeExp">
+</a>  ::= UnaryExp</td></tr>
+<tr><td align="right">&#124; MultiplicativeExp <b>*</b> UnaryExp</td></tr>
+<tr><td align="right">&#124; MultiplicativeExp <b>/</b> UnaryExp</td></tr>
+<tr><td align="right">&#124; MultiplicativeExp <b>%</b> UnaryExp</td></tr>
+<tr><td align="right">AdditiveExp  <a name="prod:AdditiveExp">
+</a>  ::= MultiplicativeExp</td></tr>
+<tr><td align="right">&#124; AdditiveExp <b>+</b> MultiplicativeExp</td></tr>
+<tr><td align="right">&#124; AdditiveExp <b>-</b> MultiplicativeExp</td></tr>
+<tr><td align="right">ShiftExp  <a name="prod:ShiftExp">
+</a>  ::= AdditiveExp</td></tr>
+<tr><td align="right">&#124; ShiftExp <b>&lt;&lt;</b> AdditiveExp</td></tr>
+<tr><td align="right">&#124; ShiftExp <b>&#62;&#62;</b> AdditiveExp</td></tr>
+<tr><td align="right">&#124; ShiftExp <b>&#62;&#62;&#62;</b> AdditiveExp</td></tr>
+<tr><td align="right">RangeExp  <a name="prod:RangeExp">
+</a>  ::= ShiftExp</td></tr>
+<tr><td align="right">&#124; ShiftExp  <b>..</b> ShiftExp </td></tr>
+<tr><td align="right">RelationalExp  <a name="prod:RelationalExp">
+</a>  ::= RangeExp</td></tr>
+<tr><td align="right">&#124; SubtypeConstraint</td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&lt;</b> RangeExp</td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;</b> RangeExp</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">&#124; RelationalExp <b>&lt;=</b> RangeExp</td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;=</b> RangeExp</td></tr>
+<tr><td align="right">&#124; RelationalExp <b>instanceof</b> Type</td></tr>
+<tr><td align="right">&#124; RelationalExp <b>in</b> ShiftExp</td></tr>
+<tr><td align="right">EqualityExp  <a name="prod:EqualityExp">
+</a>  ::= RelationalExp</td></tr>
+<tr><td align="right">&#124; EqualityExp <b>==</b> RelationalExp</td></tr>
+<tr><td align="right">&#124; EqualityExp <b>!=</b> RelationalExp</td></tr>
+<tr><td align="right">&#124; Type  <b>==</b> Type </td></tr>
+<tr><td align="right">AndExp  <a name="prod:AndExp">
+</a>  ::= EqualityExp</td></tr>
+<tr><td align="right">&#124; AndExp <b>&amp;</b> EqualityExp</td></tr>
+<tr><td align="right">ExclusiveOrExp  <a name="prod:ExclusiveOrExp">
+</a>  ::= AndExp</td></tr>
+<tr><td align="right">&#124; ExclusiveOrExp <b>^</b> AndExp</td></tr>
+<tr><td align="right">InclusiveOrExp  <a name="prod:InclusiveOrExp">
+</a>  ::= ExclusiveOrExp</td></tr>
+<tr><td align="right">&#124; InclusiveOrExp <b></td><td align="center">&#124;</b> ExclusiveOrExp</td></tr>
+<tr><td align="right">ConditionalAndExp  <a name="prod:ConditionalAndExp">
+</a>  ::= InclusiveOrExp</td></tr>
+<tr><td align="right">&#124; ConditionalAndExp <b>&amp;&amp;</b> InclusiveOrExp</td></tr>
+<tr><td align="right">ConditionalOrExp  <a name="prod:ConditionalOrExp">
+</a>  ::= ConditionalAndExp</td></tr>
+<tr><td align="right">&#124; ConditionalOrExp <b></td><td align="center">&#124;</td><td width="351">&#124;</b> ConditionalAndExp</td></tr>
+<tr><td align="right">ConditionalExp  <a name="prod:ConditionalExp">
+</a>  ::= ConditionalOrExp</td></tr>
+<tr><td align="right">&#124; ClosureExp</td></tr>
+<tr><td align="right">&#124; AtExp</td></tr>
+<tr><td align="right">&#124; FinishExp</td></tr>
+<tr><td align="right">&#124; ConditionalOrExp <b>?</b> Exp <b>:</b> ConditionalExp</td></tr>
+<tr><td align="right">AssignmentExp  <a name="prod:AssignmentExp">
+</a>  ::= Assignment</td></tr>
+<tr><td align="right">&#124; ConditionalExp</td></tr>
+<tr><td align="right">Assignment  <a name="prod:Assignment">
+</a>  ::= LeftHandSide AssignmentOperator AssignmentExp</td></tr>
+<tr><td align="right">&#124; ExpName  <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> AssignmentOperator AssignmentExp</td></tr>
+<tr><td align="right">&#124; Primary  <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> AssignmentOperator AssignmentExp</td></tr>
+<tr><td align="right">LeftHandSide  <a name="prod:LeftHandSide">
+</a>  ::= ExpName</td></tr>
+<tr><td align="right">&#124; FieldAccess</td></tr>
+<tr><td align="right">AssignmentOperator  <a name="prod:AssignmentOperator">
+</a>  ::= <b>=</b></td></tr>
+<tr><td align="right">&#124; <b>*=</b></td></tr>
+<tr><td align="right">&#124; <b>/=</b></td></tr>
+<tr><td align="right">&#124; <b>%=</b></td></tr>
+<tr><td align="right">&#124; <b>+=</b></td></tr>
+<tr><td align="right">&#124; <b>-=</b></td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">&#124; <b>&lt;&lt;=</b></td></tr>
+<tr><td align="right">&#124; <b>&#62;&#62;=</b></td></tr>
+<tr><td align="right">&#124; <b>&#62;&#62;&#62;=</b></td></tr>
+<tr><td align="right">&#124; <b>&amp;=</b></td></tr>
+<tr><td align="right">&#124; <b>^=</b></td></tr>
+<tr><td align="right">&#124; <b></td><td align="center">&#124;=</b></td></tr>
+<tr><td align="right">Exp  <a name="prod:Exp">
+</a>  ::= AssignmentExp</td></tr>
+<tr><td align="right">ConstantExp  <a name="prod:ConstantExp">
+</a>  ::= Exp</td></tr>
+<tr><td align="right">PrefixOp  <a name="prod:PrefixOp">
+</a>  ::= <b>+</b></td></tr>
+<tr><td align="right">&#124; <b>-</b></td></tr>
+<tr><td align="right">&#124; <b>!</b></td></tr>
+<tr><td align="right">&#124; <b>&#126;</b></td></tr>
+<tr><td align="right">BinOp  <a name="prod:BinOp">
+</a>  ::= <b>+</b></td></tr>
+<tr><td align="right">&#124; <b>-</b></td></tr>
+<tr><td align="right">&#124; <b>*</b></td></tr>
+<tr><td align="right">&#124; <b>/</b></td></tr>
+<tr><td align="right">&#124; <b>%</b></td></tr>
+<tr><td align="right">&#124; <b>&amp;</b></td></tr>
+<tr><td align="right">&#124; <b></td><td align="center">&#124;</b></td></tr>
+<tr><td align="right">&#124; <b>^</b></td></tr>
+<tr><td align="right">&#124; <b>&amp;&amp;</b></td></tr>
+<tr><td align="right">&#124; <b></td><td align="center">&#124;</td><td width="351">&#124;</b></td></tr>
+<tr><td align="right">&#124; <b>&lt;&lt;</b></td></tr>
+<tr><td align="right">&#124; <b>&#62;&#62;</b></td></tr>
+<tr><td align="right">&#124; <b>&#62;&#62;&#62;</b></td></tr>
+<tr><td align="right">&#124; <b>&#62;=</b></td></tr>
+<tr><td align="right">&#124; <b>&lt;=</b></td></tr>
+<tr><td align="right">&#124; <b>&#62;</b></td></tr>
+<tr><td align="right">&#124; <b>&lt;</b></td></tr>
+<tr><td align="right">&#124; <b>==</b></td></tr>
+<tr><td align="right">&#124; <b>!=</b></td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

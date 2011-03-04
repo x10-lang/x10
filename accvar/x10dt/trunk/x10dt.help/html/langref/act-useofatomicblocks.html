@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Use of Atomic blocks</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Use of Atomic Blocks</h2>
+
+<div class="p"><!----></div>
+The semantics of atomicity is chosen as a compromise between programming
+simplicity and efficient implementation.  Unlike some possible definitions of
+"atomic", atomic blocks do not provide absolute atomicity.  
+
+<div class="p"><!----></div>
+Atomic blocks are atomic with respect to <em>each other</em>.
+<pre>
+var n : Int = 0;
+finish {
+  async atomic n = n + 1; //(a)
+  async atomic n = n + 2; //(b)
+}
+</pre>
+This program has only two possible interleavings: either <b>(a)</b> entirely
+precedes <b>(b)</b> or <b>(b)</b> entirely precedes <b>(a)</b>.  Both end up with
+<b>n==3</b>. 
+
+<div class="p"><!----></div>
+However, atomic blocks are not atomic with respect to non-atomic code.  It we
+remove the  <b>atomic</b>s on <b>(a)</b>, we get far messier semantics.
+<pre>
+var n : Int = 0;
+finish {
+  // LEGAL BUT UNWISE 
+  async n = n + 1;          //(a)
+  async atomic n = n + 2;   //(b)
+}
+</pre>
+
+<div class="p"><!----></div>
+If X10 had absolute atomic semantics, this program would be guaranteed to
+treat the atomic increment as a single statement.  This would permit three
+interleavings: the two possible from the fully atomic program, or a third one
+with the events:  <b>(a)</b>'s read of <b>0</b> from <b>n</b>, the entirety of
+<b>(b)</b>, and then <b>(a)</b>'s write of <b>0+1</b> back to <b>n</b>.  This
+interleaving results in <b>n==1</b>. So, with absolute atomic semantics,
+<b>n==1</b> or <b>n==3</b> are the possible results.
+
+<div class="p"><!----></div>
+However, X10's semantics are weaker than that.  Atomic statements are atomic
+with respect to each other - but there is no guarantee about how they
+interact with non-atomic statements at all.  In particular, the following
+fourth interleaving is possible: <b>(a)</b>'s read of <b>0</b> from <b>n</b>, 
+<b>(b)</b>'s read of <b>0</b> from <b>n</b>, <b>(a)</b>'s write of <b>1</b> to
+<b>n</b>, and <b>(b)</b>'s write of <b>2</b> to <b>n</b>.   Thus, <b>n==2</b> is
+permissible as a result in X10.
+
+<div class="p"><!----></div>
+X10's semantics permit more efficient implementation than absolute atomicity.
+Absolute atomicity would, in principle, require all activities at place
+<b>p</b> to stop whenever one of them enters an atomic section, which would
+seriously curtail concurrency.  X10 simply requires that, when one activity is
+in an atomic section, that other activities stop <em>when they are trying to
+enter an atomic section</em> - which is to say, they can continue computing on
+their own all they like.  The difference can be substantial.
+
+<div class="p"><!----></div>
+However, X10's semantics do impose a certain burden on the programmer.  A
+sufficient rule of thumb is that, if <em>any</em> access to a
+variable is done in an atomic section, then <em>all</em> accesses to it must be
+in atomic sections.  
+
+<div class="p"><!----></div>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Note
+  that depending on the state of the computation the activation path may
+  traverse activities that are running, blocked or terminated.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>In X10 v2.1 the <b>finish</b>
+statement is the only statement that marks its activity as a root
+activity. Future versions of the language may introduce more such
+statements.
+<br /><br /><hr />
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that the properties of an interface are implemented by a compliant class 
+ * and that the interface constraint is entailed by the compliant class.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;;
+
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
+
+    interface public static interface Test(public val l: int, public val m: int, , public const m == l: Test{m == l} = m == l)Test{m == l} /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that the properties of an interface are implemented by a compliant class 
+ * and that the interface constraint is entailed by the compliant class.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
+
+    public static interface Test (int l, int m : m == l ) {
+     public public def put()(): int;/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that the properties of an interface are implemented by a compliant class 
+ * and that the interface constraint is entailed by the compliant class.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
+
+    public static interface Test (int lint l/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that the properties of an interface are implemented by a compliant class 
+ * and that the interface constraint is entailed by the compliant class.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
+
+    public static interface Test (int l, int mint m : m == l ) {
+     public int put();
+    }
+    
+    class Tester(public val l: int, public val m: int, , public const m == 2 && l == 3: Tester{m == 2 && l == 3} = m == 2 && l == 3)Tester{m == 2 && l == 3} implements Test /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that the properties of an interface are implemented by a compliant class 
+ * and that the interface constraint is entailed by the compliant class.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
+
+    public static interface Test (int l, int m : m == l ) {
+     public int put();
+    }
+    
+    class Tester(int l, int m : m == 2 && l == 3 ) implements Test{
+      public def this(): Tester = { property(3,2); }
+      public def put(): int = {
+        return 0;
+      }/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that the properties of an interface are implemented by a compliant class 
+ * and that the interface constraint is entailed by the compliant class.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
+
+    public static interface Test (int l, int m : m == l ) {
+     public int put();
+    }
+    
+    class Tester(int lint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that the properties of an interface are implemented by a compliant class 
+ * and that the interface constraint is entailed by the compliant class.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
+
+    public static interface Test (int l, int m : m == l ) {
+     public int put();
+    }
+    
+    class Tester(int l/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that the properties of an interface are implemented by a compliant class 
+ * and that the interface constraint is entailed by the compliant class.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
+
+    public static interface Test (int l, int m : m == l ) {
+     public int put();
+    }
+    
+    class Tester(int l, int mint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that the properties of an interface are implemented by a compliant class 
+ * and that the interface constraint is entailed by the compliant class.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
+
+    public static interface Test (int l, int m : m == l ) {
+     public int put();
+    }
+    
+    class Tester(int l, int m : m == 2 && l == 3 ) implements Test{
+      public Tester() { property(3,2); }
+      public int put() {
+        return 0;
+      }
+	}
+ 
+    public def run(): boolean = { 
+	 return true;
+    }
+	
+    public static def main(var args: Rail[String]): void = {
+        new InterfaceTypeInvariant_MustFailCompile().execute();
+    }
+   
+
+		
+}

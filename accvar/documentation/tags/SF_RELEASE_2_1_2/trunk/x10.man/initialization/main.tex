@@ -1,0 +1,76 @@
+\documentclass[9pt]{sigplanconf}
+
+
+\conferenceinfo{X10'11,} {June 4, 2011, San Jose, California, USA.}
+\CopyrightYear{2011}
+%\copyrightdata{}
+
+% \stepcounter Doesn't work in a caption!
+\newcounter{RuleCounter}
+\stepcounter{RuleCounter}
+\newcommand{\userule}[1]{\arabic{#1}}
+\newcommand{\definerule}[1]{\newcounter{#1}\addtocounter{#1}{\arabic{RuleCounter}}\stepcounter{RuleCounter}}
+\newcommand{\myrule}[2]{\textbf{Rule #1:} #2.}
+
+\input{commands}
+
+\begin{document}
+
+
+\lstset{language=java,basicstyle=\ttfamily\small}
+
+
+\title{Object Initialization in X10}
+
+
+% \and Igor Peshansky \and David Cunningham
+%|$igorp$|$dcunnin$
+\authorinfo{Yoav Zibin \and Vijay Saraswat}
+           {IBM research in TJ Watson}
+           {yzibin$|$vsaraswa@us.ibm.com}
+
+
+\maketitle
+
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\category{D.3.3}{Programming Languages}{Language Constructs and Features}
+\category{D.1.5}{Programming Techniques}{Object-oriented Programming}
+
+\terms
+Asynchronous, Initialization, Types, X10
+
+% Keywords are not required in the paper itself - only in the submission system's meta data.
+% \keywords
+% Immutability, Ownership, Java
+
+
+\Section[introduction]{Introduction}
+\input{introduction}
+
+\Section[rules]{X10 Initialization Rules}
+\input{rules}
+
+\Section[designs]{Alternative Initialization Designs}
+\input{designs}
+
+\Section[implementation]{Implementation}
+\input{implementation}
+
+\Section[case-study]{Case Study}
+\input{case-study}
+
+\Section[related-work]{Related Work}
+\input{related-work}
+
+\Section[conclusion]{Conclusion}
+\input{conclusions}
+
+
+\bibliographystyle{plainnat}
+\bibliography{x10-init}
+
+\end{document}

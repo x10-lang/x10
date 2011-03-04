@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>test</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.imp.smapifier.SmapieBuilder</name>
+			<arguments>
+				<dictionary>
+					<key>exten</key>
+					<value>x10</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>x10dt.ui.launch.java.X10JavaBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>x10dt.ui.launch.java.x10nature</nature>
+		<nature>org.eclipse.imp.smapifier.smapinature</nature>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+</projectDescription>

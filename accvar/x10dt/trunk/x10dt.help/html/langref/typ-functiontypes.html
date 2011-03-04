@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Function types</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Function types</h2>
+<a name="FunctionTypes">
+</a>
+<a name="FunctionType">
+</a>
+
+
+
+<div class="p"><!----></div>
+<em>
+<table>
+
+<tr><td align="right">FunctionType ::= TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+For every sequence of types <b>T1,..., Tn,T</b>, and <b>n</b> distinct variables
+<b>x1,...,xn</b> and constraint <b>c</b>, the expression
+<b>(x1:T1,...,xn:Tn){c}=&#62;T</b> is a <em>function type</em>. It stands for
+ the set of all functions <b>f</b> which can be applied to a
+ list of values <b>(v1,...,vn)</b> provided that the constraint
+ <b>c[v1,...,vn,p/x1,...,xn]</b> is true, and which returns a value of
+ type <b>T[v1,...vn/x1,...,xn]</b>. When <b>c</b> is true, the clause <b>{c}</b> can be
+ omitted. When <b>x1,...,xn</b> do not occur in <b>c</b> or <b>T</b>, they can be
+ omitted. Thus the type <b>(T1,...,Tn)=&#62;T</b> is actually shorthand for
+ <b>(x1:T1,...,xn:Tn){true}=&#62;T</b>, for some variables <b>x1,...,xn</b>.
+
+<div class="p"><!----></div>
+<em>Limitation</em>
+Constraints on closures are not supported.  They parse, but are not checked.
+
+<div class="p"><!----></div>
+X10 functions, like mathematical functions, take some arguments and produce a
+result.  X10 functions, like other X10 code, can change mutable state and
+throw exceptions.  Closures (&#167;) and method
+selectors (&#167;) are of function type.
+Typical functions are the reciprocal function: 
+<pre>
+val recip = (x : Double) =&#62; 1/x;
+</pre>
+and a function which increments  element <b>i</b> of an array <b>r</b>, or throws an exception
+if there is no such element, where, for the sake of example, we constrain the
+type of <b>i</b>:  
+<pre>
+val inc = (r:Array[Int](1), i: Int{i != r.size}) =&#62; {
+  if (i &lt; 0 &#124;&#124; i &#62;= r.size) throw new DoomExn();
+  r(i)++;
+};
+</pre>
+
+<div class="p"><!----></div>
+In general, a function type needs to list the types 
+"T<sub>i</sub>"
+of all the formal parameters,
+and their distinct names "x<sub>i</sub>" in case other types refer to them; a
+constraint 
+<b>c</b> on the
+function as a whole; a return type <b>T</b>.
+
+<div class="p"><!----></div>
+<pre>
+(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; T
+</pre>
+
+<div class="p"><!----></div>
+The names "x<sub>i</sub>" of the formal parameters are not relevant.  Types
+which differ only in the names of formals (following the usual rules for
+renaming of variables, as in &#945;-renaming in the &#955; calculus
+) are considered equal.  <em>E.g.</em>, the two function types
+<b>(a:Int, b:Array[String](1){b.size==a}) =&#62; Boolean</b>
+and <br />
+<b>(b:Int, a:Array[String](1){a.size==b}) =&#62; Boolean</b>
+are equivalent.
+
+<div class="p"><!----></div>
+<em><em>Limitation</em> 
+This is not currently implemented properly; these two types are presently
+considered different.
+</em>
+
+<div class="p"><!----></div>
+The formal parameter names are in scope from the point of definition to the
+end of the function type-they may be used in the types of other formal parameters
+and in the return type. 
+Value parameters names may be
+omitted if they are not used; the type of the reciprocal function can be
+written as
+<b>(Double)=&#62;Double</b>. 
+
+<div class="p"><!----></div>
+A function type is covariant in its result type and contravariant in
+each of its argument types. That is, let 
+<b>S1,...,Sn,S,T1,...Tn,T</b> be any
+types satisfying <b>Si &lt;: Ti</b> and <b>S &lt;: T</b>. Then
+<b>(x1:T1,...,xn:Tn){c}=&#62;S</b> is a subtype of
+<b>(x1:S1,...,xn:Sn){c}=&#62;T</b>.
+
+<div class="p"><!----></div>
+A class or struct definition may use a function type 
+<b>F = (x1:T1,...,xn:Tn){c}=&#62;T</b> in its 
+implements clause; 
+this is equivalent to implementing an interface requiring the single method
+<b>def apply(x1:T1,...,xn:Tn){c}:T</b>. 
+Similarly, an interface
+definition may specify a function type <b>F</b> in its <b>extends</b> clause.
+Values of a class or struct implementing <b>F</b> 
+can be used as functions of type <b>F</b> in all ways.  
+In particular, applying one to suitable arguments calls the <b>apply</b>
+method. 
+
+<div class="p"><!----></div>
+<em>Limitation</em> A class or struct may not implement two different
+instantiations of a generic interface. In particular, a class or
+struct can implement only one function type.
+
+<div class="p"><!----></div>
+A function type <b>F</b> is not a class type in that it does not extend any
+type or implement any interfaces, or support equality tests. 
+<b>F</b> may be implemented, but not extended, by a class or function type. 
+Nor is it a struct type, for it has no predefined notion of equality.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

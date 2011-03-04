@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>instanceof</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc23">
+23</a>&nbsp;&nbsp;<b>instanceof</b></h2>
+<a name="instanceOf">
+</a>
+
+
+
+<div class="p"><!----></div>
+X10 permits types to be used in an in instanceof expression
+to determine whether an object is an instance of the given type:
+
+<div class="p"><!----></div>
+<em>
+<table>
+
+<tr><td align="right">RelationalExp ::= RangeExp </td></tr>
+<tr><td align="right">&#124; SubtypeConstraint </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&lt;</b> RangeExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;</b> RangeExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&lt;=</b> RangeExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;=</b> RangeExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>instanceof</b> Type </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>in</b> ShiftExp </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+In the above expression, <em>Type</em> is any type. At run time, the
+result of this operator is <b>true</b> if the
+<em>RelationalExpression</em> can be coerced to <em>Type</em>
+without a <b>TypeCastException</b> being thrown or static error occurring.
+Otherwise the result is <b>false</b>. This determination may involve checking
+that the constraint, if any, associated with the type is true for the given
+expression.
+
+<div class="p"><!----></div>
+For example, <b>3 instanceof Int{self==x}</b> is an overly-complicated way of
+saying <b>3==x</b>.
+
+<div class="p"><!----></div>
+However, it is a static error if <b>e</b> cannot possibly be an instance of
+<b>C{c}</b>; the compiler will reject <b>1 instanceof Int{self == 2}</b> because
+<b>1</b> can never satisfy <b>Int{self == 2}</b>. Similarly, <b>1 instanceof
+String</b> is a static error, rather than an expression always returning false. 
+
+<div class="p"><!----></div>
+<em>Limitation</em>
+X10 does not currently handle <b>instanceof</b> of generics in the way you
+might expect.  For example, <b>r instanceof Array[Int{self != 0}]</b> does
+not test that every element of <b>r</b> is non-zero; instead, the compiler
+rejects it.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

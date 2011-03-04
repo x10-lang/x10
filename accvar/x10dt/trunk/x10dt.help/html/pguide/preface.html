@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+<title>An Introduction to Programming With X10</title>
+
+<h1 align="center">An Introduction To Programming With X10 </h1>
+
+<h3 align="center">
+ Draft  <br />
+   Bard Bloom, <tt>bardb@us.ibm.com</tt><br />
+   Jonathan Brezin, <tt>brezin@us.ibm.com</tt> <br />
+   Stephen J. Fink, <tt>sjfink@us.ibm.com</tt> <br />
+   <br />
+   Please send comments to <tt>brezin@us.ibm.com</tt>.
+ </h3>
+
+<h2>Who This Book Is For</h2>
+The X10 programming language was introduced to try to bring to programming in the high-performance world
+the latest in programming language technology.  This text is an attempt to start programmers who have 
+some experience with an object-oriented language on the road to writing X10.  We'll talk about Java and
+C++  from time to time, since they seem to be the most broadly taught for the likely audience for this book,
+but only to help translate from these languages into X10, not to explain X10itself.
+So, even "scripting" languages like
+JavaScript, Ruby, or Python should give one enough intuition.  
+
+<div class="p"><!----></div>
+Those familiar with C, but not C++, may find this book useful,
+but some minimal knowledge of object-oriented programming really is a must-
+classes, objects, class methods versus instance methods, and so on, but nothing deep. 
+
+<div class="p"><!----></div>
+
+<h2>The Scope Of The Book</h2>
+Just as programmers using the MPI library can go a long way with only a half-dozen or so of the
+more than one hundred entries in that library, 
+the new X10 programmer can get a lot of mileage out of a carefully
+chosen subset of  X10  constructs.  Our aim here is to get you started, not finish you off, so we
+stick to what we need to do that 80 or 90<br />The final chapter surveys what we don't cover here in detail.
+
+<div class="p"><!----></div>
+Here is a quick outline of what we are going to do.  The first chapter is a sampling of a few simple X10
+programs so you can get a feeling for the language.  Already it introduces concurrency, both local and
+distributed.  The emphasis here is on the basic constructs, not on performance, except to the extent
+that it comes up as a reason for choosing one construct over another.  The next several chapters flesh out the critical parts of the language: classes, expressions,
+control flow, .  That rounds out the first part of the text.  In the second part, "Advanced Topics," 
+we have drawn on some examples elaborated by
+Michael J. Quinn in his text "<em>Parallel Programming in C with MPI
+and OpenMP</em>", published by McGraw-Hill in 2004.  Here we try to give more substantial examples
+so that you can get a feeling for how X10 plays in industrial-strength applications, and
+performance is a critical part of the discussion.
+
+<div class="p"><!----></div>
+Quinn's book
+provides a  very readable basic introduction to parallel computing.
+Although we try to be reasonably self-contained, we rely on Quinn's text for the discussion
+of the language-independent analysis of the problems. We have also tried to make each program
+self-contained, with a <tt>main()</tt>  that
+does something useful.  We tend to go a little beyond what is 
+in Quinn's examples, mostly in order to show how the serial side of X10 might be
+used to organize the melange of trivia that seems necessary to implement any real
+application.  Quinn, writing in C, had the luxury of 30 or so years of examples
+out there and hence no need to embroider the parallel code that was his real focus.
+
+<div class="p"><!----></div>
+We highly recommend having Quinn's book close at hand when working through these
+advanced examples.  Quinn's treatment of the MPI and OpenMP
+approaches to these problems will be very helpful, particularly if you have not
+had a lot of experience with this sort of programming.  
+X10, with the advantage of many years of hindsight into the good and bad
+of parallel language design, sometimes has more
+graceful ways of saying what needs to be said, but a lot of insight went into the
+design of MPI and OpenMP.  Becoming fluent in them is not only its own reward, but
+it will help in understanding where X10 is coming from.
+
+<div class="p"><!----></div>
+
+<h2>Getting X10 Onto Your Machine</h2>
+
+<div class="p"><!----></div>
+We've put together some installation guides for various platforms detailing on how to 
+set up your workstation to develop X10 programs. The platforms supported are 
+
+<div class="p"><!----></div>
+<a href="http://dist.codehaus.org/x10/documentation/install/mac-cl-install.html">Mac: http://dist.codehaus.org/x10/documentation/install/mac-cl-install.html</a> <br />
+<a href="http://dist.codehaus.org/x10/documentation/install/linux-cl-install.html">Linux: http://dist.codehaus.org/x10/documentation/install/linux-cl-install.html</a> <br />
+<a href="http://dist.codehaus.org/x10/documentation/install/windows-cl-install.html">Windows: http://dist.codehaus.org/x10/documentation/install/windows-cl-install.html</a> <br />
+
+<div class="p"><!----></div>
+Once you have your environment set up you will be able to run the programs in this guide, as well as 
+developing your own programs.
+
+</html>

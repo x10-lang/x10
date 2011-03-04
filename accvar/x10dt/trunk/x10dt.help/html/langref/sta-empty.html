@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Empty statement</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Empty statement</h2>
+
+<div class="p"><!----></div>
+The empty statement <b>;</b> does nothing.  
+
+<div class="p"><!----></div>
+Sometimes, the syntax of X10 requires a statement in some position, but you do
+not actually want to do any computation there.   
+The following code searches the array <b>a</b> for the value <b>v</b>, assumed
+to appear somewhere in <b>a</b>, and returns the index at which it was found.  
+There is no computation to do in the loop body, so we use an empty statement
+there. 
+<pre>
+static def search[T](a: Array[T](1), v: T):Int {
+  var i : Int;
+  for(i = a.region.min(0); a(i) != v; i++)
+     ;
+  return i;
+}
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

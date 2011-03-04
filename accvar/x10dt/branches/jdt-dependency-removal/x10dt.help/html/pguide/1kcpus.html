@@ -1,0 +1,498 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>A Thousand CPUs Are Better Than Two</title>
+
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;A Thousand CPUs Are Better Than Two</h2>
+
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Distributing Work</h3>
+To get real concurrency, we have to distribute the work across multiple processors.  X10
+provides a type, <tt>Place</tt>, that is best thought of as an address space in which activities
+may run.
+The physical reality is that different <tt>Place</tt>s may refer to the same physical processor and may share
+physical memory, but-and this is what counts-from the programmer's point of view two
+distinct <tt>Places</tt> have no storage in common: each is its <em>own</em> address space. 
+<tt>Place.MAX_PLACES</tt> is the number of <tt>Places</tt> available to a program.  It is fixed
+as program start-up and cannot be altered thereafter.
+
+<div class="p"><!----></div>
+Each <tt>Place</tt> has an integer id:
+if <tt>p</tt> is a <tt>Place</tt>, then <tt>p.id</tt> is its id.  An activity can find out at which <tt>Place</tt>
+it is executing by evaluating the expression <tt>here</tt>.  The keyword <tt>here</tt> is reserved
+for this purpose alone.  The id of the current activity's <tt>Place</tt> is <tt>here.id</tt>.  
+The <tt>Place</tt> whose id  is "<tt>i</tt>" can be got by evaluating <tt>Place.places(i)</tt>.
+<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+
+<div class="p"><!----></div>
+The X10 runtime begins a program's execution by creating a single activity, the
+"root" activity, that calls
+the program's <tt>main()</tt>.  The root activity's home <tt>Place</tt> is called <tt>Place.FIRST_PLACE</tt>, 
+and by convention, it is the <tt>Place</tt> whose id is <tt>0</tt>.
+
+<div class="p"><!----></div>
+ So the question is: how does information at one <tt>Place</tt> get to another?  One simple way
+ is to use an "<tt>at(p)</tt>"  statement:   if the identifier <tt>p</tt> names a <tt>Place</tt>, and 
+ <tt>computeAnInt()</tt> is a method that computes an <tt>Int</tt>, then
+ 
+<pre>&nbsp;&nbsp;&nbsp;val&nbsp;anInt&nbsp;=&nbsp;at(p)&nbsp;computeAnInt();&nbsp;
+</pre> 
+ means: "Pause this activity.  Go to the <tt>Place p</tt>, and then call <tt>computeAnInt()</tt>.  Send
+ the result back here to this <tt>Place</tt>, assign the value to <tt>anInt</tt>, and then
+ let this activity continue."  The requesting activity is
+ blocked while the remote activity computes the needed value.
+
+<div class="p"><!----></div>
+ If you do not want to wait around yet for the value to be computed and assigned,
+ things are not so simple.  You might think
+ that something like the obvious
+ 
+<pre>&nbsp;&nbsp;async&nbsp;val&nbsp;anInt&nbsp;=&nbsp;&nbsp;at(p)&nbsp;computeAnInt();&nbsp;
+</pre> 
+ might work, but it doesn't.   Just as with variables declared in <tt>for</tt>  loops,
+ the declaration of <tt>anInt</tt> 
+ in an <tt>async</tt>'s body means that it is not available outside of it.  This
+ is consistent with Java and C++ (and just about every other language): a
+ declaration within a statement's body is visible only in that body.
+
+<div class="p"><!----></div>
+The secret is to separate the assignment from the declaration:
+ 
+<pre>&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;anInt:&nbsp;Int;
+&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;finish&nbsp;{&nbsp;
+&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;some&nbsp;code&nbsp;not&nbsp;using&nbsp;anInt&nbsp;can&nbsp;go&nbsp;here&nbsp;*/
+&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;async&nbsp;{&nbsp;anInt&nbsp;=&nbsp;at(p)&nbsp;computeAnInt();&nbsp;}
+&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;maybe&nbsp;more&nbsp;code&nbsp;not&nbsp;using&nbsp;anInt&nbsp;here,&nbsp;too!&nbsp;*/
+&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;at&nbsp;last:&nbsp;anInt&nbsp;can&nbsp;be&nbsp;used&nbsp;here!&nbsp;*/&nbsp;
+</pre> 
+As the comments in this code suggest, the <tt>async</tt> has to be inside a
+ <tt>finish</tt> block, and  <tt>anInt</tt> cannot be used until control leaves the block.
+
+<div class="p"><!----></div>
+Passing a "<tt>var</tt>" into an <tt>async</tt>'s block is not supported as yet, 
+and perhaps may never be.   There are real problems
+with passing variables into an asynchronous activity.  As we have
+before (and may again), we ask you to just take our word for this, because
+to give a good explanation would take us too far afield.
+
+<div class="p"><!----></div>
+The key to working around this problem is to create a <tt>val</tt> that is
+the address of the value you want, and pass that constant into the
+<tt>async</tt>.  One way to do this is to use an array with a single entry:
+Just replace line 1 above with
+"<tt>1    val anInt = new Array[Int](0..0);</tt>."  As we've said before,
+that array that <tt>anInt</tt> names cannot change, but the array's contents may.
+We have to rewrite line 4 so that
+the left-hand side of the assignment is <tt>anInt(0)</tt>, but otherwise the
+code works as before.
+
+<div class="p"><!----></div>
+X10 provides another way of solving this problem that some people feel is a little cleaner.
+It uses the generic class <tt>x10.lang.Cell[T]</tt>.
+A <tt>Cell[T]</tt> is an object with a single member, "<tt>value</tt>", of type <tt>T</tt>. 
+If you replace line 1 with "<tt>' 1    val anInt = new Cell[Int](0);</tt>"  and 
+line 4 with "<tt>anInt.set(at(p) computeAnInt())</tt>", you are back in business.
+With our new line 1, the <tt>async</tt> is passed is passed a reference to a <tt>Cell</tt> 
+holding one <tt>Int</tt> value, rather than to an array holding one <tt>Int</tt> value: basically the same thing.
+The code in the <tt>async</tt> is free to change the contents of that <tt>Cell</tt>, just as
+it was to free to change the array's single element.  
+
+<div class="p"><!----></div>
+Now that we know how to move data around, we are ready to rework our code.
+
+<div class="p"><!----></div>
+      <h3><a name="tth_sEc2.2">
+2.2</a>&nbsp;&nbsp; Don't Try This On <em>Your</em> Computer</h3>
+Let's get started with our multi-processor code with some high-level pseudo-code.
+We are going to go all out and not only use several <tt>Places</tt>, but at each
+<tt>Place</tt>, we'll use several activities.  Here we go:
+
+<dl compact="compact">
+<a name="lbl:mpchl">
+</a>
+	<dd><tt>main</tt>:
+      Read the command line to get the number of places to use.
+      For each <tt>Place</tt>, calls the function <tt>countAtP</tt> to get
+      that one <tt>Place</tt>'s contribution and adds them up.</dd>
+
+	<dd><tt>countAtP</tt>:
+      Essentially the same as the loop over the set of threads
+      in <tt>MontePiAsync</tt>'s <tt>main</tt>: 
+      add up the counts from several threads at one <tt>Place</tt>, as
+     returned by <tt>countPoints</tt>.  See Figure <a href="#fig:mcpm">2</a>;</dd>
+
+	<dd><tt>countPoints</tt>:
+      Called once per thread, and really <em>is</em> the same as in <tt>MontePiAsync</tt>:
+      here is where we actually call the random number generator.</dd>
+</dl>
+
+<div class="p"><!----></div>
+In thinking about this code, keep in mind that a really high-performance computer
+can provide literally thousands of <tt>Place</tt>s, but,
+for this sort of CPU-intensive activity, any given <tt>Place</tt> is likely only
+to support at most a dozen or so threads, or less.  That said, we might ask ourselves whether
+it makes sense to use different strategies  for accumulating 
+our results in <tt>countAtP</tt>,  which we expect to have very few contributors,
+versus <tt>main</tt>, which may have thousands.
+
+<div class="p"><!----></div>
+When we only have two or three integers to add together, it might make sense to
+use a single <tt>var count:Long</tt> to accumulate the total count, rather than using
+an array (as we did in the <tt>main</tt> for <tt>MontyPiAsync</tt>).   
+A <tt>val</tt> that is a <tt>Cell[Long]</tt> will do admirably.
+Here's a first cut:
+
+<pre>&nbsp;1&nbsp;public&nbsp;static&nbsp;def&nbsp;countAtP(pId:Int,&nbsp;threads:Int,&nbsp;n:Long)&nbsp;{
+&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;count:&nbsp;Cell[Long]&nbsp;=&nbsp;new&nbsp;Cell[Long](0L);
+&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;finish&nbsp;for&nbsp;(var&nbsp;j:&nbsp;Int&nbsp;=&nbsp;1;&nbsp;j&lt;=&nbsp;threads;&nbsp;j++)&nbsp;&nbsp;{
+&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async&nbsp;{
+&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;r&nbsp;=&nbsp;new&nbsp;Random(Timer.nanoTime()));
+&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;rand&nbsp;=&nbsp;()&nbsp;=&#62;&nbsp;r.nextDouble();
+&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count&nbsp;+=&nbsp;countPoints(n,&nbsp;rand);
+&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;9&nbsp;&nbsp;&nbsp;&nbsp;}
+10&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;count.value;
+11&nbsp;}
+</pre>
+If you compare this with Figure <a href="#fig:mcpm">2</a>, the only difference is that we are using
+one array element here instead of one per thread.  Sadly, this approach is just plain wrong.
+
+<div class="p"><!----></div>
+The trouble is in line 7, where <tt>count</tt>'s value is updated.  If you are a veteran of the
+parallel programming wars, you will recognize this as a classic <em>race</em> condition.
+For the newcomers, here is a scenario that shows what's wrong:
+
+<blockquote>
+We begin with <tt>count</tt>'s value is initially set to 0, and use two threads, <tt>T1</tt> and <tt>T2</tt>.
+
+<div class="p"><!----></div>
+<tt>T1</tt> begins
+executing first.  When it gets to line 7, it loads the value of <tt>count</tt>,
+which is 0, into the CPU. Just after the load completes,
+the operating system's thread manager suspends <tt>T1</tt> for some reason. 
+
+<div class="p"><!----></div>
+A few nanoseconds later, the system lets <tt>T2</tt> start, and it gets
+to line 7, where it also loads  <tt>count</tt>.   Because <tt>T1</tt>
+never completed its update, <tt>T2</tt> also finds 0 stored there. 
+So <tt>T2</tt> adds its value to 0, and stores the result back into <tt>count</tt>: <tt>count</tt>
+now is whatever <tt>T2</tt> computed.
+
+<div class="p"><!----></div>
+Once  <tt>T1</tt> is restarted, it adds its contribution to the count to the value of <tt>count</tt> that
+it has already loaded, namely, 0-it doesn't
+do the load again.  But that means that it does not see the effect of
+<tt>T2</tt>'s update. 
+<tt>T1</tt>  therefore
+stores  into <tt>count</tt>.
+So the final value of <tt>count</tt> is that computed by <tt>T1</tt>, not its sum with <tt>T2</tt>'s
+value.  <tt>T2</tt>'s contribution has been lost.
+
+<div class="p"><!----></div>
+Disaster!
+</blockquote>
+You can see why this is called a race.  It is a particularly insidious sort of bug,
+because sometimes you get the right answers, and sometimes you don't.
+After all, the operating system did not <em>have</em> to suspend <tt>T1</tt> at just
+the wrong moment.  It just happened to: the interrupt that
+affected <tt>T1</tt> may have come from an external event having nothing to
+do with <tt>MontePi</tt>.  Servicing the interrupt simply had to take precedence over <tt>T1</tt>,
+so too bad, <tt>T1</tt> loses:
+that's life.
+
+<div class="p"><!----></div>
+The cure is simple enough: we just need to replace line 7 with
+
+<pre>&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atomic&nbsp;count&nbsp;+=&nbsp;countPoints(n,&nbsp;rand);
+</pre>
+When an X10 statement is guarded this way by the keyword <tt>atomic</tt>,
+it is guaranteed that once a thread enters the statement,
+no other thread may enter it until the original thread completes it.  
+
+<div class="p"><!----></div>
+In our original scenario, this means that once the first thread, <tt>T1</tt>, starts executing
+line 7,  <tt>T2</tt> will be blocked from entering
+line 7, while <tt>T1</tt> is still active there, even if for some reason the
+operating system suspends <tt>T1</tt> for a while.  <tt>T2</tt> will be
+suspended until <tt>T1</tt> finishes the assignment.  It slows things down,
+but you get the right answer.
+
+<div class="p"><!----></div>
+Our new line 7 really is not a good solution, though, because
+virtually all the time spent executing the statement is
+in the very expensive call to <tt>countPoints</tt>.  <tt>countPoints</tt>
+does not depend on any resources shared by the two threads,
+so there is no problem about the
+two executing the call to <tt>countPoints</tt> concurrently.
+The only shared resource is <tt>count</tt>, which
+doesn't appear in <tt>countPoints</tt> at all.  So what we really want is:
+
+<pre>&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;ourCount&nbsp;=&nbsp;&nbsp;countPoints(n,&nbsp;rand);
+&nbsp;7*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atomic&nbsp;count&nbsp;+=&nbsp;ourCount;
+</pre>
+Because only one activity at a time can execute an atomic statement,
+clearly the smart thing is to keep it as small as possible.
+
+<div class="p"><!----></div>
+Races occur when multiple activities share a resource.  In this example, they share 
+piece of storage, but they could equally well share an output stream.  For instance,
+suppose two activities
+call <tt>Console.OUT.println</tt> at the same time.  What happens?  Answer:
+it depends!  Sometimes each line will print as desired, sometimes the 
+two lines will be interleaved, just like shuffling a deck of cards.  Try
+the following code, for example:
+
+<pre>public&nbsp;class&nbsp;HelloAsync&nbsp;{
+&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;main(argv:Rail[String]!)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async&nbsp;Console.OUT.println("Hello,&nbsp;World");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async&nbsp;Console.OUT.println("Hola,&nbsp;Mundo");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async&nbsp;Console.OUT.println("Bonjour,&nbsp;Monde");
+&nbsp;&nbsp;&nbsp;}
+}
+</pre>
+Here's our console log for one shot at compiling and running it:
+
+<pre>\%x10c&nbsp;HelloAsync.x10
+%&nbsp;x10&nbsp;HelloAsync
+BHelonlo,j&nbsp;oWuorr,l&nbsp;dM
+onde
+Hola,&nbsp;Mundo
+</pre>
+The Spanish, "Hola, Mundo," got delivered in one shot, but the English
+and French got a pretty well interleaved.  Who knows what might have happened on another
+run!  Even more amusing: why was the <em>second</em> <tt>async</tt> the
+one that wasn't interrupted?  The first, maybe-the last, not too surprising-but,
+the <em>second</em>?
+
+<div class="p"><!----></div>
+Putting all this discussion to use, we get a first cut at <tt>MontePiCluster</tt>:
+
+<div class="p"><!----></div>
+<hr />
+
+<pre>
+public&nbsp;class&nbsp;MontePiCluster&nbsp;{
+&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;countAtP(threads:Int,&nbsp;n:Long)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;count&nbsp;=&nbsp;new&nbsp;Cell[Long](0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;finish&nbsp;for&nbsp;(var&nbsp;j:&nbsp;Int&nbsp;=&nbsp;1;&nbsp;j&lt;=&nbsp;threads;&nbsp;j++)&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;jj&nbsp;=&nbsp;j;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;r&nbsp;=&nbsp;new&nbsp;Random(Timer.nanoTime()));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;rand&nbsp;=&nbsp;()&nbsp;=&#62;&nbsp;r.nextDouble();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;jCount&nbsp;=&nbsp;countPoints(n,&nbsp;rand);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atomic&nbsp;count.set(count.value&nbsp;+&nbsp;jCount);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;count.value;
+&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;countPoints(n:Long,&nbsp;rand:()=&#62;Double)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;inCircle:&nbsp;Long&nbsp;=&nbsp;0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(var&nbsp;j:&nbsp;Long=1;&nbsp;j&lt;=n;&nbsp;j++)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;x&nbsp;=&nbsp;rand();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;y&nbsp;=&nbsp;rand();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(x*x&nbsp;+y*y&nbsp;&lt;=&nbsp;1.0)&nbsp;inCircle++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;inCircle;
+&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;main(args:&nbsp;Array[String](1))&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;N&nbsp;=&nbsp;args.size()&#62;0&nbsp;?&nbsp;Long.parse(args(0))&nbsp;:&nbsp;1000000L;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;maxP&nbsp;=&nbsp;args.size()&#62;1&nbsp;?&nbsp;Int.parse(args(1))&nbsp;:&nbsp;4;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;tPerP&nbsp;=&nbsp;args.size()&#62;2&nbsp;?&nbsp;Int.parse(args(2))&nbsp;:&nbsp;2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;nPerT&nbsp;=&nbsp;N/(maxP&nbsp;*&nbsp;tPerP);&nbsp;//&nbsp;points&nbsp;per&nbsp;thread
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;inCircle&nbsp;=&nbsp;new&nbsp;Array[Long](1..maxP);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;finish&nbsp;for(var&nbsp;k:&nbsp;Int&nbsp;=&nbsp;1;&nbsp;k&lt;=maxP;&nbsp;k++)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;kk&nbsp;=&nbsp;k;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;p&nbsp;=&nbsp;Place.places(k-1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;async&nbsp;inCircle(kk)&nbsp;=&nbsp;at(p)&nbsp;countAtP(kk,tPerP,nPerT);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;total:&nbsp;Long&nbsp;=&nbsp;0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(var&nbsp;k:&nbsp;Int&nbsp;=1;&nbsp;k&lt;=maxP;&nbsp;k++)&nbsp;total&nbsp;+=&nbsp;inCircle(k);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;pi&nbsp;=&nbsp;(4.0*total)/N;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.OUT.println("The&nbsp;value&nbsp;of&nbsp;pi&nbsp;is&nbsp;"&nbsp;+&nbsp;pi);
+&nbsp;&nbsp;}
+</pre>
+<hr />
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.3">
+2.3</a>&nbsp;&nbsp;Once Again, We Can Do Better</h3><a name="sce:oawcdb">
+</a> 
+
+<div class="p"><!----></div>
+First a very simple piece of clean-up:
+the idiom "<tt>atomic x += y</tt>" is so common, and more generally,
+the situation where there is a single variable has to be updated atomically,
+that X10 provides a set of types to help you out: <tt>AtomicInteger</tt>,
+<tt>AtomicLong</tt>, <tt>AtomicBoolean</tt> and <tt>AtomicReference</tt> in
+the package <tt>x10.util.concurrent. atomic</tt>.  Here's how one uses them.
+Instead of "<tt>val count = Cell...</tt>", we declare
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;count&nbsp;=&nbsp;new&nbsp;AtomicInteger(0);
+</pre>
+Inside the loop, the assignment "<tt>atomic count += jCount;</tt>" gets replaced by:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count.addAndGet(jCount);
+</pre>
+The atomicity of the operation is guaranteed by the method call here: you don't need
+to explicitly assert it as we did in our original.  Which is better, the <tt>Cell</tt>
+or the <tt>AtomicLong</tt>?  A matter of taste, really.
+
+<div class="p"><!----></div>
+Time now for something more substantial.  From the beginning we have been
+talking about points in a circle.  But not a single point, as such, has occurred among
+our data types.  It is time to remedy that and to make a start into exploiting X10 as an
+object-oriented language.
+
+<div class="p"><!----></div>
+X10 actually provides more than one way to describe structured data.  Right now,
+we'll work with the one closest to what you would see in Java and C++:
+
+<pre>&nbsp;1&nbsp;public&nbsp;class&nbsp;Point2D&nbsp;{
+&nbsp;2&nbsp;&nbsp;&nbsp;public&nbsp;val&nbsp;x:&nbsp;Double;
+&nbsp;3&nbsp;&nbsp;&nbsp;public&nbsp;val&nbsp;y:&nbsp;Double;
+&nbsp;4&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;this(x:&nbsp;Double,&nbsp;y:&nbsp;Double)&nbsp;{
+&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.x&nbsp;=&nbsp;x;&nbsp;&nbsp;this.y&nbsp;=&nbsp;y;
+&nbsp;6&nbsp;&nbsp;&nbsp;}
+&nbsp;7&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;magnitude()&nbsp;=&nbsp;x*x&nbsp;+&nbsp;y*y;
+&nbsp;8&nbsp;}
+</pre>
+As usual, let's work our way line by line through this code.
+
+<dl compact="compact">
+
+	<dd><b>line 1:</b>  This is how we would declare the class if we wanted it to be a top-level
+class in its own file.  If we want to put the declaration in the file for <tt>MontePiCluster</tt>,
+would use "<tt>public <em>static</em> class Point2D <br />...}" and include it as part of the
+body of <tt>MontePiCluster</tt>.
+
+<div class="p"><!----></div>
+By the way, X10 has a class called "<tt>Point</tt>" that is fundamental for working
+with general arrays.  We
+shall eventually have a lot to say a lot about it, but for now, we just wanted you to
+know that we're using 
+"<tt>Point2D</tt>" here, rather than the more natural "<tt>Point</tt>"
+to avoid confusion with X10's (much more important and very
+different) class.
+	<dd><b>lines 2 and 3:</b> We are declaring two instance members here, both double-precision
+numbers, <tt>x</tt> and <tt>y</tt>.  What "<tt>val</tt>" means in this context is that a value will be
+assigned to the identifier in the constructor, and once assigned cannot be changed.
+Because both are declared "<tt>public</tt>",  any class that constructs an instance <tt>pt</tt>
+of <tt>Point2D</tt> can use <tt>pt.x</tt> and <tt>pt.y</tt> to access their values.</dd>
+
+	<dd><b>line 4:</b>  This is the X10 idiom for a constructor.  The keyword <tt>def</tt>, as
+noted before, signals a method declaration.  When one writes
+
+<pre>&nbsp;&nbsp;&nbsp;val&nbsp;pt&nbsp;=&nbsp;new&nbsp;Point2D(3.0,&nbsp;5.1);
+</pre>
+it is this method that will get called.</dd>
+
+	<dd><b>line 5:</b> An argument like <tt>x</tt> that has the same name as member will
+hide the member, so you need to say <tt>this.x</tt> in this context when what you
+mean is the member.</dd>
+
+	<dd><b>line 7:</b>  Another method declaration: <tt>magnitude</tt> returns the (squared!)
+magnitude of the point, x<sup>2</sup> + y<sup>2</sup>.  In simple cases like this, where the
+function is just returning the value of an expression, you don't need to write out function body as
+
+<pre>&nbsp;&nbsp;&nbsp;{&nbsp;return&nbsp;x*x&nbsp;+&nbsp;y*y;&nbsp;}
+</pre>
+As in this example, the expression to be returned after an "" sign will do.</dd>
+</dl>
+Let's rewrite <tt>countPoints</tt> using our new class:
+
+<pre>&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;countPoints(n:Long,&nbsp;rand:()=&#62;Double)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;inCircle:&nbsp;Long&nbsp;=&nbsp;0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(var&nbsp;j:&nbsp;Long=1;&nbsp;j&lt;=n;&nbsp;j++)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;pt&nbsp;=&nbsp;new&nbsp;Point2D(rand(),&nbsp;rand());
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(pt.magnitude()&nbsp;&lt;=&nbsp;1.0)&nbsp;inCircle++;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;inCircle;
+&nbsp;&nbsp;&nbsp;}
+</pre>
+We could even go further and instead of using <tt>rand</tt>, we could replace <tt>rand</tt>
+with a function <tt>rpt</tt> that returns exactly the random point we need: 
+
+<pre>public&nbsp;static&nbsp;def&nbsp;countPoints(n:Long,&nbsp;rpt:()=&#62;Point2D)&nbsp;{
+</pre>
+To do this, we have to replace the definition of <tt>rand</tt> in <tt>countAtP</tt> with 
+the definition for our new function, <tt>rpt</tt>:
+
+<pre>val&nbsp;rpt&nbsp;=&nbsp;()=&#62;new&nbsp;Point2D(r.nextDouble(),&nbsp;r.nextDouble);
+</pre>
+
+<div class="p"><!----></div>
+You can find the final version in
+
+<blockquote> %???? we need to figure out how to ref the real code
+<a href="src/montePi/montePiAsync.x10"><b>montePi/montePiCluster2.x10</b></a>.
+</blockquote>
+
+<div class="p"><!----></div>
+<b>Exercise:</b> You might want to try a slight variation on this theme:  write a method that
+uses one or more <tt>Place</tt>s to sum the values of a function  <tt>f:(d:Double)=&#62;Double</tt> over a 
+sequence of <tt>n Doubles</tt>  <tt>d, d+delta, ... d+n*delta</tt>:
+
+<div class="p"><!----></div>
+
+<blockquote>
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+</td><td nowrap="nowrap" align="center">
+<small>n&#8722;1</small><!--sup
+--><br /><font size="+3">&#8721;<br />
+</font><small>k=0</small>&nbsp;<br /></td><td nowrap="nowrap" align="center">
+f(d + k&#948;)</td></tr></table>
+</td><td width="1%">(1)</td></tr></table>
+
+</blockquote>
+
+<div class="p"><!----></div>
+For debugging sake, try some simple <tt>f</tt>'s to begin, like <tt>f = (d:Double) =&#62; 1.0</tt>.  Then you
+can go hog-wild using your own functions ( <tt>(d:Double)=&#62;d*d</tt>), or
+the functions in <tt>x10.Math</tt>, like <tt>sin</tt>, <tt>log</tt>, and 
+<tt>sqrt</tt>.
+
+<div class="p"><!----></div>
+The amusing questions are: what part of the sum is a given activity responsible for,
+and how do we combine the partial results?  Combing the results is really the same as
+as what we've done for <tt>MontyPiCluster</tt> here.  Splitting up the sum requires some
+thought.
+
+<div class="p"><!----></div>
+If there are p<sub>all</sub> <tt>Place</tt>s in all, and there are a activities
+in parallel at each <tt>Place</tt>, there will be a<sub>all</sub> = ap<sub>all</sub> activities in all.  Since there are
+n values to be summed, each activity should handle roughly n/a<sub>all</sub> additions-"roughly"
+because a<sub>all</sub> might not divide n evenly.  One solution is to let the j-th
+activity ( j=0,1,...,a&#8722;1) at the <tt>Place</tt> whose id is <tt>p</tt>  take care of the values 
+d+k&#948;, where k runs over (p a+j)+h a<sub>all</sub> for h = 0,1,...
+
+<div class="p"><!----></div>
+We'll come back to this sort of loop in gory detail in the advanced examples.
+</tt><hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>
+If you've programmed using the MPI
+library, you'll feel comfortable with this: every MPI process has its own storage: there is no
+common storage.  <tt>Place.MAX_PLACES</tt> is analogous to what you get by calling
+<tt>MPI_Comm_size</tt> and the <tt>id</tt> is analogous to what <tt>MPI_Comm_rank</tt>
+gives you.  The UPC equivalents are THREADS and MYTHREAD.
+
+<br /><br />
+
+</html>

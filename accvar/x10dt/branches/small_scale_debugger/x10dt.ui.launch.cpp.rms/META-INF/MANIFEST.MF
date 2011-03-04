@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sockets and Standalone Resource Managers
+Bundle-SymbolicName: x10dt.ui.launch.cpp.rms;singleton:=true
+Bundle-Version: 2.1.0
+Bundle-Activator: x10dt.ui.launch.cpp.rms.RMSActivator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.filesystem,
+ org.eclipse.core.runtime,
+ org.eclipse.debug.core,
+ org.eclipse.debug.ui,
+ org.eclipse.ptp.core,
+ org.eclipse.ptp.launch,
+ org.eclipse.ptp.remote.core,
+ org.eclipse.ptp.rm.core,
+ org.eclipse.ptp.rm.mpi.mpich2.core,
+ org.eclipse.ptp.rm.mpi.openmpi.core,
+ org.eclipse.ptp.services.core,
+ org.eclipse.ptp.services.ui,
+ org.eclipse.ptp.rm.ui,
+ org.eclipse.ptp.utils.core,
+ x10dt.ui.launch.core,
+ x10dt.ui.launch.cpp
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: x10-users@lists.sourceforge.net

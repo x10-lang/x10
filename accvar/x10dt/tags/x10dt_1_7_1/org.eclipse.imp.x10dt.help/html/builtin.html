@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Built-in Types</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Built-in types</h2>
+ 
+
+<div class="p"><!----></div>
+The package <tt>x10.lang</tt> provides a number of built-in class and
+interface declarations that can be used to construct types.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.1">
+7.1</a>&nbsp;&nbsp;The class <tt>Object</tt></h3><a name="Object">
+</a>
+The class <tt>x10.lang.Object</tt> is a superclass of all other classes.
+A variable of this type can hold a reference to an instance of any
+scalar or array type.
+
+<div class="p"><!----></div>
+<pre>
+package x10.lang;
+public class Object {
+  public String toString() {...}
+  public boolean equals(Object o) {...}
+  public int hashCode() {...}
+}
+</pre>
+
+<div class="p"><!----></div>
+The method <tt>equals</tt> and <tt>hashCode</tt> are useful in hashtables,
+and are defined as in  Java. The default implementation of <tt>equals</tt>
+is stable equality, &#167;&nbsp;12.4.3. This method may be overridden
+in a (value or reference) subclass.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.2">
+7.2</a>&nbsp;&nbsp;The class <tt>String</tt></h3>
+ X10 supports strings as in  Java. A string object is immutable,
+and has a concatenation operator (<tt>+</tt>)  available on it.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.3">
+7.3</a>&nbsp;&nbsp;Arithmetic classes</h3>
+Several value types are provided that encapsulate
+abstractions (such as fixed point and floating point arithmetic)
+commonly implemented in hardware by modern computers:
+
+<div class="p"><!----></div>
+<pre>
+boolean byte short char 
+int long 
+double float 
+</pre>
+
+<div class="p"><!----></div>
+ X10 v1.01 defines these data types in the same way as the 
+ Java language. Specifically, a program may contain literals
+that stand for specific instances of these classes. The syntax
+for literals is the same as for  Java (&#167;&nbsp;refLiterals).
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.4">
+7.4</a>&nbsp;&nbsp;Places, distributions, regions, clocks</h3>
+ X10 defines several other classes in the <tt>x10.lang</tt>
+package. Please consult the API documentation for more details.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.5">
+7.5</a>&nbsp;&nbsp;Java utility classes</h3>
+ X10 v1.01 programmers may import and use  Java packages such as
+<tt>java.util</tt>, e.g. <tt>java.util.Set</tt>, <tt>
+java.lang.System</tt>.  X10 programs should not invoke methods
+that use the <tt>wait/notify/notifyAll</tt> methods on such objects,
+since this may interfere with  X10 synchronization. The
+implementation does not make imported  Java classes
+automatically extend <tt>x10.lang.Object</tt>. 
+
+<div class="p"><!----></div>
+In the future a more principled and robust scheme will be worked
+out. Such a scheme will need to attend to the integration of the
+ Java and  X10 type systems, and develop a notion of place for 
+ Java objects.
+
+</body>
+</html>

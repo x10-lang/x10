@@ -1,0 +1,186 @@
+\documentclass[9pt]{sigplanconf}
+
+
+\conferenceinfo{X10'11,} {June 4, 2011, San Jose, California, USA.}
+\CopyrightYear{2011}
+%\copyrightdata{}
+
+% \stepcounter Doesn't work in a caption!
+\newcounter{RuleCounter}
+\stepcounter{RuleCounter}
+\newcommand{\userule}[1]{\arabic{#1}}
+\newcommand{\definerule}[1]{\newcounter{#1}\addtocounter{#1}{\arabic{RuleCounter}}\stepcounter{RuleCounter}}
+\newcommand{\myrule}[2]{\textbf{Rule #1:} #2.}
+
+\input{commands}
+
+\begin{document}
+
+
+\lstset{language=java,basicstyle=\ttfamily\small}
+
+
+\title{Object Initialization in X10}
+
+
+\authorinfo{Yoav Zibin \and David Cunningham \and Igor Peshansky \and Vijay Saraswat}
+           {IBM research in TJ Watson}
+           {yzibin$~|~$dcunnin$~|~$igorp$~|~$vsaraswa@us.ibm.com}
+
+
+\maketitle
+
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+%\category{D.3.3}{Programming Languages}{Language Constructs and Features}
+%\category{D.1.5}{Programming Techniques}{Object-oriented Programming}
+
+%\terms
+%Asynchronous, Initialization, Types, X10
+
+% Keywords are not required in the paper itself - only in the submission system's meta data.
+% \keywords
+% Immutability, Ownership, Java
+
+
+\Section[introduction]{Introduction}
+\input{introduction}
+
+\Section[rules]{X10 Initialization Rules}
+\input{rules}
+
+\vspace{-0.3cm}
+\Section[designs]{Alternative Initialization Designs}
+\input{designs}
+
+%\Section[implementation]{Implementation}
+%\input{implementation}
+
+%\Section[case-study]{Case Study}
+%\input{case-study}
+
+\Section[related-work]{Related Work}
+\input{related-work}
+
+\Section[conclusion]{Conclusion}
+\input{conclusions}
+
+
+\bibliographystyle{abbrv} %plain plainnat abbrvnat abbrv
+\bibliography{x10-init}
+
+\end{document}
+
+
+Tested my serialization hypotheses using this Java code:
+        ObjectOutput out = new ObjectOutputStream(new FileOutputStream("filename.ser"));
+        out.writeObject("C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10"+"C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10"+"C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10"+"C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10"+"C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10"+"C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10"+"C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10"+"C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10".substring(1));
+        out.close(); // 2KB!!
+        ObjectOutput out2 = new ObjectOutputStream(new FileOutputStream("filename2.ser"));
+        out2.writeObject("C".substring(1));
+        out2.close(); // 7bytes!
+
+
+\subsection{Alternative property design}
+
+Property design (what would happen if we use val fields instead of properties.)
+
+Fields are partition into two: property fields and normal fields. Property fields are assigned together before any other field.
+\begin{lstlisting}
+class A(x:Int) {
+  val y:Int{self!=x};
+  val z = x*x;
+}
+\end{lstlisting}
+Vs.
+Fields are ordered, and all ctors need to assign in the same order as the fields declaration.
+\begin{lstlisting}
+class A {
+  val x:Int;
+  val y:Int{self!=x};
+  val z = x*x;
+}
+\end{lstlisting}
+
+
+
+\subsection{Static initialization}
+X10 does not support dynamic class loading as opposed to Java,
+    and all static fields in X10 are final.
+Thus, initialization of static fields is a one-time phase, denoted the static-init phase,
+    that is done before the \code{main} method is executed.
+
+During the static-init phase we must finish writing to all static fields,
+    and reading a static field \emph{waits} until the field is initialized
+    (i.e., the current activity/thread blocks if the field was not written to,
+    and it resumes after another activity writes to it).
+Obviously, this may lead to deadlock as demonstrated by \Ref{Figure}{Static-init}.
+However, in practice, deadlock is rare,
+    and usually found quickly the first time a program is executed.
+
+\begin{figure}
+\begin{lstlisting}
+class A {
+  static val a:Int = B.b;
+}
+class B {
+  static val b:Int = A.a;
+}
+\end{lstlisting}
+\caption{Static initialization example:
+    the program will deadlock at run-time
+    during the static-init phase (before the \code{main} method is executed).
+    }
+\label{Figure:Static-init}
+\end{figure}
+
+
+\subsection{Memory model and constructor barrier}
+
+todo: discuss final in Java and String class.
+(people think that removing final may only hurt performance, but it may be semantic changing.)
+
+type safety and the weak memory model:
+* in Java if you don't use final fields correctly or leak this, you will simply see default values (you don't lose type-safety)
+* in X10 it could break type safety (if we don't put a barrier at the end of a ctor).
+
+class Box[T] {T haszero} {
+  var value:T;
+}
+class A {
+  static val box = new Box[A]();
+
+  var f:Int{self!=0} = 1;
+}
+
+var a = new A();
+a.f = 2;
+A.box.value = a;
+
+Suppose another activity reads A.box.value.
+Should the writes to
+a.f
+and
+A.box.value
+be ordered? (I don't think we should order them without losing performance)
+
+Therefore, X10 needs a synchronization barrier at the end of a ctor that guarantees that all writes to the fields (both VAL and VAR) of the object has finished before the handle is returned.
+(This is different from Java that only promises this for final fields. And the barrier also happens again after deserialization - requiring this weird freeze operation and you could freeze a final field again even after the ctor ended due to deserialization.)
+
+
+Bowen proposes this transformation in order to inline ctors:
+class A {
+  static val box = new Box[A]();
+
+  var f:Int{self!=0} = 0;
+}
+
+
+var a = new A();
+a.f = 1;
+// INSERT BARRIER EXPLICITLY HERE
+a.f = 2;
+A.box.value = a;

@@ -1,0 +1,17 @@
+X10 is an object oriented programming language with a sophisticated
+    type system (constraints, class invariants, non-erased generics, closures)
+    and concurrency constructs (asynchronous activities, multiple places, global references).
+Object initialization is a cross-cutting concern that interacts with all these features
+    in delicate ways that may cause type-, runtime-, and security- errors.
+This paper discusses possible designs for object initialization,
+    and the ``hardhat" design chosen in X10 version 2.1.
+We also describe our implementation within the open source X10 compiler,
+    that includes a
+    fixed-point inter-procedural (intra-class)
+    data-flow analysis
+    that infers, for each method called during initialization,
+    the set of fields that are read and
+    those that are asynchronously and synchronously written.
+Finally, we present a case study in which a large collection of java classes
+    were converted to X10,
+    and discuss the consequences of having a hardhat design.

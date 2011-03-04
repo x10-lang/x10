@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="x10dt.update.common" basedir=".">
+    <property name="basews" value="${ws}"/>
+    <property name="baseos" value="${os}"/>
+    <property name="basearch" value="${arch}"/>
+    <property name="basenl" value="${nl}"/>
+
+    <!-- Compiler settings. -->
+    <property name="javacFailOnError" value="true"/>
+    <property name="javacDebugInfo" value="on"/>
+    <property name="javacVerbose" value="false"/>
+
+    <echo message="java.home = ${java.home}"/>
+    <echo message="ant.home = ${ant.home}"/>
+
+    <condition property="mac.jre.path" value="${java.home}/../Classes">
+        <os family="mac"/>
+    </condition>
+
+    <condition property="mac.jre.path" value="">
+        <not> <os family="mac"/> </not>
+    </condition>
+
+    <echo message="mac.jre.path = ${mac.jre.path}"/>
+
+    <path id="path_bootclasspath">
+        <fileset dir="${mac.jre.path}">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${java.home}/lib">
+            <include name="*.jar"/>
+        </fileset>
+	<fileset dir="${ant.home}/lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <property name="bootclasspath" refid="path_bootclasspath"/>
+
+    <fail unless="x10dt.eclipse.target" message="You must define x10dt.eclipse.target as the location of the Eclipse installation against which X10DT should be built."/>
+
+    <echo message="x10dt.eclipse.target = ${x10dt.eclipse.target}"/>
+
+    <path id="path_eclipse.build.path">
+        <fileset dir="${x10dt.eclipse.target}/plugins">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+    <pathconvert property="eclipse.build.path" refid="path_eclipse.build.path" targetos="windows"/>
+</project>

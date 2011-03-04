@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Native static Methods</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Native <b>static</b> Methods</h2>
+
+<div class="p"><!----></div>
+<b>static</b> methods can be given native implementations.  Note that these
+implementations are syntactically <em>expressions</em>, not statements, in C++ or
+Java.   Also, it is possible (and common) to provide native implementations
+into both Java and C++ for the same method.
+<pre>
+import x10.compiler.Native;
+class Son {
+  @Native("c++", "printf(\"Hi!\")")
+  @Native("java", "System.out.println(\"Hi!\")")
+  static def printNatively():void = {};
+}
+</pre>
+
+<div class="p"><!----></div>
+If only some back-end languages are given, the X10 code will be used for the
+remaining back ends: 
+<pre>
+import x10.compiler.Native;
+class Land {
+  @Native("c++", "printf(\"Hi from C++!\")")
+  static def example():void = {
+    x10.io.Console.OUT.println("Hi from X10!");
+  };
+}
+</pre>
+
+<div class="p"><!----></div>
+The <b>native</b> modifier on methods indicates that the method must not have
+an X10 code body, and <b>@Native</b> implementations must be given for all back
+ends:
+<pre>
+import x10.compiler.Native;
+class Plants {
+  @Native("c++", "printf(\"Hi!\")")
+  @Native("java", "System.out.println(\"Hi!\")")
+  static native def printNatively():void;
+}
+</pre>
+
+<div class="p"><!----></div>
+Values may be returned from external code to X10.  Scalar types in Java and
+C++ correspond directly to the analogous types in X10.  
+<pre>
+import x10.compiler.Native;
+class Return {
+  @Native("c++", "1")
+  @Native("java", "1")
+  static native def one():Int;
+}
+</pre>
+
+<div class="p"><!----></div>
+Parameters may be passed to external code.  <b>(#1)</b>  is the first parameter,
+<b>(#2)</b> the second, and so forth.  (<b>(#0)</b> is the name of the enclosing
+class.)  Be aware that this is macro substitution rather than normal parameter
+passing; <em>e.g.</em>, if the first actual parameter is <b>i++</b>, and <b>(#1)</b>
+appears twice in the external code, <b>i</b> will be incremented twice.
+For example, a (ridiculous) way to print the sum of two numbers is: 
+<pre>
+import x10.compiler.Native;
+class Species {
+  @Native("c++", "printf(\"Sum=%d\", ((#1)+(#2)) )")
+  @Native("java", "System.out.println(\"\" + ((#1)+(#2)))")
+  static native def printNatively(x:Int, y:Int):void;
+}
+</pre>
+
+<div class="p"><!----></div>
+Static variables in the class are available in the external code. 
+
+
+<div class="p"><!----></div>
+
+</body>
+</html>

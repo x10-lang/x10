@@ -1,0 +1,693 @@
+%III. Applied constrained calculi. (3 pages)
+%
+%For each example below, formal static and dynamic semantics rules for
+%new constructs extension over the core CFJ. Subject-reduction and
+%type-soundness theorems. Proofs to be found in fuller version of
+%paper.
+%
+%(a) arrays, region, distributions -- type safe implies no arrayoutofbounds
+%exceptions, only ClassCastExceptions (when dynamic checks fail).
+%
+%Use Satish's conditional constraints example.
+%-- emphasize what is new over DML. 
+%
+%(b) places, concurrency -- place types.
+%
+%(c) ownership types, alias control.
+%
+The following section presents example uses of constrained types
+using several different
+constraint systems.
+%
+\eat{
+Many common object-oriented
+idioms and
+object-oriented type systems can be captured naturally using
+constrained types: specifically we discuss types for places,
+aliases,
+ownership, arrays and clocks.  \ref{TODO}
+}
+
+\eat{
+\ref{TODO}
+Many of these constraint systems are more
+expressive than the constraint system implemented in the current
+\Xten{} compiler and have not (yet) been implemented.
+}
+
+\eat{
+\ref{TODO}
+In the following we will use the shorthand $\tt C(\bar{t}:c)$ for the
+type $\tt C(:\bar{f}=\bar{t},c)$ where the declaration of the class
+{\tt C} is $\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ldots$  Also,
+we abbreviate $\tt C(\bar{t}:\true)$ as $\tt C(\bar{t})$.
+Finally, we use the shorthand $\tt T\;x=t;~c$ for the constraint
+$\tt T\;x;~x=t;~c$.
+}
+
+\eat{
+Finally, we
+will also have need to use the shorthand
+${\tt C}_1(\bar{t}_1:{\tt c}_1)\& \ldots {\tt C}_k(\bar{\tt t}_k:{\tt c}_k)$
+for the type
+${\tt C}_1(:\bar{\tt f}_1=\bar{\tt t}_1, \ldots,
+            \bar{\tt f}_k=\bar{\tt t}_k,{\tt c}_1,\ldots,{\tt c}_k)$ 
+provided that the ${\tt C}_i$ form a subtype chain
+and the declared fields of ${\tt C}_i$ are ${\tt f}_i$.
+
+Constraints naturally allow for partial specification
+(e.g., inequalities) or incomplete specification (no constraint on a
+variable) with the same simple syntax. In the example below,
+the type of {\tt a} does not place any constraint on the second
+dimension of {\tt a}, but this dimension can be used in other
+types (e.g., the return type).
+\begin{xten}
+  class Matrix(int m, int n) {
+    Matrix(m,a.n) mul(Matrix(:m==this.n) a) {...}
+    ...
+  }
+\end{xten}
+
+Constraints also naturally permit the expression of existential types:
+\begin{xten}
+  class List(int length) { 
+    List(:length <= this.length) filter(Comparator k) {...} 
+    ...
+  }
+\end{xten}
+\noindent
+Here, the length of the list returned by the \xcd{filter} method is 
+unknown, but is bound by the length of the original list.
+}
+
+\if 0
+\subsection{Presburger constraints: array bounds}
+
+Xi and Pfenning proposed using dependent types for eliminating
+array bounds checks~\cite{xi98array}.
+\Xten{} does not (yet) support generic types, however XXX
+%
+In CFJ, an array of type \xcd{T[]} indexed by (signed) integers
+can be modeled as a class with the following
+signature:\footnote{For this example, we assume generics
+are supported.}
+\begin{xten}
+interface Array<T>(int(:self >= 0) length) {
+  T get(int(:0 <= self, self < this.length) i);
+  void set(int(:0 <= self, self < this.length) i, T v);
+}
+\end{xten}
+
+Bounds can be checked using a constraint system based on
+Presburger arithmetic~\cite{omega}.  Constraint terms include
+integer constraints, scalar multiplication, and addition;
+constraints include inequalities:
+\fi
+
+
+\eat{
+Some code that iterates over an array (sugaring {\tt get} and {\tt set}):
+\begin{xten}
+double dot(double[] x, double[] y
+         : x.length == y.length) {
+  double r = 0.; 
+  for (int(:self >= 0, self < x.length)
+       i = 0; i < x.length; i++) {
+    r += x[i] * y[i];
+  }
+  return r;
+}
+\end{xten}
+}
+
+\eat{
+Another one:
+\begin{xten}
+double[](:length = x.length) saxpy(double a, double[] x, double[] y : x.length = y.length) {
+    double[](:length = x.length) result = new double[x.length];
+    for (int(:self >= 0, self < x.length) i = 0; i < x.length; i++) {
+        result[i] = a * x[i] + y[i];
+    }
+    return result;
+}
+\end{xten}
+}
+
+% \subsection{Presburger constraints: blocked LU factorization}
+
+\subsection{Equality constraints}
+
+The \Xten{} compiler includes a simple equality-based constraint
+system, described in Section~\ref{sec:lang}.
+Equalities constraints
+are used throughout \Xten{} programs.  For example, to ensure
+$n$-dimensional arrays are indexed only be $n$-dimensional
+index points, the array access operation requires that the
+array's \xcd{rank} property be equal to the index's \xcd{rank}.
+
+Equality constraints specified in the \Xten{} run-time library are used by the
+compiler to generate efficient code.  For instance, an iteration over
+the points in a region can be optimized to a set of nested loops
+if the constraint on the region's type specifies that the region
+is rectangular and of constant rank.
+
+
+\eat{
+\subsection{Equality constraints with disjunction: place types}
+
+This example is due to Satish Chandra. We wish to specify a balanced
+distributed tree with the property that its right child is always at
+the same place as its parent, and once the left child is at the same
+place then the entire subtree is at that place.  In
+\Xten{}, every object has a field {\tt location} of type
+{\tt place} that specifies the location at which the object is located.
+%
+The desired property may be specified thus:
+\begin{xten}
+class Tree(boolean localLeft) extends Object {
+  Tree(:!this.localLeft || (location==here && self.localLeft)) left; 
+  Tree(:location==here) right);
+  ...
+}
+\end{xten}
+The constraint on \xcd{left} states that if the \xcd{localLeft} property is
+true for the current node, then the location of the \xcd{left} child must be
+\xcd{here} and its \xcd{localLeft} property must be set.  This ensures,
+recursively, that the entire left subtree will be located at the same place.
+}
+
+\subsection{Presburger constraints}
+
+Presburger constraints are linear integer inequalities.
+%A constraint solver plugin was implemented using a port to Java of the
+%Omega library.~\cite{omega,scale}
+%A separate implementation
+%of a Presburger constraint solver was implemented using
+%CVC3~\cite{cvc}. 
+A Presburger constraint solver plugin was implemented using
+CVC3~\cite{cvclite,cvc}.  The list example in
+Figure~\ref{fig:list-example} type-checks using this constraint system.
+
+Presburger constraints are particularly useful in a
+high-performance computing setting where array operations are
+pervasive.
+Xi and Pfenning proposed using dependent types for eliminating
+array bounds checks~\cite{xi98array}.  A Presburger constraint
+system can be used to keep track of array dimensions and array
+indices to ensure bounds violations do not occur.
+
+\subsection{Set constraints: region-based arrays}
+
+Rather than using Presburger constraints, 
+\Xten{} takes another approach:
+following ZPL~\cite{ZPL}, arrays in \Xten{}
+are defined over
+{\em regions},
+sets of $n$-dimensional {\em index points}~\cite{gps06-arrays}.
+For instance, the region \xcd{[0:200,}\xcd{1:100]} specifies a
+collection of two-dimensional points \xcd{(i,j)} with \xcd{i}
+ranging from \xcd{0} to \xcd{200} and \xcd{j} ranging from
+\xcd{1} to \xcd{100}.
+
+Regions and points were modeled in CVC3~\cite{cvc} to create a
+constraint solver that ensures array bounds
+violations do not occur:
+an array access type-checks if the index point can be statically
+determined to be in the region over which the array is defined.
+
+Region constraints are subset constraints
+written as calls to the \xcd{contains}
+method of the \xcd{region} class.
+The constraint solver does not actually evaluate the calls to
+the \xcd{contains} method, rather it interprets these calls
+symbolically
+as subset constraints at compile time.
+
+Constraints have the following syntax:
+
+{
+\small
+\begin{tabular}{r@{\quad}rcl}
+\\
+  (Constraint)   &\xcd{c} &::=& \xcd{r.contains(r)} \bnf \dots \\
+  (Region) &\xcd{r} &::=& \xcd{t} \bnf [${\tt b}_1$:${\tt d}_1$,\ldots,${\tt b}_k$:${\tt d}_k$]
+           \\
+           &        &  \bnf &
+           \xcd{r | r} \bnf \xcd{r & r} \bnf \xcd{r - r}
+           \\
+           &        &  \bnf &
+           \xcd{r + p} \bnf \xcd{r - p} \\
+  (Point)  &\xcd{p} &::=& \xcd{t} \bnf $[{\tt b}_1,\ldots,{\tt b}_k]$ \\
+(Integer)&\xcd{b},\xcd{d} &::=& \xcd{t} \bnf \xcd{n} \\
+\\
+\end{tabular}
+}
+
+\noindent
+where \xcd{t} are constraint terms (properties and final variables)
+and \xcd{n} are integer literals.
+
+Regions used in constraints are either constraint terms \xcd{t},
+region constants, unions (\xcd{|}), intersections (\xcd{&}),
+or differences (\xcd{-}), or regions where each point is
+offset by another point \xcd{p} using \xcd{+} or \xcd{-}.
+
+% $\xcd{r}_1$\xcd{.contains(}$\xcd{r}_2$\xcd{)}.
+
+\begin{figure}[t]
+\footnotesize
+
+\inputxten{sor.x10}
+
+\caption{Successive over-relaxation with regions}
+\label{fig:sor}
+\end{figure}
+
+For example, the code in Figure~\ref{fig:sor} performs a successive
+over-relaxation~\cite{sor} of a matrix \tcd{G} with rank 2.
+The function declares a region variable \tcd{outer} as an alias for
+\tcd{G}'s region and a region variable \tcd{inner} to be 
+the subset of \tcd{outer} that excludes the boundary points,
+formed by intersecting the \tcd{outer} region with itself shifted up, down,
+left, and right by one.
+The function then declares two more regions \tcd{d0} and \tcd{d1},
+where ${\tt d}_i$ is set of points ${\tt x}_i$ where
+$({\tt x}_0, {\tt x}_1)$ is in \tcd{inner}.  The function
+iterates multiple times over points \tcd{i} in \tcd{d0}.
+The syntax \tcd{finish} \tcd{foreach} (line 22) tells the
+compiler to execute each loop iteration in parallel and to wait
+for all concurrent activities to terminate.
+The inner loop (lines 24--28) iterates over a subregion of
+\tcd{inner}.
+
+The type checker establishes that the \tcd{region} property of
+the point \tcd{ij} (line 24) is \tcd{inner}
+\xcd{&}~\xcd{[i..i,d1min..d1max]}, and that this region is a
+subset of \tcd{inner}, which is in turn a subset of \tcd{outer},
+the region of the array \tcd{G}.
+Thus, the accesses to the array in the loop body
+do not violate the bounds of the array.
+
+A key to making the program type-check is that the region
+intersection that defines \tcd{inner} (lines 10--11)
+is explicitly intersected with \tcd{outer} so that the 
+constraint solver can determine that
+the result is a subset of \tcd{outer}.
+
+
+\eat{
+\subsection{AVL trees and red--black trees}
+
+AVL trees and red-black trees can be modeled so that the
+data structure invariant is enforced statically.
+
+\begin{xten}
+class AVLTree(int(:self >= 0) height) {...}
+class Leaf(Object key) extends AVLTree(0) {...}
+class Node(Object key, AVLTree l, AVLTree r
+         : int d=l.height-r.height; -1 <= d, d <= 1) 
+    extends AVLTree(max(l.height,r.height)+1) {...}
+\end{xten}
+
+Red--black trees may be modeled similarly. Such trees have the
+invariant that (a) all leaves are black, (b) each non-leaf node has
+the same number of black nodes on every path to a leaf (the black
+height), (c) the immediate children of every red node are black.
+\begin{xten}
+class RBTree(int blackHeight) {...}
+class Leaf extends RBTree(0) { int value; ... }
+class Node(boolean isBlack, 
+           RBTree(:this.isBlack || isBlack) l, 
+           RBTree(:this.isBlack || isBlack,
+                   blackHeight=l.blackHeight) r)
+    extends RBTree(l.blackHeight+1) { int value; ... }
+\end{xten}
+}
+
+\eat{
+\subsection{Self types and binary methods}
+
+Self types~\cite{bsg95,bfp-ecoop97-match} can be implemented
+using a {\tt klass} property on objects.  The {\tt klass}
+property represents the run-time class of the object.
+Self types can be used to solve the binary method problem \cite{bruce-binary}.
+
+In the example below, the {\tt Set} interface has a {\tt union} method
+whose argument must be of the same class as {\tt this}.
+\noindent This enables the {\tt IntSet} class's {\tt union}
+method to access the {\tt bits} field of its argument {\tt s}.
+\begin{xten}
+  interface Set(:Class klass) {
+    Set(this.klass) union(Set(this.klass) s);
+  }
+  class IntSet(:Class klass) implements Set(klass) {
+    long bits;
+
+    IntSet(IntSet.class)() { property(IntSet.class); }
+
+    IntSet(IntSet.class)(int(:0 <= self, self <= 63) i) {
+      property(IntSet.class);
+      bits = 1 << i; }
+
+    Set(this.klass) union(Set(this.klass) s) {
+      IntSet(this.klass) r = new IntSet(this.klass);
+      r.bits = this.bits | s.bits;
+      return r; }
+  }
+\end{xten}
+\noindent
+The key to ensuring that this code type-checks is the
+\rn{T-constr}
+rule.
+With a constraint system ${\cal C}_{\mathsf{klass}}$ aware of
+the {\tt klass} property, the rule 
+\rn{T-var} is used to subsume an expression of type
+${\tt Set(this.class)}$ to type ${\tt IntSet(this.class)}$
+when {\tt this} is known to be an {\tt IntSet}:
+{\footnotesize
+\[
+\from{\begin{array}{c}
+{\tt IntSet}~{\tt this}, {\tt Set}({\tt this.klass})~{\tt s}
+        \vdash {\tt Set}({\tt this.klass})~{\tt s} \\
+{\tt IntSet}~{\tt this}, {\tt Set}({\tt this.klass})~{\tt s}
+        \vdash_{{\cal C}_{\mathsf{klass}}} {\tt IntSet}({\tt this.klass})~{\tt s} \\
+\end{array}}
+\infer{
+{\tt IntSet}~{\tt this}, {\tt Set}({\tt this.klass})~{\tt s}
+        \vdash {\tt IntSet}({\tt this.klass})~{\tt s}}
+\]}
+}
+
+
+\eat{
+\subsection{Binary search}
+
+An informal study by Jon Bentley~\cite{programming-pearls}
+found that x\% of professional programmers attending in a course
+could not correctly implement binary search.
+
+Dependent types can help here by adding the invariants to the
+index types.
+
+\subsection{Quicksort}
+
+\begin{xten}
+int(:left <= self & self <= right)
+partition(T[] array, int left, int right, int pivotIndex : left <= pivotIndex & pivotIndex <= right) {
+     T pivotValue = array[pivotIndex];
+
+     // Move pivot to end
+     swap(array, pivotIndex, right);
+
+     int(:left <= self & self <= right) storeIndex;
+     storeIndex = left;
+     for (int(:left <= self & self <= right-1) i = left; i < right; i++) {
+         if (array[i] <= pivotValue) {
+             swap(array, storeIndex, i);
+             storeIndex++;
+         }
+     }
+
+     // Move pivot to its final place
+     swap(array, right, storeIndex)
+     return storeIndex;
+}
+
+void swap(T[] array,
+          int(:0 <= self & self < array.length i,
+          int(:0 <= self & self < array.length j) {
+    T tmp = array[i];
+    array[i] = array[j];
+    array[j] = tmp;
+}
+
+void quicksort(T[] array, int left, int right : left <= right) {
+    if (left < right) {
+         // select a pivot index
+         int(:left <= self & self <= right) pivotIndex = (left + right) / 2;
+         pivotNewIndex = partition(array, left, right, pivotIndex)
+         quicksort(array, left, pivotNewIndex-1)
+         quicksort(array, pivotNewIndex+1, right)
+    }
+}
+\end{xten}
+}
+
+
+\newif\ifowner
+\ownerfalse
+
+\ifowner
+
+\subsection{Ownership constraints}
+
+\begin{figure}[t]
+\inputxten{LO.x10}
+\caption{Ownership types}
+\label{fig:ownership}
+\end{figure}
+
+Using a simple extension of \Xten{}'s built-in equality
+constraint system,
+constrained types can also be used to encode a form of ownership
+types~\cite{ownership-types,liskov-popl2003}.
+
+Figure~\ref{fig:ownership} shows a fragment of a \xcd{List}
+class with ownership types.
+Each \xcd{Owned} object has an \xcd{owner} property.  Objects
+also have properties that are used as owner parameters.
+%
+The \xcd{List} class has an \xcd{owner} property inherited from
+\xcd{Owned} and also declares a \xcd{valOwner} property that is
+instantiated with the owner of the values in the list, stored in
+the \xcd{head} field of each element.  The \xcd{tail} of the
+list is owned by the list object itself.
+
+\Xten{}'s equality-based constraint system is sufficient for
+tracking object ownership, however is does not capture all
+properties of ownership type systems.
+Ownership type systems enforce an ``owners as dominators''
+property: the ownership relation forms a tree within the object
+graph; a reference is not permitted to point directly to objects
+with a different owner.
+%
+To encode this property, the owner of
+the values \xcd{valOwner} must be contained within the owner
+of the list itself; that is, \xcd{valOwner} must be \xcd{owner}
+or \xcd{valOwner}'s owner must be contained in \xcd{owner}.
+This is captured by the constraint \xcd{self.owns(owner)} on
+\xcd{valOwner}.  Calls to the \xcd{owns} method in constraints
+are interpreted by the ownership constraint solver as the
+disjunction of conditions shown in the body of \xcd{owns}.
+The object \xcd{world} is the root of the ownership tree; 
+all objects are transitively owned by \xcd{world}.
+
+For example, the type \xcd{List(:owner==world & valOwner == this)}
+is invalid, because
+its constraint is interpreted as
+\xcd{owner == world & valOwner == this & this.owns(world)},
+which is satisfiable only when \xcd{this == world} (which it is not).
+
+An additional check is needed to ensure objects owned by
+\xcd{this} are encapsulated.
+The \xcd{tail()} method for instance, incorrectly leaks the
+list's \xcd{tail} field.  To eliminate this case, the ownership
+constraint system must additionally check that owner parameters
+are bound only to 
+\xcd{this}, \xcd{world}, or an owner property of \xcd{this}.
+These conditions ensure that \xcd{tail()} can be called only on
+\xcd{this} because its return type is otherwise not valid.
+For instance, in the following code, the type of \xcd{ys} is
+not valid because the \xcd{owner} property is bound to \xcd{xs}:
+\begin{xten}
+    final Owned o = ...;
+    final List(:owner==o & valOwner==o) xs;
+    List(:owner==xs & valOwner==o) ys = xs.tail();
+\end{xten}
+
+\fi
+
+\if 0
+\subsection{Disequalities: non-null types}
+
+A constraint system that supports disequalities can be used to
+enforce a non-null invariant on reference types.
+A non-null type \xcd{C} can be written simply as \xcd{C(:self != null)}.
+\fi
+
+\eat{
+\subsection{Clocked types}
+
+Clocks are barriers that are adapted to a context where activities may be
+dynamically created, and are designed so that all clock operations are
+determinate.
+
+For each arity $n$, we introduce a {\em Gentzen predicate}
+${\tt clocked(\bar{t})}$. A $k$-ary Gentzen predicate $a$ satisfies the
+property that $a(t_1,\ldots, t_k) \vdash a(s_1,\ldots,s_n)$ iff $k=n$
+and $t_i=s_i$ for $i\leq k$.
+
+Such a \xcd{clocked} atom is added to the context by an \xcd{clocked async}:
+$$
+\from{\Gamma, {\tt clocked(\bar{\tt v})} \vdash {\tt T}\ {\tt e}}
+\infer{\Gamma \vdash {\tt T}\ {\tt async}\ {\tt clocked}(\bar{\tt v}) {\tt e}}
+$$
+
+A programmer can require that a method may be invoked only if the
+invoking activity is registered on the clocks $\bar{\tt k}$ by adding
+a \xcd{clocked} clause. The rule for method elaboration and method invocation then change:
+$$
+\begin{array}{l}
+\from{ \bar{\tt T}\ \bar{\tt x}, {\tt C}\ \this, {\tt c},\clocked(\bar{\tt k}) \vdash {\tt S}\ {\tt e}, {\tt S} \subtype {\tt T} }   
+\infer{\tt T\ m(\bar{\tt T}\,\bar{\tt x} : c) \clocked(\bar{\tt  k})\{\return\ e;\}\ \mbox{OK in}\ C} 
+\\ \quad\\ 
+\rname{T-Invk}%
+\from{\begin{array}{l}
+\Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}  \\
+\mtype({\tt  T}_0,{\tt  m},{\tt  z}_0)= \tt {\tt  Z}_{1:n}\ {\tt  z}_{1:n}:c,clocked(\bar{\tt  k}) \rightarrow {\tt  S} \\
+\Gamma, {\tt  T}_{0:n}\ {\tt  z}_{0:n} \vdash {\tt  T}_{1:n} \subtype {\tt  Z}_{1:n}\\
+\sigma(\Gamma, {\tt  T}_{0:n}\ {\tt  z}_{0:n}) \vdash_{\cal C} {\tt  c} \ \ \ 
+\mbox {(${\tt  z}_{0:n}$ fresh)} \\
+\Gamma \vdash \clocked(\bar{\tt  k})\\
+\end{array}}
+\infer{\Gamma \vdash ({\tt  T}_{0:n}\ {\tt  z}_{0:n}; S)\ {\tt  e}_0.{\tt  m({\tt  e}_{1:n})}}
+\end{array}
+$$
+}
+
+\eat{
+\subsection{Capabilities}
+
+Capabilities (from Radha and Vijay's paper on neighborhoods)
+}
+
+\eat{
+\subsection{Activity-local objects}
+
+Parallelism in \Xten{} is supported through lightweight asynchronous {\em
+activities}, created by {\tt  async} statements.
+It is often useful to restrict objects so that they are {\em local} to a
+particular activity.
+A local object may be accessed only by
+the activity that created it or by an ancestor of that activity.
+% it may be written only by the activity that created
+% it or by a descendant of that activity.
+Local objects are declared and created by qualifying their type
+with {\tt  local}:
+\begin{xten}
+  local C o = new local C();
+\end{xten}
+
+To encode local objects in \Xten{}, we add an {\tt  activity}
+property to objects:
+\begin{xten}
+  class Object(Activity activity) { ... }
+\end{xten}
+\noindent
+where {\tt  Activity} has a possibly null {\tt  parent} property:
+\begin{xten}
+  class Activity(Activity parent) { ... }
+\end{xten}
+\noindent
+
+To track the current activity ({\tt  z}), we augment typing judgments
+as follows:
+\[
+  {\tt  z};~\Gamma \vdash {\tt  T}\ {\tt  e}
+\]
+\noindent where ${\tt  Activity}({{\tt  z}'})~{\tt  z} \in \Gamma$.
+When the current activity is {\tt  z},
+we encode the type {\tt  local C} as ${\tt  C}({\tt  z})$.
+
+Spawning a new activity with an {\tt  async} statement
+introduces a fresh activity ${\tt  z}'$:
+\[
+\from{
+{\tt  z}';~\Gamma,~{\tt  Activity}({\tt  z})~{\tt  z'} \vdash {\tt  T}\ {\tt  e}\ \ \ 
+\mbox{(${\tt  z}'$ fresh)}
+}
+\infer{
+{\tt  z};~\Gamma \vdash {\tt  T}\ ({\tt  async}\ {\tt  e})
+}
+\]
+The rule \rn{T-Field} is strengthened to require that reads 
+only be performed on objects whose {\tt  activity} property is a
+descendant of the current activity.
+%\rname{T-Field-Local}%
+\[
+\from{
+\begin{array}{ll}
+{\tt  z};~\Gamma \vdash {\tt  T}_0\ {\tt  e} \\
+\mathit{fields}({\tt  T}_0,{\tt  z}_0)= \bar{\tt  U}\ \bar{\tt  f}_i &
+\mbox{(${\tt  z}_0$ fresh)} \\
+{\tt  z};~\Gamma \vdash {\tt  T}_0 \subtype {\tt  C}(:{\tt  activity} = {\tt  z}') &
+\Gamma \vdash {\tt  z}~\mathsf{spawns}~{\tt  z}'
+\end{array}
+}
+\infer{{\tt  z};~\Gamma \vdash ({\tt  T}_0\ {\tt  z}_0; {\tt  z}_0.{\tt  f}_i=\self;{\tt  U}_i)\ {\tt  e.f}_i}
+\]
+
+%\Gamma \vdash {\tt  z}_0.{\tt  activity} = {\tt  z}' &
+
+\noindent
+where the $\mathsf{spawns}$ relation is defined as follows:
+\[
+\Gamma \vdash {\tt  z}~\mathsf{spawns}~{\tt  z}
+\]
+\[
+\from{
+\Gamma \vdash {\tt  z_1}~\mathsf{spawns}~{\tt  z_2} \ \ \ 
+\Gamma \vdash {\tt  z_2}~\mathsf{spawns}~{\tt  z_3}}
+\infer{\Gamma \vdash {\tt  z_1}~\mathsf{spawns}~{\tt  z_3}}
+\]
+\[
+\from{\Gamma \vdash {\tt  z_2}.{\tt  parent} = {\tt  z_1}}
+\infer{\Gamma \vdash {\tt  z_1}~\mathsf{spawns}~{\tt  z_2}}
+\]
+
+\eat{
+local objects owned by activity that created it.
+
+locals cannot be read by contained asyncs.
+
+locals can be written by contained asyncs.
+
+locals created by an activity are inherited by the parent when
+the activity terminates.
+
+\begin{xten}
+C(:thread = current) x = ...;
+finish foreach (...) {
+  C(:thread = current) y = x; // no!
+  x = y;
+}
+\end{xten}
+
+// can read if thread prop is current, or an ancestor of current
+// can write if thread prop is current or a child of current
+
+e : C(:thread = x)
+current owns x
+fields(...) = Ti fi
+-----------------------
+e.fi : Ti
+
+extensions:
+
+1. add thread to context
+2. strengthen T-field rule
+}
+}
+
+\eat{
+\subsection{Discussion}
+
+\paragraph{Control-flow.}
+Tricky to encode.  Need something like {\tt pc} label~\cite{jif}.
+
+\paragraph{Type state.}
+Type state depends on the mutable state of the 
+objects.  Cannot do in this framework.
+
+Dependent types are of use in annotations~\cite{ns07-x10anno}.
+}

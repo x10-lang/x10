@@ -1,0 +1,70 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="./x10tutorial.css" />
+</head>
+
+<body>
+
+<h1>Objects and Places</h1>
+
+
+<!-- 
+ * Objects have a home -- where created.
+ * method and field refs at home
+ * normal and -STATIC_CALLS mode.
+ * Remote references.
+ * at() to get to where object lives.
+ * global fields   
+ * global methods
+ -->
+
+<h1><kbd>home</kbd> is where the heart is</h1>
+
+<p>
+Every object lives in a particular place. (This is not true of other things,
+like structs and numbers -- they live everywhere.) Activities running at an
+object's home have special privileges that remote activities do not.  This is
+an important feature for efficiency -- the more you can keep data in its
+proper place, the less you will have to spend on communication and distributed
+storage.  
+</p>
+
+<p>
+An object's home is recorded in its <kbd>home</kbd> property. Objects always
+live in the place that they are created. So, if you want a <kbd>Penguin</kbd>
+created over <kbd>there</kbd>, go over <kbd>there</kbd> with
+an <kbd>at</kbd>-statement and create one, like this:
+</p>
+<pre class="ex">
+  val x = new Penguin();
+  // x.home == here
+  val there : Place = here.next();
+  val y = at(there) new Penguin();
+  // y.home == there
+</pre>
+
+<h1>Do try this at home</h1>
+
+<p>
+When you are manipulating an object from its home place, you can do anything
+to it that its access controls allow.  When you are manipulating it from
+anywhere else, you can only use fields and methods marked <kbd>global</kbd>.  
+</p>
+
+
+
+<p>
+The X10 2.0.3 compiler lets you choose one of two modes.  The normal mode will
+compile method calls, but put in runtime checks to make sure that you're doing
+them from the right place (if it can't figure out that you are).  So, you can
+be casual about keeping track of homes of objects, but you will pay a bit of
+runtime overhead and the occasional runtime failure when you get it wrong.
+The <kbd>-STATIC_CALLS</kbd> mode requires you to prove to the compiler that
+all calls of local methods are made from the right place: more programming
+work, but faster code and no chance of runtime failures on that point.
+</p>
+
+
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10DT Help
+Bundle-SymbolicName: x10dt.help.dt;singleton:=true
+Bundle-Version: 2.1.1.qualifier
+Bundle-Activator: x10dt.help.dt.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: x10-users@lists.sourceforge.net

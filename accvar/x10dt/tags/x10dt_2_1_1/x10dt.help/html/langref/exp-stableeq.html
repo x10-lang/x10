@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Stable equality</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc20">
+20</a>&nbsp;&nbsp;Stable equality</h2>
+<a name="StableEquality">
+</a>
+
+
+
+<div class="p"><!----></div>
+<em>
+<table>
+<tr><td align="right">EqualityExp    ::= RelationalExp </td></tr>
+<tr><td align="right">
+    &#124; EqualityExp <b>==</b> RelationalExp</td></tr>
+<tr><td align="right">&#124; EqualityExp <b>!=</b> RelationalExp</td></tr>
+<tr><td align="right">&#124; Type  <b>==</b> Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The <b>==</b> and <b>!=</b> operators provide a fundamental, though
+non-abstract, notion of equality.  <b>a==b</b> is true if the values of <b>a</b>
+and <b>b</b> are extremely identical.
+
+<div class="p"><!----></div>
+
+<ul>
+<li> If <b>a</b> and <b>b</b> are values of object type, then <b>a==b</b> holds
+      if <b>a</b> and <b>b</b> are the same object.
+<div class="p"><!----></div>
+</li>
+
+<li> If one operand is <b>null</b>, then <b>a==b</b> holds iff the other is
+      also <b>null</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> If the operands both have struct type, then they must be structurally equal;
+that is, they must be instances of the same struct
+and all their fields or components must be <b>==</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> The definition of equality for function types is specified in
+      &#167;.
+<div class="p"><!----></div>
+</li>
+
+<li> If the operands have numeric types, they are coerced into the larger of
+      the two types (see &#167;) and then compared for numeric equality.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+<b>a != b</b>
+is true iff <b>a==b</b> is false.
+
+<div class="p"><!----></div>
+The predicates <b>==</b> and <b>!=</b> may not be overridden by the programmer.
+Note that <b>a==b</b> is a form of <em>stable equality</em>; that is, the result of
+the equality operation is not affected by the mutable state of the program,
+after evaluation of <b>a</b> and <b>b</b>. 
+
+<div class="p"><!----></div>
+
+</body>
+</html>

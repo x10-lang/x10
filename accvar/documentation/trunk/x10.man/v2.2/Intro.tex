@@ -1,0 +1,94 @@
+\chapter{Introduction}
+
+\subsection*{Background}
+
+
+
+The era of the mighty single-processor computer is over. Now, when more
+computing power is needed, one does not buy a faster uniprocessor---one buys
+another processor just like those one already has, or another hundred, or
+another million, and connects them with a high-speed communication network.
+Or, perhaps, one rents them instead, with a cloud computer. This gives one
+whatever quantity of computer cycles that one can desire and afford.
+
+Then, one has the problem of how to use those computer cycles effectively.
+Programming a multiprocessor is far more agonizing than programming a
+uniprocessor.   One can use models of computation which give somewhat of the
+illusion of programming a uniprocessor.  Unfortunately, the models which give
+the closest imitations of uniprocessing are very expensive to implement,
+either increasing the monetary cost of the computer tremendously, or slowing
+it down dreadfully. 
+
+One response to this problem has been to move to a {\em fragmented memory
+  model}. Multiple processors are programmed largely as if they were
+uniprocessors, but are made to interact via a relatively language-neutral
+message-passing format such as MPI \cite{mpi}. This model has enjoyed some
+success: several high-performance applications have been written in this
+style. Unfortunately, this model leads to a {\em loss of programmer
+  productivity}: the message-passing format is integrated into the host
+language by means of an application-programming interface (API), the
+programmer must explicitly represent and manage the interaction between
+multiple processes and choreograph their data exchange; large data-structures
+(such as distributed arrays, graphs, hash-tables) that are conceptually
+unitary must be thought of as fragmented across different nodes; all
+processors must generally execute the same code (in an SPMD fashion) etc.
+
+One response to this problem has been the advent of the {\em
+partitioned global address space} (PGAS) model underlying languages
+such as UPC, Titanium and Co-Array Fortran \cite{pgas,titanium}. These
+languages permit the programmer to think of a single computation
+running across multiple processors, sharing a common address
+space. All data resides at some processor, which is said to have {\em
+affinity} to the data.  Each processor may operate directly on the
+data it contains but must use some indirect mechanism to access or
+update data at other processors. Some kind of global {\em barriers}
+are used to ensure that processors remain roughly in lock-step.
+
+\Xten{} is a modern object-oriented programming language
+in the PGAS family. The fundamental goal of \Xten{} is to enable
+scalable, high-performance, high-productivity transformational
+programming for high-end computers---for traditional numerical
+computation workloads (such as weather simulation, molecular dynamics,
+particle transport problems etc) as well as commercial server
+workloads.
+
+\Xten{} is based on state-of-the-art object-oriented
+programming ideas primarily to take advantage of their proven
+flexibility and ease-of-use for a wide spectrum of programming
+problems. \Xten{} takes advantage of several years of research (e.g.,
+in the context of the Java Grande forum,
+\cite{moreira00java,kava}) on how to adapt such languages to the context of
+high-performance numerical computing. Thus \Xten{} provides support
+for user-defined {\em struct types} (such as \xcd"Int", \xcd"Float",
+\xcd"Complex" etc), supports a very
+flexible form of multi-dimensional arrays (based on ideas in ZPL
+\cite{zpl}) and supports IEEE-standard floating point arithmetic.
+Some capabilities for supporting operator overloading are also provided.
+
+{}\Xten{} introduces a flexible treatment of concurrency, distribution
+and locality, within an integrated type system. \Xten{} extends the
+PGAS model with {\em asynchrony} (yielding the {\em APGAS} programming
+model). {}\Xten{} introduces {\em places} as an abstraction for a
+computational context with a locally synchronous view of shared
+memory. An \Xten{} computation runs over a large collection of places.
+Each place hosts some data and runs one or more {\em
+activities}. Activities are extremely lightweight threads of
+execution. An activity may synchronously (and {\em atomically}) use
+one or more memory locations in the place in which it resides,
+leveraging current symmetric multiprocessor (SMP) technology.  
+An activity may shift to another place to execute a statement block.
+\Xten{} provides weaker ordering guarantees for
+inter-place data access, enabling applications to scale.  
+Multiple memory locations in multiple places cannot be
+accessed atomically.  {\em
+Immutable} data needs no consistency management and may be freely
+copied by the implementation between places.  One or more {\em clocks}
+may be used to order activities running in multiple
+places.  \xcd`DistArray`s, distributed arrays,  may be distributed across
+multiple 
+places and  support parallel collective operations. A novel
+exception flow model ensures that exceptions thrown by asynchronous
+activities can be caught at a suitable parent activity.  The type
+system tracks which memory accesses are local. The programmer may
+introduce place casts which verify the access is local at run time.
+Linking with native code is supported.

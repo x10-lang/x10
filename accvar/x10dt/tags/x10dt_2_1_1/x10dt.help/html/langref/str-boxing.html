@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Boxing of structs</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Boxing of structs</h2>
+
+
+
+<a name="auto-boxing">
+</a> 
+If a struct <b>S</b> implements an interface <b>I</b> (<em>e.g.</em>, <b>Any</b>),
+a value {v} of type <b>S</b> can be assigned to a variable of type
+<b>I</b>. The implementation creates an object <b>o</b> that is an
+instance of an anonymous class implementing <b>I</b> and containing
+{v}.  The result of invoking a method of <b>I</b> on <b>o</b> is the
+same as invoking it on {v}. This operation is termed <em>auto-boxing</em>.
+It allows full interoperability of structs and objects-at the cost of losing
+the extra efficiency of the structs when they are boxed.
+
+<div class="p"><!----></div>
+In a generic class or struct obtained by instantiating a type parameter
+<b>T</b> with a struct <b>S</b>, variables declared at type <b>T</b> in the body
+of the class are not boxed. They are implemented as if they were declared at
+type <b>S</b>.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

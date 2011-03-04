@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>async: Spawning an Activity</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;<b>async</b>: Spawning an activity</h2><a name="AsynchronousActivity">
+</a><a name="AsyncActivity">
+</a>
+
+
+
+<div class="p"><!----></div>
+Asynchronous activities serve as a single abstraction for supporting a
+wide range of concurrency constructs such as message passing, threads,
+DMA, streaming, data prefetching. (In general, asynchronous operations
+are better suited for supporting scalability than synchronous
+operations.)
+
+<div class="p"><!----></div>
+An activity is created by executing the <b>async</b> statement: 
+
+<div class="p"><!----></div>
+<em>  
+<table>
+
+<tr><td align="right">AsyncStatement ::= <b>async</b> ClockedClause<sup>?</sup>&nbsp;Statement </td></tr>
+<tr><td align="right">&#124; <b>clocked</b> <b>async</b> Statement </td></tr>
+<tr><td align="right">ClockedClause ::= <b>clocked</b> <b>(</b> ClockList <b>)</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The basic form of <b>async</b> is <b>async S</b>, which starts a new activity
+located <b>here</b> executing <b>S</b>.   (For the clocked form, see
+&#167;.)  
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Multiple activities launched by a single activity at another place are not
+ordered in any way. They are added to the set of activities at the target
+place and will be executed based on the local scheduler's decisions.
+If some particular sequencing of events is needed, <b>when</b>, <b>atomic</b>,
+<b>finish</b>, clocks, and other X10 constructs can be used.
+X10 implementations are not required to have fair schedulers,
+though every implementation should make a best faith effort to ensure
+that every activity eventually gets a chance to make forward progress.
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+The statement in the body of an <b>async</b> is subject to the
+restriction that it must be acceptable as the body of a <b>void</b>
+method for an anonymous inner class declared at that point in the code. As
+such, it may reference variables in lexically enclosing scopes.
+
+
+<div class="p"><!----></div>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+
+/* style copied from x10dt remoteCPP.html */
+
+img {
+display: block;
+margin-top:10px;
+margin-left:20px;
+}
+
+.menu {
+font-family: Palatino Linotype, Hoefler Text,Century Schoolbook L;
+font-style:italic;
+}
+
+h1 {
+background-color:#e9fcdf;
+padding:5px 10px;
+border-style:ridge;
+}
+
+h3 {
+font-variant: small-caps;
+background-color:#a7afc0;
+padding:5px 10px;
+}
+
+p.note {
+background-color:#fdf4e0;
+border-style:none none none double;
+padding:5px 10px;
+}
+.menu {
+font-family: Palatino Linotype, Hoefler Text,Century Schoolbook L;
+font-style:italic;
+}

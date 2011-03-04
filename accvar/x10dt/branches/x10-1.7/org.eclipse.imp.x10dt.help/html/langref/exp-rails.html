@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Rail constructors</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc29">
+29</a>&nbsp;&nbsp;Rail constructors</h2>
+<a name="RailConstructors">
+</a>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">RailConstructor &nbsp;::=&nbsp; [ Expressions ] </td></tr>
+<tr><td align="right">Expressions &nbsp;::=&nbsp; Expression ( , Expression )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+
+
+<div class="p"><!----></div>
+The rail constructor "[a<sub>0</sub>, ..., a<sub>k<font face="symbol">-</font
+>1</sub>]"
+creates an instance of "ValRail" with length k
+where the ith element is
+&#228;<sub>i</sub>".  The element type of the array ("T") is
+bound to the least common ancestor of the types of the
+&#228;<sub>i</sub>" ().
+
+<div class="p"><!----></div>
+Since arrays are subtypes of "(Point) =&#62; T",
+rail constructors can be passed into the &#196;rray" and
+"ValArray" constructors as initializer functions.
+
+<div class="p"><!----></div>
+Rail constructors of type "ValRail[Int]" and length "n" 
+may be implicitly converted to type "Point{rank==n}".
+Rail constructors of type "ValRail[Region]" and length "n" 
+may be implicitly converted to type "Region{rank==n}".
+
+<div class="p"><!----></div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+\documentclass{article}
+
+\usepackage{fullpage}
+\textheight=9.0in
+\usepackage[cmex10]{amsmath}
+\usepackage{url}
+
+% Squeeze stuff
+\input{squeeze}
+
+\begin{document}
+%
+% paper title
+% can use linebreaks \\ within to get better formatting as desired
+\title{Computing Betweenness Centrality Of Massive-Scale Graphs}
+
+\author{
+Prabhanjan Kambadur \\
+I.B.M. T.J. Watson Research Center \\
+Yorktown Heights, NY 10592, \\
+pkambadu@us.ibm.com}
+\date{}
+
+% make the title area
+\maketitle
+
+Betweenness centrality (BC) is an important metric that can be used to
+determine the power of a vertex in a graph~\cite{Freeman77,Anthonisse71}.
+%
+Informally, it is a measure of a node's ability to reach other vertices in the
+graph quickly; formally, for a graph $G(V,E)$, where $V$ is the vertex set and
+$E$ is the edge set, the BC of a vertex $v$ is defined as
+$\sum_{s\ne{}v\ne{}t\in{}V}{\frac{\sigma{}_{st}(v)}{\sigma{}_{st}}}$.
+%
+Here, $\sigma{}_{st}$ denotes the number of shortest paths from a vertex $s$ to
+a vertex $t$ in $G$, and $\sigma{}_{st}(v)$ denotes the number of shortest
+paths from $s$ to $t$ that go through $v$.
+%
+BC is used widely to analyze graphs in social networks, power grids, etc.; in
+fact, computing BC is one of the core kernels of DARPA's HPCS
+SSCA\#2~\cite{ssca_matlab}, a benchmark designed to evaluate the capability of
+emerging platforms to support graph analytics efficiently.
+%
+Calculating BC for a graph with $n$ vertices and $m$ edges is both
+computationally and spatially demanding; the best known serial algorithm, by
+Brandes~\cite{brandes01:_mathsoc}, requires $O(nm)$ time and $O(n+m)$ space if
+the edges are unweighted, and $O(nm+n^2log(n))$ time and $O(n+m)$ space if the
+edges are weighted.
+%
+The key computation in Brandes' algorithm is solving the
+all-pairs-shortest-paths (APSP) problem; APSP is solved using Dijkstra's
+algorithm~\cite{dijkstra59} for weighted graphs and breadth-first search
+(BFS)~\cite{clr90} for unweighted graphs.
+%
+Incidentally, parallel BFS is also one of the Graph 500
+benchmarks~\cite{graph500}, whose aim (like SSCA) is to guide the design of
+next-generation hardware and software that can handle analytics workloads.
+%
+Given the burgeoning sizes of graphs that need to be analysed, many groups have
+attempted to parallelize BC computations with varying degrees of
+success~\cite{Madduri:2009,Santos:2006,edmonds-hipc-2010,Yang05,buluc-2010};
+the best known result~\cite{buluc-2010} has demonstrated scalability (using
+MPI) up to 1225 cores on an unweighted graph with $32$ million modes and
+$\approx{}256$ million edges.
+%
+Given the emergence of SSCA and Graph 500 as important benchmarks targeted at
+the analytics community, it is essential to develop efficient, parallel, and 
+highly scalable algorithms for computing BC on Hadoop~\cite{Hadoop}.
+%
+To aid researchers in developing and demonstrating scalability of these
+algorithms, it is necessary to have access to a large Hadoop cluster
+($\ge{}2048{}$ cores, $\ge{}4GB$ of memory/core) with HDFS/GPFS support.
+
+\bibliographystyle{plain}
+
+\bibliography{references}
+
+% that's all folks
+\end{document}

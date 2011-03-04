@@ -1,0 +1,7 @@
+// SYNOPSIS: async(#0) clocked(#1) #2
+((x10.runtime.Place) #0).runAsync
+	(new x10.runtime.Activity(#1) {
+		public void run() {
+			#2
+		}
+	});

@@ -1,0 +1,2 @@
+all:ST.cilk
+	/home/dl/amdcilk/bin/cilkc -I/home/dl/amdcilk/include -L/home/dl/amdcilk/lib -g -O2 -o ST ST.cilk

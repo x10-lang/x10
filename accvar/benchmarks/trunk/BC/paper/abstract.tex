@@ -1,0 +1,31 @@
+\begin{abstract}
+Betweenness centrality (BC) is an important metric that can be used to
+determine the power of a vertex in a graph~\cite{Freeman77,Anthonisse71}.
+%
+Computing BC for an unweighted, directed graph $G(n,m)$, where $n$ is the
+number of vertices and $m$ is the number of edges, is both computationally and
+spatially demanding; the best known serial algorithm requires $O(nm)$ time and
+$O(n+m)$ space~\cite{brandes01:_mathsoc}.
+%
+Furthermore, given that the sizes of graphs that need analysis is
+ever-increasing, parallelization of the BC computation is a must.
+%
+To compute BC for massive-scale graphs on modern super computers, which by
+nature offer hierarchical parallelism (i.e., support shared- and
+distributed-memory parallelism simultaneously), it is important to develop a
+parallel algorithm that is also hierarchical for optimal performance.
+%
+There have been several attempts at parallelizing BC
+computations~\cite{Madduri:2009,Santos:2006,edmonds-hipc-2010}; however, these
+attempts are specialized for shared- or distributed-memory machines and have
+also failed to show significant scaling.
+%
+Owing to the apparent infeasibility in computing \textit{exact} BC,
+approximations have also been implemented~\cite{Bader07:ApproxBC,buluc-2010}.
+%
+In this paper, we summarize the state-of-the-art algorithms for computing BC 
+(both serial and parallel).
+%
+Furthermore, we develop a new hierarchical algorithm for computing BC, which 
+improves on existing solutions.
+\end{abstract}

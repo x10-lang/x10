@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10DT Core Tests
+Bundle-SymbolicName: x10dt.core.tests
+Bundle-Version: 2.1.1.qualifier
+Require-Bundle: org.junit4;bundle-version="4.5.0",
+ x10.compiler,
+ x10.runtime
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ClassPath: core.jar,
+ .
+Bundle-Vendor: x10-users@lists.sourceforge.net

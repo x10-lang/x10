@@ -1,0 +1,1133 @@
+\chapter{Activities}\label{XtenActivities}
+\index{activity}
+
+
+An {\em activity} is a statement being executed, independently, with its own
+local variables; it may be thought of as a very light-weight thread. An
+\Xten{} computation may have many concurrent {activities} executing at any
+give time.  All X10 code runs as part of an activity; when an X10 program is
+started, the \xcd`main` method is invoked in an activity, called the {\em root
+activity}.\index{root
+activity}
+
+
+Activities coordinate their execution by various control and data structures.
+For example, 
+%~~stmt~~`~~`~~x:Int, var y:Int ~~ ^^^ Activities10
+\xcd`when(x==0);` blocks the current activity until some other activity
+sets \xcd`x` to zero.  However, activities determine the places at which they
+may be blocked and resumed, by \xcd`when` and similar constructs.  There are
+no means by which one activity can arbitrarily interrupt, block, or resume
+another, no method  \xcd`activity.interrupt()`.
+
+
+\index{activity!running}
+\index{activity!blocked}
+\index{activity!terminated}
+An activity may be {\em running}, {\em blocked} on some condition or {\em
+terminated}. If it is terminated, it is terminated in the same way that its
+statement is: in particular, if the statement terminates abruptly, the
+activity terminates abruptly for the same reason.
+(\Sref{ExceptionModel}).
+
+Activities can be long-running entities with a good deal of local state.  In
+particular they can involve recursive method calls (and therefore have runtime
+stacks).  However, activities can also be short-running light-weight entities,
+\eg, it is reasonable to have an activity that simply increments a variable.
+
+An activity may asynchronously and in parallel launch activities at
+other places.  Every activity except the initial \xcd`main` activity is spawned
+by another.  Thus, at any instant, the activities in a program form a tree.
+
+\index{termination}
+\index{termination!local}
+\index{termination!global}
+X10 uses this tree in crucial ways.  
+First is the distinction 
+between {\em local} termination and {\em global}
+termination of a statement. The execution of a statement by an
+activity is said to terminate locally when the activity has finished
+all its computation. (For instance the
+creation of an asynchronous activity terminates locally when the
+activity has been created.)  It is said to terminate globally when it
+has terminated locally and all activities that it may have spawned at
+any place have, recursively, terminated globally.
+For example, consider: 
+%~~gen ^^^ Activities20
+% package Activites.Are.For.Whacktivities;
+% class Example {
+% def example( s1:() => void, s2 : () => void ) {
+%~~vis
+\begin{xten}
+async {s1();}
+async {s2();}
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+The primary activity spawns two child activities and then terminates locally,
+very quickly.  The child activities may take arbitrary amounts of time to
+terminate (and may spawn grandchildren).  When \xcd`s1()`, \xcd`s2()`, and
+all their descendants terminate locally, then the primary activity terminates
+globally. 
+
+The program as a whole terminates when the root activity terminates globally.
+In particular, X10 does not permit the creation of 
+daemon threads---threads that outlive the lifetime of the root
+activity.  We say that an \Xten{} computation is {\em rooted}
+(\Sref{initial-computation}).
+
+\futureext{ We may permit the initial activity to be a daemon activity
+to permit reactive computations, such as webservers, that may not
+terminate.}
+
+\section{The \Xten{} rooted exception model}
+\label{ExceptionModel}
+\index{exception!model}
+\index{exception!rooted}
+\index{exception}
+
+
+The rooted nature of \Xten{} computations permits the definition of a
+{\em rooted exception model.} In multi-threaded programming languages
+there is a natural parent-child relationship between a thread and a
+thread that it spawns. Typically the parent thread continues execution
+in parallel with the child thread. Therefore the parent thread cannot
+serve to catch any exceptions thrown by the child thread. 
+
+The presence of a root activity and the concept of global termination permits
+\Xten{} to adopt a more powerful exception model. In any state of the
+computation, say that an activity $A$ is {\em a root of} an activity $B$ if
+$A$ is an ancestor of $B$ and $A$ is blocked at a statement (such as the
+\xcd"finish" statement \Sref{finish}) awaiting the termination of $B$ (and
+possibly other activities). For every \Xten{} computation, the \emph{root-of}
+relation is guaranteed to be a tree. The root of the tree is the root activity
+of the entire computation. If $A$ is the nearest root of $B$, the path from
+$A$ to $B$ is called the {\em activation path} for the activity.\footnote{Note
+  that depending on the state of the computation the activation path may
+  traverse activities that are running, blocked or terminated.}
+
+We may now state the exception model for \Xten.  An uncaught exception
+propagates up the activation path to its nearest root activity, where
+it may be handled locally or propagated up the \emph{root-of} tree when
+the activity terminates (based on the semantics of the statement being
+executed by the activity).\footnote{In \XtenCurrVer{} the \xcd"finish"
+statement is the only statement that marks its activity as a root
+activity. Future versions of the language may introduce more such
+statements.}  
+There is always a good place to put a \xcd`try`-\xcd`catch` block to catch
+exceptions thrown by an asynchronous activity.
+
+\section{ {\tt at}: Place Changing}\label{AtStatement}
+\index{at}
+\index{place!changing}
+
+An activity may change place synchronously using the \xcd"at" statement or
+\xcd"at" expression. This is an expensive operation and must be used
+with care.
+
+%##(AtStatement AtExp
+\begin{bbgrammar}
+%(FROM #(prod:AtStatement)#)
+         AtStatement \: \xcd"at" PlaceExpSingleList Statement & (\ref{prod:AtStatement}) \\
+%(FROM #(prod:AtExp)#)
+               AtExp \: \xcd"at" PlaceExpSingleList ClosureBody & (\ref{prod:AtExp}) \\
+\end{bbgrammar}
+%##)
+
+The {\it PlaceExp} must be an expression of type \xcd`Place` or some subtype.
+
+An activity executing statement \xcd"at (q) S" at a place \xcd`p`
+evaluates \xcd`q` at \xcd`p` and then moves to \xcd`q` to execute
+\xcd`S` as follows. Note that the value obtained by evaluating \xcd`q`
+is not necessarily distinct from \xcd`p` (e.g.{} \xcd`q` may be
+\xcd`here`).
+
+First, the runtime identifies the object graph at \xcd`p` reachable
+from lexically scoped initialized variables (say, \xcd`v1`,\ldots,
+\xcd`vn`) referenced in \xcd`S`.  Second this graph is {\em
+  serialized} into a buffer and transmitted to place \xcd`q`.  Third,
+the variables \xcd`v1`,\ldots, \xcd`vn` are re-created at \xcd`q` and
+initialized with the objects obtained by deserializing the buffer at
+\xcd`q`. Fourth, \xcd`S` is executed at \xcd`q` (in an environment in
+which the variable \xcd`vi` refers to the re-created variable at
+\xcd`q`).
+
+On normal termination of \xcd`S` control returns to \xcd`p` and
+execution is continued with the statement following \xcd`at (q) S`. If
+\xcd`S` terminates abruptly with exception \xcd`E`, \xcd`E` is
+serialized into a buffer, the buffer is communicated to \xcd`p` where
+it is deserialized into an exception \xcd`E1` and \xcd`at (e) S`
+throws \xcd`E1`.
+
+Since \xcd`at(e) S` is a synchronous construct, usual control-flow
+constructs such as \xcd`break`, \xcd`continue`, \xcd`return` and 
+\xcd`throw` are permitted in \xcd`S`.  All concurrency related
+constructs -- \xcd`async`, \xcd`finish`, \xcd`atomic`, \xcd`when` are
+also permitted.
+
+\limitationx{} In \xcd`at(e) S`, \xcd`S` is permitted to access only
+those immutable variables in the surrounding scope that are definitely
+initialized.
+
+Note that since values accessed across an \xcd`at` boundary are
+copied, the programmer may wish to adopt the discipline that either
+variables accessed across an \xcd`at` boundary  contain only structs 
+or stateless objects, or the methods invoked on them do not access any
+mutable state on the objects. Otherwise the programmer has to ensure
+that side effects are made to the correct copy of the object. For this
+the struct \xcd`x10.lang.GlobalRef[T]` is often useful.
+
+\paragraph{Serialization and deserialization.}
+\index{transient}
+\index{field!transient}
+The X10 runtime provides a default mechanism for
+serializing/deserializing an object graph with a given set of roots.
+This mechanism may be overridden by the programmer on a per class or
+struct basiss as described in \xcd`x10.io.CustomSerialization`. 
+The default mechanism performs a
+deep copy of the object graph (that is, it copies the object or struct
+and, recursively, the values contained in its fields), but does not
+traverse \xcd`transient` fields. Instead on serialization the default
+value \Sref{DefaultValues} for the type of the field is used.
+
+A struct \xcd`s` of type \xcd`x10.lang.GlobalRef[T]` \ref{GlobalRef}
+is serialized as a unique global reference to its contained object
+\xcd`o` (of type \xcd`T`).  Please see the documentation
+of \xcd`x10.lang.GlobalRef[T]` for more details.
+
+%%Such a struct \xcd`s` can only be created by a constructor call that
+%%is passed an object \xcd`o` of type \xcd`T`. The struct has a
+%%\xcd`home` field (of type \xcd`Place`) whose value is set to the place
+%%\xcd`z` at which the instance was created.  \xcd`s` maintains a hidden
+%%reference to \xcd`o` and on serialization returns a globally unique,
+%%system-defined opaque handle $h$ of fixed size (independent of
+%%\xcd`T`). This handle contains enough information for the system to
+%%recover \xcd`z`, and (at \xcd`z`) obtain a reference to \xcd`o`.  $h$
+%%can be transported to any place. When $h$ is deserialized at \xcd`z`
+%%the result of a constructor invocation of \xcd`x10.lang.GlobalRef[T]`
+%%with argument \xcd`o` is returned. When it is deserialized at a place
+%%other than \xcd`z` a special implementation of
+%%\xcd`x10.lang.GlobalRef[T]` is returned which has the property that
+%%its \xcd`home` field is \xcd`z` and on serialization it returns
+%%$h$. Thus a \xcd`GlobalRef(o)` (created at \xcd`z`) serves as a way to
+%%communicate globally a reference to the unique object \xcd`o` in such
+%%a way that the object \xcd`o` can be recovered from it at place
+%%\xcd`z`.
+
+%%TODO. Provide details of how the programmer may override default
+%%serialization for programmer defined classes. 
+
+
+
+%%\xcd`p` may be an expression of type \xcd`Place`, in which case its value is
+%%used as the place to execute the body: 
+%%%~x~gen
+%%%% package Activities.At.A.Standstill;
+%%% class Example {
+%%% def example(ob: Object, S: ()=>Void) {
+%%%~x~vis
+%%\begin{xten}
+%%   at (here.next()) S();
+%%\end{xten}
+%%%~x~siv
+%%% } } 
+%%%~x~neg
+%%\noindent
+
+
+\subsection{Discussion}
+\xcd`at(p)S` does {\em not} start a new activity.  It should be thought of as
+transporting the current activity to \xcd`p`, running \xcd`S` there, and then
+transporting it back.  \xcd`async` is the only construct in the
+language that starts a new activity. In different contexts, each one
+of the following makes sense:
+(1)~\xcd`async at(p) S` (spawn an activity locally to execute \xcd`S` at
+\xcd`p`; here \xcd`p` is evaluated by the spawned activity) , 
+(2)~\xcd`at(p) async S` (evaluate \xcd`p` and then at \xcd`p` spawn an
+activity to execute \xcd`S`), and,
+(3)~\xcd`async at(p) async S`. 
+
+Since \Xcd{at(p) S} does not start a new activity, 
+\xcd`S` may contain constructs which only make sense
+within a single activity.  
+For example, 
+\begin{xten}
+    for(x in globalRefsToThings) 
+      if (at(x.home) x().nice()) 
+        return x();
+\end{xten}
+returns the first nice thing in a collection.   If we had used 
+\xcd`async at(x.home)`, this would not be allowed; 
+you can't \xcd`return` from an
+\xcd`async`. 
+
+\subsection{Implicit copying from {\tt at} }
+\index{at!copying}
+
+\xcd`at(p)S` copies nearly all data that \xcd`S` might reference, and sends it
+to place \xcd`p`, before executing \xcd`S` there. The only things that are not
+copied are values only reachable through \xcd`GlobalRef`s and \xcd`transient`
+fields.    If \xcd`x` is a
+variable name referring to some object \xcd`ob` outside of \xcd`S`, then the
+same variable name \xcd`x` refers to a deep copy of \xcd`ob`
+inside of \xcd`S`.  In this way the body \xcd`S` is in a separate block with
+different variable bindings.
+
+For example, consider the following program.
+%~~gen ^^^ Activities_implicit_copy_from_at_example_1
+% package Activities.implicitcopyfromat;
+% class Example {
+% static def example() {
+%~~vis
+\begin{xten}
+val c = new Cell[Int](9); // (1)
+at (here) {               // (2)
+   assert(c() == 9);      // (3)
+   c.set(8);              // (4)
+   assert(c() == 8);      // (5)
+}
+assert(c() == 9);         // (6)
+\end{xten}
+%~~siv
+%}}
+% class Hook{ def run() { Example.example(); return true; } }
+%~~neg
+The \xcd`at` statement implicitly copies the \xcd`Cell` and its contents.  
+After \xcd`(1)`, \xcd`c` is a \xcd`Cell` containing 9; call that cell {$c_1$}
+At \xcd`(2)`, that cell is copied, resulting in another cell {$c_2$} whose
+contents are also 9, as tested at \xcd`(3)`.
+(Note that the copying behavior of \xcd`at` happens {\em even when the
+destination place is the same as the starting place}--- even with
+\xcd`at(here)`.)
+At \xcd`(4)`, the contents of {$c_2$} are changed to 8, as confirmed at \xcd`(5)`; the contents of
+{$c_1$} are of course untouched.    Finally, at \xcd`(c)`, outside the scope
+of the \xcd`at` started at line \xcd`(2)`, \xcd`c` refers to its original
+value {$c_1$} rather than the copy {$c_2$}.  
+
+The \xcd`at` statement induces a {\em deep copy}.  Not only does it copy the
+values of variables, it copies values that they refer to through zero or more
+levels of reference.  Structures are preserved as well: if two fields
+\xcd`x.f` and \xcd`x.g` refer to the same object {$o_1$} in the original, then
+\xcd`x.f` and \xcd`x.g` will both refer to the same object {$o_2$} in the
+copy.  
+
+For example, in the following variation of the preceding example,
+\xcd`a`'s original value {$a_1$} is an array with two references to the same
+\xcd`Cell[Int]` {$c_1$}.  The fact that {$a_1(0)$} and {$a_1(1)$} are both
+identical to {$c_1$} is demonstrated in \xcd`(A)`-\xcd`(C)`, as {$a_1(0)$} is modified
+and {$a_1(1)$} is observed to change.  In \xcd`(D)`-\xcd`(F)`, the copy
+{$a_2$} is tested in the same way, showing that {$a_2(0)$} and {$a_2(1)$} both
+refer to the same \xcd`Cell[Int]` {$c_2$}.  However, the test at \xcd`(G)`
+shows that {$c_2$} is a different cell from {$c_1$}, because changes to
+{$c_2$} did not propagate to {$c_1$}.  
+%~~gen ^^^ Activities30
+%package Activities.AtCopy2;
+%class example {
+%static def Example() {
+%~~vis
+\begin{xten}
+val c = new Cell[Int](5);
+val a = new Array[Cell[Int]][c,c];
+assert(a(0)() == 5 && a(1)() == 5);     // (A)
+c.set(6);                               // (B)
+assert(a(0)() == 6 && a(1)() == 6);     // (C)
+at(here) {
+  assert(a(0)() == 6 && a(1)() == 6);   // (D)
+  c.set(7);                             // (E)
+  assert(a(0)() == 7 && a(1)() == 7);   // (F)
+}
+assert(a(0)() == 6 && a(1)() == 6);     // (G)
+\end{xten}
+%~~siv
+%}}
+%class Hook{ def run() { example.Example(); return true; } }
+%~~neg
+
+\subsubsection{Copying and Transient Fields}
+\index{at!transient fields and}
+\index{transient}
+\index{field!transient}
+
+Recall that fields of classes and structs marked \xcd`transient` are not copied by
+\xcd`at`.  Instead, they are set to the default values for their types. Types
+that do not have default values cannot be used in \xcd`transient` fields.
+
+In the following example, every \xcd`Trans` object has an \xcd`a`-field equal
+to 1.  However, despite the initializer on the \xcd`b` field, it is not the
+case that every \xcd`Trans` has \xcd`b==2`.  Since \xcd`b` is \xcd`transient`,
+when the \xcd`Trans` value \xcd`this` is copied at \xcd`at(here){...}` in
+\xcd`example()`, its \xcd`b` field is not copied, and the default value for an
+\xcd`Int`, 0, is used instead.  
+Note that we could not make a transient field \xcd`c : Int{c != 0}`, since the
+type has no default value, and copying would in fact set it to zero.
+%~~gen ^^^ Activities40
+%package Activities_transient_a;
+%~~vis
+\begin{xten}
+class Trans {
+   val a : Int = 1;
+   transient val b : Int = 2;
+   //ERROR transient val c : Int{c != 0} = 3;
+   def example() {
+     assert(a == 1 && b == 2);
+     at(here) {
+        assert(a == 1 && b == 0);
+     }
+   }
+}
+\end{xten}
+%~~siv
+%class Hook{ def run() { (new Trans()).example(); return true; } }
+%~~neg
+
+
+
+\subsubsection{Copying and GlobalRef}
+\label{GlobalRef}
+\index{at!GlobalRef}
+\index{at!blocking copying}
+
+%%The other barrier to the potentially copious copying behavior of \xcd`at`
+%%is the \xcd`GlobalRef` struct.  
+A \xcd`GlobalRef[T]` (say \xcd`g`) contains a reference to
+a value of type \xcd`T`, in a form which can be transmitted, and a \xcd`Place`
+\xcd`g.home` indicating where the value lives. When a 
+\xcd`GlobalRef` is serialized an opaque, globally uniqe handle to
+the enclosed value \xcd`o` is passed. 
+
+The following example does not copy the value \xcd`huge`.  However, \xcd`huge`
+would have been copied if it had been put into a \xcd`Cell`, or simply used
+directly. 
+%~~gen ^^^ Activities50
+%package Activities.copyingblockingwithglobref;
+% class GR {
+%  static def use(Any){}
+%  static def example() {
+%~~vis
+\begin{xten}
+val huge = "A potentially big thing";
+val href = GlobalRef(huge);
+at (here) {
+   use(href);
+  }
+}
+\end{xten}
+%~~siv
+%}
+% class Hook{ def run() { GR.example(); return true; } }
+%~~neg
+
+
+Values protected in \xcd`GlobalRef`s can be retrieved by the \xcd`g.apply()`
+method, often abbreviated simply \xcd`g()`.  \xcd`g.apply()` is guarded; it can
+only be called when \xcd`g.home == here`.  If you  want to do anything other
+than pass a global reference around or compare two of them for equality, you
+need to placeshift back to the home place of the reference, often with
+\xcd`at(g.home)`.   For example, the following  program modifies the
+command-line argument array.
+
+%~~gen ^^^ Activities60
+% package Activities.Atsome.Globref2;
+% class GR2 {
+%~~vis
+\begin{xten}
+  public static def main(argv: Array[String](1)) {
+    val argref = GlobalRef[Array[String](1)](argv);
+    at(here.next()) use(argref);
+  }
+  static def use(argref : GlobalRef[Array[String](1)]) {
+    at(argref.home) {
+      val argv = argref();
+      argv(0) = "Hi!";
+    }
+  }
+\end{xten}
+%~~siv
+%} 
+% class Hook{ def run() { GR2.main(["what, me weasel?"]); return true; }}
+%~~neg
+
+
+
+
+
+\subsubsection{Warnings about \xcd`at`}
+There are two dangers involved with \xcd`at`: 
+\begin{itemize}
+\item Careless use of \xcd`at` can result in copying and transmission
+of very large data structures.  In particular, it is very easy to capture
+\xcd`this` -- a field reference will do it -- and accidentally copy everything
+that \xcd`this` refers to, which can be very large.
+
+\item As seen in the examples above, a local variable reference
+  \xcd`x` may refer to different objects in different nested \xcd`at`
+  scopes The programmer must either ensure that a variable accessed
+  across an \xcd`at` boundary has no mutable state or be prepared to
+  reason about which copy gets modified. 
+\end{itemize}
+
+\subsubsection{{\tt at} and Variables}
+\index{at!variables and}
+
+\xcd`var` variables can be set at the place that they are declared, but not
+from other places.  This allows a straightforward way to transmit several
+pieces of information back from an \xcd`at(somewhereElse)`, as shown by the
+following example which computes the roots of the quadratic equation 
+{$ax^2 + bx + c = 0$}.  
+For the sake of the example, we assume that 
+{\tt mathProcessor()} returns a Place suitable for calculation.  In practice
+it would rarely if ever make sense to send such a small calculation to another
+place. 
+
+The starting place has local \xcd`var`s \Xcd{r} and \Xcd{s}, which will hold
+the roots.  
+The computation at the math processor evaluates the roots of the equation.
+These roots are bound to math processor local \xcd`val` variables \xcd`rr` and
+\xcd`ss`.  An inner place-shifting \xcd`at(h)` moves the computation back to
+the initial place, stored for that purpose in \xcd`h`, at which values can be
+assigned to the variables \xcd`r` 
+and \xcd`s` at the starting place.  Note that we take care to send only the
+minimal information across \xcd`at` boundaries; in particular we do not 
+send the discriminant back to \xcd`h`.  When the intermediate results are
+large and the desired data small, the savings can be substantial.
+
+%~~gen ^^^ Activities70
+% package Activities.AtAndVariables; 
+% abstract class Example {
+% abstract def mathProcessor() : Place;
+%~~vis
+\begin{xten}
+def printRootsOfQuadratic(a:Complex, b:Complex, c:Complex) {
+  var r : Complex = Complex(0,0);
+  var s : Complex = Complex(0,0);
+  val h = here;
+  at(mathProcessor()) {
+    val disc = Math.sqrt(b*b - 4*a*c);
+    val rr = (-b + disc) / (2*a);
+    val ss = (-b - disc) / (2*a);
+    at(h) {
+      r = rr; s = ss;
+    }
+  }
+  Console.OUT.println("r = " + r + "; s = " + s);
+}
+\end{xten}
+%~~siv
+%} 
+%~~neg
+\section{{\tt async}: Spawning an activity}\label{AsynchronousActivity}\label{AsyncActivity}
+\index{async}
+\index{activity!creating}
+
+Asynchronous activities serve as a single abstraction for supporting a
+wide range of concurrency constructs such as message passing, threads,
+DMA, streaming, data prefetching. (In general, asynchronous operations
+are better suited for supporting scalability than synchronous
+operations.)
+
+An activity is created by executing the \xcd`async` statement: 
+
+%##(AsyncStatement ClockedClause
+\begin{bbgrammar}
+%(FROM #(prod:AsyncStatement)#)
+      AsyncStatement \: \xcd"async" ClockedClause\opt Statement & (\ref{prod:AsyncStatement}) \\
+                    \| \xcd"clocked" \xcd"async" Statement \\
+%(FROM #(prod:ClockedClause)#)
+       ClockedClause \: \xcd"clocked" \xcd"(" ClockList \xcd")" & (\ref{prod:ClockedClause}) \\
+\end{bbgrammar}
+%##)
+
+
+The basic form of \xcd`async` is \xcd`async S`, which starts a new activity
+located \xcd`here` executing \xcd`S`.   (For the clocked form, see
+\Sref{ClockedFinish}.)  
+
+Multiple activities launched by a single activity at another place are not
+ordered in any way. They are added to the set of activities at the target
+place and will be executed based on the local scheduler's decisions.
+If some particular sequencing of events is needed, \xcd`when`, \xcd`atomic`,
+\xcd`finish`, clocks, and other X10 constructs can be used.
+\Xten{} implementations are not required to have fair schedulers,
+though every implementation should make a best faith effort to ensure
+that every activity eventually gets a chance to make forward progress.
+
+\begin{staticrule*}
+The statement in the body of an \xcd"async" is subject to the
+restriction that it must be acceptable as the body of a \xcd"void"
+method for an anonymous inner class declared at that point in the code. As
+such, it may reference variables in lexically enclosing scopes.
+\end{staticrule*}
+
+\section{Finish}\index{finish}\label{finish}
+The statement \xcd"finish S" converts global termination to local
+termination.
+
+%##(FinishStatement
+\begin{bbgrammar}
+%(FROM #(prod:FinishStatement)#)
+     FinishStatement \: \xcd"finish" Statement & (\ref{prod:FinishStatement}) \\
+                    \| \xcd"clocked" \xcd"finish" Statement \\
+\end{bbgrammar}
+%##)
+
+An activity $A$ executes \xcd"finish S" by executing \xcd"S" and
+then waiting for all activities spawned by \xcd`S` (directly or
+indirectly, here or at other places) to terminate. An activity may
+terminate normally, or abruptly, i.e. by throwing an exception.
+All exceptions thrown by spawned activities are caught and
+accumulated. 
+
+\xcd"finish S" terminates locally when all activities spawned by
+\xcd"S" terminate globally (either abruptly or normally). If \xcd"S"
+terminates normally, then \xcd"finish S" terminates normally and $A$
+continues execution with the next statement after \xcd"finish S".  If
+\xcd"S" or one of the activities spawned by it terminate abruptly,
+then \xcd"finish S" terminates abruptly and throws a single exception,
+\Xcd{x10.lang.MultipleExceptions} formed from the collection of
+exceptions accumulated at \xcd"finish S".
+
+Thus \xcd"finish S" statement serves as a collection point for
+uncaught exceptions generated during the execution of \xcd"S".
+
+Note that repeatedly \xcd"finish"ing a statement has little effect after
+the first \xcd"finish": \xcd"finish finish S" is indistinguishable
+from \xcd"finish S" if \xcd`S` throws no exceptions.  (If \xcd`S` throws
+exceptions, \xcd`finish S` wraps them in one layer of 
+\xcd`MultipleExceptions` and \xcd`finish finish S` in two layers.)
+
+%%OLIVIER-DENIES%% \paragraph{Interaction with clocks.}\label{sec:finish:clock-rule}
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% \xcd"finish S" interacts with clocks (\Sref{XtenClocks}). 
+%%OLIVIER-DENIES%% While executing \xcd"S", an activity must not spawn any \xcd"clocked"
+%%OLIVIER-DENIES%% asyncs. (Asyncs spawned during the execution of \xcd"S" may spawn
+%%OLIVIER-DENIES%% clocked asyncs.) A
+%%OLIVIER-DENIES%% \xcd"ClockUseException"\index{clock!ClockUseException} is thrown
+%%OLIVIER-DENIES%% if (and when) this condition is violated.
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% This is necessary to prevent deadlocks.  In the following invalid code 
+%%OLIVIER-DENIES%% %~s~gen
+%%OLIVIER-DENIES%% % package Activities.Finish.Hates.Clocks;
+%%OLIVIER-DENIES%% % class Example{
+%%OLIVIER-DENIES%% % def example() {
+%%OLIVIER-DENIES%% %~s~vis
+%%OLIVIER-DENIES%% \begin{xten}
+%%OLIVIER-DENIES%% val c:Clock = Clock.make();
+%%OLIVIER-DENIES%% async clocked(c) {                // (A) 
+%%OLIVIER-DENIES%%       finish async clocked(c) {   // (B) INVALID
+%%OLIVIER-DENIES%%             next;                 // (Bnext)
+%%OLIVIER-DENIES%%       }
+%%OLIVIER-DENIES%%       next;                       // (Anext)
+%%OLIVIER-DENIES%% }
+%%OLIVIER-DENIES%% \end{xten}
+%%OLIVIER-DENIES%% %~s~siv
+%%OLIVIER-DENIES%% % } } 
+%%OLIVIER-DENIES%% %~s~neg
+%%OLIVIER-DENIES%% \xcd`(A)`, first of all, waits for the \xcd`finish` containing \xcd`(B)` to
+%%OLIVIER-DENIES%% finish.  
+%%OLIVIER-DENIES%% \xcd`(B)` will execute its \xcd`next` at \xcd`(Bnext)`, and then wait for all
+%%OLIVIER-DENIES%% other activities registered on \xcd`c` to execute their \xcd`next`s.
+%%OLIVIER-DENIES%% However, \xcd`(A)` is registered on \xcd`c`.  So, \xcd`(B)` cannot finish
+%%OLIVIER-DENIES%% until \xcd`(A)` has proceeded to \xcd`(Anext)`, and \xcd`(A)` cannot proceed
+%%OLIVIER-DENIES%% until \xcd`(B)` finishes. Thus, this causes deadlock.
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% In \XtenCurrVer{} this condition is checked dynamically; future
+%%OLIVIER-DENIES%% versions of the language will introduce type qualifiers which permit
+%%OLIVIER-DENIES%% this condition to be checked statically.
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% \futureext{
+%%OLIVIER-DENIES%% The semantics of \xcd"finish S" is conjunctive; it terminates when all
+%%OLIVIER-DENIES%% the activities created during the execution of \xcd"S" (recursively)
+%%OLIVIER-DENIES%% terminate. In many situations (e.g., nondeterministic search) it is
+%%OLIVIER-DENIES%% natural to require a statement to terminate when any {\em one} of the
+%%OLIVIER-DENIES%% activities it has spawned succeeds. The other activities may then be
+%%OLIVIER-DENIES%% safely aborted. Future versions of the language may introduce a
+%%OLIVIER-DENIES%% \xcd"finishone S" construct to support such speculative or nondeterministic
+%%OLIVIER-DENIES%% computation.
+%%OLIVIER-DENIES%% }
+%%OLIVIER-DENIES%% 
+
+\section{Initial activity}\label{initial-computation}
+\index{initial activity}
+\index{activity!initial}
+
+An \Xten{} computation is initiated from the command line on the
+presentation of a class or struct name \xcd"C". The class or struct must have a
+\xcd"public static def main(a: Array[String](1)):void" method, 
+or a \xcd"public static def main(a: Array[String]):void" method, 
+otherwise an exception is thrown
+and the computation terminates.  The single statement
+\begin{xten}
+finish async (Place.FIRST_PLACE) {
+  C.main(s);
+}
+\end{xten} 
+\noindent is executed where \xcd"s" is a one-dimensional \xcd`Array` of
+strings created 
+from the command line arguments. This single activity is the root activity
+for the entire computation. (See \Sref{XtenPlaces} for a discussion of
+places.)
+
+%% Say something about configuration information? 
+
+\section{Ateach statements}\index{\Xcd{ateach}}\label{ateach-section}
+\index{ateach}
+\deprecated{} The \xcd`ateach` construct is deprecated.
+
+%##(AtEachStatement LoopIndexDeclarator LoopIndex 
+\begin{bbgrammar}
+%(FROM #(prod:AtEachStatement)#)
+     AtEachStatement \: \xcd"ateach" \xcd"(" LoopIndex \xcd"in" Exp \xcd")" ClockedClause\opt Statement & (\ref{prod:AtEachStatement}) \\
+                    \| \xcd"ateach" \xcd"(" Exp \xcd")" Statement \\
+%(FROM #(prod:LoopIndexDeclarator)#)
+ LoopIndexDeclarator \: Id HasResultType\opt & (\ref{prod:LoopIndexDeclarator}) \\
+                    \| \xcd"[" IdList \xcd"]" HasResultType\opt \\
+                    \| Id \xcd"[" IdList \xcd"]" HasResultType\opt \\
+%(FROM #(prod:LoopIndex)#)
+           LoopIndex \: Mods\opt LoopIndexDeclarator & (\ref{prod:LoopIndex}) \\
+                    \| Mods\opt VarKeyword LoopIndexDeclarator \\
+\end{bbgrammar}
+%##)
+In \xcd`ateach(p in D) S`, \xcd`D` must be either of type \xcd"Dist"
+(see \Sref{XtenDistributions}) or of type \xcd`DistArray[T]` (see
+\Sref{XtenArrays}), and \xcd`p` will be of type \xcd"Point" (see
+\Sref{point-syntax}). If \xcd`D` is an \xcd`DistArray[T]`, then
+\xcd`ateach (p in D)S` is identical to 
+\xcd`ateach(p in D.dist)S`; the iteration is over the array's underlying
+distribution.   
+
+Instead of writing \xcd`ateach (p in D) S` the programmer should write 
+\xcd`for(p in D) at(D(p)) async S` to get the same effect. 
+For each point \xcd`p` in \xcd`D`, at place \xcd`D(p)`, \xcd`S` is
+executed simultaneously.
+
+However, this often results in excessive communication and parallelism. Instead the
+programmer may want to write: 
+%~~gen ^^^ Activities80
+% package Activities.Activities.Activities;
+% class EquivCode {
+% static def S(pt:Point) {}
+% static def example(D:Dist) {
+%~~vis
+\begin{xten}
+for (place in D.places()) async at (place) {
+    for (p in D|here) {
+        S(p);
+    }
+}
+\end{xten}
+%~~siv
+%}} 
+%~~neg
+
+If the programmer wishes to execute \xcd`S` in parallel at each place,
+\xcd`S(p)` may be replaced by 
+\xcd`async S(p)`
+.
+
+
+
+
+\section{Atomic blocks}\label{AtomicBlocks}
+\index{atomic}
+
+X10's \xcd`atomic` blocks provide a high-level construct for coordinating
+the mutation of shared data. 
+A programmer may use atomic blocks to guarantee that invariants of
+shared data-structures are maintained even as they are being accessed
+simultaneously by multiple activities running in the same place.  
+
+%##(AtomicStatement WhenStatement
+\begin{bbgrammar}
+%(FROM #(prod:AtomicStatement)#)
+     AtomicStatement \: \xcd"atomic" Statement & (\ref{prod:AtomicStatement}) \\
+%(FROM #(prod:WhenStatement)#)
+       WhenStatement \: \xcd"when" \xcd"(" Exp \xcd")" Statement & (\ref{prod:WhenStatement}) \\
+\end{bbgrammar}
+%##)
+
+For example, consider a class \xcd`Redund[T]`, which encapsulates a list
+\xcd`list` and, (redundantly) keeps the size of the list in a second field
+\xcd`size`.  Then \xcd`r:Redund[T]` has the invariant 
+\xcd`r.list.size() == r.size`, which must be true at any point at which
+no method calls on \xcd`r` are active.
+
+If the \xcd`add` method on \xcd`Redund` (which adds an element to the list) 
+were defined as: 
+%~~gen ^^^ Activities90
+% package Activities.Atomic.Redund.One;
+% import x10.util.*;
+% class Redund[T] {
+%   val list = new ArrayList[T]();
+%   var size : Int = 0;
+%~~vis
+\begin{xten}
+def add(x:T) { // Incorrect
+  this.list.add(x);
+  this.size = this.size + 1;
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+Then two activities simultaneously adding elements to the same \xcd`r` could break the
+invariant.  Suppose that \xcd`r` starts out empty.  Let the first activity
+perform the \xcd`list.add`, and compute \xcd`this.size+1`, which is 1, but not store it
+back into \xcd`this.size` yet.  
+(At this point, \xcd`r.list.size()==1` and \xcd`r.size==0`; the invariant
+expression is false, but, as the first call to \xcd`r.add()` is active, the
+invariant does not need to be true -- it only needs to be true when the
+call finishes.)
+Now, let the second activity do its call to
+\xcd`add` to completion, which finishes with \xcd`r.size==1`.  
+(As before, the invariant expression is false, but a call to \xcd`r.add()` is
+still active, so the invariant need not be true.)
+Finally, let
+the first activity finish, which assigns the \xcd`1` computed before back into
+\xcd`this.size`.  At the end, there are two elements in \xcd`r.list`, but
+\xcd`r.size==1`. Since there are no calls to \xcd`r.add()` active, the
+invariant must be true, but it is not.
+
+In this case, the invariant can be maintained by making the increment atomic.
+Doing so forbids that sequence of events; the \xcd`atomic` block cannot be
+stopped partway.  
+%~~gen ^^^ Activities100
+% package Activities.Atomic.Redund.Two;
+% import x10.util.*;
+% class Redund[T] {
+%   val list = new ArrayList[T]();
+%   var size : Int = 0;
+%~~vis
+\begin{xten}
+def add(x:T) { 
+  atomic {
+    this.list.add(x);
+    this.size = this.size + 1; 
+  }
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+\subsection{Unconditional atomic blocks}
+The simplest form of an atomic block is the {\em unconditional
+atomic block}: \xcd`atomic S`.
+When \xcd`atomic S` is executing at some place \xcd`p`, no other activity at
+\xcd`p` may enter an atomic block.  
+So, other activities may continue, even at the same place, but code protected
+by atomic blocks is not subject to interference from other code in atomic
+blocks. 
+
+If execution of the statement may throw an exception, it is
+the programmer's responsibility to wrap the atomic block within a
+\xcd"try"/\xcd"finally" clause and include undo code in the finally
+clause. Thus the \xcd"atomic" statement only guarantees atomicity on
+successful execution, not on a faulty execution.
+
+
+
+%%NOW-DYN%% For the sake of efficient implementation \XtenCurrVer{} requires
+%%NOW-DYN%% that the atomic block be {\em analyzable}, that is, the set of
+%%NOW-DYN%% locations that are read and written by the \grammarrule{BlockStatement} are
+%%NOW-DYN%% bounded and determined statically.\footnote{A static bound is a constant
+%%NOW-DYN%% that depends only on the program text, and is independent 
+%%NOW-DYN%% of any runtime parameters. }
+%%NOW-DYN%% The exact algorithm to be used by
+%%NOW-DYN%% the compiler to perform this analysis will be specified in future
+%%NOW-DYN%% versions of the language.
+%%NOW-DYN%% \tbd{}
+
+Atomic blocks are closely related to non-blocking synchronization
+constructs \cite{herlihy91waitfree}, and can be used to implement 
+non-blocking concurrent algorithms.
+
+Code executed inside of \xcd`atomic S` and \xcd`when S` is subject
+to certain restrictions. A violation of these restrictions causes an 
+\xcd`IllegalOperationException` to be thrown at the point of the violation.
+
+\begin{itemize}
+\item \xcd`S` may not spawn another activity.
+\item \xcd`S` may not use any blocking statements; \xcd`when`, \xcd`next`,
+      \xcd`finish`.  (The use of a nested \xcd`atomic` is permitted.)
+\item \xcd`S` may not \xcd`force()` a \xcd`Future`. 
+\item \xcd`S` may not use \xcd`at` expressions.
+\end{itemize}
+
+
+%%OBSOLETE%% In \xcd"atomic S", \xcd"S" may include calls to \xcd`safe` methods, and use of
+%%OBSOLETE%% sequential control structures.
+%%OBSOLETE%% 
+%%OBSOLETE%% It may {\em not} include an \xcd"async" activity (such as creation
+%%OBSOLETE%% of a \Xcd{future}).
+%%OBSOLETE%% 
+%%OBSOLETE%% It may {\em not} include any statement that may potentially block at
+%%OBSOLETE%% runtime (\eg, \xcd"when", \xcd"force" operations, \xcd"next"
+%%OBSOLETE%% operations on clocks, \xcd"finish"). 
+%%OBSOLETE%% 
+%%OBSOLETE%% It may {\em not} include any \xcd`at` expressions or
+%%OBSOLETE%% statements. (Hence all locations accessed in the atomic block must
+%%OBSOLETE%% belong to the current place.)
+%%OBSOLETE%% 
+%%OBSOLETE%% 
+%%OBSOLETE%% The compiler checks for this condition by checking whether the statement
+%%OBSOLETE%% could be the body of a \xcd"void" method annotated with \xcd"safe" at
+%%OBSOLETE%% that point in the code (\Sref{SafeAnnotation}).
+%%OBSOLETE%% 
+
+\paragraph{Consequences.}
+Note an important property of an (unconditional) atomic block:
+
+\begin{eqnarray}
+ \mbox{\xcd"atomic \{s1; atomic s2\}"} &=& \mbox{\xcd"atomic \{s1; s2\}"}
+\end{eqnarray}
+
+Atomic blocks do not introduce deadlocks.    They may exhibit all the bad
+behavior of sequential programs, including throwing exceptions and running
+forever, but they are guaranteed not to deadlock.
+
+
+\subsubsection{Example}
+
+The following class method implements a (generic) compare and swap (CAS) operation:
+
+
+%~~gen ^^^ Activities110
+% package Activities.And.Protein;
+% class CASSizer{
+%~~vis
+\begin{xten}
+var target:Object = null;
+public atomic def CAS(old1: Object, new1: Object): Boolean {
+   if (target.equals(old1)) {
+     target = new1;
+     return true;
+   }
+   return false;
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+\subsection{Conditional atomic blocks}
+\index{atomic!conditional}
+\index{when}
+
+
+
+Conditional atomic blocks allow the activity to wait for some condition to be
+satisfied before executing an atomic block. For example, consider a
+\xcd`Redund` class holding a list \xcd`r.list` and, redundantly, its length
+\xcd`r.size`.  A \xcd`pop` operation will delay until the \xcd`Redund` is
+nonempty, and then remove an element and update the length.  
+%~~gen ^^^ Activities120
+% package Activities.Condato.Example.Not.A.Tree;
+% import x10.util.*;
+% class Redund[T] {
+% val list = new ArrayList[T]();
+% var size : Int = 0;
+%~~vis
+\begin{xten}
+def pop():T {
+  var ret : T;
+  when(size>0) {
+    ret = list.removeAt(0);
+    size --;
+    }
+  return ret;
+}
+\end{xten}
+%~~siv
+% }
+%~~neg
+
+
+The execution of the test is atomic with the execution of the block.  This is
+important; it means that no other activity can sneak in and make the condition
+be false before the block is executed.  In this example, two \xcd`pop`s
+executing on a list with one element would work properly. Without the
+conditional atomic block -- even doing the decrement atomically -- one call to
+\xcd`pop` could pass the \xcd`size>0` guard; then the other call could run to
+completion (removing the only element of the list); then, when the first call
+proceeds, its \xcd`removeAt` will fail.  
+
+Note that \xcd`if` would not work here.  
+\xcd`if(size>0) atomic{size--; return list.removeAt(0);}` allows another
+activity to act between the test and the atomic block.  
+And 
+\xcd`atomic{ if(size>0) {size--; ret = list.removeAt(0);}}` 
+does not wait for \xcd`size>0` to become true.
+
+
+Conditional atomic blocks are of the form \xcd`when(b)S`; 
+\xcd`b` is called the {\em guard}, and \xcd`S` the {\em body}.
+
+An activity executing such a statement suspends until such time as the  guard
+is true in the current state. In that state, the 
+body is executed. 
+The checking of the guards and the execution of the corresponding
+guarded statement is done atomically. 
+
+\Xten{} does not guarantee that a conditional atomic block
+will execute if its condition holds only intermittently. For, based on
+the vagaries of the scheduler, the precise instant at which a
+condition holds may be missed. Therefore the programmer is advised to
+ensure that conditions being tested by conditional atomic blocks are
+eventually stable, \ie, they will continue to hold until the block
+executes (the action in the body of the block may cause the condition
+to not hold any more).
+
+%%Fourth, \Xten{} does not guarantees only {\em weak fairness} when executing
+%%conditional atomic blocks. Let $c$ be the guard of some conditional
+%%atomic block $A$. $A$ is required to make forward progress only if
+%%$c$ is {\em eventually stable}. That is, any execution $s_1, s_2,
+%%\ldots$ of the program is considered illegal only if there is a $j$
+%%such that $c$ holds in all states $s_k$ for $k > j$ and in which $A$
+%%does not execute. Specifically, if the system executes in such a way
+%%that $c$ holds only intermmitently (that is, for some state in which
+%%$c$ holds there is always a later state in which $c$ does not hold),
+%%$A$ is not required to be executed (though it may be executed).
+
+
+
+The statement \xcd"when (true) S" is
+behaviorally identical to \xcd"atomic S": it never suspends.
+
+The body \xcd`S` of \xcd`when(b)S` is subject to the same restrictions that
+the body of \xcd`atomic S` is.  The guard is subject to the same restrictions
+as well.  Furthermore, guards should not have side effects.
+
+%%OBSOLETE%%\begin{staticrule*}
+%%OBSOLETE%%For the sake of efficient implementation certain restrictions are
+%%OBSOLETE%%placed on the guards and statements in a conditional atomic
+%%OBSOLETE%%block. 
+%%OBSOLETE%%\end{staticrule*}
+%%OBSOLETE%%
+%%OBSOLETE%%Guards are statically required not to have side-effects, not to spawn
+%%OBSOLETE%%asynchronous activities (as for the \xcd`sequential` qualifier on methods) and
+%%OBSOLETE%%to have a statically determinable upper bound on their execution (as for the
+%%OBSOLETE%%\xcd`nonblocking` qualifier on methods).
+%%OBSOLETE%%
+%%OBSOLETE%%The body of a \xcd"when" statement must satisfy the conditions
+%%OBSOLETE%%for the body of an \xcd"atomic" block.
+%%OBSOLETE%%
+
+Note that this implies that guarded statements are required to be {\em
+flat}, that is, they may not contain conditional atomic blocks. (The
+implementation of nested conditional atomic blocks may require
+sophisticated operational techniques such as rollbacks.)
+
+
+\begin{example}
+The following class shows how to implement a bounded buffer of size
+$1$ in \Xten{} for repeated communication between a sender and a
+receiver.  The call \xcd`buf.send(ob)` waits until the buffer has space, and
+then puts \xcd`ob` into it.  Dually, \xcd`buf.receive()` waits until the
+buffer has something in it, and then returns that thing.
+
+
+%~~gen ^^^ Activities130
+% package Activities;
+%~~vis
+\begin{xten}
+class OneBuffer[T] {
+  var datum: T;
+  def this(t:T) { this.datum = t; this.filled = true; }
+  var filled: Boolean;
+  public def send(v: T) {
+    when (!filled) {
+      this.datum = v;
+      this.filled = true;
+    }
+  }
+  public def receive(): T {
+    when (filled) {
+      v: T = datum;
+      filled = false;
+      return v;
+    }
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\end{example}
+
+\section{Use of Atomic Blocks}
+
+The semantics of atomicity is chosen as a compromise between programming
+simplicity and efficient implementation.  Unlike some possible definitions of
+``atomic'', atomic blocks do not provide absolute atomicity.  
+
+Atomic blocks are atomic with respect to {\em each other}.
+%~~gen ^^^ Activities4c2r
+% package Activities4c2r;
+% class Example {
+% def example() {
+%~~vis
+\begin{xten}
+var n : Int = 0;
+finish {
+  async atomic n = n + 1; //(a)
+  async atomic n = n + 2; //(b)
+}
+\end{xten}
+%~~siv
+%}}
+%~~neg
+This program has only two possible interleavings: either \xcd`(a)` entirely
+precedes \xcd`(b)` or \xcd`(b)` entirely precedes \xcd`(a)`.  Both end up with
+\xcd`n==3`. 
+
+
+However, atomic blocks are not atomic with respect to non-atomic code.  It we
+remove the  \xcd`atomic`s on \xcd`(a)`, we get far messier semantics.
+%~~gen ^^^ Activities5u4q
+% package Activities5u4q;
+% class Example {
+% def example() {
+%~~vis
+\begin{xten}
+var n : Int = 0;
+finish {
+  // LEGAL BUT UNWISE 
+  async n = n + 1;          //(a)
+  async atomic n = n + 2;   //(b)
+}
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+If X10 had absolute atomic semantics, this program would be guaranteed to
+treat the atomic increment as a single statement.  This would permit three
+interleavings: the two possible from the fully atomic program, or a third one
+with the events:  \xcd`(a)`'s read of \xcd`0` from \xcd`n`, the entirety of
+\xcd`(b)`, and then \xcd`(a)`'s write of \xcd`0+1` back to \xcd`n`.  This
+interleaving results in \xcd`n==1`. So, with absolute atomic semantics,
+\xcd`n==1` or \xcd`n==3` are the possible results.
+
+However, X10's semantics are weaker than that.  Atomic statements are atomic
+with respect to each other --- but there is no guarantee about how they
+interact with non-atomic statements at all.  In particular, the following
+fourth interleaving is possible: \xcd`(a)`'s read of \xcd`0` from \xcd`n`, 
+\xcd`(b)`'s read of \xcd`0` from \xcd`n`, \xcd`(a)`'s write of \xcd`1` to
+\xcd`n`, and \xcd`(b)`'s write of \xcd`2` to \xcd`n`.   Thus, \xcd`n==2` is
+permissible as a result in X10.
+
+X10's semantics permit more efficient implementation than absolute atomicity.
+Absolute atomicity would, in principle, require all activities at place
+\xcd`p` to stop whenever one of them enters an atomic section, which would
+seriously curtail concurrency.  X10 simply requires that, when one activity is
+in an atomic section, that other activities stop {\em when they are trying to
+enter an atomic section} --- which is to say, they can continue computing on
+their own all they like.  The difference can be substantial.
+
+However, X10's semantics do impose a certain burden on the programmer.  A
+sufficient rule of thumb is that, if {\em any} access to a
+variable is done in an atomic section, then {\em all} accesses to it must be
+in atomic sections.  

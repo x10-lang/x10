@@ -1,0 +1,69 @@
+Here is the current memory usage for Brandes' algorithm. There might be minor
+inconsistencies, but is overall accurate. Assume that there are N vertices and 
+M edges.
+
+AdjacencyGraph:
+  (1) adjacencyList -> Rail[HashMap[Int, ULong]]
+    -- There are N HashMaps. Each HashMap has as many entries as there are 
+       outgoing edges for that particular source vertex. So there are in 
+       N Rail entries and a total of M HashMap entries. So, the total here is
+       O(N) + O(M) --- 4*N + 8*M.
+     
+  (2) inDegreeMap -> Rail[Int]
+    -- O(N). One int per vertex -- 4*N bytes.
+
+  (3) offsetMap -> Rail[Int]
+    -- O(N). One int per vertex -- 4*N bytes.
+
+  (4) adjacencyMap -> Rail[AdjacencyNode]
+    -- O(M). One AdjacencyNode per edge. Each AdjacencyNode has one Int and 
+       one ULong -- 16*M (accounting for alignment).
+
+  TOTAL: 12*N + 24*M bytes.
+
+DijkstrasShortestPath (global):
+  (1) Betweenness Map -> Rail[Double] -- O(N) -- 8*N.
+
+  (2) Locks -> Rail[PThread Mutex] -- O(N) -- 64*N.
+
+  (3) Vertex List -> Rail[Int] -- O(N) -- 4*N.
+
+  TOTAL: 76*N bytes.
+
+DijkstrasShortestPath (per-thread):
+  (1) Betweenness Map -> Rail[Double] -- 8*N bytes.
+
+  (2) Vertex Stack ----> Stack[Int] (Rail) -- 4*N bytes.
+
+  (3) Predecessor Map -> Rail[Stack[Int] -- one stack per vertex. N stacks, 
+                         total entries in the stack are O(M).
+                         -- 4*N + 4*M = 4*(M+N).
+
+  (4) Distance Map -> O(N) ULong -- 8*N.
+
+  (5) Sigma Map ----> O(N) ULong -- 8*N.
+
+  (6) Priority Queue -> O(N) Double -- 8*N.
+
+  (7) Delta Map ------> O(N) Double -- 8*N.
+
+  (8) Processed Vertices -> O(N) Int -- 8*N.
+
+  TOTAL: (56*N + 4*M) bytes per thread.
+
+Grand total:
+------------
+  Num Bytes = 12*N + 24*M + 76*N + NTHREADS * (56*N + 4*M).
+            = 88*N + 24*M + NTHREADS * (56*N + 4*M).
+
+  Example:
+     N = 100 (vertices).
+     M = 1000 (edges).
+     NTHREADS = 4.
+
+     Grand total = 88*100 + 24*1000 + 4*(56*100 + 4*1000)
+                 = 8800 + 24000 + 4*(5600 + 4000)
+                 = 8800 + 24000 + 38400
+                 = 71200 bytes.
+
+This is an approximate estimation. 

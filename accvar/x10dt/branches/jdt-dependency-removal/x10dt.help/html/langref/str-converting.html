@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Converting Between Classes and Structs</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Converting Between Classes And Structs</h2>
+
+<div class="p"><!----></div>
+Code written using structs can be modified to use classes, or vice versa.
+Caution must be used in certain places. 
+
+<div class="p"><!----></div>
+Class and struct <em>definitions</em> are syntactically nearly identical:
+change the <b>class</b> keyword to <b>struct</b> or vice versa.  Of course,
+certain important class features can't be used with structs, such as
+inheritance and <b>var</b> fields. 
+
+<div class="p"><!----></div>
+Converting code that <em>uses</em> the class or struct requires a certain amount
+of caution.
+Suppose, in particular, that we want to convert the class <b>Class2Struct</b>
+to a struct, and <b>Struct2Class</b> to a class.
+<pre>
+class Class2Struct {
+  val a : Int;
+  def this(a:Int) { this.a = a; }
+  def m() = a;
+}
+struct Struct2Class { 
+  val a : Int;
+  def this(a:Int) { this.a = a; }
+  def m() = a;
+}
+</pre>
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> Class constructors require the <b>new</b> keyword; struct constructors
+      forbid it.  <b>new Class2Struct(3)</b> will need to be converted to
+      <b>Class2Struct(3)</b>, and <b>Struct2Class(3)</b> to 
+      <b>new Struct2Class(3)</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Objects and structs have different notions of <b>==</b>.  
+      For objects, <b>==</b> means 
+<div class="p"><!----></div>
+</li>
+same object"; for structs, it means
+      
+<br /><br />
+
+</body>
+</html>

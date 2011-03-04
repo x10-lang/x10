@@ -1,0 +1,146 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//The current release does not implement guarded methods or fields.
+
+/** Tests that a method of a class C, guarded with this(:c), is accessed only in objects
+ * whose type is a subtype of C(:c).
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;;
+
+public class GuardedMethodAccess_MustFailCompile extends x10Test { 
+
+	class Test(public val i: int, public val j: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//The current release does not implement guarded methods or fields.
+
+/** Tests that a method of a class C, guarded with this(:c), is accessed only in objects
+ * whose type is a subtype of C(:c).
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class GuardedMethodAccess_MustFailCompile extends x10Test { 
+
+	class Test(int i, int j) {
+		public var value: int = 0;
+		public def key(): int = {return 5;}
+		def this(val i: int, val j: int): Test{self.i==i&&self.j==j} = {
+			property(i,j);
+		}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//The current release does not implement guarded methods or fields.
+
+/** Tests that a method of a class C, guarded with this(:c), is accessed only in objects
+ * whose type is a subtype of C(:c).
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class GuardedMethodAccess_MustFailCompile extends x10Test { 
+
+	class Test(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//The current release does not implement guarded methods or fields.
+
+/** Tests that a method of a class C, guarded with this(:c), is accessed only in objects
+ * whose type is a subtype of C(:c).
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class GuardedMethodAccess_MustFailCompile extends x10Test { 
+
+	class Test(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//The current release does not implement guarded methods or fields.
+
+/** Tests that a method of a class C, guarded with this(:c), is accessed only in objects
+ * whose type is a subtype of C(:c).
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class GuardedMethodAccess_MustFailCompile extends x10Test { 
+
+	class Test(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//The current release does not implement guarded methods or fields.
+
+/** Tests that a method of a class C, guarded with this(:c), is accessed only in objects
+ * whose type is a subtype of C(:c).
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class GuardedMethodAccess_MustFailCompile extends x10Test { 
+
+	class Test(int i, int j) {
+		public int value = 0;
+		this(:i==j) public int key() {return 5;}
+		Test(:self.i==i&&self.j==j) (final int i, final int j ) {
+			property(i,j);
+		}
+	}
+		
+	public def run(): boolean = {
+		var t: Test = new Test(5, 6);
+		t.value = t.key() + 1;
+	   return true;
+	}  
+	
+    public static def main(var args: Rail[String]): void = {
+        new GuardedMethodAccess_MustFailCompile().execute();
+    }
+   
+
+		
+}

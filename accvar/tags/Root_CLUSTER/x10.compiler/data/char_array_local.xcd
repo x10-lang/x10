@@ -1,0 +1,2 @@
+// SYNOPSIS: new char[#0] #1=is_safe #2=is_value
+x10.array.sharedmemory.CharArray_c.CharArray_c(new char[#0],#1,!#2)

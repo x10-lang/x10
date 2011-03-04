@@ -1,0 +1,1438 @@
+ 215:Binding ID=215 to local CPU=14 on node=215
+ 217:Binding ID=217 to local CPU=18 on node=217
+  49:Binding ID=49 to local CPU=2 on node=49
+  52:Binding ID=52 to local CPU=8 on node=52
+  53:Binding ID=53 to local CPU=10 on node=53
+  57:Binding ID=57 to local CPU=18 on node=57
+  48:Binding ID=48 to local CPU=0 on node=48
+  32:Binding ID=32 to local CPU=0 on node=32
+  33:Binding ID=33 to local CPU=2 on node=33
+  34:Binding ID=34 to local CPU=4 on node=34
+  35:Binding ID=35 to local CPU=6 on node=35
+  36:Binding ID=36 to local CPU=8 on node=36
+  37:Binding ID=37 to local CPU=10 on node=37
+  38:Binding ID=38 to local CPU=12 on node=38
+  39:Binding ID=39 to local CPU=14 on node=39
+  58:Binding ID=58 to local CPU=20 on node=58
+ 144:Binding ID=144 to local CPU=0 on node=144
+  40:Binding ID=40 to local CPU=16 on node=40
+ 145:Binding ID=145 to local CPU=2 on node=145
+  41:Binding ID=41 to local CPU=18 on node=41
+  50:Binding ID=50 to local CPU=4 on node=50
+ 146:Binding ID=146 to local CPU=4 on node=146
+  42:Binding ID=42 to local CPU=20 on node=42
+  51:Binding ID=51 to local CPU=6 on node=51
+ 147:Binding ID=147 to local CPU=6 on node=147
+  43:Binding ID=43 to local CPU=22 on node=43
+  54:Binding ID=54 to local CPU=12 on node=54
+ 148:Binding ID=148 to local CPU=8 on node=148
+  44:Binding ID=44 to local CPU=24 on node=44
+  56:Binding ID=56 to local CPU=16 on node=56
+ 149:Binding ID=149 to local CPU=10 on node=149
+  45:Binding ID=45 to local CPU=26 on node=45
+  59:Binding ID=59 to local CPU=22 on node=59
+ 150:Binding ID=150 to local CPU=12 on node=150
+  46:Binding ID=46 to local CPU=28 on node=46
+  60:Binding ID=60 to local CPU=24 on node=60
+ 151:Binding ID=151 to local CPU=14 on node=151
+  47:Binding ID=47 to local CPU=30 on node=47
+  61:Binding ID=61 to local CPU=26 on node=61
+ 152:Binding ID=152 to local CPU=16 on node=152
+  62:Binding ID=62 to local CPU=28 on node=62
+ 153:Binding ID=153 to local CPU=18 on node=153
+ 154:Binding ID=154 to local CPU=20 on node=154
+ 155:Binding ID=155 to local CPU=22 on node=155
+   0:Binding ID=0 to local CPU=0 on node=0
+ 156:Binding ID=156 to local CPU=24 on node=156
+   1:Binding ID=1 to local CPU=2 on node=1
+ 157:Binding ID=157 to local CPU=26 on node=157
+ 224:Binding ID=224 to local CPU=0 on node=224
+   2:Binding ID=2 to local CPU=4 on node=2
+ 158:Binding ID=158 to local CPU=28 on node=158
+ 225:Binding ID=225 to local CPU=2 on node=225
+   4:Binding ID=4 to local CPU=8 on node=4
+ 159:Binding ID=159 to local CPU=30 on node=159
+ 208:Binding ID=208 to local CPU=0 on node=208
+ 226:Binding ID=226 to local CPU=4 on node=226
+   5:Binding ID=5 to local CPU=10 on node=5
+ 209:Binding ID=209 to local CPU=2 on node=209
+ 227:Binding ID=227 to local CPU=6 on node=227
+   6:Binding ID=6 to local CPU=12 on node=6
+ 210:Binding ID=210 to local CPU=4 on node=210
+ 229:Binding ID=229 to local CPU=10 on node=229
+   7:Binding ID=7 to local CPU=14 on node=7
+ 211:Binding ID=211 to local CPU=6 on node=211
+ 230:Binding ID=230 to local CPU=12 on node=230
+   8:Binding ID=8 to local CPU=16 on node=8
+ 212:Binding ID=212 to local CPU=8 on node=212
+ 231:Binding ID=231 to local CPU=14 on node=231
+   9:Binding ID=9 to local CPU=18 on node=9
+ 213:Binding ID=213 to local CPU=10 on node=213
+ 232:Binding ID=232 to local CPU=16 on node=232
+  10:Binding ID=10 to local CPU=20 on node=10
+ 214:Binding ID=214 to local CPU=12 on node=214
+ 233:Binding ID=233 to local CPU=18 on node=233
+  11:Binding ID=11 to local CPU=22 on node=11
+ 216:Binding ID=216 to local CPU=16 on node=216
+ 234:Binding ID=234 to local CPU=20 on node=234
+  12:Binding ID=12 to local CPU=24 on node=12
+ 218:Binding ID=218 to local CPU=20 on node=218
+ 235:Binding ID=235 to local CPU=22 on node=235
+  13:Binding ID=13 to local CPU=26 on node=13
+ 219:Binding ID=219 to local CPU=22 on node=219
+ 236:Binding ID=236 to local CPU=24 on node=236
+  14:Binding ID=14 to local CPU=28 on node=14
+ 220:Binding ID=220 to local CPU=24 on node=220
+ 237:Binding ID=237 to local CPU=26 on node=237
+ 221:Binding ID=221 to local CPU=26 on node=221
+ 238:Binding ID=238 to local CPU=28 on node=238
+ 222:Binding ID=222 to local CPU=28 on node=222
+ 239:Binding ID=239 to local CPU=30 on node=239
+ 223:Binding ID=223 to local CPU=30 on node=223
+ 228:Binding ID=228 to local CPU=8 on node=228
+ 160:Binding ID=160 to local CPU=0 on node=160
+ 161:Binding ID=161 to local CPU=2 on node=161
+ 162:Binding ID=162 to local CPU=4 on node=162
+ 163:Binding ID=163 to local CPU=6 on node=163
+ 164:Binding ID=164 to local CPU=8 on node=164
+ 165:Binding ID=165 to local CPU=10 on node=165
+ 166:Binding ID=166 to local CPU=12 on node=166
+ 167:Binding ID=167 to local CPU=14 on node=167
+ 168:Binding ID=168 to local CPU=16 on node=168
+ 169:Binding ID=169 to local CPU=18 on node=169
+ 170:Binding ID=170 to local CPU=20 on node=170
+ 171:Binding ID=171 to local CPU=22 on node=171
+ 172:Binding ID=172 to local CPU=24 on node=172
+ 173:Binding ID=173 to local CPU=26 on node=173
+ 174:Binding ID=174 to local CPU=28 on node=174
+ 175:Binding ID=175 to local CPU=30 on node=175
+  15:Binding ID=15 to local CPU=30 on node=15
+ 192:Binding ID=192 to local CPU=0 on node=192
+ 128:Binding ID=128 to local CPU=0 on node=128
+ 193:Binding ID=193 to local CPU=2 on node=193
+ 129:Binding ID=129 to local CPU=2 on node=129
+ 194:Binding ID=194 to local CPU=4 on node=194
+ 130:Binding ID=130 to local CPU=4 on node=130
+ 195:Binding ID=195 to local CPU=6 on node=195
+ 131:Binding ID=131 to local CPU=6 on node=131
+ 196:Binding ID=196 to local CPU=8 on node=196
+  55:Binding ID=55 to local CPU=14 on node=55
+ 132:Binding ID=132 to local CPU=8 on node=132
+ 197:Binding ID=197 to local CPU=10 on node=197
+ 133:Binding ID=133 to local CPU=10 on node=133
+ 198:Binding ID=198 to local CPU=12 on node=198
+ 134:Binding ID=134 to local CPU=12 on node=134
+ 199:Binding ID=199 to local CPU=14 on node=199
+ 135:Binding ID=135 to local CPU=14 on node=135
+ 200:Binding ID=200 to local CPU=16 on node=200
+ 136:Binding ID=136 to local CPU=16 on node=136
+ 201:Binding ID=201 to local CPU=18 on node=201
+ 137:Binding ID=137 to local CPU=18 on node=137
+ 202:Binding ID=202 to local CPU=20 on node=202
+ 138:Binding ID=138 to local CPU=20 on node=138
+ 203:Binding ID=203 to local CPU=22 on node=203
+ 139:Binding ID=139 to local CPU=22 on node=139
+ 204:Binding ID=204 to local CPU=24 on node=204
+ 240:Binding ID=240 to local CPU=0 on node=240
+ 140:Binding ID=140 to local CPU=24 on node=140
+ 205:Binding ID=205 to local CPU=26 on node=205
+ 242:Binding ID=242 to local CPU=4 on node=242
+ 141:Binding ID=141 to local CPU=26 on node=141
+ 206:Binding ID=206 to local CPU=28 on node=206
+ 243:Binding ID=243 to local CPU=6 on node=243
+ 142:Binding ID=142 to local CPU=28 on node=142
+ 207:Binding ID=207 to local CPU=30 on node=207
+ 244:Binding ID=244 to local CPU=8 on node=244
+  80:Binding ID=80 to local CPU=0 on node=80
+ 143:Binding ID=143 to local CPU=30 on node=143
+ 245:Binding ID=245 to local CPU=10 on node=245
+  81:Binding ID=81 to local CPU=2 on node=81
+ 246:Binding ID=246 to local CPU=12 on node=246
+  82:Binding ID=82 to local CPU=4 on node=82
+ 247:Binding ID=247 to local CPU=14 on node=247
+  83:Binding ID=83 to local CPU=6 on node=83
+ 112:Binding ID=112 to local CPU=0 on node=112
+ 248:Binding ID=248 to local CPU=16 on node=248
+  84:Binding ID=84 to local CPU=8 on node=84
+ 113:Binding ID=113 to local CPU=2 on node=113
+ 249:Binding ID=249 to local CPU=18 on node=249
+  85:Binding ID=85 to local CPU=10 on node=85
+ 114:Binding ID=114 to local CPU=4 on node=114
+ 250:Binding ID=250 to local CPU=20 on node=250
+   3:Binding ID=3 to local CPU=6 on node=3
+  86:Binding ID=86 to local CPU=12 on node=86
+ 115:Binding ID=115 to local CPU=6 on node=115
+ 251:Binding ID=251 to local CPU=22 on node=251
+  87:Binding ID=87 to local CPU=14 on node=87
+ 116:Binding ID=116 to local CPU=8 on node=116
+ 252:Binding ID=252 to local CPU=24 on node=252
+  88:Binding ID=88 to local CPU=16 on node=88
+ 117:Binding ID=117 to local CPU=10 on node=117
+ 253:Binding ID=253 to local CPU=26 on node=253
+  89:Binding ID=89 to local CPU=18 on node=89
+ 118:Binding ID=118 to local CPU=12 on node=118
+ 254:Binding ID=254 to local CPU=28 on node=254
+  90:Binding ID=90 to local CPU=20 on node=90
+ 119:Binding ID=119 to local CPU=14 on node=119
+ 255:Binding ID=255 to local CPU=30 on node=255
+  91:Binding ID=91 to local CPU=22 on node=91
+ 120:Binding ID=120 to local CPU=16 on node=120
+  92:Binding ID=92 to local CPU=24 on node=92
+ 121:Binding ID=121 to local CPU=18 on node=121
+  63:Binding ID=63 to local CPU=30 on node=63
+  93:Binding ID=93 to local CPU=26 on node=93
+ 122:Binding ID=122 to local CPU=20 on node=122
+  94:Binding ID=94 to local CPU=28 on node=94
+ 123:Binding ID=123 to local CPU=22 on node=123
+  95:Binding ID=95 to local CPU=30 on node=95
+ 124:Binding ID=124 to local CPU=24 on node=124
+ 125:Binding ID=125 to local CPU=26 on node=125
+ 126:Binding ID=126 to local CPU=28 on node=126
+ 127:Binding ID=127 to local CPU=30 on node=127
+  64:Binding ID=64 to local CPU=0 on node=64
+  65:Binding ID=65 to local CPU=2 on node=65
+  66:Binding ID=66 to local CPU=4 on node=66
+  67:Binding ID=67 to local CPU=6 on node=67
+  68:Binding ID=68 to local CPU=8 on node=68
+  69:Binding ID=69 to local CPU=10 on node=69
+  70:Binding ID=70 to local CPU=12 on node=70
+  72:Binding ID=72 to local CPU=16 on node=72
+  73:Binding ID=73 to local CPU=18 on node=73
+  74:Binding ID=74 to local CPU=20 on node=74
+  76:Binding ID=76 to local CPU=24 on node=76
+  77:Binding ID=77 to local CPU=26 on node=77
+  71:Binding ID=71 to local CPU=14 on node=71
+  75:Binding ID=75 to local CPU=22 on node=75
+  79:Binding ID=79 to local CPU=30 on node=79
+  96:Binding ID=96 to local CPU=0 on node=96
+  97:Binding ID=97 to local CPU=2 on node=97
+  98:Binding ID=98 to local CPU=4 on node=98
+  99:Binding ID=99 to local CPU=6 on node=99
+ 100:Binding ID=100 to local CPU=8 on node=100
+ 101:Binding ID=101 to local CPU=10 on node=101
+ 102:Binding ID=102 to local CPU=12 on node=102
+ 103:Binding ID=103 to local CPU=14 on node=103
+ 104:Binding ID=104 to local CPU=16 on node=104
+ 105:Binding ID=105 to local CPU=18 on node=105
+ 106:Binding ID=106 to local CPU=20 on node=106
+ 107:Binding ID=107 to local CPU=22 on node=107
+ 108:Binding ID=108 to local CPU=24 on node=108
+ 109:Binding ID=109 to local CPU=26 on node=109
+ 110:Binding ID=110 to local CPU=28 on node=110
+ 111:Binding ID=111 to local CPU=30 on node=111
+ 241:Binding ID=241 to local CPU=2 on node=241
+ 176:Binding ID=176 to local CPU=0 on node=176
+ 177:Binding ID=177 to local CPU=2 on node=177
+ 178:Binding ID=178 to local CPU=4 on node=178
+ 179:Binding ID=179 to local CPU=6 on node=179
+ 180:Binding ID=180 to local CPU=8 on node=180
+ 181:Binding ID=181 to local CPU=10 on node=181
+ 182:Binding ID=182 to local CPU=12 on node=182
+ 183:Binding ID=183 to local CPU=14 on node=183
+ 184:Binding ID=184 to local CPU=16 on node=184
+ 185:Binding ID=185 to local CPU=18 on node=185
+ 186:Binding ID=186 to local CPU=20 on node=186
+ 187:Binding ID=187 to local CPU=22 on node=187
+ 188:Binding ID=188 to local CPU=24 on node=188
+ 189:Binding ID=189 to local CPU=26 on node=189
+ 190:Binding ID=190 to local CPU=28 on node=190
+ 191:Binding ID=191 to local CPU=30 on node=191
+  78:Binding ID=78 to local CPU=28 on node=78
+  16:Binding ID=16 to local CPU=0 on node=16
+  17:Binding ID=17 to local CPU=2 on node=17
+  18:Binding ID=18 to local CPU=4 on node=18
+  19:Binding ID=19 to local CPU=6 on node=19
+  20:Binding ID=20 to local CPU=8 on node=20
+  21:Binding ID=21 to local CPU=10 on node=21
+  22:Binding ID=22 to local CPU=12 on node=22
+  23:Binding ID=23 to local CPU=14 on node=23
+  24:Binding ID=24 to local CPU=16 on node=24
+  25:Binding ID=25 to local CPU=18 on node=25
+  26:Binding ID=26 to local CPU=20 on node=26
+  27:Binding ID=27 to local CPU=22 on node=27
+  28:Binding ID=28 to local CPU=24 on node=28
+  29:Binding ID=29 to local CPU=26 on node=29
+  30:Binding ID=30 to local CPU=28 on node=30
+  31:Binding ID=31 to local CPU=30 on node=31
+ 112:Binding ID=112 to local CPU=0 on node=112
+ 144:Binding ID=144 to local CPU=0 on node=144
+ 240:Binding ID=240 to local CPU=0 on node=240
+ 176:Binding ID=176 to local CPU=0 on node=176
+   7:Binding ID=7 to local CPU=14 on node=7
+  48:Binding ID=48 to local CPU=0 on node=48
+ 171:Binding ID=171 to local CPU=22 on node=171
+ 114:Binding ID=114 to local CPU=4 on node=114
+ 213:Binding ID=213 to local CPU=10 on node=213
+ 117:Binding ID=117 to local CPU=10 on node=117
+ 119:Binding ID=119 to local CPU=14 on node=119
+ 113:Binding ID=113 to local CPU=2 on node=113
+ 115:Binding ID=115 to local CPU=6 on node=115
+ 116:Binding ID=116 to local CPU=8 on node=116
+ 118:Binding ID=118 to local CPU=12 on node=118
+ 127:Binding ID=127 to local CPU=30 on node=127
+ 120:Binding ID=120 to local CPU=16 on node=120
+ 122:Binding ID=122 to local CPU=20 on node=122
+ 147:Binding ID=147 to local CPU=6 on node=147
+ 123:Binding ID=123 to local CPU=22 on node=123
+ 149:Binding ID=149 to local CPU=10 on node=149
+ 124:Binding ID=124 to local CPU=24 on node=124
+ 154:Binding ID=154 to local CPU=20 on node=154
+ 178:Binding ID=178 to local CPU=4 on node=178
+ 125:Binding ID=125 to local CPU=26 on node=125
+ 146:Binding ID=146 to local CPU=4 on node=146
+ 179:Binding ID=179 to local CPU=6 on node=179
+ 126:Binding ID=126 to local CPU=28 on node=126
+ 155:Binding ID=155 to local CPU=22 on node=155
+ 177:Binding ID=177 to local CPU=2 on node=177
+ 145:Binding ID=145 to local CPU=2 on node=145
+ 182:Binding ID=182 to local CPU=12 on node=182
+ 148:Binding ID=148 to local CPU=8 on node=148
+ 186:Binding ID=186 to local CPU=20 on node=186
+ 150:Binding ID=150 to local CPU=12 on node=150
+ 187:Binding ID=187 to local CPU=22 on node=187
+ 151:Binding ID=151 to local CPU=14 on node=151
+ 188:Binding ID=188 to local CPU=24 on node=188
+ 152:Binding ID=152 to local CPU=16 on node=152
+ 180:Binding ID=180 to local CPU=8 on node=180
+ 153:Binding ID=153 to local CPU=18 on node=153
+ 181:Binding ID=181 to local CPU=10 on node=181
+ 156:Binding ID=156 to local CPU=24 on node=156
+ 184:Binding ID=184 to local CPU=16 on node=184
+ 157:Binding ID=157 to local CPU=26 on node=157
+ 189:Binding ID=189 to local CPU=26 on node=189
+ 158:Binding ID=158 to local CPU=28 on node=158
+ 185:Binding ID=185 to local CPU=18 on node=185
+ 159:Binding ID=159 to local CPU=30 on node=159
+ 190:Binding ID=190 to local CPU=28 on node=190
+ 191:Binding ID=191 to local CPU=30 on node=191
+  21:Binding ID=21 to local CPU=10 on node=21
+ 162:Binding ID=162 to local CPU=4 on node=162
+ 163:Binding ID=163 to local CPU=6 on node=163
+ 165:Binding ID=165 to local CPU=10 on node=165
+ 166:Binding ID=166 to local CPU=12 on node=166
+   8:Binding ID=8 to local CPU=16 on node=8
+ 167:Binding ID=167 to local CPU=14 on node=167
+   9:Binding ID=9 to local CPU=18 on node=9
+ 173:Binding ID=173 to local CPU=26 on node=173
+  11:Binding ID=11 to local CPU=22 on node=11
+ 160:Binding ID=160 to local CPU=0 on node=160
+   0:Binding ID=0 to local CPU=0 on node=0
+  65:Binding ID=65 to local CPU=2 on node=65
+ 161:Binding ID=161 to local CPU=2 on node=161
+   1:Binding ID=1 to local CPU=2 on node=1
+ 164:Binding ID=164 to local CPU=8 on node=164
+ 198:Binding ID=198 to local CPU=12 on node=198
+ 208:Binding ID=208 to local CPU=0 on node=208
+   2:Binding ID=2 to local CPU=4 on node=2
+ 168:Binding ID=168 to local CPU=16 on node=168
+ 214:Binding ID=214 to local CPU=12 on node=214
+   3:Binding ID=3 to local CPU=6 on node=3
+ 169:Binding ID=169 to local CPU=18 on node=169
+ 215:Binding ID=215 to local CPU=14 on node=215
+   4:Binding ID=4 to local CPU=8 on node=4
+ 170:Binding ID=170 to local CPU=20 on node=170
+ 209:Binding ID=209 to local CPU=2 on node=209
+   5:Binding ID=5 to local CPU=10 on node=5
+ 172:Binding ID=172 to local CPU=24 on node=172
+ 219:Binding ID=219 to local CPU=22 on node=219
+   6:Binding ID=6 to local CPU=12 on node=6
+ 174:Binding ID=174 to local CPU=28 on node=174
+ 220:Binding ID=220 to local CPU=24 on node=220
+  10:Binding ID=10 to local CPU=20 on node=10
+ 175:Binding ID=175 to local CPU=30 on node=175
+ 221:Binding ID=221 to local CPU=26 on node=221
+  12:Binding ID=12 to local CPU=24 on node=12
+ 135:Binding ID=135 to local CPU=14 on node=135
+ 210:Binding ID=210 to local CPU=4 on node=210
+  13:Binding ID=13 to local CPU=26 on node=13
+ 211:Binding ID=211 to local CPU=6 on node=211
+  14:Binding ID=14 to local CPU=28 on node=14
+ 212:Binding ID=212 to local CPU=8 on node=212
+  15:Binding ID=15 to local CPU=30 on node=15
+  97:Binding ID=97 to local CPU=2 on node=97
+ 216:Binding ID=216 to local CPU=16 on node=216
+  17:Binding ID=17 to local CPU=2 on node=17
+  43:Binding ID=43 to local CPU=22 on node=43
+  85:Binding ID=85 to local CPU=10 on node=85
+ 217:Binding ID=217 to local CPU=18 on node=217
+  28:Binding ID=28 to local CPU=24 on node=28
+ 222:Binding ID=222 to local CPU=28 on node=222
+ 227:Binding ID=227 to local CPU=6 on node=227
+  16:Binding ID=16 to local CPU=0 on node=16
+ 193:Binding ID=193 to local CPU=2 on node=193
+ 223:Binding ID=223 to local CPU=30 on node=223
+  19:Binding ID=19 to local CPU=6 on node=19
+ 196:Binding ID=196 to local CPU=8 on node=196
+  20:Binding ID=20 to local CPU=8 on node=20
+  23:Binding ID=23 to local CPU=14 on node=23
+ 192:Binding ID=192 to local CPU=0 on node=192
+  24:Binding ID=24 to local CPU=16 on node=24
+  70:Binding ID=70 to local CPU=12 on node=70
+ 194:Binding ID=194 to local CPU=4 on node=194
+  25:Binding ID=25 to local CPU=18 on node=25
+  71:Binding ID=71 to local CPU=14 on node=71
+ 195:Binding ID=195 to local CPU=6 on node=195
+  29:Binding ID=29 to local CPU=26 on node=29
+  64:Binding ID=64 to local CPU=0 on node=64
+ 197:Binding ID=197 to local CPU=10 on node=197
+  30:Binding ID=30 to local CPU=28 on node=30
+  66:Binding ID=66 to local CPU=4 on node=66
+ 199:Binding ID=199 to local CPU=14 on node=199
+  22:Binding ID=22 to local CPU=12 on node=22
+  46:Binding ID=46 to local CPU=28 on node=46
+  67:Binding ID=67 to local CPU=6 on node=67
+ 102:Binding ID=102 to local CPU=12 on node=102
+ 200:Binding ID=200 to local CPU=16 on node=200
+  26:Binding ID=26 to local CPU=20 on node=26
+  68:Binding ID=68 to local CPU=8 on node=68
+ 104:Binding ID=104 to local CPU=16 on node=104
+ 201:Binding ID=201 to local CPU=18 on node=201
+  27:Binding ID=27 to local CPU=22 on node=27
+  33:Binding ID=33 to local CPU=2 on node=33
+  69:Binding ID=69 to local CPU=10 on node=69
+  96:Binding ID=96 to local CPU=0 on node=96
+ 202:Binding ID=202 to local CPU=20 on node=202
+  31:Binding ID=31 to local CPU=30 on node=31
+  34:Binding ID=34 to local CPU=4 on node=34
+  73:Binding ID=73 to local CPU=18 on node=73
+  98:Binding ID=98 to local CPU=4 on node=98
+ 203:Binding ID=203 to local CPU=22 on node=203
+ 226:Binding ID=226 to local CPU=4 on node=226
+  35:Binding ID=35 to local CPU=6 on node=35
+  74:Binding ID=74 to local CPU=20 on node=74
+  80:Binding ID=80 to local CPU=0 on node=80
+  99:Binding ID=99 to local CPU=6 on node=99
+ 204:Binding ID=204 to local CPU=24 on node=204
+ 230:Binding ID=230 to local CPU=12 on node=230
+  39:Binding ID=39 to local CPU=14 on node=39
+  75:Binding ID=75 to local CPU=22 on node=75
+  87:Binding ID=87 to local CPU=14 on node=87
+ 103:Binding ID=103 to local CPU=14 on node=103
+ 205:Binding ID=205 to local CPU=26 on node=205
+ 224:Binding ID=224 to local CPU=0 on node=224
+  40:Binding ID=40 to local CPU=16 on node=40
+  76:Binding ID=76 to local CPU=24 on node=76
+  84:Binding ID=84 to local CPU=8 on node=84
+ 105:Binding ID=105 to local CPU=18 on node=105
+ 206:Binding ID=206 to local CPU=28 on node=206
+ 232:Binding ID=232 to local CPU=16 on node=232
+  32:Binding ID=32 to local CPU=0 on node=32
+  77:Binding ID=77 to local CPU=26 on node=77
+  88:Binding ID=88 to local CPU=16 on node=88
+ 106:Binding ID=106 to local CPU=20 on node=106
+ 207:Binding ID=207 to local CPU=30 on node=207
+ 234:Binding ID=234 to local CPU=20 on node=234
+  36:Binding ID=36 to local CPU=8 on node=36
+  78:Binding ID=78 to local CPU=28 on node=78
+  89:Binding ID=89 to local CPU=18 on node=89
+ 107:Binding ID=107 to local CPU=22 on node=107
+ 235:Binding ID=235 to local CPU=22 on node=235
+  37:Binding ID=37 to local CPU=10 on node=37
+  79:Binding ID=79 to local CPU=30 on node=79
+  93:Binding ID=93 to local CPU=26 on node=93
+ 110:Binding ID=110 to local CPU=28 on node=110
+ 239:Binding ID=239 to local CPU=30 on node=239
+  38:Binding ID=38 to local CPU=12 on node=38
+  72:Binding ID=72 to local CPU=16 on node=72
+  94:Binding ID=94 to local CPU=28 on node=94
+ 100:Binding ID=100 to local CPU=8 on node=100
+ 225:Binding ID=225 to local CPU=2 on node=225
+  41:Binding ID=41 to local CPU=18 on node=41
+  95:Binding ID=95 to local CPU=30 on node=95
+ 101:Binding ID=101 to local CPU=10 on node=101
+ 228:Binding ID=228 to local CPU=8 on node=228
+  42:Binding ID=42 to local CPU=20 on node=42
+  81:Binding ID=81 to local CPU=2 on node=81
+ 108:Binding ID=108 to local CPU=24 on node=108
+ 229:Binding ID=229 to local CPU=10 on node=229
+  44:Binding ID=44 to local CPU=24 on node=44
+  82:Binding ID=82 to local CPU=4 on node=82
+ 109:Binding ID=109 to local CPU=26 on node=109
+ 231:Binding ID=231 to local CPU=14 on node=231
+  45:Binding ID=45 to local CPU=26 on node=45
+  83:Binding ID=83 to local CPU=6 on node=83
+ 236:Binding ID=236 to local CPU=24 on node=236
+  47:Binding ID=47 to local CPU=30 on node=47
+  86:Binding ID=86 to local CPU=12 on node=86
+ 237:Binding ID=237 to local CPU=26 on node=237
+  90:Binding ID=90 to local CPU=20 on node=90
+ 238:Binding ID=238 to local CPU=28 on node=238
+  92:Binding ID=92 to local CPU=24 on node=92
+  18:Binding ID=18 to local CPU=4 on node=18
+ 233:Binding ID=233 to local CPU=18 on node=233
+ 128:Binding ID=128 to local CPU=0 on node=128
+ 129:Binding ID=129 to local CPU=2 on node=129
+ 130:Binding ID=130 to local CPU=4 on node=130
+ 131:Binding ID=131 to local CPU=6 on node=131
+ 136:Binding ID=136 to local CPU=16 on node=136
+ 137:Binding ID=137 to local CPU=18 on node=137
+ 133:Binding ID=133 to local CPU=10 on node=133
+ 134:Binding ID=134 to local CPU=12 on node=134
+ 138:Binding ID=138 to local CPU=20 on node=138
+ 139:Binding ID=139 to local CPU=22 on node=139
+ 140:Binding ID=140 to local CPU=24 on node=140
+ 141:Binding ID=141 to local CPU=26 on node=141
+ 241:Binding ID=241 to local CPU=2 on node=241
+ 142:Binding ID=142 to local CPU=28 on node=142
+ 242:Binding ID=242 to local CPU=4 on node=242
+  91:Binding ID=91 to local CPU=22 on node=91
+ 143:Binding ID=143 to local CPU=30 on node=143
+ 243:Binding ID=243 to local CPU=6 on node=243
+ 244:Binding ID=244 to local CPU=8 on node=244
+ 245:Binding ID=245 to local CPU=10 on node=245
+ 246:Binding ID=246 to local CPU=12 on node=246
+ 183:Binding ID=183 to local CPU=14 on node=183
+ 247:Binding ID=247 to local CPU=14 on node=247
+ 121:Binding ID=121 to local CPU=18 on node=121
+ 248:Binding ID=248 to local CPU=16 on node=248
+ 249:Binding ID=249 to local CPU=18 on node=249
+ 111:Binding ID=111 to local CPU=30 on node=111
+ 250:Binding ID=250 to local CPU=20 on node=250
+ 251:Binding ID=251 to local CPU=22 on node=251
+ 252:Binding ID=252 to local CPU=24 on node=252
+ 253:Binding ID=253 to local CPU=26 on node=253
+ 254:Binding ID=254 to local CPU=28 on node=254
+ 255:Binding ID=255 to local CPU=30 on node=255
+  49:Binding ID=49 to local CPU=2 on node=49
+  50:Binding ID=50 to local CPU=4 on node=50
+  51:Binding ID=51 to local CPU=6 on node=51
+  52:Binding ID=52 to local CPU=8 on node=52
+  53:Binding ID=53 to local CPU=10 on node=53
+  54:Binding ID=54 to local CPU=12 on node=54
+  55:Binding ID=55 to local CPU=14 on node=55
+  56:Binding ID=56 to local CPU=16 on node=56
+  57:Binding ID=57 to local CPU=18 on node=57
+  58:Binding ID=58 to local CPU=20 on node=58
+  59:Binding ID=59 to local CPU=22 on node=59
+  60:Binding ID=60 to local CPU=24 on node=60
+  61:Binding ID=61 to local CPU=26 on node=61
+  62:Binding ID=62 to local CPU=28 on node=62
+  63:Binding ID=63 to local CPU=30 on node=63
+ 132:Binding ID=132 to local CPU=8 on node=132
+ 218:Binding ID=218 to local CPU=20 on node=218
+   0:LU Starting: M 262400 B 200 px 16 py 16
+   0:Main loop starting ...
+   0:3 of 1312 complete last 2 iterations took 73.254000000000005 seconds
+   0:5 of 1312 complete last 2 iterations took 35.174851000000004 seconds
+   0:7 of 1312 complete last 2 iterations took 35.102736 seconds
+   0:9 of 1312 complete last 2 iterations took 35.733461000000005 seconds
+   0:11 of 1312 complete last 2 iterations took 35.037642000000005 seconds
+   0:13 of 1312 complete last 2 iterations took 35.755897000000004 seconds
+   0:15 of 1312 complete last 2 iterations took 34.808280000000003 seconds
+   0:17 of 1312 complete last 2 iterations took 34.536114000000005 seconds
+   0:19 of 1312 complete last 2 iterations took 34.236604 seconds
+   0:21 of 1312 complete last 2 iterations took 34.277716000000005 seconds
+   0:23 of 1312 complete last 2 iterations took 34.195383 seconds
+   0:25 of 1312 complete last 2 iterations took 34.230496000000002 seconds
+   0:27 of 1312 complete last 2 iterations took 34.142752999999999 seconds
+   0:29 of 1312 complete last 2 iterations took 34.026489000000005 seconds
+   0:31 of 1312 complete last 2 iterations took 33.922036000000006 seconds
+   0:33 of 1312 complete last 2 iterations took 33.450528000000006 seconds
+   0:35 of 1312 complete last 2 iterations took 33.355618 seconds
+   0:37 of 1312 complete last 2 iterations took 33.399480000000004 seconds
+   0:39 of 1312 complete last 2 iterations took 33.337974000000003 seconds
+   0:41 of 1312 complete last 2 iterations took 33.287801000000002 seconds
+   0:43 of 1312 complete last 2 iterations took 33.301777000000001 seconds
+   0:45 of 1312 complete last 2 iterations took 33.248004000000002 seconds
+   0:47 of 1312 complete last 2 iterations took 33.031048000000006 seconds
+   0:49 of 1312 complete last 2 iterations took 32.633096999999999 seconds
+   0:51 of 1312 complete last 2 iterations took 32.574553999999999 seconds
+   0:53 of 1312 complete last 2 iterations took 32.706173 seconds
+   0:55 of 1312 complete last 2 iterations took 32.542452000000004 seconds
+   0:57 of 1312 complete last 2 iterations took 32.529385000000005 seconds
+   0:59 of 1312 complete last 2 iterations took 32.571960000000004 seconds
+   0:61 of 1312 complete last 2 iterations took 32.406594000000005 seconds
+   0:63 of 1312 complete last 2 iterations took 32.225158 seconds
+   0:65 of 1312 complete last 2 iterations took 31.861921000000002 seconds
+   0:67 of 1312 complete last 2 iterations took 31.809710000000003 seconds
+   0:69 of 1312 complete last 2 iterations took 31.819932000000001 seconds
+   0:71 of 1312 complete last 2 iterations took 31.754090000000001 seconds
+   0:73 of 1312 complete last 2 iterations took 31.696822000000001 seconds
+   0:75 of 1312 complete last 2 iterations took 31.789430000000003 seconds
+   0:77 of 1312 complete last 2 iterations took 31.644943000000001 seconds
+   0:79 of 1312 complete last 2 iterations took 31.45279 seconds
+   0:81 of 1312 complete last 2 iterations took 31.269921000000004 seconds
+   0:83 of 1312 complete last 2 iterations took 31.238310000000002 seconds
+   0:85 of 1312 complete last 2 iterations took 31.109013000000001 seconds
+   0:87 of 1312 complete last 2 iterations took 31.057216 seconds
+   0:89 of 1312 complete last 2 iterations took 30.978534000000003 seconds
+   0:91 of 1312 complete last 2 iterations took 30.980764000000001 seconds
+   0:93 of 1312 complete last 2 iterations took 30.995414 seconds
+   0:95 of 1312 complete last 2 iterations took 30.851968000000003 seconds
+   0:97 of 1312 complete last 2 iterations took 30.638682000000003 seconds
+   0:99 of 1312 complete last 2 iterations took 30.667169000000001 seconds
+   0:101 of 1312 complete last 2 iterations took 30.350185000000003 seconds
+   0:103 of 1312 complete last 2 iterations took 30.290246000000003 seconds
+   0:105 of 1312 complete last 2 iterations took 30.293973000000001 seconds
+   0:107 of 1312 complete last 2 iterations took 30.332341000000003 seconds
+   0:109 of 1312 complete last 2 iterations took 30.250462000000002 seconds
+   0:111 of 1312 complete last 2 iterations took 30.082932000000003 seconds
+   0:113 of 1312 complete last 2 iterations took 29.598738000000001 seconds
+   0:115 of 1312 complete last 2 iterations took 29.586913000000003 seconds
+   0:117 of 1312 complete last 2 iterations took 29.543595000000003 seconds
+   0:119 of 1312 complete last 2 iterations took 29.491536000000004 seconds
+   0:121 of 1312 complete last 2 iterations took 29.447376000000002 seconds
+   0:123 of 1312 complete last 2 iterations took 29.470652000000001 seconds
+   0:125 of 1312 complete last 2 iterations took 29.420903000000003 seconds
+   0:127 of 1312 complete last 2 iterations took 29.160040000000002 seconds
+   0:129 of 1312 complete last 2 iterations took 28.879223000000003 seconds
+   0:131 of 1312 complete last 2 iterations took 28.813901000000001 seconds
+   0:133 of 1312 complete last 2 iterations took 28.788784000000003 seconds
+   0:135 of 1312 complete last 2 iterations took 28.774302000000002 seconds
+   0:137 of 1312 complete last 2 iterations took 28.699457000000002 seconds
+   0:139 of 1312 complete last 2 iterations took 28.767397000000003 seconds
+   0:141 of 1312 complete last 2 iterations took 28.683531000000002 seconds
+   0:143 of 1312 complete last 2 iterations took 28.430965 seconds
+   0:145 of 1312 complete last 2 iterations took 28.108129000000002 seconds
+   0:147 of 1312 complete last 2 iterations took 28.133995000000002 seconds
+   0:149 of 1312 complete last 2 iterations took 28.096137000000002 seconds
+   0:151 of 1312 complete last 2 iterations took 28.050666000000003 seconds
+   0:153 of 1312 complete last 2 iterations took 27.972279 seconds
+   0:155 of 1312 complete last 2 iterations took 28.018051000000003 seconds
+   0:157 of 1312 complete last 2 iterations took 27.944224000000002 seconds
+   0:159 of 1312 complete last 2 iterations took 27.723767000000002 seconds
+   0:161 of 1312 complete last 2 iterations took 27.362866 seconds
+   0:163 of 1312 complete last 2 iterations took 27.393041 seconds
+   0:165 of 1312 complete last 2 iterations took 27.351165000000002 seconds
+   0:167 of 1312 complete last 2 iterations took 27.312260000000002 seconds
+   0:169 of 1312 complete last 2 iterations took 27.254306000000003 seconds
+   0:171 of 1312 complete last 2 iterations took 27.292217000000001 seconds
+   0:173 of 1312 complete last 2 iterations took 27.232076000000003 seconds
+   0:175 of 1312 complete last 2 iterations took 27.117876000000003 seconds
+   0:177 of 1312 complete last 2 iterations took 26.780106 seconds
+   0:179 of 1312 complete last 2 iterations took 26.757352000000001 seconds
+   0:181 of 1312 complete last 2 iterations took 26.706157000000001 seconds
+   0:183 of 1312 complete last 2 iterations took 26.677047000000002 seconds
+   0:185 of 1312 complete last 2 iterations took 26.617329000000002 seconds
+   0:187 of 1312 complete last 2 iterations took 26.649121000000001 seconds
+   0:189 of 1312 complete last 2 iterations took 26.494473000000003 seconds
+   0:191 of 1312 complete last 2 iterations took 26.323457000000001 seconds
+   0:193 of 1312 complete last 2 iterations took 25.902816000000001 seconds
+   0:195 of 1312 complete last 2 iterations took 25.959105000000001 seconds
+   0:197 of 1312 complete last 2 iterations took 25.906400000000001 seconds
+   0:199 of 1312 complete last 2 iterations took 25.885926000000001 seconds
+   0:201 of 1312 complete last 2 iterations took 25.855055 seconds
+   0:203 of 1312 complete last 2 iterations took 25.868122000000003 seconds
+   0:205 of 1312 complete last 2 iterations took 25.795322000000002 seconds
+   0:207 of 1312 complete last 2 iterations took 26.954080000000001 seconds
+   0:209 of 1312 complete last 2 iterations took 25.213107000000001 seconds
+   0:211 of 1312 complete last 2 iterations took 26.469349000000001 seconds
+   0:213 of 1312 complete last 2 iterations took 26.418224000000002 seconds
+   0:215 of 1312 complete last 2 iterations took 26.195011000000001 seconds
+   0:217 of 1312 complete last 2 iterations took 27.012079 seconds
+   0:219 of 1312 complete last 2 iterations took 25.492923000000001 seconds
+   0:221 of 1312 complete last 2 iterations took 25.110413000000001 seconds
+   0:223 of 1312 complete last 2 iterations took 24.904771 seconds
+   0:225 of 1312 complete last 2 iterations took 25.213533000000002 seconds
+   0:227 of 1312 complete last 2 iterations took 25.356755000000003 seconds
+   0:229 of 1312 complete last 2 iterations took 24.547227000000003 seconds
+   0:231 of 1312 complete last 2 iterations took 24.498634000000003 seconds
+   0:233 of 1312 complete last 2 iterations took 24.484865000000003 seconds
+   0:235 of 1312 complete last 2 iterations took 24.537436000000003 seconds
+   0:237 of 1312 complete last 2 iterations took 24.427812000000003 seconds
+   0:239 of 1312 complete last 2 iterations took 24.232361000000001 seconds
+   0:241 of 1312 complete last 2 iterations took 23.894934000000003 seconds
+   0:243 of 1312 complete last 2 iterations took 23.890522000000001 seconds
+   0:245 of 1312 complete last 2 iterations took 23.873475000000003 seconds
+   0:247 of 1312 complete last 2 iterations took 23.830334000000001 seconds
+   0:249 of 1312 complete last 2 iterations took 23.813151000000001 seconds
+   0:251 of 1312 complete last 2 iterations took 23.842033000000001 seconds
+   0:253 of 1312 complete last 2 iterations took 23.764569000000002 seconds
+   0:255 of 1312 complete last 2 iterations took 23.552904000000002 seconds
+   0:257 of 1312 complete last 2 iterations took 23.194936000000002 seconds
+   0:259 of 1312 complete last 2 iterations took 23.267560000000003 seconds
+   0:261 of 1312 complete last 2 iterations took 23.208329000000003 seconds
+   0:263 of 1312 complete last 2 iterations took 23.151286000000002 seconds
+   0:265 of 1312 complete last 2 iterations took 23.729784000000002 seconds
+   0:267 of 1312 complete last 2 iterations took 23.779288000000001 seconds
+   0:269 of 1312 complete last 2 iterations took 23.110375000000001 seconds
+   0:271 of 1312 complete last 2 iterations took 22.929000000000002 seconds
+   0:273 of 1312 complete last 2 iterations took 23.289659 seconds
+   0:275 of 1312 complete last 2 iterations took 23.283753000000001 seconds
+   0:277 of 1312 complete last 2 iterations took 22.562518000000001 seconds
+   0:279 of 1312 complete last 2 iterations took 22.520565000000001 seconds
+   0:281 of 1312 complete last 2 iterations took 22.509249000000001 seconds
+   0:283 of 1312 complete last 2 iterations took 22.510618000000001 seconds
+   0:285 of 1312 complete last 2 iterations took 22.437532000000001 seconds
+   0:287 of 1312 complete last 2 iterations took 22.284123000000001 seconds
+   0:289 of 1312 complete last 2 iterations took 21.878764 seconds
+   0:291 of 1312 complete last 2 iterations took 21.933417000000002 seconds
+   0:293 of 1312 complete last 2 iterations took 21.891426000000003 seconds
+   0:295 of 1312 complete last 2 iterations took 21.892998000000002 seconds
+   0:297 of 1312 complete last 2 iterations took 21.870963 seconds
+   0:299 of 1312 complete last 2 iterations took 21.844504000000001 seconds
+   0:301 of 1312 complete last 2 iterations took 21.800455000000003 seconds
+   0:303 of 1312 complete last 2 iterations took 22.289838000000003 seconds
+   0:305 of 1312 complete last 2 iterations took 22.137398000000001 seconds
+   0:307 of 1312 complete last 2 iterations took 21.870497 seconds
+   0:309 of 1312 complete last 2 iterations took 22.260346000000002 seconds
+   0:311 of 1312 complete last 2 iterations took 22.108761000000001 seconds
+   0:313 of 1312 complete last 2 iterations took 21.326741000000002 seconds
+   0:315 of 1312 complete last 2 iterations took 21.224079 seconds
+   0:317 of 1312 complete last 2 iterations took 21.170052000000002 seconds
+   0:319 of 1312 complete last 2 iterations took 20.970775 seconds
+   0:321 of 1312 complete last 2 iterations took 20.861223000000003 seconds
+   0:323 of 1312 complete last 2 iterations took 20.907329000000001 seconds
+   0:325 of 1312 complete last 2 iterations took 20.853739000000001 seconds
+   0:327 of 1312 complete last 2 iterations took 20.846490000000003 seconds
+   0:329 of 1312 complete last 2 iterations took 20.700752000000001 seconds
+   0:331 of 1312 complete last 2 iterations took 20.597991 seconds
+   0:333 of 1312 complete last 2 iterations took 20.553907000000002 seconds
+   0:335 of 1312 complete last 2 iterations took 20.337420000000002 seconds
+   0:337 of 1312 complete last 2 iterations took 20.039734000000003 seconds
+   0:339 of 1312 complete last 2 iterations took 20.064774 seconds
+   0:341 of 1312 complete last 2 iterations took 20.013173000000002 seconds
+   0:343 of 1312 complete last 2 iterations took 19.995575000000002 seconds
+   0:345 of 1312 complete last 2 iterations took 20.025926000000002 seconds
+   0:347 of 1312 complete last 2 iterations took 19.985390000000002 seconds
+   0:349 of 1312 complete last 2 iterations took 19.930975 seconds
+   0:351 of 1312 complete last 2 iterations took 19.730918000000003 seconds
+   0:353 of 1312 complete last 2 iterations took 19.393974 seconds
+   0:355 of 1312 complete last 2 iterations took 19.413874 seconds
+   0:357 of 1312 complete last 2 iterations took 19.396675000000002 seconds
+   0:359 of 1312 complete last 2 iterations took 19.386918000000001 seconds
+   0:361 of 1312 complete last 2 iterations took 19.400030000000001 seconds
+   0:363 of 1312 complete last 2 iterations took 19.351815999999999 seconds
+   0:365 of 1312 complete last 2 iterations took 19.306477000000001 seconds
+   0:367 of 1312 complete last 2 iterations took 19.15794 seconds
+   0:369 of 1312 complete last 2 iterations took 18.805442000000003 seconds
+   0:371 of 1312 complete last 2 iterations took 18.810569000000001 seconds
+   0:373 of 1312 complete last 2 iterations took 18.809825 seconds
+   0:375 of 1312 complete last 2 iterations took 18.781904000000001 seconds
+   0:377 of 1312 complete last 2 iterations took 18.810813 seconds
+   0:379 of 1312 complete last 2 iterations took 18.753859000000002 seconds
+   0:381 of 1312 complete last 2 iterations took 18.720444000000001 seconds
+   0:383 of 1312 complete last 2 iterations took 18.558182000000002 seconds
+   0:385 of 1312 complete last 2 iterations took 18.228768000000002 seconds
+   0:387 of 1312 complete last 2 iterations took 18.237041000000001 seconds
+   0:389 of 1312 complete last 2 iterations took 18.191053 seconds
+   0:391 of 1312 complete last 2 iterations took 18.203609 seconds
+   0:393 of 1312 complete last 2 iterations took 18.184865000000002 seconds
+   0:395 of 1312 complete last 2 iterations took 18.179897 seconds
+   0:397 of 1312 complete last 2 iterations took 18.148152 seconds
+   0:399 of 1312 complete last 2 iterations took 18.071152000000001 seconds
+   0:401 of 1312 complete last 2 iterations took 17.784015 seconds
+   0:403 of 1312 complete last 2 iterations took 17.806357999999999 seconds
+   0:405 of 1312 complete last 2 iterations took 17.793336 seconds
+   0:407 of 1312 complete last 2 iterations took 17.815579 seconds
+   0:409 of 1312 complete last 2 iterations took 17.804761000000003 seconds
+   0:411 of 1312 complete last 2 iterations took 17.810444 seconds
+   0:413 of 1312 complete last 2 iterations took 17.673896000000003 seconds
+   0:415 of 1312 complete last 2 iterations took 17.415375000000001 seconds
+   0:417 of 1312 complete last 2 iterations took 17.084126000000001 seconds
+   0:419 of 1312 complete last 2 iterations took 17.080971000000002 seconds
+   0:421 of 1312 complete last 2 iterations took 17.037860000000002 seconds
+   0:423 of 1312 complete last 2 iterations took 17.059630000000002 seconds
+   0:425 of 1312 complete last 2 iterations took 17.056026000000003 seconds
+   0:427 of 1312 complete last 2 iterations took 17.056133000000003 seconds
+   0:429 of 1312 complete last 2 iterations took 17.000543 seconds
+   0:431 of 1312 complete last 2 iterations took 16.843849000000002 seconds
+   0:433 of 1312 complete last 2 iterations took 16.518914000000002 seconds
+   0:435 of 1312 complete last 2 iterations took 16.520760000000003 seconds
+   0:437 of 1312 complete last 2 iterations took 16.490286000000001 seconds
+   0:439 of 1312 complete last 2 iterations took 16.518588000000001 seconds
+   0:441 of 1312 complete last 2 iterations took 16.483377000000001 seconds
+   0:443 of 1312 complete last 2 iterations took 16.479269000000002 seconds
+   0:445 of 1312 complete last 2 iterations took 16.441986 seconds
+   0:447 of 1312 complete last 2 iterations took 16.291838000000002 seconds
+   0:449 of 1312 complete last 2 iterations took 15.944615000000001 seconds
+   0:451 of 1312 complete last 2 iterations took 15.960835000000001 seconds
+   0:453 of 1312 complete last 2 iterations took 15.933238000000001 seconds
+   0:455 of 1312 complete last 2 iterations took 15.95945 seconds
+   0:457 of 1312 complete last 2 iterations took 15.931906000000001 seconds
+   0:459 of 1312 complete last 2 iterations took 15.886632000000001 seconds
+   0:461 of 1312 complete last 2 iterations took 15.871566000000001 seconds
+   0:463 of 1312 complete last 2 iterations took 15.728699000000001 seconds
+   0:465 of 1312 complete last 2 iterations took 15.403390000000002 seconds
+   0:467 of 1312 complete last 2 iterations took 15.432941000000001 seconds
+   0:469 of 1312 complete last 2 iterations took 15.393774000000001 seconds
+   0:471 of 1312 complete last 2 iterations took 15.409913000000001 seconds
+   0:473 of 1312 complete last 2 iterations took 15.387115000000001 seconds
+   0:475 of 1312 complete last 2 iterations took 15.357100000000001 seconds
+   0:477 of 1312 complete last 2 iterations took 15.338844000000002 seconds
+   0:479 of 1312 complete last 2 iterations took 15.201479000000001 seconds
+   0:481 of 1312 complete last 2 iterations took 14.912103 seconds
+   0:483 of 1312 complete last 2 iterations took 14.904119000000001 seconds
+   0:485 of 1312 complete last 2 iterations took 14.880358000000001 seconds
+   0:487 of 1312 complete last 2 iterations took 14.878386000000001 seconds
+   0:489 of 1312 complete last 2 iterations took 14.856671 seconds
+   0:491 of 1312 complete last 2 iterations took 14.815272 seconds
+   0:493 of 1312 complete last 2 iterations took 14.818567000000002 seconds
+   0:495 of 1312 complete last 2 iterations took 14.666768000000001 seconds
+   0:497 of 1312 complete last 2 iterations took 14.339909 seconds
+   0:499 of 1312 complete last 2 iterations took 14.372575000000001 seconds
+   0:501 of 1312 complete last 2 iterations took 14.341591000000001 seconds
+   0:503 of 1312 complete last 2 iterations took 14.341108 seconds
+   0:505 of 1312 complete last 2 iterations took 14.324234000000001 seconds
+   0:507 of 1312 complete last 2 iterations took 14.287024000000001 seconds
+   0:509 of 1312 complete last 2 iterations took 14.299511000000001 seconds
+   0:511 of 1312 complete last 2 iterations took 14.161837 seconds
+   0:513 of 1312 complete last 2 iterations took 13.837149 seconds
+   0:515 of 1312 complete last 2 iterations took 13.879844 seconds
+   0:517 of 1312 complete last 2 iterations took 13.834071000000002 seconds
+   0:519 of 1312 complete last 2 iterations took 13.835719000000001 seconds
+   0:521 of 1312 complete last 2 iterations took 13.837491 seconds
+   0:523 of 1312 complete last 2 iterations took 13.784602000000001 seconds
+   0:525 of 1312 complete last 2 iterations took 13.816202000000001 seconds
+   0:527 of 1312 complete last 2 iterations took 13.646230000000001 seconds
+   0:529 of 1312 complete last 2 iterations took 13.328248 seconds
+   0:531 of 1312 complete last 2 iterations took 13.361074 seconds
+   0:533 of 1312 complete last 2 iterations took 13.318989 seconds
+   0:535 of 1312 complete last 2 iterations took 13.341931000000001 seconds
+   0:537 of 1312 complete last 2 iterations took 13.324132000000001 seconds
+   0:539 of 1312 complete last 2 iterations took 13.317453 seconds
+   0:541 of 1312 complete last 2 iterations took 13.275635000000001 seconds
+   0:543 of 1312 complete last 2 iterations took 13.154348000000001 seconds
+   0:545 of 1312 complete last 2 iterations took 12.839978 seconds
+   0:547 of 1312 complete last 2 iterations took 12.851980000000001 seconds
+   0:549 of 1312 complete last 2 iterations took 12.868574000000001 seconds
+   0:551 of 1312 complete last 2 iterations took 12.830063000000001 seconds
+   0:553 of 1312 complete last 2 iterations took 12.848264 seconds
+   0:555 of 1312 complete last 2 iterations took 12.804745 seconds
+   0:557 of 1312 complete last 2 iterations took 12.788608 seconds
+   0:559 of 1312 complete last 2 iterations took 12.675632 seconds
+   0:561 of 1312 complete last 2 iterations took 12.350669 seconds
+   0:563 of 1312 complete last 2 iterations took 12.368795 seconds
+   0:565 of 1312 complete last 2 iterations took 12.344262000000001 seconds
+   0:567 of 1312 complete last 2 iterations took 12.383174 seconds
+   0:569 of 1312 complete last 2 iterations took 12.350148000000001 seconds
+   0:571 of 1312 complete last 2 iterations took 12.297897000000001 seconds
+   0:573 of 1312 complete last 2 iterations took 12.334291 seconds
+   0:575 of 1312 complete last 2 iterations took 12.180413000000001 seconds
+   0:577 of 1312 complete last 2 iterations took 11.929410000000001 seconds
+   0:579 of 1312 complete last 2 iterations took 11.898090000000002 seconds
+   0:581 of 1312 complete last 2 iterations took 11.876671 seconds
+   0:583 of 1312 complete last 2 iterations took 11.904821 seconds
+   0:585 of 1312 complete last 2 iterations took 11.872797 seconds
+   0:587 of 1312 complete last 2 iterations took 11.819469000000002 seconds
+   0:589 of 1312 complete last 2 iterations took 11.828696000000001 seconds
+   0:591 of 1312 complete last 2 iterations took 11.706253 seconds
+   0:593 of 1312 complete last 2 iterations took 11.445602000000001 seconds
+   0:595 of 1312 complete last 2 iterations took 11.446026000000002 seconds
+   0:597 of 1312 complete last 2 iterations took 11.411103000000001 seconds
+   0:599 of 1312 complete last 2 iterations took 11.454660000000001 seconds
+   0:601 of 1312 complete last 2 iterations took 11.411722000000001 seconds
+   0:603 of 1312 complete last 2 iterations took 11.362761000000001 seconds
+   0:605 of 1312 complete last 2 iterations took 11.354768 seconds
+   0:607 of 1312 complete last 2 iterations took 11.267102000000001 seconds
+   0:609 of 1312 complete last 2 iterations took 10.968306 seconds
+   0:611 of 1312 complete last 2 iterations took 10.970239000000001 seconds
+   0:613 of 1312 complete last 2 iterations took 10.956214000000001 seconds
+   0:615 of 1312 complete last 2 iterations took 10.981502000000001 seconds
+   0:617 of 1312 complete last 2 iterations took 10.949710000000001 seconds
+   0:619 of 1312 complete last 2 iterations took 10.916221 seconds
+   0:621 of 1312 complete last 2 iterations took 10.897025000000001 seconds
+   0:623 of 1312 complete last 2 iterations took 10.816052000000001 seconds
+   0:625 of 1312 complete last 2 iterations took 10.509919 seconds
+   0:627 of 1312 complete last 2 iterations took 10.529007 seconds
+   0:629 of 1312 complete last 2 iterations took 10.509423 seconds
+   0:631 of 1312 complete last 2 iterations took 10.530064000000001 seconds
+   0:633 of 1312 complete last 2 iterations took 10.493687000000001 seconds
+   0:635 of 1312 complete last 2 iterations took 10.463222 seconds
+   0:637 of 1312 complete last 2 iterations took 10.463458000000001 seconds
+   0:639 of 1312 complete last 2 iterations took 10.385895000000001 seconds
+   0:641 of 1312 complete last 2 iterations took 10.084539000000001 seconds
+   0:643 of 1312 complete last 2 iterations took 10.095404 seconds
+   0:645 of 1312 complete last 2 iterations took 10.059848000000001 seconds
+   0:647 of 1312 complete last 2 iterations took 10.089776000000001 seconds
+   0:649 of 1312 complete last 2 iterations took 10.056206000000001 seconds
+   0:651 of 1312 complete last 2 iterations took 10.038795 seconds
+   0:653 of 1312 complete last 2 iterations took 10.033493 seconds
+   0:655 of 1312 complete last 2 iterations took 9.920056000000001 seconds
+   0:657 of 1312 complete last 2 iterations took 9.647314 seconds
+   0:659 of 1312 complete last 2 iterations took 9.655553000000001 seconds
+   0:661 of 1312 complete last 2 iterations took 9.638035 seconds
+   0:663 of 1312 complete last 2 iterations took 9.64293 seconds
+   0:665 of 1312 complete last 2 iterations took 9.636946 seconds
+   0:667 of 1312 complete last 2 iterations took 9.623497 seconds
+   0:669 of 1312 complete last 2 iterations took 9.594048000000001 seconds
+   0:671 of 1312 complete last 2 iterations took 9.487368 seconds
+   0:673 of 1312 complete last 2 iterations took 9.233405000000001 seconds
+   0:675 of 1312 complete last 2 iterations took 9.238035 seconds
+   0:677 of 1312 complete last 2 iterations took 9.21472 seconds
+   0:679 of 1312 complete last 2 iterations took 9.225747 seconds
+   0:681 of 1312 complete last 2 iterations took 9.207848 seconds
+   0:683 of 1312 complete last 2 iterations took 9.177339 seconds
+   0:685 of 1312 complete last 2 iterations took 9.198981 seconds
+   0:687 of 1312 complete last 2 iterations took 9.077219000000001 seconds
+   0:689 of 1312 complete last 2 iterations took 8.847125 seconds
+   0:691 of 1312 complete last 2 iterations took 8.839514000000001 seconds
+   0:693 of 1312 complete last 2 iterations took 8.841436 seconds
+   0:695 of 1312 complete last 2 iterations took 8.820842000000001 seconds
+   0:697 of 1312 complete last 2 iterations took 8.800142000000001 seconds
+   0:699 of 1312 complete last 2 iterations took 8.783254000000001 seconds
+   0:701 of 1312 complete last 2 iterations took 8.749917 seconds
+   0:703 of 1312 complete last 2 iterations took 8.666082000000001 seconds
+   0:705 of 1312 complete last 2 iterations took 8.425514 seconds
+   0:707 of 1312 complete last 2 iterations took 8.430767000000001 seconds
+   0:709 of 1312 complete last 2 iterations took 8.394948000000001 seconds
+   0:711 of 1312 complete last 2 iterations took 8.435485 seconds
+   0:713 of 1312 complete last 2 iterations took 8.387040000000001 seconds
+   0:715 of 1312 complete last 2 iterations took 8.387008 seconds
+   0:717 of 1312 complete last 2 iterations took 8.347663000000001 seconds
+   0:719 of 1312 complete last 2 iterations took 8.274268000000001 seconds
+   0:721 of 1312 complete last 2 iterations took 8.038029 seconds
+   0:723 of 1312 complete last 2 iterations took 8.033361000000001 seconds
+   0:725 of 1312 complete last 2 iterations took 8.006490000000001 seconds
+   0:727 of 1312 complete last 2 iterations took 8.098646 seconds
+   0:729 of 1312 complete last 2 iterations took 8.002328 seconds
+   0:731 of 1312 complete last 2 iterations took 7.969267 seconds
+   0:733 of 1312 complete last 2 iterations took 7.957598000000001 seconds
+   0:735 of 1312 complete last 2 iterations took 7.872396 seconds
+   0:737 of 1312 complete last 2 iterations took 7.660458 seconds
+   0:739 of 1312 complete last 2 iterations took 7.625267000000001 seconds
+   0:741 of 1312 complete last 2 iterations took 7.622137 seconds
+   0:743 of 1312 complete last 2 iterations took 7.631828000000001 seconds
+   0:745 of 1312 complete last 2 iterations took 7.604966 seconds
+   0:747 of 1312 complete last 2 iterations took 7.587985000000001 seconds
+   0:749 of 1312 complete last 2 iterations took 7.59987 seconds
+   0:751 of 1312 complete last 2 iterations took 7.493510000000001 seconds
+   0:753 of 1312 complete last 2 iterations took 7.299799 seconds
+   0:755 of 1312 complete last 2 iterations took 7.306486 seconds
+   0:757 of 1312 complete last 2 iterations took 7.295731000000001 seconds
+   0:759 of 1312 complete last 2 iterations took 7.301282 seconds
+   0:761 of 1312 complete last 2 iterations took 7.256124000000001 seconds
+   0:763 of 1312 complete last 2 iterations took 7.226961 seconds
+   0:765 of 1312 complete last 2 iterations took 7.213331 seconds
+   0:767 of 1312 complete last 2 iterations took 7.10939 seconds
+   0:769 of 1312 complete last 2 iterations took 6.941312000000001 seconds
+   0:771 of 1312 complete last 2 iterations took 6.932595 seconds
+   0:773 of 1312 complete last 2 iterations took 6.93946 seconds
+   0:775 of 1312 complete last 2 iterations took 6.936619 seconds
+   0:777 of 1312 complete last 2 iterations took 6.889263000000001 seconds
+   0:779 of 1312 complete last 2 iterations took 6.855574000000001 seconds
+   0:781 of 1312 complete last 2 iterations took 6.855142000000001 seconds
+   0:783 of 1312 complete last 2 iterations took 6.765537 seconds
+   0:785 of 1312 complete last 2 iterations took 6.539413000000001 seconds
+   0:787 of 1312 complete last 2 iterations took 6.54168 seconds
+   0:789 of 1312 complete last 2 iterations took 6.518813000000001 seconds
+   0:791 of 1312 complete last 2 iterations took 6.517412 seconds
+   0:793 of 1312 complete last 2 iterations took 6.515693000000001 seconds
+   0:795 of 1312 complete last 2 iterations took 6.499535000000001 seconds
+   0:797 of 1312 complete last 2 iterations took 6.485888 seconds
+   0:799 of 1312 complete last 2 iterations took 6.401271 seconds
+   0:801 of 1312 complete last 2 iterations took 6.199536 seconds
+   0:803 of 1312 complete last 2 iterations took 6.186555 seconds
+   0:805 of 1312 complete last 2 iterations took 6.197441 seconds
+   0:807 of 1312 complete last 2 iterations took 6.16736 seconds
+   0:809 of 1312 complete last 2 iterations took 6.159177000000001 seconds
+   0:811 of 1312 complete last 2 iterations took 6.164326 seconds
+   0:813 of 1312 complete last 2 iterations took 6.139166 seconds
+   0:815 of 1312 complete last 2 iterations took 6.053686000000001 seconds
+   0:817 of 1312 complete last 2 iterations took 5.846199 seconds
+   0:819 of 1312 complete last 2 iterations took 5.839128000000001 seconds
+   0:821 of 1312 complete last 2 iterations took 5.873174000000001 seconds
+   0:823 of 1312 complete last 2 iterations took 5.833278 seconds
+   0:825 of 1312 complete last 2 iterations took 5.841326 seconds
+   0:827 of 1312 complete last 2 iterations took 5.817346000000001 seconds
+   0:829 of 1312 complete last 2 iterations took 5.802592000000001 seconds
+   0:831 of 1312 complete last 2 iterations took 5.723368000000001 seconds
+   0:833 of 1312 complete last 2 iterations took 5.526664 seconds
+   0:835 of 1312 complete last 2 iterations took 5.556101 seconds
+   0:837 of 1312 complete last 2 iterations took 5.522591 seconds
+   0:839 of 1312 complete last 2 iterations took 5.504471000000001 seconds
+   0:841 of 1312 complete last 2 iterations took 5.498973 seconds
+   0:843 of 1312 complete last 2 iterations took 5.501522 seconds
+   0:845 of 1312 complete last 2 iterations took 5.488077000000001 seconds
+   0:847 of 1312 complete last 2 iterations took 5.399429 seconds
+   0:849 of 1312 complete last 2 iterations took 5.206195 seconds
+   0:851 of 1312 complete last 2 iterations took 5.19824 seconds
+   0:853 of 1312 complete last 2 iterations took 5.199531 seconds
+   0:855 of 1312 complete last 2 iterations took 5.201178000000001 seconds
+   0:857 of 1312 complete last 2 iterations took 5.201493 seconds
+   0:859 of 1312 complete last 2 iterations took 5.183311000000001 seconds
+   0:861 of 1312 complete last 2 iterations took 5.159738 seconds
+   0:863 of 1312 complete last 2 iterations took 5.085481000000001 seconds
+   0:865 of 1312 complete last 2 iterations took 4.908318 seconds
+   0:867 of 1312 complete last 2 iterations took 4.921427 seconds
+   0:869 of 1312 complete last 2 iterations took 4.905664000000001 seconds
+   0:871 of 1312 complete last 2 iterations took 4.902818 seconds
+   0:873 of 1312 complete last 2 iterations took 4.878238000000001 seconds
+   0:875 of 1312 complete last 2 iterations took 4.905428000000001 seconds
+   0:877 of 1312 complete last 2 iterations took 4.864724000000001 seconds
+   0:879 of 1312 complete last 2 iterations took 4.78538 seconds
+   0:881 of 1312 complete last 2 iterations took 4.639235 seconds
+   0:883 of 1312 complete last 2 iterations took 4.608411 seconds
+   0:885 of 1312 complete last 2 iterations took 4.588126 seconds
+   0:887 of 1312 complete last 2 iterations took 4.58662 seconds
+   0:889 of 1312 complete last 2 iterations took 4.576263 seconds
+   0:891 of 1312 complete last 2 iterations took 4.568655000000001 seconds
+   0:893 of 1312 complete last 2 iterations took 4.564261 seconds
+   0:895 of 1312 complete last 2 iterations took 4.491078 seconds
+   0:897 of 1312 complete last 2 iterations took 4.328837 seconds
+   0:899 of 1312 complete last 2 iterations took 4.312708000000001 seconds
+   0:901 of 1312 complete last 2 iterations took 4.301632000000001 seconds
+   0:903 of 1312 complete last 2 iterations took 4.295514 seconds
+   0:905 of 1312 complete last 2 iterations took 4.286189 seconds
+   0:907 of 1312 complete last 2 iterations took 4.282958000000001 seconds
+   0:909 of 1312 complete last 2 iterations took 4.291495 seconds
+   0:911 of 1312 complete last 2 iterations took 4.208874000000001 seconds
+   0:913 of 1312 complete last 2 iterations took 4.034777 seconds
+   0:915 of 1312 complete last 2 iterations took 4.023540000000001 seconds
+   0:917 of 1312 complete last 2 iterations took 4.021291000000001 seconds
+   0:919 of 1312 complete last 2 iterations took 4.060433000000001 seconds
+   0:921 of 1312 complete last 2 iterations took 4.01644 seconds
+   0:923 of 1312 complete last 2 iterations took 3.999365 seconds
+   0:925 of 1312 complete last 2 iterations took 4.002227 seconds
+   0:927 of 1312 complete last 2 iterations took 3.930608 seconds
+   0:929 of 1312 complete last 2 iterations took 3.76737 seconds
+   0:931 of 1312 complete last 2 iterations took 3.766137 seconds
+   0:933 of 1312 complete last 2 iterations took 3.758448 seconds
+   0:935 of 1312 complete last 2 iterations took 3.755602 seconds
+   0:937 of 1312 complete last 2 iterations took 3.758712 seconds
+   0:939 of 1312 complete last 2 iterations took 3.752941 seconds
+   0:941 of 1312 complete last 2 iterations took 3.725428 seconds
+   0:943 of 1312 complete last 2 iterations took 3.662091 seconds
+   0:945 of 1312 complete last 2 iterations took 3.506104 seconds
+   0:947 of 1312 complete last 2 iterations took 3.499553 seconds
+   0:949 of 1312 complete last 2 iterations took 3.494229 seconds
+   0:951 of 1312 complete last 2 iterations took 3.495828 seconds
+   0:953 of 1312 complete last 2 iterations took 3.479044 seconds
+   0:955 of 1312 complete last 2 iterations took 3.483721 seconds
+   0:957 of 1312 complete last 2 iterations took 3.468368 seconds
+   0:959 of 1312 complete last 2 iterations took 3.406776 seconds
+   0:961 of 1312 complete last 2 iterations took 3.251693 seconds
+   0:963 of 1312 complete last 2 iterations took 3.260845 seconds
+   0:965 of 1312 complete last 2 iterations took 3.258517 seconds
+   0:967 of 1312 complete last 2 iterations took 3.239198 seconds
+   0:969 of 1312 complete last 2 iterations took 3.228316 seconds
+   0:971 of 1312 complete last 2 iterations took 3.227352 seconds
+   0:973 of 1312 complete last 2 iterations took 3.217895 seconds
+   0:975 of 1312 complete last 2 iterations took 3.158323 seconds
+   0:977 of 1312 complete last 2 iterations took 3.050385 seconds
+   0:979 of 1312 complete last 2 iterations took 3.031982 seconds
+   0:981 of 1312 complete last 2 iterations took 3.02231 seconds
+   0:983 of 1312 complete last 2 iterations took 3.019142 seconds
+   0:985 of 1312 complete last 2 iterations took 2.992093 seconds
+   0:987 of 1312 complete last 2 iterations took 2.98518 seconds
+   0:989 of 1312 complete last 2 iterations took 3.003883 seconds
+   0:991 of 1312 complete last 2 iterations took 2.919659 seconds
+   0:993 of 1312 complete last 2 iterations took 2.783892 seconds
+   0:995 of 1312 complete last 2 iterations took 2.777362 seconds
+   0:997 of 1312 complete last 2 iterations took 2.784576 seconds
+   0:999 of 1312 complete last 2 iterations took 2.761479 seconds
+   0:1001 of 1312 complete last 2 iterations took 2.756044 seconds
+   0:1003 of 1312 complete last 2 iterations took 2.751262 seconds
+   0:1005 of 1312 complete last 2 iterations took 2.747938 seconds
+   0:1007 of 1312 complete last 2 iterations took 2.694791 seconds
+   0:1009 of 1312 complete last 2 iterations took 2.557487 seconds
+   0:1011 of 1312 complete last 2 iterations took 2.558315 seconds
+   0:1013 of 1312 complete last 2 iterations took 2.570038 seconds
+   0:1015 of 1312 complete last 2 iterations took 2.549408 seconds
+   0:1017 of 1312 complete last 2 iterations took 2.564162 seconds
+   0:1019 of 1312 complete last 2 iterations took 2.535434 seconds
+   0:1021 of 1312 complete last 2 iterations took 2.519458 seconds
+   0:1023 of 1312 complete last 2 iterations took 2.475664 seconds
+   0:1025 of 1312 complete last 2 iterations took 2.340117 seconds
+   0:1027 of 1312 complete last 2 iterations took 2.338801 seconds
+   0:1029 of 1312 complete last 2 iterations took 2.32958 seconds
+   0:1031 of 1312 complete last 2 iterations took 2.33238 seconds
+   0:1033 of 1312 complete last 2 iterations took 2.323297 seconds
+   0:1035 of 1312 complete last 2 iterations took 2.322454 seconds
+   0:1037 of 1312 complete last 2 iterations took 2.321736 seconds
+   0:1039 of 1312 complete last 2 iterations took 2.269691 seconds
+   0:1041 of 1312 complete last 2 iterations took 2.170027 seconds
+   0:1043 of 1312 complete last 2 iterations took 2.132536 seconds
+   0:1045 of 1312 complete last 2 iterations took 2.148873 seconds
+   0:1047 of 1312 complete last 2 iterations took 2.149189 seconds
+   0:1049 of 1312 complete last 2 iterations took 2.122602 seconds
+   0:1051 of 1312 complete last 2 iterations took 2.116107 seconds
+   0:1053 of 1312 complete last 2 iterations took 2.110247 seconds
+   0:1055 of 1312 complete last 2 iterations took 2.063694 seconds
+   0:1057 of 1312 complete last 2 iterations took 1.938821 seconds
+   0:1059 of 1312 complete last 2 iterations took 1.935237 seconds
+   0:1061 of 1312 complete last 2 iterations took 1.929783 seconds
+   0:1063 of 1312 complete last 2 iterations took 1.928156 seconds
+   0:1065 of 1312 complete last 2 iterations took 1.920504 seconds
+   0:1067 of 1312 complete last 2 iterations took 1.91943 seconds
+   0:1069 of 1312 complete last 2 iterations took 1.912901 seconds
+   0:1071 of 1312 complete last 2 iterations took 1.872393 seconds
+   0:1073 of 1312 complete last 2 iterations took 1.755117 seconds
+   0:1075 of 1312 complete last 2 iterations took 1.768148 seconds
+   0:1077 of 1312 complete last 2 iterations took 1.756217 seconds
+   0:1079 of 1312 complete last 2 iterations took 1.744961 seconds
+   0:1081 of 1312 complete last 2 iterations took 1.7398 seconds
+   0:1083 of 1312 complete last 2 iterations took 1.737586 seconds
+   0:1085 of 1312 complete last 2 iterations took 1.730071 seconds
+   0:1087 of 1312 complete last 2 iterations took 1.687938 seconds
+   0:1089 of 1312 complete last 2 iterations took 1.578423 seconds
+   0:1091 of 1312 complete last 2 iterations took 1.574546 seconds
+   0:1093 of 1312 complete last 2 iterations took 1.569861 seconds
+   0:1095 of 1312 complete last 2 iterations took 1.566327 seconds
+   0:1097 of 1312 complete last 2 iterations took 1.588068 seconds
+   0:1099 of 1312 complete last 2 iterations took 1.583426 seconds
+   0:1101 of 1312 complete last 2 iterations took 1.554137 seconds
+   0:1103 of 1312 complete last 2 iterations took 1.513837 seconds
+   0:1105 of 1312 complete last 2 iterations took 1.411392 seconds
+   0:1107 of 1312 complete last 2 iterations took 1.426106 seconds
+   0:1109 of 1312 complete last 2 iterations took 1.404805 seconds
+   0:1111 of 1312 complete last 2 iterations took 1.405963 seconds
+   0:1113 of 1312 complete last 2 iterations took 1.395255 seconds
+   0:1115 of 1312 complete last 2 iterations took 1.415223 seconds
+   0:1117 of 1312 complete last 2 iterations took 1.385429 seconds
+   0:1119 of 1312 complete last 2 iterations took 1.348892 seconds
+   0:1121 of 1312 complete last 2 iterations took 1.252124 seconds
+   0:1123 of 1312 complete last 2 iterations took 1.252196 seconds
+   0:1125 of 1312 complete last 2 iterations took 1.245532 seconds
+   0:1127 of 1312 complete last 2 iterations took 1.243176 seconds
+   0:1129 of 1312 complete last 2 iterations took 1.237718 seconds
+   0:1131 of 1312 complete last 2 iterations took 1.23428 seconds
+   0:1133 of 1312 complete last 2 iterations took 1.228617 seconds
+   0:1135 of 1312 complete last 2 iterations took 1.194119 seconds
+   0:1137 of 1312 complete last 2 iterations took 1.118496 seconds
+   0:1139 of 1312 complete last 2 iterations took 1.102146 seconds
+   0:1141 of 1312 complete last 2 iterations took 1.096327 seconds
+   0:1143 of 1312 complete last 2 iterations took 1.095192 seconds
+   0:1145 of 1312 complete last 2 iterations took 1.088679 seconds
+   0:1147 of 1312 complete last 2 iterations took 1.089822 seconds
+   0:1149 of 1312 complete last 2 iterations took 1.081182 seconds
+   0:1151 of 1312 complete last 2 iterations took 1.048557 seconds
+   0:1153 of 1312 complete last 2 iterations took 0.971889 seconds
+   0:1155 of 1312 complete last 2 iterations took 0.960523 seconds
+   0:1157 of 1312 complete last 2 iterations took 0.959424 seconds
+   0:1159 of 1312 complete last 2 iterations took 0.953475 seconds
+   0:1161 of 1312 complete last 2 iterations took 0.950833 seconds
+   0:1163 of 1312 complete last 2 iterations took 0.970586 seconds
+   0:1165 of 1312 complete last 2 iterations took 0.94224 seconds
+   0:1167 of 1312 complete last 2 iterations took 0.910426 seconds
+   0:1169 of 1312 complete last 2 iterations took 0.833507 seconds
+   0:1171 of 1312 complete last 2 iterations took 0.836712 seconds
+   0:1173 of 1312 complete last 2 iterations took 0.829747 seconds
+   0:1175 of 1312 complete last 2 iterations took 0.828292 seconds
+   0:1177 of 1312 complete last 2 iterations took 0.818075 seconds
+   0:1179 of 1312 complete last 2 iterations took 0.819565 seconds
+   0:1181 of 1312 complete last 2 iterations took 0.812992 seconds
+   0:1183 of 1312 complete last 2 iterations took 0.788085 seconds
+   0:1185 of 1312 complete last 2 iterations took 0.714907 seconds
+   0:1187 of 1312 complete last 2 iterations took 0.713185 seconds
+   0:1189 of 1312 complete last 2 iterations took 0.709826 seconds
+   0:1191 of 1312 complete last 2 iterations took 0.70337 seconds
+   0:1193 of 1312 complete last 2 iterations took 0.701756 seconds
+   0:1195 of 1312 complete last 2 iterations took 0.69613 seconds
+   0:1197 of 1312 complete last 2 iterations took 0.690566 seconds
+   0:1199 of 1312 complete last 2 iterations took 0.662926 seconds
+   0:1201 of 1312 complete last 2 iterations took 0.600132 seconds
+   0:1203 of 1312 complete last 2 iterations took 0.599695 seconds
+   0:1205 of 1312 complete last 2 iterations took 0.596544 seconds
+   0:1207 of 1312 complete last 2 iterations took 0.591189 seconds
+   0:1209 of 1312 complete last 2 iterations took 0.586376 seconds
+   0:1211 of 1312 complete last 2 iterations took 0.584095 seconds
+   0:1213 of 1312 complete last 2 iterations took 0.578665 seconds
+   0:1215 of 1312 complete last 2 iterations took 0.553123 seconds
+   0:1217 of 1312 complete last 2 iterations took 0.496818 seconds
+   0:1219 of 1312 complete last 2 iterations took 0.494009 seconds
+   0:1221 of 1312 complete last 2 iterations took 0.494053 seconds
+   0:1223 of 1312 complete last 2 iterations took 0.488217 seconds
+   0:1225 of 1312 complete last 2 iterations took 0.484762 seconds
+   0:1227 of 1312 complete last 2 iterations took 0.483364 seconds
+   0:1229 of 1312 complete last 2 iterations took 0.481696 seconds
+   0:1231 of 1312 complete last 2 iterations took 0.455699 seconds
+   0:1233 of 1312 complete last 2 iterations took 0.404857 seconds
+   0:1235 of 1312 complete last 2 iterations took 0.400212 seconds
+   0:1237 of 1312 complete last 2 iterations took 0.39932 seconds
+   0:1239 of 1312 complete last 2 iterations took 0.393847 seconds
+   0:1241 of 1312 complete last 2 iterations took 0.391324 seconds
+   0:1243 of 1312 complete last 2 iterations took 0.392099 seconds
+   0:1245 of 1312 complete last 2 iterations took 0.383312 seconds
+   0:1247 of 1312 complete last 2 iterations took 0.363761 seconds
+   0:1249 of 1312 complete last 2 iterations took 0.320986 seconds
+   0:1251 of 1312 complete last 2 iterations took 0.318006 seconds
+   0:1253 of 1312 complete last 2 iterations took 0.317229 seconds
+   0:1255 of 1312 complete last 2 iterations took 0.312619 seconds
+   0:1257 of 1312 complete last 2 iterations took 0.309968 seconds
+   0:1259 of 1312 complete last 2 iterations took 0.305069 seconds
+   0:1261 of 1312 complete last 2 iterations took 0.300251 seconds
+   0:1263 of 1312 complete last 2 iterations took 0.286076 seconds
+   0:1265 of 1312 complete last 2 iterations took 0.251328 seconds
+   0:1267 of 1312 complete last 2 iterations took 0.245555 seconds
+   0:1269 of 1312 complete last 2 iterations took 0.243803 seconds
+   0:1271 of 1312 complete last 2 iterations took 0.240337 seconds
+   0:1273 of 1312 complete last 2 iterations took 0.236321 seconds
+   0:1275 of 1312 complete last 2 iterations took 0.235454 seconds
+   0:1277 of 1312 complete last 2 iterations took 0.229178 seconds
+   0:1279 of 1312 complete last 2 iterations took 0.220073 seconds
+   0:1281 of 1312 complete last 2 iterations took 0.188984 seconds
+   0:1283 of 1312 complete last 2 iterations took 0.185273 seconds
+   0:1285 of 1312 complete last 2 iterations took 0.1853 seconds
+   0:1287 of 1312 complete last 2 iterations took 0.180071 seconds
+   0:1289 of 1312 complete last 2 iterations took 0.178983 seconds
+   0:1291 of 1312 complete last 2 iterations took 0.175729 seconds
+   0:1293 of 1312 complete last 2 iterations took 0.170801 seconds
+   0:1295 of 1312 complete last 2 iterations took 0.159904 seconds
+   0:1297 of 1312 complete last 2 iterations took 0.140116 seconds
+   0:1299 of 1312 complete last 2 iterations took 0.136513 seconds
+   0:1301 of 1312 complete last 2 iterations took 0.133565 seconds
+   0:1303 of 1312 complete last 2 iterations took 0.13082 seconds
+   0:1305 of 1312 complete last 2 iterations took 0.125056 seconds
+   0:1307 of 1312 complete last 2 iterations took 0.120809 seconds
+   0:1309 of 1312 complete last 2 iterations took 0.115331 seconds
+   0:1311 of 1312 complete last 2 iterations took 0.066482 seconds
+   1:diff 0.0 1
+  17:diff 0.0 17
+  65:diff 0.0 65
+ 129:diff 0.0 129
+ 161:diff 0.0 161
+   2:diff 0.0 2
+  18:diff 0.0 18
+  33:diff 0.0 33
+  49:diff 0.0 49
+  66:diff 0.0 66
+  81:diff 0.0 81
+  97:diff 0.0 97
+ 113:diff 0.0 113
+ 130:diff 0.0 130
+ 145:diff 0.0 145
+ 162:diff 0.0 162
+ 177:diff 0.0 177
+ 193:diff 0.0 193
+ 241:diff 0.0 241
+   3:diff 0.0 3
+  19:diff 0.0 19
+  34:diff 0.0 34
+  50:diff 0.0 50
+  67:diff 0.0 67
+  82:diff 0.0 82
+  98:diff 0.0 98
+ 114:diff 0.0 114
+ 131:diff 0.0 131
+ 146:diff 0.0 146
+ 163:diff 0.0 163
+ 178:diff 0.0 178
+ 194:diff 0.0 194
+ 225:diff 0.0 225
+ 242:diff 0.0 242
+   4:diff 0.0 4
+  20:diff 0.0 20
+  35:diff 0.0 35
+  51:diff 0.0 51
+  68:diff 0.0 68
+  83:diff 0.0 83
+  99:diff 0.0 99
+ 115:diff 0.0 115
+ 132:diff 0.0 132
+ 147:diff 0.0 147
+ 164:diff 0.0 164
+ 179:diff 0.0 179
+ 195:diff 0.0 195
+ 226:diff 0.0 226
+ 243:diff 0.0 243
+   5:diff 0.0 5
+  21:diff 0.0 21
+  36:diff 0.0 36
+  52:diff 0.0 52
+  69:diff 0.0 69
+  84:diff 0.0 84
+ 100:diff 0.0 100
+ 116:diff 0.0 116
+ 133:diff 0.0 133
+ 148:diff 0.0 148
+ 165:diff 0.0 165
+ 180:diff 0.0 180
+ 196:diff 0.0 196
+ 227:diff 0.0 227
+ 244:diff 0.0 244
+   6:diff 0.0 6
+  22:diff 0.0 22
+  37:diff 0.0 37
+  53:diff 0.0 53
+  70:diff 0.0 70
+  85:diff 0.0 85
+ 101:diff 0.0 101
+ 117:diff 0.0 117
+ 134:diff 0.0 134
+ 149:diff 0.0 149
+ 166:diff 0.0 166
+ 181:diff 0.0 181
+ 197:diff 0.0 197
+ 228:diff 0.0 228
+ 245:diff 0.0 245
+   7:diff 0.0 7
+  23:diff 0.0 23
+  38:diff 0.0 38
+  54:diff 0.0 54
+  71:diff 0.0 71
+  86:diff 0.0 86
+ 102:diff 0.0 102
+ 118:diff 0.0 118
+ 135:diff 0.0 135
+ 150:diff 0.0 150
+ 167:diff 0.0 167
+ 182:diff 0.0 182
+ 198:diff 0.0 198
+ 229:diff 0.0 229
+ 246:diff 0.0 246
+   8:diff 0.0 8
+  24:diff 0.0 24
+  39:diff 0.0 39
+  55:diff 0.0 55
+  72:diff 0.0 72
+  87:diff 0.0 87
+ 103:diff 0.0 103
+ 119:diff 0.0 119
+ 136:diff 0.0 136
+ 151:diff 0.0 151
+ 168:diff 0.0 168
+ 183:diff 0.0 183
+ 199:diff 0.0 199
+ 230:diff 0.0 230
+ 247:diff 0.0 247
+   9:diff 0.0 9
+  25:diff 0.0 25
+  40:diff 0.0 40
+  56:diff 0.0 56
+  73:diff 0.0 73
+  88:diff 0.0 88
+ 104:diff 0.0 104
+ 120:diff 0.0 120
+ 137:diff 0.0 137
+ 152:diff 0.0 152
+ 169:diff 0.0 169
+ 184:diff 0.0 184
+ 200:diff 0.0 200
+ 231:diff 0.0 231
+ 248:diff 0.0 248
+  10:diff 0.0 10
+  26:diff 0.0 26
+  41:diff 0.0 41
+  57:diff 0.0 57
+  74:diff 0.0 74
+  89:diff 0.0 89
+ 105:diff 0.0 105
+ 121:diff 0.0 121
+ 138:diff 0.0 138
+ 153:diff 0.0 153
+ 170:diff 0.0 170
+ 185:diff 0.0 185
+ 201:diff 0.0 201
+ 232:diff 0.0 232
+ 249:diff 0.0 249
+  11:diff 0.0 11
+  27:diff 0.0 27
+  42:diff 0.0 42
+  58:diff 0.0 58
+  75:diff 0.0 75
+  90:diff 0.0 90
+ 106:diff 0.0 106
+ 122:diff 0.0 122
+ 139:diff 0.0 139
+ 154:diff 0.0 154
+ 171:diff 0.0 171
+ 186:diff 0.0 186
+ 202:diff 0.0 202
+ 233:diff 0.0 233
+ 250:diff 0.0 250
+  12:diff 0.0 12
+  28:diff 0.0 28
+  43:diff 0.0 43
+  59:diff 0.0 59
+  76:diff 0.0 76
+  91:diff 0.0 91
+ 107:diff 0.0 107
+ 123:diff 0.0 123
+ 140:diff 0.0 140
+ 155:diff 0.0 155
+ 172:diff 0.0 172
+ 187:diff 0.0 187
+ 203:diff 0.0 203
+ 234:diff 0.0 234
+ 251:diff 0.0 251
+  13:diff 0.0 13
+  29:diff 0.0 29
+  44:diff 0.0 44
+  60:diff 0.0 60
+  77:diff 0.0 77
+  92:diff 0.0 92
+ 108:diff 0.0 108
+ 124:diff 0.0 124
+ 141:diff 0.0 141
+ 156:diff 0.0 156
+ 173:diff 0.0 173
+ 188:diff 0.0 188
+ 204:diff 0.0 204
+ 235:diff 0.0 235
+ 252:diff 0.0 252
+  14:diff 0.0 14
+  30:diff 0.0 30
+  45:diff 0.0 45
+  61:diff 0.0 61
+  78:diff 0.0 78
+  93:diff 0.0 93
+ 109:diff 0.0 109
+ 125:diff 0.0 125
+ 142:diff 0.0 142
+ 157:diff 0.0 157
+ 174:diff 0.0 174
+ 189:diff 0.0 189
+ 205:diff 0.0 205
+ 236:diff 0.0 236
+ 253:diff 0.0 253
+  15:diff 0.0 15
+  31:diff 0.0 31
+  46:diff 0.0 46
+  62:diff 0.0 62
+  79:diff 0.0 79
+  94:diff 0.0 94
+ 110:diff 0.0 110
+ 126:diff 0.0 126
+ 143:diff 0.0 143
+ 158:diff 0.0 158
+ 175:diff 0.0 175
+ 190:diff 0.0 190
+ 206:diff 0.0 206
+ 237:diff 0.0 237
+ 254:diff 0.0 254
+  47:diff 0.0 47
+  63:diff 0.0 63
+  95:diff 0.0 95
+ 111:diff 0.0 111
+ 127:diff 0.0 127
+ 159:diff 0.0 159
+ 191:diff 0.0 191
+ 207:diff 0.0 207
+ 238:diff 0.0 238
+ 255:diff 0.0 255
+ 239:diff 0.0 239
+ 144:diff 6.7E-16 144
+ 160:diff 6.9E-16 160
+ 192:diff 8.4E-16 192
+  48:diff 5.4E-16 48
+  80:diff 6.8E-16 80
+  96:diff 8.6E-16 96
+ 240:diff 7.5E-16 240
+ 112:diff 7.2E-16 112
+ 128:diff 7.5E-16 128
+ 176:diff 7.3E-16 176
+   0:diff 1.2E-15 0
+  16:diff 5.6E-16 16
+  32:diff 6.4E-16 32
+  64:diff 6.7E-16 64
+ 208:diff 6.6E-16 208
+ 224:diff 6.5E-16 224
+ 209:diff 0.0 209
+ 210:diff 0.0 210
+ 211:diff 0.0 211
+ 212:diff 0.0 212
+ 213:diff 0.0 213
+   0:difference 1.2E-15
+   0: ok) diff=1.2E-15
+ 214:diff 0.0 214
+   0:Timer(0) TOTAL #invocations=1 Time=8326.339742000000115 seconds
+   0:Timer(1) PANEL #invocations=1312 Time=660.543532000000027 seconds
+   0:Timer(2) SWAPROWS #invocations=1312 Time=149.514652000000012 seconds
+   0:Timer(3) TRISOLVE #invocations=1312 Time=77.768686000000002 seconds
+ 215:diff 0.0 215
+   0:Timer(4) UPDATE #invocations=1312 Time=7303.690286000000015 seconds
+   0:Timer(5) PANEL-PIVOT #invocations=16400 Time=9.530891 seconds
+   0:Timer(6) PANEL-SWAP #invocations=16400 Time=2.474067 seconds
+   0:Timer(7) PANEL-BCAST #invocations=16400 Time=0.411599 seconds
+ 216:diff 0.0 216
+ 217:diff 0.0 217
+   0:Timer(8) PANEL-UPDATE #invocations=16400 Time=30.241413000000001 seconds
+ 218:diff 0.0 218
+ 219:diff 0.0 219
+ 220:diff 0.0 220
+ 221:diff 0.0 221
+ 222:diff 0.0 222
+ 223:diff 0.0 223
+   0:
+   0: Time= 8326.368443999999727 seconds Rate= 1449.893294109782119 GFlops

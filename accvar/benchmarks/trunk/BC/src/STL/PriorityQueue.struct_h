@@ -1,0 +1,75 @@
+#ifndef __PRIORITYQUEUE_STRUCT_H
+#define __PRIORITYQUEUE_STRUCT_H
+
+/** instrumentation BEGIN */
+#include <queue>
+/** instrumentation END */
+
+#include <x10aux/config.h>
+#include <x10aux/ref.h>
+#include <x10aux/RTT.h>
+#include <x10aux/serialization.h>
+#include <x10aux/struct_equals.h>
+
+template<class FMGL(T)> class PriorityQueue  {
+   /** instrumentation BEGIN */
+   private:
+   std::priority_queue<FMGL(T)> __priority_queue;
+   /** instrumentation END */
+
+    public:
+    RTT_H_DECLS_STRUCT
+    
+    PriorityQueue<FMGL(T)>* operator->() { return this; }
+    
+    static x10aux::itable_entry _itables[2];
+    
+    x10aux::itable_entry* _getITables() { return _itables; }
+    
+    static x10aux::itable_entry _iboxitables[2];
+    
+    x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
+    
+    
+    static void _serialize(PriorityQueue<FMGL(T)> this_, x10aux::serialization_buffer& buf);
+    
+    static PriorityQueue<FMGL(T)> _deserialize(x10aux::deserialization_buffer& buf) {
+        PriorityQueue<FMGL(T)> this_;
+        this_->_deserialize_body(buf);
+        return this_;
+    }
+    
+    void _deserialize_body(x10aux::deserialization_buffer& buf);
+    x10_boolean equals(x10aux::ref<x10::lang::Any>);
+    
+    x10_boolean equals(PriorityQueue<FMGL(T)>);
+    
+    x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
+    
+    x10_boolean _struct_equals(PriorityQueue<FMGL(T)>);
+    
+    x10aux::ref<x10::lang::String> toString();
+    
+    x10_int hashCode();
+
+    /** instrumentation BEGIN */
+    x10_boolean empty () { return this->__priority_queue.empty(); }
+
+    x10_int size() { return this->__priority_queue.size(); }
+
+    FMGL(T) top() { return this->__priority_queue.top(); }
+
+    void pop() { this->__priority_queue.pop(); }
+
+    void push(FMGL(T) element) { this->__priority_queue.push(element); }
+    /** instrumentation END */
+};
+
+template <> class PriorityQueue<void> {
+    public:
+    static x10aux::RuntimeType rtt;
+    static const x10aux::RuntimeType* getRTT() { return & rtt; }
+    
+};
+#endif // PRIORITYQUEUE_STRUCT_H
+

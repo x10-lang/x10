@@ -1,0 +1,52 @@
+\extrapart{Example}
+
+This example illustrates 2-d Jacobi iteration.
+
+\begin{x10}
+ public class Jacobi  \{
+   const int N=6;
+   const double epsilon = 0.002;
+   const double epsilon2 = 0.000000001;
+   const region R = [0:N+1, 0:N+1];
+   const region RInner= [1:N, 1:N];
+   const distribution D = distribution.factory.block(R);
+   const distribution DInner = D | RInner;
+   const distribution DBoundary = D - RInner;
+   const int EXPECTED\_ITERS=97;
+   const double EXPECTED\_ERR=0.0018673382039402497;
+     
+   double[D] B = new double[D] (point p[i,j])
+       \{return DBoundary.contains(p) 
+                ? (N-1)/2 : N*(i-1)+(j-1);\};
+    
+   public boolean run() \{
+      int iters = 0;
+      double err;
+      while(true) \{
+        double[.] Temp = 
+           new double[DInner] (point [i,j]) 
+             \{return (read(i+1,j)+read(i-1,j)
+                      +read(i,j+1)+read(i,j-1))/4.0;\};       
+        if((err=((B | DInner) - Temp).abs().sum()) 
+            < epsilon)
+           break; 
+        B.update(Temp);
+        iters++; 
+      \}
+      System.out.println("Error="+err);
+      System.out.println("Iterations="+iters);
+      return Math.abs(err-EXPECTED\_ERR)<epsilon2 
+          \&\& iters==EXPECTED\_ITERS;
+   \}
+   public double read(final int i, final int j) \{
+      return future(D[i,j]) {B[i,j]}.force();
+   \}
+   public static void main(String args[]) \{
+      boolean b= (new Jacobi()).run();
+      System.out.println("++++++ "
+                         + (b? "Test succeeded."
+                             :"Test failed."));
+      System.exit(b?0:1);
+   \}
+\}
+\end{x10}

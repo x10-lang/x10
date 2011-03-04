@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>Interfaces: More Abstract Than Abstract</title>
+
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Interfaces: More Abstract Than Abstract</h2><a name="sec:mata">
+</a>
+
+<div class="p"><!----></div>
+While <tt>NoahsArk</tt> may not be as complete as a real ark should be, it can implement a
+lot of important functionality that all its progeny can use directly: a passenger list is a 
+passenger list, no matter what else is different!  There are situations though, where all
+that one wants to specify is functionality that has no common implementation, but
+that a variety of classes will implement, each in its own way.  This sort of specification
+is called an <em>interface</em>.  
+
+<blockquote>
+Those of you who are coming from a background in C++ will want to work carefully through
+our discussion of interfaces, because they constitute the closest approximation
+to multiple inheritance that X10provides.
+</blockquote>
+
+<div class="p"><!----></div>
+A nice example of an interface is <tt>Arithmetic</tt>:
+
+<pre>&nbsp;1&nbsp;public&nbsp;interface&nbsp;Arithmetic[T]&nbsp;{
+&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;add(t:&nbsp;T}:&nbsp;T;
+&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;subtract(t:&nbsp;T):&nbsp;T;
+&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;multiply(t:&nbsp;T):&nbsp;T;
+&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;divide(t:&nbsp;T):&nbsp;T;
+&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;uminus():&nbsp;T;
+&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;VERSION&nbsp;=&nbsp;``1.1'';
+&nbsp;8&nbsp;}
+</pre>
+Line by line:
+
+<dl compact="compact">
+
+	<dd><b>line 1:</b>  Like classes, a top-most interface is either public or accessible only in the
+package of which it is a part.  An interface declared within the body of a class is <em>always</em>
+static (it is never per-instance and cannot refer to instance members or methods in the 
+surrounding context), but it  can have any access limit: public, protected, default, or private. 
+
+<div class="p"><!----></div>
+The "<tt>[T]</tt>" following <tt>Arithmetic</tt> says that the interface is parameterized by a type
+<tt>T</tt>.  We've seen this before, in the argument <tt>args</tt> for <tt>main()</tt>, whose type is
+<tt>Array[String]</tt>.  The lingo of the trade is that <tt>Arithmetic</tt> is a <em>generic interface</em>,
+and <em>Array</em> is a <em>generic class</em>.  There is nothing sacred about a generic class
+or interface being parameterized by one type:  one can
+use as many as needed: "<tt>class X[T1, T2, T3,...] {...}</tt>".</dd>
+
+	<dd><b>lines 2-7:</b> An interface may only declare abstract methods, so (unlike the story
+with abstract classes), you don't need the keyword <tt>abstract</tt>.  What line 2 says is that
+if a class <tt>U</tt> implements the interface <tt>Arithmetic[T]</tt>, if <tt>u</tt> is a <tt>U</tt>, and if
+<tt>t</tt> is a <tt>T</tt>, then the expression <tt>u.add(t)</tt> produces a result that is a <tt>T</tt>.
+In real life, we might have <tt>U</tt> some sort of integer, and <tt>T</tt> some sort of floating
+point number, and the value of <tt>u.add(t)</tt> would again be a floating point.</dd>
+ <dt><b></b></dt>
+	<dd><b>line 8:</b> Interfaces may also declare static constants.  One could imagine
+an interface that did nothing else:
+
+<pre>public&nbsp;interface&nbsp;IntelCpuModel1234&nbsp;{
+&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;REGISTER_WIDTH&nbsp;=&nbsp;64;
+&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;SPEED_IN_GHZ&nbsp;=&nbsp;2.5;
+&nbsp;&nbsp;&nbsp;...
+}
+</pre>
+A class with the same information would probably be more convenient, but who knows?</dd>
+</dl>
+
+<div class="p"><!----></div>
+Finally, just as one class can extend another, one interface can extend another-in fact, it may
+extend several:
+
+<pre>&nbsp;interface&nbsp;IA&nbsp;extends&nbsp;IB,&nbsp;IC&nbsp;{&nbsp;...&nbsp;}
+</pre>
+One could
+say "<tt>IA</tt> is a sub-interface of <tt>IB</tt> and <tt>IC</tt>', but it just doesn't sound right:
+"<tt>IA</tt> <em>refines</em> <tt>IB</tt> and <tt>IC</tt>" is somehow a lot better.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;How interfaces get used</h3>
+The syntax for asserting that the class <tt>Int32</tt> implements all of the methods 
+declared in the <tt>Arithmetic[Int32]</tt> interface-with exactly the 
+argument types and return types shown there-is to add "<tt>implements Arithmetic</tt>"
+to the class's declaration:
+
+<pre>class&nbsp;Int32&nbsp;implements&nbsp;Arithmetic[Int32]&nbsp;{&nbsp;...&nbsp;}
+</pre>
+In plain English, this is saying that you can add, subtract, multiple and divide one
+<tt>Int32</tt> by another and get an <tt>Int32</tt> result.
+While <tt>Int32</tt> is one candidate for the class that
+appears in the <tt>Arithemetic[T]</tt>, we'd probably also like to add to <tt>Int32</tt>s to
+<tt>Float64</tt>s and <tt>Complex</tt>es.  No problem:
+
+<pre>class&nbsp;Int32&nbsp;implements&nbsp;Arithmetic[Int32],&nbsp;Arithmetic[Float64],&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arithmetic[Complex]&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;
+}
+</pre>
+
+<div class="p"><!----></div>
+At first blush, this is a daunting declaration: think how many methods must be implemented!
+But the truth is that none of these methods is all that involved, so it is just a matter of
+some (necessary!) drudgery.  Here the end more than justifies the means.
+
+<div class="p"><!----></div>
+Now suppose that somewhere there is a class that has a method "<tt>doIt(x: Arithmetic[Int32])</tt>".
+Since <tt>Int32</tt> implements <tt>Arithmetic[Int32]</tt>, we can use an <tt>Int32</tt> as the argument
+to <tt>doIt</tt>, :
+
+<blockquote>
+<pre>
+	val&nbsp;sqFt:&nbsp;Int32&nbsp;=&nbsp;livingRoom.area();
+	doIt(sqFt);
+</pre>
+</blockquote>
+In the same way, if <tt>dontDoIt(): Arithmetic[Int32]</tt>, can return an instance of any class
+that implements <tt>Arithmetic[Int32]</tt>.
+
+<div class="p"><!----></div>
+We end this section with some "side bars" that somehow didn't quite fit in 
+the flow of the rest of this section, but are worth a moment's thought.
+
+<div class="p"><!----></div>
+<b>BEWARE!</b>  Suppose a class <tt>A</tt> implements an interface <tt>I</tt>, and suppose that
+<tt>B</tt> is a subclass of <tt>A</tt>.  Because an instance of <tt>B</tt> might appear anywhere an
+instance of <tt>A</tt> is expected, we see that <tt>B</tt> <em>must also implement</em> <tt>I</tt>.
+This is one reason why <em>the methods in an interface must be declared </em> <tt>public</tt>.
+The other reason is more pragmatic than principled: the point of an interface is to tell the outside
+world what some object is capable of doing, but a <tt>private</tt> method is just a <em>hidden</em> means to
+accomplish object's goals.  Why should anyone, outside the class itself, care that a class implements a method
+none of its instances can call, except in the implementation of the class itself?
+
+<div class="p"><!----></div>
+The interface itself may declared with any access limit that makes sense in the context:
+if the interface is being declared inside a class (and it definitely can be), then 
+protected or default access make sense (private does not!).  
+
+<div class="p"><!----></div>
+<b>A matter of convention: </b>
+There is a sort of convention that interface names should begin with "<tt>I</tt>",  Suppose
+for example, that we had used
+<tt>INumber</tt>, instead of <tt>Arithmetic</tt>, for our interface name.  We could then have
+declared  a class
+named <tt>Number</tt> that implements it.  A matter of taste of course, but not an unreasonable
+convention, particularly in situations where there is a "standard" or "canonical" implementation
+of the interface.  A variation on this theme is to append "<tt>Impl</tt>" to the name of an interface
+to create the name of a concrete class that implements it:  interface <tt>XmlParser</tt>
+is implemented by <tt>XmlParserImpl</tt>.  You will see both conventions widely used.
+
+<div class="p"><!----></div>
+<b>For C++ programmers: </b> We said that interfaces provide a sort of "multiple inheritance."  What we meant is that
+a class may declare that it implements any number of interfaces.  That is certainly reasonable:
+all you are saying is that the class provides several named sets of methods.  It is, of course,
+a weaker notion than multiple inheritance, because,  when a class implements an interface,
+no instance members or methods are actually inherited: all of the code is in the class,
+or is in one of its ancestors up the inheritance chain.
+
+<div class="p"><!----></div>
+
+</html>

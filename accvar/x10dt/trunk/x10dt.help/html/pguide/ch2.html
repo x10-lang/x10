@@ -1,0 +1,1128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>A First Look At X10's Types</title>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 1 </a><br />A First Look At X10's Types</h1><a name="chp:types">
+</a>
+X10's type system is not quite the same as any other object-oriented language, but it is
+not really all that different, either.  We'll look at some of the main features here.  We don't
+assume that you are familiar with any particular language already, but we do assume that you
+have had some experience with at least one object-oriented language.  We'll make references
+to Java and C++, since they are so widely taught as a first language,
+but only to help compare X10 with them. 
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;What's In An <tt>.x10</tt> Source File?</h2>
+An <tt>.x10</tt> source file comes in three parts:
+
+<ul>
+<li> first, an optional "package" statement
+<div class="p"><!----></div>
+</li>
+
+<li> then zero or more "import"  statements
+<div class="p"><!----></div>
+</li>
+
+<li> and finally, one or more type declarations, at most one of which is declared to be public.
+<div class="p"><!----></div>
+</li>
+</ul>
+Let's look at each of these parts in detail.
+
+<blockquote>
+<b>Optional package name:</b>  The first line in the file, other than blank lines and
+comments, can be a "<tt>package</tt>" statement.  The syntax is
+
+<blockquote><tt>package <em>packageName</em>;</tt></blockquote>
+The package name, by convention, is a "<tt>.</tt>"-separated  series of
+lower-case identifiers,  <tt>com.ibm.math</tt>.  The identfiers can only
+consist of letters, underscores ("<tt>_</tt>"), and numbers. It must begin with
+a letter.
+
+<div class="p"><!----></div>
+You don't need to have a package spec, and our examples will generally not
+bother with them, although we give some examples later for those unfamiliar
+with what is at stake.   When no <tt>package</tt> declaration appears, the
+declaration in the file is said to be "in the default package".
+
+<div class="p"><!----></div>
+Packages were introduced to allow large projects to organize
+their classes.  They provide firewalls behind which to hide classes that are
+needed but should not be generally visible, and they provide a systematic scheme
+for avoiding name clashes. Before we explain all this, we need the next
+ingredient in the file, <tt>import</tt> statements.
+
+<div class="p"><!----></div>
+<b>Optional Import Statements</b>  After the package statement, if there is one,
+come the <tt>import</tt> statements:
+
+<blockquote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>import <em>fullPackageName.properName</em>;</tt><br />
+or<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>import <em>fullPackageName.</em>*;</tt>
+</blockquote>
+The full package name is, as we've said, a sequence of "<tt>.</tt>" separated lower-case names.
+The proper name is  should <em>always</em> be a capitalized name. 
+We've already seen the example of importing <tt>x10.util.Random</tt>.  
+What "<tt>x10.util.Random</tt>" means is that if you went back to the
+file system where <tt>Random.x10</tt> was created, you would find a directory
+named <tt>x10</tt> with a subdirectory <tt>util</tt> that contains the source file
+<tt>Random.x10</tt>.  The same rules apply to <em>you</em>: if you put
+
+<blockquote><tt>package a.b.c;</tt></blockquote>
+at the start of your file, you must have the corresponding directory structure,
+<tt>a</tt> containing <tt>b</tt> containing <tt>c</tt>, and the file must lie in the subdirectory <tt>c</tt>.
+
+<div class="p"><!----></div>
+The second form of the <tt>import</tt> statement, with an asterisk as the final
+part, says: "import every class in the package <tt>x10.util</tt>."
+When to use the catch-all and when it is better to do individual imports is a
+matter of taste.
+
+<div class="p"><!----></div>
+You don't <em>have</em> to import <tt>x10.util.Random</tt> to use it in your code,
+but if you don't, you need to refer to everywhere you use it as
+<tt>x10.util.Random</tt>-you can't just write <tt>Random</tt>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+
+<div class="p"><!----></div>
+As we've said, there are two good things about packages: protection and name-clash avoidance.
+Let's look at the name-clash story: we'll worry about protection later, when
+we have something to protect.
+
+<div class="p"><!----></div>
+Suppose we needed to use both X10's class <tt>Random</tt> and our own class
+class <tt>Random</tt> in the same piece of code.  How do we tell the compiler, "here
+be ours, there be theirs"?  Answer: do not import <tt>x10.util.Random</tt> explicitly,
+and use package names in the code at every reference:
+
+<blockquote>
+<pre>val&nbsp;ours&nbsp;=&nbsp;new&nbsp;Random();
+val&nbsp;theirs&nbsp;=&nbsp;new&nbsp;x10.lang.Random();
+</pre>
+</blockquote>
+Assuming that <tt>Random.x10</tt> is in the same directory as this code, the 
+compiler will find it there for the assignment to <tt>ours</tt>, and of course, for
+<tt>theirs</tt> you left no doubt about what you meant.  This is about the only good
+reason not to import <tt>x10.util.Random</tt> explicitly: a
+rare situation where you need two or more variations on
+a single public name.  It also shows why you might want to use packages
+yourself: if your <tt>Random</tt> is in the package <tt>com.hedger.models</tt>,
+then this package name will appear either at the top of the file in an import,
+or at every use: good for both the human reader and the compiler.
+
+<div class="p"><!----></div>
+Which brings up one final point: how does the compiler know where to look
+for imports?  The answer is the command-line option <tt>-classpath</tt>.  If
+no class path is specified, the compiler will look in the current directory
+or in the X10 standard library.  If you need it to look elsewhere, you need to
+say so. We don't want to belabor the point here: X10 is consistent with
+Java in its use of class paths, and you can find a thorough
+discussion of that in 
+<a href="http://en.wikipedia.org/wiki/Classpath_%28Java%29">Wikipedia's article on class paths</a> or any introduction to Java.
+
+<div class="p"><!----></div>
+<b>One or more type declarations:</b>  After the optional package and import 
+statements come one or more of three possible types of "type" declarations:
+either classes, interfaces or structs.  We assume you're familiar with classes,
+and we'll get to the other two in sections  and .
+The overwhelming majority of the
+time, exactly one appears, but there is no hard and fast rule.  One rule does
+apply: there can be at most one type in the file that is declared <tt>public</tt>.
+Public classes are usable by anyone, anywhere. 
+A type that is declared without that keyword,  just "<tt>class X {...}</tt>",
+is accessible only for use by classes <em>in exactly the same package.</em>
+This is one of the protection features packages provide. 
+
+<div class="p"><!----></div>
+If you must put several type declarations in one file, make sure that the first has the
+same name as the source file.  Be kind, though: remember that when someone who
+is reading some X10 code sees a reference to a class <tt>C</tt> and wants to
+look at the source for that class, they really expect
+to find <tt>C</tt> in <tt>C.x10</tt> in the appropriate directory, whether it is
+private to a package or not.
+
+<div class="p"><!----></div>
+<b>That's it:</b>  Yes, nothing more, other than comments, appears in an X10 source file.
+This may seem a bit odd to C++ programmers, because, unlike C++ (and like Java),
+X10 <em>does not allow function declarations outside of the body of a
+class or struct.</em>
+</blockquote>
+
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;What's In A Class?</h2>
+
+<div class="p"><!----></div>
+The best way to see what's in a class is an example that says it all.  <tt>NoahsArk</tt>
+in Figure , on page , is it.
+
+<div class="p"><!----></div>
+<a name="tth_fIg1">
+</a> <hr />
+
+<pre>&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;NoahsArk&nbsp;{
+&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;DEFAULT_SIZE&nbsp;=&nbsp;500;
+&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;&nbsp;val&nbsp;name:&nbsp;String;
+&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;var&nbsp;passengers:&nbsp;Array[String](1);
+&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;var&nbsp;onBoard:&nbsp;Int&nbsp;=&nbsp;0;
+&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;this(name:&nbsp;String)&nbsp;{
+&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this(name,&nbsp;DEFAULT_SIZE});
+&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;
+&nbsp;9&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;this(name:String,&nbsp;initialCapacity:Int)&nbsp;{
+10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;&nbsp;&nbsp;
+11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;passengers&nbsp;=&nbsp;new&nbsp;Array[String](1..initialCapacity);
+12&nbsp;&nbsp;&nbsp;&nbsp;}
+13
+14&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;def&nbsp;resize(size:Int,&nbsp;na:NoahsArk):&nbsp;NoahsArk&nbsp;\{...\}
+15
+16&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;addPassenger(name:&nbsp;String):&nbsp;Int&nbsp;{&nbsp;...&nbsp;}
+17&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;throwOverboard(name:&nbsp;String,&nbsp;why:&nbsp;String):&nbsp;Int&nbsp;{&nbsp;...&nbsp;}
+18&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;def&nbsp;showPassengers()&nbsp;{&nbsp;...&nbsp;}
+19&nbsp;&nbsp;&nbsp;&nbsp;
+20&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;main(args:&nbsp;Array[String](1)&nbsp;{&nbsp;...&nbsp;}
+21&nbsp;&nbsp;&nbsp;&nbsp;
+22&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;class&nbsp;FareClasses&nbsp;{}&nbsp;&nbsp;&nbsp;
+23&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;class&nbsp;Galley&nbsp;{}
+&nbsp;&nbsp;&nbsp;}
+</pre>
+<hr />
+
+
+<center>Figure 1: A class with lots of stuff.</center><a name="fig:nark">
+</a>
+
+<div class="p"><!----></div>
+While the original Ark may have had two of each kind, we've settled here for one of most kinds,
+and as is our custom, we work our way through the code line-by-line.  
+
+First, let's agree on some terminology: 
+
+<blockquote>
+A <b>field</b> of a class holds a piece of data.<br />
+A <b>method</b> is a piece of code (a function)<br />
+The <b>members</b> of a class are its fields and methods. 
+</blockquote>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd><b>line 1:</b>  A "<tt>static</tt>" field of a class is a constant
+associated with the class. Its lifetime is the same as that of the class: it
+is available once the class is available ( once the class is "loaded")
+and stays available until the application terminates.  We could have said "<tt>
+static val DEFAULT_SIZE</tt>",  but the "<tt>val</tt>" is implied.  The initial
+value need not be a literal constant, as it is here-it can even be a run-time
+calculation, but the expression should not involve any non-static methods or data.
+
+<div class="p"><!----></div>
+There are no variable static members.  This may seem a bit harsh to Java and
+C++ programmers, but there is a good reason.  X10, unlike these languages,
+has been intended from the start to make full use of a multi-processor system. 
+By restricting the data associated with a class to that which is put in place
+at the time the class is loaded, the X10 runtime is free to copy the loaded
+class from <tt>Place</tt> to <tt>Place</tt> as needed, with every <tt>Place</tt> always
+seeing a consistent view of the class.</dd>
+
+	<dd><b>line 2:</b>  An instance field that is a <tt>val</tt> is a constant that
+must be computed by the constructor for the instance.  It may be initialized as
+part of its declaration, but that would be unusual.  The whole point of an <em>
+instance</em> <tt>val</tt> is that it is a <em>per instance</em> constant, not a <em>per
+class</em> one, so the constructor would normally use its arguments to create the
+instance's value.
+
+<div class="p"><!----></div>
+We've shown this instance member as <tt>public</tt>.  As with classes, we could use nothing
+here, just "<tt>val name:String</tt>", and the member could then only be used by
+classes in exactly the same package (which normally would mean <em>from the
+same directory</em>). There are two other keywords available: <tt>protected</tt> and
+<tt>private</tt>.  A protected member is usable by any  class in the same package,
+and by any class that <em>extends</em> the class in which the member is declared.
+See section , page . A private member is
+just that: usable only in the class it is declared.  Thus, from most widely
+available to least:
+
+<blockquote><tt>public</tt>, <tt>protected</tt>, <em>no spec at all</em>, <tt>private</tt></blockquote></dd>
+
+	<dd><b>lines 3 and 4:</b> Here are two instance fields that are variables.  Both
+are private for good reason: <tt>onBoard</tt> is the number of valid entries in
+the <tt>passengers</tt> array, and the last thing we want to do is to allow the
+general public complete, direct access to either. <tt>onBoard</tt> will be updated
+every time we add a passenger, or throw one overboard. <tt>passengers</tt> will be
+reset when we are at capacity and want to add another passenger.</dd>
+
+	<dd><b>lines 6-12:</b>  We show a couple of constructors here.  We chose to
+make both public, but we need not have done so: like any other method, we can
+restrict the availability of a constructor.  We could have made one private and
+one protected if that is really what we needed, unusual though that would be.
+
+<div class="p"><!----></div>
+Notice the way that the first constructor invokes the second via <tt>this</tt>.
+It is important that this call be the first executable line in the constructor's body.</dd>
+
+	<dd><b>line 14:</b> This is a "static" method (or, if you prefer, a "class"
+method).  Static methods have access to all of the static fields and methods
+of the class, but only an instance of the class may refer to instance fields and
+methods.  This method has the default access, so if <tt>DieselArk</tt> is another
+class in the default package, it can invoke <tt>resize</tt>: the syntax it would
+have to use is <tt>NoahsArk.resize(...)</tt>. Inside <tt>NoahsArk</tt> itself, you
+don't need the "<tt>NoahsArk.</tt>": <tt>resize(...)</tt> by itself will do.  The
+moral: static methods <em>really belong to the class in which they are defined.</em></dd>
+
+	<dd><b>lines 16-18:</b> Here we have three instance methods with varying degrees of
+protection.  We'll allow anyone to add a passenger, because if the boat threatens
+to sink under the weight, we can always say no.  We're a little more careful about
+who can throw a passenger overboard: this is pretty drastic, and different kinds
+of arks may have different policies.  Finally, respecting
+its customers' privacy, <tt>NoahsArk</tt> reserves to itself the right to show who
+is on board.</dd>
+
+	<dd><b>line 20:</b>  You've seen <tt>main</tt> enough times that all we feel we have to say
+here is that you don't need one except in a class that will begin a program's execution.</dd>
+
+	<dd><b>line 22:</b> A static class field is a value associated with the class,
+like any other, except that it names a class.  Within the body of <tt>
+NoahsArk</tt>, you write "<tt>new FareClasses()</tt>" in order to construct an
+instance. From a class <em>not</em> declared within <tt>NoahsArk</tt>, you would need
+to write "<tt>new NoahsArk.FareClasses()</tt>". In this example, we opted to
+give the class the default accessibility: same package can use, others not. We
+could have chosen any of the other three.</dd>
+
+	<dd><b>line 23:</b> <tt>Galley</tt> is an instance class, which, to be honest, is
+something you are much less likely to need in X10 than in  Java,
+because in X10, you can have instance variables whose values are functions,
+and you can create a function to pass as an argument to another function without
+even giving the newly created function a name. <a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
+
+<div class="p"><!----></div>
+Only an object
+that is an instance of <tt>NoahsArk</tt> can refer directly to this class.  Importantly though,
+the reverse is also true:
+<tt>Galley</tt> may refer to instance members and methods from <tt>NoahsArk</tt>.
+
+<div class="p"><!----></div>
+In our discussion of inheritance hierarchies (see "extra credit:"
+on page ), we'll say some more
+about how classes that <tt>NoahsArk</tt> uses, other than <tt>NoahsArk</tt> itself, might 
+have a method call that gets passed an instance of <tt>Galley</tt>.
+
+<div class="p"><!----></div>
+The term <em>inner class</em> is synonymous with what we've called an instance class.</dd>
+</dl>
+
+<div class="p"><!----></div>
+We wish we could tell you that this is all there is to a class declaration.  It isn't, but it
+is more than enough to get you going.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Inheritance And More</h3><a name="sec:inh">
+</a>
+
+<div class="p"><!----></div>
+X10 supports simple (single) inheritance: all X10 classes constitute a tree, in
+which the root is the class <tt>x10.lang.Object</tt>, and a class <tt>Parent</tt> is the
+parent of a class <tt>Child</tt> when <tt>Child</tt>'s declaration says  that it
+extends <tt>Parent</tt>:
+
+<blockquote><tt>class Child extends Parent { ... }</tt></blockquote>
+For example:
+
+<pre>&nbsp;1&nbsp;&nbsp;public&nbsp;class&nbsp;DieselArk&nbsp;extends&nbsp;NoahsArk&nbsp;{
+&nbsp;2&nbsp;&nbsp;&nbsp;public&nbsp;val&nbsp;fuelTankCapacity:&nbsp;Double;&nbsp;//&nbsp;in&nbsp;gallons
+&nbsp;3&nbsp;&nbsp;&nbsp;public&nbsp;var&nbsp;gallonsRemaining:&nbsp;Double;
+&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;5&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;this(name:String,&nbsp;maxPsgrs:Int,&nbsp;tankSize:Double)&nbsp;{
+&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;maxPsgrs);
+&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fuelTankCapacity&nbsp;=&nbsp;gallonsRemaining&nbsp;=&nbsp;tankSize;
+&nbsp;8&nbsp;&nbsp;&nbsp;}
+&nbsp;9&nbsp;&nbsp;&nbsp;def&nbsp;throwOverboard(name:&nbsp;String,&nbsp;why:&nbsp;String):&nbsp;Int&nbsp;{
+10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;why);
+11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;more&nbsp;stuff&nbsp;here&nbsp;*/
+12&nbsp;&nbsp;}
+13&nbsp;&nbsp;/*&nbsp;...&nbsp;more&nbsp;methods&nbsp;here&nbsp;*/
+14&nbsp;}
+</pre>
+A <tt>DieselArk</tt> is a <tt>NoahsArk</tt> whose method of propulsion we know.  It is
+in that sense that <tt>DieselArk</tt> is an extension of <tt>NoahsArk</tt>: it is a
+<tt>NoahsArk</tt> and more.  "<tt>DieselArk</tt> <em>is a direct
+subclass of</em> <tt>NoahsArk</tt>" is another common way of saying the same thing,
+and we'll use both.
+ 
+<blockquote>
+More generally, a class <tt>S</tt> is a <em>subclass</em> of another class <tt>C</tt> if
+there is a chain of classes <tt>S</tt>, <tt>S<sub>1</sub></tt>, ..., <tt>S<sub>n</sub></tt>, <tt>C</tt>
+each of which is a <em>direct</em> subclass of the next.
+</blockquote>
+In declarations in which no <tt>extends</tt>
+clause appears, like those for the classes <tt>MontePi</tt> or <tt>HelloWorld</tt>, 
+the class extends <tt>x10.lang.Object</tt> by default.
+
+<div class="p"><!----></div>
+Because it extends <tt>NoahsArk</tt>, an instance of <tt>DieselArk</tt> will have
+instance fields <tt>name</tt>, <tt>passengers</tt>, and <tt>onBoard</tt>, and methods
+<tt>resize</tt>, <tt>addPassenger</tt>, and so on.  They are said to be <em>
+inherited from <tt>NoahsArk</tt></em>. Notice that <tt>DieselArk</tt> provides its own
+version of the method <tt>throwOverboard</tt>, so rather than inheriting that
+method, it <em>overrides it</em>.  The expression <tt>super(name,why)</tt> in the
+body of the override invokes the parent's version of <tt>throwOverboard</tt>.
+
+<blockquote>
+Be careful! While every instance of <tt>DieselArk</tt> inherits the private members
+of <tt>NoahsArk</tt>, <em>only the methods already in <tt>NoahsArk</tt> have access
+to them.</em> Thus, <tt>DieselArk</tt> can affect the array <tt>passengers</tt> only by
+invoking methods like <tt>addPassenger</tt> that it inherits from <tt>NoahsArk</tt>
+and has permission to call.
+</blockquote>
+Subclasses are free to override any of the methods they inherit.  The only
+limitation is that the subclass cannot make a method more narrowly available
+( <tt>protected</tt> rather than <tt>public</tt>) than it is in its parent.
+
+<div class="p"><!----></div>
+If a method <tt>m</tt> expects an argument that is an instance of a class <tt>NoahsArk</tt>,
+then it is okay to call <tt>m</tt> with an
+instance of <tt>DieselArk</tt>.
+Suppose, for example, we have a class <tt>CruiseLine</tt> whose instances have
+fleets of ships that sail the world with lots of passengers.  A <tt>CruiseLine</tt>
+instance might want to add a <tt>NoahsArk</tt> to its fleet, so it has a method
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;addShip(ark:&nbsp;NoahsArk)&nbsp;{&nbsp;...&nbsp;}
+</pre>
+Because a <tt>DieselArk</tt> <em>is</em> a <tt>NoahsArk</tt>, we can call <tt>addShip</tt>
+with a <tt>DieselArk</tt> as the argument.
+
+<div class="p"><!----></div>
+A similar rule holds for return values.  If a method is supposed to return a 
+<tt>NoahsArk</tt>, it can return one that just happens also to be a <tt>
+DieselArk</tt>.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.1.1">
+2.1.1</a>&nbsp;&nbsp;Extra credit:</h4><a name="ssec:pinc">
+</a>
+This gets us to the point where we can answer a question we raised in a previous
+section, which is "how can one class's methods get passed arguments that are
+instances of another class's inner class?"  Again, the honest truth is that occasions
+for using inner classes in X10 are pretty rare, so feel free to skip this on first
+reading.   
+
+<div class="p"><!----></div>
+Subclassing is the key for giving a visible name to an otherwise invisible class:   
+
+<ul>
+<li> Suppose
+there is a public class <tt>Kitchen</tt>, and suppose that in our declaration of
+<tt>NoahsArk</tt> we had written "<tt>protected class Galley extends Kitchen { ... }</tt>" .
+<div class="p"><!----></div>
+</li>
+
+<li> Let's add to <tt>NoahsArk</tt>  a private member 
+"<tt>var galley:Galley</tt>" and a public method <tt>getGalley()</tt> that returns <tt>galley</tt>.
+<div class="p"><!----></div>
+</li>
+
+<li> If a  class has a method whose signature is "<tt>isWellEquipped(k: Kitchen)</tt>",
+and if <tt>anArk</tt> is a <tt>NoahsArk</tt>, then the call
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;isWellEquipped(anArk.getGalley())
+</pre>
+is perfectly okay, because a <tt>Galley</tt>, wherever it came from, is a <tt>Kitchen</tt>.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.2">
+2.2</a>&nbsp;&nbsp;Concrete classes versus wishful thinking</h3>
+Our declaration of <tt>NoahsArk</tt> is an example of wishful thinking, because
+if you are the least bit realistic about it, an ark without any means of propulsion isn't a very
+useful sort of thing, at least if you want to go anywhere in it.  On the other hand, there
+are a large number of very different propulsion systems:  we've got <tt>DieselArk</tt>
+already, and <tt>SteamArk</tt>, <tt>SailArk</tt>, and <tt>RowedArk</tt> are also good possibilities.
+
+<div class="p"><!----></div>
+So, <tt>NoahsArk</tt>, lacking, as it does, any means of getting anywhere, is, in a very clear sense,
+not a <em>concrete</em> class: you will never see an instance that is not actually an instance
+of some subclass.  Folks just don't build boats that go nowhere, excepting of course for certain tourist-trap
+seafood restaurants.
+
+<div class="p"><!----></div>
+But that is not to say that <tt>NoahsArk</tt> can't capture a lot of concrete 
+information-passenger lists, fare schedules, itinerary, and so on-that
+all arks share, no matter their means of propulsion.  That makes <tt>NoahsArk</tt> a good example of what is 
+called an <em>abstract</em> class: a class that one does not intend to instantiate, but
+which is the ultimate parent of a set of classes that one does.
+
+<div class="p"><!----></div>
+To convert <tt>NoahsArk</tt> to being an abstract class, one just adds the keyword
+"<tt>abstract</tt>" to its declaration:
+
+<pre>&nbsp;public&nbsp;abstract&nbsp;class&nbsp;NoahsArk&nbsp;{&nbsp;...&nbsp;}
+</pre>
+An abstract class is permitted to declare method signatures that it itself does not
+implement, but that any of its subclasses that
+are not themselves abstract <em>must</em> implement.  Here is an example:
+
+<pre>public&nbsp;abstract&nbsp;def&nbsp;costPerPassengerMile():&nbsp;Double;
+</pre>
+Notice that there is no function body: there is just a trailing semicolon.
+If we want to be allowed to execute "<tt>new DieselArk( ... );</tt>", that class will have to implement this
+method.  In <tt>DieselArk</tt>, the declaration will look like:
+
+<pre>public&nbsp;def&nbsp;costPerPassengerMile():&nbsp;Double&nbsp;{&nbsp;...&nbsp;}
+</pre>
+The keyword <tt>abstract</tt> does <em>not</em> appear, and the function body does.
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Interfaces: More Abstract Than Abstract</h2><a name="sec:mata">
+</a>
+
+<div class="p"><!----></div>
+While <tt>NoahsArk</tt> may not be as complete as a real ark should be, it can implement a
+lot of important functionality that all its progeny can use directly: a passenger list is a 
+passenger list, no matter what else is different!  There are situations though, where all
+that one wants to specify is functionality that has no common implementation, but
+that a variety of classes will implement, each in its own way.  This sort of specification
+is called an <em>interface</em>.  
+
+<blockquote>
+Those of you who are coming from a background in C++ will want to work carefully through
+our discussion of interfaces, because they constitute the closest approximation
+to multiple inheritance that X10 provides.
+</blockquote>
+
+<div class="p"><!----></div>
+A nice example of an interface is <tt>Arithmetic</tt>:
+
+<pre>&nbsp;1&nbsp;public&nbsp;interface&nbsp;Arithmetic[T]&nbsp;{
+&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;add(t:&nbsp;T):&nbsp;T;
+&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;subtract(t:&nbsp;T):&nbsp;T;
+&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;multiply(t:&nbsp;T):&nbsp;T;
+&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;divide(t:&nbsp;T):&nbsp;T;
+&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;uminus():&nbsp;T;
+&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;VERSION&nbsp;=&nbsp;``1.1'';
+&nbsp;8&nbsp;}
+</pre>
+Line by line:
+
+<dl compact="compact">
+
+	<dd><b>line 1:</b>  Like classes, a top-most interface is either public or accessible only in the
+package of which it is a part.  An interface declared within the body of a class is <em>always</em>
+static (it is never per-instance and cannot refer to instance members or methods in the 
+surrounding context), but it  can have any access limit: public, protected, default, or private. 
+
+<div class="p"><!----></div>
+The "<tt>[T]</tt>" following <tt>Arithmetic</tt> says that the interface is parameterized by a type
+<tt>T</tt>.  We've seen this before, in the argument <tt>args</tt> for <tt>main()</tt>, whose type is
+<tt>Array[String]</tt>.  The lingo of the trade is that <tt>Arithmetic</tt> is a <em>generic interface</em>,
+and <tt>Array</tt> is a <em>generic class</em>.  There is nothing sacred about a generic class
+or interface being parameterized by one type:  one can
+use as many as needed: "<tt>class X[T1, T2, T3,...] {...}</tt>".</dd>
+
+	<dd><b>lines 2-7:</b> An interface may only declare abstract methods, so (unlike the story
+with abstract classes), you don't need the keyword <tt>abstract</tt>.  What line 2 says is that
+if a class <tt>U</tt> implements the interface <tt>Arithmetic[T]</tt>, if <tt>u</tt> is a <tt>U</tt>, and if
+<tt>t</tt> is a <tt>T</tt>, then the expression <tt>u.add(t)</tt> produces a result that is a <tt>T</tt>.
+In real life, we might have <tt>U</tt> some sort of integer, and <tt>T</tt> some sort of floating
+point number, and the value of <tt>u.add(t)</tt> would again be a floating point.
+
+<div class="p"><!----></div>
+Another important point is that the methods declared by an interface are always
+<tt>public</tt>.  So even though the keyword <tt>public</tt> does not appear here, it
+is implied.  We'll say more about this when we discuss how you use interfaces.</dd>
+ <dt><b></b></dt>
+	<dd><b>line 8:</b> Interfaces may also declare static constants.  One could imagine
+an interface that did nothing else:
+
+<pre>public&nbsp;interface&nbsp;MainframeCpuModel1234&nbsp;{
+&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;REGISTER_WIDTH&nbsp;=&nbsp;64;
+&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;SPEED_IN_GHZ&nbsp;=&nbsp;2.5;
+&nbsp;&nbsp;&nbsp;...
+}
+</pre>
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+Finally, just as one class can extend another, one interface can extend another-in fact, it may
+extend several:
+
+<pre>&nbsp;interface&nbsp;IA&nbsp;extends&nbsp;IB,&nbsp;IC&nbsp;{&nbsp;...&nbsp;}
+</pre>
+One could
+say "<tt>IA</tt> is a sub-interface of <tt>IB</tt> and <tt>IC</tt>', but it just doesn't sound right:
+"<tt>IA</tt> <em>refines</em> <tt>IB</tt> and <tt>IC</tt>" is somehow better.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;How interfaces get used</h3>
+The syntax 
+
+<pre>class&nbsp;Int32&nbsp;implements&nbsp;Arithmetic[Int32]&nbsp;{&nbsp;...&nbsp;}
+</pre>
+asserts that the class <tt>Int32</tt> implements all of the methods 
+declared in the <tt>Arithmetic[Int32]</tt> interface-with exactly the 
+argument types and return types shown there.
+In plain English, this is saying that you can add, subtract, multiple and divide one
+<tt>Int32</tt> by another and get an <tt>Int32</tt> result.
+While <tt>Int32</tt> is one candidate for the class that
+appears as the <tt>T</tt> in the <tt>Arithmetic[T]</tt>, we'd probably also like to
+add to <tt>Int32</tt>s to <tt>Float64</tt>s and <tt>Complex</tt>es.  No problem:
+
+<pre>class&nbsp;Int32&nbsp;implements&nbsp;Arithmetic[Int32],&nbsp;Arithmetic[Float64],&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arithmetic[Complex]&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;add(i:&nbsp;Int32):&nbsp;Int32&nbsp;{&nbsp;...&nbsp;}&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;
+}
+</pre>
+
+<div class="p"><!----></div>
+At first blush, this is a daunting declaration: think how many methods must be implemented!
+But the truth is that none of these methods is all that involved, so it is just a matter of
+some (necessary!) drudgery.  Here the end more than justifies the means.
+
+<div class="p"><!----></div>
+Notice that in this class, the method <tt>add</tt> is explicitly declared to be
+<tt>public</tt>.  While <tt>public</tt> is all there is in an interface declaration,
+it is <em>not</em> all there is in a class declaration, so you must be specific
+here.  The compiler will complain if you do not.
+
+<div class="p"><!----></div>
+Now suppose that somewhere there is a class that has a method "<tt>doIt(x:
+Arithmetic[Int32])</tt>". Since <tt>Int32</tt> implements <tt>Arithmetic[Int32]</tt>,
+we can use an <tt>Int32</tt> as the argument to <tt>doIt</tt>, :
+
+<blockquote>
+<pre>
+	val&nbsp;sqFt:&nbsp;Int32&nbsp;=&nbsp;livingRoom.area();
+	doIt(sqFt);
+</pre>
+</blockquote>
+In the same way, if <tt>dontDoIt():Arithmetic[Int32]</tt>, can return an instance of any class
+that implements <tt>Arithmetic[Int32]</tt>.
+
+<div class="p"><!----></div>
+We end this section with some "side bars" that somehow didn't quite fit in 
+the flow of the rest of this section, but are worth a moment's thought.
+
+<div class="p"><!----></div>
+<b>Anything you can do...</b>  The 1946 Broadway musical <em>Annie Get Your
+Gun</em> has a wonderful song that begins "Anything you can do, I can do better. 
+I can do anything better than you."  X10 has an operator that says the
+same thing much more briefly: if <tt>T</tt> and <tt>U</tt> are two types, then the
+expression <tt>T&lt;:U</tt> is a boolean that if true means that a value of type <tt>
+T</tt> may be used anywhere a value of type <tt>U</tt> may be or in other words, that
+<tt>T</tt> is a <em>subtype</em> of <tt>U</tt>. We won't have a lot of occasion to use
+this operator, but you may well see it reading other X10 source.
+
+<div class="p"><!----></div>
+The "operator" <tt>&lt;:</tt> can also be used in <tt>val</tt> declarations. 
+Saying "<tt>val t &lt;: T</tt>" declares <tt>t</tt>'s type to be a subtype of <tt>T</tt>.
+
+<div class="p"><!----></div>
+<b>Why interface methods are public:</b>  Suppose a class <tt>A</tt> implements an
+interface <tt>I</tt>, and suppose that <tt>B</tt> is a subclass of <tt>A</tt>.  Because
+an instance of <tt>B</tt> might appear anywhere an instance of <tt>A</tt> is 
+expected, we see that <tt>B</tt> <em>must also implement</em> <tt>I</tt>. This is one
+reason why the methods in an interface must be declared <tt>public</tt>.
+
+<div class="p"><!----></div>
+There is another reason that is more pragmatic than principled.  The point of an
+interface is to tell the outside world what some object is capable of doing.
+A <tt>private</tt> method, on the other hand, is just a <em>hidden</em> means to
+accomplish a class's goals.  Why should anyone care whether a class implements
+a method that can only be called from within that class?
+
+<div class="p"><!----></div>
+An interface itself may declared with any access limit that makes sense in the
+context: if the interface is being declared inside a class (and it definitely
+can be), then protected or default access make sense (private does not!).  
+
+<div class="p"><!----></div>
+<b>A matter of convention: </b>
+There is a sort of convention that interface names should begin with "<tt>
+I</tt>",  Suppose for example, that we had used <tt>INumber</tt>, instead of <tt>
+Arithmetic</tt>, for our interface name.  We could then have declared  a class
+named <tt>Number</tt> that implements it.  A matter of taste of course, but not an
+unreasonable convention, particularly in situations where there is a
+"standard" or "canonical" implementation of the interface.  A variation on
+this theme is to append "<tt>Impl</tt>" to the name of an interface to create
+the name of a concrete class that implements it:  interface <tt>
+XmlParser</tt> is implemented by <tt>XmlParserImpl</tt>.  You will see both
+conventions widely used.
+
+<div class="p"><!----></div>
+<b>For C++ programmers: </b> We said that interfaces provide a sort of
+"multiple inheritance."  What we meant is that a class may declare that it
+implements any number of interfaces.  That is certainly reasonable: all you are
+saying is that the class provides several named sets of methods.  It is, of
+course, a weaker notion than multiple inheritance, because,  when a class
+implements an interface, no instance members or methods are actually inherited:
+all of the code is in the class, or is in one of its ancestors up the
+inheritance chain.
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Giving Up Inheritance To Get Efficiency</h2><a name="sec:guitge">
+</a>
+
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;The Problem</h3>
+
+<div class="p"><!----></div>
+Supporting inheritance does not come without costs when a program runs.  Looking
+carefully at the class <tt>Point2D</tt> will show what happens:
+
+<div class="p"><!----></div>
+
+<blockquote>Let "<tt>public def doIt(p:Point2D) {...}</tt>" be a method declared in some
+class or other (we don't care where).  We're going to look at the cost of
+an invocation <tt>p.magnitude()</tt> within the body of <tt>doIt</tt>.
+
+<ul>
+<li> The value passed to <tt>doIt</tt> for <tt>p</tt>
+might really be an instance of some subclass <tt>Point2DX</tt> of <tt>Point2D</tt>.  
+One only knows when the program is run what actually gets passed.
+<div class="p"><!----></div>
+</li>
+
+<li> The class <tt>Point2DX</tt> can
+have its own implementation of <tt>magnitude</tt>, so we have to make sure
+that if <tt>p</tt> really is a <tt>Point2DX</tt>, the right call is made.
+<div class="p"><!----></div>
+</li>
+
+<li> Therefore, the running program has to be able to compute what <tt>p</tt>'s class is
+in order to find the right code to call.
+<div class="p"><!----></div>
+</li>
+</ul>
+If there were no
+inheritance hierarchy, the compiler itself could already determine the
+correct code to call, completely eliminating this runtime lookup cost.
+
+<div class="p"><!----></div>
+The upshot is that whenever you have a <tt>Point2D</tt>, you have to know
+both where the object's data is and where information about the
+object's class is. A <tt>Point2D</tt>, with its two <tt>Double</tt>s,
+requires exactly 16 = 2*8 bytes to store the data for an instance.
+If we also store a pointer to its "class", we have to add at least 4 bytes,
+and maybe up to 12 bytes or even more, depending on 
+
+<blockquote>
+1) what we had to store in
+addition to the raw address of the class's info<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>, and
+
+<div class="p"><!----></div>
+2) on how many bytes are needed for the address itself: with today's
+large memories, 6 (or even 8) bytes might be used for addresses.
+</blockquote>
+
+<div class="p"><!----></div>
+ Think about it.
+If you have an array of one Meg of <tt>Point2D</tt>s at 16 bytes per <tt>Point2D</tt>, 
+you use 16 megabytes for storing the data you're really interested in, 
+and then another 6 megabytes or more for type information (whether it is really
+needed or not!).  Sound like a good deal to you?
+
+<div class="p"><!----></div>
+As if that were not bad enough, C++ programmers in particular will appreciate
+that if an array has pointers for each element of an array, as well as the
+pointer to the array itself, storage management is a lot more costly.  At least
+X10 does the dead storage reclamation (<em>a.k.a.</em> "garbage collection")
+for you automatically, so it is not also more error prone.
+
+<div class="p"><!----></div>
+</blockquote>These considerations explain why a performance-oriented language avoids using
+the normal class hierarchy for primitive types like 32-bit integers: no language
+that expects high performance can allow a 4-byte integer to consume 8 bytes or
+more and to be accessed indirectly.  There are two different approaches one can
+take to solving this problem.  One is to keep the primitive value types to a
+handful close to the physical reality of the CPU.  This is what Java does.
+The other approach is to keep the implementations of the value and reference
+types as close to one another as possible.  That is how X10 chose to go.
+
+<div class="p"><!----></div>
+X10's approach raises the obvious question: how much of what classes give
+us can we keep without incurring any substantial overhead? 
+There are two sets of  issues here: serial issues like "don't waste space",
+and "don't waste time looking stuff up", and distribution issues like "don't
+create the possibility of inconsistencies between what one processor thinks the
+value of the "thing" is and what another thinks, so that communication
+between the processors is required to maintain integrity".
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;The Solution</h3><a name="sec:ecs">
+</a>
+What we need are values whose types must be exactly what they are declared to
+be. X10 calls these things "<tt>struct</tt>s".<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
+For example, we can change our class <tt>Point2D</tt> to be 
+a struct just by replacing the keyword "<tt>class</tt>" with "<tt>struct</tt>" in the
+declaration:
+
+<pre>&nbsp;1&nbsp;&nbsp;public&nbsp;struct&nbsp;Point2D&nbsp;{
+&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;x:&nbsp;Double;
+&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;y:&nbsp;Double;
+&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;this(x:&nbsp;Double,&nbsp;y:&nbsp;Double)&nbsp;{
+&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.x&nbsp;=&nbsp;x;&nbsp;&nbsp;this.y&nbsp;=&nbsp;y;
+&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;magnitude()&nbsp;=&nbsp;x*x&nbsp;+&nbsp;y*y;
+&nbsp;9&nbsp;}
+</pre>
+As usual, the line-by-line:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+
+	<dd><b>line 1:</b> The accessibility rules for a struct are the same as for a
+class.  We chose "<tt>public</tt>" for the example, but the default is also
+possible, and if the struct is declared in a class body, <tt>protected</tt> and
+<tt>private</tt> may also be used.
+
+<div class="p"><!----></div>
+Structs may be generic-that is, may have type parameters-although this one
+does not.</dd>
+
+	<dd><b>lines 2 and 3:</b>  The instance members of a struct are always <tt>
+val</tt>s. That's why you don't need to say "<tt>val</tt>" here, but it is okay to
+put it in. If you are not sure whether in the long run you are going to want
+this type to be a struct or a class, throwing in the <tt>val</tt> makes it easier
+to go back and forth.
+
+<div class="p"><!----></div>
+Once the constructor for a struct returns, the instance cannot be modified. This
+eliminates the consistency problem: you can freely copy the instance to remote
+<tt>Place</tt>s as need be, or share it among activities at a fixed <tt>Place</tt>.
+
+<div class="p"><!----></div>
+Another benefit is that if <tt>s1</tt> and <tt>s2</tt> are
+two instances of the same struct, then "<tt>s1 == s2</tt>" is true exactly when
+you think it should be: when their instance members have identical values.  For
+example, now that <tt>Point2D</tt> is a struct,  the expression <tt>p1 == p2</tt> is
+equivalent, when both  <tt>p1</tt> and <tt>p2</tt> are <tt>Point2D</tt>s,
+to <tt>(p1.x == p2.x) && (p1.y == p2.y)</tt>.
+
+<div class="p"><!----></div>
+If <tt>Point2D</tt> were still a class, then <tt>p1 == p2</tt> being true would mean
+that <em><tt>p1</tt> and <tt>p2</tt> were both references to exactly the same
+instance of <tt><em>Point2D</em></tt>.</em> Or if you prefer C's way of saying things,
+<tt>p1 == p2</tt> means that <tt>p1</tt> and <tt>p2</tt> point to the same piece of
+storage. This is a much stricter notion than that instance fields of <tt>p1</tt>
+and <tt>p2</tt> have the same values. For testing whether <tt>(p1.x == p2.x) &&
+(p1.y == p2.y)</tt> is true, you have to implement your own method:
+
+<pre>
+&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;equals(p:&nbsp;Point2D)&nbsp;=&nbsp;(x&nbsp;==&nbsp;p.x)&nbsp;&amp;&amp;&nbsp;(y&nbsp;==&nbsp;p.y);
+
+</pre></dd>
+
+	<dd><b>line 7:</b> Unlike their C namesakes, X10 structs can declare methods.
+We've shown a public method here, but both private and default (only in the
+same package) access can be used.
+Structs <em>never</em> have subclasses, so "protected," which just broadens the
+default access by allowing access to subclasses, adds nothing in this context.</dd>
+</dl>
+
+<div class="p"><!----></div>
+We did not show it, but structs can have static members.  In
+principle, one can also define static classes, interfaces, and structs in the
+body of a struct, just as one can in a class. How often this is needed is a
+good question, though: probably not often.
+
+<div class="p"><!----></div>
+<b>Important: </b>The keyword <tt>new</tt> is <em>not</em> used when creating
+ a new instance of a struct-in contrast to the case for a class.
+Here is an example that assigns a <tt>Point2D</tt> value:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;p:&nbsp;Point2D&nbsp;=&nbsp;Point2D(1.2,&nbsp;3.4);
+</pre>
+Now that <tt>Point2D</tt> is a struct, there's no "<tt>new</tt>" on the right-hand side.
+If you put the "<tt>new</tt>" in
+by mistake, the compiler will happily generate an error message telling you
+to remove it.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a> Furthermore,
+you should understand that <tt><em>p</em></tt> <em>is <em>not</em> a reference to the</em> <tt>Point2D</tt>:
+what is stored for <tt>p</tt> is the whole 16-bit value, not where to find that value.  
+To repeat: <em>there are <em>no</em> references to instances of a struct.</em>   
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+The rules for what can be part of a struct are designed so that the compiler
+can determine the size of an instance from the declaration.  The reason is
+storage efficiency:  once the size is known, no more space need be allocated
+than is needed to store the value in memory, and at runtime, we don't have to
+carry around size information for every instance.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;What all structs and classes share</h3><a name="ssec:wasacs">
+</a>
+Both structs and classes can implement an interface, and there is one interface,
+called <tt>x10.lang.Any</tt> that is the minimal interface that all structs and
+classes must implement.  As you would guess, it is not particularly rich:
+
+<pre>public&nbsp;interface&nbsp;Any&nbsp;{
+&nbsp;&nbsp;&nbsp;def&nbsp;toString():String;
+&nbsp;&nbsp;&nbsp;def&nbsp;typeName():String;
+&nbsp;&nbsp;&nbsp;def&nbsp;equals(that:Any):Boolean;
+&nbsp;&nbsp;&nbsp;def&nbsp;hashCode():Int;
+}
+</pre>
+The first three are the ones that most programmers care about.  The purpose of
+the fourth method, the hash code, is to give a compact way of identifying an
+object.
+
+<div class="p"><!----></div>
+The method <tt>toString</tt> returns
+a representation of an instance as a <tt>String</tt>.  Because <tt>toString</tt> is
+always available, conversion to <tt>String</tt> is possible in any context where a
+<tt>String</tt> is known by the compiler to be required. 
+
+<div class="p"><!----></div>
+The method <tt>typeName</tt> returns the precise name of the type as it is
+understood by the X10 compiler.  It is most useful as a learning aid and debugging
+tool.  If ever you are in doubt about what the compiler thinks the type of some
+object "<tt>e</tt>" is, the call "<tt>Console.OUT.println(e.typeName());</tt>"
+will tell you.  Try a few, for instance: <tt>3.typeName()</tt>.
+
+<div class="p"><!----></div>
+The method <tt>equals</tt> tests whether its invoker and its argument "have the
+same value."  It should be thought of as a user-overridable version of the
+comparison operator "".  Therefore, <tt>a.equals(b)</tt> is the same as
+<tt>a==b</tt> by default.  Remember, though, that, as we just remarked above,
+"" has a different meaning for class instances than for
+struct instances. 
+Many classes override this default, as we suggested that you could do for
+<tt>Point2D</tt> implemented as a class.  Another familiar example is the <tt>
+String</tt> class: if <tt>a</tt> and <tt>b</tt> are <tt>Strings</tt>, then <tt>a.equals(b)</tt>
+is <tt>true</tt> when the contents of their underlying byte arrays are the same.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.4">
+4.4</a>&nbsp;&nbsp;Structs really are values</h3>
+Suppose that we try to declare a 
+struct <tt>Point2DListItem</tt> so that we can form lists of <tt>Point2D</tt>s. 
+
+<pre>public&nbsp;struct&nbsp;Point2DListItem&nbsp;{
+&nbsp;&nbsp;&nbsp;public&nbsp;p:&nbsp;Point2D;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;the&nbsp;point
+&nbsp;&nbsp;&nbsp;public&nbsp;next:&nbsp;Point2DListItem;&nbsp;//&nbsp;p's&nbsp;successor&nbsp;in&nbsp;the&nbsp;list.
+}
+</pre>
+This is not legal. To understand ask yourself, "How big is a <tt>
+Point2DListItem</tt>?"?  Let us call the answer "<tt>sizeOfPLI</tt>." 
+
+<blockquote>
+A <tt>Point2D</tt>
+itself is 16 bytes. So adding the sizes of <tt>p</tt> and <tt>
+next</tt>, we get a total of <tt>sizeOfPLI+16</tt> bytes.
+But that has to be the same as the size of the whole <tt>Point2DListItem</tt> in
+which these are the instance fields. That size itself is only <tt>sizeOfPLI</tt>.
+</blockquote>
+We cannot have <tt>sizeOfPLI == sizeOfPLI+16</tt>.  Something is wrong.
+
+<div class="p"><!----></div>
+The point is that we really wanted <tt>next</tt> to be a reference to the next
+item: an address, and not the item itself.  There is no such thing as reference
+to an X10 struct, though.  <em>Instances of structs are values.  Period!</em>
+The general rule here is:
+
+<blockquote>
+An instance <tt>s</tt> of a struct <tt>S</tt> cannot
+have a field  that is itself of type <tt>S</tt> or is a collection of
+things of type <tt>S</tt>.
+</blockquote>
+
+<div class="p"><!----></div>
+This warning is the point we really wanted to make in this section, but those
+whose curiosity has been piqued by the question "How <em>does</em> one create lists
+from structs in X10?" may wish to read on.
+
+<div class="p"><!----></div>
+One way to work around the problem of providing a "ref" might be to use an
+<tt>Array</tt> as the instance field. You have to use an <tt>Array</tt>, or something like it, for
+<tt>next</tt>, because <tt>next</tt> itself, once set can't be changed.  Then the question 
+becomes: "An <tt>Array</tt> of <em>what</em>?"  Let's call that type <tt>T</tt>.  To represent
+the end of the list, we need to be able to say "there is no next", and this is the
+role normally played by <tt>null</tt>.  So it would be nice if <tt>null</tt> could be a value
+of type <tt>T</tt>.  On the other hand, when there <em>is</em> a next element, it has to be
+an instance of <tt>Point2DListItem</tt>.  So what type can cover both?  Sadly, as we
+noted in the previous section, the interface <tt>Any</tt> is the only thing a reference
+type for which <tt>null</tt> makes sense shares with a value type like
+<tt>Point2DListItem</tt>.  So we wind up with no choice: <tt>T</tt> is going to have to 
+be <tt>Any</tt>.  Here is the result:
+
+<div class="p"><!----></div>
+
+<pre>
+&nbsp;1&nbsp;public&nbsp;struct&nbsp;Point2DListItem&nbsp;{
+&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;p:&nbsp;Point2D;
+&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;next:&nbsp;Array[Any](1);
+&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;this(p:&nbsp;Point2D)&nbsp;{
+&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.p&nbsp;=&nbsp;p;
+&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next&nbsp;=&nbsp;new&nbsp;Array[Any](1,&nbsp;null);
+&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;add(p:&nbsp;Point2D)&nbsp;{
+&nbsp;9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;next(0)&nbsp;=&nbsp;Point2DListItem(p);
+10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;next(0);
+11&nbsp;&nbsp;&nbsp;&nbsp;}
+12&nbsp;}
+
+</pre>
+This works, but it is really very bad software engineering.<a href="#tthFtNtAAG" name="tthFrefAAG"><sup>6</sup></a>
+One problem is: what stops someone from assigning
+a <tt>String</tt> or any other crazy thing to <tt>next(0)</tt>? Nothing, because it
+is just required to be an <tt>Any</tt>. So <tt>next</tt> really should be <tt>private</tt>.
+But then access to its entry's data becomes really expensive:
+
+<blockquote> 
+first, you need a method call to get to <tt>next</tt>, <br />
+second, you have to follow the reference to get to <tt>next(0)</tt>, <br />
+third, you must check for <tt>null</tt>, and if that fails,<br />
+finally, cast the result to use <tt>next(0)</tt> as a <tt>Point2DListItem</tt>.
+</blockquote>
+Even the cast is not free: it implies a runtime check of the type.  If your goal
+of high performance, you're probably on the wrong track.
+
+<div class="p"><!----></div>
+The short answer, then, to "How <em>does</em> one design an X10
+struct that is a list?" is that <em>one shouldn't</em>. This is not
+unreasonable.  Lists are introduced because a collection of uncertain eventual
+size is being grown, and one therefore has to forego the efficiency of a
+pre-allocated array and simple sequential access.  One pays the overhead of
+having to keep a reference to the next item in order to have the freedom to grow
+and shrink the list efficiently as needed.  In other words: list items are by
+their very nature dynamic. The whole point of a struct is that it not.
+
+<div class="p"><!----></div>
+Let's return to our <tt>Point2DListItem</tt>.  If we declare it as follows, there
+is no problem:
+
+<pre>final&nbsp;class&nbsp;Point2DListItem&nbsp;{&nbsp;
+&nbsp;&nbsp;&nbsp;public&nbsp;val&nbsp;&nbsp;p:&nbsp;Point2D;&nbsp;
+&nbsp;&nbsp;&nbsp;public&nbsp;var&nbsp;next:&nbsp;Point2DListItem;
+&nbsp;&nbsp;&nbsp;...
+}
+</pre>
+Because <tt>Point2DListItem</tt> is now a class (and not a struct),  the field
+<tt>next</tt> references some instance of <tt>Point2DListItem</tt>. Also,
+<tt>null</tt> is now a perfectly good place-holder value to use for <tt>next</tt>.
+You can't assign anything to <tt>next</tt> other than a reference to a <tt>
+Point2DListItem</tt>, so making it private is not quite so critical.  As for <tt>
+Point2D</tt>, keep it a struct, by all means: it's not the culprit!
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.5">
+4.5</a>&nbsp;&nbsp;A final word about performance</h3>
+
+<div class="p"><!----></div>
+By exposing the mechanism that it uses to implement
+its primitive types, X10 allows programmers to eke out similar
+efficiencies.  But there is no simple answer as to when structs are really
+to be preferred over classes.  The problem is that there is a potential down
+side to structs.  Consider the assignment: 
+
+<pre>
+&nbsp;&nbsp;&nbsp;var&nbsp;x:&nbsp;T;
+&nbsp;&nbsp;&nbsp;var&nbsp;y:&nbsp;T;
+&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;x&nbsp;=&nbsp;y;
+
+</pre>
+When <tt>T</tt> is a class, the assignment copies a reference that is <tt>y</tt>'s
+current value, to <tt>x</tt>.  When <tt>T</tt> is a struct, however, what gets copied
+is the entire current value of <tt>y</tt>, not a pointer to the value.  To the
+extent that the  size of the value is greater than the size of a reference,
+copying the value is more expensive than the copying the reference.
+
+<div class="p"><!----></div>
+An analogous problem comes up when passing parameters:
+
+<pre>
+&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;doIt(t:&nbsp;T)&nbsp;{&nbsp;...&nbsp;}
+&nbsp;&nbsp;&nbsp;var&nbsp;x:&nbsp;T;
+&nbsp;&nbsp;&nbsp;doIt(x);
+
+</pre>
+When <tt>T</tt> is a class, the value passed to <tt>doIt</tt> is the reference.  If
+<tt>T</tt> is a struct, the whole value of <tt>x</tt> has to be copied.
+
+<div class="p"><!----></div>
+To summarize: the benefits of structs are:
+
+<blockquote>
+- no cost for memory allocation,<br />
+- no cost for garbage collection,<br />
+- faster method invocation, and<br />
+- better storage utilization for large aggregates.
+</blockquote>
+and the costs are:
+
+<blockquote>
+- assignments and argument passing may be more expensive, and<br />
+- you lose the benefits of the class hierarchy for organizing common
+functionality.
+</blockquote>  
+
+<div class="p"><!----></div>
+The situation is further complicated by the tricks code optimization can use to
+minimize the assignment costs, so even knowing that there might be a problem, it
+may be difficult to tease out the cost, if any, short of running the code to
+see. In addition, when you are working with classes, you can avoid some of the
+cost of method invocation by declaring a class to be "<tt>final</tt>"-
+"<tt>public final class Point2D</tt>".  Final classes cannot be subclassed,
+which implies that their methods cannot be overridden, and this, in turn, allows
+the compiler to reduce the cost of method invocation.
+
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This
+should explain why, even though a package spec is a proxy for a file system path, dots and not
+slashes are used to punctuate it: first, the dot is file-system independent, and
+second, it is consistent with the notation for selecting a field within an object.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>Java's analogous
+construct would be an anonymous class, which is widely used for things like event
+handlers in UI programming.
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>
+For example, information required to do automatic garbage collection.
+<div class="p"><!----></div>
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>This is a rather
+unfortunate choice of terminology, because X10 structs  bear about the same
+relation to the familiar <em>C</em> <tt>struct</tt> as X10 classes do, and in
+some ways, less.
+<div class="p"><!----></div>
+<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>The rationale is probably that you are just describing a value,
+not requesting storage that the run-time is obligated to manage.
+<div class="p"><!----></div>
+<a name="tthFtNtAAG"></a><a href="#tthFrefAAG"><sup>6</sup></a>
+We wrote out some code for you to show that it really does work: see 
+<a href="http://dist.codehaus.org/x10/documentation/guide/src/list/Point2DList.x10">list/Point2DList.x10</a>.
+
+<br /><br /><hr />
+</html>

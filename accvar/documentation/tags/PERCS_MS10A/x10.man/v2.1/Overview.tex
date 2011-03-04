@@ -1,0 +1,530 @@
+\chapter{Overview of \Xten}
+
+\Xten{} is a statically typed object-oriented language, extending a sequential
+core language with \emph{places}, \emph{activities}, \emph{clocks},
+(distributed, multi-dimensional) \emph{arrays} and \emph{struct} types. All
+these changes are motivated by the desire to use the new language for
+high-end, high-performance, high-productivity computing.
+
+\section{Object-oriented features}
+
+The sequential core of \Xten{} is a {\em container-based} object-oriented language
+similar to \java{} and C++, and more recent language such as Scala.  
+Programmers write \Xten{} code by defining containers for data and behavior called
+\emph{interfaces}
+(\Sref{XtenInterfaces}),
+\emph{classes}
+(\Sref{XtenClasses}) and
+\emph{structs}
+(\Sref{XtenStructs}).
+X10 provides inheritance and subtyping in fairly traditional ways. 
+
+\begin{ex}
+
+\xcd`Normed` describes entities with a \xcd`norm()` method. \xcd`Normed` is
+intended to be used for entities with a position in some coordinate system,
+and \xcd`norm()` gives the distance between the entity and the origin. A
+\xcd`Slider` is an object which can be moved around on a line; a
+\xcd`PlanePoint` is a fixed position in a plane. Both \xcd`Slider`s and
+\xcd`PlanePoint`s have a sensible \xcd`norm()` method, and implement
+\xcd`Normed`.
+
+%~~gen ^^^ Overview10
+% package Overview;
+%~~vis
+\begin{xten}
+interface Normed {
+  def norm():Double;
+}
+class Slider implements Normed {
+  var x : Double = 0;
+  public def norm() = Math.abs(x);
+  public def move(dx:Double) { x += dx; }
+}
+struct PlanePoint implements Normed {
+  val x : Double, y:Double;
+  public def this(x:Double, y:Double) {
+    this.x = x; this.y = y;
+  }
+  public def norm() = Math.sqrt(x*x+y*y);
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\end{ex}
+
+\paragraph{Interfaces}
+
+An \Xten{} interface specifies a collection of abstract methods; \xcd`Normed`
+specifies just \xcd`norm()`. Classes and
+structs can be specified to {\em implement} interfaces, as \xcd`Slider` and
+\xcd`PlanePoint` implement \xcd`Normed`, and, when they do so, must provide
+all the methods that the interface demands.
+
+Interfaces are
+purely abstract. Every value of type \xcd`Normed` must be an instance of some
+class like \xcd`Slider` or some struct like \xcd`PlanePoint` which implements
+\xcd`Normed`; no value can be \xcd`Normed` and nothing else. 
+
+
+\paragraph{Classes and Structs}
+
+
+
+There are two kinds of concrete containers: \emph{classes}
+(\Sref{ReferenceClasses}) and \emph{structs} (\Sref{Structs}). Concrete
+containers hold data in {\em fields}, and give concrete implementations of
+methods, as \xcd`Slider` and \xcd`PlainPoint` above.
+
+Classes are organized in a single-inheritance tree: a class may have only a
+single parent class, though it may implement many interfaces and have many
+subclasses. Classes may have mutable fields, as \xcd`Slider` does.
+
+In contrast, structs are headerless values, lacking the internal organs
+which give objects their intricate behavior.  This makes them less powerful
+than objects (\eg, structs cannot inherit methods, though objects can), but also
+cheaper (\eg, they can be inlined, and they require less space than objects).  
+Structs are immutable, though their fields may be immutably set to objects
+which are themselves mutable.  They behave like objects in all ways consistent
+with these limitations; \eg, while they cannot {\em inherit} methods, they can
+have them -- as \xcd`PlanePoint` does.
+
+\Xten{} has no primitive classes per se. However, the standard library
+\xcd"x10.lang" supplies structs and objects \xcd"Boolean", \xcd"Byte",
+\xcd"Short", \xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float", \xcd"Double",
+\xcd"Complex" and \xcd"String". The user may defined additional arithmetic
+structs using the facilities of the language.
+
+
+
+\paragraph{Functions.}
+
+X10 provides functions (\Sref{Closures}) to allow code to be used
+as values.  Functions are first-class data: they can be stored in lists,
+passed between activities, and so on.  \xcd`square`, below, is a function
+which squares an \xcd`Int`.  \xcd`of4` takes an \xcd`Int`-to-\xcd`Int`
+function and applies it to the number \xcd`4`.  So, \xcd`fourSquared` computes
+\xcd`of4(square)`, which is \xcd`square(4)`, which is 16, in a fairly
+complicated way.
+%~~gen ^^^ Overview20
+% package Overview.of.Functions.one;
+% class Whatever{
+% def chkplz() {
+%~~vis
+\begin{xten}
+  val square = (i:Int) => i*i;
+  val of4 = (f: (Int)=>Int) => f(4);
+  val fourSquared = of4(square);
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+
+
+They are used extensively in X10
+programs.  For example, the normal way to construct an \xcd`Array[Int](1)` --
+that is, a fixed-length array of numbers, like an \xcd`int[]` in Java -- is to
+pass two arguments to a factory method: the first argument being the length of
+the array, and the second being a function which computes the initial value of
+the \xcd`i`{$^{th}$} element.  The following code constructs a 1-dimensional
+array 
+initialized to the squares of 0,1,...,9: \xcd`r(0) == 0`, \xcd`r(5)==25`, etc. 
+%~~gen ^^^ Overview30
+% package Overview.of.Functions.two;
+% class Whatevermore {
+%  def plzchk(){
+%    val square = (i:Int) => i*i;
+%~~vis
+\begin{xten}
+  val r : Array[Int](1) = new Array[Int](10, square);
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+
+
+
+
+
+
+
+\paragraph{Constrained Types}
+
+X10 containers may declare {\em properties}, which are fields bound immutably
+at the creation of the container.  The static analysis system understands
+properties, and can work with them logically.   
+
+
+For example, an implementation of matrices \xcd`Mat` might have the numbers of
+rows and columns as properties.  A little bit of care in definitions allows
+the definition of a \xcd`+` operation that works on matrices of the same
+shape, and \xcd`*` that works on matrices with appropriately matching shapes.
+%~~gen ^^^ Overview40
+%package Overview.Mat2;
+%~~vis
+\begin{xten}
+abstract class Mat(rows:Int, cols:Int) {
+ static type Mat(r:Int, c:Int) = Mat{rows==r&&cols==c};
+ abstract operator this + (y:Mat(this.rows,this.cols))
+                 :Mat(this.rows, this.cols);
+ abstract operator this * (y:Mat) {this.cols == y.rows} 
+                 :Mat(this.rows, y.cols);
+\end{xten}
+%~~siv
+%  static def makeMat(r:Int,c:Int) : Mat(r,c) = null;
+%  static def example(a:Int, b:Int, c:Int) {
+%    val axb1 : Mat(a,b) = makeMat(a,b);
+%    val axb2 : Mat(a,b) = makeMat(a,b);
+%    val bxc  : Mat(b,c) = makeMat(b,c);
+%    val axc  : Mat(a,c) = (axb1 +axb2) * bxc;
+%  }
+%}
+%~~neg
+
+
+
+The following code typechecks, but an attempt to compute \xcd`axb1 + bxc` or
+\xcd`bxc * axb1` would result in a compile-time type error:
+%~~gen ^^^ Overview50
+%package Overview.Mat1;
+%abstract class Mat(rows:Int, cols:Int) {
+%  static type Mat(r:Int, c:Int) = Mat{rows==r&&cols==c};
+%  public def this(r:Int, c:Int) : Mat(r,c) = {property(r,c);}
+%  static def makeMat(r:Int,c:Int) : Mat(r,c) = null;
+%  abstract  operator this + (y:Mat(this.rows,this.cols)):Mat(this.rows, this.cols);
+%  abstract  operator this * (y:Mat) {this.cols == y.rows} : Mat(this.rows, y.cols);
+%~~vis
+\begin{xten}
+  static def example(a:Int, b:Int, c:Int) {
+    val axb1 : Mat(a,b) = makeMat(a,b);
+    val axb2 : Mat(a,b) = makeMat(a,b);
+    val bxc  : Mat(b,c) = makeMat(b,c);
+    val axc  : Mat(a,c) = (axb1 +axb2) * bxc;
+  }
+
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+The ``little bit of care'' shows off many of the features of constrained
+types.    
+The \xcd`(rows:Int, cols:Int)` in the class definition declares two
+properties, \xcd`rows` and \xcd`cols`.\footnote{The class is officially declared
+abstract to allow for multiple implementations, like sparse and band matrices,
+but in fact is abstract to avoid having to write the actual definitions of
+\xcd`+` and \xcd`*`.}  
+
+A constrained type looks like \xcd`Mat{rows==r && cols==c}`: a type
+name, followed by a Boolean expression in braces.  
+The \xcd`type` declaration on the second line makes
+\xcd`Mat(r,c)` be a synonym for \xcd`Mat{rows==r && cols==c}`,
+allowing for compact types in many places.
+
+Functions can return constrained types.  
+The \xcd`makeMat(r,c)` method returns a \xcd`Mat(r,c)` -- a matrix whose shape
+is given by the arguments to the method.    In
+particular, constructors can have constrained return types to provide specific
+information about the constructed values.
+
+The arguments of methods can have type constraints as well.  The 
+\xcd`operator this +` line lets \xcd`A+B` add two matrices.  The type of the
+second argument \xcd`y` is constrained to have the same number of rows and
+columns as the first argument \xcd`this`. Attempts to add mismatched matrices
+will be flagged as type errors at compilation.
+
+At times it is more convenient to put the constraint on the method as a whole,
+as seen in the \xcd`operator this *` line. Unlike for \xcd`+`, there is no
+need to constrain both dimensions; we simply need to check that the columns of
+the left factor match the rows of the right. This constraint is written in
+\xcd`{...}` after the argument list.  The shape of the result is computed from
+the shapes of the arguments.
+
+And that is all that is necessary for a user-defined class of matrices to have
+shape-checking for matrix addition and multiplication.  The \xcd`example`
+method compiles under those definitions.
+
+
+
+
+
+
+
+
+\paragraph{Generic types}
+
+Containers may have type parameters, permitting the definition of
+{\em generic types}.  Type parameters may be instantiated by any X10 type.  It
+is thus possible to make a list of integers \xcd`List[Int]`, a list of
+non-zero integers \xcd`List[Int{self != 0}]`, or a list of people
+\xcd`List[Person]`.  In the definition of \xcd`List`, \xcd`T` is a type
+parameter; it can be instantiated with any type.
+%~~gen ^^^ Overview60
+%~~vis
+\begin{xten}
+class List[T] {
+    var head: T;
+    var tail: List[T];
+    def this(h: T, t: List[T]) { head = h; tail = t; }
+    def add(x: T) {
+        if (this.tail == null)
+            this.tail = new List(x, null);
+        else
+            this.tail.add(x);
+    }
+}
+\end{xten}
+%~~siv
+%~~neg
+The constructor (\xcd"def this") initializes the fields of the new object.
+The \xcd"add" method appends an element to the list.
+\xcd"List" is a generic type.  When  instances of \xcd"List" are
+allocated, the type \param{} \xcd"T" must be bound to a concrete
+type.  \xcd"List[Int]" is the type of lists of element type
+\xcd"Int", \xcd"List[List[String]]" is the type of lists whose elements are
+themselves lists of string, and so on.
+
+%%BARD-HERE
+
+\section{The sequential core of X10}
+
+The sequential aspects of X10 are mostly familiar from C and its progeny.
+\Xten{} enjoys the familiar control flow constructs: \xcd"if" statements,
+\xcd"while" loops, \xcd"for" loops, \xcd"switch" statements, \xcd`throw` to
+raise exceptions and \xcd`try...catch` to handle them, and so on.
+
+X10 has both implicit coercions and explicit conversions, and both can be
+defined on user-defined types.  Explicit conversions are written with the
+\xcd`as` operation: \xcd`n as Int`.  The types can be constrained: 
+%~~exp~~`~~`~~n:Int~~ ^^^ Overview70
+\xcd`n as Int{self != 0}` converts \xcd`n` to a non-zero integer, and throws a
+runtime exception if its value as an integer is zero.
+
+\section{Places and activities}
+
+The full power of X10 starts to emerge with concurrency.
+An \Xten{} program is intended to run on a wide range of computers,
+from uniprocessors to large clusters of parallel processors supporting
+millions of concurrent operations. To support this scale, \Xten{}
+introduces the central concept of \emph{place} (\Sref{XtenPlaces}).
+A place can be thought of as a virtual shared-memory multi-processor:
+a computational unit with a finite (though perhaps changing) number of
+hardware threads and a bounded amount of shared memory, uniformly
+accessible by all threads.
+
+
+
+An \Xten{} computation acts on \emph{values}(\Sref{XtenObjects}) through
+the execution of lightweight threads called
+\emph{activities}(\Sref{XtenActivities}). 
+An {\em object}
+ has a small, statically fixed set of fields, each of
+which has a distinct name. A scalar object is located at a single place and
+stays at that place throughout its lifetime. An \emph{aggregate} object has
+many fields (the number may be known only when the object is created),
+uniformly accessed through an index (\eg, an integer) and may be distributed
+across many places. The distribution of an aggregate object remains unchanged
+throughout the computation, thought different aggregates may be distributed
+differently. Objects are garbage-collected when no longer useable; there are
+no operations in the language to allow a programmer to explicitly release
+memory.
+
+{}\Xten{} has a \emph{unified} or \emph{global address space}. This means that
+an activity can reference objects at other places. However, an activity may
+synchronously access data items only in the current place, the place in which
+it is running. It may atomically update one or more data items, but only in
+the current place.   If it becomes necessary to read or modify an object at
+some other place \xcd`q`, the {\em place-shifting} operation \xcd`at(q)` can
+be used, to move part of the activity to \xcd`q`.   It is easy to compute
+across multiple places, but the expensive operations (\eg, those which require
+communication) are readily visible in the code. 
+
+\paragraph{Atomic blocks.}
+
+X10 has a control construct \xcd"atomic S" where \xcd"S" is a statement with
+certain restrictions. \xcd`S` will be executed atomically, without
+interruption by other activities. This is a common primitive used in
+concurrent algorithms, though rarely provided in this degree of generality by
+concurrent programming languages.
+
+More powerfully -- and more expensively -- X10 allows conditional atomic
+blocks, \xcd`when(B)S`, which are executed atomically at some point when
+\xcd`B` is true.  Conditional atomic blocks are one of the strongest
+primitives used in concurrent algorithms, and one of the least-often
+available. 
+
+\paragraph{Asynchronous activities.}
+
+An asynchronous activity is created by a statement \xcd"async S", which starts
+up a new activity running \xcd`S`.  It does not wait for the new activity to
+finish; there is a separate statement (\xcd`finish`) to do that.
+
+
+
+
+\section{Clocks}
+The MPI style of coordinating the activity of multiple processes with
+a single barrier is not suitable for the dynamic network of heterogeneous
+activities in an \Xten{} computation.  
+X10 allows multiple barriers in a form that supports determinate,
+deadlock-free parallel computation, via the \xcd`Clock` type.
+
+A single \xcd`Clock` represents a computation that occurs in phases.
+At any given time, an activity is {\em registered} with zero or more clocks.
+The X10 statement \xcd`next` tells all of an activity's registered clocks that
+the activity has finished the current phase, and causes it to wait for the
+next phase.  Other operations allow waiting on a single clock, starting
+new clocks or new activities registered on an extant clock, and so on. 
+
+%%INTRO-CLOCK%  Activities may use clocks to repeatedly detect quiescence of arbitrary
+%%INTRO-CLOCK%  programmer-specified, data-dependent set of activities. Each activity
+%%INTRO-CLOCK%  is spawned with a known set of clocks and may dynamically create new
+%%INTRO-CLOCK%  clocks. At any given time an activity is \emph{registered} with zero or
+%%INTRO-CLOCK%  more clocks. It may register newly created activities with a clock,
+%%INTRO-CLOCK%  un-register itself with a clock, suspend on a clock or require that a
+%%INTRO-CLOCK%  statement (possibly involving execution of new async activities) be
+%%INTRO-CLOCK%  executed to completion before the clock can advance.  At any given
+%%INTRO-CLOCK%  step of the execution a clock is in a given phase. It advances to the
+%%INTRO-CLOCK%  next phase only when all its registered activities have \emph{quiesced}
+%%INTRO-CLOCK%  (by executing a \xcd"next" operation on the clock).
+%%INTRO-CLOCK%  When a clock advances, all its activities may now resume execution.
+%%INTRO-CLOCK%  
+
+Clocks act as {barriers} for a dynamically varying collection of activities.
+They generalize the barriers found in MPI style program in that an activity
+may use multiple clocks simultaneously. Yet programs using clocks properly are
+guaranteed not to suffer from deadlock.
+
+%%HERE
+
+\section{Arrays, regions and distributions}
+
+X10 provides \xcd`DistArray`s, {\em distributed arrays}, which spread data
+across many places. An underlying \xcd`Dist` object provides the {\em
+distribution}, telling which elements of the \xcd`DistArray` go in which
+place. \xcd`Dist` uses subsidiary \xcd`Region` objects to abstract over the
+shape and even the dimensionality of arrays.
+Specialized X10 control statements such as \xcd`ateach` provide efficient
+parallel iteration over distributed arrays.
+
+
+\section{Annotations}
+
+\Xten{} supports annotations on classes and interfaces, methods
+and constructors,
+variables, types, expressions and statements.
+These annotations may be processed by compiler plugins.
+
+\section{Translating MPI programs to \Xten{}}
+
+While \Xten{} permits considerably greater flexibility in writing
+distributed programs and data structures than MPI, it is instructive
+to examine how to translate MPI programs to \Xten.
+
+Each separate MPI process can be translated into an \Xten{}
+place. Async activities may be used to read and write variables
+located at different processes. A single clock may be used for barrier
+synchronization between multiple MPI processes. \Xten{} collective
+operations may be used to implement MPI collective operations.
+\Xten{} is more general than MPI in (a)~not requiring synchronization
+between two processes in order to enable one to read and write the
+other's values, (b)~permitting the use of high-level atomic blocks
+within a process to obtain mutual exclusion between multiple
+activities running in the same node (c)~permitting the use of multiple
+clocks to combine the expression of different physics (e.g.,
+computations modeling blood coagulation together with computations
+involving the flow of blood), (d)~not requiring an SPMD style of
+computation.
+
+
+%\note{Relaxed exception model}
+\section{Summary and future work}
+\subsection{Design for scalability}
+\Xten{} is designed for scalability, by encouraging working with local data,
+and limiting the ability of events at one place to delay those at another. For
+example, an activity may atomically access only multiple locations in the
+current place. Unconditional atomic blocks are dynamically guaranteed to be
+non-blocking, and may be implemented using non-blocking techniques that avoid
+mutual exclusion bottlenecks. 
+%TODO: yoav says: ``no idea what [the following] means''
+Data-flow synchronization permits point-to-point
+coordination between reader/writer activities, obviating the need for
+barrier-based or lock-based synchronization in many cases.
+
+\subsection{Design for productivity}
+\Xten{} is designed for productivity.
+
+\paragraph{Safety and correctness.}
+
+\bard{Confirm some of these claims}
+
+Programs written in \Xten{} are guaranteed to be statically
+\emph{type safe}, \emph{memory safe} and \emph{pointer safe}. 
+
+Static type safety guarantees that every location contains only values whose
+dynamic type agrees with the location's static type. The compiler allows a
+choice of how to handle method calls. In strict mode, method calls are
+statically checked to be permitted by the static types of operands. In lax
+mode, dynamic checks are inserted when calls may or may not be correct,
+providing weaker static correctness guarantees but more programming
+convenience. 
+
+Memory safety guarantees that an object may only access memory within its
+representation, and other objects it has a reference to. \Xten{} does not
+permit 
+pointer arithmetic, and bound-checks array accesses dynamically if necessary.
+\Xten{} uses garbage collection to collect objects no longer referenced by any
+activity. \Xten{} guarantees that no object can retain a reference to an
+object whose memory has been reclaimed. Further, \Xten{} guarantees that every
+location is initialized at run time before it is read, and every value read
+from a word of memory has previously been written into that word.
+
+%XXX
+%Pointer safety guarantees that a null pointer exception cannot be
+%thrown by an operation on a value of a non-nullable type.
+
+Because places are reflected in the type system, static type safety
+also implies \emph{place safety}. All operations that need to be performed
+locally are, in fact, performed locally.  All data which is declared to be
+stored locally are, in fact, stored locally.
+
+\Xten{} programs that use only clocks and unconditional atomic
+blocks are guaranteed not to deadlock. Unconditional atomic blocks
+are non-blocking, hence cannot introduce deadlocks.
+Many concurrent programs can be shown to be determinate (hence
+race-free) statically.
+
+\paragraph{Integration.}
+A key issue for any new programming language is how well it can be
+integrated with existing (external) languages, system environments,
+libraries and tools.
+
+%TODO: Yoav asks ``you mean interop''?
+We believe that \Xten{}, like \java{}, will be able to support a large
+number of libraries and tools. An area where we expect future versions
+of \Xten{} to improve on \java{} like languages is \emph{native
+integration} (\Sref{NativeCode}). Specifically, \Xten{} will permit
+permit multi-dimensional local arrays to be operated on natively by
+native code.
+
+\subsection{Conclusion}
+{}\Xten{} is considerably higher-level than thread-based languages in
+that it supports dynamically spawning lightweight activities, the
+use of atomic operations for mutual exclusion, and the use of clocks
+for repeated quiescence detection.
+
+Yet it is much more concrete than languages like HPF in that it forces
+the programmer to explicitly deal with distribution of data
+objects. In this the language reflects the designers' belief that
+issues of locality and distribution cannot be hidden from the
+programmer of high-performance code in high-end computing.  A
+performance model that distinguishes between computation and
+communication must be made explicit and transparent.\footnote{In this
+\Xten{} is similar to more modern languages such as ZPL \cite{zpl}.}
+At the same time we believe that the place-based type system and
+support for generic programming will allow the \Xten{} programmer to
+be highly productive; many of the tedious details of
+distribution-specific code can be handled in a generic fashion.

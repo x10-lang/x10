@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Expression statement</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Expression statement</h2>
+
+<div class="p"><!----></div>
+
+<em>
+  
+<table>
+
+<tr><td align="right">ExpStatement ::= StatementExp <b>;</b> </td></tr>
+<tr><td align="right">StatementExp ::= Assignment </td></tr>
+<tr><td align="right">&#124; PreIncrementExp </td></tr>
+<tr><td align="right">&#124; PreDecrementExp </td></tr>
+<tr><td align="right">&#124; PostIncrementExp </td></tr>
+<tr><td align="right">&#124; PostDecrementExp </td></tr>
+<tr><td align="right">&#124; MethodInvocation </td></tr>
+<tr><td align="right">&#124; ClassInstCreationExp </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The expression statement evaluates an expression. The value of the expression
+is not used. Side effects of the expression occur, and may produce results
+used by following statements. Indeed, statement expressions which terminate
+without side effects cannot have any visible effect on the results of the
+computation. 
+
+<div class="p"><!----></div>
+<pre>
+class StmtEx {
+  def this() { x10.io.Console.OUT.println("New StmtEx made");  }
+  static def call() { x10.io.Console.OUT.println("call!");  }
+  def example() {
+     var a : Int = 0;
+     a = 1; // assignment
+     new StmtEx(); // allocation
+     call(); // call
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+Only selected forms of expression can appear in expression statements:
+assignments, increments, decrements, method invocations, and constructor
+invocations. Most other forms of expression, such as literals and variable and
+field references, cannot have side effects and are thus pointless as
+expression statements.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

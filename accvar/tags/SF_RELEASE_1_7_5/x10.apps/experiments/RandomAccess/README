@@ -1,0 +1,35 @@
+To Install:
+===========
+
+1. untar hpcc-opt.tar.
+
+2. Copy make.def.template to make.def
+
+3. Edit make.def and change the Include and Library path to suit your environment
+   Change the compiler flags, if required (default -O3 -q64 -qarch=pwr5 -qtune=pwr5 is recommended)
+
+4. type "make".
+
+To run:
+=======
+
+1. Edit host.list and enter the nodes in round-robin fashion.  You can use the utility host.pl for this.
+   The syntax is : ./host.pl <cluster_name_suffix> <start_node_number> <end_node_number>. E.g. ./host.pl v80n0 1 2.
+   For non-contiguous range of nodes, you should create the file manually.
+
+2. Invoke ./run.sh <log_min_procs> <log_max_nprocs> <#runs> <log_table_size>
+     e.g. ./run.sh 0 4 1 26 will run for procs 1, 2, 4, 8 ,16. for table size  of 26 and 1 time.
+   SUGGESTION :  Insert the above  command in a file (e.g. ./submit) and use "at" to run the command. Like, 
+            at now ./submit.
+    
+NOTE: For RandomAccess_Dist the table size is hard coded in RandomAccess_Dist.cc. It is set to 2^26 by default.
+
+Output:
+=======
+The output will be table whose entries are averages of n runs ,where n is specified as command line argument to ./run.sh .
+The legend of the table is as follows:
+
+PROCS = Number of processors.
+EXPT1 = HAND
+EXPT2 = X10C
+EXPT3 = HPCC (OPT)

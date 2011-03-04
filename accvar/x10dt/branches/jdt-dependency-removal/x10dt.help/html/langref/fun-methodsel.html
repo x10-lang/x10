@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Methods selectors</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Method selectors</h2>
+<a name="MethodSelectors">
+</a>
+
+
+
+<div class="p"><!----></div>
+A method selector expression allows a method to be used as a
+first-class function, without writing a function expression for it.
+Consider a class <b>Span</b> defining ranges of integers.    
+
+<div class="p"><!----></div>
+<pre>
+class Span(low:Int, high:Int) {
+  def this(low:Int, high:Int) {property(low,high);}
+  def between(n:Int) = low &lt;= n &amp;&amp; n &lt;= high;
+  static def example() {
+    val digit = new Span(0,9);
+    val isDigit : (Int) =&#62; Boolean = digit.between.(Int);
+    assert isDigit(8);
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+In <b>example()</b>, 
+<b>digit.between.(Int)</b> 
+is a unary function testing whether its argument is between zero
+and nine.  It could also be written 
+<b>(n:Int) =&#62; digit.between(n)</b>.
+
+<div class="p"><!----></div>
+<em>
+<table>
+
+<tr><td align="right">MethodSelection ::= MethodName <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The <em>method selector expression</em> <b>e.m.(T1,...,Tn)</b> is type
+correct only if  the static type of {e} is a
+class or struct or interface <b>V</b> with a method
+<b>m(x1:T1,...xn:Tn){c}:T</b> defined on it (for some
+<b>x1,...,xn,c,T)</b>. At runtime the evaluation of this expression
+evaluates {e} to a value {v} and creates a function <b>f</b>
+which, when applied to an argument list <b>(a1,...,an)</b> (of the right
+type) yields the value obtained by evaluating <b>v.m(a1,...,an)</b>.
+
+<div class="p"><!----></div>
+Thus, the method selector
+
+<div class="p"><!----></div>
+<pre>
+e.m.(T<sub>1</sub>, ..., T<sub>n</sub>)
+</pre>
+ behaves as if it were the function
+<pre>
+((v:V)=&#62;
+  (x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} 
+  =&#62; v.m(x<sub>1</sub>, ..., x<sub>n</sub>))
+(e)
+</pre>
+
+<div class="p"><!----></div>
+Because of overloading, a method name is not sufficient to
+uniquely identify a function for a given class.
+One needs the argument type information as well.
+The selector syntax (dot) is used to distinguish <b>e.m()</b> (a
+method invocation on <b>e</b> of method named <b>m</b> with no arguments)
+from <b>e.m.()</b>
+(the function bound to the method). 
+
+<div class="p"><!----></div>
+A static method provides a binding from a name to a function that is
+independent of any instance of a class; rather it is associated with the
+class itself. The static function selector
+"T.m.(T<sub>1</sub>, ..., T<sub>n</sub>)" denotes the
+function bound to the static method named <b>m</b>, with argument types
+ for the type <b>T</b>. The return type
+of the function is specified by the declaration of <b>T.m</b>.
+
+<div class="p"><!----></div>
+There is no difference between using a function defined directly 
+directly using the function syntax, or obtained via static or
+instance function selectors.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

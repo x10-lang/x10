@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>Compiler options</title>
+</head>
+
+<body>
+<h1>Compiler options</h1>
+<pre>
+$ x10c -- --help
+usage: x10c [options] <source-file>.x10 ...
+where [options] includes:
+  @<file>                  read options from <file>
+  -d <directory>           output directory
+  -assert                  recognize the assert keyword
+  -sourcepath <path>       source path
+  -bootclasspath <path>    path for bootstrap class files
+  -ext <extension>         use language extension
+  -extclass <ext-class>    use language extension
+  -commandlineonly         only compile files named on the command-line (may
+                           also require -c)
+  -preferclassfiles        prefer class files to source files even if the
+                           source is newer
+  -fqcn                    use fully-qualified class names
+  -sx <ext>                set source extension
+  -ox <ext>                set output extension
+  -errors <num>            set the maximum number of errors
+  -w <num>                 set the maximum width of the .java output files
+  -dump <pass>             dump the ast after pass <pass>
+  -print <pass>            pretty-print the ast after pass <pass>
+  -disable <pass>          disable pass <pass>
+  -noserial                disable class serialization
+  -nooutput                delete output files after compilation
+  -c                       compile only to .java
+  -post <compiler>         run javac-like compiler after translation
+  -debugpositions          generate position information for
+                           compiler-generated code
+  -simpleoutput            use SimpleCodeWriter
+  -v -verbose              print verbose debugging information
+  -report <topic>=<level>  print verbose debugging information about topic
+                           at specified verbosity
+        Allowed topics: imports, jl, x10, serialize, types, frontend, time,
+        resolver, cfg, visit, clock, dataflow, debug, errors, context,
+        loader, verbose, qq
+  -version                 print version info
+  -h                       print this message
+  -noassert                turn off assertion generation
+  -CHECK_INVARIANTS=boolean
+                           Check AST invariants such as position
+                           containment, existence of xxxInstance(), etc
+                           (default = false)
+  -ONLY_TYPE_CHECKING=boolean
+                           Do only type-checking, without optimizations or
+                           code generation (default = false)
+  -OPTIMIZE=boolean        Generate optimized code (default = false)
+  -DEBUG=boolean           Generate debug information (default = false)
+  -NO_CHECKS=boolean       Disable generation of all null, bounds, and place
+                           checks (default = false)
+  -LOOP_OPTIMIZATIONS=boolean
+                           Optimize rectangular region iteration (default =
+                           true)
+  -INLINE_OPTIMIZATIONS=boolean
+                           Perform inlining optimizations (default = false)
+  -CLOSURE_INLINING=boolean
+                           Perform closure literal inlining (default = true)
+  -FLATTEN_EXPRESSIONS=boolean
+                           Flatten all expressions (default = false)
+  -INLINE_SMALL_METHODS=boolean
+                           Inline methods that don't make many calls
+                           (default = false)
+  -PLUGINS=String          Comma-separated list of compiler plugins to run.
+                           (default = "")
+  -PLUGIN_COMPILER=String  Javac-like compiler to use to compile plugins
+                           (default = "")
+  -MANIFEST=String         The path to the pre-built library manifest file
+                           (default = null)
+  -WORK_STEALING=boolean   Code generation for work-stealing scheduling
+                           (default = false)
+  -WALA=boolean            Produce WALA IR from X10 sources (default =
+                           false)
+  -VERBOSE_CALLS=boolean   Print details of casts introduced for
+                           dynamically-checked calls. (default = false)
+  -STATIC_CALLS=boolean    Treat dynamically-checked calls as errors.
+                           (default = false)
+  -FINISH_ASYNCS=boolean   finish-async analysis. (default = false)
+</pre>
+</body>
+</html>

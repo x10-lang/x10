@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Casts</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc22">
+22</a>&nbsp;&nbsp;Casts</h2><a name="ClassCast">
+</a>
+
+
+<div class="p"><!----></div>
+The cast operation may be used to cast an expression to a given type:
+
+<div class="p"><!----></div>
+<em>
+<table>
+
+<tr><td align="right">CastExp ::= Primary </td></tr>
+<tr><td align="right">&#124; ExpName </td></tr>
+<tr><td align="right">&#124; CastExp <b>as</b> Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The result of this operation is a value of the given type if the cast
+is permissible at run time, and either a compile-time error or a runtime
+exception 
+(<b>x10.lang.TypeCastException</b>) if it is not.  
+
+<div class="p"><!----></div>
+When evaluating <b>E as T{c}</b>, first the value of <b>E</b> is converted to
+type <b>T</b> (which may fail), and then the constraint <b>{c}</b> is checked. 
+
+<div class="p"><!----></div>
+
+<ul>
+<li> If <b>T</b> is a primitive type, then <b>E</b>'s value is converted to type
+      <b>T</b> according to the rules of
+      &#167;.
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>T</b> is a class, then the first half of the cast succeeds if the
+      run-time value of <b>E</b> is an instance of class <b>T</b>, or of a
+      subclass.
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>T</b> is an interface, then the first half of the cast succeeds if
+      the run-time value of <b>E</b> is an instance of a class implementing
+      <b>T</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>T</b> is a struct type, then the first half of the cast succeeds if
+      the run-time value of <b>E</b> is an instance of <b>T</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>T</b> is a function type, then the first half of the cast succeeds
+      if the run-time value of <b>X</b> is a function of that type, or a
+      subtype of it.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+If the first half of the cast succeeds, the second half - the constraint
+<b>{c}</b> - must be checked.  In general this will be done at runtime, though
+in special cases it can be checked at compile time.   For example, 
+<b>n as Int{self != w}</b> succeeds if <b>n != w</b> - even if <b>w</b> is a value
+read from input, and thus not determined at compile time.
+
+<div class="p"><!----></div>
+The compiler may forbid casts that it knows cannot possibly work. If there is
+no way for the value of <b>E</b> to be of type <b>T{c}</b>, then 
+<b>E as T{c}</b> can result in a static error, rather than a runtime error.  
+For example, <b>1 as Int{self==2}</b> may fail to compile, because the compiler
+knows that <b>1</b>, which has type <b>Int{self==1}</b>, cannot possibly be of
+type <b>Int{self==2}</b>. 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.86">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>Options</title>
+
+<body>
+ <h1><a name="tth_chAp1">
+B </a><br />Options</h1>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.1">
+0.1</a>&nbsp;&nbsp;Compiler Options</h3>
+
+<div class="p"><!----></div>
+The X10 compilers have many useful options. 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.2">
+0.2</a>&nbsp;&nbsp;Optimization: <tt>-O</tt> or <tt>-optimize</tt></h3>
+
+<div class="p"><!----></div>
+This flag causes the compiler to generate optimized code.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.3">
+0.3</a>&nbsp;&nbsp;Debugging: <tt>-DEBUG=boolean</tt></h3>
+
+<div class="p"><!----></div>
+This flag, if true, causes the compiler to generate debugging information.  It
+is false by default.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.4">
+0.4</a>&nbsp;&nbsp;Call Style: <tt>-STATIC_CALLS=boolean, -VERBOSE_CALLS=boolean</tt></h3>
+
+
+
+
+<div class="p"><!----></div>
+By default, if a method call <em>could</em> be correct but is not <em>
+necessarily</em> correct, the X10 compiler generates a dynamic check to ensure
+that it is correct before it is performed.  For example, the following code: 
+<pre>
+def use(n:Int{self == 0}) {}
+def test(x:Int) { 
+   use(x); // creates a dynamic cast
+}
+</pre>
+compiles with <b>-STATIC_CALLS=false</b>, even though it is possible that 
+<b>x!=0</b> when <b>use(x)</b> is called.  In this case, the compiler inserts a
+cast, which has the effect of checking that the call is correct before it
+happens: 
+<pre>
+def use(n:Int{self == 0}) {}
+def test(x:Int) { 
+   use(x as Int{self == 0}); 
+}
+</pre>
+The compiler produces a warning that it inserted some dynamic casts.
+If you then want to see what it did, use <b>-VERBOSE_CALLS</b>.
+
+<div class="p"><!----></div>
+You may also turn on static checking, with the <b>-STATIC_CALLS</b> flag.  With
+static checking, calls that cannot be proved correct statically will be
+marked as errors.  The program without the dynamic cast fails to compile with
+<b>-STATIC_CALLS</b>.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.5">
+0.5</a>&nbsp;&nbsp;Help: <tt>-help</tt> and <tt>- -help</tt></h3>
+
+<div class="p"><!----></div>
+These options cause the compiler to print a list of all command-line options.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.6">
+0.6</a>&nbsp;&nbsp;Source Path: <tt>-sourcepath <em>path</em></tt></h3>
+
+<div class="p"><!----></div>
+This option tells the compiler where to look for X10 source code.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.7">
+0.7</a>&nbsp;&nbsp;Class Path: <tt>-classpath <em>path</em></tt></h3>
+
+<div class="p"><!----></div>
+This option tells the compiler where to look for compiled code in <tt>class</tt>
+files.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.8">
+0.8</a>&nbsp;&nbsp;Output Directory: <tt>-d <em>directory</em></tt></h3>
+
+<div class="p"><!----></div>
+This option tells the compiler to produce its output files in the specified directory.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.9">
+0.9</a>&nbsp;&nbsp;Runtime <tt>-x10rt <em>impl</em></tt></h3>
+
+<div class="p"><!----></div>
+This option tells which runtime implementation to use.  The choices are
+<b>lapi</b>, <b>pgp</b>, <b>sockets</b>, <b>mpi</b>, and <b>standalone</b>.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Execution Options: Java</h2>
+
+<div class="p"><!----></div>
+The Java execution command <b>x10</b> has a number of options as well. 
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;<tt>-NUMBER_OF_LOCAL_PLACES=<em>number</em></tt></h3>
+
+<div class="p"><!----></div>
+This option controls how many <b>Place</b>s the system will run on.  The
+default is four, but you may control it as you wish.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;Heap Size: <tt>-mx <em>size</em></tt></h3>
+
+<div class="p"><!----></div>
+Sets the maximum size of the heap. 
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Help: <tt>-h</tt></h3>
+
+<div class="p"><!----></div>
+Prints a listing of all execution options.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

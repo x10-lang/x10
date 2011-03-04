@@ -1,0 +1,9 @@
+This is the test suite for the X10 Programming Language.
+
+To invoke the test suite, run:
+
+cd examples
+../bin/testScript
+
+You might need to make the scripts in bin/ executable.
+

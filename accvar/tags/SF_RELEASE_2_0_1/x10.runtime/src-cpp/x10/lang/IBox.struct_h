@@ -1,0 +1,47 @@
+#ifndef X10_LANG_IBOX_STRUCT_H
+#define X10_LANG_IBOX_STRUCT_H
+
+#include <x10/lang/Reference.h>
+
+namespace x10 {
+    namespace lang {
+
+        class String;
+        
+        /**
+         * This is a class that exists only at the C++ implementation level,
+         * not at the X10 language level.  Therefore it does not have an
+         * associated RTT.
+         * 
+         * The purpose of this class is to enable struct values to be boxed
+         * when they are assigned/casts to variables of interface types.
+         * When that happens, all we need to provide is a 
+         */
+        template <class T> class IBox : public Reference {
+        protected:
+           IBox(){ }
+        public:
+            T value;
+            
+            IBox(T val) : value(val) {
+                location = x10aux::here;
+            }
+
+            virtual x10aux::itable_entry* _getITables();
+
+            virtual const x10aux::RuntimeType *_type() const;
+            static const x10aux::RuntimeType* getRTT();
+
+            virtual x10aux::ref<String> toString();
+
+            virtual x10_int hashCode();
+            
+            virtual x10aux::serialization_id_t _get_serialization_id();
+
+            virtual void _serialize_body(x10aux::serialization_buffer &);
+        };
+    }
+}
+
+
+#endif

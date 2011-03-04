@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Calls</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Calls</h2>
+<a name="Call">
+</a>
+<a name="MethodInvocation">
+</a>
+<a name="MethodInvocationSubstitution">
+</a>
+
+
+
+
+
+
+
+
+
+<div class="p"><!----></div>
+<em>
+<table>
+
+<tr><td align="right">MethodInvocation ::= MethodPrimaryPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; MethodSuperPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; MethodClassNameSuperPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; MethodName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; Primary TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">ArgumentList ::= Exp </td></tr>
+<tr><td align="right">&#124; ArgumentList <b>,</b> Exp </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+A <em>MethodInvocation</em> may be to either a <b>static</b> method, an
+instance method, or a closure.
+
+<div class="p"><!----></div>
+The syntax is ambiguous; the target must be type-checked to determine if it is
+the name of a method or if it refers to a field containing a closure. It is a
+static error if a call may resolve to both a closure call or to a method call.
+<pre>
+class Callsome {
+  static val closure = () =&#62; 1;
+  static def method () = 2;
+  static val closureEvaluated = Callsome.closure();
+  static val methodEvaluated = Callsome.method();
+}
+</pre>
+However, adding a static method called <b>closure</b> makes <b>Callsome.closure()</b>
+ambiguous: it could be a call to the closure, or to the static method: 
+
+<div class="p"><!----></div>
+<pre>
+  static def closure () = 3;
+  // ERROR: static errory = Callsome.closure();
+</pre>
+
+<div class="p"><!----></div>
+A closure call &#235;(...)" is shorthand for a method call
+&#235;.apply(...)". 
+
+<div class="p"><!----></div>
+Method selection rules are given in &#167;.
+
+<div class="p"><!----></div>
+It is a static error if a method's <em>Guard</em> is not satisfied by the
+caller.  For example: 
+<pre>
+class DivideBy(denom:Int) {
+  def doIt(numer:Int){denom != 0} = numer / denom;
+  def example() {
+     //ERROR: denom might be zero: this.doIt(100); 
+     (this as DivideBy{self.denom != 0}).doIt(100);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Assert statement</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc18">
+18</a>&nbsp;&nbsp;Assert</h2>
+
+<div class="p"><!----></div>
+The <b>assert</b> statement 
+<b>assert B;</b> 
+checks that the Boolean expression <b>B</b> evaluates to true.  If so,
+computation proceeds.  If not, it throws <b>x10.lang.AssertionError</b>.
+
+<div class="p"><!----></div>
+The extended form 
+<b>assert B:A;</b>
+is similar, but provides more debugging information.  The value of the
+expression <b>A</b> is available as part of the <b>AssertionError</b>, <em>e.g.</em>, to
+be printed on the console.
+
+<div class="p"><!----></div>
+<b>assert</b> is useful for confirming properties that you believe to be true
+and wish to rely on.  In particular, well-chosen <b>assert</b>s make a program
+robust in the face of code changes and unexpected uses of methods.
+For example, the following method compute percent differences, but asserts
+that it is not dividing by zero.  If the mean is zero, it throws an exception,
+including the values of the numbers as potentially useful debugging
+information. 
+<pre>
+static def percentDiff(x:Double, y:Double) {
+  val diff = x-y;
+  val mean = (x+y)/2;
+  assert mean != 0.0  : [x,y]; 
+  return Math.abs(100 * (diff / mean));
+}
+</pre>
+
+<div class="p"><!----></div>
+At times it may be considered important not to check <b>assert</b> statements;
+<em>e.g.</em>, if the test is expensive and the code is sufficiently well-tested.  The
+<b>-noassert</b> command line option causes the compiler to ignore all
+<b>assert</b> statements. 
+
+</body>
+</html>

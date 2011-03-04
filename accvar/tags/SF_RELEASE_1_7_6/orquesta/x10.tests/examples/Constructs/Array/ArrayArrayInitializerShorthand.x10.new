@@ -1,0 +1,28 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Test the shorthand syntax for array of arrays initializer.
+ *
+ * @author igor, 12/2005
+ */
+public class ArrayArrayInitializerShorthand extends x10Test {
+
+	public def run(): boolean = {
+		final val d: dist = Dist.makeConstant([1..10, 1..10], here);
+		final val a: Array[int] = new Array[int](d);
+		final val ia: Array[Array[int]] = new Array[Array[int]](d, (var point [i,j]: point): Array[int] => { return a; });
+		for (val (i,j): point in ia) chk(ia(i, j) == a);
+		return true;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new ArrayArrayInitializerShorthand().execute();
+	}
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Array initializer</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Array initializer</h2><a name="ArrayInitializer">
+</a><a name="array!creation">
+</a>
+
+<div class="p"><!----></div>
+Arrays are instantiated by invoking one of the <b>make</b> factory
+methods of the <b>Array</b> class.
+
+<div class="p"><!----></div>
+An array creation 
+must take either an <b>Int</b> as an argument or a <b>Dist</b>. In the first
+case an array is created over the distribution <b>[0:N-1]-&#62;here</b>;
+in the second over the given distribution. 
+
+<div class="p"><!----></div>
+An array creation operation may also specify an initializer
+function.
+The function is applied in parallel
+at all points in the domain of the distribution. The array
+construction operation terminates locally only when the array has been
+fully created and initialized (at all places in the range of the
+distribution).
+
+<div class="p"><!----></div>
+For instance:
+<pre>
+val data : Array[Int]
+    = Array.make[Int](1..1000-&#62;here, ((i):Point) =&#62; i);
+val data2 : Array[Int]
+    = Array.make[Int]([1..1000,1..1000]-&#62;here, ((i,j):Point) =&#62; i*j);
+</pre>
+
+<div class="p"><!----></div>
+ The first declaration stores in <b>data</b> a reference to a mutable
+array with <b>1000</b> elements each of which is located in the
+same place as the array. Each array component is initialized to <b>i</b>.
+
+<div class="p"><!----></div>
+The second declaration stores in <b>data2</b> a reference to a mutable
+2-d array over <b>[1..1000, 1..1000]</b> initialized with <b>i*j</b>
+at point <b>[i,j]</b>.
+
+<div class="p"><!----></div>
+Other examples:
+<pre>
+val D1:Dist(1) = ...; /* An expression that creates a Dist */
+val D2:Dist(2) = ...; /* An expression that creates a Dist */
+
+<div class="p"><!----></div>
+val data : Array[Int]
+    = Array.make[Int](1000, ((i):Point) =&#62; i*i);
+
+<div class="p"><!----></div>
+val data2 : Array[Float]
+    = Array.make[Float](D1, ((i):Point) =&#62; i*i as Float);
+
+<div class="p"><!----></div>
+val result : Array[Float]
+   = Array.make[Float](D2, ((i,j):Point) =&#62; i+j as Float);;
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

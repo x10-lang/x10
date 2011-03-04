@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Principles of X10 Objects</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Principles of X10 Objects</h2><a name="XtenObjects">
+</a>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Basic Design</h3>
+
+<div class="p"><!----></div>
+Objects are instances of classes: the most common and most powerful sort of
+value in X10.  The other kinds of values, structs and functions, are more
+specialized, better in some circumstances but not in all.
+<b>x10.lang.Object</b> is the most general class; all other classes inherit
+from it, directly or indirectly. 
+
+<div class="p"><!----></div>
+Classes are structured in a single-inheritance code
+hierarchy, may implement multiple interfaces, may have static and
+instance fields, may have static and instance methods, may have
+constructors, 
+may have static and instance nested classes and interfaces. X10 does not
+permit mutable static state.
+
+<div class="p"><!----></div>
+X10 objects do not have locks associated with them.
+Programmers should use atomic blocks (&#167;) for mutual
+exclusion and clocks (&#167;) for sequencing multiple parallel
+operations.
+
+<div class="p"><!----></div>
+An object exists in a single location: the place that it was created.  One
+place cannot directly refer to an object in a different place.   A
+special type, <b>GlobalRef[T]</b>, allows explicit cross-place references. 
+
+<div class="p"><!----></div>
+The basic operations on objects are:
+
+<ul>
+<li> Field access (&#167;). 
+The static and instance fields of an object can be retrieved; <b>var</b> fields
+can be set.  
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+</li>
+
+<li> Method invocation (&#167;).  
+Static and instance methods of an object can be invoked.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+</li>
+
+<li> Casting (&#167;) and instance testing with <b>instanceof</b>
+(&#167;) Objects can be cast or type-tested.
+<div class="p"><!----></div>
+</li>
+
+<li> The equality operators <b>==</b> and <b>!=</b>
+Objects can be compared for equality with the <b>==</b> operation.  This checks
+object <em>identity</em>: two objects are <b>==</b> iff they are the same object.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+        <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;Class Declaration Syntax</h3>
+
+<div class="p"><!----></div>
+The <em>class declaration</em> has a list of type parameters, properties, a
+constraint (the <em>class invariant</em>), a single superclass, zero or more
+interfaces, and a class body containing the the definition of fields,
+properties, methods, and member types. Each such declaration introduces a
+class type (&#167;).
+
+<div class="p"><!----></div>
+<em>  
+<table>
+
+<tr><td align="right">NormalClassDecl ::= Mods<sup>?</sup>&nbsp;<b>class</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;Super<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody </td></tr>
+<tr><td align="right">TypeParamsWithVariance ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
+<tr><td align="right">TypeParamWithVarianceList ::= TypeParamWithVariance </td></tr>
+<tr><td align="right">&#124; TypeParamWithVarianceList <b>,</b> TypeParamWithVariance </td></tr>
+<tr><td align="right">Properties ::= <b>(</b> PropertyList <b>)</b> </td></tr>
+<tr><td align="right">PropertyList ::= Property </td></tr>
+<tr><td align="right">&#124; PropertyList <b>,</b> Property </td></tr>
+<tr><td align="right">Property ::= Annotations<sup>?</sup>&nbsp;Id ResultType </td></tr>
+<tr><td align="right">WhereClause ::= DepParams </td></tr>
+<tr><td align="right">Super ::= <b>extends</b> ClassType </td></tr>
+<tr><td align="right">Interfaces ::= <b>implements</b> InterfaceTypeList </td></tr>
+<tr><td align="right">InterfaceTypeList ::= Type </td></tr>
+<tr><td align="right">&#124; InterfaceTypeList <b>,</b> Type </td></tr>
+<tr><td align="right">ClassBody ::= <b>{</b> ClassBodyDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">ClassBodyDecls ::= ClassBodyDecl </td></tr>
+<tr><td align="right">&#124; ClassBodyDecls ClassBodyDecl </td></tr>
+<tr><td align="right">ClassMemberDecl ::= FieldDecl </td></tr>
+<tr><td align="right">&#124; MethodDecl </td></tr>
+<tr><td align="right">&#124; PropertyMethodDecl </td></tr>
+<tr><td align="right">&#124; TypeDefDecl </td></tr>
+<tr><td align="right">&#124; ClassDecl </td></tr>
+<tr><td align="right">&#124; InterfaceDecl </td></tr>
+<tr><td align="right">&#124; <b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

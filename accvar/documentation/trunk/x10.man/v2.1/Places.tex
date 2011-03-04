@@ -1,0 +1,122 @@
+
+\chapter{Places}
+\label{XtenPlaces}
+\index{place}
+
+An \Xten{} place is a repository for data and activities, corresponding
+loosely to a process or a processor. Places induce a concept of ``local''. The
+activities running in a place may access data items located at that place with
+the efficiency of on-chip access. Accesses to remote places may take orders of
+magnitude longer. X10's system of places is designed to make this obvious.
+Programmers are aware of the places of their data, and know when they are
+incurring communication costs, but the actual operation to do so is easy. It's
+not hard to use non-local data; it's simply hard to to do so accidentally.
+
+The set of places available to a computation is determined at the time that
+the program is started, and remains fixed through the run of the program. See
+the {\tt README} documentation on how to set command line and configuration
+options to set the number of places.
+
+Places are first-class values in X10, as instances of the built-in struct,
+\xcd"x10.lang.Place".   \xcd`Place` provides a number of useful ways to
+query places, such as \xcd`Place.places`, a \xcd`Sequence[Place]` of 
+the places
+available to the current run of the program.
+
+Objects and structs (with one exception) are created in a single place -- the
+place that the constructor call was running in. They cannot change places.
+They can be {\em copied} to other places, and the special library struct
+\Xcd{GlobalRef} allows values at one place to point to values at another.  
+
+\section{The Structure of Places}
+\index{place!MAX\_PLACES}
+\index{place!FIRST\_PLACES}
+\index{MAX\_PLACES}
+\index{FIRST\_PLACE}
+
+%~~exp~~`~~`~~ ~~ ^^^ Places10
+Places are numbered 0 through \xcd`Place.MAX_PLACES-1`; the number is stored
+in the field 
+\xcd`pl.id`.  The \xcd`Sequence[Place]` \xcd`Place.places()` contains the places of the
+program, in numeric order. 
+The program starts by executing a \xcd`main` method at
+%~~exp~~`~~`~~ ~~ ^^^ Places20
+\xcd`Place.FIRST_PLACE`, which is 
+%~~exp~~`~~`~~ ~~ ^^^ Places30
+\xcd`Place.places()(0)`; see
+\Sref{initial-computation}. 
+
+Operations on places include \xcd`pl.next()`, which gives the next entry
+(looping around) in \xcd`Place.places` and its opposite \xcd`pl.prev()`. In
+particular, \xcd`here.next()` means ``a place other than \xcd`here`'', except
+in single-place executions.
+%~~exp~~`~~`~~pl:Place~~ ^^^ Places40
+There are also a number of tests, like \xcd`pl.isSPE()` and 
+%~~exp~~`~~`~~pl:Place ~~ ^^^ Places50
+\xcd`pl.isCUDA()`, which test for particular kinds of processors.
+
+
+
+
+\section{{\tt here}}\index{here}\label{Here}
+
+The variable \xcd"here" is always bound to the place at which the current
+computation is running, in the same way that \xcd`this` is always bound to the
+instance of the current class (for non-static code), or \xcd`self` is bound to
+the instance of the type currently being constrained.  
+\xcd`here` may denote different places in the same method body or even the
+same expression, due to
+place-shifting operations.
+
+
+This is not unusual for automatic variables:  \Xcd{self} denotes 
+two different values (one \xcd`List`, one \xcd`Int`) in
+\xcd`List[Int{self!=0}]{self!=null}`. In the following 
+code, \xcd`here` has one value at 
+\xcd`h0`, and a different one at \xcd`h1` (unless there is only one place).
+%~~gen ^^^ Places60
+% package places.are.For.Graces;
+% class Example {
+% def example() {
+%~~vis
+\begin{xten}
+val h0 = here;
+at (here.next()) {
+  val h1 = here; 
+  assert (h0 != h1);
+}
+\end{xten}
+%~~siv
+%} } 
+%~~neg
+\noindent
+(Similar examples show that \xcd`self` and \xcd`this` have the same behavior:
+\xcd`self` can be modified by constrained types appearing inside of type
+constraints, and \xcd`this` by inner classes.)
+
+
+
+The following example looks through a list of references to \Xcd{Thing}s.  
+It finds those references to things that are \Xcd{here}, and deals with them.  
+%~~gen ^^^ Places70
+%package Places.Are.For.Graces.2;
+%import x10.util.*;
+%abstract class Thing {}
+%class DoMine {
+%  static def dealWith(Thing) {}	
+%~~vis
+\begin{xten}
+  public static def deal(things: List[GlobalRef[Thing]]) {
+     for(gr in things) {
+        if (gr.home == here) {
+           val grHere = 
+               gr as GlobalRef[Thing]{gr.home == here};
+           val thing <: Thing = grHere();
+           dealWith(thing);
+        }
+     }
+  }
+\end{xten}
+%~~siv
+%}
+%~~neg

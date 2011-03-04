@@ -1,0 +1,356 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Methods</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Methods</h2>
+
+
+
+
+
+<div class="p"><!----></div>
+As is common in object-oriented languages, objects can have <em>methods</em>, of
+two sorts.  <em>Static methods</em> are functions, conceptually associated with a
+class and defined in its namespace.  <em>Instance methods</em> are parameterized
+code bodies associated with an instance of the class, which execute with
+convenient access to that instance's fields. 
+
+<div class="p"><!----></div>
+Each method has a <em>signature</em>, telling what arguments it accepts, what
+type it returns, what precondition it requires. Method definitions may be
+overridden by subclasses; the overriding definition may have a declared return
+type that is a subtype of the return type of the definition being overridden.
+Multiple methods with the same name but different signatures may be provided
+on a class (called "overloading" or "ad hoc polymorphism"). Methods may be
+declared <b>public</b>, <b>private</b>, <b>protected</b>, or given default package-level access
+rights.
+
+<div class="p"><!----></div>
+<em>  
+<table>
+
+<tr><td align="right">MethMods ::= Mods<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; MethMods <b>property</b>  </td></tr>
+<tr><td align="right">&#124; MethMods Mod </td></tr>
+<tr><td align="right">MethodDecl ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">TypeParams ::= <b>[</b> TypeParamList <b>]</b> </td></tr>
+<tr><td align="right">FormalParams ::= <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">FormalParamList ::= FormalParam </td></tr>
+<tr><td align="right">&#124; FormalParamList <b>,</b> FormalParam </td></tr>
+<tr><td align="right">HasResultType ::= <b>:</b> Type </td></tr>
+<tr><td align="right">&#124; <b>&lt;:</b> Type </td></tr>
+<tr><td align="right">MethodBody ::= <b>=</b> LastExp <b>;</b> </td></tr>
+<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;<b>{</b> BlockStatements<sup>?</sup>&nbsp;LastExp <b>}</b> </td></tr>
+<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;Block </td></tr>
+<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;Block </td></tr>
+<tr><td align="right">&#124; <b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+A formal parameter may have a <b>val</b> or <b>var</b>
+modifier; <b>val</b> is the default.
+The body of the method is executed in an environment in which 
+each formal parameter corresponds to a local variable (<b>var</b> iff the
+formal parameter is <b>var</b>)
+and is initialized with the value of the actual parameter.
+<pre>
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Method Guards</h3>
+<a name="MethodGuard">
+</a>
+
+
+
+<div class="p"><!----></div>
+Often, a method will only make sense to invoke under certain
+statically-determinable conditions.  For example, <b>example(x)</b> is only
+well-defined when <b>x != null</b>, as <b>null.toString()</b> throws a null
+pointer exception: 
+<pre>
+class Example {
+   var f : String = "";
+   def example(x:Object){x != null} = {
+      this.f = x.toString();
+   }
+}
+</pre>
+
+(We could have used a constrained type <b>Object{self!=null}</b> instead; in
+most cases it is a matter of personal preference or convenience of expression
+which one to use.) 
+
+<div class="p"><!----></div>
+The requirement of having a method guard is that callers must demonstrate to
+the X10
+compiler that the guard is satisfied.  (As usual with static constraint
+checking, there is no runtime cost.  Indeed, this code can be more efficient
+than usual, as it is statically provable that <b>x != null</b>.)
+This may require a cast: 
+<pre>
+  def exam(e:Example, x:Object) {
+    if (x != null) 
+       e.example(x as Object{x != null});
+    // WRONG: if (x != null) e.example(x);
+  }
+</pre>
+
+<div class="p"><!----></div>
+The guard <b>{c}</b> 
+in a guarded method 
+<b>def m(){c} = E;</b>
+specifies a constraint <b>c</b> on the
+properties of the class <b>C</b> on which the method is being defined. The
+method exists only for those instances of <b>C</b> which satisfy <b>c</b>.  It is
+illegal for code to invoke the method on objects whose static type is
+not a subtype of <b>C{c}</b>.
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+The compiler checks that every method invocation
+    &#246;.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
+    is type correct. Each argument
+    &#235;<sub>i</sub>" must have a
+    static type "S<sub>i</sub>" that is a subtype of the declared type
+    "T<sub>i</sub>" for the ith
+    argument of the method, and the conjunction of the constraints on the
+    static types 
+    of the arguments must entail the guard in the parameter list
+    of the method.
+
+<div class="p"><!----></div>
+    The compiler checks that in every method invocation
+    &#246;.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
+    the static type of <b>o</b>, <b>S</b>, is a subtype of <b>C{c}</b>, where the method
+    is defined in class <b>C</b> and the guard for <b>m</b> is equivalent to
+    <b>c</b>.
+
+<div class="p"><!----></div>
+    Finally, if the declared return type of the method is
+    <b>D{d}</b>, the
+    return type computed for the call is
+    "D{a: S; x<sub>1</sub>: S<sub>1</sub>; ...; x<sub>n</sub>: S<sub>n</sub>; d[a/this]}",
+    where <b>a</b> is a new
+    variable that does not occur in
+    "d, S, S<sub>1</sub>, ..., S<sub>n</sub>", and
+    "x<sub>1</sub>, ..., x<sub>n</sub>" are the formal
+    parameters of the method.
+
+
+<div class="p"><!----></div>
+<em><em>Limitation</em> 
+Using a reference to an outer class, <b>Outer.this</b>, in a constraint, is not supported.
+</em>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Property methods</h3>
+
+
+
+<div class="p"><!----></div>
+Property methods are methods that can be evaluated in constraints.  
+For example, the <b>eq()</b> method below tells if the <b>x</b> and <b>y</b>
+properties are equal; the <b>is(z)</b> method tells if they are both equal to
+<b>z</b>.  These can be used in constraints, as illustrated in the
+<b>example()</b> method.
+<pre>
+class Example(x:Int, y:Int) {
+   def this(x:Int, y:Int) { property(x,y); }
+   property eq() = (x==y);
+   property is(z:Int) = x==z &amp;&amp; y==z;
+   def example( a : Example{eq()}, b : Example{is(3)} ) {}
+}
+</pre>
+
+<div class="p"><!----></div>
+A method declared with the modifier <b>property</b> may be used
+in constraints.  A property method declared in a class must have
+a body and must not be <b>void</b>.  The body of the method must
+consist of only a single <b>return</b> statement or a single
+expression.  It is a static error if the expression cannot be
+represented in the constraint system. 
+
+<div class="p"><!----></div>
+The expression may contain invocations of other property methods. It is the
+responsibility of the programmer to ensure that the evaluation of a property
+terminates at compile-time, otherwise the type-checker will not terminate and
+the program will fail to compile in a potentially most unfortunate way.
+
+<div class="p"><!----></div>
+Property methods in classes are implicitly <b>final</b>; they cannot be
+overridden.
+
+<div class="p"><!----></div>
+A nullary property method definition may omit the formal parameters and
+the <b>def</b> keyword.  That is, the following are equivalent:
+
+<div class="p"><!----></div>
+<pre>
+property def rail(): Boolean = rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
+</pre>
+and
+<pre>
+property rail: Boolean = rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
+</pre>
+
+<div class="p"><!----></div>
+Similarly, nullary property methods can be inspected in constraints without
+<b>()</b>.  
+<b>w.rail</b>, with either definition above, 
+is equivalent to 
+<b>w.rail()</b>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
+<a name="MethodOverload">
+</a>
+
+
+<div class="p"><!----></div>
+The definitions of method overloading, overriding, hiding, shadowing
+and obscuring in X10 are the same as in Java, modulo the following
+considerations motivated by type parameters and dependent types.
+
+<div class="p"><!----></div>
+Two or more methods of a class or interface may have the same
+name if they have a different number of type parameters, or
+they have formal parameters of different types.  <em>E.g.</em>, the following is legal: 
+
+<div class="p"><!----></div>
+<pre>
+class Mful{
+   def m() = 1;
+   def m[T]() = 2;
+   def m(x:Int) = 3;
+   def m[T](x:Int) = 4;
+}
+</pre>
+
+<div class="p"><!----></div>
+X10 v2.1 does not permit overloading based on constraints. That is, the
+following is <em>not</em> legal, although either method definition individually
+is legal:
+<pre>
+   def n(x:Int){x==1} = &#246;ne";
+   def n(x:Int){x!=1} = "not";
+</pre>
+
+<div class="p"><!----></div>
+The definition of a method declaration "m<sub>1</sub>" "having the same signature
+as" a method declaration "m<sub>2</sub>" involves identity of types. 
+
+<div class="p"><!----></div>
+The <em>constraint erasure</em> of a type "T" is defined as follows.
+The constraint erasure of  (a)&#227; class, interface or struct type "T" is 
+"T"; (b)&#227; type "T{c}" is the constraint erasure of 
+"T"; (b)&#227; type "T[S<sub>1</sub>,&#8230;,S<sub>n</sub>]" 
+is "T'[S<sub>1</sub>',&#8230;,S<sub>n</sub>']" where each primed type is the erasure of 
+the corresponding unprimed type.
+ Two methods are said to have <em>the
+  same signature</em> if (a) they have the same number of type parameters,
+(b) they have the same number of formal (value) parameters, and (c)
+for each formal parameter the constraint erasure of its types are equivalent. It is a
+compile-time error for there to be two methods with the same name and
+same signature in a class (either defined in that class or in a
+superclass).
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+A class <b>C</b> may not have two declarations for a method named <b>m</b>-either
+  defined at <b>C</b> or inherited:
+<pre>
+def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: T<sub>1</sub>, ..., v<sub>n</sub>: T<sub>n</sub>){tc}: T {...}
+def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: S<sub>1</sub>, ..., v<sub>n</sub>: S<sub>n</sub>){sc}: S {...}
+</pre>
+
+if it is the case that the constraint erasures of the types "T<sub>1</sub>",
+..., "T<sub>n</sub>" are
+equivalent to the constraint erasures of the types "S<sub>1</sub>, ..., T<sub>n</sub>"
+respectively.
+
+
+<div class="p"><!----></div>
+In addition, the guard of a overriding method must be 
+no stronger than the guard of the overridden method.   This
+ensures that any virtual call to the method
+satisfies the guard of the callee.
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+If a class <b>C</b> overrides a method of a class or interface
+  <b>B</b>, the guard of the method in <b>B</b> must entail
+  the guard of the method in <b>C</b>.
+
+
+<div class="p"><!----></div>
+A class <b>C</b> inherits from its direct superclass and superinterfaces all
+their methods visible according to the access modifiers
+of the superclass/superinterfaces that are not hidden or overridden. A method "M<sub>1</sub>" in a class
+<b>C</b> overrides
+a method  in a superclass <b>D</b> if
+"M<sub>1</sub>" and "M<sub>2</sub>" have the same signature with constraints erased.
+Methods are overriden on a signature-by-signature basis.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+
+</body>
+</html>

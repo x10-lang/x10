@@ -1,0 +1,224 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(public val i: int, public val j: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int i, int j) {
+		public def this(val i: int, val j: int): Prop{self.i==i&&self.j==j} = {
+			property(i,j);
+		}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int i, int j) {
+		public Prop(:self.i==i&&self.j==j)(final int i, final int j) {
+			property(i,j);
+		}
+	}
+  
+    class Test(public val a: Prop, public val b: Prop, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int i, int j) {
+		public Prop(:self.i==i&&self.j==j)(final int i, final int j) {
+			property(i,j);
+		}
+	}
+  
+    class Test(Prop a, Prop b) {
+        public def this(val a: Prop, val b: Prop): Test{self.a==a&&self.b==b} = { 
+        	property(a,b);
+        }/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int i, int j) {
+		public Prop(:self.i==i&&self.j==j)(final int i, final int j) {
+			property(i,j);
+		}
+	}
+  
+    class Test(Prop aProp*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int i, int j) {
+		public Prop(:self.i==i&&self.j==j)(final int i, final int j) {
+			property(i,j);
+		}
+	}
+  
+    class Test(Prop a/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int i, int j) {
+		public Prop(:self.i==i&&self.j==j)(final int i, final int j) {
+			property(i,j);
+		}
+	}
+  
+    class Test(Prop a, Prop bProp*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that x=y implies x.f=y.f.
+ *
+ * @author vj
+ */
+public class CheckDescendEntails_MustFailCompile extends x10Test {
+	class Prop(int i, int j) {
+		public Prop(:self.i==i&&self.j==j)(final int i, final int j) {
+			property(i,j);
+		}
+	}
+  
+    class Test(Prop a, Prop b) {
+        public Test(:self.a==a&&self.b==b)(final Prop a, final Prop b) { 
+        	property(a,b);
+        }
+     }
+  
+	public def run(): boolean = {
+		var p: Prop = new Prop(1,2);
+		
+	  var t: Test{a == b} = new Test(p,p);
+	  var u: Test{a.i == b.j} = t;
+	   return true;
+	}
+	public static def main(var args: Rail[String]): void = {
+		new CheckDescendEntails_MustFailCompile().execute();
+	}
+}

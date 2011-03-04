@@ -1,0 +1,7 @@
+'''Enums'''
+
+TodoItems
+
+* CeeSharp enums appear to be simpler. Each enum value is a word of an underlying arithmetic type (e.g. ubyte, int, long). Is that enough for our purposes?
+
+* Need to figure out how to be able to define enum literals, e.g. 0..128. Now we need the same literals to be usable in different enums, e.g. 13..345, 10..129. As long as the literals are of a base ordered type, such expressions should be taken to represent a subrange of that type.

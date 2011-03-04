@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="X10DT Test Product" uid="x10dt.test.product" id="org.eclipse.sdk.ide" application="org.eclipse.ui.ide.workbench" version="2.1.1.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Xmx1000m -XX:MaxPermSize=256m</vmArgs>
+     <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="x10dt.tests.feature"/>
+      <feature id="org.eclipse.equinox.p2.user.ui"/>
+      <feature id="org.eclipse.jdt"/>
+      <feature id="org.eclipse.pde"/>
+      <feature id="org.eclipse.platform"/>
+      <feature id="org.eclipse.sdk"/>
+   </features>
+
+
+</product>

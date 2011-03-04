@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Default Values</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Default Values</h2>
+
+
+<a name="DefaultValues">
+</a>
+
+<div class="p"><!----></div>
+Some types have default values, and some do not. Default values are used in
+situations where variables can legitimately be used without having been
+initialized; types without default values cannot be used in such situations.
+For example, a field of an object <b>var x:T</b> can be left uninitialized if
+<b>T</b> has a default value; it cannot be if <b>T</b> does not. Similarly, a
+transient (&#167;) field <b>transient val x:T</b> is only
+allowed if <b>T</b> has a default value.
+
+<div class="p"><!----></div>
+Default values, or lack of them, is defined thus:
+
+<ul>
+<li> The fundamental numeric types (<b>Int</b>, <b>UInt</b>,
+      <b>Long</b>, <b>ULong</b>, 
+      <b>Float</b>, <b>Double</b>) all have default value 0.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Boolean</b> has default value <b>false</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Char</b> has default value <b>'\0'</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Struct types other than those listed above have no default value.
+<div class="p"><!----></div>
+</li>
+
+<li> A function type has a default value of <b>null</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> A class type has a default value of <b>null</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> The constrained type <b>T{c}</b> has the same default value as <b>T</b> if
+      that default value satisfies <b>c</b>.  If the default value of <b>T</b>
+      doesn't satisfy <b>c</b>, then <b>T{c}</b> has no default value.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+For example, <b>var x: Int{x != 4}</b> has default value 0, which is allowed
+because <b>0 != 4</b> satisfies the constraint on <b>x</b>. 
+<b>var y : Int{y==4}</b> has no default value, because <b>0</b> does not satisfy <b>y==4</b>.
+The fact that <b>Int{y==4}</b> has precisely one value, <em>viz</em> 4, doesn't
+matter; the only candidate for its default value, as for any subtype of
+<b>Int</b>, is 0. <b>y</b> must be initialized before it is used.
+
+<div class="p"><!----></div>
+The predicate <b>T haszero</b> tells if the type <b>T</b> has a default value.
+<b>haszero</b> may be used in constraints. 
+
+<div class="p"><!----></div>
+The following code defines a sort of cell holding a single value of type
+<b>T</b>. The cell is initially empty - that is, has <b>T</b>'s zero value -
+but may be filled later. 
+<pre>
+class Cell0[T]{T haszero} {
+  public var contents : T;
+  public def put(t:T) { contents = t; }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+The built-in type <b>Zero</b> has the method <b>get[T]()</b> which
+returns the default value of type <b>T</b>.  
+
+<div class="p"><!----></div>
+A variant <b>Cell1[T]</b> which can be initialized with a value of an arbitrary
+type
+<b>T</b>, or, if <b>T</b> has a default value, can be created with the default
+value, is given below.  Note that <b>T haszero</b> is a constraint on one of
+the constructors, not the whole type:  
+<pre>
+class Cell1[T] {
+  public var contents: T;
+  def this(t:T) { contents = t; }
+  def this(){T haszero} { contents = Zero.get[T](); }
+  public def put(t:T) {contents = t;}
+}
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

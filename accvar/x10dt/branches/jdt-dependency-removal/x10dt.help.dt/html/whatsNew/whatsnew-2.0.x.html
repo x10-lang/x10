@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+<meta name="copyright" content="Copyright (c) IBM Corporation and others 2007,2010 This page is made available under license. For full details, see the LEGAL section in the documentation that contains this page.">
+<link rel="stylesheet" type="text/css" href="style/help.css">
+<title>New and Noteworthy</title>
+</head>
+<body>
+<!--
+<a href="contents.html">Back to Table of Contents</a>
+-->
+<h1>X10DT - New and Noteworthy</h1>
+
+  <h3>X10DT 2.0.2 Features</h3>
+  <ul>
+    <li>Content assist: <a href="ContentAssist.html">code templates and completion</a>  </li>
+    <li>Adapted the linking step with projects using C++ back-end on MacOS and Linux platforms with 
+    new X10 shared libraries, 
+    resulting in faster creation of end-user executables, as well as smaller size.</li>
+    <li><a href="bugFixes.html">Bug fixes in this release</a></li>
+  </ul>
+  
+<h3>X10DT 2.0 Features</h3>
+<p>X10DT 2.0.0 supports the X10 language version 2.0, with ability to build and run on the 
+C++ back-end of X10.
+It includes a syntax-highlighting editor, Outline view, run/launch capabilities, and 
+user preferences.
+  <ul>
+
+  <li>X10 C++ backend support
+  </li>
+  <li>
+  Support for Remote projects</li>
+  <li>Remote execution via the PTP (Eclipse <a href="http://eclipse.org/ptp"></a>Parallel Tools Platform</a>)
+  </li>
+  </ul>
+  
+  See the <a href="http://x10.codehaus.org/X10DT+2.0+Installation">X10DT 2.0 installation instructions</a>
+  <p>The X10DT 2.0 update site is <a href="http://dist.codehaus.org/x10/x10dt/2.0/updateSite/">http://dist.codehaus.org/x10/x10dt/2.0/updateSite/</a></p>
+  
+ 
+<table cellpadding="10" cellspacing="0" width="600">
+  <colgroup>
+  <col width="20%">
+  <col width="80%">
+  </colgroup>
+  <tbody>
+  <p>
+  <h3>X10DT 1.7 Features</h3>
+  <p>The following features were new as of X10DT 1.7.  They are still available for 2.0 as well.</p>
+<!-- ******************** Installation and Welcome ********************** -->
+<tr>
+<td colspan="2"><a name="Getting Started"></a>
+<div style="font-size: 20px; font-weight: bold;">Getting Started</div></td>
+</tr>
+<tr>
+    <td>
+      <p align="right"><b>Installation</b></p>    </td>
+    <td>Use the Eclipse Update Manager to install X10DT.
+    See <a href="http://x10.codehaus.org/X10DT+1.7+Installation">
+    installation instructions on x10-lang.org </a>.
+    Everything you need is in one update site.
+    <p><img src="images/eclipseUpdateManager_x10dt.png">    
+ 	  </td>
+  </tr>
+<p>
+<tr>
+    <td>
+      <p align="right"><b>Welcome</b></p>    </td>
+    <td>When you first install X10DT and restart
+    Eclipse, the welcome page shows with the X10 information
+    highlighted (yellow indicates a just-installed
+    feature of Eclipse). Click here to read about X10DT usage.
+    <p>To continue to the X10DT workbench,
+    close the welcome tab, or click on the curved-arrow "Go to workbench" icon at the top.
+    Then switch to the X10 perspective (Window > Open Perspective > Other... and select X10)
+	<p><img src="images/eclipseWelcomeX10Intro.png">    
+ 	  </td>
+  </tr>
+<p>
+<tr>
+    <td>
+      <p align="right"><b>Help</b></p>    </td>
+    <td>X10DT includes help for using the X10 language as well
+    as the X10DT itself.  To access help, select Help > Help Contents.
+    <p><img src="images/x10dt_help.png">    
+ 	  </td>
+  </tr>
+<p>
+<!-- ******************** New Project Wizard ********************** -->
+
+<tr>
+    <td>
+      <p align="right"><b>New Project Wizard</b></p>    </td>
+    <td>Create a new X10 project with the New Project Wizard.
+    By default the "Create a sample 'Hello World' X10 application" is selected.
+	<p><img src="images/newproj.png">  
+	<p>The X10 workbench is filled out with information from your new project.
+	<p><img src="images/newProjDone.png">  
+ 	  </td>
+  </tr>
+  <tr>
+<!-- ******************** Editor ********************** -->
+<tr>
+<td colspan="2"><a name="X10 Editor"></a>
+<div style="font-size: 20px; font-weight: bold;">X10 Editor</div></td>
+</tr>
+<tr>
+    <td>
+      <p align="right"><b>X10 Editor basics</b></p>    </td>
+    <td><ul>
+    <li>Editor recognizes X10 1.7 syntax; keywords, comments, strings, etc are colored appropriately.
+    <li>Hyperlinking of e.g. a method or variable navigates to the definition of that element.
+Hyperlinking works via Cntrl-left Click (on Mac OSX: Command-click)
+<li>Outline view tracks contents of editor.
+<li>Error markers show compilation problems
+</ul>
+	<p><img src="images/errorMarker.png">    
+ 	  </td>
+  </tr>
+  <!-- ******************** Refactoring ********************** -->
+<tr>
+    <td>
+      <p align="right"><b>Refactoring</b></p>    </td>
+    <td><ul>
+<li>Rename refactoring: currently supports renaming of local entities (select member element and bring up context menu: Refactor > Rename)
+<li>Several refactorings specifically for increased concurrency:
+<ul>
+<li>Loop Flat Parallelization
+<li>Mark Finish Context
+<li>Extract Async
+<li>Extract Async in Finish Scope
+</ul>
+	  <p><img src="images/refactoringMenu.png"> 
+	  <p><img src="images/refactor_MontyPi1.png">
+	  <p>Preview window lets you confirm the changes to be made
+	  <p><img src="images/refactor_MontyPi2.png">
+	  </td>
+  </tr>
+<!-- ******************** Run/Launch ********************** -->
+<tr>
+    <td>
+      <p align="right"><b>Run/Launch</b></p>    </td>
+    <td><ul>
+    <li>Run Configurations are accessed via the Run menu
+    <p><img src="images/runConfig.png"> 
+    <li>Program Arguments and VM command line arguments may be specified on the Arguments tab.
+
+</ul>
+	
+	<p><img src="images/runConfigArgs.png">   
+</td>
+</tr>
+
+</ul>
+<!-- ******************** Preferences ********************** -->
+<tr>
+    <td>
+      <p align="right"><b>Preferences</b></p>    </td>
+    <td>
+<ul>
+<li>Font selection (currently not operational)
+<li>Default runtime location (allows specification of a different X10 runtime library)
+<li>Checkboxes allow selection or deselection of 
+<ul>
+<li>Bad place runtime check
+<li>Loop optimizations
+<li>Array optimizations
+<li>Permit asserts
+<li>Echo compile arguments to console - if selected, prints the compile arguments to the x10 compiler in an Eclipse console on each compile.
+<li>Number of X10 places
+<li>Additional compiler options   
+</ul>
+	<p><img border="1" src="images/prefs.png">    
+</td>
+</tr>
+<!-- ******************** Debugger ********************** -->
+<!--
+<tr>
+    <td>
+      <p align="right"><b>Debugger</b></p>    </td>
+    <td>
+<p>The debugger on the Java back-end version of the local X10
+runtime is currently not fully functional.
+It will come up and stop at main
+(if that selection is checked in the Debug configuration).
+Breakpoints will be honored (if the project is rebuilt after
+they are set.) 
+<p>Debugger functionality should improve in the future.
+	<p><img border="1" src="images/debugLaunchMenu.png">
+	<p><img border="1" src="images/debugLaunchConfig1.png">  
+	<p><img border="1" src="images/debugLaunchConfig2.png">  
+</td>
+</tr></p>
+-->
+</tr>
+</p>
+</p>
+</p>
+</p>
+</tbody></table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--
+<p><a href="contents.html">Back to X10DT Table of Contents</a></p>
+-->
+ 
+</body>
+</html>
+

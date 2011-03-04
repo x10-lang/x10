@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"> 
+<head> 
+<meta content="en-us" http-equiv="Content-Language"/> 
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/> 
+<link href="../style/book.css" rel="STYLESHEET" type="text/css"/> 
+<style type="text/css" xml:space="preserve"> 
+td {
+<!--border-top: solid thin black;-->
+}
+img[alt] {
+background-color:#ffdddd;
+}
+tr {
+vertical-align: top;
+}
+td {
+valign: top;
+}
+td.section a {
+font-size: 20px;
+font-weight: bold;
+}
+td.section_item {
+align:left;
+font-weight: bold;
+font_style: italic;
+}
+td.section_content {
+align:left;
+}
+span.ide {
+font-style: italic;
+color: SlateGray;
+}
+</style> 
+
+<title>What's New in 2.1.2</title> 
+ 
+<script src="../../../advanced/synchWithToc.js" type="text/javascript" xml:space="preserve"><!-- --></script> 
+ 
+<link charset="ISO-8859-1" href="../../../content/org.eclipse.help.webapp/advanced/breadcrumbs.css" rel="stylesheet" type="text/css"/> 
+<script src="../../../content/org.eclipse.help/livehelp.js" type="text/javascript" xml:space="preserve"> </script> 
+<!-- <script type="text/javascript">if (self == top) { window.location.replace( "../../../index.jsp?topic=/x10dt.help/html/x10dt/whatsNew/whatsNew-2_0_5.html");}</script> -->
+</head>
+ 
+<body>
+
+<h2>What's New in 2.1.2</h2>
+ 
+<p>Here are descriptions of some of the more interesting or significant changes made to the X10 Tooling Platform for the 
+2.1.1 release. They are grouped into:</p> 
+
+<ul>
+<li><a href="#Development-Toolkit">X10 Development Toolkit</a></li> 
+<li><a href="#Java-Backend">Java back-end</a></li> 
+<li><a href="#Cpp-Backend">C++ back-end</a></li> 
+<li><a href="#Additional-Notes">Additional Notes</a></li> 
+</ul> 
+   
+<table cellpadding="10" cellspacing="0"> 
+  <colgroup span="1"> 
+  <col span="1" width="40%"/> 
+  <col span="1" width="60%"/> 
+  </colgroup> 
+  <tbody>
+  
+  <!-- ******************** X10 Development Toolkit ********************** -->
+  <tr> 
+    <td colspan="2" class="section"><a name="Development-Toolkit">X10 Development Toolkit</a></td>
+  </tr>
+ 
+  <tr> 
+    <td class="section_item">Multi-JVM support</td> 
+    <td class="section_content">
+    <p>
+	For the C++ backend, there should be no changes (any changes are unintended bugs...)
+	</p>
+	<p>
+	For the Java backend, we are now compiling/running code so that each place is run in a separate JVM process.  
+	The main difference is that execution will 	default to a single place.  You use the run configuration variables (Number of places, host list, host file) 
+	to control multi-place launches as you do with the C++ backend and the sockets (default) runtime.
+    </p>
+    <p><img src="images/runConfigPlacesHosts.png"/></p>
+    </td>
+  </tr>
+  
+  <tr> 
+    <td class="section_item">Sockets transport</td> 
+    <td class="section_content">
+    	The sockets transport replaces <tt>pgas_sockets</tt> (which is closed-source, and requires some setup), and is currently the default backend if you don't compile with the "-x10rt" flag. 
+    	You can select the transport to use in the platform configuration file. The default is the sockets transport.
+    	<p><img src="images/platformConfigCommType.png"/></p>
+    <p>
+    	You set an run configuration variable <tt>Number of places</tt> to specify the number of places. If this is not set, it defaults to 1 place on the local machine, and prints a warning. 
+		There are two ways to specify the machines to run on: 
+	</p>
+	<ul>
+	<li>Set the run configuration variable <tt>host file</tt> to the full path for a hostfile. The hostfile is a simple text file that contains a list of hostnames to run on, with one line per machine. </li>
+	<li>Set the run configuration variable <tt>host list</tt>, to a list of hostnames, with one line per machine. This run configuration variable is checked only if <tt>host file</tt> was not set. </li>
+	</ul>
+	Both of the above will wrap if there are more places than hostnames specified. For example, setting <tt>number of places to 4</tt> and <tt>host list contains host1,host2</tt> will cause places 0 and 2 to run on host1, and places 1 and 3 to run on host2. If neither of the above is set, and there is more than 1 place, then it defaults to running everything on localhost, and prints a warning. You can set <tt>the list of hosts to localhost</tt> to get the same effect without warning. 
+	If you're running on more than one machine, you should have public/private key ssh authentication set up, so you can ssh from one machine to another without getting a password prompt. You should also have your executable and hostfile available in the same location on every machine listed in the hostfile. You don't have to launch from one of the machines in the hostfile, but you do need to have the ssh authentication set up between the machine you launch from and the first machine in the list. 
+	<p>
+	Please note that currently, the Sockets backend will not work in an environment with mixed POWER and x86 hardware, due to different endianness. 
+	</p>
+	<p><img src="images/runConfigCppPlacesHosts.png"/></p>
+
+	<h3>Running with Standalone backend </h3>
+	Standalone sets up shared memory regions and forks off one instance of the program per place. The places all run on the local machine. There is one run configuration variable "Number of places", which should be set to the number of places. If not set, it defaults to 1 and prints a warning. The standalone has transport has a limit on the size of the data blocks that can be sent (about 512k), because of the shared memory regions. To run, set the run configuration variable, and run your executable. This transport is a good choice if you're running everything one one machine and don't use large messages. 
+    <p><img src="images/runConfigPlacesStandalone.png"/></p>
+
+    </td>
+  </tr>
+ 
+  <tr> 
+    <td class="section_item">Quick Hierarchy new feature</td> 
+    <td class="section_content">
+      The Quick Hierarchy pop-up view has a new feature: when a method declaration or method call is selected, 
+      bringing up the Quick Hierarchy now highlights classes that implement the currently-selected method within 
+      the hierarchy of that method's containing class."
+    </td>
+  </tr>
+   
+  
+  <!-- ******************** Java back-end ********************** -->
+  
+  <tr> 
+    <td colspan="2" class="section"><a name="Java-Backend">Java Back-End</a></td>
+  </tr>
+  
+<!--
+  <tr> 
+    <td class="section_item">java backend 1</td> 
+    <td class="section_content">
+      java backend 1 description
+    </td>
+  </tr>
+  
+  <tr> 
+    <td class="section_item">java backend 2</td> 
+    <td class="section_content">
+      java backend 2 description
+    </td>
+  </tr>
+-->
+  
+  <!-- ******************** C++ back-end ********************** --> 
+  <tr> 
+    <td colspan="2" class="section"><a name="Cpp-Backend">C++ Back-End</a></td>
+  </tr>
+ 
+<!--
+  <tr> 
+    <td class="section_item">C++ backend 1</td> 
+    <td class="section_content"> 
+     C++ backend 1 description
+    </td> 
+  </tr>
+  
+  <tr>
+    <td class="section_item">C++ backend 2</td>
+    <td class="section_content">
+    C++ backend 2 description
+    </td>
+  </tr>
+-->
+  
+  <!-- ******************** Additional Notes ********************** --> 
+  <tr> 
+    <td colspan="2" class="section"><a name="Additional-Notes">Additional Notes</a></td>
+  </tr>
+  
+<!--
+  <tr> 
+    <td class="section_item">An Introduction to Programming With X10</td> 
+    <td class="section_content"> 
+	This is a draft of the Part I of the Guide. This draft focuses on core 
+	features of the X10 language and programming model. This Guide is a 
+	work-in-progress. We anticipate that a complete draft of Part I and 
+	a substantial part of Part II will be available in early first quarter 2011. 
+	The Guide is located under the X10 Help contents.
+    </td> 
+  </tr>
+-->
+
+  </tbody> 
+</table>
+
+<hr/>
+
+<!--
+<h2><a name="Additional-Notes">Additional Notes</a></h2>
+
+<h3>Memory Consumption</h3>
+
+Memory consumption by the editor and the build process has been improved since previous releases. It is still a work in 
+progress. You may encounter either two memory-related errors:
+<ul>
+  <li>Java Heap Space OutOfMemory: You can increase the maximum heap size by specifying the -Xmx (Sun VM) VM option in the eclipse.ini
+  in your Eclipse installation. For more details, see the Eclipse online help.</li>
+  <li>Java PermGen OutOfMemory: You can increase the PermGen area's size by specifying the -XX:MaxPermSize (Sun VM) in the
+  eclipse.ini file.</li>
+</ul> 
+
+Additionally, it may be useful to reduce the number of simultaneously opened editors.
+
+<h3>Builder Performance</h3>
+
+<p>The current build mechanism is somewhat conservative in determining the set of files to be recompiled upon each save.
+This will cause longer build times under certain circumstances.</p>
+<p>We've provided a building option, "Conservative Build" - turned on by default, which if turned off (see <a href="../reference/preferences/compiler.html</a>) can result in shorter 
+build times. However the shorter build time comes at the expense of incorrect behavior for certain X10 source programs. 
+</p>
+-->
+</body> 
+</html>

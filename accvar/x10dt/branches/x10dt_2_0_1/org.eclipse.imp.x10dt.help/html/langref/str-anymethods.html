@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Implementation of Any methods</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Implementation of &#196;ny" methods</h2>
+<a name="StructAnyMethods">
+</a>
+
+
+<div class="p"><!----></div>
+Unlike objects, structs do not have global identity. Instead, two
+structs are equal ("==") if and only if their corresponding fields
+are equal ("=="). This is the central property of structs.
+
+<div class="p"><!----></div>
+All structs implement "x10.lang.Any". All 
+structs have the following methods implicitly defined on them:
+<pre>
+  property def home()=here;
+  property def at(Place)=true;
+  property def at(Object)=true;
+</pre>
+ It is an error for a programmer to attempt to define them.
+
+<div class="p"><!----></div>
+Structs are required to implement the following methods: 
+<pre>
+  public global safe def equals(Any):boolean;
+  public global safe def hashCode():Int;
+  public global safe def typeName():String;
+  public global safe def toString():String;  
+</pre>
+
+<div class="p"><!----></div>
+These methods are defined automatically if they are not supplied by
+the programmer.  A programmer who provides an explicit implementation
+of &#235;quals(Any)" for a struct "S" should also consider
+supplying a definition for &#235;quals(S):Boolean". This will often
+yield better performance since the cost of an upcast to &#196;ny" and
+then a downcast to "S" can be avoided.
+
+<div class="p"><!----></div>
+Expressions of a struct type may be used in &#239;nstanceof" and
+"class-cast" tests.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

@@ -1,0 +1,618 @@
+\subsection{Object Initialization}
+\label{ObjectInitialization}
+\index{initialization}
+\index{constructor}
+\index{object!constructor}
+\index{struct!constructor}
+
+
+X10 does object initialization safely.  It avoids certain bad things which
+trouble some other languages:
+\begin{enumerate}
+\item Use of a field before the field has been initialized.
+\item A program reading two different values from a \xcd`val` field of a
+      container. 
+\item \Xcd{this} escaping from a constructor, which can cause problems as
+      noted below. 
+
+\end{enumerate}
+
+It should be unsurprising that fields must not be used before they are
+initialized. At best, it is uncertain what value will be in them, as in
+\Xcd{x} below. Worse, the value might not even be an allowable value; \Xcd{y},
+declared to be nonzero in the following example, might be zero before it is
+initialized.
+\begin{xten}
+// Not correct X10
+class ThisIsWrong {
+  val x : Int;
+  val y : Int{y != 0};
+  def this() {
+    x10.io.Console.OUT.println("x=" + x + "; y=" + y);
+    x = 1; y = 2;
+  }
+}
+\end{xten}
+
+One particularly insidious way to read uninitialized fields is to allow
+\Xcd{this} to escape from a constructor. For example, the constructor could
+put \Xcd{this} into a data structure before initializing it, and another
+activity could read it from the data structure and look at its fields:
+\begin{xten}
+class Wrong {
+  val shouldBe8 : Int;
+  static Cell[Wrong] wrongCell = new Cell[Wrong]();
+  static def doItWrong() {
+     finish {
+       async { new Wrong(); } // (A)
+       assert( wrongCell().shouldBe8 == 8); // (B)
+     }
+  }
+  def this() {
+     wrongCell.set(this); // (C) - ILLEGAL
+     this.shouldBe8 = 8; // (D)
+  }
+}
+\end{xten}
+\noindent
+In this example, the underconstructed \Xcd{Wrong} object is leaked into a
+storage cell at line \Xcd{(C)}, and then initialized.  The \Xcd{doItWrong}
+method constructs a new \Xcd{Wrong} object, and looks at the \Xcd{Wrong}
+object in the storage cell to check on its \Xcd{shouldBe8} field.  One
+possible order of events is the following:
+\begin{enumerate}
+\item \Xcd{doItWrong()} is called.
+\item \Xcd{(A)} is started.  Space for a new \Xcd{Wrong} object is allocated.
+      Its \Xcd{shouldBe8} field, not yet initialized, contains some garbage
+      value.
+\item \Xcd{(C)} is executed, as part of the process of constructing a new
+      \Xcd{Wrong} object.  The new, uninitialized object is stored in
+      \Xcd{wrongCell}.
+\item Now, the initialization activity is paused, and execution of the main activity
+      proceeds from \Xcd{(B)}.
+\item The value in \Xcd{wrongCell} is retrieved, and is \Xcd{shouldBe8} field
+      is read.  This field contains garbage, and the assertion fails.
+\item Now let the initialization activity proceed with \Xcd{(D)},
+      initializing \Xcd{shouldBe8} --- too late.
+\end{enumerate}
+
+The \xcd`at` statement (\Sref{AtStatement}) introduces the potential for
+escape as well. The following class prints an uninitialized value: 
+%~~gen ^^^ ThisEscapingViaAt_MustFailCompile
+% package ObjInit_at;
+% NOCOMPILE
+%~~vis
+\begin{xten}
+class Example {
+  val a: Int;
+  def this() { 
+    at(here.next()) {
+      // Recall that 'this' is a copy of 'this' outside 'at'.
+      Console.OUT.println("this.a = " + this.a);
+    }
+    this.a = 1;
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+X10 must protect against such possibilities.  The rules explaining how
+constructors can be written are somewhat intricate; they are designed to allow
+as much programming as possible without leading to potential problems.
+Ultimately, they simply are elaborations of the fundamental principles that
+uninitialized fields must never be read, and \Xcd{this} must never be leaked.
+
+
+\subsection{Constructors and NonEscaping Methods}
+
+In general, constructors must not be allowed to call methods with\Xcd{this} as
+an argument or receiver. Such calls could leak references to \Xcd{this},
+either directly from a call to \Xcd{cell.set(this)}, or indirectly because
+\Xcd{toString} leaks \Xcd{this}, and the concatenation
+\Xcd`"Escaper = "+this` calls \Xcd{toString}.\footnote{This is abominable behavior for
+\Xcd{toString}, but nonetheless it is allowed.}
+%~WRONG~gen
+%package ObjectInit.CtorAndNonEscaping.One;
+%~WRONG~vis
+\begin{xten}
+class Escaper {
+  static val Cell[Escaper] cell = new Cell[Escaper]();
+  def toString() {
+    cell.set(this);
+    return "Evil!";
+  }
+  def this() {
+    cell.set(this);
+    x10.io.Console.OUT.println("Escaper = " + this);
+  }
+}
+\end{xten}
+%~WRONG~siv
+%
+%~WRONG~neg
+
+However, it is convenient to be able to call methods from constructors; {\em
+e.g.}, a class might have eleven constructors whose common behavior is best
+described by three methods.
+Under certain stringent conditions, it {\em is}
+safe to call a method: the method called must not leak references to
+\Xcd{this}, and must not read \Xcd{val}s or \Xcd{var}s which might not have
+been assigned.
+
+So, X10 performs a static dataflow analysis, sufficient to guarantee that
+method calls in constructors are safe.  This analysis requires having access
+to or guarantees about all the code that could possibly be called.  This can
+be accomplished in two ways:
+\begin{enumerate}
+\item Ensuring that only code from the class itself can be called, by
+      forbidding overriding of
+      methods called from the constructor: they can be marked \Xcd{final} or
+      \Xcd{private}, or the whole class can be \Xcd{final}.
+\item Marking the methods called from the constructor by
+      \xcd`@NonEscaping`.
+\end{enumerate}
+
+\subsubsection{Non-Escaping Methods}
+\index{method!non-escaping}
+\index{method!implicitly non-escaping}
+\index{method!NonEscaping}
+\index{implicitly non-escaping}
+\index{non-escaping}
+\index{non-escaping!implicitly}
+\index{NonEscaping}
+
+
+A method may be annotated with \xcd`@NonEscaping`.  This
+imposes several restrictions on the method body, and on all methods overriding
+it.  However, it is the only way that a method can be called from
+constructors.  The
+\Xcd{@NonEscaping} annotation makes explicit all the X10 compiler's needs for
+constructor-safety.
+
+A method can, however, be safe to call from constructors without being marked
+\Xcd{@NonEscaping}. We call such methods {\em implicitly non-escaping}.
+Implicitly non-escaping methods need to obey the same constraints on
+\Xcd{this}, \Xcd{super}, and variable usage as \Xcd{@NonEscaping} methods. An
+implicitly non-escaping method {\em could} be marked as
+\xcd`@NonEscaping` for some list of variables; the compiler, in
+effect, infers the annotation. In addition, implicitly non-escaping methods
+must be \Xcd{private} or \Xcd{final} or members of a \Xcd{final} class; this
+corresponds to the hereditary nature of \Xcd{@NonEscaping} (by forbidding
+inheritance of implicitly non-escaping methods).
+
+We say that a method is {\em non-escaping} if it is either implicitly
+non-escaping, or annotated \Xcd{@NonEscaping}.
+
+The first requirement on non-escaping methods is that they do not allow
+\Xcd{this} to escape. Inside of their bodies, \Xcd{this} and \Xcd{super} may
+only be used for field access and assignment, and as the receiver of
+non-escaping methods.
+
+Finally, if a method \Xcd{m} in class \Xcd{C} is marked
+\xcd`@NonEscaping`, then every method which overrides \Xcd{m} in any
+subclass of \Xcd{C} must be annotated with precisely the same annotation,
+\xcd`@NonEscaping`, as well.
+
+The following example uses most of the possible variations (leaving out
+\Xcd{final} class).  \Xcd{aplomb()} explicitly forbids reading any field but
+\Xcd{a}. \Xcd{boric()} is called after \Xcd{a} and \Xcd{b} are set, but
+\Xcd{c} is not.
+The \xcd`@NonEscaping` annotation on \xcd`boric()` is optional, but the
+compiler will print a warning if it is left out.
+\Xcd{cajoled()} is only called after all fields are set, so it
+can read anything; its annotation, too, is not required.   \Xcd{SeeAlso} is able to override \Xcd{aplomb()}, because
+\Xcd{aplomb()} is \xcd`@NonEscaping("a")`; it cannot override the final method
+\Xcd{boric()} or the private one \Xcd{cajoled()}.  Even for overriding
+\Xcd{aplomb()}, it is crucial that \Xcd{SeeAlso.aplomb()} be
+declared \xcd`@NonEscaping("a")`, just like \Xcd{C2.aplomb()}.
+%~~gen ^^^ ObjectInitialization10
+%package ObjInit.C2;
+%~~vis
+\begin{xten}
+import x10.compiler.*;
+
+final class C2 {
+  protected val a:Int, b:Int, c:Int;
+  protected var x:Int, y:Int, z:Int;
+  def this() {
+    a = 1;
+    this.aplomb();
+    b = 2;
+    this.boric();
+    c = 3;
+    this.cajoled();
+  }
+  @NonEscaping def aplomb() {
+    x = a;
+    // this.boric(); // not allowed; boric reads b.
+    // z = b; // not allowed -- only 'a' can be read here
+  }
+  @NonEscaping final def boric() {
+    y = b;
+    this.aplomb(); // allowed; a is definitely set before boric is called
+    // z = c; // not allowed; c is not definitely written
+  }
+  @NonEscaping private def cajoled() {
+    z = c;
+  }
+}
+
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+
+\subsection{Fine Structure of Constructors}
+\label{SFineStructCtors}
+
+The code of a constructor consists of four segments, three of them optional
+and one of them implicit.
+\begin{enumerate}
+\item The first segment is an optional call to \Xcd{this(...)} or
+      \Xcd{super(...)}.  If this is supplied, it must be the first statement
+      of the constructor.  If it is not supplied, the compiler treats it as a
+      nullary super-call \Xcd{super()};
+\item If the class or struct has properties, there must be a single
+      \Xcd{property(...)} command in the constructor.  Every execution path
+      through the constructor must go through this \Xcd{property(...)} command
+      precisely once.   The second segment of the constructor is the code
+      following the first segment, up to and including the \Xcd{property()}
+      statement.
+
+      If the class or struct has no properties, the \Xcd{property()} call must
+      be omitted. If it is present, the second segment is defined as before.  If
+      it is absent, the second segment is empty.
+\item The third segment is automatically generated.  Fields with initializers
+      are initialized immediately after the \Xcd{property} statement.
+      In the following example, \Xcd{b} is initialized to \Xcd{y*9000} in
+      segment three.  The initialization makes sense and does the right
+      thing; \Xcd{b} will be \Xcd{y*9000} for every \Xcd{Overdone} object.
+      (This would not be possible if field initializers were processed
+      earlier, before properties were set.)
+\item The fourth segment is the remainder of the constructor body.
+\end{enumerate}
+
+The segments in the following code are shown in the comments.
+%~~gen ^^^ ObjectInitialization20
+% package ObjectInitialization.ShowingSegments;
+%~~vis
+\begin{xten}
+class Overlord(x:Int) {
+  def this(x:Int) { property(x); }
+}//Overlord
+class Overdone(y:Int) extends Overlord  {
+  val a : Int;
+  val b =  y * 9000;
+  def this(r:Int) {
+    super(r);                      // (1)
+    x10.io.Console.OUT.println(r); // (2)
+    property(r+1);                 // (2)
+    // field initializations here  // (3)
+    a = r + 2;                     // (4)
+  }
+}//Overdone
+\end{xten}
+%~~siv
+%
+%~~neg
+
+The rules of what is allowed in the three segments are different, though
+unsurprising.  For example, properties of the current class can only be read
+in segment 3 or 4---naturally, because they are set at the end of segment 2.
+
+\subsubsection{Initialization and Inner Classses}
+\index{constructor!inner classes in}
+
+Constructors of inner classes are tantamount to method calls on \Xcd{this}.
+For example, the constructor for Inner {\bf is} acceptable.  It does not leak
+\Xcd{this}.  It leaks \Xcd{Outer.this}, which is an utterly different object.
+So, the call to \Xcd{this.new Inner()} in the \Xcd{Outer} constructor {\em
+is} illegal.  It would leak \Xcd{this}.  There is no special rule in effect
+preventing this; a constructor call of an inner class is no
+different from a method as far as leaking is concerned.
+%~~gen ^^^ ObjectInitialization30
+% package ObjInit.InnerClass; 
+% NOTEST
+%~~vis
+\begin{xten}
+class Outer {
+  static val leak : Cell[Outer] = new Cell[Outer](null);
+  class Inner {
+     def this() {Outer.leak.set(Outer.this);}
+  }
+  def /*Outer*/this() {
+     //ILLEGAL: val inner = this.new Inner();
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+
+\subsubsection{Initialization and Closures}
+\index{constructor!closure in}
+
+Closures in constructors may not refer to \xcd`this`.  They may not even refer
+to fields of \xcd`this` that have been initialized.   For example, the
+closure \xcd`bad1` is not allowed because it refers to \xcd`this`; \xcd`bad2`
+is not allowed because it mentions \xcd`a` --- which is, of course, identical
+to \xcd`this.a`. 
+
+%%-deleted-%% valid if they were invoked (or inlined) at the
+%%-deleted-%%place of creation. For example, \Xcd{closure} below is acceptable because it
+%%-deleted-%%only refers to fields defined at the point it was written.  \Xcd{badClosure}
+%%-deleted-%%would not be acceptable, because it refers to fields that were not defined at
+%%-deleted-%%that point, although they were defined later.
+%~~gen ^^^ ObjectInitialization40
+% package ObjectInitialization.Closures; 
+%~~vis
+\begin{xten}
+class C {
+  val a:Int;
+  def this() {
+    this.a = 1;
+    // val bad1 = () => this; 
+    // val bad2 = () => a*10;
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+\subsection{Definite Initialization in Constructors}
+
+
+An instance field \Xcd{var x:T}, when \Xcd{T} has a default value, need not be
+explicitly initialized.  In this case, \Xcd{x} will be initialized to the
+default value of type \Xcd{T}.  For example, a \Xcd{Score} object will have
+its \Xcd{currently} field initialized to zero, below:
+%~~gen ^^^ ObjectInitialization50
+% package ObjectInit.DefaultInit;
+%~~vis
+\begin{xten}
+class Score {
+  public var currently : Int;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+All other sorts of instance fields do need to be initialized before they can
+be used.  \Xcd{val} fields must be initialized, even if their type has a
+default value.  It would be silly to have a field \Xcd{val z : Int} that was
+always given default value of \Xcd{0} and, since it is \Xcd{val}, can never be
+changed.  \Xcd{var} fields whose type has no default value must be initialized
+as well, such as \xcd`var y : Int{y != 0}`, since it cannot be assigned a
+sensible initial value.
+
+The fundamental principles are:
+\begin{enumerate}
+\item \Xcd{val} fields must be assigned precisely once in each constructor on every
+possible execution path.
+\item \Xcd{var} fields of defaultless type must be
+assigned at least once on every possible execution path, but may be assigned
+more than once.
+\item No variable may be read before it is guaranteed to have been
+assigned.
+\item Initialization may be by field initialization expressions (\Xcd{val x :
+      Int = y+z}), or by uninitialized fields \Xcd{val x : Int;} plus
+an initializing assignment \Xcd{x = y+z}.  Recall that field initialization
+expressions are performed after the \Xcd{property} statement, in segment 3 in
+the terminology of \Sref{SFineStructCtors}.
+\end{enumerate}
+
+
+
+\subsection{Summary of Restrictions on Classes and Constructors}
+
+The following table tells whether a given feature is (yes), is not (no) or is
+with some conditions (note) allowed in a given context.   For example, a
+property method is allowed with the type of another property, as long as it
+only mentions the preceding properties. The first column of the table gives
+examples, by line of the following code body.
+
+\begin{tabular}{||l|l|c|c|c|c|c|c||}
+\hline
+~
+  & {\bf Example}
+  & {\bf Prop.}
+  & {\bf {\tt \small self==this}(1)}
+  & {\bf Prop.Meth.}
+  & {\bf {\tt this}}
+  & {\bf {fields}}
+\\\hline
+Type of property
+  & (A)
+  & %?properties
+    yes (2)
+  & no %? self==this
+  & no %? property methods
+  & no %? this may be used
+  & no %? fields may be used
+\\\hline
+Class Invariant
+  & (B)
+  & yes %?properties
+  & yes %? self==this
+  & yes %? property methods
+  & yes %? this may be used
+  & no %? fields may be used
+\\\hline
+Supertype (3)
+  & (C), (D)
+  & yes%?properties
+  & yes%? self==this
+  & yes%? property methods
+  & no%? this may be used
+  & no%? fields may be used
+\\\hline
+Property Method Body
+  & (E)
+  & yes %?properties
+  & yes %? self==this
+  & yes %? property methods
+  & yes %? this may be used
+  & no %? fields may be used
+\\\hline
+
+Static field (4)
+  & (F) (G)
+  & no %?properties
+  & no %? self==this
+  & no %? property methods
+  & no %? this may be used
+  & no %? fields may be used
+\\\hline
+
+Instance field (5)
+  & (H), (I)
+  & yes %?properties
+  & yes %? self==this
+  & yes %? property methods
+  & yes %? this may be used
+  & yes %? fields may be used
+\\\hline
+
+Constructor arg. type
+  & (J)
+  & no %?properties
+  & no %? self==this
+  & no  %? property methods
+  & no %? this may be used
+  & no %? fields may be used
+\\\hline
+
+Constructor guard
+  & (K)
+  & no %?properties
+  & no %? self==this
+  & no %? property methods
+  & no %? this may be used
+  & no %? fields may be used
+\\\hline
+
+Constructor ret. type
+  & (L)
+  & yes %?properties
+  & yes %? self==this
+  & yes %? property methods
+  & yes %? this may be used
+  & yes %? fields may be used
+\\\hline
+
+Constructor segment 1
+  & (M)
+  & no%?properties
+  & yes%? self==this
+  & no%? property methods
+  & no%? this may be used
+  & no%? fields may be used
+\\\hline
+
+
+Constructor segment 2
+  & (N)
+  & no%?properties
+  & yes%? self==this
+  & no%? property methods
+  & no%? this may be used
+  & no%? fields may be used
+\\\hline
+
+Constructor segment 4
+  & (O)
+  & yes%?properties
+  & yes%? self==this
+  & yes%? property methods
+  & yes%? this may be used
+  & yes%? fields may be used
+\\\hline
+
+Methods
+  & (P)
+  & yes %?properties
+  & yes %? self==this
+  & yes %? property methods
+  & yes %? this may be used
+  & yes %? fields may be used
+\\\hline
+
+
+
+\iffalse
+place
+  & (pos)
+  & %?properties
+  & %? self==this
+  & %? property methods
+  & %? this may be used
+  & %? fields may be used
+\\\hline
+\fi
+\end{tabular}
+
+Details:
+
+\begin{itemize}
+\item (1) {Top-level {\tt self} only.}
+\item (2) {The type of the {$i^{th}$} property may only mention
+                 properties {$1$} through {$i$}.}
+\item (3) Super-interfaces follow the same rules as supertypes.
+\item (4) The same rules apply to types and initializers.
+\end{itemize}
+
+
+
+The example indices refer to the following code:
+%~~gen ^^^ ObjectInitialization60
+% package ObjectInit.GrandExample;
+% class Supertype[T]{}
+% interface SuperInterface[T]{}
+%~~vis
+\begin{xten}
+class Example (
+   prop : Int,
+   proq : Int{prop != proq},                    // (A)
+   pror : Int
+   )
+   {prop != 0}                                  // (B)
+   extends Supertype[Int{self != prop}]         // (C)
+   implements SuperInterface[Int{self != prop}] // (D)
+{
+   property def propmeth() = (prop == pror);    // (E)
+   static staticField
+      : Cell[Int{self != 0}]                    // (F)
+      = new Cell[Int{self != 0}](1);            // (G)
+   var instanceField
+      : Int {self != prop}                      // (H)
+      = (prop + 1) as Int{self != prop};        // (I)
+   def this(
+      a : Int{a != 0},
+      b : Int{b != a}                           // (J)
+      )
+      {a != b}                                  // (K)
+      : Example{self.prop == a && self.proq==b} // (L)
+   {
+      super();                                  // (M)
+      property(a,b,a);                          // (N)
+      // fields initialized here
+      instanceField = b as Int{self != prop};   // (O)
+   }
+
+   def someMethod() =
+        prop + staticField + instanceField;     // (P)
+}
+\end{xten}
+%~~siv
+%
+%~~neg

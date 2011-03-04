@@ -1,0 +1,439 @@
+\chapter{Overview of \Xten}
+
+\Xten{} is a statically typed object-oriented language, extending a
+sequential core language with 
+\emph{places},
+\emph{activities}, \emph{clocks},
+(distributed, multi-dimensional) \emph{arrays} and \emph{value}
+types. All these changes are motivated by the desire to use the new
+language for high-end, high-performance, high-productivity computing.
+
+\section{Object-oriented features}
+
+The sequential core of \Xten{} is a class-based object-oriented language
+similar to \java{} or Scala.
+Programmers write \Xten{} code by writing
+\emph{interfaces}
+(\Sref{XtenInterfaces}) and
+\emph{classes}
+(\Sref{XtenClasses}).
+
+An \Xten{} class has fields, methods and
+inner types (interfaces, classes), subclasses another class, and
+implements one or more interfaces. Thus \Xten{} classes live in a
+single-inheritance code hierarchy.  An interface specifies a set
+of methods, constant fields, and inner types.  Interfaces are
+multiply inherited.
+
+\paragraph{Dependent types}
+Classes and interfaces may declare \emph{properties}: immutable object
+members bound at object construction.
+Types may be defined by constraining a
+class or interface's properties.
+\emph{Properties} enable the definition of \emph{dependent types}.
+
+For example, the following code declares a class for a two-dimensional 
+\xcd"Point" class with an \xcd"add" method.
+\begin{xten}
+class Point(x: Int, y: Int) {
+    def add(p: Point): Point { return new Point(x+p.x,y+p.y); }
+}
+\end{xten}
+The class has integer properties \xcd"x" and \xcd"y".
+The \xcd"add" method creates and returns a new point by
+element-wise addition.
+
+% @@@### This sentence is out of place.  Define.
+From this class, we can define the
+the dependent type \xcd"Point{x==0}".  This is the type of all points 
+with \xcd"x" set to \xcd"0"; that is, all points along the $y$-axis.
+
+\paragraph{Generic types}
+
+Classes and interfaces may have type parameters, permitting the definition of
+{\em generic types}.
+For example,
+the following code declares a simple \xcd"List" class with a
+type parameter \xcd"T".
+
+\begin{xten}
+class List[T] {
+    var head: T;
+    var tail: List[T];
+    def this(h: T, t: List[T]) { head = h; tail = t; }
+    def add(x: T) {
+        if (this.tail == null)
+            this.tail = new List(x, null);
+        else
+            this.tail.add(x);
+    }
+}
+\end{xten}
+The constructor (\xcd"def this") initializes the fields of the new object.
+The \xcd"add" method appends an element to the list.
+\xcd"List" is a generic type.  When  instances of \xcd"List" are
+allocated, the type \param{} \xcd"T" must be bound to a concrete
+type.  \xcd"List[Int]" is the type of lists of element type
+\xcd"Int", \xcd"List[String]" is the type of lists of element
+type \xcd"String".
+
+\paragraph{Reference and value classes}
+
+There are two kinds of classes: \emph{reference} classes
+(\Sref{ReferenceClasses}) and \emph{value} classes
+(\Sref{ValueClasses}).
+A reference class typically has updatable fields.
+Objects of such a
+class may not be freely copied from place to place. Methods may be
+invoked on such an object only by an activity in the same place.
+The \xcd"null" reference is a value of any reference type.
+
+A value class (\Sref{ValueClasses}) has no updatable fields (defined
+directly or through inheritance), and allows no reference
+subclasses. (Fields may be typed at reference classes, so may contain
+references to objects with mutable state.) Objects of such a class may
+be freely copied from place to place, and may be implemented very
+efficiently. Methods may be invoked on such an object from any place.
+
+\Xten{} has no primitive classes. However, the standard library
+\xcd"x10.lang" supplies (final) value classes \xcd"Boolean", \xcd"Byte",
+\xcd"Short", \xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float",
+\xcd"Double", \xcd"Complex" and \xcd"String". The user may define
+additional arithmetic value classes using the facilities of the
+language.
+
+\section{The sequential core}
+
+\paragraph{Control flow.}  \Xten{} supports standard sequential control flow
+constructs: \xcd"if" statements, \xcd"while" loops, \xcd"for" loops,
+\xcd"switch" statements, etc.  \Xten{} also supports exceptions: exceptions are
+raised by \xcd"throw" statements and are handled by \xcd"try"--\xcd"catch"
+statements.
+
+\paragraph{Primitive operations.}  The language provides syntax for performing
+binary and unary operations on values of types defined in the standard library.
+
+\paragraph{Closures.}
+\Xten{} provides closures (\Sref{Closures}) to allow code to be used
+as values.  The body of a closure may capture variables in the closure's
+environment.  Closures are used implicitly in asyncs, futures, and array
+initializers.
+%
+For example, the following method uses a closure to increment
+elements of an array by invoking the \xcd"lift" method on the
+array.  The syntax \xcd"(x: Int) => x+1" specifies a closure
+that takes an integer argument \xcd"x" and returns \xcd"x+1".
+\begin{xten}
+def incr(A: Array[Int]): Array[Int] = {
+    val f = (x: Int) => x+1; // e.g., f(1) == 2
+    return A.lift(f);
+}
+\end{xten}
+
+\paragraph{Allocation.}
+Objects are allocated with the \xcd"new" operator
+(\Sref{ClassCreation}), which takes
+a class name and type and value arguments to pass to the class's
+constructor.  The constructor must ensure that all properties of
+the class and its superclasses are bound.
+
+\paragraph{Coercions and conversions}
+\Xten{} supports implicit and explicit coercions and
+conversions (\Sref{XtenConversions}).
+
+Values of one type can be converted to another type using the
+\xcd"as" operation:
+\begin{xten}
+val x: Int = 65535;
+val y: Byte = x as Byte; // convert to Byte,
+                         // retaining the lower 8 bits
+\end{xten}
+The \xcd"as" operation does not necessarily preserve equality
+and for numeric values may 
+result in a loss of precision.
+
+References may be coerced to another type, preserving object
+identity.  A run-time check is performed to ensure the reference
+is to an object of the target type.  If not,
+a \xcd"ClassCastException" is thrown.
+\begin{xten}
+// C and D are immediate subclasses of B.
+val x: B = new C();
+val y: C = x as C; // run-time check succeeds
+val z: D = x as D; // run-time check fails
+\end{xten}
+
+\section{Places and activities}
+An \Xten{} program is intended to run on a wide range of computers,
+from uniprocessors to large clusters of parallel processors supporting
+millions of concurrent operations. To support this scale, \Xten{}
+introduces the central concept of \emph{place} (\Sref{XtenPlaces}).
+Conceptually, a place is a ``virtual shared-memory multi-processor'':
+a computational unit with a finite (though perhaps changing) number of
+hardware threads and a bounded amount of shared memory, uniformly
+accessible by all threads.
+
+An \Xten{} computation acts on \emph{data
+objects}(\Sref{XtenObjects}) through the execution of lightweight
+threads called \emph{activities}(\Sref{XtenActivities}).  Objects are
+of two kinds. A \emph{scalar} object has a small, statically fixed set
+of fields, each of which has a distinct name. A scalar object is
+located at a single place and stays at that place throughout its
+lifetime.  An \emph{aggregate} object has many fields (the number may
+be known only when the object is created), uniformly accessed through
+an index (e.g., an integer) and may be distributed across many
+places. The distribution of an aggregate object remains unchanged
+throughout the computation. \Xten{} assumes an underlying garbage
+collector will dispose of (scalar and aggregate) objects and reclaim
+the memory associated with them once it can be determined that these
+objects are no longer accessible from the current state of the
+computation. (There are no operations in the language to allow a
+programmer to explicitly release memory.)
+
+{}\Xten{} has a \emph{unified} or \emph{global address space}. This
+means that an activity can reference objects at other places.
+However, an activity may synchronously access data items only in the
+current place (the place in which the activity is running). It may
+atomically update one or more data items, but only in the current
+place.  To read a remote location, an activity must spawn another
+activity \emph{asynchronously} (\Sref{AsynchronousActivity}). This
+operation returns immediately, leaving the spawning activity with a
+\emph{future} (\Sref{XtenFutures}) for the result. Similarly, remote
+location can be written into only by asynchronously spawning an
+activity to run at that location.
+
+Throughout its lifetime an activity executes at the same place. An
+activity may dynamically spawn activities in the current or remote
+places.
+
+\paragraph{Place casts.}
+The programmer may use the standard type cast mechanism
+(\Sref{ClassCast}) to cast a value to a located type. A
+\xcd"BadPlaceException" is thrown if the value is not of the given
+type. This is the only language construct that throws a \xcd"BadPlaceException".
+
+\paragraph{Atomic blocks.}
+
+\Xten{} introduces statements of the form \xcd"atomic S" where \xcd"S"
+is a statement.  The type system ensures that such a statement will
+dynamically access only local data. (The statement may throw
+a \xcd"BadPlaceException"---but only because of a failed place cast.)
+Such a statement is executed by the activity as if in a single step
+during which all other activities are frozen.
+
+\paragraph{Asynchronous activities.}
+
+An asynchronous activity is created by a statement \xcd"async (P) S"
+where \xcd"P" is a place expression and \xcd"S" is a statement.  Such
+a statement is executed by spawning an activity at the place
+designated by \xcd"P" to execute statement \xcd"S".
+
+An asynchronous expression of type \xcd"Future[T]" has the form
+\xcd"future (p) e" where \xcd"e" is an expression of type
+\xcd"T".  The expression \xcd"e"
+may reference final and shared variables declared in the lexically
+enclosing environment.  It executes the expression \xcd"e" at the
+place \xcd"p" as an asynchronous activity, immediately returning with
+a future. The future may later be forced causing the activity to be
+blocked until the return value has been computed by the asynchronous
+activity.
+
+\section{Clocks}
+The MPI style of coordinating the activity of multiple processes with
+a single barrier is not suitable for the dynamic network of (possibly
+diverse) activities in an \Xten{} computation. Instead, it becomes
+necessary to allow a computation to use multiple barriers. \Xten{}
+\emph{clocks} (\Sref{XtenClocks}) are designed to offer the
+functionality of multiple barriers in a dynamic context while still
+supporting determinate, deadlock-free parallel computation.
+
+Activities may use clocks to repeatedly detect quiescence of arbitrary
+programmer-specified, data-dependent set of activities. Each activity
+is spawned with a known set of clocks and may dynamically create new
+clocks. At any given time an activity is \emph{registered} with zero or
+more clocks. It may register newly created activities with a clock,
+un-register itself with a clock, suspend on a clock or require that a
+statement (possibly involving execution of new async activities) be
+executed to completion before the clock can advance.  At any given
+step of the execution a clock is in a given phase. It advances to the
+next phase only when all its registered activities have \emph{quiesced}
+(by executing a \xcd"next" operation on the clock).
+When a clock advances, all its activities may now resume execution.
+
+Thus clocks act as \emph{barriers} for a dynamically varying collection
+of activities. They generalize the barriers found in MPI style program
+in that an activity may use multiple clocks simultaneously. Yet
+programs using clocks are guaranteed not to suffer from
+deadlock.
+
+\emph{In future versions of the language,
+clocks will be integrated into the \Xten{} type system,
+permitting variables to be declared so that they are final in each
+phase of a clock.}
+
+\section{Arrays, regions and distributions}
+
+An \Xten{} array type is a map from a \emph{distribution}
+(\Sref{XtenDistributions}) to a type, which may itself be an
+array type.
+
+% POINT REGION
+A distribution is a map from a \emph{region} (\Sref{XtenRegions}) to
+places.  A region is a collection of \emph{points} or
+\emph{indices}. For instance, the region \xcd"[0..200,1..100]" specifies
+a collection of two-dimensional points \xcd"[i,j]" with 
+\xcd"i" ranging from \xcd"0" to \xcd"200" and \xcd"j" ranging
+from \xcd"1" to \xcd"100". Points are used in array index expressions
+to pick out a particular array element.
+
+Operations are provided to construct regions from other regions, and
+to iterate over regions. Standard set operations, such as union,
+disjunction and set difference are available for regions.
+
+A primitive set of distributions is provided, together with operations
+on distributions. A \emph{sub-distribution} of a distribution is one
+defined on a smaller region and agrees with the distribution
+at all points.  The standard operations on regions are extended to
+distributions.
+
+% XXX views
+
+A new array can be created by restricting an existing array to a
+sub-distribution, by combining multiple arrays, and by performing
+pointwise operations on arrays with the same distribution.
+
+\Xten{} allows array constructors to iterate over the underlying
+distribution and specify a value at each item in the underlying
+region. Such a constructor may spawn activities at multiple places.
+
+\emph{In future versions of the language, a programmer may specify new
+distributions, and new operations on distributions.}
+
+\section{Annotations}
+
+\Xten{} supports annotations on classes and interfaces, methods
+and constructors,
+variables, types, expressions and statements.
+These annotations may be processed by compiler plugins.
+
+\section{Translating MPI programs to \Xten{}}
+
+While \Xten{} permits considerably greater flexibility in writing
+distributed programs and data structures than MPI, it is instructive
+to examine how to translate MPI programs to \Xten.
+
+Each separate MPI process can be translated into an \Xten{}
+place. Async activities may be used to read and write variables
+located at different processes. A single clock may be used for barrier
+synchronization between multiple MPI processes. \Xten{} collective
+operations may be used to implement MPI collective operations.
+\Xten{} is more general than MPI in (a)~not requiring synchronization
+between two processes in order to enable one to read and write the
+other's values, (b)~permitting the use of high-level atomic blocks
+within a process to obtain mutual exclusion between multiple
+activities running in the same node (c)~permitting the use of multiple
+clocks to combine the expression of different physics (e.g.,
+computations modeling blood coagulation together with computations
+involving the flow of blood), (d)~not requiring an SPMD style of
+computation.
+
+
+%\note{Relaxed exception model}
+\section{Summary and future work}
+\subsection{Design for scalability}
+\Xten{} is designed for scalability. An activity may atomically
+access only multiple locations in the current place. Unconditional
+atomic blocks are statically guaranteed to be non-blocking, and may
+be implemented using non-blocking techniques that avoid mutual
+exclusion bottlenecks. Data-flow synchronization permits point-to-point
+coordination between reader/writer activities, obviating the need for
+barrier-based or lock-based synchronization in many cases.
+
+\subsection{Design for productivity}
+\Xten{} is designed for productivity. 
+
+\paragraph{Safety and correctness.} 
+Programs written in \Xten{} are guaranteed to be statically
+\emph{type
+safe}, \emph{memory safe} and \emph{pointer safe}. Static type safety
+guarantees that at run time a location contains only those values who's
+dynamic type satisfies the constraints imposed by the location's
+static type and every run-time operation performed on the value in a
+location is permitted by the static type of the location.
+
+Memory safety guarantees that an object may only access memory within
+its representation, and other objects it has a reference to. \Xten{}
+supports no pointer arithmetic, and bound-checks array accesses
+dynamically if necessary. \Xten{} uses dynamic garbage collection to
+collect objects no longer referenced by the computation. \Xten{}
+guarantees that no object can retain a reference to an object
+whose memory has been reclaimed.  Further, \Xten{} guarantees that
+every location is initialized at run time before it is read, 
+and every value read from a location has previously been written into
+that location. 
+
+%XXX
+%Pointer safety guarantees that a null pointer exception cannot be
+%thrown by an operation on a value of a non-nullable type.
+
+Because places are reflected in the type system, static type safety
+also implies \emph{place safety}: a location may contain references to only
+those objects whose location satisfies the restrictions of the static
+place type of the location.
+
+\Xten{} programs that use only clocks and unconditional atomic
+blocks are guaranteed not to deadlock. Unconditional atomic blocks
+are non-blocking, hence cannot introduce deadlocks (assuming the
+implementation is correct).
+
+Many concurrent programs can be shown to be determinate (hence
+race-free) statically.
+
+\paragraph{Integration.}
+A key issue for any new programming language is how well it can be
+integrated with existing (external) languages, system environments,
+libraries and tools.
+
+We believe that \Xten{}, like \java{}, will be able to support a large
+number of libraries and tools. An area where we expect future versions
+of \Xten{} to improve on \java{} like languages is \emph{native
+integration} (\Sref{extern}). Specifically, \Xten{} will permit
+permit multi-dimensional local arrays to be operated on natively by
+native code.
+
+%% Portability measures the amount of effort required to move an
+%% application across multiple platforms, architectures and system
+%% generations. The performance portability of applications across widely
+%% different computer architectures (distributed cluster vs. vector
+%% processor) depends significantly on inherent properties of the
+%% underlying algorithms used in the application.
+%% 
+\subsection{Conclusion}
+{}\Xten{} is considerably higher-level than thread-based languages in
+that it supports dynamically spawning very lightweight activities, the
+use of atomic operations for mutual exclusion, and the use of clocks
+for repeated quiescence detection.
+
+Yet it is much more concrete than languages like HPF in that it forces
+the programmer to explicitly deal with distribution of data
+objects. In this the language reflects the designers' belief that
+issues of locality and distribution cannot be hidden from the
+programmer of high-performance code in high-end computing.  A
+performance model that distinguishes between computation and
+communication must be made explicit and transparent.\footnote{In this
+\Xten{} is similar to more modern languages such as ZPL \cite{zpl}.}
+At the same time we believe that the place-based type system and
+support for generic programming will allow the \Xten{} programmer to
+be highly productive; many of the tedious details of
+distribution-specific code can be handled in a generic fashion.
+
+We expect the next version of the language to be significantly
+informed by experience in implementing and using the language. We
+expect it to have constructs to support continuous program
+optimization, and allow the programmer to provide guidance on
+clustering places to (hardware) nodes. For instance, we may introduce
+a notion of hierarchical clustering of places.
+
+
+
+

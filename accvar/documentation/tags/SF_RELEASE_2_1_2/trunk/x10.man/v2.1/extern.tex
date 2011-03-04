@@ -1,0 +1,257 @@
+\chapter{Native Code Integration}
+\label{NativeCode}
+\index{native code}
+
+At times it becomes necessary to call non-X10 code from X10, perhaps to make
+use of specialized libraries in other languages or to write more precisely
+controlled code than X10 generally makes available. The
+\xcd`@Native(lang,code) Phrase` annotation from \xcd`x10.compiler.Native` in
+X10 can be used to tell the X10 compiler to generate \xcd`code` for certain
+kinds of \xcd`Phrase`, instead of what it would normally compile to, when
+compiling to the \xcd`lang` back end.
+
+
+\section{Native {\tt static} Methods}
+
+\xcd`static` methods can be given native implementations.  Note that these
+implementations are syntactically {\em expressions}, not statements, in C++ or
+Java.   Also, it is possible (and common) to provide native implementations
+into both Java and C++ for the same method.
+%~~gen ^^^ extern10
+% package Extern.or_current_turn;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Son {
+  @Native("c++", "printf(\"Hi!\")")
+  @Native("java", "System.out.println(\"Hi!\")")
+  static def printNatively():void = {};
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+If only some back-end languages are given, the X10 code will be used for the
+remaining back ends: 
+%~~gen ^^^ extern20
+% package Extern.or.burn;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Land {
+  @Native("c++", "printf(\"Hi from C++!\")")
+  static def example():void = {
+    x10.io.Console.OUT.println("Hi from X10!");
+  };
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+The \xcd`native` modifier on methods indicates that the method must not have
+an X10 code body, and \xcd`@Native` implementations must be given for all back
+ends:
+%~~gen ^^^ extern30
+% package Extern.or_maybe_getting_back_together;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Plants {
+  @Native("c++", "printf(\"Hi!\")")
+  @Native("java", "System.out.println(\"Hi!\")")
+  static native def printNatively():void;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+Values may be returned from external code to X10.  Scalar types in Java and
+C++ correspond directly to the analogous types in X10.  
+%~~gen ^^^ extern40
+% package Extern.hardy;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Return {
+  @Native("c++", "1")
+  @Native("java", "1")
+  static native def one():Int;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+Parameters may be passed to external code.  \xcd`(#1)`  is the first parameter,
+\xcd`(#2)` the second, and so forth.  (\xcd`(#0)` is the name of the enclosing
+class.)  Be aware that this is macro substitution rather than normal parameter
+passing; \eg, if the first actual parameter is \xcd`i++`, and \xcd`(#1)`
+appears twice in the external code, \xcd`i` will be incremented twice.
+For example, a (ridiculous) way to print the sum of two numbers is: 
+%~~gen ^^^ extern50
+% package Extern.or_turnabout_is_fair_play;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Species {
+  @Native("c++", "printf(\"Sum=%d\", ((#1)+(#2)) )")
+  @Native("java", "System.out.println(\"\" + ((#1)+(#2)))")
+  static native def printNatively(x:Int, y:Int):void;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+Static variables in the class are available in the external code. 
+\iffalse
+%~~gen ^^^ extern60
+%package Extern.or.Die;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Ability {
+  static val a : Int = 1;
+  @Native("java", "a")
+  static native def fromStatic():Int;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\fi
+
+
+
+\section{Native Blocks}
+
+Any block may be annotated with \xcd`@Native(lang,stmt)`, indicating that, in
+the given back end, it should be implemented as \xcd`stmt`. All value
+variables from the surrounding context are available inside \xcd`stmt`. For
+example, the method call \xcd`born.example(10)`, if compiled to Java, changes
+the field \xcd`y` of a \xcd`Born` object to 10. If compiled to C++ (for which
+there is no \xcd`@Native`), it sets it to 3. 
+%~~gen ^^^ extern70
+%package Extern.me.plz; 
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Born {
+  var y : Int = 1; 
+  public def example(x:Int):Int{
+    @Native("java", "y=x;") 
+    {y = 3;}
+    return y;
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+Note that the code being replaced is a statement -- the block \xcd`{y = 3;}`
+in this case -- so the replacement should also be a statement. 
+
+
+Other X10 constructs may or may not be available in Java and/or C++ code.  For
+example, type variables do not correspond exactly to type variables in either
+language, and may not be available there.  The exact compilation scheme is
+{\em not} fully specified.  You may inspect the generated Java or C++ code and
+see how to do specific things, but there is no guarantee that fancy extern
+coding will continue to work in later versions of X10.
+
+
+
+The full facilities of C++ or Java are available in native code blocks.
+However, there is no guarantee that advanced features behave sensibly. You
+must follow the exact conventions that the code generator does, or you will
+get unpredictable results.  Furthermore, the code generator's conventions may
+change without notice or documentation from version to version.  In most cases
+the  code should either be a very simple expression, or a method
+or function call to external code.
+
+
+\section{External Java Code}
+
+When X10 is compiled to Java, mentioning a Java class name in native code will
+cause the Java compiler to find it in the sourcepath or classpath, in the
+usual way.  This requires no particular extra work from the programmer.
+
+
+\section{External C++ Code}
+
+C++ code can be linked to X10 code, either by writing auxiliary C++ files and
+adding them with suitable annotations, or by linking libraries.
+
+\subsection{Auxiliary C++ Files}
+
+Auxiliary C++ code can be written in \xcd`.h` and \xcd`.cc` files, which
+should be put in the same directory as the the X10 file using them.
+Connecting with the library uses the \xcd`@NativeCPPInclude(dot_h_file_name)`
+annotation to include the header file, and the 
+\xcd`@NativeCPPCompilationUnit(dot_cc_file_name)` annotation to include the
+C++ code proper.  For example: 
+
+{\bf MyCppCode.h}: 
+\begin{xten}
+void foo();
+\end{xten}
+
+
+{\bf MyCppCode.cc}:
+\begin{xten}
+#include <cstdlib>
+#include <cstdio>
+void foo() {
+    printf("Hello World!\n");
+}
+\end{xten}
+
+{\bf Test.x10}:
+\begin{xten}
+import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
+import x10.compiler.NativeCPPCompilationUnit;
+
+@NativeCPPInclude("MyCPPCode.h")
+@NativeCPPCompilationUnit("MyCPPCode.cc")
+public class Test {
+    public static def main (args:Array[String](1)) {
+        { @Native("c++","foo();") {} }
+    }
+}
+\end{xten}
+
+\subsection{C++ System Libraries}
+
+If we want to additionally link to more libraries in \xcd`/usr/lib` for
+example, it is necessary to adjust the post-compilation directly.  The
+post-compilation is the compilation of the C++ which the X10-to-C++ compiler
+\xcd`x10c++` produces.  
+
+The mechanism used for this is the \xcd`-post` command line parameter to
+\xcd`x10c++`. The following example shows how to compile \xcd`blas` into the
+executable via post compiler parameters.
+
+\begin{xten}
+x10c++ Test.x10 -post '# # -I /usr/local/blas # -L /usr/local/blas -lblas'
+\end{xten}
+
+\begin{itemize}
+\item The first \xcd`#` means to use the default compiler for the architecture (from
+      x10rt properties file). 
+\item The second \xcd`#` is substituted for the .cc files and CXXFLAGS that would
+      ordinarily be used. 
+\item The third \xcd`#` is substituted for the libraries and LDFLAGS that would
+      ordinarily used.
+\item For the second and third, if a \xcd`%` is used instead of a \xcd`#` then the
+      the substitution does not occur in that position.  The \xcd`%` is
+      erased.  The desired parameter value should appear after the \xcd`%` on
+      the line. This allows a complete override of the postcompiler behaviour.
+\end{itemize}

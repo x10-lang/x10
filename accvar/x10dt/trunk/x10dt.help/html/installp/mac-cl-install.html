@@ -1,0 +1,478 @@
+<html>
+<body>
+
+<h1>Macintosh X10 Command Line Installation on Leopard</h1>
+In order to run X10 on OS X Leopard, you need to satisfy the following pre-requisites.
+<h2>Prereqs</h2>
+<ul>
+	<li>gcc/g++ 4.2.x or higher (for the X10 C++ backend)</li>
+	<li>java 1.5.0_x or higher (for the X10 Java backend)</li>
+</ul>
+Fortunately, Mac OS X Leopard provides most of these as part of its environment. Although
+you may have to download the development environment called Xcode to get the compiler tools.
+
+<h3>gcc/g++</h3>
+gcc is included with OS X. You can verify the location and version
+with the following commands
+
+<pre>
+whereis gcc
+gcc -v
+</pre>
+
+You should see something similar to this
+
+<pre>
+$ whereis gcc
+/usr/bin/gcc
+</pre>
+
+<pre>
+$ gcc -v
+Using builtin specs.
+Target i686-apple-darwin9
+Configured with: ....
+Thread model: posix
+gcc version 4.0.1 (Apple Inc. build 5493)
+</pre>
+
+If you do not get these results, you will have to install Apple's
+Developer Tools called Xcode.  There are 2 ways to do this
+<p>
+1) There should be a version on your installation disk for Leopard.
+You should insert your disk and go the the "Optional Installs" folder.
+There you will see a "Xcode Tools" folder. When you select this folder,
+you will see the "XcodeTools.mpkg" package installer. You should double
+click on this and follow the instructions to install the Xcode tools.
+You should let this install to the default folder "Developer". When the
+installation is complete, check the installation as described above.
+<p> 
+2) You can download Xcode from  
+<a href="http://developer.apple.com/">Apple's Developer Connection (ADC) site</a>.
+This method insures that you will get the latest Xcode version whereas 
+method 1 may be an earlier version available at the time of packaging the
+Leopard installation DVD.
+<P>
+To access this site, you may have to signup for an ADC id. 
+You should select the "Resources" link near the top and
+then select "Developer Downloads" under the Mac OS X section. 
+Then you select "Developer Tools" under the "Downloads" section on the right. 
+You should scroll until you find "Xcode 3.1.4 Developer Tools"
+which is the version for Leopard. You should note that "Xcode 3.2.1 Developer Tools"
+is the version for Snow Leopard. 
+<p>
+Once you have downloaded the Xcode Disk Image, you can invoke the package installer.
+You should let this install to the default folder "Developer". When the
+installation is complete, check the installation as described above.
+
+<p>
+Actually Xcode Tools comes with 2 versions of the gcc compiler, 
+4.0 and 4.2.  Leopard defaults to 4.0.
+If you go to the /usr/bin directory, you can
+see how the gcc and g++ commands are linked.
+
+<pre>
+$ cd /usr/bin
+$ ls -al g*
+</pre>
+
+You should see something like this
+<pre>
+g++ -> g++-4.0
+g++-4.0
+g++-4.2
+gatherheaderdoc
+gcc -> gcc-4.0
+gcc-4.0
+gcc-4.2
+gcov -> gcov-4.0
+gcov-4.0
+gcov-4.2
+</pre>
+
+If you want to switch to the 4.2 compiler, you just need to change the
+links (g++, gcc, gcov, C++) to point to the 4.2 versions. You should also
+change the links under Developer directory where Xcode was installed to be
+consistent.
+<p>
+Also, Xcode 3.1.3 on Leopard points gcc and g++ by default at the 4.0 compiler 
+(Xcode includes both 4.0 and 4.2), so you’ll have to change the links:
+
+<pre>
+  % su -
+  $ cd /usr/bin
+  $ rm gcc cc g++ c++ gcov
+  $ ln -s gcc-4.2 gcc
+  $ ln -s gcc-4.2 cc
+  $ ln -s g++-4.2 g++
+  $ ln -s c++-4.2 c++
+  $ ln -s gcov-4.2 gcov
+  $
+</pre>
+<p>
+There’s an identical set of links in /Developer/usr/bin that you should probably 
+also change (for safety and consistency’s sake).
+
+<p>
+You will need to do this in order to build the x10 distribution which
+will be discussed in another chapter.
+
+<h4>java</h4>
+Java is also included with the OS X. You can verify the location and version
+with the following commands
+<pre>
+whereis java
+java -version</li>
+</pre>
+
+You should see something like this
+
+<pre>
+$ whereis java
+/usr/bin/java
+</pre>
+
+<pre>
+$ java -version
+java version "1.5.0_20"
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_20-b02-315)
+Java HotSpot(TM) Client VM (build 1.5.0_20-141, mixed mode, sharing)
+</pre>
+
+If you go to the /usr/bin directory, you can see that the java command
+is a link.
+
+<pre>
+$ cd /usr/bin
+$ ls -al java
+</pre>
+
+You should see something like this
+<pre>
+java -> /System/Library/Frameworks/JavaVM.framework/Versions/Current/Commands/java
+</pre>
+
+Actually OS X ships with multiple versions of java
+under
+/System/Library/Frameworks/JavaVM.framework/Versions
+If you are up to date with patches, you will also find java 1.6 here.
+If you want to switch to java 1.6, you can change the links to "Current" and
+"CurrentJDK" in the JavaVM.framworks versions directory.
+
+<h2>Getting started</h2>
+
+You need to download the X10 2.1.2 distribution for your platform,
+<pre>
+AIX/Power
+Linux/Power (SLES11)
+Cygwin/x86
+Linux/x86 (RHEL5)
+Linux/x86_64 (RHEL5)
+MacOS/x86 and x86_64
+</pre>
+in this case MacOS/x86. The Sockets runtime is included with the X10 platform.
+Go to the <a href="http://x10.codehaus.org/X10+2.1.2+Release">X10 release 2.1.2 (http://x10.codehaus.org/X10+2.1.2+Release)</a> 
+and download the X10 distribution.  This will be usually stored in your "Downloads" directory depending on how
+your browser is configured. You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
+<p>
+Next you need to install the X10 distribution so that it is available to use.  
+You should make a directory in the /usr/local or /opt directory for this version.  This procedure
+will allow easy updating to a newer version when it becomes available. 
+Note that you may have to use the "sudo" command to get access. 
+
+<pre>
+cd /usr
+mkdir local
+cd local
+mkdir x10
+cd x10
+mkdir 
+cd 2.1.2
+</pre>
+
+Make the directory accessible by everyone
+<pre>
+cd /usr
+chmod -R 755 local
+</pre>
+
+Now copy the x10 download to x10dist directory 
+and unpack it.
+<pre>
+cd /usr
+cd local
+cd x10
+cd 2.1.2
+cp /Users/cals/Downloads/x10-2.1.2_macosx_x86.gz .
+tar -xvf x10-2.1.2_macosx_x86.gz
+</pre>
+
+<p>
+Now you are ready to setup your environment that makes use of this directory.
+On the Mac it is probably better to create a .bash_profile to add the x10 bin directory
+to your path.  You can also define aliases here, etc.  
+<p>
+Here is a sample .bash_profile that adds the X10 bin directory to your path.
+<pre>
+.bash_profile
+PATH=${PATH}:/usr/local/x10/2.1.2/bin
+export PATH
+</pre>
+
+Now you will be able to use the x10 commands to compile and run your programs.
+You should make an x10 or an x10work directory in your
+home path, and create a subdirectory for each project.
+
+<p>
+To get started you should copy the HelloWorld program from the x10 samples directory into your
+working directory. For example,
+<pre>
+cd ~
+mkdir x10
+cd x10
+mkdir HelloWorld
+cd HelloWorld
+cp /usr/local/x10/2.1.2/samples/HelloWorld.x10 .
+</pre>
+
+<h4>Using the java backend</h4>
+To compile the this program with the java backend you would enter
+<pre>
+x10c HelloWorld.x10	
+</pre>
+
+You should now see some java classes in your directory.  
+<pre>
+HelloWorld$1.class		HelloWorld$Main.class	HelloWorld.x10
+HelloWorld$Main$1.class	HelloWorld.class
+HelloWorld$Main$2.class HelloWorld.java
+		
+</pre>
+
+You can now run this program by entering
+<pre>
+x10 HelloWorld
+</pre>
+
+You should see the program output
+<pre>
+Hello World!
+</pre>
+
+<h4>Using the C++ backend</h4>
+To compile this program with the c++ backend you would enter
+<pre>
+x10c++ -MAIN_CLASS=Hello HelloWorld.x10	
+</pre>
+The reason for using the -MAIN_CLASS is so that the compiler generates a
+runtime called "Hello". If you leave off the -MAIN_CLASS directive, 
+your output will be under a.out.
+<p>
+You should now see the following files in your directory.  
+<pre>
+HelloWorld.cc	HelloWorld.exe HelloWorld.h	HelloWorld.inc	HelloWorld.x10
+</pre>
+
+You can now run this program by entering
+<pre>
+runx10 HelloWorld
+</pre>
+
+You should see the program output
+<pre>
+Hello, x10 World!
+The answer is: true
+</pre>
+
+Note that the C++ backend makes use of the OpenMPI runtime that is installed on your
+system, so you can also enter the following command to run an x10 program
+<pre>
+mpirun -np 1 HelloWorld
+</pre>
+
+<p>
+At this point, you may want to compile the other sample programs from the "samples"
+directory.  Then you can begin creating your own programs.
+
+<h4>Running x10 programs using <tt>Sockets</tt> backend</h4>
+<p>
+The sockets transport replaces <tt>pgas_sockets</tt> (which is closed-source, and requires some setup), and is currently the default backend if you don't compile with the "-x10rt" flag. You set an environment variable <tt>X10_NPLACES</tt> to specify the number of places. If this is not set, it defaults to 1 place on the local machine, and prints a warning. 
+There are two ways to specify the machines to run on: 
+<ul>
+<li>Set the environment variable <tt>X10_HOSTFILE</tt> to the full path for a hostfile. The hostfile is a simple text file that contains a list of hostnames to run on, with one line per machine. 
+<li>Set the environment variable <tt>X10_HOSTLIST</tt>, to a comma-separated list of hostnames, without spaces. This environment variable is checked only if <tt>X10_HOSTFILE</tt> was not set. 
+</ul>
+Both of the above will wrap if there are more places than hostnames specified. For example, setting <tt>X10_NPROCS=4</tt> and <tt>X10_HOSTLIST=host1,host2</tt> will cause places 0 and 2 to run on host1, and places 1 and 3 to run on host2. If neither of the above is set, and there is more than 1 place, then it defaults to running everything on localhost, and prints a warning. You can set <tt>X10_HOSTLIST=localhost</tt> to get the same effect without warning. 
+If you're running on more than one machine, you should have public/private key ssh authentication set up, so you can ssh from one machine to another without getting a password prompt. You should also have your executable and hostfile available in the same location on every machine listed in the hostfile. You compile your program with "-x10rt sockets", and with ssh in place, and the environment variables set, you run your executable. You don't have to launch from one of the machines in the hostfile, but you do need to have the ssh authentication set up between the machine you launch from and the first machine in the list. 
+<p>
+The sockets backend supports gdb debugging through the <tt>X10LAUNCHER_DEBUG</tt> environment variable. The value of this has two forms: 
+<ul>
+<li>"place:port", where place is the place that you want to be debugged or the string "all", and port is the port number that you want gdbserver to use. This launches the runtime for the specified place under gdbserver, which allows you to connect to the remote runtime with your local gdb session. See <a href="http://www.delorie.com/gnu/docs/gdb/gdb_134.html">this link</a> for more details. If you specify "all" for the place, then all places will be started under gdbserver at the specified port. Be aware that if you have multiple places running on the same machine, then this will cause port number conflicts. 
+<li>"place", where place is either the place that you want to be debugged, or the string "all". Setting this to a number causes the specified place to be launched under gdb in a new xterm. For example, setting <tt>X10LAUNCHER_DEBUG=0</tt> will cause the x10 runtime for place 0 to be started in a gdb session in a new xterm, while other places run normally. Setting this to "all" will cause all runtimes to execute in separate gdb xterms. Each xterm is given a title showing which place it is running so you can keep track. 
+</ul>
+If you are running on triloka, please be sure to ssh to each machine in your hostlist to ensure that GSA is mounted and you don't get a password prompt. More than once I've forgotten to do this, and the program appears to hang, when under the covers it's waiting at a password prompt. 
+<p>
+It's possible to run without the launcher, and start up each place manually. To do this, you need to set the X10LAUNCHER_RUNTIME, X10_PLACE, and X10LAUNCHER_FORCEPORTS environment variables, which would normally be set by the launcher. For example: 
+<ul>
+
+<li>// Launch three places on triloka1-3, all using port 7001: 
+<li>X10LAUNCHER_RUNTIME=true X10_PLACE=0 X10_NPLACES=3 X10LAUNCHER_FORCEPORTS=7001,7001,7001 X10_HOSTLIST=triloka1,triloka2,triloka3 // run on triloka1 
+<li>X10LAUNCHER_RUNTIME=true X10_PLACE=1 X10_NPLACES=3 X10LAUNCHER_FORCEPORTS=7001,7001,7001 X10_HOSTLIST=triloka1,triloka2,triloka3 // run on triloka2 
+<li>X10LAUNCHER_RUNTIME=true X10_PLACE=2 X10_NPLACES=3 X10LAUNCHER_FORCEPORTS=7001,7001,7001 X10_HOSTLIST=triloka1,triloka2,triloka3 // run on triloka3 
+</ul>
+Please note that currently, the Sockets backend will not work in an environment with mixed POWER and x86 hardware, due to different endianness. 
+<p>
+
+<h4>Running with <tt>Standalone</tt> backend</h4>
+<p>
+Standalone sets up shared memory regions and forks off one instance of the program per place. The places all run on the local machine. There is one environment variable "X10_NPLACES", which should be set to the number of places. If not set, it defaults to 1 and prints a warning. The standalone has transport has a limit on the size of the data blocks that can be sent (about 512k), because of the shared memory regions. To run, just compile with "-x10rt standalone", set the environment variable, and run your executable. This transport is a good choice if you're running everything one one machine and don't use large messages. 
+<p>
+Debugging under standalone is relatively easy, since all places are forked off from the main process, and gdb can be configured to follow these forks. 
+
+<p>
+It helps a lot to have passwordless ssh working between the machine
+where the manager process is running and the compute nodes.
+
+
+<h4>Compiler options</h4>
+Use "x10c -- -help" to get more detailed help on compiler options.
+<pre>
+$ x10c -- -help
+usage: x10c [options] <source-file>.x10 ...
+where [options] includes:
+  @<file>                  read options from <file>
+  -d <directory>           output directory
+  -assert                  recognize the assert keyword
+  -sourcepath <path>       source path
+  -bootclasspath <path>    path for bootstrap class files
+  -ext <extension>         use language extension
+  -extclass <ext-class>    use language extension
+  -commandlineonly         only compile files named on the command-line (may
+                           also require -c)
+  -preferclassfiles        prefer class files to source files even if the
+                           source is newer
+  -fqcn                    use fully-qualified class names
+  -sx <ext>                set source extension
+  -ox <ext>                set output extension
+  -errors <num>            set the maximum number of errors
+  -w <num>                 set the maximum width of the .java output files
+  -dump <pass>             dump the ast after pass <pass>
+  -print <pass>            pretty-print the ast after pass <pass>
+  -disable <pass>          disable pass <pass>
+  -noserial                disable class serialization
+  -nooutput                delete output files after compilation
+  -c                       compile only to .java
+  -post <compiler>         run javac-like compiler after translation
+  -debugpositions          generate position information for
+                           compiler-generated code
+  -simpleoutput            use SimpleCodeWriter
+  -v -verbose              print verbose debugging information
+  -report <topic>=<level>  print verbose debugging information about topic
+                           at specified verbosity
+        Allowed topics: imports, jl, x10, serialize, types, frontend, time,
+        resolver, cfg, visit, clock, dataflow, debug, errors, context,
+        loader, verbose, qq
+  -version                 print version info
+  -h                       print this message
+  -noassert                turn off assertion generation
+  -CHECK_INVARIANTS=boolean
+                           Check AST invariants such as position
+                           containment, existence of xxxInstance(), etc
+                           (default = false)
+  -ONLY_TYPE_CHECKING=boolean
+                           Do only type-checking, without optimizations or
+                           code generation (default = false)
+  -OPTIMIZE=boolean        Generate optimized code (default = false)
+  -DEBUG=boolean           Generate debug information (default = false)
+  -NO_CHECKS=boolean       Disable generation of all null, bounds, and place
+                           checks (default = false)
+  -LOOP_OPTIMIZATIONS=boolean
+                           Optimize rectangular region iteration (default =
+                           true)
+  -INLINE_OPTIMIZATIONS=boolean
+                           Perform inlining optimizations (default = false)
+  -CLOSURE_INLINING=boolean
+                           Perform closure literal inlining (default = true)
+  -FLATTEN_EXPRESSIONS=boolean
+                           Flatten all expressions (default = false)
+  -INLINE_SMALL_METHODS=boolean
+                           Inline methods that don't make many calls
+                           (default = false)
+  -PLUGINS=String          Comma-separated list of compiler plugins to run.
+                           (default = "")
+  -PLUGIN_COMPILER=String  Javac-like compiler to use to compile plugins
+                           (default = "")
+  -MANIFEST=String         The path to the pre-built library manifest file
+                           (default = null)
+  -WORK_STEALING=boolean   Code generation for work-stealing scheduling
+                           (default = false)
+  -WALA=boolean            Produce WALA IR from X10 sources (default =
+                           false)
+  -VERBOSE_CALLS=boolean   Print details of casts introduced for
+                           dynamically-checked calls. (default = false)
+  -STATIC_CALLS=boolean    Treat dynamically-checked calls as errors.
+                           (default = false)
+  -FINISH_ASYNCS=boolean   finish-async analysis. (default = false)
+</pre>                           
+
+<h4>Possible errors</h4>
+<p>
+If you see an error like this
+<pre>
+0; xlupc transport: can't get network address associated with 	listner socket: Device not configured
+Abort trap
+</pre>
+This means that your ip address is being used by another program and the pgas library cannot
+access the ip address using gethostbyname(). Check your /etc/hostconfig file does not contain
+a HOSTNAME and /etc/hosts is configured properly
+
+<P>
+To speed up C++ compilation, use the -commandlineonly flag to make the compiler
+only generate C++ code for the exact files specified on the command line.
+</p>
+
+<h4>Make your own commands</h4>
+You might want to make your own scripts or aliases so that you don't have to remember the exact
+syntax for java and C++. If you create scripts make sure that they are excutable.  
+If you place them in ~/bin then you should add this to your PATH in your .bash_profile.
+For example
+<h5>makejava shell script</h5>
+<pre>
+makejava
+	x10c $1.x10
+</pre>
+
+<h5>runjava shell script</h5>
+<pre>
+runjava
+	x10 $1
+</pre>
+
+<h5>makecpp shell script</h5>
+<pre>
+makecpp
+	x10c++ -MAIN_CLASS=$1 $1.x10
+</pre>
+
+<h5>runcpp shell script</h5>
+<pre>
+runcpp
+	runx10 -MAIN_CLASS=$1 $1.x10
+</pre>
+or use the mpirun systax mentioned above
+
+<h2>Building the X10 distribution</h2>
+<p>For those people who might want to build the x10 distribution, there is
+a good explanation at 
+<a href="http://x10.codehaus.org/Building+from+SVN+head">
+http://x10.codehaus.org/Building+from+SVN+head</a>
+
+
+<h2>Comments</h2>
+Comments and suggestions are welcome. 
+Please send email to 
+<a href="mailto:cals@us.ibm.com">Cal Swart (cals@us.ibm.com)</a>
+
+</body>
+
+</html>

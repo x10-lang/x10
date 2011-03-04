@@ -1,0 +1,9 @@
+# Dekker example from Doug Lea's and Vijay Saraswat's writeups, without mb
+
+1.1 w x 1
+1.3 r y 0
+2.4 w y 1
+2.6 r x 0
+
+1.3 -> 2.4
+2.6 -> 1.1

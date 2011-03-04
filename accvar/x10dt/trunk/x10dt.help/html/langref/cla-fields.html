@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Fields</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Fields</h2>
+<a name="FieldDefinitions">
+</a>
+
+
+
+<div class="p"><!----></div>
+Objects may have <em>instance fields</em>, or simply <em>fields</em> called
+"instance variables" in C++ and Smalltalk, and "slots" in CLOS): places to
+store data that is pertinent to the object. Fields, like variables, may be
+mutable (<b>var</b>) or immutable (<b>val</b>), or accumulator
+(<b>acc</b>) .
+
+<div class="p"><!----></div>
+Class may have <em>static fields</em>, which store data pertinent to the
+entire class of objects.  
+See &#167; for more information.
+
+<div class="p"><!----></div>
+No two fields of the same class may have the same name.
+
+<div class="p"><!----></div>
+To avoid an ambiguity, it is a static error to invoke  a field with a function
+type (&#167;) that has 
+the same name and signature  as a method of the same class.  
+(Consider the class 
+<pre>
+class Crash {
+  val f : (Int) =&#62; Boolean = (Int)=&#62;true;
+  def f(Int) = false;
+}
+</pre>
+
+Then <b>crash.f(3)</b> might either mean "call the function <b>crash.f</b> on
+argument <b>3</b>", or &#239;nvoke the method <b>f</b> on argument <b>3</b>".)
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Field Initialization</h3>
+
+
+
+<div class="p"><!----></div>
+Fields may be given values via <em>field initialization expressions</em>:
+<b>val f1 = E;</b> and <b>var f2 : Int = F;</b>. Other fields of <b>this</b> may
+be referenced, but only those that <em>precede</em> the field being initialized.
+For example, the following is correct, but would not be if the fields were
+reversed:
+
+<div class="p"><!----></div>
+<pre>
+class Fld{
+  val a = 1;
+  val b = 2+a;
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.2">
+2.2</a>&nbsp;&nbsp;Field hiding</h3>
+
+<div class="p"><!----></div>
+A subclass that defines a field <b>f</b> hides any field <b>f</b>
+declared in a superclass, regardless of their types.  The
+superclass field <b>f</b> may be accessed within the body of
+the subclass via the reference <b>super.f</b>.
+
+<div class="p"><!----></div>
+<pre>
+class Super{ 
+  val f = 1; 
+}
+class Sub extends Super {
+  val f = true;
+  def superf() : Int = super.f; // 1
+}
+</pre>
+
+<div class="p"><!----></div>
+With inner classes, it is occasionally necessary to 
+write <b>Cls.super.f</b> to get at a hidden field <b>f</b> of an outer class
+<b>Cls</b>, as in 
+<pre>
+class A {
+   val f = 3;
+}
+class B extends A {
+   val f = 4;
+   class C extends B {
+      // C is both a subclass and inner class of B
+      val f = 5;
+      def foo()
+         = f          // 5
+         + super.f    // 4
+         + B.this.f   // 4 (the "f" of the outer instance)
+         + B.super.f; // 3 (the &#223;uper.f" of the outer instance)
+    }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.3">
+2.3</a>&nbsp;&nbsp;Field qualifiers</h3>
+<a name="FieldQualifier">
+</a>
+
+
+<div class="p"><!----></div>
+The behavior of a field may be changed by a field qualifier, such as
+<b>static</b> or <b>transient</b>.  
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.3.1">
+2.3.1</a>&nbsp;&nbsp;<b>static</b> qualifier</h4>
+
+
+<div class="p"><!----></div>
+A <b>val</b> field may be declared to be <em>static</em>, as described in
+&#167;<a href="#FieldDefinitions">2</a>. 
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.3.2">
+2.3.2</a>&nbsp;&nbsp;<b>transient</b> Qualifier</h4>
+<a name="TransientFields">
+</a>
+
+
+
+<div class="p"><!----></div>
+A field may be declared to be <em>transient</em>.  Transient fields are excluded
+from the deep copying that happens when information is sent from place to
+place in an <b>at</b> statement.    The value of a transient field of a copied
+object is the default value of its type, regardless of the value of the field
+in the original.  If the type of a field has no
+default value, it cannot be marked <b>transient</b>.
+<pre>
+class Trans { 
+   val copied = "copied";
+   transient var transy : String = &#228; very long string";
+   def example() {
+      at (here) { // causes copying
+         assert(this.copied.equals("copied"));
+         assert(this.transy == null);
+      }
+   }
+}
+</pre>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

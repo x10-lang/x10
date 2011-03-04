@@ -1,0 +1,321 @@
+\chapter{Interfaces}
+\label{XtenInterfaces}\index{interface}
+
+An interface specifies signatures for zero or more public methods, property
+methods,
+\xcd`static val`s, 
+classes, structs, interfaces, types
+and an invariant. 
+
+The following puny example illustrates all these features: 
+% TODO Well, it would if there weren't a compiler bug in the way.
+%~~gen ^^^Interfaces_static_val
+% package Interfaces_static_val;
+% NOTEST KNOWNFAIL
+%~~vis
+\begin{xten}
+interface Pushable{prio != 0} {
+  def push(): void;
+  static val MAX_PRIO = 100;
+  abstract class Pushedness{}
+  struct Pushy{}
+  interface Pushing{}
+  static type Shove = Int;
+  property text():Int;
+  property prio():Int;
+}
+class MessageButton(text:String, prio:Int)
+  implements Pushable{self.prio()==Pushable.MAX_PRIO} {
+  public def push() { 
+    x10.io.Console.OUT.println(text + " pushed");
+  }
+  public property text() = text;
+  public property prio() = prio;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\noindent
+\xcd`Pushable` defines two property methods, one normal method, and a static
+value.  It also 
+establishes an invariant, that \xcd`prio != 0`. 
+\xcd`MessageButton` implements a constrained version of \xcd`Pushable`,
+\viz\ one with maximum priority.  It
+defines the \xcd`push()` method given in the interface, as a \xcd`public`
+method---interface methods are implicitly \xcd`public`.
+
+A concrete type---a class or struct---can {\em implement} an interface,
+typically by having all the methods and property methods that the interface
+requires.
+
+A variable may be declared to be of interface type.  Such a variable has all
+the property and normal methods declared (directly or indirectly) by the
+interface; 
+nothing else is statically available.  Values of any concrete type which
+implement the interface may be stored in the variable.  
+
+\begin{ex}
+The following code puts two quite different objects into the variable
+\xcd`star`, both of which satisfy the interface \xcd`Star`.
+%~~gen ^^^ Interfaces6l3f
+% package Interfaces6l3f;
+%~~vis
+\begin{xten}
+interface Star { def rise():void; }
+class AlphaCentauri implements Star {
+   public def rise() {}
+}
+class ElvisPresley implements Star {
+   public def rise() {}
+}
+class Example {
+   static def example() {
+      var star : Star;
+      star = new AlphaCentauri();
+      star.rise();
+      star = new ElvisPresley();
+      star.rise();
+   }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\end{ex}
+An interface may extend several interfaces, giving
+X10 a large fraction of the power of multiple inheritance at a tiny fraction
+of the cost.
+
+\begin{ex}
+%~~gen ^^^ Interfaces6g4u
+% package Interfaces6g4u;
+%~~vis
+\begin{xten}
+interface Star{}
+interface Dog{}
+class Sirius implements Dog, Star{}
+class Lassie implements Dog, Star{}
+\end{xten}
+%~~siv
+%
+%~~neg
+\end{ex}
+
+
+\section{Interface Syntax}
+
+\label{DepType:Interface}
+
+%##(NormalInterfaceDecl TypeParamsWithVariance WhereClause ExtendsInterfaces InterfaceBody InterfaceMemberDecl
+\begin{bbgrammar}
+%(FROM #(prod:NormalInterfaceDecl)#)
+ NormalInterfaceDecl \: Mods\opt \xcd"interface" Id TypeParamsWithVariance\opt  WhereClause\opt ExtendsInterfaces\opt InterfaceBody & (\ref{prod:NormalInterfaceDecl}) \\
+%(FROM #(prod:TypeParamsWithVariance)#)
+TypeParamsWithVariance \: \xcd"[" TypeParamWithVarianceList \xcd"]" & (\ref{prod:TypeParamsWithVariance}) \\
+%(FROM #(prod:WhereClause)#)
+         WhereClause \: DepParams & (\ref{prod:WhereClause}) \\
+%(FROM #(prod:ExtendsInterfaces)#)
+   ExtendsInterfaces \: \xcd"extends" Type & (\ref{prod:ExtendsInterfaces}) \\
+                    \| ExtendsInterfaces \xcd"," Type \\
+%(FROM #(prod:InterfaceBody)#)
+       InterfaceBody \: \xcd"{" InterfaceMemberDecls\opt \xcd"}" & (\ref{prod:InterfaceBody}) \\
+%(FROM #(prod:InterfaceMemberDecl)#)
+ InterfaceMemberDecl \: MethodDecl & (\ref{prod:InterfaceMemberDecl}) \\
+                    \| PropertyMethodDecl \\
+                    \| FieldDecl \\
+                    \| ClassDecl \\
+                    \| InterfaceDecl \\
+                    \| TypeDefDecl \\
+                    \| \xcd";" \\
+\end{bbgrammar}
+%##)
+
+
+\noindent
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+
+
+A class \xcd"C"  implements an interface \xcd"I" if
+\begin{itemize}
+\item \xcd`I`, or a subtype of \xcd`I`, appears in the \xcd`implements` list
+      of \xcd`C`, 
+\item \xcd`C`'s property methods include all the property methods  of \xcd"I",
+\item Each method \xcd`m` defined by \xcd`I` is also a method of \xcd`C` --
+      with the {\em  \xcd`public`} modifier added.   These methods may be
+      \xcd`abstract` if \xcd`C` is \xcd`abstract`.
+\end{itemize}
+
+
+If \xcd`C` implements \xcd`I`, then the class invariant
+(\Sref{DepType:ClassGuardDef}) for \xcd`C`,   $\mathit{inv}($\xcd"C"$)$, implies
+the class invariant for \xcd`I`, $\mathit{inv}($\xcd"I"$)$.  That is, if the
+interface \xcd`I` specifies some requirement, then every class \xcd`C` that
+implements it satisfies that requirement.
+
+\section{Access to Members}
+
+All interface members are \xcd`public`, whether or not they are declared
+public.  There is little purpose to non-public methods of an interface; they
+would specify that implementing classes and structs have methods that cannot
+be seen.
+
+\section{Property Methods}
+
+An interface may declare \xcd`property` methods.  All non-\xcd`abstract`
+containers implementing such an interface must provide all the \xcd`property`
+methods specified.  
+
+\section{Field Definitions}
+\index{interface!field definition in}
+
+An interface may declare a \xcd`val` field, with a value.  This field is implicitly
+\xcd`public static val`.  In particular, it is {\em not} an instance field. 
+%~~gen ^^^ Interfaces10
+% package Interface.Field;
+%~~vis
+\begin{xten}
+interface KnowsPi {
+  PI = 3.14159265358;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+Classes and structs implementing such an interface get the interface's fields as
+\xcd`public static` fields.  Unlike  methods, there is no need
+for the implementing class to declare them. 
+%~~gen ^^^ Interfaces20
+% package Interface.Field.Two;
+% interface KnowsPi {PI = 3.14159265358;}
+%~~vis
+\begin{xten}
+class Circle implements KnowsPi {
+  static def area(r:Double) = PI * r * r;
+}
+class UsesPi {
+  def circumf(r:Double) = 2 * r * KnowsPi.PI;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+\subsection{Fine Points of Fields}
+
+If two parent interfaces give different static fields of the same name, 
+those fields must be referred to by qualified names.
+%~~gen ^^^ Interface_field_name_collision
+% 
+%~~vis
+\begin{xten}
+interface E1 {static val a = 1;}
+interface E2 {static val a = 2;}
+interface E3 extends E1, E2{}
+class Example implements E3 {
+  def example() = E1.a + E2.a;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+If the {\em same} field \xcd`a` is inherited through many paths, there is no need to
+disambiguate it:
+%~~gen ^^^ Interfaces_multi
+% package Interfaces.Mult.Inher.Field;
+%~~vis
+\begin{xten}
+interface I1 { static val a = 1;} 
+interface I2 extends I1 {}
+interface I3 extends I1 {}
+interface I4 extends I2,I3 {}
+class Example implements I4 {
+  def example() = a;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+The initializer of a field in an interface may be any expression.  It is
+evaluated under the same rules as a \xcd`static` field of a class. 
+
+\begin{ex}
+In this example, a local class (\Sref{sect:LocalClasses}) \xcd`B` is defined,
+with an inner interface \xcd`I`.  The field \xcd`V` of \xcd`I` uses a variable
+\xcd`n` which is global to \xcd`B`.   In this case it is a truly baroque way
+to bind a \xcd`val`, but other uses are nontrivial.
+
+%~~gen ^^^ Interfaces3l4a
+% package Interfaces3l4a;
+% // NOCOMPILE NOTEST
+%~~vis
+\begin{xten}
+class A {
+  static def example(n: Int) {
+    class B {
+      interface I { val V = n*n; }
+    }
+   return B.I.V + 1;
+  }
+}
+\end{xten}
+%~~siv
+% class Hook{ def run() { return A.example(5) == 26; }}
+%~~neg
+\end{ex}
+
+\section{Generic Interfaces}
+
+Interfaces, like classes and structs, can have type parameters.  
+The discussion of generics in \Sref{TypeParameters} applies to interfaces,
+without modification.
+
+\begin{ex}
+%~~gen ^^^ Interfaces7n1z
+% package Interfaces7n1z;
+%~~vis
+\begin{xten}
+interface ListOfFuns[T,U] extends x10.util.List[(T)=>U] {}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+\end{ex}
+
+\section{Interface Inheritance}
+
+The {\em direct superinterfaces} of a non-generic interface \xcd`I` are the interfaces
+(if any) mentioned in the \xcd`extends` clause of \xcd`I`'s definition.
+If \xcd`I`  is generic, the direct superinterfaces are of an instantiation of
+\xcd`I` are the corresponding instantiations of those interfaces.
+A {\em superinterface} of \xcd`I` is either \xcd`I` itself, or a direct
+superinterface of a superinterface of \xcd`I`, and similarly for generic
+interfaces.    
+
+\xcd`I` inherits the members of all of its superinterfaces. Any class or
+struct that has \xcd`I` in its \xcd`implements` clause also implements all of
+\xcd`I`'s superinterfaces. 
+
+
+
+
+
+
+\section{Members of an Interface}
+
+The members of an interface \xcd`I` are the union of the following sets: 
+\begin{enumerate}
+\item All of the members appearing in \xcd`I`'s declaration;
+\item All the members of its direct super-interfaces, except those which are
+      hidden (\Sref{sect:Hiding}) by \xcd`I`
+\item The members of \xcd`Any`.
+\end{enumerate}
+
+Overriding for instances is defined as for classes, \Sref{MethodOverload}

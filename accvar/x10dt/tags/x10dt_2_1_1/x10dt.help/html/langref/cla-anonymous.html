@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Anonymous Classes</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc13">
+13</a>&nbsp;&nbsp;Anonymous Classes</h2>
+
+
+
+<div class="p"><!----></div>
+It is possible to define a new class and instantiate it as part of an
+expression.  The new class can extend an extant class or interface.  Its body
+can include all of the usual members of a class. It can refer to any
+identifiers available at that point in the expression - except for <b>var</b>
+variables.  An anonymous class in a static context is a static inner class.
+
+<div class="p"><!----></div>
+Anonymous classes are useful when you want to package several pieces of
+behavior together (a single piece of behavior can often be expressed as a
+function, which is syntactically lighter-weight), or if you want to extend and
+vary an extant class without going through the trouble of actually defining a
+whole new class.
+
+<div class="p"><!----></div>
+The syntax for an anonymous class is a constructor call followed immediately
+by a braced class body: <b>new C(1){def foo()=2;}</b>.
+
+<div class="p"><!----></div>
+In the following minimalist example, the abstract class <b>Choice</b>
+encapsulates a decision.   A <b>Choice</b> has a <b>yes()</b> and a <b>no()</b>
+method.  The <b>choose(b)</b> method will invoke one of the two.  <b>Choice</b>s
+also have names.
+
+<div class="p"><!----></div>
+The <b>main()</b> method creates a specific <b>Choice</b>.  <b>c</b> is not a
+immediate instance of <b>Choice</b> - as an abstract class, <b>Choice</b> has
+no immediate instances. <b>c</b> is an instance of an anonymous class which
+inherits from <b>Choice</b>, but supplies <b>yes()</b> and <b>no()</b> methods.
+These methods modify the contents of the <b>Cell[Int]</b> <b>n</b>.  (Note that,
+as <b>n</b> is a local variable, it would take a few lines more coding to
+extract <b>c</b>'s class, name it, and make it an inner class.)  The call to
+<b>c.choose(true)</b>  will call <b>c.yes()</b>, incrementing <b>n()</b>, in a
+rather roundabout manner.
+
+<div class="p"><!----></div>
+<pre>
+abstract class Choice(name: String) {
+  def this(name:String) {property(name);}
+  def choose(b:Boolean) { if (b) this.yes(); else this.no(); }
+  abstract def yes():void;
+  abstract def no():void;
+}
+
+<div class="p"><!----></div>
+class Example {
+  static def main(Array[String]) {
+    val n = new Cell[Int](0);
+    val c = new Choice(&#207;nc Or Dec") {
+      def yes() { n() += 1; }
+      def no()  { n() -= 1; }
+      };
+    c.choose(true);
+    Console.OUT.println("n=" + n());
+  }
+}
+
+<div class="p"><!----></div>
+</pre>
+
+<div class="p"><!----></div>
+Anonymous classes have many of the features of classes in general.  A few
+features are unavailable because they don't make sense.
+
+<div class="p"><!----></div>
+
+<ul>
+<li> Anonymous classes don't have constructors.  Since they don't have names,
+      there's no way a constructor could get called in the ordinary way.
+      Instead, the <b>new C(...)</b> expression must match a constructor of the
+      parent class <b>C</b>, which will be called to initialize the
+      newly-created object of the anonymous class.
+<div class="p"><!----></div>
+</li>
+
+<li> Certain modifiers don't make sense for anonymous classes: <b>public</b>,
+      <b>private</b>, and <b>protected.</b>  Anonymous classes, being anonymous,
+      cannot be referenced at all.
+<div class="p"><!----></div>
+</li>
+
+<li> Anonymous classes cannot be <b>abstract</b>.  Since they only exist in
+      combination with a constructor call, they must be constructable.  The
+      parent class of the anonymous class may be abstract, or may be an
+      interface; in this case, the anonymous class must provide all the
+      methods that the parent demands.
+<div class="p"><!----></div>
+</li>
+
+<li> Anonymous classes cannot have explicit <b>extends</b> or <b>implements</b>
+      clauses; there's no place in the syntax for them. They have a single
+      parent and that is that.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>In many cases, a 
+<b>val</b> field can be upgraded to a <b>property</b>, which 
+entails no compile-time or runtime cost.  Some cannot be, <em>e.g.</em>, in cases where
+cyclic structures of <b>val</b> fields are required.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>We use <b>Pt</b>
+to avoid any possible confusion with the built-in class <b>Point</b>.
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>This is abominable behavior for 
+<b>toString</b>, but nonetheless it is allowed.
+<div class="p"><!----></div>
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>The
+      variable names are relevant because one formal can be mentioned in a
+      later type, or even a constraint: <tt>def f(a:Int, b:Point{rank==a})=...</tt>.
+<br /><br />
+
+</body>
+</html>

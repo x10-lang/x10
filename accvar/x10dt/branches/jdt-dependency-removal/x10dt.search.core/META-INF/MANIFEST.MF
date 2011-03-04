@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10DT Search Core
+Bundle-SymbolicName: x10dt.search.core;singleton:=true
+Bundle-Version: 2.1.2.qualifier
+Bundle-Activator: x10dt.search.core.SearchCoreActivator
+Require-Bundle: org.eclipse.core.resources,
+ org.eclipse.core.runtime,
+ org.eclipse.imp.pdb,
+ org.eclipse.imp.pdb.values,
+ org.eclipse.imp.runtime,
+ org.eclipse.ui,
+ x10.compiler,
+ x10dt.core,
+ x10dt.ui.launch.core
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: x10-users@lists.sourceforge.net
+Export-Package: x10dt.search.core,
+ x10dt.search.core.elements,
+ x10dt.search.core.engine,
+ x10dt.search.core.engine.scope,
+ x10dt.search.core.pdb,
+ x10dt.search.core.utils

@@ -1,0 +1,9 @@
+#!/bin/bash
+OUTPUT=cilk_metrics
+echo cilk results on rand graphs: >$OUTPUT
+for n in 1000000 2000000 3000000 4000000 5000000
+do
+    m=`expr $n \* 4`
+    echo $n $m 16 processor >>$OUTPUT
+    ./ST -nproc 16 --stack 6000000 --pthread-stacksize 80000000 $n $m >> $OUTPUT 
+done

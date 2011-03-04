@@ -1,0 +1,10 @@
+<Files .htaccess>
+order allow,deny
+deny from all
+</Files>
+
+<Files CVS>
+order allow,deny
+deny from all
+</Files>
+

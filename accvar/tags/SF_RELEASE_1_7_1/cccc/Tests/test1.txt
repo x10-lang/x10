@@ -1,0 +1,10 @@
+# statements in order, valid dependencies
+0.0 W a 1
+0.1 R b 0
+1.0 W b 1
+1.1 R a 0
+2.0 R b 1
+
+0.1 -> 1.0
+1.1 -> 0.0
+1.0 -> 2.0

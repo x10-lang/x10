@@ -1,0 +1,191 @@
+\section{Coercions and conversions}
+\label{XtenConversions}
+\index{conversions}\index{coercions}
+
+\XtenCurrVer{} supports the following coercions and conversions
+
+\subsection{Coercions}
+
+A {\em coercion} does not change object identity;
+a coerced object may be explicitly coerced back to its original
+type through a cast.
+
+\paragraph{Subsumption coercion.}
+A subtype may be implicitly coerced to any supertype.
+\index{coercions!subsumption coercion}
+
+\paragraph{Explicit coercion (casting with \xcd"as")}
+A reference type may be explicitly coerced to any other
+reference type using the \xcd"as" operation.
+If the value coerced is not an instance of the target type,
+a \xcd"TypeCastException" is thrown.  Casting to a constrained
+type may require a run-time check that the constraint is
+satisfied.
+\index{coercions!explicit coercion}
+\index{casting}
+\index{\Xcd{as}}
+
+\subsection{Conversions}
+
+A {\em conversion} may change object identity if the type being
+converted to is not the same as the type converted from.
+
+\paragraph{Explicit conversions.}
+
+A value of type \xcd"T" may be explicity converted to a value of type
+\xcd"U" using an \xcd"as" operation if it may be implicitly
+converted (below), or if there is an explicit numeric conversion defined
+from \xcd"T" to \xcd"U",
+or if there is a \xcd"static" conversion operator defined
+on the target type \xcd"U" that takes a value of the source type
+\xcd"T" and returns a value of type \xcd"U".
+
+\paragraph{Implicit conversions.}
+
+A value of type \xcd"T" may be implicity converted to a value of type
+\xcd"U" using an \xcd"as" operation if there is an implicit numeric conversion defined
+from \xcd"T" to \xcd"U",
+or if there is a \xcd"static" implicit conversion operator defined
+on the target type \xcd"U" that takes a value of the source type
+\xcd"T" and returns a value of type \xcd"U".
+
+\paragraph{Numeric conversion.}
+
+\index{conversions!numeric conversions}
+
+Conversions of certain numeric types are handled specially by the
+compiler.
+The \emph{numeric types} are the integer types and the floating
+point types.
+The \emph{integer types} the signed and unsigned integer types.
+The \emph{signed integer types} are the subtypes of
+\xcd"Byte", \xcd"Short", \xcd"Int", and \xcd"Long".
+The \emph{unsigned integer types} are the subtypes of
+\xcd"UByte", \xcd"UShort", \xcd"UInt", and \xcd"ULong".
+The \emph{floating point types} are the subtypes of
+\xcd"Float" and \xcd"Double".
+
+A numeric type may be explicitly converted to any other numeric
+type using the \xcd"as" operation.
+
+An integer type may be implicitly converted to a wider numeric
+type of the same signedness.
+In particular, an implicit conversion may be performed between
+the following types, transitively:
+\begin{itemize}
+\item \xcd"Byte" to \xcd"Short"
+\item \xcd"Short" to \xcd"Int"
+\item \xcd"Int" to \xcd"Long"
+\item \xcd"UByte" to \xcd"UShort"
+\item \xcd"UShort" to \xcd"UInt"
+\item \xcd"UInt" to \xcd"ULong"
+\end{itemize}
+
+An integer type may be implicitly converted to a wider floating point
+type.  
+In particular, an implicit conversion may be performed between
+the following types, transitively:
+\begin{itemize}
+\item \xcd"Short" to \xcd"Float"
+\item \xcd"UShort" to \xcd"Float"
+\item \xcd"Int" to \xcd"Double"
+\item \xcd"UInt" to \xcd"Double"
+\end{itemize}
+
+There is no implicit conversion from \xcd"Int" or
+\xcd"UInt" to
+\xcd"Float" since not not all integers can be 
+exactly represented as a
+\xcd"Float".
+Similarly, there is no implicit conversion from \xcd"Long" or
+\xcd"ULong" to
+\xcd"Double".
+
+A \xcd"Float" may be implicitly converted to a \xcd"Double".
+
+Implicit conversions are also allowed if the constraint on the
+source type ensures the value can be represented exactly in the
+target type.  In particular,
+the following implicit conversions
+are permitted for a value of any integer type:
+\begin{itemize}
+\item
+An integer can be converted 
+to \xcd"Byte" if it is between $-2^{7}$ and $2^{7}-1$, inclusive. 
+
+\item
+An integer can be converted 
+to \xcd"Short" if it is between $-2^{15}$ and $2^{15}-1$, inclusive. 
+
+\item
+An integer can be converted 
+to \xcd"Int" if it is between $-2^{31}$ and $2^{31}-1$, inclusive. 
+
+\item
+An integer can be converted 
+to \xcd"Long" if it is between $-2^{63}$ and $2^{63}-1$, inclusive. 
+
+\item
+An integer can be converted 
+to \xcd"UByte" if it is between $0$ and $2^{8}-1$, inclusive. 
+
+\item
+An integer can be converted 
+to \xcd"UShort" if it is between $0$ and $2^{16}-1$, inclusive. 
+\item
+
+An integer can be converted 
+to \xcd"UInt" if it is between $0$ and $2^{32}-1$, inclusive. 
+\item
+
+An integer can be converted 
+to \xcd"ULong" if it is between $0$ and $2^{64}-1$, inclusive. 
+
+\item
+An integer can be converted 
+to \xcd"Float" if it is between $-2^{24}$ and $2^{24}$, inclusive. 
+
+\item
+An integer can be converted 
+to \xcd"Double" if it is between $-2^{53}$ and $2^{53}$, inclusive.
+\end{itemize}
+
+A floating point number cannot be implicitly converted to any 
+integer type.
+
+
+\paragraph{Boxing conversion.}
+% @@@ KZ intro Box type earlier, along with Object, Int, etc
+A type \xcd"T" may be implicitly converted to the
+boxed type \xcd"Box[T]".
+
+\index{conversions!boxing conversions}
+\index{autoboxing}
+\index{boxing}
+
+\paragraph{Unboxing conversion.}
+% @@@ KZ intro Box type earlier, along with Object, Int, etc
+A value type \xcd"Box[T]" may be implicitly converted to the
+type \xcd"T".
+
+\index{conversions!unboxing conversions}
+\index{autoboxing}
+\index{unboxing}
+
+\paragraph{Explicit conversion (casting with \xcd"as")}
+A type may be explicitly converted to any type to which it can be
+implicitly converted or implicitly or explicitly coerced.
+
+\index{conversions!explicit conversion}
+\index{casting}
+\index{\Xcd{as}}
+
+\paragraph{String conversion.}
+Any object that is an operand of the binary
+\xcd"+" operator may
+be converted to \xcd"String" if the other operand is a \xcd"String".
+A conversion to \xcd"String" is performed by invoking the \xcd"toString()"
+method of the object.
+
+\index{conversions!string conversion}
+

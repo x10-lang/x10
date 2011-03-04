@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Example structs</title>
+</head>
+
+<body>
+   <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Example structs</h2>
+
+<div class="p"><!----></div>
+<b>x10.lang.Complex</b> provides a detailed example of a practical struct,
+suitable for use in a library.  For a shorter example, we define the
+<b>Pair</b> struct-available in <b>x10.util.Pair</b>.  A <b>Pair</b> packages
+two values of possibly unrelated type together in a single value, <em>e.g.</em>, to
+return two values from a function.  
+
+<div class="p"><!----></div>
+<b>divmod</b> computes the quotient and remainder of <b>a  b</b> (naively).
+It returns both, packaged as a <b>Pair[UInt, UInt]</b>.  Note that the
+constructor uses type inference, and that the quotient and remainder are
+accessed through the <b>first</b> and <b>second</b> fields.
+<pre>
+struct Pair[T,U] {
+    public val first:T;
+    public val second:U;
+    public def this(first:T, second:U):Pair[T,U] {
+        this.first = first;
+        this.second = second;
+    }
+    public def toString() = "(" + first + ", " + second + ")";
+}
+class Example {
+  static def divmod(var a:UInt, b:UInt): Pair[UInt, UInt] {
+     assert b &#62; 0;
+     var q : UInt = 0;
+     while (a &#62; b) {q++; a -= b;}
+     return Pair(q, a); 
+  }
+  static def example() {
+     val qr = divmod(22, 7);
+     assert qr.first == 3 &amp;&amp; qr.second == 1;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

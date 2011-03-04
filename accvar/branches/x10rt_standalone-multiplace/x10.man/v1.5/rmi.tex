@@ -1,0 +1,19 @@
+\section{Remote Method Invocation}\index{remote method invocation}
+ We introduce shorthand for remote method invocation:
+ 
+ \begin{x10}
+ 507   MethodInvocation ::= 
+         Primary -> identifier ( ArgumentListopt )
+ \end{x10}
+ 
+ If the method named is {\tt void} the expression {\tt o -> m(a1,...,ak)}
+ is equivalent to:
+ \begin{x10}
+  finish async (o) \{o.m(a1,...,ak);\}
+ \end{x10}
+ 
+ Otherwise the expression is equivalent to
+ \begin{x10}
+  future (o)\{o.m(a1, ..., ak)\}.force()
+ \end{x10}
+

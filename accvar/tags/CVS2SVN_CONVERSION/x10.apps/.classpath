@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry path="FT/x10" kind="src" output="FT/x10"/>
+	<classpathentry path="LU" kind="src" output="LU"/>
+	<classpathentry path="RandomAccess" kind="src" output="RandomAccess"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/x10.runtime_1.0.62.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

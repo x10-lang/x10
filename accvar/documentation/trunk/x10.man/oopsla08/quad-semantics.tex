@@ -1,0 +1,358 @@
+In this section we formalize a small fragment of \Xten{}, \CFJ---an
+extension of Featherweight Java (\FJ{})~\cite{FJ} with
+constrained types---to illustrate the basic concepts behind
+constrained type-checking.  A proof of soundness is given in the
+appendix.
+
+The language is functional in that assignment is not admitted.
+However, it is not difficult to introduce the notion of mutable
+fields, and assignment to such fields. Since constrained types
+may only refer to immutable state, the validity of these types
+is not compromised by the introduction of state.
+%
+Further, we do not formalize overloading of methods. Rather, as
+with \FJ{}, we simply require that the input program be such
+that the class name {\tt C} and method name {\tt m} uniquely
+select the associated method on the class.
+
+The language is defined over a constraint system $\cal C$
+that includes equality constraints over final access paths,
+conjunction, existential quantification, and a vocabulary of
+formulas and predicates.
+
+\subsection{The Object constraint system}\label{sec:O}
+
+\newcommand\vdashO{\vdash_{\cal O}}
+
+Given a program $P$, we now show how to build a larger
+constraint system ${\cal O}({\cal C})$
+on top of $\cal C$ which
+captures constraints related to the object-oriented structure of
+$P$.
+$\cal O$ includes the inference rules shown in
+Figure~\ref{fig:O} for structual and subtyping constraints.
+In addition,
+$\cal O(\cal C)$ subsumes $\cal C$ in that if
+$\Gamma \vdash_{\cal C} {\tt c}$
+then
+$\Gamma \vdash_{\cal O} {\tt c}$.
+
+The constraint $\klass({\tt C})$ is intended to be true for all
+classes {\tt C} defined in the program.  
+For a
+variable {\tt x}, {\tt \fields({\tt x})} is intended to specify the
+(complete) set of typed fields available to {\tt x}.  {\tt x}~\has~{\tt I}
+is intended to specify that the member {\tt I} (field or method) is
+available to {\tt x}---for instance it is defined at the class at
+which {\tt x} is declared or inherited by it, or it is available at
+the upper bound of a type variable.
+%
+The judgment 
+$\Gamma \vdashO {\tt S} \subtype {\tt T}$
+is intended to hold if {\tt S} is a subtype of {\tt T} in the
+environment $\Gamma$.
+
+We assume that the rules given are complete for
+defining the predicates $\tt C \subtype D$ and {\tt C\ \has\ I}, for
+classes {\tt C}, {\tt D} and members {\tt I}; that is, if the rules
+cannot be used to establish $\tt \vdashO C \subtype D$ ($\tt
+\vdashO C\ \has\ I$), then it is the case that $\tt
+\vdashO C \notsubtype D$ ($\tt \vdashO \neg (C\ \has\ I)$).
+%
+Such negative facts are important to establish {\em inconsistency} of
+assumptions (for instance, for the programming languages which permits
+the user to state constraints on type variables).  
+
+\begin{figure*}
+{\footnotesize
+\tabcolsep=0pt
+{\bf Structural constraints:}\\[-12pt]
+\begin{tabular}{p{0.30\textwidth}p{0.23\textwidth}p{0.22\textwidth}p{0.24\textwidth}}
+\infrule[Class]
+	{{\tt class\ C(\ldots)\ extends\ D\{\ldots\}}\in P}
+	{\tt \vdashO \klass({\tt C})}
+&
+\infax[Sel]{\tt \vdashO new\ D(\bar{\tt t}).{\tt f}_i{\tt ==}{\tt t_i}}
+&
+\infrule[Inv]
+{\Gamma \vdashO {\tt x:C},\klass({\tt C})}
+{\Gamma \vdashO \inv({\tt C}, {\tt x})}
+&
+\infrule[Field]
+	{\Gamma \vdashO \fields({\tt x})=\bar{\tt f}:\bar{\tt T}} 
+	{\Gamma \vdashO {\tt x}\ \has\ {\tt f}_i:{\tt T}_i}
+\\
+\end{tabular}
+\\[-12pt]
+\begin{tabular}{p{0.30\textwidth}p{0.33\textwidth}p{0.36\textwidth}}
+\infax[Fields-B]{{\tt x}:{\tt Object} \vdashO \fields({\tt x})=\bullet}
+&
+\infrule[Fields-I]
+	{\Gamma, {\tt x:D} \vdashO \fields({\tt x})=\bar{\tt g}:\bar{\tt V}\andalso \\
+	  \klass\ {\tt C}(\bar{\tt f}:\bar{\tt U}){\tt \{c\}}\ {\tt extends}\ {\tt D}\{\bar{\tt M}\} \in {\tt C}}
+	{\Gamma, {\tt x:C} \vdashO \fields({\tt x})=\bar{\tt g}:\bar{\tt V},\bar{\tt f}:\bar{\tt U[x/\this]}}
+&
+\infrule[Fields-C,E]
+	{\Gamma, {\tt x: S} \vdashO \fields({\tt x})=\bar{\tt f}:\bar{\tt V}}
+	{\Gamma, {\tt x:S\{d\}} \vdashO \fields({\tt x})=\bar{\tt f}:\bar{\tt V\{d[x/\self]\}} \\
+	  \Gamma, {\tt x: (y:U;S)} \vdashO \fields({\tt x})=\bar{\tt f}:\bar{\tt (y:U;V)}
+	} \\[-12pt]
+\infrule[Method-B]
+	{\Gamma, {\tt x}:{\tt C}\vdashO\klass({\tt C})\andalso \theta=[{\tt x}/\this] \\
+	  {\tt def}\ {\tt m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e}\in P}
+	{\Gamma\tt, {\tt x:C}\vdashO {\tt x}\ \has\ (m(\bar{\tt z}:\bar{\tt V\theta})\{c\theta\}:T\theta=e)}
+&
+\infrule[Method-I]
+	{\Gamma\tt, {\tt x}:{\tt D}\vdashO{\tt x}\ \has\ m(\bar{\tt z}:\bar{\tt V}){\tt \{c\}:T=e} \\
+	  \tt \klass\ {\tt C}(\ldots)\ {\tt extends}\ {\tt D}\{\bar{\tt M}\} \andalso {\tt m}\not\in \bar{\tt M}}
+	{\Gamma\tt, {\tt x:C}\vdashO {\tt x}\ \has\ {\tt m}(\bar{\tt z}:\bar{\tt V}){\tt \{c\}:T=e}}
+&
+\infrule[Method-C,E]
+	{\Gamma\tt, x:S \vdashO x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T=e} 
+	{\Gamma\tt, x:S\{d\} \vdashO x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:T\{d[x/\self]\}=e \\
+	  \Gamma\tt, x: (y:U;S) \vdashO x\ \has\ m(\bar{\tt z}:\bar{\tt V})\{c\}:(y:U;T)=e}
+\end{tabular}
+{\bf Subtyping:}\\[-12pt]
+\begin{tabular}{p{0.16\textwidth}p{0.25\textwidth}p{0.33\textwidth}p{0.23\textwidth}}
+\infax[S-Id]{\vdashO {\tt T} \subtype {\tt T}} 
+&
+\infrule[S-Trans]
+	{\Gamma\tt \vdashO T_1 \subtype T_2, T_2 \subtype T_3}
+	{\Gamma\tt \vdashO T_1 \subtype T_3}
+&
+\infrule[S-Extends]
+	{{\tt class\ C(\ldots)\ extends\ D\{\ldots\}}\in P}
+	{\tt\vdashO C \subtype D}
+&
+\infrule[S-Const-L]     %%% XXX changed from POPL, was : G, c |- S <: T  ==>  G |- S{c} <: T
+                        %%% XXX couldn't get constraint-lemma to go thru with that rule
+	{\Gamma \vdash {\tt T}\{{\tt c}\}~\type}
+	{\Gamma\tt  \vdashO {\tt T\{c\}}\subtype {\tt T}}
+\end{tabular}
+\quad\\[-12pt]
+\begin{tabular}{p{0.32\textwidth}p{0.38\textwidth}p{0.31\textwidth}}
+\infrule[S-Const-R]
+	{\Gamma\tt  \vdashO {\tt S}\subtype {\tt T}
+        \andalso
+        \Gamma,{\tt \self:S} \vdashO {\tt c} }
+	{\Gamma\tt  \vdashO {\tt S}\subtype {\tt T\{c\}}}
+&
+\infrule[S-Exists-L]
+	{\Gamma\tt  \vdash {\tt U}\ \type \andalso  
+	  \Gamma \vdashO {\tt S} \subtype {\tt T}
+          \andalso
+          \mbox{({\tt x} fresh})}
+	{\Gamma\tt  \vdashO {\tt x:U; S} \subtype {\tt T}}
+&
+\infrule[S-Exists-R]
+	{\Gamma\tt  \vdash t:{\tt U} \andalso \Gamma \vdashO {\tt S}\; \subtype\; {\tt T}[{\tt t}/{\tt x}]}
+	{\Gamma\tt  \vdashO {\tt S} \subtype {\tt x:U; T}}
+\end{tabular}}
+
+For a class {\tt C} and variable {\tt x}, ${\tt \inv(C,x)}$ stands for the conjunction of class invariants for {\tt C} and its supertypes, with {\tt this} replaced by {\tt x}.
+\caption{The Object constraint system, ${\cal O}$}\label{fig:O}  
+\end{figure*}
+
+\input{fx-semantics}
+
+\subsection{Judgments}
+%\begin{definition}[Designator] The class of {\em designators}
+%is given by:
+%\begin{tabular}{r@{\quad}rcl}
+%(Designator) & {\tt d} &{::=}& {\tt x}\alt C($\bar{\tt d}$)  \alt {\tt d.f} \\
+%\end{tabular}
+%\end{definition}
+
+In the following $\Gamma$ is a {\em well-typed context}, i.e., a
+finite, possibly empty sequence of formulas $\tt x:T$
+%, $\tt T\ \type$
+and constraints $\tt c$ satisfying:
+\begin{enumerate}
+  \item for any formula $\phi$ in the sequence all variables $\tt x$
+    occurring in $\phi$ are defined by a declaration $\tt x:T$
+    in the sequence to the left of $\phi$.
+
+  \item for any variable $\tt x$ , there is at most one
+  formula $\tt x:T$ in $\Gamma$.
+\end{enumerate}
+
+The judgments of interest are as follows. 
+(1)~Type well-formedness:  $\Gamma \vdash {\tt T} \ {\tt type}$,
+(2)~Subtyping: $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+(3)~Typing:   $\Gamma   \vdash {\tt e:T}$,
+(4)~Method OK (method $\tt M$ is well-defined for the class $\tt
+C$): $\Gamma \vdash {\tt M}\ \mbox{OK in {\tt C}}$,
+(5)~Field OK (field $\tt f:T$ is well-defined for the class $\tt
+C$): $\Gamma \vdash {\tt f}:{\tt T}\ \mbox{OK in {\tt C}}$
+(6)~Class OK: $\Gamma \vdash {\tt L} \ \mbox{OK}$ (class definition {\tt L} is well-formed). 
+
+In defining these judgments we will use $\Gamma \vdash_{\cal O} c$,
+the judgment corresponding to the Object constraint system.
+Recall that $\cal O$ subsumes the underlying constraint system $\cal C$.
+For
+simplicity, we define $\Gamma \vdash {\tt c}$ to mean
+$\sigma(\Gamma)\vdash_{\cal O} {\tt c}$, where the {\em constraint
+projection}, $\sigma(\Gamma)$ is defined as allows. 
+
+\begin{tabular}{l}
+$\sigma(\epsilon) = {\tt true}$\\
+$\sigma({\tt x}:{\tt C}, \Gamma)$ = $\sigma(\Gamma)$\\
+$\sigma({\tt x}:{\tt T\{c\}}, \Gamma)$ = {\tt c}[{\tt x}/\self], $\sigma({\tt x}:{\tt T}, \Gamma)$\\
+$\sigma({\tt x}:{\tt (y:S;T)}, \Gamma)$ = $\sigma({\tt y:S}, {\tt x}:{\tt T},\Gamma)$\\
+$\sigma({\tt c},\Gamma)$ = {\tt c}, $\sigma(\Gamma)$
+\end{tabular}
+
+\noindent Above, in the third rule we assume that
+alpha-equivalence is used to choose the variable {\tt x} from a
+set of variables that does not occur in the context $\Gamma$.
+
+We say that a context $\Gamma$ is {\em consistent} if all (finite)
+subsets of $\{\sigma(\phi)\alt \Gamma \vdash \phi\}$ are consistent.
+In all type judgments presented below ({\sc T-Cast}, {\sc T-Field}
+etc) we make the implicit assumption that the context $\Gamma$ is
+consistent; if it is inconsistent, the rule cannot be used and the
+type of the given expression cannot be established (type-checking
+fails).
+
+\subsection{\FXZ{}}
+
+The syntax and semantics of \FXZ{} is presented in Figure~\ref{fig:FX}. 
+%
+The syntax is essentially that of \FJ{} with the following major
+exceptions. First, types may be constrained with a clause {\tt
+\{c\}}. Second both classes and methods may have constraint clauses
+{\tt c}---in the case of classes, {\tt c} is to be thought of as an
+invariant satisfied by all instances of the class, and in the case of
+methods, {\tt c} is an additional condition that must be satisfied by
+the receiver and the arguments of the method in order for the method to
+be invoked.
+
+We assume a constraint system $\cal C$, with a vocabulary of
+predicates {\tt q} and functions {\tt f}.
+Constraints include {\tt true}, conjunctions, existentials,
+predicates, and term equality.
+Constraints are well-formed if they are of the pre-given
+type {\tt o}.
+The rules \rn{Pred} and \rn{Fun}
+ensure that predicates and formulas are well-formed and appeal
+to the constraint system $\cal C$.
+
+\eat{
+The constraints permitted by the syntax in Figure~\ref{fig:FX} that
+are not user constraints are necessary to define the static and
+dynamic semantics of the program (see, e.g., the rules {\sc T-New}
+and {\sc T-Field}, {\sc T-Var} that use equalities, conjunctions and
+existential quantifications. The use of this richer constraint set is
+not necessary, it simply enables us to present the static and dynamic
+semantics once for the entire family of \FX{} languages,
+distinguishing different members of the family by varying the
+constraint system over which they are defined.\footnote{Another way of
+saying this is that the language ${\cal L}=\FX({\cal C})$ is actually
+defined over the constraint system ${\cal O}({\cal C})$--the constraints
+of $\cal O$ are uniformly added to every \FX{} member.}
+}
+
+The set of types includes classes {\tt C} and is closed under
+constrained types ({\tt T\{c\}}) and existential quantification ({\tt
+x:S;T}). An object {\tt o} is of type {\tt C} (for {\tt C} a class)
+if it is an instance of a subtype of {\tt C}; it is of type {\tt
+T\{c\}} if it is of type {\tt T} and it satisfies the constraint $\tt
+c[o/self]$\footnote{Thus the constraint {\tt c} in a type {\tt T\{c\}}
+should be thought of as a unary predicate $\lambda\self.{\tt c}$, an
+object is of this type if it is of type {\tt T} and satisfies this
+predicate.}; it is of type {\tt x:S;T} if there is some object {\tt q}
+of type {\tt S} such that {\tt o} is of type {\tt T[q/x]} (treating at
+type as a syntactic expression).
+
+The rules for well-formedness of types are straightforward, given 
+the assumption that constraints are of type {\tt o}.
+
+\paragraph{Typing rules.}
+{\sc T-Var} is as expected, except that it asserts the constraint {\tt
+self==x} which records the fact that any value of this type is known
+statically to be equal to {\tt x}. This constraint is actually 
+crucial---as we shall see in the other rules once we establish that
+an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
+type to a freshly chosen variable {\tt z}. If in fact {\tt e} has a
+static ``name'' {\tt x} (i.e., {\tt e} is known statically to be
+equal to {\tt x}; that is, {\tt e} is of type {\tt T\{self==x\}}), then
+{\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e., {\tt z}
+equals {\tt x}. Thus {\sc T-Var} provides an important base case for
+reasoning statically about equality of values in the environment.
+
+We do away with the three casts provided in \FJ{} in favor of a single
+cast, requiring only that {\tt e} be of some type {\tt U}. At run time
+{\tt e} will be checked to see if it is actually of type {\tt T} (see
+Rule~{\sc R-Cast}).
+
+{\sc T-Field} may be understood through ``proxy'' reasoning as
+follows.  Given the context $\Gamma$ assume the receiver {\tt e} can
+be established to be of type {\tt S}. Now we do not know the run-time
+value of {\tt e}, so we shall assume that it is some fixed but unknown
+``proxy'' value {\tt z} (of type {\tt S}) that is ``fresh'' in that it
+is not known to be related to any known value (i.e., those recorded
+in $\Gamma$).  If we can establish that {\tt z} has a field {\tt f} of
+type {\tt T}\footnote{Note from the definition of \fields{} in
+${\cal O}$ (Figure~\ref{fig:O}) that all occurrences of \this{}
+in the declared type of the field {\tt f} will have been
+replaced by {\tt z}.}, then we can assert that {\tt e.f} has
+type {\tt T} and, further, that it equals {\tt z.f}.  Hence, we
+can assert that {\tt e.f} has type {\tt (z:S;\,T\{\self==z.f\})}.
+
+{\sc T-Invk} has a very similar structure to {\sc T-Field}: we use
+``proxy'' reasoning for the receiver and the arguments of the method
+call. {\sc T-New} also uses the same proxy reasoning; however, in this case
+we can establish that the resulting value is equal to ${\tt new\ C(\bar{\tt v})}$
+for some values $\bar{\tt v}$ of the given type.  The rule
+requires that the class invariant of {\tt C} be established.
+
+\paragraph{Operational semantics.}
+
+The operational semantics is essentially identical
+to \FJ~\cite{FJ}. It is described in terms of a non-deterministic
+reduction relation on expressions. The only novelty is the use of the
+subtyping relation to check that the cast is satisfied. In \FXZ, this
+test simply involves checking that the class of which the object is an
+instance is a subclass of the class specified in the given type; in
+richer languages with richer notions of type this operation may
+involve run-time constraint solving using the fields of the object.
+
+
+\subsection{Results}
+The following results hold for \FXD.
+
+\begin{theorem}[Subject Reduction] If $\Gamma \vdash {\tt e:T}$
+and ${\tt e} \derives {\tt e'}$ then for some type {\tt S}, $\Gamma \vdash {\tt e':S},{\tt S \subtype T}$.
+\end{theorem}
+
+The theorem needs the Substitution Lemma:
+\begin{lemma}
+If 
+$\Gamma \vdash \tbar{d}:\tbar{U}$, and
+$\Gamma, \bar{\tt x}:\tbar{U} \vdash \tbar{U}\subtype\tbar{V}$,
+and
+$\Gamma, \tbar{x}:\tbar{V} \vdash {\tt e:T}$,
+then for some type {\tt S}, it is the case that
+$\Gamma \vdash {\tt e[\tbar{d}/\tbar{x}]:S}, {\tt S \subtype
+\tbar{x}:\tbar{V};T}.$
+\end{lemma}
+
+We let values be of the form $\tt v ::= \new\ C(\bar{\tt v})$. 
+\begin{theorem}[Progress]
+If $\vdash {\tt e:T}$ then one of the following conditions holds:
+\begin{enumerate}
+\item {\tt e} is a value,
+\item {\tt e} contains a cast sub-expression which is stuck,
+\item there exists an $\tt e'$ s.t. $\tt e\derives e'$.
+\end{enumerate}
+\end{theorem}
+
+\begin{theorem}[Type soundness]
+If $\vdash {\tt e:T}$ and {\tt e} reduces to a normal form ${\tt e'}$ then
+either $\tt e'$ is a value {\tt v} and $\vdash {\tt v:S},{\tt S\subtype T}$ or
+${\tt e'}$ contains  a stuck cast sub-expression.
+\end{theorem}
+
+
+
+

@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Ateach statements</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Ateach statements</h2><a name="ateach-section">
+</a>
+
+ The <b>ateach</b> construct is deprecated.
+
+<div class="p"><!----></div>
+<em>  
+<table>
+
+<tr><td align="right">AtEachStatement ::= <b>ateach</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> ClockedClause<sup>?</sup>&nbsp;Statement </td></tr>
+<tr><td align="right">&#124; <b>ateach</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right">LoopIndexDeclarator ::= Id HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">LoopIndex ::= Mods<sup>?</sup>&nbsp;LoopIndexDeclarator </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword LoopIndexDeclarator </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+In <b>ateach(p in D) S</b>, <b>D</b> must be either of type <b>Dist</b>
+(see &#167;) or of type <b>DistArray[T]</b> (see
+&#167;), and <b>p</b> will be of type <b>Point</b> (see
+&#167;). If <b>D</b> is an <b>DistArray[T]</b>, then
+<b>ateach (p in D)S</b> is identical to 
+<b>ateach(p in D.dist)S</b>; the iteration is over the array's underlying
+distribution.   
+
+<div class="p"><!----></div>
+Instead of writing <b>ateach (p in D) S</b> the programmer should write 
+<b>for(p in D) at(D(p)) async S</b> to get the same effect. 
+For each point <b>p</b> in <b>D</b>, at place <b>D(p)</b>, <b>S</b> is
+executed simultaneously.
+
+<div class="p"><!----></div>
+However, this often results in excessive communication and parallelism. Instead the
+programmer may want to write: 
+<pre>
+for (place in D.places()) async at (place) {
+    for (p in D</td><td width="150">
+&#124;here) {
+        S(p);
+    }
+}
+</pre>
+
+<div class="p"><!----></div>
+If the programmer wishes to execute <b>S</b> in parallel at each place,
+<b>S(p)</b> may be replaced by 
+<b>async S(p)</b>
+.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

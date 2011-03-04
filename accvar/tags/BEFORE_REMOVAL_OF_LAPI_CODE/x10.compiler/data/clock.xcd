@@ -1,0 +1,3 @@
+// SYNOPSIS: new clock()
+// SYNOPSIS: [IP] I don't think this is used
+(Runtime.factory.getClockFactory().clock())

@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Properties</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Properties</h2>
+<a name="PropertiesInClasses">
+</a>
+
+
+<div class="p"><!----></div>
+The properties of an object (or struct) are  public <b>val</b> fields
+usable at compile time in constraints.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> 
+For example,  every array has a <b>rank</b> telling
+how many subscripts it takes.  User-defined classes can have whatever
+properties are desired. 
+
+<div class="p"><!----></div>
+Properties are defined in parentheses, after the name of the class.  They are
+given values by the <b>property</b> command in constructors.
+<pre>
+class Proper(t:Int) {
+  def this(t:Int) {property(t);}
+}
+</pre>
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+It is a compile-time error for a class
+defining a property <b>x: T</b> to have an ancestor class that defines
+a property with the name <b>x</b>.  
+
+
+<div class="p"><!----></div>
+A property <b>x:T</b> induces a field with the same name and type, 
+as if defined with: 
+<pre>
+public val x : T;
+</pre>
+ It also defines a nullary getter method, 
+<pre>
+public final def x()=x;
+</pre>
+
+<div class="p"><!----></div>
+ (As noted in &#167;, interfaces can define
+properties too. They define the same nullary getter methods, though they do
+not require fields.)
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+It is a compile-time error for a class or
+interface defining a property <b>x :T</b> to have an existing method with
+the signature <b>x(): T</b>.
+
+
+<div class="p"><!----></div>
+Properties are initialized by the invocation of a special <b>property</b>
+statement, which must be performed by each constructor of the class:
+<pre>
+property(e1,..., en);
+</pre>
+The number and types of arguments to the <b>property</b> statement must match
+the number and types of the properties in the class declaration.  
+Every constructor of a class with properties must invoke <b>property(...)</b>
+precisely once; it is a static error if X10 cannot prove that this holds.
+
+<div class="p"><!----></div>
+The requirement to use the <b>property</b> statement means that all properties
+must be given values at the same time.  
+
+<div class="p"><!----></div>
+By construction, the graph whose nodes are values and whose edges are
+properties is acyclic.  <em>E.g.</em>, there cannot be values <b>a</b> and <b>b</b> with
+properties <b>c</b> and <b>d</b> such that <b>a.c == b</b> and <b>b.d == a</b>.
+
+<div class="p"><!----></div>
+<a name="PropertyCall">
+</a>
+
+</body>
+</html>

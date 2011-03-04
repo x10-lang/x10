@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="x10.barrier.tests"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.cast"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.cast.java"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.cast.java.polyglot"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.ide"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.shrike"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/x10.compiler"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/x10.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/x10.constraints"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/polyglot3"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.cast.x10"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

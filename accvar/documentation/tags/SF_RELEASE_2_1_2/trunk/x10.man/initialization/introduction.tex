@@ -1,0 +1,71 @@
+Constructing an object in a safe way is not easy:
+    it is well known that dynamic dispatching
+    or leaking \this during object construction
+    is error-prone~\cite{Dean:1996,Seo:2007:SBD:1522565.1522587,Gil:2009:WRS:1615184.1615216},
+    and various type systems and verifiers have been proposed to
+    handle safe object initialization~\cite{Hubert:2010:ESO:1888881.1888890,Zibin:2010:OIG:1869459.1869509,Fahndrich:2007:EOI:1297027.1297052,XinQi:2009}.
+As languages become more and more complex,
+    new pitfalls are created due to the interactions between
+    language features.
+
+X10 is an object oriented programming language with a sophisticated
+    type system (constraints, class invariants, non-erased generics, closures)
+    and concurrency constructs (asynchronous activities, multiple places, global references).
+This paper shows that object initialization is a cross-cutting concern
+    that interact with other features in the language.
+We discuss several language designs that restrict these interactions,
+    and explain why we chose the \emph{hardhat} design for X10.
+
+{Hardhat} was termed in~\cite{Gil:2009:WRS:1615184.1615216}
+    and it describes a design that prohibits dynamic dispatching or leaking \this during construction.
+A hardhat design limits the user
+    but also protects her from future bugs.
+X10's hardhat design is even stricter due to additional language features
+    such as concurrency, places, and closures.
+
+On the other end of the spectrum,
+    Java and C\# allow
+    dynamic dispatching and leaking \this.
+However, they still maintain type- and runtime- safety
+    by relying on the fact that every type has a default zero value
+    (whether that zero is 0, false, or \code{null}),
+    and all fields are zero-initialized before the constructor begins.
+As a consequence,
+    a half-baked object can leak before all its fields are set. %\cite{Seo:2007:SBD:1522565.1522587} - reading uninitialized field references
+Phrased differently,
+    when reading a final field, one can read the default value initially and later read a different value.
+Another source of subtle bugs is due to the synchronization barrier
+    at the end of a constructor~\cite{JSR133}
+    after which all assignments to final fields are guaranteed to be written.
+The programmer is warned (in the documentation only!)
+    that objects with final fields are thread-safe only if
+    \this does not escape its constructor.
+%Before JSR 133~\cite{JSR133},
+%    immutable objects could have different values in different threads
+%    if synchronization was not used properly.
+Finally, if the type-system is augmented, for example, with non-null types, then
+    a default value no longer exists,
+    which leads to complicated type-systems for initialization~\cite{Fahndrich:2007:EOI:1297027.1297052,XinQi:2009}.
+
+\mbox{C++}, as usual, gives you enough rope to hang yourself.
+Fields are not zero-initialized, and therefore if \this leaks,
+    one can read an uninitialized field.
+Moreover, method calls are statically bound during construction,
+    which may result in an exception at runtime
+    if one tries to invoke a virtual method of an abstract class (see \Ref{Figure}{Dynamic-dispatch} below).
+(Determining whether this happens is an intractable problem~\cite{Gil:1998:CTA:646155.679689}.)
+
+The remainder of this paper is organized as follows.
+\Ref{Section}{rules} presents the hardhat initialization rules of X10 version 2.1
+    using examples,
+    by slowly adding language features and describe their interaction with
+    object initialization.
+\Ref{Section}{designs} describes alternative designs for object initialization
+    (one was implemented in X10 version 2.0 and another was under consideration for 2.1),
+    weighing the pros and cons of each.
+\Ref{Section}{implementation} outlines our implementation using the polyglot framework
+    and the compilation time overhead of checking these initialization rules.
+\Ref{Section}{case-study} investigates the consequences of having a hardhat design
+    in a case study that converted a large collection of Java classes to X10.
+\Ref{Section}{related-work} summarizes previous work in the field of object initialization.
+Finally, \Ref{Section}{conclusion} concludes.

@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>Changes 2.1.2</title>
+
+ <h1><a name="tth_chAp1">
+</a><br />Changes</h1>
+
+<div class="p"><!----></div>
+This document summarizes the main changes in X10 2.1.2.  
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Multi-JVM support</h2>
+
+<p>
+For the C++ backend, there should be no changes (any changes are unintended bugs...)
+<p>
+For the Java backend, we are now compiling/running code so that each place is run in a separate JVM process.  
+You still compile your program with x10c and run it with x10.  The main difference is that execution will 
+default to a single place.  You use the same environment variables (X10_NPLACES, X10_HOSTLIST, X10_HOSTFILE) 
+to control multi-place launches as you do with the C++ backend and the sockets (default) runtime.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Sockets transport</h2>
+<p>
+There are several communication transports available to you in the native runtime. This page describes how to run your program with some of them. 
+
+<h3>Running with Sockets backend </h3>
+The sockets transport replaces <tt>pgas_sockets</tt> (which is closed-source, and requires some setup), and is currently the default backend if you don't compile with the "-x10rt" flag. You set an environment variable X10_NPLACES to specify the number of places. If this is not set, it defaults to 1 place on the local machine, and prints a warning. 
+There are two ways to specify the machines to run on: 
+<p>
+<ul>
+<li>Set the environment variable <tt>X10_HOSTFILE</tt> to the full path for a hostfile. The hostfile is a simple text file that contains a list of hostnames to run on, with one line per machine. 
+<li>Set the environment variable <tt>X10_HOSTLIST</tt>, to a comma-separated list of hostnames, without spaces. This environment variable is checked only if <tt>X10_HOSTFILE</tt> was not set. 
+</ul>
+Both of the above will wrap if there are more places than hostnames specified. For example, setting <tt>X10_NPROCS=4</tt> and <tt>X10_HOSTLIST=host1,host2</tt> will cause places 0 and 2 to run on host1, and places 1 and 3 to run on host2. If neither of the above is set, and there is more than 1 place, then it defaults to running everything on localhost, and prints a warning. You can set <tt>X10_HOSTLIST=localhost</tt> to get the same effect without warning. 
+If you're running on more than one machine, you should have public/private key ssh authentication set up, so you can ssh from one machine to another without getting a password prompt. You should also have your executable and hostfile available in the same location on every machine listed in the hostfile. You compile your program with "-x10rt sockets", and with ssh in place, and the environment variables set, you run your executable. You don't have to launch from one of the machines in the hostfile, but you do need to have the ssh authentication set up between the machine you launch from and the first machine in the list. 
+<p>
+The sockets backend supports gdb debugging through the <tt>X10LAUNCHER_DEBUG</tt> environment variable. The value of this has two forms: 
+<ul>
+<li>"place:port", where place is the place that you want to be debugged or the string "all", and port is the port number that you want gdbserver to use. This launches the runtime for the specified place under gdbserver, which allows you to connect to the remote runtime with your local gdb session. See <a href="http://www.delorie.com/gnu/docs/gdb/gdb_134.html">this link</a> for more details. If you specify "all" for the place, then all places will be started under gdbserver at the specified port. Be aware that if you have multiple places running on the same machine, then this will cause port number conflicts. 
+<li>"place", where place is either the place that you want to be debugged, or the string "all". Setting this to a number causes the specified place to be launched under gdb in a new xterm. For example, setting <tt>X10LAUNCHER_DEBUG=0</tt> will cause the x10 runtime for place 0 to be started in a gdb session in a new xterm, while other places run normally. Setting this to "all" will cause all runtimes to execute in separate gdb xterms. Each xterm is given a title showing which place it is running so you can keep track. 
+</ul>
+If you are running on triloka, please be sure to ssh to each machine in your hostlist to ensure that GSA is mounted and you don't get a password prompt. More than once I've forgotten to do this, and the program appears to hang, when under the covers it's waiting at a password prompt. 
+<p>
+It's possible to run without the launcher, and start up each place manually. To do this, you need to set the X10LAUNCHER_RUNTIME, X10_PLACE, and X10LAUNCHER_FORCEPORTS environment variables, which would normally be set by the launcher. For example: 
+<ul>
+<li>// Launch three places on triloka1-3, all using port 7001: 
+<li>X10LAUNCHER_RUNTIME=true X10_PLACE=0 X10_NPLACES=3 X10LAUNCHER_FORCEPORTS=7001,7001,7001 X10_HOSTLIST=triloka1,triloka2,triloka3 // run on triloka1 
+<li>X10LAUNCHER_RUNTIME=true X10_PLACE=1 X10_NPLACES=3 X10LAUNCHER_FORCEPORTS=7001,7001,7001 X10_HOSTLIST=triloka1,triloka2,triloka3 // run on triloka2 
+<li>X10LAUNCHER_RUNTIME=true X10_PLACE=2 X10_NPLACES=3 X10LAUNCHER_FORCEPORTS=7001,7001,7001 X10_HOSTLIST=triloka1,triloka2,triloka3 // run on triloka3 
+</ul>
+Please note that currently, the Sockets backend will not work in an environment with mixed POWER and x86 hardware, due to different endianness. 
+
+
+<h3>Running with Standalone backend </h3>
+Standalone sets up shared memory regions and forks off one instance of the program per place. The places all run on the local machine. There is one environment variable "X10_NPLACES", which should be set to the number of places. If not set, it defaults to 1 and prints a warning. The standalone has transport has a limit on the size of the data blocks that can be sent (about 512k), because of the shared memory regions. To run, just compile with "-x10rt standalone", set the environment variable, and run your executable. This transport is a good choice if you're running everything one one machine and don't use large messages. 
+<p>
+Debugging under standalone is relatively easy, since all places are forked off from the main process, and gdb can be configured to follow these forks. 
+
+
+<br /><br />

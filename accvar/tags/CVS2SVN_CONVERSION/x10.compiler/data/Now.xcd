@@ -1,0 +1,8 @@
+// SYNOPSIS: now(#0) #1
+
+((x10.runtime.Clock) (#0)).doNow(new x10.runtime.Activity() {
+  public void runX10Task() {
+     #1
+  }
+});
+

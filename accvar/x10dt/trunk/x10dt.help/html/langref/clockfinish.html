@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Clocked finish</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Clocked Finish</h2>
+
+
+
+
+<a name="ClockedFinish">
+</a>
+
+<div class="p"><!----></div>
+In the most common case of a single clock coordinating a few behaviors, X10
+allows coding with an implicit clock.  <b>finish</b> and <b>async</b> statements
+may be qualified with <b>clocked</b>.  
+
+<div class="p"><!----></div>
+A <b>clocked finish</b> introduces a new clock.  It executes its body in the
+usual way that a <b>finish</b> does- except that, when its body completes,
+the activity executing the <b>clocked finish</b> drops the clock, while it
+waits for asynchronous spawned <b>async</b>s to terminate.  
+
+<div class="p"><!----></div>
+A <b>clocked async</b> registers its async with the implicit clock of
+the surrounding <b>clocked finish</b>.   
+
+<div class="p"><!----></div>
+Both the <b>clocked finish</b> and <b>clocked async</b> may use the <b>next</b>
+statement to advance implicit clock.  Since the implicit clock is not
+available in a variable, it cannot be manipulated directly. (If you want to
+manipulate the clock directly, use an explicit clock.)
+
+<div class="p"><!----></div>
+The following code starts two activities, each of which perform their first
+phase, wait for the other to finish phase 1, and then perform their second
+phase.  
+<pre>
+clocked finish {
+  clocked async {
+     phase(&#196;", 1);
+     next;
+     phase(&#196;", 2);
+  }
+  clocked async {
+     phase("B", 1);
+     next;
+     phase("B", 2);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Clocked finishes may be nested.  The inner <b>clocked finish</b> operates in a
+single phase of the outer one.  
+
+<br /><br />
+
+</body>
+</html>

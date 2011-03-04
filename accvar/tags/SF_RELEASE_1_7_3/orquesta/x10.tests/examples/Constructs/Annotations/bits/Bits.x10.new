@@ -1,0 +1,10 @@
+package bits;
+
+import x10.lang.annotations.*;;
+
+interface public interface Bits(public val bits: int, ) extends TypeAnnotation, ExpressionAnnotation package bits;
+
+import x10.lang.annotations.*;
+
+public interface Bits(int bitsint bits) extends TypeAnnotation, ExpressionAnnotation {
+}

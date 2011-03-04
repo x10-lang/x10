@@ -1,0 +1,572 @@
+This section describes constrained types in \Xten{}.
+
+\subsection{Properties}
+
+A property is a public final instance field of a
+class that cannot be overridden by subclassing. Like any other field,
+a property is typed, and its type need not necessarily be
+primitive. Properties thus capture the immutable public state of an
+object, initialized when the object is created, that can be
+classified by constrained types. Syntactically, properties are
+specified in a parameter list right after the name of the class in a
+class definition. The class body may contain specifications of other
+fields; these fields may be mutable.
+
+Properties may be of arbitrary type. For instance, the class
+\tcd{Region} in Figure~\ref{fig:region} has an \tcd{int} property called \tcd{rank}. In turn, the
+class \tcd{Dist} has a \tcd{Region} property, called \tcd{region}, and
+also an \tcd{int} property \tcd{rank}.  The invariant for \tcd{Dist}
+ensures that \tcd{rank == region.rank}. Similarly, an \xcd{Array} has
+properties \tcd{dist}, \tcd{region}, and \tcd{rank}
+and appropriate constraints ensuring that the statically available
+information about them is consistent.\footnote{All constraint
+languages used in constrained types permit object references, field
+selection and equality. Such constraint systems have been studied
+extensively under the name of ``feature structures''
+\cite{feature-structures}.}
+%
+In this way, rich  
+constraints on the immutable portion of
+the object reference graph, rooted at the current object and utilizing
+objects at user-defined types, may be specified.
+
+\subsection{Constraints}
+A constrained type is of the form \xcd{C\{e\}}, consisting of a
+{\em base class} \xcd{C} and a {\em condition} \xcd{e}, a
+boolean expression on the properties of the base class and the
+final variables in scope at the type.  Constraints specify
+(possibly) partial information about the variables of interest.
+The type \xcd{C\{e\}} represents the set of all
+instances of \xcd{C} whose immutable state satisfies the
+condition \xcd{e}.
+
+Constraints may use the special variable \xcd{self} to stand for
+the object whose type is being defined. Thus, \xcd{int\{self>=0\}} is
+the set of natural numbers, and \xcd{Point\{x*x+y*y <= 1.0\}}
+represents the interior of a circle (for a class \xcd{Point} with two
+\xcd{float} properties \xcd{x} and \xcd{y}). When there is no
+ambiguity, a property reference \xcd{self.x} may be abbreviated
+to \xcd{x}. The type \xcd{int\{self==v\}} represents a ``singleton'' type, an
+\xcd{int} is of this type only if it has the same value as \xcd{v}.
+
+To be clear, \xcd{self} is not the same as \xcd{this}.
+In the code fragment in Figure~\ref{fig:region}, the
+method \xcd{contains} (line 2) has a parameter \xcd{p}
+with type \xcd{Point\{self.rank==this.rank\}}.  
+In the condition, \xcd{self} refers to the \xcd{Point} \xcd{p};
+\xcd{this} refers to the method receiver, an instance
+of the enclosing class \xcd{Region}.
+
+Constraints are specified in terms of an underlying
+constraint system~\cite{cccc}---a pre-defined logical vocabulary of
+functions and predicates with algorithms for consistency and
+entailment.  The \Xten{} compiler permits different constraint
+systems to be installed using compiler
+plugins~\cite{bracha04-pluggable}.
+%
+Constraint system plugins define a language of constraints by
+symbolically interpreting
+the boolean expression specifying a type's condition; plugins
+may report an error if the condition cannot be interpreted.
+
+In principle, types may be constrained by any boolean
+expression over the properties.  For practical reasons,
+restrictions need to be imposed to ensure constraint checking is
+decidable.
+
+The condition of a constrained type must be a pure
+function only of the properties of the base class.
+Because properties are
+final instance fields of the object,
+this requirement
+ensures that whether or not an object belongs to a constrained type does
+not depend on the {\em mutable} state of the object.
+That is, the status of the
+predicate ``this object belongs to this type'' does not
+change over the lifetime of the object.  Second, by insisting that each
+property be a {\em field} of the object, the question of
+whether an object is of a given type can be
+determined merely by examining the state of the object and evaluating
+a boolean expression. Of course, an implementation is free to not {\em
+explicitly} allocate memory in the object for such fields. For
+instance, it may use some scheme of tagged pointers to implicitly
+encode the values of these fields.
+
+Further, by requiring that the programmer distinguish certain
+final fields of a class as properties, we ensure that the programmer
+consciously controls {\em which} final fields should be available for
+constructing constrained types. A field that is ``accidentally''
+final may not be used in the construction of a constrained type. It must be
+declared as a property.
+
+\begin{figure}[t]
+{
+\footnotesize
+\begin{xtenlines}
+class Region(rank: int) {
+  def contains(p: Point{self.rank==this.rank}):
+      boolean { ... }
+  ...
+}
+
+class Dist(region: Region, rank: int)
+    {rank == region.rank} { ... }
+
+class Array[T](dist: Dist, region: Region, rank: int)
+    {region == dist.region, rank == dist.rank}
+{
+  def get(p: Point{region.contains(self)}: T { ... }
+  ...
+}
+\end{xtenlines}
+}
+
+\caption{Fragment of \Xten{} support for regions, distributions, and arrays}\label{fig:region}
+\end{figure}
+
+
+\subsection{Subtyping}
+Constrained types come equipped with a subtype relation that
+combines the nominal subtyping relation of classes and interfaces with
+the logical entailment relation of the constraint system. Namely, a
+constraint \xcd{C\{c\}} is a subtype of \xcd{D\{d\}} if \xcd{C} is a
+subtype of \xcd{D} and every value in \xcd{C} that satisfies \xcd{c}
+also satisfies \xcd{d}.
+
+% Thus, the set of constrained types on a base
+% type \xcd{C} inherits a lattice structure from the underlying
+% constraint system. The maximal element is \xcd{C\{true\}}, which is
+% just \xcd{C}, and the minimal element is the unsatisfiable constraint.
+
+% Constrained types come equipped with a {\em subtyping
+% structure}: type $t_1$ is a subtype of $t_2$ if the denotation of
+% $t_1$ is a subset of $t_2$.
+This definition 
+% satisfies Liskov's Substitution Principle~\cite{liskov-behaviors}) and
+implies that
+\xcd{C\{e$_1$\}} is a subtype of \xcd{C\{e$_2$\}} if \xcd{e$_1$}
+entails \xcd{e$_2$}.
+In particular, for all conditions \xcd{e},
+\xcd{C\{e\}} is a subtype of \xcd{C}.
+\xcd{C\{e\}} is empty exactly
+when \xcd{e} conjoined with \xcd{C}'s class invariant is inconsistent.
+
+Two constrained types
+\xcd{C$_1$\{e$_1$\}} and \xcd{C$_2$\{e$_2$\}}
+are considered
+equivalent if \xcd{C$_1$} and \xcd{C$_2$} are the same base type and
+\xcd{e$_1$} and \xcd{e$_2$} are equivalent when considered as logical
+expressions. Thus, for instance, \xcd{C\{x*x==4\}} and \xcd{C\{x==2 || x==-2\}} are
+equivalent types.
+
+\subsection{Final variables}
+
+The use of final local variables, formal parameters, and
+fields in constrained
+types has proven to be particularly valuable in practice. The same
+variable that is being used in computation can also be used to specify
+types. There is no need to introduce separate, universally and
+existentially quantified ``index'' variables as in, for
+instance, \DML{}~\cite{xi99dependent}.
+%
+During type-checking, final variables are turned into symbolic
+variables---some fixed but unknown value---of the same type.
+Computation is performed in a constraint-based fashion on such
+variables.
+
+Because of the usefulness of final variables in \Xten{}, variables
+and parameters declared without an explicit \xcd{var} or \xcd{val}
+keyword are considered final.
+
+\subsection{Method and constructor preconditions}
+
+Methods and constructors may specify constraints on their
+(final) parameters, including the implicit parameter \xcd{this}.
+For an invocation of a method or constructor to
+be type-correct, the associated constraint must be statically known
+to be satisfied by the actual receiver and actual arguments of
+the invocation.  The constraint thus imposes a \emph{precondition}
+on callers of the method.
+For instance, the following is a valid method declaration
+for a recursive binary search method in a list class with a \xcd{length}
+property:
+\begin{xtennoindent}
+  def search(value: T, lo: int, hi: int)
+    {0 <= lo, lo <= hi, hi < length}: T = ...;
+\end{xtennoindent}
+The precondition
+specifies that
+the low and high search indices be within the list
+bounds and that the low index is less than or equal to the high
+index.
+
+The precondition, any method parameter, and the method return
+type may all 
+contain expressions involving the
+formal parameters of the method.  Any parameter used in this way must
+be final,
+ensuring it is not mutated by the method body.
+
+\subsection{Inheritance}
+
+Like \Java{},
+\Xten{} support single class inheritance and multiple
+interface inheritance.
+
+\java{} does not allow interfaces to specify instance fields.  Rather, all
+fields in an interface are final static fields (constants).
+However, in \Xten{}
+since properties play a central role in the specification of
+refinements of a type, it makes sense to permit interfaces to specify
+properties.
+Similarly, an interface
+definition may specify an invariant on its properties: all
+classes implementing the interface must satisfy the invariant.  Methods
+in the body of an interface may have constraints on their
+parameters as well.
+
+All classes implementing an interface must have a property
+with the same name and
+type (either declared in the class or inherited from the superclass)
+for each property in the interface. If a class implements
+multiple interfaces and more than one of them specifies a property
+with the same name, then they must all agree on the type of the
+property. The class must declare a single property with the given name
+and type.
+
+A class may extend a constrained class (or interface).
+The general form of a class declaration is thus:
+\begin{xten}
+class C(x$_1$: C$_1${c$_1$}, ..., x$_k$: C$_k${c$_k$}){c}
+  extends D{d}
+  implements I$_1${c$_1$}, ..., I$_n${c$_n$} {...}
+\end{xten}
+\noindent
+For all instances of \xcd{C}, the class invariant \xcd{c},
+the invariants of the superclass and superinterfaces (specified at
+their definitions),
+as well as the constraints \xcd{d} and \xcd{c$_i$} must hold.
+Declaring that \xcd{C} extends \xcd{D\{d\}}
+documents the programmer's intent that
+every call to \xcd{super} in a constructor for \xcd{C} must ensure
+that the invariant \xcd{d} is established on the state of the class
+\xcd{D}.
+
+\eat{
+For such a declaration to type-check, it must be that the class
+invariant of \xcd{C}, \inv(\xcd{C}) implies
+\inv({\tt D})\xcd{\ &\ d}\xcd{\ &\ }\inv({\tt I}$_i$)\xcd{\ & c}$_i$, where
+\inv({\tt T}) is the
+invariant associated with the class or interface \xcd{T}.
+Again, a constrained
+class or interface \xcd{I} is taken as shorthand for \xcd{I\{true\}}.
+}
+
+%{\em MetaNote: This should be standard. A class definition may extend
+%a dependent super class, e.g. class Foo(int i) extends Fum(i*i) \{
+%\ldots \}. The expressions in the actual parameter list for the super
+%class may involve only the properties of the class being defined. The
+%intuition is that these parameters are analogous to explicit arguments
+%that must be passed in every super-constructor invocation.}
+
+Our current implementation compiles \Xten{} to Java~\cite{Java3}, and erases
+dependent type information.  To simplify the translation---no
+name mangling is needed when generating code---it
+must be the case that a class does not have two different method
+definitions that conflict with each other when the constrained
+clauses in their types are erased.
+
+A class inherits from its direct superclass and
+superinterfaces all their methods that are visible according to the access
+modifiers and that are not hidden or overridden.  A method
+\xcd{m$_1$} in a class \xcd{C$_1$} overrides a method \xcd{m$_2$} in a
+superclass \xcd{C$_2$} if \xcd{m$_1$} and \xcd{m$_2$} have signatures
+with equivalent unerased formal parameter types.
+It is a static error if \xcd{m$_1$}'s erased signature is the same
+as \xcd{m$_2$}'s, but \xcd{m$_1$} does not override \xcd{m$_2$}.
+
+It is also a static error if the method precondition on
+\xcd{m$_2$} does
+not entail the precondition on \xcd{m$_1$}.  This restriction
+ensures that if the a call
+is type-checked against \xcd{m$_2$} at the superclass type \xcd{C$_2$},
+the precondition is satisfied if the method is dispatched at run time to the
+method \xcd{m$_1$} in the subclass \xcd{C$_1$}.
+
+\subsection{Method dispatch}
+
+Method dispatch takes only the class hierarchy into account, not 
+dependent type information.  Thus, \Xten{} does not provide a
+form of predicate dispatch~\cite{predicateClasses,jpred}, 
+evaluating constraints at run time to determine which method to
+invoke.
+This design decision ensures that
+serious errors such as method invocation errors are captured at
+compile time. Such errors can arise because multiple incomparable
+methods with the same name and acceptable argument lists might be
+available at the dynamic dependent type of the receiver.
+
+\subsection{Constructors for dependent classes}
+
+\eat{
+Like a method definition,
+a constructor may
+specify constraint on its arguments
+and a postcondition on the value produced by the constructor.
+%
+Postconditions may be specified in a constructor declaration by
+writing a constraint between
+the name of the class and the argument list of the constructor.
+The constraint can reference only the properties of
+the class.
+}
+
+Constructors must ensure that the class invariants of the given
+class and its superclasses and superinterfaces hold.
+For instance, the
+nullary constructor for \xcd{List} ensures that the property
+\xcd{length} has the value \xcd{0}:
+\begin{xtennoindent}
+  public def this(): List(0) { property(0); }
+\end{xtennoindent}
+The \xcd{property} statement is used to set all the properties
+of the new object simultaneously.  Capturing this assignment in
+a single statement simplifies checking that the constructor
+postcondition and class invariant are established.  If a class
+has properties, every path through the constructor must contain
+exactly one \xcd{property} statement.
+
+\java{}-like languages permit constructors to throw exceptions. This
+is necessary to deal with the situation in which the arguments to a
+constructor for a class \xcd{C} are such that no object can be
+constructed that satisfies the invariants for \xcd{C}. Dependent
+types make it possible to perform some of these checks at
+compile time. The class invariant of a class explicitly captures
+conditions on the properties of the class that must be satisfied by
+any instance of the class.  Constructor preconditions capture
+conditions on the constructor arguments.
+The compiler's static check for
+non-emptiness of the type of any variable captures these invariant
+violations at compile time.
+
+The class invariant is part of the public interface of the
+class.  Consequently, if the invariant of \xcd{C} is changed, a class
+that creates instances of \xcd{C}
+may need to be recompiled to ensure the invariant is satisfied
+by the instances.
+
+%% Cannot throw an exception.
+
+%% Figure out the real condition. Not sure this is important.
+
+\subsection{Separation between compile-time and run-time computation}
+
+Our design distinguishes between compile-time execution (performed
+during type-checking) and run-time execution. At compile time, the
+compiler processes the abstract syntax tree of the program generating
+queries to the constraint solver. The only computation engine running
+is the constraint solver, which operates on its own vocabulary of
+predicates and functions. Program variables (such as local variables)
+that occur in types are dealt with symbolically. They are replaced
+with logical variables---some fixed, but unknown value---of the same
+type. The constraint solver must know how to process pieces of partial
+information about these logical variables in order to determine
+whether some constraint is entailed. At run time, the same program
+variable will have a concrete value and will perform ``arithmetic''
+(calculations) where the compiler performed ``algebra'' (symbolic
+analysis).
+
+Constrained types may occur in a run-time cast \xcd{e as T}.  Code is
+generated to check at run time that the expression \xcd{e}
+satisfies any constraints in \xcd{T}.
+
+\subsection{Equality-based constraints}
+
+The \Xten{} compiler includes a simple equality-based constraint
+system.
+All constraint systems installed using plugins must support at least the core
+equality-based constraints.
+Constraints are conjunctions of equalities between
+constraint terms: properties, final variables,
+compile-time constants, and \xcd{self}:
+
+{\small
+\begin{tabular}{r@{\quad}r@{~~}c@{~~}l}
+\\
+    (C Term) & \xcd{t} &{::=}& \xcd{x} \alt \xcd{self} \alt
+    \xcd{this} \alt \xcd{t.f} \alt $n$ \\
+(Constraint) & \xcd{c},\xcd{d} &{::=}& \xcd{true}
+        \alt \xcd{t==t}
+\alt
+\xcd{c & c}
+%\\ & & \alt &
+\alt
+$\xcd{x} : \tcd{T};~\tcd{c}$ \\
+\\
+\end{tabular}
+}
+
+\noindent
+We use the syntax \xcd{x: T; c} for the constraint obtained by existentially
+quantifying the variable \xcd{x} of type \xcd{T} in \xcd{c}.
+
+\subsection{Existential quantification}
+
+Constrained types subsume existential types.
+For example, the length of the
+list returned by \xcd{filter} in Figure~\ref{fig:list-example} is existentially
+quantified.
+\if 0
+Existential quantification may also be introduced explicitly:
+the following function computes the greatest
+common divisor of two integers:\footnote{Checking this program
+requires a constraint system capable of reasoning about integer
+multiplication and
+division.  We have not yet implemented such a system.}
+\begin{xten}
+def gcd(a: int, b: int):
+      int{x: int, y: int; a==x*self & b==y*self) {
+    if (b == 0) return a;
+    else return gcd(b, a % b);
+}
+\end{xten}
+\fi
+
+Operations on values of constrained type
+propagate constraints
+to the operation result by introducing existentially quantified
+variables.  Consider the assignment to \tcd{c} below:
+\begin{xtennoindent}
+  a: int{self >= 0} = ...;
+  b: int{self >= 0} = ...;
+  c: int{self >= 0} = a*b;
+\end{xtennoindent}
+During type-checking, the type of \xcd{a*b} is
+computed from the types of \xcd{a} and \xcd{b} to be
+the type:
+\begin{xtennoindent}
+  int{x: int, y: int; self==x*y & x>=0 & y>=0}
+\end{xtennoindent}
+That is, there exist non-negative \tcd{int}s \tcd{x} and \tcd{y} 
+whose product is \tcd{self}.
+The constraint on this type is strong enough to establish the
+constraint required by \xcd{c}.  If the computed constraint cannot be
+represented by any installed constraint system,
+the type of \xcd{a*b} is promoted to the unconstrained supertype \xcd{int}.
+
+\subsection{Real clauses}
+
+Because object-oriented languages permit arbitrary mutual recursion between
+classes: classes \xcd{A} and \xcd{B} may have fields of type \xcd{B} and
+\xcd{A}, respectively---the type/property graph may have cycles. The nodes
+in this graph are base types (class and interface names). There is an
+edge from node \xcd{A} to node \xcd{B} if \xcd{A} has a property whose
+base type is \xcd{B}.
+
+Let us define the {\em real clause} of a constrained type
+\xcd{C\{c\}} to be
+the set of constraints that must be satisfied by any instance of
+\xcd{C\{c\}}. This includes not only the condition \xcd{c} but also
+constraints that hold for all instances of \xcd{C}, as
+determined by \xcd{C}'s class invariant. Let 
+$\rc({\tt C\{c\}})$ denote the {\em real clause} of \xcd{C\{c\}}.
+For simplicity, we consider only top-level classes; thus, the
+only free variable
+in $\rc({\tt C\{c\}})$ is \xcd{self}.  We draw out \xcd{self} as a
+formal parameter and write $\rc({\tt C\{c\}}, {\tt z})$
+for $\rc({\tt C\{c}[{\tt z}/\mbox{\xcd{self}}]\})$.
+
+Consider a general class definition:
+\begin{xten}
+class C(x$_1$: C$_1${c$_1$}, ..., x$_k$: C$_k${c$_k$}){c}
+  extends D{d} { ... }
+\end{xten}
+
+\noindent From this, we get:
+%
+$$\rc({\tt C},{\tt z}) ~ \iff \!\!\!\!\!\!\!\!\!\!
+\begin{array}{l}
+\quad  ({\tt c} \wedge {\tt d})[{\tt z}/{\tt self},{\tt z}/\this]
+\;\wedge\; \rc({\tt D},{\tt z}) \;\wedge \\
+\quad  \rc(\mbox{\tcd{C$_1$\{c$_1$\}}}, {\tt z.x}_1) \;\wedge\; \cdots
+\;\wedge\; \rc(\mbox{\tcd{C$_k$\{c$_k$\}}}, {\tt z.x}_k)
+\end{array}
+$$
+
+That is, given a program $P$ with classes ${\tt C}_1,\ldots, {\tt
+C}_k$, the set of real clauses for ${\tt C}_1,\ldots, {\tt C}_k$ are
+defined in a mutually recursive fashion through the Clark completion
+of a Horn clause theory (over an underlying constraint system).
+
+The central algorithmic question now becomes whether given a
+constrained clause {\tt d}, does $\rc(\mbox{\tt C\{c\}},{\tt z})$ entail {\tt d}? 
+%
+From the above formulation the question is clearly semi-decidable. It
+is not clear however whether it is decidable. This is a direction for
+further work.
+
+The \Xten{} compiler is conservative and rejects
+programs with cyclic real clauses: programs where the real
+clause of the type
+of a property \tcd{p} itself constrains \tcd{p}.
+%
+% XXX can such a program even be constructed
+%
+In practice, many data structures have non-cyclic real clauses.
+For these programs, the real clause can be computed quickly and
+only a bounded number of questions to the constraint solver are
+generated during type-checking.
+
+\eat{
+\subsection{Existential types}
+
+The use of constraints makes existential types very natural.  Consider
+the return type of \xcd{filter} in Figure~\ref{fig:list-example}:
+it specifies that the list
+returned is of some unknown length, which is known
+to be bounded by \xcd{n}. Thus, constrained types naturally
+subsume existential dependent types. Indeed, every base type \xcd{C}
+is an ``existential'' constrained type since it does not specify any
+constraint on its properties. Thus, code written with constrained types
+can interact seamlessly with legacy library code---using just base
+types wherever appropriate.
+}
+
+\subsection{Parametric consistency}
+
+Consider the set of final variables that are referenced in a type
+\xcd{T} = \xcd{C\{c\}}. These are the {\em parameters} of the type. A
+type is said to be {\em parametrically consistent} if its
+(class)
+invariant
+\xcd{c} is solvable for each possible assignment of values to
+parameters.  Types are required to be parametrically
+consistent. Parametric consistency is sufficient to ensure that the
+extension of a type is non-empty.\footnote{Parametric
+consistency is not necessary in that
+there may be programs whose types are parametrically inconsistent
+but which never encounter empty types at run time because of
+relationships in data values that are too complicated to be captured by
+the type system.}
+
+Consider a variation of \xcd{List} from Figure~\ref{fig:list-example}:
+\begin{xten}
+class List(n: int{self >= 0}) {
+  var head: Object;
+  var tail: List{self!=null &
+                 self.n==this.n-1};
+  ...
+}
+\end{xten}
+The type of the field \xcd{tail} is not parametrically
+consistent. There exists a value for the property \xcd{this}.\xcd{n}, namely
+\xcd{0}, for which the real clause \xcd{self}~\xcd{!=}~\xcd{null} \xcd{&}
+\xcd{self.n}~\xcd{==}~\xcd{this.n-1} \xcd{&}
+\xcd{self.n}~\xcd{>=}~\xcd{0} is not satisfiable.  Permitting
+\xcd{tail} to be \xcd{null} would allow the type to be non-empty.
+
+The compiler will throw a type error when it encounters the
+initializer for this field in a constructor since it will not be able
+to prove that the initial value is of the given type.
+
+

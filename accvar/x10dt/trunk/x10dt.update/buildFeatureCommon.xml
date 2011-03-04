@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="x10dt.feature.common" basedir=".">
+    <target name="init">
+        <xmlproperty file="./feature.xml"/>
+
+        <property name="global.plugin.script" value="../x10dt.update/exportPlugin.xml"/>
+        <property name="default.feature.script" value="../x10dt.update/exportFeature.xml"/>
+
+        <propertyRegexp name="feature.version" input="${feature(version)}" regexp="(.*).qualifier" value="\1.${build.qualifier}"/>
+        <echo message="Building feature ${ant.project.name} for version ${feature.version}"/>
+
+    	<property name="feature.id"          value="${feature(id)}"/>
+        <property name="feature.temp.folder" value="${basedir}/feature.temp.folder"/>
+        <property name="feature.destination" value="${basedir}"/>
+
+    	<loadfile property="plugins.ids" srcfile="feature.xml">
+            <filterchain>
+                <!-- Sometimes the PDE splits <plugin> elements into several lines, but the
+                     subsequent filters assume the entire <plugin> element is all on one line. -->
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern="[ \t]*(&lt;plugin)[ \t\r\n]*" replace="\1 " flags="gs"/>
+                </tokenfilter>
+                <!-- Grab only the <plugin> elements from the feature manifest -->
+                <containsregex pattern="&lt;plugin"/>
+                <!-- Grab the plugin ID from the <plugin> element -->
+                <replaceregex pattern="[ \t]*&lt;plugin .*id=&quot;([^&quot;]*)&quot;.*" replace="\1,"/>
+                <!-- Now concatenate all of the plugin IDs into a single comma-separated value, with
+                     no intervening line separators. The trailing comma seems to do no harm. -->
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern=",[\r\n]* *" replace="," flags="gs"/>
+                </tokenfilter>
+            </filterchain>
+        </loadfile>
+        <echo message="Feature contains the following plugins: ${plugins.ids}"/>
+    </target>
+    
+    <!-- This is the main target -->
+    <target name="build.feature" depends="init" description="Build the feature jar and all of the feature's constituent plugins">
+        <antcall target="build.feature.jar"/>
+        <antcall target="gather.plugin.jars"/>
+    </target>
+
+	<target name="build.feature.jar" depends="init" description="Build the feature jar for X10DT for an update site.">
+		<property name="feature.base" value="${feature.temp.folder}"/>
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+        <antcall target="gather.feature.parts" inheritAll="false">
+<!--        <param name="arch" value="*"/>
+			<param name="ws" value="*"/>
+			<param name="nl" value="*"/>
+            <param name="os" value="*"/> -->
+			<param name="feature.base" value="${feature.temp.folder}"/>
+		</antcall>
+
+        <propertyRegexp name="all.builds.for.version" input="${feature.version}" regexp="(.*).${build.qualifier}" value="\1.*"/>
+		<echo message="Deleting old builds of feature ${feature.id} for version ${all.builds.for.version}"/>
+		<delete>
+            <fileset dir="${feature.destination}" includes="${feature.id}_${all.builds.for.version}.jar"/>
+		</delete>			
+        <echo message="Deleting old builds of source feature ${feature.id} for version ${all.builds.for.version}"/>
+        <delete>
+            <fileset dir="${feature.destination}" includes="${feature.id}.source_${all.builds.for.version}.jar"/>
+        </delete>           
+
+		<jar destfile="${feature.destination}/${feature.id}_${feature.version}.jar" basedir="${feature.temp.folder}/features/${feature.id}_${feature.version}"/>
+        <antcall target="build.source.feature"/>
+		<delete dir="${feature.temp.folder}"/>
+		<echo message="Feature jar build complete."/>
+	</target>
+
+    <!-- Copy the plugin jars to the 'plugins' folder so that exportUpdate script can see it -->
+    <target name="gather.plugin.jars" depends="build.all.plugins">
+        <delete failonerror="false">
+            <fileset dir="plugins" includes="*.jar"/>
+        </delete>
+        <mkdir dir="plugins"/>
+        <for param="plugin.id" values="${plugins.ids}">
+            <antcall target="copy.child">
+                <param name="plugin.id" value="${plugin.id}"/>
+            </antcall>
+        </for>
+    </target>
+
+    <target name="build.all.plugins" depends="init">
+        <for param="plugin.id" values="${plugins.ids}">
+            <antcall target="build.child">
+                <param name="plugin.id" value="${plugin.id}"/>
+            </antcall>
+        </for>
+    </target>
+
+    <target name="echo.child">
+        <echo message="Processing ${plugin.id}"/>
+    </target>
+
+	<target name="gather.feature.parts" depends="init" if="feature.base">
+	    <property name="target.dir" value="${feature.base}/features/${feature.id}_${feature.version}"/>
+		<mkdir dir="${target.dir}"/>
+		<copy todir="${target.dir}" failonerror="true" overwrite="false">
+			<fileset dir="${basedir}">
+				<include name="feature.properties"/>
+				<include name="epl-v10.html"/>
+	            <include name="license.html"/>
+				<include name="eclipse_update_120.jpg"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${target.dir}" file="feature.xml">
+			<filterchain>
+                <replaceregex pattern="version=\&quot;(.*)\.qualifier&quot;" replace="version=&quot;\1.${build.qualifier}&quot;"/>
+			</filterchain>
+		</copy>
+	</target>
+
+	<target name="cruise.publish" depends="init">
+		<copy todir="../../artifacts" file="${feature.id}_${feature.version}.jar"/>
+	</target>
+
+	<!-- ========================================================================================= -->
+
+	<target name="build.child">
+        <available file="../${plugin.id}/exportPlugin.xml" property="plugin.script" value="./exportPlugin.xml"/>
+        <condition property="plugin.script" value="${global.plugin.script}">
+            <not>
+                <isset property="plugin.script"/>
+            </not>
+        </condition>
+	    <echo message="Using plugin build script ${plugin.script} for ${plugin.id}"/>
+        <ant antfile="${plugin.script}" dir="../${plugin.id}" target="build.update.jar"/>
+	</target>
+
+	<target name="copy.child">
+		<tstamp>
+			<format property="build.time" pattern="yyyyMMddHHmm"/> 
+		</tstamp>
+        <condition property="build.qualifier" value="v${build.time}">
+			<not>
+                <isset property="build.qualifier"/>
+			</not>
+		</condition>
+
+		<loadfile property="plugin.version" srcfile="../${plugin.id}/META-INF/MANIFEST.MF">
+            <filterchain>
+				<containsregex pattern="Bundle-Version:"/>
+				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+                <replaceregex pattern="(.*)\.qualifier" replace="\1.${build.qualifier}"/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+		<echo message="Copying ${plugin.id} version ${plugin.version}"/>
+		<copy todir="plugins" file="../${plugin.id}/${plugin.id}_${plugin.version}.jar"/>
+		<copy todir="plugins" file="../${plugin.id}/${plugin.id}.source_${plugin.version}.jar"/>
+	</target>
+
+    <target name="build.source.feature" depends="init">
+        <filter token="feature.id" value="${feature.id}"/>
+        <filter token="feature.version" value="${feature.version}"/>
+        <filter token="provider.name" value="rfuhrer@watson.ibm.com"/>
+    	<filter token="plugin.list" value=""/>
+    	<property name="feature.manifest.file" value="${feature.temp.folder}/feature.xml"/>
+        <copy file="../x10dt.update/SourceFeatureManifest.in" tofile="${feature.manifest.file}" filtering="true"/>
+    	<for param="plugin.id" values="${plugins.ids}">
+    		<antcall target="gen.plugin.source.line">
+    		    <param name="plugin.id" value="${plugin.id}"/>
+    			<param name="file" value="${feature.manifest.file}"/>
+    	    </antcall>
+    	</for>
+    	<echo message="&lt;/feature&gt;${line.separator}" file="${feature.manifest.file}" append="true"/>
+        <jar destfile="${feature.destination}/${feature.id}.source_${feature.version}.jar">
+        	<fileset dir="${feature.temp.folder}" includes="feature.xml"/>
+        	<fileset dir="." includes="feature.properties"/>
+        </jar>
+    </target>
+
+	<target name="gen.plugin.source.line">
+        <loadfile property="plugin.version" srcfile="../${plugin.id}/META-INF/MANIFEST.MF">
+			<filterchain>
+				<containsregex pattern="Bundle-Version:"/>
+				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+                <replaceregex pattern="(.*)\.qualifier" replace="\1.${build.qualifier}"/>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
+		<echo file="${file}" append="true"
+		   message="    &lt;plugin id=&quot;${plugin.id}.source&quot; version=&quot;${plugin.version}&quot; unpack=&quot;false&quot;/&gt;${line.separator}"/>
+	</target>
+	<!-- ========================================================================================= -->
+
+	<target name="zip.distribution" depends="init" description="Create a zip containing all the plug-ins and features for the feature: ${feature.id}.">
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<antcall target="gather.feature.parts">
+			<param name="arch" value="*"/>
+			<param name="ws" value="*"/>
+			<param name="nl" value="*"/>
+			<param name="include.children" value="true"/>
+			<param name="feature.base" value="${feature.temp.folder}"/>
+			<param name="os" value="aix,hpux,linux,macosx,qnx,solaris,win32"/>
+		</antcall>
+		<zip destfile="${feature.destination}/${feature.id}_${feature.version}.bin.dist.zip" basedir="${feature.temp.folder}" filesonly="false" whenempty="skip" update="false"/>
+		<delete dir="${feature.temp.folder}"/>
+	</target>
+
+	<target name="zip.sources" depends="init">
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<antcall target="all.children">
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins/${feature.id}.source_${feature.version}/src"/>
+			<param name="include.children" value="true"/>
+			<param name="target" value="gather.sources"/>
+		</antcall>
+		<zip destfile="${feature.destination}/${feature.id}_${feature.version}.src.zip" basedir="${feature.temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+		<delete dir="${feature.temp.folder}"/>
+	</target>
+
+	<target name="clean" depends="init" description="Clean the feature: ${feature.id} of all the zips, jars and logs created.">
+		<delete file="${feature.destination}/${feature.id}_${feature.version}.jar"/>
+		<delete file="${feature.destination}/${feature.id}_${feature.version}.bin.dist.zip"/>
+		<delete file="${feature.destination}/${feature.id}_${feature.version}.log.zip"/>
+		<delete file="${feature.destination}/${feature.id}_${feature.version}.src.zip"/>
+		<delete dir="${feature.temp.folder}"/>
+		<antcall target="all.children">
+			<param name="target" value="clean"/>
+		</antcall>
+	</target>
+
+	<!-- ========================================================================================= -->
+
+	<target name="gather.sources">
+		<antcall target="children">
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins/${feature.id}.source_${feature.version}/src"/>
+			<param name="target" value="gather.sources"/>
+		</antcall>
+	</target>
+</project>

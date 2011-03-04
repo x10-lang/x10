@@ -1,0 +1,188 @@
+%\documentclass[10pt,twoside,twocolumn,notitlepage]{report}
+\documentclass[12pt,twoside,notitlepage]{report}
+\usepackage{tex/x10}
+\usepackage{tex/tenv}
+\def\Hat{{\tt \char`\^}}
+\usepackage{url}
+\usepackage{times}
+\usepackage{tex/txtt}
+\usepackage{ifpdf}
+\usepackage{tocloft}
+\usepackage{tex/bcprules}
+\usepackage{xspace}
+
+\newif\ifdraft
+%\drafttrue
+\draftfalse
+
+\pagestyle{headings}
+\showboxdepth=0
+\makeindex
+
+\usepackage{tex/commands}
+
+\usepackage[
+pdfauthor={Vijay Saraswat, Bard Bloom, Igor Peshansky, Olivier Tardieu, and David Grove},
+pdftitle={X10 Language Specification},
+pdfcreator={pdftex},
+pdfkeywords={X10},
+linkcolor=blue,
+citecolor=blue,
+urlcolor=blue
+]{hyperref}
+
+\ifpdf
+          \pdfinfo {
+              /Author   (Vijay Saraswat, Bard Bloom, Igor Peshansky, Olivier Tardieu, and David Grove)
+              /Title    (X10 Language Specification)
+              /Keywords (X10)
+              /Subject  ()
+              /Creator  (TeX)
+              /Producer (PDFLaTeX)
+          }
+\fi
+
+\def\headertitle{The \XtenCurrVer{} Report (Draft) }
+\def\integerversion{2.1}
+
+% Sizes and dimensions
+
+%\topmargin -.375in       %    Nominal distance from top of page to top of
+                         %    box containing running head.
+%\headsep 15pt            %    Space between running head and text.
+
+%\textheight 9.0in        % Height of text (including footnotes and figures, 
+                         % excluding running head and foot).
+
+%\textwidth 5.5in         % Width of text line.
+\columnsep 15pt          % Space between columns 
+\columnseprule 0pt       % Width of rule between columns.
+
+\parskip 5pt plus 2pt minus 2pt % Extra vertical space between paragraphs.
+\parindent 0pt                  % Width of paragraph indentation.
+%\topsep 0pt plus 2pt            % Extra vertical space, in addition to 
+                                % \parskip, added above and below list and
+                                % paragraphing environments.
+
+
+\newif\iftwocolumn
+
+\makeatletter
+\twocolumnfalse
+\if@twocolumn
+\twocolumntrue
+\fi
+\makeatother
+
+\iftwocolumn
+
+\oddsidemargin  0in    % Left margin on odd-numbered pages.
+\evensidemargin 0in    % Left margin on even-numbered pages.
+
+\else
+
+\oddsidemargin  .5in    % Left margin on odd-numbered pages.
+\evensidemargin .5in    % Left margin on even-numbered pages.
+
+\fi
+
+
+\newtenv{example}{Example}[section]
+\newtenv{planned}{Planned}[section]
+
+\begin{document}
+
+% \section{Work In Progress}
+% \begin{itemize}
+%     \item Rewrite first chapter
+%     \item Describe library classes, including such fundamentals as Object and String
+%     \item Examples for covariant/contravariant generics are wrong -- use Nate's examples
+%     \item Describe local classes.
+%     \item Reduce the use of \xcd`self` in constraints.
+%     \item Copy sections of grammar to relevant sections of text.
+%     \item Do something about 4.12.3
+% \end{itemize}
+% 
+% {\bf Feedback:} 
+% To help us the most, we would appreciate comments in one of these formats: 
+% \begin{itemize}
+% \item An annotated copy of the PDF document, if it's convenient.  Acrobat
+%       Writer can produce helpful highlighting and sticky notes.  If you don't
+%       use Acrobat Writer, don't fuss.
+% \item Text comments.  Since the document is still being edited, page numbers
+%       are going to be useless as pointers to the text.  If possible, we'd like
+%       pointers to sections by number and title: {\em In 12.1, ``Empty
+%       Statement'', please discuss side effects and performance implications
+%       for this construct''}  If it's a long section, giving us a couple words
+%       we can grep for would help too.
+% \end{itemize}
+% 
+% Thank you very much!
+
+
+
+
+% \parindent 0pt %!! 15pt                    % Width of paragraph indentation.
+
+%\hfil {\bf 7 Feb 2005}
+%\hfil \today{}
+
+\input{first} 
+
+\clearpage
+
+{\parskip 0pt
+\addtolength{\cftsecnumwidth}{0.5em}
+\addtolength{\cftsubsecnumwidth}{0.5em}
+%\addtolength{\cftsecindent}{0.5em}
+\addtolength{\cftsubsecindent}{0.5em}
+\tableofcontents
+}
+
+
+\input{Intro}
+\input{Overview}
+\input{Lex}
+\input{Types}	
+\input{Vars}
+\input{Packages}
+\input{Interfaces}
+\input{Classes}
+\input{Structs}
+\input{Functions}
+\input{Expressions}	
+\input{Statements}	
+\input{Places}	
+\input{Activities}	
+\input{Clocks}	
+\input{Arrays}	
+\input{Annotations}
+\input{extern}
+\input{DefiniteAssignment}
+\input{Grammar}
+\renewcommand{\bibname}{References}
+\bibliographystyle{plain}
+\bibliography{master}
+
+%\input{bib}	
+
+% Adjustment to avoid having the last index entry on a page by itself.
+%\addtolength{\baselineskip}{-0.1pt}
+
+\clearpage
+\input{x10.ind}
+
+\appendix
+
+\input{ChangeLog.tex}
+\input{CompilerOptions.tex}
+
+
+
+{\em The \Xten{} language has been developed as part of the IBM PERCS
+Project, which is supported in part by the Defense Advanced Research
+Projects Agency (DARPA) under contract No. NBCH30390004.}
+
+{\em Java and all Java-based trademarks are trademarks of Sun Microsystems,
+Inc. in the United States, other countries, or both.}
+\end{document}

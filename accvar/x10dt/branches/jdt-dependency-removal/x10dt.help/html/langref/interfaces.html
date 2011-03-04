@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Interfaces</title>
+</head>
+
+<body>
+ <h1><a name="tth_chAp1">
+Chapter 7 </a><br />Interfaces</h1>
+<a name="XtenInterfaces">
+</a>
+
+<div class="p"><!----></div>
+An interface specifies signatures for zero or more public methods, properties,
+<b>static val</b>s,
+classes, structs, interfaces, types
+and an invariant.  
+
+<div class="p"><!----></div>
+The following puny example illustrates all these features: 
+<pre>
+interface Pushable(text:String, prio:Int){prio != 0} {
+  def push(): void;
+  static val MAX_PRIO = 100;
+  abstract class Pushedness{}
+  struct Pushy{}
+  interface Pushing{}
+  static type Shove = Int;
+  
+}
+class MessageButton(text:String, prio:Int){
+  implements Pushable{self.prio==Pushable.MAX_PRIO} {
+  public def push() { 
+    x10.io.Console.OUT.println(text + " pushed");
+  }
+}
+</pre>
+
+<b>Pushable</b> defines two properties, a method, and a static value.  It also
+establishes an invariant, that <b>prio != 0</b>. 
+<b>MessageButton</b> implements a constrained version of <b>Pushable</b>,
+<em>viz</em>&nbsp;one with maximum priority.  It also has <b>Pushable</b>'s properties.  It
+defines the <b>push()</b> method given in the interface, as a <b>public</b>
+method-interface methods are implicitly <b>public</b>.
+
+<div class="p"><!----></div>
+A concrete type-a class or struct-can <em>implement</em> an interface,
+typically by having all the methods and properties that the interface
+requires.
+
+<div class="p"><!----></div>
+A variable may be declared to be of interface type.  Such a variable has all
+the properties and methods declared (directly or indirectly) by the interface;
+nothing else is statically available.  Values of any concrete type which
+implement the interface may be stored in the variable.  
+
+<div class="p"><!----></div>
+The following code puts two quite different objects into the variable
+<b>star</b>, both of which satisfy the interface <b>Star</b>.
+<pre>
+interface Star { def rise():void; }
+class AlphaCentauri implements Star {
+   public def rise() {}
+}
+class ElvisPresley implements Star {
+   public def rise() {}
+}
+class Example {
+   static def example() {
+      var star : Star;
+      star = new AlphaCentauri();
+      star.rise();
+      star = new ElvisPresley();
+      star.rise();
+   }
+}
+</pre>
+
+An interface may extend several interfaces, giving
+X10 a large fraction of the power of multiple inheritance at a tiny fraction
+of the cost.
+
+<div class="p"><!----></div>
+<pre>
+interface Star{}
+interface Dog{}
+class Sirius implements Dog, Star{}
+class Lassie implements Dog, Star{}
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

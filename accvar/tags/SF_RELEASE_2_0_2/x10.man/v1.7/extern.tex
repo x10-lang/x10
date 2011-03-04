@@ -1,0 +1,190 @@
+\if 0
+\chapter{Linking with Java code}
+\label{JavaLink}
+
+On some platforms,
+\XtenCurrVer{} allows \java{} code to be called directly from
+\Xten{} code.  \java{} classes and packages are in the same namespace as
+\Xten{} classes and packages.  When a \java{} class is loaded by
+the \Xten{} run-time system, types are mapped from \java{} types
+to \Xten{} types as follows.
+
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{1}{|c|}{\bf \java{} types} &
+\multicolumn{1}{|c|}{\bf \Xten{} type} \\
+\hline
+\hline
+\xcd"java.lang.Object" & \xcd"x10.lang.Object" \\
+\hline
+\xcd"java.lang.String" & \xcd"x10.lang.String" \\
+\hline
+\xcd"boolean", \xcd"java.lang.Boolean" & \xcd"x10.lang.Boolean" \\
+\hline
+\xcd"byte", \xcd"java.lang.Byte" & \xcd"x10.lang.Byte" \\
+\hline
+\xcd"short", \xcd"java.lang.Short" & \xcd"x10.lang.Short" \\
+\hline
+\xcd"char", \xcd"java.lang.Character" & \xcd"x10.lang.Char" \\
+\hline
+\xcd"int", \xcd"java.lang.Integer" & \xcd"x10.lang.Int" \\
+\hline
+\xcd"long", \xcd"java.lang.Long" & \xcd"x10.lang.Long" \\
+\hline
+\xcd"float", \xcd"java.lang.Float" & \xcd"x10.lang.Float" \\
+\hline
+\xcd"double", \xcd"java.lang.Double" & \xcd"x10.lang.Double" \\
+\hline
+\xcd"void" & \xcd"x10.lang.Void" \\
+\hline
+\xcd"T[]" & \xcd"x10.lang.NativeRail[T]" \\
+\hline
+\end{tabular}
+
+This mapping allows \Xten{} objects
+to be stored in fields of \java{} objects or in \java{} arrays.
+\Xten{} objects are treated as subtypes of \xcd"java.lang.Object"
+by \java{} code
+
+%XXX TODO
+
+\java{} objects imported into \Xten{} are augmented with a \xcd"location" field.
+Java code can determine the location of an object by
+invoking the static method
+\xcd"x10java.Place.getLocation(java.lang.Object)".
+
+\java{} generics are not supported.
+\java{}'s threading and synchronization are not supported.
+
+\fi
+
+\chapter{Linking with native code}\label{extern}\index{extern}
+
+On some platforms,
+\XtenCurrVer{} supports a simple facility to permit the efficient
+intra-thread communication of an array of primitive type to code
+written in the language {\tt C}.  The array must be a ``local''
+array. The primary intent of this design is to permit the reuse of
+native code that efficiently implements some numeric array/matrix
+calculation.
+
+Future language releases are expected to support similar bindings to
+{\sc Fortran}, and to support parallel native processing of
+distributed \Xten{} arrays. 
+
+The interface consists of two parts. First, an array intended to be
+communicated to native code must be created as an unsafe array:
+\begin{xten}
+Array.makeUnsafe[T](dist)
+\end{xten}
+Unsafe arrays can be of any dimension. However, \XtenCurrVer{}
+requires that unsafe arrays be of a primitive type, and local
+(i.e.,
+with an underlying distribution that maps all elements in its region
+to \xcd"here").
+
+Unsafe arrays are allocated in a special array of memory that permits
+their efficient transmission to natively linked code.
+%% Comment about when this memory is freed.
+
+Second, the \Xten{} programmer may specify that certain methods are to
+be implemented natively by using the modifier \xcd"extern":
+
+\begin{grammar}
+   MethodModifier \: \xcd"extern"
+\end{grammar}
+
+Such a method must be declared \xcd"static" and may not have a
+method body.\footnote{This
+restriction is likely to be lifted in the future.}  Primitive types in
+the method argument are translated to their corresponding JNI type
+(e.g., {\tt Float} is translated to {\tt jfloat}, {\tt Double} to
+{\tt jdouble}, etc.).  The only non-primitive type permitted in an
+\xcd"extern" method is an unsafe array. This is passed at type
+\xcd"jlong" as an eight-byte address into the unsafe region that contains
+the data for the array.  Note that {\tt jlong} is not the same as {\tt long} on
+32-bit machines.
+
+
+Since only the starting address of an array is passed, if the array is
+multidimensional, the user must explicitly communicate (or have a
+guarantee of) the rank of the passed array, and must either typecast
+or explicitly code the address calculation.  Note that all \Xten{}
+arrays are created in row-major order, and so any native routine must
+also access them in the same order.
+
+For each class \xcd"C" that contains an \xcd"extern" method, the
+\Xten{} compiler generates a text file {\tt C\_x10stub.c}.  This file
+contains generated \xcd"C" stub functions that are called from the
+\xcd"extern" routines.  The name of the stub function is derived from
+the name of the \xcd"extern" method. If the method is
+{\tt C.process()}, the stub function will be
+{\tt Java\_C\_C\_process()}. The name is suffixed with the signature of the
+method if the method is overloaded.
+
+The programmer must write C code to implement the native method,
+using the methods in the \xcd"C" stub file to call the actual native
+method.  The programmer must compile these files and link them into a
+dynamically linked library (DLL).  Note that the {\tt jni.h} header file
+must be in the include path.  The programmer must ensure this library
+is loaded by the program before the method is called, e.g., by
+adding a
+{\tt x10.lang.System.loadLibrary} call (in a static initializer of the
+\Xten{} class).
+
+\begin{example}
+The following class illustrates the use of \xcd"unsafe" and native
+linking. 
+\begin{xten}
+public class IntArrayExternUnsafe {
+  public static extern 
+      def process(yy: unsafe Rail[Int], size: Int);
+  static { System.loadLibrary("IntArrayExternUnsafe"); }
+  public static def main(args: Rail[String]) {
+     val b = (new IntArrayExternUnsafe()).run();
+     Console.OUT.println("++++++ Test "
+                         +(b?"succeeded.":"failed."));
+     System.exit(b?0:1);
+  }
+  public def run() : Boolean {
+    val high = 10;
+    val d = (0..high) -> here;
+    val y: Array[Int] = Array.makeUnsafe[Int](d);
+    for (val (j) in y.region) {
+        y(j) = j;
+    process(y,high);
+    for (val (j) in y.region) {
+      val expected = j+100;
+      if(y(j) != expected) {
+        Console.OUT.println("y("+j+")="
+                           +y(j)+" != "+expected);
+        return false;
+       }
+    }
+    return true;
+  }
+}
+\end{xten}
+
+The programmer may then write the {\tt C} code thus:
+\begin{xten}
+void IntArrayExternUnsafe_process(jlong yy, signed int size) {
+  int i;
+  int* array = (int*) (long) yy;
+  for (i = 0; i < size; i++) {
+    array[i] += 100;
+  }
+}
+/* automatically generated in C_x10stub.c */
+void 
+Java_IntArrayExternUnsafe_IntArrayExternUnsafe_process
+(JNIEnv *env, jobject obj, jlong yy, jint size) {
+   IntArrayExternUnsafe_process(yy, size);
+}
+\end{xten}
+
+This code may be linked with the stub file (or textually placed
+in it). The programmer must then compile and link the C code and
+ensure that the DLL is on the appropriate classpath. 
+
+\end{example}

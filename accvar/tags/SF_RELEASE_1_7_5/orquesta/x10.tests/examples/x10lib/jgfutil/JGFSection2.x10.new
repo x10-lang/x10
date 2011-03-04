@@ -1,0 +1,31 @@
+/**************************************************************************
+*                                                                         *
+*             Java Grande Forum Benchmark Suite - Version 2.0             *
+*                                                                         *
+*                            produced by                                  *
+*                                                                         *
+*                  Java Grande Benchmarking Project                       *
+*                                                                         *
+*                                at                                       *
+*                                                                         *
+*                Edinburgh Parallel Computing Centre                      *
+*                                                                         * 
+*                email: epcc-javagrande@epcc.ed.ac.uk                     *
+*                                                                         *
+*                                                                         *
+*      This version copyright (c) The University of Edinburgh, 1999.      *
+*                         All rights reserved.                            *
+*                                                                         *
+**************************************************************************/
+
+
+package jgfutil; 
+
+interface public interface JGFSection2 {
+  public public def JGFsetsize(int size)(var size: int): void;;
+  public public def JGFinitialise()(): void;;
+  public public def JGFkernel()(): void;;
+  public public def JGFvalidate()(): void;;
+  public public def JGFtidyup()(): void;;  
+  public public def JGFrun(int size)(var size: int): void;; 
+}

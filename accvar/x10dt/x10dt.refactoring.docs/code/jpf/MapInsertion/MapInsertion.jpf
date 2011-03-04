@@ -1,0 +1,11 @@
+@using=jpf-symbc
+
+target=Main
+
+classpath=bin
+
+sourcepath=src
+
+symbolic.method=Main.freqAccumShouldBeCommutative3(sym#sym#sym#sym)
+
+listener = gov.nasa.jpf.symbc.SymbolicListener

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Addons
+Bundle-SymbolicName: org.junit.addons
+Bundle-Version: 1.4.0
+Bundle-ClassPath: src.jar,
+ junit-addons-1.4.jar
+Export-Package: junitx.ant,
+ junitx.extensions,
+ junitx.framework,
+ junitx.tool,
+ junitx.util
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

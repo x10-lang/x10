@@ -1,0 +1,5 @@
+instructions.configure=\
+	addRepository(type:0,location:http${#58}//download.eclipse.org/releases/helios/);\
+	addRepository(type:1,location:http${#58}//download.eclipse.org/releases/helios/);\
+	addRepository(type:0,location:http${#58}//dist.codehaus.org/x10/x10dt/2.1/updateSite/);\
+        addRepository(type:1,location:http${#58}//dist.codehaus.org/x10/x10dt/2.1/updateSite/);

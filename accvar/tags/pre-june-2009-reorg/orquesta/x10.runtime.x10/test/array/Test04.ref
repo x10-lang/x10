@@ -1,0 +1,12 @@
+--- Test04: from native rail
+rank 1
+rect true
+zeroBased true
+rail true
+isConvex() true
+size() 5
+region: [0..4]
+  poly
+5 4 3 2 1 . . . . . 
+  iterator
+5 4 3 2 1 . . . . . 

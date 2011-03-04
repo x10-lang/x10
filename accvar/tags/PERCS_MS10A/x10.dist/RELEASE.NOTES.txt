@@ -1,0 +1,48 @@
+Release 2.1.2 (future...)
+
+This release includes both the C++ and Java backends and runtimes.
+
+Method names "apply(I)" and "set(v,I)" are no longer special.  They
+have been replaced by "operator this(I)" and "operator this(I)=(v)"
+(note the change in parameter order).
+
+"..", "->", and "in" are now all user-overloadable operators.
+The precedence of ".." has been bumped up to be tighter than that of
+"*", so 0..10*0..10 now works, but 0..N-1 does not.
+All code must be updated to use 0..(N-1) instead.
+
+Please consult the language specification for the details of
+these changes and for a list of additional changes.
+
+The following features described in the 2.1.2 language manual do not
+currently work and will be fixed in the subsequent releases:
+  - Non-static type definitions as class or interface members
+    (static type defs do work)
+  - Type definitions as package members (i.e., in the outermost scope of
+    a compilation unit)
+
+The constraint solver used by X10 typechecker is known to be incomplete 
+for situations in which a constraint implies an infinite number of 
+distinct constraints.
+
+Additionally, the following features described in the language
+manual do not currently work with the C++ backend and will be fixed in
+the subsequent releases:
+  - Garbage collection on AIX
+  - Non-final generic instance methods
+  - Exception stack traces on Cygwin
+
+The generated C++ code requires g++ 4.2 or better to be compiled; 
+we do almost all of our testing against g++ 4.3.2.  On AIX, you
+may either use g++ 4.2 or better or xlC 10.1.0.4 or better.
+
+Below is a summary of JIRA issues addressed for the X10 2.1.2
+
+
+For the details of JIRA issues fixed in this release, see
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/NUMBERHERE
+
+Please use the X10 JIRA to report bugs, after ensuring the problem is
+not already reported:
+http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
+

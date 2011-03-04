@@ -1,0 +1,310 @@
+\chapter{Names and packages}
+\label{packages} \index{name}\index{package}\index{public}\index{protected}\index{private}
+
+\section{Names}
+
+An X10 program consists largely of giving names to entities, and then
+manipulating the entities by their names. The entities involved may be
+compile-time constructs, like packages, types and classes, or run-time
+constructs, like numbers and strings and objects.  
+
+X10 names can be {\em simple names}, which look like identifiers: \xcd`vj`,
+\xcd`x10`, \xcd`AndSoOn`. Or, they can be {\em qualified names}, which are
+sequences of two or more identifiers separated by dots: \xcd`x10.lang.String`, 
+\xcd`somePack.someType`, \xcd`a.b.c.d.e.f`.   Some entities have only simple
+names; some have both simple and qualified names.
+
+Every declaration that introduces a name has a {\em scope}: the region of the
+program in which the named entity can be referred to by a simple name.  
+In some cases, entities may be referred to by qualified names outside of their
+scope.  \Eg, a \xcd`public` class \xcd`C` defined in package \xcd`p` can be
+referred to by the simple name \xcd`C` inside of \xcd`p`, or by the qualified
+name \xcd`p.C` from anywhere.  
+
+Many sorts of entities have {\em members}.  Packages have classes, structs,
+and interfaces as members.  Those, in turn, have fields, methods, types, and
+so forth as members.  The member \xcd`x` of an entity named \xcd`E` (as a
+simple or qualified name) has the name \xcd`E.x`; it may also have other
+names.  
+
+\subsection{Shadowing}
+\index{shadowing}
+\index{namespace}
+
+One declaration $d$ may {\em shadow} another declaration $d'$ in part of the
+scope of $d'$, if $d$ and $d'$ declare variables with the same simple name $n$.
+When $d$ shadows $d'$, a use of $n$ might refer to $d$'s $n$ (unless some
+$d''$ in turn shadows $d$), but will never refer to $d'$'s $n$.
+
+X10 has four namespaces:
+\begin{itemize}
+\item {\bf Types:} for classes, interfaces, structs, and defined types.
+\item {\bf Values:} for \xcd`val`- and \xcd`var`-bound variables; fields;
+      and formal parameters of all sorts.
+\item {\bf Methods:} for methods of classes, interfaces, and structs.
+\item {\bf Packages:} for packages.
+\end{itemize}
+
+A declaration $d$ in one namespace, binding a name $n$ to an entity $e$,
+shadows all other declarations of that name $n$ in scope at the point where
+$d$ is declared. This shadowing is in effect for the entire scope of $d$.  
+Declarations in different namespaces do not shadow each other.
+Thus, a local variable declaration may shadow a field declaration, but not a
+class declaration.
+
+Declarations which only introduce qualified names --- in X10, this is only
+package declarations --- cannot shadow anything.
+
+The rules for shadowing of imported names are given in \Sref{sect:ImportDecl}.
+
+\subsection{Hiding}
+\index{hiding}
+\label{sect:Hiding}
+
+Shadowing is ubiquituous in X10. Another, and considerably rarer, way that one
+definition of a given simpl ename can render another definition of the same
+name unavailable is {\em hiding}. If a class \xcd`Super` defines a field named
+\xcd`x`, and a subclass \xcd`Sub` of \xcd`Super` also defines a field named
+\xcd`x`, then, for \xcd`Sub`s, references to the \xcd`x` field get \xcd`Sub`'s
+\xcd`x` rather than \xcd`Super`'s. In this case, \xcd`Super`'s \xcd`x` is said
+to be {\em hidden}.
+
+Hiding is technically different from shadowing, because hiding applies in more
+circumstances: a use of class \xcd`Sub`, such as \xcd`sub.x`, may involve
+hiding of name \xcd`x`, though it could not involve shadowing of \xcd`x`
+because \xcd`x` is need not be declared as a name at that point.
+
+\subsection{Obscuring}
+\index{obscuring}
+\label{sect:Obscuring}
+
+The third way in which a definition of a simple name may become unavailable is
+{\em obscuring}. This well-named concept says that, if \xcd`n` can be
+interpreted as two or more of: a variable, a type, and a package, then it will
+be interpreted as a variable if that is possible, or a type if it cannot be
+interpreted as a variable. In this case, the unavailable interpretations are
+{\em obscured}. 
+
+\begin{ex}
+In the \xcd`example` method of the following code, both a struct and a local
+variable are named \xcd`eg`.  Following the obscuring rules, The call
+\xcd`eg.ow()` in the first \xcd`assert` uses the variable rather than the struct.  
+As the second \xcd`assert` demonstrates, the struct can be accessed through
+its fully-qualified name.   Note that none of this would have happened if the
+coder had followed the convention that structs have capitalized names,
+\xcd`Eg`, and variables have lower-case ones, \xcd`eg`. 
+
+%~~gen ^^^ Packages5t5g
+% NOTEST
+%~~vis
+\begin{xten}
+package obscuring;
+struct eg {
+   static def ow()= 1;
+   static struct Bite {
+      def ow() = 2;
+   }
+   def example() {
+       val eg = Bite();
+       assert eg.ow() == 2;
+       assert obscuring.eg.ow() == 1;
+     }
+}
+
+\end{xten}
+%~~siv
+% class Hook{ def run() { (eg()).example(); return true; } }
+%~~neg
+
+\end{ex}
+
+Due to obscuring, it may be impossible to refer to a type or a package via a
+simple name in some circumstances.  Obscuring does not block qualified names.
+
+
+
+\subsection{Ambiguity and Disambiguation}
+
+Neither simple nor qualified names are necessarily unique.  There can be, in
+general, many entities that have the same name.  This is perfectly ordinary,
+and, when done well, considered good programming practice.   Various forms of
+{\em disambiguation} are used to tell which entity is meant by a given name;
+\eg, methods with the same name may be disambiguated by the types of their
+arguments (\Sref{sect:MethodResolution}).
+
+\begin{ex}
+In the following example, there are three static methods with 
+qualified name \xcd`DisambEx.Example.m`; they can be disambiguated by their
+different arguments.   Inside the body of the third, the simple name \xcd`i`
+refers to both the \xcd`Int` formal of \xcd`m`, and to the static method 
+\xcd`DisambEx.Example.i`.  
+%~~gen ^^^ Packages9e6r
+%~~vis
+\begin{xten}
+package DisambEx; 
+class Example {
+  static def m() = 1;
+  static def m(Boolean) = 2;
+  static def i() = 3;
+  static def m(i:Int) {
+    if (i > 10) {
+      return i() + 1;
+    }
+    return i;
+  }
+  static def example() {
+    assert m() == 1;
+    assert m(true) == 2;
+    assert m(20) == 4;
+  }
+}
+\end{xten}
+%~~siv
+% class Hook{ def run() { Example.example(); return true; } }
+%~~neg
+\end{ex}
+
+
+X10 allows certain modifiers to limit the use of named entities outside of the
+body that they were defined in: the  \xcd"public", \xcd"protected", \xcd"private"
+and uninflected package-specific scopes, as used in Java
+\cite[\S 6,\S 7]{jls2} and various other languages.
+
+\section{Packages}
+
+A package is a named collection of top-level type declarations, \viz, class,
+interface, and struct declarations. Package names are sequences of
+identifiers, like \xcd`x10.lang` and \xcd`com.ibm.museum`. The multiple names
+are simply a convenience, though there is a tenuous relationship between
+packages \xcd`a`, \xcd`a.b`, and \xcd`a.c`. 
+
+Packages and protection modifiers determine which top-level names can be used
+where. Only the \xcd`public` members of package \xcd`pack.age` can be accessed
+outside of \xcd`pack.age` itself.  
+%~~gen~~Stimulus ^^^ Stimulus
+% NOTEST 
+%~~vis
+\begin{xten}
+package pack.age;
+class Deal {
+  public def make() {}
+}
+public class Stimulus {
+  private def taxCut() = true;
+  protected def benefits() = true;
+  public def jobCreation() = true;
+  /*package*/ def jumpstart() = true;
+}
+\end{xten}
+%~~siv
+% 
+%
+%~~neg
+
+The class \xcd`Stimulus` can be referred to from anywhere outside of
+\xcd`pack.age` by its full name of \xcd`pack.age.Stimulus`, or can be imported
+and referred to simply as \xcd`Stimulus`.  The public \xcd`jobCreation()`
+method of a \xcd`Stimulus` can be referred to from anywhere as well; the other
+methods have smaller visibility.  The non-\xcd`public` class \xcd`Deal` cannot
+be used from outside of \xcd`pack.age`.  
+
+
+
+\subsection{Name Collisions}
+
+It is a static error for a package to have two members with the same name. For
+example, package \xcd`pack.age` cannot define two classes both named
+\xcd`Crash`, nor a class and an interface with that name.
+
+Furthermore, \xcd`pack.age` cannot define a member \xcd`Crash` if there is
+another package named \xcd`pack.age.Crash`, nor vice-versa. (This prohibition
+is the only actual relationship between the two packages.)  This prevents the
+ambiguity of whether \xcd`pack.age.Crash` refers to the class or the package.  
+Note that the naming convention that package names are lower-case and package
+members are capitalized prevents such collisions.
+
+
+\section{{\tt import} Declarations}
+\label{sect:ImportDecl}
+\index{import}
+
+Any public member of a package can be referred to from anywhere through a
+fully-qualified name: \xcd`pack.age.Stimulus`.    
+
+Often, this is too awkward.  X10 has two ways to allow code outside of a class
+to refer to the class by its short name (\xcd`Stimulus`): single-type imports
+and on-demand imports.   
+
+Imports of either kind appear at the start of the file, immediately after the
+\xcd`package` directive if there is one; their scope is the whole file.
+
+\subsection{Single-Type Import}
+
+The declaration \xcd`import ` {\em TypeName} \xcd`;` imports a single type
+into the current namespace.  The type it imports must be a fully-qualified
+name of an extant type, and it must either be in the same package (in which
+case the \xcd`import` is redundant) or be declared \xcd`public`.  
+
+Furthermore, when importing \xcd`pack.age.T`, there must not be another type
+named \xcd`T` at that point: neither a  \xcd`T` declared in \xcd`pack.age`,
+nor a \xcd`inst.ant.T` imported from some other package.
+
+The declaration \xcd`import E.n;`, appearing in file $f$ of a package named
+\xcd`P`, shadows the following types named \xcd`n` when they appear in $f$: 
+\begin{itemize}
+\item Top-level types named \xcd`n` appearing in other files of \xcd`P`, and 
+\item Types named \xcd`n` imported by automatic imports
+      (\Sref{sect:AutomaticImport}) in $f$.
+\end{itemize}
+\noindent
+
+
+\subsection{Automatic Import}
+\label{sect:AutomaticImport}
+
+The automatic import \xcd`import pack.age.*;`, loosely, imports all the public
+members of \xcd`pack.age`.  In fact, it does so somewhat carefully, avoiding
+certain errors that could occur if it were done naively.  Types defined in the
+current package, and those imported by single-type imports, shadow those
+imported by automatic imports.   Names automatically imported never shadow any
+other names.
+
+
+
+\subsection{Implicit Imports}
+
+The packages \xcd`x10.lang` and \xcd`x10.array` are automatically imported in all files
+without need for further specification.
+
+%%BARD-HERE
+
+
+
+\section{Conventions on Type Names}
+
+%##(TypeName PackageName
+\begin{bbgrammar}
+%(FROM #(prod:TypeName)#)
+            TypeName \: Id & (\ref{prod:TypeName}) \\
+                    \| TypeName \xcd"." Id \\
+%(FROM #(prod:PackageName)#)
+         PackageName \: Id & (\ref{prod:PackageName}) \\
+                    \| PackageName \xcd"." Id \\
+\end{bbgrammar}
+%##)
+
+
+While not enforced by the compiler, classes and interfaces
+in the \Xten{} library follow the following naming conventions.
+Names of types---including classes,
+type parameters, and types specified by type definitions---are in
+CamelCase and begin with an uppercase letter.  (Type variables are often
+single capital letters, such as \xcd`T`.)
+For backward
+compatibility with languages such as C and \java{}, type
+definitions are provided to allow primitive types
+such as \xcd"int" and \xcd"boolean" to be written in lowercase.
+Names of methods, fields, value properties, and packages are in camelCase and
+begin with a lowercase letter. 
+Names of \xcd"static val" fields are in all uppercase with words
+separated by \xcd"_"'s.

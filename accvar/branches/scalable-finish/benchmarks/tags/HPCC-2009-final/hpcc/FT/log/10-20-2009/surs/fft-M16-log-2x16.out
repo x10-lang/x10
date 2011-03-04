@@ -1,0 +1,50 @@
+ERROR: 0031-365  LoadLeveler unable to run job, reason:
+LoadL_negotiator: 2544-862 Machine v20n21.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n22.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n23.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n24.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n25.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n26.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n27.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n28.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n29.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n30.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n31.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n32.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n33.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n34.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n35.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n36.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n21.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n22.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n23.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n24.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n25.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n26.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n27.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n28.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n29.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n30.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n31.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n32.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n33.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n34.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n35.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+LoadL_negotiator: 2544-862 Machine v20n36.pbm.ihost.com is running steps, Step v20n20.pbm.ihost.com.6841.0 asks for not shared nodes.
+Not enough resources to start now.
+This step is top-dog. 
+Considered at: Tue Oct 20 19:51:08 2009
+Will start by: Sun Nov  1 08:28:43 2009
+
+   0:M=16 SQRTN=65536 N=4294967296 nRows=2048 localSize=268435456 MAX_PLACES=32 Mem=131072.0 mem/MAX_PLACES=4096.0
+   0:Start FFT
+   0:FFT complete
+   0:execution time=50.536746000000001 secs Gigaflops=13.597922734479186
+   0:Step transpose1 took 6.695733000000001 s
+   0:Step row_ffts1 took 9.568373000000001 s
+   0:Step transpose2 took 6.699855 s
+   0:Step twiddle took 11.36922 s
+   0:Step row_ffts2 took 9.567722 s
+   0:Step transpose3 took 6.635843 s
+   0:Start verification
+   0:Verification complete

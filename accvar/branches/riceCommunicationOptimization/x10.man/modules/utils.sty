@@ -1,0 +1,63 @@
+% use \epsfysize=3in to force the figure to be 3 inches high
+% \epsfxsize works similarly
+%
+\@ifundefined{psfig}{
+\newcommand{\psfig}[3]{
+\begin{figure}
+\hfil\epsfbox{#2}\hfil
+\caption{#3}
+\label{#1}
+\end{figure}}
+}{
+\renewcommand{\psfig}[3]{
+\begin{figure}
+\hfil\epsfbox{#2}\hfil
+\caption{#3}
+\label{#1}
+\end{figure}}
+}
+
+\def\psfigx[#1]#2#3#4{
+\begin{figure}[#1]
+\hfil\epsfbox{#3}\hfil
+\caption{#4}
+\label{#2}
+\end{figure}}
+
+\newcommand{\psfigtwo}[3]{
+\begin{figure*}
+\hfil\epsfbox{#2}\hfil
+\caption{#3}
+\label{#1}
+\end{figure*}}
+
+\newcommand{\texgfig}[2]{
+\begin{figure}
+\input{#1.texg}
+\caption{#2}
+\label{#1}
+\end{figure}}
+
+\newcommand{\draftwarning}{\sc Draft -- Do Not Distribute}
+
+% Allow large inline figures
+% Add "variablespacing" command
+\newlength{\originalskip}
+\setlength{\originalskip}{\baselineskip}
+\newcommand{\variablespacing}[1]{\setlength{\baselineskip}{#1\originalskip}}
+
+\long\def\unmarkedfootnote#1{{\long\def\@makefntext##1{##1}\footnotetext{#1}}}
+
+% \begin{squished}{width1}{width2}...\end{squished}
+% typesets the containing text in a top-aligned minipage of width
+% width1 but squishes it uncomplainingly into a box of width width2.
+\newsavebox{\squishbox}%
+\newenvironment{squished}[3][t]{%
+\def\@squishwidth{#3}
+\begin{lrbox}{\squishbox}%
+\begin{minipage}[#1]{#2}}%
+{\end{minipage}\end{lrbox}\makebox[\@squishwidth]{\usebox{\squishbox}}}
+
+% Reverse obeyspaces
+\def\disobeyspaces{\catcode`\ =10 }
+

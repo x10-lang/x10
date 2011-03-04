@@ -1,0 +1,458 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.86">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>Change Log</title>
+
+<body>
+ <h2><a name="tth_sEc1">
+A</a>&nbsp;&nbsp;Changes from X10 v2.0.6</h2>
+
+<div class="p"><!----></div>
+This document summarizes the main changes between X10 2.0.6 and X10 2.1.  The
+descriptions are intended to be suggestive rather than definitive; see the
+language specification for full details.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Object Model</h3>
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> Objects are now local rather than global.
+
+<div class="p"><!----></div>
+    
+<ol type="a">
+<li> The <b>home</b> property is gone.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>at(P)S</b> produces deep copies of all objects reachable from
+          lexically exposed variables in <b>S</b> 
+          when it executes <b>S</b>.  (<b>Warning:</b> They are copied even in  
+          <b>at(here)S</b>.)
+<div class="p"><!----></div>
+</li>
+</ol>
+<div class="p"><!----></div>
+</li>
+
+<li> The <b>GlobalRef[T]</b> struct is the only way to produce or manipulate
+      cross-place references.
+    
+<ol type="a">
+<li> <b>GlobalRef</b>'s have a <b>home</b> property.
+<div class="p"><!----></div>
+</li>
+
+<li> Use <b>GlobalRef[Foo](foo)</b> to make a new global reference.
+<div class="p"><!----></div>
+</li>
+
+<li> Use <b>myGlobalRef()</b> to access the object referenced; this
+          requires <b>here == myGlobalRef.home</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
+<div class="p"><!----></div>
+</li>
+
+<li>  The <b>!</b> type modifier is no longer needed or present.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>global</b> modifiers are now gone:
+
+<div class="p"><!----></div>
+    
+<ol type="a">
+<li> <b>global</b> methods in <em>interfaces</em> are now the default.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>global</b> <em>fields</em> are gone.  In some cases object copying
+          will produce the same effect as global fields.  In other cases code
+          must be rewritten.  It may be desirable to mark nonglobal fields
+          <b>transient</b> in many cases.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>global</b> <em>methods</em> are now marked <b>@Global</b> instead.  
+          Methods intended to be non-global may be marked <b>@Pinned</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;Constructors</h3>
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> <b>proto</b> types are gone.
+<div class="p"><!----></div>
+</li>
+
+<li> Constructors and the methods they call must satisfy a number of static
+      checks.  
+
+<div class="p"><!----></div>
+    
+<ol type="a">
+<li> Constructors can only invoke <b>private</b> or <b>final</b> methods, 
+          or methods annotated <b>@NonEscaping</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Methods invoked by constructors cannot read fields before they are
+          written.
+<div class="p"><!----></div>
+</li>
+
+<li> The compiler ensures this with a detailed protocol.
+<div class="p"><!----></div>
+</li>
+</ol>
+<div class="p"><!----></div>
+</li>
+
+<li> It is still impossible for X10 constructors to leak references to
+      <b>this</b> or observe uninitialized fields of an object.  Now, however,
+      the mechanisms enforcing this are less obtrusive than in 2.0.6; the
+      burden is largely on the compiler, not the programmer.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+<pre>
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Implicit clocks for each finish</h3>
+
+<div class="p"><!----></div>
+Most clock operations can be accomplished using the new implicit clocks.
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> A <b>finish</b> may be qualified with <b>clocked</b>, which gives it a
+      clock.
+<div class="p"><!----></div>
+</li>
+
+<li> An <b>async</b> in a <b>clocked finish</b> may be marked <b>clocked</b>.
+      This registers it on the same clock as the enclosing <b>finish</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>clocked async S</b> and <b>clocked finish S</b> may use <b>next</b> in
+      the body of <b>S</b> to advance the clock.
+<div class="p"><!----></div>
+</li>
+
+<li> When the body of a <b>clocked finish</b> completes, the <b>clocked
+      finish</b> is dropped form the clock.  It will still wait for spawned
+      asyncs to terminate, but such asyncs need to wait for it.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.4">
+1.4</a>&nbsp;&nbsp;Asynchronous initialization of val</h3>
+
+<div class="p"><!----></div>
+<b>val</b>s can be initialized asynchronously.   As always with <b>val</b>s,
+they can only be read after it is guaranteed that they have been initialized.
+For example, both of the <b>print</b>s below are good.  However, the
+commented-out <b>print</b> in the <b>async</b> is bad, since it is possible that
+it will be executed before the initialization of <b>a</b>. 
+<pre>
+val a:Int;
+finish {
+  async {
+     a = 1; 
+     print(&#228;=" + a);
+  }
+  async {
+     // WRONG: print(&#228;=" + a);
+  }
+}
+print(&#228;=" + a);
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.5">
+1.5</a>&nbsp;&nbsp;Main Method</h3>
+
+<div class="p"><!----></div>
+The signature for the <b>main</b> method is now: 
+<pre>
+           def main(Array[String]) {..}
+</pre>
+or, if the arguments are actually used, 
+<pre>
+           def main(argv: Array[String](1)) {..}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.6">
+1.6</a>&nbsp;&nbsp;Assorted Changes</h3>
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> The syntax for destructuring a point now uses brackets rather than
+      braces: <b>for( [i] in 1..10 )</b>, rather than the prior <b>(i)</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.7">
+1.7</a>&nbsp;&nbsp;Safety of atomic and when blocks</h3>
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> Static effect annotations (<b>safe</b>, <b>sequential</b>,
+      <b>nonblocking</b>, <b>pinned</b>) are no longer used. They have been
+      replaced by dynamic checks.
+<div class="p"><!----></div>
+</li>
+
+<li> Using an inappropriate operation in the scope of an <b>atomic</b> or
+      <b>when</b> construct will throw <b>IllegalOperationException</b>.  
+      The following are inappropriate:      
+      
+<ul>
+<li> <b>when</b>
+<div class="p"><!----></div>
+</li>
+
+<li> <b>resume()</b> or <b>next</b> on clocks
+<div class="p"><!----></div>
+</li>
+
+<li> async
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Future.make()</b>, or <b>Future.force()</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>at</b>
+<div class="p"><!----></div>
+</li>
+</ul>
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.8">
+1.8</a>&nbsp;&nbsp;Removed Topics</h3>
+
+<div class="p"><!----></div>
+The following are gone: 
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> <b>foreach</b> is gone.
+<div class="p"><!----></div>
+</li>
+
+<li> All <b>var</b>s are effectively <b>shared</b>, so <b>shared</b> is gone.
+<div class="p"><!----></div>
+</li>
+
+<li> The place clause on <b>async</b> is gone.  <b>async (P) S</b> should be
+      written <b>at(P) async S</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Checked exceptions are gone.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>future</b> is gone.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>await ... or ... </b> is gone.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>const</b> is gone.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.9">
+1.9</a>&nbsp;&nbsp;Deprecated</h3>
+
+<div class="p"><!----></div>
+The following constructs are still available, but are likely to be replaced in
+a future version: 
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> <b>ValRail</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Rail</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>ateach</b>
+<div class="p"><!----></div>
+</li>
+
+<li> <b>offers</b>.    The <b>offers</b> concept was experimental
+      in 2.1, but was determined inadequate.  It has not been removed from the
+      compiler yet, but it will be soon.  In the meantime, traces of it are
+      still visible in the grammar.  They should not be used and can safely be ignored.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Changes from X10 v2.0</h2>
+
+<div class="p"><!----></div>
+
+<ul>
+<li> <b>Any</b> is now the top of the type hierarchy (every object,
+  struct and function has a type that is a subtype of
+  <b>Any</b>). <b>Any</b> defines <b>home</b>, <b>at</b>, <b>toString</b>,
+  <b>typeName</b>, <b>equals</b> and <b>hashCode</b>. <b>Any</b> also defines the methods
+  of <b>Equals</b>, so <b>Equals</b> is not needed any more.
+<div class="p"><!----></div>
+</li>
+
+<li> Revised discussion of incomplete types.
+<div class="p"><!----></div>
+</li>
+
+<li> The manual has been revised and brought into line with the current implementation.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Changes from X10 v1.7</h2>
+
+<div class="p"><!----></div>
+The language has changed in the following way:
+
+<ul>
+<li> <b>Type system changes</b>: There are now three kinds of entities
+  in an X10 computation: objects, structs and functions. Their
+  associated types are class types, struct types and function
+  types. 
+
+<div class="p"><!----></div>
+  Class and struct types are called <em>container types</em> in that they
+  specify a collection of fields and methods. Container types have a
+  name and a signature (the collection of members accessible on that
+  type). Collection types support primitive equality <b>==</b> and may
+  support user-defined equality if they implement the <tt>
+    x10.lang.Equals</tt> interface. 
+
+<div class="p"><!----></div>
+  Container types (and interface types) may be further qualified with
+  constraints.
+
+<div class="p"><!----></div>
+  A function type specifies a set of arguments and their type, the
+  result type, and (optionally) a guard. A function application
+  type-checks if the arguments are of the given type and the guard is
+  satisfied, and the return value is of the given type.  A function
+  type does not permit <b>==</b> checks. Closure literals create
+  instances of the corresponding function type.
+
+<div class="p"><!----></div>
+  Container types may implement interfaces and zero or more function
+  types.
+
+<div class="p"><!----></div>
+  All types support a basic set of operations that return a string
+  representation, a type name, and specify the home place of the entity.
+
+<div class="p"><!----></div>
+  The type system is not unitary. However, any type may be used to
+  instantiate a generic type. 
+
+<div class="p"><!----></div>
+  There is no longer any notion of <b>value</b> classes. <b>value</b>
+  classes must be re-written into structs or (reference) classes.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Global object model</b>: Objects are instances of
+  classes. Each object is associated with a globally unique
+  identifier. Two objects are considered identical <b>==</b> if their
+  ids are identical. Classes may specify <b>global</b> fields and
+  methods. These can be accessed at any place. (<b>global</b> fields
+  must be immutable.)
+<div class="p"><!----></div>
+</li>
+
+<li><b>Proto types.</b> For the decidability of dependent type
+  checking it is necessary that the property graph is acyclic. This is
+  ensured by enforcing rules on the leakage of <b>this</b> in
+  constructors. The rules are flexible enough to permit cycles to be
+  created with normal fields, but not with properties.
+<div class="p"><!----></div>
+</li>
+
+<li>Place types. Place types are now implemented. This means that
+  non-global methods can be invoked on a variable, only if the
+  variable's type is either a struct type or a function type, or a
+  class type whose constraint specifies that the object is located in
+  the current place.
+
+<div class="p"><!----></div>
+  There is still no support for statically checking array access
+  bounds, or performing place checks on array accesses.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<br /><br />
+
+</body>
+</html>

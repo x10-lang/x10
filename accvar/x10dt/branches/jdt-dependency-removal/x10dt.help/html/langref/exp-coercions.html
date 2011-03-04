@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Coercions and conversions</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc27">
+27</a>&nbsp;&nbsp;Coercions and conversions</h2>
+<a name="XtenConversions">
+</a>
+<a name="User-definedCoercions">
+</a>
+
+
+
+<div class="p"><!----></div>
+X10 v2.1 supports the following coercions and conversions.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc27.1">
+27.1</a>&nbsp;&nbsp;Coercions</h3>
+
+<div class="p"><!----></div>
+<em>
+<table>
+
+<tr><td align="right">CastExp ::= Primary </td></tr>
+<tr><td align="right">&#124; ExpName </td></tr>
+<tr><td align="right">&#124; CastExp <b>as</b> Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+A <em>coercion</em> does not change object identity; a coerced object may
+be explicitly coerced back to its original type through a cast. A <em>
+  conversion</em> may change object identity if the type being converted
+to is not the same as the type converted from. X10 permits
+user-defined conversions (&#167;).
+
+<div class="p"><!----></div>
+
+<b>Subsumption coercion.&nbsp;&nbsp;</b>
+A subtype may be implicitly coerced to any supertype.
+
+
+<div class="p"><!----></div>
+
+<b>Explicit coercion (casting with <b>as</b>)&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+An object of any class may be explicitly coerced to any other
+class type using the <b>as</b> operation.  If <b>Child &lt;: Person</b> and
+<b>rhys:Child</b>, then 
+<pre>
+  rhys as Person
+</pre>
+is an expression of type <b>Person</b>.  
+
+<div class="p"><!----></div>
+If the value coerced is not an instance of the target type,
+a <b>ClassCastException</b> is thrown.  Casting to a constrained
+type may require a run-time check that the constraint is
+satisfied.
+
+
+
+
+<div class="p"><!----></div>
+<em><em>Limitation</em> It is currently a static error, rather than the specified
+<b>ClassCastException</b>, when the cast is statically determinable to be
+impossible.</em>
+
+<div class="p"><!----></div>
+
+<b>Effects of explicit numeric coercion&nbsp;&nbsp;</b>
+<a name="sec:effects-of-explicit-numeric-coercions">
+</a>
+
+<div class="p"><!----></div>
+Coercing a number of one type to another type gives the best approximation of
+the number in the result type, or a suitable disaster value if no
+approximation is good enough.  
+
+<div class="p"><!----></div>
+
+<ul>
+<li> Casting a number to a <em>wider</em> numeric type is safe and effective,
+      and can be done by an implicit conversion as well as an explicit
+      coercion.  For example, <b>4 as Long</b> produces the <b>Long</b> value of
+      4.
+<div class="p"><!----></div>
+</li>
+
+<li> Casting a floating-point value to an integer value truncates the digits
+      after the decimal point, thereby rounding the number towards zero.  
+      <b>54.321 as Int</b> is <b>54</b>, and 
+      <b>-54.321 as Int</b> is <b>-54</b>.
+      If the floating-point value is too large to represent as that kind of
+      integer, the coercion returns the largest or smallest value of that type
+      instead: <b>1e110 as Int</b> is 
+      <b>Int.MAX_VALUE</b>, <b>2147483647</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Casting a <b>Double</b> to a <b>Float</b> normally truncates digits: 
+      <b>0.12345678901234567890 as Float</b> is <b>0.12345679f</b>.  This can
+      turn a nonzero <b>Double</b> into <b>0.0f</b>, the zero of type
+      <b>Float</b>: 
+      <b>1e-100 as Float</b> is <b>0.0f</b>.  Since 
+      <b>Double</b>s can be as large as about <b>1.79E308</b> and <b>Float</b>s
+      can only be as large as about <b>3.4E38f</b>, a large <b>Double</b> will
+      be converted to the special <b>Float</b> value of <b>Infinity</b>: 
+      <b>1e100 as Float</b> is <b>Infinity</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Integers are coerced to smaller integer types by truncating the
+      high-order bits. If the value of the large integer fits into the smaller
+      integer's range, this gives the same number in the smaller type: 
+      <b>12 as Byte</b> is the <b>Byte</b>-sized 12, 
+      <b>-12 as Byte</b> is -12. 
+      However, if the larger integer <em>doesn't</em> fit in the smaller type,
+      the numeric value and even the sign can change: <b>254 as Byte</b> is
+      <b>Byte</b>-sized <b>-2</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc27.2">
+27.2</a>&nbsp;&nbsp;Conversions</h3>
+
+
+
+<div class="p"><!----></div>
+
+<b>Widening numeric conversion.&nbsp;&nbsp;</b>
+<a name="WideningConversions">
+</a>
+A numeric type may be implicitly converted to a wider numeric type. In
+particular, an implicit conversion may be performed between a numeric
+type and a type to its right, below:
+
+<div class="p"><!----></div>
+<pre>
+Byte &lt; Short &lt; Int &lt; Long &lt; Float &lt; Double
+</pre>
+
+<div class="p"><!----></div>
+
+<b>String conversion.&nbsp;&nbsp;</b>
+Any value that is an operand of the binary
+<b>+</b> operator may
+be converted to <b>String</b> if the other operand is a <b>String</b>.
+A conversion to <b>String</b> is performed by invoking the <b>toString()</b>
+method.
+
+<div class="p"><!----></div>
+
+<b>User defined conversions.&nbsp;&nbsp;</b><a name="sec:user-defined-conversions">
+</a>
+
+
+<div class="p"><!----></div>
+The user may define conversion operators from type <b>A</b> <em>to</em> a
+container type <b>B</b> by specifying a method on <b>B</b> as follows:
+
+<div class="p"><!----></div>
+<pre>
+  public static operator (r: A): T = ... 
+</pre>
+
+<div class="p"><!----></div>
+The return type <b>T</b> should be a subtype of <b>B</b>. The return
+type need not be specified explicitly; it will be computed in the
+usual fashion if it is not. However, it is good practice for the
+programmer to specify the return type for such operators explicitly.
+
+<div class="p"><!----></div>
+For instance, the code for <b>x10.lang.Point</b> contains:
+
+<div class="p"><!----></div>
+<pre>
+  public operator (r: Array[Int](1)): Point(r.length) = make(r);
+</pre>
+
+<div class="p"><!----></div>
+The compiler looks for such operators on the container type <b>B</b>
+when it encounters an expression of the form <b>r as B</b> (where
+<b>r</b> is of type <b>A</b>). If it finds such a method, it sets the
+type of the expression <b>r as B</b> to be the return type of the
+method. Thus the type of <b>r as B</b> is guaranteed to be some subtype
+of <b>B</b>.
+
+<div class="p"><!----></div>
+Consider the following code:  
+
+<div class="p"><!----></div>
+<pre>
+val p  = [2, 2, 2, 2, 2] as Point;
+val q = [1, 1, 1, 1, 1] as Point;
+val a = p - q;    
+</pre>
+This code fragment compiles successfully, given the above operator definition. 
+The type of <b>p</b> is inferred to be <b>Point(5)</b> (i.e. the type 
+<b>Point{self.rank==5}</b>.
+Similarly for <b>q</b>. Hence the application of the operator "<b>-</b>" is legal (it requires both arguments to have the same rank). The type of <b>a</b> is computed as <b>Point(5)</b>.
+
+
+<br /><br />
+
+</body>
+</html>

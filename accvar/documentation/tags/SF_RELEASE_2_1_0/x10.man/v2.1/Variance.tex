@@ -1,0 +1,184 @@
+%%\subsection{Variance of Type Parameters}
+%%\index{covariant}
+%%\index{contravariant}
+%%\index{invariant}
+%%\index{type parameter!covariant}
+%%\index{type parameter!contravariant}
+%%\index{type parameter!invariant}
+
+%TODO - examples courtesy of Nate
+% 
+% class OutputStream[-A] {
+%    def write(a: A) = /* implementation left as an exercise for the reader */
+% }
+% 
+% Also:
+% 
+% interface Comparator[-A] {
+%    def compare(A): Int;
+% }
+% 
+% and:
+% 
+% class HashMap[-K,+V] { ... }
+% 
+% 
+
+Type parameters of classes (though not of methods) can be {\em variant}.
+
+Consider classes \xcd`Person :> Child`.  Every child is a person, but there
+are people who are not children.  What is the relationship between
+\xcd`Cell[Person]` and \xcd`Cell[Child]`?  
+
+\subsubsection{Why Variance Is Necessary}
+
+In this case, \xcd`Cell[Person]` and \xcd`Cell[Child]` should be unrelated.  
+If we had \xcd`Cell[Person] :> Cell[Child]`, the following code would let us
+assign a \xcd`old` (a \xcd`Person` but not a \xcd`Child`) to a
+variable \xcd`young` of type \xcd`Child`, thereby breaking the type system: 
+\begin{xten}
+// INCORRECTLY assuming Cell[Person] :> Cell[Child]
+val cc : Cell[Child] = new Cell[Child]();
+val cp : Cell[Person] = cc; // legal upcast
+cp.set(old);       // legal since old : Person
+val young : Child = cc.get(); 
+\end{xten}
+
+Similarly, if \xcd`Cell[Person] <: Cell[Child]`: 
+\begin{xten}
+// INCORRECTLY assuming Cell[Person] <: Cell[Child]
+val cp : Cell[Person] = new Cell[Person];
+val cc : Cell[Child] = cp; // legal upcast
+val cp.set(old); 
+val young : Child = cc.get();
+\end{xten}
+
+So, there cannot be a subtyping relationship in either direction between the
+two. And indeed, neither of these programs passes the X10 typechecker.
+
+
+\subsubsection{Legitimate Variance}
+
+The \xcd`Cell[Person]`-vs-\xcd`Cell[Child]` problems occur because it is
+possible to both store and retrieve values from the same object. However,
+entities with only one of the two capabilities {\em can} sensibly have some
+subtyping relations. Furthermore, both sorts of entity are useful. An entity
+which can store values but not retrieve them can nonetheless summarize them.
+An object which can retrieve values but not store values can be constructed
+with an initial value, providing a read-only cell.
+
+So, X10 provides {\em variance} to support these options.  Type parameters
+may be defined in one of three forms.  
+\begin{enumerate}
+\item {\em invariant}: Given a definition \xcd`class C[T]{...}`, \xcd`C[Person]` and
+      \xcd`C[Child]` are unrelated classes; neither is a subclass of the
+      other.
+\item {\em covariant}: Given a definition \xcd`class C[+T]{...}` (the \xcd`+` indicates
+      covariance), \xcd`C[Person] :> C[Child]`.  This is appropriate when
+      \xcd`C` allows retrieving values but not setting them.
+\item {\em contravariant}: Given a definition \xcd`class C[-T]{...}` (the \xcd`-` indicates
+      contravariance), \xcd`C[Person] <: C[Child]`.  This is appropriate when
+      \xcd`C` allows storing values but not retrieving them.
+\end{enumerate}
+
+
+The \xcd"T" parameter of \xcd"Cell" above is
+invariant.  
+
+A typical example of covariance is \xcd`Get`.  As the \xcd`example()` method
+shows, a \xcd`Get[T]` must be constructed with its value, and will return that
+value whenever desired.  \xcd`Get[T]` is only moderately useful as a class; it
+is more useful as an interface for providing a limited (read) access to a more
+powerful data structure.
+%~~gen
+% package ch4;
+%~~vis
+\begin{xten}
+class Get[+T] {
+  val x: T;
+  def this(x: T) { this.x = x; }
+  def get(): T = x;
+  static def example() {
+     val g : Get[Int] = new Get[Int](31);
+     val n : Int = g.get();
+     x10.io.Console.OUT.print("It's " + n);
+     x10.io.Console.OUT.print("It's still " + g.get());
+  }
+}
+\end{xten}
+%~~siv
+%~~neg
+
+There are few if any {\em classes} with contravariant type parameters.
+(Covariant type parameters are only moderately more common.)  
+However, it is frequently useful to have {\em interfaces} with contravariant
+type parameters.  For example: 
+%~~gen
+% package Types.Sheesh.BardSaidSomethingNiceAboutNate;
+%~~vis
+\begin{xten}
+interface OutputStream[-T] {
+   def write(T) : void;
+}
+interface ComparableTo[-T] {
+   def compare(T) : Int;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+Clearly, \xcd`Int <: Any`. 
+An \xcd`OutputStream[Int]` is only capable of writing \xcd`Int`s.  
+An \xcd`OutputStream[Any]` is capable of writing anything.  In particular, it
+can write \xcd`Int`s. Thus, an \xcd`OutputStream[Any]` can be used in place of
+an \xcd`OutputStream[Int]`, and hence \xcd`OutputStream[Any] <: OutputStream[Int]`.
+Similarly, a \xcd`ComparableTo[Int]` can be compared to an integer. A
+\xcd`ComparableTo[Any]` can be compared to anything, and, in particular, to an
+integer.  Thus \xcd`ComparableTo[Any] <: ComparableTo[Int]`.
+So, both of these interfaces are contravariant.
+
+
+Given types \xcd"S" and \xcd"T": 
+\begin{itemize}
+\item
+If the parameter of \xcd"Get" is covariant, then
+\xcd"Get[S]" is a subtype of \xcd"Get[T]" if
+\xcd"S" is a {\em subtype} of \xcd"T".
+
+\item
+If the parameter of \xcd"Set" is contravariant, then
+\xcd"OutputStream[S]" is a subtype of \xcd"OutputStream[T]" if
+\xcd"S" is a {\em supertype} of \xcd"T".
+
+\item
+If the parameter of \xcd"Cell" is invariant, then
+\xcd"Cell[S]" is a subtype of \xcd"Cell[T]" if
+\xcd"S" is a {\em equal} to \xcd"T".
+\end{itemize}
+
+
+In order to make types marked as covariant and contravariant semantically
+sound, X10 performs extra checks.  
+A covariant type parameter is permitted to appear only in covariant type positions,
+and a contravariant type parameter in contravariant positions. 
+\begin{itemize}
+\item The return type of a method is a covariant position.
+\item The argument types of a method are contravariant positions.
+\item Whether a type argument position of a generic class, interface or struct type \Xcd{C}
+is covariant or contravariant is determined by the \Xcd{+} or \Xcd{-} annotation
+at that position in the declaration of \Xcd{C}.
+\end{itemize}
+
+
+There are similar restrictions on use of covariant and contravariant variables.
+
+\limitationx{} Full checking of covariance and contravariance is not yet
+implemented.  Covariant and contravariant classes and structs should be used
+with great caution.
+
+%TODO: Yoav says ``There are other rules, not implemented or specified,
+%involving fields, inheritance, etc.  There are several JIRAs on it. No idea
+%what is the work around -- maybe just say ``limitation''?'''
+
+
+

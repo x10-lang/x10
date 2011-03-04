@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Classes and interfaces</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Classes, Structs,  and interfaces</h2>
+<a name="ReferenceTypes">
+</a>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Class types</h3>
+
+<div class="p"><!----></div>
+A <em>class declaration</em> (&#167;) declares a <em>class type</em>,
+giving its name, behavior, data, and relationships to other classes and
+interfaces. 
+
+<div class="p"><!----></div>
+The <b>Position</b> class below could describe the position of a slider
+control
+
+<div class="p"><!----></div>
+<pre>
+class Position {
+  private var x : Int = 0;
+  public def move(dx:Int) { x += dx; }
+  public def pos() : Int = x;
+}
+</pre>
+
+<div class="p"><!----></div>
+Class instances, also called objects, are created by constructor calls: 
+<b>new Position()</b>. Class
+instances have fields and methods, type members, and value properties bound at
+construction time. In addition, classes have static members: static <b>val</b> fields,
+methods, type definitions, and member classes and member interfaces.
+
+<div class="p"><!----></div>
+Classes may be <em>generic</em>, , defined with one or more type
+parameters (&#167;).  
+
+<div class="p"><!----></div>
+<pre>
+class Cell[T] {
+  var contents : T;
+  public def this(t:T) { contents = t;  }
+  public def putIn(t:T) { contents = t; }
+  public def get() = contents;
+  }
+</pre>
+
+<div class="p"><!----></div>
+X10 does not permit mutable static state. A fundamental principle of the
+X10 model of computation is that all mutable state be local to some place
+(&#167;), and, as static variables are
+globally available, they
+cannot be mutable. When mutable global state is necessary, programmers should
+use singleton classes, putting the state in an object and using place-shifting
+commands (&#167;) and atomicity (&#167;) as necessary
+to mutate it safely.
+
+<div class="p"><!----></div>
+Classes are structured in a single-inheritance hierarchy. All classes extend
+the class <b>x10.lang.Object</b>, directly or indirectly. Each class other than
+<b>Object</b> extends a single parent class.  <b>Object</b> provides no behaviors
+of its own, beyond those required by <b>Any</b>.
+
+<div class="p"><!----></div>
+The null value, represented by the literal
+<b>null</b>, is a value of every class type <b>C</b>. The type whose values are
+all instances of <b>C</b> but not 
+<b>null</b> can be defined as <b>C{self != null}</b>.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;Struct Types</h3>
+
+<div class="p"><!----></div>
+A <em>struct declaration</em> &#167; introduces a <em>struct type</em>
+containing all instances of the struct.  The <b>Coords</b> struct below gives
+an immutable position in 3-space: 
+<pre>
+struct Position {
+  public val x:Double, y:Double, z:Double; 
+  def this(x:Double, y:Double, z:Double) {
+     this.x = x; this.y = y; this.z = z;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Structs have many capabilities of classes: they can have methods, implement
+interfaces, and be generic. However, they have certain restrictions; for
+example, they cannot contain mutable (<b>val</b>) fields, or inherit from
+superclasses. There is no <b>null</b> value for structs. Due to these
+restrictions, structs may be implemented more efficiently than objects.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Interface types</h3>
+<a name="InterfaceTypes">
+</a>
+
+<div class="p"><!----></div>
+An <em>interface declaration</em> (&#167;) defines an <em>
+interface type</em>, specifying a set of methods 
+and properties which must be provided by any class declared to implement the
+interface. 
+
+<div class="p"><!----></div>
+Interfaces can also have static members: static fields, type
+definitions, and member classes, structs and interfaces.  However,
+interfaces cannot specify that implementing classes must provide
+static members or constructors.
+
+<div class="p"><!----></div>
+In the following interface, <b>PI</b> is a static field, 
+<b>Vec</b> a static type definition, 
+<b>Pair</b> a static member class.
+It can't insist that implementations provide a static method 
+like <b>meth</b>, or a nullary constructor.
+<pre>
+interface Stat {
+  static val PI = 3.14159; 
+  static type R = Double;
+  static class Pair(x:R, y:R) {}
+  // ERROR: static def meth():Int;
+  // ERROR: static def this();
+}
+class Example {
+  static def example() {
+     val p : Stat.Pair = new Stat.Pair(Stat.PI, Stat.PI);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+An interface may extend multiple interfaces.  
+<pre>
+interface Named {
+  def name():String;
+}
+interface Mobile {
+  def move(howFar:Int):void;
+}
+interface Person extends Named, Mobile {}
+interface NamedPoint extends Named, Mobile {} 
+</pre>
+
+<div class="p"><!----></div>
+Classes and structs may be declared to implement multiple interfaces. Semantically, the
+interface type is the set of all objects that are instances of classes
+or structs that
+implement the interface. A class or struct implements an interface if it is declared to
+and if it concretely or abstractly implements all the methods and properties
+defined in the interface. For example, <b>KimThePoint</b> implements
+<b>Person</b>, and hence <b>Named</b> and <b>Mobile</b>. It would be a static
+error if <b>KimThePoint</b> had no <b>name</b> method, unless <b>KimThePoint</b> were also
+declared <b>abstract</b>.
+
+<div class="p"><!----></div>
+<pre>
+class KimThePoint implements Person {
+   var pos : Int = 0;
+   public def name() = "Kim (" + pos + ")";
+   public def move(dPos:Int) { pos += dPos; }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.4">
+1.4</a>&nbsp;&nbsp;Properties</h3>
+
+<a name="properties">
+</a>
+
+<div class="p"><!----></div>
+Classes, interfaces, and structs may have <em>properties</em>, specified in
+parentheses after the type name. Properties are much like public <b>val</b>
+instance fields. They have certain restrictions on their use, however, which
+allows the compiler to understand them much better than other public <b>val</b>
+fields. In particular, they can be used in types.  <em>E.g.</em>, the number of elements
+in an array is a property of the array, and an X10 program can specify that
+two arrays have the same number of elements.
+
+<div class="p"><!----></div>
+The
+following code declares a class named <b>Coords</b> with properties
+<b>x</b> and <b>y</b> and a <b>move</b> method. The properties are bound
+using the <b>property</b> statement in the constructor.
+
+<div class="p"><!----></div>
+<pre>
+class Coords(x: Int, y: Int) { 
+  def this(x: Int, y: Int) :
+    Coords{self.x==x, self.y==y} = { 
+    property(x, y); 
+  } 
+
+<div class="p"><!----></div>
+  def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy); 
+}
+</pre>
+
+<div class="p"><!----></div>
+Properties, unlike other public <b>val</b> fields, can be used  
+at compile time in constraints. This allows us
+to specify subtypes based on properties, by appending a boolean expression to
+the type. For example, the type <b>Coords{x==0}</b> is the set of all points
+whose <b>x</b> property is <b>0</b>.  Details of this substantial topic are
+found in &#167;4.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

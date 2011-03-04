@@ -1,0 +1,28 @@
+Is Array a class or an interface?  AbsRail 'implements' Array
+Where is ValArray?  Do we need AbsArray?
+Point?
+
+Mapping to methods for:
+
+binary: +, -, *, /, %, <<, >>, >>>, &, |, ^, &&, ||, <, <=, >, >=, in
+    (propose '__add__', '__sub__', ...)
+    (somewhat weird that <, <=, >, >= can be overridden but not == and !=; distinguish between == (as .equals) and === (as Java ==) ?)
+    (define x!=y as !(x==y) ?)
+    (define x<y as x.compareTo(y) < 0 or as x.lt(y) ?)
+unary:  -, ~, !
+a(b), a(b)=c -- apply (or __apply__), set methods
+    
+    for now: the operators are done structurally: just check if the left operand has a method add, etc.
+
+constant dist (R->here)
+range region  (1..n)
+
+Rail constructors
+    [1,2,3] : NativeValRail[int]
+    [1..m,1..n] : NativeValRail[Region{...}]
+
+Conversions from rail constructors to points, regions: baked in or defined as methods
+
+    Need factory methods/constructors for Point(NativeAbsRail[int]), Region(NativeAbsRail[Point]), etc
+    
+Var args?

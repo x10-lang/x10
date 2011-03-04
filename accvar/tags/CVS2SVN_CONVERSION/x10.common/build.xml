@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
+<project name="x10.common" default="dist" basedir=".">
+	&buildfile;
+	<property name="bin" location="${basedir}/bin"/>
+	<property name="etc" location="${basedir}/etc"/>
+	<property name="lib" location="${basedir}/lib"/>
+	<property name="testdir"  location="${basedir}/examples"/>
+	<property name="lpg.jar" value="lpg.jar"/>
+	<property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
+	<property name="lpg.jar.url" value="${lpg.url}/lpg2.jar"/>
+	<property name="polyglot.jar" value="polyglot2.jar"/>
+	<property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates/plugins"/>
+	<!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_2.0.1.jar"/>-->
+	<!--<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_nightly.jar"/>-->
+	<property name="polyglot.jar.url" value="${polyglot.url}/polyglot2_latest.jar"/>
+	<path id="project.classpath"/>
+	<!-- vj: get the environment variables. -->
+	<!-- vj: This works on Windows/cygwin. -->
+	<property environment="env"/>
+
+	<target name="init">
+		<condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
+			<isset property="env.LOCAL_POLYGLOT_JAR"/>
+		</condition>
+		<condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
+			<isset property="env.LOCAL_LPG_JAR"/>
+		</condition>
+	</target>
+
+	<target name="clean">
+		<delete>
+			<fileset dir="${bin}">
+				<include name="defs"/>
+				<include name="setupX10"/>
+				<include name="x10"/>
+				<include name="x10c"/>
+				<include name="junit"/>
+			</fileset>
+		</delete>
+ 		<delete>
+			<fileset dir="${testdir}">
+				<include name="**/*.class"/>
+				<include name="**/*.java"/>
+				<include name="**/*.pem"/>
+				<include name="**/*_x10stub.c"/>
+				<include name="**/log*"/>
+				<include name="**/TMP_*"/>
+				<include name="**/javacore*"/>
+				<include name="**/heapdump*"/>
+				<include name="**/ErrorsLog"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="dist" depends="init,build"/>
+
+	<target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
+		<mkdir dir="${lib}"/>
+		<get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+		<available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+		<fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
+	</target>
+	<target name="lpg-local-jar" depends="init" if="local.lpg.jar">
+		<mkdir dir="${lib}"/>
+		<copy file="${local.lpg.jar}" tofile="${lib}/${lpg.jar}"/>
+		<available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+		<fail message="Unable to find ${lpg.jar}" unless="lpg.jar.present"/>
+	</target>
+	<target name="polyglot-jar" depends="init,polyglot-local-jar" unless="local.polyglot.jar">
+		<mkdir dir="${lib}"/>
+		<get usetimestamp="true" ignoreerrors="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
+		<available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
+		<fail message="Unable to get ${polyglot.jar}" unless="polyglot.jar.present"/>
+	</target>
+	<target name="polyglot-local-jar" depends="init" if="local.polyglot.jar">
+		<mkdir dir="${lib}"/>
+		<copy file="${local.polyglot.jar}" tofile="${lib}/${polyglot.jar}"/>
+		<available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
+		<fail message="Unable to find ${polyglot.jar}" unless="polyglot.jar.present"/>
+	</target>
+
+	<target name="build" depends="init,bin,etc,miscexec,lpg-jar,polyglot-jar">
+		<echo message="${ant.project.name}: ${ant.file}"/>
+	</target>
+
+	<target name="bin"
+	        description="configure bin directory"
+	        depends="bin-deps"
+	        unless="bin.up-to-date">
+		<antcall target="setupX10"/>
+		<antcall target="x10"/>
+		<antcall target="x10c"/>
+		<antcall target="junit"/>
+	</target>
+
+	<target name="etc"
+	 description="configure etc directory"
+	 depends="etc-deps"
+	 unless="etc.up-to-date">
+		<antcall target="config"/>
+	</target>
+
+	<target name="etc-deps">
+		<condition property="etc.up-to-date">
+			<istrue value="true"/><!-- Cannot simply say <true/> -->
+			<!--
+			<and>
+				<available file="${etc}/standard.cfg"/>
+			</and>
+			-->
+		</condition>
+	</target>
+
+	<target name="bin-deps">
+		<uptodate property="setupX10.up-to-date" targetfile="${bin}/setupX10">
+			<srcfiles file="${ant.file}"/>
+			<srcfiles file="${bin}/setupX10.in"/>
+		</uptodate>
+		<uptodate property="x10.up-to-date" targetfile="${bin}/x10">
+			<srcfiles file="${ant.file}"/>
+			<srcfiles file="${bin}/x10.in"/>
+		</uptodate>
+		<uptodate property="x10c.up-to-date" targetfile="${bin}/x10c">
+			<srcfiles file="${ant.file}"/>
+			<srcfiles file="${bin}/x10c.in"/>
+		</uptodate>
+		<uptodate property="junit.up-to-date" targetfile="${bin}/junit">
+			<srcfiles file="${ant.file}"/>
+			<srcfiles file="${bin}/junit.in"/>
+		</uptodate>
+		<condition property="bin.up-to-date">
+			<and>
+				<isset property="setupX10.up-to-date"/>
+				<isset property="x10.up-to-date"/>
+				<isset property="x10c.up-to-date"/>
+				<isset property="junit.up-to-date"/>
+			</and>
+		</condition>
+	</target>
+
+	<target name="config"
+	        description="creates the default config file">
+		<fail message="Missing ${etc}/standard.cfg"/>
+		<!--
+		<echo message="Creating ${etc}/standard.cfg"/>
+		<echo file="${etc}/standard.cfg" append="no"># This file was automatically generated during the configure process of this x10 installation.
+
+SAMPLING_FREQUENCY_MS=50
+STATISTICS_DISABLE=none</echo>
+		-->
+	</target>
+
+	<target name="defs-deps">
+		<condition property="defs.up-to-date">
+			<uptodate targetfile="${bin}/defs" srcfile="${ant.file}"/>
+		</condition>
+	</target>
+
+	<target name="find-java">
+		<echo message="JAVA_HOME = '${env.JAVA_HOME}'"/>
+		<echo message="java.home = '${java.home}'"/>
+		<!-- First check in $JAVA_HOME/bin -->
+		<condition property="java.executable"
+		           value="${env.JAVA_HOME}${file.separator}bin${file.separator}java">
+			<or>
+				<available file="${env.JAVA_HOME}${file.separator}bin${file.separator}java"/>
+				<available file="${env.JAVA_HOME}${file.separator}bin${file.separator}java.exe"/>
+			</or>
+		</condition>
+		<!-- Now check in ${java.home}/bin -->
+		<condition property="java.executable"
+		           value="${java.home}${file.separator}bin${file.separator}java">
+			<and>
+				<not>
+					<isset property="java.executable"/>
+				</not>
+				<or>
+					<available file="${java.home}${file.separator}bin${file.separator}java"/>
+					<available file="${java.home}${file.separator}bin${file.separator}java.exe"/>
+				</or>
+			</and>
+		</condition>
+		<fail message="Could not find the java executable" unless="java.executable"/>
+		<echo message="JAVA = '${java.executable}'"/>
+	</target>
+
+	<target name="executable-defs" depends="find-java,defs-deps" unless="defs.up-to-date"
+	        description="creates a file containing common environment variable definitions">
+		<echo message="Creating ${bin}/defs"/>
+		<echo message="FILE_SEP = '${file.separator}'"/>
+		<echo message="PATH_SEP = '${path.separator}'"/>
+		<echo message="X10_PLATFORM = '${env.X10_PLATFORM}'"/>
+		<echo message="TOP = '${basedir}'"/>
+		<echo file="${bin}/defs" append="no">#!/bin/bash
+# DO NOT EDIT - This file was automatically generated.
+
+#JAVA='${java.executable}'
+[ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
+[ -n "$JRE_HOME" ] || JRE_HOME="$JAVA_HOME/jre"
+#FILE_SEP='${file.separator}'
+#PATH_SEP='${path.separator}'
+#CONFIG_FILE='standard.cfg'
+POLYGLOT_JAR='${polyglot.jar}'
+LPG_JAR='${lpg.jar}'
+POLYGLOT_URL='${polyglot.jar.url}'
+LPG_URL='${lpg.jar.url}'
+
+UNAME=`uname -s -p | sed -e 's/ /,/g'`
+FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\'; fi
+PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
+[ -n "$X10_PLATFORM" ] || \
+case "$UNAME" in
+  CYGWIN*) X10_PLATFORM='win32_x86';;
+  Linux,*) X10_PLATFORM='linux_x86';;
+  AIX,*) X10_PLATFORM='aix_ppc';;
+  Darwin,i386) X10_PLATFORM='macosx_x86';;
+  Darwin,powerpc) X10_PLATFORM='macosx_ppc';;
+  *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
+esac
+# FIXME: the above assumes that Cygwin==win32 and Linux==x86 and AIX==ppc
+
+TOP="$(cd "$(dirname $0)/.." &amp;&amp; pwd)"
+if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
+
+if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+elif [ -n "$JRE_HOME" -a -e "$JRE_HOME/bin/java" ]; then
+    JAVA="$JRE_HOME/bin/java"
+else
+    echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
+    exit 1
+fi
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
+
+</echo>
+	</target>
+
+	<target name="setupX10" unless="setupX10.up-to-date"
+	        depends="executable-defs"
+	        description="creates a configuration script for x10">
+		<echo message="Creating ${bin}/setupX10"/>
+		<concat destfile="${bin}/setupX10" append="no">
+			<filelist dir="${bin}" files="defs"/>
+		</concat>
+		<concat destfile="${bin}/setupX10" append="yes">
+			<filelist dir="${bin}" files="setupX10.in"/>
+		</concat>
+
+		<chmod perm="+x" file="${bin}/x10"/>
+
+		<delete file="${bin}/defs"/>
+	</target>
+
+	<target name="x10c" unless="x10c.up-to-date"
+	        depends="executable-defs"
+	        description="creates the executable script x10c">
+		<echo message="Creating ${bin}/x10c"/>
+		<concat destfile="${bin}/x10c" append="no">
+			<filelist dir="${bin}" files="defs"/>
+		</concat>
+		<concat destfile="${bin}/x10c" append="yes">
+			<filelist dir="${bin}" files="x10c.in"/>
+		</concat>
+
+		<chmod perm="+x" file="${bin}/x10c"/>
+
+		<delete file="${bin}/defs"/>
+	</target>
+
+	<target name="x10" unless="x10.up-to-date"
+	        depends="executable-defs"
+	        description="creates the executable script x10">
+		<echo message="Creating ${bin}/x10"/>
+		<concat destfile="${bin}/x10" append="no">
+			<filelist dir="${bin}" files="defs"/>
+		</concat>
+		<concat destfile="${bin}/x10" append="yes">
+			<filelist dir="${bin}" files="x10.in"/>
+		</concat>
+
+		<chmod perm="+x" file="${bin}/x10"/>
+
+		<delete file="${bin}/defs"/>
+	</target>
+
+	<target name="junit" unless="junit.up-to-date"
+	        depends="executable-defs"
+	        description="creates the executable script junit">
+		<echo message="Creating ${bin}/junit"/>
+		<concat destfile="${bin}/junit" append="no">
+			<filelist dir="${bin}" files="defs"/>
+		</concat>
+		<echo file="${bin}/junit" append="yes">
+ext=""
+
+</echo>
+		<concat destfile="${bin}/junit" append="yes">
+			<filelist dir="${bin}" files="junit.in"/>
+		</concat>
+
+		<chmod perm="+x" file="${bin}/junit"/>
+
+		<delete file="${bin}/defs"/>
+	</target>
+
+	<target name="miscexec"
+		description="makes .dll and .so files in testdir and misc files in bin executable">
+ 		<chmod perm="ugo+rx">
+			<fileset dir="${testdir}">
+				<include name="**/*.dll"/>
+				<include name="**/*.so"/>
+			</fileset>
+		</chmod>
+		<chmod perm="+x" file="${bin}/testScript"/>
+		<chmod perm="+x" file="${bin}/testScript0"/>
+		<chmod perm="+x" file="${bin}/newpgrp"/>
+		<chmod perm="+x" file="${bin}/makeTestCompiler"/>
+		<chmod perm="+x" file="${bin}/cvsAdd"/>
+		<chmod perm="+x" file="${bin}/cvsCopy"/>
+		<chmod perm="+x" file="${bin}/cvsDelete"/>
+	</target>
+
+	<!-- the following lines have only ever been tested on AIX -->
+	<!-- they build the LAPI support library -->
+	<target name="buildLAPISupportTask">
+		<javac srcdir="${src}/lapi_support" destdir="${src}/lapi_support"/>
+	</target>
+
+	<target name="declareLAPISupportTask" depends="buildLAPISupportTask">
+		<taskdef name="buildLAPISupport"
+		         classname="LAPISupportantTask"
+		         classpath="${src}/lapi_support"/>
+	</target>
+
+	<target name="lapi-support" depends="declareLAPISupportTask">
+	<buildLAPISupport srcdir="${src}/lapi_support" classes="${classes}" bindir="${bin}">
+	</buildLAPISupport>
+	</target>
+	<!-- the preceding lines have only ever been tested on AIX -->
+
+</project>

@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Type dependencies</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc12">
+12</a>&nbsp;&nbsp;Type Dependencies</h2>
+
+<div class="p"><!----></div>
+Type definitions may not be circular, in the sense that no type may be its own
+supertype, nor may it be a container for a supertype. This forbids interfaces
+like <b>interface Loop extends Loop</b>, and indirect self-references such as
+<b>interface A extends B.C</b> where <b>interface B extends A</b>.  
+
+<div class="p"><!----></div>
+The formal definition of this is based on Java's.  
+
+<div class="p"><!----></div>
+An <em>entity type</em> is a class, interface, or struct type.   
+
+<div class="p"><!----></div>
+Entity type E <em>directly depends on</em> entity type F if F is mentioned
+in the <b>extends</b> or <b>implements</b> clause of E, either by itself or as
+a qualifier within a super-entity-type name.  
+
+In the following, <b>A</b> directly depends on <b>B</b>, <b>C</b>, <b>D</b>, 
+<b>E</b>, and <b>F</b>.    It does not directly depend on <b>G</b>.
+<pre>
+class A extends B.C implements D.E, F[G] {}
+</pre>
+It is an ordinary programming idiom to use <b>A</b> as an argument to a generic
+interface that <b>A</b> implements.  For example, <b>ComparableTo[T]</b>
+describes things which can be compared to a value of type <b>T</b>. Saying that
+<b>A</b> implements <b>ComparableTo[A]</b> means that one <b>A</b> can be
+compared to another, which is reasonable and useful: 
+<pre>
+interface ComparableTo[T] {
+  def eq(T):Boolean;
+}
+class A implements ComparableTo[A] {
+  public def eq(other:A) = this.equals(other);
+}
+</pre>
+
+<div class="p"><!----></div>
+Entity type E <em>depends on</em> entity type F if
+either E directly depends on F, or E directly depends on an entity type
+that depends on F.   That is, the relation "depends on" is the transitive
+closure of the relation "directly depends on".  
+
+<div class="p"><!----></div>
+It is a static error if any entity type E depends on itself.
+
+<div class="p"><!----></div>
+</li>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Currently inequalities
+      of the form <b>e &lt; f</b> are not supported.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>We call them
+<b>Position</b> to avoid confusion with the built-in class <b>Point</b>. 
+Also, <b>Position</b> is a struct rather than a class so that the non-equality
+test <b>start != end</b> compares the coordinates.  If <b>Position</b> were a
+class, <b>start != end</b> would check for different <b>Position</b> objects,
+which might have the same coordinates.
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>Java, for one, suffers a number of
+  inconveniences because some built-in types like <b>int</b> and <b>char</b>
+  aren't subtypes of anything else.
+<br /><br /><hr />
+
+</body>
+</html>

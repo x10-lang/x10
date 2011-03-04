@@ -1,0 +1,947 @@
+\chapter{Statements}\label{XtenStatements}\index{statement}
+
+This chapter describes the statements in the sequential core of
+\Xten{}.  Statements involving concurrency and distribution
+are described in \Sref{XtenActivities}.
+
+\section{Empty statement}
+
+The empty statement \xcd";" does nothing.  
+
+\begin{ex}
+Sometimes, the syntax of X10 requires a statement in some position, but you do
+not actually want to do any computation there.   
+The following code searches the array \xcd`a` for the value \xcd`v`, assumed
+to appear somewhere in \xcd`a`, and returns the index at which it was found.  
+There is no computation to do in the loop body, so we use an empty statement
+there. 
+%~~gen ^^^ Statements10
+% package statements.emptystatement;
+% class EmptyStatementExample {
+%~~vis
+\begin{xten}
+static def search[T](a: Array[T](1), v: T):Int {
+  var i : Int;
+  for(i = a.region.min(0); a(i) != v; i++)
+     ;
+  return i;
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+\end{ex}
+
+\section{Local variable declaration}
+\index{variable!declaration}
+\index{var}
+\index{val}
+
+%##(LocalVariableDeclStatement VariableDeclaratorsWithType VariableDeclarators VariableInitializer FormalDeclarators
+\begin{bbgrammar}
+%(FROM #(prod:LocalVariableDeclStatement)#)
+LocalVariableDeclStatement \: LocalVariableDecl \xcd";" & (\ref{prod:LocalVariableDeclStatement}) \\
+%(FROM #(prod:VariableDeclaratorsWithType)#)
+VariableDeclaratorsWithType \: VariableDeclaratorWithType & (\ref{prod:VariableDeclaratorsWithType}) \\
+                    \| VariableDeclaratorsWithType \xcd"," VariableDeclaratorWithType \\
+%(FROM #(prod:VariableDeclarators)#)
+ VariableDeclarators \: VariableDeclarator & (\ref{prod:VariableDeclarators}) \\
+                    \| VariableDeclarators \xcd"," VariableDeclarator \\
+%(FROM #(prod:VariableInitializer)#)
+ VariableInitializer \: Exp & (\ref{prod:VariableInitializer}) \\
+%(FROM #(prod:FormalDeclarators)#)
+   FormalDeclarators \: FormalDeclarator & (\ref{prod:FormalDeclarators}) \\
+                    \| FormalDeclarators \xcd"," FormalDeclarator \\
+\end{bbgrammar}
+%##)
+
+Short-lived variables are introduced by local variables declarations, as
+described in \Sref{VariableDeclarations}. Local variables may be declared only
+within a block statement (\Sref{Blocks}). The scope of a local variable
+declaration is the statement itself and the subsequent statements in the
+block. 
+%~~gen ^^^ Statements20
+% package statements.should.have.locals;
+% class LocalExample {
+% def example(a:Int) {
+%~~vis
+\begin{xten}
+  if (a > 1) {
+     val b = a/2;
+     var c : Int = 0;
+     // b and c are defined here
+  }
+  // b and c are not defined here.
+\end{xten}
+%~~siv
+%} }
+%~~neg
+
+Variables declared in such statements shadow variables of the same
+name declared elsewhere.
+A local variable of a given name, say \xcd`x`, cannot shadow another local
+variable or parameter named \xcd`x` unless there is an intervening method or
+closure declaration, or unless the inner \xcd`x` is declared inside an
+\xcd`async` or \xcd`at` statement and the outer variable is declared outside
+of that. 
+
+\begin{ex}
+The following code illustrates both legal and illegal uses of shadowing.
+Note that a shadowed {\em field} name \xcd`x` can still be accessed 
+as \xcd`this.x`. 
+%~~gen ^^^ Statements4h6p
+% package Statements4h6p;
+%~~vis
+\begin{xten}
+class Shadow{
+  var x : Int; 
+  def this(x:Int) { 
+     // Parameter can shadow field
+     this.x = x; 
+  }
+  def example(y:Int) {
+     val x = "shadows a field";
+     // ERROR: val y = "shadows a param";
+     val z = "local";
+     for (a in [1,2,3]) {
+        // ERROR: val x = "can't shadow local var";
+     }
+     async {
+        val x = "can shadow through async";
+     }        
+     at (here) {
+        val x = "can shadow through at";
+     }        
+     val f = () => { 
+       val x = "can shadow through closure";
+       x
+     };
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+\end{ex}
+
+\section{Block statement}
+\index{block}
+\label{Blocks}
+
+%##(Block BlockStatements BlockStatement
+\begin{bbgrammar}
+%(FROM #(prod:Block)#)
+               Block \: \xcd"{" BlockStatements\opt \xcd"}" & (\ref{prod:Block}) \\
+%(FROM #(prod:BlockStatements)#)
+     BlockStatements \: BlockStatement & (\ref{prod:BlockStatements}) \\
+                    \| BlockStatements BlockStatement \\
+%(FROM #(prod:BlockStatement)#)
+      BlockStatement \: LocalVariableDeclStatement & (\ref{prod:BlockStatement}) \\
+                    \| ClassDecl \\
+                    \| TypeDefDecl \\
+                    \| Statement \\
+\end{bbgrammar}
+%##)
+
+
+A block statement consists of a sequence of statements delimited by
+``\xcd"{"'' and ``\xcd"}"''. When a block is evaluated, the statements inside
+of it are evaluated in order.  Blocks are useful for putting several
+statements in a place where X10 asks for a single one, such as the consequent
+of an \xcd`if`, and for limiting the scope of local variables.
+%~~gen ^^^ Statements30
+% package statements.FOR.block.heads;
+% class Example {
+% def example(b:Boolean, S1:(Int)=>void, S2:(Int)=>void ) {
+%~~vis
+\begin{xten}
+if (b) {
+  // This is a block
+  val v = 1;
+  S1(v); 
+  S2(v);
+}
+\end{xten}
+%~~siv
+%  } } 
+%~~neg
+
+
+
+\section{Expression statement}
+
+%##(ExpStatement StatementExp
+\begin{bbgrammar}
+%(FROM #(prod:ExpStatement)#)
+        ExpStatement \: StatementExp \xcd";" & (\ref{prod:ExpStatement}) \\
+%(FROM #(prod:StatementExp)#)
+        StatementExp \: Assignment & (\ref{prod:StatementExp}) \\
+                    \| PreIncrementExp \\
+                    \| PreDecrementExp \\
+                    \| PostIncrementExp \\
+                    \| PostDecrementExp \\
+                    \| MethodInvocation \\
+                    \| ClassInstCreationExp \\
+\end{bbgrammar}
+%##)
+
+The expression statement evaluates an expression. The value of the expression
+is not used. Side effects of the expression occur, and may produce results
+used by following statements. Indeed, statement expressions which terminate
+without side effects cannot have any visible effect on the results of the
+computation. 
+
+
+\begin{ex}
+%~~gen ^^^ Statements40
+% package Sta.tem.ent.s.expressions;
+% import x10.util.*;
+%~~vis
+\begin{xten}
+class StmtEx {
+  def this() { x10.io.Console.OUT.println("New StmtEx made");  }
+  static def call() { x10.io.Console.OUT.println("call!");  }
+  def example() {
+     var a : Int = 0;
+     a = 1; // assignment
+     new StmtEx(); // allocation
+     call(); // call
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\end{ex}
+
+
+Only selected forms of expression can appear in expression statements:
+assignments, increments, decrements, method invocations, and constructor
+invocations. Most other forms of expression, such as literals and variable and
+field references, cannot have side effects and are thus pointless as
+expression statements.
+
+
+\section{Labeled statement}
+\index{label}
+\index{statement label}
+
+
+\begin{bbgrammar}
+    LabeledStatement \: Id \xcd":" Statement 
+\end{bbgrammar}
+
+
+Statements may be labeled. The label may be used to describe the target of a
+\xcd`break` statement appearing within a substatement (which, when executed,
+ends the labeled statement), or, in the case of a loop, a \xcd`continue` as
+well (which, when executed, proceeds to the next iteration of the loop). The
+scope of a label is the statement labeled.
+
+\begin{ex}
+The label on the outer \xcd`for` statement allows \xcd`continue` and
+\xcd`break` statements to continue or break it.  Without the label,
+\xcd`continue` or \xcd`break` would only continue or break the inner \xcd`for`
+loop. 
+%~~gen ^^^ Statements50
+% package state.meant.labe.L;
+% class Example {
+% def example(a:(Int,Int) => Int, do_things_to:(Int)=>Int) {
+%~~vis
+\begin{xten}
+lbl : for ([i] in 1..10) {
+   for ([j] in i..10) {  
+      if (a(i,j) == 0) break lbl;
+      if (a(i,j) == 1) continue lbl;
+      if (a(i,j) == a(j,i)) break lbl;
+   }
+}
+\end{xten}
+%~~siv
+%} } 
+%~~neg
+\end{ex}
+
+In particular, a block statement may be labeled: \xcd` L:{S}`.  This allows
+the use of \xcd`break L` within \xcd`S` to leave \xcd`S`, which can, if
+carefully used, avoid deeply-nested \xcd`if`s. 
+
+\begin{ex}
+%~~gen ^^^ Statements51
+% package statements51;
+% abstract class Example {
+% abstract def phase1(String):void;
+% abstract def phase2(String):void;
+% abstract def phase3(String):void;
+% abstract def suitable_for_phase_2(String):Boolean;
+% abstract def suitable_for_phase_3(String):Boolean;
+% def example(filename: String) {
+% KNOWNFAIL
+%~~vis
+\begin{xten}
+multiphase: {
+  if (!exists(filename)) break multiphase;
+  phase1(filename);
+  if (!suitable_for_phase_2(filename)) break multiphase;
+  phase2(filename);
+  if (!suitable_for_phase_3(filename)) break multiphase;
+  phase3(filename);
+}
+// Now the file has been phased as much as possible
+\end{xten}
+%~~siv
+%}
+%~~neg
+\end{ex}
+
+\limitation{Blocks cannot currently be labeled.}
+
+\section{Break statement}
+\index{break}
+
+%##(BreakStatement
+\begin{bbgrammar}
+%(FROM #(prod:BreakStatement)#)
+      BreakStatement \: \xcd"break" Id\opt \xcd";" & (\ref{prod:BreakStatement}) \\
+\end{bbgrammar}
+%##)
+
+
+An unlabeled break statement exits the currently enclosing loop or switch
+statement. An labeled break statement exits the enclosing 
+statement with the given label.
+It is illegal to break out of a statement not defined in the current
+method, constructor, initializer, or closure.  
+
+\begin{ex}
+The following code searches for an element of a two-dimensional
+array and breaks out of the loop when it is found:
+%~~gen ^^^ Statements60
+% package statements.come.from.banks.and.cranks;
+% class LabelledBreakeyBreakyHeart {
+% def findy(a:Array[Array[Int](1)](1), v:Int): Boolean {
+%~~vis
+\begin{xten}
+var found: Boolean = false;
+outer: for (var i: Int = 0; i < a.size; i++)
+    for (var j: Int = 0; j < a(i).size; j++)
+        if (a(i)(j) == v) {
+            found = true;
+            break outer;
+        }
+\end{xten}
+%~~siv
+% return found;
+%}}
+%~~neg
+\end{ex}
+
+\section{Continue statement}
+\index{continue}
+
+%##(ContinueStatement
+\begin{bbgrammar}
+%(FROM #(prod:ContinueStatement)#)
+   ContinueStatement \: \xcd"continue" Id\opt \xcd";" & (\ref{prod:ContinueStatement}) \\
+\end{bbgrammar}
+%##)
+An unlabeled \xcd`continue` skips the rest of the current iteration of the
+innermost enclosing loop, and proceeds on to the next.  A labeled
+\xcd`continue` does the same to the enclosing loop with that label.
+It is illegal to continue a loop not defined in the current
+method, constructor, initializer, or closure.
+
+\noo{Example}
+
+\section{If statement}
+\index{if}
+
+%##(IfThenStatement IfThenElseStatement
+\begin{bbgrammar}
+%(FROM #(prod:IfThenStatement)#)
+     IfThenStatement \: \xcd"if" \xcd"(" Exp \xcd")" Statement & (\ref{prod:IfThenStatement}) \\
+%(FROM #(prod:IfThenElseStatement)#)
+ IfThenElseStatement \: \xcd"if" \xcd"(" Exp \xcd")" Statement  \xcd"else" Statement  & (\ref{prod:IfThenElseStatement}) \\
+\end{bbgrammar}
+%##)
+
+An if statement comes in two forms: with and without an else
+clause.
+
+The if-then statement evaluates a condition expression, which must be of type
+\xcd`Boolean`. If the condition is \xcd`true`, it evaluates the then-clause.
+If the condition is \xcd"false", the if-then statement completes normally.
+
+The if-then-else statement evaluates a condition expression and 
+evaluates the then-clause if the condition is
+\xcd"true"; otherwise, the \xcd`else`-clause is evaluated.
+
+As is traditional in languages derived from Algol, the if-statement is syntactically
+ambiguous.  That is, 
+\begin{xten}
+if (B1) if (B2) S1 else S2
+\end{xten}
+could be intended to mean either 
+\begin{xten}
+if (B1) { if (B2) S1 else S2 }
+\end{xten} 
+or 
+\begin{xten}
+if (B1) {if (B2) S1} else S2
+\end{xten}
+X10, as is traditional, attaches an \xcd`else` clause to the most recent
+\xcd`if` that doesn't have one.
+This example is interpreted as 
+\xcd`if (B1) { if (B2) S1 else S2 }`. 
+
+
+
+\section{Switch statement}
+\index{switch}
+
+%##(SwitchStatement SwitchBlock SwitchBlockStatementGroups SwitchBlockStatementGroup SwitchLabels SwitchLabel
+\begin{bbgrammar}
+%(FROM #(prod:SwitchStatement)#)
+     SwitchStatement \: \xcd"switch" \xcd"(" Exp \xcd")" SwitchBlock & (\ref{prod:SwitchStatement}) \\
+%(FROM #(prod:SwitchBlock)#)
+         SwitchBlock \: \xcd"{" SwitchBlockStatementGroups\opt SwitchLabels\opt \xcd"}" & (\ref{prod:SwitchBlock}) \\
+%(FROM #(prod:SwitchBlockStatementGroups)#)
+SwitchBlockStatementGroups \: SwitchBlockStatementGroup & (\ref{prod:SwitchBlockStatementGroups}) \\
+                    \| SwitchBlockStatementGroups SwitchBlockStatementGroup \\
+%(FROM #(prod:SwitchBlockStatementGroup)#)
+SwitchBlockStatementGroup \: SwitchLabels BlockStatements & (\ref{prod:SwitchBlockStatementGroup}) \\
+%(FROM #(prod:SwitchLabels)#)
+        SwitchLabels \: SwitchLabel & (\ref{prod:SwitchLabels}) \\
+                    \| SwitchLabels SwitchLabel \\
+%(FROM #(prod:SwitchLabel)#)
+         SwitchLabel \: \xcd"case" ConstantExp \xcd":" & (\ref{prod:SwitchLabel}) \\
+                    \| \xcd"default" \xcd":" \\
+\end{bbgrammar}
+%##)
+
+A switch statement evaluates an index expression and then branches to
+a case whose value equal to the value of the index expression.
+If no such case exists, the switch branches to the 
+\xcd"default" case, if any.
+
+Statements in each case branch evaluated in sequence.  At the
+end of the branch, normal control-flow falls through to the next case, if
+any.  To prevent fall-through, a case branch may be exited using
+a \xcd"break" statement.
+
+The index expression must be of type \xcd"Int".
+Case labels must be of type \xcd"Int", \xcd`Byte`, \xcd`Short`, or \xcd`Char`
+and must be compile-time 
+constants.  Case labels cannot be duplicated within the
+\xcd"switch" statement.
+
+\begin{ex}
+In this \xcd`switch`, case \xcd`1` falls through to case \xcd`2`.  The
+other cases are separated by \xcd`break`s.
+%~~gen ^^^ Statements70
+% package Statement.Case;
+% class Example {
+% def example(i : Int, println: (String)=>void) {
+%~~vis
+\begin{xten}
+switch (i) {
+  case 1: println("one, and ");
+  case 2: println("two"); 
+          break;
+  case 3: println("three");
+          break;
+  default: println("Something else");
+           break;
+}
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+\end{ex}
+
+\section{While statement}
+\index{while}
+
+%##(WhileStatement
+\begin{bbgrammar}
+%(FROM #(prod:WhileStatement)#)
+      WhileStatement \: \xcd"while" \xcd"(" Exp \xcd")" Statement & (\ref{prod:WhileStatement}) \\
+\end{bbgrammar}
+%##)
+
+A while statement evaluates a \xcd`Boolean`-valued condition and executes a
+loop body if \xcd"true". If the loop body completes normally (either by
+reaching the end or via a \xcd"continue" statement with the loop header as
+target), the condition is reevaluated and the loop repeats if \xcd"true". If
+the condition is \xcd"false", the loop exits.
+
+\begin{ex}
+A loop to execute the process in the Collatz conjecture (a.k.a. 3n+1 problem,
+Ulam conjecture, Kakutani's problem, Thwaites conjecture, Hasse's algorithm,
+and Syracuse problem) can be written as follows:
+%~~gen ^^^ Statements80
+% package Statements.AreFor.Flatements;
+% class Example {
+% def example(var n:Int) {
+%~~vis
+\begin{xten}
+  while (n > 1) {
+     n = (n % 2 == 1) ? 3*n+1 : n/2;
+  }
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+\end{ex}
+\section{Do--while statement}
+\index{do}
+
+%##(DoStatement
+\begin{bbgrammar}
+%(FROM #(prod:DoStatement)#)
+         DoStatement \: \xcd"do" Statement \xcd"while" \xcd"(" Exp \xcd")" \xcd";" & (\ref{prod:DoStatement}) \\
+\end{bbgrammar}
+%##)
+
+
+A \Xcd{do-while} statement executes the loop body, and then evaluates a
+\xcd`Boolean`-valued condition expression. If \xcd"true", the loop repeats.
+Otherwise, the loop exits.
+
+
+\section{For statement}
+\index{for}
+
+%##(ForStatement BasicForStatement ForInit ForUpdate StatementExpList EnhancedForStatement
+\begin{bbgrammar}
+%(FROM #(prod:ForStatement)#)
+        ForStatement \: BasicForStatement & (\ref{prod:ForStatement}) \\
+                    \| EnhancedForStatement \\
+%(FROM #(prod:BasicForStatement)#)
+   BasicForStatement \: \xcd"for" \xcd"(" ForInit\opt \xcd";" Exp\opt \xcd";" ForUpdate\opt \xcd")" Statement & (\ref{prod:BasicForStatement}) \\
+%(FROM #(prod:ForInit)#)
+             ForInit \: StatementExpList & (\ref{prod:ForInit}) \\
+                    \| LocalVariableDecl \\
+%(FROM #(prod:ForUpdate)#)
+           ForUpdate \: StatementExpList & (\ref{prod:ForUpdate}) \\
+%(FROM #(prod:StatementExpList)#)
+    StatementExpList \: StatementExp & (\ref{prod:StatementExpList}) \\
+                    \| StatementExpList \xcd"," StatementExp \\
+%(FROM #(prod:EnhancedForStatement)#)
+EnhancedForStatement \: \xcd"for" \xcd"(" LoopIndex \xcd"in" Exp \xcd")" Statement & (\ref{prod:EnhancedForStatement}) \\
+                    \| \xcd"for" \xcd"(" Exp \xcd")" Statement \\
+\end{bbgrammar}
+%##)
+
+\xcd`for` statements provide bounded iteration, such as looping over a list.
+It has two forms: a basic form allowing near-arbitrary iteration, {\em a la}
+C, and an enhanced form designed to iterate over a collection.
+
+A basic \xcd`for` statement provides for arbitrary iteration in a somewhat
+more organized fashion than a \xcd`while`.  The loop 
+\xcd`for(init; test; step)body` is
+equivalent to: 
+\begin{xten}
+{
+   init;
+   while(test) {
+      body;
+      step;
+   }
+}
+\end{xten}
+
+\xcd`init` is performed before the loop, and is traditionally used to declare
+and/or initialize the loop variables. It may be a single variable binding
+statement, such as \xcd`var i:Int = 0` or \xcd`var i:Int=0, j:Int=100`. (Note
+that a single variable binding statement may bind multiple variables.)
+Variables introduced by \xcd`init` may appear anywhere in the \xcd`for`
+statement, but not outside of it.  Or, it may be a sequence of expression
+statements, such as \xcd`i=0, j=100`, operating on already-defined variables.
+If omitted, \xcd`init` does nothing.
+
+\xcd`test` is a Boolean-valued expression; an iteration of the loop will only
+proceed if \xcd`test` is true at the beginning of the loop, after \xcd`init`
+on the first iteration or or \xcd`step` on later ones. If omitted, \xcd`test`
+defaults to \xcd`true`, giving a loop that will run until stopped by some
+other means such as \xcd`break`, \xcd`return`, or \xcd`throw`.
+
+\xcd`step` is performed after the loop body, between one iteration and the
+next. It traditionally updates the loop variables from one iteration to the
+next: \eg, \xcd`i++` and \xcd`i++,j--`.  If omitted, \xcd`step` does nothing.
+
+\xcd`body` is a statement, often a code block, which is performed whenever
+\xcd`test` is true.  If omitted, \xcd`body` does nothing.
+
+
+
+
+\label{ForAllLoop}
+
+
+An enhanced for statement is used to iterate over a collection, or other
+structure designed to support iteration by implementing the interface
+\xcd`Iterable[T]`.    The loop variable must be of type \xcd`T`, 
+or destructurable from a value of type \xcd`T`
+(\Sref{exploded-syntax}).  
+Each iteration of the loop
+binds the iteration variable to another element of the collection.
+The loop \xcd`for(x in c)S` behaves like: 
+%~~gen ^^^ Statements5e4u
+% package Statements5e4u;
+% class ForAll {
+% def forall[T](c:Iterable[T], S: () => void) {
+%~~vis
+\begin{xten}
+val iterator: Iterator[T] = c.iterator();
+while (iterator.hasNext()) {
+  val x : T = iterator.next();
+  S();
+}
+\end{xten}
+%~~siv
+%} }
+%~~neg
+
+A number of library classes implement \xcd`Iterable`, and thus can be iterated
+over.  For example, iterating over a \xcd`Region` iterates the \xcd`Point`s in
+the region, and iterating over an \xcd`Array` iterates over the
+\xcd`Point`s at which the  array is defined.
+
+\begin{ex}
+This loop adds up the elements of a \xcd`List[Int]`.
+Note that iterating over a list yields the elements of the list, as specified
+in the \xcd`List` API. 
+%~~gen ^^^ Statements3d9l
+% package Statements3d9l;
+% class Example {
+%~~vis
+\begin{xten}
+static def sum(a:x10.util.List[Int]):Int {
+  var s : Int = 0;
+  for(x in a) s += x;
+  return s;
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+The following code sums the elements of an integer array.  Note that the
+\xcd`for` loop iterates over the indices of the array, not the elements, as
+specified in the \xcd`Array` API.  
+%~~gen ^^^ Statements2d4h
+% package Statements2d4h;
+% class Example { 
+%~~vis
+\begin{xten}
+static def sum(a: Array[Int]): Int {
+  var s : Int = 0;
+  for(p in a) s += a(p);
+  return s;
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+
+
+\end{ex}
+
+Iteration variables have the \xcd`for` statement as scope.  They shadow other
+variables of the same names.
+
+\begin{ex}
+In practice, the ability to do destructuring in a \xcd`for` statement is
+mainly used for iterate over ranges of numbers.  
+\xcd`for ([i] in 1..10)` iterates over numbers from 1 to 10.
+The brackets are important. 
+\xcd`for (i in 1..10` iterates over \xcd`Point`s from 
+\xcd`[1] as Point` to \xcd`[10] as Point`.
+
+
+%~~gen ^^^ Statements90
+% package statements.for_for;
+% class Example {
+% def example(n:Int) {
+%~~vis
+\begin{xten}
+  var sum : Int = 0;
+  for ([i] in 1..n) sum += i;
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+\end{ex}
+
+
+\section{Return statement}
+\label{ReturnStatement}
+\index{return}
+
+%##(ReturnStatement
+\begin{bbgrammar}
+%(FROM #(prod:ReturnStatement)#)
+     ReturnStatement \: \xcd"return" Exp\opt \xcd";" & (\ref{prod:ReturnStatement}) \\
+\end{bbgrammar}
+%##)
+
+Methods and closures may return values using a return statement.
+If the method's return type is explicitely declared \xcd"void",
+the method must return without a value; otherwise, it must return
+a value of the appropriate type.
+
+\begin{ex}
+The following code illustrates returning values from a closure and a method.
+The \xcd`return` inside of \xcd`closure` returns from \xcd`closure`, not from
+\xcd`method`.  
+%~~gen ^^^ Statements2j1d
+% package Statements2j1d;
+% class Example {
+%~~vis
+\begin{xten}
+def method(x:Int) {
+  val closure = (y:Int) => {return x+y;}; 
+  val res = closure(0);
+  assert res == x;
+  return res == x;
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+
+\end{ex}
+
+
+\section{Assert statement} 
+\index{assert}
+
+%##(AssertStatement
+\begin{bbgrammar}
+%(FROM #(prod:AssertStatement)#)
+     AssertStatement \: \xcd"assert" Exp \xcd";" & (\ref{prod:AssertStatement}) \\
+                    \| \xcd"assert" Exp  \xcd":" Exp  \xcd";" \\
+\end{bbgrammar}
+%##)
+
+The statement \xcd`assert E` checks that the Boolean expression \xcd`E`
+evaluates to true, and, if not, throws an \xcd`x10.lang.Error`  exception.  
+The annotated assertion \xcd`assert E : F;` checks \xcd`E`, and, if it is
+false, throws an \xcd`x10.lang.Error` exception with \xcd`F`'s value attached
+to it. 
+
+\begin{ex}
+The following code compiles properly.  
+%~~gen ^^^ Statements100
+% package Statements.Assert;
+% 
+%~~vis
+\begin{xten}
+class Example {
+  public static def main(argv:Array[String](1)) {
+    val a = 1;
+    assert a != 1 : "Changed my mind about a";
+  }
+}
+\end{xten}
+%~~siv
+%~~neg
+\noindent
+However, when run, it 
+prints a stack trace starting with 
+\begin{xten}
+x10.lang.Error: Changed my mind about a
+\end{xten}
+\end{ex}
+
+\section{Exceptions in X10}
+\index{exception}
+
+X10 programs can throw {\em Exceptions} to indicate unusual or problematic
+situations.  Exceptions, as data values, are objects which which inherit from
+\xcd`x10.lang.Throwable`.    Exceptions may be thrown intentionally with the
+\xcd`throw` statement. Many primitives and library functions throw exceptions
+if they encounter problems; \eg, dividing by zero throws an instance of
+\xcd`x10.lang.ArithmeticException`. 
+
+When an exception is thrown, statically and dynamically enclosing
+\xcd`try`-\xcd`catch` blocks in the same activity can attempt to handle it.   If the throwing
+statement in inside some \xcd`try` clause, and some matching \xcd`catch`
+clause catches that type of exception, the corresponding \xcd`catch` body will
+be executed, and the process of throwing is finished.  
+If no statically-enclosing \xcd`try`-\xcd`catch` block can handle the
+exception, the current method call returns (abnormally), throwing the same
+exception from the point at which the method was called.  
+
+This process continues until the exception is handled or there are no more
+calling methods in the activity. In the latter case, the activity will
+terminate abnormally, and the exception will propagate to the activity's root;
+see \Sref{ExceptionModel} for details.
+
+Unlike some statically-typed languages with exceptions, X10's exceptions are
+all {\em unchecked}. Methods do not declare which exceptions they might throw;
+any method can, potentially, throw any exception.
+
+
+\section{Throw statement}
+\index{throw}
+
+%##(ThrowStatement
+\begin{bbgrammar}
+%(FROM #(prod:ThrowStatement)#)
+      ThrowStatement \: \xcd"throw" Exp \xcd";" & (\ref{prod:ThrowStatement}) \\
+\end{bbgrammar}
+%##)
+
+\index{Exception}
+\xcd"throw E" throws an exception whose value is \xcd`E`, which must be an
+instance of a subtype of \xcd`x10.lang.Throwable`. 
+
+\begin{ex}
+The following code checks if an index is in range and
+throws an exception if not.
+
+%~~gen ^^^ Statements110
+% package Statements_index_check;
+% class ThrowStatementExample {
+% def thingie(i:Int, x:Array[Boolean](1))  {
+%~~vis
+\begin{xten}
+if (i < 0 || i >= x.size)
+    throw new MyIndexOutOfBoundsException();
+\end{xten}
+%~~siv
+%} }
+% class MyIndexOutOfBoundsException extends Exception {}
+%~~neg
+\end{ex}
+
+\section{Try--catch statement}
+\index{try}
+\index{catch}
+\index{finally}
+\index{exception}
+
+%##(TryStatement Catches CatchClause Finally
+\begin{bbgrammar}
+%(FROM #(prod:TryStatement)#)
+        TryStatement \: \xcd"try" Block Catches & (\ref{prod:TryStatement}) \\
+                    \| \xcd"try" Block Catches\opt Finally \\
+%(FROM #(prod:Catches)#)
+             Catches \: CatchClause & (\ref{prod:Catches}) \\
+                    \| Catches CatchClause \\
+%(FROM #(prod:CatchClause)#)
+         CatchClause \: \xcd"catch" \xcd"(" FormalParam \xcd")" Block & (\ref{prod:CatchClause}) \\
+%(FROM #(prod:Finally)#)
+             Finally \: \xcd"finally" Block & (\ref{prod:Finally}) \\
+\end{bbgrammar}
+%##)
+
+Exceptions are handled with a \xcd"try" statement.
+A \xcd"try" statement consists of a \xcd"try" block, zero or more
+\xcd"catch" blocks, and an optional \xcd"finally" block.
+
+First, the \xcd"try" block is evaluated.  If the block throws an
+exception, control transfers to the first matching \xcd"catch"
+block, if any.  A \xcd"catch" matches if the value of the
+exception thrown is a subclass of the \xcd"catch" block's formal
+parameter type.
+
+The \xcd"finally" block, if present, is evaluated on all normal
+and exceptional control-flow paths from the \xcd"try" block.
+If the \xcd"try" block completes normally
+or via a \xcd"return", a \xcd"break", or a
+\xcd"continue" statement, 
+the \xcd"finally"
+block is evaluated, and then control resumes at
+the statement following the \xcd"try" statement, at the branch target, or at
+the caller as appropriate.
+If the \xcd"try" block completes
+exceptionally, the \xcd"finally" block is evaluated after the
+matching \xcd"catch" block, if any, and then the
+exception is rethrown.
+
+
+The parameter of a \xcd`catch` block has the block as scope.  It shadows other
+variables of the same name.
+
+\begin{ex}
+The \xcd`example()` method below executes without any assertion errors
+%~~gen ^^^ Statements9x3m
+% package Statements9x3m;
+%~~vis
+\begin{xten}
+class Exn extends Throwable{}
+class SubExn(n:Int) extends Exn{}
+class Example {
+  static def example() {
+    var correct : Boolean = false;
+    try {
+       throw new SubExn(4);
+    }
+    catch (e : SubExn{n==1}) { assert false; }
+    catch (e : Exn)          { correct = true; }
+    catch (e : SubExn)       { assert false; }
+    catch (e : Throwable)    { assert false; }
+    assert correct; 
+  }
+}
+\end{xten}
+%~~siv
+% class Hook { def run() { Example.example(); return true; } }
+%~~neg
+
+\end{ex}
+
+\section{Assert}
+
+The \xcd`assert` statement 
+%~~stmt~~`~~`~~B:Boolean ~~
+\xcd`assert B;` 
+checks that the Boolean expression \xcd`B` evaluates to true.  If so,
+computation proceeds.  If not, it throws \xcd`x10.lang.AssertionError`.
+
+The extended form 
+%~~stmt~~`~~`~~B:Boolean, A:Any ~~ 
+\xcd`assert B:A;`
+is similar, but provides more debugging information.  The value of the
+expression \xcd`A` is available as part of the \xcd`AssertionError`, \eg, to
+be printed on the console.
+
+\begin{ex}
+\xcd`assert` is useful for confirming properties that you believe to be true
+and wish to rely on.  In particular, well-chosen \xcd`assert`s make a program
+robust in the face of code changes and unexpected uses of methods.
+For example, the following method compute percent differences, but asserts
+that it is not dividing by zero.  If the mean is zero, it throws an exception,
+including the values of the numbers as potentially useful debugging
+information. 
+%~~gen ^^^ StmtAssert10
+%package StmtAssert10;
+% class Example {
+%~~vis
+\begin{xten}
+static def percentDiff(x:Double, y:Double) {
+  val diff = x-y;
+  val mean = (x+y)/2;
+  assert mean != 0.0  : [x,y]; 
+  return Math.abs(100 * (diff / mean));
+}
+\end{xten}
+%~~siv
+% }
+%~~neg
+
+\end{ex}
+
+
+At times it may be considered important not to check \xcd`assert` statements;
+\eg, if the test is expensive and the code is sufficiently well-tested.  The
+\xcd`-noassert` command line option causes the compiler to ignore all
+\xcd`assert` statements. 

@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Struct declaration</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Struct declaration</h2>
+
+<div class="p"><!----></div>
+X10 supports user-defined primitives (called
+<em>structs</em>). Like classes, structs define zero or more fields and
+zero or more methods, and may implement zero or more interfaces. A
+struct has the same modifiers as a class. However, structs are
+implicitly final and do <em>not</em> participate in any code
+inheritance relation. (This makes structs very easy to implement,
+without vtables.)
+
+<div class="p"><!----></div>
+<pre>
+<em>StructModifiers</em><sup>?</sup>
+struct C[X<sub>1</sub>, <font face="symbol">¼</font
+>, X<sub>n</sub>](p<sub>1</sub>:T<sub>1</sub>, <font face="symbol">¼</font
+>, p<sub>n</sub>:T<sub>n</sub>){c} 
+   implements I<sub>1</sub>, <font face="symbol">¼</font
+>, I<sub>k</sub> {
+<em>StructBody</em>
+}
+</pre>
+
+<div class="p"><!----></div>
+Each field and method in a struct is implicitly marked "global".  
+
+<div class="p"><!----></div>
+The size of a variable of struct type "C" is the size of the fields
+defined at "C" (up to alignment considerations). No extra space is
+allocated for a vtable or an itable. This means that unlike classes,
+structs cannot be defined recursively. That is, a struct "S" cannot
+contain a field of type "S", or a field of struct type "T" which,
+recursively, contains a field of type "S".
+
+<div class="p"><!----></div>
+
+<ul>
+<li> More precisely, we require that the set of <em>size equations</em>
+  for all structs and classes must have a unique solution. A size
+  equation for a struct "S" is defined as follows. Assume "S" has m fields
+  of type "S"<sub>i</sub> (for i in 0,<font face="symbol">¼</font
+>,m<font face="symbol">-</font
+>1), and n fields of type (class) "C"<sub>j</sub>
+  (for j in 0,<font face="symbol">¼</font
+>,n<font face="symbol">-</font
+>1). Then the size equation for "S" is 
+<pre>
+size(S) = size(S<sub>0</sub>)+<font face="symbol">¼</font
+>+size(S<sub>m<font face="symbol">-</font
+>1</sub>)+size(C<sub>0</sub>)+<font face="symbol">¼</font
+>+size(C<sub>n<font face="symbol">-</font
+>1</sub>) 
+</pre>
+The size
+equation for a class "C" is just &#223;ize(C) = AddressSize", where
+&#196;ddressSize" is a compile-time parameter.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Values of a struct "C" type can be created by invoking a constructor
+defined in "C", but without prefixing it with "new".
+
+<div class="p"><!----></div>
+Constrained types can be built on top of the base "C" in the same way as
+they can be built on top of a class "D". In struct "C[T1,..., Tn]{c}",
+the type of &#223;elf" in "c" is "C[T1,..., Tn]".
+
+<div class="p"><!----></div>
+
+</body>
+</html>

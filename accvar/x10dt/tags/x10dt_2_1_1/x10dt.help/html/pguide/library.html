@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>The Standard Library</title>
+
+ <h1><a name="tth_chAp1">
+Chapter 1 </a><br />A Potpourri of Types</h1><a name="chp:tsl">
+</a>
+
+<div class="p"><!----></div>
+We have mentioned a few of the basic types that X10 provides in its standard library.  We look at some
+more of them here.  Our discussion will be far from complete,
+but it will be more than enough for many applications.  Complete documentation for the library can be found
+in <a href="http://dist.codehaus.org/x10/xdoc/">http://dist.codehaus.org/x10/xdoc/</a>.  The library is very much
+a work in progress, with a long-run goal of being as nearly consistent with 
+<em>Apache's Harmony Project - Open Source Java SE</em>
+<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> APIs as makes sense in view of the
+differences between Java and X10.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;The Numbers Game</h2>
+
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;The Players</h3>
+X10 provides the usual sorts of basic numeric types:
+
+<dl compact="compact">
+
+	<dd><b>Byte, Short, Int, Long: </b>  8-bit, 16-bit, 32-bit, and 64-bit signed integers.</dd>
+
+	<dd><b>UByte, UShort, UInt, ULong: </b>  8-bit, 16-bit, 32-bit, and 64-bit <em>unsigned</em> integers.</dd>
+
+	<dd><b>Float, Double: </b> single and double precision IEEE floating point.</dd>
+</dl>
+It also supplies a double-precision <tt>Complex</tt> type that FORTRAN and C++ programmers have come to expect.
+All of these types are in the package <tt>x10.lang</tt>
+
+<div class="p"><!----></div>
+In terms of what these types mean and how they get used, X10 is consistent with what other languages
+do, so we won't belabor that here.  In particular,  implicit conversions will be performed as needed.
+For the signed numeric types, the conversions are between a type  and any type to its right:
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;Byte&nbsp;&lt;&nbsp;Short&nbsp;&lt;&nbsp;Int&nbsp;&lt;&nbsp;Long&nbsp;&lt;&nbsp;Float&nbsp;&lt;&nbsp;Double
+</pre>
+And the similarly for unsigned types
+
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;UByte&nbsp;&lt;&nbsp;UShort&nbsp;&lt;&nbsp;UInt&nbsp;&lt;&nbsp;ULong&nbsp;&lt;&nbsp;Float&nbsp;&lt;&nbsp;Double
+</pre>
+
+<div class="p"><!----></div>
+Let us be a little more clear about our vocabulary here:
+
+<blockquote>
+<b>Coercions:</b> Suppose we declare a variable "<tt>i</tt>" to be an <tt>Int</tt>: var i: Int;
+The expression <tt>i as Long</tt> is X10's syntax for saying "convert <tt>i</tt> to be a 
+<tt>Long</tt>."  In this case, the conversion involves no substantive change to <tt>i</tt>'s
+value: not one bit need be modified.  We are merely treating <tt>i</tt> as if had been
+declared to be a <tt>Long</tt>.  This sort of conversion is usually called a <em>coercion</em>. 
+
+<div class="p"><!----></div>
+<b>Casts:</b>  Another sort of conversion is that from <tt>Int</tt> to <tt>Byte</tt>.  The effect
+of the expression <tt>i as Byte</tt> is the mask out the leading 24 bits of <tt>i</tt> and
+regard what is left as a <tt>Byte</tt>.  For example if <tt>i</tt> is 4095, which in hex
+is <tt>0xfff</tt>, then masking out the leading bits leaves us with <tt>0xff</tt>,
+so <tt>i as Byte</tt> is -1: remember <tt>Byte</tt>s go from -128 to 127.
+
+<div class="p"><!----></div>
+A conversion like that from <tt>Int</tt> to <tt>Byte</tt>, or more dramatically, from
+<tt>Int</tt> to <tt>Double</tt> that may involve a change to the physical representation
+of the value is called a <em>cast</em>.
+
+<div class="p"><!----></div>
+Our example of "<tt>4095 as Byte == -1 as Byte</tt>" shows that casting can be dangerous.
+At least here there is nothing subtle going on, so if that wasn't the programmer's real
+intention, there is some chance that the problem can be spotted.
+One may not always be so lucky. For example, casting <tt>Int</tt> to <tt>Float</tt>
+can lose precision for the same reason that <tt>Int</tt> to <tt>Byte</tt> can.   <tt>Float</tt> only has
+ 23 bits (plus a sign bit) to hold the value;
+It uses the remaining 8 bits in its 32 bit word for the exponent.  For example, casting
+23456789 from <tt>Int</tt> to <tt>Float</tt> yields 2.3456788E7.  Note carefully the last digit:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>(23456789 as Float) as Long == 23456788</tt>.<br />
+If that last digit had some significance, you are in trouble.
+</blockquote>
+
+<div class="p"><!----></div>
+Thus, some of the implicit conversions above, like <tt>Int &lt; Long</tt>, are really coercions, while 
+others, like <tt>Long &lt; Float</tt>, are really casts.  Where a cast is what is at stake, X10 usually
+forces you to be explicit: "<tt>Int i = someValue(); Byte b = i <em>as Byte</em>;</tt>".  The explicit
+cast "<tt>as Byte</tt>" says you are prepared for the consequences of the conversion.
+
+<div class="p"><!----></div>
+<b>An aside for Java programmers: </b>
+The distinction between "signed"  and "unsigned" integers does not exist in Java.
+We end this section with a few words about what is at stake.
+
+<div class="p"><!----></div>
+From the dawn of computer history, CPUs have supported two kinds of arithmetic
+instructions: one set in which one of the bits that make up the integer's value is used to hold its sign, and a
+second set in which all integer values are treated as non-negative.  Having the extra bit as
+part of the value doubles the size of the
+largest positive integer you can express-something that was pretty important when the normal
+machine "word" was 16 bits wide.  Today, with 64 bit words becoming the norm, the extra bit
+is not all that big a deal: 2<sup>63</sup>&#8722;1 is plenty big-how often will you really need 2<sup>64</sup>&#8722;1?
+
+<div class="p"><!----></div>
+When the Java standard was first developed, the designers
+felt that, in their experience, exposing both types, as languages like C had done,
+had been a source of more errors than the additional
+power warranted.  Thus, unsigned values never made it into Java.  Well, they made it back into X10.
+There <em>are</em> some arguments for having it, aside from doubling the largest value, not the least:
+
+<div class="p"><!----></div>
+When you 
+declare something to be "unsigned", you are telling the reader of your code something:  negative
+values are neither expected nor welcome.   It is nice to have code that really says what you
+really mean.
+
+<div class="p"><!----></div>
+Another argument is that if you want to us a numeric type to represent one of the 8-bit ISO character
+types- ISO-8859-1, which handles European languages nearly completely-then <tt>UByte</tt>
+is a better match than <tt>Byte</tt>.  Certainly, everyone <em>thinks</em> of the mapping from numbers to
+characters as being a map from the integers 0, ..., 255 to characters.
+Also with <tt>UByte</tt>, you can test for control
+characters with one inequality: they are precisely those whose value as a <tt>UByte</tt> is
+less than <tt>0x20</tt>. Similar considerations apply to multi-byte encodings of characters.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;When Things Go Wrong</h2>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Function Types</h2>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Arrays, At Last</h2>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Distributing Data</h2>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a><a href="http://harmony.apache.org/">See http://harmony.apache.org/</a>
+<br /><br />
+
+</html>

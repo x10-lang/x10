@@ -1,0 +1,521 @@
+<project name="Main Build File for X10DT" basedir="." default="main">
+
+  <property name="build.folder" value="${build.loc}/../I${buildLabel}" />
+
+  <import file="utilities.xml" />
+  <property file="common.properties" />
+
+  <path id="launcher.path.ref">
+    <fileset dir="../eclipse/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+  </path>
+
+  <condition property="skipDirector">
+    <not>
+      <isset property="release"/>
+    </not>
+  </condition>
+
+  <condition property="deploy.release">
+    <and>
+      <isset property="release"/>
+      <not>
+        <isset property="no-release-deployment"/>
+      </not>
+    </and>
+  </condition>
+
+  <propertyset id="properties-set">
+    <propertyref name="release"/>
+    <propertyref name="skipDirector"/>
+    <propertyref name="skipMirroring"/>
+    <propertyref name="configs"/>
+    <propertyref name="builder"/>
+    <propertyref name="build.folder"/>
+    <propertyref name="build.loc"/>
+    <propertyref name="buildLabel"/>
+    <propertyref name="no.jars.signing"/>
+    <propertyref name="x10.tag"/>
+  </propertyset>
+
+  <!--- Building tasks -->
+
+  <target name="clean-eclipse" if="clean.eclipse">
+    <delete dir="../eclipse" />
+    <delete dir="../delta-pack" />
+  </target>
+
+  <target name="clean-x10dist" if="clean.x10dist">
+    <delete dir="../x10-build" />
+  </target>
+
+  <target name="check-log-file-existence">
+    <available file="${log.file}" type="file" property="log-file-exists" />
+  </target>
+
+  <target name="publish-compilation-log" depends="check-log-file-existence" if="log-file-exists">
+    <jdtCompileLogPublisher repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}" 
+                            buildResultUUID="${buildResultUUID}" filePath="${log.file}" componentName="${component.name}" />
+  </target>
+
+  <target name="publish-compilation-results" if="requestUUID">
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt/@dot.log" />
+      <param name="component.name" value="x10dt" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.core/@dot.log" />
+      <param name="component.name" value="x10dt.core" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.help/@dot.log" />
+      <param name="component.name" value="x10dt.help" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.help.dt/@dot.log" />
+      <param name="component.name" value="x10dt.help.dt" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.refactoring/@dot.log" />
+      <param name="component.name" value="x10dt.refactoring" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.search.core/@dot.log" />
+      <param name="component.name" value="x10dt.search.core" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.search.ui/@dot.log" />
+      <param name="component.name" value="x10dt.search.ui" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.ui/@dot.log" />
+      <param name="component.name" value="x10dt.ui" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.ui.launch.core/@dot.log" />
+      <param name="component.name" value="x10dt.ui.launch.core" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.ui.launch.cpp/@dot.log" />
+      <param name="component.name" value="x10dt.ui.launch.cpp" />
+    </antcall>
+  	<antcall target="publish-compilation-log">
+  	    <param name="log.file" value="${build.folder}/x10dt.ui.launch.cpp.rms/@dot.log" />
+  	    <param name="component.name" value="x10dt.ui.launch.cpp.rms" />
+  	</antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.ui.launch.java/@dot.log" />
+      <param name="component.name" value="x10dt.ui.launch.java" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10.effects/@dot.log" />
+      <param name="component.name" value="x10.effects" />
+    </antcall>
+  </target>
+
+  <target name="publish-update-site-link" unless="release">
+    <antcall target="publishLink">
+      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/2.0/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" />
+      <param name="link.label" value="Build ${buildLabel} is available on orquesta's update site." />
+    </antcall>
+  </target>
+
+  <target name="antRunner-release" if="release">
+    <antcall target="antRunner-release-publishing" />
+    <antcall target="antRunner-release-no-publishing" />
+  </target>
+
+  <target name="antRunner-no-release" unless="release">
+    <antcall target="antRunner-publishing" />
+    <antcall target="antRunner-no-publishing" />
+  </target>
+
+  <target name="antRunner">
+    <echo message="*** ${action.message}" />
+    <antcall target="reportBuildActivity" />
+    <java jar="${toString:launcher.path.ref}" fork="true" failonerror="true">
+      <arg value="-application" />
+      <arg value="org.eclipse.ant.core.antRunner" />
+      <arg value="-buildfile" />
+      <arg value="${xml.file}" />
+      <jvmarg value="-XX:MaxPermSize=256M" />
+      <jvmarg value="-Xmx512M" />
+      <syspropertyset refid="properties-set" />
+    </java>
+  </target>
+
+  <target name="post-build-cleaning" unless="no-cleaning">
+    <delete includeEmptyDirs="true">
+      <fileset dir="${x10dtBuildDirectory}">
+        <exclude name="buildRepo/**" />
+        <exclude name="${buildLabel}/**" />
+      </fileset>
+      <fileset dir="${build.folder}" defaultexcludes="false">
+        <include name="dependencies/**" />
+        <include name="test*/**" />
+        <include name="x10dt/**" />
+        <include name="x10dt.*/**" />
+        <include name="x10.effects*/**" />
+        <include name="x10.tests/**" />
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="deploy-release" if="deploy.release">
+    <property name="target.folder" value="${releases.folder}/${buildLabel}"/>
+    <mkdir dir="${target.folder}"/>
+    <copy todir="${target.folder}">
+      <fileset dir="${x10dtBuildDirectory}/${buildLabel}">
+        <include name="*.zip"/>
+      </fileset>
+    </copy>
+    <unzip dest="${target.folder}" src="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip"/>
+    <antcall target="publishLink">
+      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/2.0/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" />
+      <param name="link.label" value="Release ${buildLabel} update site zip." />
+    </antcall>
+    <antcall target="publishLink">
+      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}" />
+      <param name="link.label" value="Release ${buildLabel} update site url." />
+    </antcall>
+
+    <antcall target="publishLink">
+      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-linux.gtk.x86.zip" />
+      <param name="link.label" value="All-In-One Linux GTK x86 Release ${buildLabel}." />
+    </antcall>
+    <antcall target="publishLink">
+      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-linux.gtk.x86_64.zip" />
+      <param name="link.label" value="All-In-One Linux GTK x86_64 Release ${buildLabel}." />
+    </antcall>
+    <antcall target="publishLink">
+      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-macosx.cocoa.x86.zip" />
+      <param name="link.label" value="All-In-One MacOS Cocoa x86 Release ${buildLabel}." />
+    </antcall>
+    <antcall target="publishLink">
+      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-win32.win32.x86.zip" />
+      <param name="link.label" value="All-In-One Win32 x86 Release ${buildLabel}." />
+    </antcall>
+  </target>
+
+  <target name="clean-build-label" if="release">
+    <delete includeemptydirs="true">
+      <fileset dir="${x10dtBuildDirectory}/${buildLabel}">
+        <include name="*.zip"/>
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="deploy-clean-release" depends="deploy-release,clean-build-label"/>
+
+  <!--- Testing tasks -->
+
+  <path id="test-class.classpath">
+    <fileset dir="${eclipse-home}/plugins">
+      <include name="${plugin-name}_*.jar" />
+      <include name="${plugin-name}_*/*.jar" />
+    </fileset>
+    <dirset dir="${eclipse-home}/plugins">
+      <include name="${plugin-name}_*/"/>
+    </dirset>
+  </path>
+
+  <target name="run-test">
+    <echo message="Running ${classname}. Result file: ${test-output}."/>
+    <java fork="true" dir="${eclipse-home}" logError="true" classname="org.eclipse.core.launcher.Main"
+          output="${junit-report-output}/${classname}.log">
+      <classpath>
+        <fileset dir="${eclipse-home}/plugins">
+          <include name="org.eclipse.equinox.launcher_*.jar" />
+        </fileset>
+      </classpath>
+      <arg line="-application ${application}" />
+      <arg line="-data ${data-dir}" />
+      <arg line="formatter=${formatter},${test-output}" />
+      <arg line="-testApplication org.eclipse.ui.ide.workbench"/>
+      <arg line="-testPluginName ${plugin-name}" />
+      <arg line="-className ${classname}" />
+      <arg line="-os ${os}" />
+      <arg line="-ws ${ws}" />
+      <arg line="-arch ${arch}" />
+      <arg line="-consolelog" />
+      <jvmarg line="${vmargs}" />
+    </java>
+  </target>
+
+  <target name="pde-core-test">
+    <antcall target="run-test">
+      <param name="application" value="org.eclipse.test.coretestapplication"/>
+    </antcall>
+  </target>
+
+  <target name="pde-ui-test">
+    <antcall target="run-test">
+      <param name="application" value="org.eclipse.test.uitestapplication" />
+    </antcall>
+  </target>
+
+  <target name="swtbot-test">
+    <antcall target="run-test">
+      <param name="application" value="org.eclipse.swtbot.eclipse.junit4.headless.swtbottestapplication" />
+    </antcall>
+  </target>
+
+  <target name="check-test-output-existence">
+    <available file="${test-output}" type="file" property="test.output.available" />
+  </target>
+
+  <target name="junit-report" depends="check-test-output-existence" if="test.output.available">
+    <dirname property="output-dir" file="${test-output}" />
+    <basename property="output-file-name" file="${test-output}" />
+    <junitreport todir="${junit-report-output}" tofile="${classname}.xml">
+      <fileset dir="${output-dir}">
+        <include name="${output-file-name}" />
+      </fileset>
+    </junitreport>
+
+    <antcall target="publishJUnitResults">
+      <param name="componentName" value="${plugin-name}" />
+      <param name="testFile" value="${junit-report-output}/${classname}.xml" />
+    </antcall>
+  </target>
+
+  <target name="test-and-collect">
+    <property name="vmargs" value="-Xmx1000m -XX:MaxPermSize=256m"/>
+    <property name="os" value="linux"/>
+    <property name="ws" value="gtk"/>
+    <property name="arch" value="x86_64"/>
+    <property name="data-dir" value="${testBuildDirectory}/junit-workspace" />
+    <property name="test-output" value="${eclipse-home}/${classname}.xml" />
+    <property name="formatter" value="org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter"/>
+
+    <antcall target="${test-target}"/>
+
+    <antcall target="junit-report" />
+
+    <delete dir="${data-dir}" />
+    <delete>
+      <fileset dir="${eclipse-home}/configuration">
+        <include name="*.log" />
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="pde-core-tests-check">
+    <available classname="${plugin-name}.PDECoreTestSuite" classpathref="test-class.classpath" 
+               property="pde.core.tests.present" />
+  </target>
+
+  <target name="run-pde-core-tests" depends="pde-core-tests-check" if="pde.core.tests.present">
+    <antcall target="reportBuildActivity">
+      <param name="activityId" value="${activityId}" />
+      <param name="action.message" value="${action.message}" />
+    </antcall>
+    <antcall target="test-and-collect">
+      <param name="test-target" value="pde-core-test" />
+      <param name="classname" value="${plugin-name}.PDECoreTestSuite" />
+    </antcall>
+  </target>
+
+  <target name="pde-ui-tests-check">
+    <available classname="${plugin-name}.PDEUITestSuite" classpathref="test-class.classpath" 
+               property="pde.ui.tests.present" />
+  </target>
+
+  <target name="run-pde-ui-tests" depends="pde-ui-tests-check" if="pde.ui.tests.present">
+    <antcall target="reportBuildActivity">
+      <param name="activityId" value="${activityId}" />
+      <param name="action.message" value="${action.message}" />
+    </antcall>
+    <antcall target="test-and-collect">
+      <param name="test-target" value="pde-ui-test" />
+      <param name="classname" value="${plugin-name}.PDEUITestSuite" />
+    </antcall>
+  </target>
+
+  <target name="swbot-tests-check">
+    <available classname="${plugin-name}.SWTBotTestSuite" classpathref="test-class.classpath" 
+               property="swtbot.tests.present" />
+  </target>
+
+  <target name="run-swtbot-tests" depends="swbot-tests-check" if="swtbot.tests.present">
+    <antcall target="reportBuildActivity">
+      <param name="activityId" value="${activityId}" />
+      <param name="action.message" value="${action.message}" />
+    </antcall>
+    <antcall target="test-and-collect">
+      <param name="test-target" value="swtbot-test" />
+      <param name="classname" value="${plugin-name}.SWTBotTestSuite" />
+    </antcall>
+  </target>
+
+  <target name="junit-tests-check">
+    <available classname="${plugin-name}.JUnitTestSuite" classpathref="test-class.classpath"
+               property="junit.tests.present"/>
+  </target>
+
+  <target name="run-junit-tests" depends="junit-tests-check" if="junit.tests.present">
+    <property name="classname" value="${plugin-name}.JUnitTestSuite" />
+
+    <antcall target="reportBuildActivity">
+      <param name="activityId" value="${activityId}" />
+      <param name="action.message" value="${action.message}" />
+    </antcall>
+
+    <junit printsummary="on">
+      <classpath>
+        <fileset dir="${eclipse-home}/plugins">
+          <include name="${plugin-name}_*.jar" />
+          <include name="${plugin-name}_*/*.jar"/>
+          <include name="org.junit_4*/junit.jar"/>
+          <include name="lpg*.jar"/>
+          <include name="org.hamcrest.core_*.jar"/>
+          <include name="x10.compiler_*.jar"/>
+          <include name="x10.effects_*.jar"/>
+          <include name="x10.jar"/>
+          <include name="org.eclipse.core.runtime_*.jar" />
+          <include name="org.eclipse.equinox.common_*.jar" />
+          <include name="org.eclipse.pde.core_*.jar" />
+          <include name="org.eclipse.osgi_*.jar" />
+        </fileset>
+        <dirset dir="${eclipse-home}">
+          <include name="plugins" />
+          <include name="plugins/${plugin-name}_*/" />
+          <include name="plugins/${plugin-name}_*/code" />
+        </dirset>
+        <pathelement path="${java.class.path}" />
+      </classpath>
+
+      <test name="${classname}" todir="${eclipse-home}" outfile="${classname}">
+        <formatter type="xml"/>
+      </test>
+    </junit>
+
+    <antcall target="junit-report">
+      <param name="test-output" value="${eclipse-home}/${classname}.xml" />
+    </antcall>
+  </target>
+
+  <target name="run-tests">
+    <property name="eclipse-home" value="${testBuildDirectory}/eclipse" />
+    <property name="junit-report-output" value="${build.folder}/junit-results"/>
+
+    <mkdir dir="${junit-report-output}"/>
+
+    <antcall target="run-pde-core-tests" />
+    <antcall target="run-pde-ui-tests"/>
+    <antcall target="run-swtbot-tests"/>
+    <antcall target="run-junit-tests"/>
+  </target>
+
+  <target name="publish-test-compilation-results" if="requestUUID">
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.core.tests/temp.folder/core.jar.bin.log" />
+      <param name="component.name" value="x10dt.core.tests" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.ui.tests/temp.folder/ui.jar.bin.log" />
+      <param name="component.name" value="x10dt.ui.tests" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.tests.services/@dot.log" />
+      <param name="component.name" value="x10dt.tests.services" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.ui.launch.cpp.tests/@dot.log" />
+      <param name="component.name" value="x10dt.ui.launch.cpp.tests" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10.effects.tests/@dot.log" />
+      <param name="component.name" value="x10.effects.tests" />
+    </antcall>
+  </target>
+
+  <target name="run-all-tests" if="testing">
+    <antcall target="antRunner">
+      <param name="action.message" value="Build Test Plugins..." />
+      <param name="activityId" value="build-x10dt-tests" />
+      <param name="xml.file" value="x10dt-tests-build.xml" />
+    </antcall>
+    <antcall target="publish-test-compilation-results"/>
+
+    <!-- We need to create a x10.jar for the compiler test cases of X10DT Core. -->
+    <jar destfile="${testBuildDirectory}/eclipse/plugins/x10.jar">
+      <fileset dir="${x10.build.loc}/x10.runtime/classes">
+        <include name="x10/**/*.class"/>
+      </fileset>
+      <fileset dir="${x10.build.loc}/x10.runtime/src-x10">
+        <include name="x10/**/*.x10"/>
+      </fileset>
+      <fileset dir="${x10.build.loc}/x10.constraints/classes">
+        <include name="x10/**" />
+      </fileset>
+      <fileset dir="${x10.build.loc}/x10.common/classes">
+        <include name="x10/**" />
+      </fileset>
+    </jar>
+    <antcall target="run-tests">
+      <param name="plugin-name" value="x10dt.core.tests" />
+      <param name="activityId" value="test-x10dt-core" />
+      <param name="action.message" value="Run X10DT Core Tests..." />
+    </antcall>
+    <antcall target="run-tests">
+      <param name="plugin-name" value="x10dt.ui.tests" />
+      <param name="activityId" value="test-x10dt-ui" />
+      <param name="action.message" value="Run X10DT UI Tests..." />
+    </antcall>
+    <antcall target="run-tests">
+      <param name="plugin-name" value="x10dt.search.core.tests" />
+      <param name="activityId" value="test-x10dt-search-core" />
+      <param name="action.message" value="Run X10DT Search Core Tests..." />
+    </antcall>
+    <antcall target="run-tests">
+      <param name="plugin-name" value="x10dt.ui.launch.cpp.tests" />
+      <param name="activityId" value="test-x10dt-launch-cpp" />
+      <param name="action.message" value="Run X10DT UI Launch C++ Tests..." />
+    </antcall>
+    <antcall target="run-tests">
+      <param name="plugin-name" value="x10.effects.tests" />
+      <param name="activityId" value="test-x10-effects" />
+      <param name="action.message" value="Run X10 Effect Tests..." />
+    </antcall>
+  </target>
+
+  <!-- Main target -->
+
+  <target name="main" depends="jazz-setup">
+    <antcall target="clean-eclipse" />
+    <antcall target="clean-x10dist" />
+
+    <mkdir dir="${build.folder}" />
+
+    <ant antfile="get-eclipse.xml" />
+
+    <antcall target="antRunner">
+      <param name="action.message" value="Get LPG..." />
+      <param name="activityId" value="download-lpg" />
+      <param name="xml.file" value="dependencies-repo.xml" />
+    </antcall>
+    
+    <antcall target="reportBuildActivity">
+      <param name="activityId" value="build-x10-dist" />
+      <param name="action.message" value="Build X10 distribution and X10DT fragments..." />
+    </antcall>
+    <echo message="*** Build X10 distribution and X10DT fragments..." />
+    <ant antfile="x10-build.xml"/>
+
+    <antcall target="antRunner">
+      <param name="action.message" value="Build X10DT..." />
+      <param name="activityId" value="build-x10dt-dist" />
+      <param name="xml.file" value="x10dt-build.xml" />
+    </antcall>
+
+    <antcall target="publish-compilation-results"/>
+    <antcall target="publish-update-site-link"/>
+
+    <antcall target="run-all-tests" />
+
+    <antcall target="post-build-cleaning"/>
+
+    <antcall target="deploy-clean-release"/>
+  </target>
+
+</project>

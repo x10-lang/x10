@@ -1,0 +1,447 @@
+12/19/2010 6:09:44 AM
+
+Types in X10
+
+This document describes types at the language level. This is not an
+implementation document. An implementation must respect these
+definitions.
+
+A. Kinds of types
+
+Here is abstract syntax for types in X10
+
+(Type) S, T, S1, T1, ... ::=
+     X                        -- Type parameter
+     N[T1,...,Tn]             -- Parameteric type; Ti arbitrary types
+     T{c}                     -- Constrained type; T arbitrary type
+                                 (ConstrainedType) 
+     S.T                      -- Inner type; S must be a container
+                                 type 
+     F                        -- Function type
+     S@T                      -- S and T arbitrary types; T annotates
+                                 S  (AnnotatedType)
+     M[T1,...,Tn](t1,...,tk)  -- Typdef invocation, with given type
+                              -- and term arguments  (MacroType)
+
+(Name) N ::=
+       possibly dotted sequence of identifiers
+       (naming a top-level interface, struct or class)
+
+(Function type) F ::=
+     (x1:T1,...,xn:Tn){c}=>T  -- Note that function types are not generic
+
+
+TODO: Check current implementation
+_[_,...,_] binds tighter than _. _, which binds tighter than _{c}. Use
+parantheses to circumvent natural binding order. 
+
+(Term) t ::=
+       x                      -- Local val
+       self                   -- Available in all constraints
+       this                   -- Available only when this is defined, 
+                              -- i.e. in non-static contexts
+       t.f                    -- Field access; t any arbitrary term
+       IntLiterals           
+       FloatLiteral
+       StringLiterals
+       ArrayLiterals
+
+(Value Constraint) c ::=  
+     t == t                   -- Equality of two terms
+     t != t                   -- Disequality
+     c,c                      -- Conjunction
+     G                        -- Type constraints
+
+(Type constraint) H ::= 
+     S <: T                   -- Subtype
+     S == T                   -- Equality
+     T haszero                -- zero is a legal value for T
+     H,H                      -- Conjunction
+
+(Typing Context) G ::=
+     x : T                    -- type assertion
+     H                        -- type constraint
+     c                        -- value constraint
+
+QUESTION: Per the above definitions, we do not permit type constraints
+G to occur in the constraint c of a constrained type T{c}. Is there
+any situation in which it may make sense for an H to occur in a
+constrained type?
+
+DEFINITION Container type
+  N[T1,...,Tn] is a container type.
+  S{c} is a container type if S is.
+  S@T is a container type if S.
+  S.T is a container type if T is. (S must be a container type for S.T
+  to be well-defined.)
+
+  No other types are container types.  
+[] 
+
+Note that a type parameter is not a container type. 
+
+DEFINITION: Root type
+  The root type of type T, root [[ _ ]] is the type defined thus:
+
+     root [[ N[T1,...,Tn] ]] =  N[T1,...,Tn]
+     root [[ T{c}  ]]        =  root [[ T ]]
+     root [[ S.T  ]]         =  root [[ S ]]
+     root [[ F ]]            = F
+     root [[ S@T ]]          = root [[ S ]]
+     root [[ M[T1,...,Tn](t1,...,tk) ]] 
+                             = root [[ recexpand [[ M[T1,...,Tn](t1,..,tk)]] ]]
+
+[]
+
+Well-formedness Conditions
+  self may occur as the root of a term in a constraint c in a type
+  T{c} only if the term is of the form self.p1....pn, where each pi is
+  a property.
+
+  this may occur in the constraint c of a type T{c} only if the type
+  occurs in a context in which this is defined, i.e. in the
+  declaration of a property, class invariant, class super clause,
+  class implements clause, an instance field, or in the body of an
+  instance method.
+
+  If an interface, class or struct N is declared with k type
+  parameters then for an expression N[T1..., Tm] to be a well-formed
+  type it must be the case that m=k.
+
+  For a type S.T to be well-formed, S must be a container type.
+
+Examples of non-well-formed types
+   Foo.X where X is a type parameter.
+
+Some definitions on types
+
+DEFINITION: Expansion of a typedef invocation, expand [[ _ ]]
+
+   Let M[R1,...,Rk](s1,...,sm) be a typedef invocation, with the
+   static type of each si being Si. The invocation a type definition
+   type M[X1,..,Xn](x1:T1,..., Tp){c, H}=T provided that k=n and m=p and
+   for fresh variabls y1,..., ym and typing context G = y1:S1,..., ym:Sm:
+
+   (i)  G |- c[R1/X1,..., Rk/Xk, y1/x1,.., ym/xm]
+   (ii  G |- H[R1/X1,..., Rk/Xk, y1/x1,.., ym/xm]
+   (ii) G |- Sj <: Tj[R1/X1,...,Rk/Xk, y1/x1,.., ym/xm]
+
+   It is a static error for a typedef invocation to match more than
+   one type definitions.
+
+   The result of the type expansion is the type T with each Xi
+   replaced by Si, and each xi replaced by si.
+
+TODO: Specify which type definitions are available at a certain point
+in the code.
+
+TODO: Do we currently support type inference for type arguments of a
+typedef invocation? (We probably should.)
+
+DEFINITION: Recursive Expansion of a typedef invocation, 
+    recexpand [[ _ ]]
+
+   Let the expansion of a typdef invocation Z=M[R1,...,Rk](s1,...,sm)
+   be the type T. The recursive expansion of Z is the type T with all
+   typedef invocations in T replaced by their expansions.
+
+   If the compiler cannot remove all typedef invocations in T after
+   expanding a certain fixed (implementation dependent) number of
+   times, then it signals an error statically.
+
+DEFINITION: Base type of a type,  baseType [[ _ ]] is defined recursively, thus:
+
+      baseType [[ X ]]   = X
+
+      baseType [[ N[T1,...,Tn] ]]= N[T1,...,Tn]
+
+      baseType [[ T{c} ]]= baseType [[ T ]]
+
+      baseType [[ S.T  ]]= S . baseType [[ T ]]
+
+      baseType [[ (x1:T1,...,xn:Tn){c}=>T ]] 
+                         = (x1:T1,...,xn:Tn){c}=>T 
+
+      baseType [[ S@T ]] = baseType [[S]] 
+
+      baseType [[ M[T1,...,Tn](t1,...,tk)]] 
+                         = baseType [[ recexpand [[ M[T1,.., Tn](t1,...,tk) ]] ]]
+
+     Implementation note: The result of X10Type.baseType(type) cannot
+     be a MacroType, ConstrainedType or AnnotatedType.
+   
+DEFINITION: xclause for a type, xclause [[ _ ]] is a constraint, defined thus:
+      xclause [[ X ]]   = {}
+      xclause [[ N[T1,...,Tn] ]]
+                        = {}
+      xclause [[ T{c} ]]= xclause [[ T ]], c
+      xclause [[ S.T  ]]= S . xclause [[ T ]]
+      xclause [[ (x1:T1,...,xn:Tn){c}=>T ]] 
+                        = (x1:T1,...,xn:Tn){c}=>T 
+      xclause [[ S@T ]] = xclause [[S]] 
+      xclause [[ M[T1,...,Tn](t1,...,tk)]] 
+                        = xclause [[ recexpand [[ M[T1,.., Tn](t1,...,tk) ]] ]]
+
+A. Constraints
+
+   Entailment relation on constraints.  
+
+   A valuation V is an assignment of values to variables, including
+   this and self.  A value for a class or struct type specifies values
+   for each of the properties and fields of the class (of the right
+   types). A value for a function type is a function of the given
+   type. Values come with a notion of equality (==) as specified by
+   the language.
+
+   Given a valuation V, the value of each constraint term t can be
+   specified thus:
+
+        valueof(V, [[ x ]])   = V(x)
+        valueof(V, [[ self ]])= V(self)
+        valueof(V, [[ this ]])= V(this)
+        valueof(V, [[ t.f ]]) = the value of the f field of valueof(V,[[t]])
+        valueof(V, [[ lit ]]) = the literal itself
+
+   A valuation V satisfies a constraint s == t if valueof(V, [[s]]) ==
+   valueof(V, [[t]]). A valuation V satisfies a constraint s != t if
+   valueof(V, [[s]]) != valueof(V, [[t]]).
+
+   A constraint c is said to entail d if every valuation V that
+   satisfies c also satisfies d.
+
+
+   A CConstraint is an XConstraint, together with two variables, a
+   selfVar and a thisVar.
+
+B. Subtyping relation
+
+The subtyping relation is defined in a context, G. The context
+conssists of variable declarations x:T, and type constraints on
+type parameters.
+
+The intuitive idea behind S <: T is that a value of type S can be used
+wherever a value of type T can be used.
+
+   G |- S <: T if 
+    (i) G |- baseType[[ S ]] <: baseType[[ T ]], and 
+    (ii) G, xclause [[ S ]] |- xclause [[ T ]]   (See recursive
+    constraint entailemnt below)
+
+   G |- S <: X (X a Type Parameter), provided that for every T such
+   that G |- X <: T, it is also the case that G |- S <: T. There must
+   be at least one T (distinct from X) for which G |- X <: T. (That
+   is, G must have an upper bound for X.) 
+
+   G |- S <: (x1:S1,...,xm:Sm){c}=> T iff baseTye [[ S ]]  is a function type
+    (y1:U1, .., yn:Un){d} => V, or S=X (a Type Parameter) and
+    G |- X <: (y1:U1, .., yn:Un){d} => V, and m=n, and for G' defined
+    as G, x1:S1,..., xm:Sm, c (where x1...xm are new variables):
+
+    (i)  G' implies d[x1/y1,...,xm/ym], and,
+    (ii) G' implies xi:T1[x1/y1,...,xi/yi] (for all i <=n), and
+    (iii)G' implies T <: V
+
+   G |- S <: N[T1,...,Tn] iff baseType[[S]] is a type M[S1,...,Sm] or
+   baseType[[S]] =X (a Type Parameter) and G |- X <: M[S1,...,Sm],
+   and, either 
+    (a.i) m=n and 
+    (a.ii) M=N, 
+    (a.iii) the definition of M specifies M takes n type arguments, 
+    (a.iv) for each i, G entails Si <: Ti or Ti <: Si or Si == Ti based
+         on whether the defn of M specifies the ith arg is covariant,
+         contravariant or equivariant; or
+    (b) G and the definition of M implies that M[S1,...,Sm] has
+          supertype T, and G |- U <: N[T1,...,Tn]; or
+    (c) G and the definition of M implies that M[S1,...,Sm] implements
+          T, and G |- T <: N[T1,...,Tn]
+
+   TODO: ADD RULES FOR DOTTED TYPES.
+
+B. Type checking
+
+  Above we have defined the entailment relation on constraint.
+
+  Recursive constraint entailment: 
+
+
+C. Type equality
+
+
+D. Type Inference for val's and return types of methods.
+   The compiler can infer typs in certain situations
+
+    -- The type of a variable in a val declaration may be omitted if
+       the declaration has an initializer. The type of the variable is
+       the type of the initializer.
+
+    -- The return type of a method may be omitted. 
+ 
+       If the method has no return statements, or no return statement
+       takes an expression as argument, then the method is a void
+       method. 
+
+       Otherwise the return type of the method is the computed lub of
+       the types of the expressions in each return statement in the
+       body of the method. If the type of an expression in a return
+       statement depends, directly or indirectly on the return type of
+       the method being inferred (e.g. for recursive methods), then
+       type inference fails; the type must be specified explicitly.
+
+E. Inference of type parameters for constructor invocations and method invocations 
+
+   Consider a method definition z = def m[X1,...,Xn](x1:S1,...,xk:Sk){c,H}.
+
+   Let m(t1,.., tk) be a call on the method m, and assume the static
+   type of each ti is Ti (for all i).  Note that the call has no
+   explicit type parameters. 
+
+   The compiler infers type parameters as follows.
+
+   Note: It is not possible in the current X10 language design for the
+   programmer to specify partial information about types. Either a
+   call must have all types specified precisely, or none at all. This
+   may change in the future.
+
+   First, the compiler collects a type environment, G as follows. 
+
+      It creates new type parameters Y1,..., Yn, and adds to G the
+      type constraints Yi <: Xi, for each i. 
+
+      Second, it adds to G zero or more type constraints from each of
+      triple (Si, Ti, isEqual) generated as follows (where isEqual is
+      initially false).
+
+           Let S'i = baseType[[ Si ]]. 
+
+           { It is ok to ignore the constraint in Si because Ti <:
+             X{c} can be solved with either X == Ti or X == Ti{c}; we
+             choose to solve it with X==Ti. The same argument holds
+             for Ti == X{c}. }
+
+           If S'i == null, no constraint is added to G. If S'i is a
+           ParameterType Z, then to G add Ti == Z if isEqual is true,
+           else add Ti <: Z.
+           
+           Else if S'i is a ClassType, then proceed as follows:
+
+              Let T'i = baseType [[ Ti ]]. 
+
+              {It is ok to ignore the constraint in Ti because we know
+               at this point that S'i is a ClassType. The only type
+               constraints generated from here on are going to involve
+               type parameters of S'i and type parameters of T'i or
+               its super type or implemented types. xclause(Ti) does
+               not play a role in these constraints.)
+
+              If T'i == null, do nothing. 
+
+              Else if T'i is a ClassType, then check whether the
+              definition of S'i and T'i are identical. If not, T'i to
+              the supertype of T'i, and repeat this
+              process. Additionally, for each interface I implemented
+              by T'i, set T'i to I and repeat this process.
+
+              If the definitions of S'i and T'i are equal then for
+              each j <= p (where the definition requires p parameters,
+              p >= 0), proceed as follows. Let Uj be the j'th type
+              parameter of S'i and Vj the j'th type parameter of T'i.
+
+                  If the jth type argument of the definition is
+                  declared as invariant, then add to G constraints
+                  generated from the triple (Uj, Vj, true).
+
+                  If the argument is declared covariant, add to G
+                  constraints generated from the triple (Uj, Vj,
+                  true).
+
+                  If the argument is declared contravariant, add to G
+                  constraints generated from the triple (Vj, Uj,
+                  false).
+
+              { There is no need to do anything if T'i is a Parameter,
+                since S'i is already known to be a ClassType, so this
+                call will not match.}    
+
+   From the given set of constraints, it creates three sets:
+
+      equals: the set of T such that there exists some U1,..., Uk such
+      that Yi == Ui, Ui==Ui+1,... Ui+1==Uk in G.
+
+      lower: the set of lower bounds for Yi in G.
+
+      upper: the set of upper bounds for Yi in G.
+
+   If equals is non-empty it takes the first value in equals as the
+   answer, and verifies that this solution satisfies all equals, upper
+   and lower bounds.
+
+   Else if upper is non-empty, it takes the computed greatest lower
+   bound of all the upper types, and verifies that it satisfies all
+   lower bounds.
+
+   Else it takes the least upper bound of all the lower types.
+
+   If this process does not result in a type, type inference is
+   declared unsuccessful
+
+   QUESTION: Why is H not used during type inference?
+
+F. Computed lub of types
+
+G. Generation of runtime code from types (for cast statements)
+
+H. Runtime representation of types
+
+
+Appendix
+Implementation notes
+
+Implementation of constraint entailment relation.
+
+   The entailment relation is specified above in terms of an infinite
+   set of valuations. There is an efficient representation of
+   constraints that permits "does c entail d" to be answered
+   positively or negatively in time essentially linear in the size of
+   c and d. It involves representing a constraint as a directed
+   acyclic graph whose nodes represent terms and whose (directed)
+   edges are of three kinds. Let m and n be two nodes in the graph,
+   with m labeled with term s and n with term t.
+
+      field-labeled edge: An edge from m to n labeled with a field f
+              represents the constraint s.f = t.
+
+      != labeled edge: An edge from m to n labeled with != represents
+             the constraint s != t.
+
+      == labeled edge: An edge from m to n labeled with == represents
+             the constraint s == t.
+
+    The graph has zero or more roots, nodes labeled with local
+    variables x (including self and this).
+
+    First, we define the prefixes for t=v.f1...fn are v, v.f1,
+    v.f1.f2,..., v.f1.f2...fn. Given t, and an index i (i in 1..n+1),
+    the operation suffix([[t]], i) is the sequence of fields
+    fi+1...fn.
+
+    Second, we define the size of a term t by induction in the usual
+    way: size[[x]] =1, size[[t.f]]=size[[t]]+1.
+
+    Now given such a graph g, we can define a (partial) lookup
+    operation for a term t=v.f1...fn, lookup [[t]]. The operation
+    returns null if there is no node in g labeled with v. Otherwise it
+    starts a traversal from the node n labeled with v, traversing only
+    edges labeled with == or (successively) with fields fi. It stops
+    traversal when it reaches a node that has no outgoing == edge or
+    edge labeled with fi (if it has already traversed edges
+    f1..fi-1). It returns this last node, together with i.  We say the
+    lookup is complete if the index i returned by the operation equals
+    n.
+
+    Now g entails s = t if and only if (a) lookup[[s]] returns (m, i),
+    (b) lookup[[t]] returns (n, j), (c) m and n are the same node, (d)
+    suffix([[s]], i) = suffix([[t]], j).
+
+    Further g entails s != t if (a) lookup[[s]] returns (m,|s|-1), (b)
+    lookup[[t]] returns  (n, |t|-1), (c) there is an != edge from m to
+    n or from n to m.

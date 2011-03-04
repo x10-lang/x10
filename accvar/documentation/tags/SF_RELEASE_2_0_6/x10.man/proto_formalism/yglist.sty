@@ -1,0 +1,12 @@
+
+\newcounter{flexlistCnt}
+
+% The parameter passed to flexlist specifies the left indentation value
+\newenvironment{flexlist}[1]%
+  {\begin{list}{\arabic{flexlistCnt}. }{\usecounter{flexlistCnt}%
+         \setlength{\labelsep}{0pt}%
+         \setlength{\leftmargin}{#1pt}%
+         \setlength{\labelwidth}{0pt}%
+         \setlength{\listparindent}{0pt}}}%
+  {\end{list}}
+

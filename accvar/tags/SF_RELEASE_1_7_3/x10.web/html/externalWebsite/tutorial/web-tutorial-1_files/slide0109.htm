@@ -1,0 +1,399 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:p="urn:schemas-microsoft-com:office:powerpoint"
+xmlns:oa="urn:schemas-microsoft-com:office:activation"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=PowerPoint.Slide>
+<meta name=Generator content="Microsoft PowerPoint 10">
+<link id=Main-File rel=Main-File href="../web-tutorial-1.htm">
+<link rel=Preview href=preview.wmf>
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+p\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+v\:textbox {display:none;}
+</style>
+<![endif]-->
+<title>Slide 1</title>
+<meta name=Description content="12/8/2006: DistributedHashMap - design">
+<link rel=Stylesheet href="master06_stylesheet.css">
+<![if !ppt]>
+<style media=print>
+<!--.sld
+	{left:0px !important;
+	width:6.0in !important;
+	height:4.5in !important;
+	font-size:76% !important;}
+-->
+</style>
+<script src=script.js></script><script><!--
+if( !IsNts() ) Redirect( "PPTSld" );
+//--></script><!--[if vml]><script>g_vml = 1;
+</script><![endif]--><![endif]><o:shapelayout v:ext="edit">
+ <o:idmap v:ext="edit" data="1460"/>
+</o:shapelayout>
+</head>
+
+<body lang=EN-US style='margin:0px;background-color:white'
+onclick="DocumentOnClick()" onresize="_RSW()" onload="LoadSld()"
+onkeypress="_KPH()">
+
+<div id=SlideObj class=sld style='position:absolute;top:0px;left:0px;
+width:755px;height:566px;font-size:16px;background-color:white;clip:rect(0%, 101%, 101%, 0%);
+visibility:hidden'><p:slide coordsize="720,540"
+ colors="#FFFFFF,#000000,#808080,#7889FB,#7889FB,#2DB6B3,#996633,#D18213"
+ masterhref="master06.xml">
+ <p:shaperange href="master06.xml#_x0000_s344065"/><![if !ppt]><p:shaperange
+  href="master06.xml#_x0000_s344066"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344066" src="master06_image391.jpg" style='position:absolute;
+ top:94.34%;left:0%;width:100.0%;height:5.65%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344067"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344067" src="master06_image392.jpg" style='position:absolute;
+ top:0%;left:0%;width:100.0%;height:5.47%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344070"/>
+ <div v:shape="_x0000_s344070" class=O>
+ <div style='mso-char-wrap:0;mso-kinsoku-overflow:0;position:absolute;
+ top:1.94%;left:11.78%;width:38.01%;height:3.0%'><span style='font-size:78%;
+ color:white'>IBM Research: Software Technology</span></div>
+ </div>
+ <div v:shape="_x0000_s344071" class=O>
+ <div style='text-align:right;mso-char-wrap:0;mso-kinsoku-overflow:0;
+ position:absolute;top:95.58%;left:63.57%;width:34.3%;height:2.29%'><span
+ style='font-size:56%;color:white'>© 2005 IBM Corporation</span></div>
+ </div>
+ <p:shaperange href="master06.xml#_x0000_s344072"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344072" src="master06_image393.gif" style='position:absolute;
+ top:.88%;left:92.58%;width:6.75%;height:3.53%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344073"/>
+ <div v:shape="_x0000_s344073" class=O>
+ <div style='mso-line-spacing:"100 50 0";position:absolute;top:95.58%;
+ left:2.64%;width:9.13%;height:2.29%'><span style='mso-hansi-font-family:Arial;
+ font-size:56%;color:white;mso-field-code:meta16'><b>109</b></span><span
+ style='mso-hansi-font-family:Arial;font-size:56%;color:white;mso-special-format:
+ lastCR;display:none'><b>&#13;</b></span></div>
+ </div>
+ <p:shaperange href="master06.xml#_x0000_s344074"/><p:shaperange
+  href="master06.xml#_x0000_s344076"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344076" src="master06_image394.gif" style='position:absolute;
+ top:2.12%;left:10.72%;width:.39%;height:3.88%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344077"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344077" src="master06_image395.gif" style='position:absolute;
+ top:94.34%;left:10.72%;width:.39%;height:3.35%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344078"/><map name="map_m14"></map><![if !ppt]><img
+ border=0 v:shapes="_x0000_s344078" src="master06_image396.gif"
+ usemap="#map_m14" alt="Text Box: Software Technology Department"
+ style='position:absolute;top:5.47%;left:0%;width:3.57%;height:89.22%'><![endif]>
+ <div v:shape="_x0000_s344078" class=O style='position:absolute;top:5.47%;
+ left:.26%;width:2.91%;height:86.39%;visibility:hidden'>
+ <div style='mso-line-spacing:"100 50 0";position:absolute;top:49.48%;
+ left:-1027.27%;width:2222.72%;height:4.49%;visibility:hidden'><span
+ style='color:white;mso-color-index:0'>Software Technology Department</span></div>
+ </div>
+ <p:shaperange href="master06.xml#_x0000_s344079"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344079" src="master06_image397.gif" style='position:absolute;
+ top:15.54%;left:3.31%;width:97.08%;height:.53%'><![endif]><![endif]><p:shaperange
+  href="master06.xml#_x0000_m344068"/><v:shape id="_x0000_s1495042" type="#_x0000_m344068"
+  style='position:absolute;left:24pt;top:36pt;width:637.25pt;height:48pt'
+  o:userdrawn="f">
+  <v:fill o:detectmouseclick="f"/>
+  <v:stroke o:forcedash="f"/>
+  <v:imagedata preservegray="f" grayscale="f" bilevel="f"/>
+  <o:lock v:ext="edit" text="f"/>
+  <p:placeholder type="title"/></v:shape><v:rect id="_x0000_s1495043" style='position:absolute;
+  left:138pt;top:168pt;width:102pt;height:36pt;mso-wrap-style:none;
+  v-text-anchor:middle' filled="f" fillcolor="#7889fb [4]" stroked="f"
+  strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495044" style='position:absolute;left:596.5pt;
+  top:222pt;width:75.5pt;height:24.5pt;mso-wrap-style:none;v-text-anchor:top-baseline'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+  <v:textbox style='mso-fit-shape-to-text:t'/>
+ </v:rect><v:rect id="_x0000_s1495045" style='position:absolute;left:362.5pt;
+  top:222pt;width:42pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495046" style='position:absolute;left:362.5pt;
+  top:240pt;width:42pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495047" style='position:absolute;left:362.5pt;
+  top:258pt;width:42pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495048" style='position:absolute;left:362.5pt;
+  top:318pt;width:42pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495049" style='position:absolute;left:362.5pt;
+  top:300pt;width:42pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495050" style='position:absolute;left:362.5pt;
+  top:336pt;width:42pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495051" style='position:absolute;left:440.5pt;
+  top:222pt;width:30pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:line id="_x0000_s1495052" style='position:absolute' from="386.5pt,230pt"
+  to="434.5pt,230pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><v:rect id="_x0000_s1495053" style='position:absolute;left:493.5pt;
+  top:222pt;width:30pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><![if !vml]><img border=0
+ v:shapes="_x0000_s1495045,_x0000_s1495046,_x0000_s1495047,_x0000_s1495048,_x0000_s1495049,_x0000_s1495050,_x0000_s1495052"
+ src="slide0109_image533.gif" style='position:absolute;top:40.98%;left:50.33%;
+ width:10.33%;height:24.91%'><![endif]>
+ <div v:shape="_x0000_s1495042" class=T style='position:absolute;top:9.18%;
+ left:4.37%;width:86.62%;height:6.0%'>DistributedHashMap - design</div>
+ <div v:shape="_x0000_s1495044" class=O style='mso-line-spacing:"80 10 0";
+ mso-margin-left-alt:144;position:absolute;top:41.34%;left:83.84%;width:10.33%;
+ height:3.88%'><b>place 1</b><span style='mso-special-format:lastCR;display:
+ none'><b><i>&#13;</i></b></span></div>
+ <div v:shape="_x0000_s1495051" class=O style='text-align:center;mso-line-spacing:
+ "80 10 0";mso-margin-left-alt:144;position:absolute;top:41.16%;left:60.66%;
+ width:5.29%;height:3.0%'><span style='font-size:78%'>{k, v}</span></div>
+ <div v:shape="_x0000_s1495053" class=O style='text-align:center;mso-line-spacing:
+ "80 10 0";mso-margin-left-alt:144;position:absolute;top:41.16%;left:68.07%;
+ width:5.29%;height:3.0%'><span style='font-size:78%'>{k, v}</span></div>
+ <v:line id="_x0000_s1495054" style='position:absolute;flip:y' from="462.5pt,198pt"
+  to="462.5pt,222pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><v:oval id="_x0000_s1495055" style='position:absolute;left:453.5pt;
+  top:179pt;width:18pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:oval><![if !vml]><img border=0 v:shapes="_x0000_s1495054,_x0000_s1495055"
+ src="slide0109_image534.gif" style='position:absolute;top:33.03%;left:62.91%;
+ width:2.91%;height:8.48%'><![endif]><v:line id="_x0000_s1495056" style='position:absolute;
+  flip:y' from="515.5pt,199pt" to="515.5pt,223pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><v:oval id="_x0000_s1495057" style='position:absolute;left:506.5pt;
+  top:180pt;width:18pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:oval><![if !vml]><img border=0 v:shapes="_x0000_s1495056,_x0000_s1495057"
+ src="slide0109_image535.gif" style='position:absolute;top:33.21%;left:70.33%;
+ width:2.91%;height:8.48%'><![endif]><v:line id="_x0000_s1495058" style='position:absolute'
+  from="473.5pt,230pt" to="491.5pt,230pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><v:rect id="_x0000_s1495059" style='position:absolute;left:442.5pt;
+  top:258pt;width:30pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><![if !vml]><img border=0 v:shapes="_x0000_s1495058"
+ src="slide0109_image536.gif" style='position:absolute;top:41.69%;left:65.69%;
+ width:2.91%;height:2.12%'><![endif]>
+ <div v:shape="_x0000_s1495059" class=O style='text-align:center;mso-line-spacing:
+ "80 10 0";mso-margin-left-alt:144;position:absolute;top:47.87%;left:60.92%;
+ width:5.29%;height:3.0%'><span style='font-size:78%'>{k, v}</span></div>
+ <v:line id="_x0000_s1495060" style='position:absolute' from="386.5pt,267pt"
+  to="434.5pt,267pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><v:rect id="_x0000_s1495061" style='position:absolute;left:446.5pt;
+  top:318pt;width:30pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><![if !vml]><img border=0 v:shapes="_x0000_s1495060"
+ src="slide0109_image537.gif" style='position:absolute;top:48.58%;left:53.64%;
+ width:7.01%;height:2.12%'><![endif]>
+ <div v:shape="_x0000_s1495061" class=O style='text-align:center;mso-line-spacing:
+ "80 10 0";mso-margin-left-alt:144;position:absolute;top:59.01%;left:61.45%;
+ width:5.29%;height:3.0%'><span style='font-size:78%'>{k, v}</span></div>
+ <v:line id="_x0000_s1495062" style='position:absolute' from="390.5pt,327pt"
+  to="438.5pt,327pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><![if !vml]><img border=0 v:shapes="_x0000_s1495062"
+ src="slide0109_image538.gif" style='position:absolute;top:59.71%;left:54.17%;
+ width:7.01%;height:2.12%'><![endif]><v:line id="_x0000_s1495063" style='position:absolute'
+  from="470.5pt,270pt" to="524.5pt,318pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><v:oval id="_x0000_s1495064" style='position:absolute;left:524.5pt;
+  top:318pt;width:18pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:oval><v:line id="_x0000_s1495065" style='position:absolute;flip:x' from="470.5pt,336pt"
+  to="470.5pt,366pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><v:oval id="_x0000_s1495066" style='position:absolute;left:462.5pt;
+  top:370pt;width:18pt;height:18pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:oval><v:rect id="_x0000_s1495067" style='position:absolute;left:602.5pt;
+  top:325pt;width:75.5pt;height:24.5pt;mso-wrap-style:none;v-text-anchor:top-baseline'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+  <v:textbox style='mso-fit-shape-to-text:t'/>
+ </v:rect><![if !vml]><img border=0
+ v:shapes="_x0000_s1495063,_x0000_s1495064,_x0000_s1495065,_x0000_s1495066"
+ src="slide0109_image539.gif" style='position:absolute;top:50.0%;left:64.23%;
+ width:11.52%;height:22.26%'><![endif]>
+ <div v:shape="_x0000_s1495067" class=O style='mso-line-spacing:"80 10 0";
+ mso-margin-left-alt:144;position:absolute;top:60.42%;left:84.63%;width:10.33%;
+ height:3.88%'><b>place 2</b><span style='mso-special-format:lastCR;display:
+ none'><b><i>&#13;</i></b></span></div>
+ <v:shapetype id="_x0000_t88" coordsize="21600,21600" o:spt="88" adj="1800,10800"
+  path="m,qx10800@0l10800@2qy21600@11,10800@3l10800@1qy,21600e" filled="f">
+  <v:formulas>
+   <v:f eqn="val #0"/>
+   <v:f eqn="sum 21600 0 #0"/>
+   <v:f eqn="sum #1 0 #0"/>
+   <v:f eqn="sum #1 #0 0"/>
+   <v:f eqn="prod #0 9598 32768"/>
+   <v:f eqn="sum 21600 0 @4"/>
+   <v:f eqn="sum 21600 0 #1"/>
+   <v:f eqn="min #1 @6"/>
+   <v:f eqn="prod @7 1 2"/>
+   <v:f eqn="prod #0 2 1"/>
+   <v:f eqn="sum 21600 0 @9"/>
+   <v:f eqn="val #1"/>
+  </v:formulas>
+  <v:path arrowok="t" o:connecttype="custom" o:connectlocs="0,0;21600,@11;0,21600"
+   textboxrect="0,@4,7637,@5"/>
+  <v:handles>
+   <v:h position="center,#0" yrange="0,@8"/>
+   <v:h position="bottomRight,#1" yrange="@9,@10"/>
+  </v:handles>
+ </v:shapetype><v:shape id="_x0000_s1495068" type="#_x0000_t88" style='position:absolute;
+  left:569pt;top:174pt;width:18pt;height:114pt;mso-wrap-style:none;
+  v-text-anchor:middle' fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:shape><v:shape id="_x0000_s1495069" type="#_x0000_t88" style='position:absolute;
+  left:569.5pt;top:294pt;width:18pt;height:90pt;mso-wrap-style:none;
+  v-text-anchor:middle' fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:shape><![if !vml]><img border=0 v:shapes="_x0000_s1495068,_x0000_s1495069"
+ src="slide0109_image540.gif" style='position:absolute;top:32.15%;left:78.94%;
+ width:2.91%;height:39.39%'><![endif]><v:line id="_x0000_s1495070" style='position:absolute'
+  from="96pt,4in" to="674.5pt,290pt" strokecolor="black [1]">
+  <v:stroke dashstyle="dash"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><![if !vml]><img border=0 v:shapes="_x0000_s1495070"
+ src="slide0109_image541.gif" style='position:absolute;top:53.18%;left:13.24%;
+ width:80.66%;height:.88%'><![endif]><v:rect id="_x0000_s1495071" style='position:absolute;
+  left:192pt;top:234pt;width:24pt;height:17.5pt;mso-wrap-style:none;
+  v-text-anchor:middle' filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495072" style='position:absolute;left:96pt;
+  top:132.5pt;width:208pt;height:24.5pt;mso-wrap-style:none;v-text-anchor:top-baseline'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+  <v:textbox style='mso-fit-shape-to-text:t'/>
+ </v:rect><v:rect id="_x0000_s1495073" style='position:absolute;left:332pt;
+  top:132pt;width:89.75pt;height:24.5pt;mso-wrap-style:none;v-text-anchor:top-baseline'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+  <v:textbox style='mso-fit-shape-to-text:t'/>
+ </v:rect><v:rect id="_x0000_s1495074" style='position:absolute;left:437pt;
+  top:132.5pt;width:68.25pt;height:24.5pt;mso-wrap-style:none;v-text-anchor:top-baseline'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+  <v:textbox style='mso-fit-shape-to-text:t'/>
+ </v:rect><v:line id="_x0000_s1495075" style='position:absolute;flip:y' from="204pt,228pt"
+  to="5in,243pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><v:line id="_x0000_s1495076" style='position:absolute' from="180pt,245.5pt"
+  to="354pt,306pt" strokecolor="black [1]">
+  <v:stroke endarrow="open"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><![if !vml]><img border=0
+ v:shapes="_x0000_s1495071,_x0000_s1495075,_x0000_s1495076"
+ src="slide0109_image542.gif" style='position:absolute;top:41.34%;left:24.9%;
+ width:25.43%;height:16.6%'><![endif]>
+ <div v:shape="_x0000_s1495072" class=O style='mso-line-spacing:"80 10 0";
+ mso-margin-left-alt:144;position:absolute;top:24.73%;left:14.3%;width:32.45%;
+ height:3.88%'><span style='font-family:"Courier New";mso-ascii-font-family:
+ "Courier New"'><b>DistributedHashMap</b></span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";mso-special-format:lastCR;display:none'><b><i>&#13;</i></b></span></div>
+ <div v:shape="_x0000_s1495073" class=O style='mso-line-spacing:"80 10 0";
+ mso-margin-left-alt:144;position:absolute;top:24.73%;left:47.15%;width:12.71%;
+ height:3.88%'><span style='font-family:"Courier New";mso-ascii-font-family:
+ "Courier New"'><b>Segment</b></span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";mso-special-format:lastCR;display:none'><b><i>&#13;</i></b></span></div>
+ <div v:shape="_x0000_s1495074" class=O style='mso-line-spacing:"80 10 0";
+ mso-margin-left-alt:144;position:absolute;top:24.73%;left:61.72%;width:9.13%;
+ height:3.88%'><span style='font-family:"Courier New";mso-ascii-font-family:
+ "Courier New"'><b>Entry</b></span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";mso-special-format:lastCR;display:none'><b><i>&#13;</i></b></span></div>
+ <v:line id="_x0000_s1495077" style='position:absolute' from="93.5pt,394pt"
+  to="672pt,396pt" strokecolor="black [1]">
+  <v:stroke dashstyle="dash"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><![if !vml]><img border=0 v:shapes="_x0000_s1495077"
+ src="slide0109_image543.gif" style='position:absolute;top:72.96%;left:12.98%;
+ width:80.66%;height:.88%'><![endif]><v:line id="_x0000_s1495078" style='position:absolute'
+  from="90pt,172pt" to="668.5pt,174pt" strokecolor="black [1]">
+  <v:stroke dashstyle="dash"/>
+  <v:shadow color="gray [2]"/>
+ </v:line><![if !vml]><img border=0 v:shapes="_x0000_s1495078"
+ src="slide0109_image544.gif" style='position:absolute;top:31.8%;left:12.45%;
+ width:80.66%;height:.88%'><![endif]><v:rect id="_x0000_s1495079" style='position:absolute;
+  left:168pt;top:234pt;width:24pt;height:17.5pt;mso-wrap-style:none;
+  v-text-anchor:middle' filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495080" style='position:absolute;left:168pt;
+  top:197.5pt;width:48pt;height:54pt;mso-wrap-style:none;v-text-anchor:middle'
+  filled="f" fillcolor="#7889fb [4]" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+ </v:rect><v:rect id="_x0000_s1495081" style='position:absolute;left:6in;top:402pt;
+  width:79pt;height:24.5pt;mso-wrap-style:none;v-text-anchor:top-baseline'
+  filled="f" fillcolor="#7889fb [4]" stroked="f" strokecolor="black [1]">
+  <v:fill color2="white [0]"/>
+  <v:shadow color="gray [2]"/>
+  <v:textbox style='mso-fit-shape-to-text:t'/>
+ </v:rect><![if !vml]><img border=0 v:shapes="_x0000_s1495079,_x0000_s1495080"
+ src="slide0109_image545.gif" style='position:absolute;top:36.57%;left:23.31%;
+ width:7.01%;height:10.42%'><![endif]>
+ <div v:shape="_x0000_s1495081" class=O style='mso-line-spacing:"80 10 0";
+ mso-margin-left-alt:144;position:absolute;top:74.73%;left:61.05%;width:10.86%;
+ height:3.88%'><span style='font-family:"Courier New";mso-ascii-font-family:
+ "Courier New"'><b>Object</b></span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";mso-special-format:lastCR;display:none'><b><i>&#13;</i></b></span></div>
+</p:slide></div>
+
+</body>
+
+</html>

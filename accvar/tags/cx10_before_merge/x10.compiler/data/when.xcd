@@ -1,0 +1,23 @@
+// SYNOPSIS: when (#0) #1 #2=optional-break #3=loop-over-branches #4=unique_id
+
+synchronized (x10.lang.Runtime.here()) {
+	try {
+		while (true) {
+			// first when branch
+			if (#0) {
+				#1
+				#2
+			}
+			#3
+			x10.lang.Runtime.here().wait();
+		}
+	} catch (Throwable tmp#4) {
+		tmp#4.printStackTrace();
+		x10.lang.Runtime.runtime.javaRuntime.log(java.util.logging.Level.SEVERE,
+				"Unexpected exception during conditional atomic.", tmp#4);
+		throw new RuntimeException(tmp#4);
+	} finally {
+		x10.lang.Runtime.here().notifyAll();
+	}
+}
+

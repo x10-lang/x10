@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Names and Packages</title>
+</head>
+
+<body>
+ <h1><a name="tth_chAp1">
+Chapter 6 </a><br />Names and packages</h1>
+<a name="packages">
+</a> 
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Names</h2>
+
+<div class="p"><!----></div>
+An X10 program consists largely of giving names to entities, and then
+manipulating the entities by their names. The entities involved may be
+compile-time constructs, like packages, types and classes, or run-time
+constructs, like numbers and strings and objects.  
+
+<div class="p"><!----></div>
+X10 names can be <em>simple names</em>, which look like identifiers: <b>vj</b>,
+<b>x10</b>, <b>AndSoOn</b>. Or, they can be <em>qualified names</em>, which are
+sequences of two or more identifiers separated by dots: <b>x10.lang.String</b>, 
+<b>somePack.someType</b>, <b>a.b.c.d.e.f</b>.   Some entities have only simple
+names; some have both simple and qualified names.
+
+<div class="p"><!----></div>
+Every declaration that introduces a name has a <em>scope</em>: the region of the
+program in which the named entity can be referred to by a simple name.  
+In some cases, entities may be referred to by qualified names outside of their
+scope.  <em>E.g.</em>, a <b>public</b> class <b>C</b> defined in package <b>p</b> can be
+referred to by the simple name <b>C</b> inside of <b>p</b>, or by the qualified
+name <b>p.C</b> from anywhere.  
+
+<div class="p"><!----></div>
+Many sorts of entities have <em>members</em>.  Packages have classes, structs,
+and interfaces as members.  Those, in turn, have fields, methods, types, and
+so forth as members.  The member <b>x</b> of an entity named <b>E</b> (as a
+simple or qualified name) has the name <b>E.x</b>; it may also have other
+names.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Shadowing</h3>
+
+
+
+<div class="p"><!----></div>
+One declaration d may <em>shadow</em> another declaration d&#8242; in part of the
+scope of d&#8242;, if d and d&#8242; declare variables with the same simple name n.
+When d shadows d&#8242;, a use of n might refer to d's n (unless some
+d" in turn shadows d), but will never refer to d&#8242;'s n.
+
+<div class="p"><!----></div>
+X10 has four namespaces:
+
+<ul>
+<li> <b>Types:</b> for classes, interfaces, structs, and defined types.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Values:</b> for <b>val</b>- and <b>var</b>-bound variables; fields;
+      and formal parameters of all sorts.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Methods:</b> for methods of classes, interfaces, and structs.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Packages:</b> for packages.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+A declaration d in one namespace, binding a name n to an entity e,
+shadows all other declarations of that name n in scope at the point where
+d is declared. This shadowing is in effect for the entire scope of d.  
+Declarations in different namespaces do not shadow each other.
+Thus, a local variable declaration may shadow a field declaration, but not a
+class declaration.
+
+<div class="p"><!----></div>
+Declarations which only introduce qualified names - in X10, this is only
+package declarations - cannot shadow anything.
+
+<div class="p"><!----></div>
+The rules for shadowing of imported names are given in &#167;.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;Hiding</h3>
+
+<a name="sect:Hiding">
+</a>
+
+<div class="p"><!----></div>
+Shadowing is ubiquituous in X10. Another, and considerably rarer, way that one
+definition of a given simpl ename can render another definition of the same
+name unavailable is <em>hiding</em>. If a class <b>Super</b> defines a field named
+<b>x</b>, and a subclass <b>Sub</b> of <b>Super</b> also defines a field named
+<b>x</b>, then, for <b>Sub</b>s, references to the <b>x</b> field get <b>Sub</b>'s
+<b>x</b> rather than <b>Super</b>'s. In this case, <b>Super</b>'s <b>x</b> is said
+to be <em>hidden</em>.
+
+<div class="p"><!----></div>
+Hiding is technically different from shadowing, because hiding applies in more
+circumstances: a use of class <b>Sub</b>, such as <b>sub.x</b>, may involve
+hiding of name <b>x</b>, though it could not involve shadowing of <b>x</b>
+because <b>x</b> is need not be declared as a name at that point.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Obscuring</h3>
+
+<a name="sect:Obscuring">
+</a>
+
+<div class="p"><!----></div>
+The third way in which a definition of a simple name may become unavailable is
+<em>obscuring</em>. This well-named concept says that, if <b>n</b> can be
+interpreted as two or more of: a variable, a type, and a package, then it will
+be interpreted as a variable if that is possible, or a type if it cannot be
+interpreted as a variable. In this case, the unavailable interpretations are
+<em>obscured</em>. 
+
+<div class="p"><!----></div>
+In the <b>example</b> method of the following code, both a struct and a local
+variable are named <b>eg</b>.  Following the obscuring rules, The call
+<b>eg.ow()</b> in the first <b>assert</b> uses the variable rather than the struct.  
+As the second <b>assert</b> demonstrates, the struct can be accessed through
+its fully-qualified name.   Note that none of this would have happened if the
+coder had followed the convention that structs have capitalized names,
+<b>Eg</b>, and variables have lower-case ones, <b>eg</b>. 
+
+<div class="p"><!----></div>
+<pre>
+package obscuring;
+struct eg {
+   static def ow()= 1;
+   static struct Bite {
+      def ow() = 2;
+   }
+   def example() {
+       val eg = Bite();
+       assert eg.ow() == 2;
+       assert obscuring.eg.ow() == 1;
+     }
+}
+
+<div class="p"><!----></div>
+</pre>
+
+<div class="p"><!----></div>
+Due to obscuring, it may be impossible to refer to a type or a package via a
+simple name in some circumstances.  Obscuring does not block qualified names.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.4">
+1.4</a>&nbsp;&nbsp;Ambiguity and Disambiguation</h3>
+
+<div class="p"><!----></div>
+Neither simple nor qualified names are necessarily unique.  There can be, in
+general, many entities that have the same name.  This is perfectly ordinary,
+and, when done well, considered good programming practice.   Various forms of
+<em>disambiguation</em> are used to tell which entity is meant by a given name;
+<em>e.g.</em>, methods with the same name may be disambiguated by the types of their
+arguments (&#167;).
+
+<div class="p"><!----></div>
+In the following example, there are three static methods with 
+qualified name <b>DisambEx.Example.m</b>; they can be disambiguated by their
+different arguments.   Inside the body of the third, the simple name <b>i</b>
+refers to both the <b>Int</b> formal of <b>m</b>, and to the static method 
+<b>DisambEx.Example.i</b>.  
+<pre>
+package DisambEx; 
+class Example {
+  static def m() = 1;
+  static def m(Boolean) = 2;
+  static def i() = 3;
+  static def m(i:Int) {
+    if (i &#62; 10) {
+      return i() + 1;
+    }
+    return i;
+  }
+  static def example() {
+    assert m() == 1;
+    assert m(true) == 2;
+    assert m(20) == 4;
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+X10 allows certain modifiers to limit the use of named entities outside of the
+body that they were defined in: the  <b>public</b>, <b>protected</b>, <b>private</b>
+and uninflected package-specific scopes, as used in Java
+[,&#167; 6,&#167; 7] and various other languages.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

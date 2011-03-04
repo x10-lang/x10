@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Initial values of variables</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Initial values of variables</h2>
+<a name="NullaryConstructor">
+</a>
+
+
+
+<div class="p"><!----></div>
+Every assignment, binding, or initialization to a variable of type <b>T{c}</b>
+must be an instance of type <b>T</b> satisfying the constraint <b>{c}</b>.
+Variables must be given a value before they are used. This may be done by
+initialization - giving a variable a value as part
+of its declaration. 
+
+<div class="p"><!----></div>
+<em>e.g.</em> These variables are all initialized: 
+<pre>
+  val immut : Int = 3;
+  var mutab : Int = immut;
+  val use = immut + mutab;
+</pre>
+Or, a variable may be given a value by an assignment.  <b>var</b> variables may
+be assigned to repeatedly.  <b>val</b> variables may only be assigned once; the
+compiler will ensure that they are assigned before they are used.
+
+<div class="p"><!----></div>
+<em>e.g.</em> The variables in the following example are given their initial values by
+assignment.  Note that they could not be used before those assignments,
+nor could <b>immu</b> be assigned repeatedly.
+<div class="p"><!----></div>
+<pre>
+  var muta : Int;
+  // ERROR: println(muta);
+  muta = 4;
+  val use2A = muta * 10;
+  val immu : Int;
+  // ERROR: println(immu);
+  if (cointoss())   {immu = 1;}
+  else              {immu = use2A;}
+  val use2B = immu * 10;
+  // ERROR: immu = 5;
+</pre>
+
+<div class="p"><!----></div>
+Every class variable must be initialized before it is read, through
+the execution of an explicit initializer. Every
+instance variable must be initialized before it is read, through the
+execution of an explicit or implicit initializer or a constructor.
+Implicit initializers initialize <b>var</b>s to the default values of their
+types (&#167;). Variables of types which do not have default
+values are not implicitly initialized.
+
+<div class="p"><!----></div>
+Each method and constructor parameter is initialized to the
+corresponding argument value provided by the invoker of the method. An
+exception-handling parameter is initialized to the object thrown by
+the exception. A local variable must be explicitly given a value by
+initialization or assignment, in a way that the compiler can verify
+using the rules for definite assignment &#167;.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

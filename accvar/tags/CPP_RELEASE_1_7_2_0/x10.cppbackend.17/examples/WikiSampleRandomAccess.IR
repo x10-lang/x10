@@ -1,0 +1,260 @@
+// @author: Pradeep Varma
+//=============== IR Representation of Sample RandomAccess (sample posted on Wiki by Vivek Sarkar) ================
+
+  // initializing D
+  L# 110 x10$$$lang$$$dist D := BLOCKDIST @int INT TABLE_SIZE java$$$util$$$Set x10$$$lang$$$place$$places
+
+
+
+
+  // initializing Table
+  L# 120 NULLABLE [] @ long INT TEMP100 := [] @ long INT MEMALLOC x10$$$lang$$$dist D @ long INT        
+  // check if array got allocated
+  L# 130 BOOLEAN TEMP110 := BOOLEAN NULLCHECKPASS NULLABLE [] @ long INT TEMP100
+  L# 140 IF TEMP110 GOTO L# 160             // If allocated fine, goto L# 160
+  L# 150 RETURN NULLABLE x10$$$lang$$$Exception $mallocFailureException NULLABLE Type NULL // Type is the return type of function                                                        
+  L# 160 @ verified [] @ long INT Table := [] @ long INT TYPECAST NULLABLE [] @ long INT TEMP100 [] @ long INT
+
+  // looping to initialize Table elements
+  L# 170 x10$$$lang$$$region TEMP130 := x10$$$lang$$$region OBJECTDEREF x10$$$lang$$$dist D x10$$$lang$$$region region
+  L# 180 @ AtEachInit java$$$util$$$Iterator TEMP140 := CALL x10$$$lang$$$region$$iterator x10$$$lang$$$region TEMP130     
+  // Loop condition
+  L# 190 @ AtEachHasNext BOOLEAN TEMP150 := CALL java$$$util$$$Iterator$$hasNext java$$$util$$$Iterator TEMP140  
+  L# 200 IF TEMP150 GOTO L# 215
+  L# 210 GOTO L# 1110   // Loop exit
+  // Loop Body
+  L# 215 @ AtEachGetNext x10$$$lang$$$point p := CALL java$$$util$$$Iterator$$next java$$$util$$$Iterator TEMP140  
+  L# 220 x10$$$lang$$$place TEMP160 := x10$$$lang$$$place ARRAYDISTDEREF x10$$$lang$$$dist D x10$$$lang$$$point p
+  L# 230 NULLABLE $Activity TEMP170 := NULLABLE $Activity @ Async CREATEACTIVITY x10$$$lang$$$place TEMP160 L# 300
+  // check if activity got created
+  L# 240 BOOLEAN TEMP180 := BOOLEAN NULLCHECKPASS NULLABLE $Activity TEMP170
+  L# 250 IF TEMP180 GOTO L# 190             // If created fine, goto L# 190 (loopback)
+  L# 260 RETURN NULLABLE x10$$$lang$$$Exception $createActivityFailureException NULLABLE Type NULL // Type is the return type of function
+ 
+  L# 300 ASYNCBEGIN
+  L# 310 @ int INT i := CALL x10$$$lang$$$point$$get x10$$$lang$$$point p, @ int INT 0 
+  L# 320 @ long INT TEMP300 := @ long INT TYPECAST @ int INT i @ long INT
+  L# 320 [] @ long INT Table [ x10$$$lang$$$point p ] := @ long INT TEMP300
+  L# 350 ASYNCEND
+ 
+ 
+
+
+
+  // initializing RanStarts
+  L# 1110 x10$$$lang$$$dist TEMP1000 := UNIQUEDISTOP java$$$util$$$Set x10$$$lang$$$place$$places
+  L# 1120 NULLABLE [] @ long INT TEMP1100 := [] @ long INT MEMALLOC x10$$$lang$$$dist TEMP1000 @ long INT        
+  // check if array got allocated
+  L# 1130 BOOLEAN TEMP1110 := BOOLEAN NULLCHECKPASS NULLABLE [] @ long INT TEMP1100
+  L# 1140 IF TEMP1110 GOTO L# 1160             // If allocated fine, goto L# 1160
+  L# 1150 RETURN NULLABLE x10$$$lang$$$Exception $mallocFailureException NULLABLE Type NULL // Type is the return type of function                                                        
+  L# 1160 @ verified [] @ long INT RanStarts := [] @ long INT TYPECAST NULLABLE [] @ long INT TEMP1100 [] @ long INT
+
+  // looping to initialize RanStarts elements
+  L# 1170 x10$$$lang$$$region TEMP1130 := x10$$$lang$$$region OBJECTDEREF x10$$$lang$$$dist TEMP1000 x10$$$lang$$$region region
+  L# 1180 @ AtEachInit java$$$util$$$Iterator TEMP1140 := CALL x10$$$lang$$$region$$iterator x10$$$lang$$$region TEMP1130     
+  // Loop condition
+  L# 1190 @ AtEachHasNext BOOLEAN TEMP1150 := CALL java$$$util$$$Iterator$$hasNext java$$$util$$$Iterator TEMP1140  
+  L# 1200 IF TEMP1150 GOTO L# 1215
+  L# 1210 GOTO L# 2120   // Loop exit
+  // Loop Body
+  L# 1215 @ AtEachGetNext x10$$$lang$$$point p := CALL java$$$util$$$Iterator$$next java$$$util$$$Iterator TEMP1140  
+  L# 1220 x10$$$lang$$$place TEMP1160 := x10$$$lang$$$place ARRAYDISTDEREF x10$$$lang$$$dist TEMP1000 x10$$$lang$$$point p
+  L# 1230 NULLABLE $Activity TEMP1170 := NULLABLE $Activity @ Async CREATEACTIVITY x10$$$lang$$$place TEMP1160 L# 1300
+  // check if activity got created
+  L# 1240 BOOLEAN TEMP1180 := BOOLEAN NULLCHECKPASS NULLABLE $Activity TEMP1170
+  L# 1250 IF TEMP1180 GOTO L# 1190             // If created fine, goto L# 1190 (loopback)
+  L# 1260 RETURN NULLABLE x10$$$lang$$$Exception $createActivityFailureException NULLABLE Type NULL // Type is the return type of function
+ 
+  L# 1300 ASYNCBEGIN
+  L# 1310 @ int INT i := CALL x10$$$lang$$$point$$get x10$$$lang$$$point p, @ int INT 0 
+  L# 1320 @ int INT TEMP1300 := @ int INT i * @ int INT N_UPDATES_PER_PLACE
+  L# 1330 NULLABLE x10$$$lang$$$Exception TEMP1310 NULLABLE @ long INT TEMP1320 := CALL starts @ int INT TEMP1300 
+  L# 1340 BOOLEAN TEMP1330 := BOOLEAN NULLCHECKPASS NULLABLE x10$$$lang$$$Exception TEMP1310
+  L# 1350 IF TEMP1330 GOTO L# 1370                     // If exception goto L# 1370
+  L# 1360 GOTO L# 1400
+  // throw exception to root activity
+  L# 1370 @ verified x10$$$lang$$$Exception TEMP1340 := x10$$$lang$$$Exception TYPECAST nullable x10$$$lang$$$Exception TEMP100 x10$$$lang$$$Exception
+  L# 1380 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception TEMP1340
+  L# 1390 GOTO L# 1500
+
+  L# 1400 [] @ long INT RanStarts [ x10$$$lang$$$point p ] := @ long INT TEMP1320
+  L# 1500 ASYNCEND
+
+ 
+ 
+  // initializing SmallTable
+  L# 2120 @ value NULLABLE [] @ long INT TEMP2100 := @ value [] @ long INT MEMALLOC @ int INT TABLE_SIZE @ long INT        
+  // check if array got allocated
+  L# 2130 BOOLEAN TEMP2110 := BOOLEAN NULLCHECKPASS @ value NULLABLE [] @ long INT TEMP2100
+  L# 2140 IF TEMP2110 GOTO L# 2160             // If allocated fine, goto L# 2160
+  L# 2150 RETURN NULLABLE x10$$$lang$$$Exception $mallocFailureException NULLABLE Type NULL // Type is the return type of function                                                        
+  L# 2160 @ verified @ value [] @ long INT SmallTable := @ value [] @ long INT TYPECAST @ value NULLABLE [] @ long INT TEMP2100 @ value [] @ long INT
+  L# 2165 x10$$$lang$$$dist TEMP2000 := x10$$$lang$$$dist OBJECTDEREF @ value [] @ long INT SmallTable x10$$$lang$$$dist distribution
+
+  // looping to initialize SmallTable elements
+  L# 2170 x10$$$lang$$$region TEMP2130 := x10$$$lang$$$region OBJECTDEREF x10$$$lang$$$dist TEMP2000 x10$$$lang$$$region region
+  L# 2180 @ ForEachInit java$$$util$$$Iterator TEMP2140 := CALL x10$$$lang$$$region$$iterator x10$$$lang$$$region TEMP2130     
+  // Loop condition
+  L# 2190 @ ForEachHasNext BOOLEAN TEMP2150 := CALL java$$$util$$$Iterator$$hasNext java$$$util$$$Iterator TEMP2140  
+  L# 2200 IF TEMP2150 GOTO L# 2220
+  L# 2210 GOTO L# 2110   // Loop exit
+  // Loop Body
+  L# 2220 @ ForEachGetNext x10$$$lang$$$point p := CALL java$$$util$$$Iterator$$next java$$$util$$$Iterator TEMP2140  
+  L# 2230 NULLABLE $Activity TEMP2170 := NULLABLE $Activity @ Async CREATEACTIVITY x10$$$lang$$$place HERE L# 2300
+  // check if activity got created
+  L# 2240 BOOLEAN TEMP2180 := BOOLEAN NULLCHECKPASS NULLABLE $Activity TEMP2170
+  L# 2250 IF TEMP2180 GOTO L# 2190             // If created fine, goto L# 2190 (loopback)
+  L# 2260 RETURN NULLABLE x10$$$lang$$$Exception $createActivityFailureException NULLABLE Type NULL // Type is the return type of function
+ 
+  L# 2300 ASYNCBEGIN
+  L# 2310 @ int INT i := CALL x10$$$lang$$$point$$get x10$$$lang$$$point p, @ int INT 0 
+  L# 2320 @ int INT TEMP2300 := @ int INT i * @ int INT S_TABLE_INIT
+  L# 2330 @ value [] @ long INT SmallTable [ x10$$$lang$$$point p ] := @ long INT TEMP2300
+  L# 2350 ASYNCEND
+
+ 
+
+
+
+  L# 3000 FINISHBEGIN
+  
+  // ateach initialization
+  L# 3100 x10$$$lang$$$region TEMP3100 := x10$$$lang$$$region OBJECTDEREF [] @ long INT RanStarts x10$$$lang$$$region region
+  L# 3110 @ AtEachInit java$$$util$$$Iterator TEMP3110 := CALL x10$$$lang$$$region$$iterator x10$$$lang$$$region TEMP3100
+    
+  // ateach condition
+  L# 3120 @ AtEachHasNext BOOLEAN TEMP3120 := CALL java$$$util$$$Iterator$$hasNext java$$$util$$$Iterator TEMP3110  
+  L# 3130 IF TEMP3120 GOTO L# 3150
+  L# 3140 GOTO L# 4000   // Loop exit
+  // Loop Body
+  L# 3150 @ AtEachGetNext x10$$$lang$$$point p := CALL java$$$util$$$Iterator$$next java$$$util$$$Iterator TEMP3110  
+  L# 3160 x10$$$lang$$$place TEMP3130 := x10$$$lang$$$place ARRAYDISTDEREF x10$$$lang$$$dist D x10$$$lang$$$point p
+  L# 3170 NULLABLE $Activity TEMP3140 := NULLABLE $Activity @ Async CREATEACTIVITY x10$$$lang$$$place TEMP3130 L# 3300
+  // check if activity got created
+  L# 3180 BOOLEAN TEMP3150 := BOOLEAN NULLCHECKPASS NULLABLE $Activity TEMP3140
+  L# 3190 IF TEMP3150 GOTO L# 3120             // If created fine, goto L# 3120 (loopback)
+  L# 3200 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception $createActivityFailureException 
+  L# 3210 GOTO L# 4000
+ 
+  L# 3300 ASYNCBEGIN
+  L# 3310 @ long INT TEMP3300 := @ long INT ARRAYDISTDEREF [] @ long INT RanStarts x10$$$lang$$$point p 
+  L# 3320 NULLABLE x10$$$lang$$$Exception TEMP3310 NULLABLE @ long INT TEMP3320 := 
+                        CALL nextRandom @ long INT TEMP3300
+                        
+  L# 3330 BOOLEAN TEMP3330 := BOOLEAN NULLCHECKPASS NULLABLE x10$$$lang$$$Exception TEMP3310
+  L# 3340 IF TEMP3330 GOTO L# 3360             // If exception, goto L# 3360
+  L# 3350 GOTO L# 3400                         // otherwise goto 3400
+  // throw exception to root activity
+  L# 3360 @ verified x10$$$lang$$$Exception TEMP3340 := x10$$$lang$$$Exception TYPECAST NULLABLE x10$$$lang$$$Exception TEMP3310 x10$$$lang$$$Exception
+  L# 3370 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception TEMP3340
+  L# 3380 GOTO L# 3900
+
+  L# 3400 @ verified @ long INT ran := @ long INT TYPECAST NULLABLE @ long INT TEMP3320 @ long INT 
+  L# 3405 x10$$$lang$$$region TEMP3400 := @ int INT 1 : @ int INT N_UPDATES_PER_PLACE
+  // inner for loop initialization 
+  L# 3410 java$$$util$$$Iterator TEMP3410 := CALL x10$$$lang$$$region$$iterator region TEMP3400
+  // for Loop condition
+  L# 3420 boolean TEMP3420 := CALL java$$$util$$$Iterator$$hasNext java$$$util$$$Iterator TEMP3410  
+  L# 3430 IF TEMP3420 GOTO L# 3500
+  L# 3450 GOTO L 3900   // Loop exit
+
+  // inner for Loop Body
+  // computing J = f(ran)
+  L# 3500 NULLABLE x10$$$lang$$$Exception TEMP3500 NULLABLE @ int INT TEMP3510 := CALL f @ long INT ran
+  L# 3510 BOOLEAN TEMP3520 := BOOLEAN NULLCHECKPASS NULLABLE x10$$$lang$$$Exception TEMP3500
+  L# 3520 IF TEMP3520 GOTO L# 3540             // If exception, goto L# 3540
+  L# 3530 GOTO L# 3590                         // otherwise goto 3590
+  // throw exception to root activity
+  L# 3540 @ verified x10$$$lang$$$Exception TEMP3530 := x10$$$lang$$$Exception TYPECAST NULLABLE x10$$$lang$$$Exception TEMP3500 x10$$$lang$$$Exception
+  L# 3550 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception TEMP3530
+  L# 3560 GOTO L# 3900
+  L# 3590 @ verified @ int INT J := @ int INT TYPECAST NULLABLE @ int INT TEMP3510 @ int INT 
+
+  // computing g(ran)
+  L# 3600 NULLABLE x10$$$lang$$$Exception TEMP3600 NULLABLE x10$$$lang$$$point TEMP3610 := CALL g @ long INT ran
+  L# 3610 BOOLEAN TEMP3620 := BOOLEAN NULLCHECKPASS NULLABLE x10$$$lang$$$Exception TEMP3600
+  L# 3620 IF TEMP3620 GOTO L# 3640             // If exception, goto L# 3640
+  L# 3630 GOTO L# 3690                         // otherwise goto 3690
+  // throw exception to root activity
+  L# 3640 @ verified x10$$$lang$$$Exception TEMP3630 := x10$$$lang$$$Exception TYPECAST NULLABLE x10$$$lang$$$Exception TEMP3600 x10$$$lang$$$Exception
+  L# 3650 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception TEMP3630
+  L# 3660 GOTO L# 3900
+  L# 3690 @ verified x10$$$lang$$$point TEMP3690 := x10$$$lang$$$point TYPECAST NULLABLE x10$$$lang$$$point TEMP3610 x10$$$lang$$$point  
+
+  // computing SmallTable[g(ran)]
+  L# 3700 x10$$$lang$$$dist TEMP3700 := x10$$$lang$$$dist OBJECTDEREF [] @ long INT SmallTable x10$$$lang$$$dist distribution 
+  L# 3705 x10$$$lang$$$region TEMP3705 := x10$$$lang$$$region OBJECTDEREF [] @ long INT SmallTable x10$$$lang$$$region region 
+  L# 3706 BOOLEAN TEMP3706 := BOOLEAN BOUNDSCHECKPASS x10$$$lang$$$region TEMP3705 x10$$$lang$$$point TEMP3690
+  L# 3707 IF TEMP3706 GOTO L# 3710
+  // throw exception to root activity
+  L# 3708 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception $arrayBoundsCheckException
+  L# 3709 GOTO L# 3900
+  // bad place exception check
+  L# 3710 x10$$$lang$$$place TEMP3710 := x10$$$lang$$$place ARRAYDISTDEREF x10$$$lang$$$dist TEMP3700 x10$$$lang$$$point TEMP3690
+  L# 3720 BOOLEAN TEMP3720 := BOOLEAN BADPLACECHECKPASS x10$$$lang$$$place TEMP3710 x10$$$lang$$$place HERE
+  L# 3730 IF TEMP3720 GOTO L# 3760  // no exception
+  // throw exception to root activity
+  L# 3740 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception $arrayBoundsCheckException
+  L# 3750 GOTO L# 3900
+  L# 3760 @ long INT K := @ long INT ARRAYDISTDEREF [] @ long INT SmallTable x10$$$lang$$$point TEMP3690
+  
+  L# 3770 @ product x10$$$lang$$$point p := CALL x10$$$lang$$$point$$factory$$point @ int INT J  
+  L# 3780 x10$$$lang$$$place TEMP3780 := x10$$$lang$$$place ARRAYDISTDEREF x10$$$lang$$$dist D x10$$$lang$$$point p
+
+  // async (D[J]) atomic Table[J] ^= K;
+  L# 3785 NULLABLE $Activity TEMP3785 := NULLABLE $Activity @ Async CREATEACTIVITY x10$$$lang$$$place TEMP3780 L# 3800
+  // check if activity got created
+  L# 3787 BOOLEAN TEMP3787 := BOOLEAN NULLCHECKPASS NULLABLE $Activity TEMP3785
+  L# 3790 IF TEMP3787 GOTO L# 3850             // If created fine, goto L# 3850
+  L# 3792 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception $createActivityFailureException 
+  L# 3795 GOTO L# 3900
+  
+  
+  L# 3800 ASYNCBEGIN
+  L# 3802 ATOMICBEGIN
+  L# 3803 x10$$$lang$$$region TEMP3803 := x10$$$lang$$$region OBJECTDEREF [] @ long INT Table x10$$$lang$$$region region
+  L# 3804 BOOLEAN TEMP3804 := BOOLEAN BOUNDSCHECKPASS x10$$$lang$$$region TEMP3803 x10$$$lang$$$point p
+  L# 3806 IF TEMP3804 GOTO L# 3812
+  // throw exception to root activity
+  L# 3808 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception $arrayBoundsCheckException
+  L# 3810 GOTO L# 3845
+  // bad place exception check
+  L# 3812 x10$$$lang$$$dist TEMP3812 := x10$$$lang$$$dist OBJECTDEREF [] @ long INT Table x10$$$lang$$$dist distribution
+  L# 3813 x10$$$lang$$$place TEMP3813 := x10$$$lang$$$place ARRAYDISTDEREF x10$$$lang$$$dist TEMP3812 x10$$$lang$$$point p
+  L# 3814 BOOLEAN TEMP3814 := BOOLEAN BADPLACECHECKPASS x10$$$lang$$$place TEMP3813 x10$$$lang$$$place HERE
+  L# 3816 IF TEMP3814 GOTO L# 3825  // no exception
+  // throw exception to root activity
+  L# 3818 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception $badPlaceException
+  L# 3820 GOTO L# 3845
+
+  L# 3825 @ long INT TEMP3825 := @ long INT ARRAYDISTDEREF [] @ long INT Table x10$$$lang$$$point p
+  L# 3827 @ long INT TEMP3827 := @ long INT TEMP3825 ^ @ long INT K
+  L# 3829 [] @ long INT Table [ x10$$$lang$$$point p ] := @ long INT TEMP3827 
+  L# 3843 ATOMICEND
+  L# 3845 ASYNCEND
+
+
+ 
+  L# 3850 NULLABLE x10$$$lang$$$Exception TEMP3850 NULLABLE @ long INT TEMP3860 := CALL nextRandom @ long INT ran
+  L# 3855 BOOLEAN TEMP3870 := BOOLEAN NULLCHECKPASS NULLABLE x10$$$lang$$$Exception TEMP3850
+  L# 3860 IF TEMP3870 GOTO L# 3870             // If exception, goto L# 3870
+  L# 3865 GOTO L# 3900                         // otherwise goto 3900
+  // throw exception to root activity
+  L# 3870 @ verified x10$$$lang$$$Exception TEMP3875 := x10$$$lang$$$Exception TYPECAST NULLABLE x10$$$lang$$$Exception TEMP3850 x10$$$lang$$$Exception
+  L# 3875 MULTIEXCEPTIONUPDATE x10$$$lang$$$Exception TEMP3875
+  L# 3880 GOTO L# 3900
+
+  L# 3900 ASYNCEND
+     
+  L# 4000 FINISHEND
+  L# 4110 NULLABLE x10$$$lang$$$Exception TEMP4000 := NULLABLE x10$$$lang$$$Exception GETMULTIEXCEPTION
+  L# 4120 BOOLEAN TEMP4100 := BOOLEAN NULLCHECKPASS NULLABLE x10$$$lang$$$Exception TEMP4000
+  L# 4130 IF TEMP4100 GOTO L# 4150             // If exception, goto 4150
+  L# 4140 GOTO L# 5000
+  L# 4150 RETURN NULLABLE x10$$$lang$$$Exception TEMP4000 NULLABLE Type NULL         // exception return
+  
+  L# 5000 ...
+
+
+

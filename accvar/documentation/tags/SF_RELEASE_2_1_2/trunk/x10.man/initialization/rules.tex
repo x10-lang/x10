@@ -1,0 +1,655 @@
+X10 is an advanced object-oriented language with a complex type-system
+    and concurrency constructs.
+This section describes how object initialization interacts with X10 features.
+We begin with object-oriented features found in mainstream languages,
+    such as constructors, inheritance, dynamic dispatching, exceptions, inner classes,
+    and static fields.
+We then proceed to X10 type-system features,
+    such as constraints, properties, class invariants, closures, (non-erased) generics, and structs.
+The parallel features of X10 include concurrency control (\code{finish} and \code{async}),
+    multiple places and place shifting (\code{at}), and global references.
+Finally, we conclude with an inter-procedural data-flow analysis that ensures that
+    a field is read only after it was written.
+
+
+\subsection{Constructors and inheritance}
+Inheritance is the first feature that interacts with initialization:
+    when class \code{B} inherits from \code{A}
+    then every instance of \code{B} has a sub-object that is like an instance of \code{A}.
+When we initialize an instance of \code{B}, we must first initialize its \code{A} sub-object.
+We do this in X10 by forcing the constructors of \code{B} to make a super call,
+    i.e., call a constructor of \code{A}
+    (either explicitly or implicitly).
+
+
+
+\begin{figure}
+\begin{lstlisting}
+class A {
+  val a:Int;
+  def this() {
+    LeakIt.foo(this); //err
+    this.a = 1;
+    val me = this; //err
+    LeakIt.foo(me);
+    this.m2(); // so m2 is implicitly non-escaping
+  }
+  final def m1() {
+    LeakIt.foo(this);
+  }
+  // implicitly non-escaping
+  final def m2() {
+    LeakIt.foo(this); //err
+  }
+  // explicitly non-escaping
+  @NonEscaping final def m3() {
+    LeakIt.foo(this); //err
+  }
+}
+class B extends A {
+  val b:Int;
+  def this() {
+    super();
+    this.b = 2;
+    super.m3();
+  }
+}
+\end{lstlisting}
+\definerule{Rule3}
+\definerule{Rule4}
+\caption{Escaping \this example.
+    \textbf{Definition of \emph{raw}:}
+    {\this and \code{super} are \emph{raw} in {non-escaping} methods and in field initializers}.
+    \textbf{Definition of \emph{non-escaping}:}
+        {A method is \emph{non-escaping} if it is a constructor,
+            or annotated with \code{@NonEscaping} or \code{@NoThisAccess},
+            or a method that is called on a raw \this receiver}.
+    \myrule{\arabic{Rule3}}{A raw \this or \code{super} cannot escape or be aliased}
+    \myrule{\arabic{Rule4}}{A call on a raw \code{super} is allowed only for a \code{@NonEscaping} method}
+    (\code{\textbf{final}} and \code{@NoThisAccess} are related
+        to dynamic-dispatching as shown in \Ref{Figure}{Dynamic-dispatch}.)}
+\label{Figure:Escaping-this}
+\end{figure}
+
+\Ref{Figure}{Escaping-this} shows X10 code that demonstrates the interaction
+    between inheritance and initialization,
+    and explains by example why leaking \this during construction can cause bugs.
+In all the examples, errors issued by the X10 compiler are marked with \code{//err}.
+
+We say that an object is \emph{raw} before its constructor ends,
+    and afterward it is \emph{cooked}.
+Note that when an object is cooked, all its sub-objects must be cooked as well.
+X10 prohibits any aliasing or leaking of \this during construction,
+    therefore only \this or \code{super} can be raw (any other variable is definitely cooked).
+
+Object initialization begins by invoking a constructor,
+    denoted by the method definition \code{def this()}.
+The first leak would cause a problem because field \code{a} was not assigned yet.
+However, even after all the fields of \code{A} have been assigned,
+    leaking is still a problem
+    because fields in a subclass (field \code{b}) have not yet been initialized.
+Note that leaking is not a problem if \this is not raw, e.g., in \code{m1()}.
+
+We begin with two definitions:
+    (i)~when an object is \emph{raw}, and
+    (ii)~when a method is \emph{non-escaping}.
+(i)~Variables \this and \code{super} are raw
+    during the object's construction,
+    i.e., in field initializers and in \emph{non-escaping} methods
+    (methods that cannot escape or leak \this).
+(ii)~Obviously constructors are non-escaping,
+    but you can also annotate methods explicitly as \code{@NonEscaping},
+    or they can be inferred to be implicitly non-escaping
+    if they are called on a raw \this receiver.
+
+For example, \code{m2} is \emph{implicitly} non-escaping (and therefore cannot leak \this)
+    because of the call to \code{m2}
+    in the constructor.
+The user could also mark \code{m2} \emph{explicitly} as non-escaping by using the annotation
+    \code{@NonEscaping}.
+(Like in Java, \code{@} is used for annotations in X10.)
+We recommend to explicitly mark public methods as \code{@NonEscaping} to show intent,
+    as done on method \code{m3}.
+Without this annotation the call \code{super.m3()} in \code{B} would be illegal,
+    due to rule~\userule{Rule4}.
+(We could infer that \code{m3} must be non-escaping,
+    but that would cause a dependency from a subclass to a superclass,
+    which is not natural for people used to separate compilation.)
+Finally, we note that all errors in this example are due to rule~\userule{Rule3}
+    that prevents leaking a raw \this or \code{super}.
+
+
+
+
+\subsection{Dynamic dispatch}
+Dynamic dispatching interacts with initialization by transferring control to the subclass
+    before the superclass completed its initialization.
+\Ref{Figure}{Dynamic-dispatch} demonstrates why dynamic dispatching is error-prone during construction:
+    calling \code{m1} in \code{A} would dynamically dispatch and
+    call the implementation in \code{B}
+    that would read the default value.
+
+
+
+\begin{figure}
+\begin{lstlisting}
+abstract class A {
+  val a:Int;
+  def this() {
+    this.a = m1(); //err1
+    this.a = m2();
+  }
+  abstract def m1():Int;
+  @NoThisAccess abstract def m2():Int;
+}
+class B extends A {
+  var b:Int = 3;
+  def this(i:Int) {
+    super(i);
+  }
+  def m1() {
+    val x = super.a; // returns 0 in Java
+    val y = this.b; // returns 0 in Java
+    return 1;
+  }
+  @NoThisAccess def m2() {
+    val x = super.a; //err2
+    val y = this.b; //err3
+    return 2;
+  }
+}
+\end{lstlisting}
+\definerule{Rule5}
+\definerule{Rule6}
+\caption{Dynamic dispatching example.
+    \myrule{\arabic{Rule5}}{A non-escaping method must be private or final, unless it has \code{@NoThisAccess}}
+    \myrule{\arabic{Rule6}}{A method with \code{@NoThisAccess} cannot access \this or \code{super} (neither read nor write its fields)}
+    }
+\label{Figure:Dynamic-dispatch}
+\end{figure}
+
+
+X10 prevents dynamic dispatching by requiring that non-escaping methods
+    must be private or final
+    (so overriding is impossible).
+For example, \code{err1} is caused by rule~\userule{Rule5}
+    because \code{m1} is neither private nor final nor \code{@NoThisAccess}.
+
+However, sometimes dynamic dispatching is required during construction.
+For example, if a subclass needs to refine initialization
+    of the superclass's fields.
+Such refinement cannot have any access to \this, and therefore
+    such methods are marked with \code{@NoThisAccess}.
+For example, \code{err2} and \code{err3} are caused by rule~\userule{Rule6} that prohibits access \this or \code{super}
+    when using \code{@NoThisAccess}.
+\code{@NoThisAccess} prohibits any access to \this,
+    however, one could still access the method parameters.
+
+
+In C++, the call to \code{m1} is legal,
+    but at runtime
+    methods are statically bound,
+    so you will get an error for calling a pure virtual function.
+In Java, the call to \code{m1} is also legal,
+    but at runtime
+    methods are dynamically bound,
+    so the implementation of \code{m1} in \code{B}
+    will read the default value of \code{b}.
+%This behavior is undesired in Java,
+%    and Java discourages it by trying to catch statically most of these cases.
+%For example, Java prohibits calls to member functions before the super object was initialized,
+%    as this example shows (which is also illegal in X10):
+%\begin{lstlisting}
+%class B extends A { B() {super(f()); }}
+%\end{lstlisting}
+
+Finally, classes \code{C} and \code{D} show why it is sometimes required to mark
+    methods explicitly as \code{@NonEscaping}:
+    if a subclass (\code{D}) needs to call a method a method (\code{m3})
+    during construction, then it must be marked as non-escaping.
+
+
+
+
+\subsection{Exceptions}
+Constructing an object may not always end normally,
+    e.g., building a date object from an illegal date string should throw an exception.
+Exceptions combined with inheritance interact with initialization in the following way:
+    a cooked object must have cooked sub-objects,
+    therefore if a constructor ends normally (thus returning a cooked object)
+    then all preceding constructor calls (either \code{super(\ldots)} or \code{this(\ldots)})
+    must end normally as well.
+Phrased differently, in a constructor it should not be possible to
+    recover from an exception thrown by a constructor call.
+This is one of the reason why a constructor call must be the first statement in Java;
+    failure to verify this led to a famous security attack~\cite{Dean:1996}.
+
+\begin{figure}
+\begin{lstlisting}
+class B extends A {
+  def this() {
+    try { super(); } catch(Throwable e){} //err
+  }
+}
+\end{lstlisting}
+\definerule{Rule7}
+\caption{Exceptions example:
+    if a constructor ends normally (without throwing an exception),
+        then all preceding constructor calls ended normally as well.
+    \myrule{\arabic{Rule7}}{If a constructor does not call \code{super(\ldots)} or \code{this(\ldots)},
+        then an implicit \code{super()} is added at the beginning of the constructor;
+        the first statement in a constructor is a constructor call (either \code{super(\ldots)} or \code{this(\ldots)});
+        a constructor call may only appear as the first statement in a constructor
+        }
+    }
+\label{Figure:Exceptions}
+\end{figure}
+
+
+\Ref{Figure}{Exceptions} shows that it is an error to try to recover from an exception thrown
+    by a constructor call, because from rule~\userule{Rule7} the first statement must be \code{super()}.
+
+
+\subsection{Inner classes}
+Inner classes usually read the outer instance's fields during construction,
+    e.g., a list iterator would read the list's header node.
+Therefore, X10 requires that the outer instance is cooked,
+    and prohibits creating an inner instance when the receiver is a raw \this.
+
+
+\begin{figure}
+\begin{lstlisting}
+class Outer {
+  val a:Int;
+  def this() {
+    // Outer.this is raw
+    Outer.this. new Inner(); //err
+    new Nested(); // ok
+    a = 3;
+  }
+  class Inner {
+    val b:Int;
+    def this() {
+      // Inner.this is raw, but Outer.this is cooked
+      val x = Outer.this.a;
+    }
+  }
+  static class Nested {}
+}
+\end{lstlisting}
+\definerule{Rule8}
+\caption{Inner class example: the outer instance is always cooked.
+    \myrule{\arabic{Rule8}}{a raw \this cannot be the receiver of \code{new}}
+    }
+\label{Figure:InnerClass}
+\end{figure}
+
+\Ref{Figure}{InnerClass} shows it is an error in X10 to create an inner instance
+    if the outer is raw (from rule~\userule{Rule8}),
+    but it is ok to create an instance of a static nested class,
+    because it has no outer instance.
+
+In fact, it is possible to view this rule as a special case to the rule that
+    prohibits leaking a raw \this
+    (because when you create an inner instance on a raw \this receiver,
+    you created an alias,
+    and now you have two raw objects: \code{Inner.this} and \code{Outer.this}).
+We wish to keep the invariant that only \this might be raw.
+
+
+\subsection{Static initialization}
+X10 does not support dynamic class loading as opposed to Java,
+    and all static fields in X10 are final.
+Thus, initialization of static fields is a one-time phase, denoted the static-init phase,
+    that is done before the \code{main} method is executed.
+
+During the static-init phase we must finish writing to all static fields,
+    and reading a static field \emph{waits} until the field is initialized
+    (i.e., the current activity/thread blocks if the field was not written to,
+    and it resumes after another activity writes to it).
+Obviously, this may lead to deadlock as demonstrated by \Ref{Figure}{Static-init}.
+However, in practice, deadlock is rare,
+    and usually found quickly the first time a program is executed.
+
+\begin{figure}
+\begin{lstlisting}
+class A {
+  static val a:Int = B.b;
+}
+class B {
+  static val b:Int = A.a;
+}
+\end{lstlisting}
+\caption{Static initialization example:
+    the program will deadlock at run-time
+    during the static-init phase (before the \code{main} method is executed).
+    }
+\label{Figure:Static-init}
+\end{figure}
+
+
+
+
+
+We now turn our attention to X10's sophisticated type-system
+    that has features that are not found in main-stream languages:
+    constraints, properties, class invariants, closures, (non-erased) generics, and structs.
+
+\subsection{Constraints and default/zero values}
+Constraints and default values.
+The following types do not have a default value:
+\code{Int\lb self!=0\rb}
+\code{String\lb self!=null\rb}
+
+Therefore the fields of an object cannot be zero-initialized in X10.
+
+\Ref{Figure}{Constraints} todo ...
+
+\begin{figure}
+\begin{lstlisting}
+class A {
+  var a:Int{self!=0}; //err
+}
+\end{lstlisting}
+\definerule{Rule9}
+\definerule{Rule10}
+\caption{No default value example.
+    \myrule{\arabic{Rule9}}{A type \emph{has-zero} if a it contains the zero value
+        (which is either \code{null}, \code{false}, 0, or
+            zero in all fields for user-defined structs, see \Ref{Section}{Generics-and-Structs})}
+    \myrule{\arabic{Rule10}}{A \code{var} field whose type has-zero that lacks a field initializer,
+        is implicitly added an zero initializer}
+    }
+\label{Figure:Constraints}
+\end{figure}
+
+
+\subsection{Properties and the class invariant}
+Properties are final values that can be used in constraints,
+    e.g., \code{Array} has a \code{size} property,
+    so an array of size 2 can be expressed as: \code{Array\lb self.size==2\rb}.
+
+Properties are final fields that are initialized before all other fields.
+% Should I talk about interface and abstract property methods? Doesn't relate to initialization...
+The \emph{class invariant} may refer only to properties of the class,
+    and it must be satisfied after the property call in every constructor.
+
+
+\Ref{Figure}{Properties} todo ...
+
+\begin{figure}
+\begin{lstlisting}
+class A(a:Int) {
+  def this() {
+    property(42);
+  }
+}
+class B(b:Int) {b!=0} extends A {
+  val f1 = a+b;
+  val f2:Int;
+  def this() {
+    super();
+    f2 = f1; //err
+    property(3);
+  }
+}
+\end{lstlisting}
+\definerule{Rule16}
+\definerule{Rule17}
+\definerule{Rule18}
+\definerule{Rule19}
+\caption{Properties and class invariant example:
+        properties (e.g., \code{a} and \code{b})
+        are final fields that are initialized before all other fields
+        using a property call (\code{property(\ldots);} statement).
+    \myrule{\arabic{Rule16}}{If a class does not define any properties, then
+        an implicit \code{property()} is added
+        after (the implicit or explicit) \code{super(\ldots)}}
+    \myrule{\arabic{Rule17}}{If a constructor does not call \code{this(\ldots)},
+        then it must have exactly one
+        property call, and it must be unconditionally executed
+        (unless the constructor throws an exception);
+        the class invariant must hold after the property call}
+    \myrule{\arabic{Rule18}}{Field initializers are executed in their declaration order
+        after (the implicit or explicit) the property call}
+    \myrule{\arabic{Rule19}}{The super fields can only be accessed after \code{super(\ldots)},
+        and the fields of \this can only be accessed after \code{property(\ldots)}}
+    }
+\label{Figure:Properties}
+\end{figure}
+
+
+
+
+\subsection{Closures}
+
+
+
+\Ref{Figure}{Closures} todo ...
+
+\begin{figure}
+\begin{lstlisting}
+class A {
+  val a = 3;
+  def this() {
+    val local = this.a;
+    val closure1 = ()=>local;
+    val closure2 = ()=>this.a; //err
+    at (here.next())
+      closure2();
+  }
+}
+\end{lstlisting}
+\definerule{Rule20}
+\caption{Closure capture \this example.
+    \myrule{\arabic{Rule20}}{A closure cannot capture a raw \this}
+    }
+\label{Figure:Closures}
+\end{figure}
+
+
+
+\subsection{Generics and Structs}
+\label{Section:Generics-and-Structs}
+Structs in X10 ...
+Does not contain \code{null}, so \code{haszero} ...
+
+Generics are not unique to X10,
+    however the combination of generics and the lack of default values for all types
+    lead to new pitfalls.
+In addition, generics in X10 are \emph{not} erased as in Java
+    in order to make instantiations over structs efficient.
+
+for example, \code{Box[Byte]} and \code{Box[Int]}
+    would have the same size in Java but different sizes in X10.
+
+\Ref{Figure}{Constraints} showed that a \code{var} must be assigned if
+    it does not contain the zero value.
+For generics, we added a \code{haszero} type condition that requires a type parameter to have the zero value.
+
+
+\Ref{Figure}{Generics} todo ...
+
+\begin{figure}
+\begin{lstlisting}
+class A[T] {
+  var a:T; //err
+}
+class B[T] {T haszero} {
+  var a:T;
+}
+class Usage {
+  var b1:B[Int];
+  var b1:B[String];
+  var b1:B[Int{self!=0}]; //err
+}
+\end{lstlisting}
+\definerule{Rule21}
+\caption{\code{haszero} type condition.
+    \myrule{\arabic{Rule21}}{statically checks a type has the zero value}
+    }
+\label{Figure:Generics}
+\end{figure}
+
+
+examples for \code{Array}
+
+ \code{Zero.get[T]()}
+
+
+
+
+
+
+
+We now turn our attention to the parallel features of X10:
+    inter-place parallelism (\code{finish} and \code{async}),
+    place shifting (\code{at}),
+    and global references.
+
+
+\subsection{Concurrency}
+Explain async+finish.
+If the finish was removed, then it would be an error ...
+
+
+\Ref{Figure}{Asynchronously-init} todo ...
+
+\begin{figure}
+\begin{lstlisting}
+class A {
+  val a:Int;
+  val b:Int;
+  def this() {
+    finish {
+      async a = 1;
+    }
+    async b = 2; //err
+  }
+}
+\end{lstlisting}
+\definerule{Rule13}
+\caption{Asynchronously assigned fields example.
+    \myrule{\arabic{Rule13}}{All field assignments must finish when the constructor ends}
+    }
+\label{Figure:Asynchronously-init}
+\end{figure}
+
+
+\subsection{Multiple Places}
+Places require serialization and deserialization (both custom and automatic) across "at".
+
+\Ref{Figure}{Multi-place} todo ...
+
+\begin{figure}
+\begin{lstlisting}
+class A {
+  val a:Int;
+  def this() {
+    // Execute at another place
+    at (here.next())
+      this.a = 1; //err
+  }
+}
+\end{lstlisting}
+\definerule{Rule14}
+\caption{Multi-place initialization example.
+    \myrule{\arabic{Rule14}}{a raw \this cannot cross to another place}
+    }
+\label{Figure:Multi-place}
+\end{figure}
+
+
+\subsection{Global references}
+Special GlobalRef class: let \this escape and it creates a cycle.
+We allow a raw \this to escape iff
+* field is private with a field initializer.
+* cannot be used with a raw \this receiver.
+
+
+\Ref{Figure}{GlobalRef} todo ...
+
+\begin{figure}
+\begin{lstlisting}
+class A {
+  private val root =
+   new GlobalRef(this);
+  def me() = root();
+}
+class B extends A {
+  def this() {
+    val alias = me(); //err
+  }
+}
+\end{lstlisting}
+\definerule{Rule15}
+\caption{\code{GlobalRef} example.
+    \myrule{\arabic{Rule15}}{A raw \this can only escape to a global ref constructor in a field initializer,
+        provided the field is private and is not read via a raw \this receiver}
+    }
+\label{Figure:GlobalRef}
+\end{figure}
+
+If \code{me()} was prefixed with
+\code{@NonEscaping public final}
+then accessing \code{root} would be an error.
+%Cannot use 'root' because a GlobalRef[\ldots](this) cannot be used in a field initializer, constructor, or methods called from a constructor.
+
+
+
+The last subsection is dedicated to a inter-procedural data-flow analysis for guaranteeing
+    that a field is read only after it was written.
+
+\subsection{Read and write order of fields}
+final vs.\ non-final fields:
+Inter-procedural data flow
+vs.\
+Intra-procedural data flow
+todo
+
+In Java it is legal...
+
+\Ref{Figure}{Read-Write-Order} todo ...
+
+\begin{figure}
+\begin{lstlisting}
+class A {
+  val a:Int;
+  def this() {
+    m2();
+    a = 1;
+  }
+  final def m2() {
+    val x = a; //err
+  }
+}
+class B {
+  var i:Int; // implicitly initialized to 0
+  var j:Int{self!=0};
+  def this() {
+    i++;
+    j++; //err
+  }
+}
+class C {
+  var j:Int{self!=0};
+  def this() {
+    write();
+    read();
+  }
+  final def write() {
+    this.j = 1;
+  }
+  final def read() {
+    val x = this.j;
+  }
+}
+\end{lstlisting}
+\definerule{Rule11}
+\definerule{Rule12}
+\caption{Read-Write order for fields examples.
+    \myrule{\arabic{Rule11}}{A field can be read only after it was definitely written}
+    \myrule{\arabic{Rule12}}{A constructor must write to all fields}
+    }
+\label{Figure:Read-Write-Order}
+\end{figure}

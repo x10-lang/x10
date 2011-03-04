@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99c (Web2C 7.5.7)
+The top-level auxiliary file: x10.aux
+The style file: plain.bst
+Database file #1: master.bib
+Warning--I didn't find a database entry for "scala"
+Warning--I didn't find a database entry for "Javasomething"
+You've used 9 entries,
+            2118 wiz_defined-function locations,
+            556 strings with 5643 characters,
+and the built_in function-call counts, 3343 in all, are:
+= -- 302
+> -- 210
+< -- 1
++ -- 85
+- -- 74
+* -- 253
+:= -- 571
+add.period$ -- 27
+call.type$ -- 9
+change.case$ -- 62
+chr.to.int$ -- 0
+cite$ -- 9
+duplicate$ -- 112
+empty$ -- 239
+format.name$ -- 74
+if$ -- 678
+int.to.chr$ -- 0
+int.to.str$ -- 9
+missing$ -- 10
+newline$ -- 48
+num.names$ -- 18
+pop$ -- 76
+preamble$ -- 1
+purify$ -- 55
+quote$ -- 0
+skip$ -- 74
+stack$ -- 0
+substring$ -- 159
+swap$ -- 20
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 32
+warning$ -- 0
+while$ -- 27
+width$ -- 10
+write$ -- 97
+(There were 2 warnings)

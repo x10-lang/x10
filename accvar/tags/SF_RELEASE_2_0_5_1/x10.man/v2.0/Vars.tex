@@ -1,0 +1,455 @@
+\chapter{Variables}\label{XtenVariables}\index{variables}
+
+%%OLDA variable is a storage location.  \Xten{} supports seven kinds of
+%%OLDvariables: constant {\em class variables} (static variables), {\em
+%%OLD  instance variables} (the instance fields of a class), {\em array
+%%OLD  components}, {\em method parameters}, {\em constructor parameters},
+%%OLD{\em exception-handler parameters} and {\em local variables}.
+
+A {\em variable} is an X10 identifier associated with a value within some
+context. Variable bindings have these essential properties:
+\begin{itemize}
+\item {\bf Type:} What sorts of values can be bound to the identifier;
+\item {\bf Scope:} The region of code in which the identifier is associated
+      with the entity;
+\item {\bf Lifetime:} The interval of time in which the identifier is
+      associated with the entity.
+\item {\bf Visibility:} Which parts of the program can read or manipulate the
+      value through the variable.
+\end{itemize}
+
+
+
+X10 has many varieties of variables, used for a number of purposes. They will
+be described in more detail in this chapter.  
+\begin{itemize}
+\item Class variables, also known as the static fields of a class, which hold
+      their values for the lifetime of the class.  
+\item Instance variables, which hold their values for the lifetime of an
+      object;
+\item Array elements, which are not individually named and hold their values
+      for the lifetime of an array;
+\item Formal parameters to methods, functions, and constructors, which hold
+      their values for the duration of method (etc.) invocation;
+\item Local variables, which hold their values for the duration of execution
+      of a block.
+\item Exception-handler parameters, which hold their values for the execution
+      of the exception being handled. 
+\end{itemize}
+A few other kinds of things are called variables for historical reasons; \eg,
+type parameters are often called type variables, despite not being variables
+in this sense because they do not refer to X10 values.  Other named entities,
+such as classes and methods, are not called variables.  However, all
+name-to-whatever bindings enjoy similar concepts of scope and visibility.  
+
+In the following example, \xcd`n` is an instance variable, and \xcd`next` is a
+local variable defined within the method \xcd`bump`.\footnote{This code is
+unnecessarily turgid for the sake of the example.  One would generally write
+\xcd`public def bump() = ++n;`.   }
+%~~gen
+% package Vars.For.Squares;
+%~~vis
+\begin{xten}
+class Counter {
+  private var n : Int = 0;
+  public def bump() : Int {
+    val next = n+1;
+    n = next;
+    return next;
+    }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+Both variables have type \xcd`Int` (or
+perhaps something more specific).    The scope of \xcd`n` is the body of
+\xcd`Counter`; the scope of \xcd`next` is the body of \xcd`bump`.  The
+lifetime of \xcd`n` is the lifetime of the \xcd`Counter` object holding it;
+the lifetime of \xcd`next` is the duration of the call to \xcd`bump`. Neither
+variable can be seen from outside of its scope.
+
+\label{exploded-syntax}
+\label{VariableDeclarations}
+\index{variable declaration}
+
+
+Variables whose value may not be changed after initialization are said to be
+{\em immutable}, or {\em constants} (\Sref{FinalVariables}), or simply
+\xcd`val` variables. Variables whose value may change are {\em mutable} or
+simply \xcd`var` variables. \xcd`var` variables are declared by the \xcd`var`
+keyword. \xcd`val` variables may be declared by the \xcd`val` keyword; when a
+variable declaration does not include either \xcd`var` or \xcd`val`, it is
+considered \xcd`val`. 
+
+
+%~~gen
+%package Vars.For.Bears.In.Chairs;
+%class VarExample{
+%static def example() {
+%~~vis
+\begin{xten}
+val a : Int = 0;               // Full 'val' syntax
+b : Int = 0;                   // 'val' implied
+val c = 0;                     // Type inferred
+var d : Int = 0;               // Full 'var' syntax
+var e : Int;                   // Not initialized
+var f : Int{self != 100} = 0;  // Constrained type
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+
+
+
+
+
+
+\section{Immutable variables}
+\label{FinalVariables}
+\index{variable!immutable}
+\index{immutable variable}
+
+Immutable variables can be given values (by initialization or assignment) at
+most once, and must be given values before they are used.  Usually this is
+achieved by declaring and initializing the variable in a single statement.
+%~~gen
+% package Vars.In.Snares;
+% class ABitTedious{
+% def example() {
+%~~vis
+\begin{xten}
+val a : Int = 10;
+val b = (a+1)*(a-1);
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\xcd`a` and \xcd`b` cannot be assigned to further.
+
+In other cases, the declaration and assignment are separate.  One such
+case is how constructors give values to \xcd`val` fields of objects.  The
+\xcd`Example` class has an immutable field \xcd`n`, which is given different
+values depending on which constructor was called. \xcd`n` can't be given its
+value by initialization when it is declared, since it is not knowable which
+constructor is called at that point.  
+%~~gen
+% package Vars.For.Cares;
+%~~vis
+\begin{xten}
+class Example {
+  val n : Int; // not initialized here
+  def this() { n = 1; }
+  def this(dummy:Boolean) { n = 2;}
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+Another common case of separating declaration and assignment is in function
+and method call.  The formal parameters are bound to the corresponding actual
+parameters, but the binding does not happen until the function is called.  In
+the code below, \xcd`x` is initialized to \xcd`3` in the first call and
+\xcd`4` in the second.
+%~~gen
+%package Vars.For.Swears;
+%class Examplement {
+%static def whatever() {
+%~~vis
+\begin{xten}
+val sq = (x:Int) => x*x;
+x10.io.Console.OUT.println("3 squared = " + sq(3));
+x10.io.Console.OUT.println("4 squared = " + sq(4));
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+
+
+
+
+%%IMMUTABLE%% An immutable variable satisfies two conditions: 
+%%IMMUTABLE%% \begin{itemize}
+%%IMMUTABLE%% \item it can be assigned to at most once, 
+%%IMMUTABLE%% \item it must be assigned to before use. 
+%%IMMUTABLE%% \end{itemize}
+%%IMMUTABLE%% 
+%%IMMUTABLE%% \Xten{} follows \java{} language rules in this respect \cite[\S
+%%IMMUTABLE%% 4.5.4,8.3.1.2,16]{jls2}. Briefly, the compiler must undertake a
+%%IMMUTABLE%% specific analysis to statically guarantee the two properties above.
+%%IMMUTABLE%% 
+%%IMMUTABLE%% Immutable local variables and fields are defined by the \xcd"val"
+%%IMMUTABLE%% keyword.  Elements of value arrays are also immutable.
+%%IMMUTABLE%% 
+%%IMMUTABLE%% \oldtodo{Check if this analysis needs to be revisited.}
+
+\section{Initial values of variables}
+\label{NullaryConstructor}\index{nullary constructor}
+
+Every assignment, binding, or initialization to a variable of type \xcd`T{c}`
+must be an instance of type \xcd`T` satisfying the constraint \xcd`{c}`.
+Variables must be given a value before they are used. This may be done by
+initialization, which is the only way for immutable (\xcd`val`) variables and
+one option for mutable (\xcd`var`) ones: 
+
+%~~gen
+%package Vars.For.Bears;
+%class VarsForBears{
+%def check() {
+%~~vis
+\begin{xten}
+  val immut : Int = 3;
+  var mutab : Int = immut;
+  val use = immut + mutab;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+Or, for mutable variables, it may be done by a later assignment.  
+
+%~~gen
+%package Vars.For.Stars;
+%class VarsForStars{
+%def check() {
+%~~vis
+\begin{xten}
+  var muta2 : Int;
+  muta2 = 4;
+  val use = muta2 * 10;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+
+Every class variable must be initialized before it is read, through
+the execution of an explicit initializer or a static block. Every
+instance variable must be initialized before it is read, through the
+execution of an explicit initializer or a constructor.
+\bard{Revise this in light of initial values}
+Mutable instance variables of class type are initialized to 
+to \xcd"null".
+Mutable instance variables of struct type are 
+assumed to have an initializer that sets the value to the
+result of invoking the nullary constructor on the class. 
+An initializer is required if the default initial value of the variable's type
+is not
+assignable to the variable's type, \eg, \xcd`Int` variables are initialized to
+zero, but that doesn't work for \xcd`val x:Int{x!=0}`.
+
+Each method and constructor parameter is initialized to the
+corresponding argument value provided by the invoker of the method. An
+exception-handling parameter is initialized to the object thrown by
+the exception. A local variable must be explicitly given a value by
+initialization or assignment, in a way that the compiler can verify
+using the rules for definite assignment \cite[\S~16]{jls2}.
+
+
+\section{Destructuring syntax}
+\index{variable declarator!destructuring}
+\index{destructuring}
+\Xten{} permits a \emph{destructuring} syntax for local variable
+declarations and formal parameters of type \xcd`Point`, \Sref{point-syntax}.
+(Future versions of X10 may allow destructuring of other types as well.) 
+A point is a sequence of {$r \ge 0$} \xcd`Int`-valued coordinates.  
+It is often useful to get at the coordinates directly, in variables. 
+
+The following code makes an anonymous point with one coordinate \xcd`11`, and
+binds \xcd`i` to \xcd`11`.  Then it makes a point with coordinates \xcd`22`
+and \xcd`33`, binds \xcd`p` to that point, and \xcd`j` and \xcd`k` to \xcd`22`
+and \xcd`33` respectively.
+%~~gen
+% package Vars.For.Glares;
+% class DestructuringEx1 {
+% def whyJustForLocals() {
+%~~vis
+\begin{xten}
+val (i) : Point = Point.make(11);
+val p(j,k) = Point.make(22,33);
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+A useful idiom for iterating over a range of numbers is: 
+%~~gen
+%package Vars.For.Bears;
+% class ForBear {
+% def forbear() {
+%~~vis
+\begin{xten}
+var sum : Int = 0;
+for ((i) in 1..100) sum += i;
+\end{xten}
+%~~siv
+% ; } } 
+%~~neg
+\noindent
+The parentheses in \xcd`(i)` introduce destructuring, making X10 treat \xcd`i`
+as an \xcd`Int`; without them, it would be a \xcd`Point`.  
+
+In general, a pattern of the form \xcdmath"(i$_1$,$\ldots$,i$_n$)" matches a
+point with {$n$} coordinates, binding \xcdmath"i$_j$" to coordinate {$j$}.  
+A pattern of the form \xcdmath"p(i$_1$,$\ldots$,i$_n$)" does the same, , but
+also binds \xcd`p` to the point.
+
+\section{Formal parameters}
+
+Formal parameters are the variables which hold values transmitted into a
+method or function.  
+They are always declared with a type.  (Type inference is not
+advisable, because there is no single expression to deduce a type from.)
+The variable name can be omitted if it is not to be used in the
+scope of the declaration, as in the type of the method 
+\xcd`static def main(Rail[String]):Void` executed at the start of a program that
+does not use its command-line arguments.
+
+\begin{grammar}
+Formal
+        \: FormalModifier\star \xcd"var" VarDeclaratorWithType \\
+        \| FormalModifier\star \xcd"val" VarDeclaratorWithType \\
+        \| FormalModifier\star VarDeclaratorWithType \\
+        \| Type \\
+FormalModifier \: Annotation \\
+              \| \xcd"shared" \\
+\end{grammar}
+
+\xcd`var`, \xcd`val`, and \xcd`shared` behave just as they do for local
+variables, \Sref{local-variables}.  In particular, the following \xcd`inc`
+method is allowed, but, unlike some languages, does {\em not} increment its
+actual parameter.  \xcd`inc(j)` creates a new local 
+variable \xcd`i` for the method call, initializes \xcd`i` with the value of
+\xcd`j`, increments \xcd`i`, and then returns.  \xcd`j` is never changed.
+%~~gen
+% package Vars.For.Squares.Of.Mares;
+% class Ink {
+%~~vis
+\begin{xten}
+static def inc(var i:Int) { i += 1; }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+
+\section{Local variables}\label{local-variables}
+Local variables are declared in a limited scope, and, dynamically, keep their
+values only for so long as the scope is being executed.  They may be \xcd`var`
+or \xcd`val`.  
+They may have 
+initializer expressions: \xcd`var i:Int = 1;` introduces 
+a variable \xcd`i` and initializes it to 1.
+If the variable is immutable
+(\xcd"val")
+the type may be omitted and
+inferred from the initializer type (\Sref{TypeInference}).
+Variables marked \xcd`shared` can be used by many activities at once; see
+\Sref{Shared}.
+
+The variable declaration \xcd`val x:T=e;` confirms that \xcd`e`'s value is of
+type \xcd`T`, and then introduces the variable \xcd`x` with type \xcd`T`.  For
+example, 
+%~~gen
+% package Vars.Local;
+% class Tub{
+% def example() {
+%~~vis
+\begin{xten}
+   val t : Tub = new Tub();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\noindent
+produces a variable \xcd`t` of type \xcd`Tub`, even though the expression
+\xcd`new Tub()` produces a value of type \xcd`Tub!` -- that is, a \xcd`Tub`
+located \xcd`here`.    This can be inconvenient if, \eg, it is desired to make
+method calls upon \xcd`t`.  
+
+Including type information in variable declarations is generally good
+programming practice: it explains to both the compiler and human readers
+something of the intent of the variable.  However, including types in 
+\xcd`val t:T=e` can obliterate helpful information.  So, X10 allows a {\em
+documentation type declaration}, written \xcd`val t <: T = e`.  This 
+has the same effect as \xcd`val t = e`, giving \xcd`t` the full type inferred
+from \xcd`e`; but it also confirms statically that that type is at least
+\xcd`T`.  For example, the following gives \xcd`t` the type \xcd`Tub!` as
+desired: 
+%~~gen
+% package Vars.Local;
+% class TubBounded{
+% def example() {
+%~~vis
+\begin{xten}
+   val t <: Tub = new Tub();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\noindent
+However, replacing \xcd`Tub` by \xcd`Int` would result in a compilation error. 
+
+Variables do not need to be initialized at the time of definition -- not even
+\xcd`val`s. They must be initialized by the time of use, and \xcd`val`s may
+only be assigned to once. The X10 compiler performs static checks guaranteeing
+this restriction. The following is correct, albeit obtuse: 
+%~~gen
+%package Vars.Local;
+% class NotInitVal {
+%~~vis
+\begin{xten}
+static def main(r: Rail[String]):Void {
+  val a : Int;
+  a = r.length;
+  val b : String;
+  if (a == 5) b = "five?"; else b = "" + a + " args"; 
+  // ... 
+\end{xten}
+%~~siv
+%} }
+%~~neg
+
+
+\bard{Give grammar}
+
+\section{Fields}
+
+Like most other kinds of variables in X10, 
+the fields of an object can be either \xcd`val` or \xcd`var`. 
+Fields can be \xcd`static`,\xcd`global`, or \xcd`property`; see
+\Sref{FieldDefinitions} and \Sref{PropertiesInClasses}.
+Field declarations may have optional
+initializer expressions, as for local variables, \Sref{local-variables}.
+\xcd`var` fields without an initializer are initialized with the default value
+of their type. \xcd`val` fields without an initializer must be initialized by
+each constructor.
+
+
+For \xcd`val` fields, as for \xcd`val` local variables, the type may be
+omitted and inferred from the initializer type (\Sref{TypeInference}).
+\xcd`var` files, like \xcd`var` local variables, must be declared with a type.
+
+\begin{grammar}
+FieldDeclaration
+        \: FieldModifier\star \xcd"var" FieldDeclaratorsWithType \\&& ( \xcd"," FieldDeclaratorsWithType )\star \\
+        \| FieldModifier\star \xcd"val" FieldDeclarators \\&& ( \xcd"," FieldDeclarators )\star \\
+        \| FieldModifier\star FieldDeclaratorsWithType \\&& ( \xcd"," FieldDeclaratorsWithType )\star \\
+FieldDeclarators
+        \: FieldDeclaratorsWithType \\
+        \: FieldDeclaratorWithInit \\
+FieldDeclaratorId
+        \: Identifier  \\
+FieldDeclaratorWithInit
+        \: FieldDeclaratorId Init \\
+        \| FieldDeclaratorId ResultType Init \\
+FieldDeclaratorsWithType
+        \: FieldDeclaratorId ( \xcd"," FieldDeclaratorId )\star ResultType \\
+FieldModifier \: Annotation \\
+                \| \xcd"static" \\ \| \xcd`property` \\ \| \xcd`global` \\
+\end{grammar}
+
+
+

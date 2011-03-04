@@ -1,0 +1,8 @@
+#/bin/sh
+./FibcilkcwsScript fib
+#sh FibjavacwsScript FibC
+#sh Fibc++cwsScript FibStack.x
+#
+#sh NQueenscilkcwsScript queens
+#sh NQueensjavacwsScript NQueensC
+#sh NQueensc++cwsScript NQueensCStack.x

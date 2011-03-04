@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>External C++ Code</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;External C++ Code</h2>
+
+<div class="p"><!----></div>
+C++ code can be linked to X10 code, either by writing auxiliary C++ files and
+adding them with suitable annotations, or by linking libraries.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Auxiliary C++ Files</h3>
+
+<div class="p"><!----></div>
+Auxiliary C++ code can be written in <b>.h</b> and <b>.cc</b> files, which
+should be put in the same directory as the the X10 file using them.
+Connecting with the library uses the <b>@NativeCPPInclude(dot_h_file_name)</b>
+annotation to include the header file, and the 
+<b>@NativeCPPCompilationUnit(dot_cc_file_name)</b> annotation to include the
+C++ code proper.  For example: 
+
+<div class="p"><!----></div>
+<b>MyCppCode.h</b>: 
+<pre>
+void foo();
+</pre>
+
+<div class="p"><!----></div>
+<b>MyCppCode.cc</b>:
+<pre>
+#include &lt;cstdlib&#62;
+#include &lt;cstdio&#62;
+void foo() {
+    printf("Hello World!");
+}
+</pre>
+
+<div class="p"><!----></div>
+<b>Test.x10</b>:
+<pre>
+import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
+import x10.compiler.NativeCPPCompilationUnit;
+
+<div class="p"><!----></div>
+@NativeCPPInclude("MyCPPCode.h")
+@NativeCPPCompilationUnit("MyCPPCode.cc")
+public class Test {
+    public static def main (args:Array[String](1)) {
+        { @Native("c++","foo();") {} }
+    }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;C++ System Libraries</h3>
+
+<div class="p"><!----></div>
+If we want to additionally link to more libraries in <b>/usr/lib</b> for
+example, it is necessary to adjust the post-compilation directly.  The
+post-compilation is the compilation of the C++ which the X10-to-C++ compiler
+<b>x10c++</b> produces.  
+
+<div class="p"><!----></div>
+The mechanism used for this is the <b>-post</b> command line parameter to
+<b>x10c++</b>. The following example shows how to compile <b>blas</b> into the
+executable via post compiler parameters.
+
+<div class="p"><!----></div>
+<pre>
+x10c++ Test.x10 -post '# # -I /usr/local/blas # -L /usr/local/blas -lblas'
+</pre>
+
+<div class="p"><!----></div>
+
+<ul>
+<li> The first <b>#</b> means to use the default compiler for the architecture (from
+      x10rt properties file).
+<div class="p"><!----></div>
+</li>
+
+<li> The second <b>#</b> is substituted for the .cc files and CXXFLAGS that would
+      ordinarily be used.
+<div class="p"><!----></div>
+</li>
+
+<li> The third <b>#</b> is substituted for the libraries and LDFLAGS that would
+      ordinarily used.
+<div class="p"><!----></div>
+</li>
+
+<li> For the second and third, if a <b>%</b> is used instead of a <b>#</b> then the
+      the substitution does not occur in that position.  The <b>%</b> is
+      erased.  The desired parameter value should appear after the <b>%</b> on
+      the line. This allows a complete override of the postcompiler behaviour.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

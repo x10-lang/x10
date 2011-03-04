@@ -1,0 +1,48 @@
+\section{Nullable Type Constructor} 
+
+\X10{} supports the type constructor {\tt nullable}. 
+For any type {\tt T}, the type {\tt nullable T} contains all the
+values of type {\tt T}, and a special {\em null} value, unless {\tt T}
+already contains {\em null}. This value is designated by the literal
+{\tt null}. 
+
+This literal is special in that it has the type {\tt nullable $\tau$}
+for all types $\tau$. Thus it can be passed as an argument to a method
+call whose corresponding formal parameter is of type {\tt nullable
+$\tau$} for some type $\tau$. (This is a widening reference
+conversion, per \cite[Sec 5.1.4]{jls}.)
+
+An immediate consequence of the definition of {\tt nullable} is that
+for any type $\tau$, the type {\tt nullable nullable $\tau$} is equal
+to the type {\tt nullable $\tau$}.
+
+Any attempt to access a field or invoke a method on the value {\em null}
+results in a {\tt NullPointerException} being thrown.
+
+For any value {\tt v} of type $\tau$, the class cast expression $\tt
+(nullable \tau) v$ succeeds and specifies a value 
+of type $\tt nullable \tau$ that may be seen as the ``boxed'' version
+of {\tt v}. 
+
+\X10{} permits the widening reference conversion from any type $\tau$
+to the type $\tt nullable \tau'$ if $\tau$ can be widened
+to the type $\tau'$. 
+
+
+%% Can two variables of different reference types be compared 
+%% by the == operation without a static type error being thrown?
+
+Correspondingly, a value {\tt e} of type $\tt nullable \tau$ can be
+cast to the type $\tau$, resulting in a {\tt ClassCastException} if
+{\tt e} is {\tt null} and $nullable \tau$ is not equal to $\tau$, and
+in the corresponding value of type $\tau$ otherwise.  If $\tau$ is a
+value type this may be seen as the ``unboxing'' operator.
+
+
+
+\paragraph{Implementaiton notes.}
+
+A value of type {\tt nullable T} may be implemented by boxing a value of
+type {\tt T} unless the value is already boxed. The literal {\tt null}
+may be represented as the unique null reference.
+

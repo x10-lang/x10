@@ -1,0 +1,215 @@
+Release 2.1.0.1
+
+This is a minor release that fixes the following issues in X10 2.1.0. 
+  + Java-backend specific bug when uninitialized variables are
+    assigned within an async and there is a finish or try/catch between
+    the var definition and the finish enclosing the async in which 
+    the variable was defined. (r17571)
+  + Java-backend specific codegen bugs that manifest when compiling
+    code that makes heavy use of generic types. (17585,17586,17587,17345).
+  + Fixes and improvements for the x10rt sockets backend.
+
+-------------------------------------------------------------------------
+
+These were the release notes for X10 2.1.0.  
+
+They are included here for easy reference.
+
+
+Several significant language changes and a number of minor
+specification changes and clarifications have been made since the
+2.0.6 release. The X10 2.1.0 language specification contains a section
+describing the major changes between X10 2.0.x and X10 2.1.0 and
+offers guidance on porting application from X10 2.0 to X10 2.1.  
+The X10 2.1.0 language specification is available at:
+http://dist.codehaus.org/x10/documentation/languagespec/x10-210.pdf
+
+Some of the most significant changes are:
+  + Modifications of the distributed object model to
+    simplify local (same place) programming while still 
+    strongly supporting distributed (multi-place) programming.
+  + Integration of common cases of clock usage into the
+    finish/async language constructs.
+  + Asynchronous initialization of local val variables to
+    simplify common recursive divide and conquer idioms.
+Please consult the language specification for the details of
+these changes and for a list of additional changes.
+
+The following features described in the 2.1.0 language manual do not
+currently work and will be fixed in the subsequent releases:
+  - Non-static type definitions as class or interface members
+    (static type defs do work)
+  - Type definitions as package members (i.e., in the outermost scope of
+    a compilation unit)
+
+There is one known limitation of the 2.1.0 release that represents
+a regression with respect to 2.0.6.
+  - String concatenation via the '+' operator is asymmetric. 
+    If the first argument to '+' is not a String, it will be necessary
+    to explicitly add a ""+ first.  For example:
+        val x = 3;
+        val s = x + " hi ";
+    would need to be written
+        val x = 3;
+        val s = ""+ x + " hi ";
+    or 
+        val x = 3;
+        val s = x.toString() + " hi ";
+
+Additionally, the following features described in the language
+manual do not currently work with the C++ backend and will be fixed in
+the subsequent releases:
+  - Garbage collection on AIX and BG/P
+  - Non-final generic instance methods
+  - Exception stack traces on Cygwin
+  - Finally blocks and atomic sections that exit via non-exceptional
+    control flow before the end of the block (eg with return, break, 
+    or continue statements).
+
+The generated C++ code requires g++ 4.2 or better to be compiled; 
+we do almost all of our testing against g++ 4.3.2.  On AIX, you
+may either use g++ 4.2 or better or xlC 10.01.0000.0004 or better.
+
+Below is a summary of JIRA issues addressed for the X10 2.1.0
+
+** New Features and Improvements
+    * [XTENLANG-549] - Getting started with X10
+    * [XTENLANG-648] - Generic parameters aren't *that* generic
+    * [XTENLANG-800] - Can't genericize over numeric types
+    * [XTENLANG-807] - Introduce clocked clause
+    * [XTENLANG-1076] - Search index for various bits of X10DT tooling
+    * [XTENLANG-1120] - Signature of main method should be Array[String](1) instead of Rail[String]!
+    * [XTENLANG-1123] - Object initialization, defaulted types
+    * [XTENLANG-1189] - Get rid of await(e)
+    * [XTENLANG-1327] - x10doc should process package.html
+    * [XTENLANG-1544] - x10 (Java backend): support (or document?) command-line argument to control number of places
+    * [XTENLANG-1565] - Permit definite initialization of vals from within asyncs
+    * [XTENLANG-1608] - proto language design debate
+    * [XTENLANG-1619] - nuke future
+    * [XTENLANG-1620] - nuke or
+    * [XTENLANG-1621] - eliminate pinned keyword
+    * [XTENLANG-1622] - eliminate incomplete keyword
+    * [XTENLANG-1835] - Improve scaling of ateach
+    * [XTENLANG-1836] - Improve scaling of DistArray creation
+    * [XTENLANG-1874] - Implement copying semantics for at (here) S
+
+** Bugs
+    * [XTENLANG-31] - "cannot find symbol constructor X" in constructor for class A(p) extends X[C]
+    * [XTENLANG-51] - operators involving multi-dimensional region constants (e.g. [0..1,2..3] || [4..5,6..7]) don't (can't?) work
+    * [XTENLANG-499] - Compiler fails to complain about checked exceptions thrown by a closure body that doesn't declare them
+    * [XTENLANG-533] - Overloading not allowed for function types?
+    * [XTENLANG-625] - Cannot do Pair(1,1)
+    * [XTENLANG-719] - T <: proto T, contra spec
+    * [XTENLANG-769] - Compiler sometimes thinks that creating a closure can throw an exception thrown by the body of the closure
+    * [XTENLANG-811] - Failure to detect that an anonymous class is abstract (and therefore new is illegal)
+    * [XTENLANG-815] - TypeCastException or ClassCastException? -- and java.lang.ClassCastException?
+    * [XTENLANG-823] - X10 doesn't detect an attempt to break out of a loop through an async
+    * [XTENLANG-829] - Exceptions from futures are badly described (I hope)
+    * [XTENLANG-955] - Trouble throwing generic type
+    * [XTENLANG-978] - Inheriting two instantiations of the same method?
+    * [XTENLANG-979] - Spurious name collision re: instantiating two versions of related interfaces.
+    * [XTENLANG-1003] - CUDA: memory allocation blocks
+    * [XTENLANG-1101] - File icons displayed incorrectly upon re-launch of workbench
+    * [XTENLANG-1107] - Error reading Help table of contents file
+    * [XTENLANG-1111] - C++ backend doesn't properly rename type parameter of outer this
+    * [XTENLANG-1198] - 'at' should be allowed to access var variables in the lexically enclosing scope
+    * [XTENLANG-1216] - Typechecker bug
+    * [XTENLANG-1277] - Typechecker (?) dies with nasty Java stack trace when it shoudl die gracefully.
+    * [XTENLANG-1325] - f = f.f.f;  crashes when f has a constraint (f:Hello!)
+    * [XTENLANG-1356] - const must die!
+    * [XTENLANG-1369] - X10 compiler does not complain about importing from default package
+    * [XTENLANG-1388] - NPE in AnnotationCreator
+    * [XTENLANG-1438] - Type checker should reject method which throws checked exception without having throws Exception clause
+    * [XTENLANG-1451] - Not doing a proper renaming when moving field initializers to the constructor body in FieldInitializerMover
+    * [XTENLANG-1469] - Inference of static generic methods is broken
+    * [XTENLANG-1471] - X10DT should create projects with X10 nature, and offer to switch to X10 perspective
+    * [XTENLANG-1477] - Misleading error message or miscomputation of place constraint
+    * [XTENLANG-1483] - Foo! should imply Foo{self!=null}
+    * [XTENLANG-1494] - Closures and checked exceptions do not work properly
+    * [XTENLANG-1495] - Compiler doesn't type-check all methods
+    * [XTENLANG-1498] - Generics and inner classes - there is currently no syntax for it
+    * [XTENLANG-1537] - x10.samples.CUDABlackSholes example program: bad place exception
+    * [XTENLANG-1553] - Circular declaration sends x10 compiler into infinite loop (the infinite loop is in the constraints code)
+    * [XTENLANG-1562] - Race condition between file deletion and parser scheduler?
+    * [XTENLANG-1588] - "!" vs. at(here) vs. at(this.home)  : not consistent - bugs in spec and in the compiler
+    * [XTENLANG-1591] - "!" on static variables is not implemented correctly
+    * [XTENLANG-1593] - InternalCompilerError "Cannot exception check ambiguous node"
+    * [XTENLANG-1616] - Java backend should produce X10 stack traces, not Java stack traces
+    * [XTENLANG-1643] - The compiler adds zero-initializers for "var" fields, even when it's not needed.
+    * [XTENLANG-1644] - In line optimization violates privacy Array field
+    * [XTENLANG-1654] -  polyglot.util.InternalCompilerError: Cannot access field "x" within a null container type.
+    * [XTENLANG-1655] - Type-checker throws InternalCompilerError: "Cannot get FieldDef before type-checking field access"
+    * [XTENLANG-1663] - Remove the "test and try something else if exception" pattern from the typechecker
+    * [XTENLANG-1687] - StackOverflowError in type declare
+    * [XTENLANG-1702] - Can't call Object's toString via a super call:  results in post-compilation errors in the Java backend
+    * [XTENLANG-1711] - typeName is still broken as of 2.0.5
+    * [XTENLANG-1712] - Default initial value of var fields of struct type (both backends)
+    * [XTENLANG-1743] - Any.x10 uses the keyword "at"
+    * [XTENLANG-1750] - NativeRep.x10 uses the keyword "type"
+    * [XTENLANG-1753] - rename Array.copyTo/copyFrom to asyncCopy
+    * [XTENLANG-1761] - The types returned by ClassType.interfaces() are lazy loaded which block "Add unimplemented methods" quick fix
+    * [XTENLANG-1765] - InitChecker doesn't handle try-catch correctly
+    * [XTENLANG-1768] - Duplicate class error when there is no duplication
+    * [XTENLANG-1771] - Compiler does not produce any errors and code generated has a compilation error
+    * [XTENLANG-1773] - Java backend, X10/Java String API mismatch bug
+    * [XTENLANG-1776] - {{null}} is considered a value of a generic type
+    * [XTENLANG-1779] - method overloading resolution for Writer.write
+    * [XTENLANG-1783] - Compiler: polyglot.types.SemanticException when accessing non-static field from static context
+    * [XTENLANG-1785] - Collecting finish doesn't collect remote activities
+    * [XTENLANG-1786] - instanceof Iterator[String] returns true for Iterator[Int]
+    * [XTENLANG-1787] - Print type params when casting to parameterized type
+    * [XTENLANG-1788] - Type parameter accesses are not checked correctly
+    * [XTENLANG-1789] - Anonymous local classes inside anonymous local classes fail to compile.
+    * [XTENLANG-1794] - instanceof Iterable[String] returns true for Iterable[Int]
+    * [XTENLANG-1799] - missing type: error message from post compiler.
+    * [XTENLANG-1801] - X10 should report on "Illegal forward reference" even when the fields are prefixed with "this" explicitly
+    * [XTENLANG-1803] - X10DT optimization mysteries
+    * [XTENLANG-1805] - X10 must check that VAL fields are read only after they're written to
+    * [XTENLANG-1809] - Break in for loop does not seem to behave as one would expect
+    * [XTENLANG-1810] - InternalCompilerError: Cannot get LocalDef before type-checking local variable
+    * [XTENLANG-1817] - HeatTransfer v4 and v5 (from tutorial/samples) broken
+    * [XTENLANG-1818] - set() with one argument cannot be invoked using the operator syntax: a()=3
+    * [XTENLANG-1819] - Typechecker produces unknown type for recursively-dependent method parameters
+    * [XTENLANG-1826] - Missing parenthesis around ternary operator {{flag ? e1 : e2}}
+    * [XTENLANG-1827] - The target/receiver of an anonymous class should be "this" (but it is null)
+    * [XTENLANG-1829] - {{self.here}} appears in error messages
+    * [XTENLANG-1831] - Collecting finish deadlocks on >=4 single-threaded places
+    * [XTENLANG-1832] - NPE for instanceof UInt
+    * [XTENLANG-1838] - Problem with generics and interfaces
+    * [XTENLANG-1844] - Inner classes are broken in the presence of generics
+    * [XTENLANG-1848] - Compiler fails without any error message
+    * [XTENLANG-1855] - Fix toString on Point to correspond to the point deconstruction syntax
+    * [XTENLANG-1856] - Problems in constraint system with Dist/Region rank constraints
+    * [XTENLANG-1858] - Some @NativeRep'ed classes don't have constructors with the outer instance parameter
+    * [XTENLANG-1859] - Java error  compiling constrained-type closure
+    * [XTENLANG-1860] - generics, subclasses, and interfaces, oh my!
+    * [XTENLANG-1866] - Generic bounds are incorrect  when creating a static version of a private method (final public static <T> void)
+    * [XTENLANG-1868] - xlupc transport: can't create socket for accepting connections: Address already in use
+    * [XTENLANG-1870] - Codegen for custom deserialization of generic classes in Java backend
+    * [XTENLANG-1871] - Initialization within finish-async block that includes uncounted async should be rejected.
+    * [XTENLANG-1873] - java backend handling of command-line arguments
+    * [XTENLANG-1880] - Java backend produces invalid code for abstract generic methods
+    * [XTENLANG-1882] - Missing cast in the Java generated code when invoking a method of a generic type
+    * [XTENLANG-1884] - Enforce static locality constraints for var references in at 
+    * [XTENLANG-1886] - bridge method raiseBoundsError$P(int) is not being created in x10.array.Array.java
+    * [XTENLANG-1887] - Javacaster throws an NPE when processing 2-nested anonymous inner classes
+    * [XTENLANG-1888] - Front-end not rejecting closures that access var local variables of lexically enclosing scope
+    * [XTENLANG-1889] - HeatTransfer v3 overflows max depth of constraint system
+    * [XTENLANG-1892] - Inference of generic type parameters incorrectly selects a less specific method
+    * [XTENLANG-1893] - Passing a var into an async differs from C++ to Java backends
+    * [XTENLANG-1894] - Boxing of "var" for an async is not done properly in java
+    * [XTENLANG-1898] - x10 C++ backend bug in implementation of caputured async variables
+    * [XTENLANG-1901] - clocked ateach is not a valid X10 construct; parser must reject it and report error
+    * [XTENLANG-1903] - Update x10doc comments in Any and Object
+    * [XTENLANG-1906] - error message (#394215580)_.
+    * [XTENLANG-1908] - Field here not found in type "x10.array.Array[x10.lang.Int]{self==ia, ia.region==e, ia!=null}
+    * [XTENLANG-1910] - Accessing (read & write) local var in an async
+    * [XTENLANG-1926] - string equality on Java backend
+
+For the details of JIRA issues fixed in this release, see
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/16496
+
+Please use the X10 JIRA to report bugs, after ensuring the problem is
+not already reported:
+http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
+

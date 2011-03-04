@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 Effects Tests
+Bundle-SymbolicName: x10.effects.tests
+Bundle-Version: 2.1.1.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: x10.effects,
+ org.junit4,
+ x10.constraints

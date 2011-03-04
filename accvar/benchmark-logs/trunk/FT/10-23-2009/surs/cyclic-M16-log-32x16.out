@@ -1,0 +1,92 @@
+   0:M=16 SQRTN=65536 N=4294967296 nRows=128 localSize=16777216 MAX_PLACES=512 Mem=131072.0 mem/MAX_PLACES=256.0
+   0:Start FFT
+   0:execution time=55.104391000000007 secs Gigaflops=12.470780547415901
+   0:Step transpose1 took 24.268545000000003 s
+   0:Step row_ffts1 took 0.889945 s
+   0:Step transpose2 took 13.992374000000002 s
+   0:Step twiddle took 0.680946 s
+   0:Step row_ffts2 took 0.889667 s
+   0:Step transpose3 took 14.382914000000001 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=45.094910000000006 secs Gigaflops=15.238854393101125
+   0:Step transpose1 took 14.225176000000001 s
+   0:Step row_ffts1 took 0.884162 s
+   0:Step transpose2 took 14.321783000000002 s
+   0:Step twiddle took 0.661911 s
+   0:Step row_ffts2 took 0.885363 s
+   0:Step transpose3 took 14.116515000000001 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=100.19930100000002 secs Gigaflops=13.716558109721738
+   0:Start verification
+   0:Verification complete
+   0:M=16 SQRTN=65536 N=4294967296 nRows=128 localSize=16777216 MAX_PLACES=512 Mem=131072.0 mem/MAX_PLACES=256.0
+   0:Start FFT
+   0:execution time=56.575058000000006 secs Gigaflops=12.146602966982373
+   0:Step transpose1 took 14.645486000000002 s
+   0:Step row_ffts1 took 0.883623 s
+   0:Step transpose2 took 25.298120000000001 s
+   0:Step twiddle took 0.676339 s
+   0:Step row_ffts2 took 0.888515 s
+   0:Step transpose3 took 14.182975000000001 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=45.342442000000005 secs Gigaflops=15.155662929667525
+   0:Step transpose1 took 13.981314000000001 s
+   0:Step row_ffts1 took 0.893011 s
+   0:Step transpose2 took 14.576366 s
+   0:Step twiddle took 0.677732 s
+   0:Step row_ffts2 took 0.877883 s
+   0:Step transpose3 took 14.336136000000002 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=101.917500000000018 secs Gigaflops=13.485314442760071
+   0:Start verification
+   0:Verification complete
+   0:M=16 SQRTN=65536 N=4294967296 nRows=128 localSize=16777216 MAX_PLACES=512 Mem=131072.0 mem/MAX_PLACES=256.0
+   0:Start FFT
+   0:execution time=55.135121000000005 secs Gigaflops=12.46382985828579
+   0:Step transpose1 took 25.119907000000001 s
+   0:Step row_ffts1 took 0.873029 s
+   0:Step transpose2 took 14.680025000000001 s
+   0:Step twiddle took 0.681224 s
+   0:Step row_ffts2 took 0.921714 s
+   0:Step transpose3 took 12.859222000000001 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=42.917931000000003 secs Gigaflops=16.011833547148392
+   0:Step transpose1 took 13.732524000000002 s
+   0:Step row_ffts1 took 0.916098 s
+   0:Step transpose2 took 14.147258000000001 s
+   0:Step twiddle took 0.670473 s
+   0:Step row_ffts2 took 0.912858 s
+   0:Step transpose3 took 12.538720000000001 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=98.053052000000008 secs Gigaflops=14.016795058250707
+   0:Start verification
+   0:Verification complete
+   0:M=16 SQRTN=65536 N=4294967296 nRows=128 localSize=16777216 MAX_PLACES=512 Mem=131072.0 mem/MAX_PLACES=256.0
+   0:Start FFT
+   0:execution time=54.719324 secs Gigaflops=12.558539052127177
+   0:Step transpose1 took 24.907889000000001 s
+   0:Step row_ffts1 took 0.919809 s
+   0:Step transpose2 took 12.792343000000001 s
+   0:Step twiddle took 0.695308 s
+   0:Step row_ffts2 took 0.916953 s
+   0:Step transpose3 took 14.487022000000001 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=42.521785000000001 secs Gigaflops=16.161004702883471
+   0:Step transpose1 took 13.66099 s
+   0:Step row_ffts1 took 0.927856 s
+   0:Step transpose2 took 12.137440000000002 s
+   0:Step twiddle took 0.695443 s
+   0:Step row_ffts2 took 0.928537 s
+   0:Step transpose3 took 14.171519000000002 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=97.241108999999994 secs Gigaflops=14.133832376592906
+   0:Start verification
+   0:Verification complete

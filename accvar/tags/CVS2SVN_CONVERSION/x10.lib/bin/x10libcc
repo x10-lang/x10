@@ -1,0 +1,30 @@
+#!/usr/bin/ksh
+
+#
+# (c) Copyright IBM Corporation 2007
+#
+# $Id: x10libcc,v 1.1 2007-06-28 17:18:31 srkodali Exp $
+# Script for linking C programs against the library.
+#
+
+CC="mpCC_r -q64 -qarch=pwr5"
+CFLAGS="-qtune=pwr5 -O3 -qhot"
+LINKFLAGS=
+LIBNAME=x10
+
+# will get customized to the installed prefix
+X10LIB_HOME=..
+X10LIB_INCLUDE=${X10LIB_HOME}/include
+X10LIB_LIBPATH=${X10LIB_HOME}/lib
+
+# display usage, if no args are provided
+if [ $# -eq 0 ]
+then
+	echo "Usage: x10libcc [options] filename.c [[filename.c]...]"
+	exit 1
+fi
+
+echo "${CC} ${CCFLAGS} -I. -I${X10LIB_INCLUDE} ${LINKFLAGS} $@ \\"
+echo "		-L${X10LIB_LIBPATH} -l${LIBNAME}"
+${CC} ${CCFLAGS} -I. -I${X10LIB_INCLUDE} ${LINKFLAGS} "$@" \
+		-L${X10LIB_LIBPATH} -l${LIBNAME}

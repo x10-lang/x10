@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Struct declaration</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Struct declaration</h2>
+
+
+<div class="p"><!----></div>
+  
+<table>
+
+<tr><td align="right">StructDecl ::= Mods<sup>?</sup>&nbsp;<b>struct</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody </td></tr>
+<tr><td align="right">TypeParamsWithVariance ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
+<tr><td align="right">Properties ::= <b>(</b> PropertyList <b>)</b> </td></tr>
+<tr><td align="right">WhereClause ::= DepParams </td></tr>
+<tr><td align="right">Interfaces ::= <b>implements</b> InterfaceTypeList </td></tr>
+<tr><td align="right">ClassBody ::= <b>{</b> ClassBodyDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+All fields of a struct must be <b>val</b>.
+
+<div class="p"><!----></div>
+A struct <b>S</b> cannot contain a field of type <b>S</b>, or a field of struct
+type <b>T</b> which, recursively, contains a field of type <b>S</b>.  This
+restriction is necessary to permit <b>S</b> to be implemented as a contiguous
+block of memory of size equal to the sum of the sizes of its fields.  
+
+<div class="p"><!----></div>
+Values of a struct <b>C</b> type can be created by invoking a constructor
+defined in <b>C</b>.  Unlike for classes, the  <b>new</b> keyword is optional
+for struct constructors.
+
+<div class="p"><!----></div>
+<pre>
+struct Polar(r:Double, theta:Double){
+  def this(r:Double, theta:Double) {property(r,theta);}
+  static val Origin = Polar(0,0);
+  static val x0y1   = Polar(1, 3.14159/2);
+  static val x1y0   = new Polar(1, 0); 
+}
+</pre>
+
+Structs support the same notions of generics, properties, and constrained
+types that classes do.  
+
+<div class="p"><!----></div>
+The <b>Pair</b> type below provides pairs
+of values; the <b>diag()</b> method applies only when the two elements of the
+pair are equal, and returns that common value: 
+<pre>
+struct Pair[T,U](t:T, u:U) {
+  def this(t:T, u:U) { property(t,u); }
+  def diag(){T==U &amp;&amp; t==u} = t;
+}
+</pre>
+
+
+<div class="p"><!----></div>
+
+</body>
+</html>

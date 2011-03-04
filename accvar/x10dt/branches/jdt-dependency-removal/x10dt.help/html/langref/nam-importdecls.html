@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>import Declarations</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;<b>import</b> Declarations</h2>
+
+
+<div class="p"><!----></div>
+Any public member of a package can be referred to from anywhere through a
+fully-qualified name: <b>pack.age.Stimulus</b>.    
+
+<div class="p"><!----></div>
+Often, this is too awkward.  X10 has two ways to allow code outside of a class
+to refer to the class by its short name (<b>Stimulus</b>): single-type imports
+and on-demand imports.   
+
+<div class="p"><!----></div>
+Imports of either kind appear at the start of the file, immediately after the
+<b>package</b> directive if there is one; their scope is the whole file.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Single-Type Import</h3>
+
+<div class="p"><!----></div>
+The declaration <b>import </b> <em>TypeName</em> <b>;</b> imports a single type
+into the current namespace.  The type it imports must be a fully-qualified
+name of an extant type, and it must either be in the same package (in which
+case the <b>import</b> is redundant) or be declared <b>public</b>.  
+
+<div class="p"><!----></div>
+Furthermore, when importing <b>pack.age.T</b>, there must not be another type
+named <b>T</b> at that point: neither a  <b>T</b> declared in <b>pack.age</b>,
+nor a <b>inst.ant.T</b> imported from some other package.
+
+<div class="p"><!----></div>
+The declaration <b>import E.n;</b>, appearing in file f of a package named
+<b>P</b>, shadows the following types named <b>n</b> when they appear in f: 
+
+<ul>
+<li> Top-level types named <b>n</b> appearing in other files of <b>P</b>, and
+<div class="p"><!----></div>
+</li>
+
+<li> Types named <b>n</b> imported by automatic imports
+      (&#167;) in f.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.2">
+2.2</a>&nbsp;&nbsp;Automatic Import</h3>
+
+<div class="p"><!----></div>
+The automatic import <b>import pack.age.*;</b>, loosely, imports all the public
+members of <b>pack.age</b>.  In fact, it does so somewhat carefully, avoiding
+certain errors that could occur if it were done naively.  Types defined in the
+current package, and those imported by single-type imports, shadow those
+imported by automatic imports.   Names automatically imported never shadow any
+other names.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.3">
+2.3</a>&nbsp;&nbsp;Implicit Imports</h3>
+
+<div class="p"><!----></div>
+The packages <b>x10.lang</b> and <b>x10.array</b> are automatically imported in all files
+without need for further specification.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

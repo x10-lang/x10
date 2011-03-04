@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Primitive Types</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Primitive Types</h2>
+
+<div class="p"><!----></div>
+Certain types that might be built in to other languages are in fact
+implemented as structs in package <b>x10.lang</b> in X10. Their methods and
+operations are often provided with <b>@Native</b> (&#167;) rather
+than X10 code, however. These types are:
+<pre>
+Boolean, Char, Byte, Short, Int, Long
+Float, Double, UByte, UShort, UInt, ULong
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Signed and Unsigned Integers</h3>
+
+
+
+
+<div class="p"><!----></div>
+X10 has an unsigned integer type corresponding to each integer type:
+<b>UInt</b> is an unsigned <b>Int</b>, and so on.  These types can be used for
+binary programming, or when an extra bit of precision is needed in integer
+arithmetic.    However, X10 does not otherwise encourage the use of unsigned
+arithmetic.  
+
+<div class="p"><!----></div>
+
+</body>
+</html>

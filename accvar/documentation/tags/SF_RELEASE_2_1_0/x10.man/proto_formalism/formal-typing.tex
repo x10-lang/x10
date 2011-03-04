@@ -1,0 +1,112 @@
+
+\begin{figure*}[t]
+\begin{center}
+\begin{tabular}{|c|}
+\hline
+$\typerule{
+  \Gamma,H,P \vdash \he:\hT
+  \gap
+  P \vdash \hT \st \code{T'}
+}{
+  \Gamma,H,P \vdash \code{e} : \code{T'}
+}$
+\quad \RULE{(T-subtype)}
+\qquad
+$\typerule{
+  \Gamma,H,P \cup \{ \hl \} \vdash \he:\hT
+}{
+  \Gamma,H,P \vdash \code{e;return l} : \Gamma(\hl)
+}$
+\quad \RULE{(T-return)}
+\\\\
+
+$\typerule{
+\hK'=
+\begin{cases}
+\bot & \hK=\cooked \\
+\hK & \text{otherwise} \\
+\end{cases}
+    \gap
+  \mtype{}(\code{build},\code{C<K'>})=\ol{\code{T}}\rightarrow\code{Object}
+    \gap
+  \Gamma,H,P \vdash \ol{\he}:\ol{\code{V}}
+    \gap
+  P \vdash \ol{\code{V}} \st \ol{\code{T}}
+}{
+  \Gamma,H,P \vdash \code{new C<K>(}\ol{\he}\code{)} : \code{C<K>}
+}$
+\quad \RULE{(T-New)}
+\\\\
+
+$\typerule{
+}{
+  \Gamma,H,P \vdash \code{null} : \hT
+}$
+\quad \RULE{(T-null)}
+\qquad
+
+$\typerule{
+  \Gamma(\hx)=\hT
+}{
+  \Gamma,H,P \vdash \hx : \hT
+}$
+\quad \RULE{(T-Var)}
+\qquad
+$\typerule{
+  H(\hl)=\code{C<l'>}\hparen{\ldots}
+}{
+  \Gamma,H,P \vdash \hl : \code{C<l'>}
+}$
+\quad \RULE{(T-Location)}\\\\
+
+$\typerule{
+  \Gamma,H,P \vdash \he:\code{C<K>}
+    \gap
+  \cooker{\hK}=\code{cooked}
+    \gap
+  \fclass{}(\hf,\hC)=\code{C'}
+}{
+  \Gamma,H,P \vdash \he.\hf : \code{C'<K>}
+}$
+\quad \RULE{(T-Field-Access)}\\\\
+
+
+$\typerule{
+  \Gamma,H,P \vdash \he:\code{C<K>}
+    \gap
+  \fclass{}(\hf,\hC)=\code{C"}
+    \gap
+  \Gamma,H,P \vdash \code{e'}:\code{C'<K'>}
+    \gap
+  \code{C'} \st \code{C"}
+    \gap
+  \Ppoints{\hK}{\code{K'}}
+    \\
+  \big(\cooker{\hK}=\code{proto} \text{~~or~~} \isVar{}(\hf,\hC)\big)
+}{
+  \Gamma,H,P \vdash \he.\hf = \code{e'} : \code{T'}
+}$
+\quad \RULE{(T-Field-Assignment)}\\\\
+
+$\typerule{
+  \Gamma,H,P \vdash \he':\code{C<K>}
+    \gap
+  \mtype{}(\hm,\code{C<K>})=\ol{\code{T}}\rightarrow\code{U}
+    \gap
+  \Gamma,H,P \vdash \ol{\he}:\ol{\code{V}}
+    \gap
+  P \vdash \ol{\code{V}} \st \ol{\code{T}}
+    \\
+  \cooker{\hK}=\mcooker{}(\hm,\code{C})
+}{
+  \Gamma,H,P \vdash \he'\code{.m(}\ol{\he}\code{)} : \code{U}
+}$
+\quad \RULE{(T-Invoke)}\\
+
+
+\hline
+\end{tabular}
+\end{center}
+\caption{FX10 Expression Typing Rules.}
+\label{Figure:expressions}
+\end{figure*}

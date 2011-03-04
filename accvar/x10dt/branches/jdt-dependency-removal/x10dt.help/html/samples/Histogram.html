@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>Main Topic</title>
+</head>
+
+<body>
+<h1>Histogram</h1>
+<pre>
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+import x10.util.Random;
+import x10.io.Console;
+
+public class Histogram {
+
+  /**
+    * Compute the histogram of the array a in the rail b.
+    */
+    public static def run(a:Array[int](1), b:Array[int](1)) {
+	finish 
+	    for ([i] in a) async {
+	       val bin = a(i)% b.size();
+	       atomic b(bin)++;
+	    }
+    }
+
+    public static def main(args:Array[String](1)) {
+	if (args.size != 2) {
+	    Console.OUT.println("Usage: Histogram SizeOfArray Buckets");
+	    at (Place.FIRST_PLACE) System.setExitCode(-1);
+	    return;
+        }
+	val N = int.parse(args(0));
+	val S = int.parse(args(1));
+	val a = new Array[int](N, (i:int)=> i);
+	val b = new Array[int](S);
+	run(a, b);
+	val v = b(0);
+        var ok:boolean = true;
+	for ([x] in b) ok &= (b(x)==v);
+	if (ok) {
+	    Console.OUT.println("Test ok.");
+	} else {
+	    Console.OUT.println("Test failed.");
+	}
+    }
+}
+
+</pre>
+</body>
+</html>

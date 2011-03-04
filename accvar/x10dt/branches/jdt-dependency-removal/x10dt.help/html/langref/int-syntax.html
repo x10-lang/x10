@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Generic Interfaces</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Interface Syntax</h2>  
+
+<div class="p"><!----></div>
+<a name="DepType:Interface">
+</a> 
+<em>
+<table>
+
+<tr><td align="right">NormalInterfaceDecl ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right">TypeParamsWithVariance ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
+<tr><td align="right">Properties ::= <b>(</b> PropertyList <b>)</b> </td></tr>
+<tr><td align="right">PropertyList ::= Property </td></tr>
+<tr><td align="right">&#124; PropertyList <b>,</b> Property </td></tr>
+<tr><td align="right">WhereClause ::= DepParams </td></tr>
+<tr><td align="right">ExtendsInterfaces ::= <b>extends</b> Type </td></tr>
+<tr><td align="right">&#124; ExtendsInterfaces <b>,</b> Type </td></tr>
+<tr><td align="right">InterfaceBody ::= <b>{</b> InterfaceMemberDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">InterfaceMemberDecl ::= MethodDecl </td></tr>
+<tr><td align="right">&#124; PropertyMethodDecl </td></tr>
+<tr><td align="right">&#124; FieldDecl </td></tr>
+<tr><td align="right">&#124; ClassDecl </td></tr>
+<tr><td align="right">&#124; InterfaceDecl </td></tr>
+<tr><td align="right">&#124; TypeDefDecl </td></tr>
+<tr><td align="right">&#124; <b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Each interface implicitly defines a nullary getter method
+<b>def p(): T</b> for each property <b>p: T</b>. The interface may not have
+another definition of a method <b>p()</b>. 
+
+<div class="p"><!----></div>
+A class <b>C</b>  implements an interface <b>I</b> if
+
+<ul>
+<li> <b>I</b>, or a subtype of <b>I</b>, appears in the <b>implements</b> list
+      of <b>C</b>,
+<div class="p"><!----></div>
+</li>
+
+<li> <b>C</b>'s properties include all the properties of <b>I</b>,
+<div class="p"><!----></div>
+</li>
+
+<li> Each method <b>m</b> defined by <b>I</b> is also a method of <b>C</b> -
+      with the <em><b>public</b></em> modifier added.   These methods may be
+      <b>abstract</b> if <b>C</b> is <b>abstract</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+If <b>C</b> implements <b>I</b>, then the class invariant
+(&#167;) for <b>C</b>,   <i>inv</i>(<b>C</b>), implies
+the class invariant for <b>I</b>, <i>inv</i>(<b>I</b>).  That is, if the
+interface <b>I</b> specifies some requirement, then every class <b>C</b> that
+implements it satisfies that requirement.
+
+<div class="p"><!----></div>
+
+</body>
+</html>
