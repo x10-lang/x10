@@ -78,6 +78,11 @@ void probe (bool onlyProcessAccept);
  *  utility methods
 *********************************************/
 
+bool checkBoolEnvVar(char* value)
+{
+	return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));	
+}
+
 void error(const char* message)
 {
 	if (errno)
@@ -388,17 +393,8 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.myPlaceId = atol(ID);
 
-	char* y = getenv(X10_NOYIELD);
-	if (y && !(strcasecmp("false", y) == 0))
-		state.yieldAfterProbe = false;
-	else
-		state.yieldAfterProbe = true;
-
-	y = getenv(X10_LAZYLINKS);
-	if (y && !(strcasecmp("false", y) == 0))
-		state.linkAtStartup = false;
-	else
-		state.linkAtStartup = true;
+	state.yieldAfterProbe = !checkBoolEnvVar(X10_NOYIELD);
+	state.linkAtStartup = !checkBoolEnvVar(X10_LAZYLINKS);
 
 	state.nextSocketToCheck = 0;
 	pthread_mutex_init(&state.readLock, NULL);
