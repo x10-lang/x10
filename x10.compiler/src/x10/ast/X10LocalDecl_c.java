@@ -185,7 +185,14 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
                 TypeNode htn  = null;
                 if (hasType != null) {
                     htn = (TypeNode) visitChild(hasType, childtc);
-                    if (! tc.typeSystem().isSubtype(type().type(), htn.type(), tc.context())) {
+                    boolean checkSubType = true;
+                    try {
+                        Types.checkMissingParameters(htn);
+                    } catch (SemanticException e) {
+                        Errors.issue(tc.job(), e, htn);
+                        checkSubType = false;
+                    }
+                    if (checkSubType && ! tc.typeSystem().isSubtype(type().type(), htn.type(), tc.context())) {
                         Context xc = (Context) enterChildScope(init, tc.context());
                         Expr newInit = Converter.attemptCoercion(tc.context(xc), init, htn.type());
                         if (newInit == null) {
@@ -227,7 +234,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         try {
             Types.checkMissingParameters(typeNode);
         } catch (SemanticException e) {
-            Errors.issue(tc.job(), e, this);
+            Errors.issue(tc.job(), e, typeNode);
         }
         // Replace here by PlaceTerm because this local variable may be referenced
         // later by code that has been place-shifted, and will have a different 

@@ -372,7 +372,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
 	                    if (hasType != null) {
 	                        htn = (TypeNode) visitChild(hasType, childtc);
-	                        if (! htn.type().typeSystem().isSubtype(type().type(), htn.type(),tc.context())) {
+	                        boolean checkSubType = true;
+	                        try {
+	                            Types.checkMissingParameters(htn);
+	                        } catch (SemanticException e) {
+	                            Errors.issue(tc.job(), e, htn);
+	                            checkSubType = false;
+	                        }
+	                        if (checkSubType && ! htn.type().typeSystem().isSubtype(type().type(), htn.type(),tc.context())) {
 	                            xc = (Context) enterChildScope(init, tc.context());
 	                            Expr newInit = Converter.attemptCoercion(tc.context(xc), init, htn.type());
 	                            if (newInit == null) {

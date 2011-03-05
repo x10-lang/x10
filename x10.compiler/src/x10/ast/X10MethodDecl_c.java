@@ -1013,7 +1013,14 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final TypeNode h = (TypeNode) nn.visitChild(((X10MethodDecl_c) nn).hasType, childtc1);
 				Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( Context ) childtc1.context());
 				nn = (X10MethodDecl) ((X10MethodDecl_c) nn).hasType(h);
-				if (! xts.isSubtype(type, hasType, tc.context())) {
+				boolean checkSubType = true;
+				try {
+				    Types.checkMissingParameters(h);
+				} catch (SemanticException e) {
+				    Errors.issue(tc.job(), e, h);
+				    checkSubType = false;
+				}
+				if (checkSubType && ! xts.isSubtype(type, hasType, tc.context())) {
 					Errors.issue(tc.job(),
 							new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
 				}
