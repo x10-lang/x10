@@ -492,10 +492,6 @@ public class LoopUnroller extends ContextVisitor {
         return xnf.FlagsNode(PCG, Flags.FINAL);
     }
 
-    private FlagsNode valueFlag() {
-        return xnf.FlagsNode(PCG, Flags.VALUE);
-    }
-
     private FlagsNode noFlags() {
         return xnf.FlagsNode(PCG, Flags.NONE);
     }
