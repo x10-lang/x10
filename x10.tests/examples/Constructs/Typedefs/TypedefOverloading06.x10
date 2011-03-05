@@ -11,29 +11,25 @@
 
 import harness.x10Test;
 
-// COMPILER_CRASHES: the compiler now crashes on this file.
-//java.lang.AssertionError: TypedefOverloading08_MustFailCompile.A->TypedefOverloading08_MustFailCompile.A x10.types.X10ParsedClassType_c is already in the cache; cannot replace with TypedefOverloading08_MustFailCompile.A x10.types.MacroType_c
-//	at polyglot.types.CachingResolver.install(CachingResolver.java:147)
-
 /**
- * It is illegal for a package, class, or interface to contain a type
+ * It is legal for a package, class, or interface to contain a type
  * definition with no type or value parameters and also a member class
- * or interface with the same name.
+ * or interface with the same name but with a different number of type
+ * parameters.
  *
  * @author bdlucas 9/2008
  */
 
-public class TypedefOverloading06_MustFailCompile extends TypedefTest {
+public class TypedefOverloading06 extends TypedefTest {
 
     static interface A[T] {};
     static type A = String;
 
     public def run(): boolean = {
-
         return result;
     }
 
     public static def main(var args: Array[String](1)): void = {
-        new TypedefOverloading06_MustFailCompile().execute();
+        new TypedefOverloading06().execute();
     }
 }

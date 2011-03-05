@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-// COMPILER_CRASHES: the compiler now crashes on this file.
 
 /**
  * An instance of a defined type with no type parameters and no value
