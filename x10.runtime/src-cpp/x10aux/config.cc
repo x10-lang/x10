@@ -9,10 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+#include <x10aux/config.h>
+
 #include <cstdlib>
 #include <cstring>
-
-#include <x10aux/config.h>
 
 bool getBoolEnvVar(const char* name) {
     char* value = getenv(name);
