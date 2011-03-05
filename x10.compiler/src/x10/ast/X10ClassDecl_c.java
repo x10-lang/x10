@@ -905,9 +905,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	
-    	if (flags().flags().isStruct()) {
-    		if (n.classDef().isInnerClass() && ! flags().flags().isStatic()) {
+    	Flags flags = n.flags().flags();
+    	if (flags.isStruct()) {
+    		if (n.classDef().isInnerClass() && ! flags.isStatic()) {
     			Errors.issue(tc.job(), new Errors.StructMustBeStatic(n));
+    			n.classDef().setFlags(n.classDef().flags().Static());
+    			n = (X10ClassDecl_c) n.flags(n.flags().flags(flags.Static()));
     		}
     		n.checkStructMethods(parent, tc);
     	}
