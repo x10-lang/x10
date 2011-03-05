@@ -1862,15 +1862,19 @@ public class Errors {
         }
     }
 	public static class TypeDefinitionSameNameAsMemberClass extends EqualByTypeAndPosException {
-		
-		private static final long serialVersionUID = 3624067897043533607L;
-
-		public TypeDefinitionSameNameAsMemberClass(TypeDef mi, Type ct, Position p) {
-			super("Type definition has the same name as member class." +
-					"\n\t Type definition name: " + mi +
-					"\n\t Member class name: " + ct, p);
-        }
-    }
+	    private static final long serialVersionUID = 3624067897043533607L;
+	    private static String designation(ClassType ct) {
+	        Flags flags = ct.flags();
+	        if (flags.isStruct()) return "struct";
+	        if (flags.isInterface()) return "interface";
+	        return "class";
+	    }
+	    public TypeDefinitionSameNameAsMemberClass(TypeDef mi, ClassType ct, Position p) {
+	        super("Type definition has the same name as member " + designation(ct) + "." +
+	                "\n\t Type definition: " + mi +
+	                "\n\t Member " + designation(ct) + ": " + ct, p);
+	    }
+	}
 	public static class ClockedLoopMayOnlyBeClockedOnClock extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = -1335837449324934323L;
