@@ -408,7 +408,7 @@ public class Errors {
 	public static class StructMustBeStatic extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 1450037642852701286L;
 		public StructMustBeStatic(X10ClassDecl cd) {
-			super("Struct must be declared static."
+			super("Nested structs must be declared static.  This is a limitation of the current implementation."
 					+ "\n\t Struct: " + cd.name(),
 					cd.position());
 		}
@@ -691,23 +691,6 @@ public class Errors {
 					+ "\n\t Found offer type: " + actualType
 					, position);
 		}
-	}
-	public static class StructMayNotBeGlobal extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = 6179492565190231102L;
-		public StructMayNotBeGlobal(Position position, X10ClassDecl cd) {
-			super("global modifier cannot be used for structs."
-					+ "\n\t Struct declaration: " + cd.name(), 
-					position);
-		}
-	}
-	public static class GlobalClassMustHaveGlobalClassSupertype extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = 2237512073167205925L;
-		public GlobalClassMustHaveGlobalClassSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
-	        super("Super cannot be the superclass for type; " +
-	        		"a global class must subclass a global class." +
-	        		"\n\t Super: " + superType +
-	        		"\n\t Type: " + type, pos);
-	    }
 	}
 	public static class IllegalClockedAccess extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = -5824261892277076305L;
