@@ -493,15 +493,6 @@ public class AltSynthesizer {
             cast = (X10Cast) cast.typeCheck(visitor);
             return cast;
         } catch (SemanticException e) {
-            // work around for XTENLANG-1335
-            try {
-                cast = nf.X10Cast(pos, nf.CanonicalTypeNode(pos, toType), expr, Converter.ConversionType.UNCHECKED );
-                cast = (X10Cast) cast.typeCheck(visitor);
-                return cast;
-            } catch (SemanticException x) {
-                // return null;
-            }
-            // end work around for XTENLANG-1335
             return null;
         }
     }
