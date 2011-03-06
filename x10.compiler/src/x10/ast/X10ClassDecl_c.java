@@ -1053,7 +1053,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            if (fi instanceof X10FieldInstance) {
     	                X10FieldInstance xfi = (X10FieldInstance) fi;
     	                if (xfi.isProperty())
-    	                    ex = new Errors.ClassCannotOerridePropertyOfSuperclass(type, fi, position());
+    	                    ex = new Errors.ClassCannotOverridePropertyOfSuperclass(type, fi, position());
     	            }
     	        }
     	        catch (SemanticException e) {

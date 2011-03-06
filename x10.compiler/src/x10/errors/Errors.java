@@ -1227,11 +1227,9 @@ public class Errors {
 					"\n\t Interface: " + type, p);
 		}
 	}
-	public static class ClassCannotOerridePropertyOfSuperclass extends EqualByTypeAndPosException {
-		
+	public static class ClassCannotOverridePropertyOfSuperclass extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -9107279168454654750L;
-
-		public ClassCannotOerridePropertyOfSuperclass(ClassDef type, FieldInstance fi, Position p) {
+		public ClassCannotOverridePropertyOfSuperclass(ClassDef type, FieldInstance fi, Position p) {
 			super("Class cannot override property of superclass." +
 					"\n\t Class: " + type +
 					"\n\t Property: " + fi.name() +
