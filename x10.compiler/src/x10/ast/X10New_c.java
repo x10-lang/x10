@@ -60,6 +60,7 @@ import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
+import x10.types.ParameterType;
 import x10.types.ThisDef;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -638,6 +639,13 @@ public class X10New_c extends New_c implements X10New {
             else {
                 ConstructorDef dci = xts.defaultConstructor(n.position(), Types.<ClassType> ref(ct));
                 ci = (X10ConstructorInstance) dci.asInstance();
+            }
+
+            // Force type inference when a constructor is invoked with no type arguments from an instance method of the same class
+            List<Type> tas = ct.typeArguments();
+            List<ParameterType> tps = ct.x10Def().typeParameters();
+            if (!tps.isEmpty() && (tas == null || tas.isEmpty())) {
+                throw new Errors.TypeIsMissingParameters(ct, tps, n.position());
             }
 
             return new Pair<ConstructorInstance, List<Expr>>(ci, n.arguments());
