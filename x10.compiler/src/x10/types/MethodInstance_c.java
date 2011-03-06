@@ -340,9 +340,9 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
                 String s = "";
                 String t = formalTypes.get(i).toString();
                 if (formalNames != null && i < formalNames.size()) {
-                    LocalInstance a = formalNames.get(i);
-                    if (a != null && ! a.name().toString().equals(""))
-                        s = a.name() + ": " + t; 
+                    X10LocalInstance a = (X10LocalInstance) formalNames.get(i);
+                    if (a != null && ! a.x10Def().isUnnamed())
+                        s = a.name() + ": " + t;
                     else
                         s = t;
                 }

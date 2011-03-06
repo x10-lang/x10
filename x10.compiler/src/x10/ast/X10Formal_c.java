@@ -162,6 +162,9 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	    X10Formal_c n = (X10Formal_c) super.buildTypes(tb);
 
 	    X10LocalDef fi = (X10LocalDef) n.localDef();
+	    if (isUnnamed()) {
+	        fi.setUnnamed();
+	    }
 
 	    List<AnnotationNode> as = ((X10Del) n.del()).annotations();
 	    if (as != null) {

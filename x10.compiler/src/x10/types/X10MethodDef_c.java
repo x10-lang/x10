@@ -193,9 +193,11 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
                 sb.append(",");
             }
             first = false;
-            sb.append(l.name().toString())
-                .append(':')
-                .append(l.type().get().toString());
+            if (! ((X10LocalDef) l).isUnnamed()) {
+                sb.append(l.name().toString())
+                    .append(": ");
+            }
+            sb.append(l.type().get().toString());
         }
         sb.append(')');
         return sb.toString();

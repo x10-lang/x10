@@ -39,6 +39,11 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
         // TODO: Add the {self==name} constraint to the type
     }
 
+    public static final Name UNNAMED = Name.make("?");
+    private boolean isUnnamed = false;
+    public void setUnnamed() { isUnnamed = true; }
+    public boolean isUnnamed() { return isUnnamed; }
+    
     private boolean isAsyncInit = false;
     public void setAsyncInit() { isAsyncInit = true; }
     public boolean isAsyncInit() { return isAsyncInit; }
@@ -62,7 +67,7 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
 		cvStr = " = " + v;
 	}
 	
-	
+	Name name = isUnnamed ? UNNAMED : this.name;
 	return "local " + flags.translate() + name + ": " + type + cvStr;
     }
 
