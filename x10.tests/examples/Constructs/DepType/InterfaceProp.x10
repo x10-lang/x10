@@ -24,11 +24,13 @@ import harness.x10Test;
  * @author raj
  */
 public class InterfaceProp extends x10Test {
-interface  I(i:int) {
-      public def a():void;
+    interface  I {
+        public property i():int;
+        public def a():void;
 	}
-	interface  J(k:int) extends I{
-      public def a():void;
+	interface  J extends I{
+        public property k():int;
+        public def a():void;
 	}
 	
       class E(m:int, k:int) extends D implements J{

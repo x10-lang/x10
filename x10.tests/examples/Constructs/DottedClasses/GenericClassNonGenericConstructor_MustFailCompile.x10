@@ -28,7 +28,7 @@ public class GenericClassNonGenericConstructor_MustFailCompile extends x10Test {
 		public def toString() = "" + hashCode();
 	}
 	def m() {
-		val a = new A();
+		val a = new A(); // ERR
 		
 		Console.OUT.println("a = " + a);
 		// val b = a as A[Int];

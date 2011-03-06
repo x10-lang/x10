@@ -34,7 +34,7 @@ public class Overview60 extends x10Test {
     def this(h: T, t: List[T]) { head = h; tail = t; }
     def add(x: T) {
         if (this.tail == null)
-            this.tail = new List(x, null);
+            this.tail = new List(x, null); // ShouldNotBeERR
         else
             this.tail.add(x);
     }

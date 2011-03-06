@@ -18,7 +18,8 @@ import harness.x10Test;
  */
 public class InheritedProperty_MustFailCompile extends x10Test { 
 
-    public static interface Test (l:int) {
+    public static interface Test {
+        public property l():int;
       def put():int;
     }
     

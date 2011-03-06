@@ -21,6 +21,7 @@ import harness.x10Test;
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.compiler.tests.*; // err markers
 import x10.util.*;
+import x10.lang.annotations.*; // FieldAnnotation MethodAnnotation
 
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
@@ -2233,17 +2234,19 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 }
 
 class TestInterfaceInvariants { // see XTENLANG-1930
-	interface I(p:Int) {p==1} {}
+	interface I {p()==1} {
+        public property p():Int;
+	}
 	class C(p:Int) implements I {
 		def this() { 
 			property(0); // ShouldBeErr
 		}
 	}
-	@ShouldBeErr interface I2 extends I{p==2} {}
-	@ShouldBeErr interface I3 {p==3} extends I2 {}
+	@ERR interface I2 extends I{self.p()==2} {}
+	@ERR interface I3 {this.p()==3} extends I2 {}
 	static def test(i:I) {
-		@ERR var i1:I{p==5} = i;
-		@ShouldNotBeERR var i2:I{p==1} = i;
+		@ERR @ERR var i1:I{self.p()==5} = i;
+		var i2:I{self.p()==1} = i;
 	}
 }
 
@@ -4054,8 +4057,13 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 		@ERR val x:GenStructUsage2[GenStructUsage2[GenStructUsage4]];
 		def this(x:GenStructUsage2[GenStructUsage2[GenStructUsage4]]) { this.x = x; }
 	}
-	static struct IgnoreGeneric[T] {}
+	static struct IgnoreGeneric[T] {} // the struct size doesn't not depend on T, therefore you can ignore whatever T we pass.
 	@ERR static struct GenStructUsage44(x:IgnoreGeneric[IgnoreGeneric[GenStructUsage44]]) {} // far todo: even though the generic is "ignored" (there is no field of that type), I still report an error. We could do another analysis that checks which type parameters are actually used by fields and only handle such type parameters.
+	
+	static class IgnoreGeneric_class[T] {}
+	static struct GenStructUsage44b(x:IgnoreGeneric_class[IgnoreGeneric[GenStructUsage44b]]) {} 
+	
+
 	static struct GenStructUsage5 {
 		val x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Int]]]];
 		def this(x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Int]]]]) { this.x = x; }
@@ -4131,10 +4139,16 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 
 	@ERR interface I3 extends I3 {}
 	@ERR interface I4[T] extends I4[I4[T]] {}
-	@ERR interface I5(i:Int) extends I5{self.i==1} {}
-	interface I6(i:I6) {}
+	@ERR interface I5 extends I5{self.i()==1} {
+        public property i():Int;
+	}
+	interface I6 {
+        public property i():I6;
+	}
 
-	interface Comparable[T](i:T) {}
+	interface Comparable[T] {
+        public property i():T;
+	}
 	class Foo(i:Foo) implements Comparable[Foo] {}
 	@ERR class Foo2(i:Comparable[Foo2]) implements Comparable[Foo2] {}
 }
@@ -4224,7 +4238,9 @@ class TestFieldsInConstraints { // see XTENLANG-989
 }
 
 class PropertyFieldResolution {
-	interface A(i:Int) {}
+	interface A {
+        public property i():Int;
+	}
 	class B(i:Int{self==0})  implements A {
 		val k1:Int{self==0} = this.i;
 		@ERR val k2:Int{self==1} = this.i;
@@ -4387,9 +4403,11 @@ class ArrayAndRegionTests {
 }
 
 class PropertyFieldTest42 { // XTENLANG-945
-	interface I(a:Int) {}
+	interface I {
+        public property a():Int;
+	}
 	class B {
-		def m(i:I) = i.a;
+		def m(i:I) = i.a();
 	}
 }
 
@@ -4785,17 +4803,21 @@ class CollectingFinishTests {
 
 
 class TestInterfaceInvariants_1930 { // XTENLANG-1930
-	interface I(p:Int) {p==1} {}
+	interface I {p()==1} {
+        public property p():Int;
+    }
 	class C(p:Int) implements I {
 		def this() { 
 			property(0); // ShouldBeErr
 		}
 	}
-	interface I2 extends I{p==2} {} // ShouldBeErr
-	interface I3 {p==3} extends I2 {} // ShouldBeErr
+	interface I2a extends I{self.p()==1} {}
+	interface I3a {this.p()==1} extends I {}
+	interface I2 extends I{self.p()==2} {} // ERR [Invalid type; the real clause of x10.frontend.tests.TestInterfaceInvariants_1930.I{self.x10.frontend.tests.TestInterfaceInvariants_1930.I#p()==2} is inconsistent.]
+	interface I3 {this.p()==3} extends I {} // ShouldBeErr
 	static def test(i:I) {
-		var i2:I{p==1} = i; // ShouldNotBeERR
-		var i3:I{p==4} = i; // ERR
+		var i2:I{self.p()==1} = i;
+		var i3:I{self.p()==4} = i; // ERR ERR
 	}
 }
 
@@ -5015,7 +5037,10 @@ class TestFieldResolution(p:Int) {
 }
 
 class TestMultipleImplementAndFields {
-	interface I1(z:Int) { static val a = 1;}
+	interface I1 {
+        public property z():Int;
+	    static val a = 1;
+	}
 	interface I2 extends I1 {}
 	interface I3 extends I1 {}
 	interface I4 extends I2,I3 {}
@@ -5304,3 +5329,146 @@ class LoopTests {
 		for (p:Int{self==1} in x) {} // ERR
 	}
 }
+
+
+class XTENLANG_2491 {
+	static class B[T](t:T) {
+	  public static operator[T] (x:T) as B[T] = new B[T](x);
+	  public def equals(a:Any) {
+		if (a instanceof B[T]) {
+		  return (a as B[T]).t==t; // should "as" do the system-as or the user-explicit-as ?
+		}
+		return false;
+	  }
+	}
+	static class MyBox[T](value:T) {	
+		public static operator[T](x:T):MyBox[T] = new MyBox[T](x);
+	}
+	static class MyHashMap[K,V](old:V) {
+		def get(): MyBox[V] {
+			return old as MyBox[V]; // should "as" do the system-as or the user-implicit-as? (currently it does the system-as, and fails at runtime with ClassCastException)
+		}
+	}
+	static class Hello {
+		public def main(Array[String]) {
+			val map = new MyHashMap[String,Int](5);
+			Console.OUT.println(map.get());
+		}
+	}
+	static class LiteralTests {
+		val b1:Byte = 127y;
+		val b2:Byte = 128y; // ShouldBeErr
+		val b3:Byte = 127; // is it ok? where does it says so in the spec? (implicit coersions from Int to Byte cannot differentiate between 127 and 128)
+		val b4:Byte = 128; // ERR
+		val b5:Byte = 128 as Byte;
+	}
+}
+
+
+class SuperPropertyFieldResolution {
+	class B(a:Int) {}
+	class C1 extends B{a==1} {
+		def this() { super(1); }
+	}
+	class C2 extends B{self.a==1} {
+		def this() { super(1); }
+	}
+	class C3 extends B{this.a==1} { // ERR ERR ERR
+		def this() { super(1); }
+	}
+	class C3 extends B{super.a==1} { // ERR ERR ERR
+		def this() { super(1); }
+	}
+	class C4 {a==1} extends B {
+		def this() { super(1); }
+	}
+	class C5 {self.a==1} extends B { // ERR
+		def this() { super(1); }
+	}
+	class C6 {this.a==1} extends B {
+		def this() { super(1); }
+	}
+}
+class SuperPropertyMethodResolution {
+	class B {
+		property a():Int = 1;
+		def this(z:Int) {}
+	}
+	class C1 extends B{a()==1} { // ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
+		def this() { super(1); }
+	}
+	class C2 extends B{self.a()==1} {
+		def this() { super(1); }
+	}
+	class C3 extends B{this.a()==1} { // ERR
+		def this() { super(1); }
+	}
+	class C3 extends B{super.a()==1} { // ERR ERR
+		def this() { super(1); }
+	}
+	class C4 {a()==1} extends B {
+		def this() { super(1); }
+	}
+	class C5 {self.a()==1} extends B { // ERR
+		def this() { super(1); }
+	}
+	class C6 {this.a()==1} extends B {
+		def this() { super(1); }
+	}
+}
+class InterfaceSuperPropertyMethodResolution {
+	interface B {
+		property a():Int;
+	}
+	abstract class C1 implements B{a()==1} { // ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
+	}
+	abstract class C2 implements B{self.a()==1} {
+	}
+	abstract class C3 implements B{this.a()==1} { // ERR
+	}
+	abstract class C3 implements B{super.a()==1} { // ERR ERR ERR
+	}
+	abstract class C4 {a()==1} implements B {
+	}
+	abstract class C5 {self.a()==1} implements B { // ERR
+	}
+	abstract class C6 {this.a()==1} implements B {
+	}
+}
+
+// redesign of property fields and property methods in interfaces
+//http://jira.codehaus.org/browse/XTENLANG-1914
+class InterfacePropertyMethods {
+	interface XX(i:Int) {} // ERR
+	interface YY(i:Int) extends MethodAnnotation, FieldAnnotation { } // ok
+	interface ZZ(j:String) extends YY {} // ok
+	class TestAnnotations {
+		@YY(23) val k1 = "1";
+		@ZZ("",3) val k2 = "1";
+
+		@YY(23,42) val k3 = "1"; // ShouldBeErr
+		@ZZ("") val k4 = "1"; // ShouldBeErr
+		@XX(23) val k5 = "1"; // ERR
+	}
+
+	interface I {
+		property i():Int;
+	}
+	abstract class A1 implements I {
+		public abstract property i():Int;
+	}
+	class B1 extends A1 {
+		public property i():Int = 1; // properties are final
+	}
+	class C1 extends B1 {
+		public property i():Int = 2; // ERR: Semantic Error: i(): x10.lang.Int in C1 cannot override i(): x10.lang.Int in B1; overridden method is final
+	}
+	class A2 implements I {
+		public property i():Int = 3;
+	}
+}
+
+struct StructCannotBeUsedInGlobalRef {
+  private val root = new GlobalRef(this); // ERR ERR
+}
+

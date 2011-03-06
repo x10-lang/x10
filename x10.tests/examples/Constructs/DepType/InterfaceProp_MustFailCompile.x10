@@ -26,11 +26,13 @@ import harness.x10Test;
  */
 public class InterfaceProp_MustFailCompile extends x10Test {
   
-	interface  I(i:int) {
-      public def a():void;
+	interface  I {
+        public property i():int;
+        public def a():void;
 	}
-	interface  J(k:int) extends I{
-      public def a():void;
+	interface  J extends I{
+        public property k():int;
+        public def a():void;
 	}
 	class E(k:int) implements J{ // ERR: InterfaceProp_MustFailCompile.E should be declared abstract; it does not define i(): x10.lang.Int, which is declared in InterfaceProp_MustFailCompile.I
       public def this(kk:int):E= {

@@ -2454,6 +2454,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         checkTypeName(Identifier);
         List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
         List<PropertyDecl> props = Propertiesopt;
+        // we use the property syntax for annotation-interfaces:
+        // public interface Pragma(pragma:Int) extends StatementAnnotation { ... }
         DepParameterExpr ci = WhereClauseopt;
         FlagsNode fn = extractFlags(modifiers, Flags.INTERFACE);
         ClassDecl cd = nf.X10ClassDecl(pos(),

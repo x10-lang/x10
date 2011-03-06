@@ -15,6 +15,7 @@ import x10.lang.annotations.StatementAnnotation;
 
 /**
  * @Ref(v) may be used to annotate an async to specify that variable v should be captured by reference. */
-public interface Ref[T](id:T)
+public interface Ref[T]
     extends StatementAnnotation {
+    public property id(): T;
 }

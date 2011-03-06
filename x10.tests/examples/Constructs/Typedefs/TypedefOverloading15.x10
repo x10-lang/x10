@@ -21,7 +21,10 @@ import harness.x10Test;
 
 public class TypedefOverloading15 extends TypedefTest {
 
-    static interface A(s:String) {}
+    static interface A {      
+        public property s():String;
+
+    }
 
     public def run(): boolean = {
 

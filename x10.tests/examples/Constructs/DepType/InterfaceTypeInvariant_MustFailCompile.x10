@@ -28,24 +28,26 @@ import x10.compiler.tests.*; // err markers
 
 public class InterfaceTypeInvariant_MustFailCompile extends x10Test { 
 
-    public static interface Test (n:int, m: int{m==n}) {
+    public static interface Test {      
+        public property n():int;
+        public property m():int{self==this.n()};
        def put():int;
     }
 
-    @ShouldBeErr class Tester1(n: int, m:int) implements Test{
+    @ERR class Tester1(n: int, m:int) implements Test{
       public def this() = { property(3,2); }
       public def put()=0;
 	}
-    class Tester2(n: int, m:int{self==n}) implements Test{
+    @ShouldNotBeERR class Tester2(n: int, m:int{self==this.n()}) implements Test{
       @ERR @ERR public def this() = { property(3,2); }  // [Semantic Error: Invalid type; the real clause of InterfaceTypeInvariant_MustFailCompile.Tester2{self.n==3, self.m==2} is inconsistent.]
       public def put()=0;
 	}
-    class Tester3(n: int, m:int{self==n}) implements Test{
+    @ShouldNotBeERR class Tester3(n: int, m:int{self==this.n()}) implements Test{
       public def this() = { property(3,3); }
       public def put()=0;
 	}
 
-    @ERR class Tester(l: int, m:int){m == 2 && l == 3} implements Test{ // InterfaceTypeInvariant_MustFailCompile.Tester should be declared abstract; it does not define n(): x10.lang.Int, which is declared in InterfaceTypeInvariant_MustFailCompile.Test
+    @ERR @ERR class Tester(l: int, m:int){m == 2 && l == 3} implements Test{ // InterfaceTypeInvariant_MustFailCompile.Tester should be declared abstract; it does not define n(): x10.lang.Int, which is declared in InterfaceTypeInvariant_MustFailCompile.Test
       public def this():Tester = { property(3,2); }
       public def put()=0;
 	}

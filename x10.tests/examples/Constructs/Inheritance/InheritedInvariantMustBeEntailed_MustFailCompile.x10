@@ -18,7 +18,9 @@ import harness.x10Test;
  */
 public class InheritedInvariantMustBeEntailed_MustFailCompile extends x10Test { 
 
-    public static interface Test (l:int, m:int){l==m} {
+    public static interface Test {l()==m()} {
+        public property l():int;
+        public property m():int;
       def put():int;
     }
     

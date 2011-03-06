@@ -919,6 +919,19 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (n.superClass!=null) Types.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());
         for (TypeNode typeNode : n.interfaces)
             Types.checkVariance(typeNode, ParameterType.Variance.COVARIANT,tc.job());
+
+        // check normal interfaces do not have property fields, but only annotation-interfaces
+        if (flags.isInterface() && properties.size()>0) {
+            Type A;
+            try {
+                A = xts.systemResolver().findOne(QName.make("x10.lang.annotations.Annotation"));
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Couldn't find x10.lang.annotations.Annotation",e);
+            }
+            if (!classDef().asType().isSubtype(A,tc.context())) {
+                Errors.issue(tc.job(), new SemanticException("Interfaces that do not extend Annotation cannot have property fields. Use property methods instead.",position));                
+            }
+        }
     	return n;
     }
     
