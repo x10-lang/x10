@@ -254,7 +254,7 @@ public class LineNumberMap extends StringTable {
 	private void addMethodMapping(Type c, String n, Type r, List<Ref<? extends Type>> f, Key tk, int lastX10Line) {
 		assert (c != null);
 		assert (f != null);
-		String sc = c.toString();
+		String sc = c.toString().replace("$", "::");
 		String sn = n == null ? "this" : n;
 		String sr = r == null ? "" : r.toString();
 		String[] sa = new String[f.size()];
