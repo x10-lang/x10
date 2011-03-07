@@ -86,6 +86,13 @@ public final class Array[T] (
         size:Int
 ) implements (Point(region.rank))=>T,
 Iterable[Point(region.rank)] {
+
+    public property region():Region{self != null} = region;
+    public property rank():int{self==region.rank} = rank;
+    public property rect():boolean{self==region.rect} = rect;
+    public property zeroBased():boolean{self==region.zeroBased} = zeroBased;
+    public property rail():boolean{self==region.rail} = rail;
+    public property size():Int = size;
     
     /**
      * The backing storage for the array's elements
@@ -355,6 +362,7 @@ Iterable[Point(region.rank)] {
     // TODO: Should be annonymous nested class in values, 
     //       but that's too fragile with the 2.1 implementation of generics.
     private class ValueSequence(size:int) implements Sequence[T] {
+        public property size():int = size;
         val array = Array.this as Array[T](1);
         public def iterator() = new ValueIterator(Array.this);
         def this() {

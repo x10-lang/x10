@@ -34,6 +34,7 @@ public class InterfaceProp extends x10Test {
 	}
 	
       class E(m:int, k:int) extends D implements J{
+       public property k():int = k;
       public def this(mm:int, nn:int, ii:int, kk:int):E { 
           super(nn,ii); 
           property(mm, kk);
@@ -43,6 +44,7 @@ public class InterfaceProp extends x10Test {
       }
 	}
 	class D(n:int, i:int) implements I {
+       public property i():int = i;
       public def this(nn:int, ii:int):D { property(nn, ii); }
       public def a():void= {
         var x:int;

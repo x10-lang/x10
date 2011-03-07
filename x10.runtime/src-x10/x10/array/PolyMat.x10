@@ -24,6 +24,7 @@ import x10.io.Printer;
  * object.
  */
 class PolyMat(rank: int) extends Mat[PolyRow] {
+    public property rank():int = rank;
 
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
     static type PolyMatBuilder(rank:Int) = PolyMatBuilder{self.rank==rank};

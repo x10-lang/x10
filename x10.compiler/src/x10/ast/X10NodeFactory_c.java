@@ -301,12 +301,11 @@ public class X10NodeFactory_c extends NodeFactory_c {
 
 	private X10ClassDecl ClassDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<PropertyDecl> properties,
 			TypeNode superClass, List<TypeNode> interfaces, ClassBody body, DepParameterExpr tci) {
-	    boolean isInterface = flags.flags().isInterface();
-	    if (flags.flags().isInterface()) {
+	    /*if (flags.flags().isInterface()) {
 	    	body = PropertyDecl_c.addAbstractGetters(properties, body, this);
 	    } else {
 	    	  body = PropertyDecl_c.addPropertyGetters(properties, body, this);
-	    }
+	    }*/
 	    X10ClassDecl n = new X10ClassDecl_c(pos, flags, name, typeParameters, properties, tci, superClass, interfaces, body);
 		n = (X10ClassDecl)n.ext(extFactory().extClassDecl());
 		n = (X10ClassDecl)n.del(delFactory().delClassDecl());

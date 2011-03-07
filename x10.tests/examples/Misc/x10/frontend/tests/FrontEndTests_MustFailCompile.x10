@@ -909,6 +909,7 @@ class TestAsync {
 
 
 class PropertyTest(p:Int) {
+    public property p():Int = p;
 	static val i = 3;
 	def this() {
 		property(1);
@@ -2238,6 +2239,7 @@ class TestInterfaceInvariants { // see XTENLANG-1930
         public property p():Int;
 	}
 	class C(p:Int) implements I {
+        public property p():Int = p;
 		def this() { 
 			property(0); // ShouldBeErr
 		}
@@ -4149,8 +4151,12 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	interface Comparable[T] {
         public property i():T;
 	}
-	class Foo(i:Foo) implements Comparable[Foo] {}
-	@ERR class Foo2(i:Comparable[Foo2]) implements Comparable[Foo2] {}
+	class Foo(i:Foo) implements Comparable[Foo] {
+        public property i():Foo = i;
+    }
+	class Foo2(i:Comparable[Foo2]) implements Comparable[Foo2] {
+        @ERR public property i():Comparable[Foo2] = i;
+	}
 }
 
 class ConformanceChecks { // see XTENLANG-989
@@ -4242,6 +4248,8 @@ class PropertyFieldResolution {
         public property i():Int;
 	}
 	class B(i:Int{self==0})  implements A {
+        public property i():Int = i;
+
 		val k1:Int{self==0} = this.i;
 		@ERR val k2:Int{self==1} = this.i;
 	}
@@ -4807,6 +4815,7 @@ class TestInterfaceInvariants_1930 { // XTENLANG-1930
         public property p():Int;
     }
 	class C(p:Int) implements I {
+        public property p():Int = p;
 		def this() { 
 			property(0); // ShouldBeErr
 		}
@@ -5048,10 +5057,12 @@ class TestMultipleImplementAndFields {
 		def m() {z==1} : void;
 	}
 	class Example1(z:Int) implements I5 {
+      public property z():Int = z;
 	  def example() = a;
 	  public def m() {z==1} {};
 	}
 	class Example2(z:Int) implements I5,I3 {
+      public property z():Int = z;
 	  def example() = a;
 	  public def m() {z==1} {};
 	}
