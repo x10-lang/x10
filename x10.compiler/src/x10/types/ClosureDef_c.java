@@ -116,6 +116,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     
     public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
         this.annotations = TypedList.<Ref<? extends Type>>copyAndCheck(annotations, Ref.class, true);
+        this.asInstance = null;
     }
     
     public List<Type> annotations() {
@@ -179,6 +180,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 
     public void setFormalNames(List<LocalDef> formalNames) {
 	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
+	this.asInstance = null;
     }
 
     public Ref<CConstraint> guard() {
@@ -187,6 +189,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     
     public void setGuard(Ref<CConstraint> s) {
 	    this.guard = s;
+	    this.asInstance = null;
     }
     
     public Ref<TypeConstraint> typeGuard() {
@@ -203,6 +206,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      */
     public void setTypeContainer(Ref<? extends ClassType> container) {
         this.typeContainer = container;
+        this.asInstance = null;
     }
 
     public Ref<? extends CodeInstance<?>> methodContainer() {
@@ -211,6 +215,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 
     public void setMethodContainer(Ref<? extends CodeInstance<?>> container) {
         methodContainer = container;
+        this.asInstance = null;
     }
 
     public Ref<? extends Type> returnType() {
@@ -220,6 +225,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public void setReturnType(Ref<? extends Type> returnType) {
         assert returnType != null;
         this.returnType = returnType;
+        this.asInstance = null;
     }
 
 
@@ -232,6 +238,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      */
      public void setFormalTypes(List<Ref<? extends Type>> formalTypes) {
          this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
+         this.asInstance = null;
      }
 
      public List<VarInstance<? extends VarDef>> capturedEnvironment() {
@@ -272,6 +279,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      
      public void setStaticContext(boolean v) {
          isStatic = v;
+         this.asInstance = null;
      }
      
      
