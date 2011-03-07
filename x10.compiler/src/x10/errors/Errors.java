@@ -424,7 +424,7 @@ public class Errors {
 	public static class InstanceofError extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -3026696944876868780L;
 		public InstanceofError(Type left, Type right, Position pos) {
-			super("Left operand of instanceof must be castable to right type."
+			super("An instance of the left type cannot possibly be an instance of the right type."
 					+ "\n\t Left type: " + left
 					+ "\n\t Right type: " + right,
 					pos);
