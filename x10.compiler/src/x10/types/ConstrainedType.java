@@ -455,7 +455,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    return addBinding(xt, x);
 		}
 		
-		public XTerm findOrSynthesize(Name n) {
+		public XTerm findOrSynthesize(Name n) { // todo: why do we have both findOrSynthesize and find if they do the same thing?
 		    return find(n);
 		}
 		/** Find the term t, if any, such that t entails {self.propName==t}.
@@ -508,7 +508,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		            }
 		        }
 		    }
-		    return val;
+		    return val; // todo: val can be null! if we build a synthetic term, then why not always build it???
 		}
 
 		public XVar selfVar() {

@@ -271,20 +271,23 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 
 		if (ts.isSubtype(formalType, ts.Point(), context)) {
 		    ConstrainedType Region = Types.toConstrainedType(ts.Region());
-		    Region = Region.addRank(formalType.rank(context));
-		    Expr newDomain = Converter.attemptCoercion(tc, domain, Region);
-		    if (newDomain != null && newDomain != domain) {
-		        domainTypeRef = Types.lazyRef(null);
-		        Node nn = this.domain(newDomain).del().typeCheck(tc);
-		        return nn;
-		    }
-		    ConstrainedType Dist = Types.toConstrainedType(ts.Dist());
-		    Dist = Dist.addRank(formalType.rank(context));
-		    newDomain = Converter.attemptCoercion(tc, domain, Dist);
-		    if (newDomain != null && newDomain != domain) {
-		        domainTypeRef = Types.lazyRef(null);
-		        return this.domain(newDomain).del().typeCheck(tc);
-		    }
+            final XTerm rankTerm = formalType.rank(context);
+            if (rankTerm!=null) {
+                Region = Region.addRank(rankTerm);
+                Expr newDomain = Converter.attemptCoercion(tc, domain, Region);
+                if (newDomain != null && newDomain != domain) {
+                    domainTypeRef = Types.lazyRef(null);
+                    Node nn = this.domain(newDomain).del().typeCheck(tc);
+                    return nn;
+                }
+                ConstrainedType Dist = Types.toConstrainedType(ts.Dist());
+                Dist = Dist.addRank(rankTerm);
+                newDomain = Converter.attemptCoercion(tc, domain, Dist);
+                if (newDomain != null && newDomain != domain) {
+                    domainTypeRef = Types.lazyRef(null);
+                    return this.domain(newDomain).del().typeCheck(tc);
+                }
+            }
 		}
 		
 		// The expected type is Iterable[Foo].  The constraints on domainType do matter
