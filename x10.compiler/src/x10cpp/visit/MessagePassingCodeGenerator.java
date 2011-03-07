@@ -257,43 +257,59 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
     public void visit(Allocation_c n) {
         Type type = n.type();
+        sw.allowBreak(0, " ");
         String typeName = Emitter.translateType(type);
-        ClassifiedStream b = sw.body();
-        b.allowBreak(0, " ");
         if (Types.isX10Struct(type)) {
-            b.write(typeName+ "::" +SharedVarsMethods.ALLOC+ "()");
+            sw.write(typeName+ "::" +SharedVarsMethods.ALLOC+ "()");
         } else {
             // XTENLANG-1407: Remove this memset call once we finish the default value specification/implementation.
             //                Expect it to be more efficient to explicitly initialize all of the object fields instead
             //                of first calling memset, then storing into most of the fields a second time.
-            b.write("(new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"())"); 
+            sw.write("(new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"())");
+            sw.newline();
         }
     }
 
     public void visit(ConstructorCall_c s) {
         Expr target = s.target();
+        Type type   = target.type();
         ConstructorCall call = (ConstructorCall)s;
-        if (call.kind() == ConstructorCall.SUPER) {
-            assert false; // For now, this case is handled by visit(ConstructorDecl_c)
-        } else if (call.kind() == ConstructorCall.THIS) {
+        boolean noArgsYet = true;
+        if (call.kind() == ConstructorCall.SUPER)
+            assert false; // Special calls are handled by visit(ConstructorDecl_c)
+        if (Types.isX10Struct(type)) {
+            String typeName = Emitter.structMethodClass((X10ClassType) Types.baseType(type), true, true);
+            sw.write(typeName+ "::" +SharedVarsMethods.CONSTRUCTOR+ "(");
+            sw.allowBreak(2, 2, "", 0); // miser mode
+            sw.begin(0);
+            noArgsYet = false;
+            s.print(target, sw, tr);
+        } else {
             sw.write("(");
             s.print(target, sw, tr);
             sw.write(")->" +SharedVarsMethods.CONSTRUCTOR+ "(");
         }
-        if (call.arguments().size() > 0) {
-            sw.allowBreak(2, 2, "", 0); // miser mode
-            sw.begin(0);
-            boolean first = true;
-            for (Expr e : (List<Expr>) call.arguments() ) {
-                if (!first) {
-                    sw.write(",");
-                    sw.allowBreak(0, " ");
-                }
-                s.print(e, sw, tr);
-                first = false;
+
+        TypeSystem ts = tr.typeSystem();
+        List<Expr> args = call.arguments();
+        for (int i=0; i<args.size(); i++) {
+            if (noArgsYet) {
+                sw.allowBreak(2, 2, "", 0); // miser mode
+                sw.begin(0);
+                noArgsYet = false;
+            } else {
+                sw.write(",");
+                sw.allowBreak(0, " ");
             }
-            sw.end();
+            Expr e = args.get(i);
+            Type fType = call.constructorInstance().formalTypes().get(i);
+            if (!ts.typeEquals(fType, e.type(), tr.context()) && !(ts.isParameterType(fType) && e.type().isNull())) {
+                e = cast(e, fType);
+            }
+            s.print(e, sw, tr);
         }
+        if (!noArgsYet)
+            sw.end();
         sw.write(");");
         sw.newline();
     }
@@ -1413,7 +1429,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         // create static _alloc method
         sh.newline();
-        sh.write("static " +StructCType+ " " +SharedVarsMethods.ALLOC+ "(){" +StructCType+ " t; return t; }");
+        sh.write("static " +StructCType+ " " +SharedVarsMethods.ALLOC+ "(){" +StructCType+ " t; memset(&t, 0, sizeof(" +StructCType+ ")); return t; }");
         sh.newline();
         sh.forceNewline();
         
@@ -1951,7 +1967,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    for (Stmt s : body.statements()) {
 	        // FIXME: constructor calls won't get line number information
-	        if (s instanceof ConstructorCall) {
+	        if ( s instanceof ConstructorCall && ( // ignore split New constructor calls here
+	               ((ConstructorCall) s).kind() == ConstructorCall.SUPER ||
+	               ((ConstructorCall) s).target() == null ||
+	               ((ConstructorCall) s).target().type().typeEquals(container, context)
+	           ) ) {
 	            ConstructorCall call = (ConstructorCall)s;
 	            if (call.kind() == ConstructorCall.SUPER) {
 	                if (container.isX10Struct()) {

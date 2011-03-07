@@ -26,10 +26,15 @@ namespace x10 {
         public:
             RTT_H_DECLS_CLASS;
 
-            FileWriter__FileOutputStream(FILE *f) : _outputStream(f) { }
+            FileWriter__FileOutputStream(FILE *f): _outputStream(f) { }
+            FileWriter__FileOutputStream(): _outputStream(NULL) { }
 
             static x10aux::ref<FileWriter__FileOutputStream> _make(x10aux::ref<x10::lang::String> name);
-            
+
+            void _constructor (x10aux::ref<x10::lang::String> file);
+            void _constructor (FILE* file);
+            void _constructor ();
+
             virtual void write(const char *str) {
                 _outputStream.write(str);
             }
@@ -66,7 +71,7 @@ namespace x10 {
             //       The old 1.7 definition of this class simply didn't work either,
             //       it just silently didn't serialize the FILEPtrInputSteam field.
             // assert(false);
-            x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(NULL);
+            x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream();
             buf.record_reference(this_);
             this_->_deserialize_body(buf);
             return this_;

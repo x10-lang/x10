@@ -72,7 +72,7 @@ public class Optimizer {
     private List<Goal> goals() {
         List<Goal> goals = new ArrayList<Goal>();
         Configuration config = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
-        if (config.SPLIT_CONSTRUCTORS) {
+        if (!java && (config.EXPERIMENTAL || config.SPLIT_CONSTRUCTORS)) {
             goals.add(ConstructorSplitter());
         }
         if (config.LOOP_OPTIMIZATIONS) {

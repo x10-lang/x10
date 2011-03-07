@@ -32,6 +32,9 @@ namespace x10 {
             static inline GlobalRef<T> _make(T obj) {
                 return GlobalRef<T>(obj);
             }
+            static void _constructor (x10::lang::GlobalRef<T> &this_, T t) {
+                this_.value = (size_t) t.operator->();
+            }
         };
         
         
