@@ -401,8 +401,8 @@ public class Errors {
 	public static class TypedefMustBeStatic extends EqualByTypeAndPosException {
 	    private static final long serialVersionUID = -1088534868188898121L;
 	    public TypedefMustBeStatic(MacroType mt, Position pos) {
-	        super("Illegal type def; type-defs must be static." +
-	        		"\n\t Type def: " + mt, pos);
+	        super("Member type definitions must be static.  This is a limitation of the current implementation." +
+	        		"\n\t Type definition: " + mt, pos);
 	    }
 	}
 	public static class StructMustBeStatic extends EqualByTypeAndPosException {
