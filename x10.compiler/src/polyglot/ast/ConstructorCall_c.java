@@ -92,10 +92,11 @@ public abstract class ConstructorCall_c extends Stmt_c implements ConstructorCal
     }
 
     /** Reconstruct the constructor call. */
-    protected ConstructorCall_c reconstruct(Expr qualifier, List<Expr> arguments) {
-	if (qualifier != this.qualifier || ! CollectionUtil.allEqual(arguments, this.arguments)) {
+    protected ConstructorCall_c reconstruct(Expr qualifier, Expr target, List<Expr> arguments) {
+	if (qualifier != this.qualifier || target != this.target || ! CollectionUtil.allEqual(arguments, this.arguments)) {
 	    ConstructorCall_c n = (ConstructorCall_c) copy();
 	    n.qualifier = qualifier;
+	    n.target = target;
 	    n.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
 	    return n;
 	}
@@ -172,6 +173,7 @@ public abstract class ConstructorCall_c extends Stmt_c implements ConstructorCal
 
     public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (qualifier != null) {
+            assert (target == null);
             if (!arguments.isEmpty()) {
                 v.visitCFG(qualifier, listChild(arguments, null), ENTRY);
                 v.visitCFGList(arguments, this, EXIT);
@@ -179,8 +181,17 @@ public abstract class ConstructorCall_c extends Stmt_c implements ConstructorCal
                 v.visitCFG(qualifier, this, EXIT);
             }
         } else {
-            if (!arguments.isEmpty()) {
-                v.visitCFGList(arguments, this, EXIT);
+            if (target != null) {
+                if (!arguments.isEmpty()) {
+                    v.visitCFG(target, listChild(arguments, null), ENTRY);
+                    v.visitCFGList(arguments, this, EXIT);
+                } else {
+                    v.visitCFG(target, this, EXIT);
+                }
+            } else {
+                if (!arguments.isEmpty()) {
+                    v.visitCFGList(arguments, this, EXIT);
+                }
             }
         }
 
@@ -202,7 +213,6 @@ public abstract class ConstructorCall_c extends Stmt_c implements ConstructorCal
         if (target != this.target) {
             ConstructorCall_c n = (ConstructorCall_c) copy();
             n.target = target;
-            n.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
             return n;
         }
         return this;
