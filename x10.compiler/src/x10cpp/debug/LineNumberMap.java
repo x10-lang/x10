@@ -307,7 +307,7 @@ public class LineNumberMap extends StringTable {
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
 	//private static ArrayList<Integer> refMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
-	private static LinkedHashMap<Integer, ArrayList<MemberVariableMapInfo>> memberVariables;
+	private static LinkedHashMap<Integer, ClassMapInfo> memberVariables;
 	private static LinkedHashMap<Integer, ClassMapInfo> referenceMembers;
 	private static LinkedHashMap<Integer, ClassMapInfo> closureMembers;	
 	
@@ -525,21 +525,28 @@ public class LineNumberMap extends StringTable {
 		localVariables.add(v);
 	}
 	
-	public void addClassMemberVariable(String name, String type, String containingClass)
+	public void addClassMemberVariable(String name, String type, String containingClass, boolean isStruct)
 	{
 		if (memberVariables == null)
-			memberVariables = new LinkedHashMap<Integer, ArrayList<LineNumberMap.MemberVariableMapInfo>>();
-		ArrayList<MemberVariableMapInfo> members = memberVariables.get(stringId(containingClass));
-		if (members == null)
+			memberVariables = new LinkedHashMap<Integer, ClassMapInfo>();
+		ClassMapInfo cm = memberVariables.get(stringId(containingClass));
+		if (cm == null)
 		{
-			members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
-			memberVariables.put(stringId(containingClass), members);
+			cm = new ClassMapInfo();
+			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+			if (isStruct)
+				cm._type = 102;
+			else
+				cm._type = 101;
+			memberVariables.put(stringId(containingClass), cm);
 		}
 		if (name == null) return; // special case for classes without members
 		
 		MemberVariableMapInfo v = new MemberVariableMapInfo();
 		v._x10type = determineTypeId(type);
-		if (v._x10type == 203 || v._x10type == 210)
+		if (v._x10type == 101 && isStruct)
+			v._x10type = 102;
+		else if (v._x10type == 203 || v._x10type == 210)
 			v._x10typeIndex = addReferenceMap(name, type, 0, 0, v._x10type);
 		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
@@ -548,7 +555,7 @@ public class LineNumberMap extends StringTable {
 		v._x10memberName = stringId(name);
 		v._cppMemberName = stringId("x10__"+Emitter.mangled_non_method_name(name));
 		v._cppClass = stringId(containingClass);
-		members.add(v);
+		cm._members.add(v);
 	}
 	
 	public void addClosureMember(String name, String type, String containingClass, String file, int startLine, int endLine)
@@ -1109,7 +1116,8 @@ public class LineNumberMap extends StringTable {
         	{
         		String classname = m.lookupString(classId);
 		        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		        for (MemberVariableMapInfo v : memberVariables.get(classId))
+		        ClassMapInfo cmi = memberVariables.get(classId);
+		        for (MemberVariableMapInfo v : cmi._members)
 		        	w.writeln("    { "+v._x10type+", "+index+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 			    w.writeln("};");
 			    w.forceNewline();
@@ -1122,7 +1130,7 @@ public class LineNumberMap extends StringTable {
         		int stringIndex = offsets[classId];
         		if (classname.contains("__")) // remove the prefix from the name, for debugger display purposes
         			stringIndex = stringIndex+classname.lastIndexOf('_')+1;
-	        	w.writeln("    { 101, "+stringIndex+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classId).size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+	        	w.writeln("    { "+memberVariables.get(classId)._type+", "+stringIndex+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classId)._members.size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
         	}
         	w.writeln("};");
         	w.forceNewline();

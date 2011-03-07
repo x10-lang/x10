@@ -229,7 +229,7 @@ public class X10CPPTranslator extends Translator {
 		                });
 		            }
 		            if (n instanceof FieldDecl && !c.inTemplate()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
-		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()));
+		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
 		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false);
 		            else if (def != null)
@@ -242,7 +242,7 @@ public class X10CPPTranslator extends Translator {
 		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable() && !c.inTemplate())
 		            	{
 		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true);
-		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()));
+		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
 		            	}
 		            }
 		        }
