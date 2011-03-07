@@ -231,18 +231,19 @@ public class X10CPPTranslator extends Translator {
 		            if (n instanceof FieldDecl && !c.inTemplate()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
 		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
-		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false);
+		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false, -1, false);
 		            else if (def != null)
 		            {
 		            	// include method arguments in the local variable tables
 		            	List<Formal> args = ((ProcedureDecl)parent).formals();
 		            	for (int i=0; i<args.size(); i++)
-		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false);
+		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false, -1, false);
 		            	// include "this" for non-static methods		            	
 		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable() && !c.inTemplate())
 		            	{
-		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true);
-		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
+		            		boolean isStruct = context.currentClass().isX10Struct();
+		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true, -1, isStruct);
+		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct);
 		            	}
 		            }
 		        }

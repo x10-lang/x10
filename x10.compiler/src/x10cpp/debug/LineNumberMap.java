@@ -465,12 +465,7 @@ public class LineNumberMap extends StringTable {
 		return -1;
 	}
 	
-	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle)
-	{
-		addLocalVariableMapping(name, type, startline, endline, file, noMangle, -1);
-	}
-	
-	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle, int closureIndex)
+	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle, int closureIndex, boolean isStruct)
 	{
 		//if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
 		if (name == null || name.contains("$"))
@@ -493,13 +488,17 @@ public class LineNumberMap extends StringTable {
 				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type));
 			else
 				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type.substring(0, b)));
+			if (isStruct) 
+				v._x10type = 102;
 		}
 		else if (v._x10type == 100)
 			v._x10typeIndex = closureIndex;
 		else 
 			v._x10typeIndex = -1;
-		if (noMangle)
-			v._cppName = v._x10name; 
+		if (isStruct && "this".equals(name))
+			v._cppName = stringId(Emitter.mangled_non_method_name("this_"));
+		else if (noMangle)
+			v._cppName = v._x10name;
 		else
 			v._cppName = stringId(Emitter.mangled_non_method_name(name));
 		v._x10index = file;
@@ -565,7 +564,7 @@ public class LineNumberMap extends StringTable {
 		ClassMapInfo cm = closureMembers.get(stringId(containingClass));
 		if (cm == null)
 		{
-			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size());
+			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size(), false);
 			cm = new ClassMapInfo();			
 			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			cm._sizeOfArg = containingClass;
@@ -1059,7 +1058,7 @@ public class LineNumberMap extends StringTable {
 		        for (LocalVariableMapInfo v : localVariables)
 		        {
 		        	int typeIndex = 0;
-		        	if (v._x10type==101)
+		        	if (v._x10type==101 || v._x10type==102)
 		        	{
 		        		if (memberVariables != null && memberVariables.containsKey(v._x10typeIndex))
 		        		{
