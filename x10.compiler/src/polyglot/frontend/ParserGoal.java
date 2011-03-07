@@ -43,7 +43,7 @@ public class ParserGoal extends SourceGoal_c
     protected SourceFile createDummyAST() {
 	NodeFactory nf = job().extensionInfo().nodeFactory();
 	String fName = job.source().name();
-	Position pos = new Position(job.source().name(), fName);
+	Position pos = new Position(job.source().name(), fName).markCompilerGenerated();
 	String name = fName.substring(fName.lastIndexOf(File.separatorChar)+1, fName.lastIndexOf('.'));
 	TopLevelDecl decl = nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC),
 	                                 nf.Id(pos, name), null, Collections.<TypeNode>emptyList(),
