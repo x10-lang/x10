@@ -220,11 +220,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     	if (! isConstant()) {
     		return null;
     	}
-    	
-	    if (type.isUnsignedNumeric()) {
+
+	    if (left.type().isUnsignedNumeric() || right.type().isUnsignedNumeric()) {
 	    	return null;
 	    }
-	
+
 	    Object lv = left.constantValue();
         Object rv = right.constantValue();
 
