@@ -17,6 +17,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>ArrayAccessAssign_c</code> represents a Java assignment expression
@@ -58,13 +59,17 @@ public class ArrayAccessAssign_c extends Assign_c implements ArrayAccessAssign
   }
 
   @Override
-  public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
+  public Assign typeCheckLeft(ContextVisitor tc) {
       Type at = array.type();
       if (!at.isArray())
-	  throw new SemanticException("Target of array assignment is not an array element.", array.position());
+	  Errors.issue(tc.job(),
+	          new SemanticException("Target of array assignment is not an array element.", array.position()),
+	          this);
       Type it = index.type();
       if (!it.isInt())
-	  throw new SemanticException("Array element must be indexed by an int.", index.position());
+	  Errors.issue(tc.job(),
+	          new SemanticException("Array element must be indexed by an int.", index.position()),
+	          this);
       return this;
   }
 

@@ -423,7 +423,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
     	return result;
     }
     
-    public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
+    public Node exceptionCheck(ExceptionChecker ec) {
         throw new InternalCompilerError(position(),
             "Cannot exception check ambiguous node " + this + ".");
     }

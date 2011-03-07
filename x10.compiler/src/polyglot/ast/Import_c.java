@@ -8,6 +8,7 @@
 
 package polyglot.ast;
 
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.frontend.Globals;
@@ -78,7 +79,7 @@ public class Import_c extends Node_c implements Import
      */
 
     /** Check that imported classes and packages exist. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
         // Make sure the imported name exists.
@@ -90,14 +91,15 @@ public class Import_c extends Node_c implements Import
             tl = ts.systemResolver().find(name);
         }
         catch (SemanticException e) {
-            throw new Errors.PackageOrClassNameNotFound(name, position);
+            Errors.issue(tc.job(), new Errors.PackageOrClassNameNotFound(name, position));
+            tl = Collections.<Type>emptyList();
         }
 
         for (Type t : tl) {
             if (t.isClass()) {
                 ClassType ct = t.toClass();
                 if (! ts.classAccessibleFromPackage(ct.def(), tc.context().package_())) {
-                    throw new Errors.ClassNotAccessible(ct, position);
+                    Errors.issue(tc.job(), new Errors.ClassNotAccessible(ct, position));
                 }
             }
         }

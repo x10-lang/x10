@@ -236,8 +236,6 @@ public class Inliner extends ContextVisitor {
     private static final QName INLINE_ANNOTATION       = QName.make("x10.compiler.Inline");
     private static final QName INLINE_ONLY_ANNOTATION  = QName.make("x10.compiler.InlineOnly");
     private static final QName NO_INLINE_ANNOTATION    = QName.make("x10.compiler.NoInline");
-    private static final QName NATIVE_ANNOTATION       = QName.make("x10.compiler.Native");
-    private static final QName NATIVE_REP_ANNOTATION   = QName.make("x10.compiler.NativeRep");
     private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
 
     @Override
@@ -251,8 +249,8 @@ public class Inliner extends ContextVisitor {
             InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
             InlineOnlyType = ts.systemResolver().findOne(INLINE_ONLY_ANNOTATION);
             NoInlineType = ts.systemResolver().findOne(NO_INLINE_ANNOTATION);
-            NativeType = ts.systemResolver().findOne(NATIVE_ANNOTATION);
-            NativeRepType = ts.systemResolver().findOne(NATIVE_REP_ANNOTATION);
+            NativeType = ts.NativeType();
+            NativeRepType = ts.NativeRep();
             NativeClassType = ts.systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
         } catch (SemanticException e) {
             InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type");

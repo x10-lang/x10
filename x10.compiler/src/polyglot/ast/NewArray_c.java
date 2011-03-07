@@ -13,6 +13,7 @@ import java.util.*;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>NewArray</code> represents a new array expression such as <code>new
@@ -118,12 +119,14 @@ public class NewArray_c extends Expr_c implements NewArray
     }
 
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
         for (Expr expr : dims) {
             if (! ts.isImplicitCastValid(expr.type(), ts.Int(), tc.context())) {
-                throw new SemanticException("Array dimension must be an integer.", expr.position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Array dimension must be an integer.", expr.position()),
+                        this);
             }
         }
 

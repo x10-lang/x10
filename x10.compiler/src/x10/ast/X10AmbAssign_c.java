@@ -132,7 +132,7 @@ public class X10AmbAssign_c extends AmbAssign_c {
         // Didn't finish disambiguation; just return.
         return this;
     }
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         // Didn't finish disambiguation; just return.
         return this;
     }

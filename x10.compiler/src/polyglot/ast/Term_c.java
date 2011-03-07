@@ -72,7 +72,7 @@ public abstract class Term_c extends Node_c implements Term
         return n;
     }
     
-    public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
+    public Node exceptionCheck(ExceptionChecker ec) {
         Term t = (Term) super.exceptionCheck(ec);
         //System.out.println("exceptions for " + t + " = " + ec.throwsSet());
         return t.exceptions(ec.throwsSet());

@@ -207,7 +207,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    protected void setSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
+    protected void setSuperClass(TypeSystem ts, ClassDef thisType) {
         TypeNode superClass = this.superClass;
 
         final TypeSystem xts = (TypeSystem) ts;
@@ -245,7 +245,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         }
     }
     
-    private void superSetSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
+    private void superSetSuperClass(TypeSystem ts, ClassDef thisType) {
         TypeNode superClass = this.superClass;
         Reporter reporter = ts.extensionInfo().getOptions().reporter;
         
@@ -274,7 +274,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
+    protected void setInterfaces(TypeSystem ts, ClassDef thisType) {
     	final TypeSystem xts = (TypeSystem) ts;
     	Reporter reporter = xts.extensionInfo().getOptions().reporter;
 
@@ -452,7 +452,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    public X10ClassDecl_c preBuildTypes(TypeBuilder tb) throws SemanticException {
+    public X10ClassDecl_c preBuildTypes(TypeBuilder tb) {
         X10ClassDecl_c n = (X10ClassDecl_c) superPreBuildTypes(tb);
         
         final X10ClassDef def = (X10ClassDef) n.type;
@@ -550,7 +550,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                         "$this");
     }
     
-    private X10ClassDecl_c superPreBuildTypes(TypeBuilder tb) throws SemanticException {
+    private X10ClassDecl_c superPreBuildTypes(TypeBuilder tb) {
         tb = tb.pushClass(position(), flags.flags(), name.id());
 
         ClassDef type = tb.currentClass();
@@ -588,7 +588,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    public X10ClassDecl_c postBuildTypes(TypeBuilder tb) throws SemanticException {
+    public X10ClassDecl_c postBuildTypes(TypeBuilder tb) {
         
     	X10ClassDecl_c n = (X10ClassDecl_c) this.copy();
     	
@@ -1268,7 +1268,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     protected ConstructorDecl createDefaultConstructor(ClassDef _thisType,
-    		TypeSystem ts, NodeFactory nf) throws SemanticException
+    		TypeSystem ts, NodeFactory nf)
     {
         X10ClassDef thisType = (X10ClassDef) _thisType;
         Position pos = Position.compilerGenerated(body().position());
@@ -1507,7 +1507,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return body == n.body ? n : n.body(body);
     }
 
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
     	X10ClassDecl_c n = this;
     	n = n.preBuildTypes(tb);
     	n = n.buildTypesBody(tb);
@@ -1515,7 +1515,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	return n;
     }
 
-    private X10ClassDecl_c buildTypesBody(TypeBuilder tb) throws SemanticException {
+    private X10ClassDecl_c buildTypesBody(TypeBuilder tb) {
     	X10ClassDecl_c n = this;
     	TypeBuilder tb2 = tb.pushClass(n.type);
     	ClassBody body = (ClassBody) n.visitChild(n.body, tb2);

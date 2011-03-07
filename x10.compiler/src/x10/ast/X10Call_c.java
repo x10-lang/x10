@@ -150,7 +150,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     return this;
   }
 
-  public Node buildTypes(TypeBuilder tb) throws SemanticException {
+  public Node buildTypes(TypeBuilder tb) {
     Call_c n = (Call_c) super.buildTypes(tb);
 
     TypeSystem ts = tb.typeSystem();
@@ -284,7 +284,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
   }
 
   /** Check exceptions thrown by the call. */
-  public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
+  public Node exceptionCheck(ExceptionChecker ec) {
     if (mi == null) {
       throw new InternalCompilerError(position(),
                                       "Null method instance after type "
@@ -488,7 +488,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
      * @param argTypes
      * @param args
      * @return
-     * @throws SemanticException
      */
     protected X10New findStructConstructor(ContextVisitor tc, Receiver r, List<Type> typeArgs, List<Type> argTypes, List<Expr> args) {
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
@@ -550,7 +549,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
         }
     }
 
-    protected X10Call typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes, MethodInstance mi, List<Expr> args) throws SemanticException {
+    protected X10Call typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes, MethodInstance mi, List<Expr> args) {
 		Receiver r = computeReceiver(tc, mi);
 		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);
 		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), r, (Context) tc.context());
@@ -592,9 +591,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        MethodInstance mi = ts.createFakeMethod(name.id(), typeArgs, argTypes, e);
 	        Type rt = mi.rightType(); // X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
 	        n = (X10Call_c) methodInstance(mi).type(rt);
-	        try {
-	            n = ((X10Call_c)n).typeCheckNullTargetForMethod(tc, typeArgs, argTypes, mi, this.arguments);
-	        } catch (SemanticException e2) { }
+	        n = ((X10Call_c)n).typeCheckNullTargetForMethod(tc, typeArgs, argTypes, mi, this.arguments);
 	    }
 	    return n;
 	}
@@ -647,14 +644,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
                 methodResolution.li = li;
 			    if (li.error() == null) {
 			        //e = xnf.Local(name().position(), name()).localInstance(li).type(li.type());
-			        try {
-			            e = xnf.Local(name().position(), name()).localInstance(li);
-			            e = (Expr) e.del().typeCheck(tc);
-			            e = (Expr) e.del().checkConstants(tc);
-                        methodResolution.variable = e;
-			        } catch (SemanticException cause) {
-			            throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
-			        }
+			        e = xnf.Local(name().position(), name()).localInstance(li);
+			        e = (Expr) e.del().typeCheck(tc);
+			        e = (Expr) e.del().checkConstants(tc);
+			        methodResolution.variable = e;
 			    }
 			}
 			if (e == null) {
@@ -673,20 +666,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			    }
                 methodResolution.fi = fi;
 			    if (fi.error() == null) {
-			        try {
-			            Receiver target = this.target() == null ?
-			                    X10Disamb_c.makeMissingFieldTarget(fi, name().position(), tc) :
-			                        this.target();
-			            //e = xnf.Field(new Position(target.position(), name().position()), target,
-			            //        name()).fieldInstance(fi).targetImplicit(target()==null).type(fi.type());
-			            e = xnf.Field(new Position(target.position(), name().position()), target,
-			                    name()).fieldInstance(fi).targetImplicit(target()==null);
-			            e = (Expr) e.del().typeCheck(tc);
-			            e = (Expr) e.del().checkConstants(tc);
-                        methodResolution.variable = e;
-			        } catch (SemanticException cause) {
-			            throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
-			        }
+			        Receiver target = this.target() == null ?
+			                X10Disamb_c.makeMissingFieldTarget(fi, name().position(), tc) :
+			                    this.target();
+			        //e = xnf.Field(new Position(target.position(), name().position()), target,
+			        //        name()).fieldInstance(fi).targetImplicit(target()==null).type(fi.type());
+			        e = xnf.Field(new Position(target.position(), name().position()), target,
+			                name()).fieldInstance(fi).targetImplicit(target()==null);
+			        e = (Expr) e.del().typeCheck(tc);
+			        e = (Expr) e.del().checkConstants(tc);
+			        methodResolution.variable = e;
 			    }
 			}
 
@@ -718,15 +707,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			    } else {
 			        ClosureCall ccx = nf.ClosureCall(position(), e,  arguments()).closureInstance(ci);
 			        Node n = ccx;
-			        try {
-			            //n = n.del().disambiguate(tc);
-			            n = n.del().typeCheck(tc);
-			            cc = (Expr) n;
-                        methodResolution.closureCall = cc;
-			        }
-			        catch (SemanticException cause) {
-			            throw new InternalCompilerError("Unexpected exception when typechecking "+ccx, ccx.position(), cause);
-			        }
+			        //n = n.del().disambiguate(tc);
+			        n = n.del().typeCheck(tc);
+			        cc = (Expr) n;
+			        methodResolution.closureCall = cc;
 			    }
 			}
 		}

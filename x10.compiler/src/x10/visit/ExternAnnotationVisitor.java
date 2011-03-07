@@ -60,7 +60,7 @@ public class ExternAnnotationVisitor extends ContextVisitor {
         return !o.annotationsNamed(QName.make("x10.compiler.NativeCPPExtern")).isEmpty();
     }
 
-    void process(X10MethodDef def) throws SemanticException {
+    void process(X10MethodDef def) {
         StringBuilder sb = new StringBuilder(def.name() + "(");
         for (int i=1; i<=def.formalTypes().size(); i++) {
             if (i > 1) sb.append(",");
@@ -76,7 +76,7 @@ public class ExternAnnotationVisitor extends ContextVisitor {
         for (Ref<? extends Type> at : def.defAnnotations()) {
             ats.add(at);
         }
-        X10ClassType t = (X10ClassType) ts.systemResolver().findOne(QName.make("x10.compiler.Native"));
+        X10ClassType t = ts.NativeType();
         ats.add(Types.ref(t.propertyInitializers(inits)));
         def.setDefAnnotations(ats);
     }

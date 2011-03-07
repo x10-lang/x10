@@ -82,63 +82,15 @@ public class TypeBuilder extends NodeVisitor
     }
     
     public Node override(Node n) {
-        try {
-            return n.del().buildTypesOverride(this);
-        }
-        catch (SemanticException e) {
-            Position position = e.position();
-
-            if (position == null) {
-                position = n.position();
-            }
-
-            if (e.getMessage() != null) {
-                errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-                                    e.getMessage(), position);
-            }
-                            
-            return n;
-        }
+        return n.del().buildTypesOverride(this);
     }
 
     public NodeVisitor enter(Node n) {
-        try {
 	    return n.del().buildTypesEnter(this);
-	}
-	catch (SemanticException e) {
-	    Position position = e.position();
-
-	    if (position == null) {
-		position = n.position();
-	    }
-
-            if (e.getMessage() != null) {
-                errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-                                    e.getMessage(), position);
-            }
-                            
-            return this;
-	}
     }
 
     public Node leave(Node old, Node n, NodeVisitor v) {
-	try {
 	    return n.del().buildTypes((TypeBuilder) v);
-	}
-	catch (SemanticException e) {
-	    Position position = e.position();
-
-	    if (position == null) {
-		position = n.position();
-	    }
-
-            if (e.getMessage() != null) {
-                errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-                                    e.getMessage(), position);
-            }
-
-	    return n;
-	}
     }
 
     /**

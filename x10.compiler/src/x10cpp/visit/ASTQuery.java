@@ -232,19 +232,16 @@ public class ASTQuery {
 		return getCppRepParam(def, 3);
 	}
 	public static String getCppRepParam(X10ClassDef def, int i) {
-		try {
-			TypeSystem xts = (TypeSystem) def.typeSystem();
-			Type rep = xts.systemResolver().findOne(QName.make("x10.compiler.NativeRep"));
-			List<Type> as = def.annotationsMatching(rep);
-			for (Type at : as) {
-				assertNumberOfInitializers(at, 4);
-				String lang = getStringPropertyInit(at, 0);
-				if (lang != null && lang.equals(CPP_NATIVE_STRING)) {
-					return getStringPropertyInit(at, i);
-				}
+		TypeSystem xts = (TypeSystem) def.typeSystem();
+		Type rep = xts.NativeRep();
+		List<Type> as = def.annotationsMatching(rep);
+		for (Type at : as) {
+			assertNumberOfInitializers(at, 4);
+			String lang = getStringPropertyInit(at, 0);
+			if (lang != null && lang.equals(CPP_NATIVE_STRING)) {
+				return getStringPropertyInit(at, i);
 			}
 		}
-		catch (SemanticException e) {}
 		return null;
 	}
 

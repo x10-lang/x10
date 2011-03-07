@@ -4904,22 +4904,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	String getCppImplForDef(X10Def o) {
 	    TypeSystem xts = (TypeSystem) o.typeSystem();
-	    try {
-	        Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.Native"));
-            String[] our_langs = getCurrentNativeStrings();
-            for (String our_lang : our_langs) {
-    	        List<Type> as = o.annotationsMatching(annotation);
-    	        for (Type at : as) {
-    	            assertNumberOfInitializers(at, 2);
-    	            String lang = getStringPropertyInit(at, 0);
-    	            if (lang != null && lang.equals(our_lang)) {
-    	                String lit = getStringPropertyInit(at, 1);
-    	                return lit;
-    	            }
-    	        }
-            }
+	    Type annotation = xts.NativeType();
+	    String[] our_langs = getCurrentNativeStrings();
+	    for (String our_lang : our_langs) {
+	        List<Type> as = o.annotationsMatching(annotation);
+	        for (Type at : as) {
+	            assertNumberOfInitializers(at, 2);
+	            String lang = getStringPropertyInit(at, 0);
+	            if (lang != null && lang.equals(our_lang)) {
+	                String lit = getStringPropertyInit(at, 1);
+	                return lit;
+	            }
+	        }
 	    }
-	    catch (SemanticException e) {}
 	    return null;
 	}
 
@@ -4927,22 +4924,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         TypeSystem xts = (TypeSystem) tr.typeSystem();
         if (n.ext() instanceof X10Ext) {
             X10Ext ext = (X10Ext) n.ext();
-            try {
-                Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.Native"));
-                List<X10ClassType> as = ext.annotationMatching(annotation);
-                String[] our_langs = getCurrentNativeStrings();
-                for (String our_lang : our_langs) {
-                    for (Type at : as) {
-                        assertNumberOfInitializers(at, 2);
-                        String lang = getStringPropertyInit(at, 0);
-                        if (lang != null && lang.equals(our_lang)) {
-                            String lit = getStringPropertyInit(at, 1);
-                            return lit;
-                        }
+            Type annotation = xts.NativeType();
+            List<X10ClassType> as = ext.annotationMatching(annotation);
+            String[] our_langs = getCurrentNativeStrings();
+            for (String our_lang : our_langs) {
+                for (Type at : as) {
+                    assertNumberOfInitializers(at, 2);
+                    String lang = getStringPropertyInit(at, 0);
+                    if (lang != null && lang.equals(our_lang)) {
+                        String lit = getStringPropertyInit(at, 1);
+                        return lit;
                     }
                 }
             }
-            catch (SemanticException e) {}
         }
         return null;
     }

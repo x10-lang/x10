@@ -54,7 +54,7 @@ public abstract class FloatLit_c extends Lit_c implements FloatLit
     }
 
     /** Type check the expression. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
 
     public String toString() {
 	return Double.toString(value);

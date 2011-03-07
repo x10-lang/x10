@@ -417,11 +417,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
                 if (n1 instanceof TypeNode && n2 instanceof TypeNode) {
                     SubtypeTest n = nf.SubtypeTest(position(), (TypeNode) n1, (TypeNode) n2, true);
-                    try {
-                        n = (SubtypeTest) n.typeCheck(tc);
-                    } catch (SemanticException e) {
-                        throw new InternalCompilerError("Unexpected exception while typechecking "+n, position(), e);
-                    }
+                    n = (SubtypeTest) n.typeCheck(tc);
                     return n;
                 }
             }

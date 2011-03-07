@@ -107,11 +107,7 @@ public class Checker {
 	public static Node typeCheckAssign(Assign_c a, ContextVisitor tc) {
 	    Assign n = a;
 	    
-	    try {
-	        n = (Assign) a.typeCheckLeft(tc);
-	    } catch (SemanticException e) {
-	        throw new InternalCompilerError("Unexpected exception while typechecking "+a.left(), a.position(), e);
-	    }
+	    n = (Assign) a.typeCheckLeft(tc);
 
 	    TypeSystem ts = tc.typeSystem();
 	    Type t = n.leftType();

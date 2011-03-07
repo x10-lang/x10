@@ -144,7 +144,7 @@ public class X10New_c extends New_c implements X10New {
     }
 
     @Override
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
         X10New_c n = (X10New_c) super.buildTypesOverride(tb);
         List<TypeNode> typeArgs = n.visitList(n.typeArguments(), tb);
         n = (X10New_c) n.typeArguments(typeArgs);
@@ -167,12 +167,7 @@ public class X10New_c extends New_c implements X10New {
 
     @Override
     protected X10New_c typeCheckHeader(TypeChecker childtc) {
-        X10New_c n;
-        try {
-            n = (X10New_c) super.typeCheckHeader(childtc);
-        } catch (SemanticException e) {
-            throw new InternalCompilerError("Unexpected exception when typechecking "+this, e);
-        }
+        X10New_c n = (X10New_c) super.typeCheckHeader(childtc);
         List<TypeNode> typeArguments = visitList(n.typeArguments(), childtc);
         n = (X10New_c) n.typeArguments(typeArguments);
 
@@ -206,12 +201,7 @@ public class X10New_c extends New_c implements X10New {
 
     @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-        Node n;
-        try {
-            n = super.typeCheckOverride(parent, tc);
-        } catch (SemanticException e) {
-            throw new InternalCompilerError("Unexpected exception when compiling "+this, e);
-        }
+        Node n = super.typeCheckOverride(parent, tc);
         NodeVisitor childtc = tc.enter(parent, n);
         List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
         if (oldAnnotations == null || oldAnnotations.isEmpty()) {
@@ -227,7 +217,6 @@ public class X10New_c extends New_c implements X10New {
     /**
      * @param ar
      * @param ct
-     * @throws SemanticException
      */
     protected X10New findQualifier(TypeChecker ar, ClassType ct) {
         // If we're instantiating a non-static member class, add a "this"

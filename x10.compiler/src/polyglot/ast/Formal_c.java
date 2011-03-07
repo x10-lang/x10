@@ -126,7 +126,7 @@ public abstract class Formal_c extends Term_c implements Formal
     }
 
     /** Build type objects for the formal. */
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    public Node buildTypes(TypeBuilder tb) {
         Formal_c n = (Formal_c) super.buildTypes(tb);
 
         TypeSystem ts = tb.typeSystem();
@@ -140,7 +140,7 @@ public abstract class Formal_c extends Term_c implements Formal
     }
 
     /** Type check the formal. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
 
     public Term firstChild() {
         return type;

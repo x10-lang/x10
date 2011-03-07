@@ -479,28 +479,8 @@ public class Emitter {
 	public String getJavaImplForStmt(Stmt n, TypeSystem xts) {
 		if (n.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) n.ext();
-			try {
-				Type java = xts.systemResolver().findOne(QName.make("x10.compiler.Native"));
-				List<X10ClassType> as = ext.annotationMatching(java);
-				for (Type at : as) {
-					assertNumberOfInitializers(at, 2);
-					String lang = getPropertyInit(at, 0);
-					if (lang != null && lang.equals("java")) {
-						String lit = getPropertyInit(at, 1);
-						return lit;
-					}
-				}
-			} catch (SemanticException e) {
-			}
-		}
-		return null;
-	}
-
-	public String getJavaImplForDef(X10Def o) {
-		TypeSystem xts = (TypeSystem) o.typeSystem();
-		try {
-			Type java = xts.systemResolver().findOne(QName.make("x10.compiler.Native"));
-			List<Type> as = o.annotationsMatching(java);
+			Type java = xts.NativeType();
+			List<X10ClassType> as = ext.annotationMatching(java);
 			for (Type at : as) {
 				assertNumberOfInitializers(at, 2);
 				String lang = getPropertyInit(at, 0);
@@ -509,7 +489,21 @@ public class Emitter {
 					return lit;
 				}
 			}
-		} catch (SemanticException e) {
+		}
+		return null;
+	}
+
+	public String getJavaImplForDef(X10Def o) {
+		TypeSystem xts = (TypeSystem) o.typeSystem();
+		Type java = xts.NativeType();
+		List<Type> as = o.annotationsMatching(java);
+		for (Type at : as) {
+			assertNumberOfInitializers(at, 2);
+			String lang = getPropertyInit(at, 0);
+			if (lang != null && lang.equals("java")) {
+				String lit = getPropertyInit(at, 1);
+				return lit;
+			}
 		}
 		return null;
 	}
@@ -558,18 +552,15 @@ public class Emitter {
 	}
 
 	private static String getJavaRepParam(X10ClassDef def, int i) {
-        try {
-            Type rep = def.typeSystem().systemResolver().findOne(QName.make("x10.compiler.NativeRep"));
-            List<Type> as = def.annotationsMatching(rep);
-            for (Type at : as) {
-                String lang = getPropertyInit(at, 0);
-                if (lang != null && lang.equals("java")) {
-                    return getPropertyInit(at, i);
-                }
-            }
-        } catch (SemanticException e) {
-        }
-        return null;
+	    Type rep = def.typeSystem().NativeRep();
+	    List<Type> as = def.annotationsMatching(rep);
+	    for (Type at : as) {
+	        String lang = getPropertyInit(at, 0);
+	        if (lang != null && lang.equals("java")) {
+	            return getPropertyInit(at, i);
+	        }
+	    }
+	    return null;
     }
 
 	public static boolean isNativeRepedToJava(Type ct) {

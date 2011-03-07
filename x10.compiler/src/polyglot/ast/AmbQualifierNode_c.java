@@ -80,7 +80,7 @@ public class AmbQualifierNode_c extends Node_c implements AmbQualifierNode
 	return reconstruct(qual, name);
     }
 
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    public Node buildTypes(TypeBuilder tb) {
         TypeSystem ts = tb.typeSystem();
         LazyRef<Qualifier> sym = Types.<Qualifier>lazyRef(ts.unknownQualifier(position()), new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
         return qualifierRef(sym);
@@ -116,7 +116,7 @@ public class AmbQualifierNode_c extends Node_c implements AmbQualifierNode
 		throw ex;
 	}
 
-	public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
+	public Node exceptionCheck(ExceptionChecker ec) {
 	throw new InternalCompilerError(position(),
 	    "Cannot exception check ambiguous node " + this + ".");
     } 

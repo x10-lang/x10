@@ -91,7 +91,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		
 
 	@Override
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	public Node buildTypes(TypeBuilder tb) {
 		X10LocalDecl_c n = this;
 		if (type instanceof UnknownTypeNode) {
 			if (init == null)
@@ -123,12 +123,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	}
 	
     public NodeVisitor typeCheckEnter(TypeChecker tc) {
-        try {
-            return super.typeCheckEnter(tc);
-        } catch (SemanticException e) {
-            Errors.issue(tc.job(), e, this);
-            return tc;
-        }
+        return super.typeCheckEnter(tc);
     }
 
     /** Reconstruct the declaration. */

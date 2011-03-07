@@ -106,10 +106,10 @@ public abstract class ConstructorCall_c extends Stmt_c implements ConstructorCal
     /** Visit the children of the call. */
     public abstract Node visitChildren(NodeVisitor v);
 
-    public abstract Node buildTypes(TypeBuilder tb) throws SemanticException;
+    public abstract Node buildTypes(TypeBuilder tb);
 
     /** Type check the call. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
         TypeSystem ts = av.typeSystem();

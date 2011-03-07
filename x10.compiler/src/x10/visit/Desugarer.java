@@ -185,18 +185,10 @@ public class Desugarer extends ContextVisitor {
             lit = nf.FloatLit(pos, FloatLit.DOUBLE, val);
         } else if (ts.isChar(type)) {
             // Don't want to cast
-            try {
-                return (Expr) nf.IntLit(pos, IntLit.INT, val).typeCheck(this);
-            } catch (SemanticException z) {
-                throw new InternalCompilerError("Unexpected exception while creating literal of type "+type, pos, z);
-            }
+            return (Expr) nf.IntLit(pos, IntLit.INT, val).typeCheck(this);
         } else
             throw new InternalCompilerError(pos, "Unknown literal type: "+type);
-        try {
-            lit = (Expr) lit.typeCheck(this);
-        } catch (SemanticException z) {
-            throw new InternalCompilerError("Unexpected exception while creating literal of type "+type, pos, z);
-        }
+        lit = (Expr) lit.typeCheck(this);
         if (!ts.isSubtype(lit.type(), type)) {
             lit = nf.X10Cast(pos, nf.CanonicalTypeNode(pos, type), lit,
                     Converter.ConversionType.PRIMITIVE).type(type);

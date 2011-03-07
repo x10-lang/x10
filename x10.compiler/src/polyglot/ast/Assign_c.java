@@ -15,6 +15,7 @@ import polyglot.frontend.Globals;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * An <code>Assign</code> represents a Java assignment expression.
@@ -75,10 +76,10 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
   }
   
   public abstract Type leftType();
-  public abstract Assign typeCheckLeft(ContextVisitor tc) throws SemanticException;
+  public abstract Assign typeCheckLeft(ContextVisitor tc);
 
   /** Type check the expression. */
-  public Node typeCheck(ContextVisitor tc) throws SemanticException {
+  public Node typeCheck(ContextVisitor tc) {
       Assign_c n = (Assign_c) typeCheckLeft(tc);
       
       TypeSystem ts = tc.typeSystem();
@@ -98,7 +99,8 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
           ! ts.typeEquals(s, t, context) &&
           ! ts.numericConversionValid(t, right.constantValue(), context)) {
 
-        throw new SemanticException("Cannot assign " + s + " to " + t + ".", position());
+        Errors.issue(tc.job(),
+                new SemanticException("Cannot assign " + s + " to " + t + ".", position()));
       }
 
       return n.type(t);
@@ -111,19 +113,35 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
       }
 
       if (t.isNumeric() && s.isNumeric()) {
-        return n.type(ts.promote(t, s));
+        Type r;
+        try {
+            r = ts.promote(t, s);
+        } catch (SemanticException e) {
+            r = t;
+        }
+        return n.type(r);
       }
 
-      throw new SemanticException("Operator must have numeric or String operands.", position());
+      Errors.issue(tc.job(),
+              new SemanticException("Operator must have numeric or String operands.", position()));
+      return n.type(t);
     }
 
     if (op == SUB_ASSIGN || op == MUL_ASSIGN ||
         op == DIV_ASSIGN || op == MOD_ASSIGN) {
       if (t.isNumeric() && s.isNumeric()) {
-        return n.type(ts.promote(t, s));
+        Type r;
+        try {
+            r = ts.promote(t, s);
+        } catch (SemanticException e) {
+            r = t;
+        }
+        return n.type(r);
       }
 
-      throw new SemanticException("Operator must have numeric operands.", position());
+      Errors.issue(tc.job(),
+              new SemanticException("Operator must have numeric operands.", position()));
+      return n.type(t);
     }
 
     if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
@@ -133,20 +151,36 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
 
       if (ts.isImplicitCastValid(t, ts.Long(), context) &&
           ts.isImplicitCastValid(s, ts.Long(), context)) {
-        return n.type(ts.promote(t, s));
+        Type r;
+        try {
+            r = ts.promote(t, s);
+        } catch (SemanticException e) {
+            r = t;
+        }
+        return n.type(r);
       }
 
-      throw new SemanticException("Operator must have integral or boolean operands.", position());
+      Errors.issue(tc.job(),
+              new SemanticException("Operator must have integral or boolean operands.", position()));
+      return n.type(t);
     }
 
     if (op == SHL_ASSIGN || op == SHR_ASSIGN || op == USHR_ASSIGN) {
       if (ts.isImplicitCastValid(t, ts.Long(), context) &&
           ts.isImplicitCastValid(s, ts.Long(), context)) {
         // Only promote the left of a shift.
-        return n.type(ts.promote(t));
+        Type r;
+        try {
+            r = ts.promote(t);
+        } catch (SemanticException e) {
+            r = t;
+        }
+        return n.type(r);
       }
 
-      throw new SemanticException("Operator must have integral operands.", position());
+      Errors.issue(tc.job(),
+              new SemanticException("Operator must have integral operands.", position()));
+      return n.type(t);
     }
 
     throw new InternalCompilerError("Unrecognized assignment operator " +

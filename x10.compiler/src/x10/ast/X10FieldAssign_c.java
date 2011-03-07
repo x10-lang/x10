@@ -57,12 +57,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
     	}
     	
         tc = tc.context(((Context) tc.context()).pushAssignment());
-        Assign res = this;
-        try {
-            res = super.typeCheckLeft(tc);
-        } catch (SemanticException e) {
-            Errors.issue(tc.job(), e, this);
-        }
+        Assign res = super.typeCheckLeft(tc);
         return res;
     }
 

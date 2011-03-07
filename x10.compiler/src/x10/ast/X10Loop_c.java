@@ -270,28 +270,20 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 //		    return this;
 
 		if (ts.isSubtype(formalType, ts.Point(), context)) {
-		    try {
-		        ConstrainedType Region = Types.toConstrainedType(ts.Region());
-		        Region = Region.addRank(formalType.rank(context));
-		        Expr newDomain = Converter.attemptCoercion(tc, domain, Region);
-		        if (newDomain != null && newDomain != domain) {
-		            domainTypeRef = Types.lazyRef(null);
-		            Node nn = this.domain(newDomain).del().typeCheck(tc);
-		            return nn;
-		        }
+		    ConstrainedType Region = Types.toConstrainedType(ts.Region());
+		    Region = Region.addRank(formalType.rank(context));
+		    Expr newDomain = Converter.attemptCoercion(tc, domain, Region);
+		    if (newDomain != null && newDomain != domain) {
+		        domainTypeRef = Types.lazyRef(null);
+		        Node nn = this.domain(newDomain).del().typeCheck(tc);
+		        return nn;
 		    }
-		    catch (SemanticException e) {
-		    }
-		    try {
-		        ConstrainedType Dist = Types.toConstrainedType(ts.Dist());
-		        Dist = Dist.addRank(formalType.rank(context));
-		        Expr newDomain = Converter.attemptCoercion(tc, domain, Dist);
-		        if (newDomain != null && newDomain != domain) {
-		            domainTypeRef = Types.lazyRef(null);
-		            return this.domain(newDomain).del().typeCheck(tc);
-		        }
-		    }
-		    catch (SemanticException e) {
+		    ConstrainedType Dist = Types.toConstrainedType(ts.Dist());
+		    Dist = Dist.addRank(formalType.rank(context));
+		    newDomain = Converter.attemptCoercion(tc, domain, Dist);
+		    if (newDomain != null && newDomain != domain) {
+		        domainTypeRef = Types.lazyRef(null);
+		        return this.domain(newDomain).del().typeCheck(tc);
 		    }
 		}
 		
@@ -469,7 +461,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		return super.setResolverOverride(parent, v);
 	}
 
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	public Node buildTypes(TypeBuilder tb) {
 		X10Loop n = (X10Loop) super.buildTypes(tb);
 		
 		// Set the final flag on all formals introduced in the loop.

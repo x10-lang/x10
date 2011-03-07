@@ -487,14 +487,10 @@ public class AltSynthesizer {
      */
     public X10Cast createCoercion(Position pos, Expr expr, Type toType, ContextVisitor visitor) {
         X10Cast cast;
-        try {
-            // FIXME: Have to typeCheck, because the typechecker has already desugared this to a conversion chain
-            cast = nf.X10Cast(pos, nf.CanonicalTypeNode(pos, toType), expr, Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
-            cast = (X10Cast) cast.typeCheck(visitor);
-            return cast;
-        } catch (SemanticException e) {
-            return null;
-        }
+        // FIXME: Have to typeCheck, because the typechecker has already desugared this to a conversion chain
+        cast = nf.X10Cast(pos, nf.CanonicalTypeNode(pos, toType), expr, Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
+        cast = (X10Cast) cast.typeCheck(visitor);
+        return cast;
     }
 
     // method calls

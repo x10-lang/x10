@@ -182,7 +182,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 		return reconstruct(target, /*typeArgs,*/ arguments);
 	}
 
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	public Node buildTypes(TypeBuilder tb) {
 		ClosureCall_c n= (ClosureCall_c) super.buildTypes(tb);
 
 		TypeSystem ts = (TypeSystem) tb.typeSystem();

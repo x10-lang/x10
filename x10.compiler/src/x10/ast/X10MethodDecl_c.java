@@ -540,11 +540,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				        new Errors.MethodBodyMustBeConstraintExpressiong(position()));
 		}
 
-		try {
-		    n = (X10MethodDecl_c) n.superTypeCheck(tc);
-		} catch (SemanticException e) {
-		    throw new InternalCompilerError("Unexpected exception while typechecking "+n, n.position(), e);
-		}
+		n = (X10MethodDecl_c) n.superTypeCheck(tc);
 
 		try {
 		    dupFormalCheck(typeParameters, formals);
@@ -626,7 +622,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 	}
 
-	protected X10MethodDecl_c superTypeCheck(ContextVisitor tc) throws SemanticException {
+	protected X10MethodDecl_c superTypeCheck(ContextVisitor tc) {
 		return (X10MethodDecl_c) super.typeCheck(tc);
 	}
 

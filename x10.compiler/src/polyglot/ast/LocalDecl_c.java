@@ -17,6 +17,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>LocalDecl</code> is an immutable representation of the declaration
@@ -161,7 +162,7 @@ public abstract class LocalDecl_c extends Stmt_c implements LocalDecl {
         c.addVariable(li.asInstance());
     }
 
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    public Node buildTypes(TypeBuilder tb) {
         LocalDecl_c n = (LocalDecl_c) super.buildTypes(tb);
         TypeSystem ts = tb.typeSystem();
 
@@ -173,7 +174,7 @@ public abstract class LocalDecl_c extends Stmt_c implements LocalDecl {
      * Override superclass behavior to check if the variable is multiply
      * defined.
      */
-    public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
+    public NodeVisitor typeCheckEnter(TypeChecker tc) {
         // Check if the variable is multiply defined.
         // we do it in type check enter, instead of type check since
         // we add the declaration before we enter the scope of the
@@ -190,16 +191,17 @@ public abstract class LocalDecl_c extends Stmt_c implements LocalDecl {
         }
 
         if (outerLocal != null && c.isLocal(li.name())) {
-            throw new SemanticException("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerLocal.position() + ".", position());
+            Errors.issue(tc.job(),
+                    new SemanticException("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerLocal.position() + ".", position()));
         }
 
         return super.typeCheckEnter(tc);
     }
 
     /** Type check the declaration. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
 
-    public Node checkConstants(ContextVisitor tc) throws SemanticException {
+    public Node checkConstants(ContextVisitor tc) {
         if (init == null || ! init.isConstant() || ! li.flags().isFinal()) {
             li.setNotConstant();
         }

@@ -80,7 +80,7 @@ public abstract class Special_c extends Expr_c implements Special
     }
 
     /** Type check the expression. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
 
     public Term firstChild() {
         if (qualifier != null) {

@@ -383,7 +383,7 @@ public class X10ClassBody_c extends ClassBody_c {
         return mi.isSameMethod(mj, context);
     }
     
-    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
         return ec.push();
     }
 

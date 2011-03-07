@@ -620,8 +620,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        w.write(";");
 	    }
 
-	    public Node checkConstants(ContextVisitor tc) throws SemanticException {
-	    	Type native_annotation_type = tc.typeSystem().systemResolver().findOne(QName.make("x10.compiler.Native"));
+	    public Node checkConstants(ContextVisitor tc) {
+	    	Type native_annotation_type = tc.typeSystem().NativeType();
 			if (!((X10Ext)ext).annotationMatching(native_annotation_type).isEmpty()) {
 				fi.setNotConstant();
 				return this;

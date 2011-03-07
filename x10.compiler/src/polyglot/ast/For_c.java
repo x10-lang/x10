@@ -13,6 +13,7 @@ import java.util.*;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * An immutable representation of a Java language <code>for</code>
@@ -112,7 +113,7 @@ public class For_c extends Loop_c implements For
     }
 
     /** Type check the statement. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
 	TypeSystem ts = tc.typeSystem();
 
         // Check that all initializers have the same type.
@@ -138,7 +139,9 @@ public class For_c extends Loop_c implements For
 
 	if (cond != null &&
 	    ! ts.isImplicitCastValid(cond.type(), ts.Boolean(), tc.context())) {
-	    throw new SemanticException("The condition of a for statement must have boolean type.",cond.position());
+	    Errors.issue(tc.job(),
+	            new SemanticException("The condition of a for statement must have boolean type.",cond.position()),
+	            this);
 	}
 
 	return this;

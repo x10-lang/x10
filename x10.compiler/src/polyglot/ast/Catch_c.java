@@ -14,6 +14,7 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>Catch</code> represents one half of a <code>try-catch</code>
@@ -84,12 +85,13 @@ public class Catch_c extends Stmt_c implements Catch
     }
 
     /** Type check the catch block. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
 	if (! catchType().isThrowable()) {
-	    throw new SemanticException("Can only throw subclasses of \"" +ts.Throwable() + "\".", formal.position());
-
+	    Errors.issue(tc.job(),
+	            new SemanticException("Can only throw subclasses of \"" +ts.Throwable() + "\".", formal.position()),
+	            this);
 	}
 
 	return this;

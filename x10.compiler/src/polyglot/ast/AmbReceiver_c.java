@@ -39,7 +39,7 @@ public class AmbReceiver_c extends AmbPrefix_c implements AmbReceiver
             return n;
     }
 
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    public Node buildTypes(TypeBuilder tb) {
         return type(tb.typeSystem().unknownType(position()));
     }
 
@@ -56,7 +56,7 @@ public class AmbReceiver_c extends AmbPrefix_c implements AmbReceiver
     }
     
 
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         // Didn't finish disambiguation; just return.
         return this;
     }

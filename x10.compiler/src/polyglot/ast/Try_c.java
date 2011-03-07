@@ -13,6 +13,7 @@ import java.util.*;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * An immutable representation of a <code>try</code> block, one or more
@@ -97,9 +98,7 @@ public class Try_c extends Stmt_c implements Try
      * exceptionCheck(), called from ExceptionChecker.leave(),
      * will handle visiting children.
      */
-    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec)
-	throws SemanticException
-    {
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
         ec = (ExceptionChecker) super.exceptionCheckEnter(ec);
         return new PruningVisitor();
     }
@@ -113,9 +112,7 @@ public class Try_c extends Stmt_c implements Try
      * child node. It contains the exceptions that can be thrown by the try
      * block.
      */
-    public Node exceptionCheck(ExceptionChecker ec)
-    throws SemanticException
-    {
+    public Node exceptionCheck(ExceptionChecker ec) {
         TypeSystem ts = ec.typeSystem();
         ExceptionChecker origEC = ec;
         
@@ -143,30 +140,25 @@ public class Try_c extends Stmt_c implements Try
         
         // Walk through our catch blocks, making sure that they each can 
         // catch something.
-        for (Iterator<Catch> i = this.catchBlocks.iterator(); i.hasNext(); ) {
-            Catch cb = i.next();
-            Type catchType = cb.catchType();
-            
-            
-            // Check if the exception has already been caught.
-            if (caught.contains(catchType)) {
-                throw new SemanticException("The exception \"" +catchType + "\" has been caught by an earlier catch block.",cb.position());
-            }
-            
-            caught.add(catchType);
-        }
-        
-        
-        // now visit the catch blocks, using the original exception checker
+        // Visit the catch blocks, using the original exception checker
         List<Catch> catchBlocks = new ArrayList<Catch>(this.catchBlocks.size());
         
-        for (Iterator<Catch> i = this.catchBlocks.iterator(); i.hasNext(); ) {
-            Catch cb = (Catch) i.next();
+        for (Catch cb : this.catchBlocks) {
+            Type catchType = cb.catchType();
             
             ec = ec.push();
             cb = (Catch) this.visitChild(cb, ec);
-            catchBlocks.add(cb);
             ec = ec.pop();
+            
+            // Check if the exception has already been caught.
+            if (caught.contains(catchType)) {
+                Errors.issue(ec.job(),
+                        new SemanticException("The exception \"" +catchType + "\" has been caught by an earlier catch block.",cb.position()),
+                        this);
+            } else {
+                catchBlocks.add(cb);
+                caught.add(catchType);
+            }
         }
         
         Block finallyBlock = null;
