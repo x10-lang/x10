@@ -2985,7 +2985,7 @@ public class Emitter {
         for (ParameterType type : def.typeParameters()) {
             w.write("final x10.rtt.Type " + type.name().toString() + ", ");
         }
-        w.write("final java.lang.System[] dummy$) { ");
+        w.write("final java.lang.System $dummy) { ");
 
         /* struct does not have super type
         // call super zero value constructor
@@ -3006,7 +3006,7 @@ public class Emitter {
                     w.write(", ");
                 }
             }
-            w.write("(java.lang.System[]) null); ");
+            w.write("(java.lang.System) null); ");
         }
         */
         
@@ -3052,7 +3052,7 @@ public class Emitter {
                     zero = "false; ";
                 } else {
                     // user-defined struct type
-                    // for struct a.b.S[T], "new a.b.S(T, (java.lang.System[])null);"
+                    // for struct a.b.S[T], "new a.b.S(T, (java.lang.System) null);"
                     w.write(lhs); lhs = "";
                     w.write("new ");
                     printType(type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
@@ -3065,7 +3065,7 @@ public class Emitter {
                             w.write(", ");
                         }
                     }
-                    w.write("(java.lang.System[]) null); ");
+                    w.write("(java.lang.System) null); ");
                 }
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"
