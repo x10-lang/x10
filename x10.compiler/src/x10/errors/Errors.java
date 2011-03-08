@@ -1864,14 +1864,12 @@ public class Errors {
             super("Clocked loop may only be clocked on a clock.", p);
         }
     }
-	public static class TernaryExpressiongMustBeBoolean extends EqualByTypeAndPosException {
-		
-		private static final long serialVersionUID = -1877025742518675776L;
-
-		public TernaryExpressiongMustBeBoolean(Position p) {
-            super("Condition of ternary expression must be of type boolean.", p);
-        }
-    }
+	public static class TernaryConditionMustBeBoolean extends EqualByTypeAndPosException {
+	    private static final long serialVersionUID = -1877025742518675776L;
+	    public TernaryConditionMustBeBoolean(Position p) {
+	        super("Condition of ternary expression must be of type boolean.", p);
+	    }
+	}
 	public static class ConstructorGuardNotSatisfied extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = 6434865257883772504L;
