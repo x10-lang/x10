@@ -58,6 +58,7 @@ import polyglot.types.QName;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ClassType;
+import polyglot.types.ClassDef;
 import polyglot.util.CollectionUtil;
 import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
@@ -475,7 +476,11 @@ public class Desugarer extends ContextVisitor {
                     // qualifer doesn't have type info because it was created in Synthesizer.makeExpr
                     qualifer = (TypeNode) qualifer.visit(new X10TypeBuilder(job, ts, nf)).visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext));
                     ClassType ct =  qualifer.type().toClass();
-                    return nf.Call(pos,newReceiver, nf.Id(pos,X10ClassDecl_c.getThisMethod(newReceiver.type().toClass().def().fullName(),ct.fullName())));
+                    final ClassDef newReceiverDef = newReceiver.type().toClass().def();
+                    final ClassDef qualifierDef = ct.def();
+                    if (newReceiverDef==qualifierDef)
+                        return newReceiver;
+                    return nf.Call(pos,newReceiver, nf.Id(pos,X10ClassDecl_c.getThisMethod(newReceiverDef.fullName(),ct.fullName())));
                 }
                 if (n instanceof AmbExpr) {
                     AmbExpr amb = (AmbExpr) n;
