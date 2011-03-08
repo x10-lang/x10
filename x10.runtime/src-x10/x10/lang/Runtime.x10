@@ -462,10 +462,10 @@ import x10.util.NoSuchElementException;
         // the workers in the pool
         private val workers = new Array[Worker](MAX_THREADS);
 
-        operator this(size:Int):void {
-            this.size = size;
+        operator this(n:Int):void {
+            size = n;
             workers(0) = worker();
-            for (var i:Int = 1; i<size; i++) {
+            for (var i:Int = 1; i<n; i++) {
                 workers(i) = new Worker(i);
                 workers(i).start();
             }
@@ -522,6 +522,7 @@ import x10.util.NoSuchElementException;
                 if (null != activity || latch()) return activity;
                 // go to sleep if too many threads are running
                 semaphore.yield(worker);
+                if (null != activity || latch()) return activity;
                 // try network
                 event_probe();
                 activity = worker.poll();
