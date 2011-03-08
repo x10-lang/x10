@@ -328,7 +328,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         }
         catch (SemanticException e) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
-            X10ClassType ut = ts.createFakeClass(QName.make(null, name().id()), e);
+            X10ClassType ut = ts.createFakeClass(QName.make(fullName(prefix), name().id()), e);
             ut.def().position(n.position());
             sym.update(ut);
         }
@@ -337,7 +337,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         }
         catch (SemanticException e) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
-            X10ClassType ut = ts.createFakeClass(QName.make(null, name().id()), e);
+            X10ClassType ut = ts.createFakeClass(QName.make(fullName(prefix), name().id()), e);
             ut.def().position(n.position());
             sym.update(ut);
             tn = n;

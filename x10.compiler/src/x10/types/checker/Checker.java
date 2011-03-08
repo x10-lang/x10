@@ -421,11 +421,11 @@ public class Checker {
 	    if (haveUnknown)
 	        error = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
-	        Name tName = targetType.name();
+	        QName tName = targetType.fullName();
 	        if (tName == null) {
-	            tName = Name.make(targetType.toString());
+	            tName = QName.make(null, targetType.toString());
 	        }
-	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
+	        targetType = xts.createFakeClass(tName, new SemanticException("Target type is not a class: "+targetType));
 	    }
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt == null) rt = mi.returnType();
@@ -509,11 +509,11 @@ public class Checker {
 	    if (haveUnknown)
 	        error = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
-	        Name tName = targetType.name(); 
+	        QName tName = targetType.fullName(); 
 	        if (tName == null) {
-	        	tName = Name.make(targetType.toString());
+	        	tName = QName.make(null, targetType.toString());
 	        }
-	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
+	        targetType = xts.createFakeClass(tName, new SemanticException("Target type is not a class: "+targetType));
 	    }
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC.Static(), name, typeArgs, actualTypes, error);
 	    if (rt != null) mi = mi.returnType(rt);
