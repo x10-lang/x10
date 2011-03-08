@@ -12,7 +12,6 @@
 package x10.rtt;
 
 import x10.core.Any;
-import x10.core.IndexedMemoryChunk;
 import x10.core.RefI;
 import x10.core.fun.Fun_0_1;
 
@@ -388,7 +387,8 @@ public class Types {
             if (rtt == DOUBLE) return DOUBLE_ZERO;
             if (rtt == CHAR) return CHAR_ZERO;
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
-            if (rtt == IndexedMemoryChunk.$RTT) return new IndexedMemoryChunk(typeParams[0]);
+            if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(typeParams[0], (java.lang.System) null);
+            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(typeParams[0], (java.lang.System) null);
             //            if (isPrimitiveStructType(rtt)) return zeroValue(rtt.getJavaClass());
             // for user-defined structs, call zero value constructor
             try {
