@@ -46,6 +46,6 @@ public class XUQV extends XVar {
     }
     @Override
     public String toString() {
-        return str == null ? "uqv" + num: str;
+        return str == null ? "uqv#" + num: str;
     }
 }
