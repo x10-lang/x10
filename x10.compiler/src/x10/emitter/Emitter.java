@@ -87,6 +87,7 @@ import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
+import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory_c;
 import x10.ast.X10Return_c;
 import x10.config.ConfigurationError;
@@ -98,6 +99,7 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
 
 import x10.types.X10MethodDef;
@@ -3717,6 +3719,36 @@ public class Emitter {
     		return true;
     	}
     	return false;
+    }
+
+    public boolean printNativeNew(X10New_c c, X10ConstructorInstance mi) {
+        String pat = getJavaImplForDef(mi.x10Def());
+        if (pat != null) {
+            List<Type> typeArguments  = Collections.<Type>emptyList();
+            if (mi.container().isClass() && !mi.flags().isStatic()) {
+                X10ClassType ct = (X10ClassType) mi.container().toClass();
+                typeArguments = ct.typeArguments();
+                if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+            }
+            List<CastExpander> args = new ArrayList<CastExpander>();
+            List<Expr> arguments = c.arguments();
+            for (int i = 0; i < arguments.size(); ++ i) {
+                Type ft = c.constructorInstance().def().formalTypes().get(i).get();
+                Type at = arguments.get(i).type();
+                if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && Types.baseType(ft) instanceof ParameterType) {
+                    args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
+                }
+                else if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at)) {
+                    args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
+                }
+                else {
+                    args.add(new CastExpander(w, this, arguments.get(i)));                                    
+                }
+            }
+            emitNativeAnnotation(pat, null, Collections.<Type>emptyList(), args, typeArguments);
+            return true;
+        }
+        return false;
     }
 
 }

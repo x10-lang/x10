@@ -58,6 +58,7 @@ import polyglot.ast.Loop_c;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Node_c;
 import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
@@ -147,9 +148,9 @@ import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New;
 import x10.ast.X10New_c;
+import x10.ast.X10ProcedureCall;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
-import x10.emitter.CastExpander;
 import x10.emitter.Emitter;
 import x10.emitter.Expander;
 import x10.emitter.Inline;
@@ -159,7 +160,6 @@ import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
-import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MethodInstance;
@@ -1906,193 +1906,120 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write(")");
 	}
 	
-	public void visit(X10New_c c) {
-    		X10New_c n = c;
-    		
-    		X10ConstructorInstance mi = (X10ConstructorInstance) n.constructorInstance();
-    		
-    		String pat = er.getJavaImplForDef(mi.x10Def());
-    		if (pat != null) {
-    		    List<Type> typeArguments  = Collections.<Type>emptyList();
-    		    if (mi.container().isClass() && !mi.flags().isStatic()) {
-    		        X10ClassType ct = (X10ClassType) mi.container().toClass();
-    		        typeArguments = ct.typeArguments();
-    		        if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
-    		    }
-    		    List<CastExpander> args = new ArrayList<CastExpander>();
-    		    List<Expr> arguments = n.arguments();
-    		    for (int i = 0; i < arguments.size(); ++ i) {
-    		        Type ft = n.constructorInstance().def().formalTypes().get(i).get();
-    		        Type at = arguments.get(i).type();
-    		        if (isPrimitiveRepedJava(at) && Types.baseType(ft) instanceof ParameterType) {
-    		            args.add(new CastExpander(w, er, arguments.get(i)).castTo(at, BOX_PRIMITIVES));
-    		        }
-    		        else if (isPrimitiveRepedJava(at)) {
-    		            args.add(new CastExpander(w, er, arguments.get(i)).castTo(at, 0));
-    		        }
-    		        else {
-    		            args.add(new CastExpander(w, er, arguments.get(i)));                                    
-    		        }
-    		    }
-    		    er.emitNativeAnnotation(pat, null, Collections.<Type>emptyList(), args, typeArguments);
-    		    return;
-    		}
-    		
-    		if (n.qualifier() != null) {
-    
-    			tr.print(c, n.qualifier(), w);
-    			w.write(".");
-    		}
-    
-    		w.write("new ");
-    
-    		if (n.qualifier() == null) {
-    		    er.printType(n.objectType().type(), PRINT_TYPE_PARAMS | NO_VARIANCE);
-    		}
-    		else {
-    			er.printType(n.objectType().type(), PRINT_TYPE_PARAMS | NO_VARIANCE | NO_QUALIFIER);
-    		}
-    
-    		w.write("(");
-    		w.begin(0);
-    
-    		X10ClassType ct = (X10ClassType) mi.container();
-    		
-    		List<Type> ta = ct.typeArguments();
-    		boolean isJavaNative = Emitter.isNativeRepedToJava(n.objectType().type());
-            if (ta != null && ta.size() > 0 && !isJavaNative) {
-    		    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
-    		        final Type at = i.next();
-    		        new RuntimeTypeExpander(er, at).expand(tr);
-    		        if (i.hasNext() || c.arguments().size() > 0) {
-    		            w.write(",");
-    		            w.allowBreak(0, " ");
-    		        }
-    		    }        
-    		}     
-    
-    		List<Expr> l = c.arguments();
-    		for (int i = 0; i < l.size(); i++) {
-    			Expr e = l.get(i);
-    			if (i < mi.formalTypes().size()) { // FIXME This is a workaround
-    			    Type castType = mi.formalTypes().get(i);
-    			    TypeSystem xts = tr.typeSystem();
-    			    if(isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
-    			        
-    			        w.write("(");
-    			        er.printType(castType, 0);
-    			        w.write(")");
-    			        
-    			        if (xts.isParameterType(castType)) {
-    			            w.write(X10_RTT_TYPES);
-    			            w.write(".conversion(");
-    			            new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
-    			            w.write(",");                                   
-    			        }
-    			        else {
-    			            w.write(X10_CORE_STRING);
-    			            w.write(".box(");
-    			        }
-    			    }
-    			    c.print(e, w, tr);
-    			    
-    			    if(isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
-    			        w.write(")");
-    			    }
-    			}
-    			else {
+    public void visit(X10New_c c) {
+        X10ConstructorInstance mi = c.constructorInstance();
+        if (er.printNativeNew(c, mi)) return;
+
+        if (c.qualifier() != null) {
+            tr.print(c, c.qualifier(), w);
+            w.write(".");
+        }
+
+        w.write("new ");
+
+        if (c.qualifier() == null) {
+            er.printType(c.objectType().type(), PRINT_TYPE_PARAMS | NO_VARIANCE);
+        }
+        else {
+            er.printType(c.objectType().type(), PRINT_TYPE_PARAMS | NO_VARIANCE | NO_QUALIFIER);
+        }
+
+        printConstructorArgumentList(c, c, mi, c.objectType().type());
+
+        if (c.body() != null) {
+            w.write("{");
+            tr.print(c, c.body(), w);
+            w.write("}");
+        }
+    }
+
+    private void printConstructorArgumentList(Node_c c, X10ProcedureCall p, X10ConstructorInstance mi, Type instatiatingType) {
+        w.write("(");
+        w.begin(0);
+   
+        X10ClassType ct = (X10ClassType) mi.container();
+        
+        List<Type> ta = ct.typeArguments();
+        boolean isJavaNative = instatiatingType != null ? Emitter.isNativeRepedToJava(instatiatingType) : false;
+        if (ta != null && ta.size() > 0 && !isJavaNative) {
+            for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
+                final Type at = i.next();
+                new RuntimeTypeExpander(er, at).expand(tr);
+                if (i.hasNext() || p.arguments().size() > 0) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
+                }
+            }
+        } 
+   
+        List<Expr> l = p.arguments();
+        for (int i = 0; i < l.size(); i++) {
+        	Expr e = l.get(i);
+        	if (i < mi.formalTypes().size()) { // FIXME This is a workaround
+        	    Type castType = mi.formalTypes().get(i);
+        	    TypeSystem xts = tr.typeSystem();
+        	    if(isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
+        	        
+        	        w.write("(");
+        	        er.printType(castType, 0);
+        	        w.write(")");
+        	        
+        	        if (xts.isParameterType(castType)) {
+        	            w.write(X10_RTT_TYPES);
+        	            w.write(".conversion(");
+        	            new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
+        	            w.write(",");                                   
+        	        }
+        	        else {
+        	            w.write(X10_CORE_STRING);
+        	            w.write(".box(");
+        	        }
+        	    }
+        	    else if (isSelfDispatch && !castType.typeEquals(e.type(), tr.context())) {
+                    // TODO:CAST
+                    w.write("(");
+                    w.write("(");
+                    er.printType(castType, PRINT_TYPE_PARAMS);
+                    w.write(")");
                     c.print(e, w, tr);
-    			}
-				if (isMutableStruct(e.type())) {
-					w.write(".clone()");
-				}
-    			
-    			if (i != l.size() - 1) {
-    				w.write(",");
-    				w.allowBreak(0, " ");
-    			}
-    		}
-    	      
-    		printExtraArgments(mi);
-            
-    		w.end();
-    		w.write(")");
-    
-    		if (c.body() != null) {
-    			w.write("{");
-    			tr.print(c, c.body(), w);
-    			w.write("}");
-    		}
-    	}
+                    w.write(")");
+        	    }
+        	    else {
+        	        c.print(e, w, tr);
+        	    }
+        	    
+        	    if(isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
+        	        w.write(")");
+        	    }
+        	}
+        	else {
+                c.print(e, w, tr);
+        	}
+        	if (isMutableStruct(e.type())) {
+        		w.write(".clone()");
+        	}
+        	
+        	if (i != l.size() - 1) {
+        		w.write(",");
+        		w.allowBreak(0, " ");
+        	}
+        }
+          
+        printExtraArgments(mi);
+        
+        w.end();
+        w.write(")");
+    }
 
     public void visit(X10ConstructorCall_c c) {
-    		X10ConstructorCall_c n = c;
-    
-    		if (n.qualifier() != null) {
-    			tr.print(c, n.qualifier(), w);
-    			w.write(".");
-    		}
-    
-    		w.write(c.kind() == ConstructorCall.THIS ? "this" : "super");
-    
-    		w.write("(");
-    		w.begin(0);
-    
-    		X10ConstructorInstance mi = (X10ConstructorInstance) n.constructorInstance();
-    		X10ClassType ct = (X10ClassType) mi.container();
-    
-    		if (ct.typeArguments() != null) {
-    		for (Iterator<Type> i = ct.typeArguments().iterator(); i.hasNext(); ) {
-    			final Type at = i.next();
-    			new RuntimeTypeExpander(er, at).expand(tr);
-    			if (i.hasNext() || c.arguments().size() > 0) {
-    				w.write(",");
-    				w.allowBreak(0, " ");
-    			}
-    		}
-    		}
-    
-    		List<Expr> l = c.arguments();
-    		for (int i = 0; i < l.size(); i++) {
-    			Expr e = (Expr) l.get(i);
-                if (i < mi.formalTypes().size()) { // FIXME This is a workaround
-                    Type castType = mi.def().formalTypes().get(i).get();
-                    TypeSystem xts = tr.typeSystem();
-                    if(isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
-                        if (xts.isParameterType(castType)) {
-                            w.write(X10_RTT_TYPES);
-                            w.write(".conversion(");
-                            new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
-                            w.write(",");                                   
-                        }
-                        else {
-                            w.write(X10_CORE_STRING);
-                            w.write(".box(");
-                        }
-                    }
-
-                    c.print(e, w, tr);
-
-                    if(isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
-                        w.write(")");
-                    }
-                } else {
-                    c.print(e, w, tr);
-                    
-                }
-    			if (i != l.size() - 1) {
-    				w.write(",");
-    				w.allowBreak(0, " ");
-    			}
-    		}
-    
-    		printExtraArgments(mi);
-    
-    		w.end();
-    		w.write(")");
-    		
-    		w.write(";");
-    	}
+        if (c.qualifier() != null) {
+            tr.print(c, c.qualifier(), w);
+            w.write(".");
+        }
+        w.write(c.kind() == ConstructorCall.THIS ? "this" : "super");
+        printConstructorArgumentList(c, c, c.constructorInstance(), null);
+        w.write(";");
+    }
 
     public void visit(Try_c c) {
 		if (isFinish(c)) {
