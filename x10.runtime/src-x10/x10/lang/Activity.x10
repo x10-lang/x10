@@ -12,6 +12,7 @@
 package x10.lang;
 
 import x10.io.SerialData;
+import x10.util.Map;
 import x10.util.HashMap;
 
 /**
@@ -33,18 +34,18 @@ class Activity {
 
         // next statement
         def next() {
-            for(clock:Clock in keySet()) clock.resumeUnsafe();
-            for(clock:Clock in keySet()) clock.nextUnsafe();
+            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeInternal(entry);
+            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().nextInternal(entry);
         }
 
         // resume all clocks
         def resume() {
-            for(clock:Clock in keySet()) clock.resume();
+            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeInternal(entry);
         }
 
         // drop all clocks
         def drop() {
-            for(clock:Clock in keySet()) clock.dropInternal();
+            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().dropInternal(entry);
             clear();
         }
 
