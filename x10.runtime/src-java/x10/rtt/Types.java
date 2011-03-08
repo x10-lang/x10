@@ -397,7 +397,7 @@ public class Types {
                 Class<?>[] paramTypes = null;
                 for (java.lang.reflect.Constructor<?> ctor0 : c.getConstructors()) {
                     paramTypes = ctor0.getParameterTypes();
-                    if (paramTypes[paramTypes.length-1].equals(java.lang.System[].class)) {
+                    if (paramTypes[paramTypes.length-1].equals(java.lang.System.class)) {
                         ctor = ctor0;
                         break;
                     }
