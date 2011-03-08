@@ -49,6 +49,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         }
     }
 
+    public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, long length, boolean zeroed) {
+        if (length > Integer.MAX_VALUE) {
+            throw new x10.lang.OutOfMemoryError("Array length must be shorter than 2^31");
+        }
+        return new IndexedMemoryChunk<T>(type, (int) length, zeroed);
+    }
+
     public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, int length, boolean zeroed) {
         return new IndexedMemoryChunk<T>(type, length, zeroed);
     }
