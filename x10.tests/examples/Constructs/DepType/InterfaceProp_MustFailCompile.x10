@@ -19,35 +19,36 @@
 import harness.x10Test;
 
 /**
- * Classes implementing interfaces with properties must also 
+ * Classes implementing interfaces with properties must also
  * define the same properties, or else an error is thrown
  *
  * @author raj
  */
 public class InterfaceProp_MustFailCompile extends x10Test {
-  
-	interface  I {
-        public property i():int;
-        public def a():void;
-	}
-	interface  J extends I{
-        public property k():int;
-        public def a():void;
-	}
-	class E(k:int) implements J{ // ERR: InterfaceProp_MustFailCompile.E should be declared abstract; it does not define i(): x10.lang.Int, which is declared in InterfaceProp_MustFailCompile.I
-      public def this(kk:int):E= {
-        property(kk);
-      }
-      public def a():void {
-        val x:int;
-      }
-	}
-	
-	public def run(): boolean = {
+
+    interface I {
+        public property i(): Int;
+        public def a(): void;
+    }
+    interface J extends I {
+        public property k(): Int;
+        public def a(): void;
+    }
+    class E(k:Int) implements J { // ERR: InterfaceProp_MustFailCompile.E should be declared abstract; it does not define i(): x10.lang.Int, which is declared in InterfaceProp_MustFailCompile.I
+        public property k() = k;
+        public def this(kk:Int) {
+            property(kk);
+        }
+        public def a(): void {
+            val x:Int;
+        }
+    }
+
+    public def run(): Boolean = {
         new E(1);
-	    return true;
-	}
-	public static def main(var args: Array[String](1)): void = {
-		new InterfaceProp_MustFailCompile().execute();
-	}
+        return true;
+    }
+    public static def main(args: Array[String](1)): void = {
+        new InterfaceProp_MustFailCompile().execute();
+    }
 }

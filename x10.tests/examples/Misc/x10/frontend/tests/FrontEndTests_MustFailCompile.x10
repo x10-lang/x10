@@ -2162,11 +2162,17 @@ class TestMethodResolution { // see XTENLANG-1915
   def m(Int)="";
   def m(Long)=true;
   def m(Any)=3;
+  def rtype(c:Boolean) { if (c) return 1; else return 2l; }
+  def genm[T](a:T, b:T):T = a;
   def test(flag:Boolean) {
-	val arr = [1,2l]; // infers Array[Any]
-	val x = flag ? 1 : 2l; // infers Long
-    val i1:Boolean = m(x); 
-    val i2:Int = m(arr(0)); // ShouldBeErr
+    val arr = [1,2l]; // infers Array[Any]
+    val x = flag ? 1 : 2l; // infers Any
+    val r = rtype(flag); // infers Any
+    val g = genm(1,2l); // infers Any
+    val i1:Int = m(arr(0));
+    val i2:Int = m(x); 
+    val i3:Int = m(r);
+    val i4:Int = m(g);
   }
 
   
