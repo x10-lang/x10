@@ -51,7 +51,7 @@ public class X10Translator extends Translator {
     boolean inInnerClass;
 
     private static String escapePath(String path) {
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         for (int i = 0; i < path.length(); ++i) {
             char c = path.charAt(i);
             if (c == '\\') {
@@ -190,38 +190,51 @@ public class X10Translator extends Translator {
 
         if (options.post_compiler != null && !options.output_stdout) {
             Runtime runtime = Runtime.getRuntime();
+            java.util.ArrayList<String> javacCmd = new java.util.ArrayList<String>();
+            String[] strarray = new String[0];
             QuotedStringTokenizer st = new QuotedStringTokenizer(options.post_compiler, '?');
-            int pc_size = st.countTokens();
-            String[] javacCmd = new String[pc_size+2+compiler.outputFiles().size()];
-            int j = 0;
-            for (int i = 0; i < pc_size; i++) {
-                javacCmd[j++] = st.nextToken();
+            while (st.hasMoreTokens()) {
+            	javacCmd.add(st.nextToken());
             }
-            javacCmd[j++] = "-classpath";
-            javacCmd[j++] = options.constructPostCompilerClasspath();
-
+            
+        	StringBuilder sb0 = new StringBuilder();
+        	sb0.append(options.constructPostCompilerClasspath());
+        	
+        	// append sourcepath of x10 compiler to classpath of post java compiler
+        	// to let the java compiler find the source code of java native library.
+        	// N.B. we cannot pass sourcepath to the java compiler because sourcepath of
+        	// x10 compiler includes x10.jar that includes java native library without source code.
+        	Iterator<File> fileiter = options.source_path.iterator();
+        	while (fileiter.hasNext()) {
+        		sb0.append(File.pathSeparator);
+        		sb0.append(fileiter.next().getAbsolutePath());
+        	}
+        	
+            javacCmd.add("-classpath");
+            javacCmd.add(sb0.toString());
+            
             Iterator<String> iter = compiler.outputFiles().iterator();
-            for (; iter.hasNext(); j++) {
-                javacCmd[j] = (String) iter.next();
+            while (iter.hasNext()) {
+                javacCmd.add(iter.next());
             }
 
             Reporter reporter = options.reporter;
             if (reporter.should_report(postcompile, 1)) {
-                StringBuffer cmdStr = new StringBuffer();
-                for (int i = 0; i < javacCmd.length; i++)
-                    cmdStr.append(javacCmd[i]+" ");
+            	StringBuilder cmdStr = new StringBuilder();                
+                for (int i = 0; i < javacCmd.size(); i++)
+                    cmdStr.append(javacCmd.get(i)+" ");
                 reporter.report(1, "Executing post-compiler " + cmdStr);
             }
 
             try {
-                Process proc = runtime.exec(javacCmd);
+                Process proc = runtime.exec(javacCmd.toArray(strarray));
 
                 InputStreamReader err = new InputStreamReader(proc.getErrorStream());
 
                 try {
                     char[] c = new char[72];
                     int len;
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
                     while((len = err.read(c)) > 0) {
                         sb.append(String.valueOf(c, 0, len));
                     }
@@ -237,12 +250,12 @@ public class X10Translator extends Translator {
                 proc.waitFor();
 
                 if (!options.keep_output_files) {
-                    String[] rmCmd = new String[1+compiler.outputFiles().size()];
-                    rmCmd[0] = "rm";
+                	java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
+                	rmCmd.add("rm");
                     iter = compiler.outputFiles().iterator();
-                    for (int i = 1; iter.hasNext(); i++)
-                        rmCmd[i] = (String) iter.next();
-                    runtime.exec(rmCmd);
+                    while (iter.hasNext())
+                        rmCmd.add(iter.next());
+                    runtime.exec(rmCmd.toArray(strarray));
                 }
 
                 if (proc.exitValue() > 0) {
@@ -300,13 +313,13 @@ public class X10Translator extends Translator {
                     jarCmdList.add(options.output_directory.getAbsolutePath()); // -d output_directory
                     jarCmdList.add(".");
                     
-                    String[] jarCmd = jarCmdList.toArray(new String[0]);
+                    String[] jarCmd = jarCmdList.toArray(strarray);
                     Process jarProc = runtime.exec(jarCmd);
                     InputStreamReader jarErr = new InputStreamReader(jarProc.getErrorStream());
                     try {
                         char[] c = new char[72];
                         int len;
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
                         while ((len = jarErr.read(c)) > 0) {
                             sb.append(String.valueOf(c, 0, len));
                         }
