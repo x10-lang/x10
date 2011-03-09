@@ -1405,11 +1405,12 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             if (exploded.size()>0 && init==null) {
                 syntaxError("An exploded point must have an initializer.",pos);
             }
+            FlagsNode efn = extractFlags(modifiers, Flags.FINAL); // exploded vars are always final
             for (Id id : exploded) {
                 TypeNode tni =
                         init==null ? nf.TypeNodeFromQualifiedName(compilerGen,QName.make("x10.lang.Int")) : // we infer the type of the exploded components, however if there is no init, then we just assume Int to avoid cascading errors.
                         explodedType(id.position()); // UnknownType
-                l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name),  Collections.<Expr>singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
+                l.add(nf.LocalDecl(id.position(), efn, tni, id, init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name),  Collections.<Expr>singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
                 index++;
             }
         }
