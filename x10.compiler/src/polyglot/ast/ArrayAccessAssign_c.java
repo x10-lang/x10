@@ -73,7 +73,115 @@ public class ArrayAccessAssign_c extends Assign_c implements ArrayAccessAssign
       return this;
   }
 
+  /** Type check the expression. */
+  public Node typeCheck(ContextVisitor tc) {
+      ArrayAccessAssign_c n = (ArrayAccessAssign_c) typeCheckLeft(tc);
+      
+      TypeSystem ts = tc.typeSystem();
+    Type t = n.leftType();
+    
+    if (t == null)
+    t = ts.unknownType(position());
 
+    Expr right = n.right();
+    Assign.Operator op = n.operator();
+
+    Type s = right.type();
+
+    Context context = tc.context();
+    if (op == ASSIGN) {
+      if (! ts.isImplicitCastValid(s, t, context) &&
+          ! ts.typeEquals(s, t, context) &&
+          ! ts.numericConversionValid(t, right.constantValue(), context)) {
+
+        Errors.issue(tc.job(),
+                new SemanticException("Cannot assign " + s + " to " + t + ".", position()));
+      }
+
+      return n.type(t);
+    }
+
+    if (op == ADD_ASSIGN) {
+      // t += s
+      if (ts.typeEquals(t, ts.String(), context) && ts.canCoerceToString(s, context)) {
+        return n.type(ts.String());
+      }
+
+      if (t.isNumeric() && s.isNumeric()) {
+        Type r;
+        try {
+            r = ts.promote(t, s);
+        } catch (SemanticException e) {
+            r = t;
+        }
+        return n.type(r);
+      }
+
+      Errors.issue(tc.job(),
+              new SemanticException("Operator must have numeric or String operands.", position()));
+      return n.type(t);
+    }
+
+    if (op == SUB_ASSIGN || op == MUL_ASSIGN ||
+        op == DIV_ASSIGN || op == MOD_ASSIGN) {
+      if (t.isNumeric() && s.isNumeric()) {
+        Type r;
+        try {
+            r = ts.promote(t, s);
+        } catch (SemanticException e) {
+            r = t;
+        }
+        return n.type(r);
+      }
+
+      Errors.issue(tc.job(),
+              new SemanticException("Operator must have numeric operands.", position()));
+      return n.type(t);
+    }
+
+    if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
+      if (t.isBoolean() && s.isBoolean()) {
+        return n.type(ts.Boolean());
+      }
+
+      if (ts.isImplicitCastValid(t, ts.Long(), context) &&
+          ts.isImplicitCastValid(s, ts.Long(), context)) {
+        Type r;
+        try {
+            r = ts.promote(t, s);
+        } catch (SemanticException e) {
+            r = t;
+        }
+        return n.type(r);
+      }
+
+      Errors.issue(tc.job(),
+              new SemanticException("Operator must have integral or boolean operands.", position()));
+      return n.type(t);
+    }
+
+    if (op == SHL_ASSIGN || op == SHR_ASSIGN || op == USHR_ASSIGN) {
+      if (ts.isImplicitCastValid(t, ts.Long(), context) &&
+          ts.isImplicitCastValid(s, ts.Long(), context)) {
+        // Only promote the left of a shift.
+        Type r;
+        try {
+            r = ts.promote(t);
+        } catch (SemanticException e) {
+            r = t;
+        }
+        return n.type(r);
+      }
+
+      Errors.issue(tc.job(),
+              new SemanticException("Operator must have integral operands.", position()));
+      return n.type(t);
+    }
+
+    throw new InternalCompilerError("Unrecognized assignment operator " +
+                                    op + ".");
+  }
+  
   public Type leftType() {
       Type at = array.type();
       if (at.isArray())
