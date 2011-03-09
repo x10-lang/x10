@@ -287,7 +287,6 @@ public class X10CPPTranslator extends Translator {
 	protected boolean translateSource(SourceFile sfn) {
 
 		int outputWidth = job.compiler().outputWidth();
-		Collection<String> outputFiles = job.compiler().outputFiles();
 
 		try {
 
@@ -332,21 +331,21 @@ public class X10CPPTranslator extends Translator {
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String include = getStringPropertyInit(at, 0);
-		                outputFiles.add(pkg_+include);
+		                job.compiler().addOutputFile(fname, pkg_+include);
 		                maybeCopyTo(include, path, out_path+pkg_);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPOutputFile")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String file = getStringPropertyInit(at, 0);
-		                outputFiles.add(pkg_+file);
+		                job.compiler().addOutputFile(fname, pkg_+file);
 		                maybeCopyTo(file, path, out_path+pkg_);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPCompilationUnit")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String compilation_unit = getStringPropertyInit(at, 0);
-		                outputFiles.add(pkg_+compilation_unit);
+		                job.compiler().addOutputFile(fname, pkg_+compilation_unit);
 		                opts.compilationUnits().add(pkg_+compilation_unit);
 		                maybeCopyTo(compilation_unit, path, out_path+pkg_);
 		            }
@@ -367,7 +366,7 @@ public class X10CPPTranslator extends Translator {
 				// [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
 				String header = wstreams.getStreamName(StreamWrapper.Header);
-				outputFiles.add(header);
+				job.compiler().addOutputFile(fname, header);
 				
 				if (opts.x10_config.DEBUG) {
 					Map<String, LineNumberMap> fileToLineNumberMap =
@@ -390,7 +389,7 @@ public class X10CPPTranslator extends Translator {
 			
 			if (generatedCode) {
 			    String cc = fstreams.getStreamName(StreamWrapper.CC);
-			    outputFiles.add(cc);
+			    job.compiler().addOutputFile(fname, cc);
                 opts.compilationUnits().add(cc);
                 
                 if (opts.x10_config.DEBUG) {

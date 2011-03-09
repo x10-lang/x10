@@ -95,7 +95,6 @@ public class X10Translator extends Translator {
 	    NodeFactory nf = nodeFactory();
 	    TargetFactory tf = this.tf;
 	    int outputWidth = job.compiler().outputWidth();
-	    Collection<String> outputFiles = job.compiler().outputFiles();
 	    CodeWriter w= null;
 
 	    try {
@@ -112,7 +111,7 @@ public class X10Translator extends Translator {
 	        of = tf.outputFile(pkg, sfn.source());
 
 	        String opfPath = of.getPath();
-	        if (!opfPath.endsWith("$")) outputFiles.add(of.getPath());
+	        if (!opfPath.endsWith("$")) job.compiler().addOutputFile(sfn.source().name(), of.getPath());
 	        w = tf.outputCodeWriter(of, outputWidth);
 
 	        writeHeader(sfn, w);
@@ -242,9 +241,8 @@ public class X10Translator extends Translator {
             }
             */
 
-            Iterator<String> iter = compiler.outputFiles().iterator();
-            while (iter.hasNext()) {
-                javacCmd.add(iter.next());
+            for (Collection<String> files : compiler.outputFiles().values()) {
+                javacCmd.addAll(files);
             }
 
             Reporter reporter = options.reporter;
@@ -281,9 +279,9 @@ public class X10Translator extends Translator {
                 if (!options.keep_output_files) {
                 	java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
                 	rmCmd.add("rm");
-                    iter = compiler.outputFiles().iterator();
-                    while (iter.hasNext())
-                        rmCmd.add(iter.next());
+                	for (Collection<String> files : compiler.outputFiles().values()) {
+                	    rmCmd.addAll(files);
+                	}
                     runtime.exec(rmCmd.toArray(strarray));
                 }
 
