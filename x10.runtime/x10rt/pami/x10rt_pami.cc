@@ -176,7 +176,7 @@ static void local_msg_dispatch (
 		#endif
 		recv->local_fn = std_msg_complete;
 		recv->cookie   = hdr;
-		recv->type     = PAMI_BYTE;
+		recv->type     = PAMI_TYPE_CONTIGUOUS;
 		recv->addr     = hdr->msg;
 		recv->offset   = 0;
 		recv->data_fn  = PAMI_DATA_COPY;
@@ -442,9 +442,9 @@ static void team_creation_complete (pami_context_t   context,
                        void          * cookie,
                        pami_result_t    result)
 {
-	#ifdef DEBUG
+//	#ifdef DEBUG
 		fprintf(stderr, "Team created at place %u\n", state.myPlaceId);
-	#endif
+//	#endif
 
 	if (cookie != NULL)
 	{
@@ -496,7 +496,7 @@ static void team_create_dispatch (
 	#endif
 
 	pami_result_t   status = PAMI_ERROR;
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, 1, state.teams[newTeamId].places, pipe_size/(sizeof(uint32_t)), state.context[0], team_creation_complete, cookie);
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, state.myPlaceId, state.teams[newTeamId].places, pipe_size/(sizeof(uint32_t)), state.context[0], team_creation_complete, cookie);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
 
@@ -539,7 +539,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces); // TODO - deleteme
 	#endif
 	
-	pami_send_hint_t hints;
+	pami_dispatch_hint_t hints;
 	memset(&hints, 0, sizeof(pami_send_hint_t));
 	state.recv_active = 1;
 
@@ -910,8 +910,8 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	pami_result_t status = PAMI_ERROR;
 
 	// This bit of removable code is here to verify that the runtime is NOT requesting a team with the same place in it more than once.
-	for (int i=0; i<placec; i++)
-		for (int j=i+1; j<placec; j++)
+	for (unsigned i=0; i<placec; i++)
+		for (unsigned j=i+1; j<placec; j++)
 			if (placev[i] == placev[j])
 				error("Request to create a team with duplicate members");
 
@@ -920,9 +920,9 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	uint32_t newTeamId = state.lastTeamIndex+1;
 	pthread_mutex_unlock(&state.teamLock);
 
-	#ifdef DEBUG
+//	#ifdef DEBUG
 		fprintf(stderr, "Place %u preparing to create a new team with %u members\n", state.myPlaceId, placec);
-	#endif
+//	#endif
 
 	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
 	cookie->cb2 = ch;
@@ -1008,17 +1008,22 @@ static void split_stage2 (pami_context_t   context,
 	{
 		if (cbd->colors[i] == cbd->colors[cbd->parent_role])
 		{
-			state.teams[myNewTeamIndex].places[index] = i;
+			// each team member was a member in the parent.  Copy the ID's over, preserving the order.
+			state.teams[myNewTeamIndex].places[index] = state.teams[cbd->teamIndex].places[i];
 			index++;
 		}
 	}
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
 
+//	#ifdef DEBUG
+	fprintf(stderr, "Creating new split team %u (with %u members) from team %u\n", myNewTeamIndex, myNewTeamSize, cbd->teamIndex);
+//	#endif
+
 	pami_result_t   status = PAMI_ERROR;
 	pami_geometry_t parentGeometry = state.teams[cbd->teamIndex].geometry;
 	cbd->teamIndex = myNewTeamIndex;
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, state.context[0], team_creation_complete, cookie);
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, state.myPlaceId, state.teams[myNewTeamIndex].places, myNewTeamSize, state.context[0], team_creation_complete, cookie);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
 
@@ -1059,12 +1064,15 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	operation.cookie = cbd;
 	operation.algorithm = always_works_alg[0];
 	operation.cmd.xfer_alltoall.rcvbuf = (char*)colors;
-	operation.cmd.xfer_alltoall.rtype = PAMI_BYTE;
+	operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_CONTIGUOUS;
 	operation.cmd.xfer_alltoall.rtypecount = sizeof(x10rt_place);
 	operation.cmd.xfer_alltoall.sndbuf = (char*)colors;
-	operation.cmd.xfer_alltoall.stype = PAMI_BYTE;
+	operation.cmd.xfer_alltoall.stype = PAMI_TYPE_CONTIGUOUS;
 	operation.cmd.xfer_alltoall.stypecount = sizeof(x10rt_place);
 
+//	#ifdef DEBUG
+	fprintf(stderr, "Splitting team %u\n", parent);
+//	#endif
 	status = PAMI_Collective(state.context[0], &operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all for team_split");
 }
@@ -1092,10 +1100,10 @@ static void collective_operation_complete (pami_context_t   context,
                        void          * cookie,
                        pami_result_t    result)
 {
-	#ifdef DEBUG
-		fprintf(stderr, "Place %u completed collective operation\n", state.myPlaceId);
-	#endif
 	x10rt_pami_team_callback *cbd = (x10rt_pami_team_callback*)cookie;
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u completed collective operation. cookie=%p\n", state.myPlaceId, cookie);
+	#endif
 	cbd->tcb(cbd->arg);
 	free(cookie);
 }
@@ -1119,20 +1127,32 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
 	// select a algorithm, and issue the collective
-	x10rt_pami_team_callback *cbd = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
-	cbd->tcb = ch;
-	cbd->arg = arg;
-	memset(&cbd->operation, 0, sizeof (cbd->operation));
-	cbd->operation.cb_done = collective_operation_complete;
-	cbd->operation.cookie = cbd;
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	tcb->tcb = ch;
+	tcb->arg = arg;
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
-	cbd->operation.algorithm = always_works_alg[0];
-
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u, role %u executing barrier (%s)\n", state.myPlaceId, role, always_works_md[0].name);
+		if ((team==0 && state.myPlaceId==0) || (team>0 && state.myPlaceId == state.teams[team].places[0]))
+		{
+			fprintf(stderr, "Barrier algorithms are always %s", always_works_md[0].name);
+			for (size_t i=1; i<num_algorithms[0]; i++)
+				fprintf(stderr, ", %s", always_works_md[i].name);
+			if (num_algorithms[1] > 0)
+			{
+				fprintf(stderr, " and sometimes %s", must_query_md[0].name);
+				for (size_t i=1; i<num_algorithms[1]; i++)
+					fprintf(stderr, ", %s", must_query_md[i].name);
+			}
+			fprintf(stderr, ".\n");
+		}
+		fprintf(stderr, "Place %u, role %u executing barrier (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[0].name, (void*)tcb);
 	#endif
+	tcb->operation.algorithm = always_works_alg[0];
 
-	status = PAMI_Collective(state.context[0], &cbd->operation);
+	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue a barrier on team %u", team);
 }
 
@@ -1140,6 +1160,10 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
 	pami_result_t status = PAMI_ERROR;
+
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing broadcast of %lu %lu-byte elements on team %u, with role=%u, root=%u\n", state.myPlaceId, count, el, team, role, root);
+	#endif
 
 	// figure out how many different algorithms are available for the barrier
 	size_t num_algorithms[2]; // [0]=always works, and [1]=sometimes works lists
@@ -1156,26 +1180,49 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
 	// select a algorithm, and issue the collective
-	x10rt_pami_team_callback *cbd = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
-	cbd->tcb = ch;
-	cbd->arg = arg;
-	memset(&cbd->operation, 0, sizeof (cbd->operation));
-	cbd->operation.cb_done = collective_operation_complete;
-	cbd->operation.cookie = cbd;
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	tcb->tcb = ch;
+	tcb->arg = arg;
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
-	cbd->operation.algorithm = always_works_alg[0];
-	cbd->operation.cmd.xfer_broadcast.type = PAMI_BYTE;
-	cbd->operation.cmd.xfer_broadcast.typecount = count*el;
-	cbd->operation.cmd.xfer_broadcast.root = root;
-	if (role == root)
-		cbd->operation.cmd.xfer_broadcast.buf = (char*)sbuf;
+	#ifdef DEBUG
+		if (role==root)
+		{
+			fprintf(stderr, "Broadcast algorithms are always %s", always_works_md[0].name);
+			for (size_t i=1; i<num_algorithms[0]; i++)
+				fprintf(stderr, ", %s", always_works_md[i].name);
+			if (num_algorithms[1] > 0)
+			{
+				fprintf(stderr, " and sometimes %s", must_query_md[0].name);
+				for (size_t i=1; i<num_algorithms[1]; i++)
+					fprintf(stderr, ", %s", must_query_md[i].name);
+			}
+			fprintf(stderr, ".\n");
+		}
+		fprintf(stderr, "Place %u, role %u executing broadcast (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[0].name, (void*)tcb);
+	#endif
+
+	tcb->operation.algorithm = always_works_alg[0];
+	tcb->operation.cmd.xfer_broadcast.type = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_broadcast.typecount = count*el;
+	if (team == 0)
+		tcb->operation.cmd.xfer_broadcast.root = root;
 	else
-		cbd->operation.cmd.xfer_broadcast.buf = (char*)dbuf;
+		tcb->operation.cmd.xfer_broadcast.root = state.teams[team].places[root];
 
-	fprintf(stderr, "Place %u executing broadcast (%s)\n", state.myPlaceId, always_works_md[0].name);
+	if (role == root)
+		tcb->operation.cmd.xfer_broadcast.buf = (char*)sbuf;
+	else
+		tcb->operation.cmd.xfer_broadcast.buf = (char*)dbuf;
 
-	status = PAMI_Collective(state.context[0], &cbd->operation);
+	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue a broadcast on team %u", team);
+
+	// copy the data for the root separately
+	if (role == root)
+		memcpy(dbuf, sbuf, count*el);
 }
 
 void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
@@ -1208,10 +1255,10 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	cbd->operation.algorithm = always_works_alg[0];
 	cbd->operation.cmd.xfer_scatter.rcvbuf = (char*)dbuf;
 	cbd->operation.cmd.xfer_scatter.root = root;
-	cbd->operation.cmd.xfer_scatter.rtype = PAMI_BYTE;
+	cbd->operation.cmd.xfer_scatter.rtype = PAMI_TYPE_CONTIGUOUS;
 	cbd->operation.cmd.xfer_scatter.rtypecount = el*count;
 	cbd->operation.cmd.xfer_scatter.sndbuf = (char*)sbuf;
-	cbd->operation.cmd.xfer_scatter.stype = PAMI_BYTE;
+	cbd->operation.cmd.xfer_scatter.stype = PAMI_TYPE_CONTIGUOUS;
 	cbd->operation.cmd.xfer_scatter.stypecount = el*count;
 
 	fprintf(stderr, "Place %u executing scatter (%s)\n", state.myPlaceId, always_works_md[0].name);
@@ -1249,10 +1296,10 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
 	cbd->operation.algorithm = always_works_alg[0];
 	cbd->operation.cmd.xfer_alltoall.rcvbuf = (char*)dbuf;
-	cbd->operation.cmd.xfer_alltoall.rtype = PAMI_BYTE;
+	cbd->operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_CONTIGUOUS;
 	cbd->operation.cmd.xfer_alltoall.rtypecount = el*count;
 	cbd->operation.cmd.xfer_alltoall.sndbuf = (char*)sbuf;
-	cbd->operation.cmd.xfer_alltoall.stype = PAMI_BYTE;
+	cbd->operation.cmd.xfer_alltoall.stype = PAMI_TYPE_CONTIGUOUS;
 	cbd->operation.cmd.xfer_alltoall.stypecount = el*count;
 
 	fprintf(stderr, "Place %u executing all-to-all (%s)\n", state.myPlaceId, always_works_md[0].name);
@@ -1292,10 +1339,10 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	cbd->operation.cmd.xfer_allreduce.dt = DATATYPE_CONVERSION_TABLE[dtype];
 	cbd->operation.cmd.xfer_allreduce.op = OPERATION_CONVERSION_TABLE[op];
 	cbd->operation.cmd.xfer_allreduce.rcvbuf = (char*)dbuf;
-	cbd->operation.cmd.xfer_allreduce.rtype = PAMI_BYTE;
+	cbd->operation.cmd.xfer_allreduce.rtype = PAMI_TYPE_CONTIGUOUS;
 	cbd->operation.cmd.xfer_allreduce.rtypecount = count;
 	cbd->operation.cmd.xfer_allreduce.sndbuf = (char*)sbuf;
-	cbd->operation.cmd.xfer_allreduce.stype = PAMI_BYTE;
+	cbd->operation.cmd.xfer_allreduce.stype = PAMI_TYPE_CONTIGUOUS;
 	cbd->operation.cmd.xfer_allreduce.stypecount = count;
 
 	fprintf(stderr, "Place %u executing allreduce (%s)\n", state.myPlaceId, always_works_md[0].name);
