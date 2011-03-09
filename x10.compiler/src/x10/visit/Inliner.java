@@ -708,8 +708,12 @@ public class Inliner extends ContextVisitor {
             return null;
         }
         Node ast = candidateJob.ast();
-        if (null == ast) {
-            report("unable to find ast for candidated: " +candidate, call);
+        if (null == ast || candidateJob.reportedErrors()) {
+            if (null == ast) {
+                report("unable to find ast for candidate: " +candidate, call);
+            } else {
+                report("invalid ast for candidate: " +candidate, call);
+            }
             getInlinerCache().notInlinable(candidate);
             getInlinerCache().badJob(candidateJob);
             return null;
