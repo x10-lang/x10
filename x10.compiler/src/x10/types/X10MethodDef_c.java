@@ -14,8 +14,11 @@ package x10.types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.HashSet;
 
 import polyglot.ast.TypeNode;
+import polyglot.ast.Node;
+import polyglot.ast.Expr;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef_c;
@@ -34,6 +37,7 @@ import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerms;
@@ -43,6 +47,7 @@ import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
+import x10.ast.X10Call_c;
 
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     private static final long serialVersionUID = -9049001281152283179L;
@@ -53,6 +58,28 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     List<LocalDef> formalNames;
     Ref<XTerm> body;
     Ref<? extends Type> offerType;
+
+    private HashSet<X10MethodDef_c> propertyMethodTransitivelyCalls = null; //null - haven't calculated it
+    public void calcPropertyMethodTransitivelyCalls(Expr expr) {
+        if (propertyMethodTransitivelyCalls==null) propertyMethodTransitivelyCalls=new HashSet<X10MethodDef_c>();
+        expr.visit( new NodeVisitor() {
+            @Override
+            public Node override(Node n) {
+                if (n instanceof X10Call_c) {
+                    X10Call_c call = (X10Call_c) n;
+                    X10MethodDef_c callingDef = (X10MethodDef_c) call.methodInstance().def();
+                    propertyMethodTransitivelyCalls.add(callingDef);
+                    if (callingDef.propertyMethodTransitivelyCalls!=null)
+                        propertyMethodTransitivelyCalls.addAll(callingDef.propertyMethodTransitivelyCalls);
+                }
+                return null;
+            }
+        });
+    }
+    public boolean isCircularPropertyMethod(Expr expr) {
+        calcPropertyMethodTransitivelyCalls(expr);
+        return propertyMethodTransitivelyCalls.contains(this);
+    }
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
             Ref<? extends ContainerType> container,

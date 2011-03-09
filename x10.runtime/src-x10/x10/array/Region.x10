@@ -42,6 +42,10 @@ public abstract class Region(
      */
     rail: boolean
 ) implements Iterable[Point(rank)] {
+    public property rank():int = rank;
+    public property rect():boolean = rect;
+    public property zeroBased():boolean = zeroBased;
+    public property rail():boolean = rail;
 
     //
     // factories

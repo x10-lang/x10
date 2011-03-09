@@ -53,7 +53,7 @@ public class InterfaceTypeInvariant_MustFailCompile extends x10Test {
       public def put()=0;
 	}
 
-    class Tester(l: int, m:int){m == 2 && l == 3} implements Test{ // InterfaceTypeInvariant_MustFailCompile.Tester should be declared abstract; it does not define n(): x10.lang.Int, which is declared in InterfaceTypeInvariant_MustFailCompile.Test
+    class Tester(n: int, m:int){m == 2 && n == 3} implements Test{ 
         public property n():int = n;
         @ERR public property m():int = m;
       public def this():Tester = { property(3,2); }

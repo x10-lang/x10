@@ -5489,3 +5489,63 @@ struct StructCannotBeUsedInGlobalRef {
   private val root = new GlobalRef(this); // ERR ERR
 }
 
+class RuntimeChecksOfConstraintsInGenerics {
+    public static def main(args: Array[String]) {
+        val arr = new Array[Int{self==3}](0..100, ([p]:Point(1))=>3);
+		//arr(0) = 1; // err: Cannot assign expression to array element of given type.             Expression: 1             Type: x10.lang.Int{self==1}             Array element: arr(0)             Type: x10.lang.Int{self==3}    
+		arr(0) = 3; 
+		val arrAlias = (arr as Any) as Array[Int]; // it should have failed HERE
+		arrAlias(0) = 1; 
+		val x:Int{self==3} = arr(0); // Broke type safety
+		assert x==3 : "We should have failed before"; // but it fails HERE 
+    }
+}
+
+class PropDefConstraint_Circular(a: Boolean) { // see XTENLANG-2426
+
+	@ERR @ERR property def prop1(i:Boolean):Boolean = {  prop1(i) }
+	property prop2():Boolean = prop1(true);
+	@ERR @ERR property propA():Boolean = propB();
+	@ERR @ERR property propB():Boolean = propA();
+
+	 def pMethod(j:Boolean) {prop1(j)} {} //this creates a cyclic constraint
+	 def a() {prop2()} {}
+	 def b() {propA()} {}
+	 def c() {propB()} {}
+
+    public def run()
+    {
+		val p = new PropDefConstraint_Circular(true);
+        p.pMethod(true); // ERR
+		p.a(); // ERR
+		p.b(); // ERR
+		p.c(); // ERR
+    }
+}
+class TestPropertsFieldsAndNullaryPropertyMethods(m:Int, q:String, w:Int) {
+    public property z():Int = 3;
+    public property n():Int = n; // ERR ERR (circularity)
+    public property m():Int = m;
+	public property q():Double = 2.2;
+	def test() {
+		val x1:Int = m;
+		val x2:Int = m();
+		val x3:String = q;
+		val x4:Double = q();
+		val x5:Int = z;
+		val x6:Int = z();
+		val x7:Int = w;
+		val x8:Int = w(); // ERR
+	}
+
+	class Super {
+		property a():Int = 1;
+	}
+	class Sub(a:String) extends Super {
+		def test(sub:Sub) {
+			val sup:Super = sub;
+			val x1:Int = sup.a;
+			val x2:String = sub.a;
+		}
+	}
+}
