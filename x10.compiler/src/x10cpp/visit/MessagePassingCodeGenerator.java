@@ -1633,7 +1633,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				List<Type> formals = dropzone.formalTypes();
 				// do we have a matching method? (i.e. one the x10 programmer has written)
 				if (methodsNoConstraints(currentClass, mname, formals, context).size() > 0) continue;
-				if (dropzone.typeParameters().size() >0) continue; // DG HACK!!!!!
+				// if (dropzone.typeParameters().size() >0) continue; // DG HACK!!!!!
 				// otherwise we need to add a proxy.
 				//System.out.println("Not found: "+dropzone);
 				assert (!dropzone.flags().isStatic());
