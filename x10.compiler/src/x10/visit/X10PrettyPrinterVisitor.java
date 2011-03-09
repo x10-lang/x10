@@ -1983,7 +1983,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("(");
                     er.printType(castType, PRINT_TYPE_PARAMS);
                     w.write(")");
+                    w.write("(");
                     c.print(e, w, tr);
+                    w.write(")");
                     w.write(")");
         	    }
         	    else {
