@@ -1633,6 +1633,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				List<Type> formals = dropzone.formalTypes();
 				// do we have a matching method? (i.e. one the x10 programmer has written)
 				if (methodsNoConstraints(currentClass, mname, formals, context).size() > 0) continue;
+				if (dropzone.typeParameters().size() >0) continue; // DG HACK!!!!!
 				// otherwise we need to add a proxy.
 				//System.out.println("Not found: "+dropzone);
 				assert (!dropzone.flags().isStatic());
@@ -1876,9 +1877,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		
 		if (def.typeParameters().size() != 0) {
-		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
-		    sw.write("#endif // "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
 		    sw.popCurrentStream();
+		    if (!flags.isStatic() && !container.isX10Struct()) {
+		        emitter.generateGenericMethodDispatcher(dec, h, context.genericFunctions, sw.body(), tr, methodName, ret_type);
+		    }
+		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
+		    context.genericFunctions.writeln("#endif // "+guard+"_"+mi.name().toString()+"_"+mid);
 		}
 	}
 

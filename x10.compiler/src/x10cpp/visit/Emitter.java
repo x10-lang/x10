@@ -587,6 +587,8 @@ public class Emitter {
 		MethodInstance mi = (MethodInstance) def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
 		boolean isStruct = container.isX10Struct();
+		boolean nonVirtualDispatch = flags.isStatic() || isStruct || flags.isProperty() || flags.isPrivate();
+		boolean genericVirtual = !nonVirtualDispatch && def.typeParameters().size() > 0;
 
 		h.begin(0);
 
@@ -601,35 +603,9 @@ public class Emitter {
 		printTemplateSignature(def.typeParameters(), h);
 
 		if (!qualify) {
-			if (flags.isStatic())
+			if (flags.isStatic()) {
 				h.write(flags.retain(Flags.STATIC).translateJava());
-			else if (def.typeParameters().size() != 0) {
-			    X10ClassDef cd = (X10ClassDef) Types.get(def.container()).toClass().def();
-			    if (!flags.isFinal() && !cd.flags().isFinal() && !cd.isStruct()) {
-			        // FIXME: [IP] for now just make non-virtual.
-			        // In the future, will need to have some sort of dispatch object, e.g. the following:
-			        // class Foo { def m[T](a: X): Y { ... } }; class Bar extends Foo { def m[T](a: X): Y { ... } }
-			        // translates to
-			        // template<class T> class Foo_m {
-			        //    Y _(Foo* f, X a) {
-			        //       if (typeid(f)==typeid(Foo)) { return f->Foo::m_impl<T>(a); }
-			        //       else if (typeid(f)==typeid(Bar)) { return f->Bar::m_impl<T>(a); }
-			        //    }
-			        // };
-			        // class Foo {
-			        //    public: template<class T> Y m(X a) { Foo_m<T>::_(this, a); }
-			        //    public: template<class T> Y m_impl(X a);
-			        // };
-			        // class Bar : public Foo {
-			        //    public: template<class T> Y m_impl(X a);
-			        // };
-			        String msg = n.methodDef()+" is generic and non-final, disabling virtual binding for this method";
-			        Warnings.issue(tr.job(), msg, n.position());
-			    }
-			}
-            // [DC] there is no benefit to omitting the virtual keyword as we can
-            // statically bind CALLS to final methods and methods that are members of final classes
-			else if (!isStruct && !flags.isProperty() && !flags.isPrivate()) {
+			} else if (!(nonVirtualDispatch || genericVirtual)) {
 			    h.write("virtual ");
 			}
 		}
@@ -640,23 +616,7 @@ public class Emitter {
 		    h.write((container.isX10Struct() ? structMethodClass(container, true, true) : translateType(container))+ "::");
 		}
 		h.write(mangled_method_name(name));
-		h.write("(");
-		h.allowBreak(2, 2, "", 0);
-		h.begin(0);
-		if (isStruct && !flags.isStatic()) {
-		    h.write(translateType(container) +" this_");
-		    if (!n.formals().isEmpty()) h.write(", ");
-		}
-		for (Iterator<Formal> i = n.formals().iterator(); i.hasNext(); ) {
-			Formal f = i.next();
-			n.print(f, h, tr);
-			if (i.hasNext()) {
-				h.write(",");
-				h.allowBreak(0, " ");
-			}
-		}
-		h.end();
-		h.write(")");
+		printFormalDecls(n, h, tr, flags, container, isStruct);
 		
 		if (!qualify) {
 		    boolean noReturnPragma = false;
@@ -682,7 +642,118 @@ public class Emitter {
 				h.write(" = 0");
 		}
 	}
+	
+    private void printFormalDecls(X10MethodDecl_c n, CodeWriter h, Translator tr, Flags flags, X10ClassType container,
+                                  boolean explicitThis) {
+        h.write("(");
+        h.allowBreak(2, 2, "", 0);
+        h.begin(0);
+        if (explicitThis && !flags.isStatic()) {
+		    h.write(translateType(container) +" this_");
+		    if (!n.formals().isEmpty()) h.write(", ");
+		}
+		for (Iterator<Formal> i = n.formals().iterator(); i.hasNext(); ) {
+			Formal f = i.next();
+			n.print(f, h, tr);
+			if (i.hasNext()) {
+				h.write(",");
+				h.allowBreak(0, " ");
+			}
+		}
+        h.end();
+        h.write(")");
+    }
 
+    String genericMethodDispatcherName(MethodInstance mi) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("_gmdt_"+mangled_method_name(mi.name().toString()));
+        sb.append("_"+mi.formalTypes().size());
+        for (Type ft : mi.formalTypes()) {
+            sb.append("_"+mangled_non_method_name(ft.name().toString()));
+        }
+        
+        return sb.toString();
+    }
+    
+    void generateGenericMethodDispatcher(X10MethodDecl_c n, CodeWriter header, CodeWriter genericFunctions, CodeWriter classBody, 
+                                         Translator tr, String name, Type ret) {
+        Flags flags = n.flags().flags();
+        X10MethodDef def = (X10MethodDef) n.methodDef();
+        MethodInstance mi = (MethodInstance) def.asInstance();
+        X10ClassType container = (X10ClassType) mi.container();
+
+        String dispatcherClassCName = genericMethodDispatcherName(mi);
+        String containerCClassName = translateType(container, false);
+        String containerCName = translateType(container, true);
+        boolean rootMethod = mi.overrides(tr.context()).size() == 1;
+        if (rootMethod) {
+            String retCType = translateType(ret);
+            printTemplateSignature(def.typeParameters(), header);
+            header.write("class "+dispatcherClassCName+" {"); header.newline(4); header.begin(0);
+            header.writeln("static int _id;");
+            header.writeln("public:");
+            header.writeln("static int init();");
+            header.write("static "+retCType+" invoke("+containerCName+" this_");
+            int argNum = 0;
+            for (Type ft : mi.formalTypes()) {
+                header.write(", "+translateType(ft, true)+" arg"+argNum);
+                argNum++;
+            }
+            header.write(") {"); header.newline(4); header.begin(0);
+            StringBuilder fpType = new StringBuilder();
+            fpType.append("x10aux::dispatcher<"+retCType+"("+containerCClassName+"::*)("); 
+            boolean firstTime = true;
+            for (Type ft : mi.formalTypes()) {
+                if (firstTime) {
+                    firstTime = false;
+                } else {
+                    fpType.append(", ");
+                }
+                fpType.append(translateType(ft, true));
+            }
+            fpType.append(")>");
+            String fpCType = fpType.toString();
+            header.writeln(fpCType+" disp = ("+fpCType+")(this_->_disp_"+dispatcherClassCName+"());");
+            if (!ret.isVoid()) header.write("return ");
+            header.write("(this_->*(disp->get(_id)))(");
+            for (argNum = 0; argNum<mi.formalTypes().size(); argNum++) {
+                header.write((argNum > 0 ? ", arg" : "arg")+argNum);
+            }
+            header.writeln(");");
+            header.end(); header.newline();
+            header.write("}"); 
+            header.end(); header.newline();
+            header.writeln("};");
+            
+            printTemplateSignature(((X10ClassType)Types.get(n.methodDef().container())).x10Def().typeParameters(), genericFunctions);
+            printTemplateSignature(def.typeParameters(), genericFunctions);
+            StringBuilder fqdc = new StringBuilder();
+            fqdc.append(containerCClassName+"::"+dispatcherClassCName+"<");
+            boolean first = true;
+            for (ParameterType pt : def.typeParameters()) {
+                if (first) {
+                    first = false;
+                } else {
+                    fqdc.append(", ");
+                }
+                fqdc.append(translateType(pt));
+            }
+            fqdc.append(" >");
+            String fqdcStr = fqdc.toString();
+            genericFunctions.write(" int "+fqdcStr+"::_id = "+fqdcStr+"::init();"); genericFunctions.newline();
+        }
+
+        String dispatcherCType = "x10aux::dispatcher<void("+containerCClassName+"::*)()>";
+        header.writeln("static "+dispatcherCType+" _dispTable_"+dispatcherClassCName+";");
+        header.writeln("virtual void* _disp_"+dispatcherClassCName+"() { return &_dispTable_"+dispatcherClassCName+"; }");
+        header.forceNewline();
+        
+        printTemplateSignature(((X10ClassType)Types.get(n.methodDef().container())).x10Def().typeParameters(), classBody);
+        classBody.writeln(" "+dispatcherCType+" "+containerCClassName+"::_dispTable_"+dispatcherClassCName+";");
+        classBody.forceNewline();
+    }
+
+    
 	void printHeader(Formal_c n, CodeWriter h, Translator tr, boolean qualify) {
 //		Flags flags = n.flags().flags();
 		h.begin(0);
