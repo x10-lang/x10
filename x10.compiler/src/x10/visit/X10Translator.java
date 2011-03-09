@@ -200,6 +200,7 @@ public class X10Translator extends Translator {
         	StringBuilder sb0 = new StringBuilder();
         	sb0.append(options.constructPostCompilerClasspath());
         	
+        	/* TO BE REMOVED
         	// append sourcepath of x10 compiler to classpath of post java compiler
         	// to let the java compiler find the source code of java native library.
         	// N.B. we cannot pass sourcepath to the java compiler because sourcepath of
@@ -209,10 +210,38 @@ public class X10Translator extends Translator {
         		sb0.append(File.pathSeparator);
         		sb0.append(fileiter.next().getAbsolutePath());
         	}
+        	*/
         	
             javacCmd.add("-classpath");
             javacCmd.add(sb0.toString());
             
+            /* TO BE REMOVED
+            // set sourcepath of x10 compiler to post java compiler
+            // to let the java compiler find the source code of java native library.
+            // N.B. we must remove x10.jar from source path since it does not include
+            // source code of java native library.
+            Iterator<File> fileiter = options.source_path.iterator();
+            if (fileiter.hasNext()) {
+                boolean hasPaths = false;
+                sb0 = new StringBuilder();
+                while (fileiter.hasNext()) {
+                    File file = fileiter.next();
+                    if (file.isDirectory()) {
+                        if (hasPaths) {
+                            sb0.append(File.pathSeparator);
+                        } else {
+                            hasPaths = true;
+                        }
+                        sb0.append(file.getAbsolutePath());
+                    }
+                }
+                if (hasPaths) {
+                    javacCmd.add("-sourcepath");
+                    javacCmd.add(sb0.toString());
+                }
+            }
+            */
+
             Iterator<String> iter = compiler.outputFiles().iterator();
             while (iter.hasNext()) {
                 javacCmd.add(iter.next());
