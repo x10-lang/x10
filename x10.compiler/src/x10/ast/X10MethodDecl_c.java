@@ -433,7 +433,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
 
 				} catch (SemanticException z) {
-					throw new InternalCompilerError("Unexpected inconsistent guard" + z);
+					// inconsistent guard -- ignore
 				}
 				//        ((X10Context) c).setCurrentConstraint(vc.get());
 				//        ((X10Context) c).setCurrentTypeConstraint(tc.get());
