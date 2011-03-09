@@ -1134,7 +1134,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					w.write(X10_RUNTIME_TYPE_CLASS);
 //					w.write("<"); n.print(tp, w, tr); w.write(">");  // TODO
 					w.write(" ");
+					// WIP XTENLANG-2463
 					n.print(tp.name(), w, tr);
+//					w.write(Emitter.mangleTypeVariable(tp.name().id()));
 					w.write(";");
 					w.newline();
 				}

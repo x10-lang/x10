@@ -393,6 +393,13 @@ public class Emitter {
 	        return str;
 	}
 
+	// WIP XTENLANG-2463
+    public static String mangleTypeVariable(Name name) {
+    	String mangledName = mangleToJava(name);
+    	mangledName = "$" + mangledName;
+    	return mangledName;
+    }
+
 	/**
 	 * Support "inline" .xcd so that you dont have to create a separate xcd file
 	 * for a short code fragment.
@@ -2757,7 +2764,9 @@ public class Emitter {
                   ParameterType pt = def.typeParameters().get(i);
                   w.write("if (i ==" + i + ")");
                   w.write("return ");
-                  w.write(Emitter.mangleToJava(pt.name()));
+                  // WIP XTENLANG-2463
+                  w.write(mangleToJava(pt.name()));
+//                  w.write(mangleTypeVariable(pt.name()));
                   w.write(";");
               }
                 w.write("return null;");
