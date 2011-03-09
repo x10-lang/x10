@@ -1245,26 +1245,37 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
 	// select a algorithm, and issue the collective
-	x10rt_pami_team_callback *cbd = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
-	cbd->tcb = ch;
-	cbd->arg = arg;
-	memset(&cbd->operation, 0, sizeof (cbd->operation));
-	cbd->operation.cb_done = collective_operation_complete;
-	cbd->operation.cookie = cbd;
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	tcb->tcb = ch;
+	tcb->arg = arg;
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
-	cbd->operation.algorithm = always_works_alg[0];
-	cbd->operation.cmd.xfer_scatter.rcvbuf = (char*)dbuf;
-	cbd->operation.cmd.xfer_scatter.root = root;
-	cbd->operation.cmd.xfer_scatter.rtype = PAMI_TYPE_CONTIGUOUS;
-	cbd->operation.cmd.xfer_scatter.rtypecount = el*count;
-	cbd->operation.cmd.xfer_scatter.sndbuf = (char*)sbuf;
-	cbd->operation.cmd.xfer_scatter.stype = PAMI_TYPE_CONTIGUOUS;
-	cbd->operation.cmd.xfer_scatter.stypecount = el*count;
+	tcb->operation.algorithm = always_works_alg[0];
+	tcb->operation.cmd.xfer_scatter.rcvbuf = (char*)dbuf;
+	if (team == 0)
+		tcb->operation.cmd.xfer_scatter.root = root;
+	else
+		tcb->operation.cmd.xfer_scatter.root = state.teams[team].places[root];
+	tcb->operation.cmd.xfer_scatter.rtype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_scatter.rtypecount = el*count;
+	tcb->operation.cmd.xfer_scatter.sndbuf = (char*)sbuf;
+	tcb->operation.cmd.xfer_scatter.stype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_scatter.stypecount = el*count;
 
-	fprintf(stderr, "Place %u executing scatter (%s)\n", state.myPlaceId, always_works_md[0].name);
-
-	status = PAMI_Collective(state.context[0], &cbd->operation);
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing scatter (%s)\n", state.myPlaceId, always_works_md[0].name);
+	#endif
+	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue a scatter on team %u", team);
+
+	// copy the root data from src to dst locally
+	if (role == root)
+	{
+		int blockSize = el*count;
+		memcpy(((char*)dbuf)+(blockSize*role), ((char*)sbuf)+(blockSize*role), blockSize);
+	}
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
@@ -1287,25 +1298,30 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
 	// select a algorithm, and issue the collective
-	x10rt_pami_team_callback *cbd = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
-	cbd->tcb = ch;
-	cbd->arg = arg;
-	memset(&cbd->operation, 0, sizeof (cbd->operation));
-	cbd->operation.cb_done = collective_operation_complete;
-	cbd->operation.cookie = cbd;
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	tcb->tcb = ch;
+	tcb->arg = arg;
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
-	cbd->operation.algorithm = always_works_alg[0];
-	cbd->operation.cmd.xfer_alltoall.rcvbuf = (char*)dbuf;
-	cbd->operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_CONTIGUOUS;
-	cbd->operation.cmd.xfer_alltoall.rtypecount = el*count;
-	cbd->operation.cmd.xfer_alltoall.sndbuf = (char*)sbuf;
-	cbd->operation.cmd.xfer_alltoall.stype = PAMI_TYPE_CONTIGUOUS;
-	cbd->operation.cmd.xfer_alltoall.stypecount = el*count;
+	tcb->operation.algorithm = always_works_alg[0];
+	tcb->operation.cmd.xfer_alltoall.rcvbuf = (char*)dbuf;
+	tcb->operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_alltoall.rtypecount = el*count;
+	tcb->operation.cmd.xfer_alltoall.sndbuf = (char*)sbuf;
+	tcb->operation.cmd.xfer_alltoall.stype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_alltoall.stypecount = el*count;
 
-	fprintf(stderr, "Place %u executing all-to-all (%s)\n", state.myPlaceId, always_works_md[0].name);
-
-	status = PAMI_Collective(state.context[0], &cbd->operation);
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing all-to-all (%s)\n", state.myPlaceId, always_works_md[0].name);
+	#endif
+	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all on team %u", team);
+
+	// copy the local section of data from src to dst
+	int blockSize = el*count;
+	memcpy(((char*)dbuf)+(blockSize*role), ((char*)sbuf)+(blockSize*role), blockSize);
 }
 
 void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
@@ -1328,26 +1344,27 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
 	// select a algorithm, and issue the collective
-	x10rt_pami_team_callback *cbd = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
-	cbd->tcb = ch;
-	cbd->arg = arg;
-	memset(&cbd->operation, 0, sizeof (cbd->operation));
-	cbd->operation.cb_done = collective_operation_complete;
-	cbd->operation.cookie = cbd;
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	tcb->tcb = ch;
+	tcb->arg = arg;
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
-	cbd->operation.algorithm = always_works_alg[0];
-	cbd->operation.cmd.xfer_allreduce.dt = DATATYPE_CONVERSION_TABLE[dtype];
-	cbd->operation.cmd.xfer_allreduce.op = OPERATION_CONVERSION_TABLE[op];
-	cbd->operation.cmd.xfer_allreduce.rcvbuf = (char*)dbuf;
-	cbd->operation.cmd.xfer_allreduce.rtype = PAMI_TYPE_CONTIGUOUS;
-	cbd->operation.cmd.xfer_allreduce.rtypecount = count;
-	cbd->operation.cmd.xfer_allreduce.sndbuf = (char*)sbuf;
-	cbd->operation.cmd.xfer_allreduce.stype = PAMI_TYPE_CONTIGUOUS;
-	cbd->operation.cmd.xfer_allreduce.stypecount = count;
+	tcb->operation.algorithm = always_works_alg[0];
+	tcb->operation.cmd.xfer_allreduce.dt = DATATYPE_CONVERSION_TABLE[dtype];
+	tcb->operation.cmd.xfer_allreduce.op = OPERATION_CONVERSION_TABLE[op];
+	tcb->operation.cmd.xfer_allreduce.rcvbuf = (char*)dbuf;
+	tcb->operation.cmd.xfer_allreduce.rtype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_allreduce.rtypecount = count;
+	tcb->operation.cmd.xfer_allreduce.sndbuf = (char*)sbuf;
+	tcb->operation.cmd.xfer_allreduce.stype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_allreduce.stypecount = count;
 
-	fprintf(stderr, "Place %u executing allreduce (%s)\n", state.myPlaceId, always_works_md[0].name);
-
-	status = PAMI_Collective(state.context[0], &cbd->operation);
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing allreduce (%s)\n", state.myPlaceId, always_works_md[0].name);
+	#endif
+	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an allreduce on team %u", team);
 }
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100
