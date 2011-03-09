@@ -1878,7 +1878,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		
 		if (def.typeParameters().size() != 0) {
 		    sw.popCurrentStream();
-		    if (!flags.isStatic() && !container.isX10Struct()) {
+		    if (false && !flags.isStatic() && !container.isX10Struct()) {
 		        emitter.generateGenericMethodDispatcher(dec, h, context.genericFunctions, sw.body(), tr, methodName, ret_type);
 		    }
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
