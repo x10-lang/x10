@@ -19,6 +19,16 @@ public class FieldInstance_c extends VarInstance_c<FieldDef> implements FieldIns
         return container;
     }
 
+    @Override
+    public Object constantValue() {
+        return flags().isTransient() ? null : super.constantValue();
+    }
+
+    @Override
+    public boolean isConstant() {
+        return flags().isTransient() ? false : super.isConstant();
+    }
+    
     public FieldInstance container(ContainerType container) {
         FieldInstance_c v = (FieldInstance_c) copy();
         v.container = container;
@@ -38,6 +48,7 @@ public class FieldInstance_c extends VarInstance_c<FieldDef> implements FieldIns
     }
 
     public FieldInstance constantValue(Object o) {
+        assert !flags.isTransient() : "Should not set constantValue of a transient field";
         return (FieldInstance) super.constantValue(o);
     }
 
