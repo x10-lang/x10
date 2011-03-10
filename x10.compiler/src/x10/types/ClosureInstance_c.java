@@ -93,9 +93,9 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
                 String s = "";
                 String t = formalTypes.get(i).toString();
                 if (formalNames != null && i < formalNames.size()) {
-                    LocalInstance a = formalNames.get(i);
-                    if (a != null && ! a.name().toString().equals(""))
-                        s = a.name() + ": " + t; 
+                    X10LocalInstance a = (X10LocalInstance) formalNames.get(i);
+                    if (a != null && ! a.x10Def().isUnnamed())
+                        s = a.name() + ": " + t;
                     else
                         s = t;
                 }
