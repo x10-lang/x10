@@ -41,7 +41,10 @@ namespace x10aux {
 
     template<class T> __device__ cuda_array<T> *nullCheck (cuda_array<T> &v) { return &v; }
 
+
 }
+
+__device__ void _X10_STATEMENT_HOOK() { }
 
 namespace x10 { namespace util {
 
