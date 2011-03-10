@@ -2547,6 +2547,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
 	                "Statement expression node encountered, but statement expressions are disabled: ", n.position());
 	    }
+        boolean oldSemiColon = tr.appendSemicolon(true);
 	    sw.write("(__extension__ ({");
 	    sw.newline(4); sw.begin(0);
 	    List<Stmt> stmts = n.statements();
@@ -2563,6 +2564,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	    sw.end(); sw.newline();
 	    sw.write("}))"); sw.newline();
+	    tr.appendSemicolon(oldSemiColon);
 	}
 
 
