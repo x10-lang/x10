@@ -265,7 +265,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // XTENLANG-1407: Remove this memset call once we finish the default value specification/implementation.
             //                Expect it to be more efficient to explicitly initialize all of the object fields instead
             //                of first calling memset, then storing into most of the fields a second time.
-            sw.write("(new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"())");
+            sw.write("x10aux::ref"+chevrons(typeName)+"((new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"()))");
             sw.newline();
         }
     }
@@ -1075,7 +1075,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// (h,cc) pairing for non-generic classes.
 
 		// TODO: sort by namespace and combine things in the same namespace
-		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class, Tuple_c.class);
+		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class, Tuple_c.class, Allocation_c.class);
 		n.visit(xTypes);
 		ArrayList<ClassType> types = new ArrayList<ClassType>();
 		Set<ClassType> dupes = CollectionFactory.newHashSet();
@@ -1099,6 +1099,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     extractAllClassTypes(c.interfaces().get(0), types, dupes);
 		        } else if (tn instanceof Tuple_c) {
 		            extractAllClassTypes(((Tuple_c) tn).type(), types, dupes);
+		        } else if (tn instanceof Allocation_c) {
+                    extractAllClassTypes(((Allocation_c) tn).type(), types, dupes);
+		            
 		        }
 		    }
         }
