@@ -259,6 +259,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         Type type = n.type();
         sw.allowBreak(0, " ");
         String typeName = Emitter.translateType(type);
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        if (null != context.getStackAllocName()) return;
         if (Types.isX10Struct(type)) {
             sw.write(typeName+ "::" +SharedVarsMethods.ALLOC+ "()");
         } else {
