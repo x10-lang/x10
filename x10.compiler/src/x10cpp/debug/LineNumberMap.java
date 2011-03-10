@@ -400,7 +400,7 @@ public class LineNumberMap extends StringTable {
 	{
 		if (referenceMembers == null)
 			referenceMembers = new LinkedHashMap<Integer, ClassMapInfo>();
-		
+				
 		int id = stringId(name);
 		ClassMapInfo cm = referenceMembers.get(id);
 		if (cm == null)
@@ -438,7 +438,7 @@ public class LineNumberMap extends StringTable {
 				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("FMGL(").concat(temp);
 			}
 			referenceMembers.put(id, cm);
-		
+			
 			String innerType = getInnerType(type);
 			MemberVariableMapInfo v = new MemberVariableMapInfo();
 			v._x10type = determineTypeId(innerType);
@@ -446,7 +446,20 @@ public class LineNumberMap extends StringTable {
 				v._x10typeIndex = determineSubtypeId(innerType, arrayMap);
 			else
 				v._x10typeIndex = -1;
-			v._x10memberName = id;
+			if (refType == 210) // Debug team wants the target's name, not the variable name, for GlobalRefs
+			{
+				int nameStart=type.indexOf("self==");
+				if (nameStart == -1)
+					v._x10memberName = id;
+				else
+				{
+					nameStart+=6;
+					int nameEnd = type.indexOf(',', nameStart);
+					v._x10memberName = stringId(type.substring(nameStart, nameEnd));
+				}
+			}
+			else
+				v._x10memberName = id;
 			v._cppMemberName = v._x10memberName;
 			v._cppClass = stringId(cm._sizeOfArg);
 			cm._members.add(v);
