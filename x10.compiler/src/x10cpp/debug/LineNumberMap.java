@@ -347,7 +347,7 @@ public class LineNumberMap extends StringTable {
 			return 202;
 		if (type.startsWith("x10.array.Dist"))
 			return 201;
-		if (type.startsWith("x10.lang.Rail"))
+		if (type.startsWith("x10.lang.Place"))
 			return 204;
 		if (type.startsWith("x10.util.Random"))
 			return 205;
