@@ -31,10 +31,13 @@ public abstract class Region(
     rank: int,
     /**
      * Is the region rectangular?
+     * A rectangular region is defined to be region such that every point contained
+     * in the bounding box of the region is a point in the region.
      */
     rect: boolean,
     /**
      * Is the region zero-based?
+     * A region is zero based if for each dimension the min value is 0.
      */
     zeroBased: boolean,
     /**
@@ -54,14 +57,12 @@ public abstract class Region(
     /**
      * Construct an empty region of the specified rank.
      */
-
     public static @TempNoInline_0 def makeEmpty(rank: int): Region(rank){self!=null} = new EmptyRegion(rank);
      
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
      */
-
     public static def makeFull(rank: int): Region(rank){self !=null} = new FullRegion(rank);
     
     /**
@@ -360,8 +361,6 @@ public abstract class Region(
      * Returns the projection of a region onto all axes but the
      * specified axis.
      */
-
-   
     abstract public def eliminate(axis: int): Region /*(rank-1)*/;
 
 
@@ -372,7 +371,6 @@ public abstract class Region(
      *    for (p:Point in r)
      *        ... p ...
      */
-
     public abstract def iterator(): Iterator[Point(rank)];
 
 

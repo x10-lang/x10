@@ -65,7 +65,7 @@ public final class Array[T] (
         rank:int{self==region.rank},
         
         /**
-         * Is this array defined over a rectangular region?
+         * Is this array defined over a rectangular region?  
          */
         rect:boolean{self==region.rect},
         
@@ -141,6 +141,14 @@ Iterable[Point(region.rank)] {
     /**
      * Construct an Array over the region reg whose
      * values are initialized as specified by the init function.
+     * The function will be evaluated exactly once for each point
+     * in reg in an arbitrary order to 
+     * compute the initial value for each array element.</p>
+     * 
+     * It is unspecified whether the function evaluations will
+     * be done sequentially for each point by the current activity 
+     * or concurrently for disjoint sets of points by one or more 
+     * child activities. 
      * 
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
@@ -231,6 +239,15 @@ Iterable[Point(region.rank)] {
     /**
      * Construct Array over the region 0..(size-1) whose
      * values are initialized as specified by the init function.
+     * The function will be evaluated exactly once for each point
+     * in reg in an arbitrary order to 
+     * compute the initial value for each array element.</p>
+     * 
+     * It is unspecified whether the function evaluations will
+     * be done sequentially for each point by the current activity 
+     * or concurrently for disjoint sets of points by one or more 
+     * child activities. 
+     * 
      * 
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.

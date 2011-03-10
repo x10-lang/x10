@@ -115,8 +115,14 @@ public class DistArray[T] (
     /**
      * Create a distributed array over the argument distribution whose elements
      * are initialized by executing the given initializer function for each 
-     * element of the array in the place where the argument Point is mapped.
-     *
+     * element of the array in the place where the argument Point is mapped. 
+     * The function will be evaluated exactly once for each point
+     * in dist in an arbitrary order to compute the initial value for each array element.</p>
+     * 
+     * Within each place, it is unspecified whether the function evaluations will
+     * be done sequentially by a single activity for each point or concurrently for disjoint sets 
+     * of points by one or more child activities. 
+     * 
      * @param dist the given distribution
      * @param init the initializer function
      * @return the newly created DistArray
