@@ -361,33 +361,34 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
 
         if (! typeArgs.isEmpty()) {
             if (t instanceof X10ParsedClassType) {
-        	X10ParsedClassType ct = (X10ParsedClassType) t;
-        	int numParams = ct.x10Def().typeParameters().size();
-        	if (numParams > 0) {
-        	    if (numParams != typeArgs.size()) {
-        	        Errors.issue(tc.job(),
-        	                new Errors.NumberTypeArgumentsNotSameAsNumberTypeParameters(typeArgs.size(), ct.fullName(), numParams, n.position()));
-        	        typeArgs = new ArrayList<TypeNode>(typeArgs);
-        	        while (numParams < typeArgs.size()) {
-        	            typeArgs.remove(typeArgs.size()-1);
-        	        }
-        	        while (numParams > typeArgs.size()) {
-        	            typeArgs.add(nf.CanonicalTypeNode(Position.COMPILER_GENERATED, ts.Any()));
-        	        }
-        	    }
-        	    List<Type> typeArgsTypes = new ArrayList<Type>(numParams);
-        	    for (TypeNode tni : typeArgs) {
-        	        typeArgsTypes.add(tni.type());
-        	    }
-        	    t = ct.typeArguments(typeArgsTypes);
-        	    n = (AmbMacroTypeNode_c) n.typeArgs(Collections.<TypeNode>emptyList());
-        	    typeArgs = Collections.<TypeNode>emptyList();
-        	}
+                X10ParsedClassType ct = (X10ParsedClassType) t;
+                int numParams = ct.x10Def().typeParameters().size();
+                if (numParams != typeArgs.size()) {
+                    if (ct.error() == null) {
+                        SemanticException e = new Errors.NumberTypeArgumentsNotSameAsNumberTypeParameters(typeArgs.size(), ct.fullName(), numParams, n.position());
+                        Errors.issue(tc.job(), e, this);
+                        ct = ct.error(e);
+                    }
+                    typeArgs = new ArrayList<TypeNode>(typeArgs);
+                    while (numParams < typeArgs.size()) {
+                        typeArgs.remove(typeArgs.size()-1);
+                    }
+                    while (numParams > typeArgs.size()) {
+                        typeArgs.add(nf.CanonicalTypeNode(Position.COMPILER_GENERATED, ts.Any()));
+                    }
+                }
+                List<Type> typeArgsTypes = new ArrayList<Type>(numParams);
+                for (TypeNode tni : typeArgs) {
+                    typeArgsTypes.add(tni.type());
+                }
+                t = ct.typeArguments(typeArgsTypes);
+                n = (AmbMacroTypeNode_c) n.typeArgs(Collections.<TypeNode>emptyList());
+                typeArgs = Collections.<TypeNode>emptyList();
             }
         }
         if (n.flags != null) {
-        	t = Types.processFlags(n.flags, t);
-        	n.flags = null;
+            t = Types.processFlags(n.flags, t);
+            n.flags = null;
         }
 
         // Update the symbol with the base type so that if we try to get the type while checking the constraint, we don't get a cyclic

@@ -28,7 +28,7 @@ class Bla[T] extends Throwable
 		val z2 = // ShouldNotBeERR
 			new Bla[Bla](); // ERR
 		val z3 =
-			new Bla[Int[Int]](); // ShouldBeErr
+			new Bla[Int[Int]](); // ERR
 
 		val b1 =
 			null instanceof Bla[Int]
@@ -81,7 +81,7 @@ class Bla[T] extends Throwable
 	var s3:Bla[Int].S;
 	//var s4 = new Bla[Int].S(); // I would prefer it was a semantic error and not a parsing error!
 	var s5:
-		S[T]; // ShouldBeErr
+		S[T]; // ERR
 
 	var other:Bla[T] = null;
 
@@ -94,7 +94,7 @@ class Bla[T] extends Throwable
 	var i5:Bla[T].Inner =
 		new Bla(). new Inner(); // ERR (ctor type parameters are inferred if they can be!)
 	var i6:
-		Inner[T]; // ShouldBeErr
+		Inner[T]; // ERR
 
 	class Inner2[U] {}
 
