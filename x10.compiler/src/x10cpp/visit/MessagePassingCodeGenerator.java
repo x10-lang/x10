@@ -3846,18 +3846,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     public void visit(Conditional_c n) {
+        TypeSystem xts = tr.typeSystem();        
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        
         n.printSubExpr(n.cond(), false, sw, tr);
         sw.unifiedBreak(2);
         sw.write("? ");
-        sw.write("("+Emitter.translateType(n.type(), true)+")(");
+        if (!xts.typeDeepBaseEquals(n.type(), n.consequent().type(), context)) {
+            sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(n.type(), true)) + "(");
+        } else {
+            sw.write("(");
+        }
         sw.begin(0);
         n.printSubExpr(n.consequent(), true, sw, tr);
         sw.end();
         sw.write(")");
         sw.unifiedBreak(2);
         sw.write(": ");
-        sw.write("("+Emitter.translateType(n.type(), true)+")(");
+        if (!xts.typeDeepBaseEquals(n.type(), n.alternative().type(), context)) {
+            sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(n.type(), true)) + "(");
+        } else {
+            sw.write("(");
+        }
         sw.begin(0);
         n.printSubExpr(n.alternative(), true, sw, tr);
         sw.end();
