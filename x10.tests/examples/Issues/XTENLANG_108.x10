@@ -20,7 +20,7 @@ class XTENLANG_108 extends x10Test {
 
     static class R(rank:int) {
 
-        property rect = true;
+        property rect() = true;
         static type X(rank:int) = R{self.rank==rank};
         def this(rank:int) = property(rank);
 

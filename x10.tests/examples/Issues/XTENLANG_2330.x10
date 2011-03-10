@@ -271,27 +271,41 @@ class Helper2330(p:Int) {
 
 
 // Here I just test that post-compilation works on more complicated examples (but I don't check runtime behaviour)
+
+class GenericInstantiateTest[T] {
+	def test() {
+		new GenericInstantiateTest[Double](null); // ERR
+	}
+	def this(b:GenericInstantiateTest[T]) {b==null} {}
+}
+class NullTestInGuard(x:String) {
+	def m(b:NullTestInGuard) {b.x!=null}  = 1;
+	def test() {
+		val z = m(null);  // ERR:  Warning: Generated a dynamic check for the method guard.
+	}
+}
+
 class TestWithoutGenerics {
-	static def m2(a:Int, b:Outer.A) {a==44, b.x.x.y==35} = 1;
+	static def m2(a:Int, b:Outer.A) {a==44, b.x==null} = 1;
 
 	class Outer(zz:Int) {
-		class A(x:A,y:Int) {
+		class A(x:String,y:Int) {
 			def m0(a:Int, b:A) = 1;
-			def m(a:Int, b:A) {a==y, b.x.x.y==35, zz==33}  = 1; 
-			def this(a:A,b:A,c:Int) {a==null && b.x.x!=null && c==42, zz==c} : A {
+			def m(a:Int, b:A) {a==y, b.x==null, zz==33}  = 1;
+			def this(a:A,b:A,c:Int) {a==null && b.x!=null && c==42, zz==c} : A {
 				property(null,5);
 			}
 
 			def test(i:A,j:A,k:A, w:Int, h:TestWithoutGenerics, outer:Outer) {
-				val z = new A(k,i.x.x,3*4);  // ERR:  Warning: Generated a dynamic check for the method guard.
-				val z1 = outer.new A(k,i.x.x,3*4);  // ERR:  Warning: Generated a dynamic check for the method guard.
+				val z:A = new A(k,null,3*4);  // ERR:  Warning: Generated a dynamic check for the method guard.
+				val z1:A = outer.new A(k,null,3*4);  // ERR:  Warning: Generated a dynamic check for the method guard.
 
 				// this is what the compiler generate
 				val z2 = ((x0:A, x1:Int, x2:A)=> {
-						if (!(x1==x0.y && x2.x.x.y==35)) throw new ClassCastException();
+						if (!(x1==x0.y && x2.x==null)) throw new ClassCastException();
 						return x0.m0(x1,x2);
-					}) (j.x.x, w*2, i);
-				val z22 = j.x.x.m(w*2,i); // ERR: Warning: Generated a dynamic check for the method guard.
+					}) (null, w*2, i);
+				val z22 = j.m(w*2,i); // ERR: Warning: Generated a dynamic check for the method guard.
 				val z3 = h.m2(w*2,i);  // ERR:  Warning: Generated a dynamic check for the method guard.
 				val z4 = TestWithoutGenerics.m2(w*2,i);  // ERR:  Warning: Generated a dynamic check for the method guard.
 				m(w*2,this); // ERR:  Warning: Generated a dynamic check for the method guard.
@@ -302,26 +316,26 @@ class TestWithoutGenerics {
 	}
 }
 class TestWithGenerics {
-	static def m2(a:Int, b:Outer.A[Double]) {a==44, b.x.x.y==35} = 1;
+	static def m2(a:Int, b:Outer.A[Double]) {a==44} = 1;
 
 	class Outer(zz:Int) {
-		class A[T](x:A[T],y:Int) {
+		class A[T](x:String,y:Int) {
 			def m0(a:Int, b:A[T]) = 1;
-			def m(a:Int, b:A[T]) {a==y, b.x.x.y==35, zz==33}  = 1; 
-			def this(a:A[A[Int]],b:A[T],c:Int) {a==null && b.x.x!=null && c==42, zz==c} : A[T] {
+			def m(a:Int, b:A[T]) {a==y, b.x==null, zz==33}  = 1;
+			def this(a:A[A[Int]],b:A[T],c:Int) {a==null && b.x!=null && c==42, zz==c} : A[T] {
 				property(null,5);
 			}
 
 			def test(i:A[Double],j:A[Double],k:A[A[Int]], w:Int, h:TestWithGenerics, outer:Outer) {
-				val z = new A[Double](k,i.x.x,3*4);  // ERR:  Warning: Generated a dynamic check for the method guard.
-				// gives an error (see XTENLANG_2377) :val z1 = outer.new A[Double](k,i.x.x,3*4);  
+				val z:A[Double] = new A[Double](k,null,3*4);  // ERR:  Warning: Generated a dynamic check for the method guard.
+			    // gives an error (see XTENLANG_2377) :val z1 = outer.new A[Double](k,null,3*4);
 
 				// this is what the compiler generate
 				val z2 = ((x0:A[Double], x1:Int, x2:A[Double])=> {
-						if (!(x1==x0.y && x2.x.x.y==35)) throw new ClassCastException();
+						if (!(x1==x0.y && x2.x==null)) throw new ClassCastException();
 						return x0.m0(x1,x2);
-					}) (j.x.x, w*2, i);
-				val z22 = j.x.x.m(w*2,i); // ERR: Warning: Generated a dynamic check for the method guard.
+					}) (null, w*2, i);
+				val z22 = j.m(w*2,i); // ERR: Warning: Generated a dynamic check for the method guard.
 				val z3 = h.m2(w*2,i);  // ERR:  Warning: Generated a dynamic check for the method guard.
 				val z4 = TestWithGenerics.m2(w*2,i);  // ERR:  Warning: Generated a dynamic check for the method guard.
 				m(w*2,this); // ERR:  Warning: Generated a dynamic check for the method guard.

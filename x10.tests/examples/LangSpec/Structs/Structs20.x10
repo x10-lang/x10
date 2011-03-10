@@ -27,9 +27,9 @@ public class Structs20 extends x10Test {
 
 
 // file Structs line 117
- static struct Pair[T,U](t:T, u:U) {
-  def this(t:T, u:U) { property(t,u); }
-  def diag(){T==U && t==u} = t;
+ static struct Pair(t:Int,u:Int) {
+  def this(t:Int, u:Int):Pair{t==self.t&&u==self.u} { property(t,u); }
+  def diag(){t==u} = t;
 }
  static  class Hook{ def run() {
    val p = Pair(3,3);

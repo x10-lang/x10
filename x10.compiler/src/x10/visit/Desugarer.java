@@ -403,6 +403,8 @@ public class Desugarer extends ContextVisitor {
 
         final Position pos = n.position();
         List<Expr> args = binary_c!=null ? Arrays.asList(binary_c.left(), binary_c.right()) : procCall.arguments();
+        final List<LocalInstance> oldFormals = procInst.formalNames();
+        assert oldFormals.size()==args.size();
         Expr oldReceiver = null;
         final Receiver target;
         if (binary_c!=null)
@@ -421,8 +423,11 @@ public class Desugarer extends ContextVisitor {
 
         int i=0;
         for (Expr arg : args) {
-            Name xn = Name.make("x$"+(i++)); // to make sure it doesn't conflict/shaddow an existing field
-            final Type type = arg.type();
+            // The argument might be null, e.g., def m(b:Z) {b.x!=null}  = 1; ... m(null);
+            final LocalInstance oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
+            Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shaddow an existing field
+            i++;
+            final Type type = oldFormal!=null ? oldFormal.type() : arg.type();
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(type), xn);
             Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
                     nf.CanonicalTypeNode(pos,type), nf.Id(pos, xn)).localDef(xDef);
@@ -453,11 +458,10 @@ public class Desugarer extends ContextVisitor {
         // make a boolean expr out of the guardExpr (DepParameterExpr is ambiguous)
         Expr booleanGuard = guardExpr.get(0);
         for (int k=1; k<guardExpr.size(); k++) {
-            booleanGuard = nf.Binary(pos, booleanGuard, Binary.Operator.COND_AND, guardExpr.get(k));
+            booleanGuard = nf.Binary(pos, booleanGuard, Binary.Operator.COND_AND, guardExpr.get(k)).type(ts.Boolean());
         }
 
         // replace old formals in depExpr with the new locals
-        final List<LocalInstance> oldFormals = procInst.formalNames();
         final Map<Name,Expr> old2new = CollectionFactory.newHashMap(oldFormals.size());
         for (int k=0; k<newArgs.size(); k++) {
             LocalInstance old = oldFormals.get(k);
@@ -465,6 +469,8 @@ public class Desugarer extends ContextVisitor {
             old2new.put(old.name(),newE);
         }
         // replace all AmbExpr with the new locals
+        final X10TypeBuilder builder = new X10TypeBuilder(job, ts, nf);
+        final ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext);
         NodeVisitor replace = new NodeVisitor() {
             @Override
             public Node override(Node n) {
@@ -474,7 +480,7 @@ public class Desugarer extends ContextVisitor {
                     TypeNode qualifer = special.qualifier();
                     if (qualifer==null) return newReceiver;
                     // qualifer doesn't have type info because it was created in Synthesizer.makeExpr
-                    qualifer = (TypeNode) qualifer.visit(new X10TypeBuilder(job, ts, nf)).visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext));
+                    qualifer = (TypeNode) qualifer.visit(builder).visit(checker);
                     ClassType ct =  qualifer.type().toClass();
                     final ClassDef newReceiverDef = newReceiver.type().toClass().def();
                     final ClassDef qualifierDef = ct.def();
@@ -495,15 +501,18 @@ public class Desugarer extends ContextVisitor {
         Expr newDep = (Expr)booleanGuard.visit(replace);
         // if (!newDep) throw new UnsatisfiedGuardException(); return ...
         final Type resType = newExpr.type();
-        newDep = nf.Unary(pos, Unary.Operator.NOT, newDep);
+        newDep = nf.Unary(pos, Unary.Operator.NOT, newDep).type(ts.Boolean());
         If anIf = nf.If(pos, newDep, nf.Throw(pos,
                 nf.New(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.lang.UnsatisfiedGuardException")),
-                        CollectionUtil.<Expr>list(nf.StringLit(pos, guard.toString())))));
+                        CollectionUtil.<Expr>list(nf.StringLit(pos, guard.toString()))).type(ts.Throwable())));
         // if resType is void, then we shouldn't use return
-        Block body = nf.Block(pos, anIf, ts.isVoid(resType) ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
-        Closure c = closure(pos, resType, params, body, v);
-        c = (Closure) c.visit(new X10TypeBuilder(job, ts, nf).pushClass(v.context().currentClassDef()).pushCode(v.context().currentCode()))
-                       .visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(v.context()));
+        final boolean isVoid = ts.isVoid(resType);
+        Block body = nf.Block(pos, anIf, isVoid ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
+        body = (Block) body.visit(builder).visit(checker);
+//        body = (Block) body.visit(new X10TypeBuilder(job, ts, nf).pushClass(v.context().currentClassDef()).pushCode(v.context().currentCode()))
+//                       .visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(v.context()));
+        Type closureRet = procInst.returnType();          
+        Closure c = closure(pos, closureRet, params, body, v);
         MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, args).closureInstance(ci).type(resType);
     }

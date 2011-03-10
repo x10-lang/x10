@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.util.Box;
 
 /**
  * 
@@ -18,13 +19,14 @@ import harness.x10Test;
  */
 public class DefaultRefTypeDefTest extends x10Test {
 
-    static class Foo[T](n:int, s:T) {
-       def this(n:int, s:T):Foo[T](n,s) = {
+    static class Foo[T](n:int, s:Box[T]) {
+       def this(n:int, s:Box[T]):Foo[T](n,s) = {
          property(n,s);
        }
     }
     public def run() = {
-        x:Foo[String](2,"a") = new Foo[String](2,"a");
+        val b = new Box[String]("a");
+        x:Foo[String](2,b) = new Foo[String](2,b);
         true
     }
 

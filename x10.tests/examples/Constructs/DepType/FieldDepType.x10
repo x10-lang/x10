@@ -24,7 +24,7 @@ public class FieldDepType extends x10Test {
 	}
 	public def run(): boolean = {
 		m(f as Array[Double]{zeroBased, rect, rank==1});
-		return f(0)==10.0D; // ShouldNotBeERR
+		return f(0)==10.0D; // ShouldNotBeERR ShouldNotBeERR
 	}
 	public static def main(Array[String](1)): void = {
 		new FieldDepType().execute();

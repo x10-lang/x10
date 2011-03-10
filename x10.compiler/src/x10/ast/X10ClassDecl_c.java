@@ -932,6 +932,11 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 Errors.issue(tc.job(), new SemanticException("Interfaces that do not extend Annotation cannot have property fields. Use property methods instead.",position));                
             }
         }
+
+        // check properties are always simpler than their container
+        if (((X10ClassDef_c)classDef()).hasCircularProperty())
+            Errors.issue(tc.job(), new SemanticException("A class can only have properties of a 'simpler' type, i.e., there must be an ordering for all types such that if A has a property of type B then B is 'simpler' than A, and if A extends B then B is 'simpler' than A.",position));            
+
     	return n;
     }
     

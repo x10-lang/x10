@@ -20,7 +20,7 @@ import x10.util.Future;
 public class FutureFieldAccessStruct extends x10Test {
 
    static struct C[S] {
-        property p:int = 0;
+        property p():int = 0;
         val x:S;
         def foo() {}
         def foo(x:S) {}

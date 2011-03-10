@@ -618,9 +618,9 @@ class TestPropertiesAndFields(i:Int, j:Int) {
 	val i2 :Int{self==i} = i;
 	val j2 :Int{self==j};
 }
-class CheckCtorContextIsNotStatic[T](p:T) {
+class CheckCtorContextIsNotStatic[T](p:Array[T]) {
     public def this(o:Any) {
-        property(o as T);
+        property(o as Array[T]);
     }
 } 
 
@@ -1494,7 +1494,7 @@ class TestFieldsWithoutDefaults[T] {
 
 
 
-class EscapingCtorTest(p:EscapingCtorTest) {
+class EscapingCtorTest(p:String) {
 	var tt:EscapingCtorTest;
 	val w:Int;
 	val v1:Int = 1;
@@ -1508,7 +1508,7 @@ class EscapingCtorTest(p:EscapingCtorTest) {
 		this(i,null);
 	}
 	def this(a:EscapingCtorTest) {
-		property(a);
+		property(null);
 		val q:EscapingCtorTest = null;
 		w = 2;
 		val alias = q; 
@@ -1522,7 +1522,7 @@ class EscapingCtorTest(p:EscapingCtorTest) {
 		val inner = q.new Inner();
 	}
 	def this(i:Int,a:EscapingCtorTest) {
-		property(a);
+		property(null);
 		val q:EscapingCtorTest = null;
 		w = 4;
 		val alias = this; // ERR
@@ -2212,7 +2212,10 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 
 
 
-  private static class Box[T](t:T) {}
+  private static class Box[T] {
+    val t:T;
+    def this(t:T) { this.t = t; }
+  }
   def test() {
     val b:Box[Place{self==here}] = null;
 	val p1:Place{self==here} = b.t;
@@ -2274,7 +2277,7 @@ class OuterThisConstraint(i:Int) { // see XTENLANG-1932
 class NullaryPropertyMethod {
 	static class E(x:Int) {
 		property y() = x==2;
-		property z = x==2;
+		property z() = x==2;
 		
 		public static def test() {		
 			val e = new E(2);
@@ -4016,21 +4019,21 @@ class CachingResolverAssertionFailed { // see XTENLANG-2254
 
 
 class TestCircularStructs { // see XTENLANG-2187 
-	@ERR static struct Z(u:Z) {} 
+	static struct Z(u:Z) {} // ERR ERR: A class can only have properties of a 'simpler' type
 	static struct W {
 		@ERR val u:W; 
 		def this(u:W) { this.u = u; }
 	}
 	
-	@ERR static struct Cycle1(u:Cycle2) {} 
-	@ERR static struct Cycle2(u:Cycle1) {} 
+	static struct Cycle1(u:Cycle2) {} // ERR ERR: A class can only have properties of a 'simpler' type
+	static struct Cycle2(u:Cycle1) {} // ERR ERR: A class can only have properties of a 'simpler' type
 
 	// see XTENLANG-2144 that was closed
 	//TestStructStaticConstant
     static struct S {
         static val ONE = S();
     }
-	@ERR static struct U(u:U) {} 
+	static struct U(u:U) {} // ERR ERR: A class can only have properties of a 'simpler' type
 
 
     public static def main(Array[String]{rail}) {
@@ -4038,7 +4041,7 @@ class TestCircularStructs { // see XTENLANG-2187
     }
 }
 class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
-	@ERR static struct Z(u:Z) {}
+	static struct Z(u:Z) {} // ERR ERR: A class can only have properties of a 'simpler' type
 	static struct Z2 {
 		static val z2:Z2 = Z2();
 	}
@@ -4078,7 +4081,7 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	}
 
 	
-	static struct Box[T](b:T) {}
+	static struct Box[T] {}
 	@ERR static struct GA[T](a:Box[GB[T]]) {}
 	@ERR static struct GB[T](a:Box[GA[T]]) {}
 
@@ -4088,7 +4091,7 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 			this.t = t;
 		}
 	}
-	@ERR static struct Infinite2[T](t:Infinite2[T]) {}
+	static struct Infinite2[T](t:Infinite2[T]) {} // ERR ERR: A class can only have properties of a 'simpler' type
 	static struct GenStructUsage6 {
 		val x:Infinite[Int];
 		def this(x:Infinite[Int]) { this.x = x; }
@@ -4157,11 +4160,11 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	interface Comparable[T] {
         public property i():T;
 	}
-	class Foo(i:Foo) implements Comparable[Foo] {
-        public property i():Foo = i;
+	class Foo implements Comparable[Foo] {
+        public property i():Foo = null;
     }
-	class Foo2(i:Comparable[Foo2]) implements Comparable[Foo2] {
-        @ERR public property i():Comparable[Foo2] = i;
+	class Foo2 implements Comparable[Foo2] {
+        @ERR public property i():Comparable[Foo2] = null;
 	}
 }
 
@@ -5349,7 +5352,9 @@ class LoopTests {
 
 
 class XTENLANG_2491 {
-	static class B[T](t:T) {
+	static class B[T] {
+		val t:T;
+		def this(t:T) { this.t = t; }
 	  public static operator[T] (x:T) as B[T] = new B[T](x);
 	  public def equals(a:Any) {
 		if (a instanceof B[T]) {
@@ -5358,12 +5363,14 @@ class XTENLANG_2491 {
 		return false;
 	  }
 	}
-	static class MyBox[T](value:T) {	
-		public static operator[T](x:T):MyBox[T] = new MyBox[T](x);
+	static class MyBox[T] {	
+		public static operator[T](x:T):MyBox[T] = new MyBox[T]();
 	}
-	static class MyHashMap[K,V](old:V) {
+	static class MyHashMap[K,V] {
+		val t:V;
+		def this(t:V) { this.t = t; }
 		def get(): MyBox[V] {
-			return old as MyBox[V]; // should "as" do the system-as or the user-implicit-as? (currently it does the system-as, and fails at runtime with ClassCastException)
+			return t as MyBox[V]; // should "as" do the system-as or the user-implicit-as? (currently it does the system-as, and fails at runtime with ClassCastException)
 		}
 	}
 	static class Hello {
@@ -5547,5 +5554,29 @@ class TestPropertsFieldsAndNullaryPropertyMethods(m:Int, q:String, w:Int) {
 			val x1:Int = sup.a;
 			val x2:String = sub.a;
 		}
+	}
+}
+
+class PropertyTypeCannotBeParameterType[T](a:T) {} // ERR: A property type cannot be a type parameter.
+class SimplerPropertyTest {
+	class A(a:A) {} // ERR
+	class B(b:Int) {
+		def this() { property(2); }
+	}
+	class C(c:B) extends B {}
+	class D(e:E) {} // ERR
+	class E(d:D) {} // ERR
+	class F(g:G) { // ERR
+		def this() { property(null); }
+	}
+	class G extends F {} // ERR
+}
+
+class XTENLANG_2535[T](x:Array[T]) {
+	def this() { // ShouldNotBeERR: Invalid type; the real clause of type is inconsistent.
+		property(null);
+	}
+	def this(Int):XTENLANG_2535[T] { // ShouldNotBeERR: Invalid type; the real clause of type is inconsistent.
+		property(null);
 	}
 }

@@ -3551,6 +3551,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: PropertyMethodDeclaration ::= MethodModifiersopt Identifier WhereClauseopt HasResultTypeopt MethodBody
     void rule_PropertyMethodDeclaration1(Object _MethodModifiersopt, Object _Identifier, Object _WhereClauseopt, Object _HasResultTypeopt, Object _MethodBody) {
+        syntaxError("This syntax is no longer supported. You must supply the property method formals, and if there are none, you can use an empty parenthesis '()'.",pos());
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         Id Identifier = (Id) _Identifier;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;

@@ -541,6 +541,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                     }
                 }
             }
+
+            if (f.isProperty()) {
+                // you cannot write:  class A[T](b:T) {...}
+                // i.e., property base type must be a class
+                Type t = Types.baseType(n.type().type());
+                if (!(t instanceof X10ParsedClassType))
+                    Errors.issue(tc.job(),new SemanticException("A property type cannot be a type parameter.",position),this);
+            }
             
 	    	return n;
 	    }

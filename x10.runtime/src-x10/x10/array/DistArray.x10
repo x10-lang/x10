@@ -59,12 +59,12 @@ public class DistArray[T] (
     /**
      * The region this array is defined over.
      */
-    public property region: Region(rank) = dist.region;
+    public property region(): Region(rank) = dist.region;
 
     /**
      * The rank of this array.
      */
-    public property rank: int = dist.rank;
+    public property rank(): int = dist.rank;
 
     // Need a trivial wrapper class because PlaceLocalHandle[T] requires that T <: Object
     protected static class LocalState[T](data:IndexedMemoryChunk[T]) {
