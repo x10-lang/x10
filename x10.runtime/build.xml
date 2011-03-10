@@ -315,7 +315,7 @@
         <echo message="x10c ${x10c.optimize} ${x10c.experimental} ${x10c.inline_optimizations} ${x10c.no_checks} ${x10c.multi_node} -c ${xrx.list}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
             <arg value="-c" />
-            <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx1024M ${x10c.optimize} ${x10c.experimental} ${x10c.inline_optimizations} ${x10c.no_checks} ${x10c.multi_node} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CALLS -commandlineonly -c ${xrx.list}" />
+            <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx512M ${x10c.optimize} ${x10c.experimental} ${x10c.inline_optimizations} ${x10c.no_checks} ${x10c.multi_node} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CALLS -commandlineonly -c ${xrx.list}" />
         </exec>
     </target>
     <target name="build-xrx" depends="init,gen-xrx,build-java">
