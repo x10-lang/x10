@@ -2778,7 +2778,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(IntLit_c n) {
-		String val;
+		String val = null;
         switch (n.kind()) {
         case ULONG:
 			val = Long.toString(n.value()) + "L";
@@ -2788,17 +2788,31 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			val = Long.toString(n.value()) + "L";
             break;
 		case UINT:
-			if (n.value() >= 0x80000000L)
-				val = "0x" + Long.toHexString(n.value() & 0xffffffffL);
-			else
-				val = Long.toString(n.value() & 0xffffffffL);
+			val = Integer.toString((int) n.value());
 		    val = "new x10.lang.UInt("+val+")";
             break;
-        default: // Int, Short, Byte, UByte, UShort
-			if (n.value() >= 0x80000000L)
-				val = "0x" + Long.toHexString(n.value());
-			else
-				val = Long.toString((int) n.value());
+		case INT:
+			val = Integer.toString((int) n.value());
+            break;
+        case USHORT:
+			val = Short.toString((short) n.value());
+		    val = "new x10.lang.UShort((short) "+val+")";
+            break;
+        case SHORT:
+			val = Short.toString((short) n.value());
+            break;
+        case UBYTE:
+			val = Byte.toString((byte) n.value());
+		    val = "new x10.lang.UByte((byte) "+val+")";
+            break;
+        case BYTE:
+			val = Byte.toString((byte) n.value());
+            break;
+//        default: // Int, Short, Byte
+//			if (n.value() >= 0x80000000L)
+//				val = "0x" + Long.toHexString(n.value());
+//			else
+//				val = Long.toString((int) n.value());
 		} 
 		w.write(val);
 	}
