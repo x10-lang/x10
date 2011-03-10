@@ -359,7 +359,10 @@ public class ForLoopOptimizer extends ContextVisitor {
                 Position position = body.position();
                 body = syn.createLabeledStmt(position, label, body);
             }
-            body = explodePoint(formal, indexLDecl, varLDecls, body);
+            if (false) {
+                // 3/11/2011.  Dave G.  Disabled because transformation doesn't properly update closure environment.
+                body = explodePoint(formal, indexLDecl, varLDecls, body);
+            }
             if (label() != null) {
                 body = syn.createLabeledStmt(pos, label(), body);
             }
@@ -403,7 +406,12 @@ public class ForLoopOptimizer extends ContextVisitor {
     }
 
     /**
-     * Replace calls to the apply method on point with corresponding calls to the corresponding method on rail throughout the body
+     * Replace calls to the apply method on point with corresponding calls to the corresponding method on rail throughout the body.
+     * 
+     * 3/10/2011.  Dave G.  This transformation is not complete, therefore disabled.
+     *                      The issue is that if the call is within a closure, then the captured environment
+     *                      information for the closure (and all lexcially enclosing closures up to the for loop)
+     *                      must be updated to reflect the additional variables being captured.
      * 
      * @param point a Point formal variable
      * @param rail the underlying Rail defining point
@@ -411,6 +419,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return a copy of body with every call to point.apply() replaced by a call to rail.apply()
      */
     private Stmt explodePoint(final X10Formal point, final LocalDecl rail, final LocalDecl[] indices, final Stmt body) {
+        assert false : "This transformation is not enabled because it is incomplete";
         ContextVisitor pointExploder = new ContextVisitor(job, xts, nodeFactory()) {
             /* (non-Javadoc)
              * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node)
