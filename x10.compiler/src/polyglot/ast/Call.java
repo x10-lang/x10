@@ -9,9 +9,9 @@ package polyglot.ast;
 
 import java.util.List;
 
-
-import x10.types.MethodInstance;
+import x10.ast.InlinableCall;
 import x10.ast.X10Call;
+import x10.types.MethodInstance;
 
 /**
  * A <code>Call</code> is an immutable representation of a Java
@@ -19,7 +19,7 @@ import x10.ast.X10Call;
  * It may also have either a Type upon which the method is being
  * called or an expression upon which the method is being called.
  */
-public interface Call extends Expr, ProcedureCall
+public interface Call extends Expr, InlinableCall
 {
     /**
      * The call's target object.

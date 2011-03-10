@@ -14,12 +14,10 @@ package x10.ast;
 import java.util.List;
 
 import polyglot.ast.Expr;
-import polyglot.ast.ProcedureCall;
-import polyglot.ast.TypeNode;
 import polyglot.types.Name;
 import x10.types.MethodInstance;
 
-public interface ClosureCall extends Expr, X10ProcedureCall {
+public interface ClosureCall extends Expr, InlinableCall {
 
     /** The name of the method to use for closure invocations */
     public static final Name APPLY = Name.make("operator()");

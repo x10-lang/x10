@@ -81,7 +81,7 @@ import x10.types.checker.Checker;
  * @author Igor
  * @author vj
  */
-public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
+public class X10Call_c extends Call_c implements X10Call {
     protected Receiver target;
     protected Id name;
     protected List<Expr> arguments;

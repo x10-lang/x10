@@ -10,12 +10,13 @@ package polyglot.ast;
 import java.util.List;
 
 import polyglot.types.ConstructorInstance;
+import x10.ast.InlinableCall;
 
 /**
  * A <code>ConstructorCall</code> represents a direct call to a constructor.
  * For instance, <code>super(...)</code> or <code>this(...)</code>.
  */
-public interface ConstructorCall extends Stmt, ProcedureCall
+public interface ConstructorCall extends Stmt, InlinableCall
 {
     /** Constructor call kind: either "super" or "this". */
     public static enum Kind {
