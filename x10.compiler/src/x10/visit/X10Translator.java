@@ -214,6 +214,9 @@ public class X10Translator extends Translator {
             javacCmd.add("-classpath");
             javacCmd.add(sb0.toString());
             
+            javacCmd.add("-encoding");
+            javacCmd.add("utf-8");
+            
             /* TO BE REMOVED
             // set sourcepath of x10 compiler to post java compiler
             // to let the java compiler find the source code of java native library.
