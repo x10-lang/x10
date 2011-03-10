@@ -694,7 +694,7 @@ public class DistArray[T] (
         }
 
         var result:U = results(0);
-        for ([i] in 1..(results.size()-1)) {
+        for ([i] in 1..(results.size-1)) {
             result = gop(result, results(i));
         }
         return result;

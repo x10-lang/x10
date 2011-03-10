@@ -86,13 +86,6 @@ public final class Array[T] (
         size:Int
 ) implements (Point(region.rank))=>T,
 Iterable[Point(region.rank)] {
-
-    public property region():Region{self != null} = region;
-    public property rank():int{self==region.rank} = rank;
-    public property rect():boolean{self==region.rect} = rect;
-    public property zeroBased():boolean{self==region.zeroBased} = zeroBased;
-    public property rail():boolean{self==region.rail} = rail;
-    public property size():Int = size;
     
     /**
      * The backing storage for the array's elements

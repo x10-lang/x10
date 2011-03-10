@@ -24,7 +24,6 @@ import x10.io.Printer;
  * object.
  */
 class PolyMat(rank: int) extends Mat[PolyRow] {
-    public property rank():int = rank;
 
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
     static type PolyMatBuilder(rank:Int) = PolyMatBuilder{self.rank==rank};
@@ -179,7 +178,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         for (r:PolyRow in this) {
             val a = r(axis);
             if (a < 0)
-                return -r(rank()) / a;
+                return -r(rank) / a;
         }
 
         var msg: String = "axis " + axis + " has no minimum";
@@ -191,7 +190,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         for (r:PolyRow in this) {
             val a = r(axis);
             if (a > 0)
-                return -r(rank()) / a;
+                return -r(rank) / a;
         }
 
         val msg = "axis " + axis + " has no maximum";
