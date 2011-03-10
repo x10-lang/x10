@@ -426,24 +426,35 @@ public class Emitter {
 				start = pos + 1;
 			} else if (regex.charAt(pos) == '#') {
 			    w.write(regex.substring(start, pos));
-			    Integer idx;
-			    if (pos<len-2 && Character.isDigit(regex.charAt(pos+2))) {
-			        idx = new Integer(regex.substring(pos + 1, pos + 3));
-			        pos += 2;			    
+			    int endpos = pos + 1;
+			    int idx = -1;
+			    String str = null;
+			    if (Character.isDigit(regex.charAt(endpos))) {
+			        while (endpos < len && Character.isDigit(regex.charAt(endpos))) {
+			            ++endpos;
+			        }
+			        str = regex.substring(pos + 1, endpos);
+			        idx = Integer.parseInt(str);
+			    } else if (Character.isJavaIdentifierStart(regex.charAt(endpos))) {
+                    while (endpos < len && Character.isJavaIdentifierPart(regex.charAt(endpos))) {
+                        ++endpos;
+                    }
+                    str = regex.substring(pos + 1, endpos);
+                    // XTENLANG-2528
+                    // TODO convert name to idx
 			    } else {
-			        idx = new Integer(regex.substring(pos + 1, pos + 2));
-			        pos++;				    
+                    throw new InternalCompilerError("Template '" + id + "' uses #" + regex.substring(pos + 1));
 			    }
-			    start = pos + 1;
-				if (idx.intValue() >= components.length)
-					throw new InternalCompilerError("Template '" + id
-							+ "' uses #" + idx);
-				
-				Object component = components[idx.intValue()];
-				if (component instanceof Expr && !isNoArgumentType((Expr)component)) {
-                                    component = new CastExpander(w, this, (Node) component).castTo(((Expr)component).type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-				}
-				prettyPrint(component, tr);
+                if (idx < 0 || components.length <= idx) {
+                    throw new InternalCompilerError("Template '" + id + "' uses #" + str);
+                }
+                pos = endpos - 1;
+                start = pos + 1;
+                Object component = components[idx];
+                if (component instanceof Expr && !isNoArgumentType((Expr) component)) {
+                    component = new CastExpander(w, this, (Node) component).castTo(((Expr) component).type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                }
+                prettyPrint(component, tr);
 			} else if (regex.charAt(pos) == '`') {
 			    w.write(regex.substring(start, pos));
 			    int endpos = pos;
