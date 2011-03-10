@@ -2379,13 +2379,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 embed = true;
             }
         }
-        if (embed) {
+        if (embed && !xts.isStructType(rhs.type())) {
             FieldInstance fi = ((FieldAssign) asgn).fieldInstance();
-            context.setEmbeddedFieldName(embeddedName(fi.name()));
-        }
-	    asgn.printSubExpr(rhs, true, sw, tr);
-        if (embed) {
-            context.setEmbeddedFieldName(null);
+            if (rhs instanceof StmtExpr_c && ((StmtExpr_c) rhs).statements().size()>=2 && ((StmtExpr_c) rhs).statements().get(1) instanceof ConstructorCall_c) {
+                // rhs is split constructor
+                sw.write("&"+embeddedName(fi.name())+";");
+                sw.newline();
+                asgn.print(((ConstructorCall_c) ((StmtExpr_c) rhs).statements().get(1)).target(lhs), sw, tr);
+            } else {
+                // rhs is new
+                context.setEmbeddedFieldName(embeddedName(fi.name()));
+                asgn.printSubExpr(rhs, true, sw, tr);
+                context.setEmbeddedFieldName(null);
+            }
+        } else {
+            asgn.printSubExpr(rhs, true, sw, tr);
         }
 	    if (unsigned_op)
 	        sw.write("))");
