@@ -540,7 +540,10 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	#endif
 	
 	pami_dispatch_hint_t hints;
-	memset(&hints, 0, sizeof(pami_send_hint_t));
+	//memset(&hints, 0, sizeof(pami_send_hint_t));
+	hints.recv_contiguous = PAMI_HINT_ENABLE;
+	hints.use_rdma = PAMI_HINT_DEFAULT;
+	hints.use_shmem = PAMI_HINT_DEFAULT;
 	state.recv_active = 1;
 
 	// set up our callback functions, which will convert PAMI messages to X10 callbacks
@@ -1313,9 +1316,22 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	tcb->operation.cmd.xfer_alltoall.stype = PAMI_TYPE_CONTIGUOUS;
 	tcb->operation.cmd.xfer_alltoall.stypecount = el*count;
 
-	#ifdef DEBUG
-		fprintf(stderr, "Place %u executing all-to-all (%s)\n", state.myPlaceId, always_works_md[0].name);
-	#endif
+//	#ifdef DEBUG
+		if (role==0)
+		{
+			fprintf(stderr, "AllToAll algorithms are always %s", always_works_md[0].name);
+			for (size_t i=1; i<num_algorithms[0]; i++)
+				fprintf(stderr, ", %s", always_works_md[i].name);
+			if (num_algorithms[1] > 0)
+			{
+				fprintf(stderr, " and sometimes %s", must_query_md[0].name);
+				for (size_t i=1; i<num_algorithms[1]; i++)
+					fprintf(stderr, ", %s", must_query_md[i].name);
+			}
+			fprintf(stderr, ".\n");
+		}
+		fprintf(stderr, "Place %u, role %u executing AllToAll (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[0].name, (void*)tcb);
+//	#endif
 	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all on team %u", team);
 
