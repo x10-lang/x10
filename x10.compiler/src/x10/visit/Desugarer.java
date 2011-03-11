@@ -443,7 +443,7 @@ public class Desugarer extends ContextVisitor {
             newProcCall = procCall;
         else
             newProcCall = (call_c!=null ? call_c.target(newReceiver) : new_c.qualifier(newReceiver));
-        final Expr newExpr;
+        Expr newExpr;
         if (binary_c!=null)
             newExpr = binary_c.left(newArgs.get(0)).right(newArgs.get(1));
         else
@@ -507,11 +507,11 @@ public class Desugarer extends ContextVisitor {
                         CollectionUtil.<Expr>list(nf.StringLit(pos, guard.toString()))).type(ts.Throwable())));
         // if resType is void, then we shouldn't use return
         final boolean isVoid = ts.isVoid(resType);
+        newExpr = (Expr) newExpr.visit(builder).visit(checker);
+        anIf = (If) anIf.visit(builder).visit(checker);
         Block body = nf.Block(pos, anIf, isVoid ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
-        body = (Block) body.visit(builder).visit(checker);
-//        body = (Block) body.visit(new X10TypeBuilder(job, ts, nf).pushClass(v.context().currentClassDef()).pushCode(v.context().currentCode()))
-//                       .visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(v.context()));
-        Type closureRet = procInst.returnType();          
+        //body = (Block) body.visit(builder).visit(checker); - there is a problem type-checking the return statement
+        Type closureRet = procInst.returnType();
         Closure c = closure(pos, closureRet, params, body, v);
         MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, args).closureInstance(ci).type(resType);

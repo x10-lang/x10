@@ -16,7 +16,7 @@ import harness.x10Test;
  * @author yoav (yzibin) 1/2011
  */ 
 
-public class XTENLANG_2330 extends x10Test  
+public class XTENLANG_2330 extends x10Test
 { 
     public def run() {
         new Helper2330(50).run(0);
@@ -283,6 +283,9 @@ class NullTestInGuard(x:String) {
 	def test() {
 		val z = m(null);  // ERR:  Warning: Generated a dynamic check for the method guard.
 	}
+	def test2():void {
+		val z = m(null);  // ERR:  Warning: Generated a dynamic check for the method guard.
+	}
 }
 
 class TestWithoutGenerics {
@@ -311,7 +314,7 @@ class TestWithoutGenerics {
 				m(w*2,this); // ERR:  Warning: Generated a dynamic check for the method guard.
 
 				return 43;
-			}	
+			}
 		}
 	}
 }
@@ -341,7 +344,7 @@ class TestWithGenerics {
 				m(w*2,this); // ERR:  Warning: Generated a dynamic check for the method guard.
 
 				return 43;
-			}	
+			}
 		}
 	}
 }
