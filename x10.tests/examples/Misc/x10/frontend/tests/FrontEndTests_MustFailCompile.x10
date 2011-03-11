@@ -1998,12 +1998,6 @@ class TestOnlyLocalVarAccess {
 	}
 }
 class TestValInitUsingAt { // see XTENLANG-1942
-	static def test() {
-		val x:Int;
-		at (here.next()) 
-			x = 2;
-		val y = x; 
-	}
     static def test2() {
         var x_tmp:Int = 0; // we have to initialize it (otherwise, the dataflow
         val p = here;
@@ -2012,6 +2006,46 @@ class TestValInitUsingAt { // see XTENLANG-1942
             x_tmp = 2;
         val x = x_tmp; // if we hadn't initialized x_tmp, then the dataflow would complain that "x_tmp" may not have been initialized
     }
+	static def testVal() {
+		val x:Int;
+		at (here.next()) 
+			x = 2; // ERR
+	}
+	static def testVar() {
+		var x:Int;
+		at (here.next()) 
+			x = 2; // ERR
+	}
+	static def testVarAtScope() {
+		at (here.next()) {
+			var y:Int;
+			y = 2;
+		}
+	}
+	static def testOkVal() {
+		val x:Int;
+		val p = here;
+		at (p.next()) {
+			at (p)
+				x = 2;
+		}
+		at (here.next()) {
+			val z = x;
+		}
+		val y = x;
+	}
+	static def testOkVar() {
+		var x:Int;
+		val p = here;
+		at (p.next()) {
+			at (p)
+				x = 2;
+		}
+		at (here.next())  {
+			val z = x; // ERR
+		}
+		val y = x;
+	}
 }
 
 
@@ -4700,7 +4734,7 @@ class CopyBackTest {
         val result2 : Int; // Uninitialized
         val start = here;
         at(here.next()) {
-            result1 = 3; // ShouldBeErr
+            result1 = 3; // ERR
             at(start) {
 	            result2 = 3; // ShouldBeErr
             }
