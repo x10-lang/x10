@@ -24,6 +24,7 @@ import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
+import x10.visit.CodeCleanUp;
 import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.DeadVariableEliminator;
 import x10.visit.ExpressionFlattener;
@@ -85,9 +86,13 @@ public class Optimizer {
         if (FLATTENING(extInfo, java)) {
             goals.add(ExpressionFlattener());
         }
+        if (config.CODE_CLEAN_UP) {
+            goals.add(CodeCleanUp());
+        }
         if (config.EXPERIMENTAL && config.ELIMINATE_DEAD_VARIABLES) {
             goals.add(DeadVariableEliminator());
         }
+            
         // TODO: add an empty goal that prereqs the above
         return goals;
     }
@@ -125,6 +130,12 @@ public class Optimizer {
     public Goal ConstructorSplitter() {
         NodeVisitor visitor = new ConstructorSplitterVisitor(job, ts, nf);
         Goal goal = new ValidatingVisitorGoal("Constuctor Splitter", job, visitor);
+        return goal.intern(scheduler);
+    }
+    
+    public Goal CodeCleanUp() {
+        NodeVisitor visitor = new CodeCleanUp(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("CodeCleanUp", job, visitor);
         return goal.intern(scheduler);
     }
 
