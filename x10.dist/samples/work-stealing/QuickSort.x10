@@ -63,7 +63,11 @@ public class QuickSort {
       val r = new x10.util.Random(0);
       var avgDur:Double = 0;
       for (var i:Int = 0; i < 10; ++i) {
-          val data = new Array[int](N, (int)=>r.nextInt(9999));
+          //val data = new Array[int](N, (int)=>r.nextInt(9999));
+          //Use loop to create data before FIX XTENLANG-2300
+          val data = new Array[int](N);
+          for(var j:Int = 0; j < N; j++) { data(j) = r.nextInt(9999);}
+          
           val startTime = System.nanoTime();
           qsort(data, 0, N-1);
           val duration = ((System.nanoTime() - startTime) as Double)/1e9;
