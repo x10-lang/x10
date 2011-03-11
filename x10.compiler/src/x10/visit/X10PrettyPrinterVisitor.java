@@ -171,7 +171,6 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
-import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.constraints.SubtypeConstraint;
 import x10.util.CollectionFactory;
@@ -206,8 +205,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final int NO_VARIANCE = 4;
 	public static final int NO_QUALIFIER = 8;
 
-	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
-    public static final String MAIN_CLASS = "$Main";
+	public static final String MAIN_CLASS = "$Main";
     public static final String RTT_NAME = "$RTT";
     public static final String GETRTT_NAME = "$getRTT";
     public static final String GETPARAM_NAME = "$getParam";
@@ -1549,62 +1547,65 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     			w.write(">");
     		}
     		
-    		boolean fromInterface = false;
-    		ContainerType st = mi.def().container().get();
-    		Type bst = Types.baseType(st);
-    		if (bst instanceof X10ClassType) {
-    		    if (xts.isInterfaceType(bst) || (xts.isFunctionType(bst) && ((X10ClassType) bst).isAnonymous())) {
-    		        fromInterface = true;
-    		    }
-    		}
-    		
-    		if (isGenericOverloading && isMainMethod(mi))
-    		{
-    		    w.write(Emitter.mangleToJava(c.name().id()));
-    		}
-    		else if (isGenericOverloading && !fromInterface) {
-                w.write(Emitter.mangleMethodName(mi.def(), true));
-    		}
-    		else if (isGenericOverloading) {
-                w.write(Emitter.mangleMethodName(mi.def(), false));
+    		if (isMainMethod(mi)) {
+                w.write(Emitter.mangleToJava(c.name().id()));
     		}
     		else {
-    		    w.write(Emitter.mangleToJava(c.name().id()));
-    		}
-    		
-    		boolean isInstantiateReturn = false;
-    		List<MethodInstance> list = mi.implemented(tr.context());
-    		for (MethodInstance mj : list) {
-    		    if (
-    		        mj.container().typeEquals(mi.container(), tr.context()) &&
-    		        Types.baseType(mj.def().returnType().get()) instanceof ParameterType) {
-    		        isInstantiateReturn = true;
-    		        break;
+    		    boolean invokeInterface = false;
+    		    ContainerType st = mi.def().container().get();
+    		    Type bst = Types.baseType(st);
+    		    if (bst instanceof X10ClassType) {
+    		        if (xts.isInterfaceType(bst) || (xts.isFunctionType(bst) && ((X10ClassType) bst).isAnonymous())) {
+    		            invokeInterface = true;
+    		        }
     		    }
-    		}
-    		
-    		Type returnType = Types.baseType(mi.def().returnType().get());
-    		if (returnType instanceof ParameterType || isInstantiateReturn) {
+    		    
+    		    boolean isDispatchMethod = false;
     		    if (isSelfDispatch) {
     		        Type tt = Types.baseType(target.type());
-    		        
     		        if (tt instanceof X10ClassType && ((X10ClassType) tt).flags().isInterface()) {
-    		            if (!containsTypeParam(mi.def().formalTypes())) {
-    		                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+    		            if (containsTypeParam(mi.def().formalTypes())) {
+    		                isDispatchMethod = true;
     		            }
     		        }
     		        else if (target instanceof ParExpr && ((ParExpr) target).expr() instanceof Closure_c) {
-    		            if (mi.formalTypes().size() == 0) {
-    		                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+    		            if (mi.formalTypes().size() != 0) {
+    		                isDispatchMethod = true;
     		            }
     		        }
-    		        else {
-    		            w.write(RETURN_PARAMETER_TYPE_SUFFIX);
-    		        }
-    		    } else {
-                    w.write(RETURN_PARAMETER_TYPE_SUFFIX);
     		    }
+    		    
+    		    boolean instantiatesReturnType = false;
+    		    List<MethodInstance> list = mi.implemented(tr.context());
+    		    for (MethodInstance mj : list) {
+    		        if (
+    		                mj.container().typeEquals(mi.container(), tr.context()) &&
+    		                Types.baseType(mj.def().returnType().get()) instanceof ParameterType) {
+    		            instantiatesReturnType = true;
+    		            break;
+    		        }
+    		    }
+    		    
+    		    boolean isParamReturnType = Types.baseType(mi.def().returnType().get()) instanceof ParameterType || instantiatesReturnType;
+
+    		    er.printMethodName(mi.def(), invokeInterface, isDispatchMethod, isParamReturnType);
+
+//    		    if (isGenericOverloading && !fromInterface) {
+//    		        w.write(Emitter.mangledMethodName(mi.def(), true));
+//    		    }
+//    		    else if (isGenericOverloading) {
+//    		        w.write(Emitter.mangledMethodName(mi.def(), false));
+//    		    }
+//    		    else {
+//    		        w.write(Emitter.mangleToJava(c.name().id()));
+//    		    }
+//    		    if (!isDispatchMethod && isParamReturnType) {
+//    		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+//    		    }
     		}
+    		
+
+    		// print the argument list
     		w.write("(");
     		w.begin(0);
     		
@@ -1775,17 +1776,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		w.write(".");
-		w.write("$apply");
-        if (isSelfDispatch && (!newClosure && !mi.returnType().isVoid() && mi.formalTypes().size() == 0)) {
-            w.write(RETURN_PARAMETER_TYPE_SUFFIX);
-		}
-        else if (
-                !isSelfDispatch
-                && ((!(expr instanceof Closure_c) && !mi.returnType().isVoid())
-                || (expr instanceof Closure_c && Types.baseType(mi.returnType()) instanceof ParameterType))) {
-            w.write(RETURN_PARAMETER_TYPE_SUFFIX);
-        }
 
+		er.printApplyMethodName(mi, newClosure);
+
+        // print the argument list
 		w.write("(");
 		w.begin(0);
 		
@@ -1803,6 +1797,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Expr e = l.get(i);
             
             Type castType = mi.formalTypes().get(i);
+
             if(isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
                 
                 w.write("(");
@@ -1822,6 +1817,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             
             c.print(e, w, tr);
+
 			if (isMutableStruct(e.type())) {
 				w.write(".clone()");
 			}
@@ -1842,7 +1838,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.end();
 		w.write(")");
 	}
-	
+
     public void visit(X10New_c c) {
         X10ConstructorInstance mi = c.constructorInstance();
         if (er.printNativeNew(c, mi)) return;
@@ -2173,10 +2169,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    else {
 		        ret.expand(tr2);
 		    }
-		    w.write(" $apply");
-		    if (!n.returnType().type().isVoid() && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
-		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
-		    }
+		    
+		    w.write(" ");
+
+		    er.printApplyMethodName(n, true);
+
+		    // print the formals
 		    w.write("(");
 		    for (int i = 0; i < formals.size(); ++i) {
 		        if (i != 0) w.write(",");
@@ -2193,10 +2191,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    if (!n.returnType().type().isVoid()) {
 		        w.write("return ");
 		    }
-		    w.write("$apply");
-		    if (Types.baseType(n.returnType().type()) instanceof ParameterType && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
-		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
-		    }
+
+		    er.printApplyMethodName(n, Types.baseType(n.returnType().type()) instanceof ParameterType);
+
 		    w.write("(");
 		    String delim = "";
 		    for (Formal f: formals) {
@@ -2225,10 +2222,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else {
 		    er.printType(n.returnType().type(), PRINT_TYPE_PARAMS);
 		}
-		w.write(" $apply");
-		if (Types.baseType(n.returnType().type()) instanceof ParameterType && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
-		    w.write(RETURN_PARAMETER_TYPE_SUFFIX);
-		}
+
+		w.write(" ");
+
+		er.printApplyMethodName(n, Types.baseType(n.returnType().type()) instanceof ParameterType);
+
 		w.write("(");
 		for (int i = 0; i < formals.size(); i++) {
 		    if (i != 0) w.write(", ");
@@ -2241,9 +2239,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    }
 		}
 		
-		w.write(") { ");
+		w.write(")");
+
+		// print the closure body
+		w.write(" { ");
 	
-                List<Stmt> statements = n.body().statements();
+		List<Stmt> statements = n.body().statements();
 //                boolean throwException = false;
 //                boolean throwThrowable = false;
 //                for (Stmt stmt : statements) {
@@ -2262,14 +2263,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //                    }
 //                }
                 
-                TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
-                if (runAsync) {
-                    tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", "ex", new Expander(er) {
-                        public void expand(Translator tr) {
-                            w.write("x10.lang.Runtime.pushException(ex);");
-                        }
-                    });
-                }
+		TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
+		if (runAsync) {
+		    tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", "ex", new Expander(er) {
+		        public void expand(Translator tr) {
+		            w.write("x10.lang.Runtime.pushException(ex);");
+		        }
+		    });
+		}
 //                if (throwThrowable) {
 //                    tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
 //                        public void expand(Translator tr) {
@@ -2320,77 +2321,77 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //                    tryCatchExpander.expand(tr2);
 //                } else 
 //                    
-                if (runAsync) {
-                    tryCatchExpander.expand(tr2);
-                } else {
-                    er.prettyPrint(n.body(), tr2);
-                }
-                
-                if (isSelfDispatch && !bridge && n.returnType().type().isVoid() && n.formals().size() != 0) {
-                    w.write("return null;");
-                }
-                
-                w.write("}");
-                w.newline();
+		if (runAsync) {
+		    tryCatchExpander.expand(tr2);
+		} else {
+		    er.prettyPrint(n.body(), tr2);
+		}
 
-                Type type = n.type();
-                type = Types.baseType(type);
-                if (type instanceof X10ClassType) {
-                        X10ClassType ct = (X10ClassType) type;
-                        X10ClassDef def = ct.x10Def();
-                        
-                        // XTENLANG-1102
-                        Set<ClassDef> visited = CollectionFactory.newHashSet();
-                        
-                        visited = CollectionFactory.newHashSet();
-                        visited.add(def);
-                        if (!def.flags().isInterface()) {
-                                List<Type> types = new ArrayList<Type>();
-                                LinkedList<Type> worklist = new LinkedList<Type>();
-                                for (Type t : def.asType().interfaces()) {
-                                        Type it = Types.baseType(t);
-                                        worklist.add(it);
-                                }
-                                while (!worklist.isEmpty()) {
-                                        Type it = worklist.removeFirst();
-                                        if (it instanceof X10ClassType) {
-                                                X10ClassType ct2 = (X10ClassType) it;
-                                                X10ClassDef idef = ct2.x10Def();
+		if (isSelfDispatch && !bridge && n.returnType().type().isVoid() && n.formals().size() != 0) {
+		    w.write("return null;");
+		}
 
-                                                if (visited.contains(idef))
-                                                        continue;
-                                                visited.add(idef);
+		w.write("}");
+		w.newline();
 
-                                                for (Type t : ct2.interfaces()) {
-                                                        Type it2 = Types.baseType(t);
-                                                        worklist.add(it2);
-                                                }
-                                                
-                                                if (ct2.typeArguments() != null)
-                                                    types.addAll(ct2.typeArguments());
-                                        }
-                                }
+		Type type = n.type();
+		type = Types.baseType(type);
+		if (type instanceof X10ClassType) {
+		    X10ClassType ct = (X10ClassType) type;
+		    X10ClassDef def = ct.x10Def();
+
+		    // XTENLANG-1102
+		    Set<ClassDef> visited = CollectionFactory.newHashSet();
+
+		    visited = CollectionFactory.newHashSet();
+		    visited.add(def);
+		    if (!def.flags().isInterface()) {
+		        List<Type> types = new ArrayList<Type>();
+		        LinkedList<Type> worklist = new LinkedList<Type>();
+		        for (Type t : def.asType().interfaces()) {
+		            Type it = Types.baseType(t);
+		            worklist.add(it);
+		        }
+		        while (!worklist.isEmpty()) {
+		            Type it = worklist.removeFirst();
+		            if (it instanceof X10ClassType) {
+		                X10ClassType ct2 = (X10ClassType) it;
+		                X10ClassDef idef = ct2.x10Def();
+
+		                if (visited.contains(idef))
+		                    continue;
+		                visited.add(idef);
+
+		                for (Type t : ct2.interfaces()) {
+		                    Type it2 = Types.baseType(t);
+		                    worklist.add(it2);
+		                }
+
+		                if (ct2.typeArguments() != null)
+		                    types.addAll(ct2.typeArguments());
+		            }
+		        }
                                 // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).  
 //                                if (types.size() > 0) {
-                                    w.write("public x10.rtt.RuntimeType<?> " + X10PrettyPrinterVisitor.GETRTT_NAME + "() { return " + X10PrettyPrinterVisitor.RTT_NAME + "; }");
-                                    w.write("public x10.rtt.Type<?> " + X10PrettyPrinterVisitor.GETPARAM_NAME + "(int i) {");
-                                    for (int i = 0; i < types.size(); i++) {
-                                        w.write("if (i ==" + i + ")");
-                                        Type t = types.get(i);
-                                        w.write(" return ");
-                                        new RuntimeTypeExpander(er, t).expand();
-                                        w.write(";");
-                                    }
-                                    w.write("return null;");
-                                    w.newline();
-                                    w.write("}");
-                                    w.newline();
+		        w.write("public x10.rtt.RuntimeType<?> " + X10PrettyPrinterVisitor.GETRTT_NAME + "() { return " + X10PrettyPrinterVisitor.RTT_NAME + "; }");
+		        w.write("public x10.rtt.Type<?> " + X10PrettyPrinterVisitor.GETPARAM_NAME + "(int i) {");
+		        for (int i = 0; i < types.size(); i++) {
+		            w.write("if (i ==" + i + ")");
+		            Type t = types.get(i);
+		            w.write(" return ");
+		            new RuntimeTypeExpander(er, t).expand();
+		            w.write(";");
+		        }
+		        w.write("return null;");
+		        w.newline();
+		        w.write("}");
+		        w.newline();
 //                                }
-                        }
-                }
+		    }
+		}
 
-                w.write("}");
-        }
+		w.write("}");
+	}
 
     private boolean needBridge(final Closure_c n) {
         return containsPrimitive(n) || !n.returnType().type().isVoid() && !(Types.baseType(n.returnType().type()) instanceof ParameterType);
