@@ -164,6 +164,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
 	public boolean isConstant() {
+	    // Polyglot doesn't understand how to constant fold unsigned types.
+	    if (left.type().isUnsignedNumeric() || right.type().isUnsignedNumeric()) return false;
+	    
 		if (left.isConstant() && right.isConstant() && isPureOperation(left.type(), op, right.type()))
 			return true;
 		// FIXME [IP] An optimization: an object of a non-nullable type and "null"
