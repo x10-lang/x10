@@ -939,7 +939,7 @@ import x10.util.NoSuchElementException;
     public static def makeOffer[T](t:T) {
         val state = activity().finishState();
 //      Console.OUT.println("Place(" + here.id + ") Runtime.makeOffer: received " + t);
-        (state as FinishState.CollectingFinish[T]).accept(t,workerId());
+        (state as FinishState.CollectingFinish[T]).accept(t,workerId()); //Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
     public static def stopCollectingFinish[T](f:FinishState):T {

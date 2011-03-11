@@ -311,6 +311,9 @@ public class RunTestSuite {
         for (FileSummary f : summaries) {
             compileFile(f,remainingArgs);
         }
+        // report remaining errors that were not matched in any file
+        for (ErrorInfo err : remainingErrors)
+            err((err.getErrorKind()==ErrorInfo.WARNING ? "Warning":"ERROR")+" in position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
         if (SHOW_RUNTIMES) println("Total running time to compile all files="+(System.currentTimeMillis()-start));
         
         if (EXIT_CODE!=0) System.out.println("Summary of all errors:\n\n"+ALL_ERRORS);
@@ -461,6 +464,8 @@ public class RunTestSuite {
         if (didFailCompile!=summary.fileName.endsWith("_MustFailCompile.x10")) {
             println("WARNING: "+ summary.fileName+" "+(didFailCompile ? "FAILED":"SUCCESSFULLY")+" compiled, therefore it should "+(didFailCompile?"":"NOT ")+"end with _MustFailCompile.x10. "+(summary.lines.isEmpty()?"":"It did have @ERR markers but they might match warnings."));
         }
+        errors.addAll(remainingErrors);
+        remainingErrors.clear();
 
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
@@ -473,7 +478,7 @@ public class RunTestSuite {
                 for (Iterator<ErrorInfo> it=errors.iterator(); it.hasNext(); ) {
                     ErrorInfo err = it.next();
                     final Position position = err.getPosition();
-                    if (position!=null && new File(position.file()).equals(file) && position.line()==lineNum) {
+                    if (position!=null && isInFile(position,file) && position.line()==lineNum) {
                         // found it!
                         errorsFound.add(err);
                         it.remove();
@@ -490,23 +495,13 @@ public class RunTestSuite {
             }
 
         // 2. report all the remaining errors that didn't have a matching ERR marker
-        // first report warnings
-        int warningCount = 0;
-        for (ErrorInfo err : errors)
-            if (err.getErrorKind()==ErrorInfo.WARNING) {
-                if (!err.getMessage().startsWith(Types.MORE_SPECIFIC_WARNING)) { // ignore those warning messages
-                    err("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
-                }
-                warningCount++;
-            }
-        if (errors.size()>warningCount) {
-            err("\nThe following errors did not have a matching ERR marker:\n\n");
-            for (ErrorInfo err : errors)
-                if (err.getErrorKind()!=ErrorInfo.WARNING)
-                    err("Position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
-        }
+        remainingErrors.addAll(errors);
         // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout)
     }
+    static boolean isInFile(Position position, File file) {
+        return new File(position.file()).equals(file);
+    }
+    static ArrayList<ErrorInfo> remainingErrors = new ArrayList<ErrorInfo>(); // sometimes when compiling one file it uses another that has an ERR marker, so we keep those errors so we will match them to ERR markers in the other file (e.g., Activity.x10 uses HashMap.x10 that has an ERR marker for a warning)
     private static void recurse(File dir, ArrayList<File> files) {
         if (files.size()>=MAX_FILES_NUM) return;
         // sort the result, so the output is identical for diff purposes (see SHOW_EXPECTED_ERRORS)

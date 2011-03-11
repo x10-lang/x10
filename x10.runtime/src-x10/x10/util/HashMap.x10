@@ -321,7 +321,7 @@ import x10.io.SerialData;
      */
     public def this(x:SerialData) {
         this();
-        val state = x.data as State[K,V];
+        val state = x.data as State[K,V]; // Warning: This is an unsound cast because the object or the target type might have constraints and X10 currently does not perform constraint solving at runtime on generic parameters.
 	    for (p in state.content) {
 	        val pair = state.content(p);
             putInternal(pair.first, pair.second);

@@ -620,7 +620,7 @@ class TestPropertiesAndFields(i:Int, j:Int) {
 }
 class CheckCtorContextIsNotStatic[T](p:Array[T]) {
     public def this(o:Any) {
-        property(o as Array[T]);
+        property(o as Array[T]); // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 } 
 
@@ -5358,7 +5358,7 @@ class XTENLANG_2491 {
 	  public static operator[T] (x:T) as B[T] = new B[T](x);
 	  public def equals(a:Any) {
 		if (a instanceof B[T]) {
-		  return (a as B[T]).t==t; // should "as" do the system-as or the user-explicit-as ?
+		  return (a as B[T]).t==t; // should "as" do the system-as or the user-explicit-as ?  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 		}
 		return false;
 	  }
@@ -5370,7 +5370,7 @@ class XTENLANG_2491 {
 		val t:V;
 		def this(t:V) { this.t = t; }
 		def get(): MyBox[V] {
-			return t as MyBox[V]; // should "as" do the system-as or the user-implicit-as? (currently it does the system-as, and fails at runtime with ClassCastException)
+			return t as MyBox[V]; // should "as" do the system-as or the user-implicit-as? (currently it does the system-as, and fails at runtime with ClassCastException)  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 		}
 	}
 	static class Hello {
@@ -5501,7 +5501,7 @@ class RuntimeChecksOfConstraintsInGenerics {
         val arr = new Array[Int{self==3}](0..100, ([p]:Point(1))=>3);
 		//arr(0) = 1; // err: Cannot assign expression to array element of given type.             Expression: 1             Type: x10.lang.Int{self==1}             Array element: arr(0)             Type: x10.lang.Int{self==3}    
 		arr(0) = 3; 
-		val arrAlias = (arr as Any) as Array[Int]; // it should have failed HERE
+		val arrAlias = (arr as Any) as Array[Int]; // it should have failed HERE  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 		arrAlias(0) = 1; 
 		val x:Int{self==3} = arr(0); // Broke type safety
 		assert x==3 : "We should have failed before"; // but it fails HERE 
@@ -5579,4 +5579,18 @@ class XTENLANG_2535[T](x:Array[T]) {
 	def this(Int):XTENLANG_2535[T] { // ShouldNotBeERR: Invalid type; the real clause of type is inconsistent.
 		property(null);
 	}
+}
+
+class PropertyAndCtorArgumentsBug(R:Int) {
+	public def this(r:Int)	{
+		property(r);
+		val x:Int{self==R} = r; // ShouldNotBeERR
+	}
+}
+class TestUnsoundCastWarning {	
+    def x(args: Array[String]) {
+		val any = args as Any;
+		val x = args as Array[String](3);
+		val y = any as Array[String](3); // ERR: warning: unsound cast
+    }
 }

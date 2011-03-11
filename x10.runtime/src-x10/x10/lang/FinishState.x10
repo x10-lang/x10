@@ -595,8 +595,8 @@ abstract class FinishState {
             }
         }
         public def serialize():SerialData = new SerialData(reducer, super.serialize());
-        public def accept(t:T, id:Int) { (me as CollectingFinishState[T]).accept(t, id); }
-        public def waitForFinishExpr() = (me as RootCollectingFinish[T]).waitForFinishExpr();
+        public def accept(t:T, id:Int) { (me as CollectingFinishState[T]).accept(t, id); }   // Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+        public def waitForFinishExpr() = (me as RootCollectingFinish[T]).waitForFinishExpr();// Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
     static class RootCollectingFinish[T] extends RootFinish implements CollectingFinishState[T] {
