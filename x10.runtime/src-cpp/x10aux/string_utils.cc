@@ -54,8 +54,15 @@ char * x10aux::string_utils::strdup(const char* old) {
 #endif
 }
 
-
-
-
+char * x10aux::string_utils::strndup(const char* old, int len) {
+#ifdef X10_USE_BDWGC
+    char *ans = x10aux::alloc<char>(len+1);
+    memcpy(ans, old, len);
+    ans[len] = 0;
+    return ans;
+#else
+    return ::strndup(old, len);
+#endif
+}
 
 // vim:tabstop=4:shiftwidth=4:expandtab

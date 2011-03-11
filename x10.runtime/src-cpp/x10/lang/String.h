@@ -45,13 +45,13 @@ namespace x10 {
             static x10aux::itable_entry _itables[3];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
 
-            void _constructor(const char *content, bool steal = false);
+            void _constructor(const char *content, bool steal);
             // Set steal to true if you have just allocated the char * with
             // alloc_printf or it's otherwise OK if the String frees it.  Leave
             // steal false for string literals which ought not to be freed.
             // Leave it false for 'static' malloced char* such as the RTT type
             // names that also ought not to be freed.
-            static x10aux::ref<String> _make(const char *content, bool steal = false) {
+            static x10aux::ref<String> _make(const char *content, bool steal) {
                 x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
                 this_->_constructor(content, steal);
                 return this_;
@@ -96,23 +96,13 @@ namespace x10 {
             // This is for string literals, brought out here so we have easier control
             // (Can later make this return a String without allocation)
             static x10aux::ref<String> Lit(const char *s) {
-                return _make(s);
+                return _make(s, false);
             }
 
             // Useful when we have a malloced char* instead of a literal
             static x10aux::ref<String> Steal(const char *s) {
                 return _make(s, true);
             }
-
-            /*
-            operator x10aux::ref<Object> () {
-                return x10aux::ref<String>(this);
-            }
-
-            operator x10aux::ref<String> () {
-                return _make(*this);
-            }
-            */
 
             x10aux::ref<String> trim();
 

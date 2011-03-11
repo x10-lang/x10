@@ -180,13 +180,13 @@ static bool isws (char x) { return x <= 0x20; }
 x10aux::ref<String> String::trim() {
     const char *start = FMGL(content);
     x10_int l = FMGL(content_length);
+    bool didSomething = false;
     if (l==0) { return this; } // string is empty
-    while (isws(start[0]) && l>0) { start++; l--; }
-    while (isws(start[l-1]) && l>0) { l--; }
-    if (l==0) { return String::Lit(""); } // string was all whitespace
-    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
-    this_->_constructor(start, l);
-    return this_;
+    while (isws(start[0]) && l>0) { start++; l--; didSomething = true; }
+    while (isws(start[l-1]) && l>0) { l--; didSomething = true; }
+    if (!didSomething) { return this; }
+    char *trimmed = string_utils::strndup(start, l);
+    return _make(trimmed, true);
 }
 
 static const char *strnrstrn(const char *haystack, size_t haystack_sz,
