@@ -16,7 +16,7 @@ import harness.x10Test;
  * @author vcave
  **/
 public class X10DepTypeClassOne(p:int) extends x10Test implements X10InterfaceOne {
-
+   public property p():int = p;
    
    public def this(p: int): X10DepTypeClassOne{self.p==p} = {
        property(p);

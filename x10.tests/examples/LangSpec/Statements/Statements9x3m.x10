@@ -26,7 +26,7 @@ public class Statements9x3m extends x10Test {
     }
 
 
-// file Statements line 876
+// file Statements line 875
  static class Exn extends Throwable{}
  static class SubExn(n:Int) extends Exn{}
  static class Example {
@@ -35,7 +35,6 @@ public class Statements9x3m extends x10Test {
     try {
        throw new SubExn(4);
     }
-    catch (e : SubExn{n==1}) { assert false; }
     catch (e : Exn)          { correct = true; }
     catch (e : SubExn)       { assert false; }
     catch (e : Throwable)    { assert false; }

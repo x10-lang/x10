@@ -65,7 +65,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 
         if (! cond.type().isBoolean()) {
             Errors.issue(tc.job(),
-                    new Errors.TernaryExpressiongMustBeBoolean(cond.position()),
+                    new Errors.TernaryConditionMustBeBoolean(cond.position()),
                     this);
         }
 
@@ -90,63 +90,6 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
         //if (ts.typeBaseEquals(t1, t2, context)) {
         //    return type(Types.baseType(t1));
         //}
-
-        // Otherwise, if the second and third operands have numeric type, then
-        // there are several cases:
-        if (t1.isNumeric() && t2.isNumeric()) {
-            if (ts.typeBaseEquals(t1, t2, context)) { // we need it for: public static def max(a:UInt, b:UInt)= a<b?b:a;
-                return type(Types.baseType(t1));
-            }
-
-            // - If one of the operands is of type byte and the other is of
-            // type short, then the type of the conditional expression is
-            // short.
-            if (t1.isByte() && t2.isShort() || t1.isShort() && t2.isByte()) {
-                return type(ts.Short());
-            }
-
-            if (ts.isUByte(t1) && ts.isUShort(t2) || ts.isUByte(t2) && ts.isUShort(t1))
-                return type(ts.UShort());
-
-            // - If one of the operands is of type T where T is byte, short, or
-            // char, and the other operand is a constant expression of type int
-            // whose value is representable in type T, then the type of the
-            // conditional expression is T.
-            if ((ts.isByte(t1) || ts.isShort(t1) || ts.isInt(t1) || ts.isUByte(t1) || ts.isUShort(t1) || ts.isUInt(t1)) &&
-                    t2.isInt() &&
-                    ts.numericConversionValid(t1, t2, e2.constantValue(), context)) {
-                return type(t1);
-            }
-
-            if ((ts.isByte(t1) || ts.isShort(t1) || ts.isInt(t1) || ts.isUByte(t1) || ts.isUShort(t1) || ts.isUInt(t1)) &&
-                    ts.isUInt(t2) &&
-                    ts.numericConversionValid(t1, t2, e2.constantValue(), context)) {
-                return type(t1);
-            }
-
-            if ((ts.isByte(t2) || ts.isShort(t2) || ts.isInt(t2) || ts.isUByte(t2) || ts.isUShort(t2) || ts.isUInt(t2)) &&
-                    t1.isInt() &&
-                    ts.numericConversionValid(t2, t2, e2.constantValue(), context)) {
-                return type(t2);
-            }
-
-            if ((ts.isByte(t2) || ts.isShort(t2) || ts.isInt(t2) || ts.isUByte(t2) || ts.isUShort(t2) || ts.isUInt(t2)) &&
-                    ts.isUInt(t1) &&
-                    ts.numericConversionValid(t2, t2, e2.constantValue(), context)) {
-                return type(t2);
-            }
-
-            // - Otherwise, binary numeric promotion (Sec. 5.6.2) is applied to the
-            // operand types, and the type of the conditional expression is the
-            // promoted type of the second and third operands. Note that binary
-            // numeric promotion performs value set conversion (Sec. 5.1.8).
-            try {
-                return type(ts.promote(t1, t2));
-            } catch (SemanticException e) {
-                Errors.issue(tc.job(), e, this);
-                return type(ts.unknownType(position()));
-            }
-        }
 
         // If one of the second and third operands is of the null type and the
         // type of the other is a reference type, then the type of the

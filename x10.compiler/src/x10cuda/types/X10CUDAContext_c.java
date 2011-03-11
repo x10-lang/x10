@@ -75,7 +75,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     	if (firstKernel()) {
     		ClassifiedStream cudaStream = sw.getNewStream("cu" );
         	firstKernel(false);
-            j.compiler().outputFiles().add(wrappingClass()+".cu");
+            j.compiler().addOutputFile(wrappingClass()+".x10", wrappingClass()+".cu");
             ((X10CPPCompilerOptions)j.extensionInfo().getOptions()).compilationUnits().add(wrappingClass()+".cu");
             cudaStream.write("#include <x10aux/config.h>"); cudaStream.newline();
             cudaStream.write("#include <x10aux/cuda_kernel.cuh>"); cudaStream.newline();

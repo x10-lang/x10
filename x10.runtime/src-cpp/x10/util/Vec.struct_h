@@ -38,9 +38,14 @@ namespace x10 { namespace util {
                 NativeVec<T,-1> &operator= (const NativeVec<T,-1> &src)
                 {
                         sz = src.size();
-                        arr = ::realloc(arr, sz*sizeof(T));
+                        arr = x10aux::realloc(arr, sz*sizeof(T));
                         ::memcpy(arr, src.arr, sz * sizeof(T));
                         return *this;
+                }
+                NativeVec (const NativeVec<T,-1> &src)
+                    : arr(x10aux::alloc<T>(src.sz*sizeof(T))), sz(src.sz)
+                {
+                        ::memcpy(arr, src.arr, sz * sizeof(T));
                 }
                 template<int SZ> NativeVec (const NativeVec<T,SZ> &src)
                     : arr(x10aux::alloc<T>(SZ*sizeof(T))), sz(SZ)

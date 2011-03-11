@@ -26,7 +26,7 @@ public class ThisEscapingViaAt_MustFailCompile extends x10Test {
     }
 
 
-// file ObjectInitialization line 76
+// file ObjectInitialization line 81
  
  static class Example {
   val a: Int;

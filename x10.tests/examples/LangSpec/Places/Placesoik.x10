@@ -19,10 +19,10 @@ import harness.x10Test;
 
 
 
-public class Places30 extends x10Test {
+public class Placesoik extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Places30().execute();
+        new Placesoik().execute();
     }
 
 

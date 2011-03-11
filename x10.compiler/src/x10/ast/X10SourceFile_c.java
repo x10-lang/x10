@@ -24,6 +24,11 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.errors.Errors;
 
+/**
+ * An <code>X10SourceFile</code> is an immutable representations of an X10
+ * language source file.  It consists of a package name, a list of 
+ * <code>Import</code>s, and a list of <code>GlobalDecl</code>s.
+ */
 public class X10SourceFile_c extends SourceFile_c {
 
 	public X10SourceFile_c(Position pos, PackageNode package_, List<Import> imports, List<TopLevelDecl> decls) {

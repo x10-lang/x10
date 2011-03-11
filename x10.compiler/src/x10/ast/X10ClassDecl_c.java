@@ -207,7 +207,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    protected void setSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
+    protected void setSuperClass(TypeSystem ts, ClassDef thisType) {
         TypeNode superClass = this.superClass;
 
         final TypeSystem xts = (TypeSystem) ts;
@@ -245,7 +245,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         }
     }
     
-    private void superSetSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
+    private void superSetSuperClass(TypeSystem ts, ClassDef thisType) {
         TypeNode superClass = this.superClass;
         Reporter reporter = ts.extensionInfo().getOptions().reporter;
         
@@ -274,7 +274,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
+    protected void setInterfaces(TypeSystem ts, ClassDef thisType) {
     	final TypeSystem xts = (TypeSystem) ts;
     	Reporter reporter = xts.extensionInfo().getOptions().reporter;
 
@@ -452,7 +452,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    public X10ClassDecl_c preBuildTypes(TypeBuilder tb) throws SemanticException {
+    public X10ClassDecl_c preBuildTypes(TypeBuilder tb) {
         X10ClassDecl_c n = (X10ClassDecl_c) superPreBuildTypes(tb);
         
         final X10ClassDef def = (X10ClassDef) n.type;
@@ -531,7 +531,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 final UnknownTypeNode returnType = nf.UnknownTypeNode(pos);
                 final QName fullName = curr.fullName();
                 MethodDecl md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),returnType,nf.Id(pos,getThisMethod(containerName,fullName)),Collections.<Formal>emptyList(),
-                        nf.Block(pos,nf.Return(pos,nf.Special(pos, Special.Kind.THIS, nf.TypeNodeFromQualifiedName(pos,fullName)))));
+                        nf.Block(pos,nf.Return(pos,nf.Special(pos, Special.Kind.THIS, nf.CanonicalTypeNode(pos, curr)))));
                 n = (X10ClassDecl_c) n.body(n.body().addMember(md));
 
                 if (curr.flags().isStatic()) break; // a static class doesn't have an outer instance
@@ -550,7 +550,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                         "$this");
     }
     
-    private X10ClassDecl_c superPreBuildTypes(TypeBuilder tb) throws SemanticException {
+    private X10ClassDecl_c superPreBuildTypes(TypeBuilder tb) {
         tb = tb.pushClass(position(), flags.flags(), name.id());
 
         ClassDef type = tb.currentClass();
@@ -588,7 +588,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    public X10ClassDecl_c postBuildTypes(TypeBuilder tb) throws SemanticException {
+    public X10ClassDecl_c postBuildTypes(TypeBuilder tb) {
         
     	X10ClassDecl_c n = (X10ClassDecl_c) this.copy();
     	
@@ -905,9 +905,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	
-    	if (flags().flags().isStruct()) {
-    		if (n.classDef().isInnerClass() && ! flags().flags().isStatic()) {
+    	Flags flags = n.flags().flags();
+    	if (flags.isStruct()) {
+    		if (n.classDef().isInnerClass() && ! flags.isStatic()) {
     			Errors.issue(tc.job(), new Errors.StructMustBeStatic(n));
+    			n.classDef().setFlags(n.classDef().flags().Static());
+    			n = (X10ClassDecl_c) n.flags(n.flags().flags(flags.Static()));
     		}
     		n.checkStructMethods(parent, tc);
     	}
@@ -916,6 +919,24 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (n.superClass!=null) Types.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());
         for (TypeNode typeNode : n.interfaces)
             Types.checkVariance(typeNode, ParameterType.Variance.COVARIANT,tc.job());
+
+        // check normal interfaces do not have property fields, but only annotation-interfaces
+        if (flags.isInterface() && properties.size()>0) {
+            Type A;
+            try {
+                A = xts.systemResolver().findOne(QName.make("x10.lang.annotations.Annotation"));
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Couldn't find x10.lang.annotations.Annotation",e);
+            }
+            if (!classDef().asType().isSubtype(A,tc.context())) {
+                Errors.issue(tc.job(), new SemanticException("Interfaces that do not extend Annotation cannot have property fields. Use property methods instead.",position));                
+            }
+        }
+
+        // check properties are always simpler than their container
+        if (((X10ClassDef_c)classDef()).hasCircularProperty())
+            Errors.issue(tc.job(), new SemanticException("A class can only have properties of a 'simpler' type, i.e., there must be an ordering for all types such that if A has a property of type B then B is 'simpler' than A, and if A extends B then B is 'simpler' than A.",position));            
+
     	return n;
     }
     
@@ -1037,7 +1058,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            if (fi instanceof X10FieldInstance) {
     	                X10FieldInstance xfi = (X10FieldInstance) fi;
     	                if (xfi.isProperty())
-    	                    ex = new Errors.ClassCannotOerridePropertyOfSuperclass(type, fi, position());
+    	                    ex = new Errors.ClassCannotOverridePropertyOfSuperclass(type, fi, position());
     	            }
     	        }
     	        catch (SemanticException e) {
@@ -1252,7 +1273,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     protected ConstructorDecl createDefaultConstructor(ClassDef _thisType,
-    		TypeSystem ts, NodeFactory nf) throws SemanticException
+    		TypeSystem ts, NodeFactory nf)
     {
         X10ClassDef thisType = (X10ClassDef) _thisType;
         Position pos = Position.compilerGenerated(body().position());
@@ -1491,7 +1512,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return body == n.body ? n : n.body(body);
     }
 
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
     	X10ClassDecl_c n = this;
     	n = n.preBuildTypes(tb);
     	n = n.buildTypesBody(tb);
@@ -1499,7 +1520,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	return n;
     }
 
-    private X10ClassDecl_c buildTypesBody(TypeBuilder tb) throws SemanticException {
+    private X10ClassDecl_c buildTypesBody(TypeBuilder tb) {
     	X10ClassDecl_c n = this;
     	TypeBuilder tb2 = tb.pushClass(n.type);
     	ClassBody body = (ClassBody) n.visitChild(n.body, tb2);

@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.Global;
 import x10.compiler.Pinned;
+import x10.util.Map;
 
 /**
  * @author tardieu
@@ -98,6 +99,16 @@ public class Clock(name:String) {
         }
         put(-ph);
     }
+     @Global def resumeInternal(entry:Map.Entry[Clock,Int]) {
+        Runtime.ensureNotInAtomic();
+        val ph = entry.getValue();
+        if (ph < 0) return;
+        at (root) {
+        	val me = root();
+        	me.resumeLocal();
+        }
+        entry.setValue(-ph);
+    }
     @Global def nextUnsafe() {
     	Runtime.ensureNotInAtomic();
         val ph = get();
@@ -109,6 +120,17 @@ public class Clock(name:String) {
         }
         put(abs + 1);
     }
+    @Global def nextInternal(entry:Map.Entry[Clock,Int]) {
+    	Runtime.ensureNotInAtomic();
+        val ph = entry.getValue();
+        val abs = Math.abs(ph);
+        at (root) {
+        	val me = root();
+            if (ph > 0) me.resumeLocal();
+            when (abs < me.phase);
+        }
+        entry.setValue(abs + 1);
+    }
     @Global def dropUnsafe() {
         val ph = remove();
         async at(root) {
@@ -116,8 +138,8 @@ public class Clock(name:String) {
         	me.dropLocal(ph);
         }
     }
-    @Global def dropInternal() {
-        val ph = get();
+    @Global def dropInternal(entry:Map.Entry[Clock,Int]) {
+        val ph = entry.getValue();
         async at(root.home) {
 	    val rcl:Clock = root();
             rcl.dropLocal(ph);

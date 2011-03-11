@@ -16,6 +16,7 @@ import java.util.List;
 import polyglot.ast.Allocation;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
+import polyglot.ast.FieldDecl;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
@@ -47,7 +48,7 @@ import x10.util.AltSynthesizer;
  */
 public class ConstructorSplitterVisitor extends ContextVisitor {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     
     private void debug (Job job, String msg, Position pos) {
         if (!DEBUG) return;
@@ -63,6 +64,17 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
     public ConstructorSplitterVisitor(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         syn = new AltSynthesizer(ts, nf);
+    }
+
+    /* (non-Javadoc)
+     * @see polyglot.visit.NodeVisitor#override(polyglot.ast.Node)
+     * 
+     * Note: C++ backend apparently cannot handle StmtExpr's "outside functions"
+     */
+    @Override
+    public Node override(Node n) {
+        if (n instanceof FieldDecl) return n;
+        return super.override(n);
     }
 
     /**
@@ -99,7 +111,6 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         if (node instanceof LocalDecl && ((LocalDecl) node).init() instanceof New) {
             LocalDecl ld       = (LocalDecl) node;
             New n              = (New) ld.init();
-    //      Type type          = Types.baseType(n.type());
             Type type          = n.type();
             Allocation a       = createAllocation(pos, type, n.typeArguments());
             ld                 = ld.init(a);
@@ -111,11 +122,6 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             Node result        = syn.createStmtSeq(pos, stmts);
             debug(job, "ConstructorSplitterVisitor splitting " +node+ "\n\t" +result, pos);
             return result;
-        }
-        if (node instanceof ConstructorCall) {
-            ConstructorCall cc = (ConstructorCall) node;
-            debug(job, "ConstructorSplitterVisitor supplying 'this' target for constructor call: " + cc, pos);
-            return cc.target(createThis(pos, cc.constructorInstance().returnType()));
         }
         return super.leaveCall(parent, old, node, v);
     }

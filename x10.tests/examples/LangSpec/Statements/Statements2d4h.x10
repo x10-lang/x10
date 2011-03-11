@@ -26,7 +26,7 @@ public class Statements2d4h extends x10Test {
     }
 
 
-// file Statements line 636
+// file Statements line 643
  static  class Example {
 static def sum(a: Array[Int]): Int {
   var s : Int = 0;

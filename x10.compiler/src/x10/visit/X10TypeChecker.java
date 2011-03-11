@@ -70,35 +70,21 @@ public class X10TypeChecker extends TypeChecker {
 	        return n_;
 	    }
 
-	    try {
-	        if (reporter.should_report(reporter.visit, 2))
-	            reporter.report(2, ">> " + this + "::override " + n);
+	    if (reporter.should_report(reporter.visit, 2))
+	        reporter.report(2, ">> " + this + "::override " + n);
 
-	        Node m = n.del().typeCheckOverride(parent, this);
+	    Node m = n.del().typeCheckOverride(parent, this);
 
-	        if (m != null) {
-//	            memo.put(n, m);
-//	            memo.put(m, m);
-	        }
-
-	        return m;
+	    if (m != null) {
+//	        memo.put(n, m);
+//	        memo.put(m, m);
 	    }
-	    catch (SemanticException e) {
-	        Errors.issue(job(), e);
-	        // continue, errors have been reported, maybe you will find more errors.
-	        return n;
-	    }
+
+	    return m;
 	}
 
-	protected NodeVisitor enterCall(Node n) throws SemanticException {
-	    try {
-	        return super.enterCall(n);
-	    } catch (SemanticException z) {
-	        boolean newp = extensionInfo.errorSet().add(z);
-	        if (newp)
-	            throw z;
-	        else throw new SemanticException();
-	    }
+	protected NodeVisitor enterCall(Node n) {
+	    return super.enterCall(n);
 	}
 	    
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {

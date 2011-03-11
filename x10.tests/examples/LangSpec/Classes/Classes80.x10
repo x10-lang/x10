@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package places_are_For_Graces;
+/* Current test harness gets confused by packages, but it would be in package Classes_methodwithconstraintthingie;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,22 +19,21 @@ import harness.x10Test;
 
 
 
-public class Places60 extends x10Test {
+public class Classes80 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Places60().execute();
+        new Classes80().execute();
     }
 
 
-// file Places line 77
- static  class Example {
- def example() {
-val h0 = here;
-at (here.next()) {
-  val h1 = here;
-  assert (h0 != h1);
+// file Classes line 463
+
+ static class Example {
+   var f : String = "";
+   def example(x:Object){x != null} = {
+      this.f = x.toString();
+   }
 }
-} }
 
  static class Hook {
    def run():Boolean = true;

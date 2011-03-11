@@ -9,6 +9,7 @@
 package polyglot.visit;
 
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.Iterator;
 
 import polyglot.frontend.*;
@@ -65,7 +66,8 @@ public class PostCompiled extends AllBarrierGoal
             Runtime runtime = Runtime.getRuntime();
             QuotedStringTokenizer st = new QuotedStringTokenizer(options.post_compiler, '?');
             int pc_size = st.countTokens();
-            String[] javacCmd = new String[pc_size+2+compiler.outputFiles().size()];
+            Collection<String> outputFiles = compiler.flatOutputFiles();
+            String[] javacCmd = new String[pc_size+2+outputFiles.size()];
             int j = 0;
             for (int i = 0; i < pc_size; i++) {
                 javacCmd[j++] = st.nextToken();
@@ -73,7 +75,7 @@ public class PostCompiled extends AllBarrierGoal
             javacCmd[j++] = "-classpath";
             javacCmd[j++] = options.constructPostCompilerClasspath();
 
-            Iterator<String> iter = compiler.outputFiles().iterator();
+            Iterator<String> iter = outputFiles.iterator();
             for (; iter.hasNext(); j++) {
                 javacCmd[j] = (String) iter.next();
             }
@@ -111,7 +113,7 @@ public class PostCompiled extends AllBarrierGoal
                 if (!options.keep_output_files) {
                   String[] rmCmd = new String[1+compiler.outputFiles().size()];
                   rmCmd[0] = "rm";
-                  iter = compiler.outputFiles().iterator();
+                  iter = outputFiles.iterator();
                   for (int i = 1; iter.hasNext(); i++)
                     rmCmd[i] = (String) iter.next();
                   runtime.exec(rmCmd);

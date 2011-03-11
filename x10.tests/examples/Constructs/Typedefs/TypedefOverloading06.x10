@@ -12,23 +12,24 @@
 import harness.x10Test;
 
 /**
- * 
+ * It is legal for a package, class, or interface to contain a type
+ * definition with no type or value parameters and also a member class
+ * or interface with the same name but with a different number of type
+ * parameters.
  *
- * @author vj 09/2008
+ * @author bdlucas 9/2008
  */
-public class DefaultRefTypeDefTest extends x10Test {
 
-    static class Foo[T](n:int, s:T) {
-       def this(n:int, s:T):Foo[T](n,s) = {
-         property(n,s);
-       }
-    }
-    public def run() = {
-        x:Foo[String](2,"a") = new Foo[String](2,"a");
-        true
+public class TypedefOverloading06 extends TypedefTest {
+
+    static interface A[T] {};
+    static type A = String;
+
+    public def run(): boolean = {
+        return result;
     }
 
     public static def main(var args: Array[String](1)): void = {
-        new DefaultRefTypeDefTest().execute();
+        new TypedefOverloading06().execute();
     }
 }

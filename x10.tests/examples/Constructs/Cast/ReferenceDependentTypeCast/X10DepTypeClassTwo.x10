@@ -16,6 +16,7 @@ import harness.x10Test;
  * @author vcave
  **/
 public class X10DepTypeClassTwo(p: int, q: int) extends x10Test {
+    public property p():int = p;
     
     public def this(a: int, b: int): X10DepTypeClassTwo{self.p==a&&self.q==b} = {
         property(a,b);

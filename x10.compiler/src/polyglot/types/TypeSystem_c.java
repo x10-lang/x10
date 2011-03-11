@@ -895,7 +895,6 @@ public class TypeSystem_c implements TypeSystem
         }
 
         MacroType mi = maximal.iterator().next();        
-        mi = matcher.instantiateAccess(mi);
         return mi;
     }
 

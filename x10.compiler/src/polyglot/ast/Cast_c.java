@@ -33,7 +33,7 @@ public abstract class Cast_c extends Expr_c implements Cast
     public abstract Precedence precedence();
 
     /** Type check the expression. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
   
     public abstract String toString();
 

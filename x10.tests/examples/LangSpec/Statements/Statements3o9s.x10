@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package statements_for_for;
+/* Current test harness gets confused by packages, but it would be in package Statements3o9s;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,22 +19,19 @@ import harness.x10Test;
 
 
 
-public class Statements90 extends x10Test {
+public class Statements3o9s extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Statements90().execute();
+        new Statements3o9s().execute();
     }
 
 
-// file Statements line 667
- static  class Example {
- def example(n:Int) {
-  var sum : Int = 0;
-  for ([i] in 1..n) sum += i;
- } }
-
- static class Hook {
-   def run():Boolean = true;
-}
+// file Statements line 660
+ static  class Example { static def example() {
+var sum : Int = 0;
+for(i in 1..10) sum += i;
+assert sum == 55;
+} }
+ static  class Hook { def run() { Example.example(); return true; } }
 
 }

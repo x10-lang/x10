@@ -25,6 +25,7 @@ import x10.compiler.CompilerFlags;
  * @author Dave Cunningham
  */
 public final struct Place(id: Int)  {
+    public property id():Int = id;
 
     /** The number of places including accelerators.
      * Accelerator places have limitations on the kinds of code they can run.

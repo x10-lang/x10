@@ -21,5 +21,5 @@ import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import x10.types.MethodInstance;
 
-public interface X10Call extends Call, X10ProcedureCall {  // todo: delete me!
+public interface X10Call extends Call {  // todo: delete me!
 }

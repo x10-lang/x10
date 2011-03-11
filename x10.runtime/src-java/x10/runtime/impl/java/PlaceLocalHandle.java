@@ -58,7 +58,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
 
   // TODO haszero
   // zero value constructor
-  public PlaceLocalHandle(x10.rtt.Type<T> T, java.lang.System[] dummy$0) {
+  public PlaceLocalHandle(x10.rtt.Type<T> T, java.lang.System $dummy) {
       this(T);
   }
 

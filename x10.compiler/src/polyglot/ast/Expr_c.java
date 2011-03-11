@@ -101,7 +101,7 @@ public abstract class Expr_c extends Term_c implements Expr
         return ((Double) constantValue()).doubleValue();
     }
 
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    public Node buildTypes(TypeBuilder tb) {
         return type(tb.typeSystem().unknownType(position()));
     }
 

@@ -26,11 +26,11 @@ public class Statements50 extends x10Test {
     }
 
 
-// file Statements line 249
+// file Statements line 252
  static  class Example {
  def example(a:(Int,Int) => Int, do_things_to:(Int)=>Int) {
-lbl : for ([i] in 1..10) {
-   for ([j] in i..10) {
+lbl : for (i in 1..10) {
+   for (j in i..10) {
       if (a(i,j) == 0) break lbl;
       if (a(i,j) == 1) continue lbl;
       if (a(i,j) == a(j,i)) break lbl;

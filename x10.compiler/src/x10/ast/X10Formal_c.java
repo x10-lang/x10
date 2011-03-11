@@ -158,10 +158,13 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	}
 
 	@Override
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	public Node buildTypes(TypeBuilder tb) {
 	    X10Formal_c n = (X10Formal_c) super.buildTypes(tb);
 
 	    X10LocalDef fi = (X10LocalDef) n.localDef();
+	    if (isUnnamed()) {
+	        fi.setUnnamed();
+	    }
 
 	    List<AnnotationNode> as = ((X10Del) n.del()).annotations();
 	    if (as != null) {
@@ -240,11 +243,18 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 
 	    if (outerLocal != null && ! li.equals(outerLocal.def()) && c.isLocal(li.name())) { // todo: give me a test case that shows this error?
 	        Errors.issue(tc.job(),
-	                new Errors.LocalVaraibleMultiplyDefined(name, outerLocal.position(), position()));
+	                new Errors.LocalVariableMultiplyDefined(name.id(), outerLocal.position(), position()));
 	    }
 
 	    TypeSystem ts = tc.typeSystem();
-        final Type myType = this.type().type();
+	    TypeNode typeNode = this.type();
+	    final Type myType = typeNode.type();
+
+	    try {
+	        Types.checkMissingParameters(typeNode);
+	    } catch (SemanticException e) {
+	        Errors.issue(tc.job(), e, this);
+	    }
 
 	    try {
 	        ts.checkLocalFlags(flags().flags());
@@ -252,7 +262,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	    catch (SemanticException e) {
 	        Errors.issue(tc.job(), e, this);
 	    }
-        if (this.type() instanceof UnknownTypeNode || myType instanceof UnknownType) {
+	    if (typeNode instanceof UnknownTypeNode || myType instanceof UnknownType) {
 	        Errors.issue(tc.job(),
 	                new Errors.CannotInferTypeForFormalParameter(this.name(), position()));
 	    } else
@@ -260,7 +270,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	        Errors.issue(tc.job(),
 	                new Errors.FormalParameterCannotHaveType(myType, position()));
         else {
-            checkExplodedVars(vars.size(), (Ref<Type>)this.type().typeRef(), position(), tc);
+            checkExplodedVars(vars.size(), (Ref<Type>)typeNode.typeRef(), position(), tc);
         }
 
 	    return this;
@@ -330,22 +340,26 @@ public class X10Formal_c extends Formal_c implements X10Formal {
     }
 
     public String toString() {
-	StringBuffer sb = new StringBuffer();
-	sb.append(flags.flags().clearFinal().translate());
-	if (flags.flags().isFinal())
-	    sb.append("val ");
-	else
-	    sb.append("var ");
-	sb.append(name);
-	if (! vars.isEmpty()) {
-		sb.append("(");
-		for (int i = 0; i < vars.size(); i++)
-			sb.append(i > 0 ? "," : "").append(vars.get(i));
-		sb.append(")");
-	}
-	sb.append(": ");
-	sb.append(type);
-	return sb.toString();
+        StringBuffer sb = new StringBuffer();
+        sb.append(flags.flags().clearFinal().translate());
+        boolean noheader = unnamed && vars.isEmpty();
+        if (!noheader && !flags.flags().isFinal()) {
+            sb.append("var ");
+        }
+        if (!unnamed) {
+            sb.append(name);
+        }
+        if (! vars.isEmpty()) {
+            sb.append("[");
+            for (int i = 0; i < vars.size(); i++)
+                sb.append(i > 0 ? "," : "").append(vars.get(i));
+            sb.append("]");
+        }
+        if (!noheader) {
+            sb.append(": ");
+        }
+        sb.append(type);
+        return sb.toString();
     }
 
 	/* (non-Javadoc)

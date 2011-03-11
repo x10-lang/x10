@@ -53,6 +53,7 @@ import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
+import polyglot.ast.SwitchBlock;
 import polyglot.ast.Throw;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
@@ -92,6 +93,7 @@ import x10.ast.Tuple;
 import x10.ast.When;
 import x10.ast.X10ClassDecl;
 import x10.errors.Warnings;
+import x10.extension.X10Ext;
 import x10.types.X10FieldInstance;
 import x10.util.AltSynthesizer;
 import x10.util.CollectionFactory;
@@ -276,7 +278,8 @@ public final class ExpressionFlattener extends ContextVisitor {
         if (n instanceof ForLoop) return flattenForLoop((ForLoop) n, labeled);
         if (n instanceof While) return flattenWhile((While_c) n, labeled);  // TODO: fix polyglot to allow getters in the interface
         if (n instanceof Do) return flattenDo((Do_c) n, labeled); // TODO: fix polyglot to allow getters in the interface
-        assert false;  
+        if (n instanceof AtEach)    return flattenAtEach((AtEach) n, labeled);
+        assert false;
         return null;
     }
 
@@ -800,7 +803,6 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (stmt instanceof Async)     return flattenAsync((Async) stmt);
         else if (stmt instanceof AtStmt)    return flattenAtStmt((AtStmt) stmt);
         else if (stmt instanceof When)      return flattenWhen((When) stmt);
-        else if (stmt instanceof AtEach)    return flattenAtEach((AtEach) stmt);
         else if (stmt instanceof AssignPropertyCall) return flattenAssignPropertyCall((AssignPropertyCall) stmt);
         else if (stmt instanceof ConstructorCall)    return flattenConstructorCall((ConstructorCall) stmt);
         else if (stmt instanceof Branch)             return inspectBranch((Branch) stmt);
@@ -842,12 +844,9 @@ public final class ExpressionFlattener extends ContextVisitor {
             Block inner = (Block) bodyStmts.get(0);
             boolean outerStmtSeq = stmt instanceof StmtSeq;
             boolean innerStmtSeq = inner instanceof StmtSeq;
-            if (!outerStmtSeq || innerStmtSeq) {
-                if (outerStmtSeq) {
-                    stmt = syn.createStmtSeq(stmt.position(), inner.statements());
-                } else if (stmt instanceof Block_c) {
-                    stmt = syn.createBlock(stmt.position(), inner.statements());
-                }
+            if ((!outerStmtSeq || innerStmtSeq) && !(stmt instanceof SwitchBlock)
+                    && ((X10Ext) inner.ext()).annotations().isEmpty()) {
+                stmt = stmt.statements(inner.statements());
             }
         }
 
@@ -899,11 +898,12 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param stmt the AtEach statement to flatten
      * @return a flat statement with the same semantics as stmt
      */
-    private StmtSeq flattenAtEach(AtEach stmt) {
+    private Block flattenAtEach(AtEach stmt, boolean labeled) {
         List<Stmt> stmts = new ArrayList<Stmt>();
         Expr domain = getPrimaryAndStatements(stmt.domain(), stmts);
-        stmts.add(stmt.domain(domain));
-        return syn.createStmtSeq(stmt.position(), stmts);
+        stmt = (AtEach) stmt.domain(domain);
+        stmts.add(label(stmt, labeled));
+        return syn.createBlock(stmt.position(), stmts);
     }
 
     /**

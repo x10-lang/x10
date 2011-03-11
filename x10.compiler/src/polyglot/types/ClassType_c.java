@@ -292,7 +292,7 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
      * an enclosing instance of <code>encl</code>. 
      */
     public boolean hasEnclosingInstance(ClassType encl) {
-        if (this.equals((Object) encl)) {
+        if (this.typeEquals(encl, ts.emptyContext())) {
             // object o is the zeroth lexically enclosing instance of itself. 
             return true;
         }

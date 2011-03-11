@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Activities_copyingblockingwithglobref;
+/* Current test harness gets confused by packages, but it would be in package expsome_Places14;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,24 +19,20 @@ import harness.x10Test;
 
 
 
-public class Activities50 extends x10Test {
+public class Places4e7q extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Activities50().execute();
+        new Places4e7q().execute();
     }
 
 
-// file Activities line 402
- static  class GR {
-  static def use(Any){}
-  static def example() {
-val huge = "A potentially big thing";
-val href = GlobalRef(huge);
-at (here) {
-   use(href);
-  }
+// file Places line 588
+
+ static class Places14TestExp{
+  def check(g:GlobalRef[Object]{here == g.home})  = g();  }
+
+ static class Hook {
+   def run():Boolean = true;
 }
-}
- static  class Hook{ def run() { GR.example(); return true; } }
 
 }

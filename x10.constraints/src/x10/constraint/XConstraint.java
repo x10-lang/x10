@@ -271,7 +271,6 @@ public class XConstraint implements Cloneable {
      * @param val -- t2
      */
     public void addBinding(XTerm left, XTerm right)  {
-        if (left == null)
     	assert left != null;
         assert right != null;
 

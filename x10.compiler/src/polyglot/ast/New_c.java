@@ -152,7 +152,7 @@ public abstract class New_c extends Expr_c implements X10New
 
     Goal enable = null;
     
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
         TypeSystem ts = tb.typeSystem();
 
         New_c n = this;
@@ -181,10 +181,10 @@ public abstract class New_c extends Expr_c implements X10New
         return n.type(ts.unknownType(position()));
     }
     
-    public abstract New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException;
+    public abstract New_c typeCheckObjectType(TypeChecker childtc);
     
     @Override
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
         TypeChecker childtc;
         NodeVisitor childv = tc.enter(parent, this);
         if (childv instanceof TypeChecker) {
@@ -204,7 +204,7 @@ public abstract class New_c extends Expr_c implements X10New
         return n;
     }
 
-    protected New_c typeCheckHeader(TypeChecker childtc) throws SemanticException {
+    protected New_c typeCheckHeader(TypeChecker childtc) {
 	TypeSystem ts = childtc.typeSystem();
 
 	New_c n = this;
@@ -243,9 +243,9 @@ public abstract class New_c extends Expr_c implements X10New
      * @param ct
      * @throws SemanticException
      */
-    protected abstract New findQualifier(TypeChecker ar, ClassType ct) throws SemanticException;
+    protected abstract New findQualifier(TypeChecker ar, ClassType ct);
     
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
 
     protected void typeCheckNested(ContextVisitor tc) throws SemanticException {
         if (qualifier != null) {

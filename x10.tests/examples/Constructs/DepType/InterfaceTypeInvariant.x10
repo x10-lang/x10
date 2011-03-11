@@ -20,11 +20,15 @@ import harness.x10Test;
 
 public class InterfaceTypeInvariant extends x10Test { 
 
-    public static interface Test (l:int, m:int){this.m == this.l} {
+    public static interface Test {this.m() == this.l()} {
+        public property l():int;
+        public property m():int;
       def put():int;
     }
     
     class Tester(l:int, m:int){this.m == this.l} implements Test {
+        public property l():int = l;
+        public property m():int = m;
       public def this(arg:int):Tester { property(arg,arg); }
       public def put()=0;
 	}

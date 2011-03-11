@@ -229,20 +229,21 @@ public class X10CPPTranslator extends Translator {
 		                });
 		            }
 		            if (n instanceof FieldDecl && !c.inTemplate()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
-		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()));
+		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
-		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false);
+		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false, -1, false);
 		            else if (def != null)
 		            {
 		            	// include method arguments in the local variable tables
 		            	List<Formal> args = ((ProcedureDecl)parent).formals();
 		            	for (int i=0; i<args.size(); i++)
-		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false);
+		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false, -1, false);
 		            	// include "this" for non-static methods		            	
-		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable() && !c.inTemplate())
+		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable() && !c.inTemplate() && ((Block)n).reachable())
 		            	{
-		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true);
-		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()));
+		            		boolean isStruct = context.currentClass().isX10Struct();
+		            		lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true, -1, isStruct);
+		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct);
 		            	}
 		            }
 		        }
@@ -286,7 +287,6 @@ public class X10CPPTranslator extends Translator {
 	protected boolean translateSource(SourceFile sfn) {
 
 		int outputWidth = job.compiler().outputWidth();
-		Collection<String> outputFiles = job.compiler().outputFiles();
 
 		try {
 
@@ -331,21 +331,21 @@ public class X10CPPTranslator extends Translator {
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String include = getStringPropertyInit(at, 0);
-		                outputFiles.add(pkg_+include);
+		                job.compiler().addOutputFile(fname, pkg_+include);
 		                maybeCopyTo(include, path, out_path+pkg_);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPOutputFile")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String file = getStringPropertyInit(at, 0);
-		                outputFiles.add(pkg_+file);
+		                job.compiler().addOutputFile(fname, pkg_+file);
 		                maybeCopyTo(file, path, out_path+pkg_);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPCompilationUnit")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String compilation_unit = getStringPropertyInit(at, 0);
-		                outputFiles.add(pkg_+compilation_unit);
+		                job.compiler().addOutputFile(fname, pkg_+compilation_unit);
 		                opts.compilationUnits().add(pkg_+compilation_unit);
 		                maybeCopyTo(compilation_unit, path, out_path+pkg_);
 		            }
@@ -366,7 +366,7 @@ public class X10CPPTranslator extends Translator {
 				// [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
 				String header = wstreams.getStreamName(StreamWrapper.Header);
-				outputFiles.add(header);
+				job.compiler().addOutputFile(fname, header);
 				
 				if (opts.x10_config.DEBUG) {
 					Map<String, LineNumberMap> fileToLineNumberMap =
@@ -389,7 +389,7 @@ public class X10CPPTranslator extends Translator {
 			
 			if (generatedCode) {
 			    String cc = fstreams.getStreamName(StreamWrapper.CC);
-			    outputFiles.add(cc);
+			    job.compiler().addOutputFile(fname, cc);
                 opts.compilationUnits().add(cc);
                 
                 if (opts.x10_config.DEBUG) {

@@ -28,15 +28,12 @@ public class Classes20 extends x10Test {
 
 // file Classes line 171
  static class Super{
-  val f = 1;
+  public val f = 1;
 }
  static class Sub extends Super {
   val f = true;
   def superf() : Int = super.f; // 1
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook { def run() { return (new Sub()).superf() == 1; }}
 
 }

@@ -604,9 +604,9 @@ public class Converter {
 	}
 		
 		   
-	    static Expr checkedConversionForTypeParameter(X10Cast cast, Type fromType, Type toType) {
-	        return cast.conversionType(ConversionType.CHECKED).type(toType);
-	    }
+	static Expr checkedConversionForTypeParameter(X10Cast cast, Type fromType, Type toType) {
+	    return cast.conversionType(ConversionType.CHECKED).type(toType);
+	}
 	public static <T extends Node> T check(T n, ContextVisitor tc) throws SemanticException {
 		return (T) n.del().disambiguate(tc).del().typeCheck(tc).del().checkConstants(tc);
 	}

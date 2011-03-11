@@ -26,7 +26,7 @@ public class Arrays250 extends x10Test {
     }
 
 
-// file Arrays line 360
+// file Arrays line 380
  static class Example{
 static def example(A:Array[Int]) {
 for (p in A) A(p) = 2*A(p);

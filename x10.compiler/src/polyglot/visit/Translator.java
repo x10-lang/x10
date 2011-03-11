@@ -164,7 +164,6 @@ public class Translator extends PrettyPrinter implements Cloneable
     	NodeFactory nf = nodeFactory();
     	TargetFactory tf = this.tf;
     	int outputWidth = job.compiler().outputWidth();
-    	Collection<String> outputFiles = job.compiler().outputFiles();
     	
     	// Find the public declarations in the file.  We'll use these to
     	// derive the names of the target files.  There will be one
@@ -197,7 +196,7 @@ public class Translator extends PrettyPrinter implements Cloneable
             }
             
             String opfPath = of.getPath();
-            if (!opfPath.endsWith("$")) outputFiles.add(of.getPath());
+            if (!opfPath.endsWith("$")) job.compiler().addOutputFile(sfn.source().name(), of.getPath());
             w = tf.outputCodeWriter(of, outputWidth);
             
             writeHeader(sfn, w);
@@ -212,7 +211,7 @@ public class Translator extends PrettyPrinter implements Cloneable
                     w.close();
                     
                     of = tf.outputFile(pkg, decl.name().id(), sfn.source());
-                    outputFiles.add(of.getPath());
+                    job.compiler().addOutputFile(sfn.source().name(), of.getPath());
                     w = tf.outputCodeWriter(of, outputWidth);
                     
                     writeHeader(sfn, w);

@@ -319,8 +319,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 					if (tc.known())
 						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
                 } catch (SemanticException z) {
-                	throw 
-                	new InternalCompilerError("Unexpected inconsistent guard" + z);
+                	// inconsistent guard -- ignore
                 }
         //        ((X10Context) c).setCurrentConstraint(vc.get());
         //        ((X10Context) c).setCurrentTypeConstraint(tc.get());

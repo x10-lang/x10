@@ -47,26 +47,32 @@ static inline void checkStringBounds(x10_int index, x10_int length) {
 #endif
 }
 
-x10aux::ref<String>
-String::_make(const char *content, bool steal) {
-    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+void
+String::_constructor(const char *content, bool steal) {
     size_t len = strlen(content);
     if (!steal) content = string_utils::strdup(content);
-    this_->_constructor(content,len);
-    return this_;
+    this->Object::_constructor();
+    this->FMGL(content) = content;
+    this->FMGL(content_length) = len;
 }
 
-x10aux::ref<String>
-String::_make(x10aux::ref<String> s) {
-    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+void
+String::_constructor() {
+    this->Object::_constructor();
+    this->FMGL(content) = "";
+    this->FMGL(content_length) = 0;
+}
+
+void
+String::_constructor(x10aux::ref<String> s) {
     nullCheck(s);
-    this_->_constructor(s->FMGL(content), s->FMGL(content_length));
-    return this_;
+    this->Object::_constructor();
+    this->FMGL(content) = s->FMGL(content);
+    this->FMGL(content_length) = s->FMGL(content_length);
 }
 
-x10aux::ref<String>
-String::_make(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) {
-    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+void
+String::_constructor(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) {
     nullCheck(rail);
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
@@ -74,14 +80,13 @@ String::_make(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) 
         content[i] = (char)((*rail)[start + i].v);
     }
     content[i] = '\0';
-
-    this_->_constructor(content, i);
-    return this_;
+    this->Object::_constructor();
+    this->FMGL(content) = content;
+    this->FMGL(content_length) = i;
 }
 
-x10aux::ref<String>
-String::_make(x10aux::ref<x10::array::Array<x10_byte> > array, x10_int start, x10_int length) {
-    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+void
+String::_constructor(x10aux::ref<x10::array::Array<x10_byte> > array, x10_int start, x10_int length) {
     nullCheck(array);
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
@@ -89,14 +94,13 @@ String::_make(x10aux::ref<x10::array::Array<x10_byte> > array, x10_int start, x1
         content[i] = (char)(array->raw()[start + i]);
     }
     content[i] = '\0';
-
-    this_->_constructor(content, i);
-    return this_;
+    this->Object::_constructor();
+    this->FMGL(content) = content;
+    this->FMGL(content_length) = i;
 }
 
-x10aux::ref<String>
-String::_make(x10aux::ref<x10::array::Array<x10_char> > array, x10_int start, x10_int length) {
-    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+void
+String::_constructor(x10aux::ref<x10::array::Array<x10_char> > array, x10_int start, x10_int length) {
     nullCheck(array);
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
@@ -104,11 +108,10 @@ String::_make(x10aux::ref<x10::array::Array<x10_char> > array, x10_int start, x1
         content[i] = (char)(array->raw()[start + i].v);
     }
     content[i] = '\0';
-
-    this_->_constructor(content, i);
-    return this_;
+    this->Object::_constructor();
+    this->FMGL(content) = content;
+    this->FMGL(content_length) = i;
 }
-
 
 x10_int String::hashCode() {
     x10_int hc = 0;

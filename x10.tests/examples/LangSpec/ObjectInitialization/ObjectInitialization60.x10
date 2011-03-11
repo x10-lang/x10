@@ -26,7 +26,7 @@ public class ObjectInitialization60 extends x10Test {
     }
 
 
-// file ObjectInitialization line 572
+// file ObjectInitialization line 577
  static  class Supertype[T]{}
  static  interface SuperInterface[T]{}
  static class Example (
@@ -39,7 +39,7 @@ public class ObjectInitialization60 extends x10Test {
    implements SuperInterface[Int{self != prop}] // (D)
 {
    property def propmeth() = (prop == pror);    // (E)
-   static staticField
+   staticField
       : Cell[Int{self != 0}]                    // (F)
       = new Cell[Int{self != 0}](1);            // (G)
    var instanceField

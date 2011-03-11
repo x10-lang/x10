@@ -14,6 +14,7 @@ import java.util.List;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * An <code>ArrayInit</code> is an immutable representation of
@@ -61,7 +62,7 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
     }
 
     /** Type check the initializer. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
 	Type type = null;
@@ -71,7 +72,11 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
 	        type = e.type();
 	    }
 	    else {
-	        type = ts.leastCommonAncestor(type, e.type(), tc.context());
+	        try {
+                type = ts.leastCommonAncestor(type, e.type(), tc.context());
+            } catch (SemanticException e1) {
+                // Leave type unchanged
+            }
 	    }
 	}
 
@@ -113,11 +118,12 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
         return child.type();
     }
 
-    public void typeCheckElements(ContextVisitor tc, Type lhsType) throws SemanticException {
+    public void typeCheckElements(ContextVisitor tc, Type lhsType) {
     	TypeSystem ts = tc.typeSystem();
 
         if (! lhsType.isArray()) {
-          throw new SemanticException("Cannot initialize " + lhsType + " with " + type + ".", position());
+          Errors.issue(tc.job(),
+                  new SemanticException("Cannot initialize " + lhsType + " with " + type + ".", position()));
         }
 
         // Check if we can assign each individual element.
@@ -135,7 +141,9 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
             if (! ts.isImplicitCastValid(s, t, tc.context()) &&
                 ! ts.typeEquals(s, t, tc.context()) &&
                 ! ts.numericConversionValid(t, e.constantValue(), tc.context())) {
-                throw new SemanticException("Cannot assign " + s + " to " + t + ".", e.position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Cannot assign " + s + " to " + t + ".", e.position()),
+                        this);
             }
         }
     }

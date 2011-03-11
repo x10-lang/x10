@@ -26,7 +26,7 @@ public class Arrays160 extends x10Test {
     }
 
 
-// file Arrays line 275
+// file Arrays line 295
  static class Example{
 def example[T](A:Array[T], p: Point{rank == A.region.rank}, t:T){
 A(p) = t;

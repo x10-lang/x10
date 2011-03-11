@@ -197,7 +197,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	}
 	
 	@Override
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	public Node buildTypes(TypeBuilder tb) {
 	    SettableAssign_c n = (SettableAssign_c) super.buildTypes(tb);
 
 	    TypeSystem ts = (TypeSystem) tb.typeSystem();

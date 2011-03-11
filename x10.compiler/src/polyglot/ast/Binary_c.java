@@ -32,5 +32,5 @@ public abstract class Binary_c extends Expr_c implements Binary
     public abstract Object constantValue();
     
     /** Type check the expression. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
 }

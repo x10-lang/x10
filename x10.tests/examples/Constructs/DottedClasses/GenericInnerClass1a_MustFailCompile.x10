@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class GenericInnerClass1a_MustFailCompile[X] extends x10Test {
   public static def main(Array[String](1)){
-     val p = new GenericInnerClass1a_MustFailCompile();
+     val p = new GenericInnerClass1a_MustFailCompile(); // ERR
      p.execute();
   }
  

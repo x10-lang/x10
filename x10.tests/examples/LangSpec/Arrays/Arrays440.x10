@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays47;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays49;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Arrays440 extends x10Test {
     }
 
 
-// file Arrays line 758
+// file Arrays line 774
 
- static class Arrays47TestExp{
+ static class Arrays49TestExp{
   def check(da:DistArray[Int](3), p:Point(3), R: Region(da.rank))  = da | R;  }
 
  static class Hook {

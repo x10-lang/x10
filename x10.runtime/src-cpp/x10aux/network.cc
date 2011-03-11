@@ -42,12 +42,6 @@ x10aux::place x10aux::num_hosts = 0;
 x10aux::place x10aux::here = -1;
 bool x10aux::x10rt_initialized = false;
 
-x10_int x10aux::num_threads;
-x10_int x10aux::max_threads;
-x10_boolean x10aux::no_steals;
-x10_boolean x10aux::static_threads;
-
-
 // keep a counter for the session.
 volatile x10_long x10aux::asyncs_sent = 0;
 volatile x10_long x10aux::asyncs_received = 0;
@@ -158,11 +152,6 @@ void x10aux::network_init (int ac, char **av) {
     x10aux::here = x10rt_here();
     x10aux::num_places = x10rt_nplaces();
     x10aux::num_hosts = x10rt_nhosts();
-
-    x10aux::num_threads = x10aux::get_num_threads();
-    x10aux::max_threads = x10aux::get_max_threads();
-    x10aux::no_steals = x10aux::get_no_steals();
-    x10aux::static_threads = x10aux::get_static_threads();
 }
 
 void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10aux::ref<x10::lang::Reference> fs_) {
@@ -254,56 +243,6 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a put: "<<ANSI_RESET
         <<data<<" sid "<<id_<<" id "<<id<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place);
     x10rt_send_put(&p, data, len);
-}
-
-x10_int x10aux::get_num_threads() {
-#ifdef __bg__
-    x10_int default_nthreads = 1;
-#else
-    x10_int default_nthreads = 2;
-#endif
-    const char* env = getenv("X10_NTHREADS");
-    if (env==NULL) return default_nthreads;
-    x10_int num = strtol(env, NULL, 10);
-    assert (num > 0);
-    return num;
-}
-
-x10_int x10aux::get_max_threads() {
-#ifdef __bg__
-    x10_int default_max_threads = 1;
-#else
-    x10_int default_max_threads = 1000;
-#endif
-    const char* env = getenv("X10_MAX_THREADS");
-    if (env==NULL) return default_max_threads;
-    x10_int num = strtol(env, NULL, 10);
-    assert (num > 0);
-#ifdef THREAD_TABLE_SZ // bdwgc cap on the number of threads
-    // we need to cap the number of threads potentially created by XRX
-    // here we assume there will be no more than 16 threads created outside of XRX (e.g., transport)
-    if (num > THREAD_TABLE_SZ - 16) num = THREAD_TABLE_SZ - 16;
-#endif
-    return num;
-}
-
-x10_boolean x10aux::get_no_steals()
-{
-    char* s = getenv("X10_NO_STEALS");
-    if (s && !(strcasecmp("false", s) == 0))
-        return true;
-    return false;
-}
-
-x10_boolean x10aux::get_static_threads() {
-#ifdef __bg__
-    return true;
-#else
-    char* s = getenv("X10_STATIC_THREADS");
-    if (s && !(strcasecmp("false", s) == 0))
-        return true;
-    return false;
-#endif
 }
 
 static void receive_async (const x10rt_msg_params *p) {
@@ -491,8 +430,7 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 // teams
 
 void *x10aux::coll_enter() {
-    x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::__apply(x10::lang::Runtime::FMGL(runtime));
-    x10aux::ref<x10::lang::FinishState> fs = rt->activity()->finishState();
+    x10aux::ref<x10::lang::FinishState> fs = Runtime::activity()->finishState();
     fs->notifySubActivitySpawn(x10::lang::Place_methods::_make(x10aux::here));
     fs->notifyActivityCreation();
     return fs._val;

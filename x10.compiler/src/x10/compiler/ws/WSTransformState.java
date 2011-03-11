@@ -85,6 +85,7 @@ public class WSTransformState {
     public final ClassType asyncFrameType;
     public final ClassType boxedBooleanType;
     public final ClassType workerType;
+    public final ClassType stolenType;
     public final ClassType stackAllocateType; //annotation type
     public final ClassType inlineType; //annotation type
     public final ClassType transientType; //annotation type
@@ -187,6 +188,7 @@ public class WSTransformState {
             asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
             boxedBooleanType = xts.load("x10.compiler.ws.BoxedBoolean");
             workerType = xts.load("x10.compiler.ws.Worker");
+            stolenType = xts.load("x10.compiler.ws.Stolen");
             realloc = true;
         } else {
             frameType = xts.load("x10.compiler.ws.java.Frame");
@@ -199,6 +201,7 @@ public class WSTransformState {
             asyncFrameType = xts.load("x10.compiler.ws.java.AsyncFrame");
             boxedBooleanType = xts.load("x10.compiler.ws.java.BoxedBoolean");
             workerType = xts.load("x10.compiler.ws.java.Worker");
+            stolenType = xts.load("x10.compiler.ws.java.Stolen");
             realloc = false;
         }
         stackAllocateType = xts.load("x10.compiler.StackAllocate");

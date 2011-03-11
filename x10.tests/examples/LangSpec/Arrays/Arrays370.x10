@@ -26,11 +26,11 @@ public class Arrays370 extends x10Test {
     }
 
 
-// file Arrays line 644
+// file Arrays line 660
  static  class Example {
  def example() {
 val data : DistArray[Int]
-    = DistArray.make[Int](1..1000->here, ([i]:Point(1)) => i);
+    = DistArray.make[Int](Dist.makeConstant(1..1000), ([i]:Point(1)) => i);
 val blocked = Dist.makeBlock((1..1000)*(1..1000));
 val data2 : DistArray[Int]
     = DistArray.make[Int](blocked, ([i,j]:Point(2)) => i*j);

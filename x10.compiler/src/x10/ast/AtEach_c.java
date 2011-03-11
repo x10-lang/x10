@@ -128,11 +128,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	    TypeBuilder tb2 = tb.pushCode(mi);
 
 	    AtEach_c n = (AtEach_c) this.del().visitChildren(tb2);
-	    try {
-	        n = (AtEach_c) n.del().buildTypes(tb2);
-	    } catch (SemanticException e) {
-	        throw new InternalCompilerError("Unexpected error while building types for an ateach statement", position(), e);
-	    }
+	    n = (AtEach_c) n.del().buildTypes(tb2);
 
 	    if (code instanceof X10MemberDef) {
 	        assert mi.thisDef() == ((X10MemberDef) code).thisDef();

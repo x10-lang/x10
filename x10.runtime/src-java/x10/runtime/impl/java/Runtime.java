@@ -161,34 +161,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	}
 
 	/**
-	 * Process place checks?
-	 */
-	public static final boolean PLACE_CHECKS = !Boolean.getBoolean("x10.NO_PLACE_CHECKS");
-
-    /**
-     * Disable steals?
-     */
-    public static final boolean NO_STEALS = Boolean.getBoolean("x10.NO_STEALS");
-
-	/**
 	 * The number of places in the system
 	 */
 	public static int MAX_PLACES = X10RT.numPlaces();
-
-	/**
-	 * The number of threads to allocate in the thread pool
-	 */
-	public static final int INIT_THREADS = Integer.getInteger("x10.INIT_THREADS", java.lang.Runtime.getRuntime().availableProcessors());
-
-    /**
-     * The maximal size of the thread pool
-     */
-    public static final int MAX_THREADS = Integer.getInteger("x10.MAX_THREADS", 1000);
-
-	/**
-	 * Whether or not to start more threads while blocking
-	 */
-	public static final boolean STATIC_THREADS = Boolean.getBoolean("x10.STATIC_THREADS");
 
     /**
      * Trace serialization

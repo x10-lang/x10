@@ -144,7 +144,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                             // inner class is created
         int prePcValue = 0; // The current pc value. Will increase every time an
                             // inner class is created
-        boolean isFrameOnHeap = false; //For c++ path, "at" & "async at" transform need the frame on heap first
+        boolean isFrameOnHeap = false; //For both c++ & java path, "at" & "async at" transform need the frame on heap first
+        
         Set<Name> localDeclaredVar = CollectionFactory.newHashSet(); //all locals with these names will not be replaced
         
         while (bodyStmts.size() > 0) {
@@ -187,7 +188,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 break;
             case At:
                 if(!isFrameOnHeap){
-                    codes = genMoveFrameToHeapCodes(prePcValue);
+                    codes = genMoveFrameToHeapCodes(prePcValue, wts.getTheLanguage());
                     isFrameOnHeap = true;
                     bodyStmts.add(0, s); //transform the statement next loop
                 }
@@ -200,7 +201,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 break;
             case AsyncAt:
                 if(!isFrameOnHeap){
-                    codes = genMoveFrameToHeapCodes(prePcValue);
+                    codes = genMoveFrameToHeapCodes(prePcValue, wts.getTheLanguage());
                     isFrameOnHeap = true;
                     bodyStmts.add(0, s); //transform the statement next loop
                 }
@@ -474,7 +475,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     //if(ff.redirect == null){
     //    redo(worker);
     //}
-    protected TransCodes genMoveFrameToHeapCodes(int prePcValue) throws SemanticException{
+    protected TransCodes genMoveFrameToHeapCodes(int prePcValue, String pathName) throws SemanticException{
         TransCodes transCodes = new TransCodes(prePcValue + 1);
         
         //_pc = x;
@@ -489,27 +490,33 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             //Just ignore the pc assign statement if there is no pc field in the frame
         }
         
-        // if statement and redo
-        
-        //if stmt
-        Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
-        Expr redirectRef = synth.makeFieldAccess(compilerPos, ffRef, REDIRECT, xct);
-        Expr redoCheck = xnf.Binary(compilerPos, redirectRef, Binary.EQ,
-                                    xnf.NullLit(compilerPos)).type(wts.finishFrameType);
-        
-        Expr thisRef = genUpcastCall(getClassType(), wts.regularFrameType, getThisRef());
-        
+        Expr thisRef = genUpcastCall(getClassType(), wts.regularFrameType, getThisRef());        
         InstanceCallSynth fastRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, REDO.toString());
         Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
         fastRedoCallSynth.addArgument(wts.workerType, fastWorkerRef);
-        Stmt fastIfRedoStmt = xnf.If(compilerPos, redoCheck, fastRedoCallSynth.genStmt());        
-        transCodes.addFirst(fastIfRedoStmt);
+        Stmt fastRedoCallStmt = fastRedoCallSynth.genStmt();
+
+        if(pathName.equals("java")){
+            //java path, always redo() in fast path
+            transCodes.addFirst(fastRedoCallStmt);
+        }
+        else{
+            //c++ path, only redo() if ff.redirect == null. make sure ff is migrated
+            // if statement with redo call
+            Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
+            Expr redirectRef = synth.makeFieldAccess(compilerPos, ffRef, REDIRECT, xct);
+            Expr redoCheck = xnf.Binary(compilerPos, redirectRef, Binary.EQ,
+                                        xnf.NullLit(compilerPos)).type(wts.finishFrameType);
+            Stmt fastIfRedoStmt = xnf.If(compilerPos, redoCheck, fastRedoCallStmt);     
+            transCodes.addFirst(fastIfRedoStmt);            
+        }        
         
-        InstanceCallSynth resumeRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, REDO.toString());
-        Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-        resumeRedoCallSynth.addArgument(wts.workerType, resumeWorkerRef);
-        Stmt resumeIfRedoStmt = xnf.If(compilerPos, redoCheck, resumeRedoCallSynth.genStmt());        
-        transCodes.addSecond(resumeIfRedoStmt);
+        //resume path no need the redo
+//        InstanceCallSynth resumeRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, REDO.toString());
+//        Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
+//        resumeRedoCallSynth.addArgument(wts.workerType, resumeWorkerRef);
+//        Stmt resumeIfRedoStmt = xnf.If(compilerPos, redoCheck, resumeRedoCallSynth.genStmt());        
+//        transCodes.addSecond(resumeIfRedoStmt);
         
         return transCodes;
     }
@@ -651,7 +658,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             //need get the flag(BoxedBoolean's value)
             Expr flagValueRef = synth.makeFieldAccess(compilerPos, flagRef, Name.make("value"), xct);
             Expr redoCheck = xnf.Binary(compilerPos, flagValueRef, Binary.EQ,
-                                        synth.booleanValueExpr(false, compilerPos));
+                                        synth.booleanValueExpr(false, compilerPos)).type(xts.Boolean());
             
             Expr thisRef = genUpcastCall(getClassType(), wts.regularFrameType, getThisRef());
             

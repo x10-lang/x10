@@ -59,12 +59,12 @@ public class DistArray[T] (
     /**
      * The region this array is defined over.
      */
-    public property region: Region(rank) = dist.region;
+    public property region(): Region(rank) = dist.region;
 
     /**
      * The rank of this array.
      */
-    public property rank: int = dist.rank;
+    public property rank(): int = dist.rank;
 
     // Need a trivial wrapper class because PlaceLocalHandle[T] requires that T <: Object
     protected static class LocalState[T](data:IndexedMemoryChunk[T]) {
@@ -115,8 +115,14 @@ public class DistArray[T] (
     /**
      * Create a distributed array over the argument distribution whose elements
      * are initialized by executing the given initializer function for each 
-     * element of the array in the place where the argument Point is mapped.
-     *
+     * element of the array in the place where the argument Point is mapped. 
+     * The function will be evaluated exactly once for each point
+     * in dist in an arbitrary order to compute the initial value for each array element.</p>
+     * 
+     * Within each place, it is unspecified whether the function evaluations will
+     * be done sequentially by a single activity for each point or concurrently for disjoint sets 
+     * of points by one or more child activities. 
+     * 
      * @param dist the given distribution
      * @param init the initializer function
      * @return the newly created DistArray
@@ -688,7 +694,7 @@ public class DistArray[T] (
         }
 
         var result:U = results(0);
-        for ([i] in 1..(results.size()-1)) {
+        for ([i] in 1..(results.size-1)) {
             result = gop(result, results(i));
         }
         return result;

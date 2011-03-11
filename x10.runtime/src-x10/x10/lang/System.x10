@@ -83,17 +83,11 @@ public class System {
     @Native("c++", "x10aux::heap_size()")
     public static native def heapSize():long;
 
-    @Native("java", "x10.runtime.impl.java.Runtime.loadenv()")
-    @Native("c++", "x10aux::loadenv()")
-    private static native def loadenv():HashMap[String,String];
-
-    private static env = loadenv();
-
     /**
      * Returns an immutable map from environment variables to values.
      * Only environment variables whose names start with X10_ are reported.
      */
-    public static def getenv():Map[String,String] = env;
+    public static def getenv():Map[String,String] = Runtime.env;
 
     /**
      * Sets the system property with the given name to the given value.

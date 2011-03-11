@@ -26,7 +26,7 @@ public class Classes70 extends x10Test {
     }
 
 
-// file Classes line 316
+// file Classes line 312
  static  class Exampllll[T] {
  public val x : T;
  def this(y:T) { x=y; }

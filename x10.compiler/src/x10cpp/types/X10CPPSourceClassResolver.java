@@ -17,6 +17,7 @@ import java.io.InputStream;
 
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
+import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Resource;
 import polyglot.frontend.Source;
@@ -89,7 +90,7 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         return null;
     }
 
-    protected void handleUpToDateTarget(QName name, Resource file) {
+    protected void handleUpToDateTarget(FileSource source, QName name, Resource file) {
         // FIXME: [IP] HACK
         // Add the files associated to this class to outputFiles even if they won't be compiled
         if (!isOutput(name))
@@ -102,7 +103,7 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         System.out.println("Not recompiling: "+name);
 
         ((X10CPPCompilerOptions)ext.getOptions()).compilationUnits().add(cc);
-        ext.compiler().outputFiles().add(cc);
-        ext.compiler().outputFiles().add(h);
+        ext.compiler().addOutputFile(source.name(), cc);
+        ext.compiler().addOutputFile(source.name(), h);
     }
 }

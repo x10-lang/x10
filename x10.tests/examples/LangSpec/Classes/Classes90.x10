@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Vars_For_Swear_Bears;
+/* Current test harness gets confused by packages, but it would be in package Classes_methodguardnadacastthingie;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,19 +19,23 @@ import harness.x10Test;
 
 
 
-public class Vars90 extends x10Test {
+public class Classes90 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Vars90().execute();
+        new Classes90().execute();
     }
 
 
-// file Vars line 363
- static  class ForBear {
- def forbear() {
-var sum : Int = 0;
-for ([i] in 1..100) sum += i;
- ; } }
+// file Classes line 490
+
+ static  class Example {var f : String = ""; def example(x:Object){x != null} = {this.f = x.toString();}}
+ static  class Eyample {
+  def exam(e:Example, x:Object) {
+    if (x != null)
+       e.example(x as Object{x != null});
+    // WRONG: if (x != null) e.example(x);
+  }
+}
 
  static class Hook {
    def run():Boolean = true;

@@ -94,7 +94,7 @@ void *x10aux::realloc_internal (void *src, size_t dsz) {
 }
 
 void x10aux::dealloc_internal (const void *obj_) {
-    if (!x10aux::disable_dealloc_) {
+    if (!x10aux::disable_dealloc) {
         void *obj = const_cast<void*>(obj_); // free does not take const void *
 #ifdef X10_USE_BDWGC
         GC_FREE(obj);
@@ -113,9 +113,6 @@ size_t x10aux::heap_size() {
 #endif
 }
 
-
-#define ENV_CONGRUENT_BASE "X10_CONGRUENT_BASE"
-#define ENV_CONGRUENT_SIZE "X10_CONGRUENT_SIZE"
 namespace {
     bool have_init_congruent = false;
     unsigned char *congruent_base;
@@ -151,7 +148,7 @@ static void ensure_init_congruent (size_t req_size) {
     if (have_init_congruent) return;
     have_init_congruent = true;
 
-    char *size_ = getenv(ENV_CONGRUENT_SIZE);
+    char *size_ = x10aux::get_congruent_size();
     size_t size = size_!=NULL ? strtoull(size_,NULL,0) : 0;
 
     // if it's the first allocation, may as well make it big enough -- further allocations will fail
@@ -208,7 +205,7 @@ static void ensure_init_congruent (size_t req_size) {
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
-    char *base_addr_ = getenv(ENV_CONGRUENT_BASE);
+    char *base_addr_ = x10aux::get_congruent_base();
     // Default addresses based on some experimentation on 32 bit and 64 bit platforms.  Not very reliable.
     size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x100000000000LL;
     size_t base_addr = base_addr_!=NULL ? strtoull(base_addr_,NULL,0) : default_base_addr;

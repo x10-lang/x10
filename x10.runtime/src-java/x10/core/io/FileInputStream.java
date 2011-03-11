@@ -19,8 +19,16 @@ public class FileInputStream extends InputStream {
     
 	private static final long serialVersionUID = 1L;
 
-    public FileInputStream(String name) throws java.io.FileNotFoundException {
+	private FileInputStream(String name) throws java.io.FileNotFoundException {
         super(new java.io.FileInputStream(name));
+    }
+
+    public static FileInputStream make(String name) {
+        try {
+            return new FileInputStream(name);
+        } catch (java.io.FileNotFoundException e) {
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
     }
     
     //

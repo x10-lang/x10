@@ -26,7 +26,7 @@ public class Arrays460 extends x10Test {
     }
 
 
-// file Arrays line 807
+// file Arrays line 823
  static class Example{
 def example() {
 val A = new Array[Int](1..10, (p:Point(1))=>p(0) );

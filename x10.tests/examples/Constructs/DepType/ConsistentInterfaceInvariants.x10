@@ -19,11 +19,14 @@ import harness.x10Test;
 
 public class ConsistentInterfaceInvariants extends x10Test { 
 
-    public static interface Test (l:int, m:int){m == l} {
+    public static interface Test {m() == l()} {
+    public property l():int;
+    public property m():int;
 	public def put():int;
     }
     
-    public static interface Test1 (n:int){l == n && m == n} extends Test { 
+    public static interface Test1 {l() == n() && m() == n()} extends Test {
+    public property n():int;
 	public def foo():int;
     }
     

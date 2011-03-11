@@ -26,13 +26,17 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public final Object value;
     public final Type<T> type;
 
-    public IndexedMemoryChunk(Type<T> type) {
-        this(type, 0, null);
-    }
     public IndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
         this.value = value;
+    }
+    public IndexedMemoryChunk(Type<T> type) {
+        this(type, 0, null);
+    }
+    // zero value constructor
+    public IndexedMemoryChunk(Type<T> type, java.lang.System $dummy) {
+        this(type);
     }
 
     private IndexedMemoryChunk(Type<T> type, int length, boolean zeroed) {
@@ -43,6 +47,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                 java.util.Arrays.fill((Object[]) value, zeroValue);
             }
         }
+    }
+
+    public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, long length, boolean zeroed) {
+        if (length > Integer.MAX_VALUE) {
+            throw new x10.lang.OutOfMemoryError("Array length must be shorter than 2^31");
+        }
+        return new IndexedMemoryChunk<T>(type, (int) length, zeroed);
     }
 
     public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, int length, boolean zeroed) {

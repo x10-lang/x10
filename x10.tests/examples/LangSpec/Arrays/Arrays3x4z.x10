@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Activities_AtAndVariables;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays11;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,31 +19,17 @@ import harness.x10Test;
 
 
 
-public class Activities70 extends x10Test {
+public class Arrays3x4z extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Activities70().execute();
+        new Arrays3x4z().execute();
     }
 
 
-// file Activities line 495
- abstract static  class Example {
- abstract def mathProcessor() : Place;
-def printRootsOfQuadratic(a:Complex, b:Complex, c:Complex) {
-  var r : Complex = Complex(0,0);
-  var s : Complex = Complex(0,0);
-  val h = here;
-  at(mathProcessor()) {
-    val disc = Math.sqrt(b*b - 4*a*c);
-    val rr = (-b + disc) / (2*a);
-    val ss = (-b - disc) / (2*a);
-    at(h) {
-      r = rr; s = ss;
-    }
-  }
-  Console.OUT.println("r = " + r + "; s = " + s);
-}
-}
+// file Arrays line 193
+
+ static class Arrays11TestExp{
+  def check()  = (1..10) as Region(1);  }
 
  static class Hook {
    def run():Boolean = true;

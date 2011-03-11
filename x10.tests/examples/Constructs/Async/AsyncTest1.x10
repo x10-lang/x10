@@ -25,6 +25,7 @@ public class AsyncTest1 extends x10Test {
 		async { atomic { flag = true; } }
 		var b: boolean;
 		do {
+			System.sleep(1);
 			atomic { b = flag; }
 		} while (!b);
 		return b;

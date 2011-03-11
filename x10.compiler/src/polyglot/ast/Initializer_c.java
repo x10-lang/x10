@@ -14,6 +14,7 @@ import java.util.List;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * An <code>Initializer</code> is an immutable representation of an
@@ -124,7 +125,7 @@ public class Initializer_c extends Term_c implements Initializer
         return succs;
     }
 
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
         TypeSystem ts = tb.typeSystem();
 
         ClassDef ct = tb.currentClass();
@@ -162,7 +163,7 @@ public class Initializer_c extends Term_c implements Initializer
     }
 
     /** Type check the declaration. */
-    public Node typeCheckBody(Node parent, TypeChecker tc, TypeChecker childtc) throws SemanticException {
+    public Node typeCheckBody(Node parent, TypeChecker tc, TypeChecker childtc) {
         TypeSystem ts = tc.typeSystem();
 
         Initializer_c n;
@@ -175,7 +176,7 @@ public class Initializer_c extends Term_c implements Initializer
     }
 
     /** Type check the initializer. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
 	TypeSystem ts = tc.typeSystem();
 
 	Flags flags = this.flags.flags();
@@ -184,20 +185,21 @@ public class Initializer_c extends Term_c implements Initializer
 	    ts.checkInitializerFlags(flags);
 	}
 	catch (SemanticException e) {
-	    throw new SemanticException(e.getMessage(), position());
+	    Errors.issue(tc.job(), new SemanticException(e.getMessage(), position()));
 	}
 
         // check that inner classes do not declare static initializers
         if (flags.isStatic() &&
               initializerDef().container().get().toClass().isInnerClass()) {
             // it's a static initializer in an inner class.
-            throw new SemanticException("Inner classes cannot declare static initializers.", this.position());
+            Errors.issue(tc.job(),
+                    new SemanticException("Inner classes cannot declare static initializers.", position()));
         }
 
 	return this;
     }
 
-    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
      /*   if (initializerDef().flags().isStatic()) {
             return ec.push(new ExceptionChecker.CodeTypeReporter("A static initializer block"));
         }

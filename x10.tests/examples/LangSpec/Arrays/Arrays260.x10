@@ -26,12 +26,12 @@ public class Arrays260 extends x10Test {
     }
 
 
-// file Arrays line 390
+// file Arrays line 410
  static  class Example{
  def example() {
 val R  <: Region = 1..100;
 val D1 <: Dist = Dist.makeBlock(R);
-val D2 <: Dist = R -> here;
+val D2 <: Dist = Dist.makeConstant(R, here);
  } }
 
  static class Hook {

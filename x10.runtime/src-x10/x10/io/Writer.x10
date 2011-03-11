@@ -76,12 +76,8 @@ public abstract class Writer {
             write(buf(i));
         }
     }
-    
-    @Native("java", "new java.lang.Object() { x10.core.io.OutputStream eval(final x10.io.Writer w) { return new x10.core.io.OutputStream() { public void write(int x) throws x10.io.IOException { w.write((byte) x); } }; } }.eval(#0)")
-    private def oos(): OutputStreamWriter.OutputStream {
-        return oos();
-    }
-    
+
     // DO NOT CALL from X10 code -- only used in @Native annotations
-    public def getNativeOutputStream(): OutputStreamWriter.OutputStream = oos();
+    @Native("java", "new x10.core.io.OutputStream.WriterOutputStream(#0)")
+    public final def getNativeOutputStream(): OutputStreamWriter.OutputStream = null;
 }

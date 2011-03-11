@@ -39,7 +39,9 @@ namespace x10 {
                 *tmp = newVal;
                 x10aux::place_local::registerData(FMGL(id), (void*)tmp);
             }
-
+            
+	        static PlaceLocalHandle_Impl<T> _alloc () {PlaceLocalHandle_Impl<T> t; return t;}
+	
             T __apply() {
                 if (!FMGL(cached)) {
                     T *tmp = (T*)(x10aux::place_local::lookupData(FMGL(id)));
@@ -105,6 +107,12 @@ namespace x10 {
                 result.FMGL(id) = id;
                 result.FMGL(cached) = false;
                 return result;
+            }
+            
+            static void _constructor (x10::lang::PlaceLocalHandle_Impl<T> &this_) {
+                x10_int id = x10aux::place_local::nextId();
+                this_.FMGL(id) = id;
+                this_.FMGL(cached) = false;
             }
 
             static T __apply(PlaceLocalHandle_Impl<T> this_) {

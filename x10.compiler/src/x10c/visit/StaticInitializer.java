@@ -63,6 +63,7 @@ import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
+import polyglot.types.QName;
 
 import polyglot.types.Name;
 import polyglot.types.ObjectType;
@@ -109,6 +110,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10Def;
 
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
@@ -315,6 +317,7 @@ public class StaticInitializer extends ContextVisitor {
                 if (n instanceof X10FieldDecl) {
                     X10FieldDecl fd = (X10FieldDecl)n;
                     Flags flags = fd.fieldDef().flags();
+                    if (isPerProcess(fd.fieldDef())) return n;
                     if (flags.isFinal() && flags.isStatic()) {
                         // static final field
                         StaticFieldInfo fieldInfo = checkFieldDeclRHS((Expr)fd.init(), fd, cd);
@@ -337,6 +340,7 @@ public class StaticInitializer extends ContextVisitor {
                 }
                 if (n instanceof X10Field_c) {
                     X10Field_c f = (X10Field_c)n;
+                    if (isPerProcess(f.fieldInstance().x10Def())) return n;
                     if (f.flags().isFinal() && f.flags().isStatic()) {
                         // found reference to static field
                         if (checkFieldRefReplacementRequired(f)) {
@@ -1217,5 +1221,14 @@ public class StaticInitializer extends ContextVisitor {
         MethodDef methodDef;    // getInitialized methodDef to be replaced
         FieldDef fieldDef;
         FieldDecl left;         // field declaration to be moved from interface to a shadow class
+    }
+
+    protected boolean isPerProcess(X10Def def) {
+        try {
+            Type t = xts.systemResolver().findOne(QName.make("x10.compiler.PerProcess"));
+            return !def.annotationsMatching(t).isEmpty();
+        } catch (SemanticException e) {
+            return false;
+        }
     }
 }

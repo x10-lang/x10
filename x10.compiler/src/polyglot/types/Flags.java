@@ -34,7 +34,6 @@ public class Flags implements Serializable
     public static final Flags ABSTRACT     = createFlag("abstract", null);
     public static final Flags JAVA_FLAGS     = PUBLIC.Private().Protected().Static().Final().Transient().Native().Interface().Abstract();
 
-    public static final Flags VALUE = createFlag("value", null);
     public static final Flags REFERENCE = createFlag("reference", null);
     public static final Flags ATOMIC = createFlag("atomic", null);
     public static final Flags PURE = createFlag("pure", null);
@@ -349,36 +348,6 @@ public class Flags implements Serializable
      */
     public boolean isAbstract() {
 	return contains(ABSTRACT);
-    }
-
-
-
-
-    /**
-     * Return a copy of this <code>this</code> with the <code>value</code> flag
-     * set.
-     */
-    public Flags Value() {
-        return set(VALUE);
-    }
-
-    /**
-     * Return a copy of this <code>this</code> with the <code>value</code> flag
-     * clear.
-     */
-    public Flags clearValue() {
-        return clear(VALUE);
-    }
-
-    /**
-     * Return true if <code>this</code> has the <code>value</code> flag set.
-     */
-    public boolean isValue() {
-        return contains(VALUE);
-    }
-
-    public static boolean isValue(Flags flags) {
-        return flags.contains(VALUE);
     }
 
 

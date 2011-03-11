@@ -61,7 +61,7 @@ public abstract class Return_c extends Stmt_c implements Return
     }
 
     /** Type check the statement. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
   
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
         if (child == expr) {

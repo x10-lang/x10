@@ -26,13 +26,13 @@ public class Classes170 extends x10Test {
     }
 
 
-// file Classes line 1026
+// file Classes line 1073
 
  // Integer-coefficient polynomials of one variable.
  static  class UglyPoly {
    public val coeff : Array[Int](1);
    public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-   public def degree() = coeff.size()-1;
+   public def degree() = coeff.size-1;
    public  def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
 
    public static operator (c : Int) as UglyPoly = new UglyPoly([c]);
@@ -40,7 +40,7 @@ public class Classes170 extends x10Test {
    public def apply(x:Int) {
      val d = this.degree();
      var s : Int = this.a(d);
-     for( [i] in 1 .. this.degree() ) {
+     for( i in 1 .. this.degree() ) {
         s = x * s + a(d-i);
      }
      return s;
@@ -48,7 +48,7 @@ public class Classes170 extends x10Test {
 
    public operator this + (p:UglyPoly) =  new UglyPoly(
       new Array[Int](
-         Math.max(this.coeff.size(), p.coeff.size()),
+         Math.max(this.coeff.size, p.coeff.size),
          (i:Int) => this.a(i) + p.a(i)
       ));
    public operator this - (p:UglyPoly) = this + (-1)*p;
@@ -74,14 +74,14 @@ public class Classes170 extends x10Test {
       ));
    private static def sumDeg(k:Int, a:UglyPoly, b:UglyPoly) {
       var s : Int = 0;
-      for( [i] in 0 .. k ) s += a.a(i) * b.a(k-i);
+      for( i in 0 .. k ) s += a.a(i) * b.a(k-i);
         // x10.io.Console.OUT.println("sumdeg(" + k + "," + a + "," + b + ")=" + s);
       return s;
       };
    public final def toString() = {
       var allZeroSoFar : Boolean = true;
       var s : String ="";
-      for( [i] in 0..this.degree() ) {
+      for( i in 0..this.degree() ) {
         val ai = this.a(i);
         if (ai == 0) continue;
         if (allZeroSoFar) {
@@ -112,10 +112,12 @@ public class Classes170 extends x10Test {
 
   public static def uglymain() {
      val X = new UglyPoly([0,1]);
-     val t <: UglyPoly = X.mult(7).plus(X.mult(X).mult(X).mult(6));
-     val u <: UglyPoly = const(3).plus(X.mult(5)).minus(X.mult(X).mult(7));
+     val t <: UglyPoly = X.mult(7).plus(
+                          X.mult(X).mult(X).mult(6));
+     val u <: UglyPoly = const(3).plus(
+                           X.mult(5)).minus(X.mult(X).mult(7));
      val v <: UglyPoly = t.mult(u).minus(1);
-     for( [i] in -3 .. 3) {
+     for( i in -3 .. 3) {
        x10.io.Console.OUT.println(
          "" + i + "	X:" + X.apply(i) + "	t:" + t.apply(i)
           + "	u:" + u.apply(i) + "	v:" + v.apply(i)

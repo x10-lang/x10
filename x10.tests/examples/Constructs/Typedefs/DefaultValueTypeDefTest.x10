@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-
+import x10.util.Box;
 
 /**
  * 
@@ -20,13 +20,14 @@ import harness.x10Test;
 
 public class DefaultValueTypeDefTest extends x10Test {
 
-    static struct Foo[T](n:int, s:T) {
-       def this(n:int, s:T):Foo[T]{self.n==n,self.s==s} {
+    static struct Foo[T](n:int, s:Box[T]) {
+       def this(n:int, s:Box[T]):Foo[T]{self.n==n,self.s==s} {
          property(n,s);
        }
     }
     public def run() = {
-        val x:Foo[String]{self.n==2 && self.s=="a"} = Foo[String](2,"a");
+        val b:Box[String] = new Box[String]("a");
+        val x:Foo[String]{self.n==2 && self.s==b} = Foo[String](2,b);
         return true;
     }
 

@@ -21,7 +21,7 @@ import harness.x10Test;
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.compiler.tests.*; // err markers
 
-public class StructObscuringExample extends x10Test { // ShouldNotBeERR ShouldNotBeERR: Could not find type "eg.eg.StructObscuringExample".
+public class StructObscuringExample extends x10Test { 
   public static def main(Array[String](1)){
      val p = new StructObscuringExample();
      p.execute();
@@ -34,7 +34,7 @@ public class StructObscuringExample extends x10Test { // ShouldNotBeERR ShouldNo
 }
 
 
-struct eg { // ShouldNotBeERR ShouldNotBeERR
+struct eg { // ShouldNotBeERR
    static def ow()= 1;
    static struct Bite { // ShouldNotBeERR ShouldNotBeERR ShouldNotBeERR
       def ow() = 2;

@@ -10,11 +10,10 @@ public final class Worker {
     private val id:Int; //Could be removed finally ?
     private val random:Random;
 
+    public val finished:BoxedBoolean;
     public val deque = new Deque();
     public val fifo = new Deque();
     public val lock = new Lock();
-    
-    public val finished:BoxedBoolean;
 
     public def this(i:Int, workers:Rail[Worker], finished:BoxedBoolean) {
         random = new Random(i + (i << 8) + (i << 16) + (i << 24));
@@ -46,7 +45,7 @@ public final class Worker {
         }
         
         //Try a mini steal from other threads
-        k = Frame.cast[Object,RegularFrame](workers(random.nextInt(Runtime.INIT_THREADS)).fifo.steal());
+        k = Frame.cast[Object,RegularFrame](workers(random.nextInt(Runtime.NTHREADS)).fifo.steal());
         if (null != k){
             fifo.push(Frame.upcast[RegularFrame,Object](k));
             return;
@@ -57,7 +56,7 @@ public final class Worker {
             //but other worker may still steal them.
         }
         
-        val i = random.nextInt(Runtime.INIT_THREADS);
+        val i = random.nextInt(Runtime.NTHREADS);
         if (workers(i).lock.tryLock()) {
             k = Frame.cast[Object,RegularFrame](workers(i).deque.steal());
             if (null!= k) {
@@ -120,10 +119,10 @@ public final class Worker {
         while (null == k) {
             if (finished.value) return Frame.NULL[Object](); // TODO: termination condition
             //2) other thread fifo
-            k = workers(random.nextInt(Runtime.INIT_THREADS)).fifo.steal();
+            k = workers(random.nextInt(Runtime.NTHREADS)).fifo.steal();
             if (null != k) break;
             //3) other thread deque
-            val i = random.nextInt(Runtime.INIT_THREADS);
+            val i = random.nextInt(Runtime.NTHREADS);
             if (workers(i).lock.tryLock()) {
                 k = workers(i).deque.steal();
                 if (null!= k) {
@@ -276,12 +275,12 @@ public final class Worker {
                 continue; //in later loop
             }
             async at(p) {
-                val workers = Rail.make[Worker](Runtime.INIT_THREADS);
+                val workers = Rail.make[Worker](Runtime.NTHREADS);
                 val finished = new BoxedBoolean();
-                for (var i:Int = 0; i<Runtime.INIT_THREADS; i++) {
+                for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
                     workers(i) = new Worker(i, workers, finished);
                 }
-                for( var i:Int = 0; i<Runtime.INIT_THREADS; i++) {
+                for( var i:Int = 0; i<Runtime.NTHREADS; i++) {
                     val ii = i;
                     async workers(ii).run();
                 }
@@ -289,12 +288,12 @@ public final class Worker {
         }
 
         //2nd iteration, current place
-        val workers = Rail.make[Worker](Runtime.INIT_THREADS);
+        val workers = Rail.make[Worker](Runtime.NTHREADS);
         val finished = new BoxedBoolean();
-        for (var i:Int = 0; i<Runtime.INIT_THREADS; i++) {
+        for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
             workers(i) = new Worker(i, workers, finished);
         }
-        for( var i:Int = 1; i<Runtime.INIT_THREADS; i++) {
+        for( var i:Int = 1; i<Runtime.NTHREADS; i++) {
             val ii = i;
             async workers(ii).run();
         }

@@ -120,7 +120,7 @@ e = new Exception();
     return reconstruct(target, name);
   }
 
-  public Node buildTypes(TypeBuilder tb) throws SemanticException {
+  public Node buildTypes(TypeBuilder tb) {
       Field_c n = (Field_c) super.buildTypes(tb);
 
       TypeSystem ts = tb.typeSystem();
@@ -133,9 +133,9 @@ e = new Exception();
   }
   
   /** Type check the field. */
-  public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+  public abstract Node typeCheck(ContextVisitor tc);
   
-  public Node checkConstants(ContextVisitor tc) throws SemanticException {
+  public Node checkConstants(ContextVisitor tc) {
       // Just check if the field is constant to force a dependency to be
       // created.
       isConstant();

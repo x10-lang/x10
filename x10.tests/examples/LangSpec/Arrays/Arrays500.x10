@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package genexpsome_Arrays53;
+/* Current test harness gets confused by packages, but it would be in package genexpsome_Arrays55;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Arrays500 extends x10Test {
     }
 
 
-// file Arrays line 890
+// file Arrays line 906
 
- static class Arrays53GenexpTest{
+ static class Arrays55GenexpTest{
   def check[T](f:(T,T)=>T, a : Array[T], unit:T)  = a.reduce(f, unit);  }
 
  static class Hook {

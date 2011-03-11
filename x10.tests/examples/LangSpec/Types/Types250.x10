@@ -26,7 +26,7 @@ public class Types250 extends x10Test {
     }
 
 
-// file Types line 793
+// file Types line 794
 
  static class Types28TypeTest{
   def check(n:Int)  { 

@@ -108,7 +108,7 @@ abstract public class TestRegion extends x10Test {
                     (o as Grid).pr(rank-1);
                 } else {
                     // XTENLANG-34, XTENLANG-211
-                    val d = (new Box[double](o)).value;
+                    val d = (o as Box[double]).value;
                     Out.print(""+(d as int));
                 }
 
@@ -144,7 +144,7 @@ abstract public class TestRegion extends x10Test {
     def prUnbounded(test: String, r: Region): void = {
         try {
             prRegion(test, r);
-            var i: Iterator[Point] = r.iterator();
+            val i = r.iterator();
         } catch (e: UnboundedRegionException) {
             pr(e.toString());
         }

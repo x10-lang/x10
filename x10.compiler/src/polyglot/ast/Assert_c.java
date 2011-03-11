@@ -14,6 +14,7 @@ import polyglot.frontend.Globals;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * An <code>Assert</code> is an assert statement.
@@ -66,13 +67,17 @@ public class Assert_c extends Stmt_c implements Assert
 	return this;
     }
 
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         if (! cond.type().isBoolean()) {
-            throw new SemanticException("Condition of assert statement must have boolean type.", cond.position());
+            Errors.issue(tc.job(),
+                    new SemanticException("Condition of assert statement must have boolean type.", cond.position()),
+                    this);
         }
 
         if (errorMessage != null && errorMessage.type().isVoid()) {
-            throw new SemanticException("Error message in assert statement cannot be void.", errorMessage.position());
+            Errors.issue(tc.job(),
+                    new SemanticException("Error message in assert statement cannot be void.", errorMessage.position()),
+                    this);
         }
 
         return this;
