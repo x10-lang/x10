@@ -445,6 +445,21 @@ public class Emitter {
                     str = regex.substring(pos + 1, endpos);
                     // XTENLANG-2528
                     // TODO convert name to idx
+                    /* @Native(lang, code) : annotation to mark methods and fields as having a particular native implementation.
+                     * lang is the name of the language, typically "java" or "c++".
+                     * code is the code to insert for a call to the method or an access to the field.
+                     * For "java" annotations: Given a method with signature: def m[X, Y](x, y); and a call o.m[A, B](a, b); #0 = o #1 = A #2 = boxed representation of A #3 = run-time Type object for A #4 = B #5 = boxed representation of B #6 = run-time Type object for B #7 = a #8 = b
+                     * For "c++" annotations: As for "java" except boxed and run-time representations of type vars should not be used. Also there is also the capability to refer to type params and method params by name: #this = o #X = A #Y = B #x = a #y = b
+                     */
+                    // #0 = #this = o
+                    // #1 = #A = A
+                    // #2 = #$boxof(A) = boxed representation of A
+                    // #3 = #$typeof(A) = run-time Type object for A
+                    // #4 = #B = B
+                    // #5 = #$boxof(B) = boxed representation of B
+                    // #6 = #$typeof(B) = run-time Type object for B
+                    // #7 = #a = a
+                    // #8 = #b = b
 			    } else {
                     throw new InternalCompilerError("Template '" + id + "' uses #" + regex.substring(pos + 1));
 			    }
