@@ -12,7 +12,7 @@ public final class Worker {
 
     public val finished:BoxedBoolean;
     public val deque = new Deque();
-    public val fifo = new Deque();
+    public var fifo:Deque = new Deque(); //The first one is used to prevent NPE from steal. will be overriden by X10 Worker.wsfifo;
     public val lock = new Lock();
 
     public def this(i:Int, workers:Rail[Worker], finished:BoxedBoolean) {
@@ -68,7 +68,7 @@ public final class Worker {
 
     public def run() {
         //Runtime.println(here + ": Worker(" + id + ") started..." );
-        Runtime.wsBindWorker(this, id);
+        fifo = Runtime.wsFIFO(); //set from x10 Worker.wsfifo
         try {
             while (true) {
                 val k = find();
@@ -91,6 +91,10 @@ public final class Worker {
                         //Runtime.println(here+" :Execute remote finish join");
                         unroll(p);
                     } catch (Stolen){}
+                }
+                else if(k instanceof BoxedBoolean){
+                    notifyStop(); //notify the finish flag
+                    return; //self return
                 }
             }
         } catch (t:Throwable) {
@@ -164,11 +168,7 @@ public final class Worker {
         val id:Int = place.id;
         val body:()=>void = ()=> {
             //Worker.pushRemoteFrame(frame); //place local handle version
-            val worker = Runtime.wsWorker() as Worker;
-            if(worker == null){
-                throw new RuntimeException(here + "[WSRT_ERR]The current X10 thread has no bound WS Worker");
-            }
-            worker.fifo.push(Frame.upcast[RegularFrame, Object](frame));
+            Runtime.wsFIFO().push(Frame.upcast[RegularFrame, Object](frame));
         };
         //Runtime.println(here + " :Run Remote job at place:" + id);
         Runtime.wsRunAsync(id, body);
@@ -183,11 +183,7 @@ public final class Worker {
     public def remoteFinishJoin(ffRef:GlobalRef[FinishFrame]) {
         val id:Int = ffRef.home.id;
         val body:()=>void = ()=>{       
-            val worker = Runtime.wsWorker() as Worker;
-            if(worker == null){
-                throw new RuntimeException(here + "[WSRT_ERR]The current X10 thread has no bound WS Worker");
-            }
-            worker.fifo.push(Frame.upcast[FinishFrame, Object](derefFrame[FinishFrame](ffRef)));
+            Runtime.wsFIFO().push(Frame.upcast[FinishFrame, Object](derefFrame[FinishFrame](ffRef)));
             //Runtime.println(here + " :FF join frame pushed");
         };
         //Runtime.println(here + " :Run Finish Join back to place:" + id);
@@ -217,11 +213,8 @@ public final class Worker {
         for(var id:Int = 0; id < Place.MAX_PLACES; id++ ) {
             val idd:Int = id;
             val body:()=>void = ()=>{
-                val worker = Runtime.wsWorker() as Worker;
-                if(worker == null){
-                    throw new RuntimeException(here + "[WSRT_ERR]The current X10 thread has no bound WS Worker");
-                }
-                worker.notifyStop();
+                //A boxed boolean in fifo means all stop
+                Runtime.wsFIFO().push(new BoxedBoolean());
             };
             Runtime.wsRunCommand(idd, body);
             Runtime.dealloc(body);
@@ -261,7 +254,7 @@ public final class Worker {
         //start first worker at place0
         val worker00 = workers(0);
         try {
-            Runtime.wsBindWorker(worker00, 0);
+            worker00.fifo = Runtime.wsFIFO();
             frame.fast(worker00);
             //If the app goes here, it means it always in fast path. 
             //We need process the ff.asyncs to make sure it can quit correctly
