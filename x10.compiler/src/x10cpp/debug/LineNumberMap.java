@@ -1071,6 +1071,7 @@ public class LineNumberMap extends StringTable {
 		        for (LocalVariableMapInfo v : localVariables)
 		        {
 		        	int typeIndex = 0;
+		        	// convert types from simple names to memberVariable table indexes.
 		        	if (v._x10type==101 || v._x10type==102)
 		        	{
 		        		if (memberVariables != null && memberVariables.containsKey(v._x10typeIndex))
@@ -1081,6 +1082,9 @@ public class LineNumberMap extends StringTable {
 		        				if (classId == v._x10typeIndex)
 		        				{
 		        					typeIndex = index;
+		        					// convert the type to what's in the main table
+		        					ClassMapInfo cmi = memberVariables.get(classId);
+		        					v._x10type = cmi._type;
 		        					break;
 		        				}
 		        				else
@@ -1210,7 +1214,7 @@ public class LineNumberMap extends StringTable {
 		    {
 		    	int maintype = iterator.next();
 		    	int innertype = iterator.next();
-		    	if (maintype == 101 && innertype != -1)
+		    	if ((maintype == 101 || maintype == 102) && innertype != -1)
 		    	{
 		    		int lookingFor = innertype;
 		    		innertype = -1;
@@ -1223,6 +1227,9 @@ public class LineNumberMap extends StringTable {
 		            		if (memberId == lookingFor)
 		            		{
 		            			innertype = index;
+		            			// convert the type to what's in the main table
+	        					ClassMapInfo cmi = memberVariables.get(memberId);
+	        					maintype = cmi._type;
 		            			break;
 		            		}
 		            		index++;
@@ -1264,7 +1271,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B030B0A, // 2011-03-11, 10:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B030B0E, // 2011-03-11, 14:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
