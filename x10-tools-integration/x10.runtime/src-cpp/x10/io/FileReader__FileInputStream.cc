@@ -17,9 +17,27 @@ using namespace x10::io;
 
 x10aux::ref<FileReader__FileInputStream>
 FileReader__FileInputStream::_make(x10aux::ref<x10::lang::String> name) {
-    ref<FileReader__FileInputStream> this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream (x10aux::io::FILEPtrStream::open_file(name, "r"));
-    this_->InputStreamReader__InputStream::_constructor();
+    x10aux::ref<FileReader__FileInputStream> this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream ();
+    this_->_constructor(name);
     return this_;
+}
+
+void FileReader__FileInputStream::_constructor(x10aux::ref<x10::lang::String> file) {
+    this->InputStreamReader__InputStream::_constructor();
+    x10aux::io::FILEPtrInputStream fpis(x10aux::io::FILEPtrStream::open_file(file, "r"));
+    _inputStream = fpis;
+}
+
+void FileReader__FileInputStream::_constructor(FILE* file) {
+    this->InputStreamReader__InputStream::_constructor();
+    x10aux::io::FILEPtrInputStream fpis(file);
+    _inputStream = fpis;
+}
+
+void FileReader__FileInputStream::_constructor() {
+    this->InputStreamReader__InputStream::_constructor();
+    x10aux::io::FILEPtrInputStream fpis(NULL);
+    _inputStream = fpis;
 }
 
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 

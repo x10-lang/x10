@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Variance_gone;
+/* Current test harness gets confused by packages, but it would be in package expsome_Places4;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,25 +19,17 @@ import harness.x10Test;
 
 
 
-public class Variance10 extends x10Test {
+public class Placesoif extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Variance10().execute();
+        new Placesoif().execute();
     }
 
 
-// file Variance line 93
- static class Get[T] {
-  val x: T;
-  def this(x: T) { this.x = x; }
-  def get(): T = x;
-  static def example() {
-     val g : Get[Int] = new Get[Int](31);
-     val n : Int = g.get();
-     x10.io.Console.OUT.print("It's " + n);
-     x10.io.Console.OUT.print("It's still " + g.get());
-  }
-}
+// file Places line 54
+
+ static class Places4TestExp{
+  def check(pl:Place)  = pl.isSPE();  }
 
  static class Hook {
    def run():Boolean = true;

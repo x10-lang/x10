@@ -82,13 +82,13 @@ public class AmbPrefix_c extends Node_c implements AmbPrefix
 	throw new SemanticException("Could not find " + (prefix != null ? prefix + "." : "") + name, pos);
     }
 
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         // Didn't finish disambiguation; just return.
         return this;
     }
 
     /** Check exceptions thrown by the prefix. */
-    public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
+    public Node exceptionCheck(ExceptionChecker ec) {
 	throw new InternalCompilerError(position(),
 	    "Cannot exception check ambiguous node " + this + ".");
     } 

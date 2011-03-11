@@ -42,24 +42,24 @@ class FRASimpleDist {
     static def HPCC_starts(var n:long): long {
         var i:int, j:int;
         val m2 = new Array[long](64);
-        while (n < 0) n += PERIOD;
+        while (n < 0L) n += PERIOD;
         while (n > PERIOD) n -= PERIOD;
-        if (n == 0) return 0x1L;
-        var temp:long = 0x1;
+        if (n == 0L) return 0x1L;
+        var temp:long = 0x1L;
         for (i=0; i<64; i++) {
             m2(i) = temp;
-            temp = (temp << 1) ^ (temp < 0 ? POLY : 0L);
-            temp = (temp << 1) ^ (temp < 0 ? POLY : 0L);
+            temp = (temp << 1) ^ (temp < 0L ? POLY : 0L);
+            temp = (temp << 1) ^ (temp < 0L ? POLY : 0L);
         }
         for (i=62; i>=0; i--) if (((n >> i) & 1) != 0) break;
-        var ran:long = 0x2;
+        var ran:long = 0x2L;
         while (i > 0) {
-            temp = 0;
-            for (j=0; j<64; j++) if (((ran >> j) & 1) != 0) temp ^= m2(j);
+            temp = 0L;
+            for (j=0; j<64; j++) if (((ran >> j) & 1L) != 0L) temp ^= m2(j);
             ran = temp;
             i -= 1;
-            if (((n >> i) & 1) != 0)
-                ran = (ran << 1) ^ (ran < 0 ? POLY : 0);
+            if (((n >> i) & 1L) != 0L)
+                ran = (ran << 1) ^ (ran < 0L ? POLY : 0L);
         }
         return ran;
     }

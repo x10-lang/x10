@@ -26,7 +26,7 @@ public class ArraysPointsExample1 extends x10Test {
     }
 
 
-// file Arrays line 24
+// file Arrays line 26
  static  class Example1 {
  def example1() {
 val origin_1 : Point{rank==1} = Point.make(0);

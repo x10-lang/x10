@@ -74,6 +74,6 @@ public class XEQV extends XVar  {
     
     @Override
     public String toString() {
-        return "eqv" + num;
+        return "eqv#" + num;
     }
 }

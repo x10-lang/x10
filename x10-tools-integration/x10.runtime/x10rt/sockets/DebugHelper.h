@@ -14,6 +14,7 @@
 #define __debug_helper_h__
 
 #define X10_DEBUGGER_ID "X10_DEBUGGER_ID"
+#define X10_DEBUGGER_NAME "X10_DEBUGGER_NAME"
 
 class DebugHelper
 {

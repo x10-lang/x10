@@ -44,29 +44,54 @@ namespace x10 {
             static Comparable<x10aux::ref<String> >::itable<String> _itable_Comparable;
             static x10aux::itable_entry _itables[3];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
-            
+
+            void _constructor(const char *content, bool steal = false);
             // Set steal to true if you have just allocated the char * with
             // alloc_printf or it's otherwise OK if the String frees it.  Leave
             // steal false for string literals which ought not to be freed.
             // Leave it false for 'static' malloced char* such as the RTT type
             // names that also ought not to be freed.
-            static x10aux::ref<String> _make(const char *content, bool steal = false);
-            x10aux::ref<String> _constructor(const char *content, std::size_t content_length) {
-                this->Object::_constructor();
-                this->FMGL(content) = content;
-                this->FMGL(content_length) = content_length;
-                return this;
+            static x10aux::ref<String> _make(const char *content, bool steal = false) {
+                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+                this_->_constructor(content, steal);
+                return this_;
             }
+
+            void _constructor();
             static x10aux::ref<String> _make() {
-                return Lit("");
+                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+                this_->_constructor();
+                return this_;
             }
-            static x10aux::ref<String> _make(x10aux::ref<String> s);
-            static x10aux::ref<String> _make(x10aux::ref<Rail<x10_char> > rail,
-                                             x10_int start, x10_int length);
-            static x10aux::ref<String> _make(x10aux::ref<x10::array::Array<x10_byte> > array,
-                                             x10_int start, x10_int length);
-            static x10aux::ref<String> _make(x10aux::ref<x10::array::Array<x10_char> > array,
-                                             x10_int start, x10_int length);
+
+            void _constructor(x10aux::ref<String> s);
+            static x10aux::ref<String> _make(x10aux::ref<String> s) {
+                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+                this_->_constructor(s);
+                return this_;
+            }
+
+            void _constructor(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length);
+            static x10aux::ref<String> _make(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) {
+                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+                this_->_constructor(rail, start, length);
+                return this_;
+            }
+
+            void _constructor(x10aux::ref<x10::array::Array<x10_byte> > array, x10_int start, x10_int length);
+            static x10aux::ref<String> _make(x10aux::ref<x10::array::Array<x10_byte> > array, x10_int start, x10_int length) {
+                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+                this_->_constructor(array, start, length);
+                return this_;
+            }
+
+            void _constructor(x10aux::ref<x10::array::Array<x10_char> > array, x10_int start, x10_int length);
+            static x10aux::ref<String> _make(x10aux::ref<x10::array::Array<x10_char> > array, x10_int start, x10_int length) {
+                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+                this_->_constructor(array, start, length);
+                return this_;
+            }
+
 
             // This is for string literals, brought out here so we have easier control
             // (Can later make this return a String without allocation)

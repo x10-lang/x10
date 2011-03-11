@@ -54,12 +54,12 @@ public class RemoteArray[T](
     /**
      * The rank of the RemoteArray is equal to region.rank
      */
-    public property rank:Int = region.rank;
+    public property rank():Int = region.rank;
     
     /**
      * The home location of the RemoteArray is equal to array.home
      */
-    public property home:Place = array.home;
+    public property home():Place = array.home;
 
     /**
      * Create a RemoteArray wrapping the argument local Array.

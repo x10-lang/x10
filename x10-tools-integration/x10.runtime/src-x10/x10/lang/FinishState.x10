@@ -51,7 +51,7 @@ abstract class FinishState {
         }
         public def waitForFinish() {
             notifyActivityTermination();
-            if (!Runtime.NO_STEALS) Runtime.worker().join(latch);
+            if (!Runtime.STRICT_FINISH) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
@@ -95,7 +95,7 @@ abstract class FinishState {
         }
         public def waitForFinish() {
             notifyActivityTermination();
-            if (!Runtime.NO_STEALS) Runtime.worker().join(latch);
+            if (!Runtime.STRICT_FINISH) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
@@ -171,7 +171,7 @@ abstract class FinishState {
             exception = t;
         }
         public def waitForFinish():void {
-            if (!Runtime.NO_STEALS) Runtime.worker().join(latch);
+            if (!Runtime.STRICT_FINISH) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exception);
             if (null != t) throw t;
@@ -326,7 +326,7 @@ abstract class FinishState {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 val _ref = ref;
-                me = Runtime.runtime().finishStates(ref, ()=>new RemoteFinish(_ref));
+                me = Runtime.finishStates(ref, ()=>new RemoteFinish(_ref));
             }
         }
     }
@@ -386,11 +386,11 @@ abstract class FinishState {
         }
         public def waitForFinish():void {
             notifyActivityTermination();
-            if (!Runtime.NO_STEALS) Runtime.worker().join(latch);
+            if (!Runtime.STRICT_FINISH) Runtime.worker().join(latch);
             latch.await();
             if (null != counts) {
                 val root = ref();
-                val closure = ()=>@RemoteInvocation { Runtime.runtime().finishStates.remove(root); };
+                val closure = ()=>@RemoteInvocation { Runtime.finishStates.remove(root); };
                 seen(Runtime.hereInt()) = false;
                 for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                     if (seen(i)) Runtime.runClosureAt(i, closure);
@@ -543,24 +543,24 @@ abstract class FinishState {
         val reducer:Reducible[T];
         var result:T;
         var resultRail:Rail[T];
-        var workerFlag:Rail[Boolean] = Rail.make[Boolean](Runtime.MAX_WORKERS, false);
+        var workerFlag:Rail[Boolean] = Rail.make[Boolean](Runtime.MAX_THREADS, false);
         def this(r:Reducible[T]) {
             reducer = r;
             val zero = reducer.zero();
             result = zero;
-            resultRail = Rail.make[T](Runtime.MAX_WORKERS, zero);
+            resultRail = Rail.make[T](Runtime.MAX_THREADS, zero);
         }
         def accept(t:T) {
             result = reducer(result, t);
         }
         def accept(t:T, id:Int) {
-            if ((id >= 0) && (id < Runtime.MAX_WORKERS)) {
+            if ((id >= 0) && (id < Runtime.MAX_THREADS)) {
                 resultRail(id) = reducer(resultRail(id), t);
                 workerFlag(id) = true;
             }
         }
         def placeMerge() {
-            for(var i:Int=0; i<Runtime.MAX_WORKERS; i++) {
+            for(var i:Int=0; i<Runtime.MAX_THREADS; i++) {
                 if (workerFlag(i)) {
                     result = reducer(result, resultRail(i));
                     resultRail(i) = reducer.zero();
@@ -591,7 +591,7 @@ abstract class FinishState {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 val _ref = ref;
-                me = Runtime.runtime().finishStates(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
+                me = Runtime.finishStates(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
             }
         }
         public def serialize():SerialData = new SerialData(reducer, super.serialize());

@@ -42,7 +42,7 @@ public abstract class StringLit_c extends Lit_c implements StringLit
     }
 
     /** Type check the expression. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
 
     public String toString() {
         if (StringUtil.unicodeEscape(value).length() > 11) {

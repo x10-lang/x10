@@ -129,6 +129,11 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         this.t = t;
     }
 
+    // zero value constructor
+    public GlobalRef(final x10.rtt.Type<?> T, java.lang.System $dummy) {
+    	this(T, null, (java.lang.Class<?>) null);
+    }
+
     private static void poll() {
         WeakGlobalRefEntry weakRef = null;
         while ((weakRef = (WeakGlobalRefEntry) referenceQueue.poll()) != null) {

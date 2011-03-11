@@ -179,7 +179,7 @@ namespace x10aux {
 #endif
         x10aux::shutdown();
 
-        if (getenv("X10_RXTX")!=NULL)
+        if (x10aux::trace_rxtx)
             fprintf(stderr, "Place: %ld   rx: %lld/%lld   tx: %lld/%lld\n",
                 (long)x10aux::here,
                 (long long)x10aux::deserialized_bytes, (long long)x10aux::asyncs_received,

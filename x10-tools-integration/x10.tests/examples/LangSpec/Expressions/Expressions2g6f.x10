@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Types_contravariance_a;
+/* Current test harness gets confused by packages, but it would be in package expsome_Expressions18;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,20 +19,17 @@ import harness.x10Test;
 
 
 
-public class Variance20 extends x10Test {
+public class Expressions2g6f extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Variance20().execute();
+        new Expressions2g6f().execute();
     }
 
 
-// file Variance line 116
- static interface OutputStream[T] {
-   def write(T) : void;
-}
- static interface ComparableTo[T] {
-   def compare(T) : Int;
-}
+// file Expressions line 876
+
+ static class Expressions18TestExp{
+  def check()  = 100 as Long == 100L;  }
 
  static class Hook {
    def run():Boolean = true;

@@ -18,12 +18,16 @@ import harness.x10Test;
  */
 public class InheritedInvariantMustBeEntailed_MustFailCompile extends x10Test { 
 
-    public static interface Test (l:int, m:int){l==m} {
+    public static interface Test {l()==m()} {
+        public property l():int;
+        public property m():int;
       def put():int;
     }
     
-    //  must fail here
+    //  must fail here.  todo: why? what is wrong here?
     class Tester  (l:int, m:int) implements Test {
+        public property l():int = l;
+        public property m():int = m;
       public def this(arg:int):Tester { property(arg,arg); }
       public def put()=0;
     }

@@ -37,12 +37,6 @@ public class ClassifiedStream extends SimpleCodeWriter {
     public void forceNewline(int n) { pos = -1; newline(n); }
     public String toString() { return "ClassifiedStream: '"+contents()+"'"; }
 
-    // Should be in polyglot...
-    public void writeln(String s) {
-        write(s);
-        newline();
-    }
-
     public void write(String s, int l) {
         if (this.committed())
             throw new RuntimeException("Already committed");

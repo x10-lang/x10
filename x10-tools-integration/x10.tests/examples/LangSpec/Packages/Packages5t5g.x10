@@ -30,7 +30,7 @@ public class Packages5t5g extends x10Test {
 
  static struct eg {
    static def ow()= 1;
-   static static  struct Bite {
+   static  struct Bite {
       def ow() = 2;
    }
    def example() {

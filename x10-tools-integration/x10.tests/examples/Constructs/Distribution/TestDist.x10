@@ -120,7 +120,7 @@ abstract public class TestDist extends x10Test {
                     }
                     (o as Grid).pr(rank-1);
                 } else {
-                    val d = (new Box[double](o)).value;
+                    val d = (o as Box[double]).value;
                     out.print(""+(d as int));
                 }
 

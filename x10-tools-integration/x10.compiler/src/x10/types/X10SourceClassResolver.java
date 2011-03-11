@@ -186,7 +186,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
                     reporter.report(3, "Source file version is newer than compiled for " + name + ".");
                 clazz = null;
             } else {
-                handleUpToDateTarget(name, clazz);
+                handleUpToDateTarget(source, name, clazz);
             }
         }
 
@@ -228,7 +228,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         return res.get(0);
     }
 
-    protected void handleUpToDateTarget(QName name, Resource file) {
+    protected void handleUpToDateTarget(FileSource source, QName name, Resource file) {
     }
 
     public Package findPackage(QName name) throws SemanticException {

@@ -25,6 +25,15 @@
 
 namespace x10aux {
 
+#ifdef THREAD_TABLE_SZ
+    // bdwgc cap on the number of threads
+    // we need to cap the number of threads in XRX
+    // here we assume there will be no more than 16 threads created outside of XRX (transport maybe?)
+#define PLATFORM_MAX_THREADS (THREAD_TABLE_SZ - 16)
+#else
+#define PLATFORM_MAX_THREADS 0x7fffffff // no cap
+#endif
+
 #ifdef __GNUC__
     char *alloc_printf(const char *fmt, ...) 
                 __attribute__ ((format (printf, 1, 2)));

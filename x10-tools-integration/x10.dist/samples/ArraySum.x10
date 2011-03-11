@@ -35,7 +35,7 @@ public class ArraySum {
     }
 
     def sum(numThreads:Int) {
-        val mySize = data.size()/numThreads;
+        val mySize = data.size/numThreads;
         finish for (p in 0..(numThreads-1)) async {
             val mySum = sum(data, p*mySize, (p+1)*mySize);
             // Multiple activities will simultaneously update

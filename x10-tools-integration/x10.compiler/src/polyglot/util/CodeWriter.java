@@ -34,6 +34,15 @@ public abstract class CodeWriter
     public abstract void write(String s);
 
     /**
+     * Print the string <code>s</code> verbatim on the output stream followed by a newline.
+     * @param s the string to print.
+     */
+    public void writeln(String s) {
+        write(s);
+        newline();
+    }
+
+    /**
      * Print the string <code>s</code> on the output stream. Pretend that it
      * has width <code>length</code> even if it has a different number of
      * characters. This is useful when the string contains escape sequences,
@@ -127,6 +136,8 @@ public abstract class CodeWriter
      * newline with a specified indentation and level.
      */
     public abstract void newline(int n, int level);
+    
+    public void forceNewline() { newline(); }
 
     /**
      * Flush all formatted text to the underlying writer.

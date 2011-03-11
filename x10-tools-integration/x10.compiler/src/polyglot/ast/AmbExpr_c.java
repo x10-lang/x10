@@ -88,14 +88,14 @@ public class AmbExpr_c extends Expr_c implements AmbExpr
     throw new SemanticException("Could not find field or local variable \"" + name + "\".", pos);
   }
 
-  public Node typeCheck(ContextVisitor tc) throws SemanticException {
+  public Node typeCheck(ContextVisitor tc) {
       assert false;
       // Didn't finish disambiguation; just return.
       return this;
   }
 
   /** Check exceptions thrown by the expression. */
-  public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
+  public Node exceptionCheck(ExceptionChecker ec) {
     throw new InternalCompilerError(position(),
                                     "Cannot exception check ambiguous node "
                                     + this + ".");

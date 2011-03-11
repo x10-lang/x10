@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Activities_Activities_Activities;
+/* Current test harness gets confused by packages, but it would be in package Expressions3f6f;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,26 +19,23 @@ import harness.x10Test;
 
 
 
-public class Activities80 extends x10Test {
+public class Expressions3f6f extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Activities80().execute();
+        new Expressions3f6f().execute();
     }
 
 
-// file Activities line 708
- static  class EquivCode {
- static def S(pt:Point) {}
- static def example(D:Dist) {
-for (place in D.places()) async at (place) {
-    for (p in D|here) {
-        S(p);
-    }
+// file Expressions line 1606
+ static class Funny {
+  def f () = 1;
+  val f = () => 2;
+  static def example() {
+    val funny = new Funny();
+    assert funny.f() == 1;
+    assert (funny.f)() == 2;
+  }
 }
-}}
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() { Funny.example(); return true; }}
 
 }

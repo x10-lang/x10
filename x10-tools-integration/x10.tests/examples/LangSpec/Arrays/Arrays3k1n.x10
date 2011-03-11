@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Activities_Atsome_Globref2;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Arrays5;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,26 +19,22 @@ import harness.x10Test;
 
 
 
-public class Activities60 extends x10Test {
+public class Arrays3k1n extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Activities60().execute();
+        new Arrays3k1n().execute();
     }
 
 
-// file Activities line 430
- static  class GR2 {
-  public static def main(argv: Array[String](1)) {
-    val argref = GlobalRef[Array[String](1)](argv);
-    at(here.next()) use(argref);
-  }
-  static def use(argref : GlobalRef[Array[String](1)]) {
-    at(argref.home) {
-      val argv = argref();
-      argv(0) = "Hi!";
-    }
-  }
+// file Arrays.tex,  line 79
+
+ static class Arrays5TestStmt{
+  def check(use:(Int)=>void)  {
+    for(i in 1..10)use(i);
+  }}
+
+ static class Hook {
+   def run():Boolean = true;
 }
- static  class Hook{ def run() { GR2.main(["what, me weasel?"]); return true; }}
 
 }

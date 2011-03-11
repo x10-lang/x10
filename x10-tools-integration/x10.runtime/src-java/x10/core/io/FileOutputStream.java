@@ -19,8 +19,16 @@ public class FileOutputStream extends OutputStream {
     
 	private static final long serialVersionUID = 1L;
 
-    public FileOutputStream(String name) throws java.io.FileNotFoundException {
+    private FileOutputStream(String name) throws java.io.FileNotFoundException {
         super(new java.io.FileOutputStream(name));
+    }
+    
+    public static FileOutputStream make(String name) {
+        try {
+            return new FileOutputStream(name);
+        } catch (java.io.FileNotFoundException e) {
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
     }
     
     //

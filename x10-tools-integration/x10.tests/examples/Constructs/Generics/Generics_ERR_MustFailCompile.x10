@@ -4,7 +4,7 @@ class AClass extends Struct1 {} // ERR: Struct1 cannot be the superclass for ACl
 
 class Bla[T] extends Throwable
 	{T<:
-		Bla} // ShouldBeErr
+		Bla} // ERR
 	{
 	var x1:
 		Bla; // ERR
@@ -17,18 +17,18 @@ class Bla[T] extends Throwable
 	var x5:Bla[Bla[Bla[Int]]];
 	var x6:Bla[Int]{T<:Bla[Int]};
 	var x7:Bla[Int]{T<:
-		Bla}; // ShouldBeErr
+		Bla}; // ERR
 
 	static def m() {}
 	static def m2():Bla[Int] {
 		Bla.m();
 		//Bla[Int].m(); // I would prefer it was a semantic error and not a parsing error!
 		val z1 =
-			new Bla(); // ctor type parameters are inferred!
+			new Bla(); // ERR (ctor type parameters are inferred if they can be!)
 		val z2 = // ShouldNotBeERR
 			new Bla[Bla](); // ERR
 		val z3 =
-			new Bla[Int[Int]](); // ShouldBeErr
+			new Bla[Int[Int]](); // ERR
 
 		val b1 =
 			null instanceof Bla[Int]
@@ -45,22 +45,22 @@ class Bla[T] extends Throwable
 		val c1 = // ShouldNotBeERR 
 		    (x:Bla[Int],
 				y:
-					Bla, // ShouldBeErr
+					Bla, // ERR
 				z:Bla[Bla[Int]]):
-					Bla // ShouldBeErr
+					Bla // ERR
 				=> null;
 
 		return new Bla[Int]();
 	}
 	static def m3(x:
-		Bla, // ShouldBeErr
+		Bla, // ERR
 		y:Bla[Int]):
 			Bla // ERR
 		= null;
 
 	def m5[U]() {U<:Bla[T]} {}
 	static def m6[U]() {U<:
-		Bla} // ShouldBeErr
+		Bla} // ERR
 		{}
 
 
@@ -68,9 +68,9 @@ class Bla[T] extends Throwable
 	static type Bla2 =
 		Bla[Bla]; // ERR
 	static type Bla3 =
-		Bla; // ShouldBeErr
+		Bla; // ERR
 	static type Bla4(x:
-		Bla // ShouldBeErr
+		Bla // ERR
 		) = Int;
 
 	static class S {}
@@ -81,7 +81,7 @@ class Bla[T] extends Throwable
 	var s3:Bla[Int].S;
 	//var s4 = new Bla[Int].S(); // I would prefer it was a semantic error and not a parsing error!
 	var s5:
-		S[T]; // ShouldBeErr
+		S[T]; // ERR
 
 	var other:Bla[T] = null;
 
@@ -92,19 +92,19 @@ class Bla[T] extends Throwable
 	var i4:
 		Bla.Inner; // ShouldBeErr
 	var i5:Bla[T].Inner =
-		new Bla(). new Inner(); // ctor type parameters are inferred!
+		new Bla(). new Inner(); // ERR (ctor type parameters are inferred if they can be!)
 	var i6:
-		Inner[T]; // ShouldBeErr
+		Inner[T]; // ERR
 
 	class Inner2[U] {}
 
-	var j1:Inner2[Int] = other.new Inner2[Int](); // ShouldNotBeERR
-	var j2:Bla[T].Inner2[T] = other.new Inner2[T](); // ShouldNotBeERR
-	var j3:Bla[Int].Inner2[T] = new Bla[Int]().new Inner2[T](); // ShouldNotBeERR
+	var j1:Inner2[Int] = other.new Inner2[Int](); // ShouldNotBeERR ShouldNotBeERR
+	var j2:Bla[T].Inner2[T] = other.new Inner2[T](); // ShouldNotBeERR ShouldNotBeERR
+	var j3:Bla[Int].Inner2[T] = new Bla[Int]().new Inner2[T](); // ShouldNotBeERR ShouldNotBeERR
 	var j4:
 		Inner2; // ERR
 	var j5:Bla[T].Inner2[T] =
-		other.new Inner2(); // ERR
+		other.new Inner2(); // ERR ERR
 	var j6:Inner2[T];
 	var j7:
 		Inner2; // ERR

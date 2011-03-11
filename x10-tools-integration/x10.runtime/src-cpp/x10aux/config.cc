@@ -9,27 +9,31 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+#include <x10aux/config.h>
+
 #include <cstdlib>
 #include <cstring>
 
-#include <x10aux/config.h>
+bool getBoolEnvVar(const char* name) {
+    char* value = getenv(name);
+    return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));
+}
 
-bool x10aux::use_ansi_colors_;
-bool x10aux::trace_init_;
-bool x10aux::trace_x10rt_;
-bool x10aux::trace_ser_;
-bool x10aux::trace_static_init_;
-bool x10aux::disable_dealloc_;
+const bool x10aux::trace_ansi_colors = getBoolEnvVar("X10_TRACE_ANSI_COLORS");
+const bool x10aux::trace_init = getBoolEnvVar("X10_TRACE_INIT") || getBoolEnvVar("X10_TRACE_ALL");
+const bool x10aux::trace_static_init = getBoolEnvVar("X10_TRACE_STATIC_INIT") || getBoolEnvVar("X10_TRACE_ALL");
+const bool x10aux::trace_x10rt = getBoolEnvVar("X10_TRACE_X10RT") || getBoolEnvVar("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
+const bool x10aux::trace_ser = getBoolEnvVar("X10_TRACE_SER") || getBoolEnvVar("X10_TRACE_NET") || getBoolEnvVar("X10_TRACE_ALL");
+const bool x10aux::trace_rxtx = getBoolEnvVar("X10_TRACE_RXTX") || getBoolEnvVar("X10_TRACE_NET") || getBoolEnvVar("X10_TRACE_ALL");
 
-bool x10aux::init_config_bools_done;
+const bool x10aux::disable_dealloc = getBoolEnvVar("X10_DISABLE_DEALLOC");
 
-void x10aux::init_config_bools (void)
-{
-    use_ansi_colors_ = NULL==getenv("X10_NO_ANSI_COLORS");
-    disable_dealloc_ = getenv("X10_DISABLE_DEALLOC");
-    trace_init_ = getenv("X10_TRACE_INIT") || getenv("X10_TRACE_ALL");
-    trace_x10rt_ = getenv("X10_TRACE_X10RT") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
-    trace_ser_ = getenv("X10_TRACE_SER") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
-    trace_static_init_ = getenv("X10_TRACE_STATIC_INIT") || getenv("X10_TRACE_ALL");
-    init_config_bools_done = true;
+const bool x10aux::x10__assertions_enabled = !getBoolEnvVar("X10_DISABLE_ASSERTIONS");
+
+char* x10aux::get_congruent_base() {
+    return getenv(ENV_CONGRUENT_BASE);
+}
+
+char* x10aux::get_congruent_size() {
+    return getenv(ENV_CONGRUENT_SIZE);
 }

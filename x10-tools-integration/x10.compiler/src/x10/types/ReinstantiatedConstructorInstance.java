@@ -9,6 +9,7 @@ import polyglot.types.Ref;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.LocalInstance;
 import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -45,6 +46,11 @@ final class ReinstantiatedConstructorInstance extends X10ConstructorInstance_c {
 		if (formalTypes == null)
 			return this.typeParamSubst.reinstantiate(fi.formalTypes());
 		return formalTypes;
+	}
+
+	@Override
+	public List<LocalInstance> formalNames() {
+		return this.typeParamSubst.reinstantiate(fi.formalNames());
 	}
 
 	@Override

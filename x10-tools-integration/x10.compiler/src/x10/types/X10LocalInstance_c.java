@@ -108,7 +108,8 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
     }
 
     public String toString() {
-        String s = "local " + flags().prettyPrint() + name() + ": " + safeType();
+        Name name = x10Def().isUnnamed() ? X10LocalDef_c.UNNAMED : name();
+        String s = "local " + flags().prettyPrint() + name + ": " + safeType();
         return s;
     }
 

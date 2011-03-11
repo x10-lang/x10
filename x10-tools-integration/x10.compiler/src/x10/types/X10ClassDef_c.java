@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashSet;
 
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
@@ -683,6 +684,38 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         else {
             return QName.make(null, Name.make("<unknown class>"));
         }
+    }
+
+    private static void addTypeToWorkList(ArrayList<ClassDef> worklist, Ref<? extends Type> ref) {
+        Type sup = Types.get(ref);
+        sup = Types.baseType(sup);
+        // can be a parameter type
+        if (sup instanceof ParameterType) return;
+        assert sup instanceof X10ParsedClassType;
+        worklist.add( ((X10ParsedClassType)sup).def() );
+    }
+    private static void addToWorkList(ClassDef def, ArrayList<ClassDef> worklist) {
+        final Ref<? extends Type> ref = def.superType();
+        if (ref!=null) {
+            addTypeToWorkList(worklist, ref);
+        }
+        final List<X10FieldDef> props = def.properties();
+        for (X10FieldDef p : props) {
+            addTypeToWorkList(worklist, p.type());
+        }
+    }
+    public boolean hasCircularProperty() {
+        ArrayList<ClassDef> worklist = new ArrayList<ClassDef>();
+        HashSet<ClassDef> smaller = new HashSet<ClassDef>();
+        addToWorkList(this, worklist);
+        while (worklist.size()>0) {
+            ClassDef cur = worklist.remove(worklist.size()-1);
+            if (smaller.contains(cur)) continue;
+            smaller.add(cur);
+            addToWorkList(cur, worklist);
+        }
+        return smaller.contains(this);
+
     }
 
 }

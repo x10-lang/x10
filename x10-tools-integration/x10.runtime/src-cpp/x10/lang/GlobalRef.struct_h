@@ -28,6 +28,8 @@ namespace x10 {
             GlobalRef(T obj = NULL) : value((size_t)(obj.operator->())), location(x10aux::here) { }
             GlobalRef(x10aux::place p, x10_ulong obj = 0) : value(obj), location(p) { }
 	
+	        static GlobalRef<T> _alloc () {GlobalRef<T> t; return t;} // Note: no need to zero t
+	
             // we are assuming T is always of the form x10aux::ref<U> and use T::Type to get U
             inline T __apply() { return (typename T::Type*)(size_t)value; }
 

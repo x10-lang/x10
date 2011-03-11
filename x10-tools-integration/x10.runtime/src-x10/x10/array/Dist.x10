@@ -35,7 +35,7 @@ public abstract class Dist(
     /**
      * The rank of this distribution.
      */
-    property rank:Int = region.rank;
+    property rank():Int = region.rank;
 
     //
     // factories - place is all applicable places

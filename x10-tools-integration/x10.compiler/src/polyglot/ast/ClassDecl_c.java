@@ -61,9 +61,9 @@ public abstract class ClassDecl_c extends Term_c implements ClassDecl
     
     public abstract Node visitSignature(NodeVisitor v);
     
-    public abstract ClassDecl_c preBuildTypes(TypeBuilder tb) throws SemanticException;
+    public abstract ClassDecl_c preBuildTypes(TypeBuilder tb);
     
-    public abstract ClassDecl_c postBuildTypes(TypeBuilder tb) throws SemanticException;
+    public abstract ClassDecl_c postBuildTypes(TypeBuilder tb);
 
     /*public Context enterChildScope(Node child, Context c) {
         if (child == this.body) {
@@ -98,14 +98,13 @@ public abstract class ClassDecl_c extends Term_c implements ClassDecl
 
     protected abstract void checkSupertypeCycles(TypeSystem ts) throws SemanticException;
 
-    protected abstract void setSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException;
+    protected abstract void setSuperClass(TypeSystem ts, ClassDef thisType);
 
-    protected abstract void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException;
+    protected abstract void setInterfaces(TypeSystem ts, ClassDef thisType);
 
-    protected abstract ConstructorDecl createDefaultConstructor(ClassDef thisType, TypeSystem ts, NodeFactory nf)
-    throws SemanticException;
+    protected abstract ConstructorDecl createDefaultConstructor(ClassDef thisType, TypeSystem ts, NodeFactory nf);
     
-    public abstract Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheckOverride(Node parent, ContextVisitor tc);
     
     public abstract Node conformanceCheck(ContextVisitor tc);
 

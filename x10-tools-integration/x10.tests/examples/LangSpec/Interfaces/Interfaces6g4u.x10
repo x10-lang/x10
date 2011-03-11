@@ -26,7 +26,7 @@ public class Interfaces6g4u extends x10Test {
     }
 
 
-// file Interfaces line 84
+// file Interfaces line 91
  static interface Star{}
  static interface Dog{}
  static class Sirius implements Dog, Star{}

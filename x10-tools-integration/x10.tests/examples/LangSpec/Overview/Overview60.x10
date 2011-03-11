@@ -26,7 +26,7 @@ public class Overview60 extends x10Test {
     }
 
 
-// file Overview line 265
+// file Overview line 267
 
  static class List[T] {
     var head: T;
@@ -34,7 +34,7 @@ public class Overview60 extends x10Test {
     def this(h: T, t: List[T]) { head = h; tail = t; }
     def add(x: T) {
         if (this.tail == null)
-            this.tail = new List(x, null);
+            this.tail = new List[T](x, null);
         else
             this.tail.add(x);
     }

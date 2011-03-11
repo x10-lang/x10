@@ -22,11 +22,6 @@ public class OutputStream extends Ref {
 
     private final java.io.OutputStream stream;
 
-    // NOTE: be careful when using this constructor, all APIs must be overridden.
-    public OutputStream() {
-        this.stream = null;
-    }
-
     public OutputStream(java.io.OutputStream stream) {
         this.stream = stream;
     }
@@ -81,5 +76,46 @@ public class OutputStream extends Ref {
     );
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
+
+
+    //
+    // NOTE: this class is only used in @Native annotation of x10.io.Writer.getNativeOutputStream()
+    //
+    public static class WriterOutputStream extends OutputStream {
+        private static final long serialVersionUID = 1L;
+        private final x10.io.Writer w;
+        public WriterOutputStream(x10.io.Writer w) {
+            // NOTE: since the backing stream is not set, all APIs of OutputStream must be overridden.
+            super(null);
+            this.w = w;
+        }
+        @Override
+        public void write(int x) {
+            w.write((byte) x);
+        }
+        @Override
+        public void close() {
+            throw new x10.lang.UnsupportedOperationException();
+        }
+        @Override
+        public void flush() {
+            throw new x10.lang.UnsupportedOperationException();
+        }
+        @Override
+        public void write(byte[] b) {
+            throw new x10.lang.UnsupportedOperationException();
+        }
+        @Override
+        public void write(byte[] b, int off, int len) {
+            throw new x10.lang.UnsupportedOperationException();
+        }
+        public static final RuntimeType<WriterOutputStream> $RTT = new NamedType<WriterOutputStream>(
+            "x10.io.OutputStreamWriter.OutputStream.WriterOutputStream",
+            WriterOutputStream.class,
+            new Type[] { OutputStream.$RTT }
+        );
+        public RuntimeType<?> $getRTT() { return $RTT; }
+        public Type<?> $getParam(int i) { return null; }
+    }
 
 }

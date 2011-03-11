@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package stmtsome_Arrays43;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Arrays45;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Arrays400 extends x10Test {
     }
 
 
-// file Arrays.tex,  line 712
+// file Arrays.tex,  line 728
 
- static class Arrays43TestStmt{
+ static class Arrays45TestStmt{
   def check(a:Array[Int](3), p:Point(3), t:Int)  {
     a(p)=t;
   }}

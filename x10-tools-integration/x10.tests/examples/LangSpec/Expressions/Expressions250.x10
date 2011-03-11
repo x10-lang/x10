@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Expressions33;
+/* Current test harness gets confused by packages, but it would be in package expsome_Expressions35;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Expressions250 extends x10Test {
     }
 
 
-// file Expressions line 1352
+// file Expressions line 1454
 
- static class Expressions33TestExp{
+ static class Expressions35TestExp{
   def check()  = 12 as Byte;  }
 
  static class Hook {

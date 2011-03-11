@@ -172,7 +172,7 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
     public abstract Node visitSignature(NodeVisitor v);
     
     /** Type check the declaration. */
-    public Node typeCheckBody(Node parent, TypeChecker tc, TypeChecker childtc) throws SemanticException {
+    public Node typeCheckBody(Node parent, TypeChecker tc, TypeChecker childtc) {
         MethodDecl_c n = this;
         Block body = (Block) n.visitChild(n.body, childtc);
         n = (MethodDecl_c) n.body(body);
@@ -180,7 +180,7 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
     }
 
     /** Type check the method. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 /*
         for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
@@ -273,7 +273,7 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
         }
     }
 
-  /*  public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
+  /*  public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
         return ec.push(new ExceptionChecker.CodeTypeReporter("Method " + mi.signature())).push(methodDef().asInstance().throwTypes());
     }
 */

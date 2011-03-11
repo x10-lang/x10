@@ -26,7 +26,7 @@ public class Arrays30 extends x10Test {
     }
 
 
-// file Arrays line 44
+// file Arrays line 46
  static  class Example{
  def example() {
 val p : Point = [1,2,3];

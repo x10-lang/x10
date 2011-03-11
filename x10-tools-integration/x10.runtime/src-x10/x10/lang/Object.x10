@@ -79,6 +79,6 @@ public class Object
      */
     @Native("java", "x10.rtt.Types.typeName(#0)")
     @Native("c++", "x10aux::type_name(#this)")
-    @NonEscaping("")
+    @NonEscaping
     public native final def typeName():String;
 }

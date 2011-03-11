@@ -86,7 +86,7 @@ public abstract class Local_c extends Expr_c implements Local
       return reconstruct(name);
   }
 
-  public Node buildTypes(TypeBuilder tb) throws SemanticException {
+  public Node buildTypes(TypeBuilder tb) {
       Local_c n = (Local_c) super.buildTypes(tb);
 
       TypeSystem ts = tb.typeSystem();
@@ -96,7 +96,7 @@ public abstract class Local_c extends Expr_c implements Local
   }
 
   /** Type check the local. */
-  public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+  public abstract Node typeCheck(ContextVisitor tc);
 
   public Term firstChild() {
       return null;

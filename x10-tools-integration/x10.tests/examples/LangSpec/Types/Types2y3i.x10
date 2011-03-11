@@ -31,7 +31,7 @@ public class Types2y3i extends x10Test {
  static interface Stat {
   static val PI = 3.14159;
   static type R = Double;
-  static static  class Pair(x:R, y:R) {}
+  static  class Pair(x:R, y:R) {}
   // ERROR: static def meth():Int;
   // ERROR: static def this();
 }

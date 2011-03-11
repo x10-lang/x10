@@ -24,14 +24,17 @@ import harness.x10Test;
  * @author raj
  */
 public class InterfaceProp extends x10Test {
-interface  I(i:int) {
-      public def a():void;
+    interface  I {
+        public property i():int;
+        public def a():void;
 	}
-	interface  J(k:int) extends I{
-      public def a():void;
+	interface  J extends I{
+        public property k():int;
+        public def a():void;
 	}
 	
       class E(m:int, k:int) extends D implements J{
+       public property k():int = k;
       public def this(mm:int, nn:int, ii:int, kk:int):E { 
           super(nn,ii); 
           property(mm, kk);
@@ -41,6 +44,7 @@ interface  I(i:int) {
       }
 	}
 	class D(n:int, i:int) implements I {
+       public property i():int = i;
       public def this(nn:int, ii:int):D { property(nn, ii); }
       public def a():void= {
         var x:int;

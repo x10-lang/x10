@@ -197,7 +197,7 @@ public abstract class ConstructorDecl_c extends Term_c implements ConstructorDec
     }
 
     /** Type check the declaration. */
-    public Node typeCheckBody(Node parent, TypeChecker tc, TypeChecker childtc) throws SemanticException {
+    public Node typeCheckBody(Node parent, TypeChecker tc, TypeChecker childtc) {
         ConstructorDecl_c n = this;
         Block body = (Block) n.visitChild(n.body, childtc);
         n = (ConstructorDecl_c) n.body(body);

@@ -99,8 +99,7 @@ public class TypeDefMatcher extends TypeSystem_c.NameMatcher<Type> {
             if (mi.formalTypes().size() != argTypes.size())
                 return null;
             if (typeArgs.isEmpty() || typeArgs.size() == mi.typeParameters().size())
-                if (X10ClassBody_c.hasCompatibleArguments(argTypes,mi.formalTypes(),context))
-                    return mi;
+                return instantiateAccess(mi);
         }
         return null;
     }

@@ -16,9 +16,12 @@ package x10.io;
  * 
  * @see CustomSerialization
  */
-public final class SerialData(data:Any, superclassData:SerialData) {
+public final class SerialData {
+  public val data:Any;
+  public val superclassData:SerialData;
   public def this(data:Any, superclassData:SerialData) {
-    property(data, superclassData);
+    this.data = data;
+    this.superclassData = superclassData;
   }
   
   public def toString():String = "SerialData(" + data + "," + superclassData + ")";

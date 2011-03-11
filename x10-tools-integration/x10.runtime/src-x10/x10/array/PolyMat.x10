@@ -178,7 +178,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         for (r:PolyRow in this) {
             val a = r(axis);
             if (a < 0)
-                return -r(rank()) / a;
+                return -r(rank) / a;
         }
 
         var msg: String = "axis " + axis + " has no minimum";
@@ -190,7 +190,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         for (r:PolyRow in this) {
             val a = r(axis);
             if (a > 0)
-                return -r(rank()) / a;
+                return -r(rank) / a;
         }
 
         val msg = "axis " + axis + " has no maximum";

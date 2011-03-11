@@ -30,48 +30,23 @@ public class TypeChecker extends ContextVisitor
     	Node n_ = memo.get(n);
 		if (n_ != null) {
 	        this.addDecls(n_);
-			return n_;
+	        return n_;
 		}
     	
-        try {
-            if (reporter.should_report(Reporter.visit, 2))
-                reporter.report(2, ">> " + this + "::override " + n);
-            
-            Node m = n.del().typeCheckOverride(parent, this);
-            
-            if (m != null) {
-//            	memo.put(n, m);
-//            	memo.put(m, m);
-            }
-            
-            return m;
-        }
-        catch (SemanticException e) {
-            if (e.getMessage() != null) {
-                Position position = e.position();
-                
-                if (position == null) {
-                    position = n.position();
-                }
-                
-                this.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-                                     e.getMessage(), position);
-            }
-            else {
-                // silent error; these should be thrown only
-                // when the error has already been reported 
-            }
-            
-            // IMPORTANT: Mark the goal as failed, otherwise we may run dependent goals
-            // that depend on this pass completing successfully.
-            if (goal() != null)
-        	goal().fail();
-            
-            return n;
-        }
+		if (reporter.should_report(Reporter.visit, 2))
+		    reporter.report(2, ">> " + this + "::override " + n);
+		
+		Node m = n.del().typeCheckOverride(parent, this);
+		
+		if (m != null) {
+//		    memo.put(n, m);
+//		    memo.put(m, m);
+		}
+		
+		return m;
     }
 
-    protected NodeVisitor enterCall(Node n) throws SemanticException {
+    protected NodeVisitor enterCall(Node n) {
         TypeChecker v = (TypeChecker) n.del().typeCheckEnter(this);
         return v;
     }

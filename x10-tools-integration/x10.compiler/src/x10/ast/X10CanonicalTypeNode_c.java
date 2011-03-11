@@ -150,12 +150,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    tref.update(newType);
 	}
 
-	Node n = this;
-	try {
-	    n = super.typeCheck(tc);
-	} catch (SemanticException e) {
-	    Errors.issue(tc.job(), e, this);
-	}
+	Node n = super.typeCheck(tc);
 	return n;
     }
 

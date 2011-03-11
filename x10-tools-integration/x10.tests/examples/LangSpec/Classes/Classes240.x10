@@ -26,16 +26,16 @@ public class Classes240 extends x10Test {
     }
 
 
-// file Classes line 1419
+// file Classes line 1509
  static  class Poly {
    public val coeff : Array[Int](1);
    public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-   public def degree() = coeff.size()-1;
+   public def degree() = coeff.size-1;
    public def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
    public final def toString() = {
       var allZeroSoFar : Boolean = true;
       var s : String ="";
-      for( [i] in 0..this.degree() ) {
+      for( i in 0..this.degree() ) {
         val ai = this.a(i);
         if (ai == 0) continue;
         if (allZeroSoFar) {
@@ -59,7 +59,7 @@ public class Classes240 extends x10Test {
 
   public static operator (p:Poly) + (q:Poly) = new Poly(
       new Array[Int](
-        Math.max(p.coeff.size(), q.coeff.size()),
+        Math.max(p.coeff.size, q.coeff.size),
         (i:Int) => p.a(i) + q.a(i)
      ));
 

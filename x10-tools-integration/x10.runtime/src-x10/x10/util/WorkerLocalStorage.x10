@@ -36,7 +36,7 @@ package x10.util;
  */
 public class WorkerLocalStorage[Key,Value] {
     private val store = PlaceLocalHandle.make(Dist.makeUnique(),
-            ()=>new Array[HashMap[Key,Value]](Runtime.MAX_WORKERS, null as HashMap[Key,Value]));
+            ()=>new Array[HashMap[Key,Value]](Runtime.MAX_THREADS, null as HashMap[Key,Value]));
 
     public def get(key:Key):Box[Value] {
         val id = Runtime.workerId();

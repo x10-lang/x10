@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Places5;
+/* Current test harness gets confused by packages, but it would be in package Structs2w3o;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,17 +19,21 @@ import harness.x10Test;
 
 
 
-public class Places50 extends x10Test {
+public class Structs2w3o extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Places50().execute();
+        new Structs2w3o().execute();
     }
 
 
-// file Places line 56
-
- static class Places5TestExp{
-  def check(pl:Place)  = pl.isCUDA();  }
+// file Structs line 94
+ static struct Ambig(x:Int) {
+  static def Ambig(x:Int) = "Breaks capitalization conventions!";
+  static def example() {
+    val useMethod      = Ambig(1);
+    val useConstructor = new Ambig(2);
+  }
+}
 
  static class Hook {
    def run():Boolean = true;

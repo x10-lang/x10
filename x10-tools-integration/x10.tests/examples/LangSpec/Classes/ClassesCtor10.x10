@@ -26,11 +26,11 @@ public class ClassesCtor10 extends x10Test {
     }
 
 
-// file Classes line 782
+// file Classes line 787
  static class C {
   public val a : Int;
   def this(b : Int) { a = b; }
-  def this() { a = 10; }
+  def this()        { a = 10; }
   static def example() {
      val two = new C(2);
      assert two.a == 2;

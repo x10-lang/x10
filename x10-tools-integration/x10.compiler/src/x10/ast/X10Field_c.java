@@ -158,11 +158,11 @@ public class X10Field_c extends Field_c {
 	    if (haveUnknown)
 	        e = new SemanticException(); // null message
 	    if (!targetType.isClass()) {
-	        Name tName = targetType.name(); 
+	        QName tName = targetType.fullName();
 	        if (tName == null) {
-	        	tName = Name.make(targetType.toString());
+	        	tName = QName.make(null, targetType.toString());
 	        }
-	        targetType = xts.createFakeClass(QName.make(null, tName), new SemanticException("Target type is not a class: "+targetType));
+	        targetType = xts.createFakeClass(tName, new SemanticException("Target type is not a class: "+targetType));
 	    }
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
 	    if (rt == null) rt = fi.type();

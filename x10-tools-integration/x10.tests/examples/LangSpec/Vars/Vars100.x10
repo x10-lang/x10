@@ -26,7 +26,7 @@ public class Vars100 extends x10Test {
     }
 
 
-// file Vars line 402
+// file Vars line 403
  static  class Ink {
 static def inc(var i:Int) { i += 1; }
 }

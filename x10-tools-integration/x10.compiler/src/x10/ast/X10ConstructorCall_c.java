@@ -73,7 +73,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	
 	// Override to remove reference to ts.Object(), which will cause resolver loop.
 	@Override
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	public Node buildTypes(TypeBuilder tb) {
 	    TypeSystem ts = tb.typeSystem();
 
 	    // Remove super() calls for java.lang.Object.
@@ -97,10 +97,11 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	@Override
 	public Node visitChildren(NodeVisitor v) {
 		Expr qualifier = (Expr) visitChild(this.qualifier, v);
+		Expr target = (Expr) visitChild(this.target, v);
 		List<TypeNode> typeArguments = visitList(this.typeArguments, v);
 		List<Expr> arguments = visitList(this.arguments, v);
 		X10ConstructorCall_c n = (X10ConstructorCall_c) typeArguments(typeArguments);
-		return n.reconstruct(qualifier, arguments);
+		return n.reconstruct(qualifier, target, arguments);
 	}
 	
 	List<TypeNode> typeArguments;

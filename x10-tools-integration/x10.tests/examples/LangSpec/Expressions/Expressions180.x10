@@ -26,7 +26,7 @@ public class Expressions180 extends x10Test {
     }
 
 
-// file Expressions line 1264
+// file Expressions line 1366
  static interface Personable {}
  static class Person implements Personable {}
  static interface Childlike extends Personable {}

@@ -115,6 +115,7 @@ import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.X10Context_c;
 import x10.types.X10ParsedClassType;
+import x10.types.X10MethodDef_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
@@ -274,7 +275,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		// property implies public, final
 		if (xf.isProperty()) {
-			if (xf.isAbstract())  //todo: Yoav thinks we should not have abstract property methods (all property methods, even in interfaces, should have a body so they can be expanded)
+			if (xf.isAbstract())
 				xf = xf.Public();
 			else
 				xf = xf.Public().Final();
@@ -433,7 +434,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
 
 				} catch (SemanticException z) {
-					throw new InternalCompilerError("Unexpected inconsistent guard" + z);
+					// inconsistent guard -- ignore
 				}
 				//        ((X10Context) c).setCurrentConstraint(vc.get());
 				//        ((X10Context) c).setCurrentTypeConstraint(tc.get());
@@ -525,13 +526,21 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				if (s instanceof Return) {
 					Return r = (Return) s;
 					if (r.expr() != null) {
-						XTerm v = ts.xtypeTranslator().translate((CConstraint) null, r.expr(), (Context) tc.context());
-						ok = true;
-						X10MethodDef mi = (X10MethodDef) this.mi;
-						if (mi.body() instanceof LazyRef<?>) {
-							LazyRef<XTerm> bodyRef = (LazyRef<XTerm>) mi.body();
-							bodyRef.update(v);
-						}
+                        final X10MethodDef_c mdef = (X10MethodDef_c) mi;
+                        // detecting cycles in property methods
+                        // recurse into the expr to see what other methods we call
+                        if (mdef.isCircularPropertyMethod(r.expr())) {
+                            Errors.issue(tc.job(), new SemanticException("Circular property method definition. Expanding the property method may result in an infinite loop.\n\tProperty:"+mi, position));
+                        } else {
+                            // while expanding this expression we might recursively type check the same method
+                            XTerm v = ts.xtypeTranslator().translate((CConstraint) null, r.expr(), (Context) tc.context());
+                            ok = true;
+                            X10MethodDef mi = (X10MethodDef) this.mi;
+                            if (mi.body() instanceof LazyRef<?>) {
+                                LazyRef<XTerm> bodyRef = (LazyRef<XTerm>) mi.body();
+                                bodyRef.update(v);
+                            }
+                        }
 					}
 				}
 			}
@@ -540,11 +549,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				        new Errors.MethodBodyMustBeConstraintExpressiong(position()));
 		}
 
-		try {
-		    n = (X10MethodDecl_c) n.superTypeCheck(tc);
-		} catch (SemanticException e) {
-		    throw new InternalCompilerError("Unexpected exception while typechecking "+n, n.position(), e);
-		}
+		n = (X10MethodDecl_c) n.superTypeCheck(tc);
 
 		try {
 		    dupFormalCheck(typeParameters, formals);
@@ -626,7 +631,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 	}
 
-	protected X10MethodDecl_c superTypeCheck(ContextVisitor tc) throws SemanticException {
+	protected X10MethodDecl_c superTypeCheck(ContextVisitor tc) {
 		return (X10MethodDecl_c) super.typeCheck(tc);
 	}
 
@@ -1013,7 +1018,14 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final TypeNode h = (TypeNode) nn.visitChild(((X10MethodDecl_c) nn).hasType, childtc1);
 				Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( Context ) childtc1.context());
 				nn = (X10MethodDecl) ((X10MethodDecl_c) nn).hasType(h);
-				if (! xts.isSubtype(type, hasType, tc.context())) {
+				boolean checkSubType = true;
+				try {
+				    Types.checkMissingParameters(h);
+				} catch (SemanticException e) {
+				    Errors.issue(tc.job(), e, h);
+				    checkSubType = false;
+				}
+				if (checkSubType && ! xts.isSubtype(type, hasType, tc.context())) {
 					Errors.issue(tc.job(),
 							new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
 				}

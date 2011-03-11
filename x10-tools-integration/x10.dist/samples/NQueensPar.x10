@@ -53,12 +53,12 @@ public class NQueensPar {
         }
 
         def this(old: Array[Int](1), newItem:Int) {
-            val n = old.size();
+            val n = old.size;
             q = new Array[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
         }
 
         def safe(j: int) {
-            val n = q.size();
+            val n = q.size;
             for (k in 0..(n-1)) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
                     return false;
@@ -76,11 +76,11 @@ public class NQueensPar {
         }
 
         def search() {
-            if (q.size() == N) {
+            if (q.size == N) {
                 atomic nSolutions++;
                 return;
             }
-            if (q.size() == 0) {
+            if (q.size == 0) {
                 val R = block(0..(N-1), P);
                 for (q in 0..(P-1)) async
                   search(R(q));

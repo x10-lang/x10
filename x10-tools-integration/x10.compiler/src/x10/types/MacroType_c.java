@@ -346,7 +346,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		for (int i = 0; i < formals.size(); i++) {
 		    if (i != 0)
 			sb.append(", ");
-		    if (! formals.get(i).equals("")) {
+		    if (! formals.get(i).toString().equals("")) {
 			sb.append(formals.get(i));
 			sb.append(": ");
 		    }

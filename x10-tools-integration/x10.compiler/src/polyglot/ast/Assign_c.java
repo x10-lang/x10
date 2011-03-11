@@ -15,6 +15,7 @@ import polyglot.frontend.Globals;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * An <code>Assign</code> represents a Java assignment expression.
@@ -75,83 +76,10 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
   }
   
   public abstract Type leftType();
-  public abstract Assign typeCheckLeft(ContextVisitor tc) throws SemanticException;
+  public abstract Assign typeCheckLeft(ContextVisitor tc);
 
   /** Type check the expression. */
-  public Node typeCheck(ContextVisitor tc) throws SemanticException {
-      Assign_c n = (Assign_c) typeCheckLeft(tc);
-      
-      TypeSystem ts = tc.typeSystem();
-    Type t = n.leftType();
-    
-    if (t == null)
-	t = ts.unknownType(position());
-
-    Expr right = n.right();
-    Assign.Operator op = n.operator();
-
-    Type s = right.type();
-
-    Context context = tc.context();
-    if (op == ASSIGN) {
-      if (! ts.isImplicitCastValid(s, t, context) &&
-          ! ts.typeEquals(s, t, context) &&
-          ! ts.numericConversionValid(t, right.constantValue(), context)) {
-
-        throw new SemanticException("Cannot assign " + s + " to " + t + ".", position());
-      }
-
-      return n.type(t);
-    }
-
-    if (op == ADD_ASSIGN) {
-      // t += s
-      if (ts.typeEquals(t, ts.String(), context) && ts.canCoerceToString(s, context)) {
-        return n.type(ts.String());
-      }
-
-      if (t.isNumeric() && s.isNumeric()) {
-        return n.type(ts.promote(t, s));
-      }
-
-      throw new SemanticException("Operator must have numeric or String operands.", position());
-    }
-
-    if (op == SUB_ASSIGN || op == MUL_ASSIGN ||
-        op == DIV_ASSIGN || op == MOD_ASSIGN) {
-      if (t.isNumeric() && s.isNumeric()) {
-        return n.type(ts.promote(t, s));
-      }
-
-      throw new SemanticException("Operator must have numeric operands.", position());
-    }
-
-    if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
-      if (t.isBoolean() && s.isBoolean()) {
-        return n.type(ts.Boolean());
-      }
-
-      if (ts.isImplicitCastValid(t, ts.Long(), context) &&
-          ts.isImplicitCastValid(s, ts.Long(), context)) {
-        return n.type(ts.promote(t, s));
-      }
-
-      throw new SemanticException("Operator must have integral or boolean operands.", position());
-    }
-
-    if (op == SHL_ASSIGN || op == SHR_ASSIGN || op == USHR_ASSIGN) {
-      if (ts.isImplicitCastValid(t, ts.Long(), context) &&
-          ts.isImplicitCastValid(s, ts.Long(), context)) {
-        // Only promote the left of a shift.
-        return n.type(ts.promote(t));
-      }
-
-      throw new SemanticException("Operator must have integral operands.", position());
-    }
-
-    throw new InternalCompilerError("Unrecognized assignment operator " +
-                                    op + ".");
-  }
+  public abstract Node typeCheck(ContextVisitor tc);
   
   public Type childExpectedType(Expr child, AscriptionVisitor av) {
       if (child == right) {

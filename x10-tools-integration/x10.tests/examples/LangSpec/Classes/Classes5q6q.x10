@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package MethodResolution_yousayyouwantaresolution;
+/* Current test harness gets confused by packages, but it would be in package Classes5q6q;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,20 +19,19 @@ import harness.x10Test;
 
 
 
-public class MethodResolution10 extends x10Test {
+public class Classes5q6q extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new MethodResolution10().execute();
+        new Classes5q6q().execute();
     }
 
 
-// file MethodResolution line 14
- static class Resolve {
-  static def zap(Object) = "Object";
-  static def zap(Resolve) = "Resolve";
-  public static def main(argv:Array[String](1)) {
-    Console.OUT.println(zap(1..4));
-    Console.OUT.println(zap(new Resolve()));
+// file Classes line 873
+ static class Ctors {
+  val a : Int;
+  def this(a:Int) { this.a = a; }
+  def this() {
+    this(100);
   }
 }
 

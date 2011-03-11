@@ -26,12 +26,12 @@ public class Classes160 extends x10Test {
     }
 
 
-// file Classes line 926
+// file Classes line 973
  // Integer-coefficient polynomials of one variable.
  static  class Poly {
    public val coeff : Array[Int](1);
    public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-   public def degree() = coeff.size()-1;
+   public def degree() = coeff.size-1;
    public def a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
 
    public static operator (c : Int) as Poly = new Poly([c]);
@@ -39,7 +39,7 @@ public class Classes160 extends x10Test {
    public operator this(x:Int) {
      val d = this.degree();
      var s : Int = this.a(d);
-     for( [i] in 1 .. this.degree() ) {
+     for( i in 1 .. this.degree() ) {
         s = x * s + a(d-i);
      }
      return s;
@@ -47,7 +47,7 @@ public class Classes160 extends x10Test {
 
    public operator this + (p:Poly) =  new Poly(
       new Array[Int](
-         Math.max(this.coeff.size(), p.coeff.size()),
+         Math.max(this.coeff.size, p.coeff.size),
          (i:Int) => this.a(i) + p.a(i)
       ));
    public operator this - (p:Poly) = this + (-1)*p;
@@ -73,14 +73,14 @@ public class Classes160 extends x10Test {
       ));
    private static def sumDeg(k:Int, a:Poly, b:Poly) {
       var s : Int = 0;
-      for( [i] in 0 .. k ) s += a.a(i) * b.a(k-i);
+      for( i in 0 .. k ) s += a.a(i) * b.a(k-i);
         // x10.io.Console.OUT.println("sumdeg(" + k + "," + a + "," + b + ")=" + s);
       return s;
       };
    public final def toString() = {
       var allZeroSoFar : Boolean = true;
       var s : String ="";
-      for( [i] in 0..this.degree() ) {
+      for( i in 0..this.degree() ) {
         val ai = this.a(i);
         if (ai == 0) continue;
         if (allZeroSoFar) {
@@ -109,7 +109,7 @@ public class Classes160 extends x10Test {
      val t <: Poly = 7 * X + 6 * X * X * X;
      val u <: Poly = 3 + 5*X - 7*X*X;
      val v <: Poly = t * u - 1;
-     for( [i] in -3 .. 3) {
+     for( i in -3 .. 3) {
        x10.io.Console.OUT.println(
          "" + i + "	X:" + X(i) + "	t:" + t(i)
          + "	u:" + u(i) + "	v:" + v(i)

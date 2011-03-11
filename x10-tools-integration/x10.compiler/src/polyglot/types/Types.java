@@ -39,7 +39,6 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
-import x10.errors.Errors.TypeIsMissingParameters;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.MacroType_c;
@@ -291,6 +290,15 @@ public class Types {
 				arrayBaseType(ct.superClass());
 		}
 		return null;
+	}
+
+	public static SemanticException error(Type t) {
+	    t = baseType(t);
+	    if (t instanceof X10ClassType) {
+	        X10ClassType ct = (X10ClassType) t;
+	        return ct.error();
+	    }
+	    return null;
 	}
 
 	/**

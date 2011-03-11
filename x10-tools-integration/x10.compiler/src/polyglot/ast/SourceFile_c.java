@@ -14,14 +14,15 @@ import polyglot.frontend.Source;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 import x10.util.CollectionFactory;
 
 /**
  * A <code>SourceFile</code> is an immutable representations of a Java
- * langauge source file.  It consists of a package name, a list of 
+ * language source file.  It consists of a package name, a list of 
  * <code>Import</code>s, and a list of <code>GlobalDecl</code>s.
  */
-public class SourceFile_c extends Node_c implements SourceFile
+public abstract class SourceFile_c extends Node_c implements SourceFile
 {
     protected PackageNode package_;
     protected List<Import> imports;
@@ -122,7 +123,7 @@ public class SourceFile_c extends Node_c implements SourceFile
      * Build type objects for the source file.  Set the visitor's import table
      * field before we recurse into the declarations.
      */
-    public NodeVisitor buildTypesEnter(TypeBuilder tb) throws SemanticException {
+    public NodeVisitor buildTypesEnter(TypeBuilder tb) {
         if (package_ != null) {
             return tb.pushPackage(Types.get(package_.package_()));
         }
@@ -169,32 +170,7 @@ public class SourceFile_c extends Node_c implements SourceFile
     }
 
     /** Type check the source file. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	Set<Name> names = CollectionFactory.newHashSet();
-	boolean hasPublic = false;
-
-	for (TopLevelDecl d : decls) {
-	    Name s = d.name().id();
-
-	    if (names.contains(s)) {
-		throw new SemanticException("Duplicate declaration: \"" + s + "\".", d.position());
-	    }
-
-	    names.add(s);
-
-	    if (d.flags().flags().isPublic()) {
-		if (hasPublic) {
-		    throw new SemanticException(
-			"The source contains more than one public declaration.",
-			d.position());
-		}
-
-		hasPublic = true;
-	    }
-	}
-     
-	return this;
-    }
+    public abstract Node typeCheck(ContextVisitor tc);
 
     public String toString() {
         return "<<<< " + source + " >>>>";

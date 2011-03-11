@@ -22,6 +22,7 @@ import polyglot.ast.Binary;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.IntLit;
+import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
@@ -114,6 +115,9 @@ public class X10Unary_c extends Unary_c {
                 if (v.flags().isFinal()) {
                     Errors.issue(tc.job(),
                             new Errors.CannotApplyToFinalVariable(op, position()));
+                }
+                if (v instanceof NamedVariable) {
+                    et = ((NamedVariable) v).varInstance().type();
                 }
             }
             else {

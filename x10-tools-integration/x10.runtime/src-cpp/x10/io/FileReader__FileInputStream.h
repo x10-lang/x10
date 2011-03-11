@@ -27,8 +27,13 @@ namespace x10 {
             RTT_H_DECLS_CLASS;
 
             FileReader__FileInputStream(FILE *f) : _inputStream(f) { } 
+            FileReader__FileInputStream() : _inputStream(NULL) { } 
 
             static x10aux::ref<FileReader__FileInputStream> _make(x10aux::ref<x10::lang::String> name);
+
+            void _constructor (x10aux::ref<x10::lang::String> file);
+            void _constructor (FILE* file);
+            void _constructor ();
 
             virtual char * gets(char *buf, int sz) {
                 return _inputStream.gets(buf,sz);

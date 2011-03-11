@@ -55,7 +55,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         Map<String,String> map = CollectionFactory.newHashMap();
         try {
             TypeSystem xts = (TypeSystem) this.typeSystem();
-            Type rep = xts.systemResolver().findOne(QName.make("x10.compiler.NativeRep"));
+            Type rep = xts.NativeRep();
             List<Type> as = def.annotationsMatching(rep);
             for (Type at : as) {
                 assertNumberOfInitializers(at, 4);
@@ -111,7 +111,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         Map<String,String> map = CollectionFactory.newHashMap();
         TypeSystem xts = (TypeSystem) o.typeSystem();
         try {
-            Type java = xts.systemResolver().findOne(QName.make("x10.compiler.Native"));
+            Type java = xts.NativeType();
             List<Type> as = o.annotationsMatching(java);
             for (Type at : as) {
                 assertNumberOfInitializers(at, 2);

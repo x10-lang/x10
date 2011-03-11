@@ -62,7 +62,6 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     * @param properties -- properties declared with the class or interface.
     * @param body   -- the body of the class or interface
     * @return body, with properties and getters added.
-    */
     public static ClassBody addPropertyGetters(List<PropertyDecl> properties, ClassBody body,
     		NodeFactory nf) {
 	if (properties != null) {
@@ -72,6 +71,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 	}
     	return body;
     }
+    */
     
     /**
      * Return body, augmented with getters. Used for interfaces. May be called during
@@ -80,7 +80,6 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * @param properties -- properties declared with the class or interface.
      * @param body   -- the body of the class or interface
      * @return body, with properties and getters added.
-     */
     public static ClassBody addAbstractGetters(List<PropertyDecl> properties, ClassBody body, NodeFactory nf) {
         if (properties != null) {
             for (PropertyDecl p : properties) {
@@ -89,7 +88,9 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 	}
         return body;
     }
+     */
 
+    /*
     private Position getCompilerGenPos() { return Position.compilerGenerated(position()); }
     protected MethodDecl getter(NodeFactory nf) {
         TypeSystem ts = (TypeSystem) nf.extensionInfo().typeSystem();
@@ -106,16 +107,17 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         MethodDecl getter = nf.MethodDecl(pos, nf.FlagsNode(pos, flags), type, name, formals,  body);
         return getter;
     }
+    */
     
     /**
      * For Interfaces with properties, an abstract method signature for each property 
      * is generated in the interface body.
      * Any class implementing the interface has to have the same property 
-     * <RAJ> 
-     */
+     * <RAJ>
     protected MethodDecl abstractGetter(NodeFactory nf) {
       MethodDecl abstractGetter = nf.MethodDecl(getCompilerGenPos(), nf.FlagsNode(getCompilerGenPos(), Flags.PROPERTY.Public().Abstract()), type, name, 
                               Collections.<Formal>emptyList(), null);
       return abstractGetter;
     }
+     */
 }

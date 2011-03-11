@@ -26,13 +26,13 @@ public class Arrays40 extends x10Test {
     }
 
 
-// file Arrays line 73
+// file Arrays line 94
  static  class Example {
  static def example() {
 val MAX_HEIGHT=20;
 val Null = Region.makeUnit();  // Empty 0-dimensional region
-val R1 = 1..100; // 1-dim region with extent 1..100
-val R2 = (1..100) as Region(1); // same as R1
+val R1 = 1..100; // IntRange
+val R2 = R1 as Region(1);
 val R3 = (0..99) * (-1..MAX_HEIGHT);
 val R4 = Region.makeUpperTriangular(10);
 val R5 = R4 && R3; // intersection of two regions

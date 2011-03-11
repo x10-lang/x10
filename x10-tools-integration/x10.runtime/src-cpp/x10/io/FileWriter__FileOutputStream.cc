@@ -17,9 +17,21 @@ using namespace x10::io;
 
 x10aux::ref<FileWriter__FileOutputStream>
 FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name) {
-    ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream (x10aux::io::FILEPtrStream::open_file(name, "w"));
-    this_->OutputStreamWriter__OutputStream::_constructor();
+    x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream ();
+    this_->_constructor(name);
     return this_;
+}
+
+void FileWriter__FileOutputStream::_constructor(x10aux::ref<x10::lang::String> file) {
+    this->OutputStreamWriter__OutputStream::_constructor();
+    x10aux::io::FILEPtrOutputStream fpos(x10aux::io::FILEPtrStream::open_file(file, "w"));
+    _outputStream = fpos;
+}
+
+void FileWriter__FileOutputStream::_constructor() {
+    this->OutputStreamWriter__OutputStream::_constructor();
+    x10aux::io::FILEPtrOutputStream fpos(NULL);
+    _outputStream = fpos;
 }
 
 const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id = 

@@ -77,7 +77,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 		return n;
 	}
 
-	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	public Node buildTypes(TypeBuilder tb) {
 		TypeSystem xts = (TypeSystem) tb.typeSystem();
 		
 	        Def def = tb.def();

@@ -54,7 +54,7 @@ public final class Configuration extends x10.config.Configuration {
     public boolean LOOP_OPTIMIZATIONS = true;
     private static final String LOOP_OPTIMIZATIONS_desc = "Optimize rectangular region iteration";
 
-    public boolean SPLIT_CONSTRUCTORS = false;
+    public boolean SPLIT_CONSTRUCTORS = true;
     private static final String SPLIT_CONSTRUCTORS_desc = "Replace New with Allocation and ConstructorCall nodes";
     
     public boolean EXPERIMENTAL = false;
@@ -73,7 +73,7 @@ public final class Configuration extends x10.config.Configuration {
     public boolean INLINE_CLOSURES = true;
     private static final String INLINE_CLOSURES_desc = "Enable inlining of closure literal calls";
 
-    public boolean INLINE_METHODS_IMPLICIT = true;
+    public boolean INLINE_METHODS_IMPLICIT = false;
     private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
 
     public boolean ALLOW_STATEMENT_EXPRESSIONS = true;

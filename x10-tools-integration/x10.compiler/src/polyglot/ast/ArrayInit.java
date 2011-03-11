@@ -42,5 +42,5 @@ public interface ArrayInit extends Expr
      * @param lhsType Type to compare against.
      * @exception SemanticException if there is a type error.
      */
-    void typeCheckElements(ContextVisitor tc, Type lhsType) throws SemanticException;
+    void typeCheckElements(ContextVisitor tc, Type lhsType);
 }

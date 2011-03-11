@@ -26,7 +26,7 @@ public class Arrays10 extends x10Test {
     }
 
 
-// file Arrays line 39
+// file Arrays line 41
 
  static class Arrays2TypeTest{
   def check()  { 

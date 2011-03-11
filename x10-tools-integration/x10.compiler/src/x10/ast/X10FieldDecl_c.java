@@ -372,7 +372,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
 	                    if (hasType != null) {
 	                        htn = (TypeNode) visitChild(hasType, childtc);
-	                        if (! htn.type().typeSystem().isSubtype(type().type(), htn.type(),tc.context())) {
+	                        boolean checkSubType = true;
+	                        try {
+	                            Types.checkMissingParameters(htn);
+	                        } catch (SemanticException e) {
+	                            Errors.issue(tc.job(), e, htn);
+	                            checkSubType = false;
+	                        }
+	                        if (checkSubType && ! htn.type().typeSystem().isSubtype(type().type(), htn.type(),tc.context())) {
 	                            xc = (Context) enterChildScope(init, tc.context());
 	                            Expr newInit = Converter.attemptCoercion(tc.context(xc), init, htn.type());
 	                            if (newInit == null) {
@@ -534,6 +541,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                     }
                 }
             }
+
+            if (f.isProperty()) {
+                // you cannot write:  class A[T](b:T) {...}
+                // i.e., property base type must be a class
+                Type t = Types.baseType(n.type().type());
+                if (!(t instanceof X10ParsedClassType))
+                    Errors.issue(tc.job(),new SemanticException("A property type cannot be a type parameter.",position),this);
+            }
             
 	    	return n;
 	    }
@@ -613,8 +628,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        w.write(";");
 	    }
 
-	    public Node checkConstants(ContextVisitor tc) throws SemanticException {
-	    	Type native_annotation_type = tc.typeSystem().systemResolver().findOne(QName.make("x10.compiler.Native"));
+	    public Node checkConstants(ContextVisitor tc) {
+	    	Type native_annotation_type = tc.typeSystem().NativeType();
 			if (!((X10Ext)ext).annotationMatching(native_annotation_type).isEmpty()) {
 				fi.setNotConstant();
 				return this;

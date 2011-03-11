@@ -97,7 +97,7 @@ public boolean targetImplicit() {
   }
 
   @Override
-  public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
+  public Assign typeCheckLeft(ContextVisitor tc) {
       Field left = (Field) left();
       left = (Field) left.del().typeCheck(tc);
       FieldAssign_c n = (FieldAssign_c) reconstruct(left.target(), left.name());

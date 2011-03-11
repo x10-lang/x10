@@ -26,10 +26,10 @@ public class Expressions6d2z extends x10Test {
     }
 
 
-// file Expressions line 1053
+// file Expressions line 1155
  static  class Hook { def run() {
-assert [3] in 1..10;
-assert !([10] in 1..3);
+assert 3 in 1..10;
+assert !(10 in 1..3);
  return true;
 }}
 

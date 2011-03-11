@@ -96,7 +96,7 @@ public abstract class If_c extends Stmt_c implements If
     }
 
     /** Type check the statement. */
-    public abstract Node typeCheck(ContextVisitor tc) throws SemanticException;
+    public abstract Node typeCheck(ContextVisitor tc);
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {
         TypeSystem ts = av.typeSystem();

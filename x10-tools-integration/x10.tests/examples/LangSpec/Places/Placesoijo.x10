@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_Transient_Example;
+/* Current test harness gets confused by packages, but it would be in package places_are_For_Graces;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,24 +19,22 @@ import harness.x10Test;
 
 
 
-public class Classes40 extends x10Test {
+public class Placesoijo extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Classes40().execute();
+        new Placesoijo().execute();
     }
 
 
-// file Classes line 241
- static class Trans {
-   val copied = "copied";
-   transient var transy : String = "a very long string";
-   def example() {
-      at (here) { // causes copying
-         assert(this.copied.equals("copied"));
-         assert(this.transy == null);
-      }
-   }
+// file Places line 77
+ static  class Example {
+ def example() {
+val h0 = here;
+at (here.next()) {
+  val h1 = here;
+  assert (h0 != h1);
 }
+} }
 
  static class Hook {
    def run():Boolean = true;

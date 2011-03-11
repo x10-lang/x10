@@ -14,6 +14,7 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * An immutable representation of a Java language <code>synchronized</code>
@@ -76,11 +77,13 @@ public class Synchronized_c extends Stmt_c implements Synchronized
     }
 
     /** Type check the statement. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
 	TypeSystem ts = tc.typeSystem();
 
 	if (! ts.isSubtype(expr.type(), ts.Object(), tc.context()) ) {
-	     throw new SemanticException("Cannot synchronize on an expression of type \"" + expr.type() + "\".", expr.position());
+	     Errors.issue(tc.job(),
+	             new SemanticException("Cannot synchronize on an expression of type \"" + expr.type() + "\".", expr.position()),
+	             this);
 	}
 
 	return this;

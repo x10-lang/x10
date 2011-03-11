@@ -13,6 +13,7 @@ import java.util.List;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * An <code>ArrayAccess</code> is an immutable representation of an
@@ -84,18 +85,23 @@ public class ArrayAccess_c extends Expr_c implements ArrayAccess
     }
 
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
-	if (! array.type().isArray()) {
-	    throw new SemanticException("Subscript can only follow an array type.", position());
+	Type arrayType = array.type();
+	if (! arrayType.isArray()) {
+	    Errors.issue(tc.job(),
+	            new SemanticException("Subscript can only follow an array type.", position()));
+	    // FIXME: HACK! Fake the type
+	    arrayType = new JavaArrayType_c(ts, position(), Types.ref(ts.Int()));
 	}
 
 	if (! ts.isImplicitCastValid(index.type(), ts.Int(), tc.context())) {
-	    throw new SemanticException("Array subscript must be an integer.", position());
+	    Errors.issue(tc.job(),
+	            new SemanticException("Array subscript must be an integer.", position()));
 	}
 
-	return type(array.type().toArray().base());
+	return type(arrayType.toArray().base());
     }
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {

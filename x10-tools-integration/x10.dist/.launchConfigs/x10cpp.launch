@@ -9,7 +9,6 @@
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="X10RT_IMPL" value="sockets"/>
-<mapEntry key="X10_DIST" value="${project_loc:x10.dist}"/>
 </mapAttribute>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
@@ -18,6 +17,6 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="polyglot.main.Main"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-extclass x10cuda.ExtensionInfo &quot;${resource_loc}&quot; -sourcepath &quot;${workspace_loc:x10.runtime/src-x10}&quot; -x10lib ${workspace_loc:x10.dist}/stdlib/libx10.properties &quot;${workspace_loc:x10.tests}/examples/x10lib/harness/x10Test.x10&quot; -CHECK_INVARIANTS=true -assert -d out -commandlineonly"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="x10.compiler"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Xmx256m -Dx10.dist=&quot;${workspace_loc:x10.dist}&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Xmx512m -Dfile.encoding=UTF-8 -Dx10.dist=&quot;${workspace_loc:x10.dist}&quot;"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${container_loc}"/>
 </launchConfiguration>

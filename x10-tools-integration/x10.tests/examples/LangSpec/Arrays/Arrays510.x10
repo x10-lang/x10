@@ -26,7 +26,7 @@ public class Arrays510 extends x10Test {
     }
 
 
-// file Arrays line 898
+// file Arrays line 914
  static  class Example {
 def oneWayToReduce[T](a:Array[T], f:(T,T)=>T, unit:T):T {
   var r : T = unit;

@@ -84,7 +84,7 @@ public class KMeansSPMD {
                         val num_slice_points_stride = num_slice_points;
                         val init = (i:int) => {
                             val d=i/num_slice_points_stride, p=i%num_slice_points_stride;
-                            return p<num_slice_points ? file_points(((p+offset)%num_file_points)*dim + d) : 0;
+                            return p<num_slice_points ? file_points(((p+offset)%num_file_points)*dim + d) : 0f;
                         };
 
                         // these are pretty big so allocate up front

@@ -110,7 +110,7 @@ public class KMeansCUDA {
                         val num_local_points_stride = round_up(num_local_points,MEM_ALIGN);
                         val init = (i:Int) => {
                             val d=i/num_local_points_stride, p=i%num_local_points_stride;
-                            return p<num_local_points ? file_points(((p+offset)%num_file_points)*4 + d) : 0;
+                            return p<num_local_points ? file_points(((p+offset)%num_file_points)*4 + d) : 0f;
                         };
 
                         // these are pretty big so allocate up front

@@ -87,7 +87,7 @@ public class IntLit_c extends NumLit_c implements IntLit
         }
 
     }
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         // todo: handle LONG and ULONG
         rangeCheck(tc, Kind.INT, Kind.UINT, 1l+Integer.MAX_VALUE, Integer.MIN_VALUE, 0xffffffffl);
         rangeCheck(tc, Kind.SHORT, Kind.USHORT, 1l+Short.MAX_VALUE, Short.MIN_VALUE, 0xffffl);

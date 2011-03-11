@@ -77,7 +77,7 @@ public interface NodeOps
      * @param tb The visitor which adds new type objects to the
      * <code>TypeSystem</code>.
      */
-    NodeVisitor buildTypesEnter(TypeBuilder tb) throws SemanticException;
+    NodeVisitor buildTypesEnter(TypeBuilder tb);
 
     /**
      * Collects classes, methods, and fields from the AST rooted at this node
@@ -93,8 +93,8 @@ public interface NodeOps
      * @param tb The visitor which adds new type objects to the
      * <code>TypeSystem</code>.
      */
-    Node buildTypesOverride(TypeBuilder tb) throws SemanticException;
-    Node buildTypes(TypeBuilder tb) throws SemanticException;
+    Node buildTypesOverride(TypeBuilder tb);
+    Node buildTypes(TypeBuilder tb);
 
     /**
      * Remove any remaining ambiguities from the AST.
@@ -130,7 +130,7 @@ public interface NodeOps
      *
      * @param tc The type checking visitor.
      */
-    NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException;
+    NodeVisitor typeCheckEnter(TypeChecker tc);
 
     /**
      * Type check the AST.
@@ -150,7 +150,7 @@ public interface NodeOps
      *
      * @param tc The type checking visitor.
      */
-    Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException;
+    Node typeCheckOverride(Node parent, ContextVisitor tc);
 
     /**
      * Type check the AST.
@@ -163,7 +163,7 @@ public interface NodeOps
      *
      * @param tc The type checking visitor.
      */
-    Node typeCheck(ContextVisitor tc) throws SemanticException;
+    Node typeCheck(ContextVisitor tc);
     Node conformanceCheck(ContextVisitor tc);
 
     /**
@@ -177,7 +177,7 @@ public interface NodeOps
      *
      * @param tc The constant checking visitor.
      */
-    Node checkConstants(ContextVisitor tc) throws SemanticException;
+    Node checkConstants(ContextVisitor tc);
     
     /**
      * Check that exceptions are properly propagated throughout the AST.
@@ -191,7 +191,7 @@ public interface NodeOps
      *
      * @param ec The visitor.
      */
-    NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException;
+    NodeVisitor exceptionCheckEnter(ExceptionChecker ec);
 
     /**
      * Check that exceptions are properly propagated throughout the AST.
@@ -204,7 +204,7 @@ public interface NodeOps
      *
      * @param ec The visitor.
      */
-    Node exceptionCheck(ExceptionChecker ec) throws SemanticException;
+    Node exceptionCheck(ExceptionChecker ec);
 
     /** 
      * List of Types of exceptions that might get thrown.  The result is

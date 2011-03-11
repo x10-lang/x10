@@ -17,6 +17,7 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>Node</code> represents an AST node.  All AST nodes must implement
@@ -285,15 +286,15 @@ public abstract class Node_c implements Node
     // These methods override the methods in Ext_c.
     // These are the default implementation of these passes.
 
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
         return null;
     }
     
-    public NodeVisitor buildTypesEnter(TypeBuilder tb) throws SemanticException {
+    public NodeVisitor buildTypesEnter(TypeBuilder tb) {
 	return tb;
     }
 
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    public Node buildTypes(TypeBuilder tb) {
 	return this;
     }
 
@@ -302,19 +303,19 @@ public abstract class Node_c implements Node
     }
 
     /** Type check the AST. */
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
         return null;
     }
     
-    public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
+    public NodeVisitor typeCheckEnter(TypeChecker tc) {
 	return tc;
     }
 
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
 	return this;
     }
     
-    public Node checkConstants(ContextVisitor tc) throws SemanticException {
+    public Node checkConstants(ContextVisitor tc) {
         return this;
     }
 
@@ -326,14 +327,18 @@ public abstract class Node_c implements Node
 	return child.type();
     }
 
-    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
 	return ec.push();
     }
 
-    public Node exceptionCheck(ExceptionChecker ec) throws SemanticException { 
+    public Node exceptionCheck(ExceptionChecker ec) { 
         List<Type> l = this.del().throwTypes(ec.typeSystem());
         for (Type t : l) {
-            ec.throwsException(t, position());
+            try {
+                ec.throwsException(t, position());
+            } catch (SemanticException e) {
+                Errors.issue(ec.job(), e, this);
+            }
         }
     	return this;
     }

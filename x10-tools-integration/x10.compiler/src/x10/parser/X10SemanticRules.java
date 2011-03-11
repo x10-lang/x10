@@ -1405,11 +1405,12 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             if (exploded.size()>0 && init==null) {
                 syntaxError("An exploded point must have an initializer.",pos);
             }
+            FlagsNode efn = extractFlags(modifiers, Flags.FINAL); // exploded vars are always final
             for (Id id : exploded) {
                 TypeNode tni =
                         init==null ? nf.TypeNodeFromQualifiedName(compilerGen,QName.make("x10.lang.Int")) : // we infer the type of the exploded components, however if there is no init, then we just assume Int to avoid cascading errors.
                         explodedType(id.position()); // UnknownType
-                l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name),  Collections.<Expr>singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
+                l.add(nf.LocalDecl(id.position(), efn, tni, id, init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name),  Collections.<Expr>singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
                 index++;
             }
         }
@@ -2454,6 +2455,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         checkTypeName(Identifier);
         List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
         List<PropertyDecl> props = Propertiesopt;
+        // we use the property syntax for annotation-interfaces:
+        // public interface Pragma(pragma:Int) extends StatementAnnotation { ... }
         DepParameterExpr ci = WhereClauseopt;
         FlagsNode fn = extractFlags(modifiers, Flags.INTERFACE);
         ClassDecl cd = nf.X10ClassDecl(pos(),
@@ -3548,6 +3551,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: PropertyMethodDeclaration ::= MethodModifiersopt Identifier WhereClauseopt HasResultTypeopt MethodBody
     void rule_PropertyMethodDeclaration1(Object _MethodModifiersopt, Object _Identifier, Object _WhereClauseopt, Object _HasResultTypeopt, Object _MethodBody) {
+        syntaxError("This syntax is no longer supported. You must supply the property method formals, and if there are none, you can use an empty parenthesis '()'.",pos());
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         Id Identifier = (Id) _Identifier;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;

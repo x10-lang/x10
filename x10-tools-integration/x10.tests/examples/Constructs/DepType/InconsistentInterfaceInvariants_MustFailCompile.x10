@@ -26,11 +26,13 @@ import x10.compiler.tests.*; // err markers
  */
 public class InconsistentInterfaceInvariants_MustFailCompile extends x10Test { 
 
-    public static interface Test (l:int, m:int){this.m == this.l} {
+    public static interface Test {this.m() == this.l()} {
+    public property l():int;
+    public property m():int;
      public def put():int;
     }
     
-    @ShouldBeErr public static interface Test1{this.l == 0, this.m == 1}  extends Test { // Semantic Error: Class invariant is inconsistent. 
+    @ShouldBeErr public static interface Test1{this.l() == 0, this.m() == 1}  extends Test { // Semantic Error: Class invariant is inconsistent.
      public def foo(): int;
     }
     

@@ -96,7 +96,7 @@ public class JL_c extends Ext_c implements JL {
      * @param tb The visitor which adds new type objects to the
      * <code>TypeSystem</code>.
      */
-    public NodeVisitor buildTypesEnter(TypeBuilder tb) throws SemanticException {
+    public NodeVisitor buildTypesEnter(TypeBuilder tb) {
 	return jl().buildTypesEnter(tb);
     }
 
@@ -114,11 +114,11 @@ public class JL_c extends Ext_c implements JL {
      * @param tb The visitor which adds new type objects to the
      * <code>TypeSystem</code>.
      */
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    public Node buildTypes(TypeBuilder tb) {
 	return jl().buildTypes(tb);
     }
 
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
         return jl().buildTypesOverride(tb);
     }
     
@@ -157,11 +157,11 @@ public class JL_c extends Ext_c implements JL {
      *
      * @param tc The type checking visitor.
      */
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 	return jl().typeCheckOverride(parent, tc);
     }
     
-    public NodeVisitor typeCheckEnter(TypeChecker tc) throws SemanticException {
+    public NodeVisitor typeCheckEnter(TypeChecker tc) {
 	return jl().typeCheckEnter(tc);
     }
 
@@ -176,11 +176,11 @@ public class JL_c extends Ext_c implements JL {
      *
      * @param tc The type checking visitor.
      */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
 	return jl().typeCheck(tc);
     }
 
-    public Node checkConstants(ContextVisitor tc) throws SemanticException {
+    public Node checkConstants(ContextVisitor tc) {
         return jl().checkConstants(tc);
     }
     
@@ -200,7 +200,7 @@ public class JL_c extends Ext_c implements JL {
      *
      * @param ec The visitor.
      */
-    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
 	return jl().exceptionCheckEnter(ec);
     }
 
@@ -215,7 +215,7 @@ public class JL_c extends Ext_c implements JL {
      *
      * @param ec The visitor.
      */
-    public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
+    public Node exceptionCheck(ExceptionChecker ec) {
 	return jl().exceptionCheck(ec);
     }
 

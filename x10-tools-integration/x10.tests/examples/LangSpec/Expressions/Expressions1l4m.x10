@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Activities_transient_a;
+/* Current test harness gets confused by packages, but it would be in package expsome_Expressions12;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,25 +19,20 @@ import harness.x10Test;
 
 
 
-public class Activities40 extends x10Test {
+public class Expressions1l4m extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Activities40().execute();
+        new Expressions1l4m().execute();
     }
 
 
-// file Activities line 364
- static class Trans {
-   val a : Int = 1;
-   transient val b : Int = 2;
-   //ERROR transient val c : Int{c != 0} = 3;
-   def example() {
-     assert(a == 1 && b == 2);
-     at(here) {
-        assert(a == 1 && b == 0);
-     }
-   }
+// file Expressions line 542
+
+ static class Expressions12TestExp{
+  def check(x:Int)  = x << 1U;  }
+
+ static class Hook {
+   def run():Boolean = true;
 }
- static class Hook{ def run() { (new Trans()).example(); return true; } }
 
 }

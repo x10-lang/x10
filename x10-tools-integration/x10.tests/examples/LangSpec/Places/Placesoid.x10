@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays34;
+/* Current test harness gets confused by packages, but it would be in package expsome_Places5;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,17 +19,17 @@ import harness.x10Test;
 
 
 
-public class Arrays310 extends x10Test {
+public class Placesoid extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Arrays310().execute();
+        new Placesoid().execute();
     }
 
 
-// file Arrays line 459
+// file Places line 56
 
- static class Arrays34TestExp{
-  def check(R:Region, P:Place)  = Dist.makeConstant(R,P);  }
+ static class Places5TestExp{
+  def check(pl:Place)  = pl.isCUDA();  }
 
  static class Hook {
    def run():Boolean = true;

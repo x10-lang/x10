@@ -56,7 +56,7 @@ public abstract class TypeNode_c extends Term_c implements TypeNode
 	return n;
     }
 
-    public Node buildTypes(TypeBuilder tb) throws SemanticException {
+    public Node buildTypes(TypeBuilder tb) {
         if (type == null) {
             TypeSystem ts = tb.typeSystem();
             return typeRef(Types.lazyRef(ts.unknownType(position()), new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler())));

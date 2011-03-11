@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package ClassCtor30_MustFailCompile_Classes18;
+/* Current test harness gets confused by packages, but it would be in package ClassCtor30_MustFailCompile_Classes19;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,13 +26,14 @@ public class ClassCtor30_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 830
+// file Classes line 842
 
  
- static class C(x:Int) {
+// THIS CODE DOES NOT COMPILE
+ static class Cfail(x:Int) {
   val d: Int;
   static def example() {
-    val thisShouldBeWrong = new C(40);
+    val wrong = new Cfail(40);
   }
 }
 

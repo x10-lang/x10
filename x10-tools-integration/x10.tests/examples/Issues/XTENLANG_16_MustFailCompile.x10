@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_16_MustFailCompile extends x10Test {
 
     public interface I[T] {
-        property rect: boolean = true; // ERR ERR [Semantic Error: Interface methods cannot have a body., Semantic Error: An abstract method cannot have a body.]
+        property rect(): boolean = true; // ERR ERR [Semantic Error: Interface methods cannot have a body., Semantic Error: An abstract method cannot have a body.]
     }
 
     public def run(): boolean {

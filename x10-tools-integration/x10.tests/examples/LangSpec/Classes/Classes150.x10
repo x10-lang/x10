@@ -26,7 +26,7 @@ public class Classes150 extends x10Test {
     }
 
 
-// file Classes line 680
+// file Classes line 672
  static class Mful{
    def m() = 1;
    def m[T]() = 2;

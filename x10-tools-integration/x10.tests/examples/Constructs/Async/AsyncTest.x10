@@ -26,8 +26,8 @@ public class AsyncTest extends x10Test {
 		var b: boolean = false;
 		async  { atomic { this.flag = true; } }
 		for (var i: long = 0; i < N*100; i++) {
+			System.sleep(1);
 			atomic { b = flag; }
-
 			if (b) break;
 		}
 		return b;
