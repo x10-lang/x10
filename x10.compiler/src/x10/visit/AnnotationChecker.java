@@ -56,6 +56,9 @@ public class AnnotationChecker extends ContextVisitor {
 		for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
 			AnnotationNode a = i.next();
 			X10ClassType at = a.annotationInterface();
+			if (at.error() != null) {
+			    continue;
+			}
 			if (n instanceof TypeNode && ! at.isSubtype(TA, context)) {
 				Errors.issue(job, new Errors.AnnotationMustImplementType(at, Errors.AnnotationMustImplementType.Element.types, TA, n.position()));
 			}

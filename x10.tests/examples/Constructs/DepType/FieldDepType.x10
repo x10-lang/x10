@@ -17,16 +17,15 @@ import harness.x10Test;
  *
  */
 public class FieldDepType extends x10Test {
-    var f: Array[double](0..10)
-	= new Array[double](0..10, (i: Point)=> (10-i(0)) as double);
-	
-	def m(a: Array[double]{rank==1&&rect&&zeroBased}): void = {
-	}
-	public def run(): boolean = {
-		m(f as Array[Double]{zeroBased, rect, rank==1});
-		return f(0)==10.0D; // ShouldNotBeERR ShouldNotBeERR
-	}
-	public static def main(Array[String](1)): void = {
-		new FieldDepType().execute();
-	}
+    var f: Array[Double](1) = new Array[double](0..10, (i: Point)=> (10-i(0)) as Double);
+
+    def m(a: Array[Double]{rank==1&&rect&&zeroBased}): void = {
+    }
+    public def run(): Boolean = {
+        m(f as Array[Double]{zeroBased, rect, rank==1});
+        return f(0)==10.0D;
+    }
+    public static def main(Array[String](1)): void = {
+        new FieldDepType().execute();
+    }
 }

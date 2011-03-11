@@ -205,7 +205,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
     }
 
     protected TypeNode disambiguateBase(ContextVisitor tc) throws SemanticException {
-        SemanticException ex;
+        SemanticException ex = null;
         
         Position pos = position();
         
@@ -236,7 +236,6 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
                 for (Type n : tl) {
                     if (n instanceof MacroType) {
                         mt = (MacroType) n;
-                        mt = matcher.instantiateAccess(mt);
                         break;
                     }
                 }
@@ -275,26 +274,47 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
             // x10.errors.Errors$InvalidParameter:    Invalid Parameter.
             //     Expected type: x10.lang.Int{self!=0}
             //     Found type: x10.lang.Int{self==0}
-            Throwable e2 = e; // so I can break-point
+            Throwable e2 = e;
         }
         
-        // Otherwise, look for a simply-named type.
-        try {
-            Disamb disamb = tc.nodeFactory().disamb();
-            Node n = disamb.disambiguate(this, tc, pos, prefix, name);
+        // Otherwise, if there are no arguments, look for a simply-named type.
+        if (this.args.isEmpty()) {
+            try {
+                Disamb disamb = tc.nodeFactory().disamb();
+                Node n = disamb.disambiguate(this, tc, pos, prefix, name);
 
-            if (n instanceof TypeNode) {
-        	TypeNode tn = (TypeNode) n;
-        	return tn;
+                if (n instanceof TypeNode) {
+                    TypeNode tn = (TypeNode) n;
+                    return tn;
+                }
             }
+            catch (SemanticException e) {
+                ex = e;
+            }
+        }
 
-            ex = new SemanticException("Could not find type \"" + (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) + "\".", pos);
-        }
-        catch (SemanticException e) {
-            ex = e;
-        }
+        if (ex == null)
+            ex = new SemanticException("Could not find type \"" + (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) + argsString() + "\".", pos);
 
         throw ex;
+    }
+    
+    private String argsString() {
+        if (this.args.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder("(");
+        boolean first = true;
+        for (Expr e : this.args) {
+            if (!first) {
+                sb.append(",");
+            } else {
+                first = true;
+            }
+            sb.append(e.type().fullName());
+        }
+        sb.append(")");
+        return sb.toString();
     }
     
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
@@ -320,6 +340,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         n = (AmbMacroTypeNode_c) n.args(args);
         
         TypeNode tn;
+        boolean foundError = false;
         
         try {
             tn = n.disambiguateAnnotation(childtc);
@@ -327,19 +348,25 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
                 return postprocess((X10CanonicalTypeNode) tn, n, childtc);
         }
         catch (SemanticException e) {
-            // Mark the type resolved to prevent us from trying to resolve this again and again.
-            X10ClassType ut = ts.createFakeClass(QName.make(fullName(prefix), name().id()), e);
-            ut.def().position(n.position());
-            sym.update(ut);
+            if (!foundError) {
+                // Mark the type resolved to prevent us from trying to resolve this again and again.
+                X10ClassType ut = ts.createFakeClass(QName.make(fullName(prefix), name().id()), e);
+                ut.def().position(n.position());
+                sym.update(ut);
+                foundError = true;
+            }
         }
         try {
             tn = n.disambiguateBase(tc);
         }
         catch (SemanticException e) {
-            // Mark the type resolved to prevent us from trying to resolve this again and again.
-            X10ClassType ut = ts.createFakeClass(QName.make(fullName(prefix), name().id()), e);
-            ut.def().position(n.position());
-            sym.update(ut);
+            if (!foundError) {
+                // Mark the type resolved to prevent us from trying to resolve this again and again.
+                X10ClassType ut = ts.createFakeClass(QName.make(fullName(prefix), name().id()), e);
+                ut.def().position(n.position());
+                sym.update(ut);
+                foundError = true;
+            }
             tn = n;
         }
         

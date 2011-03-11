@@ -16,6 +16,7 @@ import polyglot.ast.Node_c;
 import polyglot.ast.TypeNode;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -87,7 +88,7 @@ public class AnnotationNode_c extends Node_c implements AnnotationNode {
 	public Node typeCheck(ContextVisitor tc) {
 //		System.out.println("Type checking " + this);
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
-		if (!xts.hasUnknown(tn.type()) && !(tn.type().isClass() && tn.type().toClass().flags().isInterface())) {
+		if (!xts.hasUnknown(tn.type()) && Types.error(tn.type())==null && !(tn.type().isClass() && tn.type().toClass().flags().isInterface())) {
 			Errors.issue(tc.job(), new Errors.AnnotationMustBeInterfacetype(position()));
 		}
 		

@@ -10,27 +10,25 @@
  */
 
 import harness.x10Test;
-import x10.util.Box;
 
 /**
- * 
+ * A class with properties does NOT automatically define a typedef.
  *
  * @author vj 09/2008
  */
-public class DefaultRefTypeDefTest extends x10Test {
+public class DefaultRefTypeDefTest_MustFailCompile extends x10Test {
 
-    static class Foo[T](n:int, s:Box[T]) {
-       def this(n:int, s:Box[T]):Foo[T](n,s) = {
+    static class Foo[T](n:int, s:T) {
+       def this(n:int, s:T):Foo[T](n,s) = { // ERR ERR: Could not find type "Foo(x10.lang.Int,T)". Constructor return type is not a subtype of the containing class.
          property(n,s);
        }
     }
     public def run() = {
-        val b = new Box[String]("a");
-        x:Foo[String](2,b) = new Foo[String](2,b);
+        x:Foo[String](2,"a") = new Foo[String](2,"a"); // ERR ERR: Could not find type "Foo(x10.lang.Int,T)". Cannot assign expression to target.
         true
     }
 
     public static def main(var args: Array[String](1)): void = {
-        new DefaultRefTypeDefTest().execute();
+        new DefaultRefTypeDefTest_MustFailCompile().execute();
     }
 }

@@ -2335,7 +2335,7 @@ class SuperQualifier { // see XTENLANG-1948
 	}
 	class Ego extends Parent {
 		// todo: this error blocks the entire next dataflow phase 
-	//val x = Parent.super.f;  // ShouldNotBeErr: The nested class "Ego" does not have an enclosing instance of type "Parent".
+	//val x = Parent.super.f;  // ShouldNotBeERR: The nested class "Ego" does not have an enclosing instance of type "Parent".
 	}
 }
 class TestArrayLiteralInference {	
@@ -3451,7 +3451,7 @@ class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
 	}  
 }
 
-//class Tree(left:Tree, right:Tree{this.left==self.left}) {} // ShouldNotBeErr, see XTENLANG-2117
+//class Tree(left:Tree, right:Tree{this.left==self.left}) {} // ShouldNotBeERR, see XTENLANG-2117
 class NonStaticTypedef(p:Int) { 
 	type T = NonStaticTypedef{self.p==1}; // ERR: Illegal type def NonStaticTypedef.T: type-defs must be static.
 }
@@ -4388,7 +4388,7 @@ class TestSetAndApplyOperators {
 }
 
 class ArrayAndRegionTests {
-	def test(a1:Array[Int](0..10), r:Region{zeroBased, rect, rank==1}, a2:Array[Int](r), a3:Array[Int]{zeroBased, rect, rank==1}) {
+	def test(a1:Array[Int](1){rect, zeroBased}, r:Region{zeroBased, rect, rank==1}, a2:Array[Int](r), a3:Array[Int]{zeroBased, rect, rank==1}) {
 	    // check zero based
 		val reg1:Region{zeroBased} = 0..10;
 		@ShouldBeErr val reg2:Region{zeroBased} = 5..10;
@@ -4403,13 +4403,13 @@ class ArrayAndRegionTests {
 		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0); 
 		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0); 
 		val arr4:Array[Int](reg) = null;
-		m1(a1); // ShouldNotBeERR
+		m1(a1);
 		m1(a2);
 		m1(a3);
 		m1(arr3);
 		m1(arr4);
 
-		m2(a1);// ShouldNotBeERR
+		m2(a1);
 		m2(a2);
 		m2(a3);
 		m2(arr3);
@@ -5468,9 +5468,9 @@ class InterfacePropertyMethods {
 	interface ZZ(j:String) extends YY {} // ok
 	class TestAnnotations {
 		@YY(23) val k1 = "1";
-		@ZZ("",3) val k2 = "1";
+		@ZZ("",3) val k2 = "1"; // ShouldNotBeERR
 
-		@YY(23,42) val k3 = "1"; // ShouldBeErr
+		@YY(23,42) val k3 = "1"; // ERR
 		@ZZ("") val k4 = "1"; // ShouldBeErr
 		@XX(23) val k5 = "1"; // ERR
 	}
