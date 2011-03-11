@@ -41,7 +41,7 @@ public class BenchmarkCreateDistArray(elementsPerPlace : Int) extends x10Test {
 
 	public static def main(var args: Array[String](1)): void = {
         var elementsPerPlace : Int = 1;
-        if (args.size() > 0) {
+        if (args.size > 0) {
             elementsPerPlace = Int.parse(args(0));
         }
 		new BenchmarkCreateDistArray(elementsPerPlace).execute();

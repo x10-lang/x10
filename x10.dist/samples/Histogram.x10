@@ -20,7 +20,7 @@ public class Histogram {
     public static def run(a:Array[int](1), b:Array[int](1)) {
 	finish 
 	    for ([i] in a) async {
-	       val bin = a(i)% b.size();
+	       val bin = a(i)% b.size;
 	       atomic b(bin)++;
 	    }
     }

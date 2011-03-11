@@ -31,7 +31,7 @@ public class Classes160 extends x10Test {
  static  class Poly {
    public val coeff : Array[Int](1);
    public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-   public def degree() = coeff.size()-1;
+   public def degree() = coeff.size-1;
    public def a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
 
    public static operator (c : Int) as Poly = new Poly([c]);
@@ -47,7 +47,7 @@ public class Classes160 extends x10Test {
 
    public operator this + (p:Poly) =  new Poly(
       new Array[Int](
-         Math.max(this.coeff.size(), p.coeff.size()),
+         Math.max(this.coeff.size, p.coeff.size),
          (i:Int) => this.a(i) + p.a(i)
       ));
    public operator this - (p:Poly) = this + (-1)*p;

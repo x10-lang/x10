@@ -26,7 +26,7 @@ public class PointAddC extends x10Test {
         val a = p + c;
 
         var sum: int= 0;
-        for (var i: int = 0; i < p.rank(); i++)
+        for (var i: int = 0; i < p.rank; i++)
             sum += a(i);
 
         if (sum != 20) return false;
