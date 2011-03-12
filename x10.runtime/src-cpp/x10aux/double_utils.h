@@ -36,6 +36,14 @@ namespace x10aux {
         static x10_int compareTo(x10_double v1, x10_double v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
+        static x10_byte toByte(x10_double value);
+        static x10_ubyte toUByte(x10_double value);
+        static x10_short toShort(x10_double value);
+        static x10_ushort toUShort(x10_double value);
+        static x10_int toInt(x10_double value);
+        static x10_uint toUInt(x10_double value);
+        static x10_long toLong(x10_double value);
+        static x10_ulong toULong(x10_double value);
     };
 
     inline x10_double mod(x10_double a, x10_double b) {

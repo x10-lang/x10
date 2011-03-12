@@ -64,4 +64,52 @@ x10_double x10aux::double_utils::fromLongBits(x10_long x) {
     tmp.l = x;
     return tmp.d;
 }
+
+x10_byte x10aux::double_utils::toByte(x10_double value) {
+    if (value > (x10_double)((x10_byte)0x7f)) return (x10_byte)0x7f;
+    if (value < (x10_double)((x10_byte)0x80)) return (x10_byte)0x80;
+    return (x10_byte)value;
+}
+
+x10_ubyte x10aux::double_utils::toUByte(x10_double value) {
+    if (value > (x10_double)((x10_ubyte)0xff)) return (x10_byte)0xff;
+    if (value < 0) return (x10_ubyte)0;
+    return (x10_ubyte)value;
+}
+
+x10_short x10aux::double_utils::toShort(x10_double value) {
+    if (value > (x10_double)((x10_short)0x7fff)) return (x10_short)0x7fff;
+    if (value < (x10_double)((x10_short)0x8000)) return (x10_short)0x8000;
+    return (x10_short)value;
+}
+
+x10_ushort x10aux::double_utils::toUShort(x10_double value) {
+    if (value > (x10_double)((x10_ushort)0xffff)) return (x10_ushort)0xffff;
+    if (value < 0) return (x10_ushort)0;
+    return (x10_ushort)value;
+}
+
+x10_int x10aux::double_utils::toInt(x10_double value) {
+    if (value > (x10_double)((x10_int)0x7fffffff)) return (x10_int)0x7fffffff;
+    if (value < (x10_double)((x10_int)0x80000000)) return (x10_int)0x80000000;
+    return (x10_int)value;
+}
+
+x10_uint x10aux::double_utils::toUInt(x10_double value) {
+    if (value > (x10_double)((x10_uint)0xffffffff)) return (x10_uint)0xffffffff;
+    if (value < 0) return (x10_uint)0;
+    return (x10_uint)value;
+}
+
+x10_long x10aux::double_utils::toLong(x10_double value) {
+    if (value > (x10_double)((x10_long)0x7fffffffffffffffL)) return (x10_long)0x7fffffffffffffffL;
+    if (value < (x10_double)((x10_long)0x8000000000000000L)) return (x10_long)0x8000000000000000L;
+    return (x10_long)value;
+}
+
+x10_ulong x10aux::double_utils::toULong(x10_double value) {
+    if (value > (x10_double)((x10_ulong)0xffffffffffffffffL)) return (x10_ulong)0xffffffffffffffffL;
+    if (value < 0) return (x10_ulong)0;
+    return (x10_ulong)value;
+}
 // vim:tabstop=4:shiftwidth=4:expandtab

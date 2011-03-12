@@ -344,7 +344,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @return the given Float converted to a UInt.
      */
     // @Native("java", "((int)(float)(#1))")
-    @Native("c++",  "((x10_uint) (#1))")
+    @Native("c++",  "x10aux::float_utils::toUInt(#1)")
     public static operator (x:Float) as UInt = UInt(x as Int);
 
     /**
@@ -353,7 +353,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @return the given Double converted to a UInt.
      */
     // @Native("java", "((int)(double)(#1))")
-    @Native("c++",  "((x10_uint) (#1))")
+    @Native("c++",  "x10aux::double_utils::toUInt(#1)")
     public static operator (x:Double) as UInt {
         val temp : Long = x as Long;
         if (temp > 0xffffffff) return UInt(0xffffffff as Int);

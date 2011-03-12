@@ -253,7 +253,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @return the given Float converted to a Byte.
      */
     @Native("java", "x10.core.Floats.toByte(#1)")
-    @Native("c++",  "((x10_byte) (#1))")
+    @Native("c++",  "x10aux::float_utils::toByte(#1)")
     public native static operator (x:Float) as Byte;
 
     /**
@@ -262,7 +262,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @return the given Double converted to a Byte.
      */
     @Native("java", "x10.core.Floats.toByte(#1)")
-    @Native("c++",  "((x10_byte) (#1))")
+    @Native("c++",  "x10aux::double_utils::toByte(#1)")
     public native static operator (x:Double) as Byte;
 
     /**

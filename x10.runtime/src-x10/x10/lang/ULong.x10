@@ -364,7 +364,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @return the given Float converted to a ULong.
      */
     // @Native("java", "((long)(float)(#1))")
-    @Native("c++",  "((x10_ulong) (#1))")
+    @Native("c++",  "x10aux::float_utils::toULong(#1)")
     public static operator (x:Float) as ULong = ULong(x as Long);
 
     /**
@@ -373,7 +373,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @return the given Double converted to a ULong.
      */
     // @Native("java", "((long)(double)(#1))")
-    @Native("c++",  "((x10_ulong) (#1))")
+    @Native("c++",  "x10aux::double_utils::toULong(#1)")
     public static operator (x:Double) as ULong = ULong(x as Long);
 
     /**

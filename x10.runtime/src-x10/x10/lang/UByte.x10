@@ -341,7 +341,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      * @return the given Float converted to a UByte.
      */
     // @Native("java", "x10.core.Floats.toUByte(#1)")
-    @Native("c++",  "((x10_ubyte) (#1))")
+    @Native("c++",  "x10aux::float_utils::toUByte(#1)")
     public static operator (x:Float) as UByte {
         val temp : Int = x as Int;
         if (temp > 0xff) return UByte(0xff as Byte);
@@ -355,7 +355,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      * @return the given Double converted to a UByte.
      */
     // @Native("java", "x10.core.Floats.toUByte(#1)")
-    @Native("c++",  "((x10_ubyte) (#1))")
+    @Native("c++",  "x10aux::double_utils::toUByte(#1)")
     public static operator (x:Double) as UByte {
         val temp : Int = x as Int;
         if (temp > 0xff) return UByte(0xff as Byte);
