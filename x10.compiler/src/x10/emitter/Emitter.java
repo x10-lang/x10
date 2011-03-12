@@ -3436,11 +3436,11 @@ public class Emitter {
                 w.write(")");
 
                 w.write("[");
-                c.print(c.arguments().get(1), w, tr);
+                c.print(c.arguments().get(0), w, tr);
                 w.write("]");
 
                 w.write(" = ");
-                c.print(c.arguments().get(0), w, tr);
+                c.print(c.arguments().get(1), w, tr);
                 return true;
             }
             // e.g. rail.apply(i) -> ((String)((String[])rail.value)[i]) or ((int[])rail.value)[i]

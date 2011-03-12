@@ -78,8 +78,12 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         return type.getArray(value, i);
     }
 
-    public void $set(T v, int i) {
+    public void $set(int i, T v) {
         type.setArray(value, i, v);
+    }
+
+    public void set_unsafe(T v, int i) {
+        $set(i, v);
     }
 
     public static <T> void asyncCopy(IndexedMemoryChunk<T> src, final int srcIndex, 

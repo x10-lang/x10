@@ -3232,7 +3232,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 nf.Id(pos(), SettableAssign.SET),
                 TypeParametersopt,
-                CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
+                CollectionUtil.append(FormalParameters, Collections.singletonList(fp2)),
                 WhereClauseopt,
                 Offersopt,
                 MethodBody);

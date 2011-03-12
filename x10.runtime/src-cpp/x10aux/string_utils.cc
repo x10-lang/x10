@@ -29,7 +29,7 @@ ref<Array<ref<String> > >x10aux::convert_args(int ac, char **av) {
     ref<Array<ref<String> > > arr(Array<ref<String> >::_make(x10_argc));
     for (int i = 1; i < ac; i++) {
         ref<String> val = String::Lit(av[i]);
-        arr->__set(val, i-1);
+        arr->__set(i-1, val);
     }
     return arr;
 }

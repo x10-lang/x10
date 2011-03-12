@@ -181,7 +181,7 @@ public final class Rail[T](length: Int)
      * @return The new value.
      */
     @Native("java", "(#0).$set$G(#1, #2)")
-    @Native("c++", "(#this)->__set(#v, #i)")
+    @Native("c++", "(#this)->__set(#i, #v)")
     @Native("cuda", "(#this)[#i] = #v") // FIXME: evaluation order
     public native operator this(i: Int)=(v: T): T;
 

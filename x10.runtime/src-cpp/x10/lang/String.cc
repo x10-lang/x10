@@ -261,7 +261,7 @@ static ref<x10::array::Array<ref<String> > > split_all_chars(String* str) {
     size_t sz = (size_t)str->length();
     ref<x10::array::Array<ref<String> > > array = x10::array::Array<ref<String> >::_make(sz);
     for (size_t i = 0; i < sz; ++i) {
-        array->__set(str->substring(i, i+1), i);
+        array->__set(i, str->substring(i, i+1));
     }
     return array;
 }
@@ -281,10 +281,10 @@ ref<x10::array::Array<ref<String> > > String::split(ref<String> pat) {
     int c = 0;
     int o = 0; // now fill in the array
     while ((i = indexOf(pat, o)) != -1) {
-        array->__set(substring(o, i), c++);
+        array->__set(c++, substring(o, i));
         o = i+l;
     }
-    array->__set(substring(o), c++);
+    array->__set(c++, substring(o));
     assert (c == sz);
     return array;
 }
@@ -299,7 +299,7 @@ ref<x10::array::Array<x10_char> > String::chars() {
     x10_int sz = length();
     ref<x10::array::Array<x10_char> > array = x10::array::Array<x10_char>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        array->__set((x10_char) FMGL(content)[i], i);
+        array->__set(i, (x10_char) FMGL(content)[i]);
     return array;
 }
 
@@ -307,7 +307,7 @@ ref<x10::array::Array<x10_byte> > String::bytes() {
     x10_int sz = length();
     ref<x10::array::Array<x10_byte> > array = x10::array::Array<x10_byte>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        array->__set(FMGL(content)[i], i); 
+        array->__set(i, FMGL(content)[i]); 
     return array;
 }
 

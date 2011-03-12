@@ -4856,6 +4856,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		int count = 0;
 		for (Expr e : c.arguments()) {
 		    sw.write(tmp+"->"+Emitter.mangled_method_name(SettableAssign.SET.toString())+"(");
+		    sw.writeln((count++)+", ");
 		    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
 		    if (rhsNeedsCast) {
 		        // Cast is needed to ensure conversion/autoboxing.
@@ -4865,7 +4866,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    c.printSubExpr(e, false, sw, tr);
 		    if (rhsNeedsCast)
 		        sw.write(")");
-		    sw.writeln(", "+(count++)+");");
+		    sw.writeln(");");
 		}
 		sw.write(tmp);
 		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
