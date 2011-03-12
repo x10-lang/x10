@@ -103,13 +103,13 @@ x10_uint x10aux::float_utils::toUInt(x10_float value) {
 }
 
 x10_long x10aux::float_utils::toLong(x10_float value) {
-    if (value > (x10_float)((x10_long)0x7fffffffffffffffL)) return (x10_long)0x7fffffffffffffffL;
-    if (value < (x10_float)((x10_long)0x8000000000000000L)) return (x10_long)0x8000000000000000L;
+    if (value > (x10_float)((x10_long)0x7fffffffffffffffLL)) return (x10_long)0x7fffffffffffffffLL;
+    if (value < (x10_float)((x10_long)0x8000000000000000LL)) return (x10_long)0x8000000000000000LL;
     return (x10_long)value;
 }
 
 x10_ulong x10aux::float_utils::toULong(x10_float value) {
-    if (value > (x10_float)((x10_ulong)0xffffffffffffffffL)) return (x10_ulong)0xffffffffffffffffL;
+    if (value > (x10_float)((x10_ulong)0xffffffffffffffffLL)) return (x10_ulong)0xffffffffffffffffLL;
     if (value < 0) return (x10_ulong)0;
     return (x10_ulong)value;
 }
