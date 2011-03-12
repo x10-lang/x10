@@ -433,7 +433,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "((byte) (java.lang.Integer.parseInt(#1, #2) & 0xff))")
-    @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
+    @Native("c++", "(x10aux::byte_utils::parseUByte(#1, #2))")
     public static def parseUByte(s:String, radix:Int): UByte //throws NumberFormatException 
     {
         return parse(s, radix);
@@ -443,7 +443,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      * @deprecated use {@link #parse(String)} instead
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
-    @Native("c++", "x10aux::int_utils::parseInt(#1)")
+    @Native("c++", "(x10aux::byte_utils::parseUByte(#1))")
     public static def parseUByte(s:String): UByte //throws NumberFormatException 
     {
         return parse(s);
@@ -457,7 +457,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      * @throws NumberFormatException if the String does not contain a parsable UByte.
      */
     // @Native("java", "((byte) (java.lang.Integer.parseInt(#1, #2) & 0xff))")
-    @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
+    @Native("c++", "(x10aux::byte_utils::parseUByte(#1, #2))")
     public static def parse(s:String, radix:Int): UByte //throws NumberFormatException 
     {
     	val i = Int.parse(s, radix);
@@ -474,7 +474,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      * @throws NumberFormatException if the String does not contain a parsable UByte.
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
-    @Native("c++", "x10aux::int_utils::parseInt(#1)")
+    @Native("c++", "(x10aux::byte_utils::parseUByte(#1))")
     public static def parse(s:String): UByte //throws NumberFormatException 
     {
         return parse(s, 10);

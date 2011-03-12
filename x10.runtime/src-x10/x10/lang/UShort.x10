@@ -434,7 +434,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "((short) (java.lang.Integer.parseInt(#1, #2) & 0xffff))")
-    @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#s, #radix))")
+    @Native("c++", "x10aux::short_utils::parseUShort(#s, #radix)")
     public static def parseUShort(s:String, radix:Int): UShort //throwsNumberFormatException 
     {
         return parse(s, radix);
@@ -444,7 +444,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @deprecated use {@link #parse(String)} instead
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
-    @Native("c++", "x10aux::int_utils::parseInt(#s)")
+    @Native("c++", "x10aux::short_utils::parseUShort(#s)")
     public static def parseUShort(s:String): UShort //throwsNumberFormatException 
     {
         return parse(s);
@@ -458,7 +458,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @throws NumberFormatException if the String does not contain a parsable UShort.
      */
     // @Native("java", "((short) (java.lang.Integer.parseInt(#1, #2) & 0xffff))")
-    @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#s, #radix))")
+    @Native("c++", "x10aux::short_utils::parseUShort(#s, #radix)")
     public static def parse(s:String, radix:Int): UShort //throwsNumberFormatException 
     {
     	val i = Int.parse(s, radix);
@@ -475,7 +475,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      * @throws NumberFormatException if the String does not contain a parsable UShort.
      */
     // @Native("java", "((short) (java.lang.Integer.parseInt(#1) & 0xffff)")
-    @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#s))")
+    @Native("c++", "x10aux::short_utils::parseUShort(#s)")
     public static def parse(s:String): UShort //throwsNumberFormatException 
     {
         return parse(s, 10);

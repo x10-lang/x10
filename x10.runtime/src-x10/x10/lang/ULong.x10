@@ -449,7 +449,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1, #2))")
+    @Native("c++", "x10aux::long_utils::parseULong(#1, #2)")
     public static def parseULong(s:String, radix:Int): ULong //throws NumberFormatException 
     {
         return parse(s, radix);
@@ -458,7 +458,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1))")
+    @Native("c++", "x10aux::long_utils::parseULong(#1)")
     public static def parseULong(s:String): ULong //throws NumberFormatException 
     {
         return parse(s);
@@ -472,7 +472,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @throws NumberFormatException if the String does not contain a parsable ULong.
      */
     @Native("java", "new x10.lang.ULong(x10.core.Unsigned.parseULong(#1, #2))")
-    @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1, #2))")
+    @Native("c++", "x10aux::long_utils::parseULong(#1, #2)")
     public static def parse(s:String, radix:Int): ULong //throws NumberFormatException 
     {
     	// TODO implement in X10
@@ -485,7 +485,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @return the ULong represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable ULong.
      */
-    @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1))")
+    @Native("c++", "x10aux::long_utils::parseULong(#1)")
     public static def parse(s:String): ULong //throws NumberFormatException 
     {
         return parse(s, 10);

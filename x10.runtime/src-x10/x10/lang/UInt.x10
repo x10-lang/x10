@@ -431,7 +431,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
-    @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
+    @Native("c++", "(x10aux::int_utils::parseUInt(#1, #2))")
     public static def parseUInt(s:String, radix:Int): UInt //throwsNumberFormatException 
     {
         return parse(s, radix);
@@ -441,7 +441,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @deprecated use {@link #parse(String)} instead
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
-    @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
+    @Native("c++", "(x10aux::int_utils::parseUInt(#1))")
     public static def parseUInt(s:String): UInt //throwsNumberFormatException 
     {
         return parse(s);
@@ -455,7 +455,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @throws NumberFormatException if the String does not contain a parsable UInt.
      */
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
-    @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
+    @Native("c++", "(x10aux::int_utils::parseUInt(#1, #2))")
     public static def parse(s:String, radix:Int): UInt //throwsNumberFormatException 
     {
     	val l = Long.parse(s, radix);
@@ -472,7 +472,7 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @throws NumberFormatException if the String does not contain a parsable UInt.
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
-    @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
+    @Native("c++", "(x10aux::int_utils::parseUInt(#1))")
     public static def parse(s:String): UInt //throwsNumberFormatException 
     {
         return parse(s, 10);
