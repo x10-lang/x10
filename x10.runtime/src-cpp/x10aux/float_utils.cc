@@ -13,6 +13,8 @@
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/String.h>
+#include <x10/lang/NumberFormatException.h>
+#include <errno.h>
 #include <math.h>
 
 using namespace x10::lang;
@@ -35,10 +37,15 @@ const ref<String> x10aux::float_utils::toString(x10_float value) {
     return to_string(value);
 }
 
-x10_float x10aux::float_utils::parseFloat(const ref<String>& s) {
-    // FIXME: what about null?
-    // FIXME: NumberFormatException
-    return strtof(nullCheck(s)->c_str(), NULL);
+x10_float x10aux::float_utils::parseFloat(ref<String> s) {
+    const char *start = nullCheck(s)->c_str();
+    char *end;
+    errno = 0;
+    x10_float ans = strtof(start, &end);
+    if (errno != 0 || ((end-start) != s->length())) {
+        x10aux::throwException(x10::lang::NumberFormatException::_make(s));
+    }
+    return ans;
 }
 
 x10_boolean x10aux::float_utils::isNaN(x10_float x) {
