@@ -118,7 +118,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
     protected class RailIterator implements x10.lang.Iterator<T> {
         int i = 0;
 
-        public boolean hasNext() {
+        public boolean hasNext$O() {
             return i < length;
         }
 

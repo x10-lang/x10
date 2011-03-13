@@ -198,7 +198,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_VOIDFUN_CLASS_PREFIX = "x10.core.fun.VoidFun";
 	public static final String X10_RUNTIME_CLASS = "x10.runtime.impl.java.Runtime";
 	private static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
-	private static final String X10_CORE_STRING = "x10.core.String";
+	public static final String X10_CORE_STRING = "x10.core.String";
 
 	public static final int PRINT_TYPE_PARAMS = 1;
 	public static final int BOX_PRIMITIVES = 2;
@@ -1056,7 +1056,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (isSelfDispatch) {
 		    er.generateDispatchMethods(def);
 		}
-		er.generateBridgeMethods(def);
+		er.generateBridgeMethodsForGenerics(def);
+
+		er.generateBridgeMethodsToOverrideWithCovReturn(def);
 
 		if (typeParameters.size() > 0) {
 			w.newline(4);
@@ -1588,7 +1590,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     		    
     		    boolean isParamReturnType = Types.baseType(mi.def().returnType().get()) instanceof ParameterType || instantiatesReturnType;
 
-    		    er.printMethodName(mi.def(), invokeInterface, isDispatchMethod, isParamReturnType);
+    		    er.printMethodName(mi.def(), invokeInterface, isDispatchMethod, er.isSpecialType(mi.def().returnType().get()) ,isParamReturnType);
 
 //    		    if (isGenericOverloading && !fromInterface) {
 //    		        w.write(Emitter.mangledMethodName(mi.def(), true));

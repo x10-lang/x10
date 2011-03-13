@@ -61,7 +61,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
 	protected class RailIterator implements x10.lang.Iterator<T> {
 		int i = 0;
 
-		public boolean hasNext() {
+		public boolean hasNext$O() {
 			return i < length;
 		}
 

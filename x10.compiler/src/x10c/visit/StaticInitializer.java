@@ -127,8 +127,8 @@ public class StaticInitializer extends ContextVisitor {
     private final X10CTypeSystem_c xts;
     private final X10CNodeFactory_c xnf;
 
-    private static final String initializerPrefix = "getInitialized$";
-    private static final String deserializerPrefix = "getDeserialized$";
+    public static final String initializerPrefix = "getInitialized$";
+    public static final String deserializerPrefix = "getDeserialized$";
     private static final String nestedShadowClass4Interface = "Shadow";
 
     // mapping static field and corresponding initializer method

@@ -191,7 +191,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     }
 
     @Override
-    public boolean _struct_equals(Object o) {
+    public boolean _struct_equals$O(Object o) {
         return o != null && this.value == ((IndexedMemoryChunk<?>) o).value;
     }
 
