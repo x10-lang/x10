@@ -556,8 +556,16 @@ public class LineNumberMap extends StringTable {
 		
 		MemberVariableMapInfo v = new MemberVariableMapInfo();
 		v._x10type = determineTypeId(type);
-		if (v._x10type == 101 && isStruct)
-			v._x10type = 102;
+		if (v._x10type == 101)
+		{
+			int b = type.indexOf('{');
+			if (b == -1)
+				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type));
+			else
+				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type.substring(0, b)));
+			if (isStruct)
+				v._x10type = 102;
+		}
 		else if (v._x10type == 203 || v._x10type == 210)
 			v._x10typeIndex = addReferenceMap(name, type, 0, 0, v._x10type);
 		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
@@ -1127,17 +1135,30 @@ public class LineNumberMap extends StringTable {
 	        
         if (memberVariables != null)
         {
-        	int index = 0;
         	for (Integer classId : memberVariables.keySet())
         	{
         		String classname = m.lookupString(classId);
 		        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		        ClassMapInfo cmi = memberVariables.get(classId);
 		        for (MemberVariableMapInfo v : cmi._members)
-		        	w.writeln("    { "+v._x10type+", "+index+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+		        {
+		        	if (v._x10type == 101 || v._x10type == 102)
+		        	{
+			        	int index = 0;
+			            for (Integer memberId : memberVariables.keySet())
+			            {
+			            	if (memberId == v._x10typeIndex)
+			            	{
+			            		v._x10typeIndex = index;
+			            		break;
+			            	}
+			            	index++;
+			            }
+		        	}
+		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+		        }
 			    w.writeln("};");
 			    w.forceNewline();
-			    index++;
         	}
         	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) = {");
         	for (Integer classId : memberVariables.keySet())
@@ -1164,7 +1185,7 @@ public class LineNumberMap extends StringTable {
 			        for (MemberVariableMapInfo v : cmi._members)
 			        {
 			        	int typeIndex;
-			        	if (v._x10type == 101) 
+			        	if (v._x10type == 101 || v._x10type == 102)
 			        	{
 			        		// see if this class is defined in our class mappings				        	
 			        		typeIndex = -1;
@@ -1271,7 +1292,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B030B0F, // 2011-03-11, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B030E0F, // 2011-03-14, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
