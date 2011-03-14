@@ -34,7 +34,7 @@ public final class Worker {
 //            Runtime.println(k + " migrated by " + this);
             val r = k.remap();
             atomic r.ff.asyncs++;
-            fifo.push(Frame.upcast[RegularFrame,Object](r));
+            fifo.push(r);
         }
         lock.unlock();
         //And try process remote msg: add jobs into fifo
@@ -47,7 +47,7 @@ public final class Worker {
         //Try a mini steal from other threads
         k = Frame.cast[Object,RegularFrame](workers(random.nextInt(Runtime.NTHREADS)).fifo.steal());
         if (null != k){
-            fifo.push(Frame.upcast[RegularFrame,Object](k));
+            fifo.push(k);
             return;
         }
         
@@ -62,7 +62,7 @@ public final class Worker {
             if (null!= k) {
                 val r = k.remap();
                 atomic r.ff.asyncs++;
-                fifo.push(Frame.upcast[RegularFrame,Object](r));
+                fifo.push(r);
             }
             workers(i).lock.unlock();
         }
@@ -82,9 +82,9 @@ public final class Worker {
                     val r:RegularFrame = Frame.cast[Object,RegularFrame](k);
                     try {
                         r.resume(this);
-                        unstack(Frame.upcast[RegularFrame,Frame](r)); // top frames are meant to be on the stack
+                        unstack(r); // top frames are meant to be on the stack
                     } catch (Stolen) {}
-                    purge(Frame.upcast[RegularFrame,Frame](r), r.ff); // needed because we did not stack allocate those frames
+                    purge(r, r.ff); // needed because we did not stack allocate those frames
                 }
                 else if(k instanceof FinishFrame){
                     //finish frame, need run the finish frame's unroll
@@ -132,7 +132,7 @@ public final class Worker {
                     val p = Frame.cast[Object,RegularFrame](k);
                     val r = p.remap();
                     // frames from k upto k.ff excluded should be stack-allocated but cannot because of @StackAllocate limitations
-                    k = Frame.upcast[RegularFrame,Object](r);
+                    k = r;
                     atomic r.ff.asyncs++;
                 }
                 workers(i).lock.unlock();
@@ -150,7 +150,7 @@ public final class Worker {
         while (!Frame.eq(frame, ff)) {
             val up = frame.up;
             if (frame instanceof MainFrame || frame instanceof RootFinish) return;
-            Runtime.deallocObject(Frame.upcast[Frame,Object](frame));
+            Runtime.deallocObject(frame);
             frame = up;
         }
     }
@@ -167,7 +167,7 @@ public final class Worker {
             }
             up.back(this, frame);
             if (!(frame instanceof MainFrame) && !(frame instanceof RootFinish)) {
-                Runtime.deallocObject(Frame.upcast[Frame,Object](frame));
+                Runtime.deallocObject(frame);
             }
             try {
                 up.resume(this);
@@ -206,22 +206,22 @@ public final class Worker {
         atomic ff.asyncs++; //need add the frame's structure
         val id:Int = place.id;
         val body:()=>void = ()=> {
-            Runtime.wsFIFO().push(Frame.upcast[RegularFrame, Object](frame));
+            Runtime.wsFIFO().push(frame);
         };
         //Runtime.println(here + " :Run Remote job at place:" + id);
         Runtime.wsRunAsync(id, body);
         Runtime.dealloc(body);
         //need clean the heap allocated frame, too.
         //The RemoteMainFrame, the RemoteRootFinish & the RemoteRootFrame
-        Runtime.deallocObject(Frame.upcast[Frame,Object](frame.up.up));
-        Runtime.deallocObject(Frame.upcast[Frame,Object](frame.up));
-        Runtime.deallocObject(Frame.upcast[Frame,Object](frame));
+        Runtime.deallocObject(frame.up.up);
+        Runtime.deallocObject(frame.up);
+        Runtime.deallocObject(frame);
     }
 
     public def remoteFinishJoin(ffRef:GlobalRef[FinishFrame]) {
         val id:Int = ffRef.home.id;
         val body:()=>void = ()=>{       
-            Runtime.wsFIFO().push(Frame.upcast[FinishFrame, Object](derefFrame[FinishFrame](ffRef)));
+            Runtime.wsFIFO().push(derefFrame[FinishFrame](ffRef));
             //Runtime.println(here + " :FF join frame pushed");
         };
         //Runtime.println(here + " :Run Finish Join back to place:" + id);

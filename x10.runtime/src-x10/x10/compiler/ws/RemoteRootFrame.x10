@@ -9,7 +9,7 @@ public final class RemoteRootFrame extends Frame {
         this.ffRef = ffRef; 
     }
 
-    public def remap():Frame = upcast[RemoteRootFrame,Frame](this);
+    public def remap():Frame = this;
 
     public def resume(worker:Worker) {
         //need call back to update the ff's asyncs count

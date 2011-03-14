@@ -168,22 +168,22 @@ public final class Worker {
         val id:Int = place.id;
         val body:()=>void = ()=> {
             //Worker.pushRemoteFrame(frame); //place local handle version
-            Runtime.wsFIFO().push(Frame.upcast[RegularFrame, Object](frame));
+            Runtime.wsFIFO().push(frame);
         };
         //Runtime.println(here + " :Run Remote job at place:" + id);
         Runtime.wsRunAsync(id, body);
         Runtime.dealloc(body);
         //need clean the heap allocated frame, too.
         //The RemoteMainFrame, the RemoteRootFinish & the RemoteRootFrame
-        Runtime.deallocObject(Frame.upcast[Frame,Object](frame.up.up));
-        Runtime.deallocObject(Frame.upcast[Frame,Object](frame.up));
-        Runtime.deallocObject(Frame.upcast[Frame,Object](frame));
+        Runtime.deallocObject(frame.up.up);
+        Runtime.deallocObject(frame.up);
+        Runtime.deallocObject(frame);
     }
 
     public def remoteFinishJoin(ffRef:GlobalRef[FinishFrame]) {
         val id:Int = ffRef.home.id;
         val body:()=>void = ()=>{       
-            Runtime.wsFIFO().push(Frame.upcast[FinishFrame, Object](derefFrame[FinishFrame](ffRef)));
+            Runtime.wsFIFO().push(derefFrame[FinishFrame](ffRef));
             //Runtime.println(here + " :FF join frame pushed");
         };
         //Runtime.println(here + " :Run Finish Join back to place:" + id);
