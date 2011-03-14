@@ -714,6 +714,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Expr right = n.right();
         Binary.Operator op = n.operator();
         Position pos = n.position();
+        TypeSystem xts = tc.typeSystem();
 
         Type l = left.type();
         Type r = right.type();
@@ -752,7 +753,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 static_left = n4;
         }
 
-        if (methodName != null) {
+        if (methodName != null && !xts.hasSameClassDef(l, r)) {
             // Check if there is a static method of the right type with the appropriate name and type.   
             X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), 
             		nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), 
@@ -778,8 +779,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             fake = typeCheckCall(tc, fake);
             return fake;
         }
-
-        TypeSystem xts = tc.typeSystem();
 
         List<X10Call_c> best = new ArrayList<X10Call_c>();
         X10Binary_c.Conversion bestConversion = X10Binary_c.Conversion.UNKNOWN;
@@ -828,14 +827,14 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                     ClassDef bestcd = def(besttd);
                     assert (bestcd != null && cd != null);
 
-                    if (xts.descendsFrom(cd, bestcd)) {
+                    if (cd != bestcd && xts.descendsFrom(cd, bestcd)) {
                         // we found the method of a subclass; remove the superclass one
                         ci.remove();
                         isBetter = true;
                         assert (bestConversion == conversion);
                         bestConversion = conversion;
                     }
-                    else if (xts.descendsFrom(bestcd, cd)) {
+                    else if (cd != bestcd && xts.descendsFrom(bestcd, cd)) {
                         // best is still the best
                         isBetter = false;
                         break;
