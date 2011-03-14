@@ -5618,7 +5618,7 @@ class XTENLANG_2535[T](x:Array[T]) {
 class PropertyAndCtorArgumentsBug(R:Int) {
 	public def this(r:Int)	{
 		property(r);
-		val x:Int{self==R} = r; // ShouldNotBeERR
+		val x:Int{self==R} = r; 
 	}
 }
 class TestUnsoundCastWarning {	
