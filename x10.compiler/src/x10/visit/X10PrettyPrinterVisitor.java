@@ -2625,7 +2625,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}, tr, regex);
 		} else {
 			// SYNOPSIS: for (#0 #2: #1 in #3) #4    #5=unboxed type
-			String regex = "for (x10.lang.Iterator #2__ = (#3).iterator(); #2__.hasNext(); ) { #0 #1 #2 = (#5) #2__.next$G(); #4 }";
+			String regex = "for (x10.lang.Iterator #2__ = (#3).iterator(); #2__.hasNext$O(); ) { #0 #1 #2 = (#5) #2__.next$G(); #4 }";
 			er.dumpRegex("forloop", new Object[] {
                     form.flags(),
                     form.type(),
