@@ -60,6 +60,7 @@ import x10.types.ClosureDef;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
+import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -237,12 +238,19 @@ public class X10ClassBody_c extends ClassBody_c {
         return true;
     }
     public static boolean hasCompatibleArguments(X10ProcedureDef p1, X10ProcedureDef p2, Context context) {
-        if (p1.typeParameters().size() != p2.typeParameters().size())
+        List<ParameterType> tps1 = p1.typeParameters();
+        List<ParameterType> tps2 = p2.typeParameters();
+        if (tps1.size() != tps2.size())
             return false;
 
         final int size = p1.formalTypes().size();
         if (size != p2.formalTypes().size())
             return false;
+
+        TypeParamSubst subst = null;
+        if (!tps1.isEmpty()) {
+            subst = new TypeParamSubst(p1.typeSystem(), tps1, tps2);
+        }
 
         ArrayList<Type> l1 = new ArrayList<Type>(size);
         ArrayList<Type> l2 = new ArrayList<Type>(size);
@@ -250,6 +258,9 @@ public class X10ClassBody_c extends ClassBody_c {
             Type t1 = Types.get(p1.formalTypes().get(i));
             Type t2 = Types.get(p2.formalTypes().get(i));
             l1.add(t1);
+            if (subst != null) {
+                t2 = subst.reinstantiate(t2);
+            }
             l2.add(t2);
         }
         return hasCompatibleArguments(l1,l2,context);
