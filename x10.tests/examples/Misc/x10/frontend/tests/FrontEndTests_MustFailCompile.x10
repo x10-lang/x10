@@ -2213,10 +2213,10 @@ class TestMethodResolution { // see XTENLANG-1915
 	def check[T](t:T)=1;
 	def check(t:Any)="";
 	def testGenerics() {
-		val r1:Int = check(1); // ShouldBeErr: should resolve to the non-generic method
-		val r2:Int = (check.(Any))(1); // ShouldBeErr: should DEFNITELY resolve to the non-generic method
+		@ERR val r1:Int = check(1); // Err ambiguous Err
+		@ERR val r2:Int = (check.(Any))(1); // Err: should DEFNITELY resolve to the non-generic method
         val r3:Int = check[Int](1); // be explicit
-		val r4:Int = (check.(Any))(1); // ShouldBeErr: ahhh?  be explicit
+		@ERR val r4:Int = (check.(Any))(1); // Err: ahhh?  be explicit
 		// todo: What is the syntax for generic method selection?
 		// neither "(m.[String](String))" nor "(m[String].(String))" parses.
 	}
@@ -3656,8 +3656,8 @@ class XTENLANG_1149_2 {
 		@ERR val c6:B{self==null} = f ? b1 : b1;
 
 		val arr1 = new Array[B{self!=null}][b1,b2];
-		@ERR val arr2:Array[B{self!=null}] = [b1,b2]; //  we do not infer constraints, because then [1] will be Array[Int{self==1}]
-		val arr3:Array[B] = [b1,b2]; 
+		val arr2:Array[B{self!=null}] = [b1,b2]; 
+		@ERR val arr3:Array[B] = [b1,b2]; 
 		@ERR val arr4 = new Array[B{self==b2}][b1,b2];
 	}
 }
@@ -5535,7 +5535,7 @@ class RuntimeChecksOfConstraintsInGenerics {
         val arr = new Array[Int{self==3}](0..100, ([p]:Point(1))=>3);
 		//arr(0) = 1; // err: Cannot assign expression to array element of given type.             Expression: 1             Type: x10.lang.Int{self==1}             Array element: arr(0)             Type: x10.lang.Int{self==3}    
 		arr(0) = 3; 
-		val arrAlias = (arr as Any) as Array[Int]; // it should have failed HERE  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+		val arrAlias = (arr as Any) as Array[Int](1); // it should have failed HERE  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 		arrAlias(0) = 1; 
 		val x:Int{self==3} = arr(0); // Broke type safety
 		assert x==3 : "We should have failed before"; // but it fails HERE 

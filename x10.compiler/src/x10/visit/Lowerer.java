@@ -996,7 +996,8 @@ public class Lowerer extends ContextVisitor {
             else{ 
                 //implement interface case
                 for (Type t : ts.interfaces(thisType)) {
-                    ClassType baseType = ((X10ParsedClassType)t).def().asType();
+                	t = Types.baseType(t);
+                    ClassType baseType = ((ClassType) t).def().asType();
                     if(ts.isReducible(baseType)){
                         reducerTypeWithGenericType = (X10ParsedClassType) t;
                         break;

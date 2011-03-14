@@ -558,7 +558,7 @@ public class TypeSystem_c implements TypeSystem
 	assert_(toType);
 	return env(context).isImplicitCastValid(fromType, toType);
     }
-
+    
     /**
      * Returns true iff type1 and type2 represent the same type object.
      */
@@ -1342,9 +1342,7 @@ public class TypeSystem_c implements TypeSystem
 		}
 	    }
 
-	    throw new SemanticException("Reference to " + matcher.name() +
-	                                " is ambiguous, multiple methods match: "
-	                                + sb.toString());
+	    throw new Errors.MultipleMethodDefsMatch(maximal, matcher.toString(), Position.COMPILER_GENERATED);
 	}
 
 	MethodInstance mi = maximal.iterator().next();
@@ -1405,6 +1403,9 @@ public class TypeSystem_c implements TypeSystem
 
 	    if (msc.compare(first, p) == 0) {
 		maximal.add(p);
+	    }
+	    if (msc.compare(p,first) == -1) {
+	    	maximal.add(p);
 	    }
 	}
 

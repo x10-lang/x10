@@ -743,7 +743,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (methodName != null) {
             // Check if there is a static method of the left type with the appropriate name and type.   
-            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), CollectionUtil.list(left, right));
+            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), 
+            		nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), 
+            		CollectionUtil.list(left, right));
             n4 = typeCheckCall(tc, n4);
             MethodInstance mi4 = (MethodInstance) n4.methodInstance();
             if (mi4.error() == null && mi4.def().flags().isStatic())
@@ -752,7 +754,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (methodName != null) {
             // Check if there is a static method of the right type with the appropriate name and type.   
-            X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), CollectionUtil.list(left, right));
+            X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), 
+            		nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), 
+            		CollectionUtil.list(left, right));
             n3 = typeCheckCall(tc, n3);
             MethodInstance mi3 = (MethodInstance) n3.methodInstance();
             if (mi3.error() == null && mi3.def().flags().isStatic())

@@ -11,6 +11,7 @@
 
 package x10.ast;
 
+
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -20,7 +21,6 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FunctionDef;
 import polyglot.types.InitializerDef;
-import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -29,22 +29,16 @@ import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.constraint.XEQV;
-import x10.constraint.XFailure;
-import x10.constraint.XLocal;
-import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10MethodDef;
-import x10.types.X10ProcedureDef;
 import polyglot.types.TypeSystem;
 
 import x10.types.X10Context_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
-import x10.types.constraints.CConstraint;
 
 public class X10Return_c extends Return_c {
 
@@ -55,40 +49,6 @@ public class X10Return_c extends Return_c {
 		this.implicit = implicit;
 	}
 	
-	public static Type removeLocals(Context ctx, Type t, CodeDef thisCode) {
-	    Type b = Types.baseType(t);
-	    if (b != t)
-	        b = removeLocals(ctx, b, thisCode);
-	    CConstraint c = Types.xclause(t);
-	    if (c == null)
-	        return b;
-	    c = removeLocals(ctx, c, thisCode);
-	    return Types.xclause(b, c);
-	}
-	
-	public static CConstraint removeLocals(Context ctx, CConstraint c, CodeDef thisCode) {
-	    if (ctx.currentCode() != thisCode) {
-	        return c;
-	    }
-	    TypeSystem ts = (TypeSystem) ctx.typeSystem();
-	    LI:
-	        for (LocalDef li : ctx.locals()) {
-	            try {
-	                if (thisCode instanceof X10ProcedureDef) {
-	                    for (LocalDef fi : ((X10ProcedureDef) thisCode).formalNames())
-	                        if (li == fi)
-	                            continue LI;
-	                }
-	                XLocal l = ts.xtypeTranslator().translate(li.asInstance());
-	                XEQV x = XTerms.makeEQV();
-	                c = c.substitute(x, l);
-	            }
-	            catch (XFailure e) {
-	            }
-	        }
-	    return removeLocals((Context) ctx.pop(), c, thisCode);
-	}
-
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
@@ -154,11 +114,12 @@ public class X10Return_c extends Return_c {
 		        }
 		        else {
 		            if (! typeRef.known()) {
+		                exprType = Types.removeLocals(tc.context(), exprType, tc.context().currentCode());
 		                typeRef.update(exprType);
 		            }
 		            else {
 		                // Merge the types
-		                exprType = removeLocals((Context) tc.context(), exprType, tc.context().currentCode());
+		                exprType = Types.removeLocals(tc.context(), exprType, tc.context().currentCode());
 		                try {
 		                    Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType, c);
 		                    typeRef.update(t);

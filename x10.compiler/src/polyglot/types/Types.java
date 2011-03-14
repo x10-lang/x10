@@ -33,12 +33,15 @@ import x10.ast.Here;
 import x10.ast.ParExpr;
 
 import x10.ast.SubtypeTest;
+import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
+import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Errors.TypeIsMissingParameters;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.MacroType_c;
@@ -646,6 +649,35 @@ public class Types {
 	        return true;
 	    }
 	    if (zeroLit==null) return false;
+	    if (ts.isParameterType(t)) {
+	        // we have some type "T" which is a type parameter. Does it have a zero value?
+	        // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
+	        // Similarly, Int<:T doesn't help, because  Int<:Any{self!=null}
+	        // However, T==Int does help
+	        if (isConstrained(t)) return false; // if we have constraints on the type parameter, e.g., T{self!=null}, then we give up and return false.
+	        TypeConstraint typeConst = xc.currentTypeConstraint();
+	        List<SubtypeConstraint> env =  typeConst.terms();
+	        for (SubtypeConstraint sc : env) {
+	            if (sc.isEqualityConstraint()) {
+	                Type other = null;
+	                final Type sub = sc.subtype();
+	                final Type sup = sc.supertype();
+	                if (ts.typeEquals(t, sub,xc)) {
+	                    if (!ts.isParameterType(sub)) other = sub;
+	                    if (!ts.isParameterType(sup)) other = sup;
+	                }
+	                if (other!=null)
+	                	return isHaszero(other,xc);
+	            } else if (sc.isSubtypeConstraint()) {
+	                // doesn't help
+	            } else {
+	                assert sc.isHaszero();
+	                if (ts.typeEquals(t,sc.subtype(),xc)) {
+	                    return true;
+	                }
+	            }
+	        }
+	    }
 	    if (!isConstrained(t)) return true;
 	    final CConstraint constraint = Types.xclause(t);
 	    final CConstraint zeroCons = new CConstraint(constraint.self());
@@ -1679,6 +1711,53 @@ public class Types {
         }
         return res;
     }
+
+	public static Type removeLocals(Context ctx, Type t, CodeDef thisCode) {
+		t = t.typeSystem().expandMacros(t);
+	
+	    if (t instanceof X10ClassType) {
+	        X10ClassType ct = (X10ClassType) t;
+	        if (ct.typeArguments() == null)
+	            return ct;
+	        List<Type> types = new ArrayList<Type>(ct.typeArguments().size());
+	        for (Type ti : ct.typeArguments()) {
+	            Type ti2 = removeLocals(ctx, ti, thisCode);
+	            types.add(ti2);
+	        }
+	        return ct.typeArguments(types);
+	    }
+	    Type b = baseType(t);
+	    if (b != t)
+	        b = removeLocals(ctx, b, thisCode);
+	    CConstraint c = xclause(t);
+	    if (c == null)
+	        return b;
+	    c = Types.removeLocals(ctx, c, thisCode);
+	    return xclause(b, c);
+	}
+
+	public static CConstraint removeLocals(Context ctx, CConstraint c, CodeDef thisCode) {
+	    if (ctx.currentCode() != thisCode) {
+	        return c;
+	    }
+	    TypeSystem ts = (TypeSystem) ctx.typeSystem();
+	    LI:
+	        for (LocalDef li : ctx.locals()) {
+	            try {
+	                if (thisCode instanceof X10ProcedureDef) {
+	                    for (LocalDef fi : ((X10ProcedureDef) thisCode).formalNames())
+	                        if (li == fi)
+	                            continue LI;
+	                }
+	                XLocal l = ts.xtypeTranslator().translate(li.asInstance());
+	                XEQV x = XTerms.makeEQV();
+	                c = c.substitute(x, l);
+	            }
+	            catch (XFailure e) {
+	            }
+	        }
+	    return removeLocals((Context) ctx.pop(), c, thisCode);
+	}
 	
 
 }

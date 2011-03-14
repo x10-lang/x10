@@ -54,8 +54,8 @@ public class ArrayLiteralTest1_MustFailCompile extends x10Test {
 		val a3:Array[Int](2){size==3} = [1,2,3]; // ERR: Cannot assign expression to target.
 		val a4:Array[Int](1){size==4} = [1,2,3]; // ERR: Cannot assign expression to target.
 
-		val b:Array[A] = [new A()];
-		val b1:Array[A](1){size==1} = [new A()];		
+		val b:Array[A{self!=null}] = [new A()];
+		val b1:Array[A{self!=null}](1){size==1} = [new A()];		
 	}
 
 	static class A {}

@@ -57,12 +57,14 @@ public abstract class Region(
     /**
      * Construct an empty region of the specified rank.
      */
+
     public static @TempNoInline_0 def makeEmpty(rank: int): Region(rank){self!=null} = new EmptyRegion(rank);
      
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
      */
+
     public static def makeFull(rank: int): Region(rank){self !=null} = new FullRegion(rank);
     
     /**
@@ -119,14 +121,16 @@ public abstract class Region(
      * Construct a rectangular region whose bounds are specified as
      * rails of ints.
      */
-    public static @TempNoInline_3 def makeRectangular(minArg:Rail[int], maxArg:Rail[int](minArg.length)):Region(minArg.length){self.rect} {
+    public static @TempNoInline_3 def makeRectangular[S,T](minArg:Rail[S], maxArg:Rail[T](minArg.length)){S<:Int, T<:Int}:Region(minArg.length){self.rect} {
         val minArray = new Array[int](minArg.length, (i:int)=>minArg(i));
         val maxArray = new Array[int](maxArg.length, (i:int)=>maxArg(i));
         return new RectRegion(minArray, maxArray) as Region(minArg.length){rect};
     }
 
-    public static def makeRectangular(minArg:Array[int](1), maxArg:Array[int](1)):Region(minArg.size){self.rect} {
-        return new RectRegion(minArg, maxArg);
+    public static def makeRectangular[S,T](minArg:Array[S](1), maxArg:Array[T](1)){S<:Int,T<:Int}:Region(minArg.size){self.rect} {
+    	 val minArray = new Array[int](minArg.size, (i:int)=>minArg(i));
+         val maxArray = new Array[int](maxArg.size, (i:int)=>maxArg(i));
+        return new RectRegion(minArray, maxArray);
     }
 
     /**
@@ -361,6 +365,8 @@ public abstract class Region(
      * Returns the projection of a region onto all axes but the
      * specified axis.
      */
+
+   
     abstract public def eliminate(axis: int): Region /*(rank-1)*/;
 
 
@@ -371,6 +377,7 @@ public abstract class Region(
      *    for (p:Point in r)
      *        ... p ...
      */
+
     public abstract def iterator(): Iterator[Point(rank)];
 
 
