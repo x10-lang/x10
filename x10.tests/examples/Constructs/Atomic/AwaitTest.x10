@@ -35,7 +35,7 @@ public class AwaitTest extends x10Test {
 			return false;
 		atomic val_ = 0;
 		when (val_ == 42);
-		next;
+		Clock.advanceAll();
 		var temp2: int;
 		atomic temp2 = val_;
 		//x10.io.Console.OUT.println("val_ = " + temp2);

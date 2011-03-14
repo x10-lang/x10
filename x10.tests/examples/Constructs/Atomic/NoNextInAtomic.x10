@@ -21,7 +21,7 @@ public class NoNextInAtomic extends x10Test {
 	   val c = Clock.make();
 	   try {
 	     atomic 
-		    next;
+		    Clock.advanceAll();
 	   } catch (IllegalOperationException) {
 		   return true;
 	   }

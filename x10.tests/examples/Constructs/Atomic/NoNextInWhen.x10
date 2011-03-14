@@ -22,7 +22,7 @@ public class NoNextInWhen extends x10Test {
 	   val b=true;
 	   try {
 	     when (b==true) 
-		    next;
+		    Clock.advanceAll();
 	   } catch (IllegalOperationException) {
 		   return true;
 	   }

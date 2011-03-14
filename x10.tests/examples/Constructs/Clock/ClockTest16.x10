@@ -55,34 +55,34 @@ public class ClockTest16 extends x10Test {
 				async clocked(c1) {
 					val cx = ca(1);
 					async clocked(cx) { // no clock use error
-						next;
+						Clock.advanceAll();
 					}
-					next;
+					Clock.advanceAll();
 				}
 
 				// Compiler: MAYBE, actual: NO
 				async clocked(c1) {
 					val cx = ca(x.one());
 					async clocked(cx) { //no clock use error
-						next;
+						Clock.advanceAll();
 					}
-					next;
+					Clock.advanceAll();
 				}
 
 				// Compiler: MAYBE, actual: YES
 				async clocked(c1) {
 					val cx = ca(x.zero());
 					async clocked(cx) { // clock use error
-						next;
+						Clock.advanceAll();
 					}
-					next;
+					Clock.advanceAll();
 				}
 
 				val f0 = new foo() {
 					public operator this(): void = {
 						val cx = ca(x.zero());
 						async clocked(cx) { // clock use error
-							next;
+							Clock.advanceAll();
 						}
 					}
 				};
@@ -91,7 +91,7 @@ public class ClockTest16 extends x10Test {
 					public operator this(): void = {
 						val cx = ca(x.one());
 						async clocked(cx) { // no clock use error
-							next;
+							Clock.advanceAll();
 						}
 					}
 				};
@@ -108,12 +108,12 @@ public class ClockTest16 extends x10Test {
 				async clocked(c1) {
 					val cx = ca(0);
 					async clocked(cx) { // clock use error
-						next;
+						Clock.advanceAll();
 					}
-					next;
+					Clock.advanceAll();
 				}
 
-				next;
+				Clock.advanceAll();
 			}
 			return false;
 		} catch (e: ClockUseException) {
@@ -138,7 +138,7 @@ public class ClockTest16 extends x10Test {
 			// Compiler analysis may not be possible here
 			async clocked(c) {
 				f(); // it is hard to determine f does an async clocked(c2) S, where c2 != c
-				next;
+				Clock.advanceAll();
 			}
 		}
 	}

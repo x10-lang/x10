@@ -22,7 +22,7 @@ public class NoResumeInWhen extends x10Test {
 	   val b=true;
 	   try {
 	     when (b==true) 
-		    resume;
+		    Clock.resumeAll();
 	   } catch (IllegalOperationException) {
 		   return true;
 	   }

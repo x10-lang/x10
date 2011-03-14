@@ -147,8 +147,8 @@ public class Lowerer extends ContextVisitor {
     private static final Name RUN_UNCOUNTED_ASYNC = Name.make("runUncountedAsync");
     private static final Name HOME = Name.make("home");
     private static final Name HERE_INT = Name.make("hereInt");
-    private static final Name NEXT = Name.make("next");
-    private static final Name RESUME = Name.make("resume");
+    private static final Name NEXT = Name.make("advanceAll");
+    private static final Name RESUME = Name.make("resumeAll");
     private static final Name DROP = Name.make("drop");
     private static final Name MAKE = Name.make("make");
     
@@ -670,16 +670,16 @@ public class Lowerer extends ContextVisitor {
         return call(pos, HOME, ts.Place());
     }
 
-    // next; -> Runtime.next();
+    // next; -> Clock.advanceAll(); (deprecated)
     private Stmt visitNext(Next n) throws SemanticException {
         Position pos = n.position();
-        return nf.Eval(pos, call(pos, NEXT, ts.Void()));
+        return nf.Eval(pos, synth.makeStaticCall(pos, ts.Clock(), NEXT, ts.Void(), context()));
     }
     
-    // next; -> Runtime.next();
+    // resume; -> Clock.resumeAll(); (deprecated)
     private Stmt visitResume(Resume n) throws SemanticException {
         Position pos = n.position();
-        return nf.Eval(pos, call(pos, RESUME, ts.Void()));
+        return nf.Eval(pos, synth.makeStaticCall(pos, ts.Clock(), RESUME, ts.Void(), context()));
     }
 
     // atomic S; -> try { Runtime.enterAtomic(); S } finally { Runtime.exitAtomic(); }

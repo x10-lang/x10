@@ -32,9 +32,9 @@ public class Clocks80 extends x10Test {
 val c:Clock = Clock.make();
 async clocked(c) {                // (A)
       finish async clocked(c) {   // (B) Violates clause 2
-            next;                 // (Bnext)
+            Clock.advanceAll();                 // (Bnext)
       }
-      next;                       // (Anext)
+      Clock.advanceAll();                       // (Anext)
 }
  } }
 

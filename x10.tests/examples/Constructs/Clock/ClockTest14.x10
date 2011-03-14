@@ -20,11 +20,11 @@ public class ClockTest14 extends x10Test {
 	public def run(): boolean = {
 		val c = Clock.make();
 		var gotException: boolean;
-		next;
+		Clock.advanceAll();
 		c.resume();
 		c.drop();
 		chk(c.dropped());
-		next; // empty clock set is acceptable, next is no-op
+		Clock.advanceAll(); // empty clock set is acceptable, next is no-op
 		gotException = false;
 		try {
 			c.resume();

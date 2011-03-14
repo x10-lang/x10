@@ -54,7 +54,7 @@ public class ConditionalAtomicTest extends x10Test {
 				//{ value1 = value2 = 43; /* error */ };
 			}
 		}
-		next; // wait until both activities end
+		Clock.advanceAll(); // wait until both activities end
 
 		var temp: int;
 		atomic temp = value1;

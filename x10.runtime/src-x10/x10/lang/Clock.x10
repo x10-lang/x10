@@ -12,6 +12,7 @@
 package x10.lang;
 
 import x10.compiler.Global;
+import x10.compiler.Native;
 import x10.compiler.Pinned;
 import x10.util.Map;
 
@@ -109,7 +110,7 @@ public class Clock(name:String) {
         }
         entry.setValue(-ph);
     }
-    @Global def nextUnsafe() {
+    @Global def advanceUnsafe() {
     	Runtime.ensureNotInAtomic();
         val ph = get();
         val abs = Math.abs(ph);
@@ -120,7 +121,7 @@ public class Clock(name:String) {
         }
         put(abs + 1);
     }
-    @Global def nextInternal(entry:Map.Entry[Clock,Int]) {
+    @Global def advanceInternal(entry:Map.Entry[Clock,Int]) {
     	Runtime.ensureNotInAtomic();
         val ph = entry.getValue();
         val abs = Math.abs(ph);
@@ -155,9 +156,9 @@ public class Clock(name:String) {
         if (dropped()) clockUseException("resume");
         resumeUnsafe();
     }
-    public @Global def next():void {
-        if (dropped()) clockUseException("next");
-        nextUnsafe();
+    public @Global def advance():void {
+        if (dropped()) clockUseException("advance");
+        advanceUnsafe();
     }
     public @Global def drop():void {
         if (dropped()) clockUseException("drop");
@@ -169,6 +170,14 @@ public class Clock(name:String) {
     private def clockUseException(method:String) {
         if (dropped()) throw new ClockUseException("invalid invocation of " + method + "() on clock " + toString() + "; calling activity is not clocked on this clock");
     }
+
+    @Native("cuda", "__syncthreads()")
+    public static def advanceAll():void {
+        Runtime.ensureNotInAtomic();
+        Runtime.activity().clockPhases().advanceAll();
+    }
+
+    public static def resumeAll():void = Runtime.activity().clockPhases().resumeAll();
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

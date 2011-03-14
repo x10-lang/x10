@@ -60,13 +60,13 @@ public class CUDAMatMul {
 
                         do
                         {
-                            next;
+                            Clock.advanceAll();
 
                             @Unroll(4) for (i in 0..(4-1)) {
                                 bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb);
                             }
 
-                            next;
+                            Clock.advanceAll();
 
                             @Unroll(16)for (i in 0..(16-1)) {
                                 @Unroll(16) for (j in 0..(16-1)) {

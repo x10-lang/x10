@@ -28,7 +28,7 @@ public class NoResumeInAtomicMethod extends x10Test {
 		return false;
 	}
 	def m() {
-		resume;
+		Clock.resumeAll();
 	}
 
 	public static def main(Array[String](1)){

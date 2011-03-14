@@ -46,7 +46,7 @@ public class HeatTransfer_v4 {
      def reduceMax(diff:DistArray[Double],z:Point{self.rank==diff.rank},  scratch:DistArray[Double]) {
         val max = diff.reduce(Math.max.(Double,Double), 0.0);
         diff(z) = max;
-        next;
+        Clock.advanceAll();
     }
 
     def run() {
@@ -61,7 +61,7 @@ public class HeatTransfer_v4 {
                         Temp(p) = stencil_1(p);
                         diff(z) = Math.max(diff(z), Math.abs(A(p) - Temp(p)));
                     }
-                    next;
+                    Clock.advanceAll();
                     for (p:Point(2) in D | here) {
                         A(p) = Temp(p);
                     }

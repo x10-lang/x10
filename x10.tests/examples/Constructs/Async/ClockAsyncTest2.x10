@@ -26,7 +26,7 @@ public class ClockAsyncTest2 extends x10Test {
 	   finish {
               async clocked (clocks(0)) {
 	          async clocked (clocks(0)){
-		      next;
+		      Clock.advanceAll();
 	          }
 	        }
 	    	clocks(0).drop();

@@ -86,32 +86,32 @@ public class ClockTest15WithResume extends x10Test {
 			val b = Clock.make();
 			/* A1 */ async clocked (a)  {
 				atomic x++;
-				next;
+				Clock.advanceAll();
 				var tmp: int;
 				atomic tmp = x;
 				x10.io.Console.OUT.println("A1 advanced, x = "+tmp);
 				atomic advanced_A1 = true;
 				chk (tmp == 2);
-				next;
+				Clock.advanceAll();
 			}
 			/* A2 */ async  clocked (a, b) {
 				atomic x++;
-				next;
+				Clock.advanceAll();
 				var tmp: int;
 				atomic tmp = x;
 				x10.io.Console.OUT.println("A2 advanced, x = "+tmp);
 				chk (tmp == 3);
-				next;
+				Clock.advanceAll();
 			}
 			/* A3 */ async  clocked (b) {
 				when (advanced_A1);
 				atomic x++;
-				next;
+				Clock.advanceAll();
 				var tmp: int;
 				atomic tmp = x;
 				x10.io.Console.OUT.println("A3 advanced, x = "+tmp);
 				chk (tmp == 3);
-				next;
+				Clock.advanceAll();
 			}
 		} /* end A0 */
 		return true;

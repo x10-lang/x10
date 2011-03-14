@@ -862,22 +862,6 @@ import x10.util.NoSuchElementException;
         atomicMonitor.await();
     }
 
-    // clocks
-
-    /**
-     * Next statement = next on all clocks in parallel.
-     */
-    @Native("cuda", "__syncthreads()")
-    public static def next():void {
-        ensureNotInAtomic();
-        activity().clockPhases().next();
-    }
-
-    /**
-     * Resume statement = resume on all clocks in parallel.
-     */
-    public static def resume():void = activity().clockPhases().resume();
-
     // finish
 
     /**

@@ -33,13 +33,13 @@ class Activity {
         }
 
         // next statement
-        def next() {
+        def advanceAll() {
             for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeInternal(entry);
-            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().nextInternal(entry);
+            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().advanceInternal(entry);
         }
 
         // resume all clocks
-        def resume() {
+        def resumeAll() {
             for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeInternal(entry);
         }
 

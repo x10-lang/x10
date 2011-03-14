@@ -21,7 +21,7 @@ public class NoResumeInAtomic extends x10Test {
 	   val c = Clock.make();
 	   try {
 	     atomic 
-		    resume;
+		    Clock.resumeAll();
 	   } catch (IllegalOperationException) {
 		   return true;
 	   }

@@ -32,7 +32,7 @@ public class ClockTest1 extends x10Test {
 			    // - A0 reaches next and is blocked until A1 finished. When A1 do so, the 
 			    //   number of activities registered with clock c is decremented, which release A0
 			    //   that becomes the only activity to wait on the clock "barrier"
-				next;
+				Clock.advanceAll();
 			    atomic { b = flag; }
 			}
 			return b;
