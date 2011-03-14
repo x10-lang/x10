@@ -134,7 +134,7 @@ public class Clock(name:String) {
     }
     @Global def dropUnsafe() {
         val ph = remove();
-        async at(root) {
+        at(root) {
         	val me = root();
         	me.dropLocal(ph);
         }
