@@ -7,7 +7,6 @@ import x10.compiler.RemoteInvocation;
 
 public final class Worker {
     private val workers:Rail[Worker];
-    private val id:Int; //Could be removed finally ?
     private val random:Random;
 
     public val finished:BoxedBoolean;
@@ -17,7 +16,6 @@ public final class Worker {
 
     public def this(i:Int, workers:Rail[Worker], finished:BoxedBoolean) {
         random = new Random(i + (i << 8) + (i << 16) + (i << 24));
-        this.id = i;
         this.workers = workers;
         this.finished = finished;
     }
