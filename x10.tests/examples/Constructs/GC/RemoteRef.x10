@@ -37,11 +37,11 @@ public class RemoteRef extends x10Test {
 	for (var i:int=0; i<iterCount; i++) {
 	    // TODO: Try to force GC to happen here by doing lots of allocation
 	    if (Debug) Console.OUT.println("Local before next: "+i);
-	    next;
+	    Clock.advanceAll();
 	    if (Debug) Console.OUT.println("Local after next: "+i);
 	}
 	if (Debug) Console.OUT.println("Local: before last next");
-	next;
+	Clock.advanceAll();
 	if (Debug) Console.OUT.println("Local: after last next");
 	return res().success;
     }
@@ -51,13 +51,13 @@ public class RemoteRef extends x10Test {
 	async clocked(c) at(here.next()) {
 	    for (var i:int = 0; i<iterCount; i++) {
 		if (Debug) Console.OUT.println("Remote before next: "+i);
-	        next;
+	        Clock.advanceAll();
 		if (Debug) Console.OUT.println("Remote after next: "+i);
 	        at (v) v().f++; 
             }
 	    if (Debug) Console.OUT.println("Remote: before last next");
 	    at (res) { res().success = (at (v) v().f == iterCount); }
-	    next;
+	    Clock.advanceAll();
 	    if (Debug) Console.OUT.println("Remote: after last next next");
 	}
     }

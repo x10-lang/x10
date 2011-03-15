@@ -21,7 +21,7 @@ public class ClockedAtEach_MustFailCompile extends x10Test {
             val D_Base = Dist.makeUnique();
             val P = 4;
             clocked ateach (z in D_Base)  { // ERR: Syntax error: Token "async" expected after this input
-                next;
+                Clock.advanceAll();
             }
         }
         return true;

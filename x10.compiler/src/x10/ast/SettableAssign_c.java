@@ -98,7 +98,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	
 	public Type leftType() {
 	    if (mi == null) return null;
-	    return mi.formalTypes().get(0);
+	    return mi.formalTypes().get(mi.formalTypes().size()-1);
 	}
 
 	public Expr left() {
@@ -235,14 +235,14 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 		List<Type> typeArgs = Collections.<Type>emptyList();
 		List<Type> actualTypes = new ArrayList<Type>(index.size()+1);
-		actualTypes.add(right.type());
 		for (Expr ei : index) {
 		    actualTypes.add(ei.type());
 		}
+		actualTypes.add(right.type());
 
 		List<Expr> args = new ArrayList<Expr>();
-		args.add(right);
 		args.addAll(index);
+		args.add(right);
 
 		// First try to find the method without implicit conversions.
 		mi = Checker.findAppropriateMethod(tc, array.type(), SET, typeArgs, actualTypes);
@@ -268,7 +268,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		MethodInstance ami = null;
 
 		actualTypes = new ArrayList<Type>(mi.formalTypes());
-		actualTypes.remove(0);
+		actualTypes.remove(actualTypes.size()-1);
 
 		// First try to find the method without implicit conversions.
 		ami = Checker.findAppropriateMethod(tc, array.type(), ClosureCall.APPLY, typeArgs, actualTypes);
@@ -305,8 +305,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		SettableAssign_c a = this;
 		a = (SettableAssign_c) a.methodInstance(mi);
 		a = (SettableAssign_c) a.applyMethodInstance(ami);
-		a = (SettableAssign_c) a.right(args.get(0));
-		a = (SettableAssign_c) a.index(args.subList(1, args.size()));
+		a = (SettableAssign_c) a.right(args.get(args.size()-1));
+		a = (SettableAssign_c) a.index(args.subList(0, args.size()-1));
 		return a;
 	}
 	

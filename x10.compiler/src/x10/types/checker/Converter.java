@@ -457,9 +457,9 @@ public class Converter {
 		if (ts.isSubtype(fromType, toType, context)) {
 		    // Add the clause self==x if the fromType's self binding is x,
 		    // since for these casts we know the result is identical to expr.
-		    XTerm sv = Types.selfBinding(fromType);
-		    if (sv != null) 
-		        toType = Types.addSelfBinding((Type) toType.copy(), sv);
+		    //XTerm sv = Types.selfBinding(fromType);
+		    //if (sv != null) 
+		    //    toType = Types.addSelfBinding((Type) toType.copy(), sv);
 		    X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);
 		    return n.type(toType);
 		}
@@ -509,7 +509,7 @@ public class Converter {
 				catch (SemanticException z1) {
 				}
 			}
-			// or  can convert if there is a static method fromType.$convert(ToType)
+			// or  can convert if there is a static implict cast operator defined on toType: static operator (f:fromType)
 
 			if (converter == null) {
 				try {

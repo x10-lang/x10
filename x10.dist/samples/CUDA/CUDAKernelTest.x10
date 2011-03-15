@@ -68,11 +68,11 @@ public class CUDAKernelTest {
                 val shm4 = new Array[Float](64, (Int)=>0.0f);
                 clocked finish for (thread in 0..63) clocked async {
                     shm1(thread) = thread;
-                    next;
+                    Clock.advanceAll();
                     shm2(thread) = @NoInline shm1(63-thread) as Int;
-                    next;
+                    Clock.advanceAll();
                     shm3(thread) = @NoInline shm2(63-thread);
-                    next;
+                    Clock.advanceAll();
                     remote(thread) = @NoInline shm3(63-thread);
                 }
             }

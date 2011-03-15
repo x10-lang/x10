@@ -35,7 +35,7 @@ public class ClockFuture extends x10Test {
          val f  = Future.make[int] (()=> m());
          // x10.io.Console.OUT.print("1 ... ");
          // this next should not wait on the future
-         next;
+         Clock.advanceAll();
          // x10.io.Console.OUT.print("2 ... ");
          atomic { clock_has_advanced = true; }
          // x10.io.Console.OUT.print("3 ...");

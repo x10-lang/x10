@@ -20,7 +20,7 @@ public class TestClockedFinish extends x10Test {
         clocked finish {
             for (p1 in Place.places()) clocked async at(p1) {
                 Console.OUT.println("starting at " + here.id);
-                next;
+                Clock.advanceAll();
                 Console.OUT.println("finished at " + here.id);
             }
         }

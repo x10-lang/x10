@@ -26,11 +26,11 @@ public class ClockTest3b extends x10Test {
 		clocked finish  {
 			for (val [i]: Point in 0..(N-1)) clocked async {
 				clocked async  finish async  { atomic value++; }
-				next;
+				Clock.advanceAll();
 				chk(value == N);
-				next;
+				Clock.advanceAll();
 				clocked async  finish async  { atomic value++; }
-				next;
+				Clock.advanceAll();
 			}
 		}
 		chk(value == 2*N);

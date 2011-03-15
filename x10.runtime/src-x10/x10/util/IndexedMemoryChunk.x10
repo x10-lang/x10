@@ -92,7 +92,7 @@ public struct IndexedMemoryChunk[T] {
      * @return The new value.
      */
     @Native("java", "(#0).$set(#1, #2)")
-    @Native("c++", "(#this)->__set(#value, #index)")
+    @Native("c++", "(#this)->__set(#index, #value)")
     public native operator this(index:int)=(value:T):void;
 
 
@@ -103,8 +103,8 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    @Native("java", "(#0).$set(#1, (int)(#2))")
-    @Native("c++", "(#this)->__set(#value, #index)")
+    @Native("java", "(#0).$set((int)(#1), #2)")
+    @Native("c++", "(#this)->__set(#index, #value)")
     public native operator this(index:long)=(value:T):void;
 
 
@@ -137,7 +137,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    @Native("java", "(#0).$set(#1, #2)")
+    @Native("java", "(#0).set_unsafe(#1, #2)")
     @Native("c++", "(#this)->set_unsafe(#value, #index)")
     public native def set_unsafe(value:T, index:int):void;
 
@@ -149,7 +149,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    @Native("java", "(#0).$set(#1, (int)(#2))")
+    @Native("java", "(#0).set_unsafe(#1, (int)(#2))")
     @Native("c++", "(#this)->set_unsafe(#value, #index)")
     public native def set_unsafe(value:T, index:long):void;
 

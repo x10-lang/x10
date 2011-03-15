@@ -19,7 +19,7 @@ import harness.x10Test;
 public class ClockTest extends x10Test {
     public def run(): boolean = {
     		clocked finish {
-    			next;
+    			Clock.advanceAll();
     		}
 	        return true;
     }

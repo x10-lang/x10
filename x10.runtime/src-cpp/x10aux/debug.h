@@ -157,7 +157,7 @@ enum _MetaLanguage {
 struct _MetaDebugInfo_t {
   unsigned short structSize;      // size of this structure
   unsigned char metalanguage;     // language (allows the use of this technique for other languages)
-  unsigned char debugVersion;     // version of this structure (so we can change it in future)
+  unsigned debugVersion;     	  // version of the debug maps.  Format: "YYMMDDHH". One byte for year, month, day, hour.
 
   // The remainder of this structure is language/version specific
   unsigned x10stringSize;         // the size in bytes of the string table (including the trailing NUL)

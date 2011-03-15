@@ -12,6 +12,7 @@ import java.util.Set;
 import polyglot.ast.*;
 import polyglot.frontend.Job;
 import polyglot.types.*;
+import x10.errors.Errors;
 import x10.util.CollectionFactory;
 
 /** Visitor which ensures that field intializers and initializers do not
@@ -30,7 +31,7 @@ public class FwdReferenceChecker extends ContextVisitor
     private boolean inInitialization = false;
     private Set<FieldDef> declaredFields = CollectionFactory.newHashSet();
     
-    protected NodeVisitor enterCall(Node n) throws SemanticException {
+    protected NodeVisitor enterCall(Node n) {
         if (n instanceof FieldDecl) {
             FieldDecl fd = (FieldDecl)n;
             if (fd.flags().flags().isStatic()) {
@@ -63,9 +64,9 @@ public class FwdReferenceChecker extends ContextVisitor
 
                 if (f.fieldInstance().flags().isStatic() &&
                     currentClass.typeEquals(fContainer, context) &&
-                   !declaredFields.contains(f.fieldInstance().def())
-                        ) {
-                    throw new SemanticException("Illegal forward reference",f.position());
+                   !declaredFields.contains(f.fieldInstance().def()))
+                {
+                    Errors.issue(job(), new SemanticException("Illegal forward reference", f.position()));
                 }
             }
         }

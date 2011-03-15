@@ -47,7 +47,7 @@ public class HeatTransfer_v5 {
     static def reduceMax(diff:DistArray[Double],z:Point{self.rank==diff.rank},  scratch:DistArray[Double]) {
         val max = diff.reduce(Math.max.(Double,Double), 0.0);
         diff(z) = max;
-        next;
+        Clock.advanceAll();
     }
 
     // TODO: This is a really inefficient implementation of this abstraction.
@@ -81,13 +81,13 @@ public class HeatTransfer_v5 {
                             myDiff = Math.max(myDiff, Math.abs(A(p) - Temp(p)));
                         }
                         atomic diff(z) = Math.max(myDiff, diff(z));
-                        next;
+                        Clock.advanceAll();
                         for (p:Point(2) in blocks(q)) {
                             A(p) = Temp(p);
                         }
                         if (q == 0) reduceMax(diff,z,  scratch);
                         myDiff = diff(z);
-                        next;
+                        Clock.advanceAll();
                     } while (myDiff > epsilon);
                 }
             }

@@ -22,11 +22,12 @@ public abstract class Struct implements Any, Cloneable {
 
     public Struct() {}
 
+    @Override
     public boolean equals(Object o) {
-        return _struct_equals(o);
+        return _struct_equals$O(o);
     }
 
-    abstract public boolean _struct_equals(Object o);
+    abstract public boolean _struct_equals$O(Object o);
 
     public static final RuntimeType<Struct> $RTT = new RuntimeType<Struct>(Struct.class);
     public RuntimeType<?> $getRTT() {return $RTT;}

@@ -28,7 +28,7 @@ import harness.x10Test;
       return false;
    }
    
-   public def mth() = 5 as Any;
+   public def mth() = 5 as Any{self==5};
    
    public static def main(Array[String](1)) {
       new CastInt5ToAnyAndInt3_MustFailCompile().execute();

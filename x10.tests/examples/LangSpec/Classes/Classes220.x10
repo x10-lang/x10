@@ -30,10 +30,10 @@ public class Classes220 extends x10Test {
  static  class Poly {
    public val coeff : Array[Int](1);
    public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-   public def degree() = coeff.size()-1;
+   public def degree() = coeff.size-1;
    public def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
   public operator - this = new Poly(
-    new Array[Int](coeff.size(), (i:Int) => -coeff(i))
+    new Array[Int](coeff.size, (i:Int) => -coeff(i))
     );
    def makeSureItWorks() {
       val x = new Poly([0,1]);

@@ -41,7 +41,7 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
 
     /** Set the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
     @Native("java", "(#0).$set$G(#1, #2)")
-    @Native("c++", "(#this)->__set(#v, #idx)")
+    @Native("c++", "(#this)->__set(#idx, #v)")
     public native operator this(idx:Int)=(v:T): T;
 
     /** Get the length of the rail (which may be less than the allocated storage for the rail. */

@@ -49,26 +49,26 @@ public class ClockTest9 extends x10Test {
 			}
 		}
 		x10.io.Console.OUT.println("#0a i = "+i);
-		next;
+		Clock.advanceAll();
 		// at this point each val[k] must be 0
 		async clocked(c) finish async for ([k] in 0..(N-1)) chk(v(k) == 0);
 		x10.io.Console.OUT.println("#0b i = "+i);
-		next;
+		Clock.advanceAll();
 	}
 
 	def foreachBodyInner(i: int, j: int, d: Clock): void = {
 		// activity i, j increments val[i] by j
 		async clocked(d) finish async { atomic v(i) += j; }
 		x10.io.Console.OUT.println("#1 i = "+i+" j = "+j);
-		next;
+		Clock.advanceAll();
 		// val[i] must now be SUM(j = 0 to M-1)(j)
 		async clocked(d) finish async  { var tmp: int; atomic tmp = v(i); chk(tmp == M*(M-1)/2); }
 		x10.io.Console.OUT.println("#2 i = "+i+" j = "+j);
-		next;
+		Clock.advanceAll();
 		// decrement val[i] by the same amount
 		async clocked(d) finish async  { atomic v(i) -= j; }
 		x10.io.Console.OUT.println("#3 i = "+i+" j = "+j);
-		next;
+		Clock.advanceAll();
 		// val[i] should be 0 by now
 	}
 

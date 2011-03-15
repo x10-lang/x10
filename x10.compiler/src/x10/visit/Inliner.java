@@ -28,15 +28,18 @@ import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.CodeBlock;
-import polyglot.ast.Eval;
+import polyglot.ast.ConstructorCall;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureCall;
+import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Return;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
@@ -46,14 +49,21 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.ContainerType;
 import polyglot.types.Context;
+import polyglot.types.Def;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
-import polyglot.types.FunctionDef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MemberDef;
+import polyglot.types.MemberInstance;
 import polyglot.types.Name;
+import polyglot.types.ProcedureDef;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -76,11 +86,12 @@ import x10.X10CompilerOptions;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
+import x10.ast.InlinableCall;
 import x10.ast.ParExpr;
 import x10.ast.StmtExpr;
 import x10.ast.TypeParamNode;
-import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
+import x10.ast.X10ConstructorCall;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
 import x10.ast.X10Formal;
@@ -90,7 +101,6 @@ import x10.ast.X10SourceFile_c;
 import x10.ast.X10Special;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
-import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -105,9 +115,11 @@ import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
+import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import x10.types.checker.Converter;
@@ -173,7 +185,8 @@ public class Inliner extends ContextVisitor {
         INLINE_METHODS   = config.OPTIMIZE && config.INLINE_METHODS;
         INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
         INLINE_IMPLICIT  = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
-        implicitMax      = config.EXPERIMENTAL ? 1 : 0;
+ //     implicitMax      = config.EXPERIMENTAL ? 1 : 0;
+        implicitMax      = 0;
     }
 
     /**
@@ -270,6 +283,7 @@ public class Inliner extends ContextVisitor {
      *         node, if inlining should not be performed within it
      */
     public Node override(Node node) {
+        Position pos = node.position(); // DEBUG
         if (null == InlineType) { // don't inline anything
             throw new InternalCompilerError("Inliner invoked without begin()");
         }
@@ -284,7 +298,7 @@ public class Inliner extends ContextVisitor {
         if (node instanceof X10MethodDecl) {
             return null; // @NoInline annotation means something else
         }
-        if (node instanceof Call) {
+        if (node instanceof InlinableCall) {
             return null; // will handle @NoInline annotation seperately
         }
         if (node instanceof ClassDecl) { // Don't try to inline native classes
@@ -311,16 +325,16 @@ public class Inliner extends ContextVisitor {
         reasons.clear();
         inliningRequired = false;
         Node result = null;
-        if (n instanceof X10Call) {
+        if (n instanceof ClosureCall && INLINE_CLOSURES) {
+            result = inlineClosureCall((ClosureCall) n);
+        } else if (n instanceof InlinableCall) {
             if (INLINE_CONSTANTS) {
-                result = getCompileTimeConstant((X10Call) n);
+                result = getCompileTimeConstant((InlinableCall) n);
                 if (null != result) 
                     return result;
             }
             if (INLINE_METHODS && !hasNoInlineAnnotation(n)) 
-                result = wrappedInlineMethodCall((X10Call) n);
-        } else if (n instanceof ClosureCall && INLINE_CLOSURES) {
-            result = inlineClosureCall((ClosureCall) n);
+                result = wrappedInlineMethodCall((InlinableCall) n);
         } else if (n instanceof X10MethodDecl) {
             if (!((X10MethodDecl) n).methodDef().annotationsMatching(InlineOnlyType).isEmpty())
                 return null; // ASK: is this the right way to remove a method decl from the ast
@@ -361,11 +375,11 @@ public class Inliner extends ContextVisitor {
      * @param n
      * @return
      */
-    private Node getCompileTimeConstant(X10Call call) {
+    private Node getCompileTimeConstant(InlinableCall call) {
         x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
         x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
         try {
-            X10MethodDef def = call.methodInstance().x10Def();
+            X10Def def = (X10Def) getDef(call);
             List<Type> annotations = def.annotationsMatching(ConstantType);
             if (annotations.isEmpty()) return null;
             Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
@@ -426,28 +440,28 @@ public class Inliner extends ContextVisitor {
         return result;
     }
 
-    private Expr inlineMethodCall(X10Call call) {
+    private Expr inlineCall(InlinableCall call) {
         if (null == InlineType) {
             report("inlining disabled (no InlineType)", call);
             return null;
         }
-        X10MethodDecl decl = getInlineDecl(call);
+        ProcedureDecl decl = getInlineDecl(call);
         if (null == decl) return null;
-        String methodId = getMethodId(decl);
-        decl = (X10MethodDecl) instantiate(decl, call);
+        String signature = makeSignatureString(decl);
+        decl = (ProcedureDecl) instantiate(decl, call);
         if (null == decl) {
-            report("instantiation failure for " + methodId, call);
+            report("instantiation failure for " + signature, call);
             return null;
         }
         // TODO: handle "this" parameter like formals (cache actual in temp, assign to local (transformed this)
         LocalDecl thisArg = createThisArg(call);
-        LocalDecl thisForm = createThisFormal(call.methodInstance(), thisArg);
+        LocalDecl thisForm = createThisFormal(call, thisArg);
         decl = normalizeMethod(decl, thisForm); // Ensure that the last statement of the body is the only return in the method
         if (null == decl || null == decl.body()) {
             return null;
         }
         Expr result = rewriteInlinedBody( call.position(), 
-                                          decl.returnType().type(), 
+                                          decl instanceof MethodDecl ? ((MethodDecl) decl).returnType().type() : null, 
                                           decl.formals(), 
                                           decl.body(), 
                                           thisArg, 
@@ -458,8 +472,8 @@ public class Inliner extends ContextVisitor {
             return null;
         }
         result = (Expr) result.visit(new X10AlphaRenamer());
-        if (-1 == inlineInstances.search(methodId)) { // non recursive inlining of the inlined body
-            inlineInstances.push(methodId);
+        if (-1 == inlineInstances.search(signature)) { // non recursive inlining of the inlined body
+            inlineInstances.push(signature);
             result = (Expr) result.visit(this);
             inlineInstances.pop();
         } else {
@@ -476,9 +490,9 @@ public class Inliner extends ContextVisitor {
         return result;
     }
 
-    private Node wrappedInlineMethodCall(X10Call call) {
+    private Node wrappedInlineMethodCall(InlinableCall call) {
         beginSpeculativeCompile();
-        Node node = inlineMethodCall(call);
+        Node node = inlineCall(call);
         if (endSpeculativeCompileWithErrors()) {
             report("speculative compilation errors", call);
             return null;
@@ -547,15 +561,20 @@ public class Inliner extends ContextVisitor {
      * @param decl
      * @return
      */
-    private String getMethodId(X10MethodDecl decl) {
-        String methodId = getContainer(decl.methodDef()).fullName() + "." + decl.name() + "(";
+    private String makeSignatureString(ProcedureDecl decl) {
+        String id = "";
+        id += decl.memberDef().container().get().fullName();
+        id += ".";
+        id += decl.name();
+        id += "(";
         String c = "";
         for (Formal f : decl.formals()) {
-            methodId += c + f.type().nameString();
+            id += c + f.type().nameString();
             c = ",";
         }
-        methodId += "):" + decl.returnType().nameString();
-        return methodId;
+        id += ")";
+        if (decl instanceof MethodDecl) id += ":" +((MethodDecl) decl).returnType().nameString();
+        return id;
     }
 
     private class X10AlphaRenamer extends AlphaRenamer {
@@ -657,34 +676,34 @@ public class Inliner extends ContextVisitor {
      * @return the declaration of the method invoked by call, or null if the
      *         declaration cannot be found, or the call should not be inlined
      */
-    private X10MethodDecl getInlineDecl(X10Call call) {
+    private ProcedureDecl getInlineDecl(InlinableCall call) {
         debug("Should " + call + " be inlined?", call);
         if (annotationsPreventInlining(call)) {
             report("of annotation at call site", call);
             return null;
         }
         // get inline candidate
-        X10MethodDef candidate = call.methodInstance().x10Def();
+        MemberDef candidate = getDef(call);
         // require inlining if either the call of the candidate are so annotated
-        inliningRequired = annotationsRequireInlining(call, candidate);
+        inliningRequired = annotationsRequireInlining(call, (X10MemberDef) candidate);
         // unless required, skip candidates previously found to be uninlinable
         if (!inliningRequired && getInlinerCache().uninlineable(candidate)) {
             report("of previous decision for candidate: " +candidate, call);
             return null;
         }
         // unless required, don't inline if the candidate annotations prevent it
-        if (!inliningRequired && annotationsPreventInlining(candidate)) {
+        if (!inliningRequired && annotationsPreventInlining((X10MemberDef) candidate)) {
             report("of annotation on candidate: " + candidate, call);
             getInlinerCache().notInlinable(candidate);
             return null;
         }
         // see if the declaration for this candidate has already been cached
-        X10MethodDecl decl = getInlinerCache().getDecl(candidate);
+        ProcedureDecl decl = getInlinerCache().getDecl(candidate);
         if (null != decl) {
             return decl;
         }
         // get container and declaration for inline candidate
-        X10ClassDef container = getContainer(candidate);
+        ClassDef container = getContainer(candidate);
         if (null == container) {
             report("unable to find container for candidate: " +candidate, call);
             getInlinerCache().notInlinable(candidate);
@@ -701,7 +720,7 @@ public class Inliner extends ContextVisitor {
             getInlinerCache().notInlinable(candidate);
             return null;
         }
-        if (annotationsPreventInlining(container)) {
+        if (annotationsPreventInlining((X10ClassDef) container)) {
             report("of Native Class/Rep annotation of container: " +container, call);
             getInlinerCache().notInlinable(candidate);
             getInlinerCache().badJob(candidateJob);
@@ -752,23 +771,40 @@ public class Inliner extends ContextVisitor {
     }
 
     /**
-     * @param container
+     * @param call
      * @return
      */
-    private boolean annotationsPreventInlining(X10ClassDef container) {
-        if (!container.annotationsMatching(NativeRepType).isEmpty())
+    private MemberDef getDef(InlinableCall call) {
+        if (call instanceof Call) {
+            return ((Call) call).methodInstance().def();
+        } 
+        if (call instanceof ConstructorCall) {
+            return ((ConstructorCall) call).constructorInstance().def();
+        }
+        if (call instanceof ClosureCall) {
+            return ((ClosureCall) call).closureInstance().def();
+        }
+        return null;
+    }
+
+    /**
+     * @param def
+     * @return
+     */
+    private boolean annotationsPreventInlining(X10Def def) {
+        if (!def.annotationsMatching(NativeRepType).isEmpty())
             return true;
-        if (!container.annotationsMatching(NativeClassType).isEmpty())
+        if (!def.annotationsMatching(NativeClassType).isEmpty())
             return true;
         return false;
     }
 
     /**
-     * @param call
+     * @param node
      * @return
      */
-    private boolean annotationsPreventInlining(X10Call call) {
-        if (!((X10Ext) call.ext()).annotationMatching(NoInlineType).isEmpty())
+    private boolean annotationsPreventInlining(Node node) {
+        if (!((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty())
             return true;
         return false;
     }
@@ -822,7 +858,7 @@ public class Inliner extends ContextVisitor {
      * @param candidate
      * @return
      */
-    private boolean annotationsRequireInlining(X10Call call, X10MethodDef candidate) {
+    private boolean annotationsRequireInlining(InlinableCall call, X10MemberDef candidate) {
         if (!INLINE_METHODS) return false;
         if (!((X10Ext) call.ext()).annotationMatching(InlineType).isEmpty())
             return true;
@@ -832,17 +868,17 @@ public class Inliner extends ContextVisitor {
     }
 
     /**
-     * Get the definition of the X10 Class that implements a given method.
+     * Get the definition of the Class that implements a given method.
      * 
      * @param candidate the method definition whose container is desired
-     * @return the definition of the X10 Class containing md
+     * @return the definition of the Class containing md
      */
-    private X10ClassDef getContainer(X10MethodDef candidate) {
+    private ClassDef getContainer(MemberDef candidate) {
         Ref<? extends ContainerType> containerRef = candidate.container();
         ContainerType containerType = Types.get(containerRef);
-        Type containerBase = Types.baseType(containerType);
+        Type containerBase = Types.baseType(containerType); 
         assert (containerBase instanceof X10ClassType);
-        X10ClassDef container = ((X10ClassType) containerBase).x10Def();
+        ClassDef container = ((ClassType) containerBase).def();
         return container;
     }
 
@@ -853,7 +889,7 @@ public class Inliner extends ContextVisitor {
      * @param container the class containing the candidate
      * @return true, if the method obviously should not be inlined; false, otherwise
      */
-    private boolean isVirtualOrNative(X10MethodDef candidate, X10ClassDef container) {
+    private boolean isVirtualOrNative(MemberDef candidate, ClassDef container) {
         Flags mf = candidate.flags();
         Flags cf = container.flags();
         if (!mf.isFinal() && !mf.isPrivate() && !mf.isStatic() && !cf.isFinal() && !container.isStruct())
@@ -875,7 +911,7 @@ public class Inliner extends ContextVisitor {
      * @param container
      * @return
      */
-    private Job getJob(X10MethodDef candidate, X10ClassDef container) {
+    private Job getJob(Def candidate, ClassDef container) {
         Job job = container.job();
         try {
             /*
@@ -903,7 +939,7 @@ public class Inliner extends ContextVisitor {
                     }
                     // TODO reconstruct the AST for the job will all preliminary compiler passes
                     ast = job.ast();
-                    assert (ast instanceof X10SourceFile_c);
+                    assert (ast instanceof SourceFile);
                     if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
                         ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
                     if (null == ast) {
@@ -936,9 +972,9 @@ public class Inliner extends ContextVisitor {
      * @return the declaration for the indicated method, or 
      *         null if no declaration can be found or it has an empty body.
      */
-    private X10MethodDecl getDeclaration(final X10MethodDef candidate, final Node ast) {
+    private ProcedureDecl getDeclaration(final Def candidate, final Node ast) {
         final Position pos = candidate.position();
-        final X10MethodDecl[] decl = new X10MethodDecl[1];
+        final ProcedureDecl[] decl = new ProcedureDecl[1];
         ast.visit(new NodeVisitor() { // find the declaration of md
                     public Node override(Node n) {
                         if (null != decl[0])
@@ -947,8 +983,8 @@ public class Inliner extends ContextVisitor {
                             return n; // TypeNodes don't contain decls, short-circuit search
                         if (!pos.isCompilerGenerated()&& !contains(n.position(), pos))
                             return n; // definition of md isn't inside n, short-circuit search
-                        if (n instanceof X10MethodDecl && candidate == ((X10MethodDecl) n).methodDef()) {
-                            decl[0] = (X10MethodDecl) n;
+                        if (n instanceof ProcedureDecl && candidate == ((ProcedureDecl) n).procedureInstance()) {
+                            decl[0] = (ProcedureDecl) n;
                             return n; // we found the decl for the candidate, short-circuit search
                         }
                         return null; // look for the decl inside n
@@ -974,7 +1010,7 @@ public class Inliner extends ContextVisitor {
      * @param job
      * @return
      */
-    private int getCost(X10MethodDecl decl, Job job) {
+    private int getCost(ProcedureDecl decl, Job job) {
         int cost = ice.getCost(decl, job);
         return cost;
     }
@@ -1001,9 +1037,9 @@ public class Inliner extends ContextVisitor {
      * @param ths
      * @return
      */
-    private X10MethodDecl normalizeMethod(X10MethodDecl decl, LocalDecl thisFormal) {
+    private ProcedureDecl normalizeMethod(ProcedureDecl decl, LocalDecl thisFormal) {
         LocalDef thisDef = null == thisFormal ? null : thisFormal.localDef();
-        return (X10MethodDecl) decl.visit(new InliningRewriter(decl, thisDef, job(), typeSystem(), nodeFactory(), context()));
+        return (ProcedureDecl) decl.visit(new InliningRewriter(decl, thisDef, job(), typeSystem(), nodeFactory(), context()));
     }
 
     /**
@@ -1035,11 +1071,10 @@ public class Inliner extends ContextVisitor {
     public Expr createCast(Position pos, Expr expr, Type toType) {
         if (xts.typeDeepBaseEquals(expr.type(), toType, context()))
             return expr;
-        return xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, toType), expr,
-                Converter.ConversionType.UNCHECKED).type(toType);
+        return xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, toType), expr, Converter.ConversionType.UNCHECKED).type(toType);
     }
 
-    private LocalDecl createThisArg(X10Call c) {
+    private LocalDecl createThisArg(InlinableCall c) {
         if (!(c.target() instanceof Expr))
             return null;
         Expr target = (Expr) c.target();
@@ -1071,14 +1106,14 @@ public class Inliner extends ContextVisitor {
         return result;
     }
 
-    private LocalDecl createThisFormal(MethodInstance mi, LocalDecl init) {
-        if (mi.flags().isStatic())
+    private LocalDecl createThisFormal(InlinableCall call, LocalDecl init) {
+        if (call instanceof Call && ((Call) call).methodInstance().flags().isStatic()) 
             return null;
-        TypeParamSubst typeMap = makeTypeMap(mi);
-        Type thisType = typeMap.reinstantiate(mi.def().container().get());
+        ProcedureInstance<? extends ProcedureDef> pi = call instanceof Call ? ((Call) call).procedureInstance() : ((ConstructorCall) call).procedureInstance();
+        TypeParamSubst typeMap = makeTypeMap(pi);
+        Type thisType = typeMap.reinstantiate(((MemberDef) pi.def()).container().get());
         Expr expr = null == init ? null : createCast(init.position(), syn.createLocal(init.position(), init), thisType);
-        LocalDecl thisDecl = syn.createLocalDecl(mi.position(), Flags.FINAL, 
-                                                 Name.make("this"), expr);
+        LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.make("this"), expr);
         return thisDecl;
     }
 
@@ -1094,11 +1129,11 @@ public class Inliner extends ContextVisitor {
     private CodeBlock instantiate(final CodeBlock code, X10ProcedureCall call) {
         try {
             debug("Instantiate " + code, call);
-            TypeParamSubst typeMap = makeTypeMap((MethodInstance) call.procedureInstance());
+            TypeParamSubst typeMap = makeTypeMap(call.procedureInstance());
             InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
-            CodeBlock visitedDecl = (CodeBlock) code.visit(visitor);
-            return visitedDecl;
+            CodeBlock visitedCode = (CodeBlock) code.visit(visitor);
+            return visitedCode;
         } catch (Exception e) {
             String message = "Exception during instantiation of " +code+ " for " +call+ ": " +e;
             if (true) System.err.println("WARNING: " +message);
@@ -1214,6 +1249,10 @@ public class Inliner extends ContextVisitor {
         }
 
         @Override
+        protected X10ConstructorCall transform(X10ConstructorCall c, X10ConstructorCall old) {
+            return super.transform(c, old);
+        }
+        @Override
         protected Special transform(Special s, Special old) {
             if (s.kind().equals(Special.SUPER)) {
                 throw new UnsupportedOperationException("Not yet implemented, can't instantiate " + s);
@@ -1290,18 +1329,18 @@ public class Inliner extends ContextVisitor {
             DepParameterExpr g = d.guard();
             TypeNode ot = d.offerType();
             return visitor().typeSystem().methodDef( md.position(), 
-                                                                       md.container(), 
-                                                                       md.flags(), 
-                                                                       d.returnType().typeRef(), 
-                                                                       md.name(), 
-                                                                       md.typeParameters(), 
-                                                                       argTypes, 
-                                                                       md.thisDef(), 
-                                                                       formalNames, 
-                                                                       g == null ? null : g.valueConstraint(),
-                                                                       g == null ? null : g.typeConstraint(),
-                                                                       ot == null ? null : ot.typeRef(), 
-                                                                       null /* the body will never be used */ );
+                                                     md.container(), 
+                                                     md.flags(), 
+                                                     d.returnType().typeRef(), 
+                                                     md.name(), 
+                                                     md.typeParameters(), 
+                                                     argTypes, 
+                                                     md.thisDef(), 
+                                                     formalNames, 
+                                                     g == null ? null : g.valueConstraint(),
+                                                     g == null ? null : g.typeConstraint(),
+                                                     ot == null ? null : ot.typeRef(), 
+                                                     null /* the body will never be used */ );
         }
     }
 
@@ -1309,15 +1348,18 @@ public class Inliner extends ContextVisitor {
      * @param decl
      * @return
      */
-    private TypeParamSubst makeTypeMap(MethodInstance method) {
+    private TypeParamSubst makeTypeMap(ProcedureInstance<? extends ProcedureDef> instance) {
         List<Type> typeArgs = new ArrayList<Type>();
         List<ParameterType> typeParms = new ArrayList<ParameterType>();
-        typeArgs.addAll(method.typeParameters());
-        typeParms.addAll(method.x10Def().typeParameters());
-        List<Type> cTypeArgs = ((X10ClassType) method.container()).typeArguments();
-        if (cTypeArgs != null) {
-            typeArgs.addAll(cTypeArgs);
-            typeParms.addAll(((X10ClassType) method.container()).x10Def().typeParameters());
+        typeArgs.addAll(instance.typeParameters());
+        typeParms.addAll(instance.def().typeParameters());
+        if (instance instanceof MemberInstance<?>) {
+            X10ClassType container = (X10ClassType) ((MemberInstance<?>) instance).container();
+            List<Type> cTypeArgs = container.typeArguments();
+            if (cTypeArgs != null) {
+                typeArgs.addAll(cTypeArgs);
+                typeParms.addAll(container.x10Def().typeParameters());
+            }
         }
         return new TypeParamSubst(xts, typeArgs, typeParms);
     }
@@ -1342,8 +1384,10 @@ public class Inliner extends ContextVisitor {
             }
         }
         Expr e = ret.expr();
-        if (null != e)
+        if (null != e) {
+            assert null != retType; // null retType => constructor call body (which shouldn't return an expr)
             e = createCast(e.position(), e, retType);
+        }
         StmtExpr result = syn.createStmtExpr(pos, statements, e);
 
         // create declarations to prepend to result
@@ -1399,7 +1443,7 @@ public class Inliner extends ContextVisitor {
      * @author igor TODO: factor out into its own class
      */
     public static class InliningRewriter extends ContextVisitor {
-        private final FunctionDef def;
+        private final ProcedureDef def;
         private final LocalDef ths;
         private final LocalDef ret;
         private final Name label;
@@ -1412,11 +1456,15 @@ public class Inliner extends ContextVisitor {
             this(closure.closureDef(), null, closure.body().statements(), j, ts, nf, ctx);
         }
 
-        public InliningRewriter(X10MethodDecl decl, LocalDef ths, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
-            this(decl.methodDef(), ths, decl.body().statements(), j, ts, nf, ctx);
+        public InliningRewriter(ProcedureDecl decl, LocalDef ths, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
+            this(decl.procedureInstance(), ths, decl.body().statements(), j, ts, nf, ctx);
         }
 
-        private InliningRewriter(FunctionDef def, LocalDef ths, List<Stmt> body, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
+        public InliningRewriter(ConstructorDecl decl, LocalDef ths, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
+            this(decl.constructorDef(), ths, decl.body().statements(), j, ts, nf, ctx);
+        }
+
+        private InliningRewriter(ProcedureDef def, LocalDef ths, List<Stmt> body, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
         	super(j, ts, nf);
             this.context = ctx;
             this.def = def;
@@ -1424,7 +1472,10 @@ public class Inliner extends ContextVisitor {
       //    this.returnCount = 0;
       //    this.throwCount = 0;
             this.syn = new AltSynthesizer(ts, nf);
-            if (body.size() == 1 && body.get(0) instanceof Return) {
+            if (def instanceof ConstructorDef) {
+                this.ret = null;
+                this.label = Name.makeFresh("__ret");
+            } else if (body.size() == 1 && body.get(0) instanceof Return) {
                 // Closure already has the right properties; make return rewriting a no-op
                 this.ret = null;
                 this.label = null;
@@ -1458,6 +1509,8 @@ public class Inliner extends ContextVisitor {
             }
             if (n instanceof X10MethodDecl)
                 return visitMethodDecl((X10MethodDecl) n);
+            if (n instanceof X10ConstructorDecl) 
+                return visitConstructorDecl((X10ConstructorDecl) n);
             if (n instanceof Closure)
                 return visitClosure((Closure) n);
             if (n instanceof Return)
@@ -1467,7 +1520,9 @@ public class Inliner extends ContextVisitor {
             if (n instanceof Field)
                 return visitField((Field) n);
             if (n instanceof Call)
-                return visitCall((X10Call) n);
+                return visitCall((Call) n);
+            if (n instanceof X10ConstructorCall)
+                return visitX10ConstructorCall((X10ConstructorCall) n);
             if (n instanceof Special)
                 return visitSpecial((Special) n);
             return n;
@@ -1528,6 +1583,14 @@ public class Inliner extends ContextVisitor {
             if (n.methodDef() != def)
                 return n;
             return (X10MethodDecl) n.body(rewriteBody(n.position(), n.body()));
+        }
+        
+        // def this(`x:`T){S} -> def this(`x:`T)={L:{ S[return; / break L;] }; return;}
+        private X10ConstructorDecl visitConstructorDecl(X10ConstructorDecl n) {
+            // First check that we are within the right method
+            if (n.constructorDef() != def)
+                return n;
+            return (X10ConstructorDecl) n.body(rewriteBody(n.position(), n.body()));
         }
 
         // (`x:`T):R=>S -> (`x:`T)=>{r:R; L:{ S[return v/r=v; break L;]; }; return r;}
@@ -1599,18 +1662,28 @@ public class Inliner extends ContextVisitor {
         }
 
         // m(...) -> ths.m(...)
-        private X10Call visitCall(X10Call n) {
+        private Call visitCall(Call n) {
             // First check that we are within the right code body
             if (!context.currentCode().equals(def)) return n;
             if (!n.isTargetImplicit()) return n;
             MethodInstance mi = n.methodInstance();
             assert ((ths == null) == (mi.flags().isStatic()));
-            NodeFactory xnf = nf;
             Position pos = n.position();
             if (mi.flags().isStatic()) {
-                return n.target(xnf.CanonicalTypeNode(pos, mi.container())).targetImplicit(false);
+                return n.target(nf.CanonicalTypeNode(pos, mi.container())).targetImplicit(false);
             }
             return n.target(getThis(pos)).targetImplicit(false);
+        }
+
+        /**
+         * @param n
+         * @return
+         */
+        private Node visitX10ConstructorCall(X10ConstructorCall n) {
+            // First check that we are within the right code body
+            if (!context.currentCode().equals(def)) return n;
+            if (null != n.target()) return n;
+            return n.target(getThis(n.position()));
         }
 
         // this -> ths
@@ -1714,17 +1787,17 @@ public class Inliner extends ContextVisitor {
     }
 
     private class InlinerCache {
-        private final Set<X10MethodDef> dontInline              = CollectionFactory.newHashSet();
-        private final Map<X10MethodDef, X10MethodDecl> def2decl = CollectionFactory.newHashMap();
-        private final Set<Job> badJobs                          = CollectionFactory.newHashSet();
-        private final Set<String> badSources                    = CollectionFactory.newHashSet();
-        private final Map<String, Node> astMap                  = CollectionFactory.newHashMap();
+        private final Set<Def> dontInline              = CollectionFactory.newHashSet();
+        private final Map<Def, ProcedureDecl> def2decl = CollectionFactory.newHashMap();
+        private final Set<Job> badJobs                 = CollectionFactory.newHashSet();
+        private final Set<String> badSources           = CollectionFactory.newHashSet();
+        private final Map<String, Node> astMap         = CollectionFactory.newHashMap();
 
-        boolean uninlineable(X10MethodDef candidate) {
+        boolean uninlineable(Def candidate) {
             return dontInline.contains(candidate);
         }
 
-        void notInlinable(X10MethodDef candidate) {
+        void notInlinable(Def candidate) {
             dontInline.add(candidate);
         }
 
@@ -1740,11 +1813,11 @@ public class Inliner extends ContextVisitor {
             badSources.add(job.source().toString().intern());
         }
 
-        X10MethodDecl getDecl(X10MethodDef candidate) {
+        ProcedureDecl getDecl(Def candidate) {
             return def2decl.get(candidate);
         }
 
-        void putDecl(X10MethodDef candidate, X10MethodDecl decl) {
+        void putDecl(Def candidate, ProcedureDecl decl) {
             def2decl.put(candidate, decl);
         }
 

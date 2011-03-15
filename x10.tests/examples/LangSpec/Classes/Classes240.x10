@@ -55,7 +55,7 @@ public class Classes240 extends x10Test {
       return (ai == 1) ? xpow : "" + Math.abs(ai) + xpow;
    }
 
-  public static operator (c : Int) : Poly = new Poly([c]);
+  public static operator (c : Int) : Poly = new Poly([c as Int]);
 
   public static operator (p:Poly) + (q:Poly) = new Poly(
       new Array[Int](

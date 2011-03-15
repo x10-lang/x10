@@ -48,7 +48,7 @@ public class ClockTest12 extends x10Test {
 			System.sleep(5000);
 			chk(phase == 1); // cannot go beyond next phase
 		}
-		next;
+		Clock.advanceAll();
 		System.sleep(1000);
 		atomic tmp = phase;
 		x10.io.Console.OUT.println(""+id+" observed current phase = "+tmp);
@@ -62,8 +62,8 @@ public class ClockTest12 extends x10Test {
 			System.sleep(5000);
 			chk(phase == 2); // cannot go beyond next phase
 		}
-		next;
-		next;
+		Clock.advanceAll();
+		Clock.advanceAll();
 	}
 
 	def taskB(val c: Clock): void = {
@@ -71,17 +71,17 @@ public class ClockTest12 extends x10Test {
 		atomic tmp = phase;
 		x10.io.Console.OUT.println("now in phase "+tmp);
 		c.resume();
-		next;
+		Clock.advanceAll();
 		atomic phase++;
 		atomic tmp = phase;
 		x10.io.Console.OUT.println("now in phase "+tmp);
 		c.resume();
-		next;
+		Clock.advanceAll();
 		atomic phase++;
 		atomic tmp = phase;
 		x10.io.Console.OUT.println("now in phase "+tmp);
 		c.resume();
-		next;
+		Clock.advanceAll();
 	}
 
 	public static def main(var args: Array[String](1)): void = {

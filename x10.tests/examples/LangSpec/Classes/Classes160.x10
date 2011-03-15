@@ -34,7 +34,7 @@ public class Classes160 extends x10Test {
    public def degree() = coeff.size-1;
    public def a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
 
-   public static operator (c : Int) as Poly = new Poly([c]);
+   public static operator (c : Int) as Poly = new Poly([c as Int]);
 
    public operator this(x:Int) {
      val d = this.degree();

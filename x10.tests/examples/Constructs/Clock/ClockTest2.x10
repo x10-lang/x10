@@ -27,7 +27,7 @@ public class ClockTest2 extends x10Test {
 			    async   
 					atomic 
 						value++;
-			  next;
+			  Clock.advanceAll();
 			  var temp: int;
 			  atomic { temp = value; }
 			  if (temp != i+1) return false;

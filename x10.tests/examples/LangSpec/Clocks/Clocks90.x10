@@ -33,12 +33,12 @@ def example() {
 clocked finish {
   clocked async {
      phase("A", 1);
-     next;
+     Clock.advanceAll();
      phase("A", 2);
   }
   clocked async {
      phase("B", 1);
-     next;
+     Clock.advanceAll();
      phase("B", 2);
   }
 }

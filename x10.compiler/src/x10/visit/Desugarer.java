@@ -565,7 +565,7 @@ public class Desugarer extends ContextVisitor {
         return desugarSettableAssign(n, this);
     }
 
-    // a(i)=v -> a.set(v, i) or a(i)op=v -> ((x:A,y:I,z:T)=>x.set(x.apply(y) op z,y))(a,i,v)
+    // a(i)=v -> a.operator()=(i,v) or a(i)op=v -> ((x:A,y:I,z:T)=>x.operator()=(y,x.operator()(y) op z))(a,i,v)
     public static Expr desugarSettableAssign(SettableAssign n, ContextVisitor v) {
         NodeFactory nf = v.nodeFactory();
         TypeSystem ts = v.typeSystem();
@@ -574,8 +574,7 @@ public class Desugarer extends ContextVisitor {
         List<Expr> args = new ArrayList<Expr>(n.index());
         Expr a = n.array();
         if (n.operator() == Assign.ASSIGN) {
-            // FIXME: this changes the order of evaluation, (a,i,v) -> (a,v,i)!
-            args.add(0, n.right());
+            args.add(n.right());
             return desugarCall(nf.Call(pos, a, nf.Id(pos, mi.name()),
                     args).methodInstance(mi).type(mi.returnType()), v);
         }
@@ -604,7 +603,7 @@ public class Desugarer extends ContextVisitor {
             i++;
         }
         Name zn = Name.make("z");
-        Type T = mi.formalTypes().get(0);
+        Type T = mi.formalTypes().get(mi.formalTypes().size()-1);
         Type vType = n.right().type();
         assert (ts.isSubtype(ami.returnType(), T, v.context()));
         assert (ts.isSubtype(vType, T, v.context()));
@@ -624,7 +623,7 @@ public class Desugarer extends ContextVisitor {
         LocalDecl r = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
                 nf.CanonicalTypeNode(pos, rType), nf.Id(pos, rn), val).localDef(rDef);
         List<Expr> args1 = new ArrayList<Expr>(idx1);
-        args1.add(0, nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(rType));
+        args1.add(nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(rType));
         Expr res = desugarCall(nf.Call(pos,
                 nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(aType),
                 nf.Id(pos, mi.name()), args1).methodInstance(mi).type(mi.returnType()), v);

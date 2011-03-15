@@ -14,10 +14,6 @@ public abstract class Frame {
     @Native("c++", "static_cast<#U >(#x)")
     public native static def cast[T,U](x:T):U;
 
-    @Native("java", "((#4) #7)")
-    @Native("c++", "(#x)")
-    public native static def upcast[T,U](x:T):U;
-
     @Native("java", "null")
     @Native("c++", "NULL")
     public native static def NULL[T]():T;

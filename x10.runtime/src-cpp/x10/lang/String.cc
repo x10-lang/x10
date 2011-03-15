@@ -180,13 +180,13 @@ static bool isws (char x) { return x <= 0x20; }
 x10aux::ref<String> String::trim() {
     const char *start = FMGL(content);
     x10_int l = FMGL(content_length);
+    bool didSomething = false;
     if (l==0) { return this; } // string is empty
-    while (isws(start[0]) && l>0) { start++; l--; }
-    while (isws(start[l-1]) && l>0) { l--; }
-    if (l==0) { return String::Lit(""); } // string was all whitespace
-    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
-    this_->_constructor(start, l);
-    return this_;
+    while (isws(start[0]) && l>0) { start++; l--; didSomething = true; }
+    while (isws(start[l-1]) && l>0) { l--; didSomething = true; }
+    if (!didSomething) { return this; }
+    char *trimmed = string_utils::strndup(start, l);
+    return _make(trimmed, true);
 }
 
 static const char *strnrstrn(const char *haystack, size_t haystack_sz,
@@ -261,7 +261,7 @@ static ref<x10::array::Array<ref<String> > > split_all_chars(String* str) {
     size_t sz = (size_t)str->length();
     ref<x10::array::Array<ref<String> > > array = x10::array::Array<ref<String> >::_make(sz);
     for (size_t i = 0; i < sz; ++i) {
-        array->__set(str->substring(i, i+1), i);
+        array->__set(i, str->substring(i, i+1));
     }
     return array;
 }
@@ -281,10 +281,10 @@ ref<x10::array::Array<ref<String> > > String::split(ref<String> pat) {
     int c = 0;
     int o = 0; // now fill in the array
     while ((i = indexOf(pat, o)) != -1) {
-        array->__set(substring(o, i), c++);
+        array->__set(c++, substring(o, i));
         o = i+l;
     }
-    array->__set(substring(o), c++);
+    array->__set(c++, substring(o));
     assert (c == sz);
     return array;
 }
@@ -299,7 +299,7 @@ ref<x10::array::Array<x10_char> > String::chars() {
     x10_int sz = length();
     ref<x10::array::Array<x10_char> > array = x10::array::Array<x10_char>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        array->__set((x10_char) FMGL(content)[i], i);
+        array->__set(i, (x10_char) FMGL(content)[i]);
     return array;
 }
 
@@ -307,7 +307,7 @@ ref<x10::array::Array<x10_byte> > String::bytes() {
     x10_int sz = length();
     ref<x10::array::Array<x10_byte> > array = x10::array::Array<x10_byte>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        array->__set(FMGL(content)[i], i); 
+        array->__set(i, FMGL(content)[i]); 
     return array;
 }
 

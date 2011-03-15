@@ -167,7 +167,7 @@ public abstract class Unary_c extends Expr_c implements Unary
 	    op == PRE_INC || op == PRE_DEC) {
             return false;
         }
-	return expr.isConstant();
+	return !expr.type().isUnsignedNumeric() && expr.isConstant();
     }
 
     public Object constantValue() {

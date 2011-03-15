@@ -84,7 +84,7 @@ namespace x10 {
 
             GPUSAFE x10::util::IndexedMemoryChunk<T> indexedMemoryChunk();
 
-            GPUSAFE T __set(T v, x10_int index) { 
+            GPUSAFE T __set(x10_int index, T v) { 
                 return (*this)[index] = v; 
             } 
 

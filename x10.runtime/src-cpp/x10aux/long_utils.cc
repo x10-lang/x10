@@ -15,6 +15,8 @@
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/String.h>
+#include <x10/lang/NumberFormatException.h>
+#include <errno.h>
 
 using namespace x10::lang;
 using namespace std;
@@ -42,15 +44,28 @@ const ref<String> x10aux::long_utils::toString(x10_long value) {
     return to_string(value);
 }
 
-x10_long x10aux::long_utils::parseLong(const ref<String>& s, x10_int radix) {
-    (void) s;
-    UNIMPLEMENTED("parseLong");
-    return radix; /* Bogus, but use radix to avoid warning about unused parameter */
+x10_long x10aux::long_utils::parseLong(ref<String> s, x10_int radix) {
+    const char *start = nullCheck(s)->c_str();
+    char *end;
+    errno = 0;
+    x10_long ans = strtoll(start, &end, radix);
+    if (errno == ERANGE || (errno != 0 && ans == 0) ||
+        ((end-start) != s->length())) {
+        x10aux::throwException(x10::lang::NumberFormatException::_make(s));
+    }
+    return ans;
 }
 
-x10_long x10aux::long_utils::parseLong(const ref<String>& s) {
-    // FIXME: NumberFormatException
-    return atoll(nullCheck(s)->c_str());
+x10_ulong x10aux::long_utils::parseULong(ref<String> s, x10_int radix) {
+    const char *start = nullCheck(s)->c_str();
+    char *end;
+    errno = 0;
+    x10_ulong ans = strtoull(start, &end, radix);
+    if (errno == ERANGE || (errno != 0 && ans == 0) ||
+        ((end-start) != s->length())) {
+        x10aux::throwException(x10::lang::NumberFormatException::_make(s));
+    }
+    return ans;
 }
 
 x10_long x10aux::long_utils::highestOneBit(x10_long x) {

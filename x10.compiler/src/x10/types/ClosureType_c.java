@@ -69,7 +69,6 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
         try {
         return (MethodInstance) methods().get(0);
         } catch (Exception z) {
-            System.out.println("check.");
             return null;
         }
     }

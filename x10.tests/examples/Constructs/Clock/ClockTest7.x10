@@ -53,16 +53,16 @@ public class ClockTest7 extends x10Test {
 		finish for ([i] in 0..(N-1)) async {
 			atomic value++;
 			x10.io.Console.OUT.println("Activity "+i+" phase 0");
-			next;
+			Clock.advanceAll();
 			atomic chk(value == N);
 			x10.io.Console.OUT.println("Activity "+i+" phase 1");
-			next;
+			Clock.advanceAll();
 			atomic value++;
 			x10.io.Console.OUT.println("Activity "+i+" phase 2");
-			c.next();
+			c.advance();
 		}
 
-		next; next; next;
+		Clock.advanceAll(); Clock.advanceAll(); Clock.advanceAll();
 
 		atomic chk(value == 2*N);
 

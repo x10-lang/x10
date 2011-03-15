@@ -171,7 +171,7 @@ public class Tuple_c extends Expr_c implements Tuple {
             type = null;
 
             for (Expr e : elements) {
-                Type eType = Types.baseType(e.type());
+                Type eType = e.type(); // Types.baseType(e.type());
                 if (type == null) {
                     type = eType;
                 }

@@ -200,22 +200,9 @@ import x10.util.NoSuchElementException;
     @PerProcess public static STATIC_THREADS = x10_static_threads();
 
     //Work-Stealing Runtime Related Interface
-
-    /*
-     * Return the WS worker binded to current Thread(Worker).
-     * Note, because WS worker could be C++ worker or Java worker. It will only return as Object
-     */
-    public static def wsWorker():Object {
-        return worker().wsWorker;
-    }
     
-    public static def wsBindWorker(w:Object, i:Int):void {
-        if(worker().wsWorker != null && !(here.id == 0 && i == 0)){
-            println(here+"[WSRT_ERR]N:1 Thread Binding Request from WS Worker");
-        }
-        else{
-            worker().wsWorker = w;            
-        }
+    public static def wsFIFO():Deque {
+        return worker().wsfifo;
     }
     
     public static def wsProcessEvents():void {
@@ -338,8 +325,8 @@ import x10.util.NoSuchElementException;
         //Worker Id for CollectingFinish
         val workerId:Int;
 
-        //1:1 mapping WorkStealing Worker and X10 Worker
-        var wsWorker:Object = null;
+        //Used for 1:1 mapping between WorkStealing Worker and X10 Worker (Temp Soltuion)
+        val wsfifo = new Deque();
 
         def this(workerId:Int) {
             super("thread-" + workerId);
@@ -875,22 +862,6 @@ import x10.util.NoSuchElementException;
         atomicMonitor.await();
     }
 
-    // clocks
-
-    /**
-     * Next statement = next on all clocks in parallel.
-     */
-    @Native("cuda", "__syncthreads()")
-    public static def next():void {
-        ensureNotInAtomic();
-        activity().clockPhases().next();
-    }
-
-    /**
-     * Resume statement = resume on all clocks in parallel.
-     */
-    public static def resume():void = activity().clockPhases().resume();
-
     // finish
 
     /**
@@ -952,7 +923,7 @@ import x10.util.NoSuchElementException;
     public static def makeOffer[T](t:T) {
         val state = activity().finishState();
 //      Console.OUT.println("Place(" + here.id + ") Runtime.makeOffer: received " + t);
-        (state as FinishState.CollectingFinish[T]).accept(t,workerId());
+        (state as FinishState.CollectingFinish[T]).accept(t,workerId()); //Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
     public static def stopCollectingFinish[T](f:FinishState):T {

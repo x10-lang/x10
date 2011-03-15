@@ -23,6 +23,7 @@ import x10.compiler.TempNoInline_3;
  * <code>(Int)=>int</code>. The coordinates may also be accessed as a
  * Rail[int]. Point arithmetic is supported.
  */
+
 public final class Point(rank:Int) implements (Int) => Int, 
                                               Ordered[Point(rank)], 
                                               Comparable[Point(rank)] {
@@ -112,10 +113,10 @@ public final class Point(rank:Int) implements (Int) => Int,
     /**
      * Constructs a Point from a Array[int](1)
      */
-    public static def make(r:Array[int](1)):Point(r.size) {
+    public static def make[T](r:Array[T](1)){T<: Int}:Point(r.size) {
         switch(r.size) {
-            case 1: return new Point(r(0)) as Point(r.size);
-	    case 2: return new Point(r(0), r(1)) as Point(r.size);
+            case 1: return new Point(r(0)) as Point(r.size);//{self.rank==r.size};
+            case 2: return new Point(r(0), r(1)) as Point(r.size);
             case 3: return new Point(r(0), r(1), r(2)) as Point(r.size);
             case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size);
             default: return new Point(new Array[int](r.size, (i:int)=>r(i))) as Point(r.size); // TODO: cast should not be needed on this branch!
@@ -128,7 +129,7 @@ public final class Point(rank:Int) implements (Int) => Int,
     public static def make(rank:Int, init:(i:Int)=>int):Point(rank) {
         switch(rank) {
             case 1: return new Point(init(0)) as Point(rank);
-	    case 2: return new Point(init(0), init(1)) as Point(rank);
+	        case 2: return new Point(init(0), init(1)) as Point(rank);
             case 3: return new Point(init(0), init(1), init(2)) as Point(rank);
             case 4: return new Point(init(0), init(1), init(2), init(3)) as Point(rank);
             default: return new Point(new Array[int](rank, init)) as Point(rank); // TODO: cast should not be needed on this branch!
@@ -150,7 +151,7 @@ public final class Point(rank:Int) implements (Int) => Int,
     /** A <code>Array</code> <code>r</code> of length <code>k</code> can be converted to a point <code>p</code>
 	of the same rank with <code>p(i)=r(i)</code>.
      */
-    public static operator (a:Array[int](1)):Point(a.size) = make(a);
+    public static operator[T] (a:Array[T](1)){T <: Int}:Point(a.size) = make(a);
 
 
     /**  The point <code>+p</code> is the same as <code>p</code>.

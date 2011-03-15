@@ -240,7 +240,7 @@ public class CUDA3DFD {
 
                             in_idx  += stride;
                             out_idx += stride;
-                            next;
+                            Clock.advanceAll();
 
                             /////////////////////////////////////////
                             // update the data slice in smem
@@ -259,7 +259,7 @@ public class CUDA3DFD {
 
                             // update the slice in smem
                             s_data((ty)*S_DATA_STRIDE + tx) = current;
-                            next;
+                            Clock.advanceAll();
 
                             /////////////////////////////////////////
                             // compute the output value

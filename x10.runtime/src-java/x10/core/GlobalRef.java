@@ -210,14 +210,14 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
         GlobalRef<?> otherGref = (GlobalRef<?>) other;
 
-        return this._struct_equals(otherGref);
+        return this._struct_equals$O(otherGref);
     }
 
     final public boolean equals(x10.core.GlobalRef<T> other) {
         return this._struct_equals(other);
     }
 
-    final public boolean _struct_equals(java.lang.Object other) {
+    final public boolean _struct_equals$O(java.lang.Object other) {
         if (!x10.core.GlobalRef.$RTT.instanceof$(other, T)) {
             return false;
         }

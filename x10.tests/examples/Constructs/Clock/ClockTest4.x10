@@ -37,13 +37,13 @@ public class ClockTest4 extends x10Test {
 
 	def foreachBody(i: int, c: Clock): void = {
 		async clocked(c) finish async { async { atomic value += i; } }
-		next;
+		Clock.advanceAll();
 		var temp: int;
 		atomic { temp = value; }
 		chk(temp == N*(N-1)/2);
-		next;
+		Clock.advanceAll();
 		async clocked(c) finish async { async { atomic value -= i; } }
-		next;
+		Clock.advanceAll();
 	}
 
 	public static def main(Array[String](1)) {

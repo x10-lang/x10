@@ -1570,6 +1570,20 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         } catch (SemanticException e) {
             Errors.issue(tc.job(), e, this);
         }
+        if (superClass != null) {
+            try {
+                Types.checkMissingParameters(superClass);
+            } catch (SemanticException e) {
+                Errors.issue(tc.job(), e, this);
+            }
+        }
+        for (TypeNode itn : interfaces) {
+            try {
+                Types.checkMissingParameters(itn);
+            } catch (SemanticException e) {
+                Errors.issue(tc.job(), e, this);
+            }
+        }
 
         return n;
     }

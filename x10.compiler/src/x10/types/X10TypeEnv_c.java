@@ -730,7 +730,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     		if (isStruct2) {
     			// t1 must be a struct, and the bases must be the same.
-    			if (! (isStruct1 && ts.typeEquals(Types.baseType(t1), Types.baseType(t2),
+    			// No -- it could be a type parameter.
+    			if (isStruct1 && ! (ts.typeEquals(Types.baseType(t1), Types.baseType(t2),
     					xcontext)))
     				return false;
 
@@ -836,8 +837,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		}
     		t2 = Types.instantiateSelf(x, t2);
     		c2 = Types.xclause(t2);
-    		if (c2 != null && c2.valid())
+    		if (c2 != null && c2.valid()) {
     			c2 = null;
+    			
+    		}
     		if (c1 != null)
     			c1 = c1.copy().instantiateSelf(x);
 

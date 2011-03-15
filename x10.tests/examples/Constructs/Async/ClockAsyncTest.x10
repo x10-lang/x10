@@ -30,7 +30,7 @@ public class ClockAsyncTest extends x10Test {
 	    val clocks = new Array[Clock](0..5, (Point)=>Clock.make());
 	    finish {
 	    	async clocked (clocks(0)){
-	    		next;
+	    		Clock.advanceAll();
 	        }
 	    	clocks(0).drop();
 	    }

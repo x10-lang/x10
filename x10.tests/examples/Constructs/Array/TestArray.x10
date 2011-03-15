@@ -113,8 +113,8 @@ abstract public class TestArray extends x10Test {
                     }
                     (o as Grid).pr(rank-1);
                 } else {
-                    val d = (o as Box[double]).value;
-                    out.print("" + (d as int));
+                    //val d = (new Box[double](o)).value;
+                    out.print("" + o);
                 }
 
                 if (rank==1)
