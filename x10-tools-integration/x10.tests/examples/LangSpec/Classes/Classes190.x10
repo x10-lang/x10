@@ -38,8 +38,8 @@ public class Classes190 extends x10Test {
          Math.max(this.coeff.size, p.coeff.size),
          (i:Int) => this.a(i) + p.a(i)
       ));
-    public operator (n : Int) + this = new Poly([n]) + this;
-   public operator this + (n : Int) = new Poly([n]) + this;
+    public operator (n : Int) + this = new Poly([n as Int]) + this;
+   public operator this + (n : Int) = new Poly([n as Int]) + this;
 
    def makeSureItWorks() {
       val x = new Poly([0,1]);

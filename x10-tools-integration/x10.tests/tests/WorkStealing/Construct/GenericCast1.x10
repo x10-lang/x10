@@ -38,7 +38,7 @@ public class GenericCast1 {
 		var passed:boolean = true;
 	
         var a:Object = new A();
-        var i:I[int] = a as I[int];
+        var i:I[int] = a as I[int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         val value = i.m(2);
         
 		passed &= (value == 2);

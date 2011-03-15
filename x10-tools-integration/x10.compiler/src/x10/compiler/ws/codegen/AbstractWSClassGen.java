@@ -1070,7 +1070,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * @throws SemanticException
      */
     Expr genUpcastCall(Type type1, Type type2, Expr expr)throws SemanticException{
-        return genCastCall("upcast", type1, type2, expr);
+        return expr;
     }
     
     /**

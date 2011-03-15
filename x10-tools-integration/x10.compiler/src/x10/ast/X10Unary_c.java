@@ -157,11 +157,11 @@ public class X10Unary_c extends Unary_c {
                         tArgs.add(tn.type());
                     }
                     List<Type> actualTypes = new ArrayList<Type>();
-                    // value goes before args
-                    actualTypes.add(t);
                     for (Expr a : args) {
                         actualTypes.add(a.type());
                     }
+                    // value goes after args
+                    actualTypes.add(t);
                     MethodInstance mi = Checker.findAppropriateMethod(tc, target.type(), SettableAssign.SET, tArgs, actualTypes);
                     Warnings.checkErrorAndGuard(tc, mi, this);
 
@@ -173,7 +173,7 @@ public class X10Unary_c extends Unary_c {
                                     new Errors.NoMethodFoundInType(SettableAssign.SET, target.type(), position()));
                     }
                     t = mi.returnType();
-                    et = fTypes.get(0);
+                    et = fTypes.get(fTypes.size()-1);
                 }
             }
 

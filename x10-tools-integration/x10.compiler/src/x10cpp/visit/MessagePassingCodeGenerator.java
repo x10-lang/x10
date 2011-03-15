@@ -1077,7 +1077,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// (h,cc) pairing for non-generic classes.
 
 		// TODO: sort by namespace and combine things in the same namespace
-		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class, Tuple_c.class, Allocation_c.class);
+		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class, Tuple_c.class, Allocation_c.class, X10Call_c.class);
 		n.visit(xTypes);
 		ArrayList<ClassType> types = new ArrayList<ClassType>();
 		Set<ClassType> dupes = CollectionFactory.newHashSet();
@@ -1103,7 +1103,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            extractAllClassTypes(((Tuple_c) tn).type(), types, dupes);
 		        } else if (tn instanceof Allocation_c) {
                     extractAllClassTypes(((Allocation_c) tn).type(), types, dupes);
-		            
+		        } else if (tn instanceof X10Call_c) {
+                    extractAllClassTypes(((X10Call_c) tn).methodInstance().container(), types, dupes);
 		        }
 		    }
         }
@@ -4855,6 +4856,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		int count = 0;
 		for (Expr e : c.arguments()) {
 		    sw.write(tmp+"->"+Emitter.mangled_method_name(SettableAssign.SET.toString())+"(");
+		    sw.writeln((count++)+", ");
 		    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
 		    if (rhsNeedsCast) {
 		        // Cast is needed to ensure conversion/autoboxing.
@@ -4864,7 +4866,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    c.printSubExpr(e, false, sw, tr);
 		    if (rhsNeedsCast)
 		        sw.write(")");
-		    sw.writeln(", "+(count++)+");");
+		    sw.writeln(");");
 		}
 		sw.write(tmp);
 		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();

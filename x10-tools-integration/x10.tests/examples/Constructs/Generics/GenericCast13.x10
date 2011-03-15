@@ -41,13 +41,13 @@ public class GenericCast13 extends GenericTest {
         var exceptions:int = 0;
 
         try {
-            var i:I[String] = a as I[String];
+            var i:I[String] = a as I[String]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         } catch (ClassCastException) {
             exceptions++;
         }
 
         try {
-            var j:J[int] = a as J[int];
+            var j:J[int] = a as J[int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         } catch (ClassCastException) {
             exceptions++;
         }

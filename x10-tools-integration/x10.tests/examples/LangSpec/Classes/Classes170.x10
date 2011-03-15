@@ -35,7 +35,7 @@ public class Classes170 extends x10Test {
    public def degree() = coeff.size-1;
    public  def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
 
-   public static operator (c : Int) as UglyPoly = new UglyPoly([c]);
+   public static operator (c : Int) as UglyPoly = new UglyPoly([c as Int]);
 
    public def apply(x:Int) {
      val d = this.degree();

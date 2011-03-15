@@ -164,6 +164,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
 	public boolean isConstant() {
+	    // Polyglot doesn't understand how to constant fold unsigned types.
+	    if (left.type().isUnsignedNumeric() || right.type().isUnsignedNumeric()) return false;
+	    
 		if (left.isConstant() && right.isConstant() && isPureOperation(left.type(), op, right.type()))
 			return true;
 		// FIXME [IP] An optimization: an object of a non-nullable type and "null"
@@ -711,6 +714,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Expr right = n.right();
         Binary.Operator op = n.operator();
         Position pos = n.position();
+        TypeSystem xts = tc.typeSystem();
 
         Type l = left.type();
         Type r = right.type();
@@ -740,16 +744,20 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (methodName != null) {
             // Check if there is a static method of the left type with the appropriate name and type.   
-            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), CollectionUtil.list(left, right));
+            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), 
+            		nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), 
+            		CollectionUtil.list(left, right));
             n4 = typeCheckCall(tc, n4);
             MethodInstance mi4 = (MethodInstance) n4.methodInstance();
             if (mi4.error() == null && mi4.def().flags().isStatic())
                 static_left = n4;
         }
 
-        if (methodName != null) {
+        if (methodName != null && !xts.hasSameClassDef(l, r)) {
             // Check if there is a static method of the right type with the appropriate name and type.   
-            X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), CollectionUtil.list(left, right));
+            X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), 
+            		nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), 
+            		CollectionUtil.list(left, right));
             n3 = typeCheckCall(tc, n3);
             MethodInstance mi3 = (MethodInstance) n3.methodInstance();
             if (mi3.error() == null && mi3.def().flags().isStatic())
@@ -771,8 +779,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             fake = typeCheckCall(tc, fake);
             return fake;
         }
-
-        TypeSystem xts = tc.typeSystem();
 
         List<X10Call_c> best = new ArrayList<X10Call_c>();
         X10Binary_c.Conversion bestConversion = X10Binary_c.Conversion.UNKNOWN;
@@ -821,14 +827,14 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                     ClassDef bestcd = def(besttd);
                     assert (bestcd != null && cd != null);
 
-                    if (xts.descendsFrom(cd, bestcd)) {
+                    if (cd != bestcd && xts.descendsFrom(cd, bestcd)) {
                         // we found the method of a subclass; remove the superclass one
                         ci.remove();
                         isBetter = true;
                         assert (bestConversion == conversion);
                         bestConversion = conversion;
                     }
-                    else if (xts.descendsFrom(bestcd, cd)) {
+                    else if (cd != bestcd && xts.descendsFrom(bestcd, cd)) {
                         // best is still the best
                         isBetter = false;
                         break;

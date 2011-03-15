@@ -253,7 +253,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @return the given Float converted to a Short.
      */
     @Native("java", "x10.core.Floats.toShort(#1)")
-    @Native("c++",  "((x10_short) (#1))")
+    @Native("c++",  "x10aux::float_utils::toShort(#1)")
     public native static operator (x:Float) as Short;
 
     /**
@@ -262,7 +262,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @return the given Double converted to a Short.
      */
     @Native("java", "x10.core.Floats.toShort(#1)")
-    @Native("c++",  "((x10_short) (#1))")
+    @Native("c++",  "x10aux::double_utils::toShort(#1)")
     public native static operator (x:Double) as Short;
 
     /**

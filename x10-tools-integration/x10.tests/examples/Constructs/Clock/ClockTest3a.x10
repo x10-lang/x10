@@ -25,15 +25,15 @@ public class ClockTest3a extends x10Test {
 
 			for  ([i] in 0..(N-1)) clocked async {
 				clocked async  finish async { atomic value++; }
-				next;
+				Clock.advanceAll();
 				if (value != N) {
 					throw new Error();
 				}
-				next;
+				Clock.advanceAll();
 				clocked async  finish async { atomic value++; }
-				next;
+				Clock.advanceAll();
 			}
-			next; next; next;
+			Clock.advanceAll(); Clock.advanceAll(); Clock.advanceAll();
 			if (value != 2*N) {
 				throw new Error();
 			}

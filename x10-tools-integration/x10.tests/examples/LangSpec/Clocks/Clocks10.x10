@@ -35,17 +35,17 @@ public class Clocks10 extends x10Test {
       val cl = Clock.make();
       async clocked(cl) {// Activity A
         say("A-1");
-        next;
+        Clock.advanceAll();
         say("A-2");
-        next;
+        Clock.advanceAll();
         say("A-3");
       }// Activity A
 
       async clocked(cl) {// Activity B
         say("B-1");
-        next;
+        Clock.advanceAll();
         say("B-2");
-        next;
+        Clock.advanceAll();
         say("B-3");
       }// Activity B
     }

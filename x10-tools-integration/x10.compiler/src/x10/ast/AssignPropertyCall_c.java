@@ -233,6 +233,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
             }
 
         }
+        if (! curr.valid()) {
+        	curr.addIn(cxt.currentConstraint());
+        	cxt.setCurrentConstraint(curr);
+        }
     }
 
     protected void checkReturnType(ContextVisitor tc, Position pos,

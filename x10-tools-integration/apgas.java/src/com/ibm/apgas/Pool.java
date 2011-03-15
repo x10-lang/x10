@@ -46,10 +46,10 @@ public class Pool extends x10.runtime.impl.java.Runtime {
     }
     
     public static int numPlaces() { 
-        return x10.lang.Place.numPlaces();
+        return x10.lang.Place.numPlaces$O();
     }
     
     public static int here() {
-        return x10.lang.Runtime.hereInt();
+        return x10.lang.Runtime.hereInt$O();
     }
 }

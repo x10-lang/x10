@@ -11,7 +11,7 @@ public abstract class AsyncFrame extends Frame {
 
     // copy constructor
     public def this(Int, o:AsyncFrame) {
-        super(upcast[FinishFrame,Frame](cast[Frame,FinishFrame](o.up).redirect));
+        super(cast[Frame,FinishFrame](o.up).redirect);
     }
 
     abstract public def move(ff:FinishFrame):void;
@@ -22,7 +22,7 @@ public abstract class AsyncFrame extends Frame {
             worker.lock.unlock();
             val ff = cast[Frame,FinishFrame](up).redirect;
             if (!eq(up, ff)) move(ff);
-            worker.unroll(upcast[FinishFrame,Frame](ff));
+            worker.unroll(ff);
             throw Stolen.STOLEN;
         }
         return;

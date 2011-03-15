@@ -20,11 +20,12 @@ public class LCAClassASubclassB extends x10Test {
 	class A {}
 	class B extends A {}
 	
+	static def covArray[T](x:Array[T]){T <: A}=x;
 	public def run() {
 	  val x = new A();
       val y = new B();
 	// should succeed. LCA of A and B is A.
-      val z:Array[A] = [x,y];
+      val z  = covArray([x,y]);
 	  return true;
 	}
 

@@ -29,17 +29,17 @@ public class ClockTest3 extends x10Test {
 			          atomic value++; 
 			       } 
 			   }
-			next;
+			Clock.advanceAll();
 			var temp: int;
 			atomic { temp = value; }
 			if (temp != N) {
 				throw new Error();
 			}
-			next;
+			Clock.advanceAll();
 			clocked async finish async { async { atomic value++; } }
-			next;
+			Clock.advanceAll();
 		}
-		next; next; next;
+		Clock.advanceAll(); Clock.advanceAll(); Clock.advanceAll();
 		var temp2: int;
 		atomic { temp2 = value; }
 		if (temp2 != 2*N) {

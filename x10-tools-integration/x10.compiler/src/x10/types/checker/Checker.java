@@ -561,6 +561,10 @@ public class Checker {
 	                return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	        }
 	        catch (SemanticException e) {
+	        	// There is an ambiguity. Throw, dont try to use implicit conversions.
+	        	if (e instanceof Errors.MultipleMethodDefsMatch) {
+					throw e;
+				}
 	            // Now, try to find the method with implicit conversions, making them explicit.
 	            try {
 	                Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, t, name, typeArgs, argTypes);

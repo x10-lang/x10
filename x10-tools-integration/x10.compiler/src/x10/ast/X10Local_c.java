@@ -43,6 +43,7 @@ import x10.types.X10ProcedureDef;
 import polyglot.types.TypeSystem;
 import x10.types.X10Context_c;
 import x10.types.X10LocalDef_c;
+import x10.types.X10LocalDef;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
@@ -52,38 +53,31 @@ public class X10Local_c extends Local_c {
 		super(pos, name);
 		
 	}
-	public Node typeCheck(ContextVisitor tc) {
+    public void checkLocalAccess(LocalInstance li, ContextVisitor tc) {
 	    X10Context_c context = (X10Context_c) tc.context();
         final Name liName = name.id();
-	    LocalInstance li = localInstance();
-	    if (!((X10LocalInstance) li).isValid()) {
-	        li = findAppropriateLocal(tc, liName);
-	    }
+        // if the local is defined in an outer class, then it must be final
+        // shared was removed from the language: you cannot access var in a closure
+        // Note that an async is similar to a closure (we create a dummy closure)
+        boolean isInClosure = false;
+        if (context.isLocal(liName)) {
+            // ok
+        } else if (!context.isLocalIncludingAsyncAt(liName)) {
+            // this local is defined in an outer class
+            isInClosure = true;
+            if (!li.flags().isFinal())
+                Errors.issue(tc.job(), new Errors.LocalVariableAccessedFromInnerClass(liName, this.position()));
+        } else {
+            // if the access is in an async and the local-var is not local, then we must ensure that the scoping looks like this: var ... (no async) ... finish ... async
+            // algorithm: we go up the context (going outwards) looking for a finish
+            // (setting flag foundFinish to true when we find a finish, and to false when we find an async)
+            // when we get to the var definition, then foundFinish must be true.
+           if (!context.isSequentialAccess(true,liName))
+               Errors.issue(tc.job(), new Errors.LocalVariableCannotBeCapturedInAsync(liName, this.position()));
+        }
 
-	    context.recordCapturedVariable(li);
-
-        if (!li.flags().isFinal()) {
-            // if the local is defined in an outer class, then it must be final
-            // shared was removed from the language: you cannot access var in a closure
-            // Note that an async is similar to a closure (we create a dummy closure)
-            boolean isInClosure = false;
-	        if (context.isLocal(liName)) {
-                // ok
-            } else if (!context.isLocalIncludingAsyncAt(liName)) {
-	            // this local is defined in an outer class
-                isInClosure = true;
-	            Errors.issue(tc.job(), new Errors.LocalVariableAccessedFromInnerClass(liName, this.position()));
-	        } else {
-                // if the access is in an async and the local-var is not local, then we must ensure that the scoping looks like this: var ... (no async) ... finish ... async
-                // algorithm: we go up the context (going outwards) looking for a finish
-                // (setting flag foundFinish to true when we find a finish, and to false when we find an async)
-                // when we get to the var definition, then foundFinish must be true.
-               if (!context.isSequentialAccess(true,liName))
-                   Errors.issue(tc.job(), new Errors.LocalVariableCannotBeCapturedInAsync(liName, this.position()));
-            }
-
-            if (!isInClosure) {
-            // we check that usages inside an "at" are at the origin place if it is a "var" (for "val" we're fine)
+        if (!isInClosure) {
+            // we check that usages inside an "at" are at the origin place if it is a "var" (for "val" we're fine, except when it's a write)
             final X10LocalDef_c localDef_c = (X10LocalDef_c) li.def();
             XTerm origin = localDef_c.placeTerm();
             // origin maybe null when typechecking a method to get the return type (see XTENLANG-1902)
@@ -101,7 +95,25 @@ public class X10Local_c extends Local_c {
                 if (!isOk)
                     Errors.issue(tc.job(), new Errors.LocalVariableAccessedAtDifferentPlace(liName, this.position()));
             }
-            }
+
+            // initialization in an "at" is also considered async-init by the backend
+            if (context.localHasAt(liName))
+                ((X10LocalDef)localInstance().def()).setAsyncInit();
+        }
+
+    }
+	public Node typeCheck(ContextVisitor tc) {
+	    X10Context_c context = (X10Context_c) tc.context();
+        final Name liName = name.id();
+	    LocalInstance li = localInstance();
+	    if (!((X10LocalInstance) li).isValid()) {
+	        li = findAppropriateLocal(tc, liName);
+	    }
+
+	    context.recordCapturedVariable(li);
+
+        if (!li.flags().isFinal()) {
+            checkLocalAccess(li, tc);
         }
 
 

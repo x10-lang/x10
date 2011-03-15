@@ -29,7 +29,7 @@ public class NoNextInWhenMethod extends x10Test {
 		return false;
 	}
 	def m() {
-		next;
+		Clock.advanceAll();
 	}
 
 	public static def main(Array[String](1)){

@@ -30,7 +30,7 @@ public class Classes230 extends x10Test {
  static class Poly {
   public val coeff : Array[Int](1);
   public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-  public static operator (a:Int) as Poly = new Poly([a]);
+  public static operator (a:Int) as Poly = new Poly([a as Int]);
   public static def main(Array[String](1)):void {
      val three : Poly = 3 as Poly;
   }

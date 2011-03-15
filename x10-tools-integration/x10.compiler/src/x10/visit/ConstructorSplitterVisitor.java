@@ -105,22 +105,35 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             stmts.add(ld);
             stmts.add(cc);
             Node result        = syn.createStmtExpr(pos, stmts, syn.createLocal(pos, ld));
-            debug(job, "ConstructorSplitterVisitor splitting " +n+ "\n\t" +result, pos);
+            if (DEBUG) debug(job, "ConstructorSplitterVisitor splitting " +n+ "\n\t" +result, pos);
             return result;
         }
         if (node instanceof LocalDecl && ((LocalDecl) node).init() instanceof New) {
+            // We're in a statement context, so we can avoid a stmt expr.
             LocalDecl ld       = (LocalDecl) node;
             New n              = (New) ld.init();
             Type type          = n.type();
             Allocation a       = createAllocation(pos, type, n.typeArguments());
-            ld                 = ld.init(a);
-            Local l            = syn.createLocal(pos, ld);
-            ConstructorCall cc = createConstructorCall(n).target(l);
             List<Stmt> stmts   = new ArrayList<Stmt>();
-            stmts.add(ld);
-            stmts.add(cc);
+            if (type.typeSystem().typeDeepBaseEquals(ld.declType(), n.type(), context)) {
+                ld                 = ld.init(a);
+                ConstructorCall cc = createConstructorCall(n).target(syn.createLocal(pos, ld));
+                stmts.add(ld);
+                stmts.add(cc);
+            } else {
+                // Type of the local != type of the new.
+                // This happens when the type of the local decl is a supertype of the type of the new
+                // Introduce additional localdecl so that the constructor call can be made
+                // on a variable of the correct type. 
+                LocalDecl ld2      = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
+                ConstructorCall cc = createConstructorCall(n).target(syn.createLocal(pos, ld2));
+                ld                 = ld.init(syn.createLocal(pos, ld2));
+                stmts.add(ld2);
+                stmts.add(cc);
+                stmts.add(ld);
+            }
             Node result        = syn.createStmtSeq(pos, stmts);
-            debug(job, "ConstructorSplitterVisitor splitting " +node+ "\n\t" +result, pos);
+            if (DEBUG) debug(job, "ConstructorSplitterVisitor splitting " +node+ "\n\t" +result, pos);
             return result;
         }
         return super.leaveCall(parent, old, node, v);

@@ -57,7 +57,7 @@ public class ClockTest16a extends x10Test {
 			{
 				val cx: Clock = ca(1);
 				async clocked(cx) { // no clock use error
-					next;
+					Clock.advanceAll();
 				}
 			}
 
@@ -66,7 +66,7 @@ public class ClockTest16a extends x10Test {
 			{
 				val cx: Clock = ca(x.one());
 				async clocked(cx) { //no clock use error
-					next;
+					Clock.advanceAll();
 				}
 			}
 
@@ -74,7 +74,7 @@ public class ClockTest16a extends x10Test {
 				public operator this(): void = {
 					val cx: Clock = ca(x.zero());
 					async clocked(cx) { //clock use error
-						next;
+						Clock.advanceAll();
 					}
 				}
 			};
@@ -83,7 +83,7 @@ public class ClockTest16a extends x10Test {
 				public operator this(): void = {
 					val cx: Clock = ca(x.one());
 					async clocked(cx) { // no clock use error
-						next;
+						Clock.advanceAll();
 					}
 				}
 			};
@@ -105,7 +105,7 @@ public class ClockTest16a extends x10Test {
 			{
 				val cx: Clock = ca(x.zero());
 				async clocked(cx) { // clock use error
-					next;
+					Clock.advanceAll();
 				}
 			}
 
@@ -115,7 +115,7 @@ public class ClockTest16a extends x10Test {
 			{
 				val cx: Clock = ca(0);
 				async clocked(cx) { // clock use error
-					next;
+					Clock.advanceAll();
 				}
 			}
 		}
@@ -137,7 +137,7 @@ public class ClockTest16a extends x10Test {
 			{
 				f(); // it is hard to determine f does an async clocked(c) S,
 				//where the current activity is not registered on c
-				next;
+				Clock.advanceAll();
 			}
 		}
 	}

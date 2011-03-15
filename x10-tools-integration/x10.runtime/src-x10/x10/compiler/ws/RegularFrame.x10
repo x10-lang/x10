@@ -22,12 +22,12 @@ public abstract class RegularFrame extends Frame {
     public abstract def remap():RegularFrame;
 
     @Inline public final def push(worker:Worker) {
-        worker.deque.push(upcast[RegularFrame,Object](this));
+        worker.deque.push(this);
     }
 
     @Inline public final def redo(worker:Worker):void {
         worker.migrate();
-        worker.fifo.push(upcast[RegularFrame,Object](remap()));
+        worker.fifo.push(remap());
         throw Stolen.STOLEN;
     }
 }

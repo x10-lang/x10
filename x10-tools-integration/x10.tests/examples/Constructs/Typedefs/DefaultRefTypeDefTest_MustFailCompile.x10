@@ -18,13 +18,13 @@ import harness.x10Test;
  */
 public class DefaultRefTypeDefTest_MustFailCompile extends x10Test {
 
-    static class Foo[T](n:int, s:T) {
-       def this(n:int, s:T):Foo[T](n,s) = { // ERR ERR: Could not find type "Foo(x10.lang.Int,T)". Constructor return type is not a subtype of the containing class.
+    static class Foo(n:int, s:String) {
+       def this(n:int, s:String):Foo(n,s) = { // ERR ERR: Could not find type "Foo(x10.lang.Int,T)". Constructor return type is not a subtype of the containing class.
          property(n,s);
        }
     }
     public def run() = {
-        x:Foo[String](2,"a") = new Foo[String](2,"a"); // ERR ERR: Could not find type "Foo(x10.lang.Int,T)". Cannot assign expression to target.
+        x:Foo(2,"a") = new Foo(2,"a"); // ERR ERR: Could not find type "Foo(x10.lang.Int,T)". Cannot assign expression to target.
         true
     }
 

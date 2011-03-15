@@ -37,7 +37,7 @@ public class Classes280 extends x10Test {
   }
   def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
   def example() {
-    val R1 : MyRegion(3) = new MyRegion([4,4,4]);
+    val R1 : MyRegion(3) = new MyRegion([4 as Int,4,4]);
     val R2 : MyRegion(3) = new MyRegion([5,4,1]);
     val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
   }

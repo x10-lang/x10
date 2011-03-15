@@ -61,7 +61,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 				/*Activity A1*/
 				async clocked(c0) {
 					x10.io.Console.OUT.println("#1 before next");
-					next;
+					Clock.advanceAll();
 					x10.io.Console.OUT.println("#1 after next");
 				}
 			}
@@ -74,7 +74,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 		// Finish in Y.test completes and then the following executes.
 		//No deadlock occurs here.
 		x10.io.Console.OUT.println("#0a before next");
-		next;
+		Clock.advanceAll();
 		x10.io.Console.OUT.println("#0a after next");
 
 		// This is invoking Y.test(f1) but not clear to a compiler
@@ -83,7 +83,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 		// A1 inside Y.test(f1) must first finish, but it
 		// cannot since A0 has not executed next on clock c0 yet.
 		x10.io.Console.OUT.println("#0b before next");
-		next;
+		Clock.advanceAll();
 		x10.io.Console.OUT.println("#0b after next");
 
 		return true;

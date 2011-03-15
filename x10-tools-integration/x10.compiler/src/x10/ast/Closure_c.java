@@ -195,6 +195,7 @@ public class Closure_c extends Expr_c implements Closure {
 	}
 
 	public Closure closureDef(ClosureDef ci) {
+		//System.out.println("Closure_c.closureDef called with " + ci);
 		if (ci == this.closureDef) return this;
 		Closure_c n = (Closure_c) copy();
 		n.closureDef = ci;
@@ -403,6 +404,7 @@ public class Closure_c extends Expr_c implements Closure {
 				// Body had no return statement.  Set to void.
 				t = ts.Void();
 			}
+			t = Types.removeLocals(c, t, c.currentCode());
 			tr.update(t);
 			n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), t));
 		}

@@ -45,7 +45,7 @@ public class ClockTest18 extends x10Test {
 					        x10.io.Console.OUT.println("#A2 before resume");
 					        c0.resume();
 					        x10.io.Console.OUT.println("#A2 before next");
-					        next;
+					        Clock.advanceAll();
 					        x10.io.Console.OUT.println("#A2 after next");
 				         }
 			         }
@@ -61,7 +61,7 @@ public class ClockTest18 extends x10Test {
 		x10.io.Console.OUT.println("#A0 before spawning A1");
 		async clocked(c0) { x10.io.Console.OUT.println("#A1: hello from A1"); }
 		x10.io.Console.OUT.println("#A0 before next");
-		next;
+		Clock.advanceAll();
 		x10.io.Console.OUT.println("#A0 after next");
 		}
 		} catch (e: MultipleExceptions) {

@@ -191,7 +191,7 @@ public class Deque extends Ref {
     /**
      * Returns an estimate of the number of tasks in the queue.
      */
-    public final int size() {
+    public final int size$O() {
         int n = sp - base;
         return n < 0? 0 : n; // suppress momentarily negative values
     }

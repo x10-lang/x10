@@ -225,8 +225,8 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 elem = null;
                                 index = call.arguments().get(0);
                             } else {
-                                elem = call.arguments().get(0);
-                                index = call.arguments().get(1);
+                                elem = call.arguments().get(1);
+                                index = call.arguments().get(0);
                             }
                             
                             if (target instanceof Local) {

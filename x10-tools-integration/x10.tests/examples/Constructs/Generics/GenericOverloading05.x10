@@ -34,8 +34,8 @@ public class GenericOverloading05 extends GenericTest {
 
         check("m(\"1\")", m("1"), 0);
         check("m(1)", m(1), 1);
-        check("m([\"0\"])", m(["0"]), 2);
-        check("m([0])", m([0]), 3);
+        check("m([\"0\"])", m(new Array[String]["0"]), 2);
+        check("m([0])", m(new Array[Int][0]), 3);
 
         return result;
     }

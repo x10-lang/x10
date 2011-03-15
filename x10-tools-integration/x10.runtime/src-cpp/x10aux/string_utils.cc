@@ -29,7 +29,7 @@ ref<Array<ref<String> > >x10aux::convert_args(int ac, char **av) {
     ref<Array<ref<String> > > arr(Array<ref<String> >::_make(x10_argc));
     for (int i = 1; i < ac; i++) {
         ref<String> val = String::Lit(av[i]);
-        arr->__set(val, i-1);
+        arr->__set(i-1, val);
     }
     return arr;
 }
@@ -54,8 +54,17 @@ char * x10aux::string_utils::strdup(const char* old) {
 #endif
 }
 
-
-
-
+char * x10aux::string_utils::strndup(const char* old, int len) {
+#if defined(X10_USE_BDWGC) || defined(__SVR4)
+    int len2 = strlen(old);
+    if (len2 < len) len = len2;
+    char *ans = x10aux::alloc<char>(len+1);
+    memcpy(ans, old, len);
+    ans[len] = 0;
+    return ans;
+#else
+    return ::strndup(old, len);
+#endif
+}
 
 // vim:tabstop=4:shiftwidth=4:expandtab

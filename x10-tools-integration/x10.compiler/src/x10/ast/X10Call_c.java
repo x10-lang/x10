@@ -44,11 +44,12 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
+import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import polyglot.util.ErrorInfo;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -75,6 +76,10 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.ErrorRef_c;
 import x10.types.checker.Checker;
+import x10.types.checker.PlaceChecker;
+import x10.visit.X10TypeChecker;
+import x10.X10CompilerOptions;
+import x10.ExtensionInfo;
 
 /**
  * Representation of an X10 method call.
@@ -751,7 +756,11 @@ public class X10Call_c extends Call_c implements X10Call {
 		mi =  p.fst();
         methodResolution.methodInstance = mi;
 		args = p.snd();
-		if (mi.error() != null) {
+	    SemanticException error=mi.error();
+		if (error != null) {
+			if (error instanceof Errors.MultipleMethodDefsMatch) {
+				throw error;
+			}
 		    // Now, try to find the method with implicit conversions, making them explicit.
 		    try {
 		        p = Checker.tryImplicitConversions(this, tc, targetType, name, typeArgs, argTypes);

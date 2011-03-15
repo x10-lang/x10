@@ -81,40 +81,40 @@ public class ClockTest6 extends x10Test {
 					for ([tick] in 0..(N_NEXTS-1)) {
 						// do work
 						doWork("1_", i, "(c)", tick);
-						next; //barrier
+						Clock.advanceAll(); //barrier
 						// verify that work in prior phase is correct
 						verify("1_", i, tick);
-						next; //barrier
+						Clock.advanceAll(); //barrier
 					}
 				/*Activity kind: 2 clocks = (c, d)*/
 				async clocked(c, d)
 					for ([tick] in 0..(N_NEXTS-1)) {
 						// do work
 						doWork("2_", i, "(c, d)", tick);
-						next; //barrier
+						Clock.advanceAll(); //barrier
 						// verify that work in prior phase is correct
 						verify("2_", i, tick);
-						next; //barrier
+						Clock.advanceAll(); //barrier
 					}
 				/*Activity kind: 3 clocks = (c, e)*/
 				async  clocked(c, e)
 					for ([tick] in 0..(N_NEXTS-1)) {
 						// do work
 						doWork("3_", i, "(c, e)", tick);
-						next; //barrier
+						Clock.advanceAll(); //barrier
 						// verify that work in prior phase is correct
 						verify("3_", i, tick);
-						next; //barrier
+						Clock.advanceAll(); //barrier
 					}
 				/*Activity kind: 4 clocks = (c, d, e)*/
 				async clocked(c, d, e)
 					for ([tick] in 0..(N_NEXTS-1)) {
 						// do work
 						doWork("4_", i, "(c, d, e)", tick);
-						next; //barrier
+						Clock.advanceAll(); //barrier
 						// verify that work in prior phase is correct
 						verify("4_", i, tick);
-						next; //barrier
+						Clock.advanceAll(); //barrier
 					}
 			}
 			// Here all children have registered with

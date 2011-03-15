@@ -129,7 +129,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         boolean loop;
     }
     
-    private Vector<labelInfoStruct> labelInfo = new Vector<labelInfoStruct>(10,10);
+    private ArrayList<labelInfoStruct> labelInfo = new ArrayList<labelInfoStruct>(20);
 
     /**
      * @param job the job to run
@@ -244,7 +244,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             return flattenLabeled((Labeled) n);
         if (n instanceof Loop) {
            Node returnNode = flattenLoop(n, parent instanceof Labeled);
-           labelInfo.setSize(labelInfo.size()-1);
+           labelInfo.remove(labelInfo.size()-1);
            return returnNode;
         }
         if (n instanceof Expr) return flattenExpr((Expr) n);
@@ -252,7 +252,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             // After StmtExpr Blocks have been flattened
             Node returnNode = flattenBlock((Block) n, parent instanceof Labeled);
             if (parent instanceof Labeled) {
-                labelInfo.setSize(labelInfo.size() - 1);
+                labelInfo.remove(labelInfo.size() - 1);
             }
             return returnNode;
         }
@@ -826,7 +826,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     /**
      * Flatten a block.
      * If this is a labeled block, we stick the labels on it because flattenLabeled
-     * is about to rip them off.
+     * is about to rip them off our parent.
      * (Otherwise, the only thing we flatten is a block nested in a block,
      * the only block with a value, StmtExpr, has already been handled.)
      * <pre>
@@ -1207,9 +1207,9 @@ public final class ExpressionFlattener extends ContextVisitor {
                                         null) );
             stmt = stmt.cond(syn.createTrue(pos)); 
         }
-        if (labelInfo.lastElement().newLabelUsed) {
+        if (labelInfo.get(labelInfo.size()-1).newLabelUsed) {
              bodyStmts.add(syn.createLabeledStmt(stmt.body().position(), 
-                                                 labelInfo.lastElement().newLabel, 
+                                                 labelInfo.get(labelInfo.size()-1).newLabel, 
                                                  stmt.body()));
         } else {
             bodyStmts.add(stmt.body());
@@ -1242,11 +1242,11 @@ public final class ExpressionFlattener extends ContextVisitor {
         if (branchTarget != null) {
             // Find the target in our label stack. It must be there.
             for ( ; ; i--) {
-                Id oldLbl = labelInfo.elementAt(i).oldLabel;
+                Id oldLbl = labelInfo.get(i).oldLabel;
                 if (oldLbl == null) continue;
                 if (branchTarget.id().equals(oldLbl.id())) {
-                    saveoldLabelUsed = labelInfo.elementAt(i).oldLabelUsed;
-                    labelInfo.elementAt(i).oldLabelUsed = true;
+                    saveoldLabelUsed = labelInfo.get(i).oldLabelUsed;
+                    labelInfo.get(i).oldLabelUsed = true;
                     break;
                 }
             }            
@@ -1254,17 +1254,17 @@ public final class ExpressionFlattener extends ContextVisitor {
         if (stmt.kind() == Branch.CONTINUE) {
             // If the continue did not have a taget and we had labeled blocks,
             // we are not yet at the scope we want to target.
-            for (; !labelInfo.elementAt(i).loop; i--)
+            for (; !labelInfo.get(i).loop; i--)
                 ;
             // A null newLabel => loop was not a "For" - don't redirect
-            if (labelInfo.elementAt(i).newLabel != null) {
+            if (labelInfo.get(i).newLabel != null) {
                 if (DEBUG) {
-                    System.out.println("rewriting a continue from old label " + labelInfo.elementAt(i).oldLabel);
-                    System.out.println("to break with label " + labelInfo.elementAt(i).newLabel);
+                    System.out.println("rewriting a continue from old label " + labelInfo.get(i).oldLabel);
+                    System.out.println("to break with label " + labelInfo.get(i).newLabel);
                 }
-                labelInfo.elementAt(i).newLabelUsed = true;
-                labelInfo.elementAt(i).oldLabelUsed = saveoldLabelUsed;
-                return syn.createStmtSeq(syn.createBreak(stmt.position(), labelInfo.elementAt(i).newLabel.toString()));
+                labelInfo.get(i).newLabelUsed = true;
+                labelInfo.get(i).oldLabelUsed = saveoldLabelUsed;
+                return syn.createStmtSeq(syn.createBreak(stmt.position(), labelInfo.get(i).newLabel.toString()));
             }
         }
 
@@ -1384,9 +1384,9 @@ public final class ExpressionFlattener extends ContextVisitor {
      */
     private Stmt label(Stmt stmt, boolean labeled) {
         if (!labeled) return stmt;
-        if (!labelInfo.lastElement().oldLabelUsed) return stmt;
+        if (!labelInfo.get(labelInfo.size()-1).oldLabelUsed) return stmt;
         return(syn.createLabeledStmt(stmt.position(), 
-                              labelInfo.lastElement().oldLabel, 
+                              labelInfo.get(labelInfo.size()-1).oldLabel, 
                               stmt));        
     }
 

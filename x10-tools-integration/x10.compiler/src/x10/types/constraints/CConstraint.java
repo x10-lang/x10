@@ -474,7 +474,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
         if (other == null || other.valid())
             return true;
         CEntailsVisitor ev = new CEntailsVisitor(this, sigma, other.self());
-        other.visit(false,false, ev);
+        other.visit(false,true, ev);
         return ev.result();
 	}
 

@@ -48,6 +48,10 @@ public class X10LocalAssign_c extends LocalAssign_c {
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {
+        if (local().flags().isFinal()) { // final locals are checked for local access only on assignment (reading a final local can be done from any place)
+            final X10Local_c local = (X10Local_c) local();
+            local.checkLocalAccess(local.localInstance(), tc);
+        }
         return Checker.typeCheckAssign(this, tc);
     }
 

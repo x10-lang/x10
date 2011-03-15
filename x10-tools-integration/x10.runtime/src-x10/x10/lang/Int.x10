@@ -255,7 +255,7 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * @return the given Float converted to an Int.
      */
     @Native("java", "((int)(float)(#1))")
-    @Native("c++",  "((x10_int) (#1))")
+    @Native("c++",  "x10aux::float_utils::toInt(#1)")
     public native static operator (x:Float) as Int;
 
     /**
@@ -264,7 +264,7 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * @return the given Double converted to an Int.
      */
     @Native("java", "((int)(double)(#1))")
-    @Native("c++",  "((x10_int) (#1))")
+    @Native("c++",  "x10aux::double_utils::toInt(#1)")
     public native static operator (x:Double) as Int;
 
     /**

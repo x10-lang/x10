@@ -67,7 +67,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
 
 
     @Override
-    public boolean _struct_equals(Object o) {
+    public boolean _struct_equals$O(Object o) {
         if (!(o instanceof RemoteIndexedMemoryChunk<?>)) return false;
         RemoteIndexedMemoryChunk<?> that = (RemoteIndexedMemoryChunk<?>)o;
         return this.id == that.id && this.home == that.home;

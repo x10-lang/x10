@@ -378,6 +378,13 @@ public class X10Context_c extends Context_c {
 	public boolean isLocal(Name name) {
 		return depType == null ? super.isLocal(name) : pop().isLocal(name);
 	}
+	public boolean localHasAt(Name name) { // is there an "at" until the definition of the local?
+        final VarInstance<?> var = findVariableInThisScope(name);
+        return var!=null && var instanceof LocalInstance ? false : // no "at" found until the definition of the local
+                x10Kind== X10Kind.At ? true :
+                outer==null || (isCode() && !isDummyCode(currentCode())) ? false :
+                ((X10Context_c)outer).localHasAt(name);
+    }
 	public boolean isLocalIncludingAsyncAt(Name name) {
         if (isLocal(name)) return true;
         if (outer!=null && isDummyCode(currentCode())) return ((X10Context_c)outer).isLocalIncludingAsyncAt(name);
@@ -541,13 +548,6 @@ public class X10Context_c extends Context_c {
 		return (X10FieldInstance) SUPER_findField(name);
 	}
 
-
-	/**
-	 * Gets a local or field of a particular name.
-	 */
-	public VarInstance<?> findVariableSilent(Name name) {
-		return super.findVariableSilent(name);
-	}
 
 	/**
 	 * Finds the definition of a particular type.

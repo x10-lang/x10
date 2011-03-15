@@ -253,7 +253,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the given Float converted to a Long.
      */
     @Native("java", "((long)(float)(#1))")
-    @Native("c++",  "((x10_long) (#1))")
+    @Native("c++",  "x10aux::float_utils::toLong(#1)")
     public native static operator (x:Float) as Long;
 
     /**
@@ -262,7 +262,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the given Double converted to a Long.
      */
     @Native("java", "((long)(double)(#1))")
-    @Native("c++",  "((x10_long) (#1))")
+    @Native("c++",  "x10aux::double_utils::toLong(#1)")
     public native static operator (x:Double) as Long;
 
     /**

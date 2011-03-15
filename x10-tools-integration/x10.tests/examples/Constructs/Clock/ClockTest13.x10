@@ -114,7 +114,7 @@ public class ClockTest13 extends x10Test {
 					x10.io.Console.OUT.println(""+k+" Max forward phase shift reached");
 				}
 			}
-			next;
+			Clock.advanceAll();
 		}
 	}
 	def taskB(val a: Clock, val b: Clock): void = {
@@ -126,7 +126,7 @@ public class ClockTest13 extends x10Test {
 			x10.io.Console.OUT.println(""+k+" B resuming b");
 			b.resume();
 			x10.io.Console.OUT.println(""+k+" B before next");
-			next;
+			Clock.advanceAll();
 		}
 	}
 	def taskC(val b: Clock, val c: Clock): void = {
@@ -138,7 +138,7 @@ public class ClockTest13 extends x10Test {
 			x10.io.Console.OUT.println(""+k+" C resuming c");
 			c.resume();
 			x10.io.Console.OUT.println(""+k+" C before next");
-			next;
+			Clock.advanceAll();
 		}
 	}
 	def taskD(val c: Clock): void = {
@@ -157,7 +157,7 @@ public class ClockTest13 extends x10Test {
 				}
 			}
 			x10.io.Console.OUT.println(""+k+" D before next");
-			next;
+			Clock.advanceAll();
 		}
 	}
 

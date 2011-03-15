@@ -284,7 +284,27 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      
      
      public String signature() {
-         return "(" + CollectionUtil.listToString(formalTypes) + ")" + Types.get(guard());
+    	 StringBuilder sb = new StringBuilder("(");
+    	
+    	 List<LocalDef> names = formalNames();
+    	 List<Ref<? extends Type>> types = formalTypes();
+    	 assert types != null;
+    	 int size = types.size();
+    	 for (int i=0; i < size; i++) {
+    		 if (names != null && i < names.size())
+    			 sb.append(names.get(i).toString());
+    		 else {
+
+    			 sb.append(Types.get(types.get(i)).toString());
+    		 }
+    		 if (i < size-1)
+    			 sb.append(",");
+    	 }
+    	 sb.append(")");
+    	 if (guard != null)
+    		 sb.append(Types.get(guard).toString());
+    	 return sb.toString();
+    	
      }
 
      public String designator() {

@@ -40,8 +40,10 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.errors.Errors;
+import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
+import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
@@ -141,9 +143,51 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         }
         try {
             Expr e = Converter.converterChain(this, tc);
-            assert e.type() != null;
+            final Type type = e.type();
+            assert type != null;
             assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).conversionType() != Converter.ConversionType.UNKNOWN_CONVERSION;
             assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).conversionType() != Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
+
+            // todo hack: after constraints will be kept at runtime, and we will do constraint solving at runtime, then all casts will be sound!
+            // X10 currently doesn't do constraint solving at runtime (and constraints are erased at runtime!),
+            // so given o:Any, a cast:
+            //  o as Array[Int]
+            // is unsound if "o" had constraints (e.g., Array[Int{self!=0}])
+            // obviously,   o as Array[Int{self!=0}]     is always unsound.
+            // Note that any generic struct will this warning due to the auto-generated equals method:
+            //struct A[T] {
+            //  public def equals(o:Any) {
+            //    if (o instanceof A[T]) {
+            //      val x = o as A[T]; // Warning: unsound cast!
+            //      ...
+            // Therefore we do not produce warnings in compiler-generated code (too confusing for the programmer).
+            // In addition, I also don't report the 3 warnings we have in XRX (or else every client of HashMap will have a warning)
+            if (!position.isCompilerGenerated() &&
+                    !position.file().contains("Array.x10")&&
+                    !position.file().contains("HashMap.x10")&&
+                    !position.file().contains("FinishState.x10")&&
+                    !position.file().contains("Runtime.x10")&& 
+                    !position.file().contains("HashSet.x10")) {
+                Type base = Types.baseType(type);
+                if (base instanceof X10ParsedClassType) {
+                    X10ParsedClassType classType = (X10ParsedClassType) base;
+                    final List<Type> args = classType.typeArguments();
+                    if (args!=null && args.size()>0) {
+                        boolean isOk = false;
+                        if (e instanceof X10Cast) {
+                            // ok, e.g., x:Array[Int],   x as Array[Int](3)
+                            final X10Cast cast = (X10Cast) e;
+                            if (cast.conversionType()== ConversionType.SUBTYPE)
+                                isOk = true;
+                            else if (tc.typeSystem().isSubtype(Types.baseType(cast.expr().type()),base, tc.context()))
+                                isOk = true;
+                        }
+                        if (!isOk) {
+                            Warnings.issue(tc.job(), "This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.", position);
+                        }
+                    }
+                }
+            }
             return e;
         } catch (SemanticException e) {
             Errors.issue(tc.job(), e, this);

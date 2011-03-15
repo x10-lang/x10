@@ -11,6 +11,7 @@
 
 package x10.errors;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1382,8 +1383,7 @@ public class Errors {
 		private static final long serialVersionUID = 5334856744559947168L;
 
 		public LocalVariableCannotBeCapturedInAsync(Name liName, Position p) {
-			super("Local variable cannot be captured in an async if there is no enclosing finish in the same scoping-level; " +
-					"consider changing variable from var to val." +
+			super("Local variable cannot be captured in an async if there is no enclosing finish in the same scoping-level." +
 					"\n\t Variable name: " + liName, p);
 		}
 	}
@@ -1392,7 +1392,7 @@ public class Errors {
 		private static final long serialVersionUID = 5809300848963559701L;
 
 		public LocalVariableAccessedAtDifferentPlace(Name liName, Position p) {
-			super("Local variable is accessed at a different place, and must be declared final." +
+			super("Local variable is accessed at a different place, and therefore it must be initialized and declared final." +
 					"\n\t Variable name: " + liName, p);
 		}
 	}
@@ -1972,6 +1972,15 @@ public class Errors {
 			super("Cannot instantiate type container since type guard was not entailed." + 
 					"\n\t Type Container: " + container + 
 					"\n\t Type Guard: " + tb);
+        }
+    }
+    
+    public static class MultipleMethodDefsMatch extends SemanticException {
+
+		private static final long serialVersionUID = -3288674805766816121L;
+
+		public MultipleMethodDefsMatch(Collection<MethodInstance> mis, String name, Position p) {
+            super("Multiple methods match " + name + " " + mis, p);
         }
     }
 }

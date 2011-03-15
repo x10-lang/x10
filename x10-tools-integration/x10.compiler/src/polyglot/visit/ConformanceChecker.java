@@ -20,7 +20,7 @@ public class ConformanceChecker extends ContextVisitor
         super(job, ts, nf);
     }
     
-    protected Node leaveCall(Node old, final Node n, NodeVisitor v) throws SemanticException {
+    protected Node leaveCall(Node old, final Node n, NodeVisitor v) {
         ContextVisitor cc = (ContextVisitor) v;
         return n.del().conformanceCheck(cc);
     }   

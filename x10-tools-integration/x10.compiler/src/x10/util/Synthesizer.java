@@ -432,7 +432,7 @@ public class Synthesizer {
 	        X10Call call = (X10Call) lhs;
 	        Receiver target = call.target();
 	        MethodInstance ami = call.methodInstance();
-	        List<Type> argTypes = CollectionUtil.append(Collections.singletonList(ami.returnType()), ami.formalTypes());
+	        List<Type> argTypes = CollectionUtil.append(ami.formalTypes(), Collections.singletonList(ami.returnType()));
 	        MethodInstance smi = xts.findMethod(target.type(),
 	                xts.MethodMatcher(target.type(), SettableAssign.SET, argTypes, xc));
 	        a = ((SettableAssign) a).methodInstance(smi);

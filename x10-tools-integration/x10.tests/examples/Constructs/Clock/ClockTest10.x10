@@ -58,7 +58,7 @@ public class ClockTest10 extends x10Test {
 	for ([k]:Point(1) in 1..N) {
 	    varA(ph(k)) = k;
 	    x10.io.Console.OUT.println( " " + k + " A producing " + varA(ph(k)));
-	    next;
+	    Clock.advanceAll();
 	}
     }
     def taskB(val a: Clock, val b: Clock): void = {
@@ -69,7 +69,7 @@ public class ClockTest10 extends x10Test {
 	    a.resume();
 	    varB(ph(k)) = tmp.value;
 	    x10.io.Console.OUT.println(" " + "B before next");
-	    next;
+	    Clock.advanceAll();
 	}
     }
     def taskC(val a: Clock, val c: Clock): void = {
@@ -80,7 +80,7 @@ public class ClockTest10 extends x10Test {
 	    a.resume();
 	    varC(ph(k)) = tmp.value;
 	    x10.io.Console.OUT.println(" " + "C before next");
-	    next;
+	    Clock.advanceAll();
 	}
     }
     def taskD(val b: Clock, val c: Clock): void = {
@@ -94,7 +94,7 @@ public class ClockTest10 extends x10Test {
 	    x10.io.Console.OUT.println(" " + k + " D before next");
 	    var n: int = k-pipeDepth;
 	    chk(!(k>pipeDepth) || varD(ph(k)) == n+n+n*n+10);
-	    next;
+	    Clock.advanceAll();
 	}
     }
     def taskE(val c: Clock): void = {
@@ -107,7 +107,7 @@ public class ClockTest10 extends x10Test {
 	    x10.io.Console.OUT.println(" " + k + " E before next");
 	    var n: int = k-pipeDepth;
 	    chk(!(k>pipeDepth) || varE(ph(k)) == n*n*7);
-	    next;
+	    Clock.advanceAll();
 	}
     }
 

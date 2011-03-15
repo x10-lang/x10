@@ -252,7 +252,7 @@ namespace x10aux {
         return ClassCast<T,F>::_(obj, checked);
     }
 
-    template<typename T, typename F> GPUSAFE T class_cast_unchecked(F obj) {
+    template<typename T, typename F> GPUSAFE T inline class_cast_unchecked(F obj) {
         return ClassCast<T,F>::_(obj, false);
     }
 }
