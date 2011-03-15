@@ -391,7 +391,7 @@ Iterable[Point(region.rank)] {
      * @see #operator(Point)
      * @see #set(T, Int)
      */
-    @Native("cuda", "(#0).raw[#1]")
+    @Native("cuda", "(#this).raw[#i0]")
     public @Header @Inline operator this(i0:int){rank==1}:T {
         if (rail) {
             // Bounds checking by backing IndexedMemoryChunk is sufficient
@@ -490,7 +490,7 @@ Iterable[Point(region.rank)] {
      * @see #operator(Int)
      * @see #set(T, Point)
      */
-    @Native("cuda", "(#0).raw[#2] = (#1)")
+    @Native("cuda", "(#this).raw[#i0] = (#v)")
     public @Header @Inline operator this(i0:int)=(v:T){rank==1}:T {
         if (rail) {
             // Bounds checking by backing IndexedMemoryChunk is sufficient

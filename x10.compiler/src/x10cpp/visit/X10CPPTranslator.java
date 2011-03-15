@@ -204,7 +204,8 @@ public class X10CPPTranslator extends Translator {
 		    if (fileToLineNumberMap != null) {
 		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
 		        // [DC] avoid NPE when writing to .cu files
-		        if (lineNumberMap != null) {
+		        // [DC] avoid NPE when parent is null, e.g. generating initialisation for cuda shm
+		        if (lineNumberMap != null && parent != null) {
 		            final MemberDef def =
 		                (n instanceof Block) ?
 		                    (parent instanceof MethodDecl) ? ((MethodDecl) parent).methodDef() :

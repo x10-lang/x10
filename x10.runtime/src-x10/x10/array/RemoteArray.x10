@@ -105,7 +105,7 @@ public class RemoteArray[T](
      * @see #operator(Point)
      * @see #set(T, Int)
      */
-    @Native("cuda", "(#0).raw[#1]")
+    @Native("cuda", "(#this).raw[#1]")
     public operator this(i:Int) {here==array.home, rank==1} = this()(i);
 
     /**
@@ -133,7 +133,7 @@ public class RemoteArray[T](
      * @see #operator(Int)
      * @see #set(T, Point)
      */
-    @Native("cuda", "(#0).raw[#2] = (#1)")
+    @Native("cuda", "(#this).raw[#i] = (#v)")
     public operator this(i:Int)=(v:T) {here==array.home, rank==1} = this()(i)=v;
 
     /**
