@@ -26,7 +26,7 @@
  */
 public class QuickSort {
 
-  private static def partition(data:Array[int](1), left:int, right:int) {
+  private static def partition(data:Array[int](1){rail,rect,zeroBased}, left:int, right:int) {
       var i:int = left;
       var j:int = right;
       var tmp:int;
@@ -47,7 +47,7 @@ public class QuickSort {
       return i;
   }
 
-  static def qsort(data:Array[int](1), left:int, right:int) {
+  static def qsort(data:Array[int](1){rail,rect,zeroBased}, left:int, right:int) {
       index:int = partition(data, left, right);
       finish {
           if (left < index - 1)
@@ -65,7 +65,7 @@ public class QuickSort {
       for (var i:Int = 0; i < 10; ++i) {
           //val data = new Array[int](N, (int)=>r.nextInt(9999));
           //Use loop to create data before FIX XTENLANG-2300
-          val data = new Array[int](N);
+          val data:Array[int](1){rail,rect,zeroBased} = new Array[int](N);
           for(var j:Int = 0; j < N; j++) { data(j) = r.nextInt(9999);}
           
           val startTime = System.nanoTime();
