@@ -37,10 +37,10 @@ val c = Clock.make();
 c.resume();
 async clocked(c) {
   // b
-  c.next();
+  c.advance();
   b_phase_two();
 }
-c.next();
+c.advance();
 a_phase_two();
 } }
 
