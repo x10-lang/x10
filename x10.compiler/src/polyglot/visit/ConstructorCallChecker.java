@@ -14,7 +14,8 @@ import polyglot.ast.*;
 import polyglot.frontend.Job;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import x10.errors.Errors;
+import x10.util.CollectionFactory;
 
 /** Visitor which ensures that constructor calls are not recursive. */
 public class ConstructorCallChecker extends ContextVisitor
@@ -25,7 +26,7 @@ public class ConstructorCallChecker extends ContextVisitor
 
     protected Map<ConstructorDef,ConstructorDef> constructorInvocations = CollectionFactory.newHashMap();
 
-    protected NodeVisitor enterCall(Node n) throws SemanticException {
+    protected NodeVisitor enterCall(Node n) {
         if (n instanceof ConstructorCall) {
             ConstructorCall cc = (ConstructorCall)n;
             if (cc.kind() == ConstructorCall.THIS) {
@@ -43,7 +44,8 @@ public class ConstructorCallChecker extends ContextVisitor
                     destCI = constructorInvocations.get(destCI);
                     if (destCI != null && srcCI.equals(destCI)) {
                         // loop in the constructor invocations!
-                        throw new SemanticException("Recursive constructor invocation.", cc.position());
+                        Errors.issue(job(), new SemanticException("Recursive constructor invocation.", cc.position()));
+                        break;
                     }
                 }
             }
