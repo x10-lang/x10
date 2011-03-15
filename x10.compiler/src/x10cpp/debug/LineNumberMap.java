@@ -1047,7 +1047,7 @@ public class LineNumberMap extends StringTable {
 		            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
 		            w.write(""+cppMethodInfo.cpplineindex+", ");                       // _lineIndex
 		            w.write(""+cppMethodInfo.lastX10Line);                             // _lastX10Line
-		            w.writeln(" },");
+		            w.writeln(" }, // "+m.lookupString(cppMethodInfo.x10class)+'.'+m.lookupString(cppMethodInfo.x10method)+"()");
 		        }
 		        w.writeln("#else");
 		        for (CPPMethodInfo cppMethodInfo : x10MethodList) {        	
@@ -1065,7 +1065,7 @@ public class LineNumberMap extends StringTable {
 		            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
 		            w.write(""+cppMethodInfo.cpplineindex+", ");                       // _lineIndex
 		            w.write(""+cppMethodInfo.lastX10Line);                             // _lastX10Line
-		            w.writeln(" },");
+		            w.writeln(" }, // "+m.lookupString(cppMethodInfo.x10class)+'.'+m.lookupString(cppMethodInfo.x10method)+"()");
 		        }
 		        w.writeln("#endif");
 		        w.writeln("};");
@@ -1292,7 +1292,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B030E0F, // 2011-03-14, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B030F0B, // 2011-03-15, 11:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");

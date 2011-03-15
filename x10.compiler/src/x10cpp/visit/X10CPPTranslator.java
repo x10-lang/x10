@@ -212,7 +212,8 @@ public class X10CPPTranslator extends Translator {
 		                    : null
 		                : null;
 		            final int lastX10Line = parent.position().endLine();
-		            if (n instanceof Stmt) {
+		            if (n instanceof Stmt && !n.position().isCompilerGenerated())
+	                {
 		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
 		                final int fixedEndLine = adjustedEndLine < adjustedStartLine ? adjustedStartLine : adjustedEndLine;
@@ -220,11 +221,9 @@ public class X10CPPTranslator extends Translator {
 		                    public void run(ClassifiedStream s) {
 		                        int cppStartLine = s.getStartLineOffset()+adjustedStartLine;
 		                        int cppEndLine = s.getStartLineOffset()+fixedEndLine;
-//		                        System.out.println("Adding line number entry: "+cppFile+":"+cppStartLine+"-"+cppEndLine+"->"+file+":"+line);
 		                        lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
-		                        if (def != null && !def.position().isCompilerGenerated()) {
+		                        if (def != null)
 		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
-		                        }
 		                    }
 		                });
 		            }
