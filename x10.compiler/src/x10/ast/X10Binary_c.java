@@ -676,7 +676,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 int i = 3;
             }
         }
-        Warnings.wasGuardChecked(tc,mi, call); // cannot use checkErrorAndGuard because mi.err() might not be null, but we won't report an error (see X10Unary_c.desugarUnaryOp :  n4 = X10Binary_c.typeCheckCall(tc, n4); ) 
         Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), tc.context());
         call = (X10Call_c) call.methodInstance(mi).type(rt);
         call = (X10Call_c) call.arguments(args);

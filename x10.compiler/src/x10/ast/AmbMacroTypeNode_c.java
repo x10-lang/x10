@@ -249,8 +249,6 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
             }
             
             if (mt != null) {
-                Warnings.wasGuardChecked(tc,mt,this);
-
                 LazyRef<Type> sym = (LazyRef<Type>) type;
                 sym.update(mt);
                 

@@ -67,6 +67,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
 import x10.X10CompilerOptions;
+import x10.errors.Warnings;
 import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr;
@@ -400,6 +401,8 @@ public class Desugarer extends ContextVisitor {
                         procCall.procedureInstance();
         if (procInst==null ||  // for binary ops (like ==), the methodInstance is null
             !procInst.checkGuardAtRuntime()) return (Expr)n;
+
+        Warnings.dynamicCall(v.job(), Warnings.CheckGuardAtRuntime(n.position()));
 
         final Position pos = n.position();
         List<Expr> args = binary_c!=null ? Arrays.asList(binary_c.left(), binary_c.right()) : procCall.arguments();

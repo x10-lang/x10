@@ -22,13 +22,6 @@ public class Warnings {
         if (use.error() != null) {
             Errors.issue(tc.job(), use.error(), n);
         }
-        if (use instanceof ProcedureInstance)
-            wasGuardChecked(tc, (ProcedureInstance) use, n);        
-    }
-    public static void wasGuardChecked(ContextVisitor tc, ProcedureInstance pi, Node n) {
-        if (pi.checkGuardAtRuntime()) {
-            Warnings.dynamicCall(tc.job(),Warnings.CheckGuardAtRuntime(n.position()));
-        }
     }
 	public static ErrorInfo CheckGuardAtRuntime(Position p) {                       
 		return new ErrorInfo(ErrorInfo.WARNING, "Generated a dynamic check for the method guard.", p);
