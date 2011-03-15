@@ -3190,8 +3190,8 @@ class TestOperatorResolutionWithoutCoercions { // XTENLANG-1692
 		def example(a:A,b:B,c:C) { Console.OUT.println("Example:");
 			val x1:Int{self==1} = a+a; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
 			val x2:Int{self==1} = a+b; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
-			val x3:Int{self==3} = a+c; // resolves to A::op+(A,C) so it does a static call
-			val x4:Int{self==2} = b+a; // resolves to A::op+(B,A) and dynamically dispatches on the second argument (so it might execute B::op+(B,B) at runtime)
+			val x3 = a+c; // ERR: Semantic Error: Ambiguous operator because it matches more than one operator definition.  Matches both A::op+(A,C) and A::this+A
+			val x4 = b+a; // // ERR: Semantic Error: Ambiguous operator because it matches more than one operator definition.  Matches both A::this+A and A::B+this
 			val x5:Int{self==2} = b+b; // resolves to B::op+(B,B) and dynamically dispatches on the second argument
 			val x6:Int{self==2} = b+c; // ShouldBeErr:  should resolve to Example::op+(B,C) so it does a static call (so the return type should be 4!)
 			val x7:Int{self==1} = c+a; // resolves to C::op+(C,A) and dynamically dispatches on the first argument
