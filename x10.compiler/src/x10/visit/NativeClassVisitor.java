@@ -226,7 +226,7 @@ public class NativeClassVisitor extends ContextVisitor {
         fake.setPackage(Types.ref(ts.packageForName(QName.make(cpackage))));
 
         // copy *.java for @NativeClass from sourcepath (or classpath) to output_directory
-        Options options = (Options) ts.extensionInfo().getOptions();
+        Options options = ts.extensionInfo().getOptions();
         try {
             if (options.source_path != null && !options.source_path.isEmpty()) {
                 for (File sourceDirOrJarFile : options.source_path) {
