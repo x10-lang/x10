@@ -930,8 +930,7 @@ public class Errors {
 		private static final long serialVersionUID = 755005770475489356L;
 
 		public MustReturnValueOfType(String designator, FunctionDef fd, Position p) {
-			super("Method must return a value of type." +
-					"\n\t Method: " + designator +
+			super(designator + " must return a value of type." +
 					"\n\t Type: " + fd.returnType().get(), p);
 		}
 	}
