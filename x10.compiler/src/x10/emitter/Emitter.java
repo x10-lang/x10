@@ -587,11 +587,11 @@ public class Emitter {
 		return pat;
 	}
 	
-	public String getJavaRep(X10ClassDef def) {
+	public static String getJavaRep(X10ClassDef def) {
 		return getJavaRepParam(def, 1);
 	}
 
-	public String getJavaRTTRep(X10ClassDef def) {
+	public static String getJavaRTTRep(X10ClassDef def) {
 		return getJavaRepParam(def, 3);
 	}
 
@@ -610,8 +610,8 @@ public class Emitter {
 	public static boolean isNativeRepedToJava(Type ct) {
 	    Type bt = Types.baseType(ct);
 	    if (bt instanceof X10ClassType) {
-	        X10ClassDef cd = ((X10ClassType) bt).x10Def();
-	        String pat = getJavaRepParam(cd, 1);
+	        X10ClassDef def = ((X10ClassType) bt).x10Def();
+	        String pat = getJavaRep(def);
 	        if (pat != null && pat.startsWith("java.")) {
 	            return true;
 	        }
@@ -3090,6 +3090,11 @@ public class Emitter {
                 } else if (xts.isBoolean(type)) {
                     zero = "false; ";
                 } else {
+//                    if (type.fullName().toString().equals("x10.io3.Buffer")) {
+//                        // TODO
+//                        zero = "null; ";
+//                    } else
+                    {
                     // user-defined struct type
                     // for struct a.b.S[T], "new a.b.S(T, (java.lang.System) null);"
                     w.write(lhs); lhs = "";
@@ -3105,6 +3110,7 @@ public class Emitter {
                         }
                     }
                     w.write("(java.lang.System) null); ");
+                    }
                 }
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"

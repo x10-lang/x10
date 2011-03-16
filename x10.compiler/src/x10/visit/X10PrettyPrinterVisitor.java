@@ -901,7 +901,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		} catch (SemanticException e) { }
 
 		// Do not generate code if the class is represented natively.
-		if (er.getJavaRep(def) != null) {
+		if (Emitter.getJavaRep(def) != null) {
 			w.write(";");
 			w.newline();
 			return;
@@ -1371,7 +1371,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (t instanceof X10ClassType) {
 		    X10ClassType ct = (X10ClassType) t;
 		    X10ClassDef cd = ct.x10Def();
-		    String pat = er.getJavaRTTRep(cd);
+		    String pat = Emitter.getJavaRTTRep(cd);
 
 		    if (t instanceof FunctionType) {
 		        FunctionType ft = (FunctionType) t;
@@ -1386,7 +1386,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        w.write("_" + args.size());
 		        w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
 		    }
-		    else if (pat == null && er.getJavaRep(cd) == null && ct.isGloballyAccessible() && cd.typeParameters().size() != 0) {
+		    else if (pat == null && Emitter.getJavaRep(cd) == null && ct.isGloballyAccessible() && cd.typeParameters().size() != 0) {
 		        w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
 		    }
 		    else {
@@ -1403,9 +1403,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (t instanceof X10ClassType) {
 		    X10ClassType ct = (X10ClassType) t;
 		    X10ClassDef cd = ct.x10Def();
-		    String pat = er.getJavaRTTRep(cd);
+		    String pat = Emitter.getJavaRTTRep(cd);
 
-		    if (pat == null && er.getJavaRep(cd) == null && ct.typeArguments() != null) {
+		    if (pat == null && Emitter.getJavaRep(cd) == null && ct.typeArguments() != null) {
 		        for (int i = 0; i < ct.typeArguments().size(); i++) {
 		            w.write(", ");
 		            new RuntimeTypeExpander(er, ct.typeArguments().get(i)).expand(tr);
