@@ -3677,7 +3677,7 @@ static class A(v:Int) {v==1} {
 		val b2:A{this.v==1} = this;
 		val b3:A{self.v==1} = a;
 		@ERR @ERR val b33:A{self.v==2} = a; 
-		@val b4:A{this.v==1} = a;
+		val b4:A{this.v==1} = a;
 	}
 }
 }
