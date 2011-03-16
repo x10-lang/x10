@@ -344,6 +344,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                                     new Errors.InterfaceInvariantNotEntailed(known, intfc, cc, pos));
                 	 
                  }
+                 // Install the known constraint in the context.
+                 CConstraint c = ctx.currentConstraint();
+                 known.addIn(c);
+                 ctx.setCurrentConstraint(known);
             }
             catch (XFailure e) {
                 Errors.issue(tc.job(), new Errors.GeneralError(e.getMessage(), position), this);

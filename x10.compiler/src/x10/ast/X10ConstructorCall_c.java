@@ -282,7 +282,14 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	            X10ConstructorDef thisConstructor = (X10ConstructorDef) ctx.currentCode();
 	            Type returnType = ci.returnType();
 	            CConstraint c = Types.realX(returnType);
-	            thisConstructor.setSupClause(Types.ref(c)); // hmm where is this used?
+	            thisConstructor.setSupClause(Types.ref(c)); 
+	            
+	            // Also make this information available downstream within this constructor.
+	            // Need to do this here because the constructor may not have a property clause.
+	            CConstraint cc = ctx.currentConstraint();
+	            cc.addIn(thisConstructor.thisVar(), c);
+	            ctx.setCurrentConstraint(cc);
+	            
 	            
 	            Type extendsType = Types.get(context.currentClassDef().superType());
 	            if (! returnType.isSubtype(extendsType, context) ) {
