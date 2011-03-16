@@ -55,12 +55,14 @@ import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.Context_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodDef;
 
 import polyglot.types.Name;
 import polyglot.types.Ref;
@@ -293,6 +295,46 @@ public class X10Context_c extends Context_c {
     	currentConstraint = c;
     }
 
+    /**
+     * Add the real clause for the current class/struct to the current constraint.
+     * If force is true, then force the computation of the real clause if it is not 
+     * yet known.
+     * @param force
+     */
+    public void addInClassInvariantIfNeeded(boolean force) {
+    	CodeDef cd = currentCode();
+    	if (cd !=null && cd instanceof MethodDef) {
+    		MethodDef md =  (MethodDef) cd;
+    		if (!md.flags().isStatic()) {
+    			// this call occurs in the body of an instance method for T.
+    			// Pick up the real clause for T -- that information is known 
+    			// statically about "this"
+    			Ref<? extends ContainerType> container = md.container();
+    			if (container.known()) { 
+    				X10ClassType type = (X10ClassType) Types.get(container);
+    				Ref<CConstraint> rc = type.x10Def().realClause();
+    				if (rc != null && (force || rc.known())) { // do not trigger prematurely
+    					TypeSystem ts = typeSystem();
+        				if (! ts.isUnknown(type)) {
+        					CConstraint env = rc.get();
+        					if (env !=null) {
+        						XVar  containerThis = thisVar();
+        						if (containerThis !=null)
+        							env=env.instantiateSelf(containerThis);
+        						if (! env.valid()) {
+        							if (currentConstraint == null)
+        								currentConstraint=env;
+        							else 
+        								currentConstraint.addIn(env);
+        						}
+        					}
+        				}
+    				}
+    				
+    			}
+    		}
+    	}
+    }
 	public X10CodeDef definingCodeDef(Name name) {
 	    if ((isBlock() || isCode()) &&
 	            (findVariableInThisScope(name) != null || findInThisScope(name) != null)) {

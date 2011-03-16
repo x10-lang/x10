@@ -315,4 +315,11 @@ public interface Context extends Resolver, Cloneable
      * Return the enclosing code context that can capture variables (null if none).
      */
     Context findEnclosingCapturingScope();
+    
+    /**
+     * If the current code def is an instance method, then add its real clause
+     * to the current constraint. If force is true, then force the computation of the 
+     * real clause if it is currently unknown.
+     */
+    void addInClassInvariantIfNeeded(boolean force);
 }

@@ -744,8 +744,11 @@ public class XConstraint implements Cloneable {
             str += constr.substring(1, constr.length() - 1);
         }
         else {
-            String constr = c.extConstraintsHideFake().toString();
-            str += constr.substring(1, constr.length() - 1);
+        	List<XTerm> l = c.extConstraintsHideFake();
+            String constr = l.toString();
+            String ls = constr.substring(1, constr.length() - 1);
+            if (ls !=null)
+            	str += ls;
         }
         
         return "{" + str + "}";

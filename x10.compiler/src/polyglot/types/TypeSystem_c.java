@@ -1829,9 +1829,9 @@ public class TypeSystem_c implements TypeSystem
 	env(context).checkOverride(mi, mj);
     }
 
-    public void checkOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn, Context context) throws SemanticException {
-	env(context).checkOverride(mi, mj, allowCovariantReturn);
-    }
+   // public void checkOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn, Context context) throws SemanticException {
+	//env(context).checkOverride(mi, mj, allowCovariantReturn);
+    //}
 
     /**
      * Returns true iff <m1> is the same method as <m2>
@@ -3325,8 +3325,12 @@ public class TypeSystem_c implements TypeSystem
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
+        
         mi = new X10TypeEnv_c(context).fixThis( mi, y, x);
-
+        context = context.pushBlock();
+        CConstraint cc = context.currentConstraint();
+        cc.addIn(thisVar, Types.realX(ct));
+        context.setCurrentConstraint(cc);
         ContainerType curr = ct;
         while (curr != null) {
             List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalTypes(), thisVar, context);
@@ -3367,9 +3371,9 @@ public class TypeSystem_c implements TypeSystem
         return null;
     }
 
-    public void checkOverride(ClassType ct, MethodInstance mi0, MethodInstance mj0, Context context) throws SemanticException {
-        env(context).checkOverride(ct, mi0, mj0);
-    }
+   // public void checkOverride(ClassType ct, MethodInstance mi0, MethodInstance mj0, Context context) throws SemanticException {
+   //     env(context).checkOverride(ct, mi0, mj0);
+   // }
     public X10TypeEnv env(Context context) {
         return new X10TypeEnv_c(context == null ? emptyContext() : context);
     }
@@ -3901,6 +3905,7 @@ public class TypeSystem_c implements TypeSystem
 
     
 
+    
     public boolean isUnknown(Type t) {
         return Types.baseType(t) instanceof UnknownType;
     }

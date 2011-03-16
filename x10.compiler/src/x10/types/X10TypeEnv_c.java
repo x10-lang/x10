@@ -181,7 +181,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     
-    public void checkOverride(ClassType ct, MethodInstance mi, MethodInstance mj) throws SemanticException {
+ /*   public void checkOverride(ClassType ct, MethodInstance mi, MethodInstance mj) throws SemanticException {
          XVar thisVar =  XTerms.makeUQV(); // XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
          List<XVar> ys = new ArrayList<XVar>(2);
@@ -204,7 +204,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         newEnv.checkOverride(mi, mj, true);
     }
-
+*/
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#consistent(x10.types.constraints.CConstraint)
      */

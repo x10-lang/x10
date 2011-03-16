@@ -624,8 +624,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(new CConstraint());
 
         final X10ClassDecl_c nn = n;
-        
-        // Add all the constraints on the supertypes into the invariant.
         c.setResolver(new Runnable() {
         	public void run() {
         	    CConstraint x = new CConstraint();
@@ -636,7 +634,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	        TypeConstraint ti = ci.typeConstraint().get();
         	        // TODO: Figure out what's happening with ti?!?
         	    }
-        	    if (nn.superClass != null) {
+        	    //These are handled by realClause.
+        	    /*if (nn.superClass != null) {
         	        Type t = nn.superClass.type();
         	        CConstraint tc = Types.xclause(t);
         	        if (tc != null && ! tc.valid()) {
@@ -649,7 +648,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	        if (tc != null && ! tc.valid()) {
         	            x.addIn(tc);
         	        }
-        	    }
+        	    }*/
         	    c.update(x);
         	}
         });

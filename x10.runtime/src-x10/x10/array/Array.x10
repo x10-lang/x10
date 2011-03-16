@@ -62,30 +62,35 @@ public final class Array[T] (
         /**
          * The rank of this array.
          */
-        rank:int{self==region.rank},
+        rank:int, //{self==region.rank},
         
         /**
          * Is this array defined over a rectangular region?  
          */
-        rect:boolean{self==region.rect},
+        rect:boolean, //{self==region.rect},
         
         /**
          * Is this array's region zero-based?
          */
-        zeroBased:boolean{self==region.zeroBased},
+        zeroBased:boolean, // {self==region.zeroBased},
         
         /**
          * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
          */
-        rail:boolean{self==region.rail},
+        rail:boolean, //{self==region.rail},
         
         /**
          * The number of points/data values in the array.
          * Will always be equal to region.size(), but cached here to make it available as a property.
          */
         size:Int
-) implements (Point(region.rank))=>T,
-Iterable[Point(region.rank)] {
+) {rank==region.rank,
+	   rect==region.rect,
+	   zeroBased==region.zeroBased,
+	   rail==region.rail
+   }
+   implements (Point(rank))=>T,
+               Iterable[Point(region.rank)] {
     
     /**
      * The backing storage for the array's elements

@@ -429,7 +429,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				c = c.pushBlock();
 				try {
 					if (vc.known())
-						c = ((Context) c).pushAdditionalConstraint(vc.get(), position());
+						c = c.pushAdditionalConstraint(vc.get(), position());
 					if (tc.known())
 						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
 
@@ -440,7 +440,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				//        ((X10Context) c).setCurrentTypeConstraint(tc.get());
 			}            
 		}
-
+		c.addInClassInvariantIfNeeded(false);
 		return super.enterChildScope(child, c);
 	}
 
@@ -654,6 +654,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// Need to ensure that method overriding is checked in a context in which here=this.home
 		// has been asserted.
 		Context childtc = enterChildScope(returnType(), tc.context());
+		childtc.addInClassInvariantIfNeeded(true);
 		ContextVisitor childVisitor = tc.context(childtc);
 		return super.conformanceCheck(childVisitor);
 	}
@@ -1007,7 +1008,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// Add the type params and formals to the context.
 		nn.visitList(nn.typeParameters(),childtc1);
 		nn.visitList(nn.formals(),childtc1);
-		(( Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
+		
+		Context childCxt = childtc1.context();
+		childCxt.addInClassInvariantIfNeeded(true);
+		childCxt.setVarWhoseTypeIsBeingElaborated(null);
 		{ 
 			final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
 			nn = (X10MethodDecl) nn.returnType(r);
@@ -1048,6 +1052,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// Add the type params and formals to the context.
 		nn.visitList(nn.typeParameters(),childtc2);
 		nn.visitList(nn.formals(),childtc2);
+		
+		Context childCxt2 = childtc2.context();
+		childCxt2.addInClassInvariantIfNeeded(true);
 		//reporter.report(1, "X10MethodDecl_c: after visiting formals " + childtc2.context());
 		// Now process the body.
 		nn = (X10MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
