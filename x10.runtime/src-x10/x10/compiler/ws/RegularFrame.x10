@@ -1,5 +1,6 @@
 package x10.compiler.ws;
 
+import x10.compiler.Abort;
 import x10.compiler.Header;
 import x10.compiler.Inline;
 
@@ -28,6 +29,6 @@ public abstract class RegularFrame extends Frame {
     @Inline public final def redo(worker:Worker):void {
         worker.migrate();
         Runtime.wsBlock(remap());
-        throw Stolen.STOLEN;
+        throw Abort.ABORT;
     }
 }

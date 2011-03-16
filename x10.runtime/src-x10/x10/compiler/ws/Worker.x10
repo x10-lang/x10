@@ -2,6 +2,7 @@ package x10.compiler.ws;
 
 import x10.util.Random;
 import x10.lang.Lock;
+import x10.compiler.Abort;
 import x10.compiler.SuppressTransientError;
 import x10.compiler.RemoteInvocation;
 
@@ -87,7 +88,7 @@ public final class Worker {
                     try {
                         r.resume(this);
                         unstack(r); // top frames are meant to be on the stack
-                    } catch (Stolen) {}
+                    } catch (Abort) {}
                     purge(r, r.ff); // needed because we did not stack allocate those frames
                 }
                 else if(k instanceof FinishFrame){
@@ -96,7 +97,7 @@ public final class Worker {
                     try{
                         //Runtime.println(here+" :Execute remote finish join");
                         unroll(p);
-                    } catch (Stolen){}
+                    } catch (Abort){}
                 }
                 else if(k instanceof BoxedBoolean){
                     notifyStop(); //notify the finish flag
@@ -175,11 +176,11 @@ public final class Worker {
             }
             try {
                 up.resume(this);
-            } catch (Stolen) {
+            } catch (Abort) {
                 if (up instanceof RegularFrame) {
                     purge(up, Frame.cast[Frame,RegularFrame](up).ff);
                 }
-                throw Stolen.STOLEN;
+                throw Abort.ABORT;
             }
             frame = up;
         }
@@ -314,7 +315,7 @@ public final class Worker {
                 Worker.allStop(worker00);
                 //Runtime.println(here + ":Worker(0) terminated in fast");    
             }
-        } catch (Stolen) {
+        } catch (Abort) {
             //Runtime.println(here + " :Worker(0) will start after main's fast's stolen..." );
             worker00.run();
         } catch (t:Throwable) {

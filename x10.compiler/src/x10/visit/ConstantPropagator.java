@@ -295,7 +295,7 @@ public class ConstantPropagator extends ContextVisitor {
      * 
      * TODO: implement dead code elimination and throw this code away
      */
-    static Node protect(Stmt stmt, TypeSystem ts){
+    static Stmt protect(Stmt stmt, TypeSystem ts){
         Expr cond;
         try { // if possible, create a true that wouldn't be recognized by (another pass of) the ConstantPropagator
             QName qname = QName.make("x10.compiler.CompilerFlags");
