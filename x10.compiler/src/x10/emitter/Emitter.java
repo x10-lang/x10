@@ -520,7 +520,7 @@ public class Emitter {
 		}
 	}
 
-	public String getJavaImplForStmt(Stmt n, TypeSystem xts) {
+	public static String getJavaImplForStmt(Stmt n, TypeSystem xts) {
 		if (n.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) n.ext();
 			Type java = xts.NativeType();
@@ -537,7 +537,7 @@ public class Emitter {
 		return null;
 	}
 
-	public String getJavaImplForDef(X10Def o) {
+	public static String getJavaImplForDef(X10Def o) {
 		TypeSystem xts = o.typeSystem();
 		Type java = xts.NativeType();
 		List<Type> as = o.annotationsMatching(java);
@@ -552,8 +552,10 @@ public class Emitter {
 		return null;
 	}
 	
-	private boolean isPrimitiveJavaRep(X10ClassDef def) {
-		String pat = getJavaRepParam(def, 1);
+	// not used
+	/*
+	private static boolean isPrimitiveJavaRep(X10ClassDef def) {
+		String pat = getJavaRep(def);
 		if (pat == null) {
 			return false;
 		}
@@ -566,9 +568,10 @@ public class Emitter {
 		}
 		return false;
 	}
+	*/
 
-	private String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
-		String pat = getJavaRepParam(def, 1);
+	private static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
+		String pat = getJavaRep(def);
 		if (pat != null && boxPrimitives) {
 			String[] s = new String[] { "boolean", "byte", "char",
 					"short", "int", "long", "float", "double" };
@@ -659,7 +662,7 @@ public class Emitter {
 		return null;
 	}
 
-	private void assertNumberOfInitializers(Type at, int len) {
+	private static void assertNumberOfInitializers(Type at, int len) {
 		at = Types.baseType(at);
 		if (at instanceof X10ClassType) {
 			X10ClassType act = (X10ClassType) at;
@@ -2095,7 +2098,7 @@ public class Emitter {
         }
     }
 
-    private void getAllInterfaces(List<Type> interfaces, List<Type> allInterfaces) {
+    private static void getAllInterfaces(List<Type> interfaces, List<Type> allInterfaces) {
         allInterfaces.addAll(interfaces);
         for (Type type : interfaces) {
             if (type instanceof X10ClassType) {
@@ -2795,7 +2798,7 @@ public class Emitter {
         }
     }
 
-    private int getIndex(List<ParameterType> pts, ParameterType t) {
+    private static int getIndex(List<ParameterType> pts, ParameterType t) {
         for (int i = 0; i < pts.size(); i ++) {
             if (pts.get(i).name().equals(t.name())) {
                 return i;

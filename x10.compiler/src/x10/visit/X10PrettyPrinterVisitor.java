@@ -302,7 +302,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 n.print(expr, w, tr);
 	        }
 	        // support for @Native
-	        else if (!expr.type().isVoid() && er.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
+	        else if (!expr.type().isVoid() && Emitter.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
 	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
 	            n.print(expr, w, tr);
 	            w.write(")");
@@ -395,7 +395,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Block_c n) {
-	    String s = er.getJavaImplForStmt(n, tr.typeSystem());
+	    String s = Emitter.getJavaImplForStmt(n, tr.typeSystem());
 	      if (s != null) {
 	          w.write(s);
 	      } else {
@@ -1477,7 +1477,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     		if (mi.flags().isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
     			X10FieldInstance fi = (X10FieldInstance) mi.container().fieldNamed(mi.name());
     			if (fi != null) {
-    				String pat2 = er.getJavaImplForDef(fi.x10Def());
+    				String pat2 = Emitter.getJavaImplForDef(fi.x10Def());
     				if (pat2 != null) {
     					Object[] components = new Object[] { target };
     					er.dumpRegex("Native", components, tr, pat2);
@@ -2666,7 +2666,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
 
 		// print native field access
-		String pat = er.getJavaImplForDef(fi.x10Def());
+		String pat = Emitter.getJavaImplForDef(fi.x10Def());
 		if (pat != null) {
 		    Object[] components = new Object[] { target };
 		    er.dumpRegex("Native", components, tr, pat);
@@ -2803,7 +2803,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			//args.add(array);
 			args.add(n.right());
 			for (Expr e : index) args.add(e);
-			String pat = er.getJavaImplForDef(mi.x10Def());
+			String pat = Emitter.getJavaImplForDef(mi.x10Def());
 
 			if (pat != null) {
 				er.emitNativeAnnotation(pat, array, mi.typeParameters(), args, Collections.<Type>emptyList());
@@ -3043,7 +3043,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				w.allowBreak(0, " ");
 				er.printType(left.type(), PRINT_TYPE_PARAMS);
 				w.write(" old = ");
-				String pat = er.getJavaImplForDef(mi.x10Def());
+				String pat = Emitter.getJavaImplForDef(mi.x10Def());
 				if (pat != null) {
 					Object[] components = new Object[args.size()+1];
 					int j = 0;
