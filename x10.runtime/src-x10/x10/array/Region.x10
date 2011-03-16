@@ -401,11 +401,6 @@ public abstract class Region(
 
     public operator this * (that: Region) = product(that);
     
-    // These next two * operators are only defined so the hacks in BuiltinTypeRules
-    // for special cases where we need arithmetic to be done on known ranks will kick in.
-    public operator this * (that:IntRange) = product(that as Region(1));
-    public operator (that:IntRange) * this  = (that as Region(1)).product(this);
-
     public operator this + (v: Point(rank)) = translate(v);
     public operator (v: Point(rank)) + this = translate(v);
     public operator this - (v: Point(rank)) = translate(-v);
