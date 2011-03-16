@@ -82,9 +82,9 @@ public class XTerms {
 	 * @param field
 	 * @return
 	 */
-	/*public static final XField makeField(XVar receiver, XName field) {
-		return new XField(receiver, field);
-	}*/
+	public static final <T> XField<T> makeField(XVar receiver, T field) {
+		return new XField<T>(receiver, field);
+	}
 	public static final XField<Object> makeFakeField(XVar receiver, Object field) {
 		return new XField<Object>(receiver, field, true);
 	}
@@ -158,6 +158,10 @@ public class XTerms {
 		assert left != null;
 		assert right != null;
 		return new XAnd(left, right);
+	}
+	public static XTerm makeNot(XTerm arg) {
+		assert arg != null;
+		return new XNot(arg);
 	}
 
 	/**

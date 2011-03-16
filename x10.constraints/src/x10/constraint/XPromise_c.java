@@ -269,7 +269,7 @@ class XPromise_c implements XPromise, Serializable {
         if (p == null) {
             // no edge. Create a new promise and add this edge.
             p = (index == vars.length - 1 && last != null) 
-            ? last : new XPromise_c(f);
+            ? last : new XPromise_c(var instanceof XVar ? f.copy((XVar) var) : f);
             fields.put(s, p);
         }
         // recursively, intern the rest of the path on the child.

@@ -27,11 +27,11 @@ public class XField<T> extends XVar {
     // representation of a constraint or not. hidden true for fake fields.
     private boolean hidden;
 
-    protected XField(XVar receiver, T field) {
+    public XField(XVar receiver, T field) {
         this(receiver, field, false);
     }
 
-    protected XField(XVar receiver, T field, boolean hidden) {
+    public XField(XVar receiver, T field, boolean hidden) {
         super();
         this.receiver = receiver;
         this.field = field;

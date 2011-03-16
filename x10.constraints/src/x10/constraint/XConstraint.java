@@ -326,12 +326,20 @@ public class XConstraint implements Cloneable {
     	}
     	try {
     	    valid &= ! p1.disBind(p2);
+    	    if (left instanceof XField<?> && right instanceof XField<?>) {
+    	    	XField<?> lf = (XField<?>) left;
+    	    	XField<?> rf = (XField<?>) right;
+    	    	if (lf.field()==rf.field()) {
+    	    		addDisBinding(lf.receiver(), rf.receiver());
+    	    	}
+    	    	
+    	    }
     	} catch (XFailure z) {
     	    setInconsistent();
     	}
         
     }
-    
+
 
 	/**
 	 * Add an atomic formula to the constraint.
@@ -557,7 +565,23 @@ public class XConstraint implements Cloneable {
     	XPromise p2 = lookup(t2);
     	if (p2 == null)
     		return false;
-    	return p1.isDisBoundTo(p2);
+    	if (p1.isDisBoundTo(p2))
+    		return true;
+    	Map<Object, XPromise> p1f = p1.fields();
+    	if (p1f !=null) {
+    		Map<Object, XPromise> p2f = p2.fields();
+    		if (p2f != null) 
+    			for (Map.Entry<Object, XPromise> me : p1f.entrySet()) {
+    				Object field = me.getKey();
+    				XPromise r1 = me.getValue().lookup();
+    				XPromise r2 = p2f.get(field).lookup();
+    				if (r1.isDisBoundTo(r2))
+    					return true;
+    				
+    			}
+    	}
+    	return false;
+    	
     	
     }
   
