@@ -34,8 +34,8 @@ typedef void (*teamCallback)(void *);
 
 // the values for pami_dt are mapped to the indexes of x10rt_red_type
 pami_dt DATATYPE_CONVERSION_TABLE[] = {PAMI_UNSIGNED_CHAR, PAMI_SIGNED_CHAR, PAMI_SIGNED_SHORT, PAMI_UNSIGNED_SHORT, PAMI_SIGNED_INT,
-		PAMI_UNSIGNED_INT, PAMI_SIGNED_LONG_LONG, PAMI_UNSIGNED_LONG_LONG, PAMI_DOUBLE, PAMI_FLOAT, PAMI_DOUBLE_COMPLEX}; // TODO - check that last one...
-size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,8}; // the number of bytes used for each entry in the table above.
+		PAMI_UNSIGNED_INT, PAMI_SIGNED_LONG_LONG, PAMI_UNSIGNED_LONG_LONG, PAMI_DOUBLE, PAMI_FLOAT, PAMI_LOC_DOUBLE_INT};
+size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,12}; // the number of bytes used for each entry in the table above.
 // values for pami_op are mapped to indexes of x10rt_red_op_type
 pami_op OPERATION_CONVERSION_TABLE[] = {PAMI_SUM, PAMI_PROD, PAMI_UNDEFINED_OP, PAMI_BAND, PAMI_BOR, PAMI_BXOR, PAMI_MAX, PAMI_MIN};
 
@@ -113,6 +113,26 @@ void error(const char* msg, ...)
 
 	fflush(stderr);
 	exit(EXIT_FAILURE);
+}
+
+// small bit of code to extend the number of allocated teams.  Returns the original lastTeamIndex
+unsigned expandTeams(unsigned numNewTeams)
+{
+	int r;
+	pthread_mutex_lock(&state.teamLock);
+		void* oldTeams = state.teams;
+		int oldSize = (state.lastTeamIndex+1)*sizeof(x10rt_pami_team);
+		int newSize = (state.lastTeamIndex+1+numNewTeams)*sizeof(x10rt_pami_team);
+		void* newTeams = malloc(newSize);
+		if (newTeams == NULL) error("Unable to allocate memory to add more teams");
+		memcpy(newTeams, oldTeams, oldSize);
+		memset(((char*)newTeams)+oldSize, 0, newSize-oldSize);
+		state.teams = (x10rt_pami_team*)newTeams;
+		r = state.lastTeamIndex;
+		state.lastTeamIndex+=numNewTeams;
+	pthread_mutex_unlock(&state.teamLock);
+	free(oldTeams);
+	return r;
 }
 
 /*
@@ -442,9 +462,9 @@ static void team_creation_complete (pami_context_t   context,
                        void          * cookie,
                        pami_result_t    result)
 {
-//	#ifdef DEBUG
-		fprintf(stderr, "Team created at place %u\n", state.myPlaceId);
-//	#endif
+	#ifdef DEBUG
+		fprintf(stderr, "New team created at place %u\n", state.myPlaceId);
+	#endif
 
 	if (cookie != NULL)
 	{
@@ -471,32 +491,23 @@ static void team_create_dispatch (
 	if (newTeamId <= state.lastTeamIndex)
 		error("Caught an invalid request to put the same place in a team more than once");
 
-	// extend our list of team ID's
-	pthread_mutex_lock(&state.teamLock);
-		void* oldTeams = state.teams;
-		int oldSize = (state.lastTeamIndex)*sizeof(x10rt_pami_team);
-		int newSize = newTeamId*sizeof(x10rt_pami_team);
-		void* newTeams = malloc(newSize);
-		memcpy(newTeams, oldTeams, oldSize);
-		memset(((char*)newTeams)+oldSize, 0, newSize-oldSize);
-		state.teams = (x10rt_pami_team*)newTeams;
-		state.lastTeamIndex = newTeamId;
-	pthread_mutex_unlock(&state.teamLock);
-	free(oldTeams);
+	int previousLastTeam = expandTeams(1);
+	if (previousLastTeam+1 != newTeamId) error("misalignment detected in team_create_dispatch");
 
 	// save the members of the new team
 	state.teams[newTeamId].places = (pami_task_t*)malloc(pipe_size);
+	if (state.teams[newTeamId].places == NULL) error("unable to allocate memory for holding the places in team_create_dispatch");
 	memcpy(state.teams[newTeamId].places, pipe_addr, pipe_size);
 
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
 
-	#ifdef DEBUG
+//	#ifdef DEBUG
 		fprintf(stderr, "creating a new team %u at place %u of size %lu\n", newTeamId, state.myPlaceId, pipe_size/(sizeof(uint32_t)));
-	#endif
+//	#endif
 
 	pami_result_t   status = PAMI_ERROR;
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, state.myPlaceId, state.teams[newTeamId].places, pipe_size/(sizeof(uint32_t)), state.context[0], team_creation_complete, cookie);
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, pipe_size/(sizeof(uint32_t)), state.context[0], team_creation_complete, cookie);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
 
@@ -979,54 +990,50 @@ static void split_stage2 (pami_context_t   context,
 	// at this point, we have completed our all-to-all, and know which members will be in which new teams
 	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *)cookie;
 
+	unsigned parentTeamSize = x10rt_net_team_sz(cbd->teamIndex);
+
 	// find how many new teams we're creating
 	unsigned numNewTeams = 0;
 	unsigned myNewTeamSize = 0;
-	for (unsigned i=0; i<x10rt_net_team_sz(cbd->teamIndex); i++)
+	for (unsigned i=0; i<parentTeamSize; i++)
 	{
 		if (cbd->colors[i] > numNewTeams)
 			numNewTeams = cbd->colors[i];
 		if (cbd->colors[i] == cbd->colors[cbd->parent_role])
 			myNewTeamSize++;
 	}
-
-	// extend our list of team ID's
-	pthread_mutex_lock(&state.teamLock);
-		void* oldTeams = state.teams;
-		int oldSize = (state.lastTeamIndex)*sizeof(x10rt_pami_team);
-		int newSize = (state.lastTeamIndex+numNewTeams+1)*sizeof(x10rt_pami_team);
-		void* newTeams = malloc(newSize);
-		memcpy(newTeams, oldTeams, oldSize);
-		memset(((char*)newTeams)+oldSize, 0, newSize-oldSize);
-		state.teams = (x10rt_pami_team*)newTeams;
-		int myNewTeamIndex = state.lastTeamIndex+1+cbd->colors[cbd->parent_role];
-		state.lastTeamIndex = state.lastTeamIndex+numNewTeams+1;
-	pthread_mutex_unlock(&state.teamLock);
-	free(oldTeams);
+	numNewTeams++; // values in colors run from 0 to N
 
 	// save the members of the team that matches my color.  Skip the other teams
+	unsigned myNewTeamIndex = expandTeams(numNewTeams)+cbd->colors[cbd->parent_role]+1;
 	state.teams[myNewTeamIndex].places = (pami_task_t*)malloc(myNewTeamSize*sizeof(pami_task_t));
+	if (state.teams[myNewTeamIndex].places == NULL) error("Unable to allocate memory to hold the team member list");
 	int index = 0;
-	for (unsigned i=0; i<x10rt_net_team_sz(cbd->teamIndex); i++)
-	{
-		if (cbd->colors[i] == cbd->colors[cbd->parent_role])
+	for (unsigned i=0; i<parentTeamSize; i++)
+	{   // each team member was a member in the parent.  Copy the ID's over, preserving the order.
+		if (cbd->colors[i] == cbd->colors[cbd->parent_role]) // if this member is in my new team
 		{
-			// each team member was a member in the parent.  Copy the ID's over, preserving the order.
-			state.teams[myNewTeamIndex].places[index] = state.teams[cbd->teamIndex].places[i];
+			if (cbd->teamIndex == 0) // world geometry doesn't use the places array
+				state.teams[myNewTeamIndex].places[index] = i;
+			else
+				state.teams[myNewTeamIndex].places[index] = state.teams[cbd->teamIndex].places[i];
 			index++;
 		}
 	}
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u creating new split team %u from team %u, with %u members: %u", state.myPlaceId, myNewTeamIndex, cbd->teamIndex, myNewTeamSize, state.teams[myNewTeamIndex].places[0]);
+		for (unsigned i=1; i<myNewTeamSize; i++)
+			fprintf(stderr, ",%u", state.teams[myNewTeamIndex].places[i]);
+		fprintf(stderr, ".\n");
+	#endif
+
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
-
-//	#ifdef DEBUG
-	fprintf(stderr, "Creating new split team %u (with %u members) from team %u\n", myNewTeamIndex, myNewTeamSize, cbd->teamIndex);
-//	#endif
 
 	pami_result_t   status = PAMI_ERROR;
 	pami_geometry_t parentGeometry = state.teams[cbd->teamIndex].geometry;
 	cbd->teamIndex = myNewTeamIndex;
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, state.myPlaceId, state.teams[myNewTeamIndex].places, myNewTeamSize, state.context[0], team_creation_complete, cookie);
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, state.context[0], team_creation_complete, cbd);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
 
@@ -1036,21 +1043,23 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	// we need to determine how many new teams are getting created (# of colors), and who is in each team.
 	// we learn this through an all-to-all
 
+	unsigned parentTeamSize = x10rt_net_team_sz(parent);
 	// allocate a buffer to hold the color for each place
-	x10rt_place *colors = (x10rt_place*) malloc(sizeof(x10rt_place) * x10rt_net_team_sz(parent));
+	x10rt_place *colors = (x10rt_place*) malloc(sizeof(x10rt_place) * parentTeamSize);
+	if (colors == NULL) error("Unable to allocate memory for the team colors buffer");
 	colors[parent_role] = color;
 
 	// determine an algorithm for the all-to-all
 	pami_result_t status = PAMI_ERROR;
 	// figure out how many different algorithms are available for the barrier
 	size_t num_algorithms[2]; // [0]=always works, and [1]=sometimes works lists
-	status = PAMI_Geometry_algorithms_num(state.context[0], state.teams[parent].geometry, PAMI_XFER_ALLTOALL, num_algorithms);
+	status = PAMI_Geometry_algorithms_num(state.context[0], state.teams[parent].geometry, PAMI_XFER_ALLGATHER, num_algorithms);
 	if (status != PAMI_SUCCESS || num_algorithms[0]==0) error("Unable to query the algorithm counts for team %u", parent);
 	pami_algorithm_t *always_works_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[0]);
 	pami_metadata_t *always_works_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[0]);
 	pami_algorithm_t *must_query_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[1]);
 	pami_metadata_t *must_query_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[1]);
-	status = PAMI_Geometry_algorithms_query(state.context[0], state.teams[parent].geometry, PAMI_XFER_ALLTOALL, always_works_alg,
+	status = PAMI_Geometry_algorithms_query(state.context[0], state.teams[parent].geometry, PAMI_XFER_ALLGATHER, always_works_alg,
 			always_works_md, num_algorithms[0], must_query_alg, must_query_md, num_algorithms[1]);
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", parent);
 
@@ -1066,12 +1075,12 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	operation.cb_done = split_stage2;
 	operation.cookie = cbd;
 	operation.algorithm = always_works_alg[0];
-	operation.cmd.xfer_alltoall.rcvbuf = (char*)colors;
-	operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_CONTIGUOUS;
-	operation.cmd.xfer_alltoall.rtypecount = sizeof(x10rt_place);
-	operation.cmd.xfer_alltoall.sndbuf = (char*)colors;
-	operation.cmd.xfer_alltoall.stype = PAMI_TYPE_CONTIGUOUS;
-	operation.cmd.xfer_alltoall.stypecount = sizeof(x10rt_place);
+	operation.cmd.xfer_allgather.rcvbuf = (char*)colors;
+	operation.cmd.xfer_allgather.rtype = PAMI_TYPE_CONTIGUOUS;
+	operation.cmd.xfer_allgather.rtypecount = sizeof(x10rt_place)*parentTeamSize;
+	operation.cmd.xfer_allgather.sndbuf = (char*)&color;
+	operation.cmd.xfer_allgather.stype = PAMI_TYPE_CONTIGUOUS;
+	operation.cmd.xfer_allgather.stypecount = sizeof(x10rt_place);
 
 //	#ifdef DEBUG
 	fprintf(stderr, "Splitting team %u\n", parent);
