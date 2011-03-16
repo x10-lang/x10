@@ -11,7 +11,8 @@
 
 import harness.x10Test;
 
-// OPTIONS: -STATIC_CALLS  because without will just insert a cast: Warning: Expression 'p' was cast to type ...
+// We run with STATIC_CALLS because without it, it will just insert a cast: Warning: Expression 'p' was cast to type ...
+// OPTIONS: -STATIC_CALLS
 
 /**
  * Simple array test.
@@ -30,7 +31,7 @@ public class ArrayAccessWithMismatchingPointRank_MustFailCompile extends x10Test
 
 	    val p1 = [1] as Point;
 	    a(ia(p1)); // ok
-        a(ia(p)); // ERR should fail at compile time because of mismatching rank.
+        a(ia(p)); // ERR [Method or static constructor not found for given call. Call: ia(x10.array.Point{self==p, p.x10.array.Point#rank==2})]
 
         return true;
     }

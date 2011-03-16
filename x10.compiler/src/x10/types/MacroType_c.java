@@ -222,8 +222,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return (MacroType) t;
 	}
 
-    public boolean checkGuardAtRuntime() { return false; }
-    public MacroType_c checkGuardAtRuntime(boolean check) {
+    public boolean checkConstraintsAtRuntime() { return false; }
+    public MacroType_c checkConstraintsAtRuntime(boolean check) {
         throw new RuntimeException("The guard for a MacroType cannot be dynamically checked (at runtime)");
     }
 	
@@ -263,8 +263,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		t.definedType = definedType;
 		return t;
 	}
-	
-	public static class FormalToVarTransform implements Transformation<Integer, XVar> {
+
+    public static class FormalToVarTransform implements Transformation<Integer, XVar> {
 
 		List<LocalDef> formalNames;
 		List<Ref<? extends Type>> formalTypes;

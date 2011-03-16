@@ -43,6 +43,7 @@ import polyglot.ast.If;
 import polyglot.ast.Receiver;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.Special;
+import polyglot.ast.BooleanLit;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.LocalDef;
@@ -53,19 +54,18 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
-import polyglot.types.ConstructorInstance;
 import polyglot.types.QName;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ClassType;
 import polyglot.types.ClassDef;
+import polyglot.types.Ref;
 import polyglot.util.CollectionUtil;
 import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10.errors.Warnings;
 import x10.ast.Closure;
@@ -79,7 +79,6 @@ import x10.ast.X10Cast;
 import x10.ast.X10Instanceof;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
-import x10.ast.X10New;
 import x10.ast.X10ClassDecl_c;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
@@ -365,9 +364,9 @@ public class Desugarer extends ContextVisitor {
     // def n(a:T, b:S){EXPR(this,a,b)} { ... }
     // def this(a:T, b:S){EXPR(a,b)} { ... }
     // if the Call/New has a ProcedureInstance with checkGuardAtRuntime, then we do this transformation:
-    // e.n(e1, e2)     ->   ((r:C, a:T, b:S)=>{if (!(EXPR(r,a,b))) throw new UnsatisfiedGuardException(...); return r.n(a,b); })(e, e1, e2)
+    // e.n(e1, e2)     ->   ((r:C, a:T, b:S)=>{if (!(EXPR(r,a,b))) throw new FailedDynamicCheckException(...); return r.n(a,b); })(e, e1, e2)
     // (there are two special cases: if e is empty (so it's either "this" or nothing if the "n" is static)
-    // new X(e1, e2)  ->   ((a:T, b:S)=>{if (!(EXPR(a,b))) throw new UnsatisfiedGuardException(...); return new X(a,b); })(e1, e2)
+    // new X(e1, e2)  ->   ((a:T, b:S)=>{if (!(EXPR(a,b))) throw new FailedDynamicCheckException(...); return new X(a,b); })(e1, e2)
     private static Expr desugarCall(Expr expr, ContextVisitor v) {
         if (expr instanceof Call)
             return desugarCall((Call)expr, v);
@@ -389,6 +388,27 @@ public class Desugarer extends ContextVisitor {
     private static Expr desugarNew(final New new_c, ContextVisitor v) {
         return desugarCall(new_c, null, new_c, null, v);
     }
+    private static Expr addCheck(Expr booleanGuard, CConstraint constraint, final Name selfName, final NodeFactory nf, final TypeSystem ts, final Position pos) {
+        if (constraint==null) return booleanGuard;
+        final List<Expr> guardExpr = new Synthesizer(nf, ts).makeExpr(constraint, pos);  // note: this doesn't typecheck the expression, so we're missing type info.
+        for (Expr e : guardExpr) {
+            e = (Expr) e.visit( new NodeVisitor() {
+                @Override
+                public Node override(Node n) {
+                    if (n instanceof Special){
+                        Special special = (Special) n;
+                        if (special.kind()== Special.Kind.SELF) {
+                            assert selfName!=null; // self cannot appear in a method guard
+                            return nf.AmbExpr(pos,nf.Id(pos,selfName));
+                        }                                                             
+                    }
+                    return null;
+                }
+            });
+            booleanGuard = nf.Binary(pos, booleanGuard, Binary.Operator.COND_AND, e).type(ts.Boolean());
+        }
+        return booleanGuard;
+    }
     private static Expr desugarCall(final Expr n, final Call call_c, final New new_c, final Binary binary_c, ContextVisitor v) {
         final NodeFactory nf = v.nodeFactory();
         final TypeSystem ts = v.typeSystem();
@@ -400,9 +420,9 @@ public class Desugarer extends ContextVisitor {
                 binary_c!=null ? binary_c.methodInstance() :
                         procCall.procedureInstance();
         if (procInst==null ||  // for binary ops (like ==), the methodInstance is null
-            !procInst.checkGuardAtRuntime()) return (Expr)n;
+            !procInst.checkConstraintsAtRuntime()) return (Expr)n;
 
-        Warnings.dynamicCall(v.job(), Warnings.CheckGuardAtRuntime(n.position()));
+        Warnings.dynamicCall(v.job(), Warnings.GeneratedDynamicCheck(n.position()));
 
         final Position pos = n.position();
         List<Expr> args = binary_c!=null ? Arrays.asList(binary_c.left(), binary_c.right()) : procCall.arguments();
@@ -454,15 +474,20 @@ public class Desugarer extends ContextVisitor {
 
 
         // we add the guard to the body, then the return stmt.
-        // if (!(GUARDEXPR(a,b))) throw new UnsatisfiedGuardException(...); return ...
-        final CConstraint guard = procInst.def().guard().get();
-        final List<Expr> guardExpr = new Synthesizer(nf, ts).makeExpr(guard, pos);  // note: this doesn't typecheck the expression, so we're missing type info.
-        if (guardExpr.size()==0) throw new InternalCompilerError("The guard must have at least one Expr!");
-        // make a boolean expr out of the guardExpr (DepParameterExpr is ambiguous)
-        Expr booleanGuard = guardExpr.get(0);
-        for (int k=1; k<guardExpr.size(); k++) {
-            booleanGuard = nf.Binary(pos, booleanGuard, Binary.Operator.COND_AND, guardExpr.get(k)).type(ts.Boolean());
+        // if (!(GUARDEXPR(a,b))) throw new FailedDynamicCheckException(...); return ...
+        final ProcedureDef procDef = procInst.def();
+        final Ref<CConstraint> guardRefConstraint = procDef.guard();
+        Expr booleanGuard = (BooleanLit) nf.BooleanLit(pos, true).type(ts.Boolean());
+        if (guardRefConstraint!=null) {
+            final CConstraint guard = guardRefConstraint.get();
+            booleanGuard = addCheck(booleanGuard,guard, null, nf, ts, pos);
         }
+        // add the constraints of the formals
+        for (LocalDef localDef : procDef.formalNames()) {
+            CConstraint constraint = Types.xclause(Types.get(localDef.type()));
+            booleanGuard = addCheck(booleanGuard,constraint, localDef.name(), nf, ts, pos);
+        }
+
 
         // replace old formals in depExpr with the new locals
         final Map<Name,Expr> old2new = CollectionFactory.newHashMap(oldFormals.size());
@@ -502,12 +527,12 @@ public class Desugarer extends ContextVisitor {
             }
         };
         Expr newDep = (Expr)booleanGuard.visit(replace);
-        // if (!newDep) throw new UnsatisfiedGuardException(); return ...
+        // if (!newDep) throw new FailedDynamicCheckException(); return ...
         final Type resType = newExpr.type();
         newDep = nf.Unary(pos, Unary.Operator.NOT, newDep).type(ts.Boolean());
         If anIf = nf.If(pos, newDep, nf.Throw(pos,
-                nf.New(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.lang.UnsatisfiedGuardException")),
-                        CollectionUtil.<Expr>list(nf.StringLit(pos, guard.toString()))).type(ts.Throwable())));
+                nf.New(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.lang.FailedDynamicCheckException")),
+                        CollectionUtil.<Expr>list(nf.StringLit(pos, booleanGuard.toString()))).type(ts.Throwable())));
         // if resType is void, then we shouldn't use return
         final boolean isVoid = ts.isVoid(resType);
         newExpr = (Expr) newExpr.visit(builder).visit(checker);
@@ -703,6 +728,12 @@ public class Desugarer extends ContextVisitor {
 
     // e as T{c} -> ((x:T):T{c}=>{if (x!=null&&!c[self/x]) throwCCE(); return x;})(e as T)
     private Expr visitCast(X10Cast n) {
+        // We give the DYNAMIC_CALLS warning here (and not in type-checking), because we create a lot of temp cast nodes in the process that are discarded later.
+        if (n.conversionType()==Converter.ConversionType.DESUGAR_LATER) {
+            Warnings.dynamicCall(job(), Warnings.CastingExprToType(n.expr(),n.type(),n.position()));
+            n = n.conversionType(Converter.ConversionType.CHECKED);
+        }
+
         Position pos = n.position();
         Expr e = n.expr();
         TypeNode tn = n.castType();

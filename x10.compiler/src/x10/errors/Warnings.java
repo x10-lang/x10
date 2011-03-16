@@ -23,8 +23,8 @@ public class Warnings {
             Errors.issue(tc.job(), use.error(), n);
         }
     }
-	public static ErrorInfo CheckGuardAtRuntime(Position p) {                       
-		return new ErrorInfo(ErrorInfo.WARNING, "Generated a dynamic check for the method guard.", p);
+	public static ErrorInfo GeneratedDynamicCheck(Position p) {                       
+		return new ErrorInfo(ErrorInfo.WARNING, "Generated a dynamic check for the method call.", p);
 	}
 
 	public static boolean dynamicCall(Job job, ErrorInfo e) {

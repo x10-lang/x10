@@ -21,7 +21,7 @@ public class DepTypeConsistency1_MustFailCompile extends x10Test {
 
 /* free variable i is not parametrically consistent */
     class Tester(i:int{self == 2}){i == 3} {  // ERR ERR : [Semantic Error: Invalid type; the real clause of DepTypeConsistency1_MustFailCompile.Tester{self==DepTypeConsistency1_MustFailCompile.Tester#this} is inconsistent. , Semantic Error: Invalid type; the real clause of DepTypeConsistency1_MustFailCompile.Tester is inconsistent.]
-      public def this(arg:int):Tester = { property(arg);}  // ERR ShouldNotBeERR: [Semantic Error: Invalid type; the real clause of DepTypeConsistency1_MustFailCompile.Tester{self.i==arg} is inconsistent.]
+      public def this(arg:int):Tester = { property(arg);}  // ERR ShouldNotBeERR ShouldNotBeERR: [Semantic Error: Invalid type; the real clause of DepTypeConsistency1_MustFailCompile.Tester{self.i==arg} is inconsistent.]
     }
 	
     public def run()=true; 

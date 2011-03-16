@@ -13,51 +13,31 @@ package x10.types.matcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import polyglot.ast.Expr;
-import polyglot.frontend.Globals;
-import polyglot.types.CodeDef;
-import polyglot.types.CodeInstance;
-import polyglot.types.ContainerType;
 import polyglot.types.Context;
-import polyglot.types.Def;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodDef;
 
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import x10.ast.ClosureCall;
-import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
-import x10.constraint.XVar;
 import x10.errors.Errors;
-import x10.errors.Errors.InvalidParameter;
 import x10.types.ParameterType;
-import polyglot.types.Context;
-import x10.types.MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.MacroType;
 import polyglot.types.TypeSystem;
-import x10.types.checker.PlaceChecker;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.XConstrainedTerm;
 import x10.X10CompilerOptions;
 
 
@@ -166,7 +146,7 @@ public class Matcher {
 		System.arraycopy(ySymbols, 0, ys, 1, actuals.size());
 
 
-		final CConstraint returnEnv = Matcher.computeNewSigma(context,thisType, actuals, ythiseqv, ySymbols, hasSymbol, isStatic, xts);
+		final CConstraint returnEnv = Matcher.computeNewSigma(thisType, actuals, ythiseqv, ySymbols, hasSymbol, isStatic, xts);
 		final CConstraint returnEnv2 = Matcher.computeNewSigma2(thisType, actuals, ythiseqv, ySymbols, hasSymbol, isStatic, xts);
 
 
@@ -326,26 +306,27 @@ public class Matcher {
 
 		    final Context context2 = context.pushAdditionalConstraint(returnEnv, me.position());
 		    final CConstraint query = newMe.guard();
-		    if ( query != null) {
-		    	if ( ! query.consistent()) 
-		    		 throw new SemanticException("Call invalid; guard inconsistent for actual parameters of call.");
-		    	if (! returnEnv.entails(query, 
-		    			new ConstraintMaker() {
-		    		public CConstraint make() throws XFailure {
-		    			return context2.constraintProjection(returnEnv, query);
-		    		}
-		    	})) {
-		    		X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
-		    		if (!opts.x10_config.STATIC_CALLS &&
-		    				!(newMe instanceof MacroType)) // MacroType cannot have its guard checked at runtime
-		    			newMe = newMe.checkGuardAtRuntime(true);
-		    		else
-		    			throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
-		    	} 
-		    }
-		       
-		    
+            X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
 
+            // we can do dynamic checks on method calls when using DYNAMIC_CALLS or VERBOSE_CALLS
+            boolean dynamicChecks = !opts.x10_config.STATIC_CALLS &&
+		                !(newMe instanceof MacroType); // MacroType cannot have its guard checked at runtime
+
+		    if ( query != null) {
+                if (! query.consistent())
+                    throw new SemanticException("Call invalid; guard inconsistent for actual parameters of call.");
+                if (! returnEnv.entails(query,
+                                        new ConstraintMaker() {
+                    public CConstraint make() throws XFailure {
+                        return context2.constraintProjection(returnEnv, query);
+                    }
+                })) {
+                    if (dynamicChecks)
+                        newMe = newMe.checkConstraintsAtRuntime(true);
+                    else
+                        throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+                }
+            }
 
 		    List<Type> typeFormals2 = newMe.typeParameters();
 		    TypeConstraint tenv = new TypeConstraint();
@@ -375,8 +356,11 @@ public class Matcher {
 		        if (! xts.consistent(xtype, context2)) {
 		            throw new SemanticException("Parameter type " + xtype + " of call is inconsistent in calling context.");
 		        }
-		        if (! xts.isSubtype(ytype, xtype, context2)) {
-		            throw new Errors.InvalidParameter(ytype, xtype, me.position());
+		        if (! xts.isSubtype(ytype, xtype, context2)) {                    
+                    if (dynamicChecks && xts.isSubtype(Types.baseType(ytype), Types.baseType(xtype), context2))
+                        newMe = newMe.checkConstraintsAtRuntime(true);
+                    else
+                        throw new Errors.InvalidParameter(ytype, xtype, me.position());
 		        }
 		    }
 		}
@@ -385,52 +369,29 @@ public class Matcher {
 	}
 
 	
-	public static CConstraint computeNewSigma(Context context, Type thisType, List<Type> actuals, 
+	public static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
 			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
+	
 		CConstraint env = null; 
-		/*
-		CodeDef cd = context.currentCode();
-		if (cd !=null && cd instanceof MethodDef) {
-			MethodDef md =  (MethodDef) cd;
-			if (!md.flags().isStatic()) {
-				// this call occurs in the body of an instance method for T.
-				// Pick up the real clause for T -- that information is known statically about "this"
-				ContainerType type = Types.get(md.container());
-				XVar  containerThis = context.thisVar();
-				env = Types.realX(type);
-				if (env !=null &&  containerThis !=null)
-					env=env.instantiateSelf(containerThis);
-			}
-			
-		}*/
-		
 		if (! isStatic) {
-			CConstraint cc = Types.realX(thisType);
-			if (cc != null && ! cc.valid()) {
-				if (env==null)
-					env = new CConstraint();
-				if (ythis != null) 
-					env.addIn(ythis, cc);
-				else
-					env.addIn(cc);
-			}
+			env = Types.xclause(thisType);
+			if (env != null && ythis != null && ! ((env == null) || env.valid()))
+				env = env.copy().instantiateSelf(ythis);
 		}
-		
+		if (env == null)
+			env = new CConstraint();
 
 	    for (int i = 0; i < actuals.size(); i++) { // conjoin ytype's realX
 	    		Type ytype = actuals.get(i);
 	    		final CConstraint yc = Types.realX(ytype);
 	    		if (yc != null && ! yc.valid()) {
-	    			if (env == null)
-	    				env = new CConstraint();
 	    		    env.addIn(y[i], yc);
 	    		    if (! env.consistent())
 	    		        throw new Errors.InconsistentContext(ytype, Position.COMPILER_GENERATED);
 	    		}	    	
 	    }
-	    
-	    return env == null ? new CConstraint() : env;
+	    return env;
 	}
 	
 	public static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 

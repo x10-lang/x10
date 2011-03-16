@@ -49,7 +49,7 @@ public class XTENLANG_547_MustFailCompile extends x10Test {
 
     public def run()=true;
     public def breakit(b:GlobalRef[Rail[byte]], w:OutputStreamWriter) {
-        w.write(b, 0, 0);
+        w.write(b, 0, 0); // ERR: Semantic Error: Multiple methods match write(x10.lang.GlobalRef[x10.lang.Rail[x10.lang.Byte]]{self==b}, x10.lang.Int{self==0}, x10.lang.Int{self==0}) [method public XTENLANG_547_MustFailCompile.OutputStreamWriter.write(buf: x10.lang.GlobalRef[x10.lang.Rail[x10.lang.Byte]], off: x10.lang.Int, len: x10.lang.Int), method public XTENLANG_547_MustFailCompile.Writer.write(buf: x10.lang.GlobalRef[x10.lang.Rail[x10.lang.Byte]]{self.x10.lang.GlobalRef#home==here}, off: x10.lang.Int, len: x10.lang.Int)]
     }
 }
 

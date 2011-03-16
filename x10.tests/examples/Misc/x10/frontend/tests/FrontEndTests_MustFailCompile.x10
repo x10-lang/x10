@@ -255,6 +255,34 @@ class FinalFieldWrittenExactlyOnce {
 	}
 }
 
+class TestExceptionsDefAssignment {
+	def test() {
+		val x1:Int;
+		val x2:Int;
+		val x3:Int;
+		try {
+			x1 = 2;
+		} catch (e:Throwable) {
+			x2 = 3;
+		} finally {
+			x3 = 4;
+		}
+		use(x1); // ERR
+		use(x2); // ERR
+		use(x3);
+	}
+	var b:Boolean;
+	def testReturn() {
+		val x1:Int;
+		if (b) {
+			x1 = 1;
+			return;
+		}
+		x1 = 2;
+		use(x1);
+	}
+	def use(a:Any) {}
+}
 class InfiniteInit234 {
 	var i:Int{self!=0};
 	def this() {
@@ -2284,11 +2312,11 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 	class C(p:Int) implements I {
         public property p():Int = p;
 		def this() { 
-			property(0); // ShouldBeErr
+			property(0); // ERR
 		}
 	}
 	@ERR interface I2 extends I{self.p()==2} {}
-	@ERR @ERR interface I3 {this.p()==3} extends I2 {}
+	@ERR interface I3 {this.p()==3} extends I2 {}
 	static def test(i:I) {
 		@ERR @ERR var i1:I{self.p()==5} = i;
 		var i2:I{self.p()==1} = i;
@@ -2358,7 +2386,7 @@ class ConstraintsBugs {
 	}
 	class B extends A{p==1} {
 		def this():B{self.p==1} {
-			super(2); // ShouldBeErr
+			super(2); // ERR
 		}
 	}
 }
@@ -3665,7 +3693,7 @@ class XTENLANG_1149_2 {
 class TestClassInvariant78 {
 class AA(v:Int) {v==1} {} // ShouldBeErr
 class BB(v:Int) {v==1} {
-	def this(q:Int) { property(q); } // ShouldBeErr
+	def this(q:Int) { property(q); } // ERR
 }
 static class A(v:Int) {v==1} {
 	static def m(a:A) {
@@ -4433,7 +4461,7 @@ class ArrayAndRegionTests {
 		val reg7:Region{rank==2} = 0..10 * 0..10;
 
 		val reg:Region{self!=null, zeroBased, rect, rank==1} = 0..10;
-		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0); // ShouldNotBeERR
+		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0);
 		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0); 
 		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0); 
 		val arr4:Array[Int](reg) = null;
@@ -4767,10 +4795,10 @@ class CopyBackTest {
 
 class XTENLANG_2447(a:Int) {a==1} {
 	def this(x:Int):XTENLANG_2447{self.a==x} {
-		property(x);
+		property(x); // ERR
 	}
 	def test() {
-		val y:XTENLANG_2447 = new XTENLANG_2447(2); // ShouldBeErr
+		val y:XTENLANG_2447 = new XTENLANG_2447(2);
 	}
 
 	
@@ -4860,7 +4888,7 @@ class TestInterfaceInvariants_1930 { // XTENLANG-1930
 	class C(p:Int) implements I {
         public property p():Int = p;
 		def this() { 
-			property(0); // ShouldBeErr
+			property(0); // ERR
 		}
 	}
 	interface I2a extends I{self.p()==1} {}
@@ -5627,4 +5655,30 @@ class TestUnsoundCastWarning {
 		val x = args as Array[String](3);
 		val y = any as Array[String](3); // ERR: warning: unsound cast
     }
+}
+
+class TestConstraintLanguageAndRegions {
+	def testComplexConstraint(a:Boolean, b:Boolean, z: Boolean{self==(a==b)}) {} // ShouldBeErr
+
+	def test() {	
+		var t: Boolean(true) = false; 	// ERR
+		val R:Region{rank==2&&zeroBased&&rect} = 0..10*0..10; // ShouldNotBeERR
+
+		val Universe: Region = 0..7*0..7;
+		for (val [i,j]: Point in Universe) {} // ERR
+	}
+}
+
+
+class TestExceptionsFlow {
+	var n:Int;
+	def m() {
+		val x:TestExceptionsFlow;
+		try {
+			x = new TestExceptionsFlow();
+			val y = 3 / x.n;
+		} catch (e:Throwable) {} // misguided attempt to ignore ArithmeticException
+		use(x); // ERR
+	}
+	def use(Any) {}
 }

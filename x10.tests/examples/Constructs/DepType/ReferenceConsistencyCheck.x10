@@ -34,7 +34,7 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
 	public static def main(Array[String](1)) = {
 //		set up a test problem
 		val size=10;
-		val R:Region{rank==2&&zeroBased&&rect} = 0..(size-1)*0..(size-1);
+		val R:Region{rank==2&&zeroBased&&rect} = 0..(size-1)*0..(size-1); // ShouldNotBeERR: Warning: Expression 'x10.lang.Int{self==0}.operator..(0, size.operator-(1)).operator*(x10.lang.Int{self==0}.operator..(0, size.operator-(1)))' was cast to type x10.array.Region{self.x10.array.Region#rect==true, self.x10.array.Region#zeroBased==true, self.x10.array.Region#rank==2}.
 		val D:Dist{region==R} = Dist.makeBlock(R);
 		val A:DistArray[double]{dist==D} = 
 			   DistArray.make[double](D, ([i,j]:Point) => 
