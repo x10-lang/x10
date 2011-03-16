@@ -1,5 +1,6 @@
 package x10.compiler.ws;
 
+import x10.compiler.Abort;
 import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
@@ -22,7 +23,9 @@ public abstract class Frame {
     @Native("c++", "(#x == #y)")
     public native static def eq(x:Frame, y:FinishFrame):Boolean;
 
-    public val up:Frame;
+    @Uninitialized public val up:Frame;
+
+    @Uninitialized public var throwable:Throwable;
 
     // constructor
     @Header public def this(up:Frame) {
@@ -36,5 +39,24 @@ public abstract class Frame {
 
     public def back(worker:Worker, frame:Frame) {}
 
+    public def wrapBack(worker:Worker, frame:Frame) {
+        if (null != frame.throwable) {
+            throwable = frame.throwable;
+        } else {
+            back(worker, frame);
+        }
+    }
+
     public def resume(worker:Worker) {}
+    
+    public def wrapResume(worker:Worker) {
+        if (null != throwable) return;
+        try {
+            resume(worker);
+        } catch (t:Abort) {
+            throw t;
+        } catch (t:Throwable) {
+            throwable = t;
+        }
+    }
 }

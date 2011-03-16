@@ -16,6 +16,7 @@ public abstract class RegularFrame extends Frame {
     // copy constructor
     public def this(Int, o:RegularFrame) {
         super(o.up.realloc());
+        throwable = null;
         this.ff = o.ff.redirect;
     }
 

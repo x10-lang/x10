@@ -83,10 +83,10 @@ public final class Worker {
                     return;
                 }
                 if(k instanceof RegularFrame){
-                    //could be a regular frame of local, or remote one. Just call resume
+                    //could be a regular frame of local, or remote one. Just call wrapResume
                     val r:RegularFrame = Frame.cast[Object,RegularFrame](k);
                     try {
-                        r.resume(this);
+                        r.wrapResume(this);
                         unstack(r); // top frames are meant to be on the stack
                     } catch (Abort) {}
                     purge(r, r.ff); // needed because we did not stack allocate those frames
@@ -170,12 +170,12 @@ public final class Worker {
                 Runtime.atomicMonitor.lock(); asyncs = --Frame.cast[Frame,FinishFrame](frame).asyncs; Runtime.atomicMonitor.unlock();
                 if (0 != asyncs) return;
             }
-            up.back(this, frame);
+            up.wrapBack(this, frame);
             if (!(frame instanceof MainFrame) && !(frame instanceof RootFinish)) {
                 Runtime.deallocObject(frame);
             }
             try {
-                up.resume(this);
+                up.wrapResume(this);
             } catch (Abort) {
                 if (up instanceof RegularFrame) {
                     purge(up, Frame.cast[Frame,RegularFrame](up).ff);
@@ -196,8 +196,8 @@ public final class Worker {
                 unroll(frame);
                 return;
             }
-            up.back(this, frame);
-            up.resume(this);
+            up.wrapBack(this, frame);
+            up.wrapResume(this);
             frame = up;
         }
     }
