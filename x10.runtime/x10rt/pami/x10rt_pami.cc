@@ -35,9 +35,9 @@ typedef void (*teamCallback)(void *);
 // the values for pami_dt are mapped to the indexes of x10rt_red_type
 pami_dt DATATYPE_CONVERSION_TABLE[] = {PAMI_UNSIGNED_CHAR, PAMI_SIGNED_CHAR, PAMI_SIGNED_SHORT, PAMI_UNSIGNED_SHORT, PAMI_SIGNED_INT,
 		PAMI_UNSIGNED_INT, PAMI_SIGNED_LONG_LONG, PAMI_UNSIGNED_LONG_LONG, PAMI_DOUBLE, PAMI_FLOAT, PAMI_DOUBLE_COMPLEX}; // TODO - check that last one...
+size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,8}; // the number of bytes used for each entry in the table above.
 // values for pami_op are mapped to indexes of x10rt_red_op_type
 pami_op OPERATION_CONVERSION_TABLE[] = {PAMI_SUM, PAMI_PROD, PAMI_UNDEFINED_OP, PAMI_BAND, PAMI_BOR, PAMI_BXOR, PAMI_MAX, PAMI_MIN};
-
 
 struct x10rtCallback
 {
@@ -1316,7 +1316,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	tcb->operation.cmd.xfer_alltoall.stype = PAMI_TYPE_CONTIGUOUS;
 	tcb->operation.cmd.xfer_alltoall.stypecount = el*count;
 
-//	#ifdef DEBUG
+	#ifdef DEBUG
 		if (role==0)
 		{
 			fprintf(stderr, "AllToAll algorithms are always %s", always_works_md[0].name);
@@ -1331,7 +1331,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 			fprintf(stderr, ".\n");
 		}
 		fprintf(stderr, "Place %u, role %u executing AllToAll (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[0].name, (void*)tcb);
-//	#endif
+	#endif
 	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all on team %u", team);
 
@@ -1372,10 +1372,10 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	tcb->operation.cmd.xfer_allreduce.op = OPERATION_CONVERSION_TABLE[op];
 	tcb->operation.cmd.xfer_allreduce.rcvbuf = (char*)dbuf;
 	tcb->operation.cmd.xfer_allreduce.rtype = PAMI_TYPE_CONTIGUOUS;
-	tcb->operation.cmd.xfer_allreduce.rtypecount = count;
+	tcb->operation.cmd.xfer_allreduce.rtypecount = count*DATATYPE_MULTIPLIER_TABLE[dtype];
 	tcb->operation.cmd.xfer_allreduce.sndbuf = (char*)sbuf;
 	tcb->operation.cmd.xfer_allreduce.stype = PAMI_TYPE_CONTIGUOUS;
-	tcb->operation.cmd.xfer_allreduce.stypecount = count;
+	tcb->operation.cmd.xfer_allreduce.stypecount = count*DATATYPE_MULTIPLIER_TABLE[dtype];
 
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u executing allreduce (%s)\n", state.myPlaceId, always_works_md[0].name);
