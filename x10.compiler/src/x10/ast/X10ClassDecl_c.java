@@ -1018,10 +1018,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	Context context = (Context) tc.context();
     	
     	X10ClassDef cd = (X10ClassDef) classDef();
-        CConstraint c =  cd.classInvariant().get();
-        if (c != null && ! c.consistent()) {
-            Errors.issue(tc.job(), new Errors.InconsistentInvariant(cd, position()));
-        }
+    	{ 
+    		CConstraint c =  cd.classInvariant().get();
+    		if (c != null && ! c.consistent()) {
+    			Errors.issue(tc.job(), new Errors.InconsistentInvariant(cd, position()));
+    		}
+    	}
         
     	// Check that we're in the right file.
     	if (flags.flags().isPublic() && type.isTopLevel()) {

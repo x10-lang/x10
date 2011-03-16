@@ -235,8 +235,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 
 	        List<Type> argTypes = new ArrayList<Type>();
 
-	        for (Iterator<Expr> iter = n.arguments().iterator(); iter.hasNext();) {
-	            Expr e = iter.next();
+	        for ( Expr e : n.arguments()) {
 	            argTypes.add(e.type());
 	        }
 
@@ -281,8 +280,17 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        } else {
 	            // The constructor *within which this super call happens*.
 	            X10ConstructorDef thisConstructor = (X10ConstructorDef) ctx.currentCode();
-	            CConstraint c = Types.realX(ci.returnType());
-	            thisConstructor.setSupClause(Types.ref(c));
+	            Type returnType = ci.returnType();
+	            CConstraint c = Types.realX(returnType);
+	            thisConstructor.setSupClause(Types.ref(c)); // hmm where is this used?
+	            
+	            Type extendsType = Types.get(context.currentClassDef().superType());
+	            if (! returnType.isSubtype(extendsType, context) ) {
+	            	Errors.issue(tc.job(), 
+	            			new Errors.SuperCallCannotEstablishSuperType(returnType,extendsType, position()));
+	            }
+	            
+	            
 	        }
 	    }
 

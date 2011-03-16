@@ -1983,4 +1983,34 @@ public class Errors {
             super("Multiple methods match " + name + " " + mis, p);
         }
     }
+    
+    public static class SuperCallCannotEstablishSuperType extends SemanticException {
+
+		private static final long serialVersionUID = 4638105732313176934L;
+
+		public SuperCallCannotEstablishSuperType(Type returnType, Type superType, Position p) {
+            super("The super(..) call cannot establish the supertype " 
+            		+ "\n\t Return type: " + returnType 
+            		+ "\n\t Desired super type: " + superType, p);
+        }
+    }
+    public static class InvariantNotEntailed extends SemanticException {
+
+		private static final long serialVersionUID = 3967279435892439019L;
+
+		public InvariantNotEntailed(CConstraint known, CConstraint inv, Position p) {
+            super("With information from super(...) and property(...) cannot establish the class invariant. " 
+            		+ "\n\t Known information: " + known 
+            		+ "\n\t Class invariant: " + inv, p);
+        }
+    }
+    public static class InterfaceInvariantNotEntailed extends SemanticException {
+		private static final long serialVersionUID = -3322620203926003102L;
+
+		public InterfaceInvariantNotEntailed(CConstraint known, Type intfc, CConstraint inv, Position p) {
+            super("With information from super(...) and property(...), cannot establish the give interface type. " 
+            		+ "\n\t Known information: " + known 
+            		+ "\n\t Interface type: " + intfc, p);
+        }
+    }
 }

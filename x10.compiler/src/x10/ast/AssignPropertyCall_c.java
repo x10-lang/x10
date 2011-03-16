@@ -24,6 +24,7 @@ import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
+import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
@@ -49,6 +50,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
+import x10.types.X10ClassType;
 import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
@@ -253,7 +255,9 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         CConstraint result = Types.xclause(returnType);
 
         if (result != null && result.valid())
-            result = null;   // FIXME: the code below that infers the return type of a ctor is buggy, since it infers "this". see XTENLANG-1770
+            result = null;   
+        // FIXME: the code below that infers the return type of a ctor is buggy, 
+        // since it infers "this". see XTENLANG-1770
 
         {
             CConstraint known = Types.get(thisConstructor.supClause());
@@ -297,10 +301,12 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
                     // known.addSelfBinding(thisVar);
                     // known.setThisVar(thisVar);
+                    
                 }
+                final CConstraint k = known;
                 if (result != null) {
                     final CConstraint rr =  result.instantiateSelf(thisVar);
-                    final CConstraint k = known;
+                   
                     if (!k.entails(rr, new ConstraintMaker() {
                         public CConstraint make() throws XFailure {
                             return ctx.constraintProjection(k, rr);
@@ -309,6 +315,35 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                         Errors.issue(tc.job(),
                                      new Errors.ConstructorReturnTypeNotEntailed(known, result, pos));
                 }
+                // Check that the class invariant is satisfied.
+                 X10ClassType ctype =  (X10ClassType) Types.get(thisConstructor.container());
+                 final CConstraint inv = Types.get(ctype.x10Def().classInvariant()).copy();
+                 if (!k.entails(inv, new ConstraintMaker() {
+                     public CConstraint make() throws XFailure {
+                         return ctx.constraintProjection(k, inv);
+                     }}))
+
+                     Errors.issue(tc.job(),
+                                  new Errors.InvariantNotEntailed(known, inv, pos));
+                
+                // Check that every super interface is entailed.
+             
+                 
+                 for (Type intfc : ctype.interfaces()) {
+                	 CConstraint cc = Types.realX(intfc);
+                	 if (thisVar != null) {
+                		 XVar intfcThisVar = ((X10ClassType) intfc).x10Def().thisVar();
+                		 cc = cc.substitute(thisVar, intfcThisVar);
+                	 }
+                	 final CConstraint ccc=cc;
+                	 if (!k.entails(cc, new ConstraintMaker() {
+                         public CConstraint make() throws XFailure {
+                             return ctx.constraintProjection(k, ccc);
+                         }}))
+                		    Errors.issue(tc.job(),
+                                    new Errors.InterfaceInvariantNotEntailed(known, intfc, cc, pos));
+                	 
+                 }
             }
             catch (XFailure e) {
                 Errors.issue(tc.job(), new Errors.GeneralError(e.getMessage(), position), this);
