@@ -8,6 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
+//OPTIONS: -WORK_STEALING=true
 
 // package WorkStealing.Samples; - can't use Fib because it doesn't have a package!
 
