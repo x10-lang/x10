@@ -2288,7 +2288,7 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 		}
 	}
 	@ERR interface I2 extends I{self.p()==2} {}
-	@ERR interface I3 {this.p()==3} extends I2 {}
+	@ERR @ERR interface I3 {this.p()==3} extends I2 {}
 	static def test(i:I) {
 		@ERR @ERR var i1:I{self.p()==5} = i;
 		var i2:I{self.p()==1} = i;
@@ -3677,7 +3677,7 @@ static class A(v:Int) {v==1} {
 		val b2:A{this.v==1} = this;
 		val b3:A{self.v==1} = a;
 		@ERR @ERR val b33:A{self.v==2} = a; 
-		@ShouldNotBeERR val b4:A{this.v==1} = a;
+		@val b4:A{this.v==1} = a;
 	}
 }
 }

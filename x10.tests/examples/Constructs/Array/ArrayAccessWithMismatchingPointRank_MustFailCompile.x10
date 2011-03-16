@@ -30,7 +30,7 @@ public class ArrayAccessWithMismatchingPointRank_MustFailCompile extends x10Test
 
 	    val p1 = [1] as Point;
 	    a(ia(p1)); // ok
-        a(ia(p)); // ERR ERR ERR should fail at compile time because of mismatching rank.
+        a(ia(p)); // ERR should fail at compile time because of mismatching rank.
 
         return true;
     }
