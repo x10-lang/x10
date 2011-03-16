@@ -495,6 +495,7 @@ static void team_create_dispatch (
 	if (previousLastTeam+1 != newTeamId) error("misalignment detected in team_create_dispatch");
 
 	// save the members of the new team
+	state.teams[newTeamId].size = pipe_size/(sizeof(uint32_t));
 	state.teams[newTeamId].places = (pami_task_t*)malloc(pipe_size);
 	if (state.teams[newTeamId].places == NULL) error("unable to allocate memory for holding the places in team_create_dispatch");
 	memcpy(state.teams[newTeamId].places, pipe_addr, pipe_size);
@@ -502,9 +503,9 @@ static void team_create_dispatch (
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
 
-//	#ifdef DEBUG
-		fprintf(stderr, "creating a new team %u at place %u of size %lu\n", newTeamId, state.myPlaceId, pipe_size/(sizeof(uint32_t)));
-//	#endif
+	#ifdef DEBUG
+		fprintf(stderr, "creating a new team %u at place %u of size %lu\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
+	#endif
 
 	pami_result_t   status = PAMI_ERROR;
 	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, pipe_size/(sizeof(uint32_t)), state.context[0], team_creation_complete, cookie);
@@ -934,9 +935,9 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	uint32_t newTeamId = state.lastTeamIndex+1;
 	pthread_mutex_unlock(&state.teamLock);
 
-//	#ifdef DEBUG
+	#ifdef DEBUG
 		fprintf(stderr, "Place %u preparing to create a new team with %u members\n", state.myPlaceId, placec);
-//	#endif
+	#endif
 
 	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
 	cookie->cb2 = ch;
@@ -1006,6 +1007,7 @@ static void split_stage2 (pami_context_t   context,
 
 	// save the members of the team that matches my color.  Skip the other teams
 	unsigned myNewTeamIndex = expandTeams(numNewTeams)+cbd->colors[cbd->parent_role]+1;
+	state.teams[myNewTeamIndex].size = myNewTeamSize;
 	state.teams[myNewTeamIndex].places = (pami_task_t*)malloc(myNewTeamSize*sizeof(pami_task_t));
 	if (state.teams[myNewTeamIndex].places == NULL) error("Unable to allocate memory to hold the team member list");
 	int index = 0;
@@ -1082,9 +1084,9 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	operation.cmd.xfer_allgather.stype = PAMI_TYPE_CONTIGUOUS;
 	operation.cmd.xfer_allgather.stypecount = sizeof(x10rt_place);
 
-//	#ifdef DEBUG
-	fprintf(stderr, "Splitting team %u\n", parent);
-//	#endif
+	#ifdef DEBUG
+		fprintf(stderr, "Splitting team %u\n", parent);
+	#endif
 	status = PAMI_Collective(state.context[0], &operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all for team_split");
 }
@@ -1277,7 +1279,7 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	tcb->operation.cmd.xfer_scatter.stypecount = el*count;
 
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u executing scatter (%s)\n", state.myPlaceId, always_works_md[0].name);
+		fprintf(stderr, "Place %u executing scatter (%s): role=%u, root=%u\n", state.myPlaceId, always_works_md[0].name, role, root);
 	#endif
 	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue a scatter on team %u", team);
@@ -1311,13 +1313,14 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 
 	// select a algorithm, and issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for the all-to-all cookie");
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
-	tcb->operation.algorithm = always_works_alg[0];
+	tcb->operation.algorithm = always_works_alg[1]; // TODO: Algorithm "I0:Pairwise:P2P:P2P" is buggy.  Using "I0:M2MComposite:P2P:P2P" instead
 	tcb->operation.cmd.xfer_alltoall.rcvbuf = (char*)dbuf;
 	tcb->operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_CONTIGUOUS;
 	tcb->operation.cmd.xfer_alltoall.rtypecount = el*count;
@@ -1339,7 +1342,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 			}
 			fprintf(stderr, ".\n");
 		}
-		fprintf(stderr, "Place %u, role %u executing AllToAll (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[0].name, (void*)tcb);
+		fprintf(stderr, "Place %u, role %u executing AllToAll (%s) with team %u. cookie=%p\n", state.myPlaceId, role, always_works_md[1].name, team, (void*)tcb);
 	#endif
 	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all on team %u", team);
