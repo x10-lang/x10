@@ -27,7 +27,7 @@ public abstract class RegularFrame extends Frame {
 
     @Inline public final def redo(worker:Worker):void {
         worker.migrate();
-        worker.fifo.push(remap());
+        Runtime.wsBlock(remap());
         throw Stolen.STOLEN;
     }
 }

@@ -201,6 +201,10 @@ import x10.util.NoSuchElementException;
 
     //Work-Stealing Runtime Related Interface
     
+    public static def wsInit():void {
+        pool.wsBlockedContinuations = new Deque();
+    }
+    
     public static def wsFIFO():Deque {
         return worker().wsfifo;
     }
@@ -242,6 +246,17 @@ import x10.util.NoSuchElementException;
             runClosureAt(id, closure);
             dealloc(closure);
         }
+    }
+
+    public static def wsBlock(k:Object) {
+        pool.wsBlockedContinuations.push(k);
+    }
+
+    public static def wsUnblock() {
+        val src = pool.wsBlockedContinuations;
+        val dst = wsFIFO();
+        var k:Object;
+        while ((k = src.poll()) != null) dst.push(k);
     }
 
     /**
@@ -446,6 +461,8 @@ import x10.util.NoSuchElementException;
 
         private val semaphore = new Semaphore(0);
 
+        var wsBlockedContinuations:Deque = null;
+
         // the workers in the pool
         private val workers = new Array[Worker](MAX_THREADS);
 
@@ -526,7 +543,7 @@ import x10.util.NoSuchElementException;
     }
 
     @PerProcess static pool = new Pool();
-    @PerProcess static atomicMonitor = new Monitor();
+    @PerProcess public static atomicMonitor = new Monitor();
     @PerProcess static finishStates = new FinishState.FinishStates();
 
     /**
@@ -855,7 +872,20 @@ import x10.util.NoSuchElementException;
         val a = activity();
         if (a != null)
            a.popAtomic();
+        if (null != pool.wsBlockedContinuations) wsUnblock();
         atomicMonitor.release();
+    }
+
+    public static def exitWSWhen(b:Boolean) {
+        val a = activity();
+        if (a != null)
+           a.popAtomic();
+        if (b) {
+            wsUnblock();
+            atomicMonitor.release();
+        } else {
+            atomicMonitor.unlock();
+        }
     }
 
     public static def awaitAtomic():void {

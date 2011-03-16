@@ -31,10 +31,13 @@ public final class Worker {
         while (null != (k = Frame.cast[Object,RegularFrame](deque.steal()))) {
 //            Runtime.println(k + " migrated by " + this);
             val r = k.remap();
-            atomic r.ff.asyncs++;
+            Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
             fifo.push(r);
         }
         lock.unlock();
+
+        /*
+
         //And try process remote msg: add jobs into fifo
         Runtime.wsProcessEvents();
         if(fifo.size() > 0){
@@ -59,12 +62,15 @@ public final class Worker {
             k = Frame.cast[Object,RegularFrame](workers(i).deque.steal());
             if (null!= k) {
                 val r = k.remap();
-                atomic r.ff.asyncs++;
+                Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
                 fifo.push(r);
             }
             workers(i).lock.unlock();
         }
-    }                            
+
+        */
+
+    }
 
     public def run() {
         fifo = Runtime.wsFIFO(); //set from x10 Worker.wsfifo
@@ -131,7 +137,7 @@ public final class Worker {
                     val r = p.remap();
                     // frames from k upto k.ff excluded should be stack-allocated but cannot because of @StackAllocate limitations
                     k = r;
-                    atomic r.ff.asyncs++;
+                    Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
                 }
                 workers(i).lock.unlock();
             }
@@ -160,7 +166,7 @@ public final class Worker {
             if (null == up) return;
             if (frame instanceof FinishFrame) {
                 var asyncs:Int;
-                atomic asyncs = --Frame.cast[Frame,FinishFrame](frame).asyncs;
+                Runtime.atomicMonitor.lock(); asyncs = --Frame.cast[Frame,FinishFrame](frame).asyncs; Runtime.atomicMonitor.unlock();
                 if (0 != asyncs) return;
             }
             up.back(this, frame);
@@ -201,7 +207,7 @@ public final class Worker {
     
     //the frame should be in heap, and could be copied deeply
     public def remoteRunFrame(place:Place, frame:RegularFrame, ff:FinishFrame){
-        atomic ff.asyncs++; //need add the frame's structure
+        Runtime.atomicMonitor.lock(); ff.asyncs++; Runtime.atomicMonitor.unlock(); //need add the frame's structure
         val id:Int = place.id;
         val body:()=>void = ()=> {
             Runtime.wsFIFO().push(frame);
@@ -258,12 +264,14 @@ public final class Worker {
     }
 
     public static def main(frame:MainFrame) {
+        Runtime.wsInit();
         //First iteration, create all workers, and get the globalRef array
         for (p in Place.places()) {
             if(p == here){
                 continue; //in later loop
             }
             async at(p) {
+                Runtime.wsInit();
                 val workers = Rail.make[Worker](Runtime.NTHREADS);
                 val finished = new BoxedBoolean();
                 for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
@@ -295,7 +303,7 @@ public final class Worker {
             //If the app goes here, it means it always in fast path. 
             //We need process the ff.asyncs to make sure it can quit correctly
             var asyncs:Int;
-            atomic asyncs = --frame.ff.asyncs;
+            Runtime.atomicMonitor.lock(); asyncs = --frame.ff.asyncs; Runtime.atomicMonitor.unlock();
             if(asyncs > 0) {
                 //Runtime.println(here + " :Worker(0) will start after main's fast..." );
                 worker00.run();
