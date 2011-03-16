@@ -40,6 +40,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.visit.Translator;
 import x10.X10CompilerOptions;
+import x10.util.FileUtils;
 import x10c.X10CCompilerOptions;
 
 public class X10Translator extends Translator {
@@ -128,35 +129,25 @@ public class X10Translator extends Translator {
 
 	        w.flush();
 
-            X10CCompilerOptions options = (X10CCompilerOptions) ts.extensionInfo().getOptions();
+            X10CompilerOptions options = (X10CompilerOptions) ts.extensionInfo().getOptions();
             if (options.post_compiler != null && !options.output_stdout && options.executable_path != null) {
                 // copy *.x10 to output_directory in order to add them in a jar file
                 File sourceFile = null; 
                 File targetFile = null;
-                java.io.FileInputStream sourceInputStream = null;
-                java.io.FileOutputStream targetOutputStream = null;
                 try {
                     String sourceFilepath = sfn.source().toString();
                     sourceFile = new File(sourceFilepath);
-                    
                     if (sourceFile.isFile()) {
-                    String targetDirpath = options.output_directory.getAbsolutePath();
-                    if (pkg != null) {
-                        targetDirpath += File.separator + pkg.toString().replace('.', File.separatorChar);
-                    }
-                    File targetDir = new File(targetDirpath);
-//                    targetDir.mkdirs();
-                    targetFile = new File(targetDir, sfn.source().name());
-                    
-                    sourceInputStream = new java.io.FileInputStream(sourceFile);
-                    java.nio.channels.FileChannel sourceChannel = sourceInputStream.getChannel();
-                    targetOutputStream = new java.io.FileOutputStream(targetFile);
-                    java.nio.channels.FileChannel targetChannel = targetOutputStream.getChannel();
-                    sourceChannel.transferTo(0, sourceChannel.size(), targetChannel);
+                        String targetDirpath = options.output_directory.getAbsolutePath();
+                        if (pkg != null) {
+                            targetDirpath += File.separator + pkg.toString().replace('.', File.separatorChar);
+                        }
+                        File targetDir = new File(targetDirpath);
+//                        targetDir.mkdirs();
+                        targetFile = new File(targetDir, sfn.source().name());
+                        FileUtils.copyFile(sourceFile, targetFile);
                     }
                 } finally {
-                    if (sourceInputStream != null) sourceInputStream.close();
-                    if (targetOutputStream != null) targetOutputStream.close();
                     if (sourceFile != null && targetFile != null) { 
                         targetFile.setLastModified(sourceFile.lastModified());
                     }
@@ -196,54 +187,12 @@ public class X10Translator extends Translator {
             	javacCmd.add(st.nextToken());
             }
             
-        	StringBuilder sb0 = new StringBuilder();
-        	sb0.append(options.constructPostCompilerClasspath());
-        	
-        	/* TO BE REMOVED
-        	// append sourcepath of x10 compiler to classpath of post java compiler
-        	// to let the java compiler find the source code of java native library.
-        	// N.B. we cannot pass sourcepath to the java compiler because sourcepath of
-        	// x10 compiler includes x10.jar that includes java native library without source code.
-        	Iterator<File> fileiter = options.source_path.iterator();
-        	while (fileiter.hasNext()) {
-        		sb0.append(File.pathSeparator);
-        		sb0.append(fileiter.next().getAbsolutePath());
-        	}
-        	*/
-        	
             javacCmd.add("-classpath");
-            javacCmd.add(sb0.toString());
+            javacCmd.add(options.constructPostCompilerClasspath());
             
             javacCmd.add("-encoding");
             javacCmd.add("utf-8");
             
-            /* TO BE REMOVED
-            // set sourcepath of x10 compiler to post java compiler
-            // to let the java compiler find the source code of java native library.
-            // N.B. we must remove x10.jar from source path since it does not include
-            // source code of java native library.
-            Iterator<File> fileiter = options.source_path.iterator();
-            if (fileiter.hasNext()) {
-                boolean hasPaths = false;
-                sb0 = new StringBuilder();
-                while (fileiter.hasNext()) {
-                    File file = fileiter.next();
-                    if (file.isDirectory()) {
-                        if (hasPaths) {
-                            sb0.append(File.pathSeparator);
-                        } else {
-                            hasPaths = true;
-                        }
-                        sb0.append(file.getAbsolutePath());
-                    }
-                }
-                if (hasPaths) {
-                    javacCmd.add("-sourcepath");
-                    javacCmd.add(sb0.toString());
-                }
-            }
-            */
-
             for (Collection<String> files : compiler.outputFiles().values()) {
                 javacCmd.addAll(files);
             }

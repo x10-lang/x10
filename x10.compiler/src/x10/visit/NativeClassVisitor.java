@@ -11,9 +11,15 @@
 
 package x10.visit;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Call;
@@ -31,36 +37,39 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
+import polyglot.main.Options;
 import polyglot.main.Reporter;
-import polyglot.types.ConstructorInstance;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Flags;
-import polyglot.types.FieldDef;
 import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.Types;
-import polyglot.types.Ref;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
+import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.*;
+import x10.ast.AnnotationNode;
+import x10.ast.X10ClassDecl;
+import x10.ast.X10ConstructorDecl;
+import x10.ast.X10MethodDecl;
 import x10.extension.X10Ext;
+import x10.types.MethodInstance;
 import x10.types.ParameterType;
-import x10.types.X10Def;
-import x10.types.X10ConstructorDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorDef;
+import x10.types.X10Def;
 import x10.types.X10FieldDef;
-import x10.types.MethodInstance;
-
 import x10.types.X10MethodDef;
-import polyglot.types.TypeSystem;
+import x10.util.FileUtils;
 
 /**
  * Visitor that expands @NativeClass and @NativeDef annotations.
@@ -135,6 +144,54 @@ public class NativeClassVisitor extends ContextVisitor {
         return flags.clear(Flags.NATIVE);
     }
 
+    private static boolean findAndCopySourceFile(Options options, String cpackage, String cname, File sourceDirOrJarFile) throws IOException {
+        String sourceDirOrJarFilePath = sourceDirOrJarFile.getAbsolutePath();
+        if (sourceDirOrJarFile.isDirectory()) {
+            if (cpackage != null) {
+                sourceDirOrJarFilePath += File.separator + cpackage.replace('.', File.separatorChar);
+            }
+            File sourceDir = new File(sourceDirOrJarFilePath);
+            File sourceFile = new File(sourceDir, cname + ".java");
+            if (sourceFile.isFile()) {  // found java source
+                // copy
+                String targetDirpath = options.output_directory.getAbsolutePath();
+                if (cpackage != null) {
+                    targetDirpath += File.separator + cpackage.replace('.', File.separatorChar);
+                }
+                File targetDir = new File(targetDirpath);
+                targetDir.mkdirs();
+                File targetFile = new File(targetDir, cname + ".java");
+                FileUtils.copyFile(sourceFile, targetFile);
+                return true;
+            }
+        } else if (sourceDirOrJarFile.isFile() && (sourceDirOrJarFilePath.endsWith(".jar") || sourceDirOrJarFilePath.endsWith(".zip"))) {
+            String sourceFilePathInJarFile = cpackage != null ? (cpackage.replace('.', '/') + '/') : "";
+            sourceFilePathInJarFile += cname + ".java";
+            JarFile jarFile = new JarFile(sourceDirOrJarFile);
+            Enumeration<JarEntry> e = jarFile.entries();
+            while (e.hasMoreElements()) {
+                JarEntry jarEntry = e.nextElement();
+                String entryName = jarEntry.getName();
+                if (entryName.equals(sourceFilePathInJarFile)) {    // found java source
+                    // copy
+                    String targetDirpath = options.output_directory.getAbsolutePath();
+                    if (cpackage != null) {
+                        targetDirpath += File.separator + cpackage.replace('.', File.separatorChar);
+                    }
+                    File targetDir = new File(targetDirpath);
+                    targetDir.mkdirs();
+                    File targetFile = new File(targetDir, cname + ".java");
+                    InputStream sourceInputStream = jarFile.getInputStream(jarEntry); 
+                    long sourceSize = jarEntry.getSize();
+                    FileUtils.copyFile(sourceInputStream, sourceSize, targetFile);
+                    return true;
+                }
+            }
+            
+        }
+        return false;
+    }
+    
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         // look for @NativeClass class declarations
         if (!(n instanceof X10ClassDecl))
@@ -165,7 +222,27 @@ public class NativeClassVisitor extends ContextVisitor {
         } else {
             fake.setFlags(Flags.NONE);
         }
-        fake.setPackage(Types.ref(ts.packageForName(QName.make(getNativeClassPackage(cdef)))));
+        String cpackage = getNativeClassPackage(cdef);
+        fake.setPackage(Types.ref(ts.packageForName(QName.make(cpackage))));
+
+        // copy *.java for @NativeClass from sourcepath (or classpath) to output_directory
+        Options options = (Options) ts.extensionInfo().getOptions();
+        try {
+            if (options.source_path != null && !options.source_path.isEmpty()) {
+                for (File sourceDirOrJarFile : options.source_path) {
+                    boolean copied = findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
+                    if (copied) break;
+                }
+            } else {
+                for (String sourceDirOrJarFilePath : options.constructPostCompilerClasspath().split(File.pathSeparator)) {
+                    File sourceDirOrJarFile = new File(sourceDirOrJarFilePath);
+                    boolean copied = findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
+                    if (copied) break;
+                }
+            }
+        } catch (IOException e) {
+            job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR, "I/O error copying Java source file: " + e.getMessage());
+        }
 
         java.util.Iterator<ParameterType> ps = cdef.typeParameters().iterator();
         java.util.Iterator<ParameterType.Variance> vs = cdef.variances().iterator();
