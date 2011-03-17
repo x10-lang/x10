@@ -408,7 +408,10 @@ public class LineNumberMap extends StringTable {
 		{
 			cm = new ClassMapInfo();			
 			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
-			cm._type = refType;
+			if (refType == 211)
+				cm._type = 203; // special case
+			else
+				cm._type = refType;
 			cm._sizeOfArg = type.replace(".", "::").replace('[', '<').replace("]", " >");
 			int properties = cm._sizeOfArg.indexOf('{');
 			if (properties > -1)
@@ -464,6 +467,7 @@ public class LineNumberMap extends StringTable {
 					int nameEnd = type.indexOf(',', nameStart);
 					v._x10memberName = stringId(type.substring(nameStart, nameEnd));
 				}
+				v._cppMemberName = v._x10memberName;
 			}
 			else if (refType == 202) // create additional maps for internal components of DistArray.
 			{				
@@ -475,16 +479,24 @@ public class LineNumberMap extends StringTable {
 				dist._x10type = 201;
 				dist._x10typeIndex = -1;
 				dist._x10memberName = stringId("dist");
-				dist._cppMemberName = dist._x10memberName;
+				dist._cppMemberName = stringId("x10__dist");
 				dist._cppClass = stringId("x10::array::Dist");
 				cm._members.add(dist);
 				
 				v._x10type = 203;
 				v._x10memberName = stringId("localHandle");
+				v._cppMemberName = stringId("x10__localHandle");
+			}
+			else if (refType == 211)
+			{
+				v._x10memberName = id;
+				v._cppMemberName = stringId("x10__localStorage");
 			}
 			else
+			{
 				v._x10memberName = id;
-			v._cppMemberName = v._x10memberName;
+				v._cppMemberName = v._x10memberName;
+			}
 			v._cppClass = stringId(cm._sizeOfArg);
 			cm._members.add(v);
 			return referenceMembers.size()-1;
@@ -1316,7 +1328,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B030F10, // 2011-03-15, 16:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B03110A, // 2011-03-17, 10:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
