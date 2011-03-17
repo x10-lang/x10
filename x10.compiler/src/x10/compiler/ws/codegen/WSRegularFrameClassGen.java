@@ -308,8 +308,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         else{
             //should use transNormal, not use directly replace
             TransCodes ifTCodes = transNormalStmt(conS, prePcValue, Collections.EMPTY_SET);
-            fastIf = ifS.consequent(WSCodeGenUtility.seqStmtsToBlock(xnf, ifTCodes.first().get(0)));
-            slowIf = ifS.consequent(WSCodeGenUtility.seqStmtsToBlock(xnf, ifTCodes.second().get(0)));
+            fastIf = ifS.consequent(WSCodeGenUtility.seqStmtsToOneStmt(xnf, ifTCodes.first().get(0)));
+            slowIf = ifS.consequent(WSCodeGenUtility.seqStmtsToOneStmt(xnf, ifTCodes.second().get(0)));
         }
 
         Stmt altS = ifS.alternative();
@@ -324,8 +324,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             else{
                 //should use transNormal, not use directly replace
                 TransCodes ifFCodes = transNormalStmt(altS, prePcValue, Collections.EMPTY_SET);
-                fastIf = fastIf.alternative(WSCodeGenUtility.seqStmtsToBlock(xnf, ifFCodes.first().get(0)));
-                slowIf = slowIf.alternative(WSCodeGenUtility.seqStmtsToBlock(xnf, ifFCodes.second().get(0)));
+                fastIf = fastIf.alternative(WSCodeGenUtility.seqStmtsToOneStmt(xnf, ifFCodes.first().get(0)));
+                slowIf = slowIf.alternative(WSCodeGenUtility.seqStmtsToOneStmt(xnf, ifFCodes.second().get(0)));
             }
         }
         transCodes.addFirst(fastIf);
@@ -769,26 +769,39 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     }
     
     /**
-     * TryStmt only has tryBlock as concurrent block. Then just call transBlock to transform this part
+     * TryStmt:
+     * Transform the whole try as one separate frame right now.
+     * Try as one frame "E" frame
+     * Try's body as a lower "B" frame
+     * TryFrame
+     *   -->TransBodyFrame
+     *  
+     *  only has tryBlock as concurrent block. Then just call transBlock to transform this part
      */
     protected TransCodes transTry(Try tryStmt, int prePcValue) throws SemanticException {
-        TransCodes transCodes = new TransCodes(prePcValue + 1);
-
-        TransCodes tryBlockCodes = transBlock(tryStmt.tryBlock(), prePcValue,
-                                         WSCodeGenUtility.getBlockFrameClassName(className));          
         
-        Try fastTry, slowTry;
+        TransCodes transCodes = new TransCodes(prePcValue + 1);
+        AbstractWSClassGen tryClassGen = genChildFrame(wts.regularFrameType, tryStmt, null);
+        
+        //prepare child frame call;
+        TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), tryClassGen);
+
+        //FIXME: need understand the situation tht a "return" appears in try's block
+        boolean hasReturnInBlock = WSCodeGenUtility.hasReturnStatement(tryStmt.tryBlock());
         { // fast
-            fastTry = tryStmt.tryBlock(xnf.Block(tryStmt.position(), tryBlockCodes.first()));
+            transCodes.addFirst(childCallCodes.first());
+            if (hasReturnInBlock) {
+                transCodes.addFirst(genReturnCheckStmt(true));
+            }
         }
         { // resume
-            slowTry = tryStmt.tryBlock(xnf.Block(tryStmt.position(), tryBlockCodes.second()));
+            transCodes.addSecond(childCallCodes.second());                                 // 0
+            if (hasReturnInBlock) {
+                transCodes.addSecond(genReturnCheckStmt(false));
+            }
         }
         { //back, nothing
-        }
-        transCodes.addFirst(fastTry);
-        transCodes.addSecond(slowTry);
-        
+        }        
         return transCodes;
     }
     

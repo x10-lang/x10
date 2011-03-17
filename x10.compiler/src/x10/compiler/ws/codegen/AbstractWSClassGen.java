@@ -41,6 +41,7 @@ import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.Term;
+import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.While;
 import polyglot.frontend.Job;
@@ -134,6 +135,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name REDO = Name.make("redo");
     static final protected Name INIT = Name.make("init");
     static final protected Name OPERATOR = Name.make("operator()");
+    static final protected Name ENTER_ATOMIC = Name.make("enterAtomic");
+    static final protected Name EXIT_WHEN = Name.make("exitWSWhen");
+    
 
     final protected Job job;
     final protected NodeFactory xnf;
@@ -437,6 +441,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             }
             else if(stmt instanceof When){
                 childClassGen = new WSWhenFrameClassGen(this, (When)stmt);
+            }
+            else if(stmt instanceof Try){
+                childClassGen = new WSTryStmtClassGen(this, (Try)stmt);
             }
             else if(stmt instanceof Async){
                 //Two situations:
