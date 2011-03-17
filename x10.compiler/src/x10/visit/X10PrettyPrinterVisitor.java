@@ -176,10 +176,6 @@ import x10c.types.X10CContext_c;
  * @author Rajkishore Barik 26th Aug 2006 (added loop optimizations)
  * @author vj Refactored Emitter out.
  */
-/**
- * @author AA349688
- * 
- */
 public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public static final String JAVA_LANG_OBJECT = "java.lang.Object";
