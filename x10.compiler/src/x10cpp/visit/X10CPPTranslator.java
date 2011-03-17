@@ -220,12 +220,17 @@ public class X10CPPTranslator extends Translator {
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
 		                final int fixedEndLine = adjustedEndLine < adjustedStartLine ? adjustedStartLine : adjustedEndLine;
 		                final boolean generated = n.position().isCompilerGenerated();
+		                final boolean addLastLine = (n instanceof Block && !((Block)n).statements().isEmpty() && ((Block)n).position().endLine() != ((Block)n).statements().get(((Block)n).statements().size()-1).position().endLine());
 		                w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
 		                    public void run(ClassifiedStream s) {
 		                        int cppStartLine = s.getStartLineOffset()+adjustedStartLine;
 		                        int cppEndLine = s.getStartLineOffset()+fixedEndLine;
 		                        if (!generated)
+		                        {
 		                        	lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
+		                        	if (addLastLine)
+		                        		lineNumberMap.put(cppFile, cppEndLine, cppEndLine, file, lastX10Line, column);
+		                        }
 		                        if (def != null && !def.position().isCompilerGenerated())
 		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
 		                    }
