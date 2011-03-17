@@ -304,6 +304,14 @@ public class LineNumberMap extends StringTable {
 		ArrayList<MemberVariableMapInfo> _members;
 	}
 	
+	private class LoopVariable
+	{
+		String realName;
+		int startLine;
+		int endLine;
+	}
+	
+	private static LinkedHashMap<String, ArrayList<LoopVariable>> loopVariables;
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
 	//private static ArrayList<Integer> refMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
@@ -514,6 +522,24 @@ public class LineNumberMap extends StringTable {
 		return -1;
 	}
 	
+	public void rememberLoopVariable(String declaredName, String realName, int startLine, int endLine)
+	{
+		if (loopVariables == null)
+			loopVariables = new LinkedHashMap<String, ArrayList<LoopVariable>>();
+		ArrayList<LoopVariable> list = loopVariables.get(declaredName);
+		if (list == null)
+		{
+			list = new ArrayList<LineNumberMap.LoopVariable>();
+			loopVariables.put(declaredName, list);
+		}
+		
+		LoopVariable lv = new LoopVariable();
+		lv.realName = realName;
+		lv.startLine = startLine;
+		lv.endLine = endLine;
+		list.add(lv);
+	}
+	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle, int closureIndex, boolean isStruct)
 	{
 		//if (name == null || name.startsWith(Context.MAGIC_VAR_PREFIX))
@@ -567,6 +593,19 @@ public class LineNumberMap extends StringTable {
 					existing._x10type = v._x10type;
 					existing._x10typeIndex = v._x10typeIndex; 
 					return;
+				}
+			}
+		}
+		// convert loop indexes
+		if (loopVariables != null && loopVariables.containsKey(name))
+		{
+			ArrayList<LoopVariable> list = loopVariables.get(name);
+			for (LoopVariable lv : list)
+			{
+				if (lv.startLine == v._x10startLine && lv.endLine == v._x10endLine)
+				{
+					v._cppName = stringId(lv.realName);
+					break;
 				}
 			}
 		}
@@ -1328,7 +1367,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B03110A, // 2011-03-17, 10:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B03110D, // 2011-03-17, 13:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
@@ -1427,6 +1466,12 @@ public class LineNumberMap extends StringTable {
         
         w.end(); w.newline();
         w.writeln("};");
+        
+        if (loopVariables != null)
+        {
+        	loopVariables.clear();
+        	loopVariables = null;
+        }
 	}
 
 	private static String encodeIntAsChars(int i) {

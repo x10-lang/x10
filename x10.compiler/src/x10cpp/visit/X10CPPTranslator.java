@@ -54,6 +54,7 @@ import polyglot.ast.SourceCollection;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ast.SwitchBlock;
+import polyglot.ast.Term;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try;
 
@@ -229,6 +230,12 @@ public class X10CPPTranslator extends Translator {
 		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
 		                    }
 		                });
+		            }
+		            if (parent instanceof For && n instanceof LocalDecl)
+		            {
+		            	Term t = ((For)parent).body().firstChild();
+		            	if (t instanceof LocalDecl)
+		            		lineNumberMap.rememberLoopVariable(((LocalDecl)t).name().toString(), ((LocalDecl)n).name().toString(), line, lastX10Line);
 		            }
 		            if (n instanceof FieldDecl && !c.inTemplate()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
 		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
