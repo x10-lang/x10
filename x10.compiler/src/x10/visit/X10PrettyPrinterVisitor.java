@@ -193,36 +193,44 @@ import x10c.types.X10CContext_c;
  * @author vj Refactored Emitter out.
  */
 public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
-	public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
-	public static final String X10_FUN_CLASS_PREFIX = "x10.core.fun.Fun";
-    public static final String X10_VOIDFUN_CLASS_PREFIX = "x10.core.fun.VoidFun";
-	public static final String X10_RUNTIME_CLASS = "x10.runtime.impl.java.Runtime";
-	private static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
-	public static final String X10_CORE_STRING = "x10.core.String";
 
+	public static final String JAVA_LANG_OBJECT = "java.lang.Object";
+	public static final String JAVA_LANG_CLASS = "java.lang.Class";
+	public static final String JAVA_IO_SERIALIZABLE = "java.io.Serializable";
+	
 	public static final int PRINT_TYPE_PARAMS = 1;
 	public static final int BOX_PRIMITIVES = 2;
 	public static final int NO_VARIANCE = 4;
 	public static final int NO_QUALIFIER = 8;
+
+	public static final boolean isSelfDispatch = true;
+	public static final boolean isGenericOverloading = true;
+
+	public static final String X10_FUN_CLASS_PREFIX = "x10.core.fun.Fun";
+	public static final String X10_CORE_STRING = "x10.core.String";
+	public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
+	public static final String X10_RTT_TYPES = "x10.rtt.Types";
+    public static final String X10_VOIDFUN_CLASS_PREFIX = "x10.core.fun.VoidFun";
+	public static final String X10_RUNTIME_CLASS = "x10.runtime.impl.java.Runtime";
+	public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
 
 	public static final String MAIN_CLASS = "$Main";
     public static final String RTT_NAME = "$RTT";
     public static final String GETRTT_NAME = "$getRTT";
     public static final String GETPARAM_NAME = "$getParam";
 
-	final public CodeWriter w;
-	final public Translator tr;
-	final public Emitter er;
+    private static int nextId_;
 
-    public static final String JAVA_LANG_OBJECT = "java.lang.Object";
-    public static final String JAVA_LANG_CLASS = "java.lang.Class";
-    public static final String JAVA_IO_SERIALIZABLE = "java.io.Serializable";
-    public static final boolean isSelfDispatch = true;
-    public static final boolean isGenericOverloading = true;
-	
-    private static final String X10_RTT_TYPES = "x10.rtt.Types";
+    final public CodeWriter w;
+    final public Translator tr;
+    final public Emitter er;
 
-	private static int nextId_;
+	public X10PrettyPrinterVisitor(CodeWriter w, Translator tr) {
+		this.w = w;
+		this.tr = tr;
+		this.er = new Emitter(w,tr);
+	}
+
 	/* to provide a unique name for local variables introduce in the templates */
 	private static int getUniqueId_() {
 	    return nextId_++;
@@ -230,12 +238,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public static Name getId() {
 		return Name.make("$var" + getUniqueId_());
-	}
-
-	public X10PrettyPrinterVisitor(CodeWriter w, Translator tr) {
-		this.w = w;
-		this.tr = tr;
-		this.er = new Emitter(w,tr);
 	}
 
 	public void visit(Node n) {
@@ -250,18 +252,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (n instanceof TypeParamNode_c) {visit((TypeParamNode_c)n); return;}
         if (n instanceof X10Initializer_c) {visit((X10Initializer_c)n); return;}
 	    
-	    // already known unhandled node type
-	    if (
-	        n instanceof Async_c || n instanceof AtStmt_c || n instanceof Atomic_c || n instanceof Here_c 
-	        || n instanceof Next_c || n instanceof AtExpr_c
-	        || n instanceof AtEach_c || n instanceof When_c
-	        || n instanceof Finish_c
-	    ) {
-	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-	            "Unhandled node type: "+n.getClass(), n.position());
-	        return;
-	    }
-
         tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
  	        "Unhandled node type: "+n.getClass(), n.position());
 
@@ -286,45 +276,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	public void visit(Return_c n) {
 	    n.translate(w, tr);
-	}
-	public void visit(Eval_c n) {
-	    boolean semi = tr.appendSemicolon(true);
-	    Expr expr = n.expr();
-	    // XTENLANG-2000
-	    if (expr instanceof X10Call) {
-	        // support for back-end method inlining
-	        if (er.isMethodInlineTarget(tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==ClosureCall.APPLY) {
-	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
-	            n.print(expr, w, tr);
-	            w.write(")");
-	        }
-	        else if (er.isMethodInlineTarget(tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==SettableAssign.SET) {
-                n.print(expr, w, tr);
-	        }
-	        // support for @Native
-	        else if (!expr.type().isVoid() && Emitter.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
-	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
-	            n.print(expr, w, tr);
-	            w.write(")");
-	        }
-	        else {
-	            n.print(expr, w, tr);
-	        }
-	    }
-	    // when expr is StatementExpression(Assignment || [Pre/Post][De/In]crementExpression || MethodInvocation || ClassInstanceCreationExpression)
-	    else if (expr instanceof ClosureCall || expr instanceof Assign || expr instanceof Unary || expr instanceof X10New) {
-	        n.print(expr, w, tr);
-	    }
-	    // not a legal java statement
-	    else {
-            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
-	        n.print(expr, w, tr);
-	        w.write(")");
-	    }
-	    if (semi) {
-	        w.write(";");
-	    }
-	    tr.appendSemicolon(semi);
 	}
 	public void visit(Local_c n) {
 	    n.translate(w, tr);
@@ -373,6 +324,46 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	public void visit(LocalTypeDef_c n) {
 	    n.translate(w, tr);
+	}
+
+	public void visit(Eval_c n) {
+	    boolean semi = tr.appendSemicolon(true);
+	    Expr expr = n.expr();
+	    // XTENLANG-2000
+	    if (expr instanceof X10Call) {
+	        // support for back-end method inlining
+	        if (er.isMethodInlineTarget(tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==ClosureCall.APPLY) {
+	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	            n.print(expr, w, tr);
+	            w.write(")");
+	        }
+	        else if (er.isMethodInlineTarget(tr.typeSystem(), ((X10Call) expr).target().type()) && ((X10Call) expr).methodInstance().name()==SettableAssign.SET) {
+	            n.print(expr, w, tr);
+	        }
+	        // support for @Native
+	        else if (!expr.type().isVoid() && Emitter.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
+	            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	            n.print(expr, w, tr);
+	            w.write(")");
+	        }
+	        else {
+	            n.print(expr, w, tr);
+	        }
+	    }
+	    // when expr is StatementExpression(Assignment || [Pre/Post][De/In]crementExpression || MethodInvocation || ClassInstanceCreationExpression)
+	    else if (expr instanceof ClosureCall || expr instanceof Assign || expr instanceof Unary || expr instanceof X10New) {
+	        n.print(expr, w, tr);
+	    }
+	    // not a legal java statement
+	    else {
+	        w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+	        n.print(expr, w, tr);
+	        w.write(")");
+	    }
+	    if (semi) {
+	        w.write(";");
+	    }
+	    tr.appendSemicolon(semi);
 	}
 
 	public void visit(AssignPropertyCall_c n) {
