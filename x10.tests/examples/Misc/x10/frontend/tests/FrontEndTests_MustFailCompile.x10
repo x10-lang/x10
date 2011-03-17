@@ -109,9 +109,7 @@ final class ClosuresDuringConstruction {
 	var k:Int;
 	def f() = k=3;
 	def f2() = 3;
-	val c1 = f.(); // ERR
 	val c2 = ()=>f(); // ERR
-	val c3 = f2.(); // ERR
 	val c4 = ()=>f2(); // ERR
 }
 class CaptureThisInAtStmtExpr {
@@ -712,13 +710,13 @@ final class ClosureTest57 {
 }
 final class ClosureTest58 {
   def f() = x*3;
-  val bar: ()=>Int = this.f.(); // ERR: The method call reads from field 'x' before it is definitely assigned.
+  val bar: ()=>Int = ()=>this.f(); // ERR: The method call reads from field 'x' before it is definitely assigned.
   val z = bar();
   val x=2;
 
   var w:Int{self!=0}; // ERR: Field 'w' was not definitely assigned.
   def setW() = w=2;
-  val q = this.setW.(); // ERR
+  val q = ()=>this.setW(); // ERR
   
   var w2:Int{self!=0}; 
   def setW2() = w2=2;
@@ -2242,11 +2240,8 @@ class TestMethodResolution { // see XTENLANG-1915
 	def check(t:Any)="";
 	def testGenerics() {
 		@ERR val r1:Int = check(1); // Err ambiguous Err
-		@ERR val r2:Int = (check.(Any))(1); // Err: should DEFNITELY resolve to the non-generic method
+		@ERR val r2:Int = ((x:Any)=>check(x))(1); // Err: should DEFNITELY resolve to the non-generic method
         val r3:Int = check[Int](1); // be explicit
-		@ERR val r4:Int = (check.(Any))(1); // Err: ahhh?  be explicit
-		// todo: What is the syntax for generic method selection?
-		// neither "(m.[String](String))" nor "(m[String].(String))" parses.
 	}
 }
 
@@ -2653,8 +2648,8 @@ final class ConstraintsInClosures {
   def f(x:Int) {x!=0} = 1/x;
   def f2(x:Int{self!=0}) = 1/x;
   def test() {
-	  val bar: (Int)=>Int = this.f.(Int);  // ERR: should we dynamically generate a new closure that checks the guard?
-	  val bar2: (Int)=>Int = this.f2.(Int{self!=0}); // ERR
+	  val bar: (Int)=>Int = (x:Int)=>this.f(x);  // ERR: should we dynamically generate a new closure that checks the guard?
+	  val bar2: (Int)=>Int = (x:Int{self!=0})=>this.f2(x); // ERR
   }
 }
 class TestCasting[T] {
@@ -5459,10 +5454,10 @@ class SuperPropertyFieldResolution {
 	class C2 extends B{self.a==1} {
 		def this() { super(1); }
 	}
-	class C3 extends B{this.a==1} { // ERR ERR ERR
+	class C3 extends B{this.a==1} { // ERR ERR
 		def this() { super(1); }
 	}
-	class C3 extends B{super.a==1} { // ERR ERR ERR
+	class C33 extends B{super.a==1} { // ERR
 		def this() { super(1); }
 	}
 	class C4 {a==1} extends B {

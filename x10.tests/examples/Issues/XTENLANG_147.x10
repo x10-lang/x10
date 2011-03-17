@@ -26,11 +26,11 @@ class XTENLANG_147 extends x10Test {
     public def foo() {
     
         // this is ok
-        val f1 = this.foo1.();
+        val f1 = ()=>this.foo1();
         bar1(f1);
         
         // this fails
-        val f2 = this.foo2.();
+        val f2 = ()=>this.foo2();
         bar2(f2);
         
         // this is ok

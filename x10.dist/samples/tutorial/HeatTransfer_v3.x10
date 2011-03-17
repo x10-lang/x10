@@ -81,7 +81,7 @@ public class HeatTransfer_v3 {
                 }
             }
 
-            delta = A.map(Scratch, Temp, D.region, (x:Double,y:Double)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
+            delta = A.map(Scratch, Temp, D.region, (x:Double,y:Double)=>Math.abs(x-y)).reduce((x:Double,y:Double)=>Math.max(x,y), 0.0);
             finish ateach (p in D) A(p) = Temp(p);
         } while (delta > epsilon);
     }

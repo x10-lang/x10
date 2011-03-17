@@ -1809,6 +1809,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: MethodSelection ::= MethodName '.' '(' FormalParameterListopt ')'
     void rule_MethodSelection0(Object _MethodName, Object _FormalParameterListopt) {
+        noMethodSelection();
+
         ParsedName MethodName = (ParsedName) _MethodName;
         List<Formal> FormalParameterListopt = (List<Formal>) _FormalParameterListopt;
         //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
@@ -1823,6 +1825,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: MethodSelection ::= Primary '.' Identifier '.' '(' FormalParameterListopt ')'
     void rule_MethodSelection1(Object _Primary, Object _Identifier, Object _FormalParameterListopt) {
+        noMethodSelection();
+
         Expr Primary = (Expr) _Primary;
         Id Identifier = (Id) _Identifier;
         List<Formal> FormalParameterListopt = (List<Formal>) _FormalParameterListopt;
@@ -1837,6 +1841,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: MethodSelection ::= super '.' Identifier '.' '(' FormalParameterListopt ')'
     void rule_MethodSelection2(Object _Identifier, Object _FormalParameterListopt) {
+        noMethodSelection();
+
         Id Identifier = (Id) _Identifier;
         List<Formal> FormalParameterListopt = (List<Formal>) _FormalParameterListopt;
         //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
@@ -1851,6 +1857,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: MethodSelection ::= ClassName '.' super '.' Identifier '.' '(' FormalParameterListopt ')'
     void rule_MethodSelection3(Object _ClassName, Object _Identifier, Object _FormalParameterListopt) {
+        noMethodSelection();
+
         ParsedName ClassName = (ParsedName) _ClassName;
         Id Identifier = (Id) _Identifier;
         List<Formal> FormalParameterListopt = (List<Formal>) _FormalParameterListopt;
@@ -1863,6 +1871,9 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 nf.X10Return(pos(),
                         nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier,
                                 Collections.<TypeNode>emptyList(), actuals), true))));
+    }
+    private void noMethodSelection() {
+        syntaxError("Method selection syntax is no longer supported. Use closure syntax instead.",pos()); // see XTENLANG-2512
     }
     // Production: FunctionType ::= TypeParametersopt '(' FormalParameterListopt ')' WhereClauseopt Offersopt '=>' Type
     void rule_FunctionType0(Object _TypeParametersopt, Object _FormalParameterListopt, Object _WhereClauseopt, Object _Offersopt, Object _Type) {
