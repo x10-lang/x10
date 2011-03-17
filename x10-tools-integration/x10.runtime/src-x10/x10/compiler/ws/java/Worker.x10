@@ -2,6 +2,7 @@ package x10.compiler.ws.java;
 
 import x10.util.Random;
 import x10.lang.Lock;
+import x10.compiler.Abort;
 import x10.compiler.SuppressTransientError;
 import x10.compiler.RemoteInvocation;
 
@@ -80,7 +81,7 @@ public final class Worker {
                     try {
                         r.resume(this);
                         unroll(r);
-                    } catch (Stolen) {}
+                    } catch (Abort) {}
                 }
                 else if(k instanceof FinishFrame){
                     //finish frame, need run the finish frame's unroll
@@ -88,7 +89,7 @@ public final class Worker {
                     try{
                         //Runtime.println(here+" :Execute remote finish join");
                         unroll(p);
-                    } catch (Stolen){}
+                    } catch (Abort){}
                 }
                 else if(k instanceof BoxedBoolean){
                     notifyStop(); //notify the finish flag
@@ -268,7 +269,7 @@ public final class Worker {
                 Worker.allStop(worker00);
                 //Runtime.println(here + ":Worker(0) terminated in fast");    
             }
-        } catch (Stolen) {
+        } catch (Abort) {
             //Runtime.println(here + " :Worker(0) will start after main's fast's stolen..." );
             worker00.run();
         } catch (t:Throwable) {

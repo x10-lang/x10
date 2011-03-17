@@ -676,7 +676,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 int i = 3;
             }
         }
-        Warnings.wasGuardChecked(tc,mi, call); // cannot use checkErrorAndGuard because mi.err() might not be null, but we won't report an error (see X10Unary_c.desugarUnaryOp :  n4 = X10Binary_c.typeCheckCall(tc, n4); ) 
         Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), tc.context());
         call = (X10Call_c) call.methodInstance(mi).type(rt);
         call = (X10Call_c) call.arguments(args);
@@ -700,7 +699,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
             // maybe the left operand can be cast to the right operand (e.g., Byte+Int should use Int.operator+(Int) and not Byte.operator+(Byte))
             Expr newFirst = Converter.attemptCoercion(
-                    false, // I do not want to report any warnings if coercion failed
                     tc, first,
                     Types.baseType(second.type())); // I use baseType because the constraints are irrelevant for resolution (and it can cause an error if the constraint contain "place23423423")
             if (newFirst!=first && newFirst!=null) {
@@ -892,13 +890,17 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         } 
         {
         MethodInstance mi = result.methodInstance();
-        Type lbase = Types.baseType(n.left().type());
-        Type rbase = Types.baseType(n.right().type());
+        boolean inverse = isInv(mi.name());
+        left = result.arguments().size() != 2 ? (Expr) result.target() : result.arguments().get(0);
+        right = result.arguments().size() != 2 ? result.arguments().get(0) : result.arguments().get(1);
+        Type lbase = Types.baseType(left.type());
+        Type rbase = Types.baseType(right.type());
         Context context = (Context) tc.context();
 
         // Add support for patching up the return type of Region's operator*().
         // The rank of the result is a+b, if the rank of the left arg is a and of the right arg is b,
-        // and a and b are literals. Further the result is rect if both args are rect.
+        // and a and b are literals. Further the result is rect if both args are rect, and zeroBased
+        // if both args are zeroBased.
         if (op == Binary.MUL && xts.typeEquals(xts.Region(), lbase, context)
         		&& xts.typeEquals(xts.Region(), rbase, context)) {
             Type type = result.type();
@@ -907,22 +909,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             result = (X10Call_c) result.methodInstance(mi).type(type);
         }
         // Add support for patching up the return type of IntRegion's operator*().
-        // The rank of the result is rr+1, if the rank of the region is rr and rr is a literal.
-        // Further the result is rect if the region is rect.
+        // The rank of the result is 2.  Further the result is zeroBased if both args are zeroBased.
         if (op == Binary.MUL && xts.typeEquals(xts.IntRange(), lbase, context)
-                && xts.typeEquals(xts.Region(), rbase, context)) {
-            Type type = result.type();
-            type = BuiltInTypeRules.adjustReturnTypeForRegionRangeMult(right, left, type, context);
-            mi = mi.returnType(type);
-            result = (X10Call_c) result.methodInstance(mi).type(type);
-        }
-        // Add support for patching up the return type of IntRegion's operator*().
-        // The rank of the result is rr+1, if the rank of the region is rr and rr is a literal.
-        // Further the result is rect if the region is rect.
-        if (op == Binary.MUL && xts.typeEquals(xts.Region(), lbase, context)
                 && xts.typeEquals(xts.IntRange(), rbase, context)) {
             Type type = result.type();
-            type = BuiltInTypeRules.adjustReturnTypeForRegionRangeMult(left, right, type, context);
+            type = BuiltInTypeRules.adjustReturnTypeForRangeRangeMult(left, right, type, context);
             mi = mi.returnType(type);
             result = (X10Call_c) result.methodInstance(mi).type(type);
         }

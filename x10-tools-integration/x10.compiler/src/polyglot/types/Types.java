@@ -404,6 +404,10 @@ public class Types {
 
 	public static X10ClassDef_c getDef(Type t) {
 	    if (t==null) return null;
+	    // GOLDEN
+	    if (t.typeSystem().hasUnknown(t)) {
+	    	return null;
+	    }
 	    return (X10ClassDef_c) ((X10ParsedClassType_c)baseType(t)).def();
 	}
 
@@ -624,7 +628,10 @@ public class Types {
 	        if (!(def instanceof X10ClassDef_c)) return false;
 	        X10ClassDef_c x10ClassDef = (X10ClassDef_c) def;
 	
-	        // do we have an classInvariant? todo: class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong
+	        // do we have an classInvariant? 
+	        // todo: class invariant are not treated correctly: 
+	        // X10ClassDecl_c.classInvariant is fine, 
+	        // but  X10ClassDef_c.classInvariant is wrong
 	        final Ref<CConstraint> ref = x10ClassDef.classInvariant();
 	        if (ref!=null && ref.get().constraints().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
 	
@@ -920,11 +927,11 @@ public class Types {
 	    return new CConstraint();
 	}
 	else if (t instanceof ConstrainedType) {
-	        return ((ConstrainedType) t).getRealXClause();
+	        return ((ConstrainedType) t).getRealXClause().copy();
 		}
 		else if (t instanceof X10ClassType) {
 			X10ClassType ct = (X10ClassType) t;
-			CConstraint c = ct.x10Def().getRootClause();
+			CConstraint c = ct.x10Def().getRealClause().copy();
 			return TypeParamSubst.reinstantiateConstraint(ct, c);
 		}
 		else if (t instanceof MacroType) {
@@ -932,7 +939,7 @@ public class Types {
 		    CConstraint c = realX(mt.definedType());
 		    CConstraint w = mt.guard();
 		    if (w != null && ! w.valid()) {
-               c = c.copy();
+              // c = c.copy();
                c.addIn(w); // c may have become inconsistent.
 		    }
 		    return c;

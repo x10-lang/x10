@@ -62,30 +62,35 @@ public final class Array[T] (
         /**
          * The rank of this array.
          */
-        rank:int{self==region.rank},
+        rank:int, //{self==region.rank},
         
         /**
          * Is this array defined over a rectangular region?  
          */
-        rect:boolean{self==region.rect},
+        rect:boolean, //{self==region.rect},
         
         /**
          * Is this array's region zero-based?
          */
-        zeroBased:boolean{self==region.zeroBased},
+        zeroBased:boolean, // {self==region.zeroBased},
         
         /**
          * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
          */
-        rail:boolean{self==region.rail},
+        rail:boolean, //{self==region.rail},
         
         /**
          * The number of points/data values in the array.
          * Will always be equal to region.size(), but cached here to make it available as a property.
          */
         size:Int
-) implements (Point(region.rank))=>T,
-Iterable[Point(region.rank)] {
+) {rank==region.rank,
+	   rect==region.rect,
+	   zeroBased==region.zeroBased,
+	   rail==region.rail
+   }
+   implements (Point(rank))=>T,
+               Iterable[Point(region.rank)] {
     
     /**
      * The backing storage for the array's elements
@@ -159,8 +164,8 @@ Iterable[Point(region.rank)] {
         raw = r;
     }
     // TODO: This should not be needed.  Compiler should apply implict coercion at call site, but it doesn't.
-    public def this(ir:IntRange, init:(Point(1))=>T):Array[T](1){this.rect,self!=null} {
-        this(ir as Region(1){self.rect}, init);
+    public def this(ir:IntRange, init:(Point(1))=>T):Array[T](1){this.rect,self!=null,this.zeroBased==ir.zeroBased} {
+        this(ir as Region(1){self.rect&&self.zeroBased==ir.zeroBased}, init);
     }
 
     /**
@@ -391,7 +396,7 @@ Iterable[Point(region.rank)] {
      * @see #operator(Point)
      * @see #set(T, Int)
      */
-    @Native("cuda", "(#0).raw[#1]")
+    @Native("cuda", "(#this).raw[#i0]")
     public @Header @Inline operator this(i0:int){rank==1}:T {
         if (rail) {
             // Bounds checking by backing IndexedMemoryChunk is sufficient
@@ -490,7 +495,7 @@ Iterable[Point(region.rank)] {
      * @see #operator(Int)
      * @see #set(T, Point)
      */
-    @Native("cuda", "(#0).raw[#2] = (#1)")
+    @Native("cuda", "(#this).raw[#i0] = (#v)")
     public @Header @Inline operator this(i0:int)=(v:T){rank==1}:T {
         if (rail) {
             // Bounds checking by backing IndexedMemoryChunk is sufficient

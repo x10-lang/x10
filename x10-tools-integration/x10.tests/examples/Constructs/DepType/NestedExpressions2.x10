@@ -30,7 +30,8 @@ public class NestedExpressions2 extends x10Test {
 		def n() {
 			val x = new C(true);
 			val y = new C(true);
-			val z: C{self.a==(y.a&&x.a)} = and(x,y); 
+			// todo: this constraint is too complicated to the type system and should be flaged as an error!
+			val z: C{self.a==(y.a&&x.a)} = and(x,y); // ERR: Warning: Expression 'NestedExpressions2.C.this.and(x, y)' was cast to type NestedExpressions2.C{self.NestedExpressions2.C#a==y.NestedExpressions2.C#a, x.NestedExpressions2.C#a}.
 		}
 	}
     public def run() = true;

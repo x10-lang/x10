@@ -50,13 +50,13 @@ public class X10FieldAssign_c extends FieldAssign_c {
     
     @Override
     public Assign typeCheckLeft(ContextVisitor tc) {
-    	Context cxt = (Context) tc.context();
-    	if (cxt.inDepType()) {
-    	    SemanticException e = new Errors.NoAssignmentInDepType(this, this.position());
-    	    Errors.issue(tc.job(), e, this);
-    	}
-    	
-        tc = tc.context(((Context) tc.context()).pushAssignment());
+        Context cxt = (Context) tc.context();
+        if (cxt.inDepType()) {
+            SemanticException e = new Errors.NoAssignmentInDepType(this, this.position());
+            Errors.issue(tc.job(), e, this);
+        } else {
+            tc = tc.context(((Context) tc.context()).pushAssignment());
+        }
         Assign res = super.typeCheckLeft(tc);
         return res;
     }

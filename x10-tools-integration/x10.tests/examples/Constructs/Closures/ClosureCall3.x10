@@ -24,7 +24,7 @@ public class ClosureCall3 extends ClosureTest {
 
     public def run(): boolean = {
         val y = (x:Int)=> x;
-        val z :Int(1) = y(1);
+        val z :Int(1) = y(1); // ERR: Warning: Expression 'y(1)' was cast to type x10.lang.Int{self==1, x==1}.
         return result;
     }
 

@@ -548,9 +548,6 @@ public class X10New_c extends New_c implements X10New {
         }
 
         result = (X10New_c) result.type(type);
-
-        Warnings.wasGuardChecked(tc, ci, this);
-
         return result;
     }
 

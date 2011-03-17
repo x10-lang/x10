@@ -506,7 +506,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
             Expr redirectRef = synth.makeFieldAccess(compilerPos, ffRef, REDIRECT, xct);
             Expr redoCheck = xnf.Binary(compilerPos, redirectRef, Binary.EQ,
-                                        xnf.NullLit(compilerPos)).type(wts.finishFrameType);
+                                        xnf.NullLit(compilerPos).type(wts.finishFrameType)).type(xts.Boolean());
             Stmt fastIfRedoStmt = xnf.If(compilerPos, redoCheck, fastRedoCallStmt);     
             transCodes.addFirst(fastIfRedoStmt);            
         }        

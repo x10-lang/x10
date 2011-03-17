@@ -24,5 +24,5 @@ import x10.types.constraints.TypeConstraint;
 
 
 public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
-	
+
 }

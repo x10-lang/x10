@@ -53,7 +53,7 @@ public class X10FieldMatcher {
         	c = c.copy().instantiateSelf(v);*/
 
         { // Update t
-            CConstraint tc = Types.realX(t).copy();
+            CConstraint tc = Types.realX(t);
 
             if (! contextKnowsReceiver)
                 tc.addIn(v, c);

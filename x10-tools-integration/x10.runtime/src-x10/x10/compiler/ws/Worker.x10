@@ -2,6 +2,7 @@ package x10.compiler.ws;
 
 import x10.util.Random;
 import x10.lang.Lock;
+import x10.compiler.Abort;
 import x10.compiler.SuppressTransientError;
 import x10.compiler.RemoteInvocation;
 
@@ -31,10 +32,13 @@ public final class Worker {
         while (null != (k = Frame.cast[Object,RegularFrame](deque.steal()))) {
 //            Runtime.println(k + " migrated by " + this);
             val r = k.remap();
-            atomic r.ff.asyncs++;
+            Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
             fifo.push(r);
         }
         lock.unlock();
+
+        /*
+
         //And try process remote msg: add jobs into fifo
         Runtime.wsProcessEvents();
         if(fifo.size() > 0){
@@ -59,12 +63,15 @@ public final class Worker {
             k = Frame.cast[Object,RegularFrame](workers(i).deque.steal());
             if (null!= k) {
                 val r = k.remap();
-                atomic r.ff.asyncs++;
+                Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
                 fifo.push(r);
             }
             workers(i).lock.unlock();
         }
-    }                            
+
+        */
+
+    }
 
     public def run() {
         fifo = Runtime.wsFIFO(); //set from x10 Worker.wsfifo
@@ -76,12 +83,12 @@ public final class Worker {
                     return;
                 }
                 if(k instanceof RegularFrame){
-                    //could be a regular frame of local, or remote one. Just call resume
+                    //could be a regular frame of local, or remote one. Just call wrapResume
                     val r:RegularFrame = Frame.cast[Object,RegularFrame](k);
                     try {
-                        r.resume(this);
+                        r.wrapResume(this);
                         unstack(r); // top frames are meant to be on the stack
-                    } catch (Stolen) {}
+                    } catch (Abort) {}
                     purge(r, r.ff); // needed because we did not stack allocate those frames
                 }
                 else if(k instanceof FinishFrame){
@@ -90,7 +97,7 @@ public final class Worker {
                     try{
                         //Runtime.println(here+" :Execute remote finish join");
                         unroll(p);
-                    } catch (Stolen){}
+                    } catch (Abort){}
                 }
                 else if(k instanceof BoxedBoolean){
                     notifyStop(); //notify the finish flag
@@ -131,7 +138,7 @@ public final class Worker {
                     val r = p.remap();
                     // frames from k upto k.ff excluded should be stack-allocated but cannot because of @StackAllocate limitations
                     k = r;
-                    atomic r.ff.asyncs++;
+                    Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
                 }
                 workers(i).lock.unlock();
             }
@@ -160,20 +167,20 @@ public final class Worker {
             if (null == up) return;
             if (frame instanceof FinishFrame) {
                 var asyncs:Int;
-                atomic asyncs = --Frame.cast[Frame,FinishFrame](frame).asyncs;
+                Runtime.atomicMonitor.lock(); asyncs = --Frame.cast[Frame,FinishFrame](frame).asyncs; Runtime.atomicMonitor.unlock();
                 if (0 != asyncs) return;
             }
-            up.back(this, frame);
+            up.wrapBack(this, frame);
             if (!(frame instanceof MainFrame) && !(frame instanceof RootFinish)) {
                 Runtime.deallocObject(frame);
             }
             try {
-                up.resume(this);
-            } catch (Stolen) {
+                up.wrapResume(this);
+            } catch (Abort) {
                 if (up instanceof RegularFrame) {
                     purge(up, Frame.cast[Frame,RegularFrame](up).ff);
                 }
-                throw Stolen.STOLEN;
+                throw Abort.ABORT;
             }
             frame = up;
         }
@@ -189,8 +196,8 @@ public final class Worker {
                 unroll(frame);
                 return;
             }
-            up.back(this, frame);
-            up.resume(this);
+            up.wrapBack(this, frame);
+            up.wrapResume(this);
             frame = up;
         }
     }
@@ -201,7 +208,7 @@ public final class Worker {
     
     //the frame should be in heap, and could be copied deeply
     public def remoteRunFrame(place:Place, frame:RegularFrame, ff:FinishFrame){
-        atomic ff.asyncs++; //need add the frame's structure
+        Runtime.atomicMonitor.lock(); ff.asyncs++; Runtime.atomicMonitor.unlock(); //need add the frame's structure
         val id:Int = place.id;
         val body:()=>void = ()=> {
             Runtime.wsFIFO().push(frame);
@@ -258,12 +265,14 @@ public final class Worker {
     }
 
     public static def main(frame:MainFrame) {
+        Runtime.wsInit();
         //First iteration, create all workers, and get the globalRef array
         for (p in Place.places()) {
             if(p == here){
                 continue; //in later loop
             }
             async at(p) {
+                Runtime.wsInit();
                 val workers = Rail.make[Worker](Runtime.NTHREADS);
                 val finished = new BoxedBoolean();
                 for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
@@ -295,7 +304,7 @@ public final class Worker {
             //If the app goes here, it means it always in fast path. 
             //We need process the ff.asyncs to make sure it can quit correctly
             var asyncs:Int;
-            atomic asyncs = --frame.ff.asyncs;
+            Runtime.atomicMonitor.lock(); asyncs = --frame.ff.asyncs; Runtime.atomicMonitor.unlock();
             if(asyncs > 0) {
                 //Runtime.println(here + " :Worker(0) will start after main's fast..." );
                 worker00.run();
@@ -306,7 +315,7 @@ public final class Worker {
                 Worker.allStop(worker00);
                 //Runtime.println(here + ":Worker(0) terminated in fast");    
             }
-        } catch (Stolen) {
+        } catch (Abort) {
             //Runtime.println(here + " :Worker(0) will start after main's fast's stolen..." );
             worker00.run();
         } catch (t:Throwable) {

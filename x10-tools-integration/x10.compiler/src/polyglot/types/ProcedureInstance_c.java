@@ -33,8 +33,8 @@ public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<
     }
 
     protected boolean checkGuardAtRuntime = false;
-    public boolean checkGuardAtRuntime() { return checkGuardAtRuntime; }
-    public ProcedureInstance_c checkGuardAtRuntime(boolean check) {
+    public boolean checkConstraintsAtRuntime() { return checkGuardAtRuntime; }
+    public ProcedureInstance_c checkConstraintsAtRuntime(boolean check) {
         if (check==checkGuardAtRuntime) return this;
         ProcedureInstance_c n = (ProcedureInstance_c) copy();
         n.checkGuardAtRuntime = check;

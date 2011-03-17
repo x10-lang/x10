@@ -15,15 +15,15 @@ package x10.lang;
  * Thrown to indicate that a runtime check of a method or constructor guard failed,
  * i.e., the guard was unsatisfied.
  */
-public class UnsatisfiedGuardException extends RuntimeException {
+public class FailedDynamicCheckException extends RuntimeException {
 
     /**
-     * Construct a UnsatisfiedGuardException with no detail message.
+     * Construct a FailedDynamicCheckException with no detail message.
      */
     public def this() { super(); }
 
     /**
-     * Construct a UnsatisfiedGuardException with the specified detail message.
+     * Construct a FailedDynamicCheckException with the specified detail message.
      *
      * @param message the detail message
      */

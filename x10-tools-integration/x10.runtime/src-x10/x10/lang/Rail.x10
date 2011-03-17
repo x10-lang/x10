@@ -39,7 +39,7 @@ public final class Rail[T](length: Int)
      * @param init Evaluated once per element to initialize the Rail.
      * @return The reference to the new Rail.
      */
-    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, (x10.core.fun.Fun_0_1)(#5))")
     @Native("c++", "x10::lang::Rail<void>::make<#S >(#length, #init)")
     public native static def make[S](length: Int, init: (Int) => S): Rail[S]{self.length==length};
 
@@ -51,7 +51,7 @@ public final class Rail[T](length: Int)
      * @param init Evaluated once per element to initialize the Rail.
      * @return The reference to the new Rail.
      */
-    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, (x10.core.fun.Fun_0_1)(#5))")
     @Native("c++", "x10::lang::Rail<void>::makePinned<#S >(#length, #init)")
     public native static def makePinned[S](length: Int, init: (Int) => S): Rail[S]{self.length==length};
 
@@ -64,7 +64,7 @@ public final class Rail[T](length: Int)
      * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
      * @return The reference to the new Rail.
      */
-    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, (x10.core.fun.Fun_0_1)(#5))")
     @Native("c++", "x10::lang::Rail<void>::makeAligned<#S >(#length, #init, #alignment)")
     public native static def makeAligned[S](length: Int, init: (Int) => S, alignment: Int): Rail[S]{self.length==length};
 
@@ -149,7 +149,7 @@ public final class Rail[T](length: Int)
      *
      * @param init Evaluated once per element to reinitialize the Rail.
      */
-    @Native("java", "(#0).reset(#1)")
+    @Native("java", "(#0).reset((x10.core.fun.Fun_0_1)(#1))")
     @Native("c++", "(#this)->reset(#init)")
     public native def reset(init: (Int) => T): void;
 

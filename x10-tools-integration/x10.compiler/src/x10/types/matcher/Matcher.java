@@ -13,14 +13,8 @@ package x10.types.matcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import polyglot.ast.Expr;
-import polyglot.frontend.Globals;
 import polyglot.types.Context;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
@@ -29,30 +23,21 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import x10.ast.ClosureCall;
-import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
-import x10.constraint.XVar;
 import x10.errors.Errors;
-import x10.errors.Errors.InvalidParameter;
 import x10.types.ParameterType;
-import polyglot.types.Context;
-import x10.types.MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.MacroType;
 import polyglot.types.TypeSystem;
-import x10.types.checker.PlaceChecker;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.XConstrainedTerm;
 import x10.X10CompilerOptions;
 
 
@@ -321,22 +306,27 @@ public class Matcher {
 
 		    final Context context2 = context.pushAdditionalConstraint(returnEnv, me.position());
 		    final CConstraint query = newMe.guard();
-		    if ( query != null && ! query.consistent()) 
-		        throw new SemanticException("Call invalid; guard inconsistent for actual parameters of call.");
-		    if (! returnEnv.entails(query, 
-		                            new ConstraintMaker() {
-		        public CConstraint make() throws XFailure {
-		            return context2.constraintProjection(returnEnv, query);
-		        }
-		    })) {
-		        X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
-		        if (!opts.x10_config.STATIC_CALLS &&
-		                !(newMe instanceof MacroType)) // MacroType cannot have its guard checked at runtime
-		            newMe = newMe.checkGuardAtRuntime(true);
-		        else
-		            throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
-		    } 
+            X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
 
+            // we can do dynamic checks on method calls when using DYNAMIC_CALLS or VERBOSE_CALLS
+            boolean dynamicChecks = !opts.x10_config.STATIC_CALLS &&
+		                !(newMe instanceof MacroType); // MacroType cannot have its guard checked at runtime
+
+		    if ( query != null) {
+                if (! query.consistent())
+                    throw new SemanticException("Call invalid; guard inconsistent for actual parameters of call.");
+                if (! returnEnv.entails(query,
+                                        new ConstraintMaker() {
+                    public CConstraint make() throws XFailure {
+                        return context2.constraintProjection(returnEnv, query);
+                    }
+                })) {
+                    if (dynamicChecks)
+                        newMe = newMe.checkConstraintsAtRuntime(true);
+                    else
+                        throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+                }
+            }
 
 		    List<Type> typeFormals2 = newMe.typeParameters();
 		    TypeConstraint tenv = new TypeConstraint();
@@ -366,8 +356,11 @@ public class Matcher {
 		        if (! xts.consistent(xtype, context2)) {
 		            throw new SemanticException("Parameter type " + xtype + " of call is inconsistent in calling context.");
 		        }
-		        if (! xts.isSubtype(ytype, xtype, context2)) {
-		            throw new Errors.InvalidParameter(ytype, xtype, me.position());
+		        if (! xts.isSubtype(ytype, xtype, context2)) {                    
+                    if (dynamicChecks && xts.isSubtype(Types.baseType(ytype), Types.baseType(xtype), context2))
+                        newMe = newMe.checkConstraintsAtRuntime(true);
+                    else
+                        throw new Errors.InvalidParameter(ytype, xtype, me.position());
 		        }
 		    }
 		}

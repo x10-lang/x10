@@ -80,7 +80,7 @@ public class BuiltInTypeRules {
 		if (lrank instanceof XLit && rrank instanceof XLit) {
 			int xr = (Integer) ((XLit) lrank).val();
 			int yr = (Integer) ((XLit) rrank).val();
-			ct = ct.addRank( xr+yr);
+			ct = ct.addRank(xr+yr);
 		}
 		if (ltype.isRect(context) && rtype.isRect(context)) {
 			ct = ct.addRect();
@@ -106,22 +106,16 @@ public class BuiltInTypeRules {
      * @param context
      * @return
      */
-    public static ConstrainedType adjustReturnTypeForRegionRangeMult(Expr region, Expr range, Type type, Context context) {
+    public static ConstrainedType adjustReturnTypeForRangeRangeMult(Expr left, Expr right, Type type, Context context) {
         TypeSystem ts =  context.typeSystem();
-        ConstrainedType regiontype = Types.toConstrainedType(region.type());
-        ConstrainedType rangetype = Types.toConstrainedType(range.type());
-        XTerm regionrank = regiontype.rank(context);
+        ConstrainedType ltype = Types.toConstrainedType(left.type());
+        ConstrainedType rtype = Types.toConstrainedType(right.type());
         ConstrainedType ct = Types.toConstrainedType(type);
         XVar selfVar = ct.selfVar();
         
-        if (regionrank instanceof XLit) {
-            int x = (Integer) ((XLit) regionrank).val();
-            ct = ct.addRank(x+1);
-        }
-        if (regiontype.isRect(context)) {
-            ct = ct.addRect();
-        }
-        if (regiontype.isZeroBased(context) && rangetype.isZeroBased(context)) {
+        ct = ct.addRank(2);
+        ct = ct.addRect();
+        if (ltype.isZeroBased(context) && rtype.isZeroBased(context)) {
             ct = ct.addZeroBased();
         }
         assert selfVar == ct.selfVar();

@@ -1,5 +1,7 @@
 package x10.compiler.ws;
 
+import x10.util.Stack;
+
 public final class RootFinish extends FinishFrame {
     public def this() {
         super(new RootFrame());
@@ -15,4 +17,14 @@ public final class RootFinish extends FinishFrame {
     }
 
     public def remap():FinishFrame = this;
+
+
+    public def wrapBack(worker:Worker, frame:Frame) {
+        if (null != frame.throwable) {
+            Runtime.pushException(frame.throwable);
+        }
+    }
+
+    public def wrapResume(worker:Worker) {
+    }
 }
