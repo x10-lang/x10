@@ -21,7 +21,7 @@ public class ConConstructor2Arg_DYNAMIC_CALLS extends x10Test {
 	def this(q:A{self.i==2}, i:Int(q.i)){}
 	def this(i:Int) {
 		// This call will compile only if -STATIC_CALLS is not set.
-		this(new A(i),i); // ERR ERR ShouldNotBeERR ShouldNotBeERR (Could not find field or local variable "arg273060")
+		this(new A(i),i); // ERR (see XTENLANG-2375 and XTENLANG-2376. it should be a warning
 	}
 	
 	public def run(): boolean {

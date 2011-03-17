@@ -211,11 +211,16 @@ public interface ClassDef extends MemberDef
      * for the class, with the invariants for its superclass and the 
      * interfaces it implements, and for each property f:C{c},
      * the constraint c[self.f/self,self/this]
+     * 
+     * <p>This will force computation of the real clause if it is not computed already.
      * @return
      */
-	CConstraint getRootClause();
-	
-    //void setRootClause(Ref<CConstraint> c);
+	CConstraint getRealClause();
+	/**
+	 * Return the lazy ref so you can decide whether to force it or not.
+	 * @return
+	 */
+     Ref<CConstraint>  realClause();
     
     /**
      * Throw a SemanticException if the real clause is invalid.

@@ -263,8 +263,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), mi.error()));
 		    }
 		}
-        Warnings.wasGuardChecked(tc,mi,this);
-
 		MethodInstance ami = null;
 
 		actualTypes = new ArrayList<Type>(mi.formalTypes());
@@ -281,7 +279,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
                 boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
                 Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), ami.error()));
             }
-            Warnings.wasGuardChecked(tc,ami,this);
             // First try to find the method without implicit conversions.
 		    X10Call_c left = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(),
 		            ClosureCall.APPLY), Collections.<TypeNode>emptyList(),
@@ -295,7 +292,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		        Errors.issue(tc.job(),
 		                new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, Types.arrayElementType(array.type()), position(), cmi.error()));
 		    }
-            Warnings.wasGuardChecked(tc,cmi,this);
 		}
 
 		if (mi.flags().isStatic() ) {

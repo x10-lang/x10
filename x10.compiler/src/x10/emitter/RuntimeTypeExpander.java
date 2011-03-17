@@ -93,10 +93,10 @@ final public class RuntimeTypeExpander extends Expander {
         if (at instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) at;
             X10ClassDef cd = ct.x10Def();
-            String pat = er.getJavaRTTRep(cd);
+            String pat = Emitter.getJavaRTTRep(cd);
             
             // Check for @NativeRep with null RTT class
-            if (pat == null && er.getJavaRep(cd) != null) {
+            if (pat == null && Emitter.getJavaRep(cd) != null) {
             	er.w.write("x10.rtt.Types.runtimeType(");
             	er.printType(at, 0);
             	er.w.write(".class");

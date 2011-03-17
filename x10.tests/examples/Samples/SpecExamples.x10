@@ -1,5 +1,7 @@
 package x10.spec.examples;
 
+// OPTIONS: -STATIC_CALLS
+
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.util.*;
 

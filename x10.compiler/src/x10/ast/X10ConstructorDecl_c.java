@@ -444,7 +444,9 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             		// Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
 
             		// Fold this's constraint (the class invariant) into the guard.
-            		{
+            		// Huh???? No -- cannot do this for constructors, since the object
+            		// does not yet exist.
+            	/*	{
             			Type t =  tc.context().currentClass();
             			CConstraint dep = Types.xclause(t);
             			if (c != null && dep != null) {
@@ -457,6 +459,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             				c.addIn(dep);
             			}
             		}
+            		*/
             	}
             	catch (XFailure e) {
                     tc.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, e.getMessage(), position());
@@ -509,7 +512,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
        	// Step III. Check the body. 
        	// We must do it with the correct mi -- the return type will be
-       	// checked by return e; statements in the body.
+       	// checked by property statements in the body.
        	
        	TypeChecker childtc2 = (TypeChecker) tc.enter(parent, nn);
        	// Add the formals to the context.

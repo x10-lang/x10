@@ -24,7 +24,7 @@ public class ConStructInstance2Arg extends x10Test {
 		def n(i:Int) {
 			val a = A(i);
 			// This call will compile only if -strictCalls is not set.
-			m(a, i); // ERR ERR
+			m(a, i); // ERR
 		}
 	}
 	public def run(): boolean {

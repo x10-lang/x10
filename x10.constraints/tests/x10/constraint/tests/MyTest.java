@@ -21,12 +21,12 @@ public class MyTest extends TestCase {
 		super("MyTest");
 	}
 	public void test6() throws Throwable {
-		XConstraint c = new XConstraint_c();
-		XVar v1 = XTerms.makeLocal(XTerms.makeName("v1"));
-		XVar v2 = XTerms.makeLocal(XTerms.makeName("v2"));
+		XConstraint c = new XConstraint();
+		XVar v1 = XTerms.makeUQV("v1");
+		XVar v2 = XTerms.makeUQV("v2");
 
-		XConstraint d = new XConstraint_c();
-		XVar x1 = d.genEQV(XTerms.makeName("x1"), true);
+		XConstraint d = new XConstraint();
+		XVar x1 = XTerms.makeEQV();
 		d.addBinding(v1,x1);
 		d.addBinding(v2,x1);
 

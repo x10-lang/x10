@@ -312,13 +312,23 @@ public class RunTestSuite {
             compileFile(f,remainingArgs);
         }
         // report remaining errors that were not matched in any file
-        for (ErrorInfo err : remainingErrors)
-            err((err.getErrorKind()==ErrorInfo.WARNING ? "Warning":"ERROR")+" in position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
+        printRemaining(null);
         if (SHOW_RUNTIMES) println("Total running time to compile all files="+(System.currentTimeMillis()-start));
         
         if (EXIT_CODE!=0) System.out.println("Summary of all errors:\n\n"+ALL_ERRORS);
         System.out.println("\n\n\n\n\n"+ (EXIT_CODE==0 ? "SUCCESS" : "FAILED") + "\n\n\n");
         System.exit(EXIT_CODE);
+    }
+    private static void printRemaining(File file) {
+        for (Iterator<ErrorInfo> it = remainingErrors.iterator(); it.hasNext();) {
+            ErrorInfo err = it.next();
+            final Position pos = err.getPosition();
+            if (file==null || pos==null || isInFile(pos,file)) {
+                it.remove();
+                err((err.getErrorKind()==ErrorInfo.WARNING ? "Warning":"ERROR")+" in position:\n"+ pos +"\nMessage: "+err+"\n");
+            }
+        }
+
     }
     private static int count(String s, String sub) {
         final int len = sub.length();
@@ -436,7 +446,8 @@ public class RunTestSuite {
         for (Iterator<ErrorInfo> it = errors.iterator(); it.hasNext(); ) {
             ErrorInfo info = it.next();
             final int kind = info.getErrorKind();
-            if (ErrorInfo.isErrorKind(kind)) didFailCompile = true;
+            if (ErrorInfo.isErrorKind(kind))
+                didFailCompile = true;
 
             if ((kind==ErrorInfo.SHOULD_BE_ERR_MARKER) ||
                 (summary.SHOULD_NOT_PARSE && (kind==ErrorInfo.LEXICAL_ERROR || kind==ErrorInfo.SYNTAX_ERROR)))
@@ -496,6 +507,7 @@ public class RunTestSuite {
 
         // 2. report all the remaining errors that didn't have a matching ERR marker
         remainingErrors.addAll(errors);
+        printRemaining(file);
         // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout)
     }
     static boolean isInFile(Position position, File file) {

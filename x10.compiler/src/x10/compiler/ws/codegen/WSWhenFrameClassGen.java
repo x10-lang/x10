@@ -12,18 +12,25 @@
 
 package x10.compiler.ws.codegen;
 
+import java.util.Collections;
+
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
+import polyglot.ast.Block;
+import polyglot.ast.Catch;
 import polyglot.ast.Expr;
 import polyglot.ast.If;
 import polyglot.ast.Local;
 import polyglot.ast.Stmt;
+import polyglot.types.Flags;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import x10.ast.When;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.Triple;
 import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.util.Synthesizer;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.MethodSynth;
@@ -57,9 +64,9 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
         //firstly translate the bodies
         Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> bodyCodes = transformMethodBody();
         
-        //now prepare the body synth
+        //TODO: we should be using transNormalStmt here (Olivier)
         CodeBlockSynth fastBodySynth = genPathBody(fastMSynth, bodyCodes.first().close());
-        CodeBlockSynth resumeBodySynth = genPathBody(resumeMSynth, bodyCodes.second().genStmt());
+        CodeBlockSynth resumeBodySynth = genPathBody(resumeMSynth, bodyCodes.first().close());
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(whenStmt.position());
         
         //finally the back
@@ -96,7 +103,7 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
         
         CodeBlockSynth bodySynth = methodSynth.getMethodBodySynth(whenStmt.position());
         
-        NewLocalVarSynth bVarSynth  = new NewLocalVarSynth(xnf, xct, whenStmt.position(), xts.Boolean());
+        NewLocalVarSynth bVarSynth  = new NewLocalVarSynth(xnf, xct, whenStmt.position(), Flags.NONE, xnf.BooleanLit(whenStmt.position(), false).type(xts.Boolean()));
         Local bVar = bVarSynth.getLocal();
         bodySynth.addStmt(bVarSynth);
         
@@ -105,9 +112,12 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
         Expr assign = xnf.LocalAssign(whenStmt.position(), bVar, Assign.ASSIGN, orgWhenExpr).type(orgWhenExpr.type());
         
         If ifStmt = xnf.If(whenStmt.position(), assign, bodyStmt);
-        
+        Stmt enter = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), Name.make("enterAtomic"), xts.Void(), xct));
+        Stmt exit = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), Name.make("exitWSWhen"), Collections.<Expr>singletonList(xnf.Local(whenStmt.position(), bVar.name()).localInstance(bVar.localInstance()).type(xts.Boolean())), xts.Void(), xct));
+   
+        Block fin = xnf.Block(whenStmt.position(), exit);
         //finally, put it into atomic
-        Stmt atmCheck = xnf.Atomic(whenStmt.position(), xnf.Here(compilerPos).type(xts.Place()), ifStmt); 
+        Stmt atmCheck = xnf.Try(whenStmt.position(), xnf.Block(whenStmt.position(), enter, ifStmt), Collections.<Catch>emptyList(), fin); 
         bodySynth.addStmt(atmCheck);
         
         //!b

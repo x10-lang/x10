@@ -25,7 +25,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
 public interface X10TypeEnv extends TypeEnv {
-    public void checkOverride(ClassType thisType, MethodInstance mi, MethodInstance mj) throws SemanticException;
+   // public void checkOverride(ClassType thisType, MethodInstance mi, MethodInstance mj) throws SemanticException;
 
     /** Return true if the constraint is consistent. */
     boolean consistent(CConstraint c);

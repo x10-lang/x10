@@ -95,12 +95,15 @@ public class Converter {
 		UNKNOWN_CONVERSION,
 		UNKNOWN_IMPLICIT_CONVERSION,
 		CALL_CONVERSION, // vj: Introduced 3/28/10 to implement cast-as-needed call semantics
+        DESUGAR_LATER,
 		PRIMITIVE,
 		CHECKED,
 		SUBTYPE,
 		UNBOXING,
 		BOXING,
-		UNCHECKED
+		UNCHECKED;
+
+        public boolean isChecked() { return this==CHECKED || this==DESUGAR_LATER; }
 	}
 
 	/**
@@ -112,9 +115,6 @@ public class Converter {
 	 * @throws SemanticException If this is not possible
 	 */
 	public static Expr attemptCoercion(ContextVisitor tc, Expr e, Type toType) {
-		return attemptCoercion(false, tc, e, toType);
-	}
-	public static Expr attemptCoercion(boolean dynamicCallp, ContextVisitor tc, Expr e, Type toType) {
 		TypeSystem ts = (TypeSystem) tc.typeSystem();
 		Type t1 = e.type();
 		t1 = PlaceChecker.ReplaceHereByPlaceTerm(t1, (Context) tc.context());
@@ -147,12 +147,6 @@ public class Converter {
 				// alright, now we actually synthesized a new depexpr. 
 				// lets splice it in.
 				result = typeCheckCast(nf.X10Cast(e.position(), tn, e, ct), tc);
-			}
-			if (dynamicCallp) {
-				if (!Warnings.dynamicCall(tc.job(),Warnings.CastingExprToType(e, tn.type(), e.position()))) {
-					//throw new SemanticException("Expression " + e + " cannot be cast to type " + tn.type() + ".", e.position());
-					return null;
-				}
 			}
 		}
 
@@ -238,7 +232,23 @@ public class Converter {
 				Expr e = n.arguments().get(j);
 				Type toType = formals.get(j);
 
-				Expr e2 = attemptCoercion(true, tc, e, toType);
+                // In DYNAMIC_CALLS we can't just insert a cast for each argument due to dependencies between arguments, e.g.,
+                //def m(a:Int, b:Int{self==a}) {}
+                //def test(x:Int, y:Int) {
+                //  m(x+1,y);
+                //}
+                //will be desugared into:
+                //def m(a:Int, b:Int{self==a}) {}
+                //def test(x:Int, y:Int) {
+                // ( (a:Int, b:Int) => if (!(b==a)) throw new ...;  m(a,b)) (x+1,y);
+                //}
+				Expr e2 = attemptCoercion(tc, e, toType); // attemptCoercion is used in many places (for loops, local&field init expressions, etc), so we special handle it for method calls                
+                if (e2 instanceof X10Cast) {
+                    X10Cast e2Cast = (X10Cast) e2;
+                    if (e2Cast.conversionType()==ConversionType.DESUGAR_LATER)
+                        e2 = e2Cast.conversionType(ConversionType.SUBTYPE).type(Types.baseType(e2Cast.type())); // because in instantiate we will flag the method call as checkGuardAtRuntime and create a closure for it
+                }
+
 				if (e2 == null)
 					continue METHOD;
 				transformedArgs.add(e2);
@@ -590,11 +600,12 @@ public class Converter {
 	    }
 
 		// Added 03/28/10 to support new call conversion semantics.
-		if (ts.isSubtype(Types.baseType(fromType), Types.baseType(toType), context))
+		if (ts.isSubtype(baseFrom, baseTo, context))
 			if (!opts.x10_config.STATIC_CALLS)
 				if (cast.conversionType() == ConversionType.CALL_CONVERSION 
 						&& ts.isCastValid(fromType, toType, context)) {
-					X10Cast n = cast.conversionType(ConversionType.CHECKED); 
+					//return cast.conversionType(ConversionType.DESUGAR_LATER).type(baseTo);
+					X10Cast n = cast.conversionType(ConversionType.DESUGAR_LATER); 
 					XVar sv = Types.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
 					if (sv != null)
 					    toType = Types.addSelfBinding((Type) toType.copy(), sv);

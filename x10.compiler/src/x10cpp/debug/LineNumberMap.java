@@ -314,7 +314,8 @@ public class LineNumberMap extends StringTable {
 	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
 	{
-		//System.out.println("looking up type \""+type+"\"");
+		if (type == null)
+			return 0;
 		if (type.equals("x10.lang.Int") || type.startsWith("x10.lang.Int{"))
 			return 6;
 		if (type.startsWith("x10.array.Array"))
@@ -441,8 +442,14 @@ public class LineNumberMap extends StringTable {
 			
 			String innerType = getInnerType(type);
 			MemberVariableMapInfo v = new MemberVariableMapInfo();
-			v._x10type = determineTypeId(innerType);
-			if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
+			if (refType == 211)
+			{
+				v._x10type = 211;
+				innerType = getInnerType(type);
+			}
+			else
+				v._x10type = determineTypeId(innerType);
+			if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207 || v._x10type == 211)
 				v._x10typeIndex = determineSubtypeId(innerType, arrayMap);
 			else
 				v._x10typeIndex = -1;
@@ -457,6 +464,23 @@ public class LineNumberMap extends StringTable {
 					int nameEnd = type.indexOf(',', nameStart);
 					v._x10memberName = stringId(type.substring(nameStart, nameEnd));
 				}
+			}
+			else if (refType == 202) // create additional maps for internal components of DistArray.
+			{				
+				v._x10typeIndex = addReferenceMap(name+"_localHandle", "x10.lang.PlaceLocalHandle[x10.array.DistArray__LocalState["+innerType+"]]", startline, endline, 211);
+				// I hate that this is here.  It's just a hardcoded representation of the internals of DistArray.  
+				// It does not belong here, but the debugger people can't seem to work without it.
+				// we add something called "dist" here, and the main "v" entry is "localHandle"
+				MemberVariableMapInfo dist = new MemberVariableMapInfo();
+				dist._x10type = 201;
+				dist._x10typeIndex = -1;
+				dist._x10memberName = stringId("dist");
+				dist._cppMemberName = dist._x10memberName;
+				dist._cppClass = stringId("x10::array::Dist");
+				cm._members.add(dist);
+				
+				v._x10type = 203;
+				v._x10memberName = stringId("localHandle");
 			}
 			else
 				v._x10memberName = id;
@@ -490,9 +514,9 @@ public class LineNumberMap extends StringTable {
 		LocalVariableMapInfo v = new LocalVariableMapInfo();
 		v._x10name = stringId(name);
 		v._x10type = determineTypeId(type);
-		if (v._x10type == 203 || v._x10type == 210)
+		if (v._x10type == 203 || v._x10type == 210 || v._x10type == 202)
 			v._x10typeIndex = addReferenceMap(name, type, startline, endline, v._x10type);
-		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
+		else if (v._x10type == 200 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else if (v._x10type == 101)
 		{
@@ -566,9 +590,9 @@ public class LineNumberMap extends StringTable {
 			if (isStruct)
 				v._x10type = 102;
 		}
-		else if (v._x10type == 203 || v._x10type == 210)
+		else if (v._x10type == 203 || v._x10type == 210 || v._x10type == 202)
 			v._x10typeIndex = addReferenceMap(name, type, 0, 0, v._x10type);
-		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
+		else if (v._x10type == 200 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else 
 			v._x10typeIndex = -1;
@@ -599,9 +623,9 @@ public class LineNumberMap extends StringTable {
 		{
 			MemberVariableMapInfo v = new MemberVariableMapInfo();
 			v._x10type = determineTypeId(type);
-			if (v._x10type == 203 || v._x10type == 210)
+			if (v._x10type == 203 || v._x10type == 210 || v._x10type == 202)
 				v._x10typeIndex = addReferenceMap(name, type, startLine, endLine, v._x10type);
-			else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
+			else if (v._x10type == 200 || v._x10type == 204 || v._x10type == 207)
 				v._x10typeIndex = determineSubtypeId(type, arrayMap);
 			else if (v._x10type == 101) // save the type for later - it may be a class in our class table
 				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type));
@@ -923,7 +947,7 @@ public class LineNumberMap extends StringTable {
 	
 	//	    // A cross reference of X10 statements to the first C++ statement.
 	//	    // Sorted by X10 file index and X10 source file line.
-		    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
+/*		    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
 		    for (Key p : m.map.keySet()) {
 		        Entry e = m.map.get(p);
 		        x10toCPPlist.add(
@@ -962,7 +986,7 @@ public class LineNumberMap extends StringTable {
 			    	i++;
 		    	}
 		    }	
-		    
+
 		    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
 		        w.write("    { ");
@@ -976,7 +1000,7 @@ public class LineNumberMap extends StringTable {
 		    }
 		    w.writeln("};");
 		    w.forceNewline();
-	
+*/	
 		    // A list of the X10 method names.
 		    // Sorted by X10 method name.
 		    ArrayList<CPPMethodInfo> x10MethodList = new ArrayList<CPPMethodInfo>(m.methods.size());
@@ -1292,11 +1316,11 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B030F0B, // 2011-03-15, 11:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B030F10, // 2011-03-15, 16:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
-            w.writeln("sizeof(_X10toCPPlist),"); // w.writeln("0,");
+            w.writeln("0, // _X10toCPPlist removed"); //w.writeln("sizeof(_X10toCPPlist),"); 
             w.writeln("sizeof(_CPPtoX10xrefList),");
         } else {
             w.writeln("0,");
@@ -1332,7 +1356,7 @@ public class LineNumberMap extends StringTable {
         w.writeln("_X10strings,");
         if (!m.isEmpty()) {
             w.writeln("_X10sourceList,");
-            w.writeln("_X10toCPPlist,");  // w.writeln("NULL,");
+            w.writeln("NULL,"); // w.writeln("_X10toCPPlist,");
             w.writeln("_CPPtoX10xrefList,");
         } else {
             w.writeln("NULL,");

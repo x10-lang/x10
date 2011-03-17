@@ -132,6 +132,8 @@ public class Emitter {
         "x10_long", "x10_float", "x10_double",
         // X10 implementation names
         "FMGL", "TYPENAME", "getRTT", "rtt", "RTT_H_DECLS", "RTT_CC_DECLS1",
+        // macros defined by the C++ implementation
+        "i386",
         // Additionally, anything starting with a '_' is reserved, and may clash
     };
     private static boolean isCPPKeyword(String name) {

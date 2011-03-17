@@ -471,6 +471,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
     return ts.canOverride((MethodInstance) this, mj, context);
     }
 
+    // nobody calls this.
     public final void checkOverride(MethodInstance mj, Context context) throws SemanticException {
     ts.checkOverride((MethodInstance) this, mj, context);
     }

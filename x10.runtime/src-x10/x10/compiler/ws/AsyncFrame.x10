@@ -1,5 +1,6 @@
 package x10.compiler.ws;
 
+import x10.compiler.Abort;
 import x10.compiler.Header;
 import x10.compiler.Inline;
 
@@ -23,7 +24,7 @@ public abstract class AsyncFrame extends Frame {
             val ff = cast[Frame,FinishFrame](up).redirect;
             if (!eq(up, ff)) move(ff);
             worker.unroll(ff);
-            throw Stolen.STOLEN;
+            throw Abort.ABORT;
         }
         return;
     }

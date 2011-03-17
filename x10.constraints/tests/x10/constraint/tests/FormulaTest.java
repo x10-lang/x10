@@ -12,15 +12,13 @@
 package x10.constraint.tests;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.TestCase;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -30,6 +28,14 @@ public class FormulaTest extends TestCase {
 		super("FormulaTest");
 	}
 		
+	HashMap<String, XVar> vars = new HashMap<String, XVar>();
+	XVar makeUQV(String id) {
+		XVar v = vars.get(id);
+		if (v !=null) return v;
+		v = XTerms.makeUQV(id);
+		vars.put(id, v);
+		return v;
+	}
 	public XConstraint parse(String s) {
 		char[] buf = s.toCharArray();
 		int i = 0;
@@ -45,7 +51,7 @@ public class FormulaTest extends TestCase {
 			assert false : "cannot parse " + s;
 		}
 		
-		XConstraint c = new XConstraint_c();
+		XConstraint c = new XConstraint();
 
 		Pair<Integer,XTerm> p = parse(buf, i);
 		XTerm t = p.snd;
@@ -66,7 +72,7 @@ public class FormulaTest extends TestCase {
 		return c;
 	}
 	
-	public Pair<Integer,XName> parseId(char[] buf, int i) {
+	public Pair<Integer,String> parseId(char[] buf, int i) {
 		int n = buf.length;
 		char c = buf[i];
 		
@@ -79,8 +85,7 @@ public class FormulaTest extends TestCase {
 		}
 
 		String id = new String(buf, begin, i-begin);
-		XName xid = XTerms.makeName(id);
-		return new Pair<Integer, XName>(i, xid);
+		return new Pair<Integer, String>(i, id);
 	}
 	
 	public Pair<Integer,XTerm> parse(char[] buf, int i) {
@@ -97,10 +102,10 @@ public class FormulaTest extends TestCase {
 			c = buf[i];
 		}
 		
-		XName op = null;
+		String op = null;
 		
 		if (Character.isLetter(c)) {
-			Pair<Integer,XName> p = parseId(buf, i);
+			Pair<Integer,String> p = parseId(buf, i);
 			i = p.fst;
 			c = buf[i];
 			op = p.snd;
@@ -111,13 +116,13 @@ public class FormulaTest extends TestCase {
 			if (c == '=') {
 				i++;
 				c = buf[i];
-				op = new XNameWrapper<String>("==");
+				op = "==";
 			}
 		}
 		else if (c == '!') {
 			i++;
 			c = buf[i];
-			op = new XNameWrapper<String>("!");
+			op =  "!";
 		}
 		else if (c == '&') {
 			i++;
@@ -125,7 +130,7 @@ public class FormulaTest extends TestCase {
 			if (c == '&') {
 				i++;
 				c = buf[i];
-				op = new XNameWrapper<String>("&&");
+				op = "&&";
 			}
 		}
 		
@@ -154,16 +159,16 @@ public class FormulaTest extends TestCase {
 			XVar left = null;
 
 			while (Character.isLetter(c)) {
-				Pair<Integer,XName> p = parseId(buf, i);
+				Pair<Integer,String> p = parseId(buf, i);
 				i = p.fst;
 				c = buf[i];
-				XName id = p.snd;
+				String id = p.snd;
 
 				if (left != null) {
 					left = XTerms.makeField(left, id);
 				}
 				else {
-					left = XTerms.makeLocal(id);
+					left = makeUQV(id);
 				}
 
 				if (c == '.') {
@@ -218,6 +223,7 @@ public class FormulaTest extends TestCase {
 	XConstraint c6 = parse("(&& (F x.f z) (== x.f z) (== y x))");
 	XConstraint c7 = parse("(F y.f z)");
 	XConstraint c8 = parse("(F z x.f)");
+	
 	XConstraint c9 = parse("(! (! (== x y)))");
 	public void test1() throws Throwable {
 		assertTrue(c1.entails(c2));
@@ -244,8 +250,9 @@ public class FormulaTest extends TestCase {
 		assertFalse(c8.entails(c6));
 	}
 	public void test9() throws Throwable {
-		assertTrue(c9.entails(c1));
+		assertTrue(c9.entails(c9));
 	}
+	
 	public void test10() throws Throwable {
 		assertTrue(c1.entails(c9));
 	}

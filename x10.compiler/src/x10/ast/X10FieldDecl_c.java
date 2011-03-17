@@ -498,7 +498,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                     n = n.init(newInit);
 	    	}
 
-            Types.checkVariance(n.type(), f.isFinal() ? ParameterType.Variance.COVARIANT : ParameterType.Variance.INVARIANT,tc.job());
+         //   Types.checkVariance(n.type(), f.isFinal() ? ParameterType.Variance.COVARIANT : ParameterType.Variance.INVARIANT,tc.job());
 
             // check cycles in struct declaration that will cause a field of infinite size, e.g.,
             // struct Z(@ERR u:Z) {}

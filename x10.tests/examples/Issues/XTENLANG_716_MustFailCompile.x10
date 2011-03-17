@@ -22,7 +22,7 @@ class XTENLANG_716_MustFailCompile extends x10Test {
 	}
 
 		class B extends A{self.x==2} {
-			def this(x:Int){super(x);}
+			def this(x:Int){super(x);} // ERR: Semantic Error: The super(..) call cannot establish the supertype
 		}
 	
 

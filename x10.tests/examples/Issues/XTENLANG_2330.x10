@@ -20,6 +20,7 @@ public class XTENLANG_2330 extends x10Test
 { 
     public def run() {
         new Helper2330(50).run(0);
+        new DynamicCallsTest().run();
         return true;
     }
 
@@ -29,6 +30,24 @@ public class XTENLANG_2330 extends x10Test
 }
 
 
+class DynamicCallsTest {
+	def fail():void { throw new RuntimeException("test failed!"); }
+	def run() {
+		test(1,2);
+		try { test(2,2); fail(); } catch (e:FailedDynamicCheckException) {}
+		m([1,2]);
+		try { m([1]); fail(); } catch (e:ClassCastException) {}
+		try { m([1,2,3]); fail(); } catch (e:ClassCastException) {}
+		Console.OUT.println("Test succeeded!");
+	}
+	def m(a:Int, b:Int{self==a}) {}
+	def test(a:Int, b:Int) {
+		m(a+1,b); // ERR
+	}
+	def m(p:Point) {
+	  val x:Point(2) = p; // ERR
+	}
+}
 class Helper2330(p:Int) {
 	// test inner classes (both instance & nested), inheritance, overriding, generics (for generics I just checked codegen below, not runtime behaviour)
 	// new & call (with and without target/qualifier), operators
@@ -42,126 +61,126 @@ class Helper2330(p:Int) {
 		val r = new Helper2330(z+51);
 		// without qualifier
 		m1(z+1); // ERR
-		try { m1(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { m1(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		// with this qualifier
 		m2(z+2); // ERR
-		try { m2(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { m2(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		// with type qualifier
 		Helper2330.m1(z+1); // ERR
-		try { Helper2330.m1(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { Helper2330.m1(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		// with expr/receiver qualifier
 		r.m1(z+1); // ERR
-		try { r.m1(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { r.m1(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		r.m2(z+2); // ERR
-		try { r.m2(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { r.m2(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		
 		m3(z+50); // ERR
-		try { m3(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { m3(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		r.m3(z+51); // ERR
-		try { r.m3(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { r.m3(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		// test non-void method		
 		m33(z+50); // ERR
-		try { m33(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { m33(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		r.m33(z+51); // ERR
-		try { r.m33(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { r.m33(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		// testing static and instance methods that use a guard
 		val a = new A(z+52);
 		A.m4(z+4); // ERR
-		try { A.m4(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { A.m4(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		a.m4(z+4); // ERR
-		try { a.m4(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { a.m4(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		a.m5(z+52); // ERR
-		try { a.m5(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { a.m5(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		// testing accessing the outer instance properties in a guard
 		val b1 = new B(z+53);
 		val b2 = r.new B(z+53);
 		b1.m6(z+50); // ERR
-		try { b1.m6(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { b1.m6(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		b2.m6(z+51); // ERR
-		try { b2.m6(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { b2.m6(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		// testing overriding
 		val cc1 = new C(z+53);
 		val cc2 = r.new C(z+53);
 		cc1.m6(z+50); // ERR
-		try { cc1.m6(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { cc1.m6(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		cc2.m6(z+51); // ERR
-		try { cc2.m6(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { cc2.m6(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		// testing dynamic dispatching
 		val bc1:B = cc1;
 		val bc2:B = cc2;
 		bc1.m6(z+50); // ERR
-		try { bc1.m6(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { bc1.m6(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		bc2.m6(z+51); // ERR
-		try { bc2.m6(z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { bc2.m6(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 
 		/////////////////////////////////////////////////////////////
 		// testing new expressions
 		/////////////////////////////////////////////////////////////
 		new Helper2330(z+1,z+2); // ERR
-		try { new Helper2330(z+1,z+1); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { new Helper2330(z+1,z+1); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		val q1 = new Helper2330(z+1,z+2); // ERR
-		try { val q2 = new Helper2330(z+1,z+1); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { val q2 = new Helper2330(z+1,z+1); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		(()=>{return new Helper2330(z+1,z+2);})(); // ERR
-		try { (()=>{return new Helper2330(z+1,z+1);})(); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { (()=>{return new Helper2330(z+1,z+1);})(); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		// testing creating a static nested class (without any qualifier, with type qualifier, with expr qualifier)
 		new A(z+1,z+2); // ERR
-		try { new A(z+1,z+1); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { new A(z+1,z+1); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		new Helper2330.A(z+1,z+2); // ERR
-		try { new Helper2330.A(z+1,z+1); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { new Helper2330.A(z+1,z+1); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		//r.new A(z+1,z+2); // Semantic Error: Cannot provide a containing instance for non-inner class Helper2330.A.
 
 		// testing creating an instance (non-static) nested class (without any qualifier, with type qualifier, with expr qualifier)
 		new B(z+1,z+2); // ERR
-		try { new B(z+1,z+1); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { new B(z+1,z+1); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		new Helper2330.B(z+1,z+2); // ERR
-		try { new Helper2330.B(z+1,z+1); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { new Helper2330.B(z+1,z+1); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		r.new B(z+1,z+2); // ERR
-		try { r.new B(z+1,z+1); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { r.new B(z+1,z+1); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		this.new B(z+1,z+2); // ERR
-		try { this.new B(z+1,z+1); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { this.new B(z+1,z+1); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		// C's guard: (i1:Int, i2:Int) {i1!=i2, i1==p}
 		val c1 = new C(z+50,z+42); // ERR
 		val c2 = r.new C(z+51,z+42); // ERR
-		try { new C(z+1,z+2); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
-		try { new C(z+50,z+50); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
-		try { r.new C(z+1,z+2); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
-		try { r.new C(z+51,z+51); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { new C(z+1,z+2); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { new C(z+50,z+50); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { r.new C(z+1,z+2); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { r.new C(z+51,z+51); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		// D's guard: (i1:Int, i2:Int) {i1!=i2, i1==p, i2==c}
 		val d1 = c1. new D(z+50,z+42); // ERR
 		val d2 = c2. new D(z+51,z+42); // ERR
-		try { c1. new D(z+1,z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
-		try { c1. new D(z+50,z+50); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
-		try { c2.new D(z+1,z+42); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
-		try { c2.new D(z+51,z+51); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { c1. new D(z+1,z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { c1. new D(z+50,z+50); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { c2.new D(z+1,z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { c2.new D(z+51,z+51); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		/////////////////////////////////////////////////////////////
 		// test binary operators	
 		/////////////////////////////////////////////////////////////	
 		use(this+(z+50)); // ERR
-		try { use(this+(z+42)); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
+		try { use(this+(z+42)); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		use(r+(z+51)); // ERR
-		try { use(r+(z+42)); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
+		try { use(r+(z+42)); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		use(this*(z+50)); // ERR
-		try { use(this*(z+42)); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
+		try { use(this*(z+42)); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		use(r*(z+51)); // ERR
-		try { use(r*(z+42)); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
+		try { use(r*(z+42)); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		// test unary operators	
 		use(+this); // ERR
 		use(-this); // ERR
-		try { use(+r); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
-		try { use(-r); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
+		try { use(+r); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { use(-r); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		// implicit and explicit as (casting)
 		val dd1:Helper2330 = z+5.5; // ERR
 		val ss1:Helper2330 = ((z+'a') as Char) as Helper2330; // ERR
-		try { val dd2:Helper2330 = z+5.6; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
-		try { val ss2:Helper2330 = ((z+'b') as Char) as Helper2330; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
+		try { val dd2:Helper2330 = z+5.6; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { val ss2:Helper2330 = ((z+'b') as Char) as Helper2330; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		// apply & set (and SettableAssign)
 		this(z+50); // ERR
@@ -171,14 +190,14 @@ class Helper2330(p:Int) {
 		
 		this(z+50) += z+0; // ERR
 
-		try { this(z+51); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
-		try { r(z+52); fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
-		try { this(z+50) = z+51; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
-		try { this(z+51) = z+50; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
-		try { r(z+51) = z+52; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
-		try { r(z+52) = z+51; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
-		try { this(z+50) += z+1; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR
-		try { this(z+51) += z+0; fail(); } catch (e:UnsatisfiedGuardException) {} // ERR	
+		try { this(z+51); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { r(z+52); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { this(z+50) = z+51; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { this(z+51) = z+50; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { r(z+51) = z+52; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { r(z+52) = z+51; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { this(z+50) += z+1; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { this(z+51) += z+0; fail(); } catch (e:FailedDynamicCheckException) {} // ERR	
 
 		// We already handle: Call, New, Binary, Unary, SettableAssign, Cast
 		// We still need to handle in the desugarer: ConstructorCall (XTENLANG_2376) , ClosureCall (XTENLANG_2329)

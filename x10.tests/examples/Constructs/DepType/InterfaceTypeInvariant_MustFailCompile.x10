@@ -43,7 +43,7 @@ public class InterfaceTypeInvariant_MustFailCompile extends x10Test {
     class Tester2(n: int, m:int{self==this.n()}) implements Test{
         public property n():int = n;
         @ShouldNotBeERR public property m():int{self==this.n()} = m;
-      @ERR @ERR public def this() = { property(3,2); }  // [Semantic Error: Invalid type; the real clause of InterfaceTypeInvariant_MustFailCompile.Tester2{self.n==3, self.m==2} is inconsistent.]
+      @ERR public def this() = { property(3,2); }  // [Semantic Error: Invalid type; the real clause of InterfaceTypeInvariant_MustFailCompile.Tester2{self.n==3, self.m==2} is inconsistent.]
       public def put()=0;
 	}
     class Tester3(n: int, m:int{self==this.n()}) implements Test{

@@ -72,6 +72,7 @@ public class FinallyEliminator extends ContextVisitor {
     private static final Name LABEL           = Name.make("label");
     private static final Name EQUALS          = Name.make("equals");
     private static final QName FINALIZATION   = QName.make("x10.compiler.Finalization");
+    private static final QName ABORT          = QName.make("x10.compiler.Abort");
 
     protected final TypeSystem ts;
     protected AltSynthesizer syn;
@@ -87,6 +88,28 @@ public class FinallyEliminator extends ContextVisitor {
         this.ts  = ts;
         this.syn = new AltSynthesizer(ts, nf);
         this.fes = new FinallyEliminatorState();
+    }
+
+    /**
+     * Prevent the Java compiler from complaining about unreachable code.
+     * s;  ->  if (true) s;
+     * 
+     * @param stmt a statement that might not have normal code flow
+     * @return a statement, semantically the same as stmt, that will look to a Java compiler as if it might have normal code flow
+     * 
+     * TODO: implement dead code elimination and throw this code away
+     */
+    Stmt protect(Stmt stmt, TypeSystem ts){
+        Expr cond;
+        try { // if possible, create a true that wouldn't be recognized by (another pass of) the ConstantPropagator
+            QName qname = QName.make("x10.compiler.CompilerFlags");
+            Type container = ts.typeForName(qname);
+            Name name = Name.make("TRUE"); 
+            cond = syn.createStaticCall(stmt.position(), container, name);
+        } catch (Exception e) {
+            cond = syn.createTrue(stmt.position());
+        }
+        return syn.createIf(stmt.position(), cond, stmt, null);
     }
 
     /* (non-Javadoc)
@@ -148,6 +171,14 @@ public class FinallyEliminator extends ContextVisitor {
         }
     }
 
+    private ClassType Abort() {
+        try {
+            return (ClassType) ts.typeForName(ABORT);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Unable to load the Abort class", e);
+        }
+    }
+
     /**
      * @param t
      * @param tv
@@ -173,13 +204,34 @@ public class FinallyEliminator extends ContextVisitor {
         Block catchBody     = syn.createBlock(pos, assignment);
         Catch catchClause   = syn.createCatch(pos, f, catchBody);
         Try wrappedTry      = syn.createTry(pos, tryBody, catchClause);
+        Stmt abortExit   = (Stmt) handleAbortExit(pos, throwDecl, tvs).visit(this);
         Stmt abnormalExit   = (Stmt) handleAbnormalExit(pos, throwDecl, tvs).visit(this);
         List<Stmt> stmts    = new ArrayList<Stmt>();
         stmts.add(throwDecl);
         stmts.add(wrappedTry);
-        stmts.add(fb);
+        stmts.add(abortExit);
+        stmts.add(protect(fb, ts));
         stmts.add(abnormalExit);
         return syn.createBlock(pos, stmts);
+    }
+
+    /**
+     * @param pos
+     * @param throwDecl
+     * @param tvs 
+     * @return
+     */
+    private Stmt handleAbortExit(Position pos, LocalDecl throwDecl, TryVisitorState tvs) {
+        List<Stmt> stmts  = new ArrayList<Stmt>();
+        ClassType Abort = Abort();
+        Expr cond         = syn.createInstanceof(pos, syn.createLocal(pos, throwDecl), Abort);
+        Stmt cons         = syn.createThrow(pos, syn.createLocal(pos, throwDecl));
+        Stmt stmt         = syn.createIf(pos, cond, cons, null);
+        stmts.add(stmt);
+        cond              = syn.createNotNull(pos, syn.createLocal(pos, throwDecl), this);
+        cons              = syn.createBlock(pos, stmts);
+        stmt              = syn.createIf(pos, cond, cons, null);
+        return stmt;
     }
 
     /**

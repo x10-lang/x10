@@ -22,9 +22,9 @@ public class ArrayPointBinding_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
         { val p[i,j]:Array[Point]{rank==1,size==2} = new Array[Point](2); }
-        { val p[i,j]:Array[Point]{size==2} = new Array[Point](2); } // ERR ERR: [Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}, Warning: Generated a dynamic check for the method guard.]
+        { val p[i,j]:Array[Point]{size==2} = new Array[Point](2); } // ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
         { val p[i,j]:Array[Point]{rank==1} = new Array[Point](2); } // ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
-        { val p[i,j]:Array[Point] = new Array[Point](2); }          // ERR ERR: [Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}, Warning: Generated a dynamic check for the method guard.]
+        { val p[i,j]:Array[Point] = new Array[Point](2); }          // ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
 
         val p[i,j] = new Array[Point](2);
         p(0) = [1,2];

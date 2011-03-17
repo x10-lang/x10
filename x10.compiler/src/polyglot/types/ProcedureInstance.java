@@ -81,12 +81,12 @@ public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<
     X10ProcedureInstance<T> guard(CConstraint guard);
 
     /**
-     * Should the guard be checked at runtime for this instance?
-     * Every method/ctor call with such an instance should generate code that checks the guard.
+     * Should the guard or any of the formals be checked at runtime for this instance?
+     * Every method/ctor call with such an instance should generate code that checks the constraints of the guard and formals.
      * @return true if we should check the guard.
      */
-    boolean checkGuardAtRuntime();
-    X10ProcedureInstance<T> checkGuardAtRuntime(boolean check);
+    boolean checkConstraintsAtRuntime();
+    X10ProcedureInstance<T> checkConstraintsAtRuntime(boolean check);
 
     /**
      * Return the constraint on the type parameters, if any.
