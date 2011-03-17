@@ -15,5 +15,6 @@ abstract public class MainFrame extends RegularFrame {
 
     public def run() {
         Worker.main(this);
+        ff.finalize();
     }
 }

@@ -17,14 +17,4 @@ public final class RootFinish extends FinishFrame {
     }
 
     public def remap():FinishFrame = this;
-
-
-    public def wrapBack(worker:Worker, frame:Frame) {
-        if (null != frame.throwable) {
-            Runtime.pushException(frame.throwable);
-        }
-    }
-
-    public def wrapResume(worker:Worker) {
-    }
 }

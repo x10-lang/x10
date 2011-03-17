@@ -121,11 +121,12 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name RESUME = Name.make("resume");
     static final protected Name BACK = Name.make("back");
     static final protected Name MOVE = Name.make("move");
+    static final protected Name FINALIZE = Name.make("finalize");
+    static final protected Name CAUGHT = Name.make("caught");
     static final protected Name REMOTE_RUN_FRAME = Name.make("remoteRunFrame");
     static final protected Name REMOTE_AT_NOTIFY = Name.make("remoteAtNotify");    
     static final protected Name WORKER = Name.make("worker");
     static final protected Name FRAME = Name.make("frame");
-    static final protected Name STOLEN = Name.make("STOLEN");
     static final protected Name PC = Name.make("_pc");
     static final protected Name FF = Name.make("ff");
     static final protected Name UP = Name.make("up");
