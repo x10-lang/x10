@@ -5662,7 +5662,7 @@ class TestConstraintLanguageAndRegions {
 
 	def test() {	
 		var t: Boolean(true) = false; 	// ERR
-		val R:Region{rank==2&&zeroBased&&rect} = 0..10*0..10; // ShouldNotBeERR
+		val R:Region{rank==2&&zeroBased&&rect} = 0..10*0..10;
 
 		val Universe: Region = 0..7*0..7;
 		for (val [i,j]: Point in Universe) {} // ERR
@@ -5682,3 +5682,23 @@ class TestExceptionsFlow {
 	}
 	def use(Any) {}
 }
+class ResolvingPropertyMethods { 
+	interface I {
+		property p():Int;
+		def m():Int;
+	}
+	class C implements I {
+		public property p():Int = 2;
+		public def m():Int = 2;
+	}
+	// p()  should resolve to	self.p()
+	static def test(i:I{p()==1}) { // ShouldNotBeERR: Method or static constructor not found for given call.	 Call: p()
+		val x = i.p();
+		val y = i.m();
+	}
+	static def test2(i:C{p()==1}) { // ShouldNotBeERR: Method or static constructor not found for given call.	 Call: p()
+		val x = i.p();
+		val y = i.m();
+	}
+}
+
