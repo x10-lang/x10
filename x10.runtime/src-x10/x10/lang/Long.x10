@@ -23,7 +23,7 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some Long constants.
  */
-@NativeRep("java", "long", null, "x10.rtt.Types.LONG")
+@NativeRep("java", "long", "0L", "x10.rtt.Types.LONG")
 @NativeRep("c++", "x10_long", "x10_long", null)
 public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long], Bitwise[Long], Ordered[Long]*/ {
     /**

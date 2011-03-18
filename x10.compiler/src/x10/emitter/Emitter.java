@@ -3085,22 +3085,22 @@ public class Emitter {
                     zero = "(x10.lang.UInt) x10.rtt.Types.UINT_ZERO";
                 } else if (xts.isULong(type)) {
                     zero = "(x10.lang.ULong) x10.rtt.Types.ULONG_ZERO";
-                } else if (xts.isByte(type)) {
-                    zero = "(byte) 0";
-                } else if (xts.isShort(type)) {
-                    zero = "(short) 0";
-                } else if (xts.isInt(type)) {
-                    zero = "0";
-                } else if (xts.isLong(type)) {
-                    zero = "0L";
-                } else if (xts.isFloat(type)) {
-                    zero = "0.0F";
-                } else if (xts.isDouble(type)) {
-                    zero = "0.0";
-                } else if (xts.isChar(type)) {
-                    zero = "(char) 0";
-                } else if (xts.isBoolean(type)) {
-                    zero = "false";
+//                } else if (xts.isByte(type)) {
+//                    zero = "(byte) 0";
+//                } else if (xts.isShort(type)) {
+//                    zero = "(short) 0";
+//                } else if (xts.isInt(type)) {
+//                    zero = "0";
+//                } else if (xts.isLong(type)) {
+//                    zero = "0L";
+//                } else if (xts.isFloat(type)) {
+//                    zero = "0.0F";
+//                } else if (xts.isDouble(type)) {
+//                    zero = "0.0";
+//                } else if (xts.isChar(type)) {
+//                    zero = "(char) 0";
+//                } else if (xts.isBoolean(type)) {
+//                    zero = "false";
                 } else {
                     // user-defined struct type
                     // for struct a.b.S[T], "new a.b.S(T, (java.lang.System) null);"
