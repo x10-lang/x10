@@ -5,7 +5,7 @@ import x10.compiler.Header;
 public final class RemoteRootFrame extends Frame {
     public val ffRef:GlobalRef[FinishFrame];
     @Header public def this(ffRef:GlobalRef[FinishFrame]) {
-        super(null);
+        super(NULL[Frame]());
         this.ffRef = ffRef; 
     }
 

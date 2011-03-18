@@ -12,11 +12,16 @@
 
 package x10.compiler.ws.codegen;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import polyglot.ast.Block;
+import polyglot.ast.Catch;
 import polyglot.ast.Expr;
+import polyglot.ast.Formal;
 import polyglot.ast.Stmt;
+import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
@@ -72,7 +77,26 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         
         //now add codes to three path;
         //fast path
-        fastBodySynth.addStmts(callCodes.first());
+        Name formalName = xct.getNewVarName();
+        
+        Formal fa = synth.createFormal(compilerPos, wts.stolenType, formalName, Flags.NONE);
+        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.stolenType));
+        Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
+        
+        Formal f = synth.createFormal(compilerPos, xts.Throwable(), formalName, Flags.NONE);
+        Expr caught = synth.makeInstanceCall(compilerPos, synth.thisRef(wts.asyncFrameType, compilerPos),
+                CAUGHT, Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(
+                        xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(f.localDef().asInstance()).type(xts.Throwable())), xts.Void(),
+                Collections.<Type>singletonList(xts.Throwable()), xct);
+        Catch c = xnf.Catch(compilerPos, f, xnf.Block(compilerPos,
+                xnf.Eval(compilerPos, caught)));
+        
+        List<Catch> handlers = new ArrayList<Catch>(2);
+        handlers.add(ca);
+        handlers.add(c);
+        
+        Try t = xnf.Try(compilerPos, xnf.Block(compilerPos, callCodes.first()), handlers);
+        fastBodySynth.addStmt(t);
         fastBodySynth.addStmt(genFinalizeStmt());
         
         //resume/back path

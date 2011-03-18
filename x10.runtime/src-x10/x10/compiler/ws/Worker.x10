@@ -29,7 +29,7 @@ public final class Worker {
     public def migrate() {
         var k:RegularFrame;
         lock.lock();
-        while (null != (k = Frame.cast[Object,RegularFrame](deque.steal()))) {
+        while (!Frame.isNULL(k = Frame.cast[Object,RegularFrame](deque.steal()))) {
 //            Runtime.println(k + " migrated by " + this);
             val r = k.remap();
             Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
@@ -74,11 +74,10 @@ public final class Worker {
     }
 
     public def run() {
-        fifo = Runtime.wsFIFO(); //set from x10 Worker.wsfifo
         try {
             while (true) {
                 val k = find();
-                if (null == k) {
+                if (Frame.isNULL(k)) {
                     //Runtime.println(here + " :Worker(" + id + ") terminated");
                     return;
                 }
@@ -124,16 +123,16 @@ public final class Worker {
         //right now: 1) cur thread fifo; 2) other thread fifo; 3) other thread deque; 4) remote job 
         //1) cur thread fifo
         k = fifo.steal();
-        while (null == k) {
+        while (Frame.isNULL(k)) {
             if (finished.value) return Frame.NULL[Object](); // TODO: termination condition
             //2) other thread fifo
             k = workers(random.nextInt(Runtime.NTHREADS)).fifo.steal();
-            if (null != k) break;
+            if (!Frame.isNULL(k)) break;
             //3) other thread deque
             val i = random.nextInt(Runtime.NTHREADS);
             if (workers(i).lock.tryLock()) {
                 k = workers(i).deque.steal();
-                if (null!= k) {
+                if (!Frame.isNULL(k)) {
                     val p = Frame.cast[Object,RegularFrame](k);
                     val r = p.remap();
                     // frames from k upto k.ff excluded should be stack-allocated but cannot because of @StackAllocate limitations
@@ -142,7 +141,7 @@ public final class Worker {
                 }
                 workers(i).lock.unlock();
             }
-            if (null != k) break;
+            if (!Frame.isNULL(k)) break;
             //4) remote again
             Runtime.wsProcessEvents();    
             k = fifo.steal();
@@ -164,7 +163,7 @@ public final class Worker {
         var up:Frame;
         while (true) {
             up = frame.up;
-            if (null == up) return;
+            if (Frame.isNULL(up)) return;
             if (frame instanceof FinishFrame) {
                 var asyncs:Int;
                 Runtime.atomicMonitor.lock(); asyncs = --Frame.cast[Frame,FinishFrame](frame).asyncs; Runtime.atomicMonitor.unlock();
@@ -190,7 +189,7 @@ public final class Worker {
         var up:Frame;
         while (true) {
             up = frame.up;
-            if (null == up) return;
+            if (Frame.isNULL(up)) return;
             if (frame instanceof FinishFrame) {
                 // moving to heap-allocated frames
                 unroll(frame);
@@ -264,42 +263,40 @@ public final class Worker {
         }
     }
 
-    public static def main(frame:MainFrame) {
+    public static def initPerPlace() {
         Runtime.wsInit();
-        //First iteration, create all workers, and get the globalRef array
-        for (p in Place.places()) {
-            if(p == here){
-                continue; //in later loop
-            }
-            async at(p) {
-                Runtime.wsInit();
-                val workers = Rail.make[Worker](Runtime.NTHREADS);
-                val finished = new BoxedBoolean();
-                for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
-                    workers(i) = new Worker(i, workers, finished);
-                }
-                for( var i:Int = 0; i<Runtime.NTHREADS; i++) {
-                    val ii = i;
-                    async workers(ii).run();
-                }
-            }
-        }
-
-        //2nd iteration, current place
         val workers = Rail.make[Worker](Runtime.NTHREADS);
         val finished = new BoxedBoolean();
         for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
             workers(i) = new Worker(i, workers, finished);
         }
-        for( var i:Int = 1; i<Runtime.NTHREADS; i++) {
+        for(var i:Int = 1; i<Runtime.NTHREADS; i++) {
             val ii = i;
-            async workers(ii).run();
+            async {
+                workers(ii).fifo = Runtime.wsFIFO();
+                workers(ii).run();
+            }
         }
-
-        //start first worker at place0
-        val worker00 = workers(0);
+        workers(0).fifo = Runtime.wsFIFO();
+        return workers(0);
+    }
+    
+    public static def main(frame:MainFrame) {
+        val worker00 = initPerPlace(); // init place 0 first
+        for (var i:Int = 1; i<Place.MAX_PLACES; i++) { // init place >0
+            val p = Place.place(i);
+            async at(p) initPerPlace().run();
+        }
         try {
-            worker00.fifo = Runtime.wsFIFO();
+            frame.fast(worker00); // run main activity
+        } catch (t:Abort) {
+            worker00.run(); // join the pool
+        } catch (t:Throwable) {
+            frame.ff.caught(t); // main terminated abnormally
+        }
+        frame.ff.finalize();
+        /*
+        try {
             frame.fast(worker00);
             //If the app goes here, it means it always in fast path. 
             //We need process the ff.asyncs to make sure it can quit correctly
@@ -318,5 +315,6 @@ public final class Worker {
             Worker.allStop(worker00);
             //Runtime.println(here + ":Worker(0) terminated in fast");    
         }
+         */
     }
 }

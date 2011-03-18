@@ -4,7 +4,7 @@ import x10.compiler.Header;
 
 public final class RootFrame extends Frame {
     @Header public def this() {
-        super(null);
+        super(NULL[Frame]());
     }
 
     public def remap():Frame = this;
@@ -13,6 +13,6 @@ public final class RootFrame extends Frame {
         //atomic worker.finished.value = true;
         //Runtime.println(here+":Fire all stop from root's slow");
         Worker.allStop(worker);
-        if (null != throwable) throw throwable;
+        if (!isNULL(throwable)) throw throwable;
     }
 }
