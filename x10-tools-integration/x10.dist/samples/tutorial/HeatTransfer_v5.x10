@@ -45,7 +45,7 @@ public class HeatTransfer_v5 {
     //       all-to-all collective reduction.
     //       This is a quick and sloppy implementation, which does way too much work.
     static def reduceMax(diff:DistArray[Double],z:Point{self.rank==diff.rank},  scratch:DistArray[Double]) {
-        val max = diff.reduce(Math.max.(Double,Double), 0.0);
+        val max = diff.reduce((x:Double,y:Double)=>Math.max(x,y), 0.0);
         diff(z) = max;
         Clock.advanceAll();
     }

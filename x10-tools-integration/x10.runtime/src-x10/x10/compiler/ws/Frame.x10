@@ -23,6 +23,10 @@ public abstract class Frame {
     @Native("c++", "(#x == #y)")
     public native static def eq(x:Frame, y:FinishFrame):Boolean;
 
+    @Native("java", "(null == #4)")
+    @Native("c++", "(NULL == (#4)._val)")
+    public native static def isNull[T](x:T):Boolean;
+
     @Uninitialized public val up:Frame;
 
     @Uninitialized public var throwable:Throwable;

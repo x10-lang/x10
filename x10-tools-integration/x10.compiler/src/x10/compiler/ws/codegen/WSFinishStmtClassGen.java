@@ -12,11 +12,17 @@
 
 package x10.compiler.ws.codegen;
 
+import java.util.Collections;
+
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
+import polyglot.ast.Stmt;
+import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import x10.ast.Finish;
 import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
@@ -67,6 +73,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         //now add codes to three path;
         //fast path
         fastBodySynth.addStmts(callCodes.first());
+        fastBodySynth.addStmt(genFinalizeStmt());
         
         //resume/back path
         if(WSOptimizeConfig.OPT_PC_FIELD == 0){
@@ -82,4 +89,10 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         }
    }
 
+    protected Stmt genFinalizeStmt() throws SemanticException{
+        //fast path: //upcast[_async,AsyncFrame](this).poll(worker);
+        
+        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, getThisRef(), FINALIZE.toString());
+        return icSynth.genStmt();
+    }
 }

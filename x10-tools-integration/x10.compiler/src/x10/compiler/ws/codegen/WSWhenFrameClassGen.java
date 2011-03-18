@@ -112,8 +112,8 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
         Expr assign = xnf.LocalAssign(whenStmt.position(), bVar, Assign.ASSIGN, orgWhenExpr).type(orgWhenExpr.type());
         
         If ifStmt = xnf.If(whenStmt.position(), assign, bodyStmt);
-        Stmt enter = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), Name.make("enterAtomic"), xts.Void(), xct));
-        Stmt exit = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), Name.make("exitWSWhen"), Collections.<Expr>singletonList(xnf.Local(whenStmt.position(), bVar.name()).localInstance(bVar.localInstance()).type(xts.Boolean())), xts.Void(), xct));
+        Stmt enter = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), ENTER_ATOMIC, xts.Void(), xct));
+        Stmt exit = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), EXIT_WHEN, Collections.<Expr>singletonList(xnf.Local(whenStmt.position(), bVar.name()).localInstance(bVar.localInstance()).type(xts.Boolean())), xts.Void(), xct));
    
         Block fin = xnf.Block(whenStmt.position(), exit);
         //finally, put it into atomic

@@ -20,12 +20,16 @@ import java.util.Set;
 
 import polyglot.ast.Block;
 import polyglot.ast.Call;
+import polyglot.ast.Catch;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign;
+import polyglot.ast.Formal;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Stmt;
+import polyglot.ast.Try;
+import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
 import polyglot.types.Name;
@@ -181,8 +185,27 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                     continue;
                 }
                 
+                Name formalName = xct.getNewVarName();
                 pcValue = codes.getPcValue();
-                fastBodySynth.addStmts(codes.first());
+                
+                Formal fa = synth.createFormal(compilerPos, wts.stolenType, formalName, Flags.NONE);
+                Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.stolenType));
+                Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
+                
+                Formal f = synth.createFormal(compilerPos, xts.Throwable(), formalName, Flags.NONE);
+                Expr caught = synth.makeInstanceCall(compilerPos, synth.thisRef(wts.asyncFrameType, compilerPos),
+                        CAUGHT, Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(
+                                xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(f.localDef().asInstance()).type(xts.Throwable())), xts.Void(),
+                        Collections.<Type>singletonList(xts.Throwable()), xct);
+                Catch c = xnf.Catch(compilerPos, f, xnf.Block(compilerPos,
+                        xnf.Eval(compilerPos, caught)));
+                
+                List<Catch> handlers = new ArrayList<Catch>(2);
+                handlers.add(ca);
+                handlers.add(c);
+                
+                Try t = xnf.Try(compilerPos, xnf.Block(compilerPos, codes.first()), handlers);
+                fastBodySynth.addStmt(t);
                 
                 if(WSOptimizeConfig.OPT_PC_FIELD == 0){
                     resumeSwitchSynth.insertStatementsInCondition(prePcValue, codes.second());

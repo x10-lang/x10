@@ -303,18 +303,17 @@ public class X10Field_c extends Field_c {
 		X10Field_c result = (X10Field_c)fieldInstance(fi).type(retType);
 		if (fi.error() == null) {
 		    result.checkConsistency(c);
-		}
-
-		try {
-		    checkFieldAccessesInDepClausesAreFinal(pos, target, fi, tc);
-		} catch (SemanticException e) {
-		    Errors.issue(tc.job(), e);
-		}
-		try {
-		    checkClockedFieldAccessesAreInClockedMethods(pos, fi, tc);
-		} catch (SemanticException e) {
-		    Errors.issue(tc.job(), e);
-		}
+		    try {
+		        checkFieldAccessesInDepClausesAreFinal(pos, target, fi, tc);
+		    } catch (SemanticException e) {
+		        Errors.issue(tc.job(), e);
+		    }
+		    try {
+		        checkClockedFieldAccessesAreInClockedMethods(pos, fi, tc);
+		    } catch (SemanticException e) {
+		        Errors.issue(tc.job(), e);
+		    }
+        }
 
 		// Not needed in the orthogonal locality proposal.
 		// result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);

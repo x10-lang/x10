@@ -304,6 +304,14 @@ public class LineNumberMap extends StringTable {
 		ArrayList<MemberVariableMapInfo> _members;
 	}
 	
+	private class LoopVariable
+	{
+		String realName;
+		int startLine;
+		int endLine;
+	}
+	
+	private static LinkedHashMap<String, ArrayList<LoopVariable>> loopVariables;
 	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
 	//private static ArrayList<Integer> refMap = new ArrayList<Integer>();
 	private static ArrayList<LocalVariableMapInfo> localVariables;
@@ -408,7 +416,10 @@ public class LineNumberMap extends StringTable {
 		{
 			cm = new ClassMapInfo();			
 			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
-			cm._type = refType;
+			if (refType == 211)
+				cm._type = 203; // special case
+			else
+				cm._type = refType;
 			cm._sizeOfArg = type.replace(".", "::").replace('[', '<').replace("]", " >");
 			int properties = cm._sizeOfArg.indexOf('{');
 			if (properties > -1)
@@ -464,6 +475,7 @@ public class LineNumberMap extends StringTable {
 					int nameEnd = type.indexOf(',', nameStart);
 					v._x10memberName = stringId(type.substring(nameStart, nameEnd));
 				}
+				v._cppMemberName = v._x10memberName;
 			}
 			else if (refType == 202) // create additional maps for internal components of DistArray.
 			{				
@@ -475,16 +487,24 @@ public class LineNumberMap extends StringTable {
 				dist._x10type = 201;
 				dist._x10typeIndex = -1;
 				dist._x10memberName = stringId("dist");
-				dist._cppMemberName = dist._x10memberName;
+				dist._cppMemberName = stringId("x10__dist");
 				dist._cppClass = stringId("x10::array::Dist");
 				cm._members.add(dist);
 				
 				v._x10type = 203;
 				v._x10memberName = stringId("localHandle");
+				v._cppMemberName = stringId("x10__localHandle");
+			}
+			else if (refType == 211)
+			{
+				v._x10memberName = id;
+				v._cppMemberName = stringId("x10__localStorage");
 			}
 			else
+			{
 				v._x10memberName = id;
-			v._cppMemberName = v._x10memberName;
+				v._cppMemberName = v._x10memberName;
+			}
 			v._cppClass = stringId(cm._sizeOfArg);
 			cm._members.add(v);
 			return referenceMembers.size()-1;
@@ -500,6 +520,24 @@ public class LineNumberMap extends StringTable {
 		}
 		// should never reach here
 		return -1;
+	}
+	
+	public void rememberLoopVariable(String declaredName, String realName, int startLine, int endLine)
+	{
+		if (loopVariables == null)
+			loopVariables = new LinkedHashMap<String, ArrayList<LoopVariable>>();
+		ArrayList<LoopVariable> list = loopVariables.get(declaredName);
+		if (list == null)
+		{
+			list = new ArrayList<LineNumberMap.LoopVariable>();
+			loopVariables.put(declaredName, list);
+		}
+		
+		LoopVariable lv = new LoopVariable();
+		lv.realName = realName;
+		lv.startLine = startLine;
+		lv.endLine = endLine;
+		list.add(lv);
 	}
 	
 	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file, boolean noMangle, int closureIndex, boolean isStruct)
@@ -555,6 +593,19 @@ public class LineNumberMap extends StringTable {
 					existing._x10type = v._x10type;
 					existing._x10typeIndex = v._x10typeIndex; 
 					return;
+				}
+			}
+		}
+		// convert loop indexes
+		if (loopVariables != null && loopVariables.containsKey(name))
+		{
+			ArrayList<LoopVariable> list = loopVariables.get(name);
+			for (LoopVariable lv : list)
+			{
+				if (lv.startLine == v._x10startLine && lv.endLine == v._x10endLine)
+				{
+					v._cppName = stringId(lv.realName);
+					break;
 				}
 			}
 		}
@@ -1316,7 +1367,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B030F10, // 2011-03-15, 16:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B031111, // 2011-03-17, 17:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
@@ -1415,6 +1466,12 @@ public class LineNumberMap extends StringTable {
         
         w.end(); w.newline();
         w.writeln("};");
+        
+        if (loopVariables != null)
+        {
+        	loopVariables.clear();
+        	loopVariables = null;
+        }
 	}
 
 	private static String encodeIntAsChars(int i) {

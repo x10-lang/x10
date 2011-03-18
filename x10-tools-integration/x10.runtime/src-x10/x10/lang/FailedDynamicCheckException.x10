@@ -15,7 +15,7 @@ package x10.lang;
  * Thrown to indicate that a runtime check of a method or constructor guard failed,
  * i.e., the guard was unsatisfied.
  */
-public class FailedDynamicCheckException extends RuntimeException {
+public class FailedDynamicCheckException extends ClassCastException {
 
     /**
      * Construct a FailedDynamicCheckException with no detail message.

@@ -22,7 +22,7 @@ class XTENLANG_47 extends x10Test {
 	public class CL(rank2:Int) {
 
 		// this reference to rank2 should succeed.
-		private class It implements Iterator[C{self.rank==rank2}] {  // ShouldNotBeERR ShouldNotBeERR ShouldNotBeERR: Semantic Error: Cannot access field rank2 of XTENLANG_47.CL.It in class declaration header; the field may be a member of a superclass.
+		private class It implements Iterator[C{self.rank==rank2}] {  // ShouldNotBeERR ShouldNotBeERR: Semantic Error: Cannot access field rank2 of XTENLANG_47.CL.It in class declaration header; the field may be a member of a superclass.
 			public def hasNext()=true;
 			public def next(): C{self.rank==rank2}=null;
 			public def remove() {}

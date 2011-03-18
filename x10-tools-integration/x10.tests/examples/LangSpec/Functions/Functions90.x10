@@ -29,7 +29,7 @@ public class Functions90 extends x10Test {
 // file Functions line 384
  static class Span(low:Int, high:Int) {def this(low:Int, high:Int) {property(low,high);} def between(n:Int) = low <= n && n <= high;}
  static class Functions11TestExp{
-  def check(digit:Span)  = digit.between.(Int);  }
+  def check(digit:Span)  = (x:Int)=>digit.between(x);  }
 
  static class Hook {
    def run():Boolean = true;

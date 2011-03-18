@@ -309,18 +309,14 @@ public final class Worker {
                 //Runtime.println(here + " :Worker(0) will start after main's fast..." );
                 worker00.run();
             }
-            else {
-                //global stop
-                //Runtime.println(here+":Fire all stop msg from fast" );
-                Worker.allStop(worker00);
-                //Runtime.println(here + ":Worker(0) terminated in fast");    
-            }
         } catch (Abort) {
             //Runtime.println(here + " :Worker(0) will start after main's fast's stolen..." );
             worker00.run();
-        } catch (t:Throwable) {
-            Runtime.println(here +"Uncaught exception in main: " + t);
-            t.printStackTrace();
+        } finally {
+            //global stop
+            //Runtime.println(here+":Fire all stop msg from fast" );
+            Worker.allStop(worker00);
+            //Runtime.println(here + ":Worker(0) terminated in fast");    
         }
     }
 }
