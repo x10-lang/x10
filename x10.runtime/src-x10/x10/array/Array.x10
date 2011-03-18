@@ -163,10 +163,6 @@ public final class Array[T] (
         }
         raw = r;
     }
-    // TODO: This should not be needed.  Compiler should apply implict coercion at call site, but it doesn't.
-    public def this(ir:IntRange, init:(Point(1))=>T):Array[T](1){this.rect,self!=null,this.zeroBased==ir.zeroBased} {
-        this(ir as Region(1){self.rect&&self.zeroBased==ir.zeroBased}, init);
-    }
 
     /**
      * Construct an Array over the region reg whose
@@ -258,7 +254,7 @@ public final class Array[T] (
         layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-        for ([i] in 0..(size-1)) {
+        for (i in 0..(size-1)) {
             r(i)= init(i);
         }
         raw = r;
@@ -280,7 +276,7 @@ public final class Array[T] (
         layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-        for ([i] in 0..(size-1)) {
+        for (i in 0..(size-1)) {
             r(i)= init;
         }
         raw = r;
