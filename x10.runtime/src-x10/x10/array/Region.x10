@@ -383,6 +383,18 @@ public abstract class Region(
     // conversion
     //
     public static operator[T] (a:Array[T](1)){T<:Region(1){self.rect}}:Region(a.size){self.rect} = make[T](a);
+
+    // NOTE: This really should be 
+    //   public static operator[T] (a:Array[T](1)){T<:IntRange}:Region(a.size){self.rect} { ... }
+    // but we can't have two overloaded generic methods in X10 2.2.
+    // Therefore we make this one slightly less general than it should be as the least bad
+    // alternative (since Regions has quite a few properties that may be inferred, it is best to
+    // use our one truly generic Array conversion operator on Array[Region]
+    public static operator (a:Array[IntRange{self!=null}](1)):Region(a.size){self.rect} {
+        val mins = new Array[int](a.size, (i:int)=>a(i).min);
+        val maxs = new Array[int](a.size, (i:int)=>a(i).max);
+        return new RectRegion(mins, maxs);
+    }
         
     public static operator (r:IntRange):Region(1){rect&&self!=null&&zeroBased==r.zeroBased} {
         return new RectRegion(r.min, r.max) as Region(1){rect&&self!=null&&zeroBased==r.zeroBased};
