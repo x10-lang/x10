@@ -1270,6 +1270,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             n.print(p, sw, tr);
         }
 
+        h.write(mangled_non_method_name(currentClass.def().name().toString())); 
+        h.write("() : ");
+        h.write(Emitter.translateType(superClass, false));
+        h.writeln("() {}");
+        h.newline();
+        h.forceNewline();
+
         List<ClassMember> members = n.members();
 
         generateITablesForClass(currentClass, context, xts, "virtual ", h);
@@ -1332,6 +1339,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sh.newline(); sh.forceNewline();
         sh.write(StructCType+"* operator->() { return this; }");
         sh.newline(); sh.forceNewline();
+
+        sh.write(mangled_non_method_name(currentClass.def().name().toString())); 
+        sh.writeln("() {}");
+        sh.newline();
+        sh.forceNewline();
 
         h.write("public:");
         h.newline();
