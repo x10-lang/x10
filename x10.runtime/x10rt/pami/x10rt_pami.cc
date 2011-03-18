@@ -1381,7 +1381,15 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
 	tcb->operation.algorithm = always_works_alg[0];
 	tcb->operation.cmd.xfer_allreduce.dt = DATATYPE_CONVERSION_TABLE[dtype];
-	tcb->operation.cmd.xfer_allreduce.op = OPERATION_CONVERSION_TABLE[op];
+	if (DATATYPE_CONVERSION_TABLE[dtype] >= PAMI_LOC_2INT)
+	{   // operations on LOC datatypes are different from regular types
+		if (OPERATION_CONVERSION_TABLE[op] == PAMI_MAX)
+			tcb->operation.cmd.xfer_allreduce.op = PAMI_MAXLOC;
+		else if (OPERATION_CONVERSION_TABLE[op] == PAMI_MIN)
+			tcb->operation.cmd.xfer_allreduce.op = PAMI_MINLOC;
+	}
+	else
+		tcb->operation.cmd.xfer_allreduce.op = OPERATION_CONVERSION_TABLE[op];
 	tcb->operation.cmd.xfer_allreduce.rcvbuf = (char*)dbuf;
 	tcb->operation.cmd.xfer_allreduce.rtype = PAMI_TYPE_CONTIGUOUS;
 	tcb->operation.cmd.xfer_allreduce.rtypecount = count*DATATYPE_MULTIPLIER_TABLE[dtype];
@@ -1390,7 +1398,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	tcb->operation.cmd.xfer_allreduce.stypecount = count*DATATYPE_MULTIPLIER_TABLE[dtype];
 
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u executing allreduce (%s)\n", state.myPlaceId, always_works_md[0].name);
+		fprintf(stderr, "Place %u executing allreduce (%s), with type=%u and op=%u\n", state.myPlaceId, always_works_md[0].name, dtype, op);
 	#endif
 	status = PAMI_Collective(state.context[0], &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an allreduce on team %u", team);
