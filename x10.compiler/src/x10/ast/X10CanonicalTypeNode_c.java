@@ -203,7 +203,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    checkType(context, base, pos);
 	}
 	
-	if (t instanceof X10ClassType) {
+	if (t instanceof X10ClassType && ((X10ClassType) t).error()==null) {
 	    X10ClassType ct = (X10ClassType) t;
         X10ClassDef def = ct.x10Def();
         final List<Type> typeArgs = ct.typeArguments();
