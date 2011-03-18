@@ -1673,13 +1673,17 @@ public class Errors {
         }
     }
 	public static class CannotAccessNonStaticFromStaticContext extends EqualByTypeAndPosException {
-        
-		private static final long serialVersionUID = -6660349817801232916L;
-
-		public CannotAccessNonStaticFromStaticContext(Position p) {
-            super("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", p);
-        }
-    }
+	    private static final long serialVersionUID = -6660349817801232916L;
+	    public CannotAccessNonStaticFromStaticContext(Position p) {
+	        super("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", p);
+	    }
+	    public CannotAccessNonStaticFromStaticContext(FieldInstance fi, Position p) {
+	        super("Cannot access a non-static field "+fi+" from a static context.", p);
+	    }
+	    public CannotAccessNonStaticFromStaticContext(MethodInstance mi, Position p) {
+	        super("Cannot access a non-static field "+mi+" from a static context.", p);
+	    }
+	}
 	public static class ConstraintOnThisIsInconsistent extends EqualByTypeAndPosException {
         
 		private static final long serialVersionUID = 1741711946479260959L;
