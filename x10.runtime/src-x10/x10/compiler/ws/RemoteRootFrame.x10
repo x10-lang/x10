@@ -16,4 +16,5 @@ public final class RemoteRootFrame extends Frame {
         worker.remoteFinishJoin(ffRef);
     }
 
+    public def wrapResume(worker:Worker) {}
 }
