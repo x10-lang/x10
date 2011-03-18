@@ -39,9 +39,9 @@ abstract public class FinishFrame extends Frame {
 
     public def wrapBack(worker:Worker, frame:Frame) {
         if (!isNULL(frame.throwable)) {
+            Runtime.atomicMonitor.lock();
             caught(frame.throwable);
-        } else {
-            back(worker, frame);
+            Runtime.atomicMonitor.unlock();
         }
     }
 
@@ -51,19 +51,9 @@ abstract public class FinishFrame extends Frame {
     }
 
     @Inline public final def finalize() {
-        if (!(isNULL(stack))) { throw new MultipleExceptions(stack); }
+        if (!(isNULL(stack))) throw new MultipleExceptions(stack);
         return;
     }
 
-    public def wrapResume(worker:Worker) {
-        throwable = MultipleExceptions.make(stack);
-        if (!isNULL(throwable)) return;
-        try {
-            resume(worker);
-        } catch (t:Abort) {
-            throw t;
-        } catch (t:Throwable) {
-            throwable = t;
-        }
-    }
+    public def wrapResume(worker:Worker) {}
 }

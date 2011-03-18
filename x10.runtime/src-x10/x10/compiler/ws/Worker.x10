@@ -168,6 +168,7 @@ public final class Worker {
                 var asyncs:Int;
                 Runtime.atomicMonitor.lock(); asyncs = --Frame.cast[Frame,FinishFrame](frame).asyncs; Runtime.atomicMonitor.unlock();
                 if (0 != asyncs) return;
+                frame.throwable = MultipleExceptions.make(Frame.cast[Frame,FinishFrame](frame).stack);
             }
             up.wrapBack(this, frame);
             if (!(frame instanceof MainFrame) && !(frame instanceof RootFinish)) {
@@ -175,11 +176,11 @@ public final class Worker {
             }
             try {
                 up.wrapResume(this);
-            } catch (Abort) {
+            } catch (t:Abort) {
                 if (up instanceof RegularFrame) {
                     purge(up, Frame.cast[Frame,RegularFrame](up).ff);
                 }
-                throw Abort.ABORT;
+                throw t;
             }
             frame = up;
         }
@@ -293,6 +294,8 @@ public final class Worker {
             worker00.run(); // join the pool
         } catch (t:Throwable) {
             frame.ff.caught(t); // main terminated abnormally
+        } finally {
+            allStop(worker00);
         }
         frame.ff.finalize();
         /*
