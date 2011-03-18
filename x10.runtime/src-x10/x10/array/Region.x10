@@ -57,14 +57,12 @@ public abstract class Region(
     /**
      * Construct an empty region of the specified rank.
      */
-
     public static @TempNoInline_0 def makeEmpty(rank: int): Region(rank){self!=null} = new EmptyRegion(rank);
      
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
      */
-
     public static def makeFull(rank: int): Region(rank){self !=null} = new FullRegion(rank);
     
     /**
@@ -105,7 +103,7 @@ public abstract class Region(
 	   if (minArg.size != maxArg.size) throw new IllegalArgumentException("min and max not equal size ("+minArg.size+" != "+maxArg.size+")");
     	   val rank = minArg.size;
            val pmb = new PolyMatBuilder(rank); 
-           for ([i] in 0..(rank-1)) {
+           for (i in 0..(rank-1)) {
         	   // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
         	   val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1 : 0), minArg(i));
         	   pmb.add(r);
@@ -150,7 +148,7 @@ public abstract class Region(
      * Construct a rank-n rectangular region that is the Cartesian
      * product of the specified rank-1 rectangular regions.
      */
-    public static @TempNoInline_3 def make(regions:Array[Region(1){self.rect}](1)):Region(regions.size){self.rect} {
+    public static @TempNoInline_3 def make[T](regions:Array[T](1)){T<:Region(1){self.rect}}:Region(regions.size){self.rect} {
         var r:Region = regions(0);
         for (var i:int = 1; i<regions.size; i++)
             r = r.product(regions(i));
@@ -384,8 +382,8 @@ public abstract class Region(
     //
     // conversion
     //
-    public static operator (a:Array[Region(1){self.rect}](1)):Region(a.size){self.rect} = make(a);
-
+    public static operator[T] (a:Array[T](1)){T<:Region(1){self.rect}}:Region(a.size){self.rect} = make[T](a);
+        
     public static operator (r:IntRange):Region(1){rect&&self!=null&&zeroBased==r.zeroBased} {
         return new RectRegion(r.min, r.max) as Region(1){rect&&self!=null&&zeroBased==r.zeroBased};
     }
