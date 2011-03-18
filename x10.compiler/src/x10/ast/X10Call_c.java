@@ -666,10 +666,9 @@ public class X10Call_c extends Call_c implements X10Call {
 			    if (fi == null) {
 			        Type targetType = target() == null ? c.currentClass() : target().type();
 			        fi = X10Field_c.findAppropriateField(tc, targetType, name,
-			                isStatic,
-			                Types.contextKnowsType(target()));
+			                isStatic, Types.contextKnowsType(target()), this.name().position());
 			    }
-                methodResolution.fi = fi;
+			    methodResolution.fi = fi;
 			    if (fi.error() == null) {
 			        Receiver target = this.target() == null ?
 			                X10Disamb_c.makeMissingFieldTarget(fi, name().position(), tc) :
@@ -804,7 +803,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		    boolean staticContext = (target instanceof TypeNode);
 
 		    if (staticContext && !mi.flags().isStatic()) {
-		        throw new SemanticException("Cannot call non-static method " + name+ " of " + target.type() + " in static context.", this.position());
+		        throw new Errors.CannotAccessNonStaticFromStaticContext(mi, position());
 		    }
 
 		    // If the target is super, but the method is abstract, then complain.

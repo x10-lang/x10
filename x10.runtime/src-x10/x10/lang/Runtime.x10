@@ -436,7 +436,7 @@ import x10.util.NoSuchElementException;
             if (!STATIC_THREADS) {
                 Thread.park();
             } else {
-                probe();
+                Runtime.probe();
             }
         }
 

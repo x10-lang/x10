@@ -43,6 +43,7 @@ import polyglot.types.CodeDef;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
@@ -104,7 +105,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		}
 
 	    		if (fi == null && vi instanceof FieldInstance && c.inStaticContext()) {
-	    		    throw new SemanticException("Cannot access a non-static field "+this.name+" from a static context.", pos);
+	    		    throw new Errors.CannotAccessNonStaticFromStaticContext((FieldInstance) vi, pos);
 	    		}
 
 	    		if (fi instanceof X10FieldInstance) {
@@ -170,7 +171,7 @@ public class X10Disamb_c extends Disamb_c {
 	            //while (p.pop() != null && ((p.currentClass() != null && !xts.typeEquals(p.currentClass(), fi.container(), p)) || p.currentCode() instanceof ClosureDef))
 	            //    p = p.pop();
 	            if (p.inStaticContext() && !fi.flags().isStatic())
-	                throw new SemanticException("Cannot access a non-static field "+this.name+" from a static context.", pos);
+	                throw new Errors.CannotAccessNonStaticFromStaticContext(fi, pos);
 	        }
 
 	        if (vi != null) {

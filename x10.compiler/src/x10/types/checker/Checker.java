@@ -469,7 +469,7 @@ public class Checker {
 	public static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10ProcedureCall n,
 	        Type targetType, Name name, List<Type> typeArgs, List<Type> actualTypes) {
 	    MethodInstance mi;
-	     TypeSystem xts =  tc.typeSystem();
+	    TypeSystem xts =  tc.typeSystem();
 	    Context context = (Context) tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
@@ -557,26 +557,32 @@ public class Checker {
 	        // First try to find the method without implicit conversions.
 	        try {
 	            mi = xts.findMethod(t, xts.MethodMatcher(t, name, typeArgs, argTypes, xc));
-	            if (!requireStatic || mi.flags().isStatic())
-	                return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
+	            if (requireStatic && !mi.flags().isStatic()) {
+	                mi = mi.error(new Errors.CannotAccessNonStaticFromStaticContext(mi, n.position()));
+	            }
+	            return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	        }
 	        catch (SemanticException e) {
-	        	// There is an ambiguity. Throw, dont try to use implicit conversions.
+	        	// There is an ambiguity. Throw, don't try to use implicit conversions.
 	        	if (e instanceof Errors.MultipleMethodDefsMatch) {
 					throw e;
 				}
 	            // Now, try to find the method with implicit conversions, making them explicit.
 	            try {
 	                Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, t, name, typeArgs, argTypes);
-	                if (!requireStatic || p.fst().flags().isStatic())
-	                    return p;
+	                mi = p.fst();
+	                if (requireStatic && !mi.flags().isStatic()) {
+	                    mi = mi.error(new Errors.CannotAccessNonStaticFromStaticContext(mi, n.position()));
+	                    p = new Pair<MethodInstance,List<Expr>>(mi, p.snd());
+	                }
+	                return p;
 	            }
 	            catch (SemanticException e2) {
 	                throw e;
 	            }
 	        }
 	    }
-	
+
 	    while (xc.pop() != null && xc.pop().currentClass() == currentClass)
 	        xc = (Context) xc.pop();
 	    if (xc.pop() != null) {
