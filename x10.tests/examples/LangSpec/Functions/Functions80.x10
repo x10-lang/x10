@@ -32,7 +32,7 @@ public class Functions80 extends x10Test {
   def between(n:Int) = low <= n && n <= high;
   static def example() {
     val digit = new Span(0,9);
-    val isDigit : (Int) => Boolean = digit.between.(Int);
+    val isDigit : (Int) => Boolean = (x:Int)=>digit.between(x);
     assert isDigit(8);
   }
 }

@@ -177,6 +177,10 @@ public class WSCodeGenUtility {
         return parentName + "B";
     }
 
+    public static String getExceptionFrameClassName(String parentName){
+        return parentName + "E";
+    }
+    
     public static String getIFBlockClassName(String parentName, boolean condition){
         return parentName + "IF" +
                (condition ? "T" : "F" );
@@ -513,14 +517,33 @@ public class WSCodeGenUtility {
      * If the input is not a StmtSeq, just return
      * @param xnf
      * @param s
-     * @return
+     * @return only one stmt, maybe a block
      */
-    static public Stmt seqStmtsToBlock(NodeFactory xnf, Stmt s){
+    static public Stmt seqStmtsToOneStmt(NodeFactory xnf, Stmt s){
         if(s instanceof StmtSeq){
             return xnf.Block(s.position(),((StmtSeq)s).statements());
         }
         else{
             return s;
+        }
+    }
+    
+    /**
+     * Used to transform a seq stmt into a block
+     * If the input is not a StmtSeq, 
+     * @param xnf
+     * @param s
+     * @return only one stmt, maybe a block
+     */
+    static public Block seqStmtsToBlock(NodeFactory xnf, Stmt s){
+        if(s instanceof StmtSeq){
+            return xnf.Block(s.position(),((StmtSeq)s).statements());
+        }
+        else if(s instanceof Block){
+            return (Block)s;
+        }
+        else{
+            return xnf.Block(s.position(), s);
         }
     }
     

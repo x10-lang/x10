@@ -11,6 +11,11 @@
 
 import harness.x10Test;
 
+// If we do not run with STATIC_CALLS it generates:
+// Warning: Generated a dynamic check for the method call.
+// OPTIONS: -STATIC_CALLS
+
+
 /**
  * Testing point arithmetic operations.
  *

@@ -392,14 +392,11 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
                     if (ct.error() == null) {
                         SemanticException e = new Errors.NumberTypeArgumentsNotSameAsNumberTypeParameters(typeArgs.size(), ct.fullName(), numParams, n.position());
                         Errors.issue(tc.job(), e, this);
-                        ct = ct.error(e);
-                    }
-                    typeArgs = new ArrayList<TypeNode>(typeArgs);
-                    while (numParams < typeArgs.size()) {
-                        typeArgs.remove(typeArgs.size()-1);
-                    }
-                    while (numParams > typeArgs.size()) {
-                        typeArgs.add(nf.CanonicalTypeNode(Position.COMPILER_GENERATED, ts.Any()));
+                        ct = (X10ParsedClassType) ts.createFakeClass(ct.fullName(), e);
+                        int i = 0;
+                        for (TypeNode ta : typeArgs) {
+                            ct.def().addTypeParameter(new ParameterType(ts, Position.COMPILER_GENERATED, Name.make("T"+(i++)), Types.ref(ct.def())), ParameterType.Variance.INVARIANT);
+                        }
                     }
                 }
                 List<Type> typeArgsTypes = new ArrayList<Type>(numParams);

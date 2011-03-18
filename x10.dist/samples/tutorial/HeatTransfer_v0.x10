@@ -44,7 +44,7 @@ public class HeatTransfer_v0 {
                 Temp(p) = stencil_1(p);
             }
 
-            delta = A.map[Double,Double](Temp, (x:Double,y:Double)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
+            delta = A.map[Double,Double](Temp, (x:Double,y:Double)=>Math.abs(x-y)).reduce((x:Double,y:Double)=>Math.max(x,y), 0.0);
 
             for (p in D) {
                 A(p) = Temp(p);

@@ -594,6 +594,11 @@ public class Emitter {
 		return getJavaRepParam(def, 1);
 	}
 
+    // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
+    public static String getJavaZeroValueRep(X10ClassDef def) {
+        return getJavaRepParam(def, 2);
+    }
+
 	public static String getJavaRTTRep(X10ClassDef def) {
 		return getJavaRepParam(def, 3);
 	}
@@ -3067,37 +3072,36 @@ public class Emitter {
             }
             String lhs = "this." + field.name().toString() + " = ";
             String zero = null;
+            // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
+            if (type instanceof X10ClassType && getJavaZeroValueRep(((X10ClassType) type).x10Def()) != null) {
+                zero = getJavaZeroValueRep(((X10ClassType) type).x10Def());
+            } else
             if (xts.isStruct(type)) {
                 if (xts.isUByte(type)) {
-                    zero = "(x10.lang.UByte) x10.rtt.Types.UBYTE_ZERO; ";
+                    zero = "(x10.lang.UByte) x10.rtt.Types.UBYTE_ZERO";
                 } else if (xts.isUShort(type)) {
-                    zero = "(x10.lang.UShort) x10.rtt.Types.USHORT_ZERO; ";
+                    zero = "(x10.lang.UShort) x10.rtt.Types.USHORT_ZERO";
                 } else if (xts.isUInt(type)) {
-                    zero = "(x10.lang.UInt) x10.rtt.Types.UINT_ZERO; ";
+                    zero = "(x10.lang.UInt) x10.rtt.Types.UINT_ZERO";
                 } else if (xts.isULong(type)) {
-                    zero = "(x10.lang.ULong) x10.rtt.Types.ULONG_ZERO; ";
+                    zero = "(x10.lang.ULong) x10.rtt.Types.ULONG_ZERO";
                 } else if (xts.isByte(type)) {
-                    zero = "(byte) 0; ";
+                    zero = "(byte) 0";
                 } else if (xts.isShort(type)) {
-                    zero = "(short) 0; ";
+                    zero = "(short) 0";
                 } else if (xts.isInt(type)) {
-                    zero = "0; ";
+                    zero = "0";
                 } else if (xts.isLong(type)) {
-                    zero = "0L; ";
+                    zero = "0L";
                 } else if (xts.isFloat(type)) {
-                    zero = "0.0F; ";
+                    zero = "0.0F";
                 } else if (xts.isDouble(type)) {
-                    zero = "0.0; ";
+                    zero = "0.0";
                 } else if (xts.isChar(type)) {
-                    zero = "(char) 0; ";
+                    zero = "(char) 0";
                 } else if (xts.isBoolean(type)) {
-                    zero = "false; ";
+                    zero = "false";
                 } else {
-//                    if (type.fullName().toString().equals("x10.io3.Buffer")) {
-//                        // TODO
-//                        zero = "null; ";
-//                    } else
-                    {
                     // user-defined struct type
                     // for struct a.b.S[T], "new a.b.S(T, (java.lang.System) null);"
                     w.write(lhs); lhs = "";
@@ -3113,17 +3117,16 @@ public class Emitter {
                         }
                     }
                     w.write("(java.lang.System) null); ");
-                    }
                 }
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"
                 ParameterType paramType = (ParameterType) type;
-                zero = "(" + paramType.name().toString() + ") x10.rtt.Types.zeroValue(" + paramType.name().toString() + "); ";
+                zero = "(" + paramType.name().toString() + ") x10.rtt.Types.zeroValue(" + paramType.name().toString() + ")";
             } else {
                 // reference (i.e. non-struct) type
-                zero = "null; ";
+                zero = "null";
             }
-            if (zero != null) w.write(lhs + zero);
+            if (zero != null) w.write(lhs + zero + "; ");
         }
 
         w.write("}");
