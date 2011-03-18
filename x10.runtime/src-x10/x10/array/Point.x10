@@ -28,6 +28,15 @@ public final class Point(rank:Int) implements (Int) => Int,
                                               Ordered[Point(rank)], 
                                               Comparable[Point(rank)] {
 
+    public static val `+` = (x:Point,y:Point(x.rank)) => x+y;
+    public static val `-` = (x:Point,y:Point(x.rank)) => x-y;
+    public static val `*` = (x:Point,y:Point(x.rank)) => x*y;
+    public static val `/` = (x:Point,y:Point(x.rank)) => x/y;
+    public static val `<` = (x:Point,y:Point(x.rank)) => x<y;
+    public static val `<=` = (x:Point,y:Point(x.rank)) => x<=y;
+    public static val `>` = (x:Point,y:Point(x.rank)) => x>y;
+    public static val `>=` = (x:Point,y:Point(x.rank)) => x>=y;
+
     private val c0:int;
     private val c1:int;
     private val c2:int;

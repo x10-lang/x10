@@ -24,6 +24,13 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10_boolean", "x10_boolean", null)
 public struct Boolean implements Comparable[Boolean] {
 
+    public static val `!` = (x:Boolean) => !x;
+    public static val `&` = (x:Boolean,y:Boolean) => x&y;
+    public static val `|` = (x:Boolean,y:Boolean) => x|y;
+    public static val `^` = (x:Boolean,y:Boolean) => x^y;
+
+
+
     /**
      * A logical complement operator.
      * Computes a logical complement of this Boolean.

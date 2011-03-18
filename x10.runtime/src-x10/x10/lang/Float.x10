@@ -28,6 +28,17 @@ import x10.util.Ordered;
 @NativeRep("java", "float", "0.0F", "x10.rtt.Types.FLOAT")
 @NativeRep("c++", "x10_float", "x10_float", null)
 public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Float], Ordered[Float]*/ {
+
+    public static val `+` = (x:Float,y:Float) => x+y;
+    public static val `-` = (x:Float,y:Float) => x-y;
+    public static val `*` = (x:Float,y:Float) => x*y;
+    public static val `/` = (x:Float,y:Float) => x/y;
+    public static val `%` = (x:Float,y:Float) => x%y;
+    public static val `<` = (x:Float,y:Float) => x<y;
+    public static val `<=` = (x:Float,y:Float) => x<=y;
+    public static val `>` = (x:Float,y:Float) => x>y;
+    public static val `>=` = (x:Float,y:Float) => x>=y;
+
     /**
      * A less-than operator.
      * Compares this Float with another Float and returns true if this Float is

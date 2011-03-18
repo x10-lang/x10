@@ -33,7 +33,7 @@ public class AtEach extends x10Test {
         // ensure that d[i] agreed with here in
         // all places
         // and that an activity ran in each place
-        return disagree.reduce(int.+,0) == 0 &&
+        return disagree.reduce(Int.`+`,0) == 0 &&
                 nplaces == Place.MAX_PLACES;
     }
 

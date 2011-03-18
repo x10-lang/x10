@@ -26,6 +26,24 @@ import x10.util.Ordered;
 @NativeRep("java", "long", "0L", "x10.rtt.Types.LONG")
 @NativeRep("c++", "x10_long", "x10_long", null)
 public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long], Bitwise[Long], Ordered[Long]*/ {
+
+    public static val `+` = (x:Long,y:Long) => x+y;
+    public static val `-` = (x:Long,y:Long) => x-y;
+    public static val `*` = (x:Long,y:Long) => x*y;
+    public static val `/` = (x:Long,y:Long) => x/y;
+    public static val `%` = (x:Long,y:Long) => x%y;
+    public static val `&` = (x:Long,y:Long) => x&y;
+    public static val `|` = (x:Long,y:Long) => x|y;
+    public static val `^` = (x:Long,y:Long) => x^y;
+    public static val `<<` = (x:Long,y:Int) => x<<y;
+    public static val `>>` = (x:Long,y:Int) => x>>y;
+    public static val `>>>` = (x:Long,y:Int) => x>>>y;
+    public static val `<` = (x:Long,y:Long) => x<y;
+    public static val `<=` = (x:Long,y:Long) => x<=y;
+    public static val `>` = (x:Long,y:Long) => x>y;
+    public static val `>=` = (x:Long,y:Long) => x>=y;
+    public static val `~` = (x:Long) => ~x;
+
     /**
      * A less-than operator.
      * Compares this Long with another Long and returns true if this Long is

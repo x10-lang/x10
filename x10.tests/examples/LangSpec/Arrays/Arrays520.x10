@@ -30,7 +30,7 @@ public class Arrays520 extends x10Test {
  static  class Example {
  def example() {
 val a = [1,2,3,4];
-val sum = a.reduce(Int.+, 0);
+val sum = a.reduce(Int.`+`, 0);
 assert(sum == 10); // 10 == 1+2+3+4
 }}
 

@@ -26,6 +26,24 @@ import x10.util.Ordered;
 @NativeRep("java", "byte", "((byte) 0)", "x10.rtt.Types.BYTE")
 @NativeRep("c++", "x10_byte", "x10_byte", null)
 public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte], Bitwise[Byte], Ordered[Byte]*/ {
+
+    public static val `+` = (x:Byte,y:Byte) => x+y;
+    public static val `-` = (x:Byte,y:Byte) => x-y;
+    public static val `*` = (x:Byte,y:Byte) => x*y;
+    public static val `/` = (x:Byte,y:Byte) => x/y;
+    public static val `%` = (x:Byte,y:Byte) => x%y;
+    public static val `&` = (x:Byte,y:Byte) => x&y;
+    public static val `|` = (x:Byte,y:Byte) => x|y;
+    public static val `^` = (x:Byte,y:Byte) => x^y;
+    public static val `<<` = (x:Byte,y:Int) => x<<y;
+    public static val `>>` = (x:Byte,y:Int) => x>>y;
+    public static val `>>>` = (x:Byte,y:Int) => x>>>y;
+    public static val `<` = (x:Byte,y:Byte) => x<y;
+    public static val `<=` = (x:Byte,y:Byte) => x<=y;
+    public static val `>` = (x:Byte,y:Byte) => x>y;
+    public static val `>=` = (x:Byte,y:Byte) => x>=y;
+    public static val `~` = (x:Byte) => ~x;
+
     /**
      * A less-than operator.
      * Compares this Byte with another Byte and returns true if this Byte is

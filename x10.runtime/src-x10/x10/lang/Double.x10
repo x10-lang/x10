@@ -28,6 +28,18 @@ import x10.util.Ordered;
 @NativeRep("java", "double", "0.0", "x10.rtt.Types.DOUBLE")
 @NativeRep("c++", "x10_double", "x10_double", null)
 public struct Double implements Comparable[Double] /*TODO implements Arithmetic[Double], Ordered[Double]*/ {
+
+    public static val `+` = (x:Double,y:Double) => x+y;
+    public static val `-` = (x:Double,y:Double) => x-y;
+    public static val `*` = (x:Double,y:Double) => x*y;
+    public static val `/` = (x:Double,y:Double) => x/y;
+    public static val `%` = (x:Double,y:Double) => x%y;
+    public static val `<` = (x:Double,y:Double) => x<y;
+    public static val `<=` = (x:Double,y:Double) => x<=y;
+    public static val `>` = (x:Double,y:Double) => x>y;
+    public static val `>=` = (x:Double,y:Double) => x>=y;
+
+
     /**
      * A less-than operator.
      * Compares this Double with another Double and returns true if this Double is

@@ -34,7 +34,7 @@ public class NQueensDist {
     }
     def run():Int {
 	   finish start();
-	   val result = results.reduce(Int.+,0);
+	   val result = results.reduce(Int.`+`,0);
 	   return result;
     }
 

@@ -27,6 +27,24 @@ import x10.util.Ordered;
 @NativeRep("c++", "x10_ubyte", "x10_ubyte", null)
 public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UByte], Bitwise[UByte], Ordered[UByte]*/ {
 
+    public static val `+` = (x:UByte,y:UByte) => x+y;
+    public static val `-` = (x:UByte,y:UByte) => x-y;
+    public static val `*` = (x:UByte,y:UByte) => x*y;
+    public static val `/` = (x:UByte,y:UByte) => x/y;
+    public static val `%` = (x:UByte,y:UByte) => x%y;
+    public static val `&` = (x:UByte,y:UByte) => x&y;
+    public static val `|` = (x:UByte,y:UByte) => x|y;
+    public static val `^` = (x:UByte,y:UByte) => x^y;
+    public static val `<<` = (x:UByte,y:Int) => x<<y;
+    public static val `>>` = (x:UByte,y:Int) => x>>y;
+    public static val `>>>` = (x:UByte,y:Int) => x>>>y;
+    public static val `<` = (x:UByte,y:UByte) => x<y;
+    public static val `<=` = (x:UByte,y:UByte) => x<=y;
+    public static val `>` = (x:UByte,y:UByte) => x>y;
+    public static val `>=` = (x:UByte,y:UByte) => x>=y;
+    public static val `~` = (x:UByte) => ~x;
+
+
     /** The actual number with Byte representation */
     public val byteVal:Byte;
     public def this(value:Byte) {

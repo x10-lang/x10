@@ -25,6 +25,14 @@ import x10.util.Ordered;
 @NativeRep("java", "char", "'\\u0000'", "x10.rtt.Types.CHAR")
 @NativeRep("c++", "x10_char", "x10_char", null)
 public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/ {
+
+    public static val `+` = (x:Char,y:Int) => x+y;
+    public static val `-` = (x:Char,y:Char) => x-y;
+    public static val `<` = (x:Char,y:Char) => x<y;
+    public static val `<=` = (x:Char,y:Char) => x<=y;
+    public static val `>` = (x:Char,y:Char) => x>y;
+    public static val `>=` = (x:Char,y:Char) => x>=y;
+
     /**
      * Convert a given Byte to a Char with that ordinal value.
      * @param x the given Byte

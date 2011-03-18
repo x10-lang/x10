@@ -29,6 +29,23 @@ import x10.util.Ordered;
 //                             ^ when constructed
 public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt], Bitwise[UInt], Ordered[UInt]*/ {
 
+    public static val `+` = (x:UInt,y:UInt) => x+y;
+    public static val `-` = (x:UInt,y:UInt) => x-y;
+    public static val `*` = (x:UInt,y:UInt) => x*y;
+    public static val `/` = (x:UInt,y:UInt) => x/y;
+    public static val `%` = (x:UInt,y:UInt) => x%y;
+    public static val `&` = (x:UInt,y:UInt) => x&y;
+    public static val `|` = (x:UInt,y:UInt) => x|y;
+    public static val `^` = (x:UInt,y:UInt) => x^y;
+    public static val `<<` = (x:UInt,y:Int) => x<<y;
+    public static val `>>` = (x:UInt,y:Int) => x>>y;
+    public static val `>>>` = (x:UInt,y:Int) => x>>>y;
+    public static val `<` = (x:UInt,y:UInt) => x<y;
+    public static val `<=` = (x:UInt,y:UInt) => x<=y;
+    public static val `>` = (x:UInt,y:UInt) => x>y;
+    public static val `>=` = (x:UInt,y:UInt) => x>=y;
+    public static val `~` = (x:UInt) => ~x;
+
     /** The actual number with Int representation */
     public val intVal:Int;
     public def this(value:Int) {
