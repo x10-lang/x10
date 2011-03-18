@@ -5697,3 +5697,10 @@ class ResolvingPropertyMethods {
 	}
 }
 
+class TestQuotes {
+	static val `+` = (x:Int, y:Int) => x+y;
+	def test() {
+		val res:Int = (TestQuotes.`+`)(1,2);
+	}
+}
+
