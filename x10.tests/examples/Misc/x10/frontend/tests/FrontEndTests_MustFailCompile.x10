@@ -5704,3 +5704,12 @@ class TestQuotes {
 	}
 }
 
+class DefaultConstructorBug1 { // see XTENLANG-2273
+    public static def bar(y:Int):Foo{self.x==y} = new Foo(y);
+    public static class Foo(x:Int) {}
+}
+class DefaultConstructorBug2 {
+    public static class Foo(x:Int) {}
+    public static def bar(y:Int):Foo{self.x==y} = new Foo(y);
+}
+
