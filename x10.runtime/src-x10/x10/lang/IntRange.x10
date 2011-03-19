@@ -34,7 +34,6 @@ public final class IntRange(
     public static val `+` = (x:IntRange,y:Int) => x+y;
     public static val `-` = (x:IntRange,y:Int) => x-y;
     public static val `*` = (x:IntRange,y:IntRange) => x*y;
-    public static val `&&` = (x:IntRange,y:Region(1)) => x&&y;
     public static val `->` = (x:IntRange,y:Place) => x->y;
 
     /**
