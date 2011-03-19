@@ -32,15 +32,4 @@ public abstract class RegularFrame extends Frame {
         Runtime.wsBlock(remap());
         throw Abort.ABORT;
     }
-
-    public def wrapResume(worker:Worker) {
-        if (!isNULL(throwable)) return;
-        try {
-            resume(worker);
-        } catch (t:Abort) {
-            throw t;
-        } catch (t:Throwable) {
-            throwable = t;
-        }
-    }
 }

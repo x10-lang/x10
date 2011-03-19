@@ -84,7 +84,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
         
         Formal f = synth.createFormal(compilerPos, xts.Throwable(), formalName, Flags.NONE);
-        Expr caught = synth.makeInstanceCall(compilerPos, synth.thisRef(wts.asyncFrameType, compilerPos),
+        Expr caught = synth.makeInstanceCall(compilerPos, synth.thisRef(wts.finishFrameType, compilerPos),
                 CAUGHT, Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(
                         xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(f.localDef().asInstance()).type(xts.Throwable())), xts.Void(),
                 Collections.<Type>singletonList(xts.Throwable()), xct);
@@ -97,7 +97,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         
         Try t = xnf.Try(compilerPos, xnf.Block(compilerPos, callCodes.first()), handlers);
         fastBodySynth.addStmt(t);
-        fastBodySynth.addStmt(genFinalizeStmt());
+        fastBodySynth.addStmt(genRethrowStmt());
         
         //resume/back path
         if(WSOptimizeConfig.OPT_PC_FIELD == 0){
@@ -113,10 +113,10 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         }
    }
 
-    protected Stmt genFinalizeStmt() throws SemanticException{
+    protected Stmt genRethrowStmt() throws SemanticException{
         //fast path: //upcast[_async,AsyncFrame](this).poll(worker);
         
-        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, getThisRef(), FINALIZE.toString());
+        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, getThisRef(), RETHROW.toString());
         return icSynth.genStmt();
     }
 }

@@ -42,15 +42,4 @@ public abstract class AsyncFrame extends Frame {
     @Inline public final def caught(t:Throwable) {
         cast[Frame,FinishFrame](up).caught(t);
     }
-
-    public def wrapResume(worker:Worker) {
-        try {
-            if (!isNULL(throwable)) throw throwable;
-            resume(worker);
-        } catch (t:Abort) {
-            throw t;
-        } catch (t:Throwable) {
-            throwable = t;
-        }
-    }
 }

@@ -297,7 +297,7 @@ public final class Worker {
         } finally {
             allStop(worker00);
         }
-        frame.ff.finalize();
+        frame.ff.rethrow();
         /*
         try {
             frame.fast(worker00);

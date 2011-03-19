@@ -50,7 +50,7 @@ abstract public class FinishFrame extends Frame {
         stack.push(t);
     }
 
-    @Inline public final def finalize() {
+    @Inline public final def rethrow() {
         if (!(isNULL(stack))) throw new MultipleExceptions(stack);
         return;
     }

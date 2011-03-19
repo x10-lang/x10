@@ -83,6 +83,7 @@ public class WSTransformState {
     public final ClassType remoteRootFrameType;
     public final ClassType regularFrameType;
     public final ClassType asyncFrameType;
+    public final ClassType tryFrameType;
     public final ClassType boxedBooleanType;
     public final ClassType workerType;
     public final ClassType stolenType;
@@ -186,6 +187,7 @@ public class WSTransformState {
             remoteRootFrameType = xts.load("x10.compiler.ws.RemoteRootFrame");
             regularFrameType = xts.load("x10.compiler.ws.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
+            tryFrameType = xts.load("x10.compiler.ws.TryFrame");
             boxedBooleanType = xts.load("x10.compiler.ws.BoxedBoolean");
             workerType = xts.load("x10.compiler.ws.Worker");
             realloc = true;
@@ -198,6 +200,7 @@ public class WSTransformState {
             remoteRootFrameType = xts.load("x10.compiler.ws.java.RemoteRootFrame");
             regularFrameType = xts.load("x10.compiler.ws.java.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.java.AsyncFrame");
+            tryFrameType = xts.load("x10.compiler.ws.java.TryFrame");
             boxedBooleanType = xts.load("x10.compiler.ws.java.BoxedBoolean");
             workerType = xts.load("x10.compiler.ws.java.Worker");
             realloc = false;

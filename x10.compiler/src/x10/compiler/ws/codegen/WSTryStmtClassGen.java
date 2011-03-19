@@ -20,6 +20,7 @@ import java.util.List;
 import polyglot.ast.Block;
 import polyglot.ast.Catch;
 import polyglot.ast.Expr;
+import polyglot.ast.Stmt;
 import polyglot.ast.Try;
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
@@ -51,7 +52,7 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
     public WSTryStmtClassGen(AbstractWSClassGen parent, Try tryStmt) {
         super(parent, parent,
                 WSCodeGenUtility.getExceptionFrameClassName(parent.getClassName()),
-                parent.wts.regularFrameType, tryStmt.tryBlock());
+                parent.wts.tryFrameType, tryStmt.tryBlock());
         this.tryStmt = tryStmt;
         //Never need PC value in fact
 //        if(WSOptimizeConfig.OPT_PC_FIELD == 0){
@@ -96,8 +97,10 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         
         
         //fast path & resume path
+        
+        
         Block tryBlockFast = xnf.Block(tryStmt.tryBlock().position(), callCodes.first());
-        Block tryBlockResume = xnf.Block(tryStmt.tryBlock().position(), callCodes.second());
+        Block tryBlockResume = xnf.Block(tryStmt.tryBlock().position(), genRethrowStmt());
         
         Try tryFast = tryStmt.tryBlock(tryBlockFast);
         Try tryResume = tryStmt.tryBlock(tryBlockResume);
@@ -130,4 +133,11 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         resumeBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
         backBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
    }
+
+    protected Stmt genRethrowStmt() throws SemanticException{
+        //fast path: //upcast[_async,AsyncFrame](this).poll(worker);
+        
+        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, getThisRef(), RETHROW.toString());
+        return icSynth.genStmt();
+    }
 }
