@@ -190,7 +190,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
     }
 
-    @Override
     public boolean _struct_equals$O(Object o) {
         return o != null && this.value == ((IndexedMemoryChunk<?>) o).value;
     }

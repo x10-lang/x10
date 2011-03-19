@@ -174,7 +174,7 @@ public class Types {
         return false;
     }
     static boolean isStructType(Type<?> rtt) {
-        return rtt.isSubtype(x10.core.Struct.$RTT) || isPrimitiveStructType(rtt);
+        return rtt.isSubtype(x10.core.StructI.$RTT) || isPrimitiveStructType(rtt);
     }
     */
     static boolean isStructType(Type<?> rtt) {
@@ -183,7 +183,7 @@ public class Types {
             rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
             return true;
         }
-        else if (rtt.isSubtype(x10.core.Struct.$RTT)) {
+        else if (rtt.isSubtype(x10.core.StructI.$RTT)) {
             return true;
         }
         return false;
@@ -194,7 +194,7 @@ public class Types {
     }
 
     public static boolean isStruct(Object o) {
-        return x10.core.Struct.$RTT.instanceof$(o) ||
+        return x10.core.StructI.$RTT.instanceof$(o) ||
         BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
         FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
     }
@@ -363,7 +363,7 @@ public class Types {
         if (c.equals(CHAR.getJavaClass()) || c.equals(Character.class)) return CHAR_ZERO;
         if (c.equals(BOOLEAN.getJavaClass()) || c.equals(Boolean.class)) return BOOLEAN_ZERO;
         // Note: user defined structs is not supported
-//        assert !x10.core.Struct.class.isAssignableFrom(c) : "user defined structs is not supported";
+//        assert !x10.core.StructI.class.isAssignableFrom(c) : "user defined structs is not supported";
         return null;
     }
     */
