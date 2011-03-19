@@ -23,7 +23,7 @@ public abstract class Frame {
     @Native("c++", "(#x == #y)")
     public native static def eq(x:Frame, y:FinishFrame):Boolean;
 
-    @Native("java", "(null == #4)")
+    @Native("java", "(null == (#4))")
     @Native("c++", "(NULL == (#4)._val)")
     public native static def isNULL[T](x:T):Boolean;
 
