@@ -19,7 +19,8 @@ public class BooleanType extends RuntimeType<Boolean> {
     public BooleanType() {
         super(boolean.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
+                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1)),
+                  Types.STRUCT
               });
     }
     
