@@ -20,11 +20,15 @@ import java.util.List;
 import polyglot.ast.Block;
 import polyglot.ast.Catch;
 import polyglot.ast.Expr;
+import polyglot.ast.Formal;
 import polyglot.ast.Stmt;
 import polyglot.ast.Try;
+import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.util.Position;
 import x10.ast.Finish;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
@@ -107,6 +111,15 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         
         List<Catch> catchBlocksFast = new ArrayList<Catch>();
         List<Catch> catchBlocksResume = new ArrayList<Catch>();
+
+        Name formalName = xct.getNewVarName();
+        
+        Formal fa = synth.createFormal(compilerPos, wts.stolenType, formalName, Flags.NONE);
+        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.stolenType));
+        Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
+        
+        catchBlocksFast.add(ca);
+        catchBlocksResume.add(ca);
         for(Catch c: tryStmt.catchBlocks()){
             //note there is only one local var, the exception
             TransCodes catchBody = transNormalStmt(c.body(), 1, Collections.singleton(c.formal().name().id()));
@@ -116,10 +129,11 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         tryFast = tryFast.catchBlocks(catchBlocksFast);
         tryResume = tryResume.catchBlocks(catchBlocksResume);
         
-        TransCodes finalBody = transNormalStmt(tryStmt.finallyBlock(), 1, Collections.EMPTY_SET);
-        tryFast.finallyBlock(WSCodeGenUtility.seqStmtsToBlock(xnf, finalBody.first().get(0)));
-        tryResume.finallyBlock(WSCodeGenUtility.seqStmtsToBlock(xnf, finalBody.second().get(0)));
-        
+        if (tryStmt.finallyBlock() != null) {
+            TransCodes finalBody = transNormalStmt(tryStmt.finallyBlock(), 1, Collections.EMPTY_SET);
+            tryFast.finallyBlock(WSCodeGenUtility.seqStmtsToBlock(xnf, finalBody.first().get(0)));
+            tryResume.finallyBlock(WSCodeGenUtility.seqStmtsToBlock(xnf, finalBody.second().get(0)));
+        }
         fastBodySynth.addStmt(tryFast);
         resumeBodySynth.addStmt(tryResume);
         
