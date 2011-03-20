@@ -144,54 +144,6 @@ public class NativeClassVisitor extends ContextVisitor {
         return flags.clear(Flags.NATIVE);
     }
 
-    private static boolean findAndCopySourceFile(Options options, String cpackage, String cname, File sourceDirOrJarFile) throws IOException {
-        String sourceDirOrJarFilePath = sourceDirOrJarFile.getAbsolutePath();
-        if (sourceDirOrJarFile.isDirectory()) {
-            if (cpackage != null) {
-                sourceDirOrJarFilePath += File.separator + cpackage.replace('.', File.separatorChar);
-            }
-            File sourceDir = new File(sourceDirOrJarFilePath);
-            File sourceFile = new File(sourceDir, cname + ".java");
-            if (sourceFile.isFile()) {  // found java source
-                // copy
-                String targetDirpath = options.output_directory.getAbsolutePath();
-                if (cpackage != null) {
-                    targetDirpath += File.separator + cpackage.replace('.', File.separatorChar);
-                }
-                File targetDir = new File(targetDirpath);
-                targetDir.mkdirs();
-                File targetFile = new File(targetDir, cname + ".java");
-                FileUtils.copyFile(sourceFile, targetFile);
-                return true;
-            }
-        } else if (sourceDirOrJarFile.isFile() && (sourceDirOrJarFilePath.endsWith(".jar") || sourceDirOrJarFilePath.endsWith(".zip"))) {
-            String sourceFilePathInJarFile = cpackage != null ? (cpackage.replace('.', '/') + '/') : "";
-            sourceFilePathInJarFile += cname + ".java";
-            JarFile jarFile = new JarFile(sourceDirOrJarFile);
-            Enumeration<JarEntry> e = jarFile.entries();
-            while (e.hasMoreElements()) {
-                JarEntry jarEntry = e.nextElement();
-                String entryName = jarEntry.getName();
-                if (entryName.equals(sourceFilePathInJarFile)) {    // found java source
-                    // copy
-                    String targetDirpath = options.output_directory.getAbsolutePath();
-                    if (cpackage != null) {
-                        targetDirpath += File.separator + cpackage.replace('.', File.separatorChar);
-                    }
-                    File targetDir = new File(targetDirpath);
-                    targetDir.mkdirs();
-                    File targetFile = new File(targetDir, cname + ".java");
-                    InputStream sourceInputStream = jarFile.getInputStream(jarEntry); 
-                    long sourceSize = jarEntry.getSize();
-                    FileUtils.copyFile(sourceInputStream, sourceSize, targetFile);
-                    return true;
-                }
-            }
-            
-        }
-        return false;
-    }
-    
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         // look for @NativeClass class declarations
         if (!(n instanceof X10ClassDecl))
@@ -230,13 +182,13 @@ public class NativeClassVisitor extends ContextVisitor {
         try {
             if (options.source_path != null && !options.source_path.isEmpty()) {
                 for (File sourceDirOrJarFile : options.source_path) {
-                    boolean copied = findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
+                    boolean copied = X10PrettyPrinterVisitor.findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
                     if (copied) break;
                 }
             } else {
                 for (String sourceDirOrJarFilePath : options.constructPostCompilerClasspath().split(File.pathSeparator)) {
                     File sourceDirOrJarFile = new File(sourceDirOrJarFilePath);
-                    boolean copied = findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
+                    boolean copied = X10PrettyPrinterVisitor.findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
                     if (copied) break;
                 }
             }
