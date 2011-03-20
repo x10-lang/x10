@@ -197,7 +197,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = new NamedType<IndexedMemoryChunk<?>>(
         "x10.util.IndexedMemoryChunk",
         IndexedMemoryChunk.class,
-        new RuntimeType.Variance[] { Variance.INVARIANT }
+        new RuntimeType.Variance[] { Variance.INVARIANT },
+        new Type[] { x10.rtt.Types.STRUCT }
     );
     
     @Override

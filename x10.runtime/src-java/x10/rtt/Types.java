@@ -13,6 +13,7 @@ package x10.rtt;
 
 import x10.core.Any;
 import x10.core.RefI;
+import x10.core.StructI;
 import x10.core.fun.Fun_0_1;
 
 
@@ -103,6 +104,8 @@ public class Types {
             return o == OBJECT || o == ANY;
         };
     };
+    // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
+    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class);
     public static final RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
         @Override
         public String typeName() {
@@ -174,7 +177,7 @@ public class Types {
         return false;
     }
     static boolean isStructType(Type<?> rtt) {
-        return rtt.isSubtype(x10.core.StructI.$RTT) || isPrimitiveStructType(rtt);
+        return rtt.isSubtype(STRUCT) || isPrimitiveStructType(rtt);
     }
     */
     static boolean isStructType(Type<?> rtt) {
@@ -183,7 +186,7 @@ public class Types {
             rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
             return true;
         }
-        else if (rtt.isSubtype(x10.core.StructI.$RTT)) {
+        else if (rtt.isSubtype(STRUCT)) {
             return true;
         }
         return false;
@@ -194,7 +197,7 @@ public class Types {
     }
 
     public static boolean isStruct(Object o) {
-        return x10.core.StructI.$RTT.instanceof$(o) ||
+        return STRUCT.instanceof$(o) ||
         BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
         FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
     }
@@ -363,7 +366,7 @@ public class Types {
         if (c.equals(CHAR.getJavaClass()) || c.equals(Character.class)) return CHAR_ZERO;
         if (c.equals(BOOLEAN.getJavaClass()) || c.equals(Boolean.class)) return BOOLEAN_ZERO;
         // Note: user defined structs is not supported
-//        assert !x10.core.StructI.class.isAssignableFrom(c) : "user defined structs is not supported";
+//        assert !STRUCT.getJavaClass().isAssignableFrom(c) : "user defined structs is not supported";
         return null;
     }
     */

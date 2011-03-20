@@ -28,7 +28,8 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     public static final x10.rtt.RuntimeType<GlobalRef<?>> $RTT = new x10.rtt.NamedType<GlobalRef<?>>(
         "x10.lang.GlobalRef",
         GlobalRef.class,
-        new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT }
+        new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT },
+        new x10.rtt.Type[] { x10.rtt.Types.STRUCT }
     );
 
     public x10.rtt.RuntimeType<GlobalRef<?>> $getRTT() {

@@ -74,7 +74,8 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
     public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = new NamedType<RemoteIndexedMemoryChunk<?>>(
         "x10.util.RemoteIndexedMemoryChunk",
         RemoteIndexedMemoryChunk.class,
-        new RuntimeType.Variance[] { Variance.INVARIANT }
+        new RuntimeType.Variance[] { Variance.INVARIANT },
+        new Type[] { x10.rtt.Types.STRUCT }
     );
     
     @Override

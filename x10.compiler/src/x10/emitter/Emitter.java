@@ -2657,6 +2657,11 @@ public class Emitter {
                 if (def.interfaces().size() != 0) w.write(", ");
                 printParent(def, def.superType().get());
             }
+            if (def.isStruct()) {
+                if (def.interfaces().size() != 0 || def.superType() != null) w.write(", ");
+                // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
+                w.write("x10.rtt.Types.STRUCT");
+            }
             w.write("}");
         }
         w.newline();
