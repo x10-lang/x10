@@ -987,11 +987,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         ClassType cType = classSynth.getDef().asType();
         Type scType = PlaceChecker.AddIsHereClause(cType, xct);
         MethodSynth methodSynth = classSynth.createMethod(compilerPos, "remap");
-        methodSynth.setFlag(Flags.PUBLIC);
-
-        NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, cType);
-        niSynth.addArgument(xts.Int(), synth.intValueExpr(-1, compilerPos) );
-        niSynth.addArgument(scType, synth.thisRef(cType, compilerPos));
                 
         //upcast new instance
         Type upCastTargetType;
@@ -1005,6 +1000,17 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             upCastTargetType = wts.frameType;
         }
         methodSynth.setReturnType(upCastTargetType);
+
+        if (codeBlock == null) {
+            methodSynth.setFlag(Flags.PUBLIC.Abstract());
+            return;
+        }
+        methodSynth.setFlag(Flags.PUBLIC);
+
+        NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, cType);
+        niSynth.addArgument(xts.Int(), synth.intValueExpr(-1, compilerPos) );
+        niSynth.addArgument(scType, synth.thisRef(cType, compilerPos));
+        
         Expr castReturn = genUpcastCall(cType, upCastTargetType, niSynth.genExpr());
         
         Stmt ret = xnf.Return(compilerPos, castReturn);

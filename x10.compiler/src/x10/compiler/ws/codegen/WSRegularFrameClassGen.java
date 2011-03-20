@@ -109,6 +109,14 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     @Override
     protected void genMethods() throws SemanticException {
 
+        if (codeBlock == null) {
+            fastMSynth.setFlag(Flags.ABSTRACT);
+            resumeMSynth.setFlag(Flags.ABSTRACT);
+            backMSynth.setFlag(Flags.ABSTRACT);
+            classSynth.setFlags(Flags.ABSTRACT);
+            return;
+        }
+
         Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> bodyCodes = transformMethodBody();
 
         CodeBlockSynth fastBodySynth = bodyCodes.first();

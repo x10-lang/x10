@@ -243,7 +243,12 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         FlagsNode flagNode = xnf.FlagsNode(pos, methodDef.flags());
         TypeNode returnTypeNode = xnf.CanonicalTypeNode(pos, methodDef.returnType());
         
-        Block block = codeBlockSynth.close();
+        Block block;
+        if (methodDef.flags().isAbstract()) {
+            block = null;
+        } else {
+            block = codeBlockSynth.close();
+        }
         methodDecl = (X10MethodDecl) xnf.MethodDecl(pos, flagNode, returnTypeNode, xnf.Id(pos, methodDef.name()), 
                 formals, block);
 
