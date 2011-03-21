@@ -236,15 +236,10 @@ import x10.util.NoSuchElementException;
      * Run a ws command in local or remote, such as a finish join action, or stop all workers action
      */
     public static def wsRunCommand(id:Int, body:()=>void):void {
-        if(id == here.id){
+        if (id == hereInt()) {
             body();
-        }
-        else {
-            val closure:()=>void = ()=>@x10.compiler.RemoteInvocation {
-                body(); //just execute the 
-            };
-            runClosureAt(id, closure);
-            dealloc(closure);
+        } else {
+            runClosureAt(id, body);
         }
     }
 
@@ -258,6 +253,12 @@ import x10.util.NoSuchElementException;
         var k:Object;
         while ((k = src.poll()) != null) dst.push(k);
     }
+
+    public static def wsEnd() {
+        pool.wsEnd = true;
+    }
+
+    public static def wsEnded() = pool.wsEnd;
 
     /**
      * A mortal object is garbage collected when there are no remaining local refs even if remote refs might still exist
@@ -450,6 +451,8 @@ import x10.util.NoSuchElementException;
 
     @Pinned static class Pool {
         val latch = new SimpleLatch();
+        
+        var wsEnd:Boolean = false;
         
         private var size:Int; // the number of workers in the pool
 
