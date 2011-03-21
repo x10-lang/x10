@@ -481,7 +481,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     //Generate move to heap codes
     //_pc = x;
     //if(ff.redirect == null){
-    //    redo(worker);
+    //    moveToHeap(worker);
     //}
     protected TransCodes genMoveFrameToHeapCodes(int prePcValue, String pathName) throws SemanticException{
         TransCodes transCodes = new TransCodes(prePcValue + 1);
@@ -499,7 +499,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         }
         
         Expr thisRef = genUpcastCall(getClassType(), wts.regularFrameType, getThisRef());        
-        InstanceCallSynth fastRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, REDO.toString());
+        InstanceCallSynth fastRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, MOVE_TO_HEAP.toString());
         Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
         fastRedoCallSynth.addArgument(wts.workerType, fastWorkerRef);
         Stmt fastRedoCallStmt = fastRedoCallSynth.genStmt();

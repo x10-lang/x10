@@ -134,6 +134,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name ASYNCS = Name.make("asyncs");
     static final protected Name REDIRECT = Name.make("redirect");
     static final protected Name REDO = Name.make("redo");
+    static final protected Name MOVE_TO_HEAP = Name.make("moveToHeap");
     static final protected Name INIT = Name.make("init");
     static final protected Name OPERATOR = Name.make("operator()");
     static final protected Name ENTER_ATOMIC = Name.make("enterAtomic");
