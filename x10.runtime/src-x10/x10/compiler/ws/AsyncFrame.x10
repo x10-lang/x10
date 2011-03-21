@@ -34,7 +34,6 @@ public abstract class AsyncFrame extends Frame {
                 }
             }
             worker.unroll(ff);
-            throw Abort.ABORT;
         }
         return;
     }

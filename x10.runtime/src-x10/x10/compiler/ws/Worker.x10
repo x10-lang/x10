@@ -153,7 +153,6 @@ public final class Worker {
         while (true) {
             frame.wrapResume(this);
             up = frame.up;
-            if (Frame.isNULL(up)) return;
             up.wrapBack(this, frame);
             if (!(frame instanceof MainFrame) && !(frame instanceof RootFinish)) {
                 Runtime.deallocObject(frame);
