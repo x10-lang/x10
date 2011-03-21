@@ -132,7 +132,7 @@ public final class Array[T] (
         
         layout = RectLayout(reg);
         val n = layout.size();
-        raw = IndexedMemoryChunk.allocate[T](n, true);
+        raw = IndexedMemoryChunk.allocateZeroed[T](n);
     }   
 
 
@@ -157,7 +157,7 @@ public final class Array[T] (
         
         layout = RectLayout(reg);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         for (p:Point(reg.rank) in reg) {
             r(layout.offset(p))= init(p);
         }
@@ -177,7 +177,7 @@ public final class Array[T] (
         
         layout = RectLayout(reg);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         if (reg.rect) {
             // Can be optimized into a simple fill of the backing IndexedMemoryChunk
             // because every element of the chunk is used by a point in the region.
@@ -226,7 +226,7 @@ public final class Array[T] (
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
-        raw = IndexedMemoryChunk.allocate[T](n, true);
+        raw = IndexedMemoryChunk.allocateZeroed[T](n);
     }
     
     
@@ -253,7 +253,7 @@ public final class Array[T] (
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         for (i in 0..(size-1)) {
             r(i)= init(i);
         }
@@ -275,7 +275,7 @@ public final class Array[T] (
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         for (i in 0..(size-1)) {
             r(i)= init;
         }
@@ -293,7 +293,7 @@ public final class Array[T] (
         property(init.region, init.rank, init.rect, init.zeroBased, init.rail, init.size);
         layout = RectLayout(region);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         IndexedMemoryChunk.copy(init.raw, 0, r, 0, n);
         raw = r;
     }

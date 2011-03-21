@@ -39,27 +39,36 @@ public struct IndexedMemoryChunk[T] {
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, false)")
-    public static native def allocate[T](numElements:int):IndexedMemoryChunk[T];
+    public static native def allocateUninitialized[T](numElements:int):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #5)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, #zeroed)")
-    public static native def allocate[T](numElements:int, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, true)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, true)")
+    public static native def allocateZeroed[T](numElements:int):IndexedMemoryChunk[T]{T haszero};
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, #alignment, #congruent, #zeroed)")
-    public static native def allocate[T](numElements:int, alignment:int, congruent:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, #alignment, #congruent, false)")
+    public static native def allocateUninitialized[T](numElements:int, alignment:int, congruent:boolean):IndexedMemoryChunk[T];
+
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, true)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, #alignment, #congruent, true)")
+    public static native def allocateZeroed[T](numElements:int, alignment:int, congruent:boolean):IndexedMemoryChunk[T]{T haszero};
+
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, false)")
-    public static native def allocate[T](numElements:long):IndexedMemoryChunk[T];
+    public static native def allocateUninitialized[T](numElements:long):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #5)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, #zeroed)")
-    public static native def allocate[T](numElements:long, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, true)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, 8, false, true)")
+    public static native def allocateZeroed[T](numElements:long):IndexedMemoryChunk[T]{T haszero};
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, #7)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, #alignment, #congruent, #zeroed)")
-    public static native def allocate[T](numElements:long, alignment:int, congruent:boolean, zeroed:boolean):IndexedMemoryChunk[T]{!zeroed || T haszero};
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, false)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, #alignment, #congruent, false)")
+    public static native def allocateUninitialized[T](numElements:long, alignment:int, congruent:boolean):IndexedMemoryChunk[T];
+
+    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4, true)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, #alignment, #congruent, true)")
+    public static native def allocateZeroed[T](numElements:long, alignment:int, congruent:boolean):IndexedMemoryChunk[T]{T haszero};
 
 
     /**
