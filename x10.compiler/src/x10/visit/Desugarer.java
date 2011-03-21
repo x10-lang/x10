@@ -426,7 +426,8 @@ public class Desugarer extends ContextVisitor {
 
         final Position pos = n.position();
         List<Expr> args = binary_c!=null ? Arrays.asList(binary_c.left(), binary_c.right()) : procCall.arguments();
-        final List<LocalInstance> oldFormals = procInst.formalNames();
+        final ProcedureDef procDef = procInst.def();
+        final List<LocalDef> oldFormals = procDef.formalNames();
         assert oldFormals.size()==args.size();
         Expr oldReceiver = null;
         final Receiver target;
@@ -447,10 +448,10 @@ public class Desugarer extends ContextVisitor {
         int i=0;
         for (Expr arg : args) {
             // The argument might be null, e.g., def m(b:Z) {b.x!=null}  = 1; ... m(null);
-            final LocalInstance oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
+            final LocalDef oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
             Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shaddow an existing field
             i++;
-            final Type type = oldFormal!=null ? oldFormal.type() : arg.type();
+            final Type type = oldFormal!=null ? Types.get(oldFormal.type()) : arg.type();
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(type), xn);
             Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
                     nf.CanonicalTypeNode(pos,type), nf.Id(pos, xn)).localDef(xDef);
@@ -475,7 +476,6 @@ public class Desugarer extends ContextVisitor {
 
         // we add the guard to the body, then the return stmt.
         // if (!(GUARDEXPR(a,b))) throw new FailedDynamicCheckException(...); return ...
-        final ProcedureDef procDef = procInst.def();
         final Ref<CConstraint> guardRefConstraint = procDef.guard();
         Expr booleanGuard = (BooleanLit) nf.BooleanLit(pos, true).type(ts.Boolean());
         if (guardRefConstraint!=null) {
@@ -492,7 +492,7 @@ public class Desugarer extends ContextVisitor {
         // replace old formals in depExpr with the new locals
         final Map<Name,Expr> old2new = CollectionFactory.newHashMap(oldFormals.size());
         for (int k=0; k<newArgs.size(); k++) {
-            LocalInstance old = oldFormals.get(k);
+            LocalDef old = oldFormals.get(k);
             Expr newE = newArgs.get(k);
             old2new.put(old.name(),newE);
         }
