@@ -240,8 +240,8 @@ class FinalFieldWrittenExactlyOnce {
 		else if (flag) f=2;
 	}
 	def this(Int,Byte) { // ERR
-		val b:Int = (b=5); // ShouldBeErr
-		var k:Int = (k=5);
+		val b:Int = (b=5); // ERR
+		var k:Int = (k=5); // ERR
 		while (true) { val i:Int = 4;}
 		f=f+1; // ERR
 	}
@@ -2668,7 +2668,7 @@ final class TestCasts { // TestInitInCasts
 	def test() {
 		val a3:Int = a3*3; // ERR: "a3" may not have been initialized
 		val a:Int{a!=5} = 
-			3 as Int{a!=5}; // ERR: "a" may not have been initialized
+			3 as Int{a!=5}; // ERR ERR [Semantic Error: Could not find field or local variable "a"., Semantic Error: Local variable may not have been initialized     Local variable: a]
 		val a2:Int{a2!=5} = 
 			3 as Int{self!=5};
 	}
