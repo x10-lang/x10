@@ -18,10 +18,10 @@ class Fib {
         val t1:Int;
         val t2:Int;
         if (n < 2) return 1;
-        {{{{ finish {{{{
-            {{{{ async t1 = fib(n-1); }}}}
-            {{{{ async t2 = fib(n-2); }}}}
-        }}}} }}}}
+        finish {
+            async t1 = fib(n-1);
+            t2 = fib(n-2);
+        }
         return t1 + t2;
     }
 
