@@ -245,6 +245,7 @@ public final class Worker {
         //locate the remote worker
         val body:()=>void = ()=>{            
             derefBB[BoxedBoolean](bbRef).value = true;
+            Runtime.wsUnblock();
             //Runtime.println(here + " :At Notify executed");
         };
         //Runtime.println(here + " :Run At Notify back to place:" + id);

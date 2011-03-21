@@ -32,4 +32,10 @@ public abstract class RegularFrame extends Frame {
         Runtime.wsBlock(remap());
         throw Abort.ABORT;
     }
+
+    @Inline public final def moveToHeap(worker:Worker):void {
+        worker.migrate();
+        worker.fifo.push(remap());
+        throw Abort.ABORT;
+    }
 }

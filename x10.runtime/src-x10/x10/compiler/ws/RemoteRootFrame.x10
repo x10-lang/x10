@@ -12,9 +12,11 @@ public final class RemoteRootFrame extends Frame {
     public def remap():Frame = this;
 
     public def resume(worker:Worker) {
+    }
+
+    public final def wrapResume(worker:Worker) {
+        //FIXME: need merge throwable to ff's throwable
         //need call back to update the ff's asyncs count
         worker.remoteFinishJoin(ffRef);
     }
-
-    public final def wrapResume(worker:Worker) {}
 }
