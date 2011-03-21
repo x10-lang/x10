@@ -516,7 +516,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             Expr redoCheck = xnf.Binary(compilerPos, redirectRef, Binary.EQ,
                                         xnf.NullLit(compilerPos).type(wts.finishFrameType)).type(xts.Boolean());
             Stmt fastIfRedoStmt = xnf.If(compilerPos, redoCheck, fastRedoCallStmt);     
-            transCodes.addFirst(fastIfRedoStmt);            
+            transCodes.addFirst(fastRedoCallStmt/*fastIfRedoStmt*/);            
         }        
         
         //resume path no need the redo
@@ -546,15 +546,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         
         //transformation step by step:
         
-        //create ff's global ref
         Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
-        
-        NewInstanceSynth globalFFRefSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.globalRefFFType);
-        globalFFRefSynth.addArgument(wts.finishFrameType, ffRef);
-        NewLocalVarSynth globalFFRefLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, globalFFRefSynth.genExpr());
-        transCodes.addFirst(globalFFRefLocalSynth.genStmt());
-        transCodes.addSecond(globalFFRefLocalSynth.genStmt());
-        Expr globalFFRef = globalFFRefLocalSynth.getLocal();
         
         //create the frame class gen
         WSRemoteMainFrameClassGen remoteClassGen = (WSRemoteMainFrameClassGen) genChildFrame(wts.regularFrameType, stmt, null); //no need prefix gen here
@@ -574,18 +566,14 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             transCodes.addSecond(xnf.Eval(compilerPos, flagAssingExpr));
         }
         
-        //prepare val rRootFinish:RemoteRootFinish = new RemoteRootFinish(ffRef);
+        //prepare val rRootFinish:RemoteRootFinish = new RemoteRootFinish(ff).init();
         NewInstanceSynth remoteRootFFSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.remoteRootFinishType);
-        remoteRootFFSynth.addArgument(wts.globalRefFFType, globalFFRef);
-        NewLocalVarSynth remoteRootFFRefLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, remoteRootFFSynth.genExpr());
+        remoteRootFFSynth.addArgument(wts.finishFrameType, ffRef);
+        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, remoteRootFFSynth.genExpr(), INIT.toString());
+        NewLocalVarSynth remoteRootFFRefLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, icSynth.genExpr());
         transCodes.addFirst(remoteRootFFRefLocalSynth.genStmt());
         transCodes.addSecond(remoteRootFFRefLocalSynth.genStmt());
         Expr remoteRootFFRef = remoteRootFFRefLocalSynth.getLocal();
-        
-        //call rRootFinish.init();
-        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, remoteRootFFRef, INIT.toString());
-        transCodes.addFirst(icSynth.genStmt());
-        transCodes.addSecond(icSynth.genStmt());        
         
         //Prepare the instance
         //val rFrame = new _mainR0(rRootFinish, rRootFinish, n1);
@@ -631,7 +619,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, fastWorkerRef, REMOTE_RUN_FRAME.toString());
             callSynth.addArgument(xts.Place(), place);
             callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
-            callSynth.addArgument(wts.finishFrameType, ffRef);
             transCodes.addFirst(callSynth.genStmt());
         }
         { //resume
@@ -639,7 +626,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, resumeWorkerRef, REMOTE_RUN_FRAME.toString());
             callSynth.addArgument(xts.Place(), place);
             callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
-            callSynth.addArgument(wts.finishFrameType, ffRef);
             transCodes.addSecond(callSynth.genStmt());
         }
         

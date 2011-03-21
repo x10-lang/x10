@@ -97,12 +97,11 @@ public final class Worker {
     static def deref[T](root:GlobalRef[Worker]) = (root as GlobalRef[Worker]{home==here})() as T;
     static def derefFrame[T](ffRef:GlobalRef[FinishFrame]) = (ffRef as GlobalRef[FinishFrame]{home==here})() as T;
     static def derefBB[T](root:GlobalRef[BoxedBoolean]) = (root as GlobalRef[BoxedBoolean]{home==here})() as T;
-    
+
     //the frame should be in heap, and could be copied deeply
-    public def remoteRunFrame(place:Place, frame:RegularFrame, ff:FinishFrame){
-        Runtime.atomicMonitor.lock(); ff.asyncs++; Runtime.atomicMonitor.unlock(); //need add the frame's structure
+    public def remoteRunFrame(place:Place, frame:RegularFrame){
         val id:Int = place.id;
-        val body:()=>void = ()=> {
+        val body = ()=> @x10.compiler.RemoteInvocation {
             Runtime.wsFIFO().push(frame);
         };
         //Runtime.println(here + " :Run Remote job at place:" + id);

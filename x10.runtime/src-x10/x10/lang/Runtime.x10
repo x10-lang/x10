@@ -218,17 +218,12 @@ import x10.util.NoSuchElementException;
      * The frame is in the body, and should be in the heap
      */
     public static def wsRunAsync(id:Int, body:()=>void):void {
-        if(id == here.id){
-            val closure:()=>void = deepCopy(body);
-            closure();
-            dealloc(closure);
-        }
-        else{
-            val closure:()=>void = ()=>@x10.compiler.RemoteInvocation {
-                body(); //just execute the 
-            };
-            runClosureCopyAt(id, closure);
-            dealloc(closure);
+        if (id == hereInt()) {
+            val copy = deepCopy(body);
+            copy();
+            dealloc(copy);
+        } else {
+            runClosureCopyAt(id, body);
         }
     }
 

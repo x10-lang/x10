@@ -4,10 +4,11 @@ import x10.compiler.Abort;
 
 public final class RemoteRootFinish extends FinishFrame {
     val ffRef:GlobalRef[FinishFrame];
-    public def this(ffRef:GlobalRef[FinishFrame]) {
+    public def this(ff:FinishFrame) {
         super(NULL[Frame]());
         asyncs = 1;
-        this.ffRef = ffRef;
+        ffRef = GlobalRef[FinishFrame](ff);
+        Runtime.atomicMonitor.lock(); ff.asyncs++; Runtime.atomicMonitor.unlock();
     }
 
     public def init() {
@@ -23,4 +24,3 @@ public final class RemoteRootFinish extends FinishFrame {
         throw Abort.ABORT;
     }
 }
-
