@@ -85,7 +85,6 @@ public class System {
 
     /**
      * Returns an immutable map from environment variables to values.
-     * Only environment variables whose names start with X10_ are reported.
      */
     public static def getenv():Map[String,String] = Runtime.env;
 
