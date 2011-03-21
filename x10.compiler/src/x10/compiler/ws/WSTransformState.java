@@ -80,7 +80,6 @@ public class WSTransformState {
     public final ClassType rootFinishType;
     public final ClassType mainFrameType;
     public final ClassType remoteRootFinishType;
-    public final ClassType remoteRootFrameType;
     public final ClassType regularFrameType;
     public final ClassType asyncFrameType;
     public final ClassType tryFrameType;
@@ -184,7 +183,6 @@ public class WSTransformState {
             rootFinishType = xts.load("x10.compiler.ws.RootFinish");
             mainFrameType = xts.load("x10.compiler.ws.MainFrame");
             remoteRootFinishType = xts.load("x10.compiler.ws.RemoteRootFinish");
-            remoteRootFrameType = xts.load("x10.compiler.ws.RemoteRootFrame");
             regularFrameType = xts.load("x10.compiler.ws.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
             tryFrameType = xts.load("x10.compiler.ws.TryFrame");
@@ -197,7 +195,6 @@ public class WSTransformState {
             rootFinishType = xts.load("x10.compiler.ws.java.RootFinish");
             mainFrameType = xts.load("x10.compiler.ws.java.MainFrame");
             remoteRootFinishType = xts.load("x10.compiler.ws.java.RemoteRootFinish");
-            remoteRootFrameType = xts.load("x10.compiler.ws.java.RemoteRootFrame");
             regularFrameType = xts.load("x10.compiler.ws.java.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.java.AsyncFrame");
             tryFrameType = xts.load("x10.compiler.ws.java.TryFrame");

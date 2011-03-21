@@ -1,12 +1,13 @@
 package x10.compiler.ws;
 
+import x10.compiler.Abort;
+
 public final class RemoteRootFinish extends FinishFrame {
+    val ffRef:GlobalRef[FinishFrame];
     public def this(ffRef:GlobalRef[FinishFrame]) {
-        super(new RemoteRootFrame(ffRef));
+        super(NULL[Frame]());
         asyncs = 1;
-        //move the assign to make
-        //redirect = this; 
-        this.redirect = NULL[FinishFrame]();
+        this.ffRef = ffRef;
     }
 
     public def init() {
@@ -15,4 +16,11 @@ public final class RemoteRootFinish extends FinishFrame {
     }
 
     public def remap():FinishFrame = this;
+
+    public def wrapResume(worker:Worker) {
+        super.wrapResume(worker);
+        worker.remoteFinishJoin(ffRef);
+        throw Abort.ABORT;
+    }
 }
+

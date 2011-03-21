@@ -109,8 +109,6 @@ public final class Worker {
         Runtime.wsRunAsync(id, body);
         Runtime.dealloc(body);
         //need clean the heap allocated frame, too.
-        //The RemoteMainFrame, the RemoteRootFinish & the RemoteRootFrame
-        Runtime.deallocObject(frame.up.up);
         Runtime.deallocObject(frame.up);
         Runtime.deallocObject(frame);
     }
