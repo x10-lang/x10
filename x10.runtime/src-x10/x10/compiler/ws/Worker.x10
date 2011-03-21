@@ -3,7 +3,6 @@ package x10.compiler.ws;
 import x10.util.Random;
 import x10.lang.Lock;
 import x10.compiler.Abort;
-import x10.compiler.SuppressTransientError;
 import x10.compiler.RemoteInvocation;
 
 public final class Worker {
@@ -85,16 +84,15 @@ public final class Worker {
                     //could be a regular frame of local, or remote one. Just call wrapResume
                     val r:RegularFrame = Frame.cast[Object,RegularFrame](k);
                     try {
-                        r.wrapResume(this);
-                        unstack(r); // top frames are meant to be on the stack
+                        unroll(r); // top frames are meant to be on the stack
                     } catch (Abort) {}
-                    purge(r, r.ff); // needed because we did not stack allocate those frames
                 }
                 else if(k instanceof FinishFrame){
                     //finish frame, need run the finish frame's unroll
                     val p:FinishFrame = Frame.cast[Object, FinishFrame](k);
                     try{
                         //Runtime.println(here+" :Execute remote finish join");
+                        // TODO: unroll?
                         unroll(p);
                     } catch (Abort){}
                 }
@@ -150,54 +148,16 @@ public final class Worker {
         return k;
     }
 
-    public static def purge(var frame:Frame, ff:FinishFrame) {
-        while (!Frame.eq(frame, ff)) {
-            val up = frame.up;
-            if (frame instanceof MainFrame || frame instanceof RootFinish) return;
-            Runtime.deallocObject(frame);
-            frame = up;
-        }
-    }
-
     public def unroll(var frame:Frame) {
         var up:Frame;
         while (true) {
+            frame.wrapResume(this);
             up = frame.up;
             if (Frame.isNULL(up)) return;
-            if (frame instanceof FinishFrame) {
-                var asyncs:Int;
-                Runtime.atomicMonitor.lock(); asyncs = --Frame.cast[Frame,FinishFrame](frame).asyncs; Runtime.atomicMonitor.unlock();
-                if (0 != asyncs) return;
-                frame.throwable = MultipleExceptions.make(Frame.cast[Frame,FinishFrame](frame).stack);
-            }
             up.wrapBack(this, frame);
             if (!(frame instanceof MainFrame) && !(frame instanceof RootFinish)) {
                 Runtime.deallocObject(frame);
             }
-            try {
-                up.wrapResume(this);
-            } catch (t:Abort) {
-                if (up instanceof RegularFrame) {
-                    purge(up, Frame.cast[Frame,RegularFrame](up).ff);
-                }
-                throw t;
-            }
-            frame = up;
-        }
-    }
-
-    public def unstack(var frame:Frame) {
-        var up:Frame;
-        while (true) {
-            up = frame.up;
-            if (Frame.isNULL(up)) return;
-            if (frame instanceof FinishFrame) {
-                // moving to heap-allocated frames
-                unroll(frame);
-                return;
-            }
-            up.wrapBack(this, frame);
-            up.wrapResume(this);
             frame = up;
         }
     }

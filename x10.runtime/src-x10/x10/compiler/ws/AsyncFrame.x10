@@ -24,7 +24,7 @@ public abstract class AsyncFrame extends Frame {
             worker.lock.unlock();
             val old = cast[Frame,FinishFrame](up);
             val ff = old.redirect;
-            if (!eq(old, ff)) {
+            if (old != ff) {
                 move(ff);
                 if (!isNULL(old.stack)) {
                     Runtime.atomicMonitor.lock();

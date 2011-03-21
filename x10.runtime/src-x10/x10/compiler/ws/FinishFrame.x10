@@ -55,5 +55,10 @@ abstract public class FinishFrame extends Frame {
         return;
     }
 
-    public def wrapResume(worker:Worker) {}
+    public def wrapResume(worker:Worker) {
+        var n:Int;
+        Runtime.atomicMonitor.lock(); n = --asyncs; Runtime.atomicMonitor.unlock();
+        if (0 != n) throw Abort.ABORT;
+        throwable = MultipleExceptions.make(stack);
+    }
 }

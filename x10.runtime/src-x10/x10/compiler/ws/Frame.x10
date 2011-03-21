@@ -19,10 +19,6 @@ public abstract class Frame {
     @Native("c++", "NULL")
     public native static def NULL[T]():T;
 
-    @Native("java", "(#1 == #2)")
-    @Native("c++", "(#x == #y)")
-    public native static def eq(x:Frame, y:FinishFrame):Boolean;
-
     @Native("java", "(null == (#4))")
     @Native("c++", "(NULL == (#4)._val)")
     public native static def isNULL[T](x:T):Boolean;
