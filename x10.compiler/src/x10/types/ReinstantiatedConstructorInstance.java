@@ -14,7 +14,7 @@ import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
-final class ReinstantiatedConstructorInstance extends X10ConstructorInstance_c {
+public final class ReinstantiatedConstructorInstance extends X10ConstructorInstance_c {
 	private static final long serialVersionUID = -8401371385252808432L;
 
 	private final TypeParamSubst typeParamSubst;
@@ -26,6 +26,10 @@ final class ReinstantiatedConstructorInstance extends X10ConstructorInstance_c {
 		this.typeParamSubst = typeParamSubst;
 		this.fi = fi;
 	}
+
+    public TypeParamSubst typeParamSubst() {
+        return typeParamSubst;
+    }
 
 	@Override
 	public Ref<? extends Type> returnTypeRef() {

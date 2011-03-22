@@ -277,8 +277,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         Type type   = target.type();
         ConstructorCall call = (ConstructorCall)s;
         boolean noArgsYet = true;
-        if (call.kind() == ConstructorCall.SUPER)
-            assert false; // Special calls are handled by visit(ConstructorDecl_c)
         if (Types.isX10Struct(type)) {
             String typeName = Emitter.structMethodClass((X10ClassType) Types.baseType(type), true, true);
             sw.write(typeName+ "::" +SharedVarsMethods.CONSTRUCTOR+ "(");
@@ -289,9 +287,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         } else {
             sw.write("(");
             s.print(target, sw, tr);
-            sw.write(")->" +SharedVarsMethods.CONSTRUCTOR+ "(");
+            String container = Emitter.translateType(call.constructorInstance().container());
+            sw.write(")->::" +container+ "::" +SharedVarsMethods.CONSTRUCTOR+ "(");
         }
-
         TypeSystem ts = tr.typeSystem();
         List<Expr> args = call.arguments();
         for (int i=0; i<args.size(); i++) {

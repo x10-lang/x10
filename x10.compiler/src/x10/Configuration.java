@@ -76,6 +76,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean INLINE_METHODS_IMPLICIT = false;
     private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
 
+    public boolean INLINE_CONSTRUCTORS = false;
+    private static final String INLINE_CONSTRUCTORS_desc = "Inline constructor calls";
+
     public boolean ALLOW_STATEMENT_EXPRESSIONS = true;
     private static final String ALLOW_STATEMENT_EXPRESSIONS_desc = "Allow statement expressions in generated code";
 

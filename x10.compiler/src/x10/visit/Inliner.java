@@ -96,7 +96,6 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10ProcedureCall;
 import x10.ast.X10SourceFile_c;
 import x10.ast.X10Special;
 import x10.config.ConfigurationError;
@@ -111,9 +110,11 @@ import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.MethodInstance;
 import x10.types.ParameterType;
+import x10.types.ReinstantiatedConstructorInstance;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
 import x10.types.X10FieldInstance;
@@ -144,11 +145,15 @@ import x10.util.CollectionFactory;
  */
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
+    
+    static private final boolean ALLOW_NON_VIRTUAL_CALLS = false;
 
     private final boolean INLINE_CONSTANTS;
     private final boolean INLINE_METHODS;
     private final boolean INLINE_CLOSURES;
     private final boolean INLINE_IMPLICIT;
+    private final boolean INLINE_CONSTRUCTORS;
+    private final boolean INLINE_STRUCT_CONSTRUCTORS;
     
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
@@ -185,6 +190,8 @@ public class Inliner extends ContextVisitor {
         INLINE_METHODS   = config.OPTIMIZE && config.INLINE_METHODS;
         INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
         INLINE_IMPLICIT  = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
+        INLINE_CONSTRUCTORS = config.OPTIMIZE && config.INLINE_CONSTRUCTORS;
+        INLINE_STRUCT_CONSTRUCTORS = false;
  //     implicitMax      = config.EXPERIMENTAL ? 1 : 0;
         implicitMax      = 0;
     }
@@ -291,9 +298,12 @@ public class Inliner extends ContextVisitor {
             Source s = ((SourceFile) node).source();
             Warnings.issue(this.job, "\nBegin inlining pass on " +s, node.position());
         }
-        if (ExpressionFlattener.cannotFlatten(node)) { // TODO: check that flattening is actually required
+        if (ExpressionFlattener.cannotFlatten(node, job)) { // TODO: check that flattening is actually required
             debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
             return node; // don't inline inside Nodes that cannot be Flattened
+        }
+        if (node instanceof ConstructorCall && !INLINE_CONSTRUCTORS) {
+            return node; // for now, don't flatten constructor calls for Java backend
         }
         if (node instanceof X10MethodDecl) {
             return null; // @NoInline annotation means something else
@@ -359,6 +369,9 @@ public class Inliner extends ContextVisitor {
             return n;
         }
         if (n != result) { // inlining this call
+            if (n instanceof ConstructorCall && result instanceof StmtExpr) { // evaluate the expr // method calls in Stmt context are already sowrapped
+                result = syn.createEval((StmtExpr) result);
+            }
             if (VERBOSE) {
                 Warnings.issue(job, "INLINING: " + n, n.position());
                 if (DEBUG && VERY_VERBOSE && false) {
@@ -455,7 +468,7 @@ public class Inliner extends ContextVisitor {
         }
         // TODO: handle "this" parameter like formals (cache actual in temp, assign to local (transformed this)
         LocalDecl thisArg = createThisArg(call);
-        LocalDecl thisForm = createThisFormal(call, thisArg);
+        LocalDecl thisForm = null == thisArg ? null : createThisFormal(call, thisArg);
         decl = normalizeMethod(decl, thisForm); // Ensure that the last statement of the body is the only return in the method
         if (null == decl || null == decl.body()) {
             return null;
@@ -686,6 +699,11 @@ public class Inliner extends ContextVisitor {
         MemberDef candidate = getDef(call);
         // require inlining if either the call of the candidate are so annotated
         inliningRequired = annotationsRequireInlining(call, (X10MemberDef) candidate);
+        // short-circuit if inlining is not required and there is no implicit inlining
+        if (!inliningRequired && !INLINE_IMPLICIT) {
+            report("inlining not required for candidate: " +candidate, call);
+            return null;
+        }
         // unless required, skip candidates previously found to be uninlinable
         if (!inliningRequired && getInlinerCache().uninlineable(candidate)) {
             report("of previous decision for candidate: " +candidate, call);
@@ -751,6 +769,11 @@ public class Inliner extends ContextVisitor {
             getInlinerCache().badJob(candidateJob);
             return null;
         }
+        if (ExpressionFlattener.javaBackend(job) && hasSuper(decl)) {
+            report("candidate body contains super (not yet supported by Java backend): " +candidate, call);
+            getInlinerCache().notInlinable(candidate);
+            return null;
+        }
         if (!inliningRequired) { // decide whether to inline candidate
             if (INLINE_IMPLICIT) {
                 int cost = getCost(decl, candidateJob);
@@ -770,6 +793,30 @@ public class Inliner extends ContextVisitor {
         return decl;
     }
 
+    /**
+     * @param node
+     * @return
+     */
+    private boolean hasSuper(Node node) {
+        SuperFinderVisitor visitor = new SuperFinderVisitor();
+        node.visit(visitor);
+        return visitor.hasSuper;
+    }
+
+    /* This is a kludge until the Java backend supports non-virtual calls to instance methods and "super.fuo" can get rewritten */
+    private static class SuperFinderVisitor extends NodeVisitor{
+        boolean hasSuper = false;
+        /* (non-Javadoc)
+         * @see polyglot.visit.NodeVisitor#override(polyglot.ast.Node)
+         */
+        @Override
+        public Node override(Node n) {
+            if (n instanceof Special && ((Special) n).kind() == Special.SUPER)
+                hasSuper = true;
+            return super.override(n);
+        }
+
+    }
     /**
      * @param call
      * @return
@@ -892,9 +939,9 @@ public class Inliner extends ContextVisitor {
     private boolean isVirtualOrNative(MemberDef candidate, ClassDef container) {
         Flags mf = candidate.flags();
         Flags cf = container.flags();
-        if (!mf.isFinal() && !mf.isPrivate() && !mf.isStatic() && !cf.isFinal() && !container.isStruct())
-            return true;
         if (mf.isNative() || cf.isNative())
+            return true;
+        if (!mf.isFinal() && !mf.isPrivate() && !mf.isStatic() && !cf.isFinal() && !container.isStruct() && !(candidate instanceof ConstructorDef))
             return true;
         return false;
     }
@@ -998,7 +1045,7 @@ public class Inliner extends ContextVisitor {
             debug(report("no declaration body for " +decl[0]+ " (" +candidate+ ")", null), null);
             return null;
         }
-        if (ExpressionFlattener.cannotFlatten(decl[0])) {
+        if (ExpressionFlattener.cannotFlatten(decl[0], job)) {
             debug(report("unflattenable declaration body for " +decl[0]+ "  (" +candidate+ ")", null), null);
             return null;
         }
@@ -1126,7 +1173,7 @@ public class Inliner extends ContextVisitor {
         return (outer.offset() <= inner.offset() && inner.endOffset() <= inner.endOffset());
     }
 
-    private CodeBlock instantiate(final CodeBlock code, X10ProcedureCall call) {
+    private CodeBlock instantiate(final CodeBlock code, InlinableCall call) {
         try {
             debug("Instantiate " + code, call);
             TypeParamSubst typeMap = makeTypeMap(call.procedureInstance());
@@ -1254,9 +1301,6 @@ public class Inliner extends ContextVisitor {
         }
         @Override
         protected Special transform(Special s, Special old) {
-            if (s.kind().equals(Special.SUPER)) {
-                throw new UnsupportedOperationException("Not yet implemented, can't instantiate " + s);
-            }
             return super.transform(s, old);
         }
 
@@ -1282,7 +1326,33 @@ public class Inliner extends ContextVisitor {
 
         @Override
         protected X10ConstructorDecl transform(X10ConstructorDecl d, X10ConstructorDecl old) {
-            assert (false) : "Not yet implemented, can't instantiate " + d;
+            boolean sigChanged = d.returnType() != old.returnType();
+            List<Formal> params = d.formals();
+            List<Formal> oldParams = old.formals();
+            for (int i = 0; i < params.size(); i++) {
+                sigChanged |= params.get(i) != oldParams.get(i);
+            }
+            sigChanged |= d.guard() != old.guard();
+            List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
+            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(visitor().typeSystem()) : d.exceptions();
+            SubtypeSet oldExcs = old.exceptions();
+            if (null != excs) {
+                for (Type et : excs) {
+                    sigChanged |= !oldExcs.contains(et);
+                    excTypes.add(Types.ref(et));
+                }
+            }
+            sigChanged |= d.offerType() != old.offerType();
+            if (sigChanged) {
+                List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+                List<LocalDef> formalNames = new ArrayList<LocalDef>();
+                for (int i = 0; i < params.size(); i++) {
+                    Formal p = params.get(i);
+                    argTypes.add(p.type().typeRef());
+                    formalNames.add(p.localDef());
+                }
+                return d.constructorDef(createConstructorDef(d, argTypes, formalNames));
+            }
             return d;
         }
 
@@ -1342,6 +1412,29 @@ public class Inliner extends ContextVisitor {
                                                      ot == null ? null : ot.typeRef(), 
                                                      null /* the body will never be used */ );
         }
+        
+    /**
+     * @param d
+     * @param argTypes
+     * @param formalNames
+     * @return
+     */
+        private X10ConstructorDef createConstructorDef(X10ConstructorDecl d, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames) {
+            X10ConstructorDef cd = d.constructorDef();
+            DepParameterExpr g = d.guard();
+            TypeNode ot = d.offerType();
+            return visitor().typeSystem().constructorDef(
+                    cd.position(), 
+                    (Ref<? extends ClassType>) cd.container(), 
+                    cd.flags(), 
+                    (Ref<? extends ClassType>) d.returnType().typeRef(), 
+                    argTypes, 
+                    cd.thisDef(), 
+                    formalNames,
+                    g == null ? null : g.valueConstraint(),
+                    g == null ? null : g.typeConstraint(),
+                    ot == null ? null : (Ref<? extends Type>) ot.typeRef() );
+        }
     }
 
     /**
@@ -1349,6 +1442,9 @@ public class Inliner extends ContextVisitor {
      * @return
      */
     private TypeParamSubst makeTypeMap(ProcedureInstance<? extends ProcedureDef> instance) {
+        if (instance instanceof ReinstantiatedConstructorInstance) {
+            return ((ReinstantiatedConstructorInstance) instance).typeParamSubst();
+        }
         List<Type> typeArgs = new ArrayList<Type>();
         List<ParameterType> typeParms = new ArrayList<ParameterType>();
         typeArgs.addAll(instance.typeParameters());
@@ -1360,6 +1456,15 @@ public class Inliner extends ContextVisitor {
                 typeArgs.addAll(cTypeArgs);
                 typeParms.addAll(container.x10Def().typeParameters());
             }
+        }
+        if (typeArgs.size() != typeParms.size()) {
+            String msg = "type args/parms mismatch in class " +instance.getClass();
+            System.err.println("\nDEBUG: " +msg);
+            System.err.println("\tinstance =  " +instance);
+            System.err.println("\ttypeArgs =  " +typeArgs);
+            System.err.println("\ttypeParms = " +typeParms);
+            System.err.println();
+            throw new InternalCompilerError(instance.position(), msg);
         }
         return new TypeParamSubst(xts, typeArgs, typeParms);
     }
@@ -1519,8 +1624,9 @@ public class Inliner extends ContextVisitor {
                 return visitThrow((Throw) n);
             if (n instanceof Field)
                 return visitField((Field) n);
-            if (n instanceof Call)
-                return visitCall((Call) n);
+            if (n instanceof Call) { 
+                return visitCall((Call) old, (Call) n);
+            }
             if (n instanceof X10ConstructorCall)
                 return visitX10ConstructorCall((X10ConstructorCall) n);
             if (n instanceof Special)
@@ -1662,7 +1768,7 @@ public class Inliner extends ContextVisitor {
         }
 
         // m(...) -> ths.m(...)
-        private Call visitCall(Call n) {
+        private Call visitCall(Call old, Call n) {
             // First check that we are within the right code body
             if (!context.currentCode().equals(def)) return n;
             if (!n.isTargetImplicit()) return n;
@@ -1672,6 +1778,9 @@ public class Inliner extends ContextVisitor {
             if (mi.flags().isStatic()) {
                 return n.target(nf.CanonicalTypeNode(pos, mi.container())).targetImplicit(false);
             }
+            if (old.target() instanceof Special && ((Special) old.target()).kind() == X10Special.SUPER)
+                n = n.nonVirtual(true); // make calls to "super.foo()" non-virtual
+        
             return n.target(getThis(pos)).targetImplicit(false);
         }
 
@@ -1692,27 +1801,9 @@ public class Inliner extends ContextVisitor {
             if (!context.currentCode().equals(def)) return n;
             // Make sure ths is defined
             if (null == ths) return n; // nothing to be done (e.g. "this" in a closure)
-            // Ignore X10Special.SELF
-            if (n.kind() == X10Special.SELF) return n;
-            // Method bodies with references to "super" cannot be inlined (the class super refers to would be lost)
-            if (n.kind() == Special.SUPER) {
-                String msg = "super not supported when inlining";
-                debug(msg, n);
-                Warnings.issue(job, msg, n.position());
-                failed[0] = true;
-//              throw new InternalCompilerError(msg, n.position());
-                return null;
-            }
-            assert (n.kind() == Special.THIS);
-            // Don't try to handle qualified this (inner class remover will soon obviate this case)
-            if (null != n.qualifier()) {
-                String msg = "qualified this not supported when inlining";
-                debug(msg, n);
-                Warnings.issue(job, msg, n.position());
-                failed[0] = true;
-//              throw new InternalCompilerError(msg, n.position());
-                return null;
-            }
+            // Complicated cases don't get this far
+            assert (n.kind() == X10Special.SUPER || n.kind() == X10Special.THIS);
+            assert (null == n.qualifier());
             // return a local for the inlined this
             return getThis(n.position());
         }

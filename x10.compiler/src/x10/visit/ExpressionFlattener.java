@@ -6,15 +6,12 @@ package x10.visit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assert;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
-import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit;
 import polyglot.ast.Branch;
 import polyglot.ast.Call;
@@ -62,7 +59,6 @@ import polyglot.ast.While;
 import polyglot.ast.While_c;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
-import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
@@ -96,7 +92,6 @@ import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.types.X10FieldInstance;
 import x10.util.AltSynthesizer;
-import x10.util.CollectionFactory;
 
 /**
  * @author Bowen Alpern
@@ -161,7 +156,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             if (DEBUG) System.out.println("DEBUG: flattening: " +((X10ClassDecl) n).classDef()+ " (@" +((X10ClassDecl) n).position()+ ")");
             return null;
         }
-        if (cannotFlatten(n)) return n;
+        if (cannotFlatten(n, job)) return n;
         return null;
     }
 
@@ -178,7 +173,8 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param n an AST node that might be flattened
      * @return true if the node cannot be flattened, false otherwise
      */
-    public static boolean cannotFlatten(Node n) {
+    public static boolean cannotFlatten(Node n, Job job) {
+        Position pos = n.position(); // for DEBUGGING
         if (n instanceof SourceFile){
             Source s = ((SourceFile) n).source();
             if (XTENLANG_2336 && s.name().equals("Runtime.x10")) { // BUG: cannot flatten Runtime
@@ -191,10 +187,13 @@ public final class ExpressionFlattener extends ContextVisitor {
                 return true; 
             }
         }
-        if (n instanceof ConstructorDecl) { // can't flatten constructors until local assignments can precede super() and this()
-            return true;
+        boolean javaBackend = javaBackend(job);
+        if (n instanceof ConstructorDecl) { // can't flatten constructors unless local assignments can precede super() and this() in Java
+            ConstructorDecl cd = (ConstructorDecl) n;
+            if (javaBackend || ConstructorSplitterVisitor.cannotSplitConstructor(((ConstructorDecl) n).constructorDef().container().get().toClass()))
+                    return true;
         }
-        if (n instanceof AssignPropertyCall) { // can't flatten constructors until local assignments can precede property assignments
+        if (n instanceof AssignPropertyCall && javaBackend) { // can't flatten constructors until local assignments can precede property assignments
             return true;
         }
         if (n instanceof FieldDecl) { // can't flatten class initializes until assignments can precede field declarations
@@ -212,6 +211,16 @@ public final class ExpressionFlattener extends ContextVisitor {
         return false;
     }
     
+    /**
+     * @param job
+     * @return
+     */
+    public static boolean javaBackend(Job job) {
+        if (job.extensionInfo() instanceof x10c.ExtensionInfo)
+            return true;
+        return false;
+    }
+
     @Override
     protected NodeVisitor enterCall(Node parent, Node child) {
         if (child instanceof Loop) {
