@@ -24,6 +24,7 @@ import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
+import polyglot.ast.Catch;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Do;
 import polyglot.ast.Eval;
@@ -1115,6 +1116,39 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                                           xct);
         
         return aCall;
+    }
+    
+    /**
+     * Generate
+     *   try { tryBodyStmts}
+     *   catch (t:x10.compiler.Abort) { throw t; }
+     *   catch (t:x10.lang.Throwable) { this.caught(t); }
+     * Used by Async frame and finish frame
+     * @param tryBodyStmts
+     * @return
+     * @throws SemanticException
+     */
+    Try genExceptionHandler(List<Stmt> tryBodyStmts) throws SemanticException {
+        Name formalName = xct.getNewVarName();
+        
+        Formal fa = synth.createFormal(compilerPos, wts.stolenType, formalName, Flags.NONE);
+        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.stolenType));
+        Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
+        
+        Formal f = synth.createFormal(compilerPos, xts.Throwable(), formalName, Flags.NONE);
+        Expr caught = synth.makeInstanceCall(compilerPos, getThisRef(),
+                CAUGHT, Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(
+                        xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(f.localDef().asInstance()).type(xts.Throwable())), xts.Void(),
+                Collections.<Type>singletonList(xts.Throwable()), xct);
+        Catch c = xnf.Catch(compilerPos, f, xnf.Block(compilerPos,
+                xnf.Eval(compilerPos, caught)));
+        
+        List<Catch> handlers = new ArrayList<Catch>(2);
+        handlers.add(ca);
+        handlers.add(c);
+        
+        Try t = xnf.Try(compilerPos, xnf.Block(compilerPos, tryBodyStmts), handlers);
+        return t;
     }
     
     

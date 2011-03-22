@@ -12,29 +12,14 @@
 
 package x10.compiler.ws.codegen;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import polyglot.ast.Block;
-import polyglot.ast.Catch;
 import polyglot.ast.Expr;
-import polyglot.ast.Formal;
 import polyglot.ast.Stmt;
-import polyglot.ast.Try;
-import polyglot.ast.TypeNode;
-import polyglot.types.ClassDef;
 import polyglot.types.Flags;
-import polyglot.types.Name;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import x10.ast.Finish;
 import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
-import x10.types.X10ClassType;
-import x10.util.synthesizer.ClassSynth;
 import x10.util.synthesizer.CodeBlockSynth;
-import x10.util.synthesizer.ConstructorSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.SuperCallSynth;
 import x10.util.synthesizer.SwitchSynth;
@@ -51,7 +36,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
                 WSCodeGenUtility.getFinishStmtClassName(parent.getClassName()),
                 parent.wts.finishFrameType, finishStmt.body());
         
-        if(WSOptimizeConfig.OPT_PC_FIELD == 0){
+        if(wts.codegenConfig.OPT_PC_FIELD == 0){
             addPCField();
         }
     }
@@ -76,31 +61,17 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
         
         //now add codes to three path;
-        //fast path
-        Name formalName = xct.getNewVarName();
-        
-        Formal fa = synth.createFormal(compilerPos, wts.stolenType, formalName, Flags.NONE);
-        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.stolenType));
-        Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
-        
-        Formal f = synth.createFormal(compilerPos, xts.Throwable(), formalName, Flags.NONE);
-        Expr caught = synth.makeInstanceCall(compilerPos, synth.thisRef(wts.finishFrameType, compilerPos),
-                CAUGHT, Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(
-                        xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(f.localDef().asInstance()).type(xts.Throwable())), xts.Void(),
-                Collections.<Type>singletonList(xts.Throwable()), xct);
-        Catch c = xnf.Catch(compilerPos, f, xnf.Block(compilerPos,
-                xnf.Eval(compilerPos, caught)));
-        
-        List<Catch> handlers = new ArrayList<Catch>(2);
-        handlers.add(ca);
-        handlers.add(c);
-        
-        Try t = xnf.Try(compilerPos, xnf.Block(compilerPos, callCodes.first()), handlers);
-        fastBodySynth.addStmt(t);
-        fastBodySynth.addStmt(genRethrowStmt());
+        //Finish frame only has the fast path
+        if(wts.codegenConfig.DISABLE_EXCEPTION_HANDLE == 1){
+            fastBodySynth.addStmts(callCodes.first());
+        }
+        else{
+            fastBodySynth.addStmt(genExceptionHandler(callCodes.first()));
+            fastBodySynth.addStmt(genRethrowStmt());
+        }
         
         //resume/back path
-        if(WSOptimizeConfig.OPT_PC_FIELD == 0){
+        if(wts.codegenConfig.OPT_PC_FIELD == 0){
             Expr pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
             
             SwitchSynth resumeSwitchSynth = resumeBodySynth.createSwitchStmt(compilerPos, pcRef);

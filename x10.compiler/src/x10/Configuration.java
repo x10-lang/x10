@@ -94,6 +94,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean WORK_STEALING = false;
     private static final String WORK_STEALING_desc = "Code generation for work-stealing scheduling";
 
+    public boolean WS_DISABLE_EXCEPTION_HANDLE = false;
+    private static final String WS_DISABLE_EXCEPTION_HANDLE_desc = "Disable exception handling code generation in work-stealing scheduling";
+    
     public boolean WALA = false;
     private static final String WALA_desc = "Produce WALA IR from X10 sources";
 
