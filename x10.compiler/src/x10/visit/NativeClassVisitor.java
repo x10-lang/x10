@@ -177,28 +177,6 @@ public class NativeClassVisitor extends ContextVisitor {
         String cpackage = getNativeClassPackage(cdef);
         fake.setPackage(Types.ref(ts.packageForName(QName.make(cpackage))));
 
-        // TODO refactor out to java unique path 
-        if (theLanguage.equals("java")) {
-            // copy *.java for @NativeClass from sourcepath (or classpath) to output_directory
-            Options options = ts.extensionInfo().getOptions();
-            try {
-                if (options.source_path != null && !options.source_path.isEmpty()) {
-                    for (File sourceDirOrJarFile : options.source_path) {
-                        boolean copied = X10PrettyPrinterVisitor.findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
-                        if (copied) break;
-                    }
-                } else {
-                    for (String sourceDirOrJarFilePath : options.constructPostCompilerClasspath().split(File.pathSeparator)) {
-                        File sourceDirOrJarFile = new File(sourceDirOrJarFilePath);
-                        boolean copied = X10PrettyPrinterVisitor.findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
-                        if (copied) break;
-                    }
-                }
-            } catch (IOException e) {
-                job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR, "I/O error copying Java source file: " + e.getMessage());
-            }
-        }
-
         java.util.Iterator<ParameterType> ps = cdef.typeParameters().iterator();
         java.util.Iterator<ParameterType.Variance> vs = cdef.variances().iterator();
         while (ps.hasNext()) {

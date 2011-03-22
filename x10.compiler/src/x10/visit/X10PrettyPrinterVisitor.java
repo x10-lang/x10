@@ -380,57 +380,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
-    public static boolean findAndCopySourceFile(Options options, String cpackage, String cname, File sourceDirOrJarFile)
-            throws IOException {
-        String sourceDirOrJarFilePath = sourceDirOrJarFile.getAbsolutePath();
-        if (sourceDirOrJarFile.isDirectory()) {
-            if (cpackage != null) {
-                sourceDirOrJarFilePath += File.separator + cpackage.replace('.', File.separatorChar);
-            }
-            File sourceDir = new File(sourceDirOrJarFilePath);
-            File sourceFile = new File(sourceDir, cname + ".java");
-            if (sourceFile.isFile()) { // found java source
-                // copy
-                String targetDirpath = options.output_directory.getAbsolutePath();
-                if (cpackage != null) {
-                    targetDirpath += File.separator + cpackage.replace('.', File.separatorChar);
-                }
-                File targetDir = new File(targetDirpath);
-                targetDir.mkdirs();
-                File targetFile = new File(targetDir, cname + ".java");
-                FileUtils.copyFile(sourceFile, targetFile);
-                return true;
-            }
-        } else if (sourceDirOrJarFile.isFile()
-                && (sourceDirOrJarFilePath.endsWith(".jar") || sourceDirOrJarFilePath.endsWith(".zip"))) {
-            String sourceFilePathInJarFile = cpackage != null ? (cpackage.replace('.', '/') + '/') : "";
-            sourceFilePathInJarFile += cname + ".java";
-            JarFile jarFile = new JarFile(sourceDirOrJarFile);
-            Enumeration<JarEntry> e = jarFile.entries();
-            while (e.hasMoreElements()) {
-                JarEntry jarEntry = e.nextElement();
-                String entryName = jarEntry.getName();
-                if (entryName.equals(sourceFilePathInJarFile)) { // found java
-                                                                 // source
-                    // copy
-                    String targetDirpath = options.output_directory.getAbsolutePath();
-                    if (cpackage != null) {
-                        targetDirpath += File.separator + cpackage.replace('.', File.separatorChar);
-                    }
-                    File targetDir = new File(targetDirpath);
-                    targetDir.mkdirs();
-                    File targetFile = new File(targetDir, cname + ".java");
-                    InputStream sourceInputStream = jarFile.getInputStream(jarEntry);
-                    long sourceSize = jarEntry.getSize();
-                    FileUtils.copyFile(sourceInputStream, sourceSize, targetFile);
-                    return true;
-                }
-            }
-
-        }
-        return false;
-    }
-
     @Override
     public void visit(X10ClassDecl_c n) {
         String className = n.classDef().name().toString();
@@ -454,36 +403,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (Emitter.getJavaRep(def) != null) {
             w.write(";");
             w.newline();
-
-            // copy *.java for @NativeRep from sourcepath (or classpath) to
-            // output_directory
-            String cpackage = null;
-            String cname = Emitter.getJavaRep(def);
-            int index = cname.lastIndexOf('.');
-            if (index >= 0) {
-                cpackage = cname.substring(0, index);
-                cname = cname.substring(index + 1);
-            }
-            Options options = xts.extensionInfo().getOptions();
-            try {
-                if (options.source_path != null && !options.source_path.isEmpty()) {
-                    for (File sourceDirOrJarFile : options.source_path) {
-                        boolean copied = findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
-                        if (copied) break;
-                    }
-                } else {
-                    for (String sourceDirOrJarFilePath : options.constructPostCompilerClasspath()
-                            .split(File.pathSeparator)) {
-                        File sourceDirOrJarFile = new File(sourceDirOrJarFilePath);
-                        boolean copied = findAndCopySourceFile(options, cpackage, cname, sourceDirOrJarFile);
-                        if (copied) break;
-                    }
-                }
-            } catch (IOException e) {
-                tr.job().compiler().errorQueue()
-                        .enqueue(ErrorInfo.IO_ERROR, "I/O error copying Java source file: " + e.getMessage());
-            }
-
             return;
         }
 
