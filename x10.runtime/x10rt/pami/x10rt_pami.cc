@@ -224,8 +224,9 @@ void x10rt_local_probe(pami_context_t context)
 		status = PAMI_Context_lock(context);
 		if (status != PAMI_SUCCESS) error ("Unable to lock the PAMI context");
 		status = PAMI_Context_advance(context, 100);
-		status = PAMI_Context_unlock(context);
-		if (status != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
+		if (PAMI_Context_unlock(context) != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
+		if (status == PAMI_EAGAIN)
+			sched_yield();
 	}
 }
 
@@ -285,11 +286,11 @@ static void local_msg_dispatch (
 	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
 	{
 		struct x10rt_msg_params *hdr = (struct x10rt_msg_params *)malloc(sizeof(struct x10rt_msg_params));
+		if (hdr == NULL) error("Unable to allocate memory for a msg_dispatch callback");
 		hdr->dest_place = state.myPlaceId;
 		hdr->len = pipe_size; // this is going to be large-ish, otherwise recv would be null
 		hdr->msg = malloc(pipe_size);
-		if (hdr->msg == NULL)
-			error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
+		if (hdr->msg == NULL) error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
 		hdr->type = *((x10rt_msg_type*)header_addr);
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u waiting on a partially delivered message %i, len=%lu\n", state.myPlaceId, hdr->type, pipe_size);
@@ -370,6 +371,7 @@ static void local_put_dispatch (
 
 	// else, all the data is available, and ready to process
 	struct x10rt_pami_header_data* localParameters = (struct x10rt_pami_header_data*)malloc(sizeof(struct x10rt_pami_header_data));
+	if (localParameters == NULL) error("Unable to allocate memory for a local_put_dispatch header");
 	struct x10rt_pami_header_data* incomingParameters = (struct x10rt_pami_header_data*) header_addr;
 	localParameters->x10msg.dest_place = state.myPlaceId;
 	localParameters->data_len = incomingParameters->data_len;
@@ -379,8 +381,7 @@ static void local_put_dispatch (
 	if (pipe_size > 0)
 	{
 		localParameters->x10msg.msg = malloc(pipe_size);
-		if (localParameters->x10msg.msg == NULL)
-			error("Unable to malloc a buffer to hold incoming PUT data");
+		if (localParameters->x10msg.msg == NULL) error("Unable to malloc a buffer to hold incoming PUT data");
 		memcpy(localParameters->x10msg.msg, pipe_addr, pipe_size); // save the message for later
 	}
 	else
@@ -484,6 +485,7 @@ static void local_get_dispatch (
 
 	// else, all the data is available, and ready to process
 	x10rt_msg_params* localParameters = (x10rt_msg_params*) malloc(sizeof(x10rt_msg_params));
+	if (localParameters == NULL) error("Unable to allocate memory for a local_get_dispatch header");
 	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*) header_addr;
 	localParameters->dest_place = state.myPlaceId;
 	localParameters->type = header->x10msg.type;
@@ -568,14 +570,13 @@ static void team_creation_complete (pami_context_t   context,
 			fprintf(stderr, "New team %u created at place %u\n", team->teamIndex, state.myPlaceId);
 		#endif
 		team->cb2(team->teamIndex, team->arg);
-		free(cookie);
+		free(team);
 	}
 	#ifdef DEBUG
 	else
-		fprintf(stderr, "New team created at place %u\n", state.myPlaceId);
-	#endif
-	#ifdef DEBUG
-		fprintf(stderr, "New team callback at place %u complete.\n", state.myPlaceId);
+		fprintf(stderr, "New team created at place %u (no cookie)\n", state.myPlaceId);
+
+	fprintf(stderr, "New team callback at place %u complete.\n", state.myPlaceId);
 	#endif
 }
 
@@ -648,9 +649,12 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		state.threadMap[0] = pthread_self();
 		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u initializing %i contexts for %i static worker threads\n", state.myPlaceId, state.numParallelContexts, state.numParallelContexts);
+		#endif
+
 		for (int i=0; i<state.numParallelContexts; i++)
 			initializeContext(i);
-
 	}
 	else
 	{
@@ -658,12 +662,11 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		state.threadMap = NULL;
 		state.context = (pami_context_t*)malloc(sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u initializing 1 context to be used by all non-static worker threads\n", state.myPlaceId);
+		#endif
 		initializeContext(0);
 	}
-
-	#ifdef DEBUG
-		fprintf(stderr, "Initializing contexts for %s worker threads\n", (state.numParallelContexts==0)?"static":"all (non-static)");
-	#endif
 
 	pami_configuration_t configuration;
 	configuration.name = PAMI_CLIENT_TASK_ID;
@@ -683,6 +686,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	// create the world geometry
 	if (pthread_mutex_init(&state.teamLock, NULL) != 0) error("Unable to initialize the team lock");
 	state.teams = (x10rt_pami_team*)malloc(sizeof(x10rt_pami_team));
+	if (state.teams == NULL) error("Unable to allocate memory for teams data");
 	state.lastTeamIndex = 0;
 	state.teams[0].size = state.numPlaces;
 	state.teams[0].places = NULL;
@@ -877,6 +881,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		error("Unable to create a target endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
 	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*)malloc(sizeof(struct x10rt_pami_header_data));
+	if (header == NULL) error("Unable to allocate memory for a send_get header");
 	header->data_len = len;
 	header->data_ptr = buf;
 	header->x10msg.type = p->type;
@@ -886,8 +891,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	if (p->len > 0)
 	{
 		header->x10msg.msg = malloc(p->len);
-		if (header->x10msg.msg == NULL)
-			error("Unable to malloc msg space for a GET");
+		if (header->x10msg.msg == NULL) error("Unable to malloc msg space for a GET");
 		memcpy(header->x10msg.msg, p->msg, p->len);
 	}
 	else
@@ -1005,6 +1009,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	#endif
 
 	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
+	if (cookie == NULL) error("Unable to allocate memory for a team_new header");
 	cookie->cb2 = ch;
 	cookie->arg = arg;
 	cookie->teamIndex = newTeamId;
@@ -1104,8 +1109,8 @@ static void split_stage2 (pami_context_t   context,
 	pami_result_t   status = PAMI_ERROR;
 	pami_geometry_t parentGeometry = state.teams[cbd->teamIndex].geometry;
 	cbd->teamIndex = myNewTeamIndex;
-	// TODO - interestingly, I need to call getContext() here.  The context that comes in via the method call is null!  Probably a PAMI bug.
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, getContext(), team_creation_complete, cbd);
+	// TODO - interestingly, the context that comes in via the method call is sometimes null.  Probably a PAMI bug.
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, (state.numParallelContexts==0)?state.context[0]:context, team_creation_complete, cbd);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
 
@@ -1115,6 +1120,9 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	// we need to determine how many new teams are getting created (# of colors), and who is in each team.
 	// we learn this through an all-to-all
 
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u splitting team %u, new color=%u\n", state.myPlaceId, parent, color);
+	#endif
 	unsigned parentTeamSize = x10rt_net_team_sz(parent);
 	// allocate a buffer to hold the color for each place
 	x10rt_place *colors = (x10rt_place*) malloc(sizeof(x10rt_place) * parentTeamSize);
@@ -1138,6 +1146,7 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 
 	// select a algorithm, and issue the collective
 	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *)malloc(sizeof(x10rt_pami_team_create));
+	if (cbd == NULL) error("Unable to allocate memory for a team split structure");
 	cbd->cb2 = ch;
 	cbd->arg = arg;
 	cbd->colors = colors;
@@ -1155,9 +1164,6 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	operation.cmd.xfer_allgather.stype = PAMI_TYPE_CONTIGUOUS;
 	operation.cmd.xfer_allgather.stypecount = sizeof(x10rt_place);
 
-	#ifdef DEBUG
-		fprintf(stderr, "Splitting team %u\n", parent);
-	#endif
 	status = PAMI_Collective(context, &operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all for team_split");
 }
@@ -1216,6 +1222,7 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 
 	// select a algorithm, and issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -1270,6 +1277,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 
 	// select a algorithm, and issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for a broadcast callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -1336,6 +1344,7 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 
 	// select a algorithm, and issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for a scatter callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -1451,6 +1460,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 
 	// select a algorithm, and issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for a allreduce callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
