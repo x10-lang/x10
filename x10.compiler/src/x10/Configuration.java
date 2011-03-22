@@ -112,8 +112,8 @@ public final class Configuration extends x10.config.Configuration {
     public boolean FINISH_ASYNCS = false;
     private static final String FINISH_ASYNCS_desc = "finish-async analysis.";
 
-    public boolean MULTI_NODE = true;
-    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
+//    public final boolean MULTI_NODE = true;
+//    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
 
     /**
      * Parses one argument from the command line.  This allows the user
