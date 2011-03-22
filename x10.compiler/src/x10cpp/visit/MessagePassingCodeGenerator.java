@@ -2883,7 +2883,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            !xts.typeEquals(fType, a.type(), context) && !(xts.isParameterType(fType) && a.type().isNull())) {
 		        a = cast(a, fType);
 		    }
-		    params.add(mi.formalNames().get(counter).name().toString());
+		    params.add(mi.def().formalNames().get(counter).name().toString());
 		    args.add(a);
 		    counter++;
 		}

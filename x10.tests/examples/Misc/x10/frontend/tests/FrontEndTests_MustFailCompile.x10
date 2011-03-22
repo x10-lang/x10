@@ -172,9 +172,9 @@ class FinalFieldWrittenExactlyOnce {
 	def this(Float) { 
 		async f=1; 
 		f=2; // ERR
-	}
+	} 
 	def this(Byte) { 
-		if (flag) f=1; 
+		if (flag) f=1;
 		f=2; // ERR
 	}
 	def this(Long) { // ERR

@@ -831,7 +831,7 @@ public class Types {
 	    if (sizeField == null)
 	        throw new InternalCompilerError("Could not find size field of " + t, pos);
 	    try {
-	        XVar selfSize = ts.xtypeTranslator().translate(c.self(), sizeField);
+	        XTerm selfSize = ts.xtypeTranslator().translate(c.self(), sizeField);
 	        XLit sizeLiteral = XTypeTranslator.translate(size);
 	        c.addBinding(selfSize, sizeLiteral);
 	        Type result = Types.xclause(t, c);
@@ -869,10 +869,10 @@ public class Types {
 
 	    XTypeTranslator xt = ts.xtypeTranslator();
 	    XVar self = c.self();
-	    XVar selfRank = xt.translate(self, rankField);
-	    XVar selfRect = xt.translate(self, rectField);
-	    XVar selfZeroBased = xt.translate(self, zeroBasedField);
-	    XVar selfRail = xt.translate(self, railField);
+	    XTerm selfRank = xt.translate(self, rankField);
+	    XTerm selfRect = xt.translate(self, rectField);
+	    XTerm selfZeroBased = xt.translate(self, zeroBasedField);
+	    XTerm selfRail = xt.translate(self, railField);
 
 	    XLit rankLiteral = XTerms.makeLit(1);
 	    c.addBinding(selfRank, rankLiteral);

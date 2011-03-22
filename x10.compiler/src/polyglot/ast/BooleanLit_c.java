@@ -18,6 +18,9 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
+import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 
 /**
@@ -46,13 +49,16 @@ public class BooleanLit_c extends Lit_c implements BooleanLit
 
   /** Type check the expression. */
   public Node typeCheck(ContextVisitor tc) {
-      TypeSystem xts = (TypeSystem) tc.typeSystem();
+      TypeSystem xts =  tc.typeSystem();
 	  Type Boolean =  xts.Boolean();
 	 
 	  CConstraint c = new CConstraint();
-	  XTerm term = xts.xtypeTranslator().translate(c, this.type(Boolean), (Context) tc.context());
-	  c.addSelfBinding(term);
-
+	  try {
+		  XTerm term = xts.xtypeTranslator().translate(c, this.type(Boolean),  tc.context());
+		  c.addSelfBinding(term);
+	  } catch (IllegalConstraint z) {
+		  Errors.issue(tc.job(), z);
+	  }
 	  Type newType = Types.xclause(Boolean, c);
 	  return type(newType);
   }

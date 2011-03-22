@@ -17,6 +17,8 @@ import java.util.List;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode_c;
+import polyglot.ast.Binary;
+import polyglot.ast.Binary.Operator;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
@@ -28,6 +30,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -53,9 +56,11 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import x10.errors.Warnings;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
@@ -354,9 +359,41 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
                 foundError = true;
             }
         }
+        // Do not permit arguments to macro calls to be Boolean and
+        // &&, || or !. These cannot be handled by the constraint system.
+        class CheckMacroCallArgsVisitor extends NodeVisitor {
+        	IllegalConstraint error;
+        	@Override
+        	public Node override(Node n) {
+        		if (n instanceof Binary ) {
+        			Binary b = (Binary) n;
+        			Binary.Operator bop = b.operator();
+        			if (b.type().isBoolean() && bop.equals(Binary.COND_AND) 
+        					|| bop.equals(Binary.COND_OR)) {
+        				error = new IllegalConstraint(b);
+        			}
+        		}
+        		if (n instanceof Unary) {
+        			Unary u = (Unary) n;
+        			Unary.Operator uop = u.operator();
+        			if (u.type().isBoolean() && uop.equals(Unary.NOT)) {
+        				error = new IllegalConstraint(u);
+        			}
+        		}
+        		return null;
+        	}
+        }
+        CheckMacroCallArgsVisitor v = new CheckMacroCallArgsVisitor();
+        for (Expr arg : args) {
+        	arg = (Expr) arg.visit(v);
+        	if (v.error !=null) {
+        		Errors.issue(tc.job(), v.error);
+        	}
+        }
         try {
             tn = n.disambiguateBase(tc);
         }
+        
         catch (SemanticException e) {
             if (!foundError) {
                 // Mark the type resolved to prevent us from trying to resolve this again and again.

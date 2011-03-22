@@ -47,9 +47,11 @@ public class BuiltInTypeRules {
 	        if (!ts.isUnknown(type)) {
 	        	ConstrainedType result = Types.toConstrainedType(type);
 	            result = (ConstrainedType) Types.addTerm(result, result.makeZeroBased());
+	        	result=result.addNonNull();
 	            return result;
 	        }
 	    }
+	
 	    return type;
 	}
 
@@ -89,6 +91,7 @@ public class BuiltInTypeRules {
 			ct = ct.addZeroBased();
 		}
 		assert selfVar == ct.selfVar();
+		ct=ct.addNonNull();
 		return ct;
 	}
 	   /**
@@ -119,6 +122,7 @@ public class BuiltInTypeRules {
             ct = ct.addZeroBased();
         }
         assert selfVar == ct.selfVar();
+    	ct=ct.addNonNull();
         return ct;
     }
 	
@@ -135,7 +139,7 @@ public class BuiltInTypeRules {
 		// Support conjunction of boolean terms.
 		// Once we shift to Shostak we will have more comprehensive
 		// support for all operators.
-		if (l.isBoolean() && r.isBoolean()) {
+		/*if (l.isBoolean() && r.isBoolean()) {
 
 			XTerm xt = Types.selfBinding(l);
 			if (xt != null) {
@@ -144,7 +148,8 @@ public class BuiltInTypeRules {
 				    result = Types.addSelfBinding(result, XTerms.makeAnd(xt, yt));
 				}
 			}
-		}
+		}*/
+		
 		return result;
 	}
 }

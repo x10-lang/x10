@@ -209,6 +209,10 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	        return;
 	    }
 	    AddInVisitor v = new AddInVisitor(this, newSelf, c.self());
+	    // hideFake==false to permit the "place checking" to work.
+	    // This ensures that multiple objects created at the same place
+	    // e.g. GlobalRef's, are treated as being at the same place by the 
+	    // type-checker.
 	    c.visit(true, false, v);
 	    // vj: What about thisVar for c? Should that be added?
 	    // thisVar = getThisVar(this, c);
@@ -225,6 +229,16 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	public void addSelfBinding(XTerm var) {
 		addBinding(self(), var);
 	}
+	
+	 /**
+	  * 
+	 * Add the binding selfVar != term to this constraint, possibly
+	 * modifying it in place.
+	  * @param var
+	  */
+		public void addSelfDisBinding(XTerm term) {
+			addDisBinding(self(), term);
+		}
 	/**
 	 * Add the binding selfVar == var to this constraint, possibly
 	 * modifying it in place.

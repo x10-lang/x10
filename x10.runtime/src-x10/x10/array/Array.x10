@@ -221,7 +221,8 @@ public final class Array[T] (
      */
     public def this(size:int) {T haszero}
     {
-        val myReg = new RectRegion(0, size-1);
+        val myReg = new RectRegion(0, size-1) 
+             as Region{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
         property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
@@ -248,7 +249,7 @@ public final class Array[T] (
      */    
     public def this(size:int, init:(int)=>T)
     {
-        val myReg = new RectRegion(0, size-1);
+        val myReg = new RectRegion(0, size-1) as Region{self.zeroBased, self.rail,self.rank==1,self.rect, self!=null};
         property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
@@ -270,7 +271,8 @@ public final class Array[T] (
      */    
     public def this(size:int, init:T)
     {
-        val myReg = new RectRegion(0, size-1);
+        val myReg = new RectRegion(0, size-1)
+           as Region{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
         property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
@@ -303,7 +305,7 @@ public final class Array[T] (
      * 
      * @param init The remote array to copy.
      */    
-    public def this(init:RemoteArray[T]{init.home==here})
+    public def this(init:RemoteArray[T]{init.array.home==here})
     {
         this((init.array)());
     }

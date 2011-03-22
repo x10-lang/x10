@@ -41,7 +41,8 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
 
     public def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int, isSimplified:boolean) {
         super(rows, cols, new Array[PolyRow](rows, (i:Int)=>new PolyRow(cols, (j:Int)=>init(i,j))));
-        property(cols-1);
+        val cols1 = cols-1;
+        property(cols1);
         this.isSimplified = isSimplified;
     }
 

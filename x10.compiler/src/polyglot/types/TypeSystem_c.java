@@ -1634,18 +1634,17 @@ public class TypeSystem_c implements TypeSystem
 			    // Treat any instantiation errors as call invalid errors.
 			    if (error == null)
 				error = new NoMemberException(NoMemberException.METHOD,
-				                              "Method " + mi.signature() +
-				                              " in " + container +
-				                              " cannot be called with arguments " +
-				                              matcher.argumentString() + "; " + e.getMessage());
+				                              "Method cannot be called with argument: " + e.getMessage() +
+				                              " \n\t Method:  " + container + "." + mi.signature() +
+				                              " \n\t Argument:  " +  matcher.argumentString());
 			}
 
 			if (error == null) {
 			    error = new NoMemberException(NoMemberException.METHOD,
-			                                  "Method " + mi.signature() +
-			                                  " in " + container +
-			                                  " cannot be called with arguments " +
-			                                  matcher.argumentString() + ".");
+			    		"Method cannot be called with argument. "  +
+                        " \n\t Method:  " + container + "." + mi.signature() +
+                        " \n\t Argument:  " +  matcher.argumentString());
+			             
 			}
 		    }
 		}
@@ -4012,6 +4011,7 @@ public class TypeSystem_c implements TypeSystem
 
 
     public Type expandMacros(Type t) {
+    
         return expandMacros(t, 0);
     }
     private Type expandMacros(Type t, int depth) {

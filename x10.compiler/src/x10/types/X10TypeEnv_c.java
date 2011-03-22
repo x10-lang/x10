@@ -1772,12 +1772,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
 
         List<LocalInstance> miFormals = mi.formalNames();
-        assert miFormals.size() ==  mj.formalNames().size();
         
         XVar[] newSymbols = genSymbolicVars(mj.formalNames().size());
         TypeSystem xts = (TypeSystem) mi.typeSystem();
-        XVar[] miSymbols = Matcher.getSymbolicNames(mi.formalTypes(), mi.formalNames(),xts);
-        XVar[] mjSymbols = Matcher.getSymbolicNames(mj.formalTypes(), mj.formalNames(),xts);
+        XVar[] miSymbols = Matcher.getSymbolicNames(mi.formalNames(),xts);
+        XVar[] mjSymbols = Matcher.getSymbolicNames(mj.formalNames(),xts);
         
         TypeParamSubst tps = new TypeParamSubst(xts, mi.typeParameters(), mj.x10Def().typeParameters());
         assert (mi.typeParameters().size() == mj.typeParameters().size() &&
@@ -1809,13 +1808,37 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             throw new Errors.IncompatibleReturnType(mi, mj);
         } 
 
-    
+        // FIXME: is this the same as entails(CConstraint, CConstraint)?
+        boolean entails = true;
+        final CConstraint mig = Subst.subst(mi.guard(), newSymbols, miSymbols);
+        final CConstraint mjg = Subst.subst(mj.guard(), newSymbols, mjSymbols);
+        if (mjg == null) {
+            entails = mig == null || mig.valid();
+        }
+        else {
+            entails = mig == null 
+            || mjg.entails(mig, new ConstraintMaker() {
+                public CConstraint make() throws XFailure {
+                    return  context.constraintProjection(mjg, mig);
+                }
+            });          
+        }
+
+        if (! entails) {
+            throw new SemanticException(mi.signature() + " in " + mi.container()
+                                        +" cannot override " +mj.signature() 
+                                        + " in " + mj.container() 
+                                        +"; method guard is not entailed.",
+                                        mi.position());
+        }
 
         if (mi.flags().moreRestrictiveThan(mj.flags())) {
             if (reporter.should_report(Reporter.types, 3))
                 reporter.report(3, mi.flags() + " more restrictive than " +
                               mj.flags());
-            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; attempting to assign weaker " +"access privileges",mi.position());
+            throw new SemanticException(mi.signature() + " in " 
+            		+ mi.container() +" cannot override " +mj.signature() 
+            		+ " in " + mj.container() +"; attempting to assign weaker " +"access privileges",mi.position());
         }
 
         if (mi.flags().isStatic() != mj.flags().isStatic()) {
@@ -1824,14 +1847,18 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                               (mi.flags().isStatic() ? "" : "not") + 
                               " static but " + mj.signature() + " is " +
                               (mj.flags().isStatic() ? "" : "not") + " static");
-            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; overridden method is " +(mj.flags().isStatic() ? "" : "not") +"static",mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container()
+            		+" cannot override " +mj.signature() + " in " + mj.container()
+            		+"; overridden method is " +(mj.flags().isStatic() ? "" : "not") +"static",mi.position());
         }
 
         if (! mi.def().equals(mj.def()) && mj.flags().isFinal()) {
             // mi can "override" a final method mj if mi and mj are the same method instance.
             if (reporter.should_report(Reporter.types, 3))
                 reporter.report(3, mj.flags() + " final");
-            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; overridden method is final",mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() 
+            		+" cannot override " +mj.signature() + " in " + mj.container()
+            		+"; overridden method is final",mi.position());
         }
     }
 
@@ -1863,30 +1890,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         superCheckOverride(mi, mj, allowCovariantReturn);
 
-        // FIXME: is this the same as entails(CConstraint, CConstraint)?
-        boolean entails = true;
-        if (mj.guard() == null) {
-            entails = mi.guard() == null || mi.guard().valid();
-        }
-        else {
-
-            final MethodInstance mii = mi;
-            final MethodInstance mjj = mj;
-            entails = mi.guard() == null 
-            || mj.guard().entails(mi.guard(), new ConstraintMaker() {
-                public CConstraint make() throws XFailure {
-                    return  context.constraintProjection(mjj.guard(), mii.guard());
-                }
-            });          
-        }
-
-        if (! entails) {
-            throw new SemanticException(mi.signature() + " in " + mi.container()
-                                        +" cannot override " +mj.signature() 
-                                        + " in " + mj.container() 
-                                        +"; method guard is not entailed.",
-                                        mi.position());
-        }
+       
 
         Flags miF = mi.flags();
         Flags mjF = mj.flags();

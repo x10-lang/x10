@@ -388,6 +388,10 @@ public abstract class Region(
     //
     // conversion
     //
+    /**
+     * An Array of k Region(1)'s can be converted into a Region(k), by 
+     * multiplying them.
+     */
     public static operator[T] (a:Array[T](1)){T<:Region(1){self.rect}}:Region(a.size){self.rect} = make[T](a);
 
     // NOTE: This really should be 
@@ -396,6 +400,7 @@ public abstract class Region(
     // Therefore we make this one slightly less general than it should be as the least bad
     // alternative (since Regions has quite a few properties that may be inferred, it is best to
     // use our one truly generic Array conversion operator on Array[Region]
+  //  public static operator[T] (a:Array[T](1)){T<:IntRange}:Region(a.size){self.rect}{
     public static operator (a:Array[IntRange{self!=null}](1)):Region(a.size){self.rect} {
         val mins = new Array[int](a.size, (i:int)=>a(i).min);
         val maxs = new Array[int](a.size, (i:int)=>a(i).max);
@@ -450,7 +455,8 @@ public abstract class Region(
 
     protected def this(r: int, t: boolean, z: boolean)
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
-        property(r, t, z, (r == 1) && t && z);
+        val isRail = (r == 1) && t && z;
+        property(r, t, z, isRail);
     }
 
     /**

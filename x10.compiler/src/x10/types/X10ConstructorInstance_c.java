@@ -158,6 +158,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     
     public List<LocalInstance> formalNames() {
 	if (this.formalNames == null) {
+		// Why is this not cached in this.formalNames?
 	    return new TransformingList<LocalDef, LocalInstance>(x10Def().formalNames(),
 	        new Transformation<LocalDef,LocalInstance>() {
 	            public LocalInstance transform(LocalDef o) {

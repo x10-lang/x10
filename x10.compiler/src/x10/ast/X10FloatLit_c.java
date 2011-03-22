@@ -20,6 +20,8 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import polyglot.types.Context;
 
 import polyglot.types.TypeSystem;
@@ -49,8 +51,12 @@ public class X10FloatLit_c extends FloatLit_c {
 	    Type type = (kind == FLOAT ? xts.Float() : xts.Double());
 
 	    CConstraint c = new CConstraint();
-	    XTerm term = xts.xtypeTranslator().translate(c, this.type(type), (Context) tc.context());
-	    c.addSelfBinding(term);
+	    try {
+	    	XTerm term = xts.xtypeTranslator().translate(c, this.type(type),  tc.context());
+	    	 c.addSelfBinding(term);
+	    } catch (IllegalConstraint z) {
+	    	Errors.issue(tc.job(), z);
+	    }
 	    Type newType = Types.xclause(type, c);
 	    return type(newType);
 	}

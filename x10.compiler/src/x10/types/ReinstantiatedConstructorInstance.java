@@ -48,9 +48,15 @@ final class ReinstantiatedConstructorInstance extends X10ConstructorInstance_c {
 		return formalTypes;
 	}
 
+	/** Use the default formal names only if new names have not been explicitly
+	 * provided.
+	 * 
+	 */
 	@Override
 	public List<LocalInstance> formalNames() {
+		if (formalNames == null)
 		return this.typeParamSubst.reinstantiate(fi.formalNames());
+		return formalNames;
 	}
 
 	@Override

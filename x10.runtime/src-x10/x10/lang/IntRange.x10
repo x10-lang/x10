@@ -61,7 +61,9 @@ public final class IntRange(
     public operator this - (i:int) = new IntRange(min-i, max-i);
     public operator this - (p:Point(1)) = new IntRange(min-p(0), max-p(0));
     
-    public operator this -> (p:Place) = Dist.makeConstant(this, p);
+    public operator this && (that:Region(1)): Region(1) = (this as Region(1)) && that;
+
+    public operator this -> (p:Place) = Dist.makeConstant(this as Region(1), p);
 
     public operator (i:Int) in this = min <= i && i <= max;
     public operator (p:Point(1)) in this = min <= p(0) && p(0) <= max;

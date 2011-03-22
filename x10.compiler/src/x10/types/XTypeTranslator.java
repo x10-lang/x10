@@ -60,6 +60,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -88,9 +89,9 @@ public class XTypeTranslator {
         ts = xts;
     }
 
-    public static XTerm translate(CConstraint c, Receiver r, TypeSystem xts, Context xc)  {
-        return xts.xtypeTranslator().translate(c, r, xc);
-    }
+    //public static XTerm translate(CConstraint c, Receiver r, TypeSystem xts, Context xc)  {
+    //    return xts.xtypeTranslator().translate(c, r, xc);
+    //}
     
     /**
      * Translate the given AST term to an XTerm using information in the constraint
@@ -103,8 +104,13 @@ public class XTypeTranslator {
      * @param xc -- the context in which the term is to be translated
      * @return null if the translation is not possible. Caller must always check.
      * FIX: Remove the need for the constraint to be passed into translate.
+     * 
+     * If tolevel is true, then boolean connectives, && are permitted.
      */
-    public XTerm translate(CConstraint c, Receiver term, Context xc)  {
+    public XTerm translate(CConstraint c, Receiver term, Context xc)  throws IllegalConstraint {
+    	return translate(c, term, xc, false);
+    }
+   public XTerm translate(CConstraint c, Receiver term, Context xc, boolean tl)  throws IllegalConstraint {
         if (term == null)
             return null;
         if (term instanceof Lit)
@@ -112,9 +118,9 @@ public class XTypeTranslator {
         if (term instanceof Here)
             return transHere();
         if (term instanceof Variable)
-            return trans(c, (Variable) term, xc);
+            return trans(c, (Variable) term, xc, tl);
         if (term instanceof X10Special)
-            return trans(c, (X10Special) term, xc);
+            return trans(c, (X10Special) term, xc, tl);
         if (term instanceof Expr && ts.isUnknown(term.type()))
             return null;
         if (term instanceof Expr) {
@@ -124,28 +130,28 @@ public class XTypeTranslator {
         }
         if (term instanceof X10Cast) {
             X10Cast cast = ((X10Cast) term);
-            return translate(c, cast.expr().type(cast.type()), xc);
+            return translate(c, cast.expr().type(cast.type()), xc, tl);
         }
         if (term instanceof Call) {
-            return trans(c, (Call) term, xc);
+            return trans(c, (Call) term, xc, tl);
         }
         if (term instanceof Tuple) {
-            return trans(c, (Tuple) term, xc);
+            return trans(c, (Tuple) term, xc, tl);
         }
         if (term instanceof Unary) {
             Unary u = (Unary) term;
             Expr t2 = u.expr();
             Unary.Operator op = u.operator();
             if (op == Unary.POS)
-                return translate(c, t2, xc);
+                return translate(c, t2, xc, tl);
             return null; // no other unary operator supported
         }
         if (term instanceof Binary)
-            return trans(c, (Binary) term, xc);
+            return trans(c, (Binary) term, xc, tl);
         if (term instanceof TypeNode)
             return trans(c, (TypeNode) term);
         if (term instanceof ParExpr)
-            return translate(c, ((ParExpr) term).expr(), xc);
+            return translate(c, ((ParExpr) term).expr(), xc, tl);
         return null;
     }
 
@@ -157,7 +163,7 @@ public class XTypeTranslator {
      * @param fi
      * @return
      */
-    public XVar translate(XVar var, FieldInstance fi) {
+    public XVar translate(XVar var, FieldInstance fi, boolean ignore) {
         // Warning -- used to have a string that did not contain container()#.
         return CTerms.makeField(var, fi.def());
     }
@@ -171,6 +177,9 @@ public class XTypeTranslator {
      * @return
      */
     public XTerm translate(XTerm target, FieldInstance fi) {
+    	return translate(target, fi, false);
+    }
+    XTerm translate(XTerm target, FieldInstance fi, boolean ignore) {
         if (fi == null)
             return null;
         try {
@@ -393,13 +402,15 @@ public class XTypeTranslator {
             return c;
 
         if (! term.type().isBoolean())
-            throw new SemanticException("Cannot build constraint from expression |" + term + "| of type " + term.type() + "; not a boolean.");
+            throw new SemanticException("Cannot build constraint from expression |" 
+            		+ term + "| of type " + term.type() + "; not a boolean.", term.position());
 
         // TODO: handle the formals.
-        XTerm t = translate(c, term, xc);
+        XTerm t= translate(c, term, xc, true);
+        
 
         if (t == null)
-            throw new SemanticException("Cannot build constraint from expression |" + term + "|.");
+            throw new SemanticException("Cannot build constraint from expression |" + term + "|.", term.position());
 
         try {
             c.addTerm(t);
@@ -416,7 +427,9 @@ public class XTypeTranslator {
             return c;
 
         if (! term.type().isBoolean())
-            throw new SemanticException("Cannot build constraint from expression |" + term + "| of type " + term.type() + "; not a boolean.");
+            throw new SemanticException("Cannot build constraint from expression |"
+            		+ term + "| of type " + term.type() + "; not a boolean.",
+            		term.position());
 
         // TODO: handle the formals.
 
@@ -474,12 +487,14 @@ public class XTypeTranslator {
         XTerm v;
 
         if (t.operator() == Binary.COND_AND 
-                || (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
+                || (t.operator() == Binary.BIT_AND 
+                		&& ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
             transType(c, left, xc);
             transType(c, right, xc);
         }
         else {
-            throw new SemanticException("Cannot translate " + t + " into a type constraint.", t.position());
+            throw new SemanticException("Cannot translate " + t 
+            		+ " into a type constraint.", t.position());
         }
     }
 
@@ -496,7 +511,8 @@ public class XTypeTranslator {
             transType(c, (HasZeroTest) t, xc);
         }
         else {
-            throw new SemanticException("Cannot translate " + t + " into a type constraint.", t.position());
+            throw new SemanticException("Cannot translate " + t 
+            		+ " into a type constraint.", t.position());
         }
     }
 
@@ -533,13 +549,15 @@ public class XTypeTranslator {
         return result;
     }
 
-    private XTerm trans(CConstraint c, Binary t, Context xc) {
+    
+    private XTerm trans(CConstraint c, Binary t, Context xc, boolean tl) throws IllegalConstraint {
         Expr left = t.left();
         Expr right = t.right();
         XTerm v = null;
-        XTerm lt = translate(c, left, xc);
-        XTerm rt = translate(c, right, xc);
+      
         Operator op = t.operator();
+        XTerm lt = translate(c, left, xc, op==Binary.COND_AND); // Not top-level, unless op==&&
+        XTerm rt = translate(c, right, xc,op==Binary.COND_AND); // Not top-level, unless op==&&
         if (lt == null || rt == null)
             return null;
         if (op == Binary.EQ || op == Binary.NE) {
@@ -555,24 +573,29 @@ public class XTypeTranslator {
 
             v = op == Binary.EQ ? XTerms.makeEquals(lt, rt): XTerms.makeDisEquals(lt, rt);
         }
-        else if (t.operator() == Binary.COND_AND 
-                || (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
-            v = XTerms.makeAnd(lt, rt);
+        else if (op == Binary.COND_AND 
+                || (op == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
+        	if (! tl)
+        		throw new IllegalConstraint(t);
+        	v = XTerms.makeAnd(lt, rt);
         }
-        else if (t.operator() == Binary.IN) {
-            v = XTerms.makeAtom(t.operator(), lt, rt);
+        else if (op == Binary.IN) {
+        	if (! tl)
+        	 throw new IllegalConstraint(t);
+              v = XTerms.makeAtom(t.operator(), lt, rt);
         }
         else  {
             v = XTerms.makeAtom(t.operator(), lt, rt);
-            return null;
+            throw new IllegalConstraint(t);
+           // return null;
         }
         return v;
     }
 
-    private XTerm trans(CConstraint c, Tuple t, Context xc) {
+    private XTerm trans(CConstraint c, Tuple t, Context xc, boolean tl) throws IllegalConstraint {
         List<XTerm> terms = new ArrayList<XTerm>();
         for (Expr e : t.arguments()) {
-            XTerm v = translate(c, e, xc);
+            XTerm v = translate(c, e, xc, tl);
             if (v == null)
                 return null;
             terms.add(v);
@@ -589,11 +612,11 @@ public class XTypeTranslator {
      * @param xc
      * @return
      */
-    private XTerm trans(CConstraint c, Call t, Context xc) {
+    private XTerm trans(CConstraint c, Call t, Context xc, boolean tl) throws IllegalConstraint {
         MethodInstance xmi = (MethodInstance) t.methodInstance();
         Flags f = xmi.flags();
         if (f.isProperty()) {
-            XTerm r = translate(c, t.target(), xc);
+            XTerm r = translate(c, t.target(), xc, tl);
             if (r == null)
                 return null;
             // FIXME: should just return the atom, and add atom==body to the real clause of the class
@@ -616,7 +639,7 @@ public class XTypeTranslator {
                     //XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
                     //XVar x = (XVar) xmi.formalTypes().get(i);
                     XVar x =  CTerms.makeLocal((X10LocalDef) xmi.formalNames().get(i).def());
-                    XTerm y = translate(c, t.arguments().get(i), xc);
+                    XTerm y = translate(c, t.arguments().get(i), xc, tl);
                     if (y == null)
                         assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 
                         + t.position() + ")";
@@ -639,7 +662,7 @@ public class XTypeTranslator {
             List<XTerm> terms = new ArrayList<XTerm>();
             terms.add(r);
             for (Expr e : t.arguments()) {
-                XTerm v = translate(c, e, xc);
+                XTerm v = translate(c, e, xc, tl);
                 if (v == null)
                     return null;
                 terms.add(v);
@@ -651,17 +674,17 @@ public class XTypeTranslator {
         return Types.selfVarBinding(type); // maybe null.
     }
 
-    private XTerm trans(CConstraint c, Variable term, Context xc) {
+    private XTerm trans(CConstraint c, Variable term, Context xc, boolean tl) throws IllegalConstraint {
         if (term instanceof Field)
-            return trans(c, (Field) term, xc);
+            return trans(c, (Field) term, xc, tl);
         if (term instanceof X10Special)
-            return trans(c, (X10Special) term, xc);
+            return trans(c, (X10Special) term, xc, tl);
         if (term instanceof Local)
             return trans((Local) term);
         return null;
     }
 
-    private XTerm trans(CConstraint c, X10Special t, Context xc0) {
+    private XTerm trans(CConstraint c, X10Special t, Context xc0, boolean tl) {
         Context xc = xc0;
         if (t.kind() == X10Special.SELF) {
             if (c == null) {
@@ -704,10 +727,10 @@ public class XTypeTranslator {
             return thisVar;
         }
     }
-    private XTerm trans(CConstraint c, Field t, Context xc) {
-        XTerm receiver = translate(c, t.target(), xc);
+    private XTerm trans(CConstraint c, Field t, Context xc, boolean tl)  throws IllegalConstraint {
+        XTerm receiver = translate(c, t.target(), xc, tl);
         if (receiver == null)
             return null;
-        return translate(receiver, t.fieldInstance());
+        return translate(receiver, t.fieldInstance(), tl);
     }
 }

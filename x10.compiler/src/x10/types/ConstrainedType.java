@@ -452,6 +452,10 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		}
 		public  ConstrainedType addProperty(XTerm x, Name name) {
 		    XTerm xt = findOrSynthesize(name);
+		    if (xt==null) {
+		    	throw new InternalCompilerError("*******(" 
+		    			+ this + ") Could not find property " + name);
+		    }
 		    return addBinding(xt, x);
 		}
 		
@@ -535,6 +539,12 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			c.addSelfBinding(t1);
 			return (ConstrainedType) Types.xclause(Types.baseType(this), c); 
 		}
+		public ConstrainedType addSelfDisBinding(XTerm t1) {
+			CConstraint c = Types.xclause(this);
+			c = c == null ? new CConstraint() :c.copy();
+			c.addSelfDisBinding(t1);
+			return (ConstrainedType) Types.xclause(Types.baseType(this), c); 
+		}
 
 		/**
 		 * Add t1 != t2 to t. Note: The type returned may have an inconsistent
@@ -550,8 +560,8 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    c = c == null ? new CConstraint() :c.copy();
 		    c.addDisBinding(t1, t2);
 		    return (ConstrainedType) Types.xclause(Types.baseType(t), c);
-		}*/
-
+		}
+*/
 		// vj: 08/11/09 -- have to recursively walk the 
 		// type parameters and add the constraint to them.
 		public static ConstrainedType xclause(final Ref<? extends Type> t, final Ref<CConstraint> c) {
@@ -652,6 +662,9 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		        result =  addBinding(xt, XTerms.TRUE);
 		    return result;
 		}
+		public ConstrainedType addNonNull() {
+		    return addSelfDisBinding(XTerms.NULL);
+		}
 		/**
 		 * Return the term self.rank, where self is the selfvar for t.
 		 */
@@ -738,7 +751,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    if (fi != null) {
 
 		        final CConstraint c = new CConstraint();
-		        XVar term = xts.xtypeTranslator().translate(c.self(), fi);
+		        XTerm term = xts.xtypeTranslator().translate(c.self(), fi);
 		        c.addBinding(term, lit);
 		        if (! c.consistent())
 		            return false;

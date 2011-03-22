@@ -57,6 +57,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import x10.errors.Warnings;
 import x10.errors.Errors.CannotAssign;
 import x10.errors.Errors.MethodOrStaticConstructorNotFound;
@@ -229,20 +230,23 @@ public class Checker {
 	    }
 	}
 
-	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) {
+	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c)  {
 		CConstraint x = Types.xclause(t);
 		if (x==null || fi.thisVar()==null || (! (target instanceof Expr)))
 			return t;
 		XVar receiver = null;
 
 		TypeSystem ts = (TypeSystem) t.typeSystem();
-		XTerm r = ts.xtypeTranslator().translate(new CConstraint(), target, (Context) c);
-		if (r instanceof XVar) {
-			receiver = (XVar) r;
-		}
-
-		if (receiver == null)
+		try {
+			XTerm r=ts.xtypeTranslator().translate(new CConstraint(), target, (Context) c);
+			if (r instanceof XVar) {
+				receiver = (XVar) r;
+			}
+			if (receiver == null)
+				receiver = XTerms.makeEQV();
+		} catch (IllegalConstraint z) {
 			receiver = XTerms.makeEQV();
+		}
 		try {
 			t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
 		} catch (SemanticException e) {
@@ -253,7 +257,7 @@ public class Checker {
 	}
 
 	// FIXME: [IP] why isn't this called for direct property method invocations, but only for those without parens?
-	public static Type expandCall(Type type, Call t,  Context c) throws SemanticException {
+	public static Type expandCall(Type type, Call t,  Context c) throws IllegalConstraint {
 		Context xc = (Context) c;
 		MethodInstance xmi = (MethodInstance) t.methodInstance();
 		Receiver target = t.target();
@@ -262,7 +266,7 @@ public class Checker {
 		XTerm body = null;
 		if (f.isProperty()) {
 			CConstraint cs = new CConstraint();
-			XTerm r = xt.translate(cs, target, xc);
+			XTerm r = xt.translate(cs, target, xc); // may throw IllegalConstraint
 			if (r == null)
 				return rightType(type, xmi.x10Def(), target, c);
 			// FIXME: should just return the atom, and add atom==body to the real clause of the class
@@ -278,7 +282,8 @@ public class Checker {
 					//XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
 					//XVar x = (XVar) xmi.formalTypes().get(i);
 					CLocal x =  CTerms.makeLocal((X10LocalDef) xmi.formalNames().get(i).def());
-					XTerm y = xt.translate(cs, t.arguments().get(i), xc);
+					XTerm y = xt.translate(cs, t.arguments().get(i), xc); // may throw IllegalConstraint.
+				
 					if (y == null)
 						assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 
 						+ t.position() + ")";
@@ -298,7 +303,7 @@ public class Checker {
 			List<XTerm> terms = new ArrayList<XTerm>();
 			terms.add(r);
 			for (Expr e : t.arguments()) {
-				terms.add(xt.translate(cs, e, xc));
+					terms.add(xt.translate(cs, e, xc)); // may throw IllegalConstraint.
 			}
 			body = CTerms.makeAtom(xmi.def(), terms);
 			}

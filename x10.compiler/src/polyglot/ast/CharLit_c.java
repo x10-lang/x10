@@ -16,9 +16,12 @@ import polyglot.types.Types;
 import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.constraint.XTerm;
 import x10.constraint.XFailure;
+import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 
 /** 
  * An <code>CharLit</code> represents a literal in java of
@@ -48,10 +51,13 @@ public class CharLit_c extends NumLit_c implements CharLit
 		Type charType = xts.Char();
 
 		CConstraint c = new CConstraint();
-		XTerm term = xts.xtypeTranslator().translate(c, this.type(charType), (Context) tc.context());
-		c.addSelfBinding(term);
+		try {
+			XTerm term = xts.xtypeTranslator().translate(c, this.type(charType),  tc.context());
+			c.addSelfBinding(term);
+		} catch (IllegalConstraint z) {
+			Errors.issue(tc.job(), z);
+		}
 		Type newType = Types.xclause(charType, c);
-
 	    return type(newType);
     }  
 

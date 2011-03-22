@@ -92,6 +92,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
@@ -533,13 +534,19 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                             Errors.issue(tc.job(), new SemanticException("Circular property method definition. Expanding the property method may result in an infinite loop.\n\tProperty:"+mi, position));
                         } else {
                             // while expanding this expression we might recursively type check the same method
-                            XTerm v = ts.xtypeTranslator().translate((CConstraint) null, r.expr(), (Context) tc.context());
-                            ok = true;
-                            X10MethodDef mi = (X10MethodDef) this.mi;
-                            if (mi.body() instanceof LazyRef<?>) {
-                                LazyRef<XTerm> bodyRef = (LazyRef<XTerm>) mi.body();
-                                bodyRef.update(v);
+                            XTerm v = null;
+                            try {
+                               v = ts.xtypeTranslator().translate((CConstraint) null, r.expr(), tc.context(), true);
+                               ok = true;
+                               X10MethodDef mi = (X10MethodDef) this.mi;
+                               if (mi.body() instanceof LazyRef<?>) {
+                                   LazyRef<XTerm> bodyRef = (LazyRef<XTerm>) mi.body();
+                                   bodyRef.update(v);
+                               }
+                            } catch (IllegalConstraint z) {
+                            	Errors.issue(tc.job(),z);
                             }
+                           
                         }
 					}
 				}
@@ -651,9 +658,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		checkVisibility(tc, this);
 
-		// Need to ensure that method overriding is checked in a context in which here=this.home
-		// has been asserted.
-		Context childtc = enterChildScope(returnType(), tc.context());
+		// Need to ensure that method overriding is checked in the right context
+		// The classInvariant needs to be added.
+		// Note that the guard should not be added, since we need to check that the
+		// guard is entailed by any method that is overridden by this method.
+		Context childtc = tc.context().pushBlock(); 
 		childtc.addInClassInvariantIfNeeded(true);
 		ContextVisitor childVisitor = tc.context(childtc);
 		return super.conformanceCheck(childVisitor);

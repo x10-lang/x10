@@ -26,6 +26,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
@@ -2014,6 +2015,25 @@ public class Errors {
             super("With information from super(...) and property(...), cannot establish the give interface type. " 
             		+ "\n\t Known information: " + known 
             		+ "\n\t Interface type: " + intfc, p);
+        }
+    }
+    
+    public static class CannotOverrideGuard extends SemanticException {
+		private static final long serialVersionUID = 272479475853566129L;
+
+		public CannotOverrideGuard(MethodInstance mi, MethodInstance mj) {
+            super("Method mi cannot override method mj. " 
+            		+ "\n\t mi: " + mi
+            		+ "\n\t mj: " + mj
+            		+ "\n\t Reason: mj's guard does not entail mi's guard.",
+            		mi.position());
+        }
+    }
+    public static class IllegalConstraint  extends SemanticException {
+		private static final long serialVersionUID = 4076811545544318952L;
+		public IllegalConstraint(Term t) {
+			super("Illegal constraint." +
+					"\n\t Term: " + t, t.position());
         }
     }
 }

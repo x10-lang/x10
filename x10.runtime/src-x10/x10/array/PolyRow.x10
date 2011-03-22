@@ -51,7 +51,8 @@ class PolyRow(rank:Int) extends ValRow {
 
     def this(cols:int, init: (i:Int)=>int) {
         super(cols, init);
-        property(cols-1);
+        val cols1 = cols-1;
+        property(cols1);
     }
 
 

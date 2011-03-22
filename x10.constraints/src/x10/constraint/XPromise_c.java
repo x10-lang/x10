@@ -305,16 +305,20 @@ class XPromise_c implements XPromise, Serializable {
    
 
     public boolean bind(/* @nonnull */XPromise target) throws XFailure {
+    	if (target.value() == null) {
+    		int q =1;
+    	}
         assert target.value() == null;
 
         if (disEquals != null) 
-      	  for (XPromise i : disEquals) 
+      	  for (XPromise i : disEquals) {
       		  // Note: i's value may be set.. so need to get to the end of the chain.
-      		  if (i.lookup().equals(target))
+      		  boolean result = i.lookup().equals(target);
+      		  if (result)
       			  throw new XFailure("The promise " + this 
       					  + " cannot be bound to the already disequated " 
       					  + target + ".");
-          
+      	  }
         if (!(target.equals(value)) && !target.equals(var)) {
             if (forwarded())
                 throw new XFailure("The promise " + this + 
@@ -422,7 +426,6 @@ class XPromise_c implements XPromise, Serializable {
                     if (v == null) {
                         path2 = null;
                     } else {
-                        assert t instanceof XField<?>;
                         XField<?> ft = (XField<?>) t;
                         path2 = ft.copy(v);
                     }

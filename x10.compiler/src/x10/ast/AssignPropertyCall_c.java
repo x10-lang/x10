@@ -48,6 +48,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
 import x10.types.X10ClassType;
@@ -281,10 +282,14 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                     }
                     if (c != null)
                         known.addIn(c.substitute(prop, c.self()));
-
-                    XTerm initVar = ts.xtypeTranslator().translate(known, initializer, (Context) ctx);
-                    if (initVar != null)
-                        known.addBinding(prop, initVar);
+                    try {
+                     XTerm initVar = ts.xtypeTranslator().translate(known, initializer, (Context) ctx);
+                     if (initVar != null)
+                         known.addBinding(prop, initVar);
+                    } catch (IllegalConstraint z) {
+                    	  Errors.issue(tc.job(), z);     
+                    }
+                   
                 }
 
                 // Set the return type of the enclosing constructor to be this inferred type.
