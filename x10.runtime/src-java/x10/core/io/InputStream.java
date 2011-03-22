@@ -20,8 +20,16 @@ public class InputStream extends Ref {
   
 	private static final long serialVersionUID = 1L;
 
-    private final java.io.InputStream stream;
+    private java.io.InputStream stream;
 
+    public InputStream(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+    
+    public void $init(java.io.InputStream stream) {
+        this.stream = stream;
+    }
+    
     public InputStream(java.io.InputStream stream) {
         this.stream = stream;
     }

@@ -83,7 +83,7 @@ import x10.types.constraints.TypeConstraint;
 
 public class ClosureRemover extends ContextVisitor {
     
-    public static final String STATIC_INNER_CLASS_BASE_NAME = "$Closure";
+    public static final String STATIC_NESTED_CLASS_BASE_NAME = "$Closure";
     private static final String STATIC_METHOD_BASE_NAME = "$closure_apply";
     private static final Name OUTER_NAME = Name.make("out$$");
     
@@ -311,7 +311,7 @@ public class ClosureRemover extends ContextVisitor {
                     
                     Block closureBody = (Block) cl.body();
                     
-                    Id staticInnerClassName = xnf.Id(pos, UniqueID.newID(STATIC_INNER_CLASS_BASE_NAME));
+                    Id staticInnerClassName = xnf.Id(pos, UniqueID.newID(STATIC_NESTED_CLASS_BASE_NAME));
                     
                     // DEBUG
 //                    System.out.println(n.position() + " " + staticInnerClassName + " " + cl);

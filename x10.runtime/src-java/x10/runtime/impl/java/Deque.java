@@ -59,6 +59,12 @@ public class Deque extends Ref {
      */
     private volatile int base;
 
+    public Deque(java.lang.System[] $dummy) {super($dummy);}
+
+    public void $init() {
+        queue = new RefI[INITIAL_QUEUE_CAPACITY];
+    }
+    
     /**
      * Creates a Deque.
      */

@@ -20,18 +20,33 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
 
 	private static final long serialVersionUID = 1L;
 
+	public Throwable(java.lang.System[] $dummy) {
+	    super();
+	}
+
+	public void $init() {}
+    
     public Throwable() {
         super();
     }
 
+    // TODO
+    // public void $init(java.lang.String message) {}
+    
     public Throwable(java.lang.String message) {
         super(message);
     }
 
+    // TODO
+    // public void $init(java.lang.Throwable cause) {}
+    
     public Throwable(java.lang.Throwable cause) {
         super(cause);
     }
 
+    // TODO
+    // public void $init(java.lang.String message, java.lang.Throwable cause) {}
+    
     public Throwable(java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
     }
@@ -41,14 +56,23 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super();
     }
 
+    // TODO
+    // public void $init(Object out$, java.lang.String message) {}
+
     public Throwable(Object out$, java.lang.String message) {
         super(message);
     }
+
+    // TODO
+    // public void $init(Object out$, java.lang.Throwable cause) {}
 
     public Throwable(Object out$, java.lang.Throwable cause) {
         super(cause);
     }
 
+    // TODO
+    // public void $init(Object out$, java.lang.String message, java.lang.Throwable cause) {}
+    
     public Throwable(Object out$, java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
     }

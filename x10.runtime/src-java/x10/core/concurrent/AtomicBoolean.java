@@ -20,10 +20,20 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
 
 	private static final long serialVersionUID = 1L;
 
+    public AtomicBoolean(java.lang.System[] $dummy) {
+        super();
+    }
+    public void $init() {}
+
     public AtomicBoolean() {
         super();
     }
     
+    public void $init(boolean initialValue) {
+        // TODO
+        set(initialValue);
+    }
+
     public AtomicBoolean(boolean initialValue) {
         super(initialValue);
     }

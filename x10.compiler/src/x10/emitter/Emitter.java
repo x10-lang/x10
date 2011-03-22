@@ -117,12 +117,9 @@ import x10c.visit.StaticInitializer;
 public class Emitter {
 
     private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
+    private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
+    private static final String RETURN_SPECIAL_TYPE_SUFFIX = "$O";
 
-    CodeWriter w;
-	Translator tr;
-	private final Type imcType;
-    private final Type nativeClassType;
-        
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
 	                "abstract", "default",  "if",         "private",    "this",
@@ -144,8 +141,10 @@ public class Emitter {
 	        )
 	);
 
-	private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
-	private static final String RETURN_SPECIAL_TYPE_SUFFIX = "$O";
+	CodeWriter w;
+	Translator tr;
+	private final Type imcType;
+	private final Type nativeClassType;
 
 	public Emitter(CodeWriter w, Translator tr) {
 		this.w=w;
@@ -2586,7 +2585,7 @@ public class Emitter {
 
 	public void generateRTTInstance(X10ClassDef def) {
 	    // for static inner classes that are compiled from closures
-	    boolean isStaticFunType = def.name().toString().startsWith(ClosureRemover.STATIC_INNER_CLASS_BASE_NAME);
+	    boolean isStaticFunType = def.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME);
 	    boolean isVoidFun = false;
 	    if (isStaticFunType) {
 	        // Note: assume that the first interface in this X10ClassDef is a function type

@@ -23,10 +23,33 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
 
     private static final java.util.ArrayList<Object> objects = new java.util.ArrayList<Object>(); // all referenced objects in this place
 
-    public final int length;
-    public final int id; // place local id of referenced object
-    public final Type<T> type;
-    public final Place home;
+    public int length;
+    public int id; // place local id of referenced object
+    public Type<T> type;
+    public Place home;
+    
+    public RemoteIndexedMemoryChunk(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+
+    public void $init(Type<T> type, int length, Object value) {
+        this.length = length;
+        this.type = type;
+        this.home = x10.lang.Runtime.home();
+
+        int size;
+        synchronized (objects) {
+            size = objects.size();
+            for (int id = size - 1; id >= 0; --id) {
+                if (objects.get(id) == value) {
+                    this.id = id;
+                    return;
+                }
+            }
+            objects.add(value);
+        }
+        this.id = size;
+    }
 
     private RemoteIndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;

@@ -31,6 +31,15 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     private String[] args;
 
+    public Runtime(java.lang.System[] $dummy) {
+        // TODO
+        //super($dummy);
+    }
+    
+    public void $init() {}
+    
+    public Runtime(){}
+    
 	/**
 	 * Body of main java thread
 	 */

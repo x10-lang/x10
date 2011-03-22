@@ -116,12 +116,29 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     public x10.lang.Place home;
     private long id; // place local id of referenced object
     transient Object t;
+    
+    public GlobalRef(java.lang.System[] $dummy) {
+        super($dummy);
+    }
 
     public GlobalRef() {
         T = null;
         home = null;
         id = 0L;
         t = null;
+    }
+
+    public void $init() {
+        T = null;
+        home = null;
+        id = 0L;
+        t = null;        
+    }
+
+    public void $init(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {
+        this.T = T;
+        this.home = x10.lang.Runtime.home();
+        this.t = t;
     }
 
     public GlobalRef(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {

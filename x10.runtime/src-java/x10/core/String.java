@@ -25,14 +25,6 @@ final public class String extends x10.core.Ref implements
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     public x10.rtt.Type<?> $getParam(int i) {return null;}
     
-    public static String box(java.lang.String str) {
-        return str == null ? null : new String(str);
-    }
-    
-    public static java.lang.String unbox(Object obj) {
-        return obj instanceof x10.core.String ? ((x10.core.String) obj).$str : (java.lang.String) obj;
-    }
-
     // dispatcher for method abstract public (a1:Z1)=> U.$apply(a1:Z1): U
     public java.lang.Character $apply(final java.lang.Integer a1, final x10.rtt.Type t1) {
         return $apply((int)(java.lang.Integer)a1);
@@ -42,12 +34,30 @@ final public class String extends x10.core.Ref implements
         return compareTo((java.lang.String)a1);
     }
 
-    public final java.lang.String $str;
+    public java.lang.String $str;
 
+    public String(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+
+    public void $init() {
+        $str = "";
+    }
+    
     public String() {
         $str = "";
     }
 
+    public static String box(java.lang.String str) {
+        return str == null ? null : new String(str);
+    }
+    public static java.lang.String unbox(Object obj) {
+        return obj instanceof x10.core.String ? ((x10.core.String) obj).$str : (java.lang.String) obj;
+    }
+    public void $init(final java.lang.String str) {
+        $str = str;
+    }
+    
     public String(final java.lang.String str) {
         $str = str;
     }

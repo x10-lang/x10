@@ -51,11 +51,30 @@ public class Vec<T> extends x10.core.Struct {
         }
         oos.defaultWriteObject();
     }
+    
+    public Vec(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+
+    public void $init(final Type<T> T, final int s) {
+        this.T = T;
+        this.size = s;
+        this.backing = new x10.array.Array<T>(T, size);
+    }
 
     public Vec(final Type<T> T, final int s) {
         this.T = T;
         this.size = s;
         this.backing = new x10.array.Array<T>(T, size);
+    }
+
+    public void $init(final Type<T> T, Vec<T> other) {
+        this.T = T;
+        this.size = other.size;
+        this.backing = new x10.array.Array<T>(T, other.size);
+        for (int i = 0; i < this.size; ++i) {
+            this.backing.$set_1_$$x10$array$Array_T$G(i, other.backing.$apply$G(i));
+        }
     }
 
     public Vec(final Type<T> T, Vec<T> other) {
