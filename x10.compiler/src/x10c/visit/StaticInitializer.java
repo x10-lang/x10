@@ -102,6 +102,7 @@ import x10.ast.X10SourceFile_c;
 import x10.ast.SettableAssign;
 import x10.constraint.XTerm;
 import x10.constraint.XTermKind;
+import x10.emitter.Emitter;
 import x10.extension.X10Ext;
 import x10.types.constraints.CConstraint;
 import x10.types.ConstrainedType;
@@ -1076,7 +1077,7 @@ public class StaticInitializer extends ContextVisitor {
         // actual arguments
         List<Expr> args = new ArrayList<Expr>();
         args.add(xnf.StringLit(pos, fullName).type(xts.String()));
-        args.add(xnf.StringLit(pos, fieldName.toString()).type(xts.String()));
+        args.add(xnf.StringLit(pos, Emitter.mangleToJava(fieldName)).type(xts.String()));
 
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.String()));
