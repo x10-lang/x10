@@ -28,6 +28,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.FloatLit;
+import polyglot.ast.For;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.IntLit;
@@ -97,6 +98,7 @@ import x10.constraint.XVar;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;
+import x10.optimizations.ForLoopOptimizer;
 import x10.types.AsyncInstance;
 import x10.types.AtInstance;
 import x10.types.ClosureDef;
@@ -1099,11 +1101,19 @@ public class Lowerer extends ContextVisitor {
         Stmt body1 = async(bpos, inner, a.clocks(),
                 nf.Local(bpos, nf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType),
                 null, env1);
+        Stmt outer = nf.ForLoop(pos, pFormal, places, body1);
+        
+        // TODO: Instead of creating ForLoop's and then removing them, 
+        //       change the code above to create simple For's in the first place.
+        ForLoopOptimizer flo = new ForLoopOptimizer(job, ts, nf);
+        flo.begin();
+        For newLoop = (For)outer.visit(flo);
+
         return nf.Block(pos, 
         		nf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, ts.Void())),
         		local, 
-        		nf.ForLoop(pos, pFormal, places, body1));
-    }
+        		newLoop);
+     }
 
     private Stmt visitEval(Eval n) throws SemanticException {
         Position pos = n.position();
