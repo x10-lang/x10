@@ -28,6 +28,7 @@ import polyglot.ast.Local;
 import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -41,6 +42,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -233,7 +235,8 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
             for (Expr e : this.args) {
                 argTypes.add(e.type());
             }
-            
+
+            // FIXME: move this code into X10Disamb_c
             if (prefix == null) {
                 // Search the context.
                 TypeDefMatcher matcher = new TypeDefMatcher(null, name.id(), typeArgs, argTypes, c);
@@ -245,12 +248,24 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
                     }
                 }
             }
-            else {
-                if (prefix instanceof TypeNode) {
-                    TypeNode tn = (TypeNode) prefix;
-                    Type container = tn.type();
-                    mt = ts.findTypeDef(container, name.id(), typeArgs, argTypes, c);
+            else if (prefix instanceof PackageNode) {
+                PackageNode pn = (PackageNode) prefix;
+                Resolver pc = ts.packageContextResolver(pn.package_().get());
+                TypeDefMatcher matcher = new TypeDefMatcher(null, name.id(), typeArgs, argTypes, c);
+                List<Type> tl = pc.find(matcher);
+                if (tl != null) {
+                    for (Type n : tl) {
+                        if (n instanceof MacroType) {
+                            mt = (MacroType) n;
+                            break;
+                        }
+                    }
                 }
+            }
+            else if (prefix instanceof TypeNode) {
+                TypeNode tn = (TypeNode) prefix;
+                Type container = tn.type();
+                mt = ts.findTypeDef(container, name.id(), typeArgs, argTypes, c);
             }
             
             if (mt != null) {
