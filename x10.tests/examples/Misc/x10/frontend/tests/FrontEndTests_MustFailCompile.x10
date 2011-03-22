@@ -5713,3 +5713,11 @@ class DefaultConstructorBug2 {
     public static def bar(y:Int):Foo{self.x==y} = new Foo(y);
 }
 
+class CheckConstraintLanguage {
+  class A(x:Int) {
+   property zero()= x==0;
+   def z(a:A{self!=null && self.x==1}) {}
+   def m(a:A, b:A) { a.zero()}{} // ok
+   def n(a:A, b:A) { a.zero()==b.zero()}{} // ERR
+  }
+}

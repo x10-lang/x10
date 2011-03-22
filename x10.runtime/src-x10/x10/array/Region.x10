@@ -50,11 +50,6 @@ public abstract class Region(
     public property zeroBased():boolean = zeroBased;
     public property rail():boolean = rail;
 
-    public static val `+` = (x:Region,y:Point(x.rank)) => x+y;
-    public static val `-` = (x:Region,y:Point(x.rank)) => x-y;
-    public static val `*` = (x:Region,y:Region) => x*y;
-    public static val `&&` = (x:Region,y:Region(x.rank)) => x&&y;
-    public static val `->` = (x:Region,y:Place) => x->y;
 
     //
     // factories

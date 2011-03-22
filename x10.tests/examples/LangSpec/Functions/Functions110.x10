@@ -28,11 +28,8 @@ public class Functions110 extends x10Test {
 
 // file Functions line 467
  static  class JustATest {
- val dummy = [String.`+`,  // ERR: Semantic Error: No least common ancestor found for types "(a1:x10.lang.String, a2:x10.lang.String)=> x10.lang.String" and "(a1:x10.lang.Long, a2:x10.lang.Long)=> x10.lang.Long".
-  Long.`-`,
-  Float.`-`,
-  Boolean.`&`,
-  Int.`<`
+ val dummy = [((x:Int,y:Int) => x+y),  // ShouldNotBeERR: Semantic Error: No least common ancestor found for types "(a1:x10.lang.String, a2:x10.lang.String)=> x10.lang.String" and "(a1:x10.lang.Long, a2:x10.lang.Long)=> x10.lang.Long".
+  (x:Double,y:Double) => x-y
   ];
  }
 

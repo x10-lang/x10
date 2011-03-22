@@ -32,12 +32,6 @@ import x10.util.Ordered;
 @NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
 public final class String implements (Int) => Char/*TODO, (Range) => String*//*TODO, Ordered[String]*/, Comparable[String] {
 
-    public static val `+` = (x:String,y:String) => x+y;
-    public static val `<` = (x:String,y:String) => x<y;
-    public static val `<=` = (x:String,y:String) => x<=y;
-    public static val `>` = (x:String,y:String) => x>y;
-    public static val `>=` = (x:String,y:String) => x>=y;
-
     /**
      * Default constructor.
      */

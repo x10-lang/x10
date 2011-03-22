@@ -33,7 +33,7 @@ public class Foreach1 extends x10Test {
             hasbug(i) |= !(P0 == d(p) && here == P0);
             atomic this.nActivities++;
         }
-        return !hasbug.reduce(Boolean.`|`, false) &&
+        return !hasbug.reduce((x:Boolean,y:Boolean) => x|y, false) &&
             nActivities == N;
     }
     public static def main(var args: Array[String](1)): void = {

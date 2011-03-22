@@ -20,16 +20,6 @@ import x10.compiler.Native;
  */
 public struct Complex /*TODO implements Arithmetic[Complex]*/ {
 
-    public static val `+` = (x:Complex,y:Complex) => x+y;
-    public static val `-` = (x:Complex,y:Complex) => x-y;
-    public static val `*` = (x:Complex,y:Complex) => x*y;
-    public static val `/` = (x:Complex,y:Complex) => x/y;
-    // todo: add comparison to complex
-//    public static val `<` = (x:Complex,y:Complex) => x<y;
-//    public static val `<=` = (x:Complex,y:Complex) => x<=y;
-//    public static val `>` = (x:Complex,y:Complex) => x>y;
-//    public static val `>=` = (x:Complex,y:Complex) => x>=y;
-
     /** The real component of this complex number. */
     public val re:Double;
     /** The imaginary component of this complex number. */

@@ -29,22 +29,6 @@ import x10.util.Ordered;
 //                            ^ when constructed
 public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*/ {
 
-    public static val `+` = (x:Int,y:Int) => x+y;
-    public static val `-` = (x:Int,y:Int) => x-y;
-    public static val `*` = (x:Int,y:Int) => x*y;
-    public static val `/` = (x:Int,y:Int) => x/y;
-    public static val `%` = (x:Int,y:Int) => x%y;
-    public static val `&` = (x:Int,y:Int) => x&y;
-    public static val `|` = (x:Int,y:Int) => x|y;
-    public static val `^` = (x:Int,y:Int) => x^y;
-    public static val `<<` = (x:Int,y:Int) => x<<y;
-    public static val `>>` = (x:Int,y:Int) => x>>y;
-    public static val `>>>` = (x:Int,y:Int) => x>>>y;
-    public static val `<` = (x:Int,y:Int) => x<y;
-    public static val `<=` = (x:Int,y:Int) => x<=y;
-    public static val `>` = (x:Int,y:Int) => x>y;
-    public static val `>=` = (x:Int,y:Int) => x>=y;
-    public static val `~` = (x:Int) => ~x;   
 
     /**
      * A less-than operator.

@@ -27,23 +27,6 @@ import x10.util.Ordered;
 @NativeRep("c++", "x10_short", "x10_short", null)
 public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Short], Bitwise[Short], Ordered[Short]*/ {
 
-    public static val `+` = (x:Short,y:Short) => x+y;
-    public static val `-` = (x:Short,y:Short) => x-y;
-    public static val `*` = (x:Short,y:Short) => x*y;
-    public static val `/` = (x:Short,y:Short) => x/y;
-    public static val `%` = (x:Short,y:Short) => x%y;
-    public static val `&` = (x:Short,y:Short) => x&y;
-    public static val `|` = (x:Short,y:Short) => x|y;
-    public static val `^` = (x:Short,y:Short) => x^y;
-    public static val `<<` = (x:Short,y:Int) => x<<y;
-    public static val `>>` = (x:Short,y:Int) => x>>y;
-    public static val `>>>` = (x:Short,y:Int) => x>>>y;
-    public static val `<` = (x:Short,y:Short) => x<y;
-    public static val `<=` = (x:Short,y:Short) => x<=y;
-    public static val `>` = (x:Short,y:Short) => x>y;
-    public static val `>=` = (x:Short,y:Short) => x>=y;
-    public static val `~` = (x:Short) => ~x;
-
     /**
      * A less-than operator.
      * Compares this Short with another Short and returns true if this Short is

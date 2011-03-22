@@ -31,11 +31,6 @@ public final class IntRange(
                zeroBased: boolean
 ) implements Iterable[Int] {
 
-    public static val `+` = (x:IntRange,y:Int) => x+y;
-    public static val `-` = (x:IntRange,y:Int) => x-y;
-    public static val `*` = (x:IntRange,y:IntRange) => x*y;
-    public static val `->` = (x:IntRange,y:Place) => x->y;
-
     /**
      * Construct a IntRange from min..max
      * @param min the minimum value of the range

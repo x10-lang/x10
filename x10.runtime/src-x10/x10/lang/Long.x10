@@ -27,22 +27,6 @@ import x10.util.Ordered;
 @NativeRep("c++", "x10_long", "x10_long", null)
 public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long], Bitwise[Long], Ordered[Long]*/ {
 
-    public static val `+` = (x:Long,y:Long) => x+y;
-    public static val `-` = (x:Long,y:Long) => x-y;
-    public static val `*` = (x:Long,y:Long) => x*y;
-    public static val `/` = (x:Long,y:Long) => x/y;
-    public static val `%` = (x:Long,y:Long) => x%y;
-    public static val `&` = (x:Long,y:Long) => x&y;
-    public static val `|` = (x:Long,y:Long) => x|y;
-    public static val `^` = (x:Long,y:Long) => x^y;
-    public static val `<<` = (x:Long,y:Int) => x<<y;
-    public static val `>>` = (x:Long,y:Int) => x>>y;
-    public static val `>>>` = (x:Long,y:Int) => x>>>y;
-    public static val `<` = (x:Long,y:Long) => x<y;
-    public static val `<=` = (x:Long,y:Long) => x<=y;
-    public static val `>` = (x:Long,y:Long) => x>y;
-    public static val `>=` = (x:Long,y:Long) => x>=y;
-    public static val `~` = (x:Long) => ~x;
 
     /**
      * A less-than operator.

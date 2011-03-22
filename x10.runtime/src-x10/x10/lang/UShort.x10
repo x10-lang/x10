@@ -27,24 +27,6 @@ import x10.util.Ordered;
 @NativeRep("c++", "x10_ushort", "x10_ushort", null)
 public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[UShort], Bitwise[UShort], Ordered[UShort]*/ {
 
-    public static val `+` = (x:UShort,y:UShort) => x+y;
-    public static val `-` = (x:UShort,y:UShort) => x-y;
-    public static val `*` = (x:UShort,y:UShort) => x*y;
-    public static val `/` = (x:UShort,y:UShort) => x/y;
-    public static val `%` = (x:UShort,y:UShort) => x%y;
-    public static val `&` = (x:UShort,y:UShort) => x&y;
-    public static val `|` = (x:UShort,y:UShort) => x|y;
-    public static val `^` = (x:UShort,y:UShort) => x^y;
-    public static val `<<` = (x:UShort,y:Int) => x<<y;
-    public static val `>>` = (x:UShort,y:Int) => x>>y;
-    public static val `>>>` = (x:UShort,y:Int) => x>>>y;
-    public static val `<` = (x:UShort,y:UShort) => x<y;
-    public static val `<=` = (x:UShort,y:UShort) => x<=y;
-    public static val `>` = (x:UShort,y:UShort) => x>y;
-    public static val `>=` = (x:UShort,y:UShort) => x>=y;
-    public static val `~` = (x:UShort) => ~x;   
-
-
     /** The actual number with Short representation */
     public val shortVal:Short;
     public def this(value:Short) {

@@ -27,22 +27,6 @@ import x10.util.Ordered;
 @NativeRep("c++", "x10_ulong", "x10_ulong", null)
 public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[ULong], Bitwise[ULong], Ordered[ULong]*/ {
 
-    public static val `+` = (x:ULong,y:ULong) => x+y;
-    public static val `-` = (x:ULong,y:ULong) => x-y;
-    public static val `*` = (x:ULong,y:ULong) => x*y;
-    public static val `/` = (x:ULong,y:ULong) => x/y;
-    public static val `%` = (x:ULong,y:ULong) => x%y;
-    public static val `&` = (x:ULong,y:ULong) => x&y;
-    public static val `|` = (x:ULong,y:ULong) => x|y;
-    public static val `^` = (x:ULong,y:ULong) => x^y;
-    public static val `<<` = (x:ULong,y:Int) => x<<y;
-    public static val `>>` = (x:ULong,y:Int) => x>>y;
-    public static val `>>>` = (x:ULong,y:Int) => x>>>y;
-    public static val `<` = (x:ULong,y:ULong) => x<y;
-    public static val `<=` = (x:ULong,y:ULong) => x<=y;
-    public static val `>` = (x:ULong,y:ULong) => x>y;
-    public static val `>=` = (x:ULong,y:ULong) => x>=y;
-    public static val `~` = (x:ULong) => ~x;
 
     /** The actual number with Long representation */
     public val longVal:Long;

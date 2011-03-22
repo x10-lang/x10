@@ -29,16 +29,6 @@ import x10.util.Ordered;
 @NativeRep("c++", "x10_double", "x10_double", null)
 public struct Double implements Comparable[Double] /*TODO implements Arithmetic[Double], Ordered[Double]*/ {
 
-    public static val `+` = (x:Double,y:Double) => x+y;
-    public static val `-` = (x:Double,y:Double) => x-y;
-    public static val `*` = (x:Double,y:Double) => x*y;
-    public static val `/` = (x:Double,y:Double) => x/y;
-    public static val `%` = (x:Double,y:Double) => x%y;
-    public static val `<` = (x:Double,y:Double) => x<y;
-    public static val `<=` = (x:Double,y:Double) => x<=y;
-    public static val `>` = (x:Double,y:Double) => x>y;
-    public static val `>=` = (x:Double,y:Double) => x>=y;
-
 
     /**
      * A less-than operator.
