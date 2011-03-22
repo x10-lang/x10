@@ -196,7 +196,7 @@ public class Translator extends PrettyPrinter implements Cloneable
             }
             
             String opfPath = of.getPath();
-            if (!opfPath.endsWith("$")) job.compiler().addOutputFile(sfn.source().name(), of.getPath());
+            if (!opfPath.endsWith("$")) job.compiler().addOutputFile(sfn, of.getPath());
             w = tf.outputCodeWriter(of, outputWidth);
             
             writeHeader(sfn, w);
@@ -211,7 +211,7 @@ public class Translator extends PrettyPrinter implements Cloneable
                     w.close();
                     
                     of = tf.outputFile(pkg, decl.name().id(), sfn.source());
-                    job.compiler().addOutputFile(sfn.source().name(), of.getPath());
+                    job.compiler().addOutputFile(sfn, of.getPath());
                     w = tf.outputCodeWriter(of, outputWidth);
                     
                     writeHeader(sfn, w);

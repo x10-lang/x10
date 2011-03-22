@@ -346,21 +346,21 @@ public class X10CPPTranslator extends Translator {
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String include = getStringPropertyInit(at, 0);
-		                job.compiler().addOutputFile(fname, pkg_+include);
+		                job.compiler().addOutputFile(sfn, pkg_+include);
 		                maybeCopyTo(include, path, out_path+pkg_);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPOutputFile")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String file = getStringPropertyInit(at, 0);
-		                job.compiler().addOutputFile(fname, pkg_+file);
+		                job.compiler().addOutputFile(sfn, pkg_+file);
 		                maybeCopyTo(file, path, out_path+pkg_);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPCompilationUnit")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String compilation_unit = getStringPropertyInit(at, 0);
-		                job.compiler().addOutputFile(fname, pkg_+compilation_unit);
+		                job.compiler().addOutputFile(sfn, pkg_+compilation_unit);
 		                opts.compilationUnits().add(pkg_+compilation_unit);
 		                maybeCopyTo(compilation_unit, path, out_path+pkg_);
 		            }
@@ -381,7 +381,7 @@ public class X10CPPTranslator extends Translator {
 				// [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
 				String header = wstreams.getStreamName(StreamWrapper.Header);
-				job.compiler().addOutputFile(fname, header);
+				job.compiler().addOutputFile(sfn, header);
 				
 				if (opts.x10_config.DEBUG) {
 					Map<String, LineNumberMap> fileToLineNumberMap =
@@ -404,7 +404,7 @@ public class X10CPPTranslator extends Translator {
 			
 			if (generatedCode) {
 			    String cc = fstreams.getStreamName(StreamWrapper.CC);
-			    job.compiler().addOutputFile(fname, cc);
+			    job.compiler().addOutputFile(sfn, cc);
                 opts.compilationUnits().add(cc);
                 
                 if (opts.x10_config.DEBUG) {
