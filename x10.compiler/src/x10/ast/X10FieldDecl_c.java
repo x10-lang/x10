@@ -249,7 +249,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     	ParameterType.Variance v = cd.variances().get(i);
     	vars.put(pt.name(), v);
         }
-        try {
+        /*try {
         if (flags().flags().isFinal()) {
             Checker.checkVariancesOfType(type.position(), type.type(), ParameterType.Variance.COVARIANT, "as the type of a final field", vars, tc);
         }
@@ -258,7 +258,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         }
         } catch (SemanticException e) {
             Errors.issue(tc.job(), e, this);
-        }
+        }*/
     }
 
     protected FieldDef createFieldDef(TypeSystem ts, ClassDef ct, Flags xFlags) {

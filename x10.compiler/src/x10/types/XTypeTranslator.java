@@ -570,7 +570,8 @@ public class XTypeTranslator {
             if (left instanceof Binary && ((Binary) right).operator() == Binary.EQ) {
                 lt = simplify((Binary) left, lt);
             }
-
+        	if (! tl)
+        		throw new IllegalConstraint(t);
             v = op == Binary.EQ ? XTerms.makeEquals(lt, rt): XTerms.makeDisEquals(lt, rt);
         }
         else if (op == Binary.COND_AND 
@@ -622,19 +623,14 @@ public class XTypeTranslator {
             // FIXME: should just return the atom, and add atom==body to the real clause of the class
             // FIXME: fold in class's real clause constraints on parameters into real clause of type parameters
             XTerm body = xmi.body();
-
-            if (body == null) {
-                // hardwire s.at(t) for an interface
-                // return s.home = t is Place ? t : t.home
-                // stub out for orthogonal locality
-                //body  = PlaceChecker.rewriteAtClause(c, xmi, t, r, xc);
-            }
             if (body != null) {
                 if (xmi.x10Def().thisVar() != null && t.target() instanceof Expr) {
                     //XName This = XTerms.makeName(new Object(), Types.get(xmi.def().container()) + "#this");
                     //body = body.subst(r, XTerms.makeLocal(This));
                     body = body.subst(r, xmi.x10Def().thisVar());
                 }
+                if ((! tl) && ! (body.okAsNestedTerm()))
+                	throw new IllegalConstraint(t, body, t.position());
                 for (int i = 0; i < t.arguments().size(); i++) {
                     //XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
                     //XVar x = (XVar) xmi.formalTypes().get(i);
@@ -653,12 +649,17 @@ public class XTypeTranslator {
                 XTerm v;
                 if (r instanceof XVar) {
                     v = CTerms.makeField((XVar) r, xmi.def());
+                  
                 }
                 else {
+                	  if ((! tl))
+                       	throw new IllegalConstraint(t);
                     v = CTerms.makeAtom(xmi.def(), r);
                 }
                 return v;
             }
+            if ((! tl))
+               	throw new IllegalConstraint(t);
             List<XTerm> terms = new ArrayList<XTerm>();
             terms.add(r);
             for (Expr e : t.arguments()) {

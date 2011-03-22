@@ -426,6 +426,9 @@ class XPromise_c implements XPromise, Serializable {
                     if (v == null) {
                         path2 = null;
                     } else {
+                    	if (! (t instanceof XField<?>)) {
+                    		int q = 4;
+                    	}
                         XField<?> ft = (XField<?>) t;
                         path2 = ft.copy(v);
                     }

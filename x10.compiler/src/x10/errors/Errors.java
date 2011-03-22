@@ -2035,5 +2035,11 @@ public class Errors {
 			super("Illegal constraint." +
 					"\n\t Term: " + t, t.position());
         }
+		public IllegalConstraint(Call c, XTerm t, Position p) {
+			super("Illegal constraint. The nested call expands into a term that is not permitted to be nested."
+					+ "\n\t Call: " + c
+					+ "\n\t Expansion: " + t, p);
+					
+		}
     }
 }

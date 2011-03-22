@@ -62,6 +62,7 @@ import x10.types.matcher.Subst;
 import x10.types.matcher.X10FieldMatcher;
 import x10.visit.X10TypeChecker;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 
 
 /**
@@ -260,10 +261,16 @@ public class X10Field_c extends Field_c {
                     if (mi.flags().isProperty()) {
                         Call call = nf.Call(pos, target, this.name);
                         call = call.methodInstance(mi);
-                        Type nt =  c.inDepType() ? 
-                                Checker.rightType(mi.rightType(), mi.x10Def(), target, c)
-                                : 
-                                	 Checker.expandCall(mi.rightType(), call, c);
+                        Type nt = mi.rightType();
+                        if (c.inDepType()) {
+                                nt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
+                        } else {
+                        	try {
+                             nt =  Checker.expandCall(mi.rightType(), call, c);
+                        	} catch (IllegalConstraint z) {
+                        		// ignore, we will go with mi.rightType.
+                        	}
+                        }
                             
                         call = (Call) call.type(nt);
                         return call;

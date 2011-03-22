@@ -644,7 +644,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	@Override
 	public Node conformanceCheck(ContextVisitor tc) {
-		checkVariance(tc);
+		//checkVariance(tc);
 
 		MethodDef mi = this.methodDef();
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
@@ -860,7 +860,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 
-	protected void checkVariance(ContextVisitor tc) {
+	/*protected void checkVariance(ContextVisitor tc) {
 		if (methodDef().flags().isStatic())
 			return;
 
@@ -884,7 +884,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			    Errors.issue(tc.job(), e, this);
 			}
 		}
-	}
+	}*/
 
 	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 		X10MethodDecl nn = this;

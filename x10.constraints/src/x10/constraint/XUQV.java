@@ -41,6 +41,10 @@ public class XUQV extends XVar {
         return false;
     }
 
+
+    public boolean okAsNestedTerm() {
+    	return true;
+    }
     public boolean hasVar(XVar v) {
         return equals(v);
     }
