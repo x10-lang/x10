@@ -150,19 +150,20 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		}
 		@Override
 		protected Goal codegenPrereq(Job job) {
-		    Goal sncr = StaticNestedClassRemover(job);
-		    Goal astcheck = PreCodegenASTInvariantChecker(job);
-		    astcheck.addPrereq(sncr);
-		    return astcheck;
+		    return StaticNestedClassRemover(job);
 		}
 		
 		@Override
 		public List<Goal> goals(Job job) {
 		    List<Goal> superGoals = super.goals(job);
-            ArrayList<Goal> goals = new ArrayList<Goal>(superGoals.size()+1);
+            ArrayList<Goal> goals = new ArrayList<Goal>(superGoals.size()+2);
+            Goal nvc = NativeClassVisitor(job);
+            Goal cg = CodeGenerated(job);
             for (Goal g : superGoals) {
-                if (g == NativeClassVisitor(job)) {
+                if (g == nvc) {
                     goals.add(ExternAnnotationVisitor(job));
+                } else if (g == cg) {
+                     goals.add(PreCodegenASTInvariantChecker(job));                    
                 }
                 goals.add(g);
             }
