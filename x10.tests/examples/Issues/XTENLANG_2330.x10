@@ -62,6 +62,18 @@ struct AAA7(R:Int)
     }
 }
 
+class Box77[T] {
+	 val t:T;
+	 def this(t:T) { this.t = t; }
+}
+class ABC23 { 
+  def test(b:Box77[Place{self==here}]) {
+	at (here.next()) {
+		val p2:Place{self==here} = b.t; // ERR
+	}
+  }
+}
+
 class Helper2330(p:Int) {
 	// test inner classes (both instance & nested), inheritance, overriding, generics (for generics I just checked codegen below, not runtime behaviour)
 	// new & call (with and without target/qualifier), operators
