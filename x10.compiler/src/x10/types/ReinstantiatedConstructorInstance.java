@@ -30,6 +30,10 @@ public final class ReinstantiatedConstructorInstance extends X10ConstructorInsta
     public TypeParamSubst typeParamSubst() {
         return typeParamSubst;
     }
+    @Override
+    public List<Type> typeParameters() {
+        return typeParamSubst.reinstantiate(super.typeParameters());
+    }
 
 	@Override
 	public Ref<? extends Type> returnTypeRef() {

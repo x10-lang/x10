@@ -90,6 +90,7 @@ import x10.types.MethodInstance;
 import x10.types.TypeParamSubst;
 import x10.types.ReinstantiatedMethodInstance;
 import x10.types.ReinstantiatedConstructorInstance;
+import x10.types.X10ConstructorInstance_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -447,7 +448,8 @@ public class Desugarer extends ContextVisitor {
         final TypeParamSubst typeParamSubst =
                 procInst instanceof ReinstantiatedMethodInstance ? ((ReinstantiatedMethodInstance)procInst).typeParamSubst() :
                 procInst instanceof ReinstantiatedConstructorInstance ? ((ReinstantiatedConstructorInstance)procInst).typeParamSubst() :
-                        null;
+                    procInst instanceof X10ConstructorInstance_c ? null : // this can happen when procInst is X10ConstructorInstance_c (see XTENLANG_2330). But creating an empty TypeParamSubst would also work
+                    new TypeParamSubst(ts,procInst.typeParameters(),procDef.typeParameters()); // I can't always use this because X10ConstructorInstance_c.typeParameters returns an empty list! (there is a todo there!)
         final List<LocalDef> oldFormals = procDef.formalNames();
         assert oldFormals.size()==args.size();
         Expr oldReceiver = null;
