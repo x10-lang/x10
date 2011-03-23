@@ -163,7 +163,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 if (g == nvc) {
                     goals.add(ExternAnnotationVisitor(job));
                 } else if (g == cg) {
-                     goals.add(PreCodegenASTInvariantChecker(job));                    
+                    goals.add(PreCodegenASTInvariantChecker(job));
                 }
                 goals.add(g);
             }
@@ -182,7 +182,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		}
 
 		public Goal PreCodegenASTInvariantChecker(Job job) {
-		    return new VisitorGoal("CodegenASTInvariantChecker", job, new PreCodeGenASTChecker(job)).intern(this);
+		    return new ValidatingVisitorGoal("CodegenASTInvariantChecker", job, new PreCodeGenASTChecker(job)).intern(this);
 		}
 	       
 	}
