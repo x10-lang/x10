@@ -696,7 +696,10 @@ void probe (bool onlyProcessAccept)
 				bool heapAllocated = false;
 				if (mp.len > 0)
 				{
-					mp.msg = alloca(mp.len);
+					if (mp.len <= 1024)
+						mp.msg = alloca(mp.len);
+					else
+						mp.msg = NULL;
 					if (mp.msg == NULL) // stack allocation failed... try heap allocation
 					{
 						mp.msg = malloc(mp.len);
