@@ -2285,7 +2285,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public X10ClassType ClassCastException() {
-        return load("x10.lang.ClassCastException");
+        return load("x10.lang.FailedDynamicCheckException");
     }
 
     public X10ClassType OutOfBoundsException() {

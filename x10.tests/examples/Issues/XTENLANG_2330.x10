@@ -51,6 +51,17 @@ class DynamicCallsTest {
 class TestGeneric7[T] {
     def this(t:T) {}
 }
+
+struct AAA7(R:Int)
+{
+    private val a:Point(R);
+
+    public def this (r:Int, v1:Array[Int](r)) {
+        property(r);
+        a = Point.make(v1); // ERR
+    }
+}
+
 class Helper2330(p:Int) {
 	// test inner classes (both instance & nested), inheritance, overriding, generics (for generics I just checked codegen below, not runtime behaviour)
 	// new & call (with and without target/qualifier), operators
@@ -67,6 +78,11 @@ class Helper2330(p:Int) {
 
 	def run(z:Int) { // z is 0 at runtime (I use it to make sure the guard cannot be statically resolved)
         test();
+		
+        AAA7(1, [0 as Int]);
+		try { AAA7(1, [0 as Int, 0]); fail(); } catch (e:ClassCastException) {}
+		try { AAA7(2, [0 as Int, 0]); fail(); } catch (e:ClassCastException) {} // ERR
+		try { AAA7(2, [0 as Int]); fail(); } catch (e:ClassCastException) {} // ERR
 
 		/////////////////////////////////////////////////////////////
 		// testing method calls (that return void or non-void)
