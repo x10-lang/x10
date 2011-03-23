@@ -48,12 +48,25 @@ class DynamicCallsTest {
 	  val x:Point(2) = p; // ERR
 	}
 }
+class TestGeneric7[T] {
+    def this(t:T) {}
+}
 class Helper2330(p:Int) {
 	// test inner classes (both instance & nested), inheritance, overriding, generics (for generics I just checked codegen below, not runtime behaviour)
 	// new & call (with and without target/qualifier), operators
 
 	def fail():void { throw new RuntimeException("test failed!"); }
+	
+	def test() {
+		test(1);
+		try { test(0); fail(); } catch (e:FailedDynamicCheckException) {}
+	}
+	def test(i:Int) {
+		val x = new TestGeneric7[Int{self!=0}](i); // ERR: Warning: Generated a dynamic check for the method call.
+	}
+
 	def run(z:Int) { // z is 0 at runtime (I use it to make sure the guard cannot be statically resolved)
+        test();
 
 		/////////////////////////////////////////////////////////////
 		// testing method calls (that return void or non-void)
@@ -293,7 +306,7 @@ class Helper2330(p:Int) {
 
 class GenericInstantiateTest[T] {
 	def test() {
-		new GenericInstantiateTest[Double](null); // ERR
+		new GenericInstantiateTest[Double](null); // ShouldNotBeERR  Warning: Generated a dynamic check for the method guard.
 	}
 	def this(b:GenericInstantiateTest[T]) {b==null} {}
 }

@@ -19,7 +19,7 @@ class XTENLANG_657 extends x10Test {
 
 
 	public static def test() {
-		fb[Short]( (1 as Byte), (2 as Short));  // ShouldNotBeERR
+		fb[Short]( (1 as Byte), (2 as Short)); 
 	}
 	static def fb[X](a : X, b :X):String = "I'll bet you think that whales are  fabulous, you nutritious eyesight.";
 

@@ -240,8 +240,8 @@ class FinalFieldWrittenExactlyOnce {
 		else if (flag) f=2;
 	}
 	def this(Int,Byte) { // ERR
-		val b:Int = (b=5); // ERR
-		var k:Int = (k=5); // ERR
+		val b:Int = (b=5); // ERR ERR
+		var k:Int = (k=5); // ERR ERR
 		while (true) { val i:Int = 4;}
 		f=f+1; // ERR
 	}
@@ -1490,7 +1490,7 @@ class TestFieldsWithoutDefaults[T] {
 	var b3:Boolean{self!=false}; // ERR
 	var b4:Boolean{self==false};
 	var b5:Boolean{self}; // ERR
-	var b6:Boolean{!self};
+	var b6:Boolean{!self}; // ERR
 	var ch1:Char;
 	var ch2:Char{self=='\0'};
 	var ch3:Char{self!='\0'}; // ERR
@@ -2338,14 +2338,14 @@ class NullaryPropertyMethod {
 		
 		public static def test() {		
 			val e = new E(2);
-			var e1:E{y()} = null; // ShouldNotBeERR: Method or static constructor not found
-			e1 = e as E{y()}; // ShouldNotBeERR: Method or static constructor not found
+			var e1:E{y()} = null; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
+			e1 = e as E{y()}; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
 			var e2:E{z} = null;
 			e2 = e as E{z};
 			var e3:E{y} = null;
 			e3 = e as E{y};
-			var e4:E{z()} = null; // ShouldNotBeERR: Method or static constructor not found
-			e4 = e as E{z()}; // ShouldNotBeERR: Method or static constructor not found
+			var e4:E{z()} = null; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
+			e4 = e as E{z()}; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
 		}
 		public static def main(Array[String]) {
 			val e = new E(2);
@@ -2668,7 +2668,7 @@ final class TestCasts { // TestInitInCasts
 	def test() {
 		val a3:Int = a3*3; // ERR: "a3" may not have been initialized
 		val a:Int{a!=5} = 
-			3 as Int{a!=5}; // ERR ERR [Semantic Error: Could not find field or local variable "a"., Semantic Error: Local variable may not have been initialized     Local variable: a]
+			3 as Int{a!=5}; // ERR ERR ERR [Semantic Error: Could not find field or local variable "a"., Semantic Error: Local variable may not have been initialized     Local variable: a]
 		val a2:Int{a2!=5} = 
 			3 as Int{self!=5};
 	}
@@ -3419,7 +3419,7 @@ class FieldInInvariant1 {a==1} { // ShouldBeErr
 class FieldInInvariant2 {this.a==1} {  // ShouldBeErr
 	val a:Int = 2;
 }
-class FieldInInvariant3 {self.a==1} { // ERR: Semantic Error: self may only be used within a dependent type
+class FieldInInvariant3 {self.a==1} { // ERR ERR: Semantic Error: self may only be used within a dependent type
 	val a:Int = 1;
 }
 class XTENLANG_688(a:Int) {
@@ -3431,11 +3431,15 @@ class XTENLANG_688_2(a:Int) { // fine even with DYNAMIC_CALLS (cause we do not g
 	val f1:Int{self==a} = a;
 }
 
+
+class IllegalForwardRef {
+    val f:IllegalForwardRef{this.f==null} = null;  // ERR (we need to determine the type of "f" when creating the constraint, so we can't refer to "f")
+}
 class LegalForwardRef { 
-    val f1:LegalForwardRef{this.f2==this.f1} = null; 
+    val f1:LegalForwardRef{this.f2==self} = null; 
     val f2:LegalForwardRef = null; 
 
-    val f3:LegalForwardRef{this.f4==this.f3} = f4; // ERR: Cannot read from field 'f4' before it is definitely assigned.
+    val f3:LegalForwardRef{this.f4==this.f3} = f4; // ERR ERR: Cannot read from field 'f4' before it is definitely assigned.
     val f4:LegalForwardRef = null; 
 }
 class LegalForwardRef2 { 
@@ -3894,7 +3898,7 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		public static operator (p:Y) as ? :X{i==4} = null;
 	}
 	static class Z(i:Int) {
-		@ShouldNotBeERR public static operator (p:Int) as Z{i==4} = null; // see XTENLANG-2202
+		@ShouldNotBeERR @ShouldNotBeERR public static operator (p:Int) as Z{i==4} = null; // see XTENLANG-2202
 	}
 	static class W(i:Int) {
 		public static operator (p:Int) as ? :W{i==4} = null;
@@ -4230,7 +4234,7 @@ class ConformanceChecks { // see XTENLANG-989
 	   def m(i:Int){i==3}:void;
 	}
 	class IntDataPoint implements A {
-	   @ShouldBeErr public def m(i:Int){i==4}:void {}
+	   @ERR public def m(i:Int){i==4}:void {}
 	}
 }
 
@@ -4493,7 +4497,7 @@ class MethodGuardEntailsOverriden {
 	class B extends A {
 	  def this() { super(3); }
 	  def m() {i!=0} {}
-	  @ShouldBeErr def m2() {i==1} {} // guard can only be made stronger. see XTENLANG-2325
+	  @ERR def m2() {i==1} {} // guard can only be made stronger. see XTENLANG-2325
 	} 
 }
 
@@ -5125,12 +5129,12 @@ class TestMultipleImplementAndFields {
 	class Example1(z:Int) implements I5 {
       public property z():Int = z;
 	  def example() = a;
-	  public def m() {z==1} {};
+	  public def m() {z==1} {}; // ShouldNotBeERR
 	}
 	class Example2(z:Int) implements I5,I3 {
       public property z():Int = z;
 	  def example() = a;
-	  public def m() {z==1} {};
+	  public def m() {z==1} {}; // ShouldNotBeERR
 	}
 }
 
@@ -5355,7 +5359,7 @@ class LoopTests {
 		for (p:Point(1) in d) {}
 	}
     public def run() {
-        val r:Region(2){self!=null}  = (0..2)*(0..3);// ShouldNotBeERR
+        val r:Region(2){self!=null}  = (0..2)*(0..3);
 	}
 
 	class P(r:Int) {}
@@ -5454,16 +5458,16 @@ class SuperPropertyFieldResolution {
 	class C2 extends B{self.a==1} {
 		def this() { super(1); }
 	}
-	class C3 extends B{this.a==1} { // ERR ERR
+	class C3 extends B{this.a==1} { // ERR ERR ERR
 		def this() { super(1); }
 	}
-	class C33 extends B{super.a==1} { // ERR
+	class C33 extends B{super.a==1} { // ERR ERR
 		def this() { super(1); }
 	}
 	class C4 {a==1} extends B {
 		def this() { super(1); }
 	}
-	class C5 {self.a==1} extends B { // ERR
+	class C5 {self.a==1} extends B { // ERR ERR
 		def this() { super(1); }
 	}
 	class C6 {this.a==1} extends B {
@@ -5475,22 +5479,22 @@ class SuperPropertyMethodResolution {
 		property a():Int = 1;
 		def this(z:Int) {}
 	}
-	class C1 extends B{a()==1} { // ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
+	class C1 extends B{a()==1} { // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
 		def this() { super(1); }
 	}
 	class C2 extends B{self.a()==1} {
 		def this() { super(1); }
 	}
-	class C3 extends B{this.a()==1} { // ERR
+	class C3 extends B{this.a()==1} { // ERR ERR
 		def this() { super(1); }
 	}
-	class C3 extends B{super.a()==1} { // ERR ERR
+	class C33 extends B{super.a()==1} { // ERR ERR
 		def this() { super(1); }
 	}
 	class C4 {a()==1} extends B {
 		def this() { super(1); }
 	}
-	class C5 {self.a()==1} extends B { // ERR
+	class C5 {self.a()==1} extends B { // ERR ERR
 		def this() { super(1); }
 	}
 	class C6 {this.a()==1} extends B {
@@ -5501,17 +5505,17 @@ class InterfaceSuperPropertyMethodResolution {
 	interface B {
 		property a():Int;
 	}
-	abstract class C1 implements B{a()==1} { // ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
+	abstract class C1 implements B{a()==1} { // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
 	}
 	abstract class C2 implements B{self.a()==1} {
 	}
-	abstract class C3 implements B{this.a()==1} { // ERR
+	abstract class C3 implements B{this.a()==1} { // ERR ERR
 	}
 	abstract class C3 implements B{super.a()==1} { // ERR ERR ERR
 	}
 	abstract class C4 {a()==1} implements B {
 	}
-	abstract class C5 {self.a()==1} implements B { // ERR
+	abstract class C5 {self.a()==1} implements B { // ERR ERR
 	}
 	abstract class C6 {this.a()==1} implements B {
 	}
@@ -5653,7 +5657,7 @@ class TestUnsoundCastWarning {
 }
 
 class TestConstraintLanguageAndRegions {
-	def testComplexConstraint(a:Boolean, b:Boolean, z: Boolean{self==(a==b)}) {} // ShouldBeErr
+	def testComplexConstraint(a:Boolean, b:Boolean, z: Boolean{self==(a==b)}) {} // ERR
 
 	def test() {	
 		var t: Boolean(true) = false; 	// ERR
@@ -5687,11 +5691,11 @@ class ResolvingPropertyMethods {
 		public def m():Int = 2;
 	}
 	// p()  should resolve to	self.p()
-	static def test(i:I{p()==1}) { // ShouldNotBeERR: Method or static constructor not found for given call.	 Call: p()
+	static def test(i:I{p()==1}) { // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found for given call.	 Call: p()
 		val x = i.p();
 		val y = i.m();
 	}
-	static def test2(i:C{p()==1}) { // ShouldNotBeERR: Method or static constructor not found for given call.	 Call: p()
+	static def test2(i:C{p()==1}) { // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found for given call.	 Call: p()
 		val x = i.p();
 		val y = i.m();
 	}
@@ -5721,3 +5725,65 @@ class CheckConstraintLanguage {
    def n(a:A, b:A) { a.zero()==b.zero()}{} // ERR
   }
 }
+
+class F_Bounded_Polymorphism_example {
+	class Subj[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } {
+		def m(x:X) {
+			val y:Subj[X,Y] = x;
+		}
+	}
+	class Obs[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } {
+		def m(x:Y) {
+			val y:Obs[X,Y] = x;
+		}
+	}
+}
+
+class NullGuardTest {
+	def test() {
+		new NullGuardTest(null); // ShouldNotBeERR
+	}
+	def this(b:NullGuardTest) {b==null} {}
+}
+class NullGuardTest2 {
+	def test() {
+		new NullGuardTest2(null); // ERR
+	}
+	def this(b:NullGuardTest2) {b!=null} {}
+}
+
+
+class TestNonConstraintInPropertyAssignCall {
+	class A(x:Int) {
+		def this(a:Int) {
+			property(a+1); // ERR
+		}
+	}
+	class B(x:Int) {
+		def this(a:Int) {
+			val z = a+1;
+			property(z);
+		}
+	}
+}
+class TestPropertyExpansion {
+    static class A(x:Int) {
+        property m(a:Int) = x;
+        static type B(a:Int) = A{x==1};
+
+        static def test1(i:Int, A{i==self.m(self.m(i))}) {}
+        static def test2(i:Int, A{i*3==self.m(i)}) {} // ERR
+
+        static def test3(i:Int, B(i*3)) {}
+        static def test4(i:Int, A{x==i*3}) {} // ERR
+    }
+}
+class SelfRestrictionTest {
+	static class A(b:Int) {
+		val a:A = null;
+		def test1(A{this.a.a.a!=null}) {}
+		def test2(x:A, A{x.a.a.a!=null}) {}
+		def test3(A{self.a.a.a!=null}) {} // ERR: Only properties may be prefixed with self in a constraint.
+	}
+}
+
