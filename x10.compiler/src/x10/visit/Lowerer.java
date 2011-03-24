@@ -370,7 +370,7 @@ public class Lowerer extends ContextVisitor {
         ClosureDef cDef = c.closureDef().position(bPos);
         Expr closure = nf.Closure(c, bPos)
             .closureDef(cDef)
-        	.type(ClosureSynthesizer.closureAnonymousClassDef( ts, cDef).asType());
+        	.type(cDef.classDef().asType());
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
             ts.Place(), cDef.asType()

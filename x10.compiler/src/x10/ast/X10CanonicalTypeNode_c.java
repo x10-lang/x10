@@ -47,7 +47,7 @@ import x10.constraint.XConstraint;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.types.ClosureDef;
-import x10.types.ClosureType_c;
+import x10.types.FunctionType_c;
 import x10.types.ConstrainedType;
 
 import x10.types.ParameterType;
@@ -291,7 +291,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
             type.get().print(w);
             final X10ParsedClassType baseType = Types.myBaseType(type.get());
             if (extras && baseType!=null
-                    && !(baseType instanceof ClosureType_c)) {
+                    && !(baseType instanceof FunctionType_c)) {
                 List<Type> typeArguments = baseType.typeArguments();
                 if (typeArguments != null && typeArguments.size() > 0) {
                     w.write("[");

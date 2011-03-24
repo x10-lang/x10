@@ -48,28 +48,16 @@ import polyglot.util.TransformingList;
 import x10.types.constraints.CConstraint;
 
 /**
- * A representation of the type of a closure.
- * Treated as a ClassType implementing a FunctionType, with the signature
- * for the function type retrieved from the sole method (the apply method)
- * defined on the class type.
+ * A representation of the type of a function interface.
+ * Treated as a ClassType representing an interface, with the signature for the
+ * function type retrieved from the sole method (the apply method) defined on the
+ * class type.
  */
-public class ClosureType_c extends FunctionType_c implements ClosureType {
-    private static final long serialVersionUID = 331189963001388621L;
+public class FunctionType_c extends X10ParsedClassType_c implements FunctionType {
+    private static final long serialVersionUID = 2768150875334536668L;
 
-    public ClosureType_c(final TypeSystem ts, Position pos, final X10ClassDef def) {
-        super(ts, pos, def);
-    }
-
-    protected ClosureInstance ci;
-
-    public ClosureInstance closureInstance() {
-        return ci;
-    }
-
-    public ClosureType closureInstance(ClosureInstance ci) {
-        ClosureType_c ct = (ClosureType_c) copy();
-        ct.ci = ci;
-        return ct;
+    public FunctionType_c(final TypeSystem ts, Position pos, final X10ClassDef def) {
+        super(ts, pos, Types.ref(def));
     }
 
     public MethodInstance applyMethod() {
@@ -98,6 +86,11 @@ public class ClosureType_c extends FunctionType_c implements ClosureType {
 
     public List<Type> argumentTypes() {
         return applyMethod().formalTypes();
+    }
+
+    protected static String guardToString(CConstraint guard) {
+        if (guard == null || guard.constraints().isEmpty()) return "";
+        return guard.toString();
     }
 
     @Override

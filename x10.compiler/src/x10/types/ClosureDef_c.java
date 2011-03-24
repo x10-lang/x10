@@ -26,7 +26,9 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.ClosureSynthesizer;
+import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -89,16 +91,18 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     	return n;
     	
     }
-    FunctionType asType;
-    
-    public FunctionType asType() {
-	if (asType == null) {
-	    TypeSystem ts = (TypeSystem) this.ts;
-	    asType = ts.closureType(position(), returnType, 
-	    		// Collections.EMPTY_LIST, 
-	    		formalTypes, formalNames, guard);
-	}
-	return asType;
+
+    public X10ClassDef classDef() {
+        return asType().x10Def();
+    }
+
+    protected ClosureType asType;
+
+    public ClosureType asType() {
+        if (asType == null) {
+            asType = ts.closureType(this);
+        }
+        return asType;
     }
     
     protected boolean inferReturnType;

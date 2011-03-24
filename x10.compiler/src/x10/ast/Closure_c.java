@@ -427,11 +427,10 @@ public class Closure_c extends Expr_c implements Closure {
 		//    System.out.println(this.position() + ": " + this + " captures "+def.capturedEnvironment());
 		//}
 		propagateCapturedEnvironment(c, def);
-		ClassDef cd = ClosureSynthesizer.closureAnonymousClassDef(xts, def);
-		n = (Closure_c) n.type(cd.asType());
+		n = (Closure_c) n.type(def.asType());
 		if (hasType != null) {
 			final TypeNode h = (TypeNode) n.visitChild(n.hasType, tc);
-			Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( Context ) tc.context());
+			Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), tc.context());
 			n = n.hasType(h);
 			if (!xts.isSubtype(n.returnType().type(), hasType, tc.context())) {
 				Errors.issue(tc.job(), new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));

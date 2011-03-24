@@ -326,7 +326,7 @@ public class ClosureRemover extends ContextVisitor {
                     staticInnerClassDef.outer(Types.<ClassDef>ref(def));
                     staticInnerClassDef.setPackage(Types.ref(context.package_()));
                     staticInnerClassDef.flags(privateStatic);
-                    staticInnerClassDef.setInterfaces(Collections.<Ref<? extends Type>>singletonList(Types.ref(cld.asType())));
+                    staticInnerClassDef.setInterfaces(cld.classDef().interfaces());
                     staticInnerClassDef.setThisDef(ts.thisDef(pos, Types.ref(staticInnerClassDef.asType())));
                     
                     // TODO set method bounds?
@@ -363,7 +363,11 @@ public class ClosureRemover extends ContextVisitor {
                     
                     staticInnerClassDef.setMethods(Collections.singletonList(closureMethodDef));
                     // create class decl
-                    List<TypeNode> interfaces = Collections.<TypeNode>singletonList(xnf.X10CanonicalTypeNode(pos, cld.asType()));
+                    List<TypeNode> interfaces = new ArrayList<TypeNode>();
+                    List<Type> cint = cld.asType().interfaces();
+                    for (Type it : cint) {
+                        interfaces.add(xnf.X10CanonicalTypeNode(pos, it));
+                    }
                     X10ClassDecl staticInnerClassDecl = (X10ClassDecl) xnf.ClassDecl(pos, xnf.FlagsNode(pos, privateStatic), staticInnerClassName, xnf.X10CanonicalTypeNode(pos, xts.Object()), interfaces, xnf.ClassBody(pos, Collections.<ClassMember>emptyList()));
                     
                     List<TypeParamNode> tpns = new ArrayList<TypeParamNode>();

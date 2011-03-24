@@ -417,9 +417,9 @@ public class X10NodeFactory_c extends NodeFactory_c {
 
 	public Assign Assign(Position pos, Expr left, Assign.Operator op, Expr right)
 	{
-	    if (left instanceof Call) {
-		Call c = (Call) left;
-		return SettableAssign(pos, (Expr) c.target(), c.arguments(), op, right);
+	    if (left instanceof InlinableCall) {
+	        InlinableCall c = (InlinableCall) left;
+	        return SettableAssign(pos, (Expr) c.target(), c.arguments(), op, right);
 	    }
 	    return SUPER_Assign(pos, left, op, right);
 	}

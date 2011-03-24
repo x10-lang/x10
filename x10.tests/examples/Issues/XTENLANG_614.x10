@@ -17,7 +17,7 @@ import harness.x10Test;
 public class XTENLANG_614 extends x10Test {
 
     public def run(): boolean {
-        val foo = true ? ()=>{} : ()=>{}; // ShouldNotBeERR
+        val foo = true ? ()=>{} : ()=>{};
         return true;
     }
     

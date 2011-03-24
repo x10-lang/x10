@@ -1508,6 +1508,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 
     	if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
+    	    if (type1 instanceof FunctionType && type2 instanceof FunctionType) {
+    	        if (isSubtype(type1, type2))
+    	            return type2;
+    	        if (isSubtype(type2, type1))
+    	            return type1;
+    	        return ts.Any(); // Two unrelated functions still extend Any
+    	    }
     		if (hasSameClassDef(type1, type2)) {
     			X10ClassType ct1 = (X10ClassType) type1;
     			X10ClassType ct2 = (X10ClassType) type2;

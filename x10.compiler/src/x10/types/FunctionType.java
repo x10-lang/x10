@@ -11,35 +11,26 @@
 
 package x10.types;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.types.LocalInstance;
-
-import polyglot.types.Ref;
 import polyglot.types.Type;
-import x10.constraint.XConstraint;
+import x10.types.constraints.CConstraint;
 
 /**
- * The type of a closure, representing the closure's signature (argument types,
- * return type and throwable exception types).
- * @author rfuhrer
+ * The type of a function interface, representing the function's signature
+ * (argument types, return type, guard).
  */
 public interface FunctionType extends X10ParsedClassType {
-//    ClosureDef closureDef();
-    
-//    ClosureInstance closureInstance();
-//    ClosureType closureInstance(ClosureInstance ci);
-    
     MethodInstance applyMethod();
 
     /**
-     * @return the type of value returned by an invocation of the closure. cannot be void.
+     * Return the type of value returned by an invocation of the closure. cannot be void.
      */
     Type returnType();
 
     /**
-     * @return the list of formal type arguments of the closure, in declaration order. may be empty.
+     * Return the list of formal type arguments of the closure, in declaration order. may be empty.
      * Note: This differs from typeArguments, inherited from X10ClassType.
      * For [S](T) => U, 
      * the class type for the closure is Fun_1_1[T,U].
@@ -60,18 +51,13 @@ public interface FunctionType extends X10ParsedClassType {
     /**
      * @return the guard for the closure.
      */
-    XConstraint guard();
+    CConstraint guard();
 
-    
-//    public ClosureType returnType(Type l);
+//    public FunctionType returnType(Type l);
 //
-//    public ClosureType guard(XConstraint l);
+//    public FunctionType guard(XConstraint l);
 //
-//    public ClosureType typeParameters(List<Type> l);
+//    public FuntcionType typeParameters(List<Type> l);
 //
-//    public ClosureType argumentTypes(List<Type> l);
-//
-//    public ClosureType throwTypes(List<Type> l);
-//
-//    public List<Type> typeArguments();
+//    public FunctionType argumentTypes(List<Type> l);
 }

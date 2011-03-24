@@ -235,7 +235,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		public String typeToString() {
 	        Type type = baseType.getCached();
 	        String typeName = type.toString();
-	        if (type instanceof ClosureType_c)
+	        if (type instanceof FunctionType_c)
 	            typeName = "("+typeName+")";
 	        return typeName + constraintString();
 		}
