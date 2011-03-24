@@ -2666,7 +2666,7 @@ final class TestCasts { // TestInitInCasts
 	val c:Int{c==3} = 3 as Int{self==3};
 
 	def test() {
-		val a3:Int = a3*3; // ERR: "a3" may not have been initialized
+		val a3:Int = a3*3; // ERR ERR: "a3" may not have been initialized
 		val a:Int{a!=5} = 
 			3 as Int{a!=5}; // ERR ERR ERR [Semantic Error: Could not find field or local variable "a"., Semantic Error: Local variable may not have been initialized     Local variable: a]
 		val a2:Int{a2!=5} = 
@@ -5110,7 +5110,7 @@ class TestFieldResolution(p:Int) {
 		use(me2.f2); // ERR: Type inconsistent
 	}
 	static def test() {
-		use(f); // ERR [Cannot access a non-static field f from a static context.]
+		use(f); // ERR ERR [Cannot access a non-static field f from a static context.]
 	}
 	static def use(Any) {}
 }
@@ -5787,3 +5787,150 @@ class SelfRestrictionTest {
 	}
 }
 
+class TestInitChecker {
+	def m1() {
+		val x:Int;
+		val y:Int = 1;
+		class A {
+			val a = 1;
+			class B {
+				val b = 1;
+				def ab() {
+					val c = 1;
+					class C {
+						val w1 = x+1; // ERR
+						val w2 = y+a+b+c;
+						def t() {
+							val d = 1;
+							val f = () => {
+								val e = y+a+b+c+d;
+								class D {
+									val f = y+a+b+c+d+e;
+									def r() {
+										val g = y+a+b+c+d+e+f;
+									}
+								}
+							};
+						}
+						val f:()=>void = () => {
+							val e = y+a+b+c;
+						};
+						class E {
+							val e = y+a+b+c+w2;
+						}
+					}
+				}
+			}
+		}
+	}
+	def m2() {
+		val y = 1;
+		val o2 = new Object() {
+			class M {
+				val w = y;
+			}
+			val z = y;
+			def q() {
+				val a = 1;
+				val w = () => a+y+z;
+			}
+		};
+	}
+
+	// local definite-assignment tests
+	def testLoop() {
+		for ([i] in 0..10) {
+			val x = i;
+		}
+	}
+	def testFormal(k:Int) {
+		val x = ()=>k+1;
+	}
+	def test0() {
+		val d0:Int;
+		d0 = 2;
+	}
+	def test1() {
+		val d1:Int = 1;
+		val z1 = ()=>d1;
+	}
+	def test2() {
+		val d2:Int;
+		val z2 =
+			()=>d2; // ERR
+		d2 = 2;
+	}
+	def test3() {
+		val d3:Int = 1;
+		val z3 = ()=> { d3=3; }; // ERR
+	}
+	def test4() {
+		val d4:Int;
+		val z4 = ()=> { d4=4; }; // ERR
+	}
+
+    def testClosure() {
+		val fun = () => {
+			val d = 1;
+			val z = ()=>d;
+		};
+
+		val x:Int;
+		val y = () => {x=3;}; // ERR
+		x = 2;
+
+    }
+	def test5() {
+        val x:Int{self!=0};
+        val y:Int{self!=0} = 2;
+		val o = new Object() {
+			val z = x; // ERR
+		};
+		val o2 = new Object() {
+			val z = y;
+		};
+        val c = ()=>x; // ERR
+		val fun = () => {
+			val d = 1;
+			val q1 = () => d;
+			val q2 = () => d+y;
+			val q3 = () => d+x; // ERR
+		};
+		x = 3;
+	}
+	def testInner() {
+		val i1:Int;
+		val i2:Int = 1;
+		val x = new Object() {
+			def qq() {
+				use(i1); // ERR
+				use(i2);
+				val j1:Int;
+				val j2:Int = 2;
+				val w =  new Object() {
+					def qq2() {
+						use(i1); // ERR
+						use(i2);
+						use(j1); // ERR
+						use(j2);
+					}
+				};
+			}
+		};
+	}
+	def use(Any) {}
+	val a = 0;
+	public def run() {
+        val b:int = 1;
+        class C {
+            val c = 1;
+            def foo() = {
+                val fun = () => {
+                    val d:int = 1;
+                    (() => a+b+c+d)()
+                };
+                fun()
+            }
+        }
+	}
+}
