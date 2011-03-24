@@ -100,6 +100,13 @@ public class ClosureType_c extends FunctionType_c implements ClosureType {
         return applyMethod().formalTypes();
     }
 
+    public FunctionType functionInterface() {
+        for (Type itype : interfaces()) {
+            return (FunctionType) itype;
+        }
+        throw new InternalCompilerError("Found a closure type "+typeToString()+" at "+position()+" that does not implement a function interface");
+    }
+
     @Override
     public String typeToString() {
         MethodInstance mi = applyMethod();

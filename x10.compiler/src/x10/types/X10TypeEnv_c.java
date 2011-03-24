@@ -21,12 +21,14 @@ import java.util.Set;
 
 import polyglot.main.Reporter;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
+import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
@@ -890,7 +892,36 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			return true;
     	}
     	// At this point the constraint has been checked and baseType2 == t2.
-    	
+
+    	// Handle function types
+    	if (baseType1 instanceof FunctionType && baseType2 instanceof FunctionType) {
+            FunctionType ft1 = (FunctionType) baseType1;
+            FunctionType ft2 = (FunctionType) baseType2;
+            // (x1:S1,..., xn:Sn){c}=>S <: (y1:T1,..., yn:Tn){d}=>T provided that
+            // 1. Ti <: Si, for i in 1..n
+            // 2. d entails c
+            // 3. S <: T
+            List<Type> Sl = ft1.argumentTypes();
+            Type S = ft1.returnType();
+            CConstraint c = ft1.guard();
+            List<Type> Tl = ft2.argumentTypes();
+            Type T = ft2.returnType();
+            CConstraint d = ft1.guard();
+            if (Sl.size() != Tl.size())
+                return false;
+            for (int i = 0; i < Sl.size(); i++) {
+                Type Si = Sl.get(i);
+                Type Ti = Tl.get(i);
+                if (!isSubtype(x, Ti, Si))
+                    return false;
+            }
+            if (!entails(d, c))
+                return false;
+            if (!isSubtype(x, S, T))
+                return false;
+            return true;
+    	}
+
     	// Handle parameterized types and interfaces
     	if (baseType1 instanceof X10ClassType && baseType2 instanceof X10ClassType) {
     		X10ClassType ct1 = (X10ClassType) baseType1;
@@ -1484,8 +1515,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             assert Types.permitsNull(res);
             return res;
         } else {
-            t = leastCommonAncestorBase(Types.baseType(type1),
-    			Types.baseType(type2));
+            t = leastCommonAncestorBase(Types.baseType(type1), Types.baseType(type2));
         }
     	
     	CConstraint c1 = Types.realX(type1), c2 = Types.realX(type2);
@@ -1494,25 +1524,52 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		t = Types.addConstraint(t, c);
     	assert Types.consistent(t);
     	return t;
-    	
+    }
+
+    private FunctionType changeReturnType(FunctionType ft, Type nrt) {
+        Type rt = ft.returnType();
+        if (nrt == rt || typeEquals(nrt, rt))
+            return ft;
+        List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>();
+        List<ParameterType> typeParameters = Collections.<ParameterType>emptyList(); // FIXME
+        for (Type t : ft.argumentTypes()) {
+            formalTypes.add(Types.ref(t));
+        }
+        List<LocalDef> formalNames = new ArrayList<LocalDef>();
+        for (LocalInstance li : ft.formalNames()) {
+            formalNames.add(li.def());
+        }
+        return ts.functionType(ft.position(), Types.ref(nrt), typeParameters, formalTypes, formalNames, Types.ref(ft.guard()));
     }
 
     // Assumes type1 and type2 are base types, no constraint clauses.
-    private Type leastCommonAncestorBase(Type type1, Type type2)
-    throws SemanticException
-    {
-       
+    private Type leastCommonAncestorBase(Type type1, Type type2) throws SemanticException {
     	if (typeEquals(type1, type2)) {
     		return type1;
     	}
 
-
     	if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
     	    if (type1 instanceof FunctionType && type2 instanceof FunctionType) {
-    	        if (isSubtype(type1, type2))
-    	            return type2;
-    	        if (isSubtype(type2, type1))
-    	            return type1;
+    	        FunctionType ft1 = (FunctionType) type1;
+    	        FunctionType ft2 = (FunctionType) type2;
+    	        if (isSubtype(ft1, ft2))
+    	            return ft2;
+    	        if (isSubtype(ft2, ft1))
+    	            return ft1;
+    	        if (ft1 instanceof ClosureType)
+    	            return leastCommonAncestor(((ClosureType) ft1).functionInterface(), ft2);
+    	        if (ft2 instanceof ClosureType)
+    	            return leastCommonAncestor(ft1, ((ClosureType) ft2).functionInterface());
+    	        // Found two function interfaces, neither of which is a subtype of each other.
+    	        // First try finding a common (covariant) return type.
+    	        Type rt1 = ft1.returnType();
+    	        Type rt2 = ft2.returnType();
+    	        Type nrt = leastCommonAncestor(rt1, rt2);
+    	        Type nft1 = changeReturnType(ft1, nrt);
+    	        Type nft2 = changeReturnType(ft2, nrt);
+    	        if (nft1 != ft1 || nft2 != ft2)
+    	            return leastCommonAncestor(nft1, nft2);
+    	        // TODO: try contravariant arguments
     	        return ts.Any(); // Two unrelated functions still extend Any
     	    }
     		if (hasSameClassDef(type1, type2)) {
@@ -1552,19 +1609,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		}
     	}
 
-
     	if (isSubtype(type1, type2))
     		return type2;
     	if (isSubtype(type2, type1))
     		return type1;
-
 
     	// Don't consider interfaces.
     	if ((type1.isClass() && ts.isInterfaceType(type2)) ||
             (type2.isClass() && ts.isInterfaceType(type1))) {
     		return ts.Any(); // an interface may be implemented by a struct
     	}
-
 
     	// Since they are not equal, and one is not a subtype of another
     	// and one of them is a struct, the lub has to be Any.
@@ -1585,11 +1639,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     		if (typeEquals(t1, t2)) 
     			return t1;
-
-
     	}
     	return ts.Any();
-
     }
 
     /* (non-Javadoc)
