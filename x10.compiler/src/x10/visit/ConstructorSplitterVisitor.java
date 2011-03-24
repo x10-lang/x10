@@ -27,6 +27,8 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.Flags;
 import polyglot.types.Name;
+import polyglot.types.ObjectType;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -34,6 +36,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.X10NodeFactory_c;
+import x10.types.X10TypeObjectMixin;
 import x10.util.AltSynthesizer;
 
 /**
@@ -49,6 +52,8 @@ import x10.util.AltSynthesizer;
 public class ConstructorSplitterVisitor extends ContextVisitor {
 
     private static final boolean DEBUG = false;
+    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
+    private static final QName NATIVE_REP_ANNOTATION   = QName.make("x10.compiler.NativeRep");
     
     private void debug (Job job, String msg, Position pos) {
         if (!DEBUG) return;
@@ -95,29 +100,32 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         Position pos = node.position();
         if (node instanceof New && !(parent instanceof LocalDecl)){
             New n              = (New) node;
-   //       Type type          = Types.baseType(n.type());
+            if (cannotSplitConstructor(n.constructorInstance().container().toClass()))
+                return n;
             Type type          = n.type();
             Allocation a       = createAllocation(pos, type, n.typeArguments());
             LocalDecl ld       = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
             Local l            = syn.createLocal(pos, ld);
-            ConstructorCall cc = createConstructorCall(n).target(l);
+            ConstructorCall cc = createConstructorCall(l, n);
             List<Stmt> stmts   = new ArrayList<Stmt>();
             stmts.add(ld);
             stmts.add(cc);
             Node result        = syn.createStmtExpr(pos, stmts, syn.createLocal(pos, ld));
-            if (DEBUG) debug(job, "ConstructorSplitterVisitor splitting " +n+ "\n\t" +result, pos);
+            if (DEBUG) debug(job, "ConstructorSplitterVisitor splitting \n\t" +node+ "  ~>\n\t" +result, pos);
             return result;
         }
         if (node instanceof LocalDecl && ((LocalDecl) node).init() instanceof New) {
-            // We're in a statement context, so we can avoid a stmt expr.
             LocalDecl ld       = (LocalDecl) node;
             New n              = (New) ld.init();
+            if (cannotSplitConstructor(n.constructorInstance().container().toClass()))
+                return ld;
             Type type          = n.type();
             Allocation a       = createAllocation(pos, type, n.typeArguments());
+            // We're in a statement context, so we can avoid a stmt expr.
             List<Stmt> stmts   = new ArrayList<Stmt>();
             if (type.typeSystem().typeDeepBaseEquals(ld.declType(), n.type(), context)) {
                 ld                 = ld.init(a);
-                ConstructorCall cc = createConstructorCall(n).target(syn.createLocal(pos, ld));
+                ConstructorCall cc = createConstructorCall(syn.createLocal(pos, ld), n);
                 stmts.add(ld);
                 stmts.add(cc);
             } else {
@@ -126,17 +134,51 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
                 // Introduce additional localdecl so that the constructor call can be made
                 // on a variable of the correct type. 
                 LocalDecl ld2      = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
-                ConstructorCall cc = createConstructorCall(n).target(syn.createLocal(pos, ld2));
+                ConstructorCall cc = createConstructorCall(syn.createLocal(pos, ld2), n);
                 ld                 = ld.init(syn.createLocal(pos, ld2));
                 stmts.add(ld2);
                 stmts.add(cc);
                 stmts.add(ld);
             }
             Node result        = syn.createStmtSeq(pos, stmts);
-            if (DEBUG) debug(job, "ConstructorSplitterVisitor splitting " +node+ "\n\t" +result, pos);
+            if (DEBUG) debug(job, "ConstructorSplitterVisitor splitting \n\t" +node+ "  ~>\n\t" +result, pos);
             return result;
+        } 
+        if (node instanceof ConstructorCall) {
+            ConstructorCall cc = (ConstructorCall) node;
+            if (null == cc.target())
+                return cc.target(createThis(node.position(), cc.constructorInstance().returnType()));
         }
         return super.leaveCall(parent, old, node, v);
+    }
+
+    /**
+     * @param type
+     * @return
+     */
+    public static boolean cannotSplitConstructor(Type type) {
+        if (null == type || type.typeEquals(type.typeSystem().Object(), type.typeSystem().emptyContext()))
+            return false;
+        if (hasNaiveAnnotation(type)) 
+            return true;
+        if (type instanceof ObjectType)
+            return cannotSplitConstructor(((ObjectType) type).superClass());
+        return false;
+    }
+
+    /**
+     * @param type
+     * @return
+     */
+    private static boolean hasNaiveAnnotation(Type type) {
+        List<Type> annotations = type.annotations();
+        if (null == annotations || annotations.isEmpty()) 
+            return false;
+        if (!X10TypeObjectMixin.annotationsNamed(annotations, NATIVE_CLASS_ANNOTATION).isEmpty())
+            return true;
+        if (!X10TypeObjectMixin.annotationsNamed(annotations, NATIVE_REP_ANNOTATION).isEmpty())
+            return true;
+        return false;
     }
 
     /**
@@ -144,8 +186,11 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
      * @param pos
      * @return
      */
-    private ConstructorCall createConstructorCall(New n) {
-        return nf.ThisCall(n.position(), n.arguments()).constructorInstance(n.constructorInstance());
+    private ConstructorCall createConstructorCall(Expr target, New n) {
+        ConstructorCall cc = nf.X10ThisCall(n.position(), n.typeArguments(), n.arguments());
+        cc = cc.target(target);
+        cc = cc.constructorInstance(n.constructorInstance());
+        return cc;
     }
 
     /**

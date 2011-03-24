@@ -17,6 +17,8 @@ import java.util.List;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode_c;
+import polyglot.ast.Binary;
+import polyglot.ast.Binary.Operator;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
@@ -26,8 +28,10 @@ import polyglot.ast.Local;
 import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -38,6 +42,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -53,9 +58,11 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import x10.errors.Warnings;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
@@ -228,7 +235,8 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
             for (Expr e : this.args) {
                 argTypes.add(e.type());
             }
-            
+
+            // FIXME: move this code into X10Disamb_c
             if (prefix == null) {
                 // Search the context.
                 TypeDefMatcher matcher = new TypeDefMatcher(null, name.id(), typeArgs, argTypes, c);
@@ -240,12 +248,24 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
                     }
                 }
             }
-            else {
-                if (prefix instanceof TypeNode) {
-                    TypeNode tn = (TypeNode) prefix;
-                    Type container = tn.type();
-                    mt = ts.findTypeDef(container, name.id(), typeArgs, argTypes, c);
+            else if (prefix instanceof PackageNode) {
+                PackageNode pn = (PackageNode) prefix;
+                Resolver pc = ts.packageContextResolver(pn.package_().get());
+                TypeDefMatcher matcher = new TypeDefMatcher(null, name.id(), typeArgs, argTypes, c);
+                List<Type> tl = pc.find(matcher);
+                if (tl != null) {
+                    for (Type n : tl) {
+                        if (n instanceof MacroType) {
+                            mt = (MacroType) n;
+                            break;
+                        }
+                    }
                 }
+            }
+            else if (prefix instanceof TypeNode) {
+                TypeNode tn = (TypeNode) prefix;
+                Type container = tn.type();
+                mt = ts.findTypeDef(container, name.id(), typeArgs, argTypes, c);
             }
             
             if (mt != null) {
@@ -354,9 +374,41 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
                 foundError = true;
             }
         }
+        // Do not permit arguments to macro calls to be Boolean and
+        // &&, || or !. These cannot be handled by the constraint system.
+        class CheckMacroCallArgsVisitor extends NodeVisitor {
+        	IllegalConstraint error;
+        	@Override
+        	public Node override(Node n) {
+        		if (n instanceof Binary ) {
+        			Binary b = (Binary) n;
+        			Binary.Operator bop = b.operator();
+        			if (b.type().isBoolean() && bop.equals(Binary.COND_AND) 
+        					|| bop.equals(Binary.COND_OR)) {
+        				error = new IllegalConstraint(b);
+        			}
+        		}
+        		if (n instanceof Unary) {
+        			Unary u = (Unary) n;
+        			Unary.Operator uop = u.operator();
+        			if (u.type().isBoolean() && uop.equals(Unary.NOT)) {
+        				error = new IllegalConstraint(u);
+        			}
+        		}
+        		return null;
+        	}
+        }
+        CheckMacroCallArgsVisitor v = new CheckMacroCallArgsVisitor();
+        for (Expr arg : args) {
+        	arg = (Expr) arg.visit(v);
+        	if (v.error !=null) {
+        		Errors.issue(tc.job(), v.error);
+        	}
+        }
         try {
             tn = n.disambiguateBase(tc);
         }
+        
         catch (SemanticException e) {
             if (!foundError) {
                 // Mark the type resolved to prevent us from trying to resolve this again and again.

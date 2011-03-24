@@ -46,8 +46,23 @@ public class LocalVar<T> extends x10.core.Ref {
     private static final Object nullObject = new Object();
     private static AtomicLong lastId = new AtomicLong(0);
 
-    private final x10.rtt.Type<?> T;
-    private final long id;
+    private x10.rtt.Type<?> T;
+    private long id;
+
+    public LocalVar(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+
+    public void $init(final x10.rtt.Type<?> T, final T local, java.lang.Class<?> $dummy0) {
+        super.$init();
+        this.T = T;
+        long temp = lastId.getAndIncrement();
+        while (idToObject.containsKey(temp)) {
+            temp = lastId.getAndIncrement();
+        }
+        id = temp;
+        idToObject.put(id, local == null ? nullObject : local);
+    }
 
     public LocalVar(final x10.rtt.Type<?> T, final T local, java.lang.Class<?> $dummy0) {
         super();
@@ -59,7 +74,7 @@ public class LocalVar<T> extends x10.core.Ref {
         id = temp;
         idToObject.put(id, local == null ? nullObject : local);
     }
-
+    
     public T $apply$G() {
         Object local = idToObject.remove(id);
         return (T) (local == nullObject ? null : local);

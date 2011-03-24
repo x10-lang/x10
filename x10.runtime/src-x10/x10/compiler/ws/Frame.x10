@@ -15,17 +15,13 @@ public abstract class Frame {
     @Native("c++", "static_cast<#U >(#x)")
     public native static def cast[T,U](x:T):U;
 
-    @Native("java", "null")
+    @Native("java", "((#1) null)")
     @Native("c++", "NULL")
     public native static def NULL[T]():T;
 
-    @Native("java", "(#1 == #2)")
-    @Native("c++", "(#x == #y)")
-    public native static def eq(x:Frame, y:FinishFrame):Boolean;
-
-    @Native("java", "(null == #4)")
+    @Native("java", "(null == (#4))")
     @Native("c++", "(NULL == (#4)._val)")
-    public native static def isNull[T](x:T):Boolean;
+    public native static def isNULL[T](x:T):Boolean;
 
     @Uninitialized public val up:Frame;
 
@@ -44,7 +40,7 @@ public abstract class Frame {
     public def back(worker:Worker, frame:Frame) {}
 
     public def wrapBack(worker:Worker, frame:Frame) {
-        if (null != frame.throwable) {
+        if (!isNULL(frame.throwable)) {
             throwable = frame.throwable;
         } else {
             back(worker, frame);
@@ -52,9 +48,9 @@ public abstract class Frame {
     }
 
     public def resume(worker:Worker) {}
-    
+
     public def wrapResume(worker:Worker) {
-        if (null != throwable) return;
+        if (!isNULL(throwable)) return;
         try {
             resume(worker);
         } catch (t:Abort) {

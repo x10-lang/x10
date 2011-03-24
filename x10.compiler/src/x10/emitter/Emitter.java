@@ -117,12 +117,9 @@ import x10c.visit.StaticInitializer;
 public class Emitter {
 
     private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
+    private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
+    private static final String RETURN_SPECIAL_TYPE_SUFFIX = "$O";
 
-    CodeWriter w;
-	Translator tr;
-	private final Type imcType;
-    private final Type nativeClassType;
-        
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
 	                "abstract", "default",  "if",         "private",    "this",
@@ -144,8 +141,10 @@ public class Emitter {
 	        )
 	);
 
-	private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
-	private static final String RETURN_SPECIAL_TYPE_SUFFIX = "$O";
+	CodeWriter w;
+	Translator tr;
+	private final Type imcType;
+	private final Type nativeClassType;
 
 	public Emitter(CodeWriter w, Translator tr) {
 		this.w=w;
@@ -2586,7 +2585,7 @@ public class Emitter {
 
 	public void generateRTTInstance(X10ClassDef def) {
 	    // for static inner classes that are compiled from closures
-	    boolean isStaticFunType = def.name().toString().startsWith(ClosureRemover.STATIC_INNER_CLASS_BASE_NAME);
+	    boolean isStaticFunType = def.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME);
 	    boolean isVoidFun = false;
 	    if (isStaticFunType) {
 	        // Note: assume that the first interface in this X10ClassDef is a function type
@@ -2656,6 +2655,11 @@ public class Emitter {
             if (def.superType() != null) {
                 if (def.interfaces().size() != 0) w.write(", ");
                 printParent(def, def.superType().get());
+            }
+            if (def.isStruct()) {
+                if (def.interfaces().size() != 0 || def.superType() != null) w.write(", ");
+                // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
+                w.write("x10.rtt.Types.STRUCT");
             }
             w.write("}");
         }
@@ -3085,22 +3089,22 @@ public class Emitter {
                     zero = "(x10.lang.UInt) x10.rtt.Types.UINT_ZERO";
                 } else if (xts.isULong(type)) {
                     zero = "(x10.lang.ULong) x10.rtt.Types.ULONG_ZERO";
-                } else if (xts.isByte(type)) {
-                    zero = "(byte) 0";
-                } else if (xts.isShort(type)) {
-                    zero = "(short) 0";
-                } else if (xts.isInt(type)) {
-                    zero = "0";
-                } else if (xts.isLong(type)) {
-                    zero = "0L";
-                } else if (xts.isFloat(type)) {
-                    zero = "0.0F";
-                } else if (xts.isDouble(type)) {
-                    zero = "0.0";
-                } else if (xts.isChar(type)) {
-                    zero = "(char) 0";
-                } else if (xts.isBoolean(type)) {
-                    zero = "false";
+//                } else if (xts.isByte(type)) {
+//                    zero = "(byte) 0";
+//                } else if (xts.isShort(type)) {
+//                    zero = "(short) 0";
+//                } else if (xts.isInt(type)) {
+//                    zero = "0";
+//                } else if (xts.isLong(type)) {
+//                    zero = "0L";
+//                } else if (xts.isFloat(type)) {
+//                    zero = "0.0F";
+//                } else if (xts.isDouble(type)) {
+//                    zero = "0.0";
+//                } else if (xts.isChar(type)) {
+//                    zero = "(char) 0";
+//                } else if (xts.isBoolean(type)) {
+//                    zero = "false";
                 } else {
                     // user-defined struct type
                     // for struct a.b.S[T], "new a.b.S(T, (java.lang.System) null);"

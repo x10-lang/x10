@@ -26,6 +26,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
@@ -1673,13 +1674,17 @@ public class Errors {
         }
     }
 	public static class CannotAccessNonStaticFromStaticContext extends EqualByTypeAndPosException {
-        
-		private static final long serialVersionUID = -6660349817801232916L;
-
-		public CannotAccessNonStaticFromStaticContext(Position p) {
-            super("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", p);
-        }
-    }
+	    private static final long serialVersionUID = -6660349817801232916L;
+	    public CannotAccessNonStaticFromStaticContext(Position p) {
+	        super("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", p);
+	    }
+	    public CannotAccessNonStaticFromStaticContext(FieldInstance fi, Position p) {
+	        super("Cannot access a non-static field "+fi+" from a static context.", p);
+	    }
+	    public CannotAccessNonStaticFromStaticContext(MethodInstance mi, Position p) {
+	        super("Cannot access a non-static field "+mi+" from a static context.", p);
+	    }
+	}
 	public static class ConstraintOnThisIsInconsistent extends EqualByTypeAndPosException {
         
 		private static final long serialVersionUID = 1741711946479260959L;
@@ -2011,5 +2016,30 @@ public class Errors {
             		+ "\n\t Known information: " + known 
             		+ "\n\t Interface type: " + intfc, p);
         }
+    }
+    
+    public static class CannotOverrideGuard extends SemanticException {
+		private static final long serialVersionUID = 272479475853566129L;
+
+		public CannotOverrideGuard(MethodInstance mi, MethodInstance mj) {
+            super("Method mi cannot override method mj. " 
+            		+ "\n\t mi: " + mi
+            		+ "\n\t mj: " + mj
+            		+ "\n\t Reason: mj's guard does not entail mi's guard.",
+            		mi.position());
+        }
+    }
+    public static class IllegalConstraint  extends SemanticException {
+		private static final long serialVersionUID = 4076811545544318952L;
+		public IllegalConstraint(Term t) {
+			super("Illegal constraint." +
+					"\n\t Term: " + t, t.position());
+        }
+		public IllegalConstraint(Call c, XTerm t, Position p) {
+			super("Illegal constraint. The nested call expands into a term that is not permitted to be nested."
+					+ "\n\t Call: " + c
+					+ "\n\t Expansion: " + t, p);
+					
+		}
     }
 }

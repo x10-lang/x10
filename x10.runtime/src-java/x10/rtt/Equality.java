@@ -13,7 +13,7 @@ package x10.rtt;
 
 
 import x10.core.RefI;
-import x10.core.Struct;
+import x10.core.StructI;
 
 public class Equality {
     public static boolean equalsequals(boolean a, boolean b) { return a == b; }
@@ -155,7 +155,7 @@ public class Equality {
             return (char) (Character) a == (char) (Character) b;
         if (a instanceof Number && b instanceof Number)
             return equalsNumbers(a, b);
-        if (a instanceof Struct) return ((Struct) a)._struct_equals$O(b);
+        if (a instanceof StructI) return ((StructI) a)._struct_equals$O(b);
         
         return false;
     }

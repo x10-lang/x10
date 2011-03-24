@@ -16,7 +16,7 @@ import harness.x10Test;
  *
  * @author igor
  */
-public class ClosureInClassDepClause_MustFailCompile(p:()=>Int){p==
+public class ClosureInClassDepClause_MustFailCompile(p:()=>Int){p== // ERR ERR: Cannot build constraint from expression
         (()=>3) // ERR: Closure cannot occur outside code body.
         } extends x10Test {
 

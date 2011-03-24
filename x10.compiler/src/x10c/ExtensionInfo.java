@@ -36,9 +36,9 @@ import x10c.visit.Desugarer;
 import x10c.visit.ExpressionFlattenerForAtExpr;
 import x10c.visit.InlineHelper;
 import x10c.visit.JavaCaster;
+import x10c.visit.NativeClassVisitor;
 import x10c.visit.RailInLoopOptimizer;
 import x10c.visit.StaticInitializer;
-import x10c.visit.RailInLoopOptimizer;
 import x10c.visit.VarsBoxer;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
@@ -110,6 +110,13 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+        }
+
+        @Override
+        public Goal NativeClassVisitor(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new ValidatingVisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
         }
 
         @Override

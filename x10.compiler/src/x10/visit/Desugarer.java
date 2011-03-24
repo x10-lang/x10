@@ -87,6 +87,10 @@ import x10.types.ThisDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10MemberDef;
 import x10.types.MethodInstance;
+import x10.types.TypeParamSubst;
+import x10.types.ReinstantiatedMethodInstance;
+import x10.types.ReinstantiatedConstructorInstance;
+import x10.types.X10ConstructorInstance_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -409,6 +413,9 @@ public class Desugarer extends ContextVisitor {
         }
         return booleanGuard;
     }
+    private static <T> T reinstantiate(TypeParamSubst typeParamSubst, T t) {
+        return typeParamSubst==null ? t : typeParamSubst.reinstantiate(t);
+    }
     private static Expr desugarCall(final Expr n, final Call call_c, final New new_c, final Binary binary_c, ContextVisitor v) {
         final NodeFactory nf = v.nodeFactory();
         final TypeSystem ts = v.typeSystem();
@@ -426,7 +433,24 @@ public class Desugarer extends ContextVisitor {
 
         final Position pos = n.position();
         List<Expr> args = binary_c!=null ? Arrays.asList(binary_c.left(), binary_c.right()) : procCall.arguments();
-        final List<LocalInstance> oldFormals = procInst.formalNames();
+
+
+        // we shouldn't use the def, because sometimes the constraints come from the instance,
+        // e.g.,  new Box[Int{self!=0}](v)
+        // dynamically checks that v!=0  (but you can't see it in the def! only in the instance).
+        // However, the instance has also the arguments (that exists in the context),
+        // and for some reason formalNames of the instance doesn't return the constraint that self!=0 (and Vijay thinks it shouldn't do it anyway)
+        // so I need to take the paramSubst and do it myself on the def.
+        // E.g.,
+        // new Box[Int{self!=0}](i)  in the instance returns a formal  arg123:Int{self==arg123, arg123==i}  but without i!=0 !
+        // so I take the original formal from the def (x:T) and do the paramSubst on it to get  x:Int{self!=0}
+        final ProcedureDef procDef = procInst.def();
+        final TypeParamSubst typeParamSubst =
+                procInst instanceof ReinstantiatedMethodInstance ? ((ReinstantiatedMethodInstance)procInst).typeParamSubst() :
+                procInst instanceof ReinstantiatedConstructorInstance ? ((ReinstantiatedConstructorInstance)procInst).typeParamSubst() :
+                    procInst instanceof X10ConstructorInstance_c ? null : // this can happen when procInst is X10ConstructorInstance_c (see XTENLANG_2330). But creating an empty TypeParamSubst would also work
+                    new TypeParamSubst(ts,procInst.typeParameters(),procDef.typeParameters()); // I can't always use this because X10ConstructorInstance_c.typeParameters returns an empty list! (there is a todo there!)
+        final List<LocalDef> oldFormals = procDef.formalNames();
         assert oldFormals.size()==args.size();
         Expr oldReceiver = null;
         final Receiver target;
@@ -447,10 +471,10 @@ public class Desugarer extends ContextVisitor {
         int i=0;
         for (Expr arg : args) {
             // The argument might be null, e.g., def m(b:Z) {b.x!=null}  = 1; ... m(null);
-            final LocalInstance oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
+            final LocalDef oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
             Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shaddow an existing field
             i++;
-            final Type type = oldFormal!=null ? oldFormal.type() : arg.type();
+            final Type type = oldFormal!=null ? reinstantiate(typeParamSubst, Types.get(oldFormal.type())) : arg.type();
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(type), xn);
             Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
                     nf.CanonicalTypeNode(pos,type), nf.Id(pos, xn)).localDef(xDef);
@@ -475,16 +499,15 @@ public class Desugarer extends ContextVisitor {
 
         // we add the guard to the body, then the return stmt.
         // if (!(GUARDEXPR(a,b))) throw new FailedDynamicCheckException(...); return ...
-        final ProcedureDef procDef = procInst.def();
         final Ref<CConstraint> guardRefConstraint = procDef.guard();
         Expr booleanGuard = (BooleanLit) nf.BooleanLit(pos, true).type(ts.Boolean());
         if (guardRefConstraint!=null) {
-            final CConstraint guard = guardRefConstraint.get();
+            final CConstraint guard = reinstantiate(typeParamSubst, guardRefConstraint.get());
             booleanGuard = addCheck(booleanGuard,guard, null, nf, ts, pos);
         }
         // add the constraints of the formals
         for (LocalDef localDef : procDef.formalNames()) {
-            CConstraint constraint = Types.xclause(Types.get(localDef.type()));
+            CConstraint constraint = Types.xclause(reinstantiate(typeParamSubst, Types.get(localDef.type())));
             booleanGuard = addCheck(booleanGuard,constraint, localDef.name(), nf, ts, pos);
         }
 
@@ -492,9 +515,8 @@ public class Desugarer extends ContextVisitor {
         // replace old formals in depExpr with the new locals
         final Map<Name,Expr> old2new = CollectionFactory.newHashMap(oldFormals.size());
         for (int k=0; k<newArgs.size(); k++) {
-            LocalInstance old = oldFormals.get(k);
             Expr newE = newArgs.get(k);
-            old2new.put(old.name(),newE);
+            old2new.put(oldFormals.get(k).name(),newE);
         }
         // replace all AmbExpr with the new locals
         final X10TypeBuilder builder = new X10TypeBuilder(job, ts, nf);

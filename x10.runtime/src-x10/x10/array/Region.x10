@@ -50,6 +50,7 @@ public abstract class Region(
     public property zeroBased():boolean = zeroBased;
     public property rail():boolean = rail;
 
+
     //
     // factories
     //
@@ -57,14 +58,12 @@ public abstract class Region(
     /**
      * Construct an empty region of the specified rank.
      */
-
     public static @TempNoInline_0 def makeEmpty(rank: int): Region(rank){self!=null} = new EmptyRegion(rank);
      
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
      */
-
     public static def makeFull(rank: int): Region(rank){self !=null} = new FullRegion(rank);
     
     /**
@@ -105,7 +104,7 @@ public abstract class Region(
 	   if (minArg.size != maxArg.size) throw new IllegalArgumentException("min and max not equal size ("+minArg.size+" != "+maxArg.size+")");
     	   val rank = minArg.size;
            val pmb = new PolyMatBuilder(rank); 
-           for ([i] in 0..(rank-1)) {
+           for (i in 0..(rank-1)) {
         	   // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
         	   val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1 : 0), minArg(i));
         	   pmb.add(r);
@@ -150,7 +149,7 @@ public abstract class Region(
      * Construct a rank-n rectangular region that is the Cartesian
      * product of the specified rank-1 rectangular regions.
      */
-    public static @TempNoInline_3 def make(regions:Array[Region(1){self.rect}](1)):Region(regions.size){self.rect} {
+    public static @TempNoInline_3 def make[T](regions:Array[T](1)){T<:Region(1){self.rect}}:Region(regions.size){self.rect} {
         var r:Region = regions(0);
         for (var i:int = 1; i<regions.size; i++)
             r = r.product(regions(i));
@@ -384,8 +383,25 @@ public abstract class Region(
     //
     // conversion
     //
-    public static operator (a:Array[Region(1){self.rect}](1)):Region(a.size){self.rect} = make(a);
+    /**
+     * An Array of k Region(1)'s can be converted into a Region(k), by 
+     * multiplying them.
+     */
+    public static operator[T] (a:Array[T](1)){T<:Region(1){self.rect}}:Region(a.size){self.rect} = make[T](a);
 
+    // NOTE: This really should be 
+    //   public static operator[T] (a:Array[T](1)){T<:IntRange}:Region(a.size){self.rect} { ... }
+    // but we can't have two overloaded generic methods in X10 2.2.
+    // Therefore we make this one slightly less general than it should be as the least bad
+    // alternative (since Regions has quite a few properties that may be inferred, it is best to
+    // use our one truly generic Array conversion operator on Array[Region]
+  //  public static operator[T] (a:Array[T](1)){T<:IntRange}:Region(a.size){self.rect}{
+    public static operator (a:Array[IntRange{self!=null}](1)):Region(a.size){self.rect} {
+        val mins = new Array[int](a.size, (i:int)=>a(i).min);
+        val maxs = new Array[int](a.size, (i:int)=>a(i).max);
+        return new RectRegion(mins, maxs);
+    }
+        
     public static operator (r:IntRange):Region(1){rect&&self!=null&&zeroBased==r.zeroBased} {
         return new RectRegion(r.min, r.max) as Region(1){rect&&self!=null&&zeroBased==r.zeroBased};
     }
@@ -434,7 +450,8 @@ public abstract class Region(
 
     protected def this(r: int, t: boolean, z: boolean)
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
-        property(r, t, z, (r == 1) && t && z);
+        val isRail = (r == 1) && t && z;
+        property(r, t, z, isRail);
     }
 
     /**

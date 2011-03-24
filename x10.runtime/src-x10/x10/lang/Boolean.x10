@@ -20,9 +20,10 @@ import x10.compiler.NativeRep;
  * There are also static methods that define conversions to and from String,
  * as well as some Boolean constants.
  */
-@NativeRep("java", "boolean", null, "x10.rtt.Types.BOOLEAN")
+@NativeRep("java", "boolean", "false", "x10.rtt.Types.BOOLEAN")
 @NativeRep("c++", "x10_boolean", "x10_boolean", null)
 public struct Boolean implements Comparable[Boolean] {
+
 
     /**
      * A logical complement operator.

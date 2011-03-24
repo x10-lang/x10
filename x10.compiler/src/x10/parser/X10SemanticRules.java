@@ -1083,6 +1083,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '+'
     void rule_OperatorFunction0(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1094,6 +1095,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '-'
     void rule_OperatorFunction1(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1105,6 +1107,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '*'
     void rule_OperatorFunction2(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1116,6 +1119,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '/'
     void rule_OperatorFunction3(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1127,6 +1131,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '%'
     void rule_OperatorFunction4(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1138,6 +1143,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '&'
     void rule_OperatorFunction5(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1149,6 +1155,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '|'
     void rule_OperatorFunction6(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1160,6 +1167,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '^'
     void rule_OperatorFunction7(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1171,6 +1179,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '<<'
     void rule_OperatorFunction8(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1182,6 +1191,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '>>'
     void rule_OperatorFunction9(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1193,6 +1203,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '>>>'
     void rule_OperatorFunction10(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1204,6 +1215,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '<'
     void rule_OperatorFunction11(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1215,6 +1227,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '<='
     void rule_OperatorFunction12(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1226,6 +1239,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '>='
     void rule_OperatorFunction13(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1237,6 +1251,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '>'
     void rule_OperatorFunction14(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1248,6 +1263,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '=='
     void rule_OperatorFunction15(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
@@ -1259,6 +1275,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: OperatorFunction ::= TypeName '.' '!='
     void rule_OperatorFunction16(Object _TypeName) {
+        noMethodSelection();
         ParsedName TypeName = (ParsedName) _TypeName;
         List<Formal> formals = new ArrayList<Formal>();
         formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));

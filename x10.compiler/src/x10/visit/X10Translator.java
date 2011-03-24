@@ -112,7 +112,7 @@ public class X10Translator extends Translator {
 	        of = tf.outputFile(pkg, sfn.source());
 
 	        String opfPath = of.getPath();
-	        if (!opfPath.endsWith("$")) job.compiler().addOutputFile(sfn.source().name(), of.getPath());
+	        if (!opfPath.endsWith("$")) job.compiler().addOutputFile(sfn, of.getPath());
 	        w = tf.outputCodeWriter(of, outputWidth);
 
 	        writeHeader(sfn, w);

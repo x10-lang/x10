@@ -37,7 +37,8 @@ public final class IntRange(
      * @param max the maximum value of the range
      */
     public def this(min:Int, max:Int) {
-        property(min, max, min == 0);
+    	val zero:Boolean = min == 0;
+        property(min, max, zero);
     }
     
     /**

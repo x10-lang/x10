@@ -896,8 +896,8 @@ public class AltSynthesizer {
      * @return the LocalDecl representing the declaration of the local variable
      */
     public LocalDecl createLocalDecl(Position pos, Flags flags, Name name, Expr init) {
-        if (null == init.type() || init.type().isVoid()) {
-            throw new InternalCompilerError("trying to create a LocalDecl " +name+ " but init has null or void type, init=" +init, pos);
+        if (null == init || null == init.type() || init.type().isVoid()) {
+            throw new InternalCompilerError("trying to create a LocalDecl " +name+ " but init is null or has null or void type, init=" +init, pos);
         }
         return createLocalDecl(pos, flags, name, init.type(), init);
     }

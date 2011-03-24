@@ -16,7 +16,7 @@ public abstract class RegularFrame extends Frame {
     // copy constructor
     public def this(Int, o:RegularFrame) {
         super(o.up.realloc());
-        throwable = null;
+        throwable = NULL[Throwable]();
         this.ff = o.ff.redirect;
     }
 
@@ -30,6 +30,12 @@ public abstract class RegularFrame extends Frame {
     @Inline public final def redo(worker:Worker):void {
         worker.migrate();
         Runtime.wsBlock(remap());
+        throw Abort.ABORT;
+    }
+
+    @Inline public final def moveToHeap(worker:Worker):void {
+        worker.migrate();
+        worker.fifo.push(remap());
         throw Abort.ABORT;
     }
 }

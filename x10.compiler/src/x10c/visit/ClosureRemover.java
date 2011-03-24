@@ -83,7 +83,7 @@ import x10.types.constraints.TypeConstraint;
 
 public class ClosureRemover extends ContextVisitor {
     
-    public static final String STATIC_INNER_CLASS_BASE_NAME = "$Closure";
+    public static final String STATIC_NESTED_CLASS_BASE_NAME = "$Closure";
     private static final String STATIC_METHOD_BASE_NAME = "$closure_apply";
     private static final Name OUTER_NAME = Name.make("out$$");
     
@@ -311,7 +311,7 @@ public class ClosureRemover extends ContextVisitor {
                     
                     Block closureBody = (Block) cl.body();
                     
-                    Id staticInnerClassName = xnf.Id(pos, UniqueID.newID(STATIC_INNER_CLASS_BASE_NAME));
+                    Id staticInnerClassName = xnf.Id(pos, UniqueID.newID(STATIC_NESTED_CLASS_BASE_NAME));
                     
                     // DEBUG
 //                    System.out.println(n.position() + " " + staticInnerClassName + " " + cl);
@@ -326,7 +326,7 @@ public class ClosureRemover extends ContextVisitor {
                     staticInnerClassDef.outer(Types.<ClassDef>ref(def));
                     staticInnerClassDef.setPackage(Types.ref(context.package_()));
                     staticInnerClassDef.flags(privateStatic);
-                    staticInnerClassDef.setInterfaces(Collections.<Ref<? extends Type>>singletonList(Types.ref(cld.asType())));
+                    staticInnerClassDef.setInterfaces(cld.classDef().interfaces());
                     staticInnerClassDef.setThisDef(ts.thisDef(pos, Types.ref(staticInnerClassDef.asType())));
                     
                     // TODO set method bounds?
@@ -363,7 +363,11 @@ public class ClosureRemover extends ContextVisitor {
                     
                     staticInnerClassDef.setMethods(Collections.singletonList(closureMethodDef));
                     // create class decl
-                    List<TypeNode> interfaces = Collections.<TypeNode>singletonList(xnf.X10CanonicalTypeNode(pos, cld.asType()));
+                    List<TypeNode> interfaces = new ArrayList<TypeNode>();
+                    List<Type> cint = cld.asType().interfaces();
+                    for (Type it : cint) {
+                        interfaces.add(xnf.X10CanonicalTypeNode(pos, it));
+                    }
                     X10ClassDecl staticInnerClassDecl = (X10ClassDecl) xnf.ClassDecl(pos, xnf.FlagsNode(pos, privateStatic), staticInnerClassName, xnf.X10CanonicalTypeNode(pos, xts.Object()), interfaces, xnf.ClassBody(pos, Collections.<ClassMember>emptyList()));
                     
                     List<TypeParamNode> tpns = new ArrayList<TypeParamNode>();

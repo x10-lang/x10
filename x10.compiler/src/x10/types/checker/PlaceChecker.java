@@ -36,7 +36,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
-import x10.types.ClosureType_c;
+import x10.types.FunctionType_c;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.ConstrainedType;
@@ -227,7 +227,7 @@ public class PlaceChecker {
 	public static Type ReplaceHereByPlaceTerm(Type type, XTerm term) {
 		// Do not replace for closure types. The ! in such types is 
 		// evaluated dynamically, i.e. at the point of evaluation of the closure.
-		if (type instanceof ClosureType_c)
+		if (type instanceof FunctionType_c)
 			return type;
 		//assert term != null;
 		try {

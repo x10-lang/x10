@@ -428,10 +428,10 @@ public class Synthesizer {
 	        assert ((Field) lhs).fieldInstance() != null;
 	        a = ((FieldAssign) a).fieldInstance(((Field)lhs).fieldInstance());
 	    } else if (a instanceof SettableAssign) {
-	        assert (lhs instanceof X10Call);
-	        X10Call call = (X10Call) lhs;
+	        assert (lhs instanceof InlinableCall);
+	        InlinableCall call = (InlinableCall) lhs;
 	        Receiver target = call.target();
-	        MethodInstance ami = call.methodInstance();
+	        MethodInstance ami = (MethodInstance) call.procedureInstance();
 	        List<Type> argTypes = CollectionUtil.append(ami.formalTypes(), Collections.singletonList(ami.returnType()));
 	        MethodInstance smi = xts.findMethod(target.type(),
 	                xts.MethodMatcher(target.type(), SettableAssign.SET, argTypes, xc));
@@ -1683,10 +1683,10 @@ public class Synthesizer {
      * @return
      */
     public FunctionType simpleFunctionType(Type type, Position pos){        
-        return xts.closureType(pos, Types.ref(type),
+        return xts.functionType(pos, Types.ref(type),
+                       Collections.<ParameterType>emptyList(),
                        Collections.<Ref<? extends Type>>emptyList(),
-                       Collections.<LocalDef>emptyList(),
-                       null
+                       Collections.<LocalDef>emptyList(), null
                       );
     }
     

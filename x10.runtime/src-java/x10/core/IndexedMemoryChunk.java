@@ -22,18 +22,34 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
 
 	private static final long serialVersionUID = 1L;
 
-    public final int length;
-    public final Object value;
-    public final Type<T> type;
+    public int length;
+    public Object value;
+    public Type<T> type;
+
+    public IndexedMemoryChunk(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+
+    public void $init(Type<T> type, int length, Object value) {
+        this.length = length;
+        this.type = type;
+        this.value = value;
+    }
 
     public IndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
         this.value = value;
     }
+
+    public void $init(Type<T> type) {
+        this.$init(type, 0, null);
+    }
+    
     public IndexedMemoryChunk(Type<T> type) {
         this(type, 0, null);
     }
+
     // zero value constructor
     public IndexedMemoryChunk(Type<T> type, java.lang.System $dummy) {
         this(type);
@@ -190,7 +206,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
     }
 
-    @Override
     public boolean _struct_equals$O(Object o) {
         return o != null && this.value == ((IndexedMemoryChunk<?>) o).value;
     }
@@ -198,7 +213,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = new NamedType<IndexedMemoryChunk<?>>(
         "x10.util.IndexedMemoryChunk",
         IndexedMemoryChunk.class,
-        new RuntimeType.Variance[] { Variance.INVARIANT }
+        new RuntimeType.Variance[] { Variance.INVARIANT },
+        new Type[] { x10.rtt.Types.STRUCT }
     );
     
     @Override

@@ -31,6 +31,15 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     private String[] args;
 
+    public Runtime(java.lang.System[] $dummy) {
+        // TODO
+        //super($dummy);
+    }
+    
+    public void $init() {}
+    
+    public Runtime(){}
+    
 	/**
 	 * Body of main java thread
 	 */
@@ -277,9 +286,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	    Map<String,String> env = System.getenv();
 	    x10.util.HashMap<String,String> map = new x10.util.HashMap<String,String>(x10.rtt.Types.STRING,x10.rtt.Types.STRING);
 	    for(Map.Entry<String, String> e : env.entrySet()) {
-	        if (e.getKey().startsWith("X10_")) {
-	            map.put_0_$$x10$util$HashMap_K_1_$$x10$util$HashMap_V(e.getKey(), e.getValue());
-	        }
+	        map.put_0_$$x10$util$HashMap_K_1_$$x10$util$HashMap_V(e.getKey(), e.getValue());
 	    }
 	    return map;
 	}

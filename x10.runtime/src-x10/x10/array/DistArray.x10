@@ -104,7 +104,7 @@ public class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1, true);
+            val localRaw = IndexedMemoryChunk.allocateZeroed[T](dist.maxOffset()+1);
             return new LocalState(localRaw);
         };
 
@@ -135,7 +135,7 @@ public class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1);
+            val localRaw = IndexedMemoryChunk.allocateUninitialized[T](dist.maxOffset()+1);
             val reg = dist.get(here);
             for (pt in reg) {
                localRaw(dist.offset(pt)) = init(pt);
@@ -163,7 +163,7 @@ public class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw = IndexedMemoryChunk.allocate[T](dist.maxOffset()+1);
+            val localRaw = IndexedMemoryChunk.allocateUninitialized[T](dist.maxOffset()+1);
             val reg = dist.get(here);
             for (pt in reg) {
                 localRaw(dist.offset(pt)) = init;
@@ -494,7 +494,7 @@ public class DistArray[T] (
     public final def map[U](op:(T)=>U):DistArray[U](this.dist) {
         val plh = PlaceLocalHandle.make[LocalState[U]](dist, ()=> {
             val srcImc = raw();
-            val newImc = IndexedMemoryChunk.allocate[U](dist.maxOffset()+1);
+            val newImc = IndexedMemoryChunk.allocateUninitialized[U](dist.maxOffset()+1);
             val reg = dist.get(here);
             for (pt in reg) {
                 val offset = dist.offset(pt);
@@ -576,7 +576,7 @@ public class DistArray[T] (
         val plh = PlaceLocalHandle.make[LocalState[S]](dist, ()=> {
             val src1Imc = raw();
             val src2Imc = src.raw();
-            val newImc = IndexedMemoryChunk.allocate[S](dist.maxOffset()+1);
+            val newImc = IndexedMemoryChunk.allocateUninitialized[S](dist.maxOffset()+1);
             val reg = dist.get(here);
             for (pt in reg) {
                 val offset = dist.offset(pt);

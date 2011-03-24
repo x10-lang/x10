@@ -51,7 +51,7 @@ namespace x10 {
         class Reference {
         public:
             Reference(){ }
-            virtual ~Reference() { }
+//            virtual ~Reference() { }
             
             /*********************************************************************************
              * Implementation-level object model functions assumed to be defined for all types

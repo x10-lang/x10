@@ -188,11 +188,10 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         }
         Expr newMainExpr = niSynth.genExpr();
         // new _main(args).run();
-        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, newMainExpr, "run");
-        //icSynth.setMethodLocationType(mainFrameType); //the run is in main
+        Expr mainCall = synth.makeStaticCall(compilerPos, wts.workerType, Name.make("main"), Collections.<Expr>singletonList(newMainExpr), xts.Void(), xct);
         CodeBlockSynth cbSynth = new CodeBlockSynth(xnf, xct, methodDecl.body().position());
         cbSynth.addStmt(nvSynth.genStmt());
-        cbSynth.addStmt(icSynth.genStmt());
+        cbSynth.addStmt(xnf.Eval(compilerPos, mainCall));
 
         return (MethodDecl) methodDecl.body(cbSynth.close());
     }

@@ -21,8 +21,22 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
 
 	private static final long serialVersionUID = 1L;
 
+	public AtomicReference(java.lang.System[] $dummy) {
+	    super();
+	}
+	
+	public void $init(Type<T> T) {
+        this.T = T;
+    }
+	
     public AtomicReference(Type<T> T) {
         super();
+        this.T = T;
+    }
+
+    public void $init(Type<T> T, T initialValue) {
+        // TODO
+        set(initialValue);
         this.T = T;
     }
     
@@ -44,5 +58,5 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     public Type<?> $getParam(int i) {
         return i == 0 ? T : null;
     }
-    private final Type<T> T;
+    private Type<T> T;
 }

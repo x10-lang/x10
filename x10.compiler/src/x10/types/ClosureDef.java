@@ -37,13 +37,15 @@ import x10.types.constraints.XConstrainedTerm;
 public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef, EnvironmentCapture {
     
     ClosureInstance asInstance();
-    public FunctionType asType();
+    X10ClassDef classDef();
+    FunctionType asType();
+
     /**
      * Return a copy of this with position reset.
      * @param pos
      * @return
      */
-    public ClosureDef position(Position pos);
+    ClosureDef position(Position pos);
 
     Ref<? extends CodeInstance<?>> methodContainer();
     void setMethodContainer(Ref<? extends CodeInstance<?>> mi);
@@ -56,7 +58,6 @@ public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef, Enviro
     
     boolean staticContext();
     void setStaticContext(boolean v);
-    
     
     /**
      * Set the term (symbolic name) standing for the place at which the body of this closure is intended to execute.

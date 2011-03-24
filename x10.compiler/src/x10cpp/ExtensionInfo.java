@@ -47,6 +47,7 @@ import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
 import x10.ast.X10NodeFactory_c;
 import x10.optimizations.Optimizer;
 import x10.visit.CheckNativeAnnotationsVisitor;
+import x10.visit.InstanceInvariantChecker;
 import x10.visit.NativeClassVisitor;
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10InnerClassRemover;
@@ -151,13 +152,18 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		protected Goal codegenPrereq(Job job) {
 		    return StaticNestedClassRemover(job);
 		}
+		
 		@Override
 		public List<Goal> goals(Job job) {
 		    List<Goal> superGoals = super.goals(job);
-            ArrayList<Goal> goals = new ArrayList<Goal>(superGoals.size()+1);
+            ArrayList<Goal> goals = new ArrayList<Goal>(superGoals.size()+2);
+            Goal nvc = NativeClassVisitor(job);
+            Goal cg = CodeGenerated(job);
             for (Goal g : superGoals) {
-                if (g == NativeClassVisitor(job)) {
+                if (g == nvc) {
                     goals.add(ExternAnnotationVisitor(job));
+                } else if (g == cg) {
+                    goals.add(PreCodegenASTInvariantChecker(job));
                 }
                 goals.add(g);
             }
@@ -169,11 +175,16 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		    return goals;
 		}
 
-	       public Goal ExternAnnotationVisitor(Job job) {
-	           TypeSystem ts = extInfo.typeSystem();
-	           NodeFactory nf = extInfo.nodeFactory();
-	           return new ForgivingVisitorGoal("NativeAnnotation", job, new ExternAnnotationVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
-	       }
+		public Goal ExternAnnotationVisitor(Job job) {
+		    TypeSystem ts = extInfo.typeSystem();
+		    NodeFactory nf = extInfo.nodeFactory();
+		    return new ForgivingVisitorGoal("NativeAnnotation", job, new ExternAnnotationVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
+		}
+
+		public Goal PreCodegenASTInvariantChecker(Job job) {
+		    return new ValidatingVisitorGoal("CodegenASTInvariantChecker", job, new PreCodeGenASTChecker(job)).intern(this);
+		}
+	       
 	}
 
 	// TODO: [IP] Override targetFactory() (rather, add createTargetFactory to polyglot)

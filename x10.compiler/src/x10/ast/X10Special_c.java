@@ -27,6 +27,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import x10.types.ConstrainedType;
 import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
@@ -151,13 +152,18 @@ public class X10Special_c extends Special_c implements X10Special {
             Type tt = Types.baseType(t);
             CConstraint cc = Types.xclause(t);
             cc = cc == null ? new CConstraint() : cc.copy();
-            XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
-            if (var != null) {
-                assert var instanceof CThis;
-                cc.addSelfBinding(var);
-                cc.setThisVar(var);
-                //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+            try {
+            XVar  var = (XVar)  xts.xtypeTranslator().translate(cc, this, c);
+             if (var != null) {
+                 assert var instanceof CThis;
+                 cc.addSelfBinding(var);
+                 cc.setThisVar(var);
+                 //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+             }
+            } catch (IllegalConstraint z) {
+            	Errors.issue(tc.job(), z);
             }
+            
             tt = Types.xclause(Types.baseType(tt), cc);
             
             result = (X10Special) type(tt);
@@ -167,11 +173,16 @@ public class X10Special_c extends Special_c implements X10Special {
             Type tt = Types.baseType(superClass);
             CConstraint cc = Types.xclause(superClass);
             cc = cc == null ? new CConstraint() : cc.copy();
-            XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
-            if (var != null) {
-                cc.addSelfBinding(var);
-                //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+            try {
+             XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
+             if (var != null) {
+                 cc.addSelfBinding(var);
+                 //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+             }
+            } catch (IllegalConstraint z) {
+            	Errors.issue(tc.job(), z);
             }
+           
             tt = Types.xclause(Types.baseType(tt), cc);
             result = (X10Special) type(tt);
         }

@@ -20,8 +20,16 @@ public class OutputStream extends Ref {
   
 	private static final long serialVersionUID = 1L;
 
-    private final java.io.OutputStream stream;
+    private java.io.OutputStream stream;
 
+    public OutputStream(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+
+    public void $init(java.io.OutputStream stream) {
+        this.stream = stream;
+    }
+    
     public OutputStream(java.io.OutputStream stream) {
         this.stream = stream;
     }
@@ -83,12 +91,24 @@ public class OutputStream extends Ref {
     //
     public static class WriterOutputStream extends OutputStream {
         private static final long serialVersionUID = 1L;
-        private final x10.io.Writer w;
-        public WriterOutputStream(x10.io.Writer w) {
+        private x10.io.Writer w;
+
+        public WriterOutputStream(java.lang.System[] $dummy) {
+            super($dummy);
+        }
+
+        public void $init(x10.io.Writer w) {
             // NOTE: since the backing stream is not set, all APIs of OutputStream must be overridden.
-            super(null);
+            super.$init((java.io.OutputStream)null);
             this.w = w;
         }
+        
+        public WriterOutputStream(x10.io.Writer w) {
+            // NOTE: since the backing stream is not set, all APIs of OutputStream must be overridden.
+            super((java.io.OutputStream)null);
+            this.w = w;
+        }
+
         @Override
         public void write(int x) {
             w.write((byte) x);

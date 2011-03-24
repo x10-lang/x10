@@ -25,9 +25,10 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some Float constants.
  */
-@NativeRep("java", "float", null, "x10.rtt.Types.FLOAT")
+@NativeRep("java", "float", "0.0F", "x10.rtt.Types.FLOAT")
 @NativeRep("c++", "x10_float", "x10_float", null)
 public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Float], Ordered[Float]*/ {
+
     /**
      * A less-than operator.
      * Compares this Float with another Float and returns true if this Float is

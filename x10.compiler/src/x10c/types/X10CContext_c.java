@@ -27,7 +27,7 @@ public class X10CContext_c extends X10Context_c implements Context {
         super(ts);
     }
 
-    public boolean isContainsGeneratedClasses(ClassDef cd) {
+    public boolean containsGeneratedClasses(ClassDef cd) {
         return generatedClasses.contains(cd);
     }
 

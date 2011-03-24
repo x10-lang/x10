@@ -58,6 +58,10 @@ public class XEQV extends XVar  {
 			return Collections.<XEQV>singletonList(this);
 	}
 
+
+    public boolean okAsNestedTerm() {
+    	return true;
+    }
     @Override
     public int hashCode() {
         return num;

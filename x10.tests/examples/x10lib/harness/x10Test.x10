@@ -11,6 +11,7 @@
 
 package harness;
 
+import x10.compiler.WS;
 import x10.util.*;
 import x10.io.Console;
 
@@ -25,7 +26,7 @@ abstract public class x10Test {
      * The body of the test.
      * @return true on success, false on failure
      */
-    abstract public def run(): boolean;
+    @WS abstract public def run(): boolean;
 
     public def executeAsync() {
         val b = new Cell[Boolean](false);  

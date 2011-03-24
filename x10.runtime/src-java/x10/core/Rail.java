@@ -26,21 +26,33 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
 
 	private static final long serialVersionUID = 1L;
 
-    public final int length;
-    
-    public final Object value;
-    public final Type<T> type;
-    
+    public int length;
+    public Object value;
+    public Type<T> type;
+
+    public Rail(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+
+    public void $init(Type<T> type, int length) {
+        this.$init(type, length, type.makeArray(length));
+    }
+
 	public Rail(Type<T> type, int length) {
         this(type, length, type.makeArray(length));
     }
-    
+
+	public void $init(Type<T> type, int length, Object array) {
+        this.length = length;
+        this.type = type;
+        this.value = array;
+    }
+
     public Rail(Type<T> type, int length, Object array) {
         this.length = length;
         this.type = type;
         this.value = array;
     }
-    
 
     public IndexedMemoryChunk<T> raw() {
         return new IndexedMemoryChunk<T>(type, length, value);

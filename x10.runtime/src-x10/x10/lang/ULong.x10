@@ -27,6 +27,7 @@ import x10.util.Ordered;
 @NativeRep("c++", "x10_ulong", "x10_ulong", null)
 public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[ULong], Bitwise[ULong], Ordered[ULong]*/ {
 
+
     /** The actual number with Long representation */
     public val longVal:Long;
     public def this(value:Long) {

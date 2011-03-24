@@ -250,12 +250,16 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
         try {
             CConstraint xvc = ts.xtypeTranslator().constraint(formals, values, (Context) tc.context());
             ((LazyRef<CConstraint>) valueConstraint).update(xvc);
-        } catch (SemanticException e) { }
+        } catch (SemanticException e) {
+        	Errors.issue(tc.job(),  e);
+        }
 
         try {
             TypeConstraint xtc = ts.xtypeTranslator().typeConstraint(formals, types, (Context) tc.context());
             ((LazyRef<TypeConstraint>) typeConstraint).update(xtc);
-        } catch (SemanticException e) { }
+        } catch (SemanticException e) {
+        	Errors.issue(tc.job(),  e);
+        }
         
         return this;
     }

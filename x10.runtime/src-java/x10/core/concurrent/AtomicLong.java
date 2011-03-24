@@ -20,8 +20,19 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
 
 	private static final long serialVersionUID = 1L;
 
-    public AtomicLong() {
+	public AtomicLong(java.lang.System[] $dummy) {
+	    super();
+	}
+
+	public void $init() {}
+
+	public AtomicLong() {
         super();
+    }
+    
+    public void $init(long initialValue) {
+        // TODO
+        set(initialValue);
     }
     
     public AtomicLong(long initialValue) {

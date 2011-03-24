@@ -209,4 +209,8 @@ public class XFormula<T> extends XTerm {
 	    public XPromise toPromise() {
 	        throw new Error("Not implemented yet.");
 	    }
+
+	    public boolean okAsNestedTerm() {
+	    	return false;
+	    }
 }

@@ -101,7 +101,7 @@ final class RectRegion extends Region{rect} {
     /**
      * Create a 1-dim region min..max.
      */
-    def this(min:int, max:int):RectRegion{self.rank==1,self.rect,self.zeroBased==(min==0),self.rail==(min==0)} {
+    def this(min:int, max:int):RectRegion{self.rank==1,self.rect} {
         super(1, true, min==0);
 
         size = max - min + 1;

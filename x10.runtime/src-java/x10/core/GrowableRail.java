@@ -29,6 +29,30 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
     private Object array;
     private int length;
 
+    public GrowableRail(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+
+    public void $init(Type<T> t) {
+        $init(t, 1);
+    }
+
+    public GrowableRail(Type<T> t) {
+        this(t, 1);
+    }
+
+    public void $init(Type<T> t, int size) {
+        this.elementType = t;
+        this.array = t.makeArray(size);
+        this.length = 0;
+    }
+    
+    public GrowableRail(Type<T> t, int size) {
+        this.elementType = t;
+        this.array = t.makeArray(size);
+        this.length = 0;
+    }
+
     public java.lang.String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("GrowableRail(");
@@ -41,16 +65,6 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         if (sz < length) sb.append("...(omitted " + (length - sz) + " elements)");
         sb.append(")");
         return sb.toString();
-    }
-
-    public GrowableRail(Type<T> t) {
-        this(t, 1);
-    }
-
-    public GrowableRail(Type<T> t, int size) {
-        this.elementType = t;
-        this.array = t.makeArray(size);
-        this.length = 0;
     }
 
     public T $set(Integer i, Type t1, T v, Type t2) {

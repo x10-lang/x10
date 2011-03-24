@@ -24,6 +24,7 @@ import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
+import polyglot.ast.Catch;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Do;
 import polyglot.ast.Eval;
@@ -121,7 +122,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name RESUME = Name.make("resume");
     static final protected Name BACK = Name.make("back");
     static final protected Name MOVE = Name.make("move");
-    static final protected Name FINALIZE = Name.make("finalize");
+    static final protected Name RETHROW = Name.make("rethrow");
     static final protected Name CAUGHT = Name.make("caught");
     static final protected Name REMOTE_RUN_FRAME = Name.make("remoteRunFrame");
     static final protected Name REMOTE_AT_NOTIFY = Name.make("remoteAtNotify");    
@@ -134,6 +135,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name ASYNCS = Name.make("asyncs");
     static final protected Name REDIRECT = Name.make("redirect");
     static final protected Name REDO = Name.make("redo");
+    static final protected Name MOVE_TO_HEAP = Name.make("moveToHeap");
     static final protected Name INIT = Name.make("init");
     static final protected Name OPERATOR = Name.make("operator()");
     static final protected Name ENTER_ATOMIC = Name.make("enterAtomic");
@@ -987,11 +989,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         ClassType cType = classSynth.getDef().asType();
         Type scType = PlaceChecker.AddIsHereClause(cType, xct);
         MethodSynth methodSynth = classSynth.createMethod(compilerPos, "remap");
-        methodSynth.setFlag(Flags.PUBLIC);
-
-        NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, cType);
-        niSynth.addArgument(xts.Int(), synth.intValueExpr(-1, compilerPos) );
-        niSynth.addArgument(scType, synth.thisRef(cType, compilerPos));
                 
         //upcast new instance
         Type upCastTargetType;
@@ -1005,6 +1002,17 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             upCastTargetType = wts.frameType;
         }
         methodSynth.setReturnType(upCastTargetType);
+
+        if (codeBlock == null) {
+            methodSynth.setFlag(Flags.PUBLIC.Abstract());
+            return;
+        }
+        methodSynth.setFlag(Flags.PUBLIC);
+
+        NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, cType);
+        niSynth.addArgument(xts.Int(), synth.intValueExpr(-1, compilerPos) );
+        niSynth.addArgument(scType, synth.thisRef(cType, compilerPos));
+        
         Expr castReturn = genUpcastCall(cType, upCastTargetType, niSynth.genExpr());
         
         Stmt ret = xnf.Return(compilerPos, castReturn);
@@ -1108,6 +1116,39 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                                           xct);
         
         return aCall;
+    }
+    
+    /**
+     * Generate
+     *   try { tryBodyStmts}
+     *   catch (t:x10.compiler.Abort) { throw t; }
+     *   catch (t:x10.lang.Throwable) { this.caught(t); }
+     * Used by Async frame and finish frame
+     * @param tryBodyStmts
+     * @return
+     * @throws SemanticException
+     */
+    Try genExceptionHandler(List<Stmt> tryBodyStmts) throws SemanticException {
+        Name formalName = xct.getNewVarName();
+        
+        Formal fa = synth.createFormal(compilerPos, wts.stolenType, formalName, Flags.NONE);
+        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.stolenType));
+        Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
+        
+        Formal f = synth.createFormal(compilerPos, xts.Throwable(), formalName, Flags.NONE);
+        Expr caught = synth.makeInstanceCall(compilerPos, getThisRef(),
+                CAUGHT, Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(
+                        xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(f.localDef().asInstance()).type(xts.Throwable())), xts.Void(),
+                Collections.<Type>singletonList(xts.Throwable()), xct);
+        Catch c = xnf.Catch(compilerPos, f, xnf.Block(compilerPos,
+                xnf.Eval(compilerPos, caught)));
+        
+        List<Catch> handlers = new ArrayList<Catch>(2);
+        handlers.add(ca);
+        handlers.add(c);
+        
+        Try t = xnf.Try(compilerPos, xnf.Block(compilerPos, tryBodyStmts), handlers);
+        return t;
     }
     
     

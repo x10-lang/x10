@@ -141,20 +141,6 @@ public abstract class LocalDecl_c extends Stmt_c implements LocalDecl {
         return reconstruct(flags, type, name, init);
     }
 
-    /**
-     * Add the declaration of the variable as we enter the scope of the
-     * intializer.
-     * In Java and X10 you can write this code:
-     * int i= (i=2)+4; int i= (i=2)+i, j=3+i+(j=2);
-     * var i:Int = (i=2)+4;
-     */
-    public Context enterChildScope(Node child, Context c) {
-        if (child == init) {
-            c = c.pushBlock();
-            addDecls(c);
-        }
-        return super.enterChildScope(child, c);
-    }
 
     public void addDecls(Context c) {
         // Add the declaration of the variable in case we haven't already done

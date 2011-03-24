@@ -29,6 +29,7 @@ import x10.types.ClosureDef;
 import x10.types.ClosureDef_c;
 import x10.types.ClosureInstance;
 import x10.types.ClosureInstance_c;
+import x10.types.ClosureType;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MacroType;
@@ -1634,18 +1635,17 @@ public class TypeSystem_c implements TypeSystem
 			    // Treat any instantiation errors as call invalid errors.
 			    if (error == null)
 				error = new NoMemberException(NoMemberException.METHOD,
-				                              "Method " + mi.signature() +
-				                              " in " + container +
-				                              " cannot be called with arguments " +
-				                              matcher.argumentString() + "; " + e.getMessage());
+				                              "Method cannot be called with argument: " + e.getMessage() +
+				                              " \n\t Method:  " + container + "." + mi.signature() +
+				                              " \n\t Argument:  " +  matcher.argumentString());
 			}
 
 			if (error == null) {
 			    error = new NoMemberException(NoMemberException.METHOD,
-			                                  "Method " + mi.signature() +
-			                                  " in " + container +
-			                                  " cannot be called with arguments " +
-			                                  matcher.argumentString() + ".");
+			    		"Method cannot be called with argument. "  +
+                        " \n\t Method:  " + container + "." + mi.signature() +
+                        " \n\t Argument:  " +  matcher.argumentString());
+			             
 			}
 		    }
 		}
@@ -2286,7 +2286,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public X10ClassType ClassCastException() {
-        return load("x10.lang.ClassCastException");
+        return load("x10.lang.FailedDynamicCheckException");
     }
 
     public X10ClassType OutOfBoundsException() {
@@ -3992,14 +3992,14 @@ public class TypeSystem_c implements TypeSystem
                 argTypes, thisDef, formalNames, guard,  offerType);
     }
 
-    public FunctionType closureType(Position p, Ref<? extends Type> returnType,
-            // List<Ref<? extends Type>> typeParams,
-            List<Ref<? extends Type>> argTypes,
-            List<LocalDef> formalNames, Ref<CConstraint> guard
-          //  Ref<TypeConstraint> typeGuard,
-            ) {
+    public FunctionType functionType(Position p, Ref<? extends Type> returnType,
+            List<ParameterType> typeParameters,
+            List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<CConstraint> guard
+            //Ref<TypeConstraint> typeGuard,
+    ) {
         Type rt = Types.get(returnType);
-        X10ClassDef def = ClosureSynthesizer.closureBaseInterfaceDef(this, 0 /*typeParams.size()*/, argTypes.size(), rt.isVoid(), formalNames, guard);
+        X10ClassDef def = ClosureSynthesizer.closureBaseInterfaceDef(this, typeParameters.size(),
+                argTypes.size(), rt.isVoid(), formalNames, guard);
         FunctionType ct = (FunctionType) def.asType();
         List<Type> typeArgs = new ArrayList<Type>();
         for (Ref<? extends Type> ref : argTypes) {
@@ -4010,8 +4010,14 @@ public class TypeSystem_c implements TypeSystem
         return (FunctionType) ct.typeArguments(typeArgs);
     }
 
+    public ClosureType closureType(ClosureDef cd) {
+        X10ClassDef def = ClosureSynthesizer.closureAnonymousClassDef(this, cd);
+        return (ClosureType) def.asType();
+    }
+    
 
     public Type expandMacros(Type t) {
+    
         return expandMacros(t, 0);
     }
     private Type expandMacros(Type t, int depth) {

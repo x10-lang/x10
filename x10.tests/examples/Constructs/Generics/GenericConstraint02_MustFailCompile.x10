@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class GenericConstraint02_MustFailCompile extends GenericTest {
 
-    class A[T,U]{!(T==U)} {}
+    class A[T,U]{!(T==U)} {} // ERR (because != constraints are not supported)
     
     class X {};
     static type X1 = X;

@@ -28,7 +28,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
 
 	transient private boolean initialized = false;
 	transient private Object myData = null;
-	private final int id;
+	private int id;
     
 	// TODO: The X10 code currently ensures that PlaceLocalHandle's are only
 	//       created at Place 0 by doing an at.  We've contemplated moving to
@@ -52,36 +52,44 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
     	return this;
     }
 
-  public PlaceLocalHandle(x10.rtt.Type<T> T) {
-	  id = nextId();
-  }
+    public PlaceLocalHandle(java.lang.System[] $dummy) {
+        //super($dummy);
+    }
+    
+    public void $init(x10.rtt.Type<T> T) {
+        id = nextId();
+    }
+    
+    public PlaceLocalHandle(x10.rtt.Type<T> T) {
+        id = nextId();
+    }
 
-  // TODO haszero
-  // zero value constructor
-  public PlaceLocalHandle(x10.rtt.Type<T> T, java.lang.System $dummy) {
-      this(T);
-  }
+    // TODO haszero
+    // zero value constructor
+    public PlaceLocalHandle(x10.rtt.Type<T> T, java.lang.System $dummy) {
+        this(T);
+    }
 
-  public T $apply$G() {
-	  if (!initialized) {
-		  synchronized(data) {
-			  myData = data.get(id);
-			  initialized = true;
-		  }
-	  }
-	  return (T) myData;
-  }
+    public T $apply$G() {
+        if (!initialized) {
+            synchronized(data) {
+                myData = data.get(id);
+                initialized = true;
+            }
+        }
+        return (T) myData;
+    }
 
-  public void set_0_$$x10$lang$PlaceLocalHandle_T(T value) {
-	  synchronized(data) {
-		  Object old = data.put(id, value);
-		  assert old == null : "Set called on already initialized local object";
-	  }
-  }
+    public void set_0_$$x10$lang$PlaceLocalHandle_T(T value) {
+        synchronized(data) {
+            Object old = data.put(id, value);
+            assert old == null : "Set called on already initialized local object";
+        }
+    }
 
-  @Override
-  public String toString() {
-      return "PlaceLocalHandle(" + this.id + ")";
-  }
+    @Override
+    public String toString() {
+        return "PlaceLocalHandle(" + this.id + ")";
+    }
 
 }

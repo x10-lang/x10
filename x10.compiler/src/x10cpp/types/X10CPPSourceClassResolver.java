@@ -103,7 +103,7 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         System.out.println("Not recompiling: "+name);
 
         ((X10CPPCompilerOptions)ext.getOptions()).compilationUnits().add(cc);
-        ext.compiler().addOutputFile(source.name(), cc);
-        ext.compiler().addOutputFile(source.name(), h);
+        ext.compiler().addOutputFile(name, cc);
+        ext.compiler().addOutputFile(name, h);
     }
 }

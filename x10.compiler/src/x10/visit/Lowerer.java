@@ -28,6 +28,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.FloatLit;
+import polyglot.ast.For;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.IntLit;
@@ -97,6 +98,7 @@ import x10.constraint.XVar;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;
+import x10.optimizations.ForLoopOptimizer;
 import x10.types.AsyncInstance;
 import x10.types.AtInstance;
 import x10.types.ClosureDef;
@@ -104,12 +106,14 @@ import x10.types.ConstrainedType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.MethodInstance;
+import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
 
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.util.AltSynthesizer;
 import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
 import x10.util.synthesizer.InstanceCallSynth;
@@ -126,9 +130,11 @@ import x10.visit.Desugarer.Substitution;
  */
 public class Lowerer extends ContextVisitor {
     private final Synthesizer synth;
+    private final AltSynthesizer altsynth;
     public Lowerer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         synth = new Synthesizer(nf, ts);
+        altsynth = new AltSynthesizer(ts, nf);
     }
 
     private static int count;
@@ -364,7 +370,7 @@ public class Lowerer extends ContextVisitor {
         ClosureDef cDef = c.closureDef().position(bPos);
         Expr closure = nf.Closure(c, bPos)
             .closureDef(cDef)
-        	.type(ClosureSynthesizer.closureAnonymousClassDef( ts, cDef).asType());
+        	.type(cDef.classDef().asType());
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
             ts.Place(), cDef.asType()
@@ -1057,9 +1063,8 @@ public class Lowerer extends ContextVisitor {
         Expr domain = a.domain();
         Type dType = domain.type();
         if (ts.isX10DistArray(dType)) {
-            FieldInstance fDist = dType.toClass().fieldNamed(DIST);
-            dType = fDist.type();
-            domain = nf.Field(pos, domain, nf.Id(pos, DIST)).fieldInstance(fDist).type(dType);
+            domain = altsynth.createFieldRef(pos, domain, DIST);
+            dType = domain.type();
         }
         LocalDef lDef = ts.localDef(pos, ts.Final(), Types.ref(dType), tmp);
         LocalDecl local = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
@@ -1099,11 +1104,18 @@ public class Lowerer extends ContextVisitor {
         Stmt body1 = async(bpos, inner, a.clocks(),
                 nf.Local(bpos, nf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType),
                 null, env1);
+        Stmt outer = nf.ForLoop(pos, pFormal, places, body1);
+
+        // TODO: Instead of creating ForLoop's and then removing them, 
+        //       change the code above to create simple For's in the first place.
+        ForLoopOptimizer flo = new ForLoopOptimizer(job, ts, nf);
+        For newLoop = (For)outer.visit(((ContextVisitor)flo.begin()).context(context()));
+        
         return nf.Block(pos, 
         		nf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, ts.Void())),
         		local, 
-        		nf.ForLoop(pos, pFormal, places, body1));
-    }
+        		newLoop);
+     }
 
     private Stmt visitEval(Eval n) throws SemanticException {
         Position pos = n.position();

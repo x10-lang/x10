@@ -22,7 +22,7 @@ import x10.util.Ordered;
  * also static methods that define conversions from other data types,
  * including String, as well as some Char constants.
  */
-@NativeRep("java", "char", null, "x10.rtt.Types.CHAR")
+@NativeRep("java", "char", "'\\u0000'", "x10.rtt.Types.CHAR")
 @NativeRep("c++", "x10_char", "x10_char", null)
 public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/ {
     /**

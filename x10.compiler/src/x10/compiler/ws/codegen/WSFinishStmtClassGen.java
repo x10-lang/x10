@@ -12,24 +12,14 @@
 
 package x10.compiler.ws.codegen;
 
-import java.util.Collections;
-
-import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
-import polyglot.ast.TypeNode;
-import polyglot.types.ClassDef;
 import polyglot.types.Flags;
-import polyglot.types.Name;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import x10.ast.Finish;
 import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
-import x10.types.X10ClassType;
-import x10.util.synthesizer.ClassSynth;
 import x10.util.synthesizer.CodeBlockSynth;
-import x10.util.synthesizer.ConstructorSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.SuperCallSynth;
 import x10.util.synthesizer.SwitchSynth;
@@ -46,7 +36,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
                 WSCodeGenUtility.getFinishStmtClassName(parent.getClassName()),
                 parent.wts.finishFrameType, finishStmt.body());
         
-        if(WSOptimizeConfig.OPT_PC_FIELD == 0){
+        if(wts.codegenConfig.OPT_PC_FIELD == 0){
             addPCField();
         }
     }
@@ -71,12 +61,17 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
         
         //now add codes to three path;
-        //fast path
-        fastBodySynth.addStmts(callCodes.first());
-        fastBodySynth.addStmt(genFinalizeStmt());
+        //Finish frame only has the fast path
+        if(wts.codegenConfig.DISABLE_EXCEPTION_HANDLE == 1){
+            fastBodySynth.addStmts(callCodes.first());
+        }
+        else{
+            fastBodySynth.addStmt(genExceptionHandler(callCodes.first()));
+            fastBodySynth.addStmt(genRethrowStmt());
+        }
         
         //resume/back path
-        if(WSOptimizeConfig.OPT_PC_FIELD == 0){
+        if(wts.codegenConfig.OPT_PC_FIELD == 0){
             Expr pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
             
             SwitchSynth resumeSwitchSynth = resumeBodySynth.createSwitchStmt(compilerPos, pcRef);
@@ -89,10 +84,10 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         }
    }
 
-    protected Stmt genFinalizeStmt() throws SemanticException{
+    protected Stmt genRethrowStmt() throws SemanticException{
         //fast path: //upcast[_async,AsyncFrame](this).poll(worker);
         
-        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, getThisRef(), FINALIZE.toString());
+        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, getThisRef(), RETHROW.toString());
         return icSynth.genStmt();
     }
 }

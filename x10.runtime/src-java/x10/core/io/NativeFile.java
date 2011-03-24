@@ -20,6 +20,9 @@ public class NativeFile extends java.io.File implements RefI {
 
 	private static final long serialVersionUID = 1L;
 
+	// TODO
+//	public NativeFile(java.lang.System[] $dummy){}
+
     public NativeFile(String pathname) {
         super(pathname);
     }

@@ -54,6 +54,10 @@ public class XLocal<T> extends XVar  {
 		return name;
 	}
 
+
+    public boolean okAsNestedTerm() {
+    	return true;
+    }
 	public String toString() {
 		String s = name.toString();
 		// This could should not belong here.

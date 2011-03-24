@@ -76,6 +76,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean INLINE_METHODS_IMPLICIT = false;
     private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
 
+    public boolean INLINE_CONSTRUCTORS = false;
+    private static final String INLINE_CONSTRUCTORS_desc = "Inline constructor calls";
+
     public boolean ALLOW_STATEMENT_EXPRESSIONS = true;
     private static final String ALLOW_STATEMENT_EXPRESSIONS_desc = "Allow statement expressions in generated code";
 
@@ -94,6 +97,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean WORK_STEALING = false;
     private static final String WORK_STEALING_desc = "Code generation for work-stealing scheduling";
 
+    public boolean WS_DISABLE_EXCEPTION_HANDLE = false;
+    private static final String WS_DISABLE_EXCEPTION_HANDLE_desc = "Disable exception handling code generation in work-stealing scheduling";
+    
     public boolean WALA = false;
     private static final String WALA_desc = "Produce WALA IR from X10 sources";
 
@@ -109,8 +115,8 @@ public final class Configuration extends x10.config.Configuration {
     public boolean FINISH_ASYNCS = false;
     private static final String FINISH_ASYNCS_desc = "finish-async analysis.";
 
-    public boolean MULTI_NODE = true;
-    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
+//    public final boolean MULTI_NODE = true;
+//    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
 
     /**
      * Parses one argument from the command line.  This allows the user

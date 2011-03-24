@@ -23,9 +23,10 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some Short constants.
  */
-@NativeRep("java", "short", null, "x10.rtt.Types.SHORT")
+@NativeRep("java", "short", "((short) 0)", "x10.rtt.Types.SHORT")
 @NativeRep("c++", "x10_short", "x10_short", null)
 public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Short], Bitwise[Short], Ordered[Short]*/ {
+
     /**
      * A less-than operator.
      * Compares this Short with another Short and returns true if this Short is

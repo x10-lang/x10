@@ -132,7 +132,7 @@ public final class Array[T] (
         
         layout = RectLayout(reg);
         val n = layout.size();
-        raw = IndexedMemoryChunk.allocate[T](n, true);
+        raw = IndexedMemoryChunk.allocateZeroed[T](n);
     }   
 
 
@@ -157,15 +157,11 @@ public final class Array[T] (
         
         layout = RectLayout(reg);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         for (p:Point(reg.rank) in reg) {
             r(layout.offset(p))= init(p);
         }
         raw = r;
-    }
-    // TODO: This should not be needed.  Compiler should apply implict coercion at call site, but it doesn't.
-    public def this(ir:IntRange, init:(Point(1))=>T):Array[T](1){this.rect,self!=null,this.zeroBased==ir.zeroBased} {
-        this(ir as Region(1){self.rect&&self.zeroBased==ir.zeroBased}, init);
     }
 
     /**
@@ -181,7 +177,7 @@ public final class Array[T] (
         
         layout = RectLayout(reg);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         if (reg.rect) {
             // Can be optimized into a simple fill of the backing IndexedMemoryChunk
             // because every element of the chunk is used by a point in the region.
@@ -225,12 +221,13 @@ public final class Array[T] (
      */
     public def this(size:int) {T haszero}
     {
-        val myReg = new RectRegion(0, size-1);
+        val myReg = new RectRegion(0, size-1) 
+             as Region{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
         property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
-        raw = IndexedMemoryChunk.allocate[T](n, true);
+        raw = IndexedMemoryChunk.allocateZeroed[T](n);
     }
     
     
@@ -252,13 +249,13 @@ public final class Array[T] (
      */    
     public def this(size:int, init:(int)=>T)
     {
-        val myReg = new RectRegion(0, size-1);
+        val myReg = new RectRegion(0, size-1) as Region{self.zeroBased, self.rail,self.rank==1,self.rect, self!=null};
         property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
-        for ([i] in 0..(size-1)) {
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
+        for (i in 0..(size-1)) {
             r(i)= init(i);
         }
         raw = r;
@@ -274,13 +271,14 @@ public final class Array[T] (
      */    
     public def this(size:int, init:T)
     {
-        val myReg = new RectRegion(0, size-1);
+        val myReg = new RectRegion(0, size-1)
+           as Region{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
         property(myReg, 1, true, true, true, size);
         
         layout = RectLayout(0, size-1);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
-        for ([i] in 0..(size-1)) {
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
+        for (i in 0..(size-1)) {
             r(i)= init;
         }
         raw = r;
@@ -297,7 +295,7 @@ public final class Array[T] (
         property(init.region, init.rank, init.rect, init.zeroBased, init.rail, init.size);
         layout = RectLayout(region);
         val n = layout.size();
-        val r  = IndexedMemoryChunk.allocate[T](n);
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         IndexedMemoryChunk.copy(init.raw, 0, r, 0, n);
         raw = r;
     }
@@ -307,7 +305,7 @@ public final class Array[T] (
      * 
      * @param init The remote array to copy.
      */    
-    public def this(init:RemoteArray[T]{init.home==here})
+    public def this(init:RemoteArray[T]{init.array.home==here})
     {
         this((init.array)());
     }

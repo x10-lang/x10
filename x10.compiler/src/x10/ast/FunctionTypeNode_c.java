@@ -45,6 +45,7 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 
 import x10.types.ClosureDef;
+import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
@@ -76,9 +77,9 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		NodeFactory nf = (NodeFactory) ar.nodeFactory();
 		TypeSystem ts = (TypeSystem) ar.typeSystem();
 		FunctionTypeNode_c n = this;
-		List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
+		List<ParameterType> typeParams = new ArrayList<ParameterType>(n.typeParameters().size());
 		for (TypeParamNode tpn : n.typeParameters()) {
-			typeParams.add(Types.ref(tpn.type()));
+			typeParams.add(tpn.type());
 		}
 		List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(n.formals().size());
 		for (Formal f : n.formals()) {
@@ -93,29 +94,11 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		//	throw new SemanticException("Function types with guards are currently unsupported.", position());
 		if (typeParams.size() != 0)
 			throw new SemanticException("Function types with type parameters are currently unsupported.", position());
-		Type result = ts.closureType(position(), returnType.typeRef(),
-				//   typeParams, 
-				formalTypes, formalNames, 
-				guard != null ? guard.valueConstraint() 
-						: Types.<CConstraint>lazyRef(new CConstraint())
-						// guard != null ? guard.typeConstraint() : null,
-						);
-
-		//	    Context c = ar.context();
-		//	    ClassType ct = c.currentClass();
-		//	    CodeDef code = c.currentCode();
-		//	    ClosureDef cd = ts.closureDef(position(),
-		//	                                  Types.ref(ct), 
-		//	                                  code == null ? null : Types.ref(code.asInstance()),
-		//	                                  returnType.typeRef(),
-		//	                                  typeParams,
-		//	                                  formalTypes, 
-		//	                                  formalNames, 
-		//	                                  guard != null ? guard.xconstraint() : null,
-		//	                                  throwTypes);
-		//	    
-		//	    Type t = cd.asType();
-		//	    Type result = t;
+		Type result = ts.functionType(position(), returnType.typeRef(),
+		        typeParams, formalTypes, formalNames,
+		        guard != null ? guard.valueConstraint() : Types.lazyRef(new CConstraint())
+		        // guard != null ? guard.typeConstraint() : null,
+		);
 
 		((LazyRef<Type>) typeRef()).update(result);
 		return nf.CanonicalTypeNode(position(), typeRef());

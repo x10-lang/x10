@@ -48,12 +48,53 @@ class DynamicCallsTest {
 	  val x:Point(2) = p; // ERR
 	}
 }
+class TestGeneric7[T] {
+    def this(t:T) {}
+}
+
+struct AAA7(R:Int)
+{
+    private val a:Point(R);
+
+    public def this (r:Int, v1:Array[Int](r)) {
+        property(r);
+        a = Point.make(v1); // ERR
+    }
+}
+
+class Box77[T] {
+	 val t:T;
+	 def this(t:T) { this.t = t; }
+}
+class ABC23 { 
+  def test(b:Box77[Place{self==here}]) {
+	at (here.next()) {
+		val p2:Place{self==here} = b.t; // ERR
+	}
+  }
+}
+
 class Helper2330(p:Int) {
 	// test inner classes (both instance & nested), inheritance, overriding, generics (for generics I just checked codegen below, not runtime behaviour)
 	// new & call (with and without target/qualifier), operators
 
 	def fail():void { throw new RuntimeException("test failed!"); }
+	
+	def test() {
+		test(1);
+		try { test(0); fail(); } catch (e:FailedDynamicCheckException) {}
+	}
+	def test(i:Int) {
+		val x = new TestGeneric7[Int{self!=0}](i); // ERR: Warning: Generated a dynamic check for the method call.
+	}
+
 	def run(z:Int) { // z is 0 at runtime (I use it to make sure the guard cannot be statically resolved)
+        test();
+		
+        AAA7(1, [0 as Int]);
+		try { AAA7(1, [0 as Int, 0]); fail(); } catch (e:ClassCastException) {}
+		try { AAA7(2, [0 as Int, 0]); fail(); } catch (e:ClassCastException) {} // ERR
+		try { AAA7(2, [0 as Int]); fail(); } catch (e:ClassCastException) {} // ERR
 
 		/////////////////////////////////////////////////////////////
 		// testing method calls (that return void or non-void)
@@ -293,7 +334,7 @@ class Helper2330(p:Int) {
 
 class GenericInstantiateTest[T] {
 	def test() {
-		new GenericInstantiateTest[Double](null); // ERR
+		new GenericInstantiateTest[Double](null); // ShouldNotBeERR  Warning: Generated a dynamic check for the method guard.
 	}
 	def this(b:GenericInstantiateTest[T]) {b==null} {}
 }
