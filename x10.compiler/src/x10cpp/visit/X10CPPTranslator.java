@@ -214,7 +214,7 @@ public class X10CPPTranslator extends Translator {
 		                    : null
 		                : null;
 		            final int lastX10Line = parent.position().endLine();
-		            if (n instanceof Stmt)
+		            if (n instanceof Stmt || n instanceof ProcedureDecl)
 	                {
 		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
