@@ -51,6 +51,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
         super(message, cause);
     }
 
+    /* TODO to be removed
     // XTENLANG-1858: every Java class that could be an (non-static) inner class must have constructors with the outer instance parameter
     public Throwable(Object out$) {
         super();
@@ -76,6 +77,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
     public Throwable(Object out$, java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
     }
+    */
 
     public static final RuntimeType<Throwable> $RTT = new NamedType<Throwable>(
         "x10.lang.Throwable",
