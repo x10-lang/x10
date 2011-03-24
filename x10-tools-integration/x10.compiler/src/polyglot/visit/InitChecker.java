@@ -703,7 +703,7 @@ public class InitChecker extends DataFlow
                                 Set<EdgeKey> succEdgeKeys) {
         final DataFlowItem res = new DataFlowItem();
         res.initStatus.putAll(inItem.initStatus);
-        MinMaxInitCount initCount = res.initStatus.get(ld.localDef());
+        MinMaxInitCount initCount;
         //if (initCount == null) {
             if (ld.init() != null) {
                 // declaration of local var with initialization.
@@ -715,16 +715,6 @@ public class InitChecker extends DataFlow
             }
 
             res.initStatus.put(ld.localDef(), initCount);
-        //}
-        //else {
-            // the initCount is not null. We now have a problem. Why is the
-            // initCount not null? Has this variable been assigned in its own
-            // initialization, or is this a declaration inside a loop body?
-            // XXX@@@ THIS IS A BUG THAT NEEDS TO BE FIXED.
-            // Currently, the declaration "final int i = (i=5);" will
-            // not be rejected, as we cannot distinguish between that and
-            // "while (true) {final int i = 4;}"
-        //}
 
         // record the fact that we have seen a local declaration
         currCBI.localDeclarations.add(ld.localDef());

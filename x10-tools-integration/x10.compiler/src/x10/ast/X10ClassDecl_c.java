@@ -1333,7 +1333,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
                 nf.FlagsNode(pos, Flags.PUBLIC),
                 nf.Id(pos, TypeSystem.CONSTRUCTOR_NAME), 
-                returnType,
+                nf.HasType(returnType),
                 typeFormals,
                 formals,
                 guard, 

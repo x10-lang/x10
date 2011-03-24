@@ -30,10 +30,21 @@ public class Thread extends java.lang.Thread {
 		return (Thread) java.lang.Thread.currentThread();
 	}
 
-	private final Place home;    // the current place
+	private Place home;    // the current place
 	
 	public x10.core.fun.VoidFun_0_0 body;
 
+	public Thread(java.lang.System[] $dummy) {}
+
+	public void $init(String name) {
+	    setName(name);
+        if (!(java.lang.Thread.currentThread() instanceof Thread)) {
+            home = Place.place(X10RT.here());
+        } else {
+            home = currentThread().home();
+        }	    
+	}
+	
     public Thread(String name) {
         super(name);
         if (!(java.lang.Thread.currentThread() instanceof Thread)) {

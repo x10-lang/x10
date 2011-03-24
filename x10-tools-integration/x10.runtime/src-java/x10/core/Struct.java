@@ -16,10 +16,14 @@ import x10.rtt.Type;
 import x10.rtt.Types;
 
 // Base class for all X10 structs
-public abstract class Struct implements Any, Cloneable {
+public abstract class Struct implements StructI {
 
 	private static final long serialVersionUID = 1L;
 
+	public Struct(java.lang.System[] $dummy) {}
+	
+	public void $init() {}
+	
     public Struct() {}
 
     @Override
@@ -27,9 +31,7 @@ public abstract class Struct implements Any, Cloneable {
         return _struct_equals$O(o);
     }
 
-    abstract public boolean _struct_equals$O(Object o);
-
-    public static final RuntimeType<Struct> $RTT = new RuntimeType<Struct>(Struct.class);
+    public static final RuntimeType<Struct> $RTT = new RuntimeType<Struct>(Struct.class, new x10.rtt.Type[] { x10.rtt.Types.STRUCT });
     public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}
 

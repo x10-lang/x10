@@ -60,6 +60,7 @@ import polyglot.visit.ExceptionChecker;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
+import x10.errors.Errors.IllegalConstraint;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -666,10 +667,9 @@ public class X10Call_c extends Call_c implements X10Call {
 			    if (fi == null) {
 			        Type targetType = target() == null ? c.currentClass() : target().type();
 			        fi = X10Field_c.findAppropriateField(tc, targetType, name,
-			                isStatic,
-			                Types.contextKnowsType(target()));
+			                isStatic, Types.contextKnowsType(target()), this.name().position());
 			    }
-                methodResolution.fi = fi;
+			    methodResolution.fi = fi;
 			    if (fi.error() == null) {
 			        Receiver target = this.target() == null ?
 			                X10Disamb_c.makeMissingFieldTarget(fi, name().position(), tc) :
@@ -804,7 +804,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		    boolean staticContext = (target instanceof TypeNode);
 
 		    if (staticContext && !mi.flags().isStatic()) {
-		        throw new SemanticException("Cannot call non-static method " + name+ " of " + target.type() + " in static context.", this.position());
+		        throw new Errors.CannotAccessNonStaticFromStaticContext(mi, position());
 		    }
 
 		    // If the target is super, but the method is abstract, then complain.
@@ -816,13 +816,25 @@ public class X10Call_c extends Call_c implements X10Call {
 		}
 
 		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
-		X10Call_c methodCall = (X10Call_c) this.methodInstance(mi).type(rt);
+		X10Call_c methodCall = (X10Call_c) this.methodInstance(mi);
 		methodCall = (X10Call_c) methodCall.arguments(args);
+		{
+			// check if this is a property call, and if so adjust the return type
+			if (mi.flags().isProperty()) {
+				if (c.inDepType()) {
+					rt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
+				} else {
+					try {
+						rt =  Checker.expandCall(mi.rightType(), methodCall, c);
+					} catch (IllegalConstraint z) {
+						// ignore, we will go with mi.rightType.
+					}
+				}
+			}
+		}
+		methodCall = (X10Call_c) methodCall.type(rt);
 		if (this.target() == null)
 		    methodCall = (X10Call_c) methodCall.targetImplicit(true).target(target);
-		// Eliminate for orthogonal locality.
-		// methodCall = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(methodCall, tc);
-		//methodCall.checkConsistency(c); // [IP] Removed -- this is dead code at this point
 		Types.checkMissingParameters(methodCall);
 		Checker.checkOfferType(position(), (MethodInstance) methodCall.methodInstance(), tc);
 		return methodCall;

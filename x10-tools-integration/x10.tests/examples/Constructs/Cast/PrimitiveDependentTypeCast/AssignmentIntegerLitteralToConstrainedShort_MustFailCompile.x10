@@ -19,7 +19,7 @@ import harness.x10Test;
 public class AssignmentIntegerLitteralToConstrainedShort_MustFailCompile extends x10Test {
 
 	public def run2() = {
-		val constraint = 0;
+		val constraint = 0s;
 		var i: short{self == constraint} = 0;
     }
 	public def run3() = {

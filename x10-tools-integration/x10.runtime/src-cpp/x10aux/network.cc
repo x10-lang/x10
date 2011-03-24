@@ -474,14 +474,12 @@ x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::l
 #endif
     x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > map = x10::util::HashMap<x10aux::ref<x10::lang::String>, x10aux::ref<x10::lang::String> >::_make();
     for (unsigned i=0 ; environ[i]!=NULL ; ++i) {
-        if (strncmp(environ[i], "X10_", 4)==0) {
-            char *var = x10aux::string_utils::strdup(environ[i]);
-            *strchr(var,'=') = '\0';
-            char* val = getenv(var);
-            assert(val!=NULL);
-//            fprintf(stderr, "Loading environment variable %s=%s\n", var, val);
-            map->put(x10::lang::String::Lit(var), x10::lang::String::Lit(val));
-        }
+        char *var = x10aux::string_utils::strdup(environ[i]);
+        *strchr(var,'=') = '\0';
+        char* val = getenv(var);
+        assert(val!=NULL);
+//        fprintf(stderr, "Loading environment variable %s=%s\n", var, val);
+        map->put(x10::lang::String::Lit(var), x10::lang::String::Lit(val));
     }
     return map;
 }

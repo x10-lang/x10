@@ -62,6 +62,7 @@ import x10.types.matcher.Subst;
 import x10.types.matcher.X10FieldMatcher;
 import x10.visit.X10TypeChecker;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 
 
 /**
@@ -90,7 +91,7 @@ public class X10Field_c extends Field_c {
 	}
 
     public static X10FieldInstance findAppropriateField(ContextVisitor tc,
-            Type targetType, Name name, boolean isStatic, boolean receiverInContext) {
+            Type targetType, Name name, boolean isStatic, boolean receiverInContext, Position pos) {
         TypeSystem ts = (TypeSystem) tc.typeSystem();
         Context c = (Context) tc.context();
         X10FieldInstance fi = null;
@@ -105,7 +106,7 @@ public class X10Field_c extends Field_c {
             Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
             fi = (X10FieldInstance) ts.findField(targetType, tType2, name, c, receiverInContext);
             if (isStatic && !fi.flags().isStatic())
-                throw new SemanticException("Cannot access non-static field "+name+" in static context");
+                throw new Errors.CannotAccessNonStaticFromStaticContext(fi, pos);
             assert (fi != null);
             // substitute currentPlace back in.
             fi = placeTerm == null ? fi : Subst.subst(fi, placeTerm, currentPlace);
@@ -246,7 +247,7 @@ public class X10Field_c extends Field_c {
 		}
 
 		X10FieldInstance fi = findAppropriateField(tc, tType, name.id(),
-		        target instanceof TypeNode, Types.contextKnowsType(target));
+		        target instanceof TypeNode, Types.contextKnowsType(target), position());
 
 		if (fi.error() == null && !c.inDepType() && isInterfaceProperty(fi)) { // XTENLANG-945
 		    fi = fi.error(new Errors.UnableToFindImplementingPropertyMethod(fi.name(), position()));
@@ -260,10 +261,16 @@ public class X10Field_c extends Field_c {
                     if (mi.flags().isProperty()) {
                         Call call = nf.Call(pos, target, this.name);
                         call = call.methodInstance(mi);
-                        Type nt =  c.inDepType() ? 
-                                Checker.rightType(mi.rightType(), mi.x10Def(), target, c)
-                                : 
-                                	 Checker.expandCall(mi.rightType(), call, c);
+                        Type nt = mi.rightType();
+                        if (c.inDepType()) {
+                                nt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
+                        } else {
+                        	try {
+                             nt =  Checker.expandCall(mi.rightType(), call, c);
+                        	} catch (IllegalConstraint z) {
+                        		// ignore, we will go with mi.rightType.
+                        	}
+                        }
                             
                         call = (Call) call.type(nt);
                         return call;

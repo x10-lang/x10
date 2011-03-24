@@ -31,7 +31,7 @@ public class XAnd extends XFormula {
 
 	@Override
 	public String toString() {
-		return left() + ", " + right();
+		return left() + "&&" + right();
 	}
 
 }

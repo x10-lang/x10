@@ -10,6 +10,9 @@
  */
 
 /*
- * Empty header file for NativeRep class that doesn't require a
- * C++ implementation
+ * Must include header files for any types
+ * mentioned in @Native annotations but not
+ * present in method return types.
  */
+
+#include <x10/lang/IntRange.h>

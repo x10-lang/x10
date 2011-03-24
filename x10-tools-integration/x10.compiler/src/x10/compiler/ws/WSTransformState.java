@@ -36,9 +36,12 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
+import x10.Configuration;
+import x10.ExtensionInfo;
 import x10.ast.Closure;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
+import x10.compiler.ws.codegen.WSCodeGenConfiguration;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.compiler.ws.util.WSTransformationContent;
@@ -75,14 +78,15 @@ import x10.visit.X10PrettyPrinterVisitor;
  *
  */
 public class WSTransformState {
+    
     public final ClassType frameType;
     public final ClassType finishFrameType;
     public final ClassType rootFinishType;
     public final ClassType mainFrameType;
     public final ClassType remoteRootFinishType;
-    public final ClassType remoteRootFrameType;
     public final ClassType regularFrameType;
     public final ClassType asyncFrameType;
+    public final ClassType tryFrameType;
     public final ClassType boxedBooleanType;
     public final ClassType workerType;
     public final ClassType stolenType;
@@ -98,9 +102,17 @@ public class WSTransformState {
     private String theLanguage; //c++ or java path
     private WSCallGraph callGraph;
     private WSTransformationContent transTarget;
+    public WSCodeGenConfiguration codegenConfig;
     
     protected TypeSystem xts;
     
+    /**
+     * Used by WALA call graph builder.
+     * @param xts
+     * @param xnf
+     * @param theLanguage
+     * @param transTarget
+     */
     public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent transTarget){
         this(xts, theLanguage);
         this.transTarget = transTarget;
@@ -183,9 +195,9 @@ public class WSTransformState {
             rootFinishType = xts.load("x10.compiler.ws.RootFinish");
             mainFrameType = xts.load("x10.compiler.ws.MainFrame");
             remoteRootFinishType = xts.load("x10.compiler.ws.RemoteRootFinish");
-            remoteRootFrameType = xts.load("x10.compiler.ws.RemoteRootFrame");
             regularFrameType = xts.load("x10.compiler.ws.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
+            tryFrameType = xts.load("x10.compiler.ws.TryFrame");
             boxedBooleanType = xts.load("x10.compiler.ws.BoxedBoolean");
             workerType = xts.load("x10.compiler.ws.Worker");
             realloc = true;
@@ -195,9 +207,9 @@ public class WSTransformState {
             rootFinishType = xts.load("x10.compiler.ws.java.RootFinish");
             mainFrameType = xts.load("x10.compiler.ws.java.MainFrame");
             remoteRootFinishType = xts.load("x10.compiler.ws.java.RemoteRootFinish");
-            remoteRootFrameType = xts.load("x10.compiler.ws.java.RemoteRootFrame");
             regularFrameType = xts.load("x10.compiler.ws.java.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.java.AsyncFrame");
+            tryFrameType = xts.load("x10.compiler.ws.java.TryFrame");
             boxedBooleanType = xts.load("x10.compiler.ws.java.BoxedBoolean");
             workerType = xts.load("x10.compiler.ws.java.Worker");
             realloc = false;
@@ -217,6 +229,10 @@ public class WSTransformState {
         List<Type> boxedBooleanTypeList = new ArrayList<Type>();
         boxedBooleanTypeList.add(boxedBooleanType);
         globalRefBBType = xts.GlobalRef().typeArguments(boxedBooleanTypeList);
+        
+        //Load CodeGen config
+        Configuration x10config = ((ExtensionInfo)xts.extensionInfo()).getOptions().x10_config;
+        codegenConfig = new WSCodeGenConfiguration(x10config);
     
     }
 

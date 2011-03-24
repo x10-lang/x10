@@ -57,6 +57,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import x10.errors.Warnings;
 import x10.errors.Errors.CannotAssign;
 import x10.errors.Errors.MethodOrStaticConstructorNotFound;
@@ -149,7 +150,7 @@ public class Checker {
 	    return n.type(t);
 	}
 	
-	public static void checkVariancesOfType(Position pos, Type t, ParameterType.Variance requiredVariance, 
+	/*public static void checkVariancesOfType(Position pos, Type t, ParameterType.Variance requiredVariance, 
 	        String desc, Map<Name,ParameterType.Variance> vars, ContextVisitor tc) throws SemanticException {
 	    if (t instanceof ParameterType) {
 	        ParameterType pt = (ParameterType) t;
@@ -228,21 +229,24 @@ public class Checker {
 	        checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
 	    }
 	}
-
-	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) {
+*/
+	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c)  {
 		CConstraint x = Types.xclause(t);
 		if (x==null || fi.thisVar()==null || (! (target instanceof Expr)))
 			return t;
 		XVar receiver = null;
 
 		TypeSystem ts = (TypeSystem) t.typeSystem();
-		XTerm r = ts.xtypeTranslator().translate(new CConstraint(), target, (Context) c);
-		if (r instanceof XVar) {
-			receiver = (XVar) r;
-		}
-
-		if (receiver == null)
+		try {
+			XTerm r=ts.xtypeTranslator().translate(new CConstraint(), target, (Context) c);
+			if (r instanceof XVar) {
+				receiver = (XVar) r;
+			}
+			if (receiver == null)
+				receiver = XTerms.makeEQV();
+		} catch (IllegalConstraint z) {
 			receiver = XTerms.makeEQV();
+		}
 		try {
 			t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
 		} catch (SemanticException e) {
@@ -252,57 +256,21 @@ public class Checker {
 		return t;
 	}
 
-	// FIXME: [IP] why isn't this called for direct property method invocations, but only for those without parens?
-	public static Type expandCall(Type type, Call t,  Context c) throws SemanticException {
-		Context xc = (Context) c;
-		MethodInstance xmi = (MethodInstance) t.methodInstance();
-		Receiver target = t.target();
+    /**
+     * Called from within XField_c and X10Call_c to return the adjusted
+     * type for a call which is known to be a property call. The type is adjusted
+     * with the contents of the property call.
+     * @param type -- the current return type of the call 
+     * @param t  -- the call
+     * @param c -- the current context
+     * @return type, adjusted with constraints clauses based on the body of the call
+     * @throws IllegalConstraint
+     */
+	public static Type expandCall(Type type, Call t,  Context c) throws IllegalConstraint {
+		CConstraint cs = new CConstraint();
 		XTypeTranslator xt = ((TypeSystem) type.typeSystem()).xtypeTranslator();
-		Flags f = xmi.flags();
-		XTerm body = null;
-		if (f.isProperty()) {
-			CConstraint cs = new CConstraint();
-			XTerm r = xt.translate(cs, target, xc);
-			if (r == null)
-				return rightType(type, xmi.x10Def(), target, c);
-			// FIXME: should just return the atom, and add atom==body to the real clause of the class
-			// FIXME: fold in class's real clause constraints on parameters into real clause of type parameters
-			body = xmi.body();
-			if (body != null) {
-				if (xmi.x10Def().thisVar() != null && target instanceof Expr) {
-					//XName This = XTerms.makeName(new Object(), Types.get(xmi.def().container()) + "#this");
-					//body = body.subst(r, XTerms.makeLocal(This));
-					body = body.subst(r, xmi.x10Def().thisVar());
-				}
-				for (int i = 0; i < t.arguments().size(); i++) {
-					//XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
-					//XVar x = (XVar) xmi.formalTypes().get(i);
-					CLocal x =  CTerms.makeLocal((X10LocalDef) xmi.formalNames().get(i).def());
-					XTerm y = xt.translate(cs, t.arguments().get(i), xc);
-					if (y == null)
-						assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 
-						+ t.position() + ")";
-					body = body.subst(y, x);
-				}
-			} else 
-
-			if (t.arguments().size() == 0) {
-			
-				if (r instanceof XVar) {
-					body = CTerms.makeField((XVar) r, xmi.def());
-				}
-				else {
-					body = CTerms.makeAtom(xmi.def(), r);
-				}
-			} else {
-			List<XTerm> terms = new ArrayList<XTerm>();
-			terms.add(r);
-			for (Expr e : t.arguments()) {
-				terms.add(xt.translate(cs, e, xc));
-			}
-			body = CTerms.makeAtom(xmi.def(), terms);
-			}
-		}
+		Receiver target = t.target();
+		XTerm body = xt.translate(cs, t, c);
 		CConstraint x = Types.xclause(type);
 		X10MemberDef fi = (X10MemberDef) t.methodInstance().def();
 		if (x == null || fi.thisVar() == null || !(target instanceof Expr))
@@ -469,7 +437,7 @@ public class Checker {
 	public static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10ProcedureCall n,
 	        Type targetType, Name name, List<Type> typeArgs, List<Type> actualTypes) {
 	    MethodInstance mi;
-	     TypeSystem xts =  tc.typeSystem();
+	    TypeSystem xts =  tc.typeSystem();
 	    Context context = (Context) tc.context();
 	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
@@ -557,26 +525,32 @@ public class Checker {
 	        // First try to find the method without implicit conversions.
 	        try {
 	            mi = xts.findMethod(t, xts.MethodMatcher(t, name, typeArgs, argTypes, xc));
-	            if (!requireStatic || mi.flags().isStatic())
-	                return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
+	            if (requireStatic && !mi.flags().isStatic()) {
+	                mi = mi.error(new Errors.CannotAccessNonStaticFromStaticContext(mi, n.position()));
+	            }
+	            return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	        }
 	        catch (SemanticException e) {
-	        	// There is an ambiguity. Throw, dont try to use implicit conversions.
+	        	// There is an ambiguity. Throw, don't try to use implicit conversions.
 	        	if (e instanceof Errors.MultipleMethodDefsMatch) {
 					throw e;
 				}
 	            // Now, try to find the method with implicit conversions, making them explicit.
 	            try {
 	                Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, t, name, typeArgs, argTypes);
-	                if (!requireStatic || p.fst().flags().isStatic())
-	                    return p;
+	                mi = p.fst();
+	                if (requireStatic && !mi.flags().isStatic()) {
+	                    mi = mi.error(new Errors.CannotAccessNonStaticFromStaticContext(mi, n.position()));
+	                    p = new Pair<MethodInstance,List<Expr>>(mi, p.snd());
+	                }
+	                return p;
 	            }
 	            catch (SemanticException e2) {
 	                throw e;
 	            }
 	        }
 	    }
-	
+
 	    while (xc.pop() != null && xc.pop().currentClass() == currentClass)
 	        xc = (Context) xc.pop();
 	    if (xc.pop() != null) {

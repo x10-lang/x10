@@ -21,6 +21,8 @@ import polyglot.visit.ContextVisitor;
 
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import polyglot.types.Context;
 
 import polyglot.types.TypeSystem;
@@ -45,8 +47,13 @@ public class X10StringLit_c extends StringLit_c {
 		Type Type = xts.String();
 
 		CConstraint c = new CConstraint();
-		XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), (Context) tc.context());
-		c.addSelfBinding(term);
+		  try {
+		    	XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), tc.context());
+		    	c.addSelfBinding(term);
+		    } catch (IllegalConstraint z) {
+		    	Errors.issue(tc.job(), z);
+		    }
+		
 		Type newType = Types.xclause(Type, c);
 		return type(newType);
 	}

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+// OPTIONS: -STATIC_CALLS 
 
 /**
  * Test that a guarded function can be called with args that satisfy the guard.

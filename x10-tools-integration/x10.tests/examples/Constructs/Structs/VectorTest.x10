@@ -5,7 +5,7 @@ import x10.util.Vec;
 
 import harness.x10Test;
 
-public class VectorTest {
+public class VectorTest extends x10Test {
     public static def my_assert[T](a:T, b:T, msg:String) {
         if (a!=b) {
             Console.ERR.println(a + " != " + b + " while " + msg);
@@ -94,8 +94,7 @@ public class VectorTest {
     }
 
     public static def main (args:Array[String]{rank==1}) {
-        val errs = doWholeTest();
-        Console.OUT.println(errs + " errors");
+        (new VectorTest()).execute();
     }
 
     public def run() = doWholeTest() == 0;

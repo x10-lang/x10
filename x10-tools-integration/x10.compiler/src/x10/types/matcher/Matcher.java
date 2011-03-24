@@ -16,24 +16,36 @@ import java.util.Arrays;
 import java.util.List;
 
 import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
+import polyglot.types.LocalInstance_c;
+import polyglot.types.Name;
+import polyglot.types.Ref;
+import polyglot.types.UnknownType;
 
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import polyglot.util.Transformation;
+import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.ParameterType;
+import x10.types.X10LocalDef;
+import x10.types.X10LocalDef_c;
+import x10.types.X10LocalInstance;
+import x10.types.X10LocalInstance_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.MacroType;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
@@ -69,7 +81,7 @@ public class Matcher {
 	    
 	    // Instantiate the proposed PI.
 	    Type[] thisTypeArray = new Type[] { thisType };
-	    PI newMe = instantiate2(context, me, thisTypeArray, typeActuals, actuals,  true);
+	    PI newMe = instantiate(context, me, thisTypeArray, typeActuals, actuals,  true);
 
 	    return newMe;
 	}
@@ -79,31 +91,58 @@ public class Matcher {
 			List<Type> typeActuals, 
 			final List<Type> actuals) throws SemanticException {
 	   
-	    PI me2 = instantiate2(context, me, new Type[] {thisType}, typeActuals, actuals, false);
+	    PI me2 = instantiate(context, me, new Type[] {thisType}, typeActuals, actuals, false);
 	    return me2;
 	}
 
 	/**
-	 * This is the heart of method and constructor call type-checking.
+	 * This is the heart of method and constructor call type-checking. This
+	 * is a hot spot for X10 compilation.
+	 * <p> It takes a 
+	 * context, an X10ProcedureInstance (this can represent a new or 
+	 * method invocation or closure invocation), the array of types for 
+	 * referenced this variables (including :"outer" this variables), the 
+	 * actual type parameters to the invocation, and the list of types of 
+	 * the actual arguments, and an indication for whether checks are to be done 
+	 * or not. 
+	 * 
+	 * <p> It returns a new X10ProcedureInstance (of the same kind as the one
+	 * supplied) that represents the information about the actual invocation. 
+	 * This instance has new actual arguments (freshly created local variables)
+	 * and argument and return types that reflect the types of the actual 
+	 * arguments to the call. These argument and return types may reference
+	 * the freshly created local variables. 
+	 * 
+	 * <p> Note: In order to obtain the parameters of the original 
+	 * method/constructor definition, please use mi.def(), where mi is the 
+	 * return value of this method.
+	 * 
+	 * <p> If checking is turned on, and the type of an actual is inconsistent
+	 * or is not a subtype of the corresponding formal, or the guard is 
+	 * inconsistent or not satisfied, throw a SemanticException.
+	 * 
 	 * @param <PI>  -- The type of the formal descriptor
 	 * @param context -- The context in which the type-checking is being done
 	 * @param me -- The formal descriptor for this call
 	 * @param thisTypeArray -- An inout parameter containing thisType. 
 	 * @param typeActuals -- The actual type parameters to the call
-	 * @param actuals  -- The types of the actual parameters for the call.
-	 * @param ys   -- An inout parameter, on completion contains a symbolic name for the target and each parameter
-	 * @param hasSymbol -- An inout parameter of the same size as ys. On completion, the ith entry is true iff a symbolic name was generated for ys[i].
-	 * @return  -- An instantiated version of me, with actuals substituted for formals in actual types and return types. 
+	 * @param actualsIn  -- The types of the actual parameters for the call.
+	 * @param checkActuals -- Check actual types are subtypes of the formal
+	 * and the guard is satisfied.
+	 * @return  -- An instantiated version of me, with actuals substituted for 
+	 * formals in actual types and return types. 
 	 * @throws SemanticException
 	 */
-	private static <PI extends X10ProcedureInstance<?>> PI instantiate2(final Context context, final PI me, 
-	    		/*inout*/ Type[] thisTypeArray,  
-	    		List<Type> typeActuals, 
-	    		List<Type> actuals, 
-	    		boolean checkActuals) throws SemanticException
-	{
-		final XVar[] ys = new XVar[actuals.size()+1];
-		final  boolean[] hasSymbol = new boolean[actuals.size()+1];
+	private static <PI extends X10ProcedureInstance<?>> PI instantiate(
+			final Context context, 
+			final PI me, 
+			/*inout*/ Type[] thisTypeArray,  
+			List<Type> typeActuals, 
+			List<Type> actualsIn, 
+			boolean checkActuals) throws SemanticException
+			{
+		final XVar[] ys = new XVar[actualsIn.size()+1];
+	
 		final TypeSystem xts = (TypeSystem) me.typeSystem();
 
 		List<Type> formals = new ArrayList<Type>();
@@ -114,7 +153,7 @@ public class Matcher {
 		final List<LocalInstance> formalNames = me.formalNames();
 		final List<Type> typeFormals = me.typeParameters();
 		final boolean isStatic = Types.isStatic(me);
-		if (actuals.size() != formals.size())
+		if (actualsIn.size() != formals.size())
 	            throw new SemanticException("Call not valid; incorrect number of actual arguments.", me.position());
 
 		if (typeActuals.size() != typeFormals.size())
@@ -122,47 +161,54 @@ public class Matcher {
 
 		formals = Types.expandTypes(formals, xts);
 
-		actuals = Types.expandTypes(actuals, xts);
+		final List<Type> actuals = Types.expandTypes(actualsIn, xts);
 
 		Type thisType = thisTypeArray[0];
 
-		final XVar ythiseqv =  ys[0] = getSymbol(thisType);
+		final XVar ythiseqv =  ys[0] = getSymbolVar(thisType);
+		
+		XVar st = Types.selfVarBinding(thisType);
+		final boolean yeqvIsSymbol = (! isStatic) && (st !=null);
 		if (! isStatic) {
-	        	XVar st = Types.selfVarBinding(thisType);
-	        	hasSymbol[0] = st != null; // if true, a UQV was not generated.
-	        	thisTypeArray[0] = thisType = Types.instantiateSelf(ythiseqv, thisType);
+			if (st == null)
+				thisType = Types.instantiateSelf(ythiseqv, thisType);
 		}
+		thisTypeArray[0] = thisType;
 
-		// useful for uniformity. Note some of the formal parameters may not have names.
-		// (This does mean that the parameter can therefore not occur in other types, so
-		// we should not have to generate a symbolic name for it anyway. Here we do this just for simplicity.)
+		XVar[] x = getSymbolicNames(me.formalNames(), xts); 
 
-		XVar[] x = getSymbolicNames(formals, me.formalNames(), xts); 
-
-		// hasSymbol[i] iff actuals[i] already has a symbolic value, and hence does not need a gensym.
-		//final boolean[] haveSymbols = haveSymbolicNames(actuals);
-		hasSymbolicNames(hasSymbol, 1, actuals);
-		final XVar[] ySymbols = getSymbolicNames(actuals);
+		// Generate new local variable y's. These are local variables, from which
+		// XVar's can be generated as needed.
+		// We will need to substitute the symbolic names generated from 
+		// these new local variables for the xi.
+		// Then, in the newMe that is returned the formal names will be set 
+		// to these new local variables so that the newMe will be consistent.
+		// i.e. the variables occurring in the constraints of the arg
+		// types in newMe will be the formals. 
+		// This fixes a major bug in which the variables in constraints
+		// got disconnected from the formals, and uqvs would sometimes show
+		// up in error messages. This also supports implicit coercions
+		// performed useing the data in the MI returned from this call.
+		// See Converter.tryImplicitConversions.
+		final List<LocalInstance> yLocalInstances = getSymbolicNames(actuals);
+		
+		final XVar[] ySymbols = getSymbolicNames(yLocalInstances, xts);
 		System.arraycopy(ySymbols, 0, ys, 1, actuals.size());
 
 
-		final CConstraint returnEnv = Matcher.computeNewSigma(thisType, actuals, ythiseqv, ySymbols, hasSymbol, isStatic, xts);
-		final CConstraint returnEnv2 = Matcher.computeNewSigma2(thisType, actuals, ythiseqv, ySymbols, hasSymbol, isStatic, xts);
-
+		final CConstraint returnEnv = computeNewSigma(thisType, actuals, ythiseqv, ySymbols, isStatic, xts);
+		final CConstraint returnEnv2 = computeNewSigma2(thisType, actuals, ythiseqv, ySymbols, isStatic, xts);
 
 		// We'll subst selfVar for THIS.
-		XVar xthis = null; // xts.xtypeTranslator().transThis(thisType);
+		XVar xthis = null;
 
 		if (! isStatic ) {
-	        	if (me.def() instanceof X10ProcedureDef)
-	        		xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
+			if (me.def() instanceof X10ProcedureDef)
+				xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
 
-	        	if (xthis == null)
-	        		xthis = CTerms.makeThis(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+			if (xthis == null)
+				xthis = CTerms.makeThis(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 		}
-		// update each type in formals, with ythiseqv substituted for xthis (if ! isStatic),
-		// and ySymbols substituted for x.
-		// Matcher.updateFormalTypes(formals, ythiseqv, xthis, ySymbols, x, isStatic);
 
 		final ParameterType[] X = new ParameterType[typeFormals.size()];
 		final Type[] Y = new Type[typeFormals.size()];
@@ -195,7 +241,7 @@ public class Matcher {
 	        	newReturnTypeRef.setResolver(new Runnable() {
 	        		public void run() {
 	        			try {
-	        				Type rt = me.returnType();
+	        				Type rt = me.returnType(); // may be a macrotype
 	        				// Do not replace here by placeTerm. The return type may be used
 	        				// to compute the type of a closure, e.g. () => m(...)
 	        				// The type of the closure has to use here, so that 
@@ -207,19 +253,12 @@ public class Matcher {
 	        					try {
 	        						
 	        						newReturnType = Subst.addIn(newReturnType, returnEnv2);
-	        						/*CConstraint c = X10TypeMixin.realX(newReturnType);
-	        						c.addIn(returnEnv);
-	        						newReturnType = X10TypeMixin.xclause(X10TypeMixin.baseType(newReturnType), c);
-	        						*/
-	        						for (int i= isStatic ? 1 : 0; i < hasSymbol.length; ++i) {
-	        							if (! hasSymbol[i]) {
-	        								newReturnType = Subst.project(newReturnType, (XVar) ys[i]);  
-	        							}
+	        						if ((! isStatic) && (! yeqvIsSymbol) ) {
+	        							newReturnType = Subst.project(newReturnType, ythiseqv);
 	        						}
-	        					//	XConstrainedTerm placeTerm = ((X10Context) context).currentPlaceTerm();
-	        					//	if (placeTerm != null && PlaceChecker.isGlobalPlace(placeTerm.term())) {
-	        					//		newReturnType = Subst.project(newReturnType, (XVar) placeTerm.term());  
-	        					//	}
+	        						for (int i= 1; i < actuals.size()+1; ++i) {
+	        								newReturnType = Subst.project(newReturnType, (XVar) ys[i]);  
+	        						}
 	        					} catch (XFailure z) {
 	        						throw new Errors.InconsistentReturnType(newReturnType, me);
 	        					}
@@ -238,49 +277,52 @@ public class Matcher {
 	        	newMe = (X10ProcedureInstance<?>) newMe.returnTypeRef(newReturnTypeRef);
 		}
 
-		{ // set up the new formal types.  These are obtained from the real formal types
-	        	// by replacing x's by y's and this by the yeqv, and substituting in type parameters.
-	        	// with this normalization, checkCall will simply have to check that the types of the actuals
-	        	// are a subtype of the formals.
-	        	// substitute in the information about this.
-	        	if (! checkActuals) {
-	        		List<Type> newFormals = new ArrayList<Type>();
-	        		CConstraint env = null; 
-	        		if (! isStatic) {
-	        			env = Types.xclause(thisType);
-	        			if (env != null && ythiseqv != null && ! ((env == null) || env.valid())) {
-	        				env = env.copy().instantiateSelf(ythiseqv);
-	        			}
-	        		}
-	        		for (Type t : formals) {
-	        			t = Subst.subst(t, y2eqv, x2, Y, X); 
-	        			if (! (env == null || env.valid())) {
-	        				try {
-	        					t = Subst.subst(t, y2eqv, x2, Y, X); 
-	        					if (! isStatic)
-	        						t = Subst.addIn(t, env); 
-	        				} catch (XFailure z) {
-	        					t = xts.unknownType(me.position());
-	        				}
-	        			}
-	        			if (! isStatic && ! hasSymbol[0]) {
-	        				t = Subst.project(t, (XVar) ys[0]);
-	        			}
+		{ // set up the new formal types.  These are obtained from the real 
+			// formal types by replacing x's by y's and this by the yeqv, and 
+			// substituting in type parameters. With this normalization, 
+			// checkCall will simply have to check that the types of the actuals
+	        // actuals are a subtype of the formals.
+	        // substitute in the information about this.
+			List<Type> newFormalTypes = new ArrayList<Type>();
+			if (checkActuals) {
+				for (Type t : formals) {
+					t = Subst.subst(t, y2eqv, x2, Y, X); 
+					newFormalTypes.add(t);
+				}
+			} else 	{
+				CConstraint env = null; 
+				if (! isStatic) {
+					env = Types.xclause(thisType);
+					if (env != null && ythiseqv != null && ! ((env == null) || env.valid())) {
+						env = env.copy().instantiateSelf(ythiseqv);
+					}
+				}
+				for (Type t : formals) {
+					t = Subst.subst(t, y2eqv, x2, Y, X); 
+					if (! (env == null || env.valid())) {
+						try {
+							if (! isStatic)
+								t = Subst.addIn(t, env); 
+						} catch (XFailure z) {
+							t = xts.unknownType(me.position());
+						}
+					}
+					if (! isStatic && ! yeqvIsSymbol) {
+						t = Subst.project(t, (XVar) ys[0]);
+					}
 
-	        			newFormals.add(t);
-	        		}
-	        		newMe = (X10ProcedureInstance<?>) newMe.formalTypes(newFormals);
-
-	        	} else {
-	        		List<Type> newFormals = new ArrayList<Type>();
-	        		for (Type t : formals) {
-	        			t = Subst.subst(t, y2eqv, x2, Y, X); 
-	        			newFormals.add(t);
-	        		}
-	        		newMe = (X10ProcedureInstance<?>) newMe.formalTypes(newFormals);
-	        	}
+					newFormalTypes.add(t);
+				}
+			} 
+			newMe = (X10ProcedureInstance<?>) newMe.formalTypes(newFormalTypes);
 		}
 
+		{ // set up the new formals as well
+			// the formal parameters might appear in constraints. 
+			// Note that checkActuals may be false, so we are not going to check
+			// now simply return a newMe which will be used later in coercions 
+			newMe = newMe.formalNames(yLocalInstances);
+		}
 		{ // set up the guard.
 	        	CConstraint newWhere = Subst.subst(me.guard(), y2eqv, x2, Y, X); 
 	        	newMe = newMe.guard(newWhere);
@@ -289,88 +331,77 @@ public class Matcher {
 	        	TypeConstraint newTWhere = Subst.subst(me.typeGuard(), y2eqv, x2, Y, X);
 	        	newMe = newMe.typeGuard(newTWhere);
 		}
-		if (checkActuals) {
-		    // Now check that the actual types are a subtype of the formal types, and the method guards are satisfied.
-		    /*
-		    CConstraint newEnv = returnEnv;
-		    try {
-		        XConstrainedTerm h = context.currentPlaceTerm();
-		        if (h != null) {
-		            newEnv = newEnv.copy();
-		            newEnv.addBinding(PlaceChecker.here(), h.term());
-		        }
-		    } catch (XFailure z) {
-		        throw new SemanticException("Inconsistent place constraints");
-		    }
-		    */
+		if (! checkActuals)
+			return (PI) newMe;
 
-		    final Context context2 = context.pushAdditionalConstraint(returnEnv, me.position());
-		    final CConstraint query = newMe.guard();
-            X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
+		// Now check that the actual types are a subtype of the formal types, and the method guards are satisfied.
+		final Context context2 = context.pushAdditionalConstraint(returnEnv, me.position());
+		final CConstraint query = newMe.guard();
+		X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
 
-            // we can do dynamic checks on method calls when using DYNAMIC_CALLS or VERBOSE_CALLS
-            boolean dynamicChecks = !opts.x10_config.STATIC_CALLS &&
-		                !(newMe instanceof MacroType); // MacroType cannot have its guard checked at runtime
+		// we can do dynamic checks on method calls when using DYNAMIC_CALLS or VERBOSE_CALLS
+		boolean dynamicChecks = !opts.x10_config.STATIC_CALLS &&
+		!(newMe instanceof MacroType); // MacroType cannot have its guard checked at runtime
 
-		    if ( query != null) {
-                if (! query.consistent())
-                    throw new SemanticException("Call invalid; guard inconsistent for actual parameters of call.");
-                if (! returnEnv.entails(query,
-                                        new ConstraintMaker() {
-                    public CConstraint make() throws XFailure {
-                        return context2.constraintProjection(returnEnv, query);
-                    }
-                })) {
-                    if (dynamicChecks)
-                        newMe = newMe.checkConstraintsAtRuntime(true);
-                    else
-                        throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
-                }
-            }
-
-		    List<Type> typeFormals2 = newMe.typeParameters();
-		    TypeConstraint tenv = new TypeConstraint();
-		    for (int i = 0; i < typeFormals.size(); i++) {
-		        tenv.addTerm(new SubtypeConstraint(typeFormals2.get(i), Y[i], true));
-		    }
-
-		    if (! tenv.consistent(context2)) {
-		        throw new SemanticException("Call invalid; type environment is inconsistent.");
-		    }
-		    TypeConstraint tQuery = newMe.typeGuard();
-
-		    if (tQuery != null) {
-		        if ( ! xts.consistent(tQuery, context2)) {
-		            throw new SemanticException("Type guard " + tQuery + " cannot be established; inconsistent in calling context.");
-		        }
-		        if (! tenv.entails(tQuery, context2)) {
-		            throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
-		        }
-		    }
-
-		    final List<Type> myFormals =  new ArrayList<Type>(newMe.formalTypes()); // copy 
-		    for (int i = 0; i < formals.size(); i++) {
-		        Type ytype =  Subst.subst(actuals.get(i), y2eqv, x2, Y, X);
-		        Type xtype = Subst.subst(myFormals.get(i), y2eqv, x2, Y, X); 
-
-		        if (! xts.consistent(xtype, context2)) {
-		            throw new SemanticException("Parameter type " + xtype + " of call is inconsistent in calling context.");
-		        }
-		        if (! xts.isSubtype(ytype, xtype, context2)) {                    
-                    if (dynamicChecks && xts.isSubtype(Types.baseType(ytype), Types.baseType(xtype), context2))
-                        newMe = newMe.checkConstraintsAtRuntime(true);
-                    else
-                        throw new Errors.InvalidParameter(ytype, xtype, me.position());
-		        }
-		    }
+		if ( query != null) {
+			if (! query.consistent())
+				throw new SemanticException("Call invalid; guard inconsistent for actual parameters of call.");
+			if (! returnEnv.entails(query,
+					new ConstraintMaker() {
+				public CConstraint make() throws XFailure {
+					return context2.constraintProjection(returnEnv, query);
+				}})) {
+				if (dynamicChecks)
+					newMe = newMe.checkConstraintsAtRuntime(true);
+				else
+					throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+			}
 		}
 
+		List<Type> typeFormals2 = newMe.typeParameters();
+		TypeConstraint tenv = new TypeConstraint();
+		for (int i = 0; i < typeFormals.size(); i++) {
+			tenv.addTerm(new SubtypeConstraint(typeFormals2.get(i), Y[i], true));
+		}
+
+		if (! tenv.consistent(context2)) {
+			throw new SemanticException("Call invalid; type environment is inconsistent.");
+		}
+		TypeConstraint tQuery = newMe.typeGuard();
+
+		if (tQuery != null) {
+			if ( ! xts.consistent(tQuery, context2)) {
+				throw new SemanticException("Type guard " + tQuery 
+						+ " cannot be established; inconsistent in calling context.");
+			}
+			if (! tenv.entails(tQuery, context2)) {
+				throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+			}
+		}
+
+		final List<Type> myFormals =  new ArrayList<Type>(newMe.formalTypes()); // copy 
+		for (int i = 0; i < formals.size(); i++) {
+			Type ytype =  Subst.subst(actuals.get(i), y2eqv, x2, Y, X);
+			Type xtype = Subst.subst(myFormals.get(i), y2eqv, x2, Y, X); 
+
+			if (! xts.consistent(xtype, context2)) {
+				throw new SemanticException("Parameter type " + xtype 
+						+ " of call is inconsistent in calling context.");
+			}
+			if (! xts.isSubtype(ytype, xtype, context2)) {                    
+				if (dynamicChecks && xts.isSubtype(Types.baseType(ytype), 
+						Types.baseType(xtype), context2))
+					newMe = newMe.checkConstraintsAtRuntime(true);
+				else
+					throw new Errors.InvalidParameter(ytype, xtype, me.position());
+			}
+		}
 		return (PI) newMe;
 	}
 
 	
-	public static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, TypeSystem xts) 
+	private static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
+			XVar ythis, XVar[] y, boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -394,8 +425,8 @@ public class Matcher {
 	    return env;
 	}
 	
-	public static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, TypeSystem xts) 
+	private static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 
+			XVar ythis, XVar[] y,  boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -407,8 +438,9 @@ public class Matcher {
 		if (env == null)
 			env = new CConstraint();
 	
+		//To do: Not sure these need to be added to Gamma. constraintrojectin will retrieve them
+		// from the types of the variables.
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
-	    	if (! hasSymbol[i+1]) {
 	    		Type ytype = actuals.get(i);
 	    		final CConstraint yc = Types.realX(ytype);
 	    		if (yc != null && ! yc.valid()) {
@@ -417,14 +449,11 @@ public class Matcher {
 	    		        throw new Errors.InconsistentContext(ytype, Position.COMPILER_GENERATED); 
 	    		    }
 	    		}
-	    	}
 	    }
 	    return env;
 	}
 	
-	public static XVar getSymbol(Type type) {
-    	return getSymbol(type, "arg");
-    }
+	
 	/**
 	 * If the given type says that self == x, then return x. 
 	 * Otherwise make  up a new symbol (with no associated type
@@ -433,64 +462,47 @@ public class Matcher {
 	 * @param prefix
 	 * @return
 	 */
-    private static XVar getSymbol(Type type, String prefix) {
-    	  XVar symbol = Types.selfVarBinding(type);
-          if (symbol == null) {
-        	  symbol = XTerms.makeUQV(); // XTerms.makeLocal(XTerms.makeFreshName("arg"));
-              // symbol = XTerms.makeUQV(XTerms.makeFreshName(prefix));
-          }
-          return symbol;
+	 private static XVar getSymbolVar(Type type) {
+   	  XVar symbol = Types.selfVarBinding(type);
+         if (symbol == null) {
+       	  symbol = XTerms.makeUQV();  
+         }
+         return symbol;
+   }
+    private static LocalInstance getSymbol( Type type) {
+    	TypeSystem ts = type.typeSystem();
+    	
+    	// Todo: Replace position by a saner position.
+    	Ref<Type> ref = new LazyRef_c<Type>(type);
+    	X10LocalDef def = new X10LocalDef_c(ts, 
+    			Position.compilerGenerated(type.position()), Flags.FINAL, ref,
+    			Name.makeFresh("arg"));
+    	X10LocalInstance li = new X10LocalInstance_c(ts, 
+    			Position.compilerGenerated(type.position()),
+    			new LazyRef_c<X10LocalDef>(def));
+    	if (! (type instanceof UnknownType))
+    		ref.update(Types.addSelfBinding(type, type.typeSystem().xtypeTranslator().translate(li)));
+    	return li;
+
     }
-    static void hasSymbolicNames(boolean[] hasSymbol, int start, List<Type> actuals) {
-      for (int i = 0; i < actuals.size(); i++) {
-    	  XVar symbol = Types.selfVarBinding(actuals.get(i));
-           hasSymbol[i+start] = symbol != null;
-      }
-    }
-     static XVar[] getSymbolicNames(List<Type> actuals) {
-    	  XVar[] ySymbols = new XVar[actuals.size()];
-          for (int i = 0; i < actuals.size(); i++) {
-               ySymbols[i] = getSymbol(actuals.get(i)); 
+
+     private static List<LocalInstance> getSymbolicNames(List<Type> actuals) {
+    	  List<LocalInstance> ySymbols = new ArrayList<LocalInstance>(actuals.size());
+          for (Type actual : actuals) {
+        	  ySymbols.add(getSymbol(actual));
           }
           return ySymbols;
     }
-    public static XVar[] getSymbolicNames(List<Type> formals, List<LocalInstance> formalNames, TypeSystem xts) 
+     
+    public static XVar[] getSymbolicNames(List<LocalInstance> formalNames, TypeSystem xts) 
     throws SemanticException {
-    	 XVar[] x = new XVar[formals.size()];
-         for (int i = 0; i < formals.size(); i++) {
+    	 XVar[] x = new XVar[formalNames.size()];
+         for (int i = 0; i < formalNames.size(); i++) {
              x[i]=xts.xtypeTranslator().translate(formalNames.get(i));
              assert x[i] != null;
          }
          return x;
     }
 
-	/**
-	 * Update the types in formals by subsituting ythis/xthis and y/x.
-	 * @param formals
-	 * @param ythis
-	 * @param xthis
-	 * @param y
-	 * @param x
-	 */
-	public static void updateFormalTypes(List<Type> formals, XVar ythis, XVar xthis, XVar[] y, XVar[] x, 
-			boolean isStatic)
-	throws SemanticException {
-		for (int i=0; i < formals.size(); ++i) {
-			CConstraint formalC = Types.xclause(formals.get(i));
-			if (formalC != null) {
-				try {
-					formalC = formalC.substitute(y, x);
-					// No, do not substitute y[i] for self.
-					// formalC = formalC.instantiateSelf(y[i]);
-					if ((! isStatic) && xthis != null)
-						formalC = formalC.substitute(ythis, xthis);
-					formals.set(i, Types.constrainedType(Types.baseType(formals.get(i)), 
-							formalC));
-				} catch (XFailure z) {
-					throw new SemanticException("Call invalid; calling environment is inconsistent.");
-				}
-			}
-		}
-	}
 
 }

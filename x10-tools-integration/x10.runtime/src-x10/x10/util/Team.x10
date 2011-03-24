@@ -53,7 +53,7 @@ public struct Team {
     }
 
     private def this (places:IndexedMemoryChunk[Place], count:Int) {
-        val result = IndexedMemoryChunk.allocate[Int](1);
+        val result = IndexedMemoryChunk.allocateUninitialized[Int](1);
         finish nativeMake(places, count, result);
         id = result(0);
     }
@@ -252,8 +252,8 @@ public struct Team {
     public def allreduce (role:Int, src:Double, op:Int) = genericAllreduce(role, src, op);
 
     private def genericAllreduce[T] (role:Int, src:T, op:Int) : T {
-        val chk = IndexedMemoryChunk.allocate[T](1);
-        val dst = IndexedMemoryChunk.allocate[T](1);
+        val chk = IndexedMemoryChunk.allocateUninitialized[T](1);
+        val dst = IndexedMemoryChunk.allocateUninitialized[T](1);
         chk(0) = src;
         finish nativeAllreduce[T](id, role, chk, dst, op);
         return dst(0);
@@ -266,8 +266,8 @@ public struct Team {
 
     /** Returns the index of the biggest double value across the team */
     public def indexOfMax (role:Int, v:Double, idx:Int) : Int {
-        val src = IndexedMemoryChunk.allocate[DoubleIdx](1);
-        val dst = IndexedMemoryChunk.allocate[DoubleIdx](1);
+        val src = IndexedMemoryChunk.allocateUninitialized[DoubleIdx](1);
+        val dst = IndexedMemoryChunk.allocateUninitialized[DoubleIdx](1);
         src(0) = DoubleIdx(v, idx);
         finish nativeIndexOfMax(id, role, src, dst);
         return dst(0).idx;
@@ -280,8 +280,8 @@ public struct Team {
 
     /** Returns the index of the smallest double value across the team */
     public def indexOfMin (role:Int, v:Double, idx:Int) : Int {
-        val src = IndexedMemoryChunk.allocate[DoubleIdx](1);
-        val dst = IndexedMemoryChunk.allocate[DoubleIdx](1);
+        val src = IndexedMemoryChunk.allocateUninitialized[DoubleIdx](1);
+        val dst = IndexedMemoryChunk.allocateUninitialized[DoubleIdx](1);
         src(0) = DoubleIdx(v, idx);
         finish nativeIndexOfMin(id, role, src, dst);
         return dst(0).idx;
@@ -307,7 +307,7 @@ public struct Team {
      * @param new_role The caller's role within the new team
      */
     public def split (role:Int, color:Int, new_role:Int) : Team {
-        val result = IndexedMemoryChunk.allocate[Int](1);
+        val result = IndexedMemoryChunk.allocateUninitialized[Int](1);
         finish nativeSplit(id, role, color, new_role, result);
         return Team(result(0));
     }

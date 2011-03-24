@@ -43,12 +43,12 @@ public class CompilerFlags {
     @Native("c++", "true")
     public static native def useUnsigned():boolean;
 
-    /**
-     * (Managed X10) each place is hosted by different Java VM
-     */
-    @Native("java", "(!`MULTI_NODE`)")
-    @Native("c++", "false")
-    public static native def singleNode():boolean;
+    // /**
+    //  * (Managed X10) each place is hosted by different Java VM
+    //  */
+    // @Native("java", "(!`MULTI_NODE`)")
+    // @Native("c++", "false")
+    // public static native def singleNode():boolean;
 
     /**
      * A false that is not understood by the constant propagator

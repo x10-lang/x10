@@ -19,6 +19,7 @@ import x10.compiler.Native;
  * The real and imaginary components are represented as Doubles.
  */
 public struct Complex /*TODO implements Arithmetic[Complex]*/ {
+
     /** The real component of this complex number. */
     public val re:Double;
     /** The imaginary component of this complex number. */

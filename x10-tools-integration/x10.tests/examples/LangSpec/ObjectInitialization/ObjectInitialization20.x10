@@ -36,7 +36,7 @@ public class ObjectInitialization20 extends x10Test {
   def this(r:Int) {
     super(r);                      // (1)
     x10.io.Console.OUT.println(r); // (2)
-    property(r+1);                 // (2)
+    property(r);                 // (2)
     // field initializations here  // (3)
     a = r + 2;                     // (4)
   }

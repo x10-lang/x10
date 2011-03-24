@@ -64,6 +64,10 @@ public class XLit extends XVar implements XPromise {
 		return ((val == null) ? 0 : val.hashCode());
 	}
 
+
+    public boolean okAsNestedTerm() {
+    	return true;
+    }
 	public boolean hasVar(XVar v) {
 		return false;
 	}

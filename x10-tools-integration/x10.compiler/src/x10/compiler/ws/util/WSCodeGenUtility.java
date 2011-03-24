@@ -43,6 +43,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -61,11 +62,13 @@ import x10.ast.PlacedClosure;
 import x10.ast.StmtSeq;
 import x10.ast.When;
 import x10.ast.X10Call;
+import x10.ast.X10MethodDecl;
 import x10.compiler.ws.WSTransformState;
 import x10.types.ClosureDef;
 import x10.types.MethodInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10Def;
 import x10.types.X10MethodDef;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
@@ -210,6 +213,14 @@ public class WSCodeGenUtility {
         return locals;
     }
     
+    protected static boolean isWSTarget(X10Def def) {
+        try {
+            Type t = def.typeSystem().systemResolver().findOne(QName.make("x10.compiler.WS"));
+            return !def.annotationsMatching(t).isEmpty();
+        } catch (SemanticException e) {
+            return false;
+        }
+    }
     
     
     /**
@@ -224,6 +235,10 @@ public class WSCodeGenUtility {
     public static boolean containsConcurrentConstruct(Node node){
         if(node == null){
             return false; //no data
+        }
+        
+        if (node instanceof X10MethodDecl && isWSTarget(((X10MethodDecl) node).methodDef())) {
+            return true;
         }
         
         if(node instanceof Closure){ //need remove closure's shell, other wise the visitor will not work
@@ -585,6 +600,7 @@ public class WSCodeGenUtility {
     static public Stmt setSpeicalQualifier(Stmt s, ClassDef outerDef, NodeFactory xnf){
         SpecialQualifierSetter sqs = new SpecialQualifierSetter(xnf, outerDef);
         
+        if (s == null) return null;
         return (Stmt) s.visit(sqs);
 
     }

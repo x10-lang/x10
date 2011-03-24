@@ -102,6 +102,7 @@ import x10.ast.X10SourceFile_c;
 import x10.ast.SettableAssign;
 import x10.constraint.XTerm;
 import x10.constraint.XTermKind;
+import x10.emitter.Emitter;
 import x10.extension.X10Ext;
 import x10.types.constraints.CConstraint;
 import x10.types.ConstrainedType;
@@ -211,13 +212,13 @@ public class StaticInitializer extends ContextVisitor {
             MethodDecl md = null; 
             if (fieldInfo.right != null) {
                 FieldDecl fdPLH = null;
-                if (!opts.x10_config.MULTI_NODE) {
-                    // create PlaceLocalHandle for SingleVM MultiPlace support
-                    fdPLH = makeFieldVar4PLH(CG, fName, classDef);
-                    classDef.addField(fdPLH.fieldDef());
-                    // add in the top
-                    members.add(0, fdPLH);
-                }
+//                if (!opts.x10_config.MULTI_NODE) {
+//                    // create PlaceLocalHandle for SingleVM MultiPlace support
+//                    fdPLH = makeFieldVar4PLH(CG, fName, classDef);
+//                    classDef.addField(fdPLH.fieldDef());
+//                    // add in the top
+//                    members.add(0, fdPLH);
+//                }
 
                 // gen new field var
                 FieldDecl fdCond = makeFieldVar4Guard(CG, fName, classDef);
@@ -408,9 +409,9 @@ public class StaticInitializer extends ContextVisitor {
                     if (cdecl != null && checkProcedureBody(cdecl.body(), 0))
                         // constructor include static field references to be replaced
                         found.set(true);
-                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
-                        found.set(true);
-                    }
+//                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
+//                        found.set(true);
+//                    }
                 }
                 // continue traversal
                 return null;
@@ -567,9 +568,9 @@ public class StaticInitializer extends ContextVisitor {
                     if (cdecl != null && !cdecl.body().equals(body) && checkProcedureBody(cdecl.body(), 0))
                         // constructor include static field references to be replaced
                         found.set(true);
-                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
-                        found.set(true);
-                    }
+//                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
+//                        found.set(true);
+//                    }
                 }
                 // continue traversal
                 return null;
@@ -1076,7 +1077,7 @@ public class StaticInitializer extends ContextVisitor {
         // actual arguments
         List<Expr> args = new ArrayList<Expr>();
         args.add(xnf.StringLit(pos, fullName).type(xts.String()));
-        args.add(xnf.StringLit(pos, fieldName.toString()).type(xts.String()));
+        args.add(xnf.StringLit(pos, Emitter.mangleToJava(fieldName)).type(xts.String()));
 
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.String()));

@@ -72,7 +72,7 @@ public class CUDAUtilities {
         : RemoteArray[T]{self.rank==1, self.home==place}
     {
         if (place.isCUDA()) {
-            val chunk = IndexedMemoryChunk.allocate[T](numElements);
+            val chunk = IndexedMemoryChunk.allocateUninitialized[T](numElements);
             for ([i] in 0..(numElements-1)) chunk(i) = init;
             return makeCUDAArray(place, numElements, chunk);
         } else {
@@ -84,7 +84,7 @@ public class CUDAUtilities {
         : RemoteArray[T]{self.rank==1, self.home==place}
     {
         if (place.isCUDA()) {
-            val chunk = IndexedMemoryChunk.allocate[T](numElements);
+            val chunk = IndexedMemoryChunk.allocateUninitialized[T](numElements);
             for ([i] in 0..(numElements-1)) chunk(i) = init(i);
             return makeCUDAArray(place, numElements, chunk);
         } else {

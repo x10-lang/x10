@@ -20,8 +20,18 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
 
 	private static final long serialVersionUID = 1L;
 
+	public AtomicInteger(java.lang.System[] $dummy) {
+	    super();
+	}
+	public void $init() {}
+	
     public AtomicInteger() {
         super();
+    }
+
+    public void $init(int initialValue) {
+        // TODO
+        set(initialValue);
     }
     
     public AtomicInteger(int initialValue) {

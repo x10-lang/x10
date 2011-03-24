@@ -218,15 +218,19 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 			}
 		}
 
-		// Find the most-specific closure type.
-        Warnings.checkErrorAndGuard(tc,mi,this);
+		Warnings.checkErrorAndGuard(tc,mi,this);
 
+		// Find the most-specific closure type.
+//		ClosureCall n = this;
+//		n = n.arguments(args);
+//		return n.closureInstance(mi).type(mi.returnType());
 		if (mi.container() instanceof FunctionType) {
 			ClosureCall_c n = this;
 			n = (ClosureCall_c) n.arguments(args);
 			return n.closureInstance(mi).type(mi.returnType());
 		}
 		else {
+			// FIXME: deleting this code block breaks the Java code generator.  Investigate.
 			// TODO: add ts.Function and uncomment this.
 			// Check that the target actually is of a function type of the appropriate type and doesn't just coincidentally implement an
 			// apply method.

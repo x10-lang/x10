@@ -44,6 +44,9 @@ public class CThis extends XVar {
     }
     
 
+    public boolean okAsNestedTerm() {
+    	return true;
+    }
     public boolean hasVar(XVar v) {
         return equals(v);
     }

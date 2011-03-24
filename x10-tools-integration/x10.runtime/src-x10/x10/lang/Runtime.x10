@@ -51,6 +51,10 @@ import x10.util.NoSuchElementException;
 
     // Native runtime interface
 
+    // workaround for XTENLANG-2572
+    @Native("java", "2")
+    private static DEFAULT_NTHREADS = 1;
+
     @Native("c++", "PLATFORM_MAX_THREADS")
     private static PLATFORM_MAX_THREADS = Int.MAX_VALUE;
 
@@ -162,7 +166,7 @@ import x10.util.NoSuchElementException;
         } catch (NoSuchElementException) {
         } catch (NumberFormatException) {
         }
-        if (v <= 0) v = 1;
+        if (v <= 0) v = DEFAULT_NTHREADS;
         if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
         return v;
     }
@@ -218,17 +222,12 @@ import x10.util.NoSuchElementException;
      * The frame is in the body, and should be in the heap
      */
     public static def wsRunAsync(id:Int, body:()=>void):void {
-        if(id == here.id){
-            val closure:()=>void = deepCopy(body);
-            closure();
-            dealloc(closure);
-        }
-        else{
-            val closure:()=>void = ()=>@x10.compiler.RemoteInvocation {
-                body(); //just execute the 
-            };
-            runClosureCopyAt(id, closure);
-            dealloc(closure);
+        if (id == hereInt()) {
+            val copy = deepCopy(body);
+            copy();
+            dealloc(copy);
+        } else {
+            runClosureCopyAt(id, body);
         }
     }
 
@@ -236,15 +235,10 @@ import x10.util.NoSuchElementException;
      * Run a ws command in local or remote, such as a finish join action, or stop all workers action
      */
     public static def wsRunCommand(id:Int, body:()=>void):void {
-        if(id == here.id){
+        if (id == hereInt()) {
             body();
-        }
-        else {
-            val closure:()=>void = ()=>@x10.compiler.RemoteInvocation {
-                body(); //just execute the 
-            };
-            runClosureAt(id, closure);
-            dealloc(closure);
+        } else {
+            runClosureAt(id, body);
         }
     }
 
@@ -258,6 +252,12 @@ import x10.util.NoSuchElementException;
         var k:Object;
         while ((k = src.poll()) != null) dst.push(k);
     }
+
+    public static def wsEnd() {
+        pool.wsEnd = true;
+    }
+
+    public static def wsEnded() = pool.wsEnd;
 
     /**
      * A mortal object is garbage collected when there are no remaining local refs even if remote refs might still exist
@@ -436,7 +436,7 @@ import x10.util.NoSuchElementException;
             if (!STATIC_THREADS) {
                 Thread.park();
             } else {
-                probe();
+                Runtime.probe();
             }
         }
 
@@ -450,6 +450,8 @@ import x10.util.NoSuchElementException;
 
     @Pinned static class Pool {
         val latch = new SimpleLatch();
+        
+        var wsEnd:Boolean = false;
         
         private var size:Int; // the number of workers in the pool
 

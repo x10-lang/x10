@@ -1,14 +1,11 @@
 package x10.compiler.ws;
 
-import x10.util.Stack;
+import x10.compiler.Abort;
 
 public final class RootFinish extends FinishFrame {
     public def this() {
-        super(new RootFrame());
+        super(NULL[Frame]());
         asyncs = 1;
-        //move the assign to make
-        //redirect = this; 
-        this.redirect = NULL[FinishFrame]();
     }
 
     public def init() {
@@ -17,4 +14,10 @@ public final class RootFinish extends FinishFrame {
     }
 
     public def remap():FinishFrame = this;
+
+    public def wrapResume(worker:Worker) {
+        super.wrapResume(worker);
+        Worker.allStop(worker);
+        throw Abort.ABORT;
+    }
 }

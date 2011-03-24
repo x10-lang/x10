@@ -23,50 +23,42 @@ abstract public class FinishFrame extends Frame {
     public def this(Int, o:FinishFrame) {
         super(o.up.realloc());
         this.asyncs = 1;
-        this.stack = NULL[Stack[Throwable]](); // do not copy the stack yet
-        //this.redirect = this; //moved to realloc because of V2.1
-        this.redirect = NULL[FinishFrame]();
+        this.stack = NULL[Stack[Throwable]](); // stack is eventually copied by the victim
     }
 
     // copy methods
     public abstract def remap():FinishFrame;
 
     public def realloc() {
-        if (null != redirect) return redirect;
+        if (!isNULL(redirect)) return redirect;
         val tmp = remap();
-        //assign moved to here
         tmp.redirect = tmp;
         redirect = tmp;
         return tmp;
     }
 
     public def wrapBack(worker:Worker, frame:Frame) {
-        if (null != frame.throwable) {
+        if (!isNULL(frame.throwable)) {
+            Runtime.atomicMonitor.lock();
             caught(frame.throwable);
-        } else {
-            back(worker, frame);
+            Runtime.atomicMonitor.unlock();
         }
     }
 
     @Inline public final def caught(t:Throwable) {
-        if (isNull(stack)) stack = new Stack[Throwable]();
+        if (isNULL(stack)) stack = new Stack[Throwable]();
         stack.push(t);
     }
 
-    @Inline public final def finalize() {
-        if (!(isNull(stack))) { throw new MultipleExceptions(stack); }
+    @Inline public final def rethrow() {
+        if (!(isNULL(stack))) throw new MultipleExceptions(stack);
         return;
     }
 
     public def wrapResume(worker:Worker) {
+        var n:Int;
+        Runtime.atomicMonitor.lock(); n = --asyncs; Runtime.atomicMonitor.unlock();
+        if (0 != n) throw Abort.ABORT;
         throwable = MultipleExceptions.make(stack);
-        if (null != throwable) return;
-        try {
-            resume(worker);
-        } catch (t:Abort) {
-            throw t;
-        } catch (t:Throwable) {
-            throwable = t;
-        }
     }
 }

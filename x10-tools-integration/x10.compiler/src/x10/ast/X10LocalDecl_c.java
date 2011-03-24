@@ -278,7 +278,20 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		+ ">";
 	}
 
+
+    /**
+     * Add the declaration of the variable as we enter the scope of the
+     * intializer.
+     * In Java you can write this code:
+     * int i= (i=2)+4;
+     * But after XTENLANG-2387 we disallow it in X10:
+     * var i:Int = (i=2)+4; // ERR!
+     */
 	public Context enterChildScope(Node child, Context c) {
+        if (child == init) {
+            c = c.pushBlock();
+            // addDecls(c); - this will allow writing code like a local: int i= (i=2);
+        }
 		if (child == this.type || child == this.hasType) {
 			Context xc = (Context) c.pushBlock();
 			LocalDef li = localDef();

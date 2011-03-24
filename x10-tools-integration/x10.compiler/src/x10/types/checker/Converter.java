@@ -38,15 +38,20 @@ import polyglot.types.Def;
 import polyglot.types.Matcher;
 import polyglot.types.MemberInstance;
 
+import polyglot.types.Flags;
+import polyglot.types.LazyRef_c;
+import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.NoMemberException;
 import polyglot.types.ObjectType;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -72,6 +77,10 @@ import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.types.MethodInstance;
+import x10.types.X10LocalDef;
+import x10.types.X10LocalDef_c;
+import x10.types.X10LocalInstance;
+import x10.types.X10LocalInstance_c;
 import polyglot.types.Context;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
@@ -79,7 +88,10 @@ import x10.types.X10ProcedureInstance;
 import polyglot.types.TypeSystem;
 
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
+import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
 
 /**
@@ -205,8 +217,7 @@ public class Converter {
 			typeArgs.add(tn.type());
 		}
 
-		METHOD: for (Iterator<PI> i = methods.iterator(); i.hasNext();) {
-			PI smi = i.next();
+		METHOD: for (PI smi :  methods) {
 			X10ProcedureInstance<?> xmi = (X10ProcedureInstance<?>) smi;
 
 			if (reporter.should_report(Reporter.types, 3))
@@ -225,12 +236,20 @@ public class Converter {
 			}
 			List<Expr> transformedArgs = new ArrayList<Expr>();
 			List<Type> transformedArgTypes = new ArrayList<Type>();
-
+			List<XVar> transformedYs = new ArrayList<XVar>();
+			
 			List<Type> formals = smi.formalTypes();
 
 			for (int j = 0; j < n.arguments().size(); j++) {
 				Expr e = n.arguments().get(j);
 				Type toType = formals.get(j);
+				// toType may have occurrences of CLoc's corresponding to the args
+				// k in 0..j-1. These must be treated as of type transformedArgTypes.get(k).
+				// Therefore substitute transformedYs.get(k) for the original CLoc. 
+				for (int k=0; k < j; k++) {
+				   toType=Subst.subst(toType,  transformedYs.get(k),
+						   CTerms.makeLocal((X10LocalDef) smi.formalNames().get(k).def()));
+				}
 
                 // In DYNAMIC_CALLS we can't just insert a cast for each argument due to dependencies between arguments, e.g.,
                 //def m(a:Int, b:Int{self==a}) {}
@@ -242,17 +261,37 @@ public class Converter {
                 //def test(x:Int, y:Int) {
                 // ( (a:Int, b:Int) => if (!(b==a)) throw new ...;  m(a,b)) (x+1,y);
                 //}
-				Expr e2 = attemptCoercion(tc, e, toType); // attemptCoercion is used in many places (for loops, local&field init expressions, etc), so we special handle it for method calls                
+			
+				Expr e2 = attemptCoercion(tc, e, toType); 
+				// attemptCoercion is used in many places (for loops, local&field 
+				// init expressions, etc), so we special handle it for method calls                
                 if (e2 instanceof X10Cast) {
                     X10Cast e2Cast = (X10Cast) e2;
                     if (e2Cast.conversionType()==ConversionType.DESUGAR_LATER)
-                        e2 = e2Cast.conversionType(ConversionType.SUBTYPE).type(Types.baseType(e2Cast.type())); // because in instantiate we will flag the method call as checkGuardAtRuntime and create a closure for it
+                        e2 = e2Cast
+                        .conversionType(ConversionType.SUBTYPE)
+                        .type(Types.baseType(e2Cast.type())); 
+                    // because in instantiate we will flag the method call as 
+                    // checkGuardAtRuntime and create a closure for it
                 }
 
 				if (e2 == null)
 					continue METHOD;
 				transformedArgs.add(e2);
-				transformedArgTypes.add(e2.type());
+				Type e2Type = e2.type();
+				if (e2Type instanceof UnknownType)
+					continue METHOD;
+				transformedArgTypes.add(e2Type);
+				{
+					// Construct the new transformedY. 
+					Ref<Type> ref = new LazyRef_c<Type>(e2Type);
+					X10LocalDef def = new X10LocalDef_c(ts, Position.COMPILER_GENERATED, Flags.FINAL, ref,
+							Name.makeFresh("arg"));
+					XVar y = CTerms.makeLocal(def);
+					ref.update(Types.addSelfBinding(e2Type, y));
+					transformedYs.add(y);
+				}
+				
 			}
 
 			try {
@@ -293,9 +332,13 @@ public class Converter {
 
 		if (acceptable.size() == 0) {
 			if (n instanceof New || n instanceof ConstructorCall)
-				throw new NoMemberException(NoMemberException.CONSTRUCTOR, "Could not find matching constructor in " + targetType + ".", n.position());
+				throw new NoMemberException(NoMemberException.CONSTRUCTOR, 
+						"Could not find matching constructor in " + targetType + ".", 
+						n.position());
 			else
-				throw new NoMemberException(NoMemberException.METHOD, "Could not find matching method in " + targetType + ".", n.position());
+				throw new NoMemberException(NoMemberException.METHOD,
+						"Could not find matching method in " + targetType + ".", 
+						n.position());
 		}
 
 		Collection<PI> maximal = ts.<PD, PI> findMostSpecificProcedures(acceptable, (Matcher<PI>) null, xc);
@@ -320,10 +363,12 @@ public class Converter {
 			}
 
 			if (n instanceof New || n instanceof ConstructorCall)
-				throw new NoMemberException(NoMemberException.CONSTRUCTOR, "Reference to " + targetType + " is ambiguous, multiple " + "constructors match: "
+				throw new NoMemberException(NoMemberException.CONSTRUCTOR, "Reference to " 
+						+ targetType + " is ambiguous, multiple " + "constructors match: "
 						+ sb.toString(), n.position());
 			else
-				throw new NoMemberException(NoMemberException.METHOD, "Reference to " + targetType + " is ambiguous, multiple " + "methods match: "
+				throw new NoMemberException(NoMemberException.METHOD, "Reference to " 
+						+ targetType + " is ambiguous, multiple " + "methods match: "
 						+ sb.toString(), n.position());
 		}
 

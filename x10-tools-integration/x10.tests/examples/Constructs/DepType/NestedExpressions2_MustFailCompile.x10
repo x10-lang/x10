@@ -22,7 +22,7 @@ public class NestedExpressions2_MustFailCompile extends x10Test {
 	class C(a:boolean) {
 		static type C(b:boolean) = C{self.a==b};
 		def this(b:boolean):C{self.a==b}{property(b);}
-		def and(x:C, y:C): C{self.a== (x.a && y.a)} = new C(x.a&&y.a);
+		def and(x:C, y:C): C{self.a== (x.a && y.a)} = new C(x.a&&y.a); // ERR
 		def n() {
 			val x = new C(true);
 			val y = new C(true);

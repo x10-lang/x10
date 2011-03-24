@@ -7,7 +7,7 @@ import x10.util.*;
 
 
 class UseMacroInNewExpr(i:Int) {	
-    public static type Bar = UseMacroInNewExpr{i==2};
+    public static type Bar = UseMacroInNewExpr{i==3};
 	static def test() {
 		val y = new Bar(2); // ERR: Constructor return type UseMacroInNewExpr is not a subtype of UseMacroInNewExpr{self.i==2}. todo: should be a better error message
 	}

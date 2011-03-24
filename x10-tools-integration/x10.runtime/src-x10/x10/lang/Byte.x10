@@ -23,9 +23,11 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some Byte constants.
  */
-@NativeRep("java", "byte", null, "x10.rtt.Types.BYTE")
+@NativeRep("java", "byte", "((byte) 0)", "x10.rtt.Types.BYTE")
 @NativeRep("c++", "x10_byte", "x10_byte", null)
 public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte], Bitwise[Byte], Ordered[Byte]*/ {
+
+
     /**
      * A less-than operator.
      * Compares this Byte with another Byte and returns true if this Byte is

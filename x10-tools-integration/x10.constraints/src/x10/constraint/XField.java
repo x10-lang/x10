@@ -56,6 +56,10 @@ public class XField<T> extends XVar {
         return result;
     }
 
+
+    public boolean okAsNestedTerm() {
+    	return true;
+    }
     public List<XEQV> eqvs() {
         return receiver().eqvs();
     }

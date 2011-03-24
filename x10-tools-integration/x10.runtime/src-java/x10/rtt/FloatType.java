@@ -19,7 +19,8 @@ public class FloatType extends RuntimeType<Float> {
     public FloatType() {
         super(float.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
+                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1)),
+                  Types.STRUCT
               });
     }
     

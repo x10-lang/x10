@@ -23,11 +23,13 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some Int constants.
  */
-@NativeRep("java", "int", null, "x10.rtt.Types.INT")
+@NativeRep("java", "int", "0", "x10.rtt.Types.INT")
 //                 v-- when used
 @NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
 public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*/ {
+
+
     /**
      * A less-than operator.
      * Compares this Int with another Int and returns true if this Int is

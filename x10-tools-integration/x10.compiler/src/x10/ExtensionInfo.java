@@ -880,7 +880,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            protected SourceFile createDummyAST() {
                NodeFactory nf = job().extensionInfo().nodeFactory();
                String fName = job.source().name();
-               Position pos = new Position("", job.source().path(), 1, 1);
+               Position pos = new Position("", job.source().path(), 1, 1).markCompilerGenerated();
                String name = fName.substring(fName.lastIndexOf(File.separatorChar)+1, fName.lastIndexOf('.'));
                TopLevelDecl decl = nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC),
                        nf.Id(pos, name), null, Collections.<TypeNode>emptyList(),

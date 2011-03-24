@@ -28,11 +28,8 @@ public class Functions110 extends x10Test {
 
 // file Functions line 467
  static  class JustATest {
- val dummy = [String.+,
-  Long.-,
-  Float.-,
-  Boolean.&,
-  Int.<
+ val dummy = [((x:Int,y:Int) => x+y), 
+  (x:Double,y:Double) => x-y
   ];
  }
 

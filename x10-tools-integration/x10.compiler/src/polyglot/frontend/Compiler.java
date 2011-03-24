@@ -10,7 +10,9 @@ package polyglot.frontend;
 import java.io.*;
 import java.util.*;
 
+import polyglot.ast.PackageNode;
 import polyglot.ast.SourceFile;
+import polyglot.types.QName;
 import polyglot.types.reflect.ClassFileLoader;
 import polyglot.util.*;
 import x10.util.CollectionFactory;
@@ -112,11 +114,25 @@ public class Compiler
     
     /**
      * Add an output file
-     * @param source the source file
+     * @param source the source
      * @param output the output file
      */
-    public void addOutputFile(Resource source, String output) {
-        addOutputFile(source.name(), output);
+    public void addOutputFile(SourceFile source, String output) {
+        PackageNode pkg = source.package_();
+        String key = pkg == null ? "" : pkg.package_().get().fullName().toString() + ".";
+        key += source.source().name().substring(0, source.source().name().lastIndexOf(".x10"));
+        key = key.replace('.', File.separatorChar);
+        addOutputFile(key, output);
+    }
+    
+    /**
+     * Add an output file
+     * @param gname the qualified name of the source entity
+     * @param output the output file
+     */
+    public void addOutputFile(QName qname, String output) {
+        String key = qname.toString().replace('.', File.separatorChar);
+        addOutputFile(key, output);
     }
     
     /**

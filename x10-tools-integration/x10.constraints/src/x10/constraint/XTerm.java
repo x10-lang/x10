@@ -43,6 +43,13 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	public final XTerm subst(XTerm y, XVar x) {
 	    return subst(y, x, true);
 	}
+	
+	/**
+	 * Returns true only if this term is allowed to occur inside a constraint.
+	 * Terms a&&b, a||b, a==b etc must return false.
+	 * @return
+	 */
+	public abstract boolean okAsNestedTerm();
 
 	// int nextId = 0;
 	

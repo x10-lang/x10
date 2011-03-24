@@ -26,6 +26,7 @@ import x10.types.AsyncDef;
 import x10.types.AtDef;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
+import x10.types.ClosureType;
 import x10.types.FunctionType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -1135,12 +1136,14 @@ public interface TypeSystem {
 
     boolean isInterfaceType(Type toType);
 
-    FunctionType closureType(Position position, Ref<? extends Type> typeRef,
-        //  List<Ref<? extends Type>> typeParams,
-            List<Ref<? extends Type>> formalTypes,
-            List<LocalDef> formalNames, Ref<CConstraint> guard
-           // Ref<TypeConstraint> typeGuard,
-            );
+    FunctionType functionType(Position position, Ref<? extends Type> returnType,
+            List<ParameterType> typeParameters,
+            List<Ref<? extends Type>> formalTypes, List<LocalDef> formalNames,
+            Ref<CConstraint> guard
+            //Ref<TypeConstraint> typeGuard,
+    );
+
+    ClosureType closureType(ClosureDef cd);
 
 
     Type expandMacros(Type arg);

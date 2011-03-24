@@ -510,7 +510,8 @@ public class XConstraint implements Cloneable {
         if (roots == null)
             return;
         for (XPromise p : roots.values()) {
-            if (! p.visit(null, dumpEQV, hideFake, xg))
+        	boolean result = p.visit(null, dumpEQV, hideFake, xg);
+            if (! result )
                 return;
         }
     }

@@ -83,7 +83,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                 parent.wts.asyncFrameType, a.body());
         inFrameTransform = canInFrameTransform(codeBlock);
         
-        if(WSOptimizeConfig.OPT_PC_FIELD == 0){
+        if(wts.codegenConfig.OPT_PC_FIELD == 0){
             addPCField();
         }
         parentK = parent; //record parent continuation
@@ -108,7 +108,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         Expr pcRef = null;
         SwitchSynth resumeSwitchSynth = null;
         SwitchSynth backSwitchSynth = null;
-        if(WSOptimizeConfig.OPT_PC_FIELD == 0){
+        if(wts.codegenConfig.OPT_PC_FIELD == 0){
             pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
             resumeSwitchSynth = resumeBodySynth.createSwitchStmt(compilerPos, pcRef);
             backSwitchSynth = backBodySynth.createSwitchStmt(compilerPos, pcRef);
@@ -128,7 +128,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
             fastBodySynth.addStmts(callCodes.first());
             
             //resume/back path
-            if(WSOptimizeConfig.OPT_PC_FIELD == 0){      
+            if(wts.codegenConfig.OPT_PC_FIELD == 0){      
                 resumeSwitchSynth.insertStatementsInCondition(0, callCodes.second());
                 if(callCodes.third().size() > 0){ //only assign call has back
                     backSwitchSynth.insertStatementsInCondition(callCodes.getPcValue(), callCodes.third());
@@ -185,29 +185,16 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                     continue;
                 }
                 
-                Name formalName = xct.getNewVarName();
+
+                if(wts.codegenConfig.DISABLE_EXCEPTION_HANDLE == 1){
+                    fastBodySynth.addStmts(codes.first());
+                }
+                else{
+                    fastBodySynth.addStmt(genExceptionHandler(codes.first()));
+                }
+
                 pcValue = codes.getPcValue();
-                
-                Formal fa = synth.createFormal(compilerPos, wts.stolenType, formalName, Flags.NONE);
-                Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.stolenType));
-                Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
-                
-                Formal f = synth.createFormal(compilerPos, xts.Throwable(), formalName, Flags.NONE);
-                Expr caught = synth.makeInstanceCall(compilerPos, synth.thisRef(wts.asyncFrameType, compilerPos),
-                        CAUGHT, Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(
-                                xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(f.localDef().asInstance()).type(xts.Throwable())), xts.Void(),
-                        Collections.<Type>singletonList(xts.Throwable()), xct);
-                Catch c = xnf.Catch(compilerPos, f, xnf.Block(compilerPos,
-                        xnf.Eval(compilerPos, caught)));
-                
-                List<Catch> handlers = new ArrayList<Catch>(2);
-                handlers.add(ca);
-                handlers.add(c);
-                
-                Try t = xnf.Try(compilerPos, xnf.Block(compilerPos, codes.first()), handlers);
-                fastBodySynth.addStmt(t);
-                
-                if(WSOptimizeConfig.OPT_PC_FIELD == 0){
+                if(wts.codegenConfig.OPT_PC_FIELD == 0){
                     resumeSwitchSynth.insertStatementsInCondition(prePcValue, codes.second());
                     if(codes.third().size() > 0){ //only assign call has back
                         backSwitchSynth.insertStatementsInCondition(pcValue, codes.third());

@@ -30,7 +30,6 @@ import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodAsTypeTransform;
 import polyglot.types.MethodDef;
-
 import polyglot.types.Package;
 import polyglot.types.Ref;
 import polyglot.types.Resolver;
@@ -46,38 +45,46 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
-import x10.constraint.XConstraint;
+import x10.types.constraints.CConstraint;
 
 /**
- * A representation of the type of a closure. Treated as a ClassType implementing a FunctionType, with 
- * the signature for the function type retrieved from the sole method (the apply method) defined on the
- * class type.
- * @author nystrom
- * @author vj
- *
+ * A representation of the type of a closure.
+ * Treated as a ClassType implementing a FunctionType, with the signature
+ * for the function type retrieved from the sole method (the apply method)
+ * defined on the class type.
  */
-public class ClosureType_c extends X10ParsedClassType_c implements FunctionType {
-    private static final long serialVersionUID = 2768150875334536668L;
-
-//    protected ClosureInstance ci;
+public class ClosureType_c extends FunctionType_c implements ClosureType {
+    private static final long serialVersionUID = 331189963001388621L;
 
     public ClosureType_c(final TypeSystem ts, Position pos, final X10ClassDef def) {
-	super(ts, pos, Types.ref(def));
+        super(ts, pos, def);
     }
-    
+
+    protected ClosureInstance ci;
+
+    public ClosureInstance closureInstance() {
+        return ci;
+    }
+
+    public ClosureType closureInstance(ClosureInstance ci) {
+        ClosureType_c ct = (ClosureType_c) copy();
+        ct.ci = ci;
+        return ct;
+    }
+
     public MethodInstance applyMethod() {
         try {
-        return (MethodInstance) methods().get(0);
+            return (MethodInstance) methods().get(0);
         } catch (Exception z) {
             return null;
         }
     }
-    
+
     public Type returnType() {
         return applyMethod().returnType();
     }
 
-    public XConstraint guard() {
+    public CConstraint guard() {
         return applyMethod().guard();
     }
 
@@ -93,7 +100,6 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
         return applyMethod().formalTypes();
     }
 
-    
     @Override
     public String typeToString() {
         MethodInstance mi = applyMethod();
@@ -102,35 +108,22 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
         StringBuilder sb = new StringBuilder();
         List<LocalInstance> formals = mi.formalNames();
         for (int i=0; i < formals.size(); ++i) {
-        	LocalInstance f = formals.get(i);
-        	 if (sb.length() > 0)
-                 sb.append(", ");
-             sb.append(f.name());
-             sb.append(':');
-             sb.append(f.type());
+            LocalInstance f = formals.get(i);
+            if (sb.length() > 0)
+                sb.append(", ");
+            sb.append(f.name());
+            sb.append(':');
+            sb.append(f.type());
         }
-        /*
-        for (LocalInstance f : formals) {
-        	 if (sb.length() > 0)
-                 sb.append(", ");
-             sb.append(f.name());
-             sb.append(':');
-             sb.append(f.type());
-        }
-      */
-        XConstraint guard = guard();
-        return "(" + sb.toString() + ")" + (guard==null? "" : guard) + "=> " + mi.returnType();
+        return "(" + sb.toString() + ")" + guardToString(guard()) + "=> " + mi.returnType();
     }
 
-
-	@Override
-	public int hashCode() {
-		return def.get().hashCode();
-	}
-    
+    @Override
+    public int hashCode() {
+        return def.get().hashCode();
+    }
 
     public void print(CodeWriter w) {
         w.write(toString());
     }
-   
 }
