@@ -393,8 +393,8 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.myPlaceId = atol(ID);
 
-	state.yieldAfterProbe = !checkBoolEnvVar(X10_NOYIELD);
-	state.linkAtStartup = !checkBoolEnvVar(X10_LAZYLINKS);
+	state.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
+	state.linkAtStartup = !checkBoolEnvVar(getenv(X10_LAZYLINKS));
 
 	state.nextSocketToCheck = 0;
 	pthread_mutex_init(&state.readLock, NULL);
