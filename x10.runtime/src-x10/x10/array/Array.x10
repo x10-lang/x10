@@ -644,7 +644,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[U](dst:Array[U](region), op:(T)=>U):Array[U](region){self==dst} {
+    public def map[U](dst:Array[U](this.rank), op:(T)=>U):Array[U](this.rank){self==dst} {
         // TODO: parallelize these loops.
         if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
@@ -676,7 +676,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[U](dst:Array[U](region), filter:Region(this.rank), op:(T)=>U):Array[U](region){self==dst} {
+    public def map[U](dst:Array[U](this.rank), filter:Region(this.rank), op:(T)=>U):Array[U](this.rank){self==dst} {
         val fregion = region && filter;
         for (p in fregion) {
             dst(p) = op(this(p));
@@ -697,7 +697,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[S,U](src:Array[U](this.region), op:(T,U)=>S):Array[S](region) {
+    public def map[S,U](src:Array[U](this.rank), op:(T,U)=>S):Array[S](this.region) {
         return new Array[S](region, (p:Point(this.rank))=>op(this(p), src(p)));
     }
     
@@ -715,7 +715,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[S,U](dst:Array[S](region), src:Array[U](region), op:(T,U)=>S):Array[S](region) {
+    public def map[S,U](dst:Array[S](this.rank), src:Array[U](this.rank), op:(T,U)=>S):Array[S](this.rank){self==dst} {
         // TODO: parallelize these loops.
         if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk
@@ -748,7 +748,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[S,U](dst:Array[S](region), src:Array[U](region), filter:Region(rank), op:(T,U)=>S):Array[S](region) {
+    public def map[S,U](dst:Array[S](this.rank), src:Array[U](this.rank), filter:Region(rank), op:(T,U)=>S):Array[S](rank){self==dst} {
         val fregion = region && filter;
         for (p in fregion) {
             dst(p) = op(this(p), src(p));
