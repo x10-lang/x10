@@ -899,14 +899,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             FunctionType ft2 = (FunctionType) baseType2;
             // (x1:S1,..., xn:Sn){c}=>S <: (y1:T1,..., yn:Tn){d}=>T provided that
             // 1. Ti <: Si, for i in 1..n
-            // 2. d entails c
+            // 2. c entails d
             // 3. S <: T
             List<Type> Sl = ft1.argumentTypes();
             Type S = ft1.returnType();
             CConstraint c = ft1.guard();
             List<Type> Tl = ft2.argumentTypes();
             Type T = ft2.returnType();
-            CConstraint d = ft1.guard();
+            CConstraint d = ft2.guard();
             if (Sl.size() != Tl.size())
                 return false;
             for (int i = 0; i < Sl.size(); i++) {
@@ -915,7 +915,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 if (!isSubtype(x, Ti, Si))
                     return false;
             }
-            if (!entails(d, c))
+            if (c != null) {
+                try {
+                    XVar[] ys = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
+                    XVar[] xs = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
+                    c = c.substitute(ys, xs);
+                } catch (XFailure e) {
+                    throw new InternalCompilerError("Unexpected exception comparing function types", ft1.position(), e);
+                }
+            }
+            if (!entails(c, d))
                 return false;
             if (!isSubtype(x, S, T))
                 return false;

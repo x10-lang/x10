@@ -19,20 +19,20 @@ import harness.x10Test;
 // OPTIONS: -STATIC_CALLS 
 
 public class XTENLANG_2329(x:Int) extends x10Test  { // see XTENLANG_2329 (Method guards are not type checked on calls to unary operators or closures.)
-	@ShouldNotBeERR public operator - this:Int {x==0} = 1; 
+	public operator - this {x==0} : Int = 1; 
 	public operator this * (g:XTENLANG_2329) {x==0} = 2;
 	public operator this(i:Int) {x==0} = 3;
 	public operator this(i:Int) = (j:Int) {x==0}  = 4;
 
 	def test(g1:XTENLANG_2329, g2:XTENLANG_2329) {
-		@ShouldBeErr val a = -g1;
+		@ERR val a = -g1;
 		@ERR val b = g1*g2;
 		@ERR val c = g1(42);
 		@ERR val d = g1(42)=43;
 	}
 	
 	def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
-		@ShouldBeErr val a = c(k);
+		@ERR val a = c(k);
 	}
 
 

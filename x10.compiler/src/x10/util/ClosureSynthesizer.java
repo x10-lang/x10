@@ -31,6 +31,7 @@ import polyglot.types.SystemResolver;
 import polyglot.types.Type;
 import polyglot.types.Types;
 
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.AnnotationNode;
 import x10.ast.Closure;
@@ -38,6 +39,7 @@ import x10.ast.ClosureCall;
 import x10.ast.X10Local_c;
 import x10.constraint.XLocal;
 import x10.constraint.XFailure;
+import x10.constraint.XVar;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ClosureType;
@@ -271,7 +273,7 @@ public class ClosureSynthesizer {
         QName fullName = QName.make("x10.lang", name);
         Type n = SystemResolver.first(xts.systemResolver().check(fullName));
 
-        if (n instanceof X10ClassType) {
+        if (guard1 == null && n instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) n;
             return ct.x10Def();
         }
@@ -337,11 +339,21 @@ public class ClosureSynthesizer {
         // NOTE: don't call cd.asType() until after the type parameters are
         // added.
         FunctionType ct = (FunctionType) cd.asType();
-        xts.systemResolver().install(fullName, ct);
+        if (guard1 == null) {
+            xts.systemResolver().install(fullName, ct);
+        }
 
         ThisDef thisDef = cd.thisDef();
 
         List<LocalDef> formalNames = xts.dummyLocalDefs(argTypes);
+        CConstraint newGuard = Types.get(guard1);
+        if (newGuard != null) {
+            try {
+                newGuard = newGuard.substitute(Types.toVarArray(formalNames), Types.toVarArray(formalNames1));
+            } catch (XFailure e) {
+                throw new InternalCompilerError("Unexpected exception while creating a function type", pos, e);
+            }
+        }
         X10MethodDef mi = xts.methodDef(pos, Types.ref(ct),
         		Flags.PUBLIC.Abstract(), Types.ref(rt),
         		ClosureCall.APPLY, 
@@ -349,7 +361,7 @@ public class ClosureSynthesizer {
         		argTypes, 
         		thisDef,
         		formalNames, 
-        		guard1,
+        		Types.ref(newGuard),
         		null,
         		null, // offerType
         		null);
@@ -357,5 +369,4 @@ public class ClosureSynthesizer {
 
         return cd;
     }
-
 }

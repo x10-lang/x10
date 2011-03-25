@@ -24,7 +24,7 @@ public class GuardedFunctionInvocation_MustFailCompile extends x10Test {
         m(3);
         m(4); // ERR
         f(3);
-        f(4); // ShouldBeErr
+        f(4); // ERR
     }
 	val f = (x:Int){x==3}=>x; // ShouldNotBeERR
 	

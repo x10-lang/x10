@@ -4527,7 +4527,7 @@ class XTENLANG_2329(x:Int) { // see XTENLANG_2329, but here we check with VERBOS
 	}
 	
 	def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
-		@ShouldBeErr val a = c(k);
+		@ERR val a = c(k);
 	}
 }
 
@@ -4552,7 +4552,7 @@ class DynamicGuardCheck {
 		}
 
 		def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
-			@ShouldBeErr { c(k); }
+			@ERR { c(k); }
 		}
 	}
 }
