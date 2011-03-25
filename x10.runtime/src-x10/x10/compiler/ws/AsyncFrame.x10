@@ -27,14 +27,10 @@ public abstract class AsyncFrame extends Frame {
             if (old != ff) {
                 move(ff);
                 if (!isNULL(old.stack)) {
-                    Runtime.println("old.stack!=null");
                     Runtime.atomicMonitor.lock();
                     if (isNULL(ff.stack)) ff.stack = new Stack[Throwable]();
                     while (!old.stack.isEmpty()) ff.stack.push(old.stack.pop());
                     Runtime.atomicMonitor.unlock();
-                }
-                else{
-                    Runtime.println("old.stack==null");
                 }
             }
             worker.unroll(ff);
