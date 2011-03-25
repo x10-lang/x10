@@ -27,7 +27,7 @@ esac
 [ "$#" -eq "0" ] && set -- .
 
 # The array of extensions to normalize properties for
-declare -a EXTENSIONS=( .java .c .h .cc .x10 .struct_h)
+declare -a EXTENSIONS=( .java .c .h .cc .x10)
 
 # Exit on interrupt
 trap "exit 2" INT

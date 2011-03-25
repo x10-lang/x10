@@ -226,9 +226,7 @@ install: $(XRX_ARCHIVE) install_props
 	@echo "Installing into $(INSTDIR)"
 	@mkdir -p "$(INSTDIR)"/include "$(INSTDIR)"/lib
 	@(cd gen && $(FIND) . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
-	@(cd gen && $(FIND) . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10 -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
-	@$(FIND) x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@cp -p x10rt.h "$(INSTDIR)"/include
