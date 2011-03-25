@@ -9,16 +9,15 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
-
 // We run with STATIC_CALLS because without it, it will just insert a cast: Warning: Expression 'p' was cast to type ...
-// OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CALLS
+
+import harness.x10Test;
 
 /**
  * Simple array test.
  * Testing that ia(p) gives an error, where ia:Array[int](1) and p:Point(2).
  */
-
 public class ArrayAccessWithMismatchingPointRank_MustFailCompile extends x10Test {
 
     def a(b:int) {}

@@ -9,8 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
+//OPTIONS: -STATIC_CALLS 
 
+import harness.x10Test;
 
 /**
  * As with methods, a closure may declare a where clause to constraint
@@ -18,14 +19,13 @@ import harness.x10Test;
  *
  * @author bdlucas 8/2008
  */
-
 public class ClosureConstraint5_MustFailCompile extends ClosureTest {
 
     public def run(): boolean = {
         
-        val g = (x:int,y:int){x==1 && y==-1} => x+y;  // ShouldNotBeERR
+        val g = (x:int,y:int){x==1 && y==-1} => x+y;
 
-        g(1,1); // ShouldBeErr    fails compilation
+        g(1,1); // ERR
 
         return result;
     }

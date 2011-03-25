@@ -216,10 +216,6 @@ public class ClosureSynthesizer {
                     assert false;
                 }
             }
-
-            CConstraint result = ((FunctionType_c)sup).getXClause();
-            result.addIn(constraint);
-            assert result.consistent();
         }
         
         cd.addInterface(Types.ref(sup));
