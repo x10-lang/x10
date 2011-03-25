@@ -33,6 +33,7 @@
 #include <pthread.h> // for locks on the sockets
 #include <poll.h> // for poll()
 #include <alloca.h> // for alloca()
+#include <fcntl.h>
 
 #include <x10rt_net.h>
 #include <x10rt_internal.h>
@@ -55,6 +56,15 @@ struct x10SocketCallback
 	notifierCallback notifier;
 };
 
+struct x10SocketDataToWrite
+{
+	int fd;
+	char* data;
+	unsigned size;
+	unsigned remainingToWrite;
+	struct x10SocketDataToWrite* next;
+};
+
 struct x10SocketState
 {
 	x10rt_place numPlaces; // how many places we have.
@@ -70,6 +80,9 @@ struct x10SocketState
 	pthread_mutex_t* writeLocks; // a lock to prevent overlapping writes on each socket
 	// special case for index=myPlaceId on the above three.  The socket link is the local listen socket,
 	// the read lock is used for listen socket handling and write lock for launcher communication
+	bool useNonblockingLinks; // flag to enable/disable buffered writes
+	struct x10SocketDataToWrite* pendingWrites;
+	pthread_mutex_t pendingWriteLock;
 } state;
 
 void probe (bool onlyProcessAccept);
@@ -138,6 +151,156 @@ int getPortEnv(unsigned int whichPlace)
 	return lp;
 }
 
+/*
+ * returns true if there is data remaining to flush
+ */
+bool flushPendingData()
+{
+	bool ableToFlush = true;
+	bool dataRemains = false;
+	while (state.pendingWrites != NULL && ableToFlush)
+	{
+		pthread_mutex_lock(&state.pendingWriteLock);
+		if (pthread_mutex_trylock(&state.writeLocks[state.pendingWrites->fd]) == 0)
+		{
+			char * src = (char *) state.pendingWrites->data + (state.pendingWrites->size - state.pendingWrites->remainingToWrite);
+			while (state.pendingWrites->remainingToWrite > 0)
+			{
+				int rc = ::write(state.pendingWrites->fd, src, state.pendingWrites->remainingToWrite);
+				if (rc == -1)
+				{
+					if (errno == EINTR) continue;
+					if (errno == EAGAIN) break;
+					fprintf(stderr, "flush errno=%i", errno);
+					error("Unable to flush data");
+				}
+				if (rc == 0)
+					error("Unable to flush data - socket closed");
+				src += rc;
+				state.pendingWrites->remainingToWrite -= rc;
+			}
+			pthread_mutex_unlock(&state.writeLocks[state.pendingWrites->fd]);
+
+			#ifdef DEBUG
+				if (state.pendingWrites->size - state.pendingWrites->remainingToWrite > 0)
+					fprintf(stderr, "Place %u flushed %u bytes of old data\n", state.myPlaceId, state.pendingWrites->size - state.pendingWrites->remainingToWrite);
+			#endif
+
+			if (state.pendingWrites->remainingToWrite > 0)
+				ableToFlush = false;
+			else
+			{
+				free(state.pendingWrites->data);
+				void* deleteme = state.pendingWrites;
+				state.pendingWrites = state.pendingWrites->next;
+				free(deleteme);
+			}
+			dataRemains = (state.pendingWrites != NULL);
+		}
+		pthread_mutex_unlock(&state.pendingWriteLock);
+	}
+	return dataRemains;
+}
+
+
+/*
+ * When useNonblockingLinks is not set, the sending of data will be throttled by the speed of the reader
+ * at the other side.  It's therefore possible to get a deadlock.  When useNonblockingLinks is set, and the
+ * network buffer is full, a new buffer will be created to hold the outgoing data, so the application can continue.
+ * This may lead to large swings in memory usage.
+ */
+int nonBlockingWrite(int fd, void * p, unsigned cnt)
+{
+	if (!state.useNonblockingLinks)
+		return TCP::write(fd, p, cnt);
+
+	char * src = (char *) p;
+	unsigned bytesleft = cnt;
+	if (!flushPendingData())
+	{
+		while (bytesleft > 0)
+		{
+			int rc = ::write(fd, src, bytesleft);
+			if (rc == -1) /* !!!! read interrupted */
+			{
+				if (errno == EINTR) continue;
+				if (errno == EAGAIN) break;
+				fprintf(stderr, "write errno=%i", errno);
+				return -1;
+			}
+			if (rc == 0) break;
+			src += rc;
+			bytesleft -= rc;
+		}
+	}
+
+	if (bytesleft > 0)
+	{
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u network buffer is full.  Saving %u bytes of data to flush later.\n", state.myPlaceId, bytesleft);
+		#endif
+		// save the remaining data for later writing
+		struct x10SocketDataToWrite* pendingData = (struct x10SocketDataToWrite *)malloc(sizeof(struct x10SocketDataToWrite));
+		if (pendingData == NULL) error("Allocating memory for a pending write");
+		pendingData->data = (char *)malloc(bytesleft);
+		if (pendingData->data == NULL) error("Allocating memory for pending write data");
+		memcpy(pendingData->data, src, bytesleft);
+		pendingData->remainingToWrite = bytesleft;
+		pendingData->fd = fd;
+		pendingData->size = bytesleft;
+		pendingData->next = NULL;
+
+		pthread_mutex_lock(&state.pendingWriteLock);
+		if (state.pendingWrites == NULL)
+			state.pendingWrites = pendingData;
+		else
+		{
+			struct x10SocketDataToWrite* currentSlot = state.pendingWrites;
+			while(currentSlot->next != NULL)
+				currentSlot = currentSlot->next;
+			currentSlot->next = pendingData;
+		}
+		pthread_mutex_unlock(&state.pendingWriteLock);
+	}
+	return cnt;
+}
+
+int nonBlockingRead(int fd, void * p, unsigned cnt)
+{
+	if (!state.useNonblockingLinks)
+		return TCP::read(fd, p, cnt);
+
+	flushPendingData();
+
+	char * dst = (char *) p;
+	unsigned bytesleft = cnt;
+
+	while (bytesleft > 0)
+	{
+		int rc = ::recv(fd, dst, bytesleft, MSG_WAITALL);
+		if (rc == -1) /* !!!! read interrupted */
+		{
+			if (errno == EINTR) continue;
+			else if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
+				flushPendingData();
+				continue;
+			}
+			fprintf(stderr, "ERRNO = %i\n", errno);
+			return -1;
+		}
+		if (rc == 0)
+		{
+			flushPendingData();
+			continue;
+		}
+
+		dst += rc;
+		bytesleft -= rc;
+	}
+	return cnt;
+}
+
 void handleConnectionRequest()
 {
 	#ifdef DEBUG
@@ -188,6 +351,11 @@ void handleConnectionRequest()
 			linger.l_linger = 1;
 			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0)
 				error("Error setting SO_LINGER on incoming socket");
+			if (state.useNonblockingLinks)
+			{
+				int flags = fcntl(newFD, F_GETFL, 0);
+				fcntl(newFD, F_SETFL, flags | O_NONBLOCK);
+			}
 			return;
 		}
 	}
@@ -330,6 +498,11 @@ int initLink(uint32_t remotePlace)
 				linger.l_linger = 1;
 				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0)
 					error("Error setting SO_LINGER on outgoing socket");
+				if (state.useNonblockingLinks)
+				{
+					int flags = fcntl(newFD, F_GETFL, 0);
+					fcntl(newFD, F_SETFL, flags | O_NONBLOCK);
+				}
 				#ifdef DEBUG
 					printf("X10rt.Sockets: Place %u established a link to place %u\n", state.myPlaceId, remotePlace);
 				#endif
@@ -395,6 +568,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 
 	state.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
 	state.linkAtStartup = !checkBoolEnvVar(getenv(X10_LAZYLINKS));
+	state.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
 
 	state.nextSocketToCheck = 0;
 	pthread_mutex_init(&state.readLock, NULL);
@@ -430,6 +604,10 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	c[0] = '\0';
 	state.myhost = (char*)malloc(strlen(portname)+1);
 	strcpy(state.myhost, portname);
+
+	state.pendingWrites = NULL;
+	if (state.useNonblockingLinks)
+		pthread_mutex_init(&state.pendingWriteLock, NULL);
 	#ifdef DEBUG
 		printf("X10rt.Sockets: place %u running on %s\n", state.myPlaceId, state.myhost);
 	#endif
@@ -523,14 +701,14 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg
 	enum MSGTYPE m = STANDARD;
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < (int)sizeof(m))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < (int)sizeof(m))
 		error("sending STANDARD type");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
 		error("sending STANDARD x10rt_msg_params.type");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
 		error("sending STANDARD x10rt_msg_params.len");
 	if (parameters->len > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < (int)parameters->len)
+		if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < (int)parameters->len)
 			error("sending STANDARD msg");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
@@ -547,19 +725,19 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
 	enum MSGTYPE m = GET;
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < (int)sizeof(m))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < (int)sizeof(m))
 		error("sending GET MSGTYPE");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
 		error("sending GET x10rt_msg_params.type");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
 		error("sending GET x10rt_msg_params.len");
 	if (parameters->len > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < (int)parameters->len)
+		if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < (int)parameters->len)
 			error("sending GET x10rt_msg_params.msg");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 		error("sending GET bufferLen");
 	if (bufferLen > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
+		if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
 			error("sending GET buffer pointer");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
@@ -576,19 +754,19 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, buffer contents
 	enum MSGTYPE m = PUT;
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < (int)sizeof(m))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &m, sizeof(m)) < (int)sizeof(m))
 		error("sending PUT MSGTYPE");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
 		error("sending PUT x10rt_msg_params.type");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
 		error("sending PUT x10rt_msg_params.len");
 	if (parameters->len > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < (int)parameters->len)
+		if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len) < (int)parameters->len)
 			error("sending PUT x10rt_msg_params.len");
-	if (TCP::write(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
+	if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 		error("sending PUT bufferLen");
 	if (bufferLen > 0)
-		if (TCP::write(state.socketLinks[parameters->dest_place].fd, buffer, bufferLen) < (int)bufferLen)
+		if (nonBlockingWrite(state.socketLinks[parameters->dest_place].fd, buffer, bufferLen) < (int)bufferLen)
 			error("sending PUT buffer");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
@@ -673,7 +851,7 @@ void probe (bool onlyProcessAccept)
 				#endif
 				// Format: type, p.type, p.len, p.msg
 				enum MSGTYPE t;
-				int r = TCP::read(state.socketLinks[whichPlaceToHandle].fd, &t, sizeof(enum MSGTYPE));
+				int r = nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &t, sizeof(enum MSGTYPE));
 				if (r < (int)sizeof(enum MSGTYPE) || t > GET_COMPLETED) // closed connection
 				{
 					#ifdef DEBUG_MESSAGING
@@ -689,9 +867,9 @@ void probe (bool onlyProcessAccept)
 
 				x10rt_msg_params mp;
 				mp.dest_place = state.myPlaceId;
-				if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
+				if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
 					error("reading x10rt_msg_params.type");
-				if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, &mp.len, sizeof(uint32_t)) < (int)sizeof(uint32_t))
+				if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &mp.len, sizeof(uint32_t)) < (int)sizeof(uint32_t))
 					error("reading x10rt_msg_params.len");
 				bool heapAllocated = false;
 				if (mp.len > 0)
@@ -707,7 +885,7 @@ void probe (bool onlyProcessAccept)
 							error("unable to allocate memory for an incoming message");
 						heapAllocated = true;
 					}
-					if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, mp.msg, mp.len) < (int)mp.len)
+					if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, mp.msg, mp.len) < (int)mp.len)
 						error("reading x10rt_msg_params.msg");
 				}
 				else
@@ -727,14 +905,14 @@ void probe (bool onlyProcessAccept)
 					case PUT:
 					{
 						x10rt_copy_sz dataLen;
-						if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
+						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							error("reading PUT datalen");
 
 						finderCallback fcb = state.callBackTable[mp.type].finder;
 						void* dest = fcb(&mp, dataLen); // get the pointer to the destination location
 						if (dest == NULL)
 							error("invalid buffer provided for a PUT");
-						if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, dest, dataLen) < (int)dataLen)
+						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, dest, dataLen) < (int)dataLen)
 							error("reading PUT data");
 						pthread_mutex_lock(&state.readLock);
 						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
@@ -749,10 +927,10 @@ void probe (bool onlyProcessAccept)
 						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
 						x10rt_copy_sz dataLen;
 						void* remotePtr; // THIS IS A POINTER ON A REMOTE MACHINE.  NOT VALID HERE
-						if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
+						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							error("reading GET dataLen");
 						if (dataLen > 0)
-							if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
+							if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
 								error("reading GET pointer");
 
 						pthread_mutex_lock(&state.readLock);
@@ -766,22 +944,22 @@ void probe (bool onlyProcessAccept)
 						pthread_mutex_lock(&state.writeLocks[whichPlaceToHandle]);
 						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS, buffer
 						enum MSGTYPE m = GET_COMPLETED;
-						if (TCP::write(state.socketLinks[whichPlaceToHandle].fd, &m, sizeof(m)) < (int)sizeof(m))
+						if (nonBlockingWrite(state.socketLinks[whichPlaceToHandle].fd, &m, sizeof(m)) < (int)sizeof(m))
 							error("sending GET_COMPLETED MSGTYPE");
-						if (TCP::write(state.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(mp.type)) < (int)sizeof(mp.type))
+						if (nonBlockingWrite(state.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(mp.type)) < (int)sizeof(mp.type))
 							error("sending GET_COMPLETED x10rt_msg_params.type");
-						if (TCP::write(state.socketLinks[whichPlaceToHandle].fd, &mp.len, sizeof(mp.len)) < (int)sizeof(mp.len))
+						if (nonBlockingWrite(state.socketLinks[whichPlaceToHandle].fd, &mp.len, sizeof(mp.len)) < (int)sizeof(mp.len))
 							error("sending GET_COMPLETED x10rt_msg_params.len");
 						if (mp.len > 0)
-							if (TCP::write(state.socketLinks[whichPlaceToHandle].fd, mp.msg, mp.len) < (int)mp.len)
+							if (nonBlockingWrite(state.socketLinks[whichPlaceToHandle].fd, mp.msg, mp.len) < (int)mp.len)
 								error("sending GET_COMPLETED x10rt_msg_params.msg");
-						if (TCP::write(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
+						if (nonBlockingWrite(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							error("sending GET_COMPLETED dataLen");
 						if (dataLen > 0)
 						{
-							if (TCP::write(state.socketLinks[whichPlaceToHandle].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
+							if (nonBlockingWrite(state.socketLinks[whichPlaceToHandle].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
 								error("sending GET_COMPLETED remotePtr");
-							if (TCP::write(state.socketLinks[whichPlaceToHandle].fd, src, dataLen) < (int)dataLen)
+							if (nonBlockingWrite(state.socketLinks[whichPlaceToHandle].fd, src, dataLen) < (int)dataLen)
 								error("sending GET_COMPLETED data");
 						}
 						pthread_mutex_unlock(&state.writeLocks[whichPlaceToHandle]);
@@ -792,13 +970,13 @@ void probe (bool onlyProcessAccept)
 						x10rt_copy_sz dataLen;
 						void* buffer;
 
-						if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
+						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							error("reading GET_COMPLETED dataLen");
 						if (dataLen > 0)
 						{
-							if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
+							if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
 								error("reading GET_COMPLETED pointer");
-							if (TCP::read(state.socketLinks[whichPlaceToHandle].fd, buffer, dataLen) < (int)dataLen)
+							if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, buffer, dataLen) < (int)dataLen)
 								error("reading GET_COMPLETED data");
 						}
 						pthread_mutex_lock(&state.readLock);
@@ -849,6 +1027,7 @@ void probe (bool onlyProcessAccept)
 	else
 	{
 		pthread_mutex_unlock(&state.readLock);
+		flushPendingData();
 		if (state.yieldAfterProbe) // This would be a good time for a yield in some systems.
 			sched_yield();
 	}
@@ -862,6 +1041,12 @@ void x10rt_net_finalize (void)
 	#ifdef DEBUG
 		printf("X10rt.Sockets: shutting down place %u\n", state.myPlaceId);
 	#endif
+
+	if (state.useNonblockingLinks)
+	{
+		while(flushPendingData()){}
+		pthread_mutex_destroy(&state.pendingWriteLock);
+	}
 
 	for (unsigned int i=0; i<state.numPlaces; i++)
 	{
