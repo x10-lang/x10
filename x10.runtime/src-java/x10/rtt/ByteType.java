@@ -19,7 +19,7 @@ public class ByteType extends RuntimeType<Byte> {
     public ByteType() {
         super(byte.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1)),
+                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }

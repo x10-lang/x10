@@ -19,7 +19,7 @@ public class DoubleType extends RuntimeType<Double> {
     public DoubleType() {
         super(double.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1)),
+                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }

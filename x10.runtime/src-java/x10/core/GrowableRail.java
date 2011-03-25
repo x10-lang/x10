@@ -204,9 +204,9 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         GrowableRail.class,
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
-            new ParameterizedType(x10.lang.Indexable.$RTT, Types.INT, new UnresolvedType(0)),
-            new ParameterizedType(x10.lang.Iterable.$RTT, new UnresolvedType(0)),
-            new ParameterizedType(x10.lang.Settable.$RTT, Types.INT, new UnresolvedType(0))
+            new ParameterizedType(x10.lang.Indexable.$RTT, Types.INT, UnresolvedType.getParam(0)),
+            new ParameterizedType(x10.lang.Iterable.$RTT, UnresolvedType.getParam(0)),
+            new ParameterizedType(x10.lang.Settable.$RTT, Types.INT, UnresolvedType.getParam(0))
         }
     );
     public RuntimeType<GrowableRail<?>> $getRTT() {return $RTT;}

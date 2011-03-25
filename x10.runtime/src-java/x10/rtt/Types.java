@@ -84,7 +84,7 @@ public class Types {
         String.class,
         new Type[] {
             new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
-            new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
+            new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
         }
     ) {
         @Override

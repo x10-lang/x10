@@ -5,9 +5,31 @@ public final class UnresolvedType implements Type {
 
 	private static final long serialVersionUID = 1L;
 
-    int index = -1;
+	public static final UnresolvedType THIS = new UnresolvedType(-1);
+	private static final UnresolvedType[] params = {
+	    new UnresolvedType(0),
+	    new UnresolvedType(1),
+	    new UnresolvedType(2),
+	    new UnresolvedType(3),
+        new UnresolvedType(4),
+        new UnresolvedType(5),
+        new UnresolvedType(6),
+        new UnresolvedType(7),
+        new UnresolvedType(8),
+        new UnresolvedType(9),
+	};
+
+    private final int index;
     
-    public UnresolvedType(int index) {
+    public static UnresolvedType getParam(int index) {
+        assert index >= 0;
+        if (index < params.length) {
+            return params[index];
+        }
+        return new UnresolvedType(index);
+    }
+    
+    private UnresolvedType(int index) {
         this.index = index;
     }
 

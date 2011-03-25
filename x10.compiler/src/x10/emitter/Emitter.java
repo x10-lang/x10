@@ -2755,10 +2755,9 @@ public class Emitter {
                 for (final Type at : typeArgs) {
                     components[i++] = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     if (Types.baseType(at).typeEquals(def.asType(), tr.context())) {
-                        components[i++] = "new x10.rtt.UnresolvedType(-1)";
-                    }
-                    else if (Types.baseType(at) instanceof ParameterType) {
-                        components[i++] = "new x10.rtt.UnresolvedType(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
+                        components[i++] = "x10.rtt.UnresolvedType.THIS";
+                    } else if (Types.baseType(at) instanceof ParameterType) {
+                        components[i++] = "x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
                     } else {
                         components[i++] = new Expander(this) {
                             public void expand(Translator tr) {
@@ -2800,14 +2799,9 @@ public class Emitter {
                     w.write(", ");
                     Type ta = Types.baseType(x10Type.typeArguments().get(i));
                     if (ta.typeEquals(def.asType(), tr.context())) {
-                        w.write("new x10.rtt.UnresolvedType(");
-                        w.write("-1");
-                        w.write(")");
-                    }
-                    else if (ta instanceof ParameterType) {
-                        w.write("new x10.rtt.UnresolvedType(");
-                        w.write("" + getIndex(def.typeParameters(), (ParameterType) ta));
-                        w.write(")");
+                        w.write("x10.rtt.UnresolvedType.THIS");
+                    } else if (ta instanceof ParameterType) {
+                        w.write("x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) ta) + ")");
                     } else {
                         printParent(def, ta);
                     }
