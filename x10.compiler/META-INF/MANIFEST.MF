@@ -46,5 +46,5 @@ Export-Package: polyglot.ast,
  x10cuda.ast,
  x10cuda.types,
  x10cuda.visit
-Bundle-Vendor: rfuhrer@watson.ibm.com
+Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
