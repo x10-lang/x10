@@ -1151,7 +1151,7 @@ public class Emitter {
                 sups.add(0, supClassType);
             }
             
-            // FIXME need to check storategy for bounds of type parameter
+            // FIXME need to check strategy for bounds of type parameter
             if (sups.size() > 0) {
                 w.write(" extends ");
                 List<Type> alreadyPrintedTypes = new ArrayList<Type>();
@@ -1168,6 +1168,21 @@ public class Emitter {
         }
         w.end();
         w.write(">");
+    }
+
+    public void printMethodParams(List<? extends Type> methodTypeParams) {
+        if (methodTypeParams.size() > 0) {
+            w.write("<");
+            for (Iterator<? extends Type> i = methodTypeParams.iterator(); i.hasNext();) {
+                final Type at = i.next();
+                printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                if (i.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
+                }
+            }
+            w.write(">");
+        }
     }
     
     public boolean alreadyPrinted(List<Type> alreadyPrintedTypes, Type type) {
@@ -2924,8 +2939,10 @@ public class Emitter {
         }
         w.write("return this; }");
         w.newline();
-	    w.write("private Object readResolve() { return new ");
+	    w.write("private Object readResolve() { return ");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        w.write(".");
+        w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
         w.write("(");
         for (ParameterType type : def.typeParameters()) {
             w.write(type.name().toString() + ", ");

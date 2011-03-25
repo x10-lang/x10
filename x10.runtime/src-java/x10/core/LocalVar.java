@@ -53,7 +53,7 @@ public class LocalVar<T> extends x10.core.Ref {
         super($dummy);
     }
 
-    public void $init(final x10.rtt.Type<?> T, final T local, java.lang.Class<?> $dummy0) {
+    public LocalVar $init(final x10.rtt.Type<?> T, final T local, java.lang.Class<?> $dummy0) {
         super.$init();
         this.T = T;
         long temp = lastId.getAndIncrement();
@@ -62,6 +62,7 @@ public class LocalVar<T> extends x10.core.Ref {
         }
         id = temp;
         idToObject.put(id, local == null ? nullObject : local);
+        return this;
     }
 
     public LocalVar(final x10.rtt.Type<?> T, final T local, java.lang.Class<?> $dummy0) {

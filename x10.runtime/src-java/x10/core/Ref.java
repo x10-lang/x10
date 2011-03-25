@@ -24,7 +24,7 @@ public class Ref implements RefI {
 
 	public Ref(java.lang.System[] $dummy) {}
 
-	public void $init(){}
+	public Ref $init(){return this;}
 	
     public Ref() {}
 

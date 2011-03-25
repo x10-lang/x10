@@ -531,7 +531,7 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * @param upper the upper bound
      * @return a range from lower to upper, inclusive.
      */
-    @Native("java", "new x10.lang.IntRange(#1, #2)")
+    @Native("java", "x10.lang.IntRange.$make(#1, #2)")
     @Native("c++", "x10::lang::IntRange::_make(#1, #2)")
     public native static operator (x:Int) .. (y:Int):IntRange{min==x,max==y,self!=null};
 }

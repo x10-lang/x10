@@ -128,17 +128,19 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         t = null;
     }
 
-    public void $init() {
+    public GlobalRef $init() {
         T = null;
         home = null;
         id = 0L;
-        t = null;        
+        t = null;
+        return this;
     }
 
-    public void $init(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {
+    public GlobalRef $init(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {
         this.T = T;
         this.home = x10.lang.Runtime.home();
         this.t = t;
+        return this;
     }
 
     public GlobalRef(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {

@@ -34,18 +34,20 @@ public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<
         super($dummy);
     }
 
-    public void $init(Type<T> type, int length) {
+    public Rail $init(Type<T> type, int length) {
         this.$init(type, length, type.makeArray(length));
+        return this;
     }
 
 	public Rail(Type<T> type, int length) {
         this(type, length, type.makeArray(length));
     }
 
-	public void $init(Type<T> type, int length, Object array) {
+	public Rail $init(Type<T> type, int length, Object array) {
         this.length = length;
         this.type = type;
         this.value = array;
+        return this;
     }
 
     public Rail(Type<T> type, int length, Object array) {

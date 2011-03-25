@@ -61,8 +61,9 @@ public class Deque extends Ref {
 
     public Deque(java.lang.System[] $dummy) {super($dummy);}
 
-    public void $init() {
+    public Deque $init() {
         queue = new RefI[INITIAL_QUEUE_CAPACITY];
+        return this;
     }
     
     /**

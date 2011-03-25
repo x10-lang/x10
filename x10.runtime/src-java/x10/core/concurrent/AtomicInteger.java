@@ -23,15 +23,16 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
 	public AtomicInteger(java.lang.System[] $dummy) {
 	    super();
 	}
-	public void $init() {}
+	public AtomicInteger $init() {return this;}
 	
     public AtomicInteger() {
         super();
     }
 
-    public void $init(int initialValue) {
+    public AtomicInteger $init(int initialValue) {
         // TODO
         set(initialValue);
+        return this;
     }
     
     public AtomicInteger(int initialValue) {

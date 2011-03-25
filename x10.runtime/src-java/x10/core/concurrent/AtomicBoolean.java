@@ -23,15 +23,16 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     public AtomicBoolean(java.lang.System[] $dummy) {
         super();
     }
-    public void $init() {}
+    public AtomicBoolean $init() {return this;}
 
     public AtomicBoolean() {
         super();
     }
     
-    public void $init(boolean initialValue) {
+    public AtomicBoolean $init(boolean initialValue) {
         // TODO
         set(initialValue);
+        return this;
     }
 
     public AtomicBoolean(boolean initialValue) {

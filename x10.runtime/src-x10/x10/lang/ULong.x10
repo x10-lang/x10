@@ -127,7 +127,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @return the quotient of this ULong and the other ULong.
      */
     // @Native("java", "x10.core.Unsigned.div(#0, #1)")
-    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.div(#0.longVal, #1.longVal))")
+    @Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.div(#0.longVal, #1.longVal))")
     @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
     public operator this / (x:ULong): ULong {
     	// TODO implement in X10
@@ -150,7 +150,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @return the remainder from dividing this ULong by the other ULong.
      */
     // @Native("java", "x10.core.Unsigned.rem(#0, #1)")
-    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.rem(#0.longVal, #1.longVal))")
+    @Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.rem(#0.longVal, #1.longVal))")
     @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
     public operator this % (x:ULong): ULong {
     	// TODO implement in X10
@@ -472,7 +472,7 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * @return the ULong represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable ULong.
      */
-    @Native("java", "new x10.lang.ULong(x10.core.Unsigned.parseULong(#1, #2))")
+    @Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.parseULong(#1, #2))")
     @Native("c++", "x10aux::long_utils::parseULong(#1, #2)")
     public static def parse(s:String, radix:Int): ULong //throws NumberFormatException 
     {

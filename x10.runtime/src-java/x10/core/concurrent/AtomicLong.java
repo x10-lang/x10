@@ -24,15 +24,16 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
 	    super();
 	}
 
-	public void $init() {}
+	public AtomicLong $init() {return this;}
 
 	public AtomicLong() {
         super();
     }
     
-    public void $init(long initialValue) {
+    public AtomicLong $init(long initialValue) {
         // TODO
         set(initialValue);
+        return this;
     }
     
     public AtomicLong(long initialValue) {
