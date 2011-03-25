@@ -124,14 +124,14 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name MOVE = Name.make("move");
     static final protected Name RETHROW = Name.make("rethrow");
     static final protected Name CAUGHT = Name.make("caught");
-    static final protected Name REMOTE_RUN_FRAME = Name.make("remoteRunFrame");
+    static final protected Name REMOTE_ASYNC = Name.make("remoteAsync");
+    static final protected Name REMOTE_AT = Name.make("remoteAt");
     static final protected Name REMOTE_AT_NOTIFY = Name.make("remoteAtNotify");    
     static final protected Name WORKER = Name.make("worker");
     static final protected Name FRAME = Name.make("frame");
     static final protected Name PC = Name.make("_pc");
     static final protected Name FF = Name.make("ff");
     static final protected Name UP = Name.make("up");
-    static final protected Name BLOCK_FLAG = Name.make("_bf");
     static final protected Name ASYNCS = Name.make("asyncs");
     static final protected Name REDIRECT = Name.make("redirect");
     static final protected Name REDO = Name.make("redo");
@@ -464,7 +464,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                     //need check the frame is pure async or async at(p)
                     if(asyncBody instanceof AtStmt){
                         //async at(p), transform it as a remote frame
-                        childClassGen = new WSRemoteMainFrameClassGen(this, (AtStmt)asyncBody, true);
+                        childClassGen = new WSRemoteMainFrameClassGen(this, (AtStmt)asyncBody);
                     }
                     else{
                         //pure async
@@ -475,7 +475,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             }
             else if(stmt instanceof AtStmt){
                 //Transform it as at remoteframe
-                childClassGen = new WSRemoteMainFrameClassGen(this, (AtStmt)stmt, false);
+                childClassGen = new WSRemoteMainFrameClassGen(this, (AtStmt)stmt);
             }
             else{
                 //stmt.prettyPrint(System.out);               

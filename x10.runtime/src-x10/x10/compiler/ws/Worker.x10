@@ -94,12 +94,11 @@ public final class Worker {
         }
     }
 
-    static def deref[T](root:GlobalRef[Worker]) = (root as GlobalRef[Worker]{home==here})() as T;
-    static def derefFrame[T](ffRef:GlobalRef[FinishFrame]) = (ffRef as GlobalRef[FinishFrame]{home==here})() as T;
-    static def derefBB[T](root:GlobalRef[BoxedBoolean]) = (root as GlobalRef[BoxedBoolean]{home==here})() as T;
+    static def derefFF(ref:GlobalRef[FinishFrame]) = (ref as GlobalRef[FinishFrame]{home==here})() as FinishFrame;
+    static def deref(ref:GlobalRef[Frame]) = (ref as GlobalRef[Frame]{home==here})() as Frame;
 
     //the frame should be in heap, and could be copied deeply
-    public def remoteRunFrame(place:Place, frame:RegularFrame){
+    public def remoteAsync(place:Place, frame:RegularFrame){
         val id:Int = place.id;
         val body = ()=> @x10.compiler.RemoteInvocation {
             Runtime.wsFIFO().push(frame);
@@ -112,15 +111,32 @@ public final class Worker {
         Runtime.deallocObject(frame);
     }
 
+    //the frame should be in heap, and could be copied deeply
+    public def remoteAt(place:Place, frame:RegularFrame){
+        val id:Int = place.id;
+        val body = ()=> @x10.compiler.RemoteInvocation {
+            Runtime.wsFIFO().push(frame);
+        };
+        //Runtime.println(here + " :Run Remote job at place:" + id);
+        Runtime.wsRunAsync(id, body);
+        Runtime.dealloc(body);
+        //need clean the heap allocated frame, too.
+        Runtime.deallocObject(frame.up.up);
+        Runtime.deallocObject(frame.up);
+        Runtime.deallocObject(frame);
+        throw Abort.ABORT;
+    }
+
     public def remoteFinishJoin(ffRef:GlobalRef[FinishFrame]) {
         val id:Int = ffRef.home.id;
         val body:()=>void = ()=> @x10.compiler.RemoteInvocation {
-            Runtime.wsFIFO().push(derefFrame[FinishFrame](ffRef));
+            Runtime.wsFIFO().push(derefFF(ffRef));
             //Runtime.println(here + " :FF join frame pushed");
         };
         //Runtime.println(here + " :Run Finish Join back to place:" + id);
         Runtime.wsRunCommand(id, body);
         Runtime.dealloc(body);
+        throw Abort.ABORT;
     }
 
     /*
@@ -128,13 +144,12 @@ public final class Worker {
      * Set it as true. Just execute it
      * No need atomic, so no need push the boxedBoolean to que.
      */
-    public static def remoteAtNotify(bbRef:GlobalRef[BoxedBoolean]) {
-        val id:Int = bbRef.home.id;
+    public static def remoteAtNotify(ref:GlobalRef[Frame]) {
+        val id:Int = ref.home.id;
         //need push the frame back to its inque
         //locate the remote worker
         val body:()=>void = ()=> @x10.compiler.RemoteInvocation {
-            derefBB[BoxedBoolean](bbRef).value = true;
-            Runtime.wsUnblock();
+            Runtime.wsFIFO().push(deref(ref));
             //Runtime.println(here + " :At Notify executed");
         };
         //Runtime.println(here + " :Run At Notify back to place:" + id);

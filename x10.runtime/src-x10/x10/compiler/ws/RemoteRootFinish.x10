@@ -4,6 +4,7 @@ import x10.compiler.Abort;
 
 public final class RemoteRootFinish extends FinishFrame {
     val ffRef:GlobalRef[FinishFrame];
+
     public def this(ff:FinishFrame) {
         super(NULL[Frame]());
         asyncs = 1;
@@ -16,9 +17,10 @@ public final class RemoteRootFinish extends FinishFrame {
         return this;
     }
 
-    public def remap():FinishFrame = this;
+    public def remap():RemoteRootFinish = this;
 
     public def wrapResume(worker:Worker) {
+        // TODO: exceptions
         super.wrapResume(worker);
         worker.remoteFinishJoin(ffRef);
         throw Abort.ABORT;

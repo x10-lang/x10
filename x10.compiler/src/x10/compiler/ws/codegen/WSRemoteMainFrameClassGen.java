@@ -52,28 +52,16 @@ import x10.util.synthesizer.SwitchSynth;
 public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
     protected final AbstractWSClassGen parentR; //it's a remote parent, cannot accessed directly
     protected final AtStmt atStmt;
-    protected final boolean isAsync;
     protected final List<Pair<Name,Type>> formals; //the formals are not real formals, but local var copied from parent frames;
     
     
-    public WSRemoteMainFrameClassGen(AbstractWSClassGen parent, AtStmt atStmt, boolean isAsync) {
+    public WSRemoteMainFrameClassGen(AbstractWSClassGen parent, AtStmt atStmt) {
         super(parent, null, //up frame is null
               atStmt.body(),
               WSCodeGenUtility.getRemoteRemoteClassName(parent.getClassName()), parent.wts.regularFrameType);
         this.atStmt = atStmt;
-        this.isAsync = isAsync;
         this.parentR = parent; //the parent is not the real parent
         formals = new ArrayList<Pair<Name, Type>>();
-        
-        //need add formal blockFlag if it is an atsmt
-        if(!isAsync){
-            classSynth.createField(compilerPos, BLOCK_FLAG.toString(), wts.globalRefBBType);
-        }
-        
-    }
-    
-    public boolean isAsync() {
-        return isAsync;
     }
     
     public Expr getPlace(){
@@ -113,13 +101,6 @@ public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
         //This ref
         Expr thisRef = synth.thisRef(classSynth.getDef().asType(), compilerPos);
         
-        if(!isAsync){
-            Expr blockFlagRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.globalRefBBType, BLOCK_FLAG);
-            //make a field access
-            Stmt flagAssign = xnf.Eval(compilerPos, 
-                              synth.makeFieldAssign(compilerPos, thisRef, BLOCK_FLAG, blockFlagRef, xct));
-            conCodeSynth.addStmt(flagAssign);            
-        }
         //all formals as constructor's formal
         for(Pair<Name, Type> formal: formals){
             Name formalName = formal.fst();
@@ -138,49 +119,10 @@ public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
     }
 
     /* 
-     * For at stmt case, the fast/resume path need all add: Worker.remoteAtNotify(bbRef);
-     * @see x10.compiler.ws.codegen.WSRegularFrameClassGen#transformMethodBody()
-     */
-    @Override
-    protected Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> transformMethodBody() throws SemanticException {
-        Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> methodBodyCodes = super.transformMethodBody();
-        
-        if(!isAsync){
-            Stmt remoteCallStmt = genRemoteAtNotifyStmt();
-            methodBodyCodes.first().addStmt(remoteCallStmt);
-            ArrayList<Integer> switchTable = methodBodyCodes.second().getSwitchTable();
-            int pcValue = switchTable.get(switchTable.size() - 1);
-            methodBodyCodes.second().insertStatementInCondition(pcValue, remoteCallStmt);
-        }
-
-        return methodBodyCodes;
-    }
-
-
-    /**
-     * @return a statement "Worker.remoteAtNotify(bbRef);"
-     * @throws SemanticException 
-     */
-    protected Stmt genRemoteAtNotifyStmt() throws SemanticException{
-        //get the block flag
-        Expr flagRef = synth.makeFieldAccess(compilerPos, getThisRef(), BLOCK_FLAG, xct);
-        
-        //Worker.remoteAtNotify(flagRef);
-        Call call = synth.makeStaticCall(compilerPos, wts.workerType, REMOTE_AT_NOTIFY, Collections.singletonList(flagRef), xts.Void(), xct);
-        return xnf.Eval(compilerPos, call);
-    }
-
-    
-    /* 
      * Cannot inline RemoteMainFrame's fast path
      * @see x10.compiler.ws.codegen.AbstractWSClassGen#isFastPathInline()
      */
     public boolean isFastPathInline(ClassType frameType){
         return false; //default true;
     }
-
-
-
-
-    
 }
