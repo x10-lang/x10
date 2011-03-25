@@ -38,7 +38,6 @@ public class StreamWrapper extends SimpleCodeWriter {
 
     public static final String Header = "h";
     public static final String CC = "cc";
-    public static final String Struct = "struct_h";
 
     // Desired API: getNewStream(class, pre/append), setCurrentStream, setHeader, setBody, header, body
     // 2 sets of streams - headers and primary file

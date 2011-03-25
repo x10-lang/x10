@@ -4,5 +4,5 @@
 x10aux::RuntimeType x10::util::RemoteIndexedMemoryChunk<void>::rtt;
 
 x10::lang::Place x10::util::RIMC_here_hack() {
-    return x10::lang::Place_methods::_make(x10aux::here);
+    return x10::lang::Place::_make(x10aux::here);
 }

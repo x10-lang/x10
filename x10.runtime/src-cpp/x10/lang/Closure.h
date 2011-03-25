@@ -19,10 +19,6 @@
 
 #include <x10/lang/Reference.h>
 
-#define X10_LANG_PLACE_H_NODEPS
-#include <x10/lang/Place.struct_h>
-#undef X10_LANG_PLACE_H_NODEPS
-
 #define X10_LANG_ANY_H_NODEPS
 #include <x10/lang/Any.h>
 #undef X10_LANG_ANY_H_NODEPS

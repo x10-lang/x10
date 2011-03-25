@@ -169,7 +169,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Rail.o \
 	x10/lang/Reference.o \
 	x10/lang/String.o \
-	x10/lang/Struct.o \
 	x10/lang/Throwable.o \
 	x10/lang/Deque.o \
 	x10/lang/Lock__ReentrantLock.o \

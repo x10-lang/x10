@@ -3,13 +3,74 @@
 
 #include <x10rt.h>
 
-#include <x10/lang/GlobalRef.struct_h>
+namespace x10 {
+    namespace lang { 
+        template<class T> class GlobalRef  {
+            
+          public:
+            RTT_H_DECLS_STRUCT
+
+            static x10aux::itable_entry _itables[2];
+            static x10::lang::Any::itable<GlobalRef<T> > itable;
+
+            static x10aux::itable_entry _iboxitables[2];
+
+            x10aux::itable_entry* _getITables() { return _itables; }
+            x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
+    
+            x10_ulong value; 
+            x10aux::place location;	
+
+            GlobalRef(T obj = NULL) : value((size_t)(obj.operator->())), location(x10aux::here) { }
+            GlobalRef(x10aux::place p, x10_ulong obj = 0) : value(obj), location(p) { }
+	
+            static inline GlobalRef<T> _make(T obj) { return GlobalRef<T>(obj); }
+
+            static GlobalRef<T> _alloc () {GlobalRef<T> t; return t;} // Note: no need to zero t
+
+            void _constructor (T t) {
+                value = (size_t) t.operator->();
+            }
+            
+            // we are assuming T is always of the form x10aux::ref<U> and use T::Type to get U
+            inline T __apply() { return (typename T::Type*)(size_t)value; }
+
+            GlobalRef<T>* operator->() { return this; }
+        
+            static void _serialize(GlobalRef<T> this_, x10aux::serialization_buffer& buf);
+    
+            static GlobalRef<T> _deserialize(x10aux::deserialization_buffer& buf) {
+                GlobalRef<T> this_;
+                this_->_deserialize_body(buf);
+                return this_;
+            }
+    
+            void _deserialize_body(x10aux::deserialization_buffer& buf);
+            
+            x10_boolean equals(x10aux::ref<x10::lang::Any> that) { return _struct_equals(that); }
+    
+            x10_boolean equals(GlobalRef<T> that) { return _struct_equals(that); }
+    
+            x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
+    
+            x10_boolean _struct_equals(GlobalRef<T> that);
+    
+            x10aux::ref<x10::lang::String> toString();
+    
+            x10_int hashCode();
+
+            x10aux::ref<x10::lang::String> typeName();
+        };
+
+        template <> class GlobalRef<void> {
+          public:
+            static x10aux::RuntimeType rtt;
+            static const x10aux::RuntimeType* getRTT() { return &rtt; }
+        };
+    }
+} 
 
 #endif // X10_LANG_GLOBALREF
-
-namespace x10 { namespace util { 
-template<class T> class GlobalRef;
-} } 
 
 #ifndef X10_LANG_GLOBALREF_NODEPS
 #define X10_LANG_GLOBALREF_NODEPS
@@ -22,32 +83,15 @@ template<class T> class GlobalRef;
 #define X10_LANG_GLOBALREF_IMPLEMENTATION
 #include <x10/lang/GlobalRef.h>
 
-
 // ITable junk, both for GlobalRef and IBox<GlobalRef>
 namespace x10 {
     namespace lang { 
 
-        template<class T> class GlobalRef_methods  {
-        public:
-            static inline GlobalRef<T> _make(T obj) {
-                return GlobalRef<T>(obj);
-            }
-            static void _constructor (x10::lang::GlobalRef<T> &this_, T t) {
-                this_.value = (size_t) t.operator->();
-            }
-        };
-        
-        
-        template<class T> class GlobalRef_ithunk0 : public x10::lang::GlobalRef<T> {
-        public:
-            static x10::lang::Any::itable<GlobalRef_ithunk0<T> > itable;
-        };
-
-        template<class T> x10::lang::Any::itable<GlobalRef_ithunk0<T> >
-            GlobalRef_ithunk0<T>::itable(&GlobalRef<T>::equals,
-                                         &GlobalRef<T>::hashCode,
-                                         &GlobalRef<T>::toString,
-                                         &GlobalRef_ithunk0<T>::typeName);
+        template<class T> x10::lang::Any::itable<GlobalRef<T> >
+            GlobalRef<T>::itable(&GlobalRef<T>::equals,
+                                 &GlobalRef<T>::hashCode,
+                                 &GlobalRef<T>::toString,
+                                 &GlobalRef<T>::typeName);
 
         template<class T> class GlobalRef_iboxithunk0 : public x10::lang::IBox<x10::lang::GlobalRef<T> > {
         public:
@@ -72,7 +116,13 @@ namespace x10 {
                                              &GlobalRef_iboxithunk0<T>::toString,
                                              &GlobalRef_iboxithunk0<T>::typeName);
     }
-} 
+}
+
+namespace x10 {
+    namespace lang {
+        extern void logGlobalReference(x10aux::ref<x10::lang::Object> obj);
+    }
+}
 
 
 template<class T> void x10::lang::GlobalRef<T>::_serialize(x10::lang::GlobalRef<T> this_,
@@ -119,7 +169,7 @@ template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::typeNa
 
 template<class T> x10aux::RuntimeType x10::lang::GlobalRef<T>::rtt;
 
-template<class T> x10aux::itable_entry x10::lang::GlobalRef<T>::_itables[2] = {x10aux::itable_entry(&x10aux::getRTT<x10::lang::Any>, &GlobalRef_ithunk0<T>::itable),
+template<class T> x10aux::itable_entry x10::lang::GlobalRef<T>::_itables[2] = {x10aux::itable_entry(&x10aux::getRTT<x10::lang::Any>, &GlobalRef<T>::itable),
                                                                                x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::lang::GlobalRef<T> >())};
 
 template<class T> x10aux::itable_entry x10::lang::GlobalRef<T>::_iboxitables[2] = {x10aux::itable_entry(&x10aux::getRTT<x10::lang::Any>, &GlobalRef_iboxithunk0<T>::itable),

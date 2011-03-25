@@ -28,7 +28,7 @@ import x10.compiler.Native;
 @NativeRep("c++", "x10::lang::GlobalRef<#T >", "x10::lang::GlobalRef<#T >", null)
 public struct GlobalRef[T](
     @Native("java", "(#0).home")
-    @Native("c++", "x10::lang::Place_methods::place((#this)->location)")
+    @Native("c++", "x10::lang::Place::place((#this)->location)")
     home:Place) {T <: Object} {
     public property home():Place = home;
 

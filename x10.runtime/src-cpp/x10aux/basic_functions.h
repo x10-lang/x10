@@ -19,7 +19,9 @@
 #include <x10aux/float_utils.h>
 #include <x10aux/string_utils.h>
 
-#include <x10/lang/IBox.struct_h>
+#define X10_LANG_IBOX_NODEPS
+#include <x10/lang/IBox.h>
+#undef X10_LANG_IBOX_NODEPS
 
 namespace x10 {
     namespace lang {

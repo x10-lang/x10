@@ -19,6 +19,7 @@
 
 #include <x10/lang/Thread.h>
 
+#include <x10/lang/Place.h>
 #include <x10/lang/String.h>
 
 #include <x10/lang/Debug.h>
@@ -447,7 +448,7 @@ Thread::worker(void)
 x10::lang::Place
 Thread::home(void)
 {
-    return x10::lang::Place_methods::_make(x10aux::here);
+    return x10::lang::Place::_make(x10aux::here);
 }
 
 // Set the current worker.

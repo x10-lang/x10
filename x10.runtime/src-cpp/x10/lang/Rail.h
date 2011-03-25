@@ -20,10 +20,9 @@
 
 #include <x10/lang/Object.h>
 
-#include <x10/lang/Place.struct_h>
-#include <x10/util/Pair.struct_h>
-#include <x10/util/IndexedMemoryChunk.struct_h>
-
+#define X10_UTIL_INDEXEDMEMORYCHUNK_H_NODEPS
+#include <x10/util/IndexedMemoryChunk.h>
+#undef X10_UTIL_INDEXEDMEMORYCHUNK_H_NODEPS
 #define X10_LANG_ITERABLE_H_NODEPS
 #include <x10/lang/Iterable.h>
 #undef X10_LANG_ITERABLE_H_NODEPS
@@ -152,8 +151,8 @@ namespace x10 {
 
 #ifndef __X10_LANG_RAIL_H_NODEPS
 #define __X10_LANG_RAIL_H_NODEPS
-// #include <x10/lang/System.h> // causes cycle
 #include <x10/lang/Iterable.h>
+#include <x10/lang/Place.h>
 #include <x10/lang/Settable.h>
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/Fun_0_0.h>

@@ -572,7 +572,7 @@ import x10.util.NoSuchElementException;
     /**
      * Return the current place
      */
-    @Native("c++", "x10::lang::Place_methods::_make(x10aux::here)")
+    @Native("c++", "x10::lang::Place::_make(x10aux::here)")
     public static def home():Place = Thread.currentThread().home();
 
     /**
