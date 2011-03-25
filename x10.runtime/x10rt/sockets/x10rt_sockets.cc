@@ -156,11 +156,15 @@ int getPortEnv(unsigned int whichPlace)
  */
 bool flushPendingData()
 {
+	if (state.pendingWrites == NULL)
+		return false;
+
 	bool ableToFlush = true;
 	bool dataRemains = false;
+
+	pthread_mutex_lock(&state.pendingWriteLock);
 	while (state.pendingWrites != NULL && ableToFlush)
 	{
-		pthread_mutex_lock(&state.pendingWriteLock);
 		if (pthread_mutex_trylock(&state.writeLocks[state.pendingWrites->fd]) == 0)
 		{
 			char * src = (char *) state.pendingWrites->data + (state.pendingWrites->size - state.pendingWrites->remainingToWrite);
@@ -197,8 +201,13 @@ bool flushPendingData()
 			}
 			dataRemains = (state.pendingWrites != NULL);
 		}
-		pthread_mutex_unlock(&state.pendingWriteLock);
+		else
+		{
+			pthread_mutex_unlock(&state.pendingWriteLock);
+			return true;
+		}
 	}
+	pthread_mutex_unlock(&state.pendingWriteLock);
 	return dataRemains;
 }
 
@@ -216,7 +225,7 @@ int nonBlockingWrite(int fd, void * p, unsigned cnt)
 
 	char * src = (char *) p;
 	unsigned bytesleft = cnt;
-	if (!flushPendingData())
+	if (state.pendingWrites == NULL)
 	{
 		while (bytesleft > 0)
 		{
@@ -261,6 +270,8 @@ int nonBlockingWrite(int fd, void * p, unsigned cnt)
 			currentSlot->next = pendingData;
 		}
 		pthread_mutex_unlock(&state.pendingWriteLock);
+		if (state.yieldAfterProbe)
+			sched_yield();
 	}
 	return cnt;
 }
@@ -691,6 +702,7 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
+	flushPendingData();
 	if (initLink(parameters->dest_place) < 0)
 		error("establishing a connection");
 	#ifdef DEBUG_MESSAGING
@@ -715,6 +727,7 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+	flushPendingData();
 	if (initLink(parameters->dest_place) < 0)
 		error("establishing a connection");
 	#ifdef DEBUG_MESSAGING
@@ -744,6 +757,7 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+	flushPendingData();
 	if (initLink(parameters->dest_place) < 0)
 		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
