@@ -968,7 +968,7 @@ public class Errors {
 
 		public FinalVariableAlreadyInitialized(Name name, Position p) {
 			super("Final variable might already have been initialized." + 
-                    "\n\t Final varaible: " + name,
+                    "\n\t Final variable: " + name,
                     p);
 		}
 	}
