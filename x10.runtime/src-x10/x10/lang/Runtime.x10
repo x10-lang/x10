@@ -51,10 +51,6 @@ import x10.util.NoSuchElementException;
 
     // Native runtime interface
 
-    // workaround for XTENLANG-2572
-    @Native("java", "2")
-    private static DEFAULT_NTHREADS = 1;
-
     @Native("c++", "PLATFORM_MAX_THREADS")
     private static PLATFORM_MAX_THREADS = Int.MAX_VALUE;
 
@@ -166,7 +162,7 @@ import x10.util.NoSuchElementException;
         } catch (NoSuchElementException) {
         } catch (NumberFormatException) {
         }
-        if (v <= 0) v = DEFAULT_NTHREADS;
+        if (v <= 0) v = 1;
         if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
         return v;
     }
