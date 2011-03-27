@@ -1902,27 +1902,34 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        h.newline();
 	    }
 	    // declare (and define) the accessor method
-	    h.write("static inline ");
+	    h.write("static ");
 	    emitter.printType(dec.type().type(), h);
 	    h.allowBreak(2, 2, " ", 1);
 	    h.write(accessor);
-	    h.write("() {");
-	    h.newline(4); h.begin(0);
+	    h.writeln("();");
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    ClassifiedStream gh = context.genericFunctions;
+	    gh.write("inline ");
+	    emitter.printType(dec.type().type(), gh);
+	    gh.allowBreak(2, 2, " ", 1);
+	    gh.write(container+"::"+accessor);
+	    gh.write("() {");
+	    gh.newline(4); gh.begin(0);
 	    if (!globalInit) {
-	        h.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
-	        h.newline(4); h.begin(0);
-	        h.write(init + "();");
-	        h.end(); h.newline();
-	        h.write("}");
-	        h.newline();
+	        gh.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
+	        gh.newline(4); gh.begin(0);
+	        gh.write(init + "();");
+	        gh.end(); gh.newline();
+	        gh.write("}");
+	        gh.newline();
 	    }
-	    h.write("return ");
-	    h.write(container+"::");
-	    h.write(fname);
-	    h.write(";");
-	    h.end(); h.newline();
-	    h.write("}");
-	    h.newline();
+	    gh.write("return ");
+	    gh.write(container+"::");
+	    gh.write(fname);
+	    gh.write(";");
+	    gh.end(); gh.newline();
+	    gh.write("}");
+	    gh.newline(); gh.forceNewline();
 	    sw.popCurrentStream();
 	    if (!globalInit) {
 	        sw.pushCurrentStream(h);
