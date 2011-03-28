@@ -137,7 +137,7 @@ namespace x10aux {
 
     #define X10_NULL x10aux::ref<x10::lang::NullType>(NULL)
 
-} //namespace x10
+} //namespace x10aux
 
 
 #endif
