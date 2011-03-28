@@ -16,7 +16,6 @@
 #include <cassert>
 
 #include <x10aux/config.h>
-#include <x10/array/Array.h>
 
 namespace x10aux {
 
