@@ -55,28 +55,28 @@ public class KMeansCUDA {
                 Option("i","iterations","quit after this many iterations"),
                 Option("c","clusters","number of clusters to find"),
                 Option("n","num","quantity of points")]);
-            // The casts can go on resolution of XTENLANG-1413
             val fname = opts("-p", "points.dat"), num_clusters=opts("-c",8),
                 num_global_points=opts("-n", 100000),
                 iterations=opts("-i",500);
             val verbose = opts("-v"), quiet = opts("-q");
+            val dim = 4; // must be compiletime constant
 
             val MEM_ALIGN = 32; // FOR CUDA
 
             if (!quiet)
-                Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+4);
+                Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+dim);
 
             // file is dimension-major
             val file = new File(fname), fr = file.openRead();
             val init_points = (Int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
-            val num_file_points = (file.size() / 4 / 4) as Int;
-            val file_points = new Array[Float](num_file_points*4, init_points);
+            val num_file_points = (file.size() / 4 / dim) as Int;
+            val file_points = new Array[Float](num_file_points*dim, init_points);
 
             if (!quiet) {
                 if (Place.NUM_ACCELS==0) {
                     Console.OUT.println("Running without using GPUs.  Running the kernel on the CPU.");
-                    Console.OUT.println("If that's not what you want, set X10RT_ACCELS=ALL to use all gpus at each place.");
-                    Console.OUT.println("For more information, see the X10/CUDA docuemntation.");
+                    Console.OUT.println("If that's not what you want, set X10RT_ACCELS=ALL to use all GPUs at each place.");
+                    Console.OUT.println("For more information, see the X10/CUDA documentation.");
                 } else {
                     Console.OUT.println("Running using "+Place.NUM_ACCELS+" GPUs.");
                 }
@@ -110,22 +110,22 @@ public class KMeansCUDA {
                         val num_local_points_stride = round_up(num_local_points,MEM_ALIGN);
                         val init = (i:Int) => {
                             val d=i/num_local_points_stride, p=i%num_local_points_stride;
-                            return p<num_local_points ? file_points(((p+offset)%num_file_points)*4 + d) : 0f;
+                            return p<num_local_points ? file_points(((p+offset)%num_file_points)*dim + d) : 0f;
                         };
 
                         // these are pretty big so allocate up front
-                        val host_points = new Array[Float]((num_local_points_stride*4), init);
+                        val host_points = new Array[Float]((num_local_points_stride*dim), init);
 
-                        val gpu_points = CUDAUtilities.makeRemoteArray(gpu, num_local_points_stride*4, host_points);
+                        val gpu_points = CUDAUtilities.makeRemoteArray(gpu, num_local_points_stride*dim, host_points);
                         val host_nearest = new Array[Int](num_local_points, 0);
                         val gpu_nearest = CUDAUtilities.makeRemoteArray[Int](gpu, num_local_points, 0);
 
-                        val host_clusters  = new Array[Float](num_clusters*4, (i:Int)=>file_points(i));
+                        val host_clusters  = new Array[Float](num_clusters*dim, (i:Int)=>file_points(i));
                         val host_cluster_counts = new Array[Int](num_clusters, 0);
 
                         val toplevel_start_time = System.currentTimeMillis();
 
-                        val clusters_copy = new Array[Float](num_clusters*4);
+                        val clusters_copy = new Array[Float](num_clusters*dim);
 
                         var k_time:Long = 0;
                         var c_time:Long = 0;
@@ -134,7 +134,7 @@ public class KMeansCUDA {
 
                         main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
 
-                            Array.copy(host_clusters, 0, clusters_copy, 0, num_clusters*4);
+                            Array.copy(host_clusters, 0, clusters_copy, 0, num_clusters*dim);
 
                             var start_time : Long = System.currentTimeMillis();
                             // classify kernel
@@ -150,11 +150,11 @@ public class KMeansCUDA {
                                             var closest:Int = -1;
                                             var closest_dist:Float = Float.MAX_VALUE;
                                             @Unroll(20) for (k in 0..(num_clusters-1)) { 
-                                                // Pythagoras (in 4 dimensions)
+                                                // Pythagoras (in dim dimensions)
                                                 var dist : Float = 0;
-                                                for (d in 0..3) { 
+                                                for (d in 0..(dim-1)) { 
                                                     val tmp = gpu_points(p+d*num_local_points_stride) 
-                                                              - @NoInline clustercache(k*4+d);
+                                                              - @NoInline clustercache(k*dim+d);
                                                     dist += tmp * tmp;
                                                 }
                                                 // record closest cluster seen so far
@@ -188,8 +188,8 @@ public class KMeansCUDA {
                             start_time = System.currentTimeMillis();
                             for (var p:Int=0 ; p<num_local_points ; p++) {
                                 val closest = host_nearest_raw(p);
-                                for (var d:Int=0 ; d<4 ; ++d)
-                                    host_clusters_raw(closest*4+d) += host_points_raw(p+d*num_local_points_stride);
+                                for (var d:Int=0 ; d<dim ; ++d)
+                                    host_clusters_raw(closest*dim+d) += host_points_raw(p+d*num_local_points_stride);
                                 host_cluster_counts_raw(closest)++;
                             }
                             c_time += System.currentTimeMillis() - start_time;
@@ -202,18 +202,18 @@ public class KMeansCUDA {
 
                             for (var k:Int=0 ; k<num_clusters ; ++k) { 
                                 if (host_cluster_counts(k) <= 0) Console.ERR.println("host_cluster_counts("+k+") = "+host_cluster_counts(k));
-                                for (var d:Int=0 ; d<4 ; ++d) host_clusters(k*4+d) /= host_cluster_counts(k);
+                                for (var d:Int=0 ; d<dim ; ++d) host_clusters(k*dim+d) /= host_cluster_counts(k);
                             }
 
                             if (offset==0 && verbose) {
                                 Console.OUT.println("Iteration: "+iter);
-                                printClusters(host_clusters,4);
+                                printClusters(host_clusters,dim);
                             }
 
 
                             /*
                             // TEST FOR CONVERGENCE
-                            for (var j:Int=0 ; j<num_clusters*4 ; ++j) {
+                            for (var j:Int=0 ; j<num_clusters*dim ; ++j) {
                                 if (true||Math.abs(clusters_copy(j)-host_clusters(j))>0.0001) continue main_loop;
                             }
 
@@ -224,7 +224,7 @@ public class KMeansCUDA {
 
                         if (offset==0) {
                             val toplevel_stop_time = System.currentTimeMillis();
-                            if (!quiet) Console.OUT.print(""+num_global_points+" "+num_clusters+" 4 ");
+                            if (!quiet) Console.OUT.print(""+num_global_points+" "+num_clusters+" "+dim+" ");
                             Console.OUT.println((toplevel_stop_time-toplevel_start_time)/1E3);
                             Console.OUT.println("kernel: "+k_time/1E3);
                             Console.OUT.println("dma: "+d_time/1E3);
