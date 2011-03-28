@@ -2,12 +2,9 @@ package x10.compiler.ws;
 
 import x10.compiler.Abort;
 import x10.compiler.Header;
-import x10.compiler.Inline;
 import x10.compiler.Native;
-import x10.compiler.NativeRep;
-import x10.compiler.NativeCPPInclude;
-import x10.compiler.NativeCPPCompilationUnit;
 import x10.compiler.Uninitialized;
+
 import x10.util.Random;
 
 public abstract class Frame {
@@ -23,15 +20,13 @@ public abstract class Frame {
     @Native("c++", "(NULL == (#4)._val)")
     public native static def isNULL[T](x:T):Boolean;
 
-    @Uninitialized public val up:Frame;
     @Uninitialized public var throwable:Throwable;
+    @Uninitialized public val up:Frame;
 
-    // constructor
     @Header public def this(up:Frame) {
         this.up = up;
     }
 
-    // copy methods
     public abstract def remap():Frame;
 
     public def realloc() = remap();

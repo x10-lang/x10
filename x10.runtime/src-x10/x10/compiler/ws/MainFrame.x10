@@ -12,4 +12,12 @@ abstract public class MainFrame extends RegularFrame {
     }
 
     public abstract def fast(worker:Worker):void;
+
+    @Inline public final def rethrow() {
+        if (!(isNULL(ff.stack))) {
+            while (!ff.stack.isEmpty()) {
+                Runtime.pushException(ff.stack.pop());
+            }
+        }
+    }
 }

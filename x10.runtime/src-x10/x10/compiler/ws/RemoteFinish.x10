@@ -3,7 +3,7 @@ package x10.compiler.ws;
 import x10.compiler.Abort;
 import x10.util.Stack;
 
-public final class RemoteRootFinish extends FinishFrame {
+public final class RemoteFinish extends FinishFrame {
     val ffRef:GlobalRef[FinishFrame];
 
     public def this(ff:FinishFrame) {
@@ -18,7 +18,7 @@ public final class RemoteRootFinish extends FinishFrame {
         return this;
     }
 
-    public def remap():RemoteRootFinish = this;
+    public def remap():RemoteFinish = this;
 
     public def wrapResume(worker:Worker) {
         super.wrapResume(worker);
@@ -26,7 +26,7 @@ public final class RemoteRootFinish extends FinishFrame {
         throw Abort.ABORT;
     }
 
-    public static def update(ffRef:GlobalRef[FinishFrame], stack:Stack[Throwable]) {
+    @Inline public static def update(ffRef:GlobalRef[FinishFrame], stack:Stack[Throwable]) {
         val body = ()=> @x10.compiler.RemoteInvocation {
             val ff = (ffRef as GlobalRef[FinishFrame]{home==here})();
             ff.append(stack);

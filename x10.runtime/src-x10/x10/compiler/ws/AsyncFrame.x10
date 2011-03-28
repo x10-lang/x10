@@ -1,17 +1,13 @@
 package x10.compiler.ws;
 
-import x10.compiler.Abort;
 import x10.compiler.Header;
 import x10.compiler.Inline;
-import x10.util.Stack;
 
 public abstract class AsyncFrame extends Frame {
-    // constructor
     @Header public def this(up:Frame) {
         super(up);
     }
 
-    // copy constructor
     public def this(Int, o:AsyncFrame) {
         super(cast[Frame,FinishFrame](o.up).redirect);
     }
@@ -30,7 +26,6 @@ public abstract class AsyncFrame extends Frame {
             }
             worker.unroll(ff);
         }
-        return;
     }
 
     @Inline public final def pollNE(worker:Worker) {
@@ -44,7 +39,6 @@ public abstract class AsyncFrame extends Frame {
             }
             worker.unroll(ff);
         }
-        return;
     }
 
     @Inline public final def caught(t:Throwable) {

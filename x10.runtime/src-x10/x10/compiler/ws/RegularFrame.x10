@@ -7,20 +7,17 @@ import x10.compiler.Inline;
 public abstract class RegularFrame extends Frame {
     public val ff:FinishFrame;
 
-    // constructor
     @Header public def this(up:Frame, ff:FinishFrame) {
         super(up);
         this.ff = ff;
     }
 
-    // copy constructor
     public def this(Int, o:RegularFrame) {
         super(o.up.realloc());
         throwable = NULL[Throwable]();
         this.ff = o.ff.redirect;
     }
 
-    // copy methods
     public abstract def remap():RegularFrame;
 
     @Inline public final def push(worker:Worker) {

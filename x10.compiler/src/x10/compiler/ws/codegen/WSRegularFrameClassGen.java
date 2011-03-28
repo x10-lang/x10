@@ -552,7 +552,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         WSRemoteMainFrameClassGen remoteClassGen = (WSRemoteMainFrameClassGen) genChildFrame(wts.regularFrameType, stmt, null); //no need prefix gen here
         
         //prepare val rRootFinish:RemoteRootFinish = new RemoteRootFinish(ff).init();
-        NewInstanceSynth remoteRootFFSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.remoteRootFinishType);
+        NewInstanceSynth remoteRootFFSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.remoteFinishType);
         remoteRootFFSynth.addArgument(wts.finishFrameType, ffRef);
         InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, remoteRootFFSynth.genExpr(), INIT.toString());
         NewLocalVarSynth remoteRootFFRefLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, icSynth.genExpr());
@@ -565,18 +565,18 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         NewInstanceSynth remoteMainSynth = new NewInstanceSynth(xnf, xct, compilerPos, remoteClassGen.getClassType());
 
         if (isAsync) {
-            remoteMainSynth.addArgument(wts.remoteRootFinishType, remoteRootFFRef);
+            remoteMainSynth.addArgument(wts.remoteFinishType, remoteRootFFRef);
         } else {
-            NewInstanceSynth remoteAtFrameSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.remoteAtFrameType);
+            NewInstanceSynth remoteAtFrameSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.atFrameType);
             remoteAtFrameSynth.addArgument(wts.frameType, getThisRef());
-            remoteAtFrameSynth.addArgument(wts.remoteRootFinishType, remoteRootFFRef);
+            remoteAtFrameSynth.addArgument(wts.remoteFinishType, remoteRootFFRef);
             NewLocalVarSynth remoteAtFrameLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, remoteAtFrameSynth.genExpr());
             transCodes.addFirst(remoteAtFrameLocalSynth.genStmt());
             transCodes.addSecond(remoteAtFrameLocalSynth.genStmt());
             Expr remoteAtFrame = remoteAtFrameLocalSynth.getLocal();
             remoteMainSynth.addArgument(wts.frameType, remoteAtFrame);
         }
-        remoteMainSynth.addArgument(wts.remoteRootFinishType, remoteRootFFRef);
+        remoteMainSynth.addArgument(wts.remoteFinishType, remoteRootFFRef);
         
         //iterate add all formals required
         for(Pair<Name, Type> formal : remoteClassGen.formals){

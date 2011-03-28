@@ -1,9 +1,10 @@
 package x10.compiler.ws;
 
-import x10.util.Random;
-import x10.util.Stack;
-import x10.lang.Lock;
 import x10.compiler.Abort;
+
+import x10.lang.Lock;
+
+import x10.util.Random;
 
 public final class Worker {
     public val workers:Rail[Worker];
@@ -22,7 +23,6 @@ public final class Worker {
         var k:RegularFrame;
         lock.lock();
         while (!Frame.isNULL(k = Frame.cast[Object,RegularFrame](deque.steal()))) {
-            //Runtime.println(k + " migrated by " + this);
             val r = k.remap();
             Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
             fifo.push(r);
@@ -34,26 +34,17 @@ public final class Worker {
         try {
             while (true) {
                 val k = find();
-                if (Frame.isNULL(k)) {
-                    //Runtime.println(here + " :Worker(" + id + ") terminated");
-                    return;
-                }
+                if (Frame.isNULL(k)) return;
                 try {
-                    unroll(Frame.cast[Object,Frame](k)); // top frames are meant to be on the stack
+                    unroll(Frame.cast[Object,Frame](k));
                 } catch (Abort) {}
             }
         } catch (t:Throwable) {
-            Runtime.println(here + "Uncaught exception in worker: " + t);
+            Runtime.println("Uncaught exception at place " + here + " in WS worker: " + t);
             t.printStackTrace();
         }
     }
 
-    /*
-     * The find could return
-     * - RegularFrame: continue execution
-     * - RemoteMainFrame: start a new remote task
-     * - FinishFrame: from remote join
-     */
     public def find():Object {
         var k:Object;
         //1) cur thread fifo
@@ -95,32 +86,26 @@ public final class Worker {
         }
     }
 
-    //the frame should be in heap, and could be copied deeply
     public def remoteAsync(place:Place, frame:RegularFrame){
         val id:Int = place.id;
         val body = ()=> @x10.compiler.RemoteInvocation {
             Runtime.wsFIFO().push(frame);
         };
-        //Runtime.println(here + " :Run Remote job at place:" + id);
         Runtime.wsRunAsync(id, body);
         Runtime.dealloc(body);
-        //need clean the heap allocated frame, too.
         Runtime.deallocObject(frame.up);
         Runtime.deallocObject(frame);
     }
 
-    //the frame should be in heap, and could be copied deeply
     public def remoteAt(place:Place, frame:RegularFrame){
         val id:Int = place.id;
         val body = ()=> @x10.compiler.RemoteInvocation {
             Runtime.wsFIFO().push(frame);
         };
-        //Runtime.println(here + " :Run Remote job at place:" + id);
         Runtime.wsRunAsync(id, body);
         Runtime.dealloc(body);
-        //need clean the heap allocated frame, too.
-        Runtime.deallocObject(frame.up.up);
         Runtime.deallocObject(frame.up);
+        Runtime.deallocObject(frame.ff);
         Runtime.deallocObject(frame);
         throw Abort.ABORT;
     }
@@ -166,6 +151,6 @@ public final class Worker {
         } finally {
             allStop(worker00);
         }
-        frame.ff.rethrowAll();
+        frame.rethrow();
     }
 }
