@@ -26,12 +26,7 @@ public abstract class AsyncFrame extends Frame {
             val ff = old.redirect;
             if (old != ff) {
                 move(ff);
-                if (!isNULL(old.stack)) {
-                    Runtime.atomicMonitor.lock();
-                    if (isNULL(ff.stack)) ff.stack = new Stack[Throwable]();
-                    while (!old.stack.isEmpty()) ff.stack.push(old.stack.pop());
-                    Runtime.atomicMonitor.unlock();
-                }
+                ff.append(old.stack);
             }
             worker.unroll(ff);
         }
@@ -51,7 +46,7 @@ public abstract class AsyncFrame extends Frame {
         }
         return;
     }
-    
+
     @Inline public final def caught(t:Throwable) {
         cast[Frame,FinishFrame](up).caught(t);
     }

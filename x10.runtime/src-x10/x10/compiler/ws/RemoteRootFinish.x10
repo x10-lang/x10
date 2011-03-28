@@ -1,6 +1,7 @@
 package x10.compiler.ws;
 
 import x10.compiler.Abort;
+import x10.util.Stack;
 
 public final class RemoteRootFinish extends FinishFrame {
     val ffRef:GlobalRef[FinishFrame];
@@ -21,7 +22,17 @@ public final class RemoteRootFinish extends FinishFrame {
 
     public def wrapResume(worker:Worker) {
         super.wrapResume(worker);
-        worker.remoteFinishJoin(ffRef, stack);
+        update(ffRef, stack);
         throw Abort.ABORT;
+    }
+
+    public static def update(ffRef:GlobalRef[FinishFrame], stack:Stack[Throwable]) {
+        val body = ()=> @x10.compiler.RemoteInvocation {
+            val ff = (ffRef as GlobalRef[FinishFrame]{home==here})();
+            ff.append(stack);
+            Runtime.wsFIFO().push(ff);
+        };
+        Runtime.wsRunAsync(ffRef.home.id, body);
+        Runtime.dealloc(body);
     }
 }

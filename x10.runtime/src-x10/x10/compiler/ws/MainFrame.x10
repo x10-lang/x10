@@ -3,8 +3,6 @@ package x10.compiler.ws;
 import x10.compiler.Header;
 
 abstract public class MainFrame extends RegularFrame {
-    // a regular frame with a void fast method
-    
     @Header public def this(up:Frame, ff:FinishFrame) {
         super(up, ff);
     }

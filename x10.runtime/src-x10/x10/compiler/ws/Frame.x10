@@ -24,7 +24,6 @@ public abstract class Frame {
     public native static def isNULL[T](x:T):Boolean;
 
     @Uninitialized public val up:Frame;
-
     @Uninitialized public var throwable:Throwable;
 
     // constructor

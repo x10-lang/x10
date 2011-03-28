@@ -14,11 +14,10 @@ abstract public class FinishFrame extends Frame {
     // constructor
     @Header public def this(up:Frame) {
         super(up);
-//        this.asyncs = 1;
         this.stack = NULL[Stack[Throwable]]();
         this.redirect = NULL[FinishFrame]();
     }
-    
+
     // copy constructor
     public def this(Int, o:FinishFrame) {
         super(o.up.realloc());
@@ -41,6 +40,15 @@ abstract public class FinishFrame extends Frame {
         if (!isNULL(frame.throwable)) {
             Runtime.atomicMonitor.lock();
             caught(frame.throwable);
+            Runtime.atomicMonitor.unlock();
+        }
+    }
+
+    @Inline public final def append(s:Stack[Throwable]) {
+        if (!isNULL(s)) {
+            Runtime.atomicMonitor.lock();
+            if (isNULL(stack)) stack = new Stack[Throwable]();
+            while (!s.isEmpty()) stack.push(s.pop());
             Runtime.atomicMonitor.unlock();
         }
     }
