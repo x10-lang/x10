@@ -12,7 +12,7 @@ public class RemoteAtFrame extends Frame {
     public def remap():RemoteAtFrame = this;
 
     public def wrapResume(worker:Worker) {
-        // TODO: exceptions
-        worker.remoteAtNotify(upRef);
+        worker.remoteAtNotify(upRef, throwable);
+        throwable = null;
     }
 }

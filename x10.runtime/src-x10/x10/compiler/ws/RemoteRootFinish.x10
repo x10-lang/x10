@@ -20,9 +20,8 @@ public final class RemoteRootFinish extends FinishFrame {
     public def remap():RemoteRootFinish = this;
 
     public def wrapResume(worker:Worker) {
-        // TODO: exceptions
         super.wrapResume(worker);
-        worker.remoteFinishJoin(ffRef);
+        worker.remoteFinishJoin(ffRef, stack);
         throw Abort.ABORT;
     }
 }

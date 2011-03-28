@@ -55,6 +55,15 @@ abstract public class FinishFrame extends Frame {
         return;
     }
 
+    @Inline public final def rethrowAll() {
+        if (!(isNULL(stack))) {
+            while (!stack.isEmpty()) {
+                Runtime.pushException(stack.pop());
+            }
+        }
+        return;
+    }
+
     public def wrapResume(worker:Worker) {
         var n:Int;
         Runtime.atomicMonitor.lock(); n = --asyncs; Runtime.atomicMonitor.unlock();
