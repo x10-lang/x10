@@ -9,7 +9,7 @@ import x10.util.Stack;
 abstract public class FinishFrame extends Frame {
     @Uninitialized public var asyncs:Int;
     @Uninitialized public var redirect:FinishFrame;
-    @Uninitialized public var stack:Stack[Throwable];
+    @Uninitialized transient public var stack:Stack[Throwable];
 
     @Header public def this(up:Frame) {
         super(up);
@@ -64,5 +64,13 @@ abstract public class FinishFrame extends Frame {
 
     @Inline public final def rethrow() {
         if (!(isNULL(stack))) throw new MultipleExceptions(stack);
+    }
+
+    @Inline public final def check() {
+        if (!(isNULL(stack))) {
+            while (!stack.isEmpty()) {
+                Runtime.pushException(stack.pop());
+            }
+        }
     }
 }

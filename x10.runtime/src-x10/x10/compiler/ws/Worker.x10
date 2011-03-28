@@ -79,9 +79,7 @@ public final class Worker {
             frame.wrapResume(this);
             up = frame.up;
             up.wrapBack(this, frame);
-            if (!(frame instanceof MainFrame) && !(frame instanceof RootFinish)) {
-                Runtime.deallocObject(frame);
-            }
+            Runtime.deallocObject(frame);
             frame = up;
         }
     }
@@ -92,9 +90,6 @@ public final class Worker {
             Runtime.wsFIFO().push(frame);
         };
         Runtime.wsRunAsync(id, body);
-        Runtime.dealloc(body);
-        Runtime.deallocObject(frame.up);
-        Runtime.deallocObject(frame);
     }
 
     public def remoteAt(place:Place, frame:RegularFrame){
@@ -103,10 +98,6 @@ public final class Worker {
             Runtime.wsFIFO().push(frame);
         };
         Runtime.wsRunAsync(id, body);
-        Runtime.dealloc(body);
-        Runtime.deallocObject(frame.up);
-        Runtime.deallocObject(frame.ff);
-        Runtime.deallocObject(frame);
         throw Abort.ABORT;
     }
 
@@ -142,15 +133,16 @@ public final class Worker {
             val p = Place.place(i);
             async at(p) initPerPlace().run();
         }
+        val ff = frame.ff;
         try {
             frame.fast(worker00); // run main activity
         } catch (t:Abort) {
             worker00.run(); // join the pool
         } catch (t:Throwable) {
-            frame.ff.caught(t); // main terminated abnormally
+            ff.caught(t); // main terminated abnormally
         } finally {
             allStop(worker00);
         }
-        frame.rethrow();
+        ff.check();
     }
 }

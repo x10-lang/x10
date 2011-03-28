@@ -20,7 +20,7 @@ public abstract class Frame {
     @Native("c++", "(NULL == (#4)._val)")
     public native static def isNULL[T](x:T):Boolean;
 
-    @Uninitialized public var throwable:Throwable;
+    @Uninitialized transient public var throwable:Throwable;
     @Uninitialized public val up:Frame;
 
     @Header public def this(up:Frame) {

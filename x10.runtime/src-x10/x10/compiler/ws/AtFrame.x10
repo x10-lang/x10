@@ -22,6 +22,5 @@ public final class AtFrame extends Frame {
             Runtime.wsFIFO().push(up);
         };
         Runtime.wsRunAsync(upRef.home.id, body);
-        Runtime.dealloc(body);
     }
 }

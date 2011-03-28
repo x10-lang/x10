@@ -1,6 +1,7 @@
 package x10.compiler.ws;
 
 import x10.compiler.Abort;
+
 import x10.util.Stack;
 
 public final class RemoteFinish extends FinishFrame {
@@ -33,6 +34,5 @@ public final class RemoteFinish extends FinishFrame {
             Runtime.wsFIFO().push(ff);
         };
         Runtime.wsRunAsync(ffRef.home.id, body);
-        Runtime.dealloc(body);
     }
 }

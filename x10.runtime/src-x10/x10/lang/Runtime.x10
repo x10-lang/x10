@@ -225,6 +225,7 @@ import x10.util.NoSuchElementException;
         } else {
             runClosureCopyAt(id, body);
         }
+        dealloc(body);
     }
 
     /* 
