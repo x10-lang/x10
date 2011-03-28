@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import polyglot.frontend.Compiler;
 import polyglot.main.Options;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
@@ -35,6 +36,7 @@ import x10.util.CollectionFactory;
 import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10cpp.X10CPPCompilerOptions;
+import x10cpp.visit.X10CPPTranslator;
 
 public class CXXCommandBuilder {
     
@@ -329,5 +331,30 @@ public class CXXCommandBuilder {
             return new CXXCommandBuilder(options, x10rt_props, eq);
         }
     }
+    
+    public String getCUDAPostCompiler() {
+    	return "nvcc";
+    }
+    public List<String> getCUDAArchitectures() {
+        ArrayList<String> ans = new ArrayList<String>();
+    	ans.add("sm_10");
+    	ans.add("sm_11");
+    	ans.add("sm_12");
+    	ans.add("sm_13");
+    	ans.add("sm_20");
+    	ans.add("sm_21");
+    	ans.add("sm_30");
+    	return ans;
+    }
 
+	public List<String> getCUDAPreFileArgs() {
+        ArrayList<String> ans = new ArrayList<String>();
+        ans.add("-cubin");
+        //ans.add("-Xptxas");
+        //ans.add("-v");
+        for (PrecompiledLibrary pcl : options.x10libs) {
+        	ans.add("-I"+pcl.absolutePathToRoot+"/include");
+        }
+        return ans;
+    }
 }
