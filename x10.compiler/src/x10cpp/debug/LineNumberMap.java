@@ -450,6 +450,7 @@ public class LineNumberMap extends StringTable {
 				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("FMGL(").concat(temp);
 			}
 			referenceMembers.put(id, cm);
+			int returnValue = referenceMembers.size()-1;
 			
 			String innerType = getInnerType(type);
 			MemberVariableMapInfo v = new MemberVariableMapInfo();
@@ -507,7 +508,7 @@ public class LineNumberMap extends StringTable {
 			}
 			v._cppClass = stringId(cm._sizeOfArg);
 			cm._members.add(v);
-			return referenceMembers.size()-1;
+			return returnValue;
 		}
 		
 		int index = 0;
@@ -1367,7 +1368,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B03180E, // 2011-03-24, 14:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B031C0B, // 2011-03-28, 11:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
