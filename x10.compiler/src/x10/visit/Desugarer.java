@@ -91,6 +91,7 @@ import x10.types.TypeParamSubst;
 import x10.types.ReinstantiatedMethodInstance;
 import x10.types.ReinstantiatedConstructorInstance;
 import x10.types.X10ConstructorInstance_c;
+import x10.types.ParameterType;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -445,11 +446,19 @@ public class Desugarer extends ContextVisitor {
         // new Box[Int{self!=0}](i)  in the instance returns a formal  arg123:Int{self==arg123, arg123==i}  but without i!=0 !
         // so I take the original formal from the def (x:T) and do the paramSubst on it to get  x:Int{self!=0}
         final ProcedureDef procDef = procInst.def();
-        final TypeParamSubst typeParamSubst =
+        TypeParamSubst typeParamSubst =
                 procInst instanceof ReinstantiatedMethodInstance ? ((ReinstantiatedMethodInstance)procInst).typeParamSubst() :
                 procInst instanceof ReinstantiatedConstructorInstance ? ((ReinstantiatedConstructorInstance)procInst).typeParamSubst() :
-                    procInst instanceof X10ConstructorInstance_c ? null : // this can happen when procInst is X10ConstructorInstance_c (see XTENLANG_2330). But creating an empty TypeParamSubst would also work
-                    new TypeParamSubst(ts,procInst.typeParameters(),procDef.typeParameters()); // I can't always use this because X10ConstructorInstance_c.typeParameters returns an empty list! (there is a todo there!)
+                    null; // this can happen when procInst is X10ConstructorInstance_c (see XTENLANG_2330). But creating an empty TypeParamSubst would also work
+        final List<Type> typeParam = procInst.typeParameters(); // note that X10ConstructorInstance_c.typeParameters returns an empty list! (there is a todo there!)
+        if (typeParam!=null && typeParam.size()>0) {
+            if (typeParamSubst==null) typeParamSubst = new TypeParamSubst(ts,Collections.EMPTY_LIST,Collections.EMPTY_LIST);
+            final ArrayList<Type> newArgs = typeParamSubst.copyTypeArguments();
+            newArgs.addAll(typeParam);
+            final ArrayList<ParameterType> newParams = typeParamSubst.copyTypeParameters();
+            newParams.addAll(procDef.typeParameters());
+            typeParamSubst = new TypeParamSubst(ts, newArgs,newParams);
+        }
         final List<LocalDef> oldFormals = procDef.formalNames();
         assert oldFormals.size()==args.size();
         Expr oldReceiver = null;

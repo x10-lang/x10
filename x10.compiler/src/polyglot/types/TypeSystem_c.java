@@ -4035,7 +4035,7 @@ public class TypeSystem_c implements TypeSystem
             Type base = ct.baseType().get();
             Type ebase = expandMacros(base, depth+1);
             if (base == ebase)
-                return t;
+                return t; // yoav todo: why are we looking only at the base and not at the constraint that we should expand???
             CConstraint c = ct.constraint().get();
             return Types.xclause(ebase, c);
         }

@@ -5934,3 +5934,19 @@ class TestInitChecker {
         }
 	}
 }
+
+class TriangleTest_6 // see XTENLANG-2582
+{
+    static class Triangle
+     {
+        def this() {}
+        property def prop1(s:Int):Int = s;
+
+        def area(s1:Int{prop1(self) == 1}) {}
+     }
+
+    public static def main(args: Array[String](1)): void
+    {
+        new Triangle().area(1); // ShouldNotBeERR
+    }
+}
