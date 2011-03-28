@@ -19,7 +19,9 @@ import harness.x10Test;
 public class XTENLANG_2330 extends x10Test
 { 
     public def run() {
+		new XTENLANG_2603().test();
 		TestArrayMap.test();
+		XTENLANG_2370.test();
         new Helper2330(50).run(0);
         new DynamicCallsTest().run();
         return true;
@@ -31,6 +33,39 @@ public class XTENLANG_2330 extends x10Test
 }
 
 
+class XTENLANG_2370
+{
+    static def m[T](arr:T, p:Point){T<:Array[Int]} {
+		//val z = ((x1:T,x2:Point)=>x1(x2 as Point(x1.rank)))(arr,p);
+		// (x1:T,x2:Point)=>{ if (GUARD...) throw ...;  x1(x2); }
+        arr(p); // ERR
+    }
+    static def m2[T](arr:Array[Int], p:T){T<:Point} {
+		// (x1:Array[Int],x2:T)=>{ if (GUARD...) throw ...;  x1(x2); }
+        arr(p); // ERR
+    }
+	static def fail():void { throw new RuntimeException("test failed!"); }
+	static def test() {
+		m(new Array[Int][1,2,3], [2] as Point);
+		try { m(new Array[Int][1,2,3], [2,3] as Point); fail(); } catch (e:FailedDynamicCheckException) {}
+	}
+}
+
+class XTENLANG_2603  {
+	class A(i:Int) {}
+	def m(A{self.i==2}) {}
+	def n(i:Int) {
+		val a = new A(i);
+		m(a); // ERR
+	}
+	def test() {
+		try {
+			n(3);
+			Console.OUT.println("Failed");
+			throw new Exception();
+		} catch (ClassCastException) { }
+	}
+}
 class MyArray[T](region:Region) {
 	static type MyArray[X](r:Region) = MyArray[X]{self.region==r};
 	def this() { property(null); }

@@ -475,7 +475,8 @@ public class Desugarer extends ContextVisitor {
         }
         ArrayList<Expr> newArgs = new ArrayList<Expr>(args.size());
         ArrayList<Formal> params = new ArrayList<Formal>(args.size());
-        final Context closureContext = v.context().pushBlock();
+        final Context context = v.context();
+        final Context closureContext = context.pushBlock();
 
         int i=0;
         for (Expr arg : args) {
@@ -541,7 +542,17 @@ public class Desugarer extends ContextVisitor {
                     // qualifer doesn't have type info because it was created in Synthesizer.makeExpr
                     qualifer = (TypeNode) qualifer.visit(builder).visit(checker);
                     ClassType ct =  qualifer.type().toClass();
-                    final ClassDef newReceiverDef = newReceiver.type().toClass().def();
+                    Type receiverType = newReceiver.type();
+                    final Type baseType = Types.baseType(receiverType);
+                    if (baseType instanceof ParameterType) {
+                        final List<Type> upperBounds = ts.env(context).upperBounds(baseType, false);
+                        receiverType = ts.Any();
+                        for (Type up : upperBounds) {
+                            if (!(Types.baseType(up) instanceof ParameterType))
+                                receiverType = up;
+                        }
+                    }
+                    final ClassDef newReceiverDef = receiverType.toClass().def();
                     final ClassDef qualifierDef = ct.def();
                     if (newReceiverDef==qualifierDef)
                         return newReceiver;
