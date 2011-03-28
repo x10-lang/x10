@@ -107,8 +107,16 @@ public class StructMethodAnalyzer extends ContextVisitor {
         
         // Trivial nodes that will never by themselves prevent us from putting the body in the struct method class.
         if (n instanceof FlagsNode_c || n instanceof Id_c || 
-                n instanceof X10Formal_c || n instanceof X10Local_c || n instanceof LocalAssign_c || 
+                n instanceof X10Local_c || n instanceof LocalAssign_c || 
                 n instanceof X10CanonicalTypeNode_c || n instanceof X10Special_c) {
+            return n;
+        }
+        
+        if (n instanceof X10Formal_c) {
+            Type decType =  ((X10Formal_c)n).type().type();
+            if (!(xts.typeBaseEquals(decType, myContainer, context) || isBuiltInNumeric(decType))) {
+                canGoInHeaderStream[0] = false;
+            }
             return n;
         }
 
