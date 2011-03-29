@@ -34,6 +34,7 @@ import static x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS_METHOD;
+import static x10cpp.visit.SharedVarsMethods.STRUCT_THIS;
 import static x10cpp.visit.SharedVarsMethods.THIS;
 import static x10cpp.visit.SharedVarsMethods.VOID;
 import static x10cpp.visit.SharedVarsMethods.VOID_PTR;
@@ -3680,10 +3681,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (i > 0) sw.write(", ");
             VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             String name = var.name().toString();
-            if (!name.equals(THIS))
+            if (name.equals(THIS)) {
+                // FIXME: Hack upon hack...
+                if (((X10CPPContext_c)c.pop()).isInsideClosure())  { 
+                    name = SAVED_THIS;
+                } else if (xts.isStruct(var.type())) {
+                    name = STRUCT_THIS;
+                }
+            } else {
                 name = mangled_non_method_name(name);
-            else if (((X10CPPContext_c)c.pop()).isInsideClosure())  // FIXME: hack
-                name = SAVED_THIS;
+            }
             if (refs.contains(var)) {
                 sw.write("&("+name+")");
             } else {
