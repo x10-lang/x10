@@ -481,16 +481,6 @@ public class XConstraint implements Cloneable {
 	 * @return
 	 */
     public List<XTerm> constraints() {
-        return constraints(new ArrayList<XTerm>());
-    }  
-    
-    /**
-	 * Return a list of bindings t1-> t2 equivalent to the current
-	 * constraint, added to result.
-	 * 
-	 * @return
-	 */
-    protected List<XTerm> constraints(List<XTerm> result) {
         if (roots == null)
             return new ArrayList<XTerm>(0);
         ConstraintGenerator cg = new ConstraintGenerator();

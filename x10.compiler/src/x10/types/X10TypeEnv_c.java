@@ -21,7 +21,6 @@ import java.util.Set;
 
 import polyglot.main.Reporter;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
@@ -47,6 +46,8 @@ import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.TypeSystem;
+import polyglot.types.Def;
+import polyglot.types.MemberDef;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CodedErrorInfo;
@@ -58,18 +59,23 @@ import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.types.ParameterType.Variance;
 import polyglot.types.TypeSystem_c.Bound;
 import polyglot.types.TypeSystem_c.Kind;
+import polyglot.ast.Expr;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.CField;
+import x10.types.constraints.CAtom;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
+import x10.visit.Desugarer;
 
 /**
  * A TypeSystem implementation for X10.
@@ -700,6 +706,82 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return old;*/
     }
 
+    public Type expandPropertyMethods(Type t1, Type t2) {
+        // we expand properties in t2 based on the property definitions in t1.
+        // e.g., val i:I{self.p()==2} = c;
+        // where I is an interface with abstract property p, and C is a class with concrete definition for p.
+        final ClassType t1ClassType = Desugarer.getClassType(t1,ts,context);
+        if (t1ClassType!=null && !t1ClassType.flags().isInterface() &&  // if t1 is an interface, then there is no way it has any non-abstract property definitions.
+            t2 instanceof ConstrainedType) {
+            ConstrainedType t2c = (ConstrainedType) t2;
+            CConstraint originalConst = Types.get(t2c.constraint());
+            final List<XTerm> terms = originalConst.constraints();
+            final ArrayList<XTerm> newTerms = new ArrayList<XTerm>(terms.size());
+            boolean wasNew = false;
+            for (XTerm xTerm : terms) {
+                final XTerm.TermVisitor visitor = new XTerm.TermVisitor() {
+                    public XTerm visit(XTerm term) {
+                        Def aDef = null;
+                        List<XTerm> args = null; // the first arg is the this-receiver
+                        if (term instanceof CAtom) {
+                            CAtom cAtom = (CAtom) term;
+                            aDef = cAtom.def();
+                            args = cAtom.arguments();
+                        }
+                        if (term instanceof CField) {
+                            CField cField = (CField) term;
+                            aDef = cField.field();
+                            args = Collections.<XTerm>singletonList(cField.receiver);
+                        }
+                        if (aDef==null || !(aDef instanceof X10MethodDef)) return null;
+                        X10MethodDef methodDef = (X10MethodDef) aDef;
+                        // find the correct def, and return a clone of the XTerm
+                        final MethodInstance method = ts.findImplementingMethod(t1ClassType, methodDef.asInstance(), false, context);
+                        if (method==null) // the property is abstract in t1
+                            return null;
+                        final X10MethodDef def = (X10MethodDef) method.def();
+                        final Ref<XTerm> bodyRef = def.body();
+                        if (bodyRef==null)
+                            return null;
+                        XTerm body = bodyRef.get();
+                        if (body==null)
+                            return null;
+                        // currently we only support nullary property methods that are not CAtoms
+                        List<LocalDef> formals = def.formalNames();
+                        if (formals.size()!=args.size()-1)
+                            throw new InternalCompilerError("The number of arguments in the property method didn't match the property defintiion.");
+                        int pos=1;
+                        for (LocalDef formal : formals) {
+                            XVar x =  CTerms.makeLocal((X10LocalDef)formal);
+                            XTerm y = args.get(pos++);
+                            body = body.subst(y, x);
+                        }
+                        body = body.subst(args.get(0), def.thisVar());
+                        return body;
+                    }
+                };
+                final XTerm newXterm = xTerm.accept(visitor);
+                wasNew |= newXterm!=xTerm;
+                newTerms.add(newXterm);
+            }
+            if (wasNew) {
+                final CConstraint newConstraint = new CConstraint(originalConst.self());
+                newConstraint.setThisVar(originalConst.thisVar());
+                for (XTerm xTerm : newTerms) {
+                    try {
+                        newConstraint.addTerm(xTerm);
+                    } catch (XFailure xFailure) {
+                        return null;
+                    }
+                }
+                if (!newConstraint.consistent())
+                    return null;
+                Type newT2 = Types.xclause(Types.baseType(t2), newConstraint);
+                t2 = newT2;
+            }
+        }
+        return t2;
+    }
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
@@ -719,6 +801,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
+        t2 = expandPropertyMethods(t1,t2);
+        if (t2==null) return false;
         assert !t1.isVoid() && !t2.isVoid();
         
     	if (ts.isAny(t2))

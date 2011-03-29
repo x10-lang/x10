@@ -5945,8 +5945,72 @@ class TriangleTest_6 // see XTENLANG-2582
         def area(s1:Int{prop1(self) == 1}) {}
      }
 
-    public static def main(args: Array[String](1)): void
-    {
+    public static def test() {
         new Triangle().area(1); // ShouldNotBeERR
     }
+}
+
+
+class NonNullaryPropertiesInInterfaces { // see XTENLANG-2609
+	interface I {
+		public property p(z:Int):Int;
+	}
+	class C implements I {
+		public property p(z:Int):Int = 2;
+	}
+	static def test(i:I{self.p(3)==2}) {} // ShouldNotBeERR
+}
+
+class TestAnnotationCheck {
+    @Inline public def m() {}
+}
+
+class AbstractPropertyMethodsTests1 {
+	interface I {
+	  public property p():Int;
+	}
+	abstract class A(x:Int) implements I {
+	  def test(c:A{self.x==2}) {
+		val i:I{self.p()==2} = c; // ERR
+	  }
+	}
+	abstract class C(x:Int) implements I {
+	  public property p():Int = x;
+	  def test(c:C{self.x==2}) {
+		val i:I{self.p()==2} = c;
+	  }
+	}
+}
+class AbstractPropertyMethodsTests2 {
+	abstract class I {
+	  public abstract property p():Int;
+	}
+	abstract class A(x:Int) extends I {
+	  def test(c:A{self.x==2}) {
+		val i:I{self.p()==2} = c; // ERR
+	  }
+	}
+	abstract class C(x:Int) extends I {
+	  public property p():Int = x;
+	  def test(c:C{self.x==2}) {
+		val i:I{self.p()==2} = c;
+	  }
+	}
+}
+class AbstractPropertyMethodsTests3 {
+	interface I {
+	  public property p(a:Int,b:Int):Boolean;
+	}
+	abstract class C(x:Int) implements I {
+	  public property p(a:Int,b:Int):Boolean = a==3&&b==4&&x==2;
+	  def test(c:C{self.x==2},c2:C{self.x==3}) {
+		val i1:I{self.p(3,4)} = c;
+		val i2:I{self.p(2,4)} = c; // ERR
+		val i3:I{self.p(3,5)} = c; // ERR
+		val i4:I{self.p(3,4)} = c2; // ERR
+		val i5:I{self.p(3)} = c; // ERR ERR
+		val i6:I{self.p()} = c; // ERR ERR
+		val i7:I{self.p(3,4,5)} = c; // ERR ERR
+	  }
+	}
 }

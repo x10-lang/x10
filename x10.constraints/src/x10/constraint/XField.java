@@ -27,6 +27,16 @@ public class XField<T> extends XVar {
     // representation of a constraint or not. hidden true for fake fields.
     private boolean hidden;
 
+    public XTerm accept(TermVisitor visitor) {
+        XTerm res = visitor.visit(this);
+        if (res!=null) return res;
+        XVar newReceiver = (XVar) receiver.accept(visitor);
+        if (newReceiver==receiver) return this;
+        XField<T> newThis = (XField<T>) this.clone();
+        newThis.receiver = newReceiver;
+        return newThis;
+    }
+
     public XField(XVar receiver, T field) {
         this(receiver, field, false);
     }
