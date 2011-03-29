@@ -484,7 +484,7 @@ public class Desugarer extends ContextVisitor {
             final LocalDef oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
             Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shaddow an existing field
             i++;
-            final Type type = oldFormal!=null ? reinstantiate(typeParamSubst, Types.get(oldFormal.type())) : arg.type();
+            final Type type = Types.baseType(oldFormal!=null ? reinstantiate(typeParamSubst, Types.get(oldFormal.type())) : arg.type());
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(type), xn);
             Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
                     nf.CanonicalTypeNode(pos,type), nf.Id(pos, xn)).localDef(xDef);

@@ -24,6 +24,7 @@ public class XTENLANG_2330 extends x10Test
 		XTENLANG_2370.test();
         new Helper2330(50).run(0);
         new DynamicCallsTest().run();
+        new MethodInstanceArgTest().test();
         return true;
     }
 
@@ -32,7 +33,21 @@ public class XTENLANG_2330 extends x10Test
     }
 }
 
-
+class MethodInstanceArgTest  {//XTENLANG_2603
+	class A(i:Int) {}
+	def m(A{self.i==2}) {}
+	def n(i:Int) {
+		val a = new A(i);
+		m(a); // ERR
+	}
+	def test() {
+		try {
+			n(3);
+			Console.OUT.println("Failed");
+			throw new Exception();
+		} catch (ClassCastException) { }
+	}
+}
 class XTENLANG_2370
 {
     static def m[T](arr:T, p:Point){T<:Array[Int]} {
