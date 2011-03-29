@@ -4,6 +4,7 @@ import x10.compiler.Abort;
 import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Uninitialized;
+
 import x10.util.Stack;
 
 abstract public class FinishFrame extends Frame {
@@ -13,20 +14,20 @@ abstract public class FinishFrame extends Frame {
 
     @Header public def this(up:Frame) {
         super(up);
-        this.stack = NULL[Stack[Throwable]]();
-        this.redirect = NULL[FinishFrame]();
+        this.stack = null;
+        this.redirect = null;
     }
 
     public def this(Int, o:FinishFrame) {
         super(o.up.realloc());
         this.asyncs = 1;
-        this.stack = NULL[Stack[Throwable]]();
+        this.stack = null;
     }
 
     public abstract def remap():FinishFrame;
 
     public def realloc() {
-        if (!isNULL(redirect)) return redirect;
+        if (null != redirect) return redirect;
         val tmp = remap();
         tmp.redirect = tmp;
         redirect = tmp;
@@ -34,7 +35,7 @@ abstract public class FinishFrame extends Frame {
     }
 
     public def wrapBack(worker:Worker, frame:Frame) {
-        if (!isNULL(frame.throwable)) {
+        if (null != frame.throwable) {
             Runtime.atomicMonitor.lock();
             caught(frame.throwable);
             Runtime.atomicMonitor.unlock();
@@ -49,25 +50,25 @@ abstract public class FinishFrame extends Frame {
     }
 
     @Inline public final def append(s:Stack[Throwable]) {
-        if (!isNULL(s)) {
+        if (null != s) {
             Runtime.atomicMonitor.lock();
-            if (isNULL(stack)) stack = new Stack[Throwable]();
+            if (null == stack) stack = new Stack[Throwable]();
             while (!s.isEmpty()) stack.push(s.pop());
             Runtime.atomicMonitor.unlock();
         }
     }
 
     @Inline public final def caught(t:Throwable) {
-        if (isNULL(stack)) stack = new Stack[Throwable]();
+        if (null == stack) stack = new Stack[Throwable]();
         stack.push(t);
     }
 
     @Inline public final def rethrow() {
-        if (!(isNULL(stack))) throw new MultipleExceptions(stack);
+        if (null != stack) throw new MultipleExceptions(stack);
     }
 
     @Inline public final def check() {
-        if (!(isNULL(stack))) {
+        if (null != stack) {
             while (!stack.isEmpty()) {
                 Runtime.pushException(stack.pop());
             }

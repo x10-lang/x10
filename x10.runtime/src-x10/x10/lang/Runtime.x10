@@ -232,11 +232,7 @@ import x10.util.NoSuchElementException;
      * Run a ws command in local or remote, such as a finish join action, or stop all workers action
      */
     public static def wsRunCommand(id:Int, body:()=>void):void {
-        if (id == hereInt()) {
-            body();
-        } else {
-            runClosureAt(id, body);
-        }
+        runClosureAt(id, body);
     }
 
     public static def wsBlock(k:Object) {

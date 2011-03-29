@@ -15,7 +15,7 @@ public abstract class AsyncFrame extends Frame {
     abstract public def move(ff:FinishFrame):void;
 
     @Inline public final def poll(worker:Worker) {
-        if (isNULL(worker.deque.poll())) {
+        if (null == worker.deque.poll()) {
             worker.lock.lock();
             worker.lock.unlock();
             val old = cast[Frame,FinishFrame](up);
@@ -29,7 +29,7 @@ public abstract class AsyncFrame extends Frame {
     }
 
     @Inline public final def pollNE(worker:Worker) {
-        if (isNULL(worker.deque.poll())) {
+        if (null == worker.deque.poll()) {
             worker.lock.lock();
             worker.lock.unlock();
             val old = cast[Frame,FinishFrame](up);

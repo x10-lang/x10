@@ -4,7 +4,7 @@ import x10.compiler.Abort;
 
 public final class RootFinish extends FinishFrame {
     public def this() {
-        super(NULL[Frame]());
+        super(null);
         asyncs = 1;
     }
 
@@ -17,7 +17,7 @@ public final class RootFinish extends FinishFrame {
 
     public def wrapResume(worker:Worker) {
         super.wrapResume(worker);
-        Worker.allStop(worker);
+        Worker.stop();
         throw Abort.ABORT;
     }
 }

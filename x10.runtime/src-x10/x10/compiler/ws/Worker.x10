@@ -22,7 +22,7 @@ public final class Worker {
     public def migrate() {
         var k:RegularFrame;
         lock.lock();
-        while (!Frame.isNULL(k = Frame.cast[Object,RegularFrame](deque.steal()))) {
+        while (null != (k = Frame.cast[Object,RegularFrame](deque.steal()))) {
             val r = k.remap();
             Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
             fifo.push(r);
@@ -34,7 +34,7 @@ public final class Worker {
         try {
             while (true) {
                 val k = find();
-                if (Frame.isNULL(k)) return;
+                if (null == k) return;
                 try {
                     unroll(Frame.cast[Object,Frame](k));
                 } catch (Abort) {}
@@ -49,23 +49,23 @@ public final class Worker {
         var k:Object;
         //1) cur thread fifo
         k = fifo.steal();
-        while (Frame.isNULL(k)) {
-            if (Runtime.wsEnded()) return Frame.NULL[Object]();
+        while (null == k) {
+            if (Runtime.wsEnded()) return null;
             //2) other thread fifo
             val rand = random.nextInt(Runtime.NTHREADS);
             k = workers(rand).fifo.steal();
-            if (!Frame.isNULL(k)) break;
+            if (null != k) break;
             //3) other thread deque
             if (workers(rand).lock.tryLock()) {
                 k = workers(rand).deque.steal();
-                if (!Frame.isNULL(k)) {
+                if (null != k) {
                     val r = Frame.cast[Object,RegularFrame](k).remap();
                     Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
                     k = r;
                 }
                 workers(rand).lock.unlock();
             }
-            if (!Frame.isNULL(k)) break;
+            if (null != k) break;
             //4) remote activity
             Runtime.wsProcessEvents();
             k = fifo.steal();
@@ -84,24 +84,18 @@ public final class Worker {
         }
     }
 
-    public def remoteAsync(place:Place, frame:RegularFrame){
-        val id:Int = place.id;
-        val body = ()=> @x10.compiler.RemoteInvocation {
-            Runtime.wsFIFO().push(frame);
-        };
-        Runtime.wsRunAsync(id, body);
+    public def runAsyncAt(place:Place, frame:RegularFrame){
+        val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
+        Runtime.wsRunAsync(place.id, body);
     }
 
-    public def remoteAt(place:Place, frame:RegularFrame){
-        val id:Int = place.id;
-        val body = ()=> @x10.compiler.RemoteInvocation {
-            Runtime.wsFIFO().push(frame);
-        };
-        Runtime.wsRunAsync(id, body);
+    public def runAt(place:Place, frame:RegularFrame){
+        val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
+        Runtime.wsRunAsync(place.id, body);
         throw Abort.ABORT;
     }
 
-    public static def allStop(worker:Worker){
+    public static def stop(){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsEnd(); };
         for (var i:Int = 1; i<Place.MAX_PLACES; i++) {
             Runtime.wsRunCommand(i, body);
@@ -110,7 +104,7 @@ public final class Worker {
         Runtime.wsEnd();
     }
 
-    public static def initPerPlace() {
+    public static def startHere() {
         Runtime.wsInit();
         val workers = Rail.make[Worker](Runtime.NTHREADS);
         for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
@@ -127,21 +121,26 @@ public final class Worker {
         return workers(0);
     }
 
-    public static def main(frame:MainFrame) {
-        val worker00 = initPerPlace(); // init place 0 first
+    public static def start() {
+        val worker = startHere(); // init place 0 first
         for (var i:Int = 1; i<Place.MAX_PLACES; i++) { // init place >0
             val p = Place.place(i);
-            async at(p) initPerPlace().run();
+            async at(p) startHere().run();
         }
+        return worker;
+    }
+
+    public static def main(frame:MainFrame) {
+        val worker = start();
         val ff = frame.ff;
         try {
-            frame.fast(worker00); // run main activity
+            frame.fast(worker); // run main activity
         } catch (t:Abort) {
-            worker00.run(); // join the pool
+            worker.run(); // join the pool
         } catch (t:Throwable) {
             ff.caught(t); // main terminated abnormally
         } finally {
-            allStop(worker00);
+            stop();
         }
         ff.check();
     }

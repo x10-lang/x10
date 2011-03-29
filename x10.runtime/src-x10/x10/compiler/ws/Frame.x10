@@ -12,14 +12,6 @@ public abstract class Frame {
     @Native("c++", "static_cast<#U >(#x)")
     public native static def cast[T,U](x:T):U;
 
-    @Native("java", "((#1) null)")
-    @Native("c++", "NULL")
-    public native static def NULL[T]():T;
-
-    @Native("java", "(null == (#4))")
-    @Native("c++", "(NULL == (#4)._val)")
-    public native static def isNULL[T](x:T):Boolean;
-
     @Uninitialized transient public var throwable:Throwable;
     @Uninitialized public val up:Frame;
 
@@ -34,7 +26,7 @@ public abstract class Frame {
     public def back(worker:Worker, frame:Frame) {}
 
     public def wrapBack(worker:Worker, frame:Frame) {
-        if (!isNULL(frame.throwable)) {
+        if (null != frame.throwable) {
             throwable = frame.throwable;
         } else {
             back(worker, frame);
@@ -44,7 +36,7 @@ public abstract class Frame {
     public def resume(worker:Worker) {}
 
     public def wrapResume(worker:Worker) {
-        if (!isNULL(throwable)) return;
+        if (null != throwable) return;
         try {
             resume(worker);
         } catch (t:Abort) {
