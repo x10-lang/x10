@@ -835,8 +835,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		   
 	public static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq) {
         if (options.post_compiler != null && !options.output_stdout) {
-    		PostCompileProperties x10rt = X10CPPTranslator.loadX10RTProperties(options);
-    		CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, x10rt, eq);
+    		CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(
+    				options,
+    				X10CPPTranslator.loadX10RTProperties(options),
+					X10CPPTranslator.loadSharedLibProperties(),
+					eq);
     		
     	    for (String arch : ccb.getCUDAArchitectures()) {
     	        if (!postCompile(options, compiler, eq, arch, ccb)) return false;
