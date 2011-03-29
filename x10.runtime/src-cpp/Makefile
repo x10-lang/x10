@@ -58,6 +58,7 @@ ifeq ($(X10RT_PLATFORM),cygwin)
   endif
 endif
 XRX_PROPERTIES = libx10.properties
+SHLIB_PROPERTIES = sharedlib.properties
 
 # this builds everything
 xrx: $(XRX_ARCHIVE)
@@ -111,6 +112,13 @@ $(XRX_PROPERTIES): $(XRX_REL_SRCS)
 	@echo "X10LIB_LDFLAGS=$(XRX_PROPS_LDFLAGS)" >> $@
 	@echo "X10LIB_LDLIBS=$(XRX_PROPS_LDLIBS)" >> $@
 	@echo "X10LIB_SRC_JAR=x10.jar" >> $@
+
+$(SHLIB_PROPERTIES): $(XRX_REL_SRCS)
+	@echo "X10LIB_CXXFLAGS_SHARED=$(CXXFLAGS_SHARED)" > $@
+	@echo "X10LIB_LDFLAGS_SHARED=$(LDFLAGS_SHARED)" >> $@
+	@echo "X10LIB_LIBPREFIX=$(LIBPREFIX)" >> $@
+	@echo "X10LIB_LIBSUFFIX=$(LIBSUFFIX)" >> $@
+	@echo "X10LIB_X10_STATIC_LIB=$(X10_STATIC_LIB)" >> $@
 
 ##########################
 # Manually-written Files #
@@ -219,8 +227,9 @@ else
   INC_FLAG=-T -
 endif
 
-install_props: $(XRX_PROPERTIES)
+install_props: $(XRX_PROPERTIES) $(SHLIB_PROPERTIES)
 	@cp -p $(XRX_PROPERTIES) "$(INSTDIR)"/$(XRX_PROPERTIES)
+	@cp -p $(SHLIB_PROPERTIES) "$(DISTDIR)"/etc/$(SHLIB_PROPERTIES)
 
 install: $(XRX_ARCHIVE) install_props
 	@echo "Installing into $(INSTDIR)"
@@ -267,7 +276,7 @@ cleanobj:
 
 #nuke everything
 cleangen:
-	-$(RM) -r gen $(XRX_ARCHIVE) $(XRX_PROPERTIES)
+	-$(RM) -r gen $(XRX_ARCHIVE) $(XRX_PROPERTIES) $(SHLIB_PROPERTIES)
 
 clean: cleanobj cleangen
 
