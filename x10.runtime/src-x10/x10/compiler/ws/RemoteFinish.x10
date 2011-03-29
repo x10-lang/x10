@@ -1,6 +1,7 @@
 package x10.compiler.ws;
 
 import x10.compiler.Abort;
+import x10.compiler.Inline;
 
 import x10.util.Stack;
 
