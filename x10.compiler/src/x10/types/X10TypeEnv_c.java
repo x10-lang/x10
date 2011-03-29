@@ -909,22 +909,23 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             CConstraint d = ft2.guard();
             if (Sl.size() != Tl.size())
                 return false;
+            XVar[] ys = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
+            XVar[] xs = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
             for (int i = 0; i < Sl.size(); i++) {
                 Type Si = Sl.get(i);
                 Type Ti = Tl.get(i);
                 if (!isSubtype(x, Ti, Si))
                     return false;
             }
-            if (c != null) {
-                try {
-                    XVar[] ys = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
-                    XVar[] xs = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
-                    c = c.substitute(ys, xs);
-                } catch (XFailure e) {
-                    throw new InternalCompilerError("Unexpected exception comparing function types", ft1.position(), e);
+            try {
+                if (c != null) {
+                    c = Subst.subst(c, ys, xs);
                 }
+                S = Subst.subst(S, ys, xs);
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Unexpected exception comparing function types", ft1.position(), e);
             }
-            if (!entails(c, d))
+            if (!entails(d, c))
                 return false;
             if (!isSubtype(x, S, T))
                 return false;

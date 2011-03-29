@@ -77,6 +77,7 @@ import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.types.matcher.Subst;
 import x10.types.matcher.X10ConstructorMatcher;
 import x10.types.matcher.X10FieldMatcher;
 import x10.types.matcher.X10MemberTypeMatcher;
@@ -4005,8 +4006,14 @@ public class TypeSystem_c implements TypeSystem
         for (Ref<? extends Type> ref : argTypes) {
             typeArgs.add(Types.get(ref));
         }
-        if (!rt.isVoid())
+        if (!rt.isVoid()) {
+            try {
+                rt = Subst.subst(rt, Types.toVarArray(Types.toLocalDefList(ct.formalNames())), Types.toVarArray(formalNames));
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Unexpected exception while creating a function type", p, e);
+            }
             typeArgs.add(rt);
+        }
         return (FunctionType) ct.typeArguments(typeArgs);
     }
 
