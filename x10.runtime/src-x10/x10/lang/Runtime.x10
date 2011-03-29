@@ -470,6 +470,8 @@ import x10.util.NoSuchElementException;
             workers(0) = worker();
             for (var i:Int = 1; i<n; i++) {
                 workers(i) = new Worker(i);
+            }
+            for (var i:Int = 1; i<n; i++) {
                 workers(i).start();
             }
             workers(0)();
