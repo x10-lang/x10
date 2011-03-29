@@ -616,8 +616,7 @@ public class Emitter {
         
 		h.end();
 		if (!qualify) {
-			assert (!flags.isNative());
-			if (n.body() == null && !flags.isProperty() && !container.isX10Struct())
+			if (n.body() == null && !flags.isProperty() && !container.isX10Struct()  && !flags.isNative())
 				h.write(" = 0");
 		}
 	}
