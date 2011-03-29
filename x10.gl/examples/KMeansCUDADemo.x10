@@ -72,12 +72,14 @@ public class KMeansCUDADemo(gpu:Place) {
         }
     }
 
-    def this (args: Array[String]{rail}) {
+    def this (args: Array[String]{rank==1, zeroBased, rect, rail}) {
         
         property(here.numChildren()==0 ? here : here.child(0));
 
+        GL.glutInit(args);
+
         val numPoints = 5612730;
-        val numClusters = 60;
+        val numClusters = args.size > 0 ? Int.parseInt(args(0)) : 60;
         val dim = 2;
 
         // file is dimension-major
@@ -110,7 +112,6 @@ public class KMeansCUDADemo(gpu:Place) {
         gpuNearest = CUDAUtilities.makeRemoteArray[Int](gpu, numPoints, 0);
 
 
-        GL.glutInit(args);
         GL.glutInitDisplayMode(GL.GLUT_RGBA | GL.GLUT_DOUBLE); // double buffered
         GL.glutInitWindowSize(800, 600);
         GL.glutCreateWindow("X10 KMeans Demo");
@@ -345,7 +346,7 @@ public class KMeansCUDADemo(gpu:Place) {
         GL.glDeleteBuffers(vbos.size, vbos, 0);
     }
 
-    public static def main (args : Array[String]{rail}) {
+    public static def main (args : Array[String]{rank==1, rect, zeroBased, rail}) {
         try {
 
             new KMeansCUDADemo(args).run();

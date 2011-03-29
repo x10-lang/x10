@@ -4,8 +4,8 @@ cd src-x10
 find -print0 -name '*.x10' | xargs -0 jar cf ../x10_gl.jar
 cd ..
 
-x10c++ src-x10/x10/gl/GL.x10 -o lib/libx10_gl.so -d include -post '# -shared # # -lGL -lglut -lGLEW'
+x10c++ -buildx10lib . src-x10/x10/gl/GL.x10 -o x10_gl -d include -cxx-postarg -lGL -cxx-postarg -lglut -cxx-postarg -lGLEW
 
 cd include
-find \( -\! -name '*.h' -a -\! -type d \) -print0 | xargs -0 rm
+find -name '*.cc'  -print0 | xargs -0 rm
 cd ..

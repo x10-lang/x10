@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rm -rf lib/* include/* *.jar
+rm -rf lib/* include/* *.jar *.properties
