@@ -81,7 +81,13 @@ public class KMeansCUDADemo(gpu:Place) {
         val dim = 2;
 
         // file is dimension-major
-        val file = new File("points.dat"), fr = file.openRead();
+        val file = new File("points.dat");
+        if (!file.exists()) {
+            Console.ERR.println("The points.dat file cannot be found.  It is not part of the svn repository, but can be fetched from the following URL:");
+            Console.ERR.println("http://dist.codehaus.org/x10/misc/points.dat");
+            Console.ERR.println("You must download this file before you can run the demo.");
+        }
+        val fr = file.openRead();
         assert file.size() / 4 / dim == numPoints;
         val glPoints = new Array[Float](numPoints*dim, (Int) => {
             return Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
