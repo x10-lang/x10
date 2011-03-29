@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import java.io.Writer;
@@ -105,7 +104,6 @@ import x10cpp.postcompiler.CXXCommandBuilder;
 import x10cpp.postcompiler.Cygwin_CXXCommandBuilder;
 import x10cpp.postcompiler.Linux_CXXCommandBuilder;
 import x10cpp.postcompiler.PostCompileProperties;
-import x10cpp.postcompiler.SharedLibProperties;
 import x10cpp.postcompiler.SunOS_CXXCommandBuilder;
 import x10cpp.types.X10CPPContext_c;
 import static x10cpp.visit.ASTQuery.getCppRep;
@@ -506,89 +504,51 @@ public class X10CPPTranslator extends Translator {
 			// use set to avoid duplicates
 			Set<String> compilationUnits = CollectionFactory.newHashSet(options.compilationUnits());
 
-			if (options.buildX10Lib == null) {
-
-				try {
-				    final File file = outputFile(options, null, options.x10cpp_config.MAIN_STUB_NAME, "cc");
-				    ExtensionInfo ext = compiler.sourceExtension();
-				    SimpleCodeWriter sw = new SimpleCodeWriter(ext.targetFactory().outputWriter(file),
-				            compiler.outputWidth());
-				    List<MethodDef> mainMethods = new ArrayList<MethodDef>();
-				    for (Job job : ext.scheduler().commandLineJobs()) {
-				        mainMethods.addAll(getMainMethods(job));
-				    }
-				    if (mainMethods.size() < 1) {
-				        // If there are no main() methods in the command-line jobs, try other files
-				        for (Job job : ext.scheduler().jobs()) {
-				            mainMethods.addAll(getMainMethods(job));
-				        }
-				    }
-				    if (mainMethods.size() < 1) {
-				        eq.enqueue(ErrorInfo.SEMANTIC_ERROR, "No main method found");
-				        return false;
-				    } else if (mainMethods.size() > 1) {
-				        eq.enqueue(ErrorInfo.SEMANTIC_ERROR,
-				                "Multiple main() methods found, please specify MAIN_CLASS:"+listMethods(mainMethods));
-				        return false;
-				    }
-				    assert (mainMethods.size() == 1);
-				    X10ClassType container = (X10ClassType) Types.get(mainMethods.get(0).container());
-				    MessagePassingCodeGenerator.processMain(container, sw, options);
-				    sw.flush();
-				    sw.close();
-				    compilationUnits.add(file.getName());
-				}
-				catch (IOException e) {
-				    eq.enqueue(ErrorInfo.IO_ERROR, "I/O error while translating: " + e.getMessage());
-				    return false;
-				}
+			try {
+			    final File file = outputFile(options, null, options.x10cpp_config.MAIN_STUB_NAME, "cc");
+			    ExtensionInfo ext = compiler.sourceExtension();
+			    SimpleCodeWriter sw = new SimpleCodeWriter(ext.targetFactory().outputWriter(file),
+			            compiler.outputWidth());
+			    List<MethodDef> mainMethods = new ArrayList<MethodDef>();
+			    for (Job job : ext.scheduler().commandLineJobs()) {
+			        mainMethods.addAll(getMainMethods(job));
+			    }
+			    if (mainMethods.size() < 1) {
+			        // If there are no main() methods in the command-line jobs, try other files
+			        for (Job job : ext.scheduler().jobs()) {
+			            mainMethods.addAll(getMainMethods(job));
+			        }
+			    }
+			    if (mainMethods.size() < 1) {
+			        eq.enqueue(ErrorInfo.SEMANTIC_ERROR, "No main method found");
+			        return false;
+			    } else if (mainMethods.size() > 1) {
+			        eq.enqueue(ErrorInfo.SEMANTIC_ERROR,
+			                "Multiple main() methods found, please specify MAIN_CLASS:"+listMethods(mainMethods));
+			        return false;
+			    }
+			    assert (mainMethods.size() == 1);
+			    X10ClassType container = (X10ClassType) Types.get(mainMethods.get(0).container());
+			    MessagePassingCodeGenerator.processMain(container, sw, options);
+			    sw.flush();
+			    sw.close();
+			    compilationUnits.add(file.getName());
 			}
-			
+			catch (IOException e) {
+			    eq.enqueue(ErrorInfo.IO_ERROR, "I/O error while translating: " + e.getMessage());
+			    return false;
+			}
+
 			PostCompileProperties x10rt = loadX10RTProperties(options);
-		    SharedLibProperties shared_lib_props = loadSharedLibProperties();
-			CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, x10rt, shared_lib_props, eq);
+			CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, x10rt, eq);
 			String[] cxxCmd = ccb.buildCXXCommandLine(compilationUnits);
 
 			if (!doPostCompile(options, eq, compilationUnits, cxxCmd)) return false;
-			
-			if (options.buildX10Lib != null) {
-				if (!emitPropertiesFile(options, ccb)) return false;
-			}
 
 			// FIXME: [IP] HACK: Prevent the java post-compiler from running
 			options.post_compiler = null;
 		}
 		return true;
-	}
-	
-	private static String quoteSeparated (List<String> list)
-	{
-		StringBuilder sb = new StringBuilder();
-		boolean first = true;
-		for (String s : list) {
-			sb.append((first?"":" ")+"\""+s+"\"");
-			first = false;
-		}
-		return sb.toString();
-	}
-	
-	public static boolean emitPropertiesFile(X10CPPCompilerOptions options, CXXCommandBuilder ccb) {
-		try {
-			File f = new File(options.buildX10Lib + "/"+options.executable_path+".properties");
-			PrintStream dest = new PrintStream(new FileOutputStream(f));
-	    	dest.println("X10LIB_PLATFORM="+ccb.getPlatform());
-	    	dest.println("X10LIB_TIMESTAMP="+"UNSUPPORTED");
-			dest.println("X10LIB_CXX="+ccb.getPostCompiler());
-	    	dest.println("X10LIB_CXXFLAGS="+quoteSeparated(options.extraPreArgs));
-			dest.println("X10LIB_LDFLAGS=");
-	    	dest.println("X10LIB_LDLIBS=-l"+options.executable_path+" "+quoteSeparated(options.extraPostArgs));
-	    	dest.println("X10LIB_SRC_JAR="+options.executable_path+".jar");
-	    	dest.close();
-	    	return true;
-		} catch (IOException e) {
-			System.out.println(e);
-			return false;
-		}
 	}
 
 	public static PostCompileProperties loadX10RTProperties(X10CPPCompilerOptions options) {
@@ -606,11 +566,6 @@ public class X10CPPTranslator extends Translator {
 	    Properties x10rt = loadPropertyFile(rtimpl);
 	    PostCompileProperties x10rt_props = new PostCompileProperties(x10rt);
 	    return x10rt_props;
-	}
-	
-	public static SharedLibProperties loadSharedLibProperties() {
-	    String dp = System.getProperty("x10.dist");
-	    return new SharedLibProperties(loadPropertyFile(dp+"/etc/sharedlib.properties"));
 	}
 	
     private static Properties loadPropertyFile(String filename) {

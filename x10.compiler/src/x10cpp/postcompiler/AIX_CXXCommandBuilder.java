@@ -12,7 +12,6 @@
 package x10cpp.postcompiler;
 
 import java.util.ArrayList;
-import java.util.Properties;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
@@ -20,6 +19,10 @@ import x10cpp.X10CPPCompilerOptions;
 
 public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
     
+    AIX_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
+        super(options, x10rt, eq);
+    }
+
     public void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
 

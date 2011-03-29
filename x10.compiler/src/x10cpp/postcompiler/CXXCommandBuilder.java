@@ -42,17 +42,13 @@ public class CXXCommandBuilder {
     
     private static final String UNKNOWN = "unknown";
 
-    protected X10CPPCompilerOptions options;
+    protected final X10CPPCompilerOptions options;
     
-    protected PostCompileProperties x10rt;
+    protected final PostCompileProperties x10rt;
     
-    protected SharedLibProperties sharedLibProps;
-    
-    // avoid threading loads of things through constructors -- set this stuff here
-    protected void setData(Options options, PostCompileProperties x10rt, SharedLibProperties shared_lib_props, ErrorQueue eq) {
+    protected CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
         this.options = (X10CPPCompilerOptions) options;
         this.x10rt = x10rt;
-        this.sharedLibProps = shared_lib_props;
     }
 
     private String cxxCompiler = UNKNOWN;
@@ -81,7 +77,7 @@ public class CXXCommandBuilder {
     }
     
     private String platform = UNKNOWN;
-    public String getPlatform() {
+    protected String getPlatform() {
         if (platform.equals(UNKNOWN)) {
             String p1 = x10rt.props.getProperty("X10LIB_PLATFORM");
             // Sanity check that x10rt and all the precompiled libraries were built for the same platform
@@ -166,10 +162,6 @@ public class CXXCommandBuilder {
             cxxCmd.addAll(pcl.cxxFlags);
         }
         
-        if (options.buildX10Lib != null) {
-        	cxxCmd.addAll(sharedLibProps.cxxFlags);
-        }
-        
         cxxCmd.addAll(options.extraPreArgs);
     }
 
@@ -197,9 +189,6 @@ public class CXXCommandBuilder {
             cxxCmd.add("-lprofiler");
         }
         
-        if (options.buildX10Lib != null) {
-        	cxxCmd.addAll(sharedLibProps.ldFlags);
-        }
         cxxCmd.addAll(options.extraPostArgs);
     }
 
@@ -210,20 +199,12 @@ public class CXXCommandBuilder {
      */
     public void addExecutablePath(ArrayList<String> cxxCmd) {
         File exe = null;
-        if (options.buildX10Lib != null) {
-        	if (options.executable_path != null) {
-                exe = new File(options.buildX10Lib + "/lib/" + sharedLibProps.libPrefix + options.executable_path + sharedLibProps.libSuffix);
-        	} else {
-                return;
-        	}
+        if (options.executable_path != null) {
+            exe = new File(options.executable_path);
+        } else if (options.x10_config.MAIN_CLASS != null) {
+            exe = new File(options.output_directory, options.x10_config.MAIN_CLASS);
         } else {
-        	if (options.executable_path != null) {
-                exe = new File(options.executable_path);
-	        } else if (options.x10_config.MAIN_CLASS != null) {
-	            exe = new File(options.output_directory, options.x10_config.MAIN_CLASS);
-	        } else {
-	            return;
-	        }
+            return;
         }
         cxxCmd.add("-o");
         cxxCmd.add(exe.getAbsolutePath().replace(File.separatorChar,'/'));
@@ -326,31 +307,29 @@ public class CXXCommandBuilder {
      * @param eq          The error queue to use to report warnings and errors during compilation.
      * @return a CXXCommandBuilder instance that will use options and x10rt_props
      */
-    public static CXXCommandBuilder getCXXCommandBuilder(X10CompilerOptions options, PostCompileProperties x10rt_props, SharedLibProperties shared_lib_props, ErrorQueue eq) {
+    public static CXXCommandBuilder getCXXCommandBuilder(X10CompilerOptions options, PostCompileProperties x10rt_props, ErrorQueue eq) {
         String platform = x10rt_props.props.getProperty("X10LIB_PLATFORM", "unknown");
-        CXXCommandBuilder cbb;
+        
         if (platform.startsWith("win32_") || platform.startsWith("cygwin")) {
-            cbb = new Cygwin_CXXCommandBuilder();
+            return new Cygwin_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("linux_")) {
-        	cbb = new Linux_CXXCommandBuilder();
+            return new Linux_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("aix_")) {
-        	cbb = new AIX_CXXCommandBuilder();
+            return new AIX_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("sunos_")) {
-        	cbb = new SunOS_CXXCommandBuilder();
+            return new SunOS_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("macosx_") || platform.startsWith("darwin")) {
-        	cbb = new MacOSX_CXXCommandBuilder();
+            return new MacOSX_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("freebsd_")) {
-        	cbb = new FreeBSD_CXXCommandBuilder();
+            return new FreeBSD_CXXCommandBuilder(options, x10rt_props, eq);
         } else if (platform.startsWith("bgp")) {
             // TODO: define specialized CXXCommandBuilder for bgp?
-        	cbb = new Linux_CXXCommandBuilder();            
+            return new Linux_CXXCommandBuilder(options, x10rt_props, eq);            
         } else {   
             eq.enqueue(ErrorInfo.WARNING,
                        "Unknown platform '"+platform+"'; using the default post-compiler (g++)");
-            cbb = new CXXCommandBuilder();
+            return new CXXCommandBuilder(options, x10rt_props, eq);
         }
-        cbb.setData(options, x10rt_props, shared_lib_props, eq);
-        return cbb;
     }
     
     public String getCUDAPostCompiler() {
