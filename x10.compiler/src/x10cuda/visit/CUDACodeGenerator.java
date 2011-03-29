@@ -834,39 +834,36 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	
 		   
 	public static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq) {
-		PostCompileProperties x10rt = X10CPPTranslator.loadX10RTProperties(options);
-		CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, x10rt, eq);
-		
-	    for (String arch : ccb.getCUDAArchitectures()) {
-	        if (!postCompile(options, compiler, eq, arch, ccb)) return false;
-	    }       
+        if (options.post_compiler != null && !options.output_stdout) {
+    		PostCompileProperties x10rt = X10CPPTranslator.loadX10RTProperties(options);
+    		CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, x10rt, eq);
+    		
+    	    for (String arch : ccb.getCUDAArchitectures()) {
+    	        if (!postCompile(options, compiler, eq, arch, ccb)) return false;
+    	    }       
+        }
 	    return true;
 	}
 
 	private static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq, String arch, CXXCommandBuilder ccb) {
-
-		if (options.post_compiler != null && !options.output_stdout) {
-			Collection<String> compilationUnits = options.compilationUnits();
-			for (String f : compilationUnits) {
-				if (f.endsWith(".cu")) {
-					ArrayList<String> nvccCmd = new ArrayList<String>();
-					nvccCmd.add(ccb.getCUDAPostCompiler());
-					for (String s : ccb.getCUDAPreFileArgs()) {
-						nvccCmd.add(s);
-					}
-					nvccCmd.add("-arch="+arch);
-					nvccCmd.add(f);
-					nvccCmd.add("-o");
-					nvccCmd.add(f.substring(0,f.length() - 3) + "_" + arch + ".cubin");
-					if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd.toArray(new String[nvccCmd.size()]), true)) {
-						eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but not compiling for GPU because nvcc could not be run (check your $PATH).");
-						return true;
-					}
+		Collection<String> compilationUnits = options.compilationUnits();
+		for (String f : compilationUnits) {
+			if (f.endsWith(".cu")) {
+				ArrayList<String> nvccCmd = new ArrayList<String>();
+				nvccCmd.add(ccb.getCUDAPostCompiler());
+				for (String s : ccb.getCUDAPreFileArgs()) {
+					nvccCmd.add(s);
+				}
+				nvccCmd.add("-arch="+arch);
+				nvccCmd.add(f);
+				nvccCmd.add("-o");
+				nvccCmd.add(f.substring(0,f.length() - 3) + "_" + arch + ".cubin");
+				if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd.toArray(new String[nvccCmd.size()]), true)) {
+					eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but not compiling for GPU because nvcc could not be run (check your $PATH).");
+					return true;
 				}
 			}
-
 		}
-
 		return true;
 	}
 
