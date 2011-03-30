@@ -774,6 +774,7 @@ public class Inliner extends ContextVisitor {
             getInlinerCache().badJob(candidateJob);
             return null;
         }
+        ast = ast.visit(new IfdefVisitor(job, ts, nf).begin());
         ast = ast.visit(new Desugarer(job, ts, nf).begin());
         ast = ast.visit(new ForLoopOptimizer(job, ts, nf).begin());
         if (x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(job.extensionInfo()))
