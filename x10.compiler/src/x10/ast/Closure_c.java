@@ -393,6 +393,11 @@ public class Closure_c extends Expr_c implements Closure {
 			if (ac.error != null) {
 				Errors.issue(tc.job(), ac.error, this);
 			}
+			if (guard.typeConstraint() != null && !Types.get(guard.typeConstraint()).terms().isEmpty()) {
+			    Errors.issue(tc.job(),
+			            new SemanticException("Type constraints not permitted in closure guards.",
+			                    position()));
+			}
 		}
 
 		if (n.returnType() instanceof UnknownTypeNode) {

@@ -28,8 +28,8 @@ public class ClosureTypeParameters2c_MustFailCompile extends ClosureTest {
 
     public def run(): boolean = {
         
-        class C[T] {val f = (){Y<:T} => "hi";}
-        check("new C[Z]().f()", new C[Z]().f(), "hi");  // ShouldBeErr
+        class C[T] {val f = (){Y<:T} => "hi";} // ERR: Type constraints not permitted in closure guards.
+        check("new C[Z]().f()", new C[Z]().f(), "hi");
 
         return result;
     }

@@ -3352,10 +3352,10 @@ class Test[W](p:Int) {
 class XTENLANG_967  {
     def test() {        
         class C[T] {
-			val f1 = (){T<:Object} => "hi"; // method guard on closures still doesn't work
+			val f1 = (){T<:Object} => "hi"; // ERR: Type constraints not permitted in closure guards.
 			def f2(){T<:Object} = "hi";
 		}
-        val res1 =  new C[Int]().f1(); // ShouldBeErr
+        val res1 =  new C[Int]().f1();
         val res2 =  new C[Int]().f2(); // ERR: Type guard {} cannot be established; inconsistent in calling context.
     }	
 }
