@@ -337,7 +337,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                  for (Type intfc : ctype.interfaces()) {
                 	 CConstraint cc = Types.realX(intfc);
                 	 if (thisVar != null) {
-                		 XVar intfcThisVar = ((X10ClassType) intfc).x10Def().thisVar();
+                		 XVar intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();
                 		 cc = cc.substitute(thisVar, intfcThisVar);
                 	 }
                 	 final CConstraint ccc=cc;
