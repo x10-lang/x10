@@ -5129,12 +5129,12 @@ class TestMultipleImplementAndFields {
 	class Example1(z:Int) implements I5 {
       public property z():Int = z;
 	  def example() = a;
-	  public def m() {z==1} {}; // ShouldNotBeERR
+	  public def m() {z==1} {};
 	}
 	class Example2(z:Int) implements I5,I3 {
       public property z():Int = z;
 	  def example() = a;
-	  public def m() {z==1} {}; // ShouldNotBeERR
+	  public def m() {z==1} {};
 	}
 }
 
@@ -5979,6 +5979,17 @@ class AbstractPropertyMethodsTests1 {
 	  def test(c:C{self.x==2}) {
 		val i:I{self.p()==2} = c;
 	  }
+	  // mixing this and self
+	  def test2(c:C{this.x==2}, c2:C{this.p()==2}) {
+		val i1:I{this.p()==2} = c;
+		val i2:I{this.p()==2} = c2;
+		val i3:I{self.p()==2} = c; // ERR
+	  }
+	  // testing different receivers
+	  def test3(a:I, c2:C{a.p()==2}, c:C{self.x==2}) {
+		val i:I{a.p()==2} = c; // ERR (we only expand "self")
+		val i2:I{a.p()==2} = c2; 
+	  }
 	}
 }
 class AbstractPropertyMethodsTests2 {
@@ -6014,3 +6025,127 @@ class AbstractPropertyMethodsTests3 {
 	  }
 	}
 }
+
+class ConstraintBug_2614 { // XTENLANG-2614
+	interface I {
+		property p():Int;
+	}
+	class C implements I {
+		public property p():Int = 3;
+	}
+	class Test {
+	  def test(a:I, c:C{a.p()==2}) {
+		val i:I{a.p()==2} = c;
+	  }
+	}
+}
+
+class XTENLANG_2615 {
+	interface A {
+		def m(Int):void;
+	}
+	class B implements A { // ShouldNotBeERR: B should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in A
+		public def m(Int{self!=0}):void {}  // ShouldBeErr
+	}
+	abstract class C {
+		abstract def m(Int):void;
+	}
+	class D extends C { // ShouldNotBeERR: D should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in C
+		public def m(Int{self!=0}):void {}  // ShouldBeErr
+	}
+}
+class TestConformanceWithAbstractPropertyMethods3 {
+	interface DataPoint { // see XTENLANG-989
+	   public property dim(): Int;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void;
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void;
+	}
+	class IntDataPoint implements DataPoint {
+	   public property dim(): Int = 3;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void { }
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void {}
+	}
+}
+class TestConformanceWithAbstractPropertyMethods3b {
+	interface DataPoint {
+	   public property dim(): Int;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void;
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void;
+	}
+	class IntDataPoint(dim:Int) implements DataPoint {
+	   public property dim(): Int = dim;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void { }
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void {}
+	}
+}
+class TestConformanceWithAbstractPropertyMethods3c {
+	interface DataPoint {
+	   public property dim(): Int;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void;
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void;
+	}
+	class IntDataPoint(x:Int) implements DataPoint {
+	   public property dim(): Int = x;
+	   public def distanceFrom(t: DataPoint{3 == this.x}):void { }
+	   public def distanceFrom2(t: DataPoint{3 == self.dim}):void {}
+	}
+}
+class TestConformanceWithAbstractPropertyMethods3dGenerics {
+	interface DataPoint {
+	   public property dim(): Int;
+	   public def distanceFrom(t: Array[DataPoint{3 == this.dim()}]):void;
+	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim()}]):void;
+	}
+	class IntDataPoint(x:Int) implements DataPoint { // ShouldNotBeERR
+	   public property dim(): Int = x;
+	   public def distanceFrom(t: Array[DataPoint{3 == this.x}]):void { }
+	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim}]):void {}
+	}
+}
+class TestConformanceWithAbstractPropertyMethods4 {
+	interface DataPoint {
+	   public property dim(): Int;
+	   public def distanceFrom3(t: DataPoint{3 == self.dim()}):void;
+	}
+	class IntDataPoint implements DataPoint { // ShouldNotBeERR (XTENLANG-2615)
+	   public property dim(): Int = 3;
+	   public def distanceFrom3(t: DataPoint{3 == this.dim()}):void {} // ShouldBeErr
+	}
+}
+
+class XTENLANG_1914 {
+	interface I {
+	  property i():Int;
+	}
+	class A implements I {
+	  public property i():Int = 2;
+	}
+	class B(x:Int) implements I {
+	  public property i():Int = x;
+	}
+	class Test {
+	  def test(var i1:I{self.i()==2}, var i2:I{self.i()==2}, var a1:A, var a2:A{self.i()==2}, var b1:B{self.i()==2}, var b2:B{x==2}) {
+		i1 = i2; 
+		i2 = i1; 
+		i1 = a1; 
+		i1 = a2; 
+		i1 = b1; 
+		i1 = b2; 
+		a2 = a1; 
+		a1 = a2; 
+		b2 = b1; 
+		b1 = b2; 
+	  }
+	}
+
+	interface R {
+	  public property x():Int;
+	}
+	class S implements R {
+	  public property x()=2;
+	  def test(var i:R{self.x()==2}, var b:S) {
+		i = b;
+	  }
+	}
+}
+
