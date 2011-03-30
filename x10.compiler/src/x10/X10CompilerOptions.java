@@ -32,7 +32,9 @@ public class X10CompilerOptions extends polyglot.main.Options {
     
     public String executable_path = null;
     public Configuration x10_config;
-    
+
+    public String buildX10Lib = null;
+
     /**
      * Absolute path to the X10 distribution
      */
@@ -109,6 +111,12 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	        return ++i;
 		}
 
+		if (args[i].equals("-buildx10lib")) {
+		    ++i;
+			buildX10Lib = args[i];
+	        return ++i;
+		}
+
 		try {
 			x10_config.parseArgument(args[index]);
 			return ++index;
@@ -137,6 +145,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		usageForFlag(out, "-noassert", "turn off assertion generation");
 		usageForFlag(out, "-o <path>", "set generated executable path (for the post-compiler)");
 		usageForFlag(out, "-x10lib <lib.properties>", "use the precompiled x10 library described by <lib.properties>");
+		usageForFlag(out, "-buildx10lib", "build an x10 library");
 
 		String[][] options = x10_config.options();
 		for (int i = 0; i < options.length; i++) {

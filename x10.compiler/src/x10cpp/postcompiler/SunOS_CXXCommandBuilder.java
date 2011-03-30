@@ -12,13 +12,11 @@
 package x10cpp.postcompiler;
 
 import java.util.ArrayList;
+import java.util.Properties;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 
 public class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
 
-    SunOS_CXXCommandBuilder(Options options, PostCompileProperties x10rt, ErrorQueue eq) {
-        super(options, x10rt, eq);
-    }
 }
