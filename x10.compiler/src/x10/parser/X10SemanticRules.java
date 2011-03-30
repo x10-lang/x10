@@ -2608,6 +2608,18 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 ClockedClauseopt,
                 Statement));
     }
+    // Production: AtEachStatement ::= ateach '(' Expression ')' Statement
+    void rule_AtEachStatement1(Object _Expression, Object _Statement) {
+        Expr Expression = (Expr) _Expression;
+        Stmt Statement = (Stmt) _Statement;
+        Id name = nf.Id(pos(), Name.makeFresh());
+        TypeNode type = nf.UnknownTypeNode(pos());
+        setResult(nf.AtEach(pos(),
+                nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+                Expression,
+                new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
+                Statement));
+    }
     // Production: Offersopt ::= %Empty
     void rule_Offersopt0() {
         setResult(null);
@@ -4206,6 +4218,17 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         }
         setResult(nf.ForLoop(pos(),
                 LoopIndex,
+                Expression,
+                Statement));
+    }
+    // Production: EnhancedForStatement ::= for '(' Expression ')' Statement
+    void rule_EnhancedForStatement1(Object _Expression, Object _Statement) {
+        Expr Expression = (Expr) _Expression;
+        Stmt Statement = (Stmt) _Statement;
+        Id name = nf.Id(pos(), Name.makeFresh());
+        TypeNode type = nf.UnknownTypeNode(pos());
+        setResult(nf.ForLoop(pos(),
+                nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
                 Expression,
                 Statement));
     }

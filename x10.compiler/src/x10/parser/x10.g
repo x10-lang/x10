@@ -1002,10 +1002,19 @@
         /.$BeginJava
 			r.rule_AtEachStatement0(LoopIndex,Expression,ClockedClauseopt,Statement);
         $EndJava./
+     | ateach ( Expression ) Statement
+        /.$BeginJava
+			r.rule_AtEachStatement1(Expression,Statement);
+        $EndJava./
     EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
         /.$BeginJava
 			r.rule_EnhancedForStatement0(LoopIndex,Expression,Statement);
         $EndJava./
+       | for ( Expression ) Statement
+        /.$BeginJava
+			r.rule_EnhancedForStatement1(Expression,Statement);
+        $EndJava./
+        
 
     FinishStatement ::= finish Statement
         /.$BeginJava
