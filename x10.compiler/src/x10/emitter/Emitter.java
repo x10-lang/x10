@@ -1151,7 +1151,7 @@ public class Emitter {
                 sups.add(0, supClassType);
             }
             
-            // FIXME need to check storategy for bounds of type parameter
+            // FIXME need to check strategy for bounds of type parameter
             if (sups.size() > 0) {
                 w.write(" extends ");
                 List<Type> alreadyPrintedTypes = new ArrayList<Type>();
@@ -1168,6 +1168,21 @@ public class Emitter {
         }
         w.end();
         w.write(">");
+    }
+
+    public void printMethodParams(List<? extends Type> methodTypeParams) {
+        if (methodTypeParams.size() > 0) {
+            w.write("<");
+            for (Iterator<? extends Type> i = methodTypeParams.iterator(); i.hasNext();) {
+                final Type at = i.next();
+                printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                if (i.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
+                }
+            }
+            w.write(">");
+        }
     }
     
     public boolean alreadyPrinted(List<Type> alreadyPrintedTypes, Type type) {
@@ -2740,10 +2755,9 @@ public class Emitter {
                 for (final Type at : typeArgs) {
                     components[i++] = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     if (Types.baseType(at).typeEquals(def.asType(), tr.context())) {
-                        components[i++] = "new x10.rtt.UnresolvedType(-1)";
-                    }
-                    else if (Types.baseType(at) instanceof ParameterType) {
-                        components[i++] = "new x10.rtt.UnresolvedType(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
+                        components[i++] = "x10.rtt.UnresolvedType.THIS";
+                    } else if (Types.baseType(at) instanceof ParameterType) {
+                        components[i++] = "x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
                     } else {
                         components[i++] = new Expander(this) {
                             public void expand(Translator tr) {
@@ -2785,14 +2799,9 @@ public class Emitter {
                     w.write(", ");
                     Type ta = Types.baseType(x10Type.typeArguments().get(i));
                     if (ta.typeEquals(def.asType(), tr.context())) {
-                        w.write("new x10.rtt.UnresolvedType(");
-                        w.write("-1");
-                        w.write(")");
-                    }
-                    else if (ta instanceof ParameterType) {
-                        w.write("new x10.rtt.UnresolvedType(");
-                        w.write("" + getIndex(def.typeParameters(), (ParameterType) ta));
-                        w.write(")");
+                        w.write("x10.rtt.UnresolvedType.THIS");
+                    } else if (ta instanceof ParameterType) {
+                        w.write("x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) ta) + ")");
                     } else {
                         printParent(def, ta);
                     }
@@ -2924,8 +2933,10 @@ public class Emitter {
         }
         w.write("return this; }");
         w.newline();
-	    w.write("private Object readResolve() { return new ");
+	    w.write("private Object readResolve() { return ");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        w.write(".");
+        w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
         w.write("(");
         for (ParameterType type : def.typeParameters()) {
             w.write(type.name().toString() + ", ");

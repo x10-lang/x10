@@ -33,18 +33,20 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         super($dummy);
     }
 
-    public void $init(Type<T> t) {
+    public GrowableRail $init(Type<T> t) {
         $init(t, 1);
+        return this;
     }
 
     public GrowableRail(Type<T> t) {
         this(t, 1);
     }
 
-    public void $init(Type<T> t, int size) {
+    public GrowableRail $init(Type<T> t, int size) {
         this.elementType = t;
         this.array = t.makeArray(size);
         this.length = 0;
+        return this;
     }
     
     public GrowableRail(Type<T> t, int size) {
@@ -202,9 +204,9 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         GrowableRail.class,
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
-            new ParameterizedType(x10.lang.Indexable.$RTT, Types.INT, new UnresolvedType(0)),
-            new ParameterizedType(x10.lang.Iterable.$RTT, new UnresolvedType(0)),
-            new ParameterizedType(x10.lang.Settable.$RTT, Types.INT, new UnresolvedType(0))
+            new ParameterizedType(x10.lang.Indexable.$RTT, Types.INT, UnresolvedType.getParam(0)),
+            new ParameterizedType(x10.lang.Iterable.$RTT, UnresolvedType.getParam(0)),
+            new ParameterizedType(x10.lang.Settable.$RTT, Types.INT, UnresolvedType.getParam(0))
         }
     );
     public RuntimeType<GrowableRail<?>> $getRTT() {return $RTT;}

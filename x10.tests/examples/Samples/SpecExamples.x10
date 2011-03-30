@@ -106,7 +106,7 @@ class InterfacesExamples {
 	interface E2 {static val a = 2;}
 	interface E3 extends E1, E2{}
 	class Example711A implements E3 {
-	def example1() = a; // ERR: Could not find field or local variable "a".
+	def example1() = a; // ERR ERR: Could not find field or local variable "a".
 	def example2() = E1.a + E2.a;
 	}
 

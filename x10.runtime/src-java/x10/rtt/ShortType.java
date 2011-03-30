@@ -19,7 +19,7 @@ public class ShortType extends RuntimeType<Short> {
     public ShortType() {
         super(short.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1)),
+                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }

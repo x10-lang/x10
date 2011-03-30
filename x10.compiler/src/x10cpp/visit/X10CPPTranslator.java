@@ -214,7 +214,7 @@ public class X10CPPTranslator extends Translator {
 		                    : null
 		                : null;
 		            final int lastX10Line = parent.position().endLine();
-		            if (n instanceof Stmt)
+		            if (n instanceof Stmt || n instanceof ProcedureDecl)
 	                {
 		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
@@ -551,7 +551,7 @@ public class X10CPPTranslator extends Translator {
 		return true;
 	}
 
-	private static PostCompileProperties loadX10RTProperties(X10CPPCompilerOptions options) {
+	public static PostCompileProperties loadX10RTProperties(X10CPPCompilerOptions options) {
 	    // TODO: get options.distPath external to this method
 	    String dp = System.getProperty("x10.dist");
 	    options.setDistPath(dp);

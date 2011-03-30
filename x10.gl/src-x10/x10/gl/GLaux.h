@@ -9,15 +9,15 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#include <x10/lang/Struct.h>
+#ifndef x10aux_GL_h
+#define x10aux_GL_h
 
-using namespace x10aux;
-using namespace x10::lang;
+#include <GL/glew.h>
 
-RuntimeType Struct::rtt;
-void Struct::_initRTT() {
-    if (rtt.initStageOne(&rtt)) return;
-    rtt.initStageTwo("x10.lang.Struct", RuntimeType::struct_kind, 0, NULL, 0, NULL, NULL);
-}
+#if defined(__APPLE__) || defined(MACOSX)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
-// vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
+#endif

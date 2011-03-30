@@ -12,13 +12,12 @@
 import harness.x10Test;
 
 /**
+ * X10 should infer a correct type for f below.
+ * It compiles fine (as of now) with the proper type definition,
+ * but fails to compile if it is asked to infer the type
+ *
  * @author bardb 1/2011
  */
-
-// X10 should infer a correct type for f below.
-// It compiles fine (as of now) with the proper type definition,
-// but fails to compile if it is asked to infer the type
-
 public class XTENLANG_2297 extends x10Test {
 
     public def run(): boolean {
@@ -33,9 +32,9 @@ public class XTENLANG_2297 extends x10Test {
 class clogua {
   public static def main(argv:Array[String](1)) {
     val n = 3;
-// : (x:Int){x != n} => Int  
     val f 
-          = (x:Int){x != n} => (12/(n-x)); // ShouldNotBeERR
+// : (x:Int){x != n} => Int
+          = (x:Int){x != n} => (12/(n-x));
     Console.OUT.println("f(5)=" + f(5));    
   }
 }

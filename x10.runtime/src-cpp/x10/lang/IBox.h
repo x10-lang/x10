@@ -12,7 +12,59 @@
 #ifndef X10_LANG_IBOX_H
 #define X10_LANG_IBOX_H
 
-#include <x10/lang/IBox.struct_h>
+#include <x10/lang/Reference.h>
+
+namespace x10 {
+    namespace lang {
+        class String;
+        
+        /**
+         * This is a class that exists only at the C++ implementation level,
+         * not at the X10 language level.  Therefore it does not have an
+         * associated RTT.
+         * 
+         * The purpose of this class is to enable struct values to be boxed
+         * when they are assigned/casts to variables of interface types.
+         * When that happens, we need to provide a subclass of Reference
+         * that contains the struct and redirects all interface methods to
+         * the appropriate methods of the struct.
+         */
+        template <class T> class IBox : public Reference {
+        protected:
+           IBox(){ }
+        public:
+            T value;
+            
+            IBox(T val) : value(val) { }
+
+            virtual x10aux::itable_entry* _getITables();
+
+            virtual const x10aux::RuntimeType *_type() const;
+            static const x10aux::RuntimeType* getRTT();
+
+            virtual x10_boolean _struct_equals(x10aux::ref<Reference> other);
+            
+            virtual x10aux::ref<String> toString();
+
+            virtual x10_int hashCode();
+            
+            static const x10aux::serialization_id_t _serialization_id;
+
+            virtual x10aux::serialization_id_t _get_serialization_id() {
+              return _serialization_id;
+            }
+
+            virtual void _serialize_body(x10aux::serialization_buffer &);
+
+            template<class __T> static x10aux::ref<__T> _deserializer(x10aux::deserialization_buffer& buf);
+        };
+    }
+}
+
+#endif /* X10_LANG_IBOX_H */
+
+#ifndef X10_LANG_IBOX_NODEPS
+#define X10_LANG_IBOX_NODEPS
 
 namespace x10 {
     namespace lang {
@@ -82,4 +134,4 @@ namespace x10 {
     }
 }
 
-#endif
+#endif /* X10_LANG_IBOX_NODEPS */

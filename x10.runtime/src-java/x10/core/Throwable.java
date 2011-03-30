@@ -24,58 +24,60 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
 	    super();
 	}
 
-	public void $init() {}
+	public Throwable $init() {return this;}
     
     public Throwable() {
         super();
     }
 
     // TODO
-    // public void $init(java.lang.String message) {}
+    // public Throwable $init(java.lang.String message) {return this;}
     
     public Throwable(java.lang.String message) {
         super(message);
     }
 
     // TODO
-    // public void $init(java.lang.Throwable cause) {}
+    // public Throwable $init(java.lang.Throwable cause) {return this;}
     
     public Throwable(java.lang.Throwable cause) {
         super(cause);
     }
 
     // TODO
-    // public void $init(java.lang.String message, java.lang.Throwable cause) {}
+    // public Throwable $init(java.lang.String message, java.lang.Throwable cause) {return this;}
     
     public Throwable(java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
     }
 
+    /* TODO to be removed
     // XTENLANG-1858: every Java class that could be an (non-static) inner class must have constructors with the outer instance parameter
     public Throwable(Object out$) {
         super();
     }
 
     // TODO
-    // public void $init(Object out$, java.lang.String message) {}
+    // public Throwable $init(Object out$, java.lang.String message) {return this;}
 
     public Throwable(Object out$, java.lang.String message) {
         super(message);
     }
 
     // TODO
-    // public void $init(Object out$, java.lang.Throwable cause) {}
+    // public Throwable $init(Object out$, java.lang.Throwable cause) {return this;}
 
     public Throwable(Object out$, java.lang.Throwable cause) {
         super(cause);
     }
 
     // TODO
-    // public void $init(Object out$, java.lang.String message, java.lang.Throwable cause) {}
+    // public Throwable $init(Object out$, java.lang.String message, java.lang.Throwable cause) {return this;}
     
     public Throwable(Object out$, java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
     }
+    */
 
     public static final RuntimeType<Throwable> $RTT = new NamedType<Throwable>(
         "x10.lang.Throwable",

@@ -46,7 +46,7 @@ namespace x10 {
             // dst is the place where the finish update will occur, i.e. where the notifier runs
             dst = parent(dst);
             ref<x10::lang::FinishState> fs = Runtime::activity()->finishState();
-            fs->notifySubActivitySpawn(Place_methods::_make(dst));
+            fs->notifySubActivitySpawn(Place::_make(dst));
             buf.write(fs);
         }
 

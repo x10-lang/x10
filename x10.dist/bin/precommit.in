@@ -40,6 +40,23 @@ cd "$ROOT/x10.tests/examples/Misc"
 nice "$ROOT/x10.dist/bin/x10c++" -O -DEBUG \
  -sourcepath "$ROOT/x10.dist/samples/tutorial" \
  -sourcepath "$ROOT/x10.tests/examples/x10lib" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Async" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/At" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Atomic" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Call" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Cast" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Clock" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Closures" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/DepType" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Distribution" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/For" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Generics" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Import" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Instanceof" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Place" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Region" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Structs" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Typedefs" \
 -d "$TMP_DIR" -o "$TMP_DIR/PreCommit" PreCommit.x10 || testFailed
 
 echo "Running"
@@ -61,6 +78,23 @@ cd "$ROOT/x10.tests/examples/Misc"
 nice "$ROOT/x10.dist/bin/x10c" -O \
  -sourcepath "$ROOT/x10.dist/samples/tutorial" \
  -sourcepath "$ROOT/x10.tests/examples/x10lib" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Async" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/At" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Atomic" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Call" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Cast" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Clock" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Closures" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/DepType" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Distribution" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/For" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Generics" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Import" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Instanceof" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Place" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Region" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Structs" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Typedefs" \
 -d "${TMP_DIR}.tmp" -o "$TMP_DIR/PreCommit.jar" PreCommit.x10 || testFailed
 
 echo "Running"

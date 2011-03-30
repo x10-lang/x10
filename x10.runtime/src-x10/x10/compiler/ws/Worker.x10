@@ -1,8 +1,10 @@
 package x10.compiler.ws;
 
-import x10.util.Random;
-import x10.lang.Lock;
 import x10.compiler.Abort;
+
+import x10.lang.Lock;
+
+import x10.util.Random;
 
 public final class Worker {
     public val workers:Rail[Worker];
@@ -21,7 +23,6 @@ public final class Worker {
         var k:RegularFrame;
         lock.lock();
         while (!Frame.isNULL(k = Frame.cast[Object,RegularFrame](deque.steal()))) {
-            //Runtime.println(k + " migrated by " + this);
             val r = k.remap();
             Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
             fifo.push(r);
@@ -33,26 +34,17 @@ public final class Worker {
         try {
             while (true) {
                 val k = find();
-                if (Frame.isNULL(k)) {
-                    //Runtime.println(here + " :Worker(" + id + ") terminated");
-                    return;
-                }
+                if (Frame.isNULL(k)) return;
                 try {
-                    unroll(Frame.cast[Object,Frame](k)); // top frames are meant to be on the stack
+                    unroll(Frame.cast[Object,Frame](k));
                 } catch (Abort) {}
             }
         } catch (t:Throwable) {
-            Runtime.println(here + "Uncaught exception in worker: " + t);
+            Runtime.println("Uncaught exception at place " + here + " in WS worker: " + t);
             t.printStackTrace();
         }
     }
 
-    /*
-     * The find could return
-     * - RegularFrame: continue execution
-     * - RemoteMainFrame: start a new remote task
-     * - FinishFrame: from remote join
-     */
     public def find():Object {
         var k:Object;
         //1) cur thread fifo
@@ -87,59 +79,26 @@ public final class Worker {
             frame.wrapResume(this);
             up = frame.up;
             up.wrapBack(this, frame);
-            if (!(frame instanceof MainFrame) && !(frame instanceof RootFinish)) {
-                Runtime.deallocObject(frame);
-            }
+            Runtime.deallocObject(frame);
             frame = up;
         }
     }
 
-    static def deref[T](root:GlobalRef[Worker]) = (root as GlobalRef[Worker]{home==here})() as T;
-    static def derefFrame[T](ffRef:GlobalRef[FinishFrame]) = (ffRef as GlobalRef[FinishFrame]{home==here})() as T;
-    static def derefBB[T](root:GlobalRef[BoxedBoolean]) = (root as GlobalRef[BoxedBoolean]{home==here})() as T;
-
-    //the frame should be in heap, and could be copied deeply
-    public def remoteRunFrame(place:Place, frame:RegularFrame){
+    public def remoteAsync(place:Place, frame:RegularFrame){
         val id:Int = place.id;
         val body = ()=> @x10.compiler.RemoteInvocation {
             Runtime.wsFIFO().push(frame);
         };
-        //Runtime.println(here + " :Run Remote job at place:" + id);
         Runtime.wsRunAsync(id, body);
-        Runtime.dealloc(body);
-        //need clean the heap allocated frame, too.
-        Runtime.deallocObject(frame.up);
-        Runtime.deallocObject(frame);
     }
 
-    public def remoteFinishJoin(ffRef:GlobalRef[FinishFrame]) {
-        val id:Int = ffRef.home.id;
-        val body:()=>void = ()=> @x10.compiler.RemoteInvocation {
-            Runtime.wsFIFO().push(derefFrame[FinishFrame](ffRef));
-            //Runtime.println(here + " :FF join frame pushed");
+    public def remoteAt(place:Place, frame:RegularFrame){
+        val id:Int = place.id;
+        val body = ()=> @x10.compiler.RemoteInvocation {
+            Runtime.wsFIFO().push(frame);
         };
-        //Runtime.println(here + " :Run Finish Join back to place:" + id);
-        Runtime.wsRunCommand(id, body);
-        Runtime.dealloc(body);
-    }
-
-    /*
-     * Notify the remote at's finish flag:boxedBoolean
-     * Set it as true. Just execute it
-     * No need atomic, so no need push the boxedBoolean to que.
-     */
-    public static def remoteAtNotify(bbRef:GlobalRef[BoxedBoolean]) {
-        val id:Int = bbRef.home.id;
-        //need push the frame back to its inque
-        //locate the remote worker
-        val body:()=>void = ()=> @x10.compiler.RemoteInvocation {
-            derefBB[BoxedBoolean](bbRef).value = true;
-            Runtime.wsUnblock();
-            //Runtime.println(here + " :At Notify executed");
-        };
-        //Runtime.println(here + " :Run At Notify back to place:" + id);
-        Runtime.wsRunCommand(id, body);
-        Runtime.dealloc(body);
+        Runtime.wsRunAsync(id, body);
+        throw Abort.ABORT;
     }
 
     public static def allStop(worker:Worker){
@@ -174,15 +133,16 @@ public final class Worker {
             val p = Place.place(i);
             async at(p) initPerPlace().run();
         }
+        val ff = frame.ff;
         try {
             frame.fast(worker00); // run main activity
         } catch (t:Abort) {
             worker00.run(); // join the pool
         } catch (t:Throwable) {
-            frame.ff.caught(t); // main terminated abnormally
+            ff.caught(t); // main terminated abnormally
         } finally {
             allStop(worker00);
         }
-        frame.ff.rethrow();
+        ff.check();
     }
 }

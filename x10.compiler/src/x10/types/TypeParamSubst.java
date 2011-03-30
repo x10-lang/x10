@@ -66,6 +66,13 @@ public class TypeParamSubst {
 		this.typeParameters = tps == null ? Collections.<ParameterType>emptyList() : tps;
 	}
 
+    public ArrayList<Type> copyTypeArguments() {
+        return new ArrayList<Type>(typeArguments);
+    }
+    public ArrayList<ParameterType> copyTypeParameters() {
+        return new ArrayList<ParameterType>(typeParameters);
+    }
+
 	public static boolean isSameParameter(ParameterType pt1, ParameterType pt2) {
 		return pt1 == pt2 ||
 		(Types.get(pt1.def()) == Types.get(pt2.def()) && pt1.name().equals(pt2.name()));

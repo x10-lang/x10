@@ -3,7 +3,192 @@
 
 #include <x10rt.h>
 
-#include <x10/util/IndexedMemoryChunk.struct_h>
+#include <x10aux/config.h>
+#include <x10aux/ref.h>
+#include <x10aux/RTT.h>
+#include <x10aux/serialization.h>
+
+#include <assert.h>
+
+// platform-specific min chunk alignment
+#if defined(_POWER) || defined(__bgp__)
+#define X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT 16
+#else
+#define X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT ((x10_int)sizeof(x10_double))
+#endif
+
+namespace x10 {
+    namespace lang { class Place; }
+    
+    namespace util { 
+
+        template<class T> class RemoteIndexedMemoryChunk;
+        
+        template<class T> class IndexedMemoryChunk  {
+          public:
+            RTT_H_DECLS_STRUCT
+
+            static x10aux::itable_entry _itables[2];
+            static x10aux::itable_entry _iboxitables[2];
+
+            x10aux::itable_entry* _getITables() { return _itables; }
+            x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
+    
+            x10_ulong data; /* TODO: We would like this to be const */
+            x10_int len; /* TODO: we would like this to be const */ /* TODO, this should be an x10_long */
+            x10_int length() { return len; } 
+            T *raw (void) const { return (T*)(size_t)data; }
+            T &operator[] (int index) { return raw()[index]; }
+            const T &operator[] (int index) const { return raw()[index]; }
+
+            IndexedMemoryChunk(): data(0), len(0) {}
+            IndexedMemoryChunk(T* _data, x10_int _len): data((size_t)_data), len(_len) {}
+            IndexedMemoryChunk(x10_ulong _data, x10_int _len): data(_data), len(_len) {}
+
+            inline T __apply(x10_int index) { 
+                x10aux::checkRailBounds(index, len);
+                return raw()[index]; 
+            }
+            inline T __apply(x10_long index) { 
+                x10aux::checkRailBounds((x10_int)index, len);
+                return raw()[index]; 
+            }
+            
+            inline void __set(x10_int index, T val) { 
+                x10aux::checkRailBounds(index, len);
+                raw()[index] = val; 
+            }
+            inline void __set(x10_long index, T val) { 
+                x10aux::checkRailBounds((x10_int)index, len);
+                raw()[index] = val; 
+            }
+
+            inline T apply_unsafe(x10_int index) { return raw()[index]; }
+            inline T apply_unsafe(x10_long index) { return raw()[index]; }
+            
+            inline void set_unsafe(T val, x10_int index) { raw()[index] = val; }
+            inline void set_unsafe(T val, x10_long index) { raw()[index] = val; }
+
+            RemoteIndexedMemoryChunk<T> getCongruentSibling (x10::lang::Place p);
+
+            x10::util::IndexedMemoryChunk<T>* operator->() { return this; }
+        
+            static void _serialize(x10::util::IndexedMemoryChunk<T> this_, x10aux::serialization_buffer& buf);
+    
+            static x10::util::IndexedMemoryChunk<T> _deserialize(x10aux::deserialization_buffer& buf) {
+                x10::util::IndexedMemoryChunk<T> this_;
+                this_->_deserialize_body(buf);
+                return this_;
+            }
+    
+            void _deserialize_body(x10aux::deserialization_buffer& buf);
+            
+            x10_boolean equals(x10aux::ref<x10::lang::Any> that) { return _struct_equals(that); }
+    
+            x10_boolean equals(x10::util::IndexedMemoryChunk<T> that) { return _struct_equals(that); }
+    
+            x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
+    
+            x10_boolean _struct_equals(x10::util::IndexedMemoryChunk<T> that);
+    
+            x10aux::ref<x10::lang::String> toString();
+    
+            x10_int hashCode() { return (x10_int)data; }
+
+            x10aux::ref<x10::lang::String> typeName();
+        };
+    }
+}
+
+namespace x10 {
+    namespace util { 
+
+        template <> class IndexedMemoryChunk<void> {
+          private:
+            template<class T> static IndexedMemoryChunk<T> allocInternal(size_t numElements,
+                                                                         x10_int alignment,
+                                                                         x10_boolean congruent,
+                                                                         x10_boolean zeroed);
+          public:
+            static x10aux::RuntimeType rtt;
+            static const x10aux::RuntimeType* getRTT() { return &rtt; }
+
+            template<class T> static IndexedMemoryChunk<T> allocate(x10_int numElements,
+                                                                    x10_int alignment,
+                                                                    x10_boolean congruent,
+                                                                    x10_boolean zeroed) {
+                assert(numElements >=0);
+                return allocInternal<T>((size_t)numElements, alignment, congruent, zeroed);
+            }
+            
+            template<class T> static IndexedMemoryChunk<T> allocate(x10_long numElements,
+                                                                    x10_int alignment,
+                                                                    x10_boolean congruent,
+                                                                    x10_boolean zeroed) {
+                assert(numElements >= 0);
+                assert(((x10_long)((size_t)numElements)) == numElements); // check for alloc requests >31 bits on 32 bit system
+                return allocInternal<T>((size_t)numElements, alignment, congruent, zeroed);
+            }
+
+            template<class T> static void asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                    x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                    x10_int numElems);
+
+            template<class T> static void asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                    x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                    x10_int numElems,
+                                                    x10aux::ref<x10::lang::Reference> notif);
+
+
+            template<class T> static void asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                    x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                    x10_int numElems);
+
+            template<class T> static void asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                    x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                    x10_int numElems,
+                                                    x10aux::ref<x10::lang::Reference> notif);
+
+            template<class T> static void copy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                               x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                               x10_int numElems);
+        };
+
+        // avoid putting junk in the header, avoid putting junk in template code to save code size
+        void checkCongruentArgs (x10_boolean zeroed, x10_boolean containsPtrs);
+
+        template<class T> IndexedMemoryChunk<T> IndexedMemoryChunk<void>::allocInternal(size_t numElements,
+                                                                                        x10_int alignment,
+                                                                                        x10_boolean congruent, 
+                                                                                        x10_boolean zeroed) {
+            assert((alignment & (alignment-1)) == 0);
+            if (alignment < X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT) {
+                alignment = X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT;
+            }
+
+            bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+            T* allocMem;
+            if (congruent) {
+                // aligned on page boundaries, no point attempting to do better than that, we will just end up
+                // using more memory than we want
+                size_t size = numElements*sizeof(T);
+                checkCongruentArgs(zeroed,containsPtrs);
+                allocMem = static_cast<T*>(x10aux::alloc_internal_congruent(size));
+            } else {
+                size_t size = alignment + numElements*sizeof(T);
+                allocMem = x10aux::alloc<T>(size, containsPtrs);
+                if (zeroed) {
+                    memset(allocMem, 0, size);
+                }
+            }
+            size_t alignDelta = alignment-1;
+            size_t alignMask = ~alignDelta;
+            size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
+            return IndexedMemoryChunk<T>((T*)alignedMem, (x10_int)numElements);
+        }
+
+    }
+} 
 
 #endif // X10_UTIL_INDEXEDMEMORYCHUNK_H
 
@@ -14,7 +199,9 @@ template<class T> class IndexedMemoryChunk;
 #ifndef X10_UTIL_INDEXEDMEMORYCHUNK_H_NODEPS
 #define X10_UTIL_INDEXEDMEMORYCHUNK_H_NODEPS
 #include <x10/lang/Any.h>
+#include <x10/lang/Place.h>
 #include <x10/lang/String.h>
+#include <x10/util/RemoteIndexedMemoryChunk.h>
 #ifndef X10_UTIL_INDEXEDMEMORYCHUNK_H_GENERICS
 #define X10_UTIL_INDEXEDMEMORYCHUNK_H_GENERICS
 #endif // X10_UTIL_INDEXEDMEMORYCHUNK_H_GENERICS

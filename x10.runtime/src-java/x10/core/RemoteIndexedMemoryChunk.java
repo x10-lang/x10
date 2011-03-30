@@ -32,7 +32,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
         super($dummy);
     }
 
-    public void $init(Type<T> type, int length, Object value) {
+    public RemoteIndexedMemoryChunk $init(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
         this.home = x10.lang.Runtime.home();
@@ -43,12 +43,13 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
             for (int id = size - 1; id >= 0; --id) {
                 if (objects.get(id) == value) {
                     this.id = id;
-                    return;
+                    return this;
                 }
             }
             objects.add(value);
         }
         this.id = size;
+        return this;
     }
 
     private RemoteIndexedMemoryChunk(Type<T> type, int length, Object value) {

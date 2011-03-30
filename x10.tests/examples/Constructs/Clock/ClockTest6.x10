@@ -67,6 +67,8 @@ public class ClockTest6 extends x10Test {
 	public static N_KINDS: int = 4; // number of kinds of async activities
 	var globalCounter: int = 0;
 
+        public var quiet:boolean = false;
+
 	public def run(): boolean = {
 		finish async {
 			// create and register with multiple clocks
@@ -130,7 +132,7 @@ public class ClockTest6 extends x10Test {
 	 */
 	def doWork(var kind: String, var instance: int, var clocks: String, var tick: int): void = {
 		atomic globalCounter++;
-		x10.io.Console.OUT.println("Activity "+kind+instance+" in phase "+tick+" of clocks "+clocks);
+		if (!quiet) x10.io.Console.OUT.println("Activity "+kind+instance+" in phase "+tick+" of clocks "+clocks);
 	}
 
 	/**

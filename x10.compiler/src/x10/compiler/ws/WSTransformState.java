@@ -83,20 +83,20 @@ public class WSTransformState {
     public final ClassType finishFrameType;
     public final ClassType rootFinishType;
     public final ClassType mainFrameType;
-    public final ClassType remoteRootFinishType;
+    public final ClassType remoteFinishType;
+    public final ClassType atFrameType;
     public final ClassType regularFrameType;
     public final ClassType asyncFrameType;
     public final ClassType tryFrameType;
-    public final ClassType boxedBooleanType;
     public final ClassType workerType;
-    public final ClassType stolenType;
+    public final ClassType abortType;
     public final ClassType stackAllocateType; //annotation type
     public final ClassType inlineType; //annotation type
     public final ClassType transientType; //annotation type
     public final ClassType headerType; //annotation type
     public final ClassType uninitializedType; //annotation type
     public final ClassType globalRefFFType;  //GlobalRef[FinishFrame]
-    public final ClassType globalRefBBType;  //GloobalRef[BoxedBoolean]
+    public final ClassType globalRefRFType;  //GloobalRef[RegularFrame]
     public final Boolean realloc; // whether or not to generate code for frame migration
 
     private String theLanguage; //c++ or java path
@@ -194,11 +194,11 @@ public class WSTransformState {
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
             rootFinishType = xts.load("x10.compiler.ws.RootFinish");
             mainFrameType = xts.load("x10.compiler.ws.MainFrame");
-            remoteRootFinishType = xts.load("x10.compiler.ws.RemoteRootFinish");
+            remoteFinishType = xts.load("x10.compiler.ws.RemoteFinish");
+            atFrameType = xts.load("x10.compiler.ws.AtFrame");
             regularFrameType = xts.load("x10.compiler.ws.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
             tryFrameType = xts.load("x10.compiler.ws.TryFrame");
-            boxedBooleanType = xts.load("x10.compiler.ws.BoxedBoolean");
             workerType = xts.load("x10.compiler.ws.Worker");
             realloc = true;
         } else {
@@ -206,15 +206,15 @@ public class WSTransformState {
             finishFrameType = xts.load("x10.compiler.ws.java.FinishFrame");
             rootFinishType = xts.load("x10.compiler.ws.java.RootFinish");
             mainFrameType = xts.load("x10.compiler.ws.java.MainFrame");
-            remoteRootFinishType = xts.load("x10.compiler.ws.java.RemoteRootFinish");
+            remoteFinishType = xts.load("x10.compiler.ws.java.RemoteRootFinish");
+            atFrameType = xts.load("x10.compiler.ws.java.RemoteAtFrame");
             regularFrameType = xts.load("x10.compiler.ws.java.RegularFrame");
             asyncFrameType = xts.load("x10.compiler.ws.java.AsyncFrame");
             tryFrameType = xts.load("x10.compiler.ws.java.TryFrame");
-            boxedBooleanType = xts.load("x10.compiler.ws.java.BoxedBoolean");
             workerType = xts.load("x10.compiler.ws.java.Worker");
             realloc = false;
         }
-        stolenType = xts.load("x10.compiler.Abort");
+        abortType = xts.load("x10.compiler.Abort");
         stackAllocateType = xts.load("x10.compiler.StackAllocate");
         inlineType = xts.load("x10.compiler.InlineOnly");
         transientType = xts.load("x10.compiler.Ephemeral");
@@ -226,9 +226,9 @@ public class WSTransformState {
         ffTypeList.add(finishFrameType);
         globalRefFFType = xts.GlobalRef().typeArguments(ffTypeList);
 
-        List<Type> boxedBooleanTypeList = new ArrayList<Type>();
-        boxedBooleanTypeList.add(boxedBooleanType);
-        globalRefBBType = xts.GlobalRef().typeArguments(boxedBooleanTypeList);
+        List<Type> regularFrameTypeList = new ArrayList<Type>();
+        regularFrameTypeList.add(regularFrameType);
+        globalRefRFType = xts.GlobalRef().typeArguments(regularFrameTypeList);
         
         //Load CodeGen config
         Configuration x10config = ((ExtensionInfo)xts.extensionInfo()).getOptions().x10_config;

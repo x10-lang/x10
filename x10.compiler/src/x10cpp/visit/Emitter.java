@@ -392,27 +392,6 @@ public class Emitter {
 			return name;
 		return make_ref(name);
 	}
-	
-	public static String structMethodClass(X10ClassType ct, boolean fqn, boolean chevrons) {
-	    X10ClassDef cd = ct.x10Def();
-	    QName full = fullName(cd.asType());
-	    String name = fqn ? full.toString() : full.name().toString();
-	    name += "_methods";
-	    name = translate_mangled_FQN(name);
-	    List<Type> typeArguments = ct.typeArguments();
-	    if (typeArguments == null) typeArguments = new ArrayList<Type>(cd.typeParameters());
-	    if (chevrons && typeArguments.size() != 0) {
-	        String args = "";
-	        int s = typeArguments.size();
-	        for (Type t: typeArguments) {
-	            args += translateType(t, true); // type arguments are always translated as refs
-	            if (--s > 0)
-	                args +=", ";
-	        }
-	        name += chevrons(args);
-	    }
-	    return name;
-	}
 
 	void printArgumentList(CodeWriter w, X10CPPContext_c c) {
 		printArgumentList(w, c, false, true);
@@ -588,8 +567,7 @@ public class Emitter {
 		X10MethodDef def = (X10MethodDef) n.methodDef();
 		MethodInstance mi = (MethodInstance) def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
-		boolean isStruct = container.isX10Struct();
-		boolean nonVirtualDispatch = flags.isStatic() || isStruct || flags.isProperty() || flags.isPrivate();
+		boolean nonVirtualDispatch = flags.isStatic() || container.isX10Struct() || flags.isProperty() || flags.isPrivate();
 		boolean genericVirtual = !nonVirtualDispatch && def.typeParameters().size() > 0;
 
 		h.begin(0);
@@ -611,14 +589,13 @@ public class Emitter {
 			    h.write("virtual ");
 			}
 		}
-		if (!qualify && !flags.isStatic() && container.isX10Struct()) h.write("static ");
 		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify) {
-		    h.write((container.isX10Struct() ? structMethodClass(container, true, true) : translateType(container))+ "::");
+		    h.write(translateType(container)+ "::");
 		}
 		h.write(mangled_method_name(name));
-		printFormalDecls(n, h, tr, flags, container, isStruct);
+		printFormalDecls(n, h, tr, flags, container);
 		
 		if (!qualify) {
 		    boolean noReturnPragma = false;
@@ -640,20 +617,15 @@ public class Emitter {
 		h.end();
 		if (!qualify) {
 			assert (!flags.isNative());
-			if (n.body() == null && !flags.isProperty() && !isStruct)
+			if (n.body() == null && !flags.isProperty() && !container.isX10Struct())
 				h.write(" = 0");
 		}
 	}
 	
-    private void printFormalDecls(X10MethodDecl_c n, CodeWriter h, Translator tr, Flags flags, X10ClassType container,
-                                  boolean explicitThis) {
+    private void printFormalDecls(X10MethodDecl_c n, CodeWriter h, Translator tr, Flags flags, X10ClassType container) {
         h.write("(");
         h.allowBreak(2, 2, "", 0);
         h.begin(0);
-        if (explicitThis && !flags.isStatic()) {
-		    h.write(translateType(container) +" this_");
-		    if (!n.formals().isEmpty()) h.write(", ");
-		}
 		for (Iterator<Formal> i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = i.next();
 			n.print(f, h, tr);
@@ -938,20 +910,6 @@ public class Emitter {
 		h.end();
 	}
     
-    void printHeaderForStructMethods(X10ClassDecl_c n, CodeWriter h, Translator tr) {
-        h.begin(0);
-        
-        // Handle generics
-        // If it involves Parameter Types then generate C++ templates.
-        printAllTemplateSignatures(n.classDef(), h);
-
-        h.write("class ");
-        h.write(structMethodClass(n.classDef().asType(), false, false));
-
-        h.unifiedBreak(0);
-        h.end();
-    }
-    
 	void printHeader(ConstructorDecl_c n, CodeWriter h, Translator tr,
                      boolean define, boolean isMakeMethod, String rType) {
         Flags flags = n.flags().flags();
@@ -966,20 +924,15 @@ public class Emitter {
 		//printTemplateSignature(toTypeList(def.typeParameters()), h);
 
 		h.begin(0);
-		if (!define && container.isX10Struct()) h.write("static ");
 		String typeName = translateType(container.def().asType());
         // not a virtual method, this function is called only when the static type is precise
         h.write(rType + " ");
 		if (define) {
-		    h.write((container.isX10Struct() ? structMethodClass(container, true, true) : typeName) + "::"); 
+		    h.write(typeName + "::"); 
 		}
 		h.write((isMakeMethod ? SharedVarsMethods.MAKE : SharedVarsMethods.CONSTRUCTOR) + "(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
-		if (container.isX10Struct() && !isMakeMethod) {
-		    h.write(typeName + "& this_");
-		    if (!n.formals().isEmpty()) h.write(", ");
-		}
 		for (Iterator<Formal> i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = i.next();
 			n.print(f, h, tr);
@@ -1010,7 +963,7 @@ public class Emitter {
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify) {
 		    X10ClassType declClass = (X10ClassType)n.fieldDef().asInstance().container().toClass();
-			h.write((declClass.isX10Struct() ? structMethodClass(declClass, true, true) : translateType(declClass)) + "::");
+			h.write(translateType(declClass) + "::");
 		}
 		h.write(mangled_field_name(n.name().id().toString()));
 		h.end();
@@ -1246,14 +1199,14 @@ public class Emitter {
         TypeSystem ts = (TypeSystem) type.typeSystem();
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
         ClassifiedStream w = sw.body();
-        ClassifiedStream sh = context.structHeader;
+        ClassifiedStream h = sw.header();
         String klass = translateType(type);
  
-        sh.forceNewline();
+        h.forceNewline();
         
         // _serialize()
-        sh.write("static void "+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf);");
-        sh.newline(0); sh.forceNewline();
+        h.write("static void "+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf);");
+        h.newline(0); h.forceNewline();
 
         printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf) {");
@@ -1279,16 +1232,16 @@ public class Emitter {
         w.newline(); w.forceNewline();
 
         // _deserialize()
-        sh.write("static "+klass+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
-        sh.newline(4) ; sh.begin(0);
-        sh.writeln(klass+" this_;");
-        sh.write("this_->"+DESERIALIZE_BODY_METHOD+"(buf);"); sh.newline();
-        sh.write("return this_;");
-        sh.end(); sh.newline();
-        sh.write("}"); sh.newline(); sh.forceNewline();
+        h.write("static "+klass+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+        h.newline(4) ; h.begin(0);
+        h.writeln(klass+" this_;");
+        h.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
+        h.write("return this_;");
+        h.end(); h.newline();
+        h.write("}"); h.newline(); h.forceNewline();
 
         // _deserialize_body()
-        sh.write("void "+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);"); sh.newline(0);
+        h.write("void "+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);"); h.newline(0);
         printTemplateSignature(ct.x10Def().typeParameters(), w);
         w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);

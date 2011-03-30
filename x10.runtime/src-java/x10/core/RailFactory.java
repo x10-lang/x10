@@ -89,7 +89,7 @@ public abstract class RailFactory {
 
     public static <T> x10.array.Array<T> makeArrayFromJavaArray(Type type, Object value) {
         int length = type.arrayLength(value);
-        x10.array.Array<T> array = new x10.array.Array<T>(type, length);
+        x10.array.Array<T> array = x10.array.Array.<T> $make(type, length);
         System.arraycopy(value, 0, array.raw.value, 0, length);
         return array;
     }

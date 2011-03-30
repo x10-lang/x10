@@ -114,8 +114,8 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
 
         Name formalName = xct.getNewVarName();
         
-        Formal fa = synth.createFormal(compilerPos, wts.stolenType, formalName, Flags.NONE);
-        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.stolenType));
+        Formal fa = synth.createFormal(compilerPos, wts.abortType, formalName, Flags.NONE);
+        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.abortType));
         Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
         
         catchBlocksFast.add(ca);

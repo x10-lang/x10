@@ -25,8 +25,9 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
 	    super();
 	}
 	
-	public void $init(Type<T> T) {
+	public AtomicReference $init(Type<T> T) {
         this.T = T;
+        return this;
     }
 	
     public AtomicReference(Type<T> T) {
@@ -34,10 +35,11 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
         this.T = T;
     }
 
-    public void $init(Type<T> T, T initialValue) {
+    public AtomicReference $init(Type<T> T, T initialValue) {
         // TODO
         set(initialValue);
         this.T = T;
+        return this;
     }
     
     public AtomicReference(Type<T> T, T initialValue) {

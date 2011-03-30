@@ -9,10 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+#ifndef X10_LANG_LONG_H_NODEPS
+#define X10_LANG_LONG_H_NODEPS
+
 /*
  * Must include header files for any types
  * mentioned in @Native annotations but not
  * present in method return types.
  */
-
 #include <x10/lang/LongRange.h>
+
+#endif

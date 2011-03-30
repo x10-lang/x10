@@ -9,8 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CALLS 
+
 import harness.x10Test;
-// OPTIONS: -STATIC_CALLS 
 
 /**
  * Test that a guarded function can be called with args that satisfy the guard.
@@ -24,13 +25,13 @@ public class GuardedFunctionInvocation_MustFailCompile extends x10Test {
         m(3);
         m(4); // ERR
         f(3);
-        f(4); // ShouldBeErr
+        f(4); // ERR
     }
-	val f = (x:Int){x==3}=>x; // ShouldNotBeERR
-	
-	public def run() = true;
+    val f = (x:Int){x==3}=>x;
 
-	public static def main(Array[String](1)) {
-		new GuardedFunctionInvocation_MustFailCompile().execute();
-	}
+    public def run() = true;
+
+    public static def main(Array[String](1)) {
+        new GuardedFunctionInvocation_MustFailCompile().execute();
+    }
 }

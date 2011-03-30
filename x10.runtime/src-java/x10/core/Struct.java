@@ -22,7 +22,7 @@ public abstract class Struct implements StructI {
 
 	public Struct(java.lang.System[] $dummy) {}
 	
-	public void $init() {}
+	public Struct $init() {return this;}
 	
     public Struct() {}
 

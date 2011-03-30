@@ -56,8 +56,9 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
         //super($dummy);
     }
     
-    public void $init(x10.rtt.Type<T> T) {
+    public PlaceLocalHandle $init(x10.rtt.Type<T> T) {
         id = nextId();
+        return this;
     }
     
     public PlaceLocalHandle(x10.rtt.Type<T> T) {

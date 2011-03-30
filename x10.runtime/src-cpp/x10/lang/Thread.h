@@ -24,6 +24,7 @@
 
 namespace x10 {
     namespace lang {
+        class Place;
         class String;
         class Reference;
         class Runtime__Worker;

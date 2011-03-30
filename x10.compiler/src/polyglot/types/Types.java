@@ -27,6 +27,8 @@ import polyglot.main.Reporter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.Transformation;
+import polyglot.util.TransformingList;
 import polyglot.visit.ContextVisitor;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
@@ -56,6 +58,7 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
 import x10.types.MethodInstance;
+import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
@@ -63,6 +66,7 @@ import x10.types.X10ProcedureInstance;
 import x10.types.X10ThisVar;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -1765,6 +1769,22 @@ public class Types {
 	        }
 	    return removeLocals((Context) ctx.pop(), c, thisCode);
 	}
-	
 
+	public static XVar[] toVarArray(List<LocalDef> formalNames) {
+	    XVar[] oldFNs = new XVar[formalNames.size()];
+	    for (int i = 0; i < oldFNs.length; i++) {
+	        X10LocalDef oFN = (X10LocalDef) formalNames.get(i);
+	        oldFNs[i] = CTerms.makeLocal(oFN);
+	    }
+	    return oldFNs;
+	}
+
+	public static List<LocalDef> toLocalDefList(List<LocalInstance> lis) {
+	    return new TransformingList<LocalInstance, LocalDef>(lis,
+	            new Transformation<LocalInstance,LocalDef>() {
+	                public LocalDef transform(LocalInstance o) {
+	                    return o.def();
+	                }
+	            });
+    }
 }

@@ -169,7 +169,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Rail.o \
 	x10/lang/Reference.o \
 	x10/lang/String.o \
-	x10/lang/Struct.o \
 	x10/lang/Throwable.o \
 	x10/lang/Deque.o \
 	x10/lang/Lock__ReentrantLock.o \
@@ -227,9 +226,7 @@ install: $(XRX_ARCHIVE) install_props
 	@echo "Installing into $(INSTDIR)"
 	@mkdir -p "$(INSTDIR)"/include "$(INSTDIR)"/lib
 	@(cd gen && $(FIND) . -name \*.h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
-	@(cd gen && $(FIND) . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10 -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
-	@$(FIND) x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@$(FIND) x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd "$(INSTDIR)"/include && tar xf -)
 	@cp -p x10rt.h "$(INSTDIR)"/include

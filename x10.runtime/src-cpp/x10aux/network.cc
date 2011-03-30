@@ -431,7 +431,7 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 
 void *x10aux::coll_enter() {
     x10aux::ref<x10::lang::FinishState> fs = Runtime::activity()->finishState();
-    fs->notifySubActivitySpawn(x10::lang::Place_methods::_make(x10aux::here));
+    fs->notifySubActivitySpawn(x10::lang::Place::_make(x10aux::here));
     fs->notifyActivityCreation();
     return fs._val;
 }

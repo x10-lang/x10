@@ -40,8 +40,9 @@ final public class String extends x10.core.Ref implements
         super($dummy);
     }
 
-    public void $init() {
+    public String $init() {
         $str = "";
+        return this;
     }
     
     public String() {
@@ -54,8 +55,9 @@ final public class String extends x10.core.Ref implements
     public static java.lang.String unbox(Object obj) {
         return obj instanceof x10.core.String ? ((x10.core.String) obj).$str : (java.lang.String) obj;
     }
-    public void $init(final java.lang.String str) {
+    public String $init(final java.lang.String str) {
         $str = str;
+        return this;
     }
     
     public String(final java.lang.String str) {

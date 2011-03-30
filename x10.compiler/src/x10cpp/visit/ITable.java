@@ -173,6 +173,9 @@ public final class ITable {
 	public void emitITableInitialization(X10ClassType cls, int itableNum, MessagePassingCodeGenerator cg, CodeWriter h, CodeWriter sw) {
 	    X10ClassDef cd = cls.x10Def();
 	    if (cls.isX10Struct()) {
+	        // For an interface implemented by a struct, we need to generate 
+	        // an additional thunk class and itable for use by the IBox of the
+	        // struct.
             String interfaceCType = Emitter.translateType(interfaceType, false);
             String clsCType = Emitter.translateType(cls, false);
             String thunkBaseType = Emitter.mangled_non_method_name(cd.name().toString());
@@ -192,108 +195,110 @@ public final class ITable {
             if (cd.package_() != null) {
                 Emitter.openNamespaces(sw, cd.package_().get().fullName()); sw.newline();
             }            
-            for (int i=0; i<2; i++) {
-                boolean ibox = i == 1;
-                String thunkType = thunkBaseType + (ibox ? "_iboxithunk":"_ithunk")+itableNum;
-                String parentCType = ibox ? "x10::lang::IBox"+chevrons(clsCType) : clsCType;
-                String recvArg = ibox ? "this->value" : "*this";
 
-                cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
-                sw.write("class "+thunkType+" : public "+parentCType+" {"); sw.newline();
-                sw.write("public:"); sw.newline(4); sw.begin(0);
-                sw.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
-                         (doubleTemplate ? "::template itable<":"::itable<")+thunkType+thunkParams+" > itable;");
-                sw.newline();
+            String thunkType = thunkBaseType + "_ibox"+itableNum;
+            String parentCType = "x10::lang::IBox"+chevrons(clsCType);
+            String recvArg = "this->value";
 
-                 for (MethodInstance meth : methods) {
-                    sw.write(Emitter.translateType(meth.returnType(), true));
-                    sw.write(" ");
-                    sw.write(Emitter.mangled_method_name(meth.name().toString())); 
-                    sw.write("(");
-                    boolean first = true;
-                    int argNum=0;
-                    for (Type f : meth.formalTypes()) {
-                        if (!first) sw.write(", ");
-                        sw.write(Emitter.translateType(f, true)+" arg"+(argNum++));
-                        first = false;
+            cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
+            sw.write("class "+thunkType+" : public "+parentCType+" {"); sw.newline();
+            sw.write("public:"); sw.newline(4); sw.begin(0);
+            sw.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
+                     (doubleTemplate ? "::template itable<":"::itable<")+thunkType+thunkParams+" > itable;");
+            sw.newline();
+
+            for (MethodInstance meth : methods) {
+                sw.write(Emitter.translateType(meth.returnType(), true));
+                sw.write(" ");
+                sw.write(Emitter.mangled_method_name(meth.name().toString())); 
+                sw.write("(");
+                boolean first = true;
+                int argNum=0;
+                for (Type f : meth.formalTypes()) {
+                    if (!first) sw.write(", ");
+                    sw.write(Emitter.translateType(f, true)+" arg"+(argNum++));
+                    first = false;
+                }
+                sw.write(") {"); sw.newline(4); sw.begin(0);
+                if (!meth.returnType().isVoid()) sw.write("return ");
+
+                List<MethodInstance> implMeths = cls.methods(meth.name(), meth.formalTypes(), cg.tr.context());
+                assert implMeths.size() == 1 : "Can't be more than 1 matching method; how on earth did this typecheck???";
+                MethodInstance implMeth = implMeths.iterator().next();
+
+                String pat = cg.getCppImplForDef(implMeth.x10Def());
+                if (pat != null) {
+                    X10ClassType ct = (X10ClassType) implMeth.container().toClass();
+                    List<Type> classTypeArguments = ct.typeArguments();
+                    List<ParameterType> classTypeParams = ct.x10Def().typeParameters();
+                    if (classTypeArguments == null)
+                        classTypeArguments = new ArrayList<Type>();
+                    if (classTypeParams == null)
+                        classTypeParams = new ArrayList<ParameterType>();
+                    ArrayList<String> args = new ArrayList<String>();
+                    ArrayList<String> params = new ArrayList<String>();
+                    int numArgs = implMeth.formalTypes().size();
+                    argNum = 0;
+                    for (LocalInstance n : meth.formalNames()) {
+                        args.add("arg"+(argNum++));
+                        params.add(n.name().toString());
                     }
-                    sw.write(") {"); sw.newline(4); sw.begin(0);
-                    if (!meth.returnType().isVoid()) sw.write("return ");
-                    
-                    List<MethodInstance> implMeths = cls.methods(meth.name(), meth.formalTypes(), cg.tr.context());
-                    assert implMeths.size() == 1 : "Can't be more than 1 matching method; how on earth did this typecheck???";
-                    MethodInstance implMeth = implMeths.iterator().next();
-                    
-                    String pat = cg.getCppImplForDef(implMeth.x10Def());
-                    if (pat != null) {
-                        X10ClassType ct = (X10ClassType) implMeth.container().toClass();
-                        List<Type> classTypeArguments = ct.typeArguments();
-                        List<ParameterType> classTypeParams = ct.x10Def().typeParameters();
-                        if (classTypeArguments == null)
-                        	classTypeArguments = new ArrayList<Type>();
-                        if (classTypeParams == null)
-                        	classTypeParams = new ArrayList<ParameterType>();
-                        ArrayList<String> args = new ArrayList<String>();
-                        ArrayList<String> params = new ArrayList<String>();
-                        int numArgs = implMeth.formalTypes().size();
-                        argNum = 0;
-                        for (LocalInstance n : meth.formalNames()) {
-                            args.add("arg"+(argNum++));
-                            params.add(n.name().toString());
-                        }
-                        cg.emitNativeAnnotation(pat, implMeth.x10Def().typeParameters(), implMeth.typeParameters(), recvArg, params, args, classTypeParams, classTypeArguments);
-                    } else {
-                        sw.write(Emitter.structMethodClass(cls, true, true)+"::"+Emitter.mangled_method_name(meth.name().toString())+"("+recvArg);
-                        for (int j=0; j<meth.formalTypes().size(); j++) {
-                            sw.write(", arg"+j);
-                        }
-                        sw.write(")");
-                    }
-                    sw.write(";");
-                    sw.end(); sw.newline();
-                    sw.write("}"); sw.newline();
-                }            
-                sw.end(); sw.newline();
-                sw.write("};"); sw.newline();
-
-                cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
-                sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
-                         thunkType+thunkParams+" > "+" "+thunkType+thunkParams+"::itable");
-                if (!isEmpty()) {
-                    int methodNum = 0;
-                    sw.write("(");
-                    for (MethodInstance meth : methods) {
-                        if (methodNum > 0) sw.write(", ");
-                        sw.write("&"+thunkType+thunkParams+"::"+Emitter.mangled_method_name(meth.name().toString()));
-                        methodNum++;
+                    cg.emitNativeAnnotation(pat, implMeth.x10Def().typeParameters(), implMeth.typeParameters(), recvArg, params, args, classTypeParams, classTypeArguments);
+                } else {
+                    sw.write(recvArg+"->"+Emitter.mangled_method_name(meth.name().toString())+"(");
+                    boolean firstArg = true;
+                    for (int j=0; j<meth.formalTypes().size(); j++) {
+                        sw.write((firstArg ? "arg": ", arg")+j);
+                        firstArg = false;
                     }
                     sw.write(")");
                 }
-                sw.write(";"); sw.newline();
+                sw.write(";");
+                sw.end(); sw.newline();
+                sw.write("}"); sw.newline();
+            }            
+            sw.end(); sw.newline();
+            sw.write("};"); sw.newline();
+
+            cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
+            sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
+                     thunkType+thunkParams+" > "+" "+thunkType+thunkParams+"::itable");
+            if (!isEmpty()) {
+                int methodNum = 0;
+                sw.write("(");
+                for (MethodInstance meth : methods) {
+                    if (methodNum > 0) sw.write(", ");
+                    sw.write("&"+thunkType+thunkParams+"::"+Emitter.mangled_method_name(meth.name().toString()));
+                    methodNum++;
+                }
+                sw.write(")");
             }
+            sw.write(";"); sw.newline();
+            
             if (cd.package_() != null) {
                 Emitter.closeNamespaces(sw, cd.package_().get().fullName()); sw.newline();
             }
-	    } else {
-	        String interfaceCType = Emitter.translateType(interfaceType, false);
-	        String clsCType = Emitter.translateType(cls, false);
-	        boolean doubleTemplate = cd.typeParameters().size() > 0 && interfaceType.x10Def().typeParameters().size() > 0;
-
-	        cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
-	        sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
-	                 Emitter.translateType(cls, false)+" > "+" "+clsCType+"::_itable_"+itableNum+"");
-	        if (!isEmpty()) {
-	            int methodNum = 0;
-	            sw.write("(");
-	            for (MethodInstance meth : methods) {
-	                if (methodNum > 0) sw.write(", ");
-	                sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString()));
-	                methodNum++;
-	            }
-	            sw.write(")");
-	        }
-	        sw.write(";"); sw.newline();
 	    }
+	    
+	    String interfaceCType = Emitter.translateType(interfaceType, false);
+	    String clsCType = Emitter.translateType(cls, false);
+	    boolean doubleTemplate = cd.typeParameters().size() > 0 && interfaceType.x10Def().typeParameters().size() > 0;
+
+	    cg.emitter.printTemplateSignature(cd.typeParameters(), sw);
+	    sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
+	             Emitter.translateType(cls, false)+" > "+" "+clsCType+"::_itable_"+itableNum+"");
+	    if (!isEmpty()) {
+	        int methodNum = 0;
+	        sw.write("(");
+	        for (MethodInstance meth : methods) {
+	            if (methodNum > 0) sw.write(", ");
+	            sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString()));
+	            methodNum++;
+	        }
+	        sw.write(")");
+	    }
+	    sw.write(";"); sw.newline();
+	    
 	}
 
 	/**

@@ -36,13 +36,14 @@ public class Thread extends java.lang.Thread {
 
 	public Thread(java.lang.System[] $dummy) {}
 
-	public void $init(String name) {
+	public Thread $init(String name) {
 	    setName(name);
         if (!(java.lang.Thread.currentThread() instanceof Thread)) {
             home = Place.place(X10RT.here());
         } else {
             home = currentThread().home();
-        }	    
+        }
+        return this;
 	}
 	
     public Thread(String name) {

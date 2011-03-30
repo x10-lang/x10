@@ -100,6 +100,13 @@ public class ClosureType_c extends FunctionType_c implements ClosureType {
         return applyMethod().formalTypes();
     }
 
+    public FunctionType functionInterface() {
+        for (Type itype : interfaces()) {
+            return (FunctionType) itype;
+        }
+        throw new InternalCompilerError("Found a closure type "+typeToString()+" at "+position()+" that does not implement a function interface");
+    }
+
     @Override
     public String typeToString() {
         MethodInstance mi = applyMethod();
@@ -121,6 +128,27 @@ public class ClosureType_c extends FunctionType_c implements ClosureType {
     @Override
     public int hashCode() {
         return def.get().hashCode();
+    }
+
+    @Override
+    public boolean equalsImpl(TypeObject o) {
+        if (o == this)
+            return true;
+        if (o == null)
+            return false;
+        if (o instanceof ClosureType_c) {
+            ClosureType_c t = (ClosureType_c) o;
+            if (! flags().equals(t.flags()))
+                return false;
+            if (def != t.def) {
+                if (def == null || t.def == null)
+                    return false;
+                else if (!Types.get(def).equals(Types.get(t.def)))
+                    return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     public void print(CodeWriter w) {

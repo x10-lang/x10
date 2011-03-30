@@ -19,6 +19,9 @@ import harness.x10Test;
 public class XTENLANG_2330 extends x10Test
 { 
     public def run() {
+		new XTENLANG_2603().test();
+		TestArrayMap.test();
+		XTENLANG_2370.test();
         new Helper2330(50).run(0);
         new DynamicCallsTest().run();
         return true;
@@ -29,6 +32,72 @@ public class XTENLANG_2330 extends x10Test
     }
 }
 
+
+class XTENLANG_2370
+{
+    static def m[T](arr:T, p:Point){T<:Array[Int]} {
+		//val z = ((x1:T,x2:Point)=>x1(x2 as Point(x1.rank)))(arr,p);
+		// (x1:T,x2:Point)=>{ if (GUARD...) throw ...;  x1(x2); }
+        arr(p); // ERR
+    }
+    static def m2[T](arr:Array[Int], p:T){T<:Point} {
+		// (x1:Array[Int],x2:T)=>{ if (GUARD...) throw ...;  x1(x2); }
+        arr(p); // ERR
+    }
+	static def fail():void { throw new RuntimeException("test failed!"); }
+	static def test() {
+		m(new Array[Int][1,2,3], [2] as Point);
+		try { m(new Array[Int][1,2,3], [2,3] as Point); fail(); } catch (e:FailedDynamicCheckException) {}
+	}
+}
+
+class XTENLANG_2603  {
+	class A(i:Int) {}
+	def m(A{self.i==2}) {}
+	def n(i:Int) {
+		val a = new A(i);
+		m(a); // ERR
+	}
+	def test() {
+		try {
+			n(3);
+			Console.OUT.println("Failed");
+			throw new Exception();
+		} catch (ClassCastException) { }
+	}
+}
+class MyArray[T](region:Region) {
+	static type MyArray[X](r:Region) = MyArray[X]{self.region==r};
+	def this() { property(null); }
+	public def map[S,U](dst:MyArray[S](region), src:MyArray[U](region), op:(T,U)=>S):MyArray[S](region) = null;
+}
+class TestArrayMap {
+	static def test() {
+        val testMap = new TestArrayMap(new MyArray[Double]());
+		testMap.run();
+		testMap.run2();
+		testMap.run3();
+	}
+
+    val x:MyArray[Double];
+    val y = new MyArray[Double]();
+    public def this(x:MyArray[Double]) {
+        this.x = x;
+    }
+
+    public def run() {
+        x.map[Double,Double](y, x, (a : Double, b : Double) => a + b); // ERR
+    }
+    public def run2() {
+        val y = new MyArray[Double]();
+        x.map[Double,Double](y, x, (a : Double, b : Double) => a + b); // ERR
+    }
+    public def run3() {
+        val x:MyArray[Double] = new MyArray[Double]();
+        val y:MyArray[Double] = new MyArray[Double]();
+        x.map[Double,Double](y, x, (a : Double, b : Double) => a + b); // ERR
+    }
+}
 
 class DynamicCallsTest {
 	def fail():void { throw new RuntimeException("test failed!"); }

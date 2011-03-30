@@ -3,7 +3,92 @@
 
 #include <x10rt.h>
 
-#include <x10/util/RemoteIndexedMemoryChunk.struct_h>
+#include <x10aux/config.h>
+#include <x10aux/ref.h>
+#include <x10aux/RTT.h>
+#include <x10aux/serialization.h>
+
+#include <assert.h>
+
+#define X10_LANG_PLACE_H_NODEPS
+#include <x10/lang/Place.h>
+#undef X10_LANG_PLACE_H_NODEPS
+
+namespace x10 {
+    namespace util { 
+
+	extern x10::lang::Place RIMC_here_hack();
+
+        template<class T> class RemoteIndexedMemoryChunk  {
+          public:
+            RTT_H_DECLS_STRUCT
+
+            static x10aux::itable_entry _itables[2];
+            static x10aux::itable_entry _iboxitables[2];
+
+            x10aux::itable_entry* _getITables() { return _itables; }
+            x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
+    
+            x10_ulong data; /* TODO: We would like this to be const */
+            x10::lang::Place home;
+            x10_int len; /* TODO: we would like this to be const */ /* TODO, this should be an x10_long */
+
+            x10_int length() { return len; } 
+            T *raw (void) const { return (T*)(size_t)data; }
+
+            RemoteIndexedMemoryChunk(): data(0), len(0), home(RIMC_here_hack()) {}
+            RemoteIndexedMemoryChunk(T* _data, x10_int _len): data((size_t)_data), len(_len), home(RIMC_here_hack()) {}
+            RemoteIndexedMemoryChunk(x10_ulong _data, x10_int _len): data(_data), len(_len), home(RIMC_here_hack) {}
+            RemoteIndexedMemoryChunk(T* _data, x10_int _len, x10::lang::Place _home): data((size_t)_data), len(_len), home(_home) {}
+            RemoteIndexedMemoryChunk(x10_ulong _data, x10_int _len, x10::lang::Place _home): data(_data), len(_len), home(_home) {}
+
+            x10::util::RemoteIndexedMemoryChunk<T>* operator->() { return this; }
+        
+            static void _serialize(x10::util::RemoteIndexedMemoryChunk<T> this_, x10aux::serialization_buffer& buf);
+    
+            static x10::util::RemoteIndexedMemoryChunk<T> _deserialize(x10aux::deserialization_buffer& buf) {
+                x10::util::RemoteIndexedMemoryChunk<T> this_;
+                this_->_deserialize_body(buf);
+                return this_;
+            }
+    
+            void _deserialize_body(x10aux::deserialization_buffer& buf);
+            
+            x10_boolean equals(x10aux::ref<x10::lang::Any> that) { return _struct_equals(that); }
+    
+            x10_boolean equals(x10::util::RemoteIndexedMemoryChunk<T> that) { return _struct_equals(that); }
+    
+            x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
+    
+            x10_boolean _struct_equals(x10::util::RemoteIndexedMemoryChunk<T> that);
+    
+            x10aux::ref<x10::lang::String> toString();
+    
+            x10_int hashCode() { return (x10_int)data; }
+
+            x10aux::ref<x10::lang::String> typeName();
+
+            void remoteAdd(x10_int idx, x10_ulong v)
+            { x10rt_remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_ADD, v); }
+
+            void remoteAnd(x10_int idx, x10_ulong v)
+            { x10rt_remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_AND, v); }
+
+            void remoteOr(x10_int idx, x10_ulong v)
+            { x10rt_remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_OR, v); }
+
+            void remoteXor(x10_int idx, x10_ulong v)
+            { x10rt_remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_XOR, v); }
+        };
+
+
+        template <> class RemoteIndexedMemoryChunk<void> {
+          public:
+            static x10aux::RuntimeType rtt;
+            static const x10aux::RuntimeType* getRTT() { return &rtt; }
+        };
+    }
+} 
 
 #endif // X10_UTIL_REMOTEINDEXEDMEMORYCHUNK_H
 

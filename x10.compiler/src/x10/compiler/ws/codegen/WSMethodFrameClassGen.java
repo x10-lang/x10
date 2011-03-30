@@ -178,6 +178,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
 
         //new _main(args)
         NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, this.getClassType());
+        niSynth.addAnnotation(genStackAllocateAnnotation());
         niSynth.addArgument(wts.frameType, nvSynth.getLocal());
         niSynth.addArgument(wts.finishFrameType, nvSynth.getLocal());
         for(Formal f : formals){
@@ -188,15 +189,18 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         }
         Expr newMainExpr = niSynth.genExpr();
         // new _main(args).run();
-        Expr mainCall = synth.makeStaticCall(compilerPos, wts.workerType, Name.make("main"), Collections.<Expr>singletonList(newMainExpr), xts.Void(), xct);
+        NewLocalVarSynth localSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, newMainExpr);
+        localSynth.addAnnotation(genStackAllocateAnnotation());
+
+        Expr mainCall = synth.makeStaticCall(compilerPos, wts.workerType, Name.make("main"), Collections.<Expr>singletonList(localSynth.getLocal()), xts.Void(), xct);
         CodeBlockSynth cbSynth = new CodeBlockSynth(xnf, xct, methodDecl.body().position());
         cbSynth.addStmt(nvSynth.genStmt());
+        cbSynth.addStmt(localSynth.genStmt());
         cbSynth.addStmt(xnf.Eval(compilerPos, mainCall));
 
         return (MethodDecl) methodDecl.body(cbSynth.close());
     }
 
-    
     protected void genClassConstructor() throws SemanticException{
         super.genClassConstructor();
         //Continue to add other statements

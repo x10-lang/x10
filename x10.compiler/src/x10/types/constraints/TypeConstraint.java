@@ -28,6 +28,7 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
+import x10.types.FunctionType;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10Context_c;
@@ -343,6 +344,10 @@ public class TypeConstraint implements Copy, Serializable {
     		addTerm(new SubtypeConstraint(ytype, xtype, isEqual)); 
     		return;
     	}
+    	if (xtype instanceof FunctionType) {
+            addTypeParameterBindings((FunctionType) xtype, ytype, isEqual);
+            return;
+    	}
     	if (xtype instanceof X10ClassType) {
     		addTypeParameterBindings((X10ClassType) xtype, ytype, isEqual);
     		return;
@@ -411,6 +416,69 @@ public class TypeConstraint implements Copy, Serializable {
         }
         if (ytype instanceof ParameterType) { // can happen because of contravariance
         	addTerm(new SubtypeConstraint(xtype, ytype, isEqual)); 
+        }
+    }
+
+    /**
+     * This method is called only by <code>addTypeParameterBindings(xtype: Type, ytype: Type, boolean)</code>, once
+     * xtype is determined to be a <code>FunctionType</code>.  Replace <code>ytype</code> with 
+     * <code>baseType(ytype)</code>. The constraint <code>{c}</code> can be ignored because we are trying
+     * to generate type constraints from <code>((T1,...,Tn){h}=>T){c} <: (S1,...,Sn){g}=>S</code>, and <code>{c}</code>
+     * does not play a role. 
+     * The only type constraints that will be generated will involve type-parameters occurring inside parameters of 
+     * <code>XClass</code>.
+     * <p>
+     * Check that <code>ytype</code> is a function type.
+     * This leaves <code>xtype</code> and <code>ytype</code> as function types.  Now compare the numbers of arguments.
+     * If they are the same, the return types are either both void or both non-void, and the subtype's guard entails
+     * the supertype's, then proceed to look at the formal types.
+     * Recursively generate constraints from the corresponding pairs of argument types, in a contravariant fashion,
+     * and from the return types, in a covariant fashion (unless they are void).
+     * <p>
+     * Otherwise (ytype is not a function type), repeat the process, replacing <code>ytype</code> successively 
+     * with its super type and with the interfaces it implements.
+     *
+     * @param xft -- The formal function type (may contain type parameters).
+     * @param ytype
+     * @param isEqual
+     * @throws XFailure
+     */
+    private void addTypeParameterBindings(FunctionType xft, Type ytype, boolean isEqual)  {
+        ytype = Types.baseType(ytype);
+        if (ytype == null)
+            return;
+        if (ytype instanceof FunctionType) {
+            FunctionType yft = (FunctionType) ytype;
+            TypeSystem ts = yft.typeSystem();
+            List<Type> Tl = yft.argumentTypes();
+            Type T = yft.returnType();
+            CConstraint h = yft.guard();
+            List<Type> Sl = xft.argumentTypes();
+            Type S = xft.returnType();
+            CConstraint g = xft.guard();
+            if (Tl.size() == Sl.size() && (T.isVoid() == S.isVoid()) && ts.env(ts.emptyContext()).entails(h, g)) {
+                // Now we are in the case xft is (S1,..,Sn){g}=>S and yft is (T1,...,Tn){h}=>T
+                // This will generate for each i, Si <: Ti (contravariant arguments) and
+                // T <: S (covariant return types).
+                for (int i = 0; i < Sl.size(); i++) {
+                    Type Si = Sl.get(i);
+                    Type Ti = Tl.get(i);
+                    addTypeParameterBindings(Ti, Si, false);
+                }
+                if (!S.isVoid()) {
+                    addTypeParameterBindings(S, T, false);
+                }
+            }
+        }
+        else if (ytype instanceof X10ClassType) {
+            X10ClassType yct = (X10ClassType) ytype;
+            addTypeParameterBindings(xft, yct.superClass(), isEqual);
+            for (Type t: yct.interfaces()) {
+                addTypeParameterBindings(xft, t, isEqual);
+            }
+        }
+        if (ytype instanceof ParameterType) { // can happen because of contravariance
+            addTerm(new SubtypeConstraint(xft, ytype, isEqual)); 
         }
     }
 

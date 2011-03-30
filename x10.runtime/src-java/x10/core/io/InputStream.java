@@ -26,8 +26,9 @@ public class InputStream extends Ref {
         super($dummy);
     }
     
-    public void $init(java.io.InputStream stream) {
+    public InputStream $init(java.io.InputStream stream) {
         this.stream = stream;
+        return this;
     }
     
     public InputStream(java.io.InputStream stream) {

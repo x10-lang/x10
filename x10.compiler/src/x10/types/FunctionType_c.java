@@ -43,9 +43,10 @@ import polyglot.types.ClassDef.Kind;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.Transformation;
-import polyglot.util.TransformingList;
+import x10.constraint.XFailure;
+import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 
 /**
  * A representation of the type of a function interface.
@@ -114,6 +115,51 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
     @Override
     public int hashCode() {
         return def.get().hashCode();
+    }
+
+    @Override
+    public boolean equalsImpl(TypeObject o) {
+        if (o == this)
+            return true;
+        if (o == null)
+            return false;
+        if (o instanceof FunctionType_c) {
+            FunctionType_c t = (FunctionType_c) o;
+            if (!flags().equals(t.flags()))
+                return false;
+            List<Type> Tl = this.argumentTypes();
+            Type T = this.returnType();
+            CConstraint h = this.guard();
+            List<Type> Sl = t.argumentTypes();
+            Type S = t.returnType();
+            CConstraint g = t.guard();
+            if (Tl.size() != Sl.size()) {
+                return false;
+            }
+            if (!ts.typeEquals(T, S, ts.emptyContext())) {
+                return false;
+            }
+            for (int i = 0; i < Sl.size(); i++) {
+                Type Si = Sl.get(i);
+                Type Ti = Tl.get(i);
+                if (!ts.typeEquals(Ti, Si, ts.emptyContext()))
+                    return false;
+            }
+            if (g != null) {
+                try {
+                    XVar[] ys = Types.toVarArray(Types.toLocalDefList(this.formalNames()));
+                    XVar[] xs = Types.toVarArray(Types.toLocalDefList(t.formalNames()));
+                    g = g.substitute(ys, xs);
+                } catch (XFailure e) {
+                    throw new InternalCompilerError("Unexpected exception comparing function types", this.position(), e);
+                }
+            }
+            if (!ts.env(ts.emptyContext()).entails(h, g) || !ts.env(ts.emptyContext()).entails(g, h)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     public void print(CodeWriter w) {

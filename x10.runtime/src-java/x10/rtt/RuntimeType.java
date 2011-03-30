@@ -21,22 +21,20 @@ public class RuntimeType<T> implements Type<T> {
 
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
     
-    Type<?>[] parents;
-    Class<?> base;
-    Variance[] variances;
+    private final Class<?> base;
+    private final Variance[] variances;
+    private final Type<?>[] parents;
     
     public RuntimeType(Class<?> c) {
-        this.base = c;
+        this(c, null, null);
     }
     
     public RuntimeType(Class<?> c, Variance[] variances) {
-        this.base = c;
-        this.variances = variances;
+        this(c, variances, null);
     }
 
     public RuntimeType(Class<?> c, Type<?>[] parents) {
-        this.base = c;
-        this.parents = parents;
+        this(c, null, parents);
     }
     
     public RuntimeType(Class<?> c, Variance[] variances, Type<?>[] parents) {

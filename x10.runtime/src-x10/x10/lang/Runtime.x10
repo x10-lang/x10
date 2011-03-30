@@ -51,10 +51,6 @@ import x10.util.NoSuchElementException;
 
     // Native runtime interface
 
-    // workaround for XTENLANG-2572
-    @Native("java", "2")
-    private static DEFAULT_NTHREADS = 1;
-
     @Native("c++", "PLATFORM_MAX_THREADS")
     private static PLATFORM_MAX_THREADS = Int.MAX_VALUE;
 
@@ -166,7 +162,7 @@ import x10.util.NoSuchElementException;
         } catch (NoSuchElementException) {
         } catch (NumberFormatException) {
         }
-        if (v <= 0) v = DEFAULT_NTHREADS;
+        if (v <= 0) v = 1;
         if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
         return v;
     }
@@ -229,6 +225,7 @@ import x10.util.NoSuchElementException;
         } else {
             runClosureCopyAt(id, body);
         }
+        dealloc(body);
     }
 
     /* 
@@ -473,6 +470,8 @@ import x10.util.NoSuchElementException;
             workers(0) = worker();
             for (var i:Int = 1; i<n; i++) {
                 workers(i) = new Worker(i);
+            }
+            for (var i:Int = 1; i<n; i++) {
                 workers(i).start();
             }
             workers(0)();
@@ -572,7 +571,7 @@ import x10.util.NoSuchElementException;
     /**
      * Return the current place
      */
-    @Native("c++", "x10::lang::Place_methods::_make(x10aux::here)")
+    @Native("c++", "x10::lang::Place::_make(x10aux::here)")
     public static def home():Place = Thread.currentThread().home();
 
     /**

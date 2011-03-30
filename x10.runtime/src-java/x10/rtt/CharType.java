@@ -19,7 +19,7 @@ public class CharType extends RuntimeType<Character> {
     public CharType() {
         super(char.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1)),
+                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }

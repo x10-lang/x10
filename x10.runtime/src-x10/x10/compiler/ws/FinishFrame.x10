@@ -9,24 +9,20 @@ import x10.util.Stack;
 abstract public class FinishFrame extends Frame {
     @Uninitialized public var asyncs:Int;
     @Uninitialized public var redirect:FinishFrame;
-    @Uninitialized public var stack:Stack[Throwable];
+    @Uninitialized transient public var stack:Stack[Throwable];
 
-    // constructor
     @Header public def this(up:Frame) {
         super(up);
-//        this.asyncs = 1;
         this.stack = NULL[Stack[Throwable]]();
         this.redirect = NULL[FinishFrame]();
     }
-    
-    // copy constructor
+
     public def this(Int, o:FinishFrame) {
         super(o.up.realloc());
         this.asyncs = 1;
-        this.stack = NULL[Stack[Throwable]](); // stack is eventually copied by the victim
+        this.stack = NULL[Stack[Throwable]]();
     }
 
-    // copy methods
     public abstract def remap():FinishFrame;
 
     public def realloc() {
@@ -45,6 +41,22 @@ abstract public class FinishFrame extends Frame {
         }
     }
 
+    public def wrapResume(worker:Worker) {
+        var n:Int;
+        Runtime.atomicMonitor.lock(); n = --asyncs; Runtime.atomicMonitor.unlock();
+        if (0 != n) throw Abort.ABORT;
+        throwable = MultipleExceptions.make(stack);
+    }
+
+    @Inline public final def append(s:Stack[Throwable]) {
+        if (!isNULL(s)) {
+            Runtime.atomicMonitor.lock();
+            if (isNULL(stack)) stack = new Stack[Throwable]();
+            while (!s.isEmpty()) stack.push(s.pop());
+            Runtime.atomicMonitor.unlock();
+        }
+    }
+
     @Inline public final def caught(t:Throwable) {
         if (isNULL(stack)) stack = new Stack[Throwable]();
         stack.push(t);
@@ -52,13 +64,13 @@ abstract public class FinishFrame extends Frame {
 
     @Inline public final def rethrow() {
         if (!(isNULL(stack))) throw new MultipleExceptions(stack);
-        return;
     }
 
-    public def wrapResume(worker:Worker) {
-        var n:Int;
-        Runtime.atomicMonitor.lock(); n = --asyncs; Runtime.atomicMonitor.unlock();
-        if (0 != n) throw Abort.ABORT;
-        throwable = MultipleExceptions.make(stack);
+    @Inline public final def check() {
+        if (!(isNULL(stack))) {
+            while (!stack.isEmpty()) {
+                Runtime.pushException(stack.pop());
+            }
+        }
     }
 }

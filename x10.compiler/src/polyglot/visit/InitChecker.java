@@ -12,20 +12,20 @@ import java.util.*;
 
 import polyglot.ast.*;
 import polyglot.frontend.Job;
-import polyglot.frontend.Compiler;
 import polyglot.types.*;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil;
-import x10.ExtensionInfo;
+import polyglot.util.InternalCompilerError;
 import x10.util.CollectionFactory;
 import polyglot.visit.FlowGraph.EdgeKey;
 import x10.ast.Finish;
 import x10.ast.ParExpr;
-import x10.ast.X10ClassDecl;
 import x10.ast.Async_c;
 import x10.ast.Finish_c;
 import x10.ast.X10Cast;
+import x10.ast.Closure;
+import x10.ast.X10Formal_c;
+import x10.ast.X10Formal;
+import x10.ast.X10ClassBody_c;
 import x10.errors.Errors;
 import x10.extension.X10Ext_c;
 import x10.types.X10LocalDef;
@@ -137,66 +137,15 @@ import x10.util.Synthesizer;
   AsyncJoin([2,2,2,2],[1,1,1,1]) = [1,1,2,2]
   FinishJoin([0,1,1,1]) = [1,1,1,1]
  */
-public class InitChecker extends DataFlow
+public final class InitChecker extends DataFlow
 {
     public InitChecker(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf,
               true /* forward analysis */,
-              false /* perform dataflow when leaving CodeDecls, not when entering */);
+              true /* perform dataflow when when entering */);
     }
 
-    protected ClassBodyInfo currCBI = new ClassBodyInfo();
-
-    /**
-     * This class is just a data structure containing relevant information
-     * needed for performing initialization checking of a class declaration.
-     *
-     * These objects form a stack, since class declarations can be nested.
-     */
-    protected static class ClassBodyInfo {
-        /**
-         * The info for the outer ClassBody. The <code>ClassBodyInfo</code>s
-         * form a stack.
-         */
-        public ClassBodyInfo outer = null;
-
-        /** The current CodeNode being processed by the dataflow equations */
-        public CodeNode currCodeDecl = null;
-
-        /** The current class being processed. */
-        public ClassDef currClass = null;
-
-
-        /**
-         * Set of LocalInstances from the outer class body that were used
-         * during the declaration of this class. We need to track this
-         * in order to correctly populate <code>localsUsedInClassBodies</code>
-         */
-        public Set<LocalDef> outerLocalsUsed = CollectionFactory.newHashSet();
-
-        /**
-         * Map from <code>ClassBody</code>s to <code>Set</code>s of
-         * <code>LocalInstance</code>s. If localsUsedInClassBodies(C) = S, then
-         * the class body C is an inner class declared in the current code
-         * declaration, and S is the set of LocalInstances that are defined
-         * in the current code declaration, but are used in the declaration
-         * of the class C. We need this information in order to ensure that
-         * these local variables are definitely assigned before the class
-         * declaration of C.
-         */
-        public Map<Node, Set<LocalDef>> localsUsedInClassBodies =
-            new LinkedHashMap<Node, Set<LocalDef>>();
-
-        /**
-         * Set of LocalInstances that we have seen declarations for in this
-         * class. This set allows us to determine which local instances
-         * are simply being used before they are declared (if they are used in
-         * their own initialization) or are locals declared in an enclosing
-         * class.
-         */
-        public Set<LocalDef> localDeclarations = CollectionFactory.newHashSet();
-    }
-
+    private Map<Object, Set<LocalDef>> initLocals = new HashMap<Object, Set<LocalDef>>();
 
     /**
      * Class representing the initialization counts of variables. The
@@ -419,87 +368,6 @@ public class InitChecker extends DataFlow
     public static class DataFlowItem extends BaseDataFlowItem<LocalDef> {}
 
     /**
-     * Initialise the FlowGraph to be used in the dataflow analysis.
-     * @return null if no dataflow analysis should be performed for this
-     *         code declaration; otherwise, an apropriately initialized
-     *         FlowGraph.
-     */
-    protected FlowGraph initGraph(CodeNode code, Term root) {
-        currCBI.currCodeDecl = code;
-        return super.initGraph(code,root);
-    }
-
-    /**
-     * Overridden superclass method.
-     *
-     * Set up the state that must be tracked during a Class Declaration.
-     */
-    protected NodeVisitor enterCall(Node parent, Node n) {
-        if (n instanceof ClassBody) {
-            // we are starting to process a class declaration, but have yet
-            // to do any of the dataflow analysis.
-            ClassBody cb = (ClassBody) n;
-
-            // Add the properties to the class body when initializing.
-            if (parent instanceof X10ClassDecl) {
-                List<ClassMember> members;
-                members = new ArrayList<ClassMember>();
-                members.addAll(cb.members());
-                members.addAll(((X10ClassDecl) parent).properties());
-                cb = cb.members(members);
-            }
-
-            // set up the new ClassBodyInfo, and make sure that it forms
-            // a stack.
-            ClassDef ct = null;
-            if (parent instanceof ClassDecl) {
-                ct = ((ClassDecl) parent).classDef();
-            }
-            else if (parent instanceof New) {
-                ct = ((New) parent).anonType();
-            }
-            if (ct == null) {
-                throw new InternalCompilerError("ClassBody found but cannot find the class.", n.position());
-            }
-            setupClassBody(ct, cb);
-        }
-
-        return super.enterCall(n);
-    }
-
-    protected Node leaveCall(Node old, Node n, NodeVisitor v) {
-
-        if (n instanceof ClassBody) {
-            // Now that we are at the end of the class declaration, and can
-            // be sure that all of the initializer blocks have been processed,
-            // we can now process the constructors.
-
-            try {
-                // todo: is it needed?
-                // copy the locals used to the outer scope
-                if (currCBI.outer != null) {
-                    currCBI.outer.localsUsedInClassBodies.put(n,
-                                                  currCBI.outerLocalsUsed);
-                }
-            }
-            finally {
-                // pop the stack
-                currCBI = currCBI.outer;
-            }
-        }
-
-        return super.leaveCall(old, n, v);
-    }
-
-    protected void setupClassBody(ClassDef ct, ClassBody n) {
-        ClassBodyInfo newCDI = new ClassBodyInfo();
-        newCDI.outer = currCBI;
-        newCDI.currClass = ct;
-        currCBI = newCDI;
-    }
-
-
-    /**
      * Construct a flow graph for the <code>Expr</code> provided, and call
      * <code>dataflow(FlowGraph)</code>. Is also responsible for calling
      * <code>post(FlowGraph, Term)</code> after
@@ -686,10 +554,8 @@ public class InitChecker extends DataFlow
         res.initStatus.putAll(inItem.initStatus);
         // a formal argument is always defined.
         res.initStatus.put(f.localDef(), MinMaxInitCount.ONE);
-
-        // record the fact that we have seen the formal declaration
-        currCBI.localDeclarations.add(f.localDef());
-
+        for (Formal ff : ((X10Formal)f).vars())
+            res.initStatus.put(ff.localDef(), MinMaxInitCount.ONE);            
         return itemToMap(res, succEdgeKeys);
     }
 
@@ -715,9 +581,6 @@ public class InitChecker extends DataFlow
             }
 
             res.initStatus.put(ld.localDef(), initCount);
-
-        // record the fact that we have seen a local declaration
-        currCBI.localDeclarations.add(ld.localDef());
 
         return itemToMap(res, succEdgeKeys);
     }
@@ -796,8 +659,14 @@ public class InitChecker extends DataFlow
             else if (n instanceof LocalAssign) {
                 checkLocalAssign(graph, (LocalAssign)n, dfIn, dfOut);
             }
-            else if (n instanceof ClassBody) {
-                checkClassBody(graph, (ClassBody)n, dfIn, dfOut);
+            else if (n instanceof Closure) {
+                checkCode(getCurrKey(n), dfIn);
+
+            } else if (n instanceof ClassBody) {
+                ClassBody cb = (ClassBody) n;
+                if (cb.members().size()>0) {
+                    checkCode(getCurrKey(cb.members().get(0)), dfIn);
+                }
             }
         }
         else {
@@ -824,26 +693,19 @@ public class InitChecker extends DataFlow
     protected void checkLocal(LocalDef l,
                               DataFlowItem dfIn,
                               boolean isReachable, Position p) {
-        if (!currCBI.localDeclarations.contains(l)) {
-            // it's a local variable that has not been declared within
-            // this scope. The only way this can arise is from an
-            // inner class that is not a member of a class (typically
-            // a local class, or an anonymous class declared in a method,
-            // constructor or initializer).
-            // We need to check that it is a final local, and also
-            // keep track of it, to ensure that it has been definitely
-            // assigned at this point.
-            currCBI.outerLocalsUsed.add(l);
-        }
-        else {
-            MinMaxInitCount initCount = dfIn.initStatus.get(l);
-            if (initCount == null // e.g.,  var i:Int = i;
-                || initCount.getMin().isZero()) {
-                // the local variable may not have been initialized.
-                // However, we only want to complain if the local is reachable
-                if (isReachable) {
-                    reportVarNotInit(l.name(),p);
-            	}
+        MinMaxInitCount initCount = dfIn.initStatus.get(l);
+        if (initCount == null) {
+            // check the outer local was init
+            Set<LocalDef> initDefs = getInitDefs();
+            if ((l.flags().isFinal()) && // "var" fields are already reported: "Local variable is accessed from an inner class or a closure, and must be declared final."
+                (initDefs==null || !initDefs.contains(l))) {
+                reportError(new Errors.LocalVariableMustBeInitializedBeforeClassDeclaration(l.name(),p));                
+            }
+        } else if (initCount.getMin().isZero()) {
+            // the local variable may not have been initialized.
+            // However, we only want to complain if the local is reachable
+            if (isReachable) {
+                reportVarNotInit(l.name(),p);
             }
         }
     }
@@ -866,13 +728,10 @@ public class InitChecker extends DataFlow
                                     DataFlowItem dfIn,
                                     DataFlowItem dfOut) {
         LocalDef li = ((Local)a.local()).localInstance().def();
-        if (!currCBI.localDeclarations.contains(li)) {
+        MinMaxInitCount initCount = dfIn.initStatus.get(li);
+        if (initCount==null) {
             reportError(new Errors.FinalLocalVariableCannotBeAssignedTo(li.name(),a.position()));
-        }
-
-        MinMaxInitCount initCount = dfOut.initStatus.get(li);
-
-        if (li.flags().isFinal() && initCount.isIllegalVal()) {
+        } else if (li.flags().isFinal() && !initCount.isZero()) {
             reportError(new Errors.FinalVariableAlreadyInitialized(li.name(), a.position()));
         }
     }
@@ -883,32 +742,46 @@ public class InitChecker extends DataFlow
      * class declared by <code>cb</code>
      * are initialized before the class declaration.
      */
-    protected void checkClassBody(FlowGraph graph,
-                                  ClassBody cb,
-                                  DataFlowItem dfIn,
-                                  DataFlowItem dfOut) {
-        // we need to check that the locals used inside this class body
-        // have all been defined at this point.
-        Set<LocalDef> localsUsed = currCBI.localsUsedInClassBodies.get(cb);
-
-        if (localsUsed == null) return;
-
-        for (LocalDef li : localsUsed) {
-            MinMaxInitCount initCount = dfOut.initStatus.get(li);
-            if (!currCBI.localDeclarations.contains(li)) {
-                // the local wasn't defined in this scope.
-                currCBI.outerLocalsUsed.add(li);
-            }
-            else if (initCount == null || initCount.getMin().isZero()) {
-                // initCount will in general not be null, as the local variable
-                // li is declared in the current class; however, if the inner
-                // class is declared in the initializer of the local variable
-                // declaration, then initCount could in fact be null, as we
-                // leave the inner class before we have performed flowLocalDecl
-                // for the local variable declaration.
-
-                reportError(new Errors.LocalVariableMustBeInitializedBeforeClassDeclaration(li.name(),cb.position()));
+    protected void checkCode(Object key,DataFlowItem dfIn) {
+        Set<LocalDef> initDefs = getInitDefs();
+        if (initDefs==null) initDefs = Collections.EMPTY_SET;
+        Set<LocalDef> cbInitDefs = new HashSet<LocalDef>(initDefs);
+        for (Map.Entry<LocalDef, MinMaxInitCount> en : dfIn.initStatus.entrySet()) {
+            final LocalDef def = en.getKey();
+            if (def.flags().isFinal() && en.getValue().isOne()) {
+                cbInitDefs.add(def);
             }
         }
+        initLocals.put(key,cbInitDefs);
+    }
+
+    private CodeNode currCode = null;
+    private Set<LocalDef> getInitDefs() {
+        if (currCode==null) return null;
+        Object key = getCurrKey(currCode);
+        Set<LocalDef> res = initLocals.get(key);
+        if (res!=null) return res;
+        if (key instanceof ClassDef) {
+            ClassDef def = (ClassDef) key;
+            while (true) {
+                def = Types.get(def.outer());
+                if (def==null) return null;
+                res = initLocals.get(def);
+                if (res!=null) return res;
+            }
+        }
+        return null;
+    }
+    private Object getCurrKey(Node currCode) { // either ClassDef or Closure
+        if (currCode instanceof ClassMember) {
+            return ((ClassType)Types.get(((ClassMember)currCode).memberDef().container())).def();
+        }
+        if (currCode instanceof Closure)
+            return currCode;
+        throw new InternalCompilerError("Unexpected currCode="+currCode);
+    }
+    protected FlowGraph initGraph(CodeNode code, Term root) {
+        currCode = code;
+        return super.initGraph(code, root);
     }
 }
