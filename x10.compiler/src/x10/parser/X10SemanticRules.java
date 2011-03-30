@@ -1518,12 +1518,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode Type = (TypeNode) _Type;
         setResult(nf.Instanceof(pos(), RelationalExpression, Type));
     }
-    // Production: RelationalExpression ::= RelationalExpression in ShiftExpression
-    void rule_RelationalExpression8(Object _RelationalExpression, Object _ShiftExpression) {
-        Expr RelationalExpression = (Expr) _RelationalExpression;
-        Expr ShiftExpression = (Expr) _ShiftExpression;
-        setResult(nf.Binary(pos(), RelationalExpression, Binary.IN, ShiftExpression));
-    }
     // Production: BlockStatement ::= ClassDeclaration
     void rule_BlockStatement1(Object _ClassDeclaration) {
         ClassDecl ClassDeclaration = (ClassDecl) _ClassDeclaration;
@@ -2021,10 +2015,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: BinOp ::= '->'
     void rule_BinOp20() {
         setResult(Binary.ARROW);
-    }
-    // Production: BinOp ::= 'in'
-    void rule_BinOp21() {
-        setResult(Binary.IN);
     }
     // Production: EqualityExpression ::= EqualityExpression '==' RelationalExpression
     void rule_EqualityExpression1(Object _EqualityExpression, Object _RelationalExpression) {

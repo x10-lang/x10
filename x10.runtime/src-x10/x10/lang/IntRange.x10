@@ -61,9 +61,6 @@ public final class IntRange(
 
     public operator this -> (p:Place) = Dist.makeConstant(this as Region(1), p);
 
-    public operator (i:Int) in this = min <= i && i <= max;
-    public operator (p:Point(1)) in this = min <= p(0) && p(0) <= max;
-    
     public def toString():String = min+".."+max;
     
     public def equals(that:Any):Boolean {

@@ -4736,20 +4736,20 @@ public class X10Parser implements RuleAction
                     break;
             }
             //
-            // Rule 450:  RelationalExpression ::= RelationalExpression in ShiftExpression
+            // Rule 451:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
-            case 450: {
-               //#line 2583 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2581 "x10/parser/x10.g"
-                Object RelationalExpression = (Object) getRhsSym(1);
-                //#line 2581 "x10/parser/x10.g"
-                Object ShiftExpression = (Object) getRhsSym(3);
-                //#line 2583 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_RelationalExpression8(RelationalExpression,ShiftExpression);
+            case 451: {
+               //#line 2585 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2583 "x10/parser/x10.g"
+                Object EqualityExpression = (Object) getRhsSym(1);
+                //#line 2583 "x10/parser/x10.g"
+                Object RelationalExpression = (Object) getRhsSym(3);
+                //#line 2585 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_EqualityExpression1(EqualityExpression,RelationalExpression);
                     break;
             }
             //
-            // Rule 452:  EqualityExpression ::= EqualityExpression == RelationalExpression
+            // Rule 452:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
             case 452: {
                //#line 2589 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4758,132 +4758,136 @@ public class X10Parser implements RuleAction
                 //#line 2587 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(3);
                 //#line 2589 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_EqualityExpression1(EqualityExpression,RelationalExpression);
-                    break;
-            }
-            //
-            // Rule 453:  EqualityExpression ::= EqualityExpression != RelationalExpression
-            //
-            case 453: {
-               //#line 2593 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2591 "x10/parser/x10.g"
-                Object EqualityExpression = (Object) getRhsSym(1);
-                //#line 2591 "x10/parser/x10.g"
-                Object RelationalExpression = (Object) getRhsSym(3);
-                //#line 2593 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_EqualityExpression2(EqualityExpression,RelationalExpression);
                     break;
             }
             //
-            // Rule 454:  EqualityExpression ::= Type$t1 == Type$t2
+            // Rule 453:  EqualityExpression ::= Type$t1 == Type$t2
             //
-            case 454: {
-               //#line 2597 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2595 "x10/parser/x10.g"
+            case 453: {
+               //#line 2593 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2591 "x10/parser/x10.g"
                 Object t1 = (Object) getRhsSym(1);
-                //#line 2595 "x10/parser/x10.g"
+                //#line 2591 "x10/parser/x10.g"
                 Object t2 = (Object) getRhsSym(3);
-                //#line 2597 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2593 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_EqualityExpression3(t1,t2);
                     break;
             }
             //
-            // Rule 456:  AndExpression ::= AndExpression & EqualityExpression
+            // Rule 455:  AndExpression ::= AndExpression & EqualityExpression
             //
-            case 456: {
-               //#line 2603 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2601 "x10/parser/x10.g"
+            case 455: {
+               //#line 2599 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2597 "x10/parser/x10.g"
                 Object AndExpression = (Object) getRhsSym(1);
-                //#line 2601 "x10/parser/x10.g"
+                //#line 2597 "x10/parser/x10.g"
                 Object EqualityExpression = (Object) getRhsSym(3);
-                //#line 2603 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2599 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_AndExpression1(AndExpression,EqualityExpression);
                     break;
             }
             //
-            // Rule 458:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
+            // Rule 457:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
-            case 458: {
-               //#line 2609 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2607 "x10/parser/x10.g"
+            case 457: {
+               //#line 2605 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2603 "x10/parser/x10.g"
                 Object ExclusiveOrExpression = (Object) getRhsSym(1);
-                //#line 2607 "x10/parser/x10.g"
+                //#line 2603 "x10/parser/x10.g"
                 Object AndExpression = (Object) getRhsSym(3);
-                //#line 2609 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2605 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ExclusiveOrExpression1(ExclusiveOrExpression,AndExpression);
                     break;
             }
             //
-            // Rule 460:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
+            // Rule 459:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
-            case 460: {
-               //#line 2615 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2613 "x10/parser/x10.g"
+            case 459: {
+               //#line 2611 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2609 "x10/parser/x10.g"
                 Object InclusiveOrExpression = (Object) getRhsSym(1);
-                //#line 2613 "x10/parser/x10.g"
+                //#line 2609 "x10/parser/x10.g"
                 Object ExclusiveOrExpression = (Object) getRhsSym(3);
-                //#line 2615 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2611 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InclusiveOrExpression1(InclusiveOrExpression,ExclusiveOrExpression);
                     break;
             }
             //
-            // Rule 462:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
+            // Rule 461:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
-            case 462: {
-               //#line 2621 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2619 "x10/parser/x10.g"
+            case 461: {
+               //#line 2617 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2615 "x10/parser/x10.g"
                 Object ConditionalAndExpression = (Object) getRhsSym(1);
-                //#line 2619 "x10/parser/x10.g"
+                //#line 2615 "x10/parser/x10.g"
                 Object InclusiveOrExpression = (Object) getRhsSym(3);
-                //#line 2621 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2617 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ConditionalAndExpression1(ConditionalAndExpression,InclusiveOrExpression);
                     break;
             }
             //
-            // Rule 464:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
+            // Rule 463:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
-            case 464: {
-               //#line 2627 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2625 "x10/parser/x10.g"
+            case 463: {
+               //#line 2623 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2621 "x10/parser/x10.g"
                 Object ConditionalOrExpression = (Object) getRhsSym(1);
-                //#line 2625 "x10/parser/x10.g"
+                //#line 2621 "x10/parser/x10.g"
                 Object ConditionalAndExpression = (Object) getRhsSym(3);
-                //#line 2627 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2623 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ConditionalOrExpression1(ConditionalOrExpression,ConditionalAndExpression);
                     break;
             }
             //
-            // Rule 469:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
+            // Rule 468:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
-            case 469: {
-               //#line 2637 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2635 "x10/parser/x10.g"
+            case 468: {
+               //#line 2633 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2631 "x10/parser/x10.g"
                 Object ConditionalOrExpression = (Object) getRhsSym(1);
-                //#line 2635 "x10/parser/x10.g"
+                //#line 2631 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 2635 "x10/parser/x10.g"
+                //#line 2631 "x10/parser/x10.g"
                 Object ConditionalExpression = (Object) getRhsSym(5);
-                //#line 2637 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2633 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ConditionalExpression4(ConditionalOrExpression,Expression,ConditionalExpression);
                     break;
             }
             //
-            // Rule 472:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+            // Rule 471:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
-            case 472: {
-               //#line 2645 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2643 "x10/parser/x10.g"
+            case 471: {
+               //#line 2641 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2639 "x10/parser/x10.g"
                 Object LeftHandSide = (Object) getRhsSym(1);
-                //#line 2643 "x10/parser/x10.g"
+                //#line 2639 "x10/parser/x10.g"
                 Object AssignmentOperator = (Object) getRhsSym(2);
-                //#line 2643 "x10/parser/x10.g"
+                //#line 2639 "x10/parser/x10.g"
                 Object AssignmentExpression = (Object) getRhsSym(3);
-                //#line 2645 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2641 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Assignment0(LeftHandSide,AssignmentOperator,AssignmentExpression);
                     break;
             }
             //
-            // Rule 473:  Assignment ::= ExpressionName$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
+            // Rule 472:  Assignment ::= ExpressionName$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
+            //
+            case 472: {
+               //#line 2645 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2643 "x10/parser/x10.g"
+                Object e1 = (Object) getRhsSym(1);
+                //#line 2643 "x10/parser/x10.g"
+                Object ArgumentListopt = (Object) getRhsSym(3);
+                //#line 2643 "x10/parser/x10.g"
+                Object AssignmentOperator = (Object) getRhsSym(5);
+                //#line 2643 "x10/parser/x10.g"
+                Object AssignmentExpression = (Object) getRhsSym(6);
+                //#line 2645 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_Assignment1(e1,ArgumentListopt,AssignmentOperator,AssignmentExpression);
+                    break;
+            }
+            //
+            // Rule 473:  Assignment ::= Primary$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
             //
             case 473: {
                //#line 2649 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4896,684 +4900,657 @@ public class X10Parser implements RuleAction
                 //#line 2647 "x10/parser/x10.g"
                 Object AssignmentExpression = (Object) getRhsSym(6);
                 //#line 2649 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_Assignment1(e1,ArgumentListopt,AssignmentOperator,AssignmentExpression);
-                    break;
-            }
-            //
-            // Rule 474:  Assignment ::= Primary$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
-            //
-            case 474: {
-               //#line 2653 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2651 "x10/parser/x10.g"
-                Object e1 = (Object) getRhsSym(1);
-                //#line 2651 "x10/parser/x10.g"
-                Object ArgumentListopt = (Object) getRhsSym(3);
-                //#line 2651 "x10/parser/x10.g"
-                Object AssignmentOperator = (Object) getRhsSym(5);
-                //#line 2651 "x10/parser/x10.g"
-                Object AssignmentExpression = (Object) getRhsSym(6);
-                //#line 2653 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Assignment2(e1,ArgumentListopt,AssignmentOperator,AssignmentExpression);
                     break;
             }
             //
-            // Rule 475:  LeftHandSide ::= ExpressionName
+            // Rule 474:  LeftHandSide ::= ExpressionName
             //
-            case 475: {
-               //#line 2658 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2656 "x10/parser/x10.g"
+            case 474: {
+               //#line 2654 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2652 "x10/parser/x10.g"
                 Object ExpressionName = (Object) getRhsSym(1);
-                //#line 2658 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2654 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_LeftHandSide0(ExpressionName);
                     break;
             }
             //
-            // Rule 477:  AssignmentOperator ::= =
+            // Rule 476:  AssignmentOperator ::= =
+            //
+            case 476: {
+               //#line 2660 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2660 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_AssignmentOperator0();
+                    break;
+            }
+            //
+            // Rule 477:  AssignmentOperator ::= *=
             //
             case 477: {
                //#line 2664 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2664 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator0();
+		r.rule_AssignmentOperator1();
                     break;
             }
             //
-            // Rule 478:  AssignmentOperator ::= *=
+            // Rule 478:  AssignmentOperator ::= /=
             //
             case 478: {
                //#line 2668 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2668 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator1();
+		r.rule_AssignmentOperator2();
                     break;
             }
             //
-            // Rule 479:  AssignmentOperator ::= /=
+            // Rule 479:  AssignmentOperator ::= %=
             //
             case 479: {
                //#line 2672 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2672 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator2();
+		r.rule_AssignmentOperator3();
                     break;
             }
             //
-            // Rule 480:  AssignmentOperator ::= %=
+            // Rule 480:  AssignmentOperator ::= +=
             //
             case 480: {
                //#line 2676 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2676 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator3();
+		r.rule_AssignmentOperator4();
                     break;
             }
             //
-            // Rule 481:  AssignmentOperator ::= +=
+            // Rule 481:  AssignmentOperator ::= -=
             //
             case 481: {
                //#line 2680 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2680 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator4();
+		r.rule_AssignmentOperator5();
                     break;
             }
             //
-            // Rule 482:  AssignmentOperator ::= -=
+            // Rule 482:  AssignmentOperator ::= <<=
             //
             case 482: {
                //#line 2684 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2684 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator5();
+		r.rule_AssignmentOperator6();
                     break;
             }
             //
-            // Rule 483:  AssignmentOperator ::= <<=
+            // Rule 483:  AssignmentOperator ::= >>=
             //
             case 483: {
                //#line 2688 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2688 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator6();
+		r.rule_AssignmentOperator7();
                     break;
             }
             //
-            // Rule 484:  AssignmentOperator ::= >>=
+            // Rule 484:  AssignmentOperator ::= >>>=
             //
             case 484: {
                //#line 2692 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2692 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator7();
+		r.rule_AssignmentOperator8();
                     break;
             }
             //
-            // Rule 485:  AssignmentOperator ::= >>>=
+            // Rule 485:  AssignmentOperator ::= &=
             //
             case 485: {
                //#line 2696 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2696 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator8();
+		r.rule_AssignmentOperator9();
                     break;
             }
             //
-            // Rule 486:  AssignmentOperator ::= &=
+            // Rule 486:  AssignmentOperator ::= ^=
             //
             case 486: {
                //#line 2700 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2700 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator9();
+		r.rule_AssignmentOperator10();
                     break;
             }
             //
-            // Rule 487:  AssignmentOperator ::= ^=
+            // Rule 487:  AssignmentOperator ::= |=
             //
             case 487: {
                //#line 2704 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2704 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_AssignmentOperator10();
-                    break;
-            }
-            //
-            // Rule 488:  AssignmentOperator ::= |=
-            //
-            case 488: {
-               //#line 2708 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 2708 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_AssignmentOperator11();
                     break;
             }
             //
-            // Rule 491:  PrefixOp ::= +
+            // Rule 490:  PrefixOp ::= +
+            //
+            case 490: {
+               //#line 2714 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2714 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_PrefixOp0();
+                    break;
+            }
+            //
+            // Rule 491:  PrefixOp ::= -
             //
             case 491: {
                //#line 2718 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2718 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_PrefixOp0();
+		r.rule_PrefixOp1();
                     break;
             }
             //
-            // Rule 492:  PrefixOp ::= -
+            // Rule 492:  PrefixOp ::= !
             //
             case 492: {
                //#line 2722 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2722 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_PrefixOp1();
+		r.rule_PrefixOp2();
                     break;
             }
             //
-            // Rule 493:  PrefixOp ::= !
+            // Rule 493:  PrefixOp ::= ~
             //
             case 493: {
                //#line 2726 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2726 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_PrefixOp2();
-                    break;
-            }
-            //
-            // Rule 494:  PrefixOp ::= ~
-            //
-            case 494: {
-               //#line 2730 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 2730 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_PrefixOp3();
                     break;
             }
             //
-            // Rule 495:  BinOp ::= +
+            // Rule 494:  BinOp ::= +
+            //
+            case 494: {
+               //#line 2731 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2731 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_BinOp0();
+                    break;
+            }
+            //
+            // Rule 495:  BinOp ::= -
             //
             case 495: {
                //#line 2735 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2735 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp0();
+		r.rule_BinOp1();
                     break;
             }
             //
-            // Rule 496:  BinOp ::= -
+            // Rule 496:  BinOp ::= *
             //
             case 496: {
                //#line 2739 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2739 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp1();
+		r.rule_BinOp2();
                     break;
             }
             //
-            // Rule 497:  BinOp ::= *
+            // Rule 497:  BinOp ::= /
             //
             case 497: {
                //#line 2743 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2743 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp2();
+		r.rule_BinOp3();
                     break;
             }
             //
-            // Rule 498:  BinOp ::= /
+            // Rule 498:  BinOp ::= %
             //
             case 498: {
                //#line 2747 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2747 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp3();
+		r.rule_BinOp4();
                     break;
             }
             //
-            // Rule 499:  BinOp ::= %
+            // Rule 499:  BinOp ::= &
             //
             case 499: {
                //#line 2751 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2751 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp4();
+		r.rule_BinOp5();
                     break;
             }
             //
-            // Rule 500:  BinOp ::= &
+            // Rule 500:  BinOp ::= |
             //
             case 500: {
                //#line 2755 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2755 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp5();
+		r.rule_BinOp6();
                     break;
             }
             //
-            // Rule 501:  BinOp ::= |
+            // Rule 501:  BinOp ::= ^
             //
             case 501: {
                //#line 2759 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2759 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp6();
+		r.rule_BinOp7();
                     break;
             }
             //
-            // Rule 502:  BinOp ::= ^
+            // Rule 502:  BinOp ::= &&
             //
             case 502: {
                //#line 2763 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2763 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp7();
+		r.rule_BinOp8();
                     break;
             }
             //
-            // Rule 503:  BinOp ::= &&
+            // Rule 503:  BinOp ::= ||
             //
             case 503: {
                //#line 2767 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2767 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp8();
+		r.rule_BinOp9();
                     break;
             }
             //
-            // Rule 504:  BinOp ::= ||
+            // Rule 504:  BinOp ::= <<
             //
             case 504: {
                //#line 2771 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2771 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp9();
+		r.rule_BinOp10();
                     break;
             }
             //
-            // Rule 505:  BinOp ::= <<
+            // Rule 505:  BinOp ::= >>
             //
             case 505: {
                //#line 2775 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2775 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp10();
+		r.rule_BinOp11();
                     break;
             }
             //
-            // Rule 506:  BinOp ::= >>
+            // Rule 506:  BinOp ::= >>>
             //
             case 506: {
                //#line 2779 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2779 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp11();
+		r.rule_BinOp12();
                     break;
             }
             //
-            // Rule 507:  BinOp ::= >>>
+            // Rule 507:  BinOp ::= >=
             //
             case 507: {
                //#line 2783 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2783 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp12();
+		r.rule_BinOp13();
                     break;
             }
             //
-            // Rule 508:  BinOp ::= >=
+            // Rule 508:  BinOp ::= <=
             //
             case 508: {
                //#line 2787 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2787 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp13();
+		r.rule_BinOp14();
                     break;
             }
             //
-            // Rule 509:  BinOp ::= <=
+            // Rule 509:  BinOp ::= >
             //
             case 509: {
                //#line 2791 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2791 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp14();
+		r.rule_BinOp15();
                     break;
             }
             //
-            // Rule 510:  BinOp ::= >
+            // Rule 510:  BinOp ::= <
             //
             case 510: {
                //#line 2795 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2795 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp15();
-                    break;
-            }
-            //
-            // Rule 511:  BinOp ::= <
-            //
-            case 511: {
-               //#line 2799 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 2799 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BinOp16();
                     break;
             }
             //
-            // Rule 512:  BinOp ::= ==
+            // Rule 511:  BinOp ::= ==
+            //
+            case 511: {
+               //#line 2802 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2802 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_BinOp17();
+                    break;
+            }
+            //
+            // Rule 512:  BinOp ::= !=
             //
             case 512: {
                //#line 2806 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2806 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp17();
-                    break;
-            }
-            //
-            // Rule 513:  BinOp ::= !=
-            //
-            case 513: {
-               //#line 2810 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 2810 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BinOp18();
                     break;
             }
             //
-            // Rule 514:  BinOp ::= ..
+            // Rule 513:  BinOp ::= ..
+            //
+            case 513: {
+               //#line 2811 "lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 2811 "lpg.generator/templates/java/btParserTemplateF.gi"
+		r.rule_BinOp19();
+                    break;
+            }
+            //
+            // Rule 514:  BinOp ::= ->
             //
             case 514: {
                //#line 2815 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2815 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp19();
-                    break;
-            }
-            //
-            // Rule 515:  BinOp ::= ->
-            //
-            case 515: {
-               //#line 2819 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 2819 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BinOp20();
                     break;
             }
             //
-            // Rule 516:  BinOp ::= in
+            // Rule 515:  Catchesopt ::= $Empty
             //
-            case 516: {
+            case 515: {
                //#line 2823 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2823 "lpg.generator/templates/java/btParserTemplateF.gi"
-		r.rule_BinOp21();
-                    break;
-            }
-            //
-            // Rule 517:  Catchesopt ::= $Empty
-            //
-            case 517: {
-               //#line 2831 "lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 2831 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Catchesopt0();
                     break;
             }
             //
-            // Rule 519:  Identifieropt ::= $Empty
+            // Rule 517:  Identifieropt ::= $Empty
             //
-            case 519:
+            case 517:
                 setResult(null);
                 break;
 
             //
-            // Rule 520:  Identifieropt ::= Identifier
+            // Rule 518:  Identifieropt ::= Identifier
             //
-            case 520: {
-               //#line 2839 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2837 "x10/parser/x10.g"
+            case 518: {
+               //#line 2831 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2829 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2839 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2831 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Identifieropt1(Identifier);
                     break;
             }
             //
-            // Rule 521:  ForUpdateopt ::= $Empty
+            // Rule 519:  ForUpdateopt ::= $Empty
             //
-            case 521: {
-               //#line 2844 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 519: {
+               //#line 2836 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2844 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2836 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ForUpdateopt0();
                     break;
             }
             //
-            // Rule 523:  Expressionopt ::= $Empty
+            // Rule 521:  Expressionopt ::= $Empty
             //
-            case 523:
+            case 521:
                 setResult(null);
                 break;
 
             //
-            // Rule 525:  ForInitopt ::= $Empty
+            // Rule 523:  ForInitopt ::= $Empty
             //
-            case 525: {
-               //#line 2854 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 523: {
+               //#line 2846 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2854 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2846 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ForInitopt0();
                     break;
             }
             //
-            // Rule 527:  SwitchLabelsopt ::= $Empty
+            // Rule 525:  SwitchLabelsopt ::= $Empty
             //
-            case 527: {
-               //#line 2860 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 525: {
+               //#line 2852 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2860 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2852 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_SwitchLabelsopt0();
                     break;
             }
             //
-            // Rule 529:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 527:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 529: {
-               //#line 2866 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 527: {
+               //#line 2858 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2866 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2858 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_SwitchBlockStatementGroupsopt0();
                     break;
             }
             //
-            // Rule 531:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 529:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 531: {
-               //#line 2889 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 529: {
+               //#line 2881 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2889 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2881 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_InterfaceMemberDeclarationsopt0();
                     break;
             }
             //
-            // Rule 533:  ExtendsInterfacesopt ::= $Empty
+            // Rule 531:  ExtendsInterfacesopt ::= $Empty
             //
-            case 533: {
-               //#line 2895 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 531: {
+               //#line 2887 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2895 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2887 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ExtendsInterfacesopt0();
                     break;
             }
             //
-            // Rule 535:  ClassBodyopt ::= $Empty
+            // Rule 533:  ClassBodyopt ::= $Empty
             //
-            case 535:
+            case 533:
                 setResult(null);
                 break;
 
             //
-            // Rule 537:  ArgumentListopt ::= $Empty
+            // Rule 535:  ArgumentListopt ::= $Empty
             //
-            case 537: {
-               //#line 2925 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 535: {
+               //#line 2917 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2925 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2917 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ArgumentListopt0();
                     break;
             }
             //
-            // Rule 539:  BlockStatementsopt ::= $Empty
+            // Rule 537:  BlockStatementsopt ::= $Empty
             //
-            case 539: {
-               //#line 2931 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 537: {
+               //#line 2923 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2931 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2923 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_BlockStatementsopt0();
                     break;
             }
             //
-            // Rule 541:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 539:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 541:
+            case 539:
                 setResult(null);
                 break;
 
             //
-            // Rule 543:  FormalParameterListopt ::= $Empty
+            // Rule 541:  FormalParameterListopt ::= $Empty
             //
-            case 543: {
-               //#line 2951 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 541: {
+               //#line 2943 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2951 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2943 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalParameterListopt0();
                     break;
             }
             //
-            // Rule 545:  Offersopt ::= $Empty
+            // Rule 543:  Offersopt ::= $Empty
             //
-            case 545: {
-               //#line 2963 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 543: {
+               //#line 2955 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2963 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2955 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Offersopt0();
                     break;
             }
             //
-            // Rule 547:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 545:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 547: {
-               //#line 2999 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 545: {
+               //#line 2991 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2999 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2991 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ClassBodyDeclarationsopt0();
                     break;
             }
             //
-            // Rule 549:  Interfacesopt ::= $Empty
+            // Rule 547:  Interfacesopt ::= $Empty
             //
-            case 549: {
-               //#line 3005 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 547: {
+               //#line 2997 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3005 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2997 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Interfacesopt0();
                     break;
             }
             //
-            // Rule 551:  Superopt ::= $Empty
+            // Rule 549:  Superopt ::= $Empty
             //
-            case 551:
+            case 549:
                 setResult(null);
                 break;
 
             //
-            // Rule 553:  TypeParametersopt ::= $Empty
+            // Rule 551:  TypeParametersopt ::= $Empty
             //
-            case 553: {
-               //#line 3015 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 551: {
+               //#line 3007 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3015 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3007 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeParametersopt0();
                     break;
             }
             //
-            // Rule 555:  FormalParametersopt ::= $Empty
+            // Rule 553:  FormalParametersopt ::= $Empty
             //
-            case 555: {
-               //#line 3021 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 553: {
+               //#line 3013 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3021 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3013 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_FormalParametersopt0();
                     break;
             }
             //
-            // Rule 557:  Annotationsopt ::= $Empty
+            // Rule 555:  Annotationsopt ::= $Empty
             //
-            case 557: {
-               //#line 3027 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 555: {
+               //#line 3019 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3027 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3019 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Annotationsopt0();
                     break;
             }
             //
-            // Rule 559:  TypeDeclarationsopt ::= $Empty
+            // Rule 557:  TypeDeclarationsopt ::= $Empty
             //
-            case 559: {
-               //#line 3033 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 557: {
+               //#line 3025 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3033 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3025 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeDeclarationsopt0();
                     break;
             }
             //
-            // Rule 561:  ImportDeclarationsopt ::= $Empty
+            // Rule 559:  ImportDeclarationsopt ::= $Empty
             //
-            case 561: {
-               //#line 3039 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 559: {
+               //#line 3031 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3039 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3031 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_ImportDeclarationsopt0();
                     break;
             }
             //
-            // Rule 563:  PackageDeclarationopt ::= $Empty
+            // Rule 561:  PackageDeclarationopt ::= $Empty
+            //
+            case 561:
+                setResult(null);
+                break;
+
+            //
+            // Rule 563:  HasResultTypeopt ::= $Empty
             //
             case 563:
                 setResult(null);
                 break;
 
             //
-            // Rule 565:  HasResultTypeopt ::= $Empty
+            // Rule 565:  TypeArgumentsopt ::= $Empty
             //
-            case 565:
-                setResult(null);
-                break;
-
-            //
-            // Rule 567:  TypeArgumentsopt ::= $Empty
-            //
-            case 567: {
-               //#line 3059 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 565: {
+               //#line 3051 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3059 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3051 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeArgumentsopt0();
                     break;
             }
             //
-            // Rule 569:  TypeParamsWithVarianceopt ::= $Empty
+            // Rule 567:  TypeParamsWithVarianceopt ::= $Empty
             //
-            case 569: {
-               //#line 3065 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 567: {
+               //#line 3057 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3065 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3057 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_TypeParamsWithVarianceopt0();
                     break;
             }
             //
-            // Rule 571:  Propertiesopt ::= $Empty
+            // Rule 569:  Propertiesopt ::= $Empty
             //
-            case 571: {
-               //#line 3071 "lpg.generator/templates/java/btParserTemplateF.gi"
+            case 569: {
+               //#line 3063 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3071 "lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3063 "lpg.generator/templates/java/btParserTemplateF.gi"
 		r.rule_Propertiesopt0();
                     break;
             }
