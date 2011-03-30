@@ -42,14 +42,23 @@ public class Optimizer {
         return false;
     }
 
-    public static boolean FLATTENING(ExtensionInfo extInfo, boolean javaBackEnd) {
+    public static boolean FLATTENING(ExtensionInfo extInfo, boolean javaBackend) {
         Configuration config = extInfo.getOptions().x10_config;
         if (config.FLATTEN_EXPRESSIONS)          return true;
-        if (javaBackEnd && INLINING(extInfo))    return true;
+        if (javaBackend && INLINING(extInfo))    return true;
         if (!config.ALLOW_STATEMENT_EXPRESSIONS) return true; // don't let StmtExpr's reach the back end
         return false;
     }
 
+    public static boolean CONSTRUCTOR_SPLITTING(polyglot.frontend.ExtensionInfo extensionInfo) {
+        Configuration config =((ExtensionInfo) extensionInfo).getOptions().x10_config;
+        if (!config.OPTIMIZE) return false;
+        if (!config.SPLIT_CONSTRUCTORS) return false;
+        boolean javaBackend = extensionInfo instanceof x10c.ExtensionInfo;
+        if (javaBackend) return false;
+        return true;
+    }
+    
     private final Scheduler     scheduler;
     private final Job           job;
     private final ExtensionInfo extInfo;
@@ -73,7 +82,7 @@ public class Optimizer {
     private List<Goal> goals() {
         List<Goal> goals = new ArrayList<Goal>();
         Configuration config = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
-        if (!java && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS) {
+        if (CONSTRUCTOR_SPLITTING(extInfo)) {
             goals.add(ConstructorSplitter());
         }
         if (config.LOOP_OPTIMIZATIONS) {

@@ -187,14 +187,11 @@ public final class ExpressionFlattener extends ContextVisitor {
                 return true; 
             }
         }
-        boolean javaBackend = javaBackend(job);
         if (n instanceof ConstructorDecl) { // can't flatten constructors unless local assignments can precede super() and this() in Java
-            ConstructorDecl cd = (ConstructorDecl) n;
-            if (javaBackend || ConstructorSplitterVisitor.cannotSplitConstructor(((ConstructorDecl) n).constructorDef().container().get().toClass()))
-                    return true;
-        }
-        if (n instanceof AssignPropertyCall && javaBackend) { // can't flatten constructors until local assignments can precede property assignments
-            return true;
+            if ( ConstructorSplitterVisitor.cannotSplitConstructor(((ConstructorDecl) n).constructorDef().container().get().toClass())
+                 || javaBackend(job)
+                )
+                return true;
         }
         if (n instanceof FieldDecl) { // can't flatten class initializes until assignments can precede field declarations
             return true;
@@ -1094,7 +1091,6 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @return a flat statements with the same semantics as stmt
      */
     private StmtSeq flattenAssignPropertyCall(AssignPropertyCall stmt) {
-        assert false;
         if (JAVA_CONSTRUCTOR_RULES) return syn.createStmtSeq(stmt);
         List<Stmt> stmts = new ArrayList<Stmt>();
         List<Expr> args  = new ArrayList<Expr>();
