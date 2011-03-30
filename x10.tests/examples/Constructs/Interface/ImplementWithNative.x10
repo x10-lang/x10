@@ -12,47 +12,47 @@
 import harness.x10Test;
 import x10.compiler.Native;
 
-interface I {
- 	def foo(int):int;
- 	def bar(int):int;
-}
-
-class C1 implements I {
-    @Native("c++", "(#a)+10")
-    @Native("java", "(#a)+10")
-    public native def foo(a:int):int;
-
-    @Native("c++", "(#a)+100")
-    @Native("java", "(#a)+100")
-    public native def bar(a:int):int;
-}
-
-abstract class P implements I {
-    @Native("c++", "(#a)+20")
-    @Native("java", "(#a)+20")
-    public native def foo(a:int):int;
-}
-
-class C2 extends P {
-    @Native("c++", "(#a)+200")
-    @Native("java", "(#a)+200")
-    public native def bar(a:int):int;
-}
-
-struct S implements I {
-    @Native("c++", "(#a)+30")
-    @Native("java", "(#a)+30")
-    public native def foo(a:int):int;
-
-    @Native("c++", "(#a)+300")
-    @Native("java", "(#a)+300")
-    public native def bar(a:int):int;
-}
-
 /**
  * Purpose of test: Interfaces may be implemented with native methods
  */
 public class ImplementWithNative extends x10Test {
+    static interface I {
+ 	def foo(int):int;
+ 	def bar(int):int;
+    }
+
+    static class C1 implements I {
+        @Native("c++", "(#a)+10")
+        @Native("java", "(#a)+10")
+        public native def foo(a:int):int;
+
+        @Native("c++", "(#a)+100")
+        @Native("java", "(#a)+100")
+        public native def bar(a:int):int;
+    }
+
+    static abstract class P implements I {
+        @Native("c++", "(#a)+20")
+        @Native("java", "(#a)+20")
+        public native def foo(a:int):int;
+    }
+
+    static class C2 extends P {
+        @Native("c++", "(#a)+200")
+        @Native("java", "(#a)+200")
+        public native def bar(a:int):int;
+    }
+
+    static struct S implements I {
+        @Native("c++", "(#a)+30")
+        @Native("java", "(#a)+30")
+        public native def foo(a:int):int;
+
+        @Native("c++", "(#a)+300")
+        @Native("java", "(#a)+300")
+        public native def bar(a:int):int;
+    }
+
     public def run(): boolean {	
         val c1:I = new C1();
         val c2:I = new C2();

@@ -12,27 +12,28 @@
 import harness.x10Test;
 import x10.compiler.Native;
 
-class Parent {
-    public def foo(a:int):int = a + 10;
-    
-    @Native("c++", "(#1)+100")
-    @Native("java", "(#1)+100")
-    public native def bar(a:int):int;
-}
-
-class Child extends Parent {
-
-    @Native("c++", "(#1)+200")
-    @Native("java", "(#1)+200")
-    public native def foo(a:int):int;
-    
-    public def bar(a:int):int = a + 20;
-}
-
 /**
  * Purpose of test: Can override/inherit @Native methods.
  */
 public class OverrideNative extends x10Test {
+
+    static class Parent {
+        public def foo(a:int):int = a + 10;
+    
+        @Native("c++", "(#1)+100")
+        @Native("java", "(#1)+100")
+        public native def bar(a:int):int;
+    }
+
+    static class Child extends Parent {
+
+        @Native("c++", "(#1)+200")
+        @Native("java", "(#1)+200")
+        public native def foo(a:int):int;
+    
+        public def bar(a:int):int = a + 20;
+    }
+
     public def run(): boolean {	
         val p:Parent = new Parent();
         val c1:Parent = new Child();
