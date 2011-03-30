@@ -2729,17 +2729,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String pat = getCppImplForDef(md);
 		if (pat != null) {
-		    List<Type> classTypeArguments  = Collections.<Type>emptyList();
-		    List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
-		    if (mi.container().isClass() && !mi.flags().isStatic()) {
-		        X10ClassType ct = (X10ClassType) mi.container().toClass();
-		        classTypeArguments = ct.typeArguments();
-		        classTypeParams = ct.x10Def().typeParameters();
-		        if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
-		        if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+		    // If the method is static or if the method's container is a struct then we go ahead and inline
+		    // the @Native annotation at the callsite.  This is safe because there is no virtual dispatch involved.
+		    //
+		    // If the method's container has a C++ @NativeRep annotation, then we inline the @Native annotation
+		    // because we have nothing else we can reasonably do.  If the @NativeRep class was written "correctly" 
+		    // this will not break the semantics because the @Native will forward to the proper virtual dispatch.
+		    //
+		    // Otherwise (virtual method of a non-NativeRep class), we ignore the @Native annotation at the
+		    // callsite and generate a normal calling sequence.  This preserves virtual method semantics.
+		    if (mi.flags().isStatic() || 
+		            (mi.container().isClass() && ((X10ClassType)mi.container()).isX10Struct()) ||
+		            (mi.container().isClass() && getCppRep(((X10ClassType)mi.container()).x10Def()) != null)) {
+		        List<Type> classTypeArguments  = Collections.<Type>emptyList();
+		        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
+		        if (mi.container().isClass() && !mi.flags().isStatic()) {
+		            X10ClassType ct = (X10ClassType) mi.container().toClass();
+		            classTypeArguments = ct.typeArguments();
+		            classTypeParams = ct.x10Def().typeParameters();
+		            if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
+		            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+		        }
+		        emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments);
+		        return;
 		    }
-			emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments);
-			return;
 		}
 
 		// the cast is because our generated member function may use a more general
