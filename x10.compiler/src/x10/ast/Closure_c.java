@@ -71,7 +71,7 @@ import x10.util.ClosureSynthesizer;
  * 
  * It has associated with it a ClosurDef.
  * 
- * Its type is an anonymous class that implements the Fun_m_n synthesized interface associated with ClosureDef.
+ * Its type is a ClosureType.
  * @author vj
  *
  */
