@@ -214,12 +214,12 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         //After fast body, there should be a poll 
         //upcast[_async,AsyncFrame](this).poll(worker);
         //FIXME: cannot explain why we need pollNE for no exception handling case 
-        if(wts.codegenConfig.DISABLE_EXCEPTION_HANDLE == 1){
-            fastBodySynth.addStmt(genPollNEStmt());
-        }
-        else{
+//        if(wts.codegenConfig.DISABLE_EXCEPTION_HANDLE == 1){
+//            fastBodySynth.addStmt(genPollNEStmt());
+//        }
+//        else{
             fastBodySynth.addStmt(genPollStmt());
-        }
+//        }
 
                
         //Move method - Used to move data for all out scope assign statements
