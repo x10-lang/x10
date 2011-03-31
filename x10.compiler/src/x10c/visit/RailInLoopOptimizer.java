@@ -74,7 +74,7 @@ import x10c.types.X10CTypeSystem_c;
 
 public class RailInLoopOptimizer extends ContextVisitor {
 
-    private static final boolean ANALYZE_TEMP_VALS = false;
+    private static final boolean ANALYZE_TEMP_VALS = true;
     private static final String IMC_FIELD_NAME = "raw";
 
     private final X10CTypeSystem_c xts;
