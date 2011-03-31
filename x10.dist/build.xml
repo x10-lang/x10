@@ -10,7 +10,7 @@
     <property name="lib" location="${basedir}/lib"/>
     <property name="stdlib" location="${basedir}/stdlib"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime.java_2.0.20.jar"/>
+    <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime.java_2.0.22.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
     <property name="ecj.jar.url" value="http://dist.codehaus.org/x10/dependencies/ecj-3.5.1.jar"/>
     <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
