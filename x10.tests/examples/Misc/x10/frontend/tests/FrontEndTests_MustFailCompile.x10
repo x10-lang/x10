@@ -3807,8 +3807,10 @@ interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, Im
 	var i:Int @ERR @Ann42; // Annotations on types must implement x10.lang.annotations.TypeAnnotation
 	@ERR @Ann42 var j:Int; // Annotations on field declarations must implement x10.lang.annotations.FieldAnnotation
 
-	def m1() {
+	def m11() {
 		@ERR @Ann42 {}
+	}
+	def m1() {
 		@ERR @Ann42 while (true) {
 			@ERR @Ann42 if (true) 
 				@ERR @Ann42 continue;
@@ -3898,7 +3900,7 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		public static operator (p:Y) as ? :X{i==4} = null;
 	}
 	static class Z(i:Int) {
-		@ShouldNotBeERR @ShouldNotBeERR public static operator (p:Int) as Z{i==4} = null; // see XTENLANG-2202
+		public static operator (p:Int) as Z{i==4} = null; // see XTENLANG-2202
 	}
 	static class W(i:Int) {
 		public static operator (p:Int) as ? :W{i==4} = null;
@@ -3918,7 +3920,23 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		@ERR def test9(y:Y):X{i==5} = y as X;
 	}
 }
-
+class XTENLANG_2202 {
+	static class Z(i:Int) {
+		public static operator (p:Double) as Z{i==4} = new Z(4);
+		public static operator (p:Int) as Z{i==4} = new Z(3); // ERR [Cannot return expression of given type.]
+		public static operator (p:String) as Z{i==4} {p!=null} = new Z(4);
+		public static operator (p:Float) as Z{i==4} {i==4} = new Z(4); // ERR ERR [Cannot access a non-static field field final property public Z.i: x10.lang.Int from a static context.	Cannot build constraint from expression |i == 4|.]
+		public static operator (p:Byte) as Z{} {p==2y} = new Z(4);
+		static def test() {
+			val x:Z{i==4} = "asd" as Z;
+			val y:Z{i==4} = 3.1 as Z;
+			val x3:Z{i==3} = "asd" as Z; // ERR [Cannot assign expression to target.]
+			val y3:Z{i==3} = 3.1 as Z; // ERR [Cannot assign expression to target.]
+			val w1:Z = 2y as Z;
+			val w2:Z = 3y as Z; // ERR
+		}
+	}
+}
 
 class Void_Is_Not_A_Type_Tests { // see also XTENLANG-2220
 	static class B[T] {}
