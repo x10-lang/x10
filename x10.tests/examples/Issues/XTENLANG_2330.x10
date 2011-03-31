@@ -35,6 +35,10 @@ public class XTENLANG_2330 extends x10Test
 }
 
 
+class ConstrainedCall(x:Int) { // XTENLANG-2416
+    def m(){x==0} = 10;
+    def test() { m(); } // ERR
+}
 class NestedArray_7    {  // see XTENLANG-2428
 	class MyElement[VT]
 	{
@@ -175,6 +179,9 @@ class TestArrayMap {
 class DynamicCallsTest {
 	def fail():void { throw new RuntimeException("test failed!"); }
 	def run() {
+		new ConstrainedCall(0).test();
+		try { new ConstrainedCall(1).test(); fail(); } catch (e:FailedDynamicCheckException) {}
+
 		test(1,2);
 		try { test(2,2); fail(); } catch (e:FailedDynamicCheckException) {}
 		m([1,2]);

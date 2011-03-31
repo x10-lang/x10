@@ -6205,3 +6205,8 @@ class XTENLANG_2617 {
 		}
 	}
 }
+
+class ConstrainedCall(x:Int) { // XTENLANG-2416
+    def m(){x==0} = 10;
+    def test() { m(); } // ERR
+}
