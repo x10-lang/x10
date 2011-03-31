@@ -38,6 +38,8 @@ pami_dt DATATYPE_CONVERSION_TABLE[] = {PAMI_UNSIGNED_CHAR, PAMI_SIGNED_CHAR, PAM
 size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,12}; // the number of bytes used for each entry in the table above.
 // values for pami_op are mapped to indexes of x10rt_red_op_type
 pami_op OPERATION_CONVERSION_TABLE[] = {PAMI_SUM, PAMI_PROD, PAMI_UNDEFINED_OP, PAMI_BAND, PAMI_BOR, PAMI_BXOR, PAMI_MAX, PAMI_MIN};
+// values of x10rt_op_type are mapped to pami_atomic_t
+pami_atomic_t REMOTE_MEMORY_OP_CONVERSION_TABLE[] = {PAMI_ATOMIC_ADD, PAMI_ATOMIC_AND, PAMI_ATOMIC_OR, PAMI_ATOMIC_XOR};
 
 struct x10rtCallback
 {
@@ -78,7 +80,7 @@ struct x10rt_pami_team
 	pami_task_t *places; // list of team members
 };
 
-struct x10PAMIState
+struct x10rt_pami_state
 {
 	uint32_t numPlaces;
 	uint32_t myPlaceId;
@@ -640,9 +642,10 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 
 	// determine the level of parallelism we need to support
 	char* value = getenv("X10_STATIC_THREADS");
-	if (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0))
+	char* nthreads = getenv("X10_NTHREADS");
+	if (value && nthreads && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0))
 	{
-		state.numParallelContexts = atoi(getenv("X10_NTHREADS"));
+		state.numParallelContexts = atoi(nthreads);
 		state.threadMap = (pthread_t *)malloc(state.numParallelContexts*sizeof(pthread_t));
 		if (state.threadMap == NULL) error("Unable to allocate memory for the threadMap");
 		memset(state.threadMap, 0, state.numParallelContexts*sizeof(pthread_t));
@@ -968,24 +971,45 @@ void x10rt_net_finalize()
 
 int x10rt_net_supports (x10rt_opt o)
 {
-	if (o == X10RT_OPT_COLLECTIVES)
-		return 1;
-	return 0;
+	return 1;
 }
 
 void x10rt_net_internal_barrier (){} // DEPRECATED
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
-	error("x10rt_net_remote_op not implemented");
+	pami_result_t status = PAMI_ERROR;
+	pami_rmw_t operation;
+	memset(&operation, 0, sizeof(pami_rmw_t));
+	if ((status = PAMI_Endpoint_create(state.client, place, 0, &operation.dest)) != PAMI_SUCCESS)
+		error("Unable to create a target endpoint for sending a remote memory operation to %u: %i\n", place, status);
+	operation.hints.buffer_registered = PAMI_HINT_ENABLE;
+	operation.remote = (void *)victim;
+	operation.value = &value;
+	operation.operation = PAMI_ATOMIC_XOR;
+	operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
+	#endif
+	status = PAMI_Rmw(getContext(), &operation);
+	if (status != PAMI_SUCCESS)
+		error("Unable to execute the remote operation");
 }
 
 x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
 {
-	// TODO PAMI_Memregion_create
-	// need to call PAMI_Memregion_destroy at shutdown
-	error("x10rt_net_register_mem not implemented");
-	return NULL;
+	pami_result_t status = PAMI_ERROR;
+	pami_memregion_t registration;
+	size_t registeredSize;
+	status = PAMI_Memregion_create(getContext(), ptr, len, &registeredSize, &registration);
+	if (status != PAMI_SUCCESS)
+		error("Unable to register memory for remote access");
+	if (registeredSize < len)
+		error("Only able to allocate %u out of %lu requested bytes for remote access", registeredSize, len);
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u registered %lu bytes at %p for remote operations\n", state.myPlaceId, len, ptr);
+	#endif
+	return (x10rt_remote_ptr)ptr;
 }
 
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
