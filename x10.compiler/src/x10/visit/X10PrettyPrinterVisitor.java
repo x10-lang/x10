@@ -3169,7 +3169,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     @Override
     public void visit(X10ConstructorCall_c c) {
         if (supportConstructorSplitting && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS) {
-            if (c.target() == null) {
+            Expr target = c.target();
+            if (target == null || target instanceof Special) {
                 if (c.kind() == ConstructorCall.SUPER) {
                     ContainerType ct = c.constructorInstance().container();
                     if (Types.baseType(ct).typeEquals(tr.typeSystem().Object(), tr.context())
@@ -3181,7 +3182,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("this");
                 }
             } else {
-                er.prettyPrint(c.target(), tr);
+                target.translate(w, tr);
             }
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);
