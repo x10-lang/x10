@@ -342,7 +342,7 @@ public class Emitter {
 		        typeArgs += (firstArg ? "" : ", ")+translateType(ft.returnType(), true);
 		        firstArg = false;
 		    }
-		    if (!typeArgs.isEmpty()) {
+		    if (typeArgs.length() != 0) {
 		        name += chevrons(typeArgs);
 		    }
 		} else if (type.isClass()) {
