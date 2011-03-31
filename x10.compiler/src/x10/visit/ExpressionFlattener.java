@@ -59,6 +59,7 @@ import polyglot.ast.While;
 import polyglot.ast.While_c;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
@@ -188,9 +189,8 @@ public final class ExpressionFlattener extends ContextVisitor {
             }
         }
         if (n instanceof ConstructorDecl) { // can't flatten constructors unless local assignments can precede super() and this() in Java
-            if ( ConstructorSplitterVisitor.cannotSplitConstructor(((ConstructorDecl) n).constructorDef().container().get().toClass())
-                 || javaBackend(job)
-                )
+            ClassType type = ((ConstructorDecl) n).constructorDef().container().get().toClass();
+            if (ConstructorSplitterVisitor.cannotSplitConstructor(type))
                 return true;
         }
         if (n instanceof FieldDecl) { // can't flatten class initializes until assignments can precede field declarations
