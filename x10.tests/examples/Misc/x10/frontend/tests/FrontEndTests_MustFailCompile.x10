@@ -6167,3 +6167,41 @@ class XTENLANG_1914 {
 	}
 }
 
+class TestTypeParamShadowing { // XTENLANG-2163
+	class A {}
+	class B {}
+	class C {}
+	class Outer[X] {X<:A} {
+		class Inner[X] {X<:B} {
+			def m[X](x:X) {X<:C} : C = x;
+			def m2[X](x:X) {X<:C} = new Object() {  // test anon class creation
+				def q(x:X):C = x;
+				def qe(x:X):B = x; // ERR
+				def t[X](x:X) {X<:A} : A = x;
+				def te[X](x:X) {X<:A} : C = x; // ERR
+			};
+			def me[X](x:X) {X<:C} : B = x; // ERR
+			def test2(x:X):B = x;
+			def test2e(x:X):C = x; // ERR
+		}
+		def test1(x:X):A = x;
+		def test1e(x:X):B = x; // ERR
+	}
+}
+
+class XTENLANG_2617 {
+	class MySuper(supval:Int) {}
+	class MyClass(myval:Int) extends MySuper{self.supval==myval} {
+		public def this(i:Int) {
+			super(i);
+			property(i);
+		}
+	}
+	class AssignPropertyTest(myval:Int) {
+		val x:Int{self==this.myval};
+		public def this(i:Int) {
+			property(i);
+			x = i;
+		}
+	}
+}

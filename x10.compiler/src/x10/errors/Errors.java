@@ -1993,7 +1993,7 @@ public class Errors {
 		private static final long serialVersionUID = 4638105732313176934L;
 
 		public SuperCallCannotEstablishSuperType(Type returnType, Type superType, Position p) {
-            super("The super(..) call cannot establish the supertype " 
+            super("The information from super(...) and property(...) cannot establish the supertype. " 
             		+ "\n\t Return type: " + returnType 
             		+ "\n\t Desired super type: " + superType, p);
         }

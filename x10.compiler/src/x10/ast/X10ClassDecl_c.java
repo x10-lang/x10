@@ -1290,7 +1290,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         Stmt s2 = null; 
         List<TypeParamNode> typeFormals = Collections.<TypeParamNode>emptyList();
         List<Formal> formals = Collections.<Formal>emptyList();
-        DepParameterExpr guard = null;
 
         if (! properties.isEmpty()) {
             // build type parameters.
@@ -1313,9 +1312,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 actuals.add(xnf.Local(pos, name));
             }
 
-            guard = classInvariant();
             s2 = xnf.AssignPropertyCall(pos, Collections.<TypeNode>emptyList(), actuals);
-            // TODO: add constraint on the return type
         }
         block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
                 : (s1 == null ? nf.Block(pos, s2) : nf.Block(pos, s1, s2));
@@ -1327,7 +1324,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             List<Type> typeArgs = new ArrayList<Type>(typeParams);
             resultType = (X10ClassType) resultType.typeArguments(typeArgs);
         }
-        // FIXME: bind properties!
+        // no need to bind properties because the return type is HasType  i.e.,   <: BlaBla
         X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
 
         ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
@@ -1336,7 +1333,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 nf.HasType(returnType),
                 typeFormals,
                 formals,
-                guard, 
+                properties.isEmpty() ? null : classInvariant(),
                 null, // offerType
                 block);
         return cd;

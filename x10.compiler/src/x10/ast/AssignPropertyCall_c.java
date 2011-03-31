@@ -57,6 +57,7 @@ import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.X10Context_c;
+import x10.types.X10ClassDef;
 import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -291,6 +292,8 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                     }
                    
                 }
+                                
+                X10ConstructorCall_c.checkSuperType(tc,returnType,false, position);
 
                 // Set the return type of the enclosing constructor to be this inferred type.
                 Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
