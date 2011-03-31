@@ -647,7 +647,7 @@ WALA4_URL='${wala4.jar.url}'
             </or>
         </condition>
     	<property name="targetDir" value="../x10.dist.${platform}.${arch}.fragment"/>
-    	<echo message="Copying include and lib files to ${targetDir}..."/>
+    	<echo message="Copying bin, etc, include, lib and stdlib files to ${targetDir}..."/>
         <copy todir="${targetDir}">
             <fileset dir="." includes="etc/*.properties,include/**,lib/**,stdlib/**,bin/X10Launcher"/>
         </copy>
