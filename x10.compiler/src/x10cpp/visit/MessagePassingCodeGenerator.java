@@ -205,6 +205,7 @@ import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ParameterType;
 
+import x10.types.FunctionType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -607,7 +608,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.newline(0);
         }
         emitter.printTemplateSignature(cd.typeParameters(), h);
-        String name = StaticNestedClassRemover.mangleName(cd).toString();
+        String name;
+        if (cd.isFunction()) {
+            name = Emitter.baseName((FunctionType)cd.asType(), false);
+        } else {
+            name = StaticNestedClassRemover.mangleName(cd).toString();
+        }
         h.write("class "+Emitter.mangled_non_method_name(name)+";");
         h.newline();
         if (pkg != null) {
@@ -621,9 +627,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String pkg = null;
         if (ct.package_() != null)
             pkg = ct.package_().fullName().toString();
-        Name name = StaticNestedClassRemover.mangleName(ct.def());
-        String header = X10CPPTranslator.outputFileName(pkg, name.toString(), StreamWrapper.Header);
-        return header;
+        if (ct instanceof FunctionType) {
+            String name = Emitter.baseName((FunctionType)ct, false);
+            return X10CPPTranslator.outputFileName(pkg, name, StreamWrapper.Header);
+        } else {
+            Name name = StaticNestedClassRemover.mangleName(ct.def());
+            String header = X10CPPTranslator.outputFileName(pkg, name.toString(), StreamWrapper.Header);
+            return header;            
+        }
     }
 
     private static String getHeaderGuard(String header) {

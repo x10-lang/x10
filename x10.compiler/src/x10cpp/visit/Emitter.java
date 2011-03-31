@@ -98,6 +98,7 @@ import x10.types.constraints.CField;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import x10.visit.StaticNestedClassRemover;
+import x10.visit.X10PrettyPrinterVisitor;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10cpp.X10CPPCompilerOptions;
@@ -288,6 +289,20 @@ public class Emitter {
 		return r;
 	}
 	
+	static String baseName(FunctionType ft, boolean pkg) {
+	    String name = pkg ? "x10.lang." : "";
+	    List<Type> args = ft.argumentTypes();
+	    Type ret = ft.returnType();
+	    if (ret.isVoid()) {
+	        name += "VoidFun";
+	    } else {
+	        name += "Fun";                
+	    }
+	    name += "_" + ft.typeParameters().size();
+	    name += "_" + args.size();
+	    return name;
+	}
+	
 	/**
 	 * Translate a type.
 	 *
@@ -312,24 +327,25 @@ public class Emitter {
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
 		type = Types.baseType(type);
 		String name = null;
-		// TODO
-//		if (type instanceof ClosureType) {
-//		    ClosureType ct = (ClosureType) type;
-//		    assert (ct.typeArguments().size() != 0);
-//		    name = "x10aux::Fun";
-//		    name = translate_mangled_FQN(name);
-//		    String args = "";
-//		    if (ct.returnType().isVoid())
-//		        args += translateType(ct.returnType(), true) + ", ";
-//		    int s = ct.typeArguments().size();
-//		    for (Type t: ct.typeArguments()) {
-//		        args += translateType(t, true); // type arguments are always translated as refs
-//		        if (--s > 0)
-//		            args +=", ";
-//		    }
-//		    name += chevrons(args);
-//		} else
-		if (type.isClass()) {
+		
+		if (type instanceof FunctionType) {
+		    FunctionType ft = (FunctionType) type;
+		    List<Type> args = ft.argumentTypes();
+		    name = translate_mangled_FQN(baseName(ft, true));
+		    String typeArgs = "";
+		    boolean firstArg = true;
+		    for (Type argType : args) {
+		        typeArgs += (firstArg ? "" : ", ")+translateType(argType, true);
+		        firstArg = false;
+		    }
+		    if (!ft.returnType().isVoid()) {
+		        typeArgs += (firstArg ? "" : ", ")+translateType(ft.returnType(), true);
+		        firstArg = false;
+		    }
+		    if (!typeArgs.isEmpty()) {
+		        name += chevrons(typeArgs);
+		    }
+		} else if (type.isClass()) {
 			X10ClassType ct = (X10ClassType) type.toClass();
 			if (ct.isX10Struct()) {
 				// Struct types are not boxed up as Refs.  They are always generated as just C++ class types
