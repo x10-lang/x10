@@ -1637,20 +1637,25 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type t;
         if (type1.isNull() || type2.isNull()) {
             t = type1.isNull() ? type2 : type1;
-            if (Types.permitsNull(t)) return t;
+            if (Types.permitsNull(t))
+                return t;
             // Maybe there is a constraint {self!=null} that we can remove from "t", and then null will be allowed.
             // e.g., true ? null : new Test()
             //      	 T1: type(null)
      	    //      	 T2: Test{self.home==here, self!=null}
             // The lub should be:  Test{self.home==here}
 
-            CConstraint ct = Types.realX(t);
             Type baseType = Types.baseType(t);
             if (!Types.permitsNull(baseType))
                 throw new SemanticException("No least common ancestor found for types \"" + type1 +
     								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
             // we need to keep all the constraints except the one that says the type is not null
-            final Type res = Types.addConstraint(baseType, Types.allowNull(ct));
+            Type res = baseType;
+            // todo: this is an attempt to keep as many constraints as possible:
+            // res = Types.addConstraint(baseType, Types.allowNull(Types.realX(t)));
+            // It is useful if we do LCA(null, Point(2))  because it should be Point(2)
+            // However   LCA(null, Bla{self==a})  is complicated because "a" might be of type Bla{self!=null}, so we need to remove the constraint self==a.
+            // See XTENLANG_2622 and XTENLANG_1380
             assert Types.consistent(res);
             assert Types.permitsNull(res);
             return res;
