@@ -226,8 +226,6 @@ namespace x10 {
         private:
             // the current worker
             x10aux::ref<x10::lang::Runtime__Worker> __current_worker;
-            // the current thread
-            static x10aux::ref<Thread> __current_thread;
             // internal thread id counter (monotonically increasing only)
             static long __thread_cnt;
             // thread id
