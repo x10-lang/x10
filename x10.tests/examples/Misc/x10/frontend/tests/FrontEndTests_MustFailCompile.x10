@@ -6233,4 +6233,42 @@ class XTENLANG_1380 {
 
 struct XTENLANG_2022(B:Region,NBRS: Array[Point(B.rank)](1)) {}
 
-
+class XTENLANG_1767 {
+    static def test1(args:Array[String](1)){
+		for (x in args) {
+			async { break; } // ERR: Cannot break in an async
+		}
+	}
+    static def test2(args:Array[String](1)){
+		for (x in args) {
+			async { continue; } // ERR: Cannot continue in an async
+		}
+	}
+    static def test3(args:Array[String](1)){
+		ll: for (x in args) {
+			async { break ll; } // ERR: Cannot continue in an async
+		}
+	}
+    static def test4(args:Array[String](1)){
+		for (x in args) {
+			async { return; } // ERR: Cannot return from an async.
+		}
+	}
+    static def test5(args:Array[String](1)){
+		for (x in args) {
+			val y = ()=> { break; }; // ERR: Target of branch statement not found.
+		}
+	}
+	static def excTest(args:Array[String](1)){
+		try {
+			finish {
+				try {
+					async { throw new Exception(); } // will be caught in the second catch (with "e2"). However, in the CFG it is caught in "e1"
+						// but I think that's actually a conservative approximation - the current CFG says it might be caught in the first or second catch,
+						// and the more accurate one says it is definitely not caught in the first catch.
+						// that's why I can't build any example that will cause a bug...
+				} catch (e1:Throwable) {}
+			} 
+		} catch (e2:RuntimeException) {}
+	}
+}
