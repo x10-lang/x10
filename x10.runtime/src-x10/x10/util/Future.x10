@@ -12,7 +12,7 @@
 package x10.util;
 
 import x10.compiler.SuppressTransientError;
-import x10.util.GrowableRail;
+import x10.util.GrowableIndexedMemoryChunk;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
 
@@ -24,8 +24,9 @@ import x10.compiler.Global;
  *
  *
  */
-public class Future[T] implements ()=>T { // Future can't be covariant [+T]  because of: result = new GrowableRail[T]();
-	private val root = GlobalRef[Future[T]](this);
+public class Future[T] implements ()=>T { 
+    private val root = GlobalRef[Future[T]](this);
+
     /**
      * Latch for signaling and wait
      */
@@ -38,8 +39,8 @@ public class Future[T] implements ()=>T { // Future can't be covariant [+T]  bec
      */
     // This cant be Cell because I need to create it before I know the value
     // that will go in.
-    @SuppressTransientError transient private val exception = new GrowableRail[Throwable]();
-    @SuppressTransientError transient private val result = new GrowableRail[T]();
+    @SuppressTransientError transient private val exception = new GrowableIndexedMemoryChunk[Throwable]();
+    @SuppressTransientError transient private val result = new GrowableIndexedMemoryChunk[T]();
     transient private val eval:()=>T;
 
     public static def make[T](eval:()=> T) {

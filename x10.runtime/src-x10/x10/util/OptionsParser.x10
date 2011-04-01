@@ -12,7 +12,7 @@
 package x10.util;
 
 import x10.util.HashMap;
-import x10.util.GrowableRail;
+import x10.util.GrowableIndexedMemoryChunk;
 
 /**
  * @author Dave Cunningham
@@ -27,12 +27,12 @@ public final class OptionsParser {
 
     private val map : HashMap[String,String];
     private val set : HashMap[String,Boolean];
-    private val filteredArgs : GrowableRail[String];
+    private val filteredArgs : GrowableIndexedMemoryChunk[String];
 
     public def this (args:Array[String](1), flags:Array[Option](1), specs:Array[Option](1)) { //throws Err {
         val map = new HashMap[String,String]();
         val set = new HashMap[String,Boolean]();
-        val filteredArgs = new GrowableRail[String]();
+        val filteredArgs = new GrowableIndexedMemoryChunk[String]();
         var offset:Int = 0;
         var ended:Boolean = false;
         for (var i:Int=0 ; i<args.size; ++i) {
@@ -70,7 +70,7 @@ public final class OptionsParser {
         this.filteredArgs = filteredArgs;
     }
 
-    public def filteredArgs() = filteredArgs.toRail();
+    public def filteredArgs() = filteredArgs.toArray();
 
     public operator this (key:String):Boolean = set.containsKey(key) || map.containsKey(key);
 

@@ -105,6 +105,15 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         $set(i, v);
     }
 
+    public void clear(int start, int numElems) {
+        // TODO: Actually clear the storage here.
+    }
+
+    public void deallocate() {
+        value = null;
+        length = 0;
+    }
+    
     public static <T> void asyncCopy(IndexedMemoryChunk<T> src, final int srcIndex, 
                                      final RemoteIndexedMemoryChunk<T> dst, final int dstIndex,
                                      final int numElems) {

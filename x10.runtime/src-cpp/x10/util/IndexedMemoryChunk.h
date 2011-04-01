@@ -63,6 +63,11 @@ namespace x10 {
                 raw()[index] = val; 
             }
 
+            void clear(x10_int index, x10_int numElems);
+            void clear(x10_long index, x10_long numElems);
+
+            void deallocate();
+            
             inline T apply_unsafe(x10_int index) { return raw()[index]; }
             inline T apply_unsafe(x10_long index) { return raw()[index]; }
             
@@ -268,10 +273,30 @@ namespace x10 {
     }
 } 
 
+template<class T> void x10::util::IndexedMemoryChunk<T>::clear(x10_int index, x10_int numElems) {
+    if (numElems>0) {
+        x10aux::checkRailBounds(index, len);
+        x10aux::checkRailBounds(index+numElems, len+1);
+        void* addr = (void*)(&raw()[index]);
+        size_t numBytes = numElems * sizeof(T);
+        memset(addr, 0, numBytes);
+    }
+}
+
+template<class T> void x10::util::IndexedMemoryChunk<T>::clear(x10_long index, x10_long numElems) {
+    // TODO: real 64 bit implementation
+    clear((x10_int)index, (x10_int)numElems);
+}
+
+template<class T> void x10::util::IndexedMemoryChunk<T>::deallocate() {
+    x10aux::dealloc(raw());
+    len = 0;
+}
 
 template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
                                                                       x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                                       x10_int numElems) {
+    if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
@@ -287,6 +312,7 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
                                                                       x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                                       x10_int numElems,
                                                                       x10aux::ref<x10::lang::Reference> notif) {
+    if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
@@ -301,6 +327,7 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
 template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
                                                                       x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                                       x10_int numElems) {
+    if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
@@ -315,6 +342,7 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
                                                                       x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                                       x10_int numElems,
                                                                       x10aux::ref<x10::lang::Reference> notif) {
+    if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
@@ -328,6 +356,7 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
 template<class T> void x10::util::IndexedMemoryChunk<void>::copy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
                                                                  x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                                  x10_int numElems) {
+    if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);

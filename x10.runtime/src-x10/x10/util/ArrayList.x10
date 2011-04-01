@@ -13,7 +13,7 @@ package x10.util;
 
 public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
-    private val a: GrowableRail[T];
+    private val a: GrowableIndexedMemoryChunk[T];
 
     public static def make[T](c: Container[T]) {
 	val a = new ArrayList[T]();
@@ -85,14 +85,13 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
     // DEPRECATED
     public def toArray() = a.toArray();
-    public def toRail() = a.toRail();
 
     public def this() {
-        a = new GrowableRail[T]();
+        a = new GrowableIndexedMemoryChunk[T]();
     }
     
     public def this(size: Int) {
-        a = new GrowableRail[T](size);
+        a = new GrowableIndexedMemoryChunk[T](size);
     }
     
     public def removeFirst(): T = removeAt(0);
@@ -140,7 +139,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return -1;
     }
 
-    public def moveSectionToRail(i:Int, j:Int): Rail[T] = a.moveSectionToRail(i,j);
+    public def moveSectionToArray(i:Int, j:Int) = a.moveSectionToArray(i,j);
 
     //
     // iterator
@@ -226,7 +225,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     // quick&dirty sort
     //
 
-    private def qsort(a: GrowableRail[T], lo: int, hi: int, cmp: (T,T)=>Int) {
+    private def qsort(a: GrowableIndexedMemoryChunk[T], lo: int, hi: int, cmp: (T,T)=>Int) {
         if (hi <= lo) return;
         var l: int = lo - 1;
         var h: int = hi;
@@ -241,7 +240,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         qsort(a, l+1, hi, cmp);
     }
 
-    private def exch(a: GrowableRail[T], i: int, j: int): void {
+    private def exch(a: GrowableIndexedMemoryChunk[T], i: int, j: int): void {
         val temp = a(i);
         a(i) = a(j);
         a(j) = temp;

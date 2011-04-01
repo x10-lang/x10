@@ -11,33 +11,33 @@
 
 package x10.util;
 
-public class RailBuilder[T] implements Builder[T,Rail[T]] {
-    val buf: GrowableRail[T];
+public class ArrayBuilder[T] implements Builder[T,Array[T](1){rect,zeroBased,rail}] {
+    val buf: GrowableIndexedMemoryChunk[T];
 
     public def this() {
-        buf = new GrowableRail[T]();
+        buf = new GrowableIndexedMemoryChunk[T]();
     }
 
     public def this(size: Int) {
-        buf = new GrowableRail[T](size);
+        buf = new GrowableIndexedMemoryChunk[T](size);
     }
 
-    public def add(x: T): RailBuilder[T] {
+    public def add(x: T) {
         buf.add(x);
         return this;
     }
 
-    public def insert(loc:Int, items:Rail[T]):RailBuilder[T] {
-        buf.insert(loc, items);
+    public def insert(loc:Int, items:Array[T]) {
+        buf.insert(loc, items.raw());
         return this;
     }
 
-    public def length(): Int {
+    public def length():Int {
         return buf.length();
     }
 
-    public def result(): Rail[T] {
-        return buf.toRail();
+    public def result():Array[T](1){rect,zeroBased,rail} {
+        return buf.toArray() as Array[T](1){rect,zeroBased,rail};
     }
 }
 
