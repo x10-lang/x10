@@ -1,6 +1,7 @@
 package x10.compiler.ws;
 
 import x10.compiler.Abort;
+import x10.compiler.NoReturn;
 
 import x10.lang.Lock;
 
@@ -73,7 +74,7 @@ public final class Worker {
         return k;
     }
 
-    public def unroll(var frame:Frame) {
+    @NoReturn public def unroll(var frame:Frame) {
         var up:Frame;
         while (true) {
             frame.wrapResume(this);
@@ -89,7 +90,7 @@ public final class Worker {
         Runtime.wsRunAsync(place.id, body);
     }
 
-    public def runAt(place:Place, frame:RegularFrame){
+    @NoReturn public def runAt(place:Place, frame:RegularFrame){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
         Runtime.wsRunAsync(place.id, body);
         throw Abort.ABORT;

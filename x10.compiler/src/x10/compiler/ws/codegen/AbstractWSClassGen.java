@@ -1131,10 +1131,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     Try genExceptionHandler(List<Stmt> tryBodyStmts) throws SemanticException {
         Name formalName = xct.getNewVarName();
         
-        Formal fa = synth.createFormal(compilerPos, wts.abortType, formalName, Flags.NONE);
-        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.abortType));
-        Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
-        
         Formal f = synth.createFormal(compilerPos, xts.Throwable(), formalName, Flags.NONE);
         Expr caught = synth.makeInstanceCall(compilerPos, getThisRef(),
                 CAUGHT, Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(
@@ -1143,11 +1139,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         Catch c = xnf.Catch(compilerPos, f, xnf.Block(compilerPos,
                 xnf.Eval(compilerPos, caught)));
         
-        List<Catch> handlers = new ArrayList<Catch>(2);
-        handlers.add(ca);
-        handlers.add(c);
-        
-        Try t = xnf.Try(compilerPos, xnf.Block(compilerPos, tryBodyStmts), handlers);
+        Try t = xnf.Try(compilerPos, xnf.Block(compilerPos, tryBodyStmts), Collections.<Catch>singletonList(c));
         return t;
     }
     

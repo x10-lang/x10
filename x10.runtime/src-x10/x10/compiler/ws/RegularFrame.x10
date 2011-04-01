@@ -3,6 +3,8 @@ package x10.compiler.ws;
 import x10.compiler.Abort;
 import x10.compiler.Header;
 import x10.compiler.Inline;
+import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 
 public abstract class RegularFrame extends Frame {
     public val ff:FinishFrame;
@@ -24,13 +26,13 @@ public abstract class RegularFrame extends Frame {
         worker.deque.push(this);
     }
 
-    @Inline public final def redo(worker:Worker):void {
+    @NoInline @NoReturn public final def redo(worker:Worker):void {
         worker.migrate();
         Runtime.wsBlock(remap());
         throw Abort.ABORT;
     }
 
-    @Inline public final def moveToHeap(worker:Worker):void {
+    @NoInline @NoReturn public final def moveToHeap(worker:Worker):void {
         worker.migrate();
         worker.fifo.push(remap());
         throw Abort.ABORT;

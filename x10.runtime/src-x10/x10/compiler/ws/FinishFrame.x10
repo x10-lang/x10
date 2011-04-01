@@ -3,6 +3,8 @@ package x10.compiler.ws;
 import x10.compiler.Abort;
 import x10.compiler.Header;
 import x10.compiler.Inline;
+import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 import x10.compiler.Uninitialized;
 
 import x10.util.Stack;
@@ -58,13 +60,18 @@ abstract public class FinishFrame extends Frame {
         }
     }
 
-    @Inline public final def caught(t:Throwable) {
+    @NoInline public final def caught(t:Throwable) {
+        if (t == Abort.ABORT) throw t;
         if (null == stack) stack = new Stack[Throwable]();
         stack.push(t);
     }
 
     @Inline public final def rethrow() {
-        if (null != stack) throw new MultipleExceptions(stack);
+        if (null != stack) rethrowSlow();
+    }
+
+    @NoInline @NoReturn public final def rethrowSlow() {
+        throw new MultipleExceptions(stack);
     }
 
     @Inline public final def check() {
