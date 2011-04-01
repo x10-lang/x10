@@ -2,6 +2,7 @@ package x10.compiler.ws;
 
 import x10.compiler.Abort;
 import x10.compiler.Header;
+import x10.compiler.Ifdef;
 import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
@@ -11,23 +12,30 @@ import x10.util.Stack;
 
 abstract public class FinishFrame extends Frame {
     @Uninitialized public var asyncs:Int;
-    @Uninitialized public var redirect:FinishFrame;
     @Uninitialized transient public var stack:Stack[Throwable];
+
+//    @Ifdef("__CPP__")
+    @Uninitialized public var redirect:FinishFrame;
 
     @Header public def this(up:Frame) {
         super(up);
         this.stack = null;
-        this.redirect = null;
+        @Ifdef("__CPP__") {
+            this.redirect = null;
+        }
     }
 
+    @Ifdef("__CPP__")
     public def this(Int, o:FinishFrame) {
         super(o.up.realloc());
         this.asyncs = 1;
         this.stack = null;
     }
 
+    @Ifdef("__CPP__")
     public abstract def remap():FinishFrame;
 
+    @Ifdef("__CPP__")
     public def realloc() {
         if (null != redirect) return redirect;
         val tmp = remap();

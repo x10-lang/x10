@@ -1,5 +1,6 @@
 package x10.compiler.ws;
 
+import x10.compiler.Ifdef;
 import x10.compiler.Inline;
 
 public final class AtFrame extends Frame {
@@ -10,6 +11,7 @@ public final class AtFrame extends Frame {
         upRef = GlobalRef[Frame](up);
     }
 
+    @Ifdef("__CPP__")
     public def remap():AtFrame = this;
 
     public def wrapResume(worker:Worker) {

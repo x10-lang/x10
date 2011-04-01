@@ -1,6 +1,7 @@
 package x10.compiler.ws;
 
 import x10.compiler.Abort;
+import x10.compiler.Ifdef;
 import x10.compiler.Inline;
 
 import x10.util.Stack;
@@ -15,6 +16,7 @@ public final class RemoteFinish extends FinishFrame {
         Runtime.atomicMonitor.lock(); ff.asyncs++; Runtime.atomicMonitor.unlock();
     }
 
+    @Ifdef("__CPP__")
     public def remap():RemoteFinish = this;
 
     public def wrapResume(worker:Worker) {

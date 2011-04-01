@@ -2,6 +2,7 @@ package x10.compiler.ws;
 
 import x10.compiler.Abort;
 import x10.compiler.Header;
+import x10.compiler.Ifdef;
 import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
@@ -14,12 +15,14 @@ public abstract class RegularFrame extends Frame {
         this.ff = ff;
     }
 
+    @Ifdef("__CPP__")
     public def this(Int, o:RegularFrame) {
         super(o.up.realloc());
         throwable = null;
         this.ff = o.ff.redirect;
     }
 
+    @Ifdef("__CPP__")
     public abstract def remap():RegularFrame;
 
     @Inline public final def push(worker:Worker) {
@@ -28,13 +31,21 @@ public abstract class RegularFrame extends Frame {
 
     @NoInline @NoReturn public final def continueLater(worker:Worker):void {
         worker.migrate();
-        Runtime.wsBlock(remap());
+        var k:RegularFrame = this;
+        @Ifdef("__CPP__") {
+            k = k.remap();
+        }
+        Runtime.wsBlock(k);
         throw Abort.ABORT;
     }
 
     @NoInline @NoReturn public final def continueNow(worker:Worker):void {
         worker.migrate();
-        worker.fifo.push(remap());
+        var k:RegularFrame = this;
+        @Ifdef("__CPP__") {
+            k = k.remap();
+        }
+        worker.fifo.push(k);
         throw Abort.ABORT;
     }
 }

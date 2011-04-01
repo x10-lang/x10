@@ -2,6 +2,7 @@ package x10.compiler.ws;
 
 import x10.compiler.Abort;
 import x10.compiler.Header;
+import x10.compiler.Ifdef;
 import x10.compiler.Native;
 import x10.compiler.Uninitialized;
 
@@ -19,8 +20,10 @@ public abstract class Frame {
         this.up = up;
     }
 
+    @Ifdef("__CPP__")
     public abstract def remap():Frame;
 
+    @Ifdef("__CPP__")
     public def realloc() = remap();
 
     public def back(worker:Worker, frame:Frame) {}

@@ -1,6 +1,7 @@
 package x10.compiler.ws;
 
 import x10.compiler.Abort;
+import x10.compiler.Ifdef;
 import x10.compiler.NoReturn;
 
 import x10.lang.Lock;
@@ -24,9 +25,11 @@ public final class Worker {
         var k:RegularFrame;
         lock.lock();
         while (null != (k = Frame.cast[Object,RegularFrame](deque.steal()))) {
-            val r = k.remap();
-            Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
-            fifo.push(r);
+            @Ifdef("__CPP__") {
+                k = k.remap();
+            }
+            Runtime.atomicMonitor.lock(); k.ff.asyncs++; Runtime.atomicMonitor.unlock();
+            fifo.push(k);
         }
         lock.unlock();
     }
@@ -60,9 +63,12 @@ public final class Worker {
             if (workers(rand).lock.tryLock()) {
                 k = workers(rand).deque.steal();
                 if (null != k) {
-                    val r = Frame.cast[Object,RegularFrame](k).remap();
+                    var r:RegularFrame = Frame.cast[Object,RegularFrame](k);
+                    @Ifdef("__CPP__") {
+                        r = r.remap();
+                        k = r;
+                    }
                     Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
-                    k = r;
                 }
                 workers(rand).lock.unlock();
             }

@@ -70,7 +70,7 @@ public class IfdefVisitor extends ContextVisitor {
                 }
                 String macro = (String) l.get(0).constantValue();
                 if (job.extensionInfo().getOptions().macros.contains(macro)) {
-                    return nf.Empty(n.position());
+                    return null;
                 }
             }
             if (at.isSubtype(Ifdef, context)) {
@@ -81,7 +81,7 @@ public class IfdefVisitor extends ContextVisitor {
                 }
                 String macro = (String) l.get(0).constantValue();
                 if (!job.extensionInfo().getOptions().macros.contains(macro)) {
-                    return nf.Empty(n.position());
+                    return null;
                 }
             }
         }

@@ -1,6 +1,7 @@
 package x10.compiler.ws;
 
 import x10.compiler.Abort;
+import x10.compiler.Ifdef;
 
 public final class RootFinish extends FinishFrame {
     public def this() {
@@ -8,6 +9,7 @@ public final class RootFinish extends FinishFrame {
         asyncs = 1;
     }
 
+    @Ifdef("__CPP__")
     public def remap():RootFinish = this;
 
     public def wrapResume(worker:Worker) {
