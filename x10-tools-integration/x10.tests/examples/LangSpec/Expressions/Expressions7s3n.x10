@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Expressions6d2z;
+/* Current test harness gets confused by packages, but it would be in package Expressions7s3n;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,18 +19,24 @@ import harness.x10Test;
 
 
 
-public class Expressions6d2z extends x10Test {
+public class Expressions7s3n extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Expressions6d2z().execute();
+        new Expressions7s3n().execute();
     }
 
 
-// file Expressions line 1155
- static  class Hook { def run() {
-assert 3 in 1..10;
-assert !(10 in 1..3);
- return true;
-}}
+// file Expressions line 1217
+ static class Thing {
+  public static operator (x:Thing) as Object = "very different";
+  public static def example() {
+    val t = new Thing();
+    val o = t as Object;
+    assert o instanceof Thing;
+  }
+}
+ //    val p = Thing.operator as[Object](t);
+ //    assert p.equals("very different");
+ static  class Hook{ def run() { Thing.example(); return true; } }
 
 }

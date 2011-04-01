@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Extern_or_burn;
+/* Current test harness gets confused by packages, but it would be in package Types3u5w;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,25 +17,23 @@
 
 import harness.x10Test;
 
-import x10.compiler.Native;
 
-public class extern20 extends x10Test {
+
+public class Types3u5w extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new extern20().execute();
+        new Types3u5w().execute();
     }
 
 
-// file extern line 37
- static class Land {
-  @Native("c++", "printf(\"Hi from C++!\")")
-  static def example():void = {
-    x10.io.Console.OUT.println("Hi from X10!");
-  };
+// file Types line 1253
+ static  class Example {
+static def example(n:Int) {
+  val b = (n instanceof Int{self == 1});
+  assert b == (n == 1);
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ }
+ static  class Hook{ def run() {Example.example(0); Example.example(1);
+ Example.example(2); return true; } }
 
 }

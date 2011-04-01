@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Types45;
+/* Current test harness gets confused by packages, but it would be in package typesome_Types46;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Types390 extends x10Test {
     }
 
 
-// file Types line 1481
+// file Types line 1588
 
- static class Types45TypeTest{
+ static class Types46TypeTest{
   def check()  { 
      var checkycheck : (Double)=>Double;  }}
 

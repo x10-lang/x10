@@ -149,9 +149,9 @@ final public class RuntimeTypeExpander extends Expander {
 
     private void printFunRTT(FunctionType ct, List<Type> args, Type ret) {
         if (ret.isVoid()) {
-            er.w.write("x10.core.fun.VoidFun");
+            er.w.write(X10PrettyPrinterVisitor.X10_VOIDFUN_CLASS_PREFIX);
         } else {
-            er.w.write("x10.core.fun.Fun");
+            er.w.write(X10PrettyPrinterVisitor.X10_FUN_CLASS_PREFIX);
         }
         er.w.write("_" + ct.typeParameters().size());
         er.w.write("_" + args.size());

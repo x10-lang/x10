@@ -26,7 +26,7 @@ public class Activities120 extends x10Test {
     }
 
 
-// file Activities line 535
+// file Activities line 570
  static  class Redund[T] {
  val list = new ArrayList[T]();
  var size : Int = 0;

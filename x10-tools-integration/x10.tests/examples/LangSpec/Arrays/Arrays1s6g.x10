@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Functions_Operatorfunctionsgracklegrackle;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays52;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,19 +19,17 @@ import harness.x10Test;
 
 
 
-public class Functions110 extends x10Test {
+public class Arrays1s6g extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Functions110().execute();
+        new Arrays1s6g().execute();
     }
 
 
-// file Functions line 467
- static  class JustATest {
- val dummy = [((x:Int,y:Int) => x+y), 
-  (x:Double,y:Double) => x-y
-  ];
- }
+// file Arrays line 675
+
+ static class Arrays52TestExp{
+  def check(N:Int)  = Dist.makeConstant(0..(N-1),here);  }
 
  static class Hook {
    def run():Boolean = true;

@@ -26,7 +26,7 @@ public class ObjectInitialization40 extends x10Test {
     }
 
 
-// file ObjectInitialization line 353
+// file ObjectInitialization line 367
  static class C {
   val a:Int;
   def this() {

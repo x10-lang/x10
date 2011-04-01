@@ -53,6 +53,9 @@ public class Options {
     /** Dump the AST after the following passes? */
     public Set<String> dump_ast = CollectionFactory.newHashSet();
   
+    /** -define */
+    public Set<String> macros = CollectionFactory.newHashSet();
+
     /** Pretty-print the AST after the following passes? */
     public Set<String> print_ast = CollectionFactory.newHashSet();
  
@@ -345,6 +348,13 @@ public class Options {
         	use_simple_code_writer = true;
         	i++;
         }
+        else if (args[i].equals("-define"))
+        {
+            i++;
+            String macro = args[i];
+            macros.add(macro);
+            i++;
+        }
         else if (!args[i].startsWith("-")) {
             source.add(args[i]);
             File f = new File(args[i]).getParentFile();
@@ -391,6 +401,7 @@ public class Options {
                           "run javac-like compiler after translation");
         usageForFlag(out, "-debugpositions", "generate position information for compiler-generated code");
         usageForFlag(out, "-simpleoutput", "use SimpleCodeWriter");
+        usageForFlag(out, "-define <macro>", "define <macro>");
         usageForFlag(out, "-v -verbose", "print verbose debugging information");
         usageForFlag(out, "-report <topic>=<level>", 
                           "print verbose debugging information about " +
@@ -612,6 +623,9 @@ public class Options {
 	  if (use_simple_code_writer){
 		  result += " -simpleoutput";
 	  }
+      for (String macro: macros){
+          result += " -define " + macro;
+      }
 	  return result;
   }
 }

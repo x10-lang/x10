@@ -96,30 +96,32 @@ public class Matcher {
 	}
 
 	/**
-	 * This is the heart of method and constructor call type-checking. This
+	 * This method is the heart of method and constructor call type-checking. This
 	 * is a hot spot for X10 compilation.
-	 * <p> It takes a 
-	 * context, an X10ProcedureInstance (this can represent a new or 
+	 * 
+	 * <p> It takes a context, an X10ProcedureInstance (this can represent a new or 
 	 * method invocation or closure invocation), the array of types for 
 	 * referenced this variables (including :"outer" this variables), the 
 	 * actual type parameters to the invocation, and the list of types of 
 	 * the actual arguments, and an indication for whether checks are to be done 
 	 * or not. 
 	 * 
-	 * <p> It returns a new X10ProcedureInstance (of the same kind as the one
-	 * supplied) that represents the information about the actual invocation. 
-	 * This instance has new actual arguments (freshly created local variables)
-	 * and argument and return types that reflect the types of the actual 
-	 * arguments to the call. These argument and return types may reference
-	 * the freshly created local variables. 
+	 * <p> Let the PI (me) be of the form def m[~X](~x:~S){c}:T. Let the 
+	 * actual call be of the form e.m[~V](~a), where e:U and ~a:~W.
+	 * 
+	 * <p> If a PI is returned, then it will be of the form 
+	 * (def m[~V](~y:~S'){c'}:T') where S' = S[~y/~x][~V/~X] and with the this's 
+	 * replaced as well,and c' and T' are obtained from c and T in a similar
+	 * fashion. Thus PI returns an instance of me whose 
 	 * 
 	 * <p> Note: In order to obtain the parameters of the original 
 	 * method/constructor definition, please use mi.def(), where mi is the 
 	 * return value of this method.
 	 * 
-	 * <p> If checking is turned on, and the type of an actual is inconsistent
-	 * or is not a subtype of the corresponding formal, or the guard is 
-	 * inconsistent or not satisfied, throw a SemanticException.
+	 * <p> If checking is turned on, a SemanticException is thrown if 
+	 * the type of an actual is inconsistent  or is not a subtype of the 
+	 * corresponding formal in newMe, or the guard is inconsistent or not 
+	 * satisfied.
 	 * 
 	 * @param <PI>  -- The type of the formal descriptor
 	 * @param context -- The context in which the type-checking is being done
@@ -207,7 +209,7 @@ public class Matcher {
 				xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
 
 			if (xthis == null)
-				xthis = CTerms.makeThis(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+				xthis = CTerms.makeThis(); 
 		}
 
 		final ParameterType[] X = new ParameterType[typeFormals.size()];
@@ -277,10 +279,10 @@ public class Matcher {
 	        	newMe = (X10ProcedureInstance<?>) newMe.returnTypeRef(newReturnTypeRef);
 		}
 
-		{ // set up the new formal types.  These are obtained from the real 
+		{ // set up the new formal types.  These are obtained from the  
 			// formal types by replacing x's by y's and this by the yeqv, and 
 			// substituting in type parameters. With this normalization, 
-			// checkCall will simply have to check that the types of the actuals
+			// checkCall will simply have to check that the types of the 
 	        // actuals are a subtype of the formals.
 	        // substitute in the information about this.
 			List<Type> newFormalTypes = new ArrayList<Type>();
@@ -322,6 +324,10 @@ public class Matcher {
 			// Note that checkActuals may be false, so we are not going to check
 			// now simply return a newMe which will be used later in coercions 
 			newMe = newMe.formalNames(yLocalInstances);
+			// At this point each yLocalInstances(i) has the type of the
+			// corresponding actual. This will be replaced after checking with the 
+			// formal type. They type cannot be changed to the formal type before
+			// checking.
 		}
 		{ // set up the guard.
 	        	CConstraint newWhere = Subst.subst(me.guard(), y2eqv, x2, Y, X); 
@@ -331,10 +337,18 @@ public class Matcher {
 	        	TypeConstraint newTWhere = Subst.subst(me.typeGuard(), y2eqv, x2, Y, X);
 	        	newMe = newMe.typeGuard(newTWhere);
 		}
-		if (! checkActuals)
+		if (! checkActuals) {
+			// Update the types to reflect the newly computed formalTypes before returning.
+			for (int i=0; i < yLocalInstances.size(); i++) {
+				LocalInstance li = yLocalInstances.get(i);
+				Ref<Type> ref = (Ref<Type>) li.def().type();
+				ref.update(newMe.formalTypes().get(i));
+			}
 			return (PI) newMe;
+		}
 
-		// Now check that the actual types are a subtype of the formal types, and the method guards are satisfied.
+		// Now check that the actual types are a subtype of the formal types,
+        // and the method guards are satisfied.
 		final Context context2 = context.pushAdditionalConstraint(returnEnv, me.position());
 		final CConstraint query = newMe.guard();
 		X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
@@ -396,10 +410,31 @@ public class Matcher {
 					throw new Errors.InvalidParameter(ytype, xtype, me.position());
 			}
 		}
+		// Update the types to reflect the newly computed formalTypes.
+		// These have now been verified, unless dynamicChecks is true
+		// in which case Desugarer will generate the checks to 
+		// ensure that the actuals meet the constraints of the formalTypes.
+		for (int i=0; i < yLocalInstances.size(); i++) {
+			LocalInstance li = yLocalInstances.get(i);
+			Ref<Type> ref = (Ref<Type>) li.def().type();
+			ref.update(newMe.formalTypes().get(i));
+		}
 		return (PI) newMe;
 	}
 
 	
+	/**
+	 * Return the conjunction of the constraints from the receiver and 
+	 * actuals.
+	 * @param thisType
+	 * @param actuals
+	 * @param ythis
+	 * @param y
+	 * @param isStatic
+	 * @param xts
+	 * @return
+	 * @throws SemanticException
+	 */
 	private static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
 			XVar ythis, XVar[] y, boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
@@ -469,10 +504,8 @@ public class Matcher {
          }
          return symbol;
    }
-    private static LocalInstance getSymbol( Type type) {
+    private static X10LocalInstance getSymbol( Type type) {
     	TypeSystem ts = type.typeSystem();
-    	
-    	// Todo: Replace position by a saner position.
     	Ref<Type> ref = new LazyRef_c<Type>(type);
     	X10LocalDef def = new X10LocalDef_c(ts, 
     			Position.compilerGenerated(type.position()), Flags.FINAL, ref,
@@ -494,7 +527,7 @@ public class Matcher {
           return ySymbols;
     }
      
-    public static XVar[] getSymbolicNames(List<LocalInstance> formalNames, TypeSystem xts) 
+    public static XVar[] getSymbolicNames(List<? extends LocalInstance> formalNames, TypeSystem xts) 
     throws SemanticException {
     	 XVar[] x = new XVar[formalNames.size()];
          for (int i = 0; i < formalNames.size(); i++) {

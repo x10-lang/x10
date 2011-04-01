@@ -40,6 +40,7 @@ import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10ClassDef;
 
 import x10.types.constraints.CConstraint;
 
@@ -281,22 +282,27 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	            CConstraint cc = ctx.currentConstraint();
 	            cc.addIn(thisConstructor.thisVar(), c);
 	            ctx.setCurrentConstraint(cc);
-	            
-	            
-	            Type extendsType = Types.get(context.currentClassDef().superType());
-	            if (! returnType.isSubtype(extendsType, context) ) {
-	            	Errors.issue(tc.job(), 
-	            			new Errors.SuperCallCannotEstablishSuperType(returnType,extendsType, position()));
-	            }
-	            
-	            
+
+                checkSuperType(tc, returnType, true, position);
 	        }
 	    }
 
 		return n;
 	}
 
-	public String toString() {
+    public static void checkSuperType(ContextVisitor tc, Type returnType, boolean isSuperCall, Position position) {
+        Context context = tc.context();
+        X10ClassDef classDef = context.currentClassDef();
+        boolean hasProp = classDef.properties().size()!=0;
+        if (isSuperCall==hasProp) return;
+        Type extendsType = Types.get(classDef.superType());
+        if (extendsType!=null && ! returnType.isSubtype(extendsType, context) ) {
+            Errors.issue(tc.job(),
+                    new Errors.SuperCallCannotEstablishSuperType(returnType,extendsType, position));
+        }
+    }
+
+    public String toString() {
 	    return (qualifier != null ? qualifier + "." : "") + kind + arguments;
 	}
 

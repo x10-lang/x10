@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package genexpsome_Arrays47;
+/* Current test harness gets confused by packages, but it would be in package genexpsome_Arrays58;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Arrays420 extends x10Test {
     }
 
 
-// file Arrays line 751
+// file Arrays line 781
 
- static class Arrays47GenexpTest{
+ static class Arrays58GenexpTest{
   def check[T](R:Region{self!=null}, v:T)  = new Array[T](R, v);  }
 
  static class Hook {

@@ -26,11 +26,11 @@ public class Arrays520 extends x10Test {
     }
 
 
-// file Arrays line 932
+// file Arrays line 964
  static  class Example {
  def example() {
 val a = [1,2,3,4];
-val sum = a.reduce(((x:Int,y:Int) => x+y), 0);
+val sum = a.reduce((a:Int,b:Int)=>a+b, 0);
 assert(sum == 10); // 10 == 1+2+3+4
 }}
 

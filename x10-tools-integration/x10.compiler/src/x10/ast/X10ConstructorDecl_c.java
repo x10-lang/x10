@@ -558,9 +558,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         thisC.clearError();
 
         if (returnType != null) {
-            if (false) { // todo: remove this after fixing XTENLANG-1770
-                visitChild(returnType, thisC);
-            }
             if (thisC.error()) {
                 Errors.issue(tc.job(),
                         new Errors.ThisNotPermittedInConstructorReturnType(returnType, position()));

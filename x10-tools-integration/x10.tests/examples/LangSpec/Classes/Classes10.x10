@@ -26,7 +26,7 @@ public class Classes10 extends x10Test {
     }
 
 
-// file Classes line 140
+// file Classes line 142
  static class Fld{
   val a = 1;
   val b = 2+a;

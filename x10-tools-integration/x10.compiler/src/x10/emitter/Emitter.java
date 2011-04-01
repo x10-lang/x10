@@ -745,9 +745,9 @@ public class Emitter {
 			List<Type> args = ct.argumentTypes();
 			Type ret = ct.returnType();
 			if (ret.isVoid()) {
-				w.write("x10.core.fun.VoidFun");
+				w.write(X10PrettyPrinterVisitor.X10_VOIDFUN_CLASS_PREFIX);
 			} else {
-				w.write("x10.core.fun.Fun");
+				w.write(X10PrettyPrinterVisitor.X10_FUN_CLASS_PREFIX);
 			}
 			w.write("_" + ct.typeParameters().size());
 			w.write("_" + args.size());
@@ -2775,9 +2775,9 @@ public class Emitter {
                     List<Type> args = ft.argumentTypes();
                     Type ret = ft.returnType();
                     if (ret.isVoid()) {
-                        w.write("x10.core.fun.VoidFun");
+                        w.write(X10PrettyPrinterVisitor.X10_VOIDFUN_CLASS_PREFIX);
                     } else {
-                        w.write("x10.core.fun.Fun");
+                        w.write(X10PrettyPrinterVisitor.X10_FUN_CLASS_PREFIX);
                     }
                     w.write("_" + ft.typeParameters().size());
                     w.write("_" + args.size());

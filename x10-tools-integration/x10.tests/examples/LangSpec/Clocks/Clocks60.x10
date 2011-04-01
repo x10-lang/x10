@@ -26,7 +26,7 @@ public class Clocks60 extends x10Test {
     }
 
 
-// file Clocks line 267
+// file Clocks line 226
 
  static class Clocks6TestExp{
   def check(c:Clock)  = c.resume();  }

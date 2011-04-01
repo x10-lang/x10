@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Expressions18;
+/* Current test harness gets confused by packages, but it would be in package expsome_Expressions19;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Expressions2g6f extends x10Test {
     }
 
 
-// file Expressions line 876
+// file Expressions line 935
 
- static class Expressions18TestExp{
+ static class Expressions19TestExp{
   def check()  = 100 as Long == 100L;  }
 
  static class Hook {

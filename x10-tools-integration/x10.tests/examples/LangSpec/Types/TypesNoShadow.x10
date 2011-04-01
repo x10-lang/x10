@@ -26,7 +26,7 @@ public class TypesNoShadow extends x10Test {
     }
 
 
-// file Types line 587
+// file Types line 593
  static class A[B] {
   // ILLEGAL: static  class B{}
   // ILLEGAL: static  class C[B]{}

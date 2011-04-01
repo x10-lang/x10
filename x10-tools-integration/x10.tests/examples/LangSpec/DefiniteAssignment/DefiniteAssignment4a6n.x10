@@ -26,7 +26,7 @@ public class DefiniteAssignment4a6n extends x10Test {
     }
 
 
-// file DefiniteAssignment line 121
+// file DefiniteAssignment line 129
  static  class Example {
  def example() {
 val a : Int;
@@ -36,6 +36,7 @@ finish {
   }
   // a is not definitely assigned here
 }
+// a is definitely assigned after 'finish'
 assert a==1;
 } }
 

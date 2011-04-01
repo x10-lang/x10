@@ -580,11 +580,6 @@ public class XTypeTranslator {
         		throw new IllegalConstraint(t);
         	v = XTerms.makeAnd(lt, rt);
         }
-        else if (op == Binary.IN) {
-        	if (! tl)
-        	 throw new IllegalConstraint(t);
-              v = XTerms.makeAtom(t.operator(), lt, rt);
-        }
         else  {
             v = XTerms.makeAtom(t.operator(), lt, rt);
             throw new IllegalConstraint(t);

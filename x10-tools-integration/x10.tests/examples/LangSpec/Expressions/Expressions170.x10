@@ -26,16 +26,16 @@ public class Expressions170 extends x10Test {
     }
 
 
-// file Expressions line 1264
+// file Expressions line 1445
  static class Eel{}
  static class Example{
 def example(){
 val zero <: Array[Int{self == 0}](1)
-          = new Array[Int{self == 0}][0];
+          = [0];
 val non1 <: Array[Int{self != 1}](1)
-          = new Array[Int{self != 1}][0];
+          = [0 as Int{self != 1}];
 val eels <: Array[Eel{self != null}](1)
-          = new Array[Eel{self != null}][ new Eel() ];
+          = [ new Eel() as Eel{self != null}, new Eel(), new Eel()];
 }}
 
  static class Hook {

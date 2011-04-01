@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Expressions3c4m;
+/* Current test harness gets confused by packages, but it would be in package DefiniteAssignment4x6k;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,23 +19,27 @@ import harness.x10Test;
 
 
 
-public class Expressions3c4m extends x10Test {
+public class DefiniteAssignment4x6k extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Expressions3c4m().execute();
+        new DefiniteAssignment4x6k().execute();
     }
 
 
-// file Expressions line 1169
- static class Cont {
-   operator this in (Int) = true;
-   operator (String) in this = false;
-   static operator (Cont) in (b:Boolean) = b;
-   static def example() {
-      val c:Cont = new Cont();
-      assert c in 4 && !("odd" in c) && (c in true);
-   }
+// file DefiniteAssignment line 341
+ static class C {
+  val f : Int;
+  val g : String;
+  def this() {
+     f = fless();
+     g = useF();
+  }
+  private def fless() = "f not used here".length();
+  private def useF() = "f=" + this.f;
 }
- static class Hook{ def run() { Cont.example(); return true; } }
+
+ static class Hook {
+   def run():Boolean = true;
+}
 
 }

@@ -15,7 +15,6 @@ import java.util.List;
 
 import polyglot.ast.Allocation;
 import polyglot.ast.ConstructorCall;
-import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -23,7 +22,6 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
-import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.Flags;
 import polyglot.types.Name;
@@ -35,7 +33,6 @@ import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.X10NodeFactory_c;
 import x10.types.X10TypeObjectMixin;
 import x10.util.AltSynthesizer;
 
@@ -68,6 +65,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
      */
     public ConstructorSplitterVisitor(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
+        assert x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(job.extensionInfo());
         syn = new AltSynthesizer(ts, nf);
     }
 
@@ -103,10 +101,10 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             if (cannotSplitConstructor(n.constructorInstance().container().toClass()))
                 return n;
             Type type          = n.type();
-            Allocation a       = createAllocation(pos, type, n.typeArguments());
+            Allocation a       = syn.createAllocation(pos, type, n.typeArguments());
             LocalDecl ld       = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
             Local l            = syn.createLocal(pos, ld);
-            ConstructorCall cc = createConstructorCall(l, n);
+            ConstructorCall cc = syn.createConstructorCall(l, n);
             List<Stmt> stmts   = new ArrayList<Stmt>();
             stmts.add(ld);
             stmts.add(cc);
@@ -120,12 +118,12 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             if (cannotSplitConstructor(n.constructorInstance().container().toClass()))
                 return ld;
             Type type          = n.type();
-            Allocation a       = createAllocation(pos, type, n.typeArguments());
+            Allocation a       = syn.createAllocation(pos, type, n.typeArguments());
             // We're in a statement context, so we can avoid a stmt expr.
             List<Stmt> stmts   = new ArrayList<Stmt>();
             if (type.typeSystem().typeDeepBaseEquals(ld.declType(), n.type(), context)) {
                 ld                 = ld.init(a);
-                ConstructorCall cc = createConstructorCall(syn.createLocal(pos, ld), n);
+                ConstructorCall cc = syn.createConstructorCall(syn.createLocal(pos, ld), n);
                 stmts.add(ld);
                 stmts.add(cc);
             } else {
@@ -134,7 +132,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
                 // Introduce additional localdecl so that the constructor call can be made
                 // on a variable of the correct type. 
                 LocalDecl ld2      = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
-                ConstructorCall cc = createConstructorCall(syn.createLocal(pos, ld2), n);
+                ConstructorCall cc = syn.createConstructorCall(syn.createLocal(pos, ld2), n);
                 ld                 = ld.init(syn.createLocal(pos, ld2));
                 stmts.add(ld2);
                 stmts.add(cc);
@@ -147,7 +145,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         if (node instanceof ConstructorCall) {
             ConstructorCall cc = (ConstructorCall) node;
             if (null == cc.target())
-                return cc.target(createThis(node.position(), cc.constructorInstance().returnType()));
+                return cc.target(syn.createThis(node.position(), cc.constructorInstance().returnType()));
         }
         return super.leaveCall(parent, old, node, v);
     }
@@ -179,41 +177,6 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         if (!X10TypeObjectMixin.annotationsNamed(annotations, NATIVE_REP_ANNOTATION).isEmpty())
             return true;
         return false;
-    }
-
-    /**
-     * @param n
-     * @param pos
-     * @return
-     */
-    private ConstructorCall createConstructorCall(Expr target, New n) {
-        ConstructorCall cc = nf.X10ThisCall(n.position(), n.typeArguments(), n.arguments());
-        cc = cc.target(target);
-        cc = cc.constructorInstance(n.constructorInstance());
-        return cc;
-    }
-
-    /**
-     * @param pos
-     * @param type
-     * @return
-     * TODO: move to Synthesizer
-     */
-    private Expr createThis(Position pos, Type type) {
-        return nf.This(pos).type(type);
-    }
-
-    /**
-     * Create an artificial Allocation node.
-     * 
-     * @param pos the Position of the allocation
-     * @param type the Type of the object (or struct) being allocated
-     * @param typeArgs 
-     * @return a synthesized Allocation node.
-     * TODO: move to Synthesizer
-     */
-    private Allocation createAllocation(Position pos, Type type, List<TypeNode> typeArgs) {
-        return (Allocation) ((Allocation) ((X10NodeFactory_c) nf).Allocation(pos).type(type)).typeArguments(typeArgs);
     }
 
 }

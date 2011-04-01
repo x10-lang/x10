@@ -35,7 +35,7 @@ if [ "$target" != "dist-java" ]; then
 
 echo "Compiling PreCommit.x10 with x10c++"
 
-cd "$ROOT/x10.tests/examples/Misc"
+cd "$ROOT/x10.tests/tests/Misc"
 
 nice "$ROOT/x10.dist/bin/x10c++" -O -DEBUG \
  -sourcepath "$ROOT/x10.dist/samples/tutorial" \
@@ -73,7 +73,7 @@ echo "Compiling PreCommit.x10 with x10c"
 rm -rf "${TMP_DIR}.tmp"
 mkdir -p "${TMP_DIR}.tmp"
 
-cd "$ROOT/x10.tests/examples/Misc"
+cd "$ROOT/x10.tests/tests/Misc"
 
 nice "$ROOT/x10.dist/bin/x10c" -O \
  -sourcepath "$ROOT/x10.dist/samples/tutorial" \

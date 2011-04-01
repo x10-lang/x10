@@ -31,7 +31,7 @@ abstract static  class VarsForStars{
  abstract def cointoss(): Boolean;
 def check() {
   var muta : Int;
-  // ERROR: println(muta);
+  // ERROR:  println(muta);
   muta = 4;
   val use2A = muta * 10;
   val immu : Int;

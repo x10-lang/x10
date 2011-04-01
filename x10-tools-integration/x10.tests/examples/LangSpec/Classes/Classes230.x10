@@ -26,11 +26,11 @@ public class Classes230 extends x10Test {
     }
 
 
-// file Classes line 1439
+// file Classes line 1631
  static class Poly {
   public val coeff : Array[Int](1);
   public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-  public static operator (a:Int) as Poly = new Poly([a as Int]);
+  public static operator (a:Int) as ? = new Poly([a as Int]);
   public static def main(Array[String](1)):void {
      val three : Poly = 3 as Poly;
   }

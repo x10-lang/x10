@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Functions12;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays15;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,17 +19,17 @@ import harness.x10Test;
 
 
 
-public class Functions100 extends x10Test {
+public class Arrays5s3qtri extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Functions100().execute();
+        new Arrays5s3qtri().execute();
     }
 
 
-// file Functions line 388
- static class Span(low:Int, high:Int) {def this(low:Int, high:Int) {property(low,high);} def between(n:Int) = low <= n && n <= high;}
- static class Functions12TestExp{
-  def check(digit:Span)  = (n:Int) => digit.between(n);  }
+// file Arrays line 170
+
+ static class Arrays15TestExp{
+  def check(N:Int)  = Region.makeUpperTriangular(N);  }
 
  static class Hook {
    def run():Boolean = true;

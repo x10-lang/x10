@@ -26,12 +26,13 @@ public class Arrays360 extends x10Test {
     }
 
 
-// file Arrays line 622
+// file Arrays line 646
  static  class Example {
  def example() {
 val R <: Region = 1..1000;
 val D <: Dist = Dist.makeBlock(R);
-val da <: DistArray[Float] = DistArray.make[Float](D, (Point(1))=>0.0f);
+val da <: DistArray[Float]
+       = DistArray.make[Float](D, (Point(1))=>0.0f);
 }}
 
  static class Hook {

@@ -26,7 +26,7 @@ public class Classes20 extends x10Test {
     }
 
 
-// file Classes line 171
+// file Classes line 172
  static class Super{
   public val f = 1;
 }

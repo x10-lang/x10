@@ -72,16 +72,24 @@ public class KMeansCUDADemo(gpu:Place) {
         }
     }
 
-    def this (args: Array[String]{rail}) {
+    def this (args: Array[String]{rank==1, zeroBased, rect, rail}) {
         
         property(here.numChildren()==0 ? here : here.child(0));
 
+        GL.glutInit(args);
+
         val numPoints = 5612730;
-        val numClusters = 60;
+        val numClusters = args.size > 0 ? Int.parseInt(args(0)) : 60;
         val dim = 2;
 
         // file is dimension-major
-        val file = new File("points.dat"), fr = file.openRead();
+        val file = new File("points.dat");
+        if (!file.exists()) {
+            Console.ERR.println("The points.dat file cannot be found.  It is not part of the svn repository, but can be fetched from the following URL:");
+            Console.ERR.println("http://dist.codehaus.org/x10/misc/points.dat");
+            Console.ERR.println("You must download this file before you can run the demo.");
+        }
+        val fr = file.openRead();
         assert file.size() / 4 / dim == numPoints;
         val glPoints = new Array[Float](numPoints*dim, (Int) => {
             return Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
@@ -104,7 +112,6 @@ public class KMeansCUDADemo(gpu:Place) {
         gpuNearest = CUDAUtilities.makeRemoteArray[Int](gpu, numPoints, 0);
 
 
-        GL.glutInit(args);
         GL.glutInitDisplayMode(GL.GLUT_RGBA | GL.GLUT_DOUBLE); // double buffered
         GL.glutInitWindowSize(800, 600);
         GL.glutCreateWindow("X10 KMeans Demo");
@@ -339,7 +346,7 @@ public class KMeansCUDADemo(gpu:Place) {
         GL.glDeleteBuffers(vbos.size, vbos, 0);
     }
 
-    public static def main (args : Array[String]{rail}) {
+    public static def main (args : Array[String]{rank==1, rect, zeroBased, rail}) {
         try {
 
             new KMeansCUDADemo(args).run();

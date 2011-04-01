@@ -157,7 +157,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             return true;
         case ARROW:
         case DOT_DOT:
-        case IN:
             return false;
         }
         return false;
@@ -450,7 +449,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         methodNameMap.put(GE, "operator>=");
         methodNameMap.put(DOT_DOT, "operator..");
         methodNameMap.put(ARROW, "operator->");
-        methodNameMap.put(IN, "operator in");
 
         String methodName = methodNameMap.get(op);
         if (methodName == null)

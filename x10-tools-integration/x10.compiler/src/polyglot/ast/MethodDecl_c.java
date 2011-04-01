@@ -17,6 +17,8 @@ import polyglot.visit.*;
 import x10.errors.Errors;
 import x10.errors.Errors.InterfaceMethodsMustBePublic;
 import x10.types.MethodInstance;
+import x10.types.X10TypeEnv_c;
+import x10.visit.Desugarer;
 
 /**
  * A method declaration.
@@ -265,6 +267,7 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
             if (! ts.isAccessible(mj, tc.context())) {
                 continue;
             }
+            mj = ((X10TypeEnv_c)ts.env(tc.context())).expandPropertyInMethod(Desugarer.getClassType(mi.container(),ts,tc.context()),mj);
             try {
                 ts.checkOverride(mi, mj, tc.context());
             } catch (SemanticException e) {

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Extern_or_maybe_getting_back_together;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays8;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,21 +17,19 @@
 
 import harness.x10Test;
 
-import x10.compiler.Native;
 
-public class extern30 extends x10Test {
+
+public class Arrays3x4j extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new extern30().execute();
+        new Arrays3x4j().execute();
     }
 
 
-// file extern line 56
- static class Plants {
-  @Native("c++", "printf(\"Hi!\")")
-  @Native("java", "System.out.println(\"Hi!\")")
-  static native def printNatively():void;
-}
+// file Arrays line 141
+
+ static class Arrays8TestExp{
+  def check(n:Int)  = Region.makeFull(n);  }
 
  static class Hook {
    def run():Boolean = true;

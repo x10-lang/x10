@@ -26,7 +26,7 @@ public class Types100 extends x10Test {
     }
 
 
-// file Types line 240
+// file Types line 246
  static class Position {
   private var x : Int = 0;
   public def move(dx:Int) { x += dx; }

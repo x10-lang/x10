@@ -26,7 +26,7 @@ public class Packages9e6r extends x10Test {
     }
 
 
-// file Packages line 141
+// file Packages line 142
  static class Example {
   static def m() = 1;
   static def m(Boolean) = 2;

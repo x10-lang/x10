@@ -26,7 +26,7 @@ public class Packages5t5g extends x10Test {
     }
 
 
-// file Packages line 97
+// file Packages line 98
 
  static struct eg {
    static def ow()= 1;

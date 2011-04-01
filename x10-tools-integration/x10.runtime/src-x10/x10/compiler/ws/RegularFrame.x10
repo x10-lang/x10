@@ -14,7 +14,7 @@ public abstract class RegularFrame extends Frame {
 
     public def this(Int, o:RegularFrame) {
         super(o.up.realloc());
-        throwable = NULL[Throwable]();
+        throwable = null;
         this.ff = o.ff.redirect;
     }
 

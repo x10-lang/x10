@@ -2587,10 +2587,6 @@
         /.$BeginJava
 			r.rule_RelationalExpression7(RelationalExpression,Type);
         $EndJava./
-                           | RelationalExpression in ShiftExpression
-        /.$BeginJava
-			r.rule_RelationalExpression8(RelationalExpression,ShiftExpression);
-        $EndJava./
     
     EqualityExpression ::= RelationalExpression
                          | EqualityExpression == RelationalExpression
@@ -2826,10 +2822,6 @@
       | '->'
         /.$BeginJava
 			r.rule_BinOp20();
-        $EndJava./
-      | 'in'
-        /.$BeginJava
-			r.rule_BinOp21();
         $EndJava./
             
     --

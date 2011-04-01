@@ -126,11 +126,12 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
 	      return tn;
       }
       catch (SemanticException e) {
+          LazyRef<Type> sym = (LazyRef<Type>) type;
           X10ClassType ut = ts.createFakeClass(QName.make(fullName(this.prefix), name().id()), e);
           ut.def().position(pos);
-          ((Ref<Type>) type).update(ut);
-          // FIXME: should never return an ambiguous node
-          return this;
+          sym.update(ut);
+          Errors.issue(tc.job(), e, this);
+          return nf.CanonicalTypeNode(pos, sym);
       }
 
       Prefix prefix = this.prefix;

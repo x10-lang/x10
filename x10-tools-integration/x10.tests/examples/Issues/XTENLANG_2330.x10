@@ -24,6 +24,8 @@ public class XTENLANG_2330 extends x10Test
 		XTENLANG_2370.test();
         new Helper2330(50).run(0);
         new DynamicCallsTest().run();
+        new MethodInstanceArgTest().test();
+        if (!new NestedArray_7().run()) return false;
         return true;
     }
 
@@ -33,6 +35,81 @@ public class XTENLANG_2330 extends x10Test
 }
 
 
+class ConstrainedCall(x:Int) { // XTENLANG-2416
+    def m(){x==0} = 10;
+    def test() { m(); } // ERR
+}
+class NestedArray_7    {  // see XTENLANG-2428
+	class MyElement[VT]
+	{
+		def this(v:VT)
+		{
+			value = v;
+			myField = v;
+		}
+		val value : VT;
+		public var myField :VT;
+	}
+
+	class MyArray[ET](a:Array[ET]{rank==1}, size: Int)
+	{
+		def this(s: Int, e: ET) : MyArray[ET] {self.size == s}
+		{
+			val ma = new Array[ET](s, e);
+			property(ma, s);
+		}
+	}
+
+	 static type ElInt = MyElement[Int];
+	 static type ArInt = MyArray[ElInt];
+
+	 static type ElIntNo123 = MyElement[Int{self != 123}];
+	 static type ElArrayInt = MyElement[ArInt];
+	 static type ArArrayElInt = MyArray[ElArrayInt];
+
+	public def run():Boolean
+	{
+		val myElInt         = new ElInt(123);
+		val myArInt         = new ArInt(10, myElInt);
+		val myElIntAr       = new ElArrayInt(myArInt);
+		val myArTestInt     = new ArArrayElInt(30, myElIntAr);
+
+		try
+		{
+			for (i in myArTestInt.a)
+			{
+				val outerAr = myArTestInt.a(i);
+				for (j in outerAr.value.a)
+				{
+					val innerEl = new ElIntNo123(outerAr.value.a(j).value);  // ERR: Warning: Generated a dynamic check for the method call.
+					innerEl.myField = myElInt.value; // ERR: Warning: Expression 'myElInt.value' was cast to type x10.lang.Int{self==myElInt.NestedArray_7.MyElement#value, myElInt.NestedArray_7.MyElement#value!=123}.
+				}
+			}
+			return false;
+		}
+		catch(e:ClassCastException)
+		{
+			x10.io.Console.OUT.println("myArTestInt exception occurred: " + e.getMessage());
+		}
+		return true;
+	}
+}
+
+class MethodInstanceArgTest  {//XTENLANG_2603
+	class A(i:Int) {}
+	def m(A{self.i==2}) {}
+	def n(i:Int) {
+		val a = new A(i);
+		m(a); // ERR
+	}
+	def test() {
+		try {
+			n(3);
+			Console.OUT.println("Failed");
+			throw new Exception();
+		} catch (ClassCastException) { }
+	}
+}
 class XTENLANG_2370
 {
     static def m[T](arr:T, p:Point){T<:Array[Int]} {
@@ -102,6 +179,9 @@ class TestArrayMap {
 class DynamicCallsTest {
 	def fail():void { throw new RuntimeException("test failed!"); }
 	def run() {
+		new ConstrainedCall(0).test();
+		try { new ConstrainedCall(1).test(); fail(); } catch (e:FailedDynamicCheckException) {}
+
 		test(1,2);
 		try { test(2,2); fail(); } catch (e:FailedDynamicCheckException) {}
 		m([1,2]);

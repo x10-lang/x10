@@ -26,7 +26,7 @@ public class ObjectInitialization20 extends x10Test {
     }
 
 
-// file ObjectInitialization line 281
+// file ObjectInitialization line 294
  static class Overlord(x:Int) {
   def this(x:Int) { property(x); }
 }//Overlord
@@ -36,7 +36,8 @@ public class ObjectInitialization20 extends x10Test {
   def this(r:Int) {
     super(r);                      // (1)
     x10.io.Console.OUT.println(r); // (2)
-    property(r);                 // (2)
+    val rp1 = r+1;
+    property(rp1);                 // (2)
     // field initializations here  // (3)
     a = r + 2;                     // (4)
   }

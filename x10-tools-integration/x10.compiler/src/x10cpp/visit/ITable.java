@@ -222,37 +222,13 @@ public final class ITable {
                 sw.write(") {"); sw.newline(4); sw.begin(0);
                 if (!meth.returnType().isVoid()) sw.write("return ");
 
-                List<MethodInstance> implMeths = cls.methods(meth.name(), meth.formalTypes(), cg.tr.context());
-                assert implMeths.size() == 1 : "Can't be more than 1 matching method; how on earth did this typecheck???";
-                MethodInstance implMeth = implMeths.iterator().next();
-
-                String pat = cg.getCppImplForDef(implMeth.x10Def());
-                if (pat != null) {
-                    X10ClassType ct = (X10ClassType) implMeth.container().toClass();
-                    List<Type> classTypeArguments = ct.typeArguments();
-                    List<ParameterType> classTypeParams = ct.x10Def().typeParameters();
-                    if (classTypeArguments == null)
-                        classTypeArguments = new ArrayList<Type>();
-                    if (classTypeParams == null)
-                        classTypeParams = new ArrayList<ParameterType>();
-                    ArrayList<String> args = new ArrayList<String>();
-                    ArrayList<String> params = new ArrayList<String>();
-                    int numArgs = implMeth.formalTypes().size();
-                    argNum = 0;
-                    for (LocalInstance n : meth.formalNames()) {
-                        args.add("arg"+(argNum++));
-                        params.add(n.name().toString());
-                    }
-                    cg.emitNativeAnnotation(pat, implMeth.x10Def().typeParameters(), implMeth.typeParameters(), recvArg, params, args, classTypeParams, classTypeArguments);
-                } else {
-                    sw.write(recvArg+"->"+Emitter.mangled_method_name(meth.name().toString())+"(");
-                    boolean firstArg = true;
-                    for (int j=0; j<meth.formalTypes().size(); j++) {
-                        sw.write((firstArg ? "arg": ", arg")+j);
-                        firstArg = false;
-                    }
-                    sw.write(")");
+                sw.write(recvArg+"->"+Emitter.mangled_method_name(meth.name().toString())+"(");
+                boolean firstArg = true;
+                for (int j=0; j<meth.formalTypes().size(); j++) {
+                    sw.write((firstArg ? "arg": ", arg")+j);
+                    firstArg = false;
                 }
+                sw.write(")");
                 sw.write(";");
                 sw.end(); sw.newline();
                 sw.write("}"); sw.newline();
@@ -312,11 +288,13 @@ public final class ITable {
 		public static int compareTo(MethodInstance m1, MethodInstance m2) {
 			int nameCompare = m1.name().toString().compareTo(m2.name().toString());
 			if (nameCompare != 0) return nameCompare;
+			
 			// Statically overloaded method.  Order by comparing function signatures.
 			List<Type> m1Formals = m1.formalTypes();
 			List<Type> m2Formals = m2.formalTypes();
 			if (m1Formals.size() < m2Formals.size()) return -1;
 			if (m1Formals.size() > m2Formals.size()) return 1;
+			
 			// Have same number of formal parameters; impose arbitrary order via toString of formals
 			// NOTE: Exploiting X10 2.0 semantics that methods can't be overloaded based on constraints.
 			//       If that is changed in the future, we will have to fix this code.
@@ -328,8 +306,7 @@ public final class ITable {
 				int fcompare = f1.toString().compareTo(f2.toString());
 				if (fcompare != 0) return fcompare;
 			}
-			// TODO:  Does X10 allow method overloading based on # of type parameters?
-
+			
 			// X10 allows covariant return types, but not overloading based on return type.
 			// Therefore we ignore return type in comparing methods and if we get to this point the
 			// methods are considered to be equal.

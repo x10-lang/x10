@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Functions2_Span;
+/* Current test harness gets confused by packages, but it would be in package Structs6r3w;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,23 +19,25 @@ import harness.x10Test;
 
 
 
-public class Functions80 extends x10Test {
+public class Structs6r3w extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Functions80().execute();
+        new Structs6r3w().execute();
     }
 
 
-// file Functions line 362
- static class Span(low:Int, high:Int) {
-  def this(low:Int, high:Int) {property(low,high);}
-  def between(n:Int) = low <= n && n <= high;
-  static def example() {
-    val digit = new Span(0,9);
-    val isDigit : (Int) => Boolean = (x:Int)=>digit.between(x);
-    assert isDigit(8);
+// file Structs line 343
+
+ static class StructDefault {
+  static  struct Example {
+    val i : Int;
+    def this() { i = 1; }
   }
-}
- static  class Hook{ def run() {Span.example(); return true;}}
+  var ex : Example;
+  static def example() {
+     val ex = (new StructDefault()).ex;
+     assert ex.i == 0;
+  }
+ static  class Hook { def run() { StructDefault.example(); return true; } } }
 
 }

@@ -34,6 +34,7 @@ import static x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS_METHOD;
+import static x10cpp.visit.SharedVarsMethods.STRUCT_THIS;
 import static x10cpp.visit.SharedVarsMethods.THIS;
 import static x10cpp.visit.SharedVarsMethods.VOID;
 import static x10cpp.visit.SharedVarsMethods.VOID_PTR;
@@ -204,6 +205,7 @@ import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ParameterType;
 
+import x10.types.FunctionType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -606,7 +608,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.newline(0);
         }
         emitter.printTemplateSignature(cd.typeParameters(), h);
-        String name = StaticNestedClassRemover.mangleName(cd).toString();
+        String name;
+        if (cd.isFunction()) {
+            name = Emitter.baseName((FunctionType)cd.asType(), false);
+        } else {
+            name = StaticNestedClassRemover.mangleName(cd).toString();
+        }
         h.write("class "+Emitter.mangled_non_method_name(name)+";");
         h.newline();
         if (pkg != null) {
@@ -620,9 +627,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String pkg = null;
         if (ct.package_() != null)
             pkg = ct.package_().fullName().toString();
-        Name name = StaticNestedClassRemover.mangleName(ct.def());
-        String header = X10CPPTranslator.outputFileName(pkg, name.toString(), StreamWrapper.Header);
-        return header;
+        if (ct instanceof FunctionType) {
+            String name = Emitter.baseName((FunctionType)ct, false);
+            return X10CPPTranslator.outputFileName(pkg, name, StreamWrapper.Header);
+        } else {
+            Name name = StaticNestedClassRemover.mangleName(ct.def());
+            String header = X10CPPTranslator.outputFileName(pkg, name.toString(), StreamWrapper.Header);
+            return header;            
+        }
     }
 
     private static String getHeaderGuard(String header) {
@@ -1214,8 +1226,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.newline();
         h.forceNewline();
         
-        boolean seenTypeName = false;
-        
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 
@@ -1233,18 +1243,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     h.newline(0);
                     sw.newline(0);
                 }
-                
-                // Sigh.  Hack around bad interaction between NativeClass visitor and Struct
-                //        This is an indirect check to see if the NativeClass visitor rewrote
-                //        currentClass to have a typeName() that forwards to the backing NativeClass
-                if (member instanceof MethodDecl_c) {
-                    MethodDecl_c mdecl = (MethodDecl_c) member;               
-                    final Flags methodFlags = mdecl.flags().flags();
-                    if (!methodFlags.isStatic() && !methodFlags.isAbstract() && !methodFlags.isNative() && 
-                            mdecl.name().id().toString().equals("typeName") && mdecl.formals().isEmpty()) {
-                        seenTypeName = true;
-                    }
-                }
 
                 prev = member;
                 n.printBlock(member, sw, tr);
@@ -1252,12 +1250,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
             emitter.generateStructSerializationMethods(currentClass, sw);
             sw.forceNewline();
-        }
-        
-        if (!seenTypeName) {
-            h.forceNewline();
-            h.writeln("x10aux::ref<x10::lang::String> typeName() { return x10aux::type_name(*this); }");
-            h.forceNewline();
         }
     }
 
@@ -1428,10 +1420,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		TypeSystem xts =  tr.typeSystem();
 		Flags flags = dec.flags().flags();
-		if (flags.isNative())
-			return;
+		String nativePat = null;
+        X10MethodDef def = dec.methodDef();
+		
+		if (flags.isNative()) {
+		    if (!flags.isStatic()) {
+		        // Must generate bodies for non-static @Native methods so
+		        // that virtual dispatch actually works.
+		        nativePat = getCppImplForDef(dec.methodDef());
+		    }
+		    if (nativePat == null) return; 
+		}
 
-		X10MethodDef def = dec.methodDef();
 		if (query.isMainMethod(def)) {
 		    ((X10CPPJobExt) tr.job().ext()).addMainMethod(def);
 		}
@@ -1471,7 +1471,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // Attempt to make it easy for the post compiler to inline trivial struct methods
         // by putting them in the h stream instead of the sw stream whenever possible. 
         // Don't bother doing this for generic structs the body stream is already in the header file.
-        if (!inlineInClassDecl && container.isX10Struct() && container.x10Def().typeParameters().size() == 0) {
+        if (!flags.isNative() && !inlineInClassDecl && container.isX10Struct() && container.x10Def().typeParameters().size() == 0) {
             StructMethodAnalyzer analyze = new StructMethodAnalyzer(tr.job(), xts, tr.nodeFactory(), container);
             dec.visit(analyze.begin());
             inlineInClassDecl = analyze.canGoInHeaderStream();
@@ -1485,35 +1485,60 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.newline();
         }
 
-		if (dec.body() != null) {
-			if (!flags.isStatic()) {
-				VarInstance<?> ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-						Types.ref(container), Name.make(THIS)).asInstance();
-				context.addVariable(ti);
-			}
-			if (!inlineInClassDecl) {
-			    emitter.printHeader(dec, sw, tr, methodName, ret_type, true, inlineDirective);
-			}
-			dec.printSubStmt(dec.body(), sw, tr);
-			sw.newline();
-		} else {
-			// Define property getter methods.
-			if (flags.isProperty() && flags.isAbstract() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
-				X10FieldInstance fi = (X10FieldInstance) container.fieldNamed(mi.name());
-				if (fi != null) {
-					//assert (X10Flags.toX10Flags(fi.flags()).isProperty()); // FIXME: property fields don't seem to have the property flag set
-					// This is a property method in an interface.  Give it a body.
-				    if (!inlineInClassDecl) {
-				        emitter.printHeader(dec, sw, tr, methodName, ret_type, true, inlineDirective);
-				    }
-					sw.write(" {");
-					sw.allowBreak(0, " ");
-					sw.write("return "+mangled_field_name(fi.name().toString())+";");
-					sw.allowBreak(0, " ");
-					sw.write("}");
-				}
-			}
-		}
+
+        if (flags.isNative() || dec.body() != null) {
+            if (!flags.isStatic()) {
+                VarInstance<?> ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+                                                 Types.ref(container), Name.make(THIS)).asInstance();
+                context.addVariable(ti);
+            }
+            if (!inlineInClassDecl) {
+                emitter.printHeader(dec, sw, tr, methodName, ret_type, true, inlineDirective);
+            }
+            if (flags.isNative()) {
+                assert nativePat != null;
+                sw.write("{"); sw.newline(4); sw.begin(0);
+                if (!dec.returnType().type().isVoid()) sw.write("return ");
+                 
+                String target = container.isX10Struct() ? STRUCT_THIS : THIS;
+                List<String> params = new ArrayList<String>();
+                List<String> args = new ArrayList<String>();
+                int counter = 0;
+                for (LocalInstance f : mi.formalNames()) {
+                    Type fType = mi.formalTypes().get(counter);
+                    params.add(f.name().toString());
+                    args.add(f.name().toString());
+                    counter++;
+                }
+                List<Type> classTypeArguments  = Collections.<Type>emptyList();
+                List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
+                emitNativeAnnotation(nativePat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments);
+                sw.write(";");
+                sw.end(); sw.newline();
+                sw.writeln("}");
+            } else {
+                dec.printSubStmt(dec.body(), sw, tr);
+            }
+            sw.newline();
+        } else {
+            // Define property getter methods.
+            if (flags.isProperty() && flags.isAbstract() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
+                X10FieldInstance fi = (X10FieldInstance) container.fieldNamed(mi.name());
+                if (fi != null) {
+                    //assert (X10Flags.toX10Flags(fi.flags()).isProperty()); // FIXME: property fields don't seem to have the property flag set
+                    // This is a property method in an interface.  Give it a body.
+                    if (!inlineInClassDecl) {
+                        emitter.printHeader(dec, sw, tr, methodName, ret_type, true, inlineDirective);
+                    }
+                    sw.write(" {");
+                    sw.allowBreak(0, " ");
+                    sw.write("return "+mangled_field_name(fi.name().toString())+";");
+                    sw.allowBreak(0, " ");
+                    sw.write("}");
+                }
+            }
+        }
+
 		
 		if (inlineInClassDecl) {
 		    sw.popCurrentStream();
@@ -2715,17 +2740,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String pat = getCppImplForDef(md);
 		if (pat != null) {
-		    List<Type> classTypeArguments  = Collections.<Type>emptyList();
-		    List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
-		    if (mi.container().isClass() && !mi.flags().isStatic()) {
-		        X10ClassType ct = (X10ClassType) mi.container().toClass();
-		        classTypeArguments = ct.typeArguments();
-		        classTypeParams = ct.x10Def().typeParameters();
-		        if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
-		        if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+		    // If the method is static or if the method's container is a struct then we go ahead and inline
+		    // the @Native annotation at the callsite.  This is safe because there is no virtual dispatch involved.
+		    //
+		    // If the method's container has a C++ @NativeRep annotation, then we inline the @Native annotation
+		    // because we have nothing else we can reasonably do.  If the @NativeRep class was written "correctly" 
+		    // this will not break the semantics because the @Native will forward to the proper virtual dispatch.
+		    //
+		    // Otherwise (virtual method of a non-NativeRep class), we ignore the @Native annotation at the
+		    // callsite and generate a normal calling sequence.  This preserves virtual method semantics.
+		    if (mi.flags().isStatic() || 
+		            (mi.container().isClass() && ((X10ClassType)mi.container()).isX10Struct()) ||
+		            (mi.container().isClass() && getCppRep(((X10ClassType)mi.container()).x10Def()) != null)) {
+		        List<Type> classTypeArguments  = Collections.<Type>emptyList();
+		        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
+		        if (mi.container().isClass() && !mi.flags().isStatic()) {
+		            X10ClassType ct = (X10ClassType) mi.container().toClass();
+		            classTypeArguments = ct.typeArguments();
+		            classTypeParams = ct.x10Def().typeParameters();
+		            if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
+		            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+		        }
+		        emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments);
+		        return;
 		    }
-			emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments);
-			return;
 		}
 
 		// the cast is because our generated member function may use a more general
@@ -3680,10 +3718,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (i > 0) sw.write(", ");
             VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             String name = var.name().toString();
-            if (!name.equals(THIS))
+            if (name.equals(THIS)) {
+                // FIXME: Hack upon hack...
+                if (((X10CPPContext_c)c.pop()).isInsideClosure())  { 
+                    name = SAVED_THIS;
+                } else if (xts.isStruct(var.type())) {
+                    name = STRUCT_THIS;
+                }
+            } else {
                 name = mangled_non_method_name(name);
-            else if (((X10CPPContext_c)c.pop()).isInsideClosure())  // FIXME: hack
-                name = SAVED_THIS;
+            }
             if (refs.contains(var)) {
                 sw.write("&("+name+")");
             } else {

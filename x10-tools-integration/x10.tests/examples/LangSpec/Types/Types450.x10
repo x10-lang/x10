@@ -26,7 +26,7 @@ public class Types450 extends x10Test {
     }
 
 
-// file Types line 1693
+// file Types line 1800
  static  class Examplerator {
 def f(a:Int) {
   if (a == 0) return 0;

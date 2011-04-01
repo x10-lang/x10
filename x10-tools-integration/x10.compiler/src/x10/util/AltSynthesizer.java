@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.Allocation;
 import polyglot.ast.Assign;
 import polyglot.ast.Assign.Operator;
 import polyglot.ast.Binary;
@@ -23,8 +24,10 @@ import polyglot.ast.BooleanLit;
 import polyglot.ast.Branch;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Catch;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.FloatLit;
 import polyglot.ast.For;
@@ -37,16 +40,20 @@ import polyglot.ast.IntLit;
 import polyglot.ast.Labeled;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.New;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
 import polyglot.ast.Term;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.frontend.Job;
 import polyglot.types.ClassType;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
+import polyglot.types.FieldDef;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -64,9 +71,8 @@ import x10.ast.StmtSeq;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
-import x10.constraint.XFailure;
+import x10.ast.X10NodeFactory_c;
 import x10.constraint.XTerm;
-import x10.types.ConstrainedType;
 import x10.types.MethodInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
@@ -444,6 +450,28 @@ public class AltSynthesizer {
         } catch (SemanticException e) {
             throw new InternalCompilerError("Attempting to synthesize an Assign that cannot be typed", pos, e);
         }
+    }
+
+    /**
+     * @param pos
+     * @param prop
+     * @param init
+     * @param visitor 
+     * @return
+     */
+    public FieldAssign createFieldAssign(Position pos, X10FieldInstance fi, Expr init, ContextVisitor visitor) {
+        Type lbt = Types.baseType(fi.rightType());
+        Type rbt = Types.baseType(init.type());
+        if (!ts.typeEquals(rbt, lbt, visitor.context())){
+            init = createCoercion(pos, init, lbt, visitor);
+        }
+        Expr target = createThis(pos, fi.def().container().get());
+        Id id = nf.Id(pos, fi.name());
+        FieldAssign fa = nf.FieldAssign(pos, target, id, Assign.ASSIGN, init);
+        fa = fa.fieldInstance(fi);
+        fa = fa.targetImplicit(false);
+        fa = (FieldAssign) fa.type(lbt);
+        return fa;
     }
 
     /**
@@ -1083,6 +1111,45 @@ public class AltSynthesizer {
         }
     }
 
+    // constructor splitter synthesize methods
+    
+
+    /**
+     * @param n
+     * @param pos
+     * @return
+     */
+    public ConstructorCall createConstructorCall(Expr target, New n) {
+        ConstructorCall cc = nf.X10ThisCall(n.position(), n.typeArguments(), n.arguments());
+        cc = cc.target(target);
+        cc = cc.constructorInstance(n.constructorInstance());
+        return cc;
+    }
+
+    /**
+     * @param pos
+     * @param type
+     * @return
+     * TODO: move to Synthesizer
+     */
+    public Expr createThis(Position pos, Type type) {
+        return nf.This(pos).type(type);
+    }
+
+    /**
+     * Create an artificial Allocation node.
+     * 
+     * @param pos the Position of the allocation
+     * @param type the Type of the object (or struct) being allocated
+     * @param typeArgs 
+     * @return a synthesized Allocation node.
+     * TODO: move to Synthesizer
+     */
+    public Allocation createAllocation(Position pos, Type type, List<TypeNode> typeArgs) {
+        return (Allocation) ((Allocation) ((X10NodeFactory_c) nf).Allocation(pos).type(type)).typeArguments(typeArgs);
+    }
+
+    
     // local helper methods
 
     /**
