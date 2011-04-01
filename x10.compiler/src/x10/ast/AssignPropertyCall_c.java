@@ -58,6 +58,8 @@ import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.X10Context_c;
 import x10.types.X10ClassDef;
+import x10.types.X10TypeEnv;
+import x10.types.X10TypeEnv_c;
 import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -325,7 +327,11 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 }
                 // Check that the class invariant is satisfied.
                  X10ClassType ctype =  (X10ClassType) Types.get(thisConstructor.container());
-                 final CConstraint inv = Types.get(ctype.x10Def().classInvariant()).copy();
+                CConstraint _inv = Types.get(ctype.x10Def().classInvariant()).copy();
+                X10TypeEnv env = ts.env(tc.context());
+                boolean isThis = true; // because in the class invariant we use this (and not self)
+                _inv = X10TypeEnv_c.ifNull(((X10TypeEnv_c)env).expandProperty(isThis,ctype,_inv),_inv);
+                final CConstraint inv = _inv;
                  if (!k.entails(inv, new ConstraintMaker() {
                      public CConstraint make() throws XFailure {
                          return ctx.constraintProjection(k, inv);

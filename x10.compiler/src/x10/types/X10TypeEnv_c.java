@@ -730,7 +730,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }));
         return mi;
     }
-    private Type expandPropertyInSubtype(Type t1, Type t2) {
+    public Type expandPropertyInSubtype(Type t1, Type t2) {
         // we expand properties in t2 based on the property definitions in t1.
         // e.g., val i:I{self.p()==2} = c;
         // where I is an interface with abstract property p, and C is a class with concrete definition for p.
@@ -738,13 +738,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (t1ClassType==null || isInterface(t1ClassType)) return t2;  // if t1 is an interface, then there is no way it has any non-abstract property definitions.
         return expandProperty(false,t1ClassType, t2);
     }
-    private <T> T ifNull(T t, T def) {
+    public static <T> T ifNull(T t, T def) {
         return t==null ? def : t;
     }
-    private Type expandPropertyInMethodNonNull(final ClassType t1ClassType, Type t2) {
+    public Type expandPropertyInMethodNonNull(final ClassType t1ClassType, Type t2) {
         return ifNull(expandProperty(true,t1ClassType,t2), t2);
     }
-    private Type expandProperty(final boolean isMethod, final ClassType t1ClassType, Type t2) {
+    public Type expandProperty(final boolean isMethod, final ClassType t1ClassType, Type t2) {
         if (!(t2 instanceof ConstrainedType)) return t2;
         ConstrainedType t2c = (ConstrainedType) t2;
         CConstraint originalConst = Types.get(t2c.constraint());
@@ -754,7 +754,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             t2 = Types.xclause(Types.baseType(t2), newConstraint);
         return t2;
     }
-    private CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, CConstraint originalConst) {
+    public CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, CConstraint originalConst) {
         final List<XTerm> terms = originalConst.constraints();
         final ArrayList<XTerm> newTerms = new ArrayList<XTerm>(terms.size());
         boolean wasNew = false;

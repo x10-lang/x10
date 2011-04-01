@@ -34,6 +34,7 @@ public class XTerms {
 	public static final XLit NULL = new XLit(null);
 	public static final XLit TRUE = new XLit(true);
 	public static final XLit FALSE = new XLit(false);
+    public static boolean isBoolean(XTerm x) { return x==TRUE || x==FALSE; } // because we intern
 	public static final XLit OPERATOR = new XLit(new Object()) { 
 		public String toString() { return "o"; } 
 	};

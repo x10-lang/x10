@@ -3420,10 +3420,10 @@ class FieldInInvariant1 {a==1} { // ShouldBeErr
 	val a:Int;
 	def this() { a=2; }
 }
-class FieldInInvariant2 {this.a==1} {  // ShouldBeErr
+class FieldInInvariant2 {this.a==1} {  // ERR
 	val a:Int = 2;
 }
-class FieldInInvariant3 {self.a==1} { // ERR ERR: Semantic Error: self may only be used within a dependent type
+class FieldInInvariant3 {self.a==1} { // ERR ERR ERR: Semantic Error: self may only be used within a dependent type
 	val a:Int = 1;
 }
 class XTENLANG_688(a:Int) {
@@ -3662,7 +3662,7 @@ class StaticOverriding { // see XTENLANG-2121
   }
 }
 
-class TreeUsingFieldNotProperty { this.left==null } { // ShouldBeErr
+class TreeUsingFieldNotProperty { this.left==null } { // ERR
   val left:TreeUsingFieldNotProperty = null;
 }
 class XTENLANG_1149 {
@@ -5533,13 +5533,19 @@ class InterfaceSuperPropertyMethodResolution {
 	}
 	abstract class C3 implements B{this.a()==1} { // ERR ERR
 	}
-	abstract class C3 implements B{super.a()==1} { // ERR ERR ERR
+	abstract class C4 implements B{super.a()==1} { // ERR ERR ERR
 	}
-	abstract class C4 {a()==1} implements B {
+	abstract class C5 
+			{a()==1} // ERR: Cannot create the default constructor because the class invariant uses property methods self or super. Please define a constructor explicitly.
+		implements B {
 	}
-	abstract class C5 {self.a()==1} implements B { // ERR ERR
+	abstract class C6 
+			{self.a()==1} // ERR ERR ERR: Cannot create the default constructor because the class invariant uses property methods self or super. Please define a constructor explicitly.
+		implements B { 
 	}
-	abstract class C6 {this.a()==1} implements B {
+	abstract class C7 
+			{this.a()==1} // ERR: Cannot create the default constructor because the class invariant uses property methods self or super. Please define a constructor explicitly.
+		implements B {
 	}
 }
 
@@ -6272,3 +6278,103 @@ class XTENLANG_1767 {
 		} catch (e2:RuntimeException) {}
 	}
 }
+
+class DefaultCtorTests {
+	class A10(i:Int) {this.i==2} {}
+	class A1(i:Int) {this.i==2} {
+		def this() { property(2); }
+	}
+	class B1(b:Int) 
+		{this.i!=3} // ERR: Cannot create the default constructor because the class invariant uses self or super.
+		extends A1 {} 
+	class B2(b:Int) {b!=3} extends A1 {}
+	class D 
+		{i!=3}  // ERR: Cannot create the default constructor because the class has no properties. Move the invariant as a constraint on the relevant supertype.
+		extends A1 {} 
+	class D2 
+		extends A1{i!=3} {} 
+}
+class DefaultCtorTests2 {
+	class interface B {
+		property a():Int;
+	}
+	abstract class C5(x:Int) {this.a()!=x} implements B {
+		property a()=1;
+		def this(x:Int) {1!=x} { property(x); }
+	}
+	abstract class C6(x:Int) {this.a()!=x} implements B { // ERR
+		property a()=1;
+	}
+}
+class TestCheckingClassInvariant {
+	class B(b:Int) {
+		def this() { property(4); }
+	}
+	class C2 
+		{this.b==1} 
+		extends B {
+		def this() {
+			super(); // ShouldBeErr, see XTENLANG-2628
+		}	
+	}
+	// correct way of writing C2 is:
+	class C2_correct	
+		extends B{self.b==1} {
+		def this() {
+			super();  // ERR
+		}	
+	}
+
+	class C22(c:Int) 
+		{this.b==4}
+		extends B {
+		def this() {
+			super(); 
+			property(5);
+		}	
+	}
+	class C2b(c:Int) 
+		{this.b==7}
+		extends B {
+		def this() { // ERR
+			super(); 
+			property(5); // ERR ERR
+		}	
+	}
+	class C3 
+		extends B{self.b==1} {
+		def this() {
+			super(); // ERR
+		}	
+	}
+}
+class XTENLANG_1636 {
+	class A1(i:Int) {this.i==2} {}
+	class A2(i:Int) {
+		def this(p:Int) {this.i==p} { // ERR (can't use "this" in the guard)
+			property(3);
+		}
+	}
+	class IntSetter0(p:Int) {this.p==1} {}
+	class IntSetter1(p:Int) {f()} { // ERR ERR (too complicated to create a default ctor for this case)
+		property f() = p==1;
+		// if we had the time, then the auto-generated ctor would have a guard, i.e., it would look like this:
+		// def this(x:Int) {x==1} {	property(x); }
+	}
+	class IntSetter2(p:Int) {f()} {
+		property f() = p==1;
+		def this(x:Int) {
+			property(x); // ERR
+		}
+		def this(x:Int,y:Int) {x==1} {
+			property(x);
+		}
+		def this() {
+			property(1);
+		}
+		def this(Double) {
+			property(2); // ERR
+		}
+	} 
+}
+
