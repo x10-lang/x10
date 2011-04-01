@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays22;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays32;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Arrays190 extends x10Test {
     }
 
 
-// file Arrays line 316
+// file Arrays line 335
 
- static class Arrays22TestExp{
+ static class Arrays32TestExp{
   def check(A:Array[Int])  = A.rank;  }
 
  static class Hook {

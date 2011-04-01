@@ -14,6 +14,7 @@ package x10.constraint;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Constraints constrain XTerms. Thus XTerms are the basic building blocks 
@@ -150,4 +151,25 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	public abstract int hashCode();
 	public abstract boolean equals(Object o);
 
+    // Wrote my own visitor, cause the XGraphVisitor is too cumbersome
+    public interface TermVisitor {
+        /**
+         * Visit the term tree.
+         * @param term
+         * @return  A term if normal traversal is to stop, <code>null</code> if it
+         * is to continue.
+         */
+        XTerm visit(XTerm term);
+    }
+    /**
+     * Given a visitor, we traverse the entire term (which is like a tree).
+     * @param visitor
+     * @return If the visitor didn't return any new child, then we return "this" (otherwise we create a clone with the new children)
+     */
+    public XTerm accept(TermVisitor visitor) {
+        // The default implementation for "leave" terms (that do not have any children)
+        XTerm res = visitor.visit(this);
+        if (res!=null) return res;
+        return this;
+    }
 }

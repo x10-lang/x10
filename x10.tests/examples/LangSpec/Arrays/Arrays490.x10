@@ -26,10 +26,11 @@ public class Arrays490 extends x10Test {
     }
 
 
-// file Arrays line 885
+// file Arrays line 916
  static  class Example{
-static def add(da:DistArray[Int], db: DistArray[Int]{da.dist==db.dist})
-    = da.map(db, ((x:Int,y:Int) => x+y));
+static def add(da:DistArray[Int], db: DistArray[Int])
+    {da.dist==db.dist}
+    = da.map(db, (a:Int,b:Int)=>a+b);
 }
 
  static class Hook {

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays24;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays34;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,10 +26,10 @@ public class Arrays210 extends x10Test {
     }
 
 
-// file Arrays line 337
+// file Arrays line 358
 
- static class Arrays24TestExp{
-  def check()  = new Array[Int](1..100, (Point(1))=>0);  }
+ static class Arrays34TestExp{
+  def check()  = new Array[Int](1..3, (i:Point(1))=>11*i(0));  }
 
  static class Hook {
    def run():Boolean = true;

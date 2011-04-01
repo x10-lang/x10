@@ -26,13 +26,11 @@ public class Classes5q6q extends x10Test {
     }
 
 
-// file Classes line 873
+// file Classes line 971
  static class Ctors {
   val a : Int;
   def this(a:Int) { this.a = a; }
-  def this() {
-    this(100);
-  }
+  def this()      { this(100);  }
 }
 
  static class Hook {

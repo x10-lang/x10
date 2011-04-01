@@ -45,6 +45,7 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 
 import x10.types.ClosureDef;
+import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import polyglot.types.TypeSystem;
@@ -92,9 +93,12 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	
 		//if (guard != null)
 		//	throw new SemanticException("Function types with guards are currently unsupported.", position());
+		if (guard != null && guard.typeConstraint() != null && !Types.get(guard.typeConstraint()).terms().isEmpty()) {
+			throw new SemanticException("Type constraints not permitted in function type guards.", position());
+		}
 		if (typeParams.size() != 0)
 			throw new SemanticException("Function types with type parameters are currently unsupported.", position());
-		Type result = ts.functionType(position(), returnType.typeRef(),
+		FunctionType result = ts.functionType(position(), returnType.typeRef(),
 		        typeParams, formalTypes, formalNames,
 		        guard != null ? guard.valueConstraint() : Types.lazyRef(new CConstraint())
 		        // guard != null ? guard.typeConstraint() : null,

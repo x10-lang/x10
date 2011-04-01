@@ -26,7 +26,7 @@ public class ObjectInitialization60 extends x10Test {
     }
 
 
-// file ObjectInitialization line 577
+// file ObjectInitialization line 591
  static  class Supertype[T]{}
  static  interface SuperInterface[T]{}
  static class Example (

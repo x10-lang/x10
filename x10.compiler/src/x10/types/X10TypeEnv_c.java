@@ -21,7 +21,6 @@ import java.util.Set;
 
 import polyglot.main.Reporter;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
@@ -47,29 +46,39 @@ import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.TypeSystem;
+import polyglot.types.Def;
+import polyglot.types.MemberDef;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CodedErrorInfo;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.TransformingList;
+import polyglot.util.Transformation;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.types.ParameterType.Variance;
 import polyglot.types.TypeSystem_c.Bound;
 import polyglot.types.TypeSystem_c.Kind;
+import polyglot.ast.Expr;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.CField;
+import x10.types.constraints.CAtom;
+import x10.types.constraints.CThis;
+import x10.types.constraints.CSelf;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
+import x10.visit.Desugarer;
 
 /**
  * A TypeSystem implementation for X10.
@@ -114,6 +123,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                         continue;
                     }
 
+                    mi = expandPropertyInMethod(ct,mi);
                     MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
                     if (mj == null) {
                     	if (Types.isX10Struct(ct)) {
@@ -700,6 +710,124 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return old;*/
     }
 
+    private boolean isInterface(ClassType t) {
+        return t.flags().isInterface();
+    }
+    public MethodInstance expandPropertyInMethod(final ClassType t1, MethodInstance mi) {
+        // expand property methods in all formals and guard
+        if (t1==null || isInterface(t1)) return mi;
+        mi = (MethodInstance) mi.formalNames(new TransformingList<LocalInstance,LocalInstance>(mi.formalNames(), new Transformation<LocalInstance, LocalInstance>() {
+            public LocalInstance transform(LocalInstance o) {
+                return o.type(expandPropertyInMethodNonNull(t1,o.type()));
+            }
+        }));
+        if (mi.guard()!=null)
+            mi = (MethodInstance) mi.guard( ifNull(expandProperty(true,t1,mi.guard()),mi.guard()) );
+        mi = (MethodInstance) mi.formalTypes(new TransformingList<Type,Type>(mi.formalTypes(), new Transformation<Type, Type>() {
+            public Type transform(Type o) {
+                return expandPropertyInMethodNonNull(t1,o);
+            }
+        }));
+        return mi;
+    }
+    private Type expandPropertyInSubtype(Type t1, Type t2) {
+        // we expand properties in t2 based on the property definitions in t1.
+        // e.g., val i:I{self.p()==2} = c;
+        // where I is an interface with abstract property p, and C is a class with concrete definition for p.
+        final ClassType t1ClassType = Desugarer.getClassType(t1,ts,context);
+        if (t1ClassType==null || isInterface(t1ClassType)) return t2;  // if t1 is an interface, then there is no way it has any non-abstract property definitions.
+        return expandProperty(false,t1ClassType, t2);
+    }
+    private <T> T ifNull(T t, T def) {
+        return t==null ? def : t;
+    }
+    private Type expandPropertyInMethodNonNull(final ClassType t1ClassType, Type t2) {
+        return ifNull(expandProperty(true,t1ClassType,t2), t2);
+    }
+    private Type expandProperty(final boolean isMethod, final ClassType t1ClassType, Type t2) {
+        if (!(t2 instanceof ConstrainedType)) return t2;
+        ConstrainedType t2c = (ConstrainedType) t2;
+        CConstraint originalConst = Types.get(t2c.constraint());
+        CConstraint newConstraint = expandProperty(isMethod, t1ClassType,originalConst);
+        if (newConstraint==null) return null;
+        if (newConstraint!=originalConst)
+            t2 = Types.xclause(Types.baseType(t2), newConstraint);
+        return t2;
+    }
+    private CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, CConstraint originalConst) {
+        final List<XTerm> terms = originalConst.constraints();
+        final ArrayList<XTerm> newTerms = new ArrayList<XTerm>(terms.size());
+        boolean wasNew = false;
+        for (XTerm xTerm : terms) {
+            final XTerm.TermVisitor visitor = new XTerm.TermVisitor() {
+                public XTerm visit(XTerm term) {
+                    Def aDef = null;
+                    List<XTerm> args = null; // the first arg is the this-receiver
+                    if (term instanceof CAtom) {
+                        CAtom cAtom = (CAtom) term;
+                        aDef = cAtom.def();
+                        args = cAtom.arguments();
+                    }
+                    if (term instanceof CField) {
+                        CField cField = (CField) term;
+                        aDef = cField.field();
+                        args = Collections.<XTerm>singletonList(cField.receiver);
+                    }
+                    if (aDef==null || !(aDef instanceof X10MethodDef)) return null;
+                    XTerm receiver = args.get(0);
+                    if (isMethod) {
+                        // for methods (checking overriding) we replace "this.p(...)"
+                        if (!(receiver instanceof CThis)) return null;
+                    } else {
+                        // for subtyping tests we replace "self.p(...)"
+                        if (!(receiver instanceof CSelf)) return null;
+                    }
+                    X10MethodDef methodDef = (X10MethodDef) aDef;
+                    // find the correct def, and return a clone of the XTerm
+                    final MethodInstance method = ts.findImplementingMethod(t1ClassType, methodDef.asInstance(), false, context);
+                    if (method==null) // the property is abstract in t1
+                        return null;
+                    final X10MethodDef def = (X10MethodDef) method.def();
+                    final Ref<XTerm> bodyRef = def.body();
+                    if (bodyRef==null)
+                        return null;
+                    XTerm body = bodyRef.get();
+                    if (body==null)
+                        return null;
+                    // currently we only support nullary property methods that are not CAtoms
+                    List<LocalDef> formals = def.formalNames();
+                    if (formals.size()!=args.size()-1)
+                        throw new InternalCompilerError("The number of arguments in the property method didn't match the property defintiion.");
+                    int pos=1;
+                    for (LocalDef formal : formals) {
+                        XVar x =  CTerms.makeLocal((X10LocalDef)formal);
+                        XTerm y = args.get(pos++);
+                        body = body.subst(y, x);
+                    }
+                    body = body.subst(receiver, def.thisVar());
+                    return body;
+                }
+            };
+            final XTerm newXterm = xTerm.accept(visitor);
+            wasNew |= newXterm!=xTerm;
+            newTerms.add(newXterm);
+        }
+        if (wasNew) {
+            final CConstraint newConstraint = new CConstraint(originalConst.self());
+            newConstraint.setThisVar(originalConst.thisVar());
+            for (XTerm xTerm : newTerms) {
+                try {
+                    newConstraint.addTerm(xTerm);
+                } catch (XFailure xFailure) {
+                    return null;
+                }
+            }
+            if (!newConstraint.consistent())
+                return null;
+            return newConstraint;
+        }
+        return originalConst;
+    }
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
@@ -719,6 +847,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
+        t2 = expandPropertyInSubtype(t1,t2);
+        if (t2==null) return false;
         assert !t1.isVoid() && !t2.isVoid();
         
     	if (ts.isAny(t2))
@@ -909,22 +1039,23 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             CConstraint d = ft2.guard();
             if (Sl.size() != Tl.size())
                 return false;
+            XVar[] ys = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
+            XVar[] xs = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
             for (int i = 0; i < Sl.size(); i++) {
                 Type Si = Sl.get(i);
                 Type Ti = Tl.get(i);
                 if (!isSubtype(x, Ti, Si))
                     return false;
             }
-            if (c != null) {
-                try {
-                    XVar[] ys = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
-                    XVar[] xs = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
-                    c = c.substitute(ys, xs);
-                } catch (XFailure e) {
-                    throw new InternalCompilerError("Unexpected exception comparing function types", ft1.position(), e);
+            try {
+                if (c != null) {
+                    c = Subst.subst(c, ys, xs);
                 }
+                S = Subst.subst(S, ys, xs);
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Unexpected exception comparing function types", ft1.position(), e);
             }
-            if (!entails(c, d))
+            if (!entails(d, c))
                 return false;
             if (!isSubtype(x, S, T))
                 return false;
@@ -1506,20 +1637,25 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type t;
         if (type1.isNull() || type2.isNull()) {
             t = type1.isNull() ? type2 : type1;
-            if (Types.permitsNull(t)) return t;
+            if (Types.permitsNull(t))
+                return t;
             // Maybe there is a constraint {self!=null} that we can remove from "t", and then null will be allowed.
             // e.g., true ? null : new Test()
             //      	 T1: type(null)
      	    //      	 T2: Test{self.home==here, self!=null}
             // The lub should be:  Test{self.home==here}
 
-            CConstraint ct = Types.realX(t);
             Type baseType = Types.baseType(t);
             if (!Types.permitsNull(baseType))
                 throw new SemanticException("No least common ancestor found for types \"" + type1 +
     								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
             // we need to keep all the constraints except the one that says the type is not null
-            final Type res = Types.addConstraint(baseType, Types.allowNull(ct));
+            Type res = baseType;
+            // todo: this is an attempt to keep as many constraints as possible:
+            // res = Types.addConstraint(baseType, Types.allowNull(Types.realX(t)));
+            // It is useful if we do LCA(null, Point(2))  because it should be Point(2)
+            // However   LCA(null, Bla{self==a})  is complicated because "a" might be of type Bla{self!=null}, so we need to remove the constraint self==a.
+            // See XTENLANG_2622 and XTENLANG_1380
             assert Types.consistent(res);
             assert Types.permitsNull(res);
             return res;

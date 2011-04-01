@@ -30,6 +30,23 @@ public class XFormula<T> extends XTerm {
 	    public List<XTerm> arguments;
 	    public final boolean isAtomicFormula;
 
+
+        public XTerm accept(TermVisitor visitor) {
+            XTerm res = visitor.visit(this);
+            if (res!=null) return res;
+            ArrayList<XTerm> newArgs = new ArrayList<XTerm>();
+            boolean wasNew = false;
+            for (XTerm xTerm : arguments) {
+                final XTerm newArg = xTerm.accept(visitor);
+                wasNew |= newArg!=xTerm;
+                newArgs.add(newArg);
+            }
+            if (!wasNew) return this;
+            XFormula<T> newThis = (XFormula<T>) this.clone();
+            newThis.arguments = newArgs;
+            return newThis;
+        }
+
 	    /**
 	     * Create a formula with the given op and given list of arguments.
 	     * @param op

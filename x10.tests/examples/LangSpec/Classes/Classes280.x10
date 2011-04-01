@@ -26,7 +26,7 @@ public class Classes280 extends x10Test {
     }
 
 
-// file Classes line 1797
+// file Classes line 1991
  static class MyRegion(rank:Int) {
   static type MyRegion(n:Int)=MyRegion{rank==n};
   def this(r:Int):MyRegion(r) {
@@ -37,7 +37,7 @@ public class Classes280 extends x10Test {
   }
   def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
   def example() {
-    val R1 : MyRegion(3) = new MyRegion([4 as Int,4,4]);
+    val R1 : MyRegion(3) = new MyRegion([4,4,4 as Int]);
     val R2 : MyRegion(3) = new MyRegion([5,4,1]);
     val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
   }

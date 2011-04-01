@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Functions6;
+/* Current test harness gets confused by packages, but it would be in package expsome_Functions7;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Functions40 extends x10Test {
     }
 
 
-// file Functions line 249
+// file Functions line 305
 
- static class Functions6TestExp{
+ static class Functions7TestExp{
   def check()  = (Int):Array[Double](1) => null;  }
 
  static class Hook {

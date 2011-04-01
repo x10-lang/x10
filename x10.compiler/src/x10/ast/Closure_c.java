@@ -71,7 +71,7 @@ import x10.util.ClosureSynthesizer;
  * 
  * It has associated with it a ClosurDef.
  * 
- * Its type is an anonymous class that implements the Fun_m_n synthesized interface associated with ClosureDef.
+ * Its type is a ClosureType.
  * @author vj
  *
  */
@@ -392,6 +392,11 @@ public class Closure_c extends Expr_c implements Closure {
 			guard.visit(ac);
 			if (ac.error != null) {
 				Errors.issue(tc.job(), ac.error, this);
+			}
+			if (guard.typeConstraint() != null && !Types.get(guard.typeConstraint()).terms().isEmpty()) {
+			    Errors.issue(tc.job(),
+			            new SemanticException("Type constraints not permitted in closure guards.",
+			                    position()));
 			}
 		}
 

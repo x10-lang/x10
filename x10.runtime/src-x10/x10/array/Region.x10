@@ -461,13 +461,6 @@ public abstract class Region(
      * @return a "constant" distribution over this region that maps to p.
      */
     public operator this -> (p:Place) = Dist.makeConstant(this, p);
-
-    /**
-     * Returns true if this region contains a given point.
-     * @param p the given point
-     * @return true if p is in this region.
-     */
-    public operator (p:Point) in this = this.contains(p);
 }
 public type Region(r:Int) = Region{self.rank==r};
 public type Region(r:Region) = Region{self==r};

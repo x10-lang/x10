@@ -24,7 +24,7 @@ public abstract class TryFrame extends RegularFrame {
     }
 
     @Inline public final def rethrow() {
-        if (!isNULL(throwable)) {
+        if (null != throwable) {
             val t = throwable;
             throwable = null;
             throw t;

@@ -26,7 +26,7 @@ public class Types110 extends x10Test {
     }
 
 
-// file Types line 263
+// file Types line 269
 
  static class Cell[T] {
   var contents : T;

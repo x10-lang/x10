@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Functions11;
+/* Current test harness gets confused by packages, but it would be in package Lex1p9o;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,17 +19,22 @@ import harness.x10Test;
 
 
 
-public class Functions90 extends x10Test {
+public class Lex1p9o extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Functions90().execute();
+        new Lex1p9o().execute();
     }
 
 
-// file Functions line 384
- static class Span(low:Int, high:Int) {def this(low:Int, high:Int) {property(low,high);} def between(n:Int) = low <= n && n <= high;}
- static class Functions11TestExp{
-  def check(digit:Span)  = (x:Int)=>digit.between(x);  }
+// file Lex line 42
+
+ static  class Backyquotey {
+ def hokey(e:Int, a:Int, b:Int, d:Int) = 0;
+ def example() {
+ val `while`=0; val `!`=0; val  `(unbalanced(`=0;  val `\`\\`=0;
+ hokey(
+`while`, `!`, `(unbalanced(`,  `\`\\`
+ ); } }
 
  static class Hook {
    def run():Boolean = true;

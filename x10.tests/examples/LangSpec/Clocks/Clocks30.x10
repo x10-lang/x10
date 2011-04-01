@@ -26,7 +26,7 @@ public class Clocks30 extends x10Test {
     }
 
 
-// file Clocks line 185
+// file Clocks line 143
  static class Qlocked{
 static def S():void{}
 static def flock() {

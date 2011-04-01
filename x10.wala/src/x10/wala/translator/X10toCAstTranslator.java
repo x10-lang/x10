@@ -3033,9 +3033,6 @@ public class X10toCAstTranslator implements TranslatorToCAst {
                 mc = mc.methodInstance(mi);
                 mc = (Call) mc.type(mi.returnType());
                 return visit(mc, context);
-            } else if (op == Binary.Operator.IN) {
-                Assertions.UNREACHABLE("Operator 'in' encountered");
-                return null;
             }
             return super.visit(b, context);
         }

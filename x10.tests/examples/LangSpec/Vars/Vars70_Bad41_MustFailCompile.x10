@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Extern_or_turnabout_is_fair_play;
+/* Current test harness gets confused by packages, but it would be in package Vars_For_Stars;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,21 +17,30 @@
 
 import harness.x10Test;
 
-import x10.compiler.Native;
 
-public class extern50 extends x10Test {
+
+public class Vars70_Bad41_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new extern50().execute();
+        new Vars70_Bad41_MustFailCompile().execute();
     }
 
 
-// file extern line 96
- static class Species {
-  @Native("c++", "printf(\"Sum=%d\", ((#1)+(#2)) )")
-  @Native("java", "System.out.println(\"\" + ((#1)+(#2)))")
-  static native def printNatively(x:Int, y:Int):void;
-}
+// file Vars line 278
+abstract static  class VarsForStars{
+ abstract def cointoss(): Boolean;
+def check() {
+  var muta : Int;
+  // ERROR:  println(muta);
+  muta = 4;
+  val use2A = muta * 10;
+  val immu : Int;
+  // ERROR: println(immu);
+  if (cointoss())   {immu = 1;}
+  else              {immu = use2A;}
+  val use2B = immu * 10;
+ immu = 5; // ERR
+}}
 
  static class Hook {
    def run():Boolean = true;

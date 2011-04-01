@@ -14,8 +14,14 @@
 
 package x10.parser;
 
+
+    //#line 58 "KeywordTemplateF.gi
 import lpg.runtime.*;
+
+    //#line 27 "x10/parser/X10KWLexer.gi
 import java.util.*;
+
+    //#line 63 "KeywordTemplateF.gi
 
 public class X10KWLexer extends X10KWLexerprs
 {
@@ -50,6 +56,8 @@ public class X10KWLexer extends X10KWLexerprs
 
     public void setInputChars(char[] inputChars) { this.inputChars = inputChars; }
 
+
+    //#line 31 "x10/parser/X10KWLexer.gi
 
     final static int tokenKind[] = new int[128];
     static
@@ -112,6 +120,8 @@ public class X10KWLexer extends X10KWLexerprs
     {
         return (c < 128 ? tokenKind[c] : 0);
     }
+
+    //#line 101 "KeywordTemplateF.gi
 
 
     public X10KWLexer(char[] inputChars, int identifierKind)
@@ -553,6 +563,8 @@ public class X10KWLexer extends X10KWLexerprs
             keywordKind[62] = (X10Parsersym.TK_haszero);
       
     
+    //#line 111 "KeywordTemplateF.gi
+
         for (int i = 0; i < keywordKind.length; i++)
         {
             if (keywordKind[i] == 0)

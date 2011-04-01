@@ -112,6 +112,7 @@ import x10.visit.ExpressionFlattener;
 import x10.visit.FieldInitializerMover;
 //import x10.visit.FinishAsyncVisitor;
 import x10.visit.FinallyEliminator;
+import x10.visit.IfdefVisitor;
 import x10.visit.MainMethodFinder;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
@@ -508,6 +509,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
 
+           goals.add(Ifdef(job));
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
 
@@ -956,6 +958,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        private Goal AnnotationChecker(Job job) {
            return new ForgivingVisitorGoal("AnnotationChecker", job, new AnnotationChecker(job,job.extensionInfo().typeSystem(),job.extensionInfo().nodeFactory())).intern(this);
+       }
+       private Goal Ifdef(Job job) {
+           return new ForgivingVisitorGoal("IfdefVisitor", job, new IfdefVisitor(job,job.extensionInfo().typeSystem(),job.extensionInfo().nodeFactory())).intern(this);
        }
        private Goal ErrChecker(Job job) {
            return new ForgivingVisitorGoal("ErrChecker", job, new ErrChecker(job)).intern(this);

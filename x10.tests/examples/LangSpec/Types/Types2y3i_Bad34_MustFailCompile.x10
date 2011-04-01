@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Extern_me_plz;
+/* Current test harness gets confused by packages, but it would be in package Types2y3i_Bad34_MustFailCompile;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,22 +17,27 @@
 
 import harness.x10Test;
 
-import x10.compiler.Native;
 
-public class extern70 extends x10Test {
+
+public class Types2y3i_Bad34_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new extern70().execute();
+        new Types2y3i_Bad34_MustFailCompile().execute();
     }
 
 
-// file extern line 140
- static class Born {
-  var y : Int = 1;
-  public def example(x:Int):Int{
-    @Native("java", "y=x;")
-    {y = 3;}
-    return y;
+// file Types line 369
+
+ static interface Stat {
+  static val PI = 3.14159;
+  static type R = Double;
+  static  class Pair(x:R, y:R) {}
+ static def meth():Int; // ERR
+  // ERROR: static def this();
+}
+ static class Example {
+  static def example() {
+     val p : Stat.Pair = new Stat.Pair(Stat.PI, Stat.PI);
   }
 }
 

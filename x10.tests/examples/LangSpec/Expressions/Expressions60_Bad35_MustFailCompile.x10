@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Extern_or_current_turn;
+/* Current test harness gets confused by packages, but it would be in package Expressions_Calls_Guarded_By_Walls;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,24 +17,25 @@
 
 import harness.x10Test;
 
-import x10.compiler.Native;
 
-public class extern10 extends x10Test {
+
+public class Expressions60_Bad35_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new extern10().execute();
+        new Expressions60_Bad35_MustFailCompile().execute();
     }
 
 
-// file extern line 20
- static class Son {
-  @Native("c++", "printf(\"Hi!\")")
-  @Native("java", "System.out.println(\"Hi!\")")
-  static def printNatively():void = {};
-}
+// file Expressions line 316
 
- static class Hook {
-   def run():Boolean = true;
+ static class DivideBy(denom:Int) {
+  def div(numer:Int){denom != 0} = numer / denom;
+  def example() {
+     val thisCast = (this as DivideBy{self.denom != 0});
+     thisCast.div(100);
+ this.div(100); // ERR
+  }
 }
+ static  class Hook{ def run() { (new DivideBy(1)).example(); return true; } }
 
 }

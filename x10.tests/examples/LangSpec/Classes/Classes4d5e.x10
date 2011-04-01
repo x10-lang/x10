@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Structs20;
+/* Current test harness gets confused by packages, but it would be in package Classes4d5e;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,21 +19,20 @@ import harness.x10Test;
 
 
 
-public class Structs20 extends x10Test {
+public class Classes4d5e extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Structs20().execute();
+        new Classes4d5e().execute();
     }
 
 
-// file Structs line 117
- static struct Pair(t:Int,u:Int) {
-  def this(t:Int, u:Int):Pair{t==self.t&&u==self.u} { property(t,u); }
-  def diag(){t==u} = t;
+// file Classes line 753
+ static class Two[T,U]{
+  def m(x:T)=1;
+ }
+
+ static class Hook {
+   def run():Boolean = true;
 }
- static  class Hook{ def run() {
-   val p = Pair(3,3);
-   return p.diag() == 3;
- }}
 
 }

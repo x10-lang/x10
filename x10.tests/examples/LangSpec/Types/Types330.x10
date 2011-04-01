@@ -26,7 +26,7 @@ public class Types330 extends x10Test {
     }
 
 
-// file Types line 1125
+// file Types line 1151
  static class Listlike(x:Int) {
   val kid : Listlike{self.x == this.x};
   def this(x:Int, kid:Listlike) {

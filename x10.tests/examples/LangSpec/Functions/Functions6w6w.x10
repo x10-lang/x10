@@ -26,7 +26,7 @@ public class Functions6w6w extends x10Test {
     }
 
 
-// file Functions line 131
+// file Functions line 127
  static class Funny implements (Boolean) => Int,
                        (Int, Int) => Int
 {

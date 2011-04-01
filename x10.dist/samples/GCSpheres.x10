@@ -86,7 +86,7 @@ class GCSpheres {
         var counter : Long = 0;
 
         // HOT LOOP BEGINS
-        for (1..reps) {
+        for (c in 1..reps) {
 
             val x = (ran.nextDouble()*world_size) as Real;
             val y = (ran.nextDouble()*world_size) as Real;

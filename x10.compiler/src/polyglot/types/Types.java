@@ -314,24 +314,24 @@ public class Types {
 	 * @param c a constraint "c" that doesn't allow null
 	 * @return a new constraint with all the constraints in "c" except {self!=null}
 	 * 
-	 * TODO: Rewrite to use an XGraphVisitor.
+	 * TODO: this implementation is wrong, see XTENLANG-1380
 	 */
-	public static CConstraint allowNull(CConstraint c) {
-	    final XVar self = c.self();
-	    CConstraint res = new CConstraint(self);
-	    assert !res.disEntails(self,XTerms.NULL);
-	    for (XTerm term : c.constraints()) {
-	        CConstraint copy = res.copy();
-	        try {
-	            copy.addTerm(term);
-	        } catch (XFailure xFailure) {
-	            assert false : xFailure;
-	        }
-	        if (!copy.disEntails(self,XTerms.NULL))
-	            res = copy;
-	    }
-	    return res;
-	}
+//	public static CConstraint allowNull(CConstraint c) {
+//	    final XVar self = c.self();
+//	    CConstraint res = new CConstraint(self);
+//	    assert !res.disEntails(self,XTerms.NULL);
+//	    for (XTerm term : c.constraints()) {
+//	        CConstraint copy = res.copy();
+//	        try {
+//	            copy.addTerm(term);
+//	        } catch (XFailure xFailure) {
+//	            assert false : xFailure;
+//	        }
+//	        if (!copy.disEntails(self,XTerms.NULL))
+//	            res = copy;
+//	    }
+//	    return res;
+//	}
 
 	public static void checkMissingParameters(Receiver receiver) throws SemanticException {
 	    Type xt = receiver.type();

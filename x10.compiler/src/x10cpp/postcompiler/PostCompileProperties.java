@@ -24,7 +24,7 @@ public class PostCompileProperties {
         ldFlags  = split(p.getProperty("X10LIB_LDFLAGS"));
     }
 
-    protected Collection<String> split(String s) {
+    public static Collection<String> split(String s) {
         ArrayList<String> l = new ArrayList<String>();
         if (s==null) return l;
         QuotedStringTokenizer q = new QuotedStringTokenizer(s);

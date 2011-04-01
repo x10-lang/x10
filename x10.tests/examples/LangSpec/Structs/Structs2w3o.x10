@@ -26,9 +26,9 @@ public class Structs2w3o extends x10Test {
     }
 
 
-// file Structs line 94
+// file Structs line 95
  static struct Ambig(x:Int) {
-  static def Ambig(x:Int) = "Breaks capitalization conventions!";
+  static def Ambig(x:Int) = "ambiguity please";
   static def example() {
     val useMethod      = Ambig(1);
     val useConstructor = new Ambig(2);

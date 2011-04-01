@@ -26,7 +26,7 @@ public class DefiniteAssignment4f5z extends x10Test {
     }
 
 
-// file DefiniteAssignment line 61
+// file DefiniteAssignment line 70
  static  class Example {
 
 def example(flag : Boolean) {

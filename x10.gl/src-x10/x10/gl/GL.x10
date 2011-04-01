@@ -170,6 +170,4 @@ public final class GL {
     @Native("c++", "GL_MODELVIEW")
     public static GL_MODELVIEW : Int = 0;
 
-    public static def main (args:Array[String](1)) { }
-
 }

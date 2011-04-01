@@ -14,8 +14,14 @@
 
 package x10.parser;
 
+
+    //#line 121 "LexerTemplateF.gi
 import lpg.runtime.*;
+
+    //#line 29 "x10/parser/X10Lexer.gi
 import java.util.*;
+
+    //#line 126 "LexerTemplateF.gi
 
 public class X10Lexer implements RuleAction
 {
@@ -148,6 +154,8 @@ public class X10Lexer implements RuleAction
             prs_stream.makeToken(startLoc, endLoc, 0); // add an error token to the prsStream
         }        
     }
+
+    //#line 5 "LexerBasicMapF.gi
 
     //
     // The Lexer contains an array of characters as the input stream to be parsed.
@@ -400,6 +408,8 @@ public class X10Lexer implements RuleAction
     }
     }
 
+    //#line 47 "x10/parser/X10Lexer.gi
+
     public void makeX10Token(int startLoc, int endLoc, int kind)
     {
         if (kind == X10Parsersym.TK_IDENTIFIER)
@@ -489,6 +499,8 @@ public class X10Lexer implements RuleAction
         reset(buffer, filename, tab);
         kwLexer = new X10KWLexer(lexStream.getInputChars(), X10Parsersym.TK_IDENTIFIER);
     }
+
+    //#line 262 "LexerTemplateF.gi
 
     public void ruleAction(int ruleNumber)
     {
@@ -1074,6 +1086,8 @@ public class X10Lexer implements RuleAction
                    break;
             }
      
+    //#line 266 "LexerTemplateF.gi
+
     
             default:
                 break;

@@ -1684,9 +1684,13 @@ class TestSwitchOnFinalVal {
             case 4:
         }
     }   
+	def testSwitchOnLocal(y:int) {
+        switch(y) {
+            case 1: val x = 4;
+            case 4: Console.OUT.println(x); // ShouldBeErr (see XTENLANG-2267)
+        }
+    }
 }
-
-
 
 
 
@@ -3352,10 +3356,10 @@ class Test[W](p:Int) {
 class XTENLANG_967  {
     def test() {        
         class C[T] {
-			val f1 = (){T<:Object} => "hi"; // method guard on closures still doesn't work
+			val f1 = (){T<:Object} => "hi"; // ERR: Type constraints not permitted in closure guards.
 			def f2(){T<:Object} = "hi";
 		}
-        val res1 =  new C[Int]().f1(); // ShouldBeErr
+        val res1 =  new C[Int]().f1();
         val res2 =  new C[Int]().f2(); // ERR: Type guard {} cannot be established; inconsistent in calling context.
     }	
 }
@@ -3807,8 +3811,10 @@ interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, Im
 	var i:Int @ERR @Ann42; // Annotations on types must implement x10.lang.annotations.TypeAnnotation
 	@ERR @Ann42 var j:Int; // Annotations on field declarations must implement x10.lang.annotations.FieldAnnotation
 
-	def m1() {
+	def m11() {
 		@ERR @Ann42 {}
+	}
+	def m1() {
 		@ERR @Ann42 while (true) {
 			@ERR @Ann42 if (true) 
 				@ERR @Ann42 continue;
@@ -3898,7 +3904,7 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		public static operator (p:Y) as ? :X{i==4} = null;
 	}
 	static class Z(i:Int) {
-		@ShouldNotBeERR @ShouldNotBeERR public static operator (p:Int) as Z{i==4} = null; // see XTENLANG-2202
+		public static operator (p:Int) as Z{i==4} = null; // see XTENLANG-2202
 	}
 	static class W(i:Int) {
 		public static operator (p:Int) as ? :W{i==4} = null;
@@ -3918,7 +3924,23 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		@ERR def test9(y:Y):X{i==5} = y as X;
 	}
 }
-
+class XTENLANG_2202 {
+	static class Z(i:Int) {
+		public static operator (p:Double) as Z{i==4} = new Z(4);
+		public static operator (p:Int) as Z{i==4} = new Z(3); // ERR [Cannot return expression of given type.]
+		public static operator (p:String) as Z{i==4} {p!=null} = new Z(4);
+		public static operator (p:Float) as Z{i==4} {i==4} = new Z(4); // ERR ERR [Cannot access a non-static field field final property public Z.i: x10.lang.Int from a static context.	Cannot build constraint from expression |i == 4|.]
+		public static operator (p:Byte) as Z{} {p==2y} = new Z(4);
+		static def test() {
+			val x:Z{i==4} = "asd" as Z;
+			val y:Z{i==4} = 3.1 as Z;
+			val x3:Z{i==3} = "asd" as Z; // ERR [Cannot assign expression to target.]
+			val y3:Z{i==3} = 3.1 as Z; // ERR [Cannot assign expression to target.]
+			val w1:Z = 2y as Z;
+			val w2:Z = 3y as Z; // ERR
+		}
+	}
+}
 
 class Void_Is_Not_A_Type_Tests { // see also XTENLANG-2220
 	static class B[T] {}
@@ -5129,12 +5151,12 @@ class TestMultipleImplementAndFields {
 	class Example1(z:Int) implements I5 {
       public property z():Int = z;
 	  def example() = a;
-	  public def m() {z==1} {}; // ShouldNotBeERR
+	  public def m() {z==1} {};
 	}
 	class Example2(z:Int) implements I5,I3 {
       public property z():Int = z;
 	  def example() = a;
-	  public def m() {z==1} {}; // ShouldNotBeERR
+	  public def m() {z==1} {};
 	}
 }
 
@@ -5945,8 +5967,267 @@ class TriangleTest_6 // see XTENLANG-2582
         def area(s1:Int{prop1(self) == 1}) {}
      }
 
-    public static def main(args: Array[String](1)): void
-    {
+    public static def test() {
         new Triangle().area(1); // ShouldNotBeERR
     }
 }
+
+
+class NonNullaryPropertiesInInterfaces { // see XTENLANG-2609
+	interface I {
+		public property p(z:Int):Int;
+	}
+	class C implements I {
+		public property p(z:Int):Int = 2;
+	}
+	static def test(i:I{self.p(3)==2}) {} // ShouldNotBeERR
+}
+
+class TestAnnotationCheck {
+    @Inline public def m() {}
+}
+
+class AbstractPropertyMethodsTests1 {
+	interface I {
+	  public property p():Int;
+	}
+	abstract class A(x:Int) implements I {
+	  def test(c:A{self.x==2}) {
+		val i:I{self.p()==2} = c; // ERR
+	  }
+	}
+	abstract class C(x:Int) implements I {
+	  public property p():Int = x;
+	  def test(c:C{self.x==2}) {
+		val i:I{self.p()==2} = c;
+	  }
+	  // mixing this and self
+	  def test2(c:C{this.x==2}, c2:C{this.p()==2}) {
+		val i1:I{this.p()==2} = c;
+		val i2:I{this.p()==2} = c2;
+		val i3:I{self.p()==2} = c; // ERR
+	  }
+	  // testing different receivers
+	  def test3(a:I, c2:C{a.p()==2}, c:C{self.x==2}) {
+		val i:I{a.p()==2} = c; // ERR (we only expand "self")
+		val i2:I{a.p()==2} = c2; 
+	  }
+	}
+}
+class AbstractPropertyMethodsTests2 {
+	abstract class I {
+	  public abstract property p():Int;
+	}
+	abstract class A(x:Int) extends I {
+	  def test(c:A{self.x==2}) {
+		val i:I{self.p()==2} = c; // ERR
+	  }
+	}
+	abstract class C(x:Int) extends I {
+	  public property p():Int = x;
+	  def test(c:C{self.x==2}) {
+		val i:I{self.p()==2} = c;
+	  }
+	}
+}
+class AbstractPropertyMethodsTests3 {
+	interface I {
+	  public property p(a:Int,b:Int):Boolean;
+	}
+	abstract class C(x:Int) implements I {
+	  public property p(a:Int,b:Int):Boolean = a==3&&b==4&&x==2;
+	  def test(c:C{self.x==2},c2:C{self.x==3}) {
+		val i1:I{self.p(3,4)} = c;
+		val i2:I{self.p(2,4)} = c; // ERR
+		val i3:I{self.p(3,5)} = c; // ERR
+		val i4:I{self.p(3,4)} = c2; // ERR
+		val i5:I{self.p(3)} = c; // ERR ERR
+		val i6:I{self.p()} = c; // ERR ERR
+		val i7:I{self.p(3,4,5)} = c; // ERR ERR
+	  }
+	}
+}
+
+class ConstraintBug_2614 { // XTENLANG-2614
+	interface I {
+		property p():Int;
+	}
+	class C implements I {
+		public property p():Int = 3;
+	}
+	class Test {
+	  def test(a:I, c:C{a.p()==2}) {
+		val i:I{a.p()==2} = c;
+	  }
+	}
+}
+
+class XTENLANG_2615 {
+	interface A {
+		def m(Int):void;
+	}
+	class B implements A { // ShouldNotBeERR: B should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in A
+		public def m(Int{self!=0}):void {}  // ShouldBeErr
+	}
+	abstract class C {
+		abstract def m(Int):void;
+	}
+	class D extends C { // ShouldNotBeERR: D should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in C
+		public def m(Int{self!=0}):void {}  // ShouldBeErr
+	}
+}
+class TestConformanceWithAbstractPropertyMethods3 {
+	interface DataPoint { // see XTENLANG-989
+	   public property dim(): Int;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void;
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void;
+	}
+	class IntDataPoint implements DataPoint {
+	   public property dim(): Int = 3;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void { }
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void {}
+	}
+}
+class TestConformanceWithAbstractPropertyMethods3b {
+	interface DataPoint {
+	   public property dim(): Int;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void;
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void;
+	}
+	class IntDataPoint(dim:Int) implements DataPoint {
+	   public property dim(): Int = dim;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void { }
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void {}
+	}
+}
+class TestConformanceWithAbstractPropertyMethods3c {
+	interface DataPoint {
+	   public property dim(): Int;
+	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void;
+	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void;
+	}
+	class IntDataPoint(x:Int) implements DataPoint {
+	   public property dim(): Int = x;
+	   public def distanceFrom(t: DataPoint{3 == this.x}):void { }
+	   public def distanceFrom2(t: DataPoint{3 == self.dim}):void {}
+	}
+}
+class TestConformanceWithAbstractPropertyMethods3dGenerics {
+	interface DataPoint {
+	   public property dim(): Int;
+	   public def distanceFrom(t: Array[DataPoint{3 == this.dim()}]):void;
+	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim()}]):void;
+	}
+	class IntDataPoint(x:Int) implements DataPoint { // ShouldNotBeERR
+	   public property dim(): Int = x;
+	   public def distanceFrom(t: Array[DataPoint{3 == this.x}]):void { }
+	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim}]):void {}
+	}
+}
+class TestConformanceWithAbstractPropertyMethods4 {
+	interface DataPoint {
+	   public property dim(): Int;
+	   public def distanceFrom3(t: DataPoint{3 == self.dim()}):void;
+	}
+	class IntDataPoint implements DataPoint { // ShouldNotBeERR (XTENLANG-2615)
+	   public property dim(): Int = 3;
+	   public def distanceFrom3(t: DataPoint{3 == this.dim()}):void {} // ShouldBeErr
+	}
+}
+
+class XTENLANG_1914 {
+	interface I {
+	  property i():Int;
+	}
+	class A implements I {
+	  public property i():Int = 2;
+	}
+	class B(x:Int) implements I {
+	  public property i():Int = x;
+	}
+	class Test {
+	  def test(var i1:I{self.i()==2}, var i2:I{self.i()==2}, var a1:A, var a2:A{self.i()==2}, var b1:B{self.i()==2}, var b2:B{x==2}) {
+		i1 = i2; 
+		i2 = i1; 
+		i1 = a1; 
+		i1 = a2; 
+		i1 = b1; 
+		i1 = b2; 
+		a2 = a1; 
+		a1 = a2; 
+		b2 = b1; 
+		b1 = b2; 
+	  }
+	}
+
+	interface R {
+	  public property x():Int;
+	}
+	class S implements R {
+	  public property x()=2;
+	  def test(var i:R{self.x()==2}, var b:S) {
+		i = b;
+	  }
+	}
+}
+
+class TestTypeParamShadowing { // XTENLANG-2163
+	class A {}
+	class B {}
+	class C {}
+	class Outer[X] {X<:A} {
+		class Inner[X] {X<:B} {
+			def m[X](x:X) {X<:C} : C = x;
+			def m2[X](x:X) {X<:C} = new Object() {  // test anon class creation
+				def q(x:X):C = x;
+				def qe(x:X):B = x; // ERR
+				def t[X](x:X) {X<:A} : A = x;
+				def te[X](x:X) {X<:A} : C = x; // ERR
+			};
+			def me[X](x:X) {X<:C} : B = x; // ERR
+			def test2(x:X):B = x;
+			def test2e(x:X):C = x; // ERR
+		}
+		def test1(x:X):A = x;
+		def test1e(x:X):B = x; // ERR
+	}
+}
+
+class XTENLANG_2617 {
+	class MySuper(supval:Int) {}
+	class MyClass(myval:Int) extends MySuper{self.supval==myval} {
+		public def this(i:Int) {
+			super(i);
+			property(i);
+		}
+	}
+	class AssignPropertyTest(myval:Int) {
+		val x:Int{self==this.myval};
+		public def this(i:Int) {
+			property(i);
+			x = i;
+		}
+	}
+}
+
+class ConstrainedCall(x:Int) { // XTENLANG-2416
+    def m(){x==0} = 10;
+    def test() { m(); } // ERR
+}
+
+class XTENLANG_2622 {
+	class Hello {
+		val a:Hello{self!=null} = new Hello();
+		val c:Hello{self==this.a} = null; // ShouldBeErr
+		val d:Hello{self!=null} = c;
+		val f1:Hello{self==null && self==this.a} = null; // ShouldBeErr (inconsistent constraint)
+	}
+}
+class XTENLANG_1380 {
+	class Hello {
+		val a:Hello{self!=null} = new Hello();
+		val e:Hello{self!=null} = (true ? null : a); // ERR
+		val x:Hello{self!=null} = null; // ERR
+	}
+}
+

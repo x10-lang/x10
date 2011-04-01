@@ -74,7 +74,7 @@ import x10c.types.X10CTypeSystem_c;
 
 public class RailInLoopOptimizer extends ContextVisitor {
 
-    private static final boolean ANALYZE_TEMP_VALS = false;
+    private static final boolean ANALYZE_TEMP_VALS = true;
     private static final String IMC_FIELD_NAME = "raw";
 
     private final X10CTypeSystem_c xts;
@@ -215,16 +215,15 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 && isOptimizationTarget(target.type())
                                 && (call.methodInstance().name()==ClosureCall.APPLY || call.methodInstance().name()==SettableAssign.SET)
                         ) {
-                            if (ignores.contains(target.toString())) {
-                                return n;
-                            }
-
                             Expr elem;
                             Expr index;
+                            // apply
                             if (call.arguments().size() == 1) {
                                 elem = null;
                                 index = call.arguments().get(0);
-                            } else {
+                            }
+                            // set
+                            else {
                                 elem = call.arguments().get(1);
                                 index = call.arguments().get(0);
                             }
@@ -248,6 +247,10 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                             }
                             else {
+                                return n;
+                            }
+
+                            if (ignores.contains(target.toString())) {
                                 return n;
                             }
 

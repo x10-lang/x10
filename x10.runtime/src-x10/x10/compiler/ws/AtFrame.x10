@@ -1,5 +1,7 @@
 package x10.compiler.ws;
 
+import x10.compiler.Inline;
+
 public final class AtFrame extends Frame {
     val upRef:GlobalRef[Frame];
 

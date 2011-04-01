@@ -26,7 +26,7 @@ public class Statements5e4u extends x10Test {
     }
 
 
-// file Statements line 596
+// file Statements line 610
  static  class ForAll {
  def forall[T](c:Iterable[T], S: () => void) {
 val iterator: Iterator[T] = c.iterator();

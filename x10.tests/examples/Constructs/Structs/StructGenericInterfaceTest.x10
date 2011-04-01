@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-struct S[T] implements (Int,Int)=>T {
+struct S58[T] implements (Int,Int)=>T {
   private val data:Array[T](2);
 
   public def this(array:Array[T](2)) {
@@ -25,7 +25,7 @@ public class StructGenericInterfaceTest extends x10Test {
   public def run(): boolean {
     val r = (1..5)*(1..5);
     val a = new Array[Int](r, (p:Point(2)) => p(0)+p(1));
-    val s = S[Int](a);
+    val s = S58[Int](a);
 
     chk(s(1,1) == 2);
     chk(s(4,4) == 8);

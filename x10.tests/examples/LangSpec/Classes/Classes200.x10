@@ -26,32 +26,26 @@ public class Classes200 extends x10Test {
     }
 
 
-// file Classes line 1299
+// file Classes line 1484
  static  class Poly {
    public val coeff : Array[Int](1);
    public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
    public def degree() = coeff.size-1;
    public def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
 
-   public static operator (q:Poly) + (p:Poly) =  new Poly(
+   public operator this + (p:Poly) =  new Poly(
       new Array[Int](
-         Math.max(q.coeff.size, p.coeff.size),
-         (i:Int) => q.a(i) + p.a(i)
+         Math.max(this.coeff.size, p.coeff.size),
+         (i:Int) => this.a(i) + p.a(i)
       ));
-   public static operator (q:Poly) + (n:Int) =  q + new Poly([n as Int]);
-   public static operator [T](n:T){T <: Int}: Poly = new Poly([n as Int]);
- //  public operator this + (n : Int) = new Poly([n]) + this;
+   public operator (n : Int) + this = new Poly([n as Int]) + this;
+
+   public operator this + (n : Int) = new Poly([n as Int]) + this;
    def makeSureItWorks() {
       val x = new Poly([0,1]);
       val p <: Poly = x+x+x;
       val q <: Poly = 1+x;
       val r <: Poly = x+1;
-      val s  = 1+2;
-      Console.OUT.println("x+x+x =" + p);
-      Console.OUT.println("1+x =" + q);
-      Console.OUT.println("x+1=" + r);
-      Console.OUT.println("1+2 =" + s);
-      
    }
 
  }

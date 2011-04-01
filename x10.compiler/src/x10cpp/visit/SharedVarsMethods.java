@@ -61,6 +61,7 @@ public class SharedVarsMethods {
 	static final String VOID_PTR = "void*";
 	public static final String SAVED_THIS = "saved_this";
     public static final String THIS = "this";
+    public static final String STRUCT_THIS = "(*this)";
 	static final String INSTANCE_INIT = "_instance_init"; // instance field initialisers
 	static final String ALLOC = "_alloc";
 	static final String CONSTRUCTOR = "_constructor";

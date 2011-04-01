@@ -272,9 +272,8 @@ public class NativeClassVisitor extends ContextVisitor {
                 for (Formal f : mdecl.formals())
                     args.add(xnf.Local(p, f.name()).localInstance(f.localDef().asInstance()).type(f.type().type()));
 
-                // reuse x10 method instance for delegate method but make it global to avoid place check
+                // reuse x10 method instance for delegate method
                 MethodInstance minst = mdef.asInstance();
-                minst = (MethodInstance) minst.flags(((Flags) minst.flags()));
                 minst = (MethodInstance) minst.container(ftype);
 
                 // call delegate

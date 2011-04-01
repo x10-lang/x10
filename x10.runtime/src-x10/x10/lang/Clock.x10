@@ -37,6 +37,7 @@ public class Clock(name:String) {
 	
     public static def make(): Clock = make("");
     public static def make(name:String):Clock {
+        if (Runtime.STATIC_THREADS) throw new ClockUseException("Clocks are not compatible with static threads.");
         val clock = new Clock(name);
         Runtime.activity().clockPhases().put(clock, FIRST_PHASE);
         return clock;
