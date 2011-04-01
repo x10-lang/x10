@@ -58,19 +58,20 @@ fi
 
 
 CONFIG_DIR="${TOP}${FILE_SEP}etc"
-LIB_DIR="${TOP}${FILE_SEP}lib"
+LIB_DIR=
 
 [ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
 
 classpath=""
 [ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
-classpath=".${PATH_SEP}${classpath}${LIB_DIR}${FILE_SEP}x10.jar"
+classpath=".${PATH_SEP}${classpath}${TOP}${FILE_SEP}stdlib${FILE_SEP}${FILE_SEP}x10.jar"
+classpath="${classpath}${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}apgas.java${FILE_SEP}bin${FILE_SEP}"
 
 if [ -n "$extra_cp" ]; then
    classpath="$extra_cp${PATH_SEP}$classpath"
 fi
 
-externpath="${classpath}${PATH_SEP}${LIB_DIR}"
+externpath="${classpath}${PATH_SEP}${TOP}${FILE_SEP}lib"
 if [ -n "$extra_lib" ]; then
    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
