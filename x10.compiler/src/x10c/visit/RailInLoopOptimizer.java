@@ -215,16 +215,15 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 && isOptimizationTarget(target.type())
                                 && (call.methodInstance().name()==ClosureCall.APPLY || call.methodInstance().name()==SettableAssign.SET)
                         ) {
-                            if (ignores.contains(target.toString())) {
-                                return n;
-                            }
-
                             Expr elem;
                             Expr index;
+                            // apply
                             if (call.arguments().size() == 1) {
                                 elem = null;
                                 index = call.arguments().get(0);
-                            } else {
+                            }
+                            // set
+                            else {
                                 elem = call.arguments().get(1);
                                 index = call.arguments().get(0);
                             }
@@ -248,6 +247,10 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                             }
                             else {
+                                return n;
+                            }
+
+                            if (ignores.contains(target.toString())) {
                                 return n;
                             }
 
