@@ -558,11 +558,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         NewLocalVarSynth remoteRootFFRefLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, remoteRootFFSynth.genExpr());
         remoteRootFFRefLocalSynth.addAnnotation(genStackAllocateAnnotation());
         Expr remoteRootFFRef = remoteRootFFRefLocalSynth.getLocal();
-        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, remoteRootFFRef, INIT.toString());
         transCodes.addFirst(remoteRootFFRefLocalSynth.genStmt());
         transCodes.addSecond(remoteRootFFRefLocalSynth.genStmt());
-        transCodes.addFirst(icSynth.genStmt());
-        transCodes.addSecond(icSynth.genStmt());
         
         //Prepare the instance
         //val rFrame = new _mainR0(rRootFinish, rRootFinish, n1);

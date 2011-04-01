@@ -15,11 +15,6 @@ public final class RemoteFinish extends FinishFrame {
         Runtime.atomicMonitor.lock(); ff.asyncs++; Runtime.atomicMonitor.unlock();
     }
 
-    public def init() {
-        redirect = this;
-        return this;
-    }
-
     public def remap():RemoteFinish = this;
 
     public def wrapResume(worker:Worker) {

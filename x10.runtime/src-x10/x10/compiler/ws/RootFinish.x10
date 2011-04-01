@@ -1,7 +1,6 @@
 package x10.compiler.ws;
 
 import x10.compiler.Abort;
-import x10.compiler.NoReturn;
 
 public final class RootFinish extends FinishFrame {
     public def this() {
@@ -9,14 +8,9 @@ public final class RootFinish extends FinishFrame {
         asyncs = 1;
     }
 
-    public def init() {
-        redirect = this;
-        return this;
-    }
+    public def remap():RootFinish = this;
 
-    public def remap():FinishFrame = this;
-
-    @NoReturn public def wrapResume(worker:Worker) {
+    public def wrapResume(worker:Worker) {
         super.wrapResume(worker);
         Worker.stop();
         throw Abort.ABORT;
