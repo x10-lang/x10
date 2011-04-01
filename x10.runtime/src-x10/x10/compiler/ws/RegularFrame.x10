@@ -26,13 +26,13 @@ public abstract class RegularFrame extends Frame {
         worker.deque.push(this);
     }
 
-    @NoInline @NoReturn public final def redo(worker:Worker):void {
+    @NoInline @NoReturn public final def continueLater(worker:Worker):void {
         worker.migrate();
         Runtime.wsBlock(remap());
         throw Abort.ABORT;
     }
 
-    @NoInline @NoReturn public final def moveToHeap(worker:Worker):void {
+    @NoInline @NoReturn public final def continueNow(worker:Worker):void {
         worker.migrate();
         worker.fifo.push(remap());
         throw Abort.ABORT;

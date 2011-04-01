@@ -85,12 +85,12 @@ public final class Worker {
         }
     }
 
-    public def runAsyncAt(place:Place, frame:RegularFrame){
+    public static def runAsyncAt(place:Place, frame:RegularFrame){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
         Runtime.wsRunAsync(place.id, body);
     }
 
-    @NoReturn public def runAt(place:Place, frame:RegularFrame){
+    @NoReturn static public def runAt(place:Place, frame:RegularFrame){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
         Runtime.wsRunAsync(place.id, body);
         throw Abort.ABORT;

@@ -124,9 +124,8 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name MOVE = Name.make("move");
     static final protected Name RETHROW = Name.make("rethrow");
     static final protected Name CAUGHT = Name.make("caught");
-    static final protected Name REMOTE_ASYNC = Name.make("remoteAsync");
-    static final protected Name REMOTE_AT = Name.make("remoteAt");
-    static final protected Name REMOTE_AT_NOTIFY = Name.make("remoteAtNotify");    
+    static final protected Name RUN_ASYNC_AT = Name.make("runAsyncAt");
+    static final protected Name RUN_AT = Name.make("runAt");
     static final protected Name WORKER = Name.make("worker");
     static final protected Name FRAME = Name.make("frame");
     static final protected Name PC = Name.make("_pc");
@@ -134,8 +133,8 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     static final protected Name UP = Name.make("up");
     static final protected Name ASYNCS = Name.make("asyncs");
     static final protected Name REDIRECT = Name.make("redirect");
-    static final protected Name REDO = Name.make("redo");
-    static final protected Name MOVE_TO_HEAP = Name.make("moveToHeap");
+    static final protected Name CONTINUE_LATER = Name.make("continueLater");
+    static final protected Name CONTINUE_NOW = Name.make("continueNow");
     static final protected Name INIT = Name.make("init");
     static final protected Name OPERATOR = Name.make("operator()");
     static final protected Name ENTER_ATOMIC = Name.make("enterAtomic");

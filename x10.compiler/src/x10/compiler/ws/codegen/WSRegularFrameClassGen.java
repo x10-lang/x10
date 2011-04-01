@@ -499,7 +499,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         }
         
         Expr thisRef = genUpcastCall(getClassType(), wts.regularFrameType, getThisRef());        
-        InstanceCallSynth fastRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, MOVE_TO_HEAP.toString());
+        InstanceCallSynth fastRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, CONTINUE_NOW.toString());
         Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
         fastRedoCallSynth.addArgument(wts.workerType, fastWorkerRef);
         Stmt fastRedoCallStmt = fastRedoCallSynth.genStmt();
@@ -607,20 +607,18 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         if (xts.hasSameClassDef(Types.baseType(place.type()), xts.GlobalRef())) {
                 place = synth.makeFieldAccess(stmt.position(),place, xts.homeName(), xct);
         }
-        String method = isAsync ? REMOTE_ASYNC.toString() : REMOTE_AT.toString();
+        String method = isAsync ? RUN_ASYNC_AT.toString() : RUN_AT.toString();
         
         TransCodes transCodes2 = null;
         if(isAsync) {
             { //fast
-               Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-               InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, fastWorkerRef, method);
+               InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, xnf.CanonicalTypeNode(compilerPos, wts.workerType), method);
                callSynth.addArgument(xts.Place(), place);
                callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
                transCodes.addFirst(callSynth.genStmt());
            }
            { //resume
-               Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-               InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, resumeWorkerRef, method);
+               InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, xnf.CanonicalTypeNode(compilerPos, wts.workerType), method);
                callSynth.addArgument(xts.Place(), place);
                callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
                transCodes.addSecond(callSynth.genStmt());
@@ -641,15 +639,13 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                }
                
                { //fast
-                   Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-                   InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, fastWorkerRef, method);
+                   InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, xnf.CanonicalTypeNode(compilerPos, wts.workerType), method);
                    callSynth.addArgument(xts.Place(), place);
                    callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
                    transCodes.addFirst(callSynth.genStmt());
                }
                { //resume
-                   Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-                   InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, resumeWorkerRef, method);
+                   InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, xnf.CanonicalTypeNode(compilerPos, wts.workerType), method);
                    callSynth.addArgument(xts.Place(), place);
                    callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
                    transCodes.addSecond(callSynth.genStmt());
