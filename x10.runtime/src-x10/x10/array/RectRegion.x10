@@ -236,6 +236,8 @@ final class RectRegion extends Region{rect} {
                if (max(i) < thatMax(i)) return false;
            }
            return true;
+       } else if (that instanceof RectRegion1D) {
+           return min(0) <= that.min(0) && max(0) >= that.max(0);
        } else {
            return this.contains(that.computeBoundingBox());
        }
@@ -329,6 +331,11 @@ final class RectRegion extends Region{rect} {
                 if (newMax(i)<newMin(i)) return Region.makeEmpty(rank);
             }
             return new RectRegion(newMin, newMax) as Region(rank);
+        } else if (that instanceof RectRegion1D) {
+            val newMin = Math.max(min(0), that.min(0));
+            val newMax = Math.min(max(0), that.max(0));
+            if (newMax < newMin) return Region.makeEmpty(1) as Region(rank);
+            return new RectRegion1D(newMin, newMax) as Region(rank);
         } else {
             // Use the general representation.
             return (toPolyRegion() as Region(rank)).intersection(that);
@@ -346,6 +353,13 @@ final class RectRegion extends Region{rect} {
             val k = rank+that.rank;
             val newMin = new Array[int](k, (i:int)=>i<rank?min(i):thatMin(i-rank));
             val newMax = new Array[int](k, (i:int)=>i<rank?max(i):thatMax(i-rank));
+            return new RectRegion(newMin, newMax);
+        } else if (that instanceof RectRegion1D) {
+            val thatMin = that.min(0);
+            val thatMax = that.max(0);
+            val k = rank+1;
+            val newMin = new Array[int](k, (i:int)=>i<rank?min(i):thatMin);
+            val newMax = new Array[int](k, (i:int)=>i<rank?max(i):thatMax);
             return new RectRegion(newMin, newMax);
         } else if (that instanceof FullRegion) {
        	    val k = rank+that.rank;

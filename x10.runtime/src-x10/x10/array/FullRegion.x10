@@ -57,6 +57,8 @@ final class FullRegion extends Region{rect} {
             val newMin = new Array[int](newRank, (i:int)=>i<rank?Int.MIN_VALUE:thatMin(i-rank));
             val newMax = new Array[int](newRank, (i:int)=>i<rank?Int.MAX_VALUE:thatMax(i-rank));
             return new RectRegion(newMin,newMax);
+        } else if (that instanceof RectRegion1D) {
+            return this.product((that as RectRegion1D).toRectRegion());
         } else {
 	    throw new UnsupportedOperationException("haven't implemented FullRegion product with "+that.typeName());
         }

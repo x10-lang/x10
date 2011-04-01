@@ -127,9 +127,13 @@ public abstract class Region(
     }
 
     public static def makeRectangular[S,T](minArg:Array[S](1), maxArg:Array[T](1)){S<:Int,T<:Int}:Region(minArg.size){self.rect} {
-    	 val minArray = new Array[int](minArg.size, (i:int)=>minArg(i));
-         val maxArray = new Array[int](maxArg.size, (i:int)=>maxArg(i));
-        return new RectRegion(minArray, maxArray);
+        if (minArg.size == 1) {
+            return new RectRegion1D(minArg(0), maxArg(0)) as Region(minArg.size){rect}; // sigh. constraint solver not flow-sensitive.
+        } else {
+            val minArray = new Array[int](minArg.size, (i:int)=>minArg(i));
+            val maxArray = new Array[int](maxArg.size, (i:int)=>maxArg(i));
+            return new RectRegion(minArray, maxArray);
+        }
     }
 
     /**
@@ -138,12 +142,12 @@ public abstract class Region(
     // XTENLANG-109 prevents zeroBased==(min==0)
     // Changed RegionMaker_c to add clause explicitly.
     public static def makeRectangular(min:int, max:int):Region(1){self.rect}
-        = new RectRegion(min, max);
+        = new RectRegion1D(min, max);
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.
      */
-    public static def make(min: int, max: int): Region(1){self.rect} = new RectRegion(min, max);
+    public static def make(min: int, max: int): Region(1){self.rect} = new RectRegion1D(min, max);
 
     /**
      * Construct a rank-n rectangular region that is the Cartesian
@@ -397,13 +401,17 @@ public abstract class Region(
     // use our one truly generic Array conversion operator on Array[Region]
   //  public static operator[T] (a:Array[T](1)){T<:IntRange}:Region(a.size){self.rect}{
     public static operator (a:Array[IntRange{self!=null}](1)):Region(a.size){self.rect} {
-        val mins = new Array[int](a.size, (i:int)=>a(i).min);
-        val maxs = new Array[int](a.size, (i:int)=>a(i).max);
-        return new RectRegion(mins, maxs);
+        if (a.size == 1) {
+            return new RectRegion1D(a(0).min, a(0).max) as Region(a.size){rect}; // sigh. constraint solver not flow-sensitive.
+        } else {
+            val mins = new Array[int](a.size, (i:int)=>a(i).min);
+            val maxs = new Array[int](a.size, (i:int)=>a(i).max);
+            return new RectRegion(mins, maxs);
+        }
     }
         
     public static operator (r:IntRange):Region(1){rect&&self!=null&&zeroBased==r.zeroBased} {
-        return new RectRegion(r.min, r.max) as Region(1){rect&&self!=null&&zeroBased==r.zeroBased};
+        return new RectRegion1D(r.min, r.max) as Region(1){rect&&self!=null&&zeroBased==r.zeroBased};
     }
 
     //

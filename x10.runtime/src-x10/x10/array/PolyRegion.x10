@@ -95,6 +95,8 @@ class PolyRegion extends Region {
 
         } else if (t instanceof RectRegion) {
         	return intersection((t as RectRegion).toPolyRegion());
+        } else if (t instanceof RectRegion1D) {
+                return intersection((t as RectRegion1D).toRectRegion().toPolyRegion() as Region(rank));
         }
         /*else if (t instanceof UnionRegion) {
 
