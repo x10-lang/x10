@@ -60,6 +60,10 @@ abstract public class FinishFrame extends Frame {
         }
     }
 
+    @Inline public final def append(ff:FinishFrame) {
+        append(ff.stack);
+    }
+
     @NoInline public final def caught(t:Throwable) {
         if (t == Abort.ABORT) throw t;
         if (null == stack) stack = new Stack[Throwable]();

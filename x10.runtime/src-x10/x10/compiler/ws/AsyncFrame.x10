@@ -29,7 +29,7 @@ public abstract class AsyncFrame extends Frame {
         val ff_redirect = ff.redirect;
         if (ff != ff_redirect) {
             move(ff_redirect);
-            ff_redirect.append(ff.stack);
+            ff_redirect.append(ff);
         }
         worker.unroll(ff_redirect);
     }
