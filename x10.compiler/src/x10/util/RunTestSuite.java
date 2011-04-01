@@ -151,6 +151,7 @@ public class RunTestSuite {
     public static boolean QUIET = !SHOW_EXPECTED_ERRORS && getBoolProp("QUIET");
 
     public static String SOURCE_PATH_SEP = File.pathSeparator; // on MAC the separator is ":" and on windows it is ";"
+    public static String LANGSPEC = "LangSpec"; // in LangSpec directory we ignore multiple errors on the same line (so one ERR marker matches any number of errors)
 
     private static void println(String s) {
         if (!QUIET) {
@@ -501,6 +502,9 @@ public class RunTestSuite {
                 if (expectedErrCount!=foundErrCount &&
                         // we try to have at most 1 or 2 errors in a line.
                         (expectedErrCount<3 || foundErrCount<3)) { // if the compiler reports more than 3 errors, and we marked more than 3, then it's too many errors on one line and it marks the fact the compiler went crazy and issues too many wrong errors.
+                    if (foundErrCount>1 && expectedErrCount==1 && summary.fileName.contains(LANGSPEC)) {
+                        // nothing to do - a single ERR marker in LangSpec match multiple errors
+                    } else
                     err("File "+file+" has "+expectedErrCount+" ERR markers on line "+lineNum+", but the compiler reported "+ foundErrCount+" errors on that line! errorsFound=\n"+errorsFound);
                 }
             }

@@ -6231,3 +6231,6 @@ class XTENLANG_1380 {
 	}
 }
 
+struct XTENLANG_2022(B:Region,NBRS: Array[Point(B.rank)](1)) {}
+
+
