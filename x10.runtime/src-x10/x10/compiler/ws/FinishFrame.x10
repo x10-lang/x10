@@ -3,6 +3,7 @@ package x10.compiler.ws;
 import x10.compiler.Abort;
 import x10.compiler.Header;
 import x10.compiler.Ifdef;
+import x10.compiler.Ifndef;
 import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
@@ -22,6 +23,9 @@ abstract public class FinishFrame extends Frame {
         this.stack = null;
         @Ifdef("__CPP__") {
             this.redirect = null;
+        }
+        @Ifndef("__CPP__") {
+            this.asyncs = 1;
         }
     }
 

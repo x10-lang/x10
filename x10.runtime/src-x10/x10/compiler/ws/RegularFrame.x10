@@ -3,6 +3,7 @@ package x10.compiler.ws;
 import x10.compiler.Abort;
 import x10.compiler.Header;
 import x10.compiler.Ifdef;
+import x10.compiler.Ifndef;
 import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
@@ -13,6 +14,9 @@ public abstract class RegularFrame extends Frame {
     @Header public def this(up:Frame, ff:FinishFrame) {
         super(up);
         this.ff = ff;
+        @Ifndef("__CPP__") {
+            throwable = null;
+        }
     }
 
     @Ifdef("__CPP__")
