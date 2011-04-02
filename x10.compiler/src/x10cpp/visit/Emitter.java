@@ -89,6 +89,7 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context_c;
 import x10.types.X10FieldDef;
+import x10.types.X10FieldInstance;
 
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
@@ -1143,7 +1144,7 @@ public class Emitter {
                 if (i != 0)
                     w.newline();
                 FieldInstance f = (FieldInstance) type.fields().get(i);
-
+                if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
                 if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                     continue;
                 if (f.flags().isTransient()) // don't serialize transient fields
@@ -1195,6 +1196,7 @@ public class Emitter {
                 if (i != 0)
                     w.newline();
                 FieldInstance f = (FieldInstance) type.fields().get(i);
+                if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
                 if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                     continue;
                 if (f.flags().isTransient()) // don't serialize transient fields of classes

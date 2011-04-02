@@ -41,6 +41,10 @@ import x10.extension.X10Ext;
 import x10.types.X10ClassType;
 import x10.errors.Errors;
 
+// Drop node from ast according to @Ifdef and @Ifndef annotations
+// 1. drop node if it has an @Ifndef annotation for a defined macro
+// 2. drop node if it has at least one @Ifdef annotation and none of the macros are defined
+
 public class IfdefVisitor extends ContextVisitor {
     public IfdefVisitor(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -55,38 +59,44 @@ public class IfdefVisitor extends ContextVisitor {
         init();
 
         List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
-        
+
         for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
             AnnotationNode a = i.next();
             X10ClassType at = a.annotationInterface();
-            if (at.error() != null) {
+            if (at.error() != null || !at.isSubtype(Ifndef, context)) {
                 continue;
             }
-            if (at.isSubtype(Ifndef, context)) {
-                List<Expr> l = at.propertyInitializers();
-                if (l.size() != 1 || !l.get(0).isConstant() || !l.get(0).type().isSubtype(ts.String(), context)) {
-                    Errors.issue(job, new SemanticException("@Ifndef must have a unique constant String parameter"), n);
-                    return n;
-                }
-                String macro = (String) l.get(0).constantValue();
-                if (job.extensionInfo().getOptions().macros.contains(macro)) {
-                    return null;
-                }
+            List<Expr> l = at.propertyInitializers();
+            if (l.size() != 1 || !l.get(0).isConstant() || !l.get(0).type().isSubtype(ts.String(), context)) {
+                Errors.issue(job, new SemanticException("@Ifndef must have a unique constant String parameter"), n);
+                continue;
             }
-            if (at.isSubtype(Ifdef, context)) {
-                List<Expr> l = at.propertyInitializers();
-                if (l.size() != 1 || !l.get(0).isConstant() || !l.get(0).type().isSubtype(ts.String(), context)) {
-                    Errors.issue(job, new SemanticException("@Ifdef must have a unique constant String parameter"), n);
-                    return n;
-                }
-                String macro = (String) l.get(0).constantValue();
-                if (!job.extensionInfo().getOptions().macros.contains(macro)) {
-                    return null;
-                }
+            String macro = (String) l.get(0).constantValue();
+            if (job.extensionInfo().getOptions().macros.contains(macro)) {
+                return null;
             }
         }
-        
-        return n;
+
+        boolean ifdef = true;
+        for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
+            AnnotationNode a = i.next();
+            X10ClassType at = a.annotationInterface();
+            if (at.error() != null || !at.isSubtype(Ifdef, context)) {
+                continue;
+            }
+            ifdef = false;
+            List<Expr> l = at.propertyInitializers();
+            if (l.size() != 1 || !l.get(0).isConstant() || !l.get(0).type().isSubtype(ts.String(), context)) {
+                Errors.issue(job, new SemanticException("@Ifdef must have a unique constant String parameter"), n);
+                continue;
+            }
+            String macro = (String) l.get(0).constantValue();
+            if (job.extensionInfo().getOptions().macros.contains(macro)) {
+                return n;
+            }
+        }
+
+        return ifdef ? n : null;
     }
     
     Type Ifdef,Ifndef;

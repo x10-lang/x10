@@ -14,7 +14,7 @@ abstract public class FinishFrame extends Frame {
     @Uninitialized public var asyncs:Int;
     @Uninitialized transient public var stack:Stack[Throwable];
 
-//    @Ifdef("__CPP__")
+    @Ifdef("__CPP__")
     @Uninitialized public var redirect:FinishFrame;
 
     @Header public def this(up:Frame) {
