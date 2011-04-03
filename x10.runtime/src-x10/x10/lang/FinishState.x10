@@ -557,7 +557,7 @@ abstract class FinishState {
             val zero = reducer.zero();
             result = zero;
             resultRail = IndexedMemoryChunk.allocateUninitialized[T](Runtime.MAX_THREADS);
-            for (i in 0..(Runtime.MAX_THREADS-1)) {
+            for (i in 0..(resultRail.length()-1)) {
                 resultRail(i) = zero;
             }
         }
