@@ -69,10 +69,10 @@ class NestedArray_7    {  // see XTENLANG-2428
 
 	public def run():Boolean
 	{
-		val myElInt         = new ElInt(123);
-		val myArInt         = new ArInt(10, myElInt);
-		val myElIntAr       = new ElArrayInt(myArInt);
-		val myArTestInt     = new ArArrayElInt(30, myElIntAr);
+		val myElInt :ElInt        = new ElInt(123);
+		val myArInt :ArInt       = new ArInt(10, myElInt);
+		val myElIntAr :ElArrayInt      = new ElArrayInt(myArInt);
+		val myArTestInt :ArArrayElInt    = new ArArrayElInt(30, myElIntAr);
 
 		try
 		{

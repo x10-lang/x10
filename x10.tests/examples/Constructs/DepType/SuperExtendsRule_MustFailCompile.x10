@@ -33,9 +33,9 @@ public class SuperExtendsRule_MustFailCompile extends x10Test {
 		}
 	}
 	static class Test3 extends Test {
-		def this():Test3{self.i==self.j} = {
+		def this():Test3{self.i==self.j} = { // ERR: Instances created by this constructor do not satisfy return type
 			// the call to super below violates the constraint i == j
-			super(0,1);  // ShouldBeErr
+			super(0,1); 
 		}
 	}
 	static class Test4 extends Test {

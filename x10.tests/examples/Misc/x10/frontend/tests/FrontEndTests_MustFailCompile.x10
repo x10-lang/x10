@@ -470,7 +470,7 @@ class TestSuperThisAndPropertyCalls(p:Int) extends SomeSuper87 {
 		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
 	}
 	def this(x:Double) { super(1); } // ERR: property(...) might not have been called
-	def this(x:Float) { property(1); } 
+	def this(x:Float) { property(1); } // ERR: super() not found
 	def this(x:Char) { 
 		// val x = 3; // I can't check this error, because it is a parsing error: the call to "super(...)" must be the first statement.
 		super(1); 
@@ -2384,8 +2384,8 @@ class ConstraintsBugs {
 		}
 	}
 	class B extends A{p==1} {
-		def this():B{self.p==1} {
-			super(2); // ERR
+		def this():B{self.p==1} { // ERR ERR
+			super(2); 
 		}
 	}
 }
@@ -3416,11 +3416,11 @@ class InconsistentPropertyVsField(p:Int) {
 	}
 }
 
-class FieldInInvariant1 {a==1} { // ShouldBeErr
+class FieldInInvariant1 {a==1} { 
 	val a:Int;
-	def this() { a=2; }
+	def this() { a=2; } // ERR
 }
-class FieldInInvariant2 {this.a==1} {  // ERR
+class FieldInInvariant2 {this.a==1} {  // ERR ERR
 	val a:Int = 2;
 }
 class FieldInInvariant3 {self.a==1} { // ERR ERR ERR: Semantic Error: self may only be used within a dependent type
@@ -5527,11 +5527,11 @@ class InterfaceSuperPropertyMethodResolution {
 	interface B {
 		property a():Int;
 	}
-	abstract class C1 implements B{a()==1} { // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
+	abstract class C1 implements B{a()==1} { // ERR ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
 	}
-	abstract class C2 implements B{self.a()==1} {
+	abstract class C2 implements B{self.a()==1} { // ERR
 	}
-	abstract class C3 implements B{this.a()==1} { // ERR ERR
+	abstract class C3 implements B{this.a()==1} { // ERR ERR ERR
 	}
 	abstract class C4 implements B{super.a()==1} { // ERR ERR ERR
 	}
@@ -6295,7 +6295,7 @@ class DefaultCtorTests {
 		extends A1{i!=3} {} 
 }
 class DefaultCtorTests2 {
-	class interface B {
+	interface B {
 		property a():Int;
 	}
 	abstract class C5(x:Int) {this.a()!=x} implements B {
@@ -6308,25 +6308,37 @@ class DefaultCtorTests2 {
 }
 class TestCheckingClassInvariant {
 	class B(b:Int) {
-		def this() { property(4); }
+		def this() { property(1); }
 	}
 	class C2 
-		{this.b==1} 
+		{this.b==4} 
 		extends B {
-		def this() {
-			super(); // ShouldBeErr, see XTENLANG-2628
+		def this() { // ERR ERR see XTENLANG-2628
+			super();
+		}	
+	}
+	class C3 
+		{this.b==4} 
+		extends B {
+		def this() { // ERR ERR see XTENLANG-2628
 		}	
 	}
 	// correct way of writing C2 is:
 	class C2_correct	
 		extends B{self.b==1} {
-		def this() {
-			super();  // ERR
+		def this() { 
+			super();  
+		}	
+	}
+	class C4 
+		extends B{self.b==4} {
+		def this() {  // ERR ERR
+			super(); 
 		}	
 	}
 
 	class C22(c:Int) 
-		{this.b==4}
+		{this.b==1}
 		extends B {
 		def this() {
 			super(); 
@@ -6338,13 +6350,7 @@ class TestCheckingClassInvariant {
 		extends B {
 		def this() { // ERR
 			super(); 
-			property(5); // ERR ERR
-		}	
-	}
-	class C3 
-		extends B{self.b==1} {
-		def this() {
-			super(); // ERR
+			property(5); // ERR
 		}	
 	}
 }

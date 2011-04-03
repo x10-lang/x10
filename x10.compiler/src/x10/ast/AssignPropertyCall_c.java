@@ -264,7 +264,8 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         // since it infers "this". see XTENLANG-1770
 
         {
-            CConstraint known = Types.get(thisConstructor.supClause());
+            Type supType = thisConstructor.supType();
+            CConstraint known = Types.realX(supType);
             known = (known==null ? new CConstraint() : known.copy());
             try {
                 known.addIn(Types.get(thisConstructor.guard()));
@@ -295,7 +296,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                    
                 }
                                 
-                X10ConstructorCall_c.checkSuperType(tc,returnType,false, position);
+                X10ConstructorCall_c.checkSuperType(tc,supType, position);
 
                 // Set the return type of the enclosing constructor to be this inferred type.
                 Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);

@@ -34,12 +34,6 @@ public interface X10ConstructorInstance extends ConstructorInstance, X10Procedur
 	X10ConstructorInstance returnTypeRef(Ref<? extends Type> returnType);
 	X10ConstructorInstance formalTypes(List<Type> formalTypes);
 	
-	/** Return the constraint on properties, if any,
-	 * obtained from the return type of the call
-	 * to super in the body of this constructor. 
-	 * @return
-	 */
-	XConstraint supClause();
 	
 	X10ConstructorInstance error(SemanticException e);
 }

@@ -695,7 +695,7 @@ public class CheckEscapingThis extends NodeVisitor
             }
         }
     }
-    private static ConstructorCall getConstructorCall(X10ConstructorDecl_c ctor) {
+    public static ConstructorCall getConstructorCall(X10ConstructorDecl_c ctor) {
         // We can reuse ConstructorCallChecker, but for better efficiency, we just check it directly
         final Block ctorBody = ctor.body();
         assert ctorBody!=null;

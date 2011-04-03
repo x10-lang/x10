@@ -24,6 +24,8 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ast.ConstructorCall;
+import polyglot.ast.Stmt;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
@@ -212,7 +214,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         // Set the constructor name to the short name of the class, to shut up the Java type-checker.
         // The X10 parser has "this" for the name.
-        n = (X10ConstructorDecl_c) n.name(nf.Id(n.position().markCompilerGenerated(), currentClass.name()));
+        Position genPos = n.position().markCompilerGenerated();
+        n = (X10ConstructorDecl_c) n.name(nf.Id(genPos, currentClass.name()));
 
         TypeNode htn = (TypeNode) n.visitChild(n.hasType, tb);
         n = (X10ConstructorDecl_c) n.hasType(htn);
@@ -224,9 +227,9 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             rType = Types.instantiateTypeParametersExplicitly(rType);
             if (ci.derivedReturnType()) {
                 ci.inferReturnType(true);
-                rtn = nf.CanonicalTypeNode(n.position().markCompilerGenerated(), Types.lazyRef(rType));
+                rtn = nf.CanonicalTypeNode(genPos, Types.lazyRef(rType));
             } else {
-                rtn = nf.CanonicalTypeNode(n.position().markCompilerGenerated(), rType);
+                rtn = nf.CanonicalTypeNode(genPos, rType);
             }
         }
         n = (X10ConstructorDecl_c) n.returnType(rtn);
@@ -248,6 +251,41 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             formalNames.add(f.localDef());
         }
         ci.setFormalNames(formalNames);
+
+        // add sythetic super and property call to the body (if there isn't this(...) call)
+        Block body = n.body();
+        if (body!=null) {
+
+            ConstructorCall constructorCall = CheckEscapingThis.getConstructorCall(n);
+            if (constructorCall!=null && constructorCall.kind()==ConstructorCall.Kind.THIS) {
+                // the only case where I do not insert super or prop calls
+            } else {
+                class HasPropCall extends NodeVisitor {
+                    boolean res = false;
+                    @Override
+                    public Node override(Node n) {
+                        if (n instanceof AssignPropertyCall)
+                            res = true;
+                        return null;
+                    }
+                }
+                HasPropCall hasPropCall = new HasPropCall();
+                body.visit(hasPropCall);
+                if (!hasPropCall.res || constructorCall==null) {
+                    // need to add prop or super call
+                    ArrayList<Stmt> newBody = new ArrayList<Stmt>(body.statements());
+                    if (constructorCall==null) {
+                        // add super call
+                        newBody.add(0,nf.SuperCall(genPos,Collections.EMPTY_LIST));
+                    }
+                    if (!hasPropCall.res) {
+                        // add super call
+                        newBody.add(1,nf.AssignPropertyCall(genPos,Collections.EMPTY_LIST,Collections.EMPTY_LIST));
+                    }
+                    n = (X10ConstructorDecl_c)n.body(body.statements(newBody));                    
+                }
+            }
+        }
 
         return n;
     }

@@ -48,7 +48,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     private static final long serialVersionUID = -8014698525564801656L;
 
     Ref<? extends Type> returnType;
-    protected Ref<CConstraint> supClause;
+    protected Type supType;
     protected Ref<CConstraint> guard;
     protected Ref<TypeConstraint> typeGuard;
     List<LocalDef> formalNames;
@@ -142,12 +142,12 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
     
     /** Constraint on superclass constructor call return type. */
-    public Ref<CConstraint> supClause() {
-	return supClause;
+    public Type supType() {
+	    return supType;
     }
-    
-    public void setSupClause(Ref<CConstraint> s) {
-	this.supClause = s;
+
+    public void setSupType(Type t) {
+	    this.supType = t;
     }
 
     /** Constraint on formal parameters. */

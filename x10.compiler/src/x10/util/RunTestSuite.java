@@ -500,8 +500,8 @@ public class RunTestSuite {
                     }
                 }
                 if (expectedErrCount!=foundErrCount &&
-                        // we try to have at most 1 or 2 errors in a line.
-                        (expectedErrCount<3 || foundErrCount<3)) { // if the compiler reports more than 3 errors, and we marked more than 3, then it's too many errors on one line and it marks the fact the compiler went crazy and issues too many wrong errors.
+                        // we try to have at most 1 error in a line when writing the tests, but sometimes an error cascades into multiple ones
+                        (expectedErrCount<2 || foundErrCount<2)) { // if the compiler reports more than 2 errors, and we marked more than 2, then it's too many errors on one line and it marks the fact the compiler went crazy and issues too many wrong errors.
                     if (foundErrCount>1 && expectedErrCount==1 && summary.fileName.contains(LANGSPEC)) {
                         // nothing to do - a single ERR marker in LangSpec match multiple errors
                     } else
