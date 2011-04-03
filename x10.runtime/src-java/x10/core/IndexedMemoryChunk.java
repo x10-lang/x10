@@ -11,6 +11,8 @@
 
 package x10.core;
 
+import java.util.Arrays;
+
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.UnsupportedOperationException;
 import x10.rtt.NamedType;
@@ -106,7 +108,27 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     }
 
     public void clear(int start, int numElems) {
-        // TODO: Actually clear the storage here.
+        if (numElems <= 0) return;
+        if (value instanceof boolean[]) {
+            Arrays.fill(getBooleanArray(), start, start+numElems-1, false);
+        } else if (value instanceof byte[]) {
+            Arrays.fill(getByteArray(), start, start+numElems-1, (byte)0);                 
+        } else if (value instanceof char[]) {
+            Arrays.fill(getCharArray(), start, start+numElems-1, (char)0);               
+        } else if (value instanceof short[]) {
+            Arrays.fill(getShortArray(), start, start+numElems-1, (short)0);
+        } else if (value instanceof int[]) {
+            Arrays.fill(getIntArray(), start, start+numElems-1, (int)0);
+        } else if (value instanceof float[]) {
+            Arrays.fill(getFloatArray(), start, start+numElems-1, (float)0);
+        } else if (value instanceof long[]) {
+            Arrays.fill(getLongArray(), start, start+numElems-1, (long)0);
+        } else if (value instanceof double[]) {
+            Arrays.fill(getDoubleArray(), start, start+numElems-1, (double)0);
+        } else {
+            Object zeroValue = x10.rtt.Types.zeroValue(type);
+            Arrays.fill(getObjectArray(), start, start+numElems-1, zeroValue);
+        }
     }
 
     public void deallocate() {
