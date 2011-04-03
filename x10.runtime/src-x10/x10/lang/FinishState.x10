@@ -556,7 +556,10 @@ abstract class FinishState {
             reducer = r;
             val zero = reducer.zero();
             result = zero;
-            resultRail = IndexedMemoryChunk.allocateZeroed[T](Runtime.MAX_THREADS);
+            resultRail = IndexedMemoryChunk.allocateUninitialized[T](Runtime.MAX_THREADS);
+            for (i in 0..(Runtime.MAX_THREADS-1)) {
+                resultRail(i) = zero;
+            }
         }
         def accept(t:T) {
             result = reducer(result, t);
