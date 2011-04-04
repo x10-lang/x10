@@ -635,7 +635,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     }
 
     public String toString() {
-        return flags.flags().translate() + "this(...)";
+        return (flags==null ? "" : flags.flags().translate()) + "this(...)";
     }
 
     /** Write the constructor to an output file. */

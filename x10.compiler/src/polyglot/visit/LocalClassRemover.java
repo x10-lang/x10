@@ -417,10 +417,19 @@ public abstract class LocalClassRemover extends ContextVisitor {
 
 	// Create the constructor declaration node and the CI.
 	ConstructorDecl td = nf.ConstructorDecl(pos, nf.FlagsNode(pos, Flags.PRIVATE), cd.name(), formals,  nf.Block(pos, statements));
+    td = (ConstructorDecl) td.visit(new MarkReachable());
 	ConstructorDef ci = ts.constructorDef(pos, Types.ref(cd.classDef().asType()), Flags.PRIVATE, argTypes);
 	td = td.constructorDef(ci);
 
 	return td;
+    }
+
+    public static class MarkReachable extends NodeVisitor {
+        @Override
+        public Node leave(Node old, Node n, NodeVisitor v) {
+            Node res = n instanceof Term ? ((Term) n).reachable(true) : n;
+            return res;
+        }
     }
 
     private Expr adjustQualifier(Expr e) {

@@ -734,7 +734,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // we expand properties in t2 based on the property definitions in t1.
         // e.g., val i:I{self.p()==2} = c;
         // where I is an interface with abstract property p, and C is a class with concrete definition for p.
-        final ClassType t1ClassType = Desugarer.getClassType(t1,ts,context);
+        final ClassType t1ClassType = Types.getClassType(t1,ts,context);
         if (t1ClassType==null || isInterface(t1ClassType)) return t2;  // if t1 is an interface, then there is no way it has any non-abstract property definitions.
         return expandProperty(false,t1ClassType, t2);
     }
@@ -761,51 +761,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         for (XTerm xTerm : terms) {
             final XTerm.TermVisitor visitor = new XTerm.TermVisitor() {
                 public XTerm visit(XTerm term) {
-                    Def aDef = null;
-                    List<XTerm> args = null; // the first arg is the this-receiver
-                    if (term instanceof CAtom) {
-                        CAtom cAtom = (CAtom) term;
-                        aDef = cAtom.def();
-                        args = cAtom.arguments();
-                    }
-                    if (term instanceof CField) {
-                        CField cField = (CField) term;
-                        aDef = cField.field();
-                        args = Collections.<XTerm>singletonList(cField.receiver);
-                    }
-                    if (aDef==null || !(aDef instanceof X10MethodDef)) return null;
-                    XTerm receiver = args.get(0);
-                    if (isMethod) {
-                        // for methods (checking overriding) we replace "this.p(...)"
-                        if (!(receiver instanceof CThis)) return null;
-                    } else {
-                        // for subtyping tests we replace "self.p(...)"
-                        if (!(receiver instanceof CSelf)) return null;
-                    }
-                    X10MethodDef methodDef = (X10MethodDef) aDef;
-                    // find the correct def, and return a clone of the XTerm
-                    final MethodInstance method = ts.findImplementingMethod(t1ClassType, methodDef.asInstance(), false, context);
-                    if (method==null) // the property is abstract in t1
-                        return null;
-                    final X10MethodDef def = (X10MethodDef) method.def();
-                    final Ref<XTerm> bodyRef = def.body();
-                    if (bodyRef==null)
-                        return null;
-                    XTerm body = bodyRef.get();
-                    if (body==null)
-                        return null;
-                    // currently we only support nullary property methods that are not CAtoms
-                    List<LocalDef> formals = def.formalNames();
-                    if (formals.size()!=args.size()-1)
-                        throw new InternalCompilerError("The number of arguments in the property method didn't match the property defintiion.");
-                    int pos=1;
-                    for (LocalDef formal : formals) {
-                        XVar x =  CTerms.makeLocal((X10LocalDef)formal);
-                        XTerm y = args.get(pos++);
-                        body = body.subst(y, x);
-                    }
-                    body = body.subst(receiver, def.thisVar());
-                    return body;
+                    XTerm res = XTypeTranslator.expandPropertyMethod(term,isMethod,ts,t1ClassType,context);
+                    return res==term ? null : res;
                 }
             };
             final XTerm newXterm = xTerm.accept(visitor);

@@ -542,7 +542,7 @@ public class Desugarer extends ContextVisitor {
                     // qualifer doesn't have type info because it was created in Synthesizer.makeExpr
                     qualifer = (TypeNode) qualifer.visit(builder).visit(checker);
                     ClassType ct =  qualifer.type().toClass();
-                    ClassType receiverType = getClassType(newReceiver.type(), ts, context);
+                    ClassType receiverType = Types.getClassType(newReceiver.type(), ts, context);
                     if (receiverType==null)
                         return newReceiver;
                     final ClassDef newReceiverDef = receiverType.def();
@@ -578,18 +578,6 @@ public class Desugarer extends ContextVisitor {
         Closure c = closure(pos, closureRet, params, body, v);
         MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, args).closureInstance(ci).type(resType);
-    }
-    public static ClassType getClassType(Type t, TypeSystem ts, Context context) {
-        Type baseType = Types.baseType(t);
-        if (baseType instanceof ParameterType) {
-            final List<Type> upperBounds = ts.env(context).upperBounds(baseType, false);
-            baseType = null;
-            for (Type up : upperBounds) {
-                if (!(Types.baseType(up) instanceof ParameterType))
-                    baseType = up;
-            }
-        }
-        return baseType==null ? null : baseType.toClass();
     }
 
     // T.f op=v -> T.f = T.f op v or e.f op=v -> ((x:E,y:T)=>x.f=x.f op y)(e,v)

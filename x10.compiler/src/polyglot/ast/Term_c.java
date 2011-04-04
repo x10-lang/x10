@@ -24,7 +24,7 @@ public abstract class Term_c extends Node_c implements Term
 	super(pos);
     }
     
-    protected boolean reachable;
+    protected Boolean reachable;
 
     /**
      * Visit this term in evaluation order.
@@ -37,7 +37,7 @@ public abstract class Term_c extends Node_c implements Term
      *
      * @see polyglot.visit.ReachChecker
      */
-    public boolean reachable() {
+    public Boolean reachable() {
         return reachable;
     }
 
@@ -45,7 +45,7 @@ public abstract class Term_c extends Node_c implements Term
      * Set the reachability of this term.
      */
     public Term reachable(boolean reachability) {
-        if (this.reachable == reachability) {
+        if (reachable!=null && this.reachable == reachability) {
             return this;
         }
         

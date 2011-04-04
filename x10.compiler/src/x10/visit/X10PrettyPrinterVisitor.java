@@ -198,7 +198,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean isSelfDispatch = true;
     public static final boolean isGenericOverloading = true;
     // TODO workaround for XTENLANG-2625
-    public static final boolean supportConstructorSplitting = false;
+    public static final boolean supportConstructorSplitting = true;
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";

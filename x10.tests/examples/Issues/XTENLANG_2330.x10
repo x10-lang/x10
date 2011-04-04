@@ -32,6 +32,9 @@ public class XTENLANG_2330 extends x10Test
     public static def main(Array[String](1)) {
         new XTENLANG_2330().execute();
     }
+    def testDynamicCalls(D:Dist) { // XTENLANG_2611
+        for (pt:Point(2) in D) { } // ERR
+    }
 }
 
 
@@ -89,7 +92,7 @@ class NestedArray_7    {  // see XTENLANG-2428
 		}
 		catch(e:ClassCastException)
 		{
-			x10.io.Console.OUT.println("myArTestInt exception occurred: " + e.getMessage());
+			x10.io.Console.OUT.println("Expected exception indeed occurred: " + e.getMessage());
 		}
 		return true;
 	}

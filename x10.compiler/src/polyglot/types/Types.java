@@ -1673,11 +1673,7 @@ public class Types {
 	public static String MORE_SPECIFIC_WARNING = "Please check definitions p1 and p2.  ";
 
 
-    //abstract class A implements Iterable<A> {}
-    //abstract class B extends A implements Iterable<B> {} // ERR in Java, but ok in X10
 
-    // There can be at most one Iterable[T] because the method signature is "iterator()",
-    // therefore you cannot implement Iterable[U] and Iterable[V]
     private static Type instantiateThis(X10ParsedClassType_c classType, Type t, Type superType) {
         try {
             return X10FieldMatcher.instantiateAccess(t,superType,classType.x10Def().thisVar(),false);
@@ -1685,6 +1681,9 @@ public class Types {
             throw new InternalCompilerError(e);
         }
     }
+    //abstract class A implements Iterable<A> {}
+    //abstract class B extends A implements Iterable<B> {} // ERR in Java, but ok in X10
+    // There can be multiple Iterable[T] due to type parameter upper bounds: X<:Dist && X<:Iterable[...]
     public static HashSet<Type> getIterableIndex(Type t, Context context) {
         HashSet<Type> res = new HashSet<Type>();
         final TypeSystem ts = t.typeSystem();
@@ -1787,4 +1786,18 @@ public class Types {
 	                }
 	            });
     }
+
+    public static ClassType getClassType(Type t, TypeSystem ts, Context context) {
+        Type baseType = Types.baseType(t);
+        if (baseType instanceof ParameterType) {
+            final List<Type> upperBounds = ts.env(context).upperBounds(baseType, false);
+            baseType = null;
+            for (Type up : upperBounds) {
+                if (!(Types.baseType(up) instanceof ParameterType))
+                    baseType = up;
+            }
+        }
+        return baseType==null ? null : baseType.toClass();
+    }
+    
 }
