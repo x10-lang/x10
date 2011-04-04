@@ -223,13 +223,11 @@ public class Inliner extends ContextVisitor {
     private String report(String msg, Node n) {
         String reason = msg;
         reasons.add(reason);
-        debug("not inlining because " + reason, n);
+        if (DEBUG) debug("not inlining because " + reason, n);
         return reason;
     }
 
     private static void debug(String msg, Node node) {
-        if (!DEBUG)
-            return;
         try {
             Thread.sleep(10);
             System.out.print("  DEBUG ");
@@ -303,7 +301,7 @@ public class Inliner extends ContextVisitor {
             Warnings.issue(this.job, "\nBegin inlining pass on " +s, node.position());
         }
         if (ExpressionFlattener.cannotFlatten(node, job)) { // TODO: check that flattening is actually required
-            debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
+            if (DEBUG) debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
             return node; // don't inline inside Nodes that cannot be Flattened
         }
         if (node instanceof ConstructorCall && !INLINE_CONSTRUCTORS) {
@@ -323,7 +321,7 @@ public class Inliner extends ContextVisitor {
         }
         if (node.ext() instanceof X10Ext) { // TODO: DEBUG only (remove this)
             if (!((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty()) { // short-circuit inlining decisions
-                debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
+                if (DEBUG) debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
                 return node;
             }
         }
@@ -710,7 +708,7 @@ public class Inliner extends ContextVisitor {
      *         declaration cannot be found, or the call should not be inlined
      */
     private ProcedureDecl getInlineDecl(InlinableCall call) {
-        debug("Should " + call + " be inlined?", call);
+        if (DEBUG) debug("Should " + call + " be inlined?", call);
         Position pos = call.position(); // DEBUG
         if (annotationsPreventInlining(call)) {
             report("of annotation at call site", call);
@@ -1001,12 +999,12 @@ public class Inliner extends ContextVisitor {
              * Source source = new Source(file, path, null); job = xts.extensionInfo().scheduler().addJob(source); }
              */
             if (null == job) {
-                debug("Unable to find or create job for method: " + candidate, null);
+                if (DEBUG) debug("Unable to find or create job for method: " + candidate, null);
                 return null;
             } else if (!getInlinerCache().okayJob(job)) {
                 return null;
             } else if (job != this.job()) {
-                debug("Looking for job: " + job, null);
+                if (DEBUG) debug("Looking for job: " + job, null);
             //  String source = container.fullName().toString().intern();
             //  String source = job.toString();
                 String source = job.source().toString().intern();
@@ -1022,11 +1020,11 @@ public class Inliner extends ContextVisitor {
                     if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
                         ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
                     if (null == ast) {
-                        debug("Unable to reconstruct AST for " + job, null);
+                        if (DEBUG) debug("Unable to reconstruct AST for " + job, null);
                         getInlinerCache().badJob(job);
                         return null;
                     }
-                    debug("Reconstructed AST for " + job, null);
+                    if (DEBUG) debug("Reconstructed AST for " + job, null);
                     job.ast(ast); // ASK: why does this work?
                     getInlinerCache().putAST(source, ast);
                 }
@@ -1034,7 +1032,7 @@ public class Inliner extends ContextVisitor {
             }
         } catch (Exception x) {
             String msg = "AST for job, " + job + " (for candidate " + candidate + ") does not typecheck (" + x + ")";
-            debug(msg, null);
+            if (DEBUG) debug(msg, null);
             SemanticException e = new SemanticException(msg, candidate.position());
             Errors.issue(job, e);
             getInlinerCache().badJob(job);
@@ -1070,15 +1068,15 @@ public class Inliner extends ContextVisitor {
                     }
                 });
         if (null == decl[0]) {
-            debug(report("declaration not found for " +candidate, null), null);
+            if (DEBUG) debug(report("declaration not found for " +candidate, null), null);
             return null;
         }
         if (null == decl[0].body()) {
-            debug(report("no declaration body for " +decl[0]+ " (" +candidate+ ")", null), null);
+            if (DEBUG) debug(report("no declaration body for " +decl[0]+ " (" +candidate+ ")", null), null);
             return null;
         }
         if (ExpressionFlattener.cannotFlatten(decl[0], job)) {
-            debug(report("unflattenable declaration body for " +decl[0]+ "  (" +candidate+ ")", null), null);
+            if (DEBUG) debug(report("unflattenable declaration body for " +decl[0]+ "  (" +candidate+ ")", null), null);
             return null;
         }
         return decl[0];
@@ -1189,7 +1187,7 @@ public class Inliner extends ContextVisitor {
 
     private CodeBlock instantiate(final CodeBlock code, InlinableCall call) {
         try {
-            debug("Instantiate " + code, call);
+            if (DEBUG) debug("Instantiate " + code, call);
             TypeParamSubst typeMap = makeTypeMap(call.procedureInstance());
             InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
