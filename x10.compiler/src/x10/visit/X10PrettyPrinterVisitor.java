@@ -553,7 +553,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         // print the constructor just for allocation
-        if (supportConstructorSplitting && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS && !def.flags().isInterface()) {
+        if (supportConstructorSplitting
+//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
+                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(def.asType()))
+                && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
             w.write("public " + def.name().toString() + "(");
@@ -860,7 +863,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         printCreationMethodDecl(n);
 
         X10ClassType type = (X10ClassType) Types.get(n.constructorDef().container());
-        if (supportConstructorSplitting && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
+        if (supportConstructorSplitting
+//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.cannotSplitConstructor(type)) {
 
@@ -947,7 +951,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write("return ");
 
-        if (supportConstructorSplitting && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
+        if (supportConstructorSplitting
+//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(type))) {
             printAllocationCall(type);
@@ -2189,7 +2194,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (er.printNativeNew(c, mi)) return;
         
-        if (supportConstructorSplitting && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
+        if (supportConstructorSplitting
+//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
                 && !type.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(type))
                 && !type.fullName().toString().startsWith("java.")) {
@@ -2958,6 +2964,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
         }.context(c.pushBlock()));
 
+        /*
+         * N.B. this is workaround for front-end bug that generates non-final variable access
+         * in the body of statement expression when constructor splitting is enabled.
+         */
         if (supportConstructorSplitting && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS) {
             w.write("(new " + JAVA_IO_SERIALIZABLE + "() { ");
             er.printType(n.type(), PRINT_TYPE_PARAMS);
@@ -3169,11 +3179,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10ConstructorCall_c c) {
-        if (supportConstructorSplitting && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS) {
+        ContainerType ct = c.constructorInstance().container();
+        if (supportConstructorSplitting
+//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
+                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(ct))) {
             Expr target = c.target();
             if (target == null || target instanceof Special) {
                 if (c.kind() == ConstructorCall.SUPER) {
-                    ContainerType ct = c.constructorInstance().container();
                     if (Types.baseType(ct).typeEquals(tr.typeSystem().Object(), tr.context())
                             || Emitter.isNativeRepedToJava(ct) || er.isNativeClassToJava(ct)) {
                         return;
