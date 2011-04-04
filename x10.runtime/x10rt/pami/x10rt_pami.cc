@@ -87,11 +87,11 @@ struct x10rt_pami_state
 	x10rtCallback* callBackTable;
 	x10rt_msg_type callBackTableSize;
 	pami_client_t client; // the PAMI client instance used for this place
-	pthread_t *threadMap; // The thread ID associated with each context
+	pthread_key_t contextLookupTable; // thread local storage to map a worker thread to a context.
 	pami_context_t *context; // PAMI context associated with the client
 	x10rt_pami_team *teams;
 	uint32_t lastTeamIndex;
-	pthread_mutex_t teamLock;
+	pthread_mutex_t stateLock; // used when creating a new context or a new team
 	int numParallelContexts; // When X10_STATIC_THREADS=true, this is set to the value of X10_NTHREADS. Otherwise it's 0.
 } state;
 
@@ -132,7 +132,7 @@ void error(const char* msg, ...)
 unsigned expandTeams(unsigned numNewTeams)
 {
 	int r;
-	pthread_mutex_lock(&state.teamLock);
+	pthread_mutex_lock(&state.stateLock);
 		void* oldTeams = state.teams;
 		int oldSize = (state.lastTeamIndex+1)*sizeof(x10rt_pami_team);
 		int newSize = (state.lastTeamIndex+1+numNewTeams)*sizeof(x10rt_pami_team);
@@ -143,47 +143,45 @@ unsigned expandTeams(unsigned numNewTeams)
 		state.teams = (x10rt_pami_team*)newTeams;
 		r = state.lastTeamIndex;
 		state.lastTeamIndex+=numNewTeams;
-	pthread_mutex_unlock(&state.teamLock);
+	pthread_mutex_unlock(&state.stateLock);
 	free(oldTeams);
 	return r;
 }
 
-void initializeContext(int index)
+void registerHandlers(pami_context_t context)
 {
 	pami_result_t status = PAMI_ERROR;
 
 	pami_dispatch_hint_t hints;
 	memset(&hints, 0, sizeof(pami_send_hint_t));
 	hints.recv_contiguous = PAMI_HINT_ENABLE;
-
-	size_t ncontext = 1;
-	if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[index], ncontext)) != PAMI_SUCCESS)
-		error("Unable to initialize the PAMI context: %i\n", status);
+	hints.buffer_registered = PAMI_HINT_ENABLE;
+	//hints.multicontext = PAMI_HINT_DISABLE;
 
 	// set up our callback functions, which will convert PAMI messages to X10 callbacks
 	pami_dispatch_callback_function fn;
 	fn.p2p = local_msg_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[index], STANDARD, fn, NULL, hints)) != PAMI_SUCCESS)
+	if ((status = PAMI_Dispatch_set(context, STANDARD, fn, NULL, hints)) != PAMI_SUCCESS)
 		error("Unable to register standard dispatch handler");
 
 	pami_dispatch_callback_function fn2;
 	fn2.p2p = local_put_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[index], PUT, fn2, NULL, hints)) != PAMI_SUCCESS)
+	if ((status = PAMI_Dispatch_set(context, PUT, fn2, NULL, hints)) != PAMI_SUCCESS)
 		error("Unable to register put dispatch handler");
 
 	pami_dispatch_callback_function fn3;
 	fn3.p2p = local_get_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[index], GET, fn3, NULL, hints)) != PAMI_SUCCESS)
+	if ((status = PAMI_Dispatch_set(context, GET, fn3, NULL, hints)) != PAMI_SUCCESS)
 		error("Unable to register get dispatch handler");
 
 	pami_dispatch_callback_function fn4;
 	fn4.p2p = get_complete_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[index], GET_COMPLETE, fn4, NULL, hints)) != PAMI_SUCCESS)
+	if ((status = PAMI_Dispatch_set(context, GET_COMPLETE, fn4, NULL, hints)) != PAMI_SUCCESS)
 		error("Unable to register get_complete_dispatch handler");
 
 	pami_dispatch_callback_function fn5;
 	fn5.p2p = team_create_dispatch;
-	if ((status = PAMI_Dispatch_set(state.context[index], NEW_TEAM, fn5, NULL, hints)) != PAMI_SUCCESS)
+	if ((status = PAMI_Dispatch_set(context, NEW_TEAM, fn5, NULL, hints)) != PAMI_SUCCESS)
 		error("Unable to register team_create_dispatch handler");
 }
 
@@ -192,24 +190,39 @@ void initializeContext(int index)
  */
 pami_context_t getContext()
 {
+	// for performance, assume and check the multi-context case first
+	pami_context_t context = pthread_getspecific(state.contextLookupTable);
+	if (context) return context;
+
+	// check if this is a single-context configuration
 	if (state.numParallelContexts == 0)
 		return state.context[0];
 
-	pthread_t myId = pthread_self();
+	// this is a thread that we've never seen before.  We need to create a context for it.
+	pthread_mutex_lock(&state.stateLock);
 	for (int i=0; i<state.numParallelContexts; i++)
 	{
-		if (state.threadMap[i] == myId)
-			return state.context[i];
-		else if (state.threadMap[i] == 0)
+		if (state.context[i] == NULL)
 		{
-			state.threadMap[i] = myId;
-			//initializeContext(i);
+			pami_result_t status = PAMI_ERROR;
+			if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[i], 1)) != PAMI_SUCCESS)
+				error("Unable to initialize the PAMI context: %i\n", status);
+
+			pthread_mutex_unlock(&state.stateLock);
+
+			#ifdef DEBUG
+				fprintf(stderr, "New worker thread %u detected at place %u.  Assigning it context %i\n", pthread_self(), state.myPlaceId, i);
+			#endif
+			registerHandlers(state.context[i]);
+			pthread_setspecific(state.contextLookupTable, state.context[i]);
 			return state.context[i];
 		}
 	}
 
+	// we should never reach this code
+	pthread_mutex_unlock(&state.stateLock);
 	error("Unknown thread looking for its context");
-	return NULL; // to keep the compiler happy
+	return NULL;
 }
 
 void x10rt_local_probe(pami_context_t context)
@@ -646,30 +659,25 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	if (value && nthreads && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0))
 	{
 		state.numParallelContexts = atoi(nthreads);
-		state.threadMap = (pthread_t *)malloc(state.numParallelContexts*sizeof(pthread_t));
-		if (state.threadMap == NULL) error("Unable to allocate memory for the threadMap");
-		memset(state.threadMap, 0, state.numParallelContexts*sizeof(pthread_t));
-		state.threadMap[0] = pthread_self();
 		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
-		#ifdef DEBUG
-			fprintf(stderr, "Place %u initializing %i contexts for %i static worker threads\n", state.myPlaceId, state.numParallelContexts, state.numParallelContexts);
-		#endif
-
-		for (int i=0; i<state.numParallelContexts; i++)
-			initializeContext(i);
+		memset(state.context, 0, state.numParallelContexts*sizeof(pami_context_t));
 	}
 	else
 	{
 		state.numParallelContexts = 0;
-		state.threadMap = NULL;
 		state.context = (pami_context_t*)malloc(sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u initializing 1 context to be used by all non-static worker threads\n", state.myPlaceId);
 		#endif
-		initializeContext(0);
+		if ((status = PAMI_Context_createv(state.client, NULL, 0, state.context, 1)) != PAMI_SUCCESS)
+			error("Unable to initialize the PAMI context: %i\n", status);
+		registerHandlers(state.context[0]);
 	}
+
+	if (pthread_key_create(&state.contextLookupTable, NULL) != 0)
+		error("Unable to allocate the thread-local-storage context lookup table");
 
 	pami_configuration_t configuration;
 	configuration.name = PAMI_CLIENT_TASK_ID;
@@ -687,7 +695,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	#endif
 	
 	// create the world geometry
-	if (pthread_mutex_init(&state.teamLock, NULL) != 0) error("Unable to initialize the team lock");
+	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the team lock");
 	state.teams = (x10rt_pami_team*)malloc(sizeof(x10rt_pami_team));
 	if (state.teams == NULL) error("Unable to allocate memory for teams data");
 	state.lastTeamIndex = 0;
@@ -1024,9 +1032,9 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 				error("Request to create a team with duplicate members");
 
 	// send the list of team members to all places
-	pthread_mutex_lock(&state.teamLock);
+	pthread_mutex_lock(&state.stateLock);
 	uint32_t newTeamId = state.lastTeamIndex+1;
-	pthread_mutex_unlock(&state.teamLock);
+	pthread_mutex_unlock(&state.stateLock);
 
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u preparing to create a new team with %u members\n", state.myPlaceId, placec);
