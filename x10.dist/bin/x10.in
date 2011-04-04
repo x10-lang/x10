@@ -32,7 +32,14 @@ while [ -n "$1" ]; do
         -*) java_args="${java_args} -Dx10.${1##-}=true";;
 #        *.x10) args="$args '${1%%.x10}\$${MAIN_CLASS}'"; shift; args="$args $*"; break;;
         *.jar) args="$args -jar '$1'"; shift; args="$args $*"; break;;
-        *) args="$args '$1\$${MAIN_CLASS}'"; shift; args="$args $*"; break;;
+        *) if [[ ! -a "$1\$${MAIN_CLASS}.class" ]]; then
+               echo >&2 "Error: Main class not found for" "$1"
+               if [[ -a "$1.x10" ]]; then
+                   echo >&2 "Invoke x10c" "$1.x10" to compile
+               fi
+               exit 1
+           fi
+           args="$args '$1\$${MAIN_CLASS}'"; shift; args="$args $*"; break;;
     esac
     shift
 done
