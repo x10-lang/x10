@@ -42,7 +42,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
 import polyglot.ast.Term;
@@ -50,10 +50,7 @@ import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.types.ClassType;
-import polyglot.types.ContainerType;
 import polyglot.types.Context;
-import polyglot.types.FieldDef;
-import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -460,12 +457,23 @@ public class AltSynthesizer {
      * @return
      */
     public FieldAssign createFieldAssign(Position pos, X10FieldInstance fi, Expr init, ContextVisitor visitor) {
+        Expr target = createThis(pos, fi.container());
+        return createFieldAssign(pos, target, fi, init, visitor);
+    }
+
+    /**
+     * @param pos
+     * @param prop
+     * @param init
+     * @param visitor 
+     * @return
+     */
+    public FieldAssign createFieldAssign(Position pos, Expr target, X10FieldInstance fi, Expr init, ContextVisitor visitor) {
         Type lbt = Types.baseType(fi.rightType());
         Type rbt = Types.baseType(init.type());
         if (!ts.typeEquals(rbt, lbt, visitor.context())){
             init = createCoercion(pos, init, lbt, visitor);
         }
-        Expr target = createThis(pos, fi.def().container().get());
         Id id = nf.Id(pos, fi.name());
         FieldAssign fa = nf.FieldAssign(pos, target, id, Assign.ASSIGN, init);
         fa = fa.fieldInstance(fi);
@@ -1120,6 +1128,8 @@ public class AltSynthesizer {
      * @return
      */
     public ConstructorCall createConstructorCall(Expr target, New n) {
+        Position pos = n.position(); // DEBUG
+        List<TypeNode> types = n.typeArguments(); // DEBUG
         ConstructorCall cc = nf.X10ThisCall(n.position(), n.typeArguments(), n.arguments());
         cc = cc.target(target);
         cc = cc.constructorInstance(n.constructorInstance());
@@ -1132,8 +1142,8 @@ public class AltSynthesizer {
      * @return
      * TODO: move to Synthesizer
      */
-    public Expr createThis(Position pos, Type type) {
-        return nf.This(pos).type(type);
+    public Special createThis(Position pos, Type type) {
+        return (Special) nf.This(pos).type(type);
     }
 
     /**

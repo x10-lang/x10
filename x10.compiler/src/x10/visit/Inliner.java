@@ -32,6 +32,7 @@ import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
@@ -158,6 +159,7 @@ public class Inliner extends ContextVisitor {
     private final boolean INLINE_IMPLICIT;
     private final boolean INLINE_CONSTRUCTORS;
     private final boolean INLINE_STRUCT_CONSTRUCTORS;
+    private final boolean INLINE_GENERIC_CONSTRUCTORS;
     
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
@@ -192,8 +194,9 @@ public class Inliner extends ContextVisitor {
         INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
         INLINE_IMPLICIT  = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
         INLINE_CONSTRUCTORS = x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
-        INLINE_STRUCT_CONSTRUCTORS = false && INLINE_CONSTRUCTORS; // pretend the constructor for a struct is annotated @INLINE
- //     implicitMax      = config.EXPERIMENTAL ? 1 : 0;
+        INLINE_STRUCT_CONSTRUCTORS = false && config.INLINE_STRUCT_CONSTRUCTORS; // pretend the constructor for a struct is annotated @INLINE
+        INLINE_GENERIC_CONSTRUCTORS = true;
+        //     implicitMax      = config.EXPERIMENTAL ? 1 : 0;
         implicitMax      = 0;
     }
 
@@ -708,6 +711,7 @@ public class Inliner extends ContextVisitor {
      */
     private ProcedureDecl getInlineDecl(InlinableCall call) {
         debug("Should " + call + " be inlined?", call);
+        Position pos = call.position(); // DEBUG
         if (annotationsPreventInlining(call)) {
             report("of annotation at call site", call);
             return null;
@@ -716,8 +720,14 @@ public class Inliner extends ContextVisitor {
         MemberDef candidate = getDef(call);
         // require inlining if either the call of the candidate are so annotated
         inliningRequired = annotationsRequireInlining(call, (X10MemberDef) candidate);
-        if (INLINE_STRUCT_CONSTRUCTORS && call instanceof ConstructorCall && ts.isStructType(candidate.container().get()))
-            inliningRequired = true;
+        if (call instanceof ConstructorCall) {
+            if (!INLINE_GENERIC_CONSTRUCTORS && !((ConstructorCall) call).typeArguments().isEmpty()) {
+                report("inlining not implemented for constructors with type args: " + ((ConstructorCall) call).typeArguments(), call);
+                return null;
+            }
+            if (INLINE_STRUCT_CONSTRUCTORS && ts.isStructType(candidate.container().get()))
+                inliningRequired = true;
+        }
         // short-circuit if inlining is not required and there is no implicit inlining
         if (!inliningRequired && !INLINE_IMPLICIT) {
             report("inlining not required for candidate: " +candidate, call);
@@ -1734,7 +1744,8 @@ public class Inliner extends ContextVisitor {
             for (int i=0; i < args.size(); i++) {
                 Expr arg = args.get(i);
                 X10FieldInstance prop = props.get(i);
-                stmts.add(syn.createEval(syn.createFieldAssign(n.position(), prop, arg, this)));
+                FieldAssign assign = syn.createFieldAssign(n.position(), getThis(n.position()), prop, arg, this);
+                stmts.add(syn.createEval(assign));
             }
             StmtSeq result = syn.createStmtSeq(n.position(), stmts);
             return result;

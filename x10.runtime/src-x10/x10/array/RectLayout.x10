@@ -93,8 +93,8 @@ struct RectLayout(rank:int) {
             size = sz;
         }
     }
-    
-    def this(_min0:int, _max0:int):RectLayout{this.rank==1} {
+
+    @Inline def this(_min0:int, _max0:int):RectLayout{this.rank==1} {
         property(1);
         min0 = _min0;
         delta0 = _max0-_min0+1;

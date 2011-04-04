@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.Inline;
 import x10.compiler.TempNoInline_0;
 import x10.compiler.TempNoInline_3;
 
@@ -456,7 +457,7 @@ public abstract class Region(
 
     public def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(Point.make(i0,i1,i2,i3));
 
-    protected def this(r: int, t: boolean, z: boolean)
+    protected @Inline def this(r: int, t: boolean, z: boolean)
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
         val isRail = (r == 1) && t && z;
         property(r, t, z, isRail);

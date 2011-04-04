@@ -54,14 +54,14 @@ public final class Configuration extends x10.config.Configuration {
     public boolean LOOP_OPTIMIZATIONS = true;
     private static final String LOOP_OPTIMIZATIONS_desc = "Optimize rectangular region iteration";
 
-    public boolean SPLIT_CONSTRUCTORS = true;
-    private static final String SPLIT_CONSTRUCTORS_desc = "Replace New with Allocation and ConstructorCall nodes";
-    
     public boolean EXPERIMENTAL = false;
     private static final String EXPERIMENTAL_desc = "Enable experimental optimizations";
 
     public boolean ELIMINATE_DEAD_VARIABLES = false;
     private static final String ELIMINATE_DEAD_VARIABLES_desc = "Get rid of unused local variables";
+
+    public boolean SPLIT_CONSTRUCTORS = true;
+    private static final String SPLIT_CONSTRUCTORS_desc = "Replace New with Allocation and ConstructorCall nodes";
 
     public boolean INLINE_CONSTANTS = true;
     private static final String INLINE_CONSTANTS_desc = "Enable inlining of command-line flag values";
@@ -76,8 +76,11 @@ public final class Configuration extends x10.config.Configuration {
     public boolean INLINE_METHODS_IMPLICIT = false;
     private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
 
-    public boolean INLINE_CONSTRUCTORS = false;
+    public boolean INLINE_CONSTRUCTORS = true;
     private static final String INLINE_CONSTRUCTORS_desc = "Inline constructor calls";
+    
+    public boolean INLINE_STRUCT_CONSTRUCTORS = false;
+    private static final String INLINE_STRUCT_CONSTRUCTORS_desc = "Inline all calls to struct constructors";
 
     public boolean ALLOW_STATEMENT_EXPRESSIONS = true;
     private static final String ALLOW_STATEMENT_EXPRESSIONS_desc = "Allow statement expressions in generated code";
