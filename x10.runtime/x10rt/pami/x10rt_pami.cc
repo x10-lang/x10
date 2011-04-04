@@ -72,7 +72,6 @@ struct x10rt_pami_team_callback
 	pami_xfer_t operation;
 };
 
-
 struct x10rt_pami_team
 {
 	pami_geometry_t geometry; // abstract geometry ID
@@ -80,10 +79,17 @@ struct x10rt_pami_team
 	pami_task_t *places; // list of team members
 };
 
+struct x10rt_buffered_data
+{
+	void* header;
+	void* data;
+};
+
 struct x10rt_pami_state
 {
 	uint32_t numPlaces;
 	uint32_t myPlaceId;
+	uint32_t sendImmediateLimit;
 	x10rtCallback* callBackTable;
 	x10rt_msg_type callBackTableSize;
 	pami_client_t client; // the PAMI client instance used for this place
@@ -236,6 +242,27 @@ static void cookie_decrement (pami_context_t   context,
 		fprintf(stderr, "Place %u decrement() cookie = %p, %d => %d\n", state.myPlaceId, cookie, *value, *value-1);
 	#endif
 	--*value;
+}
+
+static void cookie_free (pami_context_t   context,
+                       void          * cookie,
+                       pami_result_t    result)
+{
+	if (result != PAMI_SUCCESS)
+		error("Error detected in cookie_free");
+	free(cookie);
+}
+
+static void free_buffered_data (pami_context_t   context,
+                       void          * cookie,
+                       pami_result_t    result)
+{
+	if (result != PAMI_SUCCESS)
+		error("Error detected in free_buffered_data");
+	x10rt_buffered_data *bd = (x10rt_buffered_data*)cookie;
+	free(bd->header);
+	free(bd->data);
+	free(bd);
 }
 
 /*
@@ -426,7 +453,6 @@ static void get_handler_complete (pami_context_t   context,
 	// send a GET_COMPLETE to the originator
 	pami_result_t   status = PAMI_ERROR;
 
-	volatile unsigned send_active = 1;
 	pami_send_t parameters;
 	parameters.send.dispatch        = GET_COMPLETE;
 	parameters.send.header.iov_base = &header->msg; // sending the origin pointer back
@@ -435,23 +461,16 @@ static void get_handler_complete (pami_context_t   context,
 	parameters.send.data.iov_len    = 0;
 	parameters.send.dest 			= header->dest_place;
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-	parameters.events.cookie        = (void *) &send_active;
-	parameters.events.local_fn      = cookie_decrement;
+	parameters.events.cookie        = cookie;
+	parameters.events.local_fn      = cookie_free;
 	parameters.events.remote_fn     = NULL;
 
 	if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
 		error("Unable to send a GET_COMPLETE message from %u to %u: %i\n", state.myPlaceId, header->dest_place, status);
 
 	#ifdef DEBUG
-		fprintf(stderr, "(%u) get_handler_complete before advance\n", state.myPlaceId);
+		fprintf(stderr, "(%u) get_handler_complete\n", state.myPlaceId);
 	#endif
-	// hold up this thread until the message buffers have been copied out by PAMI
-	while (send_active)
-		PAMI_Context_advance(context, 10);
-	#ifdef DEBUG
-		fprintf(stderr, "(%u) get_handler_complete after advance\n", state.myPlaceId);
-	#endif
-	free(header);
 }
 
 /*
@@ -666,6 +685,11 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		error("Unable to query PAMI_CLIENT_NUM_TASKS: %i\n", status);
 	state.numPlaces = configuration.value.intval;
 
+	configuration.name = PAMI_DISPATCH_SEND_IMMEDIATE_MAX;
+	if ((status = PAMI_Client_query(state.client, &configuration, 1)) != PAMI_SUCCESS)
+		error("Unable to query PAMI_DISPATCH_SEND_IMMEDIATE_MAX: %i\n", status);
+	state.sendImmediateLimit = configuration.value.intval;
+
 	#ifdef DEBUG
 		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces); // TODO - deleteme
 	#endif
@@ -771,46 +795,73 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
-	volatile unsigned send_active = 1;
-	pami_send_t parameters;
-	parameters.send.dispatch        = STANDARD;
-	parameters.send.header.iov_base = &p->type;
-	parameters.send.header.iov_len  = sizeof(p->type);
-	parameters.send.data.iov_base   = p->msg;
-	parameters.send.data.iov_len    = p->len;
-	parameters.send.dest 			= target;
-	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-	//parameters.send.hints.buffer_registered = 1;
-	parameters.events.cookie        = (void *) &send_active;
-	parameters.events.local_fn      = cookie_decrement;
-	parameters.events.remote_fn     = NULL;
 
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
+	if (p->len + sizeof(p->type) <= state.sendImmediateLimit)
+	{
+		pami_send_immediate_t parameters;
+		parameters.dispatch        = STANDARD;
+		parameters.header.iov_base = &p->type;
+		parameters.header.iov_len  = sizeof(p->type);
+		parameters.data.iov_base   = p->msg;
+		parameters.data.iov_len    = p->len;
+		parameters.dest            = target;
+		memset(&parameters.hints, 0, sizeof(pami_send_hint_t));
+
+		#ifdef DEBUG
+			fprintf(stderr, "(%u) send immediate\n", state.myPlaceId);
+		#endif
+
+		if (state.numParallelContexts)
+		{
+			if ((status = PAMI_Send_immediate(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
+				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+		}
+		else
+		{
+			status = PAMI_Context_lock(state.context[0]);
+			if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
+			if ((status = PAMI_Send_immediate(state.context[0], &parameters)) != PAMI_SUCCESS)
+				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+			PAMI_Context_unlock(state.context[0]);
+		}
+	}
 	else
 	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
+		x10rt_buffered_data *bd = (x10rt_buffered_data *)malloc(sizeof(x10rt_buffered_data));
+		bd->header = malloc(sizeof(p->type));
+		memcpy(bd->header, &p->type, sizeof(p->type));
+		bd->data = malloc(p->len);
+		memcpy(bd->data, p->msg, p->len);
+		pami_send_t parameters;
+		parameters.send.dispatch        = STANDARD;
+		parameters.send.header.iov_base = bd->header;
+		parameters.send.header.iov_len  = sizeof(p->type);
+		parameters.send.data.iov_base   = bd->data;
+		parameters.send.data.iov_len    = p->len;
+		parameters.send.dest 			= target;
+		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+		parameters.events.cookie        = bd;
+		parameters.events.local_fn      = free_buffered_data;
+		parameters.events.remote_fn     = NULL;
+
+		#ifdef DEBUG
+			fprintf(stderr, "(%u) send_msg\n", state.myPlaceId);
+		#endif
+
+		if (state.numParallelContexts)
+		{
+			if ((status = PAMI_Send(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
+				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+		}
+		else
+		{
+			status = PAMI_Context_lock(state.context[0]);
+			if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
+			if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
+				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+			PAMI_Context_unlock(state.context[0]);
+		}
 	}
-
-	if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
-		error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-
-	#ifdef DEBUG
-		fprintf(stderr, "(%u) send_msg Before advance\n", state.myPlaceId);
-	#endif
-
-	// hold up this thread until the message buffers have been copied out by PAMI
-	while (send_active)
-		PAMI_Context_advance(context, 10);
-
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
-	#ifdef DEBUG
-		fprintf(stderr, "(%u) send_msg After advance\n", state.myPlaceId);
-	#endif
 }
 
 /** \see #x10rt_lgl_send_msg
