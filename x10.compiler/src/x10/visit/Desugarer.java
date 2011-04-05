@@ -393,8 +393,8 @@ public class Desugarer extends ContextVisitor {
     private static Expr desugarNew(final New new_c, ContextVisitor v) {
         return desugarCall(new_c, null, new_c, null, v);
     }
-    private static Expr addCheck(Expr booleanGuard, CConstraint constraint, final Name selfName, final NodeFactory nf, final TypeSystem ts, final Position pos) {
-        if (constraint==null) return booleanGuard;
+    private static void addCheck(ArrayList<Expr> booleanGuard, CConstraint constraint, final Name selfName, final NodeFactory nf, final TypeSystem ts, final Position pos) {
+        if (constraint==null) return;
         final List<Expr> guardExpr = new Synthesizer(nf, ts).makeExpr(constraint, pos);  // note: this doesn't typecheck the expression, so we're missing type info.
         for (Expr e : guardExpr) {
             e = (Expr) e.visit( new NodeVisitor() {
@@ -410,9 +410,8 @@ public class Desugarer extends ContextVisitor {
                     return null;
                 }
             });
-            booleanGuard = nf.Binary(pos, booleanGuard, Binary.Operator.COND_AND, e).type(ts.Boolean());
+            booleanGuard.add(e);
         }
-        return booleanGuard;
     }
     private static <T> T reinstantiate(TypeParamSubst typeParamSubst, T t) {
         return typeParamSubst==null ? t : typeParamSubst.reinstantiate(t);
@@ -428,9 +427,9 @@ public class Desugarer extends ContextVisitor {
                 binary_c!=null ? binary_c.methodInstance() :
                         procCall.procedureInstance();
         if (procInst==null ||  // for binary ops (like ==), the methodInstance is null
-            !procInst.checkConstraintsAtRuntime()) return (Expr)n;
+            !procInst.checkConstraintsAtRuntime())
+            return n;
 
-        Warnings.dynamicCall(v.job(), Warnings.GeneratedDynamicCheck(n.position()));
 
         final Position pos = n.position();
         List<Expr> args = binary_c!=null ? Arrays.asList(binary_c.left(), binary_c.right()) : procCall.arguments();
@@ -510,17 +509,16 @@ public class Desugarer extends ContextVisitor {
         // we add the guard to the body, then the return stmt.
         // if (!(GUARDEXPR(a,b))) throw new FailedDynamicCheckException(...); return ...
         final Ref<CConstraint> guardRefConstraint = procDef.guard();
-        Expr booleanGuard = (BooleanLit) nf.BooleanLit(pos, true).type(ts.Boolean());
+        ArrayList<Expr> booleanGuard = new ArrayList<Expr>();
         if (guardRefConstraint!=null) {
             final CConstraint guard = reinstantiate(typeParamSubst, guardRefConstraint.get());
-            booleanGuard = addCheck(booleanGuard,guard, null, nf, ts, pos);
+            addCheck(booleanGuard,guard, null, nf, ts, pos);
         }
         // add the constraints of the formals
         for (LocalDef localDef : procDef.formalNames()) {
             CConstraint constraint = Types.xclause(reinstantiate(typeParamSubst, Types.get(localDef.type())));
-            booleanGuard = addCheck(booleanGuard,constraint, localDef.name(), nf, ts, pos);
+            addCheck(booleanGuard,constraint, localDef.name(), nf, ts, pos);
         }
-
 
         // replace old formals in depExpr with the new locals
         final Map<Name,Expr> old2new = CollectionFactory.newHashMap(oldFormals.size());
@@ -555,13 +553,31 @@ public class Desugarer extends ContextVisitor {
                     AmbExpr amb = (AmbExpr) n;
                     Name name = amb.name().id();
                     Expr newE = old2new.get(name);
-                    if (newE==null) throw new InternalCompilerError("Didn't find name="+name+ " in old2new="+old2new);
+                    if (newE==null) throw new OuterLocalUsed();
                     return newE;
                 }
                 return null;
             }
         };
-        Expr newDep = (Expr)booleanGuard.visit(replace);
+        ArrayList<Expr> newCheck = new ArrayList<Expr>(booleanGuard.size());
+        for (Expr e : booleanGuard) {
+            try {
+                newCheck.add( (Expr)e.visit(replace) );
+            } catch (OuterLocalUsed e1) {
+                // ignore expressions that have outer locals (constraint system bugs like XTENLANG_2638)
+            }
+        }
+
+        if (newCheck.size()==0)
+            return n; // nothing to check...
+
+        Warnings.dynamicCall(v.job(), Warnings.GeneratedDynamicCheck(n.position()));
+
+        Expr newDep = newCheck.get(0);
+        for (int k=1; k<newCheck.size(); k++) {
+            Expr e = newCheck.get(k);
+            newDep = nf.Binary(pos, newDep, Binary.Operator.COND_AND, e).type(ts.Boolean());
+        }
         // if (!newDep) throw new FailedDynamicCheckException(); return ...
         final Type resType = newExpr.type();
         newDep = nf.Unary(pos, Unary.Operator.NOT, newDep).type(ts.Boolean());
@@ -579,6 +595,7 @@ public class Desugarer extends ContextVisitor {
         MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, args).closureInstance(ci).type(resType);
     }
+    private static class OuterLocalUsed extends RuntimeException {}
 
     // T.f op=v -> T.f = T.f op v or e.f op=v -> ((x:E,y:T)=>x.f=x.f op y)(e,v)
     public static Expr desugarFieldAssign(FieldAssign n, ContextVisitor v) {

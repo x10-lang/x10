@@ -45,7 +45,6 @@ public class XTENLANG_547_MustFailCompile extends x10Test {
     public static def main(Array[String](1)) {
         new XTENLANG_547_MustFailCompile().execute();
     }
-    public static def main(args:Rail[String]) {}
 
     public def run()=true;
     public def breakit(b:GlobalRef[Rail[byte]], w:OutputStreamWriter) {

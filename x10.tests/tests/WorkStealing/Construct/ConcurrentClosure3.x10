@@ -30,7 +30,7 @@ public class ConcurrentClosure3 {
 	
 	public def run():boolean {
 		
-		val rail = Rail.make[int](2, (i:int) => foo(i));
+		val rail = new Array[int](2, (i:int) => foo(i));
 
 		value = rail(1);
 		Console.OUT.println("ConcurrentClosure3: value = " + value);

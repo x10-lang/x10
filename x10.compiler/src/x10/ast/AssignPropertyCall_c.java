@@ -327,7 +327,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                                      new Errors.ConstructorReturnTypeNotEntailed(known, result, pos));
                 }
                 // Check that the class invariant is satisfied.
-                 X10ClassType ctype =  (X10ClassType) Types.get(thisConstructor.container());
+                X10ClassType ctype =  (X10ClassType) Types.getClassType(Types.get(thisConstructor.container()),ts,ctx);
                 CConstraint _inv = Types.get(ctype.x10Def().classInvariant()).copy();
                 X10TypeEnv env = ts.env(tc.context());
                 boolean isThis = true; // because in the class invariant we use this (and not self)

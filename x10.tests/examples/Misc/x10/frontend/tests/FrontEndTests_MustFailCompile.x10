@@ -1695,7 +1695,18 @@ class TestSwitchOnFinalVal {
 
 
 
-
+class XTENLANG_1196 {
+	def test1(P:Array[Int]) {
+		for (p in P) 
+			async break; // ERR
+	}
+	def test2(vec:Dist) {
+		// foreach was removed
+		ateach(v in vec) {
+			break; // ERR
+		}
+	}
+}
 class TestBreaksInAsyncAt {
 	class Shyk_Flup  { // XTENLANG-823
 	  public def test() {
@@ -6443,3 +6454,21 @@ class ClassLCATest {
 		val z:Array[Op] = [new A() as Op, new B() as Op];
 	}
 }
+
+class TestClassConformance { // XTENLANG-2509
+
+	public static def main(args:Array[String](1)) { }
+
+	public abstract static class Matrix(M:Int, N:Int) {
+		protected def this(m:Int, n:Int) = property(m, n);
+		public abstract def mult(A:Matrix{self.M==this.M}, 
+								 B:Matrix{self.N==this.N, self.M==A.N}):void;
+	}
+	
+	public class ConcreteMatrix extends Matrix { // ShouldNotBeERR see XTENLANG-2509
+		public def this(m:Int, n:Int) = super(m, n);
+		public def mult(A:Matrix{self.M==this.M}, 
+						B:Matrix{self.N==this.N, self.M==A.N}) { }
+	}
+}
+
