@@ -6421,3 +6421,25 @@ class ImplicitTargetResolutionTest {
 	}
 }
 
+class StructLCATest { // see XTENLANG-2635
+	static interface Op {}
+	static struct A implements Op {}
+	static struct B implements Op {}
+	class Test {
+		val x:Array[Op] = [A(), B()]; // ShouldNotBeERR (Found type: x10.array.Array[x10.lang.Any])
+		val y:Array[Op] = [A() as Op, B()];
+		val z:Array[Op] = [A() as Op, B() as Op];
+	}
+}
+class ClassLCATest {
+	static interface Op {}
+	static class A implements Op {}
+	static class B implements Op {}
+	class Test {
+		// LCA of A and B should be Op or Object ?
+		val w:Array[Object{self!=null}] = [new A(), new B()];
+		val x:Array[Op] = [new A(), new B()]; // ERR (Found type: x10.array.Array[x10.lang.Object{self!=null}]{...})
+		val y:Array[Op] = [new A() as Op, new B()];
+		val z:Array[Op] = [new A() as Op, new B() as Op];
+	}
+}
