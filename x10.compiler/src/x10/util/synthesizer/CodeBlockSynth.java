@@ -71,6 +71,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
         }
     }
     
+    protected boolean reachable = true;
     protected Block block; //the result
     protected AbstractStateSynth containerSynth; //The current block's parent
     protected List<IStmtSynth> stmtSythns; //all synthesizers for generate the code block
@@ -247,6 +248,9 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
         return synth;
     }
     
+    public void setReachable(boolean reachable) {
+        this.reachable = reachable;
+    }
     
     public Block close() throws SemanticException {
         if(closed){
@@ -258,7 +262,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
         for(IStmtSynth iss : stmtSythns){
             stmts.add(iss.genStmt());
         }
-        block = xnf.Block(pos, stmts);
+        block = (Block) xnf.Block(pos, stmts).reachable(reachable);
         
         //now process the final jobs
         if(codeProcessingJobs != null){
