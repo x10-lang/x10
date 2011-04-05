@@ -25,7 +25,7 @@ public abstract class ConstructorDecl_c extends Term_c implements ConstructorDec
     protected Id name;
     protected List<Formal> formals;
   // protected List<TypeNode> throwTypes;
-    protected Block body;
+    public Block body;
     protected ConstructorDef ci;
 
     public ConstructorDecl_c(Position pos, FlagsNode flags, Id name, List<Formal> formals,  Block body) {
@@ -142,46 +142,6 @@ public abstract class ConstructorDecl_c extends Term_c implements ConstructorDec
         return body == n.body ? n : n.body(body);
     }
 
-    public Node buildTypesOverride(TypeBuilder tb) {
-        TypeSystem ts = tb.typeSystem();
-
-        ClassDef ct = tb.currentClass();
-        assert ct != null;
-
-        Flags flags = this.flags.flags();
-
-        if (ct.flags().isInterface()) {
-            flags = flags.Public().Abstract();
-        }
-
-        ConstructorDef ci = createConstructorDef(ts, ct, flags);
-        ct.addConstructor(ci);
-
-        TypeBuilder tbChk = tb.pushCode(ci);
-        
-        final TypeBuilder tbx = tb;
-        final ConstructorDef mix = ci;
-        
-        ConstructorDecl_c n = (ConstructorDecl_c) this.visitSignature(new NodeVisitor() {
-            int key = 0;
-            public Node override(Node n) {
-                return ConstructorDecl_c.this.visitChild(n, tbx.pushCode(mix));
-            }
-        });
-
-        List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(n.formals().size());
-        for (Formal f : n.formals()) {
-             formalTypes.add(f.type().typeRef());
-        }
-
-        ci.setFormalTypes(formalTypes);
-  
-
-        Block body = (Block) n.visitChild(n.body, tbChk);
-        
-        n = (ConstructorDecl_c) n.body(body);
-        return n.constructorDef(ci);
-    }
 
     protected abstract ConstructorDef createConstructorDef(TypeSystem ts, ClassDef ct, Flags flags);
 

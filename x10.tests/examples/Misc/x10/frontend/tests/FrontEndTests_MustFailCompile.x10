@@ -6384,3 +6384,40 @@ class XTENLANG_1636 {
 	} 
 }
 
+class Offery_1582 { //XTENLANG-1582
+  def this() offers Int {
+    offer 81;
+  }
+}
+
+
+class ImplicitTargetResolutionTest {
+	// Expr and Call have different disambuation rules!
+	static def rankTest1(a:Dist{rank==2}) {} // ok
+	static def rankTest1(a:Dist{rank()==2}) {} // ERR ERR ERR 
+	static def rankTest2(a:Dist{self.rank()==2}) {} // ok
+
+	class TypeName(p:Int) {
+		property p1():Boolean = p==3;
+
+		val f1:TypeName{p1()} = null;	// defaults to "this.p1()"
+		val f2:TypeName{self.p1()} = f1; // ERR
+		val f3:TypeName{this.p1()} = f1;
+		val f4:TypeName{this.p1()} = f2; // ERR
+
+		def bla1(x:TypeName{p1()}) { // defaults to "this.p1()"
+		  val y:TypeName{self.p1()} = x; // ERR
+		  val z:TypeName{this.p1()} = x;
+		  val ok:TypeName{self.p1()} = new TypeName(3);
+		}
+	}
+	static def staticTest(x:TypeName{p1()}) { // defaults to "this.p1()" therefore we have: ERR ERR: Cannot access a non-static field method final property public TypeName.p1() from a static context.
+	  val bug3:TypeName{p1()} = new TypeName(3); // ERR ERR
+	}
+
+	static def rankTest(a:Array[Int]{rank==2}) {
+		val xa:Array[Int]{self.rank==2} = a;
+		val ya:Array[Int]{this.rank==2} = a; // ERR ERR ERR
+	}
+}
+

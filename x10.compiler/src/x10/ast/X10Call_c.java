@@ -607,7 +607,7 @@ public class X10Call_c extends Call_c implements X10Call {
      * We use this object for better error reporting.
      * A call:  target.m(arguments)
      * can be resolved to:
-     * 1) closure call on a field or a local
+     * 1) closure call on a local or a field
      * 2) method call on a static or instance method
      * 3) struct constructor invocation
      * Note that the instances might have an error object in them (i.e., li.error() may contain an error)

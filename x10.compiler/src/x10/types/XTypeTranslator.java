@@ -246,6 +246,7 @@ public class XTypeTranslator {
     static public XTerm expandSelfPropertyMethod(XTerm term) {
         return expandPropertyMethod(term,false,null,null,null);
     }
+    // todo: merge this code with Checker.expandCall and try to get rid of ts.expandMacros
     static public XTerm expandPropertyMethod(XTerm term, boolean isThisOrSelf,
                         // these three formals help us search for a concrete implementation of the property method
                         // they can be null (then we don't search for an implementation)

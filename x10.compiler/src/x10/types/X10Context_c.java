@@ -253,8 +253,8 @@ public class X10Context_c extends Context_c {
     	// check if you are in code.
     	Context cxt = this;
     	CodeDef cc = cxt.currentCode();
-    	if (cc instanceof X10MethodDef) {
-    	    X10MethodDef md = (X10MethodDef) cc;
+    	if (cc instanceof X10ProcedureDef) {
+    	    X10ProcedureDef md = (X10ProcedureDef) cc;
     	    while (md instanceof AtDef || md instanceof AsyncDef) {
     	        cxt = cxt.pop();
     	        if (cxt == null)
