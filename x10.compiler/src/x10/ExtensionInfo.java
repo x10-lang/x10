@@ -462,6 +462,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(RegisterPlugins(job));
            
            goals.add(PreTypeCheck(job));
+           goals.add(Ifdef(job));
            goals.add(TypesInitializedForCommandLineBarrier());
 
            goals.add(TypeChecked(job));
@@ -509,7 +510,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
 
-           goals.add(Ifdef(job));
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
 
