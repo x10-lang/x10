@@ -1012,27 +1012,13 @@ public interface TypeSystem {
     X10ClassType DistArray();
 
     /**
-     * Return the ClassType object for the x10.lang.Rail interface.
-     *
-     * @return
-     */
-    X10ClassType Rail();
-
-
-    /**
      * Return the ClassType object for the x10.lang.Runtime.Mortal interface.
      */
     X10ClassType Mortal();
 
-    boolean isRail(Type t); // todo: Rail was removed!
-
-    public boolean isRailOf(Type t, Type p);
-
     boolean isArray(Type t);
 
     public boolean isArrayOf(Type t, Type p);
-
-    X10ClassType Rail(Type arg);
 
     X10ClassType Array(Type arg);
 

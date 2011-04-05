@@ -1310,7 +1310,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Binary.Operator op = n.operator().binaryOperator();
             Name methodName = X10Binary_c.binaryMethodName(op);
             TypeSystem xts = ts;
-            if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || er.isIMC(array.type()))) {
+            if (isPrimitiveRepedJava(t) && (er.isIMC(array.type()))) {
                 w.write("(");
                 w.write("(");
                 er.printType(t, 0);
@@ -1356,7 +1356,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Binary.Operator op = n.operator().binaryOperator();
             Name methodName = X10Binary_c.binaryMethodName(op);
             TypeSystem xts = ts;
-            if (isPrimitiveRepedJava(t) && (xts.isRail(array.type()) || er.isIMC(array.type()))) {
+            if (isPrimitiveRepedJava(t) && (er.isIMC(array.type()))) {
                 w.write("(");
                 w.write("(");
                 er.printType(t, 0);
@@ -1714,14 +1714,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         er.printType(e.type(), 0);
                         w.write(")");
                         if (e instanceof X10Call) {
-                            Type targetType2 = ((X10Call) e).target().type();
-                            if (!(tr.typeSystem()).isRail(targetType2)
-                                    && xts.isParameterType(((X10Call) e).methodInstance().def().returnType().get())) {
-                                // TODO:CAST
-                                w.write("(");
-                                er.printType(e.type(), BOX_PRIMITIVES);
-                                w.write(")");
-                            }
+                            // TODO:CAST
+                            w.write("(");
+                            er.printType(e.type(), BOX_PRIMITIVES);
+                            w.write(")");
                         } else if (e instanceof ClosureCall) {
                             ClosureCall cl = (ClosureCall) e;
                             Expr expr = cl.target();
@@ -1951,9 +1947,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                     boolean needParen = expr instanceof Unary
                             || expr instanceof Lit
-                            || expr instanceof Conditional_c
-                            || (expr instanceof X10Call && !xts.isParameterType(expr.type()) && xts
-                                    .isRail(((X10Call) expr).target().type()));
+                            || expr instanceof Conditional_c;
                     if (needParen) w.write("(");
                     c.printSubExpr(expr, w, tr);
                     if (needParen) w.write(")");

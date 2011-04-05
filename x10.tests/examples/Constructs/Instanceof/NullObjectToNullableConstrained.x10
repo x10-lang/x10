@@ -20,7 +20,7 @@ import harness.x10Test;
 public class NullObjectToNullableConstrained extends x10Test {
 	 
 	public def run(): boolean = {
-		var array: Rail[X10DepTypeClassOneB] = Rail.make[X10DepTypeClassOneB](1);
+		var array: Rail[X10DepTypeClassOneB] = new Rail[X10DepTypeClassOneB](1);
 		var var_: X10DepTypeClassOneB = array(0);
 		var nullableVarNull: Box[X10DepTypeClassOneB] = null;
 		

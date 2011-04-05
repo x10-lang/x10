@@ -119,14 +119,8 @@ public abstract class Region(
      
     /**
      * Construct a rectangular region whose bounds are specified as
-     * rails of ints.
+     * arrays of ints.
      */
-    public static @TempNoInline_3 def makeRectangular[S,T](minArg:Rail[S], maxArg:Rail[T](minArg.length)){S<:Int, T<:Int}:Region(minArg.length){self.rect} {
-        val minArray = new Array[int](minArg.length, (i:int)=>minArg(i));
-        val maxArray = new Array[int](maxArg.length, (i:int)=>maxArg(i));
-        return new RectRegion(minArray, maxArray) as Region(minArg.length){rect};
-    }
-
     public static def makeRectangular[S,T](minArg:Array[S](1), maxArg:Array[T](1)){S<:Int,T<:Int}:Region(minArg.size){self.rect} {
         if (minArg.size == 1) {
             return new RectRegion1D(minArg(0), maxArg(0)) as Region(minArg.size){rect}; // sigh. constraint solver not flow-sensitive.

@@ -24,7 +24,7 @@ class XTENLANG_36 extends x10Test {
     
         def foo(os:Writer, buf:Rail[Byte]) // throws IOException 
         {
-            os.write(buf, 0, buf.length);
+            os.write(buf, 0, buf.size);
         }
     }
 

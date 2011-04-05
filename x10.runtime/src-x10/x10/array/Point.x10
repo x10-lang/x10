@@ -21,7 +21,7 @@ import x10.compiler.TempNoInline_3;
  * may be accessed individually (with zero-based indexing) using
  * <code>p(i)</code> because <code>Point</code> implements
  * <code>(Int)=>int</code>. The coordinates may also be accessed as a
- * Rail[int]. Point arithmetic is supported.
+ * Array[int]. Point arithmetic is supported.
  */
 
 public final class Point(rank:Int) implements (Int) => Int, 
@@ -97,19 +97,6 @@ public final class Point(rank:Int) implements (Int) => Int,
     public def coords():(int)=>int = (i:int)=> this(i);
 
     /**
-     * Constructs a Point from a Rail[int]
-     */
-    public static def make(r:Rail[int]):Point(r.length) {
-        switch(r.length) {
-            case 1: return new Point(r(0)) as Point(r.length);
-	    case 2: return new Point(r(0), r(1)) as Point(r.length);
-            case 3: return new Point(r(0), r(1), r(2)) as Point(r.length);
-            case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.length);
-            default: return new Point(new Array[int](r.length, (i:int)=>r(i))) as Point(r.length); // TODO: cast should not be needed on this branch!
-        }
-    }
-
-    /**
      * Constructs a Point from a Array[int](1)
      */
     public static def make[T](r:Array[T](1)){T<: Int}:Point(r.size) {
@@ -140,12 +127,6 @@ public final class Point(rank:Int) implements (Int) => Int,
     public static def make(i0:int, i1:int) = new Point(i0, i1);
     public static def make(i0:int, i1:int, i2:int) = new Point(i0, i1, i2);
     public static def make(i0:int, i1:int, i2:int, i3:int) = new Point(i0, i1, i2, i3);
-
-
-    /** A <code>Rail</code> <code>r</code> of size <code>k</code> can be converted to a point <code>p</code>
-	of the same rank with <code>p(i)=r(i)</code>.
-     */
-    public static operator (r:Rail[int]): Point(r.length) = make(r);
 
     /** A <code>Array</code> <code>r</code> of length <code>k</code> can be converted to a point <code>p</code>
 	of the same rank with <code>p(i)=r(i)</code>.

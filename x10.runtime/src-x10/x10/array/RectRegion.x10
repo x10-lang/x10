@@ -393,14 +393,14 @@ final class RectRegion extends Region{rect} {
         val min:(int)=>int;
         val max:(int)=>int;
         var done:boolean;
-        val cur:Rail[int](myRank);
+        val cur:Rail[int]{self.size==myRank};
 
         def this(rr:RectRegion):RRIterator{self.myRank==rr.rank} {
             property(rr.rank);
             min = rr.min();
             max = rr.max();
             done = rr.size == 0;
-            cur = Rail.make[int](myRank, min);
+            cur = new Rail[int](myRank, min);
         }        
 
         public def hasNext() = !done;

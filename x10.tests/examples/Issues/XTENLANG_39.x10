@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_39 extends x10Test {
 
     public def run():boolean {
-        val x = Rail.make[boolean](10);
+        val x = new Rail[boolean](10);
         return true;
     }
 

@@ -279,11 +279,10 @@ public class ForLoopOptimizer extends ContextVisitor {
             Type       indexType  = null; // type of the formal var initializer (if any)
             LocalDecl  indexLDecl = null; // redeclaration of the formal var (if it has a name)
             if (named) {
-                // create a rail to contain the value of the formal at each iteration
+                // create an array to contain the value of the formal at each iteration
                 Name       indexName  = Name.makeFresh(prefix);
-                           indexType  = xts.Rail(xts.Int()); // PlaceChecker.AddIsHereClause(xts.Rail(xts.Int()), context);
-                List<Type> railType   = Collections.<Type>singletonList(xts.Int());
-                Expr       indexInit  = syn.createStaticCall(pos, xts.Rail(), MAKE, railType, syn.createIntLit(rank));
+                           indexType  = xts.Array(xts.Int());
+                Expr       indexInit  = syn.createTuple(pos, rank, syn.createIntLit(0));
                            indexLDecl = syn.createLocalDecl(pos, Flags.FINAL, indexName, indexType, indexInit);
                 // add the declaration of the index rail to the list of statements to be executed before the loop nest
                 stmts.add(indexLDecl);

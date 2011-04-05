@@ -14,6 +14,7 @@
 
 #include <x10/io/InputStreamReader__InputStream.h>
 #include <x10aux/io/FILEPtrInputStream.h>
+#include <x10/util/IndexedMemoryChunk.h>
 
 namespace x10 {
 
@@ -47,11 +48,9 @@ namespace x10 {
                 return _inputStream.read();
             }
 
-            virtual x10_int read(x10aux::ref<x10::lang::Rail<x10_byte> > b,
+            virtual x10_int read(x10::util::IndexedMemoryChunk<x10_byte> b,
                                  x10_int off,
-                                 x10_int len) {
-                return _inputStream.read(b, off, len);
-            }
+                                 x10_int len);
 
             virtual void skip(x10_int bytes) {
                 return _inputStream.skip(bytes);

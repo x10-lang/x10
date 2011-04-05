@@ -174,7 +174,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/GlobalRef.o \
 	x10/lang/IBox.o \
 	x10/lang/Object.o \
-	x10/lang/Rail.o \
 	x10/lang/Reference.o \
 	x10/lang/String.o \
 	x10/lang/Throwable.o \

@@ -65,6 +65,7 @@ import polyglot.visit.ContextVisitor;
 import x10.ast.SettableAssign;
 import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
+import x10.ast.Tuple;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
@@ -1197,6 +1198,15 @@ public class AltSynthesizer {
             argTypes.add(a.type());
         }
         return argTypes;
+    }
+
+    public Expr createTuple(Position pos, int numElems, Expr initForAllElems) {
+        List<Expr> tupleVals  = new ArrayList<Expr>(numElems);
+        for (int i=0; i<numElems; i++) {
+            tupleVals.add(initForAllElems);
+        }
+        Type elemType = ts.Array(initForAllElems.type());
+        return nf.Tuple(pos, tupleVals).type(elemType);
     }
 
 }

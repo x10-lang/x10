@@ -26,8 +26,6 @@ namespace x10 {
     
     namespace lang {
 
-        template<class T> class Rail;
-
         class String : public Object {
             const char *FMGL(content);
             std::size_t FMGL(content_length);
@@ -68,13 +66,6 @@ namespace x10 {
             static x10aux::ref<String> _make(x10aux::ref<String> s) {
                 x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
                 this_->_constructor(s);
-                return this_;
-            }
-
-            void _constructor(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length);
-            static x10aux::ref<String> _make(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) {
-                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
-                this_->_constructor(rail, start, length);
                 return this_;
             }
 

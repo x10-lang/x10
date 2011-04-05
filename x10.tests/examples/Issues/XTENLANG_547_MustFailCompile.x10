@@ -17,7 +17,7 @@ public class XTENLANG_547_MustFailCompile extends x10Test {
 
         public def write(buf: GlobalRef[Rail[Byte]]): void {
             val mybuf = buf as GlobalRef[Rail[Byte]]{self.home==here};
-            write(mybuf, 0, mybuf().length);
+            write(mybuf, 0, mybuf().size);
         }
 
         public def write(buf: GlobalRef[Rail[Byte]]{self.home==here}, off: Int, len: Int) {

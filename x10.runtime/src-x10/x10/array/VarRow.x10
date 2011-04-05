@@ -17,12 +17,12 @@ final class VarRow extends Row {
 
     public def this(cols: Int, init: (Int)=>int) {
         super(cols);
-        row = Rail.make[int](cols, init);
+        row = new Rail[int](cols, init);
     }
     
     public def this(cols: Int) {
         super(cols);
-        row = Rail.make[int](cols);
+        row = new Rail[int](cols);
     }
     
     def row() = row as Rail[int];

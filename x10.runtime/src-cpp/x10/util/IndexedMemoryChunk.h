@@ -7,6 +7,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
+#include <x10aux/rail_utils.h>
 
 #include <assert.h>
 

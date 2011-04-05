@@ -29,8 +29,8 @@ public class InputStreamReader extends Reader {
         @Native("c++", "(#this)->read()")
         public native def read(): Int; //throws IOException;
 
-        @Native("java", "#0.read((#1).getByteArray(), #2, #3)")
-        @Native("c++", "(#this)->read(#r,#off,#len)")
+        @Native("java", "#0.read((#1).raw().getByteArray(), #2, #3)")
+        @Native("c++", "(#this)->read((#r)->raw(),#off,#len)")
         public native def read(r:Rail[Byte], off: Int, len: Int): void; //throws IOException;
 
         @Native("java", "#0.available()")

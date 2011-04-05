@@ -79,7 +79,7 @@ public class Printer extends FilterWriter {
     }
 
     public def printf(fmt: String, args: Rail[Any]): void { 
-        print(String.format(fmt, new Array[Any](args.length, (i:int)=>args(i))));
+        print(String.format(fmt, new Array[Any](args.size, (i:int)=>args(i))));
     }
     public def printfArray(fmt: String, args: Array[Any](1)): void { 
         print(String.format(fmt, args));

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.util.ArrayList;
 
 /**
  * Test assigments and coercions.
@@ -18,7 +19,8 @@ import harness.x10Test;
  */
 public class Assign2 extends x10Test {
 	public def run(): boolean = {
-                val a = Rail.make[String](5, (int)=>"hi");
+                val a = new ArrayList[String]();
+                a(0) = "hi";
                 var i:Settable[int,String] = a;
                 i(1) = "bye";
 

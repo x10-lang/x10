@@ -92,21 +92,21 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
        
         this.C = pm;
         val r = pm0.rank;
-        val n = Rail.make[VarMat](r);
+        val n = new Rail[VarMat](r);
         myMin = n;
-        val x = Rail.make[VarMat](r);
+        val x = new Rail[VarMat](r);
         myMax = x;
-        val nSum = Rail.make[VarMat](r);
+        val nSum = new Rail[VarMat](r);
         minSum = nSum;
-        val xSum = Rail.make[VarMat](r);
+        val xSum = new Rail[VarMat](r);
         maxSum = xSum;
-        val n2 = Rail.make[Rail[PolyRow]](r);
+        val n2 = new Rail[Rail[PolyRow]](r);
         min2 = n2;
-        val x2 = Rail.make[Rail[PolyRow]](r);
+        val x2 = new Rail[Rail[PolyRow]](r);
         max2 = x2;
         //printInfo(Console.OUT);
 
-        parFlags = Rail.make[boolean](r);
+        parFlags = new Rail[boolean](r);
     }
 
     private def init() {
@@ -143,8 +143,8 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
         myMax(axis) = new VarMat(imax, axis+1);
         minSum(axis) = new VarMat(imin, axis+1);
         maxSum(axis) = new VarMat(imax, axis+1);
-        min2(axis) = Rail.make[PolyRow](imin);
-        max2(axis) = Rail.make[PolyRow](imax);
+        min2(axis) = new Rail[PolyRow](imin);
+        max2(axis) = new Rail[PolyRow](imax);
 
         // fill in
         imin=0; imax=0;
@@ -233,9 +233,9 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
         private val rank: int = PolyScanner.this.rank;
         private val s =  PolyScanner.this;
 
-        private val x = Rail.make[int](rank);
-        private val myMin = Rail.make[int](rank);
-        private val myMax = Rail.make[int](rank);
+        private val x = new Rail[int](rank);
+        private val myMin = new Rail[int](rank);
+        private val myMax = new Rail[int](rank);
 
         private var k: int;
         def this() {}
@@ -315,7 +315,7 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
     }
 
     public def printInfo2(ps: Printer): void {
-        for (var k: int = 0; k<myMin.length; k++) {
+        for (var k: int = 0; k<myMin.size; k++) {
             ps.println("axis "+k);
             ps.println("  min");
             for (var l: int = 0; l<myMin(k).rows; l++) {

@@ -113,7 +113,7 @@ public final class Worker {
 
     public static def startHere() {
         Runtime.wsInit();
-        val workers = Rail.make[Worker](Runtime.NTHREADS);
+        val workers = new Rail[Worker](Runtime.NTHREADS);
         for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
             workers(i) = new Worker(i, workers);
         }

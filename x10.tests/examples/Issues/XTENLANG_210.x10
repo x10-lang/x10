@@ -18,7 +18,7 @@ import harness.x10Test;
 
 class XTENLANG_210 extends x10Test {
 
-    var os:Rail[Object] = Rail.make[Object](10);
+    var os:Rail[Object] = new Rail[Object](10);
     
     operator this(i0:int)=(vue:double): void = {
         os(i0) = new Box[double](vue);

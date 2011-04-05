@@ -15,7 +15,7 @@
 
 #include <x10/io/OutputStreamWriter__OutputStream.h>
 #include <x10/io/FileWriter__FileOutputStream.h>
-#include <x10/lang/Rail.h>
+#include <x10/util/IndexedMemoryChunk.h>
 
 using namespace x10::lang;
 using namespace x10::io;
@@ -37,14 +37,12 @@ x10aux::ref<OutputStreamWriter__OutputStream> OutputStreamWriter__OutputStream::
 	return _STANDARD_ERR_cache;
 }
 
-void OutputStreamWriter__OutputStream::write(ref<Rail<x10_byte> > b) {
-    nullCheck(b);
-    this->write(b, 0, b->x10__length);
+void OutputStreamWriter__OutputStream::write(x10::util::IndexedMemoryChunk<x10_byte> b) {
+    this->write(b, 0, b->length());
 }
 
-void OutputStreamWriter__OutputStream::write(ref<Rail<x10_byte> > b,
+void OutputStreamWriter__OutputStream::write(x10::util::IndexedMemoryChunk<x10_byte> b,
                                              x10_int off, x10_int len) {
-    if (len > 0) { nullCheck(b); }
     for (x10_int i = 0; i < len; i++)
         this->write((x10_int) b->operator[](off + i));
 }

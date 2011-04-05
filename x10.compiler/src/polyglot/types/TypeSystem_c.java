@@ -2204,14 +2204,6 @@ public class TypeSystem_c implements TypeSystem
         return AtomicInteger_;
     }
 
-    protected X10ClassType nativeRail_;
-
-    public X10ClassType Rail() {
-        if (nativeRail_ == null)
-            nativeRail_ = load("x10.lang.Rail");
-        return nativeRail_;
-    }
-
     // protected X10ClassType XOBJECT_;
     // public X10ClassType X10Object() {
     // if (XOBJECT_ == null)
@@ -2597,7 +2589,7 @@ public class TypeSystem_c implements TypeSystem
 
     public Type arrayOf(Position pos, Ref<? extends Type> type) {
         // Should be called only by the Java class file loader.
-        Type r = Rail();
+        Type r = Array();
         return Types.instantiate(r, type);
     }
     /**
@@ -3246,11 +3238,6 @@ public class TypeSystem_c implements TypeSystem
         if (t.isShort()) return 2l;
         if (t.isInt()) return 4l;
         if (t.isLong()) return 8l;
-        if (isRail(t)) {
-            X10ClassType ctyp = (X10ClassType)t;
-            assert ctyp.typeArguments().size() == 1;
-            return size(ctyp.typeArguments().get(0));
-        }
         return null;
     }
     
@@ -3666,20 +3653,6 @@ public class TypeSystem_c implements TypeSystem
         return new X10Context_c(this);
     }
 
-    
-
-    
-    public boolean isRail(Type t) {
-        return hasSameClassDef(t, Rail());
-    }
-
-    public boolean isRailOf(Type t, Type p) {
-        if (!isRail(t)) return false;
-        List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
-        assert (ta.size() == 1);
-        return ta.get(0).typeEquals(p, createContext());
-    }
-
     public boolean isArray(Type t) {
         return hasSameClassDef(t, Array());
     }
@@ -3717,11 +3690,6 @@ public class TypeSystem_c implements TypeSystem
             return ct1.def().equals(ct2.def());
         }
         return false;
-    }
-
-
-    public X10ClassType Rail(Type arg) {
-        return Types.instantiate(Rail(), arg);
     }
 
     public X10ClassType Array(Type arg) {

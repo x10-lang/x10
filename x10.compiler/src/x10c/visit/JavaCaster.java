@@ -173,7 +173,7 @@ public class JavaCaster extends ContextVisitor {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
             MethodInstance mi = call.methodInstance();
-            if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
+            if (!(target instanceof TypeNode)) {
                 Type bt = Types.baseType(target.type());
                 X10ClassType ct = null;
                 if (bt instanceof X10ClassType) {
@@ -197,7 +197,7 @@ public class JavaCaster extends ContextVisitor {
             ClosureCall call = (ClosureCall) n;
             Receiver target = call.target();
             MethodInstance mi = call.closureInstance();
-            if (!(target instanceof TypeNode) && !xts.isRail(target.type())) {
+            if (!(target instanceof TypeNode)) {
                 Type bt = Types.baseType(target.type());
                 if (bt instanceof X10ClassType) {
                     X10ClassType ct = (X10ClassType) bt;
@@ -236,7 +236,7 @@ public class JavaCaster extends ContextVisitor {
         if (n instanceof X10Call) {
             X10Call call = (X10Call) n;
             if (!xts.isParameterType(call.type())) {
-                if (call.target() != null && (xts.isRail(call.target().type()) || isIMC(call.target().type()))) {
+                if (call.target() != null && (isIMC(call.target().type()))) {
                     // e.g) val str = rail(0) = "str";
                     //   -> val str = (String)(rail(0) = "str");
                     if (!(parent instanceof Eval)) {

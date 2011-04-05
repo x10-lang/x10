@@ -359,7 +359,7 @@ public class Types {
 	public static Type arrayElementType(Type t) {
 		t = baseType(t);
 		TypeSystem xt = (TypeSystem) t.typeSystem();
-		if (xt.isX10Array(t) || xt.isX10DistArray(t) || xt.isRail(t)) {
+		if (xt.isX10Array(t) || xt.isX10DistArray(t)) {
 			if (t instanceof X10ParsedClassType) {
 				Type result = ((X10ParsedClassType) t).typeArguments().get(0);
 				return result;
@@ -1106,28 +1106,6 @@ public class Types {
 	        return ct.properties();
 	    }
 	    return Collections.<FieldInstance>emptyList();
-	}
-
-	
-
-
-	/*
-	
-
-	*/
-
-	public static Type railBaseType(Type t) {
-		t = baseType(t);
-		if (t instanceof X10ClassType) {
-			X10ClassType ct = (X10ClassType) t;
-			TypeSystem ts = (TypeSystem) t.typeSystem();
-			ClassType a = (ClassType) ts.Rail();
-			if (ct.def() == a.def())
-				return ct.typeArguments().get(0);
-			else
-				arrayBaseType(ct.superClass());
-		}
-		return null;
 	}
 
 	public static boolean isX10Array(Type t) {
