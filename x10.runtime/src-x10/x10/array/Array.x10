@@ -121,6 +121,9 @@ public final class Array[T] (
     public @Header @Inline def raw() = raw;
     
 
+//
+// NOTE: the following three helper methods are needed until calls to @Native methods can be made from contexts into which they have been inlined - Bowen 4/5/11
+//
     private def allocateUninitializedIndexedMemoryChunk(size: int) : IndexedMemoryChunk[T] {
         return IndexedMemoryChunk.allocateUninitialized[T](size);
     }
@@ -128,13 +131,18 @@ public final class Array[T] (
     private def allocateZeroedIndexedMemoryChunk(size: int) : IndexedMemoryChunk[T] {
         return IndexedMemoryChunk.allocateZeroed[T](size);
     }
+
+    private def copyIndexedMemoryChunk
+        (src:IndexedMemoryChunk[T], srcIndex:int, dst:IndexedMemoryChunk[T], dstIndex:int, numElems:int) {
+        IndexedMemoryChunk.copy(src, srcIndex, dst, dstIndex, numElems);
+    }
+
     /**
      * Construct an Array over the region reg whose elements are zero-initialized.
      * 
      * @param reg The region over which to construct the array.
      */
- // public @Inline def this(reg:Region) {T haszero}
-    public         def this(reg:Region) {T haszero}
+    public @Inline def this(reg:Region) {T haszero}
     {
         property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
@@ -159,8 +167,7 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-//  public @Inline def this(reg:Region, init:(Point(reg.rank))=>T)
-    public         def this(reg:Region, init:(Point(reg.rank))=>T)
+    public @Inline def this(reg:Region, init:(Point(reg.rank))=>T)
     {
         property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
@@ -180,8 +187,7 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
- // public @Inline def this(reg:Region, init:T)
-    public         def this(reg:Region, init:T)
+    public @Inline def this(reg:Region, init:T)
     {
         property(reg as Region{self!=null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
@@ -213,8 +219,7 @@ public final class Array[T] (
      * @param reg The region over which to define the array.
      * @param backingStore The backing storage for the array data.
      */
- // public @Inline def this(reg:Region, backingStore:IndexedMemoryChunk[T])
-    public         def this(reg:Region, backingStore:IndexedMemoryChunk[T])
+    public @Inline def this(reg:Region, backingStore:IndexedMemoryChunk[T])
     {
         property(reg as Region{self!=null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
@@ -230,8 +235,7 @@ public final class Array[T] (
     /**
      * Construct Array over the region 0..(size-1) whose elements are zero-initialized.
      */
- // public @Inline def this(size:int) {T haszero}
-    public         def this(size:int) {T haszero}
+    public @Inline def this(size:int) {T haszero}
     {
         val myReg = new RectRegion1D(0, size-1) 
              as Region{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
@@ -259,8 +263,7 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
- // public @Inline def this(size:int, init:(int)=>T)
-    public         def this(size:int, init:(int)=>T)
+    public @Inline def this(size:int, init:(int)=>T)
     {
         val myReg = new RectRegion1D(0, size-1) as Region{self.zeroBased, self.rail,self.rank==1,self.rect, self!=null};
         property(myReg, 1, true, true, true, size);
@@ -309,7 +312,7 @@ public final class Array[T] (
         layout = RectLayout(region);
         val n = layout.size();
         val r  = allocateUninitializedIndexedMemoryChunk(n);
-        IndexedMemoryChunk.copy(init.raw, 0, r, 0, n);
+        copyIndexedMemoryChunk(init.raw, 0, r, 0, n);
         raw = r;
     }
     
@@ -319,8 +322,7 @@ public final class Array[T] (
      * @param init The remote array to copy.
      */    
  // TODO: propagate the typeArg of the target (this) to the call in ConstructorSplitterVisitor
- // public @Inline def this(init:RemoteArray[T]{init.array.home==here})
-    public         def this(init:RemoteArray[T]{init.array.home==here})
+    public @Inline def this(init:RemoteArray[T]{init.array.home==here})
     {
         this((init.array)());
     }
