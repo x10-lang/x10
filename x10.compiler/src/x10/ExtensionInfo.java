@@ -88,6 +88,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
 import polyglot.visit.Translator;
+import x10.ast.X10ClassDecl;
 import x10.ast.X10NodeFactory_c;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.util.WSTransformationContent;
@@ -884,10 +885,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                String fName = job.source().name();
                Position pos = new Position("", job.source().path(), 1, 1).markCompilerGenerated();
                String name = fName.substring(fName.lastIndexOf(File.separatorChar)+1, fName.lastIndexOf('.'));
-               TopLevelDecl decl = nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC),
+               X10ClassDecl decl = (X10ClassDecl) nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC),
                        nf.Id(pos, name), null, Collections.<TypeNode>emptyList(),
                        nf.ClassBody(pos, Collections.<ClassMember>emptyList()));
-               SourceFile ast = nf.SourceFile(pos, Collections.singletonList(decl)).source(job.source());
+               decl = decl.errorInAST(new SemanticException("", pos));
+               SourceFile ast = nf.SourceFile(pos, Collections.<TopLevelDecl>singletonList(decl)).source(job.source());
+               ast = (SourceFile) ((X10Ext)ast.ext()).setSubtreeValid(false);
                return ast;
            }
        }

@@ -552,9 +552,21 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 n.toString().replace('.','$')+
                         "$this");
     }
-    
+
+    private SemanticException errorInAST;
+
+    public SemanticException errorInAST() {
+        return errorInAST;
+    }
+
+    public X10ClassDecl_c errorInAST(SemanticException error) {
+        X10ClassDecl_c n = (X10ClassDecl_c) copy();
+        n.errorInAST = error;
+        return n;
+    }
+
     private X10ClassDecl_c superPreBuildTypes(TypeBuilder tb) {
-        tb = tb.pushClass(position(), flags.flags(), name.id());
+        tb = tb.pushClass(position(), flags.flags(), name.id(), errorInAST);
 
         ClassDef type = tb.currentClass();
 
