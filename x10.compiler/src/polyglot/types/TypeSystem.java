@@ -981,7 +981,7 @@ public interface TypeSystem {
             Flags flags, List<Ref<? extends Type>> argTypes,
             Ref<? extends Type> offerType);
 
-    X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
+    X10ConstructorDef constructorDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> returnType,
             List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
 

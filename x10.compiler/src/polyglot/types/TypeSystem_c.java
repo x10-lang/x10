@@ -404,19 +404,19 @@ public class TypeSystem_c implements TypeSystem
                 null, null,  offerType);
     }
 
-    public X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
+    public X10ConstructorDef constructorDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> returnType,
             List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard,
             Ref<? extends Type> offerType)
     {
         assert_(container);
         assert_(argTypes);
 
-        X10ClassType t = (X10ClassType) Types.get(returnType);
+        Type t = (Type) Types.get(returnType);
         assert t != null : "Cannot set return type of constructor to " + t;
         if (t==null)
             throw new InternalCompilerError("Cannot set return type of constructor to " + t);
         //t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
-        ((Ref<X10ClassType>)returnType).update(t);
+        ((Ref<Type>)returnType).update(t);
         //returnType = new Ref_c<X10ClassType>(t);
         return new X10ConstructorDef_c(this, pos, container, flags, returnType, argTypes, thisDef, formalNames, guard, typeGuard,  offerType);
     }

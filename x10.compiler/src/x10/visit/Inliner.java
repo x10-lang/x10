@@ -115,7 +115,6 @@ import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.MethodInstance;
 import x10.types.ParameterType;
-import x10.types.ReinstantiatedConstructorInstance;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -1425,29 +1424,27 @@ public class Inliner extends ContextVisitor {
                                                      null /* the body will never be used */ );
         }
         
-    /**
-     * @param d
-     * @param argTypes
-     * @param formalNames
-     * @return
-     */
+        /**
+         * @param d
+         * @param argTypes
+         * @param formalNames
+         * @return
+         */
         private X10ConstructorDef createConstructorDef(X10ConstructorDecl d, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames) {
             X10ConstructorDef cd = d.constructorDef();
             DepParameterExpr g = d.guard();
             TypeNode ot = d.offerType();
-            ClassType container = (ClassType) Types.baseType((Type) cd.container().get());
-            ClassType returnType = (ClassType) Types.baseType((Type) d.returnType().type());
             return visitor().typeSystem().constructorDef(
                     cd.position(), 
-                    (Ref<? extends ClassType>) Types.ref(container), 
+                    cd.container(), 
                     cd.flags(), 
-                    (Ref<? extends ClassType>) Types.ref(returnType), 
+                    d.returnType().typeRef(), 
                     argTypes, 
                     cd.thisDef(), 
                     formalNames,
                     g == null ? null : g.valueConstraint(),
                     g == null ? null : g.typeConstraint(),
-                    ot == null ? null : (Ref<? extends Type>) ot.typeRef() );
+                    ot == null ? null : ot.typeRef() );
         }
     }
 
@@ -1458,19 +1455,23 @@ public class Inliner extends ContextVisitor {
     private TypeParamSubst makeTypeMap(ProcedureInstance<? extends ProcedureDef> instance) {
         List<Type> typeArgs = new ArrayList<Type>();
         List<ParameterType> typeParms = new ArrayList<ParameterType>();
-        typeArgs.addAll(instance.typeParameters());
-        typeParms.addAll(instance.def().typeParameters()); 
+        if (!(instance instanceof ConstructorInstance)) { // TODO: remove the condition, currently ConstructorInstances can have a mismatch between type parameters and type arguements but they shouldn't have either so we can ignore them
+            typeArgs.addAll(instance.typeParameters());
+            typeParms.addAll(instance.def().typeParameters()); 
+        }
         X10ClassType container = (X10ClassType) ((MemberInstance<? extends ProcedureDef>) instance).container();
         List<Type> cTypeArgs = container.typeArguments();
         if (cTypeArgs != null) {
             typeArgs.addAll(cTypeArgs);
             typeParms.addAll(container.x10Def().typeParameters());
         }
+        if (false) { // TODO enable this path
+            assert (typeArgs.size() == typeParms.size());
+            return new TypeParamSubst(ts, typeArgs, typeParms);
+        }
+        // NOTE: the rest of this method is a hack to handle a mismatch that should never occur
         if (typeArgs.size() == typeParms.size()) 
             return new TypeParamSubst(ts, typeArgs, typeParms);
-        if (instance instanceof ReinstantiatedConstructorInstance) {
-            return ((ReinstantiatedConstructorInstance) instance).typeParamSubst();
-        }
         String msg = "type args/parms mismatch in class " +instance.getClass();
         System.err.println("\nDEBUG: " +msg);
         System.err.println("\n\tposition = "  +instance.position());
@@ -1479,6 +1480,7 @@ public class Inliner extends ContextVisitor {
         System.err.println("\n\ttypeArgs = "  +typeArgs);
         System.err.println("\n\ttypeParms = " +typeParms);
         System.err.println();
+        assert false; // remove if we ever get here (remove this path if we don't)
         throw new InternalCompilerError(instance.position(), msg);
     }
 

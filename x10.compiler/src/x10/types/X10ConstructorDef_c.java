@@ -14,8 +14,8 @@ package x10.types;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef_c;
+import polyglot.types.ContainerType;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.QName;
@@ -23,14 +23,11 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
@@ -55,9 +52,9 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     Ref<? extends Type> offerType;
 
     public X10ConstructorDef_c(TypeSystem ts, Position pos,
-            Ref<? extends ClassType> container,
+            Ref<? extends ContainerType> container,
             Flags flags,
-            Ref<? extends ClassType> returnType,
+            Ref<? extends Type> returnType,
             List<Ref<? extends Type>> formalTypes,
             ThisDef thisDef,
             List<LocalDef> formalNames, Ref<CConstraint> guard,
