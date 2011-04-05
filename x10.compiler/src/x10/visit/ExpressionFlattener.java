@@ -192,8 +192,6 @@ public final class ExpressionFlattener extends ContextVisitor {
             ClassType type = ((ConstructorDecl) n).constructorDef().container().get().toClass();
             if (ConstructorSplitterVisitor.cannotSplitConstructor(type))
                 return true;
-            // TODO workaround for XTENLANG-2625
-            if (javaBackend(job)) return true;
         }
         if (n instanceof FieldDecl) { // can't flatten class initializes until assignments can precede field declarations
             return true;

@@ -192,7 +192,8 @@ public class Inliner extends ContextVisitor {
         INLINE_METHODS   = config.OPTIMIZE && config.INLINE_METHODS;
         INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
         INLINE_IMPLICIT  = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
-        INLINE_CONSTRUCTORS = x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
+        // TODO enable constructor inlining for java backend
+        INLINE_CONSTRUCTORS = !ExpressionFlattener.javaBackend(job) && x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
         INLINE_STRUCT_CONSTRUCTORS = config.INLINE_STRUCT_CONSTRUCTORS; // pretend the constructor for a struct is annotated @INLINE
         INLINE_GENERIC_CONSTRUCTORS = true;
         //     implicitMax      = config.EXPERIMENTAL ? 1 : 0;

@@ -55,8 +55,6 @@ public class Optimizer {
         if (!config.OPTIMIZE) return false;
         if (!config.SPLIT_CONSTRUCTORS) return false;
         boolean javaBackend = extensionInfo instanceof x10c.ExtensionInfo;
-        // TODO workaround for XTENLANG-2625
-        if (javaBackend) return false;
         return true;
     }
     
