@@ -19,9 +19,9 @@
      *
      *  (C) Copyright IBM Corporation 2006-2010.
      */
-    /*****************************************************
-     * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
-     *****************************************************/
+    /********************************************************************
+     * WARNING!  THIS JAVA FILE IS AUTO-GENERATED FROM $input_file *
+     ********************************************************************
     ./
 %End
 
@@ -1138,9 +1138,9 @@
 			r.rule_LastExpression0(Expression);
         $EndJava./
 
-    ClosureBody ::= ConditionalExpression
+    ClosureBody ::= Expression
         /.$BeginJava
-			r.rule_ClosureBody0(ConditionalExpression);
+			r.rule_ClosureBody0(Expression);
         $EndJava./
                   | Annotationsopt { BlockStatementsopt LastExpression }
         /.$BeginJava

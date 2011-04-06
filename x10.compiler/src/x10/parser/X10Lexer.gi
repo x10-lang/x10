@@ -19,9 +19,9 @@
      *
      *  (C) Copyright IBM Corporation 2006-2010.
      */
-    /*****************************************************
-     * WARNING!  X10Lexer.java WAS AUTO-GENERATED FROM X10Lexer.gi so DO NOT EDIT THE JAVA FILE, INSTEAD EDIT THE gi FILE! *
-     *****************************************************/
+    /**************************************************************************
+     * WARNING!  THIS JAVA FILE IS AUTO-GENERATED FROM $input_file *
+     **************************************************************************/
     ./
 %End
 
