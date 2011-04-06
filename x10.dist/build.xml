@@ -647,10 +647,32 @@ WALA4_URL='${wala4.jar.url}'
             </or>
         </condition>
     	<property name="targetDir" value="../x10.dist.${platform}.${arch}.fragment"/>
+
+        <echo message="Cleaning out bin, etc, include, lib, and stdlib of old files from ${targetDir}..."/>
+        <delete>
+          <fileset dir="${targetDir}/bin"     includes="**"/>
+          <fileset dir="${targetDir}/etc"     includes="**"/>
+          <fileset dir="${targetDir}/include" includes="**"/>
+          <fileset dir="${targetDir}/lib"     includes="**"/>
+          <fileset dir="${targetDir}/stdlib"  includes="**"/>
+        </delete>
+
     	<echo message="Copying bin, etc, include, lib and stdlib files to ${targetDir}..."/>
         <copy todir="${targetDir}">
-            <fileset dir="." includes="etc/*.properties,include/**,lib/**,stdlib/**,bin/X10Launcher"/>
+            <fileset dir="." includes="bin/x10c,bin/x10c++,bin/X10Launcher,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
         </copy>
+        <chmod file="${targetDir}/bin/x10c" perm="u+x"/>
+        <chmod file="${targetDir}/bin/x10c++" perm="u+x"/>
+        <chmod file="${targetDir}/bin/X10Launcher" perm="u+x"/>
+
+        <echo message="Attempting to compile Hello, World..."/>
+        <exec executable="${targetDir}/bin/x10c++">
+          <arg value="-d"/>
+          <arg value="${targetDir}/samples"/>
+          <arg value="${targetDir}/samples/HelloWorld.x10"/>
+        </exec>
+        <echo message="Attempting to launch Hello, World..."/>
+        <exec executable="${targetDir}/samples/a.out"/>
     </target>
 
 </project>
