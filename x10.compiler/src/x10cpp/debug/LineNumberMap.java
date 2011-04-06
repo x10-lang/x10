@@ -301,6 +301,7 @@ public class LineNumberMap extends StringTable {
 		int _x10endLine;       // Last line number of X10 line range
 		int _type;			   // used to store the wrapping type id
 		String _sizeOfArg;
+		String _file;
 		ArrayList<MemberVariableMapInfo> _members;
 	}
 	
@@ -664,6 +665,7 @@ public class LineNumberMap extends StringTable {
 			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
 			cm._sizeOfArg = containingClass;
 			cm._type = 100; // all closures are type 100
+			cm._file = file;
 			closureMembers.put(stringId(containingClass), cm);
 		}
 		
@@ -1205,101 +1207,97 @@ public class LineNumberMap extends StringTable {
 		        w.writeln("};");
 		        w.forceNewline();
 	        }
-        }
-	        
-        if (memberVariables != null)
-        {
-        	for (Integer classId : memberVariables.keySet())
-        	{
-        		String classname = m.lookupString(classId);
-		        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		        ClassMapInfo cmi = memberVariables.get(classId);
-		        for (MemberVariableMapInfo v : cmi._members)
-		        {
-		        	if (v._x10type == 101 || v._x10type == 102)
-		        	{
-			        	int index = 0;
-			            for (Integer memberId : memberVariables.keySet())
-			            {
-			            	if (memberId == v._x10typeIndex)
-			            	{
-			            		v._x10typeIndex = index;
-			            		break;
-			            	}
-			            	index++;
-			            }
-		        	}
-		        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
-		        }
-			    w.writeln("};");
-			    w.forceNewline();
-        	}
-        	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) = {");
-        	for (Integer classId : memberVariables.keySet())
-        	{
-        		String classname = m.lookupString(classId);
-        		int stringIndex = offsets[classId];
-        		if (classname.contains("__")) // remove the prefix from the name, for debugger display purposes
-        			stringIndex = stringIndex+classname.lastIndexOf('_')+1;
-	        	w.writeln("    { "+memberVariables.get(classId)._type+", "+stringIndex+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classId)._members.size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
-        	}
-        	w.writeln("};");
-        	w.forceNewline();
-        }
-        	    
-	    if (closureMembers != null)
-	    {
-	    	for (Integer classId : closureMembers.keySet())
-        	{
-	    		String classname = m.lookupString(classId);
-	    		ClassMapInfo cmi = closureMembers.get(classId);
-	    		if (cmi._x10endLine != cmi._x10startLine) // this is a hack to skip generated closures
-	    		{
-	    			w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+            
+	        if (memberVariables != null)
+	        {
+	        	for (Integer classId : memberVariables.keySet())
+	        	{
+	        		String classname = m.lookupString(classId);
+			        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+			        ClassMapInfo cmi = memberVariables.get(classId);
 			        for (MemberVariableMapInfo v : cmi._members)
 			        {
-			        	int typeIndex;
 			        	if (v._x10type == 101 || v._x10type == 102)
 			        	{
-			        		// see if this class is defined in our class mappings				        	
-			        		typeIndex = -1;
-				        	if (memberVariables != null)
-				        	{
-				        		int index = 0;
-				            	for (Integer memberId : memberVariables.keySet())
+				        	int index = 0;
+				            for (Integer memberId : memberVariables.keySet())
+				            {
+				            	if (memberId == v._x10typeIndex)
 				            	{
-				            		if (memberId == v._x10typeIndex)
-				            		{
-				            			typeIndex = index;
-				            			break;
-				            		}
-				            		index++;
+				            		v._x10typeIndex = index;
+				            		break;
 				            	}
-				        	}				        		
+				            	index++;
+				            }
 			        	}
-			        	else
-			        		typeIndex = v._x10typeIndex;
-			        	w.writeln("    { "+v._x10type+", "+typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+			        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 			        }
 				    w.writeln("};");
 				    w.forceNewline();
-	    		}
-        	}	    	
-		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
-		    int index = 0;
-		    for (Integer classId : closureMembers.keySet())
+	        	}
+	        	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) = {");
+	        	for (Integer classId : memberVariables.keySet())
+	        	{
+	        		String classname = m.lookupString(classId);
+	        		int stringIndex = offsets[classId];
+	        		if (classname.contains("__")) // remove the prefix from the name, for debugger display purposes
+	        			stringIndex = stringIndex+classname.lastIndexOf('_')+1;
+		        	w.writeln("    { "+memberVariables.get(classId)._type+", "+stringIndex+", sizeof("+classname.replace(".", "::")+"), "+memberVariables.get(classId)._members.size()+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+	        	}
+	        	w.writeln("};");
+	        	w.forceNewline();
+	        }
+	        	    
+		    if (closureMembers != null)
 		    {
-		    	String classname = m.lookupString(classId);
-		    	ClassMapInfo cmi = closureMembers.get(classId);
-		    	if (cmi._x10endLine != cmi._x10startLine)
-		    	{
-		    		w.writeln("    { "+cmi._type+", "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi._members.size()+", "+index+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
-		    		index++;
-		    	}
+		    	for (Integer classId : closureMembers.keySet())
+	        	{
+		    		String classname = m.lookupString(classId);
+		    		ClassMapInfo cmi = closureMembers.get(classId);
+		    		if (cmi._x10endLine != cmi._x10startLine) // this is a hack to skip generated closures
+		    		{
+		    			w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+				        for (MemberVariableMapInfo v : cmi._members)
+				        {
+				        	int typeIndex;
+				        	if (v._x10type == 101 || v._x10type == 102)
+				        	{
+				        		// see if this class is defined in our class mappings				        	
+				        		typeIndex = -1;
+					        	if (memberVariables != null)
+					        	{
+					        		int index = 0;
+					            	for (Integer memberId : memberVariables.keySet())
+					            	{
+					            		if (memberId == v._x10typeIndex)
+					            		{
+					            			typeIndex = index;
+					            			break;
+					            		}
+					            		index++;
+					            	}
+					        	}				        		
+				        	}
+				        	else
+				        		typeIndex = v._x10typeIndex;
+				        	w.writeln("    { "+v._x10type+", "+typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+				        }
+					    w.writeln("};");
+					    w.forceNewline();
+		    		}
+	        	}	    	
+			    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
+			    for (Integer classId : closureMembers.keySet())
+			    {
+			    	String classname = m.lookupString(classId);
+			    	ClassMapInfo cmi = closureMembers.get(classId);
+			    	if (cmi._x10endLine != cmi._x10startLine)
+			    		w.writeln("    { "+cmi._type+", "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi._members.size()+", "+findFile(cmi._file, files)+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+			    }
+			    w.writeln("};");
+			    w.forceNewline();
 		    }
-		    w.writeln("};");
-		    w.forceNewline();
-	    }
+        }
 	    
 	    if (!arrayMap.isEmpty())
 	    {
@@ -1366,7 +1364,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B04050F, // 2011-04-05, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B040609, // 2011-04-06, 9:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
