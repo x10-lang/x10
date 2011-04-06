@@ -694,7 +694,7 @@ public class XTypeTranslator {
                 for (int i = 0; i < t.arguments().size(); i++) {
                     //XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
                     //XVar x = (XVar) xmi.formalTypes().get(i);
-                    XVar x =  CTerms.makeLocal((X10LocalDef) xmi.formalNames().get(i).def());
+                    XVar x =  CTerms.makeLocal((X10LocalDef) xmi.def().formalNames().get(i));  // we get the def first because the formalNames were renamed in Matcher.instantiate, see XTENLANG-2582.
                     XTerm y = translate(c, t.arguments().get(i), xc, tl);
                     if (y == null)
                         assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 

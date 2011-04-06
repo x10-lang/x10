@@ -34,7 +34,6 @@ public interface DepParameterExpr extends Ambiguous {
 	DepParameterExpr condition(List<Expr> cond);
 
 	Ref<CConstraint> valueConstraint();
-	DepParameterExpr valueConstraint(Ref<CConstraint> c);
 	
 	Ref<TypeConstraint> typeConstraint();
 	DepParameterExpr typeConstraint(Ref<TypeConstraint> c);

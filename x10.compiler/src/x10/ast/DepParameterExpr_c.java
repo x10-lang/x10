@@ -105,12 +105,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     public Ref<CConstraint> valueConstraint() {
 		return valueConstraint;
     }
-    
-    public DepParameterExpr valueConstraint(Ref<CConstraint> c) {
-            DepParameterExpr_c n = (DepParameterExpr_c) copy();
-            n.valueConstraint = c;
-            return n;
-    }
+
     
     public Ref<TypeConstraint> typeConstraint() {
         return typeConstraint;

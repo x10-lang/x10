@@ -4867,7 +4867,7 @@ class Test3[T] {
 }
 class Test4[T] {T haszero} {
 	var test:Test4[T] = null;
-	val root = new LikeGlobalRef[Test4[T]](test); // ShouldNotBeERR [Inconsistent constructor return type]
+	val root = new LikeGlobalRef[Test4[T]](test);
 }
 class Accumulator1 {
   private val root = GlobalRef(this);
@@ -5985,7 +5985,7 @@ class TriangleTest_6 // see XTENLANG-2582
      }
 
     public static def test() {
-        new Triangle().area(1); // ShouldNotBeERR
+        new Triangle().area(1);
     }
 }
 
@@ -6470,5 +6470,12 @@ class TestClassConformance { // XTENLANG-2509
 		public def mult(A:Matrix{self.M==this.M}, 
 						B:Matrix{self.N==this.N, self.M==A.N}) { }
 	}
+}
+
+class TestFakeLocalError[T] { // I'm testing there is only one error (cause there used to be also an error from the dataflow InitChecker)
+  var a:Array[T];
+  static def bar3[U](){U haszero} {
+      a = new Array[U](10); // ERR: Cannot access a non-static field field TestFakeLocalError.a: x10.array.Array[T]{self.x10.array.Array#region!=null, self.x10.array.Array#rank==self.x10.array.Array#region.x10.array.Region#rank, self.x10.array.Array#rect==self.x10.array.Array#region.x10.array.Region#rect, self.x10.array.Array#zeroBased==self.x10.array.Array#region.x10.array.Region#zeroBased, self.x10.array.Array#rail==self.x10.array.Array#region.x10.array.Region#rail} from a static context.
+  }
 }
 
