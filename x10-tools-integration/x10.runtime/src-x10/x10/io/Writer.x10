@@ -53,21 +53,9 @@ public abstract class Writer {
     public final def write[T](m: Marshal[T], x: T): void //throws IOException 
     = m.write(this, x);
 
-    public def write(buf: Rail[Byte]): void //throws IOException 
-    {
-        write(buf, 0, buf.length);
-    }
-
     public def write(buf: Array[Byte](1)): void //throws IOException 
     {
         write(buf, 0, buf.size);
-    }
-
-    public def write(buf: Rail[Byte], off: Int, len: Int): void //throws IOException 
-    {
-        for (var i: Int = off; i < off+len; i++) {
-            write(buf(i));
-        }
     }
 
     public def write(buf: Array[Byte](1), off: Int, len: Int): void //throws IOException 

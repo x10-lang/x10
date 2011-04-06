@@ -49,12 +49,6 @@ public class Desugarer extends x10.visit.Desugarer {
 
     @Override
     protected Expr visitSettableAssign(SettableAssign n) {
-        if (n.operator() != Assign.ASSIGN) {
-            X10Call left = (X10Call) ((SettableAssign_c) n).left(xnf, this);
-            if ((n.type().isBoolean() || n.type().isNumeric()) && xts.isRail(left.target().type())) {
-                return n;
-            }
-        }
         return super.visitSettableAssign(n);
     }
 }

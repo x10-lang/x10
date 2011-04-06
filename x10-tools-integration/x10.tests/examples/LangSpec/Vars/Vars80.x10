@@ -26,7 +26,7 @@ public class Vars80 extends x10Test {
     }
 
 
-// file Vars line 348
+// file Vars line 349
  static  class DestructuringEx1 {
  def whyJustForLocals() {
 val [i] : Point = Point.make(11);

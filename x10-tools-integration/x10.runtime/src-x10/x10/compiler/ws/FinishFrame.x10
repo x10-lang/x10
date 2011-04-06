@@ -2,30 +2,44 @@ package x10.compiler.ws;
 
 import x10.compiler.Abort;
 import x10.compiler.Header;
+import x10.compiler.Ifdef;
+import x10.compiler.Ifndef;
 import x10.compiler.Inline;
+import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 import x10.compiler.Uninitialized;
 
 import x10.util.Stack;
 
 abstract public class FinishFrame extends Frame {
     @Uninitialized public var asyncs:Int;
-    @Uninitialized public var redirect:FinishFrame;
     @Uninitialized transient public var stack:Stack[Throwable];
+
+    @Ifdef("__CPP__")
+    @Uninitialized public var redirect:FinishFrame;
 
     @Header public def this(up:Frame) {
         super(up);
         this.stack = null;
-        this.redirect = null;
+        @Ifdef("__CPP__") {
+            this.redirect = null;
+        }
+        @Ifndef("__CPP__") {
+            this.asyncs = 1;
+        }
     }
 
+    @Ifdef("__CPP__")
     public def this(Int, o:FinishFrame) {
         super(o.up.realloc());
         this.asyncs = 1;
         this.stack = null;
     }
 
+    @Ifdef("__CPP__")
     public abstract def remap():FinishFrame;
 
+    @Ifdef("__CPP__")
     public def realloc() {
         if (null != redirect) return redirect;
         val tmp = remap();
@@ -58,13 +72,22 @@ abstract public class FinishFrame extends Frame {
         }
     }
 
-    @Inline public final def caught(t:Throwable) {
+    @Inline public final def append(ff:FinishFrame) {
+        append(ff.stack);
+    }
+
+    @NoInline public final def caught(t:Throwable) {
+        if (t == Abort.ABORT) throw t;
         if (null == stack) stack = new Stack[Throwable]();
         stack.push(t);
     }
 
     @Inline public final def rethrow() {
-        if (null != stack) throw new MultipleExceptions(stack);
+        if (null != stack) rethrowSlow();
+    }
+
+    @NoInline @NoReturn public final def rethrowSlow() {
+        throw new MultipleExceptions(stack);
     }
 
     @Inline public final def check() {

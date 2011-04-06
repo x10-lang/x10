@@ -1,6 +1,8 @@
 package x10.compiler.ws;
 
 import x10.compiler.Abort;
+import x10.compiler.Ifdef;
+import x10.compiler.NoReturn;
 
 import x10.lang.Lock;
 
@@ -23,9 +25,11 @@ public final class Worker {
         var k:RegularFrame;
         lock.lock();
         while (null != (k = Frame.cast[Object,RegularFrame](deque.steal()))) {
-            val r = k.remap();
-            Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
-            fifo.push(r);
+            @Ifdef("__CPP__") {
+                k = k.remap();
+            }
+            Runtime.atomicMonitor.lock(); k.ff.asyncs++; Runtime.atomicMonitor.unlock();
+            fifo.push(k);
         }
         lock.unlock();
     }
@@ -59,9 +63,12 @@ public final class Worker {
             if (workers(rand).lock.tryLock()) {
                 k = workers(rand).deque.steal();
                 if (null != k) {
-                    val r = Frame.cast[Object,RegularFrame](k).remap();
+                    var r:RegularFrame = Frame.cast[Object,RegularFrame](k);
+                    @Ifdef("__CPP__") {
+                        r = r.remap();
+                        k = r;
+                    }
                     Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
-                    k = r;
                 }
                 workers(rand).lock.unlock();
             }
@@ -73,7 +80,7 @@ public final class Worker {
         return k;
     }
 
-    public def unroll(var frame:Frame) {
+    @NoReturn public def unroll(var frame:Frame) {
         var up:Frame;
         while (true) {
             frame.wrapResume(this);
@@ -84,12 +91,12 @@ public final class Worker {
         }
     }
 
-    public def runAsyncAt(place:Place, frame:RegularFrame){
+    public static def runAsyncAt(place:Place, frame:RegularFrame){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
         Runtime.wsRunAsync(place.id, body);
     }
 
-    public def runAt(place:Place, frame:RegularFrame){
+    @NoReturn static public def runAt(place:Place, frame:RegularFrame){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
         Runtime.wsRunAsync(place.id, body);
         throw Abort.ABORT;
@@ -106,7 +113,7 @@ public final class Worker {
 
     public static def startHere() {
         Runtime.wsInit();
-        val workers = Rail.make[Worker](Runtime.NTHREADS);
+        val workers = new Rail[Worker](Runtime.NTHREADS);
         for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
             workers(i) = new Worker(i, workers);
         }

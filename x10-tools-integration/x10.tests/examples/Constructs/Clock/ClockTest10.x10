@@ -30,11 +30,11 @@ import harness.x10Test;
  * @author kemal 4/2005
  */
 public class ClockTest10 extends x10Test {
-    val varA = Rail.make[int](2,(x:int)=>0);
-    val varB = Rail.make[int](2,(x:int)=>0);
-    val varC = Rail.make[int](2,(x:int)=>0);
-    val varD = Rail.make[int](2,(x:int)=>0);
-    val varE = Rail.make[int](2,(x:int)=>0);
+    val varA = new Rail[int](2,(x:int)=>0);
+    val varB = new Rail[int](2,(x:int)=>0);
+    val varC = new Rail[int](2,(x:int)=>0);
+    val varD = new Rail[int](2,(x:int)=>0);
+    val varE = new Rail[int](2,(x:int)=>0);
     public static N: int = 10;
     public static pipeDepth: int = 2;
 

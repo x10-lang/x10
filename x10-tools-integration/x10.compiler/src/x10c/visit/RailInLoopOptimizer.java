@@ -393,7 +393,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             LocalAssign la = (LocalAssign) ((Eval) n).expr();
                             Type type = Types.baseType(la.type());
                             Local local = la.local();
-                            if (xts.isRail(type) || isIMC(type)) {
+                            if (isIMC(type)) {
                                 boolean contains = false;
                                 Id id = null;
                                 for (int i = 0; i < backingArrayAndIsFinals.size(); i++) {
@@ -527,7 +527,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     }
                 }
             }
-            else if ((isIMC(init2.type()) && isIMC(lt)) || (xts.isRail(init2.type()) && xts.isRail(lt))) {
+            else if (isIMC(init2.type()) && isIMC(lt)) {
                 if (init2 instanceof Local) {
                     Local local = (Local) init2;
                     if (nameToRailIMC.containsKey(local.name().id())) {
@@ -567,7 +567,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
 
     private boolean isOptimizationTarget(Type ttype) {
         ttype = Types.baseType(ttype);
-        if (!xts.isRail(ttype) && !isIMC(ttype))
+        if (!isIMC(ttype))
             return false;
         if (!X10PrettyPrinterVisitor.hasParams(ttype))
             return true;

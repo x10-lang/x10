@@ -441,9 +441,6 @@ public class LoopUnroller extends ContextVisitor {
 
     private boolean checkDomainIs1D(Expr domain) {
         ConstrainedType type= (ConstrainedType) domain.type();
-        if (xts.isRail(type)) {
-            return true;
-        }
 
         return type.isRank(typeSystem().ONE(), context);
     }

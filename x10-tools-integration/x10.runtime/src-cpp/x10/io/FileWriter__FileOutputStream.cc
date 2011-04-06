@@ -10,6 +10,7 @@
  */
 
 #include <x10/io/FileWriter__FileOutputStream.h>
+#include <x10/util/IndexedMemoryChunk.h>
 
 using namespace x10aux;
 using namespace x10::lang;
@@ -32,6 +33,10 @@ void FileWriter__FileOutputStream::_constructor() {
     this->OutputStreamWriter__OutputStream::_constructor();
     x10aux::io::FILEPtrOutputStream fpos(NULL);
     _outputStream = fpos;
+}
+
+void FileWriter__FileOutputStream::write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len) {
+    _outputStream.write(b, off, len);
 }
 
 const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id = 

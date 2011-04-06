@@ -267,7 +267,7 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
             if (! ts.isAccessible(mj, tc.context())) {
                 continue;
             }
-            mj = ((X10TypeEnv_c)ts.env(tc.context())).expandPropertyInMethod(Desugarer.getClassType(mi.container(),ts,tc.context()),mj);
+            mj = ((X10TypeEnv_c)ts.env(tc.context())).expandPropertyInMethod(Types.getClassType(mi.container(),ts,tc.context()),mj);
             try {
                 ts.checkOverride(mi, mj, tc.context());
             } catch (SemanticException e) {

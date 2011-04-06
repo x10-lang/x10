@@ -15,8 +15,9 @@
 
 #include <x10/lang/Throwable.h>
 #include <x10/lang/String.h>
-#include <x10/lang/Rail.h>
 #include <x10/io/Printer.h>
+
+#include <x10/array/Array.h>
 
 #if defined(__GLIBC__) || defined(__APPLE__)
 #   include <execinfo.h> // for backtrace()
@@ -36,6 +37,7 @@
 #include <stdio.h>
 
 using namespace x10::lang;
+using namespace x10::array;
 using namespace x10aux;
 
 const serialization_id_t Throwable::_serialization_id =
@@ -55,7 +57,7 @@ Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
     this->Object::_deserialize_body(buf);
     FMGL(cause) = buf.read<x10aux::ref<Throwable> >();
     FMGL(message) = buf.read<x10aux::ref<String> >();
-    FMGL(cachedStackTrace) = buf.read<x10aux::ref<Rail<x10aux::ref<String> > > >();
+    FMGL(cachedStackTrace) = buf.read<ref<Array<ref<String> > > >();
     FMGL(trace_size) = 0;
 }
 
@@ -298,34 +300,33 @@ static char* demangle_symbol(char* name) {
 }
 #endif
 
-ref<Rail<ref<String> > > Throwable::getStackTrace() {
+ref<Array<ref<String> > >Throwable::getStackTrace() {
     if (FMGL(cachedStackTrace).isNull()) {
         #if defined(__GLIBC__) || defined(__APPLE__)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
-            FMGL(cachedStackTrace) = alloc_rail<ref<String>,Rail<ref<String> > >(1, String::Lit(msg));
+            FMGL(cachedStackTrace) = Array<ref<String> >::_make(1);
+            FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
         } else {
-            ref<Rail<ref<String> > > rail =
-                alloc_rail<ref<String>,Rail<ref<String> > >(FMGL(trace_size));
+            ref<Array<ref<String> > > array = Array<ref<String> >::_make(FMGL(trace_size));
             char **messages = ::backtrace_symbols(FMGL(trace), FMGL(trace_size));
             for (int i=0 ; i<FMGL(trace_size) ; ++i) {
                 char *filename; char *symbol; size_t addr;
                 extract_frame(messages[i],filename,symbol,addr);
                 char *msg = symbol;
-                (*rail)[i] = String::Lit(msg);
+                array->__set(i, String::Lit(msg));
                 ::free(msg);
                 ::free(filename);
             }
             ::free(messages); // malloced by backtrace_symbols
-            FMGL(cachedStackTrace) = rail;
+            FMGL(cachedStackTrace) = array;
         }
         #elif defined(_AIX)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
-            FMGL(cachedStackTrace) = alloc_rail<ref<String>,Rail<ref<String> > >(1, String::Lit(msg));
-        }
-        else
-        {
+            FMGL(cachedStackTrace) = Array<ref<String> >::_make(1);
+            FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
+        } else {
 			// build up a fake stack from our saved addresses
 			// the fake stack doesn't need anything more than back-pointers and enough offset to hold the frame references
 			unsigned long* fakeStack = (unsigned long *)malloc((FMGL(trace_size)+1) * 3 * sizeof(unsigned long)); // pointer, junk, link register, junk, junk, junk
@@ -360,14 +361,13 @@ ref<Rail<ref<String> > > Throwable::getStackTrace() {
 			free(fakeStack);
 
 			// from here on down, proceed as before
-			ref<Rail<ref<String> > > rail =
-				alloc_rail<ref<String>,Rail<ref<String> > >(FMGL(trace_size));
+            ref<Array<ref<String> > > array = Array<ref<String> >::_make(FMGL(trace_size));
 			char *msg;
 			for (int i=0 ; i<FMGL(trace_size) ; ++i) {
 				char* s = (char*)FMGL(trace)[i];
 				char* c = strstr(s, " : ");
 				if (c == NULL) {
-					(*rail)[i] = String::Lit("???????");
+					array->__set(i, String::Lit("???????"));
 					continue;
 				}
 				c[0] = '\0';
@@ -393,15 +393,16 @@ ref<Rail<ref<String> > > Throwable::getStackTrace() {
 					msg = alloc_printf("%s (offset %s)", s, c);
 					f = c;
 				}
-				(*rail)[i] = String::Lit(msg);
+				array->__set(i, String::Lit(msg));
 				::free(msg);
 
 			}
-			FMGL(cachedStackTrace) = rail;
+			FMGL(cachedStackTrace) = array;
         }
     #else
         const char *msg = "Detailed stacktraces not supported on this platform.";
-        FMGL(cachedStackTrace) = alloc_rail<ref<String>,Rail<ref<String> > >(1, String::Lit(msg));
+        FMGL(cachedStackTrace) = Array<ref<String> >::_make(1);
+        FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
     #endif
     }
 
@@ -410,18 +411,18 @@ ref<Rail<ref<String> > > Throwable::getStackTrace() {
 
 void Throwable::printStackTrace() {
     fprintf(stderr, "%s\n", this->toString()->c_str());
-    x10aux::ref<Rail<x10aux::ref<String> > > trace = this->getStackTrace();
-    for (int i = 0; i < trace->FMGL(length); ++i)
-        fprintf(stderr, "\tat %s\n", (*trace)[i]->c_str());
+    ref<Array<x10aux::ref<String> > > trace = this->getStackTrace();
+    for (int i = 0; i < trace->FMGL(size); ++i)
+        fprintf(stderr, "\tat %s\n", trace->__apply(i)->c_str());
 }
 
 void Throwable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
     printer->println(toString());
-    x10aux::ref<Rail<x10aux::ref<String> > > trace = this->getStackTrace();
+    ref<Array<x10aux::ref<String> > > trace = this->getStackTrace();
     x10aux::ref<x10::lang::String> atStr = x10::lang::String::Lit("\tat ");
-    for (int i=0 ; i<trace->FMGL(length) ; ++i) { 
+    for (int i=0 ; i<trace->FMGL(size) ; ++i) { 
         printer->print(atStr);
-        printer->println((*trace)[i]);
+        printer->println(trace->__apply(i));
     }
 }
 

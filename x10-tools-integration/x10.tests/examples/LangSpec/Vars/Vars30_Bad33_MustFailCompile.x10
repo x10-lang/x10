@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Packages9q4y_Bad36_MustFailCompile;
+/* Current test harness gets confused by packages, but it would be in package Vars_In_Snares;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,24 +19,21 @@ import harness.x10Test;
 
 
 
-public class Packages9q4y_Bad36_MustFailCompile extends x10Test {
+public class Vars30_Bad33_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Packages9q4y_Bad36_MustFailCompile().execute();
+        new Vars30_Bad33_MustFailCompile().execute();
     }
 
 
-// file Packages line 226
- static class C {
-  protected var f : Int = 0;
-}
- static class X extends C {}
- static class D extends C {
-  def usef(that:D, xhax:X) {
-     this.f += that.f;
- this.f += xhax.f; // ERR
-  }
-}
+// file Vars line 156
+ static  class ABitTedious{
+ def example() {
+val a : Int = 10;
+val b = (a+1)*(a-1);
+ a = 11;  // vals cannot be assigned to. // ERR
+// ERROR: val a = 11; // no redeclaration.
+}}
 
  static class Hook {
    def run():Boolean = true;

@@ -95,6 +95,8 @@ class PolyRegion extends Region {
 
         } else if (t instanceof RectRegion) {
         	return intersection((t as RectRegion).toPolyRegion());
+        } else if (t instanceof RectRegion1D) {
+                return intersection((t as RectRegion1D).toRectRegion().toPolyRegion() as Region(rank));
         }
         /*else if (t instanceof UnionRegion) {
 
@@ -214,8 +216,8 @@ class PolyRegion extends Region {
     }
 
     protected def computeBoundingBox(): Region(rank){self.rect} {
-        val min = Rail.make[int](rank);
-        val max = Rail.make[int](rank);
+        val min = new Rail[int](rank);
+        val max = new Rail[int](rank);
         var pm: PolyMat{self.rank==this.rank} = mat;
         for (var axis: int = 0; axis<rank; axis++) {
             var x: PolyMat = pm;

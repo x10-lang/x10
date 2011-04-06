@@ -45,12 +45,11 @@ public interface Term extends Node
     public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs);
     
     /**
-     * Returns true if the term is reachable.  This attribute is not
-     * guaranteed correct until after the reachability pass.
+     * Returns true if the term is reachable.  This attribute is null until after the reachability pass.
      *
      * @see polyglot.visit.ReachChecker
      */
-    public boolean reachable();
+    public Boolean reachable();
 
     /**
      * Set the reachability of this term.

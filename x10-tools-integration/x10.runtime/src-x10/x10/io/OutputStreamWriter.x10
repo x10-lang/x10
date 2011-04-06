@@ -30,12 +30,12 @@ public class OutputStreamWriter extends Writer {
         @Native("c++", "(#this)->write(#v)")
         public native def write(v:Int): void; //throws IOException
         
-        @Native("java", "#0.write((#1).getByteArray())")
-        @Native("c++", "(#this)->write(#r)")
+        @Native("java", "#0.write((#1).raw().getByteArray())")
+        @Native("c++", "(#this)->write((#r)->raw())")
         public native def write(r:Rail[Byte]): void; //throws IOException
         
-        @Native("java", "#0.write((#1).getByteArray(), #2, #3)")
-        @Native("c++", "(#this)->write(#r)")
+        @Native("java", "#0.write((#1).raw().getByteArray(), #2, #3)")
+        @Native("c++", "(#this)->write((#r)->raw())")
         public native def write(r:Rail[Byte], Int, Int): void; //throws IOException
     }
 

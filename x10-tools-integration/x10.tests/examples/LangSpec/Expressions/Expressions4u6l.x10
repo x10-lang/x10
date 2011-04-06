@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expres_sio_nsca_lls_twoooo;
+/* Current test harness gets confused by packages, but it would be in package Expressions4u6l;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,18 +19,17 @@ import harness.x10Test;
 
 
 
-public class Expressions50_Bad31_MustFailCompile extends x10Test {
+public class Expressions4u6l extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Expressions50_Bad31_MustFailCompile().execute();
+        new Expressions4u6l().execute();
     }
 
 
-// file Expressions line 276
- static  class Callsome {static val closure = () => 1; static def method () = 2; static val methodEvaluated = Callsome.method();
-  static def closure () = 3;
- static errory = Callsome.closure(); // ERR
- }
+// file Expressions line 908
+ static  class Example{ def example() {
+for(var i : Long = 0; i != 100L; i++) {}
+} }
 
  static class Hook {
    def run():Boolean = true;

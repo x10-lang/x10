@@ -32,7 +32,7 @@ public class ConditionalAtomicQueue extends x10Test {
 
 	public def this(): ConditionalAtomicQueue = {
                 val sz = 3;
-		Q = Rail.make[T](sz);
+		Q = new Rail[T](sz);
                 siz = sz;
 		nelems = 0;
 		tail = 0;

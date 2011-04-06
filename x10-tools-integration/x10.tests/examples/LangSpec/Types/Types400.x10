@@ -26,7 +26,7 @@ public class Types400 extends x10Test {
     }
 
 
-// file Types line 1657
+// file Types line 1658
  
  static class ConsTy[T,U] {
    def upcast(t:T){T <: U} :U = t;

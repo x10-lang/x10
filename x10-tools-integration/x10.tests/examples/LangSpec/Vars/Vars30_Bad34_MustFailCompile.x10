@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Vars_For_Stars;
+/* Current test harness gets confused by packages, but it would be in package Vars_In_Snares;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,27 +19,20 @@ import harness.x10Test;
 
 
 
-public class Vars70_Bad33_MustFailCompile extends x10Test {
+public class Vars30_Bad34_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Vars70_Bad33_MustFailCompile().execute();
+        new Vars30_Bad34_MustFailCompile().execute();
     }
 
 
-// file Vars line 278
-abstract static  class VarsForStars{
- abstract def cointoss(): Boolean;
-def check() {
-  var muta : Int;
-  println(muta); // ERR
-  muta = 4;
-  val use2A = muta * 10;
-  val immu : Int;
-  // ERROR: println(immu);
-  if (cointoss())   {immu = 1;}
-  else              {immu = use2A;}
-  val use2B = immu * 10;
-  // ERROR: immu = 5;
+// file Vars line 156
+ static  class ABitTedious{
+ def example() {
+val a : Int = 10;
+val b = (a+1)*(a-1);
+// ERROR: a = 11;  // vals cannot be assigned to.
+ val a = 11; // no redeclaration. // ERR
 }}
 
  static class Hook {

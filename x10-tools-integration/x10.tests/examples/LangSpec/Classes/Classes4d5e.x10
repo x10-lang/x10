@@ -26,7 +26,7 @@ public class Classes4d5e extends x10Test {
     }
 
 
-// file Classes line 753
+// file Classes line 766
  static class Two[T,U]{
   def m(x:T)=1;
  }

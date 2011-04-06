@@ -502,12 +502,15 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		            FieldInstance fi = Types.getProperty(this, name);
 		            XTerm var = selfVar();
 		            if (var !=null) {
-		                if (fi != null) {
-		                    val = xts.xtypeTranslator().translate(var, fi);
+                        XTypeTranslator translator = xts.xtypeTranslator();
+                        if (fi != null) {
+		                    val = translator.translate(var, fi);
 		                } else {
 		                    MethodInstance mi = Types.getPropertyMethod(this, name);
 		                    if (mi != null) {
-		                        val = xts.xtypeTranslator().translate(var, mi);
+		                        val = translator.translate(var, mi);
+                                // expand it in order to handle Dist.rank()
+                                val = XTypeTranslator.expandSelfPropertyMethod(val);
 		                    }
 		                }
 		            }

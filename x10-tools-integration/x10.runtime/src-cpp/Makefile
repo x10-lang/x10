@@ -174,7 +174,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/GlobalRef.o \
 	x10/lang/IBox.o \
 	x10/lang/Object.o \
-	x10/lang/Rail.o \
 	x10/lang/Reference.o \
 	x10/lang/String.o \
 	x10/lang/Throwable.o \
@@ -182,7 +181,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Lock__ReentrantLock.o \
 	x10/lang/PlaceLocalHandle_Impl.o \
 	x10/lang/Thread.o \
-	x10/util/GrowableRail.o \
 	x10/util/IndexedMemoryChunk.o \
 	x10/util/RemoteIndexedMemoryChunk.o \
 	x10/util/concurrent/AtomicReference.o 

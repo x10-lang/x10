@@ -359,7 +359,7 @@ public class Types {
 	public static Type arrayElementType(Type t) {
 		t = baseType(t);
 		TypeSystem xt = (TypeSystem) t.typeSystem();
-		if (xt.isX10Array(t) || xt.isX10DistArray(t) || xt.isRail(t)) {
+		if (xt.isX10Array(t) || xt.isX10DistArray(t)) {
 			if (t instanceof X10ParsedClassType) {
 				Type result = ((X10ParsedClassType) t).typeArguments().get(0);
 				return result;
@@ -1108,28 +1108,6 @@ public class Types {
 	    return Collections.<FieldInstance>emptyList();
 	}
 
-	
-
-
-	/*
-	
-
-	*/
-
-	public static Type railBaseType(Type t) {
-		t = baseType(t);
-		if (t instanceof X10ClassType) {
-			X10ClassType ct = (X10ClassType) t;
-			TypeSystem ts = (TypeSystem) t.typeSystem();
-			ClassType a = (ClassType) ts.Rail();
-			if (ct.def() == a.def())
-				return ct.typeArguments().get(0);
-			else
-				arrayBaseType(ct.superClass());
-		}
-		return null;
-	}
-
 	public static boolean isX10Array(Type t) {
 	    TypeSystem ts = (TypeSystem) t.typeSystem();
 	    Type tt = baseType(t);
@@ -1673,11 +1651,7 @@ public class Types {
 	public static String MORE_SPECIFIC_WARNING = "Please check definitions p1 and p2.  ";
 
 
-    //abstract class A implements Iterable<A> {}
-    //abstract class B extends A implements Iterable<B> {} // ERR in Java, but ok in X10
 
-    // There can be at most one Iterable[T] because the method signature is "iterator()",
-    // therefore you cannot implement Iterable[U] and Iterable[V]
     private static Type instantiateThis(X10ParsedClassType_c classType, Type t, Type superType) {
         try {
             return X10FieldMatcher.instantiateAccess(t,superType,classType.x10Def().thisVar(),false);
@@ -1685,6 +1659,9 @@ public class Types {
             throw new InternalCompilerError(e);
         }
     }
+    //abstract class A implements Iterable<A> {}
+    //abstract class B extends A implements Iterable<B> {} // ERR in Java, but ok in X10
+    // There can be multiple Iterable[T] due to type parameter upper bounds: X<:Dist && X<:Iterable[...]
     public static HashSet<Type> getIterableIndex(Type t, Context context) {
         HashSet<Type> res = new HashSet<Type>();
         final TypeSystem ts = t.typeSystem();
@@ -1787,4 +1764,18 @@ public class Types {
 	                }
 	            });
     }
+
+    public static ClassType getClassType(Type t, TypeSystem ts, Context context) {
+        Type baseType = Types.baseType(t);
+        if (baseType instanceof ParameterType) {
+            final List<Type> upperBounds = ts.env(context).upperBounds(baseType, false);
+            baseType = null;
+            for (Type up : upperBounds) {
+                if (!(Types.baseType(up) instanceof ParameterType))
+                    baseType = up;
+            }
+        }
+        return baseType==null ? null : baseType.toClass();
+    }
+    
 }

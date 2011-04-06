@@ -20,8 +20,8 @@ public class Generics5 extends x10Test {
         public def run(): boolean = {
                 var result: boolean = true;
 
-                val v = Rail.make[int](3, (i:int) => 2*i);
-                for (var i: int = 0; i < v.length; i++)
+                val v = new Rail[int](3, (i:int) => 2*i);
+                for (var i: int = 0; i < v.size; i++)
                         result &= v(i) == (i*2);
 
                 return result;

@@ -16,6 +16,7 @@ import static x10cpp.visit.SharedVarsMethods.CPP_NATIVE_STRING;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Block_c;
@@ -60,6 +61,7 @@ import x10.ast.X10CanonicalTypeNode_c;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10Def;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
@@ -244,6 +246,21 @@ public class ASTQuery {
 		}
 		return null;
 	}
+
+    // return false if def should be ignored according to @Ifdef and @Ifndef annotations
+    public boolean ifdef(X10Def def) {
+        for (Type at : def.annotationsNamed(QName.make("x10.compiler.Ifndef"))) {
+            assertNumberOfInitializers(at, 1);
+            if (tr.job().extensionInfo().getOptions().macros.contains(getStringPropertyInit(at, 0))) return false;
+        }
+        List<Type> ifdefs = def.annotationsNamed(QName.make("x10.compiler.Ifdef"));
+        if (ifdefs.isEmpty()) return true;
+        for (Type at : ifdefs) {
+            assertNumberOfInitializers(at, 1);
+            if (tr.job().extensionInfo().getOptions().macros.contains(getStringPropertyInit(at, 0))) return true;
+        }
+        return false;
+    }
 
 	public static void assertNumberOfInitializers(Type at, int len) {
 	    at = Types.baseType(at);

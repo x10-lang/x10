@@ -38,6 +38,7 @@ public class Structs6r3w extends x10Test {
      val ex = (new StructDefault()).ex;
      assert ex.i == 0;
   }
- static  class Hook { def run() { StructDefault.example(); return true; } } }
+ }
+ static   class Hook { def run() { StructDefault.example(); return true; } }
 
 }

@@ -22,7 +22,7 @@ class XTENLANG_35 extends x10Test {
 
     def foo(os:Writer, buf:Rail[Byte]) {
         try {
-            os.write(buf, 0, buf.length);
+            os.write(buf, 0, buf.size);
         } catch (Exception) {}
     }
 

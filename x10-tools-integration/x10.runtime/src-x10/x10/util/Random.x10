@@ -66,7 +66,7 @@ public class Random {
         while (true) {
             var x: int = nextInt();
             for (var j: int = 0; j < 4; j++) {
-                if (i >= buf.length)
+                if (i >= buf.size)
                     return;
                 buf(i) = (x & 0xff) as Byte;
                 i++;
@@ -135,7 +135,7 @@ public class Random {
     private var MT: Rail[int];
 
     @NonEscaping public final def init(seed: long): void {
-        val mt = Rail.make[int](N);
+        val mt = new Rail[int](N);
         MT=mt;
         // Ensure the seed is nonzero.
         if (seed == 0L) {

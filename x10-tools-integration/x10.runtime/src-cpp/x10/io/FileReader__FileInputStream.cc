@@ -40,6 +40,12 @@ void FileReader__FileInputStream::_constructor() {
     _inputStream = fpis;
 }
 
+x10_int FileReader__FileInputStream::read(x10::util::IndexedMemoryChunk<x10_byte> b,
+                                          x10_int off,
+                                          x10_int len) {
+    return _inputStream.read(b, off, len);
+}
+
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 
     x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer<x10::lang::Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 

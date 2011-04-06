@@ -27,6 +27,7 @@ public class Overview50 extends x10Test {
 
 
 // file Overview line 193
+ // OPTIONS: -STATIC_CALLS
 abstract static  class Mat(rows:Int, cols:Int) {
   static type Mat(r:Int, c:Int) = Mat{rows==r&&cols==c};
   public def this(r:Int, c:Int) : Mat(r,c) = {property(r,c);}
@@ -38,6 +39,8 @@ abstract static  class Mat(rows:Int, cols:Int) {
     val axb2 : Mat(a,b) = makeMat(a,b);
     val bxc  : Mat(b,c) = makeMat(b,c);
     val axc  : Mat(a,c) = (axb1 +axb2) * bxc;
+    //ERROR: val wrong1 = axb1 + bxc;
+    //ERROR: val wrong2 = bxc * axb1;
   }
 
 }

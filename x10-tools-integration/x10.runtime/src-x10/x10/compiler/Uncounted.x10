@@ -37,7 +37,7 @@ import x10.lang.annotations.StatementAnnotation;
  * }
  * 
  * public class Foo {
- *     public static def main(args:Rail[String]) {
+ *     public static def main(args:Array[String]) {
  *         val box = new Box[Boolean](false);
  *         @Uncounted async (here.next()) {
  *             Runtime.println("HELLO");

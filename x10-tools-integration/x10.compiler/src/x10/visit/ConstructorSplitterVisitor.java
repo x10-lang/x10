@@ -21,6 +21,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.frontend.Job;
 import polyglot.types.Flags;
@@ -30,6 +31,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -144,8 +146,11 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         } 
         if (node instanceof ConstructorCall) {
             ConstructorCall cc = (ConstructorCall) node;
-            if (null == cc.target())
-                return cc.target(syn.createThis(node.position(), cc.constructorInstance().returnType()));
+            if (null == cc.target()) {
+                Special target = syn.createThis(node.position(), cc.constructorInstance().returnType());
+                // TODO if "this" is generic make sure it's typeArgs get included in those of cc
+                return cc.target(target);
+            }
         }
         return super.leaveCall(parent, old, node, v);
     }

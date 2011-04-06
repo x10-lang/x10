@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 /*****************************************************
- * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
+ * WARNING!  X10Lexer.java WAS AUTO-GENERATED FROM X10Lexer.gi so DO NOT EDIT THE JAVA FILE, INSTEAD EDIT THE gi FILE! *
  *****************************************************/
 
 package x10.parser;

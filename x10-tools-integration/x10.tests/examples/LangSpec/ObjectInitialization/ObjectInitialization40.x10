@@ -31,8 +31,8 @@ public class ObjectInitialization40 extends x10Test {
   val a:Int;
   def this() {
     this.a = 1;
-    // val bad1 = () => this;
-    // val bad2 = () => a*10;
+    //ERROR: val bad1 = () => this;
+    //ERROR: val bad2 = () => a*10;
   }
 }
 

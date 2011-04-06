@@ -29,6 +29,7 @@ public class Vars70 extends x10Test {
 // file Vars line 278
 abstract static  class VarsForStars{
  abstract def cointoss(): Boolean;
+ abstract def println(Any):void;
 def check() {
   var muta : Int;
   // ERROR:  println(muta);

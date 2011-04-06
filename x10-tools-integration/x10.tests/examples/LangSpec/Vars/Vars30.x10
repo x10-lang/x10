@@ -31,8 +31,8 @@ public class Vars30 extends x10Test {
  def example() {
 val a : Int = 10;
 val b = (a+1)*(a-1);
-// NO: a = 11;  --- vals cannot be assigned to.
-// NO: val a = 11; --- no redeclaration.
+// ERROR: a = 11;  // vals cannot be assigned to.
+// ERROR: val a = 11; // no redeclaration.
 }}
 
  static class Hook {

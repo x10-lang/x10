@@ -26,7 +26,7 @@ public class Classes110 extends x10Test {
     }
 
 
-// file Classes line 646
+// file Classes line 659
  static  class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
 property def rail(): Boolean = rect && onePlace == here && zeroBased;
 }

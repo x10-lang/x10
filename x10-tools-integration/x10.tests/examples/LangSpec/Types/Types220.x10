@@ -26,7 +26,7 @@ public class Types220 extends x10Test {
     }
 
 
-// file Types line 776
+// file Types line 777
  static class Types25TypeTest{
   def check()  { 
      var checkycheck : List[String{self!=null}]{self!=null};  }}

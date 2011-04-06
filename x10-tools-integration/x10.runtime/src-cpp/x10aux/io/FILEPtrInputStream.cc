@@ -12,7 +12,7 @@
 #include <x10aux/config.h>
 
 #include <x10aux/io/FILEPtrInputStream.h>
-#include <x10/lang/Rail.h>
+#include <x10/util/IndexedMemoryChunk.h>
 
 using namespace x10aux;
 using namespace x10aux::io;
@@ -22,7 +22,7 @@ char* x10aux::io::FILEPtrInputStream::gets(char* s, int num) {
     return ::fgets(s, num, _stream);
 }
 
-x10_int x10aux::io::FILEPtrInputStream::read(const ref<Rail<x10_byte> > &b,
+x10_int x10aux::io::FILEPtrInputStream::read(x10::util::IndexedMemoryChunk<x10_byte> b,
                                              x10_int off, x10_int len) {
 
     int res = ::fread(((x10_byte*)b->raw())+off*sizeof(x10_byte),

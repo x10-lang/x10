@@ -681,7 +681,7 @@ public class CheckEscapingThis extends NodeVisitor
             for (X10ConstructorDecl_c ctor : allCtors) {
                 // check super, this, and property calls
                 final CheckCtor checkCtor = new CheckCtor(ctor);
-                ctor.visit(checkCtor);
+                ctor.visit(checkCtor); // we check both the body and signature because we want to make sure that "this" is not used in the method guard
                 checkCtor.postCheck();
 
                 final ConstructorCall cc = getConstructorCall(ctor);
@@ -695,7 +695,7 @@ public class CheckEscapingThis extends NodeVisitor
             }
         }
     }
-    private static ConstructorCall getConstructorCall(X10ConstructorDecl_c ctor) {
+    public static ConstructorCall getConstructorCall(X10ConstructorDecl_c ctor) {
         // We can reuse ConstructorCallChecker, but for better efficiency, we just check it directly
         final Block ctorBody = ctor.body();
         assert ctorBody!=null;

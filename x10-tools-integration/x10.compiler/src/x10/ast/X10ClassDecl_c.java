@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.HashSet;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
@@ -34,6 +35,8 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Special;
+import polyglot.ast.Field;
+import polyglot.ast.Call;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Reporter;
@@ -1274,7 +1277,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     protected ConstructorDecl createDefaultConstructor(ClassDef _thisType,
-    		TypeSystem ts, NodeFactory nf)
+    		TypeSystem ts, final NodeFactory nf)
     {
         X10ClassDef thisType = (X10ClassDef) _thisType;
         Position pos = Position.compilerGenerated(body().position());
@@ -1327,13 +1330,47 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         // no need to bind properties because the return type is HasType  i.e.,   <: BlaBla
         X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
 
+        DepParameterExpr guard = classInvariant();
+        if (guard!=null) {
+            // we gather the property names so we can convert all the this.p in the invariant to locals for the default ctor
+            //class A1(i:Int) {this.i==2} {
+            //    def this() { property(2); }
+            //}
+            //class B1(b:Int) {this.i!=3} extends A1 {}
+            final HashSet<Name> propNames = new HashSet<Name>();
+            for (PropertyDecl p : properties)
+                propNames.add(p.name().id());              
+
+            // replace "this" in the invariant with no qualifiers for the guard
+            class CannotConvertInvariantToGuard extends RuntimeException {}
+            try {
+                guard = (DepParameterExpr) guard.visit(new NodeVisitor() {
+                    @Override
+                    public Node override(Node n) {
+                        if (n instanceof Call)
+                            throw new CannotConvertInvariantToGuard();
+                        if (!(n instanceof Field)) return null;
+                        Field f = (Field) n;
+                        if (!(f.target() instanceof X10Special)) return null;
+                        // This is not a good test cause you can refer to a super property with "this".
+                        // ((X10Special) f.target()).kind()==Special.Kind.THIS)
+                        if (propNames.contains(f.name().id()))
+                            return nf.Local(n.position(),f.name());
+                        throw new CannotConvertInvariantToGuard();
+                    }
+                });
+            } catch (CannotConvertInvariantToGuard e) {
+                guard = null;
+                Errors.issue(ts.extensionInfo(), new SemanticException("Cannot create the default constructor because the class invariant uses property methods, self, or super. Please define a constructor explicitly."), classInvariant.position());
+            }
+        }
         ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
                 nf.FlagsNode(pos, Flags.PUBLIC),
                 nf.Id(pos, TypeSystem.CONSTRUCTOR_NAME), 
                 nf.HasType(returnType),
                 typeFormals,
                 formals,
-                properties.isEmpty() ? null : classInvariant(),
+                guard,
                 null, // offerType
                 block);
         return cd;

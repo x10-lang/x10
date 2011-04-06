@@ -16,7 +16,6 @@
 #include <x10aux/math.h>
 
 #include <x10/lang/String.h>
-#include <x10/lang/Rail.h>
 #include <x10/array/Array.h>
 
 using namespace x10::array;

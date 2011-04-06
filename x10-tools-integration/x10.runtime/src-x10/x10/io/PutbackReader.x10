@@ -11,14 +11,14 @@
 
 package x10.io;
 
-import x10.util.GrowableRail;
+import x10.util.GrowableIndexedMemoryChunk;
 
 public class PutbackReader extends FilterReader {
-    val putback: GrowableRail[Byte];
+    val putback:GrowableIndexedMemoryChunk[Byte];
 
     public def this(r: Reader) {
         super(r);
-        putback = new GrowableRail[Byte]();
+        putback = new GrowableIndexedMemoryChunk[Byte]();
     }
 
     public def read() //throws IOException 

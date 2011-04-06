@@ -138,7 +138,8 @@ public class ReachChecker extends DataFlow
         // check for reachability.
         if (n instanceof Term) {
            n = checkReachability((Term)n);
-           if (!hadCFG_Error && !((Term)n).reachable()) {
+            Boolean reachable = ((Term) n).reachable();
+            if (!hadCFG_Error && (reachable==null || !reachable)) {
                // Do we throw an exception or not?
                
                // Compound statements are allowed to be unreachable

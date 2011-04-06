@@ -56,6 +56,8 @@ endif
 ifndef JAVA_HOME
   ifeq ($(shell uname -s),Darwin)
     JAVA_HOME=$(shell /usr/libexec/java_home)
+  else
+    JAVA_HOME="${ANT_JAVA_HOME}"
   endif
 endif
 

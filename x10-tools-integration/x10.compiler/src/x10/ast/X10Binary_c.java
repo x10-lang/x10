@@ -590,7 +590,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             // Coercions are handled above for numerics.  No other coercions are allowed.
             // Constraints are ignored so that things like x==k will not cause compile-time errors
             // when x is a final variable initialized to a constant != k.
-            if (xts.isCastValid(lbase, rbase, context) || xts.isCastValid(rbase, lbase, context)) {
+
+            // Yoav: I remove the constraints from inside generic arguments as well (see XTENLANG-2022)
+            Type lbbase = Types.stripConstraints(lbase);
+            Type rbbase = Types.stripConstraints(rbase);
+            if (xts.isCastValid(lbbase, rbbase, context) || xts.isCastValid(rbbase, lbbase, context)) {
                 return type(xts.Boolean());
             }
 //

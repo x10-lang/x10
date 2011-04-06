@@ -19,7 +19,7 @@ class XTENLANG_17 extends x10Test {
 
     class X {}
     
-    var min: Rail[Rail[X]] = Rail.make[Rail[X]](3);
+    var min: Rail[Rail[X]] = new Rail[Rail[X]](3);
 
     public def run(): boolean {
         return true;
