@@ -78,9 +78,6 @@ import x10.visit.X10PrettyPrinterVisitor;
  *
  */
 public class WSTransformState {
-    
-    public final ClassType globalRefFFType;  //GlobalRef[FinishFrame]
-    public final ClassType globalRefRFType;  //GloobalRef[RegularFrame]
     public final Boolean realloc; // whether or not to generate code for frame migration
 
     private String theLanguage; //c++ or java path
@@ -88,17 +85,15 @@ public class WSTransformState {
     private WSTransformationContent transTarget;
     public WSCodeGenConfiguration codegenConfig;
     
-    protected TypeSystem xts;
-    
     /**
      * Used by WALA call graph builder.
-     * @param xts
-     * @param xnf
+     * @param ts
+     * @param nf
      * @param theLanguage
      * @param transTarget
      */
-    public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent transTarget){
-        this(xts, theLanguage);
+    public WSTransformState(TypeSystem ts, NodeFactory nf, String theLanguage, WSTransformationContent transTarget){
+        this(ts, theLanguage);
         this.transTarget = transTarget;
         //Debug output;
         System.out.println(transTarget);
@@ -110,12 +105,12 @@ public class WSTransformState {
      * @param xnf
      * @param theLanguage
      */
-    public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage){
-        this(xts, theLanguage);
+    public WSTransformState(TypeSystem ts, NodeFactory nf, String theLanguage){
+        this(ts, theLanguage);
         callGraph = new WSCallGraph();
         
         //start to iterate the ast in jobs and build all;
-        for(Job job : xts.extensionInfo().scheduler().jobs()){
+        for(Job job : ts.extensionInfo().scheduler().jobs()){
             if(job == null){
                 System.err.println("[WS_ERR] CallGraphBuilding: Find one job is empty!");
                 continue;
@@ -167,32 +162,17 @@ public class WSTransformState {
     
     /**
      * Only used to load the frame types;
-     * @param xts
+     * @param ts
      * @param theLanguage
      */
-    protected WSTransformState(TypeSystem xts, String theLanguage){
-        this.xts = xts;
+    protected WSTransformState(TypeSystem ts, String theLanguage){
         this.theLanguage = theLanguage;
         realloc = theLanguage.equals("c++");
         
-        //Process two global ref
-        List<Type> ffTypeList = new ArrayList<Type>();
-        ffTypeList.add(xts.FinishFrame());
-        globalRefFFType = xts.GlobalRef().typeArguments(ffTypeList);
-
-        List<Type> regularFrameTypeList = new ArrayList<Type>();
-        regularFrameTypeList.add(xts.RegularFrame());
-        globalRefRFType = xts.GlobalRef().typeArguments(regularFrameTypeList);
-        
         //Load CodeGen config
-        Configuration x10config = ((ExtensionInfo)xts.extensionInfo()).getOptions().x10_config;
+        Configuration x10config = ((ExtensionInfo)ts.extensionInfo()).getOptions().x10_config;
         codegenConfig = new WSCodeGenConfiguration(x10config);
     
-    }
-
-
-    public TypeSystem getX10TypeSystem() {
-        return xts;
     }
 
     /**
