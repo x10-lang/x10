@@ -240,8 +240,8 @@ class FinalFieldWrittenExactlyOnce {
 		else if (flag) f=2;
 	}
 	def this(Int,Byte) { // ERR
-		val b:Int = (b=5); // ERR ERR
-		var k:Int = (k=5); // ERR ERR
+		val b:Int = (b=5); // ERR
+		var k:Int = (k=5); // ERR
 		while (true) { val i:Int = 4;}
 		f=f+1; // ERR
 	}
