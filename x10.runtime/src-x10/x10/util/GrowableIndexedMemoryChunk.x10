@@ -168,8 +168,7 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
      * Copy current data into an Array.
      */
     public def toArray():Array[T](1){rect,rail,zeroBased} {
-      val tmp = new Array[T](0..(length-1), toIndexedMemoryChunk());
-      return tmp as Array[T](1){rect,rail,zeroBased}; // TODO: should not need cast
+      return new Array[T](toIndexedMemoryChunk());
     }
 
     private def grow(var newCapacity:int):void {

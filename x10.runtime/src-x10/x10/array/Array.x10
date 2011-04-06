@@ -231,6 +231,27 @@ public final class Array[T] (
         raw = backingStore;
     }
     
+    /**
+     * Construct an Array view of a backing IndexedMemoryChunk
+     * using the region (0..backingStore.length-1)
+     * 
+     * @param reg The region over which to define the array.
+     * @param backingStore The backing storage for the array data.
+     */
+    public @Inline def this(backingStore:IndexedMemoryChunk[T])
+    {
+        val myReg = new RectRegion1D(0, backingStore.length()-1) 
+             as Region{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
+        property(myReg, 1, true, true, true, backingStore.length());
+        
+        layout = RectLayout(myReg);
+        val n = layout.size();
+        if (n > backingStore.length()) {
+            throw new IllegalArgumentException("backingStore too small");
+        }
+        raw = backingStore;
+    }
+
     
     /**
      * Construct Array over the region 0..(size-1) whose elements are zero-initialized.
