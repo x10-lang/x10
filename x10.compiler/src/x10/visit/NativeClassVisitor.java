@@ -185,7 +185,7 @@ public class NativeClassVisitor extends ContextVisitor {
             fake.addTypeParameter(pp, vv);
         }
 
-        X10ClassType embed = (X10ClassType) xts.systemResolver().findOne(QName.make("x10.compiler.Embed"));
+        X10ClassType embed = (X10ClassType) xts.Embed();
         List<AnnotationNode> anodes;
         if (fake.isStruct()) {
             anodes = Collections.<AnnotationNode>emptyList();

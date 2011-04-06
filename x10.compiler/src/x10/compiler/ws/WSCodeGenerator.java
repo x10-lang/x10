@@ -157,11 +157,11 @@ public class WSCodeGenerator extends ContextVisitor {
             switch(wts.getCallSiteType(call)){
             case MATCHED_CALL: //change the target
                 //two steps, create a new method def, and change the call
-                X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(call.methodInstance().def(), wts);
+                X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(call.methodInstance().def(), ts);
                 List<Expr> newArgs = new ArrayList<Expr>();
-                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.workerType));
-                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.frameType));
-                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.finishFrameType));
+                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.Worker()));
+                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.Frame()));
+                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.FinishFrame()));
                 return WSCodeGenUtility.replaceMethodCallWithWSMethodCall(nf, (X10Call) call, mDef, newArgs);
             case CONCURRENT_CALL:  //do nothing, leave the transformation in method decl transformation
             case NORMAL:
@@ -289,24 +289,24 @@ public class WSCodeGenerator extends ContextVisitor {
         Position pos = Position.COMPILER_GENERATED;
         
         Name workerName = Name.make("worker");
-        LocalDef workerLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.workerType), workerName);
+        LocalDef workerLDef = ts.localDef(pos, Flags.FINAL, Types.ref(ts.Worker()), workerName);
         Formal workerF = nf.Formal(pos,
                               nf.FlagsNode(pos, Flags.FINAL), 
-                              nf.CanonicalTypeNode(pos, wts.workerType), 
+                              nf.CanonicalTypeNode(pos, ts.Worker()), 
                               nf.Id(pos, workerName)).localDef(workerLDef);
 
         Name upName = Name.make("up");
-        LocalDef upLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.frameType), upName);
+        LocalDef upLDef = ts.localDef(pos, Flags.FINAL, Types.ref(ts.Frame()), upName);
         Formal upF = nf.Formal(pos,
                               nf.FlagsNode(pos, Flags.FINAL), 
-                              nf.CanonicalTypeNode(pos, wts.frameType), 
+                              nf.CanonicalTypeNode(pos, ts.Frame()), 
                               nf.Id(pos, upName)).localDef(upLDef);
         
         Name ffName = Name.make("ff");
-        LocalDef ffLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.finishFrameType), ffName);
+        LocalDef ffLDef = ts.localDef(pos, Flags.FINAL, Types.ref(ts.FinishFrame()), ffName);
         Formal ffF = nf.Formal(pos,
                               nf.FlagsNode(pos, Flags.FINAL), 
-                              nf.CanonicalTypeNode(pos, wts.finishFrameType), 
+                              nf.CanonicalTypeNode(pos, ts.FinishFrame()), 
                               nf.Id(pos, ffName)).localDef(ffLDef);
         
         

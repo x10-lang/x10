@@ -80,7 +80,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         //Note in building the tree, we use parentFinish as async frame's up frame
         super(parent, getFinishFrameOfAsyncFrame(parent),
                 WSCodeGenUtility.getAsyncStmtClassName(parent.getClassName()),
-                parent.wts.asyncFrameType, a.body());
+                parent.xts.AsyncFrame(), a.body());
         inFrameTransform = canInFrameTransform(codeBlock);
         
         if(wts.codegenConfig.OPT_PC_FIELD == 0){
@@ -121,7 +121,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         if(!inFrameTransform){
             //we create a new frame to transform the async's body
             
-            AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
+            AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
             TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
             
             //now add codes to three path;
@@ -225,7 +225,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         //Move method - Used to move data for all out scope assign statements
         MethodSynth moveMSynth = classSynth.createMethod(compilerPos, MOVE.toString());
         moveMSynth.setFlag(Flags.PUBLIC);
-        Expr moveFfRef = moveMSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameType, "ff");
+        Expr moveFfRef = moveMSynth.addFormal(compilerPos, Flags.FINAL, xts.FinishFrame(), "ff");
         CodeBlockSynth moveBodySynth = moveMSynth.getMethodBodySynth(compilerPos);
         //How to move
         //  Get the assign expression, the left will be the right, and 
@@ -253,22 +253,22 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
     protected Stmt genPollStmt() throws SemanticException{
         //fast path: //upcast[_async,AsyncFrame](this).poll(worker);
         
-        Expr upThisExpr = genUpcastCall(getClassType(), wts.asyncFrameType, getThisRef());
+        Expr upThisExpr = genUpcastCall(getClassType(), xts.AsyncFrame(), getThisRef());
         
         InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, upThisExpr, POLL.toString());
         Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-        icSynth.addArgument(wts.workerType, fastWorkerRef);        
+        icSynth.addArgument(xts.Worker(), fastWorkerRef);        
         return icSynth.genStmt();
     }
     
     protected Stmt genPollNEStmt() throws SemanticException{
         //fast path: //upcast[_async,AsyncFrame](this).poll(worker);
         
-        Expr upThisExpr = genUpcastCall(getClassType(), wts.asyncFrameType, getThisRef());
+        Expr upThisExpr = genUpcastCall(getClassType(), xts.AsyncFrame(), getThisRef());
         
         InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, upThisExpr, "pollNE");
         Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-        icSynth.addArgument(wts.workerType, fastWorkerRef);        
+        icSynth.addArgument(xts.Worker(), fastWorkerRef);        
         return icSynth.genStmt();
     }
 
@@ -279,11 +279,11 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                super(up, up);
            }
         */
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up"); //up:Frame!
+        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, xts.Frame(), "up"); //up:Frame!
         
         CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
         SuperCallSynth superCallSynth = codeBlockSynth.createSuperCall(compilerPos, classSynth.getClassDef());
-        superCallSynth.addArgument(wts.frameType, upRef);
+        superCallSynth.addArgument(xts.Frame(), upRef);
         
         //process all the formals. Assign fields with formals
         Expr thisRef = getThisRef();

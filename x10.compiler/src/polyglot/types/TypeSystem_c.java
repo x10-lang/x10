@@ -2443,6 +2443,14 @@ public class TypeSystem_c implements TypeSystem
         return runtimeType_;
     }
 
+    protected X10ClassType embedType_;
+
+    public X10ClassType Embed() {
+        if (embedType_ == null)
+            embedType_ = load("x10.compiler.Embed");
+        return embedType_;
+    }
+
     protected X10ClassType arrayType_ = null;
 
     public X10ClassType Array() {
@@ -2489,6 +2497,142 @@ public class TypeSystem_c implements TypeSystem
         if (mortalType_ == null)
             mortalType_ = load("x10.lang.Runtime.Mortal");
         return mortalType_;
+    }
+
+    protected X10ClassType frameType_;
+
+    public X10ClassType Frame() {
+        if (frameType_ == null)
+            frameType_ = load("x10.compiler.ws.Frame");
+        return frameType_;
+    }
+
+    protected X10ClassType finishFrameType_;
+
+    public X10ClassType FinishFrame() {
+        if (finishFrameType_ == null)
+            finishFrameType_ = load("x10.compiler.ws.FinishFrame");
+        return finishFrameType_;
+    }
+
+    protected X10ClassType asyncFrameType_;
+
+    public X10ClassType AsyncFrame() {
+        if (asyncFrameType_ == null)
+            asyncFrameType_ = load("x10.compiler.ws.AsyncFrame");
+        return asyncFrameType_;
+    }
+
+    protected X10ClassType throwFrameType_;
+
+    public X10ClassType ThrowFrame() {
+        if (throwFrameType_ == null)
+            throwFrameType_ = load("x10.compiler.ws.ThrowFrame");
+        return throwFrameType_;
+    }
+
+    protected X10ClassType tryFrameType_;
+
+    public X10ClassType TryFrame() {
+        if (tryFrameType_ == null)
+            tryFrameType_ = load("x10.compiler.ws.TryFrame");
+        return tryFrameType_;
+    }
+
+    protected X10ClassType atFrameType_;
+
+    public X10ClassType AtFrame() {
+        if (atFrameType_ == null)
+            atFrameType_ = load("x10.compiler.ws.AtFrame");
+        return atFrameType_;
+    }
+
+    protected X10ClassType regularFrameType_;
+
+    public X10ClassType RegularFrame() {
+        if (regularFrameType_ == null)
+            regularFrameType_ = load("x10.compiler.ws.RegularFrame");
+        return regularFrameType_;
+    }
+
+    protected X10ClassType mainFrameType_;
+
+    public X10ClassType MainFrame() {
+        if (mainFrameType_ == null)
+            mainFrameType_ = load("x10.compiler.ws.MainFrame");
+        return mainFrameType_;
+    }
+
+    protected X10ClassType workerType_;
+
+    public X10ClassType Worker() {
+        if (workerType_ == null)
+            workerType_ = load("x10.compiler.ws.Worker");
+        return workerType_;
+    }
+
+    protected X10ClassType remoteFinishType_;
+
+    public X10ClassType RemoteFinish() {
+        if (remoteFinishType_ == null)
+            remoteFinishType_ = load("x10.compiler.ws.RemoteFinish");
+        return remoteFinishType_;
+    }
+
+    protected X10ClassType rootFinishType_;
+
+    public X10ClassType RootFinish() {
+        if (rootFinishType_ == null)
+            rootFinishType_ = load("x10.compiler.ws.RootFinish");
+        return rootFinishType_;
+    }
+
+    protected X10ClassType abortType_;
+
+    public X10ClassType Abort() {
+        if (abortType_ == null)
+            abortType_ = load("x10.compiler.Abort");
+        return abortType_;
+    }
+
+    protected X10ClassType stackAllocateType_;
+
+    public X10ClassType StackAllocate() {
+        if (stackAllocateType_ == null)
+            stackAllocateType_ = load("x10.compiler.StackAllocate");
+        return stackAllocateType_;
+    }
+
+    protected X10ClassType inlineOnlyType_;
+
+    public X10ClassType InlineOnly() {
+        if (inlineOnlyType_ == null)
+            inlineOnlyType_ = load("x10.compiler.InlineOnly");
+        return inlineOnlyType_;
+    }
+
+    protected X10ClassType headerType_;
+
+    public X10ClassType Header() {
+        if (headerType_ == null)
+            headerType_ = load("x10.compiler.Header");
+        return headerType_;
+    }
+
+    protected X10ClassType ephemeralType_;
+
+    public X10ClassType Ephemeral() {
+        if (ephemeralType_ == null)
+            ephemeralType_ = load("x10.compiler.Ephemeral");
+        return ephemeralType_;
+    }
+
+    protected X10ClassType uninitializedType_;
+
+    public X10ClassType Uninitialized() {
+        if (uninitializedType_ == null)
+            uninitializedType_ = load("x10.compiler.Uninitialized");
+        return uninitializedType_;
     }
 
 

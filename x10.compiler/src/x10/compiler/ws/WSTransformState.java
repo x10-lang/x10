@@ -79,22 +79,6 @@ import x10.visit.X10PrettyPrinterVisitor;
  */
 public class WSTransformState {
     
-    public final ClassType frameType;
-    public final ClassType finishFrameType;
-    public final ClassType rootFinishType;
-    public final ClassType mainFrameType;
-    public final ClassType remoteFinishType;
-    public final ClassType atFrameType;
-    public final ClassType regularFrameType;
-    public final ClassType asyncFrameType;
-    public final ClassType tryFrameType;
-    public final ClassType workerType;
-    public final ClassType abortType;
-    public final ClassType stackAllocateType; //annotation type
-    public final ClassType inlineType; //annotation type
-    public final ClassType transientType; //annotation type
-    public final ClassType headerType; //annotation type
-    public final ClassType uninitializedType; //annotation type
     public final ClassType globalRefFFType;  //GlobalRef[FinishFrame]
     public final ClassType globalRefRFType;  //GloobalRef[RegularFrame]
     public final Boolean realloc; // whether or not to generate code for frame migration
@@ -190,30 +174,14 @@ public class WSTransformState {
         this.xts = xts;
         this.theLanguage = theLanguage;
         realloc = theLanguage.equals("c++");
-        frameType = xts.load("x10.compiler.ws.Frame");
-        finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
-        rootFinishType = xts.load("x10.compiler.ws.RootFinish");
-        mainFrameType = xts.load("x10.compiler.ws.MainFrame");
-        remoteFinishType = xts.load("x10.compiler.ws.RemoteFinish");
-        atFrameType = xts.load("x10.compiler.ws.AtFrame");
-        regularFrameType = xts.load("x10.compiler.ws.RegularFrame");
-        asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
-        tryFrameType = xts.load("x10.compiler.ws.TryFrame");
-        workerType = xts.load("x10.compiler.ws.Worker");
-        abortType = xts.load("x10.compiler.Abort");
-        stackAllocateType = xts.load("x10.compiler.StackAllocate");
-        inlineType = xts.load("x10.compiler.InlineOnly");
-        transientType = xts.load("x10.compiler.Ephemeral");
-        headerType = xts.load("x10.compiler.Header");
-        uninitializedType = xts.load("x10.compiler.Uninitialized");
         
         //Process two global ref
         List<Type> ffTypeList = new ArrayList<Type>();
-        ffTypeList.add(finishFrameType);
+        ffTypeList.add(xts.FinishFrame());
         globalRefFFType = xts.GlobalRef().typeArguments(ffTypeList);
 
         List<Type> regularFrameTypeList = new ArrayList<Type>();
-        regularFrameTypeList.add(regularFrameType);
+        regularFrameTypeList.add(xts.RegularFrame());
         globalRefRFType = xts.GlobalRef().typeArguments(regularFrameTypeList);
         
         //Load CodeGen config

@@ -708,7 +708,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             expr = expr.target(target);
         }
         X10FieldInstance fi = (X10FieldInstance) expr.fieldInstance();
-        if (!fi.annotationsMatching(typeSystem().load("x10.compiler.Embed")).isEmpty()) {
+        if (!fi.annotationsMatching(typeSystem().Embed()).isEmpty()) {
             return expr;
         }
         Expr right = getPrimaryAndStatements(expr.right(), stmts);

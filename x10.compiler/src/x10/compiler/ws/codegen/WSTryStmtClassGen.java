@@ -56,7 +56,7 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
     public WSTryStmtClassGen(AbstractWSClassGen parent, Try tryStmt) {
         super(parent, parent,
                 WSCodeGenUtility.getExceptionFrameClassName(parent.getClassName()),
-                parent.wts.tryFrameType, tryStmt.tryBlock());
+                parent.xts.TryFrame(), tryStmt.tryBlock());
         this.tryStmt = tryStmt;
         //Never need PC value in fact
 //        if(WSOptimizeConfig.OPT_PC_FIELD == 0){
@@ -73,11 +73,11 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         // add all constructors
         CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
 
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, UP.toString());
-        Expr ffRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameType, FF.toString());
+        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, xts.Frame(), UP.toString());
+        Expr ffRef = conSynth.addFormal(compilerPos, Flags.FINAL, xts.FinishFrame(), FF.toString());
         SuperCallSynth superCallSynth = conCodeSynth.createSuperCall(compilerPos, classSynth.getDef());
-        superCallSynth.addArgument(wts.frameType, upRef);
-        superCallSynth.addArgument(wts.finishFrameType, ffRef);
+        superCallSynth.addArgument(xts.Frame(), upRef);
+        superCallSynth.addArgument(xts.FinishFrame(), ffRef);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
         
 
-        AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
+        AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
         TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
         
         //now add codes to three path;
@@ -114,8 +114,8 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
 
         Name formalName = xct.getNewVarName();
         
-        Formal fa = synth.createFormal(compilerPos, wts.abortType, formalName, Flags.NONE);
-        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(wts.abortType));
+        Formal fa = synth.createFormal(compilerPos, xts.Abort(), formalName, Flags.NONE);
+        Stmt ea = xnf.Throw(compilerPos, xnf.Local(compilerPos, xnf.Id(compilerPos, formalName)).localInstance(fa.localDef().asInstance()).type(xts.Abort()));
         Catch ca = xnf.Catch(compilerPos, fa, xnf.Block(compilerPos, ea));
         
         catchBlocksFast.add(ca);

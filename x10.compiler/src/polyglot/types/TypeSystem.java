@@ -913,6 +913,28 @@ public interface TypeSystem {
 
     X10ClassType Runtime(); // used by asyncCodeInstance
 
+
+    // types used in WS codegen
+    X10ClassType Frame();
+    X10ClassType FinishFrame();
+    X10ClassType RootFinish();
+    X10ClassType MainFrame();
+    X10ClassType RemoteFinish();
+    X10ClassType AtFrame();
+    X10ClassType RegularFrame();
+    X10ClassType AsyncFrame();
+    X10ClassType TryFrame();
+    X10ClassType Worker();
+    X10ClassType Abort();
+    
+    // annotation types used in codegen
+    X10ClassType StackAllocate();
+    X10ClassType InlineOnly();
+    X10ClassType Ephemeral();
+    X10ClassType Header();
+    X10ClassType Uninitialized();
+    X10ClassType Embed();
+
     //Type Value();
 
     Type Object();

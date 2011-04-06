@@ -398,15 +398,15 @@ public class WSCodeGenUtility {
      * @param wts WSTransformState
      * @return
      */
-    static public X10MethodDef createWSCallMethodDef(MethodDef methodDef, WSTransformState wts){
+    static public X10MethodDef createWSCallMethodDef(MethodDef methodDef, TypeSystem ts){
     	
         X10ClassType containerClassType = (X10ClassType) methodDef.container().get();
         X10ClassDef containerClassDef = containerClassType.x10Def();
         
         List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>();
-        formalTypes.add(Types.ref(wts.workerType));
-        formalTypes.add(Types.ref(wts.frameType));
-        formalTypes.add(Types.ref(wts.finishFrameType));
+        formalTypes.add(Types.ref(ts.Worker()));
+        formalTypes.add(Types.ref(ts.Frame()));
+        formalTypes.add(Types.ref(ts.FinishFrame()));
         for(Ref<? extends Type> f : methodDef.formalTypes()){
             formalTypes.add(f); //all formals are added in
         }
@@ -422,11 +422,11 @@ public class WSCodeGenUtility {
 
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
         Name workerName = Name.make("worker");
-        LocalDef workerLDef = methodDef.typeSystem().localDef(methodDef.position(), Flags.FINAL, Types.ref(wts.workerType), workerName);
+        LocalDef workerLDef = methodDef.typeSystem().localDef(methodDef.position(), Flags.FINAL, Types.ref(xts.Worker()), workerName);
         Name upName = Name.make("up");
-        LocalDef upLDef = methodDef.typeSystem().localDef(methodDef.position(), Flags.FINAL, Types.ref(wts.frameType), upName);
+        LocalDef upLDef = methodDef.typeSystem().localDef(methodDef.position(), Flags.FINAL, Types.ref(ts.Frame()), upName);
         Name ffName = Name.make("ff");
-        LocalDef ffLDef = methodDef.typeSystem().localDef(methodDef.position(), Flags.FINAL, Types.ref(wts.finishFrameType), ffName);
+        LocalDef ffLDef = methodDef.typeSystem().localDef(methodDef.position(), Flags.FINAL, Types.ref(ts.FinishFrame()), ffName);
         formalNames.add(workerLDef);
         formalNames.add(upLDef);
         formalNames.add(ffLDef);
