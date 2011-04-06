@@ -234,8 +234,9 @@ public class Lowerer extends ContextVisitor {
 				Stmt assign = nf.Eval(pos, synth.makeAssign(pos, outerLdRef, Assign.ASSIGN, ldRef, xc));
 				block = block.prepend(assign);
 				block = block.prepend(ld);
-				Block drop = nf.Block(pos,nf.Eval(pos, new InstanceCallSynth(nf, xc, pos, outerLdRef, DROP).genExpr()));
-				Stmt stm1 = nf.Try(pos, block, Collections.<Catch>emptyList(), drop);
+				Eval drop = nf.Eval(pos, new InstanceCallSynth(nf, xc, pos, outerLdRef, DROP).genExpr());
+	            Expr cond = nf.Binary(pos, outerLdRef, X10Binary_c.NE, nf.NullLit(pos).type(ts.Null())).type(ts.Boolean());
+				Stmt stm1 = nf.Try(pos, block, Collections.<Catch>emptyList(), nf.Block(pos, nf.If(pos, cond, drop)));
 				Node result = visitEdgeNoOverride(parent, nf.Block(pos, outerLd, nf.Finish(pos, stm1, false)));
 				return result;
 			} catch (SemanticException z) {
