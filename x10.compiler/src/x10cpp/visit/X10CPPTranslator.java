@@ -227,14 +227,19 @@ public class X10CPPTranslator extends Translator {
 		                    public void run(ClassifiedStream s) {
 		                        int cppStartLine = s.getStartLineOffset()+adjustedStartLine;
 		                        int cppEndLine = s.getStartLineOffset()+fixedEndLine;
-		                        if (!generated)
+		                        if (def != null && !def.position().isCompilerGenerated())
+		                        {
+		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
+		                            lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
+		                            if (addLastLine)
+		                        		lineNumberMap.put(cppFile, cppEndLine, cppEndLine, file, lastX10Line, column);
+		                        }
+		                        else if (!generated)
 		                        {
 		                        	lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
 		                        	if (addLastLine)
 		                        		lineNumberMap.put(cppFile, cppEndLine, cppEndLine, file, lastX10Line, column);
 		                        }
-		                        if (def != null && !def.position().isCompilerGenerated())
-		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
 		                    }
 		                });
 		            }
