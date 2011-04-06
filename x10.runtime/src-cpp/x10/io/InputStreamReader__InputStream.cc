@@ -15,7 +15,7 @@
 
 #include <x10/io/InputStreamReader__InputStream.h>
 #include <x10/io/FileReader__FileInputStream.h>
-#include <x10/lang/Rail.h>
+#include <x10/util/IndexedMemoryChunk.h>
 
 using namespace x10::lang;
 using namespace x10::io;
@@ -29,16 +29,14 @@ x10aux::ref<InputStreamReader__InputStream> InputStreamReader__InputStream::STAN
     return _STANDARD_IN_cache;
 }
 
-x10_int InputStreamReader__InputStream::read(ref<Rail<x10_byte> > b) {
-    nullCheck(b);
-    return this->read(b, 0, b->x10__length);
+x10_int InputStreamReader__InputStream::read(x10::util::IndexedMemoryChunk<x10_byte> b) {
+    return this->read(b, 0, b->length());
 }
 
-x10_int InputStreamReader__InputStream::read(ref<Rail<x10_byte> > b,
+x10_int InputStreamReader__InputStream::read(x10::util::IndexedMemoryChunk<x10_byte> b,
                                              x10_int off, x10_int len) {
     x10_int val;
     x10_int i;
-    nullCheck(b);  // Strictly speaking this should be inside the loop, but X10 has looser exception semantics than Java, so lift it out of loop.
     for (i = 0; i < len && (val = this->read()) != -1; i++)
         b->operator[](off + i) = (x10_byte) (val & 0xFF);
     return i;

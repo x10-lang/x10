@@ -20,10 +20,6 @@ class ValRow extends Row {
         this.row = row;
     }
 
-    public def this(row:Rail[int]) {
-        this(row.length, (i:Int) => row(i));
-    }
-
     public def this(cols:Int, init:(Int)=>int) {
         super(cols);
         row = new Array[int](cols, init);

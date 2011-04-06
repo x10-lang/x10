@@ -22,12 +22,12 @@
 #include <x10/lang/Object.h>
 
 namespace x10 { namespace io { class Printer; } }
+namespace x10 { namespace array { template <class T> class Array; } }
 
 namespace x10 {
     namespace lang {
 
         class String;
-        template<class T> class Rail;
 
         class Throwable : public Object {
         public:
@@ -47,7 +47,7 @@ namespace x10 {
 
             // Computing the human-readable form of the backtrace is expensive.
             // Once we do it, keep it around for future use.
-            x10aux::ref<Rail<x10aux::ref<String> > > FMGL(cachedStackTrace);
+            x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > FMGL(cachedStackTrace);
             
             static x10aux::ref<Throwable> _make();
             static x10aux::ref<Throwable> _make(x10aux::ref<String> message);
@@ -75,7 +75,7 @@ namespace x10 {
             virtual x10aux::ref<Throwable> getCause() { return FMGL(cause); }
             virtual x10aux::ref<String> toString();
             virtual x10aux::ref<Throwable> fillInStackTrace();
-            virtual x10aux::ref<Rail<x10aux::ref<String> > > getStackTrace();
+            virtual x10aux::ref<x10::array::Array<x10aux::ref<String> > > getStackTrace();
             virtual void printStackTrace();
             virtual void printStackTrace(x10aux::ref<x10::io::Printer>);
             

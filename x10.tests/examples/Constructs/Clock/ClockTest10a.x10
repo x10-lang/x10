@@ -32,11 +32,11 @@ import harness.x10Test;
 public class ClockTest10a extends x10Test {
 	// varX[0] and varX[1] serve alternately as
 	// the "new result" and "old result"
-	val varA = Rail.make[int](2, 0);
-	val varB = Rail.make[int](2, 0);
-	val varC  = Rail.make[int](2, 0);
-	val varD  = Rail.make[int](2, 0);
-	val varE  = Rail.make[int](2, 0);
+	val varA = new Rail[int](2, 0);
+	val varB = new Rail[int](2, 0);
+	val varC  = new Rail[int](2, 0);
+	val varD  = new Rail[int](2, 0);
+	val varE  = new Rail[int](2, 0);
 	public static N = 10;
 	public static pipeDepth = 2;
 

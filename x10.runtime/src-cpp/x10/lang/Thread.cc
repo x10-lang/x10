@@ -46,7 +46,6 @@ using namespace std;
 
 
 // initialize static data members
-ref<Thread> Thread::__current_thread = X10_NULL;
 long x10::lang::Thread::__thread_cnt = 0;
 pthread_key_t Thread::__thread_mapper = 0;
 x10_boolean Thread::__thread_mapper_inited = false;

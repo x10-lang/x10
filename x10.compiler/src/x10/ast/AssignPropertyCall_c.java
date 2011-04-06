@@ -58,6 +58,8 @@ import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.X10Context_c;
 import x10.types.X10ClassDef;
+import x10.types.X10TypeEnv;
+import x10.types.X10TypeEnv_c;
 import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -262,7 +264,8 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         // since it infers "this". see XTENLANG-1770
 
         {
-            CConstraint known = Types.get(thisConstructor.supClause());
+            Type supType = thisConstructor.supType();
+            CConstraint known = Types.realX(supType);
             known = (known==null ? new CConstraint() : known.copy());
             try {
                 known.addIn(Types.get(thisConstructor.guard()));
@@ -293,7 +296,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                    
                 }
                                 
-                X10ConstructorCall_c.checkSuperType(tc,returnType,false, position);
+                X10ConstructorCall_c.checkSuperType(tc,supType, position);
 
                 // Set the return type of the enclosing constructor to be this inferred type.
                 Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
@@ -325,7 +328,11 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 }
                 // Check that the class invariant is satisfied.
                  X10ClassType ctype =  (X10ClassType) Types.get(thisConstructor.container());
-                 final CConstraint inv = Types.get(ctype.x10Def().classInvariant()).copy();
+                CConstraint _inv = Types.get(ctype.x10Def().classInvariant()).copy();
+                X10TypeEnv env = ts.env(tc.context());
+                boolean isThis = true; // because in the class invariant we use this (and not self)
+                _inv = X10TypeEnv_c.ifNull(((X10TypeEnv_c)env).expandProperty(isThis,ctype,_inv),_inv);
+                final CConstraint inv = _inv;
                  if (!k.entails(inv, new ConstraintMaker() {
                      public CConstraint make() throws XFailure {
                          return ctx.constraintProjection(k, inv);

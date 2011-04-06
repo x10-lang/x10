@@ -70,6 +70,17 @@ public struct IndexedMemoryChunk[T] {
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#T >(#numElements, #alignment, #congruent, true)")
     public static native def allocateZeroed[T](numElements:long, alignment:int, congruent:boolean):IndexedMemoryChunk[T]{T haszero};
 
+    /**
+     * Deallocate the backing storage for the IndexedMemoryChunk and
+     * set its length to 0.  This is an unsafe operation, as other
+     * IndexedMemoryChunks might have been created by copying this
+     * IndexedMemoryChunk and will contain dangling pointers to the 
+     * freed memory.  This operation should only be called when 
+     * the caller is certain that no such copies of the IMC exist.
+     */
+    @Native("java", "(#0).deallocate()")
+    @Native("c++", "(#this)->deallocate()")
+    public native def deallocate():void;
 
     /**
      * Operator that allows access of IndexedMemoryChunk elements by index.
@@ -115,6 +126,26 @@ public struct IndexedMemoryChunk[T] {
     @Native("java", "(#0).$set((int)(#1), #2)")
     @Native("c++", "(#this)->__set(#index, #value)")
     public native operator this(index:long)=(value:T):void;
+
+
+    /**
+     * Clears numElems of the backing storage starting at index start
+     * by zeroing the storage.  Note that this is intentionally not
+     * type safe because it does require T hasZero.
+     */
+    @Native("java", "(#0).clear(#1, #2)")
+    @Native("c++", "(#this)->clear(#index, #numElems)")
+    public native def clear(index:int, numElems:int):void;
+
+
+    /**
+     * Clears numElems of the backing storage starting at index start
+     * by zeroing the storage.  Note that this is intentionally not
+     * type safe because it does require T hasZero.
+     */
+    @Native("java", "(#0).$clear((int)(#1), (int)(#2))")
+    @Native("c++", "(#this)->clear(#index, #numElems)")
+    public native def clear(index:long, numElems:long):void;
 
 
     /**
@@ -242,11 +273,6 @@ public struct IndexedMemoryChunk[T] {
     /**
      * Synchronously copy a contiguous portion of the src IndexedMemoryChunk 
      * into the destination IndexedMemoryChunk. Both src and dst are local.
-     * If the source place is the current place, then the copy happens synchronously.
-     * If the source place is not the same as the current place, then
-     * the copy happens asynchronously and the created remote activity will be 
-     * registered with the dynamically enclosing finish of the activity that invoked 
-     * asyncCopyFrom.<p>
      *
      * @param src the source IndexedMemoryChunk.
      * @param srcIndex the index of the first element to copy in the source.

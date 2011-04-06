@@ -146,7 +146,7 @@
     <condition property="x10c.no_checks" value="-NO_CHECKS=true" else="">
         <istrue value="${NO_CHECKS}" />
     </condition>
-	<!--
+    <!--
     <condition property="x10c.multi_node" value="-MULTI_NODE=true" else="">
         <istrue value="${MULTI_NODE}" />
     </condition>
@@ -197,6 +197,7 @@
 
     <target name="dist-x10rt" depends="build-x10rt">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
             <arg value="-j1" />
             <arg value="install" />
             <arg value="${cppmake.optimize}" />
@@ -217,6 +218,7 @@
     <target name="dist-java-x10rt" depends="dist-java,dist-x10rt"/>
     <target name="dist-cpp" depends="dist-x10rt,build-cpp,available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
             <arg value="-j${available.procs}" />
             <arg value="install" />
             <arg value="${cppmake.gcarg}" />
@@ -229,6 +231,7 @@
     </target>
     <target name="dist-cpp-no-x10rt" depends="build-cpp,available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
             <arg value="-j${available.procs}" />
             <arg value="install" />
             <arg value="${cppmake.gcarg}" />
@@ -241,6 +244,7 @@
     </target>
     <target name="dist-stdlibprops" depends="init">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
             <arg value="install_props" />
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.experimental}" />
@@ -353,6 +357,7 @@
 
     <target name="build-x10rt" depends="init,jni-headers">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
             <arg value="-j1" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
@@ -366,6 +371,7 @@
 
     <target name="build-cpp" depends="init,dist-bdwgc,available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
             <arg value="-j${available.procs}" />
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.experimental}" />

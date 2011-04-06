@@ -26,7 +26,7 @@ public class Classes270 extends x10Test {
     }
 
 
-// file Classes line 1859
+// file Classes line 1872
  static  class Pt(x:Int, y:Int){}
  static class Line(a:Pt, b:Pt{a != b}) {}
 

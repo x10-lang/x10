@@ -13,6 +13,7 @@ package x10.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Call;
@@ -39,6 +40,9 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.TypeSystem;
+import polyglot.types.Def;
+import polyglot.types.Ref;
+import polyglot.types.ClassType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.Here;
@@ -69,6 +73,10 @@ import x10.types.constraints.CTerms;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.constraints.CAtom;
+import x10.types.constraints.CField;
+import x10.types.constraints.CThis;
+import x10.types.constraints.CSelf;
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
 
@@ -232,7 +240,63 @@ public class XTypeTranslator {
            // XName field = XTerms.makeName(mi.def(), Types.get(mi.def().container()) + "#" + mi.name().toString() + "()");
             v = CTerms.makeAtom(mi.def(), target);
         }
+        // this creates an unexpanded property method call.
         return v;
+    }
+    static public XTerm expandSelfPropertyMethod(XTerm term) {
+        return expandPropertyMethod(term,false,null,null,null);
+    }
+    static public XTerm expandPropertyMethod(XTerm term, boolean isThisOrSelf,
+                        // these three formals help us search for a concrete implementation of the property method
+                        // they can be null (then we don't search for an implementation)
+                        TypeSystem ts, ClassType classType, Context context) {
+        Def aDef = null;
+        List<XTerm> args = null; // the first arg is the this-receiver
+        if (term instanceof CAtom) {
+            CAtom cAtom = (CAtom) term;
+            aDef = cAtom.def();
+            args = cAtom.arguments();
+        }
+        if (term instanceof CField) {
+            CField cField = (CField) term;
+            aDef = cField.field();
+            args = Collections.<XTerm>singletonList(cField.receiver);
+        }
+        if (aDef==null || !(aDef instanceof X10MethodDef)) return term;
+        XTerm receiver = args.get(0);
+        if (isThisOrSelf) {
+            // for methods (checking overriding) we replace "this.p(...)"
+            if (!(receiver instanceof CThis)) return term;
+        } else {
+            // for subtyping tests we replace "self.p(...)"
+            if (!(receiver instanceof CSelf)) return term;
+        }
+        X10MethodDef def = (X10MethodDef) aDef;
+        if (classType!=null) {
+            // find the correct def, and return a clone of the XTerm
+            final MethodInstance method = ts.findImplementingMethod(classType, def.asInstance(), false, context);
+            if (method==null) // the property is abstract in t1
+                return term;
+            def = (X10MethodDef) method.def();
+        }
+        final Ref<XTerm> bodyRef = def.body();
+        if (bodyRef==null)
+            return term;
+        XTerm body = bodyRef.get();
+        if (body==null)
+            return term;
+        // currently we only support nullary property methods that are not CAtoms
+        List<LocalDef> formals = def.formalNames();
+        if (formals.size()!=args.size()-1)
+            throw new InternalCompilerError("The number of arguments in the property method didn't match the property defintiion.");
+        int pos=1;
+        for (LocalDef formal : formals) {
+            XVar x =  CTerms.makeLocal((X10LocalDef)formal);
+            XTerm y = args.get(pos++);
+            body = body.subst(y, x);
+        }
+        body = body.subst(receiver, def.thisVar());
+        return body;
     }
 
     public static final Object FAKE_KEY = new Object();

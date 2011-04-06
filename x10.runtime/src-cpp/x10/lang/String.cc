@@ -20,7 +20,6 @@
 #include <x10aux/char_utils.h>
 
 #include <x10/lang/String.h>
-#include <x10/lang/Rail.h>
 #include <x10/lang/StringIndexOutOfBoundsException.h>
 
 #include <x10/array/Array.h>
@@ -69,20 +68,6 @@ String::_constructor(x10aux::ref<String> s) {
     this->Object::_constructor();
     this->FMGL(content) = s->FMGL(content);
     this->FMGL(content_length) = s->FMGL(content_length);
-}
-
-void
-String::_constructor(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) {
-    nullCheck(rail);
-    x10_int i = 0;
-    char *content= x10aux::alloc<char>(length+1);
-    for (i=0; i<length; i++) {
-        content[i] = (char)((*rail)[start + i].v);
-    }
-    content[i] = '\0';
-    this->Object::_constructor();
-    this->FMGL(content) = content;
-    this->FMGL(content_length) = i;
 }
 
 void

@@ -24,8 +24,6 @@ import x10.compiler.Native;
  * It is up to the implementer of the class or interface implementing Sequence to provide any additional 
  * guarantees.
  * 
- * <p> Code in 2.0.6 and earlier that uses ValRail[T] could be rewritten to use a Sequence over an underlying
- * 1-d array.
  * @author vj 10/10
  */
 public interface Sequence[T] extends (Int)=> T, Iterable[T] {

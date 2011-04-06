@@ -20,11 +20,11 @@ public class Stack[T] extends ArrayList[T] {
     /** Remove and return the top element of the stack. */
     public def pop(): T = removeLast();
     
-    public def pop(k:Int):Rail[T] {
+    public def pop(k:Int):Array[T] {
     	val n = size();
     	if (n < k) 
     		return null;
-    	return moveSectionToRail(n-k, n-1);
+    	return moveSectionToArray(n-k, n-1);
     }
 
     /** Return, but do not remove, the top element of the stack. */

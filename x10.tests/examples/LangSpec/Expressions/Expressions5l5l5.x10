@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Vars_For_Stars;
+/* Current test harness gets confused by packages, but it would be in package Expressions5l5l5;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,28 +19,17 @@ import harness.x10Test;
 
 
 
-public class Vars70_Bad41_MustFailCompile extends x10Test {
+public class Expressions5l5l5 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Vars70_Bad41_MustFailCompile().execute();
+        new Expressions5l5l5().execute();
     }
 
 
-// file Vars line 278
-abstract static  class VarsForStars{
- abstract def cointoss(): Boolean;
-def check() {
-  var muta : Int;
-  // ERROR:  println(muta);
-  muta = 4;
-  val use2A = muta * 10;
-  val immu : Int;
-  // ERROR: println(immu);
-  if (cointoss())   {immu = 1;}
-  else              {immu = use2A;}
-  val use2B = immu * 10;
- immu = 5; // ERR
-}}
+// file Expressions line 923
+ static  class Example{ def example() {
+for(var i : Long = 0; i <= 100; i++) {}
+} }
 
  static class Hook {
    def run():Boolean = true;

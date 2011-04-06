@@ -2,6 +2,7 @@ package x10.compiler.ws;
 
 import x10.compiler.Abort;
 import x10.compiler.Header;
+import x10.compiler.Ifdef;
 import x10.compiler.Inline;
 
 public abstract class TryFrame extends RegularFrame {
@@ -9,6 +10,7 @@ public abstract class TryFrame extends RegularFrame {
         super(up, ff);
     }
 
+    @Ifdef("__CPP__")
     public def this(Int, o:TryFrame) {
         super(-1, o);
     }

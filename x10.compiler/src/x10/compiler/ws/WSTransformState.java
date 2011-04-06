@@ -188,32 +188,18 @@ public class WSTransformState {
      */
     protected WSTransformState(TypeSystem xts, String theLanguage){
         this.xts = xts;
-    	this.theLanguage = theLanguage;
-        if (theLanguage.equals("c++")) {
-            frameType = xts.load("x10.compiler.ws.Frame");
-            finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
-            rootFinishType = xts.load("x10.compiler.ws.RootFinish");
-            mainFrameType = xts.load("x10.compiler.ws.MainFrame");
-            remoteFinishType = xts.load("x10.compiler.ws.RemoteFinish");
-            atFrameType = xts.load("x10.compiler.ws.AtFrame");
-            regularFrameType = xts.load("x10.compiler.ws.RegularFrame");
-            asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
-            tryFrameType = xts.load("x10.compiler.ws.TryFrame");
-            workerType = xts.load("x10.compiler.ws.Worker");
-            realloc = true;
-        } else {
-            frameType = xts.load("x10.compiler.ws.java.Frame");
-            finishFrameType = xts.load("x10.compiler.ws.java.FinishFrame");
-            rootFinishType = xts.load("x10.compiler.ws.java.RootFinish");
-            mainFrameType = xts.load("x10.compiler.ws.java.MainFrame");
-            remoteFinishType = xts.load("x10.compiler.ws.java.RemoteRootFinish");
-            atFrameType = xts.load("x10.compiler.ws.java.RemoteAtFrame");
-            regularFrameType = xts.load("x10.compiler.ws.java.RegularFrame");
-            asyncFrameType = xts.load("x10.compiler.ws.java.AsyncFrame");
-            tryFrameType = xts.load("x10.compiler.ws.java.TryFrame");
-            workerType = xts.load("x10.compiler.ws.java.Worker");
-            realloc = false;
-        }
+        this.theLanguage = theLanguage;
+        realloc = theLanguage.equals("c++");
+        frameType = xts.load("x10.compiler.ws.Frame");
+        finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
+        rootFinishType = xts.load("x10.compiler.ws.RootFinish");
+        mainFrameType = xts.load("x10.compiler.ws.MainFrame");
+        remoteFinishType = xts.load("x10.compiler.ws.RemoteFinish");
+        atFrameType = xts.load("x10.compiler.ws.AtFrame");
+        regularFrameType = xts.load("x10.compiler.ws.RegularFrame");
+        asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
+        tryFrameType = xts.load("x10.compiler.ws.TryFrame");
+        workerType = xts.load("x10.compiler.ws.Worker");
         abortType = xts.load("x10.compiler.Abort");
         stackAllocateType = xts.load("x10.compiler.StackAllocate");
         inlineType = xts.load("x10.compiler.InlineOnly");

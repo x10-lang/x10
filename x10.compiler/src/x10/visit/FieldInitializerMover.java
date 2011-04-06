@@ -52,6 +52,7 @@ import polyglot.types.FieldInstance;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.LocalClassRemover;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Def;
@@ -165,6 +166,7 @@ public class FieldInitializerMover extends ContextVisitor {
             final Flags flags = Flags.PRIVATE.Final();
             MethodDecl method = nf.MethodDecl(p,nf.FlagsNode(p, flags),returnType, nameId,
                     Collections.<Formal>emptyList(), nf.Block(p,assignments));
+            method = (MethodDecl) method.visit( new LocalClassRemover.MarkReachable() );
             MethodDef md = ts.methodDef(p, Types.ref(cdecl.classDef().asType()), flags, returnType.typeRef(), name, Collections.<Ref<? extends Type>>emptyList());
             method = method.methodDef(md);
             members.add(method);

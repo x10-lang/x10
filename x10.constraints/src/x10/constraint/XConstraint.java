@@ -264,6 +264,40 @@ public class XConstraint implements Cloneable {
         return consistent && valid;
     }
 
+    private boolean flatten(boolean isEq, XTerm left, XTerm right)  {
+
+        // handle several special cases:
+        // (X==Y)==true     ---> X==Y
+        // (X!=Y)==true     ---> X!=Y
+        // (X==Y)==false    ---> X!=Y
+        // (X!=Y)==false    ---> X==Y
+        XTerm boolLit = XTerms.isBoolean(left) ? left : XTerms.isBoolean(right) ? right : null;
+        if (boolLit!=null) {
+            XTerm other = boolLit==left ? right : left;
+            boolean isEquals = other instanceof XEquals;
+            boolean isDisEquals = other instanceof XDisEquals;
+            if (isEquals || isDisEquals) {
+                XFormula<?> formula = (XFormula<?>) other;
+                List<XTerm> args = formula.arguments();
+                assert args.size()==2;
+                left = args.get(0);
+                right = args.get(1);
+                boolean isLitTrue = boolLit==XTerms.TRUE;
+                if (isLitTrue==isEquals) {
+                    // ok
+                } else {
+                    isEq = !isEq;
+                }
+                if (isEq) {
+                    addBinding(left, right);
+                } else {
+                    addDisBinding(left, right);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * Add t1=t2 to the constraint, unless it is inconsistent. 
      * Note: constraint is modified in place.
@@ -273,6 +307,8 @@ public class XConstraint implements Cloneable {
     public void addBinding(XTerm left, XTerm right)  {
     	assert left != null;
         assert right != null;
+
+        if (flatten(true,left, right)) return;
 
         if (!consistent)
             return;
@@ -306,6 +342,9 @@ public class XConstraint implements Cloneable {
     public void addDisBinding(XTerm left, XTerm right)  {
     	assert left != null;
     	assert right !=null;
+
+        if (flatten(false,left, right)) return;
+
     	if (! consistent)
     		return;
     	if (roots == null)

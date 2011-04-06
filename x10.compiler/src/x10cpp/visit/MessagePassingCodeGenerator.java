@@ -3369,7 +3369,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline();
 		sw.write("if (");
 		String type = Emitter.translateType(n.formal().type().type(), true);
-		if (refsAsPointers) {
+        if (n.formal().type().type().typeEquals(tr.typeSystem().Throwable(), context)) {
+            sw.write("true");
+        } else if (refsAsPointers) {
 			sw.write("!!dynamic_cast" + chevrons(type) + "(" + excVar + ")");
 		} else {
 			sw.write("x10aux::instanceof" + chevrons(type) + "(" + excVar + ")");

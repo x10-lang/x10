@@ -43,9 +43,7 @@ namespace x10 {
                 _outputStream.write(i);
             }
 
-            virtual void write(x10aux::ref<x10::lang::Rail<x10_byte> > b, x10_int off, x10_int len) {
-                _outputStream.write(b, off, len);
-            }
+            virtual void write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len);
 
             virtual void flush() {
                 _outputStream.flush();

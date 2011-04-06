@@ -22,7 +22,7 @@ public class NullableComparison extends x10Test {
 	public static N: int = 6;
 
 	public def run(): boolean = {
-		val objList = Rail.make[Object](N);
+		val objList = new Rail[Object](N);
 		val obj: Object = new Object();
 		var i: int = N - 1;
 		while (i > 0 && (obj != objList(i))) {

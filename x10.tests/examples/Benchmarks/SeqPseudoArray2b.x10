@@ -35,7 +35,7 @@ public class SeqPseudoArray2b extends Benchmark {
     // the benchmark
     //
 
-    final static class Arr[T] implements (int,int)=>T {
+    final static class Arr[T]  {T haszero} implements (int,int)=>T {
 
         val m0: int;
         val m1: int;
@@ -44,7 +44,7 @@ public class SeqPseudoArray2b extends Benchmark {
         def this(m0:int, m1:int) {
             this.m0 = m0;
             this.m1 = m1;
-            this.raw = Rail.make[T](m0*m1);
+            this.raw = new Array[T](m0*m1);
         }
         
         final operator this(i0: int, i1: int)=(v:T) {

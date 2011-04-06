@@ -34,8 +34,8 @@ public class Functions70 extends x10Test {
       var e : Int = 0;
       val f : Int = 0;
       val closure = (var i: Int, val j: Int) => {
-    	  return a + b + d + f + j + this.a + Lambda.this.a;
-          // ILLEGAL: return c + e + i;
+    	  return a + b + d + f + i + j + this.a + Lambda.this.a;
+          // c and e are not usable here
       };
       return closure;
    }

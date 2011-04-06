@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 
+import x10.array.Array;
 import x10.rtt.RuntimeType;
 
 public abstract class ThrowableUtilities {
@@ -127,13 +128,13 @@ public abstract class ThrowableUtilities {
         return 0;
     }
 
-    public static Rail<java.lang.String> getStackTrace(Throwable t) {
+    public static Array<java.lang.String> getStackTrace(Throwable t) {
         StackTraceElement[] elements = t.getStackTrace();
         java.lang.String str[] = new java.lang.String[elements.length];
         for (int i=0 ; i<elements.length ; ++i) {
             str[i] = elements[i].toString();
         }
-        return new Rail<java.lang.String>(new RuntimeType<java.lang.String>(java.lang.String.class),str.length,(Object)str);
+        return RailFactory.makeArrayFromJavaArray(new RuntimeType<java.lang.String>(java.lang.String.class), str);
     }
     
     public static void printStackTrace(Throwable t, Object/*x10.io.Printer*/ p) {

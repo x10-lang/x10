@@ -15,7 +15,7 @@
 
 #include <x10aux/io/FILEPtrOutputStream.h>
 
-#include <x10/lang/Rail.h>
+#include <x10/util/IndexedMemoryChunk.h>
 #include <x10/io/IOException.h>
 
 
@@ -36,7 +36,7 @@ void FILEPtrOutputStream::flush() {
     ::fflush(_stream);
 }
 
-void FILEPtrOutputStream::write(ref<Rail<x10_byte> > b,
+void FILEPtrOutputStream::write(x10::util::IndexedMemoryChunk<x10_byte> b,
                                 x10_int off, x10_int len) {
     ::fwrite(((x10_byte*)b->raw())+off*sizeof(x10_byte), sizeof(x10_byte), len*sizeof(x10_byte), _stream);
 }

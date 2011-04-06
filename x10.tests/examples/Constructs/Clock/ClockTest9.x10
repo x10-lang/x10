@@ -25,7 +25,7 @@ public class ClockTest9 extends x10Test {
 
 	public static N: int = 8;
 	public static M: int = 8;
-	val v  = Rail.make[int](N, 0);
+	val v  = new Rail[int](N, 0);
 
 	public def run(): boolean = {
 		finish async {

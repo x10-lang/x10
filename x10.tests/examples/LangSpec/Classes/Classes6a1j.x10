@@ -26,8 +26,8 @@ public class Classes6a1j extends x10Test {
     }
 
 
-// file Classes line 1343
- static  class Classes6a1j {
+// file Classes line 1356
+ static  class Whatever {
 
 static  class Trace(n:Int){
   public static operator !(f:Trace) = new Trace(10 * f.n + 1);

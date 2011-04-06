@@ -22,7 +22,7 @@ public class NullObjectToBox extends x10Test {
 	 
     public def run(): boolean = {
 	var array: Rail[Box[ValueClass]] 
-	  = Rail.make[Box[ValueClass]](1, (int):Box[ValueClass]=>null);
+	  = new Rail[Box[ValueClass]](1, (int):Box[ValueClass]=>null);
 	var v: Box[ValueClass] = array(0);
 	var nullableVarNull: Box[ValueClass] = null;
 

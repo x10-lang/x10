@@ -63,7 +63,7 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
         
         if(place == null){
             if(clocks.size() > 0){
-                Type clockRailType = xts.Rail(xts.Clock());
+                Type clockRailType = xts.Array(xts.Clock());
                 Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
                 exprs.add(clockRail);
                 types.add(clockRailType);
@@ -78,7 +78,7 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
             types.add(xts.Place());
             
             if(clocks.size() > 0){
-                Type clockRailType = xts.Rail(xts.Clock());
+                Type clockRailType = xts.Array(xts.Clock());
                 Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
                 exprs.add(clockRail);
                 types.add(clockRailType);

@@ -32,7 +32,7 @@ def example(flag:Boolean) {
   var x : Int;
   if (flag) x = 1;
   if (!flag) x = 2;
-  // Not Allowed: assert x < 3;
+  // ERROR: assert x < 3;
 }
 }
 

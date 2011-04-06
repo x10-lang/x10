@@ -26,7 +26,7 @@ public class Overview70 extends x10Test {
     }
 
 
-// file Overview line 305
+// file Overview line 308
 
  static class Overview7TestExp{
   def check(n:Int)  = n as Int{self != 0};  }

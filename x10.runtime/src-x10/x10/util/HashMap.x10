@@ -36,7 +36,7 @@ import x10.io.SerialData;
     }
     
     /** The actual table, must be of size 2**n */
-    var table: Rail[HashEntry[K,V]];
+    var table: IndexedMemoryChunk[HashEntry[K,V]];
     
     /** Number of non-null, non-removed entries in the table. */
     var size: Int;
@@ -70,7 +70,7 @@ import x10.io.SerialData;
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
     
-        table = Rail.make[HashEntry[K,V]](sz);
+        table = IndexedMemoryChunk.allocateZeroed[HashEntry[K,V]](sz);
         mask = sz - 1;
         size = 0;
         occupation = 0;
@@ -136,7 +136,7 @@ import x10.io.SerialData;
                         shouldRehash = true;
                     return e;
                 }
-                if (i - h > table.length) {
+                if (i - h > table.length()) {
                     if (i - h > MAX_PROBES)
                         shouldRehash = true;
                     return null;
@@ -147,7 +147,7 @@ import x10.io.SerialData;
     
     public def put(k: K, v: V): Box[V] = putInternal(k,v);
     @NonEscaping protected final def putInternal(k: K, v: V): Box[V] {
-        if (occupation == table.length || (shouldRehash && occupation >= table.length / 2))
+        if (occupation == table.length() || (shouldRehash && occupation >= table.length() / 2))
             rehashInternal();
 
         val h = hashInternal(k);
@@ -186,13 +186,13 @@ import x10.io.SerialData;
         modCount++;
         val t = table;
         val oldSize = size;
-        table = Rail.make[HashEntry[K,V]](t.length*2);
-        mask = table.length - 1;
+        table = IndexedMemoryChunk.allocateZeroed[HashEntry[K,V]](t.length()*2);
+        mask = table.length() - 1;
         size = 0;
         occupation = 0;
         shouldRehash = false;
 
-        for (var i: int = 0; i < t.length; i++) {
+        for (var i: int = 0; i < t.length(); i++) {
             if (t(i) != null && ! t(i).removed) {
                 putInternal(t(i).key, t(i).value);
                 shouldRehash = false;
@@ -235,7 +235,7 @@ import x10.io.SerialData;
         def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; originalModCount = map.modCount; } // you call advance() after the ctor
 
         def advance(): void {
-            while (i < map.table.length) {
+            while (i < map.table.length()) {
                if (map.table(i) != null && ! map.table(i).removed)
                    return;
                i++;
@@ -243,7 +243,7 @@ import x10.io.SerialData;
         }
         
         public def hasNext(): Boolean {
-            if (i < map.table.length) {
+            if (i < map.table.length()) {
 //              assert map.table(i) != null && ! map.table(i).removed : "map entry " + i + " is null or removed";
                 return true;
             }

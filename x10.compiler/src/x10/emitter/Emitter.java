@@ -2537,34 +2537,6 @@ public class Emitter {
 			Instanceof i = (Instanceof) e;
 			return hasEffects(i.expr());
 		}
-		// HACK: Rail.apply has no effects
-		if (e instanceof ClosureCall) {
-			ClosureCall c = (ClosureCall) e;
-			Expr target = c.target();
-			if (hasEffects(target))
-				return true;
-			for (Expr a : c.arguments()) {
-				if (hasEffects(a))
-					return true;
-			}
-			TypeSystem ts = tr.typeSystem();
-			if (ts.isRail(target.type()))
-				return false;
-		}
-		if (e instanceof Call) {
-			Call c = (Call) e;
-			Receiver target = c.target();
-			if (hasEffects(target))
-				return true;
-			for (Expr a : c.arguments()) {
-				if (hasEffects(a))
-					return true;
-			}
-			TypeSystem ts = tr.typeSystem();
-			if (c.name().id().equals(ClosureCall.APPLY))
-				if (ts.isRail(target.type()))
-					return false;
-		}
 		return true;
 	}
 
@@ -3194,87 +3166,12 @@ public class Emitter {
             }
         }
 
-        if (xts.isRail(c.target().type())) {
-            String methodName = c.methodInstance().name().toString();
-            if (methodName.equals("make")) {
-                Type rt = Types.baseType(c.type());
-                if (rt instanceof X10ClassType) {
-                    final Type pt = ((X10ClassType) rt).typeArguments().get(0);
-                    if (!(Types.baseType(pt) instanceof ParameterType)) {
-                        // for makeVaxRail(type,length,init);
-                        if (c.arguments().size() == 2 && c.arguments().get(0).type().isNumeric()) {
-                            Expr expr = c.arguments().get(1);
-                            if (expr instanceof Closure_c) {
-                                Closure_c closure = (Closure_c) expr;
-                                final List<Stmt> statements = closure.body().statements();
-                                Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-                                tr2 = tr2.context(expr.enterScope(tr2.context()));
-
-                                final Id id = closure.formals().get(0).name();
-                                Expander ex1 = new Expander(this) {
-                                    @Override
-                                    public void expand(Translator tr2) {
-                                        for (Stmt stmt : statements) {
-                                            if (stmt instanceof X10Return_c) {
-                                                w.write("array$");
-                                                w.write("[");
-                                                w.write(id.toString());
-                                                w.write("] = ");
-                                                er.prettyPrint(((X10Return_c) stmt).expr(), tr2);
-                                                w.write(";");
-                                            }
-                                            else {
-                                                er.prettyPrint(stmt, tr2);
-                                            }
-                                        }
-                                    }
-                                };
-
-                                Expander ex2 = new Expander(this) {
-                                    @Override
-                                    public void expand(Translator tr2) {
-                                        printType(pt, 0);
-                                        w.write("[] ");
-                                        w.write("array$ = new ");
-                                        printType(pt, 0);
-                                        w.write("[length$];");
-                                    }
-                                };
-
-                                Object[] components = {
-                                        new TypeExpander(this, c.target().type(), false, true, false),
-                                        new TypeExpander(this, pt, true, true, false),
-                                        new RuntimeTypeExpander(this, pt),
-                                        c.arguments().get(0),
-                                        ex1,
-                                        id,
-                                        ex2
-                                };
-                                dumpRegex("rail-make", components, tr2,
-                                          "(new " + X10PrettyPrinterVisitor.JAVA_IO_SERIALIZABLE + "() {" +
-                                          "final #0<#1> apply(int length$) {" +
-                                          "#6" + 
-                                          "for (int #5$ = 0; #5$ < length$; #5$++) {" +
-                                          "final int #5 = #5$;" +
-                                          "#4" +
-                                          "}" +
-                                          "return new #0<#1>(#2, length$, array$);" +
-                                          "}" +
-                                "}.apply(#3))");
-
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
         return false;
     }
 
     public boolean isMethodInlineTarget(TypeSystem xts, Type ttype) {
         ttype = Types.baseType(ttype);
-        if (!xts.isRail(ttype) && !isIMC(ttype)) {
+        if (!isIMC(ttype)) {
             return false;
         }
         if (!X10PrettyPrinterVisitor.hasParams(ttype)) {

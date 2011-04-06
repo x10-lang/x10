@@ -60,9 +60,9 @@ public abstract class Reader {
     public final def read[T](m: Marshal[T]): T //throws IOException 
     = m.read(this);
 
-    public final def read[T](m: Marshal[T], a: Rail[T]): void  //throws IOException 
-	= read[T](m, a, 0, a.length);
-    public final def read[T](m: Marshal[T], a: Rail[T], off: Int, len: Int): void //throws IOException 
+    public final def read[T](m: Marshal[T], a:Array[T](1)): void  //throws IOException 
+	= read[T](m, a, 0, a.size);
+    public final def read[T](m: Marshal[T], a:Array[T](1), off: Int, len: Int): void //throws IOException 
     {
         for (var i: Int = off; i < off+len; i++) {
             a(i) = read[T](m);
@@ -70,7 +70,7 @@ public abstract class Reader {
     }
     
     /*
-    public final def read[T](m: Marshal[T], a: Rail[T], region: Region{rank==1 /*,self in (0..a.length-1)* /}): void throws IOException {
+    public final def read[T](m: Marshal[T], a: Rail[T], region: Region{rank==1 /*,self in (0..a.size-1)* /}): void throws IOException {
         for ((i) in region) {
             a(i) = read[T](m);
         }

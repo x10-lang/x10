@@ -34,20 +34,18 @@ public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {
     /** Return type associated with the constructor. */
     Ref<? extends Type> returnType();
     
-    /** Return the constraint on properties, if any,
-     * obtained from the return type of the call
+    /** Return the return type of the call
      * to super in the body of this constructor. 
      * @return
      */
-    Ref<CConstraint> supClause();
-    
-    /** Set the constraint on properties obtained from
-     * the return type of the call to super. Set when type-checking
+    Type supType();
+
+    /** Set the return type of the call to super. Set when type-checking
      * the code in the body of the constructor for which this is the constructor instance.
-     * 
+     *
      * @param c
      */
-    void setSupClause(Ref<CConstraint> c);
+    void setSupType(Type t);
 
 //    /**
 //     * Return an instance of this, specialized with (a) any references

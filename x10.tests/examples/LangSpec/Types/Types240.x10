@@ -26,7 +26,7 @@ public class Types240 extends x10Test {
     }
 
 
-// file Types line 793
+// file Types line 794
 
  static class Example {
   static type Nonnull[T]{T <: Object}  = T{self!=null};

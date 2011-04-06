@@ -26,7 +26,7 @@ public class Expressions130 extends x10Test {
     }
 
 
-// file Expressions line 1321
+// file Expressions line 1378
  static class OrderedList[T]{T <: x10.util.Ordered[T]} {
   // ...
 }

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Vars_For_Stars;
+/* Current test harness gets confused by packages, but it would be in package Functions9u3u_Bad39_MustFailCompile;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,28 +19,30 @@ import harness.x10Test;
 
 
 
-public class Vars70_Bad37_MustFailCompile extends x10Test {
+public class Functions9u3u_Bad39_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Vars70_Bad37_MustFailCompile().execute();
+        new Functions9u3u_Bad39_MustFailCompile().execute();
     }
 
 
-// file Vars line 278
-abstract static  class VarsForStars{
- abstract def cointoss(): Boolean;
-def check() {
-  var muta : Int;
-  // ERROR:  println(muta);
-  muta = 4;
-  val use2A = muta * 10;
-  val immu : Int;
- println(immu); // ERR
-  if (cointoss())   {immu = 1;}
-  else              {immu = use2A;}
-  val use2B = immu * 10;
-  // ERROR: immu = 5;
-}}
+// file Functions line 407
+
+ // OK, we want to do the negative tests, but they don't work properly.
+ static  class Lambda {
+    var a : Int = 0;
+    val b = 0;
+    def m(var c : Int, val d : Int) {
+       var e : Int = 0;
+       val f : Int = 0;
+       val closure = (var i: Int, val j: Int) => {
+     	  // return a + b + d + f + j + this.a + Lambda.this.a;
+ return c; // ERR
+           // ERROR: return e;
+       };
+       return closure;
+    }
+ }
 
  static class Hook {
    def run():Boolean = true;

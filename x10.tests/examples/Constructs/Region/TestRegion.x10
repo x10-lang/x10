@@ -59,7 +59,7 @@ abstract public class TestRegion extends x10Test {
 
     class Grid {
 
-        var os: Rail[Object] = Rail.make[Object](10);
+        var os: Rail[Object] = new Rail[Object](10);
 
         def set(i0: int, vue: double): void = {
             os(i0) = new Box[double](vue);
@@ -78,16 +78,16 @@ abstract public class TestRegion extends x10Test {
         }
 
         def pr(rank: int): void = {
-            var min: int = os.length;
+            var min: int = os.size;
             var max: int = 0;
-            for (var i: int = 0; i<os.length; i++) {
+            for (var i: int = 0; i<os.size; i++) {
                 if (os(i)!=null) {
                     if (i<min) min = i;
                     else if (i>max) max = i;
                 }
             }
             Out : Printer = (out as GlobalRef[Printer]{self.home==here})();
-            for (var i: int = 0; i<os.length; i++) {
+            for (var i: int = 0; i<os.size; i++) {
                 var o: Object = os(i);
                 if (o==null) {
                     if (rank==1)
@@ -228,7 +228,7 @@ abstract public class TestRegion extends x10Test {
 
     public def reg(rank: int, var coeff: int, op: int, k: int): Region(rank) {
         coeff += ZERO;
-        val as_ = Rail.make[int](rank);
+        val as_ = new Rail[int](rank);
         for (var i: int = 0; i<rank; i++) {
             var a: int = (coeff&3) - 2;
             as_(i) = op==LE? a : - a;

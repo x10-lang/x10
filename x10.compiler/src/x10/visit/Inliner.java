@@ -32,6 +32,7 @@ import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
@@ -114,7 +115,6 @@ import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.MethodInstance;
 import x10.types.ParameterType;
-import x10.types.ReinstantiatedConstructorInstance;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -158,6 +158,7 @@ public class Inliner extends ContextVisitor {
     private final boolean INLINE_IMPLICIT;
     private final boolean INLINE_CONSTRUCTORS;
     private final boolean INLINE_STRUCT_CONSTRUCTORS;
+    private final boolean INLINE_GENERIC_CONSTRUCTORS;
     
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
@@ -192,8 +193,9 @@ public class Inliner extends ContextVisitor {
         INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
         INLINE_IMPLICIT  = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
         INLINE_CONSTRUCTORS = x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
-        INLINE_STRUCT_CONSTRUCTORS = false && INLINE_CONSTRUCTORS; // pretend the constructor for a struct is annotated @INLINE
- //     implicitMax      = config.EXPERIMENTAL ? 1 : 0;
+        INLINE_STRUCT_CONSTRUCTORS = false && config.INLINE_STRUCT_CONSTRUCTORS; // pretend the constructor for a struct is annotated @INLINE
+        INLINE_GENERIC_CONSTRUCTORS = true;
+        //     implicitMax      = config.EXPERIMENTAL ? 1 : 0;
         implicitMax      = 0;
     }
 
@@ -220,13 +222,11 @@ public class Inliner extends ContextVisitor {
     private String report(String msg, Node n) {
         String reason = msg;
         reasons.add(reason);
-        debug("not inlining because " + reason, n);
+        if (DEBUG) debug("not inlining because " + reason, n);
         return reason;
     }
 
     private static void debug(String msg, Node node) {
-        if (!DEBUG)
-            return;
         try {
             Thread.sleep(10);
             System.out.print("  DEBUG ");
@@ -300,7 +300,7 @@ public class Inliner extends ContextVisitor {
             Warnings.issue(this.job, "\nBegin inlining pass on " +s, node.position());
         }
         if (ExpressionFlattener.cannotFlatten(node, job)) { // TODO: check that flattening is actually required
-            debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
+            if (DEBUG) debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
             return node; // don't inline inside Nodes that cannot be Flattened
         }
         if (node instanceof ConstructorCall && !INLINE_CONSTRUCTORS) {
@@ -320,7 +320,7 @@ public class Inliner extends ContextVisitor {
         }
         if (node.ext() instanceof X10Ext) { // TODO: DEBUG only (remove this)
             if (!((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty()) { // short-circuit inlining decisions
-                debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
+                if (DEBUG) debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
                 return node;
             }
         }
@@ -707,7 +707,8 @@ public class Inliner extends ContextVisitor {
      *         declaration cannot be found, or the call should not be inlined
      */
     private ProcedureDecl getInlineDecl(InlinableCall call) {
-        debug("Should " + call + " be inlined?", call);
+        if (DEBUG) debug("Should " + call + " be inlined?", call);
+        Position pos = call.position(); // DEBUG
         if (annotationsPreventInlining(call)) {
             report("of annotation at call site", call);
             return null;
@@ -716,8 +717,14 @@ public class Inliner extends ContextVisitor {
         MemberDef candidate = getDef(call);
         // require inlining if either the call of the candidate are so annotated
         inliningRequired = annotationsRequireInlining(call, (X10MemberDef) candidate);
-        if (INLINE_STRUCT_CONSTRUCTORS && call instanceof ConstructorCall && ts.isStructType(candidate.container().get()))
-            inliningRequired = true;
+        if (call instanceof ConstructorCall) {
+            if (!INLINE_GENERIC_CONSTRUCTORS && !((ConstructorCall) call).typeArguments().isEmpty()) {
+                report("inlining not implemented for constructors with type args: " + ((ConstructorCall) call).typeArguments(), call);
+                return null;
+            }
+            if (INLINE_STRUCT_CONSTRUCTORS && ts.isStructType(candidate.container().get()))
+                inliningRequired = true;
+        }
         // short-circuit if inlining is not required and there is no implicit inlining
         if (!inliningRequired && !INLINE_IMPLICIT) {
             report("inlining not required for candidate: " +candidate, call);
@@ -991,12 +998,12 @@ public class Inliner extends ContextVisitor {
              * Source source = new Source(file, path, null); job = xts.extensionInfo().scheduler().addJob(source); }
              */
             if (null == job) {
-                debug("Unable to find or create job for method: " + candidate, null);
+                if (DEBUG) debug("Unable to find or create job for method: " + candidate, null);
                 return null;
             } else if (!getInlinerCache().okayJob(job)) {
                 return null;
             } else if (job != this.job()) {
-                debug("Looking for job: " + job, null);
+                if (DEBUG) debug("Looking for job: " + job, null);
             //  String source = container.fullName().toString().intern();
             //  String source = job.toString();
                 String source = job.source().toString().intern();
@@ -1012,11 +1019,11 @@ public class Inliner extends ContextVisitor {
                     if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
                         ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
                     if (null == ast) {
-                        debug("Unable to reconstruct AST for " + job, null);
+                        if (DEBUG) debug("Unable to reconstruct AST for " + job, null);
                         getInlinerCache().badJob(job);
                         return null;
                     }
-                    debug("Reconstructed AST for " + job, null);
+                    if (DEBUG) debug("Reconstructed AST for " + job, null);
                     job.ast(ast); // ASK: why does this work?
                     getInlinerCache().putAST(source, ast);
                 }
@@ -1024,7 +1031,7 @@ public class Inliner extends ContextVisitor {
             }
         } catch (Exception x) {
             String msg = "AST for job, " + job + " (for candidate " + candidate + ") does not typecheck (" + x + ")";
-            debug(msg, null);
+            if (DEBUG) debug(msg, null);
             SemanticException e = new SemanticException(msg, candidate.position());
             Errors.issue(job, e);
             getInlinerCache().badJob(job);
@@ -1060,15 +1067,15 @@ public class Inliner extends ContextVisitor {
                     }
                 });
         if (null == decl[0]) {
-            debug(report("declaration not found for " +candidate, null), null);
+            if (DEBUG) debug(report("declaration not found for " +candidate, null), null);
             return null;
         }
         if (null == decl[0].body()) {
-            debug(report("no declaration body for " +decl[0]+ " (" +candidate+ ")", null), null);
+            if (DEBUG) debug(report("no declaration body for " +decl[0]+ " (" +candidate+ ")", null), null);
             return null;
         }
         if (ExpressionFlattener.cannotFlatten(decl[0], job)) {
-            debug(report("unflattenable declaration body for " +decl[0]+ "  (" +candidate+ ")", null), null);
+            if (DEBUG) debug(report("unflattenable declaration body for " +decl[0]+ "  (" +candidate+ ")", null), null);
             return null;
         }
         return decl[0];
@@ -1179,7 +1186,7 @@ public class Inliner extends ContextVisitor {
 
     private CodeBlock instantiate(final CodeBlock code, InlinableCall call) {
         try {
-            debug("Instantiate " + code, call);
+            if (DEBUG) debug("Instantiate " + code, call);
             TypeParamSubst typeMap = makeTypeMap(call.procedureInstance());
             InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
@@ -1417,29 +1424,27 @@ public class Inliner extends ContextVisitor {
                                                      null /* the body will never be used */ );
         }
         
-    /**
-     * @param d
-     * @param argTypes
-     * @param formalNames
-     * @return
-     */
+        /**
+         * @param d
+         * @param argTypes
+         * @param formalNames
+         * @return
+         */
         private X10ConstructorDef createConstructorDef(X10ConstructorDecl d, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames) {
             X10ConstructorDef cd = d.constructorDef();
             DepParameterExpr g = d.guard();
             TypeNode ot = d.offerType();
-            ClassType container = (ClassType) Types.baseType((Type) cd.container().get());
-            ClassType returnType = (ClassType) Types.baseType((Type) d.returnType().type());
             return visitor().typeSystem().constructorDef(
                     cd.position(), 
-                    (Ref<? extends ClassType>) Types.ref(container), 
+                    cd.container(), 
                     cd.flags(), 
-                    (Ref<? extends ClassType>) Types.ref(returnType), 
+                    d.returnType().typeRef(), 
                     argTypes, 
                     cd.thisDef(), 
                     formalNames,
                     g == null ? null : g.valueConstraint(),
                     g == null ? null : g.typeConstraint(),
-                    ot == null ? null : (Ref<? extends Type>) ot.typeRef() );
+                    ot == null ? null : ot.typeRef() );
         }
     }
 
@@ -1450,19 +1455,23 @@ public class Inliner extends ContextVisitor {
     private TypeParamSubst makeTypeMap(ProcedureInstance<? extends ProcedureDef> instance) {
         List<Type> typeArgs = new ArrayList<Type>();
         List<ParameterType> typeParms = new ArrayList<ParameterType>();
-        typeArgs.addAll(instance.typeParameters());
-        typeParms.addAll(instance.def().typeParameters()); 
+        if (!(instance instanceof ConstructorInstance)) { // TODO: remove the condition, currently ConstructorInstances can have a mismatch between type parameters and type arguements but they shouldn't have either so we can ignore them
+            typeArgs.addAll(instance.typeParameters());
+            typeParms.addAll(instance.def().typeParameters()); 
+        }
         X10ClassType container = (X10ClassType) ((MemberInstance<? extends ProcedureDef>) instance).container();
         List<Type> cTypeArgs = container.typeArguments();
         if (cTypeArgs != null) {
             typeArgs.addAll(cTypeArgs);
             typeParms.addAll(container.x10Def().typeParameters());
         }
+        if (false) { // TODO enable this path
+            assert (typeArgs.size() == typeParms.size());
+            return new TypeParamSubst(ts, typeArgs, typeParms);
+        }
+        // NOTE: the rest of this method is a hack to handle a mismatch that should never occur
         if (typeArgs.size() == typeParms.size()) 
             return new TypeParamSubst(ts, typeArgs, typeParms);
-        if (instance instanceof ReinstantiatedConstructorInstance) {
-            return ((ReinstantiatedConstructorInstance) instance).typeParamSubst();
-        }
         String msg = "type args/parms mismatch in class " +instance.getClass();
         System.err.println("\nDEBUG: " +msg);
         System.err.println("\n\tposition = "  +instance.position());
@@ -1471,6 +1480,7 @@ public class Inliner extends ContextVisitor {
         System.err.println("\n\ttypeArgs = "  +typeArgs);
         System.err.println("\n\ttypeParms = " +typeParms);
         System.err.println();
+        assert false; // remove if we ever get here (remove this path if we don't)
         throw new InternalCompilerError(instance.position(), msg);
     }
 
@@ -1734,7 +1744,8 @@ public class Inliner extends ContextVisitor {
             for (int i=0; i < args.size(); i++) {
                 Expr arg = args.get(i);
                 X10FieldInstance prop = props.get(i);
-                stmts.add(syn.createEval(syn.createFieldAssign(n.position(), prop, arg, this)));
+                FieldAssign assign = syn.createFieldAssign(n.position(), getThis(n.position()), prop, arg, this);
+                stmts.add(syn.createEval(assign));
             }
             StmtSeq result = syn.createStmtSeq(n.position(), stmts);
             return result;

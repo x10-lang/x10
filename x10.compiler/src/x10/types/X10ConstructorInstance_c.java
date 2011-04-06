@@ -119,11 +119,6 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         return n;
     }
 
-    /** Constraint on superclass constructor call return type. */
-    public CConstraint supClause() { 
-        return Types.get(x10Def().supClause());
-    }
-
     @Override
     public X10ConstructorInstance container(ContainerType container) {
         if (container == this.container) return this;

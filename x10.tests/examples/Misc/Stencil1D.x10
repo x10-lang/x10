@@ -35,7 +35,7 @@ public class Stencil1D extends x10Test {
     }
 
     public def run() : boolean {
-       val A = Rail.make[Double](N+2, (int)=>0.0D); 
+       val A = new Rail[Double](N+2, (int)=>0.0D); 
        A(N+1) = N+1.0D;
        val blocks = block(1..N, P);
        for (; delta > epsilon; iters++) {
@@ -48,11 +48,11 @@ public class Stencil1D extends x10Test {
        return true;
     }
 
-    public static def block(R: Region(1), P:Int):Rail[Region(1)](P) = {
+    public static def block(R: Region(1), P:Int):Rail[Region(1)] = {
         assert P >=0;
         val low = R.min()(0), high = R.max()(0), count = high-low+1;
         val baseSize = count/P, extra = count - baseSize*P;
-        Rail.make[Region(1)](P, (i:int):Region(1) => {
+        new Rail[Region(1)](P, (i:int):Region(1) => {
           val start = low+i*baseSize+ (i < extra? i:extra);
           start..(start+baseSize+(i < extra?0:-1))
         })

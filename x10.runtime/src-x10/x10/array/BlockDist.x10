@@ -76,6 +76,8 @@ final class BlockDist extends Dist {
             newMin(axis) = low;
             newMax(axis) = hi;
             return new RectRegion(newMin, newMax);
+        } else if (region instanceof RectRegion1D) {
+            return new RectRegion1D(low, hi) as Region(rank);
         } else {
             // General case handled via region algebra
             val r1 = Region.makeFull(axis);

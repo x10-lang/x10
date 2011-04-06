@@ -404,19 +404,19 @@ public class TypeSystem_c implements TypeSystem
                 null, null,  offerType);
     }
 
-    public X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
+    public X10ConstructorDef constructorDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> returnType,
             List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard,
             Ref<? extends Type> offerType)
     {
         assert_(container);
         assert_(argTypes);
 
-        X10ClassType t = (X10ClassType) Types.get(returnType);
+        Type t = (Type) Types.get(returnType);
         assert t != null : "Cannot set return type of constructor to " + t;
         if (t==null)
             throw new InternalCompilerError("Cannot set return type of constructor to " + t);
         //t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
-        ((Ref<X10ClassType>)returnType).update(t);
+        ((Ref<Type>)returnType).update(t);
         //returnType = new Ref_c<X10ClassType>(t);
         return new X10ConstructorDef_c(this, pos, container, flags, returnType, argTypes, thisDef, formalNames, guard, typeGuard,  offerType);
     }
@@ -2204,14 +2204,6 @@ public class TypeSystem_c implements TypeSystem
         return AtomicInteger_;
     }
 
-    protected X10ClassType nativeRail_;
-
-    public X10ClassType Rail() {
-        if (nativeRail_ == null)
-            nativeRail_ = load("x10.lang.Rail");
-        return nativeRail_;
-    }
-
     // protected X10ClassType XOBJECT_;
     // public X10ClassType X10Object() {
     // if (XOBJECT_ == null)
@@ -2597,7 +2589,7 @@ public class TypeSystem_c implements TypeSystem
 
     public Type arrayOf(Position pos, Ref<? extends Type> type) {
         // Should be called only by the Java class file loader.
-        Type r = Rail();
+        Type r = Array();
         return Types.instantiate(r, type);
     }
     /**
@@ -3246,11 +3238,6 @@ public class TypeSystem_c implements TypeSystem
         if (t.isShort()) return 2l;
         if (t.isInt()) return 4l;
         if (t.isLong()) return 8l;
-        if (isRail(t)) {
-            X10ClassType ctyp = (X10ClassType)t;
-            assert ctyp.typeArguments().size() == 1;
-            return size(ctyp.typeArguments().get(0));
-        }
         return null;
     }
     
@@ -3666,20 +3653,6 @@ public class TypeSystem_c implements TypeSystem
         return new X10Context_c(this);
     }
 
-    
-
-    
-    public boolean isRail(Type t) {
-        return hasSameClassDef(t, Rail());
-    }
-
-    public boolean isRailOf(Type t, Type p) {
-        if (!isRail(t)) return false;
-        List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
-        assert (ta.size() == 1);
-        return ta.get(0).typeEquals(p, createContext());
-    }
-
     public boolean isArray(Type t) {
         return hasSameClassDef(t, Array());
     }
@@ -3717,11 +3690,6 @@ public class TypeSystem_c implements TypeSystem
             return ct1.def().equals(ct2.def());
         }
         return false;
-    }
-
-
-    public X10ClassType Rail(Type arg) {
-        return Types.instantiate(Rail(), arg);
     }
 
     public X10ClassType Array(Type arg) {
