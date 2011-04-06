@@ -167,7 +167,7 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
     /** 
      * Copy current data into an Array.
      */
-    public def toArray():Array[T](1){rect,rail,zeroBased} {
+    public def toArray():Rail[T] {
       return new Array[T](toIndexedMemoryChunk());
     }
 

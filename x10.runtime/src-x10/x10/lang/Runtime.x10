@@ -632,7 +632,7 @@ import x10.util.NoSuchElementException;
     /**
      * Run async at
      */
-    public static def runAsync(place:Place, clocks:Array[Clock](1){rail}, body:()=>void):void {
+    public static def runAsync(place:Place, clocks:Rail[Clock], body:()=>void):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();
@@ -668,7 +668,7 @@ import x10.util.NoSuchElementException;
     /**
      * Run async
      */
-    public static def runAsync(clocks:Array[Clock](1){rail}, body:()=>void):void {
+    public static def runAsync(clocks:Rail[Clock], body:()=>void):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();

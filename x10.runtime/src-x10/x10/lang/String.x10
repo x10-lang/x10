@@ -137,7 +137,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "x10.core.RailFactory.<java.lang.Character>makeArrayFromJavaArray(x10.rtt.Types.CHAR, (#0).toCharArray())")
     @Native("c++", "(#this)->chars()")
-    public native def chars():Array[Char](1){rail};
+    public native def chars():Rail[Char];
 
     /**
      * Encodes this String into a sequence of Bytes using the platform's default charset.
@@ -146,7 +146,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "x10.core.RailFactory.<java.lang.Byte>makeArrayFromJavaArray(x10.rtt.Types.BYTE, (#0).getBytes())")
     @Native("c++", "(#this)->bytes()")
-    public native def bytes():Array[Byte](1){rail};
+    public native def bytes():Rail[Byte];
 
     /**
      * Returns a new String that is a substring of this String.
@@ -349,7 +349,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     @Native("java", "x10.core.RailFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, (#0).split(#1))")
 //    @Native("java", "x10.core.StringAux.split((#0), (#1))")
     @Native("c++", "(#this)->split(#regex)")
-    public native def split(regex: String):Array[String](1){rail};
+    public native def split(regex: String):Rail[String];
 
 
     /**
