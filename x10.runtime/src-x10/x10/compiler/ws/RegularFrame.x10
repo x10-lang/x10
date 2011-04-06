@@ -14,15 +14,11 @@ public abstract class RegularFrame extends Frame {
     @Header public def this(up:Frame, ff:FinishFrame) {
         super(up);
         this.ff = ff;
-        @Ifndef("__CPP__") {
-            throwable = null;
-        }
     }
 
     @Ifdef("__CPP__")
     public def this(Int, o:RegularFrame) {
         super(o.up.realloc());
-        throwable = null;
         this.ff = o.ff.redirect;
     }
 

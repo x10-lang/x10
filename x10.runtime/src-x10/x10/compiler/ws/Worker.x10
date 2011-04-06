@@ -16,6 +16,8 @@ public final class Worker {
     public var fifo:Deque = deque; // hack to avoid stealing from null fifo
     public val lock = new Lock();
 
+    public var throwable:Throwable = null;
+    
     public def this(i:Int, workers:Rail[Worker]) {
         random = new Random(i + (i << 8) + (i << 16) + (i << 24));
         this.workers = workers;
@@ -150,5 +152,13 @@ public final class Worker {
             stop();
         }
         ff.check();
+    }
+
+    public def rethrow() {
+        if (null != throwable) {
+            val t = throwable;
+            throwable = null;
+            throw t;
+        }
     }
 }

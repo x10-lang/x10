@@ -149,9 +149,8 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
    }
 
     protected Stmt genRethrowStmt() throws SemanticException{
-        //fast path: //upcast[_async,AsyncFrame](this).poll(worker);
-        
-        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, getThisRef(), RETHROW.toString());
+        Expr workerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
+        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, workerRef, RETHROW.toString());
         return icSynth.genStmt();
     }
 }
