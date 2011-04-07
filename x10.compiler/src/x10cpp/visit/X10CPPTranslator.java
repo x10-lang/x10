@@ -210,11 +210,12 @@ public class X10CPPTranslator extends Translator {
 		        // [DC] avoid NPE when parent is null, e.g. generating initialisation for cuda shm
 		        if (lineNumberMap != null && parent != null) {
 		            final MemberDef def =
-		                (n instanceof Block) ?
-		                    (parent instanceof MethodDecl) ? ((MethodDecl) parent).methodDef() :
-		                    (parent instanceof ConstructorDecl) ? ((ConstructorDecl) parent).constructorDef()
-		                    : null
-		                : null;
+		            	(n instanceof ConstructorDecl) ?
+		            		((ConstructorDecl) n).constructorDef() :
+			                (n instanceof Block) ?
+			                    (parent instanceof MethodDecl) ? ((MethodDecl) parent).methodDef() 
+			                : null
+			             : null;
 		            final int lastX10Line = parent.position().endLine();
 		            if (n instanceof Stmt || n instanceof ProcedureDecl)
 	                {
@@ -256,14 +257,19 @@ public class X10CPPTranslator extends Translator {
 		            else if (def != null)
 		            {
 		            	// include method arguments in the local variable tables
-		            	List<Formal> args = ((ProcedureDecl)parent).formals();
+		            	ProcedureDecl defSource;
+		            	if (n instanceof ConstructorDecl)
+		            		defSource = (ProcedureDecl)n;
+		            	else
+		            		defSource = (ProcedureDecl)parent;
+		            	List<Formal> args = defSource.formals();
 		            	for (int i=0; i<args.size(); i++)
 		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false, -1, false);
 		            	// include "this" for non-static methods		            	
-		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable() && !c.inTemplate())
+		            	if (!def.flags().isStatic() && defSource.reachable() && !c.inTemplate())
 		            	{
 		            		boolean isStruct = context.currentClass().isX10Struct();
-		            		if (!parent.position().isCompilerGenerated())
+		            		if (!defSource.position().isCompilerGenerated())
 		            			lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true, -1, isStruct);
 		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct);
 		            	}
