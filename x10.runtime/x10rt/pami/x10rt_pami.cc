@@ -990,6 +990,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
+	// note: this malloc gets freed when the response comes in
 	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*)malloc(sizeof(struct x10rt_pami_header_data));
 	if (header == NULL) error("Unable to allocate memory for a send_get header");
 	header->data_len = len;
@@ -1006,45 +1007,37 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	}
 	else
 		header->x10msg.msg = NULL;
-	header->callbackPtr = header; // senging this along with the data
+	header->callbackPtr = header; // sending this along with the data
 
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a GET message from place %u to %u, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, len, buf, (void*)header);
 	#endif
 
-	volatile unsigned get_active = 1;
 	pami_send_t parameters;
 	parameters.send.dispatch        = GET;
 	parameters.send.header.iov_base = header;
 	parameters.send.header.iov_len  = sizeof(struct x10rt_pami_header_data);
-	parameters.send.data.iov_base   = p->msg;
-	parameters.send.data.iov_len    = p->len;
+	parameters.send.data.iov_base   = header->x10msg.msg;
+	parameters.send.data.iov_len    = header->x10msg.len;
 	parameters.send.dest 			= target;
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-	parameters.events.cookie        = (void*)&get_active;
-	parameters.events.local_fn      = cookie_decrement;
+	parameters.events.cookie        = NULL;
+	parameters.events.local_fn      = NULL;
 	parameters.events.remote_fn     = NULL;
 
-	pami_context_t context;
 	if (state.numParallelContexts)
-		context = getConcurrentContext();
+	{
+		if ((status = PAMI_Send(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
+			error("Unable to send a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+	}
 	else
 	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a PUT message");
+		status = PAMI_Context_lock(state.context[0]);
+		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a GET message");
+		if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
+			error("Unable to send a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+		PAMI_Context_unlock(state.context[0]);
 	}
-
-	if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
-		error("Unable to send a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-
-	// hold up until the message has been copied out
-	while (get_active)
-		PAMI_Context_advance(context, 10);
-
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
-
 	#ifdef DEBUG
 		fprintf(stderr, "GET message sent from place %u to %u, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, len, buf, (void*)header);
 	#endif
