@@ -369,7 +369,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 ParameterType tp = typeParameters.get(p);
                 // FIXME: [IP] this is a hack.  We should really rename type parameters.
                 NodeFactory xnf = (NodeFactory) nf;
-                typeParamNodes.add(xnf.TypeParamNode(tp.position(), xnf.Id(tp.position(), tp.name()), variances.get(p)).type(tp));
+                Position genPos = tp.position().markCompilerGenerated();
+                typeParamNodes.add(xnf.TypeParamNode(genPos, xnf.Id(genPos, tp.name()), variances.get(p)).type(tp));
             }
             if (!typeParameters.isEmpty()) {
                 cd = cd.typeParameters(typeParamNodes);
@@ -396,7 +397,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 if (classMember instanceof ConstructorDecl) {
                     ArrayList<Stmt> statements = new ArrayList<Stmt>();
                     for (X10FieldDecl fieldD : fieldDs) {
-                        Position pos = fieldD.position();
+                        Position pos = fieldD.position().markCompilerGenerated();
                         FieldDef fi = fieldD.fieldDef();
                         FieldAssign a = nf.FieldAssign(pos, nf.This(pos).type(fi.asInstance().container()), nf.Id(pos, fi.name()), Assign.ASSIGN, fieldD.init());
                         a = (FieldAssign) a.type(fi.asInstance().type());
@@ -495,7 +496,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
         List<Type> tArgs = qt.typeArguments();
         if (tArgs != null && !tArgs.isEmpty()) {
             for (Type ta : tArgs) {
-                typeArguments.add(nf.CanonicalTypeNode(q.position(), ta));
+                typeArguments.add(nf.CanonicalTypeNode(q.position().markCompilerGenerated(), ta));
             }
             xneu = xneu.typeArguments(typeArguments);
             // Object type has already been transformed by the visitor.
