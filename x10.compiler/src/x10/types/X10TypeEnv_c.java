@@ -1144,6 +1144,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             return t2.isVoid();
         if (t2.isVoid())
             return false;
+
+    	if (ts.isUnknown(t1) || ts.isUnknown(t2)) return true;
           
         if (((TypeObject) t1).equalsImpl((TypeObject) t2))
             return true;
