@@ -98,7 +98,7 @@ public class X10Local_c extends Local_c {
 
             // initialization in an "at" is also considered async-init by the backend
             if (context.localHasAt(liName))
-                ((X10LocalDef)localInstance().def()).setAsyncInit();
+                ((X10LocalDef)li.def()).setAsyncInit();
         }
 
     }
