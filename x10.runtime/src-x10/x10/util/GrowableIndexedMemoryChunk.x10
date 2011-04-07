@@ -150,9 +150,8 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
         return tmp;
     }
 
-    public def moveSectionToArray(i:Int, j:Int) {
-        val tmp = moveSectionToIndexedMemoryChunk(i, j);
-        return new Array[T](0..(tmp.length()-1), tmp);
+    public def moveSectionToArray(i:Int, j:Int):Rail[T] {
+        return new Array[T](moveSectionToIndexedMemoryChunk(i, j));
     }
 
     /**
