@@ -265,6 +265,18 @@ static void free_buffered_data (pami_context_t   context,
 	free(bd);
 }
 
+static void free_header_data (pami_context_t   context,
+        void          * cookie,
+        pami_result_t    result)
+{
+	if (result != PAMI_SUCCESS)
+	error("Error detected in free_header_data");
+	x10rt_pami_header_data *hd = (x10rt_pami_header_data*)cookie;
+	if (hd->x10msg.len > 0)
+		free(hd->x10msg.msg);
+	free(hd);
+}
+
 /*
  * When a standard message is too large to fit in one transmission block, it gets broken up.
  * This method handles the final part of these messages (local_msg_dispatch handles the first part)
@@ -878,56 +890,90 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
-	struct x10rt_pami_header_data header;
-	header.x10msg.type = p->type;
-	header.x10msg.dest_place = p->dest_place;
-	header.x10msg.len = p->len;
-	header.data_len = len;
-	header.data_ptr = buf;
+	if (sizeof(struct x10rt_pami_header_data) + p->len <= state.sendImmediateLimit)
+	{
+		struct x10rt_pami_header_data header;
+		header.x10msg.type = p->type;
+		header.x10msg.dest_place = p->dest_place;
+		header.x10msg.len = p->len;
+		header.data_len = len;
+		header.data_ptr = buf;
 
-	volatile unsigned put_active = 1;
-	pami_send_t parameters;
-	parameters.send.dispatch        = PUT;
-	parameters.send.header.iov_base = &header;
-	parameters.send.header.iov_len  = sizeof(struct x10rt_pami_header_data);
-	parameters.send.data.iov_base   = p->msg;
-	parameters.send.data.iov_len    = p->len;
-	parameters.send.dest 			= target;
-	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-	parameters.events.cookie		= (void*)&put_active;
-	parameters.events.local_fn		= cookie_decrement;
-	parameters.events.remote_fn     = NULL;
+		pami_send_immediate_t parameters;
+		parameters.dispatch        = PUT;
+		parameters.header.iov_base = &header;
+		parameters.header.iov_len  = sizeof(struct x10rt_pami_header_data);
+		parameters.data.iov_base   = p->msg;
+		parameters.data.iov_len    = p->len;
+		parameters.dest            = target;
+		memset(&parameters.hints, 0, sizeof(pami_send_hint_t));
 
-	#ifdef DEBUG
-		fprintf(stderr, "Preparing to send a PUT message from place %u to %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->type, p->len, len, buf);
-	#endif
+		#ifdef DEBUG
+			fprintf(stderr, "Preparing to send an immediate PUT message from place %u to %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->type, p->len, len, buf);
+		#endif
 
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
+		if (state.numParallelContexts)
+		{
+			if ((status = PAMI_Send_immediate(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
+				error("Unable to send a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+		}
+		else
+		{
+			status = PAMI_Context_lock(state.context[0]);
+			if (status != PAMI_SUCCESS) error("Unable to lock the context to send a PUT message");
+			if ((status = PAMI_Send_immediate(state.context[0], &parameters)) != PAMI_SUCCESS)
+				error("Unable to send a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+			PAMI_Context_unlock(state.context[0]);
+		}
+	}
 	else
 	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a PUT message");
+		struct x10rt_pami_header_data *header = (struct x10rt_pami_header_data *)malloc(sizeof(struct x10rt_pami_header_data));
+		if (header == NULL) error("Unable to allocate memory for a PUT header");
+		if (p->len > 0)
+		{
+			header->x10msg.msg = malloc(p->len);
+			if (header->x10msg.msg == NULL) error("Unable to allocate memory for a PUT header message");
+			memcpy(header->x10msg.msg, p->msg, p->len);
+		}
+		else
+			header->x10msg.msg = NULL;
+		header->x10msg.type = p->type;
+		header->x10msg.dest_place = p->dest_place;
+		header->x10msg.len = p->len;
+		header->data_len = len;
+		header->data_ptr = buf;
+
+		pami_send_t parameters;
+		parameters.send.dispatch        = PUT;
+		parameters.send.header.iov_base = header;
+		parameters.send.header.iov_len  = sizeof(struct x10rt_pami_header_data);
+		parameters.send.data.iov_base   = header->x10msg.msg;
+		parameters.send.data.iov_len    = header->x10msg.len;
+		parameters.send.dest 			= target;
+		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+		parameters.events.cookie		= (void*)header;
+		parameters.events.local_fn		= free_header_data;
+		parameters.events.remote_fn     = NULL;
+
+		#ifdef DEBUG
+			fprintf(stderr, "Preparing to send a PUT message from place %u to %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->type, p->len, len, buf);
+		#endif
+
+		if (state.numParallelContexts)
+		{
+			if ((status = PAMI_Send(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
+				error("Unable to send a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+		}
+		else
+		{
+			status = PAMI_Context_lock(state.context[0]);
+			if (status != PAMI_SUCCESS) error("Unable to lock the context to send a PUT message");
+			if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
+				error("Unable to send a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+			PAMI_Context_unlock(state.context[0]);
+		}
 	}
-
-	if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
-		error("Unable to send a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-
-	#ifdef DEBUG
-		fprintf(stderr, "(%u) PUT Before advance\n", state.myPlaceId);
-	#endif
-	// hold up until the message and data has been copied out
-	while (put_active)
-		PAMI_Context_advance(context, 10);
-
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
-
-	#ifdef DEBUG
-		fprintf(stderr, "(%u) PUT After advance\n", state.myPlaceId);
-	#endif
 }
 
 /** \see #x10rt_lgl_send_msg
@@ -1124,6 +1170,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	pami_result_t status = PAMI_ERROR;
 
 	// This bit of removable code is here to verify that the runtime is NOT requesting a team with the same place in it more than once.
+	// TODO - remove when satisfied as stable
 	for (unsigned i=0; i<placec; i++)
 		for (unsigned j=i+1; j<placec; j++)
 			if (placev[i] == placev[j])
