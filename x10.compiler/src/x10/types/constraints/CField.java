@@ -22,9 +22,8 @@ import x10.types.X10MethodDef;
  * An XField with type information (either a MethodDef or a FieldDef).
  * 
  * @author vj
- *
  */
-public class CField  extends XField<Def> {
+public class CField extends XField<Def> {
     // lazily initialized
     private String string;
     private String getString() {
@@ -34,7 +33,7 @@ public class CField  extends XField<Def> {
                 string = Types.get(fi.container()) + "#" + fi.name().toString()+ "()";
             } else {
                 FieldDef fi = (FieldDef)field;
-                string = Types.get(fi.container()) + "#" + fi.name().toString()+ "()";   
+                string = Types.get(fi.container()) + "#" + fi.name().toString();
             }
         }
         return string;
