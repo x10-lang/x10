@@ -216,7 +216,7 @@ public class X10CPPTranslator extends Translator {
 			                    (parent instanceof MethodDecl) ? ((MethodDecl) parent).methodDef() 
 			                : null
 			             : null;
-		            final int lastX10Line = parent.position().endLine();
+		            final int lastX10Line = (n instanceof ConstructorDecl)? n.position().endLine() : parent.position().endLine();
 		            if (n instanceof Stmt || n instanceof ProcedureDecl)
 	                {
 		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
