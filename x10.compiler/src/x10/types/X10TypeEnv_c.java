@@ -795,7 +795,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	if (t1 == t2) 
     		return true;
 
-    	if (ts.hasUnknown(t1) || ts.hasUnknown(t2)) return true;
+    	if (ts.isUnknown(t1) || ts.isUnknown(t2)) return true; // used to be hasUnknown, which checks whether any part of the type is unknown, but it is inefficient (it is enough to check just the base type for unknown).
 
     	if (t1.isVoid())
     		return t2.isVoid();

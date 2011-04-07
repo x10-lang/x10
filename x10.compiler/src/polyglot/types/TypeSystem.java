@@ -1054,8 +1054,6 @@ public interface TypeSystem {
     X10ClassType CustomSerialization();
     X10ClassType SerialData();
 
-    boolean isSettable(Type me);
-
     boolean isAny(Type me);
 
     boolean isStruct(Type me);
