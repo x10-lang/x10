@@ -20,7 +20,6 @@ import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Term;
-import polyglot.ast.TypeNode;
 import polyglot.ast.Formal;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
@@ -48,24 +47,37 @@ import x10.types.checker.PlaceChecker;
 import x10.errors.Errors;
 
 
-/** A <code>AtExp </code> is a representation of the X10 at construct:
+/** A <code>AtExpr</code> is a representation of the X10 at construct:
  * <code>at (place) { expression }<code>
  * stmts are used to represent the fully exploded version of the expression
  * as might be needed in order to inline array expressions.
  * @author ??
  * @author vj 08/30/09 - Refactored out PlacedClosure.
  */
-public class AtExpr_c extends Closure_c
-    implements AtExpr {
+public class AtExpr_c extends Closure_c implements AtExpr {
 
 	protected Expr place;
-    public AtExpr_c(NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
-	    super(nf, p, Collections.<Formal>emptyList(), returnType, null,
-				offerType, body);
-        assert place!=null;
-		this.place = place;
-    }
+	protected List<Node> captures;
 
+	public AtExpr_c(NodeFactory nf, Position p, Expr place, Block body) {
+	    this(nf, p, place, null, body);
+	}
+
+	public AtExpr_c(NodeFactory nf, Position p, Expr place, List<Node> captures, Block body) {
+	    super(nf, p, Collections.<Formal>emptyList(), nf.UnknownTypeNode(p), null, null, body);
+		this.place = place;
+		this.captures = captures;
+	}
+
+	public List<Node> captures() {
+	    return captures;
+	}
+
+	public AtExpr_c captures(List<Node> captures) {
+	    AtExpr_c n = (AtExpr_c) copy();
+	    n.captures = captures;
+	    return n;
+	}
 
 	/** Get the RemoteActivity's place. */
 	public Expr place() {
@@ -73,19 +85,21 @@ public class AtExpr_c extends Closure_c
 	}
 
 	/** Set the RemoteActivity's place. */
-	public RemoteActivityInvocation place(Expr place) {
-        assert place!=null;
-		this.place = place;
-		return this;
+	public AtExpr_c place(Expr place) {
+	    if (place == this.place) return this;
+	    assert place!=null;
+	    AtExpr_c n = (AtExpr_c) copy();
+		n.place = place;
+		return n;
 	}
 
-	  /** Visit the children of the expression.
+    /** Visit the children of the expression.
      * vj: TODO: I use a hack below to bypass
      * visiting the embedded stmt if the visitor is a ReachChecker.
      * Otherwise a reach error is generated that is in fact spurious.
      * There must be a way to convince the ReachChecker legitimately that this statement
      * is reachable if the future is reachable.
-     * */
+     */
     public Node visitChildren( NodeVisitor v ) {
     	Expr place = (Expr) visitChild( this.place, v );
     	AtExpr_c n = (AtExpr_c) super.visitChildren(v);

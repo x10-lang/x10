@@ -110,6 +110,7 @@
     assert
     async
     at
+    athome
     ateach
     atomic
     break
@@ -194,6 +195,11 @@
               | a t
         /.$BeginAction
                 $setResult($_at);
+          $EndAction
+        ./
+              | a t h o m e
+        /.$BeginAction
+                $setResult($_athome);
           $EndAction
         ./
               | a t e a c h

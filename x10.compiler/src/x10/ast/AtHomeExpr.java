@@ -13,12 +13,14 @@ package x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.Expr;
 import polyglot.ast.Node;
 
 /**
- * The AST node for the X10 construct at (P) {e}
+ * The AST node for the X10 construct athome (vars) {e}
  */
-public interface AtExpr extends PlacedClosure {
-    List<Node> captures();
-    AtExpr captures(List<Node> vars);
+public interface AtHomeExpr extends AtHome, AtExpr {
+    /** Set the variables whose location this athome references. */
+    AtHomeExpr home(List<Expr> vars);
+    AtHomeExpr captures(List<Node> vars);
 }

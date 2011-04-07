@@ -95,6 +95,8 @@ import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
 import x10.ast.AtEach_c;
 import x10.ast.AtExpr_c;
+import x10.ast.AtHomeExpr_c;
+import x10.ast.AtHomeStmt_c;
 import x10.ast.AtStmt_c;
 import x10.ast.Atomic_c;
 import x10.ast.ClosureCall_c;
@@ -200,6 +202,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Case_c) { visit((Case_c)n); return; }
 		if (n instanceof Branch_c) { visit((Branch_c)n); return; }
 		if (n instanceof Atomic_c) { visit((Atomic_c)n); return; }
+		if (n instanceof AtHomeStmt_c) { visit((AtHomeStmt_c)n); return; }
 		if (n instanceof AtStmt_c) { visit((AtStmt_c)n); return; }
 		if (n instanceof Async_c) { visit((Async_c)n); return; }
 		if (n instanceof AssignPropertyCall_c) { visit((AssignPropertyCall_c)n); return; }
@@ -267,6 +270,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof ArrayInit_c) { visit((ArrayInit_c)n); return; }
 		if (n instanceof ArrayAccess_c) { visit((ArrayAccess_c)n); return; }
 		if (n instanceof AmbExpr_c) { visit((AmbExpr_c)n); return; }
+		if (n instanceof AtHomeExpr_c) { visit((AtHomeExpr_c)n); return; }
 		if (n instanceof AtExpr_c) { visit((AtExpr_c)n); return; }
 		if (n instanceof Closure_c) { visit((Closure_c)n); return; }
 		if (n instanceof ClosureCall_c) { visit((ClosureCall_c)n); return; }
@@ -367,6 +371,7 @@ public class X10DelegatingVisitor {
 					public void visit(X10Unary_c n) { visit((Unary_c)n); }
 				public void visit(Closure_c n) { visit((Expr_c)n); }
 					public void visit(AtExpr_c n) { visit((Expr_c)n); }
+						public void visit(AtHomeExpr_c n) { visit((AtExpr_c)n); }
 				public void visit(ClosureCall_c n) { visit((Expr_c)n); }
 				public void visit(StmtExpr_c n) { visit((Expr_c)n); }
 			public void visit(FieldDecl_c n) { visit((Term_c)n); }
@@ -385,6 +390,7 @@ public class X10DelegatingVisitor {
 				public void visit(Assert_c n) { visit((Stmt_c)n); }
 				public void visit(AssignPropertyCall_c n) { visit((Stmt_c)n); }
 				public void visit(AtStmt_c n) { visit((Stmt_c)n); }
+					public void visit(AtHomeStmt_c n) { visit((AtStmt_c)n); }
 				public void visit(Async_c n) { visit((Stmt_c)n); }
 				public void visit(Atomic_c n) { visit((Stmt_c)n); }
 				public void visit(Branch_c n) { visit((Stmt_c)n); }

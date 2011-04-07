@@ -200,7 +200,7 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return Block(statement.position(), l);
 	}
 
-	// Wrap the body of the async in a Block so as to ease further code transforamtions.
+	// Wrap the body of the async in a Block so as to ease further code transformations.
 	public Async Async(Position pos, List<Expr> clocks, Stmt body) {
 		Async a = new Async_c(pos,  clocks, asBlock(body));
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
@@ -217,7 +217,7 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		a = (Async) a.del(del_fac.delAsyncImpl());
 		return a;
 	}
-	// Wrap the body of the async in a Block so as to ease further code transforamtions.
+	// Wrap the body of the at in a Block so as to ease further code transformations.
 	public AtStmt AtStmt(Position pos, Expr place, Stmt body) {
 		AtStmt a = new AtStmt_c(pos, place, asBlock(body));
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
@@ -225,6 +225,31 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
 		a = (AtStmt) a.del(del_fac.delAsyncImpl());
 		return a;
+	}
+	public AtStmt AtStmt(Position pos, Expr place, List<Node> captures, Stmt body) {
+	    AtStmt a = new AtStmt_c(pos, place, captures, asBlock(body));
+	    X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+	    a = (AtStmt) a.ext(ext_fac.extAsyncImpl());
+	    X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+	    a = (AtStmt) a.del(del_fac.delAsyncImpl());
+	    return a;
+	}
+
+	public AtHomeStmt AtHomeStmt(Position pos, List<Expr> vars, Stmt body) {
+	    AtHomeStmt a = new AtHomeStmt_c(pos, vars, asBlock(body));
+	    X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+	    a = (AtHomeStmt) a.ext(ext_fac.extAsyncImpl());
+	    X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+	    a = (AtHomeStmt) a.del(del_fac.delAsyncImpl());
+	    return a;
+	}
+	public AtHomeStmt AtHomeStmt(Position pos, List<Expr> vars, List<Node> captures, Stmt body) {
+	    AtHomeStmt a = new AtHomeStmt_c(pos, vars, captures, asBlock(body));
+	    X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+	    a = (AtHomeStmt) a.ext(ext_fac.extAsyncImpl());
+	    X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+	    a = (AtHomeStmt) a.del(del_fac.delAsyncImpl());
+	    return a;
 	}
 
 	// Wrap the body of an atomic in a block to facilitate code transformation.
@@ -235,18 +260,40 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return a;
 	}
 	
-	public AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body) {
-		return AtExpr(pos, place, returnType, null, body);
-	}
-	public AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
-		AtExpr f = new AtExpr_c(this, pos, place, returnType,offerType, body);
+	public AtExpr AtExpr(Position pos, Expr place, Block body) {
+		AtExpr f = new AtExpr_c(this, pos, place, body);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		f = (AtExpr) f.ext(ext_fac.extExpr()); // FIXME
         X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
         f = (AtExpr) f.del(del_fac.delFutureImpl()); // FIXME
 		return f;
 	}
+	public AtExpr AtExpr(Position pos, Expr place, List<Node> captures, Block body) {
+	    AtExpr f = new AtExpr_c(this, pos, place, captures, body);
+	    X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+	    f = (AtExpr) f.ext(ext_fac.extExpr()); // FIXME
+	    X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+	    f = (AtExpr) f.del(del_fac.delFutureImpl()); // FIXME
+	    return f;
+	}
 
+	public AtHomeExpr AtHomeExpr(Position pos, List<Expr> vars, Block body) {
+	    AtHomeExpr f = new AtHomeExpr_c(this, pos, vars, body);
+	    X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+	    f = (AtHomeExpr) f.ext(ext_fac.extExpr()); // FIXME
+	    X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+	    f = (AtHomeExpr) f.del(del_fac.delFutureImpl()); // FIXME
+	    return f;
+	}
+	public AtHomeExpr AtHomeExpr(Position pos, List<Expr> vars, List<Node> captures, Block body) {
+	    AtHomeExpr f = new AtHomeExpr_c(this, pos, vars, captures, body);
+	    X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+	    f = (AtHomeExpr) f.ext(ext_fac.extExpr()); // FIXME
+	    X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+	    f = (AtHomeExpr) f.del(del_fac.delFutureImpl()); // FIXME
+	    return f;
+	}
+	
 	public Here Here(Position pos) {
 		Here f = new Here_c(pos);
 		f = (Here) f.ext(extFactory().extStmt());

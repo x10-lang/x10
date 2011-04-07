@@ -1081,6 +1081,47 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr VariableInitializer = (Expr) _VariableInitializer;
         setResult(new Object[] { pos(), Identifier, Collections.<Id>emptyList(), HasResultTypeopt, VariableInitializer });
     }
+    // Production: AtCaptureDeclarator ::= Modifiersopt VarKeywordopt VariableDeclarator
+    void rule_AtCaptureDeclarator0(Object _Modifiersopt, Object _VarKeywordopt, Object _VariableDeclarator) {
+        List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
+        List<FlagsNode> VarKeywordopt = (List<FlagsNode>) _VarKeywordopt;
+        Object[] VariableDeclarator = (Object[]) _VariableDeclarator;
+        List<Node> modifiers = checkVariableModifiers(Modifiersopt);
+        FlagsNode fn = VarKeywordopt==null ? extractFlags(modifiers, Flags.FINAL) : extractFlags(modifiers, VarKeywordopt);
+        Object[] o = VariableDeclarator;
+        Position pos = (Position) o[0];
+        Id name = (Id) o[1];
+        if (name == null) name = nf.Id(pos, Name.makeFresh());
+        List<Id> exploded = (List<Id>) o[2];
+        DepParameterExpr guard = (DepParameterExpr) o[3];
+        TypeNode type = (TypeNode) o[4];
+        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+        Expr init = (Expr) o[5];
+        LocalDecl ld = nf.LocalDecl(pos, fn, type, name, init, exploded);
+        ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
+        if (exploded.size()>0 && init==null) {
+            syntaxError("An exploded point must have an initializer.",pos);
+        }
+        setResult(ld);
+    }
+    // Production: AtCaptureDeclarator ::= Identifier
+    void rule_AtCaptureDeclarator1(Object _Identifier) {
+        Id Identifier = (Id) _Identifier;
+        setResult(Identifier);
+    }
+    // Production: AtCaptureDeclarator ::= this
+    void rule_AtCaptureDeclarator2() {
+        setResult(nf.This(pos()));
+    }
+    // Production: HomeVariable ::= Identifier
+    void rule_HomeVariable0(Object _Identifier) {
+        Id Identifier = (Id) _Identifier;
+        setResult(nf.Local(pos(), Identifier));
+    }
+    // Production: HomeVariable ::= this
+    void rule_HomeVariable1() {
+        setResult(nf.This(pos()));
+    }
     // Production: OperatorFunction ::= TypeName '.' '+'
     void rule_OperatorFunction0(Object _TypeName) {
         noMethodSelection();
@@ -1744,6 +1785,34 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Object[] VariableDeclarator = (Object[]) _VariableDeclarator;
         VariableDeclarators.add(VariableDeclarator);
         // setResult(VariableDeclarators);
+    }
+    // Production: AtCaptureDeclarators ::= AtCaptureDeclarator
+    void rule_AtCaptureDeclarators0(Object _AtCaptureDeclarator) {
+        Node AtCaptureDeclarator = (Node) _AtCaptureDeclarator;
+        List<Node> l = new TypedList<Node>(new LinkedList<Node>(), Node.class, false);
+        l.add(AtCaptureDeclarator);
+        setResult(l);
+    }
+    // Production: AtCaptureDeclarators ::= AtCaptureDeclarators ',' AtCaptureDeclarator
+    void rule_AtCaptureDeclarators1(Object _AtCaptureDeclarators, Object _AtCaptureDeclarator) {
+        List<Node> AtCaptureDeclarators = (List<Node>) _AtCaptureDeclarators;
+        Node AtCaptureDeclarator = (Node) _AtCaptureDeclarator;
+        AtCaptureDeclarators.add(AtCaptureDeclarator);
+        // setResult(AtCaptureDeclarators);
+    }
+    // Production: HomeVariableList ::= HomeVariable
+    void rule_HomeVariableList0(Object _HomeVariable) {
+        Node HomeVariable = (Node) _HomeVariable;
+        List<Node> l = new TypedList<Node>(new LinkedList<Node>(), Node.class, false);
+        l.add(HomeVariable);
+        setResult(l);
+    }
+    // Production: HomeVariableList ::= HomeVariableList ',' HomeVariable
+    void rule_HomeVariableList1(Object _HomeVariableList, Object _HomeVariable) {
+        List<Node> HomeVariableList = (List<Node>) _HomeVariableList;
+        Node HomeVariable = (Node) _HomeVariable;
+        HomeVariableList.add(HomeVariable);
+        // setResult(HomeVariableList);
     }
     // Production: BlockStatementsopt ::= %Empty
     void rule_BlockStatementsopt0() {
@@ -2492,6 +2561,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: Propertiesopt ::= %Empty
     void rule_Propertiesopt0() {
         setResult(new TypedList<PropertyDecl>(new LinkedList<PropertyDecl>(), PropertyDecl.class, false));
+    }
+    // Production: AtCaptureDeclaratorsopt ::= %Empty
+    void rule_AtCaptureDeclaratorsopt0() {
+        setResult(new TypedList<Node>(new LinkedList<Node>(), Node.class, false));
+    }
+    // Production: HomeVariableListopt ::= %Empty
+    void rule_HomeVariableListopt0() {
+        setResult(new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false));
     }
     // Production: SwitchLabelsopt ::= %Empty
     void rule_SwitchLabelsopt0() {
@@ -3620,6 +3697,31 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Stmt Statement = (Stmt) _Statement;
         setResult(nf.AtStmt(pos(), PlaceExpressionSingleList, Statement));
     }
+    // Production: AtStatement ::= at ( PlaceExpression ; AtCaptureDeclaratorsopt ) Statement
+    void rule_AtStatement1(Object _PlaceExpression, Object _AtCaptureDeclaratorsopt, Object _Statement) {
+        Expr PlaceExpression = (Expr) _PlaceExpression;
+        List<Node> AtCaptureDeclaratorsopt = (List<Node>) _AtCaptureDeclaratorsopt;
+        Stmt Statement = (Stmt) _Statement;
+        setResult(nf.AtStmt(pos(), PlaceExpression, AtCaptureDeclaratorsopt, Statement));
+    }
+    // Production: AtStatement ::= athome ( HomeVariableList ) Statement
+    void rule_AtStatement2(Object _HomeVariableList, Object _Statement) {
+        List<Expr> HomeVariableList = (List<Expr>) _HomeVariableList;
+        Stmt Statement = (Stmt) _Statement;
+        setResult(nf.AtHomeStmt(pos(), HomeVariableList, Statement));
+    }
+    // Production: AtStatement ::= athome ( HomeVariableList ; AtCaptureDeclaratorsopt ) Statement
+    void rule_AtStatement3(Object _HomeVariableList, Object _AtCaptureDeclaratorsopt, Object _Statement) {
+        List<Expr> HomeVariableList = (List<Expr>) _HomeVariableList;
+        List<Node> AtCaptureDeclaratorsopt = (List<Node>) _AtCaptureDeclaratorsopt;
+        Stmt Statement = (Stmt) _Statement;
+        setResult(nf.AtHomeStmt(pos(), HomeVariableList, AtCaptureDeclaratorsopt, Statement));
+    }
+    // Production: AtStatement ::= athome Statement
+    void rule_AtStatement4(Object _Statement) {
+        Stmt Statement = (Stmt) _Statement;
+        setResult(nf.AtHomeStmt(pos(), Collections.<Expr>emptyList(), Statement));
+    }
     // Production: ConstructorBody ::= '=' ConstructorBlock
     void rule_ConstructorBody0(Object _ConstructorBlock) {
         Block ConstructorBlock = (Block) _ConstructorBlock;
@@ -4030,7 +4132,32 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_AtExpression0(Object _PlaceExpressionSingleList, Object _ClosureBody) {
         Expr PlaceExpressionSingleList = (Expr) _PlaceExpressionSingleList;
         Block ClosureBody = (Block) _ClosureBody;
-        setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
+        setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, ClosureBody));
+    }
+    // Production: AtExpression ::= at ( PlaceExpression ; AtCaptureDeclaratorsopt ) ClosureBody
+    void rule_AtExpression1(Object _PlaceExpression, Object _AtCaptureDeclaratorsopt, Object _ClosureBody) {
+        Expr PlaceExpression = (Expr) _PlaceExpression;
+        List<Node> AtCaptureDeclaratorsopt = (List<Node>) _AtCaptureDeclaratorsopt;
+        Block ClosureBody = (Block) _ClosureBody;
+        setResult(nf.AtExpr(pos(), PlaceExpression, AtCaptureDeclaratorsopt, ClosureBody));
+    }
+    // Production: AtExpression ::= athome ( HomeVariableList ) ClosureBody
+    void rule_AtExpression2(Object _HomeVariableList, Object _ClosureBody) {
+        List<Expr> HomeVariableList = (List<Expr>) _HomeVariableList;
+        Block ClosureBody = (Block) _ClosureBody;
+        setResult(nf.AtHomeExpr(pos(), HomeVariableList, ClosureBody));
+    }
+    // Production: AtExpression ::= athome ( HomeVariableList ; AtCaptureDeclaratorsopt ) ClosureBody
+    void rule_AtExpression3(Object _HomeVariableList, Object _AtCaptureDeclaratorsopt, Object _ClosureBody) {
+        List<Expr> HomeVariableList = (List<Expr>) _HomeVariableList;
+        List<Node> AtCaptureDeclaratorsopt = (List<Node>) _AtCaptureDeclaratorsopt;
+        Block ClosureBody = (Block) _ClosureBody;
+        setResult(nf.AtHomeExpr(pos(), HomeVariableList, AtCaptureDeclaratorsopt, ClosureBody));
+    }
+    // Production: AtExpression ::= athome ClosureBody
+    void rule_AtExpression4(Object _ClosureBody) {
+        Block ClosureBody = (Block) _ClosureBody;
+        setResult(nf.AtHomeExpr(pos(), Collections.<Expr>emptyList(), ClosureBody));
     }
     // Production: CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
     void rule_CompilationUnit0(Object _PackageDeclarationopt, Object _TypeDeclarationsopt) {

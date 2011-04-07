@@ -13,30 +13,22 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.ast.CompoundStmt;
+import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import x10.types.AtDef;
 
 /**
- * The AST node for the X10 construct at (P) {S}.
+ * The AST node for the X10 construct athome (vars) {S}.
  */
-public interface AtStmt extends CompoundStmt, RemoteActivityInvocation {
+public interface AtHomeStmt extends AtHome, AtStmt {
+    /** Set the AtHome's body */
+    AtHomeStmt body(Stmt body);
 
-    /** Set the At's body */
-    AtStmt body(Stmt body);
+    AtHomeStmt atDef(AtDef ci);
 
-    /** Get the body of the At. */
-    Stmt body();
+    /** Set the variables whose location this athome references. */
+    AtHomeStmt home(List<Expr> vars);
 
-    /** Is the target place the place of the lexically enclosing finish (if any) */
-    boolean isFinishPlace();
-
-    AtDef atDef();
-
-    AtStmt atDef(AtDef ci);
-
-    List<Node> captures();
-
-    AtStmt captures(List<Node> vars);
+    AtHomeStmt captures(List<Node> vars);
 }
