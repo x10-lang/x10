@@ -10,7 +10,7 @@
  */
 package x10.compiler.ws.codegen;
 
-import x10.Configuration;
+import x10.X10CompilerOptions;
 
 /*
  * @author: Haichuan
@@ -23,7 +23,8 @@ import x10.Configuration;
 
 public class WSCodeGenConfiguration {
 
-
+    public boolean __cpp__;
+    
     //1: not gen pc field for Finish Frame ans async frame
     //Default 1
     public int OPT_PC_FIELD = 1;
@@ -32,8 +33,9 @@ public class WSCodeGenConfiguration {
     public int DISABLE_EXCEPTION_HANDLE = 0;
     
     
-    public WSCodeGenConfiguration(Configuration config){
-        if(config.WS_DISABLE_EXCEPTION_HANDLE){
+    public WSCodeGenConfiguration(X10CompilerOptions options){
+        __cpp__ = options.macros.contains("__CPP__");
+        if(options.x10_config.WS_DISABLE_EXCEPTION_HANDLE){
             DISABLE_EXCEPTION_HANDLE = 1;
             System.out.println("[WS_INFO] Not Generate fast path's exception handling code");
         }

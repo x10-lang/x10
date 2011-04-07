@@ -358,8 +358,10 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     public final void genClass() throws SemanticException {
         genMethods(); //fast/resume/move
         genClassConstructor();
-        if (wts.realloc) genCopyConstructor(compilerPos);
-        if (wts.realloc) genRemapMethod();
+        if (wts.codegenConfig.__cpp__) {
+            genCopyConstructor(compilerPos);
+            genRemapMethod();
+        }
     }
 
     protected abstract void genMethods() throws SemanticException;

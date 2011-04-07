@@ -37,7 +37,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import x10.ExtensionInfo;
+import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AtEach;
@@ -100,20 +101,20 @@ public class WSCodeGenerator extends ContextVisitor {
         genClassDecls = CollectionFactory.newHashSet();
     }
 
-    public static void setWALATransTarget(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent target){
+    public static void setWALATransTarget(ExtensionInfo extensionInfo, WSTransformationContent target){
         //DEBUG
         if(debugLevel > 3){
-            wsReport(xts.extensionInfo().getOptions().reporter, 5, "Use WALA CallGraph Data...");    
+            wsReport(extensionInfo.getOptions().reporter, 5, "Use WALA CallGraph Data...");    
         }
-        wts = new WSTransformState(xts, xnf, theLanguage, target);
+        wts = new WSTransformState(extensionInfo, target);
     }
     
-    public static void buildCallGraph(TypeSystem xts, NodeFactory xnf, String theLanguage) {
+    public static void buildCallGraph(ExtensionInfo extensionInfo) {
         //DEBUG
         if(debugLevel > 3){
-            wsReport(xts.extensionInfo().getOptions().reporter, 5, "Build Simple Graph Graph..."); 
+            wsReport(extensionInfo.getOptions().reporter, 5, "Build Simple Graph Graph..."); 
         }
-        wts = new WSTransformState(xts, xnf, theLanguage);
+        wts = new WSTransformState(extensionInfo);
     }
 
     /** 
@@ -226,16 +227,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 cDecl = Synthesizer.addNestedClasses(cDecl, classes);
                 cDecl = Synthesizer.addMethods(cDecl, methods);
                 
-                //Here we need use desugarer and inner class remover to visit the class again.
-                //do final processing, run desugarer and inner class remover again
-                //get the right desuguar
-                Desugarer desugarer;
-                if(wts.getTheLanguage().equals("java")){
-                    desugarer = new x10c.visit.Desugarer(job, ts, nf);
-                }
-                else{
-                    desugarer = new x10.visit.Desugarer(job, ts, nf);
-                }
+                Desugarer desugarer = ((x10.ExtensionInfo) job.extensionInfo()).makeDesugarer(job);
                 desugarer.begin();
                 desugarer.context(context()); //copy current context
                 

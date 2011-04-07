@@ -196,7 +196,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 break;
             case At:
                 if(!isFrameOnHeap){
-                    codes = genMoveFrameToHeapCodes(prePcValue, wts.getTheLanguage());
+                    codes = genMoveFrameToHeapCodes(prePcValue);
                     isFrameOnHeap = true;
                     bodyStmts.add(0, s); //transform the statement next loop
                 }
@@ -209,7 +209,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 break;
             case AsyncAt:
                 if(!isFrameOnHeap){
-                    codes = genMoveFrameToHeapCodes(prePcValue, wts.getTheLanguage());
+                    codes = genMoveFrameToHeapCodes(prePcValue);
                     isFrameOnHeap = true;
                     bodyStmts.add(0, s); //transform the statement next loop
                 }
@@ -483,7 +483,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     //if(ff.redirect == null){
     //    moveToHeap(worker);
     //}
-    protected TransCodes genMoveFrameToHeapCodes(int prePcValue, String pathName) throws SemanticException{
+    protected TransCodes genMoveFrameToHeapCodes(int prePcValue) throws SemanticException{
         TransCodes transCodes = new TransCodes(prePcValue + 1);
         
         //_pc = x;
@@ -504,7 +504,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         fastRedoCallSynth.addArgument(xts.Worker(), fastWorkerRef);
         Stmt fastRedoCallStmt = fastRedoCallSynth.genStmt();
 
-        if(pathName.equals("java")){
+        if(!wts.codegenConfig.__cpp__){
             //java path, always redo() in fast path
             transCodes.addFirst(fastRedoCallStmt);
         }

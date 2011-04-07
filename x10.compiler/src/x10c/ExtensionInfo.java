@@ -198,4 +198,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             return new ValidatingVisitorGoal("ExpressionFlattenerForAtExpr", job, new ExpressionFlattenerForAtExpr(job, ts, nf)).intern(this);
         }
     }
+
+    public Desugarer makeDesugarer(Job job) {
+        return new Desugarer(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory());
+    }
 }

@@ -38,6 +38,7 @@ import polyglot.types.Type;
 import polyglot.util.Pair;
 import x10.Configuration;
 import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 import x10.ast.Closure;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
@@ -78,9 +79,6 @@ import x10.visit.X10PrettyPrinterVisitor;
  *
  */
 public class WSTransformState {
-    public final Boolean realloc; // whether or not to generate code for frame migration
-
-    private String theLanguage; //c++ or java path
     private WSCallGraph callGraph;
     private WSTransformationContent transTarget;
     public WSCodeGenConfiguration codegenConfig;
@@ -89,11 +87,10 @@ public class WSTransformState {
      * Used by WALA call graph builder.
      * @param ts
      * @param nf
-     * @param theLanguage
      * @param transTarget
      */
-    public WSTransformState(TypeSystem ts, NodeFactory nf, String theLanguage, WSTransformationContent transTarget){
-        this(ts, theLanguage);
+    public WSTransformState(ExtensionInfo extensionInfo, WSTransformationContent transTarget){
+        this(extensionInfo.getOptions());
         this.transTarget = transTarget;
         //Debug output;
         System.out.println(transTarget);
@@ -101,16 +98,15 @@ public class WSTransformState {
     
     /**
      * Used by WSCallGraphBarrier path. Use simple call graph analyzer to get concurrent content
-     * @param xts
-     * @param xnf
-     * @param theLanguage
+     * @param ts
+     * @param nf
      */
-    public WSTransformState(TypeSystem ts, NodeFactory nf, String theLanguage){
-        this(ts, theLanguage);
+    public WSTransformState(ExtensionInfo extensionInfo){
+        this(extensionInfo.getOptions());
         callGraph = new WSCallGraph();
         
         //start to iterate the ast in jobs and build all;
-        for(Job job : ts.extensionInfo().scheduler().jobs()){
+        for(Job job : extensionInfo.scheduler().jobs()){
             if(job == null){
                 System.err.println("[WS_ERR] CallGraphBuilding: Find one job is empty!");
                 continue;
@@ -160,28 +156,10 @@ public class WSTransformState {
         
     }
     
-    /**
-     * Only used to load the frame types;
-     * @param ts
-     * @param theLanguage
-     */
-    protected WSTransformState(TypeSystem ts, String theLanguage){
-        this.theLanguage = theLanguage;
-        realloc = theLanguage.equals("c++");
-        
-        //Load CodeGen config
-        Configuration x10config = ((ExtensionInfo)ts.extensionInfo()).getOptions().x10_config;
-        codegenConfig = new WSCodeGenConfiguration(x10config);
+    protected WSTransformState(X10CompilerOptions options) {
+        codegenConfig = new WSCodeGenConfiguration(options);
     
     }
-
-    /**
-     * Get the backend used
-     * @return "c++" or "java"
-     */
-    public String getTheLanguage() {
-		return theLanguage;
-	}
 
 	public boolean isConcurrentCallSite(Call call){	
     	return getCallSiteType(call) == CallSiteType.CONCURRENT_CALL;

@@ -713,7 +713,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                            //now use this one to construct WSTransformationState
                            TypeSystem ts  = extInfo.typeSystem();
                            NodeFactory nf = extInfo.nodeFactory();
-                           WSCodeGenerator.setWALATransTarget(ts, nf, nativeAnnotationLanguage(), transTarget);
+                           WSCodeGenerator.setWALATransTarget(extensionInfo(), transTarget);
                        } catch (IllegalArgumentException e) {
                        } catch (IllegalAccessException e) {
                        } catch (InvocationTargetException e) {
@@ -1038,7 +1038,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
                @Override
                public boolean runTask() {
-                   WSCodeGenerator.buildCallGraph(ts, nf, nativeAnnotationLanguage());
+                   WSCodeGenerator.buildCallGraph(extensionInfo());
                    return true;
                }
            }.intern(this);
@@ -1172,4 +1172,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 		
 		return plugins.get(pluginName);
 	}
+
+    public Desugarer makeDesugarer(Job job) {
+        return new Desugarer(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory());
+    }
 }
