@@ -78,18 +78,25 @@ import x10.visit.X10PrettyPrinterVisitor;
  * @author Haichuan
  *
  */
-public abstract class WSTransformState {
-    public final WSCodeGenConfiguration codegenConfig;
+public class WSTransformStateWALA extends WSTransformState {
+    protected WSTransformationContent transTarget;
 
-    protected WSTransformState(ExtensionInfo extensionInfo) {
-        codegenConfig = new WSCodeGenConfiguration(extensionInfo.getOptions());
+    /**
+     * Used by WALA call graph builder.
+     * @param ts
+     * @param nf
+     * @param transTarget
+     */
+    public WSTransformStateWALA(ExtensionInfo extensionInfo, WSTransformationContent transTarget){
+        super(extensionInfo);
+        this.transTarget = transTarget;
     }
 
-    public boolean isConcurrentCallSite(Call call){ 
-        return getCallSiteType(call) == CallSiteType.CONCURRENT_CALL;
+    public CallSiteType getCallSiteType(Call call){
+        return transTarget.getCallSiteType(call);
     }
 
-    public abstract CallSiteType getCallSiteType(Call call);
-
-    public abstract MethodType getMethodType(CodeBlock codeBlock);
+    public MethodType getMethodType(CodeBlock codeBlock){
+        return transTarget.getMethodType(codeBlock);
+    }
 }

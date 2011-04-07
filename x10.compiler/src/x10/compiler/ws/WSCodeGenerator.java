@@ -106,7 +106,7 @@ public class WSCodeGenerator extends ContextVisitor {
         if(debugLevel > 3){
             wsReport(extensionInfo.getOptions().reporter, 5, "Use WALA CallGraph Data...");    
         }
-        wts = new WSTransformState(extensionInfo, target);
+        wts = new WSTransformStateWALA(extensionInfo, target);
     }
     
     public static void buildCallGraph(ExtensionInfo extensionInfo) {
@@ -114,7 +114,7 @@ public class WSCodeGenerator extends ContextVisitor {
         if(debugLevel > 3){
             wsReport(extensionInfo.getOptions().reporter, 5, "Build Simple Graph Graph..."); 
         }
-        wts = new WSTransformState(extensionInfo);
+        wts = new WSTransformStateSimple(extensionInfo);
     }
 
     /** 
