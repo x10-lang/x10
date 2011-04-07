@@ -504,7 +504,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         fastRedoCallSynth.addArgument(xts.Worker(), fastWorkerRef);
         Stmt fastRedoCallStmt = fastRedoCallSynth.genStmt();
 
-        if(!wts.codegenConfig.__cpp__){
+        if(!wts.__CPP__){
             //java path, always redo() in fast path
             transCodes.addFirst(fastRedoCallStmt);
         }

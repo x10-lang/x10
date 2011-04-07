@@ -36,7 +36,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
                 WSCodeGenUtility.getFinishStmtClassName(parent.getClassName()),
                 parent.xts.FinishFrame(), finishStmt.body());
         
-        if(wts.codegenConfig.OPT_PC_FIELD == 0){
+        if(!wts.OPT_PC_FIELD){
             addPCField();
         }
     }
@@ -62,7 +62,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         
         //now add codes to three path;
         //Finish frame only has the fast path
-        if(wts.codegenConfig.DISABLE_EXCEPTION_HANDLE == 1){
+        if(wts.DISABLE_EXCEPTION_HANDLE){
             fastBodySynth.addStmts(callCodes.first());
         }
         else{
@@ -71,7 +71,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         }
         
         //resume/back path
-        if(wts.codegenConfig.OPT_PC_FIELD == 0){
+        if(!wts.OPT_PC_FIELD){
             Expr pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
             
             SwitchSynth resumeSwitchSynth = resumeBodySynth.createSwitchStmt(compilerPos, pcRef);

@@ -12,47 +12,11 @@
 
 package x10.compiler.ws;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-
 import polyglot.ast.Call;
-import polyglot.ast.ClassDecl;
 import polyglot.ast.CodeBlock;
-import polyglot.ast.ConstructorDecl;
-import polyglot.ast.MethodDecl;
-import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
-import polyglot.ast.SourceFile;
-import polyglot.ast.TopLevelDecl;
-import polyglot.frontend.Job;
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.MethodDef;
 
-import polyglot.types.ProcedureDef;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.util.Pair;
-import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
-import x10.ast.Closure;
-import x10.ast.X10ClassDecl;
-import x10.ast.X10MethodDecl;
-import x10.compiler.ws.codegen.WSCodeGenConfiguration;
-import x10.compiler.ws.util.WSCallGraph;
-import x10.compiler.ws.util.WSCallGraphNode;
-import x10.compiler.ws.util.WSTransformationContent;
-import x10.compiler.ws.util.WSTransformationContent.CallSiteType;
-import x10.compiler.ws.util.WSTransformationContent.MethodType;
-import polyglot.types.Context;
-import polyglot.types.TypeSystem;
-import x10.types.checker.PlaceChecker;
-import x10.util.synthesizer.MethodSynth;
-import x10.visit.X10PrettyPrinterVisitor;
 
 /**
  * Record the WS transformation intermediate results and context.
@@ -79,10 +43,37 @@ import x10.visit.X10PrettyPrinterVisitor;
  *
  */
 public abstract class WSTransformState {
-    public final WSCodeGenConfiguration codegenConfig;
+
+    public enum CallSiteType {
+        NORMAL,               //Nothing to be changed to the call
+        CONCURRENT_CALL,     //Need use worker, parent frame as parent
+        MATCHED_CALL        //The target's def is changed, but not the body
+    }
+
+    public enum MethodType {
+        NORMAL,   //nothing to be changed
+        BODYDEF_TRANSFORMATION, //both body and def need to be transformed
+        DEFONLY_TRANSFORMATION, //only def need to be transformed
+    }
+
+    // true: __CPP__ macro is defined
+    public boolean __CPP__;
+    
+    // 1: no pc field for FinishFrame and AsyncFrame
+    public boolean OPT_PC_FIELD = true;
+    
+    // 1: no try catch block in FinishFrame and AsyncFrame
+    public boolean DISABLE_EXCEPTION_HANDLE = false;
 
     protected WSTransformState(ExtensionInfo extensionInfo) {
-        codegenConfig = new WSCodeGenConfiguration(extensionInfo.getOptions());
+        X10CompilerOptions options = extensionInfo.getOptions();
+
+        __CPP__ = options.macros.contains("__CPP__");
+        DISABLE_EXCEPTION_HANDLE = options.x10_config.WS_DISABLE_EXCEPTION_HANDLE;
+
+        if(DISABLE_EXCEPTION_HANDLE){
+            System.out.println("[WS_INFO] Not Generate fast path's exception handling code");
+        }
     }
 
     public boolean isConcurrentCallSite(Call call){ 

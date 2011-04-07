@@ -53,7 +53,7 @@ import x10.ast.X10MethodDecl;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.compiler.ws.util.WSTransformationContent;
-import x10.compiler.ws.util.WSTransformationContent.MethodType;
+import x10.compiler.ws.WSTransformState.MethodType;
 import x10.types.X10MethodDef;
 import x10.util.Synthesizer;
 import x10.visit.Desugarer;

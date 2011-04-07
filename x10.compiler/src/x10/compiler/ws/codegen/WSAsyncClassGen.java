@@ -83,7 +83,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                 parent.xts.AsyncFrame(), a.body());
         inFrameTransform = canInFrameTransform(codeBlock);
         
-        if(wts.codegenConfig.OPT_PC_FIELD == 0){
+        if(!wts.OPT_PC_FIELD){
             addPCField();
         }
         parentK = parent; //record parent continuation
@@ -108,7 +108,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         Expr pcRef = null;
         SwitchSynth resumeSwitchSynth = null;
         SwitchSynth backSwitchSynth = null;
-        if(wts.codegenConfig.OPT_PC_FIELD == 0){
+        if(!wts.OPT_PC_FIELD){
             pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
             resumeSwitchSynth = resumeBodySynth.createSwitchStmt(compilerPos, pcRef);
             backSwitchSynth = backBodySynth.createSwitchStmt(compilerPos, pcRef);
@@ -128,7 +128,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
             fastBodySynth.addStmts(callCodes.first());
             
             //resume/back path
-            if(wts.codegenConfig.OPT_PC_FIELD == 0){      
+            if(!wts.OPT_PC_FIELD){      
                 resumeSwitchSynth.insertStatementsInCondition(0, callCodes.second());
                 if(callCodes.third().size() > 0){ //only assign call has back
                     backSwitchSynth.insertStatementsInCondition(callCodes.getPcValue(), callCodes.third());
@@ -186,7 +186,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                 }
                 
 
-                if(wts.codegenConfig.DISABLE_EXCEPTION_HANDLE == 1){
+                if(wts.DISABLE_EXCEPTION_HANDLE){
                     fastBodySynth.addStmts(codes.first());
                 }
                 else{
@@ -194,7 +194,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                 }
 
                 pcValue = codes.getPcValue();
-                if(wts.codegenConfig.OPT_PC_FIELD == 0){
+                if(!wts.OPT_PC_FIELD){
                     resumeSwitchSynth.insertStatementsInCondition(prePcValue, codes.second());
                     if(codes.third().size() > 0){ //only assign call has back
                         backSwitchSynth.insertStatementsInCondition(pcValue, codes.third());
