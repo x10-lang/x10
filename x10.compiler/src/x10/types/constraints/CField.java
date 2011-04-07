@@ -25,20 +25,32 @@ import x10.types.X10MethodDef;
  *
  */
 public class CField  extends XField<Def> {
-    final String string;
+    // lazily initialized
+    private String string;
+    private String getString() {
+        if (string == null) {
+            if (field instanceof MethodDef) {
+                MethodDef fi = (MethodDef)field;
+                string = Types.get(fi.container()) + "#" + fi.name().toString()+ "()";
+            } else {
+                FieldDef fi = (FieldDef)field;
+                string = Types.get(fi.container()) + "#" + fi.name().toString()+ "()";   
+            }
+        }
+        return string;
+    }
+    
     public CField(XVar r, MethodDef fi) {
         this(r, fi, false);
     }
     public CField(XVar r, MethodDef fi, boolean hidden) {
         super(r, fi, hidden);
-        this.string = Types.get(fi.container()) + "#" + fi.name().toString()+ "()";
     }
     public CField(XVar r, FieldDef fi) {
         this(r, fi, false);
     }
     public CField(XVar r, FieldDef fi, boolean hidden) {
         super(r, fi, hidden);
-        this.string = Types.get(fi.container()) + "#" + fi.name().toString();
     }
   
     /**
@@ -79,7 +91,7 @@ public class CField  extends XField<Def> {
   
     @Override
     public String toString() {
-        return (receiver == null ? "" : receiver.toString() + ".") + string;
+        return (receiver == null ? "" : receiver.toString() + ".") + getString();
     }
     
 }
