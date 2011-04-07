@@ -227,23 +227,6 @@ pami_context_t getConcurrentContext()
 	return NULL;
 }
 
-/*
- * This small method is used to hold-up some calls until the data transmission is complete, by simply decrementing a counter
- */
-static void cookie_decrement (pami_context_t   context,
-                       void          * cookie,
-                       pami_result_t    result)
-{
-	if (result != PAMI_SUCCESS)
-		error("Error detected in cookie_decrement");
-
-	unsigned * value = (unsigned *) cookie;
-	#ifdef DEBUG
-		fprintf(stderr, "Place %u decrement() cookie = %p, %d => %d\n", state.myPlaceId, cookie, *value, *value-1);
-	#endif
-	--*value;
-}
-
 static void cookie_free (pami_context_t   context,
                        void          * cookie,
                        pami_result_t    result)
@@ -585,21 +568,13 @@ static void team_creation_complete (pami_context_t   context,
 	if (result != PAMI_SUCCESS)
 		error("Error detected in team_creation_complete");
 
-	if (cookie != NULL)
-	{
-		x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
-		#ifdef DEBUG
-			fprintf(stderr, "New team %u created at place %u\n", team->teamIndex, state.myPlaceId);
-		#endif
-		team->cb2(team->teamIndex, team->arg);
-		free(team);
-	}
-	#ifdef DEBUG
-	else
-		fprintf(stderr, "New team created at place %u (no cookie)\n", state.myPlaceId);
 
-	fprintf(stderr, "New team callback at place %u complete.\n", state.myPlaceId);
+	x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
+	#ifdef DEBUG
+		fprintf(stderr, "New team %u created at place %u\n", team->teamIndex, state.myPlaceId);
 	#endif
+	team->cb2(team->teamIndex, team->arg);
+	free(team);
 }
 
 /*
@@ -1169,14 +1144,12 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 			if (placev[i] == placev[j])
 				error("Request to create a team with duplicate members");
 
-	// send the list of team members to all places
-	pthread_mutex_lock(&state.stateLock);
-	uint32_t newTeamId = state.lastTeamIndex+1;
-	pthread_mutex_unlock(&state.stateLock);
-
-	#ifdef DEBUG
-		fprintf(stderr, "Place %u preparing to create a new team with %u members\n", state.myPlaceId, placec);
-	#endif
+	// create a definition for the new team
+	uint32_t newTeamId = expandTeams(1)+1;
+	state.teams[newTeamId].size = placec;
+	state.teams[newTeamId].places = (pami_task_t*)malloc(placec*sizeof(pami_task_t));
+	if (state.teams[newTeamId].places == NULL) error("unable to allocate memory for holding the places in x10rt_net_team_new");
+	memcpy(state.teams[newTeamId].places, placev, placec*sizeof(pami_task_t));
 
 	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
 	if (cookie == NULL) error("Unable to allocate memory for a team_new header");
@@ -1185,15 +1158,14 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	cookie->teamIndex = newTeamId;
 
 	pami_send_t parameters;
-	volatile unsigned send_active = 1;
 	parameters.send.dispatch        = NEW_TEAM;
-	parameters.send.header.iov_base = &newTeamId;
-	parameters.send.header.iov_len  = sizeof(newTeamId);
-	parameters.send.data.iov_base   = placev; // team members
-	parameters.send.data.iov_len    = placec*sizeof(x10rt_place);
+	parameters.send.header.iov_base = &cookie->teamIndex;
+	parameters.send.header.iov_len  = sizeof(cookie->teamIndex);
+	parameters.send.data.iov_base   = state.teams[newTeamId].places; // team members
+	parameters.send.data.iov_len    = placec*sizeof(pami_task_t);
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-	parameters.events.cookie        = (void *) &send_active;
-	parameters.events.local_fn      = cookie_decrement;
+	parameters.events.cookie        = NULL;
+	parameters.events.local_fn      = NULL;
 	parameters.events.remote_fn     = NULL;
 
 	pami_context_t context;
@@ -1217,12 +1189,9 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 			if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
 				error("Unable to send a NEW_TEAM message from %u to %u: %i\n", state.myPlaceId, placev[i], status);
 
-			while (send_active) // hold up until the message has been copied out
-				PAMI_Context_advance(context, 10);
 			#ifdef DEBUG
 				fprintf(stderr, "Place %u sent a NEW_TEAM message to place %u\n", state.myPlaceId, placev[i]);
 			#endif
-			send_active = 1;
 		}
 		else
 			inTeam = true;
@@ -1231,7 +1200,16 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	if (!inTeam)
 		error("A team was created that did not include the creator");
 
-	team_create_dispatch(context, cookie, &newTeamId, sizeof(newTeamId), placev, placec*sizeof(x10rt_place), (pami_endpoint_t)state.myPlaceId, NULL);
+	pami_configuration_t config;
+	config.name = PAMI_GEOMETRY_OPTIMIZE;
+
+	#ifdef DEBUG
+		fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
+	#endif
+
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, placec, context, team_creation_complete, cookie);
+	if (status != PAMI_SUCCESS) error("Unable to create a new team");
+
 	if (!state.numParallelContexts)
 		PAMI_Context_unlock(context);
 }
