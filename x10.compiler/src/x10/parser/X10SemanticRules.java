@@ -1659,6 +1659,12 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr RangeExpression = (Expr) _RangeExpression;
         setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, RangeExpression));
     }
+    // Production: MultiplicativeExpression ::= MultiplicativeExpression '**' RangeExpression
+    void rule_MultiplicativeExpression4(Object _MultiplicativeExpression, Object _RangeExpression) {
+        Expr MultiplicativeExpression = (Expr) _MultiplicativeExpression;
+        Expr RangeExpression = (Expr) _RangeExpression;
+        setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.STARSTAR, RangeExpression));
+    }
     // Production: TryStatement ::= try Block Catches
     void rule_TryStatement0(Object _Block, Object _Catches) {
         Block Block = (Block) _Block;
@@ -1747,6 +1753,36 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_UnaryExpressionNotPlusMinus2(Object _UnaryExpression) {
         Expr UnaryExpression = (Expr) _UnaryExpression;
         setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
+    }
+    // Production: UnaryExpressionNotPlusMinus ::= '^' UnaryExpression
+    void rule_UnaryExpressionNotPlusMinus3(Object _UnaryExpression) {
+        Expr UnaryExpression = (Expr) _UnaryExpression;
+        setResult(nf.Unary(pos(), Unary.CARET, UnaryExpression));
+    }
+    // Production: UnaryExpressionNotPlusMinus ::= '|' UnaryExpression
+    void rule_UnaryExpressionNotPlusMinus4(Object _UnaryExpression) {
+        Expr UnaryExpression = (Expr) _UnaryExpression;
+        setResult(nf.Unary(pos(), Unary.BAR, UnaryExpression));
+    }
+    // Production: UnaryExpressionNotPlusMinus ::= '&' UnaryExpression
+    void rule_UnaryExpressionNotPlusMinus5(Object _UnaryExpression) {
+        Expr UnaryExpression = (Expr) _UnaryExpression;
+        setResult(nf.Unary(pos(), Unary.AMPERSAND, UnaryExpression));
+    }
+    // Production: UnaryExpressionNotPlusMinus ::= '*' UnaryExpression
+    void rule_UnaryExpressionNotPlusMinus6(Object _UnaryExpression) {
+        Expr UnaryExpression = (Expr) _UnaryExpression;
+        setResult(nf.Unary(pos(), Unary.STAR, UnaryExpression));
+    }
+    // Production: UnaryExpressionNotPlusMinus ::= '/' UnaryExpression
+    void rule_UnaryExpressionNotPlusMinus7(Object _UnaryExpression) {
+        Expr UnaryExpression = (Expr) _UnaryExpression;
+        setResult(nf.Unary(pos(), Unary.SLASH, UnaryExpression));
+    }
+    // Production: UnaryExpressionNotPlusMinus ::= '%' UnaryExpression
+    void rule_UnaryExpressionNotPlusMinus8(Object _UnaryExpression) {
+        Expr UnaryExpression = (Expr) _UnaryExpression;
+        setResult(nf.Unary(pos(), Unary.PERCENT, UnaryExpression));
     }
     // Production: Interfacesopt ::= %Empty
     void rule_Interfacesopt0() {
@@ -2085,6 +2121,34 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_BinOp20() {
         setResult(Binary.ARROW);
     }
+    // Production: BinOp ::= '<-'
+    void rule_BinOp21() {
+        setResult(Binary.LARROW);
+    }
+    // Production: BinOp ::= '-<'
+    void rule_BinOp22() {
+        setResult(Binary.FUNNEL);
+    }
+    // Production: BinOp ::= '>-'
+    void rule_BinOp23() {
+        setResult(Binary.LFUNNEL);
+    }
+    // Production: BinOp ::= '**'
+    void rule_BinOp24() {
+        setResult(Binary.STARSTAR);
+    }
+    // Production: BinOp ::= '~'
+    void rule_BinOp25() {
+        setResult(Binary.TWIDDLE);
+    }
+    // Production: BinOp ::= '!~'
+    void rule_BinOp26() {
+        setResult(Binary.NTWIDDLE);
+    }
+    // Production: BinOp ::= '!'
+    void rule_BinOp27() {
+        setResult(Binary.BANG);
+    }
     // Production: EqualityExpression ::= EqualityExpression '==' RelationalExpression
     void rule_EqualityExpression1(Object _EqualityExpression, Object _RelationalExpression) {
         Expr EqualityExpression = (Expr) _EqualityExpression;
@@ -2102,6 +2166,18 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode t1 = (TypeNode) _t1;
         TypeNode t2 = (TypeNode) _t2;
         setResult(nf.SubtypeTest(pos(), t1, t2, true));
+    }
+    // Production: EqualityExpression ::= EqualityExpression '~' RelationalExpression
+    void rule_EqualityExpression4(Object _EqualityExpression, Object _RelationalExpression) {
+        Expr EqualityExpression = (Expr) _EqualityExpression;
+        Expr RelationalExpression = (Expr) _RelationalExpression;
+        setResult(nf.Binary(pos(), EqualityExpression, Binary.TWIDDLE, RelationalExpression));
+    }
+    // Production: EqualityExpression ::= EqualityExpression '!~' RelationalExpression
+    void rule_EqualityExpression5(Object _EqualityExpression, Object _RelationalExpression) {
+        Expr EqualityExpression = (Expr) _EqualityExpression;
+        Expr RelationalExpression = (Expr) _RelationalExpression;
+        setResult(nf.Binary(pos(), EqualityExpression, Binary.NTWIDDLE, RelationalExpression));
     }
     // Production: Modifiersopt ::= %Empty
     void rule_Modifiersopt0() {
@@ -2566,10 +2642,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_AtCaptureDeclaratorsopt0() {
         setResult(new TypedList<Node>(new LinkedList<Node>(), Node.class, false));
     }
-    // Production: HomeVariableListopt ::= %Empty
-    void rule_HomeVariableListopt0() {
-        setResult(new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false));
-    }
     // Production: SwitchLabelsopt ::= %Empty
     void rule_SwitchLabelsopt0() {
         setResult(new TypedList<Case>(new LinkedList<Case>(), Case.class, false));
@@ -2870,6 +2942,30 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: PrefixOp ::= '~'
     void rule_PrefixOp3() {
         setResult(Unary.BIT_NOT);
+    }
+    // Production: PrefixOp ::= '^'
+    void rule_PrefixOp4() {
+        setResult(Unary.CARET);
+    }
+    // Production: PrefixOp ::= '|'
+    void rule_PrefixOp5() {
+        setResult(Unary.BAR);
+    }
+    // Production: PrefixOp ::= '&'
+    void rule_PrefixOp6() {
+        setResult(Unary.AMPERSAND);
+    }
+    // Production: PrefixOp ::= '*'
+    void rule_PrefixOp7() {
+        setResult(Unary.STAR);
+    }
+    // Production: PrefixOp ::= '/'
+    void rule_PrefixOp8() {
+        setResult(Unary.SLASH);
+    }
+    // Production: PrefixOp ::= '%'
+    void rule_PrefixOp9() {
+        setResult(Unary.PERCENT);
     }
     // Production: ConstrainedType ::= '(' Type ')'
     void rule_ConstrainedType2(Object _Type) {
@@ -3457,6 +3553,34 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr call = nf.Binary(pos(), expr1, Binary.ARROW, expr2);
         setResult(call);
     }
+    // Production: ShiftExpression ::= ShiftExpression '<-' AdditiveExpression
+    void rule_ShiftExpression5(Object _expr1, Object _expr2) {
+        Expr expr1 = (Expr) _expr1;
+        Expr expr2 = (Expr) _expr2;
+        Expr call = nf.Binary(pos(), expr1, Binary.LARROW, expr2);
+        setResult(call);
+    }
+    // Production: ShiftExpression ::= ShiftExpression '-<' AdditiveExpression
+    void rule_ShiftExpression6(Object _expr1, Object _expr2) {
+        Expr expr1 = (Expr) _expr1;
+        Expr expr2 = (Expr) _expr2;
+        Expr call = nf.Binary(pos(), expr1, Binary.FUNNEL, expr2);
+        setResult(call);
+    }
+    // Production: ShiftExpression ::= ShiftExpression '>-' AdditiveExpression
+    void rule_ShiftExpression7(Object _expr1, Object _expr2) {
+        Expr expr1 = (Expr) _expr1;
+        Expr expr2 = (Expr) _expr2;
+        Expr call = nf.Binary(pos(), expr1, Binary.LFUNNEL, expr2);
+        setResult(call);
+    }
+    // Production: ShiftExpression ::= ShiftExpression '!' AdditiveExpression
+    void rule_ShiftExpression8(Object _expr1, Object _expr2) {
+        Expr expr1 = (Expr) _expr1;
+        Expr expr2 = (Expr) _expr2;
+        Expr call = nf.Binary(pos(), expr1, Binary.BANG, expr2);
+        setResult(call);
+    }
     // Production: ExplicitConstructorInvocation ::= this TypeArgumentsopt '(' ArgumentListopt ')' ';'
     void rule_ExplicitConstructorInvocation0(Object _TypeArgumentsopt, Object _ArgumentListopt) {
         List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
@@ -3692,6 +3816,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         setResult(new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false));
     }
     // Production: AtStatement ::= at PlaceExpressionSingleList Statement
+    // Production: AtStatement ::= at ( PlaceExpression ; * ) Statement
     void rule_AtStatement0(Object _PlaceExpressionSingleList, Object _Statement) {
         Expr PlaceExpressionSingleList = (Expr) _PlaceExpressionSingleList;
         Stmt Statement = (Stmt) _Statement;
@@ -3705,6 +3830,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         setResult(nf.AtStmt(pos(), PlaceExpression, AtCaptureDeclaratorsopt, Statement));
     }
     // Production: AtStatement ::= athome ( HomeVariableList ) Statement
+    // Production: AtStatement ::= athome ( HomeVariableList ; * ) Statement
     void rule_AtStatement2(Object _HomeVariableList, Object _Statement) {
         List<Expr> HomeVariableList = (List<Expr>) _HomeVariableList;
         Stmt Statement = (Stmt) _Statement;
@@ -3718,9 +3844,17 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         setResult(nf.AtHomeStmt(pos(), HomeVariableList, AtCaptureDeclaratorsopt, Statement));
     }
     // Production: AtStatement ::= athome Statement
+    // Production: AtStatement ::= athome ( * ) Statement
+    // Production: AtStatement ::= athome ( * ; * ) Statement
     void rule_AtStatement4(Object _Statement) {
         Stmt Statement = (Stmt) _Statement;
-        setResult(nf.AtHomeStmt(pos(), Collections.<Expr>emptyList(), Statement));
+        setResult(nf.AtHomeStmt(pos(), null, Statement));
+    }
+    // Production: AtStatement ::= athome ( * ; AtCaptureDeclaratorsopt ) Statement
+    void rule_AtStatement5(Object _AtCaptureDeclaratorsopt, Object _Statement) {
+        List<Node> AtCaptureDeclaratorsopt = (List<Node>) _AtCaptureDeclaratorsopt;
+        Stmt Statement = (Stmt) _Statement;
+        setResult(nf.AtHomeStmt(pos(), null, AtCaptureDeclaratorsopt, Statement));
     }
     // Production: ConstructorBody ::= '=' ConstructorBlock
     void rule_ConstructorBody0(Object _ConstructorBlock) {
@@ -4033,10 +4167,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr PostfixExpression = (Expr) _PostfixExpression;
         setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
     }
-    // Production: ResumeStatement ::= resume ';'
-    void rule_ResumeStatement0() {
-        setResult(nf.Resume(pos()));
-    }
     // Production: SwitchBlockStatementGroupsopt ::= %Empty
     void rule_SwitchBlockStatementGroupsopt0() {
         setResult(new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false));
@@ -4090,16 +4220,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt));
         else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt)) ;
     }
-    // Production: ClassInstanceCreationExpression ::= new TypeName '[' Type ']' '[' ArgumentListopt ']'
-    void rule_ClassInstanceCreationExpression1(Object _TypeName, Object _Type, Object _ArgumentListopt) {
-        ParsedName TypeName = (ParsedName) _TypeName;
-        TypeNode Type = (TypeNode) _Type;
-        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
-        String arrayTypeName = TypeName.name.id().toString();
-        if (! (arrayTypeName.equals("x10.array.Array") || arrayTypeName.equals("Array")))
-            syntaxError(new Errors.ArrayLiteralMustBeOfArrayType(arrayTypeName, TypeName.pos).getMessage(),TypeName.pos);
-        setResult(nf.Tuple(pos(), Type, ArgumentListopt));
-    }
     // Production: ClassInstanceCreationExpression ::= Primary '.' new Identifier TypeArgumentsopt '(' ArgumentListopt ')' ClassBodyopt
     void rule_ClassInstanceCreationExpression2(Object _Primary, Object _Identifier, Object _TypeArgumentsopt, Object _ArgumentListopt, Object _ClassBodyopt) {
         Expr Primary = (Expr) _Primary;
@@ -4124,11 +4244,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
         else setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
     }
-    // Production: NextStatement ::= next ';'
-    void rule_NextStatement0() {
-        setResult(nf.Next(pos()));
-    }
     // Production: AtExpression ::= at PlaceExpressionSingleList ClosureBody
+    // Production: AtExpression ::= at ( PlaceExpression ; * ) ClosureBody
     void rule_AtExpression0(Object _PlaceExpressionSingleList, Object _ClosureBody) {
         Expr PlaceExpressionSingleList = (Expr) _PlaceExpressionSingleList;
         Block ClosureBody = (Block) _ClosureBody;
@@ -4142,6 +4259,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         setResult(nf.AtExpr(pos(), PlaceExpression, AtCaptureDeclaratorsopt, ClosureBody));
     }
     // Production: AtExpression ::= athome ( HomeVariableList ) ClosureBody
+    // Production: AtExpression ::= athome ( HomeVariableList ; * ) ClosureBody
     void rule_AtExpression2(Object _HomeVariableList, Object _ClosureBody) {
         List<Expr> HomeVariableList = (List<Expr>) _HomeVariableList;
         Block ClosureBody = (Block) _ClosureBody;
@@ -4155,9 +4273,17 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         setResult(nf.AtHomeExpr(pos(), HomeVariableList, AtCaptureDeclaratorsopt, ClosureBody));
     }
     // Production: AtExpression ::= athome ClosureBody
+    // Production: AtExpression ::= athome ( * ) ClosureBody
+    // Production: AtExpression ::= athome ( * ; * ) ClosureBody
     void rule_AtExpression4(Object _ClosureBody) {
         Block ClosureBody = (Block) _ClosureBody;
-        setResult(nf.AtHomeExpr(pos(), Collections.<Expr>emptyList(), ClosureBody));
+        setResult(nf.AtHomeExpr(pos(), null, ClosureBody));
+    }
+    // Production: AtExpression ::= athome ( * ; AtCaptureDeclaratorsopt ) ClosureBody
+    void rule_AtExpression5(Object _AtCaptureDeclaratorsopt, Object _ClosureBody) {
+        List<Node> AtCaptureDeclaratorsopt = (List<Node>) _AtCaptureDeclaratorsopt;
+        Block ClosureBody = (Block) _ClosureBody;
+        setResult(nf.AtHomeExpr(pos(), null, AtCaptureDeclaratorsopt, ClosureBody));
     }
     // Production: CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
     void rule_CompilationUnit0(Object _PackageDeclarationopt, Object _TypeDeclarationsopt) {

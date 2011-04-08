@@ -449,6 +449,13 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         methodNameMap.put(GE, "operator>=");
         methodNameMap.put(DOT_DOT, "operator..");
         methodNameMap.put(ARROW, "operator->");
+        methodNameMap.put(LARROW, "operator<-");
+        methodNameMap.put(FUNNEL, "operator-<");
+        methodNameMap.put(LFUNNEL, "operator>-");
+        methodNameMap.put(STARSTAR, "operator**");
+        methodNameMap.put(TWIDDLE, "operator~");
+        methodNameMap.put(NTWIDDLE, "operator!~");
+        methodNameMap.put(BANG, "operator!");
 
         String methodName = methodNameMap.get(op);
         if (methodName == null)

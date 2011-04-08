@@ -140,7 +140,6 @@
     interface
     native
     new
-    next
     null
     offer
     offers
@@ -150,7 +149,6 @@
     property
     protected
     public
-    resume
     return
     self
     static
@@ -342,11 +340,6 @@
                 $setResult($_new);
           $EndAction
         ./
-              | n e x t
-        /.$BeginAction
-                $setResult($_next);
-          $EndAction
-        ./
               | n u l l
         /.$BeginAction
                 $setResult($_null);
@@ -390,11 +383,6 @@
               | p u b l i c
         /.$BeginAction
                 $setResult($_public);
-          $EndAction
-        ./
-              | r e s u m e
-        /.$BeginAction
-                $setResult($_resume);
           $EndAction
         ./
               | r e t u r n

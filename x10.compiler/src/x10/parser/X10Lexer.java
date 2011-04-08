@@ -1180,9 +1180,49 @@ public class X10Lexer extends Object implements RuleAction
             }
     
             //
-            // Rule 430:  IntLiteralAndRange ::= Integer . .
+            // Rule 430:  Token ::= * *
             //
             case 430: { 
+                makeToken(X10Parsersym.TK_STARSTAR);
+                  break;
+            }
+    
+            //
+            // Rule 431:  Token ::= ! ~
+            //
+            case 431: { 
+                makeToken(X10Parsersym.TK_NTWIDDLE);
+                  break;
+            }
+    
+            //
+            // Rule 432:  Token ::= < -
+            //
+            case 432: { 
+                makeToken(X10Parsersym.TK_LARROW);
+                  break;
+            }
+    
+            //
+            // Rule 433:  Token ::= - <
+            //
+            case 433: { 
+                makeToken(X10Parsersym.TK_FUNNEL);
+                  break;
+            }
+    
+            //
+            // Rule 434:  Token ::= > -
+            //
+            case 434: { 
+                makeToken(X10Parsersym.TK_LFUNNEL);
+                  break;
+            }
+    
+            //
+            // Rule 435:  IntLiteralAndRange ::= Integer . .
+            //
+            case 435: { 
                  makeToken(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(1), X10Parsersym.TK_IntegerLiteral);
                  makeToken(getToken(2), getToken(3), X10Parsersym.TK_RANGE);
                    break;
