@@ -153,6 +153,8 @@ public class X10CPPTranslator extends Translator {
 	        return outputLine;
 	    if (n instanceof Block)
 	        return outputLine;
+	    if (n instanceof ConstructorDecl)
+	    	return outputLine - 3;
 	    return outputLine - 1;
 	}
 
