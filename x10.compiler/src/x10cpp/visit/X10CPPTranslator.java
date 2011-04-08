@@ -223,7 +223,8 @@ public class X10CPPTranslator extends Translator {
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
 		                final int fixedEndLine = adjustedEndLine < adjustedStartLine ? adjustedStartLine : adjustedEndLine;
 		                final boolean generated = n.position().isCompilerGenerated();
-		                final boolean addLastLine = (n instanceof Block && !((Block)n).statements().isEmpty() && ((Block)n).position().endLine() != ((Block)n).statements().get(((Block)n).statements().size()-1).position().endLine());
+		                final boolean addLastLine = ((n instanceof ConstructorDecl) || (n instanceof Block && !((Block)n).statements().isEmpty() && 
+		                		((Block)n).position().endLine() != ((Block)n).statements().get(((Block)n).statements().size()-1).position().endLine()));
 		                w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
 		                    public void run(ClassifiedStream s) {
 		                        int cppStartLine = s.getStartLineOffset()+adjustedStartLine;
