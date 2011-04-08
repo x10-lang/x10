@@ -1,1 +1,0 @@
-this plugin is no longer used and a single mac project will suffice for 32 and 64 bit.

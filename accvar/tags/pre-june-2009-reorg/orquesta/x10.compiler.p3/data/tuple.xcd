@@ -1,2 +1,0 @@
-// SYNOPSIS: [ #3 ] #0=boxed type #1=runtime type #2=unboxed type #3=args
-x10.core.RailFactory.<#0>makeValRailFromJavaArray(#1, new #2[] { #3 })

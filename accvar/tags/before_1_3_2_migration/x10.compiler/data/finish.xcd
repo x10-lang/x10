@@ -1,8 +1,0 @@
-x10.lang.Runtime.getCurrentActivity().startFinish();
-try {
-     #0
- } catch (Throwable tmp#1) {
-   x10.lang.Runtime.getCurrentActivity().pushException(tmp#1);
-}
-x10.lang.Runtime.getCurrentActivity().stopFinish();
-

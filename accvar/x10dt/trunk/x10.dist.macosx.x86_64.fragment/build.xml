@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="x10.dist.macosx.x86_64.fragment" default="update" basedir=".">
-    <property name="x10.platform" value="macosx_x86"/>
-	<import file="../x10.dist.host/buildFragmentCommon.xml"/> 
-</project>
-

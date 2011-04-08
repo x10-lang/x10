@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <feature url="features/x10dt.feature_2.1.1.qualifier.jar" id="x10dt.feature" version="2.1.1.qualifier" 
-            os="win32,linux,macosx" arch="x86,x86_64">
-      <category name="x10dt_category"/>
-   </feature>
-   <category-def name="x10dt_category" label="X10DT"/>
-</site>

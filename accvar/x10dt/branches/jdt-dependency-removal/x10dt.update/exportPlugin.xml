@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="export.plugin" default="build.update.jar" basedir=".">
-	<import file="./buildCommon.xml"/>
-	<import file="./buildPluginCommon.xml"/>
-</project>

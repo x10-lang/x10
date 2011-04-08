@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="x10.dist.linux.x86.fragment" default="update" basedir=".">
-    <property name="x10.platform" value="linux_x86"/> 
- 	<import file="../x10.dist.host/buildFragmentCommon.xml"/>  
-</project>
-

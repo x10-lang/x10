@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Effects
-Bundle-SymbolicName: x10.effects
-Bundle-Version: 2.1.1.qualifier
-Export-Package: x10.effects.constraints
-Require-Bundle: x10.constraints;bundle-version="1.7.3"

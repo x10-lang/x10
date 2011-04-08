@@ -1,2 +1,0 @@
-// SYNOPSIS: new boolean[#0] {#1} #2=is_safe #3=is_value
-x10.cluster.array.DistArrayManager.createBooleanArray(#0,#1,#2,(!#3))

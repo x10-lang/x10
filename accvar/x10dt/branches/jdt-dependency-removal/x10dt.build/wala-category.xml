@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <feature url="features/wala.feature_2.1.1.qualifier.jar" id="wala.feature" version="2.1.1.qualifier">
-      <category name="wala_category"/>
-   </feature>
-   <category-def name="wala_category" label="X10 WALA"/>
-</site>
