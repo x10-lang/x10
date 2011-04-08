@@ -153,8 +153,6 @@ public class X10CPPTranslator extends Translator {
 	        return outputLine;
 	    if (n instanceof Block)
 	        return outputLine;
-	    if (n instanceof ConstructorDecl)
-	    	return outputLine - 3;
 	    return outputLine - 1;
 	}
 
@@ -195,7 +193,7 @@ public class X10CPPTranslator extends Translator {
 		// FIXME: [IP] Some nodes have no del() -- warn in that case
 		super.print(parent, n, w_);
 
-		final int endLine = w.currentStream().getStreamLineNumber(); // for debug info
+		final int endLine = w.currentStream().getStreamLineNumber() - w.currentStream().getOmittedLines(); // for debug info
 
 		if (opts.x10_config.DEBUG && line > 0 &&
 		    ((n instanceof Stmt && !(n instanceof SwitchBlock) && !(n instanceof Catch)) ||

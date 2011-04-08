@@ -1688,6 +1688,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        h.write(";");
 	        h.newline(); h.forceNewline();
 
+	        int _makeStartLine = sw.currentStream().getStreamLineNumber();
+	        
 	        emitter.printHeader(dec, sw, tr, true, true, container.isX10Struct() ? typeName : make_ref(typeName));
 
 	        sw.allowBreak(0, " "); sw.write("{"); sw.newline(4); sw.begin(0);
@@ -1714,6 +1716,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.end(); sw.newline();
 	        sw.writeln("}");
 	        sw.forceNewline();
+	        sw.currentStream().omitLines(sw.currentStream().getStreamLineNumber() - _makeStartLine + 1);
 	    }
 
 	    sw.newline(); sw.forceNewline();
