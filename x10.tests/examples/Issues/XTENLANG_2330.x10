@@ -152,8 +152,8 @@ class XTENLANG_2370
     }
 	static def fail():void { throw new RuntimeException("test failed!"); }
 	static def test() {
-		m(new Array[Int][1,2,3], [2] as Point);
-		try { m(new Array[Int][1,2,3], [2,3] as Point); fail(); } catch (e:FailedDynamicCheckException) {}
+		m([1,2,3], [2] as Point);
+		try { m([1,2,3], [2,3] as Point); fail(); } catch (e:FailedDynamicCheckException) {}
 	}
 }
 
