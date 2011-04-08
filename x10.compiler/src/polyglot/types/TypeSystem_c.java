@@ -4205,17 +4205,17 @@ public class TypeSystem_c implements TypeSystem
     public Map<X10ClassDef_c, Boolean> structHaszero() {
         return structHaszero;
     }
-    
-    private static int MAX_RECURSION_DEPTH = 30; // if we cross this limit (if a type is recursive), then we report an error
+
     public boolean hasUnknown(Type t) {
-        return hasUnknownType(t,0);
+        return hasUnknownType(t,new HashSet<Type>());
     }
 
-    private boolean hasUnknownType(Type t, int depth) {
-        if (depth>=MAX_RECURSION_DEPTH) {
-            //Errors.issue(extensionInfo(),new SemanticException(""),t.position());
-            throw new InternalCompilerError("Reached MAX_RECURSION_DEPTH in hasUnknownType for type="+t);
+    private boolean hasUnknownType(Type t, HashSet<Type> visited) {
+        if (visited.contains(t)) {
+            return false;
         }
+        visited.add(t);
+
         if (isUnknown(t)) {
             return true;
         }
@@ -4223,18 +4223,18 @@ public class TypeSystem_c implements TypeSystem
             X10ClassType ct = (X10ClassType) t;
             if (ct.typeArguments() != null) {
             for (Type a : ct.typeArguments()) {
-                if (hasUnknownType(a, depth+1)) {
+                if (hasUnknownType(a, visited)) {
                     return true;
                 }
             }
             }
             if (ct.x10Def().isFunction()) {
                 // Look at the superclass and interfaces (if any)
-                if (hasUnknownType(ct.superClass(),depth+1)) {
+                if (hasUnknownType(ct.superClass(),visited)) {
                     return true;
                 }
                 for (Type i : ct.interfaces()) {
-                    if (hasUnknownType(i, depth+1)) {
+                    if (hasUnknownType(i, visited)) {
                         return true;
                     }
                 }
@@ -4255,19 +4255,19 @@ public class TypeSystem_c implements TypeSystem
             }
         }*/
         if (t instanceof ConstrainedType) {
-            if (hasUnknownType(Types.baseType(t),depth+1)) {
+            if (hasUnknownType(Types.baseType(t),visited)) {
                 return true;
             }
             ConstrainedType ct = (ConstrainedType) t;
             CConstraint c = Types.xclause(ct);
             for (XVar x : c.vars()) {
-                if (hasUnknown(x, depth+1)) {
+                if (hasUnknown(x, visited)) {
                     return true;
                 }
             }
             
             for (XFormula x : c.atoms()) {
-                if (hasUnknown(x, depth+1)) {
+                if (hasUnknown(x, visited)) {
                     return true;
                 }
             }
@@ -4275,25 +4275,25 @@ public class TypeSystem_c implements TypeSystem
         return false;
     }
 
-    private boolean hasUnknown(XFormula<?> x, int depth) {
+    private boolean hasUnknown(XFormula<?> x, HashSet<Type> visited) {
         for (XTerm a : x.arguments()) {
-            if (hasUnknown(a, depth+1))
+            if (hasUnknown(a, visited))
                 return true;
         }
         return false;
     }
-    private boolean hasUnknown(XTerm x, int depth) {
+    private boolean hasUnknown(XTerm x, HashSet<Type> visited) {
         if (x instanceof XField<?>) {     
-            if (hasUnknown(((XField<?>) x).receiver(),depth+1))
+            if (hasUnknown(((XField<?>) x).receiver(),visited))
                 return true;
             if (x instanceof CField)
-                return hasUnknownType(((CField) x).type(),depth+1);
+                return hasUnknownType(((CField) x).type(),visited);
         }
         if (x instanceof XTypeLit) {
-            return hasUnknownType(((XTypeLit) x).type(),depth+1);
+            return hasUnknownType(((XTypeLit) x).type(),visited);
         } 
         if (x instanceof CLocal) 
-            return hasUnknownType(((CLocal) x).type(),depth+1);
+            return hasUnknownType(((CLocal) x).type(),visited);
         
         return false;
     }
