@@ -1,4 +1,3 @@
-
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -88,7 +87,7 @@ public class KMeansCUDA {
 
                 for (h in Place.places()) {
 
-                    val workers = Place.NUM_ACCELS==0 ? new Array[Place][h] : h.children();
+                    val workers = Place.NUM_ACCELS==0 ? [h as Place] : h.children();
 
                     for (gpu in workers.values()) async at (h) {
    

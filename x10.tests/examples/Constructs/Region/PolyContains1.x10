@@ -14,12 +14,11 @@
  *
  * (was RegionBanded)
  */
-
 class PolyContains1 extends TestRegion {
 
     public def run() {
 
-        val u: Region = Region.makeRectangular(new Array[int][0,0], new Array[int][4,4]);
+        val u: Region = Region.makeRectangular([0,0], [4,4]);
     
         var b1: Region = Region.makeBanded(5, 1, 1);
         prArray("makeBanded(5,1,1)", b1);

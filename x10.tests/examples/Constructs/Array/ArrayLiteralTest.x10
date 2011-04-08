@@ -21,10 +21,10 @@ public class ArrayLiteralTest extends x10Test {
 
         val e = 0..9;
         val r = [1, 2, 3];
-        val a = new Array[Int][1,2,3];
+        val a = [1 as Int,2 as Int,3 as Int];
         var sumr:int=0, suma:int=0;
         for (i in a.values()) suma += i;
-        for (i in r.values()) sumr +=i;
+        for (i in r.values()) sumr += i;
         return suma==6 && sumr==6;
     }
 

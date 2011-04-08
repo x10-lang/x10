@@ -28,9 +28,9 @@ public class HeatTransfer_v5 {
     static val epsilon = 1.0e-5;
     static val P = 1;
 
-    static val BigD = Dist.makeBlock(new Array[Region(1){rect}][0..(n+1), 0..(n+1)], 0);
-    static val D = BigD | new Array[Region(1){rect}][1..n, 1..n];
-    static val LastRow : Region= new Array[Region(1){rect}][0..0, 1..n];
+    static val BigD = Dist.makeBlock((0..(n+1))*(0..(n+1)), 0);
+    static val D = BigD | (1..n)*(1..n);
+    static val LastRow = (0..0)*(1..n);
     static val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
     static val Temp = DistArray.make[Double](BigD);
 
@@ -98,7 +98,7 @@ public class HeatTransfer_v5 {
        for ([i] in A.region.projection(0)) {
            for ([j] in A.region.projection(1)) {
                 val pt = Point.make(i,j);
-                at (BigD(pt)) { 
+                at (BigD(pt)) {
                     val tmp = A(pt);
                     at (Place.FIRST_PLACE) Console.OUT.printf("%1.4f ", tmp);
                 }

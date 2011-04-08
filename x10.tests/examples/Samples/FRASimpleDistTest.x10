@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class FRASimpleDistTest extends x10Test {
     public def run():boolean {
-         val args = new Array[String]["-m", "10"];
+         val args:Array[String](1) = ["-m", "10"];
          FRASimpleDist.main(args);
          return true;
     }

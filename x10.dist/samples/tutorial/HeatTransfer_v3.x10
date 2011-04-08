@@ -1,4 +1,3 @@
-
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -11,7 +10,6 @@
  */
 
 import x10.util.ArrayList;
-
 
 /**
  * This is one of a series of programs showing how to express
@@ -37,11 +35,11 @@ import x10.util.ArrayList;
  * place instead of being redone on every loop iteration.<p>
  */
 public class HeatTransfer_v3 {
-    static val n = 3; 
+    static val n = 3;
     static val epsilon = 1.0e-5;
     static val P = 2;
 
-    static val BigD = Dist.makeBlock(new Array[Region(1){self.rect}][0..(n+1), 0..(n+1)], 0);
+    static val BigD = Dist.makeBlock((0..(n+1))*(0..(n+1)), 0);
     static val D = BigD | (1..n)*(1..n);
     static val LastRow = (0..0)*(1..n);
     static val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
@@ -82,7 +80,10 @@ public class HeatTransfer_v3 {
             }
 
             delta = A.map(Scratch, Temp, D.region, (x:Double,y:Double)=>Math.abs(x-y)).reduce((x:Double,y:Double)=>Math.max(x,y), 0.0);
-            finish ateach (p in D) A(p) = Temp(p);
+
+            finish ateach (p in D) {
+                A(p) = Temp(p);
+            }
         } while (delta > epsilon);
     }
  
@@ -90,8 +91,8 @@ public class HeatTransfer_v3 {
        for ([i] in A.region.projection(0)) {
            for ([j] in A.region.projection(1)) {
                 val pt = Point.make(i,j);
-                at (BigD(pt)) { 
-		    val tmp = A(pt);
+                at (BigD(pt)) {
+                    val tmp = A(pt);
                     at (Place.FIRST_PLACE) Console.OUT.printf("%1.4f ", tmp);
                 }
             }
@@ -100,14 +101,14 @@ public class HeatTransfer_v3 {
     }
 
     public static def main(Array[String]) {
-	Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
-	Console.OUT.println("Initializing data structures");
+        Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
+        Console.OUT.println("Initializing data structures");
         val s = new HeatTransfer_v3();
-	Console.OUT.print("Beginning computation...");
-	val start = System.nanoTime();
+        Console.OUT.print("Beginning computation...");
+        val start = System.nanoTime();
         s.run();
-	val stop = System.nanoTime();
-	Console.OUT.printf("...completed in %1.3f seconds.\n", ((stop-start) as double)/1e9);
-	s.prettyPrintResult();
+        val stop = System.nanoTime();
+        Console.OUT.printf("...completed in %1.3f seconds.\n", ((stop-start) as double)/1e9);
+        s.prettyPrintResult();
     }
 }

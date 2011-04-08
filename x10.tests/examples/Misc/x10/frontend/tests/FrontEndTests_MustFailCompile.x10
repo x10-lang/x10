@@ -2979,10 +2979,7 @@ class Child78 extends Parent78 {
 	def pack4() {}
 }
 
-class XTENLANG_2052 {
-	val s1 = new Array[Double][3.14,1];
-	val s2 = new Array[Double][3.14,
-				"1"]; // ERR: Semantic Error: The literal is not of the given type	 expr:"1"	 type: x10.lang.String{self=="1"}	 desired type: x10.lang.Double
+class XTENLANG_2054 {
 	val x = ULong.MAX_VALUE; //XTENLANG-2054
 }
 class XTENLANG_2070 {
@@ -3697,10 +3694,9 @@ class XTENLANG_1149_2 {
 		val c5:B{self!=null} = f ? b1 : b1;
 		@ERR val c6:B{self==null} = f ? b1 : b1;
 
-		val arr1 = new Array[B{self!=null}][b1,b2];
+		val arr1 = [b1 as B{self!=null},b2 as B{self!=null}];
 		val arr2:Array[B{self!=null}] = [b1,b2]; 
 		@ERR val arr3:Array[B] = [b1,b2]; 
-		@ERR val arr4 = new Array[B{self==b2}][b1,b2];
 	}
 }
 

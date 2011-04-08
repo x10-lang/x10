@@ -54,7 +54,7 @@ public final class SparsePlaceGroup extends PlaceGroup {
    * @param p the place 
    */
   public def this(p:Place) {
-    places = new Array[Place][p];
+    places = [p as Place];
   }
 
   public operator this(i:int):Place = places(i);
