@@ -3925,6 +3925,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_FieldKeyword1() {
         setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
     }
+    // Production: FieldKeyword ::= acc
+    void rule_FieldKeyword2() {
+        setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ACC)));
+    }
     // Production: InclusiveOrExpression ::= InclusiveOrExpression '|' ExclusiveOrExpression
     void rule_InclusiveOrExpression1(Object _InclusiveOrExpression, Object _ExclusiveOrExpression) {
         Expr InclusiveOrExpression = (Expr) _InclusiveOrExpression;
@@ -4261,6 +4265,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: VarKeyword ::= var
     void rule_VarKeyword1() {
         setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
+    }
+    // Production: VarKeyword ::= acc
+    void rule_VarKeyword2() {
+        setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ACC)));
     }
     // Production: TypeArgumentsopt ::= %Empty
     void rule_TypeArgumentsopt0() {

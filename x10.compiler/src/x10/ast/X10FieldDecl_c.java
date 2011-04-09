@@ -549,6 +549,10 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                 if (!(t instanceof X10ParsedClassType))
                     Errors.issue(tc.job(),new SemanticException("A property type cannot be a type parameter.",position),this);
             }
+
+            if (f.isAcc()) {
+                Errors.issue(tc.job(),new SemanticException("A field cannot be an accumulator.",position),this);
+            }
             
 	    	return n;
 	    }

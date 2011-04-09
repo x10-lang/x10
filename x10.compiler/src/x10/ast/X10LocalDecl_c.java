@@ -247,8 +247,9 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
         TypeSystem ts = tc.typeSystem();
 
+        Flags f = flags.flags();
         try {
-            ts.checkLocalFlags(flags.flags());
+            ts.checkLocalFlags(f);
         }
         catch (SemanticException e) {
             Errors.issue(tc.job(), e, this);
@@ -259,6 +260,16 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         // Need to check that the initializer is a subtype of the (declared or inferred) type of the variable,
         // or can be implicitly coerced to the type.
         if (n.init != null) {
+            if (f.isAcc()) {
+                // we write:
+                // acc i:Int = new IntReducible(...)
+                // we want to make sure the init is a subtype of
+                //  Reducible[Int]
+                // (and not a subtype of Int)
+                X10ClassType reducibleType = ts.Reducible();
+                List<Type> typeParams = Collections.singletonList(type);
+                type = reducibleType.typeArguments(typeParams);
+            }
             Expr newInit = Converter.attemptCoercion(tc, n.init, type);
             if (newInit != null)
                 return n.init(newInit);

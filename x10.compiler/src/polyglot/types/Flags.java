@@ -23,6 +23,7 @@ public class Flags implements Serializable
 
 
     public static final Flags NONE         = new Flags();
+    public static final Flags ACC       = createFlag("acc", null);
     public static final Flags PUBLIC       = createFlag("public", null);
     public static final Flags PRIVATE      = createFlag("private", null);
     public static final Flags PROTECTED    = createFlag("protected", null);
@@ -256,6 +257,29 @@ public class Flags implements Serializable
      */
     public boolean isFinal() {
 	return contains(FINAL);
+    }
+
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>acc</code>
+     * flag set.
+     */
+    public Flags Acc() {
+	return set(ACC);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>acc</code>
+     * flag clear.
+     */
+    public Flags clearAcc() {
+	return clear(ACC);
+    }
+    /**
+     * Return true if <code>this</code> has the <code>acc</code> flag set.
+     */
+    public boolean isAcc() {
+	return contains(ACC);
     }
 
     /**
