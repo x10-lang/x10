@@ -175,6 +175,7 @@
 --    type
 --    val
 --    var
+--    acc
 --    when
 --    while
 %End
@@ -670,6 +671,10 @@
         /.$BeginJava
 			r.rule_FieldKeyword1();
         $EndJava./
+                   | acc
+        /.$BeginJava
+			r.rule_FieldKeyword2();
+        $EndJava./
                    
                    
                    
@@ -680,6 +685,10 @@
                    | var 
         /.$BeginJava
 			r.rule_VarKeyword1();
+        $EndJava./
+                   | acc 
+        /.$BeginJava
+			r.rule_VarKeyword2();
         $EndJava./
                     
                    
