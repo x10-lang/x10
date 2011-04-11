@@ -17,7 +17,8 @@ public class LongType extends RuntimeType<Long> {
 	private static final long serialVersionUID = 1L;
 
     public LongType() {
-        super(long.class,
+//        super(long.class,
+        super(Long.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
@@ -29,6 +30,7 @@ public class LongType extends RuntimeType<Long> {
         return "x10.lang.Long";
     }
 
+    // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Long;

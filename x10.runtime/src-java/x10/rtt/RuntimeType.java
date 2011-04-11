@@ -125,10 +125,13 @@ public class RuntimeType<T> implements Type<T> {
         else if (base.isInstance(o)) { // i.e. type of o != This
             return checkParents(o, params);
         }
+        // not needed for Java primitives. not sure for String
+        /*
         else if (o instanceof String || o instanceof Number) {
             // @NativeRep'ed type
             return checkParents(o, params);
         }
+        */
         else {
             return false;
         }
@@ -386,10 +389,13 @@ public class RuntimeType<T> implements Type<T> {
         else if (base.isInstance(o)) {
             return checkParents(o, param0);
         }
+        // not needed for Java primitives. not sure for String
+        /*
         else if (o instanceof String || o instanceof Number) {
             // @NativeRep'ed type
             return checkParents(o, param0);
         }
+        */
         else {
             return false;
         }
@@ -425,10 +431,13 @@ public class RuntimeType<T> implements Type<T> {
         else if (base.isInstance(o)) {
             return checkParents(o, param0, param1);
         }
+        // not needed for Java primitives. not sure for String
+        /*
         else if (o instanceof String || o instanceof Number) {
             // @NativeRep'ed type
             return checkParents(o, param0, param1);
         }
+        */
         else {
             return false;
         }
@@ -476,10 +485,13 @@ public class RuntimeType<T> implements Type<T> {
         else if (base.isInstance(o)) {
             return checkParents(o, param0, param1, param2);
         }
+        // not needed for Java primitives. not sure for String
+        /*
         else if (o instanceof String || o instanceof Number) {
             // @NativeRep'ed type
             return checkParents(o, param0, param1, param2);
         }
+        */
         else {
             return false;
         }

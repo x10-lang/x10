@@ -17,7 +17,8 @@ public class ByteType extends RuntimeType<Byte> {
 	private static final long serialVersionUID = 1L;
 
     public ByteType() {
-        super(byte.class,
+//        super(byte.class,
+        super(Byte.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
@@ -29,6 +30,7 @@ public class ByteType extends RuntimeType<Byte> {
         return "x10.lang.Byte";
     }
 
+    // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Byte;

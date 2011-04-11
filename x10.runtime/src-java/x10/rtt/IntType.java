@@ -17,7 +17,8 @@ public class IntType extends RuntimeType<Integer> {
 	private static final long serialVersionUID = 1L;
 
     public IntType() {
-        super(int.class,
+//        super(int.class,
+        super(Integer.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                 Types.STRUCT
@@ -29,6 +30,7 @@ public class IntType extends RuntimeType<Integer> {
         return "x10.lang.Int";
     }
 
+    // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Integer;

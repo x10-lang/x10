@@ -17,7 +17,8 @@ public class FloatType extends RuntimeType<Float> {
 	private static final long serialVersionUID = 1L;
 
     public FloatType() {
-        super(float.class,
+//        super(float.class,
+        super(Float.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
@@ -29,6 +30,7 @@ public class FloatType extends RuntimeType<Float> {
         return "x10.lang.Float";
     }
 
+    // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Float;
