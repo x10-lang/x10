@@ -723,8 +723,10 @@ public class Inliner extends ContextVisitor {
                 report("inlining not implemented for constructors with type args: " + ((ConstructorCall) call).typeArguments(), call);
                 return null;
             }
-            if (INLINE_STRUCT_CONSTRUCTORS && ts.isStructType(candidate.container().get()))
-                inliningRequired = true;
+            if (ts.isStructType(candidate.container().get())) {
+                if (INLINE_STRUCT_CONSTRUCTORS)
+                    inliningRequired = true;
+            }
         }
         // short-circuit if inlining is not required and there is no implicit inlining
         if (!inliningRequired && !INLINE_IMPLICIT) {
@@ -1169,7 +1171,7 @@ public class Inliner extends ContextVisitor {
         if (call instanceof Call && ((Call) call).methodInstance().flags().isStatic()) 
             return null;
         ProcedureInstance<? extends ProcedureDef> pi = call instanceof Call ? ((Call) call).procedureInstance() : ((ConstructorCall) call).procedureInstance();
-        TypeParamSubst typeMap = makeTypeMap(pi);
+        TypeParamSubst typeMap = makeTypeMap(pi, call.typeArguments());
         Type thisType = typeMap.reinstantiate(((MemberDef) pi.def()).container().get());
         Expr expr = null == init ? null : createCast(init.position(), syn.createLocal(init.position(), init), thisType);
         LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.make("this"), expr);
@@ -1188,7 +1190,7 @@ public class Inliner extends ContextVisitor {
     private CodeBlock instantiate(final CodeBlock code, InlinableCall call) {
         try {
             if (DEBUG) debug("Instantiate " + code, call);
-            TypeParamSubst typeMap = makeTypeMap(call.procedureInstance());
+            TypeParamSubst typeMap = makeTypeMap(call.procedureInstance(), call.typeArguments());
             InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedCode = (CodeBlock) code.visit(visitor);
@@ -1453,18 +1455,26 @@ public class Inliner extends ContextVisitor {
      * @param decl
      * @return
      */
-    private TypeParamSubst makeTypeMap(ProcedureInstance<? extends ProcedureDef> instance) {
+    private TypeParamSubst makeTypeMap(ProcedureInstance<? extends ProcedureDef> instance, List<TypeNode> typeNodes) {
         List<Type> typeArgs = new ArrayList<Type>();
         List<ParameterType> typeParms = new ArrayList<ParameterType>();
         if (!(instance instanceof ConstructorInstance)) { // TODO: remove the condition, currently ConstructorInstances can have a mismatch between type parameters and type arguements but they shouldn't have either so we can ignore them
-            typeArgs.addAll(instance.typeParameters());
+            if (typeNodes.isEmpty()) {
+                typeArgs.addAll(instance.typeParameters());
+            } else {
+                for (TypeNode tn : typeNodes) {
+                    typeArgs.add(tn.type());
+                }
+            }
             typeParms.addAll(instance.def().typeParameters()); 
         }
         X10ClassType container = (X10ClassType) ((MemberInstance<? extends ProcedureDef>) instance).container();
-        List<Type> cTypeArgs = container.typeArguments();
-        if (cTypeArgs != null) {
-            typeArgs.addAll(cTypeArgs);
-            typeParms.addAll(container.x10Def().typeParameters());
+        if (!instance.def().staticContext()) {
+            List<Type> cTypeArgs = container.typeArguments();
+            if (cTypeArgs != null) {
+                typeArgs.addAll(cTypeArgs);
+                typeParms.addAll(container.x10Def().typeParameters());
+            }
         }
         if (false) { // TODO enable this path
             assert (typeArgs.size() == typeParms.size());
