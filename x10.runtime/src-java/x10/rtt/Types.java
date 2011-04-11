@@ -50,6 +50,33 @@ public class Types {
         return new RuntimeType<Class<?>>(c);
     }
 
+    public static final RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Any";
+        }
+        
+        @Override
+        public boolean isSubtype(x10.rtt.Type<?> o) {
+            return o == ANY;
+        };
+    };
+    // Fix for XTENLANG-1916
+    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Object";
+        }
+        
+        @Override
+        public boolean isSubtype(x10.rtt.Type<?> o) {
+            return o == OBJECT || o == ANY;
+        };
+    };
+    // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
+    // create rtt of struct before all struct types (e.g. int)
+    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class);
+
     // create rtt of comparable before all types that implement comparable (e.g. int)
     public static final RuntimeType<?> COMPARABLE = new RuntimeType(
         Comparable.class, 
@@ -91,31 +118,6 @@ public class Types {
         public String typeName() {
             return "x10.lang.String";
         }
-    };
-    // Fix for XTENLANG-1916
-    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Object";
-        }
-        
-        @Override
-        public boolean isSubtype(x10.rtt.Type<?> o) {
-            return o == OBJECT || o == ANY;
-        };
-    };
-    // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
-    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class);
-    public static final RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Any";
-        }
-        
-        @Override
-        public boolean isSubtype(x10.rtt.Type<?> o) {
-            return o == ANY;
-        };
     };
 
     public static Class<?> UBYTE_CLASS;
