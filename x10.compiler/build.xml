@@ -125,6 +125,7 @@
                 <include name="X10Parsersym.java"/>
             </fileset>
         </delete>
+        <echo message="cd ${src}/x10/parser &amp;&amp; ${lpg.executable} -include-directory=${templates.dir}\;${include.dir}\; -directory-prefix=${src}/ ${grammar.file}"/>
         <exec dir="${src}/x10/parser" executable="${lpg.executable}" failonerror="true">
             <arg value="-include-directory=${templates.dir};${include.dir};"/>
             <arg value="-directory-prefix=${src}/"/>

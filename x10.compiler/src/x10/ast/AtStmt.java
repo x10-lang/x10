@@ -11,12 +11,15 @@
 
 package x10.ast;
 
+import java.util.List;
+
 import polyglot.ast.CompoundStmt;
+import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import x10.types.AtDef;
 
 /**
- * The node constructed for the X10 construct at (P) {S}.
+ * The AST node for the X10 construct at (P) {S}.
  */
 public interface AtStmt extends CompoundStmt, RemoteActivityInvocation {
 
@@ -32,4 +35,8 @@ public interface AtStmt extends CompoundStmt, RemoteActivityInvocation {
     AtDef atDef();
 
     AtStmt atDef(AtDef ci);
+
+    List<Node> captures();
+
+    AtStmt captures(List<Node> vars);
 }

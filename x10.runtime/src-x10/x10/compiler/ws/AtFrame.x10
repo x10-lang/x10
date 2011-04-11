@@ -15,14 +15,16 @@ public final class AtFrame extends Frame {
     public def remap():AtFrame = this;
 
     public def wrapResume(worker:Worker) {
-        update(upRef, throwable);
-        throwable = null;
+        update(upRef, worker.throwable);
+        worker.throwable = null;
     }
 
     @Inline public static def update(upRef:GlobalRef[Frame], throwable:Throwable) {
         val body = ()=> @x10.compiler.RemoteInvocation {
-            val up = (upRef as GlobalRef[Frame]{home==here})();
-            up.throwable = throwable;
+            var up:Frame = (upRef as GlobalRef[Frame]{home==here})();
+            if (null != throwable) {
+                up = new ThrowFrame(up, throwable);
+            }
             Runtime.wsFIFO().push(up);
         };
         Runtime.wsRunAsync(upRef.home.id, body);

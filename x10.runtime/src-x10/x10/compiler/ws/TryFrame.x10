@@ -21,15 +21,7 @@ public abstract class TryFrame extends RegularFrame {
         } catch (t:Abort) {
             throw t;
         } catch (t:Throwable) {
-            throwable = t;
-        }
-    }
-
-    @Inline public final def rethrow() {
-        if (null != throwable) {
-            val t = throwable;
-            throwable = null;
-            throw t;
+            worker.throwable = t;
         }
     }
 }

@@ -7,7 +7,6 @@
 #include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
-#include <x10aux/rail_utils.h>
 
 #include <assert.h>
 
@@ -23,6 +22,19 @@ namespace x10 {
     
     namespace util { 
 
+        void throwArrayIndexOutOfBoundsException(x10_int index, x10_int length) X10_PRAGMA_NORETURN;
+    
+        inline void checkBounds(x10_int index, x10_int length) {
+            #ifndef NO_BOUNDS_CHECKS
+            // Since we know length is non-negative and IMCs are zero-based,
+            // the bounds check can be optimized to a single unsigned comparison.
+            // The C++ compiler won't do this for us, since it doesn't know that length is non-negative.
+            if (((x10_uint)index) >= ((x10_uint)length)) {
+                x10::util::throwArrayIndexOutOfBoundsException(index, length);
+            }
+            #endif
+        }
+        
         template<class T> class RemoteIndexedMemoryChunk;
         
         template<class T> class IndexedMemoryChunk  {
@@ -47,20 +59,20 @@ namespace x10 {
             IndexedMemoryChunk(x10_ulong _data, x10_int _len): data(_data), len(_len) {}
 
             inline T __apply(x10_int index) { 
-                x10aux::checkRailBounds(index, len);
+                checkBounds(index, len);
                 return raw()[index]; 
             }
             inline T __apply(x10_long index) { 
-                x10aux::checkRailBounds((x10_int)index, len);
+                checkBounds((x10_int)index, len);
                 return raw()[index]; 
             }
             
             inline void __set(x10_int index, T val) { 
-                x10aux::checkRailBounds(index, len);
+                checkBounds(index, len);
                 raw()[index] = val; 
             }
             inline void __set(x10_long index, T val) { 
-                x10aux::checkRailBounds((x10_int)index, len);
+                checkBounds((x10_int)index, len);
                 raw()[index] = val; 
             }
 
@@ -276,8 +288,8 @@ namespace x10 {
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::clear(x10_int index, x10_int numElems) {
     if (numElems>0) {
-        x10aux::checkRailBounds(index, len);
-        x10aux::checkRailBounds(index+numElems, len+1);
+        checkBounds(index, len);
+        checkBounds(index+numElems, len+1);
         void* addr = (void*)(&raw()[index]);
         size_t numBytes = numElems * sizeof(T);
         memset(addr, 0, numBytes);
@@ -301,10 +313,10 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
-    x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
     IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, X10_NULL);
 }
 
@@ -317,10 +329,10 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
-    x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
     IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, notif);
 }
 
@@ -332,10 +344,10 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
-    x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
     IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, X10_NULL);
 }
 
@@ -347,10 +359,10 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
-    x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
     IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, notif);
 }
 
@@ -361,10 +373,10 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::copy(x10::util::Inde
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    x10aux::checkRailBounds(srcIndex, src.len);
-    x10aux::checkRailBounds(srcIndex+numElems, src.len+1);
-    x10aux::checkRailBounds(dstIndex, dst.len);
-    x10aux::checkRailBounds(dstIndex+numElems, dst.len+1);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
     IMC_copyBody(srcAddr, dstAddr, numBytes, src->data == dst->data);
 }
 

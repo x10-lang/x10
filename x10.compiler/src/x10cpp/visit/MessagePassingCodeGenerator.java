@@ -782,7 +782,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            Type fct = fi.type();
 		            if (!dupes.contains(fct)) {
 		                dupes.add(fct);
-		                if (!((X10FieldInstance) fi).annotationsMatching(xts.load("x10.compiler.Embed")).isEmpty()) {
+		                if (!((X10FieldInstance) fi).annotationsMatching(xts.Embed()).isEmpty()) {
 		                    ArrayList<ClassType> types = new ArrayList<ClassType>();
                             extractAllClassTypes(fct, types, dupes2);
                             for (ClassType t : types) {
@@ -1410,6 +1410,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sb.append("\n// Debugger stuff\n");
 			sb.append("void* x10aux_place_local__fastData = &x10aux::place_local::_fastData;\n");
 			sb.append("void* __x10MainRef = (void *) "+container+"::main;\n");
+			sb.append("pthread_key_t* __x10ThreadMapper = (pthread_key_t *) &x10::lang::Thread::__thread_mapper;\n");
+			sb.append("x10_boolean* __x10ThreadMapperInited = (x10_boolean *) &x10::lang::Thread::__thread_mapper_inited;\n");
 		}
         return sb.toString();
 	}
@@ -1686,6 +1688,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        h.write(";");
 	        h.newline(); h.forceNewline();
 
+	        int _makeStartLine = sw.currentStream().getStreamLineNumber();
+	        
 	        emitter.printHeader(dec, sw, tr, true, true, container.isX10Struct() ? typeName : make_ref(typeName));
 
 	        sw.allowBreak(0, " "); sw.write("{"); sw.newline(4); sw.begin(0);
@@ -1712,6 +1716,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.end(); sw.newline();
 	        sw.writeln("}");
 	        sw.forceNewline();
+	        sw.currentStream().omitLines(sw.currentStream().getStreamLineNumber() - _makeStartLine + 1);
 	    }
 
 	    sw.newline(); sw.forceNewline();
@@ -1740,15 +1745,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         TypeSystem xts = context.typeSystem();
         
         boolean embed = false;
-        try {
-            Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.Embed"));
+            Type annotation = xts.Embed();
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
                 embed = true;
 //                System.err.println("@StackAllocate " + dec);
             }
-        } catch (SemanticException e) { 
-            /* Ignore exception when looking for annotation */  
-        }
         
         if (embed) {
             String tmpName = embeddedName(dec.name().id());
@@ -2226,7 +2227,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    Boolean embed = false;
         if (asgn instanceof FieldAssign) {
             FieldInstance fi = ((FieldAssign) asgn).fieldInstance();
-            if (!((X10FieldInstance) fi).annotationsMatching(tr.typeSystem().load("x10.compiler.Embed")).isEmpty()) {
+            if (!((X10FieldInstance) fi).annotationsMatching(tr.typeSystem().Embed()).isEmpty()) {
                 embed = true;
             }
         }
@@ -2290,15 +2291,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    TypeSystem xts = (TypeSystem)context.typeSystem();
 	    
         boolean stackAllocate = false;
-        try {
-            Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.StackAllocate"));
+            Type annotation = xts.StackAllocate();
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
                 stackAllocate = true;
 //                System.err.println("@StackAllocate " + dec);
             }
-        } catch (SemanticException e) { 
-            /* Ignore exception when looking for annotation */  
-        }
         
         String tmpName = null;
         if (stackAllocate) {
@@ -3021,18 +3018,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // the programmer asked us to and stack allocate the storage for the object.
         // If the programmer was incorrect about the lifetime of the object, then
         // the program will almost certainly crash in some unexpected way.
-		try {
-		    Type annotation = xts.systemResolver().findOne(QName.make("x10.compiler.StackAllocate"));
+		    Type annotation = xts.StackAllocate();
 		    if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
 		        stackAllocate = true;
 //		        System.err.println("@StackAllocate " + n);
 		    }
-            Type annotation2 = xts.systemResolver().findOne(QName.make("x10.compiler.Embed"));
+            Type annotation2 = xts.Embed();
             if (!((X10Ext) n.ext()).annotationMatching(annotation2).isEmpty()) {
                 embed = true;
 //              System.err.println("@StackAllocate " + n);
             }
-		} catch (SemanticException e) {}
 		
 		if (n.qualifier() != null)
 			throw new InternalCompilerError("Qualified new not supported");

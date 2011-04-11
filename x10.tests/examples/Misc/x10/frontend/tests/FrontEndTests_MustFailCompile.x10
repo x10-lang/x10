@@ -240,8 +240,8 @@ class FinalFieldWrittenExactlyOnce {
 		else if (flag) f=2;
 	}
 	def this(Int,Byte) { // ERR
-		val b:Int = (b=5); // ERR ERR
-		var k:Int = (k=5); // ERR ERR
+		val b:Int = (b=5); // ERR
+		var k:Int = (k=5); // ERR
 		while (true) { val i:Int = 4;}
 		f=f+1; // ERR
 	}
@@ -1695,7 +1695,18 @@ class TestSwitchOnFinalVal {
 
 
 
-
+class XTENLANG_1196 {
+	def test1(P:Array[Int]) {
+		for (p in P) 
+			async break; // ERR
+	}
+	def test2(vec:Dist) {
+		// foreach was removed
+		ateach(v in vec) {
+			break; // ERR
+		}
+	}
+}
 class TestBreaksInAsyncAt {
 	class Shyk_Flup  { // XTENLANG-823
 	  public def test() {
@@ -2968,10 +2979,7 @@ class Child78 extends Parent78 {
 	def pack4() {}
 }
 
-class XTENLANG_2052 {
-	val s1 = new Array[Double][3.14,1];
-	val s2 = new Array[Double][3.14,
-				"1"]; // ERR: Semantic Error: The literal is not of the given type	 expr:"1"	 type: x10.lang.String{self=="1"}	 desired type: x10.lang.Double
+class XTENLANG_2054 {
 	val x = ULong.MAX_VALUE; //XTENLANG-2054
 }
 class XTENLANG_2070 {
@@ -3686,10 +3694,9 @@ class XTENLANG_1149_2 {
 		val c5:B{self!=null} = f ? b1 : b1;
 		@ERR val c6:B{self==null} = f ? b1 : b1;
 
-		val arr1 = new Array[B{self!=null}][b1,b2];
+		val arr1 = [b1 as B{self!=null},b2 as B{self!=null}];
 		val arr2:Array[B{self!=null}] = [b1,b2]; 
 		@ERR val arr3:Array[B] = [b1,b2]; 
-		@ERR val arr4 = new Array[B{self==b2}][b1,b2];
 	}
 }
 
@@ -4856,7 +4863,7 @@ class Test3[T] {
 }
 class Test4[T] {T haszero} {
 	var test:Test4[T] = null;
-	val root = new LikeGlobalRef[Test4[T]](test); // ShouldNotBeERR [Inconsistent constructor return type]
+	val root = new LikeGlobalRef[Test4[T]](test);
 }
 class Accumulator1 {
   private val root = GlobalRef(this);
@@ -5974,7 +5981,7 @@ class TriangleTest_6 // see XTENLANG-2582
      }
 
     public static def test() {
-        new Triangle().area(1); // ShouldNotBeERR
+        new Triangle().area(1);
     }
 }
 
@@ -6382,5 +6389,89 @@ class XTENLANG_1636 {
 			property(2); // ERR
 		}
 	} 
+}
+
+class Offery_1582 { //XTENLANG-1582
+  def this() offers Int {
+    offer 81;
+  }
+}
+
+
+class ImplicitTargetResolutionTest {
+	// Expr and Call have different disambuation rules!
+	static def rankTest1(a:Dist{rank==2}) {} // ok
+	static def rankTest1(a:Dist{rank()==2}) {} // ERR ERR ERR 
+	static def rankTest2(a:Dist{self.rank()==2}) {} // ok
+
+	class TypeName(p:Int) {
+		property p1():Boolean = p==3;
+
+		val f1:TypeName{p1()} = null;	// defaults to "this.p1()"
+		val f2:TypeName{self.p1()} = f1; // ERR
+		val f3:TypeName{this.p1()} = f1;
+		val f4:TypeName{this.p1()} = f2; // ERR
+
+		def bla1(x:TypeName{p1()}) { // defaults to "this.p1()"
+		  val y:TypeName{self.p1()} = x; // ERR
+		  val z:TypeName{this.p1()} = x;
+		  val ok:TypeName{self.p1()} = new TypeName(3);
+		}
+	}
+	static def staticTest(x:TypeName{p1()}) { // defaults to "this.p1()" therefore we have: ERR ERR: Cannot access a non-static field method final property public TypeName.p1() from a static context.
+	  val bug3:TypeName{p1()} = new TypeName(3); // ERR ERR
+	}
+
+	static def rankTest(a:Array[Int]{rank==2}) {
+		val xa:Array[Int]{self.rank==2} = a;
+		val ya:Array[Int]{this.rank==2} = a; // ERR ERR ERR
+	}
+}
+
+class StructLCATest { // see XTENLANG-2635
+	static interface Op {}
+	static struct A implements Op {}
+	static struct B implements Op {}
+	class Test {
+		val x:Array[Op] = [A(), B()]; // ShouldNotBeERR (Found type: x10.array.Array[x10.lang.Any])
+		val y:Array[Op] = [A() as Op, B()];
+		val z:Array[Op] = [A() as Op, B() as Op];
+	}
+}
+class ClassLCATest {
+	static interface Op {}
+	static class A implements Op {}
+	static class B implements Op {}
+	class Test {
+		// LCA of A and B should be Op or Object ?
+		val w:Array[Object{self!=null}] = [new A(), new B()];
+		val x:Array[Op] = [new A(), new B()]; // ERR (Found type: x10.array.Array[x10.lang.Object{self!=null}]{...})
+		val y:Array[Op] = [new A() as Op, new B()];
+		val z:Array[Op] = [new A() as Op, new B() as Op];
+	}
+}
+
+class TestClassConformance { // XTENLANG-2509
+
+	public static def main(args:Array[String](1)) { }
+
+	public abstract static class Matrix(M:Int, N:Int) {
+		protected def this(m:Int, n:Int) = property(m, n);
+		public abstract def mult(A:Matrix{self.M==this.M}, 
+								 B:Matrix{self.N==this.N, self.M==A.N}):void;
+	}
+	
+	public class ConcreteMatrix extends Matrix { // ShouldNotBeERR see XTENLANG-2509
+		public def this(m:Int, n:Int) = super(m, n);
+		public def mult(A:Matrix{self.M==this.M}, 
+						B:Matrix{self.N==this.N, self.M==A.N}) { }
+	}
+}
+
+class TestFakeLocalError[T] { // I'm testing there is only one error (cause there used to be also an error from the dataflow InitChecker)
+  var a:Array[T];
+  static def bar3[U](){U haszero} {
+      a = new Array[U](10); // ERR: Cannot access a non-static field field TestFakeLocalError.a: x10.array.Array[T]{self.x10.array.Array#region!=null, self.x10.array.Array#rank==self.x10.array.Array#region.x10.array.Region#rank, self.x10.array.Array#rect==self.x10.array.Array#region.x10.array.Region#rect, self.x10.array.Array#zeroBased==self.x10.array.Array#region.x10.array.Region#zeroBased, self.x10.array.Array#rail==self.x10.array.Array#region.x10.array.Region#rail} from a static context.
+  }
 }
 

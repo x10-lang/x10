@@ -394,6 +394,12 @@ public class X10Unary_c extends Unary_c {
         methodNameMap.put(POS, "operator+");
         methodNameMap.put(NOT, "operator!");
         methodNameMap.put(BIT_NOT, "operator~");
+        methodNameMap.put(CARET, "operator^");
+        methodNameMap.put(BAR, "operator|");
+        methodNameMap.put(AMPERSAND, "operator&");
+        methodNameMap.put(STAR, "operator*");
+        methodNameMap.put(SLASH, "operator/");
+        methodNameMap.put(PERCENT, "operator%");
 
         String methodName = methodNameMap.get(op);
         if (methodName == null)

@@ -64,10 +64,10 @@ public class Printer extends FilterWriter {
         lock.unlock();
     }
 
-    public def printf(fmt: String): void { printfArray(fmt, new Array[Any][]); }
-    public def printf(fmt: String, o1: Any): void { printfArray(fmt, new Array[Any][o1]); }
-    public def printf(fmt: String, o1: Any, o2: Any): void { printfArray(fmt, new Array[Any][o1,o2]); }
-    public def printf(fmt: String, o1: Any, o2: Any, o3: Any): void { printfArray(fmt, new Array[Any][o1,o2,o3]); }
+    public def printf(fmt: String): void { printfArray(fmt, new Array[Any](0)); }
+    public def printf(fmt: String, o1: Any): void { printfArray(fmt, [o1 as Any]); }
+    public def printf(fmt: String, o1: Any, o2: Any): void { printfArray(fmt, [o1 as Any,o2]); }
+    public def printf(fmt: String, o1: Any, o2: Any, o3: Any): void { printfArray(fmt, [o1 as Any,o2,o3]); }
     public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any): void { 
         printfArray(fmt, [o1,o2,o3,o4]); 
     }

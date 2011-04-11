@@ -29,6 +29,7 @@ import x10.ast.X10ClassBody_c;
 import x10.errors.Errors;
 import x10.extension.X10Ext_c;
 import x10.types.X10LocalDef;
+import x10.types.X10LocalInstance;
 import polyglot.types.TypeSystem;
 import x10.visit.Lowerer;
 import x10.util.Synthesizer;
@@ -682,9 +683,6 @@ public final class InitChecker extends DataFlow
     private void reportVarNotInit(Name n, Position p) {
         reportError(new Errors.MayNotHaveBeenInitialized(n, p));
     }
-    private void reportVarNotInit(NamedVariable f) {
-        reportVarNotInit(f.name().id(),f.position());
-    }
 
 
     /**
@@ -693,6 +691,7 @@ public final class InitChecker extends DataFlow
     protected void checkLocal(LocalDef l,
                               DataFlowItem dfIn,
                               boolean isReachable, Position p) {
+        if (((X10LocalInstance)l.asInstance()).error()!=null) return;
         MinMaxInitCount initCount = dfIn.initStatus.get(l);
         if (initCount == null) {
             // check the outer local was init
@@ -713,6 +712,7 @@ public final class InitChecker extends DataFlow
     protected void checkLocalInstanceInit(LocalDef li,
                                           DataFlowItem dfIn,
                                           Position pos) {
+        if (((X10LocalInstance)li.asInstance()).error()!=null) return;
         MinMaxInitCount initCount = dfIn.initStatus.get(li);
         if (initCount != null && initCount.getMin().isZero()) {
             // the local variable may not have been initialized.
@@ -727,7 +727,9 @@ public final class InitChecker extends DataFlow
                                     LocalAssign a,
                                     DataFlowItem dfIn,
                                     DataFlowItem dfOut) {
-        LocalDef li = ((Local)a.local()).localInstance().def();
+        X10LocalInstance instance = (X10LocalInstance) ((Local) a.local()).localInstance();
+        if (instance.error()!=null) return;
+        LocalDef li = instance.def();
         MinMaxInitCount initCount = dfIn.initStatus.get(li);
         if (initCount==null) {
             reportError(new Errors.FinalLocalVariableCannotBeAssignedTo(li.name(),a.position()));

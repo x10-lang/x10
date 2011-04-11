@@ -192,8 +192,6 @@ public final class ExpressionFlattener extends ContextVisitor {
             ClassType type = ((ConstructorDecl) n).constructorDef().container().get().toClass();
             if (ConstructorSplitterVisitor.cannotSplitConstructor(type))
                 return true;
-            // TODO workaround for XTENLANG-2625
-            if (javaBackend(job)) return true;
         }
         if (n instanceof FieldDecl) { // can't flatten class initializes until assignments can precede field declarations
             return true;
@@ -710,7 +708,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             expr = expr.target(target);
         }
         X10FieldInstance fi = (X10FieldInstance) expr.fieldInstance();
-        if (!fi.annotationsMatching(typeSystem().load("x10.compiler.Embed")).isEmpty()) {
+        if (!fi.annotationsMatching(typeSystem().Embed()).isEmpty()) {
             return expr;
         }
         Expr right = getPrimaryAndStatements(expr.right(), stmts);

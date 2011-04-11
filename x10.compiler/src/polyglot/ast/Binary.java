@@ -38,7 +38,14 @@ public interface Binary extends Expr
         SHR     (">>", Precedence.SHIFT),
         USHR    (">>>", Precedence.SHIFT),
         DOT_DOT ("..", Precedence.CAST),
-        ARROW   ("->", Precedence.SHIFT);
+        ARROW   ("->", Precedence.SHIFT),
+        LARROW  ("<-", Precedence.SHIFT),
+        FUNNEL  ("-<", Precedence.SHIFT),
+        LFUNNEL (">-", Precedence.SHIFT),
+        STARSTAR("**", Precedence.MUL),
+        TWIDDLE ("~", Precedence.EQUAL),
+        NTWIDDLE("!~", Precedence.EQUAL),
+        BANG    ("!", Precedence.SHIFT);
 
 	    protected final Precedence prec;
         public final String name;
@@ -82,6 +89,13 @@ public interface Binary extends Expr
     public static final Operator USHR = Operator.USHR;
     public static final Operator DOT_DOT = Operator.DOT_DOT;
     public static final Operator ARROW = Operator.ARROW;
+    public static final Operator LARROW = Operator.LARROW;
+    public static final Operator FUNNEL = Operator.FUNNEL;
+    public static final Operator LFUNNEL = Operator.LFUNNEL;
+    public static final Operator STARSTAR = Operator.STARSTAR;
+    public static final Operator TWIDDLE = Operator.TWIDDLE;
+    public static final Operator NTWIDDLE = Operator.NTWIDDLE;
+    public static final Operator BANG = Operator.BANG;
 
 
     /**

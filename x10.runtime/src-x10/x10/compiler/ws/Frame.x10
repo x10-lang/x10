@@ -13,7 +13,6 @@ public abstract class Frame {
     @Native("c++", "static_cast<#U >(#x)")
     public native static def cast[T,U](x:T):U;
 
-    @Uninitialized transient public var throwable:Throwable;
     @Uninitialized public val up:Frame;
 
     @Header public def this(up:Frame) {
@@ -29,23 +28,20 @@ public abstract class Frame {
     public def back(worker:Worker, frame:Frame) {}
 
     public def wrapBack(worker:Worker, frame:Frame) {
-        if (null != frame.throwable) {
-            throwable = frame.throwable;
-        } else {
-            back(worker, frame);
-        }
+        if (null != worker.throwable) return;
+        back(worker, frame);
     }
 
     public def resume(worker:Worker) {}
 
     public def wrapResume(worker:Worker) {
-        if (null != throwable) return;
+        if (null != worker.throwable) return;
         try {
             resume(worker);
         } catch (t:Abort) {
             throw t;
         } catch (t:Throwable) {
-            throwable = t;
+            worker.throwable = t;
         }
     }
 }

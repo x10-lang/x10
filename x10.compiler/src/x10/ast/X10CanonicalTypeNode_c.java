@@ -150,7 +150,21 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    tref.update(newType);
 	}
 
-	Node n = super.typeCheck(tc);
+	X10CanonicalTypeNode n = (X10CanonicalTypeNode) super.typeCheck(tc);
+	Type nt = n.type();
+	if (nt.isClass()) {
+	    X10ClassType ct = (X10ClassType) nt.toClass();
+	    if (ct.error() != null && !position().isCompilerGenerated() && ct.error().position() != null) {
+	        // The error will have been reported.  Say something sensible instead.
+	        String file = position().file();
+	        String dfile = ct.error().position().file();
+	        if (!file.equals(dfile)) {
+	            SemanticException error =
+	                new SemanticException(file+" depends on "+dfile+", which has compilation errors");
+	            Errors.issue(tc.job(), error, this);
+	        }
+	    }
+	}
 	return n;
     }
 

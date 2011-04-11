@@ -24,16 +24,16 @@
  * ("MPI-style").</p>
  */
 public class HeatTransfer_v4 {
-     static   val n = 3;
-     static  val epsilon = 1.0e-5;
+    static val n = 3;
+    static val epsilon = 1.0e-5;
 
-     val BigD:Dist(2) = Dist.makeBlock(new Array[Region(1){self.rect}][0..(n+1), 0..(n+1)], 0);
-     val D = BigD | (1..n)*(1..n);
-     val A:DistArray[double](BigD){self.rank==2} 
-      = DistArray.make[double](BigD,(p:Point)=>{ ((0..0)*(1..n)).contains(p) ? 1.0 : 0.0 });
-     val Temp = DistArray.make[Double](BigD);
+    static val BigD = Dist.makeBlock((0..(n+1))*(0..(n+1)), 0);
+    static val D = BigD | (1..n)*(1..n);
+    static val LastRow = (0..0)*(1..n);
+    static val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+    static val Temp = DistArray.make[Double](BigD);
 
-     def stencil_1([x,y]:Point(2)): Double {
+    static def stencil_1([x,y]:Point(2)): Double {
         return ((at(A.dist(x-1,y)) A(x-1,y)) + 
                 (at(A.dist(x+1,y)) A(x+1,y)) + 
                 (at(A.dist(x,y-1)) A(x,y-1)) + 
@@ -43,7 +43,7 @@ public class HeatTransfer_v4 {
     // TODO: The array library really should provide an efficient 
     //       all-to-all collective reduction.
     //       This is a quick and sloppy implementation, which does way too much work.
-     def reduceMax(diff:DistArray[Double],z:Point{self.rank==diff.rank},  scratch:DistArray[Double]) {
+    def reduceMax(diff:DistArray[Double],z:Point{self.rank==diff.rank}, scratch:DistArray[Double]) {
         val max = diff.reduce((x:Double,y:Double)=>Math.max(x,y), 0.0);
         diff(z) = max;
         Clock.advanceAll();
@@ -54,7 +54,7 @@ public class HeatTransfer_v4 {
             val D_Base = Dist.makeUnique(D.places());
             val diff = DistArray.make[Double](D_Base);
             val scratch = DistArray.make[Double](D_Base);
-	    for (z in D_Base) clocked async at (D_Base(z)) {
+            for (z in D_Base) clocked async at (D_Base(z)) {
                 do {
                     diff(z) = 0;
                     for (p:Point(2) in D | here) {
@@ -75,7 +75,7 @@ public class HeatTransfer_v4 {
        for ([i] in A.region.projection(0)) {
            for ([j] in A.region.projection(1)) {
                 val pt = Point.make(i,j);
-                at (BigD(pt)) { 
+                at (BigD(pt)) {
                     val tmp = A(pt);
                     at (Place.FIRST_PLACE) Console.OUT.printf("%1.4f ", tmp);
                 }
@@ -92,7 +92,7 @@ public class HeatTransfer_v4 {
         val start = System.nanoTime();
         s.run();
         val stop = System.nanoTime();
-	Console.OUT.printf("...completed in %1.3f seconds.\n", ((stop-start) as double)/1e9);
+        Console.OUT.printf("...completed in %1.3f seconds.\n", ((stop-start) as double)/1e9);
         s.prettyPrintResult();
     }
 }

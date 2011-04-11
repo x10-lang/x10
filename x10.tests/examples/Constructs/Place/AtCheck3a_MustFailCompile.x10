@@ -14,25 +14,25 @@
 import harness.x10Test;
 
 /**
- * Testing that an at(b) d.x is legal.
+ * Testing that an at(b) d.x is flagged as illegal.
+ * Since it is not known statically that b and d have the same home,
+ * doing an at (b.root) should not enable access to d.
  * @author vj
  */
-
-public class AtCheck3a_MustFailCompile { // extends x10Test {
-	class T {
-		private val root = GlobalRef[T](this);
-	    var x:int=0;
+public class AtCheck3a_MustFailCompile extends x10Test {
+    class T {
+        private val root = GlobalRef[T](this);
+        var x:int=0;
         def m(b: T, d:T) {
-	       at ( b.root) {
-	           val e = d.root().x;  // ShouldBeErr: No valid method call found for call in given type.
-	        }
+           at ( b.root) {
+               val e = d.root().x;  // ShouldBeErr: No valid method call found for call in given type.
+            }
         }
-	}
+    }
     
-    /*public def run()=true;
+    public def run()=true;
 
     public static def main(Array[String](1)) {
         new AtCheck3a_MustFailCompile().execute();
     }
-    */
 }

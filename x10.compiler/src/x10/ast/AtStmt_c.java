@@ -79,12 +79,27 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	protected Expr place;
 	protected Stmt body;
 	protected AtDef atDef;
+	protected List<Node> captures;
 
 	public AtStmt_c(Position pos, Expr place, Stmt body) {
+	    this(pos, place, null, body);
+	}
+	public AtStmt_c(Position pos, Expr place, List<Node> captures, Stmt body) {
 		super(pos);
-        assert place!=null && body!=null;
+        assert body!=null;
 		this.place = place;
 		this.body = body;
+		this.captures = captures;
+	}
+
+	public List<Node> captures() {
+	    return captures;
+	}
+
+	public AtStmt_c captures(List<Node> captures) {
+	    AtStmt_c n = (AtStmt_c) copy();
+	    n.captures = captures;
+	    return n;
 	}
 
 	/**

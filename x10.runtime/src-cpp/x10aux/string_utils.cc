@@ -11,7 +11,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/string_utils.h>
-#include <x10aux/rail_utils.h>
 #include <x10aux/alloc.h>
 #include <x10aux/math.h>
 

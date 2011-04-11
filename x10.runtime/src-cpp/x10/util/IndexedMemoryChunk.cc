@@ -1,5 +1,10 @@
+#include <x10aux/throw.h>
+
 #include <x10/util/IndexedMemoryChunk.h>
+
+#include <x10/lang/ArrayIndexOutOfBoundsException.h>
 #include <x10/lang/Runtime.h>
+#include <x10/lang/String.h>
 
 
 x10aux::RuntimeType x10::util::IndexedMemoryChunk<void>::rtt;
@@ -135,6 +140,13 @@ namespace x10 {
                         String::Lit("Congruent memory is not garbage collected thus cannot contain pointers")));
         }
 
+
+        void throwArrayIndexOutOfBoundsException(x10_int index, x10_int length) {
+            #ifndef NO_EXCEPTIONS
+            char *msg = alloc_printf("Index %ld out of range (length is %ld)", (long)index, ((long)length));
+            throwException(x10::lang::ArrayIndexOutOfBoundsException::_make(String::Lit(msg)));
+            #endif
+        }
     }
 }
 

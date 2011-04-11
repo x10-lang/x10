@@ -76,7 +76,7 @@ public class WSClosureFrameClassGen extends WSRegularFrameClassGen {
     
         super(job, xnf, xct, wts, WSCodeGenUtility.getClosureBodyClassName(closure),
              closure.body(), containerClassDef,
-             Flags.FINAL.Static(), wts.regularFrameType);
+             Flags.FINAL.Static(), job.extensionInfo().typeSystem().RegularFrame());
 
 
         this.closure = closure;
@@ -151,14 +151,14 @@ public class WSClosureFrameClassGen extends WSRegularFrameClassGen {
     
     public Closure getNewClosure() throws SemanticException{
         
-        NewInstanceSynth rSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.rootFinishType);
+        NewInstanceSynth rSynth = new NewInstanceSynth(xnf, xct, compilerPos, xts.RootFinish());
         InstanceCallSynth riSynth = new InstanceCallSynth(xnf, xct, rSynth.genExpr(), "init");
-        NewLocalVarSynth nvSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Name.make("rootFinish"), Flags.FINAL, riSynth.genExpr(), wts.rootFinishType, Collections.EMPTY_LIST);
+        NewLocalVarSynth nvSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Name.make("rootFinish"), Flags.FINAL, riSynth.genExpr(), xts.RootFinish(), Collections.EMPTY_LIST);
 
         //new _main(args)
         NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, this.getClassType());
-        niSynth.addArgument(wts.frameType, nvSynth.getLocal());
-        niSynth.addArgument(wts.finishFrameType, nvSynth.getLocal());
+        niSynth.addArgument(xts.Frame(), nvSynth.getLocal());
+        niSynth.addArgument(xts.FinishFrame(), nvSynth.getLocal());
         for(Formal f : formals){
             //now add the type
             Type fType = f.localDef().type().get(); 
@@ -213,9 +213,9 @@ public class WSClosureFrameClassGen extends WSRegularFrameClassGen {
 //        String targetMethodName = FAST.toString();
 //        
 //        //now process the formals
-//        Expr workerRef = methodSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
-//        Expr upRef = methodSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, UP.toString());
-//        Expr ffRef = methodSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameType, FF.toString());
+//        Expr workerRef = methodSynth.addFormal(compilerPos, Flags.FINAL, xts.Worker(), WORKER.toString());
+//        Expr upRef = methodSynth.addFormal(compilerPos, Flags.FINAL, ts.Frame(), UP.toString());
+//        Expr ffRef = methodSynth.addFormal(compilerPos, Flags.FINAL, ts.FinishFrame(), FF.toString());
 //        
 //        //all other formals
 //        List<Expr> orgFormalRefs = new ArrayList<Expr>();
@@ -236,8 +236,8 @@ public class WSClosureFrameClassGen extends WSRegularFrameClassGen {
 //        //now create the body
 //        CodeBlockSynth mBodySynth = methodSynth.getMethodBodySynth(compilerPos);        
 //        NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, classSynth.getClassDef().asType());
-//        niSynth.addArgument(wts.frameType, upRef);
-//        niSynth.addArgument(wts.finishFrameType, ffRef);
+//        niSynth.addArgument(ts.Frame(), upRef);
+//        niSynth.addArgument(ts.FinishFrame(), ffRef);
 //        niSynth.addArguments(orgFormalTypes, orgFormalRefs);
 //        niSynth.addAnnotation(genStackAllocateAnnotation());
 //        //special process for the new statement
@@ -256,7 +256,7 @@ public class WSClosureFrameClassGen extends WSRegularFrameClassGen {
 //
 //        //_tmp.fast(worker) or _temp.slow(worker)
 //        InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, localRef, targetMethodName);
-//        callSynth.addArgument(wts.workerType, workerRef);
+//        callSynth.addArgument(xts.Worker(), workerRef);
 //        Expr callExpr = callSynth.genExpr();
 //        //if the method has return type, insert return, others, just call them
 //        if(callExpr.type() != null && callExpr.type() != xts.Void()){

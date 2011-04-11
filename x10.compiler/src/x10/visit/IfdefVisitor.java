@@ -33,7 +33,9 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.AmbMacroTypeNode_c;
 import x10.ast.AnnotationNode;
+import x10.ast.X10StringLit_c;
 import x10.config.Configuration;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
@@ -55,18 +57,20 @@ public class IfdefVisitor extends ContextVisitor {
         if (! (n.ext() instanceof X10Ext)) {
             return n;
         }
-        
-        init();
 
         List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
 
         for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
             AnnotationNode a = i.next();
-            X10ClassType at = a.annotationInterface();
-            if (at.error() != null || !at.isSubtype(Ifndef, context)) {
+            TypeNode tn = a.annotationType();
+            if (!(tn instanceof AmbMacroTypeNode_c)) {
                 continue;
             }
-            List<Expr> l = at.propertyInitializers();
+            AmbMacroTypeNode_c at = (AmbMacroTypeNode_c) tn;
+            if (!"Ifndef".equals(at.name().toString())) {
+                continue;
+            }
+            List<Expr> l = at.args();
             if (l.size() != 1 || !l.get(0).isConstant() || !l.get(0).type().isSubtype(ts.String(), context)) {
                 Errors.issue(job, new SemanticException("@Ifndef must have a unique constant String parameter"), n);
                 continue;
@@ -80,12 +84,16 @@ public class IfdefVisitor extends ContextVisitor {
         boolean ifdef = true;
         for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
             AnnotationNode a = i.next();
-            X10ClassType at = a.annotationInterface();
-            if (at.error() != null || !at.isSubtype(Ifdef, context)) {
+            TypeNode tn = a.annotationType();
+            if (!(tn instanceof AmbMacroTypeNode_c)) {
+                continue;
+            }
+            AmbMacroTypeNode_c at = (AmbMacroTypeNode_c) tn;
+            if (!"Ifdef".equals(at.name().toString())) {
                 continue;
             }
             ifdef = false;
-            List<Expr> l = at.propertyInitializers();
+            List<Expr> l = at.args();
             if (l.size() != 1 || !l.get(0).isConstant() || !l.get(0).type().isSubtype(ts.String(), context)) {
                 Errors.issue(job, new SemanticException("@Ifdef must have a unique constant String parameter"), n);
                 continue;
@@ -97,17 +105,5 @@ public class IfdefVisitor extends ContextVisitor {
         }
 
         return ifdef ? n : null;
-    }
-    
-    Type Ifdef,Ifndef;
-    
-    public void init() {
-        if (Ifdef != null) return;
-        try {
-            Ifdef = ts.systemResolver().findOne(QName.make("x10.compiler.Ifdef"));
-            Ifndef = ts.systemResolver().findOne(QName.make("x10.compiler.Ifndef"));
-        } catch (SemanticException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

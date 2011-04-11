@@ -25,7 +25,7 @@ import x10.util.Map;
  *       as this.root().f instead of this.f.
  * TODO: Port to Dual Class implementation of global objects.
  */
-public class Clock(name:String) {
+public final class Clock(name:String) {
 	
 	private val root = GlobalRef[Clock](this);
 	public def equals(a:Any) {

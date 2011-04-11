@@ -10,7 +10,6 @@
  */
 package x10.compiler.ws.util;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,8 +22,11 @@ import polyglot.ast.ConstructorDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.types.MethodDef;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import x10.ast.Closure;
+import x10.compiler.ws.WSTransformState.CallSiteType;
+import x10.compiler.ws.WSTransformState.MethodType;
 
 /**
  * @author Haichuan
@@ -40,14 +42,6 @@ import x10.ast.Closure;
  */
 public class WSTransformationContent {
 	
-	public enum CallSiteType {NORMAL, 				//Nothing to be changed to the call
-					   CONCURRENT_CALL,		//Need use worker, parent frame as parent
-					   MATCHED_CALL		   //The target's def is changed, but not the body
-	};
-	public enum MethodType { NORMAL,   //nothing to be changed
-							 BODYDEF_TRANSFORMATION, //both body and def need to be transformed
-							 DEFONLY_TRANSFORMATION, //only def need to be transformed
-	}   
 					   
 	public class MethodAttribute {
 		protected String desc;

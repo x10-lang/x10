@@ -205,6 +205,10 @@ namespace x10 {
              */
             virtual void __apply();
 
+            // pthread -> Thread mapping is maintained as thread specific data
+            static pthread_key_t __thread_mapper;
+            static x10_boolean __thread_mapper_inited;
+
         protected:
             // Helper method to initialize a Thread object.
             void thread_init(const x10aux::ref<x10::lang::String> name);
@@ -245,9 +249,6 @@ namespace x10 {
             pthread_mutex_t __thread_start_lock;
             // thread specific permit object
             permit_t __thread_permit;
-            // pthread -> Thread mapping is maintained as thread specific data
-            static pthread_key_t __thread_mapper;
-            static x10_boolean __thread_mapper_inited;
         };
 
         template<class T> x10aux::ref<T> Thread::_deserializer(x10aux::deserialization_buffer &buf) {

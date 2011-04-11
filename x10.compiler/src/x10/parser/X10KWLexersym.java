@@ -8,9 +8,9 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-/*****************************************************
- * WARNING!  THIS IS A GENERATED FILE.  DO NOT EDIT! *
- *****************************************************/
+/****************************************************************************
+ * WARNING!  THIS JAVA FILE IS AUTO-GENERATED FROM x10/parser/X10KWLexer.gi *
+ ****************************************************************************/
 
 package x10.parser;
 
@@ -18,25 +18,25 @@ public interface X10KWLexersym {
     public final static int
       Char_a = 3,
       Char_b = 19,
-      Char_c = 6,
+      Char_c = 7,
       Char_d = 15,
       Char_e = 1,
-      Char_f = 12,
+      Char_f = 11,
       Char_g = 22,
-      Char_h = 13,
+      Char_h = 12,
       Char_i = 8,
       Char_j = 26,
       Char_k = 20,
       Char_l = 9,
       Char_m = 17,
       Char_n = 10,
-      Char_o = 7,
+      Char_o = 6,
       Char_p = 14,
       Char_q = 27,
       Char_r = 4,
       Char_s = 5,
       Char_t = 2,
-      Char_u = 11,
+      Char_u = 13,
       Char_v = 21,
       Char_w = 18,
       Char_x = 23,
@@ -77,14 +77,14 @@ public interface X10KWLexersym {
                  "a",
                  "r",
                  "s",
-                 "c",
                  "o",
+                 "c",
                  "i",
                  "l",
                  "n",
-                 "u",
                  "f",
                  "h",
+                 "u",
                  "p",
                  "d",
                  "y",

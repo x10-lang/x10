@@ -49,9 +49,10 @@ abstract public class FinishFrame extends Frame {
     }
 
     public def wrapBack(worker:Worker, frame:Frame) {
-        if (null != frame.throwable) {
+        if (null != worker.throwable) {
             Runtime.atomicMonitor.lock();
-            caught(frame.throwable);
+            caught(worker.throwable);
+            worker.throwable = null;
             Runtime.atomicMonitor.unlock();
         }
     }
@@ -60,7 +61,7 @@ abstract public class FinishFrame extends Frame {
         var n:Int;
         Runtime.atomicMonitor.lock(); n = --asyncs; Runtime.atomicMonitor.unlock();
         if (0 != n) throw Abort.ABORT;
-        throwable = MultipleExceptions.make(stack);
+        worker.throwable = MultipleExceptions.make(stack);
     }
 
     @Inline public final def append(s:Stack[Throwable]) {

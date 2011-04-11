@@ -111,6 +111,7 @@ public class TypeSystem_c implements TypeSystem
         this.creator = new Throwable().fillInStackTrace();
         this.creationTime = counter++;
         this.reporter = extInfo.getOptions().reporter;
+        EMPTY_CONTEXT = emptyContext();
         if (reporter.should_report("TypeSystem", 1))
             reporter.report(1, "Creating " + getClass() + " at " + creationTime);
     }
@@ -718,19 +719,19 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public boolean isUByte(Type t) {
-        return isSubtype(t, UByte(), emptyContext());
+        return finalSubtype(t,UByte());
     }
 
     public boolean isUShort(Type t) {
-        return isSubtype(t, UShort(), emptyContext());
+        return finalSubtype(t,UShort());
     }
 
     public boolean isUInt(Type t) {
-        return isSubtype(t, UInt(), emptyContext());
+        return finalSubtype(t,UInt());
     }
 
     public boolean isULong(Type t) {
-        return isSubtype(t, ULong(), emptyContext());
+        return finalSubtype(t,ULong());
     }
 
     public boolean isNumeric(Type t) {
@@ -756,57 +757,52 @@ public class TypeSystem_c implements TypeSystem
         || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
     }
 
-    public boolean isjavaVoid(Type t) {
-	Context context = emptyContext();
-	return typeEquals(t, Void(), context);
-    }
-
     public boolean isBoolean(Type t) {
-	Context context = emptyContext();
-	return isSubtype(t, Boolean(), context);
+	    return finalSubtype(t,Boolean());
     }
 
     public boolean isChar(Type t) {
-	Context context = emptyContext();
-	return isSubtype(t, Char(), context);
+	    return finalSubtype(t,Char());
     }
 
     public boolean isByte(Type t) {
-	Context context = emptyContext();
-	return isSubtype(t, Byte(), context);
+        return finalSubtype(t,Byte());
     }
 
     public boolean isShort(Type t) {
-	Context context = emptyContext();
-	return isSubtype(t, Short(), context);
+        return finalSubtype(t,Short());
     }
 
     public boolean isInt(Type t) {
-	Context context = emptyContext();
-	return isSubtype(t, Int(), context);
+        return finalSubtype(t,Int());
     }
 
     public boolean isLong(Type t) {
-	Context context = emptyContext();
-	return isSubtype(t, Long(), context);
+        return finalSubtype(t,Long());
     }
 
     public boolean isFloat(Type t) {
-	Context context = emptyContext();
-	return isSubtype(t, Float(), context);
+        return finalSubtype(t,Float());
     }
 
     public boolean isDouble(Type t) {
-	Context context = emptyContext();
-	return isSubtype(t, Double(), context);
+        return finalSubtype(t,Double());
     }
 
+    private final Context EMPTY_CONTEXT; // the context is a mutable object, but in isSubtype we do not mutate it.
+    private boolean emptyContextSubtype(Type t, X10ClassType xlass) {
+        return isSubtype(t, xlass, EMPTY_CONTEXT);
+    }
+    private boolean finalSubtype(Type t, X10ClassType xlass) {
+        assert xlass.flags().isStruct() || xlass.flags().isFinal();
+        return hasSameClassDef(t,xlass) || isUnknown(t);        
+    }
     /**
      * Returns true iff an object of type <type> may be thrown.
      **/
     public boolean isThrowable(Type type) {
         assert_(type);
-        return isSubtype(type, Throwable(), emptyContext());
+        return emptyContextSubtype(type,Throwable());
     }
 
     
@@ -815,17 +811,7 @@ public class TypeSystem_c implements TypeSystem
      * uncheckedExceptions().
      */
     public boolean isUncheckedException(Type type) {
-        assert_(type);
-
-        if (type.isThrowable()) {
-            for (Type t : uncheckedExceptions()) {
-                if (isSubtype(type, t, emptyContext())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return isThrowable(type);
     }
     /**
      * Returns a list of the Throwable types that need not be declared
@@ -2443,6 +2429,14 @@ public class TypeSystem_c implements TypeSystem
         return runtimeType_;
     }
 
+    protected X10ClassType embedType_;
+
+    public X10ClassType Embed() {
+        if (embedType_ == null)
+            embedType_ = load("x10.compiler.Embed");
+        return embedType_;
+    }
+
     protected X10ClassType arrayType_ = null;
 
     public X10ClassType Array() {
@@ -2489,6 +2483,142 @@ public class TypeSystem_c implements TypeSystem
         if (mortalType_ == null)
             mortalType_ = load("x10.lang.Runtime.Mortal");
         return mortalType_;
+    }
+
+    protected X10ClassType frameType_;
+
+    public X10ClassType Frame() {
+        if (frameType_ == null)
+            frameType_ = load("x10.compiler.ws.Frame");
+        return frameType_;
+    }
+
+    protected X10ClassType finishFrameType_;
+
+    public X10ClassType FinishFrame() {
+        if (finishFrameType_ == null)
+            finishFrameType_ = load("x10.compiler.ws.FinishFrame");
+        return finishFrameType_;
+    }
+
+    protected X10ClassType asyncFrameType_;
+
+    public X10ClassType AsyncFrame() {
+        if (asyncFrameType_ == null)
+            asyncFrameType_ = load("x10.compiler.ws.AsyncFrame");
+        return asyncFrameType_;
+    }
+
+    protected X10ClassType throwFrameType_;
+
+    public X10ClassType ThrowFrame() {
+        if (throwFrameType_ == null)
+            throwFrameType_ = load("x10.compiler.ws.ThrowFrame");
+        return throwFrameType_;
+    }
+
+    protected X10ClassType tryFrameType_;
+
+    public X10ClassType TryFrame() {
+        if (tryFrameType_ == null)
+            tryFrameType_ = load("x10.compiler.ws.TryFrame");
+        return tryFrameType_;
+    }
+
+    protected X10ClassType atFrameType_;
+
+    public X10ClassType AtFrame() {
+        if (atFrameType_ == null)
+            atFrameType_ = load("x10.compiler.ws.AtFrame");
+        return atFrameType_;
+    }
+
+    protected X10ClassType regularFrameType_;
+
+    public X10ClassType RegularFrame() {
+        if (regularFrameType_ == null)
+            regularFrameType_ = load("x10.compiler.ws.RegularFrame");
+        return regularFrameType_;
+    }
+
+    protected X10ClassType mainFrameType_;
+
+    public X10ClassType MainFrame() {
+        if (mainFrameType_ == null)
+            mainFrameType_ = load("x10.compiler.ws.MainFrame");
+        return mainFrameType_;
+    }
+
+    protected X10ClassType workerType_;
+
+    public X10ClassType Worker() {
+        if (workerType_ == null)
+            workerType_ = load("x10.compiler.ws.Worker");
+        return workerType_;
+    }
+
+    protected X10ClassType remoteFinishType_;
+
+    public X10ClassType RemoteFinish() {
+        if (remoteFinishType_ == null)
+            remoteFinishType_ = load("x10.compiler.ws.RemoteFinish");
+        return remoteFinishType_;
+    }
+
+    protected X10ClassType rootFinishType_;
+
+    public X10ClassType RootFinish() {
+        if (rootFinishType_ == null)
+            rootFinishType_ = load("x10.compiler.ws.RootFinish");
+        return rootFinishType_;
+    }
+
+    protected X10ClassType abortType_;
+
+    public X10ClassType Abort() {
+        if (abortType_ == null)
+            abortType_ = load("x10.compiler.Abort");
+        return abortType_;
+    }
+
+    protected X10ClassType stackAllocateType_;
+
+    public X10ClassType StackAllocate() {
+        if (stackAllocateType_ == null)
+            stackAllocateType_ = load("x10.compiler.StackAllocate");
+        return stackAllocateType_;
+    }
+
+    protected X10ClassType inlineOnlyType_;
+
+    public X10ClassType InlineOnly() {
+        if (inlineOnlyType_ == null)
+            inlineOnlyType_ = load("x10.compiler.InlineOnly");
+        return inlineOnlyType_;
+    }
+
+    protected X10ClassType headerType_;
+
+    public X10ClassType Header() {
+        if (headerType_ == null)
+            headerType_ = load("x10.compiler.Header");
+        return headerType_;
+    }
+
+    protected X10ClassType ephemeralType_;
+
+    public X10ClassType Ephemeral() {
+        if (ephemeralType_ == null)
+            ephemeralType_ = load("x10.compiler.Ephemeral");
+        return ephemeralType_;
+    }
+
+    protected X10ClassType uninitializedType_;
+
+    public X10ClassType Uninitialized() {
+        if (uninitializedType_ == null)
+            uninitializedType_ = load("x10.compiler.Uninitialized");
+        return uninitializedType_;
     }
 
 
@@ -3654,7 +3784,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public boolean isArray(Type t) {
-        return hasSameClassDef(t, Array());
+        return finalSubtype(t, Array());
     }
 
     public static Type getArrayComponentType(Type t) {
@@ -3668,7 +3798,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public boolean isRemoteArray(Type t) {
-        return hasSameClassDef(t, RemoteArray());
+        return finalSubtype(t, RemoteArray());
     }
 
     public boolean isRemoteArrayOf(Type t, Type p) {
@@ -3700,12 +3830,8 @@ public class TypeSystem_c implements TypeSystem
         return Types.instantiate(Settable(), domain, range);
     }
 
-    public boolean isSettable(Type me) {
-        return hasSameClassDef(me, Settable());
-    }
-
     public boolean isX10Array(Type me) {
-        if (hasSameClassDef(me, Array())) {
+        if (finalSubtype(me, Array())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
@@ -3716,7 +3842,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public boolean isX10DistArray(Type me) {
-        if (hasSameClassDef(me, DistArray())) {
+        if (finalSubtype(me, DistArray())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
@@ -3727,7 +3853,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public boolean isIntRange(Type me) {
-        if (hasSameClassDef(me, IntRange())) {
+        if (finalSubtype(me, IntRange())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
@@ -3738,7 +3864,7 @@ public class TypeSystem_c implements TypeSystem
     }
     
     public boolean isLongRange(Type me) {
-        if (hasSameClassDef(me, LongRange())) {
+        if (finalSubtype(me, LongRange())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
@@ -3762,23 +3888,23 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public boolean isClock(Type me) {
-        return isSubtype(me, Clock(), emptyContext());
+        return finalSubtype(me,Clock());
     }
 
     public boolean isPoint(Type me) {
-        return isSubtype(me, Point(), emptyContext());
+        return finalSubtype(me,Point());
     }
 
     public boolean isPlace(Type me) {
-        return isSubtype(me, Place(), emptyContext());
+        return finalSubtype(me,Place());
     }
 
     public boolean isRegion(Type me) {
-        return isSubtype(me, Region(), emptyContext());
+        return emptyContextSubtype(me,Region());
     }
 
     public boolean isDistribution(Type me) {
-        return isSubtype(me, Dist(), emptyContext());
+        return emptyContextSubtype(me,Dist());
     }
 
     public boolean isDistributedArray(Type me) {
@@ -3786,26 +3912,26 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public boolean isComparable(Type me) {
-        return isSubtype(me, Comparable(), emptyContext());
+        return emptyContextSubtype(me,Comparable());
     }
 
     public boolean isIterable(Type me) {
-        return isSubtype(me, Iterable(), emptyContext());
+        return emptyContextSubtype(me,Iterable());
     }
 
     public boolean isIterator(Type me) {
-        return isSubtype(me, Iterator(), emptyContext());
+        return emptyContextSubtype(me,Iterator());
     }
     public boolean isReducible(Type me) {
-        return isSubtype(me, Reducible(), emptyContext());
+        return emptyContextSubtype(me,Reducible());
     }
 
     public boolean isContains(Type me) {
-        return isSubtype(me, Contains(), emptyContext());
+        return emptyContextSubtype(me,Contains());
     }
 
     public boolean isContainsAll(Type me) {
-        return isSubtype(me, ContainsAll(), emptyContext());
+        return emptyContextSubtype(me,ContainsAll());
     }
 
     public boolean isFunctionType(Type t) {
@@ -3832,9 +3958,6 @@ public class TypeSystem_c implements TypeSystem
         return (xt instanceof FunctionType) || ((X10ClassDef) xt.def()).isFunction();
     }
 
-   /* public boolean isBox(Type t) {
-        return hasSameClassDef(t, this.Box());
-    }*/
 
     public boolean isInterfaceType(Type t) {
         t = Types.baseType(t);
@@ -4082,48 +4205,36 @@ public class TypeSystem_c implements TypeSystem
     public Map<X10ClassDef_c, Boolean> structHaszero() {
         return structHaszero;
     }
-    
-    // Temporary hack:
-    //   use cache to break cycles checking for unknown type
-    //   WARNING: this code is NOT reentrant
-    //   FIXME: resolve cycles and remove this cache
-    private Map<Type, Boolean> unknownTypeMap = CollectionFactory.newHashMap();
+
     public boolean hasUnknown(Type t) {
-        unknownTypeMap = CollectionFactory.newHashMap();
-        return hasUnknownType(t);
+        return hasUnknownType(t,new HashSet<Type>());
     }
 
-    private boolean hasUnknownType(Type t) {
-        Boolean unknown = unknownTypeMap.get(t);
-        if (null == unknown) {
-            unknownTypeMap.put(t, false); // break circular check for unknown type (this value may get reset to true below)
-        } else {
-            return unknown.booleanValue();
+    private boolean hasUnknownType(Type t, HashSet<Type> visited) {
+        if (visited.contains(t)) {
+            return false;
         }
+        visited.add(t);
 
         if (isUnknown(t)) {
-            unknownTypeMap.put(t, true);
             return true;
         }
         if (t instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) t;
             if (ct.typeArguments() != null) {
             for (Type a : ct.typeArguments()) {
-                if (hasUnknownType(a)) {
-                    unknownTypeMap.put(t, true);
+                if (hasUnknownType(a, visited)) {
                     return true;
                 }
             }
             }
             if (ct.x10Def().isFunction()) {
                 // Look at the superclass and interfaces (if any)
-                if (hasUnknownType(ct.superClass())) {
-                    unknownTypeMap.put(t, true);
+                if (hasUnknownType(ct.superClass(),visited)) {
                     return true;
                 }
                 for (Type i : ct.interfaces()) {
-                    if (hasUnknownType(i)) {
-                        unknownTypeMap.put(t, true);
+                    if (hasUnknownType(i, visited)) {
                         return true;
                     }
                 }
@@ -4144,22 +4255,19 @@ public class TypeSystem_c implements TypeSystem
             }
         }*/
         if (t instanceof ConstrainedType) {
-            if (hasUnknownType(Types.baseType(t))) {
-                unknownTypeMap.put(t, true);
+            if (hasUnknownType(Types.baseType(t),visited)) {
                 return true;
             }
             ConstrainedType ct = (ConstrainedType) t;
             CConstraint c = Types.xclause(ct);
             for (XVar x : c.vars()) {
-                if (hasUnknown(x)) {
-                    unknownTypeMap.put(t, true);
+                if (hasUnknown(x, visited)) {
                     return true;
                 }
             }
             
             for (XFormula x : c.atoms()) {
-                if (hasUnknown(x)) {
-                    unknownTypeMap.put(t, true);
+                if (hasUnknown(x, visited)) {
                     return true;
                 }
             }
@@ -4167,25 +4275,25 @@ public class TypeSystem_c implements TypeSystem
         return false;
     }
 
-    private boolean hasUnknown(XFormula<?> x) {
+    private boolean hasUnknown(XFormula<?> x, HashSet<Type> visited) {
         for (XTerm a : x.arguments()) {
-            if (hasUnknown(a))
+            if (hasUnknown(a, visited))
                 return true;
         }
         return false;
     }
-    private boolean hasUnknown(XTerm x) {
+    private boolean hasUnknown(XTerm x, HashSet<Type> visited) {
         if (x instanceof XField<?>) {     
-            if (hasUnknown(((XField<?>) x).receiver()))
+            if (hasUnknown(((XField<?>) x).receiver(),visited))
                 return true;
             if (x instanceof CField)
-                return hasUnknownType(((CField) x).type());
+                return hasUnknownType(((CField) x).type(),visited);
         }
         if (x instanceof XTypeLit) {
-            return hasUnknownType(((XTypeLit) x).type());
+            return hasUnknownType(((XTypeLit) x).type(),visited);
         } 
         if (x instanceof CLocal) 
-            return hasUnknownType(((CLocal) x).type());
+            return hasUnknownType(((CLocal) x).type(),visited);
         
         return false;
     }

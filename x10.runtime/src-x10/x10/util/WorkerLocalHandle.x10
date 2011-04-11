@@ -17,10 +17,10 @@ package x10.util;
  * @author tardieu
  */
 public class WorkerLocalHandle[T] implements ()=>T,(T)=>void {
-    private val store:PlaceLocalHandle[Array[T](1){rail}];
+    private val store:PlaceLocalHandle[Array[T](1){rail,rect,zeroBased}];
 
     public def this(t:T) {
-        store = PlaceLocalHandle.make[Array[T](1){rail}](Dist.makeUnique(), ()=>new Array[T](Runtime.MAX_THREADS, t));
+        store = PlaceLocalHandle.make[Array[T](1){rail,rect,zeroBased}](Dist.makeUnique(), ()=>new Array[T](Runtime.MAX_THREADS, t));
     }
 
     public operator this():T {

@@ -58,7 +58,7 @@ public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
     public WSRemoteMainFrameClassGen(AbstractWSClassGen parent, AtStmt atStmt) {
         super(parent, null, //up frame is null
               atStmt.body(),
-              WSCodeGenUtility.getRemoteRemoteClassName(parent.getClassName()), parent.wts.regularFrameType);
+              WSCodeGenUtility.getRemoteRemoteClassName(parent.getClassName()), parent.xts.RegularFrame());
         this.atStmt = atStmt;
         this.parentR = parent; //the parent is not the real parent
         formals = new ArrayList<Pair<Name, Type>>();

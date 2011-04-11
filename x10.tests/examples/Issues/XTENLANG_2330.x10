@@ -38,6 +38,32 @@ public class XTENLANG_2330 extends x10Test
 }
 
 
+
+
+class XTENLANG_2638_desugarer
+{
+	public static def test()
+	{
+	val mShape = ((1..100) * (1..200)) as Region(2);
+	val mDist:Dist(2) = Dist.makeBlock(mShape);
+	val mat = DistArray.make[int] (mDist, 1);
+	val rhs = DistArray.make[int] (mDist, 2);
+
+	finish for (place in mat.dist.places()) async
+	{
+	at (place)
+	{
+	for (pt:Point in mat | here)//(mat.dist | here))
+	{
+		val x:Int = mat(pt); // ERR: Warning: Generated a dynamic check for the method call.
+		val y:Int = rhs(pt); // ERR: Warning: Generated a dynamic check for the method call.
+		mat(pt) = x + y; // ERR: Warning: Generated a dynamic check for the method call.
+	}
+	}
+	}
+	}
+}
+
 class ConstrainedCall(x:Int) { // XTENLANG-2416
     def m(){x==0} = 10;
     def test() { m(); } // ERR
@@ -126,8 +152,8 @@ class XTENLANG_2370
     }
 	static def fail():void { throw new RuntimeException("test failed!"); }
 	static def test() {
-		m(new Array[Int][1,2,3], [2] as Point);
-		try { m(new Array[Int][1,2,3], [2,3] as Point); fail(); } catch (e:FailedDynamicCheckException) {}
+		m([1,2,3], [2] as Point);
+		try { m([1,2,3], [2,3] as Point); fail(); } catch (e:FailedDynamicCheckException) {}
 	}
 }
 

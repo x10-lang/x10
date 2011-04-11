@@ -19,9 +19,9 @@
      *
      *  (C) Copyright IBM Corporation 2006-2010.
      */
-    /*****************************************************
-     * WARNING!  X10Lexer.java WAS AUTO-GENERATED FROM X10Lexer.gi so DO NOT EDIT THE JAVA FILE, INSTEAD EDIT THE gi FILE! *
-     *****************************************************/
+    /**************************************************************************
+     * WARNING!  THIS JAVA FILE IS AUTO-GENERATED FROM $input_file *
+     **************************************************************************/
     ./
 %End
 
@@ -143,6 +143,11 @@
     DARROW
     SUBTYPE
     SUPERTYPE
+    STARSTAR
+    NTWIDDLE
+    LARROW
+    FUNNEL
+    LFUNNEL
 
     IDENTIFIER
 
@@ -885,10 +890,40 @@
                     makeToken($_SUBTYPE);
           $EndAction
         ./
-        
+
     Token ::= ':' '>'
         /.$BeginAction
                     makeToken($_SUPERTYPE);
+          $EndAction
+        ./
+
+    Token ::= '*' '*'
+        /.$BeginAction
+                    makeToken($_STARSTAR);
+          $EndAction
+        ./
+
+    Token ::= '!' '~'
+        /.$BeginAction
+                    makeToken($_NTWIDDLE);
+          $EndAction
+        ./
+
+    Token ::= '<' '-'
+        /.$BeginAction
+                    makeToken($_LARROW);
+          $EndAction
+        ./
+
+    Token ::= '-' '<'
+        /.$BeginAction
+                    makeToken($_FUNNEL);
+          $EndAction
+        ./
+
+    Token ::= '>' '-'
+        /.$BeginAction
+                    makeToken($_LFUNNEL);
           $EndAction
         ./
 

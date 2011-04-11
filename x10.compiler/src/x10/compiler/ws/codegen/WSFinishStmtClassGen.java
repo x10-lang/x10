@@ -34,19 +34,19 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
     public WSFinishStmtClassGen(AbstractWSClassGen parent, Finish finishStmt) {
         super(parent, parent,
                 WSCodeGenUtility.getFinishStmtClassName(parent.getClassName()),
-                parent.wts.finishFrameType, finishStmt.body());
+                parent.xts.FinishFrame(), finishStmt.body());
         
-        if(wts.codegenConfig.OPT_PC_FIELD == 0){
+        if(!wts.OPT_PC_FIELD){
             addPCField();
         }
     }
 
     protected void genClassConstructor() throws SemanticException {
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up"); //up:Frame!
+        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, xts.Frame(), "up"); //up:Frame!
         
         CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
         SuperCallSynth superCallSynth = codeBlockSynth.createSuperCall(compilerPos, classSynth.getClassDef());
-        superCallSynth.addArgument(wts.frameType, upRef);
+        superCallSynth.addArgument(xts.Frame(), upRef);
     }
 
     @Override
@@ -57,12 +57,12 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
         
 
-        AbstractWSClassGen childFrameGen = genChildFrame(wts.regularFrameType, codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
+        AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
         TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
         
         //now add codes to three path;
         //Finish frame only has the fast path
-        if(wts.codegenConfig.DISABLE_EXCEPTION_HANDLE == 1){
+        if(wts.DISABLE_EXCEPTION_HANDLE){
             fastBodySynth.addStmts(callCodes.first());
         }
         else{
@@ -71,7 +71,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         }
         
         //resume/back path
-        if(wts.codegenConfig.OPT_PC_FIELD == 0){
+        if(!wts.OPT_PC_FIELD){
             Expr pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
             
             SwitchSynth resumeSwitchSynth = resumeBodySynth.createSwitchStmt(compilerPos, pcRef);

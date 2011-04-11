@@ -43,7 +43,7 @@ import x10.util.IndexedMemoryChunk;
  * @see Dist
  * @see Array
  */
-public class DistArray[T] (
+public final class DistArray[T] (
     /**
      * The distribution of this array.
      */

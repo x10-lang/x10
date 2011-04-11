@@ -193,7 +193,7 @@ public class X10CPPTranslator extends Translator {
 		// FIXME: [IP] Some nodes have no del() -- warn in that case
 		super.print(parent, n, w_);
 
-		final int endLine = w.currentStream().getStreamLineNumber(); // for debug info
+		final int endLine = w.currentStream().getStreamLineNumber() - w.currentStream().getOmittedLines(); // for debug info
 
 		if (opts.x10_config.DEBUG && line > 0 &&
 		    ((n instanceof Stmt && !(n instanceof SwitchBlock) && !(n instanceof Catch)) ||
@@ -210,31 +210,38 @@ public class X10CPPTranslator extends Translator {
 		        // [DC] avoid NPE when parent is null, e.g. generating initialisation for cuda shm
 		        if (lineNumberMap != null && parent != null) {
 		            final MemberDef def =
-		                (n instanceof Block) ?
-		                    (parent instanceof MethodDecl) ? ((MethodDecl) parent).methodDef() :
-		                    (parent instanceof ConstructorDecl) ? ((ConstructorDecl) parent).constructorDef()
-		                    : null
-		                : null;
-		            final int lastX10Line = parent.position().endLine();
+		            	(n instanceof ConstructorDecl) ?
+		            		((ConstructorDecl) n).constructorDef() :
+			                (n instanceof Block) ?
+			                    (parent instanceof MethodDecl) ? ((MethodDecl) parent).methodDef() 
+			                : null
+			             : null;
+		            final int lastX10Line = (n instanceof ConstructorDecl)? n.position().endLine() : parent.position().endLine();
 		            if (n instanceof Stmt || n instanceof ProcedureDecl)
 	                {
 		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
 		                final int fixedEndLine = adjustedEndLine < adjustedStartLine ? adjustedStartLine : adjustedEndLine;
 		                final boolean generated = n.position().isCompilerGenerated();
-		                final boolean addLastLine = (n instanceof Block && !((Block)n).statements().isEmpty() && ((Block)n).position().endLine() != ((Block)n).statements().get(((Block)n).statements().size()-1).position().endLine());
+		                final boolean addLastLine = ((n instanceof ConstructorDecl) || (n instanceof Block && !((Block)n).statements().isEmpty() && 
+		                		((Block)n).position().endLine() != ((Block)n).statements().get(((Block)n).statements().size()-1).position().endLine()));
 		                w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
 		                    public void run(ClassifiedStream s) {
 		                        int cppStartLine = s.getStartLineOffset()+adjustedStartLine;
 		                        int cppEndLine = s.getStartLineOffset()+fixedEndLine;
-		                        if (!generated)
+		                        if (def != null && !def.position().isCompilerGenerated())
+		                        {
+		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
+		                            lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
+		                            if (addLastLine)
+		                        		lineNumberMap.put(cppFile, cppEndLine, cppEndLine, file, lastX10Line, column);
+		                        }
+		                        else if (!generated)
 		                        {
 		                        	lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
 		                        	if (addLastLine)
 		                        		lineNumberMap.put(cppFile, cppEndLine, cppEndLine, file, lastX10Line, column);
 		                        }
-		                        if (def != null && !def.position().isCompilerGenerated())
-		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine, lastX10Line);
 		                    }
 		                });
 		            }
@@ -244,21 +251,26 @@ public class X10CPPTranslator extends Translator {
 		            	if (t instanceof LocalDecl)
 		            		lineNumberMap.rememberLoopVariable(((LocalDecl)t).name().toString(), ((LocalDecl)n).name().toString(), line, lastX10Line);
 		            }
-		            if (n instanceof FieldDecl && !c.inTemplate()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
+		            if (n instanceof FieldDecl && !c.inTemplate() && !((FieldDecl)n).flags().flags().isStatic()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
 		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
 		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false, -1, false);
 		            else if (def != null)
 		            {
 		            	// include method arguments in the local variable tables
-		            	List<Formal> args = ((ProcedureDecl)parent).formals();
+		            	ProcedureDecl defSource;
+		            	if (n instanceof ConstructorDecl)
+		            		defSource = (ProcedureDecl)n;
+		            	else
+		            		defSource = (ProcedureDecl)parent;
+		            	List<Formal> args = defSource.formals();
 		            	for (int i=0; i<args.size(); i++)
 		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false, -1, false);
 		            	// include "this" for non-static methods		            	
-		            	if (!def.flags().isStatic() && ((ProcedureDecl)parent).reachable() && !c.inTemplate())
+		            	if (!def.flags().isStatic() && defSource.reachable() && !c.inTemplate())
 		            	{
 		            		boolean isStruct = context.currentClass().isX10Struct();
-		            		if (!parent.position().isCompilerGenerated())
+		            		if (!defSource.position().isCompilerGenerated())
 		            			lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true, -1, isStruct);
 		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct);
 		            	}

@@ -12,46 +12,11 @@
 
 package x10.compiler.ws;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-
 import polyglot.ast.Call;
-import polyglot.ast.ClassDecl;
 import polyglot.ast.CodeBlock;
-import polyglot.ast.ConstructorDecl;
-import polyglot.ast.MethodDecl;
-import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
-import polyglot.ast.SourceFile;
-import polyglot.ast.TopLevelDecl;
-import polyglot.frontend.Job;
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.MethodDef;
 
-import polyglot.types.ProcedureDef;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.util.Pair;
-import x10.Configuration;
 import x10.ExtensionInfo;
-import x10.ast.Closure;
-import x10.ast.X10ClassDecl;
-import x10.ast.X10MethodDecl;
-import x10.compiler.ws.codegen.WSCodeGenConfiguration;
-import x10.compiler.ws.util.WSCallGraph;
-import x10.compiler.ws.util.WSCallGraphNode;
-import x10.compiler.ws.util.WSTransformationContent;
-import x10.compiler.ws.util.WSTransformationContent.CallSiteType;
-import x10.compiler.ws.util.WSTransformationContent.MethodType;
-import polyglot.types.Context;
-import polyglot.types.TypeSystem;
-import x10.types.checker.PlaceChecker;
-import x10.util.synthesizer.MethodSynth;
-import x10.visit.X10PrettyPrinterVisitor;
+import x10.X10CompilerOptions;
 
 /**
  * Record the WS transformation intermediate results and context.
@@ -77,194 +42,45 @@ import x10.visit.X10PrettyPrinterVisitor;
  * @author Haichuan
  *
  */
-public class WSTransformState {
-    
-    public final ClassType frameType;
-    public final ClassType finishFrameType;
-    public final ClassType rootFinishType;
-    public final ClassType mainFrameType;
-    public final ClassType remoteFinishType;
-    public final ClassType atFrameType;
-    public final ClassType regularFrameType;
-    public final ClassType asyncFrameType;
-    public final ClassType tryFrameType;
-    public final ClassType workerType;
-    public final ClassType abortType;
-    public final ClassType stackAllocateType; //annotation type
-    public final ClassType inlineType; //annotation type
-    public final ClassType transientType; //annotation type
-    public final ClassType headerType; //annotation type
-    public final ClassType uninitializedType; //annotation type
-    public final ClassType globalRefFFType;  //GlobalRef[FinishFrame]
-    public final ClassType globalRefRFType;  //GloobalRef[RegularFrame]
-    public final Boolean realloc; // whether or not to generate code for frame migration
+public abstract class WSTransformState {
 
-    private String theLanguage; //c++ or java path
-    private WSCallGraph callGraph;
-    private WSTransformationContent transTarget;
-    public WSCodeGenConfiguration codegenConfig;
-    
-    protected TypeSystem xts;
-    
-    /**
-     * Used by WALA call graph builder.
-     * @param xts
-     * @param xnf
-     * @param theLanguage
-     * @param transTarget
-     */
-    public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent transTarget){
-        this(xts, theLanguage);
-        this.transTarget = transTarget;
-        //Debug output;
-        System.out.println(transTarget);
+    public enum CallSiteType {
+        NORMAL,               //Nothing to be changed to the call
+        CONCURRENT_CALL,     //Need use worker, parent frame as parent
+        MATCHED_CALL        //The target's def is changed, but not the body
     }
+
+    public enum MethodType {
+        NORMAL,   //nothing to be changed
+        BODYDEF_TRANSFORMATION, //both body and def need to be transformed
+        DEFONLY_TRANSFORMATION, //only def need to be transformed
+    }
+
+    // true: __CPP__ macro is defined
+    public boolean __CPP__;
     
-    /**
-     * Used by WSCallGraphBarrier path. Use simple call graph analyzer to get concurrent content
-     * @param xts
-     * @param xnf
-     * @param theLanguage
-     */
-    public WSTransformState(TypeSystem xts, NodeFactory xnf, String theLanguage){
-        this(xts, theLanguage);
-        callGraph = new WSCallGraph();
-        
-        //start to iterate the ast in jobs and build all;
-        for(Job job : xts.extensionInfo().scheduler().jobs()){
-            if(job == null){
-                System.err.println("[WS_ERR] CallGraphBuilding: Find one job is empty!");
-                continue;
-            }
-            Node node = job.ast();
-            if(node != null && node instanceof SourceFile){
-                for(TopLevelDecl tld : ((SourceFile)node).decls()){
-                    if(tld instanceof ClassDecl){
-                        boolean result = callGraph.addClass((ClassDecl) tld);
-                        if(result){
-                            System.out.println("[WS_INFO] CallGraphBuilding: Add one classDecl to graph: " + tld.toString());
-                        }
-                        
-                    }
-                }
-            }
-            else{
-                if(node == null){
-                    System.err.println("[WS_ERR] CallGraphBuilding: AST node == null for job: " + job.source().toString());
-                    continue;
-                }
-                if(! (node instanceof SourceFile)){
-                    System.err.println("[WS_ERR] CallGraphBuilding: AST node is not SourceFile for job: " + job.source().toString());
-                    continue;
-                } 
-            }
+    // 1: no pc field for FinishFrame and AsyncFrame
+    public boolean OPT_PC_FIELD = true;
+    
+    // 1: no try catch block in FinishFrame and AsyncFrame
+    public boolean DISABLE_EXCEPTION_HANDLE = false;
+
+    protected WSTransformState(ExtensionInfo extensionInfo) {
+        X10CompilerOptions options = extensionInfo.getOptions();
+
+        __CPP__ = options.macros.contains("__CPP__");
+        DISABLE_EXCEPTION_HANDLE = options.x10_config.WS_DISABLE_EXCEPTION_HANDLE;
+
+        if(DISABLE_EXCEPTION_HANDLE){
+            System.out.println("[WS_INFO] Not Generate fast path's exception handling code");
         }
-        
-        //now do search
-        callGraph.doDFSMark();
-        
-        //debug print
-        List<WSCallGraphNode> methods = callGraph.getAllParallelMethods();
-        System.out.println("[WS_INFO] Found Parallel Methods:");
-        
-        for(WSCallGraphNode node : methods){
-            ProcedureDef md = node.getMethodDef();
-            System.out.printf("    [%s] %s\n",  node.isContainsConcurrent() ? "C" : "D",
-                        md.toString());
-            
-            for(WSCallGraphNode callerNode : node.getCallers()){
-                ProcedureDef cmd = callerNode.getMethodDef();
-                System.out.printf("      <-[%s] %s\n",  callerNode.isContainsConcurrent() ? "C" : "D",
-                        cmd.toString());     
-            }
-        }
-        
-    }
-    
-    /**
-     * Only used to load the frame types;
-     * @param xts
-     * @param theLanguage
-     */
-    protected WSTransformState(TypeSystem xts, String theLanguage){
-        this.xts = xts;
-        this.theLanguage = theLanguage;
-        realloc = theLanguage.equals("c++");
-        frameType = xts.load("x10.compiler.ws.Frame");
-        finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
-        rootFinishType = xts.load("x10.compiler.ws.RootFinish");
-        mainFrameType = xts.load("x10.compiler.ws.MainFrame");
-        remoteFinishType = xts.load("x10.compiler.ws.RemoteFinish");
-        atFrameType = xts.load("x10.compiler.ws.AtFrame");
-        regularFrameType = xts.load("x10.compiler.ws.RegularFrame");
-        asyncFrameType = xts.load("x10.compiler.ws.AsyncFrame");
-        tryFrameType = xts.load("x10.compiler.ws.TryFrame");
-        workerType = xts.load("x10.compiler.ws.Worker");
-        abortType = xts.load("x10.compiler.Abort");
-        stackAllocateType = xts.load("x10.compiler.StackAllocate");
-        inlineType = xts.load("x10.compiler.InlineOnly");
-        transientType = xts.load("x10.compiler.Ephemeral");
-        headerType = xts.load("x10.compiler.Header");
-        uninitializedType = xts.load("x10.compiler.Uninitialized");
-        
-        //Process two global ref
-        List<Type> ffTypeList = new ArrayList<Type>();
-        ffTypeList.add(finishFrameType);
-        globalRefFFType = xts.GlobalRef().typeArguments(ffTypeList);
-
-        List<Type> regularFrameTypeList = new ArrayList<Type>();
-        regularFrameTypeList.add(regularFrameType);
-        globalRefRFType = xts.GlobalRef().typeArguments(regularFrameTypeList);
-        
-        //Load CodeGen config
-        Configuration x10config = ((ExtensionInfo)xts.extensionInfo()).getOptions().x10_config;
-        codegenConfig = new WSCodeGenConfiguration(x10config);
-    
     }
 
-
-    public TypeSystem getX10TypeSystem() {
-        return xts;
+    public boolean isConcurrentCallSite(Call call){ 
+        return getCallSiteType(call) == CallSiteType.CONCURRENT_CALL;
     }
 
-    /**
-     * Get the backend used
-     * @return "c++" or "java"
-     */
-    public String getTheLanguage() {
-		return theLanguage;
-	}
+    public abstract CallSiteType getCallSiteType(Call call);
 
-	public boolean isConcurrentCallSite(Call call){	
-    	return getCallSiteType(call) == CallSiteType.CONCURRENT_CALL;
-    }
-    
-    public CallSiteType getCallSiteType(Call call){
-    	if(transTarget != null){ //by wala
-    		return transTarget.getCallSiteType(call);
-    	}
-    	else{ //by call graph, only has concurrent or normal
-    		return callGraph.isParallel(call.methodInstance().def()) ? 
-    				CallSiteType.CONCURRENT_CALL : CallSiteType.NORMAL;
-    	}
-    }
-    
-    public MethodType getMethodType(CodeBlock codeBlock){
-    	if(transTarget != null){ //by wala
-    		return transTarget.getMethodType(codeBlock);
-    	}
-    	else{
-    		ProcedureDef procedureDef;
-    		if(codeBlock instanceof MethodDecl){
-    			procedureDef = ((MethodDecl)codeBlock).methodDef();
-    		}
-    		else if(codeBlock instanceof ConstructorDecl){
-    			procedureDef = ((ConstructorDecl)codeBlock).constructorDef();
-    		}
-    		else{ //it should be a closure
-    			procedureDef = ((Closure)codeBlock).closureDef();
-    		}
-    		return callGraph.isParallel(procedureDef) ? MethodType.BODYDEF_TRANSFORMATION : MethodType.NORMAL;
-    	}
-    }
+    public abstract MethodType getMethodType(CodeBlock codeBlock);
 }

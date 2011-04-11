@@ -191,11 +191,58 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return ci;
     }
 
+
+    public Node superBuildTypesOverride(TypeBuilder tb) {
+        TypeSystem ts = tb.typeSystem();
+
+        ClassDef ct = tb.currentClass();
+        assert ct != null;
+
+        Flags flags = this.flags.flags();
+
+        if (ct.flags().isInterface()) {
+            flags = flags.Public().Abstract();
+        }
+
+        ConstructorDef ci = createConstructorDef(ts, ct, flags);
+        ct.addConstructor(ci);
+
+        TypeBuilder tbChk = tb.pushCode(ci);
+
+        final TypeBuilder tbx = tb;
+        final ConstructorDef mix = ci;
+
+        ConstructorDecl_c n = (ConstructorDecl_c) this.visitSignature(new NodeVisitor() {
+            int key = 0;
+            public Node override(Node n) {
+                return X10ConstructorDecl_c.this.visitChild(n, tbx.pushCode(mix));
+            }
+        });
+
+        List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(n.formals().size());
+        for (Formal f : n.formals()) {
+             formalTypes.add(f.type().typeRef());
+        }
+
+        ci.setFormalTypes(formalTypes);
+
+
+        Block body = (Block) n.visitChild(n.body, tbChk);
+
+        n = (ConstructorDecl_c) n.body(body);
+        return n.constructorDef(ci);
+    }
+
     @Override
     public Node buildTypesOverride(TypeBuilder tb) {
 	NodeFactory nf = tb.nodeFactory();
+
+        X10ConstructorDecl_c n = this;
+
+        TypeNode offerType = (TypeNode) n.visitChild(n.offerType, tb);
+        n = (X10ConstructorDecl_c) n.offerType(offerType);
 	
-        X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.buildTypesOverride(tb);
+        n = (X10ConstructorDecl_c) n.superBuildTypesOverride(tb);
         
         X10ConstructorDef ci = (X10ConstructorDef) n.constructorDef();
 
@@ -219,7 +266,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         TypeNode htn = (TypeNode) n.visitChild(n.hasType, tb);
         n = (X10ConstructorDecl_c) n.hasType(htn);
-        
+
         TypeNode rtn = (TypeNode) n.visitChild(n.returnType, tb);
         // Enable return type inference for this constructor declaration.
         if (rtn == null) {
@@ -340,7 +387,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         	c = PlaceChecker.pushHereIsThisHome(xc);
         }
 
-        if (child == body && offerType != null && offerType.typeRef().known()) {
+        if (child == body && offerType != null && offerType.typeRef()!=null && offerType.typeRef().known()) {
             c = c.pushCollectingFinishScope(offerType.type());
         }
 
@@ -371,15 +418,15 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     /** Visit the children of the method. */
     public Node visitSignature(NodeVisitor v) {
     	X10ConstructorDecl_c result = (X10ConstructorDecl_c) super.visitSignature(v);
+    	TypeNode offerType = (TypeNode) visitChild(result.offerType, v);
+    	result = (X10ConstructorDecl_c) result.offerType(offerType);
         List<TypeParamNode> typeParams = visitList(result.typeParameters, v);
         if (! CollectionUtil.allEqual(typeParams, result.typeParameters))
             result = (X10ConstructorDecl_c) result.typeParameters(typeParams);
     	TypeNode returnType = (TypeNode) visitChild(result.returnType, v);
-    	if (returnType != result.returnType)
-    	    result = (X10ConstructorDecl_c) result.returnType(returnType);
+    	result = (X10ConstructorDecl_c) result.returnType(returnType);
     	DepParameterExpr guard = (DepParameterExpr) visitChild(result.guard, v);
-    	if (guard != result.guard)
-    	    result = (X10ConstructorDecl_c) result.guard(guard);
+    	result = (X10ConstructorDecl_c) result.guard(guard);
     	TypeNode htn = (TypeNode) result.visitChild(result.hasType, v);
     	result = (X10ConstructorDecl_c) result.hasType(htn);
     	return result;
@@ -412,7 +459,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         // Step I.a.  Check the formals.
         TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
-        
+
+        nn = nn.offerType((TypeNode)nn.visitChild(nn.offerType(), childtc)); 
     	// First, record the final status of each of the type params and formals.
         List<TypeParamNode> processedTypeParams = nn.visitList(nn.typeParameters(), childtc);
         nn = (X10ConstructorDecl) nn.typeParameters(processedTypeParams);

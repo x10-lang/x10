@@ -13,18 +13,12 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.ast.CodeBlock;
-import polyglot.ast.Expr;
-import polyglot.ast.Formal;
-import polyglot.ast.TypeNode;
-import polyglot.types.Type;
-import x10.types.ClosureDef;
+import polyglot.ast.Node;
 
-/** The AST node for the X10 construct at (P) {e}
- *
+/**
+ * The AST node for the X10 construct at (P) {e}
  */
-public interface AtExpr extends  PlacedClosure {
-	
-   
-  
+public interface AtExpr extends PlacedClosure {
+    List<Node> captures();
+    AtExpr captures(List<Node> vars);
 }

@@ -13,6 +13,7 @@ package x10.array;
 
 import x10.compiler.TempNoInline_1;
 import x10.compiler.CompilerFlags;
+import x10.compiler.Inline;
 
 /**
  * A RectRegion is a finite dense rectangular region with a specified rank.
@@ -101,7 +102,7 @@ final class RectRegion extends Region{rect} {
     /**
      * Create a 1-dim region min..max.
      */
-    def this(min:int, max:int):RectRegion{self.rank==1,self.rect} {
+    @Inline def this(min:int, max:int):RectRegion{self.rank==1,self.rect} {
         super(1, true, min==0);
 
         size = max - min + 1;

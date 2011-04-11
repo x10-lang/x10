@@ -22,7 +22,13 @@ public interface Unary extends Expr
         PRE_INC  ("++", true),
         PRE_DEC  ("--", true),
         POS      ("+", true),
-        NOT      ("!", true);
+        NOT      ("!", true),
+        CARET    ("^", true),
+        BAR      ("|", true),
+        AMPERSAND("&", true),
+        STAR     ("*", true),
+        SLASH    ("/", true),
+        PERCENT  ("%", true);
 
         protected boolean prefix;
         protected String name;
@@ -39,14 +45,20 @@ public interface Unary extends Expr
         @Override public String toString() { return name; }
     }
 
-    public static final Operator BIT_NOT  = Operator.BIT_NOT;
-    public static final Operator NEG      = Operator.NEG;
-    public static final Operator POST_INC = Operator.POST_INC;
-    public static final Operator POST_DEC = Operator.POST_DEC;
-    public static final Operator PRE_INC  = Operator.PRE_INC;
-    public static final Operator PRE_DEC  = Operator.PRE_DEC;
-    public static final Operator POS      = Operator.POS;
-    public static final Operator NOT      = Operator.NOT;
+    public static final Operator BIT_NOT   = Operator.BIT_NOT;
+    public static final Operator NEG       = Operator.NEG;
+    public static final Operator POST_INC  = Operator.POST_INC;
+    public static final Operator POST_DEC  = Operator.POST_DEC;
+    public static final Operator PRE_INC   = Operator.PRE_INC;
+    public static final Operator PRE_DEC   = Operator.PRE_DEC;
+    public static final Operator POS       = Operator.POS;
+    public static final Operator NOT       = Operator.NOT;
+    public static final Operator CARET     = Operator.CARET;
+    public static final Operator BAR       = Operator.BAR;
+    public static final Operator AMPERSAND = Operator.AMPERSAND;
+    public static final Operator STAR      = Operator.STAR;
+    public static final Operator SLASH     = Operator.SLASH;
+    public static final Operator PERCENT   = Operator.PERCENT;
 
     /** The sub-expression on that to apply the operator. */
     Expr expr();

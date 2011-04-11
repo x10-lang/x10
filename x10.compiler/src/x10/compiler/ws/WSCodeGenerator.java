@@ -37,7 +37,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import x10.ExtensionInfo;
+import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AtEach;
@@ -52,7 +53,7 @@ import x10.ast.X10MethodDecl;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.compiler.ws.util.WSTransformationContent;
-import x10.compiler.ws.util.WSTransformationContent.MethodType;
+import x10.compiler.ws.WSTransformState.MethodType;
 import x10.types.X10MethodDef;
 import x10.util.Synthesizer;
 import x10.visit.Desugarer;
@@ -100,20 +101,20 @@ public class WSCodeGenerator extends ContextVisitor {
         genClassDecls = CollectionFactory.newHashSet();
     }
 
-    public static void setWALATransTarget(TypeSystem xts, NodeFactory xnf, String theLanguage, WSTransformationContent target){
+    public static void setWALATransTarget(ExtensionInfo extensionInfo, WSTransformationContent target){
         //DEBUG
         if(debugLevel > 3){
-            wsReport(xts.extensionInfo().getOptions().reporter, 5, "Use WALA CallGraph Data...");    
+            wsReport(extensionInfo.getOptions().reporter, 5, "Use WALA CallGraph Data...");    
         }
-        wts = new WSTransformState(xts, xnf, theLanguage, target);
+        wts = new WSTransformStateWALA(extensionInfo, target);
     }
     
-    public static void buildCallGraph(TypeSystem xts, NodeFactory xnf, String theLanguage) {
+    public static void buildCallGraph(ExtensionInfo extensionInfo) {
         //DEBUG
         if(debugLevel > 3){
-            wsReport(xts.extensionInfo().getOptions().reporter, 5, "Build Simple Graph Graph..."); 
+            wsReport(extensionInfo.getOptions().reporter, 5, "Build Simple Graph Graph..."); 
         }
-        wts = new WSTransformState(xts, xnf, theLanguage);
+        wts = new WSTransformStateSimple(extensionInfo);
     }
 
     /** 
@@ -157,11 +158,11 @@ public class WSCodeGenerator extends ContextVisitor {
             switch(wts.getCallSiteType(call)){
             case MATCHED_CALL: //change the target
                 //two steps, create a new method def, and change the call
-                X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(call.methodInstance().def(), wts);
+                X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(call.methodInstance().def(), ts);
                 List<Expr> newArgs = new ArrayList<Expr>();
-                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.workerType));
-                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.frameType));
-                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(wts.finishFrameType));
+                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.Worker()));
+                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.Frame()));
+                newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.FinishFrame()));
                 return WSCodeGenUtility.replaceMethodCallWithWSMethodCall(nf, (X10Call) call, mDef, newArgs);
             case CONCURRENT_CALL:  //do nothing, leave the transformation in method decl transformation
             case NORMAL:
@@ -226,16 +227,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 cDecl = Synthesizer.addNestedClasses(cDecl, classes);
                 cDecl = Synthesizer.addMethods(cDecl, methods);
                 
-                //Here we need use desugarer and inner class remover to visit the class again.
-                //do final processing, run desugarer and inner class remover again
-                //get the right desuguar
-                Desugarer desugarer;
-                if(wts.getTheLanguage().equals("java")){
-                    desugarer = new x10c.visit.Desugarer(job, ts, nf);
-                }
-                else{
-                    desugarer = new x10.visit.Desugarer(job, ts, nf);
-                }
+                Desugarer desugarer = ((x10.ExtensionInfo) job.extensionInfo()).makeDesugarer(job);
                 desugarer.begin();
                 desugarer.context(context()); //copy current context
                 
@@ -289,24 +281,24 @@ public class WSCodeGenerator extends ContextVisitor {
         Position pos = Position.COMPILER_GENERATED;
         
         Name workerName = Name.make("worker");
-        LocalDef workerLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.workerType), workerName);
+        LocalDef workerLDef = ts.localDef(pos, Flags.FINAL, Types.ref(ts.Worker()), workerName);
         Formal workerF = nf.Formal(pos,
                               nf.FlagsNode(pos, Flags.FINAL), 
-                              nf.CanonicalTypeNode(pos, wts.workerType), 
+                              nf.CanonicalTypeNode(pos, ts.Worker()), 
                               nf.Id(pos, workerName)).localDef(workerLDef);
 
         Name upName = Name.make("up");
-        LocalDef upLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.frameType), upName);
+        LocalDef upLDef = ts.localDef(pos, Flags.FINAL, Types.ref(ts.Frame()), upName);
         Formal upF = nf.Formal(pos,
                               nf.FlagsNode(pos, Flags.FINAL), 
-                              nf.CanonicalTypeNode(pos, wts.frameType), 
+                              nf.CanonicalTypeNode(pos, ts.Frame()), 
                               nf.Id(pos, upName)).localDef(upLDef);
         
         Name ffName = Name.make("ff");
-        LocalDef ffLDef = ts.localDef(pos, Flags.FINAL, Types.ref(wts.finishFrameType), ffName);
+        LocalDef ffLDef = ts.localDef(pos, Flags.FINAL, Types.ref(ts.FinishFrame()), ffName);
         Formal ffF = nf.Formal(pos,
                               nf.FlagsNode(pos, Flags.FINAL), 
-                              nf.CanonicalTypeNode(pos, wts.finishFrameType), 
+                              nf.CanonicalTypeNode(pos, ts.FinishFrame()), 
                               nf.Id(pos, ffName)).localDef(ffLDef);
         
         

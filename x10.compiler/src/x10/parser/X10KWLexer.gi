@@ -17,9 +17,9 @@
      *
      *  (C) Copyright IBM Corporation 2006-2010.
      */
-    /*****************************************************
-     * WARNING!  X10KWLexer.java WAS AUTO-GENERATED FROM X10KWLexer.gi so DO NOT EDIT THE JAVA FILE, INSTEAD EDIT THE gi FILE! *
-     *****************************************************/
+    /****************************************************************************
+     * WARNING!  THIS JAVA FILE IS AUTO-GENERATED FROM $input_file *
+     ****************************************************************************/
     ./
 %End
 
@@ -110,6 +110,7 @@
     assert
     async
     at
+    athome
     ateach
     atomic
     break
@@ -139,7 +140,6 @@
     interface
     native
     new
-    next
     null
     offer
     offers
@@ -149,7 +149,6 @@
     property
     protected
     public
-    resume
     return
     self
     static
@@ -194,6 +193,11 @@
               | a t
         /.$BeginAction
                 $setResult($_at);
+          $EndAction
+        ./
+              | a t h o m e
+        /.$BeginAction
+                $setResult($_athome);
           $EndAction
         ./
               | a t e a c h
@@ -336,11 +340,6 @@
                 $setResult($_new);
           $EndAction
         ./
-              | n e x t
-        /.$BeginAction
-                $setResult($_next);
-          $EndAction
-        ./
               | n u l l
         /.$BeginAction
                 $setResult($_null);
@@ -384,11 +383,6 @@
               | p u b l i c
         /.$BeginAction
                 $setResult($_public);
-          $EndAction
-        ./
-              | r e s u m e
-        /.$BeginAction
-                $setResult($_resume);
           $EndAction
         ./
               | r e t u r n

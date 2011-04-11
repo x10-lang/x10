@@ -88,6 +88,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
 import polyglot.visit.Translator;
+import x10.ast.X10ClassDecl;
 import x10.ast.X10NodeFactory_c;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.util.WSTransformationContent;
@@ -462,6 +463,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(RegisterPlugins(job));
            
            goals.add(PreTypeCheck(job));
+           goals.add(Ifdef(job));
            goals.add(TypesInitializedForCommandLineBarrier());
 
            goals.add(TypeChecked(job));
@@ -509,7 +511,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
 
-           goals.add(Ifdef(job));
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
 
@@ -712,7 +713,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                            //now use this one to construct WSTransformationState
                            TypeSystem ts  = extInfo.typeSystem();
                            NodeFactory nf = extInfo.nodeFactory();
-                           WSCodeGenerator.setWALATransTarget(ts, nf, nativeAnnotationLanguage(), transTarget);
+                           WSCodeGenerator.setWALATransTarget(extensionInfo(), transTarget);
                        } catch (IllegalArgumentException e) {
                        } catch (IllegalAccessException e) {
                        } catch (InvocationTargetException e) {
@@ -884,10 +885,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                String fName = job.source().name();
                Position pos = new Position("", job.source().path(), 1, 1).markCompilerGenerated();
                String name = fName.substring(fName.lastIndexOf(File.separatorChar)+1, fName.lastIndexOf('.'));
-               TopLevelDecl decl = nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC),
+               X10ClassDecl decl = (X10ClassDecl) nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC),
                        nf.Id(pos, name), null, Collections.<TypeNode>emptyList(),
                        nf.ClassBody(pos, Collections.<ClassMember>emptyList()));
-               SourceFile ast = nf.SourceFile(pos, Collections.singletonList(decl)).source(job.source());
+               decl = decl.errorInAST(new SemanticException("", pos));
+               SourceFile ast = nf.SourceFile(pos, Collections.<TopLevelDecl>singletonList(decl)).source(job.source());
+               ast = (SourceFile) ((X10Ext)ast.ext()).setSubtreeValid(false);
                return ast;
            }
        }
@@ -1035,7 +1038,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
                @Override
                public boolean runTask() {
-                   WSCodeGenerator.buildCallGraph(ts, nf, nativeAnnotationLanguage());
+                   WSCodeGenerator.buildCallGraph(extensionInfo());
                    return true;
                }
            }.intern(this);
@@ -1169,4 +1172,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 		
 		return plugins.get(pluginName);
 	}
+
+    public Desugarer makeDesugarer(Job job) {
+        return new Desugarer(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory());
+    }
 }
