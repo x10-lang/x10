@@ -1680,17 +1680,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 
 	    if (!container.flags().isAbstract()) {
+	        int _makeStartLine = sw.currentStream().getStreamLineNumber();
+
 	        // emit _make method
 	        h.write("static ");
 	        sw.pushCurrentStream(h);
 	        emitter.printHeader(dec, sw, tr, false, true, container.isX10Struct() ? typeName : make_ref(typeName));
-	        sw.popCurrentStream();
-	        h.write(";");
-	        h.newline(); h.forceNewline();
+	        if (!inlineInClassDecl) {
+	            h.write(";") ; h.newline();
+	            h.forceNewline();
+	            sw.popCurrentStream();
 
-	        int _makeStartLine = sw.currentStream().getStreamLineNumber();
-	        
-	        emitter.printHeader(dec, sw, tr, true, true, container.isX10Struct() ? typeName : make_ref(typeName));
+	            _makeStartLine = sw.currentStream().getStreamLineNumber();
+	            emitter.printHeader(dec, sw, tr, true, true, container.isX10Struct() ? typeName : make_ref(typeName));
+	        }
 
 	        sw.allowBreak(0, " "); sw.write("{"); sw.newline(4); sw.begin(0);
 	        if (container.isX10Struct()) {
@@ -1717,6 +1720,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.writeln("}");
 	        sw.forceNewline();
 	        sw.currentStream().omitLines(sw.currentStream().getStreamLineNumber() - _makeStartLine + 1);
+	        if (inlineInClassDecl) {
+	            sw.popCurrentStream();
+	        }
 	    }
 
 	    sw.newline(); sw.forceNewline();

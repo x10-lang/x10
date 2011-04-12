@@ -127,11 +127,11 @@ public class StructMethodAnalyzer extends ContextVisitor {
         }
 
         // Constructor call.
-        // We can allow calls to the same class as we are analyzing and to the trivial x10.lang.Struct 
-        // constructor.  Any other constructor call will require us to set canBeInlined to false.
+        // We can allow calls to the same class as we are analyzing.  
+        // Any other constructor call will require us to set canBeInlined to false.
         if (n instanceof X10ConstructorCall_c) {
             ContainerType container = ((X10ConstructorCall_c)n).constructorInstance().container();
-            if (!(xts.typeBaseEquals(container, myContainer, context))) { //xts.typeBaseEquals(container, xts.Struct(), context) ||
+            if (!(xts.typeBaseEquals(container, myContainer, context))) {
                 canGoInHeaderStream[0] = false;
             }
             return n;
