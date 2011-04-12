@@ -57,7 +57,10 @@ public class ShortType extends RuntimeType<Short> {
     
     @Override
     public Short setArray(Object array, int i, Short v) {
-        return ((short[]) array)[i] = v;
+        // avoid boxing again
+//        return ((short[]) array)[i] = v;
+        ((short[]) array)[i] = v;
+        return v;
     }
     
     @Override

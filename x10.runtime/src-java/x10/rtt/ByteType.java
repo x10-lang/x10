@@ -57,7 +57,10 @@ public class ByteType extends RuntimeType<Byte> {
     
     @Override
     public Byte setArray(Object array, int i, Byte v) {
-        return ((byte[]) array)[i] = v;
+        // avoid boxing again
+//        return ((byte[]) array)[i] = v;
+        ((byte[]) array)[i] = v;
+        return v;
     }
     
     @Override

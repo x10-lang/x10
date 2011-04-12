@@ -57,7 +57,10 @@ public class DoubleType extends RuntimeType<Double> {
     
     @Override
     public Double setArray(Object array, int i, Double v) {
-        return ((double[]) array)[i] = v;
+        // avoid boxing again
+//        return ((double[]) array)[i] = v;
+        ((double[]) array)[i] = v;
+        return v;
     }
     
     @Override

@@ -57,7 +57,10 @@ public class LongType extends RuntimeType<Long> {
     
     @Override
     public Long setArray(Object array, int i, Long v) {
-        return ((long[]) array)[i] = v;
+        // avoid boxing again
+//        return ((long[]) array)[i] = v;
+        ((long[]) array)[i] = v;
+        return v;
     }
     
     @Override
