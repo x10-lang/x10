@@ -44,6 +44,7 @@ abstract public class FinishFrame extends Frame {
         if (null != redirect) return redirect;
         val tmp = remap();
         tmp.redirect = tmp;
+        tmp.append(stack);
         redirect = tmp;
         return tmp;
     }
@@ -79,8 +80,10 @@ abstract public class FinishFrame extends Frame {
 
     @NoInline public final def caught(t:Throwable) {
         if (t == Abort.ABORT) throw t;
+        Runtime.atomicMonitor.lock();
         if (null == stack) stack = new Stack[Throwable]();
         stack.push(t);
+        Runtime.atomicMonitor.unlock();
     }
 
     @Inline public final def rethrow() {
