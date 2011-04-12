@@ -960,7 +960,6 @@ public class Emitter {
 		h.end();
 		h.write(")");
 		h.end();
-        // TODO: caller should emit this
 	}
 
 	void printHeader(FieldDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
