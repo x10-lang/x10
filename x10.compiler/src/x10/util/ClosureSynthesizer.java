@@ -269,8 +269,6 @@ public class ClosureSynthesizer {
             name = "Void" + name;
         }
 
-        name = " " + name;
-
         // Check if the class has already been defined.
         QName fullName = QName.make("x10.lang", name);
         Type n = SystemResolver.first(xts.systemResolver().check(fullName));
