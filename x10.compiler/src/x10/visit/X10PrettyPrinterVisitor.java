@@ -983,7 +983,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.end();
         w.write("}");
-
+        w.newline();
     }
 
     private Stmt getFirstStatement(X10ConstructorDecl_c n) {
