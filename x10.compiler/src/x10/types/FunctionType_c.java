@@ -109,7 +109,7 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
             sb.append(':');
             sb.append(f.type());
         }
-        return "(" + sb.toString() + ")" + guardToString(guard()) + "=> " + mi.returnType();
+        return "(" + sb.toString() + ")" + guardToString(guard()) + "=>" + mi.returnType();
     }
 
     @Override
