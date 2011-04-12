@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import polyglot.ast.Assign;
@@ -127,6 +128,8 @@ public class StaticInitializer extends ContextVisitor {
 
     private final X10CTypeSystem_c xts;
     private final X10CNodeFactory_c xnf;
+    private final WeakHashMap<X10ProcedureDef,ProcedureDecl> procDeclCache;
+    private final WeakHashMap<Block,Boolean> procBodyCache;
 
     public static final String initializerPrefix = "getInitialized$";
     public static final String deserializerPrefix = "getDeserialized$";
@@ -142,6 +145,8 @@ public class StaticInitializer extends ContextVisitor {
         super(job, ts, nf);
         xts = (X10CTypeSystem_c) ts;
         xnf = (X10CNodeFactory_c) nf;
+        procBodyCache = new WeakHashMap<Block,Boolean>();
+        procDeclCache = new WeakHashMap<X10ProcedureDef,ProcedureDecl>();
     }
 
     @Override
@@ -466,6 +471,9 @@ public class StaticInitializer extends ContextVisitor {
         if (ast == null)
             return null;
 
+        ProcedureDecl r = procDeclCache.get(candidate);
+        if (r != null) return r;
+
         // find the target declaration of constructor or method
         final ProcedureDecl[] decl = new ProcedureDecl[1];
         ast.visit(new NodeVisitor() {
@@ -497,6 +505,7 @@ public class StaticInitializer extends ContextVisitor {
         if (decl[0] == null || decl[0].body() == null) {
             return null;
         }
+        procDeclCache.put(candidate, decl[0]);
         return decl[0];
     }
 
@@ -525,6 +534,9 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private boolean checkProcedureBody(final Block body, final int count) {
+        Boolean r = procBodyCache.get(body);
+        if (r != null)
+            return (r == Boolean.TRUE);
         // check static field references in the body of constructor or method
         final AtomicBoolean found = new AtomicBoolean(false);
         body.visit(new NodeVisitor() {
@@ -576,6 +588,7 @@ public class StaticInitializer extends ContextVisitor {
                 return null;
             }
         });
+        procBodyCache.put(body, found.get() ? Boolean.TRUE : Boolean.FALSE);
         return found.get();
     }
 
