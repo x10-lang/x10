@@ -3543,18 +3543,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
 
-		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
-		{
-			String key = ((StreamWrapper)inc).getStreamName(StreamWrapper.CC);
-			Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
-		    if (fileToLineNumberMap != null) 
-		    {
-		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
-		        if (lineNumberMap != null) 
-		        	lineNumberMap.addClosureMember(null, cnamet, cname, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
-		    }
-		}
-
         /* ITables declarations */
         inc.write("static "+(in_template_closure ? "typename " : "")+superType+(in_template_closure ? "::template itable " : "::itable")+chevrons(cnamet)+" _itable;"); inc.newline();
         inc.write("static x10aux::itable_entry _itables[2];"); inc.newline(); inc.forceNewline();
@@ -3583,6 +3571,27 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 Warnings.issue(tr.job(), msg, n.position());
             }
         }
+        
+		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
+		{
+			String key = ((StreamWrapper)inc).getStreamName(StreamWrapper.CC);
+			Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
+		    if (fileToLineNumberMap != null) 
+		    {
+		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
+		        if (lineNumberMap != null)
+		        {		        		
+		        	for (int i = 0; i < c.variables.size(); i++) 
+		        	{
+		        		VarInstance<?> var = c.variables.get(i);
+		        		String name = var.name().toString();
+		        		if (name.equals(THIS)) 
+		    				name = SAVED_THIS;
+		        		lineNumberMap.addClosureMember(name, var.type().toString(), cname, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+		        	}
+		        }
+		    }
+		}
 
         emitter.printDeclarationList(inc, c, c.variables, refs);
         inc.forceNewline();

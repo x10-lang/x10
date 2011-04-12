@@ -669,45 +669,40 @@ public class LineNumberMap extends StringTable {
 			closureMembers.put(stringId(containingClass), cm);
 		}
 		
-		if (name == null)
-			cm._sizeOfArg = type.replaceAll("FMGL", "class FMGL");
+		MemberVariableMapInfo v = new MemberVariableMapInfo();
+		v._x10type = determineTypeId(type);
+		if (v._x10type == 203 || v._x10type == 210 || v._x10type == 202)
+			v._x10typeIndex = addReferenceMap(name, type, startLine, endLine, v._x10type);
+		else if (v._x10type == 200 || v._x10type == 204 || v._x10type == 207)
+			v._x10typeIndex = determineSubtypeId(type, arrayMap);
+		else if (v._x10type == 101) // save the type for later - it may be a class in our class table
+			v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type));
 		else
-		{
-			MemberVariableMapInfo v = new MemberVariableMapInfo();
-			v._x10type = determineTypeId(type);
-			if (v._x10type == 203 || v._x10type == 210 || v._x10type == 202)
-				v._x10typeIndex = addReferenceMap(name, type, startLine, endLine, v._x10type);
-			else if (v._x10type == 200 || v._x10type == 204 || v._x10type == 207)
-				v._x10typeIndex = determineSubtypeId(type, arrayMap);
-			else if (v._x10type == 101) // save the type for later - it may be a class in our class table
-				v._x10typeIndex = stringId(Emitter.mangled_non_method_name(type));
-			else
-				v._x10typeIndex = -1;
-			v._x10memberName = stringId(name);
-			v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
-			v._cppClass = stringId(containingClass);
+			v._x10typeIndex = -1;
+		v._x10memberName = stringId(name);
+		v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
+		v._cppClass = stringId(containingClass);
 
-			// prevent duplicates
-			for (MemberVariableMapInfo existing : cm._members)
+		// prevent duplicates
+		for (MemberVariableMapInfo existing : cm._members)
+		{
+			if (existing._x10memberName == v._x10memberName && existing._cppMemberName == v._cppMemberName && existing._cppClass == v._cppClass)
 			{
-				if (existing._x10memberName == v._x10memberName && existing._cppMemberName == v._cppMemberName && existing._cppClass == v._cppClass)
-				{
-					if ((existing._x10type == v._x10type && existing._x10typeIndex == v._x10typeIndex) || v._x10type == 209)
-						return; // exact duplicate, or less specific type
-					else if (existing._x10type == 209)
-					{	// replace "Any" with the more specific type
-						existing._x10type = v._x10type;
-						existing._x10typeIndex = v._x10typeIndex; 
-						cm._x10startLine = startLine;
-						cm._x10endLine = endLine;
-						return;
-					}
+				if ((existing._x10type == v._x10type && existing._x10typeIndex == v._x10typeIndex) || v._x10type == 209)
+					return; // exact duplicate, or less specific type
+				else if (existing._x10type == 209)
+				{	// replace "Any" with the more specific type
+					existing._x10type = v._x10type;
+					existing._x10typeIndex = v._x10typeIndex; 
+					cm._x10startLine = startLine;
+					cm._x10endLine = endLine;
+					return;
 				}
 			}
-			cm._x10startLine = startLine;
-			cm._x10endLine = endLine;
-			cm._members.add(v);
 		}
+		cm._x10startLine = startLine;
+		cm._x10endLine = endLine;
+		cm._members.add(v);
 	}
 
 	/**
@@ -1369,7 +1364,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B040C09, // 2011-04-12, 9:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B040C0C, // 2011-04-12, 12:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
