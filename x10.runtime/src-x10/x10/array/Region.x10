@@ -102,16 +102,20 @@ public abstract class Region(
      * @return A Region of rank minarg.length 
      */
     public static def makeRectangularPoly(minArg:Array[int](1), maxArg:Array[int](1)):Region(minArg.size){
-	   if (minArg.size != maxArg.size) throw new IllegalArgumentException("min and max not equal size ("+minArg.size+" != "+maxArg.size+")");
-    	   val rank = minArg.size;
+       if (minArg.size != maxArg.size) throw new IllegalArgumentException("min and max not equal size ("+minArg.size+" != "+maxArg.size+")");
+           val rank = minArg.size;
            val pmb = new PolyMatBuilder(rank); 
            for (i in 0..(rank-1)) {
-        	   // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
-        	   val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1 : 0), minArg(i));
-        	   pmb.add(r);
-        	   // add 1*x(i) - maxArg(i) <= 0, i.e. x(i) <= maxArg(i)
-        	   val s = new PolyRow(Point.make(rank, (j:Int) => i==j ? 1 : 0), -maxArg(i));
-        	   pmb.add(s);
+               if (minArg(i) > Int.MIN_VALUE) {
+                   // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
+                   val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1 : 0), minArg(i));
+                   pmb.add(r);
+                }
+                if (maxArg(i) < Int.MAX_VALUE) {
+                   // add 1*x(i) - maxArg(i) <= 0, i.e. x(i) <= maxArg(i)
+                   val s = new PolyRow(Point.make(rank, (j:Int) => i==j ? 1 : 0), -maxArg(i));
+                   pmb.add(s);
+               }
            }
            val pm = pmb.toSortedPolyMat(false);
            return PolyRegion.make(pm) as Region(minArg.size); 
@@ -152,7 +156,7 @@ public abstract class Region(
         var r:Region = regions(0);
         for (var i:int = 1; i<regions.size; i++)
             r = r.product(regions(i));
-	return r as Region(regions.size){self.rect};
+    return r as Region(regions.size){self.rect};
     }
 
 
@@ -430,10 +434,10 @@ public abstract class Region(
     //
 
     public def equals(that:Any):boolean {
-	   if (this == that) return true; // short-circuit
-	   if (!(that instanceof Region)) return false;
-	   val t1 = that as Region;
-	   if (rank != t1.rank) return false;
+       if (this == that) return true; // short-circuit
+       if (!(that instanceof Region)) return false;
+       val t1 = that as Region;
+       if (rank != t1.rank) return false;
        val t2 = t1 as Region(rank);
        return this.contains(t2) && t2.contains(this);
     }
