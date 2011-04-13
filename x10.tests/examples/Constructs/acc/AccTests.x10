@@ -1,147 +1,66 @@
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.tests.*; // err markers
+import x10.util.*;
+import x10.lang.annotations.*;
+import harness.x10Test;
 
-class IntReducer implements Reducible[Int] {
+
+struct IntReducer implements Reducible[Int] {
 	public def zero():Int = 0;	
  	public operator this(x:Int,y:Int):Int = x+y;
 }
-class AnyReducer implements Reducible[Any] {
-	public def zero():Any = null;	
- 	public operator this(x:Any,y:Any):Any = "a";
-}
-class CorrectTypingTest {
-	def m() {
-		acc j = new IntReducer();  // ERR ERR: Cannot infer type of a mutable (non-val) variable.
-		acc j3 <: Int = new IntReducer();  // ERR ERR ERR: Cannot infer type of a mutable (non-val) variable.
-		acc j2:Reducible[Int] = new IntReducer();  // ERR
-		acc i:Int = new IntReducer(); 
-		acc copyI1:Int = i;  // ERR
-		acc copyI2 = i; // ERR ERR
-		i = 3;
-		i = "a"; // ERR
-		val x:Int = i;
-		acc i2:Any = new AnyReducer();
-		i2 = "a";
-		i2 = 2;
-		val x2:Any = i2;
-
-		acc i3:Any = new IntReducer(); // ERR
-		i3 = "a"; // it is an error because it would fail at runtime cause it will call IntReduce with a string
-
-		acc i4:Int = new AnyReducer(); // ERR
-		i4 = 6; 
-		val x4:Int = i4; // it is an error because it would fail at runtime cause it would return "a"
+class FibAccumulators {
+	def fib(n:Int):Int {
+	  acc x:Int = new IntReducer();
+	  finish fib1(n, x); // fib1 may write into x.
+	  // read the value in x and return it.
+	  return x;
+	}
+	def fib1(n:Int, acc z:Int) {
+	   if (n < 2) z=n;
+	   async fib1(n-1, z);
+	   fib1(n-2, z);
 	}
 }
-class MethodCallTests {
-	def m() {
-		acc i:Int = new IntReducer();
-		val z = i+1;
-		i++; // -> i = i+1; ??? 
-		i = i+1; 
-		x2(i); // ERR
-		finish {
-			val w = i; // ERR: cannot read from an accumulator in a write-only state
-			x2(i+1); // ERR ERR
-			x1(i); // ERR: cannot read from an accumulator in a write-only state
-			x2(i);
-			x2((i)); // ERR: cannot read from an accumulator in a write-only state
-			val j = 5;
-			x1(j);
-			x2(j); // ERR
-			x1(j+1);
-			x2(j+1); // ERR
-		}
+
+class Manually_Desugared_FibAccumulators {
+	def fib(n:Int):Int {
+	  val x:Accumulator[Int] = new Accumulator[Int](new IntReducer());
+	  finish fib1(n, x); // fib1 may write into x.
+	  // read the value in x and return it.
+	  return x.result();
 	}
-	def x1(a:Int) {}
-	def x2(acc a:Int) {}
-	def f(acc a:Int, j:Int) {
-		x1(a);
-		x1(j);
-		x2(a);
-		x2(a+1); // ERR
-		x2(j); // ERR
+	def fib1(n:Int, val x:Accumulator[Int]) {
+	   if (n < 2) x.supply(n);
+	   async fib1(n-1, x);
+	   fib1(n-2, x);
 	}
 }
-class NoFieldAcc {
-	acc i:Int; // ERR : A field cannot be an accumulator.
-	// acc def m() {} - parsing error :)
-}
-class AccEscapeToHeap {
-	def m() {
-		acc i:Int = new IntReducer();
-		val closure = 
-			()=>i; // ERR: cannot capture an accumulator;
-		val anon = new Object() {
-			def m() = i; // ERR: cannot capture an accumulator;
-		};
+class CollectingFinish_Fib {
+	def fib(n:Int):Int {
+	  var x:Int;
+	  x = finish (new IntReducer()) {
+		  fib1(n); // fib1 may write into x.
+	  };
+	  // read the value in x and return it.
+	  return x;
 	}
-}
-class AccStateChanges {
-	def use(Any) {}
-	def m() {
-		acc i:Int = new IntReducer();
-		use(i);
-		async {
-			i = 2; // ERR: can capture an accumulator only if there is a surrounding finish
-			use(i); // ERR: can capture an accumulator only if there is a surrounding finish
-		}
-		finish {
-			acc j:Int = new IntReducer();
-			async {
-				i = 2; // ok
-				use(i); // ERR: cannot read from an accumulator in a write-only state
-
-				j = 2; // ERR: can capture an accumulator only if there is a surrounding finish
-				use(j); // ERR: can capture an accumulator only if there is a surrounding finish
-			}
-			finish {
-				async {
-					i = 2; // ok
-					use(i); // ERR: cannot read from an accumulator in a write-only state
-					j = 2; // ok
-					use(j); // ERR: cannot read from an accumulator in a write-only state
-				}
-			}
-			i = 2; // ok
-			use(i); // ERR: cannot read from an accumulator in a write-only state
-
-			j = 2; // ok
-			use(j); // ok
-		}
-	}
-	def f(acc i:Int):Int {
-		acc j:Int = new IntReducer();
-		async {
-			i = 2; // ok
-			use(i); // ERR: cannot read from an accumulator in a write-only state
-
-			j = 2; // ERR: can capture an accumulator only if there is a surrounding finish
-			use(j); // ERR: can capture an accumulator only if there is a surrounding finish
-		}
-		finish {
-			async {
-				i = 2; // ok
-				use(i); // ERR: cannot read from an accumulator in a write-only state
-				j = 2; // ok
-				use(j); // ERR: cannot read from an accumulator in a write-only state
-			}
-		}
-		i = 2; // ok
-		use(i); // ERR: cannot read from an accumulator in a write-only state
-
-		j = 2; // ok
-		use(j); // ok
-
-		if (true) 
-			return i; // ERR: cannot read from an accumulator in a write-only state
-		else
-			return j; // ok
+	def fib1(n:Int) offers Int {
+	   if (n < 2) offer n;
+	   async fib1(n-1);
+	   fib1(n-2);
 	}
 }
 
 
-public class AccTests {
+public class AccTests  extends x10Test {
+	public def run() : boolean = true;
 	public static def main(Array[String]) {
-		Console.OUT.println("ok");
+		val res0 = new FibAccumulators().fib(5);
+		val res1 = new Manually_Desugared_FibAccumulators().fib(5);
+		val res2 = new CollectingFinish_Fib().fib(5);
+		Console.OUT.println(res0);
+		assert res0==res1 && res1==res2;
 	}
 }
 

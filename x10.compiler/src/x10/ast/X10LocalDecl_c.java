@@ -274,6 +274,10 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             if (newInit != null)
                 return n.init(newInit);
             Errors.issue(tc.job(), new Errors.CannotAssign(n.init, type, n.init.position()), n);
+        } else {
+            if (f.isAcc()) {
+                Errors.issue(tc.job(), new SemanticException("An accumulator must have an initializer."), n);                
+            }
         }
 
         return n;

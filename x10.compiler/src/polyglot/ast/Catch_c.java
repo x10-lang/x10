@@ -88,6 +88,12 @@ public class Catch_c extends Stmt_c implements Catch
     public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
+        if (formal.flags().flags().isAcc()) {
+            Errors.issue(tc.job(),
+	            new SemanticException("The formal of a catch block cannot be an accumulator.", formal.position()),
+	            this);
+        }
+
 	if (! catchType().isThrowable()) {
 	    Errors.issue(tc.job(),
 	            new SemanticException("Can only throw subclasses of \"" +ts.Throwable() + "\".", formal.position()),

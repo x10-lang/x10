@@ -54,6 +54,8 @@ public class X10Local_c extends Local_c {
 		
 	}
     public void checkLocalAccess(LocalInstance li, ContextVisitor tc) {
+        if (li.flags().isAcc()) return;
+
 	    X10Context_c context = (X10Context_c) tc.context();
         final Name liName = name.id();
         // if the local is defined in an outer class, then it must be final

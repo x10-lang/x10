@@ -23,6 +23,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Use;
+import polyglot.types.LocalInstance;
 import x10.constraint.XTerm;
 
 /**
@@ -40,6 +41,7 @@ public interface MethodInstance
     MethodInstance name(Name name);
     MethodInstance returnType(Type returnType);
     MethodInstance formalTypes(List<Type> formalTypes);
+    MethodInstance formalNames(List<LocalInstance> formalNames);
     MethodInstance throwTypes(List<Type> throwTypes);
     /**
      * The method's name.

@@ -36,6 +36,7 @@ import polyglot.types.Context;
 
 import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
+import polyglot.types.Flags;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 
@@ -92,6 +93,12 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	        Errors.issue(tc.job(),
 	                new Errors.DomainIteratedForLoopMustBeLocal(result.domain().position()));
 	    }
+        Flags flags = result.formal().flags().flags();
+        if (flags.isAcc()) {
+            Errors.issue(tc.job(),
+	                new SemanticException("A loop formal cannot be an accumulator."),result);
+            result = result.formal( formal.flags( formal.flags().flags( flags.clear(Flags.ACC))) );
+        }
 	    return result;
 	}
 
