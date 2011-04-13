@@ -13,6 +13,7 @@
 package x10.lang;
 
 import x10.compiler.Native;
+import x10.compiler.Inline;
 
 /**
  * Complex is a struct representing a complex number (a + b*i).
@@ -48,7 +49,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
      * @imaginary the imaginary component of the Complex number
      * @return the Complex number representing (real + imaginary*i)
      */
-    public def this(real:Double, imaginary:Double) {
+    public @Inline def this(real:Double, imaginary:Double) {
         this.re = real;
         this.im = imaginary;
     }
