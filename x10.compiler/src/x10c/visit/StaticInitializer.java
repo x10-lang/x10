@@ -466,13 +466,13 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private ProcedureDecl getProcedureDeclaration(final X10ProcedureDef candidate, X10ClassDef container) {
+        ProcedureDecl r = procDeclCache.get(candidate);
+        if (r != null) return r;
+
         // obtain X10SourceFile ast of the target class that already runs preliminary compilation phases
         final Node ast = getAST(container);
         if (ast == null)
             return null;
-
-        ProcedureDecl r = procDeclCache.get(candidate);
-        if (r != null) return r;
 
         // find the target declaration of constructor or method
         final ProcedureDecl[] decl = new ProcedureDecl[1];
