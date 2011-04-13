@@ -597,7 +597,7 @@ public class LineNumberMap extends StringTable {
 			}
 		}
 		// convert loop indexes
-		if (loopVariables != null && loopVariables.containsKey(name))
+		if (v._x10type < 100 && loopVariables != null && loopVariables.containsKey(name))
 		{
 			ArrayList<LoopVariable> list = loopVariables.get(name);
 			for (LoopVariable lv : list)
@@ -1364,7 +1364,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B040C0C, // 2011-04-12, 12:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B040D0B, // 2011-04-13, 11:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
