@@ -130,6 +130,8 @@ import x10.visit.InstanceInvariantChecker;
 import x10.visit.CheckEscapingThis;
 import x10.visit.AnnotationChecker;
 import x10.visit.ErrChecker;
+import x10.visit.CheckAcc;
+import x10.visit.DesugarAccumulators;
 import x10cpp.postcompiler.PrecompiledLibrary;
 
 
@@ -483,6 +485,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ForwardReferencesChecked(job));
            //goals.add(CheckNativeAnnotations(job));
            goals.add(CheckEscapingThis(job));
+           goals.add(CheckAcc(job));
            goals.add(AnnotationChecker(job));
            goals.add(CheckASTForErrors(job));
            //goals.add(TypeCheckBarrier());
@@ -510,6 +513,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            addSemanticCheckSourceGoals(job, goals);
 
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
+
+           final Goal desugarAccGoal = DesugarAccumulators(job);
+           goals.add(desugarAccGoal);
 
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
@@ -583,6 +589,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(codeGeneratedGoal);
            
            // the barrier will handle prereqs on its own
+           desugarAccGoal.addPrereq(typeCheckBarrierGoal);
            desugarerGoal.addPrereq(typeCheckBarrierGoal);
            codeGeneratedGoal.addPrereq(CodeGenBarrier());
            lowererGoal.addPrereq(typeCheckBarrierGoal);
@@ -956,6 +963,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ForgivingVisitorGoal("ForwardRefsChecked", job, new FwdReferenceChecker(job, ts, nf)).intern(this);
        }
 
+       public Goal CheckAcc(Job job) {
+           return new ForgivingVisitorGoal("CheckAcc", job, new CheckAcc(job)).intern(this);
+       }
        public Goal CheckEscapingThis(Job job) {
            return new ForgivingVisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)).intern(this);
        }
@@ -1049,11 +1059,16 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("WSCodeGenerator", job, new WSCodeGenerator(job, ts, nf)).intern(this);
        }
-       
+
        public Goal Desugarer(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+       }
+       public Goal DesugarAccumulators(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("DesugarAccumulators", job, new DesugarAccumulators(job, ts, nf)).intern(this);
        }
        
        public Goal Lowerer(Job job) {

@@ -376,6 +376,11 @@ public interface TypeSystem {
     Type Void();
 
     /**
+     * <code>java.lang.Accumulator</code>
+     */
+    X10ClassType Accumulator();
+
+    /**
      * <code>boolean</code>
      */
     Type Boolean();

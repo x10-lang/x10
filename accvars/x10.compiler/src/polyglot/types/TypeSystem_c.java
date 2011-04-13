@@ -2084,6 +2084,14 @@ public class TypeSystem_c implements TypeSystem
         return Boolean_;
     }
 
+    protected X10ClassType Accumulator_;
+    public X10ClassType Accumulator() {
+        if (Accumulator_ == null)
+            Accumulator_ = load("x10.lang.Accumulator");
+        return Accumulator_;
+    }
+
+
     protected X10ClassType Byte_;
 
     public X10ClassType Byte() {

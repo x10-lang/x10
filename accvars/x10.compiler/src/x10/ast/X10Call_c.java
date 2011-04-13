@@ -602,24 +602,6 @@ public class X10Call_c extends Call_c implements X10Call {
 	        n = ((X10Call_c)n).typeCheckNullTargetForMethod(tc, typeArgs, argTypes, mi, this.arguments);
 	    }
 
-        X10Call_c res = (X10Call_c)n;
-        MethodInstance mi = res.methodInstance();
-        if (mi.error()==null) {
-            List<LocalDef> formals = mi.def().formalNames();
-            int pos = 0;
-            for (LocalDef li : formals) {
-                if (li.flags().isAcc()) {
-                    Expr arg = res.arguments().get(pos);
-                    if (arg instanceof Local && ((Local)arg).flags().isAcc()) {
-                        // ok
-                    } else {
-                        Errors.issue(tc.job(), new SemanticException("Cannot pass a non-accumulator argument as an accumulator formal."), this);                        
-                    }
-                }
-                pos++;
-            }
-        }
-
         return n;
 	}
 
