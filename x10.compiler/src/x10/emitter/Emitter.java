@@ -157,9 +157,16 @@ public class Emitter {
 		}
 	}
 
-	public String mangle(QName name) {
-		String mangle = name.toString().replace(".", "$");
-		return mangle;
+	private static String mangleQualifiedIdentifier(String s) {
+		return mangleIdentifier(s.replace(".", "$"));
+	}
+	
+	public static String mangleQualifiedIdentifier(QName name) {
+		return mangleQualifiedIdentifier(name.toString());
+	}
+	
+	private static String mangleQualifiedIdentifier(Type type) {
+		return mangleQualifiedIdentifier(type.toString());
 	}
 
 	public static String mangleIdentifier(String n) {
@@ -1262,7 +1269,7 @@ public class Emitter {
         else if (printIncludingGeneric && t instanceof ParameterType) {
             sb.append("_").append(i).append("_");
             sb.append("$$");
-            sb.append(ct.fullName().toString().replace(".", "$")).append("_").append(((ParameterType) t).name().toString());
+            sb.append(mangleQualifiedIdentifier(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
         }
     }
 
@@ -1270,7 +1277,7 @@ public class Emitter {
         sb.append("$_");
         if (t instanceof X10ClassType) {
             X10ClassType x10t = (X10ClassType) t;
-            sb.append(x10t.fullName().toString().replace(".", "$"));
+            sb.append(mangleQualifiedIdentifier(x10t.fullName()));
             if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
                 List<Type> ts = x10t.typeArguments();
                 for (Type t1 : ts) {
@@ -1279,10 +1286,10 @@ public class Emitter {
             }
         }
         else if (t instanceof ParameterType) {
-            sb.append(ct.fullName().toString().replace(".", "$")).append("_").append(((ParameterType) t).name().toString());
+            sb.append(mangleQualifiedIdentifier(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
         }
         else {
-            sb.append(t.toString().replace(".", "$"));
+            sb.append(mangleQualifiedIdentifier(t));
         }
         sb.append("_$");
     }
