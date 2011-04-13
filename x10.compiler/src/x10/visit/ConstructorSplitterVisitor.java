@@ -15,6 +15,7 @@ import java.util.List;
 
 import polyglot.ast.Allocation;
 import polyglot.ast.ConstructorCall;
+import polyglot.ast.Ext;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -31,10 +32,12 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.AnnotationNode;
+import x10.extension.X10Ext;
+import x10.types.Annotated;
 import x10.types.X10TypeObjectMixin;
 import x10.util.AltSynthesizer;
 
@@ -105,8 +108,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             Type type          = n.type();
             Allocation a       = syn.createAllocation(pos, type, n.typeArguments());
             LocalDecl ld       = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
-            Local l            = syn.createLocal(pos, ld);
-            ConstructorCall cc = syn.createConstructorCall(l, n);
+            ConstructorCall cc = makeConstructorCall(n, syn.createLocal(pos, ld));
             List<Stmt> stmts   = new ArrayList<Stmt>();
             stmts.add(ld);
             stmts.add(cc);
@@ -125,7 +127,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             List<Stmt> stmts   = new ArrayList<Stmt>();
             if (type.typeSystem().typeDeepBaseEquals(ld.declType(), n.type(), context)) {
                 ld                 = ld.init(a);
-                ConstructorCall cc = syn.createConstructorCall(syn.createLocal(pos, ld), n);
+                ConstructorCall cc = makeConstructorCall(n, syn.createLocal(pos, ld));
                 stmts.add(ld);
                 stmts.add(cc);
             } else {
@@ -134,7 +136,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
                 // Introduce additional localdecl so that the constructor call can be made
                 // on a variable of the correct type. 
                 LocalDecl ld2      = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
-                ConstructorCall cc = syn.createConstructorCall(syn.createLocal(pos, ld2), n);
+                ConstructorCall cc = makeConstructorCall(n, syn.createLocal(pos, ld2));
                 ld                 = ld.init(syn.createLocal(pos, ld2));
                 stmts.add(ld2);
                 stmts.add(cc);
@@ -182,6 +184,36 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         if (!X10TypeObjectMixin.annotationsNamed(annotations, NATIVE_REP_ANNOTATION).isEmpty())
             return true;
         return false;
+    }
+
+    /**
+     * Create a constructor call to fill in the fields of a recently allocated object (or struct).
+     * 
+     * @param n the New that allocated the object (or struct) and filled in its fields
+     * @param l a local variable to be assigned the resultant object (or struct)
+     * @return
+     */
+    private ConstructorCall makeConstructorCall(New n, Local l) {
+        ConstructorCall cc     = syn.createConstructorCall(l, n);
+        List<AnnotationNode> a = getAnnotations(n);
+        return (ConstructorCall) addAnnotations(cc, a);
+    }
+
+    public static List<AnnotationNode> getAnnotations(Node n) {
+        Ext ext = n.ext();
+        if (null == ext || !(ext instanceof X10Ext)) 
+            return null;
+        X10Ext x10ext = (X10Ext) ext;
+        return x10ext.annotations();
+    }
+
+    public static Node addAnnotations(Node n, List<AnnotationNode> annotations) {
+        Ext ext = n.ext();
+        if (null == annotations || annotations.isEmpty() || null == ext || !(ext instanceof X10Ext)) 
+            return n;
+        X10Ext x10ext = (X10Ext) ext;
+        Node node = x10ext.annotations(annotations);
+        return node;
     }
 
 }
