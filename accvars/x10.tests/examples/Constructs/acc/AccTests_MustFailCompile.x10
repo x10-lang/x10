@@ -4,6 +4,8 @@ import x10.util.*;
 import x10.lang.annotations.*;
 import harness.x10Test;
 
+class AccTests42 {
+
 class IntReducer implements Reducible[Int] {
 	public def zero():Int = 0;	
  	public operator this(x:Int,y:Int):Int = x+y;
@@ -40,6 +42,27 @@ class CorrectTypingTest {
 		acc i4:Int = new AnyReducer(); // ERR
 		i4 = 6; 
 		val x4:Int = i4; // it is an error because it would fail at runtime cause it would return "a"
+	}
+}
+class CtorCallTests {
+	private def use(Any) {}
+	def this(acc a:Int) {
+		acc i:Int = new IntReducer();
+		new CtorCallTests(i); // ERR
+		new CtorCallTests(a);
+		new CtorCallTests(a+1); // ERR ERR
+		i = 1;
+		a = 1;
+		use(i);
+		use(a); // ERR
+		finish {
+			new CtorCallTests(i);
+			new CtorCallTests(a);
+			i = 1;
+			a = 1;
+			use(i); // ERR
+			use(a); // ERR
+		}
 	}
 }
 class MethodCallTests {
@@ -231,6 +254,7 @@ class AccStateChanges {
 	}
 }
 
+}
 
 public class AccTests_MustFailCompile  extends x10Test {
 	public def run() : boolean = true;

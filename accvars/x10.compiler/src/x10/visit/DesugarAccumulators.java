@@ -34,6 +34,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.ClassType;
 import polyglot.types.ContainerType;
 import polyglot.types.LocalInstance;
+import polyglot.types.ProcedureInstance;
 import x10.types.X10FieldDef;
 
 import x10.types.MethodInstance;
@@ -43,6 +44,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10ConstructorDef;
 import x10.types.X10FieldDef_c;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10ParsedClassType;
 import x10.types.checker.ThisChecker;
 import x10.util.Synthesizer;
 
@@ -77,8 +79,8 @@ import static polyglot.visit.InitChecker.*;
  * i.supply(EXPR)
  */
 public class DesugarAccumulators extends ContextVisitor {
-    private HashSet<Local> okLocals = new HashSet<Local>();
-    private HashSet<X10Call> changeCalls = new HashSet<X10Call>();
+    private HashSet<Local> okLocals = new HashSet<Local>(); // for locals we usually desugar into: local.result(), but for okLocals we do not desugar (either for pass by reference into method calls, or LocalAssign)
+    private HashSet<Node> changeCalls = new HashSet<Node>(); // for optimization: so I won't need to handle all calls
     public DesugarAccumulators(Job job, TypeSystem ts, NodeFactory nf) {
         super(job,ts,nf);
     }
@@ -89,23 +91,23 @@ public class DesugarAccumulators extends ContextVisitor {
     }
 
     @Override public NodeVisitor enterCall(Node n) {
-        if (n instanceof X10Call) {
-            X10Call call = (X10Call) n;
-            MethodInstance mi = call.methodInstance();
-            if (mi.error()==null) {
-                List<LocalDef> formals = mi.def().formalNames();
-                int pos = 0;
-                for (LocalDef li : formals) {
-                    if (li.flags().isAcc()) {
-                        changeCalls.add(call);
-                        Expr arg = call.arguments().get(pos);
-                        Local local = arg instanceof Local ? (Local)arg : null;
-                        if (local!=null && local.flags().isAcc()) {
-                            okLocals.add(local);
-                        }
-                    }
-                    pos++;
+        if (n instanceof X10Call || n instanceof X10New) {
+            List<Expr> arguments = n instanceof X10Call ?
+                    ((X10Call) n).arguments() :
+                    ((X10New) n).arguments();
+            ProcedureInstance<? extends ProcedureDef> mi = n instanceof X10Call ?
+                    ((X10Call) n).methodInstance() :
+                    ((X10New) n).constructorInstance();
+            List<LocalDef> formals = mi.def().formalNames();
+            int pos = 0;
+            for (LocalDef li : formals) {
+                if (li.flags().isAcc()) {
+                    changeCalls.add(n);
+                    Expr arg = arguments.get(pos);
+                    Local local = (Local)arg;
+                    okLocals.add(local);
                 }
+                pos++;
             }
         } else if (n instanceof LocalAssign) {
             LocalAssign assign = (LocalAssign) n;
@@ -123,30 +125,43 @@ public class DesugarAccumulators extends ContextVisitor {
         return (LocalInstance) l.type(accType(l.type()));
     }
     Type accType(Type t) {
-        return ts.Accumulator().typeArguments(Collections.singletonList(t));
+        return t instanceof X10ParsedClassType && ((X10ParsedClassType)t).def()==ts.Accumulator().def() ? t : // to prevent against creating Accumulator[Accumulator[...Int]]
+                ts.Accumulator().typeArguments(Collections.singletonList(t));
     }
     final static Name supply = Name.make("supply");
     final static Name result = Name.make("result");
+    private void changeDef(ProcedureDef def) {
+        int pos = 0;
+        for (LocalDef li : def.formalNames()) {
+            if (li.flags().isAcc()) {
+                ((Ref<Type>)li.type()).update( accType(li.type().get()) );
+                Ref<? extends Type> ref = def.formalTypes().get(pos);
+                ((Ref<Type>) ref).update( accType(ref.get()) );
+            }
+            pos++;
+        }
+    }
     @Override
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (n instanceof X10Call && changeCalls.remove(old)) {
-            X10Call call = (X10Call) n;
-            MethodInstance mi = call.methodInstance();
+        if ((n instanceof X10ProcedureCall)
+             && changeCalls.remove(old)) {
+            X10ProcedureCall call = (X10ProcedureCall) n;
+            ProcedureInstance<? extends ProcedureDef> mi = call.procedureInstance();
             List<LocalInstance> newNames = new ArrayList<LocalInstance>(mi.formalNames());
             List<Type> newTypes = new ArrayList<Type>(mi.formalTypes());
-            if (mi.error()==null) {
-                List<LocalDef> formals = mi.def().formalNames();
-                int pos = 0;
-                for (LocalDef li : formals) {
-                    if (li.flags().isAcc()) {
-                        newNames.set(pos, accLocal(newNames.get(pos)));
-                        newTypes.set(pos, accType(newTypes.get(pos)));
-                    }
-                    pos++;
+            ProcedureDef def = mi.def();
+            changeDef(def);
+            int pos = 0;
+            for (LocalDef li : def.formalNames()) {
+                if (li.flags().isAcc()) {
+                    newNames.set(pos, accLocal(newNames.get(pos)));
+                    newTypes.set(pos, accType(newTypes.get(pos)));
                 }
-                X10Call res = call.methodInstance(mi.formalTypes(newTypes).formalNames(newNames));
-                return res;
+                pos++;
             }
+            ProcedureCall res = call.procedureInstance(mi.formalTypes(newTypes).formalNames(newNames));
+            return res;
+
         } else if (n instanceof LocalAssign) {
             LocalAssign assign = (LocalAssign) n;
             Local local = assign.local();
@@ -196,6 +211,8 @@ public class DesugarAccumulators extends ContextVisitor {
                 }
                 return varDecl;
             }
+        } else if (n instanceof ProcedureDecl) {
+            changeDef(((ProcedureDecl)n).procedureInstance());
         }
         return n;
     }
