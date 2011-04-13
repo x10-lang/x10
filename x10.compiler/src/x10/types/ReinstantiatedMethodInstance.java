@@ -36,10 +36,9 @@ public final class ReinstantiatedMethodInstance extends MethodInstance_c {
 
     @Override
     public List<Type> typeParameters() {
-        List<Type> typeParameters = ((MethodInstance_c) fi).typeParameters;
-        if (null == typeParameters) 
-            typeParameters = super.typeParameters();
-        return typeParamSubst.reinstantiate(typeParameters);
+        if (typeParameters == null)
+            return typeParamSubst.reinstantiate(fi.typeParameters());
+        return typeParameters;
     }
 
     @Override
