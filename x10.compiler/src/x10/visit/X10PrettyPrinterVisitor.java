@@ -583,11 +583,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(X10_RUNTIME_TYPE_CLASS);
                     // w.write("<"); n.print(tp, w, tr); w.write(">"); // TODO
                     w.write(" ");
-                    if (Emitter.mangleTypeVariable) {
-                        w.write(Emitter.mangleTypeVariable(tp.name().id()));                    	
-                    } else {
-                    	n.print(tp.name(), w, tr);
-                    }
+                    w.write(Emitter.mangleParameterType(tp));
                     w.write(";");
                     w.newline();
                 }
@@ -1077,12 +1073,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("final ");
             w.write(X10_RUNTIME_TYPE_CLASS);
             w.write(" ");
-            String name;
-            if (Emitter.mangleTypeVariable) {
-            	name = Emitter.mangleTypeVariable(p.name());            	
-            } else {
-            	name = Emitter.mangleToJava(p.name());            	
-            }
+            String name = Emitter.mangleParameterType(p);
             
             w.write(name);
 
@@ -2094,7 +2085,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
             } else if (pat == null && Emitter.getJavaRep(cd) == null && ct.isGloballyAccessible()
                     && cd.typeParameters().size() != 0) {
-                w.write(Emitter.mangleQualifiedType(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
+                w.write(Emitter.mangleQName(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
             } else {
                 new RuntimeTypeExpander(er, t).expand(tr);
             }

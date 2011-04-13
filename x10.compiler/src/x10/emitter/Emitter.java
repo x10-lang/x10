@@ -120,8 +120,9 @@ public class Emitter {
     private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
     private static final String RETURN_SPECIAL_TYPE_SUFFIX = "$O";
     
-    // WIP XTENLANG-2463
-    public static final boolean mangleTypeVariable = true;
+    // XTENLANG-2463
+    private static final boolean mangleTypeVariable = true;
+    private static final String PARAMETER_TYPE_PREFIX = "$";
 
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
@@ -158,102 +159,6 @@ public class Emitter {
 		} catch (SemanticException e1) {
 		    throw new InternalCompilerError("Something is terribly wrong");
 		}
-	}
-
-	public static QName mangleQualifiedType(QName name) {
-		String fullName = name.toString();
-		String qualifier = StringUtil.getPackageComponent(fullName);
-		String shortName = StringUtil.getShortNameComponent(fullName);
-		shortName = mangleIdentifier(shortName);
-		return QName.make(qualifier, shortName);
-	}
-	
-	public static Name mangleQualifiedIdentifier(QName name) {
-		return Name.make(mangleIdentifier(name.toString().replace(".", "$")));
-	}
-	
-	public static String mangleIdentifier(String n) {
-		// Workaround an assertion failure in Name.make.
-		if (! StringUtil.isNameShort(n))
-			return n;
-		return mangleIdentifier(Name.make(n)).toString();
-	}
-
-	private static Name mangleIdentifier(Name n) {
-	    // TODO is a new hashmap really needed at every call?
-		Map<Name,Name> map = CollectionFactory.newHashMap();
-		map.put(Converter.operator_as, Name.make("$convert"));
-		map.put(Converter.implicit_operator_as, Name.make("$implicit_convert"));
-		map.put(SettableAssign.SET, Name.make("$set"));
-		map.put(ClosureCall.APPLY, Name.make("$apply"));
-		map.put(Name.make("operator+"), Name.make("$plus"));
-		map.put(Name.make("operator-"), Name.make("$minus"));
-		map.put(Name.make("operator*"), Name.make("$times"));
-		map.put(Name.make("operator/"), Name.make("$over"));
-		map.put(Name.make("operator%"), Name.make("$percent"));
-		map.put(Name.make("operator<"), Name.make("$lt"));
-		map.put(Name.make("operator>"), Name.make("$gt"));
-		map.put(Name.make("operator<="), Name.make("$le"));
-		map.put(Name.make("operator>="), Name.make("$ge"));
-		map.put(Name.make("operator<<"), Name.make("$left"));
-		map.put(Name.make("operator>>"), Name.make("$right"));
-		map.put(Name.make("operator>>>"), Name.make("$unsigned_right"));
-		map.put(Name.make("operator&"), Name.make("$ampersand"));
-		map.put(Name.make("operator|"), Name.make("$bar"));
-		map.put(Name.make("operator^"), Name.make("$caret"));
-		map.put(Name.make("operator~"), Name.make("$tilde"));
-		map.put(Name.make("operator&&"), Name.make("$and"));
-		map.put(Name.make("operator||"), Name.make("$or"));
-		map.put(Name.make("operator!"), Name.make("$not"));
-		map.put(Name.make("operator=="), Name.make("$equalsequals"));
-		map.put(Name.make("operator!="), Name.make("$ne"));
-		map.put(Name.makeUnchecked("operator.."), Name.make("$range"));
-		map.put(Name.makeUnchecked("operator->"), Name.make("$arrow"));
-		map.put(Name.makeUnchecked("operator in"), Name.make("$in"));
-		map.put(Name.make("inverse_operator+"), Name.make("$inv_plus"));
-		map.put(Name.make("inverse_operator-"), Name.make("$inv_minus"));
-		map.put(Name.make("inverse_operator*"), Name.make("$inv_times"));
-		map.put(Name.make("inverse_operator/"), Name.make("$inv_over"));
-		map.put(Name.make("inverse_operator%"), Name.make("$inv_percent"));
-		map.put(Name.make("inverse_operator<"), Name.make("$inv_lt"));
-		map.put(Name.make("inverse_operator>"), Name.make("$inv_gt"));
-		map.put(Name.make("inverse_operator<="), Name.make("$inv_le"));
-		map.put(Name.make("inverse_operator>="), Name.make("$inv_ge"));
-		map.put(Name.make("inverse_operator<<"), Name.make("$inv_left"));
-		map.put(Name.make("inverse_operator>>"), Name.make("$inv_right"));
-		map.put(Name.make("inverse_operator>>>"), Name.make("$inv_unsigned_right"));
-		map.put(Name.make("inverse_operator&"), Name.make("$inv_ampersand"));
-		map.put(Name.make("inverse_operator|"), Name.make("$inv_bar"));
-		map.put(Name.make("inverse_operator^"), Name.make("$inv_caret"));
-		map.put(Name.make("inverse_operator~"), Name.make("$inv_tilde"));
-		map.put(Name.make("inverse_operator&&"), Name.make("$inv_and"));
-		map.put(Name.make("inverse_operator||"), Name.make("$inv_or"));
-		map.put(Name.make("inverse_operator!"), Name.make("$inv_not"));
-		map.put(Name.make("inverse_operator=="), Name.make("$inv_equalsequals"));
-		map.put(Name.make("inverse_operator!="), Name.make("$inv_ne"));
-		map.put(Name.makeUnchecked("inverse_operator.."), Name.make("$inv_range"));
-		map.put(Name.makeUnchecked("inverse_operator->"), Name.make("$inv_arrow"));
-		map.put(Name.makeUnchecked("inverse_operator in"), Name.make("$inv_in"));
-
-		Name o = map.get(n);
-		if (o != null)
-			return o;
-
-		String s = n.toString();
-		boolean replace = false;
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < s.length(); i++) {
-		    char c = s.charAt(i);
-		    if (!Character.isJavaIdentifierPart(c)) {
-		        replace = true;
-		        sb.append(translateChar(c));
-		    } else {
-		        sb.append(c);
-		    }
-		}
-		if (replace)
-		    return Name.make(sb.toString());
-		return n;
 	}
 
 	private static final String[] NON_PRINTABLE = {
@@ -399,6 +304,102 @@ public class Emitter {
 	    return ""+c;
 	}
 
+	private static Name mangleIdentifier(Name n) {
+	    // TODO is a new hashmap really needed at every call?
+		Map<Name,Name> map = CollectionFactory.newHashMap();
+		map.put(Converter.operator_as, Name.make("$convert"));
+		map.put(Converter.implicit_operator_as, Name.make("$implicit_convert"));
+		map.put(SettableAssign.SET, Name.make("$set"));
+		map.put(ClosureCall.APPLY, Name.make("$apply"));
+		map.put(Name.make("operator+"), Name.make("$plus"));
+		map.put(Name.make("operator-"), Name.make("$minus"));
+		map.put(Name.make("operator*"), Name.make("$times"));
+		map.put(Name.make("operator/"), Name.make("$over"));
+		map.put(Name.make("operator%"), Name.make("$percent"));
+		map.put(Name.make("operator<"), Name.make("$lt"));
+		map.put(Name.make("operator>"), Name.make("$gt"));
+		map.put(Name.make("operator<="), Name.make("$le"));
+		map.put(Name.make("operator>="), Name.make("$ge"));
+		map.put(Name.make("operator<<"), Name.make("$left"));
+		map.put(Name.make("operator>>"), Name.make("$right"));
+		map.put(Name.make("operator>>>"), Name.make("$unsigned_right"));
+		map.put(Name.make("operator&"), Name.make("$ampersand"));
+		map.put(Name.make("operator|"), Name.make("$bar"));
+		map.put(Name.make("operator^"), Name.make("$caret"));
+		map.put(Name.make("operator~"), Name.make("$tilde"));
+		map.put(Name.make("operator&&"), Name.make("$and"));
+		map.put(Name.make("operator||"), Name.make("$or"));
+		map.put(Name.make("operator!"), Name.make("$not"));
+		map.put(Name.make("operator=="), Name.make("$equalsequals"));
+		map.put(Name.make("operator!="), Name.make("$ne"));
+		map.put(Name.makeUnchecked("operator.."), Name.make("$range"));
+		map.put(Name.makeUnchecked("operator->"), Name.make("$arrow"));
+		map.put(Name.makeUnchecked("operator in"), Name.make("$in"));
+		map.put(Name.make("inverse_operator+"), Name.make("$inv_plus"));
+		map.put(Name.make("inverse_operator-"), Name.make("$inv_minus"));
+		map.put(Name.make("inverse_operator*"), Name.make("$inv_times"));
+		map.put(Name.make("inverse_operator/"), Name.make("$inv_over"));
+		map.put(Name.make("inverse_operator%"), Name.make("$inv_percent"));
+		map.put(Name.make("inverse_operator<"), Name.make("$inv_lt"));
+		map.put(Name.make("inverse_operator>"), Name.make("$inv_gt"));
+		map.put(Name.make("inverse_operator<="), Name.make("$inv_le"));
+		map.put(Name.make("inverse_operator>="), Name.make("$inv_ge"));
+		map.put(Name.make("inverse_operator<<"), Name.make("$inv_left"));
+		map.put(Name.make("inverse_operator>>"), Name.make("$inv_right"));
+		map.put(Name.make("inverse_operator>>>"), Name.make("$inv_unsigned_right"));
+		map.put(Name.make("inverse_operator&"), Name.make("$inv_ampersand"));
+		map.put(Name.make("inverse_operator|"), Name.make("$inv_bar"));
+		map.put(Name.make("inverse_operator^"), Name.make("$inv_caret"));
+		map.put(Name.make("inverse_operator~"), Name.make("$inv_tilde"));
+		map.put(Name.make("inverse_operator&&"), Name.make("$inv_and"));
+		map.put(Name.make("inverse_operator||"), Name.make("$inv_or"));
+		map.put(Name.make("inverse_operator!"), Name.make("$inv_not"));
+		map.put(Name.make("inverse_operator=="), Name.make("$inv_equalsequals"));
+		map.put(Name.make("inverse_operator!="), Name.make("$inv_ne"));
+		map.put(Name.makeUnchecked("inverse_operator.."), Name.make("$inv_range"));
+		map.put(Name.makeUnchecked("inverse_operator->"), Name.make("$inv_arrow"));
+		map.put(Name.makeUnchecked("inverse_operator in"), Name.make("$inv_in"));
+
+		Name o = map.get(n);
+		if (o != null)
+			return o;
+
+		String s = n.toString();
+		boolean replace = false;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+		    char c = s.charAt(i);
+		    if (!Character.isJavaIdentifierPart(c)) {
+		        replace = true;
+		        sb.append(translateChar(c));
+		    } else {
+		        sb.append(c);
+		    }
+		}
+		if (replace)
+		    return Name.make(sb.toString());
+		return n;
+	}
+
+	public static String mangleIdentifier(String n) {
+		// Workaround an assertion failure in Name.make.
+		if (! StringUtil.isNameShort(n))
+			return n;
+		return mangleIdentifier(Name.make(n)).toString();
+	}
+
+	public static QName mangleQName(QName name) {
+		String fullName = name.toString();
+		String qualifier = StringUtil.getPackageComponent(fullName);
+		String shortName = StringUtil.getShortNameComponent(fullName);
+		shortName = mangleIdentifier(shortName);
+		return QName.make(qualifier, shortName);
+	}
+	
+	public static Name mangleQNameToName(QName name) {
+		return Name.make(mangleIdentifier(name.toString().replace(".", "$")));
+	}
+
 	public static String mangleToJava(Name name) {
 	        String str = mangleIdentifier(name).toString();
 	        String prefix = "kwd_";
@@ -411,10 +412,20 @@ public class Emitter {
 	        return str;
 	}
 
-    public static String mangleTypeVariable(Name name) {
+    private static String mangleParameterType(Name name) {
     	String mangledName = mangleToJava(name);
-    	mangledName = "$" + mangledName;
+    	if (mangleTypeVariable) {
+    		mangledName = PARAMETER_TYPE_PREFIX + mangledName;
+    	}
     	return mangledName;
+    }
+    
+    public static String mangleParameterType(ParameterType pt) {
+    	return mangleParameterType(pt.name());
+    }
+    
+    public static String mangleParameterType(TypeParamNode tpn) {
+    	return mangleParameterType(tpn.name().id());
     }
 
 	/**
@@ -745,13 +756,7 @@ public class Emitter {
 			return;
 
 		if (type instanceof ParameterType) {
-            // WIP XTENLANG-2463
-            // TODO mangle type variable
-			if (mangleTypeVariable) {
-				w.write(mangleTypeVariable(((ParameterType) type).name()));
-			} else {
-				w.write(mangleToJava(((ParameterType) type).name()));
-			}
+			w.write(mangleParameterType((ParameterType) type));
 			return;
 		}
 
@@ -816,7 +821,7 @@ public class Emitter {
 		} else if (type.isNull()) {
 		        w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
 		} else {
-			w.write(mangleQualifiedType(type.fullName()).toString());
+			w.write(mangleQName(type.fullName()).toString());
 		}
 
 		if (printTypeParams) {
@@ -958,11 +963,7 @@ public class Emitter {
 			w.write("final ");
 			w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
 			w.write(" ");
-			if (mangleTypeVariable) {
-				w.write(mangleTypeVariable(p.name().id()));				
-			} else {
-				w.write(mangleToJava(p.name().id()));
-			}
+			w.write(mangleParameterType(p));
 		}
 		int formalNum = 1;
 		for (int i = 0; i < n.formals().size(); i++) {
@@ -1132,11 +1133,7 @@ public class Emitter {
         String sep = "";
         for (TypeParamNode tp : typeParameters) {
             w.write(sep);
-            if (mangleTypeVariable) {
-            	w.write(mangleTypeVariable(tp.name().id()));
-            } else {
-            	n.print(tp, w, tr);
-            }
+            w.write(mangleParameterType(tp));
             List<Type> sups = new LinkedList<Type>(tp.upperBounds());
                             
             Type supClassType = null;
@@ -1284,7 +1281,9 @@ public class Emitter {
         else if (printIncludingGeneric && t instanceof ParameterType) {
             sb.append("_").append(i).append("_");
             sb.append("$$");
-            sb.append(mangleQualifiedIdentifier(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
+            // TODO mangle parameter type
+            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
+//            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
         }
     }
 
@@ -1292,7 +1291,7 @@ public class Emitter {
         sb.append("$_");
         if (t instanceof X10ClassType) {
             X10ClassType x10t = (X10ClassType) t;
-            sb.append(mangleQualifiedIdentifier(x10t.fullName()));
+            sb.append(mangleQNameToName(x10t.fullName()));
             if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
                 List<Type> ts = x10t.typeArguments();
                 for (Type t1 : ts) {
@@ -1301,10 +1300,12 @@ public class Emitter {
             }
         }
         else if (t instanceof ParameterType) {
-            sb.append(mangleQualifiedIdentifier(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
+            // TODO mangle parameter type
+            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
+//            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
         }
         else {
-            sb.append(mangleQualifiedIdentifier(t.fullName()));
+            sb.append(mangleQNameToName(t.fullName()));
         }
         sb.append("_$");
     }
@@ -1621,11 +1622,7 @@ public class Emitter {
 	            for (ParameterType pt : tps) {
 	                w.write(delim);
 	                delim = ",";
-	                if (mangleTypeVariable) {
-	                	w.write(mangleTypeVariable(pt.name()));	                	
-	                } else {
-	                	w.write(pt.name().toString());
-	                }
+	                w.write(mangleParameterType(pt));
 	            }
 	            w.write(">");
 	            w.write(" ");
@@ -1672,11 +1669,7 @@ public class Emitter {
                 w.write("final ");
                 w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
                 w.write(" ");
-                if (mangleTypeVariable) {
-                	w.write(mangleTypeVariable(p.name()));                	
-                } else {
-                	w.write(mangleToJava(p.name()));
-                }
+                w.write(mangleParameterType(p));
             }
         }
 
@@ -2210,11 +2203,7 @@ public class Emitter {
                 w.write("final ");
                 w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
                 w.write(" ");
-                if (mangleTypeVariable) {
-                	w.write(mangleTypeVariable(p.name()));                	
-                } else {
-                	w.write(mangleToJava(p.name()));
-                }
+                w.write(mangleParameterType(p));
             }
             
             Name[] names = new Name[def.formalTypes().size()];
@@ -2732,12 +2721,7 @@ public class Emitter {
                   ParameterType pt = def.typeParameters().get(i);
                   w.write("if (i ==" + i + ")");
                   w.write("return ");
-                  // WIP XTENLANG-2463
-                  if (mangleTypeVariable) {
-                      w.write(mangleTypeVariable(pt.name()));                	  
-                  } else {
-                	  w.write(mangleToJava(pt.name()));
-                  }
+                  w.write(mangleParameterType(pt));
                   w.write(";");
               }
                 w.write("return null;");
@@ -2946,22 +2930,14 @@ public class Emitter {
         w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
         w.write("(");
         for (ParameterType type : def.typeParameters()) {
-        	if (mangleTypeVariable) {
-        		w.write(mangleTypeVariable(type.name()) + ", ");        		
-        	} else {
-        		w.write(type.name().toString() + ", ");
-        	}
+        	w.write(mangleParameterType(type) + ", ");
         }
         w.write(fieldName + "); }");
         w.newline();
         w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {");
         w.newline();
         for (ParameterType type : def.typeParameters()) {
-        	if (mangleTypeVariable) {
-                w.write("oos.writeObject(" + mangleTypeVariable(type.name()) + ");");
-        	} else {
-                w.write("oos.writeObject(" + type.name().toString() + ");");        		
-        	}
+        	w.write("oos.writeObject(" + mangleParameterType(type) + ");");
             w.newline();
         }
         w.write("oos.writeObject(" + fieldName + "); }");
@@ -2969,11 +2945,7 @@ public class Emitter {
         w.write("private void readObject(java.io.ObjectInputStream ois) throws java.io.IOException, java.lang.ClassNotFoundException {");
         w.newline();
         for (ParameterType type : def.typeParameters()) {
-        	if (mangleTypeVariable) {
-        		w.write(mangleTypeVariable(type.name()) + " = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") ois.readObject();");
-        	} else {
-        		w.write(type.name().toString() + " = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") ois.readObject();");        		
-        	}
+        	w.write(mangleParameterType(type) + " = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") ois.readObject();");
             w.newline();
         }
         w.write(fieldName + " = (x10.io.SerialData) ois.readObject(); }");
@@ -2994,11 +2966,7 @@ public class Emitter {
             w.newline();
             w.write("public " + def.name().toString() + "(");
             for (ParameterType type : def.typeParameters()) {
-            	if (mangleTypeVariable) {
-            		w.write("final x10.rtt.Type " + mangleTypeVariable(type.name()) + ", ");
-            	} else {
-            		w.write("final x10.rtt.Type " + type.name().toString() + ", ");
-            	}
+            	w.write("final x10.rtt.Type " + mangleParameterType(type) + ", ");
             }
             w.write("final x10.io.SerialData a) { ");
 
@@ -3027,11 +2995,7 @@ public class Emitter {
             
             // initialize rtt
             for (ParameterType type : def.typeParameters()) {
-            	if (mangleTypeVariable) {
-            		w.write("this." + mangleTypeVariable(type.name()) + " = " + mangleTypeVariable(type.name()) + "; ");            		
-            	} else {
-            		w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
-            	}
+            	w.write("this." + mangleParameterType(type) + " = " + mangleParameterType(type) + "; ");            		
             }
             
             // copy the rest of default (standard) constructor to initialize properties and fields
@@ -3073,11 +3037,7 @@ public class Emitter {
         w.newline();
         w.write("public " + def.name().toString() + "(");
         for (ParameterType type : def.typeParameters()) {
-        	if (mangleTypeVariable) {
-        		w.write("final x10.rtt.Type " + mangleTypeVariable(type.name()) + ", ");
-        	} else {
-        		w.write("final x10.rtt.Type " + type.name().toString() + ", ");
-        	}
+        	w.write("final x10.rtt.Type " + mangleParameterType(type) + ", ");
         }
         w.write("final java.lang.System $dummy) { ");
 
@@ -3106,11 +3066,7 @@ public class Emitter {
         
         // initialize rtt
         for (ParameterType type : def.typeParameters()) {
-        	if (mangleTypeVariable) {
-        		w.write("this." + mangleTypeVariable(type.name()) + " = " + mangleTypeVariable(type.name()) + "; ");
-        	} else {
-        		w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
-        	}
+        	w.write("this." + mangleParameterType(type) + " = " + mangleParameterType(type) + "; ");
         }
         
         // initialize instance fields with zero value
@@ -3172,11 +3128,7 @@ public class Emitter {
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"
                 ParameterType paramType = (ParameterType) type;
-                if (mangleTypeVariable) {
-                	zero = "(" + mangleTypeVariable(paramType.name()) + ") x10.rtt.Types.zeroValue(" + mangleTypeVariable(paramType.name()) + ")";
-                } else {
-                	zero = "(" + paramType.name().toString() + ") x10.rtt.Types.zeroValue(" + paramType.name().toString() + ")";
-                }
+                zero = "(" + mangleParameterType(paramType) + ") x10.rtt.Types.zeroValue(" + mangleParameterType(paramType) + ")";
             } else {
                 // reference (i.e. non-struct) type
                 zero = "null";
