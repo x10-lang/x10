@@ -69,7 +69,10 @@ public final class UnresolvedType implements Type {
         throw new UnsupportedOperationException();
     }
 
-    public final Object setArray(Object array, int i, Object v) {
+//    public final Object setArray(Object array, int i, Object v) {
+//        throw new UnsupportedOperationException();
+//    }
+    public final void setArray(Object array, int i, Object v) {
         throw new UnsupportedOperationException();
     }
 

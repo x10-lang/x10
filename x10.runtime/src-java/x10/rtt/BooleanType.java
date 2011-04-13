@@ -55,12 +55,16 @@ public class BooleanType extends RuntimeType<Boolean> {
         return ((boolean[]) array)[i];
     }
     
+//    @Override
+//    public Boolean setArray(Object array, int i, Boolean v) {
+//        // avoid boxing again
+////        return ((boolean[]) array)[i] = v;
+//        ((boolean[]) array)[i] = v;
+//        return v;
+//    }
     @Override
-    public Boolean setArray(Object array, int i, Boolean v) {
-        // avoid boxing again
-//        return ((boolean[]) array)[i] = v;
+    public void setArray(Object array, int i, Boolean v) {
         ((boolean[]) array)[i] = v;
-        return v;
     }
     
     @Override

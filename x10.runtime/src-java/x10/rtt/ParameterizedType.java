@@ -91,8 +91,11 @@ public final class ParameterizedType<T> implements Type<T>{
         return rtt.makeArray(elems);
     }
 
-    public final T setArray(Object array, int i, T v) {
-        return rtt.setArray(array, i, v);
+//    public final T setArray(Object array, int i, T v) {
+//        return rtt.setArray(array, i, v);
+//    }
+    public final void setArray(Object array, int i, T v) {
+    	rtt.setArray(array, i, v);
     }
 
     public final String toString() {

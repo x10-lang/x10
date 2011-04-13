@@ -55,12 +55,16 @@ public class CharType extends RuntimeType<Character> {
         return ((char[]) array)[i];
     }
     
+//    @Override
+//    public Character setArray(Object array, int i, Character v) {
+//        // avoid boxing again
+////        return ((char[]) array)[i] = v;
+//        ((char[]) array)[i] = v;
+//        return v;
+//    }
     @Override
-    public Character setArray(Object array, int i, Character v) {
-        // avoid boxing again
-//        return ((char[]) array)[i] = v;
+    public void setArray(Object array, int i, Character v) {
         ((char[]) array)[i] = v;
-        return v;
     }
     
     @Override

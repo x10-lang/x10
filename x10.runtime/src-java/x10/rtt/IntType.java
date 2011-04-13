@@ -55,12 +55,16 @@ public class IntType extends RuntimeType<Integer> {
         return ((int[]) array)[i];
     }
     
+//    @Override
+//    public Integer setArray(Object array, int i, Integer v) {
+//        // avoid boxing again
+////        return ((int[]) array)[i] = v;
+//        ((int[]) array)[i] = v;
+//        return v;
+//    }
     @Override
-    public Integer setArray(Object array, int i, Integer v) {
-        // avoid boxing again
-//        return ((int[]) array)[i] = v;
+    public void setArray(Object array, int i, Integer v) {
         ((int[]) array)[i] = v;
-        return v;
     }
     
     @Override

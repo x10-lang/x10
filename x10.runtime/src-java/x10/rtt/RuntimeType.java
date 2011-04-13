@@ -309,9 +309,12 @@ public class RuntimeType<T> implements Type<T> {
         return ((T[])array)[i];
     }
 
-    public T setArray(Object array, int i, T v) {
+//    public T setArray(Object array, int i, T v) {
+//        ((T[])array)[i] = v;
+//        return v;
+//    }
+    public void setArray(Object array, int i, T v) {
         ((T[])array)[i] = v;
-        return v;
     }
     
     public int arrayLength(Object array) {
