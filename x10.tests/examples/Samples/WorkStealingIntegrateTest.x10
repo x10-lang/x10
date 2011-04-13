@@ -10,16 +10,16 @@
  */
 //OPTIONS: -WORK_STEALING=true
 
-public class WorkStealingIntegrateTest {
+import harness.x10Test;
+
+public class WorkStealingIntegrateTest extends x10Test {
     public def run():boolean {
         val res = Integrate.computeArea(0, 64);
-        return (res > 4196352.000 && res < 4196352.001);
+        //return (res > 4196352.000 && res < 4196352.001);
+        return nearEnough(res, 4196352.000021513551474);
     }
 
     public static def main(args:Array[String](1)) {
-        val r = new WorkStealingIntegrateTest().run();
-        if(r){
-             x10.io.Console.OUT.println("++++++Test succeeded.");
-        }
+        new WorkStealingIntegrateTest().execute();
     }
 }
