@@ -229,7 +229,7 @@ public abstract class Region(
 
     /**
      * Returns the index of the argument point in the lexograpically ordered
-     * enumeration of all Points in thie region.  Will return -1 to indicate 
+     * enumeration of all Points in this region.  Will return -1 to indicate 
      * that the argument point is not included in this region.  If the argument
      * point is contained in this region, then a value between 0 and size-1
      * will be returned.  The primary usage of indexOf is in the context of 
@@ -267,7 +267,7 @@ public abstract class Region(
     abstract public def min():(int)=>int;
 
     /**
-     * Returns a function that can be used to access the lower bounds 
+     * Returns a function that can be used to access the upper bounds 
      * of the bounding box of the region. 
      */
     abstract public def max():(int)=>int;
@@ -283,6 +283,16 @@ public abstract class Region(
      * the ith axis.
      */
     public def max(i:Int) = max()(i);    
+
+    /**
+     * Returns the smallest point in the bounding box of the region
+     */
+    public def minPoint():Point(this.rank) = Point.make(rank, min());
+
+    /**
+     * Returns the smallest point in the bounding box of the region
+     */
+    public def maxPoint():Point(this.rank) = Point.make(rank, max());
 
 
     //
