@@ -33,6 +33,7 @@ import polyglot.types.VarDef;
 import polyglot.types.LocalDef;
 import polyglot.types.ClassType;
 import polyglot.types.ContainerType;
+import polyglot.types.ProcedureInstance;
 import x10.types.X10FieldDef;
 
 import x10.types.MethodInstance;
@@ -119,31 +120,30 @@ public class CheckAcc extends NodeVisitor {
                 LocalInfo old = accs.put(var.localDef(),info);
                 assert old==null : "Found previous value="+old+" for var="+var;
             }
-        } else if (n instanceof X10Call) {
-            X10Call call = (X10Call) n;
-            MethodInstance mi = call.methodInstance();
-            if (mi.error()==null) {
-                List<LocalDef> formals = mi.def().formalNames();
-                int pos = 0;
-                for (LocalDef li : formals) {
-                    if (li.flags().isAcc()) {
-                        Expr arg = call.arguments().get(pos);
-                        Local local = arg instanceof Local ? (Local)arg : null;
-                        if (local!=null && local.flags().isAcc()) {
-                            okLocals.add(local);
-                            // check the acc state (must be write-only)
-                            LocalInfo info = accs.get(local.localInstance().def());
-                            if (info!=null && isWriteOnly(info)) {
-                                // ok
-                            } else {
-                                Errors.issue(job, new SemanticException("When passing an accumulator as a method argument it must be in a write-only state."), call);
-                            }
+        } else if (n instanceof X10ProcedureCall) {
+            X10ProcedureCall call = (X10ProcedureCall) n;
+            List<Expr> arguments = call.arguments();
+            ProcedureInstance<? extends ProcedureDef> mi = call.procedureInstance();
+            List<LocalDef> formals = mi.def().formalNames();
+            int pos = 0;
+            for (LocalDef li : formals) {
+                if (li.flags().isAcc()) {
+                    Expr arg = arguments.get(pos);
+                    Local local = arg instanceof Local ? (Local)arg : null;
+                    if (local!=null && local.flags().isAcc()) {
+                        okLocals.add(local);
+                        // check the acc state (must be write-only)
+                        LocalInfo info = accs.get(local.localInstance().def());
+                        if (info!=null && isWriteOnly(info)) {
+                            // ok
                         } else {
-                            Errors.issue(job, new SemanticException("Cannot pass a non-accumulator argument in the position of an accumulator formal."), call);
+                            Errors.issue(job, new SemanticException("When passing an accumulator as a method argument it must be in a write-only state."), n);
                         }
+                    } else {
+                        Errors.issue(job, new SemanticException("Cannot pass a non-accumulator argument in the position of an accumulator formal."), n);
                     }
-                    pos++;
                 }
+                pos++;
             }
         } else if (n instanceof LocalAssign) {
             LocalAssign assign = (LocalAssign) n;

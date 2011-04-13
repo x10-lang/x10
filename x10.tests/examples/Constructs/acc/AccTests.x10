@@ -5,6 +5,7 @@ import x10.lang.annotations.*;
 import harness.x10Test;
 
 
+
 struct IntReducer implements Reducible[Int] {
 	public def zero():Int = 0;	
  	public operator this(x:Int,y:Int):Int = x+y;
@@ -17,7 +18,7 @@ class FibAccumulators {
 	  return x;
 	}
 	def fib1(n:Int, acc z:Int) {
-	   if (n < 2) z=n;
+	   if (n < 2) { z=n; return; }
 	   async fib1(n-1, z);
 	   fib1(n-2, z);
 	}
@@ -31,7 +32,7 @@ class Manually_Desugared_FibAccumulators {
 	  return x.result();
 	}
 	def fib1(n:Int, val x:Accumulator[Int]) {
-	   if (n < 2) x.supply(n);
+	   if (n < 2) { x.supply(n); return; }
 	   async fib1(n-1, x);
 	   fib1(n-2, x);
 	}
@@ -46,7 +47,7 @@ class CollectingFinish_Fib {
 	  return x;
 	}
 	def fib1(n:Int) offers Int {
-	   if (n < 2) offer n;
+	   if (n < 2) { offer n; return; }
 	   async fib1(n-1);
 	   fib1(n-2);
 	}
@@ -56,10 +57,10 @@ class CollectingFinish_Fib {
 public class AccTests  extends x10Test {
 	public def run() : boolean = true;
 	public static def main(Array[String]) {
-		val res0 = new FibAccumulators().fib(5);
-		val res1 = new Manually_Desugared_FibAccumulators().fib(5);
-		val res2 = new CollectingFinish_Fib().fib(5);
-		Console.OUT.println(res0);
+		val res0 = new FibAccumulators().fib(7);
+		val res1 = new Manually_Desugared_FibAccumulators().fib(7);
+		val res2 = new CollectingFinish_Fib().fib(7);
+		Console.OUT.println(res0+" "+res1+" "+res2+" ");
 		assert res0==res1 && res1==res2;
 	}
 }
