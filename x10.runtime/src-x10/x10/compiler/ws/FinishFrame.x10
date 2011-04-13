@@ -51,10 +51,10 @@ abstract public class FinishFrame extends Frame {
 
     public def wrapBack(worker:Worker, frame:Frame) {
         if (null != worker.throwable) {
-            Runtime.atomicMonitor.lock();
+            //Runtime.atomicMonitor.lock();
             caught(worker.throwable);
             worker.throwable = null;
-            Runtime.atomicMonitor.unlock();
+            //Runtime.atomicMonitor.unlock();
         }
     }
 
