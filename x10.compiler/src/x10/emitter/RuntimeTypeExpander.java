@@ -61,9 +61,7 @@ final public class RuntimeTypeExpander extends Expander {
         
         if (at instanceof ParameterType) {
             ParameterType pt = (ParameterType) at;
-            // WIP XTENLANG-2463
-            // TODO mangle type variable
-            if (Emitter.XTENLANG2463) {
+            if (Emitter.mangleTypeVariable) {
             	er.w.write(Emitter.mangleTypeVariable(pt.name()));            	
             } else {
             	er.w.write(Emitter.mangleToJava(pt.name()));

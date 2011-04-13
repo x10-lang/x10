@@ -120,7 +120,8 @@ public class Emitter {
     private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
     private static final String RETURN_SPECIAL_TYPE_SUFFIX = "$O";
     
-    public static final boolean XTENLANG2463 = false;
+    // WIP XTENLANG-2463
+    public static final boolean mangleTypeVariable = true;
 
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
@@ -410,7 +411,6 @@ public class Emitter {
 	        return str;
 	}
 
-	// WIP XTENLANG-2463
     public static String mangleTypeVariable(Name name) {
     	String mangledName = mangleToJava(name);
     	mangledName = "$" + mangledName;
@@ -747,7 +747,7 @@ public class Emitter {
 		if (type instanceof ParameterType) {
             // WIP XTENLANG-2463
             // TODO mangle type variable
-			if (XTENLANG2463) {
+			if (mangleTypeVariable) {
 				w.write(mangleTypeVariable(((ParameterType) type).name()));
 			} else {
 				w.write(mangleToJava(((ParameterType) type).name()));
@@ -958,8 +958,11 @@ public class Emitter {
 			w.write("final ");
 			w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
 			w.write(" ");
-			// TODO print type parameter name
-			w.write(mangleToJava(p.name().id()));
+			if (mangleTypeVariable) {
+				w.write(mangleTypeVariable(p.name().id()));				
+			} else {
+				w.write(mangleToJava(p.name().id()));
+			}
 		}
 		int formalNum = 1;
 		for (int i = 0; i < n.formals().size(); i++) {
@@ -1129,7 +1132,11 @@ public class Emitter {
         String sep = "";
         for (TypeParamNode tp : typeParameters) {
             w.write(sep);
-            n.print(tp, w, tr);
+            if (mangleTypeVariable) {
+            	w.write(mangleTypeVariable(tp.name().id()));
+            } else {
+            	n.print(tp, w, tr);
+            }
             List<Type> sups = new LinkedList<Type>(tp.upperBounds());
                             
             Type supClassType = null;
@@ -1614,8 +1621,11 @@ public class Emitter {
 	            for (ParameterType pt : tps) {
 	                w.write(delim);
 	                delim = ",";
-	                // TODO print type parameter name
-	                w.write(pt.name().toString());
+	                if (mangleTypeVariable) {
+	                	w.write(mangleTypeVariable(pt.name()));	                	
+	                } else {
+	                	w.write(pt.name().toString());
+	                }
 	            }
 	            w.write(">");
 	            w.write(" ");
@@ -1662,8 +1672,11 @@ public class Emitter {
                 w.write("final ");
                 w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
                 w.write(" ");
-                // TODO print parameter type name
-                w.write(mangleToJava(p.name()));
+                if (mangleTypeVariable) {
+                	w.write(mangleTypeVariable(p.name()));                	
+                } else {
+                	w.write(mangleToJava(p.name()));
+                }
             }
         }
 
@@ -2197,7 +2210,11 @@ public class Emitter {
                 w.write("final ");
                 w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
                 w.write(" ");
-                w.write(mangleToJava(p.name()));
+                if (mangleTypeVariable) {
+                	w.write(mangleTypeVariable(p.name()));                	
+                } else {
+                	w.write(mangleToJava(p.name()));
+                }
             }
             
             Name[] names = new Name[def.formalTypes().size()];
@@ -2716,7 +2733,7 @@ public class Emitter {
                   w.write("if (i ==" + i + ")");
                   w.write("return ");
                   // WIP XTENLANG-2463
-                  if (XTENLANG2463) {
+                  if (mangleTypeVariable) {
                       w.write(mangleTypeVariable(pt.name()));                	  
                   } else {
                 	  w.write(mangleToJava(pt.name()));
@@ -2929,14 +2946,22 @@ public class Emitter {
         w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
         w.write("(");
         for (ParameterType type : def.typeParameters()) {
-            w.write(type.name().toString() + ", ");
+        	if (mangleTypeVariable) {
+        		w.write(mangleTypeVariable(type.name()) + ", ");        		
+        	} else {
+        		w.write(type.name().toString() + ", ");
+        	}
         }
         w.write(fieldName + "); }");
         w.newline();
         w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {");
         w.newline();
         for (ParameterType type : def.typeParameters()) {
-            w.write("oos.writeObject(" + type.name().toString() + ");");
+        	if (mangleTypeVariable) {
+                w.write("oos.writeObject(" + mangleTypeVariable(type.name()) + ");");
+        	} else {
+                w.write("oos.writeObject(" + type.name().toString() + ");");        		
+        	}
             w.newline();
         }
         w.write("oos.writeObject(" + fieldName + "); }");
@@ -2944,7 +2969,11 @@ public class Emitter {
         w.write("private void readObject(java.io.ObjectInputStream ois) throws java.io.IOException, java.lang.ClassNotFoundException {");
         w.newline();
         for (ParameterType type : def.typeParameters()) {
-            w.write(type.name().toString() + " = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") ois.readObject();");
+        	if (mangleTypeVariable) {
+        		w.write(mangleTypeVariable(type.name()) + " = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") ois.readObject();");
+        	} else {
+        		w.write(type.name().toString() + " = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") ois.readObject();");        		
+        	}
             w.newline();
         }
         w.write(fieldName + " = (x10.io.SerialData) ois.readObject(); }");
@@ -2965,7 +2994,11 @@ public class Emitter {
             w.newline();
             w.write("public " + def.name().toString() + "(");
             for (ParameterType type : def.typeParameters()) {
-                w.write("final x10.rtt.Type " + type.name().toString() + ", ");
+            	if (mangleTypeVariable) {
+            		w.write("final x10.rtt.Type " + mangleTypeVariable(type.name()) + ", ");
+            	} else {
+            		w.write("final x10.rtt.Type " + type.name().toString() + ", ");
+            	}
             }
             w.write("final x10.io.SerialData a) { ");
 
@@ -2983,6 +3016,7 @@ public class Emitter {
                 if (superType.typeArguments() != null) {
                     for (Type type : superType.typeArguments()) {
                         // pass rtt of the type
+                    	// TODO mangle typa variable
                         new RuntimeTypeExpander(this, type).expand(tr);
                         w.write(", ");
                     }
@@ -2993,7 +3027,11 @@ public class Emitter {
             
             // initialize rtt
             for (ParameterType type : def.typeParameters()) {
-                w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
+            	if (mangleTypeVariable) {
+            		w.write("this." + mangleTypeVariable(type.name()) + " = " + mangleTypeVariable(type.name()) + "; ");            		
+            	} else {
+            		w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
+            	}
             }
             
             // copy the rest of default (standard) constructor to initialize properties and fields
@@ -3035,7 +3073,11 @@ public class Emitter {
         w.newline();
         w.write("public " + def.name().toString() + "(");
         for (ParameterType type : def.typeParameters()) {
-            w.write("final x10.rtt.Type " + type.name().toString() + ", ");
+        	if (mangleTypeVariable) {
+        		w.write("final x10.rtt.Type " + mangleTypeVariable(type.name()) + ", ");
+        	} else {
+        		w.write("final x10.rtt.Type " + type.name().toString() + ", ");
+        	}
         }
         w.write("final java.lang.System $dummy) { ");
 
@@ -3064,7 +3106,11 @@ public class Emitter {
         
         // initialize rtt
         for (ParameterType type : def.typeParameters()) {
-            w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
+        	if (mangleTypeVariable) {
+        		w.write("this." + mangleTypeVariable(type.name()) + " = " + mangleTypeVariable(type.name()) + "; ");
+        	} else {
+        		w.write("this." + type.name().toString() + " = " + type.name().toString() + "; ");
+        	}
         }
         
         // initialize instance fields with zero value
@@ -3126,7 +3172,11 @@ public class Emitter {
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"
                 ParameterType paramType = (ParameterType) type;
-                zero = "(" + paramType.name().toString() + ") x10.rtt.Types.zeroValue(" + paramType.name().toString() + ")";
+                if (mangleTypeVariable) {
+                	zero = "(" + mangleTypeVariable(paramType.name()) + ") x10.rtt.Types.zeroValue(" + mangleTypeVariable(paramType.name()) + ")";
+                } else {
+                	zero = "(" + paramType.name().toString() + ") x10.rtt.Types.zeroValue(" + paramType.name().toString() + ")";
+                }
             } else {
                 // reference (i.e. non-struct) type
                 zero = "null";
