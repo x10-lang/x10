@@ -61,7 +61,13 @@ final public class RuntimeTypeExpander extends Expander {
         
         if (at instanceof ParameterType) {
             ParameterType pt = (ParameterType) at;
-            er.w.write(pt.name().toString());
+            // WIP XTENLANG-2463
+            // TODO mangle type variable
+            if (Emitter.XTENLANG2463) {
+            	er.w.write(Emitter.mangleTypeVariable(pt.name()));            	
+            } else {
+            	er.w.write(Emitter.mangleToJava(pt.name()));
+            }
             return;
         }
 
@@ -109,10 +115,10 @@ final public class RuntimeTypeExpander extends Expander {
             if (pat == null) {
                 // XTENLANG-1102
                 if (ct.isGloballyAccessible() && typeArgs.size() == 0) {
-                    er.w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
+                    er.w.write(Emitter.mangleQualifiedType(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
                 } else {
                     er.w.write("new x10.rtt.ParameterizedType(");
-                    er.w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
+                    er.w.write(Emitter.mangleQualifiedType(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
                     for (int i = 0; i < typeArgs.size(); i++) {
                         er.w.write(", ");
                         new RuntimeTypeExpander(er, typeArgs.get(i)).expand(tr);

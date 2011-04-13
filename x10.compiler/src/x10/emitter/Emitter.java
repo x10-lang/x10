@@ -119,6 +119,8 @@ public class Emitter {
     private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
     private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
     private static final String RETURN_SPECIAL_TYPE_SUFFIX = "$O";
+    
+    public static final boolean XTENLANG2463 = false;
 
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
@@ -157,18 +159,18 @@ public class Emitter {
 		}
 	}
 
-	private static String mangleQualifiedIdentifier(String s) {
-		return mangleIdentifier(s.replace(".", "$"));
+	public static QName mangleQualifiedType(QName name) {
+		String fullName = name.toString();
+		String qualifier = StringUtil.getPackageComponent(fullName);
+		String shortName = StringUtil.getShortNameComponent(fullName);
+		shortName = mangleIdentifier(shortName);
+		return QName.make(qualifier, shortName);
 	}
 	
-	public static String mangleQualifiedIdentifier(QName name) {
-		return mangleQualifiedIdentifier(name.toString());
+	public static Name mangleQualifiedIdentifier(QName name) {
+		return Name.make(mangleIdentifier(name.toString().replace(".", "$")));
 	}
 	
-	private static String mangleQualifiedIdentifier(Type type) {
-		return mangleQualifiedIdentifier(type.toString());
-	}
-
 	public static String mangleIdentifier(String n) {
 		// Workaround an assertion failure in Name.make.
 		if (! StringUtil.isNameShort(n))
@@ -743,7 +745,13 @@ public class Emitter {
 			return;
 
 		if (type instanceof ParameterType) {
-			w.write(((ParameterType) type).name().toString());
+            // WIP XTENLANG-2463
+            // TODO mangle type variable
+			if (XTENLANG2463) {
+				w.write(mangleTypeVariable(((ParameterType) type).name()));
+			} else {
+				w.write(mangleToJava(((ParameterType) type).name()));
+			}
 			return;
 		}
 
@@ -801,14 +809,14 @@ public class Emitter {
 		// Print the class name
 		if (ignoreQual) {
 			if (type instanceof X10ClassType) {
-				w.write(((X10ClassType) type).name().toString());
+				w.write(mangleToJava(((X10ClassType) type).name()));
 			} else {
 				type.print(w);
 			}
 		} else if (type.isNull()) {
 		        w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
 		} else {
-			type.print(w);
+			w.write(mangleQualifiedType(type.fullName()).toString());
 		}
 
 		if (printTypeParams) {
@@ -1289,7 +1297,7 @@ public class Emitter {
             sb.append(mangleQualifiedIdentifier(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
         }
         else {
-            sb.append(mangleQualifiedIdentifier(t));
+            sb.append(mangleQualifiedIdentifier(t.fullName()));
         }
         sb.append("_$");
     }
@@ -2708,8 +2716,11 @@ public class Emitter {
                   w.write("if (i ==" + i + ")");
                   w.write("return ");
                   // WIP XTENLANG-2463
-                  w.write(mangleToJava(pt.name()));
-//                  w.write(mangleTypeVariable(pt.name()));
+                  if (XTENLANG2463) {
+                      w.write(mangleTypeVariable(pt.name()));                	  
+                  } else {
+                	  w.write(mangleToJava(pt.name()));
+                  }
                   w.write(";");
               }
                 w.write("return null;");
