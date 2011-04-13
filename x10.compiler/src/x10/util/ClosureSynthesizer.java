@@ -269,6 +269,9 @@ public class ClosureSynthesizer {
             name = "Void" + name;
         }
 
+        // N.B. white space is needed to fix XTENLANG-1647
+        name = " " + name;
+
         // Check if the class has already been defined.
         QName fullName = QName.make("x10.lang", name);
         Type n = SystemResolver.first(xts.systemResolver().check(fullName));
