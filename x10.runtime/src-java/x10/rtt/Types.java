@@ -397,10 +397,10 @@ public class Types {
             //            if (isPrimitiveStructType(rtt)) return zeroValue(rtt.getJavaClass());
             // for user-defined structs, call zero value constructor
             try {
-                Class<?> c = rtt.getJavaClass();
+                Class<?> impl = rtt.getImpl();
                 java.lang.reflect.Constructor<?> ctor = null;
                 Class<?>[] paramTypes = null;
-                for (java.lang.reflect.Constructor<?> ctor0 : c.getConstructors()) {
+                for (java.lang.reflect.Constructor<?> ctor0 : impl.getConstructors()) {
                     paramTypes = ctor0.getParameterTypes();
                     if (paramTypes[paramTypes.length-1].equals(java.lang.System.class)) {
                         ctor = ctor0;

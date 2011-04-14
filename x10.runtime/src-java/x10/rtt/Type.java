@@ -25,6 +25,6 @@ public interface Type<T> extends java.io.Serializable {
     T getArray(Object array, int i);
     int arrayLength(Object array);
 
-    Class<?> getJavaClass();
+    Class<?> getImpl();
     String typeName();
 }

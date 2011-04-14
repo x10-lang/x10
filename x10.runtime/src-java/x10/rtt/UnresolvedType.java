@@ -49,7 +49,7 @@ public final class UnresolvedType implements Type {
         throw new UnsupportedOperationException();
     }
 
-    public final Class<?> getJavaClass() {
+    public final Class<?> getImpl() {
         throw new UnsupportedOperationException();
     }
 

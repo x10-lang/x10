@@ -27,7 +27,7 @@ public final class ParameterizedType<T> implements Type<T>{
         if (this == o) return true;
         if (o == Types.ANY) return true;
         if (o == Types.OBJECT) return !Types.isStructType(this);
-        if (!o.getJavaClass().isAssignableFrom(rtt.getJavaClass())) {
+        if (!o.getImpl().isAssignableFrom(rtt.getImpl())) {
             return false;
         }
         if (o instanceof ParameterizedType) {
@@ -53,7 +53,7 @@ public final class ParameterizedType<T> implements Type<T>{
         if (this == o) return true;
         if (o instanceof ParameterizedType<?>) {
             ParameterizedType<?> t = (ParameterizedType<?>) o;
-            if (!rtt.getJavaClass().equals(t.getJavaClass())) {
+            if (!rtt.getImpl().equals(t.getImpl())) {
                 return false;
             }
             Type<?>[] parameters = t.params;
@@ -75,8 +75,8 @@ public final class ParameterizedType<T> implements Type<T>{
         return rtt.getArray(array, i);
     }
 
-    public final Class<?> getJavaClass() {
-        return rtt.getJavaClass();
+    public final Class<?> getImpl() {
+        return rtt.getImpl();
     }
 
     public final int hashCode() {
