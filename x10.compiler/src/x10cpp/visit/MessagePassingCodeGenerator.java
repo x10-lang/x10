@@ -2127,8 +2127,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline();
 		if (n.expr() == null) {
 			sw.write("default :");
-		}
-		else {
+		} else {
 			sw.write("case ");
 			// FIXME: [IP] HACK HACK HACK! Substitute the actual constant if any
 			// FIXME: [IP] Even worse hack: ignore @Native on const fields when used in switches.
@@ -2137,6 +2136,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write("/"+"*");
 				n.print(n.expr(), sw, tr);
 				sw.write("*"+"/");
+			} if (n.expr() instanceof CharLit_c) {
+			    CharLit_c lit = (CharLit_c)n.expr();
+			    sw.write("'"+StringUtil.escape(lit.charValue())+"'");
 			} else {
 				n.print(n.expr(), sw, tr);
 			}
