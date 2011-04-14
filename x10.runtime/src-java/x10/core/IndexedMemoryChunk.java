@@ -110,24 +110,24 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public void clear(int start, int numElems) {
         if (numElems <= 0) return;
         if (value instanceof boolean[]) {
-            Arrays.fill(getBooleanArray(), start, start+numElems-1, false);
+            Arrays.fill(getBooleanArray(), start, start+numElems, false);
         } else if (value instanceof byte[]) {
-            Arrays.fill(getByteArray(), start, start+numElems-1, (byte)0);                 
+            Arrays.fill(getByteArray(), start, start+numElems, (byte)0);                 
         } else if (value instanceof char[]) {
-            Arrays.fill(getCharArray(), start, start+numElems-1, (char)0);               
+            Arrays.fill(getCharArray(), start, start+numElems, (char)0);               
         } else if (value instanceof short[]) {
-            Arrays.fill(getShortArray(), start, start+numElems-1, (short)0);
+            Arrays.fill(getShortArray(), start, start+numElems, (short)0);
         } else if (value instanceof int[]) {
-            Arrays.fill(getIntArray(), start, start+numElems-1, (int)0);
+            Arrays.fill(getIntArray(), start, start+numElems, (int)0);
         } else if (value instanceof float[]) {
-            Arrays.fill(getFloatArray(), start, start+numElems-1, (float)0);
+            Arrays.fill(getFloatArray(), start, start+numElems, (float)0);
         } else if (value instanceof long[]) {
-            Arrays.fill(getLongArray(), start, start+numElems-1, (long)0);
+            Arrays.fill(getLongArray(), start, start+numElems, (long)0);
         } else if (value instanceof double[]) {
-            Arrays.fill(getDoubleArray(), start, start+numElems-1, (double)0);
+            Arrays.fill(getDoubleArray(), start, start+numElems, (double)0);
         } else {
             Object zeroValue = x10.rtt.Types.zeroValue(type);
-            Arrays.fill(getObjectArray(), start, start+numElems-1, zeroValue);
+            Arrays.fill(getObjectArray(), start, start+numElems, zeroValue);
         }
     }
 
