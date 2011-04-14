@@ -18,20 +18,21 @@ import x10.core.fun.Fun_0_1;
 
 
 public class Types {
-    public static boolean instanceof$(Type<?> t, Object o) {
-        return t.instanceof$(o);
-    }
-
-    public static Object cast$(Type<?> t, Object o) {
-        if (! instanceof$(t, o))
-            throw new ClassCastException(t.toString());
-        return o;
-    }
-    
-    // Hack to get around parsing problems for generated Java casts.
-    public static <T> T javacast(Object o) {
-        return (T) o;
-    }
+	// not used
+//    public static boolean instanceof$(Type<?> t, Object o) {
+//        return t.instanceof$(o);
+//    }
+//
+//    public static Object cast$(Type<?> t, Object o) {
+//        if (! instanceof$(t, o))
+//            throw new ClassCastException(t.toString());
+//        return o;
+//    }
+//
+//    // Hack to get around parsing problems for generated Java casts.
+//    public static <T> T javacast(Object o) {
+//        return (T) o;
+//    }
     
     public static String typeName(Object obj) {
         String s;
@@ -46,9 +47,10 @@ public class Types {
         return s;
     }
 
-    public static RuntimeType runtimeType(Class<?> c) {
-        return new RuntimeType<Class<?>>(c);
-    }
+    // not used
+//    public static RuntimeType runtimeType(Class<?> c) {
+//        return new RuntimeType<Class<?>>(c);
+//    }
 
     public static final RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
         @Override
@@ -194,66 +196,67 @@ public class Types {
         return false;
     }
 
-    public static boolean instanceofObject(Object o) {
-        return o != null && !isStruct(o);
-    }
-
-    public static boolean isStruct(Object o) {
-        return STRUCT.instanceof$(o) ||
-        BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
-        FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
-    }
+    // not used
+//    public static boolean instanceofObject(Object o) {
+//        return o != null && !isStruct(o);
+//    }
+//
+//    public static boolean isStruct(Object o) {
+//        return STRUCT.instanceof$(o) ||
+//        BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
+//        FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
+//    }
 
     public static boolean asboolean(Object typeParamOrAny) {
-        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Boolean");}
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Boolean");}
         if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Boolean");
     }
     
     public static byte asbyte(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Byte");}
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Byte");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).byteValue();}
         throw new ClassCastException("x10.lang.Byte");
     }
     
     public static short asshort(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Short");}
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Short");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).shortValue();}
         throw new ClassCastException("x10.lang.Short");
     }
     
     public static int asint(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Int");}
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Int");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).intValue();}
         throw new ClassCastException("x10.lang.Int");
     }
 
     public static long aslong(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Long");}
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Long");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).longValue();}
         throw new ClassCastException("x10.lang.Long");
     }
 
     public static float asfloat(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Float");}
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Float");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).floatValue();}
         throw new ClassCastException("x10.lang.Float");
     }
 
     public static double asdouble(Object typeParamOrAny){
-        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Double");}
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Double");}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).doubleValue();}
         throw new ClassCastException("x10.lang.Double");
     }
 
     public static char aschar(Object typeParamOrAny) {
-        if (typeParamOrAny == null) {nullIsCastedToStruct("x10.lang.Char");}
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
         if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Char");
     }
 
     public static Object asStruct(Type<?> rtt, Object typeParamOrAny) {
-        if (typeParamOrAny == null) {nullIsCastedToStruct(rtt);}
+        if (typeParamOrAny == null) {nullIsCastToStruct(rtt);}
 
         if (rtt == UBYTE) {
             if (UBYTE_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
@@ -280,7 +283,7 @@ public class Types {
     public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
         if (primOrTypeParam == null) {
             if (isStructType(rtt)) {
-                nullIsCastedToStruct(rtt);
+                nullIsCastToStruct(rtt);
             }
             else {
                 return null;
@@ -328,8 +331,8 @@ public class Types {
         return primOrTypeParam;
     }
 
-    public static void nullIsCastedToStruct(Type<?> rtt) {throw new java.lang.ClassCastException(rtt.typeName());}
-    public static void nullIsCastedToStruct(String msg){throw new java.lang.ClassCastException(msg);}
+    private static void nullIsCastToStruct(Type<?> rtt) {throw new java.lang.ClassCastException(rtt.typeName());}
+    private static void nullIsCastToStruct(String msg){throw new java.lang.ClassCastException(msg);}
 
     public static boolean hasNaturalZero(Type<?> rtt) {
         if (rtt.isSubtype(OBJECT) ||

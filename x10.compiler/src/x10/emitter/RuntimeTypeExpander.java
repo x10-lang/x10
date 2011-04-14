@@ -97,7 +97,7 @@ final public class RuntimeTypeExpander extends Expander {
             
             // Check for @NativeRep with null RTT class
             if (pat == null && Emitter.getJavaRep(cd) != null) {
-            	er.w.write("x10.rtt.Types.runtimeType(");
+                er.w.write("new x10.rtt.RuntimeType<Class<?>>(");
             	er.printType(at, 0);
             	er.w.write(".class");
             	er.w.write(")");
@@ -141,7 +141,7 @@ final public class RuntimeTypeExpander extends Expander {
             return;
         }
 
-        er.w.write("x10.rtt.Types.runtimeType(");
+        er.w.write("new x10.rtt.RuntimeType<Class<?>>(");
         er.printType(at, 0);
         er.w.write(".class");
         er.w.write(")");
