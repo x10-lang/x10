@@ -59,19 +59,19 @@ public abstract class Region(
     /**
      * Construct an empty region of the specified rank.
      */
-    public static @TempNoInline_0 def makeEmpty(rank: int): Region(rank){self!=null} = new EmptyRegion(rank);
+    public static @TempNoInline_0 def makeEmpty(rank:int):Region(rank){self!=null,rect} = new EmptyRegion(rank);
      
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
      */
-    public static def makeFull(rank: int): Region(rank){self !=null} = new FullRegion(rank);
+    public static def makeFull(rank: int): Region(rank){self !=null,rect} = new FullRegion(rank);
     
     /**
      * Construct a region of rank 0 that contains the single point of
      * rank 0. Useful as the identity region under Cartesian product.
      */
-    public static def makeUnit(): Region(0) = new FullRegion(0);
+    public static def makeUnit():Region(0){self != null,rect} = new FullRegion(0);
 
 
     /**
