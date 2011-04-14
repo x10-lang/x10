@@ -41,6 +41,7 @@ x10aux::place x10aux::num_places = 0;
 x10aux::place x10aux::num_hosts = 0;
 x10aux::place x10aux::here = -1;
 bool x10aux::x10rt_initialized = false;
+x10_int x10aux::num_local_cores = 1; // this will be set in template_main
 
 // keep a counter for the session.
 volatile x10_long x10aux::asyncs_sent = 0;

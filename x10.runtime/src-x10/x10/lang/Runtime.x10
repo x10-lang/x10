@@ -192,6 +192,14 @@ import x10.util.NoSuchElementException;
         return DEFAULT_STATIC_THREADS;
     }
 
+    /**
+     * The number of logical processors available on the host.
+     */
+    @Native("c++", "x10aux::num_local_cores")
+    @Native("java", "java.lang.Runtime.getRuntime().availableProcessors()")
+    public native static def availableProcessors():Int;
+
+
     @PerProcess static staticMonitor = new Monitor();
     @PerProcess static env = loadenv();
     @PerProcess public static STRICT_FINISH = x10_strict_finish();

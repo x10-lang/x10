@@ -34,9 +34,6 @@
 namespace x10 { namespace array { template<class T> class Array; } }
 
 namespace x10aux {
-
-	extern x10_int num_local_cores;
-
     class StaticInitClosure : public x10::lang::Closure
     {
         public:

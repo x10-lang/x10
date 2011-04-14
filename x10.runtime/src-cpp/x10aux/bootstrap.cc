@@ -19,7 +19,6 @@
 using namespace x10aux;
 
 x10_int x10aux::exitCode = 0;
-x10_int x10aux::num_local_cores = 1; // this will be set in template_main
 
 x10::lang::VoidFun_0_0::itable<StaticInitClosure> StaticInitClosure::_itable(&StaticInitClosure::equals, &StaticInitClosure::hashCode,
                                                                              &StaticInitClosure::__apply,
