@@ -24,6 +24,10 @@ import x10.util.Stack;
 import x10.util.Box;
 import x10.util.NoSuchElementException;
 
+import x10.util.concurrent.Lock;
+import x10.util.concurrent.Monitor;
+import x10.util.concurrent.SimpleLatch;
+
 /**
  * XRX invocation protocol:
  * - Native runtime invokes new Runtime.Worker(0). Returns Worker instance worker0.
@@ -325,7 +329,7 @@ import x10.util.NoSuchElementException;
         def available():Int = permits;
     }
 
-    @Pinned final static class Worker extends Thread {
+    @Pinned public final static class Worker extends Thread {
         // bound on loop iterations to help j9 jit
         private static BOUND = 100;
 
@@ -554,7 +558,7 @@ import x10.util.NoSuchElementException;
     /**
      * Return the current worker
      */
-    static def worker():Worker = Thread.currentThread() as Worker;
+    public static def worker():Worker = Thread.currentThread() as Worker;
 
     /**
      * Return the current worker id
@@ -981,14 +985,14 @@ import x10.util.NoSuchElementException;
     }
 
     // notify the pool a worker is about to execute a blocking operation
-    static def increaseParallelism():void {
+    public static def increaseParallelism():void {
         if (!STATIC_THREADS) {
             pool.increase();
         }
     }
 
     // notify the pool a worker resumed execution after a blocking operation
-    static def decreaseParallelism(n:Int) {
+    public static def decreaseParallelism(n:Int) {
         if (!STATIC_THREADS) {
             pool.decrease(n);
         }
