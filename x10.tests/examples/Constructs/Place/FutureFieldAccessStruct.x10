@@ -16,7 +16,7 @@ import harness.x10Test;
  * @author vj
  * @author bdlucas
  */
-import x10.util.Future;
+import x10.util.concurrent.Future;
 public class FutureFieldAccessStruct extends x10Test {
 
    static struct C[S] {

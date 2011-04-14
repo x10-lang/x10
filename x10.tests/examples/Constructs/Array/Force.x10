@@ -15,7 +15,7 @@ import harness.x10Test;
 /**
  * Test for array reference flattening. 
  */
-import x10.util.Future;
+import x10.util.concurrent.Future;
 
 public class Force extends x10Test {
    

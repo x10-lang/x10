@@ -11,7 +11,7 @@
 
 import x10.util.Box;
 import harness.x10Test;
-import x10.util.Future;
+import x10.util.concurrent.Future;
 
 /**
  * Checks if creation and force of Future in different activities work.

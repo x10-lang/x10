@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.util.Future;
+import x10.util.concurrent.Future;
 
 /**
  * Checks force for grand-children.

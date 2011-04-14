@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.util.Future;
+import x10.util.concurrent.Future;
 
 /**
  * @author bdlucas
