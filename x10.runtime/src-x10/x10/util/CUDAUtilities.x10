@@ -51,9 +51,9 @@ public class CUDAUtilities {
         val reg = (0 .. (numElements-1)) as Region;
         @Native("c++",
             "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(FMGL(T)));\n"+
-            "RemoteIndexedMemoryChunk<FMGL(T)> rimc(addr, numElements, gpu);\n"+
-            "initCUDAArray<FMGL(T)>(init,rimc,numElements);\n"+
-            "return x10::array::RemoteArray<FMGL(T)>::_make(reg, rimc);\n"
+            "RemoteIndexedMemoryChunk<TPMGL(T)> rimc(addr, numElements, gpu);\n"+
+            "initCUDAArray<TPMGL(T)>(init,rimc,numElements);\n"+
+            "return x10::array::RemoteArray<TPMGL(T)>::_make(reg, rimc);\n"
         ) { }
         throw new UnsupportedOperationException();
     }
@@ -97,7 +97,7 @@ public class CUDAUtilities {
         val place = arr.home;
         if (place.isCUDA()) {
             @Native("c++",
-                "RemoteIndexedMemoryChunk<FMGL(T)> rimc = arr->FMGL(rawData);\n"+
+                "RemoteIndexedMemoryChunk<TPMGL(T)> rimc = arr->FMGL(rawData);\n"+
                 "x10aux::remote_free(place.FMGL(id), (x10_ulong)(size_t)rimc->data);\n"
             ) { }
         }

@@ -267,6 +267,7 @@ namespace x10aux {
 // The c++ target has to mangle fields because c++ does not allow fields
 // and methods to have the same name.
 #define FMGL(x) x10__##x
+#define TPMGL(x) x10tp__##x
 
 //needed if you want to concat from another macro
 #ifndef __CONCAT

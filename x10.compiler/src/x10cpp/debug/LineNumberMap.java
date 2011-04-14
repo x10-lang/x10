@@ -437,7 +437,7 @@ public class LineNumberMap extends StringTable {
 			int comma = cm._sizeOfArg.indexOf(',');
 			if (comma > -1)
 			{
-				// this has template arguments.  Add in the FMGL stuff
+				// this has template arguments.  Add in the TPMGL stuff
 				int start = cm._sizeOfArg.indexOf('<');
 				while (start < comma)
 				{
@@ -447,8 +447,8 @@ public class LineNumberMap extends StringTable {
 					else
 						break;
 				}
-				String temp = cm._sizeOfArg.substring(start+1).replace(",", "), FMGL(").replaceFirst(">", ")>");
-				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("FMGL(").concat(temp);
+				String temp = cm._sizeOfArg.substring(start+1).replace(",", "), TPMGL(").replaceFirst(">", ")>");
+				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("TPMGL(").concat(temp);
 			}
 			referenceMembers.put(id, cm);
 			int returnValue = referenceMembers.size()-1;

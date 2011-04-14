@@ -133,7 +133,7 @@ public class Emitter {
         "x10_boolean", "x10_byte", "x10_char", "x10_short", "x10_int",
         "x10_long", "x10_float", "x10_double",
         // X10 implementation names
-        "FMGL", "TYPENAME", "getRTT", "rtt", "RTT_H_DECLS", "RTT_CC_DECLS1",
+        "FMGL", "TPMGL", "TYPENAME", "getRTT", "rtt", "RTT_H_DECLS", "RTT_CC_DECLS1",
         // macros defined by the C++ implementation
         "i386",
         // Additionally, anything starting with a '_' is reserved, and may clash
@@ -163,7 +163,7 @@ public class Emitter {
         return "FMGL("+mangle_to_cpp(str)+")";
     }
     public static String mangled_parameter_type_name(String str) {
-        return "FMGL("+mangle_to_cpp(str)+")";
+        return "TPMGL("+mangle_to_cpp(str)+")";
     }
 
 
