@@ -143,7 +143,7 @@ public struct IndexedMemoryChunk[T] {
      * by zeroing the storage.  Note that this is intentionally not
      * type safe because it does require T hasZero.
      */
-    @Native("java", "(#0).$clear((int)(#1), (int)(#2))")
+    @Native("java", "(#0).clear((int)(#1), (int)(#2))")
     @Native("c++", "(#this)->clear(#index, #numElems)")
     public native def clear(index:long, numElems:long):void;
 
