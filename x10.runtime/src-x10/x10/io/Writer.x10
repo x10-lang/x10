@@ -34,14 +34,22 @@ public abstract class Writer {
 
     public def writeByte(x: Byte): void //throws IOException 
     = Marshal.BYTE.write(this, x);
+    public def writeUByte(x: UByte): void //throws IOException 
+    = Marshal.UBYTE.write(this, x);
     public def writeChar(x: Char): void //throws IOException 
     =  Marshal.CHAR.write(this, x);
     public def writeShort(x: Short): void //throws IOException 
     = Marshal.SHORT.write(this, x);
+    public def writeUShort(x: UShort): void //throws IOException 
+    = Marshal.USHORT.write(this, x);
     public def writeInt(x: Int): void //throws IOException 
     = Marshal.INT.write(this, x);
+    public def writeUInt(x: UInt): void //throws IOException 
+    = Marshal.UINT.write(this, x);
     public def writeLong(x: Long): void //throws IOException 
     = Marshal.LONG.write(this, x);
+    public def writeULong(x: ULong): void //throws IOException 
+    = Marshal.ULONG.write(this, x);
     public def writeFloat(x: Float): void //throws IOException 
     = Marshal.FLOAT.write(this, x);
     public def writeDouble(x: Double): void //throws IOException 

@@ -33,10 +33,14 @@ public interface Marshal[T] {
     
     public static BOOLEAN = new BooleanMarshal();
     public static BYTE = new ByteMarshal();
+    public static UBYTE = new UByteMarshal();
     public static CHAR = new CharMarshal();
     public static SHORT = new ShortMarshal();
+    public static USHORT = new UShortMarshal();
     public static INT = new IntMarshal();
+    public static UINT = new UIntMarshal();
     public static LONG = new LongMarshal();
+    public static ULONG = new ULongMarshal();
     public static FLOAT = new FloatMarshal();
     public static DOUBLE = new DoubleMarshal();
     public static LINE = new LineMarshal();
@@ -47,7 +51,7 @@ public interface Marshal[T] {
             var ch: Char;
             do {
                 ch = CHAR.read(r);
-            	sb.add(ch);
+                sb.add(ch);
             } while (ch != '\n');
             return sb.result();
         }
@@ -78,6 +82,13 @@ public interface Marshal[T] {
         = r.read();
         public def write(w: Writer, b: Byte): void //throws IOException 
         = w.write(b);
+    }
+
+    public class UByteMarshal implements Marshal[UByte] {
+        public def read(r: Reader): UByte //throws IOException 
+        = (r.readByte() as UByte);
+        public def write(w: Writer, ub: UByte): void //throws IOException
+        = w.write(ub as Byte);
     }
 
     public static class CharMarshal implements Marshal[Char] {
@@ -149,8 +160,15 @@ public interface Marshal[T] {
             w.write(b2);
         }
     }
-    
-    public static class IntMarshal implements Marshal[Int] {
+
+    public class UShortMarshal implements Marshal[UShort] {
+        public def read(r: Reader): UShort //throws IOException 
+        = (r.readShort() as UShort);
+        public def write(w: Writer, us: UShort): void //throws IOException
+        = w.writeShort(us as Short);
+    }    
+ 
+     public static class IntMarshal implements Marshal[Int] {
         public def read(r: Reader): Int //throws IOException 
         {
             val b1 = r.read();
@@ -171,6 +189,13 @@ public interface Marshal[T] {
             w.write(b3);
             w.write(b4);
         }
+    }
+
+    public class UIntMarshal implements Marshal[UInt] {
+        public def read(r: Reader): UInt //throws IOException 
+        = (r.readInt() as UInt);
+        public def write(w: Writer, ui: UInt): void //throws IOException
+        = w.writeInt(ui as Int);
     }
     
     public static class LongMarshal implements Marshal[Long] {
@@ -193,6 +218,13 @@ public interface Marshal[T] {
                 w.write(b);
             }
         }
+    }
+
+    public class ULongMarshal implements Marshal[ULong] {
+        public def read(r: Reader): ULong //throws IOException 
+        = (r.readLong() as ULong);
+        public def write(w: Writer, ul: ULong): void //throws IOException
+        = w.writeLong(ul as Long);
     }
 
     public static class FloatMarshal implements Marshal[Float] {

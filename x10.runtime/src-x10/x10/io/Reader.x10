@@ -42,14 +42,22 @@ public abstract class Reader {
     = Marshal.BOOLEAN.read(this);
     public def readByte(): Byte //throws IOException 
     = Marshal.BYTE.read(this);
+    public def readUByte(): UByte //throws IOException 
+    = Marshal.UBYTE.read(this);
     public def readChar(): Char //throws IOException 
     = Marshal.CHAR.read(this);
     public def readShort(): Short //throws IOException 
     = Marshal.SHORT.read(this);
+    public def readUShort(): UShort //throws IOException 
+    = Marshal.USHORT.read(this);
     public def readInt(): Int //throws IOException 
     = Marshal.INT.read(this);
+    public def readUInt(): UInt //throws IOException 
+    = Marshal.UINT.read(this);
     public def readLong(): Long //throws IOException 
     = Marshal.LONG.read(this);
+    public def readULong(): ULong //throws IOException 
+    = Marshal.ULONG.read(this);
     public def readFloat(): Float //throws IOException 
     = Marshal.FLOAT.read(this);
     public def readDouble(): Double //throws IOException 
