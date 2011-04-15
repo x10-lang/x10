@@ -230,14 +230,6 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         return sb.toString();
     }
 
-    @Override
-    public MethodInstance asInstance() {
-        if (asInstance == null) {
-            asInstance = new MethodInstance_c(ts, position(), Types.<X10MethodDef>ref(this));
-        }
-        return (MethodInstance) asInstance;
-    }
-    
 /*    public static boolean hasVar(Type type, XVar var) {
 	    if (type instanceof ConstrainedType) {
 		    XConstraint rc = Types.realX(type);
@@ -271,11 +263,4 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 
 		return s;
 	}
-
-
-    public Object copy() {
-        X10MethodDef_c copy = (X10MethodDef_c) super.copy();
-        copy.asInstance = null;
-        return copy;
-    }
 }

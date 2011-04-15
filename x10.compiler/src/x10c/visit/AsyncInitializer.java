@@ -46,6 +46,7 @@ import x10.extension.X10Ext_c;
 import x10.types.MethodInstance;
 import x10.types.X10ClassType;
 import x10.types.X10LocalDef;
+import x10.types.X10LocalDef_c;
 import x10.util.CollectionFactory;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.BackingArrayAccessAssign;
@@ -229,7 +230,7 @@ public class AsyncInitializer extends ContextVisitor {
                         VarDef var = checkIfIncluded(l, asyncVar);
                         if (var == null)
                             asyncVar.add(new LocalDef_c(ts, n.position(), flags,
-                                     Types.ref(l.localInstance().type()), l.localInstance().name()));
+                                     Types.ref(l.localInstance().type()), l.localInstance().name()){});
                     }
                 }
                 return n;
