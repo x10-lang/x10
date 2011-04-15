@@ -537,6 +537,12 @@ public class StaticInitializer extends ContextVisitor {
         Boolean r = procBodyCache.get(body);
         if (r != null)
             return (r == Boolean.TRUE);
+
+        // Cut the search tree early. returning true,
+        // True means centralized place-0 initialization is necessary,
+        // which is a safe conservative assumption.
+        if (count > 1) return true;
+
         // check static field references in the body of constructor or method
         final AtomicBoolean found = new AtomicBoolean(false);
         body.visit(new NodeVisitor() {
@@ -545,11 +551,6 @@ public class StaticInitializer extends ContextVisitor {
                     // already found
                     return n;
                 if (n instanceof X10Call) {
-                    if (count > 1)
-                        // do not repeat too much recursively
-                        // (constructor --> __fieldInitializers --> another method)
-                        return null;
-
                     X10Call call = (X10Call)n;
                     MethodInstance mi = call.methodInstance();
                     if (mi.container().isClass()) {
@@ -577,7 +578,7 @@ public class StaticInitializer extends ContextVisitor {
                     X10ConstructorInstance ci = neu.constructorInstance();
                     // get declaration of constructor
                     X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
-                    if (cdecl != null && !cdecl.body().equals(body) && checkProcedureBody(cdecl.body(), 0))
+                    if (cdecl != null && !cdecl.body().equals(body) && checkProcedureBody(cdecl.body(), count+1))
                         // constructor include static field references to be replaced
                         found.set(true);
 //                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
