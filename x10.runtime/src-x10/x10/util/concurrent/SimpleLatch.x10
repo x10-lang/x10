@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.lang;
+package x10.util.concurrent;
 
 import x10.compiler.Pinned;
 import x10.io.SerialData;
@@ -17,7 +17,7 @@ import x10.io.SerialData;
 /**
  * @author tardieu
  */
-@Pinned public class SimpleIntLatch extends Lock {
+@Pinned public class SimpleLatch extends Lock {
     public def this() { super(); }
 
     public def serialize():SerialData {
@@ -31,15 +31,15 @@ import x10.io.SerialData;
     static type Worker = Runtime.Worker;
 
     private var worker:Worker = null;
-    private var value:Int = 0;
+    private var state:Boolean = false;
 
     // can only be called once
     public def await():void {
-        if (value != 0) return;
+        if (state) return;
         lock();
         Runtime.increaseParallelism(); // likely to be blocked for a while
         worker = Runtime.worker();
-        while (value == 0) {
+        while (!state) {
             unlock();
             Worker.park();
             lock();
@@ -47,10 +47,9 @@ import x10.io.SerialData;
         unlock();
     }
 
-    public operator this()=(v:Int):void { set(v); }
-    public def set(v:Int):void {
+    public def release():void {
         lock();
-        value = v;
+        state = true;
         if (worker != null) {
             Runtime.decreaseParallelism(1);
             worker.unpark();
@@ -58,5 +57,5 @@ import x10.io.SerialData;
         unlock();
     }
 
-    public operator this():Int = value;
+    public operator this():Boolean = state;
 }

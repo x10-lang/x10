@@ -17,6 +17,7 @@ import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit;
 import polyglot.ast.Branch;
 import polyglot.ast.Conditional;
+import polyglot.ast.Empty_c;
 import polyglot.ast.Eval_c;
 import polyglot.ast.FlagsNode_c;
 import polyglot.ast.FloatLit;
@@ -108,7 +109,7 @@ public class StructMethodAnalyzer extends ContextVisitor {
         // Trivial nodes that will never by themselves prevent us from putting the body in the struct method class.
         if (n instanceof FlagsNode_c || n instanceof Id_c || 
                 n instanceof X10Local_c || n instanceof LocalAssign_c || 
-                n instanceof X10CanonicalTypeNode_c || n instanceof X10Special_c) {
+                n instanceof X10CanonicalTypeNode_c || n instanceof X10Special_c || n instanceof Empty_c) {
             return n;
         }
         
@@ -126,11 +127,11 @@ public class StructMethodAnalyzer extends ContextVisitor {
         }
 
         // Constructor call.
-        // We can allow calls to the same class as we are analyzing and to the trivial x10.lang.Struct 
-        // constructor.  Any other constructor call will require us to set canBeInlined to false.
+        // We can allow calls to the same class as we are analyzing.  
+        // Any other constructor call will require us to set canBeInlined to false.
         if (n instanceof X10ConstructorCall_c) {
             ContainerType container = ((X10ConstructorCall_c)n).constructorInstance().container();
-            if (!(xts.typeBaseEquals(container, myContainer, context))) { //xts.typeBaseEquals(container, xts.Struct(), context) ||
+            if (!(xts.typeBaseEquals(container, myContainer, context))) {
                 canGoInHeaderStream[0] = false;
             }
             return n;

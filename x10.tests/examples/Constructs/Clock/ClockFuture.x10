@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-import x10.util.Future;
+import x10.util.concurrent.Future;
 /**
  * Test for the interaction of clocks and future.
  * clock.doNext should not wait for futures to

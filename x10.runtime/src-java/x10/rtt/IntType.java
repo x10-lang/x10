@@ -17,7 +17,8 @@ public class IntType extends RuntimeType<Integer> {
 	private static final long serialVersionUID = 1L;
 
     public IntType() {
-        super(int.class,
+//        super(int.class,
+        super(Integer.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                 Types.STRUCT
@@ -29,6 +30,7 @@ public class IntType extends RuntimeType<Integer> {
         return "x10.lang.Int";
     }
 
+    // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Integer;
@@ -53,9 +55,16 @@ public class IntType extends RuntimeType<Integer> {
         return ((int[]) array)[i];
     }
     
+//    @Override
+//    public Integer setArray(Object array, int i, Integer v) {
+//        // avoid boxing again
+////        return ((int[]) array)[i] = v;
+//        ((int[]) array)[i] = v;
+//        return v;
+//    }
     @Override
-    public Integer setArray(Object array, int i, Integer v) {
-        return ((int[]) array)[i] = v;
+    public void setArray(Object array, int i, Integer v) {
+        ((int[]) array)[i] = v;
     }
     
     @Override

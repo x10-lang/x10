@@ -196,6 +196,11 @@ do
         #ssh $host rm -rf $remoteTmpDir
     fi ) > ${logFile} 2>&1 &
 done
+
+if [[ -x ./monitor-builds.app && $(uname) == "Darwin" ]]; then
+    open ./monitor-builds.app
+fi
+
 wait
 
 ssh ${userID}@orquesta.watson.ibm.com ls -l $tarballDest/$rev

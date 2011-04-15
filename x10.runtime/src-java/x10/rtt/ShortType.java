@@ -17,7 +17,8 @@ public class ShortType extends RuntimeType<Short> {
 	private static final long serialVersionUID = 1L;
 
     public ShortType() {
-        super(short.class,
+//        super(short.class,
+        super(Short.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
@@ -29,6 +30,7 @@ public class ShortType extends RuntimeType<Short> {
         return "x10.lang.Short";
     }
 
+    // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Short;
@@ -53,9 +55,16 @@ public class ShortType extends RuntimeType<Short> {
         return ((short[]) array)[i];
     }
     
+//    @Override
+//    public Short setArray(Object array, int i, Short v) {
+//        // avoid boxing again
+////        return ((short[]) array)[i] = v;
+//        ((short[]) array)[i] = v;
+//        return v;
+//    }
     @Override
-    public Short setArray(Object array, int i, Short v) {
-        return ((short[]) array)[i] = v;
+    public void setArray(Object array, int i, Short v) {
+        ((short[]) array)[i] = v;
     }
     
     @Override

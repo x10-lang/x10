@@ -41,9 +41,11 @@ public class ExceptionsRemote extends x10Test {
             var ok2:boolean = false;
             for(var i:int = 0; i < es.size; i++){
                 if(es(i).getMessage().equals("LOCAL")){
+                    Console.OUT.println("Local exception was caught");
                     ok1 = true;
                 }
                 else if(es(i).getMessage().equals("REMOTE")){
+                    Console.OUT.println("Remote exception was caught");
                     ok2 = true;
                 }
             }

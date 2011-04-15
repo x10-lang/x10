@@ -10,7 +10,9 @@
  */
 //OPTIONS: -WORK_STEALING=true
 
-public class WorkStealingQuickSortTest {
+import harness.x10Test;
+
+public class WorkStealingQuickSortTest extends x10Test {
     public def run():boolean {
     	val N = 1000 * 1000;
     	val r = new x10.util.Random();
@@ -33,9 +35,6 @@ public class WorkStealingQuickSortTest {
     }
 
     public static def main(args:Array[String](1)) {
-        val r = new WorkStealingQuickSortTest().run();
-        if(r){
-             x10.io.Console.OUT.println("++++++Test succeeded.");
-        }
+        new WorkStealingQuickSortTest().execute();
     }
 }

@@ -13,11 +13,15 @@ package x10.lang;
 
 import x10.compiler.*;
 
-import x10.util.IndexedMemoryChunk;
 import x10.util.HashMap;
+import x10.util.IndexedMemoryChunk;
 import x10.util.Pair;
 import x10.util.Stack;
+
 import x10.util.concurrent.AtomicInteger;
+import x10.util.concurrent.Lock;
+import x10.util.concurrent.SimpleLatch;
+
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
 

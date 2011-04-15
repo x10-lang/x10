@@ -15,7 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.Pinned;
 
 @Pinned 
-public class StringBuilder implements Builder[Object,String] {
+public class StringBuilder implements Builder[Any,String] {
      val buf: ArrayList[Char];
 
     public def this() {
@@ -32,14 +32,14 @@ public class StringBuilder implements Builder[Object,String] {
       return result();
     }
 
-    public def add(o:Object): StringBuilder {
+    public def add(o:Any): StringBuilder {
         if (o == null)
             return addString("null");
         else
             return addString(o.toString());
     }
 
-    public def insert(p:Int, o:Object): StringBuilder {
+    public def insert(p:Int, o:Any): StringBuilder {
         if (o == null)
             return insertString(p, "null");
         else

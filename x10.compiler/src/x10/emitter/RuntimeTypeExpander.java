@@ -61,7 +61,7 @@ final public class RuntimeTypeExpander extends Expander {
         
         if (at instanceof ParameterType) {
             ParameterType pt = (ParameterType) at;
-            er.w.write(pt.name().toString());
+            er.w.write(Emitter.mangleParameterType(pt));
             return;
         }
 
@@ -97,7 +97,7 @@ final public class RuntimeTypeExpander extends Expander {
             
             // Check for @NativeRep with null RTT class
             if (pat == null && Emitter.getJavaRep(cd) != null) {
-            	er.w.write("x10.rtt.Types.runtimeType(");
+                er.w.write("new x10.rtt.RuntimeType<Class<?>>(");
             	er.printType(at, 0);
             	er.w.write(".class");
             	er.w.write(")");
@@ -109,10 +109,10 @@ final public class RuntimeTypeExpander extends Expander {
             if (pat == null) {
                 // XTENLANG-1102
                 if (ct.isGloballyAccessible() && typeArgs.size() == 0) {
-                    er.w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
+                    er.w.write(Emitter.mangleQName(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
                 } else {
                     er.w.write("new x10.rtt.ParameterizedType(");
-                    er.w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
+                    er.w.write(Emitter.mangleQName(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
                     for (int i = 0; i < typeArgs.size(); i++) {
                         er.w.write(", ");
                         new RuntimeTypeExpander(er, typeArgs.get(i)).expand(tr);
@@ -141,7 +141,7 @@ final public class RuntimeTypeExpander extends Expander {
             return;
         }
 
-        er.w.write("x10.rtt.Types.runtimeType(");
+        er.w.write("new x10.rtt.RuntimeType<Class<?>>(");
         er.printType(at, 0);
         er.w.write(".class");
         er.w.write(")");

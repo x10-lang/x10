@@ -14,7 +14,7 @@ package x10.array;
 /**
  * Represents an empty region.
  */
-final class EmptyRegion extends Region {
+final class EmptyRegion extends Region{rect} {
 
     def this(val rank: int): EmptyRegion{self.rank==rank} {
         super(rank,true,false);

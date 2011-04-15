@@ -9,15 +9,19 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.lang;
+package x10.util.concurrent;
 
 import x10.compiler.Pinned;
 import x10.io.SerialData;
+import x10.util.Stack;
 
 /**
+ * Lock with wait/notify capabilities.
+ * Cooperates with runtime scheduler.
+ * 
  * @author tardieu
  */
-@Pinned public class SimpleLatch extends Lock {
+@Pinned public class Monitor extends Lock {
     public def this() { super(); }
 
     public def serialize():SerialData {
@@ -30,32 +34,38 @@ import x10.io.SerialData;
 
     static type Worker = Runtime.Worker;
 
-    private var worker:Worker = null;
-    private var state:Boolean = false;
+    /**
+     * Parked workers
+     */
+    private val workers = new Stack[Worker]();
 
-    // can only be called once
+    /**
+     * Await notification
+     * Must be called while holding the lock
+     * Must not be called while holding the lock more than once
+     */
     public def await():void {
-        if (state) return;
-        lock();
         Runtime.increaseParallelism(); // likely to be blocked for a while
-        worker = Runtime.worker();
-        while (!state) {
-            unlock();
+        val worker = Runtime.worker();
+        workers.push(worker);
+        while (workers.contains(worker)) {
+            super.unlock();
             Worker.park();
-            lock();
+            super.lock();
         }
-        unlock();
     }
 
+    /**
+     * Notify and unlock
+     * Must be called while holding the lock
+     */
     public def release():void {
-        lock();
-        state = true;
-        if (worker != null) {
-            Runtime.decreaseParallelism(1);
-            worker.unpark();
+        val size = workers.size();
+        if (size > 0) {
+            Runtime.decreaseParallelism(size);
+            for (var i:Int = 0; i<size; i++) workers.pop().unpark();
         }
-        unlock();
+        super.unlock();
     }
-
-    public operator this():Boolean = state;
 }
+

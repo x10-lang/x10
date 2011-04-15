@@ -72,8 +72,8 @@ namespace x10 {
 
 #endif // X10_LANG_GLOBALREF
 
-#ifndef X10_LANG_GLOBALREF_NODEPS
-#define X10_LANG_GLOBALREF_NODEPS
+#ifndef X10_LANG_GLOBALREF_H_NODEPS
+#define X10_LANG_GLOBALREF_H_NODEPS
 #include <x10/lang/Any.h>
 #include <x10/lang/String.h>
 #ifndef X10_LANG_GLOBALREF_GENERICS
@@ -82,6 +82,7 @@ namespace x10 {
 #ifndef X10_LANG_GLOBALREF_IMPLEMENTATION
 #define X10_LANG_GLOBALREF_IMPLEMENTATION
 #include <x10/lang/GlobalRef.h>
+#include <x10/lang/GlobalRef__LocalEval.h>
 
 // ITable junk, both for GlobalRef and IBox<GlobalRef>
 namespace x10 {

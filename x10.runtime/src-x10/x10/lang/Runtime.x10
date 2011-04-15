@@ -24,6 +24,10 @@ import x10.util.Stack;
 import x10.util.Box;
 import x10.util.NoSuchElementException;
 
+import x10.util.concurrent.Lock;
+import x10.util.concurrent.Monitor;
+import x10.util.concurrent.SimpleLatch;
+
 /**
  * XRX invocation protocol:
  * - Native runtime invokes new Runtime.Worker(0). Returns Worker instance worker0.
@@ -192,6 +196,14 @@ import x10.util.NoSuchElementException;
         return DEFAULT_STATIC_THREADS;
     }
 
+    /**
+     * The number of logical processors available on the host.
+     */
+    @Native("c++", "x10aux::num_local_cores")
+    @Native("java", "java.lang.Runtime.getRuntime().availableProcessors()")
+    public native static def availableProcessors():Int;
+
+
     @PerProcess static staticMonitor = new Monitor();
     @PerProcess static env = loadenv();
     @PerProcess public static STRICT_FINISH = x10_strict_finish();
@@ -317,7 +329,7 @@ import x10.util.NoSuchElementException;
         def available():Int = permits;
     }
 
-    @Pinned final static class Worker extends Thread {
+    @Pinned public final static class Worker extends Thread {
         // bound on loop iterations to help j9 jit
         private static BOUND = 100;
 
@@ -546,7 +558,7 @@ import x10.util.NoSuchElementException;
     /**
      * Return the current worker
      */
-    static def worker():Worker = Thread.currentThread() as Worker;
+    public static def worker():Worker = Thread.currentThread() as Worker;
 
     /**
      * Return the current worker id
@@ -973,14 +985,14 @@ import x10.util.NoSuchElementException;
     }
 
     // notify the pool a worker is about to execute a blocking operation
-    static def increaseParallelism():void {
+    public static def increaseParallelism():void {
         if (!STATIC_THREADS) {
             pool.increase();
         }
     }
 
     // notify the pool a worker resumed execution after a blocking operation
-    static def decreaseParallelism(n:Int) {
+    public static def decreaseParallelism(n:Int) {
         if (!STATIC_THREADS) {
             pool.decrease(n);
         }

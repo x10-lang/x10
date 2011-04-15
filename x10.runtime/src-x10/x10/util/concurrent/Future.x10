@@ -9,12 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.util;
+package x10.util.concurrent;
 
-import x10.compiler.SuppressTransientError;
-import x10.util.GrowableIndexedMemoryChunk;
-import x10.compiler.Pinned;
 import x10.compiler.Global;
+import x10.compiler.Pinned;
+import x10.compiler.SuppressTransientError;
+
+import x10.util.GrowableIndexedMemoryChunk;
 
 /**
  * The representation of an X10 future expression.

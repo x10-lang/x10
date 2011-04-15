@@ -11,7 +11,7 @@
 
 
 import harness.x10Test;
-import x10.util.Future;
+import x10.util.concurrent.Future;
 
 /**
  * A test case that illustrates that deadlock is possible

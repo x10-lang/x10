@@ -13,6 +13,8 @@ package x10.io;
 
 import x10.compiler.Native;
 
+import x10.util.concurrent.Lock;
+
 /**
  * Usage:
  *
