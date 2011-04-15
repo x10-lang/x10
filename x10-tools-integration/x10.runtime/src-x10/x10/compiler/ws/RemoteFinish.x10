@@ -22,6 +22,7 @@ public final class RemoteFinish extends FinishFrame {
     public def wrapResume(worker:Worker) {
         super.wrapResume(worker);
         update(ffRef, stack);
+        worker.throwable = null; //The exceptions were sent to source place
         throw Abort.ABORT;
     }
 

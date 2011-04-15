@@ -10,9 +10,9 @@
  */
 
 import harness.x10Test;
-import x10.util.Future;
+import x10.util.concurrent.Future;
 
-import x10.util.Future;
+import x10.util.concurrent.Future;
 /**
  * Tests exceptions and side effects
  * within activities spawned by a future expression.

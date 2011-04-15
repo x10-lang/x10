@@ -10,9 +10,9 @@
  */
 
 import harness.x10Test;
-import x10.util.Future;
+import x10.util.concurrent.Future;
 
-import x10.util.Future;
+import x10.util.concurrent.Future;
 /**
  * Minimal test for future.
  */

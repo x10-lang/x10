@@ -21,7 +21,7 @@ public interface Fun_0_1<T1,U> extends Fun {
     
     public static final RuntimeType<Fun_0_1<?,?>> $RTT = new FunType<Fun_0_1<?,?>>(
         Fun_0_1.class,
-        new RuntimeType.Variance[] {
+        new Variance[] {
             Variance.CONTRAVARIANT,
             Variance.COVARIANT
         }

@@ -269,6 +269,7 @@ public class ClosureSynthesizer {
             name = "Void" + name;
         }
 
+        // N.B. white space is needed to fix XTENLANG-1647
         name = " " + name;
 
         // Check if the class has already been defined.

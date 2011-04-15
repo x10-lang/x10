@@ -222,7 +222,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             first = false;
             if (! ((X10LocalDef) l).isUnnamed()) {
                 sb.append(l.name().toString())
-                    .append(": ");
+                    .append(":");
             }
             sb.append(l.type().get().toString());
         }
@@ -264,7 +264,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 	public String toString() {
 		String s = designator() + " " + flags().prettyPrint() + container() + "." + 
 		signature() + (guard() != null ? guard() : "") 
-		+ ": " + returnType();
+		+ ":" + returnType();
 
 		if (body != null && body.getCached() != null)
 		    s += " = " + body;

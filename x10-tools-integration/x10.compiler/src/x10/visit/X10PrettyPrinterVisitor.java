@@ -553,12 +553,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         // print the constructor just for allocation
         if (supportConstructorSplitting
-//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
                 && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(def.asType()))
                 && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
-            w.write("public " + def.name().toString() + "(");
+            w.write("public " + Emitter.mangleToJava(def.name()) + "(");
             w.write("final " + JAVA_LANG_SYSTEM + "[] $dummy) { ");
             if (!(superClassNode != null && Emitter.isNativeRepedToJava(superClassNode.type()))) {
                 w.write("super($dummy);");
@@ -584,9 +583,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(X10_RUNTIME_TYPE_CLASS);
                     // w.write("<"); n.print(tp, w, tr); w.write(">"); // TODO
                     w.write(" ");
-                    // WIP XTENLANG-2463
-                    n.print(tp.name(), w, tr);
-                    // w.write(Emitter.mangleTypeVariable(tp.name().id()));
+                    w.write(Emitter.mangleParameterType(tp));
                     w.write(";");
                     w.newline();
                 }
@@ -863,7 +860,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         X10ClassType type = (X10ClassType) Types.get(n.constructorDef().container());
         if (supportConstructorSplitting
-//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.cannotSplitConstructor(type)) {
 
@@ -951,7 +947,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write("return ");
 
         if (supportConstructorSplitting
-//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(type))) {
             printAllocationCall(type);
@@ -983,7 +978,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.end();
         w.write("}");
-
+        w.newline();
     }
 
     private Stmt getFirstStatement(X10ConstructorDecl_c n) {
@@ -1078,15 +1073,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("final ");
             w.write(X10_RUNTIME_TYPE_CLASS);
             w.write(" ");
-            Name name = p.name();
-            // TODO
-            w.write(Emitter.mangleToJava(name));
+            String name = Emitter.mangleParameterType(p);
+            
+            w.write(name);
 
             if (i.hasNext() || n.formals().size() > 0) {
                 w.write(",");
                 w.allowBreak(0, " ");
             }
-            // TODO
+
             typeAssignments.add("this." + name + " = " + name + ";");
         }
 
@@ -2090,7 +2085,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
             } else if (pat == null && Emitter.getJavaRep(cd) == null && ct.isGloballyAccessible()
                     && cd.typeParameters().size() != 0) {
-                w.write(cd.fullName().toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
+                w.write(Emitter.mangleQName(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
             } else {
                 new RuntimeTypeExpander(er, t).expand(tr);
             }
@@ -2188,7 +2183,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (er.printNativeNew(c, mi)) return;
         
         if (supportConstructorSplitting
-//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
                 && !type.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(type))
                 && !type.fullName().toString().startsWith("java.")) {
@@ -3174,7 +3168,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public void visit(X10ConstructorCall_c c) {
         ContainerType ct = c.constructorInstance().container();
         if (supportConstructorSplitting
-//                && config.OPTIMIZE && config.SPLIT_CONSTRUCTORS
                 && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(ct))) {
             Expr target = c.target();
             if (target == null || target instanceof Special) {

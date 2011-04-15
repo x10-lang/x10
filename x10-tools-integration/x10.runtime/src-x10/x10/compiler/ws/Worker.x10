@@ -4,9 +4,9 @@ import x10.compiler.Abort;
 import x10.compiler.Ifdef;
 import x10.compiler.NoReturn;
 
-import x10.lang.Lock;
-
 import x10.util.Random;
+
+import x10.util.concurrent.Lock;
 
 public final class Worker {
     public val workers:Rail[Worker];

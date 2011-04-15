@@ -1680,17 +1680,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 
 	    if (!container.flags().isAbstract()) {
+	        int _makeStartLine = sw.currentStream().getStreamLineNumber();
+
 	        // emit _make method
 	        h.write("static ");
 	        sw.pushCurrentStream(h);
 	        emitter.printHeader(dec, sw, tr, false, true, container.isX10Struct() ? typeName : make_ref(typeName));
-	        sw.popCurrentStream();
-	        h.write(";");
-	        h.newline(); h.forceNewline();
+	        if (!inlineInClassDecl) {
+	            h.write(";") ; h.newline();
+	            h.forceNewline();
+	            sw.popCurrentStream();
 
-	        int _makeStartLine = sw.currentStream().getStreamLineNumber();
-	        
-	        emitter.printHeader(dec, sw, tr, true, true, container.isX10Struct() ? typeName : make_ref(typeName));
+	            _makeStartLine = sw.currentStream().getStreamLineNumber();
+	            emitter.printHeader(dec, sw, tr, true, true, container.isX10Struct() ? typeName : make_ref(typeName));
+	        }
 
 	        sw.allowBreak(0, " "); sw.write("{"); sw.newline(4); sw.begin(0);
 	        if (container.isX10Struct()) {
@@ -1717,6 +1720,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.writeln("}");
 	        sw.forceNewline();
 	        sw.currentStream().omitLines(sw.currentStream().getStreamLineNumber() - _makeStartLine + 1);
+	        if (inlineInClassDecl) {
+	            sw.popCurrentStream();
+	        }
 	    }
 
 	    sw.newline(); sw.forceNewline();
@@ -2121,8 +2127,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline();
 		if (n.expr() == null) {
 			sw.write("default :");
-		}
-		else {
+		} else {
 			sw.write("case ");
 			// FIXME: [IP] HACK HACK HACK! Substitute the actual constant if any
 			// FIXME: [IP] Even worse hack: ignore @Native on const fields when used in switches.
@@ -2131,6 +2136,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write("/"+"*");
 				n.print(n.expr(), sw, tr);
 				sw.write("*"+"/");
+			} if (n.expr() instanceof CharLit_c) {
+			    CharLit_c lit = (CharLit_c)n.expr();
+			    sw.write("'"+StringUtil.escape(lit.charValue())+"'");
 			} else {
 				n.print(n.expr(), sw, tr);
 			}
@@ -3537,18 +3545,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
 
-		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
-		{
-			String key = ((StreamWrapper)inc).getStreamName(StreamWrapper.CC);
-			Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
-		    if (fileToLineNumberMap != null) 
-		    {
-		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
-		        if (lineNumberMap != null) 
-		        	lineNumberMap.addClosureMember(null, cnamet, cname, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
-		    }
-		}
-
         /* ITables declarations */
         inc.write("static "+(in_template_closure ? "typename " : "")+superType+(in_template_closure ? "::template itable " : "::itable")+chevrons(cnamet)+" _itable;"); inc.newline();
         inc.write("static x10aux::itable_entry _itables[2];"); inc.newline(); inc.forceNewline();
@@ -3577,6 +3573,27 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 Warnings.issue(tr.job(), msg, n.position());
             }
         }
+        
+		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
+		{
+			String key = ((StreamWrapper)inc).getStreamName(StreamWrapper.CC);
+			Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
+		    if (fileToLineNumberMap != null) 
+		    {
+		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
+		        if (lineNumberMap != null)
+		        {		        		
+		        	for (int i = 0; i < c.variables.size(); i++) 
+		        	{
+		        		VarInstance<?> var = c.variables.get(i);
+		        		String name = var.name().toString();
+		        		if (name.equals(THIS)) 
+		    				name = SAVED_THIS;
+		        		lineNumberMap.addClosureMember(name, var.type().toString(), cname, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+		        	}
+		        }
+		    }
+		}
 
         emitter.printDeclarationList(inc, c, c.variables, refs);
         inc.forceNewline();

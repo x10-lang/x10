@@ -214,7 +214,7 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
     /**
      * odometer-style iterator for this scanner
      *
-     * hasNext() computes the k that is the axis to be bumped:
+     * advance() computes the k that is the axis to be bumped:
      *
      * axis    0    1         k        k+1
      * now   x[0] x[1] ...  x[k]   max[k+1] ...  max[rank-1]
@@ -238,8 +238,8 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
         private val myMax = new Rail[int](rank);
 
         private var k: int;
-        def this() {}
-        def init() {
+        private var doesHaveNext:boolean;
+        def this() {
             myMin(0) = s.min(0);
             myMax(0) = s.max(0);
             x(0) = s.min(0);
@@ -251,14 +251,20 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
                 myMax(k) = s.max(k);
             }
             x(rank-1)--;
-        }
+	    checkHasNext();
+	}
 
-        final public def hasNext(): boolean {
+        public def hasNext() = doesHaveNext;
+
+        private def checkHasNext():void {
             k = rank-1;
-            while (x(k)>=myMax(k))
-                if (--k<0)
-                    return false;
-            return true;
+            while (x(k)>=myMax(k)) {
+                if (--k<0) {
+                    doesHaveNext = false;
+                    return;
+                }
+            }
+            doesHaveNext = true;
         }
 
         final public def next() {
@@ -270,6 +276,7 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
                 myMin(k) = m;
                 myMax(k) = s.max(k);
             }
+            checkHasNext();
             return x;
         }
 
@@ -299,7 +306,6 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
 
     public def iterator(): Iterator[Point(rank)] {
         val it = new PointIt();
-        it.it.init();
         return it;
     }
 

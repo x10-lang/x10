@@ -17,7 +17,8 @@ public class DoubleType extends RuntimeType<Double> {
 	private static final long serialVersionUID = 1L;
 
     public DoubleType() {
-        super(double.class,
+//        super(double.class,
+        super(Double.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
@@ -29,6 +30,7 @@ public class DoubleType extends RuntimeType<Double> {
         return "x10.lang.Double";
     }
 
+    // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Double;
@@ -53,9 +55,16 @@ public class DoubleType extends RuntimeType<Double> {
         return ((double[]) array)[i];
     }
     
+//    @Override
+//    public Double setArray(Object array, int i, Double v) {
+//        // avoid boxing again
+////        return ((double[]) array)[i] = v;
+//        ((double[]) array)[i] = v;
+//        return v;
+//    }
     @Override
-    public Double setArray(Object array, int i, Double v) {
-        return ((double[]) array)[i] = v;
+    public void setArray(Object array, int i, Double v) {
+        ((double[]) array)[i] = v;
     }
     
     @Override

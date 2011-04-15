@@ -21,7 +21,7 @@ public interface VoidFun_0_4<T1,T2,T3,T4> extends VoidFun {
 
     public static final RuntimeType<VoidFun_0_4<?,?,?,?>> $RTT = new VoidFunType<VoidFun_0_4<?,?,?,?>>(
         VoidFun_0_4.class,
-        new RuntimeType.Variance[] {
+        new Variance[] {
             Variance.CONTRAVARIANT,
             Variance.CONTRAVARIANT,
             Variance.CONTRAVARIANT,

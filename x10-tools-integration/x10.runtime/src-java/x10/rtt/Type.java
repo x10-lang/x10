@@ -20,10 +20,11 @@ public interface Type<T> extends java.io.Serializable {
     
     Object makeArray(int length);
     Object makeArray(Object... elems);
-    T setArray(Object array, int i, T v);
+//    T setArray(Object array, int i, T v);
+    void setArray(Object array, int i, T v);
     T getArray(Object array, int i);
     int arrayLength(Object array);
 
-    Class<?> getJavaClass();
+    Class<?> getImpl();
     String typeName();
 }

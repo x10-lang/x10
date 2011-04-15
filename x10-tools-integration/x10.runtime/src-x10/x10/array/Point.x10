@@ -31,9 +31,9 @@ public final class Point(rank:Int) implements (Int) => Int,
     private val c1:int;
     private val c2:int;
     private val c3:int;
-    private val cs:Array[int](1);  // Will be null if rank<5
+    private val cs:Rail[int];  // Will be null if rank<5
 
-    def this(coords:Array[int](1)):Point(coords.size) {
+    def this(coords:Rail[int]):Point(coords.size) {
         property(coords.size);
 
 	c0 = coords(0);

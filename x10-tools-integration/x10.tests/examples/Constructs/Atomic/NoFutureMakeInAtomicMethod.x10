@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.util.Future;
+import x10.util.concurrent.Future;
 /**
  * A Future.make expression cannot occur in a method called from within an atomic.
  * @vj

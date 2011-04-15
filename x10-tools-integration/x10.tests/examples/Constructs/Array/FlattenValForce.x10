@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-import x10.util.Future;
+import x10.util.concurrent.Future;
 /**
  * Test for array reference flattening. Check that flattening works inside a Future.
  */

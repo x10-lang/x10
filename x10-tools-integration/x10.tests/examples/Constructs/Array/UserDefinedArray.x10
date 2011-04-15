@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author Christian Grothoff
  * @author Kemal Ebcioglu
  */
-import x10.util.Future;
+import x10.util.concurrent.Future;
 public class UserDefinedArray extends x10Test {
 
     static R = 0..1;

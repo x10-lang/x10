@@ -10,16 +10,15 @@
  */
 //OPTIONS: -WORK_STEALING=true
 
-public class WorkStealingFibTest {
+import harness.x10Test;
+
+public class WorkStealingFibTest extends x10Test{
     public def run():boolean {
         val res = Fib.fib(20);
         return (res == 10946);
     }
 
     public static def main(args:Array[String](1)) {
-        val r = new WorkStealingFibTest().run();
-        if(r){
-             x10.io.Console.OUT.println("++++++Test succeeded.");
-        }
+       new WorkStealingFibTest().execute();
     }
 }

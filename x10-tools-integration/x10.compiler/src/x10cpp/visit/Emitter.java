@@ -133,7 +133,7 @@ public class Emitter {
         "x10_boolean", "x10_byte", "x10_char", "x10_short", "x10_int",
         "x10_long", "x10_float", "x10_double",
         // X10 implementation names
-        "FMGL", "TYPENAME", "getRTT", "rtt", "RTT_H_DECLS", "RTT_CC_DECLS1",
+        "FMGL", "TPMGL", "TYPENAME", "getRTT", "rtt", "RTT_H_DECLS", "RTT_CC_DECLS1",
         // macros defined by the C++ implementation
         "i386",
         // Additionally, anything starting with a '_' is reserved, and may clash
@@ -163,7 +163,7 @@ public class Emitter {
         return "FMGL("+mangle_to_cpp(str)+")";
     }
     public static String mangled_parameter_type_name(String str) {
-        return "FMGL("+mangle_to_cpp(str)+")";
+        return "TPMGL("+mangle_to_cpp(str)+")";
     }
 
 
@@ -960,7 +960,6 @@ public class Emitter {
 		h.end();
 		h.write(")");
 		h.end();
-        // TODO: caller should emit this
 	}
 
 	void printHeader(FieldDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
@@ -1054,22 +1053,6 @@ public class Emitter {
 			}
 			w.write(type + " " + name + ";");
 			w.newline();
-			
-			if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
-			{
-				String key = ((StreamWrapper)w).getStreamName(StreamWrapper.CC);
-				Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
-			    if (fileToLineNumberMap != null) 
-			    {
-			        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
-			        if (lineNumberMap != null) 
-			        {
-			        	String hostClassName = translate_mangled_FQN(fullName(c.currentClass()).toString(), "_");
-			        	String wrappingClosure = MessagePassingCodeGenerator.getClosureName(hostClassName, c.closureId());
-			        	lineNumberMap.addClosureMember(name, t.toString(), wrappingClosure, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
-			        } 
-			    }
-			}
 		}
 	}
 

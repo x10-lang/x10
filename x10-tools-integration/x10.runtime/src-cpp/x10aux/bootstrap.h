@@ -29,11 +29,11 @@
 #include <x10/lang/Closure.h>
 
 #include <stdio.h>
+#include <unistd.h>
 
 namespace x10 { namespace array { template<class T> class Array; } }
 
 namespace x10aux {
-
     class StaticInitClosure : public x10::lang::Closure
     {
         public:
@@ -114,6 +114,8 @@ namespace x10aux {
     template<class Runtime, class T> int template_main(int ac, char **av) {
 
         setlinebuf(stdout);
+
+        x10aux::num_local_cores = sysconf(_SC_NPROCESSORS_ONLN);
 
         x10aux::network_init(ac,av);
 

@@ -44,16 +44,17 @@ abstract public class FinishFrame extends Frame {
         if (null != redirect) return redirect;
         val tmp = remap();
         tmp.redirect = tmp;
+        tmp.append(stack);
         redirect = tmp;
         return tmp;
     }
 
     public def wrapBack(worker:Worker, frame:Frame) {
         if (null != worker.throwable) {
-            Runtime.atomicMonitor.lock();
+            //Runtime.atomicMonitor.lock();
             caught(worker.throwable);
             worker.throwable = null;
-            Runtime.atomicMonitor.unlock();
+            //Runtime.atomicMonitor.unlock();
         }
     }
 
@@ -79,8 +80,10 @@ abstract public class FinishFrame extends Frame {
 
     @NoInline public final def caught(t:Throwable) {
         if (t == Abort.ABORT) throw t;
+        Runtime.atomicMonitor.lock();
         if (null == stack) stack = new Stack[Throwable]();
         stack.push(t);
+        Runtime.atomicMonitor.unlock();
     }
 
     @Inline public final def rethrow() {

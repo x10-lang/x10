@@ -100,7 +100,10 @@ public abstract class Dist(
      * Create a distribution over the specified region that varies in
      * place only along the specified axis. It divides the coordinates
      * along that axis into Place.MAX_PLACES blocks, and assigns
-     * successive blocks to successive places.
+     * successive blocks to successive places.  If the number of coordinates
+     * in the axis does not divide evenly into the number of blocks, then 
+     * the first (max(axis)-min(axis)+1)%Place.MAX_PLACES blocks will be assigned 
+     * one more coordinate than the remaining blocks.
      *
      * @param r the given region
      * @param axis the dimension to block over
@@ -131,12 +134,15 @@ public abstract class Dist(
 
     /**
      * Create a distribution over the specified region that varies in
-     * place only the zeroth axis. It divides the coordinates
-     * along that axis into Place.MAX_PLACES blocks, and assigns
-     * successive blocks to successive places.
+     * place only along the 0-th axis. It divides the coordinates
+     * along the 0-th axis into Place.MAX_PLACES blocks, and assigns
+     * successive blocks to successive places.  If the number of coordinates
+     * in the axis does not divide evenly into the number of blocks, then 
+     * the first (max(axis)-min(axis)+1)%Place.MAX_PLACES blocks will be assigned 
+     * one more coordinate than the remaining blocks.
      *
      * @param r the given region
-     * @return a "block" distribution over r, blocked over the zeroth axis.
+     * @return a "block" distribution over r.
      */
     public static def makeBlock(r:Region) = makeBlock(r, 0, PlaceGroup.WORLD);
 
@@ -201,7 +207,10 @@ public abstract class Dist(
      * Create a distribution over the specified region that varies in
      * place only along the specified axis. It divides the coordinates
      * along that axis into pg.numPlaces() blocks, and assigns successive
-     * blocks to successive places in pg.
+     * blocks to successive places in pg. If the number of coordinates
+     * in the axis does not divide evenly into the number of places in pg, then 
+     * the first (max(axis)-min(axis)+1)%pg.numPlaces() blocks will be assigned 
+     * one more coordinate than the remaining blocks.
      *
      * @param r the given region
      * @param axis the dimension to block over

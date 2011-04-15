@@ -207,7 +207,12 @@ static void ensure_init_congruent (size_t req_size) {
 
     char *base_addr_ = x10aux::get_congruent_base();
     // Default addresses based on some experimentation on 32 bit and 64 bit platforms.  Not very reliable.
+    // Test different addresses by overriding with X10_CONGRUENT_BASE environment variable (takes decimal and hex)
+    #ifdef _ARCH_PPC
+    size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x10000000000LL;
+    #else
     size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x100000000000LL;
+    #endif
     size_t base_addr = base_addr_!=NULL ? strtoull(base_addr_,NULL,0) : default_base_addr;
 
     // do not use PAGE_SIZE as the compile-time value may not reflect the machine the code runs on

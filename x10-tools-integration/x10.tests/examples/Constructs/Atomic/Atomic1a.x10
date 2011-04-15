@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-import x10.util.Future;
+import x10.util.concurrent.Future;
 /**
  * Some updates of cnt_broken may be lost,
  * since the read and write are not
