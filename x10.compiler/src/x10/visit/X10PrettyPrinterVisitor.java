@@ -934,7 +934,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // TODO check without type bounds
         er.printMethodParams(typeParameters);
 
-        er.printType(type, 0);
+        er.printType(type, PRINT_TYPE_PARAMS);
 
         w.write(" ");
         w.write(CREATION_METHOD_NAME);
@@ -1126,7 +1126,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write(" " + dummy + narg++);
                         w.write(",");
                     }
-                    w.write(JAVA_LANG_CLASS);
+                    w.write(JAVA_LANG_CLASS + "<?>");
                 } else {
                     w.write("[]");
                 }
@@ -2228,7 +2228,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 for (int i = 0; i < cid + 1; i++) {
                     if (i % 256 == 0) {
                         if (i != 0) w.write(") null,");
-                        w.write("(" + JAVA_LANG_CLASS);
+                        w.write("(" + JAVA_LANG_CLASS + "<?>");
                     } else {
                         w.write("[]");
                     }
