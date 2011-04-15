@@ -2489,7 +2489,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             runAsync = true;
         }
 
-        TypeExpander ret = new TypeExpander(er, n.returnType().type(), true, true, false);
+        TypeExpander ret = new TypeExpander(er, n.returnType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
         if (!n.returnType().type().isVoid()) {
             typeArgs.add(ret);
             w.write("new " + X10_FUN_CLASS_PREFIX + "_0_" + n.formals().size());
