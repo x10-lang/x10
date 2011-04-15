@@ -556,7 +556,7 @@ public class StaticInitializer extends ContextVisitor {
                     if (mi.container().isClass()) {
                         // found reference to special initializer method
                         X10MethodDecl mdecl = getMethodDeclaration(mi);
-                        if (mdecl != null && checkProcedureBody(mdecl.body(), count+1)) {
+                        if (mdecl == null || checkProcedureBody(mdecl.body(), count+1)) {
                             // target method include static field references
                             found.set(true);
                             return n;
