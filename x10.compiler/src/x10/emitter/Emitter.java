@@ -396,7 +396,7 @@ public class Emitter {
 		return QName.make(qualifier, shortName);
 	}
 	
-	public static Name mangleQNameToName(QName name) {
+	public static Name mangleAndFlattenQName(QName name) {
 		return Name.make(mangleIdentifier(name.toString().replace(".", "$")));
 	}
 
@@ -1282,8 +1282,8 @@ public class Emitter {
             sb.append("_").append(i).append("_");
             sb.append("$$");
             // TODO mangle parameter type
-            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
-//            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
+            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
+//            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
         }
     }
 
@@ -1291,7 +1291,7 @@ public class Emitter {
         sb.append("$_");
         if (t instanceof X10ClassType) {
             X10ClassType x10t = (X10ClassType) t;
-            sb.append(mangleQNameToName(x10t.fullName()));
+            sb.append(mangleAndFlattenQName(x10t.fullName()));
             if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
                 List<Type> ts = x10t.typeArguments();
                 for (Type t1 : ts) {
@@ -1301,11 +1301,11 @@ public class Emitter {
         }
         else if (t instanceof ParameterType) {
             // TODO mangle parameter type
-            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
-//            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
+            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
+//            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
         }
         else {
-            sb.append(mangleQNameToName(t.fullName()));
+            sb.append(mangleAndFlattenQName(t.fullName()));
         }
         sb.append("_$");
     }
