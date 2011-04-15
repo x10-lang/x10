@@ -3454,6 +3454,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return className+"__closure__"+id;
     }
 
+    private boolean envContainsVar(List<VarInstance<? extends VarDef>> env, VarInstance<? extends VarDef> vi) {
+        for (VarInstance<? extends VarDef> e : env) {
+            if (e.def() == vi.def()) return true;
+        }
+        return false;
+    }
     public void visit(Closure_c n) {
         X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
@@ -3571,7 +3577,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<VarInstance<? extends VarDef>> env = closureDef.capturedEnvironment();
         for (VarInstance<?> vi : c.variables) {
-            if (!env.contains(vi) && !vi.name().toString().equals(THIS)) {
+            if (!envContainsVar(env, vi) && !vi.name().toString().equals(THIS)) {
                 // Sanity check
                 String msg = "Closure "+n+" at "+n.position()+" captures "+vi+" which is not in the environment";
                 Warnings.issue(tr.job(), msg, n.position());

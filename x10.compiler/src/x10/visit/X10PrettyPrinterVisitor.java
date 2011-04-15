@@ -2926,8 +2926,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     VarInstance<?> found = c.findVariableSilent(l.name().id());
                     if (found != null) {
                         VarInstance<?> local = context().findVariableSilent(l.name().id());
-                        if (found.equals(local)) {
-                            assert (found.equals(l.localInstance())) : l.toString();
+                        if (found.def() == local.def()) {
+                            assert (found.def() == l.localInstance().def()) : l.toString();
                             capturedVars.add(l.localInstance());
                         }
                     }
