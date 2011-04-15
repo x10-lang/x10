@@ -258,6 +258,7 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      */
     @Native("java", "((int)(float)(#1))")
     @Native("c++",  "x10aux::float_utils::toInt(#1)")
+    @Native("cuda",  "((x10_int)#1)")
     public native static operator (x:Float) as Int;
 
     /**

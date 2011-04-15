@@ -2743,7 +2743,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    counter++;
 		}
 
-		String pat = getCppImplForDef(md);
+		String lang[] = new String[1];
+		String pat = getCppImplForDef(md, lang);
 		if (pat != null) {
 		    // If the method is static or if the method's container is a struct then we go ahead and inline
 		    // the @Native annotation at the callsite.  This is safe because there is no virtual dispatch involved.
@@ -2752,11 +2753,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    // because we have nothing else we can reasonably do.  If the @NativeRep class was written "correctly" 
 		    // this will not break the semantics because the @Native will forward to the proper virtual dispatch.
 		    //
+			// If the pattern is for the "cuda" backend then inline it also, as the CUDA backend does not yet support functions
+			//
 		    // Otherwise (virtual method of a non-NativeRep class), we ignore the @Native annotation at the
 		    // callsite and generate a normal calling sequence.  This preserves virtual method semantics.
 		    if (mi.flags().isStatic() || 
 		            (mi.container().isClass() && ((X10ClassType)mi.container()).isX10Struct()) ||
-		            (mi.container().isClass() && getCppRep(((X10ClassType)mi.container()).x10Def()) != null)) {
+		            (mi.container().isClass() && getCppRep(((X10ClassType)mi.container()).x10Def()) != null) ||
+		            lang[0].equals("cuda")) {
 		        List<Type> classTypeArguments  = Collections.<Type>emptyList();
 		        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
 		        if (mi.container().isClass() && !mi.flags().isStatic()) {
@@ -4102,11 +4106,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		n.printSubExpr(n.right(), false, sw, tr);
 	}
 
-    // allow overriding in subclasses
+    // allow overriding in subclasses (i.e. CUDACodeGenerator)
     // [DC] FIXME: ASTQuery.getCppRepParam still uses CPP_NATIVE_STRING directly
     protected String[] getCurrentNativeStrings() { return new String[] {CPP_NATIVE_STRING}; }
 
 	String getCppImplForDef(X10Def o) {
+		return getCppImplForDef(o, null);
+	}
+	String getCppImplForDef(X10Def o, String[] langbox) {
 	    TypeSystem xts = (TypeSystem) o.typeSystem();
 	    Type annotation = xts.NativeType();
 	    String[] our_langs = getCurrentNativeStrings();
@@ -4117,6 +4124,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            String lang = getStringPropertyInit(at, 0);
 	            if (lang != null && lang.equals(our_lang)) {
 	                String lit = getStringPropertyInit(at, 1);
+	                if (langbox!=null) langbox[0] = our_lang;
 	                return lit;
 	            }
 	        }
