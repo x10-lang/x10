@@ -26,20 +26,24 @@ public class Join extends Expander {
 
 	private final String delimiter;
 	private final List<? extends Object> args;
+	
 	public Join(Emitter er, String delimiter, Object a) {
 		this(er, delimiter, Collections.singletonList(a));
 	}
+	
 	public Join(Emitter er, String delimiter, Object... objs) {
 	        this(er, delimiter, Arrays.asList(objs));
 	}
+	
 	public Join(Emitter er, String delimiter, List<? extends Object> args) {
 		super(er);
 		this.delimiter = delimiter;
 		this.args = args;
 	}
-        public void expand(Translator tr) {
+	
+    @Override
+    public void expand(Translator tr) {
 //		er.w.write("/* Join: { */");
-		int N = args.size();
 		for (Iterator<? extends Object> i = args.iterator(); i.hasNext(); ) {
 			er.prettyPrint(i.next(), tr);
 			if (i.hasNext())
@@ -47,7 +51,10 @@ public class Join extends Expander {
 		}
 //		er.w.write("/* } */");
 	}
-        public String toString() {
-            return "Join " + er.convertToString(args);
-        }
+    
+    @Override
+    public String toString() {
+    	return "Join " + er.convertToString(args);
+    }
+    
 }

@@ -20,13 +20,10 @@ import polyglot.visit.Translator;
  * arguments can be passed in directly to the constructor.
  */
 public class Template extends Expander {
-	/**
-	 * 
-	 */
-	
 	private final String id;
 	private final Object[] args;
 	private final String regex;
+	
 	private Template(Emitter er, String id, String regex, Object... args) {
 		super(er);
 		
@@ -35,19 +32,17 @@ public class Template extends Expander {
 		assert regex != null;
 		this.args = args;
 	}
+	
 	public static Template createTemplateFromRegex(Emitter er, String id, String regex, Object... args) {
 	    return new Template(er, id, regex, args);
 	}
-	public void expand() {
-		expand(er.tr);
-	}
+	
+    @Override
 	public void expand(Translator tr) {
-//	    if (regex != null) {
-	        er.dumpRegex(id != null ? id : "internal", args, tr, regex);
-//	    } else {
-//	        er.dump(id, args, tr);
-//	    }
+    	er.dumpRegex(id != null ? id : "internal", args, tr, regex);
 	}
+    
+    @Override
 	public String toString() {
 		return id + " " + er.convertToString(args);
 	}

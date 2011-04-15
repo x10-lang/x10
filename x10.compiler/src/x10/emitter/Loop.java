@@ -26,14 +26,11 @@ import x10.visit.X10PrettyPrinterVisitor;
  * If the template has only one argument, a single list can be used.
  */
 public class Loop extends Expander {
-	/**
-	 * 
-	 */
-
 	private final String id;
 	private final String regex;
 	private final List<?>[] lists;
 	private final int N;
+	
     public Loop(Emitter er, String id, String regex, List<?> arg) {
         this(er, id, regex, new List[] { arg });
     }
@@ -64,6 +61,8 @@ public class Loop extends Expander {
 			assert(lists[i].size() == n || lists[i].size() == -1);
 		this.N = n;
 	}
+	
+    @Override
 	public void expand(Translator tr) {
 		er.w.write("/* Loop: { */");
 		Object[] args = new Object[lists.length];
@@ -78,6 +77,8 @@ public class Loop extends Expander {
 		}
 		er.w.write("/* } */");
 	}
+    
+    @Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("Loop ");
 		for (int i=0; i < lists.length; ++i) {
