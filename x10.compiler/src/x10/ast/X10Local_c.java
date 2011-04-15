@@ -54,7 +54,7 @@ public class X10Local_c extends Local_c {
 		
 	}
     public void checkLocalAccess(LocalInstance li, ContextVisitor tc) {
-        if (li.flags().isAcc()) return;
+        boolean isAcc = li.flags().isAcc() ;
 
 	    X10Context_c context = (X10Context_c) tc.context();
         final Name liName = name.id();
@@ -67,14 +67,14 @@ public class X10Local_c extends Local_c {
         } else if (!context.isLocalIncludingAsyncAt(liName)) {
             // this local is defined in an outer class
             isInClosure = true;
-            if (!li.flags().isFinal())
+            if ( !isAcc && !li.flags().isFinal())
                 Errors.issue(tc.job(), new Errors.LocalVariableAccessedFromInnerClass(liName, this.position()));
         } else {
             // if the access is in an async and the local-var is not local, then we must ensure that the scoping looks like this: var ... (no async) ... finish ... async
             // algorithm: we go up the context (going outwards) looking for a finish
             // (setting flag foundFinish to true when we find a finish, and to false when we find an async)
             // when we get to the var definition, then foundFinish must be true.
-           if (!context.isSequentialAccess(true,liName))
+           if ( !isAcc && !context.isSequentialAccess(true,liName))
                Errors.issue(tc.job(), new Errors.LocalVariableCannotBeCapturedInAsync(liName, this.position()));
         }
 
@@ -84,7 +84,7 @@ public class X10Local_c extends Local_c {
             XTerm origin = localDef_c.placeTerm();
             // origin maybe null when typechecking a method to get the return type (see XTENLANG-1902)
             // but we will type check that method again later (with correct placeTerm)
-            if (origin!=null) { // origin = PlaceChecker.here();
+            if ( !isAcc && origin!=null) { // origin = PlaceChecker.here();
                 final XConstrainedTerm placeTerm = context.currentPlaceTerm();
                 final XTerm currentPlace = placeTerm.term();
                 XConstraint constraint = new XConstraint();
