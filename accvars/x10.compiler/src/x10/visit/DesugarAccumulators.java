@@ -81,16 +81,13 @@ import static polyglot.visit.InitChecker.*;
 public class DesugarAccumulators extends ContextVisitor {
     private HashSet<Local> okLocals = new HashSet<Local>(); // for locals we usually desugar into: local.result(), but for okLocals we do not desugar (either for pass by reference into method calls, or LocalAssign)
     private HashSet<Node> changeCalls = new HashSet<Node>(); // for optimization: so I won't need to handle all calls
+    
     public DesugarAccumulators(Job job, TypeSystem ts, NodeFactory nf) {
         super(job,ts,nf);
     }
 
-    @Override
-    public Node override(Node n) {
-        return super.override(n);    //To change body of overridden methods use File | Settings | File Templates.
-    }
-
-    @Override public NodeVisitor enterCall(Node n) {
+    @Override 
+    public NodeVisitor enterCall(Node n) {
         if (n instanceof X10Call || n instanceof X10New) {
             List<Expr> arguments = n instanceof X10Call ?
                     ((X10Call) n).arguments() :
@@ -138,9 +135,20 @@ public class DesugarAccumulators extends ContextVisitor {
                 Ref<? extends Type> ref = def.formalTypes().get(pos);
                 ((Ref<Type>) ref).update( accType(ref.get()) );
             }
+            li.setFlags(update(li.flags()));
             pos++;
         }
     }
+    
+    // C++ backend has problems if you capture a var in an async (so acc must be final after desugaring)
+    private FlagsNode update(FlagsNode flagsNode) {
+    	Flags flags = flagsNode.flags();
+    	return flags.isAcc() ? flagsNode.flags( flags.set(Flags.FINAL) ) : flagsNode;
+    }
+    private Flags update(Flags flags) {
+    	return flags.isAcc() ? flags.set(Flags.FINAL) : flags;
+    }
+    
     @Override
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if ((n instanceof X10ProcedureCall)
@@ -211,7 +219,11 @@ public class DesugarAccumulators extends ContextVisitor {
                 }
                 return varDecl;
             }
-        } else if (n instanceof ProcedureDecl) {
+        } else if( n instanceof FlagsNode ) {
+        	FlagsNode flagsNode = (FlagsNode) n ;
+        	return update(flagsNode) ; // after desugaring, all "acc" are not final
+        }
+        else if (n instanceof ProcedureDecl) {
             changeDef(((ProcedureDecl)n).procedureInstance());
         }
         return n;
