@@ -439,6 +439,7 @@ public class Inliner extends ContextVisitor {
             report("normalized closure has no body", c);
             return null;
         }
+        lit = (Closure) lit.visit(new X10AlphaRenamer());
         List<Expr> args = new ArrayList<Expr>();
         int i = 0;
         for (Expr a : c.arguments()) {
@@ -449,7 +450,6 @@ public class Inliner extends ContextVisitor {
             report("of failure to rewrite closure body", c);
             return null;
         }
-        result = (Expr) result.visit(new X10AlphaRenamer());
         result = (Expr) result.visit(this);
         result = (Expr) propagateConstants(result);
         return result;
@@ -468,6 +468,7 @@ public class Inliner extends ContextVisitor {
             report("instantiation failure for " + signature, call);
             return null;
         }
+        decl = (ProcedureDecl) decl.visit(new X10AlphaRenamer());
         LocalDecl thisArg = createThisArg(call);
         LocalDecl thisForm = null == thisArg ? null : createThisFormal(call, thisArg);
         LocalDef thisDef = null == thisForm ? null : thisForm.localDef();
@@ -501,7 +502,6 @@ public class Inliner extends ContextVisitor {
             report("body doesn't contain a return (throw only)", call);
             return null;
         }
-        result = (Expr) result.visit(new X10AlphaRenamer());
         if (-1 == inlineInstances.search(signature)) { // non recursive inlining of the inlined body
             inlineInstances.push(signature);
             result = (Expr) result.visit(this);
@@ -681,6 +681,10 @@ public class Inliner extends ContextVisitor {
                 LocalDecl l = (LocalDecl) n;
                 localDefMap.put(l.name().id(), l.localDef());
             }
+            if (n instanceof Formal) {
+                Formal f = (Formal) n;
+                localDefMap.put(f.name().id(), f.localDef());
+            }
             return super.enter(n);
         }
 
@@ -690,8 +694,8 @@ public class Inliner extends ContextVisitor {
             if (n instanceof Block) {
                 s = setStack.peek();
             }
-            Node res = super.leave(old, n, v);
-            res = rewriter.transform(res, old, Inliner.this);
+            Node res = rewriter.transform(n, old, Inliner.this);
+            res = super.leave(old, res, v);
             if (res instanceof Block) {
                 localDefMap.keySet().removeAll(s);
             }
@@ -1141,7 +1145,7 @@ public class Inliner extends ContextVisitor {
         if (target instanceof Special && ((Special) target).kind() == Special.SUPER) {
             target = rewriteSuperAsThis((Special) target);
         }
-        LocalDef def = ts.localDef(c.target().position(), ts.Final(), Types.ref(c.target().type()), Name.make("target"));
+        LocalDef def = ts.localDef(c.target().position(), ts.Final(), Types.ref(c.target().type()), Name.makeFresh("target"));
         LocalDecl ths = syn.createLocalDecl(c.target().position(), def, target);
         return ths;
     }
@@ -1173,7 +1177,7 @@ public class Inliner extends ContextVisitor {
         TypeParamSubst typeMap = makeTypeMap(pi, call.typeArguments());
         Type thisType = typeMap.reinstantiate(((MemberDef) pi.def()).container().get());
         Expr expr = null == init ? null : createCast(init.position(), syn.createLocal(init.position(), init), thisType);
-        LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.make("this"), expr);
+        LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.makeFresh("this"), expr);
         return thisDecl;
     }
 
@@ -1249,6 +1253,13 @@ public class Inliner extends ContextVisitor {
 
         @Override
         protected X10LocalInstance transformLocalInstance(X10LocalInstance li) {
+//            X10LocalDef ld = li.x10Def();
+//            X10LocalDef newld = vars.get(ld);
+//            if (newld == null) {
+//                newld = copyLocalDef(ld); // force reinstantiation
+//                mapLocal(newld, newld);
+//            }
+//            mapLocal(ld, newld);
             Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
             XLocal[] X = p.fst();
             XLocal[] Y = p.snd();
@@ -1337,6 +1348,32 @@ public class Inliner extends ContextVisitor {
             return d;
         }
 
+        @Override
+        protected LocalDecl transform(LocalDecl d, LocalDecl old) {
+//            X10LocalDef ld = (X10LocalDef) d.localDef();
+//            X10LocalDef newld = vars.get(ld);
+//            if (newld == null) {
+//                newld = copyLocalDef(ld); // force reinstantiation
+//                newld.setType(d.type().typeRef());
+//                mapLocal(newld, newld);
+//            }
+//            mapLocal(ld, newld);
+            return super.transform(d, old);
+        }
+        
+        @Override
+        protected X10Formal transform(X10Formal f, X10Formal old) {
+//            X10LocalDef ld = (X10LocalDef) f.localDef();
+//            X10LocalDef newld = vars.get(ld);
+//            if (newld == null) {
+//                newld = copyLocalDef(ld); // force reinstantiation
+//                newld.setType(f.type().typeRef());
+//                mapLocal(newld, newld);
+//            }
+//            mapLocal(ld, newld);
+            return super.transform(f, old);
+        }
+        
         @Override
         protected X10ConstructorDecl transform(X10ConstructorDecl d, X10ConstructorDecl old) {
             boolean sigChanged = d.returnType() != old.returnType();
