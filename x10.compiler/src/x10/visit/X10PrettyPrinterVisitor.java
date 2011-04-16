@@ -934,7 +934,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // TODO check without type bounds
         er.printMethodParams(typeParameters);
 
-        er.printType(type, PRINT_TYPE_PARAMS);
+        // N.B. printing type parameters causes post compilation error for XTENLANG_423 and GenericInstanceof16
+        er.printType(type, 0);
 
         w.write(" ");
         w.write(CREATION_METHOD_NAME);
