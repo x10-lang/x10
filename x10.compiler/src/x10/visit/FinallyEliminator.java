@@ -103,7 +103,7 @@ public class FinallyEliminator extends ContextVisitor {
         Expr cond;
         try { // if possible, create a true that wouldn't be recognized by (another pass of) the ConstantPropagator
             QName qname = QName.make("x10.compiler.CompilerFlags");
-            Type container = ts.typeForName(qname);
+            Type container = ts.forName(qname);
             Name name = Name.make("TRUE"); 
             cond = syn.createStaticCall(stmt.position(), container, name);
         } catch (Exception e) {
@@ -165,7 +165,7 @@ public class FinallyEliminator extends ContextVisitor {
 
     private ClassType Finalization() {
         try {
-            return (ClassType) ts.typeForName(FINALIZATION);
+            return (ClassType) ts.forName(FINALIZATION);
         } catch (SemanticException e) {
             throw new InternalCompilerError("Unable to load the Finalization class", e);
         }
@@ -173,7 +173,7 @@ public class FinallyEliminator extends ContextVisitor {
 
     private ClassType Abort() {
         try {
-            return (ClassType) ts.typeForName(ABORT);
+            return (ClassType) ts.forName(ABORT);
         } catch (SemanticException e) {
             throw new InternalCompilerError("Unable to load the Abort class", e);
         }

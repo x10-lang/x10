@@ -111,7 +111,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
     @Override
     public NodeVisitor begin() {
         try {
-            imc = xts.typeForName(QName.make("x10.util.IndexedMemoryChunk"));
+            imc = xts.forName(QName.make("x10.util.IndexedMemoryChunk"));
         } catch (SemanticException e1) {
             throw new InternalCompilerError("Something is terribly wrong");
         }

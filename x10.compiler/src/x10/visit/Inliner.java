@@ -1805,7 +1805,7 @@ public class Inliner extends ContextVisitor {
          */
         private Expr createOpaqueTrue(Position pos) throws SemanticException {
             QName qname = QName.make("x10.compiler.CompilerFlags");
-            Type container = typeSystem().typeForName(qname);
+            Type container = typeSystem().forName(qname);
             Name name = Name.make("TRUE");
             Expr expr = syn.createStaticCall(pos, container, name);
             return expr;

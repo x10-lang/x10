@@ -154,7 +154,7 @@ public class Emitter {
 		this.w=w;
 		this.tr=tr;
 		try {
-		    imcType = tr.typeSystem().typeForName(QName.make("x10.util.IndexedMemoryChunk"));
+		    imcType = tr.typeSystem().forName(QName.make("x10.util.IndexedMemoryChunk"));
             nativeClassType = tr.typeSystem().systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
 		} catch (SemanticException e1) {
 		    throw new InternalCompilerError("Something is terribly wrong");
@@ -428,16 +428,17 @@ public class Emitter {
     	return mangleParameterType(tpn.name().id());
     }
 
-	/**
-	 * Support "inline" .xcd so that you dont have to create a separate xcd file
-	 * for a short code fragment.
-	 * 
-	 * @param components
-	 * @param regex
-	 */
-	public void dumpCodeString(String regex, Object... components) {
-		dumpRegex("internal", components, tr, regex);
-	}
+    // not used
+//	/**
+//	 * Support "inline" .xcd so that you dont have to create a separate xcd file
+//	 * for a short code fragment.
+//	 * 
+//	 * @param components
+//	 * @param regex
+//	 */
+//	public void dumpCodeString(String regex, Object... components) {
+//		dumpRegex("internal", components, tr, regex);
+//	}
 
 	public void dumpRegex(String id, Object[] components, Translator tr, String regex) {
 		X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();

@@ -86,7 +86,7 @@ public class VarsBoxer extends ContextVisitor {
     @Override
     public NodeVisitor begin() {
         try {
-            localVarType = (X10ParsedClassType) xts.typeForName(LOCAL_VAR);
+            localVarType = (X10ParsedClassType) xts.forName(LOCAL_VAR);
         } catch (SemanticException e) {
             throw new InternalCompilerError("Something is terribly wrong", e);
         }

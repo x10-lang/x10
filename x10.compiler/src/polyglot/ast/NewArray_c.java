@@ -194,7 +194,7 @@ public class NewArray_c extends Expr_c implements NewArray
             // if dimension expressions are given, then
             // a NegativeArraySizeException may be thrown.
             try {
-                return CollectionUtil.list(ts.typeForName(QName.make("java.lang.NegativeArraySizeException")));
+                return CollectionUtil.list(ts.forName(QName.make("java.lang.NegativeArraySizeException")));
             }
             catch (SemanticException e) {
                 throw new InternalCompilerError("Cannot find class java.lang.NegativeArraySizeException", e);

@@ -542,7 +542,7 @@ public class Lowerer extends ContextVisitor {
             if (!PlaceChecker.isAtPlace(r, p, xContext()))
                 return null;
     */
-            ClassType RemoteOperation = (ClassType) ts.typeForName(REMOTE_OPERATION);
+            ClassType RemoteOperation = (ClassType) ts.forName(REMOTE_OPERATION);
             Position pos = a.position();
             List<Expr> args = new ArrayList<Expr>();
             Expr p1 = (Expr) leaveCall(null, q, this);
@@ -565,7 +565,7 @@ public class Lowerer extends ContextVisitor {
             if (!PlaceChecker.isAtPlace(r, p, xContext()))
                 return null;
     */
-            ClassType RemoteOperation = (ClassType) ts.typeForName(REMOTE_OPERATION);
+            ClassType RemoteOperation = (ClassType) ts.forName(REMOTE_OPERATION);
             Position pos = a.position();
             List<Expr> args = new ArrayList<Expr>();
             Expr p1 = (Expr) leaveCall(null, p, this);
@@ -758,7 +758,7 @@ public class Lowerer extends ContextVisitor {
         if (!Emitter.hasAnnotation(ts, f, IMMEDIATE))
             return null;
         Position pos = f.position();
-        ClassType target = (ClassType) ts.typeForName(REMOTE_OPERATION);
+        ClassType target = (ClassType) ts.forName(REMOTE_OPERATION);
         List<Expr> args = new ArrayList<Expr>();
         return nf.Block(pos, f.body(), nf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, ts.Void(), context())));
     }
