@@ -41,7 +41,9 @@ import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import polyglot.visit.InnerClassRemover;
+import x10.util.CollectionFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
@@ -173,7 +175,7 @@ implements X10ParsedClassType
                     typeArguments.addAll(ta);
                     typeParameters.addAll(tp);
                 }
-                if (!c.isMember() || (c.flags().isStatic() && ta.size() == tp.size()))
+                if (!c.isMember() || c.flags().isStatic())
                     break;
             }
             cacheSubst = new TypeParamSubst((TypeSystem) ts, typeArguments, typeParameters);
@@ -503,7 +505,7 @@ implements X10ParsedClassType
 	    List<Type> typeArguments = pct.typeArguments();
 	    if (typeArguments == null)
 	        typeArguments = new ArrayList<Type>();
-	    if (pct.isMember() && (!pct.flags().isStatic() || typeArguments.size() != typeParameters.size())) {
+	    if (InnerClassRemover.isInner(pct.def())) {
 	        X10ParsedClassType container = ((X10ParsedClassType) pct.container()).instantiateTypeParametersExplicitly();
 	        if (container != pct.container()) {
 	            pct = pct.container(container);
@@ -519,7 +521,7 @@ implements X10ParsedClassType
 	        }
 	        pct = container.subst().reinstantiate(pct);
 	    }
-	    if (!typeParameters.isEmpty() && typeArguments.isEmpty()) {
+	    if (!typeParameters.isEmpty() && pct.typeArguments()==null) {
 	        pct = pct.typeArguments(new ArrayList<Type>(typeParameters));
 	    }
 	    return pct;

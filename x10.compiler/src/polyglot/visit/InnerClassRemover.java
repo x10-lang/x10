@@ -15,7 +15,8 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.UniqueID;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 
 // TODO:
 //Convert closures to anon
@@ -222,8 +223,13 @@ public abstract class InnerClassRemover extends ContextVisitor {
         return cc;
     }
 
+    public static boolean isInner(ClassDef def) {
+        return def.isMember() && (!def.flags().isStatic() || def.wasInner());
+    }
+
     protected ClassDecl fixClassDecl(ClassDecl cd) {
-        if (cd.classDef().isMember() && ! cd.flags().flags().isStatic()) {
+        if (isInner(cd.classDef())) {
+            cd.classDef().setWasInner(true);
             cd.classDef().flags(cd.classDef().flags().Static());
             Flags f = cd.classDef().flags();
             cd = cd.flags(cd.flags().flags(f));
