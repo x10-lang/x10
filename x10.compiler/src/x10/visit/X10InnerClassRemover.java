@@ -67,7 +67,6 @@ import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
-import x10.types.ParameterType.Variance;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -591,13 +590,19 @@ public class X10InnerClassRemover extends InnerClassRemover {
         return t.typeArguments(null);
     }
 
-    private void gatherOuterTypeParameters(X10ClassDef def, List<ParameterType> typeParameters, List<Variance> variances) {
+    private void gatherOuterTypeParameters(X10ClassDef def, List<ParameterType> typeParameters, List<ParameterType.Variance> variances) {
         if (!isInner(def)) return;
         def = (X10ClassDef) Types.get(def.outer());
-        List<ParameterType> tp = def.typeParameters();
-        List<ParameterType.Variance> v = def.variances();
-        typeParameters.addAll(tp);
-        variances.addAll(v);
+        List<ParameterType> tps = def.typeParameters();
+        List<ParameterType.Variance> vs = def.variances();
+        for (int i = 0; i < tps.size(); i++) {
+            ParameterType tp = tps.get(i);
+            ParameterType.Variance v = vs.get(i);
+            if (!typeParameters.contains(tp)) {
+                typeParameters.add(tp);
+                variances.add(v);
+            }
+        }
         gatherOuterTypeParameters(def, typeParameters, variances);
     }
 
