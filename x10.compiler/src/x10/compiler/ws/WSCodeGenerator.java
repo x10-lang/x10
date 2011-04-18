@@ -51,7 +51,7 @@ import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.compiler.ws.util.WSTransformationContent;
 import x10.compiler.ws.WSTransformState.MethodType;
 import x10.types.X10MethodDef;
@@ -76,17 +76,10 @@ import x10.visit.X10InnerClassRemover;
  * In the first step, we only mark all methods that contain finish-async as the target.
  */
 public class WSCodeGenerator extends ContextVisitor {
-    public static final int debugLevel = 5; //0: no; 3: little; 5: median; 7: heave; 9: verbose
-    public static final String WS_TOPIC = "workstealing";
-    public static final void wsReport(Reporter reporter, int level, String message) {
-        if (reporter.should_report(WS_TOPIC, level)) {
-            reporter.report(level, message);
-        }
-    }
-    
-    // Single static WSTransformState shared by all visitors (FIXME)
-    public static WSTransformState wts; 
-    
+    public static final boolean debug = true;
+   
+
+    public static WSTransformState wts; //Set by WSCodePreprocessor
     private final Set<X10MethodDecl> genMethodDecls;
     private final Set<X10ClassDecl> genClassDecls;
 
@@ -101,69 +94,25 @@ public class WSCodeGenerator extends ContextVisitor {
         genClassDecls = CollectionFactory.newHashSet();
     }
 
-    public static void setWALATransTarget(ExtensionInfo extensionInfo, WSTransformationContent target){
-        //DEBUG
-        if(debugLevel > 3){
-            wsReport(extensionInfo.getOptions().reporter, 5, "Use WALA CallGraph Data...");    
-        }
-        wts = new WSTransformStateWALA(extensionInfo, target);
-    }
-    
-    public static void buildCallGraph(ExtensionInfo extensionInfo) {
-        //DEBUG
-        if(debugLevel > 3){
-            wsReport(extensionInfo.getOptions().reporter, 5, "Build Simple Graph Graph..."); 
-        }
-        wts = new WSTransformStateSimple(extensionInfo);
-    }
-
     /** 
      * WS codegen
      * MethodDecl --> if it is a target method, transform it into an inner class
      * X10ClassDecl --> add generated inner classes and methods if any
      */
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        // reject unsupported patterns
-        if(n instanceof ConstructorDecl){
-            ConstructorDecl cDecl = (ConstructorDecl)n;
-            if(wts.getMethodType(cDecl) != MethodType.NORMAL){
-                throw new SemanticException("Work Stealing doesn't support concurrent constructor: " + cDecl, n.position());
-            }
-        }
-        
-        //20110214: Remove at stmt check, now we could work on at stmt 
-//        if(n instanceof RemoteActivityInvocation){
-//            RemoteActivityInvocation r = (RemoteActivityInvocation)n;
-//            if(!(r.place() instanceof Here)){
-//                throw new SemanticException("Work-Stealing doesn't support at: " + r, n.position());
-//            }
-//        }
-        if(n instanceof Closure && !(n instanceof PlacedClosure)){
-            //match with WSCallGraph, not handle PlacedClosure
-            Closure closure = (Closure)n;           
-            if(wts.getMethodType(closure) != MethodType.NORMAL){
-                throw new SemanticException("Work Stealing doesn't support concurrent closure: " + closure, n.position());
-            }
-        }
-        if(n instanceof AtEach){
-            throw new SemanticException("Work Stealing doesn't support ateach: " + n,n.position());
-        }
-        if(n instanceof Offer){
-            throw new SemanticException("Work Stealing doesn't support collecting finish: " + n,n.position());
-        }
-        
+
         // transform call site
         if(n instanceof Call){
             Call call = (Call)n;
             switch(wts.getCallSiteType(call)){
             case MATCHED_CALL: //change the target
                 //two steps, create a new method def, and change the call
-                X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(call.methodInstance().def(), ts);
+                X10MethodDef mDef = WSUtil.createWSCallMethodDef(call.methodInstance().def(), ts);
                 List<Expr> newArgs = new ArrayList<Expr>();
                 newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.Worker()));
                 newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.Frame()));
                 newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.FinishFrame()));
-                return WSCodeGenUtility.replaceMethodCallWithWSMethodCall(nf, (X10Call) call, mDef, newArgs);
+                return WSUtil.replaceMethodCallWithWSMethodCall(nf, (X10Call) call, mDef, newArgs);
             case CONCURRENT_CALL:  //do nothing, leave the transformation in method decl transformation
             case NORMAL:
             default:
@@ -179,24 +128,19 @@ public class WSCodeGenerator extends ContextVisitor {
             switch(wts.getMethodType(mDecl)){
             case BODYDEF_TRANSFORMATION:
                 //traditional transform
-                if(debugLevel > 3){
-                    System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
-                }
+                WSUtil.info("Start transforming target method: " + mDef.name());
                 Job job = ((ClassType) mDef.container().get()).def().job();
                 WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (Context) context, mDef, mDecl, wts);
                 try{
                     n = mFrame.transform();
                 }
                 catch(SemanticException e){
-                    System.err.println("==========>" + e.getMessage());
                     e.printStackTrace();
-                    System.exit(-1);
+                    WSUtil.err(e.getMessage(), n);
                 }
                 genClassDecls.addAll(mFrame.close()); 
                 genMethodDecls.add(mFrame.getWraperMethod());
-                if(debugLevel > 3){
-                    System.out.println(mFrame.getFrameStructureDesc(4));
-                }
+                WSUtil.info(mFrame.getFrameStructureDesc(4));
                 break;
             case DEFONLY_TRANSFORMATION:
                 //only change the method's interface
@@ -218,10 +162,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 return n; //no change
             }
             else{
-                if(debugLevel > 3){
-                    System.out.println();
-                    System.out.println("[WS_INFO] Add new methods and nested classes to class: " + n);
-                }
+                WSUtil.info("Add new methods and nested classes to class: " + n);
                 List<X10MethodDecl> methods = getMethodDecls(cDef);
                 
                 cDecl = Synthesizer.addNestedClasses(cDecl, classes);
@@ -330,7 +271,7 @@ public class WSCodeGenerator extends ContextVisitor {
         methodDecl = methodDecl.formals(formals);
         
         //finally change the name;
-        Name name = Name.make(WSCodeGenUtility.getMethodFastPathName(methodDef));
+        Name name = Name.make(WSUtil.getMethodFastPathName(methodDef));
         methodDef.setName(name);
         methodDecl = methodDecl.name(nf.Id(pos, name));
         

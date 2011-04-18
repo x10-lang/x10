@@ -80,7 +80,7 @@ import x10.compiler.ws.util.CodePatternDetector;
 import x10.compiler.ws.util.ILocalToFieldContainerMap;
 import x10.compiler.ws.util.ReferenceContainer;
 import x10.compiler.ws.util.TransCodes;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.MethodInstance;
@@ -432,7 +432,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         }
         else{
             //first unroll to one stmt; //remove additional no use stmt
-            stmt = WSCodeGenUtility.unrollToOneStmt(stmt); 
+            stmt = WSUtil.unrollToOneStmt(stmt); 
             if(stmt instanceof For){
                 childClassGen = new WSForLoopClassGen(this, (For)stmt);
             }
@@ -456,11 +456,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 if(xts.isSubtype(getClassType(), xts.AsyncFrame())
                         || xts.isSubtype(getClassType(), xts.FinishFrame())){
                     childClassGen = new WSRegularFrameClassGen(this, synth.toBlock(stmt),
-                                                               WSCodeGenUtility.getBlockFrameClassName(this.getClassName()));
+                                                               WSUtil.getBlockFrameClassName(this.getClassName()));
                 }
                 else{
                     Async async = (Async)stmt;
-                    Stmt asyncBody = WSCodeGenUtility.unrollToOneStmt(async.body());
+                    Stmt asyncBody = WSUtil.unrollToOneStmt(async.body());
                     //need check the frame is pure async or async at(p)
                     if(asyncBody instanceof AtStmt){
                         //async at(p), transform it as a remote frame
@@ -619,7 +619,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * Just replace local refs as field access
      */
     protected TransCodes transNormalStmt(Stmt s, int pcValue, Set<Name> declaredLocals) throws SemanticException {
-        assert(!WSCodeGenUtility.isComplexCodeNode(s, wts));
+        assert(!WSUtil.isComplexCodeNode(s, wts));
 
         TransCodes transCodes = new TransCodes(pcValue);
         s = (Stmt) this.replaceLocalVarRefWithFieldAccess(s, declaredLocals);
@@ -810,7 +810,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         MethodDef methodDef = aCall.methodInstance().def();
 //        MethodSynth fastSlowMethodPair = wts.getFastAndSlowMethod(methodDef);
         
-        X10MethodDef mDef = WSCodeGenUtility.createWSCallMethodDef(methodDef, xts);
+        X10MethodDef mDef = WSUtil.createWSCallMethodDef(methodDef, xts);
 
         //preparing the references for invocation the call
         Expr parentRef = genUpcastCall(getClassType(), xts.Frame(), getThisRef());
@@ -836,7 +836,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             newArgs.add(parentRef);
             newArgs.add(ffRef);
             
-            X10Call fastMCall = WSCodeGenUtility.replaceMethodCallWithWSMethodCall(xnf,(X10Call) aCall, mDef, newArgs);
+            X10Call fastMCall = WSUtil.replaceMethodCallWithWSMethodCall(xnf,(X10Call) aCall, mDef, newArgs);
             transCodes.addFirst(xnf.Eval(aCall.position(), fastMCall));
         }
         { // resume
@@ -846,7 +846,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             newArgs.add(parentRef);
             newArgs.add(ffRef);
             
-            X10Call slowMCall = WSCodeGenUtility.replaceMethodCallWithWSMethodCall(xnf, (X10Call) aCall, mDef, newArgs);
+            X10Call slowMCall = WSUtil.replaceMethodCallWithWSMethodCall(xnf, (X10Call) aCall, mDef, newArgs);
             transCodes.addSecond(xnf.Eval(aCall.position(), slowMCall));
         }
         { // back              
@@ -1387,7 +1387,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * @param e
      */
     protected void localAssignEscapeProcess(Eval e){
-        LocalAssign localAssign = WSCodeGenUtility.identifyLocalAssign(e);
+        LocalAssign localAssign = WSUtil.identifyLocalAssign(e);
         if(localAssign == null){
             return; //it is not a local assign, just ignore it
         }

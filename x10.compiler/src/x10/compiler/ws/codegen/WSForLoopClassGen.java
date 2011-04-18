@@ -30,7 +30,7 @@ import polyglot.types.SemanticException;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.Triple;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.NewLocalVarSynth;
@@ -47,7 +47,7 @@ public class WSForLoopClassGen extends WSRegularFrameClassGen {
     
     public WSForLoopClassGen(AbstractWSClassGen parent, For forStmt) {
         super(parent, forStmt.body(),
-              WSCodeGenUtility.getLoopClassName(parent.getClassName()));
+              WSUtil.getLoopClassName(parent.getClassName()));
         this.forStmt = forStmt;
     }
     

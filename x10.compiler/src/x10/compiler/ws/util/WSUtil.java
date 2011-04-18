@@ -79,8 +79,45 @@ import polyglot.types.TypeSystem;
  * This class contains some utility functions, such as forming the standard name
  *
  */
-public class WSCodeGenUtility {
-
+public class WSUtil {
+    
+    static boolean turnOffAllDebugMsg = false;
+    static boolean turnOffAllInfoMsg = false;    
+    static public void debug(String msg, Node node){
+        if(!turnOffAllDebugMsg){
+            System.out.println("[WS_DEBUG] " + msg);
+            node.prettyPrint(System.out);
+            System.out.println();
+        }
+    }
+    
+    static public void debug(String msg){
+        if(!turnOffAllDebugMsg){
+            System.out.println("[WS_DEBUG] " + msg);
+        }
+    }
+    
+    static public void info(String msg){
+        if(!turnOffAllInfoMsg){
+            System.out.println("[WS_INFO] " + msg);
+        }
+    }
+    
+    static public void err(String msg, Node n) throws SemanticException{
+        System.err.println("[WS_ERR]" + msg);
+        
+        if(n != null){
+            System.err.println("        ");
+            n.prettyPrint(System.err);
+            System.err.println();
+            throw new SemanticException(msg, n.position());
+        }
+        else{
+            throw new SemanticException(msg);
+        }
+    }
+    
+    
     private static String getMethodName(MethodDef methodDef){
         return methodDef.name().toString();
     }
@@ -213,6 +250,12 @@ public class WSCodeGenUtility {
         return locals;
     }
     
+    
+    /**
+     * Check the x10def's annotation contains "WS" or not
+     * @param def
+     * @return true if the def contains "WS" annotation
+     */
     protected static boolean isWSTarget(X10Def def) {
         try {
             Type t = def.typeSystem().systemResolver().findOne(QName.make("x10.compiler.WS"));
@@ -417,7 +460,7 @@ public class WSCodeGenUtility {
                 Types.ref(containerClassDef.asType()),                
                 methodDef.flags(), 
                 methodDef.returnType(), 
-                Name.make(WSCodeGenUtility.getMethodFastPathName(methodDef)), 
+                Name.make(WSUtil.getMethodFastPathName(methodDef)), 
                 formalTypes);
 
         List<LocalDef> formalNames = new ArrayList<LocalDef>();

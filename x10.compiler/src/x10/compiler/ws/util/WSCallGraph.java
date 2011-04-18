@@ -163,13 +163,13 @@ public class WSCallGraph {
 
         if(!node.isCallgraphBuild()){ //prevent add one method again
             //now check whether this method has parallel;
-            if(WSCodeGenUtility.containsConcurrentConstruct(procedure)){
+            if(WSUtil.containsConcurrentConstruct(procedure)){
                 node.setContainsConcurrent(true);
                 initialParallelMethods.add(node);
             }
                     
             //now get all callees from this node
-            node.addCallTo(WSCodeGenUtility.scanForCallees(procedure));
+            node.addCallTo(WSUtil.scanForCallees(procedure));
             
 //            //debug info
 //            System.out.println("scan for callto:"+pDef);

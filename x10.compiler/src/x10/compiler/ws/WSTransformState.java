@@ -21,7 +21,7 @@ import x10.X10CompilerOptions;
 /**
  * Record the WS transformation intermediate results and context.
  * 
- * The WSState is globally exisits, however, some types need be refreshed
+ * The WSState is globally existed. However, some types need be refreshed
  * each time a WSCodeGenerator begins
  * 
  * Globally table: target methodDef -> Fast/Slow MethodSynth

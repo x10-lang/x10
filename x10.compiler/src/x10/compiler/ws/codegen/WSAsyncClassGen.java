@@ -42,7 +42,7 @@ import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.CodePatternDetector;
 import x10.compiler.ws.util.TransCodes;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.compiler.ws.util.CodePatternDetector.Pattern;
 import x10.types.X10ClassType;
 import x10.util.synthesizer.ClassSynth;
@@ -79,7 +79,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
     public WSAsyncClassGen(AbstractWSClassGen parent, Async a) {
         //Note in building the tree, we use parentFinish as async frame's up frame
         super(parent, getFinishFrameOfAsyncFrame(parent),
-                WSCodeGenUtility.getAsyncStmtClassName(parent.getClassName()),
+                WSUtil.getAsyncStmtClassName(parent.getClassName()),
                 parent.xts.AsyncFrame(), a.body());
         inFrameTransform = canInFrameTransform(codeBlock);
         
@@ -121,7 +121,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         if(!inFrameTransform){
             //we create a new frame to transform the async's body
             
-            AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
+            AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSUtil.getBlockFrameClassName(getClassName()));
             TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
             
             //now add codes to three path;
@@ -346,8 +346,8 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
      * @return
      */
     protected boolean canInFrameTransform(Block block){
-        boolean containsConcurrent = WSCodeGenUtility.containsConcurrentConstruct(block);
-        int concurrentCallNum = WSCodeGenUtility.calcConcurrentCallNums(block, wts);
+        boolean containsConcurrent = WSUtil.containsConcurrentConstruct(block);
+        int concurrentCallNum = WSUtil.calcConcurrentCallNums(block, wts);
         
         if(containsConcurrent || concurrentCallNum > 1){
             return false;

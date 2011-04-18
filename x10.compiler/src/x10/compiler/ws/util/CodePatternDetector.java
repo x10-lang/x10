@@ -109,7 +109,7 @@ public class CodePatternDetector {
      */
     public static Pattern detectAndTransform(final Stmt stmt, final WSTransformState wts){
         
-        if(!WSCodeGenUtility.isComplexCodeNode(stmt, wts)){
+        if(!WSUtil.isComplexCodeNode(stmt, wts)){
             return Pattern.Simple;
         }
         
@@ -118,7 +118,7 @@ public class CodePatternDetector {
         }
         
         if(stmt instanceof Async){
-            Stmt asyncBodyStmt = WSCodeGenUtility.unrollToOneStmt(((Async)stmt).body());
+            Stmt asyncBodyStmt = WSUtil.unrollToOneStmt(((Async)stmt).body());
             if(asyncBodyStmt instanceof AtStmt){
                 return Pattern.AsyncAt; //async at one place
             }
@@ -137,7 +137,7 @@ public class CodePatternDetector {
         
         if(stmt instanceof When){
             When w = (When)stmt;
-            if(WSCodeGenUtility.isComplexCodeNode(w.expr(), wts)){
+            if(WSUtil.isComplexCodeNode(w.expr(), wts)){
                 //need flatten
                 return Pattern.Compound;
             }
@@ -154,7 +154,7 @@ public class CodePatternDetector {
         //next if
         if(stmt instanceof If){
             If ifStmt = (If)stmt;
-            if(WSCodeGenUtility.isComplexCodeNode(ifStmt.cond(), wts)){
+            if(WSUtil.isComplexCodeNode(ifStmt.cond(), wts)){
                 //need flatten
                 return Pattern.Compound;
             }
@@ -174,7 +174,7 @@ public class CodePatternDetector {
             
             boolean compoundS = false;
             for(Term t : condTerms){
-                if(WSCodeGenUtility.isComplexCodeNode(t, wts)){
+                if(WSUtil.isComplexCodeNode(t, wts)){
                     compoundS = true;
                     break;
                 }
@@ -191,7 +191,7 @@ public class CodePatternDetector {
         if(stmt instanceof ForLoop){
             ForLoop forloopStmt = (ForLoop)stmt;
             
-            if(WSCodeGenUtility.isComplexCodeNode(forloopStmt.domain(), wts)){
+            if(WSUtil.isComplexCodeNode(forloopStmt.domain(), wts)){
                 return Pattern.Compound;
             }
             else{
@@ -201,7 +201,7 @@ public class CodePatternDetector {
         
         if(stmt instanceof While){
             While whileStmt = (While)stmt;
-            if(WSCodeGenUtility.isComplexCodeNode(whileStmt.cond(), wts)){
+            if(WSUtil.isComplexCodeNode(whileStmt.cond(), wts)){
                 return Pattern.Compound;
             }
             else{
@@ -211,7 +211,7 @@ public class CodePatternDetector {
         
         if(stmt instanceof Do){
             Do doStmt = (Do)stmt;
-            if(WSCodeGenUtility.isComplexCodeNode(doStmt.cond(), wts)){
+            if(WSUtil.isComplexCodeNode(doStmt.cond(), wts)){
                 return Pattern.Compound;
             }
             else{
@@ -221,7 +221,7 @@ public class CodePatternDetector {
         
         if(stmt instanceof Switch){
             Switch ss = (Switch)stmt;
-            if(WSCodeGenUtility.isComplexCodeNode(ss.expr(), wts)){
+            if(WSUtil.isComplexCodeNode(ss.expr(), wts)){
                 return Pattern.Compound;
             }
             else{
@@ -231,7 +231,7 @@ public class CodePatternDetector {
 
         if(stmt instanceof Return){ //the return's expr must be complex
             Return rStmt = (Return)stmt;
-            if(WSCodeGenUtility.isComplexCodeNode(rStmt.expr(), wts)){
+            if(WSUtil.isComplexCodeNode(rStmt.expr(), wts)){
                 return Pattern.Compound;
             }
             else{
@@ -249,12 +249,12 @@ public class CodePatternDetector {
             
             Try tryStmt = (Try)stmt;
             for(Catch c : tryStmt.catchBlocks()){
-                if(WSCodeGenUtility.isComplexCodeNode(c.body(), wts)){
+                if(WSUtil.isComplexCodeNode(c.body(), wts)){
                     System.out.println("----------> catch error");
                     return Pattern.Unsupport;
                 }
             }
-            if(WSCodeGenUtility.isComplexCodeNode(tryStmt.finallyBlock(), wts)){
+            if(WSUtil.isComplexCodeNode(tryStmt.finallyBlock(), wts)){
                 System.out.println("----------> final error");
                 return Pattern.Unsupport;
             }
@@ -268,7 +268,7 @@ public class CodePatternDetector {
 
     private static Pattern detectEval(final Stmt stmt, final WSTransformState wts) {
         //should > 0. Other wise will not be sent to here for pattern detection
-        int concurrentCallNum = WSCodeGenUtility.calcConcurrentCallNums(stmt, wts);
+        int concurrentCallNum = WSUtil.calcConcurrentCallNums(stmt, wts);
         assert(concurrentCallNum > 0);
         Expr expr = ((Eval)stmt).expr();
 

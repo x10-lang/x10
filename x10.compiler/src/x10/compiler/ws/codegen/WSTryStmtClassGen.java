@@ -34,7 +34,7 @@ import x10.ast.Finish;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.TransCodes;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.types.X10ClassType;
 import x10.util.synthesizer.ClassSynth;
 import x10.util.synthesizer.CodeBlockSynth;
@@ -55,7 +55,7 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
     
     public WSTryStmtClassGen(AbstractWSClassGen parent, Try tryStmt) {
         super(parent, parent,
-                WSCodeGenUtility.getExceptionFrameClassName(parent.getClassName()),
+                WSUtil.getExceptionFrameClassName(parent.getClassName()),
                 parent.xts.TryFrame(), tryStmt.tryBlock());
         this.tryStmt = tryStmt;
         //Never need PC value in fact
@@ -88,7 +88,7 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
         
 
-        AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
+        AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSUtil.getBlockFrameClassName(getClassName()));
         TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
         
         //now add codes to three path;
@@ -123,16 +123,16 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         for(Catch c: tryStmt.catchBlocks()){
             //note there is only one local var, the exception
             TransCodes catchBody = transNormalStmt(c.body(), 1, Collections.singleton(c.formal().name().id()));
-            catchBlocksFast.add(c.body(WSCodeGenUtility.seqStmtsToBlock(xnf, catchBody.first().get(0))));
-            catchBlocksResume.add(c.body(WSCodeGenUtility.seqStmtsToBlock(xnf, catchBody.second().get(0))));
+            catchBlocksFast.add(c.body(WSUtil.seqStmtsToBlock(xnf, catchBody.first().get(0))));
+            catchBlocksResume.add(c.body(WSUtil.seqStmtsToBlock(xnf, catchBody.second().get(0))));
         }
         tryFast = tryFast.catchBlocks(catchBlocksFast);
         tryResume = tryResume.catchBlocks(catchBlocksResume);
         
         if (tryStmt.finallyBlock() != null) {
             TransCodes finalBody = transNormalStmt(tryStmt.finallyBlock(), 1, Collections.EMPTY_SET);
-            tryFast.finallyBlock(WSCodeGenUtility.seqStmtsToBlock(xnf, finalBody.first().get(0)));
-            tryResume.finallyBlock(WSCodeGenUtility.seqStmtsToBlock(xnf, finalBody.second().get(0)));
+            tryFast.finallyBlock(WSUtil.seqStmtsToBlock(xnf, finalBody.first().get(0)));
+            tryResume.finallyBlock(WSUtil.seqStmtsToBlock(xnf, finalBody.second().get(0)));
         }
         fastBodySynth.addStmt(tryFast);
         resumeBodySynth.addStmt(tryResume);
