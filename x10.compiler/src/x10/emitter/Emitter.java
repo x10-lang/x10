@@ -441,6 +441,7 @@ public class Emitter {
 //	}
 
     // WIP XTENLANG-2528
+    // TODO remove this
 	public void dumpRegex(String id, Object[] components, Translator tr, String regex) {
 		X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
 		for (int i = 0; i < components.length; i++) {
@@ -521,6 +522,64 @@ public class Emitter {
 		}
 		w.write(regex.substring(start));
 	}
+
+    public void dumpRegex(String id, Map<String,Object> components, Translator tr, String regex) {
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+        int len = regex.length();
+        int pos = 0;
+        int start = 0;
+        while (pos < len) {
+            if (regex.charAt(pos) == '\n') {
+                w.write(regex.substring(start, pos));
+                w.newline(0);
+                start = pos + 1;
+            } else if (regex.charAt(pos) == '#') {
+                w.write(regex.substring(start, pos));
+                int endpos = pos + 1;
+                int idx = -1;
+                if (Character.isDigit(regex.charAt(endpos))) {
+                    while (endpos < len && Character.isDigit(regex.charAt(endpos))) {
+                        ++endpos;
+                    }
+                } else if (Character.isJavaIdentifierStart(regex.charAt(endpos))) {
+                    while (endpos < len && Character.isJavaIdentifierPart(regex.charAt(endpos))) {
+                        ++endpos;
+                    }
+                } else {
+                    throw new InternalCompilerError("Template '" + id + "' uses ill-formed key #" + regex.substring(pos + 1));
+                }
+                String str = regex.substring(pos + 1, endpos);
+                Object component = components.get(str);
+                if (component == null) {
+                    throw new InternalCompilerError("Template '" + id + "' uses undefined key #" + str);
+                }
+                pos = endpos - 1;
+                start = pos + 1;
+                if (component instanceof Expr && !isNoArgumentType((Expr) component)) {
+                    component = new CastExpander(w, this, (Node) component).castTo(((Expr) component).type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                }
+                prettyPrint(component, tr);
+            } else if (regex.charAt(pos) == '`') {
+                w.write(regex.substring(start, pos));
+                int endpos = pos;
+                while (regex.charAt(++endpos) != '`') { }
+                String optionName = regex.substring(pos + 1, endpos);
+                Object optionValue = null;
+                try {
+                    optionValue = opts.x10_config.get(optionName);
+                } catch (ConfigurationError e) {
+                    throw new InternalCompilerError("There was a problem while processing the option `" + optionName + "` in template '" + id + "'", e);
+                } catch (OptionError e) {
+                    throw new InternalCompilerError("Template '" + id + "' uses unrecognized option `" + optionName + "`", e);
+                }
+                w.write(optionValue.toString());
+                pos = endpos;
+                start = pos + 1;
+            }
+            pos++;
+        }
+        w.write(regex.substring(start));
+    }
 
 	/**
 	 * Pretty-print a given object.
@@ -885,15 +944,23 @@ public class Emitter {
 
     // WIP XTENLANG-2528
     // See MessagePassingCodeGenerator.java
-	/*
-	 * For "java" annotations:
-	 * 
-	 * Given a method with signature: def m[X, Y](x, y); and a call o.m[A, B](a,
-	 * b); #0 = o #1 = A #2 = boxed representation of A #3 = run-time Type
-	 * object for A #4 = B #5 = boxed representation of B #6 = run-time Type
-	 * object for B #7 = a #8 = b
-	 */
-	public void emitNativeAnnotation(String pat, Object target,
+    /* @Native(lang, code) : annotation to mark methods and fields as having a particular native implementation.
+     * lang is the name of the language, typically "java" or "c++".
+     * code is the code to insert for a call to the method or an access to the field.
+     * For "java" annotations: Given a method with signature: def m[X, Y](x, y); and a call o.m[A, B](a, b); #0 = o #1 = A #2 = boxed representation of A #3 = run-time Type object for A #4 = B #5 = boxed representation of B #6 = run-time Type object for B #7 = a #8 = b
+     * For "c++" annotations: As for "java" except boxed and run-time representations of type vars should not be used. Also there is also the capability to refer to type params and method params by name: #this = o #X = A #Y = B #x = a #y = b
+     */
+    // #0 = #this = o
+    // #1 = #A = A
+    // #2 = #$boxof(A) = boxed representation of A
+    // #3 = #$typeof(A) = run-time Type object for A
+    // #4 = #B = B
+    // #5 = #$boxof(B) = boxed representation of B
+    // #6 = #$typeof(B) = run-time Type object for B
+    // #7 = #a = a
+    // #8 = #b = b
+    /*
+    public void emitNativeAnnotation0(String pat, Object target,
 			List<Type> types, List<? extends Object> args, List<Type> typeArguments) {
 		Object[] components = new Object[1 + types.size() * 3 + args.size() + typeArguments.size() * 3];
 		int i = 0;
@@ -913,6 +980,49 @@ public class Emitter {
         }
 		this.dumpRegex("Native", components, tr, pat);
 	}
+	*/
+
+    public void emitNativeAnnotation(String pat, Object receiver, List<Type> types, List<? extends Object> args, List<Type> typeArguments) {
+//        Object[] components = new Object[1 + types.size() * 3 + args.size() + typeArguments.size() * 3];
+        Map<String,Object> components = new HashMap<String,Object>();
+        int i = 0;
+        Object component;
+        if (receiver != null) {
+            component = receiver;
+            components.put(String.valueOf(i++), component);
+            components.put("this", component);
+        } else {
+            i++;
+        }
+        for (Type at : types) {
+            component = new TypeExpander(this, at, true, false, false);
+            components.put(String.valueOf(i++), component);
+            // TODO put with name
+            component = new TypeExpander(this, at, true, true, false);
+            components.put(String.valueOf(i++), component);
+            // TODO put with name
+            component = new RuntimeTypeExpander(this, at);
+            components.put(String.valueOf(i++), component);
+            // TODO put with name
+        }
+        for (Object e : args) {
+            component = e;
+            components.put(String.valueOf(i++), component);
+            // TODO put with name
+        }
+        for (Type at : typeArguments) {
+            component = new TypeExpander(this, at, true, false, false);
+            components.put(String.valueOf(i++), component);
+            // TODO put with name
+            component = new TypeExpander(this, at, true, true, false);
+            components.put(String.valueOf(i++), component);
+            // TODO put with name
+            component = new RuntimeTypeExpander(this, at);
+            components.put(String.valueOf(i++), component);
+            // TODO put with name
+        }
+        this.dumpRegex("Native", components, tr, pat);
+    }
 
 	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 
@@ -3289,7 +3399,7 @@ public class Emitter {
                 throwsClause = new Join(er, "", "throws ", new Join(er, ", ", l));
             }*/
 
-            // SYNOPSIS: main(#0) #3 #1    #0=args #1=body #2=class name 
+            // SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass 
             String regex = "public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
                 "private static final long serialVersionUID = 1L;\n" +
                 "public static void main(java.lang.String[] args) {\n" +
@@ -3300,13 +3410,26 @@ public class Emitter {
                 "// called by native runtime inside main x10 thread\n" +
                 "public void runtimeCallback(final x10.array.Array<java.lang.String> args) {\n" +
                     "// call the original app-main method\n" +
-                    "#2.main(args);\n" +
+                    "#mainclass.main(args);\n" +
                 "}\n" +
             "}\n" +
             "\n" +
             "// the original app-main method\n" +
-            "public static void main(#0)  #1";
-            dumpRegex("Main", new Object[] { n.formals().get(0), n.body(), tr.context().currentClass().name() }, tr, regex);
+            "public static void main(#args) #body";
+            Map<String,Object> components = new HashMap<String,Object>();
+            Object component;
+            int i = 0;
+            component = n.formals().get(0);
+//            components.put(String.valueOf(i++), component);
+            components.put("args", component);
+            component = n.body();
+//            components.put(String.valueOf(i++), component);
+            components.put("body", component);
+            component = tr.context().currentClass().name();
+//            components.put(String.valueOf(i++), component);
+            components.put("mainclass", component);
+//            dumpRegex("Main", new Object[] { n.formals().get(0), n.body(), tr.context().currentClass().name() }, tr, regex);
+            dumpRegex("Main", components, tr, regex);
 
             return true;
         }
