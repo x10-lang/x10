@@ -3451,8 +3451,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (!form.isUnnamed()) {
                 // SYNOPSIS: #0=modifiers #1=type #2=var #3=idxs_list
                 String regex = "#0 #1 #2 = x10.array.Point.make(#3);";
-                Template template = Template.createTemplateFromRegex(er, "point-create", regex, form.flags(),
-                                                                     form.type(), form.name(), new Join(er, ",", idxs));
+                Template template = Template.createTemplateFromRegex(er, "point-create", regex, form.flags(), form.type(), form.name(), new Join(er, ",", idxs));
                 body = new Join(er, "\n", template, body);
             }
 

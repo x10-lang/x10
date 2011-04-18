@@ -11,6 +11,8 @@
 
 package x10.emitter;
 
+import java.util.Map;
+
 import polyglot.visit.Translator;
 
 /**
@@ -27,6 +29,7 @@ public class Template extends Expander {
 	private Template(Emitter er, String id, String regex, Object... args) {
 		super(er);
 		
+        assert id != null;
 		this.id = id;
 		this.regex = regex;
 		assert regex != null;
@@ -39,12 +42,12 @@ public class Template extends Expander {
 	
     @Override
 	public void expand(Translator tr) {
-    	er.dumpRegex(id != null ? id : "internal", args, tr, regex);
+    	er.dumpRegex(id, args, tr, regex);
 	}
     
     @Override
 	public String toString() {
-		return id + " " + er.convertToString(args);
+		return id + " " + Emitter.convertToString(args);
 	}
 	
 }
