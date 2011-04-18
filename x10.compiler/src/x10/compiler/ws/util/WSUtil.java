@@ -587,23 +587,24 @@ public class WSUtil {
     }
     
     /**
-     * Used to transform a seq stmt into a block
+     * Used to transform a stmt into a StmtSeq(Block)
      * If the input is not a StmtSeq, 
      * @param xnf
      * @param s
      * @return only one stmt, maybe a block
      */
-    static public Block seqStmtsToBlock(NodeFactory xnf, Stmt s){
+    static public StmtSeq stmtToStmtSeq(NodeFactory xnf, Stmt s){
         if(s instanceof StmtSeq){
-            return xnf.Block(s.position(),((StmtSeq)s).statements());
+            return (StmtSeq)s;
         }
         else if(s instanceof Block){
-            return (Block)s;
+            return xnf.StmtSeq(s.position(), ((Block)s).statements());
         }
         else{
-            return xnf.Block(s.position(), s);
+            return xnf.StmtSeq(s.position(), Collections.singletonList(s));
         }
     }
+
     
     /**
      * Unroll block until it either a single stmt, or a block with more than one stmts

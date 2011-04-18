@@ -140,7 +140,9 @@ public class WSCodeGenerator extends ContextVisitor {
                 }
                 genClassDecls.addAll(mFrame.close()); 
                 genMethodDecls.add(mFrame.getWraperMethod());
-                WSUtil.info(mFrame.getFrameStructureDesc(4));
+                WSUtil.info(mDef.name() + " frame Structure" 
+                            + System.getProperty("line.separator")
+                            + mFrame.getFrameStructureDesc(4));
                 break;
             case DEFONLY_TRANSFORMATION:
                 //only change the method's interface

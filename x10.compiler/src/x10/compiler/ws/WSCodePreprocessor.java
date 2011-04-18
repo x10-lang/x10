@@ -384,7 +384,7 @@ public class WSCodePreprocessor extends ContextVisitor {
                     WSUtil.debug("Flatten Output is WRONG:" + outS.getClass());
                 }
             }
-            WSUtil.debug("Flatten Output:" + outS);
+            WSUtil.debug("Flatten Output:", outS);
         }
         return outS;
     }

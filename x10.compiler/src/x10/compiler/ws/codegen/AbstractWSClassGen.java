@@ -914,19 +914,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         return transCodes;
     }
     
-    
-    /**
-     * Flatten compound statements by ExpressionFlattener
-     */
-    protected TransCodes transCompoundStmt(Stmt s){
-        TransCodes transCodes = new TransCodes();
-        ExpressionFlattener ef = new ExpressionFlattener(job, xts, xnf);
-        ef.begin();
-        Stmt sFOut = (Stmt) s.visit(ef); // the floOut could be a block or a for
-        transCodes.addFlattened(sFOut);
-        return transCodes;
-    }
-    
     /**
      * Generate a copy constructor: 
      * def this(Int, o:<this_type>!){

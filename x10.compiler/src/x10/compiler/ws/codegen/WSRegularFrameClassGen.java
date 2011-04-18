@@ -46,6 +46,7 @@ import x10.ast.Async;
 import x10.ast.AtStmt;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
+import x10.ast.StmtSeq;
 import x10.ast.When;
 import x10.ast.X10Loop;
 import x10.compiler.ws.WSTransformState;
@@ -183,10 +184,9 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             case Simple:
                 codes = transNormalStmt(s, prePcValue, localDeclaredVar);
                 break;
-            case Compound:
-                //call for help flattener help, and add results back to 
-                codes = transCompoundStmt(s);
-                bodyStmts.addAll(0, codes.getFlattenedCodes()); //put them into target
+            case StmtSeq:
+                //Unwrapp the stmts, and add them back
+                bodyStmts.addAll(0, ((StmtSeq)s).statements()); //put them into target
                 continue;
             case Finish:
                 codes = transFinish((Finish)s, prePcValue);
@@ -254,10 +254,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             case FinishAssign:
             case Unsupport:
             default:
-                System.err.println("[WS_ERR]Found un-support code patterns");
-                s.prettyPrint(System.err);
-                System.err.println();
-                throw new SemanticException("Work-Stealing Compiling doesn't support : " + s, s.position());
+                WSUtil.err("X10 WorkStealing cannot support:", s);
+                continue;
             }
             pcValue = codes.getPcValue();
             fastBodySynth.addStmts(codes.first());
