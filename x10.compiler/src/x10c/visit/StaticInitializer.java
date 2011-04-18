@@ -384,36 +384,49 @@ public class StaticInitializer extends ContextVisitor {
                     // already found
                     return n;
                 if (n instanceof Expr) {
-                    if (isGlobalInit((Expr)n) || isConstraintToLiteral(((Expr)n).type()))
+                    if (isGlobalInit((Expr)n) || isConstraintToLiteral(((Expr)n).type())) {
                         // initialization can be done in all places -- do not visit subtree further
                         // System.out.println("isGlobalInit true in checkFieldDeclRHS: "+(Expr)n);
                         return n;
+                    }
                 }
                 if (n instanceof X10Call_c) {
                     X10Call call = (X10Call)n;
                     MethodInstance mi = call.methodInstance();
-                    if (mi.container().isClass() && mi.flags().isStatic() && !mi.flags().isNative() && !call.target().type().isNumeric()) {
+                    if (!mi.container().isClass() || call.target().type().isNumeric()) { 
+                        // allow method calls on non-objects or numerics
+                    } else if (mi.flags().isStatic()) {
                         // found reference to static method
+                        X10MethodDecl mdecl = getMethodDeclaration(mi);
+                        if (mdecl == null || checkProcedureBody(mdecl.body(), 0)) {
+                            // unsafe method call
+                            found.set(true);
+                            return n;
+                        }
+                    } else {
+                        // non-static method call
                         found.set(true);
-                     }
-                }
-                if (n instanceof X10Field_c) {
+                        return n;
+                    }
+                } else if (n instanceof X10Field_c) {
                     X10Field_c f = (X10Field_c)n;
                     if (f.flags().isFinal() && f.flags().isStatic()) {
                         // found reference to static field
                         if (checkFieldRefReplacementRequired(f)) {
                             found.set(true);
+                            return n;
                         }
                     }
-                }
-                if (n instanceof X10New_c) {
+                } else if (n instanceof X10New_c) {
                     X10New_c neu = (X10New_c)n;
                     X10ConstructorInstance ci = neu.constructorInstance();
                     // get declaration of constructor
                     X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
-                    if (cdecl != null && checkProcedureBody(cdecl.body(), 0))
-                        // constructor include static field references to be replaced
+                    if (cdecl != null && checkProcedureBody(cdecl.body(), 0)) {
+                        // unsafe constructor
                         found.set(true);
+                        return n;
+                    }
 //                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
 //                        found.set(true);
 //                    }
@@ -553,34 +566,40 @@ public class StaticInitializer extends ContextVisitor {
                 if (n instanceof X10Call) {
                     X10Call call = (X10Call)n;
                     MethodInstance mi = call.methodInstance();
-                    if (mi.container().isClass()) {
+                    if (!mi.container().isClass() || call.target().type().isNumeric()) { 
+                        // allow method calls on non-objects or numerics
+                    } else if (mi.flags().isStatic()) {
                         // found reference to special initializer method
                         X10MethodDecl mdecl = getMethodDeclaration(mi);
                         if (mdecl == null || checkProcedureBody(mdecl.body(), count+1)) {
-                            // target method include static field references
+                            // target method is unsafe include static field references
                             found.set(true);
                             return n;
                         }
+                    } else {
+                        // we consider non-static method call as unsafe
+                        found.set(true);
+                        return n;
                     }
-                }
-                if (n instanceof X10Field_c) {
+                } else if (n instanceof X10Field_c) {
                     X10Field_c f = (X10Field_c)n;
                     if (f.flags().isFinal() && f.flags().isStatic()) {
                         if (checkFieldRefReplacementRequired(f)) {
                             // found reference to static field to be replaced
                             found.set(true);
+                            return n;
                         }
                     }
-                    return n;
-                }
-                if (n instanceof X10New_c) {
+                } else if (n instanceof X10New_c) {
                     X10New_c neu = (X10New_c)n;
                     X10ConstructorInstance ci = neu.constructorInstance();
                     // get declaration of constructor
                     X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
-                    if (cdecl != null && !cdecl.body().equals(body) && checkProcedureBody(cdecl.body(), count+1))
+                    if (cdecl != null && !cdecl.body().equals(body) && checkProcedureBody(cdecl.body(), count+1)) {
                         // constructor include static field references to be replaced
                         found.set(true);
+                        return n;
+                    }
 //                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
 //                        found.set(true);
 //                    }
