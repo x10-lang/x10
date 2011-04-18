@@ -18,7 +18,7 @@ import x10.lang.annotations.ClassAnnotation;
  * lang is the name of the language, typically "java" or "c++".
  * <dl><lh>For Java:</lh>
  *     <dt>referencedType</dt><dd>the type of the native representation of T.</dd>
- *     <dt>constructedType</dt><dd>an expression that returns the zero value of T.</dd>
+ *     <dt>constructedType</dt><dd><b>unused</b>.</dd>
  *     <dt>rtt</dt><dd>an expression that returns the runtime type for T.</dd>
  *     <dt>SUBSTITUTION:</dt><dd>#0 is the name of the class, #1-#9 are type arguments.</dd>
  * </dl>

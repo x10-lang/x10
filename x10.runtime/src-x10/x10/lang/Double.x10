@@ -25,7 +25,7 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some Double constants.
  */
-@NativeRep("java", "double", "0.0", "x10.rtt.Types.DOUBLE")
+@NativeRep("java", "double", null, "x10.rtt.Types.DOUBLE")
 @NativeRep("c++", "x10_double", "x10_double", null)
 public struct Double implements Comparable[Double] /*TODO implements Arithmetic[Double], Ordered[Double]*/ {
 

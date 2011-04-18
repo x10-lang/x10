@@ -440,6 +440,7 @@ public class Emitter {
 //		dumpRegex("internal", components, tr, regex);
 //	}
 
+    // WIP XTENLANG-2528
 	public void dumpRegex(String id, Object[] components, Translator tr, String regex) {
 		X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
 		for (int i = 0; i < components.length; i++) {
@@ -614,10 +615,10 @@ public class Emitter {
 		return getJavaRepParam(def, 1);
 	}
 
-    // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
-    public static String getJavaZeroValueRep(X10ClassDef def) {
-        return getJavaRepParam(def, 2);
-    }
+//    // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
+//    public static String getJavaZeroValueRep(X10ClassDef def) {
+//        return getJavaRepParam(def, 2);
+//    }
 
 	public static String getJavaRTTRep(X10ClassDef def) {
 		return getJavaRepParam(def, 3);
@@ -869,6 +870,7 @@ public class Emitter {
         return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imcType, tr.context());
     }
 
+	// not used
     public static boolean isAbstract(MemberInstance<?> mi) {
 		if (mi.flags().isAbstract())
 			return true;
@@ -881,6 +883,8 @@ public class Emitter {
 		return false;
 	}
 
+    // WIP XTENLANG-2528
+    // See MessagePassingCodeGenerator.java
 	/*
 	 * For "java" annotations:
 	 * 
@@ -2587,11 +2591,6 @@ public class Emitter {
 		return s.toString();
 	}
 
-	private boolean isUnsignedClassType(Type type) {
-	    return type.isNumeric() && !(type.isChar() || type.isByte() || type.isShort() ||
-	            type.isInt() || type.isLong() || type.isFloat() || type.isDouble());
-	}
-
 	public void generateRTTInstance(X10ClassDef def) {
 	    // for static inner classes that are compiled from closures
 	    boolean isStaticFunType = def.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME);
@@ -2817,6 +2816,7 @@ public class Emitter {
         throw new InternalCompilerError(""); // TODO
     }
 
+    // not used
     private static boolean hasCustomSerializer(X10ClassDef def) {
         for (MethodDef md: def.methods()) {
             if ("serialize".equals(md.name().toString())) {
@@ -2840,6 +2840,7 @@ public class Emitter {
         return null;
     }
     
+    // not used
     // copy of X10ClassDecl_c.createDefaultConstructor
     private static X10ConstructorDecl
     createDefaultConstructor(X10ClassDef thisType, X10NodeFactory_c xnf, X10ClassDecl n) {
@@ -3080,10 +3081,10 @@ public class Emitter {
             }
             String lhs = "this." + field.name().toString() + " = ";
             String zero = null;
-            // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
-            if (type instanceof X10ClassType && getJavaZeroValueRep(((X10ClassType) type).x10Def()) != null) {
-                zero = getJavaZeroValueRep(((X10ClassType) type).x10Def());
-            } else
+//            // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
+//            if (type instanceof X10ClassType && getJavaZeroValueRep(((X10ClassType) type).x10Def()) != null) {
+//                zero = getJavaZeroValueRep(((X10ClassType) type).x10Def());
+//            } else
             if (xts.isStruct(type)) {
                 if (xts.isUByte(type)) {
                     zero = "(x10.lang.UByte) x10.rtt.Types.UBYTE_ZERO";
@@ -3093,22 +3094,22 @@ public class Emitter {
                     zero = "(x10.lang.UInt) x10.rtt.Types.UINT_ZERO";
                 } else if (xts.isULong(type)) {
                     zero = "(x10.lang.ULong) x10.rtt.Types.ULONG_ZERO";
-//                } else if (xts.isByte(type)) {
-//                    zero = "(byte) 0";
-//                } else if (xts.isShort(type)) {
-//                    zero = "(short) 0";
-//                } else if (xts.isInt(type)) {
-//                    zero = "0";
-//                } else if (xts.isLong(type)) {
-//                    zero = "0L";
-//                } else if (xts.isFloat(type)) {
-//                    zero = "0.0F";
-//                } else if (xts.isDouble(type)) {
-//                    zero = "0.0";
-//                } else if (xts.isChar(type)) {
-//                    zero = "(char) 0";
-//                } else if (xts.isBoolean(type)) {
-//                    zero = "false";
+                } else if (xts.isByte(type)) {
+                    zero = "(byte) 0";
+                } else if (xts.isShort(type)) {
+                    zero = "(short) 0";
+                } else if (xts.isInt(type)) {
+                    zero = "0";
+                } else if (xts.isLong(type)) {
+                    zero = "0L";
+                } else if (xts.isFloat(type)) {
+                    zero = "0.0F";
+                } else if (xts.isDouble(type)) {
+                    zero = "0.0";
+                } else if (xts.isChar(type)) {
+                    zero = "(char) 0";
+                } else if (xts.isBoolean(type)) {
+                    zero = "false";
                 } else {
                     // user-defined struct type
                     // for struct a.b.S[T], "new a.b.S(T, (java.lang.System) null);"
