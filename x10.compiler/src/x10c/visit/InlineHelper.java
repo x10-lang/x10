@@ -184,8 +184,9 @@ public class InlineHelper extends ContextVisitor {
                         List<Formal> formals = new ArrayList<Formal>(mdcl.formals());
                         Type ct = cd.asType();
                         ct = Types.instantiateTypeParametersExplicitly(ct);
-                        LocalDef ldef = xts.localDef(pos, Flags.FINAL, Types.ref(ct), cd.name());
+                        LocalDef ldef = null;
                         if (!mdcl.flags().flags().isStatic()) {
+                            ldef = xts.localDef(pos, Flags.FINAL, Types.ref(ct), cd.name());
                             formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, ct), xnf.Id(pos, cd.name())).localDef(ldef));
                         }
                         
