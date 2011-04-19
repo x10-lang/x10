@@ -172,14 +172,17 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	    n = (AmbMacroTypeNode)n.del(delFactory().delTypeNode());
 	    return n;
 	}
-	public TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep) {
+	public TypeNode AmbDepTypeNode(Position pos, AmbMacroTypeNode base, DepParameterExpr dep) {
 	    if (dep == null) {
-	        return AmbMacroTypeNode(pos, prefix, name, typeArgs, args);
+	        return base;
 	    }
-		AmbDepTypeNode n = new AmbDepTypeNode_c(pos, AmbMacroTypeNode(pos, prefix, name, typeArgs, args), dep);
-		n = (AmbDepTypeNode)n.ext(extFactory().extTypeNode());
-		n = (AmbDepTypeNode)n.del(delFactory().delTypeNode());
-		return n;
+	    AmbDepTypeNode n = new AmbDepTypeNode_c(pos, base, dep);
+	    n = (AmbDepTypeNode)n.ext(extFactory().extTypeNode());
+	    n = (AmbDepTypeNode)n.del(delFactory().delTypeNode());
+	    return n;
+	}
+	public TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep) {
+	    return AmbDepTypeNode(pos, AmbMacroTypeNode(pos, prefix, name, typeArgs, args), dep);
 	}
 	public TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep) {
 		return AmbDepTypeNode(pos, prefix, name, Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList(), dep);
