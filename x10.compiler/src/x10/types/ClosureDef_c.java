@@ -80,6 +80,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.thisDef = thisDef;
         this.offerType = offerType;
         this.capturedEnvironment = new ArrayList<VarInstance<? extends VarDef>>();
+        this.isStatic = Types.get(methodContainer).def().staticContext();
     }
     
     public Ref<? extends Type> offerType() {

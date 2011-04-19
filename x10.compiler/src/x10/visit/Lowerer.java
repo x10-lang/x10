@@ -658,9 +658,9 @@ public class Lowerer extends ContextVisitor {
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body,
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
+        closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
         closure.closureDef().setMethodContainer(Types.ref(mi));
-        closure.closureDef().setCapturedEnvironment(env);
         exprs.add(closure);
         types.add(closure.closureDef().asType());
         Stmt result = nf.Eval(pos,
