@@ -50,7 +50,7 @@ public class CUDAUtilities {
       : RemoteArray[T]{self.home==gpu, self.rank()==1} {
         val reg = (0 .. (numElements-1)) as Region;
         @Native("c++",
-            "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(FMGL(T)));\n"+
+            "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(TPMGL(T)));\n"+
             "RemoteIndexedMemoryChunk<TPMGL(T)> rimc(addr, numElements, gpu);\n"+
             "initCUDAArray<TPMGL(T)>(init,rimc,numElements);\n"+
             "return x10::array::RemoteArray<TPMGL(T)>::_make(reg, rimc);\n"
