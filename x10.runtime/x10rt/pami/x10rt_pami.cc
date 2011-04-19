@@ -154,7 +154,7 @@ unsigned expandTeams(unsigned numNewTeams)
 	return r;
 }
 
-void registerHandlers(pami_context_t context)
+void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 {
 	pami_result_t status = PAMI_ERROR;
 
@@ -189,6 +189,18 @@ void registerHandlers(pami_context_t context)
 	fn5.p2p = team_create_dispatch;
 	if ((status = PAMI_Dispatch_set(context, NEW_TEAM, fn5, NULL, hints)) != PAMI_SUCCESS)
 		error("Unable to register team_create_dispatch handler");
+
+	if (setSendImmediateLimit)
+	{
+		pami_configuration_t config;
+		config.name = PAMI_DISPATCH_SEND_IMMEDIATE_MAX;
+		if ((status = PAMI_Dispatch_query(context, STANDARD, &config, 1)) != PAMI_SUCCESS)
+			error("Unable to query PAMI_DISPATCH_SEND_IMMEDIATE_MAX");
+		state.sendImmediateLimit = config.value.intval;
+		#ifdef DEBUG
+			fprintf(stderr, "send immediate size is %u bytes\n", state.sendImmediateLimit);
+		#endif
+	}
 }
 
 /*
@@ -196,7 +208,9 @@ void registerHandlers(pami_context_t context)
  */
 pami_context_t getConcurrentContext()
 {
-	// for performance, assume and check the multi-context case first
+	if (state.numParallelContexts == 1) // no lookup needed when only one thread is used
+		return state.context[0];
+
 	pami_context_t context = pthread_getspecific(state.contextLookupTable);
 	if (context) return context;
 
@@ -215,7 +229,7 @@ pami_context_t getConcurrentContext()
 			#ifdef DEBUG
 				fprintf(stderr, "New worker thread %u detected at place %u.  Assigning it context %i\n", pthread_self(), state.myPlaceId, i);
 			#endif
-			registerHandlers(state.context[i]);
+			registerHandlers(state.context[i], !i);
 			pthread_setspecific(state.contextLookupTable, state.context[i]);
 			return state.context[i];
 		}
@@ -645,6 +659,12 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
 		memset(state.context, 0, state.numParallelContexts*sizeof(pami_context_t));
+		if (state.numParallelContexts == 1)
+		{   // pre-initialize when only one context is used, since no lookup is needed
+			if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[0], 1)) != PAMI_SUCCESS)
+				error("Unable to initialize the PAMI context: %i\n", status);
+			registerHandlers(state.context[0], true);
+		}
 	}
 	else
 	{
@@ -656,27 +676,20 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		#endif
 		if ((status = PAMI_Context_createv(state.client, NULL, 0, state.context, 1)) != PAMI_SUCCESS)
 			error("Unable to initialize the PAMI context: %i\n", status);
-		registerHandlers(state.context[0]);
+		registerHandlers(state.context[0], true);
 	}
 
 	if (pthread_key_create(&state.contextLookupTable, NULL) != 0)
 		error("Unable to allocate the thread-local-storage context lookup table");
 
-	pami_configuration_t configuration;
-	configuration.name = PAMI_CLIENT_TASK_ID;
-	if ((status = PAMI_Client_query(state.client, &configuration, 1)) != PAMI_SUCCESS)
-		error("Unable to query the PAMI_CLIENT_TASK_ID: %i\n", status);
-	state.myPlaceId = configuration.value.intval;
+	pami_configuration_t configuration[2];
+	configuration[0].name = PAMI_CLIENT_TASK_ID;
+	configuration[1].name = PAMI_CLIENT_NUM_TASKS;
 
-	configuration.name = PAMI_CLIENT_NUM_TASKS;
-	if ((status = PAMI_Client_query(state.client, &configuration, 1)) != PAMI_SUCCESS)
-		error("Unable to query PAMI_CLIENT_NUM_TASKS: %i\n", status);
-	state.numPlaces = configuration.value.intval;
-
-	configuration.name = PAMI_DISPATCH_SEND_IMMEDIATE_MAX;
-	if ((status = PAMI_Client_query(state.client, &configuration, 1)) != PAMI_SUCCESS)
-		error("Unable to query PAMI_DISPATCH_SEND_IMMEDIATE_MAX: %i\n", status);
-	state.sendImmediateLimit = configuration.value.intval;
+	if ((status = PAMI_Client_query(state.client, configuration, 2)) != PAMI_SUCCESS)
+		error("Unable to query the PAMI_CLIENT: %i\n", status);
+	state.myPlaceId = configuration[0].value.intval;
+	state.numPlaces = configuration[1].value.intval;
 
 	#ifdef DEBUG
 		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces); // TODO - deleteme
@@ -782,7 +795,6 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	#endif
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-
 
 	if (p->len + sizeof(p->type) <= state.sendImmediateLimit)
 	{
@@ -1269,7 +1281,9 @@ static void split_stage2 (pami_context_t   context,
 	pami_geometry_t parentGeometry = state.teams[cbd->teamIndex].geometry;
 	cbd->teamIndex = myNewTeamIndex;
 	// TODO - interestingly, the context that comes in via the method call is sometimes null.  Probably a PAMI bug.
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, (state.numParallelContexts==0)?state.context[0]:context, team_creation_complete, cbd);
+	if (context == NULL)
+		context = (state.numParallelContexts<=1)?state.context[0]:getConcurrentContext();
+	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, context, team_creation_complete, cbd);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
 
