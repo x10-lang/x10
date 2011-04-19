@@ -44,6 +44,9 @@ using namespace x10::lang;
 using namespace x10aux;
 using namespace std;
 
+// this __thread_start_trap gets used by the X10 debugger, to help it differentiate
+// an X10 worker thread from other threads in the application (GC, network, etc).
+extern "C" void __thread_start_trap() {}
 
 // initialize static data members
 long x10::lang::Thread::__thread_cnt = 0;
@@ -69,6 +72,7 @@ x10::lang::Thread::thread_start_routine(void *arg)
     pthread_mutex_unlock(&(tp->__thread_start_lock));
     // this thread is now running
     tp->__thread_running = true;
+    __thread_start_trap();
 
     tp->__apply();
 
@@ -175,6 +179,7 @@ Thread::thread_init(const ref<String> name)
         // then take over the current thread instead of creating a new one
         pthread_setspecific(__thread_mapper, this);
         __thread_running = true;
+        __thread_start_trap();
     }
     // create this thread's permit object
     thread_permit_init(&__thread_permit);
