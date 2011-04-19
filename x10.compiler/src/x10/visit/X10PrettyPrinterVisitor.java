@@ -3415,6 +3415,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(ForLoop_c f) {
+        assert (false) : "For loops should have been desugared";
         TypeSystem ts = tr.typeSystem();
 
         X10Formal form = (X10Formal) f.formal();

@@ -964,7 +964,7 @@ public class AltSynthesizer {
     public LocalDecl createLocalDecl(Position pos, LocalDef def, Expr init) {
         return nf.LocalDecl( pos.markCompilerGenerated(), 
                              nf.FlagsNode(pos, def.flags()),
-                             nf.CanonicalTypeNode(pos, def.type().get()), 
+                             nf.CanonicalTypeNode(pos, def.type()), 
                              nf.Id(pos, def.name()),
                              init ).localDef(def);
     }
@@ -980,7 +980,7 @@ public class AltSynthesizer {
     public LocalDecl createLocalDecl(X10Formal formal, Expr init) {
         return nf.LocalDecl( formal.position(),
                              formal.flags(),
-                             formal.type(),
+                             formal.type().typeRef(formal.localDef().type()), // adjust ref
                              formal.name(),
                              init ).localDef(formal.localDef());
     }
