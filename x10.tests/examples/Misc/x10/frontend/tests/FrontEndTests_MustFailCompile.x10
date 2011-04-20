@@ -1974,7 +1974,7 @@ class TestOnlyLocalVarAccess {
 	}
 	static def test0() {
 		var x:Int = 0;
-		at (here) x=20;
+		at (here) x=20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		x=10;
 		at (here.next()) 
 			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
@@ -1983,17 +1983,17 @@ class TestOnlyLocalVarAccess {
 		at (here.next()) {
 			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) 
-				x=3;
+				x=3; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place2) 
-				x=4;
+				x=4; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) at (place2) 
-				x=5;
+				x=5; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		}
 		Console.OUT.println(x);
 	}
 	def test1() {
 		var x:Int = 0;
-		at (here) x=20;
+		at (here) x=20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		x=10;
 		at (here.next()) 
 			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
@@ -2002,16 +2002,16 @@ class TestOnlyLocalVarAccess {
 		at (here.next()) {
 			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) 
-				x=3;
+				x=3; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place2) 
-				x=4;
+				x=4; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) at (place2) 
-				x=5;
+				x=5; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		}
 		Console.OUT.println(x);
 	}
 	def test2(var x:Int) {
-		at (here) x=20;
+		at (here) x=20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		x=10;
 		at (here.next()) 
 			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
@@ -2020,18 +2020,18 @@ class TestOnlyLocalVarAccess {
 		at (here.next()) {
 			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) 
-				x=3;
+				x=3; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place2) 
-				x=4;
+				x=4; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) at (place2) 
-				x=5;
+				x=5; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		}
 		Console.OUT.println(x);
 	}
 
 	def test3(a: DistArray[double](1)) {		
         var n: int = 1;
-		at (here) n=2;
+		at (here) n=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		finish ateach ([i] in a.dist | 
 			(0..n)) { // checks XTENLANG-1902
 			n++; // ERR: Local variable "n" is accessed at a different place, and must be declared final.
@@ -2044,7 +2044,7 @@ class TestValInitUsingAt { // see XTENLANG-1942
         val p = here;
         at (p.next())
           at (p)
-            x_tmp = 2;
+            x_tmp = 2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
         val x = x_tmp; // if we hadn't initialized x_tmp, then the dataflow would complain that "x_tmp" may not have been initialized
     }
 	static def testVal() {
@@ -2068,7 +2068,7 @@ class TestValInitUsingAt { // see XTENLANG-1942
 		val p = here;
 		at (p.next()) {
 			at (p)
-				x = 2;
+				x = 2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		}
 		at (here.next()) {
 			val z = x;
@@ -2080,7 +2080,7 @@ class TestValInitUsingAt { // see XTENLANG-1942
 		val p = here;
 		at (p.next()) {
 			at (p)
-				x = 2;
+				x = 2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		}
 		at (here.next())  {
 			val z = x; // ERR
@@ -4792,7 +4792,7 @@ class CopyBackTest {
         at(here.next()) {
             result1 = 3; // ERR
             at(start) {
-	            result2 = 3; // ShouldBeErr
+	            result2 = 3; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
             }
         }
 		use(result1); 
@@ -4808,7 +4808,7 @@ class CopyBackTest {
             result1 = 3; // ERR
 			use(result1); // ERR
             at(start) {
-	            result2 = 3;
+	            result2 = 3; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 				use(result1); // ShouldBeErr
 				use(result2);
             }
