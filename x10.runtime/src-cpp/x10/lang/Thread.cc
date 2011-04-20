@@ -70,6 +70,7 @@ x10::lang::Thread::thread_start_routine(void *arg)
         pthread_cond_wait(&(tp->__thread_start_cond), &(tp->__thread_start_lock));
     }
     pthread_mutex_unlock(&(tp->__thread_start_lock));
+    tp->thread_bind_cpu();
     // this thread is now running
     tp->__thread_running = true;
     __thread_start_trap();
@@ -92,6 +93,54 @@ Thread::_make(ref<x10::lang::String> name) {
 const serialization_id_t Thread::_serialization_id =
     DeserializationDispatcher::addDeserializer(Thread::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
+// method to bind the process to a single processor
+void Thread::thread_bind_cpu()
+{
+	// open the file specified by X10RT_CPUMAP
+	char * filename = getenv("X10RT_CPUMAP");
+	if (filename == NULL) return;
+#ifdef __USE_GNU
+	FILE * fd = fopen(filename, "r");
+	if (fd == NULL)
+	{
+		fprintf(stderr, "Unable to read %s, specified by X10RT_CPUMAP.  Continuing without cpu binding...\n", filename);
+		return;
+	}
+
+	int lineNumber = 0;
+	char buffer[32];
+	while (lineNumber <= x10aux::here)
+	{
+		char* s = fgets(buffer, sizeof(buffer), fd);
+		if (s == NULL)
+		{
+			fprintf(stderr, "Unable to bind place %u to a CPU because there %s only %i line%s in the file %s. Continuing without cpu binding...\n", x10aux::here, lineNumber==1?"is":"are", lineNumber, lineNumber==1?"":"s",filename);
+			fclose(fd);
+			return;
+		}
+
+		if (lineNumber < x10aux::here)
+		{
+			lineNumber++;
+			continue;
+		}
+
+		int processor = (int) strtol(s, (char **)NULL, 10);
+		if (processor==0 && (errno == EINVAL || errno == ERANGE))
+			fprintf(stderr, "Unable to bind place %u to CPU \"%s\": %s.  Continuing without cpu binding...\n", x10aux::here, s, strerror(errno));
+
+		cpu_set_t mask;
+		CPU_ZERO(&mask); // disable all CPUs (all are enabled by default)
+		CPU_SET(processor, &mask); // enable the one CPU specified in the file
+		if( sched_setaffinity(0, sizeof(mask), &mask ) == -1 )
+			fprintf(stderr, "Unable to bind place %u to CPU %i: %s. Continuing without cpu binding...\n", x10aux::here, processor, strerror(errno));
+		break;
+	}
+	fclose(fd);
+#else
+	fprintf(stderr, "X10RT_CPUMAP is not supported on this platform.  Continuing without cpu binding....\n");
+#endif
+}
 
 // Helper method to initialize a Thread object.
 void
@@ -178,6 +227,7 @@ Thread::thread_init(const ref<String> name)
         // hack: if this is the first worker thread ever created (in bootstrap.h)
         // then take over the current thread instead of creating a new one
         pthread_setspecific(__thread_mapper, this);
+        thread_bind_cpu();
         __thread_running = true;
         __thread_start_trap();
     }
