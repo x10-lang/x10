@@ -907,7 +907,7 @@ public class Emitter {
     // #6 = #Y$rtt = run-time Type object for B
     // #7 = #x = a
     // #8 = #y = b
-    public void emitNativeAnnotation(String pat, Object receiver, List<ParameterType> typeParams, List<Type> typeArgs, List<String> params, List<? extends Object> args, List<ParameterType> classTypeParams, List<Type> classTypeArgs) {
+	public void emitNativeAnnotation(String pat, Object receiver, List<ParameterType> typeParams, List<Type> typeArgs, List<String> params, List<? extends Object> args, List<ParameterType> classTypeParams, List<Type> classTypeArgs) {
 //      Object[] components = new Object[1 + typeArgs.size() * 3 + args.size() + classTypeArgs.size() * 3];
       Map<String,Object> components = new HashMap<String,Object>();
       int i = 0;
@@ -3289,16 +3289,21 @@ public class Emitter {
     		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
     		}
     		
-    		List<Type> typeArguments  = Collections.<Type>emptyList();
+	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
+    		List<Type> classTypeArguments  = Collections.<Type>emptyList();
     		if (mi.container().isClass() && !mi.flags().isStatic()) {
     		    X10ClassType ct = (X10ClassType) mi.container().toClass();
-    		    typeArguments = ct.typeArguments();
-    		    if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+	            classTypeParams = ct.x10Def().typeParameters();
+    		    classTypeArguments = ct.typeArguments();
+	            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+    		    if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
     		}
     		
+    		List<String> params = new ArrayList<String>();
     		List<CastExpander> args = new ArrayList<CastExpander>();
     		List<Expr> arguments = c.arguments();
     		for (int i = 0; i < arguments.size(); ++ i) {
+    		    params.add(mi.def().formalNames().get(i).name().toString());
     		    Type ft = c.methodInstance().def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
     		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
@@ -3313,7 +3318,8 @@ public class Emitter {
     		}
     		
     	    // WIP XTENLANG-2528
-    		emitNativeAnnotation(pat, targetArg, null, mi.typeParameters(), null, args, null, typeArguments);
+//    		emitNativeAnnotation(pat, targetArg, null, mi.typeParameters(), null, args, null, typeArguments);
+    		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
     		return true;
     	}
     	return false;
@@ -3322,16 +3328,21 @@ public class Emitter {
     public boolean printNativeNew(X10New_c c, X10ConstructorInstance mi) {
         String pat = getJavaImplForDef(mi.x10Def());
         if (pat != null) {
-            List<Type> typeArguments  = Collections.<Type>emptyList();
+	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
+            List<Type> classTypeArguments  = Collections.<Type>emptyList();
             if (mi.container().isClass() && !mi.flags().isStatic()) {
                 X10ClassType ct = (X10ClassType) mi.container().toClass();
-                typeArguments = ct.typeArguments();
-                if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+	            classTypeParams = ct.x10Def().typeParameters();
+                classTypeArguments = ct.typeArguments();
+	            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+                if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
             }
             
-            List<CastExpander> args = new ArrayList<CastExpander>();
+    		List<String> params = new ArrayList<String>();
+    		List<CastExpander> args = new ArrayList<CastExpander>();
             List<Expr> arguments = c.arguments();
             for (int i = 0; i < arguments.size(); ++ i) {
+    		    params.add(mi.def().formalNames().get(i).name().toString());
                 Type ft = c.constructorInstance().def().formalTypes().get(i).get();
                 Type at = arguments.get(i).type();
                 if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && Types.baseType(ft) instanceof ParameterType) {
@@ -3346,7 +3357,8 @@ public class Emitter {
             }
             
             // WIP XTENLANG-2528
-            emitNativeAnnotation(pat, null, null, Collections.<Type>emptyList(), null, args, null, typeArguments);
+//            emitNativeAnnotation(pat, null, Collections.<ParameterType>emptyList(), Collections.<Type>emptyList(), null, args, null, classTypeArguments);
+            emitNativeAnnotation(pat, null, Collections.<ParameterType>emptyList(), Collections.<Type>emptyList(), params, args, classTypeParams, classTypeArguments);
             return true;
         }
         return false;

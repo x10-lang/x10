@@ -1281,18 +1281,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (n.operator() == Assign.ASSIGN) {
             // Look for the appropriate set method on the array and emit native
-            // code if there is an
-            // @Native annotation on it.
-            List<Expr> args = new ArrayList<Expr>(index.size() + 1);
-            // args.add(array);
-            args.add(n.right());
-            for (Expr e : index)
-                args.add(e);
+            // code if there is an @Native annotation on it.
             String pat = Emitter.getJavaImplForDef(mi.x10Def());
-
             if (pat != null) {
+        		List<String> params = new ArrayList<String>(index.size());
+                List<Expr> args = new ArrayList<Expr>(index.size() + 1);
+                // args.add(array);
+                args.add(n.right());
+                for (int i = 0; i < index.size(); ++i) {
+        		    params.add(mi.def().formalNames().get(i).name().toString());
+                	args.add(index.get(i));
+                }
+            	
         	    // WIP XTENLANG-2528
-                er.emitNativeAnnotation(pat, array, null, mi.typeParameters(), null, args, null, Collections.<Type> emptyList());
+//                er.emitNativeAnnotation(pat, array, null, mi.typeParameters(), null, args, Collections.<ParameterType>emptyList(), Collections.<Type> emptyList());
+                er.emitNativeAnnotation(pat, array, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, Collections.<ParameterType>emptyList(), Collections.<Type> emptyList());
                 return;
             } else {
                 // otherwise emit the hardwired code.
