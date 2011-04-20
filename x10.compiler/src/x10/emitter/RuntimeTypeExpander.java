@@ -12,7 +12,9 @@
 package x10.emitter;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.types.Type;
 import polyglot.visit.Translator;
@@ -125,14 +127,21 @@ final public class RuntimeTypeExpander extends Expander {
                 return;
             }
             else {
-            	Object[] components = new Object[1 + typeArgs.size() * 2];
+            	Map<String,Object> components = new HashMap<String,Object>();
             	int i = 0;
-            	components[i++] = new TypeExpander(er, ct, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+            	Object component;
+            	component =  new TypeExpander(er, ct, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+            	components.put(String.valueOf(i++), component);
+            	// TODO put with name
             	for (Type at : typeArgs) {
-            		components[i++] = new TypeExpander(er, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-            		components[i++] = new RuntimeTypeExpander(er, at);
+            		component = new TypeExpander(er, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                	components.put(String.valueOf(i++), component);
+                	// TODO put with name
+            		component = new RuntimeTypeExpander(er, at);
+                	components.put(String.valueOf(i++), component);
+                	// TODO put with name
             	}
-            	er.dumpRegex("NativeRep", components, tr, pat);
+            	er.dumpRegex("NativeRep(JavaRTTRep)", components, tr, pat);
             	return;
             }
         }

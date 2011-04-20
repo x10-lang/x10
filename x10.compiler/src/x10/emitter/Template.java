@@ -11,6 +11,7 @@
 
 package x10.emitter;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import polyglot.visit.Translator;
@@ -25,31 +26,35 @@ import polyglot.visit.Translator;
 @Deprecated
 public class Template extends Expander {
 	private final String id;
-	private final Object[] args;
 	private final String regex;
-	
-	private Template(Emitter er, String id, String regex, Object... args) {
+	private final Map<String,Object> components;
+
+	private Template(Emitter er, String id, String regex, Map<String,Object> components) {
 		super(er);
 		
         assert id != null;
 		this.id = id;
 		this.regex = regex;
 		assert regex != null;
-		this.args = args;
+		this.components = components;
 	}
-	
-	public static Template createTemplateFromRegex(Emitter er, String id, String regex, Object... args) {
-	    return new Template(er, id, regex, args);
+
+	public static Template createTemplateFromRegex(Emitter er, String id, String regex, Map<String,Object> components) {
+	    return new Template(er, id, regex, components);
 	}
-	
-    @Override
+
+	@Override
 	public void expand(Translator tr) {
-    	er.dumpRegex(id, args, tr, regex);
+		er.dumpRegex(id, components, tr, regex);
 	}
     
     @Override
 	public String toString() {
-		return id + " " + Emitter.convertToString(args);
+    	ArrayList<Object> l = new ArrayList<Object>();
+    	for (Map.Entry<String, Object> e : components.entrySet()) {
+    		l.add(e);
+    	}
+		return id + " " + Emitter.convertToString(l.toArray());
 	}
 	
 }
