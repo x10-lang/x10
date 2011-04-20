@@ -660,7 +660,8 @@ public class WSCodePreprocessor extends ContextVisitor {
         }
         Receiver r; 
         //decide the right method: instance of static
-        if(ct.inStaticContext()){
+        
+        if(mDef.flags().isStatic()){
             r = nf.CanonicalTypeNode(compilerPos, ct.currentClass());
         }
         else{
