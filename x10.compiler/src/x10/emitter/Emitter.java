@@ -123,6 +123,10 @@ public class Emitter {
     // XTENLANG-2463
     private static final boolean mangleTypeVariable = true;
     private static final String PARAMETER_TYPE_PREFIX = "$";
+    
+    // XTENLANG-2528
+    private static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
+    private static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
@@ -864,62 +868,114 @@ public class Emitter {
 
     // WIP XTENLANG-2528
     // See MessagePassingCodeGenerator.java
-    /* @Native(lang, code) : annotation to mark methods and fields as having a particular native implementation.
+    /**
+     * Annotation to mark methods and fields as having a particular native implementation.
      * lang is the name of the language, typically "java" or "c++".
      * code is the code to insert for a call to the method or an access to the field.
-     * For "java" annotations: Given a method with signature: def m[X, Y](x, y); and a call o.m[A, B](a, b); #0 = o #1 = A #2 = boxed representation of A #3 = run-time Type object for A #4 = B #5 = boxed representation of B #6 = run-time Type object for B #7 = a #8 = b
-     * For "c++" annotations: As for "java" except boxed and run-time representations of type vars should not be used. Also there is also the capability to refer to type params and method params by name: #this = o #X = A #Y = B #x = a #y = b
+     *
+     * For "java" annotations:
+     *
+     * Given a method with signature:
+     *     def m[X, Y](x, y);
+     * and a call
+     *     o.m[A, B](a, b);
+     * #0 = o
+     * #1 = A
+     * #2 = boxed representation of A
+     * #3 = run-time Type object for A
+     * #4 = B
+     * #5 = boxed representation of B
+     * #6 = run-time Type object for B
+     * #7 = a
+     * #8 = b
+     *
+     * For "c++" annotations:
+     *
+     * As for "java" except boxed and run-time representations of type vars should not be used.  Also there is also the capability to refer to type params and method params by name:
+     * #this = o
+     * #X = A
+     * #Y = B
+     * #x = a
+     * #y = b
      */
     // #0 = #this = o
-    // #1 = #A = A
-    // #2 = #$boxof(A) = boxed representation of A
-    // #3 = #$typeof(A) = run-time Type object for A
-    // #4 = #B = B
-    // #5 = #$boxof(B) = boxed representation of B
-    // #6 = #$typeof(B) = run-time Type object for B
-    // #7 = #a = a
-    // #8 = #b = b
-    public void emitNativeAnnotation(String pat, Object receiver, List<Type> types, List<? extends Object> args, List<Type> typeArguments) {
-//        Object[] components = new Object[1 + types.size() * 3 + args.size() + typeArguments.size() * 3];
-        Map<String,Object> components = new HashMap<String,Object>();
-        int i = 0;
-        Object component;
-        if (receiver != null) {
-            component = receiver;
-            components.put(String.valueOf(i++), component);
-            components.put("this", component);
-        } else {
-            i++;
-        }
-        for (Type at : types) {
-            component = new TypeExpander(this, at, true, false, false);
-            components.put(String.valueOf(i++), component);
-            // TODO put with name
-            component = new TypeExpander(this, at, true, true, false);
-            components.put(String.valueOf(i++), component);
-            // TODO put with name
-            component = new RuntimeTypeExpander(this, at);
-            components.put(String.valueOf(i++), component);
-            // TODO put with name
-        }
-        for (Object e : args) {
-            component = e;
-            components.put(String.valueOf(i++), component);
-            // TODO put with name
-        }
-        for (Type at : typeArguments) {
-            component = new TypeExpander(this, at, true, false, false);
-            components.put(String.valueOf(i++), component);
-            // TODO put with name
-            component = new TypeExpander(this, at, true, true, false);
-            components.put(String.valueOf(i++), component);
-            // TODO put with name
-            component = new RuntimeTypeExpander(this, at);
-            components.put(String.valueOf(i++), component);
-            // TODO put with name
-        }
-        this.dumpRegex("Native", components, tr, pat);
-    }
+    // #1 = #X = A
+    // #2 = #X$box = boxed representation of A
+    // #3 = #X$rtt = run-time Type object for A
+    // #4 = #Y = B
+    // #5 = #Y$box = boxed representation of B
+    // #6 = #Y$rtt = run-time Type object for B
+    // #7 = #x = a
+    // #8 = #y = b
+    public void emitNativeAnnotation(String pat, Object receiver, List<ParameterType> typeParams, List<Type> typeArgs, List<String> params, List<? extends Object> args, List<ParameterType> classTypeParams, List<Type> classTypeArgs) {
+//      Object[] components = new Object[1 + typeArgs.size() * 3 + args.size() + classTypeArgs.size() * 3];
+      Map<String,Object> components = new HashMap<String,Object>();
+      int i = 0;
+      Object component;
+      String name;
+      if (receiver != null) {
+          component = receiver;
+          components.put(String.valueOf(i++), component);
+          components.put("this", component);
+      } else {
+          i++;
+      }
+      Iterator<ParameterType> typeParamsIter = null;
+      if (typeParams != null) {
+    	  typeParamsIter = typeParams.iterator();
+      }
+      for (Type at : typeArgs) {
+          if (typeParamsIter != null) {
+        	  name = typeParamsIter.next().name().toString();
+          } else {
+        	  name = null;
+          }
+          component = new TypeExpander(this, at, true, false, false);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name, component); }
+          component = new TypeExpander(this, at, true, true, false);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
+          component = new RuntimeTypeExpander(this, at);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
+      }
+      Iterator<String> paramsIter = null;
+      if (params != null) {
+    	  paramsIter = params.iterator();
+      }
+      for (Object e : args) {
+    	  if (paramsIter != null) {
+    		  name = paramsIter.next();
+    	  } else {
+    		  name = null;
+    	  }
+          component = e;
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name, component); }
+      }
+      Iterator<ParameterType> classTypeParamsIter = null;
+      if (classTypeParams != null) {
+    	  classTypeParamsIter = classTypeParams.iterator();
+      }
+      for (Type at : classTypeArgs) {
+          if (classTypeParamsIter != null) {
+        	  name = classTypeParamsIter.next().name().toString();
+          } else {
+        	  name = null;
+          }
+          component = new TypeExpander(this, at, true, false, false);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name, component); }
+          component = new TypeExpander(this, at, true, true, false);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
+          component = new RuntimeTypeExpander(this, at);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
+      }
+      this.dumpRegex("Native", components, tr, pat);
+  }
 
 	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 
@@ -3222,18 +3278,17 @@ public class Emitter {
 
     public boolean printNativeMethodCall(X10Call c) {
         TypeSystem xts = tr.typeSystem();
-    
-        Receiver target = c.target();
-        Type t = target.type();
-    
         MethodInstance mi = c.methodInstance();
         String pat = getJavaImplForDef(mi.x10Def());
     	if (pat != null) {
+            Receiver target = c.target();
+            Type t = target.type();
     	    boolean cast = xts.isParameterType(t) || X10PrettyPrinterVisitor.hasParams(t);
     		CastExpander targetArg = new CastExpander(w, this, target);
     		if (cast) {
     		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
     		}
+    		
     		List<Type> typeArguments  = Collections.<Type>emptyList();
     		if (mi.container().isClass() && !mi.flags().isStatic()) {
     		    X10ClassType ct = (X10ClassType) mi.container().toClass();
@@ -3256,7 +3311,9 @@ public class Emitter {
     		        args.add(new CastExpander(w, this, arguments.get(i)));                                    
     		    }
     		}
-    		emitNativeAnnotation(pat, targetArg, mi.typeParameters(), args, typeArguments);
+    		
+    	    // WIP XTENLANG-2528
+    		emitNativeAnnotation(pat, targetArg, null, mi.typeParameters(), null, args, null, typeArguments);
     		return true;
     	}
     	return false;
@@ -3271,6 +3328,7 @@ public class Emitter {
                 typeArguments = ct.typeArguments();
                 if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
             }
+            
             List<CastExpander> args = new ArrayList<CastExpander>();
             List<Expr> arguments = c.arguments();
             for (int i = 0; i < arguments.size(); ++ i) {
@@ -3286,7 +3344,9 @@ public class Emitter {
                     args.add(new CastExpander(w, this, arguments.get(i)));                                    
                 }
             }
-            emitNativeAnnotation(pat, null, Collections.<Type>emptyList(), args, typeArguments);
+            
+            // WIP XTENLANG-2528
+            emitNativeAnnotation(pat, null, null, Collections.<Type>emptyList(), null, args, null, typeArguments);
             return true;
         }
         return false;

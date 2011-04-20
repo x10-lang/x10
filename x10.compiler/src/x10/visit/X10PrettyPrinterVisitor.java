@@ -1291,7 +1291,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             String pat = Emitter.getJavaImplForDef(mi.x10Def());
 
             if (pat != null) {
-                er.emitNativeAnnotation(pat, array, mi.typeParameters(), args, Collections.<Type> emptyList());
+        	    // WIP XTENLANG-2528
+                er.emitNativeAnnotation(pat, array, null, mi.typeParameters(), null, args, null, Collections.<Type> emptyList());
                 return;
             } else {
                 // otherwise emit the hardwired code.
