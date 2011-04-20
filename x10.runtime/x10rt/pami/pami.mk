@@ -47,6 +47,10 @@ ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
   MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/ppe.poe/lib
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
+ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/ppe.poe/lib
+  MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
+endif
 
 TESTS += $(patsubst test/%,test/%.pami,$(BASE_TESTS))
 LIB_FILE_PAMI = lib/$(LIBPREFIX)x10rt_pami$(LIBSUFFIX)
