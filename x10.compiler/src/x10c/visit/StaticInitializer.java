@@ -1104,8 +1104,7 @@ public class StaticInitializer extends ContextVisitor {
         MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
 
         // get full path class name
-        Package p = Types.get(classDef.package_());
-        String fullName = (p != null ? p.toString() + "." : "") + getClassName(classDef);
+        String fullName = getPackageName(classDef) + getClassName(classDef);
 
         // actual arguments
         List<Expr> args = new ArrayList<Expr>();
@@ -1132,6 +1131,13 @@ public class StaticInitializer extends ContextVisitor {
                 name = getClassName(outer) +'$' + name;
         }
         return name;
+    }
+
+    private String getPackageName(ClassDef classDef) {
+        if (classDef.isNested())
+            return getPackageName(Types.get(classDef.outer()));
+        Package p = Types.get(classDef.package_());
+        return (p != null ? p.toString() + "." : "");
     }
 
     private StaticFieldInfo getFieldEntry(Type target, Name name) {
