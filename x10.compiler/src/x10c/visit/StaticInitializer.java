@@ -376,7 +376,9 @@ public class StaticInitializer extends ContextVisitor {
         // traverse nodes in RHS
         Id leftName = fd.name();
 
+        // true means "found something not suitable for per-place initialization"
         final AtomicBoolean found = new AtomicBoolean(false);
+        final boolean deep_analysis = opts.x10_config.STATICS_PER_PLACE_ANALYSIS;
         Expr newRhs = (Expr)rhs.visit(new NodeVisitor() {
             @Override
             public Node override(Node parent, Node n) {
@@ -395,7 +397,7 @@ public class StaticInitializer extends ContextVisitor {
                     MethodInstance mi = call.methodInstance();
                     if (!mi.container().isClass() || call.target().type().isNumeric()) { 
                         // allow method calls on non-objects or numerics
-                    } else if (mi.flags().isStatic()) {
+                    } else if (deep_analysis && mi.flags().isStatic()) {
                         // found reference to static method
                         X10MethodDecl mdecl = getMethodDeclaration(mi);
                         if (mdecl == null || checkProcedureBody(mdecl.body(), 0)) {
@@ -404,7 +406,7 @@ public class StaticInitializer extends ContextVisitor {
                             return n;
                         }
                     } else {
-                        // non-static method call
+                        // non-static method call or no deep analysis
                         found.set(true);
                         return n;
                     }
@@ -418,12 +420,18 @@ public class StaticInitializer extends ContextVisitor {
                         }
                     }
                 } else if (n instanceof X10New_c) {
-                    X10New_c neu = (X10New_c)n;
-                    X10ConstructorInstance ci = neu.constructorInstance();
-                    // get declaration of constructor
-                    X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
-                    if (cdecl != null && checkProcedureBody(cdecl.body(), 0)) {
-                        // unsafe constructor
+                    if (deep_analysis) {
+                        X10New_c neu = (X10New_c)n;
+                        X10ConstructorInstance ci = neu.constructorInstance();
+                        // get declaration of constructor
+                        X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
+                        if (cdecl == null || checkProcedureBody(cdecl.body(), 0)) {
+                            // unsafe constructor
+                            found.set(true);
+                            return n;
+                        }
+                    } else {
+                        // deep analysis disabled
                         found.set(true);
                         return n;
                     }
@@ -551,10 +559,10 @@ public class StaticInitializer extends ContextVisitor {
         if (r != null)
             return (r == Boolean.TRUE);
 
-        // Cut the search tree early. returning true,
+        // Cut the search tree to avoid overly long compilation time.
         // True means centralized place-0 initialization is necessary,
         // which is a safe conservative assumption.
-        if (count > 1) return true;
+        if (count > 7) return true;
 
         // check static field references in the body of constructor or method
         final AtomicBoolean found = new AtomicBoolean(false);
