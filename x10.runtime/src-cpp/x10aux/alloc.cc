@@ -155,8 +155,64 @@ static void ensure_init_congruent (size_t req_size) {
     char *size_ = x10aux::get_congruent_size();
     size_t size = size_!=NULL ? strtoull(size_,NULL,0) : 0;
 
+    long page = 0;
+
+    // get the page size
+    if (x10aux::get_congruent_huge()) {
+
+        #if defined(__linux__)
+
+        // on linux, the huge page size must be read from /proc
+        FILE *f = fopen("/proc/meminfo","r");
+        if (f==NULL) perror("fopening /proc/meminfo");
+        bool eof = false;
+        while (!eof) {
+            char *lineptr = NULL;
+            size_t sz;
+            ssize_t r = mygetline(&lineptr,&sz,f);
+            eof = r == -1;
+            if (!eof) {
+                char *saveptr;
+                const char *key_c = strtok_r(lineptr,":",&saveptr);
+                if (key_c == NULL) { fprintf(stderr, "Formatting error in /proc/meminfo!\n"); abort(); }
+                if (strcmp(key_c,"Hugepagesize") == 0) {
+                    const char *val_c   = strtok_r(NULL,"k",&saveptr);
+                    if (val_c == NULL) { fprintf(stderr, "Formatting error in /proc/meminfo!!\n"); abort(); }
+                    size_t val = strtoull(val_c,NULL,10);
+                    page = val * 1024;
+                    break;
+                }
+            }
+            ::free(lineptr);
+        }
+        fclose(f);
+
+        #elif defined(__aix)
+
+        page = 16 * 1024 * 1024; // 16MB
+
+        #else
+
+        fprintf(stderr, "Using huge pages for congruent memory is not supported on your platform.  Please unset "ENV_CONGRUENT_HUGE".\n");
+        abort();
+
+        #endif
+
+    } else {
+        // do not use PAGE_SIZE as the compile-time value may not reflect the machine the code runs on
+        page = sysconf(_SC_PAGESIZE); 
+    }
+
+    if (page == 0) {
+        fprintf(stderr, "Was not able to determine the page size!\n");
+        abort();
+    }
+
     // if it's the first allocation, may as well make it big enough -- further allocations will fail
     if (size < req_size) size = req_size;
+
+    // round it up to the nearest page
+    size = ((size+page-1) / page) * page;
 
     congruent_sz = size;
 
@@ -176,18 +232,14 @@ static void ensure_init_congruent (size_t req_size) {
 
         // we are assuming that huge pages (being very special) are going to always occupy the same virtual address space
 
-        #if !defined(_AIX) && !defined(__linux__)
-            fprintf(stderr, "Using huge pages for congruent memory is not supported on your platform.  Please unset "ENV_CONGRUENT_HUGE".\n");
-            abort();
-        #elif defined(__linux__) && !defined(SHM_HUGETLB)
+        #if defined(__linux__) && !defined(SHM_HUGETLB)
             fprintf(stderr, "Using huge pages for congruent memory is only supported on Linux >= 2.6.  Please unset "ENV_CONGRUENT_HUGE".\n");
             abort();
         #elif defined(_AIX) && !defined(SHM_PAGESIZE)
             fprintf(stderr, "This AIX system appears not to have SHM_PAGESIZE.  Please unset "ENV_CONGRUENT_HUGE".\n");
             abort();
         #else
-            // ok let's go for it
-
+            // ok let's go
             int shmflag = 0;
             shmflag |= SHM_R | SHM_W; // permissions
             //shmflag |= IPC_CREAT|IPC_EXCL; // make a new allocation, ensure it is unique
@@ -205,37 +257,17 @@ static void ensure_init_congruent (size_t req_size) {
             #ifdef __aix
             // on AIX we ask for pages of a particular size
             struct shmid_ds shm_buf = { 0 };
-            shm_buf.shm_pagesize = 16 * 1024 * 1024; // 16MB
+            shm_buf.shm_pagesize = page;
             if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
-                std::cerr << "Could not get 16M pages" << std::endl;
+                fprintf(stderr, "Could not get 16M pages\n");
                 abort();
             }
             #endif
+
+            obj = shmat(shm_id,0,0);  // 'attach' the shared memory at any arbitrary address (seemingly, this is always the same)
+            shmctl(shm_id, IPC_RMID, NULL); // mark for destruction, will be deallocated when shmdt is called (for x10, never)
         #endif
 
-
-    obj = shmat(shm_id,0,0);  // 'attach' the shared memory at any arbitrary address (seemingly, this is always the same)
-    shmctl(shm_id, IPC_RMID, NULL); // mark for destruction, will be deallocated when shmdt is called (for x10, never)
-
-    #if 0
-    #ifdef __aix
-    // (validated at MS9B, comment back in to check)
-    for (char *p = (char*)obj; p < ((char*)obj) + size;) {
-        struct vm_page_info pginfo;
-        pginfo.addr = (uint64_t) (size_t) p;
-        vmgetinfo(&pginfo,VM_PAGE_INFO,sizeof(struct vm_page_info));
-        if (pginfo.pagesize < 64*1024) {
-            fprintf(stderr, "alloc_internal_congruent: Found a page smaller than 64K at %p of %p\n", p, obj);
-            abort();
-        }
-        if (pginfo.pagesize < 16*1024*1024) {
-            fprintf(stderr, "alloc_internal_congruent: Found a page smaller than 16M at %p of %p (not checking for any more)\n", p, obj);
-            break;
-        }
-        p += pginfo.pagesize;
-    }
-    #endif
-    #endif
 
     } else {
 
@@ -273,10 +305,8 @@ static void ensure_init_congruent (size_t req_size) {
             #endif
             size_t base_addr = base_addr_!=NULL ? strtoull(base_addr_,NULL,0) : default_base_addr;
 
-            // do not use PAGE_SIZE as the compile-time value may not reflect the machine the code runs on
-            long page = sysconf(_SC_PAGESIZE); 
             if (base_addr % page) {
-                fprintf(stderr, ENV_CONGRUENT_BASE"=%llx is not a multiple of _SC_PAGESIZE (%llx)\n",
+                fprintf(stderr, ENV_CONGRUENT_BASE"=0x%llx is not a multiple of the page size (0x%llx)\n",
                         (unsigned long long)base_addr, (unsigned long long)page);
                 abort();
             }
