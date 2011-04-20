@@ -26,6 +26,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.errors.Errors;
+import x10.types.X10Context_c;
 import x10.types.X10LocalInstance;
 import x10.types.checker.Checker;
 
@@ -48,10 +50,16 @@ public class X10LocalAssign_c extends LocalAssign_c {
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {
-        if (local().flags().isFinal()) { // final locals are checked for local access only on assignment (reading a final local can be done from any place)
-            final X10Local_c local = (X10Local_c) local();
-            local.checkLocalAccess(local.localInstance(), tc);
+        // XTENLANG-2660
+        X10Context_c context = (X10Context_c) tc.context();
+        Name name = local().name().id();
+        if (context.localHasAt(name)) {
+            Errors.issue(tc.job(), new Errors.LocalVariableAccessedAtDifferentPlace(name, local().position()));
         }
+        //if (local().flags().isFinal()) { // final locals are checked for local access only on assignment (reading a final local can be done from any place)
+        //    final X10Local_c local = (X10Local_c) local();
+        //    local.checkLocalAccess(local.localInstance(), tc);
+        //}
         return Checker.typeCheckAssign(this, tc);
     }
 

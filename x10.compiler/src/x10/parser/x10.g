@@ -928,42 +928,44 @@
         /.$BeginJava
 			r.rule_AtStatement0(PlaceExpressionSingleList,Statement);
         $EndJava./
-                  | at ( PlaceExpression ; * ) Statement
-        /.$BeginJava
-			r.rule_AtStatement0(PlaceExpression,Statement);
-        $EndJava./
-                  | at ( PlaceExpression ; AtCaptureDeclaratorsopt ) Statement
-        /.$BeginJava
-			r.rule_AtStatement1(PlaceExpression,AtCaptureDeclaratorsopt,Statement);
-        $EndJava./
-                  | athome ( HomeVariableList ) Statement
-        /.$BeginJava
-			r.rule_AtStatement2(HomeVariableList,Statement);
-        $EndJava./
-                  | athome ( HomeVariableList ; * ) Statement
-        /.$BeginJava
-			r.rule_AtStatement2(HomeVariableList,Statement);
-        $EndJava./
-                  | athome ( HomeVariableList ; AtCaptureDeclaratorsopt ) Statement
-        /.$BeginJava
-			r.rule_AtStatement3(HomeVariableList,AtCaptureDeclaratorsopt,Statement);
-        $EndJava./
-                  | athome Statement
-        /.$BeginJava
-			r.rule_AtStatement4(Statement);
-        $EndJava./
-                  | athome ( * ) Statement
-        /.$BeginJava
-			r.rule_AtStatement4(Statement);
-        $EndJava./
-                  | athome ( * ; * ) Statement
-        /.$BeginJava
-			r.rule_AtStatement4(Statement);
-        $EndJava./
-                  | athome ( * ; AtCaptureDeclaratorsopt ) Statement
-        /.$BeginJava
-			r.rule_AtStatement5(AtCaptureDeclaratorsopt,Statement);
-        $EndJava./
+-- Begin XTENLANG-2660
+--                  | at ( PlaceExpression ; * ) Statement
+--        /.$BeginJava
+--			r.rule_AtStatement0(PlaceExpression,Statement);
+--        $EndJava./
+--                  | at ( PlaceExpression ; AtCaptureDeclaratorsopt ) Statement
+--        /.$BeginJava
+--			r.rule_AtStatement1(PlaceExpression,AtCaptureDeclaratorsopt,Statement);
+--        $EndJava./
+--                  | athome ( HomeVariableList ) Statement
+--        /.$BeginJava
+--			r.rule_AtStatement2(HomeVariableList,Statement);
+--        $EndJava./
+--                  | athome ( HomeVariableList ; * ) Statement
+--        /.$BeginJava
+--			r.rule_AtStatement2(HomeVariableList,Statement);
+--        $EndJava./
+--                  | athome ( HomeVariableList ; AtCaptureDeclaratorsopt ) Statement
+--        /.$BeginJava
+--			r.rule_AtStatement3(HomeVariableList,AtCaptureDeclaratorsopt,Statement);
+--        $EndJava./
+--                  | athome Statement
+--        /.$BeginJava
+--			r.rule_AtStatement4(Statement);
+--        $EndJava./
+--                  | athome ( * ) Statement
+--        /.$BeginJava
+--			r.rule_AtStatement4(Statement);
+--        $EndJava./
+--                  | athome ( * ; * ) Statement
+--        /.$BeginJava
+--			r.rule_AtStatement4(Statement);
+--        $EndJava./
+--                  | athome ( * ; AtCaptureDeclaratorsopt ) Statement
+--        /.$BeginJava
+--			r.rule_AtStatement5(AtCaptureDeclaratorsopt,Statement);
+--        $EndJava./
+-- End XTENLANG-2660
 
     AtomicStatement ::= atomic Statement
         /.$BeginJava
@@ -1181,42 +1183,44 @@
         /.$BeginJava
 			r.rule_AtExpression0(PlaceExpressionSingleList,ClosureBody);
         $EndJava./
-                   | at ( PlaceExpression ; * ) ClosureBody
-        /.$BeginJava
-			r.rule_AtExpression0(PlaceExpression,ClosureBody);
-        $EndJava./
-                   | at ( PlaceExpression ; AtCaptureDeclaratorsopt ) ClosureBody
-        /.$BeginJava
-			r.rule_AtExpression1(PlaceExpression,AtCaptureDeclaratorsopt,ClosureBody);
-        $EndJava./
-                   | athome ( HomeVariableList ) ClosureBody
-        /.$BeginJava
-			r.rule_AtExpression2(HomeVariableList,ClosureBody);
-        $EndJava./
-                   | athome ( HomeVariableList ; * ) ClosureBody
-        /.$BeginJava
-			r.rule_AtExpression2(HomeVariableList,ClosureBody);
-        $EndJava./
-                   | athome ( HomeVariableList ; AtCaptureDeclaratorsopt ) ClosureBody
-        /.$BeginJava
-			r.rule_AtExpression3(HomeVariableList,AtCaptureDeclaratorsopt,ClosureBody);
-        $EndJava./
-                   | athome ClosureBody
-        /.$BeginJava
-			r.rule_AtExpression4(ClosureBody);
-        $EndJava./
-                   | athome ( * ) ClosureBody
-        /.$BeginJava
-			r.rule_AtExpression4(ClosureBody);
-        $EndJava./
-                   | athome ( * ; * ) ClosureBody
-        /.$BeginJava
-			r.rule_AtExpression4(ClosureBody);
-        $EndJava./
-                   | athome ( * ; AtCaptureDeclaratorsopt ) ClosureBody
-        /.$BeginJava
-			r.rule_AtExpression5(AtCaptureDeclaratorsopt,ClosureBody);
-        $EndJava./
+-- Begin XTENLANG-2660
+--                   | at ( PlaceExpression ; * ) ClosureBody
+--        /.$BeginJava
+--			r.rule_AtExpression0(PlaceExpression,ClosureBody);
+--        $EndJava./
+--                   | at ( PlaceExpression ; AtCaptureDeclaratorsopt ) ClosureBody
+--        /.$BeginJava
+--			r.rule_AtExpression1(PlaceExpression,AtCaptureDeclaratorsopt,ClosureBody);
+--        $EndJava./
+--                   | athome ( HomeVariableList ) ClosureBody
+--        /.$BeginJava
+--			r.rule_AtExpression2(HomeVariableList,ClosureBody);
+--        $EndJava./
+--                   | athome ( HomeVariableList ; * ) ClosureBody
+--        /.$BeginJava
+--			r.rule_AtExpression2(HomeVariableList,ClosureBody);
+--        $EndJava./
+--                   | athome ( HomeVariableList ; AtCaptureDeclaratorsopt ) ClosureBody
+--        /.$BeginJava
+--			r.rule_AtExpression3(HomeVariableList,AtCaptureDeclaratorsopt,ClosureBody);
+--        $EndJava./
+--                   | athome ClosureBody
+--        /.$BeginJava
+--			r.rule_AtExpression4(ClosureBody);
+--        $EndJava./
+--                   | athome ( * ) ClosureBody
+--        /.$BeginJava
+--			r.rule_AtExpression4(ClosureBody);
+--        $EndJava./
+--                   | athome ( * ; * ) ClosureBody
+--        /.$BeginJava
+--			r.rule_AtExpression4(ClosureBody);
+--        $EndJava./
+--                   | athome ( * ; AtCaptureDeclaratorsopt ) ClosureBody
+--        /.$BeginJava
+--			r.rule_AtExpression5(AtCaptureDeclaratorsopt,ClosureBody);
+--        $EndJava./
+-- End XTENLANG-2660
 
     FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
