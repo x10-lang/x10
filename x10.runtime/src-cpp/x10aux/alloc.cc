@@ -20,17 +20,21 @@
 #include <x10/lang/OutOfMemoryError.h>
 
 #ifdef _AIX
-#define PAGESIZE_4K  0x1000
-#define PAGESIZE_64K 0x10000
-#define PAGESIZE_16M 0x1000000
-#include <sys/ipc.h>
-#include <sys/shm.h>
 #include <sys/vminfo.h>
-#else
-#include <unistd.h>
-#include <sys/mman.h>
 #endif
 
+
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+#include <sys/mman.h>
+
+// darwin doesn't have MAP_ANONYMOUS but it does have MAP_ANON which does the same thing
+#ifdef __APPLE__
+#ifndef MAP_ANONYMOUS
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+#endif
 
 using namespace x10aux;
 
@@ -165,111 +169,169 @@ static void ensure_init_congruent (size_t req_size) {
     // otherwise, we have some very system-specific work to do...
     void *obj;
 
-#ifdef _AIX
-    int shm_id=shmget(IPC_PRIVATE, size, (IPC_CREAT|IPC_EXCL|0600));
-    if (shm_id == -1) {
-        std::cerr << "shmget failure" << std::endl;
-        abort();
-    }
-    struct shmid_ds shm_buf = { 0 };
-    shm_buf.shm_pagesize = PAGESIZE_16M;
-    if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
-        std::cerr << "Could not get 16M pages" << std::endl;
-        abort();
-    }
+    if (x10aux::get_congruent_huge()) {
+
+        // huge pages are useful for performance, e.g. due to reducing TLB misses
+        // they are non-standard, currently aix and linux are supported.
+
+        // we are assuming that huge pages (being very special) are going to always occupy the same virtual address space
+
+        #if !defined(_AIX) && !defined(__linux__)
+            fprintf(stderr, "Using huge pages for congruent memory is not supported on your platform.  Please unset "ENV_CONGRUENT_HUGE".\n");
+            abort();
+        #elif defined(__linux__) && !defined(SHM_HUGETLB)
+            fprintf(stderr, "Using huge pages for congruent memory is only supported on Linux >= 2.6.  Please unset "ENV_CONGRUENT_HUGE".\n");
+            abort();
+        #elif defined(_AIX) && !defined(SHM_PAGESIZE)
+            fprintf(stderr, "This AIX system appears not to have SHM_PAGESIZE.  Please unset "ENV_CONGRUENT_HUGE".\n");
+            abort();
+        #else
+            // ok let's go for it
+
+            int shmflag = 0;
+            shmflag |= SHM_R | SHM_W; // permissions
+            //shmflag |= IPC_CREAT|IPC_EXCL; // make a new allocation, ensure it is unique
+            shmflag |= IPC_CREAT; // make a new allocation
+            #if defined(__linux__)
+            shmflag |= SHM_HUGETLB; // huge pages, please
+            #endif
+            //fprintf(stderr,"size = %d\n",(int)size);
+            int shm_id=shmget(IPC_PRIVATE, size, shmflag);
+            if (shm_id == -1) {
+                perror("congruent shmget");
+                abort();
+            }
+
+            #ifdef __aix
+            // on AIX we ask for pages of a particular size
+            struct shmid_ds shm_buf = { 0 };
+            shm_buf.shm_pagesize = 16 * 1024 * 1024; // 16MB
+            if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
+                std::cerr << "Could not get 16M pages" << std::endl;
+                abort();
+            }
+            #endif
+        #endif
+
+
     obj = shmat(shm_id,0,0);  // 'attach' the shared memory at any arbitrary address (seemingly, this is always the same)
     shmctl(shm_id, IPC_RMID, NULL); // mark for destruction, will be deallocated when shmdt is called (for x10, never)
 
     #if 0
-    // pagesizes OK? (validated at MS9B, comment back in to check)
+    #ifdef __aix
+    // (validated at MS9B, comment back in to check)
     for (char *p = (char*)obj; p < ((char*)obj) + size;) {
         struct vm_page_info pginfo;
         pginfo.addr = (uint64_t) (size_t) p;
         vmgetinfo(&pginfo,VM_PAGE_INFO,sizeof(struct vm_page_info));
-        if (pginfo.pagesize < PAGESIZE_64K) {
+        if (pginfo.pagesize < 64*1024) {
             fprintf(stderr, "alloc_internal_congruent: Found a page smaller than 64K at %p of %p\n", p, obj);
             abort();
         }
-        if (pginfo.pagesize < PAGESIZE_16M) {
+        if (pginfo.pagesize < 16*1024*1024) {
             fprintf(stderr, "alloc_internal_congruent: Found a page smaller than 16M at %p of %p (not checking for any more)\n", p, obj);
             break;
         }
         p += pginfo.pagesize;
     }
     #endif
-
-#elif defined(__linux__) || defined(__APPLE__)
-
-// darwin doesn't have MAP_ANONYMOUS but it does have MAP_ANON which does the same thing
-#ifdef __APPLE__
-#define MAP_ANONYMOUS MAP_ANON
-#endif
-
-    char *base_addr_ = x10aux::get_congruent_base();
-    // Default addresses based on some experimentation on 32 bit and 64 bit platforms.  Not very reliable.
-    // Test different addresses by overriding with X10_CONGRUENT_BASE environment variable (takes decimal and hex)
-    #ifdef _ARCH_PPC
-    size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x10000000000LL;
-    #else
-    size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x100000000000LL;
     #endif
-    size_t base_addr = base_addr_!=NULL ? strtoull(base_addr_,NULL,0) : default_base_addr;
 
-    // do not use PAGE_SIZE as the compile-time value may not reflect the machine the code runs on
-    long page = sysconf(_SC_PAGESIZE); 
-    if (base_addr % page) {
-        fprintf(stderr, ENV_CONGRUENT_BASE" (%llx) is not a multiple of PAGE_SIZE (%llx)\n", (unsigned long long)base_addr, (unsigned long long)page);
-        abort();
-    }
+    } else {
 
+        // we're not using huge pages, however we still need an address that is consistent across all places
+        // so we use mmap with a fixed address
 
-    // check whether or not there are existing pages mapped, if there are, mmap will clobber them
-    // so we must detect and abort
-    #ifdef __linux__
-    FILE *f = fopen("/proc/self/maps","r");
-    if (f==NULL) perror("fopening /proc/self/maps");
-    bool eof = false;
-    while (!eof) {
-        char *lineptr = NULL;
-        size_t sz;
-        ssize_t r = mygetline(&lineptr,&sz,f);
-        eof = r == -1;
-        if (!eof) {
-            char *saveptr;
-            const char *from_c = strtok_r(lineptr,"-",&saveptr);
-            if (from_c == NULL) { fprintf(stderr, "Formatting error in /proc/self/maps!\n"); abort(); }
-            size_t from = strtoull(from_c,NULL,16);
-            const char *to_c   = strtok_r(NULL," ",&saveptr);
-            if (to_c == NULL) { fprintf(stderr, "Formatting error in /proc/self/maps!!!\n"); abort(); }
-            size_t to = strtoull(to_c,NULL,16);
-            bool completely_before = base_addr+size <= from;
-            bool completely_after = base_addr >= to;
-            if (!(completely_before||completely_after)) {
-                fprintf(stderr, "Cannot map congruent memory at the address specified.\n");
-                fprintf(stderr, "Tried to map %llx-%llx but there was an existing map %llx-%llx.\n",
-                                (unsigned long long)base_addr, (unsigned long long)base_addr+size, (unsigned long long)from, (unsigned long long)to);
-                fprintf(stderr, "Please specify alternative address range with environment variables "ENV_CONGRUENT_BASE" and "ENV_CONGRUENT_SIZE".\n");
+        #if !defined(_AIX) && !defined(__linux__) && !defined(__APPLE__)
+
+            // in particular, cygwin can fall in this trap
+            // other platforms have yet to be investigated for possible support
+
+            if (x10rt_nplaces() == 1) {
+                // Because there is only a single place, we can just fall back to malloc
+                // Don't call x10rt_register_mem because on most transports, it is
+                // unimplemented and unhelpfully returns 0 to indicate that.
+                obj = x10aux::alloc_internal(size, false);
+            } else {
+                // In a multi-place run, we have to return the same virtual address in all
+                // places or the program won't work.  Getting here indicates that we can't
+                // do that, so we must abort the program.
+                fprintf(stderr,"alloc_internal_congruent not supported in multi-place executions on this platform\n");
+                fprintf(stderr,"aborting execution\n");
                 abort();
             }
-        }
-        ::free(lineptr);
-    }
-    fclose(f);
-    #else // __APPLE__
-    // apparently MAP_FIXED will fail on macosx if there is an existing mapping in the way
-    #endif
 
-    obj = ::mmap((void*)base_addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
-    if (obj==MAP_FAILED) { perror("Congruent memory mmap"); abort(); }
+        #else
+
+            char *base_addr_ = x10aux::get_congruent_base();
+            // Default addresses based on some experimentation on 32 bit and 64 bit platforms.  Not very reliable.
+            // Test different addresses by overriding with X10_CONGRUENT_BASE environment variable (takes decimal and hex)
+            #ifdef _ARCH_PPC
+            size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x10000000000LL;
+            #else
+            size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x100000000000LL;
+            #endif
+            size_t base_addr = base_addr_!=NULL ? strtoull(base_addr_,NULL,0) : default_base_addr;
+
+            // do not use PAGE_SIZE as the compile-time value may not reflect the machine the code runs on
+            long page = sysconf(_SC_PAGESIZE); 
+            if (base_addr % page) {
+                fprintf(stderr, ENV_CONGRUENT_BASE"=%llx is not a multiple of _SC_PAGESIZE (%llx)\n",
+                        (unsigned long long)base_addr, (unsigned long long)page);
+                abort();
+            }
+
+
+            #ifdef __linux__
+            // check whether or not there are existing pages mapped, if there are, mmap will clobber them
+            // so we must detect and abort
+            FILE *f = fopen("/proc/self/maps","r");
+            if (f==NULL) perror("fopening /proc/self/maps");
+            bool eof = false;
+            while (!eof) {
+                char *lineptr = NULL;
+                size_t sz;
+                ssize_t r = mygetline(&lineptr,&sz,f);
+                eof = r == -1;
+                if (!eof) {
+                    char *saveptr;
+                    const char *from_c = strtok_r(lineptr,"-",&saveptr);
+                    if (from_c == NULL) { fprintf(stderr, "Formatting error in /proc/self/maps!\n"); abort(); }
+                    size_t from = strtoull(from_c,NULL,16);
+                    const char *to_c   = strtok_r(NULL," ",&saveptr);
+                    if (to_c == NULL) { fprintf(stderr, "Formatting error in /proc/self/maps!!!\n"); abort(); }
+                    size_t to = strtoull(to_c,NULL,16);
+                    bool completely_before = base_addr+size <= from;
+                    bool completely_after = base_addr >= to;
+                    if (!(completely_before||completely_after)) {
+                        fprintf(stderr, "Cannot map congruent memory at the address specified.\n");
+                        fprintf(stderr, "Tried to map %llx-%llx but there was an existing map %llx-%llx.\n",
+                                        (unsigned long long)base_addr, (unsigned long long)base_addr+size, (unsigned long long)from, (unsigned long long)to);
+                        fprintf(stderr, "Please specify alternative address range with environment variable "ENV_CONGRUENT_BASE".\n");
+                        abort();
+                    }
+                }
+                ::free(lineptr);
+            }
+            fclose(f);
+            #else // __APPLE__
+            // apparently MAP_FIXED will fail on macosx if there is an existing mapping in the way
+            #endif
+
+            obj = ::mmap((void*)base_addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+            if (obj==MAP_FAILED) { perror("Congruent memory mmap"); abort(); }
+
+        #endif
+    }
 
     #if 0
     unsigned char *obj2 = static_cast<unsigned char*>(obj);
     fprintf(stderr, "%p ... %p\n", obj, (void*)(size_t(obj)+size-1));
-    // test: write + read
+    // test: write
     for (size_t i=0 ; i<size ; ++i) {
             obj2[i] = 1 - (i&0xFF);
     }
-
+    // test: read and check correct
     for (size_t i=0 ; i<size ; ++i) {
             unsigned char oracle = 1-(i&0xFF);
             if (obj2[i] != oracle) {
@@ -279,25 +341,7 @@ static void ensure_init_congruent (size_t req_size) {
     }
     #endif
 
-
-#else
-
-    if (x10rt_nplaces() == 1) {
-        // Because there is only a single place, we can just fall back to malloc
-        // Don't call x10rt_register_mem because on most transports, it is
-        // unimplemented and unhelpfully returns 0 to indicate that.
-        obj = x10aux::alloc_internal(size, false);
-    } else {
-        // In a multi-place run, we have to return the same virtual address in all
-        // places or the program won't work.  Getting here indicates that we can't
-        // do that, so we must abort the program.
-        std::cerr << "alloc_internal_congruent not supported in multi-place executions on this platform\n";
-        std::cerr << "aborting execution\n";
-        abort();
-    }
-
-#endif
-
+    // register all congruent memory with x10rt so that remote ops can be used
     congruent_base = static_cast<unsigned char*>(reinterpret_cast<void*>(x10rt_register_mem(obj, size)));
     congruent_cursor = congruent_base;
     
