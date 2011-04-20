@@ -45,6 +45,7 @@ import x10.ast.X10MethodDecl;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.compiler.ws.util.WSTransformationContent;
+import x10.compiler.ws.util.WSUtil;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
@@ -95,5 +96,17 @@ public class WSTransformStateWALA extends WSTransformState {
 
     public MethodType getMethodType(CodeBlock codeBlock){
         return transTarget.getMethodType(codeBlock);
+    }
+
+
+    public void addSynthesizedConcurrentMethod(MethodDecl mDecl) {
+        try{
+            //FIXME: fix here
+            WSUtil.err("WALA Call Graph Builder doesn't support the function yet", mDecl);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }

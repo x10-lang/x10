@@ -432,7 +432,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         }
         else{
             //first unroll to one stmt; //remove additional no use stmt
-            stmt = WSUtil.unrollToOneStmt(stmt); 
+            stmt = WSUtil.unwrapToOneStmt(stmt); 
             if(stmt instanceof For){
                 childClassGen = new WSForLoopClassGen(this, (For)stmt);
             }
@@ -460,7 +460,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 }
                 else{
                     Async async = (Async)stmt;
-                    Stmt asyncBody = WSUtil.unrollToOneStmt(async.body());
+                    Stmt asyncBody = WSUtil.unwrapToOneStmt(async.body());
                     //need check the frame is pure async or async at(p)
                     if(asyncBody instanceof AtStmt){
                         //async at(p), transform it as a remote frame

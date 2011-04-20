@@ -186,7 +186,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 break;
             case StmtSeq:
                 //Unwrapp the stmts, and add them back
-                bodyStmts.addAll(0, ((StmtSeq)s).statements()); //put them into target
+                bodyStmts.addAll(0, WSUtil.unwrapToStmtList(s)); //put them into target
                 continue;
             case Finish:
                 codes = transFinish((Finish)s, prePcValue);
@@ -233,9 +233,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 break;
             case For:
                 codes = transFor((For) s, prePcValue);
-                break;
-            case ForLoop:
-                codes = transForLoop((ForLoop) s, prePcValue);
                 break;
             case While:
             case DoWhile:
@@ -340,68 +337,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         }
         
         return transCodes;
-    }
-
-    /**
-     * Transform for(p in domain) to traditional for loop and unroll unnecessary block
-     * @param floop for ( i : domain) loop
-     * @return transformed for(init; condition; statement);
-     */
-    protected For processForLoop(X10Loop floop) {
-        // the next step, translate the forloop by forloopoptimizer
-        ForLoopOptimizer flo = new ForLoopOptimizer(job, xts, xnf);
-        flo.begin();
-        Node floOut = floop.visit(flo); //floOut could be a block or a for statement
-        // there are two cases from ForLoopOptimizer
-        // 1. only for; 2. some local declarations and for
-        // for cases 2, we need add these local declarations into for's init
-
-        For forStmt = null;
-        if (floOut instanceof Block) { // case 2
-            List<ForInit> forInits = new ArrayList<ForInit>();
-            for (Stmt s : ((Block) floOut).statements()) {
-                if (s instanceof For) {
-                    forStmt = (For) s;
-                } else {
-                    assert (s instanceof ForInit);// otherwise the ForLoopOptimizer is wrong
-                    forInits.add((ForInit) s);
-                }
-            }
-            forInits.addAll(forStmt.inits());
-            forStmt = forStmt.inits(forInits); // replace inits
-        } else {
-            forStmt = (For) floOut;
-        }
-
-        // second step, it's highly possible the body of a for stmt contains
-        // additional block
-        // { stmt1
-        // { ... //remove this level
-        // } //remove this level
-        // }
-        // just remove the first level
-        Stmt forBodyStmt = forStmt.body();
-        if (forBodyStmt instanceof Block) {
-            ArrayList<Stmt> stmts = new ArrayList<Stmt>();
-            for (Stmt s : ((Block) forBodyStmt).statements()) {
-                if (s instanceof Block) {
-                    stmts.addAll(((Block) s).statements());
-                } else {
-                    stmts.add(s);
-                }
-            }
-            // now insert it into the forBodyStmt again;
-            forStmt = forStmt.body(xnf.Block(forStmt.position(), stmts));
-        }
-        return forStmt;
-    }
-
-    /**
-     * Transform for ( i : domain) style 
-     */
-    protected TransCodes transForLoop(ForLoop floop, int prePcValue) throws SemanticException {
-        For f = processForLoop(floop);
-        return transFor(f, prePcValue);
     }
 
     protected TransCodes transWhileDoLoop(Loop loop, int prePcValue) throws SemanticException {
@@ -672,37 +607,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         {// back - nothing? Really nothing?
         }
         return transCodes;
-    }
-
-
-    /**
-     * Gen Stmt: ff.asyncs ++ or --, with/without atomic
-     * @param increase true: ++, false --
-     * @param atomic true, add atomic 
-     * @return ff.asyncs++ or ff.asyncs-- or atomic{...}
-     * @throws SemanticException 
-     */
-    protected Stmt genFFChangeStmt(boolean increase, boolean atomic) throws SemanticException{
-        
-        Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
-        Expr asyncRef = synth.makeFieldAccess(compilerPos, ffRef, ASYNCS, xct);
-        Expr changeExpr;
-        if(increase){
-            changeExpr = synth.makeFieldAssign(compilerPos, ffRef, ASYNCS, xnf.Binary(compilerPos, asyncRef, Binary.ADD, synth.intValueExpr(1, compilerPos)).type(xts.Int()), xct);
-//            changeExpr = xnf.Unary(compilerPos, asyncRef, Unary.POST_INC).type(xts.Int());  
-        }
-        else{
-            changeExpr = synth.makeFieldAssign(compilerPos, ffRef, ASYNCS, xnf.Binary(compilerPos, asyncRef, Binary.ADD, synth.intValueExpr(-1, compilerPos)).type(xts.Int()), xct);
-//            changeExpr = xnf.Unary(compilerPos, asyncRef, Unary.POST_DEC).type(xts.Int());  
-        }
-        Eval changeEval = xnf.Eval(compilerPos, changeExpr);
-        
-        if(atomic){
-            return xnf.Atomic(compilerPos, xnf.Here(compilerPos).type(xts.Place()), changeEval); 
-        }
-        else{
-            return changeEval;
-        }
     }
     
     /**

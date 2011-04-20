@@ -14,6 +14,7 @@ package x10.compiler.ws;
 
 import polyglot.ast.Call;
 import polyglot.ast.CodeBlock;
+import polyglot.ast.MethodDecl;
 
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
@@ -83,4 +84,6 @@ public abstract class WSTransformState {
     public abstract CallSiteType getCallSiteType(Call call);
 
     public abstract MethodType getMethodType(CodeBlock codeBlock);
+    
+    public abstract void addSynthesizedConcurrentMethod(MethodDecl mDecl);
 }

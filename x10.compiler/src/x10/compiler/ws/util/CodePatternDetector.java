@@ -123,7 +123,7 @@ public class CodePatternDetector {
         }
         
         if(stmt instanceof Async){
-            Stmt asyncBodyStmt = WSUtil.unrollToOneStmt(((Async)stmt).body());
+            Stmt asyncBodyStmt = WSUtil.unwrapToOneStmt(((Async)stmt).body());
             if(asyncBodyStmt instanceof AtStmt){
                 return Pattern.AsyncAt; //async at one place
             }

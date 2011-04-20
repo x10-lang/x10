@@ -137,6 +137,15 @@ public class WSCallGraph {
         return true;
     }
     
+    /**
+     * used only by WSCodePreprocessor.
+     * In the pass, it may generate some concurrent method.
+     * @param mDecl
+     */
+    public void addSynthesizedConcurrentMethod(MethodDecl mDecl) {
+        WSCallGraphNode node = findOrCreateNode(mDecl.methodDef());
+        node.setParallel(true);
+    }
     
     /**
      * Add a method into the node, and mark the parallel status
@@ -301,4 +310,5 @@ public class WSCallGraph {
             return n.parallel;
         }
     }
+
 }

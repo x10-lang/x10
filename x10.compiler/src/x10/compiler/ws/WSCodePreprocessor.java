@@ -14,32 +14,57 @@
 package x10.compiler.ws;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Assign;
+import polyglot.ast.Binary;
+import polyglot.ast.Binary.Operator;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
+import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Do;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
+import polyglot.ast.ForUpdate;
+import polyglot.ast.Id;
 import polyglot.ast.If;
+import polyglot.ast.IntLit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.Term;
 import polyglot.ast.While;
 import polyglot.frontend.Job;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
+import polyglot.types.Context;
+import polyglot.types.Context_c;
+import polyglot.types.Flags;
+import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
+import polyglot.types.MemberDef;
+import polyglot.types.MethodDef;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.VarInstance;
+import polyglot.util.InternalCompilerError;
+import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -51,37 +76,144 @@ import x10.ast.FinishExpr;
 import x10.ast.ForLoop;
 import x10.ast.Offer;
 import x10.ast.StmtSeq;
+import x10.ast.X10Binary_c;
+import x10.ast.X10ClassDecl;
+import x10.ast.X10MethodDecl;
+import x10.ast.X10Special;
 import x10.compiler.ws.WSTransformState.MethodType;
+import x10.compiler.ws.util.Triple;
 import x10.compiler.ws.util.WSTransformationContent;
 import x10.compiler.ws.util.WSUtil;
 import x10.compiler.ws.util.CodePatternDetector.Pattern;
 import x10.optimizations.ForLoopOptimizer;
+import x10.types.EnvironmentCapture;
+import x10.types.MethodInstance;
+import x10.types.ThisDef;
+import x10.types.X10Context_c;
+import x10.types.X10MemberDef;
+import x10.util.CollectionFactory;
+import x10.util.Synthesizer;
+import x10.util.synthesizer.CodeBlockSynth;
+import x10.util.synthesizer.MethodSynth;
+import x10.util.synthesizer.NewLocalVarSynth;
+import x10.visit.Desugarer;
 import x10.visit.ExpressionFlattener;
+import x10.visit.X10InnerClassRemover;
 
 /**
 *
  * ContextVisitor that pre-process AST code for work stealing.
  * @author Haichuan
  * 
- * Some code cannot be transformed by WS Code Generator directly. They should be preprocessed in some way
- * 
- * Four goals of code pre-processing
- * I: transform compound stmts into simple stmts by ExpressionFlattener
- * II: transform forloop (for(x in domain)) into standard for by forloopunrolloer
- * III: transform ateach by lowerer
- * IV: transform simple for (e.g. for(var i:int=0; i < 1000; i++ ) async) into divide-and-conquer style
+ * Some code cannot be transformed by WS Code Generator directly.
+ * 1) Concurrent call in If condition, When/Do/While/Switch expr, 
+ *    For's init/iterator/condition, Compound expressions.
+ * 2) Concurrent call in ForLoop
+ * 3) AtEach
+ * Jobs performed in this pass
+ * I: Transform Un-supported stmts
+ *   1) transform compound stmts into simple stmts by ExpressionFlattener
+ *   2) transform forloop (for(x in domain)) into standard for by forloopunrolloer
+ *   3) transform AtEach by lowerer's code
+ * II: Advanced optimization
+ *   1) Transform simple for (e.g. for(var i:int=0; i < 1000; i++ ) async) 
+ *      into divide-and-conquer style
 
 
  */
 
 public class WSCodePreprocessor extends ContextVisitor {
     static final boolean debug = true;
+    static final Position compilerPos = Position.COMPILER_GENERATED;
 
+    /**
+     * A small container to store the diviable for's information
+     */
+    protected class DividableFor{
+        Type boundType;
+        Expr lowerRef;
+        Expr upperRef;
+        Expr condLeft;
+        Binary.Operator condOperator;
+        LocalDecl iteratorDecl;
+        Stmt iteratorAssign;
+        Async forAsync;
+    }
+    
+    
+    protected class IteratorFinderVisitor extends NodeVisitor {
+        private boolean found = false;
+        private final LocalDef iDef;
+        
+        public IteratorFinderVisitor(LocalDef iDef){
+            this.iDef = iDef;
+        }
+        
+        public boolean isFound(){
+            return found;
+        }
+        
+        public Node leave(Node old, Node n, NodeVisitor v) {
+            if(n instanceof Local){
+                LocalInstance li = ((Local) n).localInstance();
+                if(li.def() == iDef){
+                    found = true;
+                }
+            }
+            return n;
+        }
+        
+    }
+    
+    
+    /**
+     * A visitor to locate all local vars referenced in for's body
+     */
+    public static class LocalVarCaptureVisitor extends NodeVisitor {
+        private final Context context;
+        private final Set<Local> locals;
+        public LocalVarCaptureVisitor(Context context) {
+            this.context = context;
+            this.locals = CollectionFactory.newHashSet();
+        }
+        
+        /**
+         * @return non-duplicated locals
+         */
+        public List<Local> getLocals(){
+            //the locals may contains duplicate locals. we need filter them out by name
+            List<Local> ls = new ArrayList<Local>();
+            Set<String> names = CollectionFactory.newHashSet();
+            for(Local l : locals){
+                String name = l.name().id().toString();
+                if(names.contains(name)){  continue;  }
+                names.add(name);
+                ls.add(l);
+            }
+            return ls;
+        }
+        @Override
+        public Node leave(Node old, Node n, NodeVisitor v) {
+            if (n instanceof Local) {
+                LocalInstance li = ((Local) n).localInstance();
+                VarInstance<?> o = context.findVariableSilent(li.name());
+                if (li == o || (o != null && li.def() == o.def())) {
+                    locals.add((Local)n);
+                }
+            }
+            return n;
+        }
+    }
+    
     // Single static WSTransformState shared by all visitors (FIXME)
     public static WSTransformState wts; 
+    private final Set<X10MethodDecl> genMethodDecls;
+    private Synthesizer synth;
     
     public WSCodePreprocessor(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
+        genMethodDecls = CollectionFactory.newHashSet();
+        synth = new Synthesizer(nf, ts);
     }
 
     public static void setWALATransTarget(ExtensionInfo extensionInfo, WSTransformationContent target){
@@ -143,8 +275,45 @@ public class WSCodePreprocessor extends ContextVisitor {
         if(n instanceof Offer){
             return visitOffer((Offer)n);
         }
+        if (n instanceof X10ClassDecl) {
+            return visitClass((X10ClassDecl)n);
+        }
         
         return n;
+    }
+    
+    private Node visitClass(X10ClassDecl cDecl) throws SemanticException {
+        ClassDef cDef = cDecl.classDef();
+        List<X10MethodDecl> methods = getMethodDecls(cDef);    
+        if(methods.isEmpty()){
+            return cDecl;
+        }
+        cDecl = Synthesizer.addMethods(cDecl, methods);
+        
+        Desugarer desugarer = ((x10.ExtensionInfo) job.extensionInfo()).makeDesugarer(job);
+        desugarer.begin();
+        desugarer.context(context()); //copy current context
+        
+        X10InnerClassRemover innerclassRemover = new X10InnerClassRemover(job, ts, nf);
+        innerclassRemover.begin();
+        innerclassRemover.context(context()); //copy current context
+        
+        cDecl = (X10ClassDecl) cDecl.visit(desugarer);
+        cDecl = (X10ClassDecl) cDecl.visit(innerclassRemover);
+        
+        return cDecl;
+    }
+
+    protected List<X10MethodDecl> getMethodDecls(ClassDef cDef) throws SemanticException {
+        List<X10MethodDecl> mDecls = new ArrayList<X10MethodDecl>();
+        
+        for(X10MethodDecl mDecl : genMethodDecls){
+            ClassDef containerDef = ((ClassType) mDecl.methodDef().container().get()).def();
+            if(containerDef == cDef){
+                mDecls.add(mDecl);
+            }
+        }
+        return mDecls;
     }
     
     private Node visitOffer(Offer n) throws SemanticException {
@@ -269,8 +438,9 @@ public class WSCodePreprocessor extends ContextVisitor {
      * Need transform ForLoop to For
      * @param n
      * @return
+     * @throws SemanticException 
      */
-    private Node visitForLoop(ForLoop n) {
+    private Node visitForLoop(ForLoop n) throws SemanticException {
         //Step 1: translate the forloop by forloopoptimizer
         ForLoopOptimizer flo = new ForLoopOptimizer(job, ts, nf);
         flo.begin();
@@ -325,9 +495,9 @@ public class WSCodePreprocessor extends ContextVisitor {
      *  for() async() style.
      * @param n
      * @return
+     * @throws SemanticException 
      */
-    public Node visitFor(For n) {
-        
+    public Node visitFor(For n) throws SemanticException {
         //Detect the init/iterator/condition
         List<Term> condTerms = new ArrayList<Term>();
         condTerms.addAll(n.inits());
@@ -348,27 +518,283 @@ public class WSCodePreprocessor extends ContextVisitor {
         
         //for a simple For, we could try to transform it into divide and conquer style.
         
-        //do a simple code pattern detector
-//        Stmt forBody = n.body();
-//        if(forBody instanceof Async) {
-//            //Sytle 1
-//            return null;
-//        }
-//        
-//        if(forBody instanceof Block){
-//            List<Stmt> stmts = ((Block)forBody).statements();
-//            if(stmts.size() == 2
-//                    )
-//            
-//        }
-//        return n; //not transform
-//        
-//        
-//        
-//        
-//        
-        return n;
+        DividableFor df = isDividableFor(n);
+        if(df != null){
+            return transformDividableFor(df, n);
+        }
+        else {
+            return n;
+        }
     }
+    
+    private Stmt transformDividableFor(DividableFor df, For n) throws SemanticException {
+        if(debug){
+            WSUtil.debug("Found dividable for:", n);
+        }
+        //First need detect all locals for copy
+        LocalVarCaptureVisitor visitor = new LocalVarCaptureVisitor(context);
+        //the only part need not check locals is for's upper ref & init decl
+        n.body().visit(visitor);
+        for(ForUpdate fu: n.iters()){
+            fu.visit(visitor);
+        }
+        df.condLeft.visit(visitor);
+        List<Local> locals = visitor.getLocals();
+
+        String mName = WSUtil.getDividableForMethodName(n) + genMethodDecls.size();
+        X10MethodDecl mDecl = synthDividableForMethod(n, mName, context, df, locals);
+        MethodDef mDef = mDecl.methodDef();
+        
+        //now generate the in-place call
+        Call call = synthDividableForMethodCall(n.position(), context, mDef,
+                                                 df.lowerRef, df.upperRef, synth.intValueExpr(1, compilerPos),
+                                                 df, visitor.getLocals());
+        wts.addSynthesizedConcurrentMethod(mDecl);
+        genMethodDecls.add(mDecl);
+        if(debug){
+            WSUtil.debug("Transform to divid-and-conquer call", call);
+            WSUtil.debug("Method Body:", mDecl);
+        }
+        return nf.Eval(n.position(), call);
+    }
+    
+    private X10MethodDecl synthDividableForMethod(For n, String methodName, Context c,
+                                               DividableFor df, List<Local> locals) throws SemanticException{
+        //define the synthesized method's type
+        Flags flag = Flags.FINAL;
+        if(c.inStaticContext()){
+            flag = flag.set(Flags.STATIC);
+        }
+        
+        MethodSynth mSynth = new MethodSynth(nf, WSUtil.popToClassContext(c), 
+                                             n.position(), c.currentClassDef(),
+                                             methodName);
+        mSynth.setFlag(flag);
+        //Formals: 
+        Expr lowerRef = mSynth.addFormal(compilerPos, df.boundType, "_$lower");
+        Expr upperRef = mSynth.addFormal(compilerPos, df.boundType, "_$upper");
+        Expr sliceNumRef = mSynth.addFormal(compilerPos, ts.Int(), "_$sliceNum");
+        List<Local> formalLocals = new ArrayList<Local>();
+        for(Local local : locals){
+            Local formalLocal = mSynth.addFormal(local.position(), Flags.FINAL, local.type(), local.name().id());
+            formalLocals.add(formalLocal);
+        }
+        
+        //the method's body
+        CodeBlockSynth methodBodySynth = mSynth.getMethodBodySynth(n.body().position());
+        Context mContext = methodBodySynth.getContext();
+        //if's condition
+
+        //if((sliceNum >> 2) < Runtime.NTHREADS 
+        Expr runtimeThreadsRef = synth.makeFieldAccess(compilerPos,
+                              nf.CanonicalTypeNode(compilerPos, ts.Runtime()),
+                              Name.make("NTHREADS"), mContext);
+        Expr sliceNum4 = nf.Binary(compilerPos, sliceNumRef, Binary.SHR, synth.intValueExpr(2, compilerPos)).type(ts.Int());
+        Expr cond = nf.Binary(compilerPos, sliceNum4, Binary.LT, runtimeThreadsRef).type(ts.Boolean());
+        
+        
+        //val m:int = (s+e)/2;
+        //val nSliceNum = sliceNum << 1;
+        Expr totalBoundExpr = nf.Binary(compilerPos, lowerRef, Binary.ADD, upperRef).type(df.boundType);
+        Expr middleBoundExpr = nf.Binary(compilerPos, totalBoundExpr, Binary.SHR, synth.intValueExpr(1, compilerPos)).type(df.boundType);
+        NewLocalVarSynth mLocalSynth = new NewLocalVarSynth(nf, mContext, compilerPos, Flags.FINAL, middleBoundExpr);
+        Expr middleBoundRef = mLocalSynth.getLocal();
+        Expr newSliceNumExpr = nf.Binary(compilerPos, sliceNumRef, Binary.SHL, synth.intValueExpr(1, compilerPos)).type(ts.Int());
+        NewLocalVarSynth nSliceLocalSynth = new NewLocalVarSynth(nf, mContext, compilerPos, Flags.FINAL, newSliceNumExpr);
+        Expr newSliceNumRef = nSliceLocalSynth.getLocal();
+        
+        //divide-and-conquer
+        //async forR0(s,m, nSliceNum, a, load);        
+        Call call1 = synthDividableForMethodCall(n.position(), mContext, mSynth.getDef(),
+                                       lowerRef, middleBoundRef, newSliceNumRef,
+                                       df, formalLocals);
+
+        Async async = df.forAsync.body(nf.Eval(compilerPos, call1));
+        //forR0(m,e, nSliceNum, a, load);
+        Call call2 = synthDividableForMethodCall(n.position(), mContext, mSynth.getDef(),
+                                       middleBoundRef, upperRef, newSliceNumRef,
+                                       df, formalLocals);
+
+        
+        Block ifTrueBlock = nf.Block(compilerPos, mLocalSynth.genStmt(), 
+                                     nSliceLocalSynth.genStmt(), 
+                                     async, nf.Eval(compilerPos, call2));
+        //synth the 
+        //for(var i:int=s; i<e; i++){
+        //    a(i) = dowork(a(i), load);
+        //}
+        List<ForInit> newForInits = new ArrayList<ForInit>();
+        newForInits.add(df.iteratorDecl.init(lowerRef));
+        For newFor = n.inits(newForInits);
+        
+        Expr condBinary = nf.Binary(compilerPos, df.condLeft, df.condOperator, upperRef).type(ts.Boolean());
+        newFor = newFor.cond(condBinary);
+        
+        //prepare for body
+        List<Stmt> stmts = new ArrayList<Stmt>();
+        if(df.iteratorAssign != null){
+            stmts.add(df.iteratorAssign);
+        }
+        stmts.addAll(WSUtil.unwrapBodyBlockToStmtList(df.forAsync.body()));
+        newFor = newFor.body(nf.Block(compilerPos, stmts));
+        
+        //Final if
+        If ifStmt = nf.If(n.position(), cond, ifTrueBlock, newFor);
+        methodBodySynth.addStmt(ifStmt);
+        return mSynth.close();
+    }
+    
+    private Call synthDividableForMethodCall(Position pos, Context ct, MethodDef mDef, 
+                                             Expr lowerRef, Expr upperRef, Expr sliceNumRef,
+                                             DividableFor df,  List<Local> locals){
+
+        Id callId = nf.Id(pos, mDef.name());
+        ArrayList<Expr> paras = new ArrayList<Expr>();
+        ArrayList<Type> formalTypes = new ArrayList<Type>();
+        paras.add(lowerRef); formalTypes.add(df.boundType);
+        paras.add(upperRef); formalTypes.add(df.boundType);
+        paras.add(sliceNumRef); formalTypes.add(ts.Int());
+        for(Local local : locals){
+            paras.add(local);
+            formalTypes.add(local.type());
+        }
+        Receiver r; 
+        //decide the right method: instance of static
+        if(ct.inStaticContext()){
+            r = nf.CanonicalTypeNode(compilerPos, ct.currentClass());
+        }
+        else{
+            r = synth.thisRef(ct.currentClass(), compilerPos);
+        }
+        Call call = nf.Call(pos, r, callId, paras);
+        MethodInstance mi = mDef.asInstance();
+        mi = (MethodInstance) mi.flags(mDef.flags());
+        mi = mi.name(mDef.name());
+        mi = mi.returnType( mDef.returnType().get());
+        mi = mi.formalTypes(formalTypes);
+        
+        return call.methodInstance(mi);
+    }
+    
+    
+    
+    /**
+     * Identify For patterns, like
+     * 1) for(var i:int = lowerBound; i condition (<, <=, >, >=); i updater) { async {...}}
+     * 2) for(var i:int = lowerBound; i condition (<, <=, >, >=); i updater) { val ii = i; async {...}}
+     * @param n
+     * @return <lowerBound, UpperBound, iterator type>
+     */
+    private DividableFor isDividableFor(For n){
+        //Four condition
+        //1: init has only one variables and the variable'
+        //2: iterator is only related this single var's change
+        //3: condition is larger or smaller
+        //4: the body has only one stmt(aysnc) or two stmts(val assign, right is the iterator
+        
+        DividableFor df = new DividableFor();
+        
+        //Condition 1:
+        List<ForInit> forInits = n.inits();
+        if(forInits.size() != 1
+                || !(forInits.get(0) instanceof LocalDecl)) {
+            return null;
+        }
+        LocalDecl ld = (LocalDecl) forInits.get(0);
+        if(ld.init() == null){
+            return null;
+        }
+        df.iteratorDecl = ld;
+        df.lowerRef = ld.init();
+        df.boundType = ld.type().type();;
+
+        //Condition 2: seems no need
+        
+        //Condition 3: 
+        if(!(n.cond() instanceof Call)){
+            return null;
+        }
+        Call call = (Call) n.cond();
+        Name callName = call.name().id();
+        Name nameLE = X10Binary_c.binaryMethodName(Binary.LE);
+        Name nameGE = X10Binary_c.binaryMethodName(Binary.GE);
+        Name nameLT = X10Binary_c.binaryMethodName(Binary.LT);
+        Name nameGT = X10Binary_c.binaryMethodName(Binary.GT);
+        
+        //The condition call should be compare operator
+        if(callName.equals(nameLE)){
+            df.condOperator = Binary.LE;
+        }
+        else if(callName.equals(nameGE)){
+            df.condOperator = Binary.GE;
+        }
+        else if(callName.equals(nameLT)){
+            df.condOperator = Binary.LT;
+        }
+        else if(callName.equals(nameGT)){
+            df.condOperator = Binary.GT;
+        }
+        else {
+            return null;
+        }
+
+        //Now detect iterator is in the left or right. Cannot be in either side
+        Expr condLeftExpr = (Expr) call.target();
+        Expr condRightExpr = call.arguments().get(0);
+        IteratorFinderVisitor iFinder = new IteratorFinderVisitor(ld.localDef());
+        condLeftExpr.visit(iFinder);
+        boolean leftFound = iFinder.isFound();
+        iFinder = new IteratorFinderVisitor(ld.localDef());
+        condRightExpr.visit(iFinder);
+        boolean rightFound = iFinder.isFound();
+        if(rightFound && leftFound || !rightFound && !leftFound){
+            //both found or not found
+            return null;
+        }
+        else if(leftFound){
+            df.condLeft = condLeftExpr;
+            df.upperRef = condRightExpr;
+        }
+        else { //right found
+            df.condLeft = condRightExpr;
+            df.upperRef = condLeftExpr;
+            //and need change operator
+            if(df.condOperator == Binary.LE) {df.condOperator = Binary.GE; }
+            else if(df.condOperator == Binary.GE) {df.condOperator = Binary.LE; }
+            else if(df.condOperator == Binary.LT) {df.condOperator = Binary.GT; }
+            else if(df.condOperator == Binary.GT) {df.condOperator = Binary.LT; }
+        }
+        
+        //Condition 4:
+        Stmt body = WSUtil.unwrapToOneStmt(n.body());
+        //first case only one async
+        if(body instanceof Async){
+            df.forAsync = (Async) body;
+            return df;
+        }
+        
+        //second case
+        if(body instanceof Block){
+            List<Stmt> stmts = WSUtil.unwrapBodyBlockToStmtList(body);
+            if(stmts.size() == 2 && stmts.get(1) instanceof Async){
+                df.forAsync = (Async) stmts.get(1);
+                if(stmts.get(0) instanceof LocalDecl){
+                    LocalDecl ld2 = (LocalDecl)stmts.get(0);
+                    if(ld2.init() != null
+                            && ld2.init() instanceof Local){
+                        Local local = (Local)ld2.init();
+                        if(local.localInstance().def() == ld.localDef()){
+                            //just the iterator assignment
+                            df.iteratorAssign = ld2;
+                            return df;
+                        }
+                    }
+                }
+            }
+        }        
+        return null;
+    }
+    
     
     private Node flattenStmt(Stmt n){
         ExpressionFlattener ef = new ExpressionFlattener(job, ts, nf);

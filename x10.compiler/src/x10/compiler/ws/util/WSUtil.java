@@ -25,6 +25,7 @@ import polyglot.ast.ClassBody;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
+import polyglot.ast.For;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
@@ -38,6 +39,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context_c;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -81,6 +83,7 @@ import polyglot.types.TypeSystem;
  */
 public class WSUtil {
     
+    //------------- Section I: Debug & Log Info Mation -------------
     static boolean turnOffAllDebugMsg = false;
     static boolean turnOffAllInfoMsg = false;    
     static public void debug(String msg, Node node){
@@ -105,7 +108,6 @@ public class WSUtil {
     
     static public void err(String msg, Node n) throws SemanticException{
         System.err.println("[WS_ERR]" + msg);
-        
         if(n != null){
             System.err.println("        ");
             n.prettyPrint(System.err);
@@ -117,17 +119,16 @@ public class WSUtil {
         }
     }
     
+    //------------------ Section II: Naming Management
+    
+    static Map<ClassType, Map<String, Integer>> container2MethodNameMap;
+    //              classType         methodName, number
+    static Map<String, Integer> dupNameCountMap;
+    
     
     private static String getMethodName(MethodDef methodDef){
         return methodDef.name().toString();
     }
-    
-
-    static Map<ClassType, Map<String, Integer>> container2MethodNameMap;
-    //              classType         methodName, number
-    
-    
-    static Map<String, Integer> dupNameCountMap;
     
     /**
      * Check whether the current name is used, if used, add the count number to it.
@@ -153,6 +154,13 @@ public class WSUtil {
         }
     }
     
+    /**
+     * @param f The dividable For
+     * @return the name for the divide-and-conquer method
+     */
+    public static String getDividableForMethodName(For f){
+        return "_$dcFor"; //divide-and-conquer for
+    }
     
     /**
      * Form the closure's name by line & column number. Should be identical for a inner class
@@ -264,7 +272,6 @@ public class WSUtil {
             return false;
         }
     }
-    
     
     /**
      * Check whether the code node contains concurrent construct or not
@@ -587,6 +594,7 @@ public class WSUtil {
     }
     
     /**
+     * FIXME: only used by If transformation. Need check the reason
      * Used to transform a stmt into a StmtSeq(Block)
      * If the input is not a StmtSeq, 
      * @param xnf
@@ -605,18 +613,54 @@ public class WSUtil {
         }
     }
 
+    /**
+     * @param stmt a construct's body, such as if/for/async
+     * @return a list of stmts
+     */
+    static public List<Stmt> unwrapBodyBlockToStmtList(Stmt stmt){
+        if(stmt instanceof Block){
+            List<Stmt> stmts = new ArrayList<Stmt>();
+            for(Stmt s : ((Block)stmt).statements()){
+                stmts.addAll(unwrapToStmtList(s));
+            }
+            return stmts;
+        }
+        else{
+            return Collections.singletonList(stmt);
+        }
+    }
+    
+    /**
+     * @param stmt that may contain StmtSeq
+     * @return stmts without StmtSeq
+     */
+    static public List<Stmt> unwrapToStmtList(Stmt stmt){
+        if(stmt instanceof Block){
+            if(stmt instanceof StmtSeq){
+                List<Stmt> stmts = new ArrayList<Stmt>();
+                for(Stmt s : ((StmtSeq)stmt).statements()){
+                    stmts.addAll(unwrapToStmtList(s));
+                }
+                return stmts;
+            }
+            else{
+                return Collections.singletonList(stmt); //pure block not unwrapp
+            }
+        }
+        //other case
+        return Collections.singletonList(stmt);
+    }
     
     /**
      * Unroll block until it either a single stmt, or a block with more than one stmts
+     * If the top level is StmtSeq, still return StmtSeq
      * @param block
      * @return
      */
-    static public Stmt unrollToOneStmt(Stmt stmt){
-        
+    static public Stmt unwrapToOneStmt(Stmt stmt){
         if(!(stmt instanceof Block)){
             return stmt; //non block just return;
         }
-        
         List<Stmt> blockSS = ((Block)stmt).statements();
         if(blockSS.size() > 1){
             return stmt; //return current block
@@ -624,12 +668,23 @@ public class WSUtil {
         else{ //size == 1;
             stmt = blockSS.get(0);
             if(stmt instanceof Block){
-                return unrollToOneStmt((Block)stmt);
+                return unwrapToOneStmt((Block)stmt);
             }
             else{
                 return stmt;
             }
         }
+    }
+    
+    /**
+     * @param c the current Context
+     * @return the current context's container class context;
+     */
+    static public Context popToClassContext(Context c){
+        while (c != null && !((Context_c)c).isClass()) {
+            c = c.pop();
+        }
+        return c;
     }
     
     
