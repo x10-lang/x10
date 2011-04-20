@@ -132,7 +132,7 @@ final public class RuntimeTypeExpander extends Expander {
             		components[i++] = new TypeExpander(er, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
             		components[i++] = new RuntimeTypeExpander(er, at);
             	}
-            	er.dumpRegex("Native", components, tr, pat);
+            	er.dumpRegex("NativeRep", components, tr, pat);
             	return;
             }
         }

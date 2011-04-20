@@ -765,7 +765,7 @@ public class Emitter {
 		// If the type has a native representation, use that.
 		if (type instanceof X10ClassType) {
 			X10ClassDef cd = ((X10ClassType) type).x10Def();
-			String pat = getJavaRep(cd, boxPrimitives);
+			String pat = getJavaRep(cd, boxPrimitives);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep) 
 			if (pat != null) {
 				List<Type> typeArguments = ((X10ClassType) type).typeArguments();
 				if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
@@ -780,7 +780,7 @@ public class Emitter {
 				if (!printGenerics) {
 					pat = pat.replaceAll("<.*>", "");
 				}
-				dumpRegex("NativeRep", o, tr, pat);
+				dumpRegex("JavaRep", o, tr, pat);
 				return true;
 			}
 		}
@@ -2768,11 +2768,11 @@ public class Emitter {
             for (int i = 0 ; i < def.interfaces().size(); i ++) {
                 if (i != 0) w.write(", ");
                 Type type = def.interfaces().get(i).get();
-                printParent(def, type);
+                printRTT(def, type);
             }
             if (def.superType() != null) {
                 if (def.interfaces().size() != 0) w.write(", ");
-                printParent(def, def.superType().get());
+                printRTT(def, def.superType().get());
             }
             if (def.isStruct()) {
                 if (def.interfaces().size() != 0 || def.superType() != null) w.write(", ");
@@ -2841,12 +2841,12 @@ public class Emitter {
         }
 	}
 
-    private void printParent(final X10ClassDef def, Type type) {
+    private void printRTT(final X10ClassDef def, Type type) {
         type = Types.baseType(type);
         if (type instanceof X10ClassType) {
             X10ClassType x10Type = (X10ClassType) type;
             X10ClassDef cd = x10Type.x10Def();
-            String pat = getJavaRTTRep(cd);
+            String pat = getJavaRTTRep(cd);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep)
             if (pat != null) {
                 List<Type> typeArgs = x10Type.typeArguments();
                 if (typeArgs == null) typeArgs = Collections.<Type>emptyList();
@@ -2862,12 +2862,12 @@ public class Emitter {
                     } else {
                         components[i++] = new Expander(this) {
                             public void expand(Translator tr) {
-                                printParent(def, at);
+                                printRTT(def, at);
                             }
                         };
                     }
                 }
-                dumpRegex("Native", components, tr, pat);
+                dumpRegex("JavaRTTRep", components, tr, pat);
             }
             else if (x10Type.typeArguments() != null && x10Type.typeArguments().size() > 0) {
                 w.write("new x10.rtt.ParameterizedType(");
@@ -2904,7 +2904,7 @@ public class Emitter {
                     } else if (ta instanceof ParameterType) {
                         w.write("x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) ta) + ")");
                     } else {
-                        printParent(def, ta);
+                        printRTT(def, ta);
                     }
                 }
                 w.write(")");

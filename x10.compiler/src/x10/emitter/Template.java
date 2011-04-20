@@ -15,12 +15,14 @@ import java.util.Map;
 
 import polyglot.visit.Translator;
 
+// not used
 /**
  * Expand a given template with the given set of arguments.
  * Equivalent to a Loop with an array of singleton lists.
  * If the template has zero, one, two, or three arguments, the
  * arguments can be passed in directly to the constructor.
  */
+@Deprecated
 public class Template extends Expander {
 	private final String id;
 	private final Object[] args;
