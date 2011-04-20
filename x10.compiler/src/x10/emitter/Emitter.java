@@ -440,90 +440,6 @@ public class Emitter {
 //		dumpRegex("internal", components, tr, regex);
 //	}
 
-    // WIP XTENLANG-2528
-    // TODO remove this
-//    @Deprecated
-//	public void dumpRegex(String id, Object[] components, Translator tr, String regex) {
-//		X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
-//		for (int i = 0; i < components.length; i++) {
-//			assert !(components[i] instanceof Object[]);
-//		}
-//		int len = regex.length();
-//		int pos = 0;
-//		int start = 0;
-//		while (pos < len) {
-//			if (regex.charAt(pos) == '\n') {
-//				w.write(regex.substring(start, pos));
-//				w.newline(0);
-//				start = pos + 1;
-//			} else if (regex.charAt(pos) == '#') {
-//			    w.write(regex.substring(start, pos));
-//			    int endpos = pos + 1;
-//			    int idx = -1;
-//			    String str = null;
-//			    if (Character.isDigit(regex.charAt(endpos))) {
-//			        while (endpos < len && Character.isDigit(regex.charAt(endpos))) {
-//			            ++endpos;
-//			        }
-//			        str = regex.substring(pos + 1, endpos);
-//			        idx = Integer.parseInt(str);
-//			    } else if (Character.isJavaIdentifierStart(regex.charAt(endpos))) {
-//                    while (endpos < len && Character.isJavaIdentifierPart(regex.charAt(endpos))) {
-//                        ++endpos;
-//                    }
-//                    str = regex.substring(pos + 1, endpos);
-//                    // XTENLANG-2528
-//                    // TODO convert name to idx
-//                    /* @Native(lang, code) : annotation to mark methods and fields as having a particular native implementation.
-//                     * lang is the name of the language, typically "java" or "c++".
-//                     * code is the code to insert for a call to the method or an access to the field.
-//                     * For "java" annotations: Given a method with signature: def m[X, Y](x, y); and a call o.m[A, B](a, b); #0 = o #1 = A #2 = boxed representation of A #3 = run-time Type object for A #4 = B #5 = boxed representation of B #6 = run-time Type object for B #7 = a #8 = b
-//                     * For "c++" annotations: As for "java" except boxed and run-time representations of type vars should not be used. Also there is also the capability to refer to type params and method params by name: #this = o #X = A #Y = B #x = a #y = b
-//                     */
-//                    // #0 = #this = o
-//                    // #1 = #A = A
-//                    // #2 = #$boxof(A) = boxed representation of A
-//                    // #3 = #$typeof(A) = run-time Type object for A
-//                    // #4 = #B = B
-//                    // #5 = #$boxof(B) = boxed representation of B
-//                    // #6 = #$typeof(B) = run-time Type object for B
-//                    // #7 = #a = a
-//                    // #8 = #b = b
-//			    } else {
-//                    throw new InternalCompilerError("Template '" + id + "' uses #" + regex.substring(pos + 1));
-//			    }
-//                if (idx < 0 || components.length <= idx) {
-//                    throw new InternalCompilerError("Template '" + id + "' uses #" + str);
-//                }
-//                pos = endpos - 1;
-//                start = pos + 1;
-//                Object component = components[idx];
-//                if (component instanceof Expr && !isNoArgumentType((Expr) component)) {
-//                    component = new CastExpander(w, this, (Node) component).castTo(((Expr) component).type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-//                }
-//                prettyPrint(component, tr);
-//			} else if (regex.charAt(pos) == '`') {
-//			    w.write(regex.substring(start, pos));
-//			    int endpos = pos;
-//			    while (regex.charAt(++endpos) != '`') { }
-//			    String optionName = regex.substring(pos + 1, endpos);
-//			    Object optionValue = null;
-//			    try {
-//			        optionValue = opts.x10_config.get(optionName);
-//			    } catch (ConfigurationError e) {
-//			        throw new InternalCompilerError("Unable to read `" + optionName + "` in template '" + id + "'", e);
-//			    } catch (OptionError e) {
-//			        throw new InternalCompilerError("Template '" + id + "' uses `" + optionName + "`", e);
-//			    }
-//			    w.write(optionValue.toString());
-//			    pos = endpos;
-//			    start = pos + 1;
-//			}
-//			pos++;
-//		}
-//		w.write(regex.substring(start));
-//	}
-
     public void dumpRegex(String id, Map<String,Object> components, Translator tr, String regex) {
         X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         int len = regex.length();
@@ -963,29 +879,6 @@ public class Emitter {
     // #6 = #$typeof(B) = run-time Type object for B
     // #7 = #a = a
     // #8 = #b = b
-    /*
-    public void emitNativeAnnotation0(String pat, Object target,
-			List<Type> types, List<? extends Object> args, List<Type> typeArguments) {
-		Object[] components = new Object[1 + types.size() * 3 + args.size() + typeArguments.size() * 3];
-		int i = 0;
-		components[i++] = target;
-		for (Type at : types) {
-			components[i++] = new TypeExpander(this, at, true, false, false);
-			components[i++] = new TypeExpander(this, at, true, true, false);
-			components[i++] = new RuntimeTypeExpander(this, at);
-		}
-		for (Object e : args) {
-			components[i++] = e;
-		}
-        for (Type at : typeArguments) {
-            components[i++] = new TypeExpander(this, at, true, false, false);
-            components[i++] = new TypeExpander(this, at, true, true, false);
-            components[i++] = new RuntimeTypeExpander(this, at);
-        }
-		this.dumpRegex("Native", components, tr, pat);
-	}
-	*/
-
     public void emitNativeAnnotation(String pat, Object receiver, List<Type> types, List<? extends Object> args, List<Type> typeArguments) {
 //        Object[] components = new Object[1 + types.size() * 3 + args.size() + typeArguments.size() * 3];
         Map<String,Object> components = new HashMap<String,Object>();
