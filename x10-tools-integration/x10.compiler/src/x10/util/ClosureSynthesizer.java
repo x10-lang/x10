@@ -145,7 +145,7 @@ public class ClosureSynthesizer {
             public ClosureType asType() {
                 if (asType == null) {
                     X10ClassDef cd = this;
-                    asType = new ClosureType_c(xts, pos, this);
+                    asType = new ClosureType_c(xts, pos, this, def.methodContainer().get());
                 }
                 return (ClosureType) asType;
             }
@@ -174,7 +174,7 @@ public class ClosureSynthesizer {
                 def.formalNames(), 
                 def.guard(),
                 def.typeGuard(),
-                null, // offerType
+                null, // FIXME: offerType
                 null);
         cd.addMethod(mi);
 

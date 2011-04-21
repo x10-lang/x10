@@ -43,6 +43,7 @@ import x10.types.constraints.CConstraint;
 import polyglot.types.Context;
 
 import polyglot.types.TypeSystem;
+import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.errors.Errors;
 
@@ -93,16 +94,10 @@ public class AtExpr_c extends Closure_c implements AtExpr {
 		return n;
 	}
 
-    /** Visit the children of the expression.
-     * vj: TODO: I use a hack below to bypass
-     * visiting the embedded stmt if the visitor is a ReachChecker.
-     * Otherwise a reach error is generated that is in fact spurious.
-     * There must be a way to convince the ReachChecker legitimately that this statement
-     * is reachable if the future is reachable.
-     */
-    public Node visitChildren( NodeVisitor v ) {
-    	Expr place = (Expr) visitChild( this.place, v );
-    	AtExpr_c n = (AtExpr_c) super.visitChildren(v);
+    /** Visit the children of the expression. */
+    public Node visitChildren(NodeVisitor v) {
+    	Expr place = (Expr) visitChild(this.place, v);
+    	AtExpr_c n = (AtExpr_c) superVisitChildren(v);
     	if (n.place != place) {
     		if (n == this) n = (AtExpr_c) copy();
     		n.place = place;
@@ -110,25 +105,36 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	return n;
     }
 
-    boolean placeError=false;
+    private Node superVisitChildren(NodeVisitor v) {
+        return super.visitChildren(v);
+    }
 
-  @Override
+    @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-
     	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	NodeVisitor v = tc.enter(parent, this);
 
     	if (v instanceof PruningVisitor) {
     		return this;
     	}
+    	ContextVisitor childtc = (ContextVisitor) v;
+
+    	Expr place = (Expr) visitChild(this.place, childtc);
+
+    	place = Converter.attemptCoercion(tc, place, ts.Place());
+    	if (place == null) {
+    	    Errors.issue(tc.job(),
+    	            new Errors.AtArgMustBePlace(this.place, ts.Place(), this.place.position()));
+            place = tc.nodeFactory().Here(this.place.position()).type(ts.Place());
+    	}
+
+    	Context c = tc.context();
     	ClosureDef def = (ClosureDef) this.codeDef();
     	if (def.placeTerm() == null) {
-    		Expr e = (Expr) visitChild(place, v);
-    		XConstrainedTerm placeTerm = null;
+    	    XConstrainedTerm placeTerm = null;
     		try {
-    		    placeTerm = PlaceChecker.computePlaceTerm(e, (Context) tc.context(), ts);
+    		    placeTerm = PlaceChecker.computePlaceTerm(place, (Context) tc.context(), ts);
     		} catch (SemanticException se) {
-    			placeError=true;
     		    CConstraint d = new CConstraint();
     		    XTerm term = PlaceChecker.makePlace();
     		    try {
@@ -139,10 +145,26 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     		}
     		def.setPlaceTerm(placeTerm);
     	}
-    	// now that placeTerm is set in this node, continue visiting children
-    	// enterScope will ensure that placeTerm is installed in the context.
 
-    	return null;
+    	// now that placeTerm is computed for this node, install it in the context
+    	// and continue visiting children
+
+    	c = super.enterChildScope(this.body, childtc.context());
+    	c = pushPlaceTerm(c);
+
+    	AtExpr_c n = this.place(place);
+    	n = (AtExpr_c) n.superVisitChildren(childtc.context(c));
+    	return tc.leave(parent, this, n, childtc);
+    }
+
+    @Override
+    public Node typeCheck(ContextVisitor tc) {
+        AtExpr_c n = (AtExpr_c) super.typeCheck(tc);
+        Type t = n.returnType().type();
+        Context c = super.enterChildScope(body, tc.context());
+        c = pushPlaceTerm(c);
+        t = PlaceChecker.ReplaceHereByPlaceTerm(t, (Context) c);
+        return n.type(t);
     }
 
     protected Context pushPlaceTerm(Context xc) {
@@ -153,15 +175,11 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	}
     	return xc;
     }
+
     @Override
     public Context enterChildScope(Node child, Context c) {
-    	if (child == place) return c.pop();
-    	Context xc = (Context) super.enterChildScope(child, c);
-    	if (child == body) {
-    		xc = pushPlaceTerm(xc);
-    		addDecls(xc);
-    	}
-    	return xc;
+        if (child == this.place) return c.pop();
+        return super.enterChildScope(child, c);
     }
 
     /**
@@ -204,18 +222,6 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	return child.type();
     }
 
-    public Node typeCheck(ContextVisitor tc) {
-    	if (placeError) { // this means we were not able to convert this.place into a term of type Place.
-    		Errors.issue(tc.job(),
-    				new Errors.AtArgMustBePlace(this.place, tc.typeSystem().Place(), this.position()));
-    	}
-    	AtExpr_c n = (AtExpr_c) super.typeCheck(tc);
-    	Type t = n.returnType().type();
-    	Context childC = enterChildScope(body, tc.context());
-    	t = PlaceChecker.ReplaceHereByPlaceTerm(t, (Context) childC);
-    	return n.type(t);
-    }
-    
     public String toString() {
     	return  "(#" + hashCode() + // todo: using hashCode leads to non-determinism in the output of the compiler
                 ") at[" + returnType + "](" + place + ") " + body;

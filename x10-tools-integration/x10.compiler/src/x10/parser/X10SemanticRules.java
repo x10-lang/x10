@@ -59,6 +59,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.FlagsNode;
 import polyglot.parse.ParsedName;
+import x10.ast.AmbMacroTypeNode;
 import x10.ast.AnnotationNode;
 import x10.ast.ClosureCall;
 import x10.ast.SettableAssign;
@@ -2032,10 +2033,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Formal> ExistentialList = (List<Formal>) _ExistentialList;
         setResult(ExistentialList);
     }
-    // Production: Annotation ::= '@' NamedType
-    void rule_Annotation0(Object _NamedType) {
-        TypeNode NamedType = (TypeNode) _NamedType;
-        setResult(nf.AnnotationNode(pos(), NamedType));
+    // Production: Annotation ::= '@' NamedTypeNoConstraints
+    void rule_Annotation0(Object _NamedTypeNoConstraints) {
+        TypeNode NamedTypeNoConstraints = (TypeNode) _NamedTypeNoConstraints;
+        setResult(nf.AnnotationNode(pos(), NamedTypeNoConstraints));
     }
     // Production: BinOp ::= '+'
     void rule_BinOp0() {
@@ -2271,79 +2272,49 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr regionCall = nf.Binary(pos(), expr1, Binary.DOT_DOT, expr2);
         setResult(regionCall);
     }
+    // Production: ParameterizedNamedType ::= SimpleNamedType Arguments
+    void rule_ParameterizedNamedType0(Object _SimpleNamedType, Object _Arguments) {
+        AmbTypeNode SimpleNamedType = (AmbTypeNode) _SimpleNamedType;
+        List<Expr> Arguments = (List<Expr>) _Arguments;
+        TypeNode type = nf.AmbMacroTypeNode(pos(), SimpleNamedType.prefix(), SimpleNamedType.name(),
+                new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false),
+                Arguments);
+        setResult(type);
+    }
+    // Production: ParameterizedNamedType ::= SimpleNamedType TypeArguments
+    void rule_ParameterizedNamedType1(Object _SimpleNamedType, Object _TypeArguments) {
+        AmbTypeNode SimpleNamedType = (AmbTypeNode) _SimpleNamedType;
+        List<TypeNode> TypeArguments = (List<TypeNode>) _TypeArguments;
+        TypeNode type = nf.AmbMacroTypeNode(pos(), SimpleNamedType.prefix(), SimpleNamedType.name(),
+                TypeArguments,
+                new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false));
+        setResult(type);
+    }
+    // Production: ParameterizedNamedType ::= SimpleNamedType TypeArguments Arguments
+    void rule_ParameterizedNamedType2(Object _SimpleNamedType, Object _TypeArguments, Object _Arguments) {
+        AmbTypeNode SimpleNamedType = (AmbTypeNode) _SimpleNamedType;
+        List<TypeNode> TypeArguments = (List<TypeNode>) _TypeArguments;
+        List<Expr> Arguments = (List<Expr>) _Arguments;
+        TypeNode type = nf.AmbMacroTypeNode(pos(), SimpleNamedType.prefix(), SimpleNamedType.name(),
+                TypeArguments,
+                Arguments);
+        setResult(type);
+    }
     // Production: DepNamedType ::= SimpleNamedType DepParameters
     void rule_DepNamedType0(Object _SimpleNamedType, Object _DepParameters) {
-        TypeNode SimpleNamedType = (TypeNode) _SimpleNamedType;
+        AmbTypeNode SimpleNamedType = (AmbTypeNode) _SimpleNamedType;
         DepParameterExpr DepParameters = (DepParameterExpr) _DepParameters;
-        TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+        TypeNode type = nf.AmbDepTypeNode(pos(), SimpleNamedType.prefix(), SimpleNamedType.name(),
                 new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false),
                 new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
                 DepParameters);
         setResult(type);
     }
-    // Production: DepNamedType ::= SimpleNamedType Arguments
-    void rule_DepNamedType1(Object _SimpleNamedType, Object _Arguments) {
-        TypeNode SimpleNamedType = (TypeNode) _SimpleNamedType;
-        List<Expr> Arguments = (List<Expr>) _Arguments;
-        TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
-                new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false),
-                Arguments,
-                null);
-        setResult(type);
-    }
-    // Production: DepNamedType ::= SimpleNamedType Arguments DepParameters
-    void rule_DepNamedType2(Object _SimpleNamedType, Object _Arguments, Object _DepParameters) {
-        TypeNode SimpleNamedType = (TypeNode) _SimpleNamedType;
-        List<Expr> Arguments = (List<Expr>) _Arguments;
+    // Production: DepNamedType ::= ParameterizedNamedType DepParameters
+    void rule_DepNamedType1(Object _ParameterizedNamedType, Object _DepParameters) {
+        AmbMacroTypeNode ParameterizedNamedType = (AmbMacroTypeNode) _ParameterizedNamedType;
         DepParameterExpr DepParameters = (DepParameterExpr) _DepParameters;
-        TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
-                new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false),
-                Arguments,
-                DepParameters);
-        setResult(type);
-    }
-    // Production: DepNamedType ::= SimpleNamedType TypeArguments
-    void rule_DepNamedType3(Object _SimpleNamedType, Object _TypeArguments) {
-        TypeNode SimpleNamedType = (TypeNode) _SimpleNamedType;
-        List<TypeNode> TypeArguments = (List<TypeNode>) _TypeArguments;
-        TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
-                TypeArguments,
-                new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
-                null);
-        setResult(type);
-    }
-    // Production: DepNamedType ::= SimpleNamedType TypeArguments DepParameters
-    void rule_DepNamedType4(Object _SimpleNamedType, Object _TypeArguments, Object _DepParameters) {
-        TypeNode SimpleNamedType = (TypeNode) _SimpleNamedType;
-        List<TypeNode> TypeArguments = (List<TypeNode>) _TypeArguments;
-        DepParameterExpr DepParameters = (DepParameterExpr) _DepParameters;
-        TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
-                TypeArguments,
-                new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
-                DepParameters);
-        setResult(type);
-    }
-    // Production: DepNamedType ::= SimpleNamedType TypeArguments Arguments
-    void rule_DepNamedType5(Object _SimpleNamedType, Object _TypeArguments, Object _Arguments) {
-        TypeNode SimpleNamedType = (TypeNode) _SimpleNamedType;
-        List<TypeNode> TypeArguments = (List<TypeNode>) _TypeArguments;
-        List<Expr> Arguments = (List<Expr>) _Arguments;
-        TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
-                TypeArguments,
-                Arguments,
-                null);
-        setResult(type);
-    }
-    // Production: DepNamedType ::= SimpleNamedType TypeArguments Arguments DepParameters
-    void rule_DepNamedType6(Object _SimpleNamedType, Object _TypeArguments, Object _Arguments, Object _DepParameters) {
-        TypeNode SimpleNamedType = (TypeNode) _SimpleNamedType;
-        List<TypeNode> TypeArguments = (List<TypeNode>) _TypeArguments;
-        List<Expr> Arguments = (List<Expr>) _Arguments;
-        DepParameterExpr DepParameters = (DepParameterExpr) _DepParameters;
-        TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
-                TypeArguments,
-                Arguments,
-                DepParameters);
+        TypeNode type = nf.AmbDepTypeNode(pos(), ParameterizedNamedType, DepParameters);
         setResult(type);
     }
     // Production: ClassBodyDeclaration ::= ConstructorDeclaration
@@ -2411,8 +2382,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Id Identifier = (Id) _Identifier;
         setResult(nf.AmbTypeNode(pos(), Primary, Identifier));
     }
+    // Production: SimpleNamedType ::= ParameterizedNamedType '.' Identifier
+    void rule_SimpleNamedType2(Object _ParameterizedNamedType, Object _Identifier) {
+        TypeNode ParameterizedNamedType = (TypeNode) _ParameterizedNamedType;
+        Id Identifier = (Id) _Identifier;
+        setResult(nf.AmbTypeNode(pos(), ParameterizedNamedType, Identifier));
+    }
     // Production: SimpleNamedType ::= DepNamedType '.' Identifier
-    void rule_SimpleNamedType2(Object _DepNamedType, Object _Identifier) {
+    void rule_SimpleNamedType3(Object _DepNamedType, Object _Identifier) {
         TypeNode DepNamedType = (TypeNode) _DepNamedType;
         Id Identifier = (Id) _Identifier;
         setResult(nf.AmbTypeNode(pos(), DepNamedType, Identifier));

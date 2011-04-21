@@ -353,6 +353,7 @@ public class Lowerer extends ContextVisitor {
 
     Expr getPlace(Position pos, Expr place) throws SemanticException{
     	if (! ts.isImplicitCastValid(place.type(), ts.Place(), context())) {
+            	assert (false);
             	place = synth.makeInstanceCall(pos, place, ts.homeName(),
             			Collections.<TypeNode>emptyList(),
             			Collections.<Expr>emptyList(),
@@ -542,7 +543,7 @@ public class Lowerer extends ContextVisitor {
             if (!PlaceChecker.isAtPlace(r, p, xContext()))
                 return null;
     */
-            ClassType RemoteOperation = (ClassType) ts.typeForName(REMOTE_OPERATION);
+            ClassType RemoteOperation = (ClassType) ts.forName(REMOTE_OPERATION);
             Position pos = a.position();
             List<Expr> args = new ArrayList<Expr>();
             Expr p1 = (Expr) leaveCall(null, q, this);
@@ -565,7 +566,7 @@ public class Lowerer extends ContextVisitor {
             if (!PlaceChecker.isAtPlace(r, p, xContext()))
                 return null;
     */
-            ClassType RemoteOperation = (ClassType) ts.typeForName(REMOTE_OPERATION);
+            ClassType RemoteOperation = (ClassType) ts.forName(REMOTE_OPERATION);
             Position pos = a.position();
             List<Expr> args = new ArrayList<Expr>();
             Expr p1 = (Expr) leaveCall(null, p, this);
@@ -658,9 +659,9 @@ public class Lowerer extends ContextVisitor {
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body,
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
+        closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
         closure.closureDef().setMethodContainer(Types.ref(mi));
-        closure.closureDef().setCapturedEnvironment(env);
         exprs.add(closure);
         types.add(closure.closureDef().asType());
         Stmt result = nf.Eval(pos,
@@ -758,7 +759,7 @@ public class Lowerer extends ContextVisitor {
         if (!Emitter.hasAnnotation(ts, f, IMMEDIATE))
             return null;
         Position pos = f.position();
-        ClassType target = (ClassType) ts.typeForName(REMOTE_OPERATION);
+        ClassType target = (ClassType) ts.forName(REMOTE_OPERATION);
         List<Expr> args = new ArrayList<Expr>();
         return nf.Block(pos, f.body(), nf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, ts.Void(), context())));
     }

@@ -18,7 +18,7 @@ import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import x10.ast.Finish;
 import x10.compiler.ws.util.TransCodes;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.SuperCallSynth;
@@ -33,7 +33,7 @@ import x10.util.synthesizer.SwitchSynth;
 public class WSFinishStmtClassGen extends AbstractWSClassGen {
     public WSFinishStmtClassGen(AbstractWSClassGen parent, Finish finishStmt) {
         super(parent, parent,
-                WSCodeGenUtility.getFinishStmtClassName(parent.getClassName()),
+                WSUtil.getFinishStmtClassName(parent.getClassName()),
                 parent.xts.FinishFrame(), finishStmt.body());
         
         if(!wts.OPT_PC_FIELD){
@@ -57,7 +57,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
         
 
-        AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSCodeGenUtility.getBlockFrameClassName(getClassName()));
+        AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSUtil.getBlockFrameClassName(getClassName()));
         TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
         
         //now add codes to three path;

@@ -137,6 +137,15 @@ public class WSCallGraph {
         return true;
     }
     
+    /**
+     * used only by WSCodePreprocessor.
+     * In the pass, it may generate some concurrent method.
+     * @param mDecl
+     */
+    public void addSynthesizedConcurrentMethod(MethodDecl mDecl) {
+        WSCallGraphNode node = findOrCreateNode(mDecl.methodDef());
+        node.setParallel(true);
+    }
     
     /**
      * Add a method into the node, and mark the parallel status
@@ -163,13 +172,13 @@ public class WSCallGraph {
 
         if(!node.isCallgraphBuild()){ //prevent add one method again
             //now check whether this method has parallel;
-            if(WSCodeGenUtility.containsConcurrentConstruct(procedure)){
+            if(WSUtil.containsConcurrentConstruct(procedure)){
                 node.setContainsConcurrent(true);
                 initialParallelMethods.add(node);
             }
                     
             //now get all callees from this node
-            node.addCallTo(WSCodeGenUtility.scanForCallees(procedure));
+            node.addCallTo(WSUtil.scanForCallees(procedure));
             
 //            //debug info
 //            System.out.println("scan for callto:"+pDef);
@@ -301,4 +310,5 @@ public class WSCallGraph {
             return n.parallel;
         }
     }
+
 }

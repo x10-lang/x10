@@ -8,7 +8,6 @@
 package polyglot.types;
 
 import polyglot.main.Report;
-import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.Position;
 
 /**
@@ -21,7 +20,7 @@ public class LocalDef_c extends VarDef_c implements LocalDef
     /** Used for deserializing types. */
     protected LocalDef_c() { }
 
-    public LocalDef_c(TypeSystem ts, Position pos,
+    protected LocalDef_c(TypeSystem ts, Position pos,
 	  		   Flags flags, Ref<? extends Type> type, Name name) {
         super(ts, pos, flags, type, name);
     }
@@ -35,6 +34,42 @@ public class LocalDef_c extends VarDef_c implements LocalDef
         return asInstance;
     }
 
+    @Override
+    public LocalDef_c copy() {
+        LocalDef_c res = (LocalDef_c) super.copy();
+        res.asInstance = null;
+        return res;
+    }
+
+    @Override
+    public void setConstantValue(Object constantValue) {
+        super.setConstantValue(constantValue);
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setFlags(Flags flags) {
+        super.setFlags(flags);
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setName(Name name) {
+        super.setName(name);
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setNotConstant() {
+        super.setNotConstant();
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setType(Ref<? extends Type> type) {
+        super.setType(type);
+        this.asInstance = null;
+    }
 
     public String toString() {
         ConstantValue cv = constantRef.getCached();

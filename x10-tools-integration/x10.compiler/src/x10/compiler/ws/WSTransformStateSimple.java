@@ -45,6 +45,7 @@ import x10.ast.X10MethodDecl;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
 import x10.compiler.ws.util.WSTransformationContent;
+import x10.compiler.ws.util.WSUtil;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
@@ -153,5 +154,9 @@ public class WSTransformStateSimple extends WSTransformState {
             procedureDef = ((Closure)codeBlock).closureDef();
         }
         return callGraph.isParallel(procedureDef) ? MethodType.BODYDEF_TRANSFORMATION : MethodType.NORMAL;
+    }
+    
+    public void addSynthesizedConcurrentMethod(MethodDecl mDecl) {
+        callGraph.addSynthesizedConcurrentMethod(mDecl);
     }
 }

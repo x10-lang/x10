@@ -35,11 +35,13 @@ public interface Closure extends Expr, CodeBlock, Guarded {
      * @return A list of {@link polyglot.ast.Formal Formal}
      */
     List<Formal> formals();
+    Closure formals(List<Formal> formals);
 
     /**
      * @return the closure's return type
      */
     TypeNode returnType();
+    Closure returnType(TypeNode returnType);
     
     DepParameterExpr guard();
     Closure guard(DepParameterExpr guard);

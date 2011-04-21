@@ -61,6 +61,7 @@ import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
+import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -146,7 +147,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	}
 
 	/** Reconstruct the statement. */
-	protected AtStmt reconstruct(Expr place, Stmt body) {
+	protected AtStmt_c reconstruct(Expr place, Stmt body) {
 		if (place != this.place || body != this.body) {
 			AtStmt_c n = (AtStmt_c) copy();
 			n.place = place;
@@ -157,7 +158,6 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	}
 
     protected XConstrainedTerm placeTerm;
-    protected boolean placeError = false;
   
     protected XConstrainedTerm finishPlaceTerm;
     public boolean isFinishPlace() {
@@ -219,38 +219,53 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	if (v instanceof PruningVisitor) {
     		return this;
     	}
+    	ContextVisitor childtc = (ContextVisitor) v;
 
-        if (placeTerm == null) {
-            try {
-                placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
-                        (Context) tc.context(), ts);
-                finishPlaceTerm = tc.context().currentFinishPlaceTerm();
-            } catch (SemanticException e) {
-                CConstraint d = new CConstraint();
-                XTerm term = PlaceChecker.makePlace();
-                try {
-                    placeTerm = XConstrainedTerm.instantiate(d, term);
-                    placeError = true;
-                } catch (XFailure z) {
-                    throw new InternalCompilerError("Cannot construct placeTerm from term  and constraint.");
-                }
+    	Expr place = (Expr) visitChild(this.place, childtc);
+
+    	place = Converter.attemptCoercion(tc, place, ts.Place());
+    	if (place == null) {
+    	    Errors.issue(tc.job(), 
+    	            new Errors.AtArgMustBePlace(this.place, ts.Place(), this.place.position()));
+    	    place = tc.nodeFactory().Here(this.place.position()).type(ts.Place());
+    	}
+
+    	Context c = tc.context();
+    	XConstrainedTerm placeTerm;
+    	XConstrainedTerm finishPlaceTerm = null;
+    	try {
+    	    placeTerm = PlaceChecker.computePlaceTerm(place, c, ts);
+    	    finishPlaceTerm = c.currentFinishPlaceTerm();
+    	} catch (SemanticException e) {
+    	    CConstraint d = new CConstraint();
+    	    XTerm term = PlaceChecker.makePlace();
+    	    try {
+    	        placeTerm = XConstrainedTerm.instantiate(d, term);
+    	    } catch (XFailure z) {
+    	        throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
+    	    }
+    	}
+
+    	// now that placeTerm is computed for this node, install it in the context
+    	// and continue visiting children
+
+        c = super.enterChildScope(body, childtc.context());
+        if (placeTerm != null)
+            c = c.pushPlace(placeTerm);
+        Stmt body = (Stmt) visitChild(this.body, childtc.context(c));
+        AtStmt_c n = this.reconstruct(place, body);
+        if (placeTerm != n.placeTerm || finishPlaceTerm != n.finishPlaceTerm) {
+            if (n == this) {
+                n = (AtStmt_c) n.copy();
             }
+            n.placeTerm = placeTerm;
+            n.finishPlaceTerm = finishPlaceTerm;
         }
-    	
-    	// now that placeTerm is set in this node, continue visiting children
-    	// enterScope will ensure that placeTerm is installed in the context.
-    	
-    	return null;
+        return tc.leave(parent, this, n, childtc);
     }
 
     @Override
     public Node typeCheck(ContextVisitor tc) {
-        TypeSystem ts = (TypeSystem) tc.typeSystem();
-        if (placeError) { // this means we were not able to convert this.place into a term of type Place.
-            Errors.issue(tc.job(), 
-                    new Errors.AtArgMustBePlace(this.place, ts.Place(), this.position()));
-        }
-
         Context c = tc.context();
         AtDef def = this.atDef();
         //if (!def.capturedEnvironment().isEmpty()) {
@@ -260,7 +275,13 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
         return this;
     }
-    
+
+    @Override
+    public Context enterChildScope(Node child, Context c) {
+        if (child != this.body) return c.pop();
+        return super.enterChildScope(child, c);
+    }
+
 	/** Visit the children of the statement. */
 	public Node visitChildren(NodeVisitor v) {
 		Expr place = (Expr) visitChild(this.place, v);
@@ -285,27 +306,12 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	    return asyncInstance; 
 	}
 
+	@Override
 	public Context enterScope(Context c) {
+	    c = c.pushBlock();
 	    c = c.pushCode(atDef);
 	    ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.At;
 	    return c;
-	}
-
-	@Override
-	public Context enterChildScope(Node child, Context c) {
-		if (child != this.body) {
-			// pop the scope pushed by enterScope.
-			c = c.pop();
-		} else {
-			c = super.enterChildScope(child,c);
-			Context xc = (Context) c;
-			if (child == body) {
-				if (placeTerm != null)
-					c = xc.pushPlace(placeTerm);
-			}
-			addDecls(c);
-		}
-		return c;
 	}
 
 

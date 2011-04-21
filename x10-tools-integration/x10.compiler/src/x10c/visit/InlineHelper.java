@@ -184,8 +184,9 @@ public class InlineHelper extends ContextVisitor {
                         List<Formal> formals = new ArrayList<Formal>(mdcl.formals());
                         Type ct = cd.asType();
                         ct = Types.instantiateTypeParametersExplicitly(ct);
-                        LocalDef ldef = xts.localDef(pos, Flags.FINAL, Types.ref(ct), cd.name());
+                        LocalDef ldef = null;
                         if (!mdcl.flags().flags().isStatic()) {
+                            ldef = xts.localDef(pos, Flags.FINAL, Types.ref(ct), cd.name());
                             formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, ct), xnf.Id(pos, cd.name())).localDef(ldef));
                         }
                         
@@ -365,7 +366,7 @@ public class InlineHelper extends ContextVisitor {
     }
 
     private Name makeSuperBridgeName(final ClassDef cd, Id name) {
-        return Name.make(Emitter.mangleQNameToName(cd.asType().fullName()) + "$" + Emitter.mangleToJava(name.id()) + BRIDGE_TO_SUPER_SUFFIX);
+        return Name.make(Emitter.mangleAndFlattenQName(cd.asType().fullName()) + "$" + Emitter.mangleToJava(name.id()) + BRIDGE_TO_SUPER_SUFFIX);
     }
 
     private Name makePrivateBridgeName(Id name) {

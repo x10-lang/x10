@@ -11,45 +11,50 @@
 
 package x10.emitter;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import polyglot.visit.Translator;
 
+// not used
 /**
  * Expand a given template with the given set of arguments.
  * Equivalent to a Loop with an array of singleton lists.
  * If the template has zero, one, two, or three arguments, the
  * arguments can be passed in directly to the constructor.
  */
+@Deprecated
 public class Template extends Expander {
-	/**
-	 * 
-	 */
-	
 	private final String id;
-	private final Object[] args;
 	private final String regex;
-	private Template(Emitter er, String id, String regex, Object... args) {
+	private final Map<String,Object> components;
+
+	private Template(Emitter er, String id, String regex, Map<String,Object> components) {
 		super(er);
 		
+        assert id != null;
 		this.id = id;
 		this.regex = regex;
 		assert regex != null;
-		this.args = args;
+		this.components = components;
 	}
-	public static Template createTemplateFromRegex(Emitter er, String id, String regex, Object... args) {
-	    return new Template(er, id, regex, args);
+
+	public static Template createTemplateFromRegex(Emitter er, String id, String regex, Map<String,Object> components) {
+	    return new Template(er, id, regex, components);
 	}
-	public void expand() {
-		expand(er.tr);
-	}
+
+	@Override
 	public void expand(Translator tr) {
-//	    if (regex != null) {
-	        er.dumpRegex(id != null ? id : "internal", args, tr, regex);
-//	    } else {
-//	        er.dump(id, args, tr);
-//	    }
+		er.dumpRegex(id, components, tr, regex);
 	}
+    
+    @Override
 	public String toString() {
-		return id + " " + er.convertToString(args);
+    	ArrayList<Object> l = new ArrayList<Object>();
+    	for (Map.Entry<String, Object> e : components.entrySet()) {
+    		l.add(e);
+    	}
+		return id + " " + Emitter.convertToString(l.toArray());
 	}
 	
 }

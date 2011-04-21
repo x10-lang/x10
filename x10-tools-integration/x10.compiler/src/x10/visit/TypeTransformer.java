@@ -12,6 +12,7 @@
 package x10.visit;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,10 +31,12 @@ import polyglot.ast.Node;
 import polyglot.ast.Special;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ast.VarDecl;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -51,22 +54,37 @@ import x10.ast.SettableAssign;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ConstructorCall;
 import x10.ast.X10Formal;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.constraint.XVar;
 import x10.extension.X10Ext_c;
 import x10.types.AsyncDef;
 import x10.types.AtDef;
 import x10.types.ClosureDef;
 import x10.types.ClosureDef_c;
 import x10.types.ClosureInstance;
+import x10.types.ClosureType;
+import x10.types.ConstrainedType;
 import x10.types.EnvironmentCapture;
+import x10.types.FunctionType;
 import x10.types.ParameterType;
+import x10.types.ThisDef;
+import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
+import x10.types.X10MemberDef;
+import x10.types.X10ParsedClassType;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
+import x10.types.constraints.CTerms;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
+import x10.util.CollectionFactory;
 
 /**
  * A {@link NodeTransformer} that transforms the types stored
@@ -76,7 +94,45 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 public class TypeTransformer extends NodeTransformer {
 
     protected Type transformType(Type type) {
-        return type;
+        Type nt = transformTypeRecursively(type);
+        //if (nt != null && nt.toString().contains("!!!")) { // validation
+        //    throw new InternalCompilerError("Type was not fully transformed: "+nt, nt.position());
+        //}
+        return nt;
+    }
+
+    protected CConstraint transformConstraint(CConstraint c) {
+        if (c == null)
+            return null;
+        List<XVar> oldvars = new ArrayList<XVar>();
+        List<XVar> newvars = new ArrayList<XVar>();
+        for (XVar v : c.vars()) {
+            if (v instanceof CLocal) {
+                CLocal l = (CLocal) v;
+                X10LocalDef ld = l.name();
+                X10LocalDef newld = vars.get(ld);
+                if (newld == null) { // have not seen the declaration yet
+                    Type rt = Types.get(ld.type());
+                    TypeSystem ts = rt.typeSystem();
+                    newld = copyLocalDef(ld);
+                    mapLocal(ld, newld); // have to do this first, else get infinite recursion
+                    mapLocal(newld, newld); // just in case some client substitutes first
+                    Type newrt = transformType(rt);
+                    newld.setType(Types.ref(newrt));
+                }
+                if (newld == ld) continue;
+                oldvars.add(v);
+                //if (!l.s.endsWith("!!!")) l.s+="!!!"; // validation
+                //newvars.add(CTerms.makeLocal(newld, newld.name().toString())); // validation
+                newvars.add(CTerms.makeLocal(newld, v.toString()));
+            }
+        }
+        try {
+            c = c.substitute(newvars.toArray(new XTerm[0]), oldvars.toArray(new XVar[0]));
+        } catch (XFailure e) {
+            throw new InternalCompilerError("Unexpected failure while transforming constraint: "+c);
+        }
+        return c;
     }
 
     protected <T> Ref<T> transformRef(Ref<T> ref) {
@@ -119,6 +175,8 @@ public class TypeTransformer extends NodeTransformer {
     }
 
     protected final List<Type> transformTypeList(List<Type> l) {
+        if (l == null)
+            return null;
         List<Type> res = l;
         List<Type> acc = new ArrayList<Type>();
         for (Type t : l) {
@@ -129,6 +187,97 @@ public class TypeTransformer extends NodeTransformer {
             }
         }
         return res;
+    }
+
+    private Type transformTypeRecursively(Type t) {
+        if (t instanceof ConstrainedType) {
+            ConstrainedType ct = (ConstrainedType) t;
+            Type bt = Types.get(ct.baseType());
+            Type newbt = transformTypeRecursively(bt);
+            CConstraint constraint = ct.getRealXClause();
+            CConstraint newConstraint = transformConstraint(constraint);
+            if (newbt != bt || newConstraint != constraint) {
+                t = Types.xclause(newbt, newConstraint);
+            }
+        } else if (t instanceof ClosureType) { // order matters!
+            ClosureType ft = (ClosureType) t; // TODO
+            X10ClassType ct = (X10ClassType) ft.outer();
+            FunctionType fi = ft.functionInterface();
+            CodeInstance<?> cm = ft.methodContainer();
+            X10ClassType nct = (X10ClassType) transformType(ct);
+            FunctionType nfi = (FunctionType) transformTypeRecursively(fi);
+            CodeInstance<?> ncm = transformCodeInstance(cm);
+            if (nct != ct || nfi != fi || ncm != cm) {
+                List<Ref<? extends Type>> fts = new ArrayList<Ref<? extends Type>>();
+                List<ParameterType> tps = Collections.<ParameterType>emptyList();
+                for (Type a : nfi.argumentTypes()) {
+                    fts.add(Types.ref(a));
+                }
+                List<LocalDef> nfns = new ArrayList<LocalDef>();
+                for (LocalInstance li : nfi.formalNames()) {
+                    nfns.add(li.def());
+                }
+                ThisDef td = ncm.def() instanceof X10MemberDef ? ((X10MemberDef) ncm.def()).thisDef() : ct.x10Def().thisDef();
+                Type ot = null; // FIXME
+                TypeSystem ts = t.typeSystem();
+                ClosureDef cd = ts.closureDef(ft.position(), Types.ref(nct), Types.ref(ncm), Types.ref(nfi.returnType()), fts, td, nfns, Types.ref(nfi.guard()), Types.ref(ot));
+                t = ts.closureType(cd);
+            }
+        } else if (t instanceof FunctionType) { // order matters!
+            FunctionType ft = (FunctionType) t;
+            Type rt = ft.returnType();
+            List<Type> tas = ft.typeParameters();
+            assert (tas.isEmpty());
+            List<LocalInstance> fns = ft.formalNames();
+            List<Type> ats = ft.argumentTypes();
+            CConstraint g = ft.guard();
+            Type nrt = transformType(rt);
+            List<LocalDef> nfns = new ArrayList<LocalDef>();
+            boolean changedFN = false;
+            for (LocalInstance li : fns) {
+                X10LocalDef ld = (X10LocalDef) li.def();
+                X10LocalDef newld = vars.get(ld);
+                if (newld == null) {
+                    Type lt = Types.get(ld.type());
+                    Type newlt = transformType(lt);
+                    if (newlt != rt) {
+                        newld = copyLocalDef(ld);
+                        newld.setType(Types.ref(newlt));
+                    } else {
+                        newld = ld; // unchanged
+                    }
+                    mapLocal(ld, newld);
+                }
+                if (newld != ld) changedFN = true;
+                nfns.add(newld);
+            }
+            List<Type> nats = transformTypeList(ats);
+            CConstraint ng = transformConstraint(g);
+            if (nrt != rt || changedFN || nats != ats || ng != g) {
+                List<Ref<? extends Type>> fts = new ArrayList<Ref<? extends Type>>();
+                List<ParameterType> tps = Collections.<ParameterType>emptyList();
+                for (Type a : nats) {
+                    fts.add(Types.ref(a));
+                }
+                TypeSystem ts = t.typeSystem();
+                t = ts.functionType(ft.position(), Types.ref(nrt), tps, fts, nfns, Types.ref(ng));
+            }
+        } else if (t instanceof X10ParsedClassType) { // order matters!
+            X10ParsedClassType qt = (X10ParsedClassType) t;
+            List<Type> tas = qt.typeArguments();
+            List<Type> ntas = transformTypeList(tas);
+            if (ntas != tas) {
+                qt = qt.typeArguments(ntas);
+            }
+            X10ClassType ct = (X10ClassType) qt.outer();
+            X10ClassType nct = (X10ClassType) transformType(ct);
+            if (nct != ct) {
+                qt = qt.container(nct);
+            }
+            t = qt;
+        }
+        // TODO: annotations
+        return t;
     }
 
     @Override
@@ -278,12 +427,13 @@ public class TypeTransformer extends NodeTransformer {
             icd.setGuard(g == null ? null : g.valueConstraint());
             cd = icd;
         }
-        List<VarInstance<? extends VarDef>> ce = transformCapturedEnvironment(cd.capturedEnvironment());
-        if (cd.capturedEnvironment() != ce) {
+        List<VarInstance<? extends VarDef>> ce = cd.capturedEnvironment();
+        List<VarInstance<? extends VarDef>> ice = transformCapturedEnvironment(ce);
+        if (ce != ice) {
             if (cd == d.closureDef()) {
                 cd = (ClosureDef) cd.copy();
             }
-            cd.setCapturedEnvironment(ce);
+            cd.setCapturedEnvironment(ice);
         }
         return d.closureDef(cd);
     }
@@ -382,30 +532,53 @@ public class TypeTransformer extends NodeTransformer {
 
     @Override
     protected LocalDecl transform(LocalDecl d, LocalDecl old) {
-        boolean sigChanged = d.type() != old.type(); // conservative compare detects changes in substructure
-        if (sigChanged) {
-            X10LocalDef ld = (X10LocalDef) d.localDef();
-            TypeSystem xts = visitor().typeSystem();
-            X10LocalDef ild = xts.localDef(ld.position(), ld.flags(), d.type().typeRef(), ld.name());
-            if (ld.isAsyncInit()) ild.setAsyncInit(); // FIXME: we should really be using copy()
-            mapLocal(ld, ild);
-            return d.localDef(ild);
-        }
-        return d;
+        return (LocalDecl) transformVarDecl(d, old);
     }
 
     @Override
     protected X10Formal transform(X10Formal f, X10Formal old) {
-        boolean sigChanged = f.type() != old.type(); // conservative compare detects changes in substructure
-        if (sigChanged) {
-            X10LocalDef ld = f.localDef();
-            TypeSystem xts = visitor().typeSystem();
-            X10LocalDef ild = xts.localDef(ld.position(), ld.flags(), f.type().typeRef(), ld.name());
-            if (ld.isAsyncInit()) ild.setAsyncInit(); // FIXME: we should really be using copy()
-            mapLocal(ld, ild);
-            return f.localDef(ild);
+        return (X10Formal) transformVarDecl(f, old);
+    }
+
+    private VarDecl transformVarDecl(VarDecl d, VarDecl old) {
+        boolean sigChanged = d.type() != old.type(); // conservative compare detects changes in substructure
+        // There may already be a localdef mapping for this variable.  This happens when variable references
+        // are encountered before the declaration, e.g., in return types and in the variable initializer type
+        // (the self binding).  If that happens, use the existing mapping, but validate.
+        // We use a mapping of a localdef to itself to indicate that a reference was encountered before the
+        // declaration, but processing the reference did not change the local def (which means that this
+        // method cannot change the local def either).
+        TypeSystem xts = visitor().typeSystem();
+        X10LocalDef ld = (X10LocalDef) d.localDef();
+        X10LocalDef mld = vars.get(ld);
+        if (mld != null) {
+            if (sigChanged) {
+                // validate the type
+                if (mld == ld || !xts.typeEquals(d.type().type(), Types.get(mld.type()), visitor().context())) {
+                    throw new InternalCompilerError("Inconsistent local mapping for "+d.name().id(), d.position());
+                }
+                // adjust the return type node's type reference to match that of the stored localdef
+                d = d.type(d.type().typeRef(mld.type()));
+            }
+            // now use the new mapping
+            return d.localDef(mld);
         }
-        return f;
+        if (sigChanged) {
+            X10LocalDef ild = copyLocalDef(ld);
+            ild.setType(d.type().typeRef());
+            mapLocal(ld, ild);
+            return d.localDef(ild);
+        } else {
+            mapLocal(ld, ld); // mark this localdef as having been processed
+        }
+        return d;
+    }
+
+    protected static final X10LocalDef copyLocalDef(X10LocalDef ld) {
+        TypeSystem xts = ld.typeSystem(); 
+        X10LocalDef res = xts.localDef(ld.position(), ld.flags(), Types.ref(Types.get(ld.type())), ld.name());
+        if (ld.isAsyncInit()) res.setAsyncInit(); // Cannot use copy() because it's not a deep clone
+        return res;
     }
 
     private static final class IdentityRefKey {

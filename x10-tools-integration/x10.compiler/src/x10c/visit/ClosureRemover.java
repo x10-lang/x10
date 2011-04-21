@@ -423,29 +423,14 @@ public class ClosureRemover extends ContextVisitor {
                     
                     for (NamedVariable vn : capturedVarsExThis) {
                         Name name = vn.name().id();
-                        X10LocalDef li;
-                        if (vn instanceof Local) {
-                            li = (X10LocalDef) vn.varInstance().def();
-                        }
-                        else {
-                            li = xts.localDef(pos, Flags.FINAL, Types.ref(vn.type()), vn.name().id());
-                        }
+                        X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(vn.type()), vn.name().id());
                         X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, Types.baseType(vn.type())), xnf.Id(pos, name)).localDef(li);
                         formals.add(formal);
-                        argTypes.add(vn.varInstance().def().type());
+                        argTypes.add(li.type());
                         args.add(vn);
                         
-                        X10FieldDef fd;
-                        if (nameToLocalDef.containsKey(vn.name())) {
-                            fd = nameToLocalDef.get(vn.name());
-                        }
-                        else {
-                            Flags ff = Flags.FINAL.Private();
-                            if (vn.flags().isTransient()) {
-                                ff = ff.Transient();
-                            }
-                            fd = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), ff, Types.ref(vn.type()), name);
-                        }
+                        assert (nameToLocalDef.containsKey(vn.name().toString()));
+                        X10FieldDef fd = nameToLocalDef.get(vn.name().toString());
                         
                         staticInnerClassDef.addField(fd);
                         FieldDecl fdcl = xnf.FieldDecl(pos, xnf.FlagsNode(pos, fd.flags()), xnf.X10CanonicalTypeNode(pos, vn.type()), xnf.Id(pos, name));
@@ -532,10 +517,19 @@ public class ClosureRemover extends ContextVisitor {
                             Local local = (Local) n;
                             for (VarInstance<? extends VarDef> var : capturedEnv) {
                                 if (var.def().equals(local.localInstance().def())) {
+                                    X10FieldDef fd;
                                     if (!contains(capturedVarsExThis, var.def())) {
                                         capturedVarsExThis.add((NamedVariable) old);
-                                        return n;
+                                        Flags ff = Flags.FINAL.Private();
+                                        if (local.flags().isTransient()) {
+                                            ff = ff.Transient();
+                                        }
+                                        fd = xts.fieldDef(pos, Types.ref(staticInnerClassDef.asType()), ff, Types.ref(local.type()), local.name().id());
+                                        nameToFieldDef.put(var.name().toString(), fd);
+                                    } else {
+                                        fd = nameToFieldDef.get(var.name().toString());
                                     }
+                                    return xnf.Field(pos, xnf.This(pos).type(staticInnerClassDef.asType()), xnf.Id(pos, fd.name())).fieldInstance(fd.asInstance()).type(var.type());
                                 }
                             }                                
                             return n;

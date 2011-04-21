@@ -299,7 +299,7 @@ public class ConstantPropagator extends ContextVisitor {
         Expr cond;
         try { // if possible, create a true that wouldn't be recognized by (another pass of) the ConstantPropagator
             QName qname = QName.make("x10.compiler.CompilerFlags");
-            Type container = ts.typeForName(qname);
+            Type container = ts.forName(qname);
             Name name = Name.make("TRUE"); 
             cond = syn.createStaticCall(stmt.position(), container, name);
         } catch (Exception e) {

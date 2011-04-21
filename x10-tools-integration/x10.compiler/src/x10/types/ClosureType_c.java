@@ -21,6 +21,7 @@ import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ClassType_c;
+import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
@@ -56,8 +57,21 @@ import x10.types.constraints.CConstraint;
 public class ClosureType_c extends FunctionType_c implements ClosureType {
     private static final long serialVersionUID = 331189963001388621L;
 
-    public ClosureType_c(final TypeSystem ts, Position pos, final X10ClassDef def) {
+    public ClosureType_c(final TypeSystem ts, Position pos, X10ClassDef def, CodeInstance<?> methodContainer) {
         super(ts, pos, def);
+        this.methodContainer = methodContainer;
+    }
+
+    protected CodeInstance<?> methodContainer;
+
+    public CodeInstance<?> methodContainer() {
+        return methodContainer;
+    }
+
+    public ClosureType methodContainer(CodeInstance<?> methodContainer) {
+        ClosureType_c ct = (ClosureType_c) copy();
+        ct.methodContainer = methodContainer;
+        return ct;
     }
 
     protected ClosureInstance ci;

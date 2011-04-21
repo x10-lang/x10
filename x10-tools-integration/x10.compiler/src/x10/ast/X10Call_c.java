@@ -602,32 +602,6 @@ public class X10Call_c extends Call_c implements X10Call {
 	    return n;
 	}
 
-    /**
-     * MethodResolution represents the process of method resolution.
-     * We use this object for better error reporting.
-     * A call:  target.m(arguments)
-     * can be resolved to:
-     * 1) closure call on a local or a field
-     * 2) method call on a static or instance method
-     * 3) struct constructor invocation
-     * Note that the instances might have an error object in them (i.e., li.error() may contain an error)
-     */
-    class MethodResolution {
-        // option 1
-        X10LocalInstance li;
-        X10FieldInstance fi;
-        Expr variable; // either a local or field access
-        MethodInstance closureInstance;
-        MethodInstance closureInstanceWithImplicit;
-        Expr closureCall; // might reference a call (after we typecheck a ClosureCall it might return X10Call_c)
-
-        // option 2
-        MethodInstance methodInstance;
-        MethodInstance methodInstanceWithImplicit;
-
-        // option 3
-        X10New structCall;
-    }
 	private Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		NodeFactory xnf = (NodeFactory) tc.nodeFactory();
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
@@ -635,7 +609,6 @@ public class X10Call_c extends Call_c implements X10Call {
 
 		Name name = this.name().id();
 
-        MethodResolution methodResolution = new MethodResolution();
 		Expr cc = null;
 
 		{
@@ -647,13 +620,11 @@ public class X10Call_c extends Call_c implements X10Call {
 
 			if (target() == null) {
 			    final X10LocalInstance li = X10Local_c.findAppropriateLocal(tc, name);
-                methodResolution.li = li;
 			    if (li.error() == null) {
 			        //e = xnf.Local(name().position(), name()).localInstance(li).type(li.type());
 			        e = xnf.Local(name().position(), name()).localInstance(li);
 			        e = (Expr) e.del().typeCheck(tc);
 			        e = (Expr) e.del().checkConstants(tc);
-			        methodResolution.variable = e;
 			    }
 			}
 			if (e == null) {
@@ -669,7 +640,6 @@ public class X10Call_c extends Call_c implements X10Call {
 			        fi = X10Field_c.findAppropriateField(tc, targetType, name,
 			                isStatic, Types.contextKnowsType(target()), this.name().position());
 			    }
-			    methodResolution.fi = fi;
 			    if (fi.error() == null) {
 			        Receiver target = this.target() == null ?
 			                X10Disamb_c.makeMissingFieldTarget(fi, name().position(), tc) :
@@ -680,7 +650,6 @@ public class X10Call_c extends Call_c implements X10Call {
 			                name()).fieldInstance(fi).targetImplicit(target()==null);
 			        e = (Expr) e.del().typeCheck(tc);
 			        e = (Expr) e.del().checkConstants(tc);
-			        methodResolution.variable = e;
 			    }
 			}
 
@@ -693,13 +662,11 @@ public class X10Call_c extends Call_c implements X10Call {
 			    }
 			    // First try to find the method without implicit conversions.
 			    MethodInstance ci = Checker.findAppropriateMethod(tc, e.type(), ClosureCall.APPLY, typeArgs, actualTypes);
-                methodResolution.closureInstance = ci;
                 if (ci.error() != null) {
 			        // Now, try to find the method with implicit conversions, making them explicit.
 			        try {
 			            Pair<MethodInstance,List<Expr>> p = Checker.tryImplicitConversions(this, tc, e.type(), ClosureCall.APPLY, typeArgs, actualTypes);
 			            ci =  p.fst();
-                        methodResolution.closureInstanceWithImplicit = ci;
 			        }
 			        catch (SemanticException se) { }
 			    }
@@ -715,7 +682,6 @@ public class X10Call_c extends Call_c implements X10Call {
 			        //n = n.del().disambiguate(tc);
 			        n = n.del().typeCheck(tc);
 			        cc = (Expr) n;
-			        methodResolution.closureCall = cc;
 			    }
 			}
 		}
@@ -740,12 +706,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		    argTypes.add(et);
 		}
 
-		// TODO: Need to try struct call with implicit conversions as well.
-		final X10New structCall = findStructConstructor(tc, target, typeArgs, argTypes, arguments);
-        methodResolution.structCall = structCall;
-		// We have both a struct constructor and a closure call.  Spec section 8.2.
-        // the user can disambiguate using: "new StructCtor(...)
-        // therefore we give precedence to the closure-call
+		X10New structCall = null;
 
         // Now trying a method call
 		Type targetType = this.target() == null ? null : this.target().type();
@@ -754,7 +715,6 @@ public class X10Call_c extends Call_c implements X10Call {
 		// First try to find the method without implicit conversions.
 		Pair<MethodInstance, List<Expr>> p = Checker.findMethod(tc, this, targetType, name, typeArgs, argTypes);
 		mi =  p.fst();
-        methodResolution.methodInstance = mi;
 		args = p.snd();
 	    SemanticException error=mi.error();
 		if (error != null) {
@@ -765,12 +725,12 @@ public class X10Call_c extends Call_c implements X10Call {
 		    try {
 		        p = Checker.tryImplicitConversions(this, tc, targetType, name, typeArgs, argTypes);
 		        mi = p.fst();
-                methodResolution.methodInstanceWithImplicit = mi;
 		        args = p.snd();
 		    }
 		    catch (SemanticException e2) {
 		        // Nothing worked. If you have a cc, thats the one. Exit with cc.
 		        if (cc != null) {
+		            // [IP] TODO: move closure call lookup here 
 		            Node result = cc.typeCheck(tc);
 		            if (result instanceof Expr) {
 		                Types.checkMissingParameters((Expr) result);
@@ -778,6 +738,11 @@ public class X10Call_c extends Call_c implements X10Call {
 		            //Checker.checkOfferType(position(), ((ClosureCall) cc).closureInstance(), tc);
 		            return result;
 		        }
+		        // Otherwise, try a struct constructor.  If we have both a struct constructor and a
+		        // closure call, then, according to spec section 8.2, the user can disambiguate
+		        // using: "new StructCtor(...); therefore we give precedence to the closure-call.
+		        // TODO: Need to try struct call with implicit conversions as well.
+		        structCall = findStructConstructor(tc, target, typeArgs, argTypes, arguments);
 		        if (structCall == null) {
 		            throw mi.error();
 		        }

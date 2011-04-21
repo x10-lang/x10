@@ -37,7 +37,7 @@ import x10.ast.Closure;
 import x10.ast.TypeParamNode;
 import x10.ast.X10MethodDecl;
 import x10.compiler.ws.WSTransformState;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.types.ClosureDef;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -74,7 +74,7 @@ public class WSClosureFrameClassGen extends WSRegularFrameClassGen {
     public WSClosureFrameClassGen(Job job, NodeFactory xnf, Context xct,
     		Closure closure, ClassDef containerClassDef, WSTransformState wts) {
     
-        super(job, xnf, xct, wts, WSCodeGenUtility.getClosureBodyClassName(closure),
+        super(job, xnf, xct, wts, WSUtil.getClosureBodyClassName(closure),
              closure.body(), containerClassDef,
              Flags.FINAL.Static(), job.extensionInfo().typeSystem().RegularFrame());
 

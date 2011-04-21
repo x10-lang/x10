@@ -14,9 +14,11 @@ package x10.visit;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import polyglot.ast.Allocation_c;
@@ -934,6 +936,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // TODO check without type bounds
         er.printMethodParams(typeParameters);
 
+        // N.B. printing type parameters causes post compilation error for XTENLANG_423 and GenericInstanceof16
         er.printType(type, 0);
 
         w.write(" ");
@@ -1126,7 +1129,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write(" " + dummy + narg++);
                         w.write(",");
                     }
-                    w.write(JAVA_LANG_CLASS);
+                    w.write(JAVA_LANG_CLASS + "<?>");
                 } else {
                     w.write("[]");
                 }
@@ -1278,17 +1281,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (n.operator() == Assign.ASSIGN) {
             // Look for the appropriate set method on the array and emit native
-            // code if there is an
-            // @Native annotation on it.
-            List<Expr> args = new ArrayList<Expr>(index.size() + 1);
-            // args.add(array);
-            args.add(n.right());
-            for (Expr e : index)
-                args.add(e);
+            // code if there is an @Native annotation on it.
             String pat = Emitter.getJavaImplForDef(mi.x10Def());
-
             if (pat != null) {
-                er.emitNativeAnnotation(pat, array, mi.typeParameters(), args, Collections.<Type> emptyList());
+        		List<String> params = new ArrayList<String>(index.size());
+                List<Expr> args = new ArrayList<Expr>(index.size() + 1);
+                // args.add(array);
+                args.add(n.right());
+                for (int i = 0; i < index.size(); ++i) {
+        		    params.add(mi.def().formalNames().get(i).name().toString());
+                	args.add(index.get(i));
+                }
+            	
+        	    // WIP XTENLANG-2528
+//                er.emitNativeAnnotation(pat, array, null, mi.typeParameters(), null, args, Collections.<ParameterType>emptyList(), Collections.<Type> emptyList());
+                er.emitNativeAnnotation(pat, array, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, Collections.<ParameterType>emptyList(), Collections.<Type> emptyList());
                 return;
             } else {
                 // otherwise emit the hardwired code.
@@ -1452,27 +1459,43 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (op == Binary.EQ) {
             // SYNOPSIS: #0 == #1
-            String regex;
             // TODO generalize for reference type
             if (l.isNull() || r.isNull()) {
-                regex = "((#0) == (#1))";
+            	// ((#0) == (#1))
+                w.write("((");
+                er.prettyPrint(left, tr);
+                w.write(") == (");
+                er.prettyPrint(right, tr);
+                w.write("))");
             } else {
-                regex = "x10.rtt.Equality.equalsequals(#0,#1)";
+            	// x10.rtt.Equality.equalsequals(#0,#1)
+            	w.write("x10.rtt.Equality.equalsequals(");
+                er.prettyPrint(left, tr);
+            	w.write(",");
+                er.prettyPrint(right, tr);
+            	w.write(")");
             }
-            er.dumpRegex("equalsequals", new Object[] { left, right }, tr, regex);
             return;
         }
 
         if (op == Binary.NE) {
             // SYNOPSIS: #0 != #1
-            String regex;
             // TODO generalize for reference type
             if (l.isNull() || r.isNull()) {
-                regex = "((#0) != (#1))";
+            	// ((#0) != (#1))
+                w.write("((");
+                er.prettyPrint(left, tr);
+                w.write(") != (");
+                er.prettyPrint(right, tr);
+                w.write("))");
             } else {
-                regex = "(!x10.rtt.Equality.equalsequals(#0,#1))";
+            	// (!x10.rtt.Equality.equalsequals(#0,#1))
+            	w.write("(!x10.rtt.Equality.equalsequals(");
+                er.prettyPrint(left, tr);
+            	w.write(",");
+                er.prettyPrint(right, tr);
+            	w.write("))");
             }
-            er.dumpRegex("notequalsequals", new Object[] { left, right }, tr, regex);
             return;
         }
 
@@ -1561,7 +1584,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (fi != null) {
                 String pat2 = Emitter.getJavaImplForDef(fi.x10Def());
                 if (pat2 != null) {
-                    Object[] components = new Object[] { target };
+                    Map<String,Object> components = new HashMap<String,Object>();
+                    int i = 0;
+                    Object component;
+                    component = target;
+                    components.put(String.valueOf(i++), component);
+                    // TODO put with name
                     er.dumpRegex("Native", components, tr, pat2);
                     return;
                 }
@@ -1953,12 +1981,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
                     w.end();
                 } else {
-                    // SYNOPSIS: (#0) #1 #0=type #1=object #2=runtime type
-                    String regex = X10_RTT_TYPES
-                            + ".<#0>cast"
-                            + (xts.isParameterType(exprType) || xts.isParameterType(castType)
-                                    || isString(castType, tr.context()) ? "Conversion" : "") + "(#1,#2)";
-                    er.dumpRegex("cast_deptype", new Object[] { castTE, expr, castRE }, tr, regex);
+                    // SYNOPSIS: (#0) #1
+                    //  -> Types.<#0>cast(#1,#2)   #0=type #1=expr #2=runtime type
+                    //  -> Types.<#0>castConversion(#1,#2)   #0=type #1=expr #2=runtime type
+                    w.write(X10_RTT_TYPES + ".<");
+                    er.prettyPrint(castTE, tr);
+                    w.write(">cast" + (xts.isParameterType(exprType) || xts.isParameterType(castType) || isString(castType, tr.context()) ? "Conversion" : "") + "(");
+                    er.prettyPrint(expr, tr);
+                    w.write(",");
+                    er.prettyPrint(castRE, tr);
+                    w.write(")");
                 }
             } else {
                 throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
@@ -1995,7 +2027,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // print native field access
         String pat = Emitter.getJavaImplForDef(fi.x10Def());
         if (pat != null) {
-            Object[] components = new Object[] { target };
+            Map<String,Object> components = new HashMap<String,Object>();
+            int i = 0;
+            Object component;
+            component = target;
+            components.put(String.valueOf(i++), component);
+            // TODO put with name
             er.dumpRegex("Native", components, tr, pat);
             return;
         }
@@ -2228,7 +2265,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 for (int i = 0; i < cid + 1; i++) {
                     if (i % 256 == 0) {
                         if (i != 0) w.write(") null,");
-                        w.write("(" + JAVA_LANG_CLASS);
+                        w.write("(" + JAVA_LANG_CLASS + "<?>");
                     } else {
                         w.write("[]");
                     }
@@ -2396,13 +2433,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(" old = ");
                 String pat = Emitter.getJavaImplForDef(mi.x10Def());
                 if (pat != null) {
-                    Object[] components = new Object[args.size() + 1];
+                	Map<String,Object> components = new HashMap<String,Object>();
                     int j = 0;
-                    components[j++] = "target";
+                	Object component;
+                    component = "target";
+                    components.put(String.valueOf(j++), component);
+                    // TODO put with name
                     {
                         int i = 0;
                         for (Expr e : args) {
-                            components[j++] = "a" + (i + 1);
+                            component = "a" + (i + 1);
+                            components.put(String.valueOf(j++), component);
+                            // TODO put with name
                             i++;
                         }
                     }
@@ -2489,7 +2531,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             runAsync = true;
         }
 
-        TypeExpander ret = new TypeExpander(er, n.returnType().type(), true, true, false);
+        TypeExpander ret = new TypeExpander(er, n.returnType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
         if (!n.returnType().type().isVoid()) {
             typeArgs.add(ret);
             w.write("new " + X10_FUN_CLASS_PREFIX + "_0_" + n.formals().size());
@@ -2926,8 +2968,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     VarInstance<?> found = c.findVariableSilent(l.name().id());
                     if (found != null) {
                         VarInstance<?> local = context().findVariableSilent(l.name().id());
-                        if (found.equals(local)) {
-                            assert (found.equals(l.localInstance())) : l.toString();
+                        if (found.def() == local.def()) {
+                            assert (found.def() == l.localInstance().def()) : l.toString();
                             capturedVars.add(l.localInstance());
                         }
                     }
@@ -3412,80 +3454,124 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
-    @Override
-    public void visit(ForLoop_c f) {
-        TypeSystem ts = tr.typeSystem();
-
-        X10Formal form = (X10Formal) f.formal();
-
-        Context context = tr.context();
-
-        /* TODO: case: for (point p:D) -- discuss with vj */
-        /*
-         * handled cases: exploded syntax like: for (point p[i,j]:D) and for
-         * (point [i,j]:D)
-         */
-        if (config.LOOP_OPTIMIZATIONS
-                && form.hasExplodedVars()
-                && (ts.isSubtype(f.domain().type(), ts.Region(), context) || ts.isSubtype(f.domain().type(), ts.Dist(),
-                                                                                          context))
-                && Types.toConstrainedType(f.domain().type()).isRect(context)) {
-            String regVar = getId().toString();
-            List<Name> idxs = new ArrayList<Name>();
-            List<Name> lims = new ArrayList<Name>();
-            List<Name> idx_vars = new ArrayList<Name>();
-            List<Object> vals = new ArrayList<Object>();
-            LocalDef[] lis = form.localInstances();
-            int rank = lis.length;
-
-            for (int i = 0; i < rank; i++) {
-                idxs.add(getId());
-                lims.add(getId());
-                idx_vars.add(lis[i].name());
-                vals.add(i);
-            }
-
-            Object body = f.body();
-
-            if (!form.isUnnamed()) {
-                // SYNOPSIS: #0=modifiers #1=type #2=var #3=idxs_list
-                String regex = "#0 #1 #2 = x10.array.Point.make(#3);";
-                Template template = Template.createTemplateFromRegex(er, "point-create", regex, form.flags(),
-                                                                     form.type(), form.name(), new Join(er, ",", idxs));
-                body = new Join(er, "\n", template, body);
-            }
-
-            // SYNOPSIS: #0=type #1=final_var #2=value_var
-            String regex1 = "final #0 #1 = #2;";
-            Loop loop1 = new Loop(er, "final-var-assign", regex1, new CircularList<String>("int"), idx_vars, idxs);
-            body = new Join(er, "\n", loop1, body);
-
-            // SYNOPSIS: #0=generated_index_var #1=region_var #2=index
-            // #3=limit_var
-            String regex2 = "for (int #0 = #1.min(#2), #3 = #1.max(#2); #0 <= #3; #0++)";
-            Loop loop2 = new Loop(er, "forloop-mult-each", regex2, idxs, new CircularList<String>(regVar), vals, lims);
-            // SYNOPSIS: #0=region_expr #1=region_var #2=rect_for_header
-            // #3=rect_for_body #4=regular_for_iterator
-            String regex = "{ x10.array.Region #1 = (#0).region(); if (#1.rect()) { #2 { #3 } } else { #4 }	}";
-            er.dumpRegex("forloop-mult", new Object[] { f.domain(), regVar, loop2, body,
-                    // new Template("forloop",
-                    // form.flags(),
-                    // form.type(),
-                    // form.name(),
-                    // regVar,
-                    // new Join("\n", new Join("\n", f.locals()), f.body()),
-                    // new TypeExpander(form.type().type(), PRINT_TYPE_PARAMS |
-                    // BOX_PRIMITIVES)
-                    // )
-                    new Inline(er, "assert false;") }, tr, regex);
-        } else {
-            // SYNOPSIS: for (#0 #2: #1 in #3) #4 #5=unboxed type
-            String regex = "for (x10.lang.Iterator #2__ = (#3).iterator(); #2__.hasNext$O(); ) { #0 #1 #2 = (#5) #2__.next$G(); #4 }";
-            er.dumpRegex("forloop", new Object[] { form.flags(), form.type(), form.name(), f.domain(),
-                    new Join(er, "\n", new Join(er, "\n", f.locals()), f.body()),
-                    new TypeExpander(er, form.type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES) }, tr, regex);
-        }
-    }
+    // not used
+//    @Deprecated
+//    @Override
+//    public void visit(ForLoop_c f) {
+//        assert (false) : "For loops should have been desugared";
+//        TypeSystem ts = tr.typeSystem();
+//
+//        X10Formal form = (X10Formal) f.formal();
+//
+//        Context context = tr.context();
+//
+//        /* TODO: case: for (point p:D) -- discuss with vj */
+//        /*
+//         * handled cases: exploded syntax like: for (point p[i,j]:D) and for
+//         * (point [i,j]:D)
+//         */
+//        if (config.LOOP_OPTIMIZATIONS
+//                && form.hasExplodedVars()
+//                && (ts.isSubtype(f.domain().type(), ts.Region(), context) || ts.isSubtype(f.domain().type(), ts.Dist(),
+//                                                                                          context))
+//                && Types.toConstrainedType(f.domain().type()).isRect(context)) {
+//            String regVar = getId().toString();
+//            List<Name> idxs = new ArrayList<Name>();
+//            List<Name> lims = new ArrayList<Name>();
+//            List<Name> idx_vars = new ArrayList<Name>();
+//            List<Object> vals = new ArrayList<Object>();
+//            LocalDef[] lis = form.localInstances();
+//            int rank = lis.length;
+//
+//            for (int i = 0; i < rank; i++) {
+//                idxs.add(getId());
+//                lims.add(getId());
+//                idx_vars.add(lis[i].name());
+//                vals.add(i);
+//            }
+//
+//            Object body = f.body();
+//
+//            if (!form.isUnnamed()) {
+//                // SYNOPSIS: #0=modifiers #1=type #2=var #3=idxs_list
+//                String regex = "#0 #1 #2 = x10.array.Point.make(#3);";
+//                Map<String,Object> components = new HashMap<String,Object>();
+//                int i = 0;
+//                Object component;                
+//                component = form.flags();
+//                components.put(String.valueOf(i++), component);
+//                // TODO put with name
+//                component = form.type();
+//                components.put(String.valueOf(i++), component);
+//                // TODO put with name
+//                component = form.name();
+//                components.put(String.valueOf(i++), component);
+//                // TODO put with name
+//                component = new Join(er, ",", idxs);
+//                components.put(String.valueOf(i++), component);
+//                // TODO put with name
+//                Template template = Template.createTemplateFromRegex(er, "point-create", regex, components);
+//                body = new Join(er, "\n", template, body);
+//            }
+//
+//            // SYNOPSIS: #0=type #1=final_var #2=value_var
+//            String regex1 = "final #0 #1 = #2;";
+//            Loop loop1 = new Loop(er, "final-var-assign", regex1, new CircularList<String>("int"), idx_vars, idxs);
+//            body = new Join(er, "\n", loop1, body);
+//
+//            // SYNOPSIS: #0=generated_index_var #1=region_var #2=index
+//            // #3=limit_var
+//            String regex2 = "for (int #0 = #1.min(#2), #3 = #1.max(#2); #0 <= #3; #0++)";
+//            Loop loop2 = new Loop(er, "forloop-mult-each", regex2, idxs, new CircularList<String>(regVar), vals, lims);
+//            // SYNOPSIS: #0=region_expr #1=region_var #2=rect_for_header
+//            // #3=rect_for_body #4=regular_for_iterator
+//            String regex = "{ x10.array.Region #1 = (#0).region(); if (#1.rect()) { #2 { #3 } } else { #4 }	}";
+//            Map<String,Object> components = new HashMap<String,Object>();
+//            int i = 0;
+//            Object component;
+//            component = f.domain();
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            component = regVar;
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            component = loop2;
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            component = body;
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            component = new Inline(er, "assert false;");
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            er.dumpRegex("forloop-mult", components, tr, regex);
+//        } else {
+//            // SYNOPSIS: for (#0 #2: #1 in #3) #4 #5=unboxed type
+//            String regex = "for (x10.lang.Iterator #2__ = (#3).iterator(); #2__.hasNext$O(); ) { #0 #1 #2 = (#5) #2__.next$G(); #4 }";
+//            Map<String,Object> components = new HashMap<String,Object>();
+//            int i = 0;
+//            Object component;
+//            component = form.flags();
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            component = form.type();
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            component = form.name();
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            component = f.domain();
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            component = new Join(er, "\n", new Join(er, "\n", f.locals()), f.body());
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            component = new TypeExpander(er, form.type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+//            components.put(String.valueOf(i++), component);
+//            // TODO put with name
+//            er.dumpRegex("forloop", components, tr, regex);
+//        }
+//    }
 
     @Override
     public void visit(Throw_c n) {

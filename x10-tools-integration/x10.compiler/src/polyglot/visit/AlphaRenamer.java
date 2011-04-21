@@ -79,6 +79,21 @@ public class AlphaRenamer extends NodeVisitor {
       }
     }
 
+    if ( n instanceof Formal ) {
+      Formal f = (Formal)n;
+      Name name = f.name().id();
+
+      if ( !freshVars.contains(name) ) {
+	// Add a new entry to the current renaming map.
+	Name name_ = Name.makeFresh(name);
+
+	freshVars.add(name_);
+	
+	setStack.peek().add( name );
+	renamingMap.put( name, name_ );
+      }
+    }
+
     if ( n instanceof Labeled ) {
       Labeled l = (Labeled) n;
       Name name = l.labelNode().id();
@@ -144,6 +159,29 @@ public class AlphaRenamer extends NodeVisitor {
 	  li.setName(newName);
       }
       return l.name(l.name().id(newName));
+    }
+
+    if ( n instanceof Formal ) {
+      // Rename the local decl.
+      Formal f = (Formal)n;
+      Name name = f.name().id();
+
+      if ( freshVars.contains(name) ) {
+	return n;
+      }
+
+      if ( !renamingMap.containsKey(name) ) {
+	throw new InternalCompilerError( "Unexpected error encountered while alpha-renaming." );
+      }
+
+      // Update the local instance as necessary.
+      Name newName = renamingMap.get(name);
+      LocalDef li = f.localDef();
+      if (li != null) {
+	  oldNamesMap.put(li, li.name());
+	  li.setName(newName);
+      }
+      return f.name(f.name().id(newName));
     }
 
     if ( n instanceof Branch ) {

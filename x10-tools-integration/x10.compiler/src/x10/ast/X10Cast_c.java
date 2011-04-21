@@ -262,7 +262,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     }
     
     public boolean isConstant() {
-    	return expr.isConstant() && castType.type().isJavaPrimitive();
+    	return expr.isConstant() && (castType.type().isNumeric() || expr.type().isSubtype(castType.type(), expr.type().typeSystem().emptyContext()));
         }
         
     public Object constantValue() {

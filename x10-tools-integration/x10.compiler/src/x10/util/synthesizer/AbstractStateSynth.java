@@ -40,6 +40,10 @@ public abstract class AbstractStateSynth {
 
     }
     
+    public Context getContext(){
+        return xct;
+    }
+    
     
     public void setContext(Context xct){
         this.xct = xct;
