@@ -87,6 +87,7 @@ import polyglot.util.StdErrorQueue;
 import polyglot.util.StringUtil;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.Translator;
+import x10.ast.Closure;
 import x10.ast.ForLoop;
 import x10.ast.X10ClassDecl;
 import x10.extension.X10Ext;
@@ -222,7 +223,7 @@ public class X10CPPTranslator extends Translator {
 		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
 		                final int fixedEndLine = adjustedEndLine < adjustedStartLine ? adjustedStartLine : adjustedEndLine;
-		                final boolean generated = n.position().isCompilerGenerated();
+		                final boolean generated = n.position().isCompilerGenerated() || ((parent instanceof Closure) && (!(n instanceof ProcedureDecl) || (n instanceof ProcedureDecl && ((ProcedureDecl)n).reachable())));
 		                final boolean addLastLine = ((n instanceof ConstructorDecl) || (n instanceof Block && !((Block)n).statements().isEmpty() && 
 		                		((Block)n).position().endLine() != ((Block)n).statements().get(((Block)n).statements().size()-1).position().endLine()));
 		                w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
@@ -251,7 +252,7 @@ public class X10CPPTranslator extends Translator {
 		            	if (t instanceof LocalDecl)
 		            		lineNumberMap.rememberLoopVariable(((LocalDecl)t).name().toString(), ((LocalDecl)n).name().toString(), line, lastX10Line);
 		            }
-		            if (n instanceof FieldDecl && !c.inTemplate() && !((FieldDecl)n).flags().flags().isStatic()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
+		            if (n instanceof FieldDecl && !c.inTemplate() && !((FieldDecl)n).flags().flags().isStatic() && !n.position().isCompilerGenerated()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
 		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
 		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false, -1, false);
