@@ -597,15 +597,6 @@ public class PlaceChecker {
 	    Type placeType;
 	    
 	    public static XConstrainedTerm computePlaceTerm(Expr place, Context xc, TypeSystem ts) throws SemanticException {
-	    	// if place is g.home (g a GlobalRef), set it to g.
-	    	if (place instanceof Field) {
-				Field fp = (Field) place;
-				FieldInstance fi = fp.fieldInstance();
-				if ((ts.hasSameClassDef(Types.baseType(fi.container()), ts.GlobalRef())) &&
-						fi.name().equals(ts.homeName())) {
-					place = (Expr) fp.target();
-				}
-			}
 	 		Type placeType = place.type();
 			CConstraint d = Types.xclause(placeType);
 			d = (d==null) ? new CConstraint() : d.copy();
@@ -626,22 +617,7 @@ public class PlaceChecker {
 							term + " and constraint " + d + ".");
 				}
 	    	} else {
-	    		boolean placeIsRef = ts.hasSameClassDef(Types.baseType(placeType), ts.GlobalRef());
-	    		if (placeIsRef) {
-	    			XTerm src = ts.xtypeTranslator().translate(pc, place, xc);
-	    			if (src == null) {
-	    				src = XTerms.makeUQV("_anon");
-	    			}
-	    			try {
-	    				d= d.substitute(src, d.self());
-	    				pt = XConstrainedTerm.make(globalRefHomeVar(src,ts), d);
-	    			} catch (XFailure z) {
-	    				assert false;
-	    				throw new InternalCompilerError("Cannot construct placeTerm from " + 
-	    					 place + " and constraint " + d + ".");
-	    			}
-	    		} else 
-	    			throw new SemanticException("Place expression |" + place + "| must be of type \"" +ts.Place() + "\", or " + ts.GlobalRef() + ", not \"" + place.type() + "\".",place.position());
+	    	    throw new InternalCompilerError("The place argument of an \"at\" must be of type Place", place.position());
 	    	}
 	    
 	    	return pt;
