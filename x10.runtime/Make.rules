@@ -151,7 +151,7 @@ else
       export X10RT_PLATFORM=aix_gcc
       override CXXFLAGS += -maix64
       override CXXFLAGS_SHARED += -shared -fPIC -Wl,-bbigtoc -Wl,-G -Wl,-lptools_ptr
-      override LDFLAGS += -Wl,-brtl
+      override LDFLAGS += -Wl,-brtl,-lpthreads
       export X10RT_TEST_LDFLAGS = -Wl,-L"$(X10_HOME)"/x10.runtime/x10rt/lib
     endif
     ifdef USE_XLC
