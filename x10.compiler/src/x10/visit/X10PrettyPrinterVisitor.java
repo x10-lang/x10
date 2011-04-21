@@ -2031,8 +2031,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Object component;
             component = target;
             components.put(String.valueOf(i++), component);
-            // TODO need check
-            components.put(fi.x10Def().name().toString(), component);
+            components.put("this", component);
+            // TODO is this needed?
+//            components.put(fi.x10Def().name().toString(), component);
             er.dumpRegex("Native", components, tr, pat);
             return;
         }
