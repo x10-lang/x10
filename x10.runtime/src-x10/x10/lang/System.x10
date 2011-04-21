@@ -45,7 +45,7 @@ public class System {
      * @see #exit()
      * @see #setExitCode(Int)
      */
-    @Native("java", "java.lang.System.exit(#1)")
+    @Native("java", "java.lang.System.exit(#code)")
     @Native("c++", "x10aux::system_utils::exit(#code)")
     static native def exit(code: Int): void;
 
@@ -65,7 +65,7 @@ public class System {
      * The exit code will be returned from the application when main() terminates.
      * Can only be invoked in place 0.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#1)")
+    @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#exitCode)")
     @Native("c++", "(x10aux::exitCode = (#exitCode))")
     public static def setExitCode(exitCode: int){here==Place.FIRST_PLACE}: void {}
 
@@ -96,7 +96,7 @@ public class System {
      * TODO: @ return The previous value of the property, or null if it did not have one.
      */
     // TODO: XTENLANG-180.  Provide full System properties API in straight X10
-    @Native("java", "java.lang.System.setProperty(#1,#2)")
+    @Native("java", "java.lang.System.setProperty(#p,#v)")
     @Native("c++", "printf(\"not setting %s\\n\", (#p)->c_str())") // FIXME: Trivial definition to allow XRX compilation to go through.
     public static native def setProperty(p:String,v:String):void;
 

@@ -41,7 +41,7 @@ import x10.util.concurrent.SimpleLatch;
 
     // Print methods for debugging
 
-    @Native("java", "java.lang.System.err.println(#1)")
+    @Native("java", "java.lang.System.err.println(#any)")
     @Native("c++", "x10aux::system_utils::println(x10aux::to_string(#any)->c_str())")
     public native static def println(any:Any) : void;
 
@@ -49,7 +49,7 @@ import x10.util.concurrent.SimpleLatch;
     @Native("c++", "x10aux::system_utils::println(\"\")")
     public native static def println() : void;
 
-    @Native("java", "java.lang.System.err.printf(#4, #5)")
+    @Native("java", "java.lang.System.err.printf(#fmt, #t)")
     @Native("c++", "x10aux::system_utils::printf(#fmt, #t)")
     public native static def printf[T](fmt:String, t:T) : void;
 
@@ -70,11 +70,11 @@ import x10.util.concurrent.SimpleLatch;
      * May be implemented synchronously or asynchronously.
      * Body cannot spawn activities, use clocks, or raise exceptions.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#1, #2)")
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#id, #body)")
     @Native("c++", "x10aux::run_closure_at(#id, #body)")
     static def runClosureAt(id:Int, body:()=>void):void { body(); }
 
-    @Native("java", "x10.runtime.impl.java.Runtime.runClosureCopyAt(#1, #2)")
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureCopyAt(#id, #body)")
     @Native("c++", "x10aux::run_closure_at(#id, #body)")
     static def runClosureCopyAt(id:Int, body:()=>void):void { body(); }
 
@@ -95,7 +95,7 @@ import x10.util.concurrent.SimpleLatch;
     /**
      * Deep copy.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.<#1>deepCopy(#4)")
+    @Native("java", "x10.runtime.impl.java.Runtime.<#T$box>deepCopy(#o)")
     @Native("c++", "x10aux::deep_copy<#T >(#o)")
     static native def deepCopy[T](o:T):T;
 

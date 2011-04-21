@@ -19,6 +19,6 @@ import x10.compiler.NativeRep;
  * parameter of type T, and if s implements Iterable[T].
  */
 public interface Iterable[T] {
-    @Native("java", "(#0).iterator()")
+    @Native("java", "(#this).iterator()")
     def iterator(): Iterator[T];
 }

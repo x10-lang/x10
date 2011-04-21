@@ -20,11 +20,11 @@ import x10.io.Console;
 @NativeRep("java", "x10.core.Throwable", null, "x10.core.Throwable.$RTT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Throwable>", "x10::lang::Throwable", null)
 public class Throwable {
-    @Native("java", "#0.getCause()")
+    @Native("java", "#this.getCause()")
     @Native("c++", "(#this)->getCause()")
     val cause:Throwable;
 
-    @Native("java", "#0.getMessage()")
+    @Native("java", "#this.getMessage()")
     @Native("c++", "(#this)->getMessage()")
     val message: String;
 
@@ -41,31 +41,31 @@ public class Throwable {
         this.message = message;
     }
     
-    @Native("java", "#0.getMessage()")
+    @Native("java", "#this.getMessage()")
     @Native("c++", "(#this)->getMessage()")
     public def getMessage() = message;
     
-    @Native("java", "#0.getCause()")
+    @Native("java", "#this.getCause()")
     @Native("c++", "(#this)->getCause()")
     public final def getCause():Throwable = cause;
     
-    @Native("java", "#0.toString()")
+    @Native("java", "#this.toString()")
     @Native("c++", "x10aux::to_string(#this)")
     public def toString() = typeName() + ": " + getMessage();
    
-    @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#0)")
+    @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#this)")
     @Native("c++", "(#this)->getStackTrace()")
     public final native def getStackTrace() : Array[String](1);
 
-    @Native("java", "#0.printStackTrace()")
+    @Native("java", "#this.printStackTrace()")
     @Native("c++", "(#this)->printStackTrace()")
     public native def printStackTrace() : void;
     
-    @Native("java", "x10.core.ThrowableUtilities.printStackTrace(#0, #1)")
+    @Native("java", "x10.core.ThrowableUtilities.printStackTrace(#this, #p)")
     @Native("c++",  "(#this)->printStackTrace(#p)")
     public native def printStackTrace(p: Printer) : void;
 
-    @Native("java", "#0.fillInStackTrace()")
+    @Native("java", "#this.fillInStackTrace()")
     @Native("c++", "(#this)->fillInStackTrace()")
     public native def fillInStackTrace() : Throwable;
 
