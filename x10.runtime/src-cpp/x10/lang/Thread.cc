@@ -99,7 +99,7 @@ void Thread::thread_bind_cpu()
 	// open the file specified by X10RT_CPUMAP
 	char * filename = getenv("X10RT_CPUMAP");
 	if (filename == NULL) return;
-#ifdef __USE_GNU
+#ifdef __linux__
 	FILE * fd = fopen(filename, "r");
 	if (fd == NULL)
 	{
