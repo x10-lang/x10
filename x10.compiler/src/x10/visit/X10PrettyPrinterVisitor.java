@@ -1293,8 +1293,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 	args.add(index.get(i));
                 }
             	
-        	    // WIP XTENLANG-2528
-//                er.emitNativeAnnotation(pat, array, null, mi.typeParameters(), null, args, Collections.<ParameterType>emptyList(), Collections.<Type> emptyList());
                 er.emitNativeAnnotation(pat, array, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, Collections.<ParameterType>emptyList(), Collections.<Type> emptyList());
                 return;
             } else {
@@ -1589,7 +1587,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     Object component;
                     component = target;
                     components.put(String.valueOf(i++), component);
-                    // TODO put with name
+                    // TODO need check
+                    components.put(fi.x10Def().name().toString(), component);
                     er.dumpRegex("Native", components, tr, pat2);
                     return;
                 }
@@ -2032,7 +2031,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Object component;
             component = target;
             components.put(String.valueOf(i++), component);
-            // TODO put with name
+            // TODO need check
+            components.put(fi.x10Def().name().toString(), component);
             er.dumpRegex("Native", components, tr, pat);
             return;
         }
@@ -2438,13 +2438,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 	Object component;
                     component = "target";
                     components.put(String.valueOf(j++), component);
-                    // TODO put with name
+                    components.put("target", component);
                     {
                         int i = 0;
                         for (Expr e : args) {
                             component = "a" + (i + 1);
                             components.put(String.valueOf(j++), component);
-                            // TODO put with name
+                            // TODO need check
+                            components.put(mi.def().formalNames().get(i).name().toString(), component);
                             i++;
                         }
                     }

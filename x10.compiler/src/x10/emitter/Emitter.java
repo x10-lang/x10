@@ -124,7 +124,6 @@ public class Emitter {
     private static final boolean mangleTypeVariable = true;
     private static final String PARAMETER_TYPE_PREFIX = "$";
     
-    // XTENLANG-2528
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
@@ -880,8 +879,7 @@ public class Emitter {
 		return false;
 	}
 
-    // WIP XTENLANG-2528
-    // See MessagePassingCodeGenerator.java
+    // See comments in Native.x10
     /**
      * Annotation to mark methods and fields as having a particular native implementation.
      * lang is the name of the language, typically "java" or "c++".
@@ -893,34 +891,20 @@ public class Emitter {
      *     def m[X, Y](x, y);
      * and a call
      *     o.m[A, B](a, b);
-     * #0 = o
-     * #1 = A
-     * #2 = boxed representation of A
-     * #3 = run-time Type object for A
-     * #4 = B
-     * #5 = boxed representation of B
-     * #6 = run-time Type object for B
-     * #7 = a
-     * #8 = b
+     * #0 = #this = o
+     * #1 = #X = A
+     * #2 = #X$box = boxed representation of A
+     * #3 = #X$rtt = run-time Type object for A
+     * #4 = #Y = B
+     * #5 = #Y$box = boxed representation of B
+     * #6 = #Y$rtt = run-time Type object for B
+     * #7 = #x = a
+     * #8 = #y = b
      *
      * For "c++" annotations:
      *
-     * As for "java" except boxed and run-time representations of type vars should not be used.  Also there is also the capability to refer to type params and method params by name:
-     * #this = o
-     * #X = A
-     * #Y = B
-     * #x = a
-     * #y = b
+     * As for "java" except boxed and run-time representations of type vars should not be used.
      */
-    // #0 = #this = o
-    // #1 = #X = A
-    // #2 = #X$box = boxed representation of A
-    // #3 = #X$rtt = run-time Type object for A
-    // #4 = #Y = B
-    // #5 = #Y$box = boxed representation of B
-    // #6 = #Y$rtt = run-time Type object for B
-    // #7 = #x = a
-    // #8 = #y = b
 	public void emitNativeAnnotation(String pat, Object receiver, List<ParameterType> typeParams, List<Type> typeArgs, List<String> params, List<? extends Object> args, List<ParameterType> classTypeParams, List<Type> classTypeArgs) {
 //      Object[] components = new Object[1 + typeArgs.size() * 3 + args.size() + classTypeArgs.size() * 3];
       Map<String,Object> components = new HashMap<String,Object>();
@@ -3343,8 +3327,6 @@ public class Emitter {
     		    }
     		}
     		
-    	    // WIP XTENLANG-2528
-//    		emitNativeAnnotation(pat, targetArg, null, mi.typeParameters(), null, args, null, typeArguments);
     		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
     		return true;
     	}
@@ -3382,8 +3364,6 @@ public class Emitter {
                 }
             }
             
-            // WIP XTENLANG-2528
-//            emitNativeAnnotation(pat, null, Collections.<ParameterType>emptyList(), Collections.<Type>emptyList(), null, args, null, classTypeArguments);
             emitNativeAnnotation(pat, null, Collections.<ParameterType>emptyList(), Collections.<Type>emptyList(), params, args, classTypeParams, classTypeArguments);
             return true;
         }
