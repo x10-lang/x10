@@ -23,7 +23,7 @@ public class AtAndBack_MustFailCompile extends x10Test {
 	val h = here;
 	at (here.next()) {
 	    at (h) {
-                x = 20;
+                x = 20; // ERR: Local variable is accessed at a different place.
             }
         }
 	return x == 20;
