@@ -30,6 +30,10 @@ const bool x10aux::disable_dealloc = getBoolEnvVar("X10_DISABLE_DEALLOC");
 
 const bool x10aux::x10__assertions_enabled = !getBoolEnvVar("X10_DISABLE_ASSERTIONS");
 
+bool x10aux::get_congruent_huge() {
+    return getBoolEnvVar(ENV_CONGRUENT_HUGE);
+}
+
 char* x10aux::get_congruent_base() {
     return getenv(ENV_CONGRUENT_BASE);
 }

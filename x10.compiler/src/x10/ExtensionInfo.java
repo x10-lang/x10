@@ -91,6 +91,7 @@ import polyglot.visit.Translator;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10NodeFactory_c;
 import x10.compiler.ws.WSCodeGenerator;
+import x10.compiler.ws.WSCodePreprocessor;
 import x10.compiler.ws.util.WSTransformationContent;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
@@ -560,17 +561,19 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            goals.add(Serialized(job));
            if (opts.x10_config.WORK_STEALING) {
-               Goal wsCodeGenGoal = WSCodeGenerator(job);
-               goals.add(wsCodeGenGoal);
+               Goal wsCodePreprocessorGoal = WSCodePreprocessor(job);
+               goals.add(wsCodePreprocessorGoal);
                if(walaBarrier != null){
-            	   //If we use WALA to analyze the call graph, we need add it before WSCallGraph
-            	   wsCodeGenGoal.addPrereq(walaBarrier);
+                   //WALA call graph builder to detect the transformation target
+                   wsCodePreprocessorGoal.addPrereq(walaBarrier);
                }
                else{
-            	   //Still use simple call graph analyzer to detect concurrent
-                   wsCodeGenGoal.addPrereq(WSCallGraphBarrier());            	   
+                   //Simple call graph builder to detect the transformation target
+                   wsCodePreprocessorGoal.addPrereq(WSCallGraphBarrier());                  
                }
-
+               Goal wsCodeGenGoal = WSCodeGenerator(job);
+               goals.add(wsCodeGenGoal);
+               wsCodeGenGoal.addPrereq(wsCodePreprocessorGoal);
            }
            
            goals.add(Preoptimization(job));
@@ -713,7 +716,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                            //now use this one to construct WSTransformationState
                            TypeSystem ts  = extInfo.typeSystem();
                            NodeFactory nf = extInfo.nodeFactory();
-                           WSCodeGenerator.setWALATransTarget(extensionInfo(), transTarget);
+                           WSCodePreprocessor.setWALATransTarget(extensionInfo(), transTarget);
                        } catch (IllegalArgumentException e) {
                        } catch (IllegalAccessException e) {
                        } catch (InvocationTargetException e) {
@@ -1038,12 +1041,18 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
                @Override
                public boolean runTask() {
-                   WSCodeGenerator.buildCallGraph(extensionInfo());
+                   WSCodePreprocessor.buildCallGraph(extensionInfo());
                    return true;
                }
            }.intern(this);
        }
 
+       public Goal WSCodePreprocessor(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("WSCodePreprocessor", job, new WSCodePreprocessor(job, ts, nf)).intern(this);
+       }
+       
        public Goal WSCodeGenerator(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
@@ -1061,19 +1070,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("Lowerer", job, new Lowerer(job, ts, nf)).intern(this);
        }
-
-       public Goal WSExpressionFlattener(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           VisitorGoal ef = new ValidatingVisitorGoal("WorkStealing ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
-           Goal ef2 = ef.intern(this);
-           if (ef == ef2) {
-               ef.addPrereq(Serialized(job));
-           }
-           return ef2;
-       }
-       
-       
        
        public Goal InnerClassRemover(Job job) {
            TypeSystem ts = extInfo.typeSystem();

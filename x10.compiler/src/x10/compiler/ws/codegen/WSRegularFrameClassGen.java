@@ -46,6 +46,7 @@ import x10.ast.Async;
 import x10.ast.AtStmt;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
+import x10.ast.StmtSeq;
 import x10.ast.When;
 import x10.ast.X10Loop;
 import x10.compiler.ws.WSTransformState;
@@ -54,7 +55,7 @@ import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.CodePatternDetector;
 import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.Triple;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.optimizations.ForLoopOptimizer;
 import x10.util.CollectionFactory;
 import x10.util.synthesizer.CodeBlockSynth;
@@ -87,7 +88,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     protected WSRegularFrameClassGen(Job job, NodeFactory xnf, Context xct, WSTransformState wts,
            String className, Stmt stmt, ClassDef outer, Flags flags, ClassType superType) {
         super(job, xnf, xct, wts, className, superType, flags, outer,
-                WSCodeGenUtility.setSpeicalQualifier(stmt, outer, xnf));
+                WSUtil.setSpeicalQualifier(stmt, outer, xnf));
         
         addPCField();
     }
@@ -183,10 +184,9 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             case Simple:
                 codes = transNormalStmt(s, prePcValue, localDeclaredVar);
                 break;
-            case Compound:
-                //call for help flattener help, and add results back to 
-                codes = transCompoundStmt(s);
-                bodyStmts.addAll(0, codes.getFlattenedCodes()); //put them into target
+            case StmtSeq:
+                //Unwrapp the stmts, and add them back
+                bodyStmts.addAll(0, WSUtil.unwrapToStmtList(s)); //put them into target
                 continue;
             case Finish:
                 codes = transFinish((Finish)s, prePcValue);
@@ -234,9 +234,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             case For:
                 codes = transFor((For) s, prePcValue);
                 break;
-            case ForLoop:
-                codes = transForLoop((ForLoop) s, prePcValue);
-                break;
             case While:
             case DoWhile:
                 codes = transWhileDoLoop((Loop) s, prePcValue);
@@ -245,7 +242,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 codes = transSwitch((Switch) s, prePcValue);
                 break;
             case Block:
-                codes = transBlock((Block) s, prePcValue, WSCodeGenUtility
+                codes = transBlock((Block) s, prePcValue, WSUtil
                                    .getBlockFrameClassName(className));
                 break;
             case Try:
@@ -254,10 +251,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             case FinishAssign:
             case Unsupport:
             default:
-                System.err.println("[WS_ERR]Found un-support code patterns");
-                s.prettyPrint(System.err);
-                System.err.println();
-                throw new SemanticException("Work-Stealing Compiling doesn't support : " + s, s.position());
+                WSUtil.err("X10 WorkStealing cannot support:", s);
+                continue;
             }
             pcValue = codes.getPcValue();
             fastBodySynth.addStmts(codes.first());
@@ -306,34 +301,34 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         If fastIf, slowIf; //two path;
         // true condition block
         Stmt conS = ifS.consequent();
-        if (WSCodeGenUtility.isComplexCodeNode(conS, wts)) {
+        if (WSUtil.isComplexCodeNode(conS, wts)) {
             Block ifConBlock = (conS instanceof Block) ? (Block) conS : synth.toBlock(conS);
             TransCodes conCodes = transBlock(ifConBlock, prePcValue,
-                                             WSCodeGenUtility.getIFBlockClassName(className, true));          
+                                             WSUtil.getIFBlockClassName(className, true));          
             fastIf = ifS.consequent(xnf.Block(conS.position(), conCodes.first()));
             slowIf = ifS.consequent(xnf.Block(conS.position(), conCodes.second()));
         }
         else{
             //should use transNormal, not use directly replace
             TransCodes ifTCodes = transNormalStmt(conS, prePcValue, Collections.EMPTY_SET);
-            fastIf = ifS.consequent(WSCodeGenUtility.seqStmtsToOneStmt(xnf, ifTCodes.first().get(0)));
-            slowIf = ifS.consequent(WSCodeGenUtility.seqStmtsToOneStmt(xnf, ifTCodes.second().get(0)));
+            fastIf = ifS.consequent(WSUtil.seqStmtsToOneStmt(xnf, ifTCodes.first().get(0)));
+            slowIf = ifS.consequent(WSUtil.seqStmtsToOneStmt(xnf, ifTCodes.second().get(0)));
         }
 
         Stmt altS = ifS.alternative();
         if (altS != null) {
-            if (WSCodeGenUtility.isComplexCodeNode(altS, wts)) {
+            if (WSUtil.isComplexCodeNode(altS, wts)) {
                 Block ifAltBlock = (altS instanceof Block) ? (Block) altS : synth.toBlock(altS);
                 TransCodes altCodes = transBlock(ifAltBlock, prePcValue,
-                                                 WSCodeGenUtility.getIFBlockClassName(className, false));
+                                                 WSUtil.getIFBlockClassName(className, false));
                 fastIf = fastIf.alternative(xnf.Block(altS.position(), altCodes.first()));
                 slowIf = slowIf.alternative(xnf.Block(altS.position(), altCodes.second()));
             }
             else{
                 //should use transNormal, not use directly replace
                 TransCodes ifFCodes = transNormalStmt(altS, prePcValue, Collections.EMPTY_SET);
-                fastIf = fastIf.alternative(WSCodeGenUtility.seqStmtsToOneStmt(xnf, ifFCodes.first().get(0)));
-                slowIf = slowIf.alternative(WSCodeGenUtility.seqStmtsToOneStmt(xnf, ifFCodes.second().get(0)));
+                fastIf = fastIf.alternative(WSUtil.seqStmtsToOneStmt(xnf, ifFCodes.first().get(0)));
+                slowIf = slowIf.alternative(WSUtil.seqStmtsToOneStmt(xnf, ifFCodes.second().get(0)));
             }
         }
         transCodes.addFirst(fastIf);
@@ -344,68 +339,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         return transCodes;
     }
 
-    /**
-     * Transform for(p in domain) to traditional for loop and unroll unnecessary block
-     * @param floop for ( i : domain) loop
-     * @return transformed for(init; condition; statement);
-     */
-    protected For processForLoop(X10Loop floop) {
-        // the next step, translate the forloop by forloopoptimizer
-        ForLoopOptimizer flo = new ForLoopOptimizer(job, xts, xnf);
-        flo.begin();
-        Node floOut = floop.visit(flo); //floOut could be a block or a for statement
-        // there are two cases from ForLoopOptimizer
-        // 1. only for; 2. some local declarations and for
-        // for cases 2, we need add these local declarations into for's init
-
-        For forStmt = null;
-        if (floOut instanceof Block) { // case 2
-            List<ForInit> forInits = new ArrayList<ForInit>();
-            for (Stmt s : ((Block) floOut).statements()) {
-                if (s instanceof For) {
-                    forStmt = (For) s;
-                } else {
-                    assert (s instanceof ForInit);// otherwise the ForLoopOptimizer is wrong
-                    forInits.add((ForInit) s);
-                }
-            }
-            forInits.addAll(forStmt.inits());
-            forStmt = forStmt.inits(forInits); // replace inits
-        } else {
-            forStmt = (For) floOut;
-        }
-
-        // second step, it's highly possible the body of a for stmt contains
-        // additional block
-        // { stmt1
-        // { ... //remove this level
-        // } //remove this level
-        // }
-        // just remove the first level
-        Stmt forBodyStmt = forStmt.body();
-        if (forBodyStmt instanceof Block) {
-            ArrayList<Stmt> stmts = new ArrayList<Stmt>();
-            for (Stmt s : ((Block) forBodyStmt).statements()) {
-                if (s instanceof Block) {
-                    stmts.addAll(((Block) s).statements());
-                } else {
-                    stmts.add(s);
-                }
-            }
-            // now insert it into the forBodyStmt again;
-            forStmt = forStmt.body(xnf.Block(forStmt.position(), stmts));
-        }
-        return forStmt;
-    }
-
-    /**
-     * Transform for ( i : domain) style 
-     */
-    protected TransCodes transForLoop(ForLoop floop, int prePcValue) throws SemanticException {
-        For f = processForLoop(floop);
-        return transFor(f, prePcValue);
-    }
-
     protected TransCodes transWhileDoLoop(Loop loop, int prePcValue) throws SemanticException {
         TransCodes transCodes = new TransCodes(prePcValue + 1);
 
@@ -414,7 +347,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         //prepare child frame call;
         TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), loopClassGen);
 
-        boolean hasReturnInBlock = WSCodeGenUtility.hasReturnStatement(loop);
+        boolean hasReturnInBlock = WSUtil.hasReturnStatement(loop);
         { // fast
             transCodes.addFirst(childCallCodes.first());
             if (hasReturnInBlock) {
@@ -440,7 +373,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         //prepare child frame call;
         TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), forClassGen);
 
-        boolean hasReturnInBlock = WSCodeGenUtility.hasReturnStatement(f);
+        boolean hasReturnInBlock = WSUtil.hasReturnStatement(f);
         { // fast
             transCodes.addFirst(childCallCodes.first());
             if (hasReturnInBlock) {
@@ -675,37 +608,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         }
         return transCodes;
     }
-
-
-    /**
-     * Gen Stmt: ff.asyncs ++ or --, with/without atomic
-     * @param increase true: ++, false --
-     * @param atomic true, add atomic 
-     * @return ff.asyncs++ or ff.asyncs-- or atomic{...}
-     * @throws SemanticException 
-     */
-    protected Stmt genFFChangeStmt(boolean increase, boolean atomic) throws SemanticException{
-        
-        Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
-        Expr asyncRef = synth.makeFieldAccess(compilerPos, ffRef, ASYNCS, xct);
-        Expr changeExpr;
-        if(increase){
-            changeExpr = synth.makeFieldAssign(compilerPos, ffRef, ASYNCS, xnf.Binary(compilerPos, asyncRef, Binary.ADD, synth.intValueExpr(1, compilerPos)).type(xts.Int()), xct);
-//            changeExpr = xnf.Unary(compilerPos, asyncRef, Unary.POST_INC).type(xts.Int());  
-        }
-        else{
-            changeExpr = synth.makeFieldAssign(compilerPos, ffRef, ASYNCS, xnf.Binary(compilerPos, asyncRef, Binary.ADD, synth.intValueExpr(-1, compilerPos)).type(xts.Int()), xct);
-//            changeExpr = xnf.Unary(compilerPos, asyncRef, Unary.POST_DEC).type(xts.Int());  
-        }
-        Eval changeEval = xnf.Eval(compilerPos, changeExpr);
-        
-        if(atomic){
-            return xnf.Atomic(compilerPos, xnf.Here(compilerPos).type(xts.Place()), changeEval); 
-        }
-        else{
-            return changeEval;
-        }
-    }
     
     /**
      * Transform one block code. If the code block is a complex code block,
@@ -722,7 +624,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         //prepare child frame call;
         TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), blockClassGen);
 
-        boolean hasReturnInBlock = WSCodeGenUtility.hasReturnStatement(block);
+        boolean hasReturnInBlock = WSUtil.hasReturnStatement(block);
         { // fast
             transCodes.addFirst(childCallCodes.first());
             if (hasReturnInBlock) {
@@ -759,7 +661,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), tryClassGen);
 
         //FIXME: need understand the situation tht a "return" appears in try's block
-        boolean hasReturnInBlock = WSCodeGenUtility.hasReturnStatement(tryStmt.tryBlock());
+        boolean hasReturnInBlock = WSUtil.hasReturnStatement(tryStmt.tryBlock());
         { // fast
             transCodes.addFirst(childCallCodes.first());
             if (hasReturnInBlock) {
@@ -786,7 +688,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         //prepare child frame call;
         TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), switchClassGen);
 
-        boolean hasReturnInBlock = WSCodeGenUtility.hasReturnStatement(switchStmt);
+        boolean hasReturnInBlock = WSUtil.hasReturnStatement(switchStmt);
         { // fast
             transCodes.addFirst(childCallCodes.first());
             if (hasReturnInBlock) {

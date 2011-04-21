@@ -28,7 +28,7 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
     /** Used for deserializing types. */
     protected MethodDef_c() { }
 
-    public MethodDef_c(TypeSystem ts, Position pos,
+    protected MethodDef_c(TypeSystem ts, Position pos,
 	 		    Ref<? extends ContainerType> container,
 	                    Flags flags, Ref<? extends Type> returnType, Name name,
 			    List<Ref<? extends Type>> formalTypes) {
@@ -44,6 +44,13 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
             asInstance = ts.createMethodInstance(position(), Types.ref(this));
         }
         return asInstance;
+    }
+
+    @Override
+    public MethodDef_c copy() {
+        MethodDef_c res = (MethodDef_c) super.copy();
+        res.asInstance = null;
+        return res;
     }
 
     public Name name() {
@@ -68,6 +75,12 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
     public void setReturnType(Ref<? extends Type> returnType) {
         this.returnType = returnType;
         asInstance = null;
+    }
+
+    @Override
+    public void setFormalTypes(List<Ref<? extends Type>> formalTypes) {
+        super.setFormalTypes(formalTypes);
+        this.asInstance = null;
     }
 
     public String toString() {

@@ -35,7 +35,7 @@ import polyglot.types.Type;
 import x10.ast.TypeParamNode;
 import x10.ast.X10MethodDecl;
 import x10.compiler.ws.WSTransformState;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -77,7 +77,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
                                   X10MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts,
                                   boolean isMain) {
     
-        super(job, xnf, xct, wts, WSCodeGenUtility.getMethodBodyClassName(methodDef),
+        super(job, xnf, xct, wts, WSUtil.getMethodBodyClassName(methodDef),
              methodDecl.body(), ((ClassType) methodDef.container().get()).def(),
              methodDef.flags().isStatic() ? Flags.FINAL.Static() : Flags.FINAL,
                      isMain ? job.extensionInfo().typeSystem().MainFrame() : job.extensionInfo().typeSystem().RegularFrame());
@@ -115,7 +115,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         X10ClassType containerClassType = (X10ClassType) methodDef.container().get();
         X10ClassDef containerClassDef = containerClassType.x10Def();
 
-        String fastPathName = WSCodeGenUtility.getMethodFastPathName(methodDef);
+        String fastPathName = WSUtil.getMethodFastPathName(methodDef);
         fastWrapperMethodSynth = new MethodSynth(xnf, xct, containerClassDef, fastPathName);
         fastWrapperMethodSynth.setFlag(methodDef.flags());
         fastWrapperMethodSynth.setReturnType(returnType);

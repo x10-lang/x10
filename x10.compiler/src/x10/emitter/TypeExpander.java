@@ -16,35 +16,31 @@ import polyglot.visit.Translator;
 import x10.visit.X10PrettyPrinterVisitor;
 
 public class TypeExpander extends Expander {
-	    /**
-		 * 
-		 */
-		
 		Type t;
 	    int flags;
 
 	    public TypeExpander(Emitter er, Type t, int flags) {
 	    	super(er);
-	      
 			this.t = t;
 	        this.flags = flags;
 	    }
 	    
-	    public TypeExpander(Emitter er, Type t, boolean printGenerics, boolean boxPrimitives, 
-	    		boolean inSuper) {
+	    public TypeExpander(Emitter er, Type t, boolean printGenerics, boolean boxPrimitives, boolean inSuper) {
 	        this(er, t, (printGenerics ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS: 0) 
 	        		| (boxPrimitives ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0) 
 	        		| (inSuper ? X10PrettyPrinterVisitor.NO_VARIANCE : 0));
 	    }
 	    
-	    Type type() {
-	    	return t;
-	    }
-	    
-	    int flags() {
-	    	return flags;
-	    }
-	    
+	    // not used
+//	    Type type() {
+//	    	return t;
+//	    }
+//	    
+//	    int flags() {
+//	    	return flags;
+//	    }
+
+	    @Override
 	    public String toString() {
 	    	if ((flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0)
 	    		return "BP<" + t.toString() + ">";

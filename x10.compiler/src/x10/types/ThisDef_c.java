@@ -36,8 +36,6 @@ import x10.types.constraints.TypeConstraint;
 public class ThisDef_c extends VarDef_c implements ThisDef {
     private static final long serialVersionUID = 8939235355633300017L;
 
-    
-
     public ThisDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> type) {
         super(ts, pos, Flags.FINAL, type, ThisDef.THIS);
         ClassType t = Types.get(type);
@@ -49,6 +47,43 @@ public class ThisDef_c extends VarDef_c implements ThisDef {
 
     public String toString() {
         return "this : " + type;
+    }
+
+    @Override
+    public ThisDef_c copy() {
+        ThisDef_c res = (ThisDef_c) super.copy();
+        res.asInstance = null;
+        return res;
+    }
+
+    @Override
+    public void setConstantValue(Object constantValue) {
+        super.setConstantValue(constantValue);
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setFlags(Flags flags) {
+        super.setFlags(flags);
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setName(Name name) {
+        super.setName(name);
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setNotConstant() {
+        super.setNotConstant();
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setType(Ref<? extends Type> type) {
+        super.setType(type);
+        this.asInstance = null;
     }
 
     private XVar thisVar;

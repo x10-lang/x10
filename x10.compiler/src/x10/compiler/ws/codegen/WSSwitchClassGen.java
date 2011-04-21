@@ -29,7 +29,7 @@ import polyglot.types.SemanticException;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.TransCodes;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.NewLocalVarSynth;
@@ -46,7 +46,7 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
     
     public WSSwitchClassGen(AbstractWSClassGen parent, Switch switchStmt) {
         super(parent, null,
-              WSCodeGenUtility.getSwitchClassName(parent.getClassName()));
+              WSUtil.getSwitchClassName(parent.getClassName()));
         this.switchStmt = switchStmt;
     }
     
@@ -116,7 +116,7 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
             sPCChangeStmts.add(xnf.Break(compilerPos));
             resumePCSetSwitchElements.add(xnf.SwitchBlock(compilerPos, sPCChangeStmts));
             
-            if(!WSCodeGenUtility.isComplexCodeNode(sb, wts)){
+            if(!WSUtil.isComplexCodeNode(sb, wts)){
                 //simple codes, just do local to 
                 sb = (SwitchBlock) replaceLocalVarRefWithFieldAccess(sb);
                 List<Stmt> stmts = new ArrayList<Stmt>(sb.statements());
@@ -127,7 +127,7 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
                 resumeSwitchSynth.insertStatementInCondition(pcValue, xnf.SwitchBlock(sb.position(), stmts));
             }
             else{
-                TransCodes transCodes = transBlock(sb, pcValue, WSCodeGenUtility
+                TransCodes transCodes = transBlock(sb, pcValue, WSUtil
                                                    .getBlockFrameClassName(className));
                 //fast add to fast switch
                 List<Stmt> fastSS = transCodes.first();

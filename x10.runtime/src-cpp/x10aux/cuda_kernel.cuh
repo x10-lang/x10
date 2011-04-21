@@ -35,8 +35,8 @@ namespace x10aux {
     template<class T> struct cuda_array {
         x10_int FMGL(size);
         T *raw;
-        __device__ T &apply (x10_int i) { return raw[i]; }
-        __device__ T set (const T &v, x10_int i) { return raw[i] = v; }
+        __device__ T &__apply (x10_int i) { return raw[i]; }
+        __device__ T __set (const T &v, x10_int i) { return raw[i] = v; }
     };
 
     template<class T> __device__ cuda_array<T> *nullCheck (cuda_array<T> &v) { return &v; }

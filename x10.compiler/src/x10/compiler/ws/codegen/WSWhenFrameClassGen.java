@@ -29,7 +29,7 @@ import x10.ast.When;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.Triple;
-import x10.compiler.ws.util.WSCodeGenUtility;
+import x10.compiler.ws.util.WSUtil;
 import x10.util.Synthesizer;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.InstanceCallSynth;
@@ -49,7 +49,7 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
     
     public WSWhenFrameClassGen(AbstractWSClassGen parent, When whenStmt) {
         super(parent, whenStmt.stmt(),
-              WSCodeGenUtility.getWhenClassName(parent.getClassName()));
+              WSUtil.getWhenClassName(parent.getClassName()));
         this.whenStmt = whenStmt;
     }
     

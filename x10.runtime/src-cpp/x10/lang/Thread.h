@@ -226,6 +226,8 @@ namespace x10 {
             static void thread_permit_cleanup(void *arg);
             // Thread mapper cleanup handler.
             static void thread_mapper_cleanup(void *arg);
+            // Thread binding to processor capabilities
+            void thread_bind_cpu();
 
         private:
             // the current worker

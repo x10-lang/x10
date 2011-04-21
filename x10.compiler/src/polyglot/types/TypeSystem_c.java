@@ -1853,7 +1853,7 @@ public class TypeSystem_c implements TypeSystem
     public X10ClassType load(String name) {
         QName qualName = QName.make(name);
         try {
-            return (X10ClassType) typeForName(qualName);
+            return (X10ClassType) forName(qualName);
         }
         catch (SemanticException e) {
             extensionInfo().compiler().errorQueue().enqueue(
@@ -1966,7 +1966,7 @@ public class TypeSystem_c implements TypeSystem
             if (fullName == null) {
                 return (X10ClassType) unknownClassDef().asType();
             }
-            return (X10ClassType) typeForName(fullName);
+            return (X10ClassType) forName(fullName);
         }
         catch (SemanticException e) {
             return createFakeClass(fullName, e);
@@ -2000,7 +2000,7 @@ public class TypeSystem_c implements TypeSystem
      * {@inheritDoc}
      * @deprecated
      */
-    public Type typeForName(QName name) throws SemanticException {
+    public final Type typeForName(QName name) throws SemanticException {
         return forName(name);
     }
 

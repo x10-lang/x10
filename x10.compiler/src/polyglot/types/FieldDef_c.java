@@ -24,7 +24,7 @@ public class FieldDef_c extends VarDef_c implements FieldDef
     /** Used for deserializing types. */
     protected FieldDef_c() { }
     
-    public FieldDef_c(TypeSystem ts, Position pos,
+    protected FieldDef_c(TypeSystem ts, Position pos,
 			   Ref<? extends ContainerType> container,
 	                   Flags flags, Ref<? extends Type> type, Name name) {
         super(ts, pos, flags, type, name);
@@ -48,16 +48,53 @@ public class FieldDef_c extends VarDef_c implements FieldDef
         return asInstance;
     }
 
+    @Override
+    public FieldDef_c copy() {
+        FieldDef_c res = (FieldDef_c) super.copy();
+        res.asInstance = null;
+        return res;
+    }
+
     public Ref<? extends ContainerType> container() {
         return container;
     }
 
+    @Override
+    public void setConstantValue(Object constantValue) {
+        super.setConstantValue(constantValue);
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setFlags(Flags flags) {
+        super.setFlags(flags);
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setName(Name name) {
+        super.setName(name);
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setNotConstant() {
+        super.setNotConstant();
+        this.asInstance = null;
+    }
+
+    @Override
+    public void setType(Ref<? extends Type> type) {
+        super.setType(type);
+        this.asInstance = null;
+    }
 
     /**
      * @param container The container to set.
      */
     public void setContainer(Ref<? extends ContainerType> container) {
         this.container = container;
+        this.asInstance = null;
     }
 
     public String toString() {

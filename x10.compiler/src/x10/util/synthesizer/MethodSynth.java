@@ -170,7 +170,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
      * @param name
      * @return
      */
-    public Expr addFormal(Position pos, Flags flags, Type type, Name name){
+    public Local addFormal(Position pos, Flags flags, Type type, Name name){
         TypeSystem xts = (TypeSystem) xct.typeSystem();
         LocalDef lDef = xts.localDef(pos, flags, Types.ref(type), name);
         Formal f = xnf.Formal(pos,
@@ -181,7 +181,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
     }
     
 
-    public Expr addFormal(Formal formal) {
+    public Local addFormal(Formal formal) {
         try {
             checkClose();
             ArrayList<LocalDef> formalNames = new ArrayList<LocalDef>(methodDef.formalNames());

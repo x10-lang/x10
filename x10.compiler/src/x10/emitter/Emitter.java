@@ -123,6 +123,10 @@ public class Emitter {
     // XTENLANG-2463
     private static final boolean mangleTypeVariable = true;
     private static final String PARAMETER_TYPE_PREFIX = "$";
+    
+    // XTENLANG-2528
+    private static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
+    private static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
@@ -154,7 +158,7 @@ public class Emitter {
 		this.w=w;
 		this.tr=tr;
 		try {
-		    imcType = tr.typeSystem().typeForName(QName.make("x10.util.IndexedMemoryChunk"));
+		    imcType = tr.typeSystem().forName(QName.make("x10.util.IndexedMemoryChunk"));
             nativeClassType = tr.typeSystem().systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
 		} catch (SemanticException e1) {
 		    throw new InternalCompilerError("Something is terribly wrong");
@@ -396,7 +400,7 @@ public class Emitter {
 		return QName.make(qualifier, shortName);
 	}
 	
-	public static Name mangleQNameToName(QName name) {
+	public static Name mangleAndFlattenQName(QName name) {
 		return Name.make(mangleIdentifier(name.toString().replace(".", "$")));
 	}
 
@@ -428,97 +432,75 @@ public class Emitter {
     	return mangleParameterType(tpn.name().id());
     }
 
-	/**
-	 * Support "inline" .xcd so that you dont have to create a separate xcd file
-	 * for a short code fragment.
-	 * 
-	 * @param components
-	 * @param regex
-	 */
-	public void dumpCodeString(String regex, Object... components) {
-		dumpRegex("internal", components, tr, regex);
-	}
+    // not used
+//	/**
+//	 * Support "inline" .xcd so that you dont have to create a separate xcd file
+//	 * for a short code fragment.
+//	 * 
+//	 * @param components
+//	 * @param regex
+//	 */
+//	public void dumpCodeString(String regex, Object... components) {
+//		dumpRegex("internal", components, tr, regex);
+//	}
 
-	public void dumpRegex(String id, Object[] components, Translator tr, String regex) {
-		X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
-		for (int i = 0; i < components.length; i++) {
-			assert !(components[i] instanceof Object[]);
-		}
-		int len = regex.length();
-		int pos = 0;
-		int start = 0;
-		while (pos < len) {
-			if (regex.charAt(pos) == '\n') {
-				w.write(regex.substring(start, pos));
-				w.newline(0);
-				start = pos + 1;
-			} else if (regex.charAt(pos) == '#') {
-			    w.write(regex.substring(start, pos));
-			    int endpos = pos + 1;
-			    int idx = -1;
-			    String str = null;
-			    if (Character.isDigit(regex.charAt(endpos))) {
-			        while (endpos < len && Character.isDigit(regex.charAt(endpos))) {
-			            ++endpos;
-			        }
-			        str = regex.substring(pos + 1, endpos);
-			        idx = Integer.parseInt(str);
-			    } else if (Character.isJavaIdentifierStart(regex.charAt(endpos))) {
+    public void dumpRegex(String id, Map<String,Object> components, Translator tr, String regex) {
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+        int len = regex.length();
+        int pos = 0;
+        int start = 0;
+        while (pos < len) {
+            if (regex.charAt(pos) == '\n') {
+                w.write(regex.substring(start, pos));
+                w.newline(0);
+                start = pos + 1;
+            } else if (regex.charAt(pos) == '#') {
+                w.write(regex.substring(start, pos));
+                int endpos = pos + 1;
+                int idx = -1;
+                if (Character.isDigit(regex.charAt(endpos))) {
+                    while (endpos < len && Character.isDigit(regex.charAt(endpos))) {
+                        ++endpos;
+                    }
+                } else if (Character.isJavaIdentifierStart(regex.charAt(endpos))) {
                     while (endpos < len && Character.isJavaIdentifierPart(regex.charAt(endpos))) {
                         ++endpos;
                     }
-                    str = regex.substring(pos + 1, endpos);
-                    // XTENLANG-2528
-                    // TODO convert name to idx
-                    /* @Native(lang, code) : annotation to mark methods and fields as having a particular native implementation.
-                     * lang is the name of the language, typically "java" or "c++".
-                     * code is the code to insert for a call to the method or an access to the field.
-                     * For "java" annotations: Given a method with signature: def m[X, Y](x, y); and a call o.m[A, B](a, b); #0 = o #1 = A #2 = boxed representation of A #3 = run-time Type object for A #4 = B #5 = boxed representation of B #6 = run-time Type object for B #7 = a #8 = b
-                     * For "c++" annotations: As for "java" except boxed and run-time representations of type vars should not be used. Also there is also the capability to refer to type params and method params by name: #this = o #X = A #Y = B #x = a #y = b
-                     */
-                    // #0 = #this = o
-                    // #1 = #A = A
-                    // #2 = #$boxof(A) = boxed representation of A
-                    // #3 = #$typeof(A) = run-time Type object for A
-                    // #4 = #B = B
-                    // #5 = #$boxof(B) = boxed representation of B
-                    // #6 = #$typeof(B) = run-time Type object for B
-                    // #7 = #a = a
-                    // #8 = #b = b
-			    } else {
-                    throw new InternalCompilerError("Template '" + id + "' uses #" + regex.substring(pos + 1));
-			    }
-                if (idx < 0 || components.length <= idx) {
-                    throw new InternalCompilerError("Template '" + id + "' uses #" + str);
+                } else {
+                    throw new InternalCompilerError("Template '" + id + "' uses ill-formed key #" + regex.substring(pos + 1));
+                }
+                String str = regex.substring(pos + 1, endpos);
+                Object component = components.get(str);
+                if (component == null) {
+                    throw new InternalCompilerError("Template '" + id + "' uses undefined key #" + str);
                 }
                 pos = endpos - 1;
                 start = pos + 1;
-                Object component = components[idx];
                 if (component instanceof Expr && !isNoArgumentType((Expr) component)) {
                     component = new CastExpander(w, this, (Node) component).castTo(((Expr) component).type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                 }
                 prettyPrint(component, tr);
-			} else if (regex.charAt(pos) == '`') {
-			    w.write(regex.substring(start, pos));
-			    int endpos = pos;
-			    while (regex.charAt(++endpos) != '`') { }
-			    String optionName = regex.substring(pos + 1, endpos);
-			    Object optionValue = null;
-			    try {
-			        optionValue = opts.x10_config.get(optionName);
-			    } catch (ConfigurationError e) {
-			        throw new InternalCompilerError("Unable to read `" + optionName + "` in template '" + id + "'", e);
-			    } catch (OptionError e) {
-			        throw new InternalCompilerError("Template '" + id + "' uses `" + optionName + "`", e);
-			    }
-			    w.write(optionValue.toString());
-			    pos = endpos;
-			    start = pos + 1;
-			}
-			pos++;
-		}
-		w.write(regex.substring(start));
-	}
+            } else if (regex.charAt(pos) == '`') {
+                w.write(regex.substring(start, pos));
+                int endpos = pos;
+                while (regex.charAt(++endpos) != '`') { }
+                String optionName = regex.substring(pos + 1, endpos);
+                Object optionValue = null;
+                try {
+                    optionValue = opts.x10_config.get(optionName);
+                } catch (ConfigurationError e) {
+                    throw new InternalCompilerError("There was a problem while processing the option `" + optionName + "` in template '" + id + "'", e);
+                } catch (OptionError e) {
+                    throw new InternalCompilerError("Template '" + id + "' uses unrecognized option `" + optionName + "`", e);
+                }
+                w.write(optionValue.toString());
+                pos = endpos;
+                start = pos + 1;
+            }
+            pos++;
+        }
+        w.write(regex.substring(start));
+    }
 
 	/**
 	 * Pretty-print a given object.
@@ -613,10 +595,10 @@ public class Emitter {
 		return getJavaRepParam(def, 1);
 	}
 
-    // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
-    public static String getJavaZeroValueRep(X10ClassDef def) {
-        return getJavaRepParam(def, 2);
-    }
+//    // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
+//    public static String getJavaZeroValueRep(X10ClassDef def) {
+//        return getJavaRepParam(def, 2);
+//    }
 
 	public static String getJavaRTTRep(X10ClassDef def) {
 		return getJavaRepParam(def, 3);
@@ -704,22 +686,25 @@ public class Emitter {
 		// If the type has a native representation, use that.
 		if (type instanceof X10ClassType) {
 			X10ClassDef cd = ((X10ClassType) type).x10Def();
-			String pat = getJavaRep(cd, boxPrimitives);
+			String pat = getJavaRep(cd, boxPrimitives);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep) 
 			if (pat != null) {
 				List<Type> typeArguments = ((X10ClassType) type).typeArguments();
 				if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
-				Object[] o = new Object[typeArguments.size() + 1];
+				Map<String,Object> components = new HashMap<String,Object>();
 				int i = 0;
-				o[i++] = new TypeExpander(this, type, printGenerics,
-						boxPrimitives, inSuper);
+				Object component;
+				component = new TypeExpander(this, type, printGenerics, boxPrimitives, inSuper);
+				components.put(String.valueOf(i++), component);
+				// TODO put with name
 				for (Type a : typeArguments) {
-					o[i++] = new TypeExpander(this, a, printGenerics, true,
-							inSuper);
+					component = new TypeExpander(this, a, printGenerics, true, inSuper);
+					components.put(String.valueOf(i++), component);
+					// TODO put with name
 				}
 				if (!printGenerics) {
 					pat = pat.replaceAll("<.*>", "");
 				}
-				dumpRegex("NativeRep", o, tr, pat);
+				dumpRegex("NativeRep(JavaRep)", components, tr, pat);
 				return true;
 			}
 		}
@@ -868,6 +853,7 @@ public class Emitter {
         return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imcType, tr.context());
     }
 
+	// not used
     public static boolean isAbstract(MemberInstance<?> mi) {
 		if (mi.flags().isAbstract())
 			return true;
@@ -880,34 +866,116 @@ public class Emitter {
 		return false;
 	}
 
-	/*
-	 * For "java" annotations:
-	 * 
-	 * Given a method with signature: def m[X, Y](x, y); and a call o.m[A, B](a,
-	 * b); #0 = o #1 = A #2 = boxed representation of A #3 = run-time Type
-	 * object for A #4 = B #5 = boxed representation of B #6 = run-time Type
-	 * object for B #7 = a #8 = b
-	 */
-	public void emitNativeAnnotation(String pat, Object target,
-			List<Type> types, List<? extends Object> args, List<Type> typeArguments) {
-		Object[] components = new Object[1 + types.size() * 3 + args.size() + typeArguments.size() * 3];
-		int i = 0;
-		components[i++] = target;
-		for (Type at : types) {
-			components[i++] = new TypeExpander(this, at, true, false, false);
-			components[i++] = new TypeExpander(this, at, true, true, false);
-			components[i++] = new RuntimeTypeExpander(this, at);
-		}
-		for (Object e : args) {
-			components[i++] = e;
-		}
-        for (Type at : typeArguments) {
-            components[i++] = new TypeExpander(this, at, true, false, false);
-            components[i++] = new TypeExpander(this, at, true, true, false);
-            components[i++] = new RuntimeTypeExpander(this, at);
-        }
-		this.dumpRegex("Native", components, tr, pat);
-	}
+    // WIP XTENLANG-2528
+    // See MessagePassingCodeGenerator.java
+    /**
+     * Annotation to mark methods and fields as having a particular native implementation.
+     * lang is the name of the language, typically "java" or "c++".
+     * code is the code to insert for a call to the method or an access to the field.
+     *
+     * For "java" annotations:
+     *
+     * Given a method with signature:
+     *     def m[X, Y](x, y);
+     * and a call
+     *     o.m[A, B](a, b);
+     * #0 = o
+     * #1 = A
+     * #2 = boxed representation of A
+     * #3 = run-time Type object for A
+     * #4 = B
+     * #5 = boxed representation of B
+     * #6 = run-time Type object for B
+     * #7 = a
+     * #8 = b
+     *
+     * For "c++" annotations:
+     *
+     * As for "java" except boxed and run-time representations of type vars should not be used.  Also there is also the capability to refer to type params and method params by name:
+     * #this = o
+     * #X = A
+     * #Y = B
+     * #x = a
+     * #y = b
+     */
+    // #0 = #this = o
+    // #1 = #X = A
+    // #2 = #X$box = boxed representation of A
+    // #3 = #X$rtt = run-time Type object for A
+    // #4 = #Y = B
+    // #5 = #Y$box = boxed representation of B
+    // #6 = #Y$rtt = run-time Type object for B
+    // #7 = #x = a
+    // #8 = #y = b
+	public void emitNativeAnnotation(String pat, Object receiver, List<ParameterType> typeParams, List<Type> typeArgs, List<String> params, List<? extends Object> args, List<ParameterType> classTypeParams, List<Type> classTypeArgs) {
+//      Object[] components = new Object[1 + typeArgs.size() * 3 + args.size() + classTypeArgs.size() * 3];
+      Map<String,Object> components = new HashMap<String,Object>();
+      int i = 0;
+      Object component;
+      String name;
+      if (receiver != null) {
+          component = receiver;
+          components.put(String.valueOf(i++), component);
+          components.put("this", component);
+      } else {
+          i++;
+      }
+      Iterator<ParameterType> typeParamsIter = null;
+      if (typeParams != null) {
+    	  typeParamsIter = typeParams.iterator();
+      }
+      for (Type at : typeArgs) {
+          if (typeParamsIter != null) {
+        	  name = typeParamsIter.next().name().toString();
+          } else {
+        	  name = null;
+          }
+          component = new TypeExpander(this, at, true, false, false);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name, component); }
+          component = new TypeExpander(this, at, true, true, false);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
+          component = new RuntimeTypeExpander(this, at);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
+      }
+      Iterator<String> paramsIter = null;
+      if (params != null) {
+    	  paramsIter = params.iterator();
+      }
+      for (Object e : args) {
+    	  if (paramsIter != null) {
+    		  name = paramsIter.next();
+    	  } else {
+    		  name = null;
+    	  }
+          component = e;
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name, component); }
+      }
+      Iterator<ParameterType> classTypeParamsIter = null;
+      if (classTypeParams != null) {
+    	  classTypeParamsIter = classTypeParams.iterator();
+      }
+      for (Type at : classTypeArgs) {
+          if (classTypeParamsIter != null) {
+        	  name = classTypeParamsIter.next().name().toString();
+          } else {
+        	  name = null;
+          }
+          component = new TypeExpander(this, at, true, false, false);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name, component); }
+          component = new TypeExpander(this, at, true, true, false);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
+          component = new RuntimeTypeExpander(this, at);
+          components.put(String.valueOf(i++), component);
+          if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
+      }
+      this.dumpRegex("Native", components, tr, pat);
+  }
 
 	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 
@@ -1282,8 +1350,8 @@ public class Emitter {
             sb.append("_").append(i).append("_");
             sb.append("$$");
             // TODO mangle parameter type
-            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
-//            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
+            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
+//            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
         }
     }
 
@@ -1291,7 +1359,7 @@ public class Emitter {
         sb.append("$_");
         if (t instanceof X10ClassType) {
             X10ClassType x10t = (X10ClassType) t;
-            sb.append(mangleQNameToName(x10t.fullName()));
+            sb.append(mangleAndFlattenQName(x10t.fullName()));
             if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
                 List<Type> ts = x10t.typeArguments();
                 for (Type t1 : ts) {
@@ -1301,11 +1369,11 @@ public class Emitter {
         }
         else if (t instanceof ParameterType) {
             // TODO mangle parameter type
-            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
-//            sb.append(mangleQNameToName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
+            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
+//            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
         }
         else {
-            sb.append(mangleQNameToName(t.fullName()));
+            sb.append(mangleAndFlattenQName(t.fullName()));
         }
         sb.append("_$");
     }
@@ -2586,11 +2654,6 @@ public class Emitter {
 		return s.toString();
 	}
 
-	private boolean isUnsignedClassType(Type type) {
-	    return type.isNumeric() && !(type.isChar() || type.isByte() || type.isShort() ||
-	            type.isInt() || type.isLong() || type.isFloat() || type.isDouble());
-	}
-
 	public void generateRTTInstance(X10ClassDef def) {
 	    // for static inner classes that are compiled from closures
 	    boolean isStaticFunType = def.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME);
@@ -2658,11 +2721,11 @@ public class Emitter {
             for (int i = 0 ; i < def.interfaces().size(); i ++) {
                 if (i != 0) w.write(", ");
                 Type type = def.interfaces().get(i).get();
-                printParent(def, type);
+                printRTT(def, type);
             }
             if (def.superType() != null) {
                 if (def.interfaces().size() != 0) w.write(", ");
-                printParent(def, def.superType().get());
+                printRTT(def, def.superType().get());
             }
             if (def.isStruct()) {
                 if (def.interfaces().size() != 0 || def.superType() != null) w.write(", ");
@@ -2731,33 +2794,40 @@ public class Emitter {
         }
 	}
 
-    private void printParent(final X10ClassDef def, Type type) {
+    private void printRTT(final X10ClassDef def, Type type) {
         type = Types.baseType(type);
         if (type instanceof X10ClassType) {
             X10ClassType x10Type = (X10ClassType) type;
             X10ClassDef cd = x10Type.x10Def();
-            String pat = getJavaRTTRep(cd);
+            String pat = getJavaRTTRep(cd);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep)
             if (pat != null) {
                 List<Type> typeArgs = x10Type.typeArguments();
                 if (typeArgs == null) typeArgs = Collections.<Type>emptyList();
-                Object[] components = new Object[1 + typeArgs.size() * 2];
+                HashMap<String,Object> components = new HashMap<String,Object>();
                 int i = 0;
-                components[i++] = new TypeExpander(this, x10Type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                Object component;
+                component = new TypeExpander(this, x10Type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                components.put(String.valueOf(i++), component);
+                // TODO put with name
                 for (final Type at : typeArgs) {
-                    components[i++] = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    components.put(String.valueOf(i++), component);
+                    // TODO put with name
                     if (Types.baseType(at).typeEquals(def.asType(), tr.context())) {
-                        components[i++] = "x10.rtt.UnresolvedType.THIS";
+                        component = "x10.rtt.UnresolvedType.THIS";
                     } else if (Types.baseType(at) instanceof ParameterType) {
-                        components[i++] = "x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
+                        component = "x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
                     } else {
-                        components[i++] = new Expander(this) {
+                        component = new Expander(this) {
                             public void expand(Translator tr) {
-                                printParent(def, at);
+                                printRTT(def, at);
                             }
                         };
                     }
+                    components.put(String.valueOf(i++), component);
+                    // TODO put with name
                 }
-                dumpRegex("Native", components, tr, pat);
+                dumpRegex("NativeRep(JavaRTTRep)", components, tr, pat);
             }
             else if (x10Type.typeArguments() != null && x10Type.typeArguments().size() > 0) {
                 w.write("new x10.rtt.ParameterizedType(");
@@ -2794,7 +2864,7 @@ public class Emitter {
                     } else if (ta instanceof ParameterType) {
                         w.write("x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) ta) + ")");
                     } else {
-                        printParent(def, ta);
+                        printRTT(def, ta);
                     }
                 }
                 w.write(")");
@@ -2816,6 +2886,7 @@ public class Emitter {
         throw new InternalCompilerError(""); // TODO
     }
 
+    // not used
     private static boolean hasCustomSerializer(X10ClassDef def) {
         for (MethodDef md: def.methods()) {
             if ("serialize".equals(md.name().toString())) {
@@ -2839,6 +2910,7 @@ public class Emitter {
         return null;
     }
     
+    // not used
     // copy of X10ClassDecl_c.createDefaultConstructor
     private static X10ConstructorDecl
     createDefaultConstructor(X10ClassDef thisType, X10NodeFactory_c xnf, X10ClassDecl n) {
@@ -3079,10 +3151,10 @@ public class Emitter {
             }
             String lhs = "this." + field.name().toString() + " = ";
             String zero = null;
-            // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
-            if (type instanceof X10ClassType && getJavaZeroValueRep(((X10ClassType) type).x10Def()) != null) {
-                zero = getJavaZeroValueRep(((X10ClassType) type).x10Def());
-            } else
+//            // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
+//            if (type instanceof X10ClassType && getJavaZeroValueRep(((X10ClassType) type).x10Def()) != null) {
+//                zero = getJavaZeroValueRep(((X10ClassType) type).x10Def());
+//            } else
             if (xts.isStruct(type)) {
                 if (xts.isUByte(type)) {
                     zero = "(x10.lang.UByte) x10.rtt.Types.UBYTE_ZERO";
@@ -3092,22 +3164,22 @@ public class Emitter {
                     zero = "(x10.lang.UInt) x10.rtt.Types.UINT_ZERO";
                 } else if (xts.isULong(type)) {
                     zero = "(x10.lang.ULong) x10.rtt.Types.ULONG_ZERO";
-//                } else if (xts.isByte(type)) {
-//                    zero = "(byte) 0";
-//                } else if (xts.isShort(type)) {
-//                    zero = "(short) 0";
-//                } else if (xts.isInt(type)) {
-//                    zero = "0";
-//                } else if (xts.isLong(type)) {
-//                    zero = "0L";
-//                } else if (xts.isFloat(type)) {
-//                    zero = "0.0F";
-//                } else if (xts.isDouble(type)) {
-//                    zero = "0.0";
-//                } else if (xts.isChar(type)) {
-//                    zero = "(char) 0";
-//                } else if (xts.isBoolean(type)) {
-//                    zero = "false";
+                } else if (xts.isByte(type)) {
+                    zero = "(byte) 0";
+                } else if (xts.isShort(type)) {
+                    zero = "(short) 0";
+                } else if (xts.isInt(type)) {
+                    zero = "0";
+                } else if (xts.isLong(type)) {
+                    zero = "0L";
+                } else if (xts.isFloat(type)) {
+                    zero = "0.0F";
+                } else if (xts.isDouble(type)) {
+                    zero = "0.0";
+                } else if (xts.isChar(type)) {
+                    zero = "(char) 0";
+                } else if (xts.isBoolean(type)) {
+                    zero = "false";
                 } else {
                     // user-defined struct type
                     // for struct a.b.S[T], "new a.b.S(T, (java.lang.System) null);"
@@ -3206,28 +3278,32 @@ public class Emitter {
 
     public boolean printNativeMethodCall(X10Call c) {
         TypeSystem xts = tr.typeSystem();
-    
-        Receiver target = c.target();
-        Type t = target.type();
-    
         MethodInstance mi = c.methodInstance();
         String pat = getJavaImplForDef(mi.x10Def());
     	if (pat != null) {
+            Receiver target = c.target();
+            Type t = target.type();
     	    boolean cast = xts.isParameterType(t) || X10PrettyPrinterVisitor.hasParams(t);
     		CastExpander targetArg = new CastExpander(w, this, target);
     		if (cast) {
     		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
     		}
-    		List<Type> typeArguments  = Collections.<Type>emptyList();
+    		
+	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
+    		List<Type> classTypeArguments  = Collections.<Type>emptyList();
     		if (mi.container().isClass() && !mi.flags().isStatic()) {
     		    X10ClassType ct = (X10ClassType) mi.container().toClass();
-    		    typeArguments = ct.typeArguments();
-    		    if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+	            classTypeParams = ct.x10Def().typeParameters();
+    		    classTypeArguments = ct.typeArguments();
+	            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+    		    if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
     		}
     		
+    		List<String> params = new ArrayList<String>();
     		List<CastExpander> args = new ArrayList<CastExpander>();
     		List<Expr> arguments = c.arguments();
     		for (int i = 0; i < arguments.size(); ++ i) {
+    		    params.add(mi.def().formalNames().get(i).name().toString());
     		    Type ft = c.methodInstance().def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
     		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
@@ -3240,7 +3316,10 @@ public class Emitter {
     		        args.add(new CastExpander(w, this, arguments.get(i)));                                    
     		    }
     		}
-    		emitNativeAnnotation(pat, targetArg, mi.typeParameters(), args, typeArguments);
+    		
+    	    // WIP XTENLANG-2528
+//    		emitNativeAnnotation(pat, targetArg, null, mi.typeParameters(), null, args, null, typeArguments);
+    		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
     		return true;
     	}
     	return false;
@@ -3249,15 +3328,21 @@ public class Emitter {
     public boolean printNativeNew(X10New_c c, X10ConstructorInstance mi) {
         String pat = getJavaImplForDef(mi.x10Def());
         if (pat != null) {
-            List<Type> typeArguments  = Collections.<Type>emptyList();
+	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
+            List<Type> classTypeArguments  = Collections.<Type>emptyList();
             if (mi.container().isClass() && !mi.flags().isStatic()) {
                 X10ClassType ct = (X10ClassType) mi.container().toClass();
-                typeArguments = ct.typeArguments();
-                if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+	            classTypeParams = ct.x10Def().typeParameters();
+                classTypeArguments = ct.typeArguments();
+	            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+                if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
             }
-            List<CastExpander> args = new ArrayList<CastExpander>();
+            
+    		List<String> params = new ArrayList<String>();
+    		List<CastExpander> args = new ArrayList<CastExpander>();
             List<Expr> arguments = c.arguments();
             for (int i = 0; i < arguments.size(); ++ i) {
+    		    params.add(mi.def().formalNames().get(i).name().toString());
                 Type ft = c.constructorInstance().def().formalTypes().get(i).get();
                 Type at = arguments.get(i).type();
                 if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && Types.baseType(ft) instanceof ParameterType) {
@@ -3270,7 +3355,10 @@ public class Emitter {
                     args.add(new CastExpander(w, this, arguments.get(i)));                                    
                 }
             }
-            emitNativeAnnotation(pat, null, Collections.<Type>emptyList(), args, typeArguments);
+            
+            // WIP XTENLANG-2528
+//            emitNativeAnnotation(pat, null, Collections.<ParameterType>emptyList(), Collections.<Type>emptyList(), null, args, null, classTypeArguments);
+            emitNativeAnnotation(pat, null, Collections.<ParameterType>emptyList(), Collections.<Type>emptyList(), params, args, classTypeParams, classTypeArguments);
             return true;
         }
         return false;
@@ -3287,7 +3375,7 @@ public class Emitter {
                 throwsClause = new Join(er, "", "throws ", new Join(er, ", ", l));
             }*/
 
-            // SYNOPSIS: main(#0) #3 #1    #0=args #1=body #2=class name 
+            // SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass 
             String regex = "public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
                 "private static final long serialVersionUID = 1L;\n" +
                 "public static void main(java.lang.String[] args) {\n" +
@@ -3298,13 +3386,26 @@ public class Emitter {
                 "// called by native runtime inside main x10 thread\n" +
                 "public void runtimeCallback(final x10.array.Array<java.lang.String> args) {\n" +
                     "// call the original app-main method\n" +
-                    "#2.main(args);\n" +
+                    "#mainclass.main(args);\n" +
                 "}\n" +
             "}\n" +
             "\n" +
             "// the original app-main method\n" +
-            "public static void main(#0)  #1";
-            dumpRegex("Main", new Object[] { n.formals().get(0), n.body(), tr.context().currentClass().name() }, tr, regex);
+            "public static void main(#args) #body";
+            Map<String,Object> components = new HashMap<String,Object>();
+            Object component;
+            int i = 0;
+            component = n.formals().get(0);
+//            components.put(String.valueOf(i++), component);
+            components.put("args", component);
+            component = n.body();
+//            components.put(String.valueOf(i++), component);
+            components.put("body", component);
+            component = tr.context().currentClass().name();
+//            components.put(String.valueOf(i++), component);
+            components.put("mainclass", component);
+//            dumpRegex("Main", new Object[] { n.formals().get(0), n.body(), tr.context().currentClass().name() }, tr, regex);
+            dumpRegex("Main", components, tr, regex);
 
             return true;
         }

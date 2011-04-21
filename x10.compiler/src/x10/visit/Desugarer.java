@@ -799,7 +799,7 @@ public class Desugarer extends ContextVisitor {
         Type t = tn.type(); // the base type of the cast
         LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(t), xn);
         Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, t), nf.Id(pos, xn)).localDef(xDef);
+                nf.CanonicalTypeNode(pos, xDef.type()), nf.Id(pos, xn)).localDef(xDef);
         Expr xl = nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(t);
         List<Expr> condition = depClause.condition();
         Expr cond = nf.Unary(pos, conjunction(depClause.position(), condition, xl), Unary.NOT).type(ts.Boolean());
@@ -842,7 +842,7 @@ public class Desugarer extends ContextVisitor {
         Type et = e.type();
         LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(et), xn);
         Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, et), nf.Id(pos, xn)).localDef(xDef);
+                nf.CanonicalTypeNode(pos, xDef.type()), nf.Id(pos, xn)).localDef(xDef);
         Expr xl = nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(et);
         Expr iof = nf.Instanceof(pos, xl, tn).type(ts.Boolean());
         Expr cast = nf.X10Cast(pos, tn, xl, Converter.ConversionType.CHECKED).type(tn.type());

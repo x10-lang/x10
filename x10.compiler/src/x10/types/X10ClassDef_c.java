@@ -719,4 +719,11 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
     }
 
+    private boolean wasInner = false;
+    public boolean wasInner() {
+        return wasInner;
+    }
+    public void setWasInner(boolean v) {
+        wasInner = v;
+    }
 }

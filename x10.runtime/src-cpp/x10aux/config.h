@@ -92,6 +92,7 @@
 
 #define ENV_CONGRUENT_BASE "X10_CONGRUENT_BASE"
 #define ENV_CONGRUENT_SIZE "X10_CONGRUENT_SIZE"
+#define ENV_CONGRUENT_HUGE "X10_CONGRUENT_HUGE"
 
 #ifndef NO_IOSTREAM
 #  include <iostream>
@@ -164,6 +165,7 @@ namespace x10aux {
 
     char *get_congruent_base();
     char *get_congruent_size();
+    bool get_congruent_huge();
 
     extern x10_int here;
     extern bool x10rt_initialized;

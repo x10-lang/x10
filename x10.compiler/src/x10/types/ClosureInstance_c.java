@@ -51,8 +51,9 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     public Ref <? extends Type> offerType() {
     	return x10Def().offerType();
     }
+    
     FunctionType type;
-
+    
     public FunctionType type() {
 	    TypeSystem xts = (TypeSystem) ts;
 	    assert false;
@@ -62,14 +63,36 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
 	    return type;
     }
     
+    protected CodeInstance<?> methodContainer;
+    
     public CodeInstance<?> methodContainer() {
-        return Types.get(def().methodContainer());
+        if (methodContainer == null)
+            return Types.get(def().methodContainer());
+        return methodContainer;
     }
-
+    
+    public ClosureInstance methodContainer(CodeInstance<?> methodContainer) {
+        if (methodContainer == this.methodContainer) return this;
+        ClosureInstance_c ci = (ClosureInstance_c) copy();
+        ci.methodContainer = methodContainer;
+        return ci;
+    }
+    
+    protected ClassType typeContainer;
+    
     public ClassType typeContainer() {
-        return Types.get(def().typeContainer());
+        if (typeContainer == null)
+            return Types.get(def().typeContainer());
+        return typeContainer;
     }
-
+    
+    public ClosureInstance typeContainer(ClassType typeContainer) {
+        if (typeContainer == this.typeContainer) return this;
+        ClosureInstance_c ci = (ClosureInstance_c) copy();
+        ci.typeContainer = typeContainer;
+        return ci;
+    }
+    
     public boolean closureCallValid(List<Type> actualTypes, Context context) {
         return callValid(type(), actualTypes, context);
     }

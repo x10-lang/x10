@@ -19,17 +19,14 @@ public class CastExpander extends Expander {
 
 	private final CodeWriter w;
 	private final TypeExpander typeExpander;
-	private final Template template;
 	private final Expander child;
 	private final Node node;
 
-	public CastExpander(CodeWriter w, Emitter er, TypeExpander typeExpander,
-			Expander child) {
+	public CastExpander(CodeWriter w, Emitter er, TypeExpander typeExpander, Expander child) {
 		super(er);
 		this.w = w;
 		this.typeExpander = typeExpander;
 		this.child = child;
-		this.template = null;
 		this.node = null;
 	}
 
@@ -38,37 +35,27 @@ public class CastExpander extends Expander {
 		this.w = w;
 		this.typeExpander = null;
 		this.child = null;
-		this.template = null;
 		this.node = node;
 	}
 
-	public CastExpander(CodeWriter w, Emitter er, Expander child) {
-		super(er);
-		this.w = w;
-		this.typeExpander = null;
-		this.child = child;
-		this.template = null;
-		this.node = null;
-	}
-
-	public CastExpander(CodeWriter w, Emitter er, Template template) {
-		super(er);
-		this.w = w;
-		this.typeExpander = null;
-		this.child = null;
-		this.template = template;
-		this.node = null;
-	}
+	// not used
+//	public CastExpander(CodeWriter w, Emitter er, Expander child) {
+//		super(er);
+//		this.w = w;
+//		this.typeExpander = null;
+//		this.child = child;
+//		this.node = null;
+//	}
 
 	public CastExpander castTo(Type castType) {
 		return new CastExpander(w, er, new TypeExpander(er, castType, 0), this);
 	}
 
 	public CastExpander castTo(Type castType, int flags) {
-		return new CastExpander(w, er, new TypeExpander(er, castType, flags),
-				this);
+		return new CastExpander(w, er, new TypeExpander(er, castType, flags), this);
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
 		if (typeExpander == null) {
@@ -88,8 +75,6 @@ public class CastExpander extends Expander {
 	private void toStringChild(StringBuffer buf) {
 		if (node != null) {
 			buf.append(node);
-		} else if (template != null) {
-			buf.append(template);
 		} else {
 			buf.append(child);
 		}
@@ -110,20 +95,16 @@ public class CastExpander extends Expander {
 
 	private void expandChild(Translator tr) {
 		Node printExpr = node;
-		Template printTemplate = template;
 		Expander printExpander = child;
 
 		while (true) {
 			if (printExpr != null) {
 				er.prettyPrint(printExpr, tr);
-			} else if (printTemplate != null) {
-				printTemplate.expand(tr);
 			} else {
 				if (printExpander instanceof CastExpander) {
 					CastExpander castChild = (CastExpander) printExpander;
 					if (sameCast(castChild)) {
 						printExpr = castChild.node;
-						printTemplate = castChild.template;
 						printExpander = castChild.child;
 						continue;
 					}

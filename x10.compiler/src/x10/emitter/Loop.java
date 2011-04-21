@@ -11,8 +11,10 @@
 
 package x10.emitter;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.visit.Translator;
 import x10.visit.X10PrettyPrinterVisitor;
@@ -26,14 +28,11 @@ import x10.visit.X10PrettyPrinterVisitor;
  * If the template has only one argument, a single list can be used.
  */
 public class Loop extends Expander {
-	/**
-	 * 
-	 */
-
 	private final String id;
 	private final String regex;
 	private final List<?>[] lists;
 	private final int N;
+	
     public Loop(Emitter er, String id, String regex, List<?> arg) {
         this(er, id, regex, new List[] { arg });
     }
@@ -64,20 +63,30 @@ public class Loop extends Expander {
 			assert(lists[i].size() == n || lists[i].size() == -1);
 		this.N = n;
 	}
+	
+    @Override
 	public void expand(Translator tr) {
 		er.w.write("/* Loop: { */");
-		Object[] args = new Object[lists.length];
+//		Object[] args = new Object[lists.length];
+        Map<String,Object> components = new HashMap<String,Object>();
 		Iterator<?>[] iters = new Iterator[lists.length];
 		// Parallel iterators over all argument lists
 		for (int j = 0; j < lists.length; j++)
 			iters[j] = lists[j].iterator();
 		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < args.length; j++)
-				args[j] = iters[j].next();
-			er.dumpRegex(id, args, tr, regex);
+		    components.clear();
+			for (int j = 0; j < lists.length; j++) {
+			    Object component = iters[j].next();
+//				args[j] = component;
+				components.put(String.valueOf(j), component);
+			}
+//            er.dumpRegex(id, args, tr, regex);
+			er.dumpRegex(id, components, tr, regex);
 		}
 		er.w.write("/* } */");
 	}
+    
+    @Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("Loop ");
 		for (int i=0; i < lists.length; ++i) {

@@ -201,8 +201,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 
         Type domainType = domainTypeRef.get();
         indexType = getIndexType(domainType, tc);
-        if (indexType == null)
+        if (indexType == null) {
+            r.update(ts.unknownType(position()));
             return;
+        }
         Type base = Types.baseType(domainType);
 
 

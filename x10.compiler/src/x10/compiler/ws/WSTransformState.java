@@ -14,6 +14,7 @@ package x10.compiler.ws;
 
 import polyglot.ast.Call;
 import polyglot.ast.CodeBlock;
+import polyglot.ast.MethodDecl;
 
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
@@ -21,7 +22,7 @@ import x10.X10CompilerOptions;
 /**
  * Record the WS transformation intermediate results and context.
  * 
- * The WSState is globally exisits, however, some types need be refreshed
+ * The WSState is globally existed. However, some types need be refreshed
  * each time a WSCodeGenerator begins
  * 
  * Globally table: target methodDef -> Fast/Slow MethodSynth
@@ -83,4 +84,6 @@ public abstract class WSTransformState {
     public abstract CallSiteType getCallSiteType(Call call);
 
     public abstract MethodType getMethodType(CodeBlock codeBlock);
+    
+    public abstract void addSynthesizedConcurrentMethod(MethodDecl mDecl);
 }

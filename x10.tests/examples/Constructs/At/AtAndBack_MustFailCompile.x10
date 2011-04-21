@@ -12,24 +12,24 @@
 import harness.x10Test;
 
 /**
- * It is possible to assign to a variable by 
+ * It is not (XTENLANG-2660) possible to assign to a variable by 
  * doing an at to another place and then returning
  * to the original place.
  */
-public class AtAndBack extends x10Test {
+public class AtAndBack_MustFailCompile extends x10Test {
 
     public def run():boolean {
 	var x:int = 10;
 	val h = here;
 	at (here.next()) {
 	    at (h) {
-                x = 20;
+                x = 20; // ERR: Local variable is accessed at a different place.
             }
         }
 	return x == 20;
     }
 
     public static def main(Array[String](1)) {
-        new AtAndBack().execute();
+        new AtAndBack_MustFailCompile().execute();
     }
 }
