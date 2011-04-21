@@ -18,25 +18,25 @@ public class OutputStreamWriter extends Writer {
     @NativeRep("java", "x10.core.io.OutputStream", null, "x10.core.io.OutputStream.$RTT")
     @NativeRep("c++", "x10aux::ref<x10::io::OutputStreamWriter__OutputStream>", "x10::io::OutputStreamWriter__OutputStream", null)
     protected abstract static class OutputStream {
-        @Native("java", "#0.close()")
+        @Native("java", "#this.close()")
         @Native("c++", "(#this)->close()")
         public native def close(): void; //throws IOException;
 
-        @Native("java", "#0.flush()")
+        @Native("java", "#this.flush()")
         @Native("c++", "(#this)->flush()")
         public native def flush(): void; //throws IOException;
         
-        @Native("java", "#0.write(#1)")
+        @Native("java", "#this.write(#v)")
         @Native("c++", "(#this)->write(#v)")
         public native def write(v:Int): void; //throws IOException
         
-        @Native("java", "#0.write((#1).raw().getByteArray())")
+        @Native("java", "#this.write((#r).raw().getByteArray())")
         @Native("c++", "(#this)->write((#r)->raw())")
         public native def write(r:Array[Byte](1)): void; //throws IOException
         
-        @Native("java", "#0.write((#1).raw().getByteArray(), #2, #3)")
+        @Native("java", "#this.write((#r).raw().getByteArray(), #off, #len)")
         @Native("c++", "(#this)->write((#r)->raw())")
-        public native def write(r:Array[Byte](1), Int, Int): void; //throws IOException
+        public native def write(r:Array[Byte](1), off:Int, len:Int): void; //throws IOException
     }
 
     val out: OutputStream;

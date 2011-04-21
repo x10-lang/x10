@@ -22,8 +22,8 @@ public class FileReader extends InputStreamReader {
     @NativeRep("java", "x10.core.io.FileInputStream", null, "x10.core.io.FileInputStream.$RTT")
     @NativeRep("c++", "x10aux::ref<x10::io::FileReader__FileInputStream>", "x10::io::FileReader__FileInputStream", null)
     protected final static class FileInputStream extends InputStream {
-        @Native("java", "x10.core.io.FileInputStream.make(#1)")
-        public native def this(String); //throws FileNotFoundException;
+        @Native("java", "x10.core.io.FileInputStream.make(#path)")
+        public native def this(path: String); //throws FileNotFoundException;
     }
 
     public def this(file: File) //throws IOException 

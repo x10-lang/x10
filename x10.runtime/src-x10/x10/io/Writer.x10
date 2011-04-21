@@ -74,6 +74,6 @@ public abstract class Writer {
     }
 
     // DO NOT CALL from X10 code -- only used in @Native annotations
-    @Native("java", "new x10.core.io.OutputStream.WriterOutputStream(#0)")
+    @Native("java", "new x10.core.io.OutputStream.WriterOutputStream(#this)")
     public final def getNativeOutputStream(): OutputStreamWriter.OutputStream = null;
 }
