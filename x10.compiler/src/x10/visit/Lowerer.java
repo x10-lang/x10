@@ -353,6 +353,7 @@ public class Lowerer extends ContextVisitor {
 
     Expr getPlace(Position pos, Expr place) throws SemanticException{
     	if (! ts.isImplicitCastValid(place.type(), ts.Place(), context())) {
+            	assert (false);
             	place = synth.makeInstanceCall(pos, place, ts.homeName(),
             			Collections.<TypeNode>emptyList(),
             			Collections.<Expr>emptyList(),
