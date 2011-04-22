@@ -24,23 +24,18 @@ import x10.lang.annotations.*;
  *     def m[X, Y](x, y);
  * and a call
  *     o.m[A, B](a, b);
- * #0 = o
- * #1 = A
- * #2 = boxed representation of A
- * #3 = run-time Type object for A
- * #4 = B
- * #5 = boxed representation of B
- * #6 = run-time Type object for B
- * #7 = a
- * #8 = b
+ * #0 = #this = o
+ * #1 = #X = A
+ * #2 = #X$box = boxed representation of A
+ * #3 = #X$rtt = run-time Type object for A
+ * #4 = #Y = B
+ * #5 = #Y$box = boxed representation of B
+ * #6 = #Y$rtt = run-time Type object for B
+ * #7 = #x = a
+ * #8 = #y = b
  *
  * For "c++" annotations:
  *
- * As for "java" except boxed and run-time representations of type vars should not be used.  Also there is also the capability to refer to type params and method params by name:
- * #this = o
- * #X = A
- * #Y = B
- * #x = a
- * #y = b
+ * As for "java" except boxed and run-time representations of type vars should not be used.
  */
 public interface Native(lang: String, code: String) extends StatementAnnotation, MethodAnnotation, FieldAnnotation { }

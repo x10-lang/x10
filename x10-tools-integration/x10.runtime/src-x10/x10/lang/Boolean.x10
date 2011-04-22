@@ -30,7 +30,7 @@ public struct Boolean implements Comparable[Boolean] {
      * Computes a logical complement of this Boolean.
      * @return the logical complement of this Boolean.
      */
-    @Native("java", "!(#0)")
+    @Native("java", "!(#this)")
     @Native("c++",  "!(#0)")
     public native operator ! this: Boolean;
 
@@ -41,7 +41,7 @@ public struct Boolean implements Comparable[Boolean] {
      * @param x the other Boolean
      * @return the logical AND of this Boolean and the other Boolean.
      */
-    @Native("java", "((#0) & (#1))")
+    @Native("java", "((#this) & (#x))")
     @Native("c++",  "((x10_boolean) (((#0) ? 1 : 0) & ((#1) ? 1 : 0)))")
     public native operator this & (x:Boolean): Boolean;
 
@@ -52,7 +52,7 @@ public struct Boolean implements Comparable[Boolean] {
      * @param x the other Boolean
      * @return the logical OR of this Boolean and the other Boolean.
      */
-    @Native("java", "((#0) | (#1))")
+    @Native("java", "((#this) | (#x))")
     @Native("c++",  "((x10_boolean) (((#0) ? 1 : 0) | ((#1) ? 1 : 0)))")
     public native operator this | (x:Boolean): Boolean;
 
@@ -62,7 +62,7 @@ public struct Boolean implements Comparable[Boolean] {
      * @param x the other Boolean
      * @return the logical XOR of this Boolean and the other Boolean.
      */
-    @Native("java", "((#0) ^ (#1))")
+    @Native("java", "((#this) ^ (#x))")
     @Native("c++",  "((x10_boolean) (((#0) ? 1 : 0) ^ ((#1) ? 1 : 0)))")
     public native operator this ^ (x:Boolean): Boolean;
 
@@ -86,16 +86,16 @@ public struct Boolean implements Comparable[Boolean] {
      * Returns a String representation of this Boolean.
      * @return a string representation of this Boolean.
      */
-    @Native("java", "java.lang.Boolean.toString(#0)")
+    @Native("java", "java.lang.Boolean.toString(#this)")
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "java.lang.Boolean.parseBoolean(#1)")
+    @Native("java", "java.lang.Boolean.parseBoolean(#s)")
     @Native("c++", "x10aux::boolean_utils::parseBoolean(#1)")
-    public native static def parseBoolean(String): Boolean;
+    public native static def parseBoolean(s:String): Boolean;
 
     /**
      * Parses the String argument as a Boolean.
@@ -104,7 +104,7 @@ public struct Boolean implements Comparable[Boolean] {
      * @param s the String containing the Boolean representation to be parsed
      * @return the Boolean represented by the String argument.
      */
-    @Native("java", "java.lang.Boolean.parseBoolean(#1)")
+    @Native("java", "java.lang.Boolean.parseBoolean(#s)")
     @Native("c++", "x10aux::boolean_utils::parseBoolean(#1)")
     public native static def parse(s:String): Boolean;
 
@@ -116,7 +116,7 @@ public struct Boolean implements Comparable[Boolean] {
      * @return true if this Boolean is equal to the given entity.
      */
     //FIXME Java: use equalsequals()?
-    @Native("java", "((((#2) instanceof boolean) && #1 == ((boolean)#2)) || (((#2) instanceof Boolean) && #1 == ((Boolean) #2).booleanValue()))")
+    @Native("java", "((((#x) instanceof boolean) && #this == ((boolean)#x)) || (((#x) instanceof Boolean) && #this == ((Boolean) #x).booleanValue()))")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Any):Boolean;
 
@@ -125,7 +125,7 @@ public struct Boolean implements Comparable[Boolean] {
      * @param x the given Boolean
      * @return true if this Boolean is equal to the given Boolean.
      */
-    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Boolean):Boolean;
 
@@ -136,18 +136,18 @@ public struct Boolean implements Comparable[Boolean] {
     * @return a negative Int, zero, or a positive Int if this Boolean is less than, equal
     * to, or greater than the given Boolean.
     */
-    @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+    @Native("java", "x10.rtt.Equality.compareTo(#this, #x)")
     @Native("c++", "x10aux::boolean_utils::compareTo(#0, #1)")
     public native def compareTo(x:Boolean):Int;
 
     // These operations are built-in.  Declaring them will prevent the
     // short-circuiting behavior.
 
-//    @Native("java", "((#0) && (#1))")
+//    @Native("java", "((#x) && (#y))")
 //    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) && ((#2) ? 1 : 0)))")
 //    public native static operator (x:Boolean) && (y:Boolean): Boolean;
 //
-//    @Native("java", "((#0) || (#1))")
+//    @Native("java", "((#x) || (#y))")
 //    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) || ((#2) ? 1 : 0)))")
 //    public native static operator (x:Boolean) || (y:Boolean): Boolean;
 }

@@ -31,30 +31,30 @@ public final class AtomicBoolean {
         value = v ? 1 : 0;
     }
     
-    @Native("java", "#0.get()")
+    @Native("java", "#this.get()")
     public def get():boolean = value == 1;
 
-    @Native("java", "#0.set(#1)")
+    @Native("java", "#this.set(#v)")
     public def set(v:boolean):void {
         value = v ? 1 : 0;
     }
 
-    @Native("java", "#0.compareAndSet(#1,#2)")
+    @Native("java", "#this.compareAndSet(#expect,#update)")
     @Native("c++", "x10aux::atomic_boolean_funs::compareAndSet(#this, #expect, #update)")
     public native def compareAndSet(expect:boolean, update:boolean):boolean;
 
-    @Native("java", "#0.weakCompareAndSet(#1,#2)")
+    @Native("java", "#this.weakCompareAndSet(#expect,#update)")
     @Native("c++", "x10aux::atomic_boolean_funs::weakCompareAndSet(#this, #expect, #update)")
     public native def weakCompareAndSet(expect:boolean, update:boolean):boolean;
     
-    @Native("java", "#0.getAndSet(#1)")
+    @Native("java", "#this.getAndSet(#v)")
     public def getAndSet(v:boolean):boolean {
 	val oldVal = get();
 	set(v);
 	return oldVal;
     }
 
-    @Native("java", "#0.toString()")
+    @Native("java", "#this.toString()")
     public def toString():String = get().toString();
 }
  

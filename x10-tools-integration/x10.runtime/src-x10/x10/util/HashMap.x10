@@ -181,7 +181,7 @@ import x10.io.SerialData;
         }
     }
     
-    public def rehash():void  = rehashInternal();
+    public def rehash():void { rehashInternal(); }
     @NonEscaping protected final def rehashInternal(): void {
         modCount++;
         val t = table;

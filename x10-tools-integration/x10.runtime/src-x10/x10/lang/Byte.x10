@@ -35,7 +35,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return true if this Byte is strictly less than the other Byte.
      */
-    @Native("java", "((#0) < (#1))")
+    @Native("java", "((#this) < (#x))")
     @Native("c++",  "((#0) < (#1))")
     public native operator this < (x:Byte): Boolean;
 
@@ -46,7 +46,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return true if this Byte is strictly greater than the other Byte.
      */
-    @Native("java", "((#0) > (#1))")
+    @Native("java", "((#this) > (#x))")
     @Native("c++",  "((#0) > (#1))")
     public native operator this > (x:Byte): Boolean;
 
@@ -57,7 +57,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return true if this Byte is less than or equal to the other Byte.
      */
-    @Native("java", "((#0) <= (#1))")
+    @Native("java", "((#this) <= (#x))")
     @Native("c++",  "((#0) <= (#1))")
     public native operator this <= (x:Byte): Boolean;
 
@@ -68,7 +68,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return true if this Byte is greater than or equal to the other Byte.
      */
-    @Native("java", "((#0) >= (#1))")
+    @Native("java", "((#this) >= (#x))")
     @Native("c++",  "((#0) >= (#1))")
     public native operator this >= (x:Byte): Boolean;
 
@@ -80,7 +80,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return the sum of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#0) + (#1)))")
+    @Native("java", "((byte) ((#this) + (#x)))")
     @Native("c++",  "((x10_byte) ((#0) + (#1)))")
     public native operator this + (x:Byte): Byte;
 
@@ -91,7 +91,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return the difference of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#0) - (#1)))")
+    @Native("java", "((byte) ((#this) - (#x)))")
     @Native("c++",  "((x10_byte) ((#0) - (#1)))")
     public native operator this - (x:Byte): Byte;
 
@@ -102,7 +102,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return the product of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#0) * (#1)))")
+    @Native("java", "((byte) ((#this) * (#x)))")
     @Native("c++",  "((x10_byte) ((#0) * (#1)))")
     public native operator this * (x:Byte): Byte;
 
@@ -112,7 +112,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return the quotient of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#0) / (#1)))")
+    @Native("java", "((byte) ((#this) / (#x)))")
     @Native("c++",  "((x10_byte) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:Byte): Byte;
 
@@ -122,7 +122,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return the remainder from dividing this Byte by the other Byte.
      */
-    @Native("java", "((byte) ((#0) % (#1)))")
+    @Native("java", "((byte) ((#this) % (#x)))")
     @Native("c++",  "((x10_byte) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:Byte): Byte;
 
@@ -131,7 +131,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * A no-op.
      * @return the value of this Byte.
      */
-    @Native("java", "((byte) +(#0))")
+    @Native("java", "((byte) +(#this))")
     @Native("c++",  "((x10_byte) +(#0))")
     public native operator + this: Byte;
 
@@ -141,7 +141,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Overflows result in truncating the high bits.
      * @return the negated value of this Byte.
      */
-    @Native("java", "((byte) -(#0))")
+    @Native("java", "((byte) -(#this))")
     @Native("c++",  "((x10_byte) -(#0))")
     public native operator - this: Byte;
 
@@ -152,7 +152,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return the bitwise AND of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#0) & (#1)))")
+    @Native("java", "((byte) ((#this) & (#x)))")
     @Native("c++",  "((x10_byte) ((#0) & (#1)))")
     public native operator this & (x:Byte): Byte;
 
@@ -162,7 +162,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return the bitwise OR of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#0) | (#1)))")
+    @Native("java", "((byte) ((#this) | (#x)))")
     @Native("c++",  "((x10_byte) ((#0) | (#1)))")
     public native operator this | (x:Byte): Byte;
 
@@ -172,7 +172,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the other Byte
      * @return the bitwise XOR of this Byte and the other Byte.
      */
-    @Native("java", "((byte) ((#0) ^ (#1)))")
+    @Native("java", "((byte) ((#this) ^ (#x)))")
     @Native("c++",  "((x10_byte) ((#0) ^ (#1)))")
     public native operator this ^ (x:Byte): Byte;
 
@@ -183,7 +183,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param count the shift count
      * @return this Byte shifted left by count.
      */
-    @Native("java", "((byte) ((#0) << (#1)))")
+    @Native("java", "((byte) ((#this) << (#count)))")
     @Native("c++",  "((x10_byte) ((#0) << (#1)))")
     public native operator this << (count:Int): Byte;
 
@@ -195,7 +195,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param count the shift count
      * @return this Byte shifted right by count.
      */
-    @Native("java", "((byte) ((#0) >> (#1)))")
+    @Native("java", "((byte) ((#this) >> (#count)))")
     @Native("c++",  "((x10_byte) ((#0) >> (#1)))")
     public native operator this >> (count:Int): Byte;
 
@@ -208,7 +208,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param count the shift count
      * @return this Byte shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((byte) ((#0) >>> (#1)))")
+    @Native("java", "((byte) ((#this) >>> (#count)))")
     @Native("c++",  "((x10_byte) ((x10_uint) (#0) >> (#1)))")
     public native operator this >>> (count:Int): Byte;
 
@@ -217,7 +217,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Computes a bitwise complement (NOT) of the operand.
      * @return the bitwise complement of this Byte.
      */
-    @Native("java", "((byte) ~(#0))")
+    @Native("java", "((byte) ~(#this))")
     @Native("c++",  "((x10_byte) ~(#0))")
     public native operator ~ this: Byte;
 
@@ -227,7 +227,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the given Short
      * @return the given Short converted to a Byte.
      */
-    @Native("java", "((byte)(short)(#1))")
+    @Native("java", "((byte)(short)(#x))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static operator (x:Short) as Byte;
 
@@ -236,7 +236,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the given Int
      * @return the given Int converted to a Byte.
      */
-    @Native("java", "((byte)(int)(#1))")
+    @Native("java", "((byte)(int)(#x))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static operator (x:Int) as Byte;
 
@@ -245,7 +245,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the given Long
      * @return the given Long converted to a Byte.
      */
-    @Native("java", "((byte)(long)(#1))")
+    @Native("java", "((byte)(long)(#x))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static operator (x:Long) as Byte;
 
@@ -254,7 +254,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the given Float
      * @return the given Float converted to a Byte.
      */
-    @Native("java", "x10.core.Floats.toByte(#1)")
+    @Native("java", "x10.core.Floats.toByte(#x)")
     @Native("c++",  "x10aux::float_utils::toByte(#1)")
     public native static operator (x:Float) as Byte;
 
@@ -263,7 +263,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the given Double
      * @return the given Double converted to a Byte.
      */
-    @Native("java", "x10.core.Floats.toByte(#1)")
+    @Native("java", "x10.core.Floats.toByte(#x)")
     @Native("c++",  "x10aux::double_utils::toByte(#1)")
     public native static operator (x:Double) as Byte;
 
@@ -272,7 +272,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the given UByte
      * @return the given UByte converted to a Byte.
      */
-    @Native("java", "((byte)(#1.byteVal))")
+    @Native("java", "((byte)(#x.byteVal))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static operator (x:UByte) as Byte;
 
@@ -296,7 +296,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param radix the radix to use in the String representation
      * @return a String representation of this Byte in the specified radix.
      */
-    @Native("java", "x10.core.Signed.toString(#0, #1)")
+    @Native("java", "x10.core.Signed.toString(#this, #radix)")
     @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
@@ -304,7 +304,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Returns a String representation of this Byte as a hexadecimal number.
      * @return a String representation of this Byte as a hexadecimal number.
      */
-    @Native("java", "x10.core.Signed.toString(#0, 16)")
+    @Native("java", "x10.core.Signed.toString(#this, 16)")
     @Native("c++", "x10aux::byte_utils::toHexString(#0)")
     public native def toHexString(): String;
 
@@ -312,7 +312,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Returns a String representation of this Byte as an octal number.
      * @return a String representation of this Byte as an octal number.
      */
-    @Native("java", "x10.core.Signed.toString(#0, 8)")
+    @Native("java", "x10.core.Signed.toString(#this, 8)")
     @Native("c++", "x10aux::byte_utils::toOctalString(#0)")
     public native def toOctalString(): String;
 
@@ -320,7 +320,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Returns a String representation of this Byte as a binary number.
      * @return a String representation of this Byte as a binary number.
      */
-    @Native("java", "x10.core.Signed.toString(#0, 2)")
+    @Native("java", "x10.core.Signed.toString(#this, 2)")
     @Native("c++", "x10aux::byte_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;
 
@@ -328,21 +328,21 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Returns a String representation of this Byte as a decimal number.
      * @return a String representation of this Byte as a decimal number.
      */
-    @Native("java", "java.lang.Byte.toString(#0)")
+    @Native("java", "java.lang.Byte.toString(#this)")
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "x10.core.Signed.parseByte(#1, #2)")
+    @Native("java", "x10.core.Signed.parseByte(#s, #radix)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
     public native static def parseByte(s:String, radix:Int): Byte; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "x10.core.Signed.parseByte(#1)")
+    @Native("java", "x10.core.Signed.parseByte(#s)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1)")
     public native static def parseByte(s:String): Byte ; //throwsNumberFormatException;
 
@@ -353,7 +353,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @return the Byte represented by the String argument in the specified radix.
      * @; //throwsNumberFormatException if the String does not contain a parsable Byte.
      */
-    @Native("java", "x10.core.Signed.parseByte(#1, #2)")
+    @Native("java", "x10.core.Signed.parseByte(#s, #radix)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
     public native static def parse(s:String, radix:Int): Byte ; //throwsNumberFormatException;
 
@@ -363,7 +363,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @return the Byte represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Byte.
      */
-    @Native("java", "x10.core.Signed.parseByte(#1)")
+    @Native("java", "x10.core.Signed.parseByte(#s)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1)")
     public native static def parse(s:String): Byte ; //throwsNumberFormatException;
 
@@ -373,7 +373,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * two's complement binary representation of this Byte.
      * @return the value obtained by reversing order of the bits in this Byte.
      */
-    @Native("java", "((byte)(java.lang.Integer.reverse(#0)>>>24))")
+    @Native("java", "((byte)(java.lang.Integer.reverse(#this)>>>24))")
     @Native("c++", "((x10_byte)(x10aux::int_utils::reverse(#0)>>24))")
     public native def reverse(): Byte;
 
@@ -383,7 +383,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * positive.
      * @return the signum function of this Byte.
      */
-    @Native("java", "java.lang.Integer.signum(#0)")
+    @Native("java", "java.lang.Integer.signum(#this)")
     @Native("c++", "x10aux::int_utils::signum((x10_int)#0)")
     public native def signum(): Int;
 
@@ -394,7 +394,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the given entity
      * @return true if this Byte is equal to the given entity.
      */
-    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Any):Boolean;
 
@@ -403,7 +403,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the given Byte
      * @return true if this Byte is equal to the given Byte.
      */
-    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Byte):Boolean;
 
@@ -414,7 +414,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
     * @return a negative Int, zero, or a positive Int if this Byte is less than, equal
     * to, or greater than the given Byte.
     */
-   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   @Native("java", "x10.rtt.Equality.compareTo(#this, #x)")
    @Native("c++", "x10aux::byte_utils::compareTo(#0, #1)")
    public native def compareTo(x:Byte):Int;
 }

@@ -13,6 +13,7 @@ package x10.emitter;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -109,39 +110,51 @@ final public class RuntimeTypeExpander extends Expander {
             	return;
             }
             
-            List<Type> typeArgs = ct.typeArguments();
-            if (typeArgs == null) typeArgs = Collections.<Type>emptyList();
+            List<Type> classTypeArgs = ct.typeArguments();
+            if (classTypeArgs == null) classTypeArgs = Collections.<Type>emptyList();
             if (pat == null) {
                 // XTENLANG-1102
-                if (ct.isGloballyAccessible() && typeArgs.size() == 0) {
+                if (ct.isGloballyAccessible() && classTypeArgs.size() == 0) {
                     er.w.write(Emitter.mangleQName(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
                 } else {
                     er.w.write("new x10.rtt.ParameterizedType(");
                     er.w.write(Emitter.mangleQName(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
-                    for (int i = 0; i < typeArgs.size(); i++) {
+                    for (int i = 0; i < classTypeArgs.size(); i++) {
                         er.w.write(", ");
-                        new RuntimeTypeExpander(er, typeArgs.get(i)).expand(tr);
+                        new RuntimeTypeExpander(er, classTypeArgs.get(i)).expand(tr);
                     }
                     er.w.write(")");
                 }
                 return;
             }
             else {
+                List<ParameterType> classTypeParams  = cd.typeParameters();
+//                if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+                Iterator<ParameterType> classTypeParamsIter = null;
+                if (classTypeParams != null) {
+                    classTypeParamsIter = classTypeParams.iterator();
+                }
             	Map<String,Object> components = new HashMap<String,Object>();
             	int i = 0;
             	Object component;
+            	String name;
             	component =  new TypeExpander(er, ct, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
             	components.put(String.valueOf(i++), component);
-            	// TODO put with name
-            	for (Type at : typeArgs) {
+            	components.put("class", component);
+            	for (Type at : classTypeArgs) {
+                    if (classTypeParamsIter != null) {
+                        name = classTypeParamsIter.next().name().toString();
+                    } else {
+                        name = null;
+                    }
             		component = new TypeExpander(er, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                 	components.put(String.valueOf(i++), component);
-                	// TODO put with name
+                    if (name != null) { components.put(name+Emitter.NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
             		component = new RuntimeTypeExpander(er, at);
                 	components.put(String.valueOf(i++), component);
-                	// TODO put with name
+                    if (name != null) { components.put(name+Emitter.NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
             	}
-            	er.dumpRegex("NativeRep(JavaRTTRep)", components, tr, pat);
+            	er.dumpRegex("NativeRep", components, tr, pat);
             	return;
             }
         }

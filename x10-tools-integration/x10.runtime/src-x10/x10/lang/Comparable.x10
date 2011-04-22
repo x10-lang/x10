@@ -23,7 +23,7 @@ import x10.compiler.NativeRep;
  *
  * @param T the type of entities that this entity may be compared to
  */
-@NativeRep("java", "java.lang.Comparable<#1>", null, "new x10.rtt.ParameterizedType(x10.rtt.Types.COMPARABLE, #2)")
+@NativeRep("java", "java.lang.Comparable<#T$box>", null, "new x10.rtt.ParameterizedType(x10.rtt.Types.COMPARABLE, #T$rtt)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Comparable<#T > >", "x10::lang::Comparable<#T >", null)
 public interface Comparable[T] {
     /**
@@ -40,7 +40,7 @@ public interface Comparable[T] {
      * @return a negative integer, zero, or a positive integer if this entity is less than, equal
      * to, or greater than the given entity.
      */
-    @Native("java", "#0.compareTo(#1)")
+    @Native("java", "#this.compareTo(#that)")
     @Native("c++", "x10::lang::Comparable<#T >::compareTo(#this, #that)")
     def compareTo(that:T):Int;
 }

@@ -352,16 +352,10 @@ public class Lowerer extends ContextVisitor {
     }
 
     Expr getPlace(Position pos, Expr place) throws SemanticException{
-    	if (! ts.isImplicitCastValid(place.type(), ts.Place(), context())) {
-            	assert (false);
-            	place = synth.makeInstanceCall(pos, place, ts.homeName(),
-            			Collections.<TypeNode>emptyList(),
-            			Collections.<Expr>emptyList(),
-            			ts.Place(),
-            			Collections.<Type>emptyList(),
-            			context());
-            }
-    	return place;
+        if (! ts.isImplicitCastValid(place.type(), ts.Place(), context())) {
+            throw new InternalCompilerError("The place argument of an \"at\" is not of type Place", place.position());
+        }
+        return place;
     }
 
     private Expr visitRemoteClosure(Closure c, Name implName, Expr place) throws SemanticException {

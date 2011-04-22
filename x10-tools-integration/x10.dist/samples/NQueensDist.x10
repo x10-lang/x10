@@ -108,5 +108,5 @@ public class NQueensDist {
 		   (result? " (ok)." : " (wrong).") + "time=" + start + "ms");
     }
 
-    static def println(s:String) = Console.OUT.println(s);
+    static def println(s:String) { Console.OUT.println(s); }
 }

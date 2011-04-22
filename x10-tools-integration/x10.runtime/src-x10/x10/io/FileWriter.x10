@@ -18,15 +18,15 @@ public class FileWriter extends OutputStreamWriter {
     @NativeRep("java", "x10.core.io.FileOutputStream", null, "x10.core.io.FileOutputStream.$RTT")
     @NativeRep("c++", "x10aux::ref<x10::io::FileWriter__FileOutputStream>", "x10::io::FileWriter__FileOutputStream", null)
     protected final static class FileOutputStream extends OutputStream {
-        @Native("java", "x10.core.io.FileOutputStream.make(#1)")
-        public native def this(String); // throws IOException;
+        @Native("java", "x10.core.io.FileOutputStream.make(#path)")
+        public native def this(path: String); // throws IOException;
     }
 
     // TODO: This is questionable.
     //       What does it mean to send a File to another node?
     val file: File;
     
-    // @Native("java", "new java.io.BufferedOutputStream(new java.io.FileOutputStream(#1))")
+    // @Native("java", "new java.io.BufferedOutputStream(new java.io.FileOutputStream(#path))")
     private static def make(path: String):OutputStream{ //throws IOException {
         return new FileOutputStream(path);       
     }

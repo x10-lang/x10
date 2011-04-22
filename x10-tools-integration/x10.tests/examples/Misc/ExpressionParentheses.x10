@@ -22,9 +22,9 @@ public class ExpressionParentheses extends x10Test {
 
 	public def run(): boolean = {
 		z = ((x ^ (x>>8) ^ (x>>31)) & (n-1));
-		if (z != 1) return false;
+		if (z != 1u) return false;
 		z = ((x | (n-1)) & 1);
-		if (z != 1) return false;
+		if (z != 1u) return false;
 		return true;
 	}
 

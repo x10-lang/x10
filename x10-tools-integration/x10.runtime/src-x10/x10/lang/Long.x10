@@ -35,7 +35,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return true if this Long is strictly less than the other Long.
      */
-    @Native("java", "((#0) < (#1))")
+    @Native("java", "((#this) < (#x))")
     @Native("c++",  "((#0) < (#1))")
     public native operator this < (x:Long): Boolean;
 
@@ -46,7 +46,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return true if this Long is strictly greater than the other Long.
      */
-    @Native("java", "((#0) > (#1))")
+    @Native("java", "((#this) > (#x))")
     @Native("c++",  "((#0) > (#1))")
     public native operator this > (x:Long): Boolean;
 
@@ -57,7 +57,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return true if this Long is less than or equal to the other Long.
      */
-    @Native("java", "((#0) <= (#1))")
+    @Native("java", "((#this) <= (#x))")
     @Native("c++",  "((#0) <= (#1))")
     public native operator this <= (x:Long): Boolean;
 
@@ -68,7 +68,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return true if this Long is greater than or equal to the other Long.
      */
-    @Native("java", "((#0) >= (#1))")
+    @Native("java", "((#this) >= (#x))")
     @Native("c++",  "((#0) >= (#1))")
     public native operator this >= (x:Long): Boolean;
 
@@ -80,7 +80,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return the sum of this Long and the other Long.
      */
-    @Native("java", "((#0) + (#1))")
+    @Native("java", "((#this) + (#x))")
     @Native("c++",  "((x10_long) ((#0) + (#1)))")
     public native operator this + (x:Long): Long;
 
@@ -91,7 +91,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return the difference of this Long and the other Long.
      */
-    @Native("java", "((#0) - (#1))")
+    @Native("java", "((#this) - (#x))")
     @Native("c++",  "((x10_long) ((#0) - (#1)))")
     public native operator this - (x:Long): Long;
 
@@ -102,7 +102,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return the product of this Long and the other Long.
      */
-    @Native("java", "((#0) * (#1))")
+    @Native("java", "((#this) * (#x))")
     @Native("c++",  "((x10_long) ((#0) * (#1)))")
     public native operator this * (x:Long): Long;
 
@@ -112,7 +112,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return the quotient of this Long and the other Long.
      */
-    @Native("java", "((#0) / (#1))")
+    @Native("java", "((#this) / (#x))")
     @Native("c++",  "((x10_long) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:Long): Long;
 
@@ -122,7 +122,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return the remainder from dividing this Long by the other Long.
      */
-    @Native("java", "((#0) % (#1))")
+    @Native("java", "((#this) % (#x))")
     @Native("c++",  "((x10_long) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:Long): Long;
 
@@ -131,8 +131,8 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * A no-op.
      * @return the value of this Long.
      */
-    @Native("java", "(+(#1))")
-    @Native("c++",  "((x10_long) +(#1))")
+    @Native("java", "(+(#this))")
+    @Native("c++",  "((x10_long) +(#0))")
     public native operator + this: Long;
 
     /**
@@ -141,7 +141,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * Overflows result in truncating the high bits.
      * @return the negated value of this Long.
      */
-    @Native("java", "(-(#0))")
+    @Native("java", "(-(#this))")
     @Native("c++",  "((x10_long) -(#0))")
     public native operator - this: Long;
 
@@ -152,7 +152,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return the bitwise AND of this Long and the other Long.
      */
-    @Native("java", "((#0) & (#1))")
+    @Native("java", "((#this) & (#x))")
     @Native("c++",  "((x10_long) ((#0) & (#1)))")
     public native operator this & (x:Long): Long;
 
@@ -162,7 +162,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return the bitwise OR of this Long and the other Long.
      */
-    @Native("java", "((#0) | (#1))")
+    @Native("java", "((#this) | (#x))")
     @Native("c++",  "((x10_long) ((#0) | (#1)))")
     public native operator this | (x:Long): Long;
 
@@ -172,7 +172,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the other Long
      * @return the bitwise XOR of this Long and the other Long.
      */
-    @Native("java", "((#0) ^ (#1))")
+    @Native("java", "((#this) ^ (#x))")
     @Native("c++",  "((x10_long) ((#0) ^ (#1)))")
     public native operator this ^ (x:Long): Long;
 
@@ -183,7 +183,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param count the shift count
      * @return this Long shifted left by count.
      */
-    @Native("java", "((#0) << (#1))")
+    @Native("java", "((#this) << (#count))")
     @Native("c++",  "((x10_long) ((#0) << (#1)))")
     public native operator this << (count:Int): Long;
 
@@ -195,7 +195,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param count the shift count
      * @return this Long shifted right by count.
      */
-    @Native("java", "((#0) >> (#1))")
+    @Native("java", "((#this) >> (#count))")
     @Native("c++",  "((x10_long) ((#0) >> (#1)))")
     public native operator this >> (count:Int): Long;
 
@@ -208,7 +208,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param count the shift count
      * @return this Long shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((#0) >>> (#1))")
+    @Native("java", "((#this) >>> (#count))")
     @Native("c++",  "((x10_long) ((x10_ulong) (#0) >> (#1)))")
     public native operator this >>> (count:Int): Long;
 
@@ -217,7 +217,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * Computes a bitwise complement (NOT) of the operand.
      * @return the bitwise complement of this Long.
      */
-    @Native("java", "((long) ~(#0))")
+    @Native("java", "((long) ~(#this))")
     @Native("c++",  "((x10_long) ~(#0))")
     public native operator ~ this: Long;
 
@@ -227,7 +227,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the given Byte
      * @return the given Byte converted to a Long.
      */
-    @Native("java", "((long)(#1))")
+    @Native("java", "((long)(#x))")
     @Native("c++",  "((x10_long) (#1))")
     public native static operator (x:Byte): Long;
 
@@ -236,7 +236,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the given Short
      * @return the given Short converted to a Long.
      */
-    @Native("java", "((long)(#1))")
+    @Native("java", "((long)(#x))")
     @Native("c++",  "((x10_long) (#1))")
     public native static operator (x:Short): Long;
 
@@ -245,7 +245,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the given Int
      * @return the given Int converted to a Long.
      */
-    @Native("java", "((long)(#1))")
+    @Native("java", "((long)(#x))")
     @Native("c++",  "((x10_long) (#1))")
     public native static operator (x:Int): Long;
 
@@ -254,7 +254,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the given Float
      * @return the given Float converted to a Long.
      */
-    @Native("java", "((long)(float)(#1))")
+    @Native("java", "((long)(float)(#x))")
     @Native("c++",  "x10aux::float_utils::toLong(#1)")
     public native static operator (x:Float) as Long;
 
@@ -263,7 +263,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the given Double
      * @return the given Double converted to a Long.
      */
-    @Native("java", "((long)(double)(#1))")
+    @Native("java", "((long)(double)(#x))")
     @Native("c++",  "x10aux::double_utils::toLong(#1)")
     public native static operator (x:Double) as Long;
 
@@ -272,7 +272,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the given ULong
      * @return the given ULong converted to a Long.
      */
-    @Native("java", "((long)(#1.longVal))")
+    @Native("java", "((long)(#x.longVal))")
     @Native("c++",  "((x10_long) (#1))")
     public native static operator (x:ULong) as Long;
 
@@ -297,7 +297,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param radix the radix to use in the String representation
      * @return a String representation of this Long in the specified radix.
      */
-    @Native("java", "java.lang.Long.toString(#0, #1)")
+    @Native("java", "java.lang.Long.toString(#this, #radix)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
@@ -305,7 +305,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * Returns a String representation of this Long as a hexadecimal number.
      * @return a String representation of this Long as a hexadecimal number.
      */
-    @Native("java", "java.lang.Long.toHexString(#0)")
+    @Native("java", "java.lang.Long.toHexString(#this)")
     @Native("c++", "x10aux::long_utils::toHexString(#0)")
     public native def toHexString(): String;
 
@@ -313,7 +313,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * Returns a String representation of this Long as an octal number.
      * @return a String representation of this Long as an octal number.
      */
-    @Native("java", "java.lang.Long.toOctalString(#0)")
+    @Native("java", "java.lang.Long.toOctalString(#this)")
     @Native("c++", "x10aux::long_utils::toOctalString(#0)")
     public native def toOctalString(): String;
 
@@ -321,7 +321,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * Returns a String representation of this Long as a binary number.
      * @return a String representation of this Long as a binary number.
      */
-    @Native("java", "java.lang.Long.toBinaryString(#0)")
+    @Native("java", "java.lang.Long.toBinaryString(#this)")
     @Native("c++", "x10aux::long_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;
 
@@ -329,21 +329,21 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * Returns a String representation of this Long as a decimal number.
      * @return a String representation of this Long as a decimal number.
      */
-    @Native("java", "java.lang.Long.toString(#0)")
+    @Native("java", "java.lang.Long.toString(#this)")
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "x10.core.Signed.parseLong(#1, #2)")
+    @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
     public native static def parseLong(s:String, radix:Int): Long; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "x10.core.Signed.parseLong(#1)")
+    @Native("java", "x10.core.Signed.parseLong(#s)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
     public native static def parseLong(s:String): Long; //throwsNumberFormatException;
 
@@ -354,7 +354,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the Long represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
-    @Native("java", "x10.core.Signed.parseLong(#1, #2)")
+    @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
     public native static def parse(s:String, radix:Int): Long; //throwsNumberFormatException;
 
@@ -364,7 +364,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the Long represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
-    @Native("java", "x10.core.Signed.parseLong(#1)")
+    @Native("java", "x10.core.Signed.parseLong(#s)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
     public native static def parse(s:String): Long; //throwsNumberFormatException;
 
@@ -376,7 +376,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * binary representation, that is, if it is equal to zero.
      * @return a Long value with a single one-bit, in the position of the highest-order one-bit in this Long, or zero if this Long is itself equal to zero.
      */
-    @Native("java", "java.lang.Long.highestOneBit(#0)")
+    @Native("java", "java.lang.Long.highestOneBit(#this)")
     @Native("c++", "x10aux::long_utils::highestOneBit(#0)")
     public native def highestOneBit(): Long;
 
@@ -387,7 +387,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * binary representation, that is, if it is equal to zero.
      * @return a Long value with a single one-bit, in the position of the lowest-order one-bit in this Long, or zero if this Long is itself equal to zero.
      */
-    @Native("java", "java.lang.Long.lowestOneBit(#0)")
+    @Native("java", "java.lang.Long.lowestOneBit(#this)")
     @Native("c++", "x10aux::long_utils::lowestOneBit(#0)")
     public native def lowestOneBit(): Long;
 
@@ -398,7 +398,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * representation, in other words if it is equal to zero.
      * @return the number of zero bits preceding the highest-order one-bit in the two's complement binary representation of this Long, or 64 if this Long is equal to zero.
      */
-    @Native("java", "java.lang.Long.numberOfLeadingZeros(#0)")
+    @Native("java", "java.lang.Long.numberOfLeadingZeros(#this)")
     @Native("c++", "x10aux::long_utils::numberOfLeadingZeros(#0)")
     public native def numberOfLeadingZeros(): Int;
 
@@ -409,7 +409,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * representation, in other words if it is equal to zero.
      * @return the number of zero bits following the lowest-order one-bit in the two's complement binary representation of this Long, or 64 if this Long is equal to zero.
      */
-    @Native("java", "java.lang.Long.numberOfTrailingZeros(#0)")
+    @Native("java", "java.lang.Long.numberOfTrailingZeros(#this)")
     @Native("c++", "x10aux::long_utils::numberOfTrailingZeros(#0)")
     public native def numberOfTrailingZeros(): Int;
 
@@ -419,7 +419,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * to as the <i>population count</i>.
      * @return the number of one-bits in the two's complement binary representation of this Long.
      */
-    @Native("java", "java.lang.Long.bitCount(#0)")
+    @Native("java", "java.lang.Long.bitCount(#this)")
     @Native("c++", "x10aux::long_utils::bitCount(#0)")
     public native def bitCount(): Int;
 
@@ -439,7 +439,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the value obtained by rotating the two's complement binary representation of this Long left by the specified number of bits.
      * @see #rotateRight(Int)
      */
-    @Native("java", "java.lang.Long.rotateLeft(#0, #1)")
+    @Native("java", "java.lang.Long.rotateLeft(#this, #distance)")
     @Native("c++", "x10aux::long_utils::rotateLeft(#0, #1)")
     public native def rotateLeft(distance:Int): Long;
 
@@ -459,7 +459,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the value obtained by rotating the two's complement binary representation of this Long right by the specified number of bits.
      * @see #rotateLeft(Int)
      */
-    @Native("java", "java.lang.Long.rotateRight(#0, #1)")
+    @Native("java", "java.lang.Long.rotateRight(#this, #distance)")
     @Native("c++", "x10aux::long_utils::rotateRight(#0, #1)")
     public native def rotateRight(distance:Int): Long;
 
@@ -468,7 +468,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * two's complement binary representation of this Long.
      * @return the value obtained by reversing order of the bits in this Long.
      */
-    @Native("java", "java.lang.Long.reverse(#0)")
+    @Native("java", "java.lang.Long.reverse(#this)")
     @Native("c++", "x10aux::long_utils::reverse(#0)")
     public native def reverse(): Long;
 
@@ -478,7 +478,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * positive.
      * @return the signum function of this Long.
      */
-    @Native("java", "java.lang.Long.signum(#0)")
+    @Native("java", "java.lang.Long.signum(#this)")
     @Native("c++", "x10aux::long_utils::signum(#0)")
     public native def signum(): Int;
 
@@ -487,7 +487,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * two's complement representation of this Long.
      * @return the value obtained by reversing the bytes in this Long.
      */
-    @Native("java", "java.lang.Long.reverseBytes(#0)")
+    @Native("java", "java.lang.Long.reverseBytes(#this)")
     @Native("c++", "x10aux::long_utils::reverseBytes(#0)")
     public native def reverseBytes(): Long;
 
@@ -498,7 +498,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the given entity
      * @return true if this Long is equal to the given entity.
      */
-    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Any):Boolean;
 
@@ -507,7 +507,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @param x the given Long
      * @return true if this Long is equal to the given Long.
      */
-    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(x:Long):Boolean;
 
@@ -518,7 +518,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
     * @return a negative Int, zero, or a positive Int if this Long is less than, equal
     * to, or greater than the given Long.
     */
-   @Native("java", "x10.rtt.Equality.compareTo(#0, #1)")
+   @Native("java", "x10.rtt.Equality.compareTo(#this, #x)")
    @Native("c++", "x10aux::long_utils::compareTo(#0, #1)")
    public native def compareTo(x:Long):Int;
    
@@ -529,7 +529,7 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
     * @param upper the upper bound
     * @return a range from lower to upper, inclusive.
     */
-   @Native("java", "x10.lang.LongRange.$make(#1, #2)")
+   @Native("java", "x10.lang.LongRange.$make(#x, #y)")
    @Native("c++", "x10::lang::LongRange::_make(#1, #2)")
    public native static operator (x:Long) .. (y:Long):LongRange{min==x,max==y,self!=null};
 }

@@ -22,54 +22,54 @@ public final class AtomicLong {
     public def this() { value = 0; }
     public def this(v:long) { value = v; }
     
-    @Native("java", "#0.get()")
+    @Native("java", "#this.get()")
     public def get():long = value;
     
-    @Native("java", "#0.set(#1)")
+    @Native("java", "#this.set(#newV)")
     public def set(newV:long):void {
         value = newV;
     }
     
-    @Native("java", "#0.compareAndSet(#1,#2)")
+    @Native("java", "#this.compareAndSet(#expect,#update)")
     @Native("c++", "x10aux::atomic_long_funs::compareAndSet(#this,#expect,#update)")
     public native def compareAndSet(expect:long, update:long):boolean;
 
-    @Native("java", "#0.weakCompareAndSet(#1,#2)")
+    @Native("java", "#this.weakCompareAndSet(#expect,#update)")
     @Native("c++", "x10aux::atomic_long_funs::weakCompareAndSet(#this,#expect,#update)")
     public native def weakCompareAndSet(expect:long, update:long):boolean;
     
-    @Native("java", "#0.getAndIncrement()")
+    @Native("java", "#this.getAndIncrement()")
     public def getAndIncrement():long = getAndAdd(1);
 
-    @Native("java", "#0.getAndDecrement()")
+    @Native("java", "#this.getAndDecrement()")
     public def getAndDecrement():long = getAndAdd(-1);
     
-    @Native("java", "#0.getAndAdd(#1)")
+    @Native("java", "#this.getAndAdd(#delta)")
     @Native("c++", "x10aux::atomic_long_funs::getAndAdd(#this,#delta)")
     public native def getAndAdd(delta:long):long;
     
-    @Native("java", "#0.incrementAndGet()")
+    @Native("java", "#this.incrementAndGet()")
     public def incrementAndGet():long = addAndGet(1);
 
-    @Native("java", "#0.decrementAndGet()")
+    @Native("java", "#this.decrementAndGet()")
     public def decrementAndGet():long = addAndGet(-1);
     
-    @Native("java", "#0.addAndGet(#1)")
+    @Native("java", "#this.addAndGet(#delta)")
     @Native("c++", "x10aux::atomic_long_funs::addAndGet(#this, #delta)")
     public native def addAndGet(delta:long):long;
     
-    @Native("java", "#0.toString()")
+    @Native("java", "#this.toString()")
     public def toString():String = get().toString();
 
-    @Native("java", "#0.intValue()")
+    @Native("java", "#this.intValue()")
     public def intValue():int = get() as Int;
 
-    @Native("java", "#0.longValue()")
+    @Native("java", "#this.longValue()")
     public def longValue():long = get();
     
-    @Native("java", "#0.floatValue()")
+    @Native("java", "#this.floatValue()")
     public def floatValue():float = get() as Float;
     
-    @Native("java", "#0.doubleValue()")
+    @Native("java", "#this.doubleValue()")
     public def doubleValue():double = get() as Double;
 }

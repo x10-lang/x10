@@ -259,14 +259,11 @@ public class JavaCaster extends ContextVisitor {
     // e.g) class C[T1,T2]{T1 <: T2} { def test(t1:T1):T2 {return t1;}}
     //   -> class C[T1,T2]{T1 <: T2} { def test(t1:T1):T2 {return (T2) t1;}}
     private Node typeConstraintsCast(Node parent, Node old, Node n) throws SemanticException {
-        Expr e = null;
-        
-        if (e == null) {
-            if (!(old instanceof Expr)) {
-                return n;
-            }
-            e = (Expr) old;
-        }
+    	
+    	if (!(old instanceof Expr)) {
+    		return n;
+    	}
+    	Expr e = (Expr) old;
         
         if (!xts.isParameterType(e.type())) {
             return n;

@@ -11,17 +11,17 @@
  
 package x10.compiler;
 
-@NativeRep("java", "x10.core.LocalVar<#1>", null, "new x10.rtt.ParameterizedType(x10.core.LocalVar.$RTT, #2)")
+@NativeRep("java", "x10.core.LocalVar<#T$box>", null, "new x10.rtt.ParameterizedType(x10.core.LocalVar.$RTT, #T$rtt)")
 public class LocalVar[T] {
 
     public def this(local:T):LocalVar[T] {}
 
-    @Native("java", "(#0).$apply$G()")
+    @Native("java", "(#this).$apply$G()")
     public operator this():T = null as Any as T;
     
-    @Native("java", "(#0).get$G()")
+    @Native("java", "(#this).get$G()")
     public def get():T = null as Any as T;
     
-    @Native("java", "(#0).set$G(#1)")
+    @Native("java", "(#this).set$G(#local)")
     public operator this(local:T):T {return local;}
 }

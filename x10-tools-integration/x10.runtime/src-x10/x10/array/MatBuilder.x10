@@ -63,7 +63,7 @@ class MatBuilder {
             mat(i)(j+k) = v(k);
     }
 
-    private def need(n:int) = need(n, this.mat, this.cols);
+    private def need(n:int) { need(n, this.mat, this.cols); }
     private static def need(n:int, mat:ArrayList[Row], cols:int) {
         while (mat.size()<n)
             mat.add(new VarRow(cols));

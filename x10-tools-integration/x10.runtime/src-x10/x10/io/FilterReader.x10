@@ -18,7 +18,7 @@ public class FilterReader extends Reader {
 
     public def this(r: Reader) { this.r = r; }
     public def close(): void //throws IOException 
-    = r.close();
+    { r.close(); }
     public def read(): Byte //throws IOException 
     = r.read();
     
@@ -26,12 +26,12 @@ public class FilterReader extends Reader {
     = r.available();
     
     public def skip(off: Int): void //throws IOException 
-    = r.skip(off);
+    { r.skip(off); }
 
     public def mark(off: Int): void //throws IOException 
-    = r.mark(off);
+    { r.mark(off); }
     public def reset(): void //throws IOException 
-    = r.reset();
+    { r.reset(); }
     public def markSupported(): Boolean = r.markSupported();
     
 }

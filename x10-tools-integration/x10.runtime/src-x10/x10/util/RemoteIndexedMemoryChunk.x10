@@ -30,7 +30,7 @@ import x10.compiler.NativeRep;
  * X10 level when absolutely required for performance. This class
  * is not intended for general usage, since it is inherently unsafe.<p>
  */
-@NativeRep("java", "x10.core.RemoteIndexedMemoryChunk<#1>", null, "new x10.rtt.ParameterizedType(x10.core.RemoteIndexedMemoryChunk.$RTT, #2)")
+@NativeRep("java", "x10.core.RemoteIndexedMemoryChunk<#T$box>", null, "new x10.rtt.ParameterizedType(x10.core.RemoteIndexedMemoryChunk.$RTT, #T$rtt)")
 @NativeRep("c++", "x10::util::RemoteIndexedMemoryChunk<#T >", "x10::util::RemoteIndexedMemoryChunk<#T >", null)
 public struct RemoteIndexedMemoryChunk[T] {
 
@@ -38,7 +38,7 @@ public struct RemoteIndexedMemoryChunk[T] {
     @Native("c++", "null")
     private native def this(); // unused; prevent instantiaton outside of native code
 
-    @Native("java", "x10.core.RemoteIndexedMemoryChunk.<#2>wrap(#4)")
+    @Native("java", "x10.core.RemoteIndexedMemoryChunk.<#T$box>wrap(#imc)")
     @Native("c++", "x10::util::RemoteIndexedMemoryChunk<#T >((#imc)->raw(), (#imc)->length())")
     public static native def wrap[T](imc:IndexedMemoryChunk[T]):RemoteIndexedMemoryChunk[T];
     
@@ -46,7 +46,7 @@ public struct RemoteIndexedMemoryChunk[T] {
      * Can only be invoked at the place at which the RemoteIndexedMemoryChunk was
      * created. Returns the encapsulated IndexedMemoryChunk.
      */
-    @Native("java", "(#0).$apply$G()")
+    @Native("java", "(#this).$apply$G()")
     @Native("c++", "x10::util::IndexedMemoryChunk<#T >((#this)->raw(), (#this)->length())")
     public native operator this(){here == this.home()}:IndexedMemoryChunk[T];
 
@@ -55,7 +55,7 @@ public struct RemoteIndexedMemoryChunk[T] {
      *
      * @return the size of the RemoteIndexedMemoryChunk (in elements)
      */
-    @Native("java", "((#0).length)")
+    @Native("java", "((#this).length)")
     @Native("c++", "(#this)->length()")
     public native def length():int; /* TODO: We need to convert this to returning a long */
 
@@ -63,7 +63,7 @@ public struct RemoteIndexedMemoryChunk[T] {
      * Return the home place of the RemoteIndexedMemoryChunk
      * @return the home place of the RemoteIndexedMemoryChunk
      */
-    @Native("java", "((#0).home)")
+    @Native("java", "((#this).home)")
     @Native("c++", "(#this)->home")
     public native property home():Place; 
          
@@ -73,40 +73,40 @@ public struct RemoteIndexedMemoryChunk[T] {
     * what the compiler would have generated.
     */
 
-    @Native("java", "(#0).toString()")
+    @Native("java", "(#this).toString()")
     @Native("c++", "(#this)->toString()")
     public native def  toString():String;
 
-    @Native("java", "(#0).equals(#1)")
+    @Native("java", "(#this).equals(#that)")
     @Native("c++", "(#this)->equals(#that)")
     public native def equals(that:Any):Boolean;
 
-    @Native("java", "(#0).hashCode()")
+    @Native("java", "(#this).hashCode()")
     @Native("c++", "(#this)->hash_code()")
     public native def  hashCode():Int;
 
-    @Native("java", "(#0).remoteAdd(#1,#2)")
+    @Native("java", "(#this).remoteAdd(#idx,#v)")
     @Native("c++", "(#this)->remoteAdd(#idx,#v)")
     public native def remoteAdd(idx:Int, v:ULong) : void;
-    @Native("java", "(#0).remoteAnd(#1,#2)")
+    @Native("java", "(#this).remoteAnd(#idx,#v)")
     @Native("c++", "(#this)->remoteAnd(#idx,#v)")
     public native def remoteAnd(idx:Int, v:ULong) : void;
-    @Native("java", "(#0).remoteOr(#1,#2)")
+    @Native("java", "(#this).remoteOr(#idx,#v)")
     @Native("c++", "(#this)->remoteOr(#idx,#v)")
     public native def remoteOr(idx:Int, v:ULong) : void;
-    @Native("java", "(#0).remoteXor(#1,#2)")
+    @Native("java", "(#this).remoteXor(#idx,#v)")
     @Native("c++", "(#this)->remoteXor(#idx,#v)")
     public native def remoteXor(idx:Int, v:ULong) : void;
-    @Native("java", "(#0).remoteAdd(#1,#2)")
+    @Native("java", "(#this).remoteAdd(#idx,#v)")
     @Native("c++", "(#this)->remoteAdd(#idx,#v)")
     public native def remoteAdd(idx:Int, v:Long) : void;
-    @Native("java", "(#0).remoteAnd(#1,#2)")
+    @Native("java", "(#this).remoteAnd(#idx,#v)")
     @Native("c++", "(#this)->remoteAnd(#idx,#v)")
     public native def remoteAnd(idx:Int, v:Long) : void;
-    @Native("java", "(#0).remoteOr(#1,#2)")
+    @Native("java", "(#this).remoteOr(#idx,#v)")
     @Native("c++", "(#this)->remoteOr(#idx,#v)")
     public native def remoteOr(idx:Int, v:Long) : void;
-    @Native("java", "(#0).remoteXor(#1,#2)")
+    @Native("java", "(#this).remoteXor(#idx,#v)")
     @Native("c++", "(#this)->remoteXor(#idx,#v)")
     public native def remoteXor(idx:Int, v:Long) : void;
 }
