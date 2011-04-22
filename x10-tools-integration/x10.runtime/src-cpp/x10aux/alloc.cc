@@ -146,7 +146,15 @@ static ssize_t mygetline (char **lineptr, size_t *sz, FILE *f)
     *sz += 1;
     return *sz;
 }
-        
+
+#if !defined(SHM_R) || !defined(SHM_W)
+#include <sys/stat.h>
+#undef SHM_R
+#define SHM_R S_IRUSR
+#undef SHM_W
+#define SHM_W S_IWUSR
+#endif
+
 static void ensure_init_congruent (size_t req_size) {
 
     if (have_init_congruent) return;
