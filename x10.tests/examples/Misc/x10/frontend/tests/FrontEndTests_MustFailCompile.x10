@@ -10,11 +10,11 @@
  */
 
 package x10.frontend.tests;
+
 // TODO: We should put ALL our tests in different packages according to the directory structure
 
-// todo: if you change it to VERBOSE_CALLS, we're missing a lot of warnings (I should create a similar test case that checks VERBOSE_CALLS) 
-// OPTIONS: -STATIC_CALLS 
-
+// todo: if you change it to VERBOSE_CHECKS, we're missing a lot of warnings (I should create a similar test case that checks VERBOSE_CHECKS) 
+//OPTIONS: -STATIC_CHECKS 
 
 import harness.x10Test;
 
@@ -3396,7 +3396,7 @@ class TestMethodGuards[T](a:Int, p:Place) {
 		f1(); // ERR
 	}
 }
-class ProblemsWithFieldsInConstraints {	// these errors are both with STATIC_CALLS and with DYNAMIC_CALLS
+class ProblemsWithFieldsInConstraints {	// these errors are both with STATIC_CHECKS and with DYNAMIC_CHECKS
 	val f1:Int;
 	val f2:Int{self==f1};
 	def this() {
@@ -3438,7 +3438,7 @@ class XTENLANG_688(a:Int) {
 	val f1:Int{self==a} = a;
 	val f2:Int{self==f1} = a;
 }
-class XTENLANG_688_2(a:Int) { // fine even with DYNAMIC_CALLS (cause we do not generate a cast)
+class XTENLANG_688_2(a:Int) { // fine even with DYNAMIC_CHECKS (cause we do not generate a cast)
 	val f2:Int{self==f1} = a;
 	val f1:Int{self==a} = a;
 }
@@ -3459,7 +3459,7 @@ class LegalForwardRef2 {
 	val y:Int{self==1} = 1;
 }
 class IllegalForwardRef2 { 
-	val x:Int{self==y} = 1; // ERR with STATIC_CALLS (The type of the field initializer is not a subtype of the field type.) with DYNAMIC_CALLS (Cannot read from field 'y' before it is definitely assigned.)
+	val x:Int{self==y} = 1; // ERR with STATIC_CHECKS (The type of the field initializer is not a subtype of the field type.) with DYNAMIC_CHECKS (Cannot read from field 'y' before it is definitely assigned.)
 	val y:Int{self==2} = 2;
 }
 class XTENLANG_686_2(a:Int) {
@@ -3486,7 +3486,7 @@ class XTENLANG_686(a:Int) {
 		val q5: XTENLANG_686{self.a==this.f5} = null; // ok
 		
 		val i1:Int{self==f5} = 3; // ok
-		val i2:Int{self==f5} = 4; // ERR in both STATIC_CALLS (Cannot assign expression to target.) and DYNAMIC_CALLS (Cannot read from field 'f5' before it is definitely assigned.)
+		val i2:Int{self==f5} = 4; // ERR in both STATIC_CHECKS (Cannot assign expression to target.) and DYNAMIC_CHECKS (Cannot read from field 'f5' before it is definitely assigned.)
 
 		val i3:Int{3==f5} = 3; // ok
 		f5 = 3;
@@ -4544,7 +4544,7 @@ class TestOperatorsWithoutGuards {
 		val d = g1(42)=43;
 	}
 }
-class XTENLANG_2329(x:Int) { // see XTENLANG_2329, but here we check with VERBOSE_CALLS (unlike in XTENLANG_2329.x10 where we check with STATIC_CALLS)
+class XTENLANG_2329(x:Int) { // see XTENLANG_2329, but here we check with VERBOSE_CHECKS (unlike in XTENLANG_2329.x10 where we check with STATIC_CHECKS)
 	public operator this * (g:XTENLANG_2329) {x==0} = 2;
 	public operator this(i:Int) {x==0} = 3;
 	public operator this(i:Int) = (j:Int) {x==0}  = 4;
@@ -4576,7 +4576,7 @@ class DynamicGuardCheck {
 
 		def test(q:Int) {
 			m1(q); // ERR: Warning: Expression 'q' was cast to type x10.lang.Int{self==0}.
-			m2(q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.		with STATIC_CALLS: Method m2(i: x10.lang.Int){i==0}[]: void in Hello{self==Hello#this} cannot be called with arguments (x10.lang.Int{self==q}); Call invalid; calling environment does not entail the method guard.
+			m2(q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.		with STATIC_CHECKS: Method m2(i: x10.lang.Int){i==0}[]: void in Hello{self==Hello#this} cannot be called with arguments (x10.lang.Int{self==q}); Call invalid; calling environment does not entail the method guard.
 			new B(q,q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
 		}
 

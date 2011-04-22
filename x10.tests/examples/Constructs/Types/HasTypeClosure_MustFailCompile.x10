@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-// OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
 
@@ -20,14 +20,15 @@ import harness.x10Test;
  */
 public class HasTypeClosure_MustFailCompile extends x10Test {
 
-	def m(x:Int{self==1}) = x;
-	public def run(): boolean = {
-		val x = (y:Int)<: Int => y;
-		val z <:Int(0) = x(1); // ERR
-		return true;
-	}
+    def m(x:Int{self==1}) = x;
 
-	public static def main(Array[String](1))  {
-		new HasTypeClosure_MustFailCompile().execute();
-	}
+    public def run(): boolean = {
+        val x = (y:Int)<: Int => y;
+        val z <:Int(0) = x(1); // ERR
+        return true;
+    }
+
+    public static def main(Array[String](1))  {
+        new HasTypeClosure_MustFailCompile().execute();
+    }
 }

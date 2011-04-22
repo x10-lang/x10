@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-//OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
 
@@ -17,18 +17,17 @@ import harness.x10Test;
  * Testing that an at(b) d.x is legal.
  * @author vj
  */
-
 public class AtCheck3_MustFailCompile extends x10Test {
-	class T {
-		private val root = GlobalRef[T](this);
-	    var x:AtCheck3_MustFailCompile =null;
+    class T {
+        private val root = GlobalRef[T](this);
+        var x:AtCheck3_MustFailCompile = null;
         def m(b: T, d:T) {
-	       // at ( b.root) {
-	           val e = d.root().x; // ERR
-	       // }
+            //at (b.root) {
+                val e = d.root().x; // ERR
+            //}
         }
-	}
-    
+    }
+
     public def run()=true;
 
     public static def main(Array[String](1)) {

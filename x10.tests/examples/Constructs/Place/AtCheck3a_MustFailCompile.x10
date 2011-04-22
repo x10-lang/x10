@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-//OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
 
@@ -24,13 +24,13 @@ public class AtCheck3a_MustFailCompile extends x10Test {
         private val root = GlobalRef[T](this);
         var x:int=0;
         def m(b: T, d:T) {
-           at ( b.root) {
-               val e = d.root().x;  // ShouldBeErr: No valid method call found for call in given type.
+            at (b.root) {
+                val e = d.root().x;  // ShouldBeErr: No valid method call found for call in given type.
             }
         }
     }
     
-    public def run()=true;
+    public def run() = true;
 
     public static def main(Array[String](1)) {
         new AtCheck3a_MustFailCompile().execute();

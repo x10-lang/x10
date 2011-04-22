@@ -109,11 +109,11 @@ public final class Configuration extends x10.config.Configuration {
     public boolean WALADEBUG = false;
     private static final String WALADEBUG_desc = "Produce WALA call graph from X10 sources";
 
-    public boolean VERBOSE_CALLS = false;
-    private static final String VERBOSE_CALLS_desc = "Print details of casts introduced for dynamically-checked calls.";
+    public boolean VERBOSE_CHECKS = false;
+    private static final String VERBOSE_CHECKS_desc = "Print details of casts introduced for dynamic constraint checks.";
 
-    public boolean STATIC_CALLS = false;
-    private static final String STATIC_CALLS_desc = "Treat dynamically-checked calls as errors.";
+    public boolean STATIC_CHECKS = false;
+    private static final String STATIC_CHECKS_desc = "Treat dynamic constraint checks as errors.";
 
     public boolean FINISH_ASYNCS = false;
     private static final String FINISH_ASYNCS_desc = "finish-async analysis.";

@@ -353,8 +353,8 @@ public class Matcher {
 		final CConstraint query = newMe.guard();
 		X10CompilerOptions opts = (X10CompilerOptions) context.typeSystem().extensionInfo().getOptions();
 
-		// we can do dynamic checks on method calls when using DYNAMIC_CALLS or VERBOSE_CALLS
-		boolean dynamicChecks = !opts.x10_config.STATIC_CALLS &&
+		// we can do dynamic checks on method calls when using DYNAMIC_CHECKS or VERBOSE_CHECKS
+		boolean dynamicChecks = !opts.x10_config.STATIC_CHECKS &&
 		!(newMe instanceof MacroType); // MacroType cannot have its guard checked at runtime
 
 		if ( query != null) {

@@ -9,34 +9,33 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CHECKS
+
 import x10.compiler.tests.*; // err markers
 import harness.x10Test;
 
 /**
+ * See XTENLANG_2329 (Method guards are not type checked on calls to unary operators or closures.)
  * @author bdlucas 10/2008
  */
+public class XTENLANG_2329(x:Int) extends x10Test {
+    public operator - this{x==0} : Int = 1; 
+    public operator this * (g:XTENLANG_2329){x==0} = 2;
+    public operator this(i:Int){x==0} = 3;
+    public operator this(i:Int) = (j:Int){x==0}  = 4;
 
-// OPTIONS: -STATIC_CALLS 
+    def test(g1:XTENLANG_2329, g2:XTENLANG_2329) {
+        @ERR val a = -g1;
+        @ERR val b = g1*g2;
+        @ERR val c = g1(42);
+        @ERR val d = g1(42)=43;
+    }
 
-public class XTENLANG_2329(x:Int) extends x10Test  { // see XTENLANG_2329 (Method guards are not type checked on calls to unary operators or closures.)
-	public operator - this {x==0} : Int = 1; 
-	public operator this * (g:XTENLANG_2329) {x==0} = 2;
-	public operator this(i:Int) {x==0} = 3;
-	public operator this(i:Int) = (j:Int) {x==0}  = 4;
+    def closureTest(c: (i:Int){i==0} => Int, k:Int) {
+        @ERR val a = c(k);
+    }
 
-	def test(g1:XTENLANG_2329, g2:XTENLANG_2329) {
-		@ERR val a = -g1;
-		@ERR val b = g1*g2;
-		@ERR val c = g1(42);
-		@ERR val d = g1(42)=43;
-	}
-	
-	def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
-		@ERR val a = c(k);
-	}
-
-
-    public def run()=true;
+    public def run() = true;
 
     public static def main(Array[String](1)) {
         new XTENLANG_2329(5).execute();

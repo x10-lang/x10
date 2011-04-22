@@ -497,7 +497,7 @@ public class PlaceChecker {
 
     public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, Flags flags) {
         /*if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
-        if (Configuration.STATIC_CALLS) return null;              // nothing we can do
+        if (Configuration.STATIC_CHECKS) return null;              // nothing we can do
         if (((X10Context) tc.context()).currentPlaceTerm() == null)
             return null;                                          // cannot compensate
         // compensate by generating a dynamic cast

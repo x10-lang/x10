@@ -9,14 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CHECKS
+
 import harness.x10Test;
-//OPTIONS: -STATIC_CALLS
 
 /**
-Like NestedExpression2_MFC, except uses a typedef.
+ * Like NestedExpression2_MFC, except uses a typedef.
  */
-
-	
 public class NestedExpressions3_MustFailCompile extends x10Test {
 	class C(a:boolean) {
 		static type C(b:boolean) = C{self.a==b};

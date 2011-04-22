@@ -123,10 +123,10 @@ import x10.X10CompilerOptions;
  * <code>@ERR {i=3;}</code>
  *
  *
- * By default we run the compiler with VERBOSE_CALLS.
+ * By default we run the compiler with VERBOSE_CHECKS.
  * If the file contains the line:
-//OPTIONS: -STATIC_CALLS
- * then we run it with STATIC_CALLS.
+//OPTIONS: -STATIC_CHECKS
+ * then we run it with STATIC_CHECKS.
 
  * Some directories are permenantly excluded from the test suite
  * (see EXCLUDE_DIRS and EXCLUDE_FILES fields)
@@ -254,8 +254,8 @@ public class RunTestSuite {
         remainingArgs.remove(0);
 
         for (String s : args) {
-            if (s.contains("STATIC_CALLS") || s.contains("VERBOSE_CALLS"))
-                throw new RuntimeException("You should run the test suite without -VERBOSE_CALLS or -STATIC_CALLS");
+            if (s.contains("STATIC_CHECKS") || s.contains("VERBOSE_CHECKS"))
+                throw new RuntimeException("You should run the test suite without -VERBOSE_CHECKS or -STATIC_CHECKS");
         }
         if (SEPARATE_COMPILER)
             println("Running each file with a separate (new) compiler object, so it's less efficient but more stable.");
@@ -344,15 +344,15 @@ public class RunTestSuite {
     private static SilentErrorQueue errQueue = new SilentErrorQueue(MAX_ERR_QUEUE,"TestSuiteErrQueue");
     private static Main MAIN = new Main();
     private static Compiler COMPILER;
-    public static ArrayList<ErrorInfo> runCompiler(String[] newArgs, boolean COMPILER_CRASHES, boolean STATIC_CALLS) {
+    public static ArrayList<ErrorInfo> runCompiler(String[] newArgs, boolean COMPILER_CRASHES, boolean STATIC_CHECKS) {
         errQueue.getErrors().clear();
         LinkedHashSet<String> sources = new LinkedHashSet<String>();
         final Compiler comp = MAIN.getCompiler(newArgs, null, errQueue, sources);
         if (SEPARATE_COMPILER || COMPILER==null)
             COMPILER = comp;
         X10CompilerOptions opts = (X10CompilerOptions) COMPILER.sourceExtension().getOptions();
-        opts.x10_config.STATIC_CALLS = STATIC_CALLS;
-        opts.x10_config.VERBOSE_CALLS = !STATIC_CALLS;
+        opts.x10_config.STATIC_CHECKS = STATIC_CHECKS;
+        opts.x10_config.VERBOSE_CHECKS = !STATIC_CHECKS;
         long start = System.currentTimeMillis();
         Throwable err = null;
         try {
@@ -390,7 +390,7 @@ public class RunTestSuite {
             file = f;
             fileName = f.getAbsolutePath().replace('\\','/');
         }
-        boolean STATIC_CALLS = false;
+        boolean STATIC_CHECKS = false;
         boolean COMPILER_CRASHES;
         boolean SHOULD_NOT_PARSE;
         ArrayList<String> options = new ArrayList<String>();
@@ -408,8 +408,8 @@ public class RunTestSuite {
             if (optionsIndex>=0) {
                 final String option = line.substring(optionsIndex + "OPTIONS:".length()).trim();
                 res.options.add(option);
-                if (option.equals("-STATIC_CALLS"))
-                    res.STATIC_CALLS = true;
+                if (option.equals("-STATIC_CHECKS"))
+                    res.STATIC_CHECKS = true;
             }
             line = line.trim();
             int commentIndex = line.indexOf("//");
@@ -429,17 +429,17 @@ public class RunTestSuite {
     private static void compileFile(FileSummary summary, List<String> args) throws IOException {
         File file = summary.file;
 
-        boolean STATIC_CALLS = summary.STATIC_CALLS; // all the files without ERR markers are done in my batch, using STATIC_CALLS (cause they shouldn't have any errors)
+        boolean STATIC_CHECKS = summary.STATIC_CHECKS; // all the files without ERR markers are done in my batch, using STATIC_CHECKS (cause they shouldn't have any errors)
 
         // Now running polyglot
         List<String> allArgs = new ArrayList<String>();
         allArgs.add(summary.fileName);
         allArgs.addAll(args);
         String[] newArgs = allArgs.toArray(new String[allArgs.size()+2]);
-        newArgs[newArgs.length-2] = STATIC_CALLS ? "-STATIC_CALLS" : "-VERBOSE_CALLS";
-        newArgs[newArgs.length-1] = STATIC_CALLS ? "-VERBOSE_CALLS=false" : "-STATIC_CALLS=false";
+        newArgs[newArgs.length-2] = STATIC_CHECKS ? "-STATIC_CHECKS" : "-VERBOSE_CHECKS";
+        newArgs[newArgs.length-1] = STATIC_CHECKS ? "-VERBOSE_CHECKS=false" : "-STATIC_CHECKS=false";
         println("Running: "+ summary.fileName);
-        ArrayList<ErrorInfo> errors = runCompiler(newArgs, summary.COMPILER_CRASHES, STATIC_CALLS);
+        ArrayList<ErrorInfo> errors = runCompiler(newArgs, summary.COMPILER_CRASHES, STATIC_CHECKS);
         // remove SHOULD_BE_ERR_MARKER and
         // parsing errors (if SHOULD_NOT_PARSE)
         // treating @ERR and @ShouldNotBeERR as if it were a comment (adding a LineSummary)

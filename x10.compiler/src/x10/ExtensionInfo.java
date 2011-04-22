@@ -667,10 +667,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            public boolean runTask() {
                Compiler compiler = ext.compiler();
                X10CompilerOptions opts = ext.getOptions();
-               if ((!opts.x10_config.VERBOSE_CALLS) && (!opts.x10_config.STATIC_CALLS)) {
+               if ((!opts.x10_config.VERBOSE_CHECKS) && (!opts.x10_config.STATIC_CHECKS)) {
                    int count = ext.weakCallsCount();
                    if (count > 0) {
-                       compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses, run with -VERBOSE_CALLS for more details.");
+                       compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses, run with -VERBOSE_CHECKS for more details.");
                    }
                }
                return true;

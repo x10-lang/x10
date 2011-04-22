@@ -9,9 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
+//OPTIONS: -STATIC_CHECKS
 
-//OPTIONS: -STATIC_CALLS
+import harness.x10Test;
 
 /**
  * Checking that the type-checker can correctly handle boolean expressions as the values
@@ -19,16 +19,16 @@ import harness.x10Test;
  * be assigned to a variable of type C{self.a==(y.a&&x.a)}.
  */
 public class NestedExpressions2_MustFailCompile extends x10Test {
-	class C(a:boolean) {
-		static type C(b:boolean) = C{self.a==b};
-		def this(b:boolean):C{self.a==b}{property(b);}
-		def and(x:C, y:C): C{self.a== (x.a && y.a)} = new C(x.a&&y.a); // ERR
-		def n() {
-			val x = new C(true);
-			val y = new C(true);
-			val z: C{self.a==(y.a&&x.a)} = and(x,y); // ERR
-		}
-	}
+    class C(a:boolean) {
+        static type C(b:boolean) = C{self.a==b};
+        def this(b:boolean):C{self.a==b}{property(b);}
+        def and(x:C, y:C): C{self.a== (x.a && y.a)} = new C(x.a&&y.a); // ERR
+        def n() {
+            val x = new C(true);
+            val y = new C(true);
+            val z: C{self.a==(y.a&&x.a)} = and(x,y); // ERR
+        }
+    }
     public def run() = true;
 
     public static def main(Array[String](1))  {

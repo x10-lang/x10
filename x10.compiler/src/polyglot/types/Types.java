@@ -1485,14 +1485,14 @@ public class Types {
     // For better error reporting, we remove the constraints if we ran with DYNAMIC_CALLS.
     public static Type stripConstraintsIfDynamicCalls(Type t) {
         if (t==null) return null;
-	    if (((X10CompilerOptions)t.typeSystem().extensionInfo().getOptions()).x10_config.STATIC_CALLS)
+	    if (((X10CompilerOptions)t.typeSystem().extensionInfo().getOptions()).x10_config.STATIC_CHECKS)
             return t;
         return stripConstraints(t);
     }
 	public static Collection<Type> stripConstraintsIfDynamicCalls(Collection<Type> t) {
         if (t==null) return null;
         if (t.size()==0) return t;
-	    if (((X10CompilerOptions)t.iterator().next().typeSystem().extensionInfo().getOptions()).x10_config.STATIC_CALLS)
+	    if (((X10CompilerOptions)t.iterator().next().typeSystem().extensionInfo().getOptions()).x10_config.STATIC_CHECKS)
             return t;
         ArrayList<Type> res = new ArrayList<Type>(t.size());
         for (Type tt : t)

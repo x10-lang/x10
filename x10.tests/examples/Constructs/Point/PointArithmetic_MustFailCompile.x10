@@ -9,19 +9,17 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
-
-// If we do not run with STATIC_CALLS it generates:
+// If we do not run with STATIC_CHECKS it generates:
 // Warning: Generated a dynamic check for the method call.
-// OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CHECKS
 
+import harness.x10Test;
 
 /**
  * Testing point arithmetic operations.
  *
  * @author igor, 2/2006
  */
-
 public class PointArithmetic_MustFailCompile extends x10Test {
 
     public static DIM: int = 5;

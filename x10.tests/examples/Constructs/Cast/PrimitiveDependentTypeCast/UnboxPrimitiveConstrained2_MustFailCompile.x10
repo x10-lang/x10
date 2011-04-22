@@ -10,9 +10,9 @@
  */
 
 
-// If we do not run with STATIC_CALLS it generates:
+// If we do not run with STATIC_CHECKS it generates:
 // Warning: Generated a dynamic check for the method call.
-// OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
 

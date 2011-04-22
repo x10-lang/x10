@@ -251,7 +251,7 @@ public class Converter {
 						   CTerms.makeLocal((X10LocalDef) smi.formalNames().get(k).def()));
 				}
 
-                // In DYNAMIC_CALLS we can't just insert a cast for each argument due to dependencies between arguments, e.g.,
+                // In DYNAMIC_CHECKS we can't just insert a cast for each argument due to dependencies between arguments, e.g.,
                 //def m(a:Int, b:Int{self==a}) {}
                 //def test(x:Int, y:Int) {
                 //  m(x+1,y);
@@ -646,7 +646,7 @@ public class Converter {
 
 		// Added 03/28/10 to support new call conversion semantics.
 		if (ts.isSubtype(baseFrom, baseTo, context))
-			if (!opts.x10_config.STATIC_CALLS)
+			if (!opts.x10_config.STATIC_CHECKS)
 				if (cast.conversionType() == ConversionType.CALL_CONVERSION 
 						&& ts.isCastValid(fromType, toType, context)) {
 					//return cast.conversionType(ConversionType.DESUGAR_LATER).type(baseTo);

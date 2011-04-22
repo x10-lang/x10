@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-// We run with STATIC_CALLS because without it, it will just insert a cast: Warning: Expression 'p' was cast to type ...
-//OPTIONS: -STATIC_CALLS
+// We run with STATIC_CHECKS because without it, it will just insert a cast: Warning: Expression 'p' was cast to type ...
+//OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
 

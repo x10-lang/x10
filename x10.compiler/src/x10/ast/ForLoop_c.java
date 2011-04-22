@@ -80,7 +80,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	public Node typeCheck(ContextVisitor tc) {
 	    X10Loop result = (X10Loop) super.typeCheck(tc);
 	    TypeSystem xts = (TypeSystem) tc.typeSystem();
-	    // TODO: generate a cast if STATIC_CALLS is off
+	    // TODO: generate a cast if STATIC_CHECKS is off
 	    MethodInstance mi = null;
 	    Expr domain = result.domain();
 	    mi = Checker.findAppropriateMethod(tc, domain.type(), ITERATOR, Collections.<Type>emptyList(), Collections.<Type>emptyList());

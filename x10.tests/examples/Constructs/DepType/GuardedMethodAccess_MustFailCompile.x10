@@ -19,16 +19,15 @@
 //LIMITATION:
 //The current release does not implement guarded methods or fields.
 
-// OPTIONS: -STATIC_CALLS 
-
-/** Tests that a method of a class C, guarded with this(:c), is accessed only in objects
- * whose type is a subtype of C(:c).
- *@author pvarma
- *
- */
+//OPTIONS: -STATIC_CHECKS 
 
 import harness.x10Test;
 
+/**
+ * Tests that a method of a class C, guarded with this(:c), is accessed only in objects
+ * whose type is a subtype of C(:c).
+ * @author pvarma
+ */
 public class GuardedMethodAccess_MustFailCompile extends x10Test { 
 
   class Test(i:int, j:int) {
