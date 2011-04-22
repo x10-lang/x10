@@ -85,7 +85,7 @@ struct x10SocketState
 	pthread_mutex_t pendingWriteLock;
 } state;
 
-void probe (bool onlyProcessAccept);
+bool probe (bool onlyProcessAccept);
 
 /*********************************************
  *  utility methods
@@ -798,14 +798,15 @@ void x10rt_net_probe ()
 				probe(true); // wait for connections from all upper places
 		state.linkAtStartup = false;
 	}
-	else
-		probe(false);
+	else 
+		while (probe(false));
 }
 
-void probe (bool onlyProcessAccept)
+// return T if data was processed, F if not
+bool probe (bool onlyProcessAccept)
 {
 	if (pthread_mutex_lock(&state.readLock) < 0)
-		return;
+		return false;
 	uint32_t whichPlaceToHandle = state.nextSocketToCheck;
 	int ret = poll(state.socketLinks, state.numPlaces, state.linkAtStartup?100:0);
 	if (ret > 0)
@@ -817,7 +818,7 @@ void probe (bool onlyProcessAccept)
 		else if (onlyProcessAccept)
 		{
 			pthread_mutex_unlock(&state.readLock);
-			return;
+			return false;
 		}
 		else
 		{
@@ -833,7 +834,7 @@ void probe (bool onlyProcessAccept)
 				{
 					// we should never get here, because if we do, it means that poll said there is something to do (ret > 0), but we didn't find it
 					pthread_mutex_unlock(&state.readLock);
-					return;
+					return false;
 				}
 			}
 
@@ -873,7 +874,7 @@ void probe (bool onlyProcessAccept)
 					#endif
 					close(state.socketLinks[whichPlaceToHandle].fd);
 					state.socketLinks[whichPlaceToHandle].fd = -1;
-					return;
+					return false;
 				}
 				#ifdef DEBUG_MESSAGING
 					printf("X10rt.Sockets: place %u picked up a message from place %u\n", state.myPlaceId, whichPlaceToHandle);
@@ -1037,6 +1038,7 @@ void probe (bool onlyProcessAccept)
 			state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 			pthread_mutex_unlock(&state.readLock);
 		}
+		return true;
 	}
 	else
 	{
@@ -1044,6 +1046,7 @@ void probe (bool onlyProcessAccept)
 		flushPendingData();
 		if (state.yieldAfterProbe) // This would be a good time for a yield in some systems.
 			sched_yield();
+		return false;
 	}
 }
 
