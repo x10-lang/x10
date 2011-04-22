@@ -250,106 +250,98 @@ public class X10Parser extends Object implements RuleAction
                     break;
             }
             //
-            // Rule 7:  FieldAccess ::= Primary . ErrorId
+            // Rule 7:  FieldAccess ::= ErrorPrimaryPrefix
             //
             case 7: {
                 //#line 230 "x10/parser/x10.g"
-                Object Primary = (Object) getRhsSym(1);
+                Object ErrorPrimaryPrefix = (Object) getRhsSym(1);
                 //#line 232 "x10/parser/x10.g"
-		r.rule_FieldAccess0(Primary);
+		r.rule_FieldAccess0(ErrorPrimaryPrefix);
                 break;
             }
             //
-            // Rule 8:  FieldAccess ::= super . ErrorId
+            // Rule 8:  FieldAccess ::= ErrorSuperPrefix
             //
             case 8: {
-                
+                //#line 234 "x10/parser/x10.g"
+                Object ErrorSuperPrefix = (Object) getRhsSym(1);
                 //#line 236 "x10/parser/x10.g"
-		r.rule_FieldAccess1();
+		r.rule_FieldAccess1(ErrorSuperPrefix);
                 break;
             }
             //
-            // Rule 9:  FieldAccess ::= ClassName . super$sup . ErrorId
+            // Rule 9:  FieldAccess ::= ErrorClassNameSuperPrefix
             //
             case 9: {
                 //#line 238 "x10/parser/x10.g"
-                Object ClassName = (Object) getRhsSym(1);
-                //#line 238 "x10/parser/x10.g"
-                IToken sup = (IToken) getRhsIToken(3);
+                Object ErrorClassNameSuperPrefix = (Object) getRhsSym(1);
                 //#line 240 "x10/parser/x10.g"
-		r.rule_FieldAccess2(ClassName);
+		r.rule_FieldAccess2(ErrorClassNameSuperPrefix);
                 break;
             }
             //
-            // Rule 10:  MethodInvocation ::= MethodPrimaryPrefix ( ArgumentListopt )
+            // Rule 10:  MethodInvocation ::= ErrorPrimaryPrefix ( ArgumentListopt )
             //
             case 10: {
                 //#line 243 "x10/parser/x10.g"
-                Object MethodPrimaryPrefix = (Object) getRhsSym(1);
+                Object ErrorPrimaryPrefix = (Object) getRhsSym(1);
                 //#line 243 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(3);
                 //#line 245 "x10/parser/x10.g"
-		r.rule_MethodInvocation0(MethodPrimaryPrefix,ArgumentListopt);
+		r.rule_MethodInvocation0(ErrorPrimaryPrefix,ArgumentListopt);
                 break;
             }
             //
-            // Rule 11:  MethodInvocation ::= MethodSuperPrefix ( ArgumentListopt )
+            // Rule 11:  MethodInvocation ::= ErrorSuperPrefix ( ArgumentListopt )
             //
             case 11: {
                 //#line 247 "x10/parser/x10.g"
-                Object MethodSuperPrefix = (Object) getRhsSym(1);
+                Object ErrorSuperPrefix = (Object) getRhsSym(1);
                 //#line 247 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(3);
                 //#line 249 "x10/parser/x10.g"
-		r.rule_MethodInvocation1(MethodSuperPrefix,ArgumentListopt);
+		r.rule_MethodInvocation1(ErrorSuperPrefix,ArgumentListopt);
                 break;
             }
             //
-            // Rule 12:  MethodInvocation ::= MethodClassNameSuperPrefix ( ArgumentListopt )
+            // Rule 12:  MethodInvocation ::= ErrorClassNameSuperPrefix ( ArgumentListopt )
             //
             case 12: {
                 //#line 251 "x10/parser/x10.g"
-                Object MethodClassNameSuperPrefix = (Object) getRhsSym(1);
+                Object ErrorClassNameSuperPrefix = (Object) getRhsSym(1);
                 //#line 251 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(3);
                 //#line 253 "x10/parser/x10.g"
-		r.rule_MethodInvocation2(MethodClassNameSuperPrefix,ArgumentListopt);
+		r.rule_MethodInvocation2(ErrorClassNameSuperPrefix,ArgumentListopt);
                 break;
             }
             //
-            // Rule 13:  MethodPrimaryPrefix ::= Primary . ErrorId$ErrorId
+            // Rule 13:  ErrorPrimaryPrefix ::= Primary . ErrorId
             //
             case 13: {
                 //#line 256 "x10/parser/x10.g"
                 Object Primary = (Object) getRhsSym(1);
-                //#line 256 "x10/parser/x10.g"
-                IToken ErrorId = (IToken) getRhsIToken(3);
                 //#line 258 "x10/parser/x10.g"
-		r.rule_MethodPrimaryPrefix0(Primary);
+		r.rule_ErrorPrimaryPrefix0(Primary);
                 break;
             }
             //
-            // Rule 14:  MethodSuperPrefix ::= super . ErrorId$ErrorId
+            // Rule 14:  ErrorSuperPrefix ::= super . ErrorId
             //
             case 14: {
-                //#line 260 "x10/parser/x10.g"
-                IToken ErrorId = (IToken) getRhsIToken(3);
+                
                 //#line 262 "x10/parser/x10.g"
-		r.rule_MethodSuperPrefix0();
+		r.rule_ErrorSuperPrefix0();
                 break;
             }
             //
-            // Rule 15:  MethodClassNameSuperPrefix ::= ClassName . super$sup . ErrorId$ErrorId
+            // Rule 15:  ErrorClassNameSuperPrefix ::= ClassName . super . ErrorId
             //
             case 15: {
                 //#line 264 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 264 "x10/parser/x10.g"
-                IToken sup = (IToken) getRhsIToken(3);
-                //#line 264 "x10/parser/x10.g"
-                IToken ErrorId = (IToken) getRhsIToken(5);
                 //#line 266 "x10/parser/x10.g"
-		r.rule_MethodClassNameSuperPrefix0(ClassName);
+		r.rule_ErrorClassNameSuperPrefix0(ClassName);
                 break;
             }
             //

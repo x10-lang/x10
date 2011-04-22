@@ -1805,10 +1805,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_SwitchLabel1() {
         setResult(nf.Default(pos()));
     }
-    // Production: MethodSuperPrefix ::= super '.' ErrorId
-    void rule_MethodSuperPrefix0() {
-        setResult(id(getRhsFirstTokenIndex(3)));
-    }
     // Production: VariableDeclarators ::= VariableDeclarator
     void rule_VariableDeclarators0(Object _VariableDeclarator) {
         Object[] VariableDeclarator = (Object[]) _VariableDeclarator;
@@ -2623,15 +2619,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_SwitchLabelsopt0() {
         setResult(new TypedList<Case>(new LinkedList<Case>(), Case.class, false));
     }
-    // Production: MethodClassNameSuperPrefix ::= ClassName '.' super '.' ErrorId
-    void rule_MethodClassNameSuperPrefix0(Object _ClassName) {
-        ParsedName ClassName = (ParsedName) _ClassName;
-        Object[] a = new Object[3];
-        a[0] = ClassName;
-        a[1] = pos(getRhsFirstTokenIndex(3));
-        a[2] = id(getRhsFirstTokenIndex(5));
-        setResult(a);
-    }
     // Production: MethodName ::= AmbiguousName '.' ErrorId
     void rule_MethodName0(Object _AmbiguousName) {
         ParsedName AmbiguousName = (ParsedName) _AmbiguousName;
@@ -2656,22 +2643,29 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 AmbiguousName,
                 Identifier));
     }
-    // Production: FieldAccess ::= Primary '.' ErrorId
-    void rule_FieldAccess0(Object _Primary) {
-        Expr Primary = (Expr) _Primary;
-        setResult(nf.Field(pos(), Primary,
-                nf.Id(pos(getRightSpan()), "*")));
+    // Production: FieldAccess ::= ErrorPrimaryPrefix
+    void rule_FieldAccess0(Object _ErrorPrimaryPrefix) {
+        Object[] ErrorPrimaryPrefix = (Object[]) _ErrorPrimaryPrefix;
+        Expr Primary = (Expr) ErrorPrimaryPrefix[0];
+        polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ErrorPrimaryPrefix[1];
+        setResult(nf.Field(pos(), Primary, nf.Id(identifier.getPosition(), identifier.getIdentifier())));
     }
-    // Production: FieldAccess ::= super '.' ErrorId
-    void rule_FieldAccess1() {
-        setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())),
-                nf.Id(pos(getRightSpan()), "*")));
+    // Production: FieldAccess ::= ErrorSuperPrefix
+    void rule_FieldAccess1(Object _ErrorSuperPrefix) {
+        Object[] ErrorSuperPrefix = (Object[]) _ErrorSuperPrefix;
+        JPGPosition super_pos = (JPGPosition) ErrorSuperPrefix[0];
+        polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ErrorSuperPrefix[1];
+        setResult(nf.Field(pos(getRightSpan()), nf.Super(super_pos),
+                nf.Id(identifier.getPosition(), identifier.getIdentifier())));
     }
-    // Production: FieldAccess ::= ClassName '.' super '.' ErrorId
-    void rule_FieldAccess2(Object _ClassName) {
-        ParsedName ClassName = (ParsedName) _ClassName;
-        setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()),
-                nf.Id(pos(getRightSpan()), "*")));
+    // Production: FieldAccess ::= ErrorClassNameSuperPrefix
+    void rule_FieldAccess2(Object _ErrorClassNameSuperPrefix) {
+        Object[] ErrorClassNameSuperPrefix = (Object[]) _ErrorClassNameSuperPrefix;
+        ParsedName ClassName = (ParsedName) ErrorClassNameSuperPrefix[0];
+        JPGPosition super_pos = (JPGPosition) ErrorClassNameSuperPrefix[1];
+        polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ErrorClassNameSuperPrefix[2];
+        setResult(nf.Field(pos(getRightSpan()), nf.Super(super_pos, ClassName.toType()),
+                nf.Id(identifier.getPosition(), identifier.getIdentifier())));
     }
     // Production: FieldAccess ::= Primary '.' Identifier
     void rule_FieldAccess3(Object _Primary, Object _Identifier) {
@@ -2827,29 +2821,33 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
         // setResult(l);
     }
-    // Production: MethodInvocation ::= MethodPrimaryPrefix '(' ArgumentListopt ')'
-    void rule_MethodInvocation0(Object _MethodPrimaryPrefix, Object _ArgumentListopt) {
-        Object MethodPrimaryPrefix = (Object) _MethodPrimaryPrefix;
+    // Production: MethodInvocation ::= ErrorPrimaryPrefix '(' ArgumentListopt ')'
+    void rule_MethodInvocation0(Object _ErrorPrimaryPrefix, Object _ArgumentListopt) {
+        Object[] ErrorPrimaryPrefix = (Object[]) _ErrorPrimaryPrefix;
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
-        Expr Primary = (Expr) ((Object[]) MethodPrimaryPrefix)[0];
-        polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodPrimaryPrefix)[1];
-        setResult(nf.Call(pos(), Primary, nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
+        Expr Primary = (Expr) ErrorPrimaryPrefix[0];
+        polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ErrorPrimaryPrefix[1];
+        setResult(nf.Call(pos(), Primary,
+              nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
     }
-    // Production: MethodInvocation ::= MethodSuperPrefix '(' ArgumentListopt ')'
-    void rule_MethodInvocation1(Object _MethodSuperPrefix, Object _ArgumentListopt) {
-        polyglot.lex.Identifier MethodSuperPrefix = (polyglot.lex.Identifier) _MethodSuperPrefix;
+    // Production: MethodInvocation ::= ErrorSuperPrefix '(' ArgumentListopt ')'
+    void rule_MethodInvocation1(Object _ErrorSuperPrefix, Object _ArgumentListopt) {
+        Object[] ErrorSuperPrefix = (Object[]) _ErrorSuperPrefix;
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
-        polyglot.lex.Identifier identifier = MethodSuperPrefix;
-        setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
+        JPGPosition super_pos = (JPGPosition) ErrorSuperPrefix[0];
+        polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ErrorSuperPrefix[1];
+        setResult(nf.Call(pos(), nf.Super(super_pos),
+              nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
     }
-    // Production: MethodInvocation ::= MethodClassNameSuperPrefix '(' ArgumentListopt ')'
-    void rule_MethodInvocation2(Object _MethodClassNameSuperPrefix, Object _ArgumentListopt) {
-        Object MethodClassNameSuperPrefix = (Object) _MethodClassNameSuperPrefix;
+    // Production: MethodInvocation ::= ErrorClassNameSuperPrefix '(' ArgumentListopt ')'
+    void rule_MethodInvocation2(Object _ErrorClassNameSuperPrefix, Object _ArgumentListopt) {
+        Object[] ErrorClassNameSuperPrefix = (Object[]) _ErrorClassNameSuperPrefix;
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
-        ParsedName ClassName = (ParsedName) ((Object[]) MethodClassNameSuperPrefix)[0];
-        JPGPosition super_pos = (JPGPosition) ((Object[]) MethodClassNameSuperPrefix)[1];
-        polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodClassNameSuperPrefix)[2];
-        setResult(nf.Call(pos(), nf.Super(super_pos, ClassName.toType()), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
+        ParsedName ClassName = (ParsedName) ErrorClassNameSuperPrefix[0];
+        JPGPosition super_pos = (JPGPosition) ErrorClassNameSuperPrefix[1];
+        polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ErrorClassNameSuperPrefix[2];
+        setResult(nf.Call(pos(), nf.Super(super_pos, ClassName.toType()),
+              nf.Id(identifier.getPosition(), identifier.getIdentifier()), ArgumentListopt));
     }
     // Production: MethodInvocation ::= MethodName TypeArgumentsopt '(' ArgumentListopt ')'
     void rule_MethodInvocation3(Object _MethodName, Object _TypeArgumentsopt, Object _ArgumentListopt) {
@@ -4116,12 +4114,28 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Id Identifier = (Id) _Identifier;
         setResult(Identifier);
     }
-    // Production: MethodPrimaryPrefix ::= Primary '.' ErrorId
-    void rule_MethodPrimaryPrefix0(Object _Primary) {
+    // Production: ErrorPrimaryPrefix ::= Primary '.' ErrorId
+    void rule_ErrorPrimaryPrefix0(Object _Primary) {
         Expr Primary = (Expr) _Primary;
         Object[] a = new Object[2];
         a[0] = Primary;
         a[1] = id(getRhsFirstTokenIndex(3));
+        setResult(a);
+    }
+    // Production: ErrorSuperPrefix ::= super '.' ErrorId
+    void rule_ErrorSuperPrefix0() {
+        Object[] a = new Object[2];
+        a[0] = pos(getRhsFirstTokenIndex(1));
+        a[1] = id(getRhsFirstTokenIndex(3));
+        setResult(a);
+    }
+    // Production: ErrorClassNameSuperPrefix ::= ClassName '.' super '.' ErrorId
+    void rule_ErrorClassNameSuperPrefix0(Object _ClassName) {
+        ParsedName ClassName = (ParsedName) _ClassName;
+        Object[] a = new Object[3];
+        a[0] = ClassName;
+        a[1] = pos(getRhsFirstTokenIndex(3));
+        a[2] = id(getRhsFirstTokenIndex(5));
         setResult(a);
     }
     // Production: AnnotatedType ::= Type Annotations
