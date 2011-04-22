@@ -32,7 +32,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct {
         super($dummy);
     }
 
-    public RemoteIndexedMemoryChunk $init(Type<T> type, int length, Object value) {
+    public RemoteIndexedMemoryChunk<T> $init(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
         this.home = x10.lang.Runtime.home();
