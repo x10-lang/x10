@@ -40,7 +40,7 @@ public class Object
      * @param that the given entity
      * @return true if this object is equal to the given entity.
      */
-    @Native("java", "#0.equals(#1)")
+    @Native("java", "#this.equals(#that)")
     @Native("c++", "(#this)->equals(#that)")
     public native def equals(that:Any): boolean;
 
@@ -53,7 +53,7 @@ public class Object
      * @seeAlso x10.lang.Any
      * @return the hash code of this object.
      */
-    @Native("java", "#0.hashCode()")
+    @Native("java", "#this.hashCode()")
     @Native("c++", "(#this)->hashCode()")
     public native def hashCode() : Int;
 
@@ -68,7 +68,7 @@ public class Object
      *
      * @return a string representation of this object.
      */
-    @Native("java", "#0.toString()")
+    @Native("java", "#this.toString()")
     @Native("c++", "(#this)->toString()")
     public native def toString() : String;
 
@@ -77,7 +77,7 @@ public class Object
      *
      * @return a string representation of the run-time type of this object.
      */
-    @Native("java", "x10.rtt.Types.typeName(#0)")
+    @Native("java", "x10.rtt.Types.typeName(#this)")
     @Native("c++", "x10aux::type_name(#this)")
     @NonEscaping
     public native final def typeName():String;

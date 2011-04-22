@@ -36,7 +36,7 @@ public class Printer extends FilterWriter {
 
     private lock = new Lock();
     
-    public def println(): void = print(NEWLINE);
+    public def println(): void { print(NEWLINE); }
     
     public final def println(o:Any): void {
         print(o==null? "null\n" : o.toString()+"\n");

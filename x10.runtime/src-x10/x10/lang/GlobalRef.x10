@@ -24,10 +24,10 @@ import x10.compiler.Native;
  * <p> At its home place, the value when applied to the empty list of
  * arguments returns its encapsulated value.
  */
-@NativeRep("java", "x10.core.GlobalRef<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef.$RTT, #2)")
+@NativeRep("java", "x10.core.GlobalRef<#T$box>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef.$RTT, #T$rtt)")
 @NativeRep("c++", "x10::lang::GlobalRef<#T >", "x10::lang::GlobalRef<#T >", null)
 public struct GlobalRef[T](
-    @Native("java", "(#0).home")
+    @Native("java", "(#this).home")
     @Native("c++", "x10::lang::Place::place((#this)->location)")
     home:Place) {T <: Object} {
     public property home():Place = home;
@@ -42,14 +42,14 @@ public struct GlobalRef[T](
      * Can only be invoked at the place at which the value was
      * created. Returns the object encapsulated in the value.
      */
-    @Native("java", "(#0).$apply$G()")
+    @Native("java", "(#this).$apply$G()")
     @Native("c++", "(#this)->__apply()")
     public native operator this(){here == this.home}:T;
 
     /** 
      * Converts a GlobalRef to its home.
      */
-    @Native("java", "(#4).home")
+    @Native("java", "(#r).home")
     @Native("c++", "x10::lang::Place::place((#r)->location)")
     public static native operator[T] (r:GlobalRef[T]){T <: Object}: Place{self==r.home};
 
@@ -59,7 +59,7 @@ public struct GlobalRef[T](
      * by a constraint because it would entail dynamic checks.
      * Must only be called at this.home !
      */
-    @Native("java", "(#0).$apply$G()")
+    @Native("java", "(#this).$apply$G()")
     @Native("c++", "(#this)->__apply()")
     private native def localApply():T;
 
@@ -72,7 +72,7 @@ public struct GlobalRef[T](
      * However, because it does not use a place constraint on the
      * method, it avoids a dynamic place check on the first branch.
      */
-    @Native("java", "x10.lang.GlobalRef<#1 >.LocalEval.evalAtHome<#1,#3 >(#0, #2)")
+    @Native("java", "x10.lang.GlobalRef<#T$box>.LocalEval.evalAtHome<#T$box,#U$box>(#this, #eval)")
     @Native("c++", "x10::lang::GlobalRef__LocalEval::evalAtHome<#T,#U >(#this, #eval)")
     public native def evalAtHome[U](eval:(T)=> U):U;
 
@@ -86,7 +86,7 @@ public struct GlobalRef[T](
      * However, because it does not use a place constraint on the
      * method, it avoids a dynamic place check on the first branch.
      */
-    @Native("java", "x10.lang.GlobalRef<#1 >.LocalEval.getLocalOrCopy<#1 >(#0)")
+    @Native("java", "x10.lang.GlobalRef<#T$box>.LocalEval.getLocalOrCopy<#T$box>(#this)")
     @Native("c++", "x10::lang::GlobalRef__LocalEval::getLocalOrCopy<#T >(#this)")
     public native def getLocalOrCopy():T;
 
@@ -95,15 +95,15 @@ public struct GlobalRef[T](
      * what the compiler would have generated.
      */
 
-    @Native("java", "(#0).toString()")
+    @Native("java", "(#this).toString()")
     @Native("c++", "(#this)->toString()")
     public native def  toString():String;
 
-    @Native("java", "(#0).equals(#1)")
+    @Native("java", "(#this).equals(#that)")
     @Native("c++", "(#this)->equals(#that)")
     public native def equals(that:Any):Boolean;
 
-    @Native("java", "(#0).hashCode()")
+    @Native("java", "(#this).hashCode()")
     @Native("c++", "(#this)->hashCode()")
     public native def hashCode():Int;
 

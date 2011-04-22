@@ -1650,21 +1650,23 @@ public class Errors {
         }
     }
 	public static class MustReturnValueFromNonVoidMethod extends EqualByTypeAndPosException {
-        
-		private static final long serialVersionUID = 8449016684539457751L;
-
-		public MustReturnValueFromNonVoidMethod(Position p) {
-            super("Must return value from non-void method.", p);
-        }
-    }
+	    private static final long serialVersionUID = 8449016684539457751L;
+	    public MustReturnValueFromNonVoidMethod(Position p) {
+	        super("Must return value from non-void method.", p);
+	    }
+	}
 	public static class CannotReturnValueFromVoidMethod extends EqualByTypeAndPosException {
-        
-		private static final long serialVersionUID = -2211763341228911088L;
-
-		public CannotReturnValueFromVoidMethod(Position p) {
-            super("Cannot return value from void method or closure.", p);
-        }
-    }
+	    private static final long serialVersionUID = -2211763341228911088L;
+	    public CannotReturnValueFromVoidMethod(Position p) {
+	        super("Cannot return value from void method or closure.", p);
+	    }
+	}
+	public static class CannotReturnValueFromConstructor extends EqualByTypeAndPosException {
+        private static final long serialVersionUID = 833533689299328410L;
+        public CannotReturnValueFromConstructor(Position p) {
+	        super("Cannot return value from a constructor.", p);
+	    }
+	}
 	public static class SelfMayOnlyBeUsedWithinDependentType extends EqualByTypeAndPosException {
         
 		private static final long serialVersionUID = 5580046365659081850L;

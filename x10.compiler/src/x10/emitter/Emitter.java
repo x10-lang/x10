@@ -124,9 +124,8 @@ public class Emitter {
     private static final boolean mangleTypeVariable = true;
     private static final String PARAMETER_TYPE_PREFIX = "$";
     
-    // XTENLANG-2528
-    private static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
-    private static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
+    public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
+    public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
@@ -676,8 +675,7 @@ public class Emitter {
 		}
 	}
 
-	private boolean printRepType(Type type, boolean printGenerics,
-			boolean boxPrimitives, boolean inSuper) {
+	private boolean printRepType(Type type, boolean printGenerics, boolean boxPrimitives, boolean inSuper) {
 		if (type.isVoid()) {
 			w.write("void");
 			return true;
@@ -688,23 +686,38 @@ public class Emitter {
 			X10ClassDef cd = ((X10ClassType) type).x10Def();
 			String pat = getJavaRep(cd, boxPrimitives);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep) 
 			if (pat != null) {
-				List<Type> typeArguments = ((X10ClassType) type).typeArguments();
-				if (typeArguments == null) typeArguments = Collections.<Type>emptyList();
+                List<ParameterType> classTypeParams  = cd.typeParameters();
+//                if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+                Iterator<ParameterType> classTypeParamsIter = null;
+                if (classTypeParams != null) {
+                    classTypeParamsIter = classTypeParams.iterator();
+                }
+				List<Type> classTypeArgs = ((X10ClassType) type).typeArguments();
+				if (classTypeArgs == null) classTypeArgs = Collections.<Type>emptyList();
 				Map<String,Object> components = new HashMap<String,Object>();
 				int i = 0;
 				Object component;
+                String name;
 				component = new TypeExpander(this, type, printGenerics, boxPrimitives, inSuper);
 				components.put(String.valueOf(i++), component);
-				// TODO put with name
-				for (Type a : typeArguments) {
-					component = new TypeExpander(this, a, printGenerics, true, inSuper);
+                components.put("class", component);
+				for (Type at : classTypeArgs) {
+                    if (classTypeParamsIter != null) {
+                        name = classTypeParamsIter.next().name().toString();
+                    } else {
+                        name = null;
+                    }
+					component = new TypeExpander(this, at, printGenerics, true, inSuper);
 					components.put(String.valueOf(i++), component);
-					// TODO put with name
+                    if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
+                    component = new RuntimeTypeExpander(this, at);
+                    components.put(String.valueOf(i++), component);
+                    if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
 				}
 				if (!printGenerics) {
 					pat = pat.replaceAll("<.*>", "");
 				}
-				dumpRegex("NativeRep(JavaRep)", components, tr, pat);
+				dumpRegex("NativeRep", components, tr, pat);
 				return true;
 			}
 		}
@@ -866,8 +879,7 @@ public class Emitter {
 		return false;
 	}
 
-    // WIP XTENLANG-2528
-    // See MessagePassingCodeGenerator.java
+    // See comments in Native.x10
     /**
      * Annotation to mark methods and fields as having a particular native implementation.
      * lang is the name of the language, typically "java" or "c++".
@@ -879,34 +891,20 @@ public class Emitter {
      *     def m[X, Y](x, y);
      * and a call
      *     o.m[A, B](a, b);
-     * #0 = o
-     * #1 = A
-     * #2 = boxed representation of A
-     * #3 = run-time Type object for A
-     * #4 = B
-     * #5 = boxed representation of B
-     * #6 = run-time Type object for B
-     * #7 = a
-     * #8 = b
+     * #0 = #this = o
+     * #1 = #X = A
+     * #2 = #X$box = boxed representation of A
+     * #3 = #X$rtt = run-time Type object for A
+     * #4 = #Y = B
+     * #5 = #Y$box = boxed representation of B
+     * #6 = #Y$rtt = run-time Type object for B
+     * #7 = #x = a
+     * #8 = #y = b
      *
      * For "c++" annotations:
      *
-     * As for "java" except boxed and run-time representations of type vars should not be used.  Also there is also the capability to refer to type params and method params by name:
-     * #this = o
-     * #X = A
-     * #Y = B
-     * #x = a
-     * #y = b
+     * As for "java" except boxed and run-time representations of type vars should not be used.
      */
-    // #0 = #this = o
-    // #1 = #X = A
-    // #2 = #X$box = boxed representation of A
-    // #3 = #X$rtt = run-time Type object for A
-    // #4 = #Y = B
-    // #5 = #Y$box = boxed representation of B
-    // #6 = #Y$rtt = run-time Type object for B
-    // #7 = #x = a
-    // #8 = #y = b
 	public void emitNativeAnnotation(String pat, Object receiver, List<ParameterType> typeParams, List<Type> typeArgs, List<String> params, List<? extends Object> args, List<ParameterType> classTypeParams, List<Type> classTypeArgs) {
 //      Object[] components = new Object[1 + typeArgs.size() * 3 + args.size() + classTypeArgs.size() * 3];
       Map<String,Object> components = new HashMap<String,Object>();
@@ -2801,18 +2799,30 @@ public class Emitter {
             X10ClassDef cd = x10Type.x10Def();
             String pat = getJavaRTTRep(cd);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep)
             if (pat != null) {
-                List<Type> typeArgs = x10Type.typeArguments();
-                if (typeArgs == null) typeArgs = Collections.<Type>emptyList();
+                List<ParameterType> classTypeParams  = cd.typeParameters();
+//                if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+                Iterator<ParameterType> classTypeParamsIter = null;
+                if (classTypeParams != null) {
+                    classTypeParamsIter = classTypeParams.iterator();
+                }
+                List<Type> classTypeArgs = x10Type.typeArguments();
+                if (classTypeArgs == null) classTypeArgs = Collections.<Type>emptyList();
                 HashMap<String,Object> components = new HashMap<String,Object>();
                 int i = 0;
                 Object component;
+                String name;
                 component = new TypeExpander(this, x10Type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                 components.put(String.valueOf(i++), component);
-                // TODO put with name
-                for (final Type at : typeArgs) {
+                components.put("class", component);
+                for (final Type at : classTypeArgs) {
+                    if (classTypeParamsIter != null) {
+                        name = classTypeParamsIter.next().name().toString();
+                    } else {
+                        name = null;
+                    }
                     component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     components.put(String.valueOf(i++), component);
-                    // TODO put with name
+                    if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
                     if (Types.baseType(at).typeEquals(def.asType(), tr.context())) {
                         component = "x10.rtt.UnresolvedType.THIS";
                     } else if (Types.baseType(at) instanceof ParameterType) {
@@ -2825,9 +2835,9 @@ public class Emitter {
                         };
                     }
                     components.put(String.valueOf(i++), component);
-                    // TODO put with name
+                    if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
                 }
-                dumpRegex("NativeRep(JavaRTTRep)", components, tr, pat);
+                dumpRegex("NativeRep", components, tr, pat);
             }
             else if (x10Type.typeArguments() != null && x10Type.typeArguments().size() > 0) {
                 w.write("new x10.rtt.ParameterizedType(");
@@ -3317,8 +3327,6 @@ public class Emitter {
     		    }
     		}
     		
-    	    // WIP XTENLANG-2528
-//    		emitNativeAnnotation(pat, targetArg, null, mi.typeParameters(), null, args, null, typeArguments);
     		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
     		return true;
     	}
@@ -3356,8 +3364,6 @@ public class Emitter {
                 }
             }
             
-            // WIP XTENLANG-2528
-//            emitNativeAnnotation(pat, null, Collections.<ParameterType>emptyList(), Collections.<Type>emptyList(), null, args, null, classTypeArguments);
             emitNativeAnnotation(pat, null, Collections.<ParameterType>emptyList(), Collections.<Type>emptyList(), params, args, classTypeParams, classTypeArguments);
             return true;
         }
@@ -3404,8 +3410,7 @@ public class Emitter {
             component = tr.context().currentClass().name();
 //            components.put(String.valueOf(i++), component);
             components.put("mainclass", component);
-//            dumpRegex("Main", new Object[] { n.formals().get(0), n.body(), tr.context().currentClass().name() }, tr, regex);
-            dumpRegex("Main", components, tr, regex);
+            dumpRegex(X10PrettyPrinterVisitor.MAIN_CLASS, components, tr, regex);
 
             return true;
         }

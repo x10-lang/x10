@@ -121,7 +121,7 @@ abstract public class x10Test {
         return nearEnough(a.re as Float, b.re as Float) && nearEnough(a.im as Float, b.im as Float);
     }
 
-    protected static def println(s:String) = x10.io.Console.OUT.println(s);
+    protected static def println(s:String) { x10.io.Console.OUT.println(s); }
 
     public static abstract class BardTest extends x10Test {
 

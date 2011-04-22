@@ -213,11 +213,8 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     }
 
     // [NN]: should not need to cast x to Comparable[T]
-    public def sort() {T <: Comparable[T]} = sort((x:T, y:T) => (x as Comparable[T]).compareTo(y));
-    public def sort(cmp: (T,T)=>Int) = qsort(a, 0, 
-         a.length()-1, 
-         cmp
-    );
+    public def sort() {T <: Comparable[T]} { sort((x:T, y:T) => (x as Comparable[T]).compareTo(y)); }
+    public def sort(cmp: (T,T)=>Int) { qsort(a, 0, a.length()-1, cmp); }
 
     // public def sort(lessThan: (T,T)=>Boolean) = qsort(a, 0, a.length()-1, (x:T,y:T) => lessThan(x,y) ? -1 : (lessThan(y,x) ? 1 : 0));
     

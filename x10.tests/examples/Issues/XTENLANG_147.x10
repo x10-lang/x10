@@ -30,7 +30,7 @@ class XTENLANG_147 extends x10Test {
         bar1(f1);
         
         // this fails
-        val f2 = ()=>this.foo2();
+        val f2 = ()=>{ this.foo2(); };
         bar2(f2);
         
         // this is ok

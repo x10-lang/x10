@@ -178,7 +178,7 @@ public final class Clock(name:String) {
         Runtime.activity().clockPhases().advanceAll();
     }
 
-    public static def resumeAll():void = Runtime.activity().clockPhases().resumeAll();
+    public static def resumeAll():void { Runtime.activity().clockPhases().resumeAll(); }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
