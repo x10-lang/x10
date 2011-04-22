@@ -24,7 +24,241 @@
 #include <sys/vminfo.h>
 #endif
 
-#define OP_NEW
+// what follows is some stuff copied from x10.runtime/src-cpp/x10aux/alloc.cc
+
+#ifdef _AIX
+#include <sys/vminfo.h>
+#endif
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+#include <sys/mman.h>
+
+// darwin doesn't have MAP_ANONYMOUS but it does have MAP_ANON which does the same thing
+#ifdef __APPLE__
+#ifndef MAP_ANONYMOUS
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+#endif
+
+// partial reimplemntation of glibc's getline
+static ssize_t mygetline (char **lineptr, size_t *sz, FILE *f)
+{
+    *sz = 0;
+    char tmp[10];
+    size_t bytesread;
+    do {
+        if (tmp!=fgets(tmp, sizeof(tmp), f)) return -1;
+        bytesread = strlen(tmp);
+        *lineptr = static_cast<char*>(::realloc(*lineptr, *sz+bytesread));
+        strncpy(*lineptr+*sz, tmp, bytesread);
+        *sz += bytesread;
+    } while (tmp[bytesread-1] != '\n');
+
+    *lineptr = static_cast<char*>(::realloc(*lineptr, *sz+1));
+    (*lineptr)[*sz] = '\0';
+    *sz += 1;
+    return *sz;
+}
+
+#if !defined(SHM_R) || !defined(SHM_W)
+#include <sys/stat.h>
+#undef SHM_R
+#define SHM_R S_IRUSR
+#undef SHM_W
+#define SHM_W S_IWUSR
+#endif
+
+
+void *congruent_alloc (size_t size)
+{
+
+    long page = 0;
+    if (getenv("X10_CONGRUENT_HUGE")!=NULL) {
+
+        #if defined(__linux__)
+
+        // on linux, the huge page size must be read from /proc
+        FILE *f = fopen("/proc/meminfo","r");
+        if (f==NULL) perror("fopening /proc/meminfo");
+        bool eof = false;
+        while (!eof) {
+            char *lineptr = NULL;
+            size_t sz;
+            ssize_t r = mygetline(&lineptr,&sz,f);
+            eof = r == -1;
+            if (!eof) {
+                char *saveptr;
+                const char *key_c = strtok_r(lineptr,":",&saveptr);
+                if (key_c == NULL) { fprintf(stderr, "Formatting error in /proc/meminfo!\n"); abort(); }
+                if (strcmp(key_c,"Hugepagesize") == 0) {
+                    const char *val_c   = strtok_r(NULL,"k",&saveptr);
+                    if (val_c == NULL) { fprintf(stderr, "Formatting error in /proc/meminfo!!\n"); abort(); }
+                    size_t val = strtoull(val_c,NULL,10);
+                    page = val * 1024;
+                    break;
+                }
+            }
+            ::free(lineptr);
+        }
+        fclose(f);
+
+        #elif defined(__aix)
+
+        page = 16 * 1024 * 1024; // 16MB
+
+        #else
+
+        fprintf(stderr, "Using huge pages for congruent memory is not supported on your platform.  Please unset X10_CONGRUENT_HUGE.\n");
+        abort();
+
+        #endif
+
+    } else {
+        // do not use PAGE_SIZE as the compile-time value may not reflect the machine the code runs on
+        page = sysconf(_SC_PAGESIZE);
+    }
+
+    // round it up to the nearest page
+    size = ((size+page-1) / page) * page;
+
+    void *obj;
+
+    if (getenv("X10_CONGRUENT_HUGE")!=NULL) {
+
+        // huge pages are useful for performance, e.g. due to reducing TLB misses
+        // they are non-standard, currently aix and linux are supported.
+
+        // we are assuming that huge pages (being very special) are going to always occupy the same virtual address space
+
+        #if defined(__linux__) && !defined(SHM_HUGETLB)
+            fprintf(stderr, "Using huge pages for congruent memory is only supported on Linux >= 2.6.  Please unset X10_CONGRUENT_HUGE.\n");
+            abort();
+        #elif defined(_AIX) && !defined(SHM_PAGESIZE)
+            fprintf(stderr, "This AIX system appears not to have SHM_PAGESIZE.  Please unset X10_CONGRUENT_HUGE.\n");
+            abort();
+        #else
+            // ok let's go
+            int shmflag = 0;
+            shmflag |= SHM_R | SHM_W; // permissions
+            //shmflag |= IPC_CREAT|IPC_EXCL; // make a new allocation, ensure it is unique
+            shmflag |= IPC_CREAT; // make a new allocation
+            #if defined(__linux__)
+            shmflag |= SHM_HUGETLB; // huge pages, please
+            #endif
+            //fprintf(stderr,"size = %d\n",(int)size);
+            int shm_id=shmget(IPC_PRIVATE, size, shmflag);
+            if (shm_id == -1) {
+                perror("congruent shmget");
+                abort();
+            }
+
+            #ifdef __aix
+            // on AIX we ask for pages of a particular size
+            struct shmid_ds shm_buf = { 0 };
+            shm_buf.shm_pagesize = page;
+            if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
+                fprintf(stderr, "Could not get 16M pages\n");
+                abort();
+            }
+            #endif
+
+            obj = shmat(shm_id,0,0);  // 'attach' the shared memory at any arbitrary address (seemingly, this is always the same)
+            shmctl(shm_id, IPC_RMID, NULL); // mark for destruction, will be deallocated when shmdt is called (for x10, never)
+        #endif
+
+
+    } else {
+
+
+        // we're not using huge pages, however we still need an address that is consistent across all places
+        // so we use mmap with a fixed address
+
+        #if !defined(_AIX) && !defined(__linux__) && !defined(__APPLE__)
+
+            // in particular, cygwin can fall in this trap
+            // other platforms have yet to be investigated for possible support
+
+            if (x10rt_nplaces() == 1) {
+                // Because there is only a single place, we can just fall back to malloc
+                // Don't call x10rt_register_mem because on most transports, it is
+                // unimplemented and unhelpfully returns 0 to indicate that.
+                obj = malloc(size);
+            } else {
+                // In a multi-place run, we have to return the same virtual address in all
+                // places or the program won't work.  Getting here indicates that we can't
+                // do that, so we must abort the program.
+                fprintf(stderr,"alloc_internal_congruent not supported in multi-place executions on this platform\n");
+                fprintf(stderr,"aborting execution\n");
+                abort();
+            }
+
+        #else
+
+            char *base_addr_ = getenv("X10_CONGRUENT_BASE");
+            // Default addresses based on some experimentation on 32 bit and 64 bit platforms.  Not very reliable.
+            // Test different addresses by overriding with X10_CONGRUENT_BASE environment variable (takes decimal and hex)
+            #ifdef _ARCH_PPC
+            size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x10000000000LL;
+            #else
+            size_t default_base_addr = sizeof(void*)==4 ? 0x70000000LL : 0x100000000000LL;
+            #endif
+            size_t base_addr = base_addr_!=NULL ? strtoull(base_addr_,NULL,0) : default_base_addr;
+
+            if (base_addr % page) {
+                fprintf(stderr, "X10_CONGRUENT_BASE=0x%llx is not a multiple of the page size (0x%llx)\n",
+                        (unsigned long long)base_addr, (unsigned long long)page);
+                abort();
+            }
+
+
+            #ifdef __linux__
+            // check whether or not there are existing pages mapped, if there are, mmap will clobber them
+            // so we must detect and abort
+            FILE *f = fopen("/proc/self/maps","r");
+            if (f==NULL) perror("fopening /proc/self/maps");
+            bool eof = false;
+            while (!eof) {
+                char *lineptr = NULL;
+                size_t sz;
+                ssize_t r = mygetline(&lineptr,&sz,f);
+                eof = r == -1;
+                if (!eof) {
+                    char *saveptr;
+                    const char *from_c = strtok_r(lineptr,"-",&saveptr);
+                    if (from_c == NULL) { fprintf(stderr, "Formatting error in /proc/self/maps!\n"); abort(); }
+                    size_t from = strtoull(from_c,NULL,16);
+                    const char *to_c   = strtok_r(NULL," ",&saveptr);
+                    if (to_c == NULL) { fprintf(stderr, "Formatting error in /proc/self/maps!!!\n"); abort(); }
+                    size_t to = strtoull(to_c,NULL,16);
+                    bool completely_before = base_addr+size <= from;
+                    bool completely_after = base_addr >= to;
+                    if (!(completely_before||completely_after)) {
+                        fprintf(stderr, "Cannot map congruent memory at the address specified.\n");
+                        fprintf(stderr, "Tried to map %llx-%llx but there was an existing map %llx-%llx.\n",
+                                        (unsigned long long)base_addr, (unsigned long long)base_addr+size, (unsigned long long)from, (unsigned long long)to);
+                        fprintf(stderr, "Please specify alternative address range with environment variable X10_CONGRUENT_BASE.\n");
+                        abort();
+                    }
+                }
+                ::free(lineptr);
+            }
+            fclose(f);
+            #else // __APPLE__
+            // apparently MAP_FIXED will fail on macosx if there is an existing mapping in the way
+            #endif
+
+            obj = ::mmap((void*)base_addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+            if (obj==MAP_FAILED) { perror("Congruent memory mmap"); abort(); }
+
+        #endif
+    }
+
+    return obj;
+
+}
+
+
 
 // {{{ nano_time
 #include <sys/time.h>
@@ -64,10 +298,9 @@ static uint64_t HPCC_starts(long long n) {
     return ran;
 } // }}}
 
-x10rt_msg_type DIST_ID, MAIN_ID, UPDATE_ID, PONG_ID, VALIDATE_ID, QUIT_ID;
+x10rt_msg_type MAIN_ID, PONG_ID, VALIDATE_ID, QUIT_ID;
 
 uint64_t *localTable;
-uint64_t *globalTable;
 uint64_t localTableSize;
 
 long long pongs_outstanding = 0;
@@ -84,31 +317,6 @@ void decrement (unsigned long place)
 }
 
 // {{{ msg handlers
-
-static void recv_dist (const x10rt_msg_params *p) {
-    x10rt_deserbuf b; x10rt_deserbuf_init(&b, p);
-    uint32_t src; x10rt_deserbuf_read(&b, &src);
-    uint64_t address; x10rt_deserbuf_read(&b, &address);
-    globalTable[src] = address;
-    x10rt_msg_params p2 = {src, PONG_ID, NULL, 0};
-    x10rt_send_msg(&p2);
-}
-
-static void do_update (uint64_t index, uint64_t update) {
-    localTable[index] ^= update;
-
-    #ifdef OP_EMULATE
-    decrement(0);
-    #endif
-}
-
-static void recv_update (const x10rt_msg_params *p)
-{
-    x10rt_deserbuf b; x10rt_deserbuf_init(&b, p);
-    uint64_t index; x10rt_deserbuf_read(&b, &index);
-    uint64_t update; x10rt_deserbuf_read(&b, &update);
-    do_update(index, update);
-}
 
 static void recv_pong (const x10rt_msg_params *)
 {
@@ -134,24 +342,9 @@ static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
         uint64_t index = ran & mask;
         uint64_t update = ran;
         if (here==place) {
-            do_update(index,update);
+            localTable[index] ^= update;
         } else {
-            #ifdef OP_EMULATE
-            x10rt_serbuf b; x10rt_serbuf_init(&b, place, UPDATE_ID);
-            x10rt_serbuf_write(&b, &index);
-            x10rt_serbuf_write(&b, &update);
-            x10rt_send_msg(&b.p);
-            x10rt_serbuf_free(&b);
-            #endif
-            #ifdef OP_OLD
-            uint64_t remote_addr = globalTable[place];
-            x10rt_remote_xor(place, remote_addr + sizeof(uint64_t)*index, update);
-            #endif
-            #ifdef OP_NEW
-            uint64_t remote_addr = globalTable[place];
-            remote_addr += sizeof(uint64_t)*(index);
-            x10rt_remote_op(place, remote_addr, X10RT_OP_XOR, update);
-            #endif
+            x10rt_remote_op(place, (x10rt_remote_ptr)&localTable[index], X10RT_OP_XOR, update);
         }
     }
     // HOT LOOP ENDS
@@ -160,12 +353,7 @@ static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
     __pgasrt_tsp_barrier();
     #endif
 
-    #ifndef OP_EMULATE
-    #ifdef OP_OLD
-    x10rt_remote_op_fence();
-    #endif
     decrement(0);
-    #endif
 }
 
 static void recv_main (const x10rt_msg_params *p) {
@@ -213,11 +401,7 @@ void show_help(std::ostream &out, char* name)
 void runBenchmark (uint64_t logLocalTableSize,
                    uint64_t numUpdates)
 {
-    #ifdef OP_EMULATE
-    pongs_outstanding=numUpdates;
-    #else
     pongs_outstanding=x10rt_nhosts();
-    #endif
     for (unsigned long p=1 ; p<x10rt_nhosts() ; ++p) {
         x10rt_serbuf b; x10rt_serbuf_init(&b, p, MAIN_ID);
         x10rt_serbuf_write(&b, &logLocalTableSize);
@@ -249,9 +433,7 @@ void validate (void)
 int main(int argc, char **argv)
 {
     x10rt_init(&argc, &argv);
-    DIST_ID = x10rt_register_msg_receiver(&recv_dist,NULL,NULL,NULL,NULL);
     MAIN_ID = x10rt_register_msg_receiver(&recv_main,NULL,NULL,NULL,NULL);
-    UPDATE_ID = x10rt_register_msg_receiver(&recv_update,NULL,NULL,NULL,NULL);
     PONG_ID = x10rt_register_msg_receiver(&recv_pong,NULL,NULL,NULL,NULL);
     VALIDATE_ID = x10rt_register_msg_receiver(&recv_validate,NULL,NULL,NULL,NULL);
     QUIT_ID = x10rt_register_msg_receiver(&recv_quit,NULL,NULL,NULL,NULL);
@@ -294,40 +476,7 @@ int main(int argc, char **argv)
     uint64_t tableSize = localTableSize * x10rt_nhosts();
     uint64_t numUpdates = updates * tableSize;
 
-    #ifdef _AIX
-    int shm_id=shmget(IPC_PRIVATE, localTableSize*sizeof(uint64_t), (IPC_CREAT|IPC_EXCL|0600));
-    if (shm_id == -1) {
-        std::cerr << "shmget failure" << std::endl;
-        abort();
-    }
-    struct shmid_ds shm_buf = { 0 };
-    shm_buf.shm_pagesize = PAGESIZE_16M;
-    if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
-        std::cerr << "Could not get 16M pages" << std::endl;
-        abort();
-    }
-    localTable = (uint64_t*) shmat(shm_id,0,0); // map memory
-    shmctl(shm_id, IPC_RMID, NULL); // no idea what this does
-
-    // pagesizes OK?
-    for (char *p = (char*)localTable; p < ((char*)localTable) + localTableSize*sizeof(uint64_t) ;) {
-	struct vm_page_info pginfo;
-	pginfo.addr = (uint64_t) (size_t) p;
-	vmgetinfo(&pginfo,VM_PAGE_INFO,sizeof(struct vm_page_info));
-	if (pginfo.pagesize < PAGESIZE_64K) {
-	    fprintf(stderr, "x10rt_gups error: Found a page smaller than 64K at %p of %p\n", p, localTable);
-	    abort();
-	}
-	if (pginfo.pagesize < PAGESIZE_16M) {
-	    fprintf(stderr, "x10rt_gups error: Found a page smaller than 16M at %p of %p (not checking for any more)\n", p, localTable);
-	    break;
-	}
-        p += pginfo.pagesize;
-    }
-
-    #else
-    localTable = (uint64_t*) malloc(localTableSize*sizeof(uint64_t));
-    #endif
+    localTable = (uint64_t*) congruent_alloc(localTableSize*sizeof(uint64_t));
 
 
 
@@ -338,53 +487,15 @@ int main(int argc, char **argv)
     }
     for (unsigned int i=0 ; i<localTableSize ; ++i) localTable[i] = i;
 
-    globalTable = (uint64_t*) malloc(x10rt_nhosts() * sizeof(*globalTable));
-    if (globalTable == NULL) {
-        std::cerr<<"Could not allocate memory for global table ("
-                 << x10rt_nhosts() * sizeof(*globalTable) << " bytes)" << std::endl;
-        abort();
-    }
-
     x10rt_registration_complete();
 
-    // make sure everyone knows the address of everyone else's rail
-    pongs_outstanding = x10rt_nhosts();
-    uint64_t intptr = x10rt_register_mem(localTable, localTableSize*sizeof(uint64_t));
-    uint32_t src = x10rt_here();
-    for (unsigned long i=0 ; i<x10rt_nhosts() ; ++i) {
-	intptr = (size_t) localTable;
-        if (i==x10rt_here()) {
-            globalTable[i] = intptr;
-            pongs_outstanding--;
-        } else {
-            x10rt_serbuf b; x10rt_serbuf_init(&b, i, DIST_ID);
-            x10rt_serbuf_write(&b, &src);
-            x10rt_serbuf_write(&b, &intptr);
-            x10rt_send_msg(&b.p);
-            x10rt_serbuf_free(&b);
-        }
-    }
-    while (pongs_outstanding) {
-        x10rt_probe();
-    }
-
-    int finished = 0;
-    x10rt_barrier(0, x10rt_here(), x10rt_one_setter, &finished);
-    while (!finished) x10rt_probe();
-
-/*
-    std::cerr << "globalTable = { ";
-    for (unsigned long i=0 ; i<x10rt_nhosts() ; ++i) {
-        std::cerr << (i==0?"":", ") << globalTable[i];
-    }
-    std::cerr << " }\n" << std::endl;
-*/
-
     if (x10rt_here()==0) {
-        std::cout<<"Main table size:   2^"<<logLocalTableSize<<"*"<<x10rt_nhosts()
-                                          <<" == "<<tableSize<<" words"<<std::endl;;
-        std::cout<<"Number of places:  "<<x10rt_nhosts()<<std::endl;
-        std::cout<<"Number of updates: "<<numUpdates<<std::endl;
+        std::cout<<"Main table size:         2^"<<logLocalTableSize<<"*"<<x10rt_nhosts()
+                                                 <<" == "<<tableSize<<" words ("<<tableSize*8.0/1024/1024<<" MB)"<<std::endl;
+        std::cout<<"Per-process table size:  2^"<<logLocalTableSize<<"*"<<x10rt_nhosts()
+                                                 <<" == "<<tableSize<<" words ("<<localTableSize*8.0/1024/1024<<" MB)"<<std::endl;
+        std::cout<<"Number of places:        "<<x10rt_nhosts()<<std::endl;
+        std::cout<<"Number of updates:       "<<numUpdates<<std::endl;
 
         uint64_t nanos = -nano_time();
         runBenchmark(logLocalTableSize, numUpdates);
