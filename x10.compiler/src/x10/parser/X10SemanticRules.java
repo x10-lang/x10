@@ -2460,10 +2460,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
         setResult(f);
     }
-    // Production: Arguments ::= '(' ArgumentListopt ')'
-    void rule_Arguments0(Object _ArgumentListopt) {
-        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
-        setResult(ArgumentListopt);
+    // Production: Arguments ::= '(' ArgumentList ')'
+    void rule_Arguments0(Object _ArgumentList) {
+        List<Expr> ArgumentList = (List<Expr>) _ArgumentList;
+        setResult(ArgumentList);
     }
     // Production: Literal ::= ByteLiteral
     void rule_LiteralByte() {
@@ -3699,19 +3699,34 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
         // setResult(SwitchBlockStatementGroups);
     }
-    // Production: TypeDefDeclaration ::= Modifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt '=' Type ';'
-    void rule_TypeDefDeclaration0(Object _Modifiersopt, Object _Identifier, Object _TypeParametersopt, Object _FormalParametersopt, Object _WhereClauseopt, Object _Type) {
+    // Production: TypeDefDeclaration ::= Modifiersopt type Identifier TypeParametersopt WhereClauseopt '=' Type ';'
+    void rule_TypeDefDeclaration0(Object _Modifiersopt, Object _Identifier, Object _TypeParametersopt, Object _WhereClauseopt, Object _Type) {
         List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
         Id Identifier = (Id) _Identifier;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
-        List<Formal> FormalParametersopt = (List<Formal>) _FormalParametersopt;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode Type = (TypeNode) _Type;
         List<Node> modifiers = checkTypeDefModifiers(Modifiersopt);
         FlagsNode f = extractFlags(modifiers);
         List<AnnotationNode> annotations = extractAnnotations(modifiers);
         List<Formal> formals = new ArrayList<Formal>();
-        for (Formal v : FormalParametersopt) {
+        TypeDecl cd = nf.TypeDecl(pos(), f, Identifier, TypeParametersopt, formals, WhereClauseopt, Type);
+        cd = (TypeDecl) ((X10Ext) cd.ext()).annotations(annotations);
+        setResult(cd);
+    }
+    // Production: TypeDefDeclaration ::= Modifiersopt type Identifier TypeParametersopt ( FormalParameterList ) WhereClauseopt '=' Type ';'
+    void rule_TypeDefDeclaration1(Object _Modifiersopt, Object _Identifier, Object _TypeParametersopt, Object _FormalParameterList, Object _WhereClauseopt, Object _Type) {
+        List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
+        Id Identifier = (Id) _Identifier;
+        List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
+        List<Formal> FormalParameterList = (List<Formal>) _FormalParameterList;
+        DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
+        TypeNode Type = (TypeNode) _Type;
+        List<Node> modifiers = checkTypeDefModifiers(Modifiersopt);
+        FlagsNode f = extractFlags(modifiers);
+        List<AnnotationNode> annotations = extractAnnotations(modifiers);
+        List<Formal> formals = new ArrayList<Formal>();
+        for (Formal v : FormalParameterList) {
             FlagsNode flags = v.flags();
             if (!flags.flags().isFinal()) {
                 syntaxError("Type definition parameters must be final.", v.position());

@@ -344,9 +344,13 @@
 			r.rule_MethodModifiersopt2(MethodModifiersopt,Modifier);
         $EndJava./
 
-    TypeDefDeclaration ::= Modifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
+    TypeDefDeclaration ::= Modifiersopt type Identifier TypeParametersopt WhereClauseopt = Type ;
         /.$BeginJava
-			r.rule_TypeDefDeclaration0(Modifiersopt,Identifier,TypeParametersopt,FormalParametersopt,WhereClauseopt,Type);
+			r.rule_TypeDefDeclaration0(Modifiersopt,Identifier,TypeParametersopt,WhereClauseopt,Type);
+        $EndJava./
+                         | Modifiersopt type Identifier TypeParametersopt ( FormalParameterList ) WhereClauseopt = Type ;
+        /.$BeginJava
+			r.rule_TypeDefDeclaration1(Modifiersopt,Identifier,TypeParametersopt,FormalParameterList,WhereClauseopt,Type);
         $EndJava./
         
     Properties ::= ( PropertyList )
@@ -2040,9 +2044,9 @@
 			r.rule_ConstructorBlock0(ExplicitConstructorInvocationopt,BlockStatementsopt);
         $EndJava./
     
-    Arguments ::= ( ArgumentListopt )
+    Arguments ::= ( ArgumentList )
         /.$BeginJava
-			r.rule_Arguments0(ArgumentListopt);
+			r.rule_Arguments0(ArgumentList);
         $EndJava./
     
     -- chapter 9

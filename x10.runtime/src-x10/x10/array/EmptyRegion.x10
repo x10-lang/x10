@@ -43,7 +43,7 @@ final class EmptyRegion extends Region{rect} {
     public def contains(that: Region(rank)) = that.isEmpty();
     public def contains(p:Point):Boolean = false;
 
-    private static class ERIterator(myRank:int) implements Iterator[Point(myRank)]() {
+    private static class ERIterator(myRank:int) implements Iterator[Point(myRank)] {
         def this(r:int) { property(r); }
         public def hasNext():boolean = false;
         public def next():Point(myRank) {

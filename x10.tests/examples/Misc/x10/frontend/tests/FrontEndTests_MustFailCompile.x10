@@ -5076,8 +5076,8 @@ class TestOverloadingAndConstraints_ctors_macros {
 interface TestTypeDefOverloadingAndConstraints {
 	static class Foo[T] {}
 
-	static type m00() = Int; 
-	static type m00() = Double; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m00 = x10.lang.Double"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:13,5-28.]
+	static type m00 = Int; 
+	static type m00 = Double; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m00 = x10.lang.Double"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:13,5-28.]
 
 	static type m0(Int) = Int;
 	static type m0(Int) = Int; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)

@@ -141,7 +141,7 @@ final class RectRegion1D extends Region{rect,rank==1} {
         return toRectRegion().eliminate(axis);
     }    
 
-    private static class RRIterator implements Iterator[Point(1)]() {
+    private static class RRIterator implements Iterator[Point(1)] {
         val min:int;
         val max:int;
         var cur:int;

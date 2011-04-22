@@ -390,7 +390,7 @@ final class RectRegion extends Region{rect} {
     }    
 
 
-    private static class RRIterator(myRank:int) implements Iterator[Point(myRank)]() {
+    private static class RRIterator(myRank:int) implements Iterator[Point(myRank)] {
         val min:(int)=>int;
         val max:(int)=>int;
         var done:boolean;
