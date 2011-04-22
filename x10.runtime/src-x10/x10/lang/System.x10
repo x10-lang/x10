@@ -58,7 +58,7 @@ public class System {
      * @see #exit(Int)
      * @see #setExitCode(Int)
      */
-    static def exit():void = exit(-1);
+    static def exit():void { exit(-1); }
 
     /**
      * Sets the system exit code.

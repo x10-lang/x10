@@ -286,7 +286,7 @@ class InfiniteInit234 {
 	def this() {
 		foo();
 	}
-	@NonEscaping private def foo() = foo();
+	@NonEscaping private def foo() { foo(); }
 }
 
 class AllowCallsIfNoReadNorWrite {
@@ -1945,7 +1945,7 @@ class TestOnlyLocalVarAccess {
 	var i:Int;
 	static def testInferReturnType()=test0(null);
 	static def test0(var b:TestOnlyLocalVarAccess) { // we type-checking test0 twice: once to infer its return type (then "b"'s placeTerm is null), then a second time to really type-check it (then the placeTerm is fine)
-		b.i++;
+		return b.i++;
 	}
 
 	static def use(x:Any) {}

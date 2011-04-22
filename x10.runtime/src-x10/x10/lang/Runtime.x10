@@ -367,7 +367,7 @@ import x10.util.concurrent.SimpleLatch;
         def steal() = queue.steal() as Activity;
 
         // push activity at the bottom of the deque
-        def push(activity:Activity):void = queue.push(activity);
+        def push(activity:Activity):void { queue.push(activity); }
 
         // run pending activities
         public operator this():void {

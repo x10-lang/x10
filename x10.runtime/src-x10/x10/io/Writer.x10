@@ -33,33 +33,33 @@ public abstract class Writer {
     public abstract def write(x: Byte): void ; //throws IOException
 
     public def writeByte(x: Byte): void //throws IOException 
-    = Marshal.BYTE.write(this, x);
+    { Marshal.BYTE.write(this, x); }
     public def writeUByte(x: UByte): void //throws IOException 
-    = Marshal.UBYTE.write(this, x);
+    { Marshal.UBYTE.write(this, x); }
     public def writeChar(x: Char): void //throws IOException 
-    =  Marshal.CHAR.write(this, x);
+    {  Marshal.CHAR.write(this, x); }
     public def writeShort(x: Short): void //throws IOException 
-    = Marshal.SHORT.write(this, x);
+    { Marshal.SHORT.write(this, x); }
     public def writeUShort(x: UShort): void //throws IOException 
-    = Marshal.USHORT.write(this, x);
+    { Marshal.USHORT.write(this, x); }
     public def writeInt(x: Int): void //throws IOException 
-    = Marshal.INT.write(this, x);
+    { Marshal.INT.write(this, x); }
     public def writeUInt(x: UInt): void //throws IOException 
-    = Marshal.UINT.write(this, x);
+    { Marshal.UINT.write(this, x); }
     public def writeLong(x: Long): void //throws IOException 
-    = Marshal.LONG.write(this, x);
+    { Marshal.LONG.write(this, x); }
     public def writeULong(x: ULong): void //throws IOException 
-    = Marshal.ULONG.write(this, x);
+    { Marshal.ULONG.write(this, x); }
     public def writeFloat(x: Float): void //throws IOException 
-    = Marshal.FLOAT.write(this, x);
+    { Marshal.FLOAT.write(this, x); }
     public def writeDouble(x: Double): void //throws IOException 
-    = Marshal.DOUBLE.write(this, x);
+    { Marshal.DOUBLE.write(this, x); }
     public def writeBoolean(x: Boolean): void //throws IOException 
-    = Marshal.BOOLEAN.write(this, x);
+    { Marshal.BOOLEAN.write(this, x); }
     
     // made final to satisfy the restrictions on template functions in c++
     public final def write[T](m: Marshal[T], x: T): void //throws IOException 
-    = m.write(this, x);
+    { m.write(this, x); }
 
     public def write(buf: Array[Byte](1)): void //throws IOException 
     {

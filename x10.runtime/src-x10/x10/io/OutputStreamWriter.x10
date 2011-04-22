@@ -48,13 +48,13 @@ public class OutputStreamWriter extends Writer {
     }
     
     public def flush(): void //throws IOException 
-    = out.flush();
+    { out.flush(); }
 
     public def close(): void //throws IOException 
-    = out.close();
+    { out.close(); }
     
     public def write(x: Byte): void //throws IOException 
-    = out.write(x);
+    { out.write(x); }
     
     public def write(buf:Array[Byte](1)): void //throws IOException 
     {

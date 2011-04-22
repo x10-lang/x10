@@ -69,7 +69,7 @@ public abstract class Reader {
     = m.read(this);
 
     public final def read[T](m: Marshal[T], a:Array[T](1)): void  //throws IOException 
-	= read[T](m, a, 0, a.size);
+    { read[T](m, a, 0, a.size); }
     public final def read[T](m: Marshal[T], a:Array[T](1), off: Int, len: Int): void //throws IOException 
     {
         for (var i: Int = off; i < off+len; i++) {

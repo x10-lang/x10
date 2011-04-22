@@ -74,21 +74,21 @@ public interface Marshal[T] {
         public def read(r: Reader): Boolean //throws IOException 
         = r.read() != 0;
         public def write(w: Writer, b: Boolean): void //throws IOException 
-        = w.write((b ? 0 : 1) as Byte);
+        { w.write((b ? 0 : 1) as Byte); }
     }
     
     public static class ByteMarshal implements Marshal[Byte] {
         public def read(r: Reader): Byte //throws IOException 
         = r.read();
         public def write(w: Writer, b: Byte): void //throws IOException 
-        = w.write(b);
+        { w.write(b); }
     }
 
     public class UByteMarshal implements Marshal[UByte] {
         public def read(r: Reader): UByte //throws IOException 
         = (r.readByte() as UByte);
         public def write(w: Writer, ub: UByte): void //throws IOException
-        = w.write(ub as Byte);
+        { w.write(ub as Byte); }
     }
 
     public static class CharMarshal implements Marshal[Char] {
@@ -165,7 +165,7 @@ public interface Marshal[T] {
         public def read(r: Reader): UShort //throws IOException 
         = (r.readShort() as UShort);
         public def write(w: Writer, us: UShort): void //throws IOException
-        = w.writeShort(us as Short);
+        { w.writeShort(us as Short); }
     }    
  
      public static class IntMarshal implements Marshal[Int] {
@@ -195,7 +195,7 @@ public interface Marshal[T] {
         public def read(r: Reader): UInt //throws IOException 
         = (r.readInt() as UInt);
         public def write(w: Writer, ui: UInt): void //throws IOException
-        = w.writeInt(ui as Int);
+        { w.writeInt(ui as Int); }
     }
     
     public static class LongMarshal implements Marshal[Long] {
@@ -224,7 +224,7 @@ public interface Marshal[T] {
         public def read(r: Reader): ULong //throws IOException 
         = (r.readLong() as ULong);
         public def write(w: Writer, ul: ULong): void //throws IOException
-        = w.writeLong(ul as Long);
+        { w.writeLong(ul as Long); }
     }
 
     public static class FloatMarshal implements Marshal[Float] {

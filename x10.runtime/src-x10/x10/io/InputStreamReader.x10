@@ -74,11 +74,11 @@ public class InputStreamReader extends Reader {
     = stream.available();
 
     public def skip(off: Int): void //throws IOException 
-    = stream.skip(off);
+    { stream.skip(off); }
 
     public def mark(off: Int): void //throws IOException 
-    = stream.mark(off);
+    { stream.mark(off); }
     public def reset(): void //throws IOException 
-    = stream.reset();
+    { stream.reset(); }
     public def markSupported() = stream.markSupported();
 }

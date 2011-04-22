@@ -301,7 +301,7 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
 
         public final def hasNext() = it.hasNext();
         public final def next(): Point(rank) = it.next() as Point(rank);
-        public final def remove() = it.remove();
+        public final def remove() { it.remove(); }
     }
 
     public def iterator(): Iterator[Point(rank)] {
