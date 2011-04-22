@@ -544,30 +544,31 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         	return this.type(xts.unknownType(position()));
         
         if (op == EQ || op == NE || op == LT || op == GT || op == LE || op == GE) {
-            Object lv = left.isConstant() ? left.constantValue() : null;
-            Object rv = right.isConstant() ? right.constantValue() : null;
-            
-            // If comparing signed vs. unsigned, check if one operand is a constant convertible to the other (base) type.
-            // If so, insert the conversion and check again.
-            
-            if ((xts.isSigned(lbase) && xts.isUnsigned(rbase)) || (xts.isUnsigned(lbase) && xts.isSigned(rbase))) {
-                try {
-                    if (lv != null && xts.numericConversionValid(rbase, lbase, lv, context)) {
-                        Expr e = Converter.attemptCoercion(tc, left, rbase);
-                        if (e == left)
-                            return this.type(xts.Boolean());
-                        if (e != null)
-                            return Converter.check(this.left(e), tc);
-                    }
-                    if (rv != null && xts.numericConversionValid(lbase, rbase, rv, context)) {
-                        Expr e = Converter.attemptCoercion(tc, right, lbase);
-                        if (e == right)
-                            return this.type(xts.Boolean());
-                        if (e != null)
-                            return Converter.check(this.right(e), tc);
-                    }
-                } catch (SemanticException e) { } // FIXME
-            }
+            // XTENLANG-2156
+            //Object lv = left.isConstant() ? left.constantValue() : null;
+            //Object rv = right.isConstant() ? right.constantValue() : null;
+            //
+            //// If comparing signed vs. unsigned, check if one operand is a constant convertible to the other (base) type.
+            //// If so, insert the conversion and check again.
+            //
+            //if ((xts.isSigned(lbase) && xts.isUnsigned(rbase)) || (xts.isUnsigned(lbase) && xts.isSigned(rbase))) {
+            //    try {
+            //        if (lv != null && xts.numericConversionValid(rbase, lbase, lv, context)) {
+            //            Expr e = Converter.attemptCoercion(tc, left, rbase);
+            //            if (e == left)
+            //                return this.type(xts.Boolean());
+            //            if (e != null)
+            //                return Converter.check(this.left(e), tc);
+            //        }
+            //        if (rv != null && xts.numericConversionValid(lbase, rbase, rv, context)) {
+            //            Expr e = Converter.attemptCoercion(tc, right, lbase);
+            //            if (e == right)
+            //                return this.type(xts.Boolean());
+            //            if (e != null)
+            //                return Converter.check(this.right(e), tc);
+            //        }
+            //    } catch (SemanticException e) { } // FIXME
+            //}
             
             if (xts.isUnsigned(lbase) && xts.isSigned(rbase))
                 Errors.issue(tc.job(),
