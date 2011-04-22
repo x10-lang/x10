@@ -1173,9 +1173,9 @@ public class Errors {
 		private static final long serialVersionUID = 3614407683430453528L;
 
 		public CannotReferToTypeParameterFromStaticContext(ParameterType pt, Def def, Position p) {
-			super("Cannot refer to type parameter of decleration from a static context." +
+			super("Cannot refer to type parameter of declaration from a static context." +
 					"\n\t Parameter: " + pt.fullName() +
-					"\n\t Decleration: " + def, p);
+					"\n\t declaration: " + def, p);
 		}
 	}
 	public static class CannotQualifyTypeParameter extends EqualByTypeAndPosException {
@@ -1183,9 +1183,9 @@ public class Errors {
 		private static final long serialVersionUID = 456124673024566425L;
 
 		public CannotQualifyTypeParameter(ParameterType pt, Def def, Flags flags, Position p) {
-			super("Cannot qualify type parameter of decleration with flags." + 
+			super("Cannot qualify type parameter of declaration with flags." + 
 					"\n\t Parameter: " + pt.fullName() + 
-					"\n\t Decleration: " + def + 
+					"\n\t declaration: " + def + 
 					"\n\t Flags: " + flags, p);
 		}
 	}
@@ -1524,7 +1524,7 @@ public class Errors {
 
 		public ClassTypeMustHaveEnclosingInstance(ClassType ct, ClassType superContainer, Position p) {
 			super("Class type must have an enclosing instance that is a subtype." +
-					"\n\t Actuall class type: " + ct +
+					"\n\t Actual class type: " + ct +
 					"\n\t Expected enclosing instance of subtype: " + superContainer, p);
         }
     }
@@ -1650,23 +1650,21 @@ public class Errors {
         }
     }
 	public static class MustReturnValueFromNonVoidMethod extends EqualByTypeAndPosException {
-	    private static final long serialVersionUID = 8449016684539457751L;
-	    public MustReturnValueFromNonVoidMethod(Position p) {
-	        super("Must return value from non-void method.", p);
-	    }
-	}
+        
+		private static final long serialVersionUID = 8449016684539457751L;
+
+		public MustReturnValueFromNonVoidMethod(Position p) {
+            super("Must return value from non-void method.", p);
+        }
+    }
 	public static class CannotReturnValueFromVoidMethod extends EqualByTypeAndPosException {
-	    private static final long serialVersionUID = -2211763341228911088L;
-	    public CannotReturnValueFromVoidMethod(Position p) {
-	        super("Cannot return value from void method or closure.", p);
-	    }
-	}
-	public static class CannotReturnValueFromConstructor extends EqualByTypeAndPosException {
-        private static final long serialVersionUID = 833533689299328410L;
-        public CannotReturnValueFromConstructor(Position p) {
-	        super("Cannot return value from a constructor.", p);
-	    }
-	}
+        
+		private static final long serialVersionUID = -2211763341228911088L;
+
+		public CannotReturnValueFromVoidMethod(Position p) {
+            super("Cannot return value from void method or closure.", p);
+        }
+    }
 	public static class SelfMayOnlyBeUsedWithinDependentType extends EqualByTypeAndPosException {
         
 		private static final long serialVersionUID = 5580046365659081850L;
