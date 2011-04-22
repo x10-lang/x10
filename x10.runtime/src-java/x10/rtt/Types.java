@@ -47,6 +47,37 @@ public class Types {
         return s;
     }
 
+    // Fast implementation of Any.hashCode() without boxing
+    public static int hashCode(Object obj) {
+        return obj.hashCode();
+    }
+    public static int hashCode(boolean value) {
+        return value ? 1231 : 1237;
+    }
+//    public static int hashCode(char value) {
+//        return value;
+//    }
+//    public static int hashCode(byte value) {
+//        return value;
+//    }
+//    public static int hashCode(short value) {
+//        return value;
+//    }
+    public static int hashCode(int value) {
+        // for char, byte, short and int 
+        return value;
+    }
+    public static int hashCode(long value) {
+        return (int)(value ^ (value >>> 32));
+    }
+    public static int hashCode(float value) {
+        return Float.floatToIntBits(value);
+    }
+    public static int hashCode(double value) {
+        long bits = Double.doubleToLongBits(value);
+        return (int)(bits ^ (bits >>> 32));
+    }
+
     // not used
 //    public static RuntimeType runtimeType(Class<?> c) {
 //        return new RuntimeType<Class<?>>(c);
