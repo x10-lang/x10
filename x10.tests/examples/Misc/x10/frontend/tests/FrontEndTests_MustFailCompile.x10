@@ -4847,8 +4847,8 @@ class XTENLANG_2456 {
 class Test1[T] {T haszero} {
 	val z = Zero.get[T]();
 }
-class Test2[T] {T haszero, T<:Object} { // ShouldNotBeERR ShouldNotBeERR
-	val z = Zero.get[T](); // ShouldNotBeERR
+class Test2[T] {T haszero, T<:Object} {
+	val z = Zero.get[T]();
 }
 
 class LikeGlobalRef[T] {
@@ -4878,7 +4878,7 @@ class Accumulator4[T] {
   private val root = GlobalRef[Accumulator4[T]](this);
 }
 class Accumulator5[T] {T haszero} {
-  private val root = GlobalRef[Accumulator5[T]](this); // ShouldNotBeERR ShouldNotBeERR ShouldNotBeERR [Inconsistent constructor return type, Method or static constructor not found for given call., Semantic Error: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor]
+  private val root = GlobalRef[Accumulator5[T]](this);
 }
 }
 

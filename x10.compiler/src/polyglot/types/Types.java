@@ -585,8 +585,7 @@ public class Types {
 	        // we have some type "T" which is a type parameter. Does it have a zero value?
 	        // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
 	        // Similarly, Int<:T doesn't help, because  Int<:Any{self!=null}
-	        // However, T==Int does help
-	        if (isConstrained(t)) return false; // if we have constraints on the type parameter, e.g., T{self!=null}, then we give up and return false.
+	        // However, T==Int does help, and so does an explicit T hasZero
 	        TypeConstraint typeConst = xc.currentTypeConstraint();
 	        List<SubtypeConstraint> env =  typeConst.terms();
 	        for (SubtypeConstraint sc : env) {
@@ -659,13 +658,11 @@ public class Types {
 	        }
 	        return true;
 	    }
-	    if (zeroLit==null) return false;
-	    if (ts.isParameterType(t)) {
+	    if (ts.isParameterType(t)) { // FIXME: why is this code duplicated?
 	        // we have some type "T" which is a type parameter. Does it have a zero value?
 	        // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
 	        // Similarly, Int<:T doesn't help, because  Int<:Any{self!=null}
-	        // However, T==Int does help
-	        if (isConstrained(t)) return false; // if we have constraints on the type parameter, e.g., T{self!=null}, then we give up and return false.
+	        // However, T==Int does help, and so does an explicit T hasZero
 	        TypeConstraint typeConst = xc.currentTypeConstraint();
 	        List<SubtypeConstraint> env =  typeConst.terms();
 	        for (SubtypeConstraint sc : env) {
@@ -689,6 +686,7 @@ public class Types {
 	            }
 	        }
 	    }
+	    if (zeroLit==null) return false;
 	    if (!isConstrained(t)) return true;
 	    final CConstraint constraint = Types.xclause(t);
 	    final CConstraint zeroCons = new CConstraint(constraint.self());
