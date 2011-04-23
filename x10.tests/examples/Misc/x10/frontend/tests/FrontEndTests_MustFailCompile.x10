@@ -4656,7 +4656,7 @@ class Outer {
 			//Semantic Error: Type is missing parameters.
 			// Type: Outer.A
 			// Expected parameters: [T]			
-			val z3 = outer.new A[Double](i); // ShouldNotBeERR ShouldNotBeERR
+			val z3 = outer.new A[Double](i);
 		}
 	}
 }
