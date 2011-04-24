@@ -19,8 +19,9 @@ import x10.array.Array;
 import x10.rtt.RuntimeType;
 
 public abstract class ThrowableUtilities {
-    
-    static public x10.core.Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
+	
+	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Exception(RuntimeException) must be sync with TryCatchExpander.x10RuntimeExceptions
+	public static x10.core.Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
         java.lang.String newExcName = "x10.lang.RuntimeException";
         if (e instanceof java.lang.ArithmeticException) {
             newExcName = "x10.lang.ArithmeticException";
@@ -57,7 +58,8 @@ public abstract class ThrowableUtilities {
         throw new java.lang.Error(e);
     }
 
-    static public x10.core.Throwable getCorrespondingX10Exception(java.lang.Exception e) {
+	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Exception(Exception) must be sync with TryCatchExpander.x10RuntimeExceptions
+	public static x10.core.Throwable getCorrespondingX10Exception(java.lang.Exception e) {
         java.lang.String newExcName = "x10.lang.Exception";
         if (e instanceof java.io.FileNotFoundException) {
             newExcName = "x10.io.FileNotFoundException";
@@ -86,7 +88,8 @@ public abstract class ThrowableUtilities {
         throw new java.lang.Error(e);
     }
 
-    static public x10.core.Throwable getCorrespondingX10Error(java.lang.Error e) {
+	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Error(Error) must be sync with TryCatchExpander.x10Errors
+	public static x10.core.Throwable getCorrespondingX10Error(java.lang.Error e) {
         java.lang.String newExcName = "x10.lang.Error";
         if (e instanceof java.lang.OutOfMemoryError) {
             newExcName = "x10.lang.OutOfMemoryError";
@@ -108,8 +111,53 @@ public abstract class ThrowableUtilities {
         } catch (java.lang.NoSuchMethodException e4) {
         } catch (java.lang.reflect.InvocationTargetException e5) {
         }
-        System.out.println(e);
         throw new java.lang.Error(e);
+    }
+
+    // N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Throwable(Throwable) must be sync with TryCatchExpander.x10Throwables
+	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Throwable e) {
+        java.lang.String newExcName = "x10.lang.Throwable";
+
+        try {
+            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { e.getMessage() });
+            t.setStackTrace(e.getStackTrace());
+            return t;
+        } catch (java.lang.ClassNotFoundException e1) {
+        } catch (java.lang.InstantiationException e2) {
+        } catch (java.lang.IllegalAccessException e3) {
+        } catch (java.lang.NoSuchMethodException e4) {
+        } catch (java.lang.reflect.InvocationTargetException e5) {
+        }
+        throw new java.lang.Error(e);
+    }
+
+    public static x10.core.Throwable getX10RuntimeException(java.lang.RuntimeException e) {
+    	return getCorrespondingX10Exception(e);
+    }
+    public static x10.core.Throwable getX10Exception(java.lang.Exception e) {
+    	if (e instanceof java.lang.RuntimeException) {
+    		return getCorrespondingX10Exception((java.lang.RuntimeException) e);
+    	}
+    	else /*if (e instanceof java.lang.Exception)*/ {
+    		return getCorrespondingX10Exception(e);
+    	}
+    }
+    public static x10.core.Throwable getX10Error(java.lang.Error e) {
+    	return getCorrespondingX10Error(e);
+    }
+    public static x10.core.Throwable getX10Throwable(java.lang.Throwable e) {
+    	if (e instanceof java.lang.RuntimeException) {
+    		return getCorrespondingX10Exception((java.lang.RuntimeException) e);
+    	}
+    	else if (e instanceof java.lang.Exception) {
+    		return getCorrespondingX10Exception((java.lang.Exception) e);
+    	}
+    	else if (e instanceof java.lang.Error) {
+    		return getCorrespondingX10Error((java.lang.Error) e);
+    	}
+    	else /*if (e instanceof java.lang.Throwable)*/ {
+    		return getCorrespondingX10Throwable(e);
+    	}
     }
 
     public static <T> T UnsupportedOperationException(java.lang.String message) {
