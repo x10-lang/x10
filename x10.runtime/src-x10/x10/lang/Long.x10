@@ -336,14 +336,16 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
+    // @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
+    @Native("java", "java.lang.Long.parseLong(#s, #radix)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
     public native static def parseLong(s:String, radix:Int): Long; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "x10.core.Signed.parseLong(#s)")
+    // @Native("java", "x10.core.Signed.parseLong(#s)")
+    @Native("java", "java.lang.Long.parseLong(#s)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
     public native static def parseLong(s:String): Long; //throwsNumberFormatException;
 
@@ -354,7 +356,8 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the Long represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
-    @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
+    // @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
+    @Native("java", "java.lang.Long.parseLong(#s, #radix)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
     public native static def parse(s:String, radix:Int): Long; //throwsNumberFormatException;
 
@@ -364,7 +367,8 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the Long represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
-    @Native("java", "x10.core.Signed.parseLong(#s)")
+    // @Native("java", "x10.core.Signed.parseLong(#s)")
+    @Native("java", "java.lang.Long.parseLong(#s)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
     public native static def parse(s:String): Long; //throwsNumberFormatException;
 

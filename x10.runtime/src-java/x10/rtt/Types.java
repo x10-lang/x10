@@ -78,36 +78,6 @@ public class Types {
         return (int)(bits ^ (bits >>> 32));
     }
     
-    // Fast implementation of Any.toString() without boxing
-    public static String toString(Object value) {
-        return value.toString();
-    }
-    public static String toString(boolean value) {
-        return String.valueOf(value);
-    }
-    public static String toString(char value) {
-        return String.valueOf(value);
-    }
-//    public static String toString(byte value) {
-//        return String.valueOf((int)value);
-//    }
-//    public static String toString(short value) {
-//        return String.valueOf((int)value);
-//    }
-    public static String toString(int value) {
-        // for byte, short and int
-        return String.valueOf(value);
-    }
-    public static String toString(long value) {
-        return String.valueOf(value);
-    }
-    public static String toString(float value) {
-        return String.valueOf(value);
-    }
-    public static String toString(double value) {
-        return String.valueOf(value);
-    }
-
     // not used
 //    public static RuntimeType runtimeType(Class<?> c) {
 //        return new RuntimeType<Class<?>>(c);

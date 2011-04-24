@@ -22,68 +22,78 @@ public abstract class Signed {
         }
     }
 
-    public static byte parseByte(java.lang.String s, int radix) {
-        try {
-            return java.lang.Byte.parseByte(s, radix);
-        } catch (java.lang.NumberFormatException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+    public static java.lang.String toString(short a, int radix) {
+        if (a >= 0) {
+            return Integer.toString(a, radix);
+        } else {
+            int b = (0x80000000 - a) & 0x7FFFFFFF;
+            return "-" + Integer.toString(b, radix);
         }
     }
 
-    public static byte parseByte(java.lang.String s) {
-        try {
-            return java.lang.Byte.parseByte(s);
-        } catch (java.lang.NumberFormatException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
-    
-    public static short parseShort(java.lang.String s, int radix) {
-        try {
-            return java.lang.Short.parseShort(s, radix);
-        } catch (java.lang.NumberFormatException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
-
-    public static short parseShort(java.lang.String s) {
-        try {
-            return java.lang.Short.parseShort(s);
-        } catch (java.lang.NumberFormatException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
-    
-    public static int parseInt(java.lang.String s, int radix) {
-        try {
-            return java.lang.Integer.parseInt(s, radix);
-        } catch (java.lang.NumberFormatException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
-
-    public static int parseInt(java.lang.String s) {
-        try {
-            return java.lang.Integer.parseInt(s);
-        } catch (java.lang.NumberFormatException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
-    
-    public static long parseLong(java.lang.String s, int radix) {
-        try {
-            return java.lang.Long.parseLong(s, radix);
-        } catch (java.lang.NumberFormatException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
-
-    public static long parseLong(java.lang.String s) {
-        try {
-            return java.lang.Long.parseLong(s);
-        } catch (java.lang.NumberFormatException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
+    // not used
+//    public static byte parseByte(java.lang.String s, int radix) {
+//        try {
+//            return java.lang.Byte.parseByte(s, radix);
+//        } catch (java.lang.NumberFormatException e) {
+//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
+//
+//    public static byte parseByte(java.lang.String s) {
+//        try {
+//            return java.lang.Byte.parseByte(s);
+//        } catch (java.lang.NumberFormatException e) {
+//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
+//    
+//    public static short parseShort(java.lang.String s, int radix) {
+//        try {
+//            return java.lang.Short.parseShort(s, radix);
+//        } catch (java.lang.NumberFormatException e) {
+//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
+//
+//    public static short parseShort(java.lang.String s) {
+//        try {
+//            return java.lang.Short.parseShort(s);
+//        } catch (java.lang.NumberFormatException e) {
+//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
+//    
+//    public static int parseInt(java.lang.String s, int radix) {
+//        try {
+//            return java.lang.Integer.parseInt(s, radix);
+//        } catch (java.lang.NumberFormatException e) {
+//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
+//
+//    public static int parseInt(java.lang.String s) {
+//        try {
+//            return java.lang.Integer.parseInt(s);
+//        } catch (java.lang.NumberFormatException e) {
+//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
+//    
+//    public static long parseLong(java.lang.String s, int radix) {
+//        try {
+//            return java.lang.Long.parseLong(s, radix);
+//        } catch (java.lang.NumberFormatException e) {
+//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
+//
+//    public static long parseLong(java.lang.String s) {
+//        try {
+//            return java.lang.Long.parseLong(s);
+//        } catch (java.lang.NumberFormatException e) {
+//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
     
 }

@@ -12,6 +12,13 @@
 package x10.core;
 
 public abstract class Floats {
+	
+	/*
+	 * Java does not have {f,d}2{b,s} bytecodes and implements conversions from {float,double} to {byte,short} 
+	 * as {float,double} to int followed by int to {byte,short}.
+	 * Since int to {byte,short} conversions in Java do not handle overflows, we need the following functions
+	 * to implement semantics of X10 conversions correctly.
+	 */
     public static byte toByte(float a) {
         int ia = (int)a;
         if (ia > Byte.MAX_VALUE) return Byte.MAX_VALUE;
