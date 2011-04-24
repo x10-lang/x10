@@ -305,7 +305,8 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * Returns a String representation of this Long as a hexadecimal number.
      * @return a String representation of this Long as a hexadecimal number.
      */
-    @Native("java", "java.lang.Long.toHexString(#this)")
+    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
+    @Native("java", "java.lang.Long.toString(#this, 16)")
     @Native("c++", "x10aux::long_utils::toHexString(#0)")
     public native def toHexString(): String;
 
@@ -313,7 +314,8 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * Returns a String representation of this Long as an octal number.
      * @return a String representation of this Long as an octal number.
      */
-    @Native("java", "java.lang.Long.toOctalString(#this)")
+    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
+    @Native("java", "java.lang.Long.toString(#this, 8)")
     @Native("c++", "x10aux::long_utils::toOctalString(#0)")
     public native def toOctalString(): String;
 
@@ -321,7 +323,8 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * Returns a String representation of this Long as a binary number.
      * @return a String representation of this Long as a binary number.
      */
-    @Native("java", "java.lang.Long.toBinaryString(#this)")
+    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
+    @Native("java", "java.lang.Long.toString(#this, 2)")
     @Native("c++", "x10aux::long_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;
 
@@ -336,16 +339,16 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    // @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
-    @Native("java", "java.lang.Long.parseLong(#s, #radix)")
+    @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
+    // @Native("java", "java.lang.Long.parseLong(#s, #radix)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
     public native static def parseLong(s:String, radix:Int): Long; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    // @Native("java", "x10.core.Signed.parseLong(#s)")
-    @Native("java", "java.lang.Long.parseLong(#s)")
+    @Native("java", "x10.core.Signed.parseLong(#s)")
+    // @Native("java", "java.lang.Long.parseLong(#s)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
     public native static def parseLong(s:String): Long; //throwsNumberFormatException;
 
@@ -356,8 +359,8 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the Long represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
-    // @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
-    @Native("java", "java.lang.Long.parseLong(#s, #radix)")
+    @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
+    // @Native("java", "java.lang.Long.parseLong(#s, #radix)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
     public native static def parse(s:String, radix:Int): Long; //throwsNumberFormatException;
 
@@ -367,8 +370,8 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      * @return the Long represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
-    // @Native("java", "x10.core.Signed.parseLong(#s)")
-    @Native("java", "java.lang.Long.parseLong(#s)")
+    @Native("java", "x10.core.Signed.parseLong(#s)")
+    // @Native("java", "java.lang.Long.parseLong(#s)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
     public native static def parse(s:String): Long; //throwsNumberFormatException;
 

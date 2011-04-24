@@ -420,7 +420,8 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * Returns a String representation of this ULong as a hexadecimal number.
      * @return a String representation of this ULong as a hexadecimal number.
      */
-    // @Native("java", "java.lang.Long.toHexString(#this)")
+    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
+    @Native("java", "java.lang.Long.toHexString((#this).longVal)")
     @Native("c++", "x10aux::long_utils::toHexString(#0)")
     public def toHexString(): String = this.toString(16);
 
@@ -428,7 +429,8 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * Returns a String representation of this ULong as an octal number.
      * @return a String representation of this ULong as an octal number.
      */
-    // @Native("java", "java.lang.Long.toOctalString(#this)")
+    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
+    @Native("java", "java.lang.Long.toOctalString((#this).longVal)")
     @Native("c++", "x10aux::long_utils::toOctalString(#0)")
     public def toOctalString(): String = this.toString(8);
 
@@ -436,7 +438,8 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      * Returns a String representation of this ULong as a binary number.
      * @return a String representation of this ULong as a binary number.
      */
-    // @Native("java", "java.lang.Long.toBinaryString(#this)")
+    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
+    @Native("java", "java.lang.Long.toBinaryString((#this).longVal)")
     @Native("c++", "x10aux::long_utils::toBinaryString(#0)")
     public def toBinaryString(): String = this.toString(2);
 

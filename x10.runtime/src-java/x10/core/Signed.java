@@ -31,69 +31,77 @@ public abstract class Signed {
         }
     }
 
-    // not used
-//    public static byte parseByte(java.lang.String s, int radix) {
-//        try {
-//            return java.lang.Byte.parseByte(s, radix);
-//        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-//        }
-//    }
-//
-//    public static byte parseByte(java.lang.String s) {
-//        try {
-//            return java.lang.Byte.parseByte(s);
-//        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-//        }
-//    }
-//    
-//    public static short parseShort(java.lang.String s, int radix) {
-//        try {
-//            return java.lang.Short.parseShort(s, radix);
-//        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-//        }
-//    }
-//
-//    public static short parseShort(java.lang.String s) {
-//        try {
-//            return java.lang.Short.parseShort(s);
-//        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-//        }
-//    }
-//    
-//    public static int parseInt(java.lang.String s, int radix) {
-//        try {
-//            return java.lang.Integer.parseInt(s, radix);
-//        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-//        }
-//    }
-//
-//    public static int parseInt(java.lang.String s) {
-//        try {
-//            return java.lang.Integer.parseInt(s);
-//        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-//        }
-//    }
-//    
-//    public static long parseLong(java.lang.String s, int radix) {
-//        try {
-//            return java.lang.Long.parseLong(s, radix);
-//        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-//        }
-//    }
-//
-//    public static long parseLong(java.lang.String s) {
-//        try {
-//            return java.lang.Long.parseLong(s);
-//        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
-//        }
-//    }
+    // TODO remove the followings
+    @Deprecated
+    public static byte parseByte(java.lang.String s, int radix) {
+        try {
+            return java.lang.Byte.parseByte(s, radix);
+        } catch (java.lang.NumberFormatException e) {
+            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+
+    @Deprecated
+    public static byte parseByte(java.lang.String s) {
+        try {
+            return java.lang.Byte.parseByte(s);
+        } catch (java.lang.NumberFormatException e) {
+            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+    
+    @Deprecated
+    public static short parseShort(java.lang.String s, int radix) {
+        try {
+            return java.lang.Short.parseShort(s, radix);
+        } catch (java.lang.NumberFormatException e) {
+            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+
+    @Deprecated
+    public static short parseShort(java.lang.String s) {
+        try {
+            return java.lang.Short.parseShort(s);
+        } catch (java.lang.NumberFormatException e) {
+            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+    
+    @Deprecated
+    public static int parseInt(java.lang.String s, int radix) {
+        try {
+            return java.lang.Integer.parseInt(s, radix);
+        } catch (java.lang.NumberFormatException e) {
+            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+
+    @Deprecated
+    public static int parseInt(java.lang.String s) {
+        try {
+            return java.lang.Integer.parseInt(s);
+        } catch (java.lang.NumberFormatException e) {
+            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+    
+    @Deprecated
+    public static long parseLong(java.lang.String s, int radix) {
+        try {
+            return java.lang.Long.parseLong(s, radix);
+        } catch (java.lang.NumberFormatException e) {
+            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+
+    @Deprecated
+    public static long parseLong(java.lang.String s) {
+        try {
+            return java.lang.Long.parseLong(s);
+        } catch (java.lang.NumberFormatException e) {
+            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
     
 }

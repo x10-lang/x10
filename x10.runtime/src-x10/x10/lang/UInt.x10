@@ -399,7 +399,8 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * Returns a String representation of this UInt as a hexadecimal number.
      * @return a String representation of this UInt as a hexadecimal number.
      */
-    // @Native("java", "java.lang.Integer.toHexString(#this)")
+    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
+    @Native("java", "java.lang.Integer.toHexString((#this).intVal)")
     @Native("c++", "x10aux::int_utils::toHexString(#0)")
     public def toHexString(): String = this.intVal.toHexString();
 
@@ -407,7 +408,8 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * Returns a String representation of this UInt as an octal number.
      * @return a String representation of this UInt as an octal number.
      */
-    // @Native("java", "java.lang.Integer.toOctalString(#this)")
+    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
+    @Native("java", "java.lang.Integer.toOctalString((#this).intVal)")
     @Native("c++", "x10aux::int_utils::toOctalString(#0)")
     public def toOctalString(): String = this.intVal.toOctalString();
 
@@ -415,7 +417,8 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * Returns a String representation of this UInt as a binary number.
      * @return a String representation of this UInt as a binary number.
      */
-    // @Native("java", "java.lang.Integer.toBinaryString(#this)")
+    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
+    @Native("java", "java.lang.Integer.toBinaryString((#this).intVal)")
     @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
     public def toBinaryString(): String = this.intVal.toBinaryString();
 
