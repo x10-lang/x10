@@ -131,31 +131,29 @@ public abstract class ThrowableUtilities {
         throw new java.lang.Error(e);
     }
 
-    public static x10.core.Throwable getX10RuntimeException(java.lang.RuntimeException e) {
+    public static x10.core.Throwable convertJavaRuntimeException(java.lang.RuntimeException e) {
     	return getCorrespondingX10Exception(e);
     }
-    public static x10.core.Throwable getX10Exception(java.lang.Exception e) {
+    public static x10.core.Throwable convertJavaException(java.lang.Exception e) {
     	if (e instanceof java.lang.RuntimeException) {
     		return getCorrespondingX10Exception((java.lang.RuntimeException) e);
-    	}
-    	else /*if (e instanceof java.lang.Exception)*/ {
+    	} else
+    	/*if (e instanceof java.lang.Exception)*/ {
     		return getCorrespondingX10Exception(e);
     	}
     }
-    public static x10.core.Throwable getX10Error(java.lang.Error e) {
+    public static x10.core.Throwable convertJavaError(java.lang.Error e) {
     	return getCorrespondingX10Error(e);
     }
-    public static x10.core.Throwable getX10Throwable(java.lang.Throwable e) {
+    public static x10.core.Throwable convertJavaThrowable(java.lang.Throwable e) {
     	if (e instanceof java.lang.RuntimeException) {
     		return getCorrespondingX10Exception((java.lang.RuntimeException) e);
-    	}
-    	else if (e instanceof java.lang.Exception) {
+    	} else if (e instanceof java.lang.Exception) {
     		return getCorrespondingX10Exception((java.lang.Exception) e);
-    	}
-    	else if (e instanceof java.lang.Error) {
+    	} else if (e instanceof java.lang.Error) {
     		return getCorrespondingX10Error((java.lang.Error) e);
-    	}
-    	else /*if (e instanceof java.lang.Throwable)*/ {
+    	} else
+    	/*if (e instanceof java.lang.Throwable)*/ {
     		return getCorrespondingX10Throwable(e);
     	}
     }

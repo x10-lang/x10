@@ -46,6 +46,9 @@ import polyglot.visit.TypeChecker;
 import x10.visit.X10PrettyPrinterVisitor;
 
 public class TryCatchExpander extends Expander {
+	
+	private static final boolean reduceCatches = true;
+	private static final String TEMPORARY_EXCEPTION_VARIABLE_NAME = "$exc$";
 
 	private class CatchBlock {
 		private final String exClass;
@@ -93,7 +96,6 @@ public class TryCatchExpander extends Expander {
 		    for (String exc : x10Exceptions)
 		        if (catchExClassName.equals(exc)) {
 		            rc |= EXCEPTION_CONVERSION;
-//		            rc |= RUNTIME_EXCEPTION_CONVERSION;
 		            break;
 		        }
             for (String exc : x10Errors)
@@ -104,9 +106,6 @@ public class TryCatchExpander extends Expander {
             for (String exc : x10Throwables)
                 if (catchExClassName.equals(exc)) {
                     rc |= THROWABLE_CONVERSION;
-//                    rc |= ERROR_CONVERSION;
-//		            rc |= EXCEPTION_CONVERSION;
-//		            rc |= RUNTIME_EXCEPTION_CONVERSION;
                     break;
                 }
             return rc;
@@ -157,7 +156,6 @@ public class TryCatchExpander extends Expander {
             w.write("try {");
         }
 
-
 		if (block != null) {
 			er.prettyPrint(block, tr);
 		} else if (child != null) {
@@ -167,37 +165,59 @@ public class TryCatchExpander extends Expander {
 		if (additionalTryCatchForConversion != NO_CONVERSION) {
 	        w.write("}");
 
-            w.write("catch (x10.core.Throwable __t__) {");
-            w.write("throw __t__;");
+            w.write("catch (x10.core.Throwable " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+            w.write("throw " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ";");
             w.write("}");
 
-            if ((additionalTryCatchForConversion & RUNTIME_EXCEPTION_CONVERSION) != 0) {
-                w.write("catch (java.lang.RuntimeException __e__) {");
-//                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(__e__);");
-                w.write("throw x10.core.ThrowableUtilities.getX10RuntimeException(__e__);");
-                w.write("}");
-            }
-
-            if ((additionalTryCatchForConversion & EXCEPTION_CONVERSION) != 0) {
-                w.write("catch (java.lang.Exception __e__) {");
-//                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(__e__);");
-                w.write("throw x10.core.ThrowableUtilities.getX10Exception(__e__);");
-                w.write("}");
-            }
-
-            if ((additionalTryCatchForConversion & ERROR_CONVERSION) != 0) {
-                w.write("catch (java.lang.Error __e__) {");
-//                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Error(__e__);");
-                w.write("throw x10.core.ThrowableUtilities.getX10Error(__e__);");
-                w.write("}");
-            }
-
+            if (reduceCatches) {
+            	
             if ((additionalTryCatchForConversion & THROWABLE_CONVERSION) != 0) {
-                w.write("catch (java.lang.Throwable __e__) {");
-//                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(__e__);");
-                w.write("throw x10.core.ThrowableUtilities.getX10Throwable(__e__);");
+                w.write("catch (java.lang.Throwable " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+                w.write("throw x10.core.ThrowableUtilities.convertJavaThrowable(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                w.write("}");
+            } else {
+            	if ((additionalTryCatchForConversion & EXCEPTION_CONVERSION) != 0) {
+            		w.write("catch (java.lang.Exception " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+            		w.write("throw x10.core.ThrowableUtilities.convertJavaException(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+            		w.write("}");
+            	}
+                else if ((additionalTryCatchForConversion & RUNTIME_EXCEPTION_CONVERSION) != 0) {
+                	w.write("catch (java.lang.RuntimeException " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+                	w.write("throw x10.core.ThrowableUtilities.convertJavaRuntimeException(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                	w.write("}");
+                }
+                if ((additionalTryCatchForConversion & ERROR_CONVERSION) != 0) {
+                	w.write("catch (java.lang.Error " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+                	w.write("throw x10.core.ThrowableUtilities.convertJavaError(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                	w.write("}");
+                }
+            }
+            
+            } else {
+
+            if ((additionalTryCatchForConversion & RUNTIME_EXCEPTION_CONVERSION) != 0) {
+                w.write("catch (java.lang.RuntimeException " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
                 w.write("}");
             }
+            if ((additionalTryCatchForConversion & EXCEPTION_CONVERSION) != 0) {
+                w.write("catch (java.lang.Exception " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                w.write("}");
+            }
+            if ((additionalTryCatchForConversion & ERROR_CONVERSION) != 0) {
+                w.write("catch (java.lang.Error " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Error(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                w.write("}");
+            }
+            if ((additionalTryCatchForConversion & THROWABLE_CONVERSION) != 0) {
+                w.write("catch (java.lang.Throwable " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+                w.write("throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                w.write("}");
+            }
+            
+            }
+
 		}
 
 		w.write("}");
