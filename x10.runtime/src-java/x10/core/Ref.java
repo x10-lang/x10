@@ -22,11 +22,14 @@ public class Ref implements RefI {
     
 	private static final long serialVersionUID = 1L;
 
+	// N.B. this is called implicitly by all subclasses of Ref
+    public Ref() {}
+
 	public Ref(java.lang.System[] $dummy) {}
 
 	public Ref $init(){return this;}
 	
-    public Ref() {}
+    public static Ref $make() { return new Ref(); }
 
     /* TODO to be removed
     public void $init(Object out$){}
