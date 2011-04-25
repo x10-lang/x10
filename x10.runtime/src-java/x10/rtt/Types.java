@@ -227,16 +227,15 @@ public class Types {
         return false;
     }
 
-    // not used
-//    public static boolean instanceofObject(Object o) {
-//        return o != null && !isStruct(o);
-//    }
-//
-//    public static boolean isStruct(Object o) {
-//        return STRUCT.instanceof$(o) ||
-//        BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
-//        FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
-//    }
+    public static boolean instanceofObject(Object o) {
+        return o != null && !isStruct(o);
+    }
+
+    public static boolean isStruct(Object o) {
+        return STRUCT.instanceof$(o) ||
+        BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
+        FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
+    }
 
     public static boolean asboolean(Object typeParamOrAny) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Boolean");}
