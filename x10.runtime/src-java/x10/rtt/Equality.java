@@ -22,11 +22,6 @@ public class Equality {
     public static int compareTo(boolean a, Comparable b) { return compareTo((Comparable) a, b); }
     
     public static boolean equalsequals(byte a, byte b) { return a == b; }
-    public static boolean equalsequals(byte a, short b) { return a == b; }
-    public static boolean equalsequals(byte a, int b) { return a == b; }
-    public static boolean equalsequals(byte a, long b) { return a == b; }
-    public static boolean equalsequals(byte a, float b) { return a == b; }
-    public static boolean equalsequals(byte a, double b) { return a == b; }
     public static boolean equalsequals(byte a, Object b) { return equalsequals((Object) a, b); }
     public static int compareTo(byte a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(byte a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -36,12 +31,7 @@ public class Equality {
     public static int compareTo(byte a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(byte a, Comparable b) { return compareTo((Comparable) a, b); }
 
-    public static boolean equalsequals(short a, byte b) { return a == b; }
     public static boolean equalsequals(short a, short b) { return a == b; }
-    public static boolean equalsequals(short a, int b) { return a == b; }
-    public static boolean equalsequals(short a, long b) { return a == b; }
-    public static boolean equalsequals(short a, float b) { return a == b; }
-    public static boolean equalsequals(short a, double b) { return a == b; }
     public static boolean equalsequals(short a, Object b) { return equalsequals((Object) a, b); }
     public static int compareTo(short a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(short a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -56,12 +46,7 @@ public class Equality {
     public static int compareTo(char a, char b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(char a, Comparable b) { return compareTo((Comparable) a, b); }
     
-    public static boolean equalsequals(int a, byte b) { return a == b; }
-    public static boolean equalsequals(int a, short b) { return a == b; }
     public static boolean equalsequals(int a, int b) { return a == b; }
-    public static boolean equalsequals(int a, long b) { return a == b; }
-    public static boolean equalsequals(int a, float b) { return a == b; }
-    public static boolean equalsequals(int a, double b) { return a == b; }
     public static boolean equalsequals(int a, Object b) { return equalsequals((Object) a, b); }
     public static int compareTo(int a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(int a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -71,12 +56,7 @@ public class Equality {
     public static int compareTo(int a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(int a, Comparable b) { return compareTo((Comparable) a, b); }
     
-    public static boolean equalsequals(long a, byte b) { return a == b; }
-    public static boolean equalsequals(long a, short b) { return a == b; }
-    public static boolean equalsequals(long a, int b) { return a == b; }
     public static boolean equalsequals(long a, long b) { return a == b; }
-    public static boolean equalsequals(long a, float b) { return a == b; }
-    public static boolean equalsequals(long a, double b) { return a == b; }
     public static boolean equalsequals(long a, Object b) { return equalsequals((Object) a, b); }
     public static int compareTo(long a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(long a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -86,12 +66,7 @@ public class Equality {
     public static int compareTo(long a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(long a, Comparable b) { return compareTo((Comparable) a, b); }
     
-    public static boolean equalsequals(float a, byte b) { return a == b; }
-    public static boolean equalsequals(float a, short b) { return a == b; }
-    public static boolean equalsequals(float a, int b) { return a == b; }
-    public static boolean equalsequals(float a, long b) { return a == b; }
     public static boolean equalsequals(float a, float b) { return a == b; }
-    public static boolean equalsequals(float a, double b) { return a == b; }
     public static boolean equalsequals(float a, Object b) { return equalsequals((Object) a, b); }
     public static int compareTo(float a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(float a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -101,11 +76,6 @@ public class Equality {
     public static int compareTo(float a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(float a, Comparable b) { return compareTo((Comparable) a, b); }
     
-    public static boolean equalsequals(double a, byte b) { return a == b; }
-    public static boolean equalsequals(double a, short b) { return a == b; }
-    public static boolean equalsequals(double a, int b) { return a == b; }
-    public static boolean equalsequals(double a, long b) { return a == b; }
-    public static boolean equalsequals(double a, float b) { return a == b; }
     public static boolean equalsequals(double a, double b) { return a == b; }
     public static boolean equalsequals(double a, Object b) { return equalsequals((Object) a, b); }
     public static int compareTo(double a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -165,113 +135,23 @@ public class Equality {
         if (a instanceof Double && b instanceof Double) {
             return (double) (Double) a == (double) (Double) b;
         }
-        if (a instanceof Double && b instanceof Float) {
-            return (double) (Double) a == (float) (Float) b;
-        }
-        if (a instanceof Double && b instanceof Long) {
-            return (double) (Double) a == (long) (Long) b;
-        }
-        if (a instanceof Double && b instanceof Integer) {
-            return (double) (Double) a == (int) (Integer) b;
-        }
-        if (a instanceof Double && b instanceof Short) {
-            return (double) (Double) a == (short) (Short) b;
-        }
-        if (a instanceof Double && b instanceof Byte) {
-            return (double) (Double) a == (byte) (Byte) b;
-        }
         
-        if (a instanceof Float && b instanceof Double) {
-            return (float) (Float) a == (double) (Double) b;
-        }
         if (a instanceof Float && b instanceof Float) {
             return (float) (Float) a == (float) (Float) b;
         }
-        if (a instanceof Float && b instanceof Long) {
-            return (float) (Float) a == (long) (Long) b;
-        }
-        if (a instanceof Float && b instanceof Integer) {
-            return (float) (Float) a == (int) (Integer) b;
-        }
-        if (a instanceof Float && b instanceof Short) {
-            return (float) (Float) a == (short) (Short) b;
-        }
-        if (a instanceof Float && b instanceof Byte) {
-            return (float) (Float) a == (byte) (Byte) b;
-        }
         
-        if (a instanceof Long && b instanceof Double) {
-            return (long) (Long) a == (double) (Double) b;
-        }
-        if (a instanceof Long && b instanceof Float) {
-            return (long) (Long) a == (float) (Float) b;
-        }
         if (a instanceof Long && b instanceof Long) {
             return (long) (Long) a == (long) (Long) b;
         }
-        if (a instanceof Long && b instanceof Integer) {
-            return (long) (Long) a == (int) (Integer) b;
-        }
-        if (a instanceof Long && b instanceof Short) {
-            return (long) (Long) a == (short) (Short) b;
-        }
-        if (a instanceof Long && b instanceof Byte) {
-            return (long) (Long) a == (byte) (Byte) b;
-        }
         
-        if (a instanceof Integer && b instanceof Double) {
-            return (int) (Integer) a == (double) (Double) b;
-        }
-        if (a instanceof Integer && b instanceof Float) {
-            return (int) (Integer) a == (float) (Float) b;
-        }
-        if (a instanceof Integer && b instanceof Long) {
-            return (int) (Integer) a == (long) (Long) b;
-        }
         if (a instanceof Integer && b instanceof Integer) {
             return (int) (Integer) a == (int) (Integer) b;
         }
-        if (a instanceof Integer && b instanceof Short) {
-            return (int) (Integer) a == (short) (Short) b;
-        }
-        if (a instanceof Integer && b instanceof Byte) {
-            return (int) (Integer) a == (byte) (Byte) b;
-        }
         
-        if (a instanceof Short && b instanceof Double) {
-            return (short) (Short) a == (double) (Double) b;
-        }
-        if (a instanceof Short && b instanceof Float) {
-            return (short) (Short) a == (float) (Float) b;
-        }
-        if (a instanceof Short && b instanceof Long) {
-            return (short) (Short) a == (long) (Long) b;
-        }
-        if (a instanceof Short && b instanceof Integer) {
-            return (short) (Short) a == (int) (Integer) b;
-        }
         if (a instanceof Short && b instanceof Short) {
             return (short) (Short) a == (short) (Short) b;
         }
-        if (a instanceof Short && b instanceof Byte) {
-            return (short) (Short) a == (byte) (Byte) b;
-        }
         
-        if (a instanceof Byte && b instanceof Double) {
-            return (byte) (Byte) a == (double) (Double) b;
-        }
-        if (a instanceof Byte && b instanceof Float) {
-            return (byte) (Byte) a == (float) (Float) b;
-        }
-        if (a instanceof Byte && b instanceof Long) {
-            return (byte) (Byte) a == (long) (Long) b;
-        }
-        if (a instanceof Byte && b instanceof Integer) {
-            return (byte) (Byte) a == (int) (Integer) b;
-        }
-        if (a instanceof Byte && b instanceof Short) {
-            return (byte) (Byte) a == (short) (Short) b;
-        }
         if (a instanceof Byte && b instanceof Byte) {
             return (byte) (Byte) a == (byte) (Byte) b;
         }
