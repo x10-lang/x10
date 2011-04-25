@@ -3592,14 +3592,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    {
 		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
 		        if (lineNumberMap != null)
-		        {		        		
-		        	for (int i = 0; i < c.variables.size(); i++) 
+		        {
+		        	int numMembers = c.variables.size();
+		        	for (int i = 0; i < numMembers; i++) 
 		        	{
 		        		VarInstance<?> var = c.variables.get(i);
 		        		String name = var.name().toString();
 		        		if (name.equals(THIS)) 
 		    				name = SAVED_THIS;
 		        		lineNumberMap.addClosureMember(name, var.type().toString(), cname, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+		        	}
+		        	if (numMembers > 0)
+		        	{
+			        	for (int i=0; i< n.formals().size(); i++)
+			        	{
+			        		Formal f = n.formals().get(i);
+			        		lineNumberMap.addLocalVariableMapping(f.name().toString(), f.type().toString(), c.currentCode().position().line(), c.currentCode().position().endLine(), c.currentCode().position().file(), true, -2, false);
+			        	}
 		        	}
 		        }
 		    }
