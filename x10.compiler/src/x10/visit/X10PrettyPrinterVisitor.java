@@ -2087,21 +2087,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         Type t = tn.type();
 
-        // Fix for XTENLANG-1099
-        TypeSystem xts = tr.typeSystem();
-        if (xts.typeEquals(xts.Object(), t, tr.context())) {
-
-            /*
-             * Because @NativeRep of x10.lang.Object is java.lang.Object, we
-             * cannot compile "instanceof x10.lang.Object" as
-             * "instanceof @NativeRep".
-             */
-            w.write(X10_RTT_TYPES);
-            w.write(".instanceofObject(");
-            tr.print(c, c.expr(), w);
-            w.write(")");
-            return;
-        }
+        // Now x10.lang.Object is @NativeRep'ed to x10.core.RefI.
+        // Therefore x10.rtt.Types.OBJECT.instanceof$(o) works as designed.
+//        // Fix for XTENLANG-1099
+//        TypeSystem xts = tr.typeSystem();
+//        if (xts.typeEquals(xts.Object(), t, tr.context())) {
+//            /*
+//             * Because @NativeRep of x10.lang.Object is java.lang.Object, we
+//             * cannot compile "instanceof x10.lang.Object" as
+//             * "instanceof @NativeRep".
+//             */
+//            w.write(X10_RTT_TYPES);
+//            w.write(".instanceofObject(");
+//            tr.print(c, c.expr(), w);
+//            w.write(")");
+//            return;
+//        }
 
         // XTENLANG-1102
         if (t instanceof X10ClassType) {

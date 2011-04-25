@@ -227,10 +227,12 @@ public class Types {
         return false;
     }
 
+    @Deprecated
     public static boolean instanceofObject(Object o) {
         return o != null && !isStruct(o);
     }
 
+    @Deprecated
     public static boolean isStruct(Object o) {
         return STRUCT.instanceof$(o) ||
         BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
