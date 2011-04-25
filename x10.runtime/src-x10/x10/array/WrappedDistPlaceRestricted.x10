@@ -41,6 +41,9 @@ final class WrappedDistPlaceRestricted extends Dist {
         }
     }
 
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(p:Place):Region(rank) = get(p);
+
     public operator this(pt:Point(rank)):Place {
 	val bp = base(pt);
 	if (bp.equals(filter)) {
@@ -49,6 +52,18 @@ final class WrappedDistPlaceRestricted extends Dist {
             throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
         }
     }
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(i0:int){rank==1}:Place = this(Point.make(i0));
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(i0:int, i1:int){rank==2}:Place = this(Point.make(i0, i1));
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(i0:int, i1:int, i2:int){rank==3}:Place = this(Point.make(i0, i1, i2));
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
     public def offset(pt:Point(rank)):int {
         if (here == filter) {
