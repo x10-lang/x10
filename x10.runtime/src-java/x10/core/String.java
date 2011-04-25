@@ -119,11 +119,11 @@ final public class String extends x10.core.Ref implements
 //    }
 //
 //    public x10.core.Rail<java.lang.Character> chars() {
-//        return x10.core.RailFactory.<java.lang.Character>makeRailFromJavaArray(x10.rtt.Types.CHAR, $str.toCharArray());
+//        return x10.core.ArrayFactory.<java.lang.Character>makeRailFromJavaArray(x10.rtt.Types.CHAR, $str.toCharArray());
 //    }
 //
 //    public x10.core.Rail<java.lang.Byte> bytes() {
-//        return x10.core.RailFactory.<java.lang.Byte>makeRailFromJavaArray(x10.rtt.Types.BYTE, $str.getBytes());
+//        return x10.core.ArrayFactory.<java.lang.Byte>makeRailFromJavaArray(x10.rtt.Types.BYTE, $str.getBytes());
 //    }
 //
 //    public x10.core.String substring(final int fromIndex, final int toIndex) {
@@ -172,7 +172,7 @@ final public class String extends x10.core.Ref implements
 //        for (int i = 0; i < split.length; i++) {
 //            res[i] = new x10.core.String(split[i]);
 //        }
-//        return x10.core.RailFactory.<x10.core.String>makeRailFromJavaArray(x10.rtt.Types.STRING, res);
+//        return x10.core.ArrayFactory.<x10.core.String>makeRailFromJavaArray(x10.rtt.Types.STRING, res);
 //    }
 //
 //    public x10.core.String trim() {

@@ -236,17 +236,17 @@ public class TryCatchExpander extends Expander {
 
 	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Exception(RuntimeException) must be sync with TryCatchExpander.x10RuntimeExceptions
 	static final String[] x10RuntimeExceptions = {
-//	    "x10.array.UnboundedRegionException",
-//	    "x10.io.IORuntimeException",
+//	    "x10.array.UnboundedRegionException",	/*no corresponding Java exception*/
+//	    "x10.io.IORuntimeException",			/*no corresponding Java exception*/
 	    "x10.lang.ArithmeticException",
 	    "x10.lang.ArrayIndexOutOfBoundsException",
 		"x10.lang.StringIndexOutOfBoundsException",
-//	    "x10.lang.BadPlaceException",
+//	    "x10.lang.BadPlaceException",			/*no corresponding Java exception*/
 	    "x10.lang.ClassCastException",
-//	    "x10.lang.ClockUseException",
+//	    "x10.lang.ClockUseException",			/*no corresponding Java exception*/
 		"x10.lang.NumberFormatException",
 	    "x10.lang.IllegalArgumentException",
-//	    "x10.lang.IllegalOperationException",
+//	    "x10.lang.IllegalOperationException",	/*no corresponding Java exception*/
         "x10.util.NoSuchElementException",
         "x10.lang.NullPointerException",
         "x10.lang.UnsupportedOperationException",

@@ -2332,7 +2332,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public void visit(Tuple_c c) {
         Type t = Types.getParameterType(c.type(), 0);
 
-        w.write("x10.core.RailFactory.<");
+        w.write("x10.core.ArrayFactory.<");
         er.printType(t, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
         w.write(">");
         w.write("makeArrayFromJavaArray(");

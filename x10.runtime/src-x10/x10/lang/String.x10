@@ -135,7 +135,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      *         whose contents are initialized to contain the Chars in this String.
      * @see #bytes()
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.Character>makeArrayFromJavaArray(x10.rtt.Types.CHAR, (#this).toCharArray())")
+    @Native("java", "x10.core.ArrayFactory.<java.lang.Character>makeArrayFromJavaArray(x10.rtt.Types.CHAR, (#this).toCharArray())")
     @Native("c++", "(#this)->chars()")
     public native def chars():Rail[Char];
 
@@ -144,7 +144,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @return the Array of Bytes representing this String in the default charset.
      * @see #chars()
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.Byte>makeArrayFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes())")
+    @Native("java", "x10.core.ArrayFactory.<java.lang.Byte>makeArrayFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes())")
     @Native("c++", "(#this)->bytes()")
     public native def bytes():Rail[Byte];
 
@@ -346,7 +346,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @param regex the delimiting regular expression.
      * @return the Array of Strings computed by splitting this String around matches of the given regular expression.
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, (#this).split(#regex))")
+    @Native("java", "x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, (#this).split(#regex))")
 //    @Native("java", "x10.core.StringAux.split((#this), (#regex))")
     @Native("c++", "(#this)->split(#regex)")
     public native def split(regex: String):Rail[String];

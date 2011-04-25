@@ -16,7 +16,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Method;
 
 import x10.array.Array;
-import x10.rtt.RuntimeType;
 
 public abstract class ThrowableUtilities {
 	
@@ -180,7 +179,7 @@ public abstract class ThrowableUtilities {
         for (int i=0 ; i<elements.length ; ++i) {
             str[i] = elements[i].toString();
         }
-        return RailFactory.makeArrayFromJavaArray(new RuntimeType<java.lang.String>(java.lang.String.class), str);
+        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
     }
     
     public static void printStackTrace(Throwable t, Object/*x10.io.Printer*/ p) {
