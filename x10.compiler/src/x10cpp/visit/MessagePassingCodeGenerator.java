@@ -1356,23 +1356,53 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	}
 
-    private void generateUsingDeclsForInheritedMethods(X10CPPContext_c context, X10ClassType currentClass,
+	// The goal of this method is for each methodName declared in the childClass,
+	// determine if there is any superclass such that the superclass also declares
+	// methods with that name such that some superclass methods are not overridden
+	// in the subclass.  When that happens, we need to emit a using directive because
+	// overriding/overloading is defined differently in C++ than in X10 (or Java).
+	// By emitting the using directive, we pull the superclass methods into the subclass
+	// namespace and thus get the X10/Java semantics.
+	// The alternative to using "using" is to generate proxy methods that forward to the superclass
+	// method.  This results in slightly less efficient generated code, but more importantly is 
+	// significantly more complex to implement correctly.
+    private void generateUsingDeclsForInheritedMethods(X10CPPContext_c context, X10ClassType childClass,
                                                        X10ClassType superClass, TypeSystem xts, ClassifiedStream h,
                                                        List<ClassMember> members) {
         boolean didSomething = false;
         Set<Name> possibleNames = CollectionFactory.newHashSet();
-        for (MethodInstance mi : currentClass.methods()) {
+        for (MethodInstance mi : childClass.methods()) {
             possibleNames.add(mi.name());
         }
         while (superClass != null && !possibleNames.isEmpty()) {
-            for (MethodInstance mi : superClass.methods()) {
-                if (possibleNames.contains(mi.name())) {
-                    List<MethodInstance> myImpls = currentClass.methodsNamed(mi.name());
-                    if (myImpls.size() > 1 || !mi.isSameMethod(myImpls.get(0), context)) {
-                        possibleNames.remove(mi.name());
-                        h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(mi.name().toString())+";");
-                        didSomething = true;
+            Iterator<Name> names = possibleNames.iterator();
+            nameLoop: while (names.hasNext()) {
+                Name methName = names.next();
+                List<MethodInstance> childImpls = childClass.methodsNamed(methName);
+                List<MethodInstance> parentImpls = superClass.methodsNamed(methName);
+                if (!parentImpls.isEmpty()) {
+                    boolean emitUsing = false;
+                    if (childImpls.size() != parentImpls.size()) {
+                        // Number of implementation differs, so we can't have an exact signature match.
+                        emitUsing = true;
+                    } else {
+                        // Same number of impls, now check for identical signatures.
+                        implLoop: for (MethodInstance childImpl : childImpls) {
+                            for (MethodInstance parentImpl : parentImpls) {
+                                if (childImpl.isSameMethod(parentImpl, context)) continue implLoop;
+                            }
+                            // If we get to here, then there is a childImpl that has a different signature than all parentImpls
+                            emitUsing = true;
+                            break implLoop;                 
+                        }
                     }
+                    
+                    if (emitUsing) {
+                        names.remove();
+                        h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(methName.toString())+";");
+                        didSomething = true;
+                        continue nameLoop;
+                    }  
                 }
             }
             superClass = (X10ClassType)superClass.superClass();
