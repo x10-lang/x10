@@ -34,17 +34,36 @@ public class Types {
 //        return (T) o;
 //    }
     
-    public static String typeName(Object obj) {
-        String s;
+	public static RuntimeType<?> getRTT(Object obj) {
+		RuntimeType<?> rtt;
         if (obj instanceof Any) {
-            s = ((Any) obj).$getRTT().typeName(obj);
+        	rtt = ((Any) obj).$getRTT();
         } else if (Types.getNativeRepRTT(obj) != null) {
-            s = Types.getNativeRepRTT(obj).typeName();
+        	rtt = Types.getNativeRepRTT(obj);
         } else {
             // Note: for java classes that don't have RTTs
-            s = obj.getClass().toString().substring("class ".length());
+        	// TODO add the superclass and all interfaces to parents
+        	// TODO add type parameters as Any
+        	// TODO cache RTT to WeakHashMap<Class,RuntimeType>
+        	rtt = new RuntimeType(obj.getClass());
         }
-        return s;
+        return rtt;
+	}
+	
+//    public static String typeName(Object obj) {
+//        String s;
+//        if (obj instanceof Any) {
+//            s = ((Any) obj).$getRTT().typeName(obj);
+//        } else if (Types.getNativeRepRTT(obj) != null) {
+//            s = Types.getNativeRepRTT(obj).typeName();
+//        } else {
+//            // Note: for java classes that don't have RTTs
+//            s = obj.getClass().toString().substring("class ".length());
+//        }
+//        return s;
+//    }
+    public static String typeName(Object obj) {
+    	return getRTT(obj).typeName(obj);
     }
 
     // Fast implementation of Any.hashCode() without boxing
