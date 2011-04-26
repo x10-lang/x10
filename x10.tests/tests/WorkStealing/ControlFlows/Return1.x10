@@ -10,27 +10,22 @@
  */
 //OPTIONS: -WORK_STEALING=true
 
-public class WSQuickSortTest {
-    public def run():boolean {
-    	val N = 1000 * 1000;
-    	val r = new x10.util.Random();
-    	val data = new Array[int](N, (int)=>r.nextInt(9999));
-    	QuickSort.qsort(data, 0, N-1);
 
-    	//check result
-    	var a:int = 0;
-        var b:int;
-        var ok:boolean = true;
-        for ([j] in 0..(N-1)) {
-            b = data(j);
-            ok &= (a <= b);
-            a = b;
+//Return in sub frames, value is boolean
+
+public class Return1 {
+    public def run():boolean {        
+        {
+            val v:int;
+            finish async v = 1;
+            if (v == 1) return true;
         }
-        return ok;
+        
+        return false;
     }
 
     public static def main(args:Array[String](1)) {
-        val r = new WSQuickSortTest().run();
+        val r = new Return1().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");
         }

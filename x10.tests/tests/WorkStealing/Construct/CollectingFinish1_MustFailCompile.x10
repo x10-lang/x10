@@ -8,7 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-package WorkStealing.Construct;
+//OPTIONS: -WORK_STEALING=true
 /*
  * Collecting-Finish. Cannot pass WS compile.
  */

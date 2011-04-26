@@ -1,4 +1,3 @@
-//LIMITATION: Not support "at (Place.FIRST_PLACE)" right now
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -9,8 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
-// package WorkStealing.Samples; - can't use Histogram because it doesn't have a package!
+//OPTIONS: -WORK_STEALING=true
 
 public class WSHistogramTest {
      public def run():boolean {

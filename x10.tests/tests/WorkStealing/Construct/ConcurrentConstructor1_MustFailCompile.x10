@@ -8,8 +8,8 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
+//OPTIONS: -WORK_STEALING=true
 
-package WorkStealing.Construct;
 
 /*
  * Test constructor with concurrent constructs. Cannot pass WS Compile.
