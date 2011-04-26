@@ -1627,7 +1627,9 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
-	tcb->operation.algorithm = always_works_alg[1]; // TODO: Algorithm "I0:Pairwise:P2P:P2P" is buggy.  Using "I0:M2MComposite:P2P:P2P" instead
+	// NOTE: I've had issues with "I0:Pairwise:P2P:P2P" (alg[0]) in the past, on x86_64 RH6.  This caused me to use "I0:M2MComposite:P2P:P2P" (alg[1]) instead.
+	// on power, I get an error when calling I0:M2MComposite:P2P:P2P with only 1 place, and I0:Pairwise:P2P:P2P appears to have been fixed, so switching back.
+	tcb->operation.algorithm = always_works_alg[0];
 	tcb->operation.cmd.xfer_alltoall.rcvbuf = (char*)dbuf;
 	tcb->operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_CONTIGUOUS;
 	tcb->operation.cmd.xfer_alltoall.rtypecount = el*count;
@@ -1649,7 +1651,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 			}
 			fprintf(stderr, ".\n");
 		}
-		fprintf(stderr, "Place %u, role %u executing AllToAll (%s) with team %u. cookie=%p\n", state.myPlaceId, role, always_works_md[1].name, team, (void*)tcb);
+		fprintf(stderr, "Place %u, role %u executing AllToAll (%s) with team %u. cookie=%p\n", state.myPlaceId, role, always_works_md[0].name, team, (void*)tcb);
 	#endif
 	status = PAMI_Collective(context, &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all on team %u", team);
