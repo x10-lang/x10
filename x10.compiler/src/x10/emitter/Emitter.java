@@ -674,7 +674,11 @@ public class Emitter {
 		}
 	}
 
-	private boolean printRepType(Type type, boolean printGenerics, boolean boxPrimitives, boolean inSuper) {
+	private boolean printRepType(Type type, int flags) {
+		boolean printTypeParams = (flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0;
+		boolean boxPrimitives = (flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0;
+//		boolean inSuper = (flags & X10PrettyPrinterVisitor.NO_VARIANCE) != 0;
+
 		if (type.isVoid()) {
 			w.write("void");
 			return true;
@@ -697,7 +701,7 @@ public class Emitter {
 				int i = 0;
 				Object component;
                 String name;
-				component = new TypeExpander(this, type, printGenerics, boxPrimitives, inSuper);
+				component = new TypeExpander(this, type, flags);
 				components.put(String.valueOf(i++), component);
                 components.put("class", component);
 				for (Type at : classTypeArgs) {
@@ -706,14 +710,14 @@ public class Emitter {
                     } else {
                         name = null;
                     }
-					component = new TypeExpander(this, at, printGenerics, true, inSuper);
+					component = new TypeExpander(this, at, flags | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 					components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
                     component = new RuntimeTypeExpander(this, at);
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
 				}
-				if (!printGenerics) {
+				if (!printTypeParams) {
 					pat = pat.replaceAll("<.*>", "");
 				}
 				dumpRegex("NativeRep", components, tr, pat);
@@ -726,7 +730,7 @@ public class Emitter {
 
 	public void printType(Type type, int flags) {
 		boolean printTypeParams = (flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0;
-		boolean boxPrimitives = (flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0;
+//		boolean boxPrimitives = (flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0;
 		boolean inSuper = (flags & X10PrettyPrinterVisitor.NO_VARIANCE) != 0;
 		boolean ignoreQual = (flags & X10PrettyPrinterVisitor.NO_QUALIFIER) != 0;
 
@@ -749,7 +753,7 @@ public class Emitter {
 			}
 		}
 
-		if (printRepType(type, printTypeParams, boxPrimitives, inSuper))
+		if (printRepType(type, flags))
 			return;
 
 		if (type instanceof ParameterType) {
@@ -913,10 +917,10 @@ public class Emitter {
           } else {
         	  name = null;
           }
-          component = new TypeExpander(this, at, true, false, false);
+          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name, component); }
-          component = new TypeExpander(this, at, true, true, false);
+          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
           component = new RuntimeTypeExpander(this, at);
@@ -947,10 +951,10 @@ public class Emitter {
           } else {
         	  name = null;
           }
-          component = new TypeExpander(this, at, true, false, false);
+          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name, component); }
-          component = new TypeExpander(this, at, true, true, false);
+          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
           component = new RuntimeTypeExpander(this, at);
