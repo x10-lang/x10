@@ -77,57 +77,33 @@ import static polyglot.visit.InitChecker.*;
  * i = EXPR;
  * into
  * i.supply(EXPR)
+ * @author nathanielclinger 
+ * 
  */
 public class DesugarAccumulators extends ContextVisitor {
-    private HashSet<Local> okLocals = new HashSet<Local>(); // for locals we usually desugar into: local.result(), but for okLocals we do not desugar (either for pass by reference into method calls, or LocalAssign)
-    private HashSet<Node> changeCalls = new HashSet<Node>(); // for optimization: so I won't need to handle all calls
+    private HashSet<Local> okLocals = new HashSet<Local>();		// for locals we usually desugar into: local.result(), but for okLocals we do not desugar (either for pass by reference into method calls, or LocalAssign)
+    private HashSet<Node> changeCalls = new HashSet<Node>();	// for optimization: so I won't need to handle all calls
+    
+    private final static Name supply = Name.make("supply");
+    private final static Name result = Name.make("result");
     
     public DesugarAccumulators(Job job, TypeSystem ts, NodeFactory nf) {
         super(job,ts,nf);
     }
 
-    @Override 
-    public NodeVisitor enterCall(Node n) {
-        if (n instanceof X10Call || n instanceof X10New) {
-            List<Expr> arguments = n instanceof X10Call ?
-                    ((X10Call) n).arguments() :
-                    ((X10New) n).arguments();
-            ProcedureInstance<? extends ProcedureDef> mi = n instanceof X10Call ?
-                    ((X10Call) n).methodInstance() :
-                    ((X10New) n).constructorInstance();
-            List<LocalDef> formals = mi.def().formalNames();
-            int pos = 0;
-            for (LocalDef li : formals) {
-                if (li.flags().isAcc()) {
-                    changeCalls.add(n);
-                    Expr arg = arguments.get(pos);
-                    Local local = (Local)arg;
-                    okLocals.add(local);
-                }
-                pos++;
-            }
-        } else if (n instanceof LocalAssign) {
-            LocalAssign assign = (LocalAssign) n;
-            Local local = assign.local();
-            if (local.flags().isAcc()) {
-                okLocals.add(local);
-            }
-        }
-        return this;
-    }
     Local accLocal(Local l) {
         return (Local) l.type(accType(l.type()));
     }
-    LocalInstance accLocal(LocalInstance l) {
+    LocalInstance accLocal(LocalInstance l) {		// 
         return (LocalInstance) l.type(accType(l.type()));
     }
-    Type accType(Type t) {
+    Type accType(Type t) {		// get the type definition for the accumulator
         return t instanceof X10ParsedClassType && ((X10ParsedClassType)t).def()==ts.Accumulator().def() ? t : // to prevent against creating Accumulator[Accumulator[...Int]]
                 ts.Accumulator().typeArguments(Collections.singletonList(t));
     }
-    final static Name supply = Name.make("supply");
-    final static Name result = Name.make("result");
-    private void changeDef(ProcedureDef def) {
+    
+    @SuppressWarnings("unchecked")
+	private void changeDef(ProcedureDef def) {
         int pos = 0;
         for (LocalDef li : def.formalNames()) {
             if (li.flags().isAcc()) {
@@ -149,21 +125,51 @@ public class DesugarAccumulators extends ContextVisitor {
     	return flags.isAcc() ? flags.set(Flags.FINAL) : flags;
     }
     
+    @Override 
+    public NodeVisitor enterCall(Node n) {
+        if (n instanceof X10Call || n instanceof X10New) {		// if either its a method or a constructor
+            List<Expr> arguments = n instanceof X10Call ?
+                    ((X10Call) n).arguments() :
+                    ((X10New) n).arguments();					// get arguments
+            ProcedureInstance<? extends ProcedureDef> mi = n instanceof X10Call ?
+                    ((X10Call) n).methodInstance() :
+                    ((X10New) n).constructorInstance();			// get instance type info
+            List<LocalDef> formals = mi.def().formalNames();
+            int pos = 0;
+            for (LocalDef li : formals) {			// for each formal argument
+                if (li.flags().isAcc()) {			// check that its an acc
+                    changeCalls.add(n);
+                    Expr arg = arguments.get(pos);
+                    Local local = (Local)arg;
+                    okLocals.add(local);			// if so passing by reference, so don't need to check local again
+                }
+                pos++;
+            }
+        } else if (n instanceof LocalAssign) {		// assignment call, so don't need to check local again if acc
+            LocalAssign assign = (LocalAssign) n;
+            Local local = assign.local();
+            if (local.flags().isAcc()) {
+                okLocals.add(local);
+            }
+        }
+        return this;
+    }
+    
     @Override
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-        if ((n instanceof X10ProcedureCall)
-             && changeCalls.remove(old)) {
+        if ((n instanceof X10ProcedureCall)			// if in a method call
+             && changeCalls.remove(old)) {			// and we've seen this acc already (i.e. fake passing by reference)
             X10ProcedureCall call = (X10ProcedureCall) n;
-            ProcedureInstance<? extends ProcedureDef> mi = call.procedureInstance();
-            List<LocalInstance> newNames = new ArrayList<LocalInstance>(mi.formalNames());
-            List<Type> newTypes = new ArrayList<Type>(mi.formalTypes());
+            ProcedureInstance<? extends ProcedureDef> mi = call.procedureInstance();	// get the method type
+            List<LocalInstance> newNames = new ArrayList<LocalInstance>(mi.formalNames());	// get the formal name method
+            List<Type> newTypes = new ArrayList<Type>(mi.formalTypes());	// get the formal parameter types
             ProcedureDef def = mi.def();
             changeDef(def);
             int pos = 0;
-            for (LocalDef li : def.formalNames()) {
-                if (li.flags().isAcc()) {
-                    newNames.set(pos, accLocal(newNames.get(pos)));
-                    newTypes.set(pos, accType(newTypes.get(pos)));
+            for (LocalDef li : def.formalNames()) {						// check if any of the formal types are accs
+                if (li.flags().isAcc()) {								// if acc
+                    newNames.set(pos, accLocal(newNames.get(pos)));		// get the acc name (i.e. acc x:Int, is x)
+                    newTypes.set(pos, accType(newTypes.get(pos)));		// get the type for the acc (i.e. acc x:Int, is Int)
                 }
                 pos++;
             }
@@ -173,12 +179,12 @@ public class DesugarAccumulators extends ContextVisitor {
         } else if (n instanceof LocalAssign) {
             LocalAssign assign = (LocalAssign) n;
             Local local = assign.local();
-            if (local.flags().isAcc()) {
-                Expr expr = assign.right();
+            if (local.flags().isAcc()) {			// if acc assignment
+                Expr expr = assign.right();			// get the assignment operation
                 // l.supply(expr)
                 Position pos = n.position().markCompilerGenerated();
                 Type accType = local.type();
-                MethodInstance mi = ts.findMethod(accType,ts.MethodMatcher(accType,supply,Collections.singletonList(expr.type()),context));
+                MethodInstance mi = ts.findMethod(accType,ts.MethodMatcher(accType,supply,Collections.singletonList(expr.type()),context));	// supply the accumulator with the assignment operation
                 Expr res = nf.Call(pos, local, nf.Id(pos, supply), expr).methodInstance(mi).type((((LocalAssign)old).type()));
                 return res;
             }
