@@ -2113,7 +2113,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Switch_c n) {
 	    sw.write("switch (");
-	    n.print(n.expr(), sw, tr);
+	    if (n.expr().type().isChar()) {
+	        sw.write("(");
+	        n.print(n.expr(), sw, tr);
+	        sw.write(").v");
+	    } else {
+	        n.print(n.expr(), sw, tr);
+	    }
 	    sw.write(")");
 	    sw.allowBreak(0, " ");
 	    sw.write("{");
