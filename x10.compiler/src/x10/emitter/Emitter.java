@@ -214,16 +214,16 @@ public class Emitter {
 	    /* 045 */ "$MINUS$",
 	    /* 046 */ "$DOT$",
 	    /* 047 */ "$SLASH$",
-	    /* 048 */ null,
-	    /* 049 */ null,
-	    /* 050 */ null,
-	    /* 051 */ null,
-	    /* 052 */ null,
-	    /* 053 */ null,
-	    /* 054 */ null,
-	    /* 055 */ null,
-	    /* 056 */ null,
-	    /* 057 */ null,
+	    /* 048 */ "$ZERO$",
+	    /* 049 */ "$ONE$",
+	    /* 050 */ "$TWO$",
+	    /* 051 */ "$THREE$",
+	    /* 052 */ "$FOUR$",
+	    /* 053 */ "$FIVE$",
+	    /* 054 */ "$SIX$",
+	    /* 055 */ "$SEVEN$",
+	    /* 056 */ "$EIGHT$",
+	    /* 057 */ "$NINE$",
 	    /* 058 */ "$COLON$",
 	    /* 059 */ "$SEMICOLON$",
 	    /* 060 */ "$LT$",
@@ -373,7 +373,7 @@ public class Emitter {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 		    char c = s.charAt(i);
-		    if (!Character.isJavaIdentifierPart(c)) {
+		    if (i == 0 ? !Character.isJavaIdentifierStart(c) : !Character.isJavaIdentifierPart(c)) {
 		        replace = true;
 		        sb.append(translateChar(c));
 		    } else {
