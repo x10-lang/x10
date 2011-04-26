@@ -64,7 +64,9 @@ import static polyglot.visit.InitChecker.*;
  * when passing a finish we increment by 1, and when leaving a finish we decrement by 1.
  * if Integer==0 we're in read-write mode, otherwise we're in write-only mode.
  * When calling a method with "acc" formal, the argument must have Integer>0.
- * Inside an async you can only 
+ * Inside an async you can write-only
+ * @author nathanielclinger
+ * 
  */
 public class CheckAcc extends NodeVisitor {
     static class LocalInfo {
@@ -78,7 +80,7 @@ public class CheckAcc extends NodeVisitor {
     }
     private final Job job;
     private HashMap<LocalDef,LocalInfo> accs = new HashMap<LocalDef, LocalInfo>();
-    private HashSet<Local> okLocals = new HashSet<Local>();
+    private HashSet<Local> okLocals = new HashSet<Local>();		// for locals we usually desugar into: local.result(), but for okLocals we do not desugar (either for pass by reference into method calls, or LocalAssign)
     private int finishCount;
     private int asyncCount;
     public CheckAcc(Job job) {
@@ -100,41 +102,42 @@ public class CheckAcc extends NodeVisitor {
     boolean isWriteOnly(LocalInfo info) {
         return finishCount(info)>0;
     }
-    @Override public NodeVisitor enter(Node n) {
+    @Override 
+    public NodeVisitor enter(Node n) {
         if (n instanceof CodeBlock ||
-            n instanceof ClassDecl || // for inner classes
-            n instanceof FieldDecl) {  // for field initializers of anonymous local classes
+            n instanceof ClassDecl ||	// for inner classes
+            n instanceof FieldDecl) {	// for field initializers of anonymous local classes
             return new CheckAcc(job);
-        } else if (n instanceof Finish) {
+        } else if (n instanceof Finish) {	// if its a finish, increment our finish counter
             finishCount++;
-        } else if (n instanceof Async) {
+        } else if (n instanceof Async) {	// if its an async, increment our async counter
             asyncCount++;
-        } else if (n instanceof VarDecl) {
+        } else if (n instanceof VarDecl) {	// if its a variable declaration,
             VarDecl var = (VarDecl) n;
-            if (var.flags().flags().isAcc()) {
-                LocalInfo info = new LocalInfo();
+            if (var.flags().flags().isAcc()) {	// then check if it has the acc flags set
+                LocalInfo info = new LocalInfo();	// if so, then now let's define its local info
                 boolean isFormal = n instanceof Formal;
-                assert !isFormal || (finishCount==0 && asyncCount==0); // when we encounter a formal, finishCount must be 0.
+                assert !isFormal || (finishCount==0 && asyncCount==0);	// when we encounter a formal, finishCount must be 0.
                 info.finishCount = isFormal ? -1 : finishCount;
                 info.asyncCount = asyncCount;
-                LocalInfo old = accs.put(var.localDef(),info);
+                LocalInfo old = accs.put(var.localDef(),info);			// add acc to hash
                 assert old==null : "Found previous value="+old+" for var="+var;
             }
-        } else if (n instanceof X10ProcedureCall) {
+        } else if (n instanceof X10ProcedureCall) {						// if inside a method call or construction call
             X10ProcedureCall call = (X10ProcedureCall) n;
-            List<Expr> arguments = call.arguments();
+            List<Expr> arguments = call.arguments();					// get the method call arguments
             ProcedureInstance<? extends ProcedureDef> mi = call.procedureInstance();
-            List<LocalDef> formals = mi.def().formalNames();
+            List<LocalDef> formals = mi.def().formalNames();			// get a list of the formal declarations of the method arguments
             int pos = 0;
-            for (LocalDef li : formals) {
-                if (li.flags().isAcc()) {
+            for (LocalDef li : formals) {								// iterate through them
+                if (li.flags().isAcc()) {								// check if any of them are accs
                     Expr arg = arguments.get(pos);
-                    Local local = arg instanceof Local ? (Local)arg : null;
-                    if (local!=null && local.flags().isAcc()) {
-                        okLocals.add(local);
+                    Local local = arg instanceof Local ? (Local)arg : null;	// make sure that its defined locally (and doesn't go to heap)
+                    if (local!=null && local.flags().isAcc()) {				// if its a locally defined, and is acc
+                        okLocals.add(local);								// add to hash set
                         // check the acc state (must be write-only)
-                        LocalInfo info = accs.get(local.localInstance().def());
-                        if (info!=null && isWriteOnly(info)) {
+                        LocalInfo info = accs.get(local.localInstance().def());	// check that its previously defined acc
+                        if (info!=null && isWriteOnly(info)) {					// and that we are in write-only state when passed (i.e. that the method call is inclosed by a finish)
                             // ok
                         } else {
                             Errors.issue(job, new SemanticException("When passing an accumulator as a method argument it must be in a write-only state."), n);
@@ -145,23 +148,23 @@ public class CheckAcc extends NodeVisitor {
                 }
                 pos++;
             }
-        } else if (n instanceof LocalAssign) {
+        } else if (n instanceof LocalAssign) {	// if trying to assign an argument
             LocalAssign assign = (LocalAssign) n;
             Local local = assign.local();
-            if (local.flags().isAcc()) {
-                okLocals.add(local);
+            if (local.flags().isAcc()) {		// and its an acc
+                okLocals.add(local);			// add to locals
                 // when writing an acc, it must be in canWrite
                 LocalInfo info = accs.get(local.localInstance().def());
-                if (info==null || !canWrite(info)) {
+                if (info==null || !canWrite(info)) {	// make sure that we can write to it
                     Errors.issue(job, new SemanticException("Cannot write to an accumulator in an async that is not enclosed by a finish."), n);
                 }
             }
         } else if (n instanceof Local) {
             Local local = (Local) n;
-            if (local.flags().isAcc() && !okLocals.remove(local)) {
+            if (local.flags().isAcc() && !okLocals.remove(local)) {		// check if the local is an acc, and that its not coming from a method call
                 // when reading a local, it must be in a readonly
                 LocalInfo info = accs.get(local.localInstance().def());
-                if (info==null || !canRead(info)) {
+                if (info==null || !canRead(info)) {						// make sure that we can read from it at this point
                     Errors.issue(job, new SemanticException("Cannot read from an accumulator in write-only state or inside an async."), n);
                 }
             }
@@ -170,9 +173,9 @@ public class CheckAcc extends NodeVisitor {
     }
     @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
-        if (n instanceof Finish) {
+        if (n instanceof Finish) {	// if leaving a finish node then decrement finish
             finishCount--;
-        } else if (n instanceof Async) {
+        } else if (n instanceof Async) {	// if leaving an async node then decrement async
             asyncCount--;
         }
         return n;
