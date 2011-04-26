@@ -21,6 +21,7 @@ using namespace std;
 using namespace x10aux;
 
 const ref<String> x10aux::int_utils::toString(x10_int value, x10_int radix) {
+    if (0 == value) return String::Lit("0");
     assert(radix>=2);
     assert(radix<=36);
     static char numerals[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
