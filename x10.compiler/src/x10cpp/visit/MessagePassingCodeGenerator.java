@@ -4083,22 +4083,33 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (op == Binary.EQ || op == Binary.NE) { // FIXME: get rid of this special case
 	        sw.write("("); sw.begin(0);
 	        Type c = null;
-	        if (l.isNumeric() && r.isNumeric()) {
-	            try {
-	                c = xts.promote(l, r);
-	            } catch (SemanticException e) { assert (false); }
-	        }
+	        try {
+                c = xts.leastCommonAncestor(l, r, context);
+            } catch (SemanticException e1) {
+            }
 	        if (op == Binary.NE)
 	            sw.write("!");
 	        sw.write(STRUCT_EQUALS+"("); sw.begin(0);
-	        if (c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, l, context))
-	            sw.write("(" + Emitter.translateType(c, true) + ")");
+	        boolean castLeft = c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, l, context);
+	        if (castLeft) {
+	            sw.write("x10aux::class_cast_unchecked"+chevrons(Emitter.translateType(c, true)) + "(");
+	        }
 	        n.printSubExpr(left, sw, tr);
-	        sw.write(",");
+	        if (castLeft) {
+	            sw.write(")");
+	        }
+ 	        sw.write(",");
 	        sw.allowBreak(0, " ");
-	        if (c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, r, context))
-	            sw.write("(" + Emitter.translateType(c, true) + ")");
+
+	        boolean castRight = c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, l, context);
+	        if (castRight) {
+	            sw.write("x10aux::class_cast_unchecked"+chevrons(Emitter.translateType(c, true)) + "(");
+	        };
 	        n.printSubExpr(right, sw, tr);
+	        if (castRight) {
+	            sw.write(")");
+	        }
+
 	        sw.end(); sw.write(")");
 	        sw.end(); sw.write(")");
 	        return;
