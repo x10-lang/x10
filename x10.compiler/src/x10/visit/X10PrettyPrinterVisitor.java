@@ -191,6 +191,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String JAVA_LANG_CLASS = "java.lang.Class";
     public static final String JAVA_IO_SERIALIZABLE = "java.io.Serializable";
     public static final String JAVA_LANG_SYSTEM = "java.lang.System";
+    public static final String X10_CORE_REF = "x10.core.Ref";
 
     public static final int PRINT_TYPE_PARAMS = 1;
     public static final int BOX_PRIMITIVES = 2;
@@ -442,12 +443,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else {
                 assert superClassNode != null;
                 Type superType = superClassNode.type();
-                // FIXME: HACK! If a class extends x10.lang.Object, swipe in
-                // x10.core.Ref
-                if (!xts.typeEquals(superType, xts.Object(), context))
-                    er.printType(superType, PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
+                // N.B. HACK! If a class extends x10.lang.Object, swipe in x10.core.Ref
+                if (xts.typeEquals(superType, xts.Object(), context))
+                    w.write(X10_CORE_REF);
                 else
-                    w.write("x10.core.Ref");
+                    er.printType(superType, PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
             }
         }
 
@@ -1149,7 +1149,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     private void printAllocationCall(Type type) {
         w.write("new ");
-        er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
+        TypeSystem ts = tr.typeSystem();
+        // N.B. HACK! for x10.lang.Object, allocate x10.core.Ref instead of x10.core.RefI
+        if (ts.typeEquals(Types.baseType(type), ts.Object(), tr.context()))
+        	w.write(X10_CORE_REF);
+        else
+        	er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
         w.write("((" + JAVA_LANG_SYSTEM + "[])null)");
     }
 
@@ -3214,11 +3219,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         ContainerType ct = c.constructorInstance().container();
         if (supportConstructorSplitting
                 && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(ct))) {
+        	TypeSystem ts = tr.typeSystem();
+        	boolean isObject = Types.baseType(ct).typeEquals(ts.Object(), tr.context());
             Expr target = c.target();
             if (target == null || target instanceof Special) {
                 if (c.kind() == ConstructorCall.SUPER) {
-                    if (Types.baseType(ct).typeEquals(tr.typeSystem().Object(), tr.context())
-                            || Emitter.isNativeRepedToJava(ct) || er.isNativeClassToJava(ct)) {
+                    if (isObject || Emitter.isNativeRepedToJava(ct) || er.isNativeClassToJava(ct)) {
                         return;
                     }
                     w.write("super");
@@ -3226,7 +3232,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("this");
                 }
             } else {
+                // N.B. HACK! to initialize x10.lang.Object, call ((x10.core.Ref) target).$init() since x10.lang.Object is @NativeRep'ed to x10.core.RefI!
+            	if (isObject) w.write("((" + X10_CORE_REF + ") ");
                 target.translate(w, tr);
+            	if (isObject) w.write(")");
             }
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);
