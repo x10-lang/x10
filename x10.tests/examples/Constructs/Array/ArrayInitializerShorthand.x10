@@ -21,7 +21,7 @@ public class ArrayInitializerShorthand extends x10Test {
         val r = (1..10)*(1..10);
         val ia = new Array[double](r, (val [i,j]: Point)=> i+j as Double);
 
-        for (val p[i,j]: Point{rank==2} in r) chk(ia(p) == i+j);
+        for (val p[i,j]: Point{rank==2} in r) chk(ia(p) == ((i+j) as Double));
 
         return true;
     }

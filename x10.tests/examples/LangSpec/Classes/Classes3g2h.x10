@@ -31,7 +31,7 @@ public class Classes3g2h extends x10Test {
   public static operator (x:Numbered) as Int = x.n;
   public static def example(){
      val n3 = new Numbered(3);
-     assert n3 as Int == 3;
+     assert n3 as Int == 3; // ShouldNotBeERR
   }
 }
  static  class Hook{ def run() {Numbered.example(); return true;}}

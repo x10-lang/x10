@@ -498,7 +498,7 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      */
     // @Native("java", "(((#this)==0) ? 0 : 1)")
     @Native("c++",  "(((#0)==0U) ? 0 : 1)")
-    public def signum(): Int = (this.shortVal == 0) ? 0 : 1;
+    public def signum(): Int = (this.shortVal == 0s) ? 0 : 1;
 
     /**
      * Returns the value obtained by reversing the order of the bytes in the

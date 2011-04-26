@@ -497,7 +497,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      */
     // @Native("java", "(((#this)==0) ? 0 : 1)")
     @Native("c++",  "(((#0)==0U) ? 0 : 1)")
-    public def signum(): Int = (this.byteVal == 0) ? 0 : 1;
+    public def signum(): Int = (this.byteVal == 0y) ? 0 : 1;
 
 
     /**

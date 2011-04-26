@@ -32,7 +32,7 @@ public class AtEach {
         // ensure that d[i] agreed with here in
         // all places
         // and that an activity ran in each place
-        val result = disagree.reduce(int.+,0) == 0 &&
+        val result = disagree.reduce( (x:Int,y:Int)=>x+y ,0) == 0 &&
             nplaces == Place.MAX_PLACES;
         Console.OUT.println("AtEach: result = " + result);
         return result;

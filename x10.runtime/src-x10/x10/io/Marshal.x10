@@ -72,7 +72,7 @@ public interface Marshal[T] {
     
     public static class BooleanMarshal implements Marshal[Boolean] {
         public def read(r: Reader): Boolean //throws IOException 
-        = r.read() != 0;
+        = r.read() != 0y;
         public def write(w: Writer, b: Boolean): void //throws IOException 
         { w.write((b ? 0 : 1) as Byte); }
     }
@@ -95,7 +95,7 @@ public interface Marshal[T] {
         public def read(r: Reader): Char //throws IOException 
         {
             val b1 = r.read();
-            if (b1 == -1) throw new EOFException();
+            if (b1 == -1y) throw new EOFException();
             if ((b1 & 0xf8) == 0xf0) {
                 val b2 = r.read();
                 val b3 = r.read();

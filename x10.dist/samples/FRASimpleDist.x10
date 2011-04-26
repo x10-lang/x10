@@ -123,7 +123,7 @@ class FRASimpleDist {
                 val table = tables();
                 var err:int = 0;
                 for ([j] in table.a) 
-                    if (table.a(j) != j) err++;
+                    if (table.a(j) != j as Long) err++;
                 println("Found " + err + " errors.");
             }
         }

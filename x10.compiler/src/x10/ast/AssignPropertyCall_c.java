@@ -287,7 +287,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                     if (c != null)
                         known.addIn(c.substitute(prop, c.self()));
                     try {
-                     XTerm initVar = ts.xtypeTranslator().translate(known, initializer, (Context) ctx);
+                     XTerm initVar = ts.xtypeTranslator().translate(known, initializer, ctx, false); // it cannot be top-level, because the constraint will be "prop==initVar"
                      if (initVar != null)
                          known.addBinding(prop, initVar);
                     } catch (IllegalConstraint z) {

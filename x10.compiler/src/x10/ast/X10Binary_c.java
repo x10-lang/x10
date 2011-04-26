@@ -589,20 +589,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             if (xts.isSigned(lbase) && xts.isUnsigned(rbase))
                 Errors.issue(tc.job(),
                         new Errors.CannotCompareSignedVersusUnsignedValues(position()));
-            
-            Type promoted = promote(xts, lbase, rbase);
-            
-            if (promoted != null &&
-                (! xts.typeBaseEquals(lbase, promoted, context) ||
-                 ! xts.typeBaseEquals(rbase, promoted, context)))
-            {
-                try {
-                Expr el = Converter.attemptCoercion(tc, left, promoted);
-                Expr er = Converter.attemptCoercion(tc, right, promoted);
-                if (el != null && er != null && (el != left || er != right))
-                	return Converter.check(this.left(el).right(er), tc);
-                } catch (SemanticException e) { } // FIXME
-            }
         }
         
         if (op == EQ || op == NE) {

@@ -174,6 +174,7 @@ public class RunTestSuite {
             //"_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_DIRS = {
+            "WorkStealing", // it has copies of existing tests
             "AutoGen", // it takes too long to compile these files
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
     };

@@ -30,7 +30,7 @@ public class AtomicMethodTest extends x10Test {
 	   async body();
 	   for (var i: long = 0; i < N*N; i++) {
 	       var b: boolean; // temp
-	       atomic { this.val_ = i; b = (endCount != 0); }
+	       atomic { this.val_ = i; b = (endCount != 0L); }
 	       if (b) break;
 	   }
 	   // assuming atomics follow program order

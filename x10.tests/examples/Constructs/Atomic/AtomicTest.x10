@@ -32,7 +32,7 @@ public class AtomicTest extends x10Test {
 	    }
 	}
 	for (var i: long = 0; i < N*100; i++) {
-	    atomic { val_ = i; b = (endCount != 0); }
+	    atomic { val_ = i; b = (endCount != 0L); }
 	    if (b) break;
 	}
 	// need a memory fence here

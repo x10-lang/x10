@@ -24,7 +24,7 @@ public class ArrayOverRegion extends x10Test {
 
         chk(ia.region.equals(r));
 
-        for (val p[i,j]: Point(2) in r) chk(ia(p) == i+j);
+        for (val p[i,j]: Point(2) in r) chk(ia(p) == ((i+j) as Double) );
 
         return true;
     }

@@ -37,7 +37,7 @@ public final class LongRange(
      * @param max the maximum value of the range
      */
     public def this(min:Long, max:Long) {
-        property(min, max, min == 0);
+        property(min, max, min == 0l);
     }
     
     public def toString():String = min+".."+max;

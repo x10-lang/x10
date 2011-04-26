@@ -603,7 +603,7 @@ class TestPropertyCalls(p:Int, p2:Int) {
 		property(1,2); // ERR: You can call 'property(...)' at most once
 	}
 	def this(b:Double) { // ERR: property(...) might not have been called
-		if (b==1) 
+		if (b==1.0)
 			property(1,2);
 	}
 
@@ -2677,7 +2677,8 @@ class FieldNotFound {
 	val q= this.f;  // ERR: Field f not found in type "FieldNotFound{self==FieldNotFound#this}".
 }
 final class TestCasts { // TestInitInCasts
-	val b:Int{b==3} = 3 as Int{b==3}; // ERR: Cannot read from field 'b' before it is definitely assigned.
+	val b:Int{d==3} = 3 as Int{d==3}; // ShouldBeErr: Cannot read from field 'b' before it is definitely assigned.
+	val d:Int = 3;
 	val c:Int{c==3} = 3 as Int{self==3};
 
 	def test() {
@@ -3645,10 +3646,10 @@ class RuntimeTestsOfHaszero {
 	def m() {
 		assert(1==++i);
 		assert(0==k);
-		assert(0==l++);
+		assert(0L==l++);
 		assert(null==a1.t);
 		assert(1==++a2.t);
-		assert(1==++a3.t);
+		assert(1==(++a3.t) as Long);
 		assert(4==foo(Zero.get[Double]()));
 	}
 
