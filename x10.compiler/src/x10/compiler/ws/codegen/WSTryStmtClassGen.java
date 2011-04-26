@@ -115,8 +115,8 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
             //note there is only one local var, the exception
             int pc = 1; //No need the pc;
             TransCodes catchBody = transNormalStmt(c.body(), pc, Collections.singleton(c.formal().name().id()));
-            catchBlocksFast.add(c.body(WSUtil.stmtToStmtSeq(xnf, catchBody.getFastStmts().get(0))));
-            catchBlocksResume.add(c.body(WSUtil.stmtToStmtSeq(xnf, catchBody.getResumeStmts().get(0))));
+            catchBlocksFast.add(c.body(WSUtil.stmtToBlock(xnf, catchBody.getFastStmts().get(0))));
+            catchBlocksResume.add(c.body(WSUtil.stmtToBlock(xnf, catchBody.getResumeStmts().get(0))));
         }
         tryFast = tryFast.catchBlocks(catchBlocksFast);
         tryResume = tryResume.catchBlocks(catchBlocksResume);
@@ -124,8 +124,8 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         if (tryStmt.finallyBlock() != null) {
             int pc = 1;
             TransCodes finalBody = transNormalStmt(tryStmt.finallyBlock(), pc, Collections.EMPTY_SET);
-            tryFast.finallyBlock(WSUtil.stmtToStmtSeq(xnf, finalBody.getFastStmts().get(0)));
-            tryResume.finallyBlock(WSUtil.stmtToStmtSeq(xnf, finalBody.getResumeStmts().get(0)));
+            tryFast.finallyBlock(WSUtil.stmtToBlock(xnf, finalBody.getFastStmts().get(0)));
+            tryResume.finallyBlock(WSUtil.stmtToBlock(xnf, finalBody.getResumeStmts().get(0)));
         }
         fastBodySynth.addStmt(tryFast);
         resumeBodySynth.addStmt(tryResume);
