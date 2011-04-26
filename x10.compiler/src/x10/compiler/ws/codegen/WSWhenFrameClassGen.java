@@ -71,20 +71,6 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
         
         //finally the back
         backBodySynth.addStmt(bodyCodes.third());
-        
-        //need final process closure issues
-        fastBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct,
-                                                                        this.getClassDef(),
-                                                                        fastMSynth.getDef()));
-        
-        resumeBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct,
-                                                                        this.getClassDef(),
-                                                                        resumeMSynth.getDef()));
-        //add all references
-
-        fastBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        resumeBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));    
-        backBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
     }
     
     /**
@@ -112,8 +98,8 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
         Expr assign = xnf.LocalAssign(whenStmt.position(), bVar, Assign.ASSIGN, orgWhenExpr).type(orgWhenExpr.type());
         
         If ifStmt = xnf.If(whenStmt.position(), assign, bodyStmt);
-        Stmt enter = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), ENTER_ATOMIC, xts.Void(), xct));
-        Stmt exit = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), EXIT_WHEN, Collections.<Expr>singletonList(xnf.Local(whenStmt.position(), bVar.name()).localInstance(bVar.localInstance()).type(xts.Boolean())), xts.Void(), xct));
+        Stmt enter = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), WSSynthesizer.ENTER_ATOMIC, xts.Void(), xct));
+        Stmt exit = xnf.Eval(whenStmt.position(), synth.makeStaticCall(whenStmt.position(), xts.Runtime(), WSSynthesizer.EXIT_WHEN, Collections.<Expr>singletonList(xnf.Local(whenStmt.position(), bVar.name()).localInstance(bVar.localInstance()).type(xts.Boolean())), xts.Void(), xct));
    
         Block fin = xnf.Block(whenStmt.position(), exit);
         //finally, put it into atomic
@@ -124,12 +110,9 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
         Expr redoCheck = xnf.Binary(whenStmt.position(), bVar, Binary.EQ,
                synth.booleanValueExpr(false, whenStmt.position())).type(xts.Boolean());
         
-        //redo(worker)
-        Expr thisRef = genUpcastCall(getClassType(), xts.RegularFrame(), getThisRef());
-        InstanceCallSynth redoCallSynth = new InstanceCallSynth(xnf, xct, whenStmt.position(), thisRef, CONTINUE_LATER.toString());
-        Expr workerRef = bodySynth.getLocal(WORKER.toString());
-        redoCallSynth.addArgument(xts.Worker(), workerRef);
-        Stmt ifRedoStmt = xnf.If(whenStmt.position(), redoCheck, redoCallSynth.genStmt());
+        //continueLater(worker)
+        Stmt redoStmt = wsynth.genContinueLaterStmt(classSynth, methodSynth);
+        Stmt ifRedoStmt = xnf.If(whenStmt.position(), redoCheck, redoStmt);
         bodySynth.addStmt(ifRedoStmt);
         return bodySynth;
     }

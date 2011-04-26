@@ -12,6 +12,8 @@
 
 package x10.compiler.ws.codegen;
 
+import java.util.List;
+
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 import polyglot.types.Flags;
@@ -37,57 +39,46 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
                 parent.xts.FinishFrame(), finishStmt.body());
         
         if(!wts.OPT_PC_FIELD){
-            addPCField();
+            wsynth.createPCField(classSynth);
         }
     }
 
     protected void genClassConstructor() throws SemanticException {
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, xts.Frame(), "up"); //up:Frame!
-        
-        CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
-        SuperCallSynth superCallSynth = codeBlockSynth.createSuperCall(compilerPos, classSynth.getClassDef());
-        superCallSynth.addArgument(xts.Frame(), upRef);
+        wsynth.genClassConstructorType1Base(classSynth);
     }
 
     @Override
     protected void genMethods() throws SemanticException {
         
         CodeBlockSynth fastBodySynth = fastMSynth.getMethodBodySynth(compilerPos);
-        CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);
-        CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
         
-
         AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSUtil.getBlockFrameClassName(getClassName()));
-        TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
+        List<Stmt> fastCallCodes = wsynth.genInvocateFrameStmts(1, classSynth, fastMSynth, childFrameGen);
         
-        //now add codes to three path;
-        //Finish frame only has the fast path
         if(wts.DISABLE_EXCEPTION_HANDLE){
-            fastBodySynth.addStmts(callCodes.first());
+            fastBodySynth.addStmts(fastCallCodes);
         }
         else{
-            fastBodySynth.addStmt(genExceptionHandler(callCodes.first()));
-            fastBodySynth.addStmt(genRethrowStmt());
+            fastBodySynth.addStmt(wsynth.genExceptionHandler(fastCallCodes, classSynth));
+            fastBodySynth.addStmt(wsynth.genRethrowStmt(classSynth));
         }
         
         //resume/back path
         if(!wts.OPT_PC_FIELD){
-            Expr pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
+            Expr pcRef = wsynth.genPCRef(classSynth);
+            CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);
+            SwitchSynth resumeSwitchSynth = resumeBodySynth.createSwitchStmt(compilerPos, pcRef);     
+            List<Stmt> resumeCallCodes = wsynth.genInvocateFrameStmts(1, classSynth, resumeMSynth, childFrameGen);
             
-            SwitchSynth resumeSwitchSynth = resumeBodySynth.createSwitchStmt(compilerPos, pcRef);
-            SwitchSynth backSwitchSynth = backBodySynth.createSwitchStmt(compilerPos, pcRef);      
-            resumeSwitchSynth.insertStatementsInCondition(0, callCodes.second());
-            if(callCodes.third().size() > 0){ //only assign call has back
-                backSwitchSynth.insertStatementsInCondition(callCodes.getPcValue(), callCodes.third());
-                backSwitchSynth.insertStatementInCondition(callCodes.getPcValue(), xnf.Break(compilerPos));
+            if(wts.DISABLE_EXCEPTION_HANDLE){
+                resumeSwitchSynth.insertStatementsInCondition(0, resumeCallCodes);
+            }
+            else{
+                resumeSwitchSynth.insertStatementInCondition(0, wsynth.genExceptionHandler(resumeCallCodes, classSynth));
+                resumeSwitchSynth.insertStatementInCondition(0, wsynth.genRethrowStmt(classSynth));
             }
         }
    }
 
-    protected Stmt genRethrowStmt() throws SemanticException{
-        //fast path: //upcast[_async,AsyncFrame](this).poll(worker);
-        
-        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, getThisRef(), RETHROW.toString());
-        return icSynth.genStmt();
-    }
+
 }

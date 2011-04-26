@@ -70,14 +70,7 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
      * @see x10.compiler.ws.codegen.AbstractWSClassGen#genClassConstructor()
      */
     protected void genClassConstructor() throws SemanticException {
-        // add all constructors
-        CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
-
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, xts.Frame(), UP.toString());
-        Expr ffRef = conSynth.addFormal(compilerPos, Flags.FINAL, xts.FinishFrame(), FF.toString());
-        SuperCallSynth superCallSynth = conCodeSynth.createSuperCall(compilerPos, classSynth.getDef());
-        superCallSynth.addArgument(xts.Frame(), upRef);
-        superCallSynth.addArgument(xts.FinishFrame(), ffRef);
+        ConstructorSynth conSynth = wsynth.genClassConstructorType2Base(classSynth);
     }
 
     @Override
@@ -89,7 +82,7 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         
 
         AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSUtil.getBlockFrameClassName(getClassName()));
-        TransCodes callCodes = this.genInvocateFrameStmts(1, childFrameGen);
+        List<Stmt> stmts = wsynth.genInvocateFrameStmts(1, classSynth, fastMSynth, childFrameGen);
         
         //now add codes to three path;
         //FIXME: just a simple try. Not correct
@@ -101,10 +94,8 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         
         
         //fast path & resume path
-        
-        
-        Block tryBlockFast = xnf.Block(tryStmt.tryBlock().position(), callCodes.first());
-        Block tryBlockResume = xnf.Block(tryStmt.tryBlock().position(), genRethrowStmt());
+        Block tryBlockFast = xnf.Block(tryStmt.tryBlock().position(), stmts);
+        Block tryBlockResume = xnf.Block(tryStmt.tryBlock().position(), wsynth.genRethrowStmt(resumeMSynth));
         
         Try tryFast = tryStmt.tryBlock(tryBlockFast);
         Try tryResume = tryStmt.tryBlock(tryBlockResume);
@@ -122,35 +113,21 @@ public class WSTryStmtClassGen extends AbstractWSClassGen {
         catchBlocksResume.add(ca);
         for(Catch c: tryStmt.catchBlocks()){
             //note there is only one local var, the exception
-            TransCodes catchBody = transNormalStmt(c.body(), 1, Collections.singleton(c.formal().name().id()));
-            catchBlocksFast.add(c.body(WSUtil.stmtToStmtSeq(xnf, catchBody.first().get(0))));
-            catchBlocksResume.add(c.body(WSUtil.stmtToStmtSeq(xnf, catchBody.second().get(0))));
+            int pc = 1; //No need the pc;
+            TransCodes catchBody = transNormalStmt(c.body(), pc, Collections.singleton(c.formal().name().id()));
+            catchBlocksFast.add(c.body(WSUtil.stmtToStmtSeq(xnf, catchBody.getFastStmts().get(0))));
+            catchBlocksResume.add(c.body(WSUtil.stmtToStmtSeq(xnf, catchBody.getResumeStmts().get(0))));
         }
         tryFast = tryFast.catchBlocks(catchBlocksFast);
         tryResume = tryResume.catchBlocks(catchBlocksResume);
         
         if (tryStmt.finallyBlock() != null) {
-            TransCodes finalBody = transNormalStmt(tryStmt.finallyBlock(), 1, Collections.EMPTY_SET);
-            tryFast.finallyBlock(WSUtil.stmtToStmtSeq(xnf, finalBody.first().get(0)));
-            tryResume.finallyBlock(WSUtil.stmtToStmtSeq(xnf, finalBody.second().get(0)));
+            int pc = 1;
+            TransCodes finalBody = transNormalStmt(tryStmt.finallyBlock(), pc, Collections.EMPTY_SET);
+            tryFast.finallyBlock(WSUtil.stmtToStmtSeq(xnf, finalBody.getFastStmts().get(0)));
+            tryResume.finallyBlock(WSUtil.stmtToStmtSeq(xnf, finalBody.getResumeStmts().get(0)));
         }
         fastBodySynth.addStmt(tryFast);
         resumeBodySynth.addStmt(tryResume);
-        
-        // need final process closure issues
-        fastBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct, this.getClassDef(), fastMSynth.getDef()));
-
-        resumeBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct, this.getClassDef(), resumeMSynth.getDef()));
-
-        // add all references
-        fastBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        resumeBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        backBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
    }
-
-    protected Stmt genRethrowStmt() throws SemanticException{
-        Expr workerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-        InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, workerRef, RETHROW.toString());
-        return icSynth.genStmt();
-    }
 }

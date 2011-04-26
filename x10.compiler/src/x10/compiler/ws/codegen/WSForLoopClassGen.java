@@ -97,7 +97,7 @@ public class WSForLoopClassGen extends WSRegularFrameClassGen {
         CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
         
-        Expr pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
+        Expr pcRef = wsynth.genPCRef(classSynth);
         
         
         //now build the whole bodies
@@ -157,8 +157,7 @@ public class WSForLoopClassGen extends WSRegularFrameClassGen {
 
             
             //now assign the pc ref to -1;
-            Stmt pcChange = xnf.Eval(compilerPos, 
-                                     synth.makeFieldAssign(compilerPos, getThisRef(), PC, synth.intValueExpr(-1, compilerPos), xct));
+            Stmt pcChange = wsynth.genPCAssign(classSynth, -1);
                                      
             whileSwitch.insertStatementInCondition(pcValue, pcChange);
             //And set the breaked flag as false
@@ -179,21 +178,6 @@ public class WSForLoopClassGen extends WSRegularFrameClassGen {
         {
             backBodySynth.addStmt(backSwitchSynth.genStmt());
         }
-        
-        //need final process closure issues
-        fastBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct,
-                                                                        this.getClassDef(),
-                                                                        fastMSynth.getDef()));
-        
-        resumeBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct,
-                                                                        this.getClassDef(),
-                                                                        resumeMSynth.getDef()));
-        //add all references
-
-        fastBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        resumeBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));    
-        backBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        
     }
 
 }

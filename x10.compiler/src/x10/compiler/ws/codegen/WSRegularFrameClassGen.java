@@ -89,22 +89,19 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
            String className, Stmt stmt, ClassDef outer, Flags flags, ClassType superType) {
         super(job, xnf, xct, wts, className, superType, flags, outer,
                 WSUtil.setSpeicalQualifier(stmt, outer, xnf));
-        
-        addPCField();
+        wsynth.createPCField(classSynth);
     }
 
     // nested frames
     protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt stmt, String classNamePrefix) {
         super(parent, parent, classNamePrefix, parent.xts.RegularFrame(), stmt);
-        
-        addPCField();
+        wsynth.createPCField(classSynth);
     }
     
     // remote frames: at(p) & async at(p)
     protected WSRegularFrameClassGen(AbstractWSClassGen parent, AbstractWSClassGen up, Stmt stmt, String classNamePrefix, ClassType frameType) {
         super(parent, up, classNamePrefix, frameType, stmt);
-        
-        addPCField();
+        wsynth.createPCField(classSynth);
     }
 
     @Override
@@ -127,24 +124,12 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
 
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
         backBodySynth.addStmt(bodyCodes.third().genStmt());
-
-
-        // need final process closure issues
-        fastBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct, this.getClassDef(), fastMSynth.getDef()));
-
-        resumeBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct, this.getClassDef(), resumeMSynth.getDef()));
-
-        // add all references
-        fastBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        resumeBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        backBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-
     }
 
     protected Triple<CodeBlockSynth, SwitchSynth, SwitchSynth> transformMethodBody() throws SemanticException {
 
         CodeBlockSynth fastBodySynth = new CodeBlockSynth(xnf, xct, compilerPos);
-        Expr pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
+        Expr pcRef = wsynth.genPCRef(classSynth);
         SwitchSynth resumeSwitchSynth = new SwitchSynth(xnf, xct, compilerPos, pcRef);
         SwitchSynth backSwitchSynth = new SwitchSynth(xnf, xct, compilerPos, pcRef);
 
@@ -153,8 +138,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                             // inner class is created
         int prePcValue = 0; // The current pc value. Will increase every time an
                             // inner class is created
-        boolean isFrameOnHeap = false; //For both c++ & java path, "at" & "async at" transform need the frame on heap first
-        
+        boolean isInResumePath = false; //For both c++ & java path, "at" & "async at" should be executed in resume path
+
         Set<Name> localDeclaredVar = CollectionFactory.newHashSet(); //all locals with these names will not be replaced
         
         while (bodyStmts.size() > 0) {
@@ -162,7 +147,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             Stmt s = bodyStmts.remove(0); //always remove the first one
             isReturnPathChanged = false; //have one statement, and should have return path
             TransCodes codes; //the main codes
-            TransCodes codes2 = null; //only used in at stmt transformation, which need additional check
 
             // need process local declare first
             if (s instanceof LocalDecl) { // Pre-processing
@@ -195,28 +179,24 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 codes = transAsync((Async)s, prePcValue);
                 break;
             case At:
-                if(!isFrameOnHeap){
-                    codes = genMoveFrameToHeapCodes(prePcValue);
-                    isFrameOnHeap = true;
+                if(!isInResumePath){
+                    codes = genSwitchToResumePathCodes(prePcValue);
+                    isInResumePath = true;
                     bodyStmts.add(0, s); //transform the statement next loop
                 }
                 else{
-                    Pair<TransCodes, TransCodes> codesPair = transAtAsyncAt((AtStmt)s, prePcValue, false, null, localDeclaredVar);
-                    codes = codesPair.fst();
-                    codes2 = codesPair.snd();
-                    //At stmt need additional block check
+                    codes = transAtAsyncAt((AtStmt)s, prePcValue, false, null, localDeclaredVar);
                 }
                 break;
             case AsyncAt:
-                if(!isFrameOnHeap){
-                    codes = genMoveFrameToHeapCodes(prePcValue);
-                    isFrameOnHeap = true;
+                if(!isInResumePath){
+                    codes = genSwitchToResumePathCodes(prePcValue);
+                    isInResumePath = true;
                     bodyStmts.add(0, s); //transform the statement next loop
                 }
                 else{
                     Async async = (Async)s;
-                    Pair<TransCodes, TransCodes> codesPair = transAtAsyncAt(s, prePcValue, true, async.clocks(), localDeclaredVar);
-                    codes = codesPair.fst();
+                    codes = transAtAsyncAt(s, prePcValue, true, async.clocks(), localDeclaredVar);
                 }
                 break;
             case When:
@@ -254,35 +234,26 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 WSUtil.err("X10 WorkStealing cannot support:", s);
                 continue;
             }
-            pcValue = codes.getPcValue();
-            fastBodySynth.addStmts(codes.first());
-            resumeSwitchSynth.insertStatementsInCondition(prePcValue, codes.second());
-            if(codes.third().size() > 0){ //only assign call has back
-                backSwitchSynth.insertStatementsInCondition(pcValue, codes.third());
+            pcValue = codes.pcValue();
+            fastBodySynth.addStmts(codes.getFastStmts());
+            resumeSwitchSynth.insertStatementsInCondition(prePcValue, codes.getResumeStmts());
+            if(codes.getResumePostStmts().size() > 0){
+                resumeSwitchSynth.insertStatementsInCondition(pcValue, codes.getResumePostStmts());
+            }
+            if(codes.getBackStmts().size() > 0){ //only assign call has back
+                backSwitchSynth.insertStatementsInCondition(pcValue, codes.getBackStmts());
                 backSwitchSynth.insertStatementInCondition(pcValue, xnf.Break(compilerPos));
             }
             prePcValue = pcValue;
-            
-            if(codes2 != null){
-                //Process atstmt's condition check
-                pcValue = codes2.getPcValue();
-                fastBodySynth.addStmts(codes2.first());
-                resumeSwitchSynth.insertStatementsInCondition(pcValue, codes2.second());
-                prePcValue = pcValue;
-                codes2 = null;
-            }
         } // for loop end
 
         //processing the return if the return was impacted by return check stmt;
+        //should only be executed in method frame
         if(isReturnPathChanged){
             Type returnType = fastMSynth.getDef().returnType().get();
             if(returnType != null && returnType != xts.Void()){
                 //add return statement although it should not be exectued
-                Name returnFlagName = this.queryMethodReturnFlagName();
-                Expr methodFrameRef = this.getFieldContainerRef(returnFlagName, xts.Boolean());
-                Name resultName = this.queryMethodResultFieldName();
-                Expr resultRef = synth.makeFieldAccess(compilerPos, methodFrameRef, resultName, xct);
-                fastBodySynth.addStmt(xnf.Return(compilerPos, resultRef));
+                fastBodySynth.addStmt(wsynth.genReturnResultStmt(classSynth));
             }
         }
         
@@ -293,7 +264,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      * At least one path is complex path.  But condition is not (otherwise it is a compound stmt)
      */
     protected TransCodes transIf(If ifS, int prePcValue) throws SemanticException {
-        TransCodes transCodes = new TransCodes(prePcValue + 1);
+        TransCodes transCodes = new TransCodes(prePcValue);
         
         // condition need replace
         ifS = ifS.cond((Expr) this.replaceLocalVarRefWithFieldAccess(ifS.cond()));
@@ -305,14 +276,16 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             Block ifConBlock = (conS instanceof Block) ? (Block) conS : synth.toBlock(conS);
             TransCodes conCodes = transBlock(ifConBlock, prePcValue,
                                              WSUtil.getIFBlockClassName(className, true));          
-            fastIf = ifS.consequent(xnf.Block(conS.position(), conCodes.first()));
-            slowIf = ifS.consequent(xnf.Block(conS.position(), conCodes.second()));
+            fastIf = ifS.consequent(xnf.Block(conS.position(), conCodes.getFastStmts()));
+            //note the resume path codes has no return check
+            slowIf = ifS.consequent(xnf.Block(conS.position(), conCodes.getResumeStmts()));
         }
         else{
             //should use transNormal, not use directly replace
             TransCodes ifTCodes = transNormalStmt(conS, prePcValue, Collections.EMPTY_SET);
-            fastIf = ifS.consequent(WSUtil.seqStmtsToOneStmt(xnf, ifTCodes.first().get(0)));
-            slowIf = ifS.consequent(WSUtil.seqStmtsToOneStmt(xnf, ifTCodes.second().get(0)));
+            fastIf = ifS.consequent(WSUtil.seqStmtsToOneStmt(xnf, ifTCodes.getFastStmts().get(0)));
+          //note the resume path codes has no return check
+            slowIf = ifS.consequent(WSUtil.seqStmtsToOneStmt(xnf, ifTCodes.getResumeStmts().get(0)));
         }
 
         Stmt altS = ifS.alternative();
@@ -321,144 +294,125 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 Block ifAltBlock = (altS instanceof Block) ? (Block) altS : synth.toBlock(altS);
                 TransCodes altCodes = transBlock(ifAltBlock, prePcValue,
                                                  WSUtil.getIFBlockClassName(className, false));
-                fastIf = fastIf.alternative(xnf.Block(altS.position(), altCodes.first()));
-                slowIf = slowIf.alternative(xnf.Block(altS.position(), altCodes.second()));
+                fastIf = fastIf.alternative(xnf.Block(altS.position(), altCodes.getFastStmts()));
+                slowIf = slowIf.alternative(xnf.Block(altS.position(), altCodes.getResumeStmts()));
             }
             else{
                 //should use transNormal, not use directly replace
                 TransCodes ifFCodes = transNormalStmt(altS, prePcValue, Collections.EMPTY_SET);
-                fastIf = fastIf.alternative(WSUtil.seqStmtsToOneStmt(xnf, ifFCodes.first().get(0)));
-                slowIf = slowIf.alternative(WSUtil.seqStmtsToOneStmt(xnf, ifFCodes.second().get(0)));
+                fastIf = fastIf.alternative(WSUtil.seqStmtsToOneStmt(xnf, ifFCodes.getFastStmts().get(0)));
+                slowIf = slowIf.alternative(WSUtil.seqStmtsToOneStmt(xnf, ifFCodes.getResumeStmts().get(0)));
             }
         }
-        transCodes.addFirst(fastIf);
-        transCodes.addSecond(slowIf);
-        { //back
+        transCodes.addFast(fastIf);
+        transCodes.addResume(slowIf);
+        transCodes.increasePC();
+
+        //Add add the return check code
+        if(WSUtil.hasReturnStatement(ifS)){
+            //The code is after pc change
+            transCodes.addFast(genReturnCheckStmt(true));
+            transCodes.addPostResume(genReturnCheckStmt(false));
         }
         
         return transCodes;
     }
 
     protected TransCodes transWhileDoLoop(Loop loop, int prePcValue) throws SemanticException {
-        TransCodes transCodes = new TransCodes(prePcValue + 1);
+        TransCodes transCodes = new TransCodes(prePcValue);
 
         AbstractWSClassGen loopClassGen = genChildFrame(xts.RegularFrame(), loop, null);
         
         //prepare child frame call;
-        TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), loopClassGen);
-
-        boolean hasReturnInBlock = WSUtil.hasReturnStatement(loop);
-        { // fast
-            transCodes.addFirst(childCallCodes.first());
-            if (hasReturnInBlock) {
-                transCodes.addFirst(genReturnCheckStmt(true));
-            }
-        }
-        { // resume
-            transCodes.addSecond(childCallCodes.second());                                 // 0
-            if (hasReturnInBlock) {
-                transCodes.addSecond(genReturnCheckStmt(false));
-            }
-        }
-        { //back, nothing
+        List<Stmt> fastStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, fastMSynth, loopClassGen);
+        List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, loopClassGen);
+        transCodes.addFast(fastStmts);
+        transCodes.addResume(resumeStmts);
+        transCodes.increasePC();
+        
+        if(WSUtil.hasReturnStatement(loop)){
+            //The code is after pc change
+            transCodes.addFast(genReturnCheckStmt(true));
+            transCodes.addPostResume(genReturnCheckStmt(false));
         }
         return transCodes;
     }
 
     protected TransCodes transFor(For f, int prePcValue) throws SemanticException {
-        TransCodes transCodes = new TransCodes(prePcValue + 1);
-
+        TransCodes transCodes = new TransCodes(prePcValue);
         AbstractWSClassGen forClassGen = genChildFrame(xts.RegularFrame(), f, null);
         
         //prepare child frame call;
-        TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), forClassGen);
-
-        boolean hasReturnInBlock = WSUtil.hasReturnStatement(f);
-        { // fast
-            transCodes.addFirst(childCallCodes.first());
-            if (hasReturnInBlock) {
-                transCodes.addFirst(genReturnCheckStmt(true));
-            }
-        }
-        { // resume
-            transCodes.addSecond(childCallCodes.second());                                 // 0
-            if (hasReturnInBlock) {
-                transCodes.addSecond(genReturnCheckStmt(false));
-            }
-        }
-        { //back, nothing
+        List<Stmt> fastStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, fastMSynth, forClassGen);
+        List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, forClassGen);
+        transCodes.addFast(fastStmts);
+        transCodes.addResume(resumeStmts);
+        transCodes.increasePC();
+        
+        if(WSUtil.hasReturnStatement(f)){
+            //The code is after pc change
+            transCodes.addFast(genReturnCheckStmt(true));
+            transCodes.addPostResume(genReturnCheckStmt(false));
         }
         return transCodes;
     }
 
     protected TransCodes transFinish(Finish f, int prePcValue) throws SemanticException {
 
+        TransCodes transCodes = new TransCodes(prePcValue);
         AbstractWSClassGen finishClassGen = genChildFrame(xts.FinishFrame(), f, null);
         
-        //prepare child frame call;
-        TransCodes childCallCodes = genInvocateFrameStmts(prePcValue + 1, finishClassGen);
-        
-        return childCallCodes;
+      //prepare child frame call;
+        List<Stmt> fastStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, fastMSynth, finishClassGen);
+        List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, finishClassGen);
+        transCodes.addFast(fastStmts);
+        transCodes.addResume(resumeStmts);
+        transCodes.increasePC();
+
+        return transCodes;
     }
     
     protected TransCodes transWhen(When w, int prePcValue) throws SemanticException {
 
-        AbstractWSClassGen finishClassType = genChildFrame(xts.RegularFrame(), w, null);
+        TransCodes transCodes = new TransCodes(prePcValue);
+        AbstractWSClassGen whenClassGen = genChildFrame(xts.RegularFrame(), w, null);
         
         //prepare child frame call;
-        TransCodes childCallCodes = genInvocateFrameStmts(prePcValue + 1, finishClassType);
-        
-        return childCallCodes;
+        List<Stmt> fastStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, fastMSynth, whenClassGen);
+        List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, whenClassGen);
+        transCodes.addFast(fastStmts);
+        transCodes.addResume(resumeStmts);
+        transCodes.increasePC();
+
+        return transCodes;
     }
     
-    //Generate move to heap codes
-    //_pc = x;
-    //if(ff.redirect == null){
-    //    moveToHeap(worker);
-    //}
-    protected TransCodes genMoveFrameToHeapCodes(int prePcValue) throws SemanticException{
-        TransCodes transCodes = new TransCodes(prePcValue + 1);
-        
+
+    /**
+     * Generate switch to resume path statements. In fast path;
+     * _pc = x;
+     * continueNow(worker)
+     * @param prePcValue
+     * @return
+     * @throws SemanticException
+     */
+    protected TransCodes genSwitchToResumePathCodes(int prePcValue) throws SemanticException{
+        TransCodes transCodes = new TransCodes(prePcValue);
         //_pc = x;
         try{
             //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
-            Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
-                                  synth.intValueExpr(transCodes.getPcValue(), compilerPos), xct).type(xts.Int());
-            transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
-            transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));   
+            Stmt pcAssign = wsynth.genPCAssign(classSynth, prePcValue + 1); 
+            transCodes.addFast(pcAssign);
+            transCodes.addResume(pcAssign);   
         }
         catch(polyglot.types.NoMemberException e){
             //Just ignore the pc assign statement if there is no pc field in the frame
         }
         
-        Expr thisRef = genUpcastCall(getClassType(), xts.RegularFrame(), getThisRef());        
-        InstanceCallSynth fastRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, CONTINUE_NOW.toString());
-        Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-        fastRedoCallSynth.addArgument(xts.Worker(), fastWorkerRef);
-        Stmt fastRedoCallStmt = fastRedoCallSynth.genStmt();
-
-        if(!wts.__CPP__){
-            //java path, always redo() in fast path
-            transCodes.addFirst(fastRedoCallStmt);
-        }
-        else{
-            //c++ path, only redo() if ff.redirect == null. make sure ff is migrated
-            // if statement with redo call
-            Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
-            Expr redirectRef = synth.makeFieldAccess(compilerPos, ffRef, REDIRECT, xct);
-            Expr redoCheck = xnf.Binary(compilerPos, redirectRef, Binary.EQ,
-                                        xnf.NullLit(compilerPos).type(xts.FinishFrame())).type(xts.Boolean());
-            Stmt fastIfRedoStmt = xnf.If(compilerPos, redoCheck, fastRedoCallStmt);     
-            transCodes.addFirst(fastRedoCallStmt/*fastIfRedoStmt*/);            
-        }        
+        Stmt fastRedoCallStmt = wsynth.genContinueNowStmt(classSynth, fastMSynth);  
+        transCodes.addFast(fastRedoCallStmt);
         
-        //resume path no need the redo
-//        InstanceCallSynth resumeRedoCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, thisRef, REDO.toString());
-//        Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-//        resumeRedoCallSynth.addArgument(xts.Worker(), resumeWorkerRef);
-//        Stmt resumeIfRedoStmt = xnf.If(compilerPos, redoCheck, resumeRedoCallSynth.genStmt());        
-//        transCodes.addSecond(resumeIfRedoStmt);
-        
+        transCodes.increasePC();
         return transCodes;
     }
 
@@ -471,49 +425,44 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      * @return two transcodes, because the pc will change more than once
      * @throws SemanticException
      */
-    protected Pair<TransCodes, TransCodes> transAtAsyncAt(Stmt stmt, int prePcValue,
+    protected TransCodes transAtAsyncAt(Stmt stmt, int prePcValue,
                                                           boolean isAsync, 
                                                           List<Expr> clocks, //not use clocks now
                                                           Set<Name> declaredLocals) throws SemanticException{
         TransCodes transCodes = new TransCodes(prePcValue); //remote call doesn't need increase pc
         
         //transformation step by step:
-        
-        Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
+        //prepare val rRootFinish:RemoteRootFinish = new RemoteRootFinish(ff);
+        Pair<Stmt, Expr> remoteFFPair = wsynth.genRemoteRootFinishInitializer(classSynth);
+        transCodes.addFast(remoteFFPair.fst());
+        transCodes.addResume(remoteFFPair.fst());
         
         //create the frame class gen
         WSRemoteMainFrameClassGen remoteClassGen = (WSRemoteMainFrameClassGen) genChildFrame(xts.RegularFrame(), stmt, null); //no need prefix gen here
         
-        //prepare val rRootFinish:RemoteRootFinish = new RemoteRootFinish(ff).init();
-        NewInstanceSynth remoteRootFFSynth = new NewInstanceSynth(xnf, xct, compilerPos, xts.RemoteFinish());
-        remoteRootFFSynth.addAnnotation(genStackAllocateAnnotation());
-        remoteRootFFSynth.addArgument(xts.FinishFrame(), ffRef);
-        NewLocalVarSynth remoteRootFFRefLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, remoteRootFFSynth.genExpr());
-        remoteRootFFRefLocalSynth.addAnnotation(genStackAllocateAnnotation());
-        Expr remoteRootFFRef = remoteRootFFRefLocalSynth.getLocal();
-        transCodes.addFirst(remoteRootFFRefLocalSynth.genStmt());
-        transCodes.addSecond(remoteRootFFRefLocalSynth.genStmt());
+        //FIXME: should be merged into gen class invocation stmts
         
         //Prepare the instance
         //val rFrame = new _mainR0(rRootFinish, rRootFinish, n1);
         NewInstanceSynth remoteMainSynth = new NewInstanceSynth(xnf, xct, compilerPos, remoteClassGen.getClassType());
-        remoteMainSynth.addAnnotation(genStackAllocateAnnotation());
+        remoteMainSynth.addAnnotation(wsynth.genStackAllocateAnnotation());
 
         if (isAsync) {
-            remoteMainSynth.addArgument(xts.RemoteFinish(), remoteRootFFRef);
+            remoteMainSynth.addArgument(xts.RemoteFinish(), remoteFFPair.snd());
         } else {
+            //Create the at frame wrapper
             NewInstanceSynth remoteAtFrameSynth = new NewInstanceSynth(xnf, xct, compilerPos, xts.AtFrame());
-            remoteAtFrameSynth.addAnnotation(genStackAllocateAnnotation());
+            remoteAtFrameSynth.addAnnotation(wsynth.genStackAllocateAnnotation());
             remoteAtFrameSynth.addArgument(xts.Frame(), getThisRef());
-            remoteAtFrameSynth.addArgument(xts.RemoteFinish(), remoteRootFFRef);
+            remoteAtFrameSynth.addArgument(xts.RemoteFinish(), remoteFFPair.snd());
             NewLocalVarSynth remoteAtFrameLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, remoteAtFrameSynth.genExpr());
-            remoteAtFrameLocalSynth.addAnnotation(genStackAllocateAnnotation());
-            transCodes.addFirst(remoteAtFrameLocalSynth.genStmt());
-            transCodes.addSecond(remoteAtFrameLocalSynth.genStmt());
+            remoteAtFrameLocalSynth.addAnnotation(wsynth.genStackAllocateAnnotation());
+            transCodes.addFast(remoteAtFrameLocalSynth.genStmt());
+            transCodes.addResume(remoteAtFrameLocalSynth.genStmt());
             Expr remoteAtFrame = remoteAtFrameLocalSynth.getLocal();
             remoteMainSynth.addArgument(xts.Frame(), remoteAtFrame);
         }
-        remoteMainSynth.addArgument(xts.RemoteFinish(), remoteRootFFRef);
+        remoteMainSynth.addArgument(xts.RemoteFinish(), remoteFFPair.snd());
         
         //iterate add all formals required
         for(Pair<Name, Type> formal : remoteClassGen.formals){
@@ -524,9 +473,9 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         }
         
         NewLocalVarSynth remoteMainLocalSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, remoteMainSynth.genExpr());
-        remoteMainLocalSynth.addAnnotation(genStackAllocateAnnotation());
-        transCodes.addFirst(remoteMainLocalSynth.genStmt());
-        transCodes.addSecond(remoteMainLocalSynth.genStmt());
+        remoteMainLocalSynth.addAnnotation(wsynth.genStackAllocateAnnotation());
+        transCodes.addFast(remoteMainLocalSynth.genStmt());
+        transCodes.addResume(remoteMainLocalSynth.genStmt());
         Expr remoteMainRef = remoteMainLocalSynth.getLocal();
         
         
@@ -534,78 +483,43 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         //worker.remoteRunFrame(here.next(), rFrame, ff);
         //need change place to place.home if place is a GlobalRef
         Expr place = (Expr) this.replaceLocalVarRefWithFieldAccess(remoteClassGen.getPlace(), declaredLocals);
-        if (xts.hasSameClassDef(Types.baseType(place.type()), xts.GlobalRef())) {
-                place = synth.makeFieldAccess(stmt.position(),place, xts.homeName(), xct);
-        }
-        String method = isAsync ? RUN_ASYNC_AT.toString() : RUN_AT.toString();
         
-        TransCodes transCodes2 = null;
         if(isAsync) {
-            { //fast
-               InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, xnf.CanonicalTypeNode(compilerPos, xts.Worker()), method);
-               callSynth.addArgument(xts.Place(), place);
-               callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
-               transCodes.addFirst(callSynth.genStmt());
-           }
-           { //resume
-               InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, xnf.CanonicalTypeNode(compilerPos, xts.Worker()), method);
-               callSynth.addArgument(xts.Place(), place);
-               callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
-               transCodes.addSecond(callSynth.genStmt());
-           }
-           } else {
-               transCodes2 = new TransCodes(prePcValue + 1);
-               //block on the flag 
+            Stmt asyncCall = wsynth.genRunAsyncAt(classSynth, place, remoteClassGen.getClassType(), remoteMainRef);
+            transCodes.addFast(asyncCall);
+            transCodes.addResume(asyncCall);
+        } else {
                //_pc = x; increase pc first
-               try{
-                   //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
-                   Expr pcAssgn = synth.makeFieldAssign(compilerPos, getThisRef(), PC,
-                                         synth.intValueExpr(transCodes2.getPcValue(), compilerPos), xct).type(xts.Int());
-                   transCodes.addFirst(xnf.Eval(compilerPos, pcAssgn));
-                   transCodes.addSecond(xnf.Eval(compilerPos, pcAssgn));   
-               }
-               catch(polyglot.types.NoMemberException e){
-                   //Just ignore the pc assign statement if there is no pc field in the frame
-               }
-               
-               { //fast
-                   InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, xnf.CanonicalTypeNode(compilerPos, xts.Worker()), method);
-                   callSynth.addArgument(xts.Place(), place);
-                   callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
-                   transCodes.addFirst(callSynth.genStmt());
-               }
-               { //resume
-                   InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, xnf.CanonicalTypeNode(compilerPos, xts.Worker()), method);
-                   callSynth.addArgument(xts.Place(), place);
-                   callSynth.addArgument(remoteClassGen.getClassType(), remoteMainRef);
-                   transCodes.addSecond(callSynth.genStmt());
-               }
-           }
-        return new Pair<TransCodes, TransCodes>(transCodes, transCodes2);
+            try{
+                //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
+                Stmt pcAssign = wsynth.genPCAssign(classSynth, prePcValue + 1);
+                transCodes.addFast(pcAssign);
+                transCodes.addResume(pcAssign);   
+            }
+            catch(polyglot.types.NoMemberException e){
+                //Just ignore the pc assign statement if there is no pc field in the frame
+            }
+            Stmt atCall = wsynth.genRunAt(classSynth, place, remoteClassGen.getClassType(), remoteMainRef);
+            transCodes.addFast(atCall);
+            transCodes.addResume(atCall);
+            transCodes.increasePC();
+        }
+        return transCodes;
     }
     
     protected TransCodes transAsync(Stmt a, int prePcValue) throws SemanticException {
 
-        TransCodes transCodes = new TransCodes(prePcValue + 1);
+        TransCodes transCodes = new TransCodes(prePcValue);
 
         AbstractWSClassGen asyncClassGen = genChildFrame(xts.AsyncFrame(), a, null);
         
-        //prepare child frame call;
-        TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), asyncClassGen);
-        {// fast
-            //ff.asyncs++
-            // child frame call with push()
-            transCodes.addFirst(childCallCodes.first());
-            // ff.asyncs--
-        }
-        {// resume
-            //atomic ff.asyncs++
-            // child frame call with push()
-            transCodes.addSecond(childCallCodes.second());
-            //atomic ff.asyncs--
-        }
-        {// back - nothing? Really nothing?
-        }
+        //fast
+        List<Stmt> fastStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, fastMSynth, asyncClassGen);
+        transCodes.addFast(fastStmts);
+        // resume
+        List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, asyncClassGen);
+
+        transCodes.increasePC();
         return transCodes;
     }
     
@@ -617,27 +531,21 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      * Else just only replace the local access to field access
      */
     protected TransCodes transBlock(Block block, int prePcValue, String frameNamePrefix) throws SemanticException {
-        TransCodes transCodes = new TransCodes(prePcValue + 1);
+        TransCodes transCodes = new TransCodes(prePcValue);
 
         AbstractWSClassGen blockClassGen = genChildFrame(xts.RegularFrame(), block, frameNamePrefix);
         
         //prepare child frame call;
-        TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), blockClassGen);
-
-        boolean hasReturnInBlock = WSUtil.hasReturnStatement(block);
-        { // fast
-            transCodes.addFirst(childCallCodes.first());
-            if (hasReturnInBlock) {
-                transCodes.addFirst(genReturnCheckStmt(true));
-            }
-        }
-        { // resume
-            transCodes.addSecond(childCallCodes.second());                                 // 0
-            if (hasReturnInBlock) {
-                transCodes.addSecond(genReturnCheckStmt(false));
-            }
-        }
-        { //back, nothing
+        List<Stmt> fastStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, fastMSynth, blockClassGen);
+        List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, blockClassGen);
+        transCodes.addFast(fastStmts);
+        transCodes.addResume(resumeStmts);
+        transCodes.increasePC();
+        
+        if(WSUtil.hasReturnStatement(block)){
+            //The code is after pc change
+            transCodes.addFast(genReturnCheckStmt(true));
+            transCodes.addPostResume(genReturnCheckStmt(false));
         }
         return transCodes;
     }
@@ -654,54 +562,41 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      */
     protected TransCodes transTry(Try tryStmt, int prePcValue) throws SemanticException {
         
-        TransCodes transCodes = new TransCodes(prePcValue + 1);
+        TransCodes transCodes = new TransCodes(prePcValue);
         AbstractWSClassGen tryClassGen = genChildFrame(xts.RegularFrame(), tryStmt, null);
         
+        //FIXME: need understand the situation that a "return" appears in try's block
         //prepare child frame call;
-        TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), tryClassGen);
-
-        //FIXME: need understand the situation tht a "return" appears in try's block
-        boolean hasReturnInBlock = WSUtil.hasReturnStatement(tryStmt.tryBlock());
-        { // fast
-            transCodes.addFirst(childCallCodes.first());
-            if (hasReturnInBlock) {
-                transCodes.addFirst(genReturnCheckStmt(true));
-            }
+        List<Stmt> fastStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, fastMSynth, tryClassGen);
+        List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, tryClassGen);
+        transCodes.addFast(fastStmts);
+        transCodes.addResume(resumeStmts);
+        transCodes.increasePC();
+        
+        if(WSUtil.hasReturnStatement(tryStmt.tryBlock())){
+            //The code is after pc change
+            transCodes.addFast(genReturnCheckStmt(true));
+            transCodes.addPostResume(genReturnCheckStmt(false));
         }
-        { // resume
-            transCodes.addSecond(childCallCodes.second());                                 // 0
-            if (hasReturnInBlock) {
-                transCodes.addSecond(genReturnCheckStmt(false));
-            }
-        }
-        { //back, nothing
-        }        
         return transCodes;
     }
     
     
     protected TransCodes transSwitch(Switch switchStmt, int prePcValue) throws SemanticException {
-        TransCodes transCodes = new TransCodes(prePcValue + 1);
-
+        TransCodes transCodes = new TransCodes(prePcValue);
         AbstractWSClassGen switchClassGen = genChildFrame(xts.RegularFrame(), switchStmt, null);
         
         //prepare child frame call;
-        TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), switchClassGen);
-
-        boolean hasReturnInBlock = WSUtil.hasReturnStatement(switchStmt);
-        { // fast
-            transCodes.addFirst(childCallCodes.first());
-            if (hasReturnInBlock) {
-                transCodes.addFirst(genReturnCheckStmt(true));
-            }
-        }
-        { // resume
-            transCodes.addSecond(childCallCodes.second());                                 // 0
-            if (hasReturnInBlock) {
-                transCodes.addSecond(genReturnCheckStmt(false));
-            }
-        }
-        { //back, nothing
+        List<Stmt> fastStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, fastMSynth, switchClassGen);
+        List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, switchClassGen);
+        transCodes.addFast(fastStmts);
+        transCodes.addResume(resumeStmts);
+        transCodes.increasePC();
+        
+        if(WSUtil.hasReturnStatement(switchStmt)){
+            //The code is after pc change
+            transCodes.addFast(genReturnCheckStmt(true));
+            transCodes.addPostResume(genReturnCheckStmt(false));
         }
         return transCodes;
     }
@@ -724,12 +619,12 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     protected Stmt genReturnCheckStmt(boolean isFastPath) throws SemanticException {
         isReturnPathChanged = true; //has changed the original return path
         // return and reference
-        Name returnFlagName = this.queryMethodReturnFlagName();
+        Name returnFlagName = WSSynthesizer.RETURN_FLAG;
         Expr methodFrameRef = this.getFieldContainerRef(returnFlagName, xts.Boolean());
         Expr returnFlagRef = synth.makeFieldAccess(compilerPos, methodFrameRef, returnFlagName, xct)
                 .type(xts.Boolean());
 
-        Name resultName = this.queryMethodResultFieldName();
+        Name resultName = WSSynthesizer.RETURN_VALUE;
         Expr resultRef = null;
         if (isFastPath && resultName != null && this instanceof WSMethodFrameClassGen) {
             // has return value && the current frame is method frame
@@ -750,14 +645,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     }
 
     protected void genClassConstructor() throws SemanticException {
-        // add all constructors
-        CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
-
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, xts.Frame(), UP.toString());
-        Expr ffRef = conSynth.addFormal(compilerPos, Flags.FINAL, xts.FinishFrame(), FF.toString());
-        SuperCallSynth superCallSynth = conCodeSynth.createSuperCall(compilerPos, classSynth.getDef());
-        superCallSynth.addArgument(xts.Frame(), upRef);
-        superCallSynth.addArgument(xts.FinishFrame(), ffRef);
+        wsynth.genClassConstructorType2Base(classSynth);
     }
     
     /* 

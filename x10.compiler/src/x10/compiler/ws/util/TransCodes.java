@@ -29,110 +29,82 @@ import polyglot.ast.Stmt;
  *
  */
 public class TransCodes {
+        
+    private int pcValue; //current pc Value
     
-    int pcValue;
+    List<Stmt> fastStmts;
+    List<Stmt> resumeStmts; //store all the stmts before PC Change
+    List<Stmt> resumePostStmts; //store all the stmts after PC Change
+    List<Stmt> backStmts;
 
-    List<Stmt> flattenedCodes; //used to store flattened codes
-    
-    Triple<List<Stmt>, List<Stmt>, List<Stmt>> codes;
-    public TransCodes(){
-        codes = new Triple<List<Stmt>, List<Stmt>, List<Stmt>>(
-                new ArrayList<Stmt>(), new ArrayList<Stmt>(), new ArrayList<Stmt>());
-    }
-    
+
     /**
      * Initialize a TransCodes with as-is pcValue
      * @param pcValue
      */
     public TransCodes(int pcValue){
-        this();
         this.pcValue = pcValue;
+        
+        fastStmts = new ArrayList<Stmt>();
+        resumeStmts = new ArrayList<Stmt>();
+        resumePostStmts = new ArrayList<Stmt>();
+        backStmts = new ArrayList<Stmt>();
     }
     
-    public void addFirst(List<Stmt> ss){
-        codes.first().addAll(ss);
-    }
-    
-    public void addFirst(Stmt s){
-        codes.first().add(s);
-    }
-
-    public void addSecond(List<Stmt> ss){
-        codes.second().addAll(ss);
-    }
-    
-    public void addSecond(Stmt s){
-        codes.second().add(s);
-    }
-    
-    public void addThird(List<Stmt> ss){
-        codes.third().addAll(ss);
-    }
-    
-    public void addThird(Stmt s){
-        codes.third().add(s);
-    }
-    
-    public List<Stmt> first(){
-        return codes.first();
-    }
-    
-    public List<Stmt> second(){
-        return codes.second();
-    }
-    
-    public List<Stmt> third(){
-        return codes.third();
-    }
-
-    public void increPcValue(){
+    public void increasePC(){
         pcValue ++;
     }
     
-    public int getPcValue() {
+    public int pcValue() {
         return pcValue;
+    } 
+    
+    public void addFast(List<Stmt> ss){
+        fastStmts.addAll(ss);
     }
     
-    public void setPcValue(int pcValue) {
-        this.pcValue = pcValue;
-    }
-    
-    public void addFlattened(Stmt stmt){
-        if(flattenedCodes == null){
-            flattenedCodes = new ArrayList<Stmt>();
-        }
-        if(stmt instanceof Block){
-            //unroll block
-            flattenedCodes.addAll(unrollBlock((Block)stmt));
-        }
-        else{
-            flattenedCodes.add(stmt);
-        }
-    }
-    
-    
-    protected List<Stmt> unrollBlock(Block block){
-        
-        List<Stmt> blockSS = block.statements();
-        
-        if(blockSS.size() == 1 && blockSS.get(0) instanceof Block){
-            return unrollBlock((Block) blockSS.get(0));
-        }
-        return blockSS; 
-    }
-    
-    
-    public void addFlattened(List<Stmt> stmts){
-        if(flattenedCodes == null){
-            flattenedCodes = new ArrayList<Stmt>();
-        }
-        flattenedCodes.addAll(stmts);
+    public void addFast(Stmt s){
+        fastStmts.add(s);
     }
 
-    public List<Stmt> getFlattenedCodes() {
-        if(flattenedCodes == null){
-            flattenedCodes = new ArrayList<Stmt>();
-        }
-        return flattenedCodes;
+    public void addResume(List<Stmt> ss){
+        resumeStmts.addAll(ss);
     }
+    
+    public void addResume(Stmt s){
+        resumeStmts.add(s);
+    }
+    
+    public void addResumePost(List<Stmt> ss){
+        resumePostStmts.addAll(ss);
+    }
+    
+    public void addPostResume(Stmt s){
+        resumePostStmts.add(s);
+    }
+    
+    public void addBack(List<Stmt> ss){
+        backStmts.addAll(ss);
+    }
+    
+    public void addBack(Stmt s){
+        backStmts.add(s);
+    }
+    
+    public List<Stmt> getFastStmts(){
+        return fastStmts;
+    }
+    
+    public List<Stmt> getResumeStmts(){
+        return resumeStmts;
+    }
+    
+    public List<Stmt> getResumePostStmts(){
+        return resumePostStmts;
+    }
+    
+    public List<Stmt> getBackStmts(){
+        return backStmts;
+    }
+   
 }

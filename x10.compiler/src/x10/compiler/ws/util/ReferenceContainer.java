@@ -30,7 +30,7 @@ import x10.compiler.ws.codegen.AbstractWSClassGen;
  *       _fibF0B0 (up = _fibF0)
  *         _fibF0B0A0 (k = _fibF0B0, up = _fibF0)
  *         
- *  In _fibF0B0A0, if it wants to acess a variable in _fib,
+ *  In _fibF0B0A0, if it wants to access a variable in _fib,
  *  it needs a reference up.up, or k.up.up.up
  *  
  *  This Reference container will store both of the two references,
