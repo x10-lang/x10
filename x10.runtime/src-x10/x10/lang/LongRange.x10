@@ -14,7 +14,7 @@ package x10.lang;
 /**
  * A representation of the range of longs [min..max].
  */
-public final class LongRange(
+public struct LongRange(
                /**
                 * The minimum value included in the range
                 */
