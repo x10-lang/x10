@@ -51,7 +51,7 @@ class FRASimpleDist {
             temp = (temp << 1) ^ (temp < 0L ? POLY : 0L);
             temp = (temp << 1) ^ (temp < 0L ? POLY : 0L);
         }
-        for (i=62; i>=0; i--) if (((n >> i) & 1) != 0) break;
+        for (i=62; i>=0; i--) if (((n >> i) & 1) != 0L) break;
         var ran:long = 0x2L;
         while (i > 0) {
             temp = 0L;
