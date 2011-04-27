@@ -53,7 +53,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     
     public def addBefore(i: int, v: T): void {
         a.add(v);
-        for (var j: int = i+1; j < a.length(); j++) {
+        for (var j:int = a.length()-1; j > i; j--) {
             a(j) = a(j-1);
         }
         a(i) = v;
@@ -83,7 +83,6 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     
     public def isEmpty(): Boolean = size() == 0;
 
-    // DEPRECATED
     public def toArray() = a.toArray();
 
     public def this() {
