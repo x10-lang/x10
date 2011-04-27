@@ -189,14 +189,22 @@ public class ClosureSynthesizer {
 
         // Compute type arguments.
         List<Type> typeArgs = new ArrayList<Type>();
-        typeArgs.addAll(ci.formalTypes());
+        List<LocalDef> fromNames = def.formalNames();
+        MethodInstance instance = sup.applyMethod();
+        List<LocalDef> toNames =  ((X10MethodDef) instance.def()).formalNames();
+        XVar[] fromVars = Types.toVarArray(toNames);
+        XVar[] toVars = Types.toVarArray(fromNames);
+        List<Type> formalTypes = ci.formalTypes();
+        try {
+            formalTypes = Subst.subst(formalTypes, fromVars, toVars);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Unexpected exception while creating a closure type", pos, e);
+        }
+        typeArgs.addAll(formalTypes);
         Type rt = ci.returnType();
         if (!rt.isVoid()) {
-            List<LocalDef> fromNames = def.formalNames();
-            MethodInstance instance = sup.applyMethod();
-            List<LocalDef> toNames =  ((X10MethodDef) instance.def()).formalNames();
             try {
-                rt = Subst.subst(rt, Types.toVarArray(toNames), Types.toVarArray(fromNames));
+                rt = Subst.subst(rt, fromVars, toVars);
             } catch (SemanticException e) {
                 throw new InternalCompilerError("Unexpected exception while creating a closure type", pos, e);
             }
@@ -212,11 +220,8 @@ public class ClosureSynthesizer {
         if (guard != null) {
             CConstraint constraint = guard.get();
             // need to rename the guard variables according to the method parameters
-            List<LocalDef> fromNames = def.formalNames();
-            MethodInstance instance = sup.applyMethod();
-            List<LocalDef> toNames =  ((X10MethodDef) instance.def()).formalNames();
             try {
-                constraint = Subst.subst(constraint, Types.toVarArray(toNames), Types.toVarArray(fromNames));
+                constraint = Subst.subst(constraint, fromVars, toVars);
             } catch (SemanticException e) {
                 throw new InternalCompilerError("Unexpected exception while creating a closure type", pos, e);
             }

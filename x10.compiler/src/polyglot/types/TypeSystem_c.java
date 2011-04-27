@@ -3395,7 +3395,8 @@ public class TypeSystem_c implements TypeSystem
             return ts.typeEquals(Types.baseType(o), Types.baseType(p), context);
         }
     }
-    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<Type> argTypes, XVar thisVar, Context context) {
+    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, XVar thisVar, Context context) {
+        XVar[] xvars = Types.toVarArray(Types.toLocalDefList(formalNames));
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         for (MethodInstance mi : t.methodsNamed(name)) {
             List<XVar> ys = new ArrayList<XVar>(2);
@@ -3408,6 +3409,10 @@ public class TypeSystem_c implements TypeSystem
             mi = new X10TypeEnv_c(context).fixThis((MethodInstance) mi, y, x);
 
             if (mi.typeParameters().size() != typeParams.size()) {
+                continue;
+            }
+
+            if (mi.formalNames().size() != formalNames.size()) {
                 continue;
             }
 
@@ -3424,8 +3429,18 @@ public class TypeSystem_c implements TypeSystem
 //                l.add(mi);
 //            }
 
+            List<Type> formalTypes = new ArrayList<Type>();
+            for (LocalInstance li : formalNames) {
+                formalTypes.add(li.type());
+            }
+            try {
+                XVar[] yvars = Types.toVarArray(Types.toLocalDefList(mi.formalNames()));
+                formalTypes = Subst.subst(formalTypes, yvars, xvars);
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Unexpected exception while translating a method instance", e);
+            }
             TypeParamSubst tps = new TypeParamSubst(this, typeParams, mi.x10Def().typeParameters());
-            if (CollectionUtil.allElementwise(argTypes, tps.reinstantiate(mi.formalTypes()), new TypeEquals(context))) {
+            if (CollectionUtil.allElementwise(formalTypes, tps.reinstantiate(mi.formalTypes()), new TypeEquals(context))) {
                 l.add(mi);
             }
         }
@@ -3451,7 +3466,7 @@ public class TypeSystem_c implements TypeSystem
         context.setCurrentConstraint(cc);
         ContainerType curr = ct;
         while (curr != null) {
-            List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalTypes(), thisVar, context);
+            List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context);
             for (MethodInstance mj : possible) {
                 if ((includeAbstract || !mj.flags().isAbstract()) 
                         && ((isAccessible(mi, context) && isAccessible(mj, context)) 

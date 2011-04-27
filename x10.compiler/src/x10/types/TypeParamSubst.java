@@ -101,6 +101,7 @@ public class TypeParamSubst {
 			MacroType mt = (MacroType) t;
 			if (eager) {
 			    mt = mt.definedType(reinstantiate(mt.definedType()));
+			    mt = (MacroType) mt.formalNames(reinstantiate(mt.formalNames()));
 			    mt = (MacroType) mt.formalTypes(reinstantiate(mt.formalTypes()));
 			    mt = (MacroType) mt.typeParameters(reinstantiate(mt.typeParameters()));
 			    mt = mt.guard(reinstantiate(mt.guard()));
@@ -227,6 +228,7 @@ public class TypeParamSubst {
 		    final ClosureInstance fi = t;
 		    ClosureInstance res = new ClosureInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.def()));
 		    res = (ClosureInstance) res.returnType(reinstantiate(fi.returnType()));
+		    res = (ClosureInstance) res.formalNames(reinstantiate(fi.formalNames()));
 		    res = (ClosureInstance) res.formalTypes(reinstantiate(fi.formalTypes()));
 		    //res = (ClosureInstance) res.throwTypes(reinstantiate(fi.throwTypes()));
 		    res = (ClosureInstance) res.guard(reinstantiate(fi.guard()));
@@ -358,6 +360,7 @@ public class TypeParamSubst {
 		if (eager) {
 		    X10ConstructorInstance ci = t;
 		    ci = (X10ConstructorInstance) ci.returnType(reinstantiate(ci.returnType()));
+		    ci = (X10ConstructorInstance) ci.formalNames(reinstantiate(ci.formalNames()));
 		    ci = (X10ConstructorInstance) ci.formalTypes(reinstantiate(ci.formalTypes()));
 		    //ci = (X10ConstructorInstance) ci.throwTypes(reinstantiate(ci.throwTypes()));
 		    ci = (X10ConstructorInstance) ci.container(reinstantiate(ci.container()));
@@ -372,6 +375,7 @@ public class TypeParamSubst {
 		if (eager) {
 		    MethodInstance mi = t;
 		    mi = (MethodInstance) mi.returnType(reinstantiate(mi.returnType()));
+		    mi = (MethodInstance) mi.formalNames(reinstantiate(mi.formalNames()));
 		    mi = (MethodInstance) mi.formalTypes(reinstantiate(mi.formalTypes()));
 		    //mi = (X10MethodInstance) mi.throwTypes(reinstantiate(mi.throwTypes()));
 		    mi = (MethodInstance) mi.container(reinstantiate(mi.container()));

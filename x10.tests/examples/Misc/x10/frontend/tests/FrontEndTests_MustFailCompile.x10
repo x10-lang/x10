@@ -6462,7 +6462,7 @@ class TestClassConformance { // XTENLANG-2509
 								 B:Matrix{self.N==this.N, self.M==A.N}):void;
 	}
 	
-	public class ConcreteMatrix extends Matrix { // ShouldNotBeERR see XTENLANG-2509
+	public class ConcreteMatrix extends Matrix {
 		public def this(m:Int, n:Int) = super(m, n);
 		public def mult(A:Matrix{self.M==this.M}, 
 						B:Matrix{self.N==this.N, self.M==A.N}) { }

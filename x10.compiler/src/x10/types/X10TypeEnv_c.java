@@ -1210,7 +1210,27 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 }
             }
         }
-        
+
+        if (t1 instanceof FunctionType && t2 instanceof FunctionType) {
+            FunctionType ft1 = (FunctionType) t1;
+            FunctionType ft2 = (FunctionType) t2;
+            if (ft1.formalNames().size() == ft2.formalNames().size()) {
+                // Rename formals
+                XTerm[] ys = new XTerm[ft1.formalNames().size()];
+                for (int i = 0; i < ys.length; i++) {
+                    ys[i] = XTerms.makeUQV();
+                }
+                try {
+                    XVar[] xs1 = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
+                    t1 = Subst.subst(ft1, ys, xs1, new Type[] { }, new ParameterType[] { });
+                    XVar[] xs2 = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
+                    t2 = Subst.subst(ft2, ys, xs2, new Type[] { }, new ParameterType[] { });
+                } catch (SemanticException e) {
+                    throw new InternalCompilerError("Unexpected exception while transforming function types", e);
+                }
+            }
+        }
+
         if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
             X10ClassType ct1 = (X10ClassType) t1;
             X10ClassType ct2 = (X10ClassType) t2;
@@ -1836,7 +1856,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         while (rt != null) {
             // add any method with the same name and formalTypes from rt
-            l.addAll(ts.methods(rt, mi.name(), mi.typeParameters(), mi.formalTypes(), thisVar, context));
+            l.addAll(ts.methods(rt, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context));
 
             ContainerType sup = null;
 
@@ -1879,7 +1899,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 
         List<MethodInstance> l = new LinkedList<MethodInstance>();
-        l.addAll(ts.methods(st, mi.name(), mi.typeParameters(), mi.formalTypes(), thisVar, context));
+        l.addAll(ts.methods(st, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context));
 
         if (st instanceof ObjectType) {
             ObjectType rt = (ObjectType) st;
@@ -2236,7 +2256,20 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	        }
 	    }
 	
-	    mj = (MethodInstance) mj.formalTypes(newFormals);
+	    List<LocalInstance> newFormalNames = new ArrayList<LocalInstance>();
+	    
+	    for (LocalInstance li : mj.formalNames()) {
+	        try {
+	            LocalInstance newLI;
+	            newLI = Subst.subst((X10LocalInstance) li, y, x);
+	            newFormalNames.add(newLI);
+	        }
+	        catch (SemanticException e) {
+	            newFormalNames.add(li);
+	        }
+	    }
+	    
+	    mj = (MethodInstance) mj.formalNames(newFormalNames);
 	
 	    if (mj.guard() != null) {
 	        try {
