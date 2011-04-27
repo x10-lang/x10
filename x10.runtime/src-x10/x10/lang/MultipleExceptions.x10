@@ -30,20 +30,26 @@ public class MultipleExceptions(exceptions:Rail[Throwable]) extends Exception {
         property(new Array[Throwable](1, t));
     }
 
-    // workarounds for XTENLANG-283, 284
-
     public def printStackTrace(): void {
-        //super.printStackTrace();
         for (t:Throwable in exceptions.values()) {
             t.printStackTrace();
         }
     }
 
     public def printStackTrace(p:Printer): void {
-        //super.printStackTrace(p);
         for (t:Throwable in exceptions.values()) {
             t.printStackTrace(p);
         }
+    }
+
+    public def toString() {
+        var me:String = super.toString();
+        if (exceptions.size > 0) {
+	  for (e in exceptions.values()) {
+              me += "\n\t"+e;
+          }
+        }
+        return me;
     }
 
     public static def make(stack:Stack[Throwable]):MultipleExceptions {

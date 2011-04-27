@@ -47,7 +47,10 @@ public class Exception extends Throwable {
     /**
      * Create a String representation of this Exception.
      */
-    public def toString() = typeName() + ": " + getMessage();
+    public def toString() {
+        val m = getMessage();
+        return m == null ? typeName() : typeName() + ": " + getMessage();
+    }
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
