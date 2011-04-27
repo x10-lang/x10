@@ -338,7 +338,7 @@ public class Closure_c extends Expr_c implements Closure {
 	@Override
 	public Context enterChildScope(Node child, Context c) {
 		// We should have entered the method scope already.
-		if  ( c.currentCode() != this.closureDef())
+		if  (c.currentCode() != this.closureDef())
 			assert c.currentCode() == this.closureDef();
 
 		if (child != body()) {

@@ -30,7 +30,7 @@ import x10.util.RemoteIndexedMemoryChunk;
  * at (rawData.home()) { (this.rawData)() == (this.array)().raw() }
  * </pre>
  */
-public class RemoteArray[T](
+public final class RemoteArray[T](
         /**
          * The Region of the remote array
          */

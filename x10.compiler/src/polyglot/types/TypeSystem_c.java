@@ -793,6 +793,12 @@ public class TypeSystem_c implements TypeSystem
     private boolean emptyContextSubtype(Type t, X10ClassType xlass) {
         return isSubtype(t, xlass, EMPTY_CONTEXT);
     }
+    /**
+     * A shortcut version of the subtype test -- only works if xclass cannot be subclassed.
+     * @param t the type to test
+     * @param xlass the potential supertype
+     * @return true if t is a subtype of xclass, and false otherwise
+     */
     private boolean finalSubtype(Type t, X10ClassType xlass) {
         assert xlass.flags().isStruct() || xlass.flags().isFinal();
         return hasSameClassDef(t,xlass) || isUnknown(t);        

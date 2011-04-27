@@ -154,7 +154,7 @@ public class SharedMem implements Cloneable {
 		@Override
 		public void visitChildren(Node parent, NodeVisitor v) {
         	numElements = (Expr) parent.visitChild(numElements, v);
-	        if (init!=null) init = (Expr) init.visitChildren(v);
+	        if (init!=null) init = (Expr) parent.visitChild(init, v);
 		}
     }
     private static class Var extends Decl {
