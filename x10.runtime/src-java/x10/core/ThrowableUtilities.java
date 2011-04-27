@@ -22,6 +22,7 @@ public abstract class ThrowableUtilities {
 	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Exception(RuntimeException) must be sync with TryCatchExpander.x10RuntimeExceptions
 	public static x10.core.Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
         java.lang.String newExcName = "x10.lang.RuntimeException";
+        java.lang.String message = e.getMessage();
         if (e instanceof java.lang.ArithmeticException) {
             newExcName = "x10.lang.ArithmeticException";
         } else if (e instanceof java.lang.ArrayIndexOutOfBoundsException) {
@@ -42,10 +43,11 @@ public abstract class ThrowableUtilities {
             newExcName = "x10.lang.UnsupportedOperationException";
         } else {
             // no corresponding x10 exceptions defined
+            message = e.getClass().getName() + ": " + message;
         }
 
         try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { e.getMessage() });
+            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
@@ -60,6 +62,7 @@ public abstract class ThrowableUtilities {
 	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Exception(Exception) must be sync with TryCatchExpander.x10RuntimeExceptions
 	public static x10.core.Throwable getCorrespondingX10Exception(java.lang.Exception e) {
         java.lang.String newExcName = "x10.lang.Exception";
+        java.lang.String message = e.getMessage();
         if (e instanceof java.io.FileNotFoundException) {
             newExcName = "x10.io.FileNotFoundException";
         } else if (e instanceof java.io.EOFException) {
@@ -72,10 +75,11 @@ public abstract class ThrowableUtilities {
             newExcName = "x10.lang.InterruptedException";
         } else {
             // no corresponding x10 exceptions defined
+            message = e.getClass().getName() + ": " + message;
         }
 
         try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
+            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { message });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
@@ -90,6 +94,7 @@ public abstract class ThrowableUtilities {
 	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Error(Error) must be sync with TryCatchExpander.x10Errors
 	public static x10.core.Throwable getCorrespondingX10Error(java.lang.Error e) {
         java.lang.String newExcName = "x10.lang.Error";
+        java.lang.String message = e.getMessage();
         if (e instanceof java.lang.OutOfMemoryError) {
             newExcName = "x10.lang.OutOfMemoryError";
         } else if (e instanceof java.lang.StackOverflowError) {
@@ -98,10 +103,11 @@ public abstract class ThrowableUtilities {
             newExcName = "x10.lang.AssertionError";
         } else {
             // no corresponding x10 errors defined
+            message = e.getClass().getName() + ": " + message;
         }
 
         try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { e.getMessage() });
+            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
@@ -116,9 +122,9 @@ public abstract class ThrowableUtilities {
     // N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Throwable(Throwable) must be sync with TryCatchExpander.x10Throwables
 	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Throwable e) {
         java.lang.String newExcName = "x10.lang.Throwable";
-
+        java.lang.String message = e.getMessage();
         try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { e.getMessage() });
+            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
