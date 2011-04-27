@@ -466,6 +466,10 @@ public class Converter {
 			if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
 				List<Type>[] alternatives = new List[ct.typeArguments().size()];
 				List<Type> newArgs = new ArrayList<Type>(ct.typeArguments().size());
+				if (ct.x10Def().variances().size() != ct.typeArguments().size()) {
+				    // an error would have been reported already
+				    throw new Errors.CannotConvertExprToType(cast.expr(), cast.conversionType(), toType, cast.position());
+				}
 				for (int i = 0; i < ct.typeArguments().size(); i++) {
 					ParameterType.Variance v = ct.x10Def().variances().get(i);
 					Type ti = ct.typeArguments().get(i);
