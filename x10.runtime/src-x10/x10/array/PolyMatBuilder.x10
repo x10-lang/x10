@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.TempNoInline_0;
 import x10.util.ArrayList;
 import x10.io.Printer;
 
@@ -30,7 +31,7 @@ class PolyMatBuilder(rank: int) extends MatBuilder {
      * Create a new empty builder.
      */
 
-    public def this(rank: int): PolyMatBuilder{self.rank==rank} {
+    public @TempNoInline_0 def this(rank: int): PolyMatBuilder{self.rank==rank} {
         super(rank+1);
         property(rank);
     }

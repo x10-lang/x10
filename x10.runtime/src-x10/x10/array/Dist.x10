@@ -12,6 +12,7 @@
 package x10.array;
 
 import x10.compiler.NoInline;
+import x10.compiler.TempNoInline_0;
 import x10.compiler.NoReturn;
 
 /**
@@ -48,7 +49,7 @@ public abstract class Dist(
      *
      * @return a "unique" distribution over all places.
      */
-    public static def makeUnique():Dist(1) {
+    public static @TempNoInline_0 def makeUnique():Dist(1) {
         return UNIQUE;        
     }
     // Cache pre-allocated UniqueDist to optimize makeUnique calls.

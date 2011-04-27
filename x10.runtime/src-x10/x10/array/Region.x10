@@ -436,7 +436,7 @@ public abstract class Region(
     
     public operator this + (v: Point(rank)) = translate(v);
     public operator (v: Point(rank)) + this = translate(v);
-    public operator this - (v: Point(rank)) = translate(-v);
+    public operator this - (v: Point(rank)) = @TempNoInline_0 translate(-v);
 
 
     //

@@ -13,6 +13,7 @@ package x10.array;
 
 import x10.io.Printer;
 import x10.compiler.Incomplete;
+import x10.compiler.TempNoInline_0;
 import x10.compiler.TempNoInline_3;
 
 /**
@@ -261,7 +262,7 @@ class PolyRegion extends Region {
     private static ROW: int = PolyMatBuilder.X(0);
     private static COL: int = PolyMatBuilder.X(1);
 
-    public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
+    public static @TempNoInline_0 def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
         val pmb = new PolyMatBuilder(2);
         pmb.add(ROW, pmb.GE, rowMin);
         pmb.add(ROW, pmb.LE, rowMax);
@@ -277,7 +278,7 @@ class PolyRegion extends Region {
         return makeBanded(0, 0, size-1, size-1, upper, lower);
     }
 
-    public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
+    public static @TempNoInline_0 def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
         val pmb = new PolyMatBuilder(2);
         pmb.add(ROW, pmb.GE, rowMin);
         pmb.add(COL, pmb.LE, colMin+size-1);
@@ -286,7 +287,7 @@ class PolyRegion extends Region {
         return PolyRegion.make(pm);
     }
 
-    public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
+    public static @TempNoInline_0 def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
         val pmb = new PolyMatBuilder(2);
         pmb.add(COL, pmb.GE, colMin);
         pmb.add(ROW, pmb.LE, rowMin+size-1);
@@ -310,7 +311,7 @@ class PolyRegion extends Region {
         }
     }
 
-    protected def this(pm: PolyMat, hack198:boolean): PolyRegion(pm.rank) {
+    protected @TempNoInline_0 def this(pm: PolyMat, hack198:boolean): PolyRegion(pm.rank) {
 
         super(pm.rank, pm.isRect(), pm.isZeroBased());
 

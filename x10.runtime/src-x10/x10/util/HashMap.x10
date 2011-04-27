@@ -11,6 +11,7 @@
 
 package x10.util;
 
+import x10.compiler.TempNoInline_0;
 import x10.compiler.TempNoInline_1;
 import x10.compiler.NonEscaping;
 import x10.io.CustomSerialization;
@@ -146,7 +147,7 @@ import x10.io.SerialData;
     }
     
     public def put(k: K, v: V): Box[V] = putInternal(k,v);
-    @NonEscaping protected final def putInternal(k: K, v: V): Box[V] {
+    @NonEscaping @TempNoInline_0 protected final def putInternal(k: K, v: V): Box[V] {
         if (occupation == table.length() || (shouldRehash && occupation >= table.length() / 2))
             rehashInternal();
 
@@ -182,7 +183,7 @@ import x10.io.SerialData;
     }
     
     public def rehash():void { rehashInternal(); }
-    @NonEscaping protected final def rehashInternal(): void {
+    @TempNoInline_0 @NonEscaping protected final def rehashInternal(): void {
         modCount++;
         val t = table;
         val oldSize = size;
