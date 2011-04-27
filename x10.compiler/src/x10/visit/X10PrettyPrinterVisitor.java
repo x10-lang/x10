@@ -555,7 +555,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         // print the constructor just for allocation
         if (supportConstructorSplitting
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(def.asType()))
+                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
                 && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
@@ -863,7 +863,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         X10ClassType type = (X10ClassType) Types.get(n.constructorDef().container());
         if (supportConstructorSplitting
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(type)) {
+                && !ConstructorSplitterVisitor.isUnsplittable(type)) {
 
             printConstructorMethodDecl(n);
             return;
@@ -951,7 +951,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (supportConstructorSplitting
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(type))) {
+                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))) {
             printAllocationCall(type);
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);
@@ -2228,7 +2228,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         
         if (supportConstructorSplitting
                 && !type.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(type))
+                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))
                 && !type.fullName().toString().startsWith("java.")) {
 
             printAllocationCall(type);
@@ -3218,7 +3218,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public void visit(X10ConstructorCall_c c) {
         ContainerType ct = c.constructorInstance().container();
         if (supportConstructorSplitting
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(ct))) {
+                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(ct))) {
         	TypeSystem ts = tr.typeSystem();
         	boolean isObject = Types.baseType(ct).typeEquals(ts.Object(), tr.context());
             Expr target = c.target();

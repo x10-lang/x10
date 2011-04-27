@@ -103,7 +103,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         Position pos = node.position();
         if (node instanceof New && !(parent instanceof LocalDecl)){
             New n              = (New) node;
-            if (cannotSplitConstructor(n.constructorInstance().container().toClass()))
+            if (isUnsplittable(n.constructorInstance().container().toClass()))
                 return n;
             Type type          = n.type();
             Allocation a       = syn.createAllocation(pos, type, n.typeArguments());
@@ -121,7 +121,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         if (node instanceof LocalDecl && ((LocalDecl) node).init() instanceof New) {
             LocalDecl ld       = (LocalDecl) node;
             New n              = (New) ld.init();
-            if (cannotSplitConstructor(n.constructorInstance().container().toClass()))
+            if (isUnsplittable(n.constructorInstance().container().toClass()))
                 return ld;
             Type type          = n.type();
             Allocation a       = syn.createAllocation(pos, type, n.typeArguments());
@@ -153,6 +153,11 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         } 
         if (node instanceof ConstructorCall) {
             ConstructorCall cc = (ConstructorCall) node;
+            /*
+            if (cc.kind() == ConstructorCall.SUPER && ts.typeEquals(cc.constructorInstance().returnType(), ts.Object(), context())) {
+                return nf.Empty(cc.position());
+            }
+            */
             if (null == cc.target()) {
                 Special target = syn.createThis(node.position(), cc.constructorInstance().returnType());
                 // TODO if "this" is generic make sure it's typeArgs get included in those of cc
@@ -166,14 +171,33 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
      * @param type
      * @return
      */
-    public static boolean cannotSplitConstructor(Type type) {
-        if (null == type || type.typeEquals(type.typeSystem().Object(), type.typeSystem().emptyContext()))
+    public static boolean isUnsplittable(Type type) {
+        assert null != type;
+        TypeSystem ts = type.typeSystem();
+        assert null != ts;
+        if (ts.typeEquals(type, ts.Object(), ts.emptyContext()))
             return false;
-        if (hasNaiveAnnotation(type)) 
+        if (hasNaiveAnnotation(type))
             return true;
-        if (type instanceof ObjectType)
-            return cannotSplitConstructor(((ObjectType) type).superClass());
+        if (type instanceof ObjectType) {
+            return inheritsUnsplittability(((ObjectType) type).superClass(), ts);
+        }
         return false;
+    }
+
+    /**
+     * @param type
+     * @param ts 
+     * @return
+     */
+    public static boolean inheritsUnsplittability(Type type, TypeSystem ts) {
+        if (null == type)
+            return false; // some non-Native ObjectClass's (x10.array.RectLayout for one) don't have a superClass ????
+        if (ts.typeEquals(type, ts.Object(), ts.emptyContext()))
+            return false;  // inheriting from x10.lang.object is ok
+        if (hasNaiveAnnotation(type)) 
+            return true;   // inheriting from any other native class is not
+        return inheritsUnsplittability(((ObjectType) type).superClass(), ts);
     }
 
     /**
