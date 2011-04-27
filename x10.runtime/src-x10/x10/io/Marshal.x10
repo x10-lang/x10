@@ -49,10 +49,11 @@ public interface Marshal[T] {
         public def read(r: Reader): String { //throws IOException {
             val sb = new StringBuilder();
             var ch: Char;
-            do {
+            while(true) {
                 ch = CHAR.read(r);
+                if (ch == '\n') break;
                 sb.add(ch);
-            } while (ch != '\n');
+            };
             return sb.result();
         }
         public def write(w: Writer, s: String): void //throws IOException 
