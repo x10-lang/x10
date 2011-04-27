@@ -668,7 +668,7 @@ public class WSCodePreprocessor extends ContextVisitor {
         else{
             r = synth.thisRef(ct.currentClass(), compilerPos);
         }
-        Call call = nf.Call(pos, r, callId, paras);
+        Call call = (Call) nf.Call(pos, r, callId, paras).type(ts.Void());
         MethodInstance mi = mDef.asInstance();
         mi = (MethodInstance) mi.flags(mDef.flags());
         mi = mi.name(mDef.name());
