@@ -7,14 +7,31 @@
 
 package polyglot.frontend;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import polyglot.ast.PackageNode;
 import polyglot.ast.SourceFile;
 import polyglot.types.QName;
 import polyglot.types.reflect.ClassFileLoader;
-import polyglot.util.*;
+import polyglot.util.CodeWriter;
+import polyglot.util.ErrorInfo;
+import polyglot.util.ErrorLimitError;
+import polyglot.util.ErrorQueue;
+import polyglot.util.InternalCompilerError;
+import polyglot.util.OptimalCodeWriter;
+import polyglot.util.SimpleCodeWriter;
+import polyglot.util.StdErrorQueue;
+import x10.optimizations.inlining.InlinerCache;
 import x10.util.CollectionFactory;
 
 /**
@@ -24,6 +41,7 @@ import x10.util.CollectionFactory;
  */
 public class Compiler
 {
+    
     /** The extension info */
     private ExtensionInfo extensionInfo;
 
@@ -32,6 +50,22 @@ public class Compiler
 
     /** The error queue handles outputting error messages. */
     private ErrorQueue eq;
+
+    /** A cache to be used by the Inliner */
+    private SoftReference<InlinerCache>  inlinerCacheReference;
+
+    public InlinerCache getInlinerCache() {
+        InlinerCache cache = (null == inlinerCacheReference) ? null : inlinerCacheReference.get();
+        if (null == cache) {
+            cache = new InlinerCache();
+            inlinerCacheReference = new SoftReference<InlinerCache>(cache);
+        }
+        return inlinerCacheReference.get();
+    }
+
+    public void invalidateInlinerCache() {
+        inlinerCacheReference = null;
+    }
 
     /** FIXME: TEMPRORARY Inliner hack: Errors in speculative compilation for inlining should not be fatal
      * @depricated DO NOT USE
