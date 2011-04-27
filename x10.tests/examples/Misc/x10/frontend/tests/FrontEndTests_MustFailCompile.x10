@@ -3649,7 +3649,7 @@ class RuntimeTestsOfHaszero {
 		assert(0L==l++);
 		assert(null==a1.t);
 		assert(1==++a2.t);
-		assert(1==(++a3.t) as Long);
+		assert(1L==(++a3.t));
 		assert(4==foo(Zero.get[Double]()));
 	}
 
@@ -6474,5 +6474,57 @@ class TestFakeLocalError[T] { // I'm testing there is only one error (cause ther
   static def bar3[U](){U haszero} {
       a = new Array[U](10); // ERR: Cannot access a non-static field field TestFakeLocalError.a: x10.array.Array[T]{self.x10.array.Array#region!=null, self.x10.array.Array#rank==self.x10.array.Array#region.x10.array.Region#rank, self.x10.array.Array#rect==self.x10.array.Array#region.x10.array.Region#rect, self.x10.array.Array#zeroBased==self.x10.array.Array#region.x10.array.Region#zeroBased, self.x10.array.Array#rail==self.x10.array.Array#region.x10.array.Region#rail} from a static context.
   }
+}
+
+
+class XTENLANG_2302_test {
+	def mMismatchExample() {
+		val a <: Array[Boolean](1) = [true, false];
+		val p <: Point = [1,2] as Point;
+
+		// These are good: 
+		{
+		  val [a1,a2,a3] = a; // ERR: The size of the exploded Array is 2 but it should be 3
+		  assert a1 && a2 && !a3;
+		  // The Jira says that a needs to be Array[Boolean](3).
+		  // I think it's Array[Boolean]{rank==1,size==3}
+		  val [p1,p2,p3] = p; // ERR: The rank of the exploded Point is 2 but it should be 3
+		  assert p1+p2==p3;
+		}
+
+		// These are good too: 
+		{
+		  val aa[a1,a2,a3] = a; // ERR: The size of the exploded Array is 2 but it should be 3
+		  // The JIRA says that type of aa is Array[Boolean](3)
+		  // I think it's Array[Boolean]{rank==1, size==3}
+		  // I'm going to stop saying this.
+		  val pp[p1,p2,p3] = p; // ERR: The rank of the exploded Point is 2 but it should be 3
+		  // The type of pp is Point(3)
+		}
+	}
+	def mGoodExample() {
+		val a <: Array[Boolean](1) = [true, true, false];
+		val p <: Point = [1,2,3] as Point;
+
+		// These are good: 
+		{
+		  val [a1,a2,a3] = a;
+		  assert a1 && a2 && !a3;
+		  // The Jira says that a needs to be Array[Boolean](3).
+		  // I think it's Array[Boolean]{rank==1,size==3}
+		  val [p1,p2,p3] = p;
+		  assert p1+p2==p3;
+		}
+
+		// These are good too: 
+		{
+		  val aa[a1,a2,a3] = a;
+		  // The JIRA says that type of aa is Array[Boolean](3)
+		  // I think it's Array[Boolean]{rank==1, size==3}
+		  // I'm going to stop saying this.
+		  val pp[p1,p2,p3] = p;
+		  // The type of pp is Point(3)
+		}
+	}
 }
 
