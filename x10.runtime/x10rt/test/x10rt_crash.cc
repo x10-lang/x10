@@ -1,3 +1,7 @@
+#ifdef __CYGWIN__
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
+#endif
+
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
