@@ -12,7 +12,6 @@
 package x10.array;
 
 import x10.compiler.Inline;
-import x10.compiler.TempNoInline_1;
 
 /**
  * A periodic dist decorates a standard X10 dist by implementing 
@@ -137,7 +136,7 @@ public final class PeriodicDist extends Dist {
     public @Inline def places():PlaceGroup = baseDist.places();
     public @Inline def numPlaces():Int = baseDist.numPlaces();
     public @Inline def regions():Iterable[Region(rank)] = baseDist.regions();
-    public @Inline def get(p:Place):Region(rank) = baseDist.get(p);
+    public def get(p:Place):Region(rank) = baseDist.get(p);
 
     // replicated from superclass to workaround xlC bug with using & itables
     public operator this(p:Place):Region(rank) = get(p);
