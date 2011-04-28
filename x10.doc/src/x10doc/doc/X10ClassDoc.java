@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import polyglot.types.ClassType;
@@ -44,13 +45,13 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	Type superclassType;
 	X10PackageDoc containingPackage;
 	X10RootDoc rootDoc;
-	LinkedHashMap<String, X10TypeVariable> typeParams;
-	LinkedHashMap<String, X10FieldDoc> fields;
-	LinkedHashMap<String, X10ConstructorDoc> constructors;
-	LinkedHashMap<String, MethodDoc> methods;
-	ArrayList<X10ClassDoc> innerClasses;
-	ArrayList<X10ClassDoc> interfaces;
-	ArrayList<Type> interfaceTypes;
+	Map<String, X10TypeVariable> typeParams;
+	Map<String, X10FieldDoc> fields;
+	Map<String, X10ConstructorDoc> constructors;
+	Map<String, MethodDoc> methods;
+	List<X10ClassDoc> innerClasses;
+	List<X10ClassDoc> interfaces;
+	List<Type> interfaceTypes;
 	boolean included;
 	
 	X10FieldDoc[] includedFields;
