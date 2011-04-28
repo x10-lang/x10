@@ -96,6 +96,7 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
     ant -Doptimize=true -Dtar.version=$X10_VERSION testtar
     ant -Doptimize=true -Dtar.version=$X10_VERSION srctar
     ant dist -Doptimize=true
+    ant xrx-xdoc
     $distdir/x10.dist/releng/packageCPPRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
     echo "Platform specific distribuiton tarball created"
 fi
