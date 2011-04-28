@@ -10,7 +10,14 @@ import polyglot.ast.SourceFile_c;
 import polyglot.ast.TopLevelDecl;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
+import polyglot.types.ClassDef.Kind;
 import polyglot.types.FieldDef;
+import polyglot.types.Flags;
+import polyglot.types.Name;
+import polyglot.types.QName;
+import polyglot.types.Ref_c;
+import polyglot.types.SemanticException;
+import polyglot.types.TypeSystem;
 import polyglot.util.SilentErrorQueue;
 import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
@@ -30,6 +37,7 @@ import x10.types.X10MethodDef;
 import x10.visit.X10DelegatingVisitor;
 import x10doc.ExtensionInfo;
 import x10doc.doc.X10ClassDoc;
+import x10doc.doc.X10PackageDoc;
 import x10doc.doc.X10RootDoc;
 
 public class X10DocGenerator extends X10DelegatingVisitor {
@@ -43,6 +51,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 	  // X10ClassDecl_c objects visited included top level class declarations and inner classes;
 	  // when a Doc object is created for a class member, it is added as a member of the top 
 	  // X10ClassDoc object of stack;
+    private static final String PACKAGE_DUMMY_CLASS_NAME= "___TopLevelTypeDefs";
 
 	public X10DocGenerator(Job job) {
 		this.job = job;
@@ -253,8 +262,43 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		// System.out.println("visit(TypeDecl_c{" + n + "}: node not handled");
 		String comments = getDocComments(n);
 		TypeDef def = n.typeDef();
-		X10ClassDoc cd = stack.peek();
-		cd.updateTypeDef(def, comments);
+		X10ClassDoc xcd = null;
+
+		if (stack.isEmpty()) {
+		    // Find/create the dummy X10ClassDoc for the top-level typedefs/typedecls in this package.
+		    // First need to figure out what "this package" is...
+		    try {
+    		    String typeDeclFullName = n.type().qualifierRef().get().toType().fullName().toString();
+    		    String packageName = typeDeclFullName.substring(0, typeDeclFullName.lastIndexOf('.'));
+    		    X10PackageDoc pkgDoc = (X10PackageDoc) rootDoc.packageNamed(packageName);
+//    		    com.sun.javadoc.ClassDoc[] pkgClasses = pkgDoc.allClasses();
+
+    		    xcd = pkgDoc.classDocForName(PACKAGE_DUMMY_CLASS_NAME);
+
+    		    if (xcd == null) {
+                    TypeSystem typeSystem= job.extensionInfo().typeSystem();
+                    X10ClassDef x10CDef = (X10ClassDef) typeSystem.createClassDef();
+    		        x10CDef.name(Name.make(PACKAGE_DUMMY_CLASS_NAME));
+    		        x10CDef.flags(Flags.PUBLIC);
+    		        x10CDef.kind(Kind.TOP_LEVEL);
+        		    polyglot.types.Package pkg= typeSystem.packageForName(QName.make(packageName));
+                    x10CDef.setPackage(new Ref_c<polyglot.types.Package>(pkg));
+        		    X10ClassDoc packageDummyClassDoc = new X10ClassDoc(x10CDef, null, "/** Top-level typedecls/defs for the package " + packageName + "**/");
+
+        		    xcd = packageDummyClassDoc;
+        		    xcd.setIncluded();
+        		    xcd.setPackage(pkgDoc);
+                    pkgDoc.addClass(xcd);
+                    rootDoc.addDummyClass(xcd);
+    		    }
+		    } catch (SemanticException e) {
+		        e.printStackTrace(System.err);
+		        return;
+		    }
+		} else {
+		    xcd = stack.peek();
+		}
+        xcd.updateTypeDef(def, comments);
 	}
 	
 	// go through comments preceding a given offset corresponding to a class/method/... 

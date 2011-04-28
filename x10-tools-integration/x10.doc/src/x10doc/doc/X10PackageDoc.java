@@ -186,4 +186,13 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 		}
 		return "";
 	}
+
+    public X10ClassDoc classDocForName(String name) {
+        for(X10ClassDoc cd: classes) {
+            if (cd.simpleTypeName().equals(name)) {
+                return cd;
+            }
+        }
+        return null;
+    }
 }
