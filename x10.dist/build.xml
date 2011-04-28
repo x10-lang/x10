@@ -35,8 +35,11 @@
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="config" value="standard.cfg"/>
     <property name="x10.runtime.location" location="${x10.home}/x10.runtime"/>
+    <property name="xrx.src.dir" location="${x10.home}/x10.runtime/src-x10" />
     <property name="runtime.jar" value="x10.jar"/>
     <property name="x10.tests.location" location="${x10.home}/x10.tests"/>
+    <property name="x10.doc.location" location="${x10.home}/x10.doc"/>
+    <property name="bash.exe" value="bash"/>
     <path id="project.classpath"/>
     <!-- get the environment variables -->
     <property environment="env"/>
@@ -121,7 +124,11 @@
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
-    <target name="squeakyclean" depends="clean-java,clean-cpp,clean-bridge"/>
+    <target name="clean-x10doc">
+        <ant antfile="${x10.doc.location}/build.xml" target="clean" inheritAll="false" dir="${x10.doc.location}"/>
+    </target>
+
+    <target name="squeakyclean" depends="clean-java,clean-cpp,clean-bridge,clean-x10doc"/>
 
     <target name="distclean" depends="squeakyclean">
         <delete dir="${lib}" failonerror="false"/>
@@ -146,7 +153,7 @@
 
     <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
-    <target name="dist" depends="dist-java,dist-cpp,dist-bridge"/>
+    <target name="dist" depends="dist-java,dist-cpp,dist-bridge,dist-x10doc"/>
     <target name="dist-java-cpp" depends="init,build,common-jar,constraints-jar,compiler-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
@@ -157,6 +164,9 @@
         </parallel>
     </target>
     <target name="dist-bridge" depends="dist-java,bridge-jar"/>
+    <target name="dist-x10doc" depends="init,compiler-jar">
+        <ant antfile="${x10.doc.location}/build.xml" target="dist" inheritAll="false" dir="${x10.doc.location}"/>
+    </target>
     <target name="check-jar-cache" depends="init">
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
@@ -178,6 +188,20 @@
                 <isset property="math.jar.present"/>
             </and>
         </condition>
+    </target>
+
+    <target name="xrx-xdoc" depends="dist-x10doc">
+        <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10" excludes="**/compiler/ws/**/*.x10" />
+        <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" ">
+            <map from="${xrx.src.dir}${file.separator}" to=""/>
+        </pathconvert>
+        <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" "/>
+        <echo message="x10doc -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}"/>
+        <exec executable="${bash.exe}" failonerror="true" dir="${xrx.src.dir}">
+            <env key="X10_ROOT" value="${x10.home}" />
+            <arg value="-c" />
+            <arg value="'${basedir}/bin/x10doc' -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}" />
+        </exec>
     </target>
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">

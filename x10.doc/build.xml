@@ -46,18 +46,12 @@
     <target name="clean">
         <delete dir="${build}" failonerror="false"/>
     </target>
-    <!--
     <target name="dist" depends="jar" description="generate part of the distribution">
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
             <fileset dir="${build}" includes="${jar}"/>
         </copy>
-        <mkdir dir="${etc}"/>
-        <copy todir="${etc}">
-            <fileset dir="${basedir}/etc" includes="${config}"/>
-        </copy>
     </target>
-    -->
     <target name="check-jar" depends="init">
         <fileset id="x10doc.classes" dir="${build}" includes="x10doc/**" excludes="${jar}"/>
         <uptodate property="x10doc.uptodate" targetfile="${build}/${jar}">
@@ -68,7 +62,6 @@
     <target name="jar" depends="build,check-jar" unless="x10doc.uptodate">
         <jar jarfile="${build}/${jar}">
             <fileset refid="x10doc.classes"/>
-            <!--<fileset dir="${build}" includes="x10doc/**" excludes="${jar}"/>-->
         </jar>
     </target>
     <target name="prereq-jars">
@@ -87,19 +80,5 @@
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
         </javac>
-    </target>
-    <target name="xrx-xdoc" depends="build">
-        <mkdir dir="${xrx.xdoc.output.dir}"/>
-        <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10" excludes="**/compiler/ws/**/*.x10" />
-        <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" ">
-            <map from="${xrx.src.dir}${file.separator}" to=""/>
-        </pathconvert>
-        <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" "/>
-        <echo message="x10doc -d '${xrx.xdoc.output.dir}' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}"/>
-        <exec executable="${bash.exe}" failonerror="true" dir="${xrx.src.dir}">
-            <env key="X10_ROOT" value="${x10.home}" />
-            <arg value="-c" />
-            <arg value="'${basedir}/bin/x10doc' -d '${xrx.xdoc.output.dir}' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}" />
-        </exec>
     </target>
 </project>
