@@ -654,8 +654,10 @@ public class X10Call_c extends Call_c implements X10Call {
 			}
 
 			if (e != null) {
-			    assert typeArguments().size() == 0;
-			    List<Type> typeArgs = Collections.emptyList();
+			    List<Type> typeArgs = new ArrayList<Type>(typeArguments().size());
+			    for (TypeNode ti : typeArguments()) {
+			        typeArgs.add(ti.type());
+			    }
 			    List<Type> actualTypes = new ArrayList<Type>(arguments().size());
 			    for (Expr ei : arguments()) {
 			        actualTypes.add(ei.type());
@@ -677,7 +679,7 @@ public class X10Call_c extends Call_c implements X10Call {
 			            throw new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".", position());
 			        }
 			    } else {
-			        ClosureCall ccx = nf.ClosureCall(position(), e,  arguments()).closureInstance(ci);
+			        ClosureCall ccx = nf.ClosureCall(position(), e, typeArguments(), arguments()).closureInstance(ci);
 			        Node n = ccx;
 			        //n = n.del().disambiguate(tc);
 			        n = n.del().typeCheck(tc);

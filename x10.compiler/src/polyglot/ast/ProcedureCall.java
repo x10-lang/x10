@@ -44,4 +44,11 @@ public interface ProcedureCall extends Term
     ProcedureCall procedureInstance(ProcedureInstance<? extends ProcedureDef> pi);
                                        
     List<TypeNode> typeArguments();
+
+    /**
+     * Set the call's type arguments.
+     * @param arguments A list of {@link polyglot.ast.TypeNode TypeNode}.
+     * @return a copy of this ProcedureCall with the new type arguments.
+     */
+    ProcedureCall typeArguments(List<TypeNode> typeArguments);
 }
