@@ -3,7 +3,6 @@ package x10doc.doc;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
 
 import com.sun.javadoc.ClassDoc;
@@ -40,7 +39,7 @@ import com.sun.javadoc.SourcePosition;
 import com.sun.javadoc.Type;
 
 public class X10RootDoc extends X10Doc implements RootDoc {
-	Map<String, X10ClassDoc> specClasses; // classes specified to x10cod on the command-line
+	Map<String, X10ClassDoc> specClasses; // classes specified to x10doc on the command-line
 	Map<String, X10PackageDoc> specPackages; // x10doc does not, at present, handle packages specified on the
 	                                             // command-line; specPackages should be empty
 	Map<String, X10ClassDoc> otherClasses;
@@ -165,7 +164,12 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			classDoc.addInterface(getUnspecClass((X10ClassDef) ref.get().toClass().def()));
 		}
 	}
-	
+
+	// RMF Intended to add dummy class used to house top-level typedefs in a given package
+	public void addDummyClass(X10ClassDoc classDoc) {
+	    specClasses.put(classDoc.qualifiedName(), classDoc);
+	}
+
 	public void addPackage(X10PackageDoc pd) {
 		this.specPackages.put(pd.name(), pd);
 	}
