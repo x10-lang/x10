@@ -2878,15 +2878,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		boolean virtual_dispatch = true;
-		if (t.isClass()) {
-		    X10ClassType ct = (X10ClassType)t.toClass();
-		    X10ClassDef cd = ct.x10Def();
-		    if (cd.flags().isFinal()) {
+		if (mi.typeParameters().size() == 0) {
+		    // Attempting to devirtualize generic instance merhods breaks xlC.
+		    // Not clear if this is because we aren't generating the right magic incantation
+		    // to do the invocation or if it is a bug in xlC.  
+		    // Until that is clear, just don't try to do the optimization in this case.
+		    if (t.isClass()) {
+		        X10ClassType ct = (X10ClassType)t.toClass();
+		        X10ClassDef cd = ct.x10Def();
+		        if (cd.flags().isFinal()) {
+		            virtual_dispatch = false;
+		        }
+		    }
+		    if (mi.flags().isFinal()) {
 		        virtual_dispatch = false;
 		    }
-		}
-		if (mi.flags().isFinal()) {
-		    virtual_dispatch = false;
 		}
 		if (!virtual_dispatch && !already_static ) {
 		    // disable virtual dispatch
