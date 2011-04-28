@@ -26,8 +26,8 @@ class TestClosureAlphaRenaming {
 	def test() {
 	 var x:(a:Int, b:Rail[String]{b.size==a}) => Boolean = null;
 	 var y:(b:Int, a:Rail[String]{a.size==b}) => Boolean = null;
-	 x=y; // ShouldNotBeERR: Cannot assign expression to target.	 Expression: y	 Expected type: (a1:x10.lang.Int, a2:x10.lang.Rail[x10.lang.String]{self.length==a})=> x10.lang.Boolean	 Found type: (a1:x10.lang.Int, a2:x10.lang.Rail[x10.lang.String]{self.length==b})=> x10.lang.Boolean
-	 y=x; // ShouldNotBeERR: 
+	 x=y;
+	 y=x;
 	}
 }
 

@@ -4114,13 +4114,21 @@ public class TypeSystem_c implements TypeSystem
         X10ClassDef def = ClosureSynthesizer.closureBaseInterfaceDef(this, typeParameters.size(),
                 argTypes.size(), rt.isVoid(), formalNames, guard);
         FunctionType ct = (FunctionType) def.asType();
+        XVar[] yvars = Types.toVarArray(Types.toLocalDefList(ct.formalNames()));
+        XVar[] xvars = Types.toVarArray(formalNames);
         List<Type> typeArgs = new ArrayList<Type>();
         for (Ref<? extends Type> ref : argTypes) {
-            typeArgs.add(Types.get(ref));
+            Type t = Types.get(ref);
+            try {
+                t = Subst.subst(t, yvars, xvars);
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Unexpected exception while creating a function type", p, e);
+            }
+            typeArgs.add(t);
         }
         if (!rt.isVoid()) {
             try {
-                rt = Subst.subst(rt, Types.toVarArray(Types.toLocalDefList(ct.formalNames())), Types.toVarArray(formalNames));
+                rt = Subst.subst(rt, yvars, xvars);
             } catch (SemanticException e) {
                 throw new InternalCompilerError("Unexpected exception while creating a function type", p, e);
             }
