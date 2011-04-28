@@ -1260,10 +1260,17 @@ public class Types {
 			ProcedureInstance<?> xp1, ProcedureInstance<?> xp2,
 			Context context, TypeSystem ts, Type ct1, Type t1, Type t2,
 			boolean descends) {
+	    XVar[] ys = toVarArray(toLocalDefList(xp2.formalNames()));
+	    XVar[] xs = toVarArray(toLocalDefList(xp1.formalNames()));
 	    // if the formal params of p1 can be used to call p2, p1 is more specific
 	    if (xp1.formalTypes().size() == xp2.formalTypes().size() ) {
 	        for (int i = 0; i < xp1.formalTypes().size(); i++) {
 	            Type f1 = xp1.formalTypes().get(i);
+	            try {
+	                f1 = Subst.subst(f1, ys, xs, new Type[]{}, new ParameterType[]{});
+	            } catch (SemanticException e) {
+	                throw new InternalCompilerError("Unexpected exception while comparing methods", e);
+	            }
 	            Type f2 = xp2.formalTypes().get(i);
 	            // Ignore constraints.  This avoids an anomaly with the translation with erased constraints
 	            // having inverting the result of the most-specific test.  Fixes XTENLANG-455.
@@ -1337,6 +1344,13 @@ public class Types {
 	    			// Now determine that a call can be made to thisMI2 using the
 	    			// argument list obtained from thisMI1. If not, return false.
 	    			List<Type> argTypes = new ArrayList<Type>(origMI1.formalTypes());
+	    			XVar[] ys = toVarArray(toLocalDefList(origMI2.formalNames()));
+	    			XVar[] xs = toVarArray(toLocalDefList(origMI1.formalNames()));
+	    			try {
+	    			    argTypes = Subst.subst(argTypes, ys, xs);
+	    			} catch (SemanticException e) {
+	    			    throw new InternalCompilerError("Unexpected exception while comparing methods", e);
+	    			}
 	    			if (xp2.formalTypes().size() != argTypes.size())
 	        			return false;
 	    			// For xp1 to be more specific than xp2, it must have the same number of type parameters
@@ -1374,7 +1388,13 @@ public class Types {
 	            	X10ConstructorInstance origMI1 = (X10ConstructorInstance) xmi1.origMI();
 	            	assert origMI1 != null;
 	            	List<Type> argTypes = new ArrayList<Type>(origMI1.formalTypes());
-	            	
+	            	XVar[] ys = toVarArray(toLocalDefList(origMI2.formalNames()));
+	            	XVar[] xs = toVarArray(toLocalDefList(origMI1.formalNames()));
+	            	try {
+	            	    argTypes = Subst.subst(argTypes, ys, xs);
+	            	} catch (SemanticException e) {
+	            	    throw new InternalCompilerError("Unexpected exception while comparing constructors", e);
+	            	}
 	    			if (xp2.formalTypes().size() != argTypes.size())
 	        			return false;
 	    			// TODO: Figure out how to do type inference.
@@ -1404,8 +1424,15 @@ public class Types {
 	// I have kept the logic below from 2.0.6 for now. 
 	// TODO: Determine whether this should stay or not.
 	    // If the formal types are all equal, check the containers; otherwise p1 is more specific.
+	    XVar[] ys = toVarArray(toLocalDefList(xp2.formalNames()));
+	    XVar[] xs = toVarArray(toLocalDefList(xp1.formalNames()));
 	    for (int i = 0; i < xp1.formalTypes().size(); i++) {
 	        Type f1 = xp1.formalTypes().get(i);
+	        try {
+	            f1 = Subst.subst(f1, ys, xs, new Type[]{}, new ParameterType[]{});
+	        } catch (SemanticException e) {
+	            throw new InternalCompilerError("Unexpected exception while comparing methods", e);
+	        }
 	        Type f2 = xp2.formalTypes().get(i);
 	        if (! ts.typeEquals(f1, f2, context)) {
 	        	return true;
