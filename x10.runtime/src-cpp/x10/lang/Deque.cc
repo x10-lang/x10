@@ -41,7 +41,7 @@ ref<Deque> Deque::_constructor() {
 }
 
 const serialization_id_t Deque::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Deque::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    DeserializationDispatcher::addDeserializer(Deque::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void Deque::growQueue() {
     Slots *oldQ = queue;
@@ -93,6 +93,12 @@ void Deque::_deserialize_body(deserialization_buffer& buf) {
     this->Object::_deserialize_body(buf);
 }
 
+x10aux::ref<x10::lang::Reference> Deque::_deserializer(x10aux::deserialization_buffer &buf) {
+    x10aux::ref<Deque> this_ = new (x10aux::alloc<Deque>()) Deque();
+    buf.record_reference(this_); // TODO: avoid; no global refs; final class
+    this_->_deserialize_body(buf);
+    return this_;
+}
 
 RTT_CC_DECLS1(Deque, "x10.lang.Deque", RuntimeType::class_kind, Object)
 

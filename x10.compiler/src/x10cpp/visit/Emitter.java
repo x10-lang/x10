@@ -989,7 +989,7 @@ public class Emitter {
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
             w.write("x10aux::DeserializationDispatcher::addDeserializer(");
-            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons("x10::lang::Reference")+", x10aux::CLOSURE_KIND_NOT_ASYNC);");
+            w.write(klass+"::"+DESERIALIZER_METHOD+", x10aux::CLOSURE_KIND_NOT_ASYNC);");
             w.newline(); w.forceNewline();
         }
 
@@ -1052,13 +1052,11 @@ public class Emitter {
 
         if (!type.flags().isAbstract()) {
             // _deserializer()
-            h.write("public: template<class __T> static ");
-            h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
+            h.write("public: static ");
+            h.write(make_ref("x10::lang::Reference")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
             h.newline(); h.forceNewline();
-            sw.pushCurrentStream(context.genericFunctions);
             printTemplateSignature(ct.x10Def().typeParameters(), sw);
-            sw.write("template<class __T> ");
-            sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+            sw.write(make_ref("x10::lang::Reference")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
             sw.writeln(make_ref(klass)+" this_ = "+
                        "new (memset(x10aux::alloc"+chevrons(klass)+"(), 0, sizeof("+klass+"))) "+klass+"();");
@@ -1067,7 +1065,6 @@ public class Emitter {
             sw.write("return this_;");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
-            sw.popCurrentStream();
         }
 
         // _deserialize_body()

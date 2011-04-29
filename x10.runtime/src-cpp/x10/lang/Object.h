@@ -52,7 +52,7 @@ namespace x10 {
 
             virtual bool _custom_deserialization() { return false; }
 
-            template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &);
+            static x10aux::ref<Reference> _deserializer(x10aux::deserialization_buffer &);
 
             virtual void _deserialize_body(x10aux::deserialization_buffer &buf) { }
 
@@ -88,13 +88,6 @@ namespace x10 {
 
             static void dealloc_object(Object*);
         };
-
-        template<class T> x10aux::ref<T> Object::_deserializer(x10aux::deserialization_buffer &buf) {
-            x10aux::ref<Object> this_ = new (x10aux::alloc<Object>()) Object();
-            buf.record_reference(this_);
-            this_->_deserialize_body(buf);
-            return this_;
-        }
     }
 }
 

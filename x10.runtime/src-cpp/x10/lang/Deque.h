@@ -40,7 +40,7 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf);
 
-            template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf);
+            static x10aux::ref<x10::lang::Reference> _deserializer(x10aux::deserialization_buffer &buf);
 
             virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
@@ -177,13 +177,6 @@ namespace x10 {
              */
             volatile int base;
         };
-
-        template<class T> x10aux::ref<T> Deque::_deserializer(x10aux::deserialization_buffer &buf) {
-            x10aux::ref<Deque> this_ = new (x10aux::alloc<Deque>()) Deque();
-            buf.record_reference(this_); // TODO: avoid; no global refs; final class
-            this_->_deserialize_body(buf);
-            return this_;
-        }
     }
 }
 

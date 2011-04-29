@@ -59,21 +59,11 @@ namespace x10 {
                 return _serialization_id;
             }
             virtual void _serialize_body(x10aux::serialization_buffer& buf);
-            template<class __T> static x10aux::ref<__T> _deserializer(x10aux::deserialization_buffer& buf);
+            static x10aux::ref<Reference> _deserializer(x10aux::deserialization_buffer& buf);
             void _deserialize_body(x10aux::deserialization_buffer& buf);
             // No specialized serialization methods - not optimizing this final class
         };
 
-        template<class __T> x10aux::ref<__T> FileWriter__FileOutputStream::_deserializer(x10aux::deserialization_buffer& buf) {
-            // TODO: attempting to serialize _outputStream is nonsensical.
-            //       The old 1.7 definition of this class simply didn't work either,
-            //       it just silently didn't serialize the FILEPtrInputSteam field.
-            // assert(false);
-            x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream();
-            buf.record_reference(this_);
-            this_->_deserialize_body(buf);
-            return this_;
-        }
     }
 }
 

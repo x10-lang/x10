@@ -139,7 +139,7 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer& buf);
 
-            template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf);
+            static x10aux::ref<Reference> _deserializer(x10aux::deserialization_buffer &buf);
 
             void _deserialize_body(x10aux::deserialization_buffer &buf);
 
@@ -191,13 +191,6 @@ namespace x10 {
             return o << v.c_str();
         }
         #endif
-
-        template<class T> x10aux::ref<T> String::_deserializer(x10aux::deserialization_buffer& buf) {
-            x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
-            buf.record_reference(this_);
-            this_->_deserialize_body(buf);
-            return this_;
-        }
 
     } // namespace x10::lang
 

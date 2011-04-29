@@ -34,7 +34,14 @@ x10aux::ref<x10::lang::String> x10::lang::Object::typeName() {
 }
 
 const serialization_id_t Object::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Object::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    DeserializationDispatcher::addDeserializer(Object::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
+
+x10aux::ref<Reference> Object::_deserializer(x10aux::deserialization_buffer &buf) {
+    x10aux::ref<Object> this_ = new (x10aux::alloc<Object>()) Object();
+    buf.record_reference(this_);
+    this_->_deserialize_body(buf);
+    return this_;
+}
 
 void Object::dealloc_object(Object* obj) {
     _M_("Attempting to dealloc object "<<(void*)obj);

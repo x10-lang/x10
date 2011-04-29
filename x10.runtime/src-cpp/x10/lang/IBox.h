@@ -56,7 +56,7 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &);
 
-            template<class __T> static x10aux::ref<__T> _deserializer(x10aux::deserialization_buffer& buf);
+            static x10aux::ref<Reference> _deserializer(x10aux::deserialization_buffer& buf);
         };
     }
 }
@@ -118,13 +118,13 @@ namespace x10 {
         }
         
         template<class T> const x10aux::serialization_id_t x10::lang::IBox<T>::_serialization_id = 
-            x10aux::DeserializationDispatcher::addDeserializer(x10::lang::IBox<T>::template _deserializer<x10::lang::Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
+            x10aux::DeserializationDispatcher::addDeserializer(x10::lang::IBox<T>::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
         template<class T> void IBox<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             buf.write(value);
         }
         
-        template<class T> template<class __T> x10aux::ref<__T> x10::lang::IBox<T>::_deserializer(x10aux::deserialization_buffer& buf) {
+        template<class T> x10aux::ref<Reference> x10::lang::IBox<T>::_deserializer(x10aux::deserialization_buffer& buf) {
             IBox<T> * storage = x10aux::alloc<IBox<T> >();
             buf.record_reference(x10aux::ref<IBox<T> >(storage));
             T tmp = buf.read<T>();
