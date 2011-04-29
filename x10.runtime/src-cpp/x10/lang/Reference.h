@@ -39,10 +39,6 @@ namespace x10 {
          * The single common superclass is needed because pointers to instances of any of its subclasses could
          * appear in variables of interface type and we need a common C++ level
          * ancestor class so that virtual dispatch will work.
-         * 
-         * This class is intentionally not a parent of Struct, because Structs
-         * don't have virtual methods and cannot be pointed to by variables of
-         * interface type unless they are wrapped in an IBox (which is a subclass of this class).
          */
         class Reference {
         public:
@@ -84,9 +80,6 @@ namespace x10 {
          * not at the X10 language level.  It's only real purpose is to
          * provide a C++ level type for X10_NULL and therefore permit
          * a unique RTT object to be associated with the X10 value null.
-         * 
-         * This is an abstract class because no instance of it will ever be
-         * created (we use NULL as the value for X10's null).
          */
         class NullType : public Reference {
           public:
