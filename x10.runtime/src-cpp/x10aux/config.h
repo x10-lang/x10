@@ -30,7 +30,6 @@
  *   X10_USE_BDWGC     - enable BDW conservative GC
  *
  * The following debugging macros are supported:
- *   TRACE_REF         - trace reference operations
  *   TRACE_CAST        - trace casts
  *   TRACE_ALLOC       - trace allocation operations
  *   TRACE_ENV_VAR     - turn on support for the tracing variables listed below
@@ -207,7 +206,6 @@ namespace x10aux {
 #define ANSI_ALLOC ANSI_WHITE
 #define ANSI_CAST ANSI_RED
 #define ANSI_INIT ANSI_MAGENTA
-#define ANSI_REF ANSI_YELLOW
 #define ANSI_SER ANSI_CYAN
 #define ANSI_X10RT ANSI_BLUE
 
@@ -230,13 +228,6 @@ namespace x10aux {
 #define _I_(x) _MAYBE_DEBUG_MSG(ANSI_INIT,"INIT",x,::x10aux::trace_init)
 #else
 #define _I_(x)
-#endif
-
-#if !defined(NO_IOSTREAM) && defined(TRACE_REF)
-#include <stdio.h>
-#define _R_(x) _DEBUG_MSG(ANSI_REF,"RR",x)
-#else
-#define _R_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
