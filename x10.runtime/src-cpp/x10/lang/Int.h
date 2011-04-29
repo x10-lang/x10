@@ -17,6 +17,8 @@
  * mentioned in @Native annotations but not
  * present in method return types.
  */
+#define X10_LANG_INTRANGE_H_NODEPS
 #include <x10/lang/IntRange.h>
+#undef X10_LANG_INTRANGE_H_NODEPS
 
 #endif
