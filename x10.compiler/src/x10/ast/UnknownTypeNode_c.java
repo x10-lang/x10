@@ -52,7 +52,7 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 		return this;
 	}
 
-	public Node disambiguate(ContextVisitor ar) throws SemanticException {
+	public Node disambiguate(ContextVisitor ar) {
 		SemanticException ex;
 		NodeFactory nf = ar.nodeFactory();
 

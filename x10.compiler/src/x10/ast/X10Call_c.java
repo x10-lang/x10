@@ -331,7 +331,7 @@ public class X10Call_c extends Call_c implements X10Call {
 	}
 
 	@Override
-	public Node disambiguate(ContextVisitor tc) throws SemanticException {
+	public Node disambiguate(ContextVisitor tc) {
 		return this;
 	}
 

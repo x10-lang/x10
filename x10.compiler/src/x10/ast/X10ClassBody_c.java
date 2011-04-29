@@ -341,7 +341,7 @@ public class X10ClassBody_c extends ClassBody_c {
         return reconstruct(members);
     }
 
-    public Node disambiguate(ContextVisitor ar) throws SemanticException {
+    public Node disambiguate(ContextVisitor ar) {
         return this;
     }
 
