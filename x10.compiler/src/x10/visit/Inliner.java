@@ -165,10 +165,7 @@ public class Inliner extends ContextVisitor {
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
 
-    private static final boolean VERBOSE = false;
-//  private static final boolean VERBOSE = true;
-    private static final boolean VERY_VERBOSE = VERBOSE && false;
-//  private static final boolean VERY_VERBOSE = VERBOSE && true;
+    private static final int VERBOSITY = 1;
 
     /**
      * The size of the largest method to be considered small enough to be inlined implicitly, if
@@ -233,10 +230,9 @@ public class Inliner extends ContextVisitor {
      * @return
      */
     private String report(String msg, Node n) {
-        String reason = msg;
-        reasons.add(reason);
-        if (DEBUG) debug("not inlining because " + reason, n);
-        return reason;
+        reasons.add(msg);
+        if (DEBUG) debug("not inlining because " + msg, n);
+        return msg;
     }
 
     private static void debug (String msg, Node node) {
@@ -318,10 +314,9 @@ public class Inliner extends ContextVisitor {
         if (null == InlineType) { // don't inline anything
             throw new InternalCompilerError("Inliner invoked without begin()");
         }
-        if (VERBOSE && node instanceof SourceFile) {
+        if (2 <= VERBOSITY && node instanceof SourceFile) {
             Source s = ((SourceFile) node).source();
-            System.out.println("\n\nBeginning INLINE pass on " +s+ " at " +pos+ " (" +timer()+ ")");
-       //   Warnings.issue(this.job, "\nBegin inlining pass on " +s, pos);
+            Warnings.issue(this.job, "(begin inlining)", pos);
         }
         if (ExpressionFlattener.cannotFlatten(node, job)) { // TODO: check that flattening is actually required
             if (DEBUG) debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
@@ -362,8 +357,8 @@ public class Inliner extends ContextVisitor {
         reasons.clear();
         Node result = null;
         if (n instanceof ClosureCall && INLINE_CLOSURES) {
-            if (VERY_VERBOSE && 0 == inlineInstances.size()) System.out.println("\n");
-            if (VERY_VERBOSE) System.out.println(" " + inlineInstances.size()+ " closure " +n+ " at " +pos+ " (" +timer()+ ")");
+            if (4 <= VERBOSITY)
+                Warnings.issue(job, "? inline level " +inlineInstances.size()+ " closure " +n, pos);
             result = inlineClosureCall((ClosureCall) n);
         } else if (n instanceof InlinableCall) {
             if (INLINE_CONSTANTS) {
@@ -372,8 +367,8 @@ public class Inliner extends ContextVisitor {
                     return result;
             }
             if (INLINE_METHODS && !hasNoInlineAnnotation(n)) {
-                if (VERY_VERBOSE && 0 == inlineInstances.size()) System.out.println("\n");
-                if (VERY_VERBOSE) System.out.println(" " + inlineInstances.size()+ " call " +n+ " at " +pos+ " (" +timer()+ ")");
+                if (4 <= VERBOSITY)
+                    Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
                 result = wrappedInlineMethodCall((InlinableCall) n);
             }
         } else if (n instanceof X10MethodDecl) {
@@ -384,10 +379,10 @@ public class Inliner extends ContextVisitor {
             return n;
         }
         if (null == result) { // cannot inline this call
-            if (VERY_VERBOSE || inliningRequired) {
-                String msg = "NOT Inlining: " + n;
+            if (5 <= VERBOSITY || inliningRequired) {
+                String msg = "NOT Inlining: " +n+ " (level " +inlineInstances.size()+ ")";
                 if (!reasons.isEmpty()) {
-                    msg += " (because ";
+                    msg += "\n\tbecause ";
                     for (int i=0; i<reasons.size(); i++) {
                         msg += reasons.get(i);
                         if (i+2 < reasons.size())
@@ -395,11 +390,10 @@ public class Inliner extends ContextVisitor {
                         else if (i+2 == reasons.size())
                             msg += ", and ";
                         else 
-                            msg += ")";
+                            msg += ".";
                     }
                 }
-                System.out.println(" " +inlineInstances.size()+ " " +msg+ " (" +timer()+ ")");
-    //          Warnings.issue(job, msg, pos);
+                Warnings.issue(job, msg, pos);
             }
             return n;
         }
@@ -407,14 +401,8 @@ public class Inliner extends ContextVisitor {
             if (n instanceof ConstructorCall && result instanceof StmtExpr) { // evaluate the expr // method calls in Stmt context are already sowrapped
                 result = syn.createEval((StmtExpr) result);
             }
-            if (VERBOSE) {
-                System.out.println(" " +inlineInstances.size()+ " INLINING " +n+ " at " +pos+ " (" +timer()+ ")");
-    //          Warnings.issue(job, "INLINING: " + n, pos);
-                if (DEBUG && VERY_VERBOSE && false) {
-                    System.err.println("\n\nat\t" + pos + "\ninlining:\t" + n);
-                    result.dump(System.err);
-                    System.err.println();
-                }
+            if (3 <= VERBOSITY) {
+                Warnings.issue(job, "INLINING: " +n+ " (level " +inlineInstances.size()+ ")", pos);
             }
         }
         return result;
@@ -563,7 +551,7 @@ public class Inliner extends ContextVisitor {
     private Node wrappedInlineMethodCall(InlinableCall call) {
         beginSpeculativeCompile();
         Node node = inlineCall(call);
-        if (endSpeculativeCompileWithErrors()) {
+        if (endSpeculativeCompileWithErrors(call)) {
             report("speculative compilation errors", call);
             return null;
         }
@@ -586,15 +574,16 @@ public class Inliner extends ContextVisitor {
 
     /**
      * Terminate a speculative compilation initiated by beginSpeculativeCompile().
+     * @param call 
      *
      * @return true is the speculative compilation produced what would have been fatal Errors
      */
-    private boolean endSpeculativeCompileWithErrors() {
+    private boolean endSpeculativeCompileWithErrors(InlinableCall call) {
         ErrorQueue speculativeQueue = job.compiler().swapErrorQueue(savedQueue);
         if (0 < speculativeQueue.errorCount()) {
             job.extensionInfo().scheduler().clearFailed();
             job.extensionInfo().scheduler().currentGoal().update(savedState);
-            reportSpeculativeErrors(speculativeQueue);
+            reportSpeculativeErrors(speculativeQueue, call);
             return true;
         }
         return false;
@@ -602,29 +591,19 @@ public class Inliner extends ContextVisitor {
 
     /**
      * @param speculativeQueue
+     * @param call 
      */
-    private void reportSpeculativeErrors(ErrorQueue speculativeQueue) {
-        if (!VERBOSE)
-            return;
-        try {
-            if (speculativeQueue instanceof SilentErrorQueue) {
-                System.err.flush();
-                java.lang.Thread.sleep(1);
-                System.out.println("The following errors were ignored during speculative compilation:");
-                for (Object o : ((SilentErrorQueue) speculativeQueue).getErrors()) {
-                    System.out.print("   >>> ");
-                    if (o instanceof ErrorInfo)
-                        System.out.print(((ErrorInfo) o).getPosition());
-                    System.out.println(": " + o);
-                }
-                System.out.println("\tend of speculative compilation errors in " + this.job);
-                System.out.flush();
-                java.lang.Thread.sleep(1);
-            } else {
-                speculativeQueue.flush();
+    private void reportSpeculativeErrors(ErrorQueue speculativeQueue, InlinableCall call) {
+        if (1 <= VERBOSITY && speculativeQueue instanceof SilentErrorQueue) {
+            Position pos = call.position();
+            List<ErrorInfo> errors = ((SilentErrorQueue) speculativeQueue).getErrors();
+            String msg = errors.size()+ " speculative compilation error(s) prevent inlining of " + call;
+            for (ErrorInfo error : errors) {
+                msg += "\n" +pos+ "\t " +error.getPosition()+ ": " +error;
             }
-        } catch (InterruptedException e) {
+            Warnings.issue(job, msg, pos);
         }
+        speculativeQueue.flush();
     }
 
     /**
@@ -1029,6 +1008,7 @@ public class Inliner extends ContextVisitor {
                 }
                 assert null != ast;
             } catch (Exception x) {
+                report("unable to process " + job, job.ast());
                 cache.badJob(job);
                 return null;
             }
