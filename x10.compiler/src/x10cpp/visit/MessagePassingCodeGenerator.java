@@ -722,7 +722,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         String packageName = context.package_() == null ? null : context.package_().fullName().toString();
 
-		ArrayList<Type> allIncludes = new ArrayList<Type>();
+		Set<String> allIncludes = CollectionFactory.newHashSet();
 		if (n.superClass() != null) {
 		    ClassType ct = n.superClass().type().toClass();
 		    X10ClassDef scd = (X10ClassDef) ct.def();
@@ -733,7 +733,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        h.write("#include <" + header + ">");
 		        h.newline();
 		        h.write("#undef "+guard+"_NODEPS"); h.newline();
-		        allIncludes.add(ct);
+		        allIncludes.add(getHeader(ct));
 		    }
 
 		    ArrayList<ClassType> types = new ArrayList<ClassType>();
@@ -743,8 +743,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    for (ClassType t : types) {
 		        X10ClassDef cd = ((X10ClassType)t).x10Def();
 		        if (cd != def && getCppRep(cd) == null) {
-		            declareClass(cd, h);
-		            allIncludes.add(t);
+		            String header = getHeader(t);
+		            if (!allIncludes.contains(header)) {
+		                declareClass(cd, h);
+		                allIncludes.add(header);
+		            }
 		        }
 		    }
 		}
@@ -757,7 +760,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        h.writeln("#define "+guard+"_NODEPS");
 		        h.writeln("#include <" + header + ">");
 		        h.writeln("#undef "+guard+"_NODEPS");
-		        allIncludes.add(ct);
+		        allIncludes.add(getHeader(ct));
 		    }
 		    ArrayList<ClassType> types = new ArrayList<ClassType>();
 		    Set<ClassType> dupes = CollectionFactory.newHashSet();
@@ -766,8 +769,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    for (ClassType t : types) {
 		        X10ClassDef cd = ((X10ClassType)t).x10Def();
 		        if (cd != def && getCppRep(cd) == null) {
-		            declareClass(cd, h);
-		            allIncludes.add(t);
+		            String header = getHeader(t);
+		            if (!allIncludes.contains(header)) {
+		                declareClass(cd, h);
+		                allIncludes.add(header);
+		            }
 		        }
 		    }
 		}
@@ -793,7 +799,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                                     h.writeln("#define "+guard+"_NODEPS");
                                     h.writeln("#include <" + header + ">");
                                     h.writeln("#undef "+guard+"_NODEPS");
-                                    allIncludes.add(t);
+                                    allIncludes.add(getHeader(t));
                                 }
                             }
 		                }
@@ -816,9 +822,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 continue;
             if (cd.isAnonymous())
                 continue;
-            if (!allIncludes.contains(ct)) {
+            String header = getHeader(ct);
+            if (!allIncludes.contains(header)) {
                 declareClass(cd, h);
-                allIncludes.add(ct);
+                allIncludes.add(header);
             }
         }
 
@@ -919,9 +926,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("#ifndef "+cguard+"_NODEPS"); h.newline();
         h.write("#define "+cguard+"_NODEPS"); h.newline();
 
-        for (Type t : allIncludes) {
-            ClassType ct = t.toClass();
-            String header = getHeader(ct);
+        for (String header : allIncludes) {
             h.write("#include <" + header + ">");
             h.newline();
         }
