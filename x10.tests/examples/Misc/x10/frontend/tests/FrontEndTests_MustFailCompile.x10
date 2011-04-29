@@ -2353,14 +2353,14 @@ class NullaryPropertyMethod {
 		
 		public static def test() {		
 			val e = new E(2);
-			var e1:E{y()} = null; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
-			e1 = e as E{y()}; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
+			var e1:E{y()} = null; // ShouldNotBeERR: Cannot access a non-static method from a static context
+			e1 = e as E{y()}; // ShouldNotBeERR: Cannot access a non-static method from a static context
 			var e2:E{z} = null;
 			e2 = e as E{z};
 			var e3:E{y} = null;
 			e3 = e as E{y};
-			var e4:E{z()} = null; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
-			e4 = e as E{z()}; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
+			var e4:E{z()} = null; // ShouldNotBeERR: Cannot access a non-static method from a static context
+			e4 = e as E{z()}; // ShouldNotBeERR: Cannot access a non-static method from a static context
 		}
 		public static def main(Array[String]) {
 			val e = new E(2);
@@ -5296,7 +5296,7 @@ class Call_resolution_tests {
 			val y = T(); // local takes precedence over type-param
 		}
 		def m3[T](x:String) {
-			val y = T.substring(1); // ERR [Cannot invoke a static method of a type parameter.]
+			val y = T.substring(1); // ERR ERR [Cannot invoke a static method of a type parameter. Method not found in Any.]
 		}
 		
 		def test():String = "a";

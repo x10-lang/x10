@@ -165,51 +165,6 @@ public class X10Call_c extends Call_c implements X10Call {
     return n.methodInstance(mi);
   }
 
-  /**
-     * Typecheck the Call when the target is null. This method finds
-     * an appropriate target, and then type checks accordingly.
-     *
-     * @param argTypes list of <code>Type</code>s of the arguments
-     */
-    protected Node typeCheckNullTarget(ContextVisitor tc, List<Type> argTypes) throws SemanticException {
-        TypeSystem ts = tc.typeSystem();
-        NodeFactory nf = tc.nodeFactory();
-        Context c = tc.context();
-
-        // the target is null, and thus implicit
-        // let's find the target, using the context, and
-        // set the target appropriately, and then type check
-        // the result
-        MethodInstance mi = c.findMethod(ts.MethodMatcher(null, name.id(), argTypes, c));
-
-        Receiver r;
-        if (mi.flags().isStatic()) {
-            Type container = findContainer(ts, mi);
-            r = nf.CanonicalTypeNode(position().startOf(), container).typeRef(Types.ref(container));
-        } else {
-            // The method is non-static, so we must prepend with "this", but we
-            // need to determine if the "this" should be qualified.  Get the
-            // enclosing class which brought the method into scope.  This is
-            // different from mi.container().  mi.container() returns a super type
-            // of the class we want.
-            ClassType scope = c.findMethodScope(name.id());
-
-            if (! ts.typeEquals(scope, c.currentClass(), c)) {
-                r = (Special) nf.This(position().startOf(),
-                            nf.CanonicalTypeNode(position().startOf(), scope)).del().typeCheck(tc);
-            }
-            else {
-                r = (Special) nf.This(position().startOf()).del().typeCheck(tc);
-            }
-        }
-
-        // we call computeTypes on the reciever too.
-        Call_c call = (Call_c) this.targetImplicit(true).target(r);
-        call = (Call_c)call.methodInstance(mi).type(mi.returnType());
-//        call = (Call_c) call.methodInstance(mi);
-        return call;
-    }
-
     /**
      * Used to find the missing static target of a static method call.
      * Should return the container of the method instance.
@@ -555,14 +510,6 @@ public class X10Call_c extends Call_c implements X10Call {
         }
     }
 
-    protected X10Call typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes, MethodInstance mi, List<Expr> args) {
-		Receiver r = computeReceiver(tc, mi);
-		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);
-		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), r, (Context) tc.context());
-		call = (X10Call_c)call.methodInstance(mi).type(rt);
-		return call;
-	}
-
 	XVar getThis(Type t) {
 	    t = Types.baseType(t);
 	    if (t instanceof X10ClassType) {
@@ -572,40 +519,12 @@ public class X10Call_c extends Call_c implements X10Call {
 	}
 
 	public Node typeCheck(ContextVisitor tc) {
-	    Node n;
-	    try {
-            if (mi != null && ((MethodInstance)mi).isValid()) // already typechecked
-                return this;
-	        n = typeCheck1(tc);
-            if (n instanceof ProcedureCall) {
-                ProcedureCall pc = (ProcedureCall) n;
-                ProcedureInstance pi = pc.procedureInstance();
-                Warnings.checkErrorAndGuard(tc, (X10Use)pi, n);
-            }
-	    } catch (SemanticException e) {
-            e.setPosition(this.position);
-	        Errors.issue(tc.job(), e, this);
-	        TypeSystem ts = tc.typeSystem();
-	        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
-	        for (TypeNode tn : this.typeArguments) {
-	            typeArgs.add(tn.type());
-	        }
-	        List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
-	        for (Expr a : this.arguments) {
-	            argTypes.add(a.type());
-	        }
-	        MethodInstance mi = ts.createFakeMethod(name.id(), typeArgs, argTypes, e);
-	        Type rt = mi.rightType(); // X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
-	        n = (X10Call_c) methodInstance(mi).type(rt);
-	        n = ((X10Call_c)n).typeCheckNullTargetForMethod(tc, typeArgs, argTypes, mi, this.arguments);
-	    }
-	    return n;
-	}
-
-	private Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		NodeFactory xnf = (NodeFactory) tc.nodeFactory();
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		Context c = (Context) tc.context();
+
+		if (mi != null && ((MethodInstance)mi).isValid()) // already typechecked
+		    return this;
 
 		Name name = this.name().id();
 
@@ -676,11 +595,16 @@ public class X10Call_c extends Call_c implements X10Call {
 			        // Check for this case:
 			        // val x = x();
 			        if (e instanceof Local && xts.isUnknown(e.type())) {
-			            throw new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".", position());
+			            Errors.issue(tc.job(),
+			                    new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".",
+			                            position()));
+			            Node n = nf.ClosureCall(position(), e, typeArguments(), arguments()).closureInstance(ci);
+			            //n = n.del().disambiguate(tc);
+			            n = n.del().typeCheck(tc);
+			            cc = (Expr) n;			            
 			        }
 			    } else {
-			        ClosureCall ccx = nf.ClosureCall(position(), e, typeArguments(), arguments()).closureInstance(ci);
-			        Node n = ccx;
+			        Node n = nf.ClosureCall(position(), e, typeArguments(), arguments()).closureInstance(ci);
 			        //n = n.del().disambiguate(tc);
 			        n = n.del().typeCheck(tc);
 			        cc = (Expr) n;
@@ -693,7 +617,9 @@ public class X10Call_c extends Call_c implements X10Call {
 		    Type t = ((TypeNode) target).type();
 		    t = Types.baseType(t);
 		    if (t instanceof ParameterType) {
-		        throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
+		        Errors.issue(tc.job(),
+		                new SemanticException("Cannot invoke a static method of a type parameter.",
+		                        position()));
 		    }
 		}
 
@@ -719,10 +645,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		mi =  p.fst();
 		args = p.snd();
 	    SemanticException error=mi.error();
-		if (error != null) {
-			if (error instanceof Errors.MultipleMethodDefsMatch) {
-				throw error;
-			}
+		if (error != null && !(error instanceof Errors.MultipleMethodDefsMatch)) {
 		    // Now, try to find the method with implicit conversions, making them explicit.
 		    try {
 		        p = Checker.tryImplicitConversions(this, tc, targetType, name, typeArgs, argTypes);
@@ -735,9 +658,15 @@ public class X10Call_c extends Call_c implements X10Call {
 		            // [IP] TODO: move closure call lookup here 
 		            Node result = cc.typeCheck(tc);
 		            if (result instanceof Expr) {
-		                Types.checkMissingParameters((Expr) result);
+		                try {
+		                    Types.checkMissingParameters((Expr) result);
+		                } catch (SemanticException e) {
+		                    e.setPosition(this.position());
+		                    Errors.issue(tc.job(), e, this);
+		                }
 		            }
 		            //Checker.checkOfferType(position(), ((ClosureCall) cc).closureInstance(), tc);
+		            Warnings.checkErrorAndGuard(tc, (X10Use<?>) ((ProcedureCall) cc).procedureInstance(), result);
 		            return result;
 		        }
 		        // Otherwise, try a struct constructor.  If we have both a struct constructor and a
@@ -745,17 +674,25 @@ public class X10Call_c extends Call_c implements X10Call {
 		        // using: "new StructCtor(...); therefore we give precedence to the closure-call.
 		        // TODO: Need to try struct call with implicit conversions as well.
 		        structCall = findStructConstructor(tc, target, typeArgs, argTypes, arguments);
-		        if (structCall == null) {
-		            throw mi.error();
-		        }
 		    }
 		}
 
 		if (mi.error() != null) {
 		    // Must be a struct call
-		    assert (this.target() == null || this.target() instanceof TypeNode);
-		    Checker.checkOfferType(position(), (X10ConstructorInstance) structCall.constructorInstance(), tc);
-		    return structCall;
+		    if (structCall != null) {
+		        assert (this.target() == null || this.target() instanceof TypeNode);
+		        try {
+		            Checker.checkOfferType(position(), structCall.constructorInstance(), tc);
+		        } catch (SemanticException e) {
+		            e.setPosition(this.position());
+		            Errors.issue(tc.job(), e, this);
+		        }
+		        Warnings.checkErrorAndGuard(tc, structCall.constructorInstance(), structCall);
+		        return structCall;
+		    }
+		    // Nope, it wasn't -- so report the error and proceed
+		    mi.error().setPosition(this.position());
+		    Errors.issue(tc.job(), mi.error(), this);
 		}
 
 		// OK so now we have mi and args that correspond to a success.
@@ -771,14 +708,17 @@ public class X10Call_c extends Call_c implements X10Call {
 		    boolean staticContext = (target instanceof TypeNode);
 
 		    if (staticContext && !mi.flags().isStatic()) {
-		        throw new Errors.CannotAccessNonStaticFromStaticContext(mi, position());
+		        Errors.issue(tc.job(),
+		                new Errors.CannotAccessNonStaticFromStaticContext(mi, position()));
 		    }
 
 		    // If the target is super, but the method is abstract, then complain.
 		    if (target instanceof Special &&
 		            ((Special) target).kind() == Special.SUPER &&
 		            mi.flags().isAbstract()) {
-		        throw new SemanticException("Cannot call an abstract method of the super class", this.position());
+		        Errors.issue(tc.job(),
+		                new SemanticException("Cannot call an abstract method of the super class",
+		                        this.position()));
 		    }
 		}
 
@@ -802,8 +742,19 @@ public class X10Call_c extends Call_c implements X10Call {
 		methodCall = (X10Call_c) methodCall.type(rt);
 		if (this.target() == null)
 		    methodCall = (X10Call_c) methodCall.targetImplicit(true).target(target);
-		Types.checkMissingParameters(methodCall);
-		Checker.checkOfferType(position(), (MethodInstance) methodCall.methodInstance(), tc);
+		try {
+		    Types.checkMissingParameters(methodCall);
+		} catch (SemanticException e) {
+		    e.setPosition(this.position());
+		    Errors.issue(tc.job(), e, this);
+		}
+		try {
+		    Checker.checkOfferType(position(), (MethodInstance) methodCall.methodInstance(), tc);
+		} catch (SemanticException e) {
+		    e.setPosition(this.position());
+		    Errors.issue(tc.job(), e, this);
+		}
+		Warnings.checkErrorAndGuard(tc, mi, methodCall);
 		return methodCall;
 	}
 
