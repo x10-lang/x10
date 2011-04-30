@@ -114,7 +114,9 @@ public class Types {
         };
     };
     // Fix for XTENLANG-1916
-    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class) {
+    // N.B. any X10 type is either Object or Struct that has Any as parents
+//    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class) {
+    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class, new Type[] { ANY }) {
         @Override
         public String typeName() {
             return "x10.lang.Object";
@@ -127,7 +129,9 @@ public class Types {
     };
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
     // create rtt of struct before all struct types (e.g. int)
-    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class);
+    // N.B. any X10 type is either Object or Struct that has Any as parents
+//    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class);
+    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class, new Type[] { ANY });
 
     // create rtt of comparable before all types that implement comparable (e.g. int)
     public static final RuntimeType<?> COMPARABLE = new RuntimeType(

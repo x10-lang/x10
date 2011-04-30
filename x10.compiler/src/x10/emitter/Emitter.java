@@ -2694,20 +2694,36 @@ public class Emitter {
         }
         w.newline();
         
+        TypeSystem xts = tr.typeSystem();
         if (def.interfaces().size() > 0 || def.superType() != null) {
             w.write(", ");
             w.write("/* parents */ new x10.rtt.Type[] {");
+            boolean needComma = false;
             for (int i = 0 ; i < def.interfaces().size(); i ++) {
-                if (i != 0) w.write(", ");
                 Type type = def.interfaces().get(i).get();
+                // N.B. any X10 type is either Object or Struct that has Any as parents
+                if (xts.isAny(type)) continue;
+                if (needComma) {
+                    w.write(", ");
+                } else {
+                    needComma = true;
+                }
                 printRTT(def, type);
             }
             if (def.superType() != null) {
-                if (def.interfaces().size() != 0) w.write(", ");
+                if (needComma) {
+                    w.write(", ");
+                } else {
+                    needComma = true;
+                }
                 printRTT(def, def.superType().get());
             }
             if (def.isStruct()) {
-                if (def.interfaces().size() != 0 || def.superType() != null) w.write(", ");
+                if (needComma) {
+                    w.write(", ");
+                } else {
+                    needComma = true;
+                }
                 // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
                 w.write("x10.rtt.Types.STRUCT");
             }
