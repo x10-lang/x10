@@ -234,7 +234,7 @@ public class TryCatchExpander extends Expander {
 		}
 	}
 
-	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Exception(RuntimeException) must be sync with TryCatchExpander.x10RuntimeExceptions
+    // N.B. ThrowableUtilities.x10RuntimeExceptions must be sync with TryCatchExpander.x10RuntimeExceptions
 	static final String[] x10RuntimeExceptions = {
 //	    "x10.array.UnboundedRegionException",	/*no corresponding Java exception*/
 //	    "x10.io.IORuntimeException",			/*no corresponding Java exception*/
@@ -254,7 +254,7 @@ public class TryCatchExpander extends Expander {
 //	    "x10.lang.Exception",
 //	    "x10.lang.Throwable"
 	};
-	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Exception(Exception) must be sync with TryCatchExpander.x10Exceptions
+    // N.B. ThrowableUtilities.x10Exceptions must be sync with TryCatchExpander.x10Exceptions
 	static final String[] x10Exceptions = {
 		"x10.io.FileNotFoundException",
         "x10.io.EOFException",
@@ -264,7 +264,7 @@ public class TryCatchExpander extends Expander {
         "x10.lang.Exception",
 //        "x10.lang.Throwable"
 	};
-	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Error(Error) must be sync with TryCatchExpander.x10Errors
+    // N.B. ThrowableUtilities.x10Errors must be sync with TryCatchExpander.x10Errors
     static final String[] x10Errors = {
         "x10.lang.OutOfMemoryError",
         "x10.lang.StackOverflowError",
@@ -272,7 +272,7 @@ public class TryCatchExpander extends Expander {
         "x10.lang.Error",
 //        "x10.lang.Throwable"
     };
-	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Throwable(Throwable) must be sync with TryCatchExpander.x10Throwables
+    // N.B. ThrowableUtilities.x10Throwables must be sync with TryCatchExpander.x10Throwables
     static final String[] x10Throwables = {
         "x10.lang.Throwable"
     };

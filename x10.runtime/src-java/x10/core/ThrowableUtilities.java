@@ -13,127 +13,219 @@ package x10.core;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
+//import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import x10.array.Array;
 
 public abstract class ThrowableUtilities {
+    
+    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10RuntimeExceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
+    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10Exceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
+    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10Errors = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
+    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10Throwables = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
+    private static Class<? extends x10.core.Throwable> x10RuntimeException;
+    private static Class<? extends x10.core.Throwable> x10Exception;
+    private static Class<? extends x10.core.Throwable> x10Error;
+    private static Class<? extends x10.core.Throwable> x10Throwable;
+
+    private static Class<? extends x10.core.Throwable> x10UnsupportedOperationException;
+    
+    static {
+        try {
+            Class<? extends java.lang.Throwable> javaClass;
+            java.lang.String x10Name;
+            Class<? extends x10.core.Throwable> x10Class;
+            
+            // x10RuntimeExceptions
+            // N.B. ThrowableUtilities.x10RuntimeExceptions must be sync with TryCatchExpander.x10RuntimeExceptions
+            javaClass = java.lang.ArithmeticException.class;
+            x10Name = "x10.lang.ArithmeticException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+
+            javaClass = java.lang.ArrayIndexOutOfBoundsException.class;
+            x10Name = "x10.lang.ArrayIndexOutOfBoundsException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+
+            javaClass = java.lang.StringIndexOutOfBoundsException.class;
+            x10Name = "x10.lang.StringIndexOutOfBoundsException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+            
+            javaClass = java.lang.ClassCastException.class;
+            x10Name = "x10.lang.ClassCastException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+            
+            javaClass = java.lang.NumberFormatException.class;
+            x10Name = "x10.lang.NumberFormatException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+                        
+            javaClass = java.lang.IllegalArgumentException.class;
+            x10Name = "x10.lang.IllegalArgumentException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+            
+            javaClass = java.util.NoSuchElementException.class;
+            x10Name = "x10.util.NoSuchElementException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+            
+            javaClass = java.lang.NullPointerException.class;
+            x10Name = "x10.lang.NullPointerException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+
+            javaClass = java.lang.UnsupportedOperationException.class;
+            x10Name = "x10.lang.UnsupportedOperationException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+            x10UnsupportedOperationException = x10Class;
+            
+            javaClass = java.lang.RuntimeException.class;
+            x10Name = "x10.lang.RuntimeException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+            x10RuntimeException = x10Class;
+            
+            // x10Exceptions
+            // N.B. ThrowableUtilities.x10Exceptions must be sync with TryCatchExpander.x10Exceptions
+            javaClass = java.io.FileNotFoundException.class;
+            x10Name = "x10.io.FileNotFoundException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Exceptions.put(javaClass, x10Class);
+            
+            javaClass = java.io.EOFException.class;
+            x10Name = "x10.io.EOFException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Exceptions.put(javaClass, x10Class);
+
+            javaClass = java.io.NotSerializableException.class;
+            x10Name = "x10.io.NotSerializableException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Exceptions.put(javaClass, x10Class);
+
+            javaClass = java.io.IOException.class;
+            x10Name = "x10.io.IOException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Exceptions.put(javaClass, x10Class);
+
+            javaClass = java.lang.InterruptedException.class;
+            x10Name = "x10.lang.InterruptedException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Exceptions.put(javaClass, x10Class);
+            
+            javaClass = java.lang.Exception.class;
+            x10Name = "x10.lang.Exception";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Exceptions.put(javaClass, x10Class);
+            x10Exception = x10Class;
+            
+            // x10Errors
+            // N.B. ThrowableUtilities.x10Errors must be sync with TryCatchExpander.x10Errors
+            javaClass = java.lang.OutOfMemoryError.class;
+            x10Name = "x10.lang.OutOfMemoryError";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Errors.put(javaClass, x10Class);
+
+            javaClass = java.lang.StackOverflowError.class;
+            x10Name = "x10.lang.StackOverflowError";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Errors.put(javaClass, x10Class);
+
+            javaClass = java.lang.AssertionError.class;
+            x10Name = "x10.lang.AssertionError";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Errors.put(javaClass, x10Class);
+
+            javaClass = java.lang.Error.class;
+            x10Name = "x10.lang.Error";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Errors.put(javaClass, x10Class);
+            x10Error = x10Class;
+
+            // x10Throwables
+            // N.B. ThrowableUtilities.x10Throwables must be sync with TryCatchExpander.x10Throwables
+            // N.B. x10.lang.Throwable is @NativeRep'ed to x10.core.Throwable
+            javaClass = java.lang.Throwable.class;
+//            x10Name = "x10.lang.Throwable";
+            x10Name = "x10.core.Throwable";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Throwables.put(javaClass, x10Class);
+            x10Throwable = x10Class;
+            
+        } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
 	
-	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Exception(RuntimeException) must be sync with TryCatchExpander.x10RuntimeExceptions
+    private static x10.core.Throwable createX10Throwable(Class<? extends x10.core.Throwable> x10Class, java.lang.String message, java.lang.Throwable t) {
+        try {
+            x10.core.Throwable x10t = x10Class.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
+            x10t.setStackTrace(t.getStackTrace());
+            return x10t;
+        } catch (java.lang.Exception e) {
+        }
+        throw new java.lang.Error(t);
+    }
+    
 	public static x10.core.Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
-        java.lang.String newExcName = "x10.lang.RuntimeException";
         java.lang.String message = e.getMessage();
-        if (e instanceof java.lang.ArithmeticException) {
-            newExcName = "x10.lang.ArithmeticException";
-        } else if (e instanceof java.lang.ArrayIndexOutOfBoundsException) {
-            newExcName = "x10.lang.ArrayIndexOutOfBoundsException";
-        } else if (e instanceof java.lang.StringIndexOutOfBoundsException) {
-            newExcName = "x10.lang.StringIndexOutOfBoundsException";
-        } else if (e instanceof java.lang.ClassCastException) {
-            newExcName = "x10.lang.ClassCastException";
-        } else if (e instanceof java.lang.NumberFormatException) {
-            newExcName = "x10.lang.NumberFormatException";
-        } else if (e instanceof java.lang.IllegalArgumentException) {
-            newExcName = "x10.lang.IllegalArgumentException";
-        } else if (e instanceof java.util.NoSuchElementException) {
-            newExcName = "x10.util.NoSuchElementException";
-        } else if (e instanceof java.lang.NullPointerException) {
-            newExcName = "x10.lang.NullPointerException";
-        } else if (e instanceof java.lang.UnsupportedOperationException) {
-            newExcName = "x10.lang.UnsupportedOperationException";
-        } else {
+        Class<? extends x10.core.Throwable> x10Class = x10RuntimeExceptions.get(e.getClass());
+        if (x10Class == null) {
             // no corresponding x10 exceptions defined
+            // TODO stop converting unknown java exception to x10 exception 
+            x10Class = x10RuntimeException;
             message = e.getClass().getName() + ": " + message;
         }
-
-        try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
-            t.setStackTrace(e.getStackTrace());
-            return t;
-        } catch (java.lang.ClassNotFoundException e1) {
-        } catch (java.lang.InstantiationException e2) {
-        } catch (java.lang.IllegalAccessException e3) {
-        } catch (java.lang.NoSuchMethodException e4) {
-        } catch (java.lang.reflect.InvocationTargetException e5) {
-        }
-        throw new java.lang.Error(e);
+        
+        return createX10Throwable(x10Class, message, e);
     }
 
-	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Exception(Exception) must be sync with TryCatchExpander.x10RuntimeExceptions
 	public static x10.core.Throwable getCorrespondingX10Exception(java.lang.Exception e) {
-        java.lang.String newExcName = "x10.lang.Exception";
         java.lang.String message = e.getMessage();
-        if (e instanceof java.io.FileNotFoundException) {
-            newExcName = "x10.io.FileNotFoundException";
-        } else if (e instanceof java.io.EOFException) {
-            newExcName = "x10.io.EOFException";
-        } else if (e instanceof java.io.NotSerializableException) {
-            newExcName = "x10.io.NotSerializableException";
-        } else if (e instanceof java.io.IOException) {
-            newExcName = "x10.io.IOException";
-        } else if (e instanceof java.lang.InterruptedException) {
-            newExcName = "x10.lang.InterruptedException";
-        } else {
+        Class<? extends x10.core.Throwable> x10Class = x10Exceptions.get(e.getClass());
+        if (x10Class == null) {
             // no corresponding x10 exceptions defined
+            // TODO stop converting unknown java exception to x10 exception 
+            x10Class = x10Exception;
             message = e.getClass().getName() + ": " + message;
         }
 
-        try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { String.class }).newInstance(new Object[] { message });
-            t.setStackTrace(e.getStackTrace());
-            return t;
-        } catch (java.lang.ClassNotFoundException e1) {
-        } catch (java.lang.InstantiationException e2) {
-        } catch (java.lang.IllegalAccessException e3) {
-        } catch (java.lang.NoSuchMethodException e4) {
-        } catch (java.lang.reflect.InvocationTargetException e5) {
-        }
-        throw new java.lang.Error(e);
+        return createX10Throwable(x10Class, message, e);
     }
 
-	// N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Error(Error) must be sync with TryCatchExpander.x10Errors
 	public static x10.core.Throwable getCorrespondingX10Error(java.lang.Error e) {
-        java.lang.String newExcName = "x10.lang.Error";
         java.lang.String message = e.getMessage();
-        if (e instanceof java.lang.OutOfMemoryError) {
-            newExcName = "x10.lang.OutOfMemoryError";
-        } else if (e instanceof java.lang.StackOverflowError) {
-            newExcName = "x10.lang.StackOverflowError";
-        } else if (e instanceof java.lang.AssertionError) {
-            newExcName = "x10.lang.AssertionError";
-        } else {
-            // no corresponding x10 errors defined
+        Class<? extends x10.core.Throwable> x10Class = x10Errors.get(e.getClass());
+        if (x10Class == null) {
+            // no corresponding x10 exceptions defined
+            // TODO stop converting unknown java exception to x10 exception 
+            x10Class = x10Error;
             message = e.getClass().getName() + ": " + message;
         }
 
-        try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
-            t.setStackTrace(e.getStackTrace());
-            return t;
-        } catch (java.lang.ClassNotFoundException e1) {
-        } catch (java.lang.InstantiationException e2) {
-        } catch (java.lang.IllegalAccessException e3) {
-        } catch (java.lang.NoSuchMethodException e4) {
-        } catch (java.lang.reflect.InvocationTargetException e5) {
-        }
-        throw new java.lang.Error(e);
+        return createX10Throwable(x10Class, message, e);
     }
 
-    // N.B. exceptions handled in ThrowableUtilities.getCorrespondingX10Throwable(Throwable) must be sync with TryCatchExpander.x10Throwables
 	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Throwable e) {
-        java.lang.String newExcName = "x10.lang.Throwable";
         java.lang.String message = e.getMessage();
-        try {
-            x10.core.Throwable t = Class.forName(newExcName).asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
-            t.setStackTrace(e.getStackTrace());
-            return t;
-        } catch (java.lang.ClassNotFoundException e1) {
-        } catch (java.lang.InstantiationException e2) {
-        } catch (java.lang.IllegalAccessException e3) {
-        } catch (java.lang.NoSuchMethodException e4) {
-        } catch (java.lang.reflect.InvocationTargetException e5) {
+        Class<? extends x10.core.Throwable> x10Class = x10Throwables.get(e.getClass());
+        if (x10Class == null) {
+            // no corresponding x10 exceptions defined
+            // TODO stop converting unknown java exception to x10 exception 
+            x10Class = x10Throwable;
+            message = e.getClass().getName() + ": " + message;
         }
-        throw new java.lang.Error(e);
+
+        return createX10Throwable(x10Class, message, e);
     }
 
     public static x10.core.Throwable convertJavaRuntimeException(java.lang.RuntimeException e) {
@@ -165,16 +257,28 @@ public abstract class ThrowableUtilities {
 
     public static <T> T UnsupportedOperationException(java.lang.String message) {
         try {
-            throw Class.forName("x10.lang.UnsupportedOperationException").asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
-        } catch (java.lang.Exception e) {
+            throw createX10Throwable(x10UnsupportedOperationException, message, null);
+//            throw x10UnsupportedOperationException.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
+        } catch (IllegalArgumentException e) {
+        } catch (SecurityException e) {
+//        } catch (InstantiationException e) {
+//        } catch (IllegalAccessException e) {
+//        } catch (InvocationTargetException e) {
+//        } catch (NoSuchMethodException e) {
         }
         return null;
     }
 
     public static int UnsupportedOperationExceptionInt(java.lang.String message) {
         try {
-            throw Class.forName("x10.lang.UnsupportedOperationException").asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
-        } catch (java.lang.Exception e) {
+            throw createX10Throwable(x10UnsupportedOperationException, message, null);
+//            throw x10UnsupportedOperationException.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
+        } catch (IllegalArgumentException e) {
+        } catch (SecurityException e) {
+//        } catch (InstantiationException e) {
+//        } catch (IllegalAccessException e) {
+//        } catch (InvocationTargetException e) {
+//        } catch (NoSuchMethodException e) {
         }
         return 0;
     }
