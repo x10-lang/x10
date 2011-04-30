@@ -18,17 +18,28 @@ package x10.lang;
  * @author Nate 04/09/11
  */
 public final class Accumulator[T] {
+
+	public property tempId():String = "x";
+	
 	private var curr:T;
 	private val red:Reducible[T];
 	public def this(red:Reducible[T]) {
 		curr = red.zero();
+		Console.OUT.println("Acc 1: "+curr);
 		this.red = red;
 	}
+	
 	public def supply(t:T) {
-		atomic curr = red(curr,t);
+	Console.OUT.println("before value: "+curr);
+		curr = Runtime.makeAccSupply(curr, red, t);
+		Console.OUT.println("AFTER Acc supply: "+curr);
 	}
+	
 	public def result():T {
+			Console.OUT.println("Acc result: "+curr);
+
 		return curr;
+		
 	}
 }
 
