@@ -955,7 +955,7 @@ import x10.util.NoSuchElementException;
     }
     
    
-	public static def makeOffer[T](curr:T, red:Reducible[T], t:T) {
+	public static def makeAccSupply[T](curr:T, red:Reducible[T], t:T) {
 		//val curr1:T;
 		//atomic curr1 = red(curr,t);
 		
