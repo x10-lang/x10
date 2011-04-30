@@ -104,6 +104,7 @@ import polyglot.ast.Labeled_c;
 import polyglot.ast.LocalClassDecl_c;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Local_c;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
@@ -925,10 +926,39 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // [IP] Ok to include here, since the class is already defined
         h.write("#ifndef "+cguard+"_NODEPS"); h.newline();
         h.write("#define "+cguard+"_NODEPS"); h.newline();
-
+        
+        boolean implInHeader = n.typeParameters().size() > 0;
+        if (!implInHeader) {
+            Type headerAnnotation = null;
+            try {
+                headerAnnotation = xts.systemResolver().findOne(HEADER_ANNOTATION);
+            } catch (SemanticException e) {
+                // ignore.
+            }
+            for (ClassMember m : n.body().members()) {
+                if (headerAnnotation != null && !((X10Ext) m.ext()).annotationMatching(headerAnnotation).isEmpty()) {
+                    implInHeader = true; // conservative; something has been forced to the header stream.
+                    break;
+                }
+                if (m instanceof FieldDecl_c) {
+                    FieldDecl_c fd = (FieldDecl_c) m;
+                    if (fd.flags().flags().isStatic() && !fd.type().type().isNumeric()) {
+                        implInHeader = true; // conservative; we may have generated an inline get method into the generic functions stream
+                        break;
+                    }
+                } else if (m instanceof X10MethodDecl_c) {
+                    X10MethodDecl_c md = (X10MethodDecl_c) m;
+                    if (md.typeParameters().size() > 0) {
+                        implInHeader = true; // generic function went in header stream
+                        break;
+                    }
+                }
+            }
+        }
+        
+        ClassifiedStream incS = implInHeader ? h : w_header;
         for (String header : allIncludes) {
-            h.write("#include <" + header + ">");
-            h.newline();
+            incS.writeln("#include <" + header + ">");
         }
 
         z.write("#endif // __"+cguard+"_NODEPS"); h.newline();
