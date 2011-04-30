@@ -30,6 +30,9 @@ class Manually_Desugared_FibAccumulators {
 	  finish fib1(n, x); // fib1 may write into x.
 	  // read the value in x and return it.
 	  return x.result();
+		
+		acc i5:Int;
+		i5 = 6;	// ERR: Need to initialize the acc first using a Reducer
 	}
 	def fib1(n:Int, val x:Accumulator[Int]) {
 	   if (n < 2) { x.supply(n); return; }
