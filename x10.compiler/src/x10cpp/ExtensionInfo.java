@@ -58,6 +58,7 @@ import x10cpp.postcompiler.PrecompiledLibrary;
 import x10cpp.types.X10CPPSourceClassResolver;
 import x10cpp.types.X10CPPTypeSystem_c;
 import x10cpp.visit.X10CPPTranslator;
+import x10cpp.visit.CastInjector;
 
 
 /**
@@ -156,13 +157,14 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		@Override
 		public List<Goal> goals(Job job) {
 		    List<Goal> superGoals = super.goals(job);
-            ArrayList<Goal> goals = new ArrayList<Goal>(superGoals.size()+2);
+            ArrayList<Goal> goals = new ArrayList<Goal>(superGoals.size()+3);
             Goal nvc = NativeClassVisitor(job);
             Goal cg = CodeGenerated(job);
             for (Goal g : superGoals) {
                 if (g == nvc) {
                     goals.add(ExternAnnotationVisitor(job));
                 } else if (g == cg) {
+                    goals.add(CastInjector(job));
                     goals.add(PreCodegenASTInvariantChecker(job));
                 }
                 goals.add(g);
@@ -184,7 +186,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		public Goal PreCodegenASTInvariantChecker(Job job) {
 		    return new ValidatingVisitorGoal("CodegenASTInvariantChecker", job, new PreCodeGenASTChecker(job)).intern(this);
 		}
-	       
+		
+		public Goal CastInjector(Job job) {
+		    return new ValidatingVisitorGoal("CastInjector", job, new CastInjector(job, extInfo.typeSystem(), extInfo.nodeFactory())).intern(this);
+		}
 	}
 
 	// TODO: [IP] Override targetFactory() (rather, add createTargetFactory to polyglot)

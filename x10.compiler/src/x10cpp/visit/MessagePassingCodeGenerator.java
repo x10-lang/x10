@@ -2258,7 +2258,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    boolean unsigned_op = false;
 	    String opString = asgn.operator().toString();
-	    NodeFactory nf = tr.nodeFactory();
 	    TypeSystem xts = tr.typeSystem();
 
 	    // TODO
@@ -2291,13 +2290,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(opString);
 	    sw.allowBreak(2, 2, " ", 1);
 
-	    Type aType = lhs.type();
-	    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, rhs.type(), context);
-	    if (rhsNeedsCast) {
-	        // Cast is needed to ensure conversion/autoboxing.
-	        // However, it is statically correct to do the assignment, therefore it can be unchecked.
-	        sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(aType, true)) + "(");
-	    }
 	    if (unsigned_op)
 	        sw.write("(("+emitter.makeUnsignedType(rhs.type())+")");
 	    Boolean embed = false;
@@ -2325,9 +2317,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 	    if (unsigned_op)
 	        sw.write("))");
-	    if (rhsNeedsCast) {
-	        sw.write(")");
-	    }
 	}
 
 
