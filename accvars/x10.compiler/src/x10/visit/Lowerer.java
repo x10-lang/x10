@@ -183,8 +183,7 @@ public class Lowerer extends ContextVisitor {
     
     private static final Name START_COLLECTING_FINISH = Name.make("startCollectingFinish");
     private static final Name STOP_COLLECTING_FINISH = Name.make("stopCollectingFinish");
-    private static final Name OFFER = Name.make("makeOffer");  
-    private static final Name ACC_OFFER = Name.make("makeAccOffer");
+    private static final Name OFFER = Name.make("makeOffer");
     
     //added for scalable finish
     private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");

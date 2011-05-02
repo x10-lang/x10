@@ -787,8 +787,6 @@ public interface TypeSystem {
     boolean isDouble(Type t);
     boolean isBoolean(Type t);
     boolean isVoid(Type t);
-    //Code for X10 Acc Variables
-    boolean isAcc(Type t);
 
     public <S extends ProcedureDef, T extends ProcedureInstance<S>> Collection<T> findMostSpecificProcedures(List<T> acceptable, Matcher<T> matcher, Context context) throws SemanticException;
 
