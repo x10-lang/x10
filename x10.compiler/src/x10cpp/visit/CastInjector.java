@@ -16,6 +16,7 @@ import polyglot.ast.LocalDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.NullLit_c;
 import polyglot.ast.Return_c;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
@@ -49,13 +50,7 @@ import x10.types.checker.Converter;
  *       
  *  TODO:  There's a static cast for the return type of Call_c in MPGC.
  *         I think that should no longer be needed, since we are injecting casts
- *         fairly aggressively here.  Verify guess and remove it if true.
- *  TODO:  In the non-call-actual cast case, we could not inject explicit casts
- *         when moving up/down the Object subclass hierarchy or between two 
- *         interface types because x10aux::ref<> conversion will happen at the C++
- *         level and that is all that is actually required.  Doesn't change the
- *         actual machine instructions generated, but could remove template cruft
- *         and improve compile times marginally.
+ *         thoroughly here.  Verify guess and remove it if true.
  */
 public class CastInjector extends ContextVisitor {
     
@@ -67,7 +62,7 @@ public class CastInjector extends ContextVisitor {
         if (n instanceof Assign_c) {
             Assign_c assign = (Assign_c)n;
             Expr rhs = assign.right();
-            Expr newRhs = cast(assign.right(), assign.left().type());
+            Expr newRhs = boxingUpcastIfNeeded(assign.right(), assign.left().type());
             return rhs == newRhs ? assign : assign.right(newRhs);
         } else if (n instanceof ConstructorCall_c) {
             ConstructorCall_c call = (ConstructorCall_c)n;
@@ -79,7 +74,7 @@ public class CastInjector extends ContextVisitor {
             FieldDecl_c fd = (FieldDecl_c)n;
             Expr init = fd.init();
             if (init == null) return fd;
-            Expr newInit = cast(init, fd.type().type());
+            Expr newInit = boxingUpcastIfNeeded(init, fd.type().type());
             return init == newInit ? fd : fd.init(newInit);
         } else if (n instanceof AssignPropertyCall_c) {
             AssignPropertyCall_c call = (AssignPropertyCall_c)n;
@@ -97,13 +92,13 @@ public class CastInjector extends ContextVisitor {
             if (rhs == null) return ret;
             FunctionDef container = (FunctionDef) context.currentCode();
             Type rType = container.returnType().get();
-            Expr newRhs = cast(rhs, rType);
+            Expr newRhs = boxingUpcastIfNeeded(rhs, rType);
             return rhs == newRhs ? ret : ret.expr(newRhs);
         } else if (n instanceof LocalDecl_c) {
             LocalDecl_c ld = (LocalDecl_c)n;
             Expr init = ld.init();
             if (null == init) return ld;
-            Expr newInit = cast(init, ld.type().type());
+            Expr newInit = boxingUpcastIfNeeded(init, ld.type().type());
             return newInit == init ? ld : ld.init(newInit);
         } else if (n instanceof Call_c) {
             Call_c call = (Call_c)n;
@@ -137,7 +132,7 @@ public class CastInjector extends ContextVisitor {
             Type T = Types.getParameterType(tuple.type(), 0);       
             for (int i=0; i<inits.size(); i++) {
                 Expr e = inits.get(i);
-                Expr e2 = cast(e, T);
+                Expr e2 = boxingUpcastIfNeeded(e, T);
                 if (e != e2) {
                     if (newInits == null) {
                         newInits = new ArrayList<Expr>(inits);
@@ -151,32 +146,70 @@ public class CastInjector extends ContextVisitor {
         return n;
     }
     
-    
+    /**
+     * Inject any needed casts to ensure that the actual and formal types
+     * match at a call site.  An exact deep base type equality is needed
+     * to ensure that overloading at the C++ level works as expected.
+     */
     private List<Expr> castActualsToFormals(List<Expr> args, List<Type> formals) {
         List<Expr> newArgs = null;
         for (int i=0; i<args.size(); i++) {
             Expr e = args.get(i);
             Type fType = formals.get(i);
-            Expr e2 = cast(e, fType);
-            if (e != e2) {
+            if (!ts.typeDeepBaseEquals(fType, e.type(), context)) {
                 if (newArgs == null) {
                     newArgs = new ArrayList<Expr>(args);
                 }
+                Position pos = e.position();
+                Expr e2 =  nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), e,
+                                      Converter.ConversionType.UNCHECKED).type(fType);
                 newArgs.set(i, e2);
             }
         }
         return newArgs == null ? args : newArgs;
     }
     
+    /**
+     * Like castActualsToFormals, but for a single Expr.
+     * Used in a few additional cases where an exact deep base type equality
+     * is required for C++ level compilation to work as expected.
+     */
     private Expr cast(Expr a, Type fType) {
         if (!ts.typeDeepBaseEquals(fType, a.type(), context)) {
             Position pos = a.position();
             return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
-                           Converter.ConversionType.UNCHECKED).type(fType);
+                              Converter.ConversionType.UNCHECKED).type(fType);
         } else {
             return a;
         }
     }
-
     
+    /**
+     * Check to see if the upcast of the argument expression to the
+     * given type requires an explicit cast operation to perform
+     * a C++-level representation change (eg boxing). 
+     * If the cast is needed, insert it.
+     * If the cast is not needed (eg if both types are x10aux:ref<...>)
+     * then do nothing, even if the types are not equal.
+     */
+    private Expr boxingUpcastIfNeeded(Expr a, Type fType) {
+        if (a instanceof NullLit_c) {
+            // X10_NULL is x10aux:ref<>; implicit C++ level ref casts are enough
+            return a;
+        }
+        
+        if (ts.isObjectOrInterfaceType(a.type(), context)) {
+            // already a x10aux::ref; implicit C++ level ref casts are enough
+            return a;
+        }
+        
+        if (!ts.typeDeepBaseEquals(fType, a.type(), context)) {
+            Position pos = a.position();
+            return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
+                              Converter.ConversionType.UNCHECKED).type(fType);
+        } else {
+            return a;
+        }
+    }
+        
 }
