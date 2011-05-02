@@ -61,7 +61,7 @@ esac
 echo "Will use $numCPUs cores to build."
 
 distdir=$workdir/x10
-projectList="x10.common x10.compiler x10.constraints x10.dist x10.runtime x10.tests x10.wala"
+projectList="x10.common x10.compiler x10.constraints x10.dist x10.doc x10.runtime x10.tests x10.wala"
 MAX_RETRIES=5
 
 if [ ! -z "$CLEAN" ]; then
