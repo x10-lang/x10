@@ -184,6 +184,7 @@ public class Lowerer extends ContextVisitor {
     private static final Name START_COLLECTING_FINISH = Name.make("startCollectingFinish");
     private static final Name STOP_COLLECTING_FINISH = Name.make("stopCollectingFinish");
     private static final Name OFFER = Name.make("makeOffer");  
+    private static final Name ACC_OFFER = Name.make("makeAccOffer");
     
     //added for scalable finish
     private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");
@@ -1028,7 +1029,7 @@ public class Lowerer extends ContextVisitor {
 
     	Call call = synth.makeStaticCall(pos, ts.Runtime(), OFFER, Collections.singletonList(offerTarget), ts.Void(), Collections.singletonList(expectType),  context());
     	
-    	Stmt offercall = nf.Eval(pos, call);     	
+    	Stmt offercall = nf.Eval(pos, call);  	
     	return offercall;		 
     }
 

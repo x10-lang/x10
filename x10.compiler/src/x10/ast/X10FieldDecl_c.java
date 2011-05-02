@@ -12,28 +12,24 @@
 package x10.ast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashSet;
 import java.util.Set;
 
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.FlagsNode;
-import polyglot.ast.FloatLit;
 import polyglot.ast.Id;
-import polyglot.ast.IntLit;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
-import polyglot.ast.CanonicalTypeNode;
 import polyglot.frontend.AbstractGoal_c;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.ClassDef;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
@@ -43,13 +39,12 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
@@ -58,31 +53,21 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
-import polyglot.types.Context;
-import x10.types.X10Def;
 import x10.types.X10FieldDef;
-
 import x10.types.X10InitializerDef;
-
-
-import x10.types.X10FieldDef_c;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10ClassDef_c;
-import polyglot.types.TypeSystem;
-import polyglot.types.FieldInstance;
-import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
-import x10.types.constraints.XConstrainedTerm;
+import x10.util.CollectionFactory;
 import x10.visit.X10TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
