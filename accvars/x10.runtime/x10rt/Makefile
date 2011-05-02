@@ -16,7 +16,8 @@ WGET            ?= wget
 TAR             ?= tar
 GZIP            ?= gzip
 
-override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
+#override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
+override CXXFLAGS += -Iinclude -Icommon -I /usr/lib/jvm/java-6-openjdk/include
 override CXXFLAGS += ${CXX_WARNING_FLAGS}
 
 BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology test/x10rt_coll

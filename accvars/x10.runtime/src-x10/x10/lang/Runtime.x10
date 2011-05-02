@@ -947,6 +947,10 @@ import x10.util.NoSuchElementException;
         return activity().swapFinish(new FinishState.CollectingFinish[T](r));
     }
 
+	public static def makeAccOffer[T](t:T) {
+				
+	}
+
     public static def makeOffer[T](t:T) {
 		val state = activity().finishState();
 		Console.OUT.println("Place(" + here.id + ") Runtime.makeOffer: received " + t);

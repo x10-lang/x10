@@ -734,6 +734,11 @@ public class TypeSystem_c implements TypeSystem
         return finalSubtype(t,ULong());
     }
 
+    //Code for X10 Acc Variables
+    public boolean isAcc(Type t) {
+        return finalSubtype(t,Accumulator());
+    }
+    
     public boolean isNumeric(Type t) {
         if (isChar(t))
             return false;

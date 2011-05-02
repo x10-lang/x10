@@ -1,59 +1,29 @@
 package x10.visit;
 
-import polyglot.ast.*;
-import polyglot.util.ErrorInfo;
-import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
-import polyglot.visit.NodeVisitor;
-import polyglot.visit.DataFlow;
-import polyglot.visit.FlowGraph;
-import polyglot.visit.ContextVisitor;
-import polyglot.visit.InitChecker;
-import polyglot.visit.DataFlow.Item;
-import polyglot.visit.FlowGraph.EdgeKey;
-import polyglot.frontend.Job;
-import polyglot.types.Flags;
-import polyglot.types.Type;
-import polyglot.types.FieldDef;
-import polyglot.types.MethodDef;
-import polyglot.types.FieldInstance;
-import polyglot.types.ProcedureDef;
-import polyglot.types.QName;
-import polyglot.types.ClassDef;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
-import polyglot.types.Name;
-import polyglot.types.Context;
-import polyglot.types.ProcedureDef_c;
-import polyglot.types.Types;
-import x10.ast.*;
-import x10.errors.Errors;
-import polyglot.types.TypeSystem;
-import polyglot.types.VarDef;
-import polyglot.types.LocalDef;
-import polyglot.types.ClassType;
-import polyglot.types.ContainerType;
-import polyglot.types.ProcedureInstance;
-import x10.types.X10FieldDef;
-
-import x10.types.MethodInstance;
-import x10.types.X10ParsedClassType_c;
-import x10.types.X10ProcedureDef;
-import x10.types.X10MethodDef;
-import x10.types.X10ConstructorDef;
-import x10.types.X10FieldDef_c;
-import x10.types.checker.ThisChecker;
-import x10.util.Synthesizer;
-
 import java.util.HashMap;
-import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.ArrayList;
-import java.util.Collections;
-import static polyglot.visit.InitChecker.*;
+
+import polyglot.ast.ClassDecl;
+import polyglot.ast.CodeBlock;
+import polyglot.ast.Expr;
+import polyglot.ast.FieldDecl;
+import polyglot.ast.Formal;
+import polyglot.ast.Local;
+import polyglot.ast.LocalAssign;
+import polyglot.ast.Node;
+import polyglot.ast.VarDecl;
+import polyglot.frontend.Job;
+import polyglot.types.LocalDef;
+import polyglot.types.ProcedureDef;
+import polyglot.types.ProcedureInstance;
+import polyglot.types.SemanticException;
+import polyglot.visit.ContextVisitor;
+import polyglot.visit.NodeVisitor;
+import x10.ast.Async;
+import x10.ast.Finish;
+import x10.ast.X10ProcedureCall;
+import x10.errors.Errors;
 
 /**
  * Checks the rules for accumulators (the "acc" keyword).
@@ -145,7 +115,7 @@ public class CheckAcc extends NodeVisitor {
                     } else {
                         Errors.issue(job, new SemanticException("Cannot pass a non-accumulator argument in the position of an accumulator formal."), n);
                     }
-                }
+                    }
                 pos++;
             }
         } else if (n instanceof LocalAssign) {	// if trying to assign an argument
@@ -155,6 +125,17 @@ public class CheckAcc extends NodeVisitor {
                 okLocals.add(local);			// add to locals
                 // when writing an acc, it must be in canWrite
                 LocalInfo info = accs.get(local.localInstance().def());
+                
+                
+                if(isWriteOnly(info)){
+                	//call makeAccSuuply
+                	
+                }
+                else if(!isWriteOnly(info)){
+                	
+                }	//
+                
+                
                 if (info==null || !canWrite(info)) {	// make sure that we can write to it
                     Errors.issue(job, new SemanticException("Cannot write to an accumulator in an async that is not enclosed by a finish."), n);
                 }
