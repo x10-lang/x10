@@ -33,6 +33,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
@@ -281,7 +282,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     	
     	if (v instanceof String) {
     		TypeSystem ts = castType.type().typeSystem();
-    		if (castType.type().typeEquals(ts.String(), ts.emptyContext())) return v;
+    		if (ts.String().isSubtype(castType.type(), ts.emptyContext())) return v;
     	}
     	
     	if (v instanceof Double) {
@@ -332,7 +333,8 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     		if (castType.type().isByte()) return Byte.valueOf((byte) vv);
     	}
 
-    	// not a constant
-    	return null;
+    	// Not null, but we can't figure out what to do with it.
+    	// Compiler is hosed because of a mismatch between constantValue and isConstant
+    	throw new InternalCompilerError("Can't process constant value "+v+" (type == "+v.getClass()+")");
     }
 }
