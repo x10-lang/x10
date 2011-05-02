@@ -42,8 +42,6 @@ namespace x10 {
           static x10aux::ref<x10::lang::String> typeName(x10aux::ref<x10::lang::Reference> recv) {
               return (recv.operator->()->*(x10aux::findITable<x10::lang::Comparable<FMGL(T)> >(recv->_getITables())->typeName))();
           }
-
-          void _instance_init();
         };
 
         template <> class Comparable<void> {
@@ -108,10 +106,6 @@ COMPARABLE_PRIM_DECL(x10_double, double_utils)
 #ifndef X10_LANG_COMPARABLE_H_IMPLEMENTATION
 #define X10_LANG_COMPARABLE_H_IMPLEMENTATION
 #include <x10/lang/Comparable.h>
-
-template<class FMGL(T)> void x10::lang::Comparable<FMGL(T)>::_instance_init() {
-    _I_("Doing initialisation for class: x10::lang::Comparable<FMGL(T)>");
-}
 
 template<class FMGL(T)> x10aux::RuntimeType x10::lang::Comparable<FMGL(T)>::rtt;
 template<class FMGL(T)> void x10::lang::Comparable<FMGL(T)>::_initRTT() {
