@@ -285,7 +285,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         s.print(target, sw, tr);
         String container = Emitter.translateType(call.constructorInstance().container());
         sw.write(")->::" +container+ "::" +SharedVarsMethods.CONSTRUCTOR+ "(");
-        TypeSystem ts = tr.typeSystem();
         List<Expr> args = call.arguments();
         for (int i=0; i<args.size(); i++) {
             if (noArgsYet) {
@@ -297,10 +296,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 sw.allowBreak(0, " ");
             }
             Expr e = args.get(i);
-            Type fType = call.constructorInstance().formalTypes().get(i);
-            if (!ts.typeEquals(fType, e.type(), tr.context()) && !(ts.isParameterType(fType) && e.type().isNull())) {
-                e = cast(e, fType);
-            }
             s.print(e, sw, tr);
         }
         if (!noArgsYet)
@@ -558,15 +553,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            assert (init != null);
 	            sw.write(mangled_field_name(dec.name().id().toString()));
 	            sw.write(" = ");
-	            Type aType = dec.type().type();
-	            boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, init.type(), context);
-	            if (rhsNeedsCast) {
-	                // FIXME: this cast would not be needed if not for a frontend bug
-	                sw.write("x10aux::class_cast" + chevrons(Emitter.translateType(aType, true)) + "(");
-	            }
 	            dec.print(init, sw, tr);
-	            if (rhsNeedsCast)
-	                sw.write(")");
 	            sw.write(";");
 	            sw.newline();
 	            ((X10CPPTranslator)tr).setContext(context); // FIXME
@@ -2093,9 +2080,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
     public void visit(AssignPropertyCall_c n) {
-        // TODO: initialize properties in the C++ constructor (at least for classes)
-        TypeSystem xts = (TypeSystem) tr.typeSystem();
-        Context ctx = tr.context();
         List<X10FieldInstance> definedProperties = n.properties();
         List<Expr> arguments = n.arguments();
         int aSize = arguments.size();
@@ -2106,15 +2090,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             FieldInstance fi = definedProperties.get(i);
             sw.write(mangled_field_name(fi.name().toString()));
             sw.write(" = ");
-            Type aType = fi.type();
-            boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, arg.type(), ctx);
-            if (rhsNeedsCast) {
-                // FIXME: this cast would not be needed if not for a frontend bug
-                sw.write("x10aux::class_cast" + chevrons(Emitter.translateType(aType, true)) + "(");
-            }
             n.print(arg, sw, tr);
-            if (rhsNeedsCast)
-                sw.write(")");
             sw.write(";");
             sw.newline();
         }
@@ -2325,22 +2301,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (e == null) {
 			sw.write("return;");
 		} else {
-			TypeSystem xts = tr.typeSystem();
-			Context context = tr.context();
 			sw.write("return ");
-			assert (context.currentCode() instanceof FunctionDef);
-			FunctionDef container = (FunctionDef) context.currentCode();
-			Type rType = container.returnType().get();
-			boolean rhsNeedsCast = !xts.typeDeepBaseEquals(rType, e.type(), context);
-			if (rhsNeedsCast) {
-			    // Cast is needed to ensure conversion/autoboxing.
-			    // However, it is statically correct to do the assignment, therefore it can be unchecked.
-			    sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(rType, true)) + "(");
-			}
 			ret.print(e, sw, tr);
-			if (rhsNeedsCast) {
-			    sw.write(")");
-			}
 			sw.write(";"); sw.newline();
 		}
 	}
@@ -2354,21 +2316,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(LocalDecl_c dec) {
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    TypeSystem xts = (TypeSystem)context.typeSystem();
-	    
-        boolean stackAllocate = false;
-            Type annotation = xts.StackAllocate();
-            if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
-                stackAllocate = true;
-//                System.err.println("@StackAllocate " + dec);
-            }
-        
-        String tmpName = null;
-        if (stackAllocate) {
-            tmpName = "_StackAllocate_"+mangled_non_method_name(dec.name().id().toString());
-            sw.writeln(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
-            assert context.getStackAllocName() == null;
-            context.setStackAllocName(tmpName);
-        } else {
+
+	    boolean stackAllocate = false;
+	    Type annotation = xts.StackAllocate();
+	    if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
+	        stackAllocate = true;
+	        //                System.err.println("@StackAllocate " + dec);
+	    }
+
+	    String tmpName = null;
+	    if (stackAllocate) {
+	        tmpName = "_StackAllocate_"+mangled_non_method_name(dec.name().id().toString());
+	        sw.writeln(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
+	        assert context.getStackAllocName() == null;
+	        context.setStackAllocName(tmpName);
+	    } else {
             emitter.printHeader(dec, sw, tr, true);
         }
 
@@ -2377,15 +2339,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (!stackAllocate) sw.write(" =");
 	        sw.allowBreak(2, " ");
 	        Type aType = dec.type().type();
-	        boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, initexpr.type(), context);
-	        if (rhsNeedsCast) {
-	            // Cast is needed to ensure conversion/autoboxing.
-	            // However, it is statically correct to do the assignment, therefore it can be unchecked.
-	            sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(aType, true)) + "(");
-	        }
 	        dec.print(initexpr, sw, tr);
-	        if (rhsNeedsCast)
-	            sw.write(")");
 	    }
 	    
 	    if (stackAllocate) {
@@ -2717,18 +2671,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		tr.appendSemicolon(semi);
 	}
 
-	private Expr cast(Expr a, Type fType) {
-		TypeSystem xts = (TypeSystem) tr.typeSystem();
-		NodeFactory nf = (NodeFactory) tr.nodeFactory();
-		Context context = tr.context();
-		if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
-			Position pos = a.position();
-			a = nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
-			               Converter.ConversionType.UNCHECKED).type(fType);
-        }
-		return a;
-	}
-
 	private static boolean needsNullCheck(Receiver e) {
 	    if (e instanceof X10CanonicalTypeNode_c)
 	        return false;
@@ -2783,23 +2725,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 		}
 
-		NodeFactory nf = (NodeFactory) tr.nodeFactory();
-		List<String> params = new ArrayList<String>();
-		List<Expr> args = new ArrayList<Expr>();
-		int counter = 0;
-		for (Expr a : n.arguments()) {
-		    Type fType = mi.formalTypes().get(counter);
-		    // HACK: Don't inject cases if the method is defined on x10.lang.Object.
-		    //       Compensates for front-end resolving methods invoked on unconstrained type parameters to Object.
-		    if (!xts.typeEquals(mi.container(), xts.Object(), context) &&
-		            !xts.typeEquals(fType, a.type(), context) && !(xts.isParameterType(fType) && a.type().isNull())) {
-		        a = cast(a, fType);
-		    }
-		    params.add(mi.def().formalNames().get(counter).name().toString());
-		    args.add(a);
-		    counter++;
-		}
-
 		String lang[] = new String[1];
 		String pat = getCppImplForDef(md, lang);
 		if (pat != null) {
@@ -2818,6 +2743,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            (mi.container().isClass() && ((X10ClassType)mi.container()).isX10Struct()) ||
 		            (mi.container().isClass() && getCppRep(((X10ClassType)mi.container()).x10Def()) != null) ||
 		            lang[0].equals("cuda")) {
+		        List<String> params = new ArrayList<String>();
+		        for (LocalDef fn : mi.def().formalNames()) {
+		            params.add(fn.name().toString());
+		        }
+		        
+		        
 		        List<Type> classTypeArguments  = Collections.<Type>emptyList();
 		        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
 		        if (mi.container().isClass() && !mi.flags().isStatic()) {
@@ -2827,13 +2758,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
 		            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
 		        }
-		        emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments);
+		        emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, n.arguments(), classTypeParams, classTypeArguments);
 		        return;
 		    }
 		}
 
 		// the cast is because our generated member function may use a more general
 		// return type because c++ does not support covariant smartptr returns
+		// TODO: See TODO in CastInjector.
         Type ret_type = emitter.findRootMethodReturnType(md, null, mi);
 		boolean needsCast = !xts.typeDeepBaseEquals(mi.returnType(), ret_type, context);
 		if (needsCast) {
@@ -2865,7 +2797,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            if (t.isClass()) {
 		                X10ClassType clsType = (X10ClassType)t.toClass();
 		                if (clsType.flags().isInterface()) {
-		                    invokeInterface(n, (Expr) target, args, make_ref(REFERENCE_TYPE), clsType, mi, needsNullCheck);
+		                    invokeInterface(n, (Expr) target, n.arguments(), make_ref(REFERENCE_TYPE), clsType, mi, needsNullCheck);
 		                    sw.end();
 		                    if (needsCast) {
 		                        sw.write(")");
@@ -2874,7 +2806,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                }
 		            } else if (xts.isParameterType(t)) {
 		                if (mi.container().isClass() && mi.container().toClass().flags().isInterface()) {
-		                    invokeInterface(n, (Expr) target, args, Emitter.translateType(t), mi.container(), mi, true);
+		                    invokeInterface(n, (Expr) target, n.arguments(), Emitter.translateType(t), mi.container(), mi, true);
 		                    sw.end();
 		                    if (needsCast) {
 		                        sw.write(")");
@@ -2900,7 +2832,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		boolean virtual_dispatch = true;
 		if (mi.typeParameters().size() == 0) {
-		    // Attempting to devirtualize generic instance merhods breaks xlC.
+		    // Attempting to devirtualize generic instance methods breaks xlC.
 		    // Not clear if this is because we aren't generating the right magic incantation
 		    // to do the invocation or if it is a bug in xlC.  
 		    // Until that is clear, just don't try to do the optimization in this case.
@@ -2928,7 +2860,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    emitter.printTemplateInstantiation(mi, sw);
 		}
 		sw.write("(");
-		printCallActuals(n, context, xts, mi, args);
+		printCallActuals(n, context, xts, mi, n.arguments());
 		sw.write(")");
 		sw.write(dangling);
 		sw.end();
@@ -3093,32 +3025,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // the programmer asked us to and stack allocate the storage for the object.
         // If the programmer was incorrect about the lifetime of the object, then
         // the program will almost certainly crash in some unexpected way.
-		    Type annotation = xts.StackAllocate();
-		    if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
-		        stackAllocate = true;
-//		        System.err.println("@StackAllocate " + n);
-		    }
-            Type annotation2 = xts.Embed();
-            if (!((X10Ext) n.ext()).annotationMatching(annotation2).isEmpty()) {
-                embed = true;
-//              System.err.println("@StackAllocate " + n);
-            }
+        Type annotation = xts.StackAllocate();
+        if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
+            stackAllocate = true;
+            //		        System.err.println("@StackAllocate " + n);
+        }
+        Type annotation2 = xts.Embed();
+        if (!((X10Ext) n.ext()).annotationMatching(annotation2).isEmpty()) {
+            embed = true;
+            //              System.err.println("@StackAllocate " + n);
+        }
 		
 		if (n.qualifier() != null)
 			throw new InternalCompilerError("Qualified new not supported");
 		if (n.body() != null)
 			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
-
-		List<Expr> coercedArgs = new ArrayList<Expr>();
-		int counter = 0;
-		for (Expr a : n.arguments()) {
-		    Type fType = constructor.formalTypes().get(counter);
-		    if (!xts.typeEquals(fType, a.type(), context) && !(xts.isParameterType(fType) && a.type().isNull())) {
-		        a = cast(a, fType);
-		    }
-		    coercedArgs.add(a);
-		    counter++;
-		}
 
 		if (stackAllocate) {
 		    sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
@@ -3131,7 +3052,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		    
 		sw.begin(0);
-		for (Iterator<Expr> i = coercedArgs.iterator(); i.hasNext(); ) {
+		for (Iterator<Expr> i = n.arguments().iterator(); i.hasNext(); ) {
 			Expr e = i.next();
 			n.print(e, sw, tr);
 			if (i.hasNext()) {
@@ -3273,22 +3194,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 if (xts.typeEquals(f_, t_, context)) {
                     c.printSubExpr(c.expr(), true, sw, tr);
                 } else if (c.conversionType()==Converter.ConversionType.SUBTYPE && xts.isSubtype(f_, t_, context)) {
-                    // Need to check for case where a struct is being upcast to an interface that it implements.
-                    // When that happens, we need to put in a class_cast_unchecked to cause boxing to happen.
-                    // TODO: clean this up
-                    if (t_.isClass() && t_.toClass().flags().isInterface() &&
-                            f_.isClass() && ((X10ClassType)f_.toClass()).isX10Struct()) {
-                        sw.write("x10aux::class_cast_unchecked");
-                        sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
-                        c.printSubExpr(c.expr(), true, sw, tr);
-                        sw.write(")");
-                    } else {
-                        // But we need the class_cast_unchecked even in the non-struct case, for overload resolution. 
-                        sw.write("x10aux::class_cast_unchecked");
-                        sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
-                        c.printSubExpr(c.expr(), true, sw, tr);
-                        sw.write(")");
-                    }
+                    // If it is an upcast, we can implement as a class_cast_unchecked.
+                    // However we still need to do something for two reasons
+                    //   (a) if it is a struct, then the upcast will autobox
+                    //   (b) if it is not a struct, we might still need the cast to
+                    //       get the right C++ types so that overload resolution will work.
+                    sw.write("x10aux::class_cast_unchecked");
+                    sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
+                    c.printSubExpr(c.expr(), true, sw, tr);
+                    sw.write(")");
                 } else {
 				    if (c.conversionType()==Converter.ConversionType.UNCHECKED) {
 				        sw.write("x10aux::class_cast_unchecked");
@@ -3463,28 +3377,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     public void visit(Conditional_c n) {
-        TypeSystem xts = tr.typeSystem();        
-        X10CPPContext_c context = (X10CPPContext_c) tr.context();
-        
         n.printSubExpr(n.cond(), false, sw, tr);
         sw.unifiedBreak(2);
-        sw.write("? ");
-        if (!xts.typeDeepBaseEquals(n.type(), n.consequent().type(), context)) {
-            sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(n.type(), true)) + "(");
-        } else {
-            sw.write("(");
-        }
+        sw.write("? (");
         sw.begin(0);
         n.printSubExpr(n.consequent(), true, sw, tr);
         sw.end();
         sw.write(")");
         sw.unifiedBreak(2);
-        sw.write(": ");
-        if (!xts.typeDeepBaseEquals(n.type(), n.alternative().type(), context)) {
-            sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(n.type(), true)) + "(");
-        } else {
-            sw.write("(");
-        }
+        sw.write(": (");
         sw.begin(0);
         n.printSubExpr(n.alternative(), true, sw, tr);
         sw.end();
@@ -3954,32 +3855,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return null;
 	}
 
+    // ClosureCall_c really means "call operator() on me, and if I happen to be a closure literal understand that means invoking my body"
+    // So we have to handle 3 different cases: 
+    //    (a) closure literal that for some odd reason wasn't inlined (should not really happen...)
+    //    (b) a function type
+    //    (c) an class (anonymous or not) that has an operator()
 	public void visit(ClosureCall_c c) {
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		Expr target = c.target();
-
-		MethodInstance mi = c.closureInstance();
-		TypeSystem xts = (TypeSystem) tr.typeSystem();
-		NodeFactory nf = (NodeFactory) tr.nodeFactory();
-		List<Expr> args = new ArrayList<Expr>();
-		int counter = 0;
-		for (Expr a : c.arguments()) {
-		    Type fType = mi.formalTypes().get(counter);
-		    a = cast(a, fType);
-		    args.add(a);
-		    counter++;
-		}
-
-		// Optimization: if the target is a closure literal, inline the body
-		Closure_c lit = getClosureLiteral(target);
-
-		// ClosureCall_c really means "call operator() on me, and if I happen to be a closure literal understand that means invoking my body"
-		// So we have to handle 3 different cases: 
-		//    (a) closure literal that for some odd reason wasn't inlined (should not really happen...)
-		//    (b) a function type
-		//    (c) an class (anonymous or not) that has an operator()
 		Type t = target.type();
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		boolean needsNullCheck = needsNullCheck(target);
+        Closure_c lit = getClosureLiteral(target);
 		if (lit != null) {
 		    // Optimize to stack-allocated closure and non-virtual dispatch
 		    context.setStackAllocateClosure(true);
@@ -3998,18 +3884,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    
 		    if (t.isClass() && t.toClass().flags().isInterface()) {
 		        MethodInstance ami = null;
+		        TypeSystem xts = tr.typeSystem();
 		        try {
 		            List<Type> actualTypes = new ArrayList<Type>();
 		            for (Expr a : c.arguments()) {
 		                actualTypes.add(a.type());
 		            }
-		            ami = xts.findMethod(t,
-		                                 xts.MethodMatcher(c.type(), ClosureCall.APPLY, actualTypes, context));  // todo: double check this code
+		            ami = xts.findMethod(t, xts.MethodMatcher(c.type(), ClosureCall.APPLY, actualTypes, context));  // todo: double check this code
 		        } catch (SemanticException e) {
 		            e.printStackTrace();
 		            assert (false);
 		        }
-		        invokeInterface(c, target, args, make_ref(REFERENCE_TYPE), t.toClass(), ami, needsNullCheck);
+		        invokeInterface(c, target, c.arguments(), make_ref(REFERENCE_TYPE), t.toClass(), ami, needsNullCheck);
 		        return;
 		    } else {
 		        if (needsNullCheck) sw.write("x10aux::nullCheck(");
@@ -4021,7 +3907,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		sw.begin(0);
 		boolean first = true;
-		for (Expr e : args) {
+		for (Expr e : c.arguments()) {
 			if (!first) {
 			    sw.write(",");
 			    sw.allowBreak(0, " ");
@@ -4115,33 +4001,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    if (op == Binary.EQ || op == Binary.NE) { // FIXME: get rid of this special case
 	        sw.write("("); sw.begin(0);
-	        Type c = null;
-	        try {
-                c = xts.leastCommonAncestor(l, r, context);
-            } catch (SemanticException e1) {
-            }
-	        if (op == Binary.NE)
+	        if (op == Binary.NE) {
 	            sw.write("!");
+	        }
 	        sw.write(STRUCT_EQUALS+"("); sw.begin(0);
-	        boolean castLeft = c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, l, context);
-	        if (castLeft) {
-	            sw.write("x10aux::class_cast_unchecked"+chevrons(Emitter.translateType(c, true)) + "(");
-	        }
 	        n.printSubExpr(left, sw, tr);
-	        if (castLeft) {
-	            sw.write(")");
-	        }
  	        sw.write(",");
 	        sw.allowBreak(0, " ");
-
-	        boolean castRight = c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, l, context);
-	        if (castRight) {
-	            sw.write("x10aux::class_cast_unchecked"+chevrons(Emitter.translateType(c, true)) + "(");
-	        };
 	        n.printSubExpr(right, sw, tr);
-	        if (castRight) {
-	            sw.write(")");
-	        }
 
 	        sw.end(); sw.write(")");
 	        sw.end(); sw.write(")");
@@ -4311,15 +4178,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		for (Expr e : c.arguments()) {
 		    sw.write(tmp+"->"+Emitter.mangled_method_name(SettableAssign.SET.toString())+"(");
 		    sw.writeln((count++)+", ");
-		    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
-		    if (rhsNeedsCast) {
-		        // Cast is needed to ensure conversion/autoboxing.
-		        // However, it is statically correct to do the assignment, therefore it can be unchecked.
-		        sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(T, true)) + "(");
-		    }
 		    c.printSubExpr(e, false, sw, tr);
-		    if (rhsNeedsCast)
-		        sw.write(")");
 		    sw.writeln(");");
 		}
 		sw.write(tmp);
