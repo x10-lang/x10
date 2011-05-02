@@ -125,17 +125,6 @@ public class CheckAcc extends NodeVisitor {
                 okLocals.add(local);			// add to locals
                 // when writing an acc, it must be in canWrite
                 LocalInfo info = accs.get(local.localInstance().def());
-                
-                
-                if(isWriteOnly(info)){
-                	//call makeAccSuuply
-                	
-                }
-                else if(!isWriteOnly(info)){
-                	
-                }	//
-                
-                
                 if (info==null || !canWrite(info)) {	// make sure that we can write to it
                     Errors.issue(job, new SemanticException("Cannot write to an accumulator in an async that is not enclosed by a finish."), n);
                 }
