@@ -24,7 +24,6 @@ import static x10cpp.visit.Emitter.voidTemplateInstantiation;
 import static x10cpp.visit.SharedVarsMethods.CONSTRUCTOR;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
-import static x10cpp.visit.SharedVarsMethods.INSTANCE_INIT;
 import static x10cpp.visit.SharedVarsMethods.MAKE;
 import static x10cpp.visit.SharedVarsMethods.CPP_NATIVE_STRING;
 import static x10cpp.visit.SharedVarsMethods.SAVED_THIS;
@@ -438,7 +437,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write("x10aux::RuntimeType "+container+"::rtt;");
 	    sw.newline();
 
-
 	    for (ClassMember dec : context.pendingStaticDecls()) {
 	        if (dec instanceof FieldDecl_c) {
 	            FieldDecl_c fd = (FieldDecl_c) dec;
@@ -504,68 +502,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    sw.forceNewline();
 	    sw.popCurrentStream();
-	}
-
-	private boolean extractInits(X10ClassType currentClass, String methodName,
-			String retType, List<ClassMember> members)
-	{
-	    String className = Emitter.translateType(currentClass);
-	    X10ClassDef cd = currentClass.x10Def();
-	    boolean sawInit = false;
-	    emitter.printTemplateSignature(cd.typeParameters(), sw);
-	    sw.write(retType + " " + className + "::" + methodName + "() {");
-
-	    sw.newline(4); sw.begin(0);
-	    sw.write("_I_(\"Doing initialisation for class: "+className+"\");"); sw.newline();
-	    for (ClassMember member : members) {
-	        if (member.memberDef().flags().isStatic())
-	            continue;
-	        if (!(member instanceof Initializer_c) && !(member instanceof FieldDecl_c))
-	            continue;
-	        if (member instanceof FieldDecl_c &&
-	                (((FieldDecl_c)member).init() == null ||
-	                        query.isSyntheticField(((FieldDecl_c)member).name().id().toString())))
-	            continue;
-	        if (member instanceof FieldDecl_c) {
-	            FieldDecl_c dec = (FieldDecl_c) member;
-	            if (dec.flags().flags().isStatic()) {
-	                X10ClassType container = (X10ClassType)Types.baseType(dec.fieldDef().asInstance().container());
-	                if (((X10ClassDef)container.def()).typeParameters().size() != 0)
-	                    continue;
-	                if (isGlobalInit(dec))
-	                    continue;
-	            }
-	        }
-	        sawInit = true;
-	        if (member instanceof Initializer_c) {
-	            Initializer_c init = (Initializer_c) member;
-	            init.printBlock(init.body(), sw, tr);
-	            sw.newline(0);
-	        } else if (member instanceof FieldDecl_c) {
-	            FieldDecl_c dec = (FieldDecl_c) member;
-	            X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	            ((X10CPPTranslator)tr).setContext(dec.enterScope(context)); // FIXME
-	            TypeSystem xts =  tr.typeSystem();
-	            VarInstance<?> ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-	                    Types.ref(currentClass), Name.make(THIS)).asInstance();
-	            context.addVariable(ti);
-	            Expr init = (Expr) dec.init();
-	            assert (init != null);
-	            sw.write(mangled_field_name(dec.name().id().toString()));
-	            sw.write(" = ");
-	            dec.print(init, sw, tr);
-	            sw.write(";");
-	            sw.newline();
-	            ((X10CPPTranslator)tr).setContext(context); // FIXME
-	        }
-	    }
-	    if (!retType.equals(VOID))
-	        sw.write("return ("+retType+")0;");
-	    sw.end(); sw.newline();
-	    sw.write("}");
-	    sw.newline(); sw.forceNewline(0);
-
-	    return sawInit;
 	}
 
 	private void extractAllClassTypes(Type t, List<ClassType> types, Set<ClassType> dupes) {
@@ -670,7 +606,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.set(h, w_body);
 
         context.setInsideClosure(false);
-        context.hasInits = false;
 
         // Write the header for the class
         String cheader = getHeader(def.asType());
@@ -1142,12 +1077,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 
-            h.write(VOID + " " + INSTANCE_INIT + "();");
-            h.newline(); h.forceNewline();
-            if (extractInits(currentClass, INSTANCE_INIT, VOID, members)) {
-                context.hasInits = true;
-            }
-
             for (ClassMember member : members) {
                 if (! (member instanceof polyglot.ast.MethodDecl)){
                     n.printBlock(member, sw, tr);
@@ -1186,13 +1115,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
-
-            h.write(VOID + " " + INSTANCE_INIT + "();");
-            h.newline();
-            h.forceNewline();
-            if (extractInits(currentClass, INSTANCE_INIT, VOID, members)) {
-                context.hasInits = true;
-            }
 
             if (superClass != null) {
                 generateUsingDeclsForInheritedMethods(context, currentClass,
@@ -1249,16 +1171,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.forceNewline();
         
         if (!members.isEmpty()) {
-            String className = Emitter.translateType(currentClass);
-
-            h.write(VOID + " " + INSTANCE_INIT + "();");
-            h.newline();
-            h.forceNewline();
-
-            if (extractInits(currentClass, INSTANCE_INIT, VOID, members)) {
-                context.hasInits = true;
-            }
-
             ClassMember prev = null;
             for (ClassMember member : members) {
                 if ((member instanceof polyglot.ast.CodeDecl) || (prev instanceof polyglot.ast.CodeDecl)) {
@@ -1677,11 +1589,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (query.isSyntheticOuterAccessor(s)) {
 	            dec.print(s, sw, tr); sw.newline();
 	        }
-	    }
-
-	    if (context.hasInits) {
-	        // then, run x10 instance field initialisers
-	        sw.write("this->"+INSTANCE_INIT+"();"); sw.newline();
 	    }
 
 	    for (Stmt s : body.statements()) {
