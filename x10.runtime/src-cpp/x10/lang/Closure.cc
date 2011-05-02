@@ -9,8 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#include <sstream>
-
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
 

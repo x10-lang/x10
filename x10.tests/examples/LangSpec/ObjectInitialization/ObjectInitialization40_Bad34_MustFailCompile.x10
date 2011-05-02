@@ -26,7 +26,7 @@ public class ObjectInitialization40_Bad34_MustFailCompile extends x10Test {
     }
 
 
-// file ObjectInitialization line 367
+// file ObjectInitialization line 373
  static class C {
   val a:Int;
   def this() {

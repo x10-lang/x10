@@ -26,7 +26,7 @@ public class Expressions120 extends x10Test {
     }
 
 
-// file Expressions line 1327
+// file Expressions line 1367
 
  static class Expressions27TestExp{
   def check(x:Int)  = 3 instanceof Int{self==x};  }

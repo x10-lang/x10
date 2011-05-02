@@ -26,7 +26,7 @@ public class ClassesCtor10 extends x10Test {
     }
 
 
-// file Classes line 897
+// file Classes line 1006
  static class C {
   public val a : Int;
   def this(b : Int) { a = b; }
@@ -38,9 +38,6 @@ public class ClassesCtor10 extends x10Test {
      assert ten.a == 10;
   }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {C.example(); return true;}}
 
 }

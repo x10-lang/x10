@@ -8,7 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-package WorkStealing.Construct;
+//OPTIONS: -WORK_STEALING=true
 /*
  * Test closure with concurrent construct.
  * Closure is in the method body.

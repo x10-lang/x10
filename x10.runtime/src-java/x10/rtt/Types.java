@@ -34,19 +34,69 @@ public class Types {
 //        return (T) o;
 //    }
     
-    public static String typeName(Object obj) {
-        String s;
+	public static RuntimeType<?> getRTT(Object obj) {
+		RuntimeType<?> rtt;
         if (obj instanceof Any) {
-            s = ((Any) obj).$getRTT().typeName(obj);
+        	rtt = ((Any) obj).$getRTT();
         } else if (Types.getNativeRepRTT(obj) != null) {
-            s = Types.getNativeRepRTT(obj).typeName();
+        	rtt = Types.getNativeRepRTT(obj);
         } else {
             // Note: for java classes that don't have RTTs
-            s = obj.getClass().toString().substring("class ".length());
+        	// TODO add the superclass and all interfaces to parents
+        	// TODO add type parameters as Any
+        	// TODO cache RTT to WeakHashMap<Class,RuntimeType>
+        	rtt = new RuntimeType(obj.getClass());
         }
-        return s;
+        return rtt;
+	}
+	
+//    public static String typeName(Object obj) {
+//        String s;
+//        if (obj instanceof Any) {
+//            s = ((Any) obj).$getRTT().typeName(obj);
+//        } else if (Types.getNativeRepRTT(obj) != null) {
+//            s = Types.getNativeRepRTT(obj).typeName();
+//        } else {
+//            // Note: for java classes that don't have RTTs
+//            s = obj.getClass().toString().substring("class ".length());
+//        }
+//        return s;
+//    }
+    public static String typeName(Object obj) {
+    	return getRTT(obj).typeName(obj);
     }
 
+    // Fast implementation of Any.hashCode() without boxing
+    public static int hashCode(Object value) {
+        return value.hashCode();
+    }
+    public static int hashCode(boolean value) {
+        return value ? 1231 : 1237;
+    }
+//    public static int hashCode(char value) {
+//        return value;
+//    }
+//    public static int hashCode(byte value) {
+//        return value;
+//    }
+//    public static int hashCode(short value) {
+//        return value;
+//    }
+    public static int hashCode(int value) {
+        // for char, byte, short and int 
+        return value;
+    }
+    public static int hashCode(long value) {
+        return (int)(value ^ (value >>> 32));
+    }
+    public static int hashCode(float value) {
+        return Float.floatToIntBits(value);
+    }
+    public static int hashCode(double value) {
+        long bits = Double.doubleToLongBits(value);
+        return (int)(bits ^ (bits >>> 32));
+    }
+    
     // not used
 //    public static RuntimeType runtimeType(Class<?> c) {
 //        return new RuntimeType<Class<?>>(c);
@@ -64,7 +114,9 @@ public class Types {
         };
     };
     // Fix for XTENLANG-1916
-    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class) {
+    // N.B. any X10 type is either Object or Struct that has Any as parents
+//    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class) {
+    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class, new Type[] { ANY }) {
         @Override
         public String typeName() {
             return "x10.lang.Object";
@@ -77,7 +129,9 @@ public class Types {
     };
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
     // create rtt of struct before all struct types (e.g. int)
-    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class);
+    // N.B. any X10 type is either Object or Struct that has Any as parents
+//    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class);
+    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class, new Type[] { ANY });
 
     // create rtt of comparable before all types that implement comparable (e.g. int)
     public static final RuntimeType<?> COMPARABLE = new RuntimeType(
@@ -196,16 +250,17 @@ public class Types {
         return false;
     }
 
-    // not used
-//    public static boolean instanceofObject(Object o) {
-//        return o != null && !isStruct(o);
-//    }
-//
-//    public static boolean isStruct(Object o) {
-//        return STRUCT.instanceof$(o) ||
-//        BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
-//        FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
-//    }
+    @Deprecated
+    public static boolean instanceofObject(Object o) {
+        return o != null && !isStruct(o);
+    }
+
+    @Deprecated
+    public static boolean isStruct(Object o) {
+        return STRUCT.instanceof$(o) ||
+        BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
+        FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
+    }
 
     public static boolean asboolean(Object typeParamOrAny) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Boolean");}

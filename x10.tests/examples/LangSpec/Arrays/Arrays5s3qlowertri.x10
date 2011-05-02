@@ -26,7 +26,7 @@ public class Arrays5s3qlowertri extends x10Test {
     }
 
 
-// file Arrays line 173
+// file Arrays line 175
 
  static class Arrays16TestExp{
   def check(N:Int)  = Region.makeLowerTriangular(N);  }

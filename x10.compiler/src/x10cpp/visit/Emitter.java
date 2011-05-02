@@ -653,96 +653,6 @@ public class Emitter {
         h.end();
         h.write(")");
     }
-
-    String genericMethodDispatcherName(MethodInstance mi) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("_gmdt_"+mangled_method_name(mi.name().toString()));
-        sb.append("_"+mi.formalTypes().size());
-        for (Type ft : mi.formalTypes()) {
-            sb.append("_"+mangled_non_method_name(ft.name().toString()));
-        }
-        
-        return sb.toString();
-    }
-    
-    void generateGenericMethodDispatcher(X10MethodDecl_c n, CodeWriter header, CodeWriter genericFunctions, CodeWriter classBody, 
-                                         Translator tr, String name, Type ret) {
-        Flags flags = n.flags().flags();
-        X10MethodDef def = (X10MethodDef) n.methodDef();
-        MethodInstance mi = (MethodInstance) def.asInstance();
-        X10ClassType container = (X10ClassType) mi.container();
-
-        String dispatcherClassCName = genericMethodDispatcherName(mi);
-        String containerCClassName = translateType(container, false);
-        String containerCName = translateType(container, true);
-        boolean rootMethod = mi.overrides(tr.context()).size() == 1;
-        if (rootMethod) {
-            String retCType = translateType(ret);
-            printTemplateSignature(def.typeParameters(), header);
-            header.write("class "+dispatcherClassCName+" {"); header.newline(4); header.begin(0);
-            header.writeln("static int _id;");
-            header.writeln("public:");
-            header.writeln("static int init();");
-            header.write("static "+retCType+" invoke("+containerCName+" this_");
-            int argNum = 0;
-            for (Type ft : mi.formalTypes()) {
-                header.write(", "+translateType(ft, true)+" arg"+argNum);
-                argNum++;
-            }
-            header.write(") {"); header.newline(4); header.begin(0);
-            StringBuilder fpType = new StringBuilder();
-            fpType.append("x10aux::dispatcher<"+retCType+"("+containerCClassName+"::*)("); 
-            boolean firstTime = true;
-            for (Type ft : mi.formalTypes()) {
-                if (firstTime) {
-                    firstTime = false;
-                } else {
-                    fpType.append(", ");
-                }
-                fpType.append(translateType(ft, true));
-            }
-            fpType.append(")>");
-            String fpCType = fpType.toString();
-            header.writeln(fpCType+" disp = ("+fpCType+")(this_->_disp_"+dispatcherClassCName+"());");
-            if (!ret.isVoid()) header.write("return ");
-            header.write("(this_->*(disp->get(_id)))(");
-            for (argNum = 0; argNum<mi.formalTypes().size(); argNum++) {
-                header.write((argNum > 0 ? ", arg" : "arg")+argNum);
-            }
-            header.writeln(");");
-            header.end(); header.newline();
-            header.write("}"); 
-            header.end(); header.newline();
-            header.writeln("};");
-            
-            printTemplateSignature(((X10ClassType)Types.get(n.methodDef().container())).x10Def().typeParameters(), genericFunctions);
-            printTemplateSignature(def.typeParameters(), genericFunctions);
-            StringBuilder fqdc = new StringBuilder();
-            fqdc.append(containerCClassName+"::"+dispatcherClassCName+"<");
-            boolean first = true;
-            for (ParameterType pt : def.typeParameters()) {
-                if (first) {
-                    first = false;
-                } else {
-                    fqdc.append(", ");
-                }
-                fqdc.append(translateType(pt));
-            }
-            fqdc.append(" >");
-            String fqdcStr = fqdc.toString();
-            genericFunctions.write(" int "+fqdcStr+"::_id = "+fqdcStr+"::init();"); genericFunctions.newline();
-        }
-
-        String dispatcherCType = "x10aux::dispatcher<void("+containerCClassName+"::*)()>";
-        header.writeln("static "+dispatcherCType+" _dispTable_"+dispatcherClassCName+";");
-        header.writeln("virtual void* _disp_"+dispatcherClassCName+"() { return &_dispTable_"+dispatcherClassCName+"; }");
-        header.forceNewline();
-        
-        printTemplateSignature(((X10ClassType)Types.get(n.methodDef().container())).x10Def().typeParameters(), classBody);
-        classBody.writeln(" "+dispatcherCType+" "+containerCClassName+"::_dispTable_"+dispatcherClassCName+";");
-        classBody.forceNewline();
-    }
-
     
 	void printHeader(Formal_c n, CodeWriter h, Translator tr, boolean qualify) {
 //		Flags flags = n.flags().flags();
@@ -1079,7 +989,7 @@ public class Emitter {
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
             w.write("x10aux::DeserializationDispatcher::addDeserializer(");
-            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons("x10::lang::Reference")+", x10aux::CLOSURE_KIND_NOT_ASYNC);");
+            w.write(klass+"::"+DESERIALIZER_METHOD+", x10aux::CLOSURE_KIND_NOT_ASYNC);");
             w.newline(); w.forceNewline();
         }
 
@@ -1142,13 +1052,11 @@ public class Emitter {
 
         if (!type.flags().isAbstract()) {
             // _deserializer()
-            h.write("public: template<class __T> static ");
-            h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
+            h.write("public: static ");
+            h.write(make_ref("x10::lang::Reference")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
             h.newline(); h.forceNewline();
-            sw.pushCurrentStream(context.genericFunctions);
             printTemplateSignature(ct.x10Def().typeParameters(), sw);
-            sw.write("template<class __T> ");
-            sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+            sw.write(make_ref("x10::lang::Reference")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
             sw.writeln(make_ref(klass)+" this_ = "+
                        "new (memset(x10aux::alloc"+chevrons(klass)+"(), 0, sizeof("+klass+"))) "+klass+"();");
@@ -1157,7 +1065,6 @@ public class Emitter {
             sw.write("return this_;");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
-            sw.popCurrentStream();
         }
 
         // _deserialize_body()

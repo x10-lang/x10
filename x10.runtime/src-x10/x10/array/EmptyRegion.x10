@@ -29,7 +29,7 @@ final class EmptyRegion extends Region{rect} {
     public def product(that: Region)/*: Region(this.rank+that.rank)*/ 
         = new EmptyRegion(this.rank + that.rank);
     public def projection(axis: int): Region(1) = new EmptyRegion(1);
-    public def translate(p:Point(rank)): Region(rank) = this;
+    public def translate(p:Point(rank)) = this;
     public def eliminate(i:Int)= new EmptyRegion(rank-1);
     protected def computeBoundingBox(): Region(rank) {
         throw new IllegalOperationException("bounding box not not defined for empty region");
@@ -43,7 +43,7 @@ final class EmptyRegion extends Region{rect} {
     public def contains(that: Region(rank)) = that.isEmpty();
     public def contains(p:Point):Boolean = false;
 
-    private static class ERIterator(myRank:int) implements Iterator[Point(myRank)]() {
+    private static class ERIterator(myRank:int) implements Iterator[Point(myRank)] {
         def this(r:int) { property(r); }
         public def hasNext():boolean = false;
         public def next():Point(myRank) {

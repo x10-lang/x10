@@ -30,9 +30,9 @@ public class Warnings {
 	public static boolean dynamicCall(Job job, ErrorInfo e) {
         final ExtensionInfo extensionInfo = (ExtensionInfo) job.extensionInfo();
         X10CompilerOptions opts = extensionInfo.getOptions();
-        if (opts.x10_config.STATIC_CALLS) {
+        if (opts.x10_config.STATIC_CHECKS) {
             return false;
-        } else if (opts.x10_config.VERBOSE_CALLS) {
+        } else if (opts.x10_config.VERBOSE_CHECKS) {
             Warnings.issue(job, e);
         } else {
             extensionInfo.incrWeakCallsCount();

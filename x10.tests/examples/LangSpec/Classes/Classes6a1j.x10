@@ -26,11 +26,12 @@ public class Classes6a1j extends x10Test {
     }
 
 
-// file Classes line 1356
+// file Classes line 1474
  static  class Whatever {
 
 static  class Trace(n:Int){
-  public static operator !(f:Trace) = new Trace(10 * f.n + 1);
+  public static operator !(f:Trace)
+      = new Trace(10 * f.n + 1);
   public operator -this = new Trace (10 * this.n + 2);
 }
 static  class Brace extends Trace{

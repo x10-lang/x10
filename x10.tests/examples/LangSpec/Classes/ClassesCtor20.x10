@@ -26,16 +26,13 @@ public class ClassesCtor20 extends x10Test {
     }
 
 
-// file Classes line 932
+// file Classes line 1041
  static class C(x:Int) {
   static def example() {
     val c : C = new C(4);
     assert c.x == 4;
   }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {C.example(); return true;}}
 
 }

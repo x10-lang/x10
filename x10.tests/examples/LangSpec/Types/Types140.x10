@@ -26,7 +26,7 @@ public class Types140 extends x10Test {
     }
 
 
-// file Types line 422
+// file Types line 440
 
  static interface Named {
    def name():String;
@@ -36,7 +36,7 @@ public class Types140 extends x10Test {
  }
  static  interface Person extends Named, Mobile {}
  static  interface NamedPoint extends Named, Mobile{}
- static class KimThePoint implements Person {
+ static class Kim implements Person {
    var pos : Int = 0;
    public def name() = "Kim (" + pos + ")";
    public def move(dPos:Int) { pos += dPos; }

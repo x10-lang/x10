@@ -26,7 +26,7 @@ public class Types290 extends x10Test {
     }
 
 
-// file Types line 917
+// file Types line 951
 
  static class Types32TypeTest{
   def check()  { 

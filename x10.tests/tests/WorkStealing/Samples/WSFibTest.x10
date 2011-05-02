@@ -10,8 +10,6 @@
  */
 //OPTIONS: -WORK_STEALING=true
 
-// package WorkStealing.Samples; - can't use Fib because it doesn't have a package!
-
 public class WSFibTest {
     public def run():boolean {
         val res = Fib.fib(20);

@@ -37,6 +37,7 @@ import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.Triple;
 import x10.compiler.ws.util.WSUtil;
 import x10.util.synthesizer.CodeBlockSynth;
+import x10.util.synthesizer.ConstructorSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.MethodSynth;
 import x10.util.synthesizer.NewLocalVarSynth;
@@ -92,14 +93,10 @@ public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
      * @see x10.compiler.ws.codegen.WSRegularFrameClassGen#genClassConstructor()
      */
     protected void genClassConstructor() throws SemanticException{
-        super.genClassConstructor();
-        //Continue to add other statements
-        CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
-        
-        //the block flag one
-
+        ConstructorSynth conSynth = wsynth.genClassConstructorType2Base(classSynth);
+        CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
         //This ref
-        Expr thisRef = synth.thisRef(classSynth.getDef().asType(), compilerPos);
+        Expr thisRef = wsynth.genThisRef(classSynth);
         
         //all formals as constructor's formal
         for(Pair<Name, Type> formal: formals){
@@ -110,12 +107,10 @@ public class WSRemoteMainFrameClassGen extends WSRegularFrameClassGen {
             //make a field access
             Stmt s = xnf.Eval(compilerPos, 
                               synth.makeFieldAssign(compilerPos, thisRef, formalName, fRef, xct));
-            conCodeSynth.addStmt(s);
+            codeBlockSynth.addStmt(s);
         }
         //assign pc
-        Stmt pcAssignS = xnf.Eval(compilerPos, 
-                                  synth.makeFieldAssign(compilerPos, thisRef, PC, synth.intValueExpr(0, compilerPos), xct));
-        conCodeSynth.addStmt(pcAssignS);
+        codeBlockSynth.addStmt(wsynth.genPCAssign(classSynth, 0));
     }
 
     /* 

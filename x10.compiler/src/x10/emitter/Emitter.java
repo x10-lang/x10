@@ -127,6 +127,7 @@ public class Emitter {
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
+    private static final String JAVA_KEYWORD_PREFIX = "kwd_";
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
 	                "abstract", "default",  "if",         "private",    "this",
@@ -213,16 +214,16 @@ public class Emitter {
 	    /* 045 */ "$MINUS$",
 	    /* 046 */ "$DOT$",
 	    /* 047 */ "$SLASH$",
-	    /* 048 */ null,
-	    /* 049 */ null,
-	    /* 050 */ null,
-	    /* 051 */ null,
-	    /* 052 */ null,
-	    /* 053 */ null,
-	    /* 054 */ null,
-	    /* 055 */ null,
-	    /* 056 */ null,
-	    /* 057 */ null,
+	    /* 048 */ "$ZERO$",
+	    /* 049 */ "$ONE$",
+	    /* 050 */ "$TWO$",
+	    /* 051 */ "$THREE$",
+	    /* 052 */ "$FOUR$",
+	    /* 053 */ "$FIVE$",
+	    /* 054 */ "$SIX$",
+	    /* 055 */ "$SEVEN$",
+	    /* 056 */ "$EIGHT$",
+	    /* 057 */ "$NINE$",
 	    /* 058 */ "$COLON$",
 	    /* 059 */ "$SEMICOLON$",
 	    /* 060 */ "$LT$",
@@ -372,7 +373,7 @@ public class Emitter {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 		    char c = s.charAt(i);
-		    if (!Character.isJavaIdentifierPart(c)) {
+		    if (i == 0 ? !Character.isJavaIdentifierStart(c) : !Character.isJavaIdentifierPart(c)) {
 		        replace = true;
 		        sb.append(translateChar(c));
 		    } else {
@@ -405,12 +406,11 @@ public class Emitter {
 
 	public static String mangleToJava(Name name) {
 	        String str = mangleIdentifier(name).toString();
-	        String prefix = "kwd_";
-	        if (str.startsWith(prefix)) {
+	        if (str.startsWith(JAVA_KEYWORD_PREFIX)) {
 	            str = "_" + str;
 	        }
 	        if (JAVA_KEYWORDS.contains(str)) {
-	            str = prefix + str;
+	            str = JAVA_KEYWORD_PREFIX + str;
 	        }
 	        return str;
 	}
@@ -513,8 +513,7 @@ public class Emitter {
 		} else if (o instanceof Node) {
 			((Node) o).del().translate(w, tr);
 		} else if (o instanceof Type) {
-			throw new InternalCompilerError(
-					"Should not attempt to pretty-print a type");
+			throw new InternalCompilerError("Should not attempt to pretty-print a type");
 		} else if (o != null) {
 			w.write(o.toString());
 		}
@@ -656,7 +655,7 @@ public class Emitter {
 			X10ClassType act = (X10ClassType) at;
 			if (index < act.propertyInitializers().size()) {
 				Expr e = act.propertyInitializer(index);
-                                if (e != null && e.isConstant()) {
+				if (e != null && e.isConstant()) {
 					Object v = e.constantValue();
 					if (v instanceof String) {
 						return (String) v;
@@ -675,7 +674,11 @@ public class Emitter {
 		}
 	}
 
-	private boolean printRepType(Type type, boolean printGenerics, boolean boxPrimitives, boolean inSuper) {
+	private boolean printRepType(Type type, int flags) {
+		boolean printTypeParams = (flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0;
+		boolean boxPrimitives = (flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0;
+//		boolean inSuper = (flags & X10PrettyPrinterVisitor.NO_VARIANCE) != 0;
+
 		if (type.isVoid()) {
 			w.write("void");
 			return true;
@@ -698,7 +701,7 @@ public class Emitter {
 				int i = 0;
 				Object component;
                 String name;
-				component = new TypeExpander(this, type, printGenerics, boxPrimitives, inSuper);
+				component = new TypeExpander(this, type, flags);
 				components.put(String.valueOf(i++), component);
                 components.put("class", component);
 				for (Type at : classTypeArgs) {
@@ -707,14 +710,14 @@ public class Emitter {
                     } else {
                         name = null;
                     }
-					component = new TypeExpander(this, at, printGenerics, true, inSuper);
+					component = new TypeExpander(this, at, flags | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 					components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
                     component = new RuntimeTypeExpander(this, at);
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
 				}
-				if (!printGenerics) {
+				if (!printTypeParams) {
 					pat = pat.replaceAll("<.*>", "");
 				}
 				dumpRegex("NativeRep", components, tr, pat);
@@ -727,7 +730,7 @@ public class Emitter {
 
 	public void printType(Type type, int flags) {
 		boolean printTypeParams = (flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0;
-		boolean boxPrimitives = (flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0;
+//		boolean boxPrimitives = (flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0;
 		boolean inSuper = (flags & X10PrettyPrinterVisitor.NO_VARIANCE) != 0;
 		boolean ignoreQual = (flags & X10PrettyPrinterVisitor.NO_QUALIFIER) != 0;
 
@@ -750,7 +753,7 @@ public class Emitter {
 			}
 		}
 
-		if (printRepType(type, printTypeParams, boxPrimitives, inSuper))
+		if (printRepType(type, flags))
 			return;
 
 		if (type instanceof ParameterType) {
@@ -775,19 +778,11 @@ public class Emitter {
 				for (Type a : args) {
 					w.write(sep);
 					sep = ",";
-					printType(
-							a,
-							(printTypeParams ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-									: 0)
-									| X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+					printType(a, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 				}
 				if (!ret.isVoid()) {
 					w.write(sep);
-					printType(
-							ret,
-							(printTypeParams ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-									: 0)
-									| X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+					printType(ret, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 				}
 				w.write(">");
 			}
@@ -797,8 +792,7 @@ public class Emitter {
 		// Shouldn't get here.
 		if (type instanceof MacroType) {
 			MacroType mt = (MacroType) type;
-			printType(mt.definedType(),
-					X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+			printType(mt.definedType(),	X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
 			return;
 		}
 
@@ -817,7 +811,7 @@ public class Emitter {
 				type.print(w);
 			}
 		} else if (type.isNull()) {
-		        w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
+			w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
 		} else {
 			w.write(mangleQName(type.fullName()).toString());
 		}
@@ -836,8 +830,7 @@ public class Emitter {
 
 					final boolean variance = false;
 					if (!inSuper && variance) {
-						ParameterType.Variance v = ct.x10Def().variances().get(
-								i);
+						ParameterType.Variance v = ct.x10Def().variances().get(i);
 						switch (v) {
 						case CONTRAVARIANT:
 							w.write("? super ");
@@ -849,11 +842,7 @@ public class Emitter {
 							break;
 						}
 					}
-					printType(
-							a,
-							(printTypeParams ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-									: 0)
-									| X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+					printType(a, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 				}
 				if (typeArgs.size() > 0)
 					w.write(">");
@@ -928,10 +917,10 @@ public class Emitter {
           } else {
         	  name = null;
           }
-          component = new TypeExpander(this, at, true, false, false);
+          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name, component); }
-          component = new TypeExpander(this, at, true, true, false);
+          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
           component = new RuntimeTypeExpander(this, at);
@@ -962,10 +951,10 @@ public class Emitter {
           } else {
         	  name = null;
           }
-          component = new TypeExpander(this, at, true, false, false);
+          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name, component); }
-          component = new TypeExpander(this, at, true, true, false);
+          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
           component = new RuntimeTypeExpander(this, at);
@@ -973,7 +962,7 @@ public class Emitter {
           if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
       }
       this.dumpRegex("Native", components, tr, pat);
-  }
+	}
 
 	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 
@@ -999,10 +988,7 @@ public class Emitter {
         if (isDispatcher) {
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
 	    } else {
-            printType(
-                      n.returnType().type(),
-                      X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-            );	        
+            printType(n.returnType().type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);	        
 	    }
 
         w.allowBreak(2, 2, " ", 1);
@@ -1114,6 +1100,15 @@ public class Emitter {
         return X10PrettyPrinterVisitor.isPrimitiveRepedJava(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type, tr.context());
     }
 
+    private final boolean doMangleSpecialReturnMethod(Name methodName, ContainerType containerType) {
+    	String methodNameString = methodName.toString();
+    	return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
+        && !isNativeClassToJava(containerType)
+        && !isNativeRepedToJava(containerType)
+        && !(methodNameString.equals("equals") || methodNameString.equals("toString") || methodNameString.equals("hashCode") || methodNameString.equals("compareTo"))
+        && !(methodNameString.startsWith(StaticInitializer.initializerPrefix) || methodNameString.startsWith(StaticInitializer.deserializerPrefix));
+    }
+    
     public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
         if (X10PrettyPrinterVisitor.isGenericOverloading) {
             w.write(getMangledMethodName(def, !isInterface));
@@ -1123,14 +1118,7 @@ public class Emitter {
         }
         if (!isDispatcher) {
             if (isSpecialReturnType) {
-                String name = def.name().toString();
-                if (
-                        !def.container().get().fullName().toString().startsWith("x10.util.concurrent.")
-                        && !isNativeClassToJava(def.container().get())
-                        && !isNativeRepedToJava(def.container().get())
-                        && !(name.equals("equals") || name.equals("toString") || name.equals("hashCode") || name.equals("compareTo"))
-                        && !(name.startsWith(StaticInitializer.initializerPrefix) || name.startsWith(StaticInitializer.deserializerPrefix))
-                ) {
+                if (doMangleSpecialReturnMethod(def.name(), def.container().get())) {
                     w.write(RETURN_SPECIAL_TYPE_SUFFIX);
                 }
             }
@@ -1148,14 +1136,7 @@ public class Emitter {
             w.write(mangleToJava(mi.name()));
         }
         if (isSpecialType(mi.returnType())) {
-            String name = mi.name().toString();
-            if (
-                    !mi.container().fullName().toString().startsWith("x10.util.concurrent.")
-                    && !isNativeClassToJava(mi.container())
-                    && !isNativeRepedToJava(mi.container())
-                    && !(name.equals("equals") || name.equals("toString") || name.equals("hashCode") || name.equals("compareTo"))
-                    && !(name.startsWith(StaticInitializer.initializerPrefix) || name.startsWith(StaticInitializer.deserializerPrefix))
-            ) {
+            if (doMangleSpecialReturnMethod(mi.name(), mi.container())) {
                 w.write(RETURN_SPECIAL_TYPE_SUFFIX);
             }
         }
@@ -2713,20 +2694,36 @@ public class Emitter {
         }
         w.newline();
         
+        TypeSystem xts = tr.typeSystem();
         if (def.interfaces().size() > 0 || def.superType() != null) {
             w.write(", ");
             w.write("/* parents */ new x10.rtt.Type[] {");
+            boolean needComma = false;
             for (int i = 0 ; i < def.interfaces().size(); i ++) {
-                if (i != 0) w.write(", ");
                 Type type = def.interfaces().get(i).get();
+                // N.B. any X10 type is either Object or Struct that has Any as parents
+                if (xts.isAny(type)) continue;
+                if (needComma) {
+                    w.write(", ");
+                } else {
+                    needComma = true;
+                }
                 printRTT(def, type);
             }
             if (def.superType() != null) {
-                if (def.interfaces().size() != 0) w.write(", ");
+                if (needComma) {
+                    w.write(", ");
+                } else {
+                    needComma = true;
+                }
                 printRTT(def, def.superType().get());
             }
             if (def.isStruct()) {
-                if (def.interfaces().size() != 0 || def.superType() != null) w.write(", ");
+                if (needComma) {
+                    w.write(", ");
+                } else {
+                    needComma = true;
+                }
                 // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
                 w.write("x10.rtt.Types.STRUCT");
             }

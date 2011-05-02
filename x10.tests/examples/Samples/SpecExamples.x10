@@ -1,10 +1,20 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
 package x10.spec.examples;
 
-// OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CHECKS
 
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.util.*;
-
 
 class UseMacroInNewExpr(i:Int) {	
     public static type Bar = UseMacroInNewExpr{i==3};
@@ -16,8 +26,8 @@ class TestClosureAlphaRenaming {
 	def test() {
 	 var x:(a:Int, b:Rail[String]{b.size==a}) => Boolean = null;
 	 var y:(b:Int, a:Rail[String]{a.size==b}) => Boolean = null;
-	 x=y; // ShouldNotBeERR: Cannot assign expression to target.	 Expression: y	 Expected type: (a1:x10.lang.Int, a2:x10.lang.Rail[x10.lang.String]{self.length==a})=> x10.lang.Boolean	 Found type: (a1:x10.lang.Int, a2:x10.lang.Rail[x10.lang.String]{self.length==b})=> x10.lang.Boolean
-	 y=x; // ShouldNotBeERR: 
+	 x=y;
+	 y=x;
 	}
 }
 
@@ -82,7 +92,7 @@ class RefExample {
 	static def inc(ref i:Int) { i += 1; }
 	static def test() {
 		var j:Int{self==1} = 1;
-        inc(j); // "j" IS changed! ShouldBeErr: subtyping for "ref" must be exact! With DYNAMIC_CALLS there should be a check after the method returns.
+        inc(j); // "j" IS changed! ShouldBeErr: subtyping for "ref" must be exact! With DYNAMIC_CHECKS there should be a check after the method returns.
 		assert j==2;
 	}
 

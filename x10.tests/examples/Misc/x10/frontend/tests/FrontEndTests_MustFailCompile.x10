@@ -10,11 +10,11 @@
  */
 
 package x10.frontend.tests;
+
 // TODO: We should put ALL our tests in different packages according to the directory structure
 
-// todo: if you change it to VERBOSE_CALLS, we're missing a lot of warnings (I should create a similar test case that checks VERBOSE_CALLS) 
-// OPTIONS: -STATIC_CALLS 
-
+// todo: if you change it to VERBOSE_CHECKS, we're missing a lot of warnings (I should create a similar test case that checks VERBOSE_CHECKS) 
+//OPTIONS: -STATIC_CHECKS 
 
 import harness.x10Test;
 
@@ -603,7 +603,7 @@ class TestPropertyCalls(p:Int, p2:Int) {
 		property(1,2); // ERR: You can call 'property(...)' at most once
 	}
 	def this(b:Double) { // ERR: property(...) might not have been called
-		if (b==1) 
+		if (b==1.0)
 			property(1,2);
 	}
 
@@ -2353,14 +2353,14 @@ class NullaryPropertyMethod {
 		
 		public static def test() {		
 			val e = new E(2);
-			var e1:E{y()} = null; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
-			e1 = e as E{y()}; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
+			var e1:E{y()} = null; // ShouldNotBeERR: Cannot access a non-static method from a static context
+			e1 = e as E{y()}; // ShouldNotBeERR: Cannot access a non-static method from a static context
 			var e2:E{z} = null;
 			e2 = e as E{z};
 			var e3:E{y} = null;
 			e3 = e as E{y};
-			var e4:E{z()} = null; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
-			e4 = e as E{z()}; // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found
+			var e4:E{z()} = null; // ShouldNotBeERR: Cannot access a non-static method from a static context
+			e4 = e as E{z()}; // ShouldNotBeERR: Cannot access a non-static method from a static context
 		}
 		public static def main(Array[String]) {
 			val e = new E(2);
@@ -2677,7 +2677,8 @@ class FieldNotFound {
 	val q= this.f;  // ERR: Field f not found in type "FieldNotFound{self==FieldNotFound#this}".
 }
 final class TestCasts { // TestInitInCasts
-	val b:Int{b==3} = 3 as Int{b==3}; // ERR: Cannot read from field 'b' before it is definitely assigned.
+	val b:Int{d==3} = 3 as Int{d==3}; // ShouldBeErr: Cannot read from field 'b' before it is definitely assigned.
+	val d:Int = 3;
 	val c:Int{c==3} = 3 as Int{self==3};
 
 	def test() {
@@ -3396,7 +3397,7 @@ class TestMethodGuards[T](a:Int, p:Place) {
 		f1(); // ERR
 	}
 }
-class ProblemsWithFieldsInConstraints {	// these errors are both with STATIC_CALLS and with DYNAMIC_CALLS
+class ProblemsWithFieldsInConstraints {	// these errors are both with STATIC_CHECKS and with DYNAMIC_CHECKS
 	val f1:Int;
 	val f2:Int{self==f1};
 	def this() {
@@ -3438,7 +3439,7 @@ class XTENLANG_688(a:Int) {
 	val f1:Int{self==a} = a;
 	val f2:Int{self==f1} = a;
 }
-class XTENLANG_688_2(a:Int) { // fine even with DYNAMIC_CALLS (cause we do not generate a cast)
+class XTENLANG_688_2(a:Int) { // fine even with DYNAMIC_CHECKS (cause we do not generate a cast)
 	val f2:Int{self==f1} = a;
 	val f1:Int{self==a} = a;
 }
@@ -3459,7 +3460,7 @@ class LegalForwardRef2 {
 	val y:Int{self==1} = 1;
 }
 class IllegalForwardRef2 { 
-	val x:Int{self==y} = 1; // ERR with STATIC_CALLS (The type of the field initializer is not a subtype of the field type.) with DYNAMIC_CALLS (Cannot read from field 'y' before it is definitely assigned.)
+	val x:Int{self==y} = 1; // ERR with STATIC_CHECKS (The type of the field initializer is not a subtype of the field type.) with DYNAMIC_CHECKS (Cannot read from field 'y' before it is definitely assigned.)
 	val y:Int{self==2} = 2;
 }
 class XTENLANG_686_2(a:Int) {
@@ -3486,7 +3487,7 @@ class XTENLANG_686(a:Int) {
 		val q5: XTENLANG_686{self.a==this.f5} = null; // ok
 		
 		val i1:Int{self==f5} = 3; // ok
-		val i2:Int{self==f5} = 4; // ERR in both STATIC_CALLS (Cannot assign expression to target.) and DYNAMIC_CALLS (Cannot read from field 'f5' before it is definitely assigned.)
+		val i2:Int{self==f5} = 4; // ERR in both STATIC_CHECKS (Cannot assign expression to target.) and DYNAMIC_CHECKS (Cannot read from field 'f5' before it is definitely assigned.)
 
 		val i3:Int{3==f5} = 3; // ok
 		f5 = 3;
@@ -3645,10 +3646,10 @@ class RuntimeTestsOfHaszero {
 	def m() {
 		assert(1==++i);
 		assert(0==k);
-		assert(0==l++);
+		assert(0L==l++);
 		assert(null==a1.t);
 		assert(1==++a2.t);
-		assert(1==++a3.t);
+		assert(1L==(++a3.t));
 		assert(4==foo(Zero.get[Double]()));
 	}
 
@@ -4544,7 +4545,7 @@ class TestOperatorsWithoutGuards {
 		val d = g1(42)=43;
 	}
 }
-class XTENLANG_2329(x:Int) { // see XTENLANG_2329, but here we check with VERBOSE_CALLS (unlike in XTENLANG_2329.x10 where we check with STATIC_CALLS)
+class XTENLANG_2329(x:Int) { // see XTENLANG_2329, but here we check with VERBOSE_CHECKS (unlike in XTENLANG_2329.x10 where we check with STATIC_CHECKS)
 	public operator this * (g:XTENLANG_2329) {x==0} = 2;
 	public operator this(i:Int) {x==0} = 3;
 	public operator this(i:Int) = (j:Int) {x==0}  = 4;
@@ -4576,7 +4577,7 @@ class DynamicGuardCheck {
 
 		def test(q:Int) {
 			m1(q); // ERR: Warning: Expression 'q' was cast to type x10.lang.Int{self==0}.
-			m2(q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.		with STATIC_CALLS: Method m2(i: x10.lang.Int){i==0}[]: void in Hello{self==Hello#this} cannot be called with arguments (x10.lang.Int{self==q}); Call invalid; calling environment does not entail the method guard.
+			m2(q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.		with STATIC_CHECKS: Method m2(i: x10.lang.Int){i==0}[]: void in Hello{self==Hello#this} cannot be called with arguments (x10.lang.Int{self==q}); Call invalid; calling environment does not entail the method guard.
 			new B(q,q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
 		}
 
@@ -4656,7 +4657,7 @@ class Outer {
 			//Semantic Error: Type is missing parameters.
 			// Type: Outer.A
 			// Expected parameters: [T]			
-			val z3 = outer.new A[Double](i); // ShouldNotBeERR ShouldNotBeERR
+			val z3 = outer.new A[Double](i);
 		}
 	}
 }
@@ -4847,8 +4848,8 @@ class XTENLANG_2456 {
 class Test1[T] {T haszero} {
 	val z = Zero.get[T]();
 }
-class Test2[T] {T haszero, T<:Object} { // ShouldNotBeERR ShouldNotBeERR
-	val z = Zero.get[T](); // ShouldNotBeERR
+class Test2[T] {T haszero, T<:Object} {
+	val z = Zero.get[T]();
 }
 
 class LikeGlobalRef[T] {
@@ -4878,7 +4879,7 @@ class Accumulator4[T] {
   private val root = GlobalRef[Accumulator4[T]](this);
 }
 class Accumulator5[T] {T haszero} {
-  private val root = GlobalRef[Accumulator5[T]](this); // ShouldNotBeERR ShouldNotBeERR ShouldNotBeERR [Inconsistent constructor return type, Method or static constructor not found for given call., Semantic Error: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor]
+  private val root = GlobalRef[Accumulator5[T]](this);
 }
 }
 
@@ -5076,8 +5077,8 @@ class TestOverloadingAndConstraints_ctors_macros {
 interface TestTypeDefOverloadingAndConstraints {
 	static class Foo[T] {}
 
-	static type m00() = Int; 
-	static type m00() = Double; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m00 = x10.lang.Double"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:13,5-28.]
+	static type m00 = Int; 
+	static type m00 = Double; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m00 = x10.lang.Double"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:13,5-28.]
 
 	static type m0(Int) = Int;
 	static type m0(Int) = Int; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
@@ -5295,7 +5296,7 @@ class Call_resolution_tests {
 			val y = T(); // local takes precedence over type-param
 		}
 		def m3[T](x:String) {
-			val y = T.substring(1); // ERR [Cannot invoke a static method of a type parameter.]
+			val y = T.substring(1); // ERR ERR [Cannot invoke a static method of a type parameter. Method not found in Any.]
 		}
 		
 		def test():String = "a";
@@ -6461,7 +6462,7 @@ class TestClassConformance { // XTENLANG-2509
 								 B:Matrix{self.N==this.N, self.M==A.N}):void;
 	}
 	
-	public class ConcreteMatrix extends Matrix { // ShouldNotBeERR see XTENLANG-2509
+	public class ConcreteMatrix extends Matrix {
 		public def this(m:Int, n:Int) = super(m, n);
 		public def mult(A:Matrix{self.M==this.M}, 
 						B:Matrix{self.N==this.N, self.M==A.N}) { }
@@ -6473,5 +6474,57 @@ class TestFakeLocalError[T] { // I'm testing there is only one error (cause ther
   static def bar3[U](){U haszero} {
       a = new Array[U](10); // ERR: Cannot access a non-static field field TestFakeLocalError.a: x10.array.Array[T]{self.x10.array.Array#region!=null, self.x10.array.Array#rank==self.x10.array.Array#region.x10.array.Region#rank, self.x10.array.Array#rect==self.x10.array.Array#region.x10.array.Region#rect, self.x10.array.Array#zeroBased==self.x10.array.Array#region.x10.array.Region#zeroBased, self.x10.array.Array#rail==self.x10.array.Array#region.x10.array.Region#rail} from a static context.
   }
+}
+
+
+class XTENLANG_2302_test {
+	def mMismatchExample() {
+		val a <: Array[Boolean](1) = [true, false];
+		val p <: Point = [1,2] as Point;
+
+		// These are good: 
+		{
+		  val [a1,a2,a3] = a; // ERR: The size of the exploded Array is 2 but it should be 3
+		  assert a1 && a2 && !a3;
+		  // The Jira says that a needs to be Array[Boolean](3).
+		  // I think it's Array[Boolean]{rank==1,size==3}
+		  val [p1,p2,p3] = p; // ERR: The rank of the exploded Point is 2 but it should be 3
+		  assert p1+p2==p3;
+		}
+
+		// These are good too: 
+		{
+		  val aa[a1,a2,a3] = a; // ERR: The size of the exploded Array is 2 but it should be 3
+		  // The JIRA says that type of aa is Array[Boolean](3)
+		  // I think it's Array[Boolean]{rank==1, size==3}
+		  // I'm going to stop saying this.
+		  val pp[p1,p2,p3] = p; // ERR: The rank of the exploded Point is 2 but it should be 3
+		  // The type of pp is Point(3)
+		}
+	}
+	def mGoodExample() {
+		val a <: Array[Boolean](1) = [true, true, false];
+		val p <: Point = [1,2,3] as Point;
+
+		// These are good: 
+		{
+		  val [a1,a2,a3] = a;
+		  assert a1 && a2 && !a3;
+		  // The Jira says that a needs to be Array[Boolean](3).
+		  // I think it's Array[Boolean]{rank==1,size==3}
+		  val [p1,p2,p3] = p;
+		  assert p1+p2==p3;
+		}
+
+		// These are good too: 
+		{
+		  val aa[a1,a2,a3] = a;
+		  // The JIRA says that type of aa is Array[Boolean](3)
+		  // I think it's Array[Boolean]{rank==1, size==3}
+		  // I'm going to stop saying this.
+		  val pp[p1,p2,p3] = p;
+		  // The type of pp is Point(3)
+		}
+	}
 }
 

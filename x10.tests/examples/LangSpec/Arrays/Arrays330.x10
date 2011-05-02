@@ -26,7 +26,7 @@ public class Arrays330 extends x10Test {
     }
 
 
-// file Arrays line 540
+// file Arrays line 521
 
  static class Arrays48TestExp{
   def check(D:Dist,R :Region{R.rank==D.rank})  = D | R;  }

@@ -26,10 +26,10 @@ public class Arrays2f2y extends x10Test {
     }
 
 
-// file Arrays line 163
+// file Arrays line 165
 
  static class Arrays13TestExp{
-  def check(size: int, upper: int, lower: int)  = Region.makeBanded(size, upper, lower);  }
+  def check(size: int, a: int, b: int)  = Region.makeBanded(size, a, b);  }
 
  static class Hook {
    def run():Boolean = true;

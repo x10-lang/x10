@@ -778,15 +778,14 @@ public class X10NodeFactory_c extends NodeFactory_c {
        return Closure(pos,  c.formals(), c.guard(), c.returnType(), 
     		   c.body());
 	}
-	public ClosureCall ClosureCall(Position pos, Expr closure, /*List<TypeNode> typeArgs,*/ List<Expr> args) {
-		ClosureCall n = new ClosureCall_c(pos, closure,  args);
+	public ClosureCall ClosureCall(Position pos, Expr closure, List<TypeNode> typeArgs, List<Expr> args) {
+		ClosureCall n = new ClosureCall_c(pos, closure, typeArgs, args);
 		n = (ClosureCall) n.ext(extFactory().extExpr());
 		n = (ClosureCall) n.del(delFactory().delExpr());
 		return n;
 	}
-	public ClosureCall ClosureCall(Position pos, Expr closure, List<TypeNode> typeArgs, List<Expr> args) {
-		assert typeArgs==null || typeArgs.size()==0 : "Closures do not have type args.";
-		return ClosureCall(pos, closure, args);
+	public ClosureCall ClosureCall(Position pos, Expr closure, List<Expr> args) {
+		return ClosureCall(pos, closure, Collections.<TypeNode>emptyList(), args);
 	
 	}
 

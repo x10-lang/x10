@@ -26,7 +26,7 @@ public class Structs30 extends x10Test {
     }
 
 
-// file Structs line 286
+// file Structs line 314
  static struct Pair[T,U] {
     public val first:T;
     public val second:U;
@@ -34,18 +34,19 @@ public class Structs30 extends x10Test {
         this.first = first;
         this.second = second;
     }
-    public def toString() = "(" + first + ", " + second + ")";
+    public def toString()
+        = "(" + first + ", " + second + ")";
 }
  static class Example {
   static def divmod(var a:UInt, b:UInt): Pair[UInt, UInt] {
-     assert b > 0;
-     var q : UInt = 0;
+     assert b > 0u;
+     var q : UInt = 0u;
      while (a > b) {q++; a -= b;}
      return Pair(q, a);
   }
   static def example() {
      val qr = divmod(22, 7);
-     assert qr.first == 3 && qr.second == 1;
+     assert qr.first == 3u && qr.second == 1u;
   }
 }
  static class Hook{ def run() { Example.example(); return true; } }

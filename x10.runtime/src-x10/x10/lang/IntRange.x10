@@ -14,7 +14,7 @@ package x10.lang;
 /**
  * A representation of the range of integers [min..max].
  */
-public final class IntRange(
+public struct IntRange(
                /**
                 * The minimum value included in the range
                 */

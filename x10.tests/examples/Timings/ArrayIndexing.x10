@@ -200,7 +200,7 @@ public class ArrayIndexing extends x10Test {
 				for (var k: int = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
-					if (array(i, j, k) != count) {
+					if (array(i, j, k) != count as Double) {
 						x10.io.Console.OUT.println("failed a["+i+","+j+","+k+"] ("+array(i, j, k)+") != "+count);
 						return false;
 					}
@@ -224,7 +224,7 @@ public class ArrayIndexing extends x10Test {
 					for (var l: int = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
-						if (array(i, j, k, l) != count) {
+						if (array(i, j, k, l) != count as Double) {
 							x10.io.Console.OUT.println("failed a["+i+","+j+","+k+","+l+"] ("+array(i, j, k, l)+") != "+count);
 							return false;
 						}
@@ -246,7 +246,7 @@ public class ArrayIndexing extends x10Test {
 				for (var k: int = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
-					if (array(i, j, k) != count) {
+					if (array(i, j, k) != count as Long) {
 						x10.io.Console.OUT.println("failed a["+i+","+j+","+k+"] ("+array(i, j, k)+") != "+count);
 						return false;
 					}
@@ -270,7 +270,7 @@ public class ArrayIndexing extends x10Test {
 					for (var l: int = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
-						if (array(i, j, k, l) != count) {
+						if (array(i, j, k, l) != count as Long) {
 							x10.io.Console.OUT.println("failed a["+i+","+j+","+k+","+l+"] ("+array(i, j, k, l)+") != "+count);
 							return false;
 						}
@@ -292,7 +292,7 @@ public class ArrayIndexing extends x10Test {
 				for (var k: int = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
-					if (array(i, j, k) != count) {
+					if (array(i, j, k) != count as Float) {
 						x10.io.Console.OUT.println("failed a["+i+","+j+","+k+"] ("+array(i, j, k)+") != "+count);
 						return false;
 					}
@@ -316,7 +316,7 @@ public class ArrayIndexing extends x10Test {
 					for (var l: int = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
-						if (array(i, j, k, l) != count) {
+						if (array(i, j, k, l) != count as Float) {
 							x10.io.Console.OUT.println("failed a["+i+","+j+","+k+","+l+"] ("+array(i, j, k, l)+") != "+count);
 							return false;
 						}

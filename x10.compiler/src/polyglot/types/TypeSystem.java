@@ -1232,7 +1232,7 @@ public interface TypeSystem {
     MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, 
                                     SemanticException error);
     List<LocalDef> dummyLocalDefs(List<Ref<? extends Type>> types);
-    List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<Type> argTypes, 
+    List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, 
                                  XVar thisVar, Context context);
     boolean equalsStruct(Type a, Type b);
     X10ClassType AtomicInteger();

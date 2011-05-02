@@ -26,7 +26,7 @@ public class InnerClasses30 extends x10Test {
     }
 
 
-// file InnerClasses line 120
+// file InnerClasses line 125
  static class OC1 {
  static    class IC1 {}
 }

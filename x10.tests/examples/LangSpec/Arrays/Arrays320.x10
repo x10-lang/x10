@@ -26,7 +26,7 @@ public class Arrays320 extends x10Test {
     }
 
 
-// file Arrays line 507
+// file Arrays line 511
 
  static class Arrays47TestExp{
   def check(R:Region)  = Dist.makeBlock(R);  }

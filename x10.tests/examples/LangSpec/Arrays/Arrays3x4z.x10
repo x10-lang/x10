@@ -26,7 +26,7 @@ public class Arrays3x4z extends x10Test {
     }
 
 
-// file Arrays line 208
+// file Arrays line 210
 
  static class Arrays21TestExp{
   def check()  = (1..10) as Region(1);  }

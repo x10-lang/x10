@@ -17,6 +17,8 @@
  * mentioned in @Native annotations but not
  * present in method return types.
  */
+#define X10_LANG_LONGRANGE_H_NODEPS
 #include <x10/lang/LongRange.h>
+#undef X10_LANG_LONGRANGE_H_NODEPS
 
 #endif

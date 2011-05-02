@@ -34,6 +34,7 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.MemberDoc;
 import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.SourcePosition;
 import com.sun.javadoc.Type;
@@ -65,16 +66,11 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	}
 
 	public static String getContainingClass(X10Doc holder){
-		if (holder instanceof X10FieldDoc){
-			return ((X10FieldDoc) holder).containingClass().qualifiedName();
-		} else if (holder instanceof X10MethodDoc){
-			return ((X10MethodDoc) holder).containingClass().qualifiedName();
-		} else if (holder instanceof X10ConstructorDoc){
-			return ((X10ConstructorDoc) holder).containingClass().qualifiedName();
-		} else if (holder instanceof X10TypeDefDoc){
-			return ((X10TypeDefDoc) holder).containingClass().qualifiedName();
-		} else if (holder instanceof X10ClassDoc){
-			return ((X10ClassDoc) holder).containingClass().qualifiedName();
+		if (holder instanceof ProgramElementDoc) {
+			ClassDoc containingClass = ((ProgramElementDoc) holder).containingClass();
+			if (containingClass != null) {
+				return containingClass.qualifiedName();
+			}
 		}
 		return null;
 	}

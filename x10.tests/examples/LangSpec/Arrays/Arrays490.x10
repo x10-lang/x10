@@ -26,7 +26,7 @@ public class Arrays490 extends x10Test {
     }
 
 
-// file Arrays line 916
+// file Arrays line 780
  static  class Example{
 static def add(da:DistArray[Int], db: DistArray[Int])
     {da.dist==db.dist}

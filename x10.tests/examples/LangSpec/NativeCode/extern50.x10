@@ -28,8 +28,8 @@ public class extern50 extends x10Test {
 
 // file NativeCode line 101
  static class Species {
-  @Native("c++", "printf(\"Sum=%d\", ((#1)+(#2)) )")
-  @Native("java", "System.out.println(\"\" + ((#1)+(#2)))")
+  @Native("c++","printf(\"Sum=%d\", ((#1)+(#2)) )")
+  @Native("java","System.out.println(\"\" + ((#1)+(#2)))")
   static native def printNatively(x:Int, y:Int):void;
 }
 

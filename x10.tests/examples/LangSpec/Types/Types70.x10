@@ -26,7 +26,7 @@ public class Types70 extends x10Test {
     }
 
 
-// file Types line 175
+// file Types line 176
  static class Outer { static class Inner { /* ... */ }}
  static class Types7TypeTest{
   def check()  { 

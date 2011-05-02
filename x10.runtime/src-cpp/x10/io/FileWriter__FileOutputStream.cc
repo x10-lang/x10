@@ -40,7 +40,7 @@ void FileWriter__FileOutputStream::write(x10::util::IndexedMemoryChunk<x10_byte>
 }
 
 const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer<x10::lang::Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void FileWriter__FileOutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
     OutputStreamWriter__OutputStream::_serialize_body(buf);
@@ -60,6 +60,17 @@ void FileWriter__FileOutputStream::_deserialize_body(x10aux::deserialization_buf
     //       it just silently didn't serialize the FILEPtrInputSteam field.
     // assert(false);
     // _outputStream = buf.read<x10aux::io::FILEPtrOutputStream>();
+}
+
+x10aux::ref<Reference> FileWriter__FileOutputStream::_deserializer(x10aux::deserialization_buffer& buf) {
+    // TODO: attempting to serialize _outputStream is nonsensical.
+    //       The old 1.7 definition of this class simply didn't work either,
+    //       it just silently didn't serialize the FILEPtrInputSteam field.
+    // assert(false);
+    x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream();
+    buf.record_reference(this_);
+    this_->_deserialize_body(buf);
+    return this_;
 }
 
 RTT_CC_DECLS1(FileWriter__FileOutputStream, "x10.io.FileWriter.FileOutputStream", RuntimeType::class_kind, OutputStreamWriter__OutputStream)

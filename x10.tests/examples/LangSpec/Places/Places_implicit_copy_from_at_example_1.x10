@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package obscuring;
+/* Current test harness gets confused by packages, but it would be in package Places_implicitcopyfromat;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,27 +19,25 @@ import harness.x10Test;
 
 
 
-public class Packages5t5g extends x10Test {
+public class Places_implicit_copy_from_at_example_1 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Packages5t5g().execute();
+        new Places_implicit_copy_from_at_example_1().execute();
     }
 
 
-// file Packages line 98
+// file Places line 730
+ static  class Example {
+ static def example() {
 
- static struct eg {
-   static def ow()= 1;
-   static  struct Bite {
-      def ow() = 2;
-   }
-   def example() {
-       val eg = Bite();
-       assert eg.ow() == 2;
-       assert obscuring.eg.ow() == 1;
-     }
+val c = new Cell[Int](9); // (1)
+at (here) {               // (2)
+   assert(c() == 9);      // (3)
+   c.set(8);              // (4)
+   assert(c() == 8);      // (5)
 }
-
- static  class Hook{ def run() { (eg()).example(); return true; } }
+assert(c() == 9);         // (6)
+}}
+ static  class Hook{ def run() { Example.example(); return true; } }
 
 }

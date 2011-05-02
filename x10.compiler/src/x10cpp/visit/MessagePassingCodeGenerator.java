@@ -104,6 +104,7 @@ import polyglot.ast.Labeled_c;
 import polyglot.ast.LocalClassDecl_c;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Local_c;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
@@ -722,7 +723,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         String packageName = context.package_() == null ? null : context.package_().fullName().toString();
 
-		ArrayList<Type> allIncludes = new ArrayList<Type>();
+		Set<String> allIncludes = CollectionFactory.newHashSet();
 		if (n.superClass() != null) {
 		    ClassType ct = n.superClass().type().toClass();
 		    X10ClassDef scd = (X10ClassDef) ct.def();
@@ -733,7 +734,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        h.write("#include <" + header + ">");
 		        h.newline();
 		        h.write("#undef "+guard+"_NODEPS"); h.newline();
-		        allIncludes.add(ct);
+		        allIncludes.add(getHeader(ct));
 		    }
 
 		    ArrayList<ClassType> types = new ArrayList<ClassType>();
@@ -743,8 +744,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    for (ClassType t : types) {
 		        X10ClassDef cd = ((X10ClassType)t).x10Def();
 		        if (cd != def && getCppRep(cd) == null) {
-		            declareClass(cd, h);
-		            allIncludes.add(t);
+		            String header = getHeader(t);
+		            if (!allIncludes.contains(header)) {
+		                declareClass(cd, h);
+		                allIncludes.add(header);
+		            }
 		        }
 		    }
 		}
@@ -757,7 +761,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        h.writeln("#define "+guard+"_NODEPS");
 		        h.writeln("#include <" + header + ">");
 		        h.writeln("#undef "+guard+"_NODEPS");
-		        allIncludes.add(ct);
+		        allIncludes.add(getHeader(ct));
 		    }
 		    ArrayList<ClassType> types = new ArrayList<ClassType>();
 		    Set<ClassType> dupes = CollectionFactory.newHashSet();
@@ -766,8 +770,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    for (ClassType t : types) {
 		        X10ClassDef cd = ((X10ClassType)t).x10Def();
 		        if (cd != def && getCppRep(cd) == null) {
-		            declareClass(cd, h);
-		            allIncludes.add(t);
+		            String header = getHeader(t);
+		            if (!allIncludes.contains(header)) {
+		                declareClass(cd, h);
+		                allIncludes.add(header);
+		            }
 		        }
 		    }
 		}
@@ -793,7 +800,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                                     h.writeln("#define "+guard+"_NODEPS");
                                     h.writeln("#include <" + header + ">");
                                     h.writeln("#undef "+guard+"_NODEPS");
-                                    allIncludes.add(t);
+                                    allIncludes.add(getHeader(t));
                                 }
                             }
 		                }
@@ -816,9 +823,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 continue;
             if (cd.isAnonymous())
                 continue;
-            if (!allIncludes.contains(ct)) {
+            String header = getHeader(ct);
+            if (!allIncludes.contains(header)) {
                 declareClass(cd, h);
-                allIncludes.add(ct);
+                allIncludes.add(header);
             }
         }
 
@@ -918,12 +926,39 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // [IP] Ok to include here, since the class is already defined
         h.write("#ifndef "+cguard+"_NODEPS"); h.newline();
         h.write("#define "+cguard+"_NODEPS"); h.newline();
-
-        for (Type t : allIncludes) {
-            ClassType ct = t.toClass();
-            String header = getHeader(ct);
-            h.write("#include <" + header + ">");
-            h.newline();
+        
+        boolean implInHeader = n.typeParameters().size() > 0;
+        if (!implInHeader) {
+            Type headerAnnotation = null;
+            try {
+                headerAnnotation = xts.systemResolver().findOne(HEADER_ANNOTATION);
+            } catch (SemanticException e) {
+                // ignore.
+            }
+            for (ClassMember m : n.body().members()) {
+                if (headerAnnotation != null && !((X10Ext) m.ext()).annotationMatching(headerAnnotation).isEmpty()) {
+                    implInHeader = true; // conservative; something has been forced to the header stream.
+                    break;
+                }
+                if (m instanceof FieldDecl_c) {
+                    FieldDecl_c fd = (FieldDecl_c) m;
+                    if (fd.flags().flags().isStatic() && !fd.type().type().isNumeric()) {
+                        implInHeader = true; // conservative; we may have generated an inline get method into the generic functions stream
+                        break;
+                    }
+                } else if (m instanceof X10MethodDecl_c) {
+                    X10MethodDecl_c md = (X10MethodDecl_c) m;
+                    if (md.typeParameters().size() > 0) {
+                        implInHeader = true; // generic function went in header stream
+                        break;
+                    }
+                }
+            }
+        }
+        
+        ClassifiedStream incS = implInHeader ? h : w_header;
+        for (String header : allIncludes) {
+            incS.writeln("#include <" + header + ">");
         }
 
         z.write("#endif // __"+cguard+"_NODEPS"); h.newline();
@@ -1356,23 +1391,53 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	}
 
-    private void generateUsingDeclsForInheritedMethods(X10CPPContext_c context, X10ClassType currentClass,
+	// The goal of this method is for each methodName declared in the childClass,
+	// determine if there is any superclass such that the superclass also declares
+	// methods with that name such that some superclass methods are not overridden
+	// in the subclass.  When that happens, we need to emit a using directive because
+	// overriding/overloading is defined differently in C++ than in X10 (or Java).
+	// By emitting the using directive, we pull the superclass methods into the subclass
+	// namespace and thus get the X10/Java semantics.
+	// The alternative to using "using" is to generate proxy methods that forward to the superclass
+	// method.  This results in slightly less efficient generated code, but more importantly is 
+	// significantly more complex to implement correctly.
+    private void generateUsingDeclsForInheritedMethods(X10CPPContext_c context, X10ClassType childClass,
                                                        X10ClassType superClass, TypeSystem xts, ClassifiedStream h,
                                                        List<ClassMember> members) {
         boolean didSomething = false;
         Set<Name> possibleNames = CollectionFactory.newHashSet();
-        for (MethodInstance mi : currentClass.methods()) {
+        for (MethodInstance mi : childClass.methods()) {
             possibleNames.add(mi.name());
         }
         while (superClass != null && !possibleNames.isEmpty()) {
-            for (MethodInstance mi : superClass.methods()) {
-                if (possibleNames.contains(mi.name())) {
-                    List<MethodInstance> myImpls = currentClass.methodsNamed(mi.name());
-                    if (myImpls.size() > 1 || !mi.isSameMethod(myImpls.get(0), context)) {
-                        possibleNames.remove(mi.name());
-                        h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(mi.name().toString())+";");
-                        didSomething = true;
+            Iterator<Name> names = possibleNames.iterator();
+            nameLoop: while (names.hasNext()) {
+                Name methName = names.next();
+                List<MethodInstance> childImpls = childClass.methodsNamed(methName);
+                List<MethodInstance> parentImpls = superClass.methodsNamed(methName);
+                if (!parentImpls.isEmpty()) {
+                    boolean emitUsing = false;
+                    if (childImpls.size() != parentImpls.size()) {
+                        // Number of implementation differs, so we can't have an exact signature match.
+                        emitUsing = true;
+                    } else {
+                        // Same number of impls, now check for identical signatures.
+                        implLoop: for (MethodInstance childImpl : childImpls) {
+                            for (MethodInstance parentImpl : parentImpls) {
+                                if (childImpl.isSameMethod(parentImpl, context)) continue implLoop;
+                            }
+                            // If we get to here, then there is a childImpl that has a different signature than all parentImpls
+                            emitUsing = true;
+                            break implLoop;                 
+                        }
                     }
+                    
+                    if (emitUsing) {
+                        names.remove();
+                        h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(methName.toString())+";");
+                        didSomething = true;
+                        continue nameLoop;
+                    }  
                 }
             }
             superClass = (X10ClassType)superClass.superClass();
@@ -1548,9 +1613,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		
 		if (def.typeParameters().size() != 0) {
 		    sw.popCurrentStream();
-		    if (false && !flags.isStatic() && !container.isX10Struct()) {
-		        emitter.generateGenericMethodDispatcher(dec, h, context.genericFunctions, sw.body(), tr, methodName, ret_type);
-		    }
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
 		    context.genericFunctions.writeln("#endif // "+guard+"_"+mi.name().toString()+"_"+mid);
 		}
@@ -2083,7 +2145,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Switch_c n) {
 	    sw.write("switch (");
-	    n.print(n.expr(), sw, tr);
+	    if (n.expr().type().isChar()) {
+	        sw.write("(");
+	        n.print(n.expr(), sw, tr);
+	        sw.write(").v");
+	    } else {
+	        n.print(n.expr(), sw, tr);
+	    }
 	    sw.write(")");
 	    sw.allowBreak(0, " ");
 	    sw.write("{");
@@ -2190,7 +2258,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    boolean unsigned_op = false;
 	    String opString = asgn.operator().toString();
-	    NodeFactory nf = tr.nodeFactory();
 	    TypeSystem xts = tr.typeSystem();
 
 	    // TODO
@@ -2223,13 +2290,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(opString);
 	    sw.allowBreak(2, 2, " ", 1);
 
-	    Type aType = lhs.type();
-	    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, rhs.type(), context);
-	    if (rhsNeedsCast) {
-	        // Cast is needed to ensure conversion/autoboxing.
-	        // However, it is statically correct to do the assignment, therefore it can be unchecked.
-	        sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(aType, true)) + "(");
-	    }
 	    if (unsigned_op)
 	        sw.write("(("+emitter.makeUnsignedType(rhs.type())+")");
 	    Boolean embed = false;
@@ -2257,9 +2317,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 	    if (unsigned_op)
 	        sw.write("))");
-	    if (rhsNeedsCast) {
-	        sw.write(")");
-	    }
 	}
 
 
@@ -2842,15 +2899,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		boolean virtual_dispatch = true;
-		if (t.isClass()) {
-		    X10ClassType ct = (X10ClassType)t.toClass();
-		    X10ClassDef cd = ct.x10Def();
-		    if (cd.flags().isFinal()) {
+		if (mi.typeParameters().size() == 0) {
+		    // Attempting to devirtualize generic instance merhods breaks xlC.
+		    // Not clear if this is because we aren't generating the right magic incantation
+		    // to do the invocation or if it is a bug in xlC.  
+		    // Until that is clear, just don't try to do the optimization in this case.
+		    if (t.isClass()) {
+		        X10ClassType ct = (X10ClassType)t.toClass();
+		        X10ClassDef cd = ct.x10Def();
+		        if (cd.flags().isFinal()) {
+		            virtual_dispatch = false;
+		        }
+		    }
+		    if (mi.flags().isFinal()) {
 		        virtual_dispatch = false;
 		    }
-		}
-		if (mi.flags().isFinal()) {
-		    virtual_dispatch = false;
 		}
 		if (!virtual_dispatch && !already_static ) {
 		    // disable virtual dispatch
@@ -3592,14 +3655,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    {
 		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
 		        if (lineNumberMap != null)
-		        {		        		
-		        	for (int i = 0; i < c.variables.size(); i++) 
+		        {
+		        	int numMembers = c.variables.size();
+		        	for (int i = 0; i < numMembers; i++) 
 		        	{
 		        		VarInstance<?> var = c.variables.get(i);
 		        		String name = var.name().toString();
 		        		if (name.equals(THIS)) 
 		    				name = SAVED_THIS;
 		        		lineNumberMap.addClosureMember(name, var.type().toString(), cname, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+		        	}
+		        	if (numMembers > 0)
+		        	{
+			        	for (int i=0; i< n.formals().size(); i++)
+			        	{
+			        		Formal f = n.formals().get(i);
+			        		lineNumberMap.addLocalVariableMapping(f.name().toString(), f.type().toString(), c.currentCode().position().line(), c.currentCode().position().endLine(), c.currentCode().position().file(), true, -2, false);
+			        	}
 		        	}
 		        }
 		    }
@@ -4044,22 +4116,33 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (op == Binary.EQ || op == Binary.NE) { // FIXME: get rid of this special case
 	        sw.write("("); sw.begin(0);
 	        Type c = null;
-	        if (l.isNumeric() && r.isNumeric()) {
-	            try {
-	                c = xts.promote(l, r);
-	            } catch (SemanticException e) { assert (false); }
-	        }
+	        try {
+                c = xts.leastCommonAncestor(l, r, context);
+            } catch (SemanticException e1) {
+            }
 	        if (op == Binary.NE)
 	            sw.write("!");
 	        sw.write(STRUCT_EQUALS+"("); sw.begin(0);
-	        if (c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, l, context))
-	            sw.write("(" + Emitter.translateType(c, true) + ")");
+	        boolean castLeft = c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, l, context);
+	        if (castLeft) {
+	            sw.write("x10aux::class_cast_unchecked"+chevrons(Emitter.translateType(c, true)) + "(");
+	        }
 	        n.printSubExpr(left, sw, tr);
-	        sw.write(",");
+	        if (castLeft) {
+	            sw.write(")");
+	        }
+ 	        sw.write(",");
 	        sw.allowBreak(0, " ");
-	        if (c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, r, context))
-	            sw.write("(" + Emitter.translateType(c, true) + ")");
+
+	        boolean castRight = c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, l, context);
+	        if (castRight) {
+	            sw.write("x10aux::class_cast_unchecked"+chevrons(Emitter.translateType(c, true)) + "(");
+	        };
 	        n.printSubExpr(right, sw, tr);
+	        if (castRight) {
+	            sw.write(")");
+	        }
+
 	        sw.end(); sw.write(")");
 	        sw.end(); sw.write(")");
 	        return;

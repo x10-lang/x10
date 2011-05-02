@@ -793,6 +793,12 @@ public class TypeSystem_c implements TypeSystem
     private boolean emptyContextSubtype(Type t, X10ClassType xlass) {
         return isSubtype(t, xlass, EMPTY_CONTEXT);
     }
+    /**
+     * A shortcut version of the subtype test -- only works if xclass cannot be subclassed.
+     * @param t the type to test
+     * @param xlass the potential supertype
+     * @return true if t is a subtype of xclass, and false otherwise
+     */
     private boolean finalSubtype(Type t, X10ClassType xlass) {
         assert xlass.flags().isStruct() || xlass.flags().isFinal();
         return hasSameClassDef(t,xlass) || isUnknown(t);        
@@ -3395,7 +3401,8 @@ public class TypeSystem_c implements TypeSystem
             return ts.typeEquals(Types.baseType(o), Types.baseType(p), context);
         }
     }
-    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<Type> argTypes, XVar thisVar, Context context) {
+    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, XVar thisVar, Context context) {
+        XVar[] xvars = Types.toVarArray(Types.toLocalDefList(formalNames));
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         for (MethodInstance mi : t.methodsNamed(name)) {
             List<XVar> ys = new ArrayList<XVar>(2);
@@ -3408,6 +3415,10 @@ public class TypeSystem_c implements TypeSystem
             mi = new X10TypeEnv_c(context).fixThis((MethodInstance) mi, y, x);
 
             if (mi.typeParameters().size() != typeParams.size()) {
+                continue;
+            }
+
+            if (mi.formalNames().size() != formalNames.size()) {
                 continue;
             }
 
@@ -3424,8 +3435,18 @@ public class TypeSystem_c implements TypeSystem
 //                l.add(mi);
 //            }
 
+            List<Type> formalTypes = new ArrayList<Type>();
+            for (LocalInstance li : formalNames) {
+                formalTypes.add(li.type());
+            }
+            try {
+                XVar[] yvars = Types.toVarArray(Types.toLocalDefList(mi.formalNames()));
+                formalTypes = Subst.subst(formalTypes, yvars, xvars);
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Unexpected exception while translating a method instance", e);
+            }
             TypeParamSubst tps = new TypeParamSubst(this, typeParams, mi.x10Def().typeParameters());
-            if (CollectionUtil.allElementwise(argTypes, tps.reinstantiate(mi.formalTypes()), new TypeEquals(context))) {
+            if (CollectionUtil.allElementwise(formalTypes, tps.reinstantiate(mi.formalTypes()), new TypeEquals(context))) {
                 l.add(mi);
             }
         }
@@ -3451,7 +3472,7 @@ public class TypeSystem_c implements TypeSystem
         context.setCurrentConstraint(cc);
         ContainerType curr = ct;
         while (curr != null) {
-            List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalTypes(), thisVar, context);
+            List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context);
             for (MethodInstance mj : possible) {
                 if ((includeAbstract || !mj.flags().isAbstract()) 
                         && ((isAccessible(mi, context) && isAccessible(mj, context)) 
@@ -4093,13 +4114,21 @@ public class TypeSystem_c implements TypeSystem
         X10ClassDef def = ClosureSynthesizer.closureBaseInterfaceDef(this, typeParameters.size(),
                 argTypes.size(), rt.isVoid(), formalNames, guard);
         FunctionType ct = (FunctionType) def.asType();
+        XVar[] yvars = Types.toVarArray(Types.toLocalDefList(ct.formalNames()));
+        XVar[] xvars = Types.toVarArray(formalNames);
         List<Type> typeArgs = new ArrayList<Type>();
         for (Ref<? extends Type> ref : argTypes) {
-            typeArgs.add(Types.get(ref));
+            Type t = Types.get(ref);
+            try {
+                t = Subst.subst(t, yvars, xvars);
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Unexpected exception while creating a function type", p, e);
+            }
+            typeArgs.add(t);
         }
         if (!rt.isVoid()) {
             try {
-                rt = Subst.subst(rt, Types.toVarArray(Types.toLocalDefList(ct.formalNames())), Types.toVarArray(formalNames));
+                rt = Subst.subst(rt, yvars, xvars);
             } catch (SemanticException e) {
                 throw new InternalCompilerError("Unexpected exception while creating a function type", p, e);
             }

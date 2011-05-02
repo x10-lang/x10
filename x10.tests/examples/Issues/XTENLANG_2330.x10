@@ -25,7 +25,7 @@ public class XTENLANG_2330 extends x10Test
         new Helper2330(50).run(0);
         new DynamicCallsTest().run();
         new MethodInstanceArgTest().test();
-        if (!new NestedArray_7().run()) return false;
+        if (!new NestedArray_73().run()) return false;
         return true;
     }
 
@@ -68,7 +68,7 @@ class ConstrainedCall(x:Int) { // XTENLANG-2416
     def m(){x==0} = 10;
     def test() { m(); } // ERR
 }
-class NestedArray_7    {  // see XTENLANG-2428
+class NestedArray_73    {  // see XTENLANG-2428
 	class MyElement[VT]
 	{
 		def this(v:VT)
@@ -111,7 +111,7 @@ class NestedArray_7    {  // see XTENLANG-2428
 				for (j in outerAr.value.a)
 				{
 					val innerEl = new ElIntNo123(outerAr.value.a(j).value);  // ERR: Warning: Generated a dynamic check for the method call.
-					innerEl.myField = myElInt.value; // ERR: Warning: Expression 'myElInt.value' was cast to type x10.lang.Int{self==myElInt.NestedArray_7.MyElement#value, myElInt.NestedArray_7.MyElement#value!=123}.
+					innerEl.myField = myElInt.value; // ERR: Warning: Expression 'myElInt.value' was cast to type x10.lang.Int{self==myElInt.NestedArray_73.MyElement#value, myElInt.NestedArray_73.MyElement#value!=123}.
 				}
 			}
 			return false;
@@ -247,7 +247,7 @@ class Box77[T] {
 class ABC23 { 
   def test(b:Box77[Place{self==here}]) {
 	at (here.next()) {
-		val p2:Place{self==here} = b.t; // ERR
+		val p2:Place{self==here} = b.t; // ERR ShouldNotBeERR ShouldNotBeERR
 	}
   }
 }

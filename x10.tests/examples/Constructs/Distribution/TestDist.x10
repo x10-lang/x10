@@ -20,22 +20,22 @@ import harness.x10Test;
 
 abstract public class TestDist extends x10Test {
     
-    val os: StringWriter;
-    val out: Printer;
+    val os: GlobalRef[StringWriter];
+    val out: GlobalRef[Printer];
     val testName = typeName();
 
     def this() {
         System.setProperty("line.separator", "\n");
 
         val tmp = new StringWriter();
-        os = tmp;
-        out = new Printer(tmp);
+        os = GlobalRef[StringWriter](tmp);
+        out = GlobalRef[Printer](new Printer(tmp));
     }
 
     abstract def expected():String;
 
     def status() {
-        val got = os.result();
+        val got = at (os.home) os().result();
         if (got.equals(expected())) {
             return true;
         } else {
@@ -104,32 +104,36 @@ abstract public class TestDist extends x10Test {
                 var o: Object = os(i);
                 if (o==null) {
                     if (rank==1)
-                        out.print(".");
+                        print(".");
                     else if (rank==2) {
                         if (min<=i && i<=max)
-                            out.print("    " + i + "\n");
+                            print("    " + i + "\n");
                     }
                 } else if (o instanceof Grid) {
                     if (rank==2)
-                        out.print("    " + i + "  ");
+                        print("    " + i + "  ");
                     else if (rank>=3) {
-                        out.print("    ");
+                        print("    ");
                         for (var j: int = 0; j<rank; j++)
-                            out.print("-");
-                        out.print(" " + i + "\n");
+                            print("-");
+                        print(" " + i + "\n");
                     }
                     (o as Grid).pr(rank-1);
                 } else {
                     val d = (o as Box[double]).value;
-                    out.print(""+(d as int));
+                    print(""+(d as int));
                 }
 
                 if (rank==1)
-                    out.print(" ");
+                    print(" ");
             }
             if (rank==1)
-                out.print("\n");
+                print("\n");
         }
+    }
+
+    private def print(s:String):void {
+        at (out.home) out().print(s);
     }
 
     def prArray(test: String, r: Region): Array[double]{rank==r.rank} = {
@@ -221,9 +225,8 @@ abstract public class TestDist extends x10Test {
         prArray1(a, false);
     }
         
-
-    def pr(s: String): void = {
-        out.println(s);
+    def pr(s:String):void {
+        at (out.home) out().println(s);
     }
 
     static def xxx(s: String): void {

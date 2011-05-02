@@ -31,9 +31,9 @@ public class Classes10 extends x10Test {
   val a = 1;
   val b = 2+a;
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {
+   val f = new Fld();
+   assert f.a == 1 && f.b == 3;
+   return true;}}
 
 }

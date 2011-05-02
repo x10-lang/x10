@@ -14,6 +14,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.Inline;
+import x10.compiler.TempNoInline_0;
 
 /**
  * Complex is a struct representing a complex number (a + b*i).
@@ -118,7 +119,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
      * TODO: consider using Priest's algorithm {@link http://doi.acm.org/10.1145/1039813.1039814}.
      * @return the quotient of this complex number and the given complex number.
      */
-    public operator this / (that:Complex):Complex {
+    public @TempNoInline_0 operator this / (that:Complex):Complex {
         if (isNaN() || that.isNaN()) {
             return Complex.NaN;
         }
@@ -177,7 +178,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /**
      * @return the negation of this complex number.
      */
-    public operator - this:Complex  = isNaN() ? Complex.NaN : Complex(-re, -im);
+    public @TempNoInline_0 operator - this:Complex  = isNaN() ? Complex.NaN : Complex(-re, -im);
 
     /**
      * Return the absolute value of this complex number.

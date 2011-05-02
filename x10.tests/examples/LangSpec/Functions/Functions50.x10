@@ -29,11 +29,10 @@ public class Functions50 extends x10Test {
 // file Functions line 313
  static  class Finder {
  static
-
-def find[T](f: (T) => Boolean, xs: List[T], absent:T): T = {
+def find[T](f: (T) => Boolean, xs: List[T], no:T): T = {
   for (x: T in xs)
     if (f(x)) return x;
-  absent
+  no
   }
  }
 

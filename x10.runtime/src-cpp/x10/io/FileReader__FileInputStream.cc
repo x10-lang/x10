@@ -47,7 +47,7 @@ x10_int FileReader__FileInputStream::read(x10::util::IndexedMemoryChunk<x10_byte
 }
 
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer<x10::lang::Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void FileReader__FileInputStream::_serialize_body(x10aux::serialization_buffer& buf) {
     InputStreamReader__InputStream::_serialize_body(buf);
@@ -68,6 +68,18 @@ void FileReader__FileInputStream::_deserialize_body(x10aux::deserialization_buff
     // assert(false);
     // _inputStream = buf.read<x10aux::io::FILEPtrInputStream>();
 }
+
+x10aux::ref<x10::lang::Reference> FileReader__FileInputStream::_deserializer(x10aux::deserialization_buffer& buf) {
+    // TODO: attempting to serialize _outputStream is nonsensical.
+    //       The old 1.7 definition of this class simply didn't work either,
+    //       it just silently didn't serialize the FILEPtrInputSteam field.
+    // assert(false);
+    x10aux::ref<FileReader__FileInputStream> this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(NULL);
+    buf.record_reference(this_);
+    this_->_deserialize_body(buf);
+    return this_;
+}
+
 
 RTT_CC_DECLS1(FileReader__FileInputStream, "x10.io.FileReader.FileReader__FileInputStream", RuntimeType::class_kind, InputStreamReader__InputStream)
 

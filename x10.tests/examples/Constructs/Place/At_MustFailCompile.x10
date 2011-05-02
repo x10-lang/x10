@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-//OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
 
@@ -18,21 +18,19 @@ import harness.x10Test;
  * 
  * @author vj
  */
-
 public class At_MustFailCompile extends x10Test {
-	private val root = GlobalRef[At_MustFailCompile](this);
-	var x:int =0;
-	def globalRefCanBeUsedOnlyWithObjects(
-	    GlobalRef[Any] // ERR
-	    ) {}
-    def m(b: GlobalRef[Object]):int {
-    	
-	   return at (b) {
-    	 // We dont know that this local. 
-	     root().x // ERR
-       }; 
+    private val root = GlobalRef[At_MustFailCompile](this);
+    var x:Int = 0;
+    def globalRefCanBeUsedOnlyWithObjects(
+        GlobalRef[Any] // ERR
+    ) {}
+    def m(b: GlobalRef[Object]):Int {
+        return at (b) {
+            // We dont know that this local. 
+            root().x // ERR
+        }; 
     }
-    
+
     public def run()=true;
 
     public static def main(Array[String](1)) {

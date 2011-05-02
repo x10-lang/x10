@@ -50,7 +50,7 @@ public class LiteralTest extends x10Test {
 		chk(l1 == ((i1 as long)<<32));
 		chk(l4 == l5 && l5 == l6);
 		chk(l4+1 == l1 && l4 == l1-1);
-		chk(l7 == l8 && l8 == l9 && l9 == i9);
+		chk(l7 == l8 && l8 == l9 && l9 == i9 as Long);
 		chk(l9+1 == (l1-l3));
 		chk((l9 << 63) == l1);
 		chk(foo.charAt(0) == 'a');

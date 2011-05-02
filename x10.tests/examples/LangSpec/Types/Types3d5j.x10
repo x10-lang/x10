@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package pack_age;
+/* Current test harness gets confused by packages, but it would be in package Types3d5j;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,27 +19,22 @@ import harness.x10Test;
 
 
 
-public class Stimulus extends x10Test {
+public class Types3d5j extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Stimulus().execute();
+        new Types3d5j().execute();
     }
 
 
-// file Packages line 282
-
- static class Deal {
-  public def make() {}
+// file Types line 2220
+ static  class Example {
+static def first[T](x:Array[T](1)) = x(0);
+static def example() {
+  val ss <: Array[String] = ["X10", "Scala", "Thorn"];
+  val s1 = first(ss);
+  assert s1.equals("X10");
 }
-public static  class Stimulus {
-  private def taxCut() = true;
-  protected def benefits() = true;
-  public def jobCreation() = true;
-  /*package*/ def jumpstart() = true;
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {Example.example(); return true;}}
 
 }

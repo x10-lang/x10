@@ -17,6 +17,7 @@ import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NoInline;
+import x10.compiler.TempNoInline_0;
 import x10.compiler.NoReturn;
 import x10.util.IndexedMemoryChunk;
 
@@ -380,7 +381,7 @@ public final class Array[T] (
         private val regIt:Iterator[Point(rank)];
         private val array:Array[U](rank);
         
-        def this(a:Array[U]):ValueIterator[U]{self.rank==a.rank} {
+        @TempNoInline_0 @NoInline def this(a:Array[U]):ValueIterator[U]{self.rank==a.rank} {
             property(a.rank);
             regIt = a.iterator() as Iterator[Point(rank)]; // TODO: cast should not be needed!  Warning: This is an unsound cast because the object or the target type might have constraints and X10 currently does not perform constraint solving at runtime on generic parameters.
             array = a as Array[U](rank);                   // TODO: cast should not be needed!

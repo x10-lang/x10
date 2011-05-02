@@ -32,7 +32,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         super($dummy);
     }
 
-    public IndexedMemoryChunk $init(Type<T> type, int length, Object value) {
+    public IndexedMemoryChunk<T> $init(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
         this.value = value;
@@ -45,7 +45,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         this.value = value;
     }
 
-    public IndexedMemoryChunk $init(Type<T> type) {
+    public IndexedMemoryChunk<T> $init(Type<T> type) {
         this.$init(type, 0, null);
         return this;
     }
@@ -118,13 +118,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         } else if (value instanceof short[]) {
             Arrays.fill(getShortArray(), start, start+numElems, (short)0);
         } else if (value instanceof int[]) {
-            Arrays.fill(getIntArray(), start, start+numElems, (int)0);
+            Arrays.fill(getIntArray(), start, start+numElems, 0);
         } else if (value instanceof float[]) {
-            Arrays.fill(getFloatArray(), start, start+numElems, (float)0);
+            Arrays.fill(getFloatArray(), start, start+numElems, 0.0F);
         } else if (value instanceof long[]) {
-            Arrays.fill(getLongArray(), start, start+numElems, (long)0);
+            Arrays.fill(getLongArray(), start, start+numElems, 0L);
         } else if (value instanceof double[]) {
-            Arrays.fill(getDoubleArray(), start, start+numElems, (double)0);
+            Arrays.fill(getDoubleArray(), start, start+numElems, 0.0);
         } else {
             Object zeroValue = x10.rtt.Types.zeroValue(type);
             Arrays.fill(getObjectArray(), start, start+numElems, zeroValue);

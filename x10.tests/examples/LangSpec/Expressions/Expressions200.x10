@@ -26,7 +26,7 @@ public class Expressions200 extends x10Test {
     }
 
 
-// file Expressions line 1669
+// file Expressions line 1716
 
  static class Expressions36TestExp{
   def check()  = 54.321 as Int;  }

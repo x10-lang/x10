@@ -26,7 +26,7 @@ public class Arrays420 extends x10Test {
     }
 
 
-// file Arrays line 781
+// file Arrays line 672
 
  static class Arrays58GenexpTest{
   def check[T](R:Region{self!=null}, v:T)  = new Array[T](R, v);  }

@@ -26,7 +26,7 @@ public class Arrays5s3q extends x10Test {
     }
 
 
-// file Arrays line 167
+// file Arrays line 169
 
  static class Arrays14TestExp{
   def check(size:Int)  = Region.makeBanded(size);  }

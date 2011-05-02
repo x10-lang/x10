@@ -25,7 +25,7 @@ public class AtEachLoopOnArray extends x10Test {
 	       DistArray.make[double](0..10->here, ([i]: Point): double => i as double);
 	
 	   finish ateach ([i]: Point(1) in A)
-	       if (A(i) != i)
+	       if (A(i) != i as Double)
 	          async at(root) atomic { root().success = false; }
 	   return success;
     }

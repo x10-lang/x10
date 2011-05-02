@@ -72,6 +72,7 @@ final class UniqueDist extends Dist(1) {
         }
     }
 
+    // replicated from superclass to workaround xlC bug with using & itables
     public operator this(p:Place):Region(rank) = get(p);
 
     public operator this(pt:Point(rank)):Place = pg(pt(0));
@@ -92,6 +93,24 @@ final class UniqueDist extends Dist(1) {
         }
         if (CompilerFlags.checkPlace() && i0 != pg.indexOf(here)) raisePlaceError(i0);
         return 0;
+    }
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    // This code is completely unreachable
+    public operator this(i0:int, i1:int){rank==2}:Place {
+        throw new UnsupportedOperationException("operator(i0:int,i1:int)");
+    }
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    // This code is completely unreachable
+    public operator this(i0:int, i1:int, i2:int){rank==3}:Place {
+        throw new UnsupportedOperationException("operator(i0:int,i1:int,i2:int)");
+    }
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    // This code is completely unreachable
+    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
+        throw new UnsupportedOperationException("operator(i0:int,i1:int,i2:int,i3:int)");
     }
 
     public def maxOffset():int = 0;

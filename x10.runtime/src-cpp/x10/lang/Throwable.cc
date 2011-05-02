@@ -41,7 +41,7 @@ using namespace x10::array;
 using namespace x10aux;
 
 const serialization_id_t Throwable::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    DeserializationDispatcher::addDeserializer(Throwable::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void
 Throwable::_serialize_body(x10aux::serialization_buffer &buf) {
@@ -59,6 +59,12 @@ Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
     FMGL(message) = buf.read<x10aux::ref<String> >();
     FMGL(cachedStackTrace) = buf.read<ref<Array<ref<String> > > >();
     FMGL(trace_size) = 0;
+}
+
+x10aux::ref<Reference> Throwable::_deserializer(x10aux::deserialization_buffer &buf){
+    x10aux::ref<Throwable> this_ = new (x10aux::alloc<Throwable>()) Throwable();
+    this_->_deserialize_body(buf);
+    return this_;
 }
 
 x10aux::ref<Throwable>

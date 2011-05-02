@@ -26,7 +26,7 @@ public class Arrays7l3d extends x10Test {
     }
 
 
-// file Arrays line 144
+// file Arrays line 146
 
  static class Arrays9TestExp{
   def check()  = Region.makeUnit();  }

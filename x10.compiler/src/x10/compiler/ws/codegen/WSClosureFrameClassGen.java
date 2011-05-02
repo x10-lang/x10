@@ -46,6 +46,7 @@ import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.util.HierarchyUtils;
 import x10.util.synthesizer.CodeBlockSynth;
+import x10.util.synthesizer.ConstructorSynth;
 import x10.util.synthesizer.FieldSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.MethodSynth;
@@ -92,18 +93,13 @@ public class WSClosureFrameClassGen extends WSRegularFrameClassGen {
         }
         
         //processing the return
-        returnFlagName = ((Context)xct).makeFreshName("returnFlag");
-        FieldSynth returnFlagSynth = classSynth.createField(compilerPos, returnFlagName.toString(), xts.Boolean());
-        returnFlagSynth.addAnnotation(genUninitializedAnnotation());
-        fieldNames.add(returnFlagName); //add it as one field for query
+        returnFlagName = wsynth.createReturnFlagField(classSynth);
+        fieldNames.add(returnFlagName); 
         
         Type returnType = closureDef.returnType().get();
         if (returnType != xts.Void()){
-            returnFieldName = ((Context)xct).makeFreshName("result");
-            FieldSynth resurnFieldSynth = classSynth.createField(compilerPos, returnFieldName.toString(), returnType);
-            resurnFieldSynth.addAnnotation(genUninitializedAnnotation());
-            fieldNames.add(returnFieldName); //add it as one field for query
-            
+            returnFieldName = wsynth.createReturnValueField(classSynth, returnType);
+            fieldNames.add(returnFieldName); //add it as one field for query 
             //and also need add "=> type" as one interface
             classSynth.addInterface(synth.simpleFunctionType(returnType, compilerPos));
         }
@@ -179,19 +175,18 @@ public class WSClosureFrameClassGen extends WSRegularFrameClassGen {
 
     
     protected void genClassConstructor() throws SemanticException{
-        super.genClassConstructor();
-        //Continue to add other statements
-        CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
+        ConstructorSynth conSynth = wsynth.genClassConstructorType2Base(classSynth);
+        CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
         //all formals as constructor's formal
         //This ref
-        Expr thisRef = synth.thisRef(classSynth.getDef().asType(), compilerPos);
+        Expr thisRef = wsynth.genThisRef(classSynth);
         for(Formal f: formals){
             Expr fRef = conSynth.addFormal((Formal) f.copy());
             //make a field access
             Stmt s = xnf.Eval(compilerPos, 
                               synth.makeFieldAssign(compilerPos, thisRef, f.name().id(), fRef, xct));
             
-            conCodeSynth.addStmt(s);
+            codeBlockSynth.addStmt(s);
         }
     }
     

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_methodguardnadacastthingie;
+/* Current test harness gets confused by packages, but it would be in package Statements4h6p_Bad37_MustFailCompile;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,21 +19,34 @@ import harness.x10Test;
 
 
 
-public class Classes90_Bad35_MustFailCompile extends x10Test {
+public class Statements4h6p_Bad37_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Classes90_Bad35_MustFailCompile().execute();
+        new Statements4h6p_Bad37_MustFailCompile().execute();
     }
 
 
-// file Classes line 531
- // OPTIONS: -STATIC_CALLS
- static  class Example {var f : String = ""; def example(x:Object){x != null} = {this.f = x.toString();}}
- static  class Eyample {
-  def exam(e:Example, x:Object) {
-    if (x != null)
-       e.example(x as Object{x != null});
- if (x != null) e.example(x); // ERR
+// file Statements line 138
+ static class Shadow{
+  var x : Int;
+  def this(x:Int) {
+     // Parameter can shadow field
+     this.x = x;
+  }
+  def example(y:Int) {
+     val x = "shadows a field";
+ val y = "shadows a param"; // ERR
+     val z = "local";
+     for (a in [1,2,3]) {
+        // ERROR: val x = "can't shadow local var";
+     }
+     async {
+        val x = "can shadow through async";
+     }
+     val f = () => {
+       val x = "can shadow through closure";
+       x
+     };
   }
 }
 

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Types9;
+/* Current test harness gets confused by packages, but it would be in package Statements4h6p;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,18 +19,36 @@ import harness.x10Test;
 
 
 
-public class Types90 extends x10Test {
+public class Statements4h6p extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Types90().execute();
+        new Statements4h6p().execute();
     }
 
 
-// file Types line 212
-
- static class Types9TypeTest{
-  def check()  { 
-     var checkycheck : (x:Int) => Int{self != x};  }}
+// file Statements line 138
+ static class Shadow{
+  var x : Int;
+  def this(x:Int) {
+     // Parameter can shadow field
+     this.x = x;
+  }
+  def example(y:Int) {
+     val x = "shadows a field";
+     // ERROR: val y = "shadows a param";
+     val z = "local";
+     for (a in [1,2,3]) {
+        // ERROR: val x = "can't shadow local var";
+     }
+     async {
+        val x = "can shadow through async";
+     }
+     val f = () => {
+       val x = "can shadow through closure";
+       x
+     };
+  }
+}
 
  static class Hook {
    def run():Boolean = true;

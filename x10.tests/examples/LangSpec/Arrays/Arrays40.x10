@@ -26,11 +26,11 @@ public class Arrays40 extends x10Test {
     }
 
 
-// file Arrays line 95
+// file Arrays line 97
  static  class Example {
  static def example() {
 val MAX_HEIGHT=20;
-val Null = Region.makeUnit();  // Empty 0-dimensional region
+val Null = Region.makeUnit(); //Empty 0-dimensional region
 val R1 = 1..100; // IntRange
 val R2 = R1 as Region(1);
 val R3 = (0..99) * (-1..MAX_HEIGHT);

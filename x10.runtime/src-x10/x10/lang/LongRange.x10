@@ -14,7 +14,7 @@ package x10.lang;
 /**
  * A representation of the range of longs [min..max].
  */
-public final class LongRange(
+public struct LongRange(
                /**
                 * The minimum value included in the range
                 */
@@ -37,7 +37,8 @@ public final class LongRange(
      * @param max the maximum value of the range
      */
     public def this(min:Long, max:Long) {
-        property(min, max, min == 0);
+        val x = min == 0l;
+        property(min, max, x);
     }
     
     public def toString():String = min+".."+max;

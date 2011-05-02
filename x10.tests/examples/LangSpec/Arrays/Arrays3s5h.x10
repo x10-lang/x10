@@ -26,7 +26,7 @@ public class Arrays3s5h extends x10Test {
     }
 
 
-// file Arrays line 139
+// file Arrays line 141
 
  static class Arrays7TestExp{
   def check(n:Int)  = Region.makeEmpty(n);  }

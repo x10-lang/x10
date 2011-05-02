@@ -26,7 +26,7 @@ public class Packages9e6r extends x10Test {
     }
 
 
-// file Packages line 142
+// file Packages line 143
  static class Example {
   static def m() = 1;
   static def m(Boolean) = 2;
@@ -40,6 +40,7 @@ public class Packages9e6r extends x10Test {
   static def example() {
     assert m() == 1;
     assert m(true) == 2;
+    assert m(3) == 3;
     assert m(20) == 4;
   }
 }

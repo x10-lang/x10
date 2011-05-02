@@ -308,7 +308,8 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * Returns a String representation of this Int as a hexadecimal number.
      * @return a String representation of this Int as a hexadecimal number.
      */
-    @Native("java", "java.lang.Integer.toHexString(#this)")
+    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
+    @Native("java", "java.lang.Integer.toString(#this, 16)")
     @Native("c++", "x10aux::int_utils::toHexString(#0)")
     public native def toHexString(): String;
 
@@ -316,7 +317,8 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * Returns a String representation of this Int as an octal number.
      * @return a String representation of this Int as an octal number.
      */
-    @Native("java", "java.lang.Integer.toOctalString(#this)")
+    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
+    @Native("java", "java.lang.Integer.toString(#this, 8)")
     @Native("c++", "x10aux::int_utils::toOctalString(#0)")
     public native def toOctalString(): String;
 
@@ -324,7 +326,8 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * Returns a String representation of this Int as a binary number.
      * @return a String representation of this Int as a binary number.
      */
-    @Native("java", "java.lang.Integer.toBinaryString(#this)")
+    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
+    @Native("java", "java.lang.Integer.toString(#this, 2)")
     @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;
 
@@ -339,14 +342,16 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "x10.core.Signed.parseInt(#s, #radix)")
+    // @Native("java", "x10.core.Signed.parseInt(#s, #radix)")
+    @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
     public native static def parseInt(s:String, radix:Int): Int; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "x10.core.Signed.parseInt(#s)")
+    // @Native("java", "x10.core.Signed.parseInt(#s)")
+    @Native("java", "java.lang.Integer.parseInt(#s)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parseInt(s:String): Int; //throwsNumberFormatException;
 
@@ -357,7 +362,8 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * @return the Int represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
-    @Native("java", "x10.core.Signed.parseInt(#s, #radix)")
+    // @Native("java", "x10.core.Signed.parseInt(#s, #radix)")
+    @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
     public native static def parse(s:String, radix:Int): Int; //throwsNumberFormatException;
 
@@ -367,7 +373,8 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * @return the Int represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
-    @Native("java", "x10.core.Signed.parseInt(#s)")
+    // @Native("java", "x10.core.Signed.parseInt(#s)")
+    @Native("java", "java.lang.Integer.parseInt(#s)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parse(s:String): Int; //throwsNumberFormatException;
 
@@ -534,6 +541,6 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      */
     @Native("java", "x10.lang.IntRange.$make(#x, #y)")
     @Native("c++", "x10::lang::IntRange::_make(#1, #2)")
-    public native static operator (x:Int) .. (y:Int):IntRange{min==x,max==y,self!=null};
+    public native static operator (x:Int) .. (y:Int):IntRange{min==x,max==y};
 }
 public type Int(b:Int) = Int{self==b};

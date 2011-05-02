@@ -98,9 +98,9 @@ class Bla[T] extends Throwable
 
 	class Inner2[U] {}
 
-	var j1:Inner2[Int] = other.new Inner2[Int](); // ShouldNotBeERR ShouldNotBeERR
-	var j2:Bla[T].Inner2[T] = other.new Inner2[T](); // ShouldNotBeERR ShouldNotBeERR
-	var j3:Bla[Int].Inner2[T] = new Bla[Int]().new Inner2[T](); // ShouldNotBeERR ShouldNotBeERR
+	var j1:Inner2[Int] = other.new Inner2[Int]();
+	var j2:Bla[T].Inner2[T] = other.new Inner2[T]();
+	var j3:Bla[Int].Inner2[T] = new Bla[Int]().new Inner2[T](); 
 	var j4:
 		Inner2; // ERR
 	var j5:Bla[T].Inner2[T] =

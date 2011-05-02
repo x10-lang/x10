@@ -26,7 +26,7 @@ public class Arrays3x4j extends x10Test {
     }
 
 
-// file Arrays line 141
+// file Arrays line 143
 
  static class Arrays8TestExp{
   def check(n:Int)  = Region.makeFull(n);  }

@@ -26,17 +26,14 @@ public class Activities6f6s extends x10Test {
     }
 
 
-// file Activities line 347
+// file Activities line 322
  static  class Example { static def example() {
 var result : Int = 0;
 finish {
   async result = 1;
 }
-Console.OUT.println("result=" + result);
+assert result == 1;
 } }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {Example.example(); return true;}}
 
 }

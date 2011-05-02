@@ -26,7 +26,7 @@ public class Classes160 extends x10Test {
     }
 
 
-// file Classes line 1101
+// file Classes line 1213
  // Integer-coefficient polynomials of one variable.
  static  class Poly {
    public val coeff : Array[Int](1);
@@ -100,7 +100,7 @@ public class Classes160 extends x10Test {
       return (ai == 1) ? xpow : "" + Math.abs(ai) + xpow;
    }
 
-   public static def Main(ss:Array[String](1)) = main(ss);
+   public static def Main(ss:Array[String](1)):void {main(ss);};
 
 
 

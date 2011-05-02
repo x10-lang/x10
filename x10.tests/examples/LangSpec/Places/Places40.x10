@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package genexpsome_Arrays59;
+/* Current test harness gets confused by packages, but it would be in package Places_transient_a;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,20 +19,26 @@ import harness.x10Test;
 
 
 
-public class Arrays430 extends x10Test {
+public class Places40 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Arrays430().execute();
+        new Places40().execute();
     }
 
 
-// file Arrays line 787
+// file Places line 874
 
- static class Arrays59GenexpTest{
-  def check[T](D:Dist, v:T)  = DistArray.make[T](D, (Point(D.rank))=>v);  }
-
- static class Hook {
-   def run():Boolean = true;
+ static class Trans {
+   val a : Int = 1;
+   transient val b : Int = 2;
+   //ERROR transient val c : Int{c != 0} = 3;
+   def example() {
+     assert(a == 1 && b == 2);
+     at(here) {
+        assert(a == 1 && b == 0);
+     }
+   }
 }
+ static class Hook{ def run() { (new Trans()).example(); return true; } }
 
 }

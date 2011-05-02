@@ -9,27 +9,23 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CHECKS
+
 import x10.compiler.tests.*; // err markers
 import harness.x10Test;
 
 /**
+ * The following two compatible-looking array constructors 
+ * produce incompatible arrays.
  * @author bardb 1/2011
  */
-
-// The following two compatible-looking array constructors 
-// produce incompatible arrays.
-
-// OPTIONS: -STATIC_CALLS 
-
-public class XTENLANG_2404 extends x10Test  { 
-
+public class XTENLANG_2404 extends x10Test {
 
     public def run() {
-      val a = [1,2,3];
-      val b = [10, 20, 30] as Array[Int]{self.region == a.region};
-      return true;
+        val a = [1,2,3];
+        val b = [10, 20, 30] as Array[Int]{self.region == a.region};
+        return true;
     }
-
 
     public static def main(Array[String](1)) {
         new XTENLANG_2404(5).execute();

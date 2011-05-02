@@ -51,7 +51,10 @@ public class Throwable {
     
     @Native("java", "#this.toString()")
     @Native("c++", "x10aux::to_string(#this)")
-    public def toString() = typeName() + ": " + getMessage();
+    public def toString() {
+        val m = getMessage();
+        return m == null ? typeName() : typeName() + ": " + getMessage();
+    }
    
     @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#this)")
     @Native("c++", "(#this)->getStackTrace()")

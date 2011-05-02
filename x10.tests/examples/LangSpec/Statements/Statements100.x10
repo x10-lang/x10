@@ -26,12 +26,12 @@ public class Statements100 extends x10Test {
     }
 
 
-// file Statements line 754
+// file Statements line 799
 
  static class Example {
   public static def main(argv:Array[String](1)) {
     val a = 1;
-    assert a != 1 : "Changed my mind about a";
+    assert a != 1 : "Changed my mind about a.";
   }
 }
 

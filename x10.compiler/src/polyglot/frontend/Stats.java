@@ -60,6 +60,7 @@ public class Stats {
     private long startTime, totalTime, reportTimeThreshold;
     private int currDepth, maxDepth;
     private boolean t2;
+    private String name;
 
     /*** Stack of phase names for timing nested phases (goals) */
     private class stackStruct {
@@ -87,6 +88,7 @@ public class Stats {
      */
     public void initialize(ExtensionInfo ext, long startTime) {
         this.startTime = startTime;
+        this.name = ext.compilerName();
         reporter = ext.getOptions().reporter;
         if (reporter.should_report(Reporter.time, 1)) {
             t2 = reporter.should_report(Reporter.time, 2);
@@ -155,7 +157,7 @@ public class Stats {
     /** Reporter the frequency counts. */
     public void reportFrequency() {
         if (freq == null) return;
-        reporter.report(1, "\nFrequency Statistics for  X10c");
+        reporter.report(1, "\nFrequency Statistics for  "+name);
         reporter.report(1, String.format("%16s", "Count") + " Name");
         reporter.report(1, String.format("%16s", "-----") + " ----");
 
@@ -184,7 +186,7 @@ public class Stats {
     private void reportTiming() {
         if (currDepth != 0) reporter.report(1, "\nWarning: mismatched start/stop times");
 
-        reporter.report(1, "\nPhase Statistics for X10c");
+        reporter.report(1, "\nPhase Statistics for "+name);
         String pad = "";
         for (int i = t2 ? maxDepth : 1; i > 0; i--)
             pad += "   ";

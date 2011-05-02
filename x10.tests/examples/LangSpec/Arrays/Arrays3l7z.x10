@@ -26,7 +26,7 @@ public class Arrays3l7z extends x10Test {
     }
 
 
-// file Arrays line 148
+// file Arrays line 150
 
  static class Arrays10TestExp{
   def check(normal:Point, k:Int)  = Region.makeHalfspace(normal, k);  }

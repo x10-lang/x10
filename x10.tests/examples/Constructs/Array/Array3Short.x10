@@ -20,7 +20,7 @@ public class Array3Short extends x10Test {
         val r = (1..10)*(1..10);
         val ia = new Array[Short](r, (x:Point)=>(0 as Short));
         ia(1, 1) = 42 as Short;
-        return (42 == ia(1, 1));
+        return (42s == ia(1, 1));
     }
 
     public static def main(var args: Array[String](1)): void = {

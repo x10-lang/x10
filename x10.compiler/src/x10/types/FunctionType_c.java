@@ -35,6 +35,7 @@ import polyglot.types.Ref;
 import polyglot.types.Resolver;
 import polyglot.types.Name;
 import polyglot.types.ContainerType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.Types;
@@ -47,6 +48,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
+import x10.types.matcher.Subst;
 
 /**
  * A representation of the type of a function interface.
@@ -59,6 +61,11 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
 
     public FunctionType_c(final TypeSystem ts, Position pos, final X10ClassDef def) {
         super(ts, pos, Types.ref(def));
+    }
+
+    @Override
+    public X10ParsedClassType typeArguments(List<Type> typeArgs) {
+        return super.typeArguments(typeArgs);
     }
 
     public MethodInstance applyMethod() {
@@ -136,19 +143,31 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
             if (Tl.size() != Sl.size()) {
                 return false;
             }
+            XVar[] ys = Types.toVarArray(Types.toLocalDefList(this.formalNames()));
+            XVar[] xs = Types.toVarArray(Types.toLocalDefList(t.formalNames()));
+            try {
+                T = Subst.subst(T, ys, xs, new Type[]{}, new ParameterType[]{});
+                S = Subst.subst(S, ys, xs, new Type[]{}, new ParameterType[]{});
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Unexpected exception comparing function types", e);
+            }
             if (!ts.typeEquals(T, S, ts.emptyContext())) {
                 return false;
             }
             for (int i = 0; i < Sl.size(); i++) {
                 Type Si = Sl.get(i);
                 Type Ti = Tl.get(i);
+                try {
+                    Ti = Subst.subst(Ti, ys, xs, new Type[]{}, new ParameterType[]{});
+                    Si = Subst.subst(Si, ys, xs, new Type[]{}, new ParameterType[]{});
+                } catch (SemanticException e) {
+                    throw new InternalCompilerError("Unexpected exception comparing function types", e);
+                }
                 if (!ts.typeEquals(Ti, Si, ts.emptyContext()))
                     return false;
             }
             if (g != null) {
                 try {
-                    XVar[] ys = Types.toVarArray(Types.toLocalDefList(this.formalNames()));
-                    XVar[] xs = Types.toVarArray(Types.toLocalDefList(t.formalNames()));
                     g = g.substitute(ys, xs);
                 } catch (XFailure e) {
                     throw new InternalCompilerError("Unexpected exception comparing function types", this.position(), e);

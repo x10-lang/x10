@@ -11,6 +11,8 @@
 
 package x10.util;
 
+import x10.compiler.TempNoInline_0;
+
 public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
     private val a: GrowableIndexedMemoryChunk[T];
@@ -53,7 +55,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     
     public def addBefore(i: int, v: T): void {
         a.add(v);
-        for (var j: int = i+1; j < a.length(); j++) {
+        for (var j:int = a.length()-1; j > i; j--) {
             a(j) = a(j-1);
         }
         a(i) = v;
@@ -83,7 +85,6 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     
     public def isEmpty(): Boolean = size() == 0;
 
-    // DEPRECATED
     public def toArray() = a.toArray();
 
     public def this() {
@@ -237,7 +238,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         qsort(a, l+1, hi, cmp);
     }
 
-    private def exch(a: GrowableIndexedMemoryChunk[T], i: int, j: int): void {
+    private @TempNoInline_0 def exch(a: GrowableIndexedMemoryChunk[T], i: int, j: int): void {
         val temp = a(i);
         a(i) = a(j);
         a(j) = temp;

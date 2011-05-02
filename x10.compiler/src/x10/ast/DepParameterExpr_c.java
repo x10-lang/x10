@@ -180,8 +180,8 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
       }
 
     @Override
-    public Node disambiguate(ContextVisitor ar) throws SemanticException {
-    	DepParameterExpr_c n = (DepParameterExpr_c) super.disambiguate(ar);
+    public Node disambiguate(ContextVisitor ar) {
+    	DepParameterExpr_c n = this;
     	
     	if (((Context) ar.context()).inAnnotation() && condition == null) {
     		return n.condition(Collections.<Expr>emptyList());

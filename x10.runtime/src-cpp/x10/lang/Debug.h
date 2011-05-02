@@ -14,9 +14,8 @@
 #ifndef __XRX_DEBUG_H
 #define __XRX_DEBUG_H
 
-#include <iostream>
-
 #ifdef XRX_DEBUG
+#include <iostream>
 
 #define __xrxDPr() \
 do { \

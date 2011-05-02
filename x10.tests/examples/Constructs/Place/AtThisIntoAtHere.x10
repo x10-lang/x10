@@ -9,12 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-//OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CHECKS
+
 import harness.x10Test;
 
 /**
- * 
-* Changed for 2.1.
+ * Changed for 2.1.
  * 
  * Test that if you have two fields with GlobalRef's pointing to the same location, you can do an at to
  * one field and deref the other.
@@ -22,23 +22,22 @@ import harness.x10Test;
  * @author vj
  */
 public class AtThisIntoAtHere extends x10Test {
-	  class Test {
-	     def n() { 
-	    	val x:GlobalRef[Test]  = GlobalRef[Test](this);
-	        val y:GlobalRef[Test]{self.home==x.home} = x;
-	    	 
-	    	 at (x) {
-	    		 // it is ok to invoke this.y() at the place of this.x.
-	    		 y();
-	    	 }
-		     
-	     }
-	    }
+    class Test {
+        def n() { 
+            val x:GlobalRef[Test] = GlobalRef[Test](this);
+            val y:GlobalRef[Test]{self.home==x.home} = x;
+
+            at (x) {
+                // it is ok to invoke this.y() at the place of this.x.
+                y();
+            }
+
+        }
+    }
 
     public def run() = true;
 
     public static def main(Array[String](1)) {
-	  new AtThisIntoAtHere().execute();
+        new AtThisIntoAtHere().execute();
     }
-
 }

@@ -26,10 +26,10 @@ public class Types260 extends x10Test {
     }
 
 
-// file Types line 814
+// file Types line 841
  static  class Xmpl {
  def example() {
-type Vec(n:Int) = Array[Int]{self.rank==1 && self.size == n};
+type Vec(n:Int) = Array[Int]{self.rank==1, self.size == n};
 var example : Vec(78);
 }}
 

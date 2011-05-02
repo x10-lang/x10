@@ -9,32 +9,29 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-//OPTIONS: -STATIC_CALLS
+//OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
 
 /**
  * Cannot reference a banged method parameter across a place-shift.
  *
- * 
  * @author vj
  */
-class BangAcrossPlaces2_MustFailCompile  extends x10Test {
-	class C {
-		var x:Int=0;
-		def x() =x;
-	}
-	def m(z:GlobalRef[C]{self.home==here}) {
-		at (here.next()) {
-			// this should generate an error.
-			val y = z.x(); // ERR
-		}
-	}
-    public def run() = true;
-    
-    public static def main(Array[String](1)) {
-	  new 
-	  BangAcrossPlaces2_MustFailCompile().execute();
+class BangAcrossPlaces2_MustFailCompile extends x10Test {
+    class C {
+        var x:Int=0;
+        def x() = x;
     }
+    def m(z:GlobalRef[C]{self.home==here}) {
+        at (here.next()) {
+            // this should generate an error.
+            val y = z.x(); // ERR
+        }
+    }
+    public def run() = true;
 
+    public static def main(Array[String](1)) {
+        new BangAcrossPlaces2_MustFailCompile().execute();
+    }
 }

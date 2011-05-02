@@ -296,7 +296,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @param radix the radix to use in the String representation
      * @return a String representation of this Short in the specified radix.
      */
-    @Native("java", "java.lang.Integer.toString(#this, #radix)")
+    @Native("java", "x10.core.Signed.toString(#this, #radix)")
     @Native("c++", "x10aux::short_utils::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
@@ -304,7 +304,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * Returns a String representation of this Short as a hexadecimal number.
      * @return a String representation of this Short as a hexadecimal number.
      */
-    @Native("java", "java.lang.Integer.toHexString(#this)")
+    @Native("java", "x10.core.Signed.toString(#this, 16)")
     @Native("c++", "x10aux::short_utils::toHexString(#0)")
     public native def toHexString(): String;
 
@@ -312,7 +312,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * Returns a String representation of this Short as an octal number.
      * @return a String representation of this Short as an octal number.
      */
-    @Native("java", "java.lang.Integer.toOctalString(#this)")
+    @Native("java", "x10.core.Signed.toString(#this, 8)")
     @Native("c++", "x10aux::short_utils::toOctalString(#0)")
     public native def toOctalString(): String;
 
@@ -320,7 +320,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * Returns a String representation of this Short as a binary number.
      * @return a String representation of this Short as a binary number.
      */
-    @Native("java", "java.lang.Integer.toBinaryString(#this)")
+    @Native("java", "x10.core.Signed.toString(#this, 2)")
     @Native("c++", "x10aux::short_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;
 
@@ -335,14 +335,16 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "x10.core.Signed.parseShort(#s, #radix)")
+    // @Native("java", "x10.core.Signed.parseShort(#s, #radix)")
+    @Native("java", "java.lang.Short.parseShort(#s, #radix)")
     @Native("c++", "x10aux::short_utils::parseShort(#1, #2)")
     public native static def parseShort(s:String, radix:Int): Short; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "x10.core.Signed.parseShort(#s)")
+    // @Native("java", "x10.core.Signed.parseShort(#s)")
+    @Native("java", "java.lang.Short.parseShort(#s)")
     @Native("c++", "x10aux::short_utils::parseShort(#1)")
     public native static def parseShort(s:String): Short; //throwsNumberFormatException;
 
@@ -353,7 +355,8 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @return the Short represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Short.
      */
-    @Native("java", "x10.core.Signed.parseShort(#s, #radix)")
+    // @Native("java", "x10.core.Signed.parseShort(#s, #radix)")
+    @Native("java", "java.lang.Short.parseShort(#s, #radix)")
     @Native("c++", "x10aux::short_utils::parseShort(#1, #2)")
     public native static def parse(s:String, radix:Int): Short; //throwsNumberFormatException;
 
@@ -363,7 +366,8 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @return the Short represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Short.
      */
-    @Native("java", "x10.core.Signed.parseShort(#s)")
+    // @Native("java", "x10.core.Signed.parseShort(#s)")
+    @Native("java", "java.lang.Short.parseShort(#s)")
     @Native("c++", "x10aux::short_utils::parseShort(#1)")
     public native static def parse(s:String): Short; //throwsNumberFormatException;
 

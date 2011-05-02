@@ -26,10 +26,12 @@ public class Statements40 extends x10Test {
     }
 
 
-// file Statements line 219
+// file Statements line 261
  static class StmtEx {
-  def this() { x10.io.Console.OUT.println("New StmtEx made");  }
-  static def call() { x10.io.Console.OUT.println("call!");  }
+  def this() {
+     x10.io.Console.OUT.println("New StmtEx made");  }
+  static def call() {
+     x10.io.Console.OUT.println("call!");}
   def example() {
      var a : Int = 0;
      a = 1; // assignment

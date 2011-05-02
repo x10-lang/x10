@@ -26,14 +26,14 @@ public class Expressions60 extends x10Test {
     }
 
 
-// file Expressions line 336
- // OPTIONS: -STATIC_CALLS
+// file Expressions line 357
+//OPTIONS: -STATIC_CHECKS
  static class DivideBy(denom:Int) {
   def div(numer:Int){denom != 0} = numer / denom;
   def example() {
      val thisCast = (this as DivideBy{self.denom != 0});
      thisCast.div(100);
-     //ERROR (with STATIC_CALLS): this.div(100);
+     //ERROR (with STATIC_CHECKS): this.div(100);
   }
 }
  static  class Hook{ def run() { (new DivideBy(1)).example(); return true; } }

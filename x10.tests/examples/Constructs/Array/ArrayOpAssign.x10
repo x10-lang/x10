@@ -30,11 +30,11 @@ public class ArrayOpAssign extends x10Test {
         result &= (4 == ia(1, 1));
         var id: Array[double](2) = new Array[double](R, (Point)=>0D);
         id(1, 1) += 42;
-        result &= (42 == id(1, 1));
+        result &= (42.0 == id(1, 1));
         x10.io.Console.OUT.println("id[1,1])" + id(1, 1));
         id(1, 1) *= 2;
         x10.io.Console.OUT.println("id[1,1])" + id(1, 1));
-        result &= (84 == id(1, 1));
+        result &= (84.0 == id(1, 1));
         return result;
     }
 

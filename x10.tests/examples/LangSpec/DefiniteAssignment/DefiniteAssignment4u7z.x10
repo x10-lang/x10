@@ -30,7 +30,7 @@ public class DefiniteAssignment4u7z extends x10Test {
  static  class Example {
 def example(a:Int, b:Int) {
   val max:Int;
-  // max cannot be read here.
+  //ERROR: assert max==max; // can't read 'max'
   if (a > b) max = a;
   else max = b;
   assert max >= a && max >= b;

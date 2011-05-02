@@ -37,7 +37,7 @@ public interface Any {
      *
      * @return a string representation of this entity.
      */
-    @Native("java", "((java.lang.Object)(#this)).toString()")
+	@Native("java", "((java.lang.Object)(#this)).toString()")
     @Native("c++", "x10aux::to_string(#this)")
     def toString():String;
 
@@ -99,7 +99,8 @@ public interface Any {
      *
      * @return the hash code of this entity.
      */
-    @Native("java", "((java.lang.Object)(#this)).hashCode()")
+    // @Native("java", "((java.lang.Object)(#this)).hashCode()")
+    @Native("java", "x10.rtt.Types.hashCode(#this)")
     @Native("c++", "x10aux::hash_code(#this)")
     def hashCode():Int;
 }

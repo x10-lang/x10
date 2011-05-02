@@ -21,7 +21,7 @@ public class Array3Byte extends x10Test {
         val ia  = new Array[Byte](r, (x:Point)=>(0 as Byte));
     
         ia(1, 1) = 42 as Byte;
-        return (42 == ia(1, 1));
+        return (42y == ia(1, 1));
     }
 
     public static def main(var args: Array[String](1)): void = {

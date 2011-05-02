@@ -27,15 +27,15 @@ public class Vars80 extends x10Test {
 
 
 // file Vars line 349
- static  class DestructuringEx1 {
- def whyJustForLocals() {
+ static  class Example {
+ static def example () {
 val [i] : Point = Point.make(11);
+assert i == 11;
 val p[j,k] = Point.make(22,33);
+assert j == 22 && k == 33;
 val q[l,m] = [44,55]; // coerces an array to a point.
+assert l == 44 && m == 55;
 }}
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {Example.example(); return true;}}
 
 }

@@ -39,6 +39,7 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.util.CollectionUtil; import x10.ExtensionInfo;
 import x10.util.CollectionFactory;
+import x10.util.HierarchyUtils;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AtEach;
@@ -130,7 +131,8 @@ public class WSCodeGenerator extends ContextVisitor {
                 //traditional transform
                 WSUtil.info("Start transforming target method: " + mDef.name());
                 Job job = ((ClassType) mDef.container().get()).def().job();
-                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (Context) context, mDef, mDecl, wts);
+                WSMethodFrameClassGen mFrame = new WSMethodFrameClassGen(job, (NodeFactory) nf, (Context) context, 
+                                                                         mDef, mDecl, wts, HierarchyUtils.isMainMethod(mDef, context));
                 try{
                     n = mFrame.transform();
                 }

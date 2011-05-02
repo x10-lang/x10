@@ -379,7 +379,7 @@ public class X10New_c extends New_c implements X10New {
             qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
         }
 
-        if (false && typeArguments.size() > 0) {
+        if (typeArguments.size() > 0) {
             List<Type> typeArgs = new ArrayList<Type>(typeArguments.size());
 
             for (TypeNode tan : typeArguments) {

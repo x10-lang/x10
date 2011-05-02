@@ -178,9 +178,9 @@ public class CheckEscapingThis extends NodeVisitor
                 res = fieldReadWrite(true, propertyRepresentative,inItem);
 
             // I don't need to recurse into the constraint of a X10CanonicalTypeNode because:
-            // - in STATIC_CALLS it doesn't generate any code for them, therefore there is nothing to check.
+            // - in STATIC_CHECKS it doesn't generate any code for them, therefore there is nothing to check.
             // e.g. the following is legal: class A { val f1:A{this.f2==f1} = null; val f2:A = null; }
-            // - in DYNAMIC_CALLS it generates a cast, and we recurse into that cast next:
+            // - in DYNAMIC_CHECKS it generates a cast, and we recurse into that cast next:
             } else if (n instanceof X10Cast) {
                 X10Cast cast = (X10Cast)n;
                 // convert constraint to Expr

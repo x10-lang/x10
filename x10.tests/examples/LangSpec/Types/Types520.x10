@@ -26,7 +26,7 @@ public class Types520 extends x10Test {
     }
 
 
-// file Types line 2049
+// file Types line 2130
  static  class voidddd {
  static
 val f : () => void = () => {return;};

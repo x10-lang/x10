@@ -127,6 +127,10 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
     }
     
 
+    public Flags getFlags(){
+        return classDef.flags();
+    }
+    
     public void setFlags(Flags flags) {
         try {
             checkClose();

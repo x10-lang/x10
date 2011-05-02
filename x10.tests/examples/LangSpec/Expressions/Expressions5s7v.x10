@@ -26,18 +26,17 @@ public class Expressions5s7v extends x10Test {
     }
 
 
-// file Expressions line 141
+// file Expressions line 149
  static class Fielded {
   public val a : Int = 1;
   public val b : Int{this.a == b} = this.a;
   static def example() {
     val f : Fielded = new Fielded();
+    assert f.a == 1 && f.b == 1;
     val fb : Int{fb == f.a} = f.b;
+    assert fb == 1;
   }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static class Hook{ def run() {Fielded.example(); return true;}}
 
 }

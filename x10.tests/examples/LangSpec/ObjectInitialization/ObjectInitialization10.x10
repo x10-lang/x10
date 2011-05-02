@@ -26,7 +26,7 @@ public class ObjectInitialization10 extends x10Test {
     }
 
 
-// file ObjectInitialization line 224
+// file ObjectInitialization line 229
 
 final static  class C2 {
   protected val a:Int, b:Int, c:Int;
@@ -46,7 +46,8 @@ final static  class C2 {
   }
   @NonEscaping final def boric() {
     y = b;
-    this.aplomb(); // allowed; a is definitely set before boric is called
+    this.aplomb(); // allowed;
+       // a is definitely set before boric is called
     // z = c; // not allowed; c is not definitely written
   }
   @NonEscaping private def cajoled() {

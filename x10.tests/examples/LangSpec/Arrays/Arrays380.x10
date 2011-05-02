@@ -26,7 +26,7 @@ public class Arrays380 extends x10Test {
     }
 
 
-// file Arrays line 750
+// file Arrays line 647
 
  static class Arrays54TestExp{
   def check(a:Array[Int](3), p:Point(3))  = a(p);  }

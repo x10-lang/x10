@@ -26,15 +26,15 @@ public class Classes5q6q extends x10Test {
     }
 
 
-// file Classes line 984
+// file Classes line 1093
  static class Ctors {
-  val a : Int;
+  public val a : Int;
   def this(a:Int) { this.a = a; }
   def this()      { this(100);  }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static class Hook{ def run() {
+ val x = new Ctors(10); assert x.a == 10;
+ val y = new Ctors(); assert y.a == 100;
+ return true;}}
 
 }

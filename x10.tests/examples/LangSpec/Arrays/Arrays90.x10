@@ -26,7 +26,7 @@ public class Arrays90 extends x10Test {
     }
 
 
-// file Arrays line 215
+// file Arrays line 217
 
  static class Arrays22TestExp{
   def check(R:Region)  = R.boundingBox();  }

@@ -9,27 +9,25 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CHECKS
+
 import harness.x10Test;
-//OPTIONS: -STATIC_CALLS
 
 /**
-* Checking that the type-checker can correctly handle boolean expressions as the values
-* boolean properties.
-
+ * Checking that the type-checker can correctly handle boolean expressions as the values
+ * boolean properties.
  */
-
 public class NestedExpressions1_MustFailCompile  extends x10Test {
-
-	class C(a:boolean) {
-		static type C(b:boolean) = C{self.a==b};
-		def n(u:boolean) {
-			val x = new C(true);
-			val y = new C(u);
-			// this must fail. x is f type C(x.a), or even C(true), not C(x.a&&y.a).
-			val xya = x.a && y.a;
-			val z1: C(xya) = x; // ERR
-		}
-	}
+    class C(a:boolean) {
+        static type C(b:boolean) = C{self.a==b};
+        def n(u:boolean) {
+            val x = new C(true);
+            val y = new C(u);
+            // this must fail. x is f type C(x.a), or even C(true), not C(x.a&&y.a).
+            val xya = x.a && y.a;
+            val z1: C(xya) = x; // ERR
+        }
+    }
     public def run() = true;
 
     public static def main(Array[String](1))  {

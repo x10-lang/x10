@@ -1059,6 +1059,7 @@ static void x10rt_net_probe_ex (bool network_only) {
                     req->setType(X10RT_REQ_TYPE_RECV);
                 }
                 global_state.pending_recv_list.enqueue(req);
+                if (!network_only) check_pending_receives();
             }
         } else {
             check_pending_sends();

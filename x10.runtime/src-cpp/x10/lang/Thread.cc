@@ -91,7 +91,7 @@ Thread::_make(ref<x10::lang::String> name) {
 }
 
 const serialization_id_t Thread::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Thread::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    DeserializationDispatcher::addDeserializer(Thread::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 // method to bind the process to a single processor
 void Thread::thread_bind_cpu()
@@ -550,6 +550,13 @@ void Thread::_serialize_body(serialization_buffer &buf) {
 
 void Thread::_deserialize_body(deserialization_buffer& buf) {
     this->Object::_deserialize_body(buf);
+}
+
+x10aux::ref<x10::lang::Reference> Thread::_deserializer(x10aux::deserialization_buffer &buf) {
+    x10aux::ref<Thread> this_ = new (x10aux::alloc<Thread>()) Thread();
+    buf.record_reference(this_); 
+    this_->_deserialize_body(buf);
+    return this_;
 }
 
 RTT_CC_DECLS1(Thread, "x10.lang.Thread", RuntimeType::class_kind, Object)

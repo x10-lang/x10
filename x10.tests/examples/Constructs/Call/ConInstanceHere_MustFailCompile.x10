@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-// OPTIONS: -STATIC_CALLS
+// OPTIONS: -STATIC_CHECKS
 
 /**
  * Check that a cast is created for an instance call with a simple clause.

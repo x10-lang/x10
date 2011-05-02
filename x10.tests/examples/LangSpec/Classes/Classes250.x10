@@ -26,7 +26,7 @@ public class Classes250 extends x10Test {
     }
 
 
-// file Classes line 1806
+// file Classes line 1955
  static class Oddvec {
   var v : Array[Int](1) = new Array[Int](3, (Int)=>0);
   public operator this () =
@@ -36,9 +36,10 @@ public class Classes250 extends x10Test {
   }
   public operator this(i:Int) = v(i);
   public operator this(i:Int, j:Int) = [v(i),v(j)];
-  public operator this(i:Int) = (newval:Int) = {v(i) = newval;}
-  public operator this(i:Int, j:Int) = (newval:Int) = {
-       v(i) = newval; v(j) = newval+1;}
+  public operator this(i:Int) = (newval:Int)
+      = {v(i) = newval;}
+  public operator this(i:Int, j:Int) = (newval:Int)
+      = { v(i) = newval; v(j) = newval+1;}
   public def example() {
     this(1) = 6;   assert this(1) == 6;
     this(1) += 7;  assert this(1) == 13;

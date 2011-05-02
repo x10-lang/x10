@@ -63,6 +63,7 @@ public class TypeDefMatcher extends TypeSystem_c.NameMatcher<Type> {
 
     private boolean hasConstraintsOrParameterTypes(Type t) {
         if (Types.isConstrained(t)) return true;
+        if (t instanceof ParameterType) return true;
         if (t.isClass()) {
             List<Type> tas = ((X10ParsedClassType) t.toClass()).typeArguments();
             if (tas != null) {

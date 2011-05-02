@@ -43,6 +43,7 @@ import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.util.HierarchyUtils;
 import x10.util.synthesizer.CodeBlockSynth;
+import x10.util.synthesizer.ConstructorSynth;
 import x10.util.synthesizer.FieldSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.MethodSynth;
@@ -62,17 +63,11 @@ import x10.visit.X10PrettyPrinterVisitor;
 public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     protected final MethodDecl methodDecl;
     protected List<Formal> formals; //original methods's all formals
-    protected MethodSynth fastWrapperMethodSynth;
     protected Name returnFieldName;
     protected Name returnFlagName; //=> boolean returnFlagName;
     protected final boolean isMain;
     
 
-    public WSMethodFrameClassGen(Job job, NodeFactory xnf, Context xct,
-                                  X10MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts) {
-        this(job, xnf, xct, methodDef, methodDecl, wts,
-                HierarchyUtils.isMainMethod(methodDef, xct));
-    }
     public WSMethodFrameClassGen(Job job, NodeFactory xnf, Context xct,
                                   X10MethodDef methodDef, MethodDecl methodDecl, WSTransformState wts,
                                   boolean isMain) {
@@ -95,36 +90,21 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         }
         
         //processing the return
-        returnFlagName = ((Context)xct).makeFreshName("returnFlag");
-        FieldSynth returnFlagSynth = classSynth.createField(compilerPos, returnFlagName.toString(), xts.Boolean());
-        returnFlagSynth.addAnnotation(genUninitializedAnnotation());
-        fieldNames.add(returnFlagName); //add it as one field for query
+        returnFlagName = wsynth.createReturnFlagField(classSynth);
+        fieldNames.add(returnFlagName); 
         
         Type returnType = methodDef.returnType().get();
         if (returnType != xts.Void()){
-            returnFieldName = ((Context)xct).makeFreshName("result");
-            FieldSynth resurnFieldSynth = classSynth.createField(compilerPos, returnFieldName.toString(), returnType);
-            resurnFieldSynth.addAnnotation(genUninitializedAnnotation());
-            fieldNames.add(returnFieldName); //add it as one field for query
-            
+            returnFieldName = wsynth.createReturnValueField(classSynth, returnType);
+            fieldNames.add(returnFieldName); //add it as one field for query 
             //and also need add "=> type" as one interface
             classSynth.addInterface(synth.simpleFunctionType(returnType, compilerPos));
         }
-        
-        // prepare the two wrapper method synth and need set their types
-        X10ClassType containerClassType = (X10ClassType) methodDef.container().get();
-        X10ClassDef containerClassDef = containerClassType.x10Def();
-
-        String fastPathName = WSUtil.getMethodFastPathName(methodDef);
-        fastWrapperMethodSynth = new MethodSynth(xnf, xct, containerClassDef, fastPathName);
-        fastWrapperMethodSynth.setFlag(methodDef.flags());
-        fastWrapperMethodSynth.setReturnType(returnType);
        
         formals = methodDecl.formals(); //record all formals
         
         //finally changes fast/slow method's return type
         fastMSynth.setReturnType(returnType);
-
         genMethodFormalAsFields();
     }
     
@@ -134,12 +114,11 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
      * @throws SemanticException
      */
     protected void genOperatorMethod(Type returnType) throws SemanticException{
-        MethodSynth operatorMSynth = classSynth.createMethod(compilerPos, OPERATOR.toString());
+        MethodSynth operatorMSynth = classSynth.createMethod(compilerPos, WSSynthesizer.OPERATOR.toString());
         operatorMSynth.setFlag(Flags.PUBLIC);
         operatorMSynth.setReturnType(returnType);
         CodeBlockSynth operatorMBSynth = operatorMSynth.getMethodBodySynth(compilerPos);
         //return result;
-        
         Return r = xnf.Return(compilerPos, synth.makeFieldAccess(compilerPos, getThisRef(), returnFieldName, xct));
         operatorMBSynth.addStmt(r);
     }
@@ -161,134 +140,30 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         
         genClass();
 
-        genWSMethod(fastWrapperMethodSynth); //now generate fast/slow path, register them and put them in container class
-
+        //Generate the wrapper method
         if (isMain) {
-            return getNewMainMethod();
+            return wsynth.genNewMainMethod(classSynth, methodDecl);
         } else {
             return null;
         }
     }
     
-    public MethodDecl getNewMainMethod() throws SemanticException{
-        
-        NewInstanceSynth rSynth = new NewInstanceSynth(xnf, xct, compilerPos, xts.RootFinish());
-        NewLocalVarSynth nvSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Name.make("rootFinish"), Flags.FINAL, rSynth.genExpr(), xts.RootFinish(), Collections.EMPTY_LIST);
 
-        //new _main(args)
-        NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, this.getClassType());
-        niSynth.addAnnotation(genStackAllocateAnnotation());
-        niSynth.addArgument(xts.Frame(), nvSynth.getLocal());
-        niSynth.addArgument(xts.FinishFrame(), nvSynth.getLocal());
-        for(Formal f : formals){
-            //now add the type
-            Type fType = f.localDef().type().get(); 
-            Expr formalRef = xnf.Local(compilerPos, xnf.Id(compilerPos, f.name().id())).localInstance(f.localDef().asInstance()).type(fType);
-            niSynth.addArgument(fType, formalRef);
-        }
-        Expr newMainExpr = niSynth.genExpr();
-        // new _main(args).run();
-        NewLocalVarSynth localSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, newMainExpr);
-        localSynth.addAnnotation(genStackAllocateAnnotation());
-
-        Expr mainCall = synth.makeStaticCall(compilerPos, xts.Worker(), Name.make("main"), Collections.<Expr>singletonList(localSynth.getLocal()), xts.Void(), xct);
-        CodeBlockSynth cbSynth = new CodeBlockSynth(xnf, xct, methodDecl.body().position());
-        cbSynth.addStmt(nvSynth.genStmt());
-        cbSynth.addStmt(localSynth.genStmt());
-        cbSynth.addStmt(xnf.Eval(compilerPos, mainCall));
-
-        return (MethodDecl) methodDecl.body(cbSynth.close());
-    }
 
     protected void genClassConstructor() throws SemanticException{
-        super.genClassConstructor();
-        //Continue to add other statements
-        CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
+        ConstructorSynth conSynth = wsynth.genClassConstructorType2Base(classSynth);
+        CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
         //all formals as constructor's formal
         //This ref
-        Expr thisRef = synth.thisRef(classSynth.getDef().asType(), compilerPos);
+        Expr thisRef = wsynth.genThisRef(classSynth);
         for(Formal f: formals){
             Expr fRef = conSynth.addFormal((Formal) f.copy());
             //make a field access
             Stmt s = xnf.Eval(compilerPos, 
                               synth.makeFieldAssign(compilerPos, thisRef, f.name().id(), fRef, xct));
             
-            conCodeSynth.addStmt(s);
+            codeBlockSynth.addStmt(s);
         }
-    }
-    
-    /**
-     * Generate one wrapper method 
-     *   static def fib_fast(worker:Worker!, up:Frame!, ff:FinishFrame!, pc:Int, n:Int):Int {
-     *       @StackAllocate val _tmp = @StackAllocate new _fib(up, ff, pc, n);
-     *       return _tmp.fast(worker);
-     *   }
-     * @param containerClassDef the method's container class's def
-     * @param methodName the newly method's name
-     * @param targetClassDef the target class's def
-     * @param targetMethodName the target method's name, fast or slow
-     * @return the method synthesizer
-     * @throws SemanticException 
-     */
-    private MethodSynth genWSMethod(MethodSynth methodSynth) throws SemanticException{
-        
-        String targetMethodName = FAST.toString();
-        
-        //now process the formals
-        Expr workerRef = methodSynth.addFormal(compilerPos, Flags.FINAL, xts.Worker(), WORKER.toString());
-        Expr upRef = methodSynth.addFormal(compilerPos, Flags.FINAL, xts.Frame(), UP.toString());
-        Expr ffRef = methodSynth.addFormal(compilerPos, Flags.FINAL, xts.FinishFrame(), FF.toString());
-        
-        //all other formals
-        List<Expr> orgFormalRefs = new ArrayList<Expr>();
-        List<Type> orgFormalTypes = new ArrayList<Type>();
-        for(Formal f : methodDecl.formals()){
-            orgFormalTypes.add(f.type().type());
-            orgFormalRefs.add(methodSynth.addFormal(f)); //all formals are added in
-        }
-        //add all type parameters (template)
-        X10MethodDecl mDecl = (X10MethodDecl)methodDecl;
-        X10MethodDef mDef = mDecl.methodDef();
-        int paramSize = mDef.typeParameters().size();
-        for(int i = 0; i < paramSize; i++){
-            methodSynth.addTypeParameter(mDef.typeParameters().get(i),
-            							mDecl.typeParameters().get(i).variance());        	
-        }
-
-        //now create the body
-        CodeBlockSynth mBodySynth = methodSynth.getMethodBodySynth(compilerPos);        
-        NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, classSynth.getClassDef().asType());
-        niSynth.addArgument(xts.Frame(), upRef);
-        niSynth.addArgument(xts.FinishFrame(), ffRef);
-        niSynth.addArguments(orgFormalTypes, orgFormalRefs);
-        niSynth.addAnnotation(genStackAllocateAnnotation());
-        //special process for the new statement
-        New newE = (New) niSynth.genExpr();        
-        Special s = (Special) newE.qualifier();
-        if(s != null){
-            s = s.qualifier(null); //clear the type node            
-            newE = newE.qualifier(s); //this method is outer, no need qualifier typenode
-        }
-
-        //special process for the new statement end
-        
-        NewLocalVarSynth localSynth = mBodySynth.createLocalVar(compilerPos, Flags.FINAL, newE);
-        localSynth.addAnnotation(genStackAllocateAnnotation());
-        Expr localRef = localSynth.getLocal(); //point to this inner class instance
-
-        //_tmp.fast(worker) or _temp.slow(worker)
-        InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, localRef, targetMethodName);
-        callSynth.addArgument(xts.Worker(), workerRef);
-        Expr callExpr = callSynth.genExpr();
-        //if the method has return type, insert return, others, just call them
-        if(callExpr.type() != null && callExpr.type() != xts.Void()){
-            mBodySynth.addStmt(xnf.Return(compilerPos, callExpr));
-        }
-        else{
-            mBodySynth.addStmt(xnf.Eval(callExpr.position(), callExpr));
-        }
-               
-        return methodSynth;
     }
         
     
@@ -302,6 +177,6 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
 
 
     public X10MethodDecl getWraperMethod() throws SemanticException{
-        return fastWrapperMethodSynth.close();
+        return wsynth.genWSMethod(classSynth, (X10MethodDecl) methodDecl);
     }
 }

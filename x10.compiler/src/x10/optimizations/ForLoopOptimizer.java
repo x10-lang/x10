@@ -53,6 +53,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
+import x10.types.matcher.X10TypeMatcher;
 
 import x10.util.AltSynthesizer;
 import x10.visit.ConstantPropagator;
@@ -281,7 +282,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             if (named) {
                 // create an array to contain the value of the formal at each iteration
                 Name       indexName  = Name.makeFresh(prefix);
-                           indexType  = xts.Array(xts.Int());
+                           indexType  = Types.makeArrayRailOf(xts.Int(), rank, pos);           
                 Expr       indexInit  = syn.createTuple(pos, rank, syn.createIntLit(0));
                            indexLDecl = syn.createLocalDecl(pos, Flags.FINAL, indexName, indexType, indexInit);
                 // add the declaration of the index rail to the list of statements to be executed before the loop nest

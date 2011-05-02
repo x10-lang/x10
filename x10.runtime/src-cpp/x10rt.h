@@ -29,7 +29,6 @@
 #include <x10aux/atomic_long_funs.h>
 
 #include <x10aux/itables.h>
-#include <x10aux/disp_tables.h>
 
 #include <x10aux/boolean_utils.h>
 #include <x10aux/byte_utils.h>

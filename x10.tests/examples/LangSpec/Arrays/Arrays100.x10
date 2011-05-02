@@ -26,7 +26,7 @@ public class Arrays100 extends x10Test {
     }
 
 
-// file Arrays line 232
+// file Arrays line 234
 
  static class Arrays23TestExp{
   def check()  = 1..10 && 2..20;  }

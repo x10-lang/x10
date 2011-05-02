@@ -26,7 +26,7 @@ public class Arrays280 extends x10Test {
     }
 
 
-// file Arrays line 457
+// file Arrays line 462
 
  static class Arrays41TestExp{
   def check(D:Dist, p:Point{p.rank == D.rank})  = D(p);  }

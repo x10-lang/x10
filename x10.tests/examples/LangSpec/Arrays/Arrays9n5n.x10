@@ -26,7 +26,7 @@ public class Arrays9n5n extends x10Test {
     }
 
 
-// file Arrays line 502
+// file Arrays line 506
 
  static class Arrays46TestExp{
   def check(R:Region)  = Dist.makeConstant(R);  }

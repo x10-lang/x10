@@ -24,7 +24,7 @@ public class ForLoopOnArray extends x10Test {
 		val a = new Array[double](0..10, ([i]: Point): double => i as double);
 
 		for (val [i]: Point in a.region) {
-			if (a(i) != i) return false;
+			if (a(i) != i as Double) return false;
 		}
 		return true;
 	}

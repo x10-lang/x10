@@ -11,6 +11,8 @@
 
 package x10.array;
 
+import x10.compiler.TempNoInline_0;
+
 /**
  * This class wraps another distribution to restrict the region
  * to a subset of the original dist's region.
@@ -19,9 +21,9 @@ final class WrappedDistRegionRestricted extends Dist {
     val base:Dist{self.rank==this.rank};
     val filter:Region{self.rank==this.rank};
 
-    def this(d:Dist, r:Region{rank==d.rank}):WrappedDistRegionRestricted{this.rank==d.rank} {
+    @TempNoInline_0 def this(d:Dist, r:Region{rank==d.rank}):WrappedDistRegionRestricted{this.rank==d.rank} {
         super(d.region.intersection(r));
-	base = d as Dist{self.rank==this.rank}; // cast should not be needed
+        base = d as Dist{self.rank==this.rank}; // cast should not be needed
         filter = r as Region(rank); // cast should not be needed
     }
 
@@ -40,9 +42,8 @@ final class WrappedDistRegionRestricted extends Dist {
         return base.get(p).intersection(filter);
     }
 
-    public operator this(p:Place):Region(rank) {
-        return get(p);
-    }
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(p:Place):Region(rank) = get(p);
 
     public operator this(pt:Point(rank)):Place {
         if (filter.contains(pt)) {
@@ -51,6 +52,18 @@ final class WrappedDistRegionRestricted extends Dist {
             throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
         }
     }
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(i0:int){rank==1}:Place = this(Point.make(i0));
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(i0:int, i1:int){rank==2}:Place = this(Point.make(i0, i1));
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(i0:int, i1:int, i2:int){rank==3}:Place = this(Point.make(i0, i1, i2));
+
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
     public def offset(pt:Point(rank)):int {
         if (filter.contains(pt)) {

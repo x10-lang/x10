@@ -26,7 +26,7 @@ public class Types320 extends x10Test {
     }
 
 
-// file Types line 954
+// file Types line 985
 
  static  class ConstraintsMayReferToValues {
  def thoseValues() {

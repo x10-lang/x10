@@ -516,15 +516,16 @@ public class WSCodePreprocessor extends ContextVisitor {
             return flattenStmt(n);
         }
         
-        //for a simple For, we could try to transform it into divide and conquer style.
         
-        DividableFor df = isDividableFor(n);
-        if(df != null){
-            return transformDividableFor(df, n);
+        if(wts.OPT_FOR_ASYNC){
+          //for a simple For, we could try to transform it into divide and conquer style.
+            DividableFor df = isDividableFor(n);
+            if(df != null){
+                return transformDividableFor(df, n);
+            }
         }
-        else {
-            return n;
-        }
+        return n;
+
     }
     
     private Stmt transformDividableFor(DividableFor df, For n) throws SemanticException {
@@ -667,7 +668,7 @@ public class WSCodePreprocessor extends ContextVisitor {
         else{
             r = synth.thisRef(ct.currentClass(), compilerPos);
         }
-        Call call = nf.Call(pos, r, callId, paras);
+        Call call = (Call) nf.Call(pos, r, callId, paras).type(ts.Void());
         MethodInstance mi = mDef.asInstance();
         mi = (MethodInstance) mi.flags(mDef.flags());
         mi = mi.name(mDef.name());

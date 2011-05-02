@@ -26,12 +26,12 @@ public class Activities110 extends x10Test {
     }
 
 
-// file Activities line 539
+// file Activities line 505
  static  class CASSizer{
 var target:Object = null;
-public atomic def CAS(old1: Object, new1: Object): Boolean {
+public atomic def CAS(old1: Object, y: Object):Boolean {
    if (target.equals(old1)) {
-     target = new1;
+     target = y;
      return true;
    }
    return false;

@@ -594,22 +594,21 @@ public class WSUtil {
     }
     
     /**
-     * FIXME: only used by If transformation. Need check the reason
-     * Used to transform a stmt into a StmtSeq(Block)
-     * If the input is not a StmtSeq, 
+     * Used to transform a stmt into a Block
+     * If the input is not a block, wrap it into a block.
      * @param xnf
      * @param s
-     * @return only one stmt, maybe a block
+     * @return only one stmt, should be a block, cannot be a StmtSeq
      */
-    static public StmtSeq stmtToStmtSeq(NodeFactory xnf, Stmt s){
+    static public Block stmtToBlock(NodeFactory xnf, Stmt s){
         if(s instanceof StmtSeq){
-            return (StmtSeq)s;
+            return xnf.Block(s.position(), ((StmtSeq)s).statements());
         }
         else if(s instanceof Block){
-            return xnf.StmtSeq(s.position(), ((Block)s).statements());
+            return (Block)s;
         }
-        else{
-            return xnf.StmtSeq(s.position(), Collections.singletonList(s));
+        else {
+            return xnf.Block(s.position(), s);
         }
     }
 

@@ -26,9 +26,10 @@ public class Types340 extends x10Test {
     }
 
 
-// file Types line 1363
+// file Types line 1418
  static struct Position(x: Int, y: Int) {}
- static struct Line(start: Position, end: Position){start != end} {}
+ static struct Line(start: Position, end: Position){start != end}
+  {}
 
  static class Hook {
    def run():Boolean = true;

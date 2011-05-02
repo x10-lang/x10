@@ -63,8 +63,11 @@ public abstract class WSTransformState {
     // 1: no pc field for FinishFrame and AsyncFrame
     public boolean OPT_PC_FIELD = true;
     
-    // 1: no try catch block in FinishFrame and AsyncFrame
+    // 2: no try catch block in FinishFrame and AsyncFrame
     public boolean DISABLE_EXCEPTION_HANDLE = false;
+    
+    // 3: optimize simple for-async by transform it into divide-and-conquer style
+    public boolean OPT_FOR_ASYNC = true;
 
     protected WSTransformState(ExtensionInfo extensionInfo) {
         X10CompilerOptions options = extensionInfo.getOptions();

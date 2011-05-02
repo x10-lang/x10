@@ -26,7 +26,7 @@ public class Arrays270 extends x10Test {
     }
 
 
-// file Arrays line 452
+// file Arrays line 457
 
  static class Arrays40TestExp{
   def check(D:Dist)  = D.region;  }

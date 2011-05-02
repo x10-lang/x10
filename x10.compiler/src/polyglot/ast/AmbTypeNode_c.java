@@ -27,7 +27,7 @@ public abstract class AmbTypeNode_c extends TypeNode_c implements AmbTypeNode {
 		super(pos);
 	}
 	
-	public abstract Node disambiguate(ContextVisitor ar) throws SemanticException;
+	public abstract Node disambiguate(ContextVisitor ar);
 	
 	public abstract void prettyPrint(CodeWriter w, PrettyPrinter tr);
 	

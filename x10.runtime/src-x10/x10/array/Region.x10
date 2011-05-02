@@ -409,7 +409,7 @@ public abstract class Region(
     // alternative (since Regions has quite a few properties that may be inferred, it is best to
     // use our one truly generic Array conversion operator on Array[Region]
   //  public static operator[T] (a:Array[T](1)){T<:IntRange}:Region(a.size){self.rect}{
-    public static operator (a:Array[IntRange{self!=null}](1)):Region(a.size){self.rect} {
+    public static operator (a:Array[IntRange](1)):Region(a.size){self.rect} {
         if (a.size == 1) {
             return new RectRegion1D(a(0).min, a(0).max) as Region(a.size){rect}; // sigh. constraint solver not flow-sensitive.
         } else {
@@ -436,7 +436,7 @@ public abstract class Region(
     
     public operator this + (v: Point(rank)) = translate(v);
     public operator (v: Point(rank)) + this = translate(v);
-    public operator this - (v: Point(rank)) = translate(-v);
+    public operator this - (v: Point(rank)) = @TempNoInline_0 translate(-v);
 
 
     //

@@ -26,7 +26,7 @@ public class Classes190 extends x10Test {
     }
 
 
-// file Classes line 1460
+// file Classes line 1580
  static  class Poly {
    public val coeff : Array[Int](1);
    public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
@@ -39,7 +39,8 @@ public class Classes190 extends x10Test {
          (i:Int) => this.a(i) + p.a(i)
       ));
     public operator (n : Int) + this = new Poly([n as Int]) + this;
-   public operator this + (n : Int) = new Poly([n as Int]) + this;
+   public operator this + (n : Int)
+          = new Poly([n as Int]) + this;
 
    def makeSureItWorks() {
       val x = new Poly([0,1]);

@@ -26,16 +26,13 @@ public class Arrays520 extends x10Test {
     }
 
 
-// file Arrays line 964
+// file Arrays line 828
  static  class Example {
- def example() {
+ static def example() {
 val a = [1,2,3,4];
 val sum = a.reduce((a:Int,b:Int)=>a+b, 0);
 assert(sum == 10); // 10 == 1+2+3+4
 }}
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {Example.example(); return true;}}
 
 }

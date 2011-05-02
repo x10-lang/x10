@@ -62,6 +62,7 @@ import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.types.MethodInstance;
+import x10.types.X10ClassType;
 import x10.types.X10Use;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -166,15 +167,26 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	    // Polyglot doesn't understand how to constant fold unsigned types.
 	    if (left.type().isUnsignedNumeric() || right.type().isUnsignedNumeric()) return false;
 	    
-		if (left.isConstant() && right.isConstant() && isPureOperation(left.type(), op, right.type()))
-			return true;
-		// FIXME [IP] An optimization: an object of a non-nullable type and "null"
-		// can never be equal.
-		Type lt = left.type();
-		Type rt = right.type();
-		TypeSystem xts = (TypeSystem) lt.typeSystem();
-		if (lt == null || rt == null)
-			return false;
+		if (left.isConstant() && right.isConstant() && isPureOperation(left.type(), op, right.type())) {
+		    if (op == EQ || op == NE) {
+		        // Additional checks for type equality because conversions not applied for ==
+		        Type lt = left.type();
+		        Type rt = right.type();
+		        TypeSystem xts = (TypeSystem) lt.typeSystem();
+		        if (lt == null || rt == null)
+		            return false;
+		        if (lt.isClass() && rt.isClass()) {
+		            X10ClassType ltc = (X10ClassType)lt.toClass();
+		            X10ClassType rtc = (X10ClassType)rt.toClass();		            
+		            if (ltc.isX10Struct() || rtc.isX10Struct()) {
+		                return xts.typeBaseEquals(ltc, rtc, xts.emptyContext());
+		            }
+		        }
+		    }
+		   
+		    return true;
+		}
+		
 		return false;
 	}
 
@@ -577,20 +589,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             if (xts.isSigned(lbase) && xts.isUnsigned(rbase))
                 Errors.issue(tc.job(),
                         new Errors.CannotCompareSignedVersusUnsignedValues(position()));
-            
-            Type promoted = promote(xts, lbase, rbase);
-            
-            if (promoted != null &&
-                (! xts.typeBaseEquals(lbase, promoted, context) ||
-                 ! xts.typeBaseEquals(rbase, promoted, context)))
-            {
-                try {
-                Expr el = Converter.attemptCoercion(tc, left, promoted);
-                Expr er = Converter.attemptCoercion(tc, right, promoted);
-                if (el != null && er != null && (el != left || er != right))
-                	return Converter.check(this.left(el).right(er), tc);
-                } catch (SemanticException e) { } // FIXME
-            }
         }
         
         if (op == EQ || op == NE) {

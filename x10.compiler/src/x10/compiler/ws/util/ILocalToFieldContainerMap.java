@@ -34,6 +34,10 @@ import polyglot.types.Type;
  *
  */
 public interface ILocalToFieldContainerMap {
+    
+    public static String UP_REF = "up"; //ref between typical two frames
+    public static String K_REF = "k"; //ref between async frame and its continuation frame
+    public static String R_REF = "r"; //ref between remote frame and its parent frame
 
     public Map<Expr, Stmt> getRefToDeclMap(); //return all container ref's declare so that to add into the statements
     

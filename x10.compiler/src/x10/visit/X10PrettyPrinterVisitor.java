@@ -191,6 +191,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String JAVA_LANG_CLASS = "java.lang.Class";
     public static final String JAVA_IO_SERIALIZABLE = "java.io.Serializable";
     public static final String JAVA_LANG_SYSTEM = "java.lang.System";
+    public static final String X10_CORE_REF = "x10.core.Ref";
 
     public static final int PRINT_TYPE_PARAMS = 1;
     public static final int BOX_PRIMITIVES = 2;
@@ -442,12 +443,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else {
                 assert superClassNode != null;
                 Type superType = superClassNode.type();
-                // FIXME: HACK! If a class extends x10.lang.Object, swipe in
-                // x10.core.Ref
-                if (!xts.typeEquals(superType, xts.Object(), context))
-                    er.printType(superType, PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
+                // N.B. HACK! If a class extends x10.lang.Object, swipe in x10.core.Ref
+                if (xts.typeEquals(superType, xts.Object(), context))
+                    w.write(X10_CORE_REF);
                 else
-                    w.write("x10.core.Ref");
+                    er.printType(superType, PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
             }
         }
 
@@ -555,7 +555,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         // print the constructor just for allocation
         if (supportConstructorSplitting
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(def.asType()))
+                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
                 && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
@@ -863,7 +863,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         X10ClassType type = (X10ClassType) Types.get(n.constructorDef().container());
         if (supportConstructorSplitting
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(type)) {
+                && !ConstructorSplitterVisitor.isUnsplittable(type)) {
 
             printConstructorMethodDecl(n);
             return;
@@ -951,7 +951,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (supportConstructorSplitting
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(type))) {
+                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))) {
             printAllocationCall(type);
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);
@@ -1149,7 +1149,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     private void printAllocationCall(Type type) {
         w.write("new ");
-        er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
+        TypeSystem ts = tr.typeSystem();
+        // N.B. HACK! for x10.lang.Object, allocate x10.core.Ref instead of x10.core.RefI
+        if (ts.typeEquals(Types.baseType(type), ts.Object(), tr.context()))
+        	w.write(X10_CORE_REF);
+        else
+        	er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
         w.write("((" + JAVA_LANG_SYSTEM + "[])null)");
     }
 
@@ -2087,21 +2092,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         Type t = tn.type();
 
-        // Fix for XTENLANG-1099
-        TypeSystem xts = tr.typeSystem();
-        if (xts.typeEquals(xts.Object(), t, tr.context())) {
-
-            /*
-             * Because @NativeRep of x10.lang.Object is java.lang.Object, we
-             * cannot compile "instanceof x10.lang.Object" as
-             * "instanceof @NativeRep".
-             */
-            w.write(X10_RTT_TYPES);
-            w.write(".instanceofObject(");
-            tr.print(c, c.expr(), w);
-            w.write(")");
-            return;
-        }
+        // Now x10.lang.Object is @NativeRep'ed to x10.core.RefI.
+        // Therefore x10.rtt.Types.OBJECT.instanceof$(o) works as designed.
+//        // Fix for XTENLANG-1099
+//        TypeSystem xts = tr.typeSystem();
+//        if (xts.typeEquals(xts.Object(), t, tr.context())) {
+//            /*
+//             * Because @NativeRep of x10.lang.Object is java.lang.Object, we
+//             * cannot compile "instanceof x10.lang.Object" as
+//             * "instanceof @NativeRep".
+//             */
+//            w.write(X10_RTT_TYPES);
+//            w.write(".instanceofObject(");
+//            tr.print(c, c.expr(), w);
+//            w.write(")");
+//            return;
+//        }
 
         // XTENLANG-1102
         if (t instanceof X10ClassType) {
@@ -2222,7 +2228,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         
         if (supportConstructorSplitting
                 && !type.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(type))
+                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))
                 && !type.fullName().toString().startsWith("java.")) {
 
             printAllocationCall(type);
@@ -2332,7 +2338,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public void visit(Tuple_c c) {
         Type t = Types.getParameterType(c.type(), 0);
 
-        w.write("x10.core.RailFactory.<");
+        w.write("x10.core.ArrayFactory.<");
         er.printType(t, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
         w.write(">");
         w.write("makeArrayFromJavaArray(");
@@ -3212,12 +3218,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public void visit(X10ConstructorCall_c c) {
         ContainerType ct = c.constructorInstance().container();
         if (supportConstructorSplitting
-                && !ConstructorSplitterVisitor.cannotSplitConstructor(Types.baseType(ct))) {
+                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(ct))) {
+        	TypeSystem ts = tr.typeSystem();
+        	boolean isObject = Types.baseType(ct).typeEquals(ts.Object(), tr.context());
             Expr target = c.target();
             if (target == null || target instanceof Special) {
                 if (c.kind() == ConstructorCall.SUPER) {
-                    if (Types.baseType(ct).typeEquals(tr.typeSystem().Object(), tr.context())
-                            || Emitter.isNativeRepedToJava(ct) || er.isNativeClassToJava(ct)) {
+                    if (isObject || Emitter.isNativeRepedToJava(ct) || er.isNativeClassToJava(ct)) {
                         return;
                     }
                     w.write("super");
@@ -3225,7 +3232,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("this");
                 }
             } else {
+                // N.B. HACK! to initialize x10.lang.Object, call ((x10.core.Ref) target).$init() since x10.lang.Object is @NativeRep'ed to x10.core.RefI!
+            	if (isObject) w.write("((" + X10_CORE_REF + ") ");
                 target.translate(w, tr);
+            	if (isObject) w.write(")");
             }
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);

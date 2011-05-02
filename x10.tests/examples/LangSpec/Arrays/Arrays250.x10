@@ -26,7 +26,7 @@ public class Arrays250 extends x10Test {
     }
 
 
-// file Arrays line 402
+// file Arrays line 407
  static class Example{
 static def example(A:Array[Double]) {
 for (p in A) A(p) = Math.log(A(p));

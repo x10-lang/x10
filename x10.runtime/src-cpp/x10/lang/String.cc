@@ -460,7 +460,7 @@ x10_boolean String::endsWith(ref<String> s) {
 }
 
 const serialization_id_t String::_serialization_id =
-    DeserializationDispatcher::addDeserializer(String::_deserializer<Reference>, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    DeserializationDispatcher::addDeserializer(String::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void String::_serialize_body(x10aux::serialization_buffer& buf) {
     this->Object::_serialize_body(buf);
@@ -488,6 +488,13 @@ void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
     this->FMGL(content) = content;
     this->FMGL(content_length) = strlen(content);
     _S_("Deserialized string was: \""<<this<<"\"");
+}
+
+x10aux::ref<Reference> String::_deserializer(x10aux::deserialization_buffer& buf) {
+    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+    buf.record_reference(this_);
+    this_->_deserialize_body(buf);
+    return this_;
 }
 
 Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::equals, &String::hashCode,

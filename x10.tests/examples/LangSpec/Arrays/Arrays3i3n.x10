@@ -26,7 +26,7 @@ public class Arrays3i3n extends x10Test {
     }
 
 
-// file Arrays line 154
+// file Arrays line 156
 
  static class Arrays11TestExp{
   def check(min:Array[Int](1), max:Array[Int](1))  = Region.makeRectangular(min, max);  }

@@ -26,7 +26,7 @@ public class Arrays410 extends x10Test {
     }
 
 
-// file Arrays.tex,  line 761
+// file Arrays.tex,  line 658
 
  static class Arrays57TestStmt{
   def check(da:DistArray[Int](3), p:Point(3), t:Int)  {

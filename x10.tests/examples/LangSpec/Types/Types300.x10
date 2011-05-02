@@ -26,7 +26,7 @@ public class Types300 extends x10Test {
     }
 
 
-// file Types line 923
+// file Types line 958
  static class Matrix(rows:Int,cols:Int){}
  static class Types33TypeTest{
   def check()  { 

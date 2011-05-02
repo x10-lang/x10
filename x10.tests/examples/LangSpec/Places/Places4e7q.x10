@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Places14;
+/* Current test harness gets confused by packages, but it would be in package expsome_Places13;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Places4e7q extends x10Test {
     }
 
 
-// file Places line 595
+// file Places line 961
 
- static class Places14TestExp{
+ static class Places13TestExp{
   def check(g:GlobalRef[Object]{here == g.home})  = g();  }
 
  static class Hook {

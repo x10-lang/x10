@@ -86,6 +86,7 @@ import polyglot.visit.NodeVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
+import x10.ast.AnnotationNode;
 import x10.ast.AssignPropertyCall;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
@@ -101,7 +102,6 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10SourceFile_c;
 import x10.ast.X10Special;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
@@ -113,6 +113,7 @@ import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
+import x10.optimizations.inlining.InlinerCache;
 import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
@@ -159,15 +160,12 @@ public class Inliner extends ContextVisitor {
     private final boolean INLINE_CONSTRUCTORS;
     private final boolean INLINE_STRUCT_CONSTRUCTORS;
     private final boolean INLINE_GENERIC_CONSTRUCTORS;
+    private final boolean EXPERIMENTAL;
     
     private static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
 
-    private static final boolean VERBOSE = false;
-//  private static final boolean VERBOSE = true;
-    private static final boolean VERY_VERBOSE = VERBOSE && false;
-//  private static final boolean VERY_VERBOSE = VERBOSE && true;
-
+    private static final int VERBOSITY = 1;
 
     /**
      * The size of the largest method to be considered small enough to be inlined implicitly, if
@@ -180,23 +178,26 @@ public class Inliner extends ContextVisitor {
      */
     private AltSynthesizer syn;
     private InlineCostEstimator ice;
-    private SoftReference<InlinerCache> inlinerCacheRef[] = (SoftReference<InlinerCache>[]) new SoftReference<?>[1];
+    private polyglot.frontend.Compiler compiler;
 
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         syn = new AltSynthesizer(ts, nf);
         ice = new InlineCostEstimator();
         ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
+        compiler = extInfo.compiler();
         Configuration config = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
+        EXPERIMENTAL     = config.EXPERIMENTAL;
         INLINE_CONSTANTS = config.OPTIMIZE && config.INLINE_CONSTANTS;
         INLINE_METHODS   = config.OPTIMIZE && config.INLINE_METHODS;
         INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
-        INLINE_IMPLICIT  = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
-        INLINE_CONSTRUCTORS = x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
-        INLINE_STRUCT_CONSTRUCTORS = config.INLINE_STRUCT_CONSTRUCTORS; // pretend the constructor for a struct is annotated @INLINE
+        INLINE_CONSTRUCTORS         = x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
+        INLINE_STRUCT_CONSTRUCTORS  = config.INLINE_STRUCT_CONSTRUCTORS; // pretend the constructor for a struct is annotated @INLINE
         INLINE_GENERIC_CONSTRUCTORS = true;
-        //     implicitMax      = config.EXPERIMENTAL ? 1 : 0;
-        implicitMax      = 0;
+        INLINE_IMPLICIT    = EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
+        INLINE_DEPTH_LIMIT = INLINE_IMPLICIT ? 100 : 100;
+ //     implicitMax        = EXPERIMENTAL ? 1 : 0;
+        implicitMax        = 0;
     }
 
     /**
@@ -209,31 +210,48 @@ public class Inliner extends ContextVisitor {
      */
     private final Stack<String> inlineInstances = new Stack<String>();
     private final int recursionDepth[] = new int[1];
+    private final int INLINE_DEPTH_LIMIT;
     private static final int INITIAL_RECURSION_DEPTH = 0;
     private static final int RECURSION_DEPTH_LIMIT = 2;
 
     private List<String> reasons = new ArrayList<String>();
     private boolean inliningRequired; // move these (DEBUG)
 
+    private long lastTime;
+    private long timer () {
+        long time = System.currentTimeMillis();
+        long delta = time - lastTime;
+        lastTime = time;
+        return delta;
+    }
+
     /**
      * @param msg
      * @return
      */
     private String report(String msg, Node n) {
-        String reason = msg;
-        reasons.add(reason);
-        if (DEBUG) debug("not inlining because " + reason, n);
-        return reason;
+        reasons.add(msg);
+        if (DEBUG) debug("not inlining because " + msg, n);
+        return msg;
     }
 
-    private static void debug(String msg, Node node) {
+    private static void debug (String msg, Node node) {
+        debug(0L, msg, node);
+    }
+    
+    
+    private static void debug(long time, String msg, Node node) {
         try {
-            Thread.sleep(10);
-            System.out.print("  DEBUG ");
+            Thread.sleep(1);
+            System.out.print("DEBUG ");
             if (null != node)
                 System.out.print(node.position() + ":  ");
-            System.out.println(msg);
-            Thread.sleep(10);
+            System.out.print(msg);
+            if (0 < time) {
+                System.out.print(" (" +time+ ")");
+            }
+            System.out.println();
+            Thread.sleep(1);
         } catch (InterruptedException e) {
             // Ignore exception (we are just trying to avoid stepping on writes to STDERR
         }
@@ -280,6 +298,7 @@ public class Inliner extends ContextVisitor {
             InlineType = null;
             throw ice; // annotation types are required!
         }
+        timer();
         return super.begin();
     }
 
@@ -295,9 +314,9 @@ public class Inliner extends ContextVisitor {
         if (null == InlineType) { // don't inline anything
             throw new InternalCompilerError("Inliner invoked without begin()");
         }
-        if (VERBOSE && node instanceof SourceFile) {
+        if (2 <= VERBOSITY && node instanceof SourceFile) {
             Source s = ((SourceFile) node).source();
-            Warnings.issue(this.job, "\nBegin inlining pass on " +s, node.position());
+            Warnings.issue(this.job, "(begin inlining)", pos);
         }
         if (ExpressionFlattener.cannotFlatten(node, job)) { // TODO: check that flattening is actually required
             if (DEBUG) debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
@@ -333,10 +352,13 @@ public class Inliner extends ContextVisitor {
     }
 
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        reasons.clear();
+        Position pos = n.position();
         inliningRequired = false;
+        reasons.clear();
         Node result = null;
         if (n instanceof ClosureCall && INLINE_CLOSURES) {
+            if (4 <= VERBOSITY)
+                Warnings.issue(job, "? inline level " +inlineInstances.size()+ " closure " +n, pos);
             result = inlineClosureCall((ClosureCall) n);
         } else if (n instanceof InlinableCall) {
             if (INLINE_CONSTANTS) {
@@ -344,8 +366,11 @@ public class Inliner extends ContextVisitor {
                 if (null != result) 
                     return result;
             }
-            if (INLINE_METHODS && !hasNoInlineAnnotation(n)) 
+            if (INLINE_METHODS && !hasNoInlineAnnotation(n)) {
+                if (4 <= VERBOSITY)
+                    Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
                 result = wrappedInlineMethodCall((InlinableCall) n);
+            }
         } else if (n instanceof X10MethodDecl) {
             if (!((X10MethodDecl) n).methodDef().annotationsMatching(InlineOnlyType).isEmpty())
                 return null; // ASK: is this the right way to remove a method decl from the ast?
@@ -354,18 +379,21 @@ public class Inliner extends ContextVisitor {
             return n;
         }
         if (null == result) { // cannot inline this call
-            if (VERY_VERBOSE || inliningRequired) {
-                String msg = "NOT Inlining: " + n;
+            if (5 <= VERBOSITY || inliningRequired) {
+                String msg = "NOT Inlining: " +n+ " (level " +inlineInstances.size()+ ")";
                 if (!reasons.isEmpty()) {
-                    msg += " (because ";
+                    msg += "\n\tbecause ";
                     for (int i=0; i<reasons.size(); i++) {
-                        msg += "\n\t" +reasons.get(i);
-                        if (i+1 != reasons.size())
+                        msg += reasons.get(i);
+                        if (i+2 < reasons.size())
+                            msg += ", ";
+                        else if (i+2 == reasons.size())
                             msg += ", and ";
+                        else 
+                            msg += ".";
                     }
-                    msg += ")";
                 }
-                Warnings.issue(job, msg, n.position());
+                Warnings.issue(job, msg, pos);
             }
             return n;
         }
@@ -373,13 +401,8 @@ public class Inliner extends ContextVisitor {
             if (n instanceof ConstructorCall && result instanceof StmtExpr) { // evaluate the expr // method calls in Stmt context are already sowrapped
                 result = syn.createEval((StmtExpr) result);
             }
-            if (VERBOSE) {
-                Warnings.issue(job, "INLINING: " + n, n.position());
-                if (DEBUG && VERY_VERBOSE && false) {
-                    System.err.println("\n\nat\t" + n.position() + "\ninlining:\t" + n);
-                    result.dump(System.err);
-                    System.err.println();
-                }
+            if (3 <= VERBOSITY) {
+                Warnings.issue(job, "INLINING: " +n+ " (level " +inlineInstances.size()+ ")", pos);
             }
         }
         return result;
@@ -462,6 +485,11 @@ public class Inliner extends ContextVisitor {
         }
         ProcedureDecl decl = getInlineDecl(call);
         if (null == decl) return null;
+        List<AnnotationNode> annotations = ((X10Ext) decl.ext()).annotations();
+        String sig = call.procedureInstance().signature();
+        if (annotationsPreventInlining(decl) || annotationsPreventInlining(decl.procedureInstance())) {
+            return null;
+        }
         String signature = makeSignatureString(decl);
         decl = (ProcedureDecl) instantiate(decl, call);
         if (null == decl) {
@@ -502,7 +530,7 @@ public class Inliner extends ContextVisitor {
             report("body doesn't contain a return (throw only)", call);
             return null;
         }
-        if (-1 == inlineInstances.search(signature)) { // non recursive inlining of the inlined body
+        if (-1 == inlineInstances.search(signature) && inlineInstances.size() < INLINE_DEPTH_LIMIT) { // non recursive inlining of the inlined body
             inlineInstances.push(signature);
             result = (Expr) result.visit(this);
             inlineInstances.pop();
@@ -523,7 +551,7 @@ public class Inliner extends ContextVisitor {
     private Node wrappedInlineMethodCall(InlinableCall call) {
         beginSpeculativeCompile();
         Node node = inlineCall(call);
-        if (endSpeculativeCompileWithErrors()) {
+        if (endSpeculativeCompileWithErrors(call)) {
             report("speculative compilation errors", call);
             return null;
         }
@@ -546,15 +574,16 @@ public class Inliner extends ContextVisitor {
 
     /**
      * Terminate a speculative compilation initiated by beginSpeculativeCompile().
+     * @param call 
      *
      * @return true is the speculative compilation produced what would have been fatal Errors
      */
-    private boolean endSpeculativeCompileWithErrors() {
+    private boolean endSpeculativeCompileWithErrors(InlinableCall call) {
         ErrorQueue speculativeQueue = job.compiler().swapErrorQueue(savedQueue);
         if (0 < speculativeQueue.errorCount()) {
             job.extensionInfo().scheduler().clearFailed();
             job.extensionInfo().scheduler().currentGoal().update(savedState);
-            reportSpeculativeErrors(speculativeQueue);
+            reportSpeculativeErrors(speculativeQueue, call);
             return true;
         }
         return false;
@@ -562,29 +591,19 @@ public class Inliner extends ContextVisitor {
 
     /**
      * @param speculativeQueue
+     * @param call 
      */
-    private void reportSpeculativeErrors(ErrorQueue speculativeQueue) {
-        if (!VERBOSE)
-            return;
-        try {
-            if (speculativeQueue instanceof SilentErrorQueue) {
-                System.err.flush();
-                java.lang.Thread.sleep(1);
-                System.out.println("The following errors were ignored during speculative compilation:");
-                for (Object o : ((SilentErrorQueue) speculativeQueue).getErrors()) {
-                    System.out.print("   >>> ");
-                    if (o instanceof ErrorInfo)
-                        System.out.print(((ErrorInfo) o).getPosition());
-                    System.out.println(": " + o);
-                }
-                System.out.println("\tend of speculative compilation errors in " + this.job);
-                System.out.flush();
-                java.lang.Thread.sleep(1);
-            } else {
-                speculativeQueue.flush();
+    private void reportSpeculativeErrors(ErrorQueue speculativeQueue, InlinableCall call) {
+        if (1 <= VERBOSITY && speculativeQueue instanceof SilentErrorQueue) {
+            Position pos = call.position();
+            List<ErrorInfo> errors = ((SilentErrorQueue) speculativeQueue).getErrors();
+            String msg = errors.size()+ " speculative compilation error(s) prevent inlining of " + call;
+            for (ErrorInfo error : errors) {
+                msg += "\n" +pos+ "\t " +error.getPosition()+ ": " +error;
             }
-        } catch (InterruptedException e) {
+            Warnings.issue(job, msg, pos);
         }
+        speculativeQueue.flush();
     }
 
     /**
@@ -737,18 +756,18 @@ public class Inliner extends ContextVisitor {
             return null;
         }
         // unless required, skip candidates previously found to be uninlinable
-        if (!inliningRequired && getInlinerCache().uninlineable(candidate)) {
+        if (!inliningRequired && getCache().uninlineable(candidate)) {
             report("of previous decision for candidate: " +candidate, call);
             return null;
         }
         // unless required, don't inline if the candidate annotations prevent it
         if (!inliningRequired && annotationsPreventInlining((X10MemberDef) candidate)) {
             report("of annotation on candidate: " + candidate, call);
-            getInlinerCache().notInlinable(candidate);
+            getCache().notInlinable(candidate);
             return null;
         }
         // see if the declaration for this candidate has already been cached
-        ProcedureDecl decl = getInlinerCache().getDecl(candidate);
+        ProcedureDecl decl = getCache().getDecl(candidate);
         if (null != decl) {
             return decl;
         }
@@ -756,57 +775,56 @@ public class Inliner extends ContextVisitor {
         ClassDef container = getContainer(candidate);
         if (null == container) {
             report("unable to find container for candidate: " +candidate, call);
-            getInlinerCache().notInlinable(candidate);
+            getCache().notInlinable(candidate);
             return null;
         }
         if (isVirtualOrNative(candidate, container)) {
             report("call is virtual or native on candidate: " +candidate, call);
-            getInlinerCache().notInlinable(candidate);
-            return null;
-        }
-        Job candidateJob = getJob(candidate, container);
-        if (null == candidateJob) {
-            report("unable to find job for candidate: " +candidate, call);
-            getInlinerCache().notInlinable(candidate);
+            getCache().notInlinable(candidate);
             return null;
         }
         if (annotationsPreventInlining((X10ClassDef) container)) {
             report("of Native Class/Rep annotation of container: " +container, call);
-            getInlinerCache().notInlinable(candidate);
-            getInlinerCache().badJob(candidateJob);
+            getCache().notInlinable(candidate);
             return null;
         }
-        Node ast = candidateJob.ast();
-        if (null == ast || candidateJob.reportedErrors()) {
-            if (null == ast) {
-                report("unable to find ast for candidate: " +candidate, call);
-            } else {
-                report("invalid ast for candidate: " +candidate, call);
-            }
-            getInlinerCache().notInlinable(candidate);
-            getInlinerCache().badJob(candidateJob);
+        Job candidateJob = container.job();
+        if (null == candidateJob) {
+            // TODO: reconstruct job from position
+            report("unable to find job for candidate: " +candidate, call);
+            getCache().notInlinable(candidate);
             return null;
         }
-        ast = ast.visit(new IfdefVisitor(job, ts, nf).begin());
-        ast = ast.visit(new Desugarer(job, ts, nf).begin());
-        ast = ast.visit(new ForLoopOptimizer(job, ts, nf).begin());
-        if (x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(job.extensionInfo()))
-            ast = ast.visit(new ConstructorSplitterVisitor(job, ts, nf).begin());
-        decl = getDeclaration(candidate, ast);
-        if (null == decl) {
-            report("unable to find declaration for candidate: " +candidate, call);
-            getInlinerCache().notInlinable(candidate);
+        if (candidateJob.reportedErrors()) {
+            Warnings.issue(candidateJob, "Has reported compilation errors", call.position());
+        }
+        Node ast = getAST(candidateJob);
+        if (null == ast) {
+            report("unable to find valid ast for candidate: " +candidate, call);
+            getCache().notInlinable(candidate);
+            getCache().badJob(candidateJob);
             return null;
         }
         if (this.job.compiler().errorQueue().hasErrors()) { // This may be overly conservative
             report("there were errors compiling candidate: " +candidate, call);
-            getInlinerCache().notInlinable(candidate);
-            getInlinerCache().badJob(candidateJob);
+            getCache().notInlinable(candidate);
+            getCache().badJob(candidateJob);
+            return null;
+        }
+        decl = getDeclaration(candidate, ast);
+        if (null == decl) {
+            report("unable to find declaration for candidate: " +candidate, call);
+            getCache().notInlinable(candidate);
+            return null;
+        }
+        if (annotationsPreventInlining(decl) || annotationsPreventInlining(decl.procedureInstance())) {
+            report("candidate declaration annotated to prevent inlining: " +candidate, call);
+            getCache().notInlinable(candidate);
             return null;
         }
         if (ExpressionFlattener.javaBackend(job) && hasSuper(decl)) {
             report("candidate body contains super (not yet supported by Java backend): " +candidate, call);
-            getInlinerCache().notInlinable(candidate);
+            getCache().notInlinable(candidate);
             return null;
         }
         if (!inliningRequired) { // decide whether to inline candidate
@@ -814,17 +832,17 @@ public class Inliner extends ContextVisitor {
                 int cost = getCost(decl, candidateJob);
                 if (implicitMax < cost) {
                     report("of excessive cost, " + cost, call);
-                    getInlinerCache().notInlinable(candidate);
+                    getCache().notInlinable(candidate);
                     return null;
                 }
             } else {
                 report("inlining not explicitly required", call);
-                getInlinerCache().notInlinable(candidate);
+                getCache().notInlinable(candidate);
                 return null;
             }
         }
         // remember what to inline this candidate with if we ever see it again
-        getInlinerCache().putDecl(candidate, decl);
+        getCache().putDecl(candidate, decl);
         return decl;
     }
 
@@ -874,6 +892,8 @@ public class Inliner extends ContextVisitor {
      * @return
      */
     private boolean annotationsPreventInlining(X10Def def) {
+        if (!def.annotationsMatching(NoInlineType).isEmpty())
+            return true;
         if (!def.annotationsMatching(NativeRepType).isEmpty())
             return true;
         if (!def.annotationsMatching(NativeClassType).isEmpty())
@@ -889,16 +909,6 @@ public class Inliner extends ContextVisitor {
         if (!((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty())
             return true;
         return false;
-    }
-
-    /**
-     * @param candidate
-     * @return
-     */
-    private boolean annotationsPreventInlining(X10MethodDef candidate) {
-        if (!candidate.annotationsMatching(NoInlineType).isEmpty())
-            return true;
-        return hasRelevantNativeAnnotation(candidate.annotationsMatching(NativeType));
     }
 
     private String backend;
@@ -982,68 +992,44 @@ public class Inliner extends ContextVisitor {
     }
 
     /**
-     * Obtain the job for containing the declaration for a given method. Run the
-     * preliminary compilation phases on the job's AST.
-     * 
-     * Note Errors during speculative compilation should not be fatal. The
-     * mechanism implementing this behavior consists of a pair of hacks that
-     * should be fixed.
-     * 
-     * @param candidate
-     * @param container
+     * @param job
      * @return
      */
-    private Job getJob(Def candidate, ClassDef container) {
-        Job job = container.job();
-        try {
-            /*
-             * TODO: reconstruct job from position 
-             * if (null == job) { 
-             * String file = pos.file(); 
-             * String path = pos.path(); 
-             * Source source = new Source(file, path, null); job = xts.extensionInfo().scheduler().addJob(source); }
-             */
-            if (null == job) {
-                if (DEBUG) debug("Unable to find or create job for method: " + candidate, null);
-                return null;
-            } else if (!getInlinerCache().okayJob(job)) {
-                return null;
-            } else if (job != this.job()) {
-                if (DEBUG) debug("Looking for job: " + job, null);
-            //  String source = container.fullName().toString().intern();
-            //  String source = job.toString();
-                String source = job.source().toString().intern();
-                Node ast = getInlinerCache().getAST(source);
-                if (null == ast) {
-                    if (null == job.ast()) {
-                        getInlinerCache().badJob(job);
-                        return null;
-                    }
-                    // TODO reconstruct the AST for the job will all preliminary compiler passes
+    private Node getAST(Job job) {
+        String source = job.source().toString().intern();
+        InlinerCache cache = getCache();
+        Node ast = cache.getAST(source);
+        if (null == ast) {
+            try {
+                if (job == this.job) {
                     ast = job.ast();
-                    assert (ast instanceof SourceFile);
-                    if (!((X10SourceFile_c) ast).hasBeenTypeChecked())
-                        ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
-                    if (null == ast) {
-                        if (DEBUG) debug("Unable to reconstruct AST for " + job, null);
-                        getInlinerCache().badJob(job);
-                        return null;
-                    }
-                    if (DEBUG) debug("Reconstructed AST for " + job, null);
-                    job.ast(ast); // ASK: why does this work?
-                    getInlinerCache().putAST(source, ast);
+                } else {
+                    ast = processAST(job);
                 }
-                // job.ast(ast); // ASK: why doesn't this work?
+                assert null != ast;
+            } catch (Exception x) {
+                report("unable to process " + job, job.ast());
+                cache.badJob(job);
+                return null;
             }
-        } catch (Exception x) {
-            String msg = "AST for job, " + job + " (for candidate " + candidate + ") does not typecheck (" + x + ")";
-            if (DEBUG) debug(msg, null);
-            SemanticException e = new SemanticException(msg, candidate.position());
-            Errors.issue(job, e);
-            getInlinerCache().badJob(job);
-            return null;
+            cache.putAST(source, ast);
         }
-        return job;
+        return ast;
+    }
+
+    /**
+     * @param job
+     * @return
+     */
+    private Node processAST(Job job) {
+        Node ast = job.ast();
+        ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
+        ast = ast.visit(new IfdefVisitor(job, ts, nf).begin());
+        ast = ast.visit(new Desugarer(job, ts, nf).begin());
+        ast = ast.visit(new ForLoopOptimizer(job, ts, nf).begin());
+        if (x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(job.extensionInfo()))
+            ast = ast.visit(new ConstructorSplitterVisitor(job, ts, nf).begin());
+        return ast;
     }
 
     /**
@@ -1200,7 +1186,6 @@ public class Inliner extends ContextVisitor {
             return visitedCode;
         } catch (Exception e) {
             String message = "Exception during instantiation of " +code+ " for " +call+ ": " +e;
-            if (true) System.err.println("WARNING: " +message);
             Warnings.issue(job(), message, call.position());
             return null;
         }
@@ -1866,7 +1851,9 @@ public class Inliner extends ContextVisitor {
             if (null == ths) return n; // nothing to be done (e.g. "this" in a closure)
             // Complicated cases don't get this far
             assert (n.kind() == X10Special.SUPER || n.kind() == X10Special.THIS);
-            assert (null == n.qualifier());
+            if (null != n.qualifier()) { // when the Inliner runs all outer classes have been stripped away, the qualifier should be redundant
+                if (DEBUG) debug("Inliner ignoring special qualifier " +n.qualifier(), n);
+            }
             // return a local for the inlined this
             return getThis(n.position());
         }
@@ -1934,59 +1921,8 @@ public class Inliner extends ContextVisitor {
         }
     }
 
-    private class InlinerCache {
-        private final Set<Def> dontInline              = CollectionFactory.newHashSet();
-        private final Map<Def, ProcedureDecl> def2decl = CollectionFactory.newHashMap();
-        private final Set<Job> badJobs                 = CollectionFactory.newHashSet();
-        private final Set<String> badSources           = CollectionFactory.newHashSet();
-        private final Map<String, Node> astMap         = CollectionFactory.newHashMap();
-
-        boolean uninlineable(Def candidate) {
-            return dontInline.contains(candidate);
-        }
-
-        void notInlinable(Def candidate) {
-            dontInline.add(candidate);
-        }
-
-        boolean okayJob(Job job) {
-            boolean result = !badSources.contains(job.source().toString().intern());
-            return result;
-        }
-
-        void badJob(Job job) {
-            if (null == job) 
-                return;
-            badJobs.add(job);
-            badSources.add(job.source().toString().intern());
-        }
-
-        ProcedureDecl getDecl(Def candidate) {
-            return def2decl.get(candidate);
-        }
-
-        void putDecl(Def candidate, ProcedureDecl decl) {
-            def2decl.put(candidate, decl);
-        }
-
-        Node getAST(String source) {
-            return astMap.get(source);
-        }
-
-        void putAST(String source, Node ast) {
-            astMap.put(source, ast);
-        }
-
-    }
-
-//    static Object inlinerCache = null;
-    final InlinerCache getInlinerCache() {
-//        if (null == inlinerCache)inlinerCache = new InlinerCache();
-//        if (inlinerCache instanceof InlinerCache) return (InlinerCache) inlinerCache;
-        if (null == inlinerCacheRef[0] || null == inlinerCacheRef[0].get()) {
-            inlinerCacheRef[0] = new SoftReference<InlinerCache>(new InlinerCache());
-        }
-        return inlinerCacheRef[0].get();
+    final InlinerCache getCache() {
+        return compiler.getInlinerCache();
     }
 
 }

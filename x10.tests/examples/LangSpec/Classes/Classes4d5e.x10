@@ -26,10 +26,21 @@ public class Classes4d5e extends x10Test {
     }
 
 
-// file Classes line 766
+// file Classes line 868
  static class Two[T,U]{
   def m(x:T)=1;
- }
+  def m(x:Int)=2;
+  def m[X](x:X)=3;
+  def m(x:U)=4;
+  static def example() {
+    val t12 = new Two[Int, Any]();
+    // ERROR: t12.m(2);
+    val t13  = new Two[String, Any]();
+    t13.m("ferret");
+    val t14 = new Two[Boolean,Boolean]();
+    // ERROR: t14.m(true);
+  }
+}
 
  static class Hook {
    def run():Boolean = true;

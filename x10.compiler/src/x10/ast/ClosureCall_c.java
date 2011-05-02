@@ -55,14 +55,17 @@ import x10.visit.X10TypeChecker;
 public class ClosureCall_c extends Expr_c implements ClosureCall {
 	protected Expr target;
 	protected List<Expr> arguments;
+	protected List<TypeNode> typeArguments;
 
 	protected MethodInstance ci;
 
-	public ClosureCall_c(Position pos, Expr target, List<Expr> arguments) {
+	public ClosureCall_c(Position pos, Expr target, List<TypeNode> typeArguments, List<Expr> arguments) {
 		super(pos);
 		assert target != null;
+		assert typeArguments != null;
 		assert arguments != null;
-		this.target= target;
+		this.target = target;
+		this.typeArguments = TypedList.copyAndCheck(typeArguments, TypeNode.class, true);
 		this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
 	}
 
@@ -81,7 +84,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	@Override
 	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		List<Term> args = new ArrayList<Term>();
-		//	args.addAll(typeArgs);
+		args.addAll(typeArguments);
 		args.addAll(arguments);
 
 		if (!(target instanceof Closure)) { // Don't visit a literal closure here
@@ -143,31 +146,27 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 		return n;
 	}
 
-	/** Get the actual arguments of the call. */
-	/*  public List<TypeNode> typeArgs() {
-	    return this.typeArgs;
-    }
-	 */ 
-	/** Set the actual arguments of the call. */
-	/*  public ClosureCall typeArgs(List<TypeNode> typeArgs) {
-        assert typeArgs != null;
-	    ClosureCall_c n= (ClosureCall_c) copy();
-	    n.typeArgs= TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
-	    return n;
-    }*/
-
+	/** Get the type arguments of the call. */
 	public List<TypeNode> typeArguments() {
-		return Collections.<TypeNode>emptyList(); // typeArgs();
+		return this.typeArguments;
+	}
+
+	/** Set the type arguments of the call. */
+	public ClosureCall typeArguments(List<TypeNode> typeArguments) {
+	    assert typeArguments != null;
+	    ClosureCall_c n= (ClosureCall_c) copy();
+	    n.typeArguments= TypedList.copyAndCheck(typeArguments, TypeNode.class, true);
+	    return n;
 	}
 
 	/** Reconstruct the call. */
-	protected ClosureCall_c reconstruct(Expr target, /*List<TypeNode> typeArgs,*/ List<Expr> arguments) {
+	protected ClosureCall_c reconstruct(Expr target, List<TypeNode> typeArguments, List<Expr> arguments) {
 		if (target != this.target 
-				//	|| !CollectionUtil.allEqual(typeArgs, this.typeArgs) 
+				|| !CollectionUtil.allEqual(typeArguments, this.typeArguments) 
 				|| !CollectionUtil.allEqual(arguments, this.arguments)) {
 			ClosureCall_c n= (ClosureCall_c) copy();
 			n.target= target;
-			//    n.typeArgs= TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
+			n.typeArguments= TypedList.copyAndCheck(typeArguments, TypeNode.class, true);
 			n.arguments= TypedList.copyAndCheck(arguments, Expr.class, true);
 			return n;
 		}
@@ -177,9 +176,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	/** Visit the children of the call. */
 	public Node visitChildren(NodeVisitor v) {
 		Expr target = (Expr) visitChild(this.target, v);
-		//List typeArgs = visitList(this.typeArgs, v);
+		List typeArguments = visitList(this.typeArguments, v);
 		List<Expr> arguments = visitList(this.arguments, v);
-		return reconstruct(target, /*typeArgs,*/ arguments);
+		return reconstruct(target, typeArguments, arguments);
 	}
 
 	public Node buildTypes(TypeBuilder tb) {
@@ -197,7 +196,10 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	public Node typeCheck(ContextVisitor tc) {
 		Type targetType = target.type();
 
-		List<Type> typeArgs = Collections.emptyList();
+		List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
+		for (TypeNode ti : typeArguments) {
+		    typeArgs.add(ti.type());
+		}
 		List<Type> actualTypes = new ArrayList<Type>(this.arguments.size());
 		for (Expr ei : arguments) {
 			actualTypes.add(ei.type());
@@ -239,7 +241,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 			//		throw new SemanticException("Invalid closure call; target does not implement " + ct + ".", position());
 			NodeFactory nf = (NodeFactory) tc.nodeFactory();
 			X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), 
-					nf.Id(Position.compilerGenerated(position()), mi.name().toString()), Collections.<TypeNode>emptyList(), args);
+					nf.Id(Position.compilerGenerated(position()), mi.name().toString()), typeArguments, args);
 			n = (X10Call_c) n.methodInstance(mi).type(mi.returnType());
 			return n;
 		}

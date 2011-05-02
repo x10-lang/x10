@@ -9,30 +9,28 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CHECKS
+
 import x10.compiler.tests.*; // err markers
 import harness.x10Test;
 
 /**
+ * See XTENLANG_2367
+ * This ought to compile, but doesn't.  
  * @author bardb 1/2011
  */
-
-// OPTIONS: -STATIC_CALLS 
-
-public class XTENLANG_2367 extends x10Test  
-{ 
-// see XTENLANG_2367
-// This ought to compile, but doesn't.  
-
-    public def run()=true;
+public class XTENLANG_2367 extends x10Test { 
+    public def run() = true;
 
     public static def main(Array[String](1)) {
         new XTENLANG_2367().execute();
     }
-private static class Ex {
-   var f : String = "";
-   def example(x:Object){x != null} = {
-      this.f = x.toString();
-   }
-}
+
+    private static class Ex {
+        var f : String = "";
+        def example(x:Object){x != null} = {
+            this.f = x.toString();
+        }
+    }
 }
 

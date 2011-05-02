@@ -93,6 +93,13 @@ main() {
 		return $status
 	fi
 
+	X10_XDOC=$X10_HOME/x10.doc
+	svnUpdate $X10_XDOC $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+
 	X10_DIST=$X10_HOME/x10.dist
 	svnUpdate $X10_DIST $X10_SVNROOT
 	status=$?

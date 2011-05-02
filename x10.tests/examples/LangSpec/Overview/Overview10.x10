@@ -26,7 +26,7 @@ public class Overview10 extends x10Test {
     }
 
 
-// file Overview line 32
+// file Overview line 34
  static interface Normed {
   def norm():Double;
 }

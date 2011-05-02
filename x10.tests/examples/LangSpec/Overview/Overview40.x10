@@ -26,7 +26,7 @@ public class Overview40 extends x10Test {
     }
 
 
-// file Overview line 165
+// file Overview line 167
 abstract static  class Mat(rows:Int, cols:Int) {
  static type Mat(r:Int, c:Int) = Mat{rows==r&&cols==c};
  abstract operator this + (y:Mat(this.rows,this.cols))

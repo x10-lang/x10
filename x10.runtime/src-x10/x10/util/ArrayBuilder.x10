@@ -11,7 +11,7 @@
 
 package x10.util;
 
-public class ArrayBuilder[T] implements Builder[T,Array[T](1){rect,zeroBased,rail}] {
+public class ArrayBuilder[T] implements Builder[T,Rail[T]] {
     val buf: GrowableIndexedMemoryChunk[T];
 
     public def this() {
@@ -36,8 +36,8 @@ public class ArrayBuilder[T] implements Builder[T,Array[T](1){rect,zeroBased,rai
         return buf.length();
     }
 
-    public def result():Array[T](1){rect,zeroBased,rail} {
-        return buf.toArray() as Array[T](1){rect,zeroBased,rail};
+    public def result():Rail[T] {
+        return buf.toArray();
     }
 }
 

@@ -8,8 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
-// package WorkStealing.Samples; - can't use QuickSort because it doesn't have a package!
+//OPTIONS: -WORK_STEALING=true
 
 public class WSQuickSortTest {
     public def run():boolean {

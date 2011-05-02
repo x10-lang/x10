@@ -377,14 +377,14 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      * A constant holding the minimum value a UByte can have, 0.
      */
     // @Native("java", "0")
-    @Native("c++", "0U")
+    @Native("c++", "((x10_ubyte)0U)")
     public static MIN_VALUE = 0 as UByte;
 
     /**
      * A constant holding the maximum value a UByte can have, 2<sup>8</sup>-1.
      */
     // @Native("java", "((byte)0xff)")
-    @Native("c++", "0xffU")
+    @Native("c++", "((x10_ubyte)0xffU)")
     public static MAX_VALUE = 0xff as UByte;
 
 
@@ -497,7 +497,7 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      */
     // @Native("java", "(((#this)==0) ? 0 : 1)")
     @Native("c++",  "(((#0)==0U) ? 0 : 1)")
-    public def signum(): Int = (this.byteVal == 0) ? 0 : 1;
+    public def signum(): Int = (this.byteVal == 0y) ? 0 : 1;
 
 
     /**

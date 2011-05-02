@@ -26,7 +26,7 @@ public class Arrays7y6l extends x10Test {
     }
 
 
-// file Arrays line 160
+// file Arrays line 162
 
  static class Arrays12TestExp{
   def check(regions : Array[Region(1){self.rect}](1))  = Region.make(regions);  }

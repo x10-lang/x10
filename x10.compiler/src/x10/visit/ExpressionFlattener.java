@@ -190,7 +190,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         }
         if (n instanceof ConstructorDecl) { // can't flatten constructors unless local assignments can precede super() and this() in Java
             ClassType type = ((ConstructorDecl) n).constructorDef().container().get().toClass();
-            if (ConstructorSplitterVisitor.cannotSplitConstructor(type))
+            if (ConstructorSplitterVisitor.isUnsplittable(type))
                 return true;
         }
         if (n instanceof FieldDecl) { // can't flatten class initializes until assignments can precede field declarations
@@ -384,7 +384,6 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @return
      */
     private Expr flattenArrayAccess(ArrayAccess expr) {
-        assert false;
         List<Stmt> stmts = new ArrayList<Stmt>();
         Expr array = getPrimaryAndStatements(expr.array(), stmts);
         Expr index = getPrimaryAndStatements(expr.index(), stmts);

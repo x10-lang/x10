@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Clocks6;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Clocks6;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,10 +26,12 @@ public class Clocks60 extends x10Test {
     }
 
 
-// file Clocks line 226
+// file Clocks.tex,  line 226
 
- static class Clocks6TestExp{
-  def check(c:Clock)  = c.resume();  }
+ static class Clocks6TestStmt{
+  def check(c:Clock)  {
+    c.resume();
+  }}
 
  static class Hook {
    def run():Boolean = true;

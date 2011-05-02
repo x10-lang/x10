@@ -37,6 +37,9 @@ else
   abspath=$(abspath $1)
 endif
 
+# g++ tracing of header file inclusions
+#CXXFLAGS += -H
+
 ifdef OPTIMIZE
   CXXFLAGS += -DNO_TRACING
   X10CPPFLAGS += -optimize

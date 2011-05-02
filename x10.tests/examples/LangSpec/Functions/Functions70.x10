@@ -26,7 +26,7 @@ public class Functions70 extends x10Test {
     }
 
 
-// file Functions line 384
+// file Functions line 383
  static class Lambda {
    var a : Int = 0;
    val b = 0;
@@ -34,7 +34,8 @@ public class Functions70 extends x10Test {
       var e : Int = 0;
       val f : Int = 0;
       val closure = (var i: Int, val j: Int) => {
-    	  return a + b + d + f + i + j + this.a + Lambda.this.a;
+    	  return a + b + d + f + i
+               + j + this.a + Lambda.this.a;
           // c and e are not usable here
       };
       return closure;

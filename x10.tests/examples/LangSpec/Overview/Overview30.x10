@@ -26,7 +26,7 @@ public class Overview30 extends x10Test {
     }
 
 
-// file Overview line 134
+// file Overview line 136
  static  class Whatevermore {
   def plzchk(){
     val square = (i:Int) => i*i;

@@ -26,7 +26,7 @@ public class Arrays220 extends x10Test {
     }
 
 
-// file Arrays line 361
+// file Arrays line 364
 
  static class Arrays35TestExp{
   def check()  = new Array[Int]((0..9)*(0..9), (p:Point(2)) => p(0)*p(1));  }

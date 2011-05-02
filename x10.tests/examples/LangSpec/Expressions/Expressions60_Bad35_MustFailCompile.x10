@@ -26,8 +26,8 @@ public class Expressions60_Bad35_MustFailCompile extends x10Test {
     }
 
 
-// file Expressions line 336
- // OPTIONS: -STATIC_CALLS
+// file Expressions line 357
+//OPTIONS: -STATIC_CHECKS
  static class DivideBy(denom:Int) {
   def div(numer:Int){denom != 0} = numer / denom;
   def example() {

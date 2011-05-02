@@ -14,6 +14,7 @@ package x10.util;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.StackAllocate;
+import x10.compiler.TempNoInline_0;
 
 /** Interface to low level collective operations.  A team is a collection of
  * activities that work together by simultaneously doing 'collective
@@ -231,7 +232,7 @@ public struct Team {
     /** Performs a reduction on a single value, returning the result */
     public def allreduce (role:Int, src:Double, op:Int) = genericAllreduce(role, src, op);
 
-    private def genericAllreduce[T] (role:Int, src:T, op:Int) : T {
+    private @TempNoInline_0 def genericAllreduce[T] (role:Int, src:T, op:Int) : T {
         val chk = IndexedMemoryChunk.allocateUninitialized[T](1);
         val dst = IndexedMemoryChunk.allocateUninitialized[T](1);
         chk(0) = src;

@@ -26,7 +26,7 @@ public class Arrays290 extends x10Test {
     }
 
 
-// file Arrays line 492
+// file Arrays line 496
 
  static class Arrays44TestExp{
   def check(Q:PlaceGroup)  = Dist.makeUnique(Q);  }

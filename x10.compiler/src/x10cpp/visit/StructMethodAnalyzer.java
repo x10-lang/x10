@@ -22,6 +22,7 @@ import polyglot.ast.Eval_c;
 import polyglot.ast.FlagsNode_c;
 import polyglot.ast.FloatLit;
 import polyglot.ast.Id_c;
+import polyglot.ast.Labeled_c;
 import polyglot.ast.LocalAssign_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -36,6 +37,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.AnnotationNode_c;
 import x10.ast.AssignPropertyCall;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.ParExpr_c;
@@ -102,13 +104,13 @@ public class StructMethodAnalyzer extends ContextVisitor {
         // Wrapper expressions/statements that by themselves are not a problem
         if (n instanceof Conditional || n instanceof Branch || n instanceof Return || 
                 n instanceof X10If_c || n instanceof X10Binary_c || n instanceof ParExpr_c ||
-                n instanceof StmtExpr_c) {
+                n instanceof StmtExpr_c || n instanceof Labeled_c ) {
             return n;
         }
         
         // Trivial nodes that will never by themselves prevent us from putting the body in the struct method class.
         if (n instanceof FlagsNode_c || n instanceof Id_c || 
-                n instanceof X10Local_c || n instanceof LocalAssign_c || 
+                n instanceof X10Local_c || n instanceof LocalAssign_c || n instanceof AnnotationNode_c || 
                 n instanceof X10CanonicalTypeNode_c || n instanceof X10Special_c || n instanceof Empty_c) {
             return n;
         }

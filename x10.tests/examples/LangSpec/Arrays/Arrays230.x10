@@ -26,7 +26,7 @@ public class Arrays230 extends x10Test {
     }
 
 
-// file Arrays line 376
+// file Arrays line 379
 
  static class Arrays36TestExp{
   def check(A:Array[Int], p:Point{rank == A.rank}, t:Int)  = A(p)=t;  }

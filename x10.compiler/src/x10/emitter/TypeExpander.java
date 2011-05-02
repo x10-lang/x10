@@ -25,6 +25,7 @@ public class TypeExpander extends Expander {
 	        this.flags = flags;
 	    }
 	    
+	    @Deprecated
 	    public TypeExpander(Emitter er, Type t, boolean printGenerics, boolean boxPrimitives, boolean inSuper) {
 	        this(er, t, (printGenerics ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS: 0) 
 	        		| (boxPrimitives ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0) 

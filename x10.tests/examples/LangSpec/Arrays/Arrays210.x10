@@ -26,7 +26,7 @@ public class Arrays210 extends x10Test {
     }
 
 
-// file Arrays line 358
+// file Arrays line 361
 
  static class Arrays34TestExp{
   def check()  = new Array[Int](1..3, (i:Point(1))=>11*i(0));  }

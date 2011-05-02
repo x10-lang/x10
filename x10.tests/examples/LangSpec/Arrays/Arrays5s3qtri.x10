@@ -26,7 +26,7 @@ public class Arrays5s3qtri extends x10Test {
     }
 
 
-// file Arrays line 170
+// file Arrays line 172
 
  static class Arrays15TestExp{
   def check(N:Int)  = Region.makeUpperTriangular(N);  }

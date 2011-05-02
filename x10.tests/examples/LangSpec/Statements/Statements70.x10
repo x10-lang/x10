@@ -26,7 +26,7 @@ public class Statements70 extends x10Test {
     }
 
 
-// file Statements line 458
+// file Statements line 502
  static  class Example {
  def example(i : Int, println: (String)=>void) {
 switch (i) {

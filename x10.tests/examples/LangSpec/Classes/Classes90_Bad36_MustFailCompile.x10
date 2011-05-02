@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package stmtsome_Types56;
+/* Current test harness gets confused by packages, but it would be in package Classes_methodguardnadacastthingie;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,19 +19,24 @@ import harness.x10Test;
 
 
 
-public class Types480 extends x10Test {
+public class Classes90_Bad36_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Types480().execute();
+        new Classes90_Bad36_MustFailCompile().execute();
     }
 
 
-// file Types.tex,  line 1968
-
- static class Types56TestStmt{
-  def check()  {
-    val seven: Int{self==7} = 7;
-  }}
+// file Classes line 613
+//OPTIONS: -STATIC_CHECKS
+ static  class Example {var f : String = ""; def example(x:Object){x != null} = {this.f = x.toString();}}
+ static  class Eyample {
+  def exam(e:Example, x:Object) {
+    if (x != null)
+       e.example(x as Object{x != null});
+       // If STATIC_CHECKS is in force:
+ if (x != null) e.example(x); // ERR
+  }
+}
 
  static class Hook {
    def run():Boolean = true;

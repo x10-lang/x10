@@ -26,7 +26,7 @@ public class Arrays3k1n extends x10Test {
     }
 
 
-// file Arrays.tex,  line 79
+// file Arrays.tex,  line 81
 
  static class Arrays5TestStmt{
   def check(use:(Int)=>void)  {

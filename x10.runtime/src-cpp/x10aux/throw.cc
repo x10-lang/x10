@@ -13,6 +13,7 @@
 #include <x10aux/throw.h>
 
 #include <x10/lang/ArithmeticException.h>
+#include <x10/lang/String.h>
 
 void x10aux::throwArithmeticException() {
 #ifndef NO_EXCEPTIONS

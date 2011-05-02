@@ -26,7 +26,7 @@ public class Arrays50 extends x10Test {
     }
 
 
-// file Arrays line 178
+// file Arrays line 180
 
  static class Arrays17TestExp{
   def check(R:Region, p:Point(R.rank))  = R+p;  }

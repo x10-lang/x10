@@ -45,7 +45,7 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
     protected final Switch switchStmt;
     
     public WSSwitchClassGen(AbstractWSClassGen parent, Switch switchStmt) {
-        super(parent, null,
+        super(parent, switchStmt,
               WSUtil.getSwitchClassName(parent.getClassName()));
         this.switchStmt = switchStmt;
     }
@@ -70,7 +70,7 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
         Switch fastSwitch = switchStmt.expr(orgSwitchExpr);
         ArrayList<SwitchElement> fastSwitchElements = new ArrayList<SwitchElement>();
         //sPC = pc;
-        Expr pcRef = synth.makeFieldAccess(compilerPos, getThisRef(), PC, xct);
+        Expr pcRef = wsynth.genPCRef(classSynth);
         NewLocalVarSynth sPCLocalSynth = resumeBodySynth.createLocalVar(switchStmt.position(), pcRef);
         Local sPCRef = sPCLocalSynth.getLocal();
         Switch resumePCSetSwitch = switchStmt.expr(orgSwitchExpr); 
@@ -130,16 +130,17 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
                 TransCodes transCodes = transBlock(sb, pcValue, WSUtil
                                                    .getBlockFrameClassName(className));
                 //fast add to fast switch
-                List<Stmt> fastSS = transCodes.first();
+                List<Stmt> fastSS = transCodes.getFastStmts();
                 if(containsBreak) {
                     fastSS.add(xnf.Break(lastStmt.position()));
                 }
                 fastSwitchElements.add(xnf.SwitchBlock(sb.position(), fastSS));
-                
-                //slow add to slow
-                resumeSwitchSynth.insertStatementsInCondition(pcValue, transCodes.second());
+
                 //now change the pc
-                pcValue = transCodes.getPcValue(); //should increase one;
+                pcValue = transCodes.pcValue(); //should increase one;
+                //slow add to slow
+                resumeSwitchSynth.insertStatementsInCondition(pcValue, transCodes.getResumeStmts());
+
                 
                 //the second part of the slow
                 if(containsBreak){
@@ -173,20 +174,5 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
         
         //finally the back
         backBodySynth.addStmt(backSwitchSynth);
-        
-        //need final process closure issues
-        fastBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct,
-                                                                        this.getClassDef(),
-                                                                        fastMSynth.getDef()));
-        
-        resumeBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct,
-                                                                        this.getClassDef(),
-                                                                        resumeMSynth.getDef()));
-        //add all references
-
-        fastBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        resumeBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));    
-        backBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-
     }
 }

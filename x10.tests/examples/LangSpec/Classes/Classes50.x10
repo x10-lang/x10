@@ -26,13 +26,13 @@ public class Classes50 extends x10Test {
     }
 
 
-// file Classes line 282
+// file Classes line 313
  static class Proper(t:Int) {
   def this(t:Int) {property(t);}
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {
+   val p = new Proper(4);
+   return p.t == 4;
+ } }
 
 }

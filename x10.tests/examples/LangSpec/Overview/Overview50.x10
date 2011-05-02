@@ -26,8 +26,8 @@ public class Overview50 extends x10Test {
     }
 
 
-// file Overview line 193
- // OPTIONS: -STATIC_CALLS
+// file Overview line 195
+//OPTIONS: -STATIC_CHECKS
 abstract static  class Mat(rows:Int, cols:Int) {
   static type Mat(r:Int, c:Int) = Mat{rows==r&&cols==c};
   public def this(r:Int, c:Int) : Mat(r,c) = {property(r,c);}

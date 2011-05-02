@@ -40,6 +40,12 @@ public class NullLit_c extends Lit_c implements NullLit
 	w.write("null");
     }
 
+    public boolean isConstant() {
+        // A bold-face lie, but necessary until we rework the ConstantPropagator to properly represent NullLit's
+        // See XTENLANG-2675.
+        return false;  
+    }
+    
     public Object constantValue() {
         return null;
     }

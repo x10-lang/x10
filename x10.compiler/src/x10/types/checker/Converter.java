@@ -251,7 +251,7 @@ public class Converter {
 						   CTerms.makeLocal((X10LocalDef) smi.formalNames().get(k).def()));
 				}
 
-                // In DYNAMIC_CALLS we can't just insert a cast for each argument due to dependencies between arguments, e.g.,
+                // In DYNAMIC_CHECKS we can't just insert a cast for each argument due to dependencies between arguments, e.g.,
                 //def m(a:Int, b:Int{self==a}) {}
                 //def test(x:Int, y:Int) {
                 //  m(x+1,y);
@@ -466,6 +466,10 @@ public class Converter {
 			if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
 				List<Type>[] alternatives = new List[ct.typeArguments().size()];
 				List<Type> newArgs = new ArrayList<Type>(ct.typeArguments().size());
+				if (ct.x10Def().variances().size() != ct.typeArguments().size()) {
+				    // an error would have been reported already
+				    throw new Errors.CannotConvertExprToType(cast.expr(), cast.conversionType(), toType, cast.position());
+				}
 				for (int i = 0; i < ct.typeArguments().size(); i++) {
 					ParameterType.Variance v = ct.x10Def().variances().get(i);
 					Type ti = ct.typeArguments().get(i);
@@ -646,7 +650,7 @@ public class Converter {
 
 		// Added 03/28/10 to support new call conversion semantics.
 		if (ts.isSubtype(baseFrom, baseTo, context))
-			if (!opts.x10_config.STATIC_CALLS)
+			if (!opts.x10_config.STATIC_CHECKS)
 				if (cast.conversionType() == ConversionType.CALL_CONVERSION 
 						&& ts.isCastValid(fromType, toType, context)) {
 					//return cast.conversionType(ConversionType.DESUGAR_LATER).type(baseTo);

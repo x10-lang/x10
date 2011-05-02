@@ -36,6 +36,8 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
+import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
@@ -62,6 +64,7 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
+import x10.types.X10LocalInstance;
 
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
@@ -187,6 +190,16 @@ public class X10InnerClassRemover extends InnerClassRemover {
             if (newFormalTypes != formalTypes) {
                 ci = (X10ConstructorInstance) ci.formalTypes(newFormalTypes);
             }
+            List<LocalInstance> newFormalNames = new ArrayList<LocalInstance>();
+            boolean changed = false;
+            for (LocalInstance li : ci.formalNames()) {
+                LocalInstance newLI = transformLocalInstance((X10LocalInstance) li);
+                if (newLI != li) changed = true;
+                newFormalNames.add(newLI);
+            }
+            if (changed) {
+                ci = (X10ConstructorInstance) ci.formalNames(newFormalNames);
+            }
             ContainerType container = ci.container();
             ContainerType newContainer = (ContainerType) transformType(container);
             if (newContainer != container) {
@@ -216,6 +229,16 @@ public class X10InnerClassRemover extends InnerClassRemover {
             List<Type> newFormalTypes = transformTypeList(formalTypes);
             if (newFormalTypes != formalTypes) {
                 mi = (MethodInstance) mi.formalTypes(newFormalTypes);
+            }
+            List<LocalInstance> newFormalNames = new ArrayList<LocalInstance>();
+            boolean changed = false;
+            for (LocalInstance li : mi.formalNames()) {
+                LocalInstance newLI = transformLocalInstance((X10LocalInstance) li);
+                if (newLI != li) changed = true;
+                newFormalNames.add(newLI);
+            }
+            if (changed) {
+                mi = (MethodInstance) mi.formalNames(newFormalNames);
             }
             ContainerType container = mi.container();
             ContainerType newContainer = (ContainerType) transformType(container);
@@ -261,6 +284,16 @@ public class X10InnerClassRemover extends InnerClassRemover {
             List<Type> newFormalTypes = transformTypeList(formalTypes);
             if (newFormalTypes != formalTypes) {
                 ci = (ClosureInstance) ci.formalTypes(newFormalTypes);
+            }
+            List<LocalInstance> newFormalNames = new ArrayList<LocalInstance>();
+            boolean changed = false;
+            for (LocalInstance li : ci.formalNames()) {
+                LocalInstance newLI = transformLocalInstance((X10LocalInstance) li);
+                if (newLI != li) changed = true;
+                newFormalNames.add(newLI);
+            }
+            if (changed) {
+                ci = (ClosureInstance) ci.formalNames(newFormalNames);
             }
             ClassType container = ci.typeContainer();
             ClassType newContainer = (ClassType) transformType(container);
@@ -534,6 +567,13 @@ public class X10InnerClassRemover extends InnerClassRemover {
         X10New xneu = (X10New) super.fixNew(neu);
         if (q == null)
             return xneu;
+        X10ConstructorInstance ci = xneu.constructorInstance();
+        // Fix the ci (again).
+        ArrayList<LocalInstance> formals = new ArrayList<LocalInstance>();
+        formals.add(typeSystem().localDef(q.position().markCompilerGenerated(), Flags.FINAL, Types.ref(q.type()), Name.makeFresh()).asInstance());
+        formals.addAll(ci.formalNames());
+        ci = (X10ConstructorInstance) ci.formalNames(formals);
+        xneu = xneu.constructorInstance(ci);
         assert (q.type().isClass());
         X10ParsedClassType qt = (X10ParsedClassType) q.type().toClass();
         List<TypeNode> typeArguments = new ArrayList<TypeNode>(xneu.typeArguments());
@@ -546,6 +586,23 @@ public class X10InnerClassRemover extends InnerClassRemover {
             // Object type has already been transformed by the visitor.
         }
         return xneu;
+    }
+
+    @Override
+    protected Node fixConstructorCall(ConstructorCall cc) {
+        Expr q = cc.qualifier();
+        cc = (ConstructorCall) super.fixConstructorCall(cc);
+        X10ConstructorInstance ci = (X10ConstructorInstance) cc.constructorInstance();
+        boolean fixCI = ci.formalTypes().size() != ci.formalNames().size();
+        // Fix the ci if a copy; otherwise, let the ci be modified at the declaration node.
+        if (fixCI) {
+            List<LocalInstance> args = new ArrayList<LocalInstance>();
+            args.add(typeSystem().localDef(q.position().markCompilerGenerated(), Flags.FINAL, Types.ref(q.type()), Name.makeFresh()).asInstance());
+            args.addAll(ci.formalNames());
+            ci = (X10ConstructorInstance) ci.formalNames(args);
+            cc = cc.constructorInstance(ci);
+        }
+        return cc;
     }
 
     private static Type propagateTypeArgumentsToInnermostType(Type t) {
