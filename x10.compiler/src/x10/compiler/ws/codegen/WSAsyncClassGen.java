@@ -101,10 +101,18 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
     @Override
     protected void genMethods() throws SemanticException {
 
-        CodeBlockSynth fastBodySynth = fastMSynth.getMethodBodySynth(compilerPos);
-        CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);
+        CodeBlockSynth fastBodySynth;
+        CodeBlockSynth resumeBodySynth; 
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
-
+        
+        if(wts.DISABLE_EXCEPTION_HANDLE){
+            fastBodySynth = fastMSynth.getMethodBodySynth(compilerPos);
+            resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);
+        }
+        else{
+            fastBodySynth = new CodeBlockSynth(xnf, xct, compilerPos);
+            resumeBodySynth = new CodeBlockSynth(xnf, xct, compilerPos);
+        }
         //the pc and switch table are only set value if we turn off pc field optimizatoin
         Expr pcRef = null;
         SwitchSynth resumeSwitchSynth = null;
@@ -122,23 +130,8 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
             //we create a new frame to transform the async's body
             AbstractWSClassGen childFrameGen = genChildFrame(xts.RegularFrame(), codeBlock, WSUtil.getBlockFrameClassName(getClassName()));
             List<Stmt> callCodes = wsynth.genInvocateFrameStmts(1, classSynth, fastMSynth, childFrameGen);
-            
-            if(wts.DISABLE_EXCEPTION_HANDLE){
-                fastBodySynth.addStmts(callCodes);
-            }
-            else{
-                fastBodySynth.addStmt(wsynth.genExceptionHandler(callCodes, classSynth));
-            }            
-            //resume path
-            if(!wts.OPT_PC_FIELD){    
-                List<Stmt> resumeCallCodes = wsynth.genInvocateFrameStmts(1, classSynth, resumeMSynth, childFrameGen);
-                if(wts.DISABLE_EXCEPTION_HANDLE){
-                    resumeBodySynth.addStmts(resumeCallCodes);
-                }
-                else{
-                    resumeSwitchSynth.insertStatementInCondition(0, wsynth.genExceptionHandler(resumeCallCodes, classSynth));
-                } 
-            }
+            fastBodySynth.addStmts(callCodes);       
+            //no codes in resume path here
         }
         else{
             //transform code one by one in the async frame. No more deeper frames will be generated
@@ -183,15 +176,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                     WSUtil.err("X10 WorkStealing cannot support:", s);
                     continue;
                 }
-                
-
-                if(wts.DISABLE_EXCEPTION_HANDLE){
-                    fastBodySynth.addStmts(codes.getFastStmts());
-                }
-                else{
-                    fastBodySynth.addStmt(wsynth.genExceptionHandler(codes.getFastStmts(), classSynth));
-                }
-
+                fastBodySynth.addStmts(codes.getFastStmts());
                 pcValue = codes.pcValue();
                 if(!wts.OPT_PC_FIELD){
                     resumeSwitchSynth.insertStatementsInCondition(prePcValue, codes.getResumeStmts());
@@ -201,17 +186,34 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                     }
                 }
                 else{
+                    if(prePcValue == 0 && codes.getResumePostStmts().size() > 0){
+                        resumeBodySynth.addStmts(codes.getResumePostStmts());
+                    }
+                    if(prePcValue == 1){
+                        resumeBodySynth.addStmts(codes.getResumeStmts());
+                    }
                     //because there is only one possible assign call, its safe to add the statement to back path
                     if(codes.getBackStmts().size() > 0){ //only assign call has back
                         backBodySynth.addStmts(codes.getBackStmts());
                     }
                 }
                 prePcValue = pcValue;
+            }//while end
+        } //in frame transform end
+        
+        //Put the codes into a try block
+        if(!wts.DISABLE_EXCEPTION_HANDLE){
+            Block fastBlock = (Block) fastBodySynth.genStmt();
+            Block resumeBlock = (Block) resumeBodySynth.genStmt();
+            fastMSynth.getMethodBodySynth(compilerPos).addStmt(wsynth.genExceptionHandler(fastBlock.statements(), classSynth));
+            if(resumeBlock.statements().size() > 0){
+                resumeMSynth.getMethodBodySynth(compilerPos).addStmt(wsynth.genExceptionHandler(resumeBlock.statements(), classSynth));            
             }
         }
+        
 
         //After fast body, there should be a poll 
-        fastBodySynth.addStmt(wsynth.genPollStmt(classSynth, fastMSynth));
+        fastMSynth.getMethodBodySynth(compilerPos).addStmt(wsynth.genPollStmt(classSynth, fastMSynth));
         genMoveMethod(localDeclaredVars);
 
     }

@@ -785,7 +785,8 @@ public class WSSynthesizer {
      *   try { tryBodyStmts}
      *   catch (t:x10.compiler.Abort) { throw t; }
      *   catch (t:x10.lang.Throwable) { this.caught(t); }
-     * Used by Async frame and finish frame
+     * Used by Async frame and finish frame. The catch Abort will not be generated here.
+     * It will be added in later compilation pass
      * @param tryBodyStmts
      * @return
      * @throws SemanticException
