@@ -27,7 +27,7 @@ public class XTENLANG_547_MustFailCompile extends x10Test {
         }
     }
 
-    static class OutputStreamWriter extends Writer {
+    static class OutputStreamWriter extends Writer { // ERR
         public def write(x: Byte): void { }
 
         public def write(buf: GlobalRef[Rail[Byte]]): void {

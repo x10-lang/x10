@@ -111,7 +111,7 @@ implements X10ParsedClassType
     /**
      * @return all methods defined in the class/interface including all inherited methods
      */
-    public List<MethodInstance> getAllMethods() {
+    public ArrayList<MethodInstance> getAllMethods() {
         ArrayList<MethodInstance> res = new ArrayList<MethodInstance>(methods());
         for (X10ParsedClassType_c supertype : allSuperTypes(false)) // using "false" because I already added my methods()
             res.addAll(supertype.methods());

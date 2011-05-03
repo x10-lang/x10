@@ -1524,6 +1524,7 @@ public class Types {
             res.add(stripConstraints(tt));
         return res;
     }
+    // completely erases all constraints (from type arguments as well)
 	public static Type stripConstraints(Type t) {
 	    TypeSystem ts = (TypeSystem) t.typeSystem();
 	    t = ts.expandMacros(t);

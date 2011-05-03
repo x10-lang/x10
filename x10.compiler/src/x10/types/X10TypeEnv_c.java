@@ -2256,6 +2256,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	            newFormals.add(t);
 	        }
 	    }
+	    mj = (MethodInstance) mj.formalTypes(newFormals);
 	
 	    List<LocalInstance> newFormalNames = new ArrayList<LocalInstance>();
 	    

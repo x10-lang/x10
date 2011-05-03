@@ -94,6 +94,7 @@ import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
+import x10.types.X10TypeEnv_c;
 
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -1203,8 +1204,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         //@ERR abstract C3 extends B2 implements A {}
         // (other kinds of method collisions are checked in MethodDecl_c.overrideMethodCheck)
         // optimization: methods in Any&Object cannot cause problems (such errors will be caught in MethodDecl_c)
+        X10ParsedClassType_c myClassType = (X10ParsedClassType_c) type;
         if (interfaces.size()>=1) {
-            final List<X10ParsedClassType_c> directSuperTypes = new ArrayList<X10ParsedClassType_c>(((X10ParsedClassType_c) type).directSuperTypes());
+            final List<X10ParsedClassType_c> directSuperTypes = new ArrayList<X10ParsedClassType_c>(myClassType.directSuperTypes());
             int len = directSuperTypes.size();
             for (int i1=0; i1<len; i1++) {
                 X10ParsedClassType_c it1 = directSuperTypes.get(i1);
@@ -1223,20 +1225,47 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                         final List<MethodInstance> implementedBy = ((TypeSystem_c) ts).implemented(mi, (ContainerType) it2, context);
                         for (MethodInstance mj : implementedBy) {
                             if (mi==mj) continue;
-                            // either mi can override mj, or the opposite.
-                            try {
-                                // due to covariant return type, the first argument should be the one with return type who is a subtype of the second
-                                ts.checkOverride(mi, mj, context);
-                            } catch (SemanticException e2) {
-                                try {
-                                    ts.checkOverride(mj, mi, context);
-                                } catch (SemanticException e) {
-                                    e.setPosition(this.position());
-                                    Errors.issue(tc.job(),e, this);
-                                }
-                            }
+                            checkOverride(tc, ts, context, mi, mj);
                         }
                     }
+                }
+            }
+        }
+
+        {
+            // methods with the same erased signature must have the exact same signature (see XTENLANG-547)
+            ArrayList<MethodInstance> allMethods = myClassType.getAllMethods();
+            for (int i=0; i<allMethods.size(); i++) {
+                MethodInstance mi = allMethods.get(i);
+                List<Type> types1 = mi.formalTypes();
+                int formalNum = types1.size();
+                if (formalNum ==0) continue;
+                if (! ts.isAccessible(mi, tc.context())) continue;
+                Name name1 = mi.name();
+
+                for (int j=i+1; j<allMethods.size(); j++) {
+                    MethodInstance mj = allMethods.get(j);
+                    List<Type> types2 = mj.formalTypes();
+                    if (types2.size()==0) continue;
+                    if (! ts.isAccessible(mj, tc.context())) continue;
+                    Name name2 = mj.name();
+
+                    if (name1!=name2) continue;
+                    if (formalNum !=types2.size()) continue;
+                    if (mi.typeParameters().size()!=mj.typeParameters().size()) continue;
+                    boolean isDifferent = false;
+                    for (int p=0; p<formalNum;p++) {
+                        Type t1 = Types.stripConstraints(types1.get(p));
+                        Type t2 = Types.stripConstraints(types2.get(p));
+                        if (!ts.typeEquals(t1,t2,context)) {
+                            isDifferent = true;
+                            break;
+                        }
+                    }
+                    if (isDifferent) continue;
+                    // now we require that one overrides the other
+                    // either mi can override mj, or the opposite.
+                    checkOverride(tc, ts, context, mi, mj);
                 }
             }
         }
@@ -1264,6 +1293,27 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         }
 
         return this;
+    }
+
+    private void checkOverride(ContextVisitor tc, TypeSystem ts, Context context, MethodInstance mi, MethodInstance mj) {
+        // either mi can override mj, or the opposite.
+        try {
+            // due to covariant return type, the first argument should be the one with return type who is a subtype of the second
+            MethodInstance mj2 = expandMacros(tc, ts, mi, mj);
+            ts.checkOverride(mi, mj2, context);
+        } catch (SemanticException e2) {
+            try {
+                MethodInstance mi2 = expandMacros(tc, ts, mj, mi);
+                ts.checkOverride(mj, mi2, context);
+            } catch (SemanticException e) {
+                e.setPosition(this.position());
+                Errors.issue(tc.job(),e, this);
+            }
+        }
+    }
+
+    public static MethodInstance expandMacros(ContextVisitor tc, TypeSystem ts, MethodInstance mi, MethodInstance mj) {
+        return ((X10TypeEnv_c)ts.env(tc.context())).expandPropertyInMethod(Types.getClassType(mi.container(),ts,tc.context()),mj);
     }
 
     protected boolean isValidType(Type type) {

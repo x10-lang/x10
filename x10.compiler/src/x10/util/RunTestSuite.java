@@ -174,6 +174,7 @@ public class RunTestSuite {
             //"_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_DIRS = {
+            "LangSpec", // Bard has too many errors...
             "WorkStealing", // it has copies of existing tests
             "AutoGen", // it takes too long to compile these files
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
@@ -474,7 +475,7 @@ public class RunTestSuite {
             }
         }
 
-        if (didFailCompile!=summary.fileName.endsWith("_MustFailCompile.x10")) {
+        if (didFailCompile!=summary.fileName.endsWith("_MustFailCompile.x10") && !summary.fileName.contains("TorontoSuite")) {
             println("WARNING: "+ summary.fileName+" "+(didFailCompile ? "FAILED":"SUCCESSFULLY")+" compiled, therefore it should "+(didFailCompile?"":"NOT ")+"end with _MustFailCompile.x10. "+(summary.lines.isEmpty()?"":"It did have @ERR markers but they might match warnings."));
         }
         errors.addAll(remainingErrors);

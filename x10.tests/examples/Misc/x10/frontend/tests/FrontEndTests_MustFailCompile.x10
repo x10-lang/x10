@@ -3196,7 +3196,7 @@ class OperatorTestCases { // XTENLANG-2084
 	}
 
 	// test inheritance, static, instance
-	static class BinaryAndUnary {
+	static class BinaryAndUnary { // ShouldNotBeERR
 		operator this+(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is static)
 		static operator +(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is notstatic) // ERR (Semantic Error: Duplicate method "method static OperatorTestCases.BinaryAndUnary.operator+(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:39,9-41.)
 	}
@@ -4263,7 +4263,7 @@ class ConformanceChecks { // see XTENLANG-989
 	interface A {
 	   def m(i:Int){i==3}:void;
 	}
-	class IntDataPoint implements A {
+	class IntDataPoint implements A { // ERR
 	   @ERR public def m(i:Int){i==4}:void {}
 	}
 }
@@ -4275,8 +4275,8 @@ class TestThisAndInheritanceInConstraints {
 	class B extends A {
 		def m(b1:A, var b2:A{B.this==b1}) {}
 	}
-	class C extends A {
-		@ShouldBeErr def m(b1:A, var b2:A{C.this==b2}) {}
+	class C extends A { // ERR
+		def m(b1:A, var b2:A{C.this==b2}) {}
 	}
 }
 
@@ -4932,7 +4932,7 @@ class TestInterfaceInvariants_1930 { // XTENLANG-1930
 
 
 // method overloading
-interface TestOverloadingAndConstraints {
+interface TestOverloadingAndConstraints {  // ERR ERR ERR ERR
 	static class Foo[T] {}
 
 	def m00():void; // ERR
@@ -4986,7 +4986,7 @@ class TestOverloadingAndConstraints_static {
 	static def m5(Foo[Foo[Int]]):void {}
 	static def m5(Foo[Foo[Int{self!=0}]]):void {} // ERR
 }
-interface TestOverloadingAndConstraints_macros {
+interface TestOverloadingAndConstraints_macros { // ERR  ERR  ERR  ERR
 	static type Int1 = Int;
 	static type Int2 = Int1;
 	static type Int3Not0 = Int2{self!=0};
@@ -6080,14 +6080,14 @@ class XTENLANG_2615 {
 	interface A {
 		def m(Int):void;
 	}
-	class B implements A { // ShouldNotBeERR: B should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in A
-		public def m(Int{self!=0}):void {}  // ShouldBeErr
+	class B implements A { // ERR ERR: B should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in A
+		public def m(Int{self!=0}):void {}
 	}
 	abstract class C {
 		abstract def m(Int):void;
 	}
-	class D extends C { // ShouldNotBeERR: D should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in C
-		public def m(Int{self!=0}):void {}  // ShouldBeErr
+	class D extends C { // ERR ERR: D should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in C
+		public def m(Int{self!=0}):void {}
 	}
 }
 class TestConformanceWithAbstractPropertyMethods3 {
@@ -6132,7 +6132,7 @@ class TestConformanceWithAbstractPropertyMethods3dGenerics {
 	   public def distanceFrom(t: Array[DataPoint{3 == this.dim()}]):void;
 	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim()}]):void;
 	}
-	class IntDataPoint(x:Int) implements DataPoint { // ShouldNotBeERR
+	class IntDataPoint(x:Int) implements DataPoint { // ShouldNotBeERR ShouldNotBeERR
 	   public property dim(): Int = x;
 	   public def distanceFrom(t: Array[DataPoint{3 == this.x}]):void { }
 	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim}]):void {}
@@ -6143,7 +6143,7 @@ class TestConformanceWithAbstractPropertyMethods4 {
 	   public property dim(): Int;
 	   public def distanceFrom3(t: DataPoint{3 == self.dim()}):void;
 	}
-	class IntDataPoint implements DataPoint { // ShouldNotBeERR (XTENLANG-2615)
+	class IntDataPoint implements DataPoint { // ShouldNotBeERR ShouldNotBeERR (XTENLANG-2615)
 	   public property dim(): Int = 3;
 	   public def distanceFrom3(t: DataPoint{3 == this.dim()}):void {} // ShouldBeErr
 	}
