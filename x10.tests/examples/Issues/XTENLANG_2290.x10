@@ -38,12 +38,12 @@ class Shadow{
      for (a in [1,2,3]) {
         // ERROR: val x = "can't shadow";
      }
-     async {
-        val x = "shadow through async";
-     }
-     at (here) {
-        val x = "shadow through at";
-     }
+// LANG-CHANGE-OBSOLETES:      async {
+// LANG-CHANGE-OBSOLETES:         val x = "shadow through async";
+// LANG-CHANGE-OBSOLETES:      }
+// LANG-CHANGE-OBSOLETES:      at (here) {
+// LANG-CHANGE-OBSOLETES:         val x = "shadow through at";
+// LANG-CHANGE-OBSOLETES:      }
      val f = () => {
        val x = "shadow through closure";
        x
