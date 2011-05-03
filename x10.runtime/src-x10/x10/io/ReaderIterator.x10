@@ -13,19 +13,19 @@ package x10.io;
 
 import x10.util.NoSuchElementException;
 import x10.util.Box;
+
 /**
  * Usage:
  *
  * try {
- *   val in = new File(inputFileName);
- *   val out = new File(outputFileName);
- *   val p = out.printer();
- *   for (line in in.lines()) {
- *      line = line.chop();
- *      p.println(line);
- *   }
- * }
- * catch (IOException e) { }
+ *    val input = new File(inputFileName);
+ *    val output = new File(outputFileName);
+ *    val p = output.printer();
+ *    for (line in input.lines()) {
+ *       p.println(line);
+ *    }
+ *    p.flush();
+ * } catch (IOException) { }
  */    
 public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
     val r: Reader;

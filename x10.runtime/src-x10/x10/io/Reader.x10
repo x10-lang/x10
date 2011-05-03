@@ -17,14 +17,12 @@ package x10.io;
  * try {
  *    val input = new File(inputFileName);
  *    val output = new File(outputFileName);
- *    val i = input.openRead();
  *    val p = output.printer();
- *    for (line in i.lines()) {
- *       line = line.chop();
+ *    for (line in input.lines()) {
  *       p.println(line);
  *    }
- * }
- * catch (IOException) { }
+ *    p.flush();
+ * } catch (IOException) { }
  */    
 public abstract class Reader {
     public abstract def close(): void; //throws IOException
