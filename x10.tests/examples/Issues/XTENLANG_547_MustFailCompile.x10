@@ -52,3 +52,95 @@ public class XTENLANG_547_MustFailCompile extends x10Test {
     }
 }
 
+
+
+
+
+interface I1547 {
+	def m(Int):void;
+}
+interface I2547 {
+	def m(Int{self==1}):void;
+}
+interface I3547 extends I1547, I2547 {} // ERR
+
+class A547 {
+	private def m(Int):void {}
+}
+class B547 extends A547 {
+	private def m(Int{self==1}):void {}     // must be top level for it not to be an error
+}
+class TestInaccessible547 {
+    class A {
+        private def m(Int):void {}
+    }
+    class B extends A { // ERR (in an inner class, even private is accessible)
+        private def m(Int{self==1}):void {}
+    }
+}
+class TestAccessible547 {
+    class A {
+        def m(Int):void {}
+    }
+    class B extends A { // ERR
+        def m(Int{self==1}):void {}
+    }
+}
+
+class WithConstraintOk547 {
+    class C(r:Int) {
+        def this() { property(1); }
+        def m(Point(r)):void {}
+    }
+    class D extends C {
+        def m(Point(r)):void {}
+    }
+}
+class WithoutConstraintOk547 {
+    class C(r:Int) {
+        def this() { property(1); }
+        def m(Point):void {}
+    }
+    class D extends C {
+        def m(Point):void {}
+    }
+}
+class WithConstraint547 {
+    class C(r:Int) {
+        def this() { property(1); }
+        def m(Point(r)):Int = 1;
+    }
+    class D extends C { // ERR
+        def m(Point(r)):void {} // ERR
+    }
+}
+class WithoutConstraint547 {
+    class C(r:Int) {
+        def this() { property(1); }
+        def m(Point):Int = 1;
+    }
+    class D extends C { // ERR
+        def m(Point):void {} // ERR
+    }
+}
+
+class E547 {
+   def m(x:Int) = 3;
+   def m[T](x:Int) = 4;
+}
+class TypeParameterOverridingOk547 {
+    class F {
+       def m(x:Int{self==1}) = 3;
+    }
+    class G extends F {
+       def m[T](x:Int) = 4;
+    }
+}
+class TypeParameterOverridingErr547 {
+    class F {
+       def m[U](x:Int{self==1}) = 3;
+    }
+    class G extends F { // ERR
+       def m[T](x:Int) = 4;
+    }
+}
