@@ -6528,3 +6528,16 @@ class XTENLANG_2302_test {
 	}
 }
 
+class XTENLANG_2691_test {
+	def m1():Int {
+		val x:String = at (here) {val y= 1; "a"};
+		return 3;
+	}
+	def m2():Int {
+		at (here) {
+			if (true) return 1; // ShouldNotBeERR ShouldNotBeERR
+		}
+		return 43;
+	}
+}
+
