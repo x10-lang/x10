@@ -29,6 +29,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.ClosureCall_c;
+import x10.ast.Closure_c;
 import x10.ast.SettableAssign;
 import x10.ast.Tuple_c;
 import x10.types.MethodInstance;
@@ -39,18 +40,20 @@ import x10.types.checker.Converter;
  * A pass to run right before final C++ codegeneration
  * to insert upcasts that are required by the C++ backend,
  * but are not explicitly injected by the front-end.
- * These casts can all be unchecked.
+ * 
+ * We assume that the program is statically type correct, 
+ * therefore all of these casts can be unchecked.
  * They fall into two main catagories:
  *   (a) casts injected for actual parameters of a call
  *       so that the static types match the callee method.
  *       These are required to make overloading work.
- *   (b) casts injected on other assignment like operations
+ *   (b) casts injected on other assignment-like operations
  *       whose purpose is to ensure that representation level
  *       boxing/unboxing operations are performed.
  *       
  *  TODO:  There's a static cast for the return type of Call_c in MPGC.
  *         I think that should no longer be needed, since we are injecting casts
- *         thoroughly here.  Verify guess and remove it if true.
+ *         thoroughly here.  Verify this and remove cast in Call_c if true.
  */
 public class CastInjector extends ContextVisitor {
     
@@ -156,15 +159,23 @@ public class CastInjector extends ContextVisitor {
         for (int i=0; i<args.size(); i++) {
             Expr e = args.get(i);
             Type fType = formals.get(i);
-            if (!ts.typeDeepBaseEquals(fType, e.type(), context)) {
+            Expr e2 = null;
+            
+            if (ts.isFunctionType(fType)) {
+                e2 = castToFunctionType(e, fType); 
+            } else if (!ts.typeDeepBaseEquals(fType, e.type(), context)) {
+                Position pos = e.position();
+                e2 =  nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), e,
+                                 Converter.ConversionType.UNCHECKED).type(fType);
+            }
+            
+            if (e2 != null) {
                 if (newArgs == null) {
                     newArgs = new ArrayList<Expr>(args);
                 }
-                Position pos = e.position();
-                Expr e2 =  nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), e,
-                                      Converter.ConversionType.UNCHECKED).type(fType);
                 newArgs.set(i, e2);
             }
+            
         }
         return newArgs == null ? args : newArgs;
     }
@@ -175,7 +186,9 @@ public class CastInjector extends ContextVisitor {
      * is required for C++ level compilation to work as expected.
      */
     private Expr cast(Expr a, Type fType) {
-        if (!ts.typeDeepBaseEquals(fType, a.type(), context)) {
+        if (ts.isFunctionType(fType)) {
+            return castToFunctionType(a, fType);
+        } else if (!ts.typeDeepBaseEquals(fType, a.type(), context)) {
             Position pos = a.position();
             return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
                               Converter.ConversionType.UNCHECKED).type(fType);
@@ -197,9 +210,13 @@ public class CastInjector extends ContextVisitor {
             // X10_NULL is x10aux:ref<>; implicit C++ level ref casts are enough
             return a;
         }
-        
+
+        if (ts.isFunctionType(fType)) {
+            return castToFunctionType(a, fType);
+        }
+                
         if (ts.isObjectOrInterfaceType(a.type(), context)) {
-            // already a x10aux::ref; implicit C++ level ref casts are enough
+            // already a x10aux::ref; implicit C++ level ref casts are enoughT
             return a;
         }
         
@@ -211,5 +228,21 @@ public class CastInjector extends ContextVisitor {
             return a;
         }
     }
+    
+    private Expr castToFunctionType(Expr e, Type type) {
+        // TODO: this is where the fix for XTENLANG-920 would live.
+        //       if there isn't a base-type-equals of all the arugments & the return value,
+        //       between the type of e and the type of type, then generate a 
+        //       wrapper closure here that contains all the necessary casts in its body
+        //       in addition to the apply of the orginal function type
+        if (e instanceof Closure_c) {
+            // Allocation of Closure_c already upcasts them to the appropriate function type.
+            return e;
+        }
+        
+        Position pos = e.position();
+        return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, type), e, 
+                          Converter.ConversionType.UNCHECKED).type(type);
+     }
         
 }

@@ -2809,8 +2809,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			counter = 0;
 			for (Iterator<Expr> i = args.iterator(); i.hasNext(); ) {
 				Expr e = i.next();
-				Type fType = mi.formalTypes().get(counter);
-				assert (xts.typeDeepBaseEquals(fType, e.type(), context)) : ("Casts should have been inserted");
 				n.print(e, sw, tr);
 				if (i.hasNext()) {
 					sw.write(",");
