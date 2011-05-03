@@ -28,6 +28,13 @@ public abstract class Reader {
     public abstract def close(): void; //throws IOException
 
     public abstract def read(): Byte; //throws IOException
+    /**
+     * How many bytes can be read from this stream without blocking?
+     *
+     * NOTE: there may actually be more bytes than this available when
+     * the read is made, in particular this method may return 0 even
+     * if a non-zero number of bytes are actually available.
+     */
     public abstract def available(): Int; //throws IOException
 
     public abstract def skip(Int): void; //throws IOException
