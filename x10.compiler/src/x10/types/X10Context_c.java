@@ -336,7 +336,7 @@ public class X10Context_c extends Context_c {
     	}
     }
 	public X10CodeDef definingCodeDef(Name name) {
-	    if ((isBlock() || isCode()) &&
+	    if ((isBlock() || isCode() || isAsync() || isAt()) &&
 	            (findVariableInThisScope(name) != null || findInThisScope(name) != null)) {
 	        return currentCode();
 	    }
@@ -427,10 +427,26 @@ public class X10Context_c extends Context_c {
                 outer==null || (isCode() && !isDummyCode(currentCode())) ? false :
                 ((X10Context_c)outer).localHasAt(name);
     }
-	public boolean isLocalIncludingAsyncAt(Name name) {
-        if (isLocal(name)) return true;
-        if (outer!=null && isDummyCode(currentCode())) return ((X10Context_c)outer).isLocalIncludingAsyncAt(name);
-        return false;
+    // Same as isLocal(), except async and at are considered code scopes
+    public boolean isLocalExcludingAsyncAt(Name name) {
+        if (isClass()) {
+            return false;
+        }
+        
+        if ((isBlock() || isCode() || isAsync() || isAt()) &&
+            (findVariableInThisScope(name) != null || findInThisScope(ts.TypeMatcher(name)) != null)) {
+            return true;
+        }
+        
+        if (isCode() || isAsync() || isAt()) {
+            return false;
+        }
+        
+        if (outer == null) {
+            return false;
+        }
+        
+        return outer.isLocal(name);
     }
     public static boolean isDummyCode(CodeDef ci) {
         return (ci instanceof AtDef || ci instanceof AsyncDef);
@@ -460,7 +476,7 @@ public class X10Context_c extends Context_c {
 	        return false;
 	    }
 
-	    if ((isBlock() || isCode()) &&
+	    if ((isBlock() || isCode() || isAsync() || isAt()) &&
 	            (findVariableInThisScope(name) != null)) {
 	        return true;
 	    }
@@ -741,6 +757,7 @@ public class X10Context_c extends Context_c {
 	}
 
     // to check if we can call property(...) or assign to final fields
+    // FIXME: [IP] I think this is subtly wrong -- what if there is an intervening block?
     public X10ConstructorDef getCtorIgnoringAsync() {
         return inCode() && currentCode() instanceof X10ConstructorDef? (X10ConstructorDef) currentCode() :
                 x10Kind==X10Kind.Async ? ((X10Context_c)outer).getCtorIgnoringAsync() :
@@ -909,7 +926,7 @@ public class X10Context_c extends Context_c {
 	    while (c != null && !(c.currentCode() instanceof EnvironmentCapture)) {
 	        c = c.pop().popToCode();
 	    }
-	    assert (c == null || ((X10Context_c) c).isCode());
+	    assert (c == null || c.isCode() || c.isAsync() || c.isAt());
 	    if (c != null && c.currentCode() instanceof EnvironmentCapture)
 	        return c;
 	    return null;
@@ -917,7 +934,7 @@ public class X10Context_c extends Context_c {
 
 	public Context popToCode() {
 	    Context c = this;
-	    while (c != null && !((X10Context_c) c).isCode()) {
+	    while (c != null && !c.isCode() && !c.isAsync() && !c.isAt()) {
 	        c = c.pop();
 	    }
 	    return c;

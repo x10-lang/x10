@@ -38,6 +38,7 @@ import polyglot.visit.ReachChecker;
 import x10.constraint.XTerm;
 import x10.constraint.XFailure;
 import x10.types.ClosureDef;
+import x10.types.X10Context_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.constraints.CConstraint;
 import polyglot.types.Context;
@@ -174,6 +175,14 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     		xc = (Context) xc.pushPlace(pt);
     	}
     	return xc;
+    }
+
+    @Override
+    public Context enterScope(Context c) {
+        c = c.pushBlock();
+        c = c.pushAt(closureDef);
+        ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.At;
+        return c;
     }
 
     @Override

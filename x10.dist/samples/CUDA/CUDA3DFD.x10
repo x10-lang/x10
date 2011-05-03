@@ -224,7 +224,7 @@ public class CUDA3DFD {
                         infront3 = d_input(in_idx);    in_idx += stride;
                         infront4 = d_input(in_idx);    in_idx += stride;
 
-                        for(var i:Int=RADIUS; i<dimz-RADIUS; i++)
+                        for(var j:Int=RADIUS; j<dimz-RADIUS; j++)
                         {
                             //////////////////////////////////////////
                             // advance the slice (move the thread-front)

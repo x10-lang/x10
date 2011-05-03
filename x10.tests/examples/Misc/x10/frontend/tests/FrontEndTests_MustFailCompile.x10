@@ -2776,7 +2776,7 @@ class ScopingRules { // see XTENLANG-2056
 	def test2() {
 		val i:Int = 1;
 		at (here) {
-			val i:Int = 1; // ShouldBeErr, XTENLANG-2056
+			val i:Int = 1; // ERR, Local variable "i" multiply defined. Previous definition at ...
 		}
 	}
 	def test3() {
