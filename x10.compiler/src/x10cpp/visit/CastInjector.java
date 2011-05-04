@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Assign_c;
+import polyglot.ast.Block;
 import polyglot.ast.Call_c;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
+import polyglot.ast.Formal;
+import polyglot.ast.Local;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
@@ -20,7 +23,9 @@ import polyglot.ast.NullLit_c;
 import polyglot.ast.Return_c;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -38,6 +43,8 @@ import x10.types.FunctionType_c;
 import x10.types.MethodInstance;
 import x10.types.X10FieldInstance;
 import x10.types.checker.Converter;
+import x10.util.AltSynthesizer;
+import x10.util.Synthesizer;
 
 /**
  * A pass to run right before final C++ codegeneration
@@ -59,9 +66,11 @@ import x10.types.checker.Converter;
  *         thoroughly here.  Verify this and remove cast in Call_c if true.
  */
 public class CastInjector extends ContextVisitor {
+    final Synthesizer synth;
     
     public CastInjector(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
+        synth = new Synthesizer(nf, ts);
     }
     
     public Node leaveCall(Node old, Node n, NodeVisitor v) {
@@ -167,9 +176,7 @@ public class CastInjector extends ContextVisitor {
             if (Types.baseType(fType) instanceof FunctionType) {
                 e2 = upcastToFunctionType(e, (FunctionType)Types.baseType(fType), false); 
             } else if (!ts.typeDeepBaseEquals(fType, e.type(), context)) {
-                Position pos = e.position();
-                e2 =  nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), e,
-                                 Converter.ConversionType.UNCHECKED).type(fType);
+                e2 =  makeCast(e.position(), e, fType);
             }
             
             if (e2 != null) {
@@ -193,8 +200,7 @@ public class CastInjector extends ContextVisitor {
             return upcastToFunctionType(a, (FunctionType)Types.baseType(fType), false);
         } else if (!ts.typeDeepBaseEquals(fType, a.type(), context)) {
             Position pos = a.position();
-            return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
-                              Converter.ConversionType.UNCHECKED).type(fType);
+            return makeCast(a.position(), a, fType);
         } else {
             return a;
         }
@@ -225,8 +231,7 @@ public class CastInjector extends ContextVisitor {
         
         if (!ts.typeDeepBaseEquals(fType, a.type(), context)) {
             Position pos = a.position();
-            return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
-                              Converter.ConversionType.UNCHECKED).type(fType);
+            return makeCast(a.position(), a, fType);
         } else {
             return a;
         }
@@ -273,17 +278,36 @@ public class CastInjector extends ContextVisitor {
             }
 
             Position pos = e.position();
-            return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, castFType), e, 
-                              Converter.ConversionType.UNCHECKED).type(castFType);
+            return makeCast(e.position(), e, castFType);
         } else {
-            // TODO: this is where some of the fix for XTENLANG-920 would live.
-            // wrap functions in a closure that does the needed casts and return that
-            // instead of just returning a cast.
-
             Position pos = e.position();
-            return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, castFType), e, 
-                              Converter.ConversionType.UNCHECKED).type(castFType);
+            List<Formal> formals = new ArrayList<Formal>();
+            for (Type ft : castFType.argumentTypes()) {
+                Formal f = synth.createFormal(pos, ft, Name.makeFresh("arg"), Flags.FINAL);
+                formals.add(f);
+            }
+            List<Expr> actuals = new ArrayList<Expr>();
+            for (int i=0; i<formals.size(); i++) {
+                Formal f = formals.get(i);
+                Type inner = exprFType.argumentTypes().get(i);
+                Local ref = synth.createLocal(pos, f.localDef().asInstance());
+                if (ts.typeDeepBaseEquals(ref.type(), inner, context)) {
+                    actuals.add(ref);
+                } else {
+                    actuals.add(makeCast(pos, ref, inner));
+                }
+            }
+            Expr call = nf.ClosureCall(pos, e, actuals).closureInstance(exprFType.applyMethod()).type(exprFType.returnType());
+            if (!ts.typeDeepBaseEquals(call.type(), castFType.returnType(), context)) {
+                call = makeCast(pos, call, castFType.returnType());
+            }
+            Block body = nf.Block(pos, castFType.returnType().isVoid() ? nf.Eval(pos, call) : nf.Return(pos, call));
+            return synth.makeClosure(pos, castFType.returnType(), formals, body, context);
         }
      }
+    
+    private Expr makeCast(Position pos, Expr e, Type t) {
+        return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, t), e, Converter.ConversionType.UNCHECKED).type(t);
+    }
         
 }
