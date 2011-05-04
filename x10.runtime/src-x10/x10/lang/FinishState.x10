@@ -759,8 +759,12 @@ abstract class FinishState {
         
             sr.accept(t, id);
         }
-        public def accAccept(t:T, id:Int, red:Reducible[T], curr:T)  :T      {// do nothing 
-        return t; }   // Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+        public def accAccept(t:T, id:Int, red:Reducible[T], curr:T) {
+        	Console.OUT.println("Entered RootCollectingFinish accAccept");
+        	val result = red(curr, t);
+        	Console.OUT.println("After reduction: "+result);
+           	return result;
+        }
         
         public def notifyActivityTermination():void {
                             Console.OUT.println("Entered RemoteCOllectionFInish notigyactivity termination");
