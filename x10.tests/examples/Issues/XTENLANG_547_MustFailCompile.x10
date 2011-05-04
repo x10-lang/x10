@@ -144,3 +144,37 @@ class TypeParameterOverridingErr547 {
        def m[T](x:Int) = 4;
     }
 }
+
+
+class TestOverriding1 {
+	class A[T] {
+		def m(Int{self!=1}) {}
+	}
+	class B[U] extends A[A[U]] { // ERR
+		def m(Int) {}
+	}
+}
+class TestOverriding2 {
+	class A[T] {
+		def m(A[T]{self!=null}) {}
+	}
+	class B[U] extends A[A[U]] { // ERR
+		def m(A[A[U]]) {}
+	}
+}
+class TestOverriding22 {
+	class A[T] {
+		def m(A[T]{self!=null}) {}
+	}
+	class B[U] extends A[A[U]] {
+		def m(A[A[A[U]]]) {}
+	}
+}
+class TestOverriding3 {
+	class A[T] {
+		def m[G](A[G]{self!=null}) {}
+	}
+	class B[U] extends A[A[U]] { // ERR
+		def m[H](A[H]) {}
+	}
+}

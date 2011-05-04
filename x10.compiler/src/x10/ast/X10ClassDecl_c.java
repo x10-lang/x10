@@ -1252,11 +1252,21 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
                     if (name1!=name2) continue;
                     if (formalNum !=types2.size()) continue;
-                    if (mi.typeParameters().size()!=mj.typeParameters().size()) continue;
+                    int typeParamNum = mi.typeParameters().size();
+                    if (typeParamNum !=mj.typeParameters().size()) continue;
                     boolean isDifferent = false;
                     for (int p=0; p<formalNum;p++) {
                         Type t1 = Types.stripConstraints(types1.get(p));
                         Type t2 = Types.stripConstraints(types2.get(p));
+                        // replace type-parameters in mi with mj, e.g.,
+                        // def m[U](U)
+                        // def m[H](H)
+                        if (typeParamNum!=0) {
+                            List<ParameterType> param1 = (List<ParameterType>) (List) mi.typeParameters();
+                            List<Type> param2 = mj.typeParameters();
+                            TypeParamSubst subst = new TypeParamSubst(ts, param2, param1);
+                            t1 = subst.reinstantiate(t1);
+                        }
                         if (!ts.typeEquals(t1,t2,context)) {
                             isDifferent = true;
                             break;
