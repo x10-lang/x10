@@ -24,12 +24,12 @@ import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
+import x10.optimizations.inlining.Inliner;
 import x10.visit.CodeCleanUp;
 import x10.visit.ConstantPropagator;
 import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.DeadVariableEliminator;
 import x10.visit.ExpressionFlattener;
-import x10.visit.Inliner;
 
 public class Optimizer {
 
