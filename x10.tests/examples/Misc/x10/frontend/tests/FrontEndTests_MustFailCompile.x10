@@ -2167,7 +2167,7 @@ class TestGlobalRefHomeAt2 {
 class A564[T,U] {
     def foo(x:T,y:U, z:String):void {}
 }
-class B564 extends A564[String,String] {
+class B564 extends A564[String,String] { // ERR
     def foo(x:String,y:String, z:String):Int { return 1; } // ERR: foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Int in B cannot override foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): void in A[x10.lang.String, x10.lang.String]; attempting to use incompatible return type.
 	// B.foo(String,String,String) cannot override A.foo(T,U,String); attempting to use incompatible return type.  found: int required: void
 }
@@ -4959,7 +4959,7 @@ interface TestOverloadingAndConstraints {  // ERR ERR ERR ERR
 	def m5(Foo[Foo[Int]]):void;
 	def m5(Foo[Foo[Int{self!=0}]]):void; // ERR
 }
-class TestOverloadingAndConstraints_static {
+class TestOverloadingAndConstraints_static {// ERR ERR ERR ERR
 	static class Foo[T] {}
 
 	static def m00():void {} // ERR
@@ -6399,7 +6399,7 @@ class Offery_1582 { //XTENLANG-1582
 }
 
 
-class ImplicitTargetResolutionTest {
+class ImplicitTargetResolutionTest { // ERR
 	// Expr and Call have different disambuation rules!
 	static def rankTest1(a:Dist{rank==2}) {} // ok
 	static def rankTest1(a:Dist{rank()==2}) {} // ERR ERR ERR 

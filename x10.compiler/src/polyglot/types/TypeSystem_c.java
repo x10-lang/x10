@@ -77,12 +77,7 @@ import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.matcher.Subst;
-import x10.types.matcher.X10ConstructorMatcher;
-import x10.types.matcher.X10FieldMatcher;
-import x10.types.matcher.X10MemberTypeMatcher;
-import x10.types.matcher.X10MethodMatcher;
-import x10.types.matcher.X10TypeMatcher;
+import x10.types.matcher.*;
 import x10.util.ClosureSynthesizer;
 import x10.util.CollectionFactory;
 import x10.X10CompilerOptions;
@@ -1092,7 +1087,7 @@ public class TypeSystem_c implements TypeSystem
 	}
     }
 
-    public abstract static class MethodMatcher extends BaseMatcher<MethodInstance> implements Cloneable {
+    public static class MethodMatcher extends BaseMatcher<MethodInstance> implements Cloneable {
 	protected Type container;
 	protected Name name;
 	protected List<Type> argTypes;
@@ -1134,7 +1129,20 @@ public class TypeSystem_c implements TypeSystem
 	    return name;
 	}
 
-	public abstract MethodInstance instantiate(MethodInstance mi) throws SemanticException;
+	public MethodInstance instantiate(MethodInstance mi) throws SemanticException {
+        if (!mi.name().equals(name))
+            return null;
+        if (mi.formalTypes().size() != argTypes.size())
+            return null;
+        if (mi instanceof MethodInstance) {
+            MethodInstance xmi = (MethodInstance) mi;
+            Type c = container != null ? container : xmi.container();
+            if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
+                return x10.types.matcher.Matcher.inferAndCheckAndInstantiate(context,
+                		xmi, c, typeArgs, argTypes, mi.position());
+        }
+        return null;
+    }
 
     public final String typeArgsString() {
         return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]");
@@ -1778,12 +1786,12 @@ public class TypeSystem_c implements TypeSystem
     }
 
 
-    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
-        return new X10MethodMatcher(container, name, argTypes, context);
+    public MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
+        return new MethodMatcher(container, name, Collections.EMPTY_LIST, argTypes, context);
     }
 
-    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        return new X10MethodMatcher(container, name, typeArgs, argTypes, context);
+    public MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
+        return new MethodMatcher(container, name, typeArgs, argTypes, context);
     }
 
     public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {

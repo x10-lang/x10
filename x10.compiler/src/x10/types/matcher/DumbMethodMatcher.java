@@ -19,10 +19,11 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Context;
+import polyglot.types.TypeSystem_c;
 import x10.types.MethodInstance;
 
 /** A method matcher that only checks name and arity. */
-public class DumbMethodMatcher extends X10MethodMatcher {
+public class DumbMethodMatcher extends TypeSystem_c.MethodMatcher {
     public DumbMethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
         super(container, name, typeArgs, argTypes, context);
     }

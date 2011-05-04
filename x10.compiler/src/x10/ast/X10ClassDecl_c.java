@@ -1234,20 +1234,21 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
         {
             // methods with the same erased signature must have the exact same signature (see XTENLANG-547)
+            Context context2 = context.pushClass(this.type, type);
             ArrayList<MethodInstance> allMethods = myClassType.getAllMethods();
             for (int i=0; i<allMethods.size(); i++) {
                 MethodInstance mi = allMethods.get(i);
                 List<Type> types1 = mi.formalTypes();
                 int formalNum = types1.size();
                 if (formalNum ==0) continue;
-                if (! ts.isAccessible(mi, tc.context())) continue;
+                if (! ts.isAccessible(mi, context2)) continue;
                 Name name1 = mi.name();
 
                 for (int j=i+1; j<allMethods.size(); j++) {
                     MethodInstance mj = allMethods.get(j);
                     List<Type> types2 = mj.formalTypes();
                     if (types2.size()==0) continue;
-                    if (! ts.isAccessible(mj, tc.context())) continue;
+                    if (! ts.isAccessible(mj, context2)) continue;
                     Name name2 = mj.name();
 
                     if (name1!=name2) continue;
@@ -1267,7 +1268,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                             TypeParamSubst subst = new TypeParamSubst(ts, param2, param1);
                             t1 = subst.reinstantiate(t1);
                         }
-                        if (!ts.typeEquals(t1,t2,context)) {
+                        if (!ts.typeEquals(t1,t2,context2)) {
                             isDifferent = true;
                             break;
                         }
@@ -1275,7 +1276,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                     if (isDifferent) continue;
                     // now we require that one overrides the other
                     // either mi can override mj, or the opposite.
-                    checkOverride(tc, ts, context, mi, mj);
+                    checkOverride(tc, ts, context2, mi, mj);
                 }
             }
         }

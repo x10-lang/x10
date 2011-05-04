@@ -178,3 +178,11 @@ class TestOverriding3 {
 		def m[H](A[H]) {}
 	}
 }
+
+
+class A_static547 {
+	static def m(Int{self==0}) {}
+}
+class B_static547 extends A_static547 { // ERR
+	def m(Int) {}
+}
