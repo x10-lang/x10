@@ -690,6 +690,7 @@ import x10.util.NoSuchElementException;
     }
 
 	public static def runFinish(body:()=>void):void {
+		Console.OUT.println("Inside runFinish");
 	    finish body();
 	}
 
@@ -947,24 +948,29 @@ import x10.util.NoSuchElementException;
         return activity().swapFinish(new FinishState.CollectingFinish[T](r));
     }
 
-	public static def makeAccOffer[T](t:T) {
-				
-	}
-
     public static def makeOffer[T](t:T) {
 		val state = activity().finishState();
+		if (state instanceof FinishState.CollectingFinish[T]) {
+			Console.OUT.println(" Offer Yes !!");
+			Console.OUT.println(state);
+		} else Console.OUT.println("No !!");
 		Console.OUT.println("Place(" + here.id + ") Runtime.makeOffer: received " + t);
 		Console.OUT.println("state is "+state);
         (state as FinishState.CollectingFinish[T]).accept(t,workerId()); //Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
     
    
-	public static def makeAccSupply[T](curr:T, red:Reducible[T], t:T) {
-		//val curr1:T;
-		//atomic curr1 = red(curr,t);
+	public static def makeAccSupply[T](curr:T, red:Reducible[T], t:T): T {
+	
 		
 		// get the innermost finish state
+		Runtime.startCollectingFinish[T](red);
 		val state = activity().finishState();
+		Console.OUT.println(state);
+		if (state instanceof FinishState.CollectingFinish[T]) {
+			Console.OUT.println(" Acc Yes !!");
+		} else Console.OUT.println("No !!");
+		
 		Console.OUT.println("Place(" + here.id + ") Runtime.makeSupply: received " + state);
 		return (state as FinishState.CollectingFinish[T]).accAccept(t,workerId(), red, curr);	//Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
