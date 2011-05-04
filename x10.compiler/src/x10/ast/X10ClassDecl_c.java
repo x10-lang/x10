@@ -443,16 +443,20 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     public Node visitSignature(NodeVisitor v) {
     	FlagsNode flags = (FlagsNode) visitChild(this.flags, v);
         Id name = (Id) visitChild(this.name, v);
+        List<TypeParamNode> tps = visitList(this.typeParameters, v);
         TypeNode superClass = (TypeNode) visitChild(this.superClass, v);
         List<TypeNode> interfaces = visitList(this.interfaces, v);
+        DepParameterExpr ci = (DepParameterExpr) visitChild(this.classInvariant, v);
+        List<PropertyDecl> ps = visitList(this.properties, v);
         ClassBody body = this.body;
         X10ClassDecl_c n = (X10ClassDecl_c) reconstruct(flags, name, superClass, interfaces, body);
-//        List<TypeParamNode> tps = visitList(this.typeParameters, v);
-//        n = (X10ClassDecl_c) n.typeParameters(tps);
-        List<PropertyDecl> ps = visitList(this.properties, v);
-        n = (X10ClassDecl_c) n.properties(ps);
-        DepParameterExpr ci = (DepParameterExpr) visitChild(this.classInvariant, v);
-        return ci == this.classInvariant ? n : n.classInvariant(ci);
+        if (!CollectionUtil.allEqual(tps, this.typeParameters) || !CollectionUtil.allEqual(ps, this.properties) || ci != this.classInvariant) {
+            if (n == this) n = (X10ClassDecl_c) n.copy();
+            n.typeParameters = new ArrayList<TypeParamNode>(tps);
+            n.properties = new ArrayList<PropertyDecl>(ps);
+            n.classInvariant = ci;
+        }
+        return n;
     }
     
     @Override
@@ -1344,7 +1348,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
      * Visit this term in evaluation order.
      */
     public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
-	v.visitCFGList(this.properties(), this.body(), ENTRY);
+        v.visitCFGList(this.properties(), this.body(), ENTRY);
         v.visitCFG(this.body(), this, EXIT);
         return succs;
     }
