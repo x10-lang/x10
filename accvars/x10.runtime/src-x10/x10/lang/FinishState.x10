@@ -58,6 +58,10 @@ abstract class FinishState {
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
+       /* public def testAcc(t:T, id:Int, red:Reducible[T], curr:T): Int {
+        	Console.OUT.println("We made it here !!");
+        	return t;
+        }*/
         public def simpleLatch() = latch;
     }
 
@@ -324,7 +328,7 @@ abstract class FinishState {
         protected def this(ref:GlobalRef[FinishState]) {
             property(ref);
             me = null;
-                        Console.OUT.println("Entered FinishSkeleton");
+                        Console.OUT.println("Entered RootFinish FinishSkeleton");
             
         }
         public def serialize():SerialData = new SerialData(ref, null);
@@ -341,25 +345,30 @@ abstract class FinishState {
     
         protected def this(root:RootFinish) {
             super(root);
-                        Console.OUT.println("Entered Finish");
+                        Console.OUT.println("Entered Finish 1");
             
         }
+        
+        
         def this(latch:SimpleLatch) {
             this(new RootFinish(latch));
+                                    Console.OUT.println("Entered Finish 5");
+            
         }
         def this() {
+        	//this(new RootCollectingFinish());
             this(new RootFinish());
-                        Console.OUT.println("Entered Finish");
+                        Console.OUT.println("Entered Finish 2");
             
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
-                        Console.OUT.println("Entered Finish");
+                        Console.OUT.println("Entered Finish 3");
             
         }
         private def this(data:SerialData) { 
             super(data.data as GlobalRef[FinishState]);
-                        Console.OUT.println("Entered Finish");
+                        Console.OUT.println("Entered Finish 4");
             
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
@@ -619,15 +628,16 @@ abstract class FinishState {
             for (i in 0..(resultRail.length()-1)) {
                 resultRail(i) = zero;
             }
-                        Console.OUT.println("Entered StatefulReducer");
             
         }
         def accept(t:T) {
-                Console.OUT.println("Entered accept");
+                Console.OUT.println("Entered StatefulReducer accept");
         
             result = reducer(result, t);
         }
         def accept(t:T, id:Int) {
+                        Console.OUT.println("Entered StatefulReducer accept");
+        
             if ((id >= 0) && (id < Runtime.MAX_THREADS)) {
                 resultRail(id) = reducer(resultRail(id), t);
                 workerFlag(id) = true;
@@ -682,8 +692,9 @@ abstract class FinishState {
         public def serialize():SerialData = new SerialData(reducer, super.serialize());
         public def accept(t:T, id:Int) { (me as CollectingFinishState[T]).accept(t, id); }   // Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         public def accAccept(t:T, id:Int, red:Reducible[T], curr:T) { 
-        Console.OUT.println("Inside accAccept of Collection Finish");
-        val result:T = (me as CollectingFinishState[T]).accAccept(t, id, red, curr); return result;}   // Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+        	Console.OUT.println("Inside accAccept of Collection Finish");
+        	val result:T = (me as CollectingFinishState[T]).accAccept(t, id, red, curr); return result;
+        }   // Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         
         public def waitForFinishExpr() = (me as RootCollectingFinish[T]).waitForFinishExpr();// Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
@@ -697,17 +708,19 @@ abstract class FinishState {
                        Console.OUT.println("Entered RootCollectingFinish");
            
         }
+        
+        
         public def accept(t:T, id:Int) {
                 Console.OUT.println("Entered RootCollectingFinish accept");
         
            sr.accept(t, id);
         }
-                public def accAccept(t:T, id:Int, red:Reducible[T], curr:T) {
-                Console.OUT.println("Entered RootCollectingFinish accAccept");
-        		val result = red(curr, t);
-        		Console.OUT.println("After reduction: "+result);
-        		
-           		return result;
+        
+        public def accAccept(t:T, id:Int, red:Reducible[T], curr:T) {
+        	Console.OUT.println("Entered RootCollectingFinish accAccept");
+        	val result = red(curr, t);
+        	Console.OUT.println("After reduction: "+result);
+           	return result;
         }
         def notifyValue(rail:IndexedMemoryChunk[Int], v:T):void {
                         Console.OUT.println("Entered RootCollectingFinish notify");
