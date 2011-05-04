@@ -45,6 +45,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.TypeIsMissingParameters;
 import x10.types.ConstrainedType;
+import x10.types.FunctionType;
 import x10.types.MacroType;
 import x10.types.MacroType_c;
 import x10.types.ParameterType;
@@ -235,6 +236,24 @@ public class Types {
 			break;
 	    }
 	    return t;
+	}
+	
+	public static List<FunctionType> functionTypes(Type t) {
+	    List<FunctionType> ans = new ArrayList<FunctionType>();
+	    Type bt = Types.baseType(t);
+	    if (bt instanceof FunctionType) {
+	        ans.add((FunctionType)bt);
+	    } else {
+	        TypeSystem ts = t.typeSystem();
+	        if (ts.isFunctionType(bt)) {
+	            X10ClassType ct = (X10ClassType)bt;
+	            for (Type i : ct.interfaces()) {
+	                if (i instanceof FunctionType)
+	                    ans.add((FunctionType)i);
+	            }
+	        }	        
+	    }
+	    return ans;
 	}
 
 	public static ConstrainedType constrainedType(Type base, CConstraint c) {

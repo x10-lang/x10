@@ -24,6 +24,7 @@ import polyglot.types.FunctionDef;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -32,6 +33,8 @@ import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.SettableAssign;
 import x10.ast.Tuple_c;
+import x10.types.FunctionType;
+import x10.types.FunctionType_c;
 import x10.types.MethodInstance;
 import x10.types.X10FieldInstance;
 import x10.types.checker.Converter;
@@ -118,9 +121,9 @@ public class CastInjector extends ContextVisitor {
         } else if (n instanceof Conditional_c) {
             Conditional_c cond = (Conditional_c)n;
             Expr cons = cond.consequent();
-            Expr newCons = cast(cons, cond.type());
+            Expr newCons = upcast(cons, cond.type());
             Expr alt = cond.alternative();
-            Expr newAlt = cast(alt, cond.type());
+            Expr newAlt = upcast(alt, cond.type());
             return cons == newCons && alt == newAlt ? cond : cond.consequent(newCons).alternative(newAlt);
         } else if (n instanceof ClosureCall_c) {
             ClosureCall_c call = (ClosureCall_c)n;
@@ -150,7 +153,7 @@ public class CastInjector extends ContextVisitor {
     }
     
     /**
-     * Inject any needed casts to ensure that the actual and formal types
+     * Inject any needed upcasts to ensure that the actual and formal types
      * match at a call site.  An exact deep base type equality is needed
      * to ensure that overloading at the C++ level works as expected.
      */
@@ -161,8 +164,8 @@ public class CastInjector extends ContextVisitor {
             Type fType = formals.get(i);
             Expr e2 = null;
             
-            if (ts.isFunctionType(fType)) {
-                e2 = castToFunctionType(e, fType); 
+            if (Types.baseType(fType) instanceof FunctionType) {
+                e2 = upcastToFunctionType(e, (FunctionType)Types.baseType(fType), false); 
             } else if (!ts.typeDeepBaseEquals(fType, e.type(), context)) {
                 Position pos = e.position();
                 e2 =  nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), e,
@@ -185,9 +188,9 @@ public class CastInjector extends ContextVisitor {
      * Used in a few additional cases where an exact deep base type equality
      * is required for C++ level compilation to work as expected.
      */
-    private Expr cast(Expr a, Type fType) {
-        if (ts.isFunctionType(fType)) {
-            return castToFunctionType(a, fType);
+    private Expr upcast(Expr a, Type fType) {
+        if (Types.baseType(fType) instanceof FunctionType) {
+            return upcastToFunctionType(a, (FunctionType)Types.baseType(fType), false);
         } else if (!ts.typeDeepBaseEquals(fType, a.type(), context)) {
             Position pos = a.position();
             return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
@@ -211,12 +214,12 @@ public class CastInjector extends ContextVisitor {
             return a;
         }
 
-        if (ts.isFunctionType(fType)) {
-            return castToFunctionType(a, fType);
+        if (Types.baseType(fType) instanceof FunctionType) {
+            return upcastToFunctionType(a, (FunctionType)Types.baseType(fType), true);
         }
                 
         if (ts.isObjectOrInterfaceType(a.type(), context)) {
-            // already a x10aux::ref; implicit C++ level ref casts are enoughT
+            // already a x10aux::ref; implicit C++ level ref casts are enough
             return a;
         }
         
@@ -229,20 +232,58 @@ public class CastInjector extends ContextVisitor {
         }
     }
     
-    private Expr castToFunctionType(Expr e, Type type) {
-        // TODO: this is where the fix for XTENLANG-920 would live.
-        //       if there isn't a base-type-equals of all the arugments & the return value,
-        //       between the type of e and the type of type, then generate a 
-        //       wrapper closure here that contains all the necessary casts in its body
-        //       in addition to the apply of the orginal function type
-        if (e instanceof Closure_c) {
-            // Allocation of Closure_c already upcasts them to the appropriate function type.
-            return e;
+    private Expr upcastToFunctionType(Expr e, FunctionType castFType, boolean allowImplicitCasts) {
+        FunctionType exprFType = null;
+        List<FunctionType> cands = Types.functionTypes(e.type());
+        for (FunctionType ft : cands) {
+            if (ft.argumentTypes().size() == castFType.argumentTypes().size()) {
+                exprFType = ft;
+                break;
+            }
+        }
+        if (exprFType == null) {
+            throw new InternalCompilerError("Can't find valid function type on upcast of "+e.type()+"to "+castFType);
+        }
+
+        boolean exactMatch = ts.typeDeepBaseEquals(exprFType.returnType(), castFType.returnType(), context);
+        if (exactMatch) {
+            for (int i=0; i<exprFType.argumentTypes().size(); i++) {
+                Type ea = exprFType.argumentTypes().get(i);
+                Type ca = castFType.argumentTypes().get(i);
+                if (!ts.typeDeepBaseEquals(ea, ca, context)) {
+                    exactMatch = false;
+                    break;
+                }
+            }
         }
         
-        Position pos = e.position();
-        return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, type), e, 
-                          Converter.ConversionType.UNCHECKED).type(type);
+        if (exactMatch) {
+            if (e instanceof Closure_c) {
+                // C++ code generated for the allocation of a closuure literal 
+                // already does an upcast to the appropriate function type        
+                return e;
+            }
+            if (e.type() instanceof FunctionType) {
+                // Already at the right C++ level interface type.
+                return e;
+            }
+            if (allowImplicitCasts && ts.isObjectOrInterfaceType(e.type(), context)) {
+                // C++ level ref to ref conversion is good enough
+                return e;
+            }
+
+            Position pos = e.position();
+            return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, castFType), e, 
+                              Converter.ConversionType.UNCHECKED).type(castFType);
+        } else {
+            // TODO: this is where some of the fix for XTENLANG-920 would live.
+            // wrap functions in a closure that does the needed casts and return that
+            // instead of just returning a cast.
+
+            Position pos = e.position();
+            return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, castFType), e, 
+                              Converter.ConversionType.UNCHECKED).type(castFType);
+        }
      }
         
 }
