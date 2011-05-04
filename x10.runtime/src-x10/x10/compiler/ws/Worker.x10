@@ -12,6 +12,7 @@ public final class Worker {
     public val workers:Rail[Worker];
     private val random:Random;
 
+    public val id:int;
     public val deque = new Deque();
     public var fifo:Deque = deque; // hack to avoid stealing from null fifo
     public val lock = new Lock();
@@ -20,6 +21,7 @@ public final class Worker {
     
     public def this(i:Int, workers:Rail[Worker]) {
         random = new Random(i + (i << 8) + (i << 16) + (i << 24));
+        this.id = i;
         this.workers = workers;
     }
 
@@ -59,11 +61,12 @@ public final class Worker {
             if (Runtime.wsEnded()) return null;
             //2) other thread fifo
             val rand = random.nextInt(Runtime.NTHREADS);
-            k = workers(rand).fifo.steal();
+            val victim = workers(rand);
+            k = victim.fifo.steal();
             if (null != k) break;
             //3) other thread deque
-            if (workers(rand).lock.tryLock()) {
-                k = workers(rand).deque.steal();
+            if (victim.lock.tryLock()) {
+                k = victim.deque.steal();
                 if (null != k) {
                     var r:RegularFrame = Frame.cast[Object,RegularFrame](k);
                     @Ifdef("__CPP__") {
@@ -72,7 +75,7 @@ public final class Worker {
                     }
                     Runtime.atomicMonitor.lock(); r.ff.asyncs++; Runtime.atomicMonitor.unlock();
                 }
-                workers(rand).lock.unlock();
+                victim.lock.unlock();
             }
             if (null != k) break;
             //4) remote activity
