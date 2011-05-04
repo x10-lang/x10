@@ -2087,7 +2087,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write("/"+"*");
 				n.print(n.expr(), sw, tr);
 				sw.write("*"+"/");
-			} if (n.expr() instanceof CharLit_c) {
+			} else if (n.expr() instanceof CharLit_c) {
 			    CharLit_c lit = (CharLit_c)n.expr();
 			    sw.write("'"+StringUtil.escape(lit.charValue())+"'");
 			} else {
