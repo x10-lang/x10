@@ -546,7 +546,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
            }
            
-           goals.add(X10Casted(job));
+           // goals.add(X10Casted(job));  DAVE G: disabled.  Functionality replaced by CastInjector/JavaCaster for the backends.
            goals.add(MoveFieldInitializers(job));
            goals.add(X10Expanded(job));
            goals.add(X10RewriteAtomicMethods(job));
