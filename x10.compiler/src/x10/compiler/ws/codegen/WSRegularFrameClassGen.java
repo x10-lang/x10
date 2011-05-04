@@ -231,9 +231,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             case Try:
                 codes = transTry((Try) s, prePcValue);
                 break;
-            case Offer:
-                codes = transOffer((Offer)s, prePcValue, localDeclaredVar);
-                break;
             case FinishExprAssign:
                 codes = transFinishExprAssign((Eval)s, prePcValue, localDeclaredVar);
                 break;

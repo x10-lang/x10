@@ -173,9 +173,6 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                 case AssignCall:
                     codes = transAssignCall(((Eval)s), prePcValue, localDeclaredVars);
                     break;
-                case Offer:
-                    codes = transOffer((Offer)s, prePcValue, localDeclaredVars);
-                    break;
                 default:
                     WSUtil.err("X10 WorkStealing cannot support:", s);
                     continue;

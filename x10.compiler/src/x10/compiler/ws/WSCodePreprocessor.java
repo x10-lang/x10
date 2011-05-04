@@ -88,6 +88,7 @@ import x10.compiler.ws.util.CodePatternDetector.Pattern;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.EnvironmentCapture;
 import x10.types.MethodInstance;
+import x10.types.ParameterType;
 import x10.types.ThisDef;
 import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
@@ -549,6 +550,7 @@ public class WSCodePreprocessor extends ContextVisitor {
 
         String mName = WSUtil.getDividableForMethodName(n) + genMethodDecls.size();
         X10MethodDecl mDecl = synthDividableForMethod(n, mName, context, df, locals);
+        
         MethodDef mDef = mDecl.methodDef();
         
         //now generate the in-place call
@@ -576,6 +578,10 @@ public class WSCodePreprocessor extends ContextVisitor {
                                              n.position(), c.currentClassDef(),
                                              methodName);
         mSynth.setFlag(flag);
+        for(ParameterType pt : c.currentCode().typeParameters()){
+            mSynth.addTypeParameter(pt, pt.getVariance());
+        }
+
         //Formals: 
         Expr lowerRef = mSynth.addFormal(compilerPos, df.boundType, "_$lower");
         Expr upperRef = mSynth.addFormal(compilerPos, df.boundType, "_$upper");

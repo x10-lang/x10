@@ -96,7 +96,6 @@ public class CodePatternDetector {
                   DoWhile,
                   Switch,
                   Try,
-                  Offer,
                   Simple, 
                   Block,
                   StmtSeq, //need flatten
@@ -114,10 +113,6 @@ public class CodePatternDetector {
         
         if(stmt instanceof StmtSeq){
             return Pattern.StmtSeq; //the stmt should be unwrapped
-        }
-        
-        if(stmt instanceof Offer){ //offer should be flattened
-            return Pattern.Offer;
         }
         
         if(!WSUtil.isComplexCodeNode(stmt, wts)){

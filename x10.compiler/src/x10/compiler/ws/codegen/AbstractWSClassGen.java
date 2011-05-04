@@ -63,6 +63,7 @@ import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.ast.Async;
@@ -448,14 +449,49 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         TransCodes transCodes = new TransCodes(pcValue);
         s = (Stmt) this.replaceLocalVarRefWithFieldAccess(s, declaredLocals);
         
-        //need process the return's issue;
+        //need process the return's & offer issue;
+        TransOfferVisitor fastOV = new TransOfferVisitor(true);
+        Stmt fStmt = (Stmt) s.visit(fastOV);
+        TransOfferVisitor resumeOV = new TransOfferVisitor(false);
+        Stmt rStmt = (Stmt) s.visit(resumeOV);        
+        
         TransReturnVisitor fastRV = new TransReturnVisitor(true);
-        transCodes.addFast((Stmt)s.visit(fastRV));
+        transCodes.addFast((Stmt)fStmt.visit(fastRV));
         TransReturnVisitor resumeRV = new TransReturnVisitor(false);
-        transCodes.addResume((Stmt)s.visit(resumeRV));
+        transCodes.addResume((Stmt)rStmt.visit(resumeRV));
         return transCodes;
     }
     
+    //Process offer in normal stmts
+    class TransOfferVisitor extends ErrorHandlingVisitor{
+        private boolean fastPath; //fast:true or resume path:false
+        Type reducerType;
+        
+        TransOfferVisitor(boolean fastPath){
+            super(AbstractWSClassGen.this.job, xts, xnf);
+            this.fastPath = fastPath;
+            WSFinishStmtClassGen finishFrameGen = getDirectFinishFrameClassGen();
+            if(finishFrameGen != null){
+                reducerType = finishFrameGen.getReducerBaseType();                
+            }
+        }
+        
+        public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+            if(n instanceof Offer){
+                Offer offer = (Offer)n;
+                if(reducerType == null){
+                    WSUtil.debug("Cannot find Collecting-Finish type in Finish-Expr. Use offer's type", offer);
+                    reducerType = offer.expr().type();
+                }
+                MethodSynth mSynth = fastPath ? fastMSynth : resumeMSynth;
+                return wsynth.genOfferCallStmt(classSynth, mSynth, offer.expr(), reducerType);
+            }
+            return n;   
+        }
+    }
+    
+    
+    //Process return in normal stmts
     class TransReturnVisitor extends NodeVisitor{
         private boolean fastPath; //fast or resume path
         private int noTransformDepth; //not transform "return" in Closure or anonymous class body
@@ -569,28 +605,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             //the local is annotated as "@Transient", no need transformation
             return ld;
         }
-    }
-    
-    /*
-     * Offer transformation is very simple.
-     * (Frame.cast[FinishFrame, CollectingFinish[int]](ffRef)).accept(this.t2, worker);
-     */
-    protected TransCodes transOffer(Offer offer, int prePcValue, Set<Name> declaredLocals) throws SemanticException {
-        TransCodes transCodes = new TransCodes(prePcValue); //increase the pc value;
-        
-        Expr offerExpr = (Expr)this.replaceLocalVarRefWithFieldAccess(offer.expr(), declaredLocals);
-        
-        WSFinishStmtClassGen finishFrameGen = getDirectFinishFrameClassGen();
-        Type reducerType = finishFrameGen.getReducerBaseType();
-        if(reducerType == null){
-            WSUtil.err("Cannot find the correct Collecting-Finish scope for the offer expr", offer);
-            return null;
-        }
-        Stmt fastStmt = wsynth.genOfferCallStmt(classSynth, fastMSynth, offerExpr, reducerType);
-        Stmt resumeStmt = wsynth.genOfferCallStmt(classSynth, resumeMSynth, offerExpr, reducerType);
-        transCodes.addFast(fastStmt);
-        transCodes.addResume(resumeStmt);
-        return transCodes;
     }
     
     /**
