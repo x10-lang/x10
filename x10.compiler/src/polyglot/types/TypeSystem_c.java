@@ -2515,6 +2515,14 @@ public class TypeSystem_c implements TypeSystem
         return asyncFrameType_;
     }
 
+    protected X10ClassType collectingFinishType_;
+
+    public X10ClassType CollectingFinish() {
+        if (collectingFinishType_ == null)
+            collectingFinishType_ = load("x10.compiler.ws.CollectingFinish");
+        return collectingFinishType_;
+    }
+    
     protected X10ClassType throwFrameType_;
 
     public X10ClassType ThrowFrame() {

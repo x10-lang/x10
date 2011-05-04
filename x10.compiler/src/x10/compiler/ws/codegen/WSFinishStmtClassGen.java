@@ -12,15 +12,22 @@
 
 package x10.compiler.ws.codegen;
 
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.Types;
 import x10.ast.Finish;
+import x10.ast.FinishExpr;
 import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSUtil;
+import x10.types.ConstrainedType;
+import x10.types.X10ParsedClassType;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.util.synthesizer.SuperCallSynth;
@@ -33,6 +40,10 @@ import x10.util.synthesizer.SwitchSynth;
  * 
  */
 public class WSFinishStmtClassGen extends AbstractWSClassGen {
+    
+    Type reducerBaseType; //only used for collecting-finish frame
+    boolean isCollectingFinishFrame;
+    //For FinishStmt
     public WSFinishStmtClassGen(AbstractWSClassGen parent, Finish finishStmt) {
         super(parent, parent,
                 WSUtil.getFinishStmtClassName(parent.getClassName()),
@@ -42,9 +53,34 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
             wsynth.createPCField(classSynth);
         }
     }
+    
+    //For FinishExpr
+    public WSFinishStmtClassGen(AbstractWSClassGen parent, Type reducerBaseType, FinishExpr finishExpr) {
+        super(parent, parent,
+                WSUtil.getFinishStmtClassName(parent.getClassName()),
+                parent.xts.CollectingFinish().typeArguments(Collections.singletonList(reducerBaseType)),
+                finishExpr.body());
+        
+        if(!wts.OPT_PC_FIELD){
+            wsynth.createPCField(classSynth);
+        }
+        //now start extract the collecting finish's type.
+        this.reducerBaseType = reducerBaseType;
+        assert(reducerBaseType != null);
+        isCollectingFinishFrame = true;
+    }
 
     protected void genClassConstructor() throws SemanticException {
-        wsynth.genClassConstructorType1Base(classSynth);
+        if(isCollectingFinishFrame){
+            wsynth.genClassConstructorType3Base(classSynth, getReducerBaseType());            
+        }
+        else{
+            wsynth.genClassConstructorType1Base(classSynth);            
+        }
+    }
+    
+    public Type getReducerBaseType() {
+        return reducerBaseType;
     }
 
     @Override
@@ -78,7 +114,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
                 resumeSwitchSynth.insertStatementInCondition(0, wsynth.genRethrowStmt(classSynth));
             }
         }
-   }
+    }
 
-
+    
 }

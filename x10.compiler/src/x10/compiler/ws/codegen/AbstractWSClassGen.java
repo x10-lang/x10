@@ -69,6 +69,7 @@ import x10.ast.Async;
 import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.Finish;
+import x10.ast.Offer;
 import x10.ast.When;
 import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
@@ -138,7 +139,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     final protected MethodSynth fastMSynth;
     final protected MethodSynth resumeMSynth;
     final protected MethodSynth backMSynth;
-
     //Fields to maintain the tree
     final private AbstractWSClassGen up;
     private List<AbstractWSClassGen> children; //lazy initialization
@@ -214,12 +214,10 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         sb.append(this.className);
         if(this instanceof WSAsyncClassGen){
             WSAsyncClassGen aFrame = (WSAsyncClassGen)this;
-            
             sb.append(" (k = ").append(aFrame.parentK.className).append(')');
         }
         if(this instanceof WSRemoteMainFrameClassGen){
             WSRemoteMainFrameClassGen rFrame = (WSRemoteMainFrameClassGen)this;
-            
             sb.append(" (r = ").append(rFrame.parentR.className).append(')');
         }
         sb.append(System.getProperty("line.separator"));
@@ -295,6 +293,17 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
     public String getClassName() {
         return className;
+    }
+    
+    public WSFinishStmtClassGen getDirectFinishFrameClassGen(){
+        AbstractWSClassGen frame = this;
+        while(frame != null) {
+            if(frame instanceof WSFinishStmtClassGen){
+                return (WSFinishStmtClassGen)frame;
+            }
+            frame = frame.getUpFrame();
+        }
+        return null;
     }
 
     /**
@@ -560,6 +569,28 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             //the local is annotated as "@Transient", no need transformation
             return ld;
         }
+    }
+    
+    /*
+     * Offer transformation is very simple.
+     * (Frame.cast[FinishFrame, CollectingFinish[int]](ffRef)).accept(this.t2, worker);
+     */
+    protected TransCodes transOffer(Offer offer, int prePcValue, Set<Name> declaredLocals) throws SemanticException {
+        TransCodes transCodes = new TransCodes(prePcValue); //increase the pc value;
+        
+        Expr offerExpr = (Expr)this.replaceLocalVarRefWithFieldAccess(offer.expr(), declaredLocals);
+        
+        WSFinishStmtClassGen finishFrameGen = getDirectFinishFrameClassGen();
+        Type reducerType = finishFrameGen.getReducerBaseType();
+        if(reducerType == null){
+            WSUtil.err("Cannot find the correct Collecting-Finish scope for the offer expr", offer);
+            return null;
+        }
+        Stmt fastStmt = wsynth.genOfferCallStmt(classSynth, fastMSynth, offerExpr, reducerType);
+        Stmt resumeStmt = wsynth.genOfferCallStmt(classSynth, resumeMSynth, offerExpr, reducerType);
+        transCodes.addFast(fastStmt);
+        transCodes.addResume(resumeStmt);
+        return transCodes;
     }
     
     /**

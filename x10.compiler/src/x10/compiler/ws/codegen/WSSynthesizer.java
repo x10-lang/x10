@@ -78,6 +78,7 @@ import x10.util.synthesizer.SuperCallSynth;
  */
 public class WSSynthesizer {
     static final protected Position compilerPos = Position.COMPILER_GENERATED;
+    static final protected Name REMAP = Name.make("remap");
     static final protected Name FAST = Name.make("fast");
     static final protected Name PUSH = Name.make("push");
     static final protected Name POLL = Name.make("poll");
@@ -103,7 +104,10 @@ public class WSSynthesizer {
     static final protected Name OPERATOR = Name.make("operator()");
     static final protected Name ENTER_ATOMIC = Name.make("enterAtomic");
     static final protected Name EXIT_WHEN = Name.make("exitWSWhen");
-    
+    static final protected Name ACCEPT = Name.make("accept");    
+    static final protected Name RD = Name.make("rd");  //used in collecting-finish frame constructor
+    static final protected Name CF_RESULT_FAST = Name.make("fastResult");
+    static final protected Name CF_RESULT = Name.make("result");
     
     //private IWSClassFrame classFrame;
     private Synthesizer synth;
@@ -172,7 +176,7 @@ public class WSSynthesizer {
         Context ct = classSynth.getContext();
         ClassType cType = classSynth.getDef().asType();
         Type scType = PlaceChecker.AddIsHereClause(cType, ct);
-        MethodSynth methodSynth = classSynth.createMethod(compilerPos, "remap");
+        MethodSynth methodSynth = classSynth.createMethod(compilerPos, REMAP.toString());
                 
         //upcast new instance
         Type upCastTargetType;
@@ -286,6 +290,27 @@ public class WSSynthesizer {
         superCallSynth.addArgument(ts.FinishFrame(), ffRef);
         return conSynth;
     }
+    
+    /**
+     * Generate @Header def this(up:Frame, rd:Reducible[T]) {  super(up, rd); }
+     * Used by FinishFrame (FinishExpr)
+     * @param classSynth
+     * @param conSynth
+     * @return a constructor synth to add more stmts
+     */
+    public ConstructorSynth genClassConstructorType3Base(ClassSynth classSynth, Type reducerBaseType){
+        ConstructorSynth conSynth = createConstructorSynth(classSynth);
+        CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
+        Type reducerType = ts.Reducible().typeArguments(Collections.singletonList(reducerBaseType));
+
+        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, ts.Frame(), UP.toString());
+        Expr rdRef = conSynth.addFormal(compilerPos, Flags.FINAL, reducerType, RD.toString());
+        SuperCallSynth superCallSynth = codeBlockSynth.createSuperCall(compilerPos, classSynth.getDef());
+        superCallSynth.addArgument(ts.Frame(), upRef);
+        superCallSynth.addArgument(reducerType, rdRef);
+        return conSynth;
+    }
+    
     
     public Name createFieldFromLocal(ClassSynth classSynth, LocalDecl ld){
         Name fieldName = ld.name().id();
@@ -494,6 +519,67 @@ public class WSSynthesizer {
         }
                
         return methodSynth.close();
+    }
+    
+    public Expr genFFRef(ClassSynth classSynth) throws SemanticException {
+        Type cType = classSynth.getDef().asType();
+        Context ct = classSynth.getContext();
+        Expr ffRef;
+        if(ts.isSubtype(cType, ts.FinishFrame())){
+            //if it self is ff type, upcast it self
+            ffRef = genUpcastCall(cType, ts.FinishFrame(), genThisRef(classSynth));
+        }
+        else if(ts.isSubtype(cType, ts.AsyncFrame())){
+            //if it self is ff type, upcast it self
+            Expr upRef = synth.makeFieldAccess(compilerPos, genThisRef(classSynth), UP, ct);
+            ffRef = genCastCall(ts.Frame(), ts.FinishFrame(), upRef, ct);
+        }
+        else{
+              //non finish frame will have ff field as ff 
+              ffRef = synth.makeFieldAccess(compilerPos, genThisRef(classSynth), FF, ct);
+        }
+        return ffRef;
+    }
+    
+    /**
+     * Gen (Frame.cast[XXXFrameType, CollectingFinish[int]](ffRef)).accept(this.t2, worker);
+     * @param classSynth
+     * @param methodSynth
+     * @param offerExpr
+     * @param reducerType e.g. int
+     * @return
+     * @throws SemanticException
+     */
+    public Stmt genOfferCallStmt(ClassSynth classSynth, MethodSynth methodSynth, Expr offerExpr, Type reducerType)throws SemanticException{
+       
+        X10ClassType cfType = ts.CollectingFinish();
+        cfType = cfType.typeArguments(Collections.singletonList(reducerType));
+        
+        Type cType = classSynth.getDef().asType();
+        Context ct = classSynth.getContext();
+        Expr ffRef;
+        Type ffRefType;
+        if(ts.isSubtype(cType, ts.FinishFrame())){
+            //if it self is ff type, upcast it self
+            ffRef = genThisRef(classSynth);
+            ffRefType = ts.FinishFrame();
+        }
+        else if(ts.isSubtype(cType, ts.AsyncFrame())){
+            //if it self is ff type, upcast it self
+            ffRef = synth.makeFieldAccess(compilerPos, genThisRef(classSynth), UP, ct);
+            ffRefType = ts.Frame();
+        }
+        else{
+            //non finish frame will have ff field as ff 
+            ffRef = synth.makeFieldAccess(compilerPos, genThisRef(classSynth), FF, ct);
+            ffRefType = ts.Frame(); 
+        }
+        Expr cfRef = genCastCall(ffRefType, cfType, ffRef, ct);
+        Expr workerRef = methodSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
+        InstanceCallSynth callSynth = new InstanceCallSynth(nf, ct, cfRef, ACCEPT.toString());
+        callSynth.addArgument(reducerType, offerExpr);
+        callSynth.addArgument(ts.Worker(), workerRef);
+        return callSynth.genStmt();
     }
     
     /**
@@ -708,7 +794,7 @@ public class WSSynthesizer {
      * @throws SemanticException
      */
     public Pair<Stmt, Expr> genRemoteRootFinishInitializer(ClassSynth classSynth) throws SemanticException{
-        Expr ffRef = genFFRef(classSynth);
+        Expr ffRef = genFFFieldRef(classSynth);
         
         Context ct = classSynth.getContext();
         //prepare val rRootFinish:RemoteRootFinish = new RemoteRootFinish(ff).init();
@@ -769,7 +855,7 @@ public class WSSynthesizer {
         return synth.thisRef(type, compilerPos);
     }
     
-    public Expr genFFRef(ClassSynth classSynth) throws SemanticException{
+    public Expr genFFFieldRef(ClassSynth classSynth) throws SemanticException{
         return synth.makeFieldAccess(compilerPos, genThisRef(classSynth), FF, classSynth.getContext());
     }
     

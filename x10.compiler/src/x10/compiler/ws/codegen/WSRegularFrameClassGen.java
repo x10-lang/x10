@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
@@ -45,7 +46,9 @@ import polyglot.util.Pair;
 import x10.ast.Async;
 import x10.ast.AtStmt;
 import x10.ast.Finish;
+import x10.ast.FinishExpr;
 import x10.ast.ForLoop;
+import x10.ast.Offer;
 import x10.ast.StmtSeq;
 import x10.ast.When;
 import x10.ast.X10Loop;
@@ -228,7 +231,12 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
             case Try:
                 codes = transTry((Try) s, prePcValue);
                 break;
-            case FinishAssign:
+            case Offer:
+                codes = transOffer((Offer)s, prePcValue, localDeclaredVar);
+                break;
+            case FinishExprAssign:
+                codes = transFinishExprAssign((Eval)s, prePcValue, localDeclaredVar);
+                break;
             case Unsupport:
             default:
                 WSUtil.err("X10 WorkStealing cannot support:", s);
@@ -259,7 +267,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         
         return new Triple<CodeBlockSynth, SwitchSynth, SwitchSynth>(fastBodySynth, resumeSwitchSynth, backSwitchSynth);
     }
-    
+
     /**
      * At least one path is complex path.  But condition is not (otherwise it is a compound stmt)
      */
@@ -362,13 +370,88 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         TransCodes transCodes = new TransCodes(prePcValue);
         AbstractWSClassGen finishClassGen = genChildFrame(xts.FinishFrame(), f, null);
         
-      //prepare child frame call;
+        //prepare child frame call;
         List<Stmt> fastStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, fastMSynth, finishClassGen);
         List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, finishClassGen);
         transCodes.addFast(fastStmts);
         transCodes.addResume(resumeStmts);
         transCodes.increasePC();
 
+        return transCodes;
+    }
+    
+    protected TransCodes transFinishExprAssign(Eval s, int prePcValue, Set<Name> declaredLocals) throws SemanticException {
+        TransCodes transCodes = new TransCodes(prePcValue);
+        
+        Assign assign = (Assign) s.expr();
+        
+        FinishExpr finishExpr = (FinishExpr) assign.right();
+        Expr reducer = finishExpr.reducer();
+        Type reducerBaseType = Types.reducerType(reducer.type()); //get the base type
+        reducer = (Expr) replaceLocalVarRefWithFieldAccess(reducer, declaredLocals);
+        
+        AbstractWSClassGen collectingFinishFrameGen = new WSFinishStmtClassGen(this, reducerBaseType, finishExpr);
+        collectingFinishFrameGen.genClass();
+        
+        //now start invocating the class's fast/resume/
+        //pc = x;
+        try{
+            //check whether the frame contains pc field. For optimized finish frame and async frame, there is no pc field
+            Stmt pcAssign = wsynth.genPCAssign(classSynth, prePcValue + 1);
+            transCodes.addFast(pcAssign);
+            transCodes.addResume(pcAssign);
+        }
+        catch(polyglot.types.NoMemberException e){
+            //Just ignore the pc assign statement 
+        }
+        NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, collectingFinishFrameGen.getClassType());
+        Expr parentRef = wsynth.genUpcastCall(getClassType(), xts.Frame(), wsynth.genThisRef(classSynth));
+        niSynth.addArgument(xts.Frame(), parentRef);
+        
+        //process the second one, reducer
+        niSynth.addArgument(reducer.type(), reducer);
+        niSynth.addAnnotation(wsynth.genStackAllocateAnnotation());
+        NewLocalVarSynth localSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Flags.FINAL, niSynth.genExpr());
+        localSynth.addAnnotation(wsynth.genStackAllocateAnnotation());
+        Stmt niS = localSynth.genStmt();
+        transCodes.addFast(niS);
+        transCodes.addResume(niS);
+        //now the instance's fast/slow method call
+        Expr localRef = localSynth.getLocal(); 
+        Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WSSynthesizer.WORKER.toString());
+        Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WSSynthesizer.WORKER.toString());
+        
+        InstanceCallSynth fastPathCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, localRef, WSSynthesizer.FAST.toString());
+        fastPathCallSynth.addArgument(xts.Worker(), fastWorkerRef);
+        transCodes.addFast(fastPathCallSynth.genStmt());
+        
+        InstanceCallSynth resumePathCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, localRef, WSSynthesizer.FAST.toString());
+        resumePathCallSynth.addArgument(xts.Worker(), resumeWorkerRef);
+        transCodes.addResume(resumePathCallSynth.genStmt());
+        
+        //finally - the assign
+        assign = (Assign) replaceLocalVarRefWithFieldAccess(assign, declaredLocals);
+        //fast result assign;
+        InstanceCallSynth fastPathResultCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, localRef, WSSynthesizer.CF_RESULT_FAST.toString());
+        fastPathResultCallSynth.addArgument(xts.Worker(), fastWorkerRef);
+        Stmt fastAssign = xnf.Eval(assign.position(), assign.right(fastPathResultCallSynth.genExpr()));
+        transCodes.addFast(fastAssign);
+        //resume        
+        InstanceCallSynth resumePathResultCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, localRef, WSSynthesizer.CF_RESULT_FAST.toString());
+        resumePathResultCallSynth.addArgument(xts.Worker(), resumeWorkerRef);
+        Stmt resumeAssign = xnf.Eval(assign.position(), assign.right(resumePathResultCallSynth.genExpr()));
+        transCodes.addResume(fastAssign);
+        //back
+        transCodes.increasePC();
+        Expr backFrameRef = backMSynth.getMethodBodySynth(compilerPos).getLocal(WSSynthesizer.FRAME.toString());
+        Expr castExp = wsynth.genCastCall(xts.Frame(), 
+                                          xts.CollectingFinish().typeArguments(Collections.singletonList(reducerBaseType)),
+                                   backFrameRef, xct);
+        InstanceCallSynth backResultCallSynth = new InstanceCallSynth(xnf, xct, compilerPos, castExp, WSSynthesizer.CF_RESULT.toString());
+        Stmt backAssign = xnf.Eval(assign.position(), assign.right(backResultCallSynth.genExpr()));
+        transCodes.addBack(backAssign);
+
+        //and process the back
         return transCodes;
     }
     

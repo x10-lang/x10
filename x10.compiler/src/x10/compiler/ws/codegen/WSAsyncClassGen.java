@@ -38,6 +38,7 @@ import polyglot.types.Type;
 import polyglot.util.Pair;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.ast.Async;
+import x10.ast.Offer;
 import x10.ast.StmtSeq;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
@@ -171,6 +172,9 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                     break;
                 case AssignCall:
                     codes = transAssignCall(((Eval)s), prePcValue, localDeclaredVars);
+                    break;
+                case Offer:
+                    codes = transOffer((Offer)s, prePcValue, localDeclaredVars);
                     break;
                 default:
                     WSUtil.err("X10 WorkStealing cannot support:", s);

@@ -923,6 +923,7 @@ public interface TypeSystem {
     X10ClassType AtFrame();
     X10ClassType RegularFrame();
     X10ClassType AsyncFrame();
+    X10ClassType CollectingFinish();
     X10ClassType TryFrame();
     X10ClassType Worker();
     X10ClassType Abort();

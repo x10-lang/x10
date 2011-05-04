@@ -317,7 +317,9 @@ public class WSCodePreprocessor extends ContextVisitor {
     }
     
     private Node visitOffer(Offer n) throws SemanticException {
-        WSUtil.err("X10 Work-Stealing doesn's support Collecting-Finish", n);
+        if(WSUtil.isComplexCodeNode(n.expr(), wts)){
+            return flattenStmt(n);
+        }
         return n;
     }
 
@@ -361,6 +363,9 @@ public class WSCodePreprocessor extends ContextVisitor {
         if(expr instanceof Call
                 && isSimpleConcurrentCall((Call)expr)){
                 return n;
+        }
+        if(expr instanceof FinishExpr){
+            return n;
         }
         return flattenStmt(n);
     }
