@@ -440,19 +440,23 @@ public class X10InnerClassRemover extends InnerClassRemover {
         X10ClassDef def = cd.classDef();
         if (isInner(def)) {
             def.flags(def.flags().clearStatic()); // temporarily turn off the "static" flag
-            List<ParameterType> typeParameters = new ArrayList<ParameterType>();
-            List<ParameterType.Variance> variances = new ArrayList<ParameterType.Variance>();
-            gatherOuterTypeParameters(def, typeParameters, variances);
+            // The def should already have all of the necessary type parameters
+            List<ParameterType> typeParameters = def.typeParameters();
+            List<ParameterType.Variance> variances = def.variances();
             assert (typeParameters.size() == variances.size());
             List<TypeParamNode> typeParamNodes = new ArrayList<TypeParamNode>(cd.typeParameters());
             for (int p = 0; p < typeParameters.size(); p++) {
                 ParameterType tp = typeParameters.get(p);
-                // FIXME: [IP] this is a hack.  We should really rename type parameters.
+                if (p < typeParamNodes.size()) {
+                    TypeParamNode tpn = typeParamNodes.get(p);
+                    assert (tpn.type().typeEquals(tp, context()));
+                    continue;
+                }
                 NodeFactory xnf = (NodeFactory) nf;
                 Position genPos = tp.position().markCompilerGenerated();
                 typeParamNodes.add(xnf.TypeParamNode(genPos, xnf.Id(genPos, tp.name()), variances.get(p)).type(tp));
             }
-            if (!typeParameters.isEmpty()) {
+            if (typeParameters.size() > cd.typeParameters().size()) {
                 cd = cd.typeParameters(typeParamNodes);
             }
             List<ClassMember> newMember = new ArrayList<ClassMember>();
@@ -501,6 +505,11 @@ public class X10InnerClassRemover extends InnerClassRemover {
             }
             cd = cd.body(cd.body().members(newMember));
             def.setWasInner(true);
+            Ref<? extends Type> st = def.superType();
+            ((Ref<Type>) st).update(Types.instantiateTypeParametersExplicitly(Types.get(st)));
+            for (Ref<? extends Type> it : def.interfaces()) {
+                ((Ref<Type>) it).update(Types.instantiateTypeParametersExplicitly(Types.get(it)));
+            }
             def.flags(def.flags().Static()); // set the "static" flag back on
         }
         cd = (X10ClassDecl) super.fixClassDecl(cd);

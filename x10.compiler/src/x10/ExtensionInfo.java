@@ -119,6 +119,7 @@ import x10.visit.MainMethodFinder;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.StaticNestedClassRemover;
+import x10.visit.TypeParamAlphaRenamer;
 import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
@@ -556,6 +557,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(innerClassRemoverGoal); // TODO: move even earlier
            innerClassRemoverGoal.addPrereq(nativeClassVisitorGoal);
            innerClassRemoverGoal.addPrereq(typeCheckBarrierGoal);
+
+           goals.add(TypeParameterAlphaRenamer(job));
 
            goals.add(Serialized(job));
            if (opts.x10_config.WORK_STEALING) {
@@ -1068,17 +1071,25 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("InnerClassRemover", job, new X10InnerClassRemover(job, ts, nf)).intern(this);
        }
-       public Goal FinallyEliminator(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new ValidatingVisitorGoal("FinallyEliminator", job, new FinallyEliminator(job, ts, nf)).intern(this);
-       }
+
        public Goal StaticNestedClassRemover(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
        }
+
+       public Goal TypeParameterAlphaRenamer(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("TypeParameterAlphaRenamer", job, new TypeParamAlphaRenamer(job, ts, nf)).intern(this);
+       }
        
+       public Goal FinallyEliminator(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("FinallyEliminator", job, new FinallyEliminator(job, ts, nf)).intern(this);
+       }
+
        public Goal FinishAsyncBarrier(final Goal goal, final Job job, final Scheduler s) {
            return new AllBarrierGoal("FinishAsyncBarrier", this) {
                private static final long serialVersionUID = -4172220184246138069L;

@@ -353,7 +353,15 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 	variances = new ArrayList<ParameterType.Variance>(variances);
 	variances.add(v);
     }
-
+    
+    public void replaceTypeParameter(int i, ParameterType p, ParameterType.Variance v) {
+	assert (typeParameters.size() == variances.size());
+	typeParameters = new ArrayList<ParameterType>(typeParameters);
+	typeParameters.set(i, p);
+	variances = new ArrayList<ParameterType.Variance>(variances);
+	variances.set(i, v);
+    }
+    
     List<TypeDef> typeMembers;
 
     // TODO:

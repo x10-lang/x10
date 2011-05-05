@@ -244,6 +244,7 @@ public interface ClassDef extends MemberDef
     List<ParameterType.Variance> variances();
     List<ParameterType> typeParameters();
     void addTypeParameter(ParameterType p, ParameterType.Variance v);
+    void replaceTypeParameter(int i, ParameterType p, ParameterType.Variance v);
     
     /** Add a member type to the class. */
     List<TypeDef> memberTypes();

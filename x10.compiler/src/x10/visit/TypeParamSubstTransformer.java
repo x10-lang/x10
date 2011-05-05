@@ -31,37 +31,38 @@ public class TypeParamSubstTransformer extends TypeTransformer {
         this.subst = subst;
     }
 
+    protected TypeParamSubst subst() {
+        return subst;
+    }
+
     @Override
     protected Type transformType(Type type) {
-        return super.transformType(subst.reinstantiate(type));
+        return super.transformType(subst().reinstantiate(type));
     }
 
     @Override
     protected ParameterType transformParameterType(ParameterType pt) {
-        ParameterType tpt = subst.reinstantiate(pt);
-        if (tpt == pt) {
-            assert false : "No substitution found for type parameter " + pt;
-        }
+        ParameterType tpt = subst().reinstantiate(pt);
         return super.transformParameterType(tpt);
     }
 
     @Override
     protected X10LocalInstance transformLocalInstance(X10LocalInstance li) {
-        return super.transformLocalInstance(subst.reinstantiate(li));
+        return super.transformLocalInstance(subst().reinstantiate(li));
     }
 
     @Override
     protected X10FieldInstance transformFieldInstance(X10FieldInstance fi) {
-        return super.transformFieldInstance(subst.reinstantiate(fi));
+        return super.transformFieldInstance(subst().reinstantiate(fi));
     }
 
     @Override
     protected MethodInstance transformMethodInstance(MethodInstance mi) {
-        return super.transformMethodInstance(subst.reinstantiate(mi));
+        return super.transformMethodInstance(subst().reinstantiate(mi));
     }
 
     @Override
     protected X10ConstructorInstance transformConstructorInstance(X10ConstructorInstance ci) {
-        return super.transformConstructorInstance(subst.reinstantiate(ci));
+        return super.transformConstructorInstance(subst().reinstantiate(ci));
     }
 }
