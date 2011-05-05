@@ -119,7 +119,6 @@ import x10.visit.MainMethodFinder;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.StaticNestedClassRemover;
-import x10.visit.X10Caster;
 import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
@@ -546,7 +545,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
            }
            
-           // goals.add(X10Casted(job));  DAVE G: disabled.  Functionality replaced by CastInjector/JavaCaster for the backends.
            goals.add(MoveFieldInitializers(job));
            goals.add(X10Expanded(job));
            goals.add(X10RewriteAtomicMethods(job));
@@ -993,12 +991,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
                return super.runTask();
            }
-       }
-
-       public Goal X10Casted(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new ValidatingVisitorGoal("X10Casted", job, new X10Caster(job, ts, nf)).intern(this);
        }
 
        public Goal MoveFieldInitializers(Job job) {
