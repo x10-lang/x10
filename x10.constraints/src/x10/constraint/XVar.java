@@ -11,6 +11,8 @@
 
 package x10.constraint;
 
+import java.util.Map;
+
 public abstract class XVar extends XTerm  {
 	/** In case this is a field selection x.f1...fn, return x, 
 	 * x.f1, x.f1.f2, ... x.f1.f2...fn 
@@ -18,9 +20,6 @@ public abstract class XVar extends XTerm  {
 	public XVar[] vars() {
 	     return new XVar[] { this };
 	}
-
-	/** In case this is a field selection x.f1...fn, return x, else this. */
-	//protected abstract XVar rootVar();
 
 	public XVar() {
 		super();

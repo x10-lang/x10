@@ -40,6 +40,7 @@ import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.Types;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
@@ -201,8 +202,9 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			    rootClause.setInconsistent();
 			    return rootClause;
 			}
-			if (depClause.valid())
-			    return rootClause;
+			// Need to ensure that returned clause has same self var as Types.xclause(this).
+			//if (depClause.valid())
+			//    return rootClause;
 			depClause.addIn(rootClause);
 			return depClause;
 		}
@@ -819,4 +821,28 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			 return makeProperty("rail");
 		 }
 
+		 // Ensure type equality works correctly when a type has vacuous constraints.
+		 @Override
+		 public boolean equalsImpl(TypeObject o) {
+			 if (this == o) return true;
+			 if (baseType().get().equalsImpl(o)) {
+				 CConstraint c = new CConstraint();
+				 if (c.entails(constraint().get()))
+					 return true;
+			 }
+			 if (o instanceof ConstrainedType) {
+				 ConstrainedType other = (ConstrainedType) o;
+				 Type bt = baseType().get();
+				 Type obt = other.baseType().get();
+				 if ((bt != obt))
+					 return false;
+				 CConstraint c = constraint().get();
+				 CConstraint oc = other.constraint().get();
+				 if (! c.entails(oc) || ! oc.entails(c))
+					 return false;
+				 return true;
+			 }
+			 return false;
+					 
+		 }
 	}

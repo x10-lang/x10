@@ -651,7 +651,7 @@ public class Converter {
 		// Added 03/28/10 to support new call conversion semantics.
 		if (ts.isSubtype(baseFrom, baseTo, context))
 			if (!opts.x10_config.STATIC_CHECKS)
-				if (cast.conversionType() == ConversionType.CALL_CONVERSION 
+				if (( cast.conversionType() == ConversionType.CALL_CONVERSION)
 						&& ts.isCastValid(fromType, toType, context)) {
 					//return cast.conversionType(ConversionType.DESUGAR_LATER).type(baseTo);
 					X10Cast n = cast.conversionType(ConversionType.DESUGAR_LATER); 

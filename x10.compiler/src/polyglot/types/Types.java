@@ -1326,6 +1326,16 @@ public class Types {
 	    return true;
 	}
 
+	static ProcedureInstance<?> orig(ProcedureInstance<?> xp) {
+		if (xp instanceof MethodInstance) {
+		return ((MethodInstance) xp).origMI();
+		}
+		if (xp instanceof X10ConstructorInstance) {
+			return ((X10ConstructorInstance) xp).origMI();
+		}
+		assert false;
+		return null;
+	}
 	/**
 	 * 
 	 * @param xp1 -- the first procedure instance
@@ -1446,13 +1456,16 @@ public class Types {
 	    XVar[] ys = toVarArray(toLocalDefList(xp2.formalNames()));
 	    XVar[] xs = toVarArray(toLocalDefList(xp1.formalNames()));
 	    for (int i = 0; i < xp1.formalTypes().size(); i++) {
-	        Type f1 = xp1.formalTypes().get(i);
+	    	// Need to use original type information. The current type
+	    	// information may have call specific uqv's in the constraints
+	    	// rather than the declared formals.
+	        Type f1 = orig(xp1).formalTypes().get(i);
 	        try {
 	            f1 = Subst.subst(f1, ys, xs, new Type[]{}, new ParameterType[]{});
 	        } catch (SemanticException e) {
 	            throw new InternalCompilerError("Unexpected exception while comparing methods", e);
 	        }
-	        Type f2 = xp2.formalTypes().get(i);
+	        Type f2 = orig(xp2).formalTypes().get(i);
 	        if (! ts.typeEquals(f1, f2, context)) {
 	        	return true;
 	        }

@@ -242,13 +242,16 @@ public class Checker {
 			if (r instanceof XVar) {
 				receiver = (XVar) r;
 			}
-			if (receiver == null)
-				receiver = XTerms.makeEQV();
 		} catch (IllegalConstraint z) {
-			receiver = XTerms.makeEQV();
 		}
+		if (receiver == null)
+			receiver = XTerms.makeEQV();
 		try {
-			t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
+			t = Subst.subst(t, 
+					(new XVar[] { receiver }), 
+					(new XVar[] { fi.thisVar() }), 
+					new Type[] { }, 
+					new ParameterType[] { });
 		} catch (SemanticException e) {
 			throw new InternalCompilerError("Unexpected error while computing field type", e);
 		}

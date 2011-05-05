@@ -11,7 +11,12 @@
 
 package x10.constraint;
 
+import x10.constraint.visitors.ConstraintGenerator;
+import x10.constraint.visitors.EntailsVisitor;
+import x10.constraint.visitors.XGraphVisitor;
 import x10.util.CollectionFactory;
+
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
@@ -145,15 +150,40 @@ public class XConstraint implements Cloneable {
      * Copy this constraint. Implemented via a graph traversal.
      */
     public XConstraint copy() {
-        return copyInto(new XConstraint());
+        XConstraint result = new XConstraint();
+	    result.addIn(this);
+	    return result;
+       // return copyInto(new XConstraint());
     }
+    public void addIn(XConstraint c) {
+    	    if (c== null)
+    	        return;
+    	    if (! c.consistent()) {
+    	        setInconsistent();
+                return;
+    	    }
+    	    if (c.valid()) {
+    	        return;
+    	    }
+    	    x10.constraint.visitors.AddInVisitor v 
+    	    = new x10.constraint.visitors.AddInVisitor(true, false, this);
+    	    // hideFake==false to permit the "place checking" to work.
+    	    // This ensures that multiple objects created at the same place
+    	    // e.g. GlobalRef's, are treated as being at the same place by the 
+    	    // type-checker.
+    	    c.visit(v);
+    	    // vj: What about thisVar for c? Should that be added?
+    	    // thisVar = getThisVar(this, c);
+    	    return;
+    	}
     
     /**
      * Return the result of copying this into c.  
+     * TODO: Do this with an XGraphVisitor.
      * @param c
      * @return
      */
-    protected <T extends XConstraint> T copyInto(T c)  {
+ /*   protected <T extends XConstraint> T copyInto(T c)  {
         c.consistent = consistent;
         c.valid = valid;
         if (roots !=null) {
@@ -172,7 +202,7 @@ public class XConstraint implements Cloneable {
         }
         return c;
     }
-
+*/
     
 
     
@@ -181,21 +211,18 @@ public class XConstraint implements Cloneable {
 	 * if there is no such term. This term will be distinct from v.
 	 * */
     public XVar bindingForVar(XVar v) {
-    	XPromise p = lookup(v);
+    	XPromise p = v.nfp(this);
     	if (p != null && p.term() instanceof XVar && ! p.term().equals(v)) {
-    		return (XVar) p.term();
+    		return (XVar) p.term().nf(this);
     	}
     	return null;
     }
     
-    protected XTerm bindingForRootField(XVar root, Object o) {
-    	 if (!consistent || roots == null)
-             return null;
-         XPromise self = (XPromise) roots.get(root);
-         if (self == null)
-             return null;
-         XPromise result = self.lookup(o);
-         return result == null ? null : result.term();
+    protected XTerm bindingForRootField(XVar root, Object field) {
+    	XTerm term = new XField<Object>(root, field);
+    	XPromise p = term.nfp(this);
+    	if (p == null) return null;
+    	return p.term();
     }
 
 	/**
@@ -326,7 +353,7 @@ public class XConstraint implements Cloneable {
             return;
         }
         try {
-            valid &= ! p1.bind(p2);
+            valid &= ! p1.bind(p2, this);
         } catch (XFailure z) {
             setInconsistent();
         }
@@ -393,7 +420,7 @@ public class XConstraint implements Cloneable {
         valid = false;
         if (roots == null)
             roots = CollectionFactory.<XTerm,XPromise> newHashMap();
-        XPromise p = lookup(t);
+        XPromise p = t.nfp(this);
         
         if (p != null)
             // nothing to do
@@ -408,46 +435,12 @@ public class XConstraint implements Cloneable {
 	 * @return
 	 */
     public boolean entails(XConstraint other)  {
-   //   boolean oldEntails=oldEntails(other);
-      boolean newEntails=newEntails(other);
-    /*  if (oldEntails != newEntails) {
-          System.out.println("Constraint mismatch: a " 
-                             + (oldEntails ? "does not now entail " : "now entails ") 
-                             + "b."
-                             + "\n\t a: " + this
-                             + "\n\t b: " + other);
-      }*/
-      return newEntails;
-    }
-    static class EntailsVisitor implements XGraphVisitor{
-        XConstraint c1;
-        boolean result=true;
-        EntailsVisitor(XConstraint c1) {
-            this.c1=c1;
-        }
-        public boolean visitAtomicFormula(XTerm t) {
-            result &= c1.entails(t);
-            return result;
-        }
-        public boolean visitEquals(XTerm t1, XTerm t2) {
-            result &= c1.entails(t1, t2);
-            return result;
-        }
-        public boolean visitDisEquals(XTerm t1, XTerm t2) {
-            result &= c1.disEntails(t1, t2);
-            return result;
-        }
-        public boolean result() {
-            return result;
-        }
-    }
-    public boolean newEntails(XConstraint other)  {
         if (!consistent)
             return true;
         if (other == null || other.valid())
             return true;
-        EntailsVisitor ev = new EntailsVisitor(this);
-        other.visit(false,false, ev);
+        EntailsVisitor ev = new EntailsVisitor(true, false, this);
+        other.visit(ev);
         return ev.result();
     }
     
@@ -522,47 +515,33 @@ public class XConstraint implements Cloneable {
     public List<XTerm> constraints() {
         if (roots == null)
             return new ArrayList<XTerm>(0);
-        ConstraintGenerator cg = new ConstraintGenerator();
-        visit(true, false, cg);
+        ConstraintGenerator cg = new ConstraintGenerator(true, false);
+        visit(cg);
         return cg.result();
     }
     
 
 	/**
 	 * Return a list of bindings t1-> t2 equivalent to the current
-	 * constraint except that equalities involving EQV variables are ignored.
+	 * constraint except that equalities involving only EQV variables are 
+	 * ignored if dumpEQV is false, an equalities involving only fake fields
+	 * are ignored if hideFake is true.
 	 * 
 	 * @return
 	 */
 
-    protected void visit(boolean dumpEQV, boolean hideFake, XGraphVisitor xg) {
+    protected void visit( XGraphVisitor xg) {
         if (roots == null)
             return;
-        for (XPromise p : roots.values()) {
-        	boolean result = p.visit(null, dumpEQV, hideFake, xg);
+        Collection<XPromise> values = roots.values();
+        for (XPromise p : values) {
+        	boolean result = p.visit(null, xg, this);
             if (! result )
                 return;
         }
     }
     
-    public static final class ConstraintGenerator implements XGraphVisitor {
-        public List<XTerm> result = new ArrayList<XTerm>(5);
-        public boolean visitAtomicFormula(XTerm t) {
-            result.add(t);
-            return true;
-        }
-        public boolean visitEquals(XTerm t1, XTerm t2) {
-            result.add( XTerms.makeEquals(t1, t2));
-            return true;
-        }
-        public boolean visitDisEquals(XTerm t1, XTerm t2) {
-            result.add(XTerms.makeDisEquals(t1, t2));
-            return true;
-        }
-        public List<XTerm> result() {
-            return result;
-        }
-    }
+   
     /**
      * Return a list of bindings t1-> t2 equivalent to 
      * the current constraint except that equalities involving EQV variables 
@@ -571,13 +550,13 @@ public class XConstraint implements Cloneable {
      * @return
      */
     public List<XTerm> extConstraints() {
-        ConstraintGenerator cg = new ConstraintGenerator();
-        visit(false, false, cg);
+        ConstraintGenerator cg = new ConstraintGenerator(true, false);
+        visit(cg);
         return cg.result();
     }
     public List<XTerm> extConstraintsHideFake() {
-        ConstraintGenerator cg = new ConstraintGenerator();
-        visit(false, true, cg);
+        ConstraintGenerator cg = new ConstraintGenerator(true, true);
+        visit(cg);
         return cg.result();
     }
 
@@ -589,10 +568,10 @@ public class XConstraint implements Cloneable {
 	 */
     public boolean disEntails(XTerm t1, XTerm t2)  {
     	if (! consistent) return true;
-    	XPromise p1 = lookup(t1);
+    	XPromise p1 = t1.nfp(this);
     	if (p1 == null) // this constraint knows nothing about t1.
     		return false;
-    	XPromise p2 = lookup(t2);
+    	XPromise p2 = t2.nfp(this);
     	if (p2 == null)
     		return false;
     	if (p1.isDisBoundTo(p2))
@@ -624,72 +603,9 @@ public class XConstraint implements Cloneable {
     public boolean entails(XTerm t1, XTerm t2)  {
         if (!consistent)
             return true;
-        if (t1.isEQV() || t2.isEQV())
-        	return true;
-        XPromise p1 = lookupPartialOk(t1);
-        if (p1 == null) // No match, the term t1 is not equated to anything by this.
-            return false;
-
-        int r1Count = 0;
-        XVar[] vars1 = null;
-        if (p1 instanceof XPromise_c) {
-        	if (t1 instanceof XVar) {
-        		r1Count = ((XPromise_c) p1).lookupReturnValue();
-        		vars1 = ((XVar) t1).vars();
-        	}
-        }
-
-        XPromise p2 = lookupPartialOk(t2);
-        if (p2 == null) // No match, the term t2 is not equated to anything by this.
-        	return false;
-
-        int r2Count = 0;
-        XVar[] vars2 = null;
-        if (p2 instanceof XPromise_c) {
-        	if (t2 instanceof XVar) {
-        		r2Count = ((XPromise_c) p2).lookupReturnValue();
-        		/* if (! (t2 instanceof XVar)) {
-            	assert false: "Internal Error:" + t2 + "expected to be an XVar.";
-            }*/
-        		vars2 = ((XVar) t2).vars();
-        	}
-        }
-
-        if ((!(t1 instanceof XVar) || (r1Count == 0 || r1Count == vars1.length))
-        		&& (! (t1 instanceof XVar) || (r2Count == 0 || r2Count == vars2.length))) {
-        		
-            // exact lookups
-            return p1.equals(p2);
-        }
-
-        // at least one of them had a suffix left over
-        // Now the returned promises must match, and they must have the same
-        // suffix.
-        
-        if (!p1.equals(p2))
-            return false;
-
-        // Now ensure that they have the same suffix left over.
-        int residual1 = vars1.length - r1Count, residual2 = vars2.length - r2Count;
-        if (residual1 != residual2)
-            return false;
-
-        for (int i = 0; i < residual1; i++) {
-            XVar v1 = vars1[r1Count + i];
-            XVar v2 = vars2[r2Count + i];
-            if (v1 instanceof XField && v2 instanceof XField) {
-                XField f1 = (XField) v1;
-                XField f2 = (XField) v2;
-                if (! f1.field().equals(f2.field())) {
-                    return false;
-                }
-            }
-            else {
-                return false;
-            }
-        }
-
-        return true;
+        XPromise p1 = t1.nfp(this);
+        XPromise p2 = t2.nfp(this);
+        return p1 == p2 || p1.term().equals(p2.term());
     }
     
 	/**
@@ -767,9 +683,7 @@ public class XConstraint implements Cloneable {
 
         return false;
     }
- 
-    
-   // private static boolean printEQV = true;
+
 
     public String toString() {
         XConstraint c = this;
@@ -777,13 +691,6 @@ public class XConstraint implements Cloneable {
         if (! c.consistent) {
             return "{inconsistent}";
         }
-        
-     /*  try {
-           // c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
-        }
-        catch (XFailure z) {
-            return "{inconsistent}";
-        }*/
 
         String str ="";
 
@@ -999,7 +906,7 @@ public class XConstraint implements Cloneable {
             // this is the case for literals, for here
             if (last != null) {
                 try {
-                    last.bind(q);
+                    last.bind(q, this);
                 }
                 catch (XFailure f) {
                     return null;
@@ -1030,94 +937,4 @@ public class XConstraint implements Cloneable {
         roots.put(p, node);
     }
 
-   //  void internRecursively(XVar v) throws XFailure {
-   //     intern(v);
-   // }
-    
-     /**
- 	 * Look this term up in the constraint graph. Return null if the term
- 	 * does not exist. Does not create new nodes in the constraint graph.
- 	 * Does not return a forwarded promise (looks it up recursively, instead).
- 	 * 
- 	 * @param term
- 	 * @return the terminal promise this term is associated with (if any), null otherwise
- 	 */
-    XPromise lookup(XTerm term) {
-        XPromise result = lookupPartialOk(term);
-        if (!(result instanceof XPromise_c))
-            return result;
-        // it must be the case that term is a XVar.
-        if (term instanceof XVar) {
-            XVar var = (XVar) term;
-            XVar[] vars = var.vars();
-            XPromise_c resultC = (XPromise_c) result;
-            int index = resultC.lookupReturnValue();
-            return (index == vars.length) ? result : null;
-        }
-        if (term instanceof XFormula)
-        	return result;
-        return null;
-    }
-    
-	/**
-	 * Look this term up in the constraint graph. If the term is of the form
-	 * x.f1...fk and the longest prefix that exists in the graph is
-	 * x.f1..fi, return the promise corresponding to x.f1...fi. If the
-	 * promise is a Promise_c, the caller must invoke lookupReturnValue() to
-	 * determine if the match was partial (value returned is not equal to
-	 * the length of term.vars()). If not even a partial match is found, or
-	 * the partial match terminates in a literal (which, by definition,
-	 * cannot have fields), then return null.
-	 * 
-	 * @seeAlso lookup(C_term term)
-	 * @param term
-	 * @return
-	 * @throws XFailure
-	 */
-    XPromise lookupPartialOk(XTerm term) {
-        if (term == null)
-            return null;
-        
-        if (term instanceof XPromise)
-            // this is the case for literals, for here
-            return (XPromise) term;
-        // otherwise it must be a XVar.
-        if (roots == null)
-            return null;
-        if (term instanceof XVar) {
-            XVar var = (XVar) term;
-            XVar[] vars = var.vars();
-            XVar baseVar = vars[0];
-            XPromise p = (XPromise) roots.get(baseVar);
-            if (p == null)
-                return null;
-            return p.lookup(vars, 1);
-        }
-        
-        {
-        	XPromise p = roots.get(term);
-        	if (p != null)
-        		return p;
-        }
-        
-        return null;
-    }
-    
-    /*
-    @SuppressWarnings("unchecked") // Casting to a generic type
-    private Map<XTerm, XPromise> cloneRoots() {
-        return ((Map<XTerm,XPromise>) ((SmallMap<XTerm,XPromise>)roots).clone());
-    }
-	
-    static <T> XTerm makeField(XTerm target, XField<T> field) {
-        XTerm t;
-        if (target instanceof XVar) {
-            t = field.copy((XVar) target); 
-        }
-        else {
-            t = XTerms.makeAtom(field.field(), target);
-        }
-        return t;
-    }
-*/
 }

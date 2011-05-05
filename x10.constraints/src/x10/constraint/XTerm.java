@@ -172,4 +172,28 @@ public abstract class XTerm implements  Serializable, Cloneable {
         if (res!=null) return res;
         return this;
     }
+    
+    /**
+     * Return the normal form for this term in this given constraint.
+     * The normal form of a term t in a constraint c, t.nf(c), is a term 
+     * s with the property that 
+     * for all u: s=u.nf(c) iff c |- s=u
+     * From this it follows that s=s.nf(c).
+     * The normal form is computed as nfp(c).term().
+     * @param c
+     * @return
+     */
+    public final XTerm nf(XConstraint c) {
+    	assert c != null;
+    	return nfp(c).term();
+    }
+    
+    /**
+     * Return the promise corresponding to the normal form of the term, 
+     * interning the term if it is not interned already. 
+     * If p is the return value, then guaranteed p!= null and p=p.lookup().
+     * @param c
+     * @return
+     */
+    public abstract XPromise nfp(XConstraint c);
 }
