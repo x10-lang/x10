@@ -19,16 +19,16 @@ public class AllReduce extends x10Test {
 
     def allReduceTest(team:Team, role:int, res:GlobalRef[Cell[Boolean]]) {
         val count = 113;        
-        val src = new Array[Float](count, (i:int)=>((role+1) as Float) * i * i);
-        val dst = new Array[Float](count, (i:int)=>-(i as Float));
+        val src = new Array[Double](count, (i:int)=>((role+1) as Double) * i * i);
+        val dst = new Array[Double](count, (i:int)=>-(i as Double));
         var success: boolean = true;
                 
         {
             team.allreduce(role, src, 0, dst, 0, count, Team.ADD);
 
-            val oracle_base = ((team.size()*team.size() + team.size())/2) as Float;
+            val oracle_base = ((team.size()*team.size() + team.size())/2) as Double;
             for ([i] in 0..(count-1)) {
-                val oracle:float = oracle_base * i * i;
+                val oracle:double = oracle_base * i * i;
                 if (dst(i) != oracle) {
                     Console.OUT.printf("Team %d role %d received invalid sum %f at %d instead of %f\n",
                                        team.id(), role, dst(i), i, oracle);
@@ -40,9 +40,9 @@ public class AllReduce extends x10Test {
         {
             team.allreduce(role, src, 0, dst, 0, count, Team.MAX);
 
-            val oracle_base = (team.size()) as Float;
+            val oracle_base = (team.size()) as Double;
             for ([i] in 0..(count-1)) {
-                val oracle:float = oracle_base * i * i;
+                val oracle:double = oracle_base * i * i;
                 if (dst(i) != oracle) {
                     Console.OUT.printf("Team %d role %d received invalid max %f at %d instead of %f\n",
                                        team.id(), role, dst(i), i, oracle);
@@ -56,7 +56,7 @@ public class AllReduce extends x10Test {
 
             val oracle_base = 1.0f;
             for ([i] in 0..(count-1)) {
-                val oracle:float = oracle_base * i * i;
+                val oracle:double = oracle_base * i * i;
                 if (dst(i) != oracle) {
                     Console.OUT.printf("Team %d role %d received invalid max %f at %d instead of %f\n",
                                        team.id(), role, dst(i), i, oracle);
