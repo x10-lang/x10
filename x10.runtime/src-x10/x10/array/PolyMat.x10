@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.TempNoInline_0;
 import x10.io.Printer;
 
 
@@ -36,7 +37,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
      * Low-level constructor. For greater convenience use PolyMatBuilder.
      */
 
-    public def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int, isSimplified:boolean) {
+    public @TempNoInline_0 def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int, isSimplified:boolean) {
         super(rows, cols, new Array[PolyRow](rows, (i:Int)=>new PolyRow(cols, (j:Int)=>init(i,j))));
         val cols1 = cols-1;
         property(cols1);
