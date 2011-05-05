@@ -810,7 +810,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         
     	if (ts.isAny(t2))
     		return true;
-    	Context xcontext = (Context) context;
+    	Context xcontext = context;
 
     	{
     		boolean isStruct1 = Types.isX10Struct(t1);
@@ -834,7 +834,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	}
     	
     	if (t1.isNull())
-    		return Types.permitsNull(t2);
+    		return Types.permitsNull(xcontext, t2);
     	
 
     	if (t2.isNull()) 
@@ -1306,7 +1306,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
       //  	return true;
         
         if (fromType instanceof NullType) {
-            return toType.isNull() ||  Types.permitsNull(toType);
+            return toType.isNull() ||  Types.permitsNull(context, toType);
           
         }
 
@@ -1617,7 +1617,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type t;
         if (type1.isNull() || type2.isNull()) {
             t = type1.isNull() ? type2 : type1;
-            if (Types.permitsNull(t))
+            if (Types.permitsNull(context, t))
                 return t;
             // Maybe there is a constraint {self!=null} that we can remove from "t", and then null will be allowed.
             // e.g., true ? null : new Test()
@@ -1626,7 +1626,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             // The lub should be:  Test{self.home==here}
 
             Type baseType = Types.baseType(t);
-            if (!Types.permitsNull(baseType))
+            if (!Types.permitsNull(context, baseType))
                 throw new SemanticException("No least common ancestor found for types \"" + type1 +
     								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
             // we need to keep all the constraints except the one that says the type is not null
@@ -1637,7 +1637,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             // However   LCA(null, Bla{self==a})  is complicated because "a" might be of type Bla{self!=null}, so we need to remove the constraint self==a.
             // See XTENLANG_2622 and XTENLANG_1380
             assert Types.consistent(res);
-            assert Types.permitsNull(res);
+            assert Types.permitsNull(context, res);
             return res;
         } else {
             t = leastCommonAncestorBase(Types.baseType(type1), Types.baseType(type2));

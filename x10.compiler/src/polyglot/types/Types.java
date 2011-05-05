@@ -598,7 +598,7 @@ public class Types {
 	    } else if (ts.isDouble(t)) {
 	        zeroLit = XTerms.ZERO_DOUBLE;
 	    } else if (ts.isObjectOrInterfaceType(t, xc)) {
-	        if (Types.permitsNull(t)) return true;
+	        if (Types.permitsNull(xc, t)) return true;
 	        //zeroLit = XTerms.NULL;
 	    } else if (ts.isParameterType(t)) {
 	        // we have some type "T" which is a type parameter. Does it have a zero value?
@@ -1205,12 +1205,17 @@ public class Types {
 	    return isDefAnnotated(def,ts,"x10.compiler.SuppressTransientError");
 	}
 
-	public static boolean permitsNull(Type t) {
+	public static boolean permitsNull(Context cxt, Type t) {
 		if (isX10Struct(t))
 			return false;
-		if (disEntailsSelf(t, XTerms.NULL))
-			return false;
-		TypeSystem ts = ((TypeSystem) t.typeSystem());
+		CConstraint c = Types.xclause(t);
+		if (c!= null && ! c.valid()) {
+			c.addIn(cxt.constraintProjection(c));
+			//c.addSelfBinding(XTerms.NULL);
+			if (c.disEntails(c.self(), XTerms.NULL))
+				return true;
+		}
+		TypeSystem ts = t.typeSystem();
 		if (ts.isParameterType(t)) {			
 			return false; // a parameter type might be instantiated with a struct that doesn't permit null.
 		}
