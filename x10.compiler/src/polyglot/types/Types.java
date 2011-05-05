@@ -1211,9 +1211,8 @@ public class Types {
 		CConstraint c = Types.xclause(t);
 		if (c!= null && ! c.valid()) {
 			c.addIn(cxt.constraintProjection(c));
-			//c.addSelfBinding(XTerms.NULL);
 			if (c.disEntails(c.self(), XTerms.NULL))
-				return true;
+				return false;
 		}
 		TypeSystem ts = t.typeSystem();
 		if (ts.isParameterType(t)) {			
