@@ -331,7 +331,8 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 CConstraint _inv = Types.get(ctype.x10Def().classInvariant()).copy();
                 X10TypeEnv env = ts.env(tc.context());
                 boolean isThis = true; // because in the class invariant we use this (and not self)
-                _inv = X10TypeEnv_c.ifNull(((X10TypeEnv_c)env).expandProperty(isThis,ctype,_inv),_inv);
+                X10TypeEnv_c env_c = (X10TypeEnv_c) env;
+                _inv = X10TypeEnv_c.ifNull(env_c.expandProperty(isThis,ctype,_inv),_inv);
                 final CConstraint inv = _inv;
                  if (!k.entails(inv, new ConstraintMaker() {
                      public CConstraint make() throws XFailure {
@@ -350,6 +351,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 		 XVar intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();
                 		 cc = cc.substitute(thisVar, intfcThisVar);
                 	 }
+                	 cc = X10TypeEnv_c.ifNull(env_c.expandProperty(false,ctype,cc),cc);  // for some reason we have self in the invariant, see InterfaceTypeInvariant 
                 	 final CConstraint ccc=cc;
                 	 if (!k.entails(cc, new ConstraintMaker() {
                          public CConstraint make() throws XFailure {
