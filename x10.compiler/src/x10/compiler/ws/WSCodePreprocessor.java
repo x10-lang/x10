@@ -768,7 +768,7 @@ public class WSCodePreprocessor extends ContextVisitor {
             df.condLeft = condLeftExpr;
             df.upperRef = condRightExpr;
         }
-        else { //right found
+        else { //right found - Switch left and right
             df.condLeft = condRightExpr;
             df.upperRef = condLeftExpr;
             //and need change operator
@@ -776,6 +776,44 @@ public class WSCodePreprocessor extends ContextVisitor {
             else if(df.condOperator == Binary.GE) {df.condOperator = Binary.LE; }
             else if(df.condOperator == Binary.LT) {df.condOperator = Binary.GT; }
             else if(df.condOperator == Binary.GT) {df.condOperator = Binary.LT; }
+        }
+        //and the bound could be only integer type, and we need prepare a "1" for "GE"/"LE" case
+        Expr uni;
+        if(df.boundType == ts.Int()){
+            uni = nf.IntLit(compilerPos, IntLit.INT, 1).type(ts.Int());
+        }
+        else if(df.boundType == ts.UInt()){
+            uni = nf.IntLit(compilerPos, IntLit.UINT, 1).type(ts.UInt());
+        }
+        else if(df.boundType == ts.Long()){
+            uni = nf.IntLit(compilerPos, IntLit.LONG, 1).type(ts.Long());
+        }
+        else if(df.boundType == ts.ULong()){
+            uni = nf.IntLit(compilerPos, IntLit.ULONG, 1).type(ts.ULong());
+        }
+        else if(df.boundType == ts.Short()){
+            uni = nf.IntLit(compilerPos, IntLit.SHORT, 1).type(ts.Short());
+        }
+        else if(df.boundType == ts.UShort()){
+            uni = nf.IntLit(compilerPos, IntLit.USHORT, 1).type(ts.UShort());
+        }
+        else if(df.boundType == ts.Byte()){
+            uni = nf.IntLit(compilerPos, IntLit.BYTE, 1).type(ts.Byte());
+        }
+        else if(df.boundType == ts.UByte()){
+            uni = nf.IntLit(compilerPos, IntLit.UBYTE, 1).type(ts.UByte());
+        }
+        else{
+            return null;
+        }
+        //Need process GE or LE. Change to GT or LT, and change upperRef
+        if(df.condOperator == Binary.GE){
+            df.condOperator = Binary.GT;
+            df.upperRef = nf.Binary(compilerPos, df.upperRef, Binary.SUB, uni).type(df.boundType);
+        }
+        if(df.condOperator == Binary.LE){
+            df.condOperator = Binary.LT;
+            df.upperRef = nf.Binary(compilerPos, df.upperRef, Binary.ADD, uni).type(df.boundType);
         }
         
         //Condition 4:
