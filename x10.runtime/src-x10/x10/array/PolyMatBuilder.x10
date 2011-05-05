@@ -78,3 +78,4 @@ class PolyMatBuilder(rank: int) extends MatBuilder {
         add((i:Int) => as_(i));
     }
 }
+type PolyMatBuilder(rank:Int) = PolyMatBuilder{self.rank==rank};
