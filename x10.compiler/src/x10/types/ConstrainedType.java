@@ -511,13 +511,15 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		                    MethodInstance mi = Types.getPropertyMethod(this, name);
 		                    if (mi != null) {
 		                        val = translator.translate(var, mi);
-                                // expand it in order to handle Dist.rank()
-                                val = XTypeTranslator.expandSelfPropertyMethod(val);
 		                    }
 		                }
 		            }
 		        }
 		    }
+            if (val!=null) {                   
+                // expand it in order to handle Dist.rank()
+                val = XTypeTranslator.expandSelfPropertyMethod(val);
+            }
 		    return val; // todo: val can be null! if we build a synthetic term, then why not always build it???
 		}
 

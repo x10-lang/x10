@@ -27,7 +27,7 @@ class XTENLANG_2638
         {
             at (place)
             {
-                for (pt:Point in mat | here)//(mat.dist | here))
+                for (pt in mat | here)//(mat.dist | here))
                 {
                     val x = mat(pt);
                     val y = rhs(pt);
