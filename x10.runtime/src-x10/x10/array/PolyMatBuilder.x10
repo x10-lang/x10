@@ -23,8 +23,6 @@ import x10.io.Printer;
 class PolyMatBuilder(rank: int) extends MatBuilder {
 
     // XTENLANG-49
-    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
-    static type PolyMatBuilder(rank:Int) = PolyMatBuilder{self.rank==rank};
 
 
     /**

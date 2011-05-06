@@ -130,7 +130,7 @@ public abstract class Dist(
      * @return a "block,block" distribution over r.
      */
     public static def makeBlockBlock(r:Region, axis0:int, axis1:int):Dist(r) {
-        return new BlockBlockDist(r, axis0, axis1, PlaceGroup.WORLD) as Dist(r); // TODO: should not need this cast
+        return new BlockBlockDist(r, axis0, axis1, PlaceGroup.WORLD);//) as Dist(r); // TODO: should not need this cast
     }
 
     /**
@@ -219,7 +219,7 @@ public abstract class Dist(
      * @return a "block" distribution over r, blocking over the places in ps.
      */
     public static def makeBlock(r:Region, axis:int, pg:PlaceGroup):Dist(r) {
-        return new BlockDist(r, axis, pg) as Dist(r); // TODO: cast should not be needed
+        return new BlockDist(r, axis, pg);// as Dist(r); // TODO: cast should not be needed
     }
 
     /**
@@ -666,7 +666,7 @@ public abstract class Dist(
      *
      * @param region the given region
      */
-    protected def this(region:Region) {
+    protected def this(region:Region):Dist{self.region==region} {
         property(region);
     }
 

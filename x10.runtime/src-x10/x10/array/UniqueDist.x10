@@ -56,19 +56,19 @@ final class UniqueDist extends Dist(1) {
     public def numPlaces():int = pg.numPlaces();
 
     public def regions():Sequence[Region(rank)] {
-	return new Array[Region(rank)](pg.numPlaces(), (i:int)=>((i..i) as Region(rank))).sequence();
+	return new Array[Region(rank)](pg.numPlaces(), (i:int):Region(rank)=>((i..i))).sequence();
     }
 
     public def get(p:Place):Region(rank) {
         if (p == here) {
             if (regionForHere == null) {
                 val idx = pg.indexOf(here);
-                regionForHere = (idx..idx) as Region(rank);
+                regionForHere = (idx..idx);// as Region(rank);
             }
 	    return regionForHere;
         } else {
             val idx = pg.indexOf(p);
-            return (idx..idx) as Region(rank);
+            return (idx..idx);// as Region(rank);
         }
     }
 
@@ -116,11 +116,11 @@ final class UniqueDist extends Dist(1) {
     public def maxOffset():int = 0;
 
     public def restriction(r:Region(rank)):Dist(rank) {
-	return new WrappedDistRegionRestricted(this, r) as Dist(rank); // TODO: cast should not be needed
+	return new WrappedDistRegionRestricted(this, r);// as Dist(rank); // TODO: cast should not be needed
     }
 
     public def restriction(p:Place):Dist(rank) {
-	return new WrappedDistPlaceRestricted(this, p) as Dist(rank); // TODO: cast should not be needed
+	return new WrappedDistPlaceRestricted(this, p);// as Dist(rank); // TODO: cast should not be needed
     }
 
     public def equals(thatObj:Any):boolean {

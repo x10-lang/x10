@@ -129,7 +129,7 @@ final class RectRegion1D extends Region{rect,rank==1} {
     }
 
     public def translate(v: Point(rank)):Region(rank){self.rect} {
-        return new RectRegion1D(min+v(0), max+v(0)) as Region(rank){self.rect}; // TODO: cast should not be need, since class invariant is rank == 1
+        return new RectRegion1D(min+v(0), max+v(0));
     }
 
     public def projection(axis:int):Region(1){self.rect} {
