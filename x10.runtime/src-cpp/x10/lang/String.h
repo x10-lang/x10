@@ -122,8 +122,6 @@ namespace x10 {
                 return substring(start, this->length());
             }
 
-            x10aux::ref<x10::array::Array<x10aux::ref<String> > > split(x10aux::ref<String> pat);
-
             // Forwarding method needed so that String can be used in Generic contexts (T <: (nat)=>char)
             x10_char __apply(x10_int i) { return charAt(i); }
             
@@ -198,4 +196,19 @@ namespace x10 {
 
 
 #endif
+
+
+#ifndef X10_LANG_STRING_H_NODEPS
+#define X10_LANG_STRING_H_NODEPS
+/*
+ * Must include header files for any types
+ * mentioned in @Native annotations but not
+ * present in method return types.
+ */
+#define X10_LANG_STRINGHELPER_H_NODEPS
+#include <x10/lang/StringHelper.h>
+#undef X10_LANG_STRINGHELPER_H_NODEPS
+
+#endif
+
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
