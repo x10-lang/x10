@@ -11,36 +11,48 @@
 
 package x10.lang;
 
+import x10.util.Random;
+
 /**
  * Accumulator object is used for todo... 
  * 
  *
- * @author Nate 04/09/11
+ * 
  */
 public final class Accumulator[T] {
-
-	public property tempId():String = "x";
 	
 	private var curr:T;
+	private var id:long;
 	private val red:Reducible[T];
+	
 	public def this(red:Reducible[T]) {
 		curr = red.zero();
-		Console.OUT.println("Acc 1: "+curr);
 		this.red = red;
+		val randObj = new Random();
+		id = randObj.nextLong();
 	}
 	
 	public def supply(t:T) {
-	//Console.OUT.println("before value: "+curr);
-		curr = Runtime.makeAccSupply(curr, red, t);
-		//Console.OUT.println("AFTER Acc supply: "+curr);
-		this.result();
+	
+		Console.OUT.println("Supplying value :" +t);
+		Runtime.makeAccSupply(id, t, red);
+		
 	}
 	
 	public def result():T {
+			
+			curr = Runtime.getAccValue[T](id, red);
 			Console.OUT.println("Acc result: "+curr);
 			return curr;
-		
+			
 	}
+	
+	public def getId():long{
+		return id;
+	}
+	
+	
+
 }
 
 
