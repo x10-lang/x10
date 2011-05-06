@@ -44,11 +44,13 @@ abstract public class CollectingFinish[T] extends FinishFrame {
     
     @Ifdef("__CPP__")
     public def realloc() {
-        val tmp = Frame.cast[FinishFrame, CollectingFinish[T]](super.realloc());
-        Runtime.atomicMonitor.lock();
-        Runtime.atomicMonitor.unlock();
-        //Refresh the redirect field. After that we could copy the result safely
-        tmp.result = result;
+        if (null != redirect) return redirect;
+        val tmp = remap();
+        tmp.redirect = tmp;
+        tmp.append(stack);
+        atomic redirect = tmp; //use atomic to refresh
+        //Use atomic to refresh the redirect field. Then we could copy the result safely
+        Frame.cast[FinishFrame, CollectingFinish[T]](tmp).result = result;
         return tmp;
     }
     
