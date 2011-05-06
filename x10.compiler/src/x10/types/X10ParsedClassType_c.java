@@ -113,12 +113,14 @@ implements X10ParsedClassType
     /**
      * @return all methods defined in the class/interface including all inherited methods
      */
+    private final static boolean SHOULD_CACHE_ALL_METHODS = false;
     public ArrayList<MethodInstance> getAllMethods() {
         if (cacheAllMethods!=null) return cacheAllMethods;
         ArrayList<MethodInstance> res = new ArrayList<MethodInstance>(methods());
         for (X10ParsedClassType_c supertype : allSuperTypes(false)) // using "false" because I already added my methods()
             res.addAll(supertype.methods());
-        cacheAllMethods = res;
+        if (SHOULD_CACHE_ALL_METHODS)
+            cacheAllMethods = res;
         return res;
     }
 

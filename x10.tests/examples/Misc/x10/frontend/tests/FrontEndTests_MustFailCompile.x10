@@ -4710,8 +4710,8 @@ class XTENLANG_2401 {
 	def test() {
 		val z1:String = m(1); 
 		val z2:Int = m(1); // ERR, but it should be a different error! The current error is: Semantic Error: Cannot assign expression to target.	 Expression: m(x10.lang.Double.implicit_operator_as(0))	 Expected type: x10.lang.String,  and it should complain about the constraint that is not satisfied.
-		val z3:String = m(0); // ShouldNotBeERR
-		val z4:Int = m(0); // ShouldBeErr
+		val z3:String = m(0); // ERR
+		val z4:Int = m(0); // ERR
 	}
 }
 class XTENLANG_2403 {
@@ -5186,8 +5186,8 @@ class TestMethodResolutionAndConstraints_instance {
 	def m(Double) = "1";
 	def test() {
 		val x1:Int = m(1);
-		val x2 = m(0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m(0); // ERR
+		val x3:Int = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
@@ -5197,8 +5197,8 @@ class TestMethodResolutionAndConstraints_static {
 	static def m(Double) = "1";
 	static def test() {
 		val x1:Int = m(1);
-		val x2 = m(0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m(0); // ERR
+		val x3:Int = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
@@ -5208,8 +5208,8 @@ class TestMethodResolutionAndConstraints_param_guard {
 	static def m(Double) = "1";
 	static def test() {
 		val x1:Int = m(1);
-		val x2 = m(0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m(0); // ERR
+		val x3:Int = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
@@ -5243,8 +5243,8 @@ class TestMethodResolutionAndTypeConstraints_instance[T] {
 		val x5:String = m(0.0);
 	}
 	def test2() {
-		val x2 = m(0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m(0); // ERR
+		val x3:Int = x2;
 	}
 }
 class TestMethodResolutionAndTypeConstraints_static {
@@ -5252,8 +5252,8 @@ class TestMethodResolutionAndTypeConstraints_static {
 	static def m[T](Double) = "1";
 	static def test() {
 		val x1:Int = m[Int{self==1}](1);// ERR (Semantic Error: Cannot assign expression to target.		 Expression: m[x10.lang.Int{self==1}](x10.lang.Double.implicit_operator_as(1))		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1"})
-		val x2 = m[Int{self==0}](0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m[Int{self==0}](0); // ERR
+		val x3:Int = x2;
 		val x4:String = m[Int{self==1}](0 as Double);
 		val x5:String = m[Int{self==0}](0.0);
 	}
@@ -6541,3 +6541,11 @@ class XTENLANG_2691_test {
 	}
 }
 
+
+class DifferentResolutionInDynamicAndStatic {
+	def m(Int{self!=0}):Int = 1;
+	def m(Double):Int = 2;
+	def test(x:Int) {
+		val z1:Int = m(x); // ERR
+	}
+}

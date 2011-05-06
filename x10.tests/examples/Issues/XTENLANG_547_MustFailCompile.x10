@@ -186,3 +186,18 @@ class A_static547 {
 class B_static547 extends A_static547 { // ERR
 	def m(Int) {}
 }
+
+
+class XTENLANG_2641 {
+	class Parent {
+	  def foo(x:Array[byte]) {
+		Console.OUT.println("hi p");
+	  }
+	}
+
+	class Child extends Parent { // ERR
+	  def foo(x:Array[byte](1)) {
+		Console.OUT.println("hi c");
+	  }
+	}
+}

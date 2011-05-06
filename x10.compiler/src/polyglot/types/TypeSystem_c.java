@@ -1093,14 +1093,16 @@ public class TypeSystem_c implements TypeSystem
 	protected List<Type> argTypes;
     protected List<Type> typeArgs;
 	protected Context context;
+    protected boolean isDumbMatcher;
 
-	protected MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
+	protected MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher) {
 	    super();
 	    this.container = container;
 	    this.name = name;
 	    this.argTypes = argTypes;
         this.typeArgs = typeArgs;
 	    this.context = context;
+        this.isDumbMatcher = isDumbMatcher;
 	}
 
 	public MethodMatcher container(Type container) {
@@ -1134,12 +1136,18 @@ public class TypeSystem_c implements TypeSystem
             return null;
         if (mi.formalTypes().size() != argTypes.size())
             return null;
-        if (mi instanceof MethodInstance) {
-            MethodInstance xmi = (MethodInstance) mi;
-            Type c = container != null ? container : xmi.container();
-            if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
+        Type c = container != null ? container : mi.container();
+        if (isDumbMatcher) {
+            if (typeArgs.size() != mi.typeParameters().size())
+                return null;
+            if (typeArgs.size() == mi.typeParameters().size()) {
+                MethodInstance newXmi = x10.types.matcher.Matcher.instantiate((Context) context, mi, c, typeArgs, argTypes);
+                return newXmi;
+            }
+        } else {
+            if (typeArgs.isEmpty() || typeArgs.size() == mi.typeParameters().size())
                 return x10.types.matcher.Matcher.inferAndCheckAndInstantiate(context,
-                		xmi, c, typeArgs, argTypes, mi.position());
+                        mi, c, typeArgs, argTypes, mi.position());
         }
         return null;
     }
@@ -1552,24 +1560,13 @@ public class TypeSystem_c implements TypeSystem
      */
     private List<MethodInstance> superFindAcceptableMethods(Type container, MethodMatcher matcher)
     throws SemanticException {
-
-	assert_(container);
-
-	Context context = matcher.context();
-
-	SemanticException error = null;
-
-	// The list of acceptable methods. These methods are accessible from
-	// currClass, the method call is valid, and they are not overridden
-	// by an unacceptable method (which can occur with protected methods
-	// only).
-	List<MethodInstance> acceptable = new ArrayList<MethodInstance>();
-
-	// A list of unacceptable methods, where the method call is valid, but
-	// the method is not accessible. This list is needed to make sure that
-	// the acceptable methods are not overridden by an unacceptable method.
-	List<MethodInstance> unacceptable = new ArrayList<MethodInstance>();
-
+        if (container==null) return Collections.EMPTY_LIST;
+        assert_(container);
+        
+    // Collect allMethods with the relevant name
+    Name name = matcher.name();
+    Context context = matcher.context();
+	List<MethodInstance> allMethods = new ArrayList<MethodInstance>();
 	Set<Type> visitedTypes = CollectionFactory.newHashSet();
 
 	LinkedList<Type> typeQueue = new LinkedList<Type>();
@@ -1596,59 +1593,7 @@ public class TypeSystem_c implements TypeSystem
 		    if (reporter.should_report(Reporter.types, 2))
 			reporter.report(2, "Searching type " + type + " for method " + matcher.signature());
 
-		    for (Iterator<MethodInstance> i = type.methodsNamed(matcher.name()).iterator(); i.hasNext(); ) {
-			MethodInstance mi = i.next();
-
-			if (reporter.should_report(Reporter.types, 3))
-			    reporter.report(3, "Trying " + mi);
-
-			try {
-				MethodInstance oldmi = mi;
-			    mi = matcher.instantiate(mi);
-
-			    if (mi == null) {
-				continue;
-			    }
-			    mi.setOrigMI(oldmi);
-			    if (isAccessible(mi, context)) {
-				if (reporter.should_report(Reporter.types, 3)) {
-				    reporter.report(3, "->acceptable: " + mi + " in "
-				                  + mi.container());
-				}
-
-				acceptable.add(mi);
-			    }
-			    else {
-				// method call is valid, but the method is
-				// unacceptable.
-				unacceptable.add(mi);
-				if (error == null) {
-				    error = new NoMemberException(NoMemberException.METHOD,
-				                                  "Method " + mi.signature() +
-				                                  " in " + container +
-				    " is inaccessible.");
-				}
-			    }
-
-			    continue;
-			}
-			catch (SemanticException e) {
-			    // Treat any instantiation errors as call invalid errors.
-			    if (error == null)
-				error = new NoMemberException(NoMemberException.METHOD,
-				                              "Method cannot be called with argument: " + e.getMessage() +
-				                              " \n\t Method:  " + container + "." + mi.signature() +
-				                              " \n\t Argument:  " +  matcher.argumentString());
-			}
-
-			if (error == null) {
-			    error = new NoMemberException(NoMemberException.METHOD,
-			    		"Method cannot be called with argument. "  +
-                        " \n\t Method:  " + container + "." + mi.signature() +
-                        " \n\t Argument:  " +  matcher.argumentString());
-			             
-			}
-		    }
+            allMethods.addAll(type.methodsNamed(name));
 		}
 
 		if (t instanceof ObjectType) {
@@ -1662,26 +1607,99 @@ public class TypeSystem_c implements TypeSystem
 		}
 	    }
 
-	if (acceptable.size() > 0) {
-		// remove any method in acceptable that are overridden by an
-		// unacceptable
-		// method.
-		for (MethodInstance mi : unacceptable) {
-		    acceptable.removeAll(mi.overrides(context));
-		}
-	}
+        // Collected all methods, now let's filter them
+        List<Type> typeParams = matcher.typeArgs;
+        int typeParamNum = typeParams.size();
+        List<Type> argTypes = matcher.argTypes;
+        int argNum = argTypes.size();
 
-	if (acceptable.size() == 0) {
-	    if (error == null) {
-	    	  throw new NoMemberException(NoMemberException.METHOD,
-                      "No valid method call found for call in given type."
-	+ "\n\t Call: " + matcher.stripConstraints()
-	+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
-	    }
-	    throw error;
-	}
+        SemanticException error = null;
+        List<MethodInstance> resolved = new ArrayList<MethodInstance>();
 
-	return acceptable;
+        for (MethodInstance mi : allMethods) {
+            List<Type> formals = mi.formalTypes();
+            if (mi.name()!=name) continue;
+            if (argNum !=formals.size()) continue;
+            List<ParameterType> miTypeParams = (List<ParameterType>)(List)mi.typeParameters();
+            int miTypeParamNum = miTypeParams.size();
+            if (typeParamNum!=0 && typeParamNum!=miTypeParamNum) continue;
+
+
+            boolean isOk = true;
+            if (!matcher.isDumbMatcher) {
+                // handle type param
+                // def m[H](H)
+                TypeParamSubst subst = null;
+                List<Type> tmp_typeParams = typeParams;
+                if (miTypeParamNum!=0 && typeParamNum==0) {
+                    // infer typeParams
+                    Type c = container != null ? container : mi.container();
+                    try {
+                        Type[] Y = TypeConstraint.inferTypeArguments(mi, c, argTypes, formals, (List<Type>)(List)miTypeParams, context);
+                        assert Y.length==miTypeParamNum;
+                        for (int k=0; k<miTypeParamNum; k++)
+                            Y[k] = Types.stripConstraints(Y[k]);
+                        tmp_typeParams = Arrays.asList(Y);
+                    } catch (SemanticException e) {
+                        continue;
+                    }
+                }
+                if (tmp_typeParams.size()!=0) {
+                    subst = new TypeParamSubst(this, tmp_typeParams, miTypeParams);
+                }
+
+                for (int p=0; p<argNum;p++) {
+                    Type arg = Types.stripConstraints(argTypes.get(p));
+                    Type formal = Types.stripConstraints(formals.get(p));
+                    if (subst!=null)
+                        formal = subst.reinstantiate(formal);
+
+                    if (!isSubtype(arg, formal, context)) {
+                        isOk = false;
+                        break;
+                    }
+                }
+            }
+            if (isOk)
+                resolved.add(mi);
+        }
+
+        List<MethodInstance> acceptable = new ArrayList<MethodInstance>();
+		for (MethodInstance mi : resolved)	{
+				MethodInstance oldmi = mi;
+			    mi = matcher.instantiate(mi);
+
+			    if (mi == null) {
+				continue;
+			    }
+			    mi.setOrigMI(oldmi);
+			    if (isAccessible(mi, context)) {
+				    acceptable.add(mi);
+			    }
+			    else {
+                    // method call is valid, but the method is
+                    // unacceptable.
+                    if (error == null) {
+                        error = new NoMemberException(NoMemberException.METHOD,
+                                                      "Method " + mi.signature() +
+                                                      " in " + container +
+                        " is inaccessible.");
+                    }
+			    }
+			}
+
+        
+        if (acceptable.size() == 0) {
+            if (error == null) {
+                  throw new NoMemberException(NoMemberException.METHOD,
+                          "No valid method call found for call in given type."
+                            + "\n\t Call: " + matcher.stripConstraints()
+                            + "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
+            }
+            throw error;
+        }
+
+        return acceptable;
     }
 
     /**
@@ -1787,12 +1805,16 @@ public class TypeSystem_c implements TypeSystem
 
 
     public MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
-        return new MethodMatcher(container, name, Collections.EMPTY_LIST, argTypes, context);
+        return new MethodMatcher(container, name, Collections.EMPTY_LIST, argTypes, context, false);
     }
 
     public MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        return new MethodMatcher(container, name, typeArgs, argTypes, context);
+        return new MethodMatcher(container, name, typeArgs, argTypes, context, false);
     }
+    public MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher) {
+        return new MethodMatcher(container, name, typeArgs, argTypes, context, isDumbMatcher);
+    }
+
 
     public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
         return new X10ConstructorMatcher(container, argTypes, context);
