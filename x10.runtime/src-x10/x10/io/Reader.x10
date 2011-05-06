@@ -25,9 +25,16 @@ package x10.io;
  * } catch (IOException) { }
  */    
 public abstract class Reader {
+    /**
+     * Close the input stream
+     */
     public abstract def close(): void; //throws IOException
 
+    /**
+     * Read the next Byte from the input; throws IOException if none.
+     */
     public abstract def read(): Byte; //throws IOException
+
     /**
      * How many bytes can be read from this stream without blocking?
      *
@@ -35,7 +42,7 @@ public abstract class Reader {
      * the read is made, in particular this method may return 0 even
      * if a non-zero number of bytes are actually available.
      */
-    public abstract def available(): Int; //throws IOException
+    public abstract def available():Int; //throws IOException
 
     public abstract def skip(Int): void; //throws IOException
 
@@ -43,77 +50,95 @@ public abstract class Reader {
     public abstract def reset(): void; //throws IOException
     public abstract def markSupported(): Boolean;
     
-    public def readBoolean(): Boolean //throws IOException 
-    = Marshal.BOOLEAN.read(this);
-    public def readByte(): Byte //throws IOException 
-    = Marshal.BYTE.read(this);
-    public def readUByte(): UByte //throws IOException 
-    = Marshal.UBYTE.read(this);
-    public def readChar(): Char //throws IOException 
-    = Marshal.CHAR.read(this);
-    public def readShort(): Short //throws IOException 
-    = Marshal.SHORT.read(this);
-    public def readUShort(): UShort //throws IOException 
-    = Marshal.USHORT.read(this);
-    public def readInt(): Int //throws IOException 
-    = Marshal.INT.read(this);
-    public def readUInt(): UInt //throws IOException 
-    = Marshal.UINT.read(this);
-    public def readLong(): Long //throws IOException 
-    = Marshal.LONG.read(this);
-    public def readULong(): ULong //throws IOException 
-    = Marshal.ULONG.read(this);
-    public def readFloat(): Float //throws IOException 
-    = Marshal.FLOAT.read(this);
-    public def readDouble(): Double //throws IOException 
-    = Marshal.DOUBLE.read(this);
-    public def readLine(): String //throws IOException 
-    = Marshal.LINE.read(this);
+    /**
+     * Read the next Boolean from the input; throws IOException if none.
+     */
+    public def readBoolean():Boolean = Marshal.BOOLEAN.read(this);
 
-    public final def read[T](m: Marshal[T]): T //throws IOException 
-    = m.read(this);
+    /**
+     * Read the next Byte from the input; throws IOException if none.
+     */
+    public def readByte():Byte = Marshal.BYTE.read(this);
 
-    public final def read[T](m: Marshal[T], a:Array[T](1)): void  //throws IOException 
-    { read[T](m, a, 0, a.size); }
-    public final def read[T](m: Marshal[T], a:Array[T](1), off: Int, len: Int): void //throws IOException 
-    {
+    /**
+     * Read the next UByte from the input; throws IOException if none.
+     */
+    public def readUByte():UByte = Marshal.UBYTE.read(this);
+
+    /**
+     * Read the next Char from the input; throws IOException if none.
+     */
+    public def readChar():Char = Marshal.CHAR.read(this);
+
+    /**
+     * Read the next Short from the input; throws IOException if none.
+     */
+    public def readShort():Short = Marshal.SHORT.read(this);
+
+    /**
+     * Read the next UShort from the input; throws IOException if none.
+     */
+    public def readUShort():UShort = Marshal.USHORT.read(this);
+
+    /**
+     * Read the next Int from the input; throws IOException if none.
+     */
+    public def readInt():Int = Marshal.INT.read(this);
+
+    /**
+     * Read the next UInt from the input; throws IOException if none.
+     */
+    public def readUInt():UInt = Marshal.UINT.read(this);
+
+    /**
+     * Read the next Long from the input; throws IOException if none.
+     */
+    public def readLong():Long = Marshal.LONG.read(this);
+
+    /**
+     * Read the next ULong from the input; throws IOException if none.
+     */
+    public def readULong():ULong = Marshal.ULONG.read(this);
+
+    /**
+     * Read the next Float from the input; throws IOException if none.
+     */
+    public def readFloat():Float = Marshal.FLOAT.read(this);
+
+    /**
+     * Read the next Double from the input; throws IOException if none.
+     */
+    public def readDouble():Double = Marshal.DOUBLE.read(this);
+
+    /**
+     * Read the next line from the input; throws IOException if none.
+     */
+    public def readLine():String = Marshal.LINE.read(this);
+
+    /**
+     * Read the next value from the input; throws IOException if none.
+     */
+    public final def read[T](m:Marshal[T]):T = m.read(this);
+
+    /**
+     * Fill the argument array by reading the next a.size elements. 
+     * Throws IOException if not enough elements.
+     */
+    public final def read[T](m:Marshal[T], a:Array[T](1)):void { 
+        read[T](m, a, 0, a.size); 
+    }
+
+    /**
+     * Fill len elements of the argument array starting at off.
+     * Throws IOException if not enough elements.
+     */
+    public final def read[T](m: Marshal[T], a:Array[T](1), off:Int, len:Int):void {
         for (var i: Int = off; i < off+len; i++) {
             a(i) = read[T](m);
         }
     }
     
-    /*
-    public final def read[T](m: Marshal[T], a: Rail[T], region: Region{rank==1 /*,self in (0..a.size-1)* /}): void throws IOException {
-        for ((i) in region) {
-            a(i) = read[T](m);
-        }
-    }
-    
-    public final def read[T](m: Marshal[T], a: Array[T]): void throws IOException {
-        read[T](m, a, a.region);
-    }
-
-    public final def read[T](m: Marshal[T], a: Array[T], region: Region{rank==a.rank}/*{self in a.region}* /): void throws IOException {
-        try {
-            finish for (p: Point{rank==a.rank} in region) {
-                async (a.dist(p)) {
-                    try {
-                        a(p) = read(m);
-                    }
-                    catch (e: IOException) {
-                        throw new IORuntimeException(e.getMessage()); // HACK !!   Code gen can't throw exceptions from closure.
-                    }
-                }
-            }
-        }
-        catch (e: MultipleExceptions) {
-            throw new IOException();
-        }
-    }
-    */
-     
     public def lines(): ReaderIterator[String] = new ReaderIterator[String](Marshal.LINE, this);
     public def chars(): ReaderIterator[Char] = new ReaderIterator[Char](Marshal.CHAR, this);
     public def bytes(): ReaderIterator[Byte] = new ReaderIterator[Byte](Marshal.BYTE, this);
-    
 }
