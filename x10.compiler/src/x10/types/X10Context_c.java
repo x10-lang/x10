@@ -80,6 +80,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.constraints.SubtypeConstraint;
@@ -1029,4 +1030,19 @@ public class X10Context_c extends Context_c {
 	public TypeSystem typeSystem() {
 	    return (TypeSystem) super.typeSystem();
 	}
+	
+	public boolean isFormalParameter(LocalDef ld) {
+		CodeDef thisCode = currentCode();
+		X10Context_c me = this;
+
+		if (thisCode instanceof X10ProcedureDef) {
+			for (LocalDef fd : ((X10ProcedureDef) thisCode).formalNames())
+				if (ld == fd)
+					return true;
+		}
+
+		return false;
+	}
+	
+
 }

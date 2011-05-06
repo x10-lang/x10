@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Binary.Operator;
@@ -55,6 +56,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10Context_c;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
@@ -67,6 +69,7 @@ import x10.types.X10ProcedureInstance;
 import x10.types.X10ThisVar;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -1762,7 +1765,7 @@ public class Types {
         return res;
     }
 
-	public static Type removeLocals(Context ctx, Type t, CodeDef thisCode) {
+	public static Type removeLocals(X10Context_c ctx, Type t) {
 		t = t.typeSystem().expandMacros(t);
 	
 	    if (t instanceof X10ClassType) {
@@ -1771,42 +1774,48 @@ public class Types {
 	            return ct;
 	        List<Type> types = new ArrayList<Type>(ct.typeArguments().size());
 	        for (Type ti : ct.typeArguments()) {
-	            Type ti2 = removeLocals(ctx, ti, thisCode);
+	            Type ti2 = removeLocals(ctx, ti);
 	            types.add(ti2);
 	        }
 	        return ct.typeArguments(types);
 	    }
 	    Type b = baseType(t);
 	    if (b != t)
-	        b = removeLocals(ctx, b, thisCode);
+	        b = removeLocals(ctx, b);
 	    CConstraint c = xclause(t);
 	    if (c == null)
 	        return b;
-	    c = Types.removeLocals(ctx, c, thisCode);
+	    c = removeLocals(ctx, c);
 	    return xclause(b, c);
 	}
 
-	public static CConstraint removeLocals(Context ctx, CConstraint c, CodeDef thisCode) {
-	    if (ctx.currentCode() != thisCode) {
-	        return c;
-	    }
-	    TypeSystem ts = (TypeSystem) ctx.typeSystem();
-	    LI:
-	        for (LocalDef li : ctx.locals()) {
-	            try {
-	                if (thisCode instanceof X10ProcedureDef) {
-	                    for (LocalDef fi : ((X10ProcedureDef) thisCode).formalNames())
-	                        if (li == fi)
-	                            continue LI;
-	                }
-	                XLocal l = ts.xtypeTranslator().translate(li.asInstance());
-	                XEQV x = XTerms.makeEQV();
-	                c = c.substitute(x, l);
-	            }
-	            catch (XFailure e) {
-	            }
-	        }
-	    return removeLocals((Context) ctx.pop(), c, thisCode);
+	/** Remove all local variables that are not formals from this constraint.
+	 * 
+	 * @param cxt
+	 * @param c0
+	 * @return
+	 */
+	public static CConstraint removeLocals(X10Context_c cxt, CConstraint c0) {
+		CConstraint c = new CConstraint();
+    	c.addIn(c0); // ensure that this has a different selfVar.
+    	Set<XTerm> roots = c.rootTerms();
+    	if (roots.size() > 0) {
+    		for (XTerm term : roots) {
+    			if (term instanceof XVar) {
+    				XVar[] vars = ((XVar) term).vars();
+    				XVar root = vars[0];
+    				if (root instanceof CLocal) {
+    					CLocal rootL = (CLocal) root;
+    					X10LocalDef name = rootL.localDef();
+    					if (! cxt.isFormalParameter(name)) {
+    						// This is a local variable. Eliminate!
+    						c = c.project(rootL);
+    					}
+    				}
+    			}
+    		}
+    	}
+	   return c;
 	}
 
 	public static XVar[] toVarArray(List<LocalDef> formalNames) {
@@ -1840,4 +1849,34 @@ public class Types {
         return baseType==null ? null : baseType.toClass();
     }
     
+    public static Type projectOutLocalVariables(Context cxt, Type t) {
+    	CConstraint c0 = xclause(t);
+    	if (c0==null)
+    		return t;
+    	CConstraint c = new CConstraint();
+    	c.addIn(c0); // ensure that this has a different selfVar.
+    	Set<XTerm> roots = c.rootTerms();
+    	if (roots.size() > 0) {
+    		CodeDef def = cxt.currentCode();
+    		List<LocalDef> formals = null;
+    		if (def instanceof ProcedureDef) {
+    			formals = ((ProcedureDef) def).formalNames();
+    		}
+    		for (XTerm term : roots) {
+    			if (term instanceof XVar) {
+    				XVar[] vars = ((XVar) term).vars();
+    				XVar root = vars[0];
+    				if (root instanceof CLocal) {
+    					CLocal rootL = (CLocal) root;
+    					X10LocalDef name = rootL.localDef();
+    					if (formals != null && ! formals.contains(name)) {
+    						// This is a local variable. Eliminate!
+    						c = c.project(rootL);
+    					}
+    				}
+    			}
+    		}
+    	}
+    	return constrainedType(baseType(t), c);
+    }
 }

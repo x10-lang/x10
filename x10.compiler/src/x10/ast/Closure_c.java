@@ -60,6 +60,7 @@ import x10.types.EnvironmentCapture;
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import x10.types.MethodInstance;
+import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
 import polyglot.types.LazyRef_c;
 import x10.types.checker.PlaceChecker;
@@ -409,7 +410,7 @@ public class Closure_c extends Expr_c implements Closure {
 				// Body had no return statement.  Set to void.
 				t = ts.Void();
 			}
-			t = Types.removeLocals(c, t, c.currentCode());
+			t = Types.removeLocals((X10Context_c) c, t);
 			tr.update(t);
 			n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), t));
 		}

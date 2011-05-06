@@ -300,6 +300,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
                 // Set the return type of the enclosing constructor to be this inferred type.
                 Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
+                inferredResultType = Types.removeLocals((X10Context_c) tc.context(), inferredResultType);
                 if (! Types.consistent(inferredResultType)) {
                     Errors.issue(tc.job(), 
                                  new Errors.InconsistentType(inferredResultType, pos));

@@ -98,10 +98,7 @@ public class X10Return_c extends Return_c {
 		        }
 		    }
 		    
-		    // TODO: exprType should only mention variables in scope at the function signature
-		    // For closures, this includes local variables in scope at the closure.
-		    // For methods and closures, this includes formal parameters (incl. this).
-
+		  
 		    boolean merge = false;
 		    if (fi instanceof X10MethodDef) {
 			merge = ((X10MethodDef) fi).inferReturnType();
@@ -119,13 +116,15 @@ public class X10Return_c extends Return_c {
 		            }
 		        }
 		        else {
+		        	// exprType should only mention variables in scope at the function signature
+				    // For closures, this includes local variables in scope at the closure.
+				    // For methods and closures, this includes formal parameters (incl. this).
+		            exprType = Types.removeLocals((X10Context_c) tc.context(), exprType);
 		            if (! typeRef.known()) {
-		                exprType = Types.removeLocals(tc.context(), exprType, tc.context().currentCode());
 		                typeRef.update(exprType);
 		            }
 		            else {
 		                // Merge the types
-		                exprType = Types.removeLocals(tc.context(), exprType, tc.context().currentCode());
 		                try {
 		                    Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType, c);
 		                    typeRef.update(t);
