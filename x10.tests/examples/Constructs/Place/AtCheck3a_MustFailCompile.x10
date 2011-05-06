@@ -25,7 +25,7 @@ public class AtCheck3a_MustFailCompile extends x10Test {
         var x:int=0;
         def m(b: T, d:T) {
             at (b.root) {
-                val e = d.root().x;  // ShouldBeErr: No valid method call found for call in given type.
+                val e = d.root().x;  // ERR: No valid method call found for call in given type.
             }
         }
     }

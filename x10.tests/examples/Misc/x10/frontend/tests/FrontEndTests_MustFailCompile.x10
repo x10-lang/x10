@@ -6232,9 +6232,9 @@ class ConstrainedCall(x:Int) { // XTENLANG-2416
 class XTENLANG_2622 {
 	class Hello {
 		val a:Hello{self!=null} = new Hello();
-		val c:Hello{self==this.a} = null; // ShouldBeErr
+		val c:Hello{self==this.a} = null; // ERR: The type of the field initializer is not a subtype of the field type
 		val d:Hello{self!=null} = c;
-		val f1:Hello{self==null && self==this.a} = null; // ShouldBeErr (inconsistent constraint)
+		val f1:Hello{self==null && self==this.a} = null; // ERR (inconsistent constraint)
 	}
 }
 class XTENLANG_1380 {
