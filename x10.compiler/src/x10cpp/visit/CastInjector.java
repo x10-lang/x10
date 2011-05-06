@@ -34,6 +34,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall_c;
+import x10.ast.Closure;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.SettableAssign;
@@ -45,6 +46,7 @@ import x10.types.X10FieldInstance;
 import x10.types.checker.Converter;
 import x10.util.AltSynthesizer;
 import x10.util.Synthesizer;
+import x10.visit.Desugarer.ClosureCaptureVisitor;
 
 /**
  * A pass to run right before final C++ codegeneration
@@ -302,7 +304,9 @@ public class CastInjector extends ContextVisitor {
                 call = makeCast(pos, call, castFType.returnType());
             }
             Block body = nf.Block(pos, castFType.returnType().isVoid() ? nf.Eval(pos, call) : nf.Return(pos, call));
-            return synth.makeClosure(pos, castFType.returnType(), formals, body, context);
+            Closure c = synth.makeClosure(pos, castFType.returnType(), formals, body, context);
+            c.visit(new ClosureCaptureVisitor(this.context(), c.closureDef()));
+            return c;
         }
      }
     
