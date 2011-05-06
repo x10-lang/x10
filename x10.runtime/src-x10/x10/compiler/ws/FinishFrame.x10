@@ -66,7 +66,7 @@ abstract public class FinishFrame extends Frame {
     }
 
     @Inline public final def append(s:Stack[Throwable]) {
-        if (null != s) {
+        if (null != s) { //nobody will change s again. No need lock to protect s.
             Runtime.atomicMonitor.lock();
             if (null == stack) stack = new Stack[Throwable]();
             while (!s.isEmpty()) stack.push(s.pop());

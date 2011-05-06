@@ -33,14 +33,23 @@ abstract public class CollectingFinish[T] extends FinishFrame {
     @Ifdef("__CPP__")
     public def this(x:Int, o:CollectingFinish[T]) {
         super(x, o);
-        //need copy the value too
+        //delay copy the result after fully remapped
         this.reducer = o.reducer;
-        this.result = o.result;
         val size = Runtime.NTHREADS;
         this.resultRail = IndexedMemoryChunk.allocateUninitialized[T](size);
         for(var i:int = 0; i < size; i++){
             resultRail(i) = reducer.zero();
         }
+    }
+    
+    @Ifdef("__CPP__")
+    public def realloc() {
+        val tmp = Frame.cast[FinishFrame, CollectingFinish[T]](super.realloc());
+        Runtime.atomicMonitor.lock();
+        Runtime.atomicMonitor.unlock();
+        //Refresh the redirect field. After that we could copy the result safely
+        tmp.result = result;
+        return tmp;
     }
     
     public final def accept(t:T, worker:Worker){
