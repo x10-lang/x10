@@ -96,6 +96,7 @@ import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
 
 /**
@@ -474,23 +475,49 @@ public class Desugarer extends ContextVisitor {
         }
         ArrayList<Expr> newArgs = new ArrayList<Expr>(args.size());
         ArrayList<Formal> params = new ArrayList<Formal>(args.size());
+        ArrayList<LocalDecl> locals = new ArrayList<LocalDecl>(args.size());
         final Context context = v.context();
         final Context closureContext = context.pushBlock();
 
+        /*
+         * For a call r.m(e1,..,en), where r:T,e1:T1,..,en:Tn and U.m(f1:U1,..,fn:Un):R,
+         * we are going to be creating the following closure call:
+         * ((p0:T,p1:T1,..,pn:Tn)=>{val x$0=p0 as U;val f1=p1 as U1;..;val fn=pn as Un;x$0.m(f1,..,fn)})(e1,..,en)
+         */
         int i=0;
+        List<LocalDef> Ys = new ArrayList<LocalDef>(args.size());
+        List<LocalDef> Xs = new ArrayList<LocalDef>(args.size());
         for (Expr arg : args) {
+            Name pn = Name.make("p$"+i);
+            Type pType = arg.type();
+            LocalDef pDef = ts.localDef(pos, ts.Final(), Types.ref(pType), pn);
+            Formal pd = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
+                    nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pn)).localDef(pDef);
+            params.add(pd);
+            Local p = (Local) nf.Local(pos, nf.Id(pos, pn)).localInstance(pDef.asInstance()).type(pType);
             // The argument might be null, e.g., def m(b:Z) {b.x!=null}  = 1; ... m(null);
             final LocalDef oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
-            Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shaddow an existing field
+            Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shadow an existing field
+            Type type = oldFormal!=null ? reinstantiate(typeParamSubst, Types.get(oldFormal.type())) : arg.type();
+            Type tType;
+            try {
+                tType = Subst.subst(type, Types.toVarArray(Ys), Types.toVarArray(Xs), new Type[0], new ParameterType[0]);
+            } catch (SemanticException z) {
+                throw new InternalCompilerError("Unexpected exception while inserting a dynamic check", z);
+            }
+            LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(tType), xn);
+            Expr c = Converter.attemptCoercion(v.context(closureContext), p, tType);
+            LocalDecl xd = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
+                    nf.CanonicalTypeNode(pos, tType), nf.Id(pos, xn), c).localDef(xDef);
+            locals.add(xd);
+            final Local x = (Local) nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(tType);
+            newArgs.add(x);
+            closureContext.addVariable(x.localInstance());
+            if (oldFormal != null) {
+                Ys.add(xDef);
+                Xs.add(oldFormal);
+            }
             i++;
-            final Type type = Types.baseType(oldFormal!=null ? reinstantiate(typeParamSubst, Types.get(oldFormal.type())) : arg.type());
-            LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(type), xn);
-            Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                    nf.CanonicalTypeNode(pos,type), nf.Id(pos, xn)).localDef(xDef);
-            params.add(x);
-            final Local local = (Local) nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(type);
-            newArgs.add(local);
-            closureContext.addVariable(local.localInstance());
         }
 
         final Expr newReceiver = oldReceiver==null ? null : newArgs.remove(0);
@@ -588,7 +615,11 @@ public class Desugarer extends ContextVisitor {
         final boolean isVoid = ts.isVoid(resType);
         newExpr = (Expr) newExpr.visit(builder).visit(checker);
         anIf = (If) anIf.visit(builder).visit(checker);
-        Block body = nf.Block(pos, anIf, isVoid ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
+        List<Stmt> statements = new ArrayList<Stmt>();
+        statements.addAll(locals);
+        statements.add(anIf);
+        statements.add(isVoid ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
+        Block body = nf.Block(pos, statements);
         //body = (Block) body.visit(builder).visit(checker); - there is a problem type-checking the return statement
         Type closureRet = procInst.returnType();
         Closure c = closure(pos, closureRet, params, body, v);

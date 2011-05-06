@@ -190,7 +190,7 @@ public class Matcher {
 		// This fixes a major bug in which the variables in constraints
 		// got disconnected from the formals, and uqvs would sometimes show
 		// up in error messages. This also supports implicit coercions
-		// performed useing the data in the MI returned from this call.
+		// performed using the data in the MI returned from this call.
 		// See Converter.tryImplicitConversions.
 		final List<LocalInstance> yLocalInstances = getSymbolicNames(actuals);
 		
@@ -460,6 +460,19 @@ public class Matcher {
 	    return env;
 	}
 	
+	/**
+	 * Return thisType's xclause, with ythis substituted for self, and
+	 * with each ag y(i)'s constraint added in (with y(i)/self). 
+	 * The return type may reference an arg, 
+	 * @param thisType
+	 * @param actuals
+	 * @param ythis
+	 * @param y
+	 * @param isStatic
+	 * @param xts
+	 * @return
+	 * @throws SemanticException
+	 */
 	private static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 
 			XVar ythis, XVar[] y,  boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
@@ -473,7 +486,7 @@ public class Matcher {
 		if (env == null)
 			env = new CConstraint();
 	
-		//To do: Not sure these need to be added to Gamma. constraintrojectin will retrieve them
+		//To do: Not sure these need to be added to Gamma. Constraint projection will retrieve them
 		// from the types of the variables.
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
 	    		Type ytype = actuals.get(i);

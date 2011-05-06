@@ -31,15 +31,16 @@ import x10.types.constraints.TypeConstraint;
 public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
     private static final long serialVersionUID = 1790685273653374213L;
 
-   // Added to support fake localdef's introduced into the ast to represent
+    // Added to support fake localdef's introduced into the ast to represent
     // variables that should not be subject to flow analysis.
     boolean hidden = false;
+    public boolean hidden() { return hidden; }
     public static X10LocalDef_c makeHidden(TypeSystem ts, Position pos,
             Flags flags, 
             Ref<? extends Type> type,
             Name name)  {
     	X10LocalDef_c x = new X10LocalDef_c(ts, pos, flags, type, name);
-    	x.hidden=true;
+    	x.hidden = true;
     	return x;
     }
     public X10LocalDef_c(TypeSystem ts, Position pos,

@@ -70,6 +70,7 @@ import x10.ast.X10New_c.MatcherMaker;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
@@ -239,7 +240,9 @@ public class Converter {
 			List<XVar> transformedYs = new ArrayList<XVar>();
 			
 			List<Type> formals = smi.formalTypes();
+			ContextVisitor argtc = tc.context(xc.pushBlock());
 
+			boolean checkAtRuntime = false;
 			for (int j = 0; j < n.arguments().size(); j++) {
 				Expr e = n.arguments().get(j);
 				Type toType = formals.get(j);
@@ -247,8 +250,8 @@ public class Converter {
 				// k in 0..j-1. These must be treated as of type transformedArgTypes.get(k).
 				// Therefore substitute transformedYs.get(k) for the original CLoc. 
 				for (int k=0; k < j; k++) {
-				   toType=Subst.subst(toType,  transformedYs.get(k),
-						   CTerms.makeLocal((X10LocalDef) smi.formalNames().get(k).def()));
+				    toType = Subst.subst(toType, transformedYs.get(k),
+				            CTerms.makeLocal((X10LocalDef) smi.formalNames().get(k).def()));
 				}
 
                 // In DYNAMIC_CHECKS we can't just insert a cast for each argument due to dependencies between arguments, e.g.,
@@ -262,7 +265,7 @@ public class Converter {
                 // ( (a:Int, b:Int) => if (!(b==a)) throw new ...;  m(a,b)) (x+1,y);
                 //}
 			
-				Expr e2 = attemptCoercion(tc, e, toType); 
+				Expr e2 = attemptCoercion(argtc, e, toType); 
 				// attemptCoercion is used in many places (for loops, local&field 
 				// init expressions, etc), so we special handle it for method calls                
                 if (e2 instanceof X10Cast) {
@@ -276,20 +279,34 @@ public class Converter {
                 }
 
 				if (e2 == null)
-					continue METHOD;
-				transformedArgs.add(e2);
+					continue METHOD; // this method def is not applicable for this call
 				Type e2Type = e2.type();
 				if (e2Type instanceof UnknownType)
 					continue METHOD;
-				transformedArgTypes.add(e2Type);
+				Type nType = e2Type;
+				for (int k = 0; k < j; k++) {
+				    nType = Subst.subst(nType, XTerms.makeEQV(), transformedYs.get(k));
+				}
+				if (!nType.typeEquals(e2Type, argtc.context())) {
+				    // Do not add e2. This may contain some of the new variables
+				    // and they won't be in scope for the Desugarer.
+				    // Let the Desugarer again generate e2.
+				    transformedArgs.add(e);
+				    transformedArgTypes.add(toType);
+				    checkAtRuntime = true;
+				} else {
+				    transformedArgs.add(e2);
+				    transformedArgTypes.add(e2Type);
+				}
 				{
 					// Construct the new transformedY. 
 					Ref<Type> ref = new LazyRef_c<Type>(e2Type);
-					X10LocalDef def = new X10LocalDef_c(ts, Position.COMPILER_GENERATED, Flags.FINAL, ref,
+					X10LocalDef def = X10LocalDef_c.makeHidden(ts, Position.COMPILER_GENERATED, Flags.FINAL, ref,
 							Name.makeFresh("arg"));
 					XVar y = CTerms.makeLocal(def);
 					ref.update(Types.addSelfBinding(e2Type, y));
 					transformedYs.add(y);
+					argtc.context().addVariable(def.asInstance());
 				}
 				
 			}
@@ -315,7 +332,8 @@ public class Converter {
 				}
 				PI smi2 = (PI) matcher.instantiate(raw);
 				if (smi2 instanceof MethodInstance) {
-				((MethodInstance) smi2).setOrigMI((MethodInstance) raw);
+				    ((MethodInstance) smi2).setOrigMI((MethodInstance) raw);
+				    smi2 = (PI) smi2.checkConstraintsAtRuntime(checkAtRuntime);
 				} else {
 					if (smi2 instanceof ConstructorInstance) {
 						((ConstructorInstance) smi2).setOrigMI((ConstructorInstance) raw);
