@@ -33,11 +33,11 @@ typedef void (*teamCallback2)(x10rt_team, void *);
 typedef void (*teamCallback)(void *);
 
 // the values for pami_dt are mapped to the indexes of x10rt_red_type
-pami_dt DATATYPE_CONVERSION_TABLE[] = {PAMI_UNSIGNED_CHAR, PAMI_SIGNED_CHAR, PAMI_SIGNED_SHORT, PAMI_UNSIGNED_SHORT, PAMI_SIGNED_INT,
-		PAMI_UNSIGNED_INT, PAMI_SIGNED_LONG_LONG, PAMI_UNSIGNED_LONG_LONG, PAMI_DOUBLE, PAMI_FLOAT, PAMI_LOC_DOUBLE_INT};
+pami_type_t DATATYPE_CONVERSION_TABLE[] = {PAMI_TYPE_UNSIGNED_CHAR, PAMI_TYPE_SIGNED_CHAR, PAMI_TYPE_SIGNED_SHORT, PAMI_TYPE_UNSIGNED_SHORT, PAMI_TYPE_SIGNED_INT,
+		PAMI_TYPE_UNSIGNED_INT, PAMI_TYPE_SIGNED_LONG_LONG, PAMI_TYPE_UNSIGNED_LONG_LONG, PAMI_TYPE_DOUBLE, PAMI_TYPE_FLOAT, PAMI_TYPE_LOC_DOUBLE_INT};
 size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,12}; // the number of bytes used for each entry in the table above.
 // values for pami_op are mapped to indexes of x10rt_red_op_type
-pami_op OPERATION_CONVERSION_TABLE[] = {PAMI_SUM, PAMI_PROD, PAMI_UNDEFINED_OP, PAMI_BAND, PAMI_BOR, PAMI_BXOR, PAMI_MAX, PAMI_MIN};
+pami_data_function OPERATION_CONVERSION_TABLE[] = {PAMI_DATA_SUM, PAMI_DATA_PROD, PAMI_DATA_NOOP, PAMI_DATA_BAND, PAMI_DATA_BOR, PAMI_DATA_BXOR, PAMI_DATA_MAX, PAMI_DATA_MIN};
 // values of x10rt_op_type are mapped to pami_atomic_t
 pami_atomic_t REMOTE_MEMORY_OP_CONVERSION_TABLE[] = {PAMI_ATOMIC_ADD, PAMI_ATOMIC_AND, PAMI_ATOMIC_OR, PAMI_ATOMIC_XOR};
 
@@ -324,7 +324,7 @@ static void local_msg_dispatch (
 		#endif
 		recv->local_fn = std_msg_complete;
 		recv->cookie   = hdr;
-		recv->type     = PAMI_TYPE_CONTIGUOUS;
+		recv->type     = PAMI_TYPE_BYTE;
 		recv->addr     = hdr->msg;
 		recv->offset   = 0;
 		recv->data_fn  = PAMI_DATA_COPY;
@@ -625,7 +625,7 @@ static void team_create_dispatch (
 	#endif
 
 	pami_result_t   status = PAMI_ERROR;
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, pipe_size/(sizeof(uint32_t)), context, team_creation_complete, cookie);
+	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, pipe_size/(sizeof(uint32_t)), context, team_creation_complete, cookie);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
 
@@ -1219,7 +1219,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 		fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
 	#endif
 
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, placec, context, team_creation_complete, cookie);
+	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, placec, context, team_creation_complete, cookie);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 
 	if (!state.numParallelContexts)
@@ -1283,7 +1283,7 @@ static void split_stage2 (pami_context_t   context,
 	// TODO - interestingly, the context that comes in via the method call is sometimes null.  Probably a PAMI bug.
 	if (context == NULL)
 		context = (state.numParallelContexts<=1)?state.context[0]:getConcurrentContext();
-	status = PAMI_Geometry_create_tasklist(state.client, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, context, team_creation_complete, cbd);
+	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, context, team_creation_complete, cbd);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
 
@@ -1315,13 +1315,13 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	}
 	// figure out how many different algorithms are available for the barrier
 	size_t num_algorithms[2]; // [0]=always works, and [1]=sometimes works lists
-	status = PAMI_Geometry_algorithms_num(context, state.teams[parent].geometry, PAMI_XFER_ALLGATHER, num_algorithms);
+	status = PAMI_Geometry_algorithms_num(state.teams[parent].geometry, PAMI_XFER_ALLGATHER, num_algorithms);
 	if (status != PAMI_SUCCESS || num_algorithms[0]==0) error("Unable to query the algorithm counts for team %u", parent);
 	pami_algorithm_t *always_works_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[0]);
 	pami_metadata_t *always_works_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[0]);
 	pami_algorithm_t *must_query_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[1]);
 	pami_metadata_t *must_query_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[1]);
-	status = PAMI_Geometry_algorithms_query(context, state.teams[parent].geometry, PAMI_XFER_ALLGATHER, always_works_alg,
+	status = PAMI_Geometry_algorithms_query(state.teams[parent].geometry, PAMI_XFER_ALLGATHER, always_works_alg,
 			always_works_md, num_algorithms[0], must_query_alg, must_query_md, num_algorithms[1]);
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", parent);
 
@@ -1339,10 +1339,10 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	operation.cookie = cbd;
 	operation.algorithm = always_works_alg[0];
 	operation.cmd.xfer_allgather.rcvbuf = (char*)colors;
-	operation.cmd.xfer_allgather.rtype = PAMI_TYPE_CONTIGUOUS;
+	operation.cmd.xfer_allgather.rtype = PAMI_TYPE_BYTE;
 	operation.cmd.xfer_allgather.rtypecount = sizeof(x10rt_place)*parentTeamSize;
 	operation.cmd.xfer_allgather.sndbuf = (char*)&color;
-	operation.cmd.xfer_allgather.stype = PAMI_TYPE_CONTIGUOUS;
+	operation.cmd.xfer_allgather.stype = PAMI_TYPE_BYTE;
 	operation.cmd.xfer_allgather.stypecount = sizeof(x10rt_place);
 
 	status = PAMI_Collective(context, &operation);
@@ -1399,7 +1399,7 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	}
 	// figure out how many different algorithms are available for the barrier
 	size_t num_algorithms[2]; // [0]=always works, and [1]=sometimes works lists
-	status = PAMI_Geometry_algorithms_num(context, state.teams[team].geometry, PAMI_XFER_BARRIER, num_algorithms);
+	status = PAMI_Geometry_algorithms_num(state.teams[team].geometry, PAMI_XFER_BARRIER, num_algorithms);
 	if (status != PAMI_SUCCESS || num_algorithms[0]==0) error("Unable to query the algorithm counts for team %u", team);
 
 	// query what the different algorithms are
@@ -1407,7 +1407,7 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	pami_metadata_t *always_works_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[0]);
 	pami_algorithm_t *must_query_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[1]);
 	pami_metadata_t *must_query_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[1]);
-	status = PAMI_Geometry_algorithms_query(context, state.teams[team].geometry, PAMI_XFER_BARRIER, always_works_alg,
+	status = PAMI_Geometry_algorithms_query(state.teams[team].geometry, PAMI_XFER_BARRIER, always_works_alg,
 			always_works_md, num_algorithms[0], must_query_alg, must_query_md, num_algorithms[1]);
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
@@ -1464,7 +1464,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 
 	// figure out how many different algorithms are available for the barrier
 	size_t num_algorithms[2]; // [0]=always works, and [1]=sometimes works lists
-	status = PAMI_Geometry_algorithms_num(context, state.teams[team].geometry, PAMI_XFER_BROADCAST, num_algorithms);
+	status = PAMI_Geometry_algorithms_num(state.teams[team].geometry, PAMI_XFER_BROADCAST, num_algorithms);
 	if (status != PAMI_SUCCESS || num_algorithms[0]==0) error("Unable to query the algorithm counts for team %u", team);
 
 	// query what the different algorithms are
@@ -1472,7 +1472,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	pami_metadata_t *always_works_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[0]);
 	pami_algorithm_t *must_query_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[1]);
 	pami_metadata_t *must_query_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[1]);
-	status = PAMI_Geometry_algorithms_query(context, state.teams[team].geometry, PAMI_XFER_BROADCAST, always_works_alg,
+	status = PAMI_Geometry_algorithms_query(state.teams[team].geometry, PAMI_XFER_BROADCAST, always_works_alg,
 			always_works_md, num_algorithms[0], must_query_alg, must_query_md, num_algorithms[1]);
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
@@ -1503,7 +1503,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	#endif
 
 	tcb->operation.algorithm = always_works_alg[0];
-	tcb->operation.cmd.xfer_broadcast.type = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_broadcast.type = PAMI_TYPE_BYTE;
 	tcb->operation.cmd.xfer_broadcast.typecount = count*el;
 	if (team == 0)
 		tcb->operation.cmd.xfer_broadcast.root = root;
@@ -1541,7 +1541,7 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 
 	// figure out how many different algorithms are available for the barrier
 	size_t num_algorithms[2]; // [0]=always works, and [1]=sometimes works lists
-	status = PAMI_Geometry_algorithms_num(context, state.teams[team].geometry, PAMI_XFER_SCATTER, num_algorithms);
+	status = PAMI_Geometry_algorithms_num(state.teams[team].geometry, PAMI_XFER_SCATTER, num_algorithms);
 	if (status != PAMI_SUCCESS || num_algorithms[0]==0) error("Unable to query the algorithm counts for team %u", team);
 
 	// query what the different algorithms are
@@ -1549,7 +1549,7 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	pami_metadata_t *always_works_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[0]);
 	pami_algorithm_t *must_query_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[1]);
 	pami_metadata_t *must_query_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[1]);
-	status = PAMI_Geometry_algorithms_query(context, state.teams[team].geometry, PAMI_XFER_SCATTER, always_works_alg,
+	status = PAMI_Geometry_algorithms_query(state.teams[team].geometry, PAMI_XFER_SCATTER, always_works_alg,
 			always_works_md, num_algorithms[0], must_query_alg, must_query_md, num_algorithms[1]);
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
@@ -1568,10 +1568,10 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 		tcb->operation.cmd.xfer_scatter.root = root;
 	else
 		tcb->operation.cmd.xfer_scatter.root = state.teams[team].places[root];
-	tcb->operation.cmd.xfer_scatter.rtype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_scatter.rtype = PAMI_TYPE_BYTE;
 	tcb->operation.cmd.xfer_scatter.rtypecount = el*count;
 	tcb->operation.cmd.xfer_scatter.sndbuf = (char*)sbuf;
-	tcb->operation.cmd.xfer_scatter.stype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_scatter.stype = PAMI_TYPE_BYTE;
 	tcb->operation.cmd.xfer_scatter.stypecount = el*count;
 
 	#ifdef DEBUG
@@ -1606,7 +1606,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 
 	// figure out how many different algorithms are available for the barrier
 	size_t num_algorithms[2]; // [0]=always works, and [1]=sometimes works lists
-	status = PAMI_Geometry_algorithms_num(context, state.teams[team].geometry, PAMI_XFER_ALLTOALL, num_algorithms);
+	status = PAMI_Geometry_algorithms_num(state.teams[team].geometry, PAMI_XFER_ALLTOALL, num_algorithms);
 	if (status != PAMI_SUCCESS || num_algorithms[0]==0) error("Unable to query the algorithm counts for team %u", team);
 
 	// query what the different algorithms are
@@ -1614,7 +1614,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	pami_metadata_t *always_works_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[0]);
 	pami_algorithm_t *must_query_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[1]);
 	pami_metadata_t *must_query_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[1]);
-	status = PAMI_Geometry_algorithms_query(context, state.teams[team].geometry, PAMI_XFER_ALLTOALL, always_works_alg,
+	status = PAMI_Geometry_algorithms_query(state.teams[team].geometry, PAMI_XFER_ALLTOALL, always_works_alg,
 			always_works_md, num_algorithms[0], must_query_alg, must_query_md, num_algorithms[1]);
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
@@ -1631,10 +1631,10 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	int chosenAlg = (state.teams[team].size > 32) ? 1 : 0;
 	tcb->operation.algorithm = always_works_alg[chosenAlg];
 	tcb->operation.cmd.xfer_alltoall.rcvbuf = (char*)dbuf;
-	tcb->operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_BYTE;
 	tcb->operation.cmd.xfer_alltoall.rtypecount = el*count;
 	tcb->operation.cmd.xfer_alltoall.sndbuf = (char*)sbuf;
-	tcb->operation.cmd.xfer_alltoall.stype = PAMI_TYPE_CONTIGUOUS;
+	tcb->operation.cmd.xfer_alltoall.stype = PAMI_TYPE_BYTE;
 	tcb->operation.cmd.xfer_alltoall.stypecount = el*count;
 
 	#ifdef DEBUG
@@ -1679,7 +1679,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 
 	// figure out how many different algorithms are available for the barrier
 	size_t num_algorithms[2]; // [0]=always works, and [1]=sometimes works lists
-	status = PAMI_Geometry_algorithms_num(context, state.teams[team].geometry, PAMI_XFER_ALLREDUCE, num_algorithms);
+	status = PAMI_Geometry_algorithms_num(state.teams[team].geometry, PAMI_XFER_ALLREDUCE, num_algorithms);
 	if (status != PAMI_SUCCESS || num_algorithms[0]==0) error("Unable to query the algorithm counts for team %u", team);
 
 	// query what the different algorithms are
@@ -1687,7 +1687,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	pami_metadata_t *always_works_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[0]);
 	pami_algorithm_t *must_query_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[1]);
 	pami_metadata_t *must_query_md = (pami_metadata_t*)alloca(sizeof(pami_metadata_t)*num_algorithms[1]);
-	status = PAMI_Geometry_algorithms_query(context, state.teams[team].geometry, PAMI_XFER_ALLREDUCE, always_works_alg,
+	status = PAMI_Geometry_algorithms_query(state.teams[team].geometry, PAMI_XFER_ALLREDUCE, always_works_alg,
 			always_works_md, num_algorithms[0], must_query_alg, must_query_md, num_algorithms[1]);
 	if (status != PAMI_SUCCESS) error("Unable to query the supported algorithms for team %u", team);
 
@@ -1701,23 +1701,25 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
 	tcb->operation.algorithm = always_works_alg[0];
-	tcb->operation.cmd.xfer_allreduce.dt = DATATYPE_CONVERSION_TABLE[dtype];
-	if (DATATYPE_CONVERSION_TABLE[dtype] >= PAMI_LOC_2INT)
+	tcb->operation.cmd.xfer_allreduce.sndbuf = (char*)sbuf;
+	tcb->operation.cmd.xfer_allreduce.stype = DATATYPE_CONVERSION_TABLE[dtype];
+	tcb->operation.cmd.xfer_allreduce.stypecount = count;
+	tcb->operation.cmd.xfer_allreduce.rcvbuf = (char*)dbuf;
+	tcb->operation.cmd.xfer_allreduce.rtype = DATATYPE_CONVERSION_TABLE[dtype];
+	tcb->operation.cmd.xfer_allreduce.rtypecount = count;
+	if (dtype == X10RT_RED_TYPE_DBL_S32)
 	{   // operations on LOC datatypes are different from regular types
-		if (OPERATION_CONVERSION_TABLE[op] == PAMI_MAX)
-			tcb->operation.cmd.xfer_allreduce.op = PAMI_MAXLOC;
-		else if (OPERATION_CONVERSION_TABLE[op] == PAMI_MIN)
-			tcb->operation.cmd.xfer_allreduce.op = PAMI_MINLOC;
+		if (OPERATION_CONVERSION_TABLE[op] == PAMI_DATA_MAX)
+			tcb->operation.cmd.xfer_allreduce.op = PAMI_DATA_MAXLOC;
+		else if (OPERATION_CONVERSION_TABLE[op] == PAMI_DATA_MIN)
+			tcb->operation.cmd.xfer_allreduce.op = PAMI_DATA_MINLOC;
+		else
+			error("Unknown operation type %i", op);
 	}
 	else
-		tcb->operation.cmd.xfer_allreduce.op = OPERATION_CONVERSION_TABLE[op];
-	tcb->operation.cmd.xfer_allreduce.rcvbuf = (char*)dbuf;
-	tcb->operation.cmd.xfer_allreduce.rtype = PAMI_TYPE_CONTIGUOUS;
-	tcb->operation.cmd.xfer_allreduce.rtypecount = count*DATATYPE_MULTIPLIER_TABLE[dtype];
-	tcb->operation.cmd.xfer_allreduce.sndbuf = (char*)sbuf;
-	tcb->operation.cmd.xfer_allreduce.stype = PAMI_TYPE_CONTIGUOUS;
-	tcb->operation.cmd.xfer_allreduce.stypecount = count*DATATYPE_MULTIPLIER_TABLE[dtype];
-
+		tcb->operation.cmd.xfer_allreduce.op = OPERATION_CONVERSION_TABLE[op];	
+	tcb->operation.cmd.xfer_allreduce.data_cookie = NULL;
+	tcb->operation.cmd.xfer_allreduce.commutative = 1;
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u executing allreduce (%s), with type=%u and op=%u\n", state.myPlaceId, always_works_md[0].name, dtype, op);
 	#endif
