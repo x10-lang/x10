@@ -32,14 +32,20 @@ public interface Marshal[T] {
     public static LINE = new LineMarshal();
     
     public static class LineMarshal implements Marshal[String] {
-        public def read(r: Reader): String { //throws IOException {
+        public def read(r: Reader):String {
             val sb = new StringBuilder();
             var ch: Char;
-            while(true) {
-                ch = CHAR.read(r);
-                if (ch == '\n') break;
-                sb.add(ch);
-            };
+            try {
+                while(true) {
+                    ch = CHAR.read(r);
+                    if (ch == '\n') break;
+                    sb.add(ch);
+                };
+            } catch (e:IOException) {
+                if (sb.length() == 0) {
+                    throw e;
+                }
+            }
             return sb.result();
         }
         public def write(w: Writer, s: String): void //throws IOException 
