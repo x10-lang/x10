@@ -161,7 +161,13 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 	pami_dispatch_hint_t hints;
 	memset(&hints, 0, sizeof(pami_send_hint_t));
 	hints.recv_contiguous = PAMI_HINT_ENABLE;
-	hints.buffer_registered = PAMI_HINT_ENABLE;
+
+	// TODO: this check is here to workaround a bug on x86 shared memory introduced in pami 1118a.
+	// otherwise, this would always be enabled
+	char* shmem = getenv("MP_SHARED_MEMORY");
+	if (!shmem || strcasecmp("no", shmem)!=0)
+		hints.buffer_registered = PAMI_HINT_ENABLE;
+
 	//hints.multicontext = PAMI_HINT_DISABLE;
 
 	// set up our callback functions, which will convert PAMI messages to X10 callbacks
