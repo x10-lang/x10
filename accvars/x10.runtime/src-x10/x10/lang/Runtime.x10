@@ -970,6 +970,14 @@ import x10.util.NoSuchElementException;
 		
     }
     
+    public static def isStateCollectingFinish[T]():boolean {
+    	val state = activity().finishState();
+    	if (state instanceof FinishState.CollectingFinish[T]) {
+    		return true;
+    	}
+    	return false;
+    }
+    
     public static def getAccValue[T](x:long, red:Reducible[T]):T {
     
     	Console.OUT.println("Entered GETACC VALUE");
