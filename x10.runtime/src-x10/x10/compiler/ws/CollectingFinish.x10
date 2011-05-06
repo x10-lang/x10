@@ -43,7 +43,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         }
     }
     
-    @Inline public final def accept(t:T, worker:Worker){
+    public final def accept(t:T, worker:Worker){
         @Ifdef("__CPP__"){
             if(redirect == null){
                result = reducer(result, t);
@@ -61,7 +61,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
     }
     
     //In finish frame's fast path, the result is stored here.
-    @Inline public final def fastResult(worker:Worker):T {
+    public final def fastResult(worker:Worker):T {
         @Ifdef("__CPP__"){
             return result;
         }
@@ -73,7 +73,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
     
     }
     
-    @Inline public final def result():T {
+    public final def result():T {
         //do merge
         @Ifdef("__CPP__"){
             val size = Runtime.NTHREADS;
