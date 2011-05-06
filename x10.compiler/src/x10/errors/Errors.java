@@ -2007,7 +2007,7 @@ public class Errors {
 		public InvariantNotEntailed(CConstraint known, CConstraint inv, Position p) {
             super("With information from super(...) and property(...) cannot establish the class invariant. " 
             		+ "\n\t Known information: " + known 
-            		+ "\n\t Class invariant: " + inv, p);
+            		+ "\n\t Class invariant: " + known.residue(inv), p);
         }
     }
     public static class InterfaceInvariantNotEntailed extends SemanticException {
