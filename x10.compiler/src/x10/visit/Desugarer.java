@@ -53,6 +53,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.types.QName;
 import polyglot.types.ProcedureInstance;
@@ -485,8 +486,8 @@ public class Desugarer extends ContextVisitor {
          * ((p0:T,p1:T1,..,pn:Tn)=>{val x$0=p0 as U;val f1=p1 as U1;..;val fn=pn as Un;x$0.m(f1,..,fn)})(e1,..,en)
          */
         int i=0;
-        List<LocalDef> Ys = new ArrayList<LocalDef>(args.size());
-        List<LocalDef> Xs = new ArrayList<LocalDef>(args.size());
+        List<VarDef> Ys = new ArrayList<VarDef>(args.size());
+        List<VarDef> Xs = new ArrayList<VarDef>(args.size());
         for (Expr arg : args) {
             Name pn = Name.make("p$"+i);
             Type pType = arg.type();
@@ -498,7 +499,7 @@ public class Desugarer extends ContextVisitor {
             // The argument might be null, e.g., def m(b:Z) {b.x!=null}  = 1; ... m(null);
             final LocalDef oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
             Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shadow an existing field
-            Type type = oldFormal!=null ? reinstantiate(typeParamSubst, Types.get(oldFormal.type())) : arg.type();
+            Type type = Types.baseType(oldFormal!=null ? reinstantiate(typeParamSubst, Types.get(oldFormal.type())) : arg.type());
             Type tType;
             try {
                 tType = Subst.subst(type, Types.toVarArray(Ys), Types.toVarArray(Xs), new Type[0], new ParameterType[0]);
@@ -507,6 +508,7 @@ public class Desugarer extends ContextVisitor {
             }
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(tType), xn);
             Expr c = Converter.attemptCoercion(v.context(closureContext), p, tType);
+            c = (Expr) c.visit(v.context(closureContext));
             LocalDecl xd = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
                     nf.CanonicalTypeNode(pos, tType), nf.Id(pos, xn), c).localDef(xDef);
             locals.add(xd);
@@ -516,6 +518,9 @@ public class Desugarer extends ContextVisitor {
             if (oldFormal != null) {
                 Ys.add(xDef);
                 Xs.add(oldFormal);
+            } else {
+                Ys.add(xDef);
+                Xs.add(procDef.thisDef());
             }
             i++;
         }

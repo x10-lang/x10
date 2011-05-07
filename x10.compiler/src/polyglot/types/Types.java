@@ -51,6 +51,7 @@ import x10.types.MacroType;
 import x10.types.MacroType_c;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
+import x10.types.ThisDef;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
@@ -1818,11 +1819,15 @@ public class Types {
 	   return c;
 	}
 
-	public static XVar[] toVarArray(List<LocalDef> formalNames) {
+	public static XVar[] toVarArray(List<? extends VarDef> formalNames) {
 	    XVar[] oldFNs = new XVar[formalNames.size()];
 	    for (int i = 0; i < oldFNs.length; i++) {
-	        X10LocalDef oFN = (X10LocalDef) formalNames.get(i);
-	        oldFNs[i] = CTerms.makeLocal(oFN);
+	        VarDef f = formalNames.get(i);
+	        if (f instanceof X10LocalDef) {
+	            oldFNs[i] = CTerms.makeLocal((X10LocalDef) f);
+	        } else if (f instanceof ThisDef) {
+	            oldFNs[i] = ((ThisDef) f).thisVar();
+	        }
 	    }
 	    return oldFNs;
 	}
