@@ -98,7 +98,8 @@ public class Optimizer {
         if (config.CODE_CLEAN_UP) {
             goals.add(CodeCleanUp());
         }
-        if (config.OPTIMIZE) {
+        // workaround for XTENLANG-2705
+        if (config.OPTIMIZE && (!ExpressionFlattener.javaBackend(job) || config.EXPERIMENTAL)) {
             goals.add(ConstantProp());
         }
         if (config.EXPERIMENTAL && config.ELIMINATE_DEAD_VARIABLES) {
