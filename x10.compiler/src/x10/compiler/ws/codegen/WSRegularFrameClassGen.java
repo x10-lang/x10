@@ -60,6 +60,7 @@ import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.Triple;
 import x10.compiler.ws.util.WSUtil;
 import x10.optimizations.ForLoopOptimizer;
+import x10.types.X10ClassDef;
 import x10.util.CollectionFactory;
 import x10.util.synthesizer.CodeBlockSynth;
 import x10.util.synthesizer.InstanceCallSynth;
@@ -89,7 +90,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
 
     // method frames
     protected WSRegularFrameClassGen(Job job, NodeFactory xnf, Context xct, WSTransformState wts,
-           String className, Stmt stmt, ClassDef outer, Flags flags, ClassType superType) {
+           String className, Stmt stmt, X10ClassDef outer, Flags flags, ClassType superType) {
         super(job, xnf, xct, wts, className, superType, flags, outer,
                 WSUtil.setSpeicalQualifier(stmt, outer, xnf));
         wsynth.createPCField(classSynth);

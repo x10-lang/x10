@@ -81,7 +81,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     }
     @Override
     public Context enterChildScope(Node child, Context c) {
-    	Context xc = (Context) c;
+    	Context xc=c;
     	if (child instanceof Formal) {
     		// pop the dep type
     		c = c.pop();
@@ -95,7 +95,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     			for (Formal f : formals) {
     				f.addDecls(c);
     			}
-    			c = ((Context) c).pushDepType(t);
+    			c = c.pushDepType(t);
     		}
     	}
 

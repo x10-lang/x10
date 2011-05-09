@@ -5,6 +5,7 @@ import java.util.*;
 import polyglot.ast.*;
 import polyglot.types.*;
 import polyglot.util.*;
+import x10.types.X10ClassDef;
 import x10.util.CollectionFactory;
 
 // TODO:
@@ -303,10 +304,10 @@ public abstract class LocalClassRemover extends ContextVisitor {
 	    Id name = nf.Id(pos, UniqueID.newID("Anonymous"));
 	    ClassDecl cd = nf.ClassDecl(pos, nf.FlagsNode(pos, flags), name, superClass, interfaces, body);
 
-	    ClassDef type = neu.anonType();
+	    X10ClassDef type = neu.anonType();
 	    type.kind(ClassDef.MEMBER);
 	    type.name(cd.name().id());
-	    type.outer(Types.ref((ClassDef) context.currentClassDef()));
+	    type.outer(Types.ref(context.currentClassDef()));
 	    type.setPackage(Types.ref(context.package_()));
 	    type.flags(flags);
 

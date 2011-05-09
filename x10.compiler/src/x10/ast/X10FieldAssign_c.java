@@ -36,7 +36,6 @@ import polyglot.types.Flags;
 import polyglot.types.ConstructorDef;
 import x10.types.X10FieldInstance;
 
-import x10.types.X10Context_c;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.visit.X10TypeChecker;
@@ -83,7 +82,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
         // final instance fields can only be assigned via this in a ctor
         if (!flags.isStatic() && flags.isFinal()) {
             boolean isThis = target() instanceof Special && ((Special)target()).kind()==Special.THIS;
-            if (!isThis || (((X10Context_c)tc.context()).getCtorIgnoringAsync()==null))
+            if (!isThis || tc.context().getCtorIgnoringAsync()==null)
 				Errors.issue(tc.job(), new Errors.CannotAssignValueToFinalField(fd,n.position));
         }
 

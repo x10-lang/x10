@@ -37,7 +37,6 @@ import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 
-import x10.types.X10Context_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 
@@ -57,7 +56,7 @@ public class X10Return_c extends Return_c {
 		
 		CodeDef ci = c.currentCode();
 		
-		if (!implicit && ((X10Context_c)c).inAsyncScope()) { // can return from an at but not from an async
+		if (!implicit && c.inAsyncScope()) { // can return from an at but not from an async
 		    Errors.issue(tc.job(), new Errors.CannotReturnFromAsync(position()), this);
 		    return this;
 		}
@@ -119,7 +118,7 @@ public class X10Return_c extends Return_c {
 		        	// exprType should only mention variables in scope at the function signature
 				    // For closures, this includes local variables in scope at the closure.
 				    // For methods and closures, this includes formal parameters (incl. this).
-		            exprType = Types.removeLocals((X10Context_c) tc.context(), exprType);
+		            exprType = Types.removeLocals(tc.context(), exprType);
 		            if (! typeRef.known()) {
 		                typeRef.update(exprType);
 		            }

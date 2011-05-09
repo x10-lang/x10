@@ -194,12 +194,12 @@ implements X10ParsedClassType
         return (!tp.isEmpty() && (typeArguments == null || typeArguments.size() != tp.size()));
     }
     
-    public X10ParsedClassType_c(ClassDef def) {
+    public X10ParsedClassType_c(X10ClassDef def) {
         super(def);
         clearCache();
     }
 
-    public X10ParsedClassType_c(TypeSystem ts, Position pos, Ref<? extends ClassDef> def) {
+    public X10ParsedClassType_c(TypeSystem ts, Position pos, Ref<? extends X10ClassDef> def) {
         super(ts, pos, def);
         clearCache();
     }

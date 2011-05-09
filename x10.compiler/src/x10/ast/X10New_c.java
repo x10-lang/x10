@@ -119,8 +119,8 @@ public class X10New_c extends New_c implements X10New {
 
 
     @Override
-    public X10New anonType(ClassDef anonType) {
-        return (X10New) super.anonType(anonType);
+    public X10New anonType(X10ClassDef anonType) {
+        return super.anonType(anonType);
     }
     @Override
     public X10New arguments(List<Expr> arguments) {
@@ -559,7 +559,7 @@ public class X10New_c extends New_c implements X10New {
         return findConstructor(tc, n, targetType, actualTypes, null);
     }
     public static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, X10ProcedureCall n,
-            Type targetType, List<Type> actualTypes, ClassDef anonType) {
+            Type targetType, List<Type> actualTypes, X10ClassDef anonType) {
         X10ConstructorInstance ci;
         TypeSystem xts = tc.typeSystem();
         Context context = (Context) tc.context();
@@ -604,7 +604,7 @@ public class X10New_c extends New_c implements X10New {
     }
 
     private static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, Context xc,
-            X10ProcedureCall n, Type targetType, List<Type> argTypes, ClassDef anonType) throws SemanticException {
+            X10ProcedureCall n, Type targetType, List<Type> argTypes, X10ClassDef anonType) throws SemanticException {
 
         X10ConstructorInstance ci = null;
         TypeSystem xts = (TypeSystem) tc.typeSystem();

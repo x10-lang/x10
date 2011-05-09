@@ -40,7 +40,7 @@ public interface ClassDecl extends Term, TopLevelDecl, ClassMember
     /**
      * Set the type of the class declaration.
      */
-    X10ClassDecl classDef(ClassDef type);
+    X10ClassDecl classDef(X10ClassDef type);
 
     /**
      * The class declaration's flags.

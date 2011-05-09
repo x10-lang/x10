@@ -71,7 +71,6 @@ import x10.types.X10MemberDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 
-import x10.types.X10Context_c;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.ThisChecker;
@@ -89,7 +88,7 @@ import x10.visit.X10TypeChecker;
  */
 public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10ConstructorDecl {
    
-    protected DepParameterExpr guard; // ignored for now.
+    protected DepParameterExpr guard;  
     protected TypeNode returnType;
     protected List<TypeParamNode> typeParameters;
     protected TypeNode hasType;
@@ -349,11 +348,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     public Context enterChildScope(Node child, Context c) {
         // We should have entered the constructor scope already.
         assert c.currentCode() == this.constructorDef();
-
+        Context oldC=c;
         if (child != body) {
             // Push formals so they're in scope in the types of the other formals.
             c = c.pushBlock();
-
             boolean isParam = false;
             for (TypeParamNode f : typeParameters) {
                 if (child == f) {
@@ -378,43 +376,50 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         }
         // Ensure that the place constraint is set appropriately when
         // entering the body of the method.
-       
+
         c  = super.enterChildScope(child, c);
-        Context xc = (Context) c;
-        
+
         TypeSystem xts = (TypeSystem) c.typeSystem();
         if (child == body || child == returnType || child == hasType ||  child == offerType || (formals != null && formals.contains(child))) {
-        	c = PlaceChecker.pushHereIsThisHome(xc);
+            if (oldC==c)
+                c = c.pushBlock();
+            PlaceChecker.setHereIsThisHome(c);
         }
 
         if (child == body && offerType != null && offerType.typeRef()!=null && offerType.typeRef().known()) {
-            c = c.pushCollectingFinishScope(offerType.type());
+            if (oldC==c)
+                c = c.pushBlock();
+            c.setCollectingFinishScope(offerType.type());
         }
 
         // Add the constructor guard into the environment.
         if (guard != null) {
-            Ref<CConstraint> vc = guard.valueConstraint();
-            Ref<TypeConstraint> tc = guard.typeConstraint();
-        
-            if (vc != null || tc != null) {
-                c = c.pushBlock();
-                try {
-					if (vc.known())
-						c = ((Context) c).pushAdditionalConstraint(vc.get(), position());
-					if (tc.known())
-						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
-                } catch (SemanticException z) {
-                	// inconsistent guard -- ignore
+            if (child == body || child == returnType || child == hasType) {
+                Ref<CConstraint> vc = guard.valueConstraint();
+                Ref<TypeConstraint> tc = guard.typeConstraint();
+
+                if (oldC==c && (vc != null || tc != null)) {
+                    c = c.pushBlock();
                 }
-        //        ((X10Context) c).setCurrentConstraint(vc.get());
-        //        ((X10Context) c).setCurrentTypeConstraint(tc.get());
-            }            
+                if (vc != null)
+                    c.addConstraint(vc);
+                if (tc != null)
+                    c.setTypeConstraintWithContextTerms(tc);
+            }
         }
+        addInTypeConstraints(c);
 
 
         return c;
     }
 
+    public void addInTypeConstraints(Context c) {
+        Ref<TypeConstraint> tc = ((X10ClassType) Types.get(ci.container())).x10Def().typeBounds();
+
+        if (tc != null) {
+            c.setTypeConstraintWithContextTerms(tc);
+        }
+    }
     /** Visit the children of the method. */
     public Node visitSignature(NodeVisitor v) {
     	X10ConstructorDecl_c result = (X10ConstructorDecl_c) super.visitSignature(v);

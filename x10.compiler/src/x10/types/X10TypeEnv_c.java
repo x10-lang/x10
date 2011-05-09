@@ -863,7 +863,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		//                    newEnv = env;
     		//                    newEnv = Collections.EMPTY_LIST;
 
-    		Context xc2 = ((X10Context_c) xcontext).pushTypeConstraint(newEnv);
+    		Context xc2 = xcontext.pushBlock();
+    		//Context xc2 = ((X10Context_c) xcontext).pushTypeConstraint(newEnv);
+    		xc2.setTypeConstraint(newEnv);
     		X10TypeEnv_c tenv = shallowCopy();
     		tenv.context = xc2;
 
@@ -1168,7 +1170,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             //                    newEnv = env;
             newEnv = Collections.<SubtypeConstraint>emptyList();
 
-            Context xc2 = ((X10Context_c) xc).pushTypeConstraint(newEnv);
+            Context xc2 = xc.pushBlock();
+            xc2.setTypeConstraint(newEnv);
+            	//((X10Context_c) xc).pushTypeConstraint(newEnv);
 
             if (term.isEqualityConstraint()) {
                 SubtypeConstraint eq = term;
@@ -2174,7 +2178,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    	}
 	    	else {
 	    		if (error == null) {
-	    			error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() + "\n is inaccessible.");
+	    			error = new NoMemberException(NoMemberException.CONSTRUCTOR,
+	    			                              "Constructor " + ci.signature() + "\n is inaccessible.");
 	    		}
 	    	}
 
@@ -2186,9 +2191,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    }
 
 	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() 
-				+ "\n cannot be invoked with arguments \n"
-			+ matcher.argumentString() + ".");
+		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor cannot be invoked with given arguments." 
+		        + "\n Signature:" + ci.signature() 
+				+ "\n Arguments:" + matcher.argumentString() + ".");
 
 	    }
 	}

@@ -12,6 +12,7 @@ import java.util.List;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.types.X10ClassType;
 
 
 /**
@@ -101,7 +102,7 @@ public abstract class Type_c extends TypeObject_c implements Type
     }
     
     /** Returns a non-null iff isClass() returns true. */
-    public ClassType toClass() {
+    public X10ClassType toClass() {
 	return null;
     }
 

@@ -13,6 +13,8 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.util.*;
 import x10.types.MethodInstance;
+import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
 
 /**
  * A <code>ClassType</code> represents a class -- either loaded from a
@@ -22,17 +24,17 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
 {
     private static final long serialVersionUID = 3894454742809763539L;
 
-    protected Ref<? extends ClassDef> def;
+    protected Ref<? extends X10ClassDef> def;
 
     /** Used for deserializing types. */
     protected ClassType_c() { }
 
-    public ClassType_c(TypeSystem ts, Position pos, Ref<? extends ClassDef> def) {
+    public ClassType_c(TypeSystem ts, Position pos, Ref<? extends X10ClassDef> def) {
         super(ts, pos);
         this.def = def;
     }
     
-    public ClassDef def() {
+    public X10ClassDef def() {
         return def.get();
     }
     
@@ -124,7 +126,7 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
     }
     
     public boolean isClass() { return true; }
-    public ClassType toClass() { return this; }
+    public X10ClassType toClass() { return (X10ClassType) this; }
 
     /** Get the class's package. */
     public abstract Package package_();

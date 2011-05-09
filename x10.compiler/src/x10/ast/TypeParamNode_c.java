@@ -31,7 +31,6 @@ import polyglot.visit.TypeBuilder;
 import x10.types.ParameterType;
 
 import polyglot.types.Context;
-import x10.types.X10Context_c;
 import x10.types.X10TypeEnv_c;
 import polyglot.types.TypeSystem;
 
@@ -120,7 +119,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	public List<Type> upperBounds() {
 		Type type = type();
 		TypeSystem ts = (TypeSystem) type.typeSystem();
-		X10Context_c xc = (X10Context_c) ts.emptyContext();
+		Context xc =  ts.emptyContext();
 		List<Type> results = new X10TypeEnv_c(xc).upperBounds(type, false);
 		return results;
 	}

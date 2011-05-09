@@ -60,7 +60,6 @@ import x10.types.EnvironmentCapture;
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import x10.types.MethodInstance;
-import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
 import polyglot.types.LazyRef_c;
 import x10.types.checker.PlaceChecker;
@@ -339,6 +338,7 @@ public class Closure_c extends Expr_c implements Closure {
 	@Override
 	public Context enterChildScope(Node child, Context c) {
 		// We should have entered the method scope already.
+		Context oldC=c;
 		if  (c.currentCode() != this.closureDef())
 			assert c.currentCode() == this.closureDef();
 
@@ -355,7 +355,9 @@ public class Closure_c extends Expr_c implements Closure {
 		}
 
 		if (child == body && offerType != null && offerType.typeRef().known()) {
-		    c = c.pushCollectingFinishScope(offerType.type());
+			if (oldC==c)
+				c=c.pushBlock();
+		    c.setCollectingFinishScope(offerType.type());
 		}
 
 		return super.enterChildScope(child, c);
@@ -410,7 +412,7 @@ public class Closure_c extends Expr_c implements Closure {
 				// Body had no return statement.  Set to void.
 				t = ts.Void();
 			}
-			t = Types.removeLocals((X10Context_c) c, t);
+			t = Types.removeLocals( c, t);
 			tr.update(t);
 			n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), t));
 		}

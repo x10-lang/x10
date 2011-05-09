@@ -56,7 +56,6 @@ import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
-import x10.types.X10Context_c;
 import x10.types.X10ClassDef;
 import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
@@ -162,7 +161,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
         Position pos = position();
         Job job = tc.job();
-        X10ConstructorDef thisConstructor = ((X10Context_c)ctx).getCtorIgnoringAsync();
+        X10ConstructorDef thisConstructor = ctx.getCtorIgnoringAsync();
         X10ParsedClassType container = (X10ParsedClassType) ctx.currentClass();
         if (thisConstructor==null) {
             Errors.issue(job,
@@ -300,7 +299,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
                 // Set the return type of the enclosing constructor to be this inferred type.
                 Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
-                inferredResultType = Types.removeLocals((X10Context_c) tc.context(), inferredResultType);
+                inferredResultType = Types.removeLocals( tc.context(), inferredResultType);
                 if (! Types.consistent(inferredResultType)) {
                     Errors.issue(tc.job(), 
                                  new Errors.InconsistentType(inferredResultType, pos));

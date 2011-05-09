@@ -647,7 +647,7 @@ public class Synthesizer {
 		
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeArgsN) typeArgs.add(t.type());
-        ClassType container = receiver.toClass();
+        X10ClassType container = receiver.toClass();
         MethodInstance mi = xts.findMethod(receiver,
                 xts.MethodMatcher(receiver, name, typeArgs, argTypes, xc.pushClass(container.def(), container)));
         Call result= (Call) xnf.X10Call(pos, 
@@ -703,7 +703,7 @@ public class Synthesizer {
 		
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeArgsN) typeArgs.add(t.type());
-        ClassType container = receiver.type().toClass();
+        X10ClassType container = receiver.type().toClass();
         MethodInstance mi = xts.findMethod(container,
                 xts.MethodMatcher(container, name, typeArgs, argTypes, xc.pushClass(container.def(), container)));
         Call result= (Call) xnf.X10Call(pos, 

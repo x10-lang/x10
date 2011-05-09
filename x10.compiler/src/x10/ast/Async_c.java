@@ -46,7 +46,6 @@ import polyglot.visit.TypeBuilder;
 import x10.errors.Errors;
 import x10.types.AsyncDef;
 import x10.types.X10ClassDef;
-import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 
@@ -203,7 +202,7 @@ public class Async_c extends Stmt_c implements Async {
 	        reporter.report(5, "enter async scope");
 	    if (child == this.body) {
 	        c = c.pushAsync(asyncDef);
-	        ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.Async;
+	        c.x10Kind = Context.X10Kind.Async;
 	        return c;
 	    }
 	    return c;

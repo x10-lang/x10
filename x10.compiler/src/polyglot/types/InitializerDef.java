@@ -7,11 +7,13 @@
 
 package polyglot.types;
 
+import x10.types.X10CodeDef;
+
 /**
  * A <code>InitializerInstance</code> contains the type information for a
  * static or anonymous initializer.
  */
-public interface InitializerDef extends CodeDef, MemberDef
+public interface InitializerDef extends X10CodeDef, MemberDef
 {
     InitializerInstance asInstance();
 }

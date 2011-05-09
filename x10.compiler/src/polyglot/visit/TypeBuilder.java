@@ -20,6 +20,7 @@ import polyglot.types.*;
 import polyglot.types.Package;
 import polyglot.util.*;
 import x10.errors.Errors;
+import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 
 /** Visitor which traverses the AST constructing type objects. */
@@ -34,7 +35,7 @@ public class TypeBuilder extends NodeVisitor
     protected boolean inCode; // true if the last scope pushed as not a class.
     protected boolean global; // true if all scopes pushed have been classes.
     protected Package package_;
-    protected ClassDef type; // last class pushed.
+    protected X10ClassDef type; // last class pushed.
     protected Def def;
 
     public TypeBuilder(Job job, TypeSystem ts, NodeFactory nf) {
@@ -159,7 +160,7 @@ public class TypeBuilder extends NodeVisitor
         return tb;
     }
 
-    public TypeBuilder pushClass(ClassDef classDef) {
+    public TypeBuilder pushClass(X10ClassDef classDef) {
         if (reporter.should_report(Reporter.visit, 4))
             reporter.report(4, "TB pushing class " + classDef + ": " + context());
 
@@ -189,10 +190,10 @@ public class TypeBuilder extends NodeVisitor
      * Do not fail on duplicate types, but create another instance of the type with a
      * dummy name, to allow proceeding with compilation.
      */
-    protected ClassDef newClass(Position pos, Flags flags, Name name, SemanticException error) {
+    protected X10ClassDef newClass(Position pos, Flags flags, Name name, SemanticException error) {
         TypeSystem ts = typeSystem();
 
-        ClassDef ct = ts.createClassDef(job().source());
+        X10ClassDef ct = ts.createClassDef(job().source());
 
         ct.position(pos);
         ct.flags(flags);
@@ -303,15 +304,15 @@ public class TypeBuilder extends NodeVisitor
                 "Can only push an anonymous class within code.");
         }
 
-        ClassDef ct = createAnonClass(pos);
+        X10ClassDef ct = createAnonClass(pos);
 
         return pushClass(ct);
     }
 
-    protected ClassDef createAnonClass(Position pos) {
+    protected X10ClassDef createAnonClass(Position pos) {
         TypeSystem ts = typeSystem();
 
-        ClassDef ct = ts.createClassDef(this.job().source());
+        X10ClassDef ct = ts.createClassDef(this.job().source());
         ct.kind(ClassDef.ANONYMOUS);
         ct.outer(Types.ref(currentClass()));
         ct.position(pos);
@@ -331,11 +332,11 @@ public class TypeBuilder extends NodeVisitor
     }
 
     public TypeBuilder pushClass(Position pos, Flags flags, Name name, SemanticException error) {
-        ClassDef t = newClass(pos, flags, name, error);
+        X10ClassDef t = newClass(pos, flags, name, error);
         return pushClass(t);
     }
 
-    public ClassDef currentClass() {
+    public X10ClassDef currentClass() {
         return this.type;
     }
 

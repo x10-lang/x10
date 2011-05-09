@@ -61,7 +61,6 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10CodeDef;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context_c;
 import x10.types.X10MethodDef;
 
 import polyglot.types.TypeSystem;
@@ -305,8 +304,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
     
     @Override
     protected boolean isLocal(Context c, Name name) {
-        X10Context_c xcon = (X10Context_c)c;
-        CodeDef ci = xcon.definingCodeDef(name);
+        CodeDef ci = c.definingCodeDef(name);
         if (ci == null) return false;
         while (c != null) {
             CodeDef curr = c.currentCode();
@@ -316,12 +314,12 @@ public class X10LocalClassRemover extends LocalClassRemover {
                 ;
             else {
                 // FIX:XTENLANG-1159
-                return xcon.isValInScopeInClass(name);
+                return c.isValInScopeInClass(name);
             }
             c = c.pop();
         }
         // FIX:XTENLANG-1159
-        return xcon.isValInScopeInClass(name);
+        return c.isValInScopeInClass(name);
     }
     
     @Override

@@ -44,7 +44,6 @@ import x10.errors.Errors;
 import polyglot.types.Context;
 import x10.types.AtDef;
 import x10.types.X10ClassDef;
-import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
@@ -139,11 +138,11 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 
 	@Override
 	public Context enterChildScope(Node child, Context c) {
+		Context oldC=c;
 		if (child == this.body) {
 		    c = c.pushAt(atDef);
-		    ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.At; // this is an at, not an async
+		   c.x10Kind = Context.X10Kind.At; // this is an at, not an async
 		}
-		Context xc = c;
 
 		try {
 			// FIXME: this creates a new place term; ideally, it should be the place associated with each
@@ -154,13 +153,16 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 				placeTerm = XConstrainedTerm.instantiate(d, term);
 			}
 
-			if (child == body)
-			    xc = (Context) xc.pushPlace(placeTerm);
+			if (child == body) {
+				if (oldC==c)
+					c=c.pushBlock();
+			    c.setPlace(placeTerm);
+			}
 		} 
 		catch (XFailure z) {
 			throw new InternalCompilerError("Cannot construct placeTerm from  term  and constraint.");
 		}
-		return xc;
+		return c;
 	}
 
 	@Override

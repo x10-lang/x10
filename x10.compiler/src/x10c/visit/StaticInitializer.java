@@ -293,7 +293,7 @@ public class StaticInitializer extends ContextVisitor {
         return cDecl;
     }
 
-    private X10ClassDef createShadowClassDef(ClassDef interfaceClassDef) {
+    private X10ClassDef createShadowClassDef(X10ClassDef interfaceClassDef) {
         X10ClassDef cDef = (X10ClassDef) xts.createClassDef(interfaceClassDef.sourceFile());
         cDef.superType(Types.ref(xts.Any()));
         List<Ref<? extends Type>> interfacesRef = Collections.<Ref<? extends Type>>emptyList();
@@ -353,7 +353,7 @@ public class StaticInitializer extends ContextVisitor {
                             // replace with a static method call
                             Type targetType = f.target().type();
                             if (targetType instanceof ParsedClassType) {
-                                ClassDef targetClassDef = ((ParsedClassType)targetType).def();
+                                X10ClassDef targetClassDef = ((ParsedClassType)targetType).def();
                                 if (targetClassDef.flags().isInterface())
                                     // target nested shadow class within interface
                                     targetType = createShadowClassDef(targetClassDef).asType();

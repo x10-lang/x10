@@ -78,8 +78,12 @@ public class LazyRef_c<T> extends AbstractRef_c<T> implements LazyRef<T>, Serial
 	}
 
 	public String toString() {
+	    if (known()) {
 		T o = super.getCached();
 		if (o == null) return "null";
 		return o.toString();
+	    } else {
+	        return resolver.toString();
+	    }
 	}
 }

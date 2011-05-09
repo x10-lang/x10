@@ -31,7 +31,6 @@ import polyglot.types.Context;
 import x10.types.FunctionType;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
-import x10.types.X10Context_c;
 import x10.types.TypeParamSubst;
 import polyglot.types.TypeSystem;
 import x10.types.ParameterType.Variance;
@@ -143,7 +142,8 @@ public class TypeConstraint implements Copy, Serializable {
     }
 
     public boolean entails(TypeConstraint c, Context context) {
-        Context xc = ((X10Context_c)context).pushTypeConstraintWithContextTerms(this);  
+        Context xc =  context.pushBlock();
+        xc.setTypeConstraintWithContextTerms(this);  
         return c.consistent(xc);
     }
 

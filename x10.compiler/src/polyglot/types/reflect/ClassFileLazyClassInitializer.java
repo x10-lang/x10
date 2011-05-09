@@ -14,6 +14,7 @@ import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.types.reflect.InnerClasses.Info;
 import polyglot.util.*;
+import x10.types.X10ClassDef;
 
 /**
  * A lazy initializer for classes loaded from a .class file.
@@ -279,15 +280,15 @@ public class ClassFileLazyClassInitializer {
      * @return A ClassType with the given name.
      * @throws InternalCompilerError if the class does not exist.
      */
-    protected Ref<ClassDef> defForName(String name) {
+    protected Ref<X10ClassDef> defForName(String name) {
         return defForName(name, null);
     }
     
-    protected Ref<ClassDef> defForName(String name, Flags flags) {
+    protected Ref<X10ClassDef> defForName(String name, Flags flags) {
         if (reporter.should_report(Reporter.loader, 2))
             reporter.report(2, "resolving " + name);
         
-        LazyRef<ClassDef> sym = Types.lazyRef(ts.unknownClassDef(), null);
+        LazyRef<X10ClassDef> sym = Types.lazyRef(ts.unknownClassDef(), null);
         
         if (flags == null) {
             sym.setResolver(ts.extensionInfo().scheduler().LookupGlobalTypeDef(sym, QName.make(name)));

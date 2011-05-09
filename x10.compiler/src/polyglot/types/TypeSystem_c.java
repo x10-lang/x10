@@ -42,7 +42,6 @@ import x10.types.ThisInstance_c;
 import x10.types.TypeDefMatcher;
 import x10.types.TypeParamSubst;
 import x10.types.X10ConstructorInstance_c;
-import x10.types.X10Context_c;
 import x10.types.X10FieldDef_c;
 import x10.types.X10FieldInstance_c;
 import x10.types.X10LocalDef_c;
@@ -2690,7 +2689,7 @@ public class TypeSystem_c implements TypeSystem
 		QName name = getTransformedClassName(ct);
 
 		TypeSystem_c ts = this;
-		LazyRef<ClassDef> sym = Types.lazyRef((ClassDef) unknownClassDef(), null);
+		LazyRef<X10ClassDef> sym = Types.lazyRef( unknownClassDef(), null);
 		Goal resolver = extInfo.scheduler().LookupGlobalTypeDef(sym, name);
 		resolver.update(Goal.Status.SUCCESS);
 		sym.setResolver(resolver);
@@ -2940,7 +2939,7 @@ public class TypeSystem_c implements TypeSystem
 	                            name + "\".");
     }
 
-    public final ClassDef createClassDef() {
+    public final X10ClassDef createClassDef() {
 	return createClassDef((Source) null);
     }
 
@@ -2948,7 +2947,7 @@ public class TypeSystem_c implements TypeSystem
         return new X10ClassDef_c(this, fromSource);
     }
 
-    public X10ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def) {
+    public X10ParsedClassType createClassType(Position pos, Ref<? extends X10ClassDef> def) {
         return new X10ParsedClassType_c(this, pos, def);
     }
 
@@ -3839,7 +3838,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public Context emptyContext() {
-        return new X10Context_c(this);
+        return new Context(this);
     }
 
     public boolean isArray(Type t) {

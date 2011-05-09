@@ -122,7 +122,7 @@ public class WSSynthesizer {
     }
     
     public ClassSynth createClassSynth(Job job, Context ct, Type superClassType,
-                                       ClassDef outClassDef, Flags flags, String className){
+                                       X10ClassDef outClassDef, Flags flags, String className){
         ClassSynth classSynth = new ClassSynth(job, nf, ct, superClassType, className);
         classSynth.setKind(ClassDef.MEMBER);
         classSynth.setFlags(flags);

@@ -57,7 +57,6 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context_c;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
@@ -1766,7 +1765,7 @@ public class Types {
         return res;
     }
 
-	public static Type removeLocals(X10Context_c ctx, Type t) {
+	public static Type removeLocals(Context ctx, Type t) {
 		t = t.typeSystem().expandMacros(t);
 	
 	    if (t instanceof X10ClassType) {
@@ -1796,7 +1795,7 @@ public class Types {
 	 * @param c0
 	 * @return
 	 */
-	public static CConstraint removeLocals(X10Context_c cxt, CConstraint c0) {
+	public static CConstraint removeLocals(Context cxt, CConstraint c0) {
 		CConstraint c = new CConstraint();
     	c.addIn(c0); // ensure that this has a different selfVar.
     	Set<XTerm> roots = c.rootTerms();

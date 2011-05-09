@@ -36,7 +36,7 @@ public abstract class ClassDecl_c extends Term_c implements ClassDecl
 
     public abstract X10ClassDef classDef();
 
-    public abstract X10ClassDecl classDef(ClassDef type);
+    public abstract X10ClassDecl classDef(X10ClassDef type);
 
     public abstract X10ClassDecl flags(FlagsNode flags);
 

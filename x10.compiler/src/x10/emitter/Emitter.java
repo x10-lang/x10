@@ -983,8 +983,8 @@ public class Emitter {
 		w.begin(0);
 	    // XTENLANG-2680
 		Flags javaFlags = flags.retainJava(); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
-		boolean invokeNativeAsVirtual = supportNativeMethodDecl && getJavaImplForDef(n.methodDef()) != null && !isInterface/*for Iterable[T].iterator() and Comparable[T].compareTo(T)*/;
-		if (invokeNativeAsVirtual) {
+		boolean hasNativeAnnotation = supportNativeMethodDecl && getJavaImplForDef(n.methodDef()) != null && !isInterface/*for Iterable[T].iterator() and Comparable[T].compareTo(T)*/;
+		if (hasNativeAnnotation) {
 			// N.B. clear native as well since it has @Native annotation. 
 			javaFlags = javaFlags.clearNative();
 		}
@@ -1098,7 +1098,7 @@ public class Emitter {
 
 	    // XTENLANG-2680
 		// print @Native annotation as method body
-		if (invokeNativeAsVirtual) {
+		if (hasNativeAnnotation) {
 			printNativeMethodDecl(n);
 			return;
 		}
@@ -3385,7 +3385,7 @@ public class Emitter {
         return false;
     }
     
-    // XTENLANG-2680
+    // WIP XTENLANG-2680
 	// print @Native annotation as method body
     public boolean printNativeMethodDecl(X10MethodDecl_c n) {
     	assert supportNativeMethodDecl;
@@ -3442,8 +3442,9 @@ public class Emitter {
     		}
     		
     		w.write("{");
-//    		if (!mi.returnType().isVoid()) {
+    		//@@@ahoaho
     		if (!n.returnType().type().isVoid()) {
+//    		if (!mi.returnType().isVoid()) {
     			w.write("return ");
     		}
     		

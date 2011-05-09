@@ -3768,7 +3768,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private static class ConstructorIdTypeForAnnotation extends X10ParsedClassType_c {
         private int i = -1;
 
-        public ConstructorIdTypeForAnnotation(ClassDef def) {
+        public ConstructorIdTypeForAnnotation(X10ClassDef def) {
             super(def);
         }
 

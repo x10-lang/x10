@@ -288,16 +288,17 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
      * var i:Int = (i=2)+4; // ERR!
      */
 	public Context enterChildScope(Node child, Context c) {
+		Context oldC=c;
         if (child == init) {
             c = c.pushBlock();
             // addDecls(c); - this will allow writing code like a local: int i= (i=2);
         }
 		if (child == this.type || child == this.hasType) {
-			Context xc = (Context) c.pushBlock();
+			if (oldC==c)
+			 c=c.pushBlock();
 			LocalDef li = localDef();
-			xc.addVariable(li.asInstance());
-			xc.setVarWhoseTypeIsBeingElaborated(li);
-			c = xc;
+			c.addVariable(li.asInstance());
+			c.setVarWhoseTypeIsBeingElaborated(li);
 		}
 		Context cc = super.enterChildScope(child, c);
 		return cc;

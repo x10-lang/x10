@@ -368,7 +368,9 @@ public class Matcher {
 				if (dynamicChecks)
 					newMe = newMe.checkConstraintsAtRuntime(true);
 				else
-					throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+					throw new SemanticException("Call invalid; calling environment does not entail the method guard."
+					       + "\n\t arg types:" + actualsIn
+					       + "\n\t query residue: " + returnEnv.residue(query));
 			}
 		}
 
@@ -389,7 +391,10 @@ public class Matcher {
 						+ " cannot be established; inconsistent in calling context.");
 			}
 			if (! tenv.entails(tQuery, context2)) {
-				throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+			    throw new SemanticException("Call invalid; calling environment does not entail the method type guard."
+			                                + "\n\t Type args:" + typeActuals
+			                                + "\n\t Type env:" + tenv
+			                                + "\n\t Query residue: " + tQuery);
 			}
 		}
 

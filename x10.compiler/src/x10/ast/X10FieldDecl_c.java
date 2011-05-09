@@ -82,6 +82,8 @@ import polyglot.types.FieldInstance;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.visit.X10TypeChecker;
 
@@ -144,21 +146,42 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     	return this;
     }
 	public Context enterChildScope(Node child, Context c) {
+		Context oldC=c;
 		if (child == this.type || child==this.hasType) {
-			Context xc = (Context) c.pushBlock();
-			FieldDef fi = fieldDef();
-			xc.addVariable(fi.asInstance());
-			xc.setVarWhoseTypeIsBeingElaborated(fi);
-			c = xc;
+		    c = c.pushBlock();
+		    FieldDef fi = fieldDef();
+		    c.addVariable(fi.asInstance());
+		    c.setVarWhoseTypeIsBeingElaborated(fi);
+		    addInClassInvariantIfNeeded(c);
+		    PlaceChecker.setHereTerm(fieldDef(), c);
 		}
 				
-	    if (child == this.type || child == this.init || child == this.hasType) {
-			c = PlaceChecker.pushHereTerm(fieldDef(), (Context) c);
+	    if (child == this.init) {
+	        c = c.pushBlock();
+	        addInClassInvariantIfNeeded(c);
+	    	PlaceChecker.setHereTerm(fieldDef(), c);
 		}
-		Context cc = super.enterChildScope(child, c);
-		return cc;
+		c = super.enterChildScope(child, c);
+		return c;
 	}
 	
+	public void addInClassInvariantIfNeeded(Context c) {
+        if (!fieldDef().flags().isStatic()) {
+            // this call occurs in the body of an instance method for T.
+            // Pick up the real clause for T -- that information is known 
+            // statically about "this"
+            Ref<? extends ContainerType> container = fieldDef().container();
+            if (container.known()) { 
+                X10ClassType type = (X10ClassType) Types.get(container);
+                Ref<CConstraint> rc = type.x10Def().realClause();
+                c.addConstraint(rc);
+                Ref<TypeConstraint> tc = type.x10Def().typeBounds();
+                if (tc != null) {
+                    c.setTypeConstraintWithContextTerms(tc);
+                }
+            }
+        }
+    }
 	@Override
 	public void setResolver(final Node parent, TypeCheckPreparer v) {
 		final FieldDef def = fieldDef();

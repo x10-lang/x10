@@ -160,7 +160,7 @@ public interface TypeSystem {
     ConstructorDef defaultConstructor(Position pos, Ref<? extends ClassType> container);
 
     /** Get an unknown class def. */
-    ClassDef unknownClassDef();
+    X10ClassDef unknownClassDef();
 
     /** Get an unknown type. */
     UnknownType unknownType(Position pos);
@@ -541,7 +541,7 @@ public interface TypeSystem {
     /**
      * Create a new empty class.
      */
-    ClassDef createClassDef();
+    X10ClassDef createClassDef();
 
     InitializerInstance createInitializerInstance(Position pos, Ref<? extends InitializerDef> def);
 
@@ -878,7 +878,7 @@ public interface TypeSystem {
 
     X10ClassDef createClassDef(Source fromSource);
 
-    X10ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def);
+    X10ParsedClassType createClassType(Position pos, Ref<? extends X10ClassDef> def);
     X10ConstructorInstance createConstructorInstance(Position pos, Ref<? extends ConstructorDef> def);
     MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def);
     X10FieldInstance createFieldInstance(Position pos, Ref<? extends FieldDef> def);

@@ -146,7 +146,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
 
     private AbstractWSClassGen(Job job, Context xct, WSTransformState wts, AbstractWSClassGen up,
-            String className, ClassType frameType, int frameDepth, Flags flags, ClassDef outer, Stmt stmt) {
+            String className, ClassType frameType, int frameDepth, Flags flags, X10ClassDef outer, Stmt stmt) {
         this.job = job;
         xnf = (NodeFactory) job.extensionInfo().nodeFactory();
         xts = (TypeSystem) job.extensionInfo().typeSystem();
@@ -169,7 +169,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
     // method frames
     protected AbstractWSClassGen(Job job, NodeFactory xnf, Context xct, WSTransformState wts,
-            String className, ClassType frameType, Flags flags, ClassDef outer, Stmt stmt) {
+            String className, ClassType frameType, Flags flags, X10ClassDef outer, Stmt stmt) {
         this(job, xct, wts, null, className, frameType, 0, flags, outer, stmt);
     }
 

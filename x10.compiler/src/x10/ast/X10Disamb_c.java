@@ -191,6 +191,7 @@ public class X10Disamb_c extends Disamb_c {
     		    }
     		}
     		catch (SemanticException e) {
+    		    int q=1;
     		}
 	    }
 

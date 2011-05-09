@@ -58,7 +58,6 @@ import x10.types.ClosureDef;
 import x10.types.ParameterType;
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
-import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;

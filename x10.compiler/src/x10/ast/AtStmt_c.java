@@ -57,7 +57,6 @@ import x10.types.ClosureDef;
 import x10.types.ParameterType;
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
-import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
@@ -220,9 +219,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     		return this;
     	}
     	ContextVisitor childtc = (ContextVisitor) v;
-
     	Expr place = (Expr) visitChild(this.place, childtc);
-
     	place = Converter.attemptCoercion(tc, place, ts.Place());
     	if (place == null) {
     	    Errors.issue(tc.job(), 
@@ -249,9 +246,13 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	// now that placeTerm is computed for this node, install it in the context
     	// and continue visiting children
 
+    	Context oldC = c;
         c = super.enterChildScope(body, childtc.context());
-        if (placeTerm != null)
-            c = c.pushPlace(placeTerm);
+        if (placeTerm != null) {
+        	if (c == oldC)
+        		c=c.pushBlock();
+            c.setPlace(placeTerm);
+        }
         Stmt body = (Stmt) visitChild(this.body, childtc.context(c));
         AtStmt_c n = this.reconstruct(place, body);
         if (placeTerm != n.placeTerm || finishPlaceTerm != n.finishPlaceTerm) {
@@ -310,7 +311,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	public Context enterScope(Context c) {
 	    c = c.pushBlock();
 	    c = c.pushAt(atDef);
-	    ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.At;
+	    c.x10Kind = Context.X10Kind.At;
 	    return c;
 	}
 

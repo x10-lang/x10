@@ -8,6 +8,7 @@
 package polyglot.types;
 
 import polyglot.frontend.Source;
+import x10.types.X10ClassDef;
 
 /**
  * A <code>ParsedClassType</code> represents a class loaded from a source file.
@@ -15,7 +16,7 @@ import polyglot.frontend.Source;
  */
 public interface ParsedClassType extends ClassType
 {
-    ClassDef def();
+    X10ClassDef def();
     
     /**
      * The <code>Source</code> that this class type

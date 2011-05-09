@@ -165,7 +165,8 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     public String toString() {
 	Type type = type();
 	String typeString = type != null ? type.toString() : def().type().toString();
-	String s = "field " + flags().prettyPrint() + containerString() + "." + name() + ": " + typeString;
+	String ss = "field " + flags().prettyPrint() + containerString() + "." + name() + ": " + typeString;
+	String s = name().toString();
 	return s;
     }
 

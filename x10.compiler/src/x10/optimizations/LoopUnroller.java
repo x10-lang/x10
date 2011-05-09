@@ -49,7 +49,6 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
-import polyglot.types.Context_c;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -676,7 +675,7 @@ public class LoopUnroller extends ContextVisitor {
                     protected Expr subst(Expr n) {
                         if (n instanceof Local) {
                             Local l = (Local) n;
-                            Context_c ctx = (Context_c) context();
+                            Context ctx =  context();
                             while (ctx != outer) {
                                 if (ctx.findVariableInThisScope(l.name().id()) != null) {
                                     // TODO Do something more sensible than just throwing an exception
