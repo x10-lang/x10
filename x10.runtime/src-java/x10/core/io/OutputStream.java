@@ -20,7 +20,8 @@ public class OutputStream extends Ref {
   
 	private static final long serialVersionUID = 1L;
 
-    private java.io.OutputStream stream;
+    // XTENLANG-2680
+    /*private*/public java.io.OutputStream stream;
 
     public OutputStream(java.lang.System[] $dummy) {
         super($dummy);
@@ -67,6 +68,15 @@ public class OutputStream extends Ref {
         }
     }
     
+    // XTENLANG-2680
+    public void write_0_$_x10$lang$Byte_$(x10.array.Array buf) {
+        try {
+            stream.write(buf.raw().getByteArray());
+        } catch (java.io.IOException e) {
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+
     public void write(byte[] b, int off, int len) {
         try {
             stream.write(b, off, len);
@@ -75,6 +85,15 @@ public class OutputStream extends Ref {
         }
     }
     
+    // XTENLANG-2680
+    public void write_0_$_x10$lang$Byte_$(x10.array.Array buf, int off, int len) {
+        try {
+            stream.write(buf.raw().getByteArray(), off, len);
+        } catch (java.io.IOException e) {
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+
     //
     // Runtime type information
     //

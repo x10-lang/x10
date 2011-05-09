@@ -79,6 +79,16 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
     }
     */
 
+    // XTENLANG-2680
+	public java.lang.String getMessage$O() {
+		return super.getMessage();
+	}
+
+    // XTENLANG-2680
+	public void printStackTrace(x10.io.Printer p) {
+		super.printStackTrace(new java.io.PrintWriter(p.getNativeOutputStream().stream));
+	}
+
     public static final RuntimeType<Throwable> $RTT = new NamedType<Throwable>(
         "x10.lang.Throwable",
         Throwable.class,

@@ -1571,14 +1571,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (asUnsignedPrimitive) w.write(")");
     }
 
+    private static boolean hasFinalMethods(X10ClassDef def) {
+    	return def.flags().isFinal() || def.isStruct();
+    }
+
     @Override
     public void visit(X10Call_c c) {
-        if (er.printInlinedCode(c) || er.printNativeMethodCall(c)) {
+        if (er.printInlinedCode(c)) {
             return;
         }
 
+        // XTENLANG-2680 invocation of static or native methods as non-virtual call is kind of optimization
         MethodInstance mi = c.methodInstance();
         Receiver target = c.target();
+    	assert mi.container().isClass();
+    	// N.B. structs are implicitly final. all methods of final classes are also final.
+    	boolean generateAsNonVirtual = !Emitter.supportNativeMethodDecl || mi.flags().isStatic() || mi.flags().isFinal()
+    	|| hasFinalMethods(((X10ClassType) mi.container().toClass()).x10Def())
+    	|| ((X10ClassType) mi.container().toClass()).x10Def().flags().isInterface()/*for Iterable[T].iterator() and Comparable[T].compareTo(T)*/
+    	|| (target.type().isClass() && hasFinalMethods(((X10ClassType) target.type().toClass()).x10Def()));
+        if (generateAsNonVirtual && er.printNativeMethodCall(c)) {
+            return;
+        }
 
         // Check for properties accessed using method syntax. They may have
         // @Native annotations too.
