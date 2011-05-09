@@ -51,7 +51,6 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -165,16 +164,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    		return reconstruct(array, index);
    	}
    	
-   	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-   		TypeSystem ts = (TypeSystem) av.typeSystem();
-   		
-   		if (child == array) {
-   			return ts.Settable();
-   		}
-   		
-   		return child.type();
-   	}
-	
 	MethodInstance mi;
 	MethodInstance ami; // the apply method is searched even for SettableAssign if the operator is not "=", e.g., a(1) += 2; If it is just assignment, then ami will be null, e.g., a(1)=2;
 	

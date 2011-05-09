@@ -39,7 +39,6 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -304,14 +303,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		return cc;
 	}
 	
-	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-	    if (child == init) {
-	        TypeSystem ts = av.typeSystem();
-	        return type.type();
-	    }
-	    return child.type();
-	}
-
 	/** Visit the children of the declaration. */
 	public Node visitChildren(NodeVisitor v) {
 	    X10LocalDecl_c n = (X10LocalDecl_c) super.visitChildren(v);

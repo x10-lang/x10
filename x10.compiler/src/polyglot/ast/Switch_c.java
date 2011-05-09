@@ -143,16 +143,6 @@ public class Switch_c extends Stmt_c implements Switch
         return n;
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == expr) {
-            return ts.Int();
-        }
-
-        return child.type();
-    }
-
     public String toString() {
 	return "switch (" + expr + ") { ... }";
     }

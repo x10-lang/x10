@@ -32,7 +32,6 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -112,35 +111,6 @@ public class Tuple_c extends Expr_c implements Tuple {
     if (indexType!=null) tn = (TypeNode) visitChild( this.indexType, v );
 	List<Expr> elements = visitList(this.elements, v);
 	return reconstruct(tn,elements);
-    }
-
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-	if (elements.isEmpty()) {
-            return child.type();
-        }
-
-        Type t = av.toType();
-        
-        TypeSystem ts = (TypeSystem) av.typeSystem();
-        
-        if (! ts.isArray(t)) {
-            return child.type();
-        }
-        
-        Type base = Types.getParameterType(t, 0);
-
-        for (Expr e : elements) {
-            if (e == child) {
-                if (ts.numericConversionValid(base, child.type(), e.constantValue(), av.context())) {
-                    return child.type();
-                }
-                else {
-                    return base;
-                }
-            }
-        }
-
-        return child.type();
     }
 
 	public TypeNode indexType() {

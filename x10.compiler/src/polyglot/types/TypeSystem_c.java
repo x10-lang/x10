@@ -2300,6 +2300,10 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public X10ClassType ClassCastException() {
+        return FailedDynamicCheckException();
+    }
+
+    public X10ClassType FailedDynamicCheckException() {
         return load("x10.lang.FailedDynamicCheckException");
     }
 

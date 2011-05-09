@@ -142,15 +142,6 @@ e = new Exception();
       return this;
   }
   
-  public Type childExpectedType(Expr child, AscriptionVisitor av)
-  {
-      if (child == target) {
-          return fi.container();
-      }
-
-      return child.type();
-  }
-
   /** Write the field to an output file. */
   public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
     w.begin(0);

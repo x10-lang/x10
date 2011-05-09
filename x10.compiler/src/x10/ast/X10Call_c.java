@@ -54,7 +54,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ExceptionChecker;
 import x10.constraint.XVar;
@@ -173,27 +172,6 @@ public class X10Call_c extends Call_c implements X10Call {
     protected Type findContainer(TypeSystem ts, MethodInstance mi) {
         return mi.container();
     }
-
-  public Type childExpectedType(Expr child, AscriptionVisitor av)
-  {
-      if (child == target) {
-          return mi.container();
-      }
-
-      Iterator<Expr> i = this.arguments.iterator();
-      Iterator<Type> j = mi.formalTypes().iterator();
-
-      while (i.hasNext() && j.hasNext()) {
-          Expr e = (Expr) i.next();
-          Type t = (Type) j.next();
-
-          if (e == child) {
-              return t;
-          }
-      }
-
-      return child.type();
-  }
 
   /** Dumps the AST. */
   public void dump(CodeWriter w) {

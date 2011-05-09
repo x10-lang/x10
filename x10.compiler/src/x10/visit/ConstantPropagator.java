@@ -340,12 +340,12 @@ public class ConstantPropagator extends ContextVisitor {
         /**
          * Rewrite and AST so it will look to a Java compiler as if it might have normal control flow.
          */
-        protected Node leaveCall(Node n) throws SemanticException {
+        protected Node leaveCall(Node n) {
             if (n instanceof Return)
                 return protect((Return) n, typeSystem());
             if (n instanceof Throw)
                 return protect((Throw) n, typeSystem());
-            return super.leaveCall(n);
+            return n;
         }
     }
     

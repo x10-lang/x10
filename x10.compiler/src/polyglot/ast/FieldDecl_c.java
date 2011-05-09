@@ -305,8 +305,6 @@ public abstract class FieldDecl_c extends Term_c implements FieldDecl {
         return ec.push(new ExceptionChecker.CodeTypeReporter("A field initializer"));
     }
 
-    public abstract Type childExpectedType(Expr child, AscriptionVisitor av);
-
     public Term firstChild() {
         return type;
     }

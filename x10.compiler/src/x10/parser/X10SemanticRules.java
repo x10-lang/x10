@@ -1031,13 +1031,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: PackageOrTypeName ::= Identifier
     void rule_PackageOrTypeName1(Object _Identifier) {
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+        setResult(new ParsedName(nf, ts, pos(), Identifier));
     }
     // Production: PackageOrTypeName ::= PackageOrTypeName '.' Identifier
     void rule_PackageOrTypeName2(Object _PackageOrTypeName, Object _Identifier) {
         ParsedName PackageOrTypeName = (ParsedName) _PackageOrTypeName;
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf,
+        setResult(new ParsedName(nf,
                 ts,
                 pos(getLeftSpan(), getRightSpan()),
                 PackageOrTypeName,
@@ -1339,13 +1339,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: AmbiguousName ::= Identifier
     void rule_AmbiguousName1(Object _Identifier) {
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+        setResult(new ParsedName(nf, ts, pos(), Identifier));
     }
     // Production: AmbiguousName ::= AmbiguousName '.' Identifier
     void rule_AmbiguousName2(Object _AmbiguousName, Object _Identifier) {
         ParsedName AmbiguousName = (ParsedName) _AmbiguousName;
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf,
+        setResult(new ParsedName(nf,
                 ts,
                 pos(getLeftSpan(), getRightSpan()),
                 AmbiguousName,
@@ -1467,7 +1467,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             FlagsNode efn = extractFlags(modifiers, Flags.FINAL); // exploded vars are always final
             for (Id id : exploded) {
                 TypeNode tni =
-                        init==null ? nf.TypeNodeFromQualifiedName(compilerGen,QName.make("x10.lang.Int")) : // we infer the type of the exploded components, however if there is no init, then we just assume Int to avoid cascading errors.
+                        init==null ? nf.CanonicalTypeNode(compilerGen, ts.Int()) : // we infer the type of the exploded components, however if there is no init, then we just assume Int to avoid cascading errors.
                         explodedType(id.position()); // UnknownType
                 l.add(nf.LocalDecl(id.position(), efn, tni, id, init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name),  Collections.<Expr>singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
                 index++;
@@ -1518,13 +1518,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: PackageName ::= Identifier
     void rule_PackageName1(Object _Identifier) {
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+        setResult(new ParsedName(nf, ts, pos(), Identifier));
     }
     // Production: PackageName ::= PackageName '.' Identifier
     void rule_PackageName2(Object _PackageName, Object _Identifier) {
         ParsedName PackageName = (ParsedName) _PackageName;
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf,
+        setResult(new ParsedName(nf,
                 ts,
                 pos(getLeftSpan(), getRightSpan()),
                 PackageName,
@@ -2556,13 +2556,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: TypeName ::= Identifier
     void rule_TypeName1(Object _Identifier) {
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+        setResult(new ParsedName(nf, ts, pos(), Identifier));
     }
     // Production: TypeName ::= TypeName '.' Identifier
     void rule_TypeName2(Object _TypeName, Object _Identifier) {
         ParsedName TypeName = (ParsedName) _TypeName;
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf,
+        setResult(new ParsedName(nf,
                 ts,
                 pos(getLeftSpan(), getRightSpan()),
                 TypeName,
@@ -2631,13 +2631,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: MethodName ::= Identifier
     void rule_MethodName1(Object _Identifier) {
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+        setResult(new ParsedName(nf, ts, pos(), Identifier));
     }
     // Production: MethodName ::= AmbiguousName '.' Identifier
     void rule_MethodName2(Object _AmbiguousName, Object _Identifier) {
         ParsedName AmbiguousName = (ParsedName) _AmbiguousName;
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf,
+        setResult(new ParsedName(nf,
                 ts,
                 pos(getLeftSpan(), getRightSpan()),
                 AmbiguousName,
@@ -3020,13 +3020,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: ExpressionName ::= Identifier
     void rule_ExpressionName1(Object _Identifier) {
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+        setResult(new ParsedName(nf, ts, pos(), Identifier));
     }
     // Production: ExpressionName ::= AmbiguousName '.' Identifier
     void rule_ExpressionName2(Object _AmbiguousName, Object _Identifier) {
         ParsedName AmbiguousName = (ParsedName) _AmbiguousName;
         Id Identifier = (Id) _Identifier;
-        setResult(new X10ParsedName(nf,
+        setResult(new ParsedName(nf,
                 ts,
                 pos(getLeftSpan(), getRightSpan()),
                 AmbiguousName,
@@ -4233,7 +4233,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
         ClassBody ClassBodyopt = (ClassBody) _ClassBodyopt;
-        ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
+        ParsedName b = new ParsedName(nf, ts, pos(), Identifier);
         if (ClassBodyopt == null)
             setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt));
         else setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
@@ -4245,7 +4245,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
         ClassBody ClassBodyopt = (ClassBody) _ClassBodyopt;
-        ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
+        ParsedName b = new ParsedName(nf, ts, pos(), Identifier);
         if (ClassBodyopt == null)
             setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
         else setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));

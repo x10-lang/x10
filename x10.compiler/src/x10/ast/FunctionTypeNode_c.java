@@ -44,6 +44,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 
+import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
@@ -74,7 +75,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	}
 
 	@Override
-	public Node disambiguate(ContextVisitor ar) throws SemanticException {
+	public Node disambiguate(ContextVisitor ar) {
 		NodeFactory nf = (NodeFactory) ar.nodeFactory();
 		TypeSystem ts = (TypeSystem) ar.typeSystem();
 		FunctionTypeNode_c n = this;
@@ -94,10 +95,15 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		//if (guard != null)
 		//	throw new SemanticException("Function types with guards are currently unsupported.", position());
 		if (guard != null && guard.typeConstraint() != null && !Types.get(guard.typeConstraint()).terms().isEmpty()) {
-			throw new SemanticException("Type constraints not permitted in function type guards.", position());
+			Errors.issue(ar.job(),
+			        new SemanticException("Type constraints not permitted in function type guards.", position()));
+			guard = guard.typeConstraint(null);
 		}
-		if (typeParams.size() != 0)
-			throw new SemanticException("Function types with type parameters are currently unsupported.", position());
+		if (typeParams.size() != 0) {
+			Errors.issue(ar.job(),
+			        new SemanticException("Function types with type parameters are currently unsupported.", position()));
+			typeParams = Collections.<ParameterType>emptyList();
+		}
 		FunctionType result = ts.functionType(position(), returnType.typeRef(),
 		        typeParams, formalTypes, formalNames,
 		        guard != null ? guard.valueConstraint() : Types.lazyRef(new CConstraint())

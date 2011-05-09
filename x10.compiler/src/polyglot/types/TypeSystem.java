@@ -914,6 +914,10 @@ public interface TypeSystem {
 
     X10ClassType Runtime(); // used by asyncCodeInstance
 
+    /**
+     * <code>x10.lang.FailedDynamicCheckException</code>
+     */
+    X10ClassType FailedDynamicCheckException();
 
     // types used in WS codegen
     X10ClassType Frame();

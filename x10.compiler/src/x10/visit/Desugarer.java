@@ -614,7 +614,7 @@ public class Desugarer extends ContextVisitor {
         final Type resType = newExpr.type();
         newDep = nf.Unary(pos, Unary.Operator.NOT, newDep).type(ts.Boolean());
         If anIf = nf.If(pos, newDep, nf.Throw(pos,
-                nf.New(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.lang.FailedDynamicCheckException")),
+                nf.New(pos, nf.CanonicalTypeNode(pos, ts.FailedDynamicCheckException()),
                         CollectionUtil.<Expr>list(nf.StringLit(pos, newDep.toString()))).type(ts.Throwable())));
         // if resType is void, then we shouldn't use return
         final boolean isVoid = ts.isVoid(resType);

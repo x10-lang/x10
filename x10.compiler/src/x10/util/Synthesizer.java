@@ -63,6 +63,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -1483,7 +1484,11 @@ public class Synthesizer {
         Object val = ((XLit) receiver).val();
         if (!(val instanceof QName))
             return null;
-        return xnf.TypeNodeFromQualifiedName(pos, (QName) val);
+        try {
+            return xnf.CanonicalTypeNode(pos, xts.forName((QName) val));
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Invalid type encountered in a constraint: "+val, e);
+        }
     }
 
     Expr makeExpr(CField t, Position pos) {
@@ -1515,7 +1520,7 @@ public class Synthesizer {
         TypeNode tn = null;
         Type type = ct.type();
         if (type != null) {
-            tn = xnf.TypeNodeFromQualifiedName(pos,QName.make(type.toString()));
+            tn = xnf.CanonicalTypeNode(pos, type);
         }
         return tn == null ? xnf.Special(pos, X10Special.THIS)
                 : xnf.Special(pos, X10Special.THIS, tn);

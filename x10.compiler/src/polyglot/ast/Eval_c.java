@@ -53,16 +53,6 @@ public class Eval_c extends Stmt_c implements Eval
 	return this;
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == expr) {
-            return ts.Void();
-        }
-
-        return child.type();
-    }
-
     /** Visit the children of the statement. */
     public Node visitChildren(NodeVisitor v) {
 	Expr expr = (Expr) visitChild(this.expr, v);

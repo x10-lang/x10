@@ -77,48 +77,6 @@ public abstract class Unary_c extends Expr_c implements Unary
     /** Type check the expression. */
     public abstract Node typeCheck(ContextVisitor tc);
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-        Context context = av.context();
-        try {
-            if (child == expr) {
-                if (op == POST_INC || op == POST_DEC ||
-                    op == PRE_INC || op == PRE_DEC) {
-
-                    if (ts.isImplicitCastValid(child.type(), av.toType(), context)) {
-                        return ts.promote(child.type());
-                    }
-                    else {
-                        return av.toType();
-                    }
-                }
-                else if (op == NEG || op == POS) {
-                    if (ts.isImplicitCastValid(child.type(), av.toType(), context)) {
-                        return ts.promote(child.type());
-                    }
-                    else {
-                        return av.toType();
-                    }
-                }
-                else if (op == BIT_NOT) {
-                    if (ts.isImplicitCastValid(child.type(), av.toType(), context)) {
-                        return ts.promote(child.type());
-                    }
-                    else {
-                        return av.toType();
-                    }
-                }
-                else if (op == NOT) {
-                    return ts.Boolean();
-                }
-            }
-        }
-        catch (SemanticException e) {
-        }
-
-        return child.type();
-    }
-
     /** Check exceptions thrown by the statement. */
     public String toString() {
         if (op == NEG && expr instanceof IntLit && ((IntLit) expr).boundary()) {

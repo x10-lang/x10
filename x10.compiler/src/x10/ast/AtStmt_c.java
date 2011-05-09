@@ -40,7 +40,6 @@ import polyglot.util.CollectionUtil;
 import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
@@ -313,15 +312,6 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	    c = c.pushAt(atDef);
 	    c.x10Kind = Context.X10Kind.At;
 	    return c;
-	}
-
-
-	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		TypeSystem ts = (TypeSystem) av.typeSystem();
-		if (child == place) {
-			return ts.Place();
-		}
-		return child.type();
 	}
 
 	public String toString() {

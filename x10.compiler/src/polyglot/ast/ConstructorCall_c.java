@@ -112,29 +112,6 @@ public abstract class ConstructorCall_c extends Stmt_c implements ConstructorCal
     /** Type check the call. */
     public abstract Node typeCheck(ContextVisitor tc);
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == qualifier) {
-            // FIXME: Can be more specific
-            return ts.Object();
-        }
-
-        Iterator<Expr> i = this.arguments.iterator();
-        Iterator<Type> j = ci.formalTypes().iterator();
-
-        while (i.hasNext() && j.hasNext()) {
-	    Expr e = i.next();
-	    Type t = j.next();
-
-            if (e == child) {
-                return t;
-            }
-        }
-
-        return child.type();
-    }
-
     public abstract String toString();
 
     /** Write the call to an output file. */

@@ -51,7 +51,6 @@ import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -596,13 +595,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             return res;
         }
 
-	    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-	        if (child == init) {
-	            return type.type();
-	        }
-
-	        return child.type();
-	    }
 	    /** Visit the children of the declaration. */
 	    public Node visitChildren(NodeVisitor v) {
 	        X10FieldDecl_c n = (X10FieldDecl_c) super.visitChildren(v);

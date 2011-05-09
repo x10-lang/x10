@@ -28,7 +28,6 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.InternalCompilerError;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -218,14 +217,6 @@ public class AtExpr_c extends Closure_c implements AtExpr {
                    FlowGraph.EDGE_KEY_FALSE, this, EXIT);
                    */
         return succs;
-    }
-
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-    	TypeSystem ts = (TypeSystem) av.typeSystem();
-    	if ( child == place ) {
-    		return ts.Place();
-    	}
-    	return child.type();
     }
 
     public String toString() {

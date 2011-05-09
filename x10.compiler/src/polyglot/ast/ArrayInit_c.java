@@ -88,36 +88,6 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
 	}
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		if (elements.isEmpty()) {
-            return child.type();
-        }
-
-        Type t = av.toType();
-
-        if (! t.isArray()) {
-            throw new InternalCompilerError("Type of array initializer must " +
-                                            "be an array.", position());
-        }
-
-        t = t.toArray().base();
-
-        TypeSystem ts = av.typeSystem();
-
-        for (Expr e : elements) {
-            if (e == child) {
-                if (ts.numericConversionValid(t, e.constantValue(), av.context())) {
-                    return child.type();
-                }
-                else {
-                    return t;
-                }
-            }
-        }
-
-        return child.type();
-    }
-
     public void typeCheckElements(ContextVisitor tc, Type lhsType) {
     	TypeSystem ts = tc.typeSystem();
 

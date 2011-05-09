@@ -83,22 +83,6 @@ public class Assert_c extends Stmt_c implements Assert
         return this;
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == cond) {
-            return ts.Boolean();
-        }
-
-        /*
-        if (child == errorMessage) {
-            return ts.String();
-        }
-        */
-
-        return child.type();
-    }
-
     /** Visit the children of the statement. */
     public Node visitChildren(NodeVisitor v) {
 	Expr cond = (Expr) visitChild(this.cond, v);

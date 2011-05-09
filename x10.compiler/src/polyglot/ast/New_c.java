@@ -319,35 +319,6 @@ public abstract class New_c extends Expr_c implements X10New
         return this;
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        if (child == qualifier) {
-            ContainerType t = ci.container();
-                     
-            if (t.isClass() && t.toClass().isMember()) {
-                t = t.toClass().container();
-                return t;
-            }
-
-            return child.type();
-        }
-
-        Iterator<Expr> i = this.arguments.iterator();
-        Iterator<Type> j = ci.formalTypes().iterator();
-
-        while (i.hasNext() && j.hasNext()) {
-	    Expr e = i.next();
-	    Type t = j.next();
-
-            if (e == child) {
-                return t;
-            }
-        }
-
-        return child.type();
-    }
-
-    
-
     /** Get the precedence of the expression. */
     public Precedence precedence() {
         return Precedence.LITERAL;

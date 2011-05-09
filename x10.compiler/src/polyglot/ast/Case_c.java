@@ -122,16 +122,6 @@ public class Case_c extends Stmt_c implements Case
         return this;
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == expr) {
-            return ts.Int();
-        }
-
-        return child.type();
-    }
-
     public String toString() {
         if (expr == null) {
 	    return "default:";

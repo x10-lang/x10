@@ -35,7 +35,6 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
@@ -235,11 +234,6 @@ public class Async_c extends Stmt_c implements Async {
 	}
 
 	
-	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		TypeSystem ts = (TypeSystem) av.typeSystem();
-		return child.type();
-	}
-
 	public String toString() {
 		return "async  { ... }";
 	}

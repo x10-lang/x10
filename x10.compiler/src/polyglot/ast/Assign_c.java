@@ -81,23 +81,6 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
   /** Type check the expression. */
   public abstract Node typeCheck(ContextVisitor tc);
   
-  public Type childExpectedType(Expr child, AscriptionVisitor av) {
-      if (child == right) {
-          TypeSystem ts = av.typeSystem();	
-
-          // If the RHS is an integral constant, we can relax the expected
-          // type to the type of the constant.
-          if (ts.numericConversionValid(leftType(), child.constantValue(), av.context())) {
-              return child.type();
-          }
-          else {
-              return leftType();
-          }
-      }
-
-      return child.type();
-  }
-
   /** Get the throwsArithmeticException of the expression. */
   public boolean throwsArithmeticException() {
     // conservatively assume that any division or mod may throw

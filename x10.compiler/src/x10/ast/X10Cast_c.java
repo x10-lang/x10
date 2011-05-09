@@ -35,7 +35,6 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -235,24 +234,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         v.visitCFG(expr, castType, ENTRY);
         v.visitCFG(castType, this, EXIT);
         return succs;
-    }
-    
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == expr) {
-            if (castType.type().isReference()) {
-                return ts.Object();
-            }
-            else if (castType.type().isNumeric()) {
-                return ts.Double();
-            }
-            else if (castType.type().isBoolean()) {
-                return ts.Boolean();
-            }
-        }
-
-        return child.type();
     }
     
     /** Visit the children of the expression. */

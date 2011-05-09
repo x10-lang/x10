@@ -45,14 +45,14 @@ public class AmbReceiver_c extends AmbPrefix_c implements AmbReceiver
 
     /** Disambiguate the receiver. */
     public Node disambiguate(ContextVisitor ar) {
-        try {
+//        try {
             return super.disambiguate(ar);
-        } catch (SemanticException e) {
-            Errors.issue(ar.job(), e, this);
-            TypeSystem xts =  ar.typeSystem();
-            X10LocalInstance li = xts.createFakeLocal(name.id(), e);
-            return ar.nodeFactory().Local(position(), name).localInstance(li).type(li.type());
-        }
+//        } catch (SemanticException e) {
+//            Errors.issue(ar.job(), e, this);
+//            TypeSystem xts =  ar.typeSystem();
+//            X10LocalInstance li = xts.createFakeLocal(name.id(), e);
+//            return ar.nodeFactory().Local(position(), name).localInstance(li).type(li.type());
+//        }
     }
     
 
