@@ -30,7 +30,7 @@ import x10.constraint.XTerm;
  *
  */
 public interface MethodInstance 
-   extends FunctionInstance<MethodDef>, 
+   extends FunctionInstance<MethodDef>,
            MemberInstance<MethodDef>, 
            Use<MethodDef>,
            X10ProcedureInstance<MethodDef>, 

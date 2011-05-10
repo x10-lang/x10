@@ -69,6 +69,7 @@ import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
 
 import x10.types.XTypeTranslator;
+import x10.types.X10ProcedureInstance;
 import x10.types.XTypeTranslator.XTypeLit;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
@@ -1047,10 +1048,10 @@ public class TypeSystem_c implements TypeSystem
 
     public static class ConstructorMatcher extends BaseMatcher<ConstructorInstance> {
 	protected final Type container;
-	protected final List<Type> argTypes;
-    protected final List<Type> typeArgs;
+	public final List<Type> argTypes;
+    public final List<Type> typeArgs;
 	protected final Context context;
-    protected final boolean isDumbMatcher;
+    public final boolean isDumbMatcher;
 
 	protected ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher) {
 	    super();
@@ -1633,66 +1634,11 @@ public class TypeSystem_c implements TypeSystem
 
         // Collected all methods, now let's filter them
         List<Type> typeParams = matcher.typeArgs;
-        int typeParamNum = typeParams.size();
         List<Type> argTypes = matcher.argTypes;
-        int argNum = argTypes.size();
+        boolean isDumbMatcher = matcher.isDumbMatcher;
 
         SemanticException error = null;
-        List<MethodInstance> resolved = new ArrayList<MethodInstance>();
-
-        for (MethodInstance mi : allMethods) {
-            List<Type> formals = mi.formalTypes();
-            if (mi.name()!=name) continue;
-            if (argNum !=formals.size()) continue;
-            List<ParameterType> miTypeParams = (List<ParameterType>)(List)mi.typeParameters();
-            int miTypeParamNum = miTypeParams.size();
-            if (typeParamNum!=0 && typeParamNum!=miTypeParamNum) continue;
-
-
-            boolean isOk = true;
-            if (!matcher.isDumbMatcher) {
-                // handle type param
-                // def m[H](H)
-                TypeParamSubst subst = null;
-                List<Type> tmp_typeParams = typeParams;
-                if (miTypeParamNum!=0 && typeParamNum==0) {
-                    // infer typeParams
-                    Type c = container != null ? container : mi.container();
-                    try {
-                        Type[] Y = TypeConstraint.inferTypeArguments(mi, c, argTypes, formals, (List<Type>)(List)miTypeParams, context);
-                        assert Y.length==miTypeParamNum;
-                        for (int k=0; k<miTypeParamNum; k++)
-                            Y[k] = Types.stripConstraints(Y[k]);
-                        tmp_typeParams = Arrays.asList(Y);
-                    } catch (SemanticException e) {
-                        continue;
-                    }
-                }
-                if (tmp_typeParams.size()!=0) {
-                    subst = new TypeParamSubst(this, tmp_typeParams, miTypeParams);
-                }
-
-                for (int p=0; p<argNum;p++) {
-                    Type arg = Types.stripConstraints(argTypes.get(p));
-                    Type formal = Types.stripConstraints(formals.get(p));
-
-                    if (arg instanceof FunctionType && formal instanceof FunctionType) {
-                        // stripConstraints doesn't work for closure types
-                        continue;
-                    }
-
-                    if (subst!=null)
-                        formal = subst.reinstantiate(formal);
-
-                    if (!isSubtype(arg, formal, context)) {
-                        isOk = false;
-                        break;
-                    }
-                }
-            }
-            if (isOk)
-                resolved.add(mi);
-        }
+        List<MethodInstance> resolved = resolveProcedure(container, context, allMethods, typeParams, argTypes, isDumbMatcher);
 
         List<MethodInstance> acceptable = new ArrayList<MethodInstance>();
 		for (MethodInstance mi : resolved)	{
@@ -1730,6 +1676,84 @@ public class TypeSystem_c implements TypeSystem
         }
 
         return acceptable;
+    }
+
+    public static <T extends X10ProcedureInstance<?> & MemberInstance<?>> List<T> resolveProcedure(Type container, Context context, List<T> allMethods, List<Type> typeParams, List<Type> argTypes, boolean dumbMatcher) {
+        int typeParamNum = typeParams.size();
+        int argNum = argTypes.size();
+        List<T> resolved = new ArrayList<T>();
+        TypeSystem ts = context.typeSystem();
+
+        for (T mi : allMethods) {
+            List<Type> formals = mi.formalTypes();
+            if (argNum !=formals.size()) continue;
+            List<ParameterType> miTypeParams = (List<ParameterType>)(List)mi.typeParameters();
+            int miTypeParamNum = miTypeParams.size();
+            if (typeParamNum!=0 && typeParamNum!=miTypeParamNum) continue;
+
+
+            boolean isOk = true;
+            if (!dumbMatcher) {
+                // handle type param
+                // def m[H](H)
+                TypeParamSubst subst = null;
+                List<Type> tmp_typeParams = typeParams;
+                if (miTypeParamNum!=0 && typeParamNum==0) {
+                    // infer typeParams
+                    Type c = container != null ? container : mi.container();
+                    try {
+                        Type[] Y = TypeConstraint.inferTypeArguments(mi, c, argTypes, formals, (List<Type>)(List)miTypeParams, context);
+                        assert Y.length==miTypeParamNum;
+                        for (int k=0; k<miTypeParamNum; k++)
+                            Y[k] = Types.stripConstraints(Y[k]);
+                        tmp_typeParams = Arrays.asList(Y);
+                    } catch (SemanticException e) {
+                        continue;
+                    }
+                }
+                if (tmp_typeParams.size()!=0) {
+                    subst = new TypeParamSubst(ts, tmp_typeParams, miTypeParams);
+                }
+
+                for (int p=0; p<argNum;p++) {
+                    Type arg = argTypes.get(p);
+                    Type formal = formals.get(p);
+
+                    if (subst!=null)
+                        formal = subst.reinstantiate(formal);
+
+                    if (!isSubtypeIgnoringConstraints(arg, formal, context)) {
+                        isOk = false;
+                        break;
+                    }
+                }
+            }
+            if (isOk)
+                resolved.add(mi);
+        }
+        return resolved;
+    }
+    private static boolean isSubtypeIgnoringConstraints(Type arg, Type formal, Context context) {
+        arg = Types.stripConstraints(arg);
+        formal = Types.stripConstraints(formal);
+
+        TypeSystem ts = context.typeSystem();
+        // stripConstraints doesn't work for closure types
+        // to get a more precise error message because I cannot strip constraints from closures
+        if (arg instanceof FunctionType && formal instanceof FunctionType) {
+            FunctionType argF = (FunctionType) arg;
+            FunctionType formalF = (FunctionType) formal;
+            List<Type> argA = argF.argumentTypes();
+            List<Type> formalA = formalF.argumentTypes();
+            if (formalA.size()!=argA.size()) return false;
+            if (!isSubtypeIgnoringConstraints(argF.returnType(), formalF.returnType(), context))
+                return false;
+            for (int i=0; i<formalA.size(); i++)
+                if (!isSubtypeIgnoringConstraints(formalA.get(i), argA.get(i), context))
+                    return false;
+            return true;
+        } else
+            return ts.isSubtype(arg, formal, context);
     }
 
     /**

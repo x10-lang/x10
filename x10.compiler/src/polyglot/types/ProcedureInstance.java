@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * A <code>ProcedureInstance</code> contains the type information for a Java
  * procedure (either a method or a constructor).
+ * It doesn't extend MemberInstance<T> because a ClosureInstance is not a member
  */
 public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<T> { // todo: it should extend X10Use<T>
     /**

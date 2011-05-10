@@ -4572,7 +4572,7 @@ class DynamicGuardCheck {
 			super(j); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
 		}
 		def this(i1:Int) {
-			this(i1,4); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
+			this(i1,4); // ERR ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
 		}
 
 		def test(q:Int) {
@@ -4609,7 +4609,7 @@ class XTENLANG_2376 {
 	  }
 	  def this(i:Int, j:Int) {i==j} {}
 	  def this(i:Int) {
-		this(i*i, i*2); // ERR: The constructor guard was not satisfied.
+		this(i*i, i*2); // ERR ERR: The constructor guard was not satisfied.
 	  }
 	}
 	class B extends A {
@@ -5181,6 +5181,25 @@ class ResolutionAndInference {
 }
 
 // resolution should ignore constraints and method guards
+class TestCtorResolutionAndConstraints(p:Int) {
+	def this(Int{self!=0}) {
+		property(1);
+	}
+	def this(Double) {
+		property(2);
+	}
+	def test() {
+		val x22 = new TestCtorResolutionAndConstraints(0); // ERR
+		val x1:TestCtorResolutionAndConstraints{self.p==1} = new TestCtorResolutionAndConstraints(1);
+		val x3:TestCtorResolutionAndConstraints{self.p==2} = new TestCtorResolutionAndConstraints(1.1);
+	}
+}
+class TestCtorOverloadingAndConstraints {
+	def this(Int{self!=0}) {
+	}
+	def this(Int) { // ERR
+	}
+}
 class TestMethodResolutionAndConstraints_instance {
 	def m(Int{self!=0}) = 1;
 	def m(Double) = "1";
@@ -6562,4 +6581,41 @@ class XTENLANG_1772_test {
                val i8:Byte{self==0};// ERR
                val i9:UByte{self==0u};// ERR
        }
+}
+
+class XTENLANG_1448 {
+	class X(p:Place) {p==here} { // ShouldBeErr: here cannot be used in a class invariant
+		def this() {
+			property(here);
+		}
+		def test(y:X) {
+			val py:Place{self==here} = y.p; // this is wrong!
+			val x = new X();
+			val px:Place{self==here} = x.p;
+		}
+	}
+	class X2(p:Place{self==here}) { // ShouldBeErr: here cannot be used in properties
+		def this() {
+			property(here); // ERR
+		}
+		def test(y:X2) {
+			val py:Place{self==here} = y.p; // this is wrong!
+			val x = new X2();
+			val px:Place{self==here} = x.p;
+		}
+	}
+	class HereAndGenerics {
+		def test(l:Box[Place{self==here}]) {
+			val p1:Place{self==here} = l.value;
+			at (here.next()) {
+				val p2:Place{self==here} = l.value; // ERR
+			}
+		}
+	}
+	interface Test[T] {
+		def add(t:T):void;
+	}
+	class Impl(p:Place) implements Test[Impl{self.p==here}] {
+		public def add(t:Impl{self.p==here}):void {}
+	}
 }

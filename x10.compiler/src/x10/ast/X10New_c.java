@@ -74,6 +74,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.TypeSystem_c;
+import polyglot.types.NoMemberException;
 
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -637,6 +638,12 @@ public class X10New_c extends New_c implements X10New {
             return new Pair<ConstructorInstance, List<Expr>>(ci, n.arguments());
         }
         catch (SemanticException e) {
+            e.setPosition(n.position());
+            // only if we didn't find any methods, try coercions.
+            if (!(e instanceof NoMemberException)) {
+                throw e;
+            }
+            
             // Now, try to find the method with implicit conversions, making
             // them explicit.
             try {

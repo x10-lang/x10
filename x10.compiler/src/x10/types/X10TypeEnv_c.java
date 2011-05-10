@@ -2159,7 +2159,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 	List<ConstructorInstance> list = containerClass.constructors();
 	if (error != null) list = Collections.<ConstructorInstance>emptyList();
-	for (ConstructorInstance ci : list) {
+    //When we write:  new A[T](...)
+    // then matcher.typeArgs is [T]
+    // but the ctor instance is not like a generic method (it already has the right substitution)
+    List<Type> typeArgs = Collections.EMPTY_LIST; //matcher.typeArgs;
+        boolean isDumb = matcher.isDumbMatcher;
+    boolean shouldTryCoercions = !isDumb && typeArgs.size() == 0 && container != null && (container instanceof X10ParsedClassType) && ((X10ParsedClassType) container).def().typeParameters().size() > 0;
+    List<ConstructorInstance> resolved =
+        TypeSystem_c.<ConstructorInstance>resolveProcedure(container, context, list, typeArgs, matcher.argTypes, isDumb);
+	for (ConstructorInstance ci : resolved) {
 	    if (reporter.should_report(Reporter.types, 3))
 		reporter.report(3, "Trying " + ci);
 
@@ -2187,12 +2195,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    }
 	    catch (SemanticException e) {
 	    	// Treat any instantiation errors as call invalid errors.
-	        int i = 1; // for debug breakpoints
+	        if (!shouldTryCoercions) error = e;
 	    }
 
 	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor cannot be invoked with given arguments." 
-		        + "\n Signature:" + ci.signature() 
+		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor cannot be invoked with given arguments."
+		        + "\n Signature:" + ci.signature()
 				+ "\n Arguments:" + matcher.argumentString() + ".");
 
 	    }
