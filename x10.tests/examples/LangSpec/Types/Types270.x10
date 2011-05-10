@@ -26,7 +26,7 @@ public class Types270 extends x10Test {
     }
 
 
-// file Types line 856
+// file Types line 858
  static class TypeExamples {
   static type StringSet = Set[String];
   static type MapToList[K,V] = Map[K,List[V]];

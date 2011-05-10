@@ -31,7 +31,7 @@ public class Places40_Bad33_MustFailCompile extends x10Test {
  static class Trans {
    val a : Int = 1;
    transient val b : Int = 2;
- Int{c != 0} = 3; // ERR
+ transient val c : Int{c != 0} = 3; // ERR
    def example() {
      assert(a == 1 && b == 2);
      at(here) {

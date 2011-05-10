@@ -14,6 +14,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.Ordered;
+import x10.util.ArrayList;
 
 /**
  * The String class represents character strings.
@@ -30,7 +31,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STRING")
 @NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
-public final class String implements (Int) => Char/*TODO, (Range) => String*//*TODO, Ordered[String]*/, Comparable[String] {
+public final class String implements (Int) => Char, /*TODO Ordered[String],*/ Comparable[String] {
 
     /**
      * Default constructor.
@@ -341,14 +342,17 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
 
 
     /**
-     * Splits this String around matches of the given regular expression.
+     * Splits this String around matches of the given string; 
+     * unlike in Java the splitting String is treated as a simple String
+     * to be matched character by character (as in indexOf), not as 
+     * a regular expression.
      * Trailing empty strings are not included in the resulting Array.
-     * @param regex the delimiting regular expression.
-     * @return the Array of Strings computed by splitting this String around matches of the given regular expression.
+     *
+     * @param split the String to use as a delimiter.
+     * @return the Array of Strings computed by splitting this String around matches of the delimiter.
      */
-    @Native("java", "x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, (#this).split(#regex))")
-//    @Native("java", "x10.core.StringAux.split((#this), (#regex))")
-    @Native("c++", "(#this)->split(#regex)")
+    @Native("java", "x10.lang.StringHelper.split(#regex, #this)")
+    @Native("c++", "x10::lang::StringHelper::split(#regex, #this)")
     public native def split(regex: String):Rail[String];
 
 
@@ -544,4 +548,25 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     @Native("c++",  "((#x) + (#y))")
     public native static operator (x:String) + (y:String): String;
 }
+
 public type String(s:String) = String{self==s};
+
+class StringHelper {
+    static def split(delim:String, str:String):Rail[String] {
+        if (delim.equals("")) {
+            return new Rail[String](str.length(), (i:int)=>str.substring(i, i+1));
+        }
+        val ans = new ArrayList[String]();
+        var pos:int = 0;
+        var nextMatch:int = str.indexOf(delim, pos);
+        while (nextMatch != -1) {
+          ans.add(str.substring(pos, nextMatch));
+          pos = nextMatch+delim.length();
+          nextMatch = str.indexOf(delim, pos);
+        }
+        if (pos < str.length()) {
+            ans.add(str.substring(pos, str.length()));
+        }
+        return ans.toArray();
+    }
+}

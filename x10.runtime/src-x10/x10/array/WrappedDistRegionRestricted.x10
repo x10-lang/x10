@@ -18,13 +18,13 @@ import x10.compiler.TempNoInline_0;
  * to a subset of the original dist's region.
  */
 final class WrappedDistRegionRestricted extends Dist {
-    val base:Dist{self.rank==this.rank};
-    val filter:Region{self.rank==this.rank};
+    val base:Dist(rank);
+    val filter:Region(rank);
 
-    @TempNoInline_0 def this(d:Dist, r:Region{rank==d.rank}):WrappedDistRegionRestricted{this.rank==d.rank} {
+    @TempNoInline_0 def this(d:Dist, r:Region(d.rank)):WrappedDistRegionRestricted(d.rank) {
         super(d.region.intersection(r));
-        base = d as Dist{self.rank==this.rank}; // cast should not be needed
-        filter = r as Region(rank); // cast should not be needed
+        base = d;  
+        filter = r;  
     }
 
     public def places():PlaceGroup {
@@ -76,11 +76,11 @@ final class WrappedDistRegionRestricted extends Dist {
     public def maxOffset():int = base.maxOffset();
 
     public def restriction(r:Region(rank)):Dist(rank) {
-        return new WrappedDistRegionRestricted(base, filter.intersection(r)) as Dist(rank); // TODO cast should not be needed
+        return new WrappedDistRegionRestricted(base, filter.intersection(r)); 
     }
 
     public def restriction(p:Place):Dist(rank) {
-        return new WrappedDistPlaceRestricted(this, p) as Dist(rank); // TODO cast should not be needed.
+        return new WrappedDistPlaceRestricted(this as Dist(rank), p);  // TODO cast should not be needed.
     }
 
     public def equals(thatObj:Any):boolean {
@@ -89,3 +89,4 @@ final class WrappedDistRegionRestricted extends Dist {
 	return this.base.equals(that.base) && this.filter.equals(that.filter);
     }
 }
+public type WrappedDistRegionRestricted(r:Int) = WrappedDistRegionRestricted{self.rank==r};

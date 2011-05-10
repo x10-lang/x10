@@ -26,7 +26,7 @@ public class Types430 extends x10Test {
     }
 
 
-// file Types line 1870
+// file Types line 1872
 
  static class Types50TestExp{
   def check()  = [0, "non-zero"];  }

@@ -28,7 +28,7 @@ import java.util.List;
  * @see XUQV
  *
  */
-public class XEQV extends XVar  {
+public class XEQV extends XRoot  {
 	
     public final int num;
     public XEQV(int n) {

@@ -73,12 +73,12 @@ import x10.types.X10MemberDef;
 import x10.types.MethodInstance;
 import x10.types.X10ProcedureInstance;
 import polyglot.types.TypeSystem;
+import polyglot.types.NoMemberException;
 
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
-import x10.types.matcher.DumbMethodMatcher;
 import x10.types.matcher.Subst;
 import x10.visit.X10TypeChecker;
 import static polyglot.ast.Assign.*;
@@ -242,13 +242,16 @@ public class Checker {
 			if (r instanceof XVar) {
 				receiver = (XVar) r;
 			}
-			if (receiver == null)
-				receiver = XTerms.makeEQV();
 		} catch (IllegalConstraint z) {
-			receiver = XTerms.makeEQV();
 		}
+		if (receiver == null)
+			receiver = XTerms.makeEQV();
 		try {
-			t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
+			t = Subst.subst(t, 
+					(new XVar[] { receiver }), 
+					(new XVar[] { fi.thisVar() }), 
+					new Type[] { }, 
+					new ParameterType[] { });
 		} catch (SemanticException e) {
 			throw new InternalCompilerError("Unexpected error while computing field type", e);
 		}
@@ -419,7 +422,7 @@ public class Checker {
 	    final Context context = tc.context();
 	
 	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
-	            new DumbMethodMatcher(targetType, name, typeArgs, argTypes, context));
+	            ts.MethodMatcher(targetType, name, typeArgs, argTypes, context,true));
 	
 	    Pair<MethodInstance,List<Expr>> p = Converter.<MethodDef,MethodInstance>tryImplicitConversions(n, tc,
 	            targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
@@ -535,6 +538,10 @@ public class Checker {
 	        	if (e instanceof Errors.MultipleMethodDefsMatch) {
 					throw e;
 				}
+                // only if we didn't find any methods, try coercions.
+                if (!(e instanceof NoMemberException)) {
+                    throw e;
+                }
 	            // Now, try to find the method with implicit conversions, making them explicit.
 	            try {
 	                Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, t, name, typeArgs, argTypes);

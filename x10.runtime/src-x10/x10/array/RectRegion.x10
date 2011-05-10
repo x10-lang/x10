@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.TempNoInline_0;
 import x10.compiler.TempNoInline_1;
 import x10.compiler.CompilerFlags;
 import x10.compiler.Inline;
@@ -318,7 +319,7 @@ final class RectRegion extends Region{rect} {
     }
     
     
-    public def intersection(that:Region(rank)):Region(rank) {
+    public @TempNoInline_0 def intersection(that:Region(rank)):Region(rank) {
         if (that.isEmpty()) {
 	       return that;
         } else if (that instanceof FullRegion) {
@@ -345,7 +346,7 @@ final class RectRegion extends Region{rect} {
     
 
     
-    public def product(that:Region):Region{self != null} /*self.rank==this.rank+that.rank*/{
+    public @TempNoInline_0 def product(that:Region):Region{self != null} /*self.rank==this.rank+that.rank*/{
         if (that.isEmpty()) {
             return Region.makeEmpty(rank + that.rank);
         } else if (that instanceof RectRegion) {
@@ -382,7 +383,7 @@ final class RectRegion extends Region{rect} {
         return new RectRegion(min(axis), max(axis));
     }
 
-    public def eliminate(axis:int):Region{self.rect} /*(rank-1)*/ {
+    public @TempNoInline_0 def eliminate(axis:int):Region{self.rect} /*(rank-1)*/ {
     	val k = rank-1;
         val newMin = new Array[int](k, (i:int)=>i<axis?min(i):min(i+i));
         val newMax = new Array[int](k, (i:int)=>i<axis?max(i):max(i+i));

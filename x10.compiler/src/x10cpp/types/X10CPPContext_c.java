@@ -145,8 +145,6 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
     public String getEmbeddedFieldName() { return embeddedFieldName; }
     public void setEmbeddedFieldName(String s) { embeddedFieldName = s; }
 
-    public boolean hasInits = false;
-    
     public ClassifiedStream genericFunctions = null;
     public ClassifiedStream genericFunctionClosures = null;
     public ClassifiedStream closures = null;

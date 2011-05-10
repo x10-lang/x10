@@ -374,6 +374,7 @@ public class TypeParamSubst {
 	private MethodInstance reinstantiateMI(MethodInstance t) {
 		if (eager) {
 		    MethodInstance mi = t;
+		    mi = (MethodInstance) mi.typeParameters(reinstantiate(mi.typeParameters()));
 		    mi = (MethodInstance) mi.returnType(reinstantiate(mi.returnType()));
 		    mi = (MethodInstance) mi.formalNames(reinstantiate(mi.formalNames()));
 		    mi = (MethodInstance) mi.formalTypes(reinstantiate(mi.formalTypes()));

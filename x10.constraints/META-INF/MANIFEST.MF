@@ -4,5 +4,6 @@ Bundle-Name: X10 Constraints
 Bundle-SymbolicName: x10.constraints
 Bundle-Version: 2.2.0.qualifier
 Require-Bundle: x10.common
-Export-Package: x10.constraint
+Export-Package: x10.constraint,
+ x10.constraint.visitors
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

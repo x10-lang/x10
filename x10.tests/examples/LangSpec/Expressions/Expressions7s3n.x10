@@ -26,7 +26,7 @@ public class Expressions7s3n extends x10Test {
     }
 
 
-// file Expressions line 1314
+// file Expressions line 1311
  static class Thing {
   public static operator (x:Thing) as Object = "different";
   public static def example() {

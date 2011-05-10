@@ -49,7 +49,7 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
      * capacity of cap.
      */
     public def this(cap:Int) {
-        imc = IndexedMemoryChunk.allocateUninitialized[T](cap);
+        imc = IndexedMemoryChunk.allocateZeroed[T](cap);
         length = 0;
     }
 
@@ -181,6 +181,7 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
         
         val tmp = IndexedMemoryChunk.allocateUninitialized[T](newCapacity);
         IndexedMemoryChunk.copy(imc, 0, tmp, 0, length);
+        tmp.clear(length, newCapacity-length);
         imc.deallocate();
         imc = tmp;
     }
@@ -192,6 +193,7 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
         newCapacity = x10.lang.Math.max(newCapacity, 8);
         val tmp = IndexedMemoryChunk.allocateUninitialized[T](newCapacity);        
         IndexedMemoryChunk.copy(imc, 0, tmp, 0, length);
+        tmp.clear(length, newCapacity-length);
         imc = tmp;
     }
 

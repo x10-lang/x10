@@ -88,6 +88,7 @@ import x10.compiler.ws.util.CodePatternDetector.Pattern;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.EnvironmentCapture;
 import x10.types.MethodInstance;
+import x10.types.ParameterType;
 import x10.types.ThisDef;
 import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
@@ -317,7 +318,9 @@ public class WSCodePreprocessor extends ContextVisitor {
     }
     
     private Node visitOffer(Offer n) throws SemanticException {
-        WSUtil.err("X10 Work-Stealing doesn's support Collecting-Finish", n);
+        if(WSUtil.isComplexCodeNode(n.expr(), wts)){
+            return flattenStmt(n);
+        }
         return n;
     }
 
@@ -361,6 +364,9 @@ public class WSCodePreprocessor extends ContextVisitor {
         if(expr instanceof Call
                 && isSimpleConcurrentCall((Call)expr)){
                 return n;
+        }
+        if(expr instanceof FinishExpr){
+            return n;
         }
         return flattenStmt(n);
     }
@@ -544,6 +550,7 @@ public class WSCodePreprocessor extends ContextVisitor {
 
         String mName = WSUtil.getDividableForMethodName(n) + genMethodDecls.size();
         X10MethodDecl mDecl = synthDividableForMethod(n, mName, context, df, locals);
+        
         MethodDef mDef = mDecl.methodDef();
         
         //now generate the in-place call
@@ -571,6 +578,10 @@ public class WSCodePreprocessor extends ContextVisitor {
                                              n.position(), c.currentClassDef(),
                                              methodName);
         mSynth.setFlag(flag);
+        for(ParameterType pt : c.currentCode().typeParameters()){
+            mSynth.addTypeParameter(pt, pt.getVariance());
+        }
+
         //Formals: 
         Expr lowerRef = mSynth.addFormal(compilerPos, df.boundType, "_$lower");
         Expr upperRef = mSynth.addFormal(compilerPos, df.boundType, "_$upper");
@@ -757,7 +768,7 @@ public class WSCodePreprocessor extends ContextVisitor {
             df.condLeft = condLeftExpr;
             df.upperRef = condRightExpr;
         }
-        else { //right found
+        else { //right found - Switch left and right
             df.condLeft = condRightExpr;
             df.upperRef = condLeftExpr;
             //and need change operator
@@ -765,6 +776,44 @@ public class WSCodePreprocessor extends ContextVisitor {
             else if(df.condOperator == Binary.GE) {df.condOperator = Binary.LE; }
             else if(df.condOperator == Binary.LT) {df.condOperator = Binary.GT; }
             else if(df.condOperator == Binary.GT) {df.condOperator = Binary.LT; }
+        }
+        //and the bound could be only integer type, and we need prepare a "1" for "GE"/"LE" case
+        Expr uni;
+        if(df.boundType == ts.Int()){
+            uni = nf.IntLit(compilerPos, IntLit.INT, 1).type(ts.Int());
+        }
+        else if(df.boundType == ts.UInt()){
+            uni = nf.IntLit(compilerPos, IntLit.UINT, 1).type(ts.UInt());
+        }
+        else if(df.boundType == ts.Long()){
+            uni = nf.IntLit(compilerPos, IntLit.LONG, 1).type(ts.Long());
+        }
+        else if(df.boundType == ts.ULong()){
+            uni = nf.IntLit(compilerPos, IntLit.ULONG, 1).type(ts.ULong());
+        }
+        else if(df.boundType == ts.Short()){
+            uni = nf.IntLit(compilerPos, IntLit.SHORT, 1).type(ts.Short());
+        }
+        else if(df.boundType == ts.UShort()){
+            uni = nf.IntLit(compilerPos, IntLit.USHORT, 1).type(ts.UShort());
+        }
+        else if(df.boundType == ts.Byte()){
+            uni = nf.IntLit(compilerPos, IntLit.BYTE, 1).type(ts.Byte());
+        }
+        else if(df.boundType == ts.UByte()){
+            uni = nf.IntLit(compilerPos, IntLit.UBYTE, 1).type(ts.UByte());
+        }
+        else{
+            return null;
+        }
+        //Need process GE or LE. Change to GT or LT, and change upperRef
+        if(df.condOperator == Binary.GE){
+            df.condOperator = Binary.GT;
+            df.upperRef = nf.Binary(compilerPos, df.upperRef, Binary.SUB, uni).type(df.boundType);
+        }
+        if(df.condOperator == Binary.LE){
+            df.condOperator = Binary.LT;
+            df.upperRef = nf.Binary(compilerPos, df.upperRef, Binary.ADD, uni).type(df.boundType);
         }
         
         //Condition 4:

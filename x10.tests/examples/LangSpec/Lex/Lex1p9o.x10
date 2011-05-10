@@ -29,11 +29,11 @@ public class Lex1p9o extends x10Test {
 // file Lex line 42
 
  static  class Backyquotey {
- def hokey(e:Int, a:Int, b:Int, d:Int) = 0;
+ def hokey(e:Int, a:Int, b:Int, d:Int, c:Int) = 0;
  def example() {
- val `while`=0; val `!`=0; val  `(unbalanced(`=0;  val `\`\\`=0;
+ val `while`=0; val `!`=0; val  `(unbalanced(`=0;  val `\`\\`=0; val `0` = 0;
  hokey(
-`while`, `!`, `(unbalanced(`,  `\`\\`
+`while`, `!`, `(unbalanced(`,  `\`\\`, `0`
  ); } }
 
  static class Hook {

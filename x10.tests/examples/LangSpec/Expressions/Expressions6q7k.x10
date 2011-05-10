@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Statements4h6p;
+/* Current test harness gets confused by packages, but it would be in package Expressions6q7k;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,36 +19,18 @@ import harness.x10Test;
 
 
 
-public class Statements4h6p extends x10Test {
+public class Expressions6q7k extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Statements4h6p().execute();
+        new Expressions6q7k().execute();
     }
 
 
-// file Statements line 138
- static class Shadow{
-  var x : Int;
-  def this(x:Int) {
-     // Parameter can shadow field
-     this.x = x;
-  }
-  def example(y:Int) {
-     val x = "shadows a field";
-     // ERROR: val y = "shadows a param";
-     val z = "local";
-     for (a in [1,2,3]) {
-        // ERROR: val x = "can't shadow local var";
-     }
-     async {
-        val x = "can shadow through async";
-     }
-     val f = () => {
-       val x = "can shadow through closure";
-       x
-     };
-  }
-}
+// file Expressions line 907
+
+ static  class Example{ static def example() {
+//ERROR: for(var i : Long = 0; i != 100; i++)  {}
+} }
 
  static class Hook {
    def run():Boolean = true;

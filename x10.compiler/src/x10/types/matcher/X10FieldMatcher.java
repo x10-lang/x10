@@ -32,7 +32,8 @@ import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 
 public class X10FieldMatcher {
-    public static Type instantiateAccess(Type container, Type t, XVar oldThis, boolean contextKnowsReceiver) throws SemanticException {
+    public static Type instantiateAccess(Type container, Type t, XVar oldThis, 
+    		boolean contextKnowsReceiver) throws SemanticException {
         assert container!=null && t!=null;
         CConstraint c = Types.xclause(container);
         
@@ -54,11 +55,18 @@ public class X10FieldMatcher {
 
         { // Update t
             CConstraint tc = Types.realX(t);
-
-            if (! contextKnowsReceiver)
-                tc.addIn(v, c);
-
+       
+            if (! contextKnowsReceiver) {
+            	tc.addIn(v, c);
+            	try {
+            		CConstraint tc2 = tc.copy().project(tc.self());
+            		t = Subst.addIn(t, tc2);
+            	} catch (XFailure z) {
+            		Types.setInconsistent(t);
+            	}
+            }
             t = Types.constrainedType(Types.baseType(t), tc);
+            
             t = Subst.subst(t,
                             new XVar[] {v},
                             new XVar[] {oldThis},

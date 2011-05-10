@@ -12,20 +12,7 @@
 package x10.io;
 
 import x10.compiler.Incomplete;
-/**
- * Usage:
- *
- * try {
- *   val in = new File(inputFileName);
- *   val out = new File(outputFileName);
- *   val p = out.printer();
- *   for (line in in.lines()) {
- *      line = line.chop();
- *      p.println(line);
- *   }
- * }
- * catch (IOException e) { }
- */    
+
 public abstract class FileSystem {
     static SEPARATOR_CHAR: Char = '/'; // System.getProperty("x10.io.fileSeparator")(0);
     static SEPARATOR: String = "/"; // System.getProperty("x10.io.fileSeparator");

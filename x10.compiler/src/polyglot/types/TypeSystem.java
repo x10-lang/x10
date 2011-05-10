@@ -821,6 +821,7 @@ public interface TypeSystem {
 
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher);
 
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context);
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context);
@@ -923,6 +924,7 @@ public interface TypeSystem {
     X10ClassType AtFrame();
     X10ClassType RegularFrame();
     X10ClassType AsyncFrame();
+    X10ClassType CollectingFinish();
     X10ClassType TryFrame();
     X10ClassType Worker();
     X10ClassType Abort();

@@ -17,15 +17,14 @@ import x10.compiler.Native;
  * Usage:
  *
  * try {
- *   val in = new File(inputFileName);
- *   val out = new File(outputFileName);
- *   val p = out.printer();
- *   for (line in in.lines()) {
- *      line = line.chop();
- *      p.println(line);
- *   }
- * }
- * catch (IOException e) { }
+ *    val input = new File(inputFileName);
+ *    val output = new File(outputFileName);
+ *    val p = output.printer();
+ *    for (line in input.lines()) {
+ *       p.println(line);
+ *    }
+ *    p.flush();
+ * } catch (IOException) { }
  */    
 public abstract class Writer {
     public abstract def close(): void ; //throws IOException

@@ -24,11 +24,12 @@ import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
+import x10.optimizations.inlining.Inliner;
 import x10.visit.CodeCleanUp;
+import x10.visit.ConstantPropagator;
 import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.DeadVariableEliminator;
 import x10.visit.ExpressionFlattener;
-import x10.visit.Inliner;
 
 public class Optimizer {
 
@@ -97,6 +98,10 @@ public class Optimizer {
         if (config.CODE_CLEAN_UP) {
             goals.add(CodeCleanUp());
         }
+        // workaround for XTENLANG-2705
+        if (config.OPTIMIZE && (!ExpressionFlattener.javaBackend(job) || config.EXPERIMENTAL)) {
+            goals.add(ConstantProp());
+        }
         if (config.EXPERIMENTAL && config.ELIMINATE_DEAD_VARIABLES) {
             goals.add(DeadVariableEliminator());
         }
@@ -144,6 +149,12 @@ public class Optimizer {
     public Goal CodeCleanUp() {
         NodeVisitor visitor = new CodeCleanUp(job, ts, nf);
         Goal goal = new ValidatingVisitorGoal("CodeCleanUp", job, visitor);
+        return goal.intern(scheduler);
+    }
+    
+    public Goal ConstantProp() {
+        NodeVisitor visitor = new ConstantPropagator(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("ConstantPropagation", job, visitor);
         return goal.intern(scheduler);
     }
 

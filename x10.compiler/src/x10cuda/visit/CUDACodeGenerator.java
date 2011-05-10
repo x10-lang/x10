@@ -161,7 +161,6 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
-import x10.visit.ConstantPropagator;
 
 /**
  * Visitor that prettyprints an X10 AST to the CUDA subset of c++.
@@ -821,17 +820,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				"Runtime types not available in @CUDA code.", n, false);
 		super.visit(n);
 	}
-
-	@Override
-	public void visit(X10MethodDecl_c n) {
-		//n.prettyPrint(System.out);
-		//System.out.println();
-		X10MethodDecl_c n2 = (X10MethodDecl_c) n.visit(new ConstantPropagator(tr.job(), tr.typeSystem(), tr.nodeFactory()).context(context()));
-		//n2.prettyPrint(System.out);
-		//System.out.println();
-		super.visit(n2);
-	}
-	
 		   
 	public static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq) {
         if (options.post_compiler != null && !options.output_stdout) {

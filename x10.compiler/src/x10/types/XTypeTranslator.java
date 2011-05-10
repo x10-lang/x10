@@ -63,6 +63,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.constraint.XField;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
 import x10.types.checker.PlaceChecker;
@@ -258,10 +259,13 @@ public class XTypeTranslator {
             aDef = cAtom.def();
             args = cAtom.arguments();
         }
-        if (term instanceof CField) {
-            CField cField = (CField) term;
-            aDef = cField.field();
-            args = Collections.<XTerm>singletonList(cField.receiver);
+        if (term instanceof XField) {
+            XField cField = (XField) term;
+            Object o = cField.field();
+            if (o instanceof Def) {
+                aDef = (Def) o;
+                args = Collections.<XTerm>singletonList(cField.receiver);
+            }
         }
         if (aDef==null || !(aDef instanceof X10MethodDef)) return term;
         XTerm receiver = args.get(0);

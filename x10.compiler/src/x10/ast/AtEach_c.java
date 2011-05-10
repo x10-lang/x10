@@ -140,7 +140,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	@Override
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.body) {
-		    c = c.pushCode(atDef);
+		    c = c.pushAt(atDef);
 		    ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.At; // this is an at, not an async
 		}
 		Context xc = c;

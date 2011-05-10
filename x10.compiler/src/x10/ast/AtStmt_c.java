@@ -309,7 +309,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	@Override
 	public Context enterScope(Context c) {
 	    c = c.pushBlock();
-	    c = c.pushCode(atDef);
+	    c = c.pushAt(atDef);
 	    ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.At;
 	    return c;
 	}

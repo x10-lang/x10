@@ -49,7 +49,6 @@ import x10.types.MethodInstance;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
-import x10.types.matcher.DumbMethodMatcher;
 import x10.visit.X10TypeChecker;
 
 public class ClosureCall_c extends Expr_c implements ClosureCall {

@@ -71,11 +71,13 @@ implements X10ParsedClassType
     // We ignore all constraints (we only handle generics)
     private Set<X10ParsedClassType_c> cacheDirectSupertypes = null;
     private Set<X10ParsedClassType_c> cacheAllSupertypes = null;
+    private ArrayList<MethodInstance> cacheAllMethods = null;
 
     private void clearCache() {
         cacheSubst = null;
         cacheDirectSupertypes = null;
         cacheAllSupertypes = null;
+        cacheAllMethods = null;
     }
     
     private void calcSuperTypes() {
@@ -111,10 +113,14 @@ implements X10ParsedClassType
     /**
      * @return all methods defined in the class/interface including all inherited methods
      */
-    public List<MethodInstance> getAllMethods() {
+    private final static boolean SHOULD_CACHE_ALL_METHODS = false;
+    public ArrayList<MethodInstance> getAllMethods() {
+        if (cacheAllMethods!=null) return cacheAllMethods;
         ArrayList<MethodInstance> res = new ArrayList<MethodInstance>(methods());
         for (X10ParsedClassType_c supertype : allSuperTypes(false)) // using "false" because I already added my methods()
             res.addAll(supertype.methods());
+        if (SHOULD_CACHE_ALL_METHODS)
+            cacheAllMethods = res;
         return res;
     }
 

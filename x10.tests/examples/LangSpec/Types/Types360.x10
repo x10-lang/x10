@@ -26,7 +26,7 @@ public class Types360 extends x10Test {
     }
 
 
-// file Types line 1582
+// file Types line 1584
  static  class RecipEx {
  static
 val recip = (x : Double) => 1/x;

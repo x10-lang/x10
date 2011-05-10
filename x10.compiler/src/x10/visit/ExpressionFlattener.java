@@ -80,6 +80,7 @@ import x10.ast.ForLoop;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
 import x10.ast.Next;
+import x10.ast.Offer;
 import x10.ast.ParExpr;
 import x10.ast.RemoteActivityInvocation;
 import x10.ast.SettableAssign;
@@ -355,6 +356,22 @@ public final class ExpressionFlattener extends ContextVisitor {
         return expr;
     }
 
+    /**
+     * Flatten a offer statement.
+     * <pre>
+     * offer ({s1; e1});  ->  s1; val t1 = e1; offer t1;
+     * </pre>
+     * 
+     * @param stmt the offer statement to be flattened.
+     * @return a flat statement with the same semantics as stmt
+     */
+    private StmtSeq flattenOffer(Offer stmt){
+        List<Stmt> stmts = new ArrayList<Stmt>();
+        Expr primary = getPrimaryAndStatements(stmt.expr(), stmts);
+        stmts.add(stmt.expr(primary));
+        return syn.createStmtSeq(stmt.position(), stmts);
+    }
+    
     /**
      * Flatten a parenthesized expression.
      * (This should never happen, but it does.)
@@ -803,6 +820,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (stmt instanceof If)        return flattenIf((If) stmt);
         else if (stmt instanceof Return)    return flattenReturn((Return) stmt);
         else if (stmt instanceof Throw)     return flattenThrow((Throw) stmt);
+        else if (stmt instanceof Offer)     return flattenOffer((Offer) stmt);
         else if (stmt instanceof Switch)    return flattenSwitch((Switch) stmt);
         else if (stmt instanceof Assert)    return flattenAssert((Assert) stmt);
         else if (stmt instanceof Async)     return flattenAsync((Async) stmt);

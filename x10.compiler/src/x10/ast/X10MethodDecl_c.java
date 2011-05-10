@@ -311,8 +311,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	public Node visitSignature(NodeVisitor v) {
 		FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
 		Id name = (Id) this.visitChild(this.name, v);
-		List<Formal> formals = this.visitList(this.formals, v);
 		List<TypeParamNode> typeParams = visitList(this.typeParameters, v);
+		List<Formal> formals = this.visitList(this.formals, v);
 		DepParameterExpr guard = (DepParameterExpr) visitChild(this.guard, v);
 		TypeNode ht = (TypeNode) visitChild(this.hasType, v);
 		TypeNode ot = (TypeNode) visitChild(this.offerType, v);

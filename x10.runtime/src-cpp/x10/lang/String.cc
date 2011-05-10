@@ -242,37 +242,6 @@ ref<String> String::substring(x10_int start, x10_int end) {
     return String::Steal(str);
 }
 
-static ref<x10::array::Array<ref<String> > > split_all_chars(String* str) {
-    size_t sz = (size_t)str->length();
-    ref<x10::array::Array<ref<String> > > array = x10::array::Array<ref<String> >::_make(sz);
-    for (size_t i = 0; i < sz; ++i) {
-        array->__set(i, str->substring(i, i+1));
-    }
-    return array;
-}
-
-// FIXME: this does not treat pat as a regex
-ref<x10::array::Array<ref<String> > > String::split(ref<String> pat) {
-    nullCheck(pat);
-    int l = pat->length();
-    if (l == 0) // if splitting on an empty string, just return the chars
-        return split_all_chars(this);
-    int sz = 1; // we have at least one string
-    int i = -1; // count first
-    while ((i = indexOf(pat, i+l)) != -1) {
-        sz++;
-    }
-    ref<x10::array::Array<ref<String> > > array = x10::array::Array<ref <String> >::_make(sz);
-    int c = 0;
-    int o = 0; // now fill in the array
-    while ((i = indexOf(pat, o)) != -1) {
-        array->__set(c++, substring(o, i));
-        o = i+l;
-    }
-    array->__set(c++, substring(o));
-    assert (c == sz);
-    return array;
-}
 
 x10_char String::charAt(x10_int i) {
     checkStringBounds(i, FMGL(content_length));

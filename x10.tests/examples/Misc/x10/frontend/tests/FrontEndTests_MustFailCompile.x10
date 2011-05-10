@@ -2167,7 +2167,7 @@ class TestGlobalRefHomeAt2 {
 class A564[T,U] {
     def foo(x:T,y:U, z:String):void {}
 }
-class B564 extends A564[String,String] {
+class B564 extends A564[String,String] { // ERR
     def foo(x:String,y:String, z:String):Int { return 1; } // ERR: foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Int in B cannot override foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): void in A[x10.lang.String, x10.lang.String]; attempting to use incompatible return type.
 	// B.foo(String,String,String) cannot override A.foo(T,U,String); attempting to use incompatible return type.  found: int required: void
 }
@@ -2776,7 +2776,7 @@ class ScopingRules { // see XTENLANG-2056
 	def test2() {
 		val i:Int = 1;
 		at (here) {
-			val i:Int = 1; // ShouldBeErr, XTENLANG-2056
+			val i:Int = 1; // ERR, Local variable "i" multiply defined. Previous definition at ...
 		}
 	}
 	def test3() {
@@ -3196,7 +3196,7 @@ class OperatorTestCases { // XTENLANG-2084
 	}
 
 	// test inheritance, static, instance
-	static class BinaryAndUnary {
+	static class BinaryAndUnary { // ShouldNotBeERR
 		operator this+(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is static)
 		static operator +(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is notstatic) // ERR (Semantic Error: Duplicate method "method static OperatorTestCases.BinaryAndUnary.operator+(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:39,9-41.)
 	}
@@ -4263,7 +4263,7 @@ class ConformanceChecks { // see XTENLANG-989
 	interface A {
 	   def m(i:Int){i==3}:void;
 	}
-	class IntDataPoint implements A {
+	class IntDataPoint implements A { // ERR
 	   @ERR public def m(i:Int){i==4}:void {}
 	}
 }
@@ -4275,8 +4275,8 @@ class TestThisAndInheritanceInConstraints {
 	class B extends A {
 		def m(b1:A, var b2:A{B.this==b1}) {}
 	}
-	class C extends A {
-		@ShouldBeErr def m(b1:A, var b2:A{C.this==b2}) {}
+	class C extends A { // ERR
+		def m(b1:A, var b2:A{C.this==b2}) {}
 	}
 }
 
@@ -4710,8 +4710,8 @@ class XTENLANG_2401 {
 	def test() {
 		val z1:String = m(1); 
 		val z2:Int = m(1); // ERR, but it should be a different error! The current error is: Semantic Error: Cannot assign expression to target.	 Expression: m(x10.lang.Double.implicit_operator_as(0))	 Expected type: x10.lang.String,  and it should complain about the constraint that is not satisfied.
-		val z3:String = m(0); // ShouldNotBeERR
-		val z4:Int = m(0); // ShouldBeErr
+		val z3:String = m(0); // ERR
+		val z4:Int = m(0); // ERR
 	}
 }
 class XTENLANG_2403 {
@@ -4932,7 +4932,7 @@ class TestInterfaceInvariants_1930 { // XTENLANG-1930
 
 
 // method overloading
-interface TestOverloadingAndConstraints {
+interface TestOverloadingAndConstraints {  // ERR ERR ERR ERR
 	static class Foo[T] {}
 
 	def m00():void; // ERR
@@ -4959,7 +4959,7 @@ interface TestOverloadingAndConstraints {
 	def m5(Foo[Foo[Int]]):void;
 	def m5(Foo[Foo[Int{self!=0}]]):void; // ERR
 }
-class TestOverloadingAndConstraints_static {
+class TestOverloadingAndConstraints_static {// ERR ERR ERR ERR
 	static class Foo[T] {}
 
 	static def m00():void {} // ERR
@@ -4986,7 +4986,7 @@ class TestOverloadingAndConstraints_static {
 	static def m5(Foo[Foo[Int]]):void {}
 	static def m5(Foo[Foo[Int{self!=0}]]):void {} // ERR
 }
-interface TestOverloadingAndConstraints_macros {
+interface TestOverloadingAndConstraints_macros { // ERR  ERR  ERR  ERR
 	static type Int1 = Int;
 	static type Int2 = Int1;
 	static type Int3Not0 = Int2{self!=0};
@@ -5186,8 +5186,8 @@ class TestMethodResolutionAndConstraints_instance {
 	def m(Double) = "1";
 	def test() {
 		val x1:Int = m(1);
-		val x2 = m(0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m(0); // ERR
+		val x3:Int = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
@@ -5197,8 +5197,8 @@ class TestMethodResolutionAndConstraints_static {
 	static def m(Double) = "1";
 	static def test() {
 		val x1:Int = m(1);
-		val x2 = m(0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m(0); // ERR
+		val x3:Int = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
@@ -5208,8 +5208,8 @@ class TestMethodResolutionAndConstraints_param_guard {
 	static def m(Double) = "1";
 	static def test() {
 		val x1:Int = m(1);
-		val x2 = m(0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m(0); // ERR
+		val x3:Int = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
@@ -5243,8 +5243,8 @@ class TestMethodResolutionAndTypeConstraints_instance[T] {
 		val x5:String = m(0.0);
 	}
 	def test2() {
-		val x2 = m(0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m(0); // ERR
+		val x3:Int = x2;
 	}
 }
 class TestMethodResolutionAndTypeConstraints_static {
@@ -5252,8 +5252,8 @@ class TestMethodResolutionAndTypeConstraints_static {
 	static def m[T](Double) = "1";
 	static def test() {
 		val x1:Int = m[Int{self==1}](1);// ERR (Semantic Error: Cannot assign expression to target.		 Expression: m[x10.lang.Int{self==1}](x10.lang.Double.implicit_operator_as(1))		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1"})
-		val x2 = m[Int{self==0}](0); 
-		val x3:Int = x2;// ERR (Semantic Error: Cannot assign expression to target.		 Expression: x2		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1", x2=="1"})
+		val x2 = m[Int{self==0}](0); // ERR
+		val x3:Int = x2;
 		val x4:String = m[Int{self==1}](0 as Double);
 		val x5:String = m[Int{self==0}](0.0);
 	}
@@ -6080,14 +6080,14 @@ class XTENLANG_2615 {
 	interface A {
 		def m(Int):void;
 	}
-	class B implements A { // ShouldNotBeERR: B should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in A
-		public def m(Int{self!=0}):void {}  // ShouldBeErr
+	class B implements A { // ERR ERR: B should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in A
+		public def m(Int{self!=0}):void {}
 	}
 	abstract class C {
 		abstract def m(Int):void;
 	}
-	class D extends C { // ShouldNotBeERR: D should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in C
-		public def m(Int{self!=0}):void {}  // ShouldBeErr
+	class D extends C { // ERR ERR: D should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in C
+		public def m(Int{self!=0}):void {}
 	}
 }
 class TestConformanceWithAbstractPropertyMethods3 {
@@ -6132,7 +6132,7 @@ class TestConformanceWithAbstractPropertyMethods3dGenerics {
 	   public def distanceFrom(t: Array[DataPoint{3 == this.dim()}]):void;
 	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim()}]):void;
 	}
-	class IntDataPoint(x:Int) implements DataPoint { // ShouldNotBeERR
+	class IntDataPoint(x:Int) implements DataPoint { // ShouldNotBeERR ShouldNotBeERR
 	   public property dim(): Int = x;
 	   public def distanceFrom(t: Array[DataPoint{3 == this.x}]):void { }
 	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim}]):void {}
@@ -6143,7 +6143,7 @@ class TestConformanceWithAbstractPropertyMethods4 {
 	   public property dim(): Int;
 	   public def distanceFrom3(t: DataPoint{3 == self.dim()}):void;
 	}
-	class IntDataPoint implements DataPoint { // ShouldNotBeERR (XTENLANG-2615)
+	class IntDataPoint implements DataPoint { // ShouldNotBeERR ShouldNotBeERR (XTENLANG-2615)
 	   public property dim(): Int = 3;
 	   public def distanceFrom3(t: DataPoint{3 == this.dim()}):void {} // ShouldBeErr
 	}
@@ -6232,9 +6232,9 @@ class ConstrainedCall(x:Int) { // XTENLANG-2416
 class XTENLANG_2622 {
 	class Hello {
 		val a:Hello{self!=null} = new Hello();
-		val c:Hello{self==this.a} = null; // ShouldBeErr
+		val c:Hello{self==this.a} = null; // ERR: The type of the field initializer is not a subtype of the field type
 		val d:Hello{self!=null} = c;
-		val f1:Hello{self==null && self==this.a} = null; // ShouldBeErr (inconsistent constraint)
+		val f1:Hello{self==null && self==this.a} = null; // ERR (inconsistent constraint)
 	}
 }
 class XTENLANG_1380 {
@@ -6399,7 +6399,7 @@ class Offery_1582 { //XTENLANG-1582
 }
 
 
-class ImplicitTargetResolutionTest {
+class ImplicitTargetResolutionTest { // ERR
 	// Expr and Call have different disambuation rules!
 	static def rankTest1(a:Dist{rank==2}) {} // ok
 	static def rankTest1(a:Dist{rank()==2}) {} // ERR ERR ERR 
@@ -6528,3 +6528,24 @@ class XTENLANG_2302_test {
 	}
 }
 
+class XTENLANG_2691_test {
+	def m1():Int {
+		val x:String = at (here) {val y= 1; "a"};
+		return 3;
+	}
+	def m2():Int {
+		at (here) {
+			if (true) return 1; // ShouldNotBeERR ShouldNotBeERR
+		}
+		return 43;
+	}
+}
+
+
+class DifferentResolutionInDynamicAndStatic {
+	def m(Int{self!=0}):Int = 1;
+	def m(Double):Int = 2;
+	def test(x:Int) {
+		val z1:Int = m(x); // ERR
+	}
+}

@@ -29,6 +29,7 @@ import x10.ast.X10ClassBody_c;
 import x10.errors.Errors;
 import x10.extension.X10Ext_c;
 import x10.types.X10LocalDef;
+import x10.types.X10LocalDef_c;
 import x10.types.X10LocalInstance;
 import polyglot.types.TypeSystem;
 import x10.visit.Lowerer;
@@ -692,6 +693,7 @@ public final class InitChecker extends DataFlow
                               DataFlowItem dfIn,
                               boolean isReachable, Position p) {
         if (((X10LocalInstance)l.asInstance()).error()!=null) return;
+        if (l instanceof X10LocalDef_c && ((X10LocalDef_c) l).hidden()) return;
         MinMaxInitCount initCount = dfIn.initStatus.get(l);
         if (initCount == null) {
             // check the outer local was init

@@ -7,6 +7,7 @@ import java.util.List;
 import polyglot.types.Type;
 
 import x10.constraint.XEQV;
+import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTermKind;
 import x10.constraint.XVar;
@@ -23,7 +24,7 @@ import x10.constraint.XVar;
  * @author vj
  *
  */
-public class CThis extends XVar {
+public class CThis extends XRoot {
     
     public final int num;
     // The name may contain outer this qualifier information.

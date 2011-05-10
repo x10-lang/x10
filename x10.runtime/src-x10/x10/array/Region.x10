@@ -84,7 +84,7 @@ public abstract class Region(
         val r = new PolyRow(normal, k);
         pmb.add(r);
         val pm = pmb.toSortedPolyMat(false);
-        return PolyRegion.make(pm) as Region(normal.rank); // XXXX Why is this cast here?
+        return PolyRegion.make(pm);// as Region(normal.rank); // XXXX Why is this cast here?
     }
     //
     // rectangular factories
@@ -118,7 +118,7 @@ public abstract class Region(
                }
            }
            val pm = pmb.toSortedPolyMat(false);
-           return PolyRegion.make(pm) as Region(minArg.size); 
+           return PolyRegion.make(pm);// as Region(minArg.size); 
     }
      
     /**
@@ -127,7 +127,8 @@ public abstract class Region(
      */
     public static def makeRectangular[S,T](minArg:Array[S](1), maxArg:Array[T](1)){S<:Int,T<:Int}:Region(minArg.size){self.rect} {
         if (minArg.size == 1) {
-            return new RectRegion1D(minArg(0), maxArg(0)) as Region(minArg.size){rect}; // sigh. constraint solver not flow-sensitive.
+        	// To remove the cast, the constraint solver should be able to handle arithmetic.
+            return new RectRegion1D(minArg(0), maxArg(0)) as Region(minArg.size){rect}; 
         } else {
             val minArray = new Array[int](minArg.size, (i:int)=>minArg(i));
             val maxArray = new Array[int](maxArg.size, (i:int)=>maxArg(i));
@@ -153,9 +154,11 @@ public abstract class Region(
      * product of the specified rank-1 rectangular regions.
      */
     public static @TempNoInline_3 def make[T](regions:Array[T](1)){T<:Region(1){self.rect}}:Region(regions.size){self.rect} {
-        var r:Region = regions(0);
+        var r:Region  = regions(0);
         for (var i:int = 1; i<regions.size; i++)
             r = r.product(regions(i));
+        // To remove this cast, constraint solver needs to know that performing
+        // +1 N times is the same as adding +N.
     return r as Region(regions.size){self.rect};
     }
 

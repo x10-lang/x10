@@ -9,32 +9,21 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.visit;
+package x10.optimizations.inlining;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
-import polyglot.ast.AmbAssign;
-import polyglot.ast.AmbExpr;
-import polyglot.ast.AmbTypeNode;
-import polyglot.ast.Assign;
 import polyglot.ast.Block;
-import polyglot.ast.Branch;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.CodeBlock;
 import polyglot.ast.ConstructorCall;
-import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
-import polyglot.ast.Field;
-import polyglot.ast.FieldAssign;
 import polyglot.ast.Formal;
-import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
@@ -46,7 +35,6 @@ import polyglot.ast.Return;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
-import polyglot.ast.Throw;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -56,12 +44,9 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.ContainerType;
-import polyglot.types.Context;
 import polyglot.types.Def;
-import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.MemberDef;
 import polyglot.types.MemberInstance;
 import polyglot.types.Name;
@@ -76,63 +61,46 @@ import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
-import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.SilentErrorQueue;
-import polyglot.util.SubtypeSet;
-import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10.ast.AnnotationNode;
-import x10.ast.AssignPropertyCall;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
-import x10.ast.DepParameterExpr;
 import x10.ast.InlinableCall;
 import x10.ast.ParExpr;
 import x10.ast.StmtExpr;
-import x10.ast.StmtSeq;
-import x10.ast.TypeParamNode;
-import x10.ast.X10ClassDecl;
-import x10.ast.X10ConstructorCall;
-import x10.ast.X10ConstructorDecl;
-import x10.ast.X10FieldDecl;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10Special;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
-import x10.constraint.XLocal;
-import x10.constraint.XTerm;
-import x10.constraint.XTerms;
-import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
-import x10.optimizations.inlining.InlinerCache;
-import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10ConstructorDef;
-import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
-import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
-import x10.types.X10LocalInstance;
 import x10.types.X10MemberDef;
-import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import x10.types.checker.Converter;
 import x10.types.constraints.CTerms;
-import x10.types.matcher.Subst;
 import x10.util.AltSynthesizer;
-import x10.util.CollectionFactory;
+import x10.visit.ConstantPropagator;
+import x10.visit.ConstructorSplitterVisitor;
+import x10.visit.Desugarer;
+import x10.visit.ExpressionFlattener;
+import x10.visit.IfdefVisitor;
+import x10.visit.NodeTransformingVisitor;
+import x10.visit.X10DelegatingVisitor;
+import x10.visit.X10TypeChecker;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -162,7 +130,7 @@ public class Inliner extends ContextVisitor {
     private final boolean INLINE_GENERIC_CONSTRUCTORS;
     private final boolean EXPERIMENTAL;
     
-    private static final boolean DEBUG = false;
+    static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
 
     private static final int VERBOSITY = 1;
@@ -182,8 +150,6 @@ public class Inliner extends ContextVisitor {
 
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        syn = new AltSynthesizer(ts, nf);
-        ice = new InlineCostEstimator();
         ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
         compiler = extInfo.compiler();
         Configuration config = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
@@ -235,7 +201,7 @@ public class Inliner extends ContextVisitor {
         return msg;
     }
 
-    private static void debug (String msg, Node node) {
+    static void debug (String msg, Node node) {
         debug(0L, msg, node);
     }
     
@@ -279,6 +245,8 @@ public class Inliner extends ContextVisitor {
 
     @Override
     public NodeVisitor begin() {
+        syn = new AltSynthesizer(ts, nf);
+        ice = new InlineCostEstimator(job, ts, nf);
         if (!x10.optimizations.Optimizer.INLINING((ExtensionInfo) job.extensionInfo())) {
             throw new InternalCompilerError("INLINING should not be being performed!");
         }
@@ -462,7 +430,7 @@ public class Inliner extends ContextVisitor {
             report("normalized closure has no body", c);
             return null;
         }
-        lit = (Closure) lit.visit(new X10AlphaRenamer());
+        lit = (Closure) lit.visit(new X10AlphaRenamer(this));
         List<Expr> args = new ArrayList<Expr>();
         int i = 0;
         for (Expr a : c.arguments()) {
@@ -496,7 +464,7 @@ public class Inliner extends ContextVisitor {
             report("instantiation failure for " + signature, call);
             return null;
         }
-        decl = (ProcedureDecl) decl.visit(new X10AlphaRenamer());
+        decl = (ProcedureDecl) decl.visit(new X10AlphaRenamer(this));
         LocalDecl thisArg = createThisArg(call);
         LocalDecl thisForm = null == thisArg ? null : createThisFormal(call, thisArg);
         LocalDef thisDef = null == thisForm ? null : thisForm.localDef();
@@ -624,102 +592,6 @@ public class Inliner extends ContextVisitor {
         id += ")";
         if (decl instanceof MethodDecl) id += ":" +((MethodDecl) decl).returnType().nameString();
         return id;
-    }
-
-    private class X10AlphaRenamer extends AlphaRenamer {
-        public class TypeRewriter extends TypeTransformer {
-
-            @Override
-            protected Type transformType(Type type) {
-                try {
-                    Set<Name> vars = renamingMap.keySet();
-                    XVar[] x = new XVar[vars.size() + 1];
-                    XTerm[] y = new XTerm[x.length];
-                    int i = 0;
-                    for (Name n : vars) {
-                        Name m = renamingMap.get(n);
-                        X10LocalDef ld = (X10LocalDef) localDefMap.get(n);
-                        
-                        x[i] = CTerms.makeLocal(ld, n.toString());
-                        y[i] = CTerms.makeLocal(ld, m.toString());
-                        ++i;
-                    }
-                    x[i] = XTerms.makeUQV(); // to force substitution
-                    y[i] = XTerms.makeUQV();
-                    type = Subst.subst(type, y, x);
-                } catch (SemanticException e) {
-                    throw new InternalCompilerError("Cannot alpha-rename locals in type " + type, e);
-                }
-                return super.transformType(type);
-            }
-
-            @Override
-            protected ParameterType transformParameterType(ParameterType pt) {
-                // TODO: [IP] Do we need to do anything with parameter types?
-                return super.transformParameterType(pt);
-            }
-
-            @Override
-            protected X10LocalInstance transformLocalInstance(X10LocalInstance li) {
-                Name name = renamingMap.get(li.name());
-                if (name != null) {
-                    // List<Type> annotations = transformTypeList(li.annotations()); // TODO
-                    Type type = transformType(li.type());
-                    if (/* li.annotations() != annotations || */li.name() != name || li.type() != type) {
-                        li = li/* .annotations(annotations) */.name(name).type(type);
-                    }
-                }
-                return super.transformLocalInstance(li);
-            }
-
-            @Override
-            protected X10FieldInstance transformFieldInstance(X10FieldInstance fi) {
-                // TODO: [IP] We don't change field instances yet, but would have to for local classes
-                return super.transformFieldInstance(fi);
-            }
-
-            @Override
-            protected MethodInstance transformMethodInstance(MethodInstance mi) {
-                // TODO: [IP] We don't change method instances yet, but would have to for local classes
-                return super.transformMethodInstance(mi);
-            }
-
-            @Override
-            protected X10ConstructorInstance transformConstructorInstance(X10ConstructorInstance ci) {
-                // TODO: [IP] We don't change constructor instances yet, but would have to for local classes
-                return super.transformConstructorInstance(ci);
-            }
-        }
-
-        protected TypeRewriter rewriter = new TypeRewriter();
-        protected Map<Name, LocalDef> localDefMap = CollectionFactory.newHashMap();
-
-        @Override
-        public NodeVisitor enter(Node n) {
-            if (n instanceof LocalDecl) {
-                LocalDecl l = (LocalDecl) n;
-                localDefMap.put(l.name().id(), l.localDef());
-            }
-            if (n instanceof Formal) {
-                Formal f = (Formal) n;
-                localDefMap.put(f.name().id(), f.localDef());
-            }
-            return super.enter(n);
-        }
-
-        @Override
-        public Node leave(Node old, Node n, NodeVisitor v) {
-            Set<Name> s = null;
-            if (n instanceof Block) {
-                s = setStack.peek();
-            }
-            Node res = rewriter.transform(n, old, Inliner.this);
-            res = super.leave(old, res, v);
-            if (res instanceof Block) {
-                localDefMap.keySet().removeAll(s);
-            }
-            return res;
-        }
     }
 
     /**
@@ -856,20 +728,6 @@ public class Inliner extends ContextVisitor {
         return visitor.hasSuper;
     }
 
-    /* This is a kludge until the Java backend supports non-virtual calls to instance methods and "super.fuo" can get rewritten */
-    private static class SuperFinderVisitor extends NodeVisitor{
-        boolean hasSuper = false;
-        /* (non-Javadoc)
-         * @see polyglot.visit.NodeVisitor#override(polyglot.ast.Node)
-         */
-        @Override
-        public Node override(Node n) {
-            if (n instanceof Special && ((Special) n).kind() == Special.SUPER)
-                hasSuper = true;
-            return super.override(n);
-        }
-
-    }
     /**
      * @param call
      * @return
@@ -912,23 +770,6 @@ public class Inliner extends ContextVisitor {
     }
 
     private String backend;
-
-    /**
-     * @param nativeAnnotations
-     * @return
-     */
-    private boolean hasRelevantNativeAnnotation(List<? extends Type> nativeAnnotations) {
-        if (!nativeAnnotations.isEmpty()) {
-            if (null == backend)
-                backend = getBackend();
-            for (Type t : nativeAnnotations) { // FIXME: get list of native annotation strings
-                String lang = ((X10ParsedClassType) t).propertyInitializer(0).toString();
-                if (backend.equals(lang))
-                    return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Get the identity String for the specific backend of this compile
@@ -1191,287 +1032,6 @@ public class Inliner extends ContextVisitor {
         }
     }
 
-    public static class InliningTypeTransformer extends TypeParamSubstTransformer {
-        protected InliningTypeTransformer(TypeParamSubst subst) {
-            super(subst);
-        }
-
-        // TODO: move this up to TypeTransformer
-        private Pair<XLocal[], XLocal[]> getLocalSubstitution() {
-            Map<X10LocalDef, X10LocalDef> map = vars;
-            XLocal[] X = new XLocal[map.keySet().size()];
-            XLocal[] Y = new XLocal[X.length];
-            int i = 0;
-            for (X10LocalDef ld : map.keySet()) {
-                X[i] = CTerms.makeLocal(ld);
-                Y[i] = CTerms.makeLocal(map.get(ld));
-                i++;
-            }
-            return new Pair<XLocal[], XLocal[]>(X, Y);
-        }
-
-        @Override
-        protected X10ConstructorInstance transformConstructorInstance(X10ConstructorInstance ci) {
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
-            try {
-                ci = Subst.subst(ci, Y, X);
-            } catch (SemanticException e) {
-                throw new InternalCompilerError("Unexpected exception while reinstantiating "+ci, e);
-            }
-            return super.transformConstructorInstance(ci);
-        }
-
-        @Override
-        protected X10FieldInstance transformFieldInstance(X10FieldInstance fi) {
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
-            try {
-                fi = Subst.subst(fi, Y, X);
-            } catch (SemanticException e) {
-                throw new InternalCompilerError("Unexpected exception while reinstantiating "+fi, e);
-            }
-            return super.transformFieldInstance(fi);
-        }
-
-        @Override
-        protected X10LocalInstance transformLocalInstance(X10LocalInstance li) {
-//            X10LocalDef ld = li.x10Def();
-//            X10LocalDef newld = vars.get(ld);
-//            if (newld == null) {
-//                newld = copyLocalDef(ld); // force reinstantiation
-//                mapLocal(newld, newld);
-//            }
-//            mapLocal(ld, newld);
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
-            try {
-                li = Subst.subst(li, Y, X);
-            } catch (SemanticException e) {
-                throw new InternalCompilerError("Unexpected exception while reinstantiating "+li, e);
-            }
-            return super.transformLocalInstance(li);
-        }
-
-        @Override
-        protected MethodInstance transformMethodInstance(MethodInstance mi) {
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
-            try {
-                mi = Subst.subst(mi, Y, X);
-            } catch (SemanticException e) {
-                throw new InternalCompilerError("Unexpected exception while reinstantiating "+mi, e);
-            }
-            return super.transformMethodInstance(mi);
-        }
-
-        @Override
-        protected Type transformType(Type type) {
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
-            try {
-                type = Subst.subst(type, Y, X);
-            } catch (SemanticException e) {
-                throw new InternalCompilerError("Unexpected exception while reinstantiating "+type, e);
-            }
-            return super.transformType(type);
-        }
-
-        @Override
-        protected <T> Ref<T> transformRef(Ref<T> ref) {
-            return remapRef(ref);
-        }
-
-        @Override
-        protected TypeParamNode transform(TypeParamNode pn, TypeParamNode old) {
-            return pn;
-        }
-
-        @Override
-        protected Field transform(Field f, Field old) {
-            f = f.targetImplicit(false);
-            return super.transform(f, old);
-        }
-
-        @Override
-        protected Call transform(Call c, Call old) {
-            c = c.targetImplicit(false);
-            return super.transform(c, old);
-        }
-
-        @Override
-        protected X10ConstructorCall transform(X10ConstructorCall c, X10ConstructorCall old) {
-            return super.transform(c, old);
-        }
-        @Override
-        protected Special transform(Special s, Special old) {
-            return super.transform(s, old);
-        }
-
-        @Override
-        protected X10ClassDecl transform(X10ClassDecl d, X10ClassDecl old) {
-            boolean sigChanged = d.superClass() != old.superClass();
-            List<TypeNode> interfaces = d.interfaces();
-            List<TypeNode> oldInterfaces = old.interfaces();
-            for (int i = 0; i < interfaces.size(); i++) {
-                sigChanged |= interfaces.get(i) != oldInterfaces.get(i);
-            }
-            if (sigChanged) {
-                throw new InternalCompilerError("Inlining of code with instantiated local classes not supported");
-            }
-            return d;
-        }
-
-        @Override
-        protected X10FieldDecl transform(X10FieldDecl d, X10FieldDecl old) {
-            assert (false) : "Not yet implemented, can't instantiate " + d;
-            return d;
-        }
-
-        @Override
-        protected LocalDecl transform(LocalDecl d, LocalDecl old) {
-//            X10LocalDef ld = (X10LocalDef) d.localDef();
-//            X10LocalDef newld = vars.get(ld);
-//            if (newld == null) {
-//                newld = copyLocalDef(ld); // force reinstantiation
-//                newld.setType(d.type().typeRef());
-//                mapLocal(newld, newld);
-//            }
-//            mapLocal(ld, newld);
-            return super.transform(d, old);
-        }
-        
-        @Override
-        protected X10Formal transform(X10Formal f, X10Formal old) {
-//            X10LocalDef ld = (X10LocalDef) f.localDef();
-//            X10LocalDef newld = vars.get(ld);
-//            if (newld == null) {
-//                newld = copyLocalDef(ld); // force reinstantiation
-//                newld.setType(f.type().typeRef());
-//                mapLocal(newld, newld);
-//            }
-//            mapLocal(ld, newld);
-            return super.transform(f, old);
-        }
-        
-        @Override
-        protected X10ConstructorDecl transform(X10ConstructorDecl d, X10ConstructorDecl old) {
-            boolean sigChanged = d.returnType() != old.returnType();
-            List<Formal> params = d.formals();
-            List<Formal> oldParams = old.formals();
-            for (int i = 0; i < params.size(); i++) {
-                sigChanged |= params.get(i) != oldParams.get(i);
-            }
-            sigChanged |= d.guard() != old.guard();
-            List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(visitor().typeSystem()) : d.exceptions();
-            SubtypeSet oldExcs = old.exceptions();
-            if (null != excs) {
-                for (Type et : excs) {
-                    sigChanged |= !oldExcs.contains(et);
-                    excTypes.add(Types.ref(et));
-                }
-            }
-            sigChanged |= d.offerType() != old.offerType();
-            if (sigChanged) {
-                List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-                List<LocalDef> formalNames = new ArrayList<LocalDef>();
-                for (int i = 0; i < params.size(); i++) {
-                    Formal p = params.get(i);
-                    argTypes.add(p.type().typeRef());
-                    formalNames.add(p.localDef());
-                }
-                return d.constructorDef(createConstructorDef(d, argTypes, formalNames));
-            }
-            return d;
-        }
-
-        @Override
-        protected X10MethodDecl transform(X10MethodDecl d, X10MethodDecl old) {
-            boolean sigChanged = d.returnType() != old.returnType();
-            List<Formal> params = d.formals();
-            List<Formal> oldParams = old.formals();
-            for (int i = 0; i < params.size(); i++) {
-                sigChanged |= params.get(i) != oldParams.get(i);
-            }
-            sigChanged |= d.guard() != old.guard();
-            List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(visitor().typeSystem()) : d.exceptions();
-            SubtypeSet oldExcs = old.exceptions();
-            if (null != excs) {
-                for (Type et : excs) {
-                    sigChanged |= !oldExcs.contains(et);
-                    excTypes.add(Types.ref(et));
-                }
-            }
-            sigChanged |= d.offerType() != old.offerType();
-            if (sigChanged) {
-                List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-                List<LocalDef> formalNames = new ArrayList<LocalDef>();
-                for (int i = 0; i < params.size(); i++) {
-                    Formal p = params.get(i);
-                    argTypes.add(p.type().typeRef());
-                    formalNames.add(p.localDef());
-                }
-                return d.methodDef(createMethodDef(d, argTypes, formalNames));
-            }
-            return d;
-        }
-
-        /**
-         * @param d
-         * @param argTypes
-         * @param formalNames
-         * @return
-         */
-        private X10MethodDef createMethodDef(X10MethodDecl d, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames) {
-            X10MethodDef md = d.methodDef();
-            DepParameterExpr g = d.guard();
-            TypeNode ot = d.offerType();
-            return visitor().typeSystem().methodDef( md.position(), 
-                                                     md.container(), 
-                                                     md.flags(), 
-                                                     d.returnType().typeRef(), 
-                                                     md.name(), 
-                                                     md.typeParameters(), 
-                                                     argTypes, 
-                                                     md.thisDef(), 
-                                                     formalNames, 
-                                                     g == null ? null : g.valueConstraint(),
-                                                     g == null ? null : g.typeConstraint(),
-                                                     ot == null ? null : ot.typeRef(), 
-                                                     null /* the body will never be used */ );
-        }
-        
-        /**
-         * @param d
-         * @param argTypes
-         * @param formalNames
-         * @return
-         */
-        private X10ConstructorDef createConstructorDef(X10ConstructorDecl d, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames) {
-            X10ConstructorDef cd = d.constructorDef();
-            DepParameterExpr g = d.guard();
-            TypeNode ot = d.offerType();
-            return visitor().typeSystem().constructorDef(
-                    cd.position(), 
-                    cd.container(), 
-                    cd.flags(), 
-                    d.returnType().typeRef(), 
-                    argTypes, 
-                    cd.thisDef(), 
-                    formalNames,
-                    g == null ? null : g.valueConstraint(),
-                    g == null ? null : g.typeConstraint(),
-                    ot == null ? null : ot.typeRef() );
-        }
-    }
-
     /**
      * @param decl
      * @return
@@ -1584,341 +1144,6 @@ public class Inliner extends ContextVisitor {
         Type type = Types.get(d.type());
         type = Types.addSelfBinding(type, CTerms.makeLocal((X10LocalDef) o));
         ((Ref<Type>) d.type()).update(type);
-    }
-
-    /**
-     * Rewrites a given method/closure body so that it has exactly one return
-     * statement at the end if the return type is not void, and no return
-     * statements if it's void. Also, replaces "this" parameter by a local
-     * variable.
-     * 
-     * @author igor TODO: factor out into its own class
-     */
-    public static class InliningRewriter extends ContextVisitor {
-        private final ProcedureDef def;
-        private final LocalDef ths;
-        private final LocalDef ret;
-        private final Name label;
-        private AltSynthesizer syn;
-        private boolean[] failed = new boolean[1];
-
-        public InliningRewriter(Closure closure, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
-            this(closure.closureDef(), null, closure.body().statements(), j, ts, nf, ctx);
-        }
-
-        public InliningRewriter(ProcedureDecl decl, LocalDef ths, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
-            this(decl.procedureInstance(), ths, decl.body().statements(), j, ts, nf, ctx);
-        }
-
-        public InliningRewriter(ConstructorDecl decl, LocalDef ths, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
-            this(decl.constructorDef(), ths, decl.body().statements(), j, ts, nf, ctx);
-        }
-
-        private InliningRewriter(ProcedureDef def, LocalDef ths, List<Stmt> body, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
-        	super(j, ts, nf);
-            this.context = ctx;
-            this.def = def;
-            this.ths = ths;
-            this.syn = new AltSynthesizer(ts, nf);
-            if (def instanceof ConstructorDef) {
-                this.ret = null;
-                this.label = Name.makeFresh("__ret");
-            } else if (body.size() == 1 && body.get(0) instanceof Return) {
-                // Closure already has the right properties; make return rewriting a no-op
-                this.ret = null;
-                this.label = null;
-            } else {
-                Name rn = Name.makeFresh("ret");
-                Type rt = def.returnType().get();
-                this.ret = rt.isVoid() ? null : ts.localDef(def.position(), ts.NoFlags(), Types.ref(rt), rn);
-                this.label = Name.makeFresh("__ret");
-            }
-            failed[0] = false;
-        }
-
-        public Node override(Node n) {
-            if (failed[0]) 
-                return n; // abort visit
-            if (def == null)
-                return n;
-            return null;
-        }
-
-        // TODO: use override to short-circuit the traversal
-        public Node leaveCall(Node old, Node n, NodeVisitor v)
-                throws SemanticException {
-            if (v != this) {
-            }
-            if (n instanceof AmbExpr || n instanceof AmbAssign || n instanceof AmbTypeNode) {
-                throw new InternalCompilerError("Ambiguous node found: " + n, n.position());
-            }
-            if (n instanceof X10MethodDecl)
-                return visitMethodDecl((X10MethodDecl) n);
-            if (n instanceof X10ConstructorDecl) 
-                return visitConstructorDecl((X10ConstructorDecl) n);
-            if (n instanceof Closure)
-                return visitClosure((Closure) n);
-            if (n instanceof Return)
-                return visitReturn((Return) n);
-            if (n instanceof Throw)
-                return visitThrow((Throw) n);
-            if (n instanceof Field)
-                return visitField((Field) n);
-            if (n instanceof Call) { 
-                return visitCall((Call) old, (Call) n);
-            }
-            if (n instanceof X10ConstructorCall)
-                return visitX10ConstructorCall((X10ConstructorCall) n);
-            if (n instanceof Special)
-                return visitSpecial((Special) n);
-            if (n instanceof AssignPropertyCall)
-                return visitAssignPropertyCall((AssignPropertyCall)  n);
-            return n;
-        }
-
-        private Block rewriteBody(Position pos, Block body) {
-            if (failed[0]) {
-                return null;
-            }
-            if (label == null) {
-                return body;
-            }
-            List<Stmt> newBody = new ArrayList<Stmt>();
-            if (ret != null) {
-                newBody.add(nf.LocalDecl( pos,
-                                           nf.FlagsNode(pos, ts.NoFlags()),
-                                           nf.CanonicalTypeNode(pos, ret.type()),
-                                           nf.Id(pos, ret.name()) ).localDef(ret));
-            }
-            // A return at the end of the method will have been converted to a
-            // break. It's not needed. Turf it.
-            List<Stmt> bodyStmts = body.statements();
-            if (!bodyStmts.isEmpty() && (bodyStmts.get(bodyStmts.size() - 1) instanceof Branch)) {
-                Branch br = (Branch) bodyStmts.get(bodyStmts.size() - 1);
-                if (br.kind() == Branch.BREAK) {
-                    Id breakLabel = br.labelNode();
-                    if (breakLabel.id().equals(label)) {
-                        List<Stmt> statements = new ArrayList<Stmt>();
-                        for (Stmt stmt : bodyStmts) {
-                            if (stmt != br) {
-                                statements.add(stmt);
-                            }
-                        }
-                        body = nf.Block(body.position(), statements);
-                    }
-                }
-            }
-            newBody.add(nf.Labeled(pos, nf.Id(pos, label), body));
-            if (ret != null) {
-                Expr rval = nf.Local(pos, nf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(ret.type().get());
-                newBody.add(nf.Return(pos, rval));
-            } else {
-                newBody.add(nf.Return(pos));
-            }
-            return nf.Block(body.position(), newBody);
-        }
-
-        // def m(`x:`T):R=S -> def m(`x:`T)={r:R; L:{ S[return v/r=v; break L;]; }; return r;}
-        private X10MethodDecl visitMethodDecl(X10MethodDecl n) {
-            // First check that we are within the right method
-            if (n.methodDef() != def)
-                return n;
-            return (X10MethodDecl) n.body(rewriteBody(n.position(), n.body()));
-        }
-        
-        // def this(`x:`T){S} -> def this(`x:`T)={L:{ S[return; / break L;] }; return;}
-        private X10ConstructorDecl visitConstructorDecl(X10ConstructorDecl n) {
-            // First check that we are within the right method
-            if (n.constructorDef() != def)
-                return n;
-            return (X10ConstructorDecl) n.body(rewriteBody(n.position(), n.body()));
-        }
-
-        // (`x:`T):R=>S -> (`x:`T)=>{r:R; L:{ S[return v/r=v; break L;]; }; return r;}
-        private Closure visitClosure(Closure n) {
-            // First check that we are within the right closure
-            if (n.closureDef() != def) return n;
-            return (Closure) n.body(rewriteBody(n.position(), n.body()));
-        }
-
-        // return v; -> r=v; break L;
-        private Stmt visitReturn(Return n) {
-            // First check that we are within the right code body
-            if (!context.currentCode().equals(def)) return n;
-            if (label == null) return n;
-            assert ((ret == null) == (n.expr() == null));
-            Position pos = n.position();
-            List<Stmt> retSeq = new ArrayList<Stmt>();
-            if (ret != null) {
-                Type rt = ret.type().get();
-                Expr xl = nf.Local(pos, nf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(rt);
-                retSeq.add(nf.Eval(pos, nf.Assign(pos, xl, Assign.ASSIGN, n.expr()).type(rt)));
-            }
-            retSeq.add(nf.Break(pos, nf.Id(pos, label)));
-            return nf.StmtSeq(pos, retSeq);
-        }
-
-        // throw e; -> if (true) throw e;
-        private Stmt visitThrow(Throw n) throws SemanticException {
-            // First check that we are within the right code body
-            if (!context.currentCode().equals(def)) return n;
-            if (label == null) return n;
-            return syn.createIf(n.position(), createOpaqueTrue(n.position()), n, null);
-        }
-
-        // property(e1, e2, ... en) -> { p1=e1; p2=e2; ... pn=en; }
-        private Node visitAssignPropertyCall(AssignPropertyCall n) {
-            // First check that we are within the right code body
-            if (!context.currentCode().equals(def)) return n;
-            List<Stmt> stmts = new ArrayList<Stmt>();
-            List<Expr> args = n.arguments();
-            List<X10FieldInstance> props = n.properties();
-            for (int i=0; i < args.size(); i++) {
-                Expr arg = args.get(i);
-                X10FieldInstance prop = props.get(i);
-                FieldAssign assign = syn.createFieldAssign(n.position(), getThis(n.position()), prop, arg, this);
-                stmts.add(syn.createEval(assign));
-            }
-            StmtSeq result = syn.createStmtSeq(n.position(), stmts);
-            return result;
-        }
-
-        /**
-         * @param pos
-         * @return
-         * @throws SemanticException 
-         */
-        private Expr createOpaqueTrue(Position pos) throws SemanticException {
-            QName qname = QName.make("x10.compiler.CompilerFlags");
-            Type container = typeSystem().forName(qname);
-            Name name = Name.make("TRUE");
-            Expr expr = syn.createStaticCall(pos, container, name);
-            return expr;
-        }
-
-        private Expr getThis(Position pos) {
-            LocalInstance li = ths.asInstance();
-            return nf.Local(pos, nf.Id(pos, li.name())).localInstance(li).type(li.type());
-        }
-
-        // f -> ths.f
-        private Field visitField(Field n) {
-            // First check that we are within the right code body
-            if (!context.currentCode().equals(def)) return n;
-            if (!n.isTargetImplicit()) return n;
-            FieldInstance fi = n.fieldInstance();
-            assert ((ths == null) == (fi.flags().isStatic()));
-            Position pos = n.position();
-            if (fi.flags().isStatic()) {
-                return n.target(nf.CanonicalTypeNode(pos, fi.container())).targetImplicit(false);
-            }
-            return n.target(getThis(pos)).targetImplicit(false);
-        }
-
-        // m(...) -> ths.m(...)
-        private Call visitCall(Call old, Call n) {
-            // First check that we are within the right code body
-            if (!context.currentCode().equals(def)) return n;
-            if (!n.isTargetImplicit()) return n;
-            MethodInstance mi = n.methodInstance();
-            assert ((ths == null) == (mi.flags().isStatic()));
-            Position pos = n.position();
-            if (mi.flags().isStatic()) {
-                return n.target(nf.CanonicalTypeNode(pos, mi.container())).targetImplicit(false);
-            }
-            if (old.target() instanceof Special && ((Special) old.target()).kind() == X10Special.SUPER)
-                n = n.nonVirtual(true); // make calls to "super.foo()" non-virtual
-        
-            return n.target(getThis(pos)).targetImplicit(false);
-        }
-
-        /**
-         * @param n
-         * @return
-         */
-        private Node visitX10ConstructorCall(X10ConstructorCall n) {
-            // First check that we are within the right code body
-            if (!context.currentCode().equals(def)) return n;
-            if (null != n.target()) return n;
-            return n.target(getThis(n.position()));
-        }
-
-        // this -> ths
-        private Expr visitSpecial(Special n) {
-            // First check that we are within the right code body
-            if (!context.currentCode().equals(def)) return n;
-            // Make sure ths is defined
-            if (null == ths) return n; // nothing to be done (e.g. "this" in a closure)
-            // Complicated cases don't get this far
-            assert (n.kind() == X10Special.SUPER || n.kind() == X10Special.THIS);
-            if (null != n.qualifier()) { // when the Inliner runs all outer classes have been stripped away, the qualifier should be redundant
-                if (DEBUG) debug("Inliner ignoring special qualifier " +n.qualifier(), n);
-            }
-            // return a local for the inlined this
-            return getThis(n.position());
-        }
-    }
-
-    private class InlineCostEstimator extends X10DelegatingVisitor {
-        private static final int NATIVE_CODE_COST = 989898;
-        int cost;
-
-
-        int getCost(Node n, Job job) {
-            if (null == n) return 0;
-            InlineCostVisitor visitor = new InlineCostVisitor(job, ts, nf, this);
-            cost = 0;
-            n.visit(visitor);
-            return cost;
-        }
-
-        public final void visit(ProcedureCall c) {
-            cost++;
-            visit((Node) c);
-        }
-
-        public final void visit(ClassMember c) { // never inline these ??
-            cost += 100;
-            visit((Node) c);
-        }
-
-        public final void visit(Special c) {
-            cost++;
-            visit((Node) c);
-        }
-
-        public final void visit(Node n) {
-            if (n.ext() instanceof X10Ext) {
-                if (hasRelevantNativeAnnotation(((X10Ext) n.ext()).annotationMatching(NativeType))) {
-                    cost = NATIVE_CODE_COST;
-                }
-            }
-        }
-    }
-
-    private class InlineCostVisitor extends NodeVisitor {
-        InlineCostEstimator ice;
-
-        /**
-         * @param job
-         * @param ts
-         * @param nf
-         */
-        public InlineCostVisitor(Job job, TypeSystem ts, NodeFactory nf, InlineCostEstimator ce) {
-            ice = ce;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node,
-         * polyglot.ast.Node, polyglot.visit.NodeVisitor)
-         */
-        @Override
-        public Node leave(Node old, Node n, NodeVisitor v) {
-            ice.visitAppropriate(n);
-            return n;
-        }
     }
 
     final InlinerCache getCache() {

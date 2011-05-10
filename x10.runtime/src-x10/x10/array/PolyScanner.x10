@@ -290,24 +290,12 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
      *   2. hide inside iterator(body:(Point)=>void)?
      */
 
-    final private class PointIt 
-        implements Iterator[Point(PolyScanner.this.rank)] {
-
-        val it: RailIt;
-
-        def this() {
-            it = new RailIt();
-        }
-
+    public def iterator():Iterator[Point(rank)] = new Iterator[Point(rank)]() {
+    	val it = new RailIt();
         public final def hasNext() = it.hasNext();
-        public final def next(): Point(rank) = it.next() as Point(rank);
+        public final def next(): Point(rank) = it.next(); 
         public final def remove() { it.remove(); }
-    }
-
-    public def iterator(): Iterator[Point(rank)] {
-        val it = new PointIt();
-        return it;
-    }
+    };
 
 
     //

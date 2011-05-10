@@ -26,7 +26,7 @@ public class Types_uniq extends x10Test {
     }
 
 
-// file Types line 1892
+// file Types line 1894
  static   class A {} static  class B extends A{} static  class C extends A{}
  static  class D {
 static def pick(t:Boolean, b:B, c:C) = t ? b : c;
