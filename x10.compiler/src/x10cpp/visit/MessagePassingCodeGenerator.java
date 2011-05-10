@@ -1166,7 +1166,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         // create static _alloc method
         h.newline();
-        h.write("static " +StructCType+ " " +SharedVarsMethods.ALLOC+ "(){" +StructCType+ " t; memset(&t, 0, sizeof(" +StructCType+ ")); return t; }");
+        h.write("static " +StructCType+ " " +SharedVarsMethods.ALLOC+ "(){" +StructCType+ " t; return t; }");
         h.newline();
         h.forceNewline();
         
