@@ -40,7 +40,7 @@ public interface Comparable[T] {
      * @return a negative integer, zero, or a positive integer if this entity is less than, equal
      * to, or greater than the given entity.
      */
-    @Native("java", "#this.compareTo(#that)")
+    // @Native("java", "#this.compareTo(#that)")
     @Native("c++", "x10::lang::Comparable<#T >::compareTo(#this, #that)")
     def compareTo(that:T):Int;
 }
