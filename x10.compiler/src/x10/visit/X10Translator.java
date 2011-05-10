@@ -44,13 +44,14 @@ import x10.util.FileUtils;
 import x10c.X10CCompilerOptions;
 
 public class X10Translator extends Translator {
+	
+    private boolean inInnerClass;
+
     public X10Translator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
            super(job, ts, nf, tf);
            inInnerClass = false;
     }
     
-    boolean inInnerClass;
-
     private static String escapePath(String path) {
     	StringBuilder sb = new StringBuilder();
         for (int i = 0; i < path.length(); ++i) {
@@ -64,15 +65,22 @@ public class X10Translator extends Translator {
         }
         return sb.toString();
     }
+    
+    @Override
     public void print(Node parent, Node n, CodeWriter w) {
-        if (n != null && n.position().line() > 0 &&
-                ((n instanceof Stmt && (! (n instanceof Block))) ||
+    	assert n != null;
+    	int line = n.position().line();
+    	String file = n.position().file();
+        if (line > 0 &&
+                ((n instanceof Stmt && !(n instanceof Block)) ||
                  (n instanceof FieldDecl) ||
                  (n instanceof MethodDecl) ||
                  (n instanceof ConstructorDecl) ||
                  (n instanceof ClassDecl)))
-//            w.write("\n//#line " + n.position().line() + "\n");
-            w.write("\n//#line " + n.position().line() + " \"" + escapePath(n.position().file()) + "\"\n");
+        {
+//            w.write("\n//#line " + line + "\n");
+            w.write("\n//#line " + line + " \"" + escapePath(file) + "\"\n");
+        }
 
         super.print(parent, n, w);
     }
