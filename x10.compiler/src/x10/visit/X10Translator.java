@@ -201,6 +201,8 @@ public class X10Translator extends Translator {
             javacCmd.add("-encoding");
             javacCmd.add("utf-8");
             
+//            javacCmd.add("-warn:+boxing");	// only for ecj
+
             for (Collection<String> files : compiler.outputFiles().values()) {
                 javacCmd.addAll(files);
             }
