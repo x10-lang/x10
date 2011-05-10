@@ -1045,15 +1045,19 @@ public class TypeSystem_c implements TypeSystem
     	return false;
     }
 
-    public static abstract class ConstructorMatcher extends BaseMatcher<ConstructorInstance> {
-	protected Type container;
-	protected List<Type> argTypes;
-	protected Context context;
+    public static class ConstructorMatcher extends BaseMatcher<ConstructorInstance> {
+	protected final Type container;
+	protected final List<Type> argTypes;
+    protected final List<Type> typeArgs;
+	protected final Context context;
+    protected final boolean isDumbMatcher;
 
-	protected ConstructorMatcher(Type receiverType, List<Type> argTypes, Context context) {
+	protected ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher) {
 	    super();
-	    this.container = receiverType;
+	    this.container = container;
 	    this.argTypes = argTypes;
+	    this.typeArgs = typeArgs;
+	    this.isDumbMatcher = isDumbMatcher;
 	    this.context = context;
 	}
 
@@ -1073,9 +1077,30 @@ public class TypeSystem_c implements TypeSystem
 	    return container + argumentString();
 	}
 
-	public abstract ConstructorInstance instantiate(ConstructorInstance ci) throws SemanticException;
+    public List<Type> arguments() {
+        return argTypes;
+    }
 
-	public abstract String argumentString();
+    public String argumentString() {
+        return "(" + CollectionUtil.listToString(argTypes) + ")";
+    }
+
+    public ConstructorInstance instantiate(ConstructorInstance ci) throws SemanticException {
+        if (ci.formalTypes().size() != argTypes.size())
+            return null;
+        if (ci instanceof X10ConstructorInstance) {
+            X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
+            Type c = container != null ? container : xmi.container();
+
+            if (isDumbMatcher) {
+                X10ConstructorInstance newXmi = x10.types.matcher.Matcher.instantiate((Context) context, xmi, c, Collections.<Type>emptyList(), argTypes);
+                return newXmi;
+            }
+            return x10.types.matcher.Matcher.inferAndCheckAndInstantiate(context(),
+                    xmi, c, Collections.<Type>emptyList(), argTypes, ci.position());
+        }
+        return null;
+    }
 
 	public String toString() {
 	    return signature();
@@ -1088,11 +1113,11 @@ public class TypeSystem_c implements TypeSystem
 
     public static class MethodMatcher extends BaseMatcher<MethodInstance> implements Cloneable {
 	protected Type container;
-	protected Name name;
-	protected List<Type> argTypes;
-    protected List<Type> typeArgs;
-	protected Context context;
-    protected boolean isDumbMatcher;
+	protected final Name name;
+	protected final List<Type> argTypes;
+    protected final List<Type> typeArgs;
+	protected final Context context;
+    protected final boolean isDumbMatcher;
 
 	protected MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher) {
 	    super();
@@ -1650,6 +1675,12 @@ public class TypeSystem_c implements TypeSystem
                 for (int p=0; p<argNum;p++) {
                     Type arg = Types.stripConstraints(argTypes.get(p));
                     Type formal = Types.stripConstraints(formals.get(p));
+
+                    if (arg instanceof FunctionType && formal instanceof FunctionType) {
+                        // stripConstraints doesn't work for closure types
+                        continue;
+                    }
+
                     if (subst!=null)
                         formal = subst.reinstantiate(formal);
 
@@ -1815,12 +1846,15 @@ public class TypeSystem_c implements TypeSystem
     }
 
 
-    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
-        return new X10ConstructorMatcher(container, argTypes, context);
+    public ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
+        return new ConstructorMatcher(container, Collections.EMPTY_LIST, argTypes, context, false);
     }
 
-    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        return new X10ConstructorMatcher(container, typeArgs, argTypes, context);
+    public ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
+        return new ConstructorMatcher(container, typeArgs, argTypes, context, false);
+    }
+    public ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher) {
+        return new ConstructorMatcher(container, typeArgs, argTypes, context, isDumbMatcher);
     }
 
     /** Return true if t overrides mi */

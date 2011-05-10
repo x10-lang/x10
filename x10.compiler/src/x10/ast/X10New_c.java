@@ -73,12 +73,12 @@ import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.TypeSystem_c;
 
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.matcher.DumbConstructorMatcher;
 import x10.visit.X10TypeChecker;
 
 
@@ -415,10 +415,10 @@ public class X10New_c extends New_c implements X10New {
 
     public static Pair<ConstructorInstance, List<Expr>> tryImplicitConversions(X10ProcedureCall n, ContextVisitor tc,
             Type targetType, List<Type> argTypes) throws SemanticException {
-        final TypeSystem ts = (TypeSystem) tc.typeSystem();
+        final TypeSystem_c ts = (TypeSystem_c) tc.typeSystem();
         final Context context = tc.context();
 
-        List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, argTypes, context));
+        List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, ts.ConstructorMatcher(targetType, Collections.EMPTY_LIST,argTypes, context, true));
         return Converter.tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
             public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
                 return ts.ConstructorMatcher(ct, argTypes, context);

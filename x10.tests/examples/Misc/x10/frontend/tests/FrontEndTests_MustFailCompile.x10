@@ -1392,7 +1392,7 @@ class SimpleUserDefinedStructTest {
 	static struct S2 {
 		val x:Int = 1;
 	}
-	static struct S3 {x==1} {
+	static struct S3 {x==1} { // ERR
 		val x:Int = 1;
 	}
 	static struct S4 {
@@ -1412,7 +1412,7 @@ class SimpleUserDefinedStructTest {
 	static class C {
 	  var s:S; 
 	  var x:S2; 
-	  var y:S3; // ShouldBeErr (because class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong)
+	  var y:S3; // ERR
 	  var z1:S4; // ERR
 	  var z2:S5[Int];
 	  var z3:S6; // ERR
@@ -2663,7 +2663,7 @@ final class ConstraintsInClosures {
   def f(x:Int) {x!=0} = 1/x;
   def f2(x:Int{self!=0}) = 1/x;
   def test() {
-	  val bar: (Int)=>Int = (x:Int)=>this.f(x);  // ERR: should we dynamically generate a new closure that checks the guard?
+	  val bar: (Int)=>Int = (x:Int)=>this.f(x);  // ERR ERR: should we dynamically generate a new closure that checks the guard?
 	  val bar2: (Int)=>Int = (x:Int{self!=0})=>this.f2(x); // ERR
   }
 }
@@ -3258,7 +3258,7 @@ class A[T] { T <: Object } {
 }
 class Test[T]  {
 	def m1(GlobalRef[T]{self.home==here}) {} // ERR
-	def m2(GlobalRef[T]{self.home==here}) {T<:Object} {}
+	def m2(GlobalRef[T]{self.home==here}) {T<:Object} {}  // ShouldNotBeERR
 }
 static class TestStatic[T]{T<:Object} {
 	public static def m1[T]():TestStatic[T]  = null; // ERR
@@ -3325,8 +3325,8 @@ class D[V] { V == Int{self!=0} } {
 
 class Test2[W] { W haszero } {	
 	var a1:A[W];
-	class Inner {	
-		var i1:A[W];
+	class Inner { // ShouldNotBeERR
+		var i1:A[W]; // ShouldNotBeERR
 	} 
     def test1() {
         var x:A[W];
@@ -3536,7 +3536,7 @@ class hasZeroTests {
 		var t:T; // ERR
 	}
 	class Q0[T] {T haszero} {
-	  var t:T;
+	  var t:T; // ShouldNotBeERR
 	}
 	class Q1[T] {T haszero} {
 	  val t:T; // ERR
@@ -3574,7 +3574,7 @@ class hasZeroTests {
 	  }
 	}
 	class haszeroExamples0[T] {T haszero} {
-		var t:T;
+		var t:T; // ShouldNotBeERR
 
 	  def m0() {
 		  m1(); // ok
@@ -3657,7 +3657,7 @@ class RuntimeTestsOfHaszero {
 	def foo(Double)=4;
 
 	static class A[T] {T haszero} {
-		var t:T;
+		var t:T; // ShouldNotBeERR
 	}
 }
 
@@ -4864,7 +4864,7 @@ class Test3[T] {
 }
 class Test4[T] {T haszero} {
 	var test:Test4[T] = null;
-	val root = new LikeGlobalRef[Test4[T]](test);
+	val root = new LikeGlobalRef[Test4[T]](test); // ShouldNotBeERR ShouldNotBeERR
 }
 class Accumulator1 {
   private val root = GlobalRef(this);
@@ -5545,7 +5545,7 @@ class InterfaceSuperPropertyMethodResolution {
 	}
 	abstract class C5 
 			{a()==1} // ERR: Cannot create the default constructor because the class invariant uses property methods self or super. Please define a constructor explicitly.
-		implements B {
+		implements B { // ERR
 	}
 	abstract class C6 
 			{self.a()==1} // ERR ERR ERR: Cannot create the default constructor because the class invariant uses property methods self or super. Please define a constructor explicitly.
@@ -5553,7 +5553,7 @@ class InterfaceSuperPropertyMethodResolution {
 	}
 	abstract class C7 
 			{this.a()==1} // ERR: Cannot create the default constructor because the class invariant uses property methods self or super. Please define a constructor explicitly.
-		implements B {
+		implements B { // ERR
 	}
 }
 
@@ -6310,7 +6310,7 @@ class DefaultCtorTests2 {
 		property a()=1;
 		def this(x:Int) {1!=x} { property(x); }
 	}
-	abstract class C6(x:Int) {this.a()!=x} implements B { // ERR
+	abstract class C6(x:Int) {this.a()!=x} implements B { // ERR ERR
 		property a()=1;
 	}
 }
@@ -6386,7 +6386,7 @@ class XTENLANG_1636 {
 		def this() {
 			property(1);
 		}
-		def this(Double) {
+		def this(Double) { // ERR
 			property(2); // ERR
 		}
 	} 
@@ -6548,4 +6548,18 @@ class DifferentResolutionInDynamicAndStatic {
 	def test(x:Int) {
 		val z1:Int = m(x); // ERR
 	}
+}
+
+class XTENLANG_1772_test {
+       static def test() {
+               val i1:Int{self==0s};// ERR
+               val i2:Float{self==0};// ERR
+               val i3:Double{self==0};// ERR
+               val i4:UInt{self==0us};// ERR
+               val i5:Long{self==0};// ERR
+               val i6:ULong{self==0u};// ERR
+               val i7:Char{self==0};   // ERR            
+               val i8:Byte{self==0};// ERR
+               val i9:UByte{self==0u};// ERR
+       }
 }
