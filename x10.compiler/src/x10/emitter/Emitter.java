@@ -983,7 +983,7 @@ public class Emitter {
 		w.begin(0);
 	    // XTENLANG-2680
 		Flags javaFlags = flags.retainJava(); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
-		boolean hasNativeAnnotation = supportNativeMethodDecl && getJavaImplForDef(n.methodDef()) != null && !isInterface/*for Iterable[T].iterator() and Comparable[T].compareTo(T)*/;
+		boolean hasNativeAnnotation = supportNativeMethodDecl && getJavaImplForDef(n.methodDef()) != null && !isInterface/*for Comparable[T].compareTo(T)*/;
 		if (hasNativeAnnotation) {
 			// N.B. clear native as well since it has @Native annotation. 
 			javaFlags = javaFlags.clearNative();

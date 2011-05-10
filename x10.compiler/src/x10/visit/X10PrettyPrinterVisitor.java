@@ -1575,7 +1575,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     	return def.flags().isFinal() || def.isStruct();
     }
     private static boolean doesNotHaveMethodBody(X10ClassDef def) {
-    	// for Iterable[T].iterator() and Comparable[T].compareTo(T)
+    	// for Comparable[T].compareTo(T)
     	return def.flags().isInterface();
     }
     private static boolean canBeNonVirtual(X10ClassDef def) {
