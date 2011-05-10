@@ -1576,7 +1576,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
     private static boolean doesNotHaveMethodBody(X10ClassDef def) {
     	// for Comparable[T].compareTo(T)
+    	// TODO expand @Native annotation of interface method to the types that implement the interface and don't have its implementation.
     	return def.flags().isInterface();
+//    	return false;
     }
     private static boolean canBeNonVirtual(X10ClassDef def) {
     	return allMethodsFinal(def) || doesNotHaveMethodBody(def);

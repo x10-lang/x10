@@ -129,8 +129,8 @@ public class Emitter {
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
     // WIP XTENLANG-2680
-    public static final boolean supportNativeMethodDecl = false;
-//    public static final boolean supportNativeMethodDecl = true;
+//    public static final boolean supportNativeMethodDecl = false;
+    public static final boolean supportNativeMethodDecl = true;
 
     private static final String JAVA_KEYWORD_PREFIX = "kwd_";
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
@@ -984,6 +984,7 @@ public class Emitter {
 		w.begin(0);
 	    // XTENLANG-2680
 		Flags javaFlags = flags.retainJava(); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
+    	// TODO expand @Native annotation of interface method to the types that implement the interface and don't have its implementation.
 		boolean hasNativeAnnotation = supportNativeMethodDecl && getJavaImplForDef(n.methodDef()) != null && !isInterface/*for Comparable[T].compareTo(T)*/;
 		if (hasNativeAnnotation) {
 			// N.B. clear native as well since it has @Native annotation. 
