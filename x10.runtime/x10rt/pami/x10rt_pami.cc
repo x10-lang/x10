@@ -21,6 +21,7 @@
 #include <pthread.h> // for lock on the team mapping table
 #include <x10rt_net.h>
 #include <pami.h>
+#include <pami_ext_hfi.h>
 
 //#define DEBUG 1
 
@@ -99,6 +100,8 @@ struct x10rt_pami_state
 	uint32_t lastTeamIndex;
 	pthread_mutex_t stateLock; // used when creating a new context or a new team
 	int numParallelContexts; // When X10_STATIC_THREADS=true, this is set to the value of X10_NTHREADS. Otherwise it's 0.
+	pami_extension_t hfi_extension;
+	hfi_remote_update_fn hfi_update;
 } state;
 
 static void local_msg_dispatch (pami_context_t context, void* cookie, const void* header_addr, size_t header_size,
@@ -132,6 +135,11 @@ void error(const char* msg, ...)
 
 	fflush(stderr);
 	exit(EXIT_FAILURE);
+}
+
+bool checkBoolEnvVar(char* value)
+{
+	return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));
 }
 
 // small bit of code to extend the number of allocated teams.  Returns the original lastTeamIndex
@@ -651,7 +659,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
 	pami_result_t   status = PAMI_ERROR;
 	const char    *name = "X10";
-	setenv("MP_MSG_API", name, 1); // workaround for a PAMI "feature"
+	setenv("MP_MSG_API", name, 1);
 	setenv("MP_POLLING_INTERVAL", "99999999", 0); // TODO another PAMI issue
 	if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
 		error("Unable to initialize the PAMI client: %i\n", status);
@@ -659,7 +667,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	// determine the level of parallelism we need to support
 	char* value = getenv("X10_STATIC_THREADS");
 	char* nthreads = getenv("X10_NTHREADS");
-	if (value && nthreads && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0))
+	if (checkBoolEnvVar(value))
 	{
 		state.numParallelContexts = atoi(nthreads);
 		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
@@ -698,8 +706,24 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	state.numPlaces = configuration[1].value.intval;
 
 	#ifdef DEBUG
-		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces); // TODO - deleteme
+		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
 	#endif
+
+	// see if HFI should be used
+	if (checkBoolEnvVar(getenv("X10RT_DISABLE_HFI")))
+		state.hfi_update = NULL;
+	else
+	{
+		status = PAMI_Extension_open (state.client, "EXT_hfi_extension", &state.hfi_extension);
+		if (status == PAMI_SUCCESS)
+			state.hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(state.hfi_extension, "hfi_remote_update"); // if fail, hfi_update is set to NULL
+		else
+			state.hfi_update = NULL;
+
+		#ifdef DEBUG
+			fprintf(stderr, "HFI present and enabled at place %u\n", state.myPlaceId);
+		#endif
+	}
 	
 	// create the world geometry
 	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the team lock");
@@ -1069,6 +1093,12 @@ void x10rt_net_finalize()
 		fprintf(stderr, "Place %u shutting down\n", state.myPlaceId);
 	#endif
 
+	if (state.hfi_update != NULL)
+	{
+		PAMI_Extension_close (state.hfi_extension);
+		state.hfi_update = NULL;
+	}
+
 	if (state.numParallelContexts)
 	{
 		// TODO - below should be state.numParallelContexts, not state.numParallelContexts-1, but this is a PAMI bug workaround.
@@ -1100,30 +1130,52 @@ void x10rt_net_internal_barrier (){} // DEPRECATED
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
-	pami_result_t status = PAMI_ERROR;
-	pami_rmw_t operation;
-	memset(&operation, 0, sizeof(pami_rmw_t));
-	if ((status = PAMI_Endpoint_create(state.client, place, 0, &operation.dest)) != PAMI_SUCCESS)
-		error("Unable to create a target endpoint for sending a remote memory operation to %u: %i\n", place, status);
-	operation.hints.buffer_registered = PAMI_HINT_ENABLE;
-	operation.remote = (void *)victim;
-	operation.value = &value;
-	operation.operation = PAMI_ATOMIC_XOR;
-	operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
-	#ifdef DEBUG
-		fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
-	#endif
-	if (state.numParallelContexts)
-		status = PAMI_Rmw(getConcurrentContext(), &operation);
+	if (state.hfi_update != NULL)
+	{
+		// use HFI remote operations
+		hfi_remote_update_info_t remote_info;
+		remote_info.dest = place;
+		remote_info.op = REMOTE_MEMORY_OP_CONVERSION_TABLE[type];
+		remote_info.atomic_operand = value;
+		remote_info.dest_buf = victim;
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u using HFI\n", state.myPlaceId, type, (void*)victim, place);
+		#endif
+		if (state.numParallelContexts)
+			state.hfi_update (getConcurrentContext(), 1, &remote_info); // TODO: extend to use a count > 1
+		else
+		{
+			PAMI_Context_lock(state.context[0]);
+			state.hfi_update (state.context[0], 1, &remote_info);
+			PAMI_Context_unlock(state.context[0]);
+		}
+	}
 	else
 	{
-		PAMI_Context_lock(state.context[0]);
-		status = PAMI_Rmw(state.context[0], &operation);
-		PAMI_Context_unlock(state.context[0]);
+		pami_result_t status = PAMI_ERROR;
+		pami_rmw_t operation;
+		memset(&operation, 0, sizeof(pami_rmw_t));
+		if ((status = PAMI_Endpoint_create(state.client, place, 0, &operation.dest)) != PAMI_SUCCESS)
+			error("Unable to create a target endpoint for sending a remote memory operation to %u: %i\n", place, status);
+		operation.hints.buffer_registered = PAMI_HINT_ENABLE;
+		operation.remote = (void *)victim;
+		operation.value = &value;
+		operation.operation = REMOTE_MEMORY_OP_CONVERSION_TABLE[type];
+		operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
+		#endif
+		if (state.numParallelContexts)
+			status = PAMI_Rmw(getConcurrentContext(), &operation);
+		else
+		{
+			PAMI_Context_lock(state.context[0]);
+			status = PAMI_Rmw(state.context[0], &operation);
+			PAMI_Context_unlock(state.context[0]);
+		}
+		if (status != PAMI_SUCCESS)
+			error("Unable to execute the remote operation");
 	}
-
-	if (status != PAMI_SUCCESS)
-		error("Unable to execute the remote operation");
 }
 
 x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
