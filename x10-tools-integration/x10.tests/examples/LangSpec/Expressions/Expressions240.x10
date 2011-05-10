@@ -26,7 +26,7 @@ public class Expressions240 extends x10Test {
     }
 
 
-// file Expressions line 1735
+// file Expressions line 1732
 
  static class Expressions40TestExp{
   def check()  = 1e100 as Float;  }

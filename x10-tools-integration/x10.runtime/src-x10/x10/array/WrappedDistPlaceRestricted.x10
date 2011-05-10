@@ -18,12 +18,12 @@ import x10.compiler.TempNoInline_0;
  * to a subset of the original dist's region.
  */
 final class WrappedDistPlaceRestricted extends Dist {
-    val base:Dist{self.rank==this.rank};
+    val base:Dist(rank);
     val filter:Place;
 
-    @TempNoInline_0 def this(d:Dist, p:Place):WrappedDistPlaceRestricted{this.rank==d.rank} {
-        super(d.get(p));
-        base = d as Dist{self.rank==this.rank}; // cast should not be needed
+    @TempNoInline_0 def this(d:Dist, p:Place):WrappedDistPlaceRestricted(d.rank) {
+        super(d(p));
+        base = d; 
         filter = p;
     }
 
@@ -78,7 +78,7 @@ final class WrappedDistPlaceRestricted extends Dist {
     public def maxOffset():int = base.maxOffset();
 
     public def restriction(r:Region(rank)):Dist(rank) {
-        return new WrappedDistRegionRestricted(this, r) as Dist(rank); // TODO cast should not be needed
+        return new WrappedDistRegionRestricted(this, r); 
     }
 
     public def restriction(p:Place):Dist(rank) {
@@ -95,3 +95,4 @@ final class WrappedDistPlaceRestricted extends Dist {
 	return this.base.equals(that.base) && this.filter.equals(that.filter);
     }
 }
+public type WrappedDistPlaceRestricted(r:Int)=WrappedDistPlaceRestricted{self.rank==r};

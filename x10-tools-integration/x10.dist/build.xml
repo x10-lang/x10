@@ -311,6 +311,11 @@
 
     <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-jar,wala2-jar,wala3-jar,wala4-jar,equinox-jar,math-jar"/>
 
+	<target name="download-dependencies" depends="init,check-jar-cache" unless="cache.up-to-date">
+        <antcall target="update-jar-cache"/>
+    	<ant antfile="${x10.runtime.location}/build.xml" target="download-bdwgc" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+	
     <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
     </target>

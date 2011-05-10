@@ -63,12 +63,14 @@ import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.ast.Async;
 import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.Finish;
+import x10.ast.Offer;
 import x10.ast.When;
 import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
@@ -138,7 +140,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     final protected MethodSynth fastMSynth;
     final protected MethodSynth resumeMSynth;
     final protected MethodSynth backMSynth;
-
     //Fields to maintain the tree
     final private AbstractWSClassGen up;
     private List<AbstractWSClassGen> children; //lazy initialization
@@ -214,12 +215,10 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         sb.append(this.className);
         if(this instanceof WSAsyncClassGen){
             WSAsyncClassGen aFrame = (WSAsyncClassGen)this;
-            
             sb.append(" (k = ").append(aFrame.parentK.className).append(')');
         }
         if(this instanceof WSRemoteMainFrameClassGen){
             WSRemoteMainFrameClassGen rFrame = (WSRemoteMainFrameClassGen)this;
-            
             sb.append(" (r = ").append(rFrame.parentR.className).append(')');
         }
         sb.append(System.getProperty("line.separator"));
@@ -295,6 +294,17 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
     public String getClassName() {
         return className;
+    }
+    
+    public WSFinishStmtClassGen getDirectFinishFrameClassGen(){
+        AbstractWSClassGen frame = this;
+        while(frame != null) {
+            if(frame instanceof WSFinishStmtClassGen){
+                return (WSFinishStmtClassGen)frame;
+            }
+            frame = frame.getUpFrame();
+        }
+        return null;
     }
 
     /**
@@ -439,14 +449,49 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         TransCodes transCodes = new TransCodes(pcValue);
         s = (Stmt) this.replaceLocalVarRefWithFieldAccess(s, declaredLocals);
         
-        //need process the return's issue;
+        //need process the return's & offer issue;
+        TransOfferVisitor fastOV = new TransOfferVisitor(true);
+        Stmt fStmt = (Stmt) s.visit(fastOV);
+        TransOfferVisitor resumeOV = new TransOfferVisitor(false);
+        Stmt rStmt = (Stmt) s.visit(resumeOV);        
+        
         TransReturnVisitor fastRV = new TransReturnVisitor(true);
-        transCodes.addFast((Stmt)s.visit(fastRV));
+        transCodes.addFast((Stmt)fStmt.visit(fastRV));
         TransReturnVisitor resumeRV = new TransReturnVisitor(false);
-        transCodes.addResume((Stmt)s.visit(resumeRV));
+        transCodes.addResume((Stmt)rStmt.visit(resumeRV));
         return transCodes;
     }
     
+    //Process offer in normal stmts
+    class TransOfferVisitor extends ErrorHandlingVisitor{
+        private boolean fastPath; //fast:true or resume path:false
+        Type reducerType;
+        
+        TransOfferVisitor(boolean fastPath){
+            super(AbstractWSClassGen.this.job, xts, xnf);
+            this.fastPath = fastPath;
+            WSFinishStmtClassGen finishFrameGen = getDirectFinishFrameClassGen();
+            if(finishFrameGen != null){
+                reducerType = finishFrameGen.getReducerBaseType();                
+            }
+        }
+        
+        public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+            if(n instanceof Offer){
+                Offer offer = (Offer)n;
+                if(reducerType == null){
+                    WSUtil.debug("Cannot find Collecting-Finish type in Finish-Expr. Use offer's type", offer);
+                    reducerType = offer.expr().type();
+                }
+                MethodSynth mSynth = fastPath ? fastMSynth : resumeMSynth;
+                return wsynth.genOfferCallStmt(classSynth, mSynth, offer.expr(), reducerType);
+            }
+            return n;   
+        }
+    }
+    
+    
+    //Process return in normal stmts
     class TransReturnVisitor extends NodeVisitor{
         private boolean fastPath; //fast or resume path
         private int noTransformDepth; //not transform "return" in Closure or anonymous class body

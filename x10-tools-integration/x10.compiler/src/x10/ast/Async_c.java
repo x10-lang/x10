@@ -202,7 +202,7 @@ public class Async_c extends Stmt_c implements Async {
 	    if (reporter.should_report(TOPICS, 5))
 	        reporter.report(5, "enter async scope");
 	    if (child == this.body) {
-	        c = c.pushCode(asyncDef);
+	        c = c.pushAsync(asyncDef);
 	        ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.Async;
 	        return c;
 	    }

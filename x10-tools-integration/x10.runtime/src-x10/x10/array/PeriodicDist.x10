@@ -37,7 +37,7 @@ public final class PeriodicDist extends Dist {
 
    public def this(base : Dist) : PeriodicDist{self.rank==base.rank} {
         super(base.region);
-        baseDist = base as Dist(rank){self==base}; // TODO.  Should be able to do this without a cast.
+        baseDist = base;
         val reg = base.region;
         if (reg.isEmpty()) {
             min0 = min1 = min2 = min3 = 0;

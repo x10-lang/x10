@@ -27,9 +27,9 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.ast.Closure;
 import polyglot.types.TypeSystem;
+import x10.optimizations.inlining.InliningRewriter;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
-import x10.visit.Inliner.InliningRewriter;
 
 /**
  * This class holds information about Shared memory definitions in a CUDA kernel (also used for constant memory).

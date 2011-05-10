@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Types2y3i_Bad34_MustFailCompile;
+/* Current test harness gets confused by packages, but it would be in package Expressions6q7k_Bad31_MustFailCompile;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,27 +19,18 @@ import harness.x10Test;
 
 
 
-public class Types2y3i_Bad34_MustFailCompile extends x10Test {
+public class Expressions6q7k_Bad31_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Types2y3i_Bad34_MustFailCompile().execute();
+        new Expressions6q7k_Bad31_MustFailCompile().execute();
     }
 
 
-// file Types line 387
+// file Expressions line 907
 
- static interface Stat {
-  static val PI = 3.14159;
-  static type R = Double;
-  static  class Pair(x:R, y:R) {}
- static def meth():Int; // ERR
-  // ERROR: static def this();
-}
- static class Example {
-  static def example() {
-     val p : Stat.Pair = new Stat.Pair(Stat.PI, Stat.PI);
-  }
-}
+ static  class Example{ static def example() {
+ for(var i : Long = 0; i != 100; i++)  {} // ERR
+} }
 
  static class Hook {
    def run():Boolean = true;

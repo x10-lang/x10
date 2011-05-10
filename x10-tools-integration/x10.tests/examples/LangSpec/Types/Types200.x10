@@ -26,7 +26,7 @@ public class Types200 extends x10Test {
     }
 
 
-// file Types line 556
+// file Types line 557
  static class Cell[T] {
     var x: T;
     def this(x: T) { this.x = x; }

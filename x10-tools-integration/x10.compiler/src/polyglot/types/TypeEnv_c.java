@@ -142,7 +142,7 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	    // distinct.
 	    boolean fromInterface = fromCT.flags().isInterface();
 	    boolean toInterface = toCT.flags().isInterface();
-	    boolean fromFinal = fromCT.flags().isFinal();
+	    boolean fromFinal = fromCT.flags().isFinal() || Types.isX10Struct(fromCT);
 	    boolean toFinal = toCT.flags().isFinal();
 
 	    // This is taken from Section 5.5 of the JLS.

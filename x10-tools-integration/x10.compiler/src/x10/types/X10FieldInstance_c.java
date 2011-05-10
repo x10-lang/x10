@@ -94,12 +94,11 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
         // this.type() may have changed -- though this.type might not!!
         // However we have no way of resetting rightType when
         // this.type() changes. However, this.type() should change only
-        // monotonically from uknown to some known value. 
+        // monotonically from unknown to some known value. 
         // Hence force a recompute each time rightType() is called
         // if .rightType is an UnknownType.
         if (rightType == null || xts.isUnknown(rightType)) {
             Type t = type();
-
             // If the field is final, replace T by T{self==t} 
             Flags flags = flags();
 
@@ -109,32 +108,27 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                 }
                 else {
                     CConstraint rc = Types.xclause(t);
-                    if (rc == null)
-                        rc = new CConstraint();
-
+                    rc = rc==null ? new CConstraint() : rc.copy();
                     XTerm receiver;
 
                     if (flags.isStatic()) {
                         receiver = xts.xtypeTranslator().translate(container());
+                      // Do not add self binding for static fields. This information
+                        // is any way going to get added in instantiateAccess.
+                        // XTerm self = xts.xtypeTranslator().translate(receiver, this);
+                        // Add {self = receiver.field} clause.
+                       // rc.addSelfBinding(self);
                     }
                     else {
                         receiver = x10Def().thisVar();
                         assert receiver != null;
+                        XTerm self = xts.xtypeTranslator().translate(receiver, this);
+                        // Add {self = receiver.field} clause.
+                        rc.addSelfBinding(self);
+                        rc.setThisVar((XVar) receiver);
                     }
-
-                    CConstraint c = rc.copy();
-
-                    // ### pass in the type rather than letting XField call fi.type();
-                    // otherwise, we'll get called recursively.
-                    XTerm self = xts.xtypeTranslator().translate(receiver, this);
-                    // Add {self = receiver.field} clause.
-                    c.addSelfBinding(self);
-                    if (receiver instanceof XVar) {
-                        // this is the case if we are not in static context.
-                        c.setThisVar((XVar) receiver);
-                    }
-
-                    rightType = Types.xclause(Types.baseType(t), c);
+                    rightType = Types.xclause(Types.baseType(t), rc);
+                
                 }
             }
             else {

@@ -13,6 +13,7 @@ package x10.array;
 
 import x10.compiler.Global;
 import x10.compiler.Native;
+import x10.compiler.TempNoInline_0;
 import x10.util.IndexedMemoryChunk;
 import x10.util.RemoteIndexedMemoryChunk;
 
@@ -82,7 +83,7 @@ public final class RemoteArray[T](
      * simulates that semantics and provides an Array view on the chunk of
      * GPU memory represented by raw.
      */
-    public def this(reg:Region{self!=null}, raw:RemoteIndexedMemoryChunk[T]) {
+    public @TempNoInline_0 def this(reg:Region{self!=null}, raw:RemoteIndexedMemoryChunk[T]) {
         val arr:GlobalRef[Array[T]];
         if (raw.home().isCUDA()) @Native("c++", "{}") {
             // This block will never be executed; only here to placate the X10-level typechecker

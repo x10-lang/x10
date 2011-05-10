@@ -67,7 +67,6 @@ import polyglot.types.TypeSystem;
 
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
-import x10.types.matcher.DumbMethodMatcher;
 import x10.visit.X10TypeChecker;
 
 /** An immutable representation of an X10 array access update: a[point] op= expr;
@@ -213,7 +212,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    final Context context = tc.context();
 
 	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
-	            new DumbMethodMatcher(targetType, SettableAssign.SET, typeArgs, argTypes, context));
+	            ts.MethodMatcher(targetType, SettableAssign.SET, typeArgs, argTypes, context, true));
 
 	    Pair<MethodInstance,List<Expr>> p = Converter.<MethodDef,MethodInstance>tryImplicitConversions(n, tc,
 	            targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {

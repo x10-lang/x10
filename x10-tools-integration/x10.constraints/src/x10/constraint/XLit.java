@@ -13,9 +13,13 @@ package x10.constraint;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import x10.constraint.visitors.XGraphVisitor;
+import x10.util.CollectionFactory;
 
 /**
  * A representation of a literal. A literal is both an XVar and an XPromise.
@@ -39,6 +43,22 @@ public class XLit extends XVar implements XPromise {
 		return this;
 	}
 	
+	/**
+	 * Proactively intern literals since they may end up having fields.
+	 */
+	public XPromise nfp(XConstraint c) {
+		assert c != null;
+		XPromise p = null;
+		if (c.roots == null) {
+			c.roots = CollectionFactory.<XTerm, XPromise> newHashMap();
+			p = c.intern(this);
+		} else {
+			p = c.roots.get(this);
+			if (p == null) 
+				p = c.intern(this);
+		}
+		return p.lookup();
+	}
 	// public boolean hasDisBindings() { return false; }
 
 	public XTermKind kind() { return XTermKind.LITERAL;}
@@ -78,7 +98,7 @@ public class XLit extends XVar implements XPromise {
 		if (!(o instanceof XLit))
 			return false;
 		XLit other = (XLit) o;
-		return val == null ? o == null : val.equals(other.val);
+		return val == null ? o == null : val == other.val || val.equals(other.val);
 	}
 
 	@Override
@@ -105,9 +125,6 @@ public class XLit extends XVar implements XPromise {
 		return this;
 	}
 
-	public XPromise lookup(Object s) {
-		return null;
-	}
 
 	public XPromise lookup() {
 		return this;
@@ -121,14 +138,14 @@ public class XLit extends XVar implements XPromise {
 		return false;
 	}
 
-	public boolean bind(XPromise target) throws XFailure {
+	public boolean bind(XPromise target, XConstraint parent) throws XFailure {
 		if (target.term().equals(this))
 			return true;
 		if (target.term() instanceof XLit) {
 			throw new XFailure("Cannot bind literal " + this + " to " + target);
 		}
 		if (target.term() instanceof XVar) {
-			return target.bind(this);
+			return target.bind(this, parent);
 		}
 		if (!equals(target))
 			throw new XFailure("Cannot bind literal " + this + " to " + target);
@@ -156,12 +173,7 @@ public class XLit extends XVar implements XPromise {
 		return this;
 	}
 
-
-	/*public void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake) {
-		// nothing to dump.
-	}
-*/
-	public void addIn(Object s, XPromise orphan) throws XFailure {
+	public void addIn(Object s, XPromise orphan, XConstraint parent) throws XFailure {
 		throw new XFailure("Cannot add an " + s + " child " + orphan + " to a literal, " + this + ".");
 	}
 
@@ -182,23 +194,13 @@ public class XLit extends XVar implements XPromise {
 		return this;
 	}
 
-	public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {
-		// nothing to do.
-	}
 
 	public XPromise value() {
 		return null;
 	}
 
-	public HashMap<Object, XPromise> fields() {
-		return null;
-	}
-
-	public void transfer(Map<XPromise, XPromise> env) {
-	    // nothing to do.
-	}
-	public XLit cloneShallow() {
-	    return this; // new XLit(this.val)
+	public Map<Object, XPromise> fields() {
+		return fields;
 	}
 
 	public void variables(List<XVar> result) {}
@@ -224,7 +226,12 @@ public class XLit extends XVar implements XPromise {
 		}
 		return o.isDisBoundTo(this);
 	}
-	   public boolean visit(XVar path, boolean dumpEQV, boolean hideFake, XGraphVisitor xg) {
-	       return true;
-	   }
+	public boolean visit(XVar path, XGraphVisitor xg, XConstraint parent) {
+		return true;
+	}
+	protected Map<Object, XPromise> fields;
+	public void ensureFields() {
+		if (this.fields == null)
+			this.fields = new LinkedHashMap<Object, XPromise>();
+	}
 }

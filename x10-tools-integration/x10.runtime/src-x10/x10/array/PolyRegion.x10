@@ -27,23 +27,7 @@ import x10.compiler.TempNoInline_3;
  */
 class PolyRegion extends Region {
 
-    // XTENLANG-49
-    static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
-  //  static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
-    static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
-    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
-   // static type UnionRegion(rank:Int) = UnionRegion{self.rank==rank};
-
-    //
-    // value
-    //
-
     public val mat: PolyMat{self.rank==this.rank};
-
-
-    //
-    // basic info
-    //
 
     public def isConvex(): boolean {
         return true;
@@ -67,7 +51,7 @@ class PolyRegion extends Region {
 
 
     public def iterator():Iterator[Point(rank)]
-          = PolyScanner.make(mat).iterator() as Iterator[Point(rank)];
+          = PolyScanner.make(mat).iterator(); 
   
 
     //
@@ -79,7 +63,7 @@ class PolyRegion extends Region {
         if (t instanceof PolyRegion) {
 
             // start
-            val that = t as PolyRegion; // XXX
+            val that = t as PolyRegion; 
             val pmb = new PolyMatBuilder(rank);
 
             // these halfspaces
@@ -92,7 +76,7 @@ class PolyRegion extends Region {
 
             // done
             val pm = pmb.toSortedPolyMat(false);
-            return PolyRegion.make(pm) as Region(rank); // XXXX why?
+            return PolyRegion.make(pm); 
 
         } else if (t instanceof RectRegion) {
         	return intersection((t as RectRegion).toPolyRegion());
@@ -122,7 +106,7 @@ class PolyRegion extends Region {
         for (var k: int = 0; k<rank; k++)
             if (k!=axis)
                 pm = pm.eliminate(k, true);
-        return Region.makeRectangular(pm.rectMin(axis), pm.rectMax(axis)) as Region(1);
+        return Region.makeRectangular(pm.rectMin(axis), pm.rectMax(axis));// as Region(1);
     }
 
     /**
@@ -349,3 +333,4 @@ class PolyRegion extends Region {
     }
 
 }
+public type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};

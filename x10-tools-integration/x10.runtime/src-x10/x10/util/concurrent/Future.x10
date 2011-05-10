@@ -54,7 +54,7 @@ public class Future[T] implements ()=>T {
         this.eval = eval;
     }
 
-    @Global private def result() = at (root) root().result(0);
+  //  @Global private def result() = at (root) root().result(0);
 
     /**
      * Return true if this activity has completed.

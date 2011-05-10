@@ -47,7 +47,7 @@ final class BlockBlockDist extends Dist {
     private transient var regionForHere:Region(this.rank);
 
 
-    public def this(r:Region, axis0:int, axis1:int, pg:PlaceGroup) {
+    public def this(r:Region, axis0:int, axis1:int, pg:PlaceGroup):BlockBlockDist{self.region==r} {
         super(r);
         this.axis0 = axis0;
         this.axis1 = axis1;

@@ -94,8 +94,8 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
         // If one of the second and third operands is of the null type and the
         // type of the other is a reference type, then the type of the
         // conditional expression is that reference type.
-        if (t1.isNull() && Types.permitsNull(t2)) return type(t2);
-        if (t2.isNull() && Types.permitsNull(t1)) return type(t1);
+        if (t1.isNull() && Types.permitsNull(context, t2)) return type(t2);
+        if (t2.isNull() && Types.permitsNull(context, t1)) return type(t1);
 
         // If the second and third operands are of different reference types,
         // then it must be possible to convert one of the types to the other

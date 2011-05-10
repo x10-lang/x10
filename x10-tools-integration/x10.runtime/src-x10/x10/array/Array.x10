@@ -63,22 +63,22 @@ public final class Array[T] (
         /**
          * The rank of this array.
          */
-        rank:int, //{self==region.rank},
+        rank:int,//(region.rank), //{self==region.rank},
         
         /**
          * Is this array defined over a rectangular region?  
          */
-        rect:boolean, //{self==region.rect},
+        rect:boolean,//(region.rect), //{self==region.rect},
         
         /**
          * Is this array's region zero-based?
          */
-        zeroBased:boolean, // {self==region.zeroBased},
+        zeroBased:boolean,//(region.zeroBased), // {self==region.zeroBased},
         
         /**
          * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
          */
-        rail:boolean, //{self==region.rail},
+        rail:boolean,//(region.rail), //{self==region.rail},
         
         /**
          * The number of points/data values in the array.
@@ -361,7 +361,7 @@ public final class Array[T] (
      * @return an iterator over the points in the region of this array.
      * @see x10.lang.Iterable[T]#iterator()
      */
-    public def iterator():Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
+    public def iterator():Iterator[Point(rank)] = region.iterator(); 
     
     
     /**
@@ -369,43 +369,30 @@ public final class Array[T] (
      * over this array.<p>
      * @return an Iterable[T] over this array.
      */
-    public def values():Iterable[T] {
-        // NOTE: If we could actually implement two instances of the
-        //       Iterable interface, then we woudn't need this code.
-        return new ValueIterable();
-    }
+    public def values():Iterable[T] = new Iterable[T]() {
+    	public def iterator() = new Iterator[T]() {
+    		val regIt = Array.this.iterator();
+    		public def next() = Array.this(regIt.next());
+    		public def hasNext() = regIt.hasNext();
+    	};
+    };
     
-    // TODO: Should be annonymous nested class in values, 
-    //       but that's too fragile with the 2.1 implementation of generics.
-    private static class ValueIterator[U](rank:int) implements Iterator[U] {
-        private val regIt:Iterator[Point(rank)];
-        private val array:Array[U](rank);
-        
-        @TempNoInline_0 @NoInline def this(a:Array[U]):ValueIterator[U]{self.rank==a.rank} {
-            property(a.rank);
-            regIt = a.iterator() as Iterator[Point(rank)]; // TODO: cast should not be needed!  Warning: This is an unsound cast because the object or the target type might have constraints and X10 currently does not perform constraint solving at runtime on generic parameters.
-            array = a as Array[U](rank);                   // TODO: cast should not be needed!
+    public def sequence(){this.rank==1}:Sequence[T] = {
+    		// once XTENLANG-2699 is fixed, replace
+    		// with anonymous class.
+    	class MySequence implements Sequence[T] {
+        	public def iterator() = new Iterator[T]() {
+        		val regIt = Array.this.iterator();
+        		public def next() = Array.this(regIt.next());
+        		public def hasNext() = regIt.hasNext();
+        	};
+        	// The :T below should not be needed, see XTENLANG-2700.
+        	public operator this(i:Int):T=Array.this(i); 
+        	public def size()=Array.this.size;
         }
-        public def hasNext() = regIt.hasNext();
-        public def next() = array(regIt.next());
+    	new MySequence()
     }
-    private  class ValueIterable implements Iterable[T] {
-        public def iterator()= new ValueIterator[T](Array.this);
-    }
-    
-    
-    public def sequence(){rank==1}:Sequence[T] = new ValueSequence();
-    // TODO: Should be annonymous nested class in values, 
-    //       but that's too fragile with the 2.1 implementation of generics.
-    private class ValueSequence(size:int) implements Sequence[T] {
-        public property size():int = size;
-        val array = Array.this as Array[T](1);
-        public def iterator() = new ValueIterator(Array.this);
-        def this() {
-            property(Array.this.size);
-        }
-        public operator this(i:Int)=array(i);
-    }
+
     
     /**
      * Return the element of this array corresponding to the given index.

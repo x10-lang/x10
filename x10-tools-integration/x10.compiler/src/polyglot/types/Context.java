@@ -63,9 +63,15 @@ public interface Context extends Resolver, Cloneable
     /** Enter the scope of a class. */
     Context pushClass(ClassDef classScope, ClassType type);
 
-    /** Enter the scope of a method or constructor. */
+    /** Enter the scope of a method, constructor, field initializer, or closure. */
     Context pushCode(CodeDef f);
 
+    /** Enter the scope of an async. */
+    Context pushAsync(CodeDef f);
+    
+    /** Enter the scope of an at. */
+    Context pushAt(CodeDef f);
+    
     /** Enter the scope of a block. */
     Context pushBlock();
 
@@ -315,11 +321,19 @@ public interface Context extends Resolver, Cloneable
      * Return the enclosing code context that can capture variables (null if none).
      */
     Context findEnclosingCapturingScope();
-    
+
     /**
      * If the current code def is an instance method, then add its real clause
      * to the current constraint. If force is true, then force the computation of the 
      * real clause if it is currently unknown.
      */
     void addInClassInvariantIfNeeded(boolean force);
+
+    boolean isBlock();
+    boolean isClass();
+    boolean isCode();
+    boolean isAsync();
+    boolean isAt();
+    boolean isOuter();
+    boolean isSource();
 }

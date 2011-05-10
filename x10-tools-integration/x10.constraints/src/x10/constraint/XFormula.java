@@ -142,7 +142,7 @@ public class XFormula<T> extends XTerm {
 	    public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
 	        assert last == null;
 	        // Evaluate left == right, if both are literals.
-	        XPromise result = c.lookup(this);
+	        XPromise result = nfp(c);
 	        if (result != null) // this term has already been interned.
 	            return result;
 	        Map<Object, XPromise> fields = CollectionFactory.newHashMap();
@@ -229,5 +229,25 @@ public class XFormula<T> extends XTerm {
 
 	    public boolean okAsNestedTerm() {
 	    	return false;
+	    }
+	    
+	    @Override
+	    public XPromise nfp(XConstraint c) {
+	    	assert c!=null;
+	    	XPromise p;
+	    	if (c.roots == null) {
+				c.roots = CollectionFactory.<XTerm, XPromise> newHashMap();
+				p = new XPromise_c(this);
+				c.roots.put(this, p);
+				return p;
+			} else {
+				p = c.roots.get(this);
+				if (p == null) {
+					p = new XPromise_c(this);
+					c.roots.put(this, p);
+					return p;
+				}
+			}
+			return p.lookup();
 	    }
 }

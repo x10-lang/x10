@@ -44,6 +44,7 @@ import x10.ast.AtStmt;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
 import x10.ast.ForLoop;
+import x10.ast.Offer;
 import x10.ast.StmtSeq;
 import x10.ast.When;
 import x10.compiler.ws.WSTransformState;
@@ -80,7 +81,7 @@ import polyglot.types.TypeSystem;
  */
 public class CodePatternDetector {
     public static enum Pattern{ Finish,
-                  FinishAssign, //used in collecting finish
+                  FinishExprAssign, //used in collecting finish
                   Async,
                   At, // at(p) S
                   AsyncAt, // async at(p) S
@@ -156,7 +157,7 @@ public class CodePatternDetector {
                     return Pattern.AssignCall;
                 }
                 else if(rightExpr instanceof FinishExpr){
-                    return Pattern.FinishAssign;
+                    return Pattern.FinishExprAssign;
                 }
                 else {
                     return Pattern.Unsupport;
@@ -229,7 +230,8 @@ public class CodePatternDetector {
                 || pattern == Pattern.ForLoop
                 || pattern == Pattern.DoWhile
                 || pattern == Pattern.While
-                || pattern == Pattern.Switch){
+                || pattern == Pattern.Switch
+                || pattern == Pattern.FinishExprAssign){
             return true;
         }
         return false;

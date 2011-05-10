@@ -60,9 +60,9 @@ public class X10Local_c extends Local_c {
         // shared was removed from the language: you cannot access var in a closure
         // Note that an async is similar to a closure (we create a dummy closure)
         boolean isInClosure = false;
-        if (context.isLocal(liName)) {
+        if (context.isLocalExcludingAsyncAt(liName)) {
             // ok
-        } else if (!context.isLocalIncludingAsyncAt(liName)) {
+        } else if (!context.isLocal(liName)) {
             // this local is defined in an outer class
             isInClosure = true;
             if (!li.flags().isFinal())

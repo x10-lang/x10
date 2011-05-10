@@ -26,7 +26,7 @@ public class Types280 extends x10Test {
     }
 
 
-// file Types line 879
+// file Types line 881
  static  class TypeDefNonGenerative {
 def someTypeDefs () {
   type A = Int;

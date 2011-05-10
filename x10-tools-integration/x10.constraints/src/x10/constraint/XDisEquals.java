@@ -26,15 +26,6 @@ public class XDisEquals extends XFormula<String> {
 		super(XTerms.disEqualsName, XTerms.asExprDisEqualsName, false, left, right);
 	}
 	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
-//	    XTerm left = left();
-//	    XTerm right = right();
-//	    if (left instanceof XLit && right instanceof XLit) {
-//	        if (left.equals(right))
-//	            return XTerms.TRUE.internIntoConstraint(c, last);
-//	        else
-//	            return XTerms.FALSE.internIntoConstraint(c, last);
-//	    }
-
 	    XPromise p = c.intern(left());
 	    if (p == null)
 	        return null;

@@ -18,7 +18,7 @@ import x10.io.Printer;
  *
  *     a0*x0 + a1*x1 + ... + constant <= 0
  *
- * The as are stored in the first rank elements of ValRow.this; the
+ * The a's are stored in the first rank elements of ValRow.this; the
  * constant is stored in this(rank) (using homogeneous coordinates).
  *
  * Equivalently, this class may be considered to represent a linear
@@ -27,15 +27,6 @@ import x10.io.Printer;
  * @author bdlucas
  */
 class PolyRow(rank:Int) extends ValRow {
-
-    static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
-    static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
-    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
-
-    //
-    //
-    //
-
 
     def this(as_:Array[int](1))= this(as_, as_.size-1);
 
@@ -171,3 +162,4 @@ class PolyRow(rank:Int) extends ValRow {
     }
 
 }
+public type PolyRow(rank:Int) = PolyRow{self.rank==rank};

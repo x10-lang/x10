@@ -26,15 +26,15 @@ public class Clocks80 extends x10Test {
     }
 
 
-// file Clocks line 293
+// file Clocks line 310
  static  class Example{
  def example() {
 val c:Clock = Clock.make();
 async clocked(c) {                // (A)
       finish async clocked(c) {   // (B) Violates clause 2
-            Clock.advanceAll();                 // (Bnext)
+            Clock.advanceAll();   // (Bnext)
       }
-      Clock.advanceAll();                       // (Anext)
+      Clock.advanceAll();         // (Anext)
 }
  } }
 

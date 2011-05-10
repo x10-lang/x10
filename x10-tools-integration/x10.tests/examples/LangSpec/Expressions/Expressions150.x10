@@ -26,7 +26,7 @@ public class Expressions150 extends x10Test {
     }
 
 
-// file Expressions line 1531
+// file Expressions line 1528
 
  static class Expressions30TypeTest{
   def check()  { 

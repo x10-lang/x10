@@ -25,7 +25,7 @@ import polyglot.visit.NodeVisitor;
 public class NodeTransformingVisitor extends ContextVisitor {
     protected final NodeTransformer xform;
 
-    protected NodeTransformingVisitor(Job job, TypeSystem ts, NodeFactory nf, NodeTransformer xform) {
+    public NodeTransformingVisitor(Job job, TypeSystem ts, NodeFactory nf, NodeTransformer xform) {
         super(job, ts, nf);
         this.xform = xform;
     }

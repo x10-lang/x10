@@ -26,7 +26,7 @@ public class Types3u5w extends x10Test {
     }
 
 
-// file Types line 1292
+// file Types line 1294
  static  class Example {
 static def example(n:Int) {
   val b = (n instanceof Int{self == 1});

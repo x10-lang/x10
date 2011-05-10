@@ -11,6 +11,7 @@
 
 package x10.constraint;
 
+import x10.constraint.visitors.XGraphVisitor;
 import x10.util.CollectionFactory;
 
 import java.io.Serializable;
@@ -107,41 +108,10 @@ class XPromise_c implements XPromise, Serializable {
             this.fields = new LinkedHashMap<Object, XPromise>(fields);
     }
 
-    public XPromise_c cloneShallow() {
-        return new XPromise_c(this.var);
+    public XPromise value() {
+        return value;
     }
-    /**
-     * Transfer data from this to redirects(this).
-     */
-    public void transfer(Map<XPromise, XPromise> redirects) {
-        XPromise_c newP = (XPromise_c) redirects.get(this);
-        assert newP != null;
-        if (fields != null) {
-            newP.fields = CollectionFactory.<Object, XPromise> newHashMap(fields.size());
-            for (Map.Entry<Object, XPromise> entry : fields.entrySet()) {
-                newP.fields.put(entry.getKey(), getOrClone(entry.getValue(), redirects));
-            }
-        }
-        if (value != null) {
-            newP.value = getOrClone(value, redirects);
-        }
-        if (disEquals != null) {
-            newP.disEquals = CollectionFactory.<XPromise> newHashSet(disEquals.size());
-            for (XPromise t : disEquals) {
-                newP.disEquals.add(getOrClone(t, redirects));
-            }
-        }
-        
-    }
-    private XPromise getOrClone(XPromise t, Map<XPromise, XPromise> redirects) {
-        XPromise newT = redirects.get(t);
-        if (newT == null) {
-            newT = t.cloneShallow();
-            redirects.put(t, newT);
-            t.transfer(redirects);
-        }
-        return newT;
-    }
+
     /*
      * (non-Javadoc)
      * 
@@ -151,6 +121,10 @@ class XPromise_c implements XPromise, Serializable {
         return var;
     }
 
+    public Map<Object, XPromise> fields() {
+        return fields;
+    }
+ 
     public void setTerm(XTerm term) {
         Set<XPromise> visited = CollectionFactory.newHashSet();
         visited.add(this);
@@ -196,54 +170,10 @@ class XPromise_c implements XPromise, Serializable {
         }
         return result;
     }
-
-    int lookupReturnValue;
-
-    public int lookupReturnValue() {
-        return lookupReturnValue;
-    }
-
-    public XPromise lookup(XVar[] vars, int index)  {
-        assert index >= 1;
-
-        // follow the eq link if there is one.
-        if (value != null)
-            return value.lookup(vars, index);
-        if (index == vars.length) {
-            lookupReturnValue = index;
-            return this;
-        }
-        if (fields == null) {
-            lookupReturnValue = index;
-            return this;
-        }
-        assert vars[index] instanceof XField;
-        XField<?> f = (XField<?>) vars[index];
-        Object field = f.field();
-        // check this edge already exists.
-        XPromise p = fields.get(field);
-        if (p == null) {
-            lookupReturnValue = index;
-            return this;
-        }
-        return p.lookup(vars, index + 1);
-    }
-
     public XPromise lookup() {
         if (value != null)
             return value.lookup();
         return this;
-    }
-
-    public XPromise lookup(Object s) {
-        // follow the eq link if there is one.
-        if (value != null)
-            return value.lookup(s);
-        if (fields == null)
-            return null;
-        // check this edge already exists.
-        XPromise p = fields.get(s);
-        return p == null ? null : p.lookup();
     }
 
     public XPromise intern(XVar[] vars, int index) throws XFailure {
@@ -276,7 +206,7 @@ class XPromise_c implements XPromise, Serializable {
         return p.intern(vars, index + 1, last);
     }
 
-    public void addIn(Object s, XPromise orphan) throws XFailure {
+    public void addIn(Object s, XPromise orphan, XConstraint parent) throws XFailure {
         if (value != null) {
             // Alternative is to fwd it blindly, that would be correct, but i
             // want to know
@@ -296,15 +226,14 @@ class XPromise_c implements XPromise, Serializable {
             while (orphan.forwarded())
                 orphan = orphan.value();
 
-            orphan.bind(child);
+            orphan.bind(child, parent);
             return;
         }
         fields.put(s, orphan);
     }
     
-   
 
-    public boolean bind(/* @nonnull */XPromise target) throws XFailure {
+    public boolean bind(/* @nonnull */XPromise target, XConstraint parent) throws XFailure {
     	if (target.value() == null) {
     		int q =1;
     	}
@@ -332,13 +261,27 @@ class XPromise_c implements XPromise, Serializable {
                 throw new XFailure("Binding " + this + " to " + target + " creates a cycle.");
             if ((!term().prefersBeingBound() && target.term().prefersBeingBound())
             		){
-                return target.bind(this);
+                return target.bind(this, parent);
             }
             value = target;
         }
         if (fields != null) { // transfer fields
             for (Map.Entry<Object, XPromise> i : fields.entrySet()) {
-                target.addIn(i.getKey(), i.getValue());
+            	XPromise val = i.getValue();
+            	// Need to find out the value down this path.
+            	XTerm t = val.term();
+            	if (t instanceof XField) {
+            		XField<?> field = (XField<?>) t;
+            		XVar root = field.rootVar();
+            		if (root == this.term()) {
+            			// Need to relabel because this --> target
+            		 field = field.copy((XVar) target.term());
+            		 if (val instanceof XPromise_c)
+            			 ((XPromise_c) val).var=field;
+            		 //val = parent.intern(field);
+            		}
+            	}
+                target.addIn(i.getKey(), val, parent);
             }
             fields = null;
         }
@@ -375,72 +318,44 @@ class XPromise_c implements XPromise, Serializable {
                     return true;
         return false;
     }
-    
-    public boolean canReachThroughValue(XPromise p) {
-    	XPromise temp = this;
-    	while (temp != null) {
-    		if (temp == p)
-    			return true;
-    		temp = temp.value();
-    	}
-        return false;
-    }
 
-    public boolean visit(XVar path, boolean dumpEQV, boolean hideFake, XGraphVisitor xg) {
+    public boolean visit(XVar path, XGraphVisitor xg, XConstraint parent) {
         XTerm t1 = path == null? term() : path;
         if (t1 == null)
             return true;
         if (t1.isAtomicFormula()) {
-            return xg.visitAtomicFormula(t1);
+            return xg.rawVisitAtomicFormula(t1);
         }
 
         if (value != null) {
-                if (dumpEQV || ! t1.hasEQV()) {
-                    XTerm t2 = lookup().var();
-                    if (hideFake && t1 instanceof XField && ((XField) t1).isHidden())
-                        return true;
-                    if (hideFake && t2 instanceof XField && ((XField) t2).isHidden())
-                        return true;
-                    if (dumpEQV || ! t2.hasEQV())
-                        return xg.visitEquals(t1, t2);
-                }
-            return true;
+        	// canonical term that this one is bound to.
+        	XTerm t2 = lookup().term();//.nf(parent);
+        	boolean result = xg.rawVisitEquals(t1, t2);
+        	if (! result)
+        		return result;
+        	// Continue processing the target node.
+        	// there may be fields that need to be processed.
+        	result = value.visit((XVar) t1, xg, parent);
+        	return result;
         }
         
-        if (fields != null) 
-            if (dumpEQV || ! t1.hasEQV())  {
+        if (fields != null) {
                 XVar v = t1 instanceof XVar ? (XVar) t1 : null;
                 // If t1 is not an XVar, it is an atomic formula, and the fields are its subterms.
                 // hence v shd be null.
                 for (Map.Entry<Object,XPromise> m : fields.entrySet()) {
-                    Object name = m.getKey();
                     XPromise p = m.getValue();
-                    XTerm t = p.term();
-                    XVar path2 = null;
-//                  if (v != null && !(t instanceof XField && ((XField) t).receiver().equals(v))) {
-//                      assert false;
-////                        path2 = XTerms.makeField(v, name);
-//                  }
-//                  path2 = v == null ? null : (XVar) t;
-                  
-                    if (v == null) {
-                        path2 = null;
-                    } else {
-                    	if (! (t instanceof XField<?>)) {
-                    		int q = 4;
-                    	}
-                        XField<?> ft = (XField<?>) t;
-                        path2 = ft.copy(v);
-                    }
-                    boolean result = p.visit(path2,dumpEQV, hideFake, xg);
+                    XTerm t = p.term();  
+                    XVar path2 = v==null? null : ((XField<?>) t).copy(v);
+                    boolean result = p.visit(path2,xg, parent);
                     if (!result)
                         return result;
                 }
             }
         if (disEquals != null) {
-            if (dumpEQV || ! t1.hasEQV())
                 for (XPromise i : disEquals) {
-                    boolean result = xg.visitDisEquals(t1, i.lookup().var());
+                	XTerm nf =  i.lookup().term();//.nf(parent);
+                    boolean result = xg.rawVisitDisEquals(t1, nf);
                     if (! result)
                         return result;
                 }
@@ -454,57 +369,22 @@ class XPromise_c implements XPromise, Serializable {
         if (toStringMark)
             return "...";
         toStringMark = true;
+        String fieldsString = "{ ";
+        if (fields != null) {
+        	for (Map.Entry<Object, XPromise> entry : fields.entrySet()) {
+        		fieldsString += "" + entry.getKey() + "=" + entry.getValue() + "\n";
+        		
+        	}
+        }
+        fieldsString += "}";
         String res = var + ((value != null)
                 ? "->" + value 
-                        : ((fields != null) ? fields.toString() : "")
+                        : ((fields != null) ? fieldsString : "")
                         + (disEquals != null ? " != " + disEquals.toString() : ""));
         toStringMark = false;
         return res;
     }
 
-    public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {
-        if (value != null ) {
-            if (value.equals(x)) {
-                if (this.equals(y)) {
-                    // don't create a self-cycle; it's redundant!
-                    value = null;
-                }
-                else {
-                    value = y;
-                }
-            }
-            else {
-                value.replaceDescendant(y, x, c);
-            }
-        }
-
-        if (fields != null) {
-            for (Map.Entry<Object, XPromise> p : fields.entrySet()) {
-                Object key = p.getKey();
-                XPromise val = p.getValue();
-                // doing this / self, and val == self.home -> this.home
-                // add this.home / self.home to the replacements to perform
-                if (val.equals(x)) {
-                    p.setValue(y);
-                }
-                else {
-                    val.replaceDescendant(y, x, c);
-                }
-            }
-        }
-    }
-
-    public XPromise value() {
-        return value;
-    }
-
-    public XTerm var() {
-        return var;
-    }
-
-    public Map<Object, XPromise> fields() {
-        return fields;
-    }
     public void addDisEquals(XPromise other) {
     	if (disEquals == null) 
     		disEquals = CollectionFactory.newHashSet();
@@ -521,5 +401,9 @@ class XPromise_c implements XPromise, Serializable {
     			return true;
     	}
     	return false;
+    }
+    public void ensureFields() {
+    	if (this.fields == null)
+    		this.fields = new LinkedHashMap<Object, XPromise>();
     }
 }

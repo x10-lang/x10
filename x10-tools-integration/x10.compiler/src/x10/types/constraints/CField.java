@@ -30,10 +30,12 @@ public class CField extends XField<Def> {
         if (string == null) {
             if (field instanceof MethodDef) {
                 MethodDef fi = (MethodDef)field;
-                string = Types.get(fi.container()) + "#" + fi.name().toString()+ "()";
+                string = fi.name().toString() + "()";
+               // string = Types.get(fi.container()) + "#" + fi.name().toString()+ "()";
             } else {
                 FieldDef fi = (FieldDef)field;
-                string = Types.get(fi.container()) + "#" + fi.name().toString();
+                string = fi.name().toString();
+               // string = Types.get(fi.container()) + "#" + fi.name().toString();
             }
         }
         return string;

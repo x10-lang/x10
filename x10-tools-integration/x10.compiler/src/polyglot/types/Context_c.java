@@ -34,6 +34,8 @@ public abstract class Context_c implements Context
         BLOCK("block"),
         CLASS("class"),
         CODE("code"),
+        ASYNC("async"),
+        AT("at"),
         OUTER("outer"),
         SOURCE("source");
 
@@ -49,6 +51,8 @@ public abstract class Context_c implements Context
     public static final Kind BLOCK = Kind.BLOCK;
     public static final Kind CLASS = Kind.CLASS;
     public static final Kind CODE = Kind.CODE;
+    public static final Kind ASYNC = Kind.ASYNC;
+    public static final Kind AT = Kind.AT;
     public static final Kind OUTER = Kind.OUTER;
     public static final Kind SOURCE = Kind.SOURCE;
     
@@ -62,6 +66,8 @@ public abstract class Context_c implements Context
     public boolean isBlock() { return kind == BLOCK; }
     public boolean isClass() { return kind == CLASS; }
     public boolean isCode() { return kind == CODE; }
+    public boolean isAsync() { return kind == ASYNC; }
+    public boolean isAt() { return kind == AT; }
     public boolean isOuter() { return kind == OUTER; }
     public boolean isSource() { return kind == SOURCE; }
 
@@ -133,7 +139,7 @@ public abstract class Context_c implements Context
             return false;
         }
         
-        if ((isBlock() || isCode()) &&
+        if ((isBlock() || isCode() || isAsync() || isAt()) &&
             (findVariableInThisScope(name) != null || findInThisScope(ts.TypeMatcher(name)) != null)) {
             return true;
         }
@@ -382,7 +388,7 @@ public abstract class Context_c implements Context
     }
 
     /**
-     * enters a method
+     * enters a method, constructor, field initializer, or closure
      */
     public Context pushCode(CodeDef ci) {
         if (reporter.should_report(TOPICS, 4))
@@ -395,6 +401,34 @@ public abstract class Context_c implements Context
         return v;
     }
 
+    /**
+     * enters an async
+     */
+    public Context pushAsync(CodeDef ci) {
+        if (reporter.should_report(TOPICS, 4))
+            reporter.report(4, "push async " + ci.position());
+        Context_c v = push();
+        v.kind = ASYNC;
+        v.code = ci;
+        v.inCode = true;
+        v.staticContext = ci.staticContext();
+        return v;
+    }
+    
+    /**
+     * enters an at block
+     */
+    public Context pushAt(CodeDef ci) {
+        if (reporter.should_report(TOPICS, 4))
+            reporter.report(4, "push at " + ci.position());
+        Context_c v = push();
+        v.kind = AT;
+        v.code = ci;
+        v.inCode = true;
+        v.staticContext = ci.staticContext();
+        return v;
+    }
+    
     /**
      * Gets the current method
      */

@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import x10.constraint.visitors.XGraphVisitor;
+
 /**
  * All nodes that occur in the graph maintained by a constraint
  * must implement Promise. Thus a Promise is a pointer into the state of some specific constraint.
@@ -45,7 +47,7 @@ import java.util.Set;
  * @author vj
  *
  */
-interface XPromise extends Cloneable {
+public interface XPromise extends Cloneable {
 
 	/**
 	 * this must be the promise corresponding to the index'th element in the list vars.
@@ -71,25 +73,10 @@ interface XPromise extends Cloneable {
 	 */
 	XPromise intern(XVar[] vars, int index, XPromise last);
 
-	/**
-	 * vars and this must be as for intern. Return the node in the graph of constraint
-	 * c obtained by following the path specified by vars[index],....vars[path.length-1] 
-	 * from this node. Return null if the path does not exist; do not create new nodes.
-	 * The returned node must not be a forwarded node.
-	 * @param vars
-	 * @param index
-	 * @return
-	 * @throws XFailure 
-	 */
-	XPromise lookup(XVar[] vars, int index);
-
-	/**
-	 * Lookup the field named s on this promise.
-	 * @param s
+	/** Follow the chain of non-null value's, returning the one at the end.
+	 * 
 	 * @return
 	 */
-	XPromise lookup(Object s)  ;
-
 	XPromise lookup();
 
 	/**
@@ -101,7 +88,7 @@ interface XPromise extends Cloneable {
 	 * @param s -- the name of the field
 	 * @param child -- the s child of the source of the eq link.
 	 */
-	void addIn(Object s, XPromise child) throws XFailure;
+	void addIn(Object s, XPromise child, XConstraint parent) throws XFailure;
 	
 	/**
 	 * An eq link entering this has just been established. Now the 
@@ -118,7 +105,7 @@ interface XPromise extends Cloneable {
 	 * false otherwise.
 	 * @param target
 	 */
-	boolean bind(XPromise target) throws XFailure;
+	boolean bind(XPromise target, XConstraint parent) throws XFailure;
 	
 	/**
 	 * Bind this promise to the given target using a NOT link. target should satisfy the condition
@@ -168,8 +155,7 @@ interface XPromise extends Cloneable {
 	 * @param result
 	 * @param oldSelf 
 	 */
-	//void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake);
-	boolean visit(XVar path, boolean dumpEQV, boolean hideFake, XGraphVisitor xg);
+	boolean visit(XVar path, XGraphVisitor xg, XConstraint parent);
 	/**
 	 * Return the term that labels this promise. This term is intended to be the canonical XTerm
 	 * labeling this promise, following the direct path from the root node.
@@ -196,7 +182,7 @@ interface XPromise extends Cloneable {
 	 * @param x
 	 * @param c TODO
 	 */
-	void replaceDescendant(XPromise y, XPromise x, XConstraint c);
+	//void replaceDescendant(XPromise y, XPromise x, XConstraint c);
 
 	/** A promise to which this promise is bound. */
 	XPromise value();
@@ -218,7 +204,7 @@ interface XPromise extends Cloneable {
 	 * and recursively call transfer on np with the updated env.
 	 * @param env
 	 */
-	void transfer(Map<XPromise, XPromise> env);
+	//void transfer(Map<XPromise, XPromise> env);
 	
 	/**
 	 * Return a shallow clone, no deep copying permitted. The clone must have
@@ -226,12 +212,8 @@ interface XPromise extends Cloneable {
 	 * subsequently (via transfer), to flesh out its data-structures
 	 * @return
 	 */
-	XPromise cloneShallow();
-	/**
-	 * The externally visible term (if any) that this term represents.
-	 * @return null -- if this promise is forwarded.
-	 */
-	XTerm var();
+	//XPromise cloneShallow();
+	
 	
 	/**
 	 * Is this promise asserted to be disequal to other?
@@ -239,4 +221,6 @@ interface XPromise extends Cloneable {
 	 * @return
 	 */
 	boolean isDisBoundTo(XPromise other);
+	
+	void ensureFields();
 }

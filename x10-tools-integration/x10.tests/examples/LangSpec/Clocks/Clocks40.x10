@@ -26,22 +26,24 @@ public class Clocks40 extends x10Test {
     }
 
 
-// file Clocks line 173
+// file Clocks line 182
  static class Example{
 static def S():void{}
 static def a_phase_two():void{}
 static def b_phase_two():void{}
 static def example() {
-// a
+// ACTIVITY a
 val c = Clock.make();
 c.resume();
 async clocked(c) {
-  // b
+  // ACTIVITY b
   c.advance();
   b_phase_two();
+  // END OF ACTIVITY b
 }
 c.advance();
 a_phase_two();
+// END OF ACTIVITY a
 } }
 
  static class Hook {

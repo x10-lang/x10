@@ -19,6 +19,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
@@ -77,12 +78,12 @@ public class SuperCallSynth extends AbstractStateSynth implements IStmtSynth {
         // Find the right super constructor: def (args)
         Type sType = classDef.superType().get();
         
-        ConstructorDef sDef = xts.findConstructor(sType,    // receiver's type
+        ConstructorInstance ci = xts.findConstructor(sType,    // receiver's type
                 xts.ConstructorMatcher(sType, 
                         argTypes,  // constraint's type (!)
-                        xct)).def();
+                        xct));
 
-        return xnf.SuperCall(pos, args).constructorInstance(sDef.asInstance());
+        return xnf.SuperCall(pos, args).constructorInstance(ci);
      
     }
 

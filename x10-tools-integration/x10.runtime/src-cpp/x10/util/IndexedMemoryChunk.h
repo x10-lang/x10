@@ -179,6 +179,10 @@ namespace x10 {
                                                                                         x10_int alignment,
                                                                                         x10_boolean congruent, 
                                                                                         x10_boolean zeroed) {
+	    if (0 == numElements) {
+                return IndexedMemoryChunk<T>((T*)NULL, (x10_int)numElements);
+            }
+
             assert((alignment & (alignment-1)) == 0);
             if (alignment < X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT) {
                 alignment = X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT;
@@ -302,7 +306,10 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::clear(x10_long index, x
 }
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::deallocate() {
-    x10aux::dealloc(raw());
+    if (0 != data) {
+        x10aux::dealloc(raw());
+    }
+    data = 0;
     len = 0;
 }
 
@@ -398,18 +405,21 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::I
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
     len = buf.read<x10_int>();
+    if (0 == len) {
+        data = 0;
+    } else {
+        bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+        size_t alignment = X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT;
+        size_t size = alignment + len*sizeof(T);
+        T* allocMem = x10aux::alloc<T>(size, containsPtrs);
+        size_t alignDelta = alignment-1;
+        size_t alignMask = ~alignDelta;
+        size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
+        data = (x10_ulong)alignedMem;
 
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
-    size_t alignment = X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT;
-    size_t size = alignment + len*sizeof(T);
-    T* allocMem = x10aux::alloc<T>(size, containsPtrs);
-    size_t alignDelta = alignment-1;
-    size_t alignMask = ~alignDelta;
-    size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
-    data = (x10_ulong)alignedMem;
-
-    for (int i=0; i<len; i++) {
-        __set(i, buf.read<T>());
+        for (int i=0; i<len; i++) {
+            __set(i, buf.read<T>());
+        }
     }
 }
 

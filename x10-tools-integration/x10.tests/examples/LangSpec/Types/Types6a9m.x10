@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Types2y3i_Bad35_MustFailCompile;
+/* Current test harness gets confused by packages, but it would be in package Types6a9m;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,27 +19,20 @@ import harness.x10Test;
 
 
 
-public class Types2y3i_Bad35_MustFailCompile extends x10Test {
+public class Types6a9m extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Types2y3i_Bad35_MustFailCompile().execute();
+        new Types6a9m().execute();
     }
 
 
-// file Types line 387
-
- static interface Stat {
-  static val PI = 3.14159;
-  static type R = Double;
-  static  class Pair(x:R, y:R) {}
-  // ERROR: static def meth():Int;
- static def this(); // ERR
-}
- static class Example {
-  static def example() {
-     val p : Stat.Pair = new Stat.Pair(Stat.PI, Stat.PI);
-  }
-}
+// file Types line 2482
+ // NOzzTEST
+ static  class B{ static  class C{}}
+ static  class D{ static  interface E{}}
+ static  interface F[X]{}
+ static  class G{}
+ static class A extends B.C implements D.E, F[G] {}
 
  static class Hook {
    def run():Boolean = true;

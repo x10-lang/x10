@@ -26,11 +26,10 @@ import x10.compiler.Incomplete;
  *    val output = new File(outputFileName);
  *    val p = output.printer();
  *    for (line in input.lines()) {
- *       line = line.chop();
  *       p.println(line);
  *    }
- * }
- * catch (IOException) { }
+ *    p.flush();
+ * } catch (IOException) { }
  */
 public class File {
     @NativeRep("java", "x10.core.io.NativeFile", null, "x10.core.io.NativeFile.$RTT")

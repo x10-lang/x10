@@ -26,7 +26,7 @@ public class Clocks50 extends x10Test {
     }
 
 
-// file Clocks line 206
+// file Clocks line 217
 
  static class Clocks5TestExp{
   def check(c:Clock)  = c.registered();  }

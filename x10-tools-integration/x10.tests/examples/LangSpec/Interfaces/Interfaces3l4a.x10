@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Types2y3i;
+/* Current test harness gets confused by packages, but it would be in package Interfaces3l4a;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,30 +19,25 @@ import harness.x10Test;
 
 
 
-public class Types2y3i extends x10Test {
+public class Interfaces3l4a extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Types2y3i().execute();
+        new Interfaces3l4a().execute();
     }
 
 
-// file Types line 387
-
- static interface Stat {
-  static val PI = 3.14159;
-  static type R = Double;
-  static  class Pair(x:R, y:R) {}
-  // ERROR: static def meth():Int;
-  // ERROR: static def this();
-}
- static class Example {
-  static def example() {
-     val p : Stat.Pair = new Stat.Pair(Stat.PI, Stat.PI);
+// file Interfaces line 261
+ static class TheOne {
+  static val ONE = 1;
+ static   interface WelshOrFrench {
+    val UN = 1;
+  }
+  static  class Onesome implements WelshOrFrench {
+    static def example() {
+      assert UN == ONE;
+    }
   }
 }
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{ def run() {TheOne.Onesome.example(); return true;}}
 
 }

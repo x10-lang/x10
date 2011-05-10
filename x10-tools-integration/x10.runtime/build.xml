@@ -386,7 +386,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc,convert-bdwgc-paths,available-procs" unless="bdwgc.skip.build">
+    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc,patch-bdwgc,convert-bdwgc-paths,available-procs" unless="bdwgc.skip.build">
         <sequential>
             <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
             <if>
@@ -538,10 +538,15 @@
       </sequential>
     </target>
 
-    <target name="download-bdwgc" depends="check-bdwgc,convert-bdwgc-paths" unless="bdwgc.skip.download">
+	<target name="download-bdwgc" depends="check-bdwgc,convert-bdwgc-paths" unless="bdwgc.skip.download">
+		<sequential>
+			<mkdir dir="${bdwgc.dir}/src" />
+		    <get usetimestamp="true" src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
+		</sequential>
+	</target>
+			
+    <target name="patch-bdwgc" depends="download-bdwgc" unless="bdwgc.skip.patch">
         <sequential>
-            <mkdir dir="${bdwgc.dir}/src" />
-            <get usetimestamp="true" src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
             <!-- Can't use the untar rule in ant because it bungles symbolic links. Sigh -->
             <exec executable="${tar.exe}" dir="${bdwgc.dir}/src">
                 <arg value="xzf" />
@@ -579,9 +584,17 @@
 
     <target name="check-bdwgc">
         <sequential>
-            <condition property="bdwgc.skip.download">
+        	<condition property="bdwgc.skip.download">
                 <or>
-                    <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
+                    <available file="${bdwgc.dir}/${bdwgc.tar}" property="bdwgc.downloaded"/>
+                    <not>
+                        <isset property="bdwgc.enabled" />
+                    </not>
+                </or>
+            </condition>
+            <condition property="bdwgc.skip.patch">
+                <or>
+                    <available file="${bdwgc.dir}/src/configure" property="bdwgc.patched"/>
                     <not>
                         <isset property="bdwgc.enabled" />
                     </not>

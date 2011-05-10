@@ -80,6 +80,7 @@ for i in \
 	x10.compiler \
 	x10.constraints \
 	x10.dist \
+	x10.doc \
 	x10.runtime \
 	x10.tests \
 	x10.wala

@@ -21,7 +21,9 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
 
 /**
@@ -45,7 +47,17 @@ public class X10SourceFile_c extends SourceFile_c {
 	    return n;
 	}
 
-	/** Type check the source file. */
+    /* (non-Javadoc)
+     * @see polyglot.ast.Node_c#typeCheckOverride(polyglot.ast.Node, polyglot.visit.ContextVisitor)
+     */
+    @Override
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+        if (hasBeenTypeChecked)
+            return this;
+        return super.typeCheckOverride(parent, tc);
+    }
+
+    /** Type check the source file. */
 	public Node typeCheck(ContextVisitor tc) {
 		boolean hasPublic = false;
 
