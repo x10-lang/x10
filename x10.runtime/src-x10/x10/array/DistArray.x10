@@ -674,31 +674,33 @@ public final class DistArray[T] (
      * @see #map((T)=>S)
      */
     public final def reduce[U](lop:(U,T)=>U, gop:(U,U)=>U, unit:U):U {
-        // Could use collecting finish after XTENLANG-2364 is resolved
-        // instead of building up an explicit result array
-        val results = new Array[U](Place.MAX_PLACES, unit);
-        finish {
-            for (where in dist.places()) {
-                async {
-                    results(where.id) = at (where) {
-                        val reg = dist.get(here);
-                        var localRes:U = unit;
-                        val imc = raw();
-                        for (pt in reg) {
-                           localRes = lop(localRes, imc(dist.offset(pt)));
-                        }
-                        localRes
-                    };
-                };
-            }
-        }
+        val reducer = new ReduceHelper[U](gop, unit);
 
-        var result:U = results(0);
-        for ([i] in 1..(results.size-1)) {
-            result = gop(result, results(i));
-        }
+        val result = finish(reducer) {
+            for (where in dist.places()) {
+                async at (where) {
+                    val reg = dist.get(here);
+                    var localRes:U = unit;
+                    val imc = raw();
+                    for (pt in reg) {
+                       localRes = lop(localRes, imc(dist.offset(pt)));
+                    }
+                    offer(localRes);
+                }
+            }
+        };
+
         return result;
     }
+    // TODO: This should be a local anonymous class in reduce after XTENLANG-2699 is fixed.
+    private static class ReduceHelper[U] implements Reducible[U] {
+        val gop:(U,U)=>U;
+        val zed:U;
+        def this(f:(U,U)=>U, z:U) { gop = f; zed=z; }
+        public def zero():U = zed;
+        public operator this(a:U, b:U):U = gop(a,b);
+    }     
+
 
     public def toString(): String {
         return "DistArray(" + dist + ")";
