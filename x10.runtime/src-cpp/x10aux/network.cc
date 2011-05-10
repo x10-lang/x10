@@ -182,6 +182,17 @@ void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10
     assert(DeserializationDispatcher::getClosureKind(real_sid)!=x10aux::CLOSURE_KIND_GENERAL_ASYNC);
 
     buf.write(fs);
+    // We're playing a sleazy trick here and not following the general
+    // serialization protocol. We should be calling buf.write(real_body),
+    // but instead we are just calling it's serialize_body method directly.
+    // This is problematic because buf.write has the responsibility for
+    // creating the entry in buf's address_map to handle repeated references.
+    // The _deserialize method of real_body will call record_reference.
+    // Therefore we have to record the reference explicitly here to 
+    // to avoid an "off by one" error in the relative back count of objects
+    // that crosses this point in the address map.
+    // This happens when an object is reachable from both fs and real_body.
+    buf.manually_record_reference(real_body);
     real_body->_serialize_body(buf);
 
     unsigned long sz = buf.length();
