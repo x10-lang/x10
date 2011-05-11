@@ -378,14 +378,14 @@ public struct UByte implements Comparable[UByte] /*TODO implements Arithmetic[UB
      */
     // @Native("java", "0")
     @Native("c++", "((x10_ubyte)0U)")
-    public static MIN_VALUE = 0 as UByte;
+    public static MIN_VALUE: UByte{self==0UY} = 0UY;
 
     /**
      * A constant holding the maximum value a UByte can have, 2<sup>8</sup>-1.
      */
     // @Native("java", "((byte)0xff)")
     @Native("c++", "((x10_ubyte)0xffU)")
-    public static MAX_VALUE = 0xff as UByte;
+    public static MAX_VALUE: UByte{self==0xffUY} = 0xffUY;
 
 
     /**

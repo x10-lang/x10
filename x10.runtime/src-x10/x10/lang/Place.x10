@@ -32,12 +32,12 @@ public final struct Place(id: Int)  {
      */
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_places")
-    public static ALL_PLACES:Int = 4;
+    public static ALL_PLACES: Int = 4;
 
     /** The number of places not including accelerators. */
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_hosts")
-    public static MAX_PLACES:Int = 4;
+    public static MAX_PLACES: Int = 4;
 
     /** The number of accelerators. */
     public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;

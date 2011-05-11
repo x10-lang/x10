@@ -341,10 +341,27 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         // Do not infer types of mutable fields, since there could be more than one assignment and the compiler might not see them all.
         if (type instanceof UnknownTypeNode && ! flags.flags().isFinal())
         	Errors.issue(tb.job(), new Errors.CannotInferNonFinalFieldType(position()));
-
+        
         return n;
     }
     
+	    private static boolean computing = false;
+	    public static boolean shouldInferType(Node n, TypeSystem ts) {
+	        if (computing)
+	            throw new NullPointerException();
+	        try {
+	            computing = true;
+	            Type at = ts.systemResolver().findOne(QName.make("x10.compiler.NoInferType"));
+	            boolean res = ((X10Ext)n.ext()).annotationMatching(at).isEmpty();
+	            if (res == true) return true;
+                return res;
+	        } catch (SemanticException e) {
+	            return false;
+	        } finally {
+	            computing = false;
+	        }
+	    }
+
 	    @Override
 	    public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
 		    if (type() instanceof UnknownTypeNode && init != null) {
@@ -366,12 +383,19 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    @Override
 	    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+            NodeVisitor childtc = tc.enter(parent, this);
 
-	        if (hasType != null && ! flags().flags().isFinal()) {
+            List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
+            List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
+
+            // Do not infer types of native fields
+            if (type instanceof UnknownTypeNode && ! shouldInferType(this, tc.typeSystem()))
+                Errors.issue(tc.job(), new Errors.CannotInferNativeFieldType(position()));
+
+            if (hasType != null && ! flags().flags().isFinal()) {
 	            Errors.issue(tc.job(), new Errors.OnlyValMayHaveHasType(this));
 	        }
-	        if (type() instanceof UnknownTypeNode) {
-	            NodeVisitor childtc = tc.enter(parent, this);
+	        if (type() instanceof UnknownTypeNode && shouldInferType(this, tc.typeSystem())) {
 
 	            Expr init = (Expr) this.visitChild(init(), childtc);
 	            if (init != null) {
@@ -421,11 +445,9 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
 
 	                Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init, htn), childtc);
-	                List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
 	                if (oldAnnotations == null || oldAnnotations.isEmpty()) {
 	                    return n;
 	                }
-	                List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
 	                if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
 	                    return ((X10Del) n.del()).annotations(newAnnotations);
 	                }
@@ -482,7 +504,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             if (f.isStatic() && noInit) {
                 Errors.issue(tc.job(), new Errors.StaticFieldMustHaveInitializer(name, position()));
             } 
-
 
 	    	NodeFactory nf = (NodeFactory) tc.nodeFactory();
 

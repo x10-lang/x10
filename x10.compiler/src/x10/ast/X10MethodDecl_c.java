@@ -259,7 +259,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 		mi.setFormalNames(formalNames);
 
-		if (n.returnType() instanceof UnknownTypeNode && n.body() == null) {
+		if (n.returnType() instanceof UnknownTypeNode && n.body() == null && X10FieldDecl_c.shouldInferType(this, ts)) {
 			Errors.issue(tb.job(),
 			             new Errors.CannotInferMethodReturnType(position()));
 			NodeFactory nf = tb.nodeFactory();
@@ -913,16 +913,21 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 
+        // Step 0.  Process annotations.
+        TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
+        nn = (X10MethodDecl) X10Del_c.visitAnnotations(nn, childtc);
+
+        // Do not infer types of native fields
+        if (nn.returnType() instanceof UnknownTypeNode && ! X10FieldDecl_c.shouldInferType(this, xts))
+            Errors.issue(tc.job(), new Errors.CannotInferNativeMethodReturnType(position()));
+        
 		// Step I.a.  Check the formals.
-		TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
 
 		// First, record the final status of each of the type params and formals.
 		List<TypeParamNode> processedTypeParams = nn.visitList(nn.typeParameters(), childtc);
 		nn = (X10MethodDecl) nn.typeParameters(processedTypeParams);
 		List<Formal> processedFormals = nn.visitList(nn.formals(), childtc);
 		nn = (X10MethodDecl) nn.formals(processedFormals);
-
-		nn = (X10MethodDecl) X10Del_c.visitAnnotations(nn, childtc);
 
 		// [NN]: Don't do this here, do it on lookup of the formal.  We don't want spurious self constraints in the signature.
 		//            for (Formal n : processedFormals) {
@@ -1089,7 +1094,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		nn = (X10MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
 		nn = (X10MethodDecl) childtc2.leave(parent, old, nn, childtc2);
 
-		if (nn.returnType() instanceof UnknownTypeNode) {
+		if (nn.returnType() instanceof UnknownTypeNode && X10FieldDecl_c.shouldInferType(this, tc.typeSystem())) {
 			NodeFactory nf = tc.nodeFactory();
 			TypeSystem ts = (TypeSystem) tc.typeSystem();
 			// Body had no return statement.  Set to void.

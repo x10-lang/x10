@@ -285,14 +285,14 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      */
     @Native("java", "java.lang.Integer.MIN_VALUE")
     @Native("c++", "((x10_int)0x80000000)")
-    public static MIN_VALUE = 0x80000000;
+    public static MIN_VALUE: Int{self==0x80000000} = 0x80000000;
 
     /**
      * A constant holding the maximum value an Int can have, 2<sup>31</sup>-1.
      */
     @Native("java", "java.lang.Integer.MAX_VALUE")
     @Native("c++", "((x10_int)0x7fffffff)")
-    public static MAX_VALUE = 0x7fffffff;
+    public static MAX_VALUE: Int{self==0x7fffffff} = 0x7fffffff;
 
 
     /**

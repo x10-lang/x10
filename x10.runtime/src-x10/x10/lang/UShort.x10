@@ -379,14 +379,14 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
      */
     // @Native("java", "((short)0)")
     @Native("c++", "((x10_ushort)0U)")
-    public static MIN_VALUE = 0 as UShort;
+    public static MIN_VALUE: UShort{self==0US} = 0US;
 
     /**
      * A constant holding the maximum value a UShort can have, 2<sup>16</sup>-1.
      */
     // @Native("java", "((short)0xffff)")
     @Native("c++", "((x10_ushort)0xffffU)")
-    public static MAX_VALUE = 0xffff as UShort;
+    public static MAX_VALUE: UShort{self==0xffffUS} = 0xffffUS;
 
 
     /**

@@ -376,14 +376,14 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      */
     // @Native("java", "0")
     @Native("c++", "((x10_uint)0U)")
-    public static MIN_VALUE = 0 as UInt;
+    public static MIN_VALUE: UInt{self==0U} = 0U;
 
     /**
      * A constant holding the maximum value a UInt can have, 2<sup>32</sup>-1.
      */
     // @Native("java", "0xffffffff")
     @Native("c++", "((x10_uint)0xffffffffU)")
-    public static MAX_VALUE = 0xffffffff as UInt;
+    public static MAX_VALUE: UInt{self==0xffffffffU} = 0xffffffffU;
 
 
     /**

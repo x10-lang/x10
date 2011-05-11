@@ -281,14 +281,14 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      */
     @Native("java", "java.lang.Short.MIN_VALUE")
     @Native("c++", "((x10_short)0x8000)")
-    public static MIN_VALUE = 0x8000 as Short;
+    public static MIN_VALUE: Short{self==0x8000S} = 0x8000S;
 
     /**
      * A constant holding the maximum value a Short can have, 2<sup>15</sup>-1.
      */
     @Native("java", "java.lang.Short.MAX_VALUE")
     @Native("c++", "((x10_short)0x7fff)")
-    public static MAX_VALUE = 0x7fff as Short;
+    public static MAX_VALUE: Short{self==0x7fffS} = 0x7fffS;
 
 
     /**

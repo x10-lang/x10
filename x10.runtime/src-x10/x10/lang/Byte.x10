@@ -282,14 +282,14 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      */
     @Native("java", "java.lang.Byte.MIN_VALUE")
     @Native("c++", "((x10_byte)0x80)")
-    public static MIN_VALUE = 0x80 as Byte;
+    public static MIN_VALUE: Byte{self==0x80Y} = 0x80Y;
 
     /**
      * A constant holding the maximum value a Byte can have, 2<sup>7</sup>-1.
      */
     @Native("java", "java.lang.Byte.MAX_VALUE")
     @Native("c++", "((x10_byte)0x7f)")
-    public static MAX_VALUE = 0x7f as Byte;
+    public static MAX_VALUE: Byte{self==0x7fY} = 0x7fY;
 
     /**
      * Returns a String representation of this Byte in the specified radix.

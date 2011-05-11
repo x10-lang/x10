@@ -392,14 +392,14 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      */
     // @Native("java", "0L")
     @Native("c++", "((x10_ulong)0LLU)")
-    public static MIN_VALUE = 0UL;
+    public static MIN_VALUE: ULong{self==0ul} = 0UL;
 
     /**
      * A constant holding the maximum value a ULong can have, 2<sup>64</sup>-1.
      */
     // @Native("java", "0xffffffffffffffffL")
     @Native("c++", "0xffffffffffffffffLLU")
-    public static MAX_VALUE = 0xffffffffffffffffUL;
+    public static MAX_VALUE: ULong{self==0xffffffffffffffffUL} = 0xffffffffffffffffUL;
 
 
     /**

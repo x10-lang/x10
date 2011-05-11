@@ -1283,20 +1283,28 @@ public class Errors {
 		}
 	}
 	public static class CannotInferFieldType extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = -8796440936111998457L;
-
 		public CannotInferFieldType(Position p) {
 			super("Cannot infer field type; field has no initializer.", p);
 		}
 	}
 	public static class CannotInferNonFinalFieldType extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 5501955726545364951L;
-
 		public CannotInferNonFinalFieldType(Position p) {
 			super("Cannot infer type of non-final fields.", p);
 		}
+	}
+	public static class CannotInferNativeFieldType extends EqualByTypeAndPosException {
+        private static final long serialVersionUID = -1957463133947941268L;
+        public CannotInferNativeFieldType(Position p) {
+	        super("Cannot infer type of native fields.", p);
+	    }
+	}
+	public static class CannotInferNativeMethodReturnType extends EqualByTypeAndPosException {
+        private static final long serialVersionUID = 1285634999428441833L;
+        public CannotInferNativeMethodReturnType(Position p) {
+	        super("Cannot infer return type of native methods.", p);
+	    }
 	}
 	public static class CannotDeclareStaticNonFinalField extends EqualByTypeAndPosException {
 		

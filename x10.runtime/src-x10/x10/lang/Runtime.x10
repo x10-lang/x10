@@ -56,10 +56,10 @@ import x10.util.concurrent.SimpleLatch;
     // Native runtime interface
 
     @Native("c++", "PLATFORM_MAX_THREADS")
-    private static PLATFORM_MAX_THREADS = Int.MAX_VALUE;
+    private static PLATFORM_MAX_THREADS: Int = Int.MAX_VALUE;
 
     @Native("c++", "DEFAULT_STATIC_THREADS")
-    private static DEFAULT_STATIC_THREADS = false;
+    private static DEFAULT_STATIC_THREADS: Boolean = false;
 
     @Native("java", "x10.runtime.impl.java.Runtime.loadenv()")
     @Native("c++", "x10aux::loadenv()")
@@ -111,39 +111,39 @@ import x10.util.concurrent.SimpleLatch;
     static PRINT_STATS = false;
 
     @Native("c++","x10aux::asyncs_sent")
-    static def getAsyncsSent() = 0L;
+    static def getAsyncsSent():Long = 0L;
 
     @Native("c++","x10aux::asyncs_sent = #v")
-    static def setAsyncsSent(v:Long) { }
+    static def setAsyncsSent(v:Long):void { }
 
     @Native("c++","x10aux::asyncs_received")
-    static def getAsyncsReceived() = 0L;
+    static def getAsyncsReceived():Long = 0L;
 
     @Native("c++","x10aux::asyncs_received = #v")
-    static def setAsyncsReceived(v:Long) { }
+    static def setAsyncsReceived(v:Long):void { }
 
     @Native("c++","x10aux::serialized_bytes")
-    static def getSerializedBytes() = 0L;
+    static def getSerializedBytes():Long = 0L;
 
     @Native("c++","x10aux::serialized_bytes = #v")
-    static def setSerializedBytes(v:Long) { }
+    static def setSerializedBytes(v:Long):void { }
 
     @Native("c++","x10aux::deserialized_bytes")
-    static def getDeserializedBytes() = 0L;
+    static def getDeserializedBytes():Long = 0L;
 
     @Native("c++","x10aux::deserialized_bytes = #v")
-    static def setDeserializedBytes(v:Long) { }
+    static def setDeserializedBytes(v:Long):void { }
 
     // Methods for explicit memory management
 
     @Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#o.operator->())")
-    public static def deallocObject (o:Object) { }
+    public static def deallocObject (o:Object):void { }
 
     @Native("c++", "x10aux::dealloc(#o.operator->())")
-    public static def dealloc[T] (o:()=>T) { }
+    public static def dealloc[T] (o:()=>T):void { }
 
     @Native("c++", "x10aux::dealloc(#o.operator->())")
-    public static def dealloc (o:()=>void) { }
+    public static def dealloc (o:()=>void):void { }
 
     // Configuration options
 

@@ -38,4 +38,4 @@ import x10.lang.annotations.*;
  *
  * As for "java" except boxed and run-time representations of type vars should not be used.
  */
-public interface Native(lang: String, code: String) extends StatementAnnotation, MethodAnnotation, FieldAnnotation { }
+public interface Native(lang: String, code: String) extends NoInferType, StatementAnnotation, MethodAnnotation, FieldAnnotation { }

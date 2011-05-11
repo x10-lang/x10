@@ -42,11 +42,11 @@ public final class AtomicReference[T]{T<:Object} {
 
 	@Native("java", "#this.compareAndSet(#expect,#update)")
 	@Native("c++", "(#this)->compareAndSet(#expect,#update)")
-	public native def compareAndSet(expect:T, update:T):boolean;
+	public native def compareAndSet(expect:T, update:T):Boolean;
 
 	@Native("java", "#this.weakCompareAndSet(#expect,#update)")
 	@Native("c++", "(#this)->weakCompareAndSet(#expect,#update)")
-	public native def weakCompareAndSet(expect:T, update:T):boolean;
+	public native def weakCompareAndSet(expect:T, update:T):Boolean;
 	
 	@Native("java", "#this.getAndSet(#v)")
 	@Native("c++", "(#this)->getAndSet(#v)")

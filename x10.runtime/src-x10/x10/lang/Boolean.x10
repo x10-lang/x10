@@ -72,14 +72,14 @@ public struct Boolean implements Comparable[Boolean] {
      */
     @Native("java", "true")
     @Native("c++", "true")
-    public static TRUE = true;
+    public static TRUE: Boolean{self==true} = true;
 
     /**
      * A constant holding the Boolean value 'false'.
      */
     @Native("java", "false")
     @Native("c++", "false")
-    public static FALSE = false;
+    public static FALSE: Boolean{self==false} = false;
 
 
     /**
