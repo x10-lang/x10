@@ -383,6 +383,10 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 	variances.set(i, v);
     }
     
+    TypeParamSubst subst = null;
+    public TypeParamSubst subst() { return this.subst; }
+    public void setSubst(TypeParamSubst subst) { this.subst = subst; }
+
     List<TypeDef> typeMembers;
 
     // TODO:

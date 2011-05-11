@@ -205,9 +205,16 @@ public class TypeParamSubst {
 		if (t instanceof TypeConstraint) return (T) reinstantiateTypeConstraint((TypeConstraint) t);
 		if (t instanceof X10LocalInstance) return (T) reinstantiateLI((X10LocalInstance) t);
 		//if (t instanceof X10LocalDef) return (T) reinstantiateLD((X10LocalDef) t);
+		if (t instanceof TypeParamSubst) return (T) reinstantiateTPS((TypeParamSubst) t);
         assert false : t;
 		return t;
 	}
+
+    private TypeParamSubst reinstantiateTPS(TypeParamSubst t) {
+        List<? extends Type> tas = reinstantiate(t.typeArguments);
+        List<ParameterType> tps = reinstantiate(t.typeParameters);
+        return new TypeParamSubst(ts, tas, tps, eager);
+    }
 
 	private X10LocalInstance reinstantiateLI(X10LocalInstance t) {
 		if (eager) {
