@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Block;
+import polyglot.ast.Branch;
 import polyglot.ast.Conditional;
 import polyglot.ast.Empty;
 import polyglot.ast.Expr;
@@ -42,6 +43,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.StmtExpr;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -120,9 +122,9 @@ public class ConstantPropagator extends ContextVisitor {
             if (isConstant(cond)) {
                 boolean b = (boolean) (Boolean) constantValue(cond);
                 if (b)
-                    return insulate(c.consequent());
+                    return c.consequent();
                 else
-                    return insulate(c.alternative());
+                    return c.alternative();
             }
         }
 
@@ -134,25 +136,30 @@ public class ConstantPropagator extends ContextVisitor {
                 if (o instanceof Boolean) {
                     boolean b = (boolean) (Boolean) o;
                     if (b)
-                        return insulate(c.consequent());
+                        return c.consequent();
                     else
-                        return c.alternative() != null ? insulate(c.alternative()) : nf.Empty(pos);
+                        return c.alternative() != null ? c.alternative() : nf.Empty(pos);
                 }
             }
         }
 
-        if (n instanceof Block) {
+        if (n instanceof Block){
             Block b = (Block) n;
-            List<Stmt> ss = new ArrayList<Stmt>();
+            List<Stmt> stmts = new ArrayList<Stmt>();
             for (Stmt s : b.statements()) {
-                if (s instanceof Empty) {
-                }
-                else {
-                    ss.add(s);
+                if (!(s instanceof Empty)) {
+                    stmts.add(s);
+                    if (divertsFlow(s)) {
+                        if (b instanceof StmtExpr) { // ExpressionFlattener will have eliminated these for the Java back-end
+                            b = ((StmtExpr) b).result(null); // result can't be reached, throw it away
+                        }
+                        return b.statements(stmts);
+                    }
                 }
             }
-            if (ss.size() != b.statements().size())
-                return b.statements(ss);
+            if (stmts.size() < b.statements().size())
+                return b.statements(stmts);
+            return b;
         }
 
         return n;
@@ -287,68 +294,20 @@ public class ConstantPropagator extends ContextVisitor {
     }
 
     /**
-     * Prevent the Java compiler from complaining about unreachable code.
-     * s;  ->  if (true) s;
+     * Would a statement prevent control flow from reaching the sequentially next statement in a Block?
      * 
-     * @param stmt a statement that might not have normal code flow
-     * @return a statement, semantically the same as stmt, that will look to a Java compiler as if it might have normal code flow
-     * 
-     * TODO: implement dead code elimination and throw this code away
+     * @param s the Stmt that might divert the flow of control
+     * @return true iff s changes normal control flow
      */
-    static Stmt protect(Stmt stmt, TypeSystem ts){
-        Expr cond;
-        try { // if possible, create a true that wouldn't be recognized by (another pass of) the ConstantPropagator
-            QName qname = QName.make("x10.compiler.CompilerFlags");
-            Type container = ts.forName(qname);
-            Name name = Name.make("TRUE"); 
-            cond = syn.createStaticCall(stmt.position(), container, name);
-        } catch (Exception e) {
-            cond = syn.createTrue(stmt.position());
+    private boolean divertsFlow(Stmt s) {
+        if (s instanceof Block) {
+            List<Stmt> statements = ((Block) s).statements();
+            int size = statements.size();
+            if (0 == size) return false;
+            return divertsFlow(statements.get(size-1));
         }
-        return syn.createIf(stmt.position(), cond, stmt, null);
+        return s instanceof Return || s instanceof Throw || s instanceof Branch;
     }
-
-    /**
-     * @param alternative
-     * @return
-     */
-    private Node insulate(Node node) {
-        return node.visit(new HideControlFlow(job(), typeSystem(), nodeFactory()));
-    }
-
-    /**
-     * Rewrite an AST so it will look to a Java compiler as if it might have normal control flow.
-     * 
-     * @author Bowen Alpern
-     * 
-     * TODO: implement dead code elimination and throw this code away
-     */
-    class HideControlFlow extends ErrorHandlingVisitor {
-
-        /**
-         * @param job
-         * @param ts
-         * @param nf
-         */
-        public HideControlFlow(Job job, TypeSystem ts, NodeFactory nf) {
-            super(job, ts, nf);
-        }
-        /* (non-Javadoc)
-         * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node)
-         */
-        @Override
-        /**
-         * Rewrite and AST so it will look to a Java compiler as if it might have normal control flow.
-         */
-        protected Node leaveCall(Node n) {
-            if (n instanceof Return)
-                return protect((Return) n, typeSystem());
-            if (n instanceof Throw)
-                return protect((Throw) n, typeSystem());
-            return n;
-        }
-    }
-    
 
     private static final QName NATIVE_ANNOTATION = QName.make("x10.compiler.Native");
     /**

@@ -43,10 +43,10 @@ public class Optimizer {
         return false;
     }
 
-    public static boolean FLATTENING(ExtensionInfo extInfo, boolean javaBackend) {
+    public static boolean FLATTENING(ExtensionInfo extInfo) {
         Configuration config = extInfo.getOptions().x10_config;
-        if (config.FLATTEN_EXPRESSIONS)          return true;
-        if (javaBackend && INLINING(extInfo))    return true;
+        if (config.FLATTEN_EXPRESSIONS) return true;
+        if (extInfo instanceof x10c.ExtensionInfo && INLINING(extInfo)) return true;
         if (!config.ALLOW_STATEMENT_EXPRESSIONS) return true; // don't let StmtExpr's reach the back end
         return false;
     }
@@ -55,7 +55,6 @@ public class Optimizer {
         Configuration config =((ExtensionInfo) extensionInfo).getOptions().x10_config;
         if (!config.OPTIMIZE) return false;
         if (!config.SPLIT_CONSTRUCTORS) return false;
-        boolean javaBackend = extensionInfo instanceof x10c.ExtensionInfo;
         return true;
     }
     
@@ -64,7 +63,6 @@ public class Optimizer {
     private final ExtensionInfo extInfo;
     private final TypeSystem    ts;
     private final NodeFactory   nf;
-    private final boolean       java;      // Java back-end ???
 
     private Optimizer(Scheduler s, Job j) {
         scheduler = s;
@@ -72,7 +70,6 @@ public class Optimizer {
         extInfo   = (ExtensionInfo) j.extensionInfo();
         ts        = extInfo.typeSystem();
         nf        = extInfo.nodeFactory();
-        java      = extInfo instanceof x10c.ExtensionInfo;
     }
 
     public static List<Goal> goals(Scheduler scheduler, Job job) {
@@ -92,14 +89,14 @@ public class Optimizer {
         if (INLINING(extInfo)) {
             goals.add(Inliner());
         }
-        if (FLATTENING(extInfo, java)) {
+        if (FLATTENING(extInfo)) {
             goals.add(ExpressionFlattener());
         }
         if (config.CODE_CLEAN_UP) {
             goals.add(CodeCleanUp());
         }
         // workaround for XTENLANG-2705
-        if (config.OPTIMIZE && (!ExpressionFlattener.javaBackend(job) || config.EXPERIMENTAL)) {
+        if (config.OPTIMIZE) {
             goals.add(ConstantProp());
         }
         if (config.EXPERIMENTAL && config.ELIMINATE_DEAD_VARIABLES) {
