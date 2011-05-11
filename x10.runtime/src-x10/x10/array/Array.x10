@@ -377,7 +377,8 @@ public final class Array[T] (
     	};
     };
     
-    public def sequence(){this.rank==1}:Sequence[T] = {
+    // TODO Inliner should remove the local class from the body of the constructor before instantiation
+    public @TempNoInline_0 def sequence(){this.rank==1}:Sequence[T] = {
     		// once XTENLANG-2699 is fixed, replace
     		// with anonymous class.
     	class MySequence implements Sequence[T] {
@@ -390,7 +391,7 @@ public final class Array[T] (
         	public operator this(i:Int):T=Array.this(i); 
         	public def size()=Array.this.size;
         }
-    	new MySequence()
+    	@TempNoInline_0 new MySequence()
     }
 
     
