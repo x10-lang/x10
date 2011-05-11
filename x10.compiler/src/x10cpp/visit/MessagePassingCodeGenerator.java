@@ -2077,7 +2077,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Case_c n) {
 		sw.newline();
 		if (n.expr() == null) {
-			sw.write("default :");
+            sw.write("default: ;"); // Add gratituous ; to avoid post-compiler failure if default is last one in switch and is empty.
 		} else {
 			sw.write("case ");
 			// FIXME: [IP] HACK HACK HACK! Substitute the actual constant if any
