@@ -148,6 +148,7 @@ public class Emitter {
 	                "null",     "true",     "false",
                     // X10 implementation names
 	                "serialVersionUID",
+	                "x10", "java",	// XTENLANG-2438
 	                // X10 implementation names (rename is not needed since they include reserved character $)
 //	                X10PrettyPrinterVisitor.GETRTT_NAME, X10PrettyPrinterVisitor.RTT_NAME, X10PrettyPrinterVisitor.GETPARAM_NAME,
 	        }
