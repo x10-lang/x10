@@ -226,11 +226,47 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		for (Expr ei : index) {
 		    actualTypes.add(ei.type());
 		}
-		actualTypes.add(right.type());
 
 		List<Expr> args = new ArrayList<Expr>();
 		args.addAll(index);
-		args.add(right);
+
+		MethodInstance ami = null;
+		Expr right = this.right;
+		Expr val = this.right;
+
+		// FIXME: try to find the method with implicit conversions if this fails.
+		ami = Checker.findAppropriateMethod(tc, array.type(), ClosureCall.APPLY, typeArgs, actualTypes);
+
+		if (op != Assign.ASSIGN) {
+		    if (ami.error() != null) { // it's an error only if op is not =, e.g., a(1)+=1;
+		        Type bt = Types.baseType(array.type());
+		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), ami.error()));
+		    }
+		    X10Call_c left = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(),
+		            ClosureCall.APPLY), Collections.<TypeNode>emptyList(),
+		            index).methodInstance(ami).type(ami.returnType());
+		    X10Binary_c n = (X10Binary_c) nf.Binary(position(), left, op.binaryOperator(), right);
+		    X10Call c = X10Binary_c.desugarBinaryOp(n, tc);
+		    MethodInstance cmi = (MethodInstance) c.methodInstance();
+		    if (cmi.error() != null) {
+		        Type bt = Types.baseType(array.type());
+		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        Errors.issue(tc.job(),
+		                new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, Types.arrayElementType(array.type()), position(), cmi.error()));
+		    }
+		    if (cmi.flags().isStatic()) {
+		        right = c.arguments().get(1);
+		    } else if (c.name().id().equals(X10Binary_c.invBinaryMethodName(n.operator()))) {
+		        right = (Expr) c.target();
+		    } else {
+		        right = c.arguments().get(0);
+		    }
+		    val = c;
+		}
+
+		actualTypes.add(val.type());
+		args.add(val);
 
 		// First try to find the method without implicit conversions.
 		mi = Checker.findAppropriateMethod(tc, array.type(), SET, typeArgs, actualTypes);
@@ -251,35 +287,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), mi.error()));
 		    }
 		}
-		MethodInstance ami = null;
 
-		actualTypes = new ArrayList<Type>(mi.formalTypes());
-		actualTypes.remove(actualTypes.size()-1);
-
-		// First try to find the method without implicit conversions.
-		ami = Checker.findAppropriateMethod(tc, array.type(), ClosureCall.APPLY, typeArgs, actualTypes);
-
-
-
-		if (op != Assign.ASSIGN) {
-            if (ami.error() != null) { // it's an error only if op is not =, e.g., a(1)+=1;
-                Type bt = Types.baseType(array.type());
-                boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-                Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), ami.error()));
-            }
-            // First try to find the method without implicit conversions.
-		    X10Call_c left = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(),
-		            ClosureCall.APPLY), Collections.<TypeNode>emptyList(),
-		            index).methodInstance(ami).type(ami.returnType());
-		    X10Binary_c n = (X10Binary_c) nf.Binary(position(), left, op.binaryOperator(), right);
-		    X10Call c = X10Binary_c.desugarBinaryOp(n, tc);
-		    MethodInstance cmi = (MethodInstance) c.methodInstance();
-		    if (cmi.error() != null) {
-		        Type bt = Types.baseType(array.type());
-		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		        Errors.issue(tc.job(),
-		                new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, Types.arrayElementType(array.type()), position(), cmi.error()));
-		    }
+		if (op == Assign.ASSIGN) {
+		    right = args.get(args.size()-1);
 		}
 
 		if (mi.flags().isStatic() ) {
@@ -289,7 +299,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		SettableAssign_c a = this;
 		a = (SettableAssign_c) a.methodInstance(mi);
 		a = (SettableAssign_c) a.applyMethodInstance(ami);
-		a = (SettableAssign_c) a.right(args.get(args.size()-1));
+		a = (SettableAssign_c) a.right(right);
 		a = (SettableAssign_c) a.index(args.subList(0, args.size()-1));
 		return a;
 	}

@@ -4473,7 +4473,7 @@ class TestSetAndApplyOperators {
 		a(2) += 3; // ERR ERR
 		sa(2) += 5; 
 		val i1:Int{self==5} = sa(2) = 5; 
-		val i2:Int{self==5} = sa(2) += 5; // ShouldBeErr (XTENLANG_2277)
+		val i2:Int{self==5} = sa(2) += 5; // ERR
 		val i3:Int{self==4} = sa(2) += 5; // ERR
 	}
 }
