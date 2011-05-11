@@ -493,8 +493,8 @@ int main(int argc, char **argv)
     if (x10rt_here()==0) {
         std::cout<<"Main table size:         2^"<<logLocalTableSize<<"*"<<x10rt_nhosts()
                                                  <<" == "<<tableSize<<" words ("<<tableSize*8.0/1024/1024<<" MB)"<<std::endl;
-        std::cout<<"Per-process table size:  2^"<<logLocalTableSize<<"*"<<x10rt_nhosts()
-                                                 <<" == "<<tableSize<<" words ("<<localTableSize*8.0/1024/1024<<" MB)"<<std::endl;
+        std::cout<<"Per-process table size:  2^"<<logLocalTableSize
+                                                 <<" == "<<localTableSize<<" words ("<<localTableSize*8.0/1024/1024<<" MB)"<<std::endl;
         std::cout<<"Number of places:        "<<x10rt_nhosts()<<std::endl;
         std::cout<<"Number of updates:       "<<numUpdates<<std::endl;
 
