@@ -86,7 +86,8 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
 
     // XTENLANG-2680
 	public void printStackTrace(x10.io.Printer p) {
-		super.printStackTrace(new java.io.PrintWriter(p.getNativeOutputStream().stream));
+	    // See @Native annotation in Throwable.x10
+		x10.core.ThrowableUtilities.printStackTrace(this, p);
 	}
 
     public static final RuntimeType<Throwable> $RTT = new NamedType<Throwable>(
