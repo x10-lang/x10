@@ -153,9 +153,9 @@ public abstract class ThrowableUtilities {
             // N.B. ThrowableUtilities.x10Throwables must be sync with TryCatchExpander.x10Throwables
             // N.B. x10.lang.Throwable is @NativeRep'ed to x10.core.Throwable
             javaClass = java.lang.Throwable.class;
-//            x10Name = "x10.lang.Throwable";
-            x10Name = "x10.core.Throwable";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+//            x10Name = "x10.core.Throwable";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10Class = x10.core.Throwable.class;
             x10Throwables.put(javaClass, x10Class);
             x10Throwable = x10Class;
             
