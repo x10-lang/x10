@@ -1678,7 +1678,7 @@ public class TypeSystem_c implements TypeSystem
         return acceptable;
     }
 
-    public static <T extends X10ProcedureInstance<?> & MemberInstance<?>> List<T> resolveProcedure(Type container, Context context, List<T> allMethods, List<Type> typeParams, List<Type> argTypes, boolean dumbMatcher) {
+    public static <D extends ProcedureDef, T extends X10ProcedureInstance<D> & MemberInstance<D>> List<T> resolveProcedure(Type container, Context context, List<T> allMethods, List<Type> typeParams, List<Type> argTypes, boolean dumbMatcher) {
         int typeParamNum = typeParams.size();
         int argNum = argTypes.size();
         List<T> resolved = new ArrayList<T>();

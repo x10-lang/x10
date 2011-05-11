@@ -2166,7 +2166,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         boolean isDumb = matcher.isDumbMatcher;
     boolean shouldTryCoercions = !isDumb && typeArgs.size() == 0 && container != null && (container instanceof X10ParsedClassType) && ((X10ParsedClassType) container).def().typeParameters().size() > 0;
     List<ConstructorInstance> resolved =
-        TypeSystem_c.<ConstructorInstance>resolveProcedure(container, context, list, typeArgs, matcher.argTypes, isDumb);
+        TypeSystem_c.resolveProcedure(container, context, list, typeArgs, matcher.argTypes, isDumb);
 	for (ConstructorInstance ci : resolved) {
 	    if (reporter.should_report(Reporter.types, 3))
 		reporter.report(3, "Trying " + ci);
