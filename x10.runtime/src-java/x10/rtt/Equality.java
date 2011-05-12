@@ -21,6 +21,11 @@ public class Equality {
     public static int compareTo(boolean a, boolean b) { return a == b ? 0 : (b ? -1 : 1); }
     public static int compareTo(boolean a, Comparable b) { return compareTo((Comparable) a, b); }
     
+    public static boolean equalsequals(char a, char b) { return a == b; }
+    public static boolean equalsequals(char a, Object b) { return equalsequals((Object) a, b); }
+    public static int compareTo(char a, char b) { return a == b ? 0 : (a < b ? -1 : 1); }
+    public static int compareTo(char a, Comparable b) { return compareTo((Comparable) a, b); }
+    
     public static boolean equalsequals(byte a, byte b) { return a == b; }
     public static boolean equalsequals(byte a, Object b) { return equalsequals((Object) a, b); }
     public static int compareTo(byte a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -40,11 +45,6 @@ public class Equality {
     public static int compareTo(short a, float b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(short a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(short a, Comparable b) { return compareTo((Comparable) a, b); }
-    
-    public static boolean equalsequals(char a, char b) { return a == b; }
-    public static boolean equalsequals(char a, Object b) { return equalsequals((Object) a, b); }
-    public static int compareTo(char a, char b) { return a == b ? 0 : (a < b ? -1 : 1); }
-    public static int compareTo(char a, Comparable b) { return compareTo((Comparable) a, b); }
     
     public static boolean equalsequals(int a, int b) { return a == b; }
     public static boolean equalsequals(int a, Object b) { return equalsequals((Object) a, b); }
