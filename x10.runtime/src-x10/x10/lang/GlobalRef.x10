@@ -46,13 +46,6 @@ public struct GlobalRef[T](
     @Native("c++", "(#this)->__apply()")
     public native operator this(){here == this.home}:T;
 
-    /** 
-     * Converts a GlobalRef to its home.
-     */
-    @Native("java", "(#r).home")
-    @Native("c++", "x10::lang::Place::place((#r)->location)")
-    public static native operator[T] (r:GlobalRef[T]){T <: Object}: Place{self==r.home};
-
     /**
      * Unsafe native method to get value.
      * Assumes here == this.home; however this is not enforced
