@@ -6453,7 +6453,7 @@ class StructLCATest { // see XTENLANG-2635
 	static struct A implements Op {}
 	static struct B implements Op {}
 	class Test {
-		val x:Array[Op] = [A(), B()]; // ShouldNotBeERR (Found type: x10.array.Array[x10.lang.Any])
+		val x:Array[Op] = [A(), B()]; 
 		val y:Array[Op] = [A() as Op, B()];
 		val z:Array[Op] = [A() as Op, B() as Op];
 	}
@@ -6464,12 +6464,80 @@ class ClassLCATest {
 	static class B implements Op {}
 	class Test {
 		// LCA of A and B should be Op or Object ?
-		val w:Array[Object{self!=null}] = [new A(), new B()];
-		val x:Array[Op] = [new A(), new B()]; // ERR (Found type: x10.array.Array[x10.lang.Object{self!=null}]{...})
+		val w:Array[Object{self!=null}] = [new A(), new B()]; // ERR
+		val x:Array[Op{self!=null}] = [new A(), new B()]; 
 		val y:Array[Op] = [new A() as Op, new B()];
 		val z:Array[Op] = [new A() as Op, new B() as Op];
 	}
 }
+class LCATests { // see XTENLANG-2635
+	static interface Op {}
+	static interface I1 {}
+	static interface I2 {}
+	static interface I3 {}
+
+	static class StructTests {
+		static struct S1 implements Op,I1 {}
+		static struct S2 implements Op,I2 {}
+		static struct S3 implements Op,I3 {}
+		static struct S13 implements Op,I1,I3 {}
+		static struct S23 implements Op,I2,I3 {}
+		static struct S123 implements Op,I1,I2,I3 {}
+		def test() {
+			val x1:Array[Op] = [new S1(), new S2()]; 
+			val x2:Array[Op] = [new S1(), new S2(), new S3()]; 
+			val x3:Array[Any] = [new S1(), new S13()]; 
+			val x4:Array[Op] = [new S1(), new S23()]; 
+			val x5:Array[Any] = [new S1(), new S123()]; 
+			val x6:Array[Any] = [new S123(), new S2()]; 
+			val x7:Array[Any] = [new S23(), new S2()]; 
+			val x8:Array[Op] = [new S13(), new S2()];
+		}
+	}
+	static class ClassTests {
+		static class S1 implements Op,I1 {}
+		static class S2 implements Op,I2 {}
+		static class S3 implements Op,I3 {}
+		static class S13 implements Op,I1,I3 {}
+		static class S23 implements Op,I2,I3 {}
+		static class S123 implements Op,I1,I2,I3 {}
+		def test() {
+			val x1:Array[Op{self!=null}] = [new S1(), new S2()]; 
+			val x2:Array[Op{self!=null}] = [new S1(), new S2(), new S3()]; 
+			val x3:Array[Any] = [new S1(), new S13()]; 
+			val x4:Array[Op{self!=null}] = [new S1(), new S23()]; 
+			val x5:Array[Any] = [new S1(), new S123()]; 
+			val x6:Array[Any] = [new S123(), new S2()]; 
+			val x7:Array[Any] = [new S23(), new S2()]; 
+			val x8:Array[Op{self!=null}] = [new S13(), new S2()];
+		}
+	}
+	static class ClassTests2 {
+		static class A {}
+
+		static class S1 extends A implements Op {}
+		static class S2 extends A implements Op {}
+		def test() {
+			val x1:Array[A{self!=null}] = [new S1(), new S2()]; 
+			val x2:Array[A{self!=null}] = [new S1(), new A()]; 
+		}
+	}
+	
+	static interface GI[T] {}
+	static class ClassTests3 {
+		static class A {}
+
+		static class S1 implements GI[Int] {}
+		static class S2 implements GI[S1] {}
+		static class S3 implements GI[S1] {}
+		def test() {
+			val x1:Array[Object{self!=null}] = [new S1(), new S2()]; 
+			val x2:Array[GI[S1]{self!=null}] = [new S2(), new S3()]; 
+		}
+	}
+
+}
+
 
 class TestClassConformance { // XTENLANG-2509
 
@@ -6634,4 +6702,20 @@ class LegalOverloading3[S,U] {
 class LegalOverloading4[S] {
 	def foo(x:S) {}
 	def foo[T](x:T) {}
+}
+
+class PropertyMethodThatIsBothTopLevelAndNested {
+	interface BI {
+	  property m():Boolean;
+	}
+	class A(p:Int) {}
+	class B(a:A,b:Int) implements BI {
+	  property m() = a.p==2 && b==5;
+	}
+	class Test {
+		def x(b:BI) {
+			val t1 = b instanceof BI{self.m()};
+			val t2 = b instanceof BI{self.m()==false};
+		}
+	}
 }

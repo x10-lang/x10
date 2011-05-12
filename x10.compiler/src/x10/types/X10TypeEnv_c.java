@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 
 import polyglot.main.Reporter;
 import polyglot.types.ClassType;
@@ -1673,6 +1674,60 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     // Assumes type1 and type2 are base types, no constraint clauses.
     private Type leastCommonAncestorBase(Type type1, Type type2) throws SemanticException {
+        Type res = leastCommonAncestorBaseOld(type1, type2);
+        // try to find something better with interfaces:
+        // let's intersect all the interfaces type1 and type2 implement,
+        // then let's return the one that is a subtype of all those in the intersection.
+        // see XTENLANG-2635
+        if (ts.Any()!=res && ts.Object()!=res)
+            return res;
+        if (ts.isAny(type1) || ts.isAny(type2)) // optimization
+            return res;
+        if (type1 instanceof X10ParsedClassType_c && type2 instanceof X10ParsedClassType_c) {
+            X10ParsedClassType_c ct1 = (X10ParsedClassType_c) type1;
+            X10ParsedClassType_c ct2 = (X10ParsedClassType_c) type2;
+            Set<Type> in1 = getStrippedInterfaces(ct1);
+            Set<Type> in2 = getStrippedInterfaces(ct2);
+            Set<Type> intersection = new HashSet<Type>();
+            Context empty = ts.emptyContext();
+            for (Type t1 : in1) {
+                for (Type t2 : in2) {
+                    if (ts.typeEquals(t1,t2, empty))
+                        intersection.add(t1);
+                }
+            }
+            int size = intersection.size();
+            // Note that Object doesn't implement Any (a bug in our compiler)
+            if (size>1) {
+                // let's find the most specific one
+                Type mostSpecific = null;
+                for (Type candidate : intersection) {
+                    boolean ok = true;
+                    for (Type t : intersection)
+                        if (t!=candidate && !ts.isSubtype(candidate, t,empty)) {
+                            ok = false;
+                            break;
+                        }
+                    if (!ok) continue;
+                    mostSpecific = candidate;
+                    break;
+                }
+                return mostSpecific;
+            }
+        }
+        return res;
+    }
+    // returns all the interfaces implemented by ct, without any constraint info
+    private Set<Type> getStrippedInterfaces(X10ParsedClassType_c ct) {
+        Set<X10ParsedClassType_c> supertypes = ct.allSuperTypes(true);
+        Set<Type> res = new HashSet<Type>();
+        for (X10ParsedClassType_c s : supertypes) {
+            if (s.def().flags().isInterface())
+                res.add(Types.stripConstraints(s));
+        }
+        return res;
+    }
+    private Type leastCommonAncestorBaseOld(Type type1, Type type2) throws SemanticException {
     	if (typeEquals(type1, type2)) {
     		return type1;
     	}
