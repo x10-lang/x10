@@ -14,10 +14,15 @@ import harness.x10Test;
 class StructImplicitCoercionToInterface extends x10Test {
     static interface I { 
     def i():Int;
-    public static operator (x:S):I = new I() {
+		/*
+		// interface cannot have static methods,
+		// and I cannot place this coercion operator in S because we search only in the target type (see XTENLANG_2667)
+		// so the entire test is invalid now...
+		public static operator (x:S):I = new I() {
         public def i() = x.i;
                 public def toString() = "<I i=" + x.i+">";
         };
+		*/
     }
     static struct S implements I {
         val i:Int;
