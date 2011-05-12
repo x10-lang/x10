@@ -225,6 +225,7 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt)
 
 	char * src = (char *) p;
 	unsigned bytesleft = cnt;
+	uint8_t allowConnResetTries = 10;
 	if (state.pendingWrites == NULL)
 	{
 		while (bytesleft > 0)
@@ -234,7 +235,9 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt)
 			{
 				if (errno == EINTR) continue;
 				if (errno == EAGAIN) break;
-				fprintf(stderr, "write errno=%i", errno);
+				if (errno == ECONNRESET && allowConnResetTries--)
+					continue; // this seems to happen, every once in a great while.  We allow a few only.
+				fprintf(stderr, "write errno=%i ", errno);
 				return -1;
 			}
 			if (rc == 0) break;
