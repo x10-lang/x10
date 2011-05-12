@@ -246,7 +246,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     public boolean isConstant() {
         if (!expr.isConstant()) return false;
         if (castType.type().isNumeric()) return true;
-        if (expr.type().isNumeric()) return false; // FIXME: because constantValue method below doesn't know how to correctly handle this case
+        if (expr.type().isNumeric() || expr.type().isChar()) return false; // FIXME: because constantValue method below doesn't know how to correctly handle this case
         return expr.type().isSubtype(castType.type(), expr.type().typeSystem().emptyContext());
     }
         
@@ -316,7 +316,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     		if (cType.isChar()) return Character.valueOf((char) vv);
     		if (cType.isShort()) return Short.valueOf((short) vv);
     		if (cType.isByte()) return Byte.valueOf((byte) vv);
-    		if (cType.typeEquals(ts.Any(), emptyContext)) return v;
     	}
 
     	// Not null, but we can't figure out what to do with it.
