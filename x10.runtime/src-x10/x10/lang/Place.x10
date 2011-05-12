@@ -203,6 +203,15 @@ public final struct Place(id: Int)  {
     public def equals(p:Place) = p.id==this.id;
     public def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
     public def hashCode()=id;
+
+    
+    /**
+     * Converts a GlobalRef to its home.
+     */
+    @Native("java", "(#r).home")
+    @Native("c++", "x10::lang::Place::place((#r)->location)")
+    public static native operator[T] (r:GlobalRef[T]){T <: Object}: Place{self==r.home};
+
 }
 public type Place(id:Int) = Place{self.id==id};
 public type Place(p:Place) = Place{self==p};
