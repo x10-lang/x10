@@ -72,7 +72,7 @@ Launcher::Launcher()
 	memset(_hostfname, 0, sizeof(_hostfname));
 	_nplaces = 1;
 	_hostlist = NULL;
-	_runtimePort = NULL;
+	_runtimePort[0] = '\0';
 	_myproc = 0xFFFFFFFF;
 	_returncode = 0xFEEDC0DE;
 	_dieAt = 0;
