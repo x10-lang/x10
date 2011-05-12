@@ -21,9 +21,8 @@ import x10.compiler.NonEscaping;
 // Fix for XTENLANG-1916
 @NativeRep("java", "x10.core.RefI", null, "x10.rtt.Types.OBJECT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Object>", "x10::lang::Object", null)
-public class Object 
-        implements Any 
-{
+public class Object {
+
     /**
      * Default constructor.
      */
@@ -42,7 +41,7 @@ public class Object
      */
     @Native("java", "#this.equals(#that)")
     @Native("c++", "(#this)->equals(#that)")
-    public native def equals(that:Any): boolean;
+    public native def equals(that:Any): Boolean;
 
     /**
      * Return the default (implementation-defined) hash code of this object. The method
