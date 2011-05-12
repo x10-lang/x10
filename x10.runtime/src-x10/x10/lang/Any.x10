@@ -37,7 +37,8 @@ public interface Any {
      *
      * @return a string representation of this entity.
      */
-	@Native("java", "((java.lang.Object)(#this)).toString()")
+	// @Native("java", "((java.lang.Object)(#this)).toString()")
+	@Native("java", "x10.rtt.Types.toString(#this)")
     @Native("c++", "x10aux::to_string(#this)")
     def toString():String;
 

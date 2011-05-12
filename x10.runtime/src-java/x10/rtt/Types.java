@@ -35,12 +35,12 @@ public class Types {
 //    }
     
 	public static RuntimeType<?> getRTT(Object obj) {
-		RuntimeType<?> rtt;
+		RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
         	rtt = ((Any) obj).$getRTT();
         } else if (Types.getNativeRepRTT(obj) != null) {
         	rtt = Types.getNativeRepRTT(obj);
-        } else {
+        } else if (obj != null) {
             // Note: for java classes that don't have RTTs
         	// TODO add the superclass and all interfaces to parents
         	// TODO add type parameters as Any
@@ -50,22 +50,37 @@ public class Types {
         return rtt;
 	}
 	
-//    public static String typeName(Object obj) {
-//        String s;
-//        if (obj instanceof Any) {
-//            s = ((Any) obj).$getRTT().typeName(obj);
-//        } else if (Types.getNativeRepRTT(obj) != null) {
-//            s = Types.getNativeRepRTT(obj).typeName();
-//        } else {
-//            // Note: for java classes that don't have RTTs
-//            s = obj.getClass().toString().substring("class ".length());
-//        }
-//        return s;
-//    }
+	
+    // Fast implementation of Any.typeName() without boxing
     public static String typeName(Object obj) {
     	return getRTT(obj).typeName(obj);
     }
+    public static String typeName(boolean value) {
+    	return BOOLEAN.typeName();
+    }
+    public static String typeName(char value) {
+    	return CHAR.typeName();
+    }
+    public static String typeName(byte value) {
+    	return BYTE.typeName();
+    }
+    public static String typeName(short value) {
+    	return SHORT.typeName();
+    }
+    public static String typeName(int value) {
+    	return INT.typeName();
+    }
+    public static String typeName(long value) {
+    	return LONG.typeName();
+    }
+    public static String typeName(float value) {
+    	return FLOAT.typeName();
+    }
+    public static String typeName(double value) {
+    	return DOUBLE.typeName();
+    }
 
+    
     // Fast implementation of Any.hashCode() without boxing
     public static int hashCode(Object value) {
         return value.hashCode();
@@ -95,6 +110,38 @@ public class Types {
     public static int hashCode(double value) {
         long bits = Double.doubleToLongBits(value);
         return (int)(bits ^ (bits >>> 32));
+    }
+    
+
+    // Fast implementation of Any.toString() without boxing
+    public static String toString(Object value) {
+        return value.toString();
+    }
+    // not used because primitives has their own @Native and they are boxed when converted to Any
+    public static String toString(boolean value) {
+        return Boolean.toString(value);
+    }
+    public static String toString(char value) {
+    	return Character.toString(value);
+    }
+//    public static String toString(byte value) {
+//    	return Integer.toString(value);
+//    }
+//    public static String toString(short value) {
+//    	return Integer.toString(value);
+//    }
+    public static String toString(int value) {
+        // for byte, short and int 
+    	return Integer.toString(value);
+    }
+    public static String toString(long value) {
+        return Long.toString(value);
+    }
+    public static String toString(float value) {
+    	return Float.toString(value);
+    }
+    public static String toString(double value) {
+    	return Double.toString(value);
     }
     
     // not used
