@@ -205,6 +205,7 @@ else
         endif
       else
         export X10RT_PLATFORM=linux_x86_32
+        override CXXFLAGS += -msse2 -mfpmath=sse
       endif
       endif
     else
@@ -212,6 +213,7 @@ else
       export X10RT_PLATFORM=cygwin
       override CXX ?= g++-4
       override CC ?= gcc-4
+      override CXXFLAGS += -msse2 -mfpmath=sse
       override CXXFLAGS_SHARED += -shared -Wl,--export-all-symbols -Wl,--enable-auto-import
       LIBPREFIX :=
       LIBSUFFIX := .dll
@@ -234,6 +236,7 @@ else
         override CXXFLAGS += -arch x86_64
         override XRX_PROPS_CXXFLAGS += -arch x86_64
       endif
+      override CXXFLAGS += -msse2 -mfpmath=sse
       AR = libtool
       # Warning: Order matters!  The "-o" has to be at the end.
       ARFLAGS = -static -o
