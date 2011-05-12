@@ -1596,7 +1596,7 @@ public class Errors {
 		private static final long serialVersionUID = 8988805819997786489L;
 
 		public MustHaveSameClassAsContainer(Position p) {
-            super("The return type or the formal type of an explicit or implicit operator 'as' " +
+            super("The return type of an explicit or implicit operator 'as' " +
             		"must have the same class as the container.", p);
         }
     }

@@ -3857,7 +3857,7 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		// implicit_as
 		@ERR public static operator (p:Int):Foo = null;
 		public static operator (p:Long):A = null;
-		public static operator (x:A):String = null;
+		@ERR public static operator (x:A):String = null;
 
 		// explicit_as
 		@ERR public static operator (x:Double) as Foo = null;
@@ -3871,7 +3871,7 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		// implicit_as
 		@ERR public static operator (p:Int):Foo = null;
 		public static operator (p:Long):St = St();
-		public static operator (x:St):String = null;
+		@ERR public static operator (x:St):String = null;
 
 		// explicit_as
 		@ERR public static operator (x:Double) as Foo = null;
@@ -3904,8 +3904,8 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 	// what happens if we have two possible implicit/explicit coercions?
 	// We give priority to coercions found in the target type (over the single one that can be found in the source type).
 	static class Y(j:Int) {
-		public static operator (p:Y):X{i==2} = null;
-		public static operator (p:Y) as ? :X{i==3} = null;
+		@ERR public static operator (p:Y):X{i==2} = null;
+		@ERR public static operator (p:Y) as ? :X{i==3} = null;
 	}
 	static class X(i:Int) {
 		public static operator (p:Y):X{i==1} = null;
@@ -6618,4 +6618,20 @@ class XTENLANG_1448 {
 	class Impl(p:Place) implements Test[Impl{self.p==here}] {
 		public def add(t:Impl{self.p==here}):void {}
 	}
+}
+class LegalOverloading1[U] {	
+	def foo(x:Any) {}
+	def foo(x:U) {}
+}
+class LegalOverloading2[U] {	
+	def foo(x:Int) {}
+	def foo(x:U) {}
+}
+class LegalOverloading3[S,U] {
+	def foo(x:S) {}
+	def foo(x:U) {}
+}
+class LegalOverloading4[S] {
+	def foo(x:S) {}
+	def foo[T](x:T) {}
 }

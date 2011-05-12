@@ -66,17 +66,6 @@ public class GlobalCell[T] {
      */
     public static def make[T](x:T)= (new GlobalCell[T](x));
 
-
-    /**
-     * Return the value stored in the given GlobalCell.
-     * Will work even if the Cell reference is remote.
-     *
-     * @param T the value type of the Cell
-     * @param x the given Cell
-     * @return the value stored in the given Cell.
-     */
-    public static operator[T](x:GlobalCell[T]) = x();
-
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

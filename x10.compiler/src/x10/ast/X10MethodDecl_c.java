@@ -615,9 +615,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             //class B[U] {
             //    public static operator[T](x:T):B[T] = null;
             //}
+            // We only search in the target type (not the source type), so
+            // public static operator (x:Bar) as Any = null; // ERR
             assert container instanceof X10ParsedClassType : container;
             boolean isReturnWrong = !(returnT   instanceof X10ParsedClassType) || ((X10ParsedClassType)returnT  ).def()!=((X10ParsedClassType)container).def();
-            boolean isFormalWrong = !(argumentT instanceof X10ParsedClassType) || ((X10ParsedClassType)argumentT).def()!=((X10ParsedClassType)container).def();
+            boolean isFormalWrong = SEARCH_CASTS_ONLY_IN_TARGET ||  !(argumentT instanceof X10ParsedClassType) || ((X10ParsedClassType)argumentT).def()!=((X10ParsedClassType)container).def();
             if (isReturnWrong && isFormalWrong) {
                 Errors.issue(tc.job(),
 				        new Errors.MustHaveSameClassAsContainer(n.position()));
@@ -625,6 +627,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         }
 		return n;
 	}
+    private static boolean SEARCH_CASTS_ONLY_IN_TARGET = true; // see XTENLANG_2667
 
 
 

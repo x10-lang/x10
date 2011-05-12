@@ -14,15 +14,15 @@ import harness.x10Test;
 class StructImplicitCoercionToInterface extends x10Test {
     static interface I { 
     def i():Int;
+    public static operator (x:S):I = new I() {
+        public def i() = x.i;
+                public def toString() = "<I i=" + x.i+">";
+        };
     }
     static struct S implements I {
         val i:Int;
     def this(i:Int) { this.i=i;}
     public def i() = i;
-    public static operator (x:S):I = new I() {
-        public def i() = x.i;
-                public def toString() = "<I i=" + x.i+">";
-        };
     }
     static def q(x:I) {
    
