@@ -887,7 +887,7 @@ public class Desugarer extends ContextVisitor {
         Type ct = tn.type();
         Expr cast = nf.X10Cast(pos, tn, xl, Converter.ConversionType.CHECKED).type(ct);
         Name sn = getTmp();
-        LocalDef sDef = ts.localDef(pos, ts.Final(), Types.ref(ct), xn);
+        LocalDef sDef = ts.localDef(pos, ts.Final(), Types.ref(ct), sn);
         LocalDecl selfD = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
                 nf.CanonicalTypeNode(pos, ct), nf.Id(pos, sn), cast).localDef(sDef);
         Expr self = nf.Local(pos, nf.Id(pos, sn)).localInstance(sDef.asInstance()).type(ct);
