@@ -14,6 +14,7 @@ package x10.core;
 import java.util.Arrays;
 
 import x10.core.fun.VoidFun_0_0;
+import x10.lang.Place;
 import x10.lang.UnsupportedOperationException;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
@@ -150,7 +151,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
             System.arraycopy(src.value, srcIndex, dataToCopy, 0, numElems);
         }
         
-        // TODO translate this to a static nested class
+        /*
+        // TODO translate copyBody to a static nested class
         VoidFun_0_0 copyBody = new VoidFun_0_0() {
             private static final long serialVersionUID = 1L;
             int dstId = dst.id;
@@ -164,8 +166,32 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                 System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
             }
         };
+        */
+        VoidFun_0_0 copyBody = new $Closure$0(dataToCopy, dst.id, dstIndex, numElems);
         
         x10.lang.Runtime.runAsync(dst.home, copyBody);
+    }
+    
+    // static nested class version of copyBody
+    static class $Closure$0 extends x10.core.Ref implements VoidFun_0_0 {
+        private static final long serialVersionUID = 1L;
+        final Object srcData;
+        final int dstId;
+        final int dstIndex;
+        final int numElems;
+        $Closure$0(Object srcData, int dstId, int dstIndex, int numElems) {
+        	this.srcData = srcData;
+        	this.dstId = dstId;
+        	this.dstIndex = dstIndex;
+        	this.numElems = numElems;
+        }
+        public void $apply() {
+            Object dstData = RemoteIndexedMemoryChunk.getValue(dstId);
+            System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
+        }
+        public static final RuntimeType<$Closure$0> $RTT =
+        	new x10.rtt.StaticVoidFunType<$Closure$0>($Closure$0.class, new Type[] { VoidFun_0_0.$RTT, x10.rtt.Types.OBJECT });
+        public RuntimeType<$Closure$0> $getRTT() { return $RTT; }
     }
 
     public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
@@ -180,9 +206,10 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                                      final int numElems) {
         // A really bad implementation!  Leaks dst!!  Non-optimized copies! Extra distributed async/finish traffic!
         final RemoteIndexedMemoryChunk<T> dstWrapper = RemoteIndexedMemoryChunk.wrap(dst);
-        final int srcId = src.id;
         
-        // TODO translate this to a static nested class
+        /*
+        // TODO translate copyBody1 to a static nested class
+        final int srcId = src.id;
         VoidFun_0_0 copyBody1 = new VoidFun_0_0() {
             private static final long serialVersionUID = 1L;
             public RuntimeType<?> $getRTT() { return VoidFun_0_0.$RTT; }
@@ -223,8 +250,57 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
                 x10.lang.Runtime.runAsync(dstWrapper.home, copyBody2);
             }
         };
-        
+        */
+        VoidFun_0_0 copyBody1 = new $Closure$1<T>(src, srcIndex, dstWrapper, dstIndex, numElems);
+
         x10.lang.Runtime.runAsync(src.home, copyBody1);
+    }
+    
+    // static nested class version of copyBody1
+    static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
+        private static final long serialVersionUID = 1L;
+        final int srcId;
+        final int srcLength;
+        final Type<T> srcType;
+        final int srcIndex;
+        final int dstWrapperId;
+        final Place dstWrapperHome;
+        final int dstIndex;
+        final int numElems;
+        $Closure$1(RemoteIndexedMemoryChunk<T> src, int srcIndex, RemoteIndexedMemoryChunk<T> dstWrapper, int dstIndex, int numElems) {
+        	this.srcId = src.id;
+        	this.srcLength = src.length;
+        	this.srcType = src.type;
+        	this.srcIndex = srcIndex;
+        	this.dstWrapperId = dstWrapper.id;
+        	this.dstWrapperHome = dstWrapper.home;
+        	this.dstIndex = dstIndex;
+        	this.numElems = numElems;
+        }
+        public void $apply() {
+            // This body runs at src's home.  It accesses the data for src and then does
+            // another async back to dstWrapper's home to transfer the data.
+            Object srcData = RemoteIndexedMemoryChunk.getValue(srcId);
+             
+            // extra copy here simplifies logic and allows us to do this entirely at the Java level.
+            // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
+            // it as just another async to execute remotely.
+            final Object dataToCopy;
+            if (numElems == srcLength) {
+                dataToCopy = srcData;
+            } else {
+                dataToCopy = allocate(srcType, numElems, false).getBackingArray();
+                System.arraycopy(srcData, srcIndex, dataToCopy, 0, numElems);
+            }
+            
+            // N.B. copyBody2 is same as copyBody 
+            VoidFun_0_0 copyBody2 = new $Closure$0(dataToCopy, dstWrapperId, dstIndex, numElems);
+
+            x10.lang.Runtime.runAsync(dstWrapperHome, copyBody2);
+        }
+        public static final RuntimeType<$Closure$1<?>> $RTT =
+        	new x10.rtt.StaticVoidFunType<$Closure$1<?>>($Closure$1.class, new Type[] { VoidFun_0_0.$RTT, x10.rtt.Types.OBJECT });
+        public RuntimeType<$Closure$1<?>> $getRTT() { return $RTT; }
     }
 
     public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
