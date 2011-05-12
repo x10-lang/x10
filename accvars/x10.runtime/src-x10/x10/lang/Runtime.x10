@@ -589,9 +589,6 @@ import x10.util.NoSuchElementException;
      * @param body Main activity
      */
     public static def start(init:()=>void, body:()=>void):void {
-    
-             
-    
         try {
             // initialize thread pool for the current process
             // initialize runtime
@@ -902,8 +899,7 @@ import x10.util.NoSuchElementException;
         return activity().swapFinish(new FinishState.Finish());
     }
 
-    public static def startFinish(pragma:Int):FinishState { 
-    
+    public static def startFinish(pragma:Int):FinishState {
         val f:FinishState;
         switch (pragma) {
         case Pragma.FINISH_ASYNC:
@@ -953,49 +949,22 @@ import x10.util.NoSuchElementException;
 
     public static def makeOffer[T](t:T) {
 		val state = activity().finishState();
-//		Console.OUT.println("Place(" + here.id + ") Runtime.makeOffer: received " + t);
-        (state as FinishState.CollectingFinish[T]).accept(t, workerId()); //Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+		Console.OUT.println("Place(" + here.id + ") Runtime.makeOffer: received " + t);
+		Console.OUT.println("state is "+state);
+        (state as FinishState.CollectingFinish[T]).accept(t,workerId()); //Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
     
-	// Begin of changes for Accumulator
-    public static def makeAccSupply[T](x:long, t:T, red:Reducible[T]) {
-	
-		Console.OUT.println("ACCUMULATOR ID is "+x);
-		Runtime.startCollectingFinish(red); // for now
-		val state = activity().finishState();  // should return collectingFinish by default (Nate) get the innermost finish state
+   
+	public static def makeAccSupply[T](curr:T, red:Reducible[T], t:T) {
+		//val curr1:T;
+		//atomic curr1 = red(curr,t);
 		
-		Console.OUT.println("STATE of the accumulator is "+state);
-		(state as FinishState.CollectingFinish[T]).accAccept(x, t, workerId(), red);	
-		//Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
-		
+		// get the innermost finish state
+		val state = activity().finishState();
+		Console.OUT.println("Place(" + here.id + ") Runtime.makeSupply: received " + state);
+		return (state as FinishState.CollectingFinish[T]).accAccept(t,workerId(), red, curr);	//Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
-    
-    public static def isStateCollectingFinish[T]():boolean {
-    	val state = activity().finishState();
-    	if (state instanceof FinishState.CollectingFinish[T]) {
-    		return true;
-    	}
-    	return false;
-    }
-    
-    public static def getAccValue[T](x:long, red:Reducible[T]):T {
-    
-    	Console.OUT.println("Entered GETACC VALUE");
-	
-    	//Runtime.startCollectingFinish(red); // for now
-		val state = activity().finishState();  // should return collectingFinish by default (Nate) get the innermost finish state
-		
-		if (state instanceof FinishState.CollectingFinish[T]) {
-			Console.OUT.println(" Acc State Yes !!");
-		} else Console.OUT.println(" ACC STATE No !!");
-    	 Console.OUT.println("AFTER SWAPPED STATE "+state);
-    	val returnAcc:T = (state as FinishState.CollectingFinish[T]).waitForAccFinish(x);
-    	return returnAcc;
-    	
-	}
-	// End of changes for Accumulator
-	
-    
+
     public static def stopCollectingFinish[T](f:FinishState):T {
         val state = activity().swapFinish(f);
         return (state as FinishState.CollectingFinish[T]).waitForFinishExpr();

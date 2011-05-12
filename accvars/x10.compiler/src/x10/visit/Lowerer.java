@@ -929,7 +929,7 @@ public class Lowerer extends ContextVisitor {
         assert reducerTarget!=null;
         
         Call myCall = synth.makeStaticCall(pos, ts.Runtime(), START_COLLECTING_FINISH, Collections.<TypeNode>singletonList(nf.CanonicalTypeNode(pos, reducerTarget)), Collections.singletonList(reducer), ts.Void(), Collections.singletonList(reducerType), context());
-
+        
         Context xc = context();
         final Name varName = xc.getNewVarName();
         final Type type = ts.FinishState();
