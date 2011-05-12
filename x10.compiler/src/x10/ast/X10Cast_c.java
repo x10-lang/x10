@@ -257,61 +257,66 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     	    return null;
     	}
     	
-    	if (v instanceof Boolean) {
-    		if (castType.type().isBoolean()) return v;
-    	}
+    	Type cType = castType.type();
     	
-    	if (v instanceof String) {
-    		TypeSystem ts = castType.type().typeSystem();
-    		if (ts.String().isSubtype(castType.type(), ts.emptyContext())) return v;
+    	if (v instanceof Boolean) {
+    		if (cType.isBoolean()) return v;
     	}
     	
     	if (v instanceof Double) {
     		double vv = ((Double) v).doubleValue();
     		
-    		if (castType.type().isDouble()) return Double.valueOf((double) vv);
-    		if (castType.type().isFloat()) return Float.valueOf((float) vv);
-    		if (castType.type().isLong()) return Long.valueOf((long) vv);
-    		if (castType.type().isInt()) return Integer.valueOf((int) vv);
-    		if (castType.type().isChar()) return Character.valueOf((char) vv);
-    		if (castType.type().isShort()) return Short.valueOf((short) vv);
-    		if (castType.type().isByte()) return Byte.valueOf((byte) vv);
+    		if (cType.isDouble()) return Double.valueOf((double) vv);
+    		if (cType.isFloat()) return Float.valueOf((float) vv);
+    		if (cType.isLong()) return Long.valueOf((long) vv);
+    		if (cType.isInt()) return Integer.valueOf((int) vv);
+    		if (cType.isChar()) return Character.valueOf((char) vv);
+    		if (cType.isShort()) return Short.valueOf((short) vv);
+    		if (cType.isByte()) return Byte.valueOf((byte) vv);
     	}
     	
     	if (v instanceof Float) {
     		float vv = ((Float) v).floatValue();
     		
-    		if (castType.type().isDouble()) return Double.valueOf((double) vv);
-    		if (castType.type().isFloat()) return Float.valueOf((float) vv);
-    		if (castType.type().isLong()) return Long.valueOf((long) vv);
-    		if (castType.type().isInt()) return Integer.valueOf((int) vv);
-    		if (castType.type().isChar()) return Character.valueOf((char) vv);
-    		if (castType.type().isShort()) return Short.valueOf((short) vv);
-    		if (castType.type().isByte()) return Byte.valueOf((byte) vv);
+    		if (cType.isDouble()) return Double.valueOf((double) vv);
+    		if (cType.isFloat()) return Float.valueOf((float) vv);
+    		if (cType.isLong()) return Long.valueOf((long) vv);
+    		if (cType.isInt()) return Integer.valueOf((int) vv);
+    		if (cType.isChar()) return Character.valueOf((char) vv);
+    		if (cType.isShort()) return Short.valueOf((short) vv);
+    		if (cType.isByte()) return Byte.valueOf((byte) vv);
     	}
 
     	if (v instanceof Number) {
     		long vv = ((Number) v).longValue();
     		
-    		if (castType.type().isDouble()) return Double.valueOf((double) vv);
-    		if (castType.type().isFloat()) return Float.valueOf((float) vv);
-    		if (castType.type().isLong()) return Long.valueOf((long) vv);
-    		if (castType.type().isInt()) return Integer.valueOf((int) vv);
-    		if (castType.type().isChar()) return Character.valueOf((char) vv);
-    		if (castType.type().isShort()) return Short.valueOf((short) vv);
-    		if (castType.type().isByte()) return Byte.valueOf((byte) vv);
+    		if (cType.isDouble()) return Double.valueOf((double) vv);
+    		if (cType.isFloat()) return Float.valueOf((float) vv);
+    		if (cType.isLong()) return Long.valueOf((long) vv);
+    		if (cType.isInt()) return Integer.valueOf((int) vv);
+    		if (cType.isChar()) return Character.valueOf((char) vv);
+    		if (cType.isShort()) return Short.valueOf((short) vv);
+    		if (cType.isByte()) return Byte.valueOf((byte) vv);
+    	}
+    	
+    	TypeSystem ts = cType.typeSystem();
+    	Context emptyContext = ts.emptyContext();
+    	
+    	if (v instanceof String) {
+    	    if (ts.String().isSubtype(cType, emptyContext)) return v;
     	}
     	
     	if (v instanceof Character) {
     		char vv = ((Character) v).charValue();
     		
-    		if (castType.type().isDouble()) return Double.valueOf((double) vv);
-    		if (castType.type().isFloat()) return Float.valueOf((float) vv);
-    		if (castType.type().isLong()) return Long.valueOf((long) vv);
-    		if (castType.type().isInt()) return Integer.valueOf((int) vv);
-    		if (castType.type().isChar()) return Character.valueOf((char) vv);
-    		if (castType.type().isShort()) return Short.valueOf((short) vv);
-    		if (castType.type().isByte()) return Byte.valueOf((byte) vv);
+    		if (cType.isDouble()) return Double.valueOf((double) vv);
+    		if (cType.isFloat()) return Float.valueOf((float) vv);
+    		if (cType.isLong()) return Long.valueOf((long) vv);
+    		if (cType.isInt()) return Integer.valueOf((int) vv);
+    		if (cType.isChar()) return Character.valueOf((char) vv);
+    		if (cType.isShort()) return Short.valueOf((short) vv);
+    		if (cType.isByte()) return Byte.valueOf((byte) vv);
+    		if (cType.typeEquals(ts.Any(), emptyContext)) return v;
     	}
 
     	// Not null, but we can't figure out what to do with it.
