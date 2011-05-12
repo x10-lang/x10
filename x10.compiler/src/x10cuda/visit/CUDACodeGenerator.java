@@ -734,7 +734,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				// accesses so we do it ourselves
 				String literal = constrainedToLiteral(n);
 				if (literal!=null) {
-					System.out.println("Optimised kernel param: "+n+" --> "+literal);
+					//System.out.println("Optimised kernel param: "+n+" --> "+literal);
 					out.write(literal);
 				} else {
 					if (cuda_kernel.directParams) {
@@ -746,7 +746,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			} else {
 				String literal = constrainedToLiteral(n);
 				if (literal!=null) {
-					System.out.println("Optimised local: "+n+" --> "+literal);
+					//System.out.println("Optimised local: "+n+" --> "+literal);
 					out.write(literal);
 				} else {
 					super.visit(n);
