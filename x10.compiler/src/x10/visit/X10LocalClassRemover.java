@@ -240,18 +240,15 @@ public class X10LocalClassRemover extends LocalClassRemover {
             variances.add(ParameterType.Variance.INVARIANT);
         }
 
+        // Warning: we reuse the original type parameters here to avoid rewriting all references to the anonymous type.
+	// They may be renamed later on.
         List<ParameterType> origTypeParams = def.typeParameters();
         for (int i = 0; i < typeParameters.size(); i++) {
             ParameterType p = typeParameters.get(i);
             ParameterType.Variance v = variances.get(i);
 
             NodeFactory xnf = (NodeFactory) nf;
-            TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);
-            TypeBuilder tb = new X10TypeBuilder(job, ts, nf);
-            tb = tb.pushClass(outer);
-            tb = tb.pushCode(method);
-            tb = tb.pushClass(def);
-            pn = (TypeParamNode) pn.del().buildTypes(tb);
+            TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), p.name()), v).type(p);
             def.addTypeParameter(pn.type(), v);
             params.add(pn);
         }

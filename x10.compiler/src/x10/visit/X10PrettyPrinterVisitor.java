@@ -1048,8 +1048,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else
                 n.printSubStmt(body, w, tr);
             
+            w.newline();
             if (body.reachable()) {
-                w.write("return this;");
+                w.writeln("return this;");
             }
 
             w.write("}");
