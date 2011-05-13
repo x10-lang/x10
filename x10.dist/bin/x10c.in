@@ -9,10 +9,6 @@ args=""
 optimize=""
 x10rt_impl="sockets"
 
-if [[ "$UNAME" = AIX* ]]; then 
-  x10rt_impl="pgas_lapi"
-fi
-
 parse=true
 while [ -n "$1" ]; do
     if [ -z "$parse" ]; then
