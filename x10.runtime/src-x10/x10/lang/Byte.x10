@@ -179,37 +179,37 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x7 before the shift is applied.
      * @param count the shift count
      * @return this Byte shifted left by count.
      */
-    @Native("java", "((byte) ((#this) << (#count)))")
-    @Native("c++",  "((x10_byte) ((#0) << (#1)))")
+    @Native("java", "((byte) ((#this) << (0x7 & (#count))))")
+    @Native("c++",  "((x10_byte) ((#0) << (0x7 & (#1))))")
     public native operator this << (count:Int): Byte;
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * replicating the sign bit into the high bits.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x7 before the shift is applied.
      * @param count the shift count
      * @return this Byte shifted right by count.
      */
-    @Native("java", "((byte) ((#this) >> (#count)))")
-    @Native("c++",  "((x10_byte) ((#0) >> (#1)))")
+    @Native("java", "((byte) ((#this) >> (0x7 & (#count))))")
+    @Native("c++",  "((x10_byte) ((#0) >> (0x7 & (#1))))")
     public native operator this >> (count:Int): Byte;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x7 before the shift is applied.
      * @deprecated use the right-shift operator and unsigned conversions instead.
      * @param count the shift count
      * @return this Byte shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((byte) ((#this) >>> (#count)))")
-    @Native("c++",  "((x10_byte) ((x10_uint) (#0) >> (#1)))")
+    @Native("java", "((byte) ((#this) >>> (0x7 & (#count))))")
+    @Native("c++",  "((x10_byte) ((x10_uint) (#0) >> (0x7 & (#1))))")
     public native operator this >>> (count:Int): Byte;
 
     /**

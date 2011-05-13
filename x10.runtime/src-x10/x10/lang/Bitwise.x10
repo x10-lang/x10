@@ -47,15 +47,18 @@ public interface Bitwise[T] {
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked based on the size of the receiver so that only the bottom
+     * k bits will be considered.
      * @param count the shift count
      * @return the current entity shifted left by count.
      */
     operator this << (count: Int): T;
+
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked based on the size of the receiver so that only the bottom
+     * k bits will be considered.
      * @param count the shift count
      * @return the current entity shifted right by count.
      */
@@ -65,7 +68,8 @@ public interface Bitwise[T] {
      * A bitwise logical right shift operator (zero-fill).
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked based on the size of the receiver so that only the bottom
+     * k bits will be considered.
      * @deprecated use the right-shift operator and unsigned conversions instead.
      * @param count the shift count
      * @return the current entity shifted right by count with high bits zero-filled.

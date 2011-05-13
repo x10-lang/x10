@@ -181,37 +181,37 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x1f before the shift is applied.
      * @param count the shift count
      * @return this Int shifted left by count.
      */
-    @Native("java", "((#this) << (#count))")
-    @Native("c++",  "((x10_int) ((#0) << (#1)))")
+    @Native("java", "((#this) << (#count))") // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_int) ((#0) << (0x1f & (#1))))")
     public native operator this << (count:Int): Int;
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * replicating the sign bit into the high bits.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x1f before the shift is applied.
      * @param count the shift count
      * @return this Int shifted right by count.
      */
-    @Native("java", "((#this) >> (#count))")
-    @Native("c++",  "((x10_int) ((#0) >> (#1)))")
+    @Native("java", "((#this) >> (#count))") // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_int) ((#0) >> (0x1f & (#1))))")
     public native operator this >> (count:Int): Int;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x1f before the shift is applied.
      * @deprecated use the right-shift operator and unsigned conversions instead.
      * @param count the shift count
      * @return this Int shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((#this) >>> (#count))")
-    @Native("c++",  "((x10_int) ((x10_uint) (#0) >> (#1)))")
+    @Native("java", "((#this) >>> (#count))") // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_int) ((x10_uint) (#0) >> (0x1f & (#1))))")
     public native operator this >>> (count:Int): Int;
 
     /**

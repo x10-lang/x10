@@ -238,38 +238,38 @@ public struct UShort implements Comparable[UShort] /*TODO implements Arithmetic[
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0xf before the shift is applied.
      * @param count the shift count
      * @return this UShort shifted left by count.
      */
-    // @Native("java", "((short) ((#this) << (#count)))")
-    @Native("c++",  "((x10_ushort) ((#0) << (#1)))")
-    public operator this << (count:Int): UShort = UShort(shortVal << count);
+    // @Native("java", "((short) ((#this) << (0xf & (#count))))")
+    @Native("c++",  "((x10_ushort) ((#0) << (0xf & (#1))))")
+    public operator this << (count:Int): UShort = UShort(shortVal << (0xf & count));
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0xf before the shift is applied.
      * @param count the shift count
      * @return this UShort shifted right by count.
      */
-    // @Native("java", "((short) ((#this) >>> (#count)))")
-    @Native("c++",  "((x10_ushort) ((#0) >> (#1)))")
-    public operator this >> (count:Int): UShort = UShort(shortVal >>> count);
+    // @Native("java", "((short) ((#this) >>> (0xf & (#count))))")
+    @Native("c++",  "((x10_ushort) ((#0) >> (0xf & (#1))))")
+    public operator this >> (count:Int): UShort = UShort(shortVal >>> (0xf & count));
 
     /**
      * A bitwise logical right shift operator (zero-fill).
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0xf before the shift is applied.
      * @deprecated use the right-shift operator.
      * @param count the shift count
      * @return this UShort shifted right by count with high bits zero-filled.
      */
-    // @Native("java", "((short) ((#this) >>> (#count)))")
-    @Native("c++",  "((x10_ushort) ((#0) >> (#1)))")
-    public operator this >>> (count:Int): UShort = UShort(shortVal >>> count);
+    // @Native("java", "((short) ((#this) >>> (0xf & (#count))))")
+    @Native("c++",  "((x10_ushort) ((#0) >> (0xf & (#1))))")
+    public operator this >>> (count:Int): UShort = UShort(shortVal >>> (0xf & count));
 
     /**
      * A bitwise complement operator.
