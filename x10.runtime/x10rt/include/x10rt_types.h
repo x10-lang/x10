@@ -170,7 +170,7 @@ typedef struct {
     uint               op;              /* Atomic operation type    */
     unsigned long long dest_buf;        /* buffer on destination    */
     unsigned long long value;  /* operand value for        */
-} x10rt_hfi_remote_update_type;
+} x10rt_remote_update_params;
 
 #endif
 
