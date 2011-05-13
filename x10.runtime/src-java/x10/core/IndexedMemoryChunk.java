@@ -320,6 +320,12 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         return o != null && this.value == ((IndexedMemoryChunk<?>) o).value;
     }
 
+    // TODO implement remote operations
+    public RemoteIndexedMemoryChunk<T> getCongruentSibling(x10.lang.Place p) {
+    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
+    	return null;
+    }
+
     public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = new NamedType<IndexedMemoryChunk<?>>(
         "x10.util.IndexedMemoryChunk",
         IndexedMemoryChunk.class,
