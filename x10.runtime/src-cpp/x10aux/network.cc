@@ -148,9 +148,9 @@ void x10aux::registration_complete (void)
     x10aux::x10rt_initialized = true;
 }
 
-x10rt_remote_op_params *opv;
-size_t opc;
-size_t remote_op_batch;
+x10rt_remote_op_params *x10aux::opv;
+size_t x10aux::opc;
+size_t x10aux::remote_op_batch;
 
 void x10aux::network_init (int ac, char **av) {
     x10rt_init(&ac, &av);
