@@ -1,15 +1,8 @@
-Release 2.1.2
+Release 2.2.0
 
 LANGUAGE CHANGES
 
-Method names "apply(I)" and "set(v,I)" are no longer special.  They
-have been replaced by "operator this(I)" and "operator this(I)=(v)"
-(note the change in parameter order).
-
-"..", "->", and "in" are now all user-overloadable operators.
-The precedence of ".." has been bumped up to be tighter than that of
-"*", so 0..10*0..10 now works, but 0..N-1 does not.
-All code must be updated to use 0..(N-1) instead.
+TO BE FILLED IN BY VIJAY/BARD
 
 Please consult the language specification for the details of
 these changes and for a list of additional changes.
@@ -17,32 +10,15 @@ these changes and for a list of additional changes.
 
 IMPLEMENTATION CHANGES
 
-The Java backend now supports multi-process execution of X10 programs
-on all platforms except Windows.  Each X10 place will be mapped to
-a separate JVM process; the launching process is controlled in the same
-way as the default C++ backend (x10rt_sockets). See the INSTALL.txt file
-for more details. On Windows, only single-place/single JVM execution 
-is supported by the Java backend (see XTENLANG-2151).
-
-The closed-source pgas_sockets x10rt_implementation is no longer 
-supported.  The open source x10rt_sockets implementation became the
-default x10rt implementation used on all platforms except AIX and 
-BlueGene/P in the 2.1.1 release.  In the 2.1.2 release, we completed
-the removal of the pgas_sockets support.
-
-Compiling with -O now enables inlining of methods with @Inline annotations.
-In previous releases, an additional flag was required to enable inlining
-of @Inline methods.
+TO BE FILLED IN BY DAVE/OLIVIER/IGOR/MIKIO
 
 
 LIMITATIONS OF THIS RELEASE
 
-The following features described in the 2.1.2 language manual do not
+The following features described in the 2.2.0 language manual do not
 currently work and will be fixed in the subsequent releases:
   - Non-static type definitions as class or interface members
     (static type defs do work)
-  - Type definitions as package members (i.e., in the outermost scope of
-    a compilation unit)
 
 The constraint solver used by X10 typechecker is known to be incomplete 
 for situations in which a constraint implies an infinite number of 
@@ -68,134 +44,11 @@ may either use g++ 4.2 or better or xlC 10.1.0.4 or better.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.1.2
+Below is a summary of JIRA issues addressed for the X10 2.2.0
 
-** New Features and Improvements
-    * [XTENLANG-1044] - Need a "Quick Hierarchy" view
-    * [XTENLANG-1595] - reconsider destructuring syntax
-    * [XTENLANG-1602] - reductions design
-    * [XTENLANG-1682] - Create tar.bz2 (or tar.gz) for source/tests/java-only release downloads
-    * [XTENLANG-1807] - X10DT remote development
-    * [XTENLANG-2033] - Update DistArray APIs to relfect improvements in Array APIs
-    * [XTENLANG-2061] - Do closure environment capture calculation in X10 compiler instead of leaving to backends
-    * [XTENLANG-2071] - Port benchmarks version of KMeans to use x10.util.Team instead of pgas collectives
-    * [XTENLANG-2095] - Eliminate use of environment variables in CXXCommandLineBuilder
-    * [XTENLANG-2184] - Option to x10c to produce a jar file as the result of compilation
-    * [XTENLANG-2252] - Show source path in line number comment of generated Java file
-    * [XTENLANG-2257] - Bug flattening closure in generic method : Blocks BGP codegen
-    * [XTENLANG-2269] - Support typeName() for closures
-    * [XTENLANG-2272] - Standardize return codes when exiting after an uncaught exception
-    * [XTENLANG-2308] - Implement GC for BG/P
-    * [XTENLANG-2317] - Change C++ codegen strategy to generate a single .cc file for each input .x10 file
-    * [XTENLANG-2378] - Put .x10's into the -o .jar so that they can be used to avoid recompilation of library .jar's
-    * [XTENLANG-2398] - Improve performance of BlockBlockDist
-
-** Bug
-    * [XTENLANG-254] - Get rid of inc files
-    * [XTENLANG-344] - Refactor X10 compiler to avoid static initialization of configuration variables
-    * [XTENLANG-740] - Dejavalization needed in section 9.6.2
-    * [XTENLANG-945] - Cannot access properties of an Interface by name
-    * [XTENLANG-1155] - Failure to regenerate .cc files for nested classes in C++ backend
-    * [XTENLANG-1241] - Instanceof for @NativeRep'ed types to java native class returns a wrong value in Java backend
-    * [XTENLANG-1268] - Object/Struct or Object/Struct/Function?
-    * [XTENLANG-1352] - typo in tutorial part 3
-    * [XTENLANG-1409] - Settable[I,V] uses arguments (v,i)
-    * [XTENLANG-1437] - suggestions for pages 27-30 of the language spec
-    * [XTENLANG-1571] - Changes in a class that imports a struct and other related things from a package causes an ld error.
-    * [XTENLANG-1662] - Spec needs to explain innerness
-    * [XTENLANG-1726] - XRX should handle ~300 clocked asyncs.
-    * [XTENLANG-1738] - Missing documentation for assert
-    * [XTENLANG-1752] - Behavior of DistArray restricted to place unexpected
-    * [XTENLANG-1770] - The meaning of "!" in a ctor is {{this.home}} and it should be {{here}}
-    * [XTENLANG-1774] - Parsing support for Byte, UByte, Short, and UShort
-    * [XTENLANG-1804] - Contains expressions cannot be compiled
-    * [XTENLANG-1822] - DYNAMIC_CALLS should automatically satisfy the method guard
-    * [XTENLANG-1865] - Empty case statement breaks the C++ backend
-    * [XTENLANG-1883] - Instantiation of generic class with a missing operator
-    * [XTENLANG-1907] - Compiling an empty file violates an assertion
-    * [XTENLANG-1934] - InternalCompilerError: Cannot get FieldDef before type-checking field access.
-    * [XTENLANG-1948] - Type checking stops after the phase that reports an illegal qualifier
-    * [XTENLANG-1965] - pretty printing of curly braces
-    * [XTENLANG-1979] - c++ compiler errors - invalid template arguments
-    * [XTENLANG-1981] - Compiler crashes with traceback on cast
-    * [XTENLANG-1999] - InternalCompilerError: polyglot.types.SemanticException: Inconsistent constructor return type
-    * [XTENLANG-2004] - Type inferencing for Regions as implementors of Iterable is inconsistent
-    * [XTENLANG-2013] - Parser crashes
-    * [XTENLANG-2015] - DYNAMIC_CALLS don't work for method guards but do work if you move the guard to the formals.
-    * [XTENLANG-2036] - placeTerms are not calculated correctly
-    * [XTENLANG-2115] - Make ".." a user-overloadable binary operator
-    * [XTENLANG-2116] - Make "->" a user-overloadable binary operator
-    * [XTENLANG-2117] - Compiler should handle recursive constraints more efficiently
-    * [XTENLANG-2125] - StructSpheres on Mac
-    * [XTENLANG-2136] - seg-fault:IO on object constructed remotely
-    * [XTENLANG-2140] - compiler internal error 
-    * [XTENLANG-2173] - Java ClassCastException compiling constant-bearing interface
-    * [XTENLANG-2179] - Front-end doesn't capture enviroment appropriately
-    * [XTENLANG-2183] - Inference of generic type parameters broken
-    * [XTENLANG-2187] - The compiler should reject a struct with infinite size (if there is a circularity in the fields)
-    * [XTENLANG-2204] - Post-compilation support in the Java backend should be implemented in the compiler code, not in the script
-    * [XTENLANG-2223] - In a block (i.e. "{ ... }"), when encountering the "break" statement, there is no pop operation is performed when processing a "break" statement, so makes the live range of the locally declared variables leak out of the local block.
-    * [XTENLANG-2227] - Remove dependence of String library class on Rails
-    * [XTENLANG-2230] - auto-generated constructors
-    * [XTENLANG-2231] - grammar issues in spec
-    * [XTENLANG-2232] - grammar issues in spec
-    * [XTENLANG-2235] - ICE:compilation dies on a semantic error (constructor return type typo)
-    * [XTENLANG-2238] - document haszero
-    * [XTENLANG-2244] - Actually print the types in the message string for x10.lang.ClassCastException
-    * [XTENLANG-2245] - Compile error on closure within generic method
-    * [XTENLANG-2246] - Assertion failed: (false), function getITablesForIBox
-    * [XTENLANG-2249] - Erroneous Java code generated for generic method with type bounds
-    * [XTENLANG-2251] - Seg fault on deep copy of Array in 'at' statement
-    * [XTENLANG-2255] - Point.compareTo
-    * [XTENLANG-2258] - Java backend ,Runtime Lock cause program hang
-    * [XTENLANG-2265] - x10.types.X10TypeSystem_c$Void cannot be cast to polyglot.types.ClassType
-    * [XTENLANG-2275] - Invalid constraint on region product
-    * [XTENLANG-2281] - Region with a full axis is empty
-    * [XTENLANG-2282] - Allow optional 'new' on structs
-    * [XTENLANG-2284] - Compiler crashes on void interface
-    * [XTENLANG-2285] - NullPointerException when compiling CUDA3DFD.x10 with x10c
-    * [XTENLANG-2289] - Type "XXX" clashes with package of the same name.
-    * [XTENLANG-2296] - Confusing compiler message when compiling a constructor for RemoteArray
-    * [XTENLANG-2299] - Bad code generation for async initialization of generic type variables
-    * [XTENLANG-2301] - Bad code generation for closures using generic types at a static method body
-    * [XTENLANG-2304] - NPE  in cast remover when compiling BC
-    * [XTENLANG-2306] - x10 dist fails to build with ant 1.8.2
-    * [XTENLANG-2310] - Multi-VM: test case failures for "AtAndBack" family of test cases
-    * [XTENLANG-2312] - Main is not a valid class name when compiling to Java (but not C++)
-    * [XTENLANG-2315] - program compiles and runs with c++ backend, throws compiler exception with java backend 
-    * [XTENLANG-2316] - Bad Java code-gen for return value of generic method with type bounds
-    * [XTENLANG-2323] - i++ should be desugared into the same code as ++i if the return value is not used for performance
-    * [XTENLANG-2324] - Java backend can not resolved to a type
-    * [XTENLANG-2330] - Code generation or desugarer needs to examine checkGuardAtRuntime and generate code appropriately
-    * [XTENLANG-2332] - Multiple inheritance of interfaces and covariant return type are not typechecked correctly
-    * [XTENLANG-2338] - Prevent creation of invalid instances of x10.lang.Place
-    * [XTENLANG-2358] - Java backend losing this qualifier when local val and instance val have the same name
-    * [XTENLANG-2359] - Accessing field of enclosing class from function of inner class: cannot be resolved (SVN HEAD)
-    * [XTENLANG-2360] - x10c generates bad Java code for generic classes with matching type parameters (SVN HEAD)
-    * [XTENLANG-2365] - Post-compilation errors with async-initialization
-    * [XTENLANG-2367] - X10 thinks this method wants to override itself or something.
-    * [XTENLANG-2381] - toString() on a selected method throws a ClassCastException at runtime
-    * [XTENLANG-2386] - Static initialization bug with Java backend
-    * [XTENLANG-2397] - Duplicate constructor error for not duplicated constructors
-    * [XTENLANG-2399] - Exploding a point doesn't check the point's rank properly.
-    * [XTENLANG-2410] - jar Main-Class should have the proper path within the jar, not from the command line
-    * [XTENLANG-2411] - GlobalRef doesn't return an appropriate object on ManagedX10
-    * [XTENLANG-2412] - -x10lib not working with libraries other than -stdlib
-    * [XTENLANG-2422] - InternalCompilerError when referencing an unknown class
-    * [XTENLANG-2424] - Native X10 compiler: failed in compilation on method equals()
-    * [XTENLANG-2432] - Constraints on properties not statically enforced by property statement
-
-** Misc.
-    * [XTENLANG-453] - Create test cases for basic X10 constructs and libraries
-    * [XTENLANG-731] - apply() should be an operator
-    * [XTENLANG-732] - set() should be an operator
-    * [XTENLANG-1275] - Think about new structs again
-    * [XTENLANG-1751] - Why is "flat" not capitalized?
-    * [XTENLANG-2271] - Disable warning message about genric method lookup changing from 2.0.6 to 2.1.0
-    * [XTENLANG-2353] - Update Install/Usage insructions for 2.1.2
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/browse/XTENLANG/fixforversion/16498
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/FILL-IN-NUMBER-HERE
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
