@@ -13,7 +13,7 @@ import x10.util.Stack;
 
 abstract public class FinishFrame extends Frame {
     @Uninitialized public var asyncs:Int;
-    @Uninitialized transient public var stack:Stack[Throwable];
+    @Uninitialized transient protected var stack:Stack[Throwable];
 
     @Ifdef("__CPP__")
     @Uninitialized public var redirect:FinishFrame;
@@ -44,7 +44,13 @@ abstract public class FinishFrame extends Frame {
         if (null != redirect) return redirect;
         val tmp = remap();
         tmp.redirect = tmp;
-        tmp.append(stack);
+        if (null != stack) {
+            tmp.stack = new Stack[Throwable]();
+            Runtime.atomicMonitor.lock();
+            while (!stack.isEmpty()) tmp.stack.push(stack.pop());
+            stack = null;
+            Runtime.atomicMonitor.unlock();
+        }
         redirect = tmp;
         return tmp;
     }
@@ -79,6 +85,7 @@ abstract public class FinishFrame extends Frame {
     }
 
     @NoInline public final def caught(t:Throwable) {
+        Runtime.println("CAUGHT: " + t);
         if (t == Abort.ABORT) throw t;
         Runtime.atomicMonitor.lock();
         if (null == stack) stack = new Stack[Throwable]();

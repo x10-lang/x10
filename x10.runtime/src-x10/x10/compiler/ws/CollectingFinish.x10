@@ -47,7 +47,13 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         if (null != redirect) return redirect;
         val tmp = remap();
         tmp.redirect = tmp;
-        tmp.append(stack);
+        if (null != stack) {
+            tmp.stack = new Stack[Throwable]();
+            Runtime.atomicMonitor.lock();
+            while (!stack.isEmpty()) tmp.stack.push(stack.pop());
+            stack = null;
+            Runtime.atomicMonitor.unlock();
+        }
         atomic redirect = tmp; //use atomic to refresh
         //Use atomic to refresh the redirect field. Then we could copy the result safely
         Frame.cast[FinishFrame, CollectingFinish[T]](tmp).result = result;
