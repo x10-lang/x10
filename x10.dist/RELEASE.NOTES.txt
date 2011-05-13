@@ -55,6 +55,12 @@ the subsequent releases:
   - Non-final generic instance methods
   - Exception stack traces on Cygwin
 
+As in previous releases, the X10 runtime uses a "busy wait" loop
+in the worker threads that execute asyncs. A consequence of this is
+that even if a place has no asyncs to execute, it will still consume
+CPU cycles busy waiting for new asyncs to be created.  
+See XTENLANG-1012 for more details.
+
 The generated C++ code requires g++ 4.2 or better to be compiled; 
 we do almost all of our testing against g++ 4.3.2.  On AIX, you
 may either use g++ 4.2 or better or xlC 10.1.0.4 or better.
