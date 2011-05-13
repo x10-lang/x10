@@ -169,7 +169,9 @@ public abstract class ThrowableUtilities {
     private static x10.core.Throwable createX10Throwable(Class<? extends x10.core.Throwable> x10Class, java.lang.String message, java.lang.Throwable t) {
         try {
             x10.core.Throwable x10t = x10Class.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
-            x10t.setStackTrace(t.getStackTrace());
+            if (t != null) {
+            	x10t.setStackTrace(t.getStackTrace());
+            }
             return x10t;
         } catch (java.lang.Exception e) {
         }
@@ -258,13 +260,8 @@ public abstract class ThrowableUtilities {
     public static <T> T UnsupportedOperationException(java.lang.String message) {
         try {
             throw createX10Throwable(x10UnsupportedOperationException, message, null);
-//            throw x10UnsupportedOperationException.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
         } catch (IllegalArgumentException e) {
         } catch (SecurityException e) {
-//        } catch (InstantiationException e) {
-//        } catch (IllegalAccessException e) {
-//        } catch (InvocationTargetException e) {
-//        } catch (NoSuchMethodException e) {
         }
         return null;
     }
@@ -272,13 +269,8 @@ public abstract class ThrowableUtilities {
     public static int UnsupportedOperationExceptionInt(java.lang.String message) {
         try {
             throw createX10Throwable(x10UnsupportedOperationException, message, null);
-//            throw x10UnsupportedOperationException.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
         } catch (IllegalArgumentException e) {
         } catch (SecurityException e) {
-//        } catch (InstantiationException e) {
-//        } catch (IllegalAccessException e) {
-//        } catch (InvocationTargetException e) {
-//        } catch (NoSuchMethodException e) {
         }
         return 0;
     }
