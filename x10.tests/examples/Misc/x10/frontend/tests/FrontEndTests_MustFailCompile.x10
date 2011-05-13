@@ -6504,11 +6504,11 @@ class LCATests { // see XTENLANG-2635
 		def test() {
 			val x1:Array[Op{self!=null}] = [new S1(), new S2()]; 
 			val x2:Array[Op{self!=null}] = [new S1(), new S2(), new S3()]; 
-			val x3:Array[Any] = [new S1(), new S13()]; 
+			val x3:Array[Object{self!=null}] = [new S1(), new S13()];
 			val x4:Array[Op{self!=null}] = [new S1(), new S23()]; 
-			val x5:Array[Any] = [new S1(), new S123()]; 
-			val x6:Array[Any] = [new S123(), new S2()]; 
-			val x7:Array[Any] = [new S23(), new S2()]; 
+			val x5:Array[Object{self!=null}] = [new S1(), new S123()];
+			val x6:Array[Object{self!=null}] = [new S123(), new S2()];
+			val x7:Array[Object{self!=null}] = [new S23(), new S2()]; 
 			val x8:Array[Op{self!=null}] = [new S13(), new S2()];
 		}
 	}

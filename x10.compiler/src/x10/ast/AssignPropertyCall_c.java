@@ -347,11 +347,12 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                  
                  for (Type intfc : ctype.interfaces()) {
                 	 CConstraint cc = Types.realX(intfc);
+                     cc = cc.substitute(thisVar, cc.self()); // for some reason, the invariant has "self" instead of this, so I fix it here.
                 	 if (thisVar != null) {
                 		 XVar intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();
                 		 cc = cc.substitute(thisVar, intfcThisVar);
                 	 }
-                	 cc = X10TypeEnv_c.ifNull(env_c.expandProperty(false,ctype,cc),cc);  // for some reason we have self in the invariant, see InterfaceTypeInvariant 
+                	 cc = X10TypeEnv_c.ifNull(env_c.expandProperty(true,ctype,cc),cc);  
                 	 final CConstraint ccc=cc;
                 	 if (!k.entails(cc, new ConstraintMaker() {
                          public CConstraint make() throws XFailure {
