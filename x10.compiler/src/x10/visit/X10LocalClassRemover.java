@@ -156,7 +156,10 @@ public class X10LocalClassRemover extends LocalClassRemover {
                 X10MethodDef md = decl.methodDef();
                 if ((ta == null || ta.equals(params)) && !md.typeParameters().isEmpty())
                     ta = new ArrayList<Type>();
-                ta.addAll(md.typeParameters());
+                for (int i = ta.size(); i < params.size(); i++) {
+                    ta.add(params.get(i));
+                }
+                //ta.addAll(md.typeParameters());
                 assert (ta.size() == params.size());
             }
             TypeParamSubst subst = new TypeParamSubst((TypeSystem) ts, ta, params);
@@ -241,7 +244,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
         }
 
         // Warning: we reuse the original type parameters here to avoid rewriting all references to the anonymous type.
-	// They may be renamed later on.
+        // They may be renamed later on.
         List<ParameterType> origTypeParams = def.typeParameters();
         for (int i = 0; i < typeParameters.size(); i++) {
             ParameterType p = typeParameters.get(i);
