@@ -185,7 +185,6 @@ public class X10Field_c extends Field_c {
     }
 
     private static Flags getFlags(Type type) {
-        Flags flags = null;
         if (type instanceof ClassType) {
             return ((ClassType) type).flags();
         } else if (type instanceof ParametrizedType_c) {
@@ -238,6 +237,23 @@ public class X10Field_c extends Field_c {
 							}
 						}
 					}
+                    // the outer instance is also a property-like entity (see XTENLANG-47)
+                    boolean isStatic = c.inStaticContext();
+                    if (!isStatic) {
+                        ClassType outer = tCt.outer();
+                        while (outer!=null && !outer.flags().isStatic()) {
+                            X10FieldInstance fi = findAppropriateField(tc, outer, name.id(),
+                                false, Types.contextKnowsType(target), position());
+                            if (fi.error()==null) {
+                                Position genP = pos.markCompilerGenerated();
+                                Special special = (Special) nf.This(genP, nf.CanonicalTypeNode(genP, outer)).type(outer);
+                                Field result = (Field) this.target(special);
+                                result = (Field) result.typeCheck(tc);
+                                return result;
+                            }
+                            outer = outer.outer();
+                        }
+                    }
 
 					SemanticException e = new Errors.CannotAccessField(name, tCt, pos);
 					if (error == null) { error = e; }
