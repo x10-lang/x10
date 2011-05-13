@@ -162,6 +162,16 @@ typedef enum {
     X10RT_OPT_COLLECTIVES = 1
 } x10rt_opt;
 
+/**
+ * Structure to hold a remote update operation
+ */
+typedef struct {
+    uint               dest;            /* Destination of operation */
+    uint               op;              /* Atomic operation type    */
+    unsigned long long dest_buf;        /* buffer on destination    */
+    unsigned long long value;  /* operand value for        */
+} x10rt_hfi_remote_update_type;
+
 #endif
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100
