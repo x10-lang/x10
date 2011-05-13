@@ -674,7 +674,10 @@ public final class DistArray[T] (
      * @see #map((T)=>S)
      */
     public final def reduce[U](lop:(U,T)=>U, gop:(U,U)=>U, unit:U):U {
-        val reducer = new ReduceHelper[U](gop, unit);
+        val reducer = new Reducible[U]() {
+        	public def zero():U = unit;
+        	public operator this(a:U, b:U):U = gop(a,b);
+        };
 
         val result = finish(reducer) {
             for (where in dist.places()) {
@@ -692,14 +695,6 @@ public final class DistArray[T] (
 
         return result;
     }
-    // TODO: This should be a local anonymous class in reduce after XTENLANG-2699 is fixed.
-    private static class ReduceHelper[U] implements Reducible[U] {
-        val gop:(U,U)=>U;
-        val zed:U;
-        def this(f:(U,U)=>U, z:U) { gop = f; zed=z; }
-        public def zero():U = zed;
-        public operator this(a:U, b:U):U = gop(a,b);
-    }     
 
 
     public def toString(): String {
