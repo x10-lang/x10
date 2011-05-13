@@ -166,8 +166,8 @@ typedef enum {
  * Structure to hold a remote update operation
  */
 typedef struct {
-    uint               dest;            /* Destination place           */
-    uint               op;              /* Atomic operation type       */
+    unsigned int       dest;            /* Destination place            */
+    unsigned int       op;              /* Atomic operation type       */
     unsigned long long dest_buf;        /* buffer on destination place */
     unsigned long long value;  		    /* operand value for operation */
 } x10rt_remote_op_params;

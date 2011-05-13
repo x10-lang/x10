@@ -714,15 +714,27 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		state.hfi_update = NULL;
 	else
 	{
-		status = PAMI_Extension_open (state.client, "EXT_hfi_extension", &state.hfi_extension);
-		if (status == PAMI_SUCCESS)
-			state.hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(state.hfi_extension, "hfi_remote_update"); // if fail, hfi_update is set to NULL
-		else
+		if (sizeof(x10rt_remote_op_params)!=sizeof(hfi_remote_update_info_t))
+		{
+			fprintf(stderr, "HFI present but the structures don't match at place %u\n", state.myPlaceId);
 			state.hfi_update = NULL;
-
-		#ifdef DEBUG
-			fprintf(stderr, "HFI present and enabled at place %u\n", state.myPlaceId);
-		#endif
+		}
+		else
+		{
+			status = PAMI_Extension_open (state.client, "EXT_hfi_extension", &state.hfi_extension);
+			if (status == PAMI_SUCCESS)
+			{
+				state.hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(state.hfi_extension, "hfi_remote_update"); // if fail, hfi_update is set to NULL
+				#ifdef DEBUG
+					fprintf(stderr, "HFI present and enabled at place %u\n", state.myPlaceId);
+				#endif
+			}
+			else
+			{
+				fprintf(stderr, "HFI present but disabled at place %u because PAMI_Extension_open status=%u\n", state.myPlaceId, status);
+				state.hfi_update = NULL;
+			}
+		}
 	}
 	
 	// create the world geometry
