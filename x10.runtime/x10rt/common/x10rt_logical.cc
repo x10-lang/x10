@@ -710,6 +710,47 @@ void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
     }
 }
     
+void x10rt_lgl_remote_ops (x10rt_remote_op_params *opv, size_t opc)
+{
+    if (has_remote_op) {
+        #ifdef NDEBUG
+            for (size_t i=0 ; i<opc ; ++i) {
+                x10rt_place d = opv[i].dest;
+                assert(d < x10rt_lgl_nplaces());
+                if (d < x10rt_lgl_nhosts()) {
+                    // no problem
+                } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
+                    // local accelerator
+                    switch (x10rt_lgl_type(d)) {
+                        case X10RT_LGL_CUDA: {
+                            fprintf(stderr,"CUDA remote ops still unsupported.\n");
+                            abort();
+                        } break;
+                        case X10RT_LGL_SPE: {
+                            fprintf(stderr,"SPE remote ops still unsupported.\n");
+                            abort();
+                        } break;
+                        default: {
+                            fprintf(stderr,"Place %lu has invalid type %d in remote_op_xor.\n",
+                                           (unsigned long)d, (int)x10rt_lgl_type(d));
+                            abort();
+                        }
+                    }
+                } else {
+                    fprintf(stderr,"Routing of remote ops still unsupported.\n");
+                    abort();
+                }
+            }
+        #endif
+        x10rt_net_remote_ops(opv, opc);
+    } else {
+        for (size_t i=0 ; i<opc ; ++i) {
+            x10rt_emu_remote_op(opv[i].dest, opv[i].dest_buf, (x10rt_op_type)opv[i].op, opv[i].value);
+        }
+    }
+
+}
+    
 x10rt_remote_ptr x10rt_lgl_register_mem (void *ptr, size_t len)
 { return x10rt_net_register_mem(ptr, len); }
 

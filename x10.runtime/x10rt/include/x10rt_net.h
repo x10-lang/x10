@@ -104,12 +104,10 @@ X10RT_C void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr remote_add
                                   x10rt_op_type type, unsigned long long value);
 
 /** \see #x10rt_lgl_remote_ops
- * \param place As in #x10rt_lgl_remote_op
- * \param remote_addr As in #x10rt_lgl_remote_op
- * \param type As in #x10rt_lgl_remote_op
- * \param value As in #x10rt_lgl_remote_op
+ * \param ops As in #x10rt_lgl_remote_ops
+ * \param num_ops As in #x10rt_lgl_remote_ops
  */
-X10RT_C void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps);
+X10RT_C void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
 
 
 /** \see #x10rt_lgl_register_mem

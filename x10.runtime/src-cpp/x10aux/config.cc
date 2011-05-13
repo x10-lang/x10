@@ -40,3 +40,10 @@ char* x10aux::get_congruent_base() {
 char* x10aux::get_congruent_size() {
     return getenv(ENV_CONGRUENT_SIZE);
 }
+
+size_t x10aux::get_remote_op_batch (void)
+{
+    const char *env = getenv("X10_REMOTE_OP_BATCH");
+    if (env == NULL) return 64;
+    return strtoul(env, NULL, 10);
+}

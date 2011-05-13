@@ -81,6 +81,25 @@ namespace x10aux {
         x10rt_remote_free(p, ptr);
     }
 
+    x10rt_remote_op_params *opv;
+    size_t opc;
+    size_t remote_op_batch;
+
+    inline void remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
+                           x10rt_op_type type, unsigned long long value)
+    {
+        opv[opc].dest = place;
+        opv[opc].dest_buf = remote_addr;
+        opv[opc].op = type;
+        opv[opc].value = value;
+        opc++;
+        if (opc == remote_op_batch) {
+            x10rt_remote_ops(opv,opc);
+            opc = 0;
+        }
+    }
+
+
     msg_type register_async_handler (const char *cubin=NULL, const char *kernel=NULL);
     msg_type register_put_handler (void);
     msg_type register_get_handler (void);

@@ -148,11 +148,15 @@ void x10aux::registration_complete (void)
     x10aux::x10rt_initialized = true;
 }
 
+size_t remote_op_batch;
+
 void x10aux::network_init (int ac, char **av) {
     x10rt_init(&ac, &av);
     x10aux::here = x10rt_here();
     x10aux::num_places = x10rt_nplaces();
     x10aux::num_hosts = x10rt_nhosts();
+    remote_op_batch = get_remote_op_batch();
+    opv = (x10rt_remote_op_params*)malloc(remote_op_batch * sizeof(*opv));
 }
 
 void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10aux::ref<x10::lang::Reference> fs_) {
