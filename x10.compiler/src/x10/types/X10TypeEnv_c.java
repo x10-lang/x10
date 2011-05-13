@@ -1712,7 +1712,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     mostSpecific = candidate;
                     break;
                 }
-                return mostSpecific;
+                if (mostSpecific!=null)
+                    return mostSpecific;
             }
         }
         return res;
