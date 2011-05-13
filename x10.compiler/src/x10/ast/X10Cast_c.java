@@ -22,6 +22,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.main.Options;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
@@ -39,6 +40,8 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.types.ParameterType;
@@ -184,7 +187,11 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                                 isOk = true;
                         }
                         if (!isOk) {
-                            Warnings.issue(tc.job(), "This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.", position);
+                            final ExtensionInfo extensionInfo = (ExtensionInfo) tc.job().extensionInfo();
+                            X10CompilerOptions opts = extensionInfo.getOptions();
+                            if (opts.x10_config.VERBOSE_CHECKS) {
+                                Warnings.issue(tc.job(), "This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.", position);
+                            }
                         }
                     }
                 }
