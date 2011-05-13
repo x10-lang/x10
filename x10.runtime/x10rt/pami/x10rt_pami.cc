@@ -40,7 +40,7 @@ size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,12}; // the number of 
 // values for pami_op are mapped to indexes of x10rt_red_op_type
 pami_data_function OPERATION_CONVERSION_TABLE[] = {PAMI_DATA_SUM, PAMI_DATA_PROD, PAMI_DATA_NOOP, PAMI_DATA_BAND, PAMI_DATA_BOR, PAMI_DATA_BXOR, PAMI_DATA_MAX, PAMI_DATA_MIN};
 // values of x10rt_op_type are mapped to pami_atomic_t
-pami_atomic_t REMOTE_MEMORY_OP_CONVERSION_TABLE[] = {PAMI_ATOMIC_ADD, PAMI_ATOMIC_AND, PAMI_ATOMIC_OR, PAMI_ATOMIC_XOR};
+//pami_atomic_t REMOTE_MEMORY_OP_CONVERSION_TABLE[] = {PAMI_ATOMIC_ADD, PAMI_ATOMIC_AND, PAMI_ATOMIC_OR, PAMI_ATOMIC_XOR};
 
 struct x10rtCallback
 {
@@ -667,7 +667,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	// determine the level of parallelism we need to support
 	char* value = getenv("X10_STATIC_THREADS");
 	char* nthreads = getenv("X10_NTHREADS");
-	if (checkBoolEnvVar(value))
+	if (nthreads && checkBoolEnvVar(value))
 	{
 		state.numParallelContexts = atoi(nthreads);
 		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
@@ -1135,7 +1135,7 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 		// use HFI remote operations
 		hfi_remote_update_info_t remote_info;
 		remote_info.dest = place;
-		remote_info.op = REMOTE_MEMORY_OP_CONVERSION_TABLE[type];
+		remote_info.op = type;
 		remote_info.atomic_operand = value;
 		remote_info.dest_buf = victim;
 		#ifdef DEBUG
@@ -1160,7 +1160,7 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 		operation.hints.buffer_registered = PAMI_HINT_ENABLE;
 		operation.remote = (void *)victim;
 		operation.value = &value;
-		operation.operation = REMOTE_MEMORY_OP_CONVERSION_TABLE[type];
+		operation.operation = (pami_atomic_t)type;
 		operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
@@ -1175,6 +1175,59 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 		}
 		if (status != PAMI_SUCCESS)
 			error("Unable to execute the remote operation");
+	}
+}
+
+void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
+{
+	if (state.hfi_update != NULL)
+	{
+		// use HFI remote operations
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u executing a remote %u operations %u on %p at place %u using HFI\n", numOps, state.myPlaceId, type, (void*)victim, place);
+		#endif
+		if (state.numParallelContexts)
+			state.hfi_update (getConcurrentContext(), numOps, (hfi_remote_update_info_t*)ops);
+		else
+		{
+			PAMI_Context_lock(state.context[0]);
+			state.hfi_update (state.context[0], numOps, (hfi_remote_update_info_t*)ops);
+			PAMI_Context_unlock(state.context[0]);
+		}
+	}
+	else
+	{
+		pami_result_t status = PAMI_ERROR;
+		pami_rmw_t operation;
+		memset(&operation, 0, sizeof(pami_rmw_t));
+		operation.hints.buffer_registered = PAMI_HINT_ENABLE;
+		operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
+
+		pami_context_t context;
+		if (state.numParallelContexts)
+			context = getConcurrentContext();
+		else
+		{
+			context = state.context[0];
+			PAMI_Context_lock(context);
+		}
+
+		for (size_t i=0; i<numOps; i++)
+		{
+			if ((status = PAMI_Endpoint_create(state.client, ops[i].dest, 0, &operation.dest)) != PAMI_SUCCESS)
+				error("Unable to create a target endpoint for sending a remote memory operation to %u: %i\n", ops[i].dest, status);
+			operation.remote = (void*)ops[i].dest_buf;
+			operation.value = &ops[i].value;
+			operation.operation = (pami_atomic_t)ops[i].op;
+			#ifdef DEBUG
+				fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
+			#endif
+			status = PAMI_Rmw(context, &operation);
+			if (status != PAMI_SUCCESS)
+				error("Unable to execute the remote operation");
+		}
+		if (!state.numParallelContexts)
+			PAMI_Context_unlock(state.context[0]);
 	}
 }
 

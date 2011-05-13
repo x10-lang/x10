@@ -1125,6 +1125,11 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 	error("x10rt_net_remote_op not implemented");
 }
 
+void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
+{
+	error("x10rt_net_remote_ops not implemented");
+}
+
 x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
 {
     // assume remote ops will be handled by regular x10rt_send_msg so

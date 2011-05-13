@@ -103,6 +103,15 @@ X10RT_C void x10rt_net_probe (void);
 X10RT_C void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
                                   x10rt_op_type type, unsigned long long value);
 
+/** \see #x10rt_lgl_remote_ops
+ * \param place As in #x10rt_lgl_remote_op
+ * \param remote_addr As in #x10rt_lgl_remote_op
+ * \param type As in #x10rt_lgl_remote_op
+ * \param value As in #x10rt_lgl_remote_op
+ */
+X10RT_C void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps);
+
+
 /** \see #x10rt_lgl_register_mem
  * \param ptr As in #x10rt_lgl_register_mem
  * \param len As in #x10rt_lgl_register_mem

@@ -107,10 +107,10 @@ typedef void x10rt_notifier(const x10rt_msg_params *, x10rt_copy_sz);
 /** The list of remote operations supported.
  */
 typedef enum {
-    X10RT_OP_ADD = 0, 
-    X10RT_OP_AND = 1,
-    X10RT_OP_OR  = 2,
-    X10RT_OP_XOR = 3
+    X10RT_OP_ADD = (0x2 << 2),
+    X10RT_OP_AND = (0x4 << 2),
+    X10RT_OP_OR  = (0x3 << 2),
+    X10RT_OP_XOR = (0x5 << 2)
 } x10rt_op_type;
 
 /** The list of operations supported when doing a reduction. 
@@ -166,11 +166,11 @@ typedef enum {
  * Structure to hold a remote update operation
  */
 typedef struct {
-    uint               dest;            /* Destination of operation */
-    uint               op;              /* Atomic operation type    */
-    unsigned long long dest_buf;        /* buffer on destination    */
-    unsigned long long value;  /* operand value for        */
-} x10rt_remote_update_params;
+    uint               dest;            /* Destination place           */
+    uint               op;              /* Atomic operation type       */
+    unsigned long long dest_buf;        /* buffer on destination place */
+    unsigned long long value;  		    /* operand value for operation */
+} x10rt_remote_op_params;
 
 #endif
 

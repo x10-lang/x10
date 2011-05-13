@@ -674,6 +674,12 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
     abort();
 }
 
+void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
+{
+	// assume remote ops will be handled by regular x10rt_send_msg
+	abort();
+}
+
 x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t)
 {
     // assume remote ops will be handled by regular x10rt_send_msg so
