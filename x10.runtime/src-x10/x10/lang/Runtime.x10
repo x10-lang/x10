@@ -17,6 +17,7 @@ import x10.compiler.Global;
 import x10.compiler.PerProcess;
 import x10.compiler.Pragma;
 import x10.compiler.StackAllocate;
+import x10.compiler.TempNoInline_0;
 import x10.compiler.TempNoInline_1;
 
 import x10.util.Random;
@@ -446,7 +447,7 @@ import x10.util.concurrent.SimpleLatch;
         }
 
         // unpark worker
-        public def unpark() {
+        @TempNoInline_0 public def unpark() {
             if (!STATIC_THREADS) {
                 super.unpark();
             }
@@ -748,8 +749,8 @@ import x10.util.concurrent.SimpleLatch;
 
     /**
      * Run at statement
-     */
-    public static def runAt(place:Place, body:()=>void):void {
+     */ // TempNoInline_0 annotation is a work-arround for XTENLANG-2336
+    public static @TempNoInline_0 def runAt(place:Place, body:()=>void):void {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
             try {
