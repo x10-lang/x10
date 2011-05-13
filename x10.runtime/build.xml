@@ -31,7 +31,6 @@
     <property name="X10RT_PAMI" value="false" />
     <property name="X10RT_PGAS" value="true" />
     <property name="X10RT_CUDA" value="false" />
-    <property name="CROSS_COMPILE_BGP" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>

@@ -7,7 +7,12 @@ rtdev=""
 java_args=""
 args=""
 optimize=""
-x10rt_impl="sockets"
+
+if [ "$CROSS_COMPILE_BGP" = "true" ]; then
+    x10rt_impl="pgas_bgp"
+else
+    x10rt_impl="sockets"
+fi
 
 parse=true
 while [ -n "$1" ]; do
