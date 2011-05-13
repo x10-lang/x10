@@ -365,6 +365,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		for (PropertyDecl pd : properties) {
     			FieldDef fd = pd.fieldDef();
     			c.addVariable(fd.asInstance());
+    			if (pd==child)
+    				break; // do not add downstream properties
     		}
     	} else {
     	    c = c.pushClass(type, type.asType());
