@@ -133,7 +133,7 @@ public class Inliner extends ContextVisitor {
     static final boolean DEBUG = false;
 //  private static final boolean DEBUG = true;
 
-    private static final int VERBOSITY = 1;
+    private static final int VERBOSITY = 0;
 
     /**
      * The size of the largest method to be considered small enough to be inlined implicitly, if
