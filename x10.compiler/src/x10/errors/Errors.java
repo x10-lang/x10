@@ -1382,7 +1382,7 @@ public class Errors {
 		private static final long serialVersionUID = -7354209819609788973L;
 
 		public LocalVariableAccessedFromInnerClass(Name liName, Position p) {
-			super("Local variable is accessed from an inner class or a closure, and must be declared final." +
+			super("Local variable is accessed from an inner class or a closure, and must be val." +
 					"\n\t Local variable name: " + liName, p);
 		}
 	}
@@ -1400,7 +1400,7 @@ public class Errors {
 		private static final long serialVersionUID = 5809300848963559701L;
 
 		public LocalVariableAccessedAtDifferentPlace(Name liName, Position p) {
-			super("Local variable is accessed at a different place, and therefore it must be initialized and declared final." +
+			super("Local variable is accessed at a different place, and therefore it must be an initialized val." +
 					"\n\t Variable name: " + liName, p);
 		}
 	}
