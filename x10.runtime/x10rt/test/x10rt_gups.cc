@@ -259,6 +259,25 @@ void *congruent_alloc (size_t size)
 
 }
 
+x10rt_remote_op_params *opv;
+size_t opc;
+size_t remote_op_batch;
+
+
+inline void remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
+                       x10rt_op_type type, unsigned long long value)
+{
+    opv[opc].dest = place;
+    opv[opc].dest_buf = remote_addr;
+    opv[opc].op = type;
+    opv[opc].value = value;
+    opc++;
+    if (opc == remote_op_batch) {
+        x10rt_remote_ops(opv,opc);
+        opc = 0;
+    }
+}
+
 
 
 // {{{ nano_time
@@ -345,7 +364,8 @@ static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
         if (here==place) {
             localTable[index] ^= update;
         } else {
-            x10rt_remote_op(place, (x10rt_remote_ptr)&localTable[index], X10RT_OP_XOR, update);
+            //x10rt_remote_op(place, (x10rt_remote_ptr)&localTable[index], X10RT_OP_XOR, update);
+            remote_op(place, (x10rt_remote_ptr)&localTable[index], X10RT_OP_XOR, update);
         }
     }
     // HOT LOOP ENDS
@@ -479,7 +499,9 @@ int main(int argc, char **argv)
 
     localTable = (uint64_t*) congruent_alloc(localTableSize*sizeof(uint64_t));
 
-
+    const char *remote_op_batch_ = getenv("X10_REMOTE_OP_BATCH");
+    remote_op_batch = remote_op_batch_ == NULL ? 64 : strtoul(remote_op_batch_, NULL, 10);
+    opv = (x10rt_remote_op_params*)malloc(remote_op_batch * sizeof(*opv));
 
     if (localTable == NULL) {
         std::cerr<<"Could not allocate memory for local table ("
