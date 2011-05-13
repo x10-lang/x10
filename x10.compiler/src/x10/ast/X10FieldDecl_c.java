@@ -152,7 +152,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    c.addVariable(fi.asInstance());
 		    c.setVarWhoseTypeIsBeingElaborated(fi);
 		    addInClassInvariantIfNeeded(c);
-		    PlaceChecker.setHereTerm(fieldDef(), c);
+		    //PlaceChecker.setHereTerm(fieldDef(), c);
 		}
 				
 	    if (child == this.init) {

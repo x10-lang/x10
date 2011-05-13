@@ -2263,7 +2263,7 @@ class TestMethodResolution { // see XTENLANG-1915
 
 class TestHereInGenericTypes { // see also XTENLANG-1922
 	static class R {
-	  val x:Place{self==here} = here;
+	  val x:Place{self==here} = here; // ERR: Cannot use "here" in this context
 	}
 	static def foo(y:Place{self==here}) {
 		assert y==here; // will fail at runtime! but according to the static type it should succeed!
@@ -6652,7 +6652,7 @@ class XTENLANG_1772_test {
 }
 
 class XTENLANG_1448 {
-	class X(p:Place) {p==here} { // ShouldBeErr: here cannot be used in a class invariant
+	class X(p:Place) {p==here} { // ERR: Cannot use "here" in this context
 		def this() {
 			property(here);
 		}
@@ -6662,7 +6662,7 @@ class XTENLANG_1448 {
 			val px:Place{self==here} = x.p;
 		}
 	}
-	class X2(p:Place{self==here}) { // ShouldBeErr: here cannot be used in properties
+	class X2(p:Place{self==here}) { // ERR: Cannot use "here" in this context
 		def this() {
 			property(here); // ERR
 		}
@@ -6683,7 +6683,7 @@ class XTENLANG_1448 {
 	interface Test[T] {
 		def add(t:T):void;
 	}
-	class Impl(p:Place) implements Test[Impl{self.p==here}] {
+	class Impl(p:Place) implements Test[Impl{self.p==here}] { // ERR: Cannot use "here" in this context
 		public def add(t:Impl{self.p==here}):void {}
 	}
 }

@@ -733,9 +733,13 @@ public class Errors {
 	        		"\n\t desired type: " + placeType, pos);
 	    }
 	}
-	
-	
-	
+
+	public static class CannotUseHereInThisContext extends EqualByTypeAndPosException {
+	    private static final long serialVersionUID = -2736877234203434252L;
+	    public CannotUseHereInThisContext(Position pos) {
+	        super("Cannot use \"here\" in this context", pos);
+	    }
+	}
 
 	public static class CannotAssignValueToFinalField extends EqualByTypeAndPosException {
 		
