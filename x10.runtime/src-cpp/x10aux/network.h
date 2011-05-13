@@ -81,9 +81,9 @@ namespace x10aux {
         x10rt_remote_free(p, ptr);
     }
 
-    x10rt_remote_op_params *opv;
-    size_t opc;
-    size_t remote_op_batch;
+    extern x10rt_remote_op_params *opv;
+    extern size_t opc;
+    extern size_t remote_op_batch;
 
     inline void remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
                            x10rt_op_type type, unsigned long long value)
