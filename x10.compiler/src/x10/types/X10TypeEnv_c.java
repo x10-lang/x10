@@ -2067,11 +2067,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
 
         if (! entails) {
-            throw new SemanticException(mi.signature() + " in " + mi.container()
-                                        +" cannot override " +mj.signature() 
-                                        + " in " + mj.container() 
-                                        +"; method guard is not entailed.",
-                                        mi.position());
+            throw new SemanticException(mi.name() + " in " + mi.container()
+             +" cannot override method in " + mj.container() 
+             +"; overriding method guard is not entailed."
+             + "\n\t Overiding Method in " + mi.container() + ":" + mi.signature()
+             + "\n\t Method in " + mj.container()+":" + mj.signature()
+             ,
+             mi.position());
         }
 
         if (mi.flags().moreRestrictiveThan(mj.flags())) {
