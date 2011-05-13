@@ -11,7 +11,7 @@
 
 X10_VERSION=svn head
 #X10_VERSION=2.1.2
-VERSION=20110310
+VERSION=20110513
 
 #WPLATFORM is the string used to identify the platform in the web tarballs
 PGAS_SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
