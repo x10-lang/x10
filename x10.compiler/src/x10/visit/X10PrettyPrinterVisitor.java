@@ -1594,10 +1594,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // XTENLANG-2680 invoke final methods as non-virtual call for optimization
         MethodInstance mi = c.methodInstance();
         Receiver target = c.target();
-    	assert mi.container().isClass();
+        ContainerType containerType = mi.container();
+    	assert containerType.isClass();
     	// N.B. structs are implicitly final. all methods of final classes are final. invoke final methods as non-virtual call.
     	boolean invokeNativeAsNonVirtual = !Emitter.supportNativeMethodDecl || mi.flags().isStatic() || mi.flags().isFinal()
-    	|| canBeNonVirtual(((X10ClassType) mi.container().toClass()).x10Def())
+    	|| canBeNonVirtual(((X10ClassType) containerType.toClass()).x10Def())
     	|| (target.type().isClass() && canBeNonVirtual(((X10ClassType) target.type().toClass()).x10Def()))
     	;
         if (invokeNativeAsNonVirtual && er.printNativeMethodCall(c)) {
@@ -1607,7 +1608,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // Check for properties accessed using method syntax. They may have
         // @Native annotations too.
         if (mi.flags().isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
-            X10FieldInstance fi = (X10FieldInstance) mi.container().fieldNamed(mi.name());
+            X10FieldInstance fi = (X10FieldInstance) containerType.fieldNamed(mi.name());
             if (fi != null) {
                 String pat2 = Emitter.getJavaImplForDef(fi.x10Def());
                 if (pat2 != null) {
@@ -1641,13 +1642,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     // TODO:CAST
                     w.write("(");
                     w.write("(");
-                    er.printType(mi.container(), PRINT_TYPE_PARAMS); // TODO
+                    er.printType(containerType, PRINT_TYPE_PARAMS); // TODO
                                                                      // check
                     w.write(")");
 
                     w.write(X10_RTT_TYPES);
                     w.write(".conversion(");
-                    new RuntimeTypeExpander(er, Types.baseType(mi.container())).expand(tr);
+                    new RuntimeTypeExpander(er, Types.baseType(containerType)).expand(tr);
                     w.write(",");
 
                     er.prettyPrint(target, tr);
@@ -1655,11 +1656,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
 
                     w.write(")");
-                } else if (isSelfDispatch && (mi.typeParameters().size() > 0 || hasParams(mi.container()))) {
+                } else if (isSelfDispatch && (mi.typeParameters().size() > 0 || hasParams(containerType))) {
                     // TODO:CAST
                     w.write("(");
                     w.write("(");
-                    er.printType(mi.container(), PRINT_TYPE_PARAMS);
+                    er.printType(containerType, PRINT_TYPE_PARAMS);
                     w.write(")");
                     er.prettyPrint(target, tr);
                     w.write(")");
@@ -1692,7 +1693,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             boolean isDispatchMethod = false;
             if (isSelfDispatch) {
-                Type tt = Types.baseType(targetType);
+                Type tt = Types.baseType(containerType);
                 if (tt instanceof X10ClassType && ((X10ClassType) tt).flags().isInterface()) {
                     // N.B. stop passing rtt to java raw class's methods
                     if (containsTypeParam(mi.def().formalTypes()) && !Emitter.isNativeRepedToJava(tt)) {
@@ -1708,7 +1709,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             boolean instantiatesReturnType = false;
             List<MethodInstance> list = mi.implemented(tr.context());
             for (MethodInstance mj : list) {
-                if (mj.container().typeEquals(mi.container(), tr.context())
+                if (mj.container().typeEquals(containerType, tr.context())
                         && Types.baseType(mj.def().returnType().get()) instanceof ParameterType) {
                     instantiatesReturnType = true;
                     break;
@@ -1718,8 +1719,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             boolean isParamReturnType = Types.baseType(mi.def().returnType().get()) instanceof ParameterType
                     || instantiatesReturnType;
 
-            er.printMethodName(mi.def(), invokeInterface, isDispatchMethod,
-                               er.isSpecialType(mi.def().returnType().get()), isParamReturnType);
+            boolean isSpecialReturnType = er.isSpecialType(mi.def().returnType().get());
+
+            // call
+            er.printMethodName(mi.def(), invokeInterface, isDispatchMethod, isSpecialReturnType, isParamReturnType);
         }
 
         // print the argument list
@@ -1731,8 +1734,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         printArgumentsForTypeParams(typeParameters, argumentSize);
 
         boolean runAsync = false;
-        if (mi.container().isClass()
-                && ((X10ClassType) mi.container().toClass()).fullName().toString().equals("x10.lang.Runtime")) {
+        if (containerType.isClass()
+                && ((X10ClassType) containerType.toClass()).fullName().toString().equals("x10.lang.Runtime")) {
             if (mi.signature().startsWith("runAsync")) {
                 runAsync = true;
             }
@@ -1830,7 +1833,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (isSelfDispatch && Types.baseType(targetType) instanceof X10ClassType) {
                 ct = (X10ClassType) Types.baseType(targetType);
             } else if (isSelfDispatch && xts.isParameterType(targetType)) {
-                ct = (X10ClassType) Types.baseType(mi.container());
+                ct = (X10ClassType) Types.baseType(containerType);
             }
             // N.B. stop passing rtt to java raw class's methods
             if (ct != null

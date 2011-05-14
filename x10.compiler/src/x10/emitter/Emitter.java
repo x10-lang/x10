@@ -1007,6 +1007,7 @@ public class Emitter {
 
         w.allowBreak(2, 2, " ", 1);
 
+        // decl
         // print the method name
 		printMethodName(n.methodDef(), isInterface, isDispatcher);
 
@@ -1113,8 +1114,10 @@ public class Emitter {
 		}
 	}
 
+	// decl and call
     private void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher) {
-		printMethodName(def, isInterface, isDispatcher, isSpecialType(def.returnType().get()), tr.typeSystem().isParameterType(def.returnType().get()));
+    	Type returnType = def.returnType().get();
+		printMethodName(def, isInterface, isDispatcher, isSpecialType(returnType), tr.typeSystem().isParameterType(returnType));
     }
 
     public boolean isSpecialType(Type type) {
@@ -1126,7 +1129,8 @@ public class Emitter {
     	return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
         && !isNativeClassToJava(containerType)
         && !isNativeRepedToJava(containerType)
-        && !(methodNameString.equals("equals") || methodNameString.equals("toString") || methodNameString.equals("hashCode") || methodNameString.equals("compareTo"))
+        && !(methodNameString.equals("equals") || methodNameString.equals("toString") || methodNameString.equals("hashCode"))/*Any*/
+        && !(methodNameString.equals("compareTo"))/*Comparable*/
         && !(methodNameString.startsWith(StaticInitializer.initializerPrefix) || methodNameString.startsWith(StaticInitializer.deserializerPrefix));
     }
     
@@ -1718,6 +1722,7 @@ public class Emitter {
 	    
 	    w.allowBreak(2, 2, " ", 1);
 
+	    // decl
 	    // print the method name
 	    printMethodName(def, isInterface, false);
 	    
@@ -1782,7 +1787,8 @@ public class Emitter {
 	        w.write("return ");
 	    }
 
-	    if (boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
+	    boolean boxString = boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context());
+	    if (boxString) {
             w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
             w.write(".box(");
 	    }
@@ -1797,6 +1803,7 @@ public class Emitter {
 	        }
 	    }
 
+        // call
         printMethodName(impl.def(), isInterface2, false);
 
         // print the argument list
@@ -1833,7 +1840,7 @@ public class Emitter {
 	    }
 	    w.write(")");
 
-	    if (boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
+	    if (boxString) {
 	        w.write(")");
 	    }
 	    w.write(";");
@@ -1900,6 +1907,7 @@ public class Emitter {
     
     	    w.write("super.");
     	    
+    	    // call
     	    printMethodName(def, false, false);
 
     	    // print the argument list
@@ -2254,6 +2262,7 @@ public class Emitter {
             
             w.allowBreak(2, 2, " ", 1);
 
+            // decl
             // print the method name
             printMethodName(def, true, true);
 
@@ -2358,6 +2367,7 @@ public class Emitter {
                     w.write("return ");
                 }
 
+                // call
                 printMethodName(mi.def(), false, false);
 
                 // print the argument list
