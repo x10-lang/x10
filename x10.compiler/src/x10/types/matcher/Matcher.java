@@ -35,6 +35,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalDef_c;
@@ -140,7 +141,7 @@ public class Matcher {
 			final PI me, 
 			/*inout*/ Type[] thisTypeArray,  
 			List<Type> typeActuals, 
-			List<Type> actualsIn, 
+			final List<Type> actualsIn, 
 			boolean checkActuals) throws SemanticException
 			{
 		final XVar[] ys = new XVar[actualsIn.size()+1];
@@ -259,7 +260,16 @@ public class Matcher {
 	        							newReturnType = Subst.project(newReturnType, ythiseqv);
 	        						}
 	        						for (int i= 1; i < actuals.size()+1; ++i) {
-	        								newReturnType = Subst.project(newReturnType, (XVar) ys[i]);  
+	        						    newReturnType = Subst.project(newReturnType, (XVar) ys[i]);  
+	        						    
+	        						    
+	        						    Type t = actualsIn.get(i-1);
+	        						    XVar self = t instanceof ConstrainedType 
+	        						    ? Types.selfVar((ConstrainedType) t) : null;
+	        						    if (self != null) 
+	        						        newReturnType = Subst.project(newReturnType, self);
+	        						        
+	        								
 	        						}
 	        					} catch (XFailure z) {
 	        						throw new Errors.InconsistentReturnType(newReturnType, me);
@@ -296,7 +306,7 @@ public class Matcher {
 				if (! isStatic) {
 					env = Types.xclause(thisType);
 					if (env != null && ythiseqv != null && ! ((env == null) || env.valid())) {
-						env = env.copy().instantiateSelf(ythiseqv);
+						env = env.instantiateSelf(ythiseqv);
 					}
 				}
 				for (Type t : formals) {
@@ -448,7 +458,7 @@ public class Matcher {
 		if (! isStatic) {
 			env = Types.xclause(thisType);
 			if (env != null && ythis != null && ! ((env == null) || env.valid()))
-				env = env.copy().instantiateSelf(ythis);
+				env = env.instantiateSelf(ythis);
 		}
 		if (env == null)
 			env = new CConstraint();
@@ -486,7 +496,7 @@ public class Matcher {
 		if (! isStatic) {
 			env = Types.xclause(thisType);
 			if (env != null && ythis != null && ! ((env == null) || env.valid()))
-				env = env.copy().instantiateSelf(ythis);
+				env = env.instantiateSelf(ythis);
 		}
 		if (env == null)
 			env = new CConstraint();

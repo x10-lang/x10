@@ -111,15 +111,20 @@ public abstract class XTerm implements  Serializable, Cloneable {
 		return false;
 	}*/
 
+	public static int TERM_MUST_NOT_BE_BOUND=-1;
+	public static int TERM_PREFERS_BEING_BOUND=1;
+	public static int TERM_SHRUGS_ABOUT_BEING_BOUND=0;
 	/**
+	 * 0 == dont care, bind me if you want
+	 * -1 == must not bind me!
 	 * If true, bind this variable when processing this=t, for
 	 * any term t. In case t also prefers being bound, choose any
 	 * one.
 	 * 
 	 * @return true if this  prefers being bound in a constraint this==t.
 	 */
-	public boolean prefersBeingBound() {
-		return false;
+	public int prefersBeingBound() {
+		return TERM_SHRUGS_ABOUT_BEING_BOUND;
 	}
 
 	/**

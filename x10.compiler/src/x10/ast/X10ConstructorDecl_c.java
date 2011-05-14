@@ -366,12 +366,15 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 }
             }
 
+            // Push formals so they're in scope in the types of the other formals.
             for (TypeParamNode f : typeParameters) {
                 f.addDecls(c);
             }
-            
-            for (Formal f : formals) {
+            for (int i=0; i < formals.size(); i++) {
+                Formal f = formals.get(i);
                 f.addDecls(c);
+                if (f == child)
+                    break; // do not add downstream formals
             }
         }
         // Ensure that the place constraint is set appropriately when

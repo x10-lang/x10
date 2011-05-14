@@ -190,7 +190,7 @@ public class X10Return_c extends Return_c {
 		            n = (X10Return_c) n.expr(e);
 		        } else {
 		            Errors.issue(tc.job(),
-		                    new Errors.CannotReturnExpr(n.expr().type(), returnType, n.expr().position()),
+		                    Errors.CannotReturnExpr.make(n.expr(), returnType, tc, n.expr().position()),
 		                    this);
 		        }
 		    }

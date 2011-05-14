@@ -30,7 +30,8 @@ public class XEquals extends XFormula<String>  {
 	    if (q == null)
 	        return null;
 
-	    if (p instanceof XLit && q instanceof XLit) {
+	    XTerm pTerm=p.term(),qTerm=q.term();
+	    if (pTerm instanceof XLit && qTerm instanceof XLit) {
 	            return c.intern(p.equals(q) ? XTerms.TRUE : XTerms.FALSE);
 	    }
 	    else {

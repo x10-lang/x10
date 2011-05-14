@@ -284,7 +284,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                                      new Errors.InconsistentContext(initType, pos));
                     }
                     if (c != null)
-                        known.addIn(c.substitute(prop, c.self()));
+                        known.addIn(c.instantiateSelf(prop));
                     try {
                      XTerm initVar = ts.xtypeTranslator().translate(known, initializer, ctx, false); // it cannot be top-level, because the constraint will be "prop==initVar"
                      if (initVar != null)
@@ -347,7 +347,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                  
                  for (Type intfc : ctype.interfaces()) {
                 	 CConstraint cc = Types.realX(intfc);
-                     cc = cc.substitute(thisVar, cc.self()); // for some reason, the invariant has "self" instead of this, so I fix it here.
+                     cc = cc.instantiateSelf(thisVar); // for some reason, the invariant has "self" instead of this, so I fix it here.
                 	 if (thisVar != null) {
                 		 XVar intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();
                 		 cc = cc.substitute(thisVar, intfcThisVar);

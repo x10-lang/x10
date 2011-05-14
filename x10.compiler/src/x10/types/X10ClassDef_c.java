@@ -174,13 +174,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         final Runnable runnable = new Runnable() {
             public void run() {
                 CConstraint c = X10ClassDef_c.this.realClause.get();
-                try {
-                    c = c.substitute(thisVar(), c.self());
-                } catch (XFailure z) {
-                    c.setInconsistent();
-                } finally {
-                    ref.update(c);
-                }
+                c = c.instantiateSelf(thisVar());
+                ref.update(c);
             }
             public String toString() {
                 return "realClauseWithThis for " + X10ClassDef_c.this;
@@ -252,7 +247,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     						    // Given: f:C{c}
     						    // Add in: c[self.f/self,self/this]
     						    XTerm newSelf = ts.xtypeTranslator().translate(rs.self(), fi.asInstance());
-    						    CConstraint rs1 = rs.substitute(newSelf, rs.self());
+    						    CConstraint rs1 = rs.instantiateSelf(newSelf);
     						    CConstraint rs2;
     						    if (fiThis != null)
     						        rs2 = rs1.substitute(rs1.self(), fiThis);

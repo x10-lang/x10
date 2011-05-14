@@ -505,7 +505,7 @@ public class X10New_c extends New_c implements X10New {
             }
         }
         if (!ts.hasUnknown(tp) && !ts.isSubtype(tp1, t1, context)) {
-            SemanticException e = new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", pos);
+            SemanticException e = Errors.NewIncompatibleType.make(result.type(tp1),  t1, tc, pos);
             Errors.issue(tc.job(), e, this);
             if (ci.error() == null) {
                 ci = ci.error(e);

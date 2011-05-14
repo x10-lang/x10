@@ -261,7 +261,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             Expr newInit = Converter.attemptCoercion(tc, n.init, type);
             if (newInit != null)
                 return n.init(newInit);
-            Errors.issue(tc.job(), new Errors.CannotAssign(n.init, type, n.init.position()), n);
+            Errors.issue(tc.job(), Errors.CannotAssign.make(n.init, type, tc, n.init.position()), n);
         }
 
         return n;

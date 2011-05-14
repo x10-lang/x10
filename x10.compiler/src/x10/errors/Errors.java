@@ -47,6 +47,7 @@ import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.types.MemberDef;
@@ -58,6 +59,7 @@ import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.util.CollectionUtil; import polyglot.visit.CFGBuildError;
+import polyglot.visit.ContextVisitor;
 import x10.util.CollectionFactory;
 import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
@@ -65,6 +67,7 @@ import x10.ast.DepParameterExpr;
 import x10.ast.SettableAssign;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldDecl;
+import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
@@ -223,14 +226,66 @@ public class Errors {
 
 	public static class CannotAssign extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -4243637083971033996L;
-		public CannotAssign(Expr expr, Type targetType, Position pos) {
+		CannotAssign(Expr expr, Type targetType, Position pos) {
 			super("Cannot assign expression to target."
 					+ "\n\t Expression: " + expr
 					+ "\n\t Expected type: " + targetType
 					+ "\n\t Found type: " + expr.type()
 					, pos);
 		}
+		CannotAssign(Expr expr, Type bType, Type btargetType, Position pos) {
+            super("Cannot assign expression to target; base types are incompatible."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Expected base type: " + btargetType
+                    + "\n\t Found base type: " + bType
+                    , pos);
+        }
+		CannotAssign(Expr expr, Type type, XConstraint con, Position pos) {
+            super("Cannot assign expression to target; constraints not satisfied."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Type: " + type
+                    + "\n\t Unsatisfied constraints: " + con
+                    , pos);
+        }
+		public static CannotAssign make(Expr expr, Type targetType, ContextVisitor tc, Position pos) {
+		    Type type = expr.type(), bType = Types.baseType(type), bTargetType = Types.baseType(targetType);
+		    TypeSystem ts = tc.typeSystem();
+		    if (! ts.isSubtype(bType, bTargetType, tc.context()))
+		        return new CannotAssign(expr, bType, bTargetType, pos);
+		    // base types are compatible, constraints are not.
+		    CConstraint 
+		    c = Types.xclause(type), 
+		    d = Types.xclause(targetType);
+		    XConstraint residue = c.residue(d);
+		    
+		    
+		    return new CannotAssign(expr, type, residue, pos);
+		}
 	}
+	public static class NewIncompatibleType extends EqualByTypeAndPosException {
+        private static final long serialVersionUID = 5076152155527158732L;
+	    NewIncompatibleType(Expr expr, Type bType, XConstraint con, Position pos) {
+            super("Return type of resolved constructor does not satisfy given constraints."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Type: " + bType
+                    + "\n\t Unsatisfied constraints: " + con
+                    , pos);
+        }
+        public static NewIncompatibleType make(Expr expr, Type targetType, ContextVisitor tc, Position pos) {
+            Type type = expr.type(), bType = Types.baseType(type), bTargetType = Types.baseType(targetType);
+            TypeSystem ts = tc.typeSystem();
+            assert (ts.isSubtype(bType, bTargetType, tc.context()));
+           //     return new NewIncompatibleType(expr, bType, bTargetType, pos);
+            // base types are compatible, constraints are not.
+            CConstraint 
+            c = Types.xclause(type), 
+            d = Types.xclause(targetType);
+            XConstraint residue = c.residue(d);
+            
+            
+            return new NewIncompatibleType(expr, type, residue, pos);
+        }
+    }
 	public static class FieldInitTypeWrong extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 4778277210134359519L;
 		public FieldInitTypeWrong(Expr expr, Type targetType, Position pos) {
@@ -699,13 +754,37 @@ public class Errors {
 	    }
 	}
 	public static class CannotReturnExpr extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = 211999857915638603L;
-		public CannotReturnExpr(Type type,  Type returnType, Position pos) {
-	        super("Cannot return expression of given type."
-	        		+ "\n\t type: " + type
-	        		+ "\n\t desired Type:" + returnType, pos);
-	    }
-	}
+	    private static final long serialVersionUID = 211999857915638603L;
+	    CannotReturnExpr(Expr expr, Type bType, Type btargetType, Position pos) {
+            super("Cannot return expression; base type incompatible with method return type."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Base type: " + bType
+                    + "\n\t Expected base type: " + btargetType
+                    , pos);
+        }
+	    CannotReturnExpr(Expr expr, Type type, XConstraint con, Position pos) {
+            super("Cannot return expression; constrants not satisfied."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Type: " + type
+                    + "\n\t Unsatisfied constraints: " + con
+                    , pos);
+        }
+        public static CannotReturnExpr make(Expr expr, Type targetType, ContextVisitor tc, Position pos) {
+            Type type = expr.type(), bType = Types.baseType(type), bTargetType = Types.baseType(targetType);
+            TypeSystem ts = tc.typeSystem();
+            if (! ts.isSubtype(bType, bTargetType, tc.context()))
+                return new CannotReturnExpr(expr, bType, bTargetType, pos);
+            // base types are compatible, constraints are not.
+            CConstraint 
+            c = Types.xclause(type), 
+            d = Types.xclause(targetType);
+            XConstraint residue = c.residue(d);
+            
+            
+            return new CannotReturnExpr(expr, type, residue, pos);
+        }
+    }
+	
 	public static class ArrayLiteralMustBeOfArrayType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 3059270665285777371L;
 		public ArrayLiteralMustBeOfArrayType(String typeName,   Position pos) {
@@ -2052,5 +2131,11 @@ public class Errors {
 					+ "\n\t Expansion: " + t, p);
 					
 		}
+    }
+    public static class ArrayExplosionError extends EqualByTypeAndPosException {
+        private static final long serialVersionUID = 2851042936446059831L;
+        public ArrayExplosionError(int n, Position pos) {
+            super("Array argument must have constraint {rank==1,size=" + n + "}.", pos);
+        }
     }
 }

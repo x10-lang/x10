@@ -20,6 +20,7 @@ import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerms;
@@ -54,18 +55,19 @@ public class X10FieldMatcher {
         	c = c.copy().instantiateSelf(v);*/
 
         { // Update t
-            CConstraint tc = Types.realX(t);
+            CConstraint tconst = Types.realX(t);
        
             if (! contextKnowsReceiver) {
-            	tc.addIn(v, c);
+            	tconst.addIn(v, c);
             	try {
-            		CConstraint tc2 = tc.copy().project(tc.self());
+            		//CConstraint tc2 = tconst.copy().project(tconst.self());
+            	    CConstraint tc2 = tconst.exists();
             		t = Subst.addIn(t, tc2);
             	} catch (XFailure z) {
             		Types.setInconsistent(t);
             	}
             }
-            t = Types.constrainedType(Types.baseType(t), tc);
+            t = Types.constrainedType(Types.baseType(t), tconst);
             
             t = Subst.subst(t,
                             new XVar[] {v},

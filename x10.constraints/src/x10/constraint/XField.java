@@ -83,11 +83,30 @@ public class XField<T> extends XVar {
         return field;
     }
 
-    public XField<T> copy(XVar newReceiver) {
+    /** 
+     * if this is r.f, then return newReceiver.f.
+     * @param newReceiver
+     * @return
+     */
+    public XField<T> copyReceiver(XVar newReceiver) {
     	if (newReceiver == receiver)
     		return this;
         return new XField<T>(newReceiver, field, hidden);
     }
+    /** If this is r.f1.f2..fn, then return newRoot.f1.f2...fn.
+     * 
+     * @param newRoot
+     * @return
+     
+    public XField<T> copyRoot(XVar newRoot) {
+        if (receiver instanceof XField) {
+            XVar newReceiver = ((XField<?>) receiver).copyRoot(newRoot);
+            return copyReceiver(newReceiver);
+        }
+        // replace the root.
+        return copyReceiver(newRoot);
+    }
+    */
     public String name() {
         return field.toString();
     }
@@ -164,7 +183,7 @@ public class XField<T> extends XVar {
 		assert map != null;
 		XPromise entry = map.get(field);
 		if (entry == null) {
-			entry = new XPromise_c(this);
+			entry = new XPromise(this);
 			map.put(field, entry);
 			return entry;
 		}

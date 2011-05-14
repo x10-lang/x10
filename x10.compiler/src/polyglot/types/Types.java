@@ -461,7 +461,7 @@ public class Types {
 	 	//assert (! (t instanceof UnknownType));
 		 CConstraint c = Types.xclause(type);
 	        if (! ((c==null) || c.valid())) {
-	        	CConstraint env = c = c.copy().instantiateSelf(t);
+	        	CConstraint env = c = c.instantiateSelf(t);
 	        	if (false && ! c.consistent()) {
 	        		throw new InternalCompilerError("X10TypeMixin: Instantiating self on " + type + " with " + t + " is inconsistent.");
 	        	}
@@ -1622,13 +1622,7 @@ public class Types {
 	 */
 	public static CConstraint xclause(XVar v, Type t) {
 		CConstraint c = xclause(t);
-		try {
-		return c.substitute(v, c.self());
-		} catch (XFailure z) {
-			CConstraint c1 = new CConstraint();
-			c1.setInconsistent();
-			return c1;
-		}
+		return c.instantiateSelf(v);
 	}
 
 	/**
@@ -1796,25 +1790,27 @@ public class Types {
 	 * @return
 	 */
 	public static CConstraint removeLocals(Context cxt, CConstraint c0) {
-		CConstraint c = new CConstraint();
-    	c.addIn(c0); // ensure that this has a different selfVar.
-    	Set<XTerm> roots = c.rootTerms();
-    	if (roots.size() > 0) {
-    		for (XTerm term : roots) {
-    			if (term instanceof XVar) {
-    				XVar[] vars = ((XVar) term).vars();
-    				XVar root = vars[0];
-    				if (root instanceof CLocal) {
-    					CLocal rootL = (CLocal) root;
-    					X10LocalDef name = rootL.localDef();
-    					if (! cxt.isFormalParameter(name)) {
-    						// This is a local variable. Eliminate!
-    						c = c.project(rootL);
-    					}
-    				}
-    			}
-    		}
-    	}
+	    CConstraint c = new CConstraint();
+	    c.addIn(c0); // ensure that this has a different selfVar.
+	    Set<XTerm> roots = c.rootTerms();
+	    if (roots.size() > 0) {
+	        for (XTerm term : roots) {
+	            if (term instanceof XVar) {
+	                XVar[] vars = ((XVar) term).vars();
+	                if (vars.length > 0) { // lits can have length 0
+	                    XVar root = vars[0];
+	                    if (root instanceof CLocal) {
+	                        CLocal rootL = (CLocal) root;
+	                        X10LocalDef name = rootL.localDef();
+	                        if (! cxt.isFormalParameter(name)) {
+	                            // This is a local variable. Eliminate!
+	                            c = c.project(rootL);
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
 	   return c;
 	}
 

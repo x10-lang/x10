@@ -345,13 +345,12 @@ public class Closure_c extends Expr_c implements Closure {
 		if (child != body()) {
 			// Push formals so they're in scope in the types of the other formals.
 			c = c.pushBlock();
-			/*   for (TypeParamNode f : typeParameters) {
+            for (int i=0; i < formals.size(); i++) {
+                Formal f = formals.get(i);
                 f.addDecls(c);
+                if (f == child)
+                    break; // do not add downstream formals
             }
-			 */
-			for (Formal f : formals) {
-				f.addDecls(c);
-			}
 		}
 
 		if (child == body && offerType != null && offerType.typeRef().known()) {
