@@ -75,6 +75,7 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.ContainerType;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.visit.X10TypeChecker;
@@ -531,6 +532,19 @@ public class X10Call_c extends Call_c implements X10Call {
 			        fi = (X10FieldInstance) c.findVariableSilent(name); // we didn't find a local, so it must be a field
 		            if (fi != null && isStatic && !fi.flags().isStatic())
 		                fi = null;
+                    // it might be a field of an outer class, so we must check all inner classes in between are non-static
+                    if (fi!=null && !fi.flags().isStatic()) {
+                        X10ClassType containerType = (X10ClassType) fi.container();
+                        X10ClassType currentClass = c.currentClass();
+                        while (containerType.def()!=currentClass.def()) {
+                            if (currentClass.flags().isStatic()) {
+                                fi = null;
+                                break;
+                            }
+                            currentClass = (X10ClassType) currentClass.outer();
+                            if (currentClass==null) break;
+                        }
+                    }
 			    }
 			    if (fi == null) {
 			        Type targetType = target() == null ? c.currentClass() : target().type();
