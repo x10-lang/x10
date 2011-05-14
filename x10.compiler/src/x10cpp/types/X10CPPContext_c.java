@@ -148,6 +148,7 @@ public class X10CPPContext_c extends Context {
     public ClassifiedStream genericFunctions = null;
     public ClassifiedStream genericFunctionClosures = null;
     public ClassifiedStream closures = null;
+    public ClassifiedStream staticDefinitions = null;
 
 	public ArrayList<VarInstance<?>> variables = new ArrayList<VarInstance<?>>();
 

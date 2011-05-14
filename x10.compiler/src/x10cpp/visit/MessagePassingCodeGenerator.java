@@ -421,15 +421,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private void extractGenericStaticInits(X10ClassDef cd) {
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+
 	    // Always write non-template static decls into the implementation file
 	    ClassifiedStream save_w = sw.currentStream();
-	    ClassifiedStream w = sw.getNewStream(StreamWrapper.CC, false);
+	    ClassifiedStream w = context.staticDefinitions;
 	    sw.pushCurrentStream(w);
-	    String header = getHeader(cd.asType());
-	    w.write("#include <"+header+">"); w.newline();
-	    w.forceNewline(0);
 
-	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    X10ClassType declClass = (X10ClassType)cd.asType().toClass();
 	    String declClassName = translate_mangled_FQN(cd.fullName().toString());
 	    String container = declClassName+voidTemplateInstantiation(cd.typeParameters().size());
@@ -579,11 +577,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         assert (!def.isNested()) : ("Nested class alert!");
 
+        boolean inTemplate = def.typeParameters().size() != 0;
+
         ClassifiedStream save_body = sw.body();
         ClassifiedStream save_header = sw.header();
         ClassifiedStream save_generic = context.genericFunctions;
         ClassifiedStream save_generic_cls = context.genericFunctionClosures;
         ClassifiedStream save_closures = context.closures;
+        ClassifiedStream save_static_defs = context.staticDefinitions;
         // Header stream
         ClassifiedStream h = sw.getNewStream(StreamWrapper.Header, false);
         // Stream for closures that are within generic functions (always in the header, may be empty)
@@ -596,11 +597,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // Implementation stream.
         //    In generic context, in .h, but after the logical header stream.
         //    In non-generic context, in .cc
-        ClassifiedStream w_header = sw.getNewStream(def.typeParameters().size() != 0 ? StreamWrapper.Header : StreamWrapper.CC, false);
-        ClassifiedStream w_closures = sw.getNewStream(def.typeParameters().size() != 0 ? StreamWrapper.Header : StreamWrapper.CC, false);
+        ClassifiedStream w_header = sw.getNewStream(inTemplate ? StreamWrapper.Header : StreamWrapper.CC, false);
+        ClassifiedStream w_closures = sw.getNewStream(inTemplate ? StreamWrapper.Header : StreamWrapper.CC, false);
         context.closures = w_closures;
-        ClassifiedStream w_body = sw.getNewStream(def.typeParameters().size() != 0 ? StreamWrapper.Header : StreamWrapper.CC, false);
-        ClassifiedStream w_footer = sw.getNewStream(def.typeParameters().size() != 0 ? StreamWrapper.Header : StreamWrapper.CC, false);
+        ClassifiedStream w_body = sw.getNewStream(inTemplate ? StreamWrapper.Header : StreamWrapper.CC, false);
+        ClassifiedStream stat_defs = sw.getNewStream(StreamWrapper.CC, false);
+        context.staticDefinitions = stat_defs;
+        ClassifiedStream w_footer = sw.getNewStream(inTemplate ? StreamWrapper.Header : StreamWrapper.CC, false);
         // Dependences guard closing stream (comes at the end of the header)
         ClassifiedStream z = sw.getNewStream(StreamWrapper.Header, false);
         sw.set(h, w_body);
@@ -632,16 +635,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         g.write("#ifndef "+cguard+"_GENERICS"); g.newline();
         g.write("#define "+cguard+"_GENERICS"); g.newline();
 
-        boolean inTemplate = def.typeParameters().size() != 0;
         if (inTemplate) {
             w_header.write("#ifndef "+cguard+"_IMPLEMENTATION"); w_header.newline();
             w_header.write("#define "+cguard+"_IMPLEMENTATION"); w_header.newline();
         }
 
         w_header.write("#include <"+cheader+">"); w_header.newline();
-
         w_header.forceNewline(0);
-        w_header.forceNewline(0);
+        
+        if (inTemplate) {
+            stat_defs.writeln("#include <"+cheader+">");
+            stat_defs.forceNewline(0);
+        }
 
         String packageName = context.package_() == null ? null : context.package_().fullName().toString();
 
@@ -771,7 +776,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
          */
 		context.resetStateForClass(n.properties());
 
-		if (def.typeParameters().size() != 0 && !def.isStruct()) {
+		if (inTemplate && !def.isStruct()) {
 			// Pre-declare the void specialization for statics
 			emitter.printTemplateSignature(def.typeParameters(), h);
 			h.write("class ");
@@ -889,6 +894,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         context.genericFunctions = save_generic;
         context.genericFunctionClosures = save_generic_cls;
         context.closures = save_closures;
+        context.staticDefinitions = save_static_defs;
         sw.set(save_header, save_body);
 	}
 
@@ -3398,7 +3404,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // A stream to put definitions of static variables.
         // If the def is templatized, it has to go in the inc stream.
         // If the def is not templatized, it has to go in the CC stream (even if sw is the Header stream).
-        ClassifiedStream defn_s =  in_template_closure ? inc.currentStream() : sw.getNewStream(StreamWrapper.CC, false);
+        ClassifiedStream defn_s =  in_template_closure ? inc.currentStream() : c.staticDefinitions;
 
         String headerGuard = getHeaderGuard(cname);
         inc.write("#ifndef "+headerGuard+"_CLOSURE"); inc.newline();
@@ -3557,7 +3563,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // This is less than ideal, since it can introduce subtle bugs when the C++ code is refactored
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
-        defn_s.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
+        defn_s.writeln((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
         			cnamet+"::_itable(&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"+
         			cnamet+"::"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+", &"+
         			cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
