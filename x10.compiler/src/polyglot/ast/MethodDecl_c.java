@@ -222,7 +222,7 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
             }
             
             if (flags.isStatic()) {
-        	Errors.issue(tc.job(), new Errors.InterfaceMethodsCannobBeStatic(position()));
+        	Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotBeStatic(position()));
             }
         }
 
@@ -253,10 +253,10 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
 	}
 
         // check that inner classes do not declare static methods
-        if (ct != null && flags.isStatic() && ct.isInnerClass()) {
+        if (ct != null && flags.isStatic() && (ct.isInnerClass() || ct.isLocal() || ct.isAnonymous())) {
             // it's a static method in an inner class.
             Errors.issue(tc.job(),
-                    new Errors.InnerClassesCannotDeclareStaticMethod(position()));             
+                    new Errors.InnerClassesCannotDeclareStaticMethods(methodDef(), ct, position()));             
         }
     }
 

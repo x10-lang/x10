@@ -39,6 +39,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
+import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
@@ -181,14 +182,18 @@ public class Errors {
 	}
     public static class InnerDeclaredStatic extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 1937596402969387888L;
-		public InnerDeclaredStatic(ClassType type, Position p) {
-			super("Inner classes cannot declare static member classes.", p);
+		public InnerDeclaredStatic(ClassType type, ClassType container, Position p) {
+			super("Inner and local classes cannot declare static member classes."
+	              + "\n\t Member: " + type.toString()
+	              + "\n\t Container: " + container.toString(), p);
 		}
 	}
     public static class InnerDeclaredInterface extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -7633854120689783816L;
-		public InnerDeclaredInterface(ClassType type, Position p) {
-			super("Inner classes cannot declare member interfaces.", p);
+		public InnerDeclaredInterface(ClassType type, ClassType container, Position p) {
+			super("Inner and local classes cannot declare member interfaces."
+			      + "\n\t Interface: " + type.toString()
+			      + "\n\t Container: " + container.toString(), p);
 		}
 	}
     public static class SameNameLocal extends EqualByTypeAndPosException {
@@ -413,14 +418,6 @@ public class Errors {
 			super("Nested structs must be declared static.  This is a limitation of the current implementation."
 					+ "\n\t Struct: " + cd.name(),
 					cd.position());
-		}
-	}
-	public static class NewOfStructNotPermitted extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = 2484875712265904017L;
-		public NewOfStructNotPermitted(New n) {
-			super("Struct constructor invocations must not use \"new\"."
-					+ "\n\t Struct: " + n.toString(),
-					n.position());
 		}
 	}
 	public static class InstanceofError extends EqualByTypeAndPosException {
@@ -827,28 +824,28 @@ public class Errors {
 			super("Interface methods must be public.", p);
 		}
 	}
-	public static class InterfaceMethodsCannobBeStatic extends EqualByTypeAndPosException {
+	public static class InterfaceMethodsCannotBeStatic extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = 4347802795939587694L;
 
-		public InterfaceMethodsCannobBeStatic(Position p) {
+		public InterfaceMethodsCannotBeStatic(Position p) {
 			super("Interface methods cannot be static.", p);
 		}
 	}
 	public static class InnerClassCannotDeclareStaticFields extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 3312267938190028022L;
-
-		public InnerClassCannotDeclareStaticFields(Position p) {
-			super("Inner classes cannot declare static fields, unless they are compile-time constant fields.", p);
+		public InnerClassCannotDeclareStaticFields(FieldDef fd, ClassType container, Position p) {
+			super("Inner and local classes cannot declare static fields, unless they are compile-time constant fields."
+			      + "\n\t Field: " + fd.toString()
+			      + "\n\t Container: " + container.toString(), p);
 		}
 	}
-	public static class InnerClassesCannotDeclareStaticMethod extends EqualByTypeAndPosException {
-		
+	public static class InnerClassesCannotDeclareStaticMethods extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 7722988292280217208L;
-
-		public InnerClassesCannotDeclareStaticMethod(Position p) {
-			super("Inner classes cannot declare static methods.", p);
+		public InnerClassesCannotDeclareStaticMethods(MethodDef md, ClassType container, Position p) {
+			super("Inner and local classes cannot declare static methods."
+	              + "\n\t Method: " + md.toString()
+	              + "\n\t Container: " + container.toString(), p);
 		}
 	}
 	public static class MissingMethodBody extends EqualByTypeAndPosException {

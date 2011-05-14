@@ -289,11 +289,11 @@ public abstract class FieldDecl_c extends Term_c implements FieldDecl {
             // check that inner classes do not declare static fields, unless they
             // are compile-time constants
             if (flags.isStatic() &&
-        	    container.isInnerClass()) {
+        	    (container.isInnerClass() || container.isLocal() || container.isAnonymous())) {
         	// it's a static field in an inner class.
         	if (!flags.isFinal() || init == null || !init.isConstant()) {
         	    Errors.issue(tc.job(), 
-        	    		new Errors.InnerClassCannotDeclareStaticFields(position()));
+        	    		new Errors.InnerClassCannotDeclareStaticFields(fieldDef(), container, position()));
         	}
             }
         }

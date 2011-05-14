@@ -491,7 +491,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                         nf.Block(pos,nf.Return(pos,nf.Special(pos, Special.Kind.THIS, nf.CanonicalTypeNode(pos, curr)))));
                 n = (X10ClassDecl_c) n.body(n.body().addMember(md));
 
-                if (curr.flags().isStatic()) break; // a static class doesn't have an outer instance
+                if (curr.flags().isStatic() || !curr.isMember()) break; // a non-member class doesn't have an outer instance
                 curr = curr.outer();
             }
         }
@@ -837,7 +837,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 Errors.issue(tc.job(), new Errors.TypedefMustBeStatic(mt, def.position()), this);
             }
         }
-      
         
         // fix for XTENLANG-978
 //        Map<X10ClassDef,X10ClassType> map = CollectionFactory.newHashMap();
@@ -1079,17 +1078,17 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             }                
         }
 
-        // check that inner classes do not declare member interfaces
-        if (type.isMember() && type.flags().isInterface() && type.outer().isInnerClass()) {
-            // it's a member interface in an inner class.
-            Errors.issue(tc.job(),
-                    new Errors.InnerDeclaredInterface(type, position()));
-        }
-
-        // Make sure that static members are not declared inside inner classes
-        if (type.isMember() && type.flags().isStatic() && type.outer().isInnerClass()) {
-            Errors.issue(tc.job(),
-                    new Errors.InnerDeclaredStatic(type, position()));
+        if (type.isMember() && (type.outer().isInnerClass() || type.outer().isLocal() || type.outer().isAnonymous())) {
+            if (type.flags().isInterface()) {
+                // check that inner classes do not declare member interfaces
+                Errors.issue(tc.job(),
+                        new Errors.InnerDeclaredInterface(type, type.outer(), position()));
+            } else 
+            if (type.flags().isStatic()) {
+                // Make sure that static members are not declared inside inner classes
+                Errors.issue(tc.job(),
+                        new Errors.InnerDeclaredStatic(type, type.outer(), position()));
+            }
         }
 
         if (type.superClass() != null && isValidType(type.superClass())) {
