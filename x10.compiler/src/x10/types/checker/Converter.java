@@ -519,7 +519,6 @@ public class Converter {
 		TypeSystem ts =  tc.typeSystem();
 		Type toType = cast.castType().type();
 		Type fromType = cast.expr().type();
-		NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		Context context = (Context) tc.context();
 
 		if (ts.isUnknown(toType)) {
@@ -531,33 +530,104 @@ public class Converter {
 		if (ts.isVoid(toType) || ts.isVoid(fromType))
 			throw new Errors.CannotConvertToType(fromType, toType, cast.position());
 
+
+        Expr withoutCoercion = checkCastWithoutCoercions(cast, tc);
+        // even if withoutCoercion!=null, I still want to check coercions because I need to produce a warning
+        //  if we favor a system-as over a user-defined-as (both implicit and explicit)
+        Expr withCoercion = checkCastWithCoercions(cast, tc);
+        if (withoutCoercion!=null && withCoercion!=null) {
+            // produce a warning
+            // todo: add a verbose flag
+            if (opts.x10_config.VERBOSE)
+                Warnings.issue(tc.job(), "The casting can be done both by a user-defined coercion and system cast, and the compiler always favors a system cast over a user-defined cast. Make sure this is the desired behavior.", cast.position());
+        }
+        if (withoutCoercion!=null) return withoutCoercion;
+        if (withCoercion!=null) return withCoercion;
+		throw new Errors.CannotConvertExprToType(cast.expr(), cast.conversionType(), toType, cast.position());
+    }
+    private static Expr checkCastWithoutCoercions(X10Cast cast, ContextVisitor tc) throws SemanticException {
+		X10CompilerOptions opts = (X10CompilerOptions) tc.job().extensionInfo().getOptions();
+		TypeSystem ts =  tc.typeSystem();
+		Type toType = cast.castType().type();
+		Type fromType = cast.expr().type();
+		Context context = tc.context();
+
+        // Is it an upcast?
 		if (ts.isSubtype(fromType, toType, context)) {
 		    // Add the clause self==x if the fromType's self binding is x,
 		    // since for these casts we know the result is identical to expr.
 		    //XTerm sv = Types.selfBinding(fromType);
-		    //if (sv != null) 
+		    //if (sv != null)
 		    //    toType = Types.addSelfBinding((Type) toType.copy(), sv);
 		    X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);
 		    return n.type(toType);
 		}
 
-		Type baseFrom = Types.baseType(fromType);
-		Type baseTo = Types.baseType(toType);
-		XConstraint cFrom = Types.xclause(fromType);
-		XConstraint cTo = Types.xclause(toType);
-
-		if (cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION 
+        // is it a downcast?
+		if (cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION
 				&& cast.conversionType() != ConversionType.CALL_CONVERSION) {
-			if (! ts.isParameterType(fromType) 
-					&& ! ts.isParameterType(toType) 
+			if (! ts.isParameterType(fromType)
+					&& ! ts.isParameterType(toType)
 					&& ts.isCastValid(fromType, toType, context)) {
-				X10Cast n = cast.conversionType(ConversionType.CHECKED); 
+				X10Cast n = cast.conversionType(ConversionType.CHECKED);
 				XTerm sv = Types.selfBinding(fromType);
-				if (sv != null) 
+				if (sv != null)
 				    toType = Types.addSelfBinding((Type) toType.copy(), sv);
 				return n.type(toType);
 			}
 		}
+
+
+	    l:  if (cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION
+	    		&& cast.conversionType() != ConversionType.CALL_CONVERSION) {
+        	if (ts.isParameterType(toType)) {
+        		// Now get the upper bound.
+        		List<Type> upper = ts.env(context).upperBounds(toType, false);
+        		if (upper.isEmpty()) {
+        			// No upper bound. Now a checked conversion is permitted only
+        			// if fromType is not Null.
+        			if (! fromType.isNull())
+        				return checkedConversionForTypeParameter(cast, fromType, toType);
+        		} else {
+        			for (Type t : upper)
+        				if (ts.isSubtype(fromType, t))
+        					return checkedConversionForTypeParameter(cast, fromType, toType);
+        		}
+        	} else 	if (ts.isParameterType(fromType)) {
+        		// Now get the upper bound.
+        		List<Type> upper = ts.env(context).upperBounds(fromType, false);
+        		for (Type t : upper)
+        			if (! ts.isSubtype(t, toType))
+        				break l;
+        		return checkedConversionForTypeParameter(cast, fromType, toType);
+        	}
+	    }
+
+		// Added 03/28/10 to support new call conversion semantics.
+		Type baseFrom = Types.baseType(fromType);
+		Type baseTo = Types.baseType(toType);
+		if (ts.isSubtype(baseFrom, baseTo, context))
+			if (!opts.x10_config.STATIC_CHECKS)
+				if (( cast.conversionType() == ConversionType.CALL_CONVERSION)
+						&& ts.isCastValid(fromType, toType, context)) {
+					//return cast.conversionType(ConversionType.DESUGAR_LATER).type(baseTo);
+					X10Cast n = cast.conversionType(ConversionType.DESUGAR_LATER);
+					XVar sv = Types.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
+					if (sv != null)
+					    toType = Types.addSelfBinding((Type) toType.copy(), sv);
+					return n.type(toType);
+				}
+
+        return null;
+    }
+    private static Expr checkCastWithCoercions(X10Cast cast, ContextVisitor tc) throws SemanticException {
+		TypeSystem ts =  tc.typeSystem();
+		Type toType = cast.castType().type();
+		Type fromType = cast.expr().type();
+		NodeFactory nf = tc.nodeFactory();
+		Context context = tc.context();
+
+		Type baseTo = Types.baseType(toType);
 
 		{
 			MethodInstance converter = null;
@@ -625,6 +695,7 @@ public class Converter {
                     // fromType.implicit_operator_as(fromType)
                     // but we should also check:
                     // fromType.operator_as(fromType)
+                    // IMPORTANT: we currently disable defining coercions in the fromType (only in the toType), see X10MethodDecl_c: static boolean SEARCH_CASTS_ONLY_IN_TARGET = true; // see XTENLANG_2667
 				}
 			}
 
@@ -640,45 +711,7 @@ public class Converter {
 				}
 			}
 		}
-
-	    l:  if (cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION
-	    		&& cast.conversionType() != ConversionType.CALL_CONVERSION) {
-        	if (ts.isParameterType(toType)) {
-        		// Now get the upper bound.
-        		List<Type> upper = ts.env(context).upperBounds(toType, false);
-        		if (upper.isEmpty()) {
-        			// No upper bound. Now a checked conversion is permitted only
-        			// if fromType is not Null.
-        			if (! fromType.isNull()) 
-        				return checkedConversionForTypeParameter(cast, fromType, toType);
-        		} else {
-        			for (Type t : upper)
-        				if (ts.isSubtype(fromType, t))
-        					return checkedConversionForTypeParameter(cast, fromType, toType);
-        		}
-        	} else 	if (ts.isParameterType(fromType)) {
-        		// Now get the upper bound.
-        		List<Type> upper = ts.env(context).upperBounds(fromType, false);
-        		for (Type t : upper) 
-        			if (! ts.isSubtype(t, toType))
-        				break l;
-        		return checkedConversionForTypeParameter(cast, fromType, toType);
-        	}
-	    }
-
-		// Added 03/28/10 to support new call conversion semantics.
-		if (ts.isSubtype(baseFrom, baseTo, context))
-			if (!opts.x10_config.STATIC_CHECKS)
-				if (( cast.conversionType() == ConversionType.CALL_CONVERSION)
-						&& ts.isCastValid(fromType, toType, context)) {
-					//return cast.conversionType(ConversionType.DESUGAR_LATER).type(baseTo);
-					X10Cast n = cast.conversionType(ConversionType.DESUGAR_LATER); 
-					XVar sv = Types.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
-					if (sv != null)
-					    toType = Types.addSelfBinding((Type) toType.copy(), sv);
-					return n.type(toType);
-				}
-		throw new Errors.CannotConvertExprToType(cast.expr(), cast.conversionType(), toType, cast.position());
+        return null;
 	}
 		
 		   

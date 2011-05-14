@@ -189,7 +189,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                         if (!isOk) {
                             final ExtensionInfo extensionInfo = (ExtensionInfo) tc.job().extensionInfo();
                             X10CompilerOptions opts = extensionInfo.getOptions();
-                            if (opts.x10_config.VERBOSE_CHECKS) {
+                            if (opts.x10_config.VERBOSE) { // it used to be VERBOSE_CHECKS, but then how do I get this error if I want to run with STATIC_CHECKS???
                                 Warnings.issue(tc.job(), "This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.", position);
                             }
                         }

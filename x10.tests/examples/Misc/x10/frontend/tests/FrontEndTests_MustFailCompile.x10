@@ -646,7 +646,7 @@ class TestPropertiesAndFields(i:Int, j:Int) {
 }
 class CheckCtorContextIsNotStatic[T](p:Array[T]) {
     public def this(o:Any) {
-        property(o as Array[T]); // err: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+        property(o as Array[T]); // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 } 
 
@@ -5468,7 +5468,7 @@ class XTENLANG_2491 {
 	  public static operator[T] (x:T) as B[T] = new B[T](x);
 	  public def equals(a:Any) {
 		if (a instanceof B[T]) {
-		  return (a as B[T]).t==t; // should "as" do the system-as or the user-explicit-as ?  // err: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+		  return (a as B[T]).t==t; // should "as" do the system-as or the user-explicit-as ?  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 		}
 		return false;
 	  }
@@ -5480,7 +5480,7 @@ class XTENLANG_2491 {
 		val t:V;
 		def this(t:V) { this.t = t; }
 		def get(): MyBox[V] {
-			return t as MyBox[V]; // should "as" do the system-as or the user-implicit-as? (currently it does the system-as, and fails at runtime with ClassCastException)  // err: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+			return t as MyBox[V]; // should "as" do the system-as or the user-implicit-as? (currently it does the system-as, and fails at runtime with ClassCastException)  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 		}
 	}
 	static class Hello {
@@ -5617,7 +5617,7 @@ class RuntimeChecksOfConstraintsInGenerics {
         val arr = new Array[Int{self==3}](0..100, ([p]:Point(1))=>3);
 		//arr(0) = 1; // err: Cannot assign expression to array element of given type.             Expression: 1             Type: x10.lang.Int{self==1}             Array element: arr(0)             Type: x10.lang.Int{self==3}    
 		arr(0) = 3; 
-		val arrAlias = (arr as Any) as Array[Int](1); // it should have failed HERE  // err: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+		val arrAlias = (arr as Any) as Array[Int](1); // it should have failed HERE  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 		arrAlias(0) = 1; 
 		val x:Int{self==3} = arr(0); // Broke type safety
 		assert x==3 : "We should have failed before"; // but it fails HERE 
@@ -5707,7 +5707,7 @@ class TestUnsoundCastWarning {
     def x(args: Array[String]) {
 		val any = args as Any;
 		val x = args as Array[String](3);
-		val y = any as Array[String](3); // err: warning: unsound cast
+		val y = any as Array[String](3); // ERR: warning: unsound cast
     }
 }
 
@@ -6729,6 +6729,80 @@ class XTENLANG_1729 {
 				}
 				public def comparator():Int = 5;
 			}
+		}
+	}
+}
+
+class XTENLANG_2525 {
+	static class X1 { // choosing system-as over user-defined-as
+		static class A(p:Int) {
+			static operator (x:B) as A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B extends A {}
+		static def test(b:B) {
+			val c1 = b as A; // ERR: warning: choosing system-as over user-defined-as
+			val c2:A{p==1} = (// ERR(return-type)
+				b as A); // ERR(warning)
+		}
+	}
+	static class X2 { // Now A extends B (instead of B extends A)
+		static class A(p:Int) extends B {
+			static operator (x:B) as A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B  {}
+		static def test(b:B) {
+			val c1 = b as A; // ERR: warning: choosing system-as over user-defined-as
+			val c2:A{p==1} = (// ERR(return-type)
+				b as A); // ERR(warning)
+		}
+	}
+	static class X3 { // Now A and B are not related - so we choose the user-defined-as
+		static class A(p:Int) {
+			static operator (x:B) as A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B {} // not: extends A
+		static def test(b:B) {
+			val c1 = b as A; // ok
+			val c2:A{p==1} = b as A; // ok
+		}
+	}
+	// Now with implicit casts (not explicit)	
+	static class X1_implicit { // choosing system-as over user-defined-as
+		static class A(p:Int) {
+			static operator (x:B) : A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B extends A {}
+		static def test(b:B) {
+			val c1 = b as A; // ERR: warning: choosing system-as over user-defined-as
+			val c2:A{p==1} = (// ERR(return-type)
+				b as A); // ERR(warning)
+		}
+	}
+	static class X2_implicit { // Now A extends B (instead of B extends A)
+		static class A(p:Int) extends B {
+			static operator (x:B) : A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B  {}
+		static def test(b:B) {
+			val c1 = b as A; // ERR: warning: choosing system-as over user-defined-as
+			val c2:A{p==1} = (// not an err(return-type) because we can (implicitly) coerce the result of the cast (A) into A{p==1}
+				b as A); // ERR(warning)
+		}
+	}
+	static class X3_implicit { // Now A and B are not related - so we choose the user-defined-as
+		static class A(p:Int) {
+			static operator (x:B) : A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B {} // not: extends A
+		static def test(b:B) {
+			val c1 = b as A; // ok
+			val c2:A{p==1} = b as A; // ok
 		}
 	}
 }
