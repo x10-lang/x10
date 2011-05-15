@@ -84,16 +84,28 @@ public class Switch_c extends Stmt_c implements Switch
     }
 
     /** Type check the statement. */
-    public Node typeCheck(ContextVisitor tc) {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
-        Context context = tc.context();
+        Context c = parent.enterChildScope(this, tc.context());
 
-        if (! ts.isImplicitCastValid(expr.type(), ts.Int(), context) && ! ts.isImplicitCastValid(expr.type(), ts.Char(), context)) {
+        ContextVisitor childtc = c == tc.context() ? tc : tc.context(c);
+
+        Expr expr = (Expr) visitChild(this.expr, childtc);
+
+        Type t = expr.type();
+        if (!ts.isIntOrLess(t) && !ts.isUInt(t) && !ts.isChar(t)) {
             Errors.issue(tc.job(),
-                    new SemanticException("Switch index must be an integer.", position()));
+                    new SemanticException("Switch index must be a char or a (signed or unsigned) byte, short, or int, not "+t+".", position()));
         }
-        
-        return this;
+
+        Context bodyc = c.pushSwitchType(Types.baseType(t));
+
+        List<SwitchElement> elements = visitList(this.elements, childtc.context(bodyc));
+        Switch_c n = reconstruct(expr, elements);
+
+        n = (Switch_c) tc.leave(parent, this, n, childtc);
+
+        return n;
     }
 
     public Node checkConstants(ContextVisitor tc) {

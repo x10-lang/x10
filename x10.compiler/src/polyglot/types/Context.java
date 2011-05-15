@@ -195,11 +195,12 @@ public class Context implements Resolver, Cloneable
     protected VarDef varWhoseTypeIsBeingElaborated = null;
     protected boolean staticContext; // is the context static?
     protected XConstrainedTerm currentPlaceTerm = null;
-    protected  CConstraint currentConstraint=null;
+    protected CConstraint currentConstraint=null;
     protected Ref<TypeConstraint> currentTypeConstraint=null;
     protected XConstrainedTerm thisPlace = null;
     protected boolean cStackUsedUp=false;
     protected Type currentCollectingFinishType=null;
+    protected Type switchType=null;
     protected Stack<Ref<CConstraint>> cStack=null;
     
     public Context(TypeSystem ts) {
@@ -264,6 +265,10 @@ public class Context implements Resolver, Cloneable
         while (me.depType !=null)
             me = me.pop();
         return me; // could be null?
+    }
+
+    public Type currentSwitchType() {
+        return switchType;
     }
 
     /** Return the innermost method or constructor in scope. */
@@ -1014,6 +1019,15 @@ public class Context implements Resolver, Cloneable
         return v;
     }
 
+    public Context pushSwitchType(Type st) {
+        if (reporter.should_report(TOPICS, 4))
+            reporter.report(4, "push switch type: "+st);
+        assert (depType == null);
+        Context v = pushBlock();
+        v.setSwitchType(st);
+        return v;
+    }
+
     /** Enter the scope of a block. */
     public Context pushBlock() {
         if (reporter.should_report(TOPICS, 4))
@@ -1165,7 +1179,7 @@ public class Context implements Resolver, Cloneable
         } 
         setCurrentTypeConstraint(Types.ref(equals));*/
     }
-    public void  setTypeConstraint(TypeConstraint c) {
+    public void setTypeConstraint(TypeConstraint c) {
         setTypeConstraint(c.terms());
     }
     public void setTypeConstraint(Collection<SubtypeConstraint> d) {
@@ -1181,6 +1195,9 @@ public class Context implements Resolver, Cloneable
         //assert t!= null;
         //X10Context cxt = (X10Context) SUPER_pushBlock();
         currentPlaceTerm = t;
+    }
+    public void setSwitchType(Type st) {
+        switchType = st;
     }
     public void setCollectingFinishScope(Type t) {
         assert t!=null;
