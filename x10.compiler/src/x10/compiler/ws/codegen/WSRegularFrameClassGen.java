@@ -599,7 +599,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         transCodes.addFast(fastStmts);
         // resume
         List<Stmt> resumeStmts = wsynth.genInvocateFrameStmts(prePcValue + 1, classSynth, resumeMSynth, asyncClassGen);
-
+        transCodes.addResume(resumeStmts);
         transCodes.increasePC();
         return transCodes;
     }

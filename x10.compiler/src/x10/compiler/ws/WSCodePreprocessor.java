@@ -33,6 +33,7 @@ import polyglot.ast.FieldAssign;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
+import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.If;
 import polyglot.ast.IntLit;
@@ -61,6 +62,8 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
+import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
@@ -70,6 +73,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ExtensionInfo;
 import x10.ast.Async;
 import x10.ast.AtEach;
+import x10.ast.AtStmt_c;
 import x10.ast.Closure;
 import x10.ast.FinishExpr;
 import x10.ast.ForLoop;
@@ -77,6 +81,7 @@ import x10.ast.Offer;
 import x10.ast.StmtSeq;
 import x10.ast.X10Binary_c;
 import x10.ast.X10ClassDecl;
+import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10Special;
 import x10.compiler.ws.WSTransformState.MethodType;
@@ -85,11 +90,15 @@ import x10.compiler.ws.util.WSTransformationContent;
 import x10.compiler.ws.util.WSUtil;
 import x10.compiler.ws.util.CodePatternDetector.Pattern;
 import x10.optimizations.ForLoopOptimizer;
+import x10.types.AsyncDef;
+import x10.types.AtDef;
 import x10.types.EnvironmentCapture;
 import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.ThisDef;
 import x10.types.X10MemberDef;
+import x10.types.X10MethodDef;
+import x10.util.AltSynthesizer;
 import x10.util.CollectionFactory;
 import x10.util.Synthesizer;
 import x10.util.synthesizer.CodeBlockSynth;
@@ -207,12 +216,14 @@ public class WSCodePreprocessor extends ContextVisitor {
     // Single static WSTransformState shared by all visitors (FIXME)
     public static WSTransformState wts; 
     private final Set<X10MethodDecl> genMethodDecls;
-    private Synthesizer synth;
+    private final Synthesizer synth;
+    private final AltSynthesizer altsynth;
     
     public WSCodePreprocessor(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         genMethodDecls = CollectionFactory.newHashSet();
         synth = new Synthesizer(nf, ts);
+        altsynth = new AltSynthesizer(ts, nf);
     }
 
     public static void setWALATransTarget(ExtensionInfo extensionInfo, WSTransformationContent target){
@@ -433,9 +444,89 @@ public class WSCodePreprocessor extends ContextVisitor {
         return flattenStmt(n);
     }
 
-    private Node visitAtEach(AtEach n) throws SemanticException {
-        WSUtil.err("X10 Work-Stealing doesn's support AtEach", n);
-        return null;
+    
+    private static final Name DIST = Name.make("dist");
+    private static final Name RESTRICTION = Name.make("restriction");
+    private static final Name PLACES = Name.make("places");
+    
+    /**
+     * @param a ateach (p in D) S;
+     * @return val d = D.dist; for (p in d.places()) async (p) for (pt in d|here) async S;
+     * @throws SemanticException
+     * The code is similar to the visitAtEach in lowerer. But we create async stmt directly
+     * Not lower it
+     */
+    private Node visitAtEach(AtEach a) throws SemanticException {
+        Position pos = a.position();
+        Position bpos = a.body().position();
+        AsyncDef asyncDef = (AsyncDef)AtStmt_c.createDummyAsync(bpos, ts, 
+                                                      context.currentClass(), 
+                                                      context.currentCode(), 
+                                                      context.currentCode().staticContext(), true);
+        AtDef atDef = a.atDef();
+        Name tmp = Context.getNewVarName(); //for the dist
+        Expr domain = a.domain();
+        Type dType = domain.type();
+        if (ts.isX10DistArray(dType)) {
+            domain = altsynth.createFieldRef(pos, domain, DIST);
+            dType = domain.type();
+        }
+        LocalDef lDef = ts.localDef(pos, ts.Final(), Types.ref(dType), tmp);
+        LocalDecl local = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
+                nf.CanonicalTypeNode(pos, dType), nf.Id(pos, tmp), domain).localDef(lDef);
+        X10Formal formal = (X10Formal) a.formal();
+        Type fType = formal.type().type();
+        assert (ts.isPoint(fType));
+        assert (ts.isDistribution(dType));
+        // Have to desugar some newly-created nodes
+        Type pType = ts.Place();
+        MethodInstance rmi = ts.findMethod(dType,
+                ts.MethodMatcher(dType, RESTRICTION, Collections.singletonList(pType), context()));
+        Expr here = nf.Here(bpos); //org:visitHere(nf.Here(bpos));
+        Expr dAtPlace = nf.Call(bpos,
+                nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
+                nf.Id(bpos, RESTRICTION),
+                here).methodInstance(rmi).type(rmi.returnType());
+        Expr here1 = nf.Here(bpos); //org:visitHere(nf.Here(bpos));
+        List<VarInstance<? extends VarDef>> env = a.atDef().capturedEnvironment();
+        //Stmt body = async(a.body().position(), a.body(), a.clocks(), here1, null, env);
+        Stmt body = nf.Async(bpos, a.clocks(), a.body()).asyncDef(asyncDef);
+        
+        Stmt inner = nf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
+        MethodInstance pmi = ts.findMethod(dType,
+                ts.MethodMatcher(dType, PLACES, Collections.<Type>emptyList(), context()));
+        Expr places = nf.Call(bpos,
+                nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
+                nf.Id(bpos, PLACES)).methodInstance(pmi).type(pmi.returnType());
+        Name pTmp = Context.getNewVarName();;
+        LocalDef pDef = ts.localDef(pos, ts.Final(), Types.ref(pType), pTmp);
+        Formal pFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
+                nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pTmp)).localDef(pDef);
+        List<VarInstance<? extends VarDef>> env1 = new ArrayList<VarInstance<? extends VarDef>>(env);
+        env1.remove(formal.localDef().asInstance());
+        for (int i = 0; i < formal.localInstances().length; i++) {
+            env1.remove(formal.localInstances()[i].asInstance());
+        }
+        env1.add(lDef.asInstance());
+        //outter async: async at(p) body
+        Stmt body1 = nf.AtStmt(bpos, 
+                               nf.Local(bpos, nf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType), 
+                               inner).atDef(atDef);
+        Stmt outAsync = nf.Async(bpos, a.clocks(), body1).asyncDef(asyncDef);
+
+        
+        Stmt outer = nf.ForLoop(pos, pFormal, places, outAsync);
+
+        // TODO: Instead of creating ForLoop's and then removing them, 
+        //       change the code above to create simple For's in the first place.
+        ForLoopOptimizer flo = new ForLoopOptimizer(job, ts, nf);
+        For newLoop = (For)outer.visit(((ContextVisitor)flo.begin()).context(context()));
+        
+        List<Stmt> stmts = new ArrayList<Stmt>();
+        stmts.add(local);
+        stmts.add(newLoop);
+        return nf.StmtSeq(pos, stmts);
+        //WSUtil.err("X10 Work-Stealing doesn's support AtEach", n);
     }
 
     /**
