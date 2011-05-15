@@ -24,6 +24,10 @@ import java.util.*;
  * @author Igor Peshansky
  */
 public class PreLoader {
+	
+	// WIP XTENLANG-2722
+	public static final boolean supportExecutableJar = false;
+	
 	public static void main(String[] args) {
 //		try {
 //			String name = getClassFile(PreLoader.class);
@@ -44,9 +48,33 @@ public class PreLoader {
 	private static final Map<String, String> inited = new HashMap<String, String>();
 	private static final ClassLoader bootstrap = Object.class.getClassLoader();
 	private static boolean isSystemClass(Class<?> c) {
-	    // TODO exclude x10 classes to support executable jar
-	    boolean isSystemClass = c.getClassLoader() == bootstrap;
-//	    System.out.println("isSystemClass: " + c.getName() + (isSystemClass ? " IS " : " is NOT ") + "a system class");
+
+		// N.B. we must return false for all x10 classes since they need preloading to make static initialization work properly
+		boolean isSystemClass = false;
+		
+		if (!supportExecutableJar) {
+			
+	    isSystemClass = c.getClassLoader() == bootstrap;
+	    
+		} else {
+			
+	    java.lang.reflect.Method rttMethod = null;
+	    try {
+			rttMethod = c.getMethod("$getRTT", (Class<?>[]) null);
+		} catch (SecurityException e) {
+		} catch (NoSuchMethodException e) {
+		}
+	    java.lang.reflect.Field rttField = null;
+		try {
+			// N.B. this is needed because interface does not have $getRTT method but it has $RTT field
+			rttField = c.getField("$RTT");
+		} catch (SecurityException e) {
+		} catch (NoSuchFieldException e) {
+		}
+	    isSystemClass = rttMethod == null && rttField == null;
+	    
+		}
+		
 	    return isSystemClass;
 	}
 	/**
