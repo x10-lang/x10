@@ -305,7 +305,8 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                                  new Errors.InconsistentType(inferredResultType, pos));
                 }
                 Ref <? extends Type> r = thisConstructor.returnType();
-                ((Ref<Type>) r).update(inferredResultType);
+               if (! r.known())  // update only if the return type not specified in the source program.
+                    ((Ref<Type>) r).update(inferredResultType);
                 // bind this==self; sup clause may constrain this.
                 if (thisVar != null) {
                     known = known.instantiateSelf(thisVar);
