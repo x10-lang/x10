@@ -1797,7 +1797,7 @@ public class TypeSystem_c implements TypeSystem
      * Requires: all type arguments are canonical.
      * Returns the least common ancestor of Type1 and Type2
      **/
-    public Type leastCommonAncestor(Type type1, Type type2, Context context) throws SemanticException {
+    public Type leastCommonAncestor(Type type1, Type type2, Context context) {
         assert_(type1);
         assert_(type2);
         return env(context).leastCommonAncestor(type1, type2);

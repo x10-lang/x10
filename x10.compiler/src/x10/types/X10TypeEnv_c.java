@@ -1614,13 +1614,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
     }
 
+    /**
+     * Return the least common ancestor of the two types. This must always exist.
+     */
     @Override
     public Type leastCommonAncestor(Type type1, Type type2)
-    throws SemanticException
+  
     {
 
         Type t;
-        if (type1.isNull() || type2.isNull()) {
+        IF: if (type1.isNull() || type2.isNull()) {
             t = type1.isNull() ? type2 : type1;
             if (Types.permitsNull(context, t))
                 return t;
@@ -1631,9 +1634,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             // The lub should be:  Test{self.home==here}
 
             Type baseType = Types.baseType(t);
-            if (!Types.permitsNull(context, baseType))
-                throw new SemanticException("No least common ancestor found for types \"" + type1 +
-    								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
+            if (!Types.permitsNull(context, baseType)) {
+                // ok, so climb and find the least common ancestor via interfaces.
+                break IF; // return ts.Any();
+              /*  throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");*/
+            }
             // we need to keep all the constraints except the one that says the type is not null
             Type res = baseType;
             // todo: this is an attempt to keep as many constraints as possible:
@@ -1644,9 +1650,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             assert Types.consistent(res);
             assert Types.permitsNull(context, res);
             return res;
-        } else {
-            t = leastCommonAncestorBase(Types.baseType(type1), Types.baseType(type2));
-        }
+        } 
+            
+        t = leastCommonAncestorBase(Types.baseType(type1), Types.baseType(type2));
+        
     	
     	CConstraint c1 = Types.realX(type1), c2 = Types.realX(type2);
     	CConstraint c = c1.leastUpperBound(c2);
@@ -1673,7 +1680,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     // Assumes type1 and type2 are base types, no constraint clauses.
-    private Type leastCommonAncestorBase(Type type1, Type type2) throws SemanticException {
+    private Type leastCommonAncestorBase(Type type1, Type type2)  {
         Type res = leastCommonAncestorBaseOld(type1, type2);
         // try to find something better with interfaces:
         // let's intersect all the interfaces type1 and type2 implement,
@@ -1728,12 +1735,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
         return res;
     }
-    private Type leastCommonAncestorBaseOld(Type type1, Type type2) throws SemanticException {
+    private Type leastCommonAncestorBaseOld(Type type1, Type type2)  {
     	if (typeEquals(type1, type2)) {
     		return type1;
     	}
 
-    	if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
+    	IF: if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
     	    if (type1 instanceof FunctionType && type2 instanceof FunctionType) {
     	        FunctionType ft1 = (FunctionType) type1;
     	        FunctionType ft2 = (FunctionType) type2;
@@ -1773,8 +1780,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					if (typeEquals(a1, a2))
     						newArgs.add(a1);
     					else
-    						throw new SemanticException("No least common ancestor found for types \"" + type1 +
-    								"\" and \"" + type2 + "\".");
+    					    // OK, so you have no chance of returning an LCA based 
+    					    // on analyzing the type arguments.Return to climbing
+    					    // the hierarchy.
+    					    break IF; // return ts.Object();
+    						/*throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\".");*/
     					break;
     				case COVARIANT:
     					newArgs.add(leastCommonAncestor(a1, a2));
@@ -1785,8 +1796,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					else if (isSubtype(a2, a1))
     						newArgs.add(a2);
     					else
-    						throw new SemanticException("No least common ancestor found for types \"" + type1 +
-    								"\" and \"" + type2 + "\".");
+    					    break IF; 
+    						/*throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\".");*/
     					break;
     				}
     			}
