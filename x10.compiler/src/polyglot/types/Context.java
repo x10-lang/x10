@@ -659,10 +659,16 @@ public class Context implements Resolver, Cloneable
     }
 
     /**
-     * Gets a field of a particular name.
+     * Gets a field of a particular name. The lookupComtext is the context in 
+     * which the field is being looked up, this is typically a lower context 
+     * than the class context in which the field is defined. This lower context
+     * may have additional constraints, such as the type bounds for the 
+     * type parameters of the class, and the class invariant pushed in. This
+     * information may be necessary to ensure that this field access is 
+     * consistent.
      */
-    public X10FieldInstance findField(Name name) throws SemanticException {
-        VarInstance<?> vi = findVariableSilent(name);
+    public X10FieldInstance findField(Name name, Context lookupContext) throws SemanticException {
+        VarInstance<?> vi = findVariableSilent(name, lookupContext);
         if (vi instanceof FieldInstance) {
             X10FieldInstance fi = (X10FieldInstance) vi;
             if (! ts.isAccessible(fi, this)) {
@@ -679,10 +685,20 @@ public class Context implements Resolver, Cloneable
 
     /** Looks up a local variable or field in the current scope. */
     public VarInstance<?> findVariableSilent(Name name) {
+        return findVariableSilent(name, this);
+    }
+    /**
+     * See the comment for findField(Name, Context) for a discussion of the
+     * importance of lookupContext.
+     * @param name
+     * @param lookupContext
+     * @return
+     */
+    public VarInstance<?> findVariableSilent(Name name, Context lookupContext) {
         if (reporter.should_report(TOPICS, 3))
             reporter.report(3, "find-var " + name + " in " + this);
 
-        VarInstance<?> vi = findVariableInThisScope(name);
+        VarInstance<?> vi = findVariableInThisScope(name, lookupContext);
 
         if (vi != null) {
             if (reporter.should_report(TOPICS, 3))
@@ -691,7 +707,7 @@ public class Context implements Resolver, Cloneable
         }
 
         if (outer != null) {
-            return outer.findVariableSilent(name);
+            return outer.findVariableSilent(name, lookupContext);
         }
 
         return null;
@@ -746,7 +762,10 @@ public class Context implements Resolver, Cloneable
      * Finds the class which added a field to the scope.
      */
     public X10ClassType findFieldScope(Name name) throws SemanticException {
-        VarInstance<?> vi = findVariableInThisScope(name);
+        return findFieldScope(name, this);
+    }
+    public X10ClassType findFieldScope(Name name, Context lookupContext) throws SemanticException {
+        VarInstance<?> vi = findVariableInThisScope(name, lookupContext);
         if (vi instanceof FieldInstance) {
             X10ClassType result = type;
             if (result != null)
@@ -761,7 +780,7 @@ public class Context implements Resolver, Cloneable
                 return result;
         }
         if (vi == null && pop() != null) {
-            return pop().findFieldScope(name);
+            return pop().findFieldScope(name, lookupContext);
         }
         throw new SemanticException("Field " + name + " not found.");
     }
@@ -825,12 +844,23 @@ public class Context implements Resolver, Cloneable
         }
         return null;
     }
-
+    
     public VarInstance<?> findVariableInThisScope(Name name) {
-        //if (name.startsWith("val")) Report.report(1, "X10Context: searching for |" + name + " in " + this);
-        if (depType == null) return superFindVariableInThisScope(name);
+        return findVariableInThisScope(name, this);
+    }
 
-        VarInstance<?> vi =  pop().findVariableInThisScope(name);
+    /**
+     * See the comment for findField(Name, Context) for a discussion of the
+     * importance of lookupContext.
+     * @param name
+     * @param lookupContext
+     * @return
+     */
+    public VarInstance<?> findVariableInThisScope(Name name, Context lookupContext) {
+        //if (name.startsWith("val")) Report.report(1, "X10Context: searching for |" + name + " in " + this);
+        if (depType == null) return superFindVariableInThisScope(name, lookupContext);
+
+        VarInstance<?> vi =  pop().findVariableInThisScope(name, lookupContext);
 
         if (vi instanceof LocalInstance) return vi;
         // otherwise it is a FieldInstance (might be a PropertyInstance, which is a FieldInstance)
@@ -850,7 +880,7 @@ public class Context implements Resolver, Cloneable
         return vi;
     }
 
-    VarInstance<?> superFindVariableInThisScope(Name name) {
+    VarInstance<?> superFindVariableInThisScope(Name name, Context lookupContext) {
         VarInstance<?> vi = null;
 
         if (vars != null) {
@@ -859,7 +889,7 @@ public class Context implements Resolver, Cloneable
 
         if (vi == null && isClass()) {
             try {
-                return ts.findField(this.currentClass(), this.currentClass(), name, this);
+                return ts.findField(this.currentClass(), this.currentClass(), name, lookupContext);
             }
             catch (SemanticException e) {
                 return null;// todo: we loose the error message! e.g., "Field XXX is ambiguous; it is defined in both ..." 
@@ -871,7 +901,7 @@ public class Context implements Resolver, Cloneable
 
     public X10FieldInstance findProperty(Name name) throws SemanticException {
         X10FieldInstance pi = null;
-        FieldInstance fi = findField(name);
+        FieldInstance fi = findField(name, this);
         if (fi instanceof X10FieldInstance) {
             pi = (X10FieldInstance) pi;
         }
@@ -879,7 +909,7 @@ public class Context implements Resolver, Cloneable
     }
 
     public X10ClassType findPropertyScope(Name name) throws SemanticException {
-        return findFieldScope(name);
+        return findFieldScope(name, this);
     }
     
     /**

@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 import x10.util.*;
-public class TypeArgInference1 extends x10Test {
+public class TypeArgInference2 extends x10Test {
         def choose[T] (a:T, b:T):T = a;
 
     public def run(): boolean = {

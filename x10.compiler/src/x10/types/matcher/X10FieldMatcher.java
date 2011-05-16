@@ -91,7 +91,7 @@ public class X10FieldMatcher {
 	    if (! fi.name().equals(name)) {
 		return null;
 	    }
-        TypeSystem ts = (TypeSystem) fi.typeSystem();
+        TypeSystem ts = fi.typeSystem();
         Type t = fi.type();
         Type rt = fi.rightType();
         
@@ -126,10 +126,10 @@ public class X10FieldMatcher {
         //	rt = X10TypeMixin.setThisVar(rt, v);
         // }
 
-        if (!ts.consistent(t, (Context) context)) {
+        if (!ts.consistent(t, context)) {
             throw new Errors.InconsistentType(t, Position.COMPILER_GENERATED);
         }
-        if (!ts.consistent(rt, (Context) context)) {
+        if (!ts.consistent(rt, context)) {
             throw new Errors.InconsistentType(rt, Position.COMPILER_GENERATED);
         }
 

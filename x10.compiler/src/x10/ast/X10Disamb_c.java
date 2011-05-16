@@ -321,9 +321,9 @@ public class X10Disamb_c extends Disamb_c {
 
 	public static Receiver makeMissingFieldTarget(FieldInstance fi, Position pos, ContextVisitor v) {
 	    Receiver r = null;
-	    NodeFactory nf = (NodeFactory) v.nodeFactory();
-	    TypeSystem ts = (TypeSystem) v.typeSystem();
-        Context c = (Context) v.context();
+	    NodeFactory nf = v.nodeFactory();
+	    TypeSystem ts = v.typeSystem();
+        Context c = v.context();
         ClassType cur = c.currentClass();
 
 	    try {

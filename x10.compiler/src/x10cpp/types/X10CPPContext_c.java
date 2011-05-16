@@ -216,15 +216,15 @@ public class X10CPPContext_c extends Context {
 	}
 
     
-    private VarInstance<?> lookup(String name) {
+    private VarInstance<?> lookup(String name, Context lookupContext) {
         VarInstance<?> vi = findVariableInThisScope(Name.make(name));
         if (vi != null) return vi;
-        else if (outer != null) return ((X10CPPContext_c) outer).lookup(name);
+        else if (outer != null) return ((X10CPPContext_c) outer).lookup(name, lookupContext);
         else return null;
     }
 
     private void addVar(String name) {
-		VarInstance<?> vi = lookup(name);
+		VarInstance<?> vi = lookup(name, this);
         assert vi != null : name.toString();
 		boolean contains = false;
         for (VarInstance<?> vi2 : variables) {
