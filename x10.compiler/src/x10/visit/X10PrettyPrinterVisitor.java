@@ -1695,8 +1695,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (isSelfDispatch) {
                 Type tt = Types.baseType(containerType);
                 if (tt instanceof X10ClassType && ((X10ClassType) tt).flags().isInterface()) {
-                    // N.B. stop passing rtt to java raw class's methods
-                    if (containsTypeParam(mi.def().formalTypes()) && !Emitter.isNativeRepedToJava(tt)) {
+                	// XTENLANG-2723 (revert r21635)
+//                	// N.B. stop passing rtt to java raw class's methods
+//                	if (containsTypeParam(mi.def().formalTypes()) && !Emitter.isNativeRepedToJava(tt)) {
+                    if (containsTypeParam(mi.def().formalTypes())) {
                         isDispatchMethod = true;
                     }
                 } else if (target instanceof ParExpr && ((ParExpr) target).expr() instanceof Closure_c) {
@@ -1835,10 +1837,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else if (isSelfDispatch && xts.isParameterType(targetType)) {
                 ct = (X10ClassType) Types.baseType(containerType);
             }
-            // N.B. stop passing rtt to java raw class's methods
+        	// XTENLANG-2723 (revert r21635)
+//            // N.B. stop passing rtt to java raw class's methods
+//            if (ct != null
+//                    && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType))
+//            		&& !Emitter.isNativeRepedToJava(ct)) {
             if (ct != null
-                    && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType))
-            		&& !Emitter.isNativeRepedToJava(ct)) {
+            		&& ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType))) {
                 w.write(",");
                 new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
             }
