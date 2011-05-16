@@ -3514,10 +3514,10 @@ class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
 	def this(Boolean) {
 		property(1,2);
 	}  
-	def this(String):XTENLANG_685{self.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+	def this(String):XTENLANG_685{self.a == 1} {
 		property(2,1); // ERR
 	}  
-	def this(Float):XTENLANG_685{this.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+	def this(Float):XTENLANG_685{this.a == 1} {
 		property(2,1); // ERR
 	}  
 	def this(Double) {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
@@ -4864,7 +4864,7 @@ class Test3[T] {
 }
 class Test4[T] {T haszero} {
 	var test:Test4[T] = null;
-	val root = new LikeGlobalRef[Test4[T]](test); // ShouldNotBeERR ShouldNotBeERR
+	val root = new LikeGlobalRef[Test4[T]](test);
 }
 class Accumulator1 {
   private val root = GlobalRef(this);
@@ -5689,10 +5689,10 @@ class SimplerPropertyTest {
 }
 
 class XTENLANG_2535[T](x:Array[T]) {
-	def this() { // ShouldNotBeERR: Invalid type; the real clause of type is inconsistent.
+	def this() {
 		property(null);
 	}
-	def this(Int):XTENLANG_2535[T] { // ShouldNotBeERR: Invalid type; the real clause of type is inconsistent.
+	def this(Int):XTENLANG_2535[T] {
 		property(null);
 	}
 }
@@ -6340,14 +6340,14 @@ class TestCheckingClassInvariant {
 	class C2 
 		{this.b==4} 
 		extends B {
-		def this() { // ERR ERR see XTENLANG-2628
+		def this() { // ERR see XTENLANG-2628
 			super();
 		}	
 	}
 	class C3 
 		{this.b==4} 
 		extends B {
-		def this() { // ERR ERR see XTENLANG-2628
+		def this() { // ERR see XTENLANG-2628
 		}	
 	}
 	// correct way of writing C2 is:
@@ -6359,7 +6359,7 @@ class TestCheckingClassInvariant {
 	}
 	class C4 
 		extends B{self.b==4} {
-		def this() {  // ERR ERR
+		def this() {  // ERR
 			super(); 
 		}	
 	}
@@ -6804,5 +6804,49 @@ class XTENLANG_2525 {
 			val c1 = b as A; // ok
 			val c2:A{p==1} = b as A; // ok
 		}
+	}
+}
+class XTENLANG_1851 {
+	val f:Int;
+	var b:Boolean;
+	def this(Double) {
+		throw new RuntimeException();
+	}
+	def this(Char) { // ERR
+		try {
+			throw new RuntimeException();
+		} catch (e:Error) {}
+	}
+	def this(Float) { // ERR
+		async throw new RuntimeException();
+	}
+	def this(String) { // ERR
+		finish async throw new RuntimeException();
+	}
+	def this(Int) { // ERR
+	}
+	def this(Any) {
+		if (b)
+			throw new RuntimeException();
+		else
+			f = 1;
+	}
+	def this(Long) {
+		try {
+			throw new RuntimeException();
+		} catch (e:Error) {}
+		f = 1;
+	}
+	def this(Byte) {
+		try {
+			throw new RuntimeException();
+		} catch (e:Error) {}
+		throw new Exception();
+	}
+	def this(UByte) {// ERR
+		try {
+			throw new RuntimeException();
+		} catch (e:Error) {}
+		if (b) throw new Exception();
 	}
 }
