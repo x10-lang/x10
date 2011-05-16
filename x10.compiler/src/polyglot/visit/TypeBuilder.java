@@ -212,8 +212,8 @@ public class TypeBuilder extends NodeVisitor
 	    return ct;
 	}
 	else if (currentClass() != null) {
-            ct.kind(ClassDef.MEMBER);
-            ct.outer(Types.ref(currentClass()));
+	    ct.kind(ClassDef.MEMBER);
+	    ct.outer(Types.ref(currentClass()));
 	    ct.setJob(job());
 
 	    currentClass().addMemberClass(Types.<ClassType>ref(ct.asType()));

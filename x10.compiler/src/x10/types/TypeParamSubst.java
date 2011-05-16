@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import polyglot.types.ContainerType;
 import polyglot.types.LazyRef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
@@ -78,7 +79,7 @@ public class TypeParamSubst {
 		(Types.get(pt1.def()) == Types.get(pt2.def()) && pt1.name().equals(pt2.name()));
 	}
 
-	private Type reinstantiateType(Type t) {
+	private Type reinstantiateType(Type t, boolean forceTypeArguments) {
 		if (t instanceof ParameterType) { // always eager
 			ParameterType pt = (ParameterType) t;
 			for (int i = 0; i < typeParameters.size(); i++) {
@@ -119,7 +120,7 @@ public class TypeParamSubst {
 				return ct;
 			List<Type> typeArgs = ct.typeArguments();
 			List<ParameterType> tParams = ct.x10Def().typeParameters();
-			if (typeArgs == null && !tParams.isEmpty()) {
+			if (typeArgs == null && forceTypeArguments && !tParams.isEmpty()) {
 			    typeArgs = new ArrayList<Type>(tParams);
 			}
 			if (typeArgs != null && typeArgs.size() < tParams.size()) {
@@ -131,7 +132,7 @@ public class TypeParamSubst {
 			}
 			ct = ct.typeArguments(reinstantiate(typeArgs));
 			if (ct.isMember()) {
-				ct = ct.container(reinstantiate(ct.container()));
+				ct = ct.container((ContainerType) reinstantiateType(ct.container(), ct.isInnerClass()));
 			}
 			return ct;
 		}
@@ -195,7 +196,7 @@ public class TypeParamSubst {
 			return t;
 		}
 		if (t instanceof Ref<?>) return (T) reinstantiateRef((Ref<?>) t);
-		if (t instanceof Type) return (T) reinstantiateType((Type) t);
+		if (t instanceof Type) return (T) reinstantiateType((Type) t, true);
 		if (t instanceof X10FieldInstance) return (T) reinstantiateFI((X10FieldInstance) t);
 		if (t instanceof MethodInstance) return (T) reinstantiateMI((MethodInstance) t);
 		if (t instanceof X10ConstructorInstance) return (T) reinstantiateCI((X10ConstructorInstance) t);
