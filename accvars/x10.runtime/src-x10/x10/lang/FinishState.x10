@@ -65,9 +65,7 @@ abstract class FinishState {
     static class FinishSPMD extends FinishSkeleton implements CustomSerialization {
     
         def this() {
-            super(new RootFinishSPMD());
-                        Console.OUT.println("Entered FinishSPMD");
-            
+            super(new RootFinishSPMD());            
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -115,9 +113,7 @@ abstract class FinishState {
         private var exceptions:Stack[Throwable]; // lazily initialized
         @Embed private val lock = @Embed new Lock();
         def this(ref:GlobalRef[FinishState]) {
-            super(ref);
-                        Console.OUT.println("Entered RemoteFinishSPMD");
-            
+            super(ref);            
         }
         public def notifySubActivitySpawn(place:Place) {
             assert place.id == Runtime.hereInt();
@@ -155,9 +151,7 @@ abstract class FinishState {
     static class FinishAsync extends FinishSkeleton implements CustomSerialization {
     
         def this() {
-            super(new RootFinishAsync());
-                        Console.OUT.println("Entered FinishAsync");
-            
+            super(new RootFinishAsync());            
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -196,9 +190,7 @@ abstract class FinishState {
     
         protected var exception:Throwable;
         def this(ref:GlobalRef[FinishState]) {
-            super(ref);
-                        Console.OUT.println("Entered RemoteFinishAsync");
-            
+            super(ref);            
         }
         public def notifyActivityCreation():void {}
         public def notifySubActivitySpawn(place:Place):void {}
@@ -228,9 +220,7 @@ abstract class FinishState {
     static class FinishHere extends FinishSkeleton implements CustomSerialization {
     
         def this() {
-            super(new RootFinishSPMD());
-                        Console.OUT.println("Entered FinishHere");
-            
+            super(new RootFinishSPMD());            
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -302,9 +292,7 @@ abstract class FinishState {
     
         private val xxxx:GlobalRef[FinishState];
         def this(root:GlobalRef[FinishState]) {
-            xxxx = root;
-                        Console.OUT.println("Entered RemoteFinishSkeleton");
-            
+            xxxx = root;            
         }
         def ref() = xxxx;
         public def waitForFinish() { assert false; }
@@ -317,15 +305,11 @@ abstract class FinishState {
         protected transient var me:FinishState; // local finish object
         protected def this(root:RootFinishSkeleton) {
             property(root.ref());
-            me = root;
-                        Console.OUT.println("Entered FinishSkeleton");
-            
+            me = root;            
         }
         protected def this(ref:GlobalRef[FinishState]) {
             property(ref);
-            me = null;
-                        Console.OUT.println("Entered FinishSkeleton");
-            
+            me = null;            
         }
         public def serialize():SerialData = new SerialData(ref, null);
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
@@ -340,26 +324,19 @@ abstract class FinishState {
     static class Finish extends FinishSkeleton implements CustomSerialization {
     
         protected def this(root:RootFinish) {
-            super(root);
-                        Console.OUT.println("Entered Finish");
-            
+            super(root);            
         }
         def this(latch:SimpleLatch) {
             this(new RootFinish(latch));
         }
         def this() {
-            this(new RootFinish());
-                        Console.OUT.println("Entered Finish");
-            
+            this(new RootFinish());            
         }
         protected def this(ref:GlobalRef[FinishState]) {
-            super(ref);
-                        Console.OUT.println("Entered Finish");
-            
+            super(ref);            
         }
         private def this(data:SerialData) { 
             super(data.data as GlobalRef[FinishState]);
-                        Console.OUT.println("Entered Finish");
             
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
@@ -378,18 +355,12 @@ abstract class FinishState {
         protected var counts:IndexedMemoryChunk[Int];
         protected var seen:IndexedMemoryChunk[Boolean];
         def this() {
-            latch = @Embed new SimpleLatch();
-                        Console.OUT.println("Entered RootFinish");
-            
+            latch = @Embed new SimpleLatch();            
         }
         def this(latch:SimpleLatch) {
-            this.latch = latch;
-                        Console.OUT.println("Entered RootFinish");
-            
+            this.latch = latch;            
         }
-        public def notifySubActivitySpawn(place:Place):void {
-                Console.OUT.println("Entered notifySubActivitySpawn");
-        
+        public def notifySubActivitySpawn(place:Place):void {        
             val p = place.parent(); // CUDA
             latch.lock();
             if (p == ref().home) {
@@ -404,9 +375,7 @@ abstract class FinishState {
             counts(p.id)++;
             latch.unlock();
         }
-        public def notifyActivityTermination():void {
-                Console.OUT.println("Entered notifyActivityTermination");
-        
+        public def notifyActivityTermination():void {        
             latch.lock();
             if (--count != 0) {
                 latch.unlock();
@@ -432,9 +401,7 @@ abstract class FinishState {
             process(t);
             latch.unlock();
         }
-        public def waitForFinish():void {
-                Console.OUT.println("Entered waitForFinish");
-        
+        public def waitForFinish():void {        
             notifyActivityTermination();
             if (!Runtime.STRICT_FINISH) Runtime.worker().join(latch);
             latch.await();
@@ -451,9 +418,7 @@ abstract class FinishState {
             if (null != t) throw t;
         }
 
-        protected def process(rail:IndexedMemoryChunk[Int]) {
-                Console.OUT.println("Entered process");
-        
+        protected def process(rail:IndexedMemoryChunk[Int]) {        
             counts(ref().home.id) = -rail(ref().home.id);
             count += rail(ref().home.id);
             var b:Boolean = count == 0;
@@ -518,13 +483,9 @@ abstract class FinishState {
         protected var length:Int = 1;
         @Embed protected val local = @Embed new AtomicInteger(0);
         def this(ref:GlobalRef[FinishState]) {
-            super(ref);
-                        Console.OUT.println("Entered remoteFinish");
-            
+            super(ref);            
         }
-        public def notifyActivityCreation():void {
-                Console.OUT.println("Entered notifyActivityCreation");
-        
+        public def notifyActivityCreation():void {c        
             local.getAndIncrement();
         }
         public def notifySubActivitySpawn(place:Place):void {
@@ -553,9 +514,7 @@ abstract class FinishState {
             exceptions.push(t);
             lock.unlock();
         }
-        public def notifyActivityTermination():void {
-                Console.OUT.println("Entered notifyActivityTermination");
-        
+        public def notifyActivityTermination():void {        
             lock.lock();
             count--;
             if (local.decrementAndGet() > 0) {
@@ -618,13 +577,9 @@ abstract class FinishState {
             resultRail = IndexedMemoryChunk.allocateUninitialized[T](Runtime.MAX_THREADS);
             for (i in 0..(resultRail.length()-1)) {
                 resultRail(i) = zero;
-            }
-                        Console.OUT.println("Entered StatefulReducer");
-            
+            }            
         }
-        def accept(t:T) {
-                Console.OUT.println("Entered accept");
-        
+        def accept(t:T) {        
             result = reducer(result, t);
         }
         def accept(t:T, id:Int) {
@@ -634,9 +589,7 @@ abstract class FinishState {
             }
         }
 
-        def placeMerge() {
-                Console.OUT.println("Entered placeMerge");
-        
+        def placeMerge() {        
             for(var i:Int=0; i<Runtime.MAX_THREADS; i++) {
                 if (workerFlag(i)) {
                     result = reducer(result, resultRail(i));
@@ -662,9 +615,7 @@ abstract class FinishState {
         val reducer:Reducible[T];
         def this(reducer:Reducible[T]) {
             super(new RootCollectingFinish(reducer));
-            this.reducer = reducer;
-                        Console.OUT.println("Entered CollectingFinish");
-            
+            this.reducer = reducer;            
         }
         private def this(data:SerialData) { 
             super(data.superclassData.data as GlobalRef[FinishState]);
@@ -675,14 +626,11 @@ abstract class FinishState {
             } else {
                 val _ref = ref;
                 me = Runtime.finishStates(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
-            }
-                        Console.OUT.println("Entered CollectingFinish");
-            
+            }            
         }
         public def serialize():SerialData = new SerialData(reducer, super.serialize());
         public def accept(t:T, id:Int) { (me as CollectingFinishState[T]).accept(t, id); }   // Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         public def accAccept(t:T, id:Int, red:Reducible[T], curr:T) { 
-        Console.OUT.println("Inside accAccept of Collection Finish");
         val result:T = (me as CollectingFinishState[T]).accAccept(t, id, red, curr); return result;}   // Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         
         public def waitForFinishExpr() = (me as RootCollectingFinish[T]).waitForFinishExpr();// Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
@@ -693,25 +641,16 @@ abstract class FinishState {
         val sr:StatefulReducer[T];
         def this(reducer:Reducible[T]) {
            super();
-           sr = new StatefulReducer[T](reducer);
-                       Console.OUT.println("Entered RootCollectingFinish");
-           
+           sr = new StatefulReducer[T](reducer);           
         }
-        public def accept(t:T, id:Int) {
-                Console.OUT.println("Entered RootCollectingFinish accept");
-        
+        public def accept(t:T, id:Int) {        
            sr.accept(t, id);
         }
                 public def accAccept(t:T, id:Int, red:Reducible[T], curr:T) {
-                Console.OUT.println("Entered RootCollectingFinish accAccept");
-        		val result = red(curr, t);
-        		Console.OUT.println("After reduction: "+result);
-        		
+        		val result = red(curr, t);        		
            		return result;
         }
-        def notifyValue(rail:IndexedMemoryChunk[Int], v:T):void {
-                        Console.OUT.println("Entered RootCollectingFinish notify");
-        
+        def notifyValue(rail:IndexedMemoryChunk[Int], v:T):void {        
             latch.lock();
             sr.accept(v);
             process(rail);
@@ -737,21 +676,15 @@ abstract class FinishState {
         val sr:StatefulReducer[T];
         def this(ref:GlobalRef[FinishState], reducer:Reducible[T]) {
             super(ref);
-            sr = new StatefulReducer[T](reducer);
-                                Console.OUT.println("Entered RemoteCOllectionFInish");
-            
+            sr = new StatefulReducer[T](reducer);            
         }
-        public def accept(t:T, id:Int) {
-                            Console.OUT.println("Entered RemoteCOllectionFInish accept");
-        
+        public def accept(t:T, id:Int) {        
             sr.accept(t, id);
         }
         public def accAccept(t:T, id:Int, red:Reducible[T], curr:T)  :T      {// do nothing 
         return t; }   // Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         
-        public def notifyActivityTermination():void {
-                            Console.OUT.println("Entered RemoteCOllectionFInish notigyactivity termination");
-        
+        public def notifyActivityTermination():void {        
             lock.lock();
             count--;
             if (local.decrementAndGet() > 0) {

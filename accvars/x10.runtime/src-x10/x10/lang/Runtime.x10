@@ -949,19 +949,12 @@ import x10.util.NoSuchElementException;
 
     public static def makeOffer[T](t:T) {
 		val state = activity().finishState();
-		Console.OUT.println("Place(" + here.id + ") Runtime.makeOffer: received " + t);
-		Console.OUT.println("state is "+state);
         (state as FinishState.CollectingFinish[T]).accept(t,workerId()); //Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
     
    
 	public static def makeAccSupply[T](curr:T, red:Reducible[T], t:T) {
-		//val curr1:T;
-		//atomic curr1 = red(curr,t);
-		
-		// get the innermost finish state
 		val state = activity().finishState();
-		Console.OUT.println("Place(" + here.id + ") Runtime.makeSupply: received " + state);
 		return (state as FinishState.CollectingFinish[T]).accAccept(t,workerId(), red, curr);	//Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
