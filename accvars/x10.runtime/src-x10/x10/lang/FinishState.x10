@@ -336,8 +336,7 @@ abstract class FinishState {
             super(ref);            
         }
         private def this(data:SerialData) { 
-            super(data.data as GlobalRef[FinishState]);
-            
+            super(data.data as GlobalRef[FinishState]);            
             if (ref.home.id == Runtime.hereInt()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
@@ -485,7 +484,7 @@ abstract class FinishState {
         def this(ref:GlobalRef[FinishState]) {
             super(ref);            
         }
-        public def notifyActivityCreation():void {c        
+        public def notifyActivityCreation():void {        
             local.getAndIncrement();
         }
         public def notifySubActivitySpawn(place:Place):void {
@@ -647,7 +646,8 @@ abstract class FinishState {
            sr.accept(t, id);
         }
                 public def accAccept(t:T, id:Int, red:Reducible[T], curr:T) {
-        		val result = red(curr, t);        		
+        		val result = red(curr, t);
+        		
            		return result;
         }
         def notifyValue(rail:IndexedMemoryChunk[Int], v:T):void {        
