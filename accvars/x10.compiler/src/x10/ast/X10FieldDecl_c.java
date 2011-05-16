@@ -54,6 +54,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
+import x10.errors.Errors.AccCannotBeField;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
@@ -536,7 +537,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             }
 
             if (f.isAcc()) {
-                Errors.issue(tc.job(),new SemanticException("A field cannot be an accumulator.",position),this);
+                Errors.issue(tc.job(),new Errors.AccCannotBeField(position),this);
             }
             
 	    	return n;
