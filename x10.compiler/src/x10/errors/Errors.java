@@ -64,6 +64,7 @@ import x10.ast.DepParameterExpr;
 import x10.ast.SettableAssign;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldDecl;
+import x10.ast.X10Loop;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
@@ -1524,7 +1525,7 @@ public class Errors {
 
 		public ClassTypeMustHaveEnclosingInstance(ClassType ct, ClassType superContainer, Position p) {
 			super("Class type must have an enclosing instance that is a subtype." +
-					"\n\t Actuall class type: " + ct +
+					"\n\t Actual class type: " + ct +
 					"\n\t Expected enclosing instance of subtype: " + superContainer, p);
         }
     }
@@ -2041,5 +2042,47 @@ public class Errors {
 					+ "\n\t Expansion: " + t, p);
 					
 		}
+    }
+    public static class AccCannotBeForLoop extends SemanticException {
+		private static final long serialVersionUID = 272479475853566129L;
+
+		public AccCannotBeForLoop(Position p) {
+            super("A loop formal cannot be an accumulator.", p);
+        }
+    }
+    public static class AccCannotBeField extends SemanticException {
+		private static final long serialVersionUID = 272479475853566129L;
+
+		public AccCannotBeField(Position p) {
+            super("A property type cannot be a type parameter.", p);
+        }
+    }
+    public static class AccMostBeWriteOnly extends SemanticException {
+		private static final long serialVersionUID = 272479475853566129L;
+
+		public AccMostBeWriteOnly(Position p) {
+            super("When passing an accumulator as a method argument it must be in a write-only state.", p);
+        }
+    }
+    public static class CannotPassNonAccAsAcc extends SemanticException {
+		private static final long serialVersionUID = 272479475853566129L;
+
+		public CannotPassNonAccAsAcc(Position p) {
+            super("Cannot pass a non-accumulator argument in the position of an accumulator formal.", p);
+        }
+    }
+    public static class CannotWriteToAccInAsyncWithNoFinish extends SemanticException {
+		private static final long serialVersionUID = 272479475853566129L;
+
+		public CannotWriteToAccInAsyncWithNoFinish(Position p) {
+            super("Cannot write to an accumulator in an async that is not enclosed by a finish.", p);
+        }
+    }
+    public static class CannotReadFromAccInWriteOnly extends SemanticException {
+		private static final long serialVersionUID = 272479475853566129L;
+
+		public CannotReadFromAccInWriteOnly(Position p) {
+            super("Cannot read from an accumulator in write-only state or inside an async.", p);
+        }
     }
 }

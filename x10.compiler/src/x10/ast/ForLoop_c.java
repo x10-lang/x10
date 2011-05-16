@@ -96,7 +96,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
         Flags flags = result.formal().flags().flags();
         if (flags.isAcc()) {
             Errors.issue(tc.job(),
-	                new SemanticException("A loop formal cannot be an accumulator."),result);
+	                new Errors.AccCannotBeForLoop(result.position()),result);
             result = result.formal( formal.flags( formal.flags().flags( flags.clear(Flags.ACC))) );
         }
 	    return result;

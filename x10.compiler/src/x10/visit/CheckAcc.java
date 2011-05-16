@@ -110,10 +110,10 @@ public class CheckAcc extends NodeVisitor {
                         if (info!=null && isWriteOnly(info)) {					// and that we are in write-only state when passed (i.e. that the method call is inclosed by a finish)
                             // ok
                         } else {
-                            Errors.issue(job, new SemanticException("When passing an accumulator as a method argument it must be in a write-only state."), n);
+                            Errors.issue(job, new Errors.AccMostBeWriteOnly(n.position()), n);
                         }
                     } else {
-                        Errors.issue(job, new SemanticException("Cannot pass a non-accumulator argument in the position of an accumulator formal."), n);
+                        Errors.issue(job, new Errors.CannotPassNonAccAsAcc(n.position()), n);
                     }
                     }
                 pos++;
@@ -126,7 +126,7 @@ public class CheckAcc extends NodeVisitor {
                 // when writing an acc, it must be in canWrite
                 LocalInfo info = accs.get(local.localInstance().def());
                 if (info==null || !canWrite(info)) {	// make sure that we can write to it
-                    Errors.issue(job, new SemanticException("Cannot write to an accumulator in an async that is not enclosed by a finish."), n);
+                    Errors.issue(job, new Errors.CannotWriteToAccInAsyncWithNoFinish(n.position()), n);
                 }
             }
         } else if (n instanceof Local) {
@@ -135,7 +135,7 @@ public class CheckAcc extends NodeVisitor {
                 // when reading a local, it must be in a readonly
                 LocalInfo info = accs.get(local.localInstance().def());
                 if (info==null || !canRead(info)) {						// make sure that we can read from it at this point
-                    Errors.issue(job, new SemanticException("Cannot read from an accumulator in write-only state or inside an async."), n);
+                    Errors.issue(job, new SemanticException(""), n);
                 }
             }
         }
