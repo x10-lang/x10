@@ -18,7 +18,6 @@ import x10.util.concurrent.Future;
  * inside the same atomic section.
  */
 public class Atomic1a extends x10Test {
-    private val root = GlobalRef[Atomic1a](this);
 	transient var cnt: int = 0;
 	transient var cnt_broken: int = 0;
 	public static N: int = 100;
@@ -33,15 +32,14 @@ public class Atomic1a extends x10Test {
 	}
 
 	public def run(): boolean = {
-		val root = this.root;
-		val a = ()=> root().threadRun();
-		val b = ()=>  root().threadRun();
-		val c = ()=> root().threadRun();
-		val d =  ()=> root().threadRun();
-		val e =  ()=> root().threadRun();
-		val f =  ()=> root().threadRun();
-		val g =  ()=>  root().threadRun();
-		val h =  ()=>  root().threadRun();
+		val a = ()=>threadRun();
+		val b = ()=>threadRun();
+		val c = ()=>threadRun();
+		val d = ()=>threadRun();
+		val e = ()=>threadRun();
+		val f = ()=>threadRun();
+		val g = ()=>threadRun();
+		val h = ()=>threadRun();
 		val i = a();
 		val j = b();
 		val k = c();

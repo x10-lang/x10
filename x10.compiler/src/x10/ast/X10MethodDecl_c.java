@@ -138,9 +138,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	DepParameterExpr guard;
 	List<TypeParamNode> typeParameters;
 
-	// set by createMethodDef.
-	public XTerm placeTerm;
-
 	TypeNode offerType;
 	TypeNode hasType;
 	public X10MethodDecl_c(NodeFactory nf, Position pos, FlagsNode flags, 
@@ -176,13 +173,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		return this;
 	}
 
-	protected X10MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
-		X10MethodDef mi = (X10MethodDef) ((TypeSystem) ts).methodDef(position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
+	protected X10MethodDef createMethodDef(TypeSystem ts, X10ClassDef ct, Flags flags) {
+		X10MethodDef mi = (X10MethodDef) ts.methodDef(position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
 				Collections.<Ref<? extends Type>>emptyList(), 
 				offerType == null ? null : offerType.typeRef());
 
-		mi.setThisDef(((X10ClassDef) ct).thisDef());
-		this.placeTerm = PlaceChecker.methodPT(flags, ct);
+		mi.setThisDef(ct.thisDef());
+		mi.setPlaceTerm(PlaceChecker.methodPlaceTerm(mi));
 		return mi;
 	}
 
@@ -192,7 +189,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// is visited after the appropriate information is set up
 		TypeSystem ts = tb.typeSystem();
 
-		ClassDef ct = tb.currentClass();
+		X10ClassDef ct = tb.currentClass();
 		assert ct != null;
 
 		Flags flags = this.flags.flags();
@@ -390,7 +387,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	public Context enterChildScope(Node child, Context c) {
 		// We should have entered the method scope already.
 		assert c.currentCode() == this.methodDef();
-		Context oldC=c;
+		Context oldC = c;
 		if (child != body()) {
 			// Push formals so they're in scope in the types of the other formals.
 			c = c.pushBlock();
@@ -410,18 +407,18 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// entering the appropriate children
 		if (child == body || child == returnType || child == hasType || child == offerType || child == guard
 				|| (formals != null && formals.contains(child))) {
+		    X10MethodDef md = methodDef();
+		    XConstrainedTerm placeTerm = md == null ? null : md.placeTerm();
+		    if (placeTerm == null) {
+		        placeTerm = PlaceChecker.methodPlaceTerm(md);
+		    }
 			if (c == oldC)
 				c = c.pushBlock();
-			PlaceChecker.setHereTerm(methodDef(), placeTerm, c);
-			if (placeTerm != null) {
-				c.setPlace(XConstrainedTerm.make(placeTerm));
-			} else {
-			   PlaceChecker.setHereTerm(methodDef(), c);
-			}
+			c.setPlace(placeTerm);
 		}
 
 		if (child == body && offerType != null && offerType.typeRef().known()) {
-			if (oldC==c)
+			if (oldC == c)
 				c = c.pushBlock();
 		    c.setCollectingFinishScope(offerType.type());
 		}

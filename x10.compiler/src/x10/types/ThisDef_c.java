@@ -94,16 +94,6 @@ public class ThisDef_c extends VarDef_c implements ThisDef {
         this.thisVar = thisVar;
     }
 
-    private XTerm placeTerm;
-    public XTerm placeTerm() { return placeTerm; }
-    // FIXME Yoav: keep only the first is a bad strategy because these place terms are used in other types, and other constructs (like AtStmt_c)
-    public void setPlaceTerm(XTerm pt) {
-    	if (placeTerm == null)
-    		placeTerm = pt;
-    	//else 
-    	//	assert placeTerm == pt;
-    }
-    
     @Override
     public  Ref<? extends Type> type() {
     	 Ref<? extends Type> result = type;

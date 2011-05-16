@@ -47,6 +47,7 @@ import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 import x10.ast.X10Call_c;
 
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
@@ -107,7 +108,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis(); // Why #this instead of this?
+        return CTerms.makeThis();
     }
 
     ThisDef thisDef;
@@ -120,6 +121,14 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         this.thisDef = thisDef;
     }
 
+    protected XConstrainedTerm placeTerm;
+    public XConstrainedTerm placeTerm() { return placeTerm; }
+    public void setPlaceTerm(XConstrainedTerm pt) {
+        if (placeTerm != null)
+            assert (placeTerm == null);
+        placeTerm = pt;
+    }
+    
     public Ref<? extends Type> offerType() {
     	return this.offerType;
     }

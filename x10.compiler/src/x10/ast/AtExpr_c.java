@@ -130,7 +130,7 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	Context c = tc.context();
     	ClosureDef def = (ClosureDef) this.codeDef();
     	if (def.placeTerm() == null) {
-    	    XConstrainedTerm placeTerm = null;
+    	    XConstrainedTerm placeTerm;
     		try {
     		    placeTerm = PlaceChecker.computePlaceTerm(place, tc.context(), ts);
     		} catch (SemanticException se) {
@@ -148,11 +148,11 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	// now that placeTerm is computed for this node, install it in the context
     	// and continue visiting children
 
-    	Context oldC=c;
+    	Context oldC = c;
     	c = super.enterChildScope(this.body, childtc.context());
     	XConstrainedTerm pt = def.placeTerm();
     	if (pt != null) {
-    		if (c==oldC)
+    		if (c == oldC)
         		c = c.pushBlock();
     		c.setPlace(pt);
     	}

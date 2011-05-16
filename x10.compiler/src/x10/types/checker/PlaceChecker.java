@@ -37,7 +37,6 @@ import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.types.FunctionType_c;
-import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
@@ -241,20 +240,14 @@ public class PlaceChecker {
 
 
 	public static void setHereTerm(MethodDef md, Context c) {
-		setHereTerm(md, null, c);
+	    c = c.pushBlock();
+	    if (isGlobalCode(md)) {
+	        c.setPlace(XConstrainedTerm.make(makePlace()));
+	    } else {
+	        setHereIsThisHome(c);
+	    }
 	}
-	public static void setHereTerm(MethodDef md, XTerm pt, Context c) {
-		c = c.pushBlock();
-		if (pt != null) {
-			c.setPlace(XConstrainedTerm.make(pt));
-		} else {
-			if (isGlobalCode(md)) {
-				c.setPlace(XConstrainedTerm.make(makePlace()));
-			} else {
-				setHereIsThisHome(c);
-			}
-		}
-	}
+
 	public static void setHereTerm(FieldDef fd, Context c) {
 		Flags flags = fd.flags();
 		if (flags.isStatic()) {
@@ -279,11 +272,16 @@ public class PlaceChecker {
 			}
 	}
 
-	public static XTerm methodPT(Flags flags, ClassDef ct) {
-		boolean isGlobal = flags.isStatic() || Types.isX10Struct(ct.asType());
-		return (isGlobal) ? 
-				makePlace() :
-					homeVar(((X10ClassDef) ct).thisVar(), (TypeSystem) ct.typeSystem());
+	public static XConstrainedTerm methodPlaceTerm(MethodDef md) {
+	    CConstraint d = new CConstraint();
+	    // XTENLANG-2725: in X10 2.2, all methods are "global"
+	    boolean isGlobal = true; // || md.flags().isStatic() || Types.isX10Struct(ct.asType());
+	    XTerm term = isGlobal ? makePlace() : homeVar(md.thisVar(), md.typeSystem());
+	    try {
+	        return XConstrainedTerm.instantiate(d, term);
+	    } catch (XFailure z) {
+	        throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
+	    }
 	}
 
 	/**
@@ -294,7 +292,8 @@ public class PlaceChecker {
 	 */
 	static boolean isGlobalCode(MethodDef md) {
 		Flags flags = md.flags();
-		boolean isGlobal =  flags.isStatic() || Types.isX10Struct(md.container().get());
+		// XTENLANG-2725: in X10 2.2, all methods are "global"
+		boolean isGlobal = true || flags.isStatic() || Types.isX10Struct(md.container().get());
 		return isGlobal;
 	}
 
@@ -368,7 +367,6 @@ public class PlaceChecker {
 			try {
 				pt = XConstrainedTerm.instantiate(d, term);
 			} catch (XFailure z) {
-
 				throw new InternalCompilerError("Cannot construct placeTerm from " + 
 						term + " and constraint " + d + ".");
 			}

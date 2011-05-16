@@ -28,6 +28,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 public class X10InitializerDef_c extends InitializerDef_c implements X10InitializerDef {
     private static final long serialVersionUID = 8967174982510527953L;
@@ -52,6 +53,14 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
         this.thisDef = thisDef;
     }
 
+    protected XConstrainedTerm placeTerm;
+    public XConstrainedTerm placeTerm() { return placeTerm; }
+    public void setPlaceTerm(XConstrainedTerm pt) {
+        if (placeTerm != null)
+            assert (placeTerm == null);
+        placeTerm = pt;
+    }
+    
     // BEGIN ANNOTATION MIXIN
     List<Ref<? extends Type>> annotations;
 
