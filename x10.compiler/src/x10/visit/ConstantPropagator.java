@@ -99,7 +99,7 @@ public class ConstantPropagator extends ContextVisitor {
             Local l = (Local) n;
             if (l.localInstance().def().isConstant()) {
                 Object o = l.localInstance().def().constantValue();
-                Expr result = toExpr(o, n.position());
+                Expr result = toExpr(o, Types.baseType(l.type()), n.position());
                 if (result != null)
                     return result;
                 
@@ -110,7 +110,7 @@ public class ConstantPropagator extends ContextVisitor {
             Expr e = (Expr) n;
             if (isConstant(e)) {
                 Object o = constantValue(e);
-                Expr result = toExpr(o, e.position());
+                Expr result = toExpr(o, Types.baseType(e.type()), e.position());
                 if (result != null)
                     return result;
             }
@@ -246,7 +246,7 @@ public class ConstantPropagator extends ContextVisitor {
         return false;
     }
 
-    public Expr toExpr(Object o, Position pos) {
+    public Expr toExpr(Object o, Type desiredType, Position pos) {
         NodeFactory nf = (NodeFactory) this.nf;
 
         Expr e = null;
@@ -254,10 +254,26 @@ public class ConstantPropagator extends ContextVisitor {
             e = nf.NullLit(pos);
         } else
         if (o instanceof Integer) {
-            e = nf.IntLit(pos, IntLit.INT, (long) (int) (Integer) o);
+            IntLit.Kind kind;
+            if (ts.isInt(desiredType)) {
+                kind = IntLit.INT;
+            } else if (ts.isUInt(desiredType)) {
+                kind = IntLit.UINT;
+            } else if (ts.isShort(desiredType)) {
+                kind = IntLit.SHORT;
+            } else if (ts.isUShort(desiredType)) {
+                kind = IntLit.USHORT;
+            } else if (ts.isByte(desiredType)) {
+                kind = IntLit.BYTE;
+            } else if (ts.isUByte(desiredType)) {
+                kind = IntLit.UBYTE;
+            } else {
+                throw new InternalCompilerError("desiredType "+desiredType+" does not match Int constant "+o);
+            }
+            e = nf.IntLit(pos, kind, (long) (int) (Integer) o);
         } else
         if (o instanceof Long) {
-            e = nf.IntLit(pos, IntLit.LONG, (long) (Long) o);
+            e = nf.IntLit(pos, ts.isULong(desiredType) ? IntLit.ULONG : IntLit.LONG, (long) (Long) o);
         } else
         if (o instanceof Float) {
             e = nf.FloatLit(pos, FloatLit.FLOAT, (double) (float) (Float) o);
@@ -277,8 +293,9 @@ public class ConstantPropagator extends ContextVisitor {
         if (o instanceof Object[]) {
             Object[] a = (Object[]) o;
             List<Expr> args = new ArrayList<Expr>(a.length);
+            Type elemType = Types.baseType(Types.getParameterType(desiredType, 0));
             for (Object ai : a) {
-                Expr ei = toExpr(ai, pos);
+                Expr ei = toExpr(ai, elemType, pos);
                 if (ei == null)
                     return null;
                 args.add(ei);

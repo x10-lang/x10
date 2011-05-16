@@ -397,7 +397,7 @@ public class Inliner extends ContextVisitor {
             Object value = opts.x10_config.get(name);
             if (negate) 
                 value = (Boolean) value ? false : true;
-            Expr literal = new ConstantPropagator(job, ts, nf).toExpr(value, call.position());
+            Expr literal = new ConstantPropagator(job, ts, nf).toExpr(value, ts.Boolean(), call.position());
             return literal;
         } catch (ConfigurationError e) {
             return null;
