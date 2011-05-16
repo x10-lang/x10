@@ -29,6 +29,9 @@ import x10.visit.X10PrettyPrinterVisitor;
 
 final public class RuntimeTypeExpander extends Expander {
 
+	// WIP XTENLANG-2488
+    public static final boolean useReflectionToGetRTT = false;
+
     private final Type at;
 
     public RuntimeTypeExpander(Emitter er, Type at) {
@@ -55,6 +58,16 @@ final public class RuntimeTypeExpander extends Expander {
     public String toString() {
     	return "RuntimeTypeExpander{#" + hashCode() + // todo: using hashCode leads to non-determinism in the output of the compiler
                 ", " + at.toString() + "}";
+    }
+    
+    public static String getRTT(String qualifiedClassName) {
+    	String rttString = null;
+    	if (useReflectionToGetRTT) {
+    		rttString = X10PrettyPrinterVisitor.X10_RTT_TYPES + ".<" + qualifiedClassName + "> $RTT(" + qualifiedClassName + ".class)";
+    	} else {
+    		rttString = qualifiedClassName + "." + X10PrettyPrinterVisitor.RTT_NAME;
+    	}
+    	return rttString;
     }
     
     @Override
@@ -113,12 +126,13 @@ final public class RuntimeTypeExpander extends Expander {
             List<Type> classTypeArgs = ct.typeArguments();
             if (classTypeArgs == null) classTypeArgs = Collections.<Type>emptyList();
             if (pat == null) {
+            	String rttString = getRTT(Emitter.mangleQName(cd.fullName()).toString());
                 // XTENLANG-1102
                 if (ct.isGloballyAccessible() && classTypeArgs.size() == 0) {
-                    er.w.write(Emitter.mangleQName(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
+                    er.w.write(rttString);
                 } else {
                     er.w.write("new x10.rtt.ParameterizedType(");
-                    er.w.write(Emitter.mangleQName(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
+                    er.w.write(rttString);
                     for (int i = 0; i < classTypeArgs.size(); i++) {
                         er.w.write(", ");
                         new RuntimeTypeExpander(er, classTypeArgs.get(i)).expand(tr);

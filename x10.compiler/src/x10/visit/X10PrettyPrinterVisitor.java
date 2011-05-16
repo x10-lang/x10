@@ -2163,7 +2163,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
             } else if (pat == null && Emitter.getJavaRep(cd) == null && ct.isGloballyAccessible()
                     && cd.typeParameters().size() != 0) {
-                w.write(Emitter.mangleQName(cd.fullName()).toString() + "." + X10PrettyPrinterVisitor.RTT_NAME);
+            	String rttString = RuntimeTypeExpander.getRTT(Emitter.mangleQName(cd.fullName()).toString());
+            	w.write(rttString);
             } else {
                 new RuntimeTypeExpander(er, t).expand(tr);
             }

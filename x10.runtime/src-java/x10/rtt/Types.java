@@ -51,6 +51,21 @@ public class Types {
 	}
 	
 	
+	// XTENLANG-2488
+	// get $RTT field from class using reflection
+	public static <T> RuntimeType<T> $RTT(Class<?> c) {
+		RuntimeType<T> rtt = null;
+		try {
+		    java.lang.reflect.Field rttField = c.getField("$RTT");
+			if (rttField != null) {
+				rtt = (RuntimeType<T>) rttField.get(null);
+			}
+		} catch (Exception e) {
+		}
+		return rtt;
+	}
+	
+	
     // Fast implementation of Any.typeName() without boxing
     public static String typeName(Object obj) {
     	return getRTT(obj).typeName(obj);
