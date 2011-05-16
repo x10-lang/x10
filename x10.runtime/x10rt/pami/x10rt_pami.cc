@@ -1142,6 +1142,7 @@ void x10rt_net_internal_barrier (){} // DEPRECATED
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
+	pami_result_t status = PAMI_ERROR;
 	if (state.hfi_update != NULL)
 	{
 		// use HFI remote operations
@@ -1154,17 +1155,16 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u using HFI\n", state.myPlaceId, type, (void*)victim, place);
 		#endif
 		if (state.numParallelContexts)
-			state.hfi_update (getConcurrentContext(), 1, &remote_info); // TODO: extend to use a count > 1
+			status = state.hfi_update (getConcurrentContext(), 1, &remote_info);
 		else
 		{
 			PAMI_Context_lock(state.context[0]);
-			state.hfi_update (state.context[0], 1, &remote_info);
+			status = state.hfi_update (state.context[0], 1, &remote_info);
 			PAMI_Context_unlock(state.context[0]);
 		}
 	}
 	else
 	{
-		pami_result_t status = PAMI_ERROR;
 		pami_rmw_t operation;
 		memset(&operation, 0, sizeof(pami_rmw_t));
 		if ((status = PAMI_Endpoint_create(state.client, place, 0, &operation.dest)) != PAMI_SUCCESS)
@@ -1185,13 +1185,14 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 			status = PAMI_Rmw(state.context[0], &operation);
 			PAMI_Context_unlock(state.context[0]);
 		}
-		if (status != PAMI_SUCCESS)
-			error("Unable to execute the remote operation");
 	}
+	if (status != PAMI_SUCCESS)
+		error("Unable to execute the remote operation");
 }
 
 void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 {
+	pami_result_t status = PAMI_ERROR;
 	if (state.hfi_update != NULL)
 	{
 		// use HFI remote operations
@@ -1199,17 +1200,16 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 			fprintf(stderr, "Place %u executing a remote %u operations %u on %p at place %u using HFI\n", numOps, state.myPlaceId, type, (void*)victim, place);
 		#endif
 		if (state.numParallelContexts)
-			state.hfi_update (getConcurrentContext(), numOps, (hfi_remote_update_info_t*)ops);
+			status = state.hfi_update (getConcurrentContext(), numOps, (hfi_remote_update_info_t*)ops);
 		else
 		{
 			PAMI_Context_lock(state.context[0]);
-			state.hfi_update (state.context[0], numOps, (hfi_remote_update_info_t*)ops);
+			status = state.hfi_update(state.context[0], numOps, (hfi_remote_update_info_t*)ops);
 			PAMI_Context_unlock(state.context[0]);
 		}
 	}
 	else
 	{
-		pami_result_t status = PAMI_ERROR;
 		pami_rmw_t operation;
 		memset(&operation, 0, sizeof(pami_rmw_t));
 		operation.hints.buffer_registered = PAMI_HINT_ENABLE;
@@ -1235,12 +1235,12 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 				fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
 			#endif
 			status = PAMI_Rmw(context, &operation);
-			if (status != PAMI_SUCCESS)
-				error("Unable to execute the remote operation");
 		}
 		if (!state.numParallelContexts)
 			PAMI_Context_unlock(state.context[0]);
 	}
+	if (status != PAMI_SUCCESS)
+		error("Unable to execute the remote operation");
 }
 
 x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
