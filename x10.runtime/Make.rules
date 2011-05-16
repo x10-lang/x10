@@ -136,7 +136,7 @@ else
     ifdef OPTIMIZE
       override CXXFLAGS += -O3 -qinline -qarch=auto -qtune=auto -qhot
     endif
-    override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
+    override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101:1540-1102
     override CXXFLAGS += -qminimaltoc
     override CXXFLAGS += $(XLC_EXTRA_FLAGS)
     ifndef USE_32BIT
