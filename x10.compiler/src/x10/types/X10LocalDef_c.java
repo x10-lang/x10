@@ -45,7 +45,10 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
     public boolean isUnnamed() { return isUnnamed; }
     
     private boolean isAsyncInit = false;
-    public void setAsyncInit() { isAsyncInit = true; }
+    public void setAsyncInit() {
+        if (flags.isAcc()) return; // acc are always init in their declaration (never async-init)
+        isAsyncInit = true;
+    }
     public boolean isAsyncInit() { return isAsyncInit; }
     
     public String toString() {
