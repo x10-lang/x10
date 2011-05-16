@@ -519,7 +519,7 @@ public class Converter {
 		TypeSystem ts =  tc.typeSystem();
 		Type toType = cast.castType().type();
 		Type fromType = cast.expr().type();
-		Context context = (Context) tc.context();
+		Context context =  tc.context();
 
 		if (ts.isUnknown(toType)) {
 		    if (opts.x10_config.CHECK_INVARIANTS)
@@ -654,6 +654,7 @@ public class Converter {
 					}
 				}
 				catch (SemanticException z1) {
+				    
 				}
 			}
 			// or  can convert if there is a static implict cast operator defined on toType: static operator (f:fromType)
