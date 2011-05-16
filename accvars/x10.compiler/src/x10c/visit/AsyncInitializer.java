@@ -550,6 +550,10 @@ public class AsyncInitializer extends ContextVisitor {
         for (LocalDef initVal : asyncInitVal) {
             if (initVal instanceof X10LocalDef && !((X10LocalDef)initVal).isAsyncInit())
                 continue;
+            if (initVal.flags().isAcc()) {
+                removeList.add(initVal);
+                continue;
+            }
 
             Id id = initValToId.get(initVal);
             if (id == null) {

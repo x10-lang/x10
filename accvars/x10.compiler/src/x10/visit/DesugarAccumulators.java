@@ -209,6 +209,7 @@ public class DesugarAccumulators extends ContextVisitor {
             if (flags.flags().isAcc()) {
                 Position pos = n.position().markCompilerGenerated();
                 varDecl = varDecl.flags( flags.flags(flags.flags().set(Flags.FINAL).clear(Flags.ACC)) );
+                varDecl.localDef().setFlags(varDecl.localDef().flags().Final());
                 // adding the Accumulator type
                 TypeNode typeNode = varDecl.type();
                 Type accGeneric = accType(typeNode.type());
