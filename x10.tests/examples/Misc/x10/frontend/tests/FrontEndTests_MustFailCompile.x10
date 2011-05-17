@@ -3696,7 +3696,9 @@ class XTENLANG_1149_2 {
 		@ERR val c6:B{self==null} = f ? b1 : b1;
 
 		val arr1 = [b1 as B{self!=null},b2 as B{self!=null}];
-		val arr2:Array[B{self!=null}] = [b1,b2]; 
+		  // the type inferred for [b1,b2] is 
+        // x10.array.Array[XTENLANG_1149_2.B{XTENLANG_1149_2.self==XTENLANG_1149_2#this, self!=null}]
+        @ERR val arr2:Array[B{self!=null}] = [b1,b2]; 
 		@ERR val arr3:Array[B] = [b1,b2]; 
 	}
 }
