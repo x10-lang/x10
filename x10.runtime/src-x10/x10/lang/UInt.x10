@@ -27,7 +27,7 @@ import x10.util.Ordered;
 //                 v-- when used
 @NativeRep("c++", "x10_uint", "x10_uint", null)
 //                             ^ when constructed
-public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt], Bitwise[UInt], Ordered[UInt]*/ {
+public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt], Ordered[UInt] {
 
     /** The actual number with Int representation */
     public val intVal:Int;

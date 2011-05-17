@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 // @NativeRep("java", "long", null, "x10.rtt.Types.ULONG")
 @NativeRep("c++", "x10_ulong", "x10_ulong", null)
-public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[ULong], Bitwise[ULong], Ordered[ULong]*/ {
+public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULong], Ordered[ULong] {
 
 
     /** The actual number with Long representation */
