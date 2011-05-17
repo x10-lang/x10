@@ -498,6 +498,7 @@ int main(int argc, char **argv)
     uint64_t numUpdates = updates * tableSize;
 
     localTable = (uint64_t*) congruent_alloc(localTableSize*sizeof(uint64_t));
+    localTable = (uint64_t*) (size_t) x10rt_register_mem(localTable, localTableSize*sizeof(uint64_t));
 
     const char *remote_op_batch_ = getenv("X10_REMOTE_OP_BATCH");
     remote_op_batch = remote_op_batch_ == NULL ? 64 : strtoul(remote_op_batch_, NULL, 10);
@@ -531,7 +532,7 @@ int main(int argc, char **argv)
         std::cout << GUPs/1E9<<" Billion(10^9) Updates per second (GUP/s)" << std::endl;
 
         if (enable_validate) {
-            runBenchmark(logLocalTableSize, numUpdates);
+            if (getenv("NO_RESET")==NULL) runBenchmark(logLocalTableSize, numUpdates);
             validate();
         }
 
