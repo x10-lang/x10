@@ -23,17 +23,28 @@ final class ReinstantiatedFieldInstance extends X10FieldInstance_c {
 		this.fi = fi;
 	}
 
-	@Override
+    public TypeParamSubst typeParamSubst() {
+        ContainerType ct = fi.container();
+        if (ct != null && ct.isClass()) {
+            TypeParamSubst dsubst = ct.toClass().def().subst();
+            if (dsubst != null) {
+                return dsubst.reinstantiate(typeParamSubst);
+            }
+        }
+        return typeParamSubst;
+    }
+
+    @Override
 	public Type type() {
 		if (type == null)
-			return this.typeParamSubst.reinstantiate(fi.type());
+			return this.typeParamSubst().reinstantiate(fi.type());
 		return type;
 	}
 
 	@Override
 	public ContainerType container() {
 		if (container == null)
-			return this.typeParamSubst.reinstantiate(fi.container());
+			return this.typeParamSubst().reinstantiate(fi.container());
 		return container;
 	}
 }

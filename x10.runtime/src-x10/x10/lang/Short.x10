@@ -178,37 +178,37 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0xf before the shift is applied.
      * @param count the shift count
      * @return this Short shifted left by count.
      */
-    @Native("java", "((short) ((#this) << (#count)))")
-    @Native("c++",  "((x10_short) ((#0) << (#1)))")
+    @Native("java", "((short) ((#this) << (0xf & (#count))))")
+    @Native("c++",  "((x10_short) ((#0) << (0xf & (#1))))")
     public native operator this << (count:Int): Short;
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * replicating the sign bit into the high bits.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0xf before the shift is applied.
      * @param count the shift count
      * @return this Short shifted right by count.
      */
-    @Native("java", "((short) ((#this) >> (#count)))")
-    @Native("c++",  "((x10_short) ((#0) >> (#1)))")
+    @Native("java", "((short) ((#this) >> (0xf & (#count))))")
+    @Native("c++",  "((x10_short) ((#0) >> (0xf & (#1))))")
     public native operator this >> (count:Int): Short;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0xf before the shift is applied.
      * @deprecated use the right-shift operator and unsigned conversions instead.
      * @param count the shift count
      * @return this Short shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((short) ((#this) >>> (#count)))")
-    @Native("c++",  "((x10_short) ((x10_uint) (#0) >> (#1)))")
+    @Native("java", "((short) ((#this) >>> (0xf & (#count))))")
+    @Native("c++",  "((x10_short) ((x10_uint) (#0) >> (0xf & (#1))))")
     public native operator this >>> (count:Int): Short;
 
     /**
@@ -281,14 +281,14 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      */
     @Native("java", "java.lang.Short.MIN_VALUE")
     @Native("c++", "((x10_short)0x8000)")
-    public static MIN_VALUE = 0x8000 as Short;
+    public static MIN_VALUE: Short{self==0x8000S} = 0x8000S;
 
     /**
      * A constant holding the maximum value a Short can have, 2<sup>15</sup>-1.
      */
     @Native("java", "java.lang.Short.MAX_VALUE")
     @Native("c++", "((x10_short)0x7fff)")
-    public static MAX_VALUE = 0x7fff as Short;
+    public static MAX_VALUE: Short{self==0x7fffS} = 0x7fffS;
 
 
     /**

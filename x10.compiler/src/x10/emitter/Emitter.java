@@ -66,7 +66,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -127,6 +128,10 @@ public class Emitter {
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
+    // WIP XTENLANG-2680
+//    public static final boolean supportNativeMethodDecl = false;
+    public static final boolean supportNativeMethodDecl = true;
+
     private static final String JAVA_KEYWORD_PREFIX = "kwd_";
 	private static final Set<String> JAVA_KEYWORDS = CollectionFactory.newHashSet(
 	        Arrays.asList(new String[]{
@@ -143,6 +148,7 @@ public class Emitter {
 	                "null",     "true",     "false",
                     // X10 implementation names
 	                "serialVersionUID",
+	                "x10", "java",	// XTENLANG-2438
 	                // X10 implementation names (rename is not needed since they include reserved character $)
 //	                X10PrettyPrinterVisitor.GETRTT_NAME, X10PrettyPrinterVisitor.RTT_NAME, X10PrettyPrinterVisitor.GETPARAM_NAME,
 	        }
@@ -977,7 +983,15 @@ public class Emitter {
 		}
 
 		w.begin(0);
-		w.write(flags.translateJava()); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
+	    // XTENLANG-2680
+		Flags javaFlags = flags.retainJava(); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
+    	// TODO expand @Native annotation of interface method to the types that implement the interface and don't have its implementation.
+		boolean hasNativeAnnotation = supportNativeMethodDecl && getJavaImplForDef(n.methodDef()) != null && !isInterface/*for Comparable[T].compareTo(T)*/;
+		if (hasNativeAnnotation) {
+			// N.B. clear native as well since it has @Native annotation. 
+			javaFlags = javaFlags.clearNative();
+		}
+		w.write(javaFlags.translate());
 
 		// print the method type parameters
 		printTypeParams(n, c, n.typeParameters());
@@ -993,6 +1007,7 @@ public class Emitter {
 
         w.allowBreak(2, 2, " ", 1);
 
+        // decl
         // print the method name
 		printMethodName(n.methodDef(), isInterface, isDispatcher);
 
@@ -1085,6 +1100,13 @@ public class Emitter {
 */
 		w.end();
 
+	    // XTENLANG-2680
+		// print @Native annotation as method body
+		if (hasNativeAnnotation) {
+			printNativeMethodDecl(n);
+			return;
+		}
+
 		if (n.body() != null) {
 			tr.print(n, n.body(), w);
 		} else {
@@ -1092,8 +1114,10 @@ public class Emitter {
 		}
 	}
 
+	// decl and call
     private void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher) {
-		printMethodName(def, isInterface, isDispatcher, isSpecialType(def.returnType().get()), tr.typeSystem().isParameterType(def.returnType().get()));
+    	Type returnType = def.returnType().get();
+		printMethodName(def, isInterface, isDispatcher, isSpecialType(returnType), tr.typeSystem().isParameterType(returnType));
     }
 
     public boolean isSpecialType(Type type) {
@@ -1105,7 +1129,8 @@ public class Emitter {
     	return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
         && !isNativeClassToJava(containerType)
         && !isNativeRepedToJava(containerType)
-        && !(methodNameString.equals("equals") || methodNameString.equals("toString") || methodNameString.equals("hashCode") || methodNameString.equals("compareTo"))
+        && !(methodNameString.equals("equals") || methodNameString.equals("toString") || methodNameString.equals("hashCode"))/*Any*/
+        && !(methodNameString.equals("compareTo"))/*Comparable*/
         && !(methodNameString.startsWith(StaticInitializer.initializerPrefix) || methodNameString.startsWith(StaticInitializer.deserializerPrefix));
     }
     
@@ -1697,6 +1722,7 @@ public class Emitter {
 	    
 	    w.allowBreak(2, 2, " ", 1);
 
+	    // decl
 	    // print the method name
 	    printMethodName(def, isInterface, false);
 	    
@@ -1761,7 +1787,8 @@ public class Emitter {
 	        w.write("return ");
 	    }
 
-	    if (boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
+	    boolean boxString = boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context());
+	    if (boxString) {
             w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
             w.write(".box(");
 	    }
@@ -1776,6 +1803,7 @@ public class Emitter {
 	        }
 	    }
 
+        // call
         printMethodName(impl.def(), isInterface2, false);
 
         // print the argument list
@@ -1812,7 +1840,7 @@ public class Emitter {
 	    }
 	    w.write(")");
 
-	    if (boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
+	    if (boxString) {
 	        w.write(")");
 	    }
 	    w.write(";");
@@ -1879,6 +1907,7 @@ public class Emitter {
     
     	    w.write("super.");
     	    
+    	    // call
     	    printMethodName(def, false, false);
 
     	    // print the argument list
@@ -2233,6 +2262,7 @@ public class Emitter {
             
             w.allowBreak(2, 2, " ", 1);
 
+            // decl
             // print the method name
             printMethodName(def, true, true);
 
@@ -2337,6 +2367,7 @@ public class Emitter {
                     w.write("return ");
                 }
 
+                // call
                 printMethodName(mi.def(), false, false);
 
                 // print the argument list
@@ -2647,19 +2678,19 @@ public class Emitter {
 	    w.write("public static final x10.rtt.RuntimeType");
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
-        w.write(">");
+        w.write("> " + X10PrettyPrinterVisitor.RTT_NAME + " = ");
         if (isStaticFunType) {
             // Option for closures
-//            w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.RuntimeType");
+//            w.write("new x10.rtt.RuntimeType");
             if (isVoidFun) {
-                w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.StaticVoidFunType");
+                w.write("new x10.rtt.StaticVoidFunType");
             } else {
-                w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.StaticFunType");
+                w.write("new x10.rtt.StaticFunType");
             }
         } else {
             // Option for non-closures
-//            w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.RuntimeType");
-            w.write(" " + X10PrettyPrinterVisitor.RTT_NAME + " = new x10.rtt.NamedType");
+//            w.write("new x10.rtt.RuntimeType");
+            w.write("new x10.rtt.NamedType");
         }
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
@@ -3311,7 +3342,7 @@ public class Emitter {
     		List<Expr> arguments = c.arguments();
     		for (int i = 0; i < arguments.size(); ++ i) {
     		    params.add(mi.def().formalNames().get(i).name().toString());
-    		    Type ft = c.methodInstance().def().formalTypes().get(i).get();
+    		    Type ft = mi.def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
     		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
@@ -3367,6 +3398,79 @@ public class Emitter {
         return false;
     }
     
+    // WIP XTENLANG-2680
+	// print @Native annotation as method body
+    public boolean printNativeMethodDecl(X10MethodDecl_c n) {
+    	assert supportNativeMethodDecl;
+    	
+        TypeSystem xts = tr.typeSystem();
+        MethodInstance mi = n.methodDef().asInstance();
+        String pat = getJavaImplForDef(mi.x10Def());
+        assert pat != null;
+    	if (pat != null) {
+////            Receiver target = c.target();
+////            Type t = target.type();
+//    		Type t = mi.container();
+//    	    boolean cast = xts.isParameterType(t) || X10PrettyPrinterVisitor.hasParams(t);
+//    		CastExpander targetArg = new CastExpander(w, this, target);
+//    		if (cast) {
+//    		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+//    		}
+    		String targetArg = null;
+    		if (!mi.flags().isStatic()) {
+    			targetArg = "this";
+    		}
+    		
+	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
+    		List<Type> classTypeArguments  = Collections.<Type>emptyList();
+    		if (mi.container().isClass() && !mi.flags().isStatic()) {
+    		    X10ClassType ct = (X10ClassType) mi.container().toClass();
+	            classTypeParams = ct.x10Def().typeParameters();
+    		    classTypeArguments = ct.typeArguments();
+	            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+    		    if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
+    		}
+    		
+    		List<String> params = new ArrayList<String>();
+//    		List<CastExpander> args = new ArrayList<CastExpander>();
+    		List<String> args = new ArrayList<String>();
+//    		List<Expr> arguments = c.arguments();
+//    		for (int i = 0; i < arguments.size(); ++ i) {
+    		for (int i = 0; i < mi.def().formalNames().size(); ++ i) {
+    		    params.add(mi.def().formalNames().get(i).name().toString());
+    		    /*
+    		    Type ft = mi.def().formalTypes().get(i).get();
+    		    Type at = arguments.get(i).type();
+    		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
+    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
+    		    }
+    		    else if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at)) {
+    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
+    		    }
+    		    else {
+    		        args.add(new CastExpander(w, this, arguments.get(i)));                                    
+    		    }
+    		    */
+    		    args.add(mi.def().formalNames().get(i).name().toString());
+    		}
+    		
+    		w.write("{");
+    		//@@@ahoaho
+    		if (!n.returnType().type().isVoid()) {
+//    		if (!mi.returnType().isVoid()) {
+    			w.write("return ");
+    		}
+    		
+    		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
+    		
+    		w.write(";}");
+    		w.newline();
+    		
+    		return true;
+    	}
+    	return false;
+    }
+
     public boolean printMainMethod(X10MethodDecl_c n) {
         if (HierarchyUtils.isMainMethod(n.methodDef(), tr.context())) {
             /*Expander throwsClause = new Inline(er, "");

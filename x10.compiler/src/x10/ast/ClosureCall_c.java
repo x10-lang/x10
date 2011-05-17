@@ -36,7 +36,6 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -244,27 +243,6 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 			n = (X10Call_c) n.methodInstance(mi).type(mi.returnType());
 			return n;
 		}
-	}
-
-	public Type childExpectedType(Expr child, AscriptionVisitor av)
-	{
-		if (child == target) {
-			return ci.container();
-		}
-
-		Iterator<Expr> i = this.arguments.iterator();
-		Iterator<Type> j = ci.formalTypes().iterator();
-
-		while (i.hasNext() && j.hasNext()) {
-			Expr e = i.next();
-			Type t = j.next();
-
-			if (e == child) {
-				return t;
-			}
-		}
-
-		return child.type();
 	}
 
 	public String toString() {

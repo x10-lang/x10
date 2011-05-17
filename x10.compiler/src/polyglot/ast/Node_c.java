@@ -298,7 +298,7 @@ public abstract class Node_c implements Node
 	return this;
     }
 
-    public Node disambiguate(ContextVisitor ar) throws SemanticException {
+    public Node disambiguate(ContextVisitor ar) {
 	return this;
     }
 
@@ -321,10 +321,6 @@ public abstract class Node_c implements Node
 
     public Node conformanceCheck(ContextVisitor tc) {
 	return this;
-    }
-
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-	return child.type();
     }
 
     public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
@@ -455,7 +451,7 @@ public abstract class Node_c implements Node
                                         "not implement copy(NodeFactory). This compiler extension should" +
                                         " either implement the method, or not invoke this method.");
     }
-    public final Node copy(ExtensionInfo extInfo) throws SemanticException {
+    public final Node copy(ExtensionInfo extInfo) {
         return this.del().copy(extInfo.nodeFactory());
     }
 

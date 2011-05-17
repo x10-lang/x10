@@ -16,7 +16,6 @@ import polyglot.ast.Allocation_c;
 import polyglot.ast.AmbAssign_c;
 import polyglot.ast.AmbExpr_c;
 import polyglot.ast.AmbPrefix_c;
-import polyglot.ast.AmbQualifierNode_c;
 import polyglot.ast.AmbReceiver_c;
 import polyglot.ast.AmbTypeNode_c;
 import polyglot.ast.ArrayAccessAssign_c;
@@ -288,7 +287,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof SourceCollection_c) { visit((SourceCollection_c)n); return; }
 		if (n instanceof PackageNode_c) { visit((PackageNode_c)n); return; }
 		if (n instanceof Import_c) { visit((Import_c)n); return; }
-		if (n instanceof AmbQualifierNode_c) { visit((AmbQualifierNode_c)n); return; }
 		if (n instanceof AmbReceiver_c) { visit((AmbReceiver_c)n); return; }
 		if (n instanceof AmbPrefix_c) { visit((AmbPrefix_c)n); return; }
 		if (n instanceof Node_c) { visit((Node_c)n); return; }
@@ -306,7 +304,6 @@ public class X10DelegatingVisitor {
 	public void visit(Node_c n) { visit((Node)n); }
 		public void visit(AmbPrefix_c n) { visit((Node_c)n); }
 			public void visit(AmbReceiver_c n) { visit((AmbPrefix_c)n); }
-		public void visit(AmbQualifierNode_c n) { visit((Node_c)n); }
 		public void visit(Import_c n) { visit((Node_c)n); }
 		public void visit(PackageNode_c n) { visit((Node_c)n); }
 		public void visit(SourceCollection_c n) { visit((Node_c)n); }

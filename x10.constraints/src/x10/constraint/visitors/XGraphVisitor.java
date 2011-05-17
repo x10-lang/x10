@@ -54,6 +54,25 @@ public abstract class XGraphVisitor {
 		}
 		return result;
 	}
+	/** Get the nf for eqv, given the information
+	 * in the hash table. The normal form for e.f1...fn is x.f1...fn 
+	 * if e is bound to x in the table.
+	 */
+	protected XTerm nf(XTerm eqv) {
+	    XTerm z = varRep(eqv);
+	    if (z != null)
+	        return z;
+	    
+	    if (eqv instanceof XField<?> ) {
+	        XField<?> t = (XField<?>) eqv;
+	        XTerm rt = t.receiver();
+	        XTerm tz =nf(rt);
+	        if (tz == null)
+	            return null;
+	        return t.copyReceiver((XVar) tz);
+	    }
+	    return null;
+	}
 	boolean hideEQV;
 	boolean hideFake;
 	protected XGraphVisitor(boolean hideEQV, boolean hideFake) {
@@ -87,13 +106,13 @@ public abstract class XGraphVisitor {
     	//assert t1 != null && t2 != null;
     	if (hideEQV) {
     		if (t1.hasEQV()) {
-    			XTerm t1b = varRep(t1);
+    			XTerm t1b = nf(t1);
     			if (t1b != null) {
     				t1=t1b;
     			}
     		}
     		if (t2.hasEQV()) {
-    			XTerm t2b = varRep(t2);
+    			XTerm t2b = nf(t2);
     			if (t2b != null) {
     				t2 = t2b;
     			}
@@ -127,13 +146,13 @@ public abstract class XGraphVisitor {
     	assert t1 != null && t2 != null;
     	if (hideEQV) {
     		if (t1.hasEQV()) {
-    			XTerm t1b = varRep(t1);
+    			XTerm t1b = nf(t1);
     			if (t1b != null) {
     				t1=t1b;
     			}
     		}
     		if (t2.hasEQV()) {
-    			XTerm t2b = varRep(t2);
+    			XTerm t2b = nf(t2);
     			if (t2b != null) {
     				t2 = t2b;
     			}

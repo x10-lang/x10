@@ -120,7 +120,7 @@ public class X10Special_c extends Special_c implements X10Special {
         }
         else {
             if (qualifier.type().isClass()) {
-                ClassType ct =  qualifier.type().toClass();
+                ClassType ct = qualifier.type().toClass();
                 t=ct;
                 if (!c.currentClass().hasEnclosingInstance(ct)) {
                     Errors.issue(tc.job(),
@@ -174,11 +174,11 @@ public class X10Special_c extends Special_c implements X10Special {
             CConstraint cc = Types.xclause(superClass);
             cc = cc == null ? new CConstraint() : cc.copy();
             try {
-             XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
-             if (var != null) {
-                 cc.addSelfBinding(var);
-                 //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
-             }
+                XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
+                if (var != null) {
+                    cc.addSelfBinding(var);
+                    //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+                }
             } catch (IllegalConstraint z) {
             	Errors.issue(tc.job(), z);
             }
@@ -211,18 +211,12 @@ public class X10Special_c extends Special_c implements X10Special {
     }
 
     public String toString() {
-        String typeString = null;
-        if (qualifier != null)
-            typeString = qualifier.toString();
-        else {
-            Type type =  type();
-            if (type != null) {
-                ClassType k = type.toClass();
-                if (k != null)
-                    typeString = k.toString();
-            }
+        String typeString = "";
+        Type type = type();
+        if (type != null && type.isClass()) {
+            typeString = "(:" + type.toClass().toString() + ")";
         }
 
-        return (typeString == null ? "" : typeString + ".") + kind;
+        return (qualifier == null ? "" : qualifier.toString() + ".") + kind + typeString;
     }
 }

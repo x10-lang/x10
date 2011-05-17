@@ -147,16 +147,6 @@ public class For_c extends Loop_c implements For
 	return this;
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == cond) {
-            return ts.Boolean();
-        }
-
-        return child.type();
-    }
-
     /** Write the statement to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 	w.write("for (");

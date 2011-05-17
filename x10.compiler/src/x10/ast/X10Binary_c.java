@@ -49,7 +49,6 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
@@ -1062,117 +1061,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	return reconstruct(left, right);
     }
     
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        Expr other;
-
-        if (child == left) {
-            other = right;
-        }
-        else if (child == right) {
-            other = left;
-        }
-        else {
-            return child.type();
-        }
-
-        TypeSystem ts = av.typeSystem();
-        Context context = av.context();
-
-        try {
-            if (op == EQ || op == NE) {
-                // Coercion to compatible types.
-                if ((child.type().isReference() || child.type().isNull()) &&
-                    (other.type().isReference() || other.type().isNull())) {
-                    return ts.leastCommonAncestor(child.type(), other.type(), context);
-                }
-
-                if (child.type().isBoolean() && other.type().isBoolean()) {
-                    return ts.Boolean();
-                }
-
-                if (child.type().isNumeric() && other.type().isNumeric()) {
-                    return ts.promote(child.type(), other.type());
-                }
-
-                if (child.type().isImplicitCastValid(other.type(), context)) {
-                    return other.type();
-                }
-
-                return child.type();
-            }
-
-            if (op == ADD && ts.typeEquals(type(), ts.String(), context)) {
-                // Implicit coercion to String. 
-                return ts.String();
-            }
-
-            if (op == GT || op == LT || op == GE || op == LE) {
-                if (child.type().isNumeric() && other.type().isNumeric()) {
-                    return ts.promote(child.type(), other.type());
-                }
-
-                return child.type();
-            }
-
-            if (op == COND_OR || op == COND_AND) {
-                return ts.Boolean();
-            }
-
-            if (op == BIT_AND || op == BIT_OR || op == BIT_XOR) {
-                if (other.type().isBoolean()) {
-                    return ts.Boolean();
-                }
-
-                if (child.type().isNumeric() && other.type().isNumeric()) {
-                    return ts.promote(child.type(), other.type());
-                }
-
-                return child.type();
-            }
-
-            if (op == ADD || op == SUB || op == MUL || op == DIV || op == MOD) {
-                if (child.type().isNumeric() && other.type().isNumeric()) {
-                    Type t = ts.promote(child.type(), other.type());
-
-                    if (ts.isImplicitCastValid(t, av.toType(), context)) {
-                        return t;
-                    }
-                    else {
-                        return av.toType();
-                    }
-                }
-
-                return child.type();
-            }
-
-            if (op == SHL || op == SHR || op == USHR) {
-                if (child.type().isNumeric() && other.type().isNumeric()) {
-                    if (child == left) {
-                        Type t = ts.promote(child.type());
-
-                        if (ts.isImplicitCastValid(t, av.toType(), context)) {
-                            return t;
-                        }
-                        else {
-                            return av.toType();
-                        }
-                    }
-                    else {
-                        return ts.promote(child.type());
-                    }
-                }
-
-                return child.type();
-            }
-
-            return child.type();
-        }
-        catch (SemanticException e) {
-        }
-
-        return child.type();
-    }
-
     /** Get the throwsArithmeticException of the expression. */
     public boolean throwsArithmeticException() {
 	// conservatively assume that any division or mod may throw

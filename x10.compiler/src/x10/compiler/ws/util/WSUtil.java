@@ -39,7 +39,6 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
-import polyglot.types.Context_c;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -680,7 +679,7 @@ public class WSUtil {
      * @return the current context's container class context;
      */
     static public Context popToClassContext(Context c){
-        while (c != null && !((Context_c)c).isClass()) {
+        while (c != null && !c.isClass()) {
             c = c.pop();
         }
         return c;

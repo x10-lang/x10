@@ -321,7 +321,7 @@ public class ClosureRemover extends ContextVisitor {
                     staticNestedClassDef.superType(Types.ref(xts.Object()));
                     staticNestedClassDef.kind(ClassDef.MEMBER);
                     staticNestedClassDef.name(staticNestedClassName.id());
-                    staticNestedClassDef.outer(Types.<ClassDef>ref(def));
+                    staticNestedClassDef.outer(Types.ref(def));
                     staticNestedClassDef.setPackage(Types.ref(context.package_()));
                     staticNestedClassDef.flags(privateStatic);
                     staticNestedClassDef.setInterfaces(cld.classDef().interfaces());

@@ -132,7 +132,7 @@ public class InlineHelper extends ContextVisitor {
         Position pos = Position.COMPILER_GENERATED;
         if (n instanceof ClassDecl) {
             ClassDecl d = (ClassDecl) n;
-            final ClassDef cd = d.classDef();
+            final X10ClassDef cd = d.classDef();
             if (prepareForInlining(cd)) {
                 List<ClassMember> members = d.body().members();
                 List<ClassMember> nmembers = new ArrayList<ClassMember>(members.size());

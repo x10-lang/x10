@@ -40,6 +40,7 @@
     <property name="x10.tests.location" location="${x10.home}/x10.tests"/>
     <property name="x10.doc.location" location="${x10.home}/x10.doc"/>
     <property name="bash.exe" value="bash"/>
+    <property name="CROSS_COMPILE_BGP" value="false" />
     <path id="project.classpath"/>
     <!-- get the environment variables -->
     <property environment="env"/>
@@ -506,13 +507,7 @@ WALA2_JAR='${wala2.jar}'
 WALA3_JAR='${wala3.jar}'
 WALA4_JAR='${wala4.jar}'
 MATH_JAR='${math.jar}'
-LPG_URL='${lpg.jar.url}'
-ECJ_URL='${ecj.jar.url}'
-WALA_URL='${wala.jar.url}'
-WALA2_URL='${wala2.jar.url}'
-WALA3_URL='${wala3.jar.url}'
-WALA4_URL='${wala4.jar.url}'
-
+CROSS_COMPILE_BGP='${CROSS_COMPILE_BGP}'
 
 </echo>
     </target>

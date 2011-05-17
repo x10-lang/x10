@@ -56,7 +56,6 @@ import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
-import x10.types.X10Context_c;
 import x10.types.X10ClassDef;
 import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
@@ -162,7 +161,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
         Position pos = position();
         Job job = tc.job();
-        X10ConstructorDef thisConstructor = ((X10Context_c)ctx).getCtorIgnoringAsync();
+        X10ConstructorDef thisConstructor = ctx.getCtorIgnoringAsync();
         X10ParsedClassType container = (X10ParsedClassType) ctx.currentClass();
         if (thisConstructor==null) {
             Errors.issue(job,
@@ -285,7 +284,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                                      new Errors.InconsistentContext(initType, pos));
                     }
                     if (c != null)
-                        known.addIn(c.substitute(prop, c.self()));
+                        known.addIn(c.instantiateSelf(prop));
                     try {
                      XTerm initVar = ts.xtypeTranslator().translate(known, initializer, ctx, false); // it cannot be top-level, because the constraint will be "prop==initVar"
                      if (initVar != null)
@@ -300,13 +299,14 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
                 // Set the return type of the enclosing constructor to be this inferred type.
                 Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
-                inferredResultType = Types.removeLocals((X10Context_c) tc.context(), inferredResultType);
+                inferredResultType = Types.removeLocals( tc.context(), inferredResultType);
                 if (! Types.consistent(inferredResultType)) {
                     Errors.issue(tc.job(), 
                                  new Errors.InconsistentType(inferredResultType, pos));
                 }
                 Ref <? extends Type> r = thisConstructor.returnType();
-                ((Ref<Type>) r).update(inferredResultType);
+               if (! r.known())  // update only if the return type not specified in the source program.
+                    ((Ref<Type>) r).update(inferredResultType);
                 // bind this==self; sup clause may constrain this.
                 if (thisVar != null) {
                     known = known.instantiateSelf(thisVar);
@@ -348,11 +348,12 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                  
                  for (Type intfc : ctype.interfaces()) {
                 	 CConstraint cc = Types.realX(intfc);
+                     cc = cc.instantiateSelf(thisVar); // for some reason, the invariant has "self" instead of this, so I fix it here.
                 	 if (thisVar != null) {
                 		 XVar intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();
                 		 cc = cc.substitute(thisVar, intfcThisVar);
                 	 }
-                	 cc = X10TypeEnv_c.ifNull(env_c.expandProperty(false,ctype,cc),cc);  // for some reason we have self in the invariant, see InterfaceTypeInvariant 
+                	 cc = X10TypeEnv_c.ifNull(env_c.expandProperty(true,ctype,cc),cc);  
                 	 final CConstraint ccc=cc;
                 	 if (!k.entails(cc, new ConstraintMaker() {
                          public CConstraint make() throws XFailure {

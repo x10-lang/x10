@@ -15,7 +15,7 @@ import x10.rtt.Types;
 
 final public class String extends x10.core.Ref implements
     x10.core.fun.Fun_0_1<java.lang.Integer, java.lang.Character>,
-    java.lang.Comparable<java.lang.String>
+    java.lang.Comparable<java.lang.String>, x10.util.Ordered
 {
 
 	private static final long serialVersionUID = 1L;
@@ -33,6 +33,26 @@ final public class String extends x10.core.Ref implements
     public java.lang.Object compareTo(final java.lang.Object a1, final x10.rtt.Type t1) {
         return compareTo((java.lang.String)a1);
     }
+
+	// dispatcher for method abstract public x10.util.Ordered.operator<(that:T):x10.lang.Boolean
+	public java.lang.Object $lt(final java.lang.Object a1, final x10.rtt.Type t1) {
+		return $lt$O((java.lang.String) a1);
+	}
+
+	// dispatcher for method abstract public x10.util.Ordered.operator>(that:T):x10.lang.Boolean
+	public java.lang.Object $gt(final java.lang.Object a1, final x10.rtt.Type t1) {
+		return $gt$O((java.lang.String) a1);
+	}
+
+	// dispatcher for method abstract public x10.util.Ordered.operator<=(that:T):x10.lang.Boolean
+	public java.lang.Object $le(final java.lang.Object a1, final x10.rtt.Type t1) {
+		return $le$O((java.lang.String) a1);
+	}
+
+	// dispatcher for method abstract public x10.util.Ordered.operator>=(that:T):x10.lang.Boolean
+	public java.lang.Object $ge(final java.lang.Object a1, final x10.rtt.Type t1) {
+		return $ge$O((java.lang.String) a1);
+	}
 
     public java.lang.String $str;
 
@@ -113,6 +133,22 @@ final public class String extends x10.core.Ref implements
     public char $apply(final int index) {
         return $str.charAt(index);
     }
+
+	public boolean $lt$O(final java.lang.String x) {
+		return $str.compareTo(x) < 0;
+	}
+
+	public boolean $gt$O(final java.lang.String x) {
+		return $str.compareTo(x) > 0;
+	}
+
+	public boolean $le$O(final java.lang.String x) {
+		return $str.compareTo(x) <= 0;
+	}
+
+	public boolean $ge$O(final java.lang.String x) {
+		return $str.compareTo(x) >= 0;
+	}
 
 //    public char charAt(final int index) {
 //        return $str.charAt(index);

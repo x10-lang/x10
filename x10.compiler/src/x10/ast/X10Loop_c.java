@@ -220,23 +220,20 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
         // Now the problem is that indexType may
         // have a non-null thisVar (e.g. Foo#this). We need to
         // replace thisVar with var.
-        if (thisVar != null)
-            try {
+        if (thisVar != null) {
+            try  {
 
                 indexType = Subst.subst(indexType, selfValue, thisVar);
                 if (generated) {
                     CConstraint c = Types.xclause(domainType);
-                    c=c.substitute(selfValue, c.self());
+                    c=c.instantiateSelf(selfValue);
                     indexType = Types.addConstraint(indexType, c);
                     assert Types.consistent(indexType);
                     indexType = Subst.subst(indexType, XTerms.makeEQV(), selfValue);
                 }
+            } catch (SemanticException z) {
 
             }
-        catch (XFailure z) {
-
-        }
-        catch (SemanticException e) {
         }
         r.update(indexType);
     }

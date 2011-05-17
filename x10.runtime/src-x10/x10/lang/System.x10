@@ -79,7 +79,7 @@ public class System {
      *
      * @return An upper bound in bytes on the size of the X10 heap allocated to the current place.
      */
-    @Native("java", "java.lang.Runtime.totalMemory()")
+    @Native("java", "java.lang.Runtime.getRuntime().totalMemory()")
     @Native("c++", "x10aux::heap_size()")
     public static native def heapSize():long;
 

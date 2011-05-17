@@ -28,31 +28,39 @@ public final class ReinstantiatedConstructorInstance extends X10ConstructorInsta
 	}
 
     public TypeParamSubst typeParamSubst() {
+        ContainerType ct = fi.container();
+        if (ct != null && ct.isClass()) {
+            TypeParamSubst dsubst = ct.toClass().def().subst();
+            if (dsubst != null) {
+                return dsubst.reinstantiate(typeParamSubst);
+            }
+        }
         return typeParamSubst;
     }
+
     @Override
     public List<Type> typeParameters() {
-        return typeParamSubst.reinstantiate(super.typeParameters());
+        return typeParamSubst().reinstantiate(super.typeParameters());
     }
 
 	@Override
 	public Ref<? extends Type> returnTypeRef() {
 		if (returnType == null)
-			return this.typeParamSubst.reinstantiate(fi.returnTypeRef());
+			return this.typeParamSubst().reinstantiate(fi.returnTypeRef());
 		return returnType;
 	}
 
 	@Override
 	public Type returnType() {
 		if (returnType == null)
-			return this.typeParamSubst.reinstantiate(fi.returnType());
+			return this.typeParamSubst().reinstantiate(fi.returnType());
 		return returnType.get();
 	}
 
 	@Override
 	public List<Type> formalTypes() {
 		if (formalTypes == null)
-			return this.typeParamSubst.reinstantiate(fi.formalTypes());
+			return this.typeParamSubst().reinstantiate(fi.formalTypes());
 		return formalTypes;
 	}
 
@@ -63,28 +71,28 @@ public final class ReinstantiatedConstructorInstance extends X10ConstructorInsta
 	@Override
 	public List<LocalInstance> formalNames() {
 		if (formalNames == null)
-		return this.typeParamSubst.reinstantiate(fi.formalNames());
+		return this.typeParamSubst().reinstantiate(fi.formalNames());
 		return formalNames;
 	}
 
 	@Override
 	public CConstraint guard() {
 		if (guard == null)
-			return this.typeParamSubst.reinstantiate(fi.guard());
+			return this.typeParamSubst().reinstantiate(fi.guard());
 		return guard;
 	}
 
 	@Override
 	public TypeConstraint typeGuard() {
 	    if (typeGuard == null)
-	        return this.typeParamSubst.reinstantiate(fi.typeGuard());
+	        return this.typeParamSubst().reinstantiate(fi.typeGuard());
 	    return typeGuard;
 	}
 
 	@Override
 	public ContainerType container() {
 		if (container == null)
-			return this.typeParamSubst.reinstantiate(fi.container());
+			return this.typeParamSubst().reinstantiate(fi.container());
 		return container;
 	}
 }

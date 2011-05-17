@@ -73,7 +73,7 @@ public class WSClosureFrameClassGen extends WSRegularFrameClassGen {
     
 
     public WSClosureFrameClassGen(Job job, NodeFactory xnf, Context xct,
-    		Closure closure, ClassDef containerClassDef, WSTransformState wts) {
+    		Closure closure, X10ClassDef containerClassDef, WSTransformState wts) {
     
         super(job, xnf, xct, wts, WSUtil.getClosureBodyClassName(closure),
              closure.body(), containerClassDef,

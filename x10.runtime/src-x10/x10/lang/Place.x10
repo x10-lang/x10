@@ -32,12 +32,12 @@ public final struct Place(id: Int)  {
      */
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_places")
-    public static ALL_PLACES:Int = 4;
+    public static ALL_PLACES: Int = 4;
 
     /** The number of places not including accelerators. */
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_hosts")
-    public static MAX_PLACES:Int = 4;
+    public static MAX_PLACES: Int = 4;
 
     /** The number of accelerators. */
     public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
@@ -203,6 +203,15 @@ public final struct Place(id: Int)  {
     public def equals(p:Place) = p.id==this.id;
     public def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
     public def hashCode()=id;
+
+    
+    /**
+     * Converts a GlobalRef to its home.
+     */
+    @Native("java", "(#r).home")
+    @Native("c++", "x10::lang::Place::place((#r)->location)")
+    public static native operator[T] (r:GlobalRef[T]){T <: Object}: Place{self==r.home};
+
 }
 public type Place(id:Int) = Place{self.id==id};
 public type Place(p:Place) = Place{self==p};

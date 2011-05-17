@@ -164,6 +164,8 @@ namespace x10aux {
     char *get_congruent_size();
     bool get_congruent_huge();
 
+    size_t get_remote_op_batch();
+
     extern x10_int here;
     extern bool x10rt_initialized;
 }

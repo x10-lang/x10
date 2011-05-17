@@ -39,6 +39,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
+import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
@@ -46,6 +47,7 @@ import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.types.MemberDef;
@@ -57,6 +59,7 @@ import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.util.CollectionUtil; import polyglot.visit.CFGBuildError;
+import polyglot.visit.ContextVisitor;
 import x10.util.CollectionFactory;
 import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
@@ -64,6 +67,7 @@ import x10.ast.DepParameterExpr;
 import x10.ast.SettableAssign;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldDecl;
+import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.ConstrainedType;
@@ -181,14 +185,18 @@ public class Errors {
 	}
     public static class InnerDeclaredStatic extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 1937596402969387888L;
-		public InnerDeclaredStatic(ClassType type, Position p) {
-			super("Inner classes cannot declare static member classes.", p);
+		public InnerDeclaredStatic(ClassType type, ClassType container, Position p) {
+			super("Inner and local classes cannot declare static member classes."
+	              + "\n\t Member: " + type.toString()
+	              + "\n\t Container: " + container.toString(), p);
 		}
 	}
     public static class InnerDeclaredInterface extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -7633854120689783816L;
-		public InnerDeclaredInterface(ClassType type, Position p) {
-			super("Inner classes cannot declare member interfaces.", p);
+		public InnerDeclaredInterface(ClassType type, ClassType container, Position p) {
+			super("Inner and local classes cannot declare member interfaces."
+			      + "\n\t Interface: " + type.toString()
+			      + "\n\t Container: " + container.toString(), p);
 		}
 	}
     public static class SameNameLocal extends EqualByTypeAndPosException {
@@ -218,14 +226,66 @@ public class Errors {
 
 	public static class CannotAssign extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -4243637083971033996L;
-		public CannotAssign(Expr expr, Type targetType, Position pos) {
+		CannotAssign(Expr expr, Type targetType, Position pos) {
 			super("Cannot assign expression to target."
 					+ "\n\t Expression: " + expr
 					+ "\n\t Expected type: " + targetType
 					+ "\n\t Found type: " + expr.type()
 					, pos);
 		}
+		CannotAssign(Expr expr, Type bType, Type btargetType, Position pos) {
+            super("Cannot assign expression to target; base types are incompatible."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Expected base type: " + btargetType
+                    + "\n\t Found base type: " + bType
+                    , pos);
+        }
+		CannotAssign(Expr expr, Type type, XConstraint con, Position pos) {
+            super("Cannot assign expression to target; constraints not satisfied."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Type: " + type
+                    + "\n\t Unsatisfied constraints: " + con
+                    , pos);
+        }
+		public static CannotAssign make(Expr expr, Type targetType, ContextVisitor tc, Position pos) {
+		    Type type = expr.type(), bType = Types.baseType(type), bTargetType = Types.baseType(targetType);
+		    TypeSystem ts = tc.typeSystem();
+		    if (! ts.isSubtype(bType, bTargetType, tc.context()))
+		        return new CannotAssign(expr, bType, bTargetType, pos);
+		    // base types are compatible, constraints are not.
+		    CConstraint 
+		    c = Types.xclause(type), 
+		    d = Types.xclause(targetType);
+		    XConstraint residue = c.residue(d);
+		    
+		    
+		    return new CannotAssign(expr, type, residue, pos);
+		}
 	}
+	public static class NewIncompatibleType extends EqualByTypeAndPosException {
+        private static final long serialVersionUID = 5076152155527158732L;
+	    NewIncompatibleType(Expr expr, Type bType, XConstraint con, Position pos) {
+            super("Return type of resolved constructor does not satisfy given constraints."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Type: " + bType
+                    + "\n\t Unsatisfied constraints: " + con
+                    , pos);
+        }
+        public static NewIncompatibleType make(Expr expr, Type targetType, ContextVisitor tc, Position pos) {
+            Type type = expr.type(), bType = Types.baseType(type), bTargetType = Types.baseType(targetType);
+            TypeSystem ts = tc.typeSystem();
+            assert (ts.isSubtype(bType, bTargetType, tc.context()));
+           //     return new NewIncompatibleType(expr, bType, bTargetType, pos);
+            // base types are compatible, constraints are not.
+            CConstraint 
+            c = Types.xclause(type), 
+            d = Types.xclause(targetType);
+            XConstraint residue = c.residue(d);
+            
+            
+            return new NewIncompatibleType(expr, type, residue, pos);
+        }
+    }
 	public static class FieldInitTypeWrong extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 4778277210134359519L;
 		public FieldInitTypeWrong(Expr expr, Type targetType, Position pos) {
@@ -413,14 +473,6 @@ public class Errors {
 			super("Nested structs must be declared static.  This is a limitation of the current implementation."
 					+ "\n\t Struct: " + cd.name(),
 					cd.position());
-		}
-	}
-	public static class NewOfStructNotPermitted extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = 2484875712265904017L;
-		public NewOfStructNotPermitted(New n) {
-			super("Struct constructor invocations must not use \"new\"."
-					+ "\n\t Struct: " + n.toString(),
-					n.position());
 		}
 	}
 	public static class InstanceofError extends EqualByTypeAndPosException {
@@ -702,13 +754,37 @@ public class Errors {
 	    }
 	}
 	public static class CannotReturnExpr extends EqualByTypeAndPosException {
-		private static final long serialVersionUID = 211999857915638603L;
-		public CannotReturnExpr(Type type,  Type returnType, Position pos) {
-	        super("Cannot return expression of given type."
-	        		+ "\n\t type: " + type
-	        		+ "\n\t desired Type:" + returnType, pos);
-	    }
-	}
+	    private static final long serialVersionUID = 211999857915638603L;
+	    CannotReturnExpr(Expr expr, Type bType, Type btargetType, Position pos) {
+            super("Cannot return expression; base type incompatible with method return type."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Base type: " + bType
+                    + "\n\t Expected base type: " + btargetType
+                    , pos);
+        }
+	    CannotReturnExpr(Expr expr, Type type, XConstraint con, Position pos) {
+            super("Cannot return expression; constrants not satisfied."
+                    + "\n\t Expression: " + expr
+                    + "\n\t Type: " + type
+                    + "\n\t Unsatisfied constraints: " + con
+                    , pos);
+        }
+        public static CannotReturnExpr make(Expr expr, Type targetType, ContextVisitor tc, Position pos) {
+            Type type = expr.type(), bType = Types.baseType(type), bTargetType = Types.baseType(targetType);
+            TypeSystem ts = tc.typeSystem();
+            if (! ts.isSubtype(bType, bTargetType, tc.context()))
+                return new CannotReturnExpr(expr, bType, bTargetType, pos);
+            // base types are compatible, constraints are not.
+            CConstraint 
+            c = Types.xclause(type), 
+            d = Types.xclause(targetType);
+            XConstraint residue = c.residue(d);
+            
+            
+            return new CannotReturnExpr(expr, type, residue, pos);
+        }
+    }
+	
 	public static class ArrayLiteralMustBeOfArrayType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 3059270665285777371L;
 		public ArrayLiteralMustBeOfArrayType(String typeName,   Position pos) {
@@ -733,9 +809,13 @@ public class Errors {
 	        		"\n\t desired type: " + placeType, pos);
 	    }
 	}
-	
-	
-	
+
+	public static class CannotUseHereInThisContext extends EqualByTypeAndPosException {
+	    private static final long serialVersionUID = -2736877234203434252L;
+	    public CannotUseHereInThisContext(Position pos) {
+	        super("Cannot use \"here\" in this context", pos);
+	    }
+	}
 
 	public static class CannotAssignValueToFinalField extends EqualByTypeAndPosException {
 		
@@ -823,28 +903,28 @@ public class Errors {
 			super("Interface methods must be public.", p);
 		}
 	}
-	public static class InterfaceMethodsCannobBeStatic extends EqualByTypeAndPosException {
+	public static class InterfaceMethodsCannotBeStatic extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = 4347802795939587694L;
 
-		public InterfaceMethodsCannobBeStatic(Position p) {
+		public InterfaceMethodsCannotBeStatic(Position p) {
 			super("Interface methods cannot be static.", p);
 		}
 	}
 	public static class InnerClassCannotDeclareStaticFields extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 3312267938190028022L;
-
-		public InnerClassCannotDeclareStaticFields(Position p) {
-			super("Inner classes cannot declare static fields, unless they are compile-time constant fields.", p);
+		public InnerClassCannotDeclareStaticFields(FieldDef fd, ClassType container, Position p) {
+			super("Inner and local classes cannot declare static fields, unless they are compile-time constant fields."
+			      + "\n\t Field: " + fd.toString()
+			      + "\n\t Container: " + container.toString(), p);
 		}
 	}
-	public static class InnerClassesCannotDeclareStaticMethod extends EqualByTypeAndPosException {
-		
+	public static class InnerClassesCannotDeclareStaticMethods extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 7722988292280217208L;
-
-		public InnerClassesCannotDeclareStaticMethod(Position p) {
-			super("Inner classes cannot declare static methods.", p);
+		public InnerClassesCannotDeclareStaticMethods(MethodDef md, ClassType container, Position p) {
+			super("Inner and local classes cannot declare static methods."
+	              + "\n\t Method: " + md.toString()
+	              + "\n\t Container: " + container.toString(), p);
 		}
 	}
 	public static class MissingMethodBody extends EqualByTypeAndPosException {
@@ -1283,20 +1363,28 @@ public class Errors {
 		}
 	}
 	public static class CannotInferFieldType extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = -8796440936111998457L;
-
 		public CannotInferFieldType(Position p) {
 			super("Cannot infer field type; field has no initializer.", p);
 		}
 	}
 	public static class CannotInferNonFinalFieldType extends EqualByTypeAndPosException {
-		
 		private static final long serialVersionUID = 5501955726545364951L;
-
 		public CannotInferNonFinalFieldType(Position p) {
 			super("Cannot infer type of non-final fields.", p);
 		}
+	}
+	public static class CannotInferNativeFieldType extends EqualByTypeAndPosException {
+        private static final long serialVersionUID = -1957463133947941268L;
+        public CannotInferNativeFieldType(Position p) {
+	        super("Cannot infer type of native fields.", p);
+	    }
+	}
+	public static class CannotInferNativeMethodReturnType extends EqualByTypeAndPosException {
+        private static final long serialVersionUID = 1285634999428441833L;
+        public CannotInferNativeMethodReturnType(Position p) {
+	        super("Cannot infer return type of native methods.", p);
+	    }
 	}
 	public static class CannotDeclareStaticNonFinalField extends EqualByTypeAndPosException {
 		
@@ -1374,7 +1462,7 @@ public class Errors {
 		private static final long serialVersionUID = -7354209819609788973L;
 
 		public LocalVariableAccessedFromInnerClass(Name liName, Position p) {
-			super("Local variable is accessed from an inner class or a closure, and must be declared final." +
+			super("Local variable is accessed from an inner class or a closure, and must be val." +
 					"\n\t Local variable name: " + liName, p);
 		}
 	}
@@ -1392,7 +1480,7 @@ public class Errors {
 		private static final long serialVersionUID = 5809300848963559701L;
 
 		public LocalVariableAccessedAtDifferentPlace(Name liName, Position p) {
-			super("Local variable is accessed at a different place, and therefore it must be initialized and declared final." +
+			super("Local variable is accessed at a different place, and therefore it must be an initialized val." +
 					"\n\t Variable name: " + liName, p);
 		}
 	}
@@ -1588,7 +1676,7 @@ public class Errors {
 		private static final long serialVersionUID = 8988805819997786489L;
 
 		public MustHaveSameClassAsContainer(Position p) {
-            super("The return type or the formal type of an explicit or implicit operator 'as' " +
+            super("The return type of an explicit or implicit operator 'as' " +
             		"must have the same class as the container.", p);
         }
     }
@@ -2043,5 +2131,11 @@ public class Errors {
 					+ "\n\t Expansion: " + t, p);
 					
 		}
+    }
+    public static class ArrayExplosionError extends EqualByTypeAndPosException {
+        private static final long serialVersionUID = 2851042936446059831L;
+        public ArrayExplosionError(int n, Position pos) {
+            super("Array argument must have constraint {rank==1,size=" + n + "}.", pos);
+        }
     }
 }

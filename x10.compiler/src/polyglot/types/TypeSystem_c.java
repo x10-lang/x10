@@ -42,7 +42,6 @@ import x10.types.ThisInstance_c;
 import x10.types.TypeDefMatcher;
 import x10.types.TypeParamSubst;
 import x10.types.X10ConstructorInstance_c;
-import x10.types.X10Context_c;
 import x10.types.X10FieldDef_c;
 import x10.types.X10FieldInstance_c;
 import x10.types.X10LocalDef_c;
@@ -70,6 +69,7 @@ import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
 
 import x10.types.XTypeTranslator;
+import x10.types.X10ProcedureInstance;
 import x10.types.XTypeTranslator.XTypeLit;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
@@ -1046,15 +1046,19 @@ public class TypeSystem_c implements TypeSystem
     	return false;
     }
 
-    public static abstract class ConstructorMatcher extends BaseMatcher<ConstructorInstance> {
-	protected Type container;
-	protected List<Type> argTypes;
-	protected Context context;
+    public static class ConstructorMatcher extends BaseMatcher<ConstructorInstance> {
+	protected final Type container;
+	public final List<Type> argTypes;
+    public final List<Type> typeArgs;
+	protected final Context context;
+    public final boolean isDumbMatcher;
 
-	protected ConstructorMatcher(Type receiverType, List<Type> argTypes, Context context) {
+	protected ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher) {
 	    super();
-	    this.container = receiverType;
+	    this.container = container;
 	    this.argTypes = argTypes;
+	    this.typeArgs = typeArgs;
+	    this.isDumbMatcher = isDumbMatcher;
 	    this.context = context;
 	}
 
@@ -1074,9 +1078,30 @@ public class TypeSystem_c implements TypeSystem
 	    return container + argumentString();
 	}
 
-	public abstract ConstructorInstance instantiate(ConstructorInstance ci) throws SemanticException;
+    public List<Type> arguments() {
+        return argTypes;
+    }
 
-	public abstract String argumentString();
+    public String argumentString() {
+        return "(" + CollectionUtil.listToString(argTypes) + ")";
+    }
+
+    public ConstructorInstance instantiate(ConstructorInstance ci) throws SemanticException {
+        if (ci.formalTypes().size() != argTypes.size())
+            return null;
+        if (ci instanceof X10ConstructorInstance) {
+            X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
+            Type c = container != null ? container : xmi.container();
+
+            if (isDumbMatcher) {
+                X10ConstructorInstance newXmi = x10.types.matcher.Matcher.instantiate((Context) context, xmi, c, Collections.<Type>emptyList(), argTypes);
+                return newXmi;
+            }
+            return x10.types.matcher.Matcher.inferAndCheckAndInstantiate(context(),
+                    xmi, c, Collections.<Type>emptyList(), argTypes, ci.position());
+        }
+        return null;
+    }
 
 	public String toString() {
 	    return signature();
@@ -1089,11 +1114,11 @@ public class TypeSystem_c implements TypeSystem
 
     public static class MethodMatcher extends BaseMatcher<MethodInstance> implements Cloneable {
 	protected Type container;
-	protected Name name;
-	protected List<Type> argTypes;
-    protected List<Type> typeArgs;
-	protected Context context;
-    protected boolean isDumbMatcher;
+	protected final Name name;
+	protected final List<Type> argTypes;
+    protected final List<Type> typeArgs;
+	protected final Context context;
+    protected final boolean isDumbMatcher;
 
 	protected MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher) {
 	    super();
@@ -1609,60 +1634,11 @@ public class TypeSystem_c implements TypeSystem
 
         // Collected all methods, now let's filter them
         List<Type> typeParams = matcher.typeArgs;
-        int typeParamNum = typeParams.size();
         List<Type> argTypes = matcher.argTypes;
-        int argNum = argTypes.size();
+        boolean isDumbMatcher = matcher.isDumbMatcher;
 
         SemanticException error = null;
-        List<MethodInstance> resolved = new ArrayList<MethodInstance>();
-
-        for (MethodInstance mi : allMethods) {
-            List<Type> formals = mi.formalTypes();
-            if (mi.name()!=name) continue;
-            if (argNum !=formals.size()) continue;
-            List<ParameterType> miTypeParams = (List<ParameterType>)(List)mi.typeParameters();
-            int miTypeParamNum = miTypeParams.size();
-            if (typeParamNum!=0 && typeParamNum!=miTypeParamNum) continue;
-
-
-            boolean isOk = true;
-            if (!matcher.isDumbMatcher) {
-                // handle type param
-                // def m[H](H)
-                TypeParamSubst subst = null;
-                List<Type> tmp_typeParams = typeParams;
-                if (miTypeParamNum!=0 && typeParamNum==0) {
-                    // infer typeParams
-                    Type c = container != null ? container : mi.container();
-                    try {
-                        Type[] Y = TypeConstraint.inferTypeArguments(mi, c, argTypes, formals, (List<Type>)(List)miTypeParams, context);
-                        assert Y.length==miTypeParamNum;
-                        for (int k=0; k<miTypeParamNum; k++)
-                            Y[k] = Types.stripConstraints(Y[k]);
-                        tmp_typeParams = Arrays.asList(Y);
-                    } catch (SemanticException e) {
-                        continue;
-                    }
-                }
-                if (tmp_typeParams.size()!=0) {
-                    subst = new TypeParamSubst(this, tmp_typeParams, miTypeParams);
-                }
-
-                for (int p=0; p<argNum;p++) {
-                    Type arg = Types.stripConstraints(argTypes.get(p));
-                    Type formal = Types.stripConstraints(formals.get(p));
-                    if (subst!=null)
-                        formal = subst.reinstantiate(formal);
-
-                    if (!isSubtype(arg, formal, context)) {
-                        isOk = false;
-                        break;
-                    }
-                }
-            }
-            if (isOk)
-                resolved.add(mi);
-        }
+        List<MethodInstance> resolved = resolveProcedure(container, context, allMethods, typeParams, argTypes, isDumbMatcher);
 
         List<MethodInstance> acceptable = new ArrayList<MethodInstance>();
 		for (MethodInstance mi : resolved)	{
@@ -1700,6 +1676,84 @@ public class TypeSystem_c implements TypeSystem
         }
 
         return acceptable;
+    }
+
+    public static <D extends ProcedureDef, T extends X10ProcedureInstance<D> & MemberInstance<D>> List<T> resolveProcedure(Type container, Context context, List<T> allMethods, List<Type> typeParams, List<Type> argTypes, boolean dumbMatcher) {
+        int typeParamNum = typeParams.size();
+        int argNum = argTypes.size();
+        List<T> resolved = new ArrayList<T>();
+        TypeSystem ts = context.typeSystem();
+
+        for (T mi : allMethods) {
+            List<Type> formals = mi.formalTypes();
+            if (argNum !=formals.size()) continue;
+            List<ParameterType> miTypeParams = (List<ParameterType>)(List)mi.typeParameters();
+            int miTypeParamNum = miTypeParams.size();
+            if (typeParamNum!=0 && typeParamNum!=miTypeParamNum) continue;
+
+
+            boolean isOk = true;
+            if (!dumbMatcher) {
+                // handle type param
+                // def m[H](H)
+                TypeParamSubst subst = null;
+                List<Type> tmp_typeParams = typeParams;
+                if (miTypeParamNum!=0 && typeParamNum==0) {
+                    // infer typeParams
+                    Type c = container != null ? container : mi.container();
+                    try {
+                        Type[] Y = TypeConstraint.inferTypeArguments(mi, c, argTypes, formals, (List<Type>)(List)miTypeParams, context);
+                        assert Y.length==miTypeParamNum;
+                        for (int k=0; k<miTypeParamNum; k++)
+                            Y[k] = Types.stripConstraints(Y[k]);
+                        tmp_typeParams = Arrays.asList(Y);
+                    } catch (SemanticException e) {
+                        continue;
+                    }
+                }
+                if (tmp_typeParams.size()!=0) {
+                    subst = new TypeParamSubst(ts, tmp_typeParams, miTypeParams);
+                }
+
+                for (int p=0; p<argNum;p++) {
+                    Type arg = argTypes.get(p);
+                    Type formal = formals.get(p);
+
+                    if (subst!=null)
+                        formal = subst.reinstantiate(formal);
+
+                    if (!isSubtypeIgnoringConstraints(arg, formal, context)) {
+                        isOk = false;
+                        break;
+                    }
+                }
+            }
+            if (isOk)
+                resolved.add(mi);
+        }
+        return resolved;
+    }
+    private static boolean isSubtypeIgnoringConstraints(Type arg, Type formal, Context context) {
+        arg = Types.stripConstraints(arg);
+        formal = Types.stripConstraints(formal);
+
+        TypeSystem ts = context.typeSystem();
+        // stripConstraints doesn't work for closure types
+        // to get a more precise error message because I cannot strip constraints from closures
+        if (arg instanceof FunctionType && formal instanceof FunctionType) {
+            FunctionType argF = (FunctionType) arg;
+            FunctionType formalF = (FunctionType) formal;
+            List<Type> argA = argF.argumentTypes();
+            List<Type> formalA = formalF.argumentTypes();
+            if (formalA.size()!=argA.size()) return false;
+            if (!isSubtypeIgnoringConstraints(argF.returnType(), formalF.returnType(), context))
+                return false;
+            for (int i=0; i<formalA.size(); i++)
+                if (!isSubtypeIgnoringConstraints(formalA.get(i), argA.get(i), context))
+                    return false;
+            return true;
+        } else
+            return ts.isSubtype(arg, formal, context);
     }
 
     /**
@@ -1743,7 +1797,7 @@ public class TypeSystem_c implements TypeSystem
      * Requires: all type arguments are canonical.
      * Returns the least common ancestor of Type1 and Type2
      **/
-    public Type leastCommonAncestor(Type type1, Type type2, Context context) throws SemanticException {
+    public Type leastCommonAncestor(Type type1, Type type2, Context context) {
         assert_(type1);
         assert_(type2);
         return env(context).leastCommonAncestor(type1, type2);
@@ -1816,12 +1870,15 @@ public class TypeSystem_c implements TypeSystem
     }
 
 
-    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
-        return new X10ConstructorMatcher(container, argTypes, context);
+    public ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
+        return new ConstructorMatcher(container, Collections.EMPTY_LIST, argTypes, context, false);
     }
 
-    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        return new X10ConstructorMatcher(container, typeArgs, argTypes, context);
+    public ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
+        return new ConstructorMatcher(container, typeArgs, argTypes, context, false);
+    }
+    public ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context, boolean isDumbMatcher) {
+        return new ConstructorMatcher(container, typeArgs, argTypes, context, isDumbMatcher);
     }
 
     /** Return true if t overrides mi */
@@ -2301,6 +2358,10 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public X10ClassType ClassCastException() {
+        return FailedDynamicCheckException();
+    }
+
+    public X10ClassType FailedDynamicCheckException() {
         return load("x10.lang.FailedDynamicCheckException");
     }
 
@@ -2690,7 +2751,7 @@ public class TypeSystem_c implements TypeSystem
 		QName name = getTransformedClassName(ct);
 
 		TypeSystem_c ts = this;
-		LazyRef<ClassDef> sym = Types.lazyRef((ClassDef) unknownClassDef(), null);
+		LazyRef<X10ClassDef> sym = Types.lazyRef( unknownClassDef(), null);
 		Goal resolver = extInfo.scheduler().LookupGlobalTypeDef(sym, name);
 		resolver.update(Goal.Status.SUCCESS);
 		sym.setResolver(resolver);
@@ -2940,7 +3001,7 @@ public class TypeSystem_c implements TypeSystem
 	                            name + "\".");
     }
 
-    public final ClassDef createClassDef() {
+    public final X10ClassDef createClassDef() {
 	return createClassDef((Source) null);
     }
 
@@ -2948,7 +3009,7 @@ public class TypeSystem_c implements TypeSystem
         return new X10ClassDef_c(this, fromSource);
     }
 
-    public X10ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def) {
+    public X10ParsedClassType createClassType(Position pos, Ref<? extends X10ClassDef> def) {
         return new X10ParsedClassType_c(this, pos, def);
     }
 
@@ -3839,7 +3900,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public Context emptyContext() {
-        return new X10Context_c(this);
+        return new Context(this);
     }
 
     public boolean isArray(Type t) {

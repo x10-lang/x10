@@ -9,12 +9,14 @@ package polyglot.types;
 
 import java.util.List;
 
+import x10.types.X10ClassDef;
+
 /**
  * A <code>ClassType</code> represents a class, either loaded from a
  * classpath, parsed from a source file, or obtained from other source.
  * A <code>ClassType</code> is not necessarily named.
  */
-public interface ClassType extends Importable, ObjectType, MemberInstance<ClassDef>, Use<ClassDef>
+public interface ClassType extends Importable, ObjectType, MemberInstance<X10ClassDef>, Use<X10ClassDef>
 {
     ClassType flags(Flags flags);
     ClassType container(ContainerType container);

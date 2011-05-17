@@ -27,7 +27,7 @@ import x10.compiler.Mutable;
 
     @Native("java", "new x10.core.Vec<#U$box>(#U$rtt, #s)")
     @Native("c++", "x10::util::NativeVec<#U, #s>(#s)")
-    public static def make[U](s:Int) {U haszero} = new Vec[U](s);
+    public static def make[U](s:Int) {U haszero}: Vec[U]{self.size==s} = new Vec[U](s);
 
     @Native("java", "#this.get(#i)")
     @Native("c++", "#this.get(#i)")

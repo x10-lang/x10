@@ -22,6 +22,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.main.Options;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
@@ -35,11 +36,12 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.types.ParameterType;
@@ -185,7 +187,11 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                                 isOk = true;
                         }
                         if (!isOk) {
-                            Warnings.issue(tc.job(), "This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.", position);
+                            final ExtensionInfo extensionInfo = (ExtensionInfo) tc.job().extensionInfo();
+                            X10CompilerOptions opts = extensionInfo.getOptions();
+                            if (opts.x10_config.VERBOSE) { // it used to be VERBOSE_CHECKS, but then how do I get this error if I want to run with STATIC_CHECKS???
+                                Warnings.issue(tc.job(), "This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.", position);
+                            }
                         }
                     }
                 }
@@ -237,24 +243,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         return succs;
     }
     
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == expr) {
-            if (castType.type().isReference()) {
-                return ts.Object();
-            }
-            else if (castType.type().isNumeric()) {
-                return ts.Double();
-            }
-            else if (castType.type().isBoolean()) {
-                return ts.Boolean();
-            }
-        }
-
-        return child.type();
-    }
-    
     /** Visit the children of the expression. */
     public Node visitChildren(NodeVisitor v) {
     	TypeNode castType = (TypeNode) visitChild(this.castType, v);
@@ -265,7 +253,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     public boolean isConstant() {
         if (!expr.isConstant()) return false;
         if (castType.type().isNumeric()) return true;
-        if (castType.type().typeSystem().isAny(Types.baseType(castType.type()))) return false; // FIXME: because constantValue method below doesn't know how to correctly handle this case
+        if (expr.type().isNumeric() || expr.type().isChar()) return false; // FIXME: because constantValue method below doesn't know how to correctly handle this case
         return expr.type().isSubtype(castType.type(), expr.type().typeSystem().emptyContext());
     }
         
@@ -276,61 +264,65 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     	    return null;
     	}
     	
-    	if (v instanceof Boolean) {
-    		if (castType.type().isBoolean()) return v;
-    	}
+    	Type cType = castType.type();
     	
-    	if (v instanceof String) {
-    		TypeSystem ts = castType.type().typeSystem();
-    		if (ts.String().isSubtype(castType.type(), ts.emptyContext())) return v;
+    	if (v instanceof Boolean) {
+    		if (cType.isBoolean()) return v;
     	}
     	
     	if (v instanceof Double) {
     		double vv = ((Double) v).doubleValue();
     		
-    		if (castType.type().isDouble()) return Double.valueOf((double) vv);
-    		if (castType.type().isFloat()) return Float.valueOf((float) vv);
-    		if (castType.type().isLong()) return Long.valueOf((long) vv);
-    		if (castType.type().isInt()) return Integer.valueOf((int) vv);
-    		if (castType.type().isChar()) return Character.valueOf((char) vv);
-    		if (castType.type().isShort()) return Short.valueOf((short) vv);
-    		if (castType.type().isByte()) return Byte.valueOf((byte) vv);
+    		if (cType.isDouble()) return Double.valueOf((double) vv);
+    		if (cType.isFloat()) return Float.valueOf((float) vv);
+    		if (cType.isLong()) return Long.valueOf((long) vv);
+    		if (cType.isInt()) return Integer.valueOf((int) vv);
+    		if (cType.isChar()) return Character.valueOf((char) vv);
+    		if (cType.isShort()) return Short.valueOf((short) vv);
+    		if (cType.isByte()) return Byte.valueOf((byte) vv);
     	}
     	
     	if (v instanceof Float) {
     		float vv = ((Float) v).floatValue();
     		
-    		if (castType.type().isDouble()) return Double.valueOf((double) vv);
-    		if (castType.type().isFloat()) return Float.valueOf((float) vv);
-    		if (castType.type().isLong()) return Long.valueOf((long) vv);
-    		if (castType.type().isInt()) return Integer.valueOf((int) vv);
-    		if (castType.type().isChar()) return Character.valueOf((char) vv);
-    		if (castType.type().isShort()) return Short.valueOf((short) vv);
-    		if (castType.type().isByte()) return Byte.valueOf((byte) vv);
+    		if (cType.isDouble()) return Double.valueOf((double) vv);
+    		if (cType.isFloat()) return Float.valueOf((float) vv);
+    		if (cType.isLong()) return Long.valueOf((long) vv);
+    		if (cType.isInt()) return Integer.valueOf((int) vv);
+    		if (cType.isChar()) return Character.valueOf((char) vv);
+    		if (cType.isShort()) return Short.valueOf((short) vv);
+    		if (cType.isByte()) return Byte.valueOf((byte) vv);
     	}
 
     	if (v instanceof Number) {
     		long vv = ((Number) v).longValue();
     		
-    		if (castType.type().isDouble()) return Double.valueOf((double) vv);
-    		if (castType.type().isFloat()) return Float.valueOf((float) vv);
-    		if (castType.type().isLong()) return Long.valueOf((long) vv);
-    		if (castType.type().isInt()) return Integer.valueOf((int) vv);
-    		if (castType.type().isChar()) return Character.valueOf((char) vv);
-    		if (castType.type().isShort()) return Short.valueOf((short) vv);
-    		if (castType.type().isByte()) return Byte.valueOf((byte) vv);
+    		if (cType.isDouble()) return Double.valueOf((double) vv);
+    		if (cType.isFloat()) return Float.valueOf((float) vv);
+    		if (cType.isLong()) return Long.valueOf((long) vv);
+    		if (cType.isInt()) return Integer.valueOf((int) vv);
+    		if (cType.isChar()) return Character.valueOf((char) vv);
+    		if (cType.isShort()) return Short.valueOf((short) vv);
+    		if (cType.isByte()) return Byte.valueOf((byte) vv);
+    	}
+    	
+    	TypeSystem ts = cType.typeSystem();
+    	Context emptyContext = ts.emptyContext();
+    	
+    	if (v instanceof String) {
+    	    if (ts.String().isSubtype(cType, emptyContext)) return v;
     	}
     	
     	if (v instanceof Character) {
     		char vv = ((Character) v).charValue();
     		
-    		if (castType.type().isDouble()) return Double.valueOf((double) vv);
-    		if (castType.type().isFloat()) return Float.valueOf((float) vv);
-    		if (castType.type().isLong()) return Long.valueOf((long) vv);
-    		if (castType.type().isInt()) return Integer.valueOf((int) vv);
-    		if (castType.type().isChar()) return Character.valueOf((char) vv);
-    		if (castType.type().isShort()) return Short.valueOf((short) vv);
-    		if (castType.type().isByte()) return Byte.valueOf((byte) vv);
+    		if (cType.isDouble()) return Double.valueOf((double) vv);
+    		if (cType.isFloat()) return Float.valueOf((float) vv);
+    		if (cType.isLong()) return Long.valueOf((long) vv);
+    		if (cType.isInt()) return Integer.valueOf((int) vv);
+    		if (cType.isChar()) return Character.valueOf((char) vv);
+    		if (cType.isShort()) return Short.valueOf((short) vv);
+    		if (cType.isByte()) return Byte.valueOf((byte) vv);
     	}
 
     	// Not null, but we can't figure out what to do with it.

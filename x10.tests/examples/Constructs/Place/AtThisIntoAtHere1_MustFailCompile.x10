@@ -24,7 +24,21 @@ import harness.x10Test;
 public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
     class Test {
         private val x:GlobalRef[Test] = GlobalRef[Test](this);
-        private val y:GlobalRef[Test]{self.home==x.home} = GlobalRef[Test](this); // ShouldNotBeERR
+        private val y:GlobalRef[Test]{self.home==x.home} = GlobalRef[Test](this); // ERR
+
+        def n() {
+            val p = Place.place(1);
+            at (x) {
+                at (p) {
+                    // this is not ok because of the place shift.
+                    y(); // ERR
+                }
+            }
+        }
+    }
+    class Test1 {
+        private val x = GlobalRef[Test1](this);
+        private val y:GlobalRef[Test1]{self.home==x.home} = GlobalRef[Test1](this);
 
         def n() {
             val p = Place.place(1);
@@ -37,8 +51,8 @@ public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
         }
     }
     class Test2 {
-        private val x:GlobalRef[Test2]{self.home==here} = GlobalRef[Test2](this);
-        private val y:GlobalRef[Test2]{self.home==here} = GlobalRef[Test2](this);
+        private val x:GlobalRef[Test2]{self.home==here} = GlobalRef[Test2](this); // ERR: Cannot use "here" in this context
+        private val y:GlobalRef[Test2]{self.home==here} = GlobalRef[Test2](this); // ERR: Cannot use "here" in this context
 
         def n() {
             val p = Place.place(1);

@@ -89,16 +89,6 @@ public class Synchronized_c extends Stmt_c implements Synchronized
 	return this;
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == expr) {
-            return ts.Object();
-        }
-
-        return child.type();
-    }
-
     public String toString() {
 	return "synchronized (" + expr + ") { ... }";
     }

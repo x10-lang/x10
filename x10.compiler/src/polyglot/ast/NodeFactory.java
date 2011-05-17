@@ -56,11 +56,6 @@ public interface NodeFactory
     AmbReceiver AmbReceiver(Position pos, Prefix prefix, Id name);
     Receiver ReceiverFromQualifiedName(Position pos, QName qualifiedName);
     
-    // package or type
-    AmbQualifierNode AmbQualifierNode(Position pos, Id name);
-    AmbQualifierNode AmbQualifierNode(Position pos, Prefix qual, Id name);
-    QualifierNode QualifierNodeFromQualifiedName(Position pos, QName qualifiedName);
-    
     // package or type or expr
     AmbPrefix AmbPrefix(Position pos, Id name);
     AmbPrefix AmbPrefix(Position pos, Prefix prefix, Id name);
@@ -68,7 +63,6 @@ public interface NodeFactory
     
     AmbTypeNode AmbTypeNode(Position pos, Id name);
     AmbTypeNode AmbTypeNode(Position pos, Prefix qualifier, Id name);
-    TypeNode TypeNodeFromQualifiedName(Position pos, QName qualifiedName);
     
     ArrayTypeNode ArrayTypeNode(Position pos, TypeNode base);
     CanonicalTypeNode CanonicalTypeNode(Position pos, Type type);

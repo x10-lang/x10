@@ -91,11 +91,17 @@ public class Case_c extends Stmt_c implements Case
 
 	TypeSystem ts = tc.typeSystem();
 
-	if (! ts.isImplicitCastValid(expr.type(), ts.Int(), tc.context()) && ! ts.isImplicitCastValid(expr.type(), ts.Char(), tc.context())) {
+	Type t = expr.type();
+	Type st = tc.context().currentSwitchType();
+	if (!ts.isSubtype(t, st)) {
 	    Errors.issue(tc.job(),
-	            new SemanticException("Case label must be an byte, char, short, or int.",position()));
+	            new SemanticException("Case label must be of type "+st+" (same as the expression of the enclosing switch), not "+t+".", position()));
 	}
-    
+//	if (!ts.isIntOrLess(t) && !ts.isUInt(t) && !ts.isChar(t)) {
+//	    Errors.issue(tc.job(),
+//	            new SemanticException("Case label must be a char or a (signed or unsigned) byte, short, or int, not "+t+".", position()));
+//	}
+
 	return this;
     }
     
@@ -120,16 +126,6 @@ public class Case_c extends Stmt_c implements Case
         Errors.issue(tc.job(),
                 new SemanticException("Case label must be an integral constant.",position()));
         return this;
-    }
-
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == expr) {
-            return ts.Int();
-        }
-
-        return child.type();
     }
 
     public String toString() {

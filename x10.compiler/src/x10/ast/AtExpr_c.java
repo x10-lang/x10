@@ -28,7 +28,6 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.InternalCompilerError;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -38,7 +37,6 @@ import polyglot.visit.ReachChecker;
 import x10.constraint.XTerm;
 import x10.constraint.XFailure;
 import x10.types.ClosureDef;
-import x10.types.X10Context_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.constraints.CConstraint;
 import polyglot.types.Context;
@@ -134,7 +132,7 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	if (def.placeTerm() == null) {
     	    XConstrainedTerm placeTerm = null;
     		try {
-    		    placeTerm = PlaceChecker.computePlaceTerm(place, (Context) tc.context(), ts);
+    		    placeTerm = PlaceChecker.computePlaceTerm(place, tc.context(), ts);
     		} catch (SemanticException se) {
     		    CConstraint d = new CConstraint();
     		    XTerm term = PlaceChecker.makePlace();
@@ -150,8 +148,14 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	// now that placeTerm is computed for this node, install it in the context
     	// and continue visiting children
 
+    	Context oldC=c;
     	c = super.enterChildScope(this.body, childtc.context());
-    	c = pushPlaceTerm(c);
+    	XConstrainedTerm pt = def.placeTerm();
+    	if (pt != null) {
+    		if (c==oldC)
+        		c = c.pushBlock();
+    		c.setPlace(pt);
+    	}
 
     	AtExpr_c n = this.place(place);
     	n = (AtExpr_c) n.superVisitChildren(childtc.context(c));
@@ -163,25 +167,17 @@ public class AtExpr_c extends Closure_c implements AtExpr {
         AtExpr_c n = (AtExpr_c) super.typeCheck(tc);
         Type t = n.returnType().type();
         Context c = super.enterChildScope(body, tc.context());
-        c = pushPlaceTerm(c);
-        t = PlaceChecker.ReplaceHereByPlaceTerm(t, (Context) c);
+        ClosureDef def = (ClosureDef) codeDef();
+        XConstrainedTerm pt = def.placeTerm();
+        t = PlaceChecker.ReplaceHereByPlaceTerm(t,  pt);
         return n.type(t);
-    }
-
-    protected Context pushPlaceTerm(Context xc) {
-    	ClosureDef def = (ClosureDef) codeDef();
-    	XConstrainedTerm pt = def.placeTerm();
-    	if (pt != null) {
-    		xc = (Context) xc.pushPlace(pt);
-    	}
-    	return xc;
     }
 
     @Override
     public Context enterScope(Context c) {
-        c = c.pushBlock();
+       // c = c.pushBlock();
         c = c.pushAt(closureDef);
-        ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.At;
+        c.x10Kind = Context.X10Kind.At;
         return c;
     }
 
@@ -221,14 +217,6 @@ public class AtExpr_c extends Closure_c implements AtExpr {
                    FlowGraph.EDGE_KEY_FALSE, this, EXIT);
                    */
         return succs;
-    }
-
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-    	TypeSystem ts = (TypeSystem) av.typeSystem();
-    	if ( child == place ) {
-    		return ts.Place();
-    	}
-    	return child.type();
     }
 
     public String toString() {

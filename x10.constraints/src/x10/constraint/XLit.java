@@ -22,13 +22,14 @@ import x10.constraint.visitors.XGraphVisitor;
 import x10.util.CollectionFactory;
 
 /**
- * A representation of a literal. A literal is both an XVar and an XPromise.
+ * A representation of a literal. A literal is an XVar carrying a
+ * payload that is equal to any other XLit carrying the same payload.
  * 
  * This class and its subclasses should not have mutable state.
  * @author vijay
  *
  */
-public class XLit extends XVar implements XPromise {
+public class XLit extends XVar  {
 	final protected Object val;
 
 	public XLit(Object l) {
@@ -39,10 +40,6 @@ public class XLit extends XVar implements XPromise {
 		return val;
 	}
 
-	public XTerm var() {
-		return this;
-	}
-	
 	/**
 	 * Proactively intern literals since they may end up having fields.
 	 */
@@ -66,6 +63,13 @@ public class XLit extends XVar implements XPromise {
 		return Collections.emptyList();
 	}
 
+	 @Override
+	    public int prefersBeingBound() {
+	        return XTerm.TERM_MUST_NOT_BE_BOUND;
+	    }
+	public String toString(String prefix) {
+	    return toString();
+	}
 	public String toString() {
 		if (val == null)
 			return "null";
@@ -89,7 +93,7 @@ public class XLit extends XVar implements XPromise {
     	return true;
     }
 	public boolean hasVar(XVar v) {
-		return false;
+		return v.equals(this);
 	}
 
 	public boolean equals(Object o) {
@@ -106,132 +110,21 @@ public class XLit extends XVar implements XPromise {
 		return super.subst(y, x, propagate);
 	}
 
-	// methods from Promise
-	public XPromise intern(XVar[] vars, int index) throws XFailure {
-		return intern(vars, index, null);
-	}
-
-	public XPromise intern(XVar[] vars, int index, XPromise last){
-		if (index != vars.length) {
-			return null;
-		}
-		return this;
-	}
-
-	public XPromise lookup(XVar[] vars, int index) {
-		if (index != vars.length) {
-			return null;
-		}
-		return this;
-	}
-
-
-	public XPromise lookup() {
-		return this;
-	}
-
-	public boolean forwarded() {
-		return false;
-	}
-
-	public boolean hasChildren() {
-		return false;
-	}
-
-	public boolean bind(XPromise target, XConstraint parent) throws XFailure {
-		if (target.term().equals(this))
-			return true;
-		if (target.term() instanceof XLit) {
-			throw new XFailure("Cannot bind literal " + this + " to " + target);
-		}
-		if (target.term() instanceof XVar) {
-			return target.bind(this, parent);
-		}
-		if (!equals(target))
-			throw new XFailure("Cannot bind literal " + this + " to " + target);
-		return false;
-	}
-	
-	public boolean disBind(XPromise target) throws XFailure {
-		XTerm t = target.term();
-		if (t.equals(this))
-			return false;
-		if (t  instanceof XLit) 
-			return true; // these two literals are not equal.
-		if (t instanceof XVar) 
-			return target.disBind(this);
-		if (equals(target))
-			throw new XFailure("Cannot bind literal " + this + " to " + target);
-		return true;
-	}
-
-	public boolean canReach(XPromise other) {
-		return equals(other);
-	}
-
-	public XVar term() {
-		return this;
-	}
-
-	public void addIn(Object s, XPromise orphan, XConstraint parent) throws XFailure {
-		throw new XFailure("Cannot add an " + s + " child " + orphan + " to a literal, " + this + ".");
-	}
-
-	public void setTerm(XTerm term) { /* ignore */ }
-	public void setTerm(XTerm term, Set<XPromise> visited) { /* ignore */ }
 
 	public String instance() {
 		return toString();
 	}
 
+	XVar[] vars;
 	/** In case this is a field selection x.f1...fn, return x, x.f1, x.f1.f2, ... x.f1.f2...fn */
 	public XVar[] vars() {
-		return new XVar[0];
+	    if (vars==null)
+	        vars = new XVar[]{this};
+		return vars;
 	}
 
 	/** In case this is a field selection x.f1...fn, return x, else this. */
 	public XVar rootVar() {
 		return this;
-	}
-
-
-	public XPromise value() {
-		return null;
-	}
-
-	public Map<Object, XPromise> fields() {
-		return fields;
-	}
-
-	public void variables(List<XVar> result) {}
-
-	public XPromise internIntoConstraint(XConstraint constraint, XPromise last)  {
-	    return null;
-		//throw new XFailure("Internal error -- should not be called.");
-	}
-	public void addDisEquals(XPromise p) throws XFailure {
-		if (p instanceof XLit) {
-			if (equals(p))
-				throw new XFailure("Literals " + this + " and " + p 
-						+ " are equal, hence cannot be disequated.");
-			// otherwise there is nothing to do.
-			return;
-		}
-		// otherwise must be an XPromise_c .. make it record that it must disequal this.
-		p.addDisEquals(this);
-	}
-	public boolean isDisBoundTo(XPromise o) { 
-		if (o instanceof XLit) {
-			return ! equals(o);
-		}
-		return o.isDisBoundTo(this);
-	}
-	public boolean visit(XVar path, XGraphVisitor xg, XConstraint parent) {
-		return true;
-	}
-	protected Map<Object, XPromise> fields;
-	public void ensureFields() {
-		if (this.fields == null)
-			this.fields = new LinkedHashMap<Object, XPromise>();
 	}
 }

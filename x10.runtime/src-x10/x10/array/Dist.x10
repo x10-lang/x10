@@ -50,7 +50,7 @@ public abstract class Dist(
      * @return a "unique" distribution over all places.
      */
     public static @TempNoInline_0 def makeUnique():Dist(1) {
-        return UNIQUE;        
+        return UNIQUE as Dist(1);        
     }
     // Cache pre-allocated UniqueDist to optimize makeUnique calls.
     private static val UNIQUE = new UniqueDist();
@@ -174,7 +174,7 @@ public abstract class Dist(
         if (pg.equals(PlaceGroup.WORLD)) {
             return makeUnique();
         } else {
-            return new UniqueDist(pg);
+            return new UniqueDist(pg) as Dist(1);
         }
     }
 

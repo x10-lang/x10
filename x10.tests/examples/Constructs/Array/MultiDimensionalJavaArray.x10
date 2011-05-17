@@ -30,9 +30,11 @@ public class MultiDimensionalJavaArray extends x10Test {
         for (val [i,j]: Point(2) in MIN*MAJ)
             a(i)(j) = (i * j / PI);
 
-        val d = a(MIN.max/2);
-        for (val j in MAJ) 
-            chk(d(j) == (MIN.max/2 * j / PI));
+	val i = MIN.max/2;
+        val d = a(i);
+        for (val j in MAJ) {
+            chk(nearEnough(d(j), i * j / PI));
+        }
 
         return true;
     }

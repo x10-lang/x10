@@ -247,6 +247,13 @@ X10RT_C void x10rt_lgl_remote_free (x10rt_place place, x10rt_remote_ptr ptr);
 X10RT_C void x10rt_lgl_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
                                   x10rt_op_type type, unsigned long long value);
 
+/** \see #x10rt_remote_ops
+ * \param ops As in #x10rt_remote_ops
+ * \param num_ops As in #x10rt_remote_ops
+ */
+X10RT_C void x10rt_lgl_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
+
+
 /** \see #x10rt_register_mem
  * \param ptr As in #x10rt_register_mem
  * \param len As in #x10rt_register_mem

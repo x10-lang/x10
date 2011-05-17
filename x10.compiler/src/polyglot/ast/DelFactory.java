@@ -28,8 +28,6 @@ public interface DelFactory
     
     JL delAmbPrefix();
     
-    JL delAmbQualifierNode();
-    
     JL delAmbReceiver();
     
     JL delAmbTypeNode();

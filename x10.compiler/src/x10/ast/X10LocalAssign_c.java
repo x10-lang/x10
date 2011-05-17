@@ -20,6 +20,7 @@ import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalAssign_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.types.Context;
 import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -27,7 +28,6 @@ import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
-import x10.types.X10Context_c;
 import x10.types.X10LocalInstance;
 import x10.types.checker.Checker;
 
@@ -51,7 +51,7 @@ public class X10LocalAssign_c extends LocalAssign_c {
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {
         // XTENLANG-2660
-        X10Context_c context = (X10Context_c) tc.context();
+        Context context =  tc.context();
         Name name = local().name().id();
         if (context.localHasAt(name)) {
             Errors.issue(tc.job(), new Errors.LocalVariableAccessedAtDifferentPlace(name, local().position()));

@@ -34,7 +34,7 @@ public abstract class New_c extends Expr_c implements X10New
     protected List<Expr> arguments;
     protected ClassBody body;
     protected ConstructorInstance ci;
-    protected ClassDef anonType;
+    protected X10ClassDef anonType;
 
     public New_c(Position pos, Expr qualifier, TypeNode tn, List<Expr> arguments, ClassBody body) {
 	super(pos);
@@ -80,7 +80,7 @@ public abstract class New_c extends Expr_c implements X10New
 	return (X10ClassDef) this.anonType;
     }
 
-    public X10New anonType(ClassDef anonType) {
+    public X10New anonType(X10ClassDef anonType) {
         if (anonType == this.anonType) return this;
 	New_c n = (New_c) copy();
 	n.anonType = anonType;
@@ -168,7 +168,7 @@ public abstract class New_c extends Expr_c implements X10New
         
         if (n.body() != null) {
             TypeBuilder tb2 = tb.pushAnonClass(position());
-            ClassDef type = tb2.currentClass();
+            X10ClassDef type = tb2.currentClass();
             type.superType(objectType.typeRef());
             
             n = (New_c) n.anonType(type);
@@ -318,35 +318,6 @@ public abstract class New_c extends Expr_c implements X10New
         }
         return this;
     }
-
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        if (child == qualifier) {
-            ContainerType t = ci.container();
-                     
-            if (t.isClass() && t.toClass().isMember()) {
-                t = t.toClass().container();
-                return t;
-            }
-
-            return child.type();
-        }
-
-        Iterator<Expr> i = this.arguments.iterator();
-        Iterator<Type> j = ci.formalTypes().iterator();
-
-        while (i.hasNext() && j.hasNext()) {
-	    Expr e = i.next();
-	    Type t = j.next();
-
-            if (e == child) {
-                return t;
-            }
-        }
-
-        return child.type();
-    }
-
-    
 
     /** Get the precedence of the expression. */
     public Precedence precedence() {

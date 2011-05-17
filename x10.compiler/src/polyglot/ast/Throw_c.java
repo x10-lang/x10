@@ -71,16 +71,6 @@ public class Throw_c extends Stmt_c implements Throw
 	return this;
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == expr) {
-            return ts.Throwable();
-        }
-
-        return child.type();
-    }
-
     public String toString() {
 	return "throw " + expr + ";";
     }

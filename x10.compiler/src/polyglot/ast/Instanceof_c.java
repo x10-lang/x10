@@ -82,16 +82,6 @@ public abstract class Instanceof_c extends Expr_c implements Instanceof
     /** Type check the expression. */
     public abstract Node typeCheck(ContextVisitor tc);
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        TypeSystem ts = av.typeSystem();
-
-        if (child == expr) {
-            return ts.Object();
-        }
-
-        return child.type();
-    }
-
     public String toString() {
 	return expr + " instanceof " + compareType;
     }

@@ -162,7 +162,7 @@ public class XFormula<T> extends XTerm {
 	        XTerm v = this;
 	        // fields.put(new C_NameWrapper<Integer>(-1), c.intern(v));
 	        // create a new promise and return it.
-	        XPromise p = new XPromise_c(fields, v);
+	        XPromise p = new XPromise(fields, v);
 	        c.addPromise(v, p);
 	        result = p;
 	        return result;
@@ -237,13 +237,13 @@ public class XFormula<T> extends XTerm {
 	    	XPromise p;
 	    	if (c.roots == null) {
 				c.roots = CollectionFactory.<XTerm, XPromise> newHashMap();
-				p = new XPromise_c(this);
+				p = new XPromise(this);
 				c.roots.put(this, p);
 				return p;
 			} else {
 				p = c.roots.get(this);
 				if (p == null) {
-					p = new XPromise_c(this);
+					p = new XPromise(this);
 					c.roots.put(this, p);
 					return p;
 				}

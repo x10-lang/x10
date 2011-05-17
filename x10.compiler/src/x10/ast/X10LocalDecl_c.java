@@ -39,7 +39,6 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -262,7 +261,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             Expr newInit = Converter.attemptCoercion(tc, n.init, type);
             if (newInit != null)
                 return n.init(newInit);
-            Errors.issue(tc.job(), new Errors.CannotAssign(n.init, type, n.init.position()), n);
+            Errors.issue(tc.job(), Errors.CannotAssign.make(n.init, type, tc, n.init.position()), n);
         }
 
         return n;
@@ -288,29 +287,22 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
      * var i:Int = (i=2)+4; // ERR!
      */
 	public Context enterChildScope(Node child, Context c) {
+		Context oldC=c;
         if (child == init) {
             c = c.pushBlock();
             // addDecls(c); - this will allow writing code like a local: int i= (i=2);
         }
 		if (child == this.type || child == this.hasType) {
-			Context xc = (Context) c.pushBlock();
+			if (oldC==c)
+			 c=c.pushBlock();
 			LocalDef li = localDef();
-			xc.addVariable(li.asInstance());
-			xc.setVarWhoseTypeIsBeingElaborated(li);
-			c = xc;
+			c.addVariable(li.asInstance());
+			c.setVarWhoseTypeIsBeingElaborated(li);
 		}
 		Context cc = super.enterChildScope(child, c);
 		return cc;
 	}
 	
-	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-	    if (child == init) {
-	        TypeSystem ts = av.typeSystem();
-	        return type.type();
-	    }
-	    return child.type();
-	}
-
 	/** Visit the children of the declaration. */
 	public Node visitChildren(NodeVisitor v) {
 	    X10LocalDecl_c n = (X10LocalDecl_c) super.visitChildren(v);

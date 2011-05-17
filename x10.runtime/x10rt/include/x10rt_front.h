@@ -421,6 +421,14 @@ X10RT_C void x10rt_remote_free (x10rt_place place, x10rt_remote_ptr ptr);
 X10RT_C void x10rt_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
                               x10rt_op_type type, unsigned long long value);
 
+/** \see Perform the given number of remote operations.  There is no way to determine
+ * if or when the operations have completed.
+ * \param ops As in #x10rt_remote_ops
+ * \param num_ops As in #x10rt_remote_ops
+ */
+X10RT_C void x10rt_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
+
+
 /** Prepare memory for use by #x10rt_remote_op.
  * \param ptr Some memory at the local place.
  * \param len The amount of memory to register (should be a multiple of 8).

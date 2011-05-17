@@ -112,14 +112,14 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
         classDef.superType(Types.ref(superType));
     }
     
-    public void setOuter(ClassDef outClassDef){
+    public void setOuter(X10ClassDef outClassDef){
         if(outClassDef != null){
             classDef.outer(Types.ref(outClassDef));            
         }
     }
     
-    public ClassDef getOuter(){
-        Ref<? extends ClassDef> outRef = classDef.outer();
+    public X10ClassDef getOuter(){
+        Ref<? extends X10ClassDef> outRef = classDef.outer();
         if(outRef != null){
             return outRef.get();
         }

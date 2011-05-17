@@ -115,9 +115,9 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         receiver = xts.xtypeTranslator().translate(container());
                       // Do not add self binding for static fields. This information
                         // is any way going to get added in instantiateAccess.
-                        // XTerm self = xts.xtypeTranslator().translate(receiver, this);
+                        XTerm self = xts.xtypeTranslator().translate(receiver, this);
                         // Add {self = receiver.field} clause.
-                       // rc.addSelfBinding(self);
+                      rc.addSelfBinding(self);
                     }
                     else {
                         receiver = x10Def().thisVar();
@@ -165,7 +165,8 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     public String toString() {
 	Type type = type();
 	String typeString = type != null ? type.toString() : def().type().toString();
-	String s = "field " + flags().prettyPrint() + containerString() + "." + name() + ": " + typeString;
+	String ss = "field " + flags().prettyPrint() + containerString() + "." + name() + ": " + typeString;
+	String s = name().toString();
 	return s;
     }
 

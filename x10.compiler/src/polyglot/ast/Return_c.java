@@ -63,30 +63,6 @@ public abstract class Return_c extends Stmt_c implements Return
     /** Type check the statement. */
     public abstract Node typeCheck(ContextVisitor tc);
   
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        if (child == expr) {
-            Context c = av.context();
-            CodeDef ci = c.currentCode();
-
-            if (ci instanceof MethodDef) {
-                MethodDef mi = (MethodDef) ci;
-
-                TypeSystem ts = av.typeSystem();
-
-                // If expr is an integral constant, we can relax the expected
-                // type to the type of the constant.
-                if (ts.numericConversionValid(mi.returnType().get(), child.constantValue(), c)) {
-                    return child.type();
-                }
-                else {
-                    return mi.returnType().get();
-                }
-            }
-        }
-
-        return child.type();
-    }
-
     public String toString() {
 	return "return" + (expr != null ? " " + expr : "") + ";";
     }

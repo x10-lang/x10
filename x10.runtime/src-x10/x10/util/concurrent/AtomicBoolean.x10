@@ -22,33 +22,33 @@ public final class AtomicBoolean {
     * We do this instead of using a boolean so that we know that compareAndSet_32 
     * can work on the whole memory word.
     */
-    private @Volatile var value:int;
+    private @Volatile var value:Int;
     
     public def this():AtomicBoolean {
         value = 0;
     }
-    public def this(v:boolean):AtomicBoolean {
+    public def this(v:Boolean):AtomicBoolean {
         value = v ? 1 : 0;
     }
     
     @Native("java", "#this.get()")
-    public def get():boolean = value == 1;
+    public def get():Boolean = value == 1;
 
     @Native("java", "#this.set(#v)")
-    public def set(v:boolean):void {
+    public def set(v:Boolean):void {
         value = v ? 1 : 0;
     }
 
     @Native("java", "#this.compareAndSet(#expect,#update)")
     @Native("c++", "x10aux::atomic_boolean_funs::compareAndSet(#this, #expect, #update)")
-    public native def compareAndSet(expect:boolean, update:boolean):boolean;
+    public native def compareAndSet(expect:Boolean, update:Boolean):Boolean;
 
     @Native("java", "#this.weakCompareAndSet(#expect,#update)")
     @Native("c++", "x10aux::atomic_boolean_funs::weakCompareAndSet(#this, #expect, #update)")
-    public native def weakCompareAndSet(expect:boolean, update:boolean):boolean;
+    public native def weakCompareAndSet(expect:Boolean, update:Boolean):Boolean;
     
     @Native("java", "#this.getAndSet(#v)")
-    public def getAndSet(v:boolean):boolean {
+    public def getAndSet(v:Boolean):Boolean {
 	val oldVal = get();
 	set(v);
 	return oldVal;

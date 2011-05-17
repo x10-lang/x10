@@ -73,12 +73,13 @@ import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.TypeSystem_c;
+import polyglot.types.NoMemberException;
 
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.matcher.DumbConstructorMatcher;
 import x10.visit.X10TypeChecker;
 
 
@@ -119,8 +120,8 @@ public class X10New_c extends New_c implements X10New {
 
 
     @Override
-    public X10New anonType(ClassDef anonType) {
-        return (X10New) super.anonType(anonType);
+    public X10New anonType(X10ClassDef anonType) {
+        return super.anonType(anonType);
     }
     @Override
     public X10New arguments(List<Expr> arguments) {
@@ -415,10 +416,10 @@ public class X10New_c extends New_c implements X10New {
 
     public static Pair<ConstructorInstance, List<Expr>> tryImplicitConversions(X10ProcedureCall n, ContextVisitor tc,
             Type targetType, List<Type> argTypes) throws SemanticException {
-        final TypeSystem ts = (TypeSystem) tc.typeSystem();
+        final TypeSystem_c ts = (TypeSystem_c) tc.typeSystem();
         final Context context = tc.context();
 
-        List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, argTypes, context));
+        List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, ts.ConstructorMatcher(targetType, Collections.EMPTY_LIST,argTypes, context, true));
         return Converter.tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
             public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
                 return ts.ConstructorMatcher(ct, argTypes, context);
@@ -504,7 +505,7 @@ public class X10New_c extends New_c implements X10New {
             }
         }
         if (!ts.hasUnknown(tp) && !ts.isSubtype(tp1, t1, context)) {
-            SemanticException e = new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", pos);
+            SemanticException e = Errors.NewIncompatibleType.make(result.type(tp1),  t1, tc, pos);
             Errors.issue(tc.job(), e, this);
             if (ci.error() == null) {
                 ci = ci.error(e);
@@ -559,7 +560,7 @@ public class X10New_c extends New_c implements X10New {
         return findConstructor(tc, n, targetType, actualTypes, null);
     }
     public static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, X10ProcedureCall n,
-            Type targetType, List<Type> actualTypes, ClassDef anonType) {
+            Type targetType, List<Type> actualTypes, X10ClassDef anonType) {
         X10ConstructorInstance ci;
         TypeSystem xts = tc.typeSystem();
         Context context = (Context) tc.context();
@@ -604,7 +605,7 @@ public class X10New_c extends New_c implements X10New {
     }
 
     private static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, Context xc,
-            X10ProcedureCall n, Type targetType, List<Type> argTypes, ClassDef anonType) throws SemanticException {
+            X10ProcedureCall n, Type targetType, List<Type> argTypes, X10ClassDef anonType) throws SemanticException {
 
         X10ConstructorInstance ci = null;
         TypeSystem xts = (TypeSystem) tc.typeSystem();
@@ -637,6 +638,12 @@ public class X10New_c extends New_c implements X10New {
             return new Pair<ConstructorInstance, List<Expr>>(ci, n.arguments());
         }
         catch (SemanticException e) {
+            e.setPosition(n.position());
+            // only if we didn't find any methods, try coercions.
+            if (!(e instanceof NoMemberException)) {
+                throw e;
+            }
+            
             // Now, try to find the method with implicit conversions, making
             // them explicit.
             try {

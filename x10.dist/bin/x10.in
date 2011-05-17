@@ -118,11 +118,14 @@ java_args="${java_args} ${defs}"
 
 command="\"$JAVA\" $java_args -ea x10.runtime.impl.java.TestClassLoading '$main\$$MAIN_CLASS'"
 [ -n "$verbose" ] && echo "$command"
+(
+unset X10_NPLACES
 eval "$command"
 if [ "$?" -ne "0" ]; then
   echo >&2 "Error: Cannot load main class for" "$main" "with classpath" "$classpath"
   exit 1
 fi
+)
 
 # HACK: enforce normal compilation in preloading phase
 IBMJ9VM=`"$JAVA" -version 2>&1 | grep 'IBM J9 VM'`

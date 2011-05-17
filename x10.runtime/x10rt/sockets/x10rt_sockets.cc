@@ -225,6 +225,7 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt)
 
 	char * src = (char *) p;
 	unsigned bytesleft = cnt;
+	uint8_t allowConnResetTries = 10;
 	if (state.pendingWrites == NULL)
 	{
 		while (bytesleft > 0)
@@ -234,7 +235,9 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt)
 			{
 				if (errno == EINTR) continue;
 				if (errno == EAGAIN) break;
-				fprintf(stderr, "write errno=%i", errno);
+				if (errno == ECONNRESET && allowConnResetTries--)
+					continue; // this seems to happen, every once in a great while.  We allow a few only.
+				fprintf(stderr, "write errno=%i ", errno);
 				return -1;
 			}
 			if (rc == 0) break;
@@ -1120,6 +1123,11 @@ int x10rt_net_supports (x10rt_opt o)
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
 	error("x10rt_net_remote_op not implemented");
+}
+
+void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
+{
+	error("x10rt_net_remote_ops not implemented");
 }
 
 x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)

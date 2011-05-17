@@ -29,7 +29,7 @@ public interface New extends Expr, X10ProcedureCall
     X10ClassDef anonType();
 
     /** Set the type object for anonymous classes. */
-    X10New anonType(ClassDef anonType);
+    X10New anonType(X10ClassDef anonType);
 
     /** The constructor invoked by this expression. */
     X10ConstructorInstance constructorInstance();

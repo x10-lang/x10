@@ -125,16 +125,6 @@ public abstract class AbstractDelFactory_c implements DelFactory
         return postDelAmbPrefix(e);
     }
 
-    public final JL delAmbQualifierNode() {
-        JL e = delAmbQualifierNodeImpl();
-
-        if (nextDelFactory != null) {
-            JL e2 = nextDelFactory.delAmbQualifierNode();
-            e = composeDels(e, e2);
-        }
-        return postDelAmbQualifierNode(e);
-    }
-
     public final JL delAmbReceiver() {
         JL e = delAmbReceiverImpl();
 
@@ -920,14 +910,6 @@ public abstract class AbstractDelFactory_c implements DelFactory
     }
 
     /**
-     * Create the delegate for a <code>AmbQualifierNode</code> AST node.
-     * @return the delegate for a <code>AmbQualifierNode</code> AST node.
-     */
-    protected JL delAmbQualifierNodeImpl() {
-        return delNodeImpl();
-    }
-
-    /**
      * Create the delegate for a <code>AmbReceiver</code> AST node.
      * @return the delegate for a <code>AmbReceiver</code> AST node.
      */
@@ -1535,10 +1517,6 @@ public abstract class AbstractDelFactory_c implements DelFactory
     }
 
     protected JL postDelAmbPrefix(JL del) {
-        return postDelNode(del);
-    }
-
-    protected JL postDelAmbQualifierNode(JL del) {
         return postDelNode(del);
     }
 

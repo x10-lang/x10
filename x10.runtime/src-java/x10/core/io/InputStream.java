@@ -51,6 +51,15 @@ public class InputStream extends Ref {
         }
     }
     
+    // XTENLANG-2680
+    public int read$O() {
+        try {
+            return stream.read();
+        } catch (java.io.IOException e) {
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+
     public void read(byte[] b, int off, int len) {
         try {
             stream.read(b, off, len);
@@ -67,6 +76,15 @@ public class InputStream extends Ref {
         }
     }
     
+    // XTENLANG-2680
+    public int available$O() {
+        try {
+            return stream.available();
+        } catch (java.io.IOException e) {
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+        }
+    }
+
     public void skip(int n) {
         try {
             stream.skip(n);
@@ -91,6 +109,11 @@ public class InputStream extends Ref {
         return stream.markSupported();
     }
     
+    // XTENLANG-2680
+    public boolean markSupported$O() {
+        return stream.markSupported();
+    }
+
     //
     // Runtime type information
     //

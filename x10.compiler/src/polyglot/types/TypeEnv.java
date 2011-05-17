@@ -94,7 +94,7 @@ public interface TypeEnv  {
      * Requires: all type arguments are canonical. Returns the least common
      * ancestor of Type1 and Type2
      **/
-    public Type leastCommonAncestor(Type type1, Type type2) throws SemanticException;
+    public Type leastCommonAncestor(Type type1, Type type2);
 
     /** Return true if t overrides mi */
     public boolean hasMethod(Type t, MethodInstance mi);
