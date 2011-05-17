@@ -17,7 +17,6 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -106,13 +105,16 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	 */
 	@Override
 	public Context enterChildScope(Node child, Context c) {
+		Context oldC=c;
 		Context xc = (Context) super.enterChildScope(child, c);
 		if (child == body) {
 		// Push T, not Reducible[T].
 			Type type = reducer.type();
 			type = Types.reducerType(type);
 			if (type != null) {
-				xc = (Context) xc.pushCollectingFinishScope(type);
+				if (c==oldC)
+					c=c.pushBlock();
+				xc.setCollectingFinishScope(type);
 			}
 			addDecls(xc);
 		}

@@ -39,7 +39,7 @@ import x10.types.X10MethodDef;
 import x10.util.ClassifiedStream;
 import x10cpp.visit.ITable;
 
-public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
+public class X10CPPContext_c extends Context {
 
     // The global object is fresh for each brand new instance of the context,
     // but is aliased for each clone of the context (cloned via copy()).
@@ -148,6 +148,7 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
     public ClassifiedStream genericFunctions = null;
     public ClassifiedStream genericFunctionClosures = null;
     public ClassifiedStream closures = null;
+    public ClassifiedStream staticDefinitions = null;
 
 	public ArrayList<VarInstance<?>> variables = new ArrayList<VarInstance<?>>();
 
@@ -215,15 +216,15 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements Context {
 	}
 
     
-    private VarInstance<?> lookup(String name) {
+    private VarInstance<?> lookup(String name, Context lookupContext) {
         VarInstance<?> vi = findVariableInThisScope(Name.make(name));
         if (vi != null) return vi;
-        else if (outer != null) return ((X10CPPContext_c) outer).lookup(name);
+        else if (outer != null) return ((X10CPPContext_c) outer).lookup(name, lookupContext);
         else return null;
     }
 
     private void addVar(String name) {
-		VarInstance<?> vi = lookup(name);
+		VarInstance<?> vi = lookup(name, this);
         assert vi != null : name.toString();
 		boolean contains = false;
         for (VarInstance<?> vi2 : variables) {

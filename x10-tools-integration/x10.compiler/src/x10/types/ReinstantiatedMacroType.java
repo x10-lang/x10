@@ -5,6 +5,7 @@ package x10.types;
 
 import java.util.List;
 
+import polyglot.types.ContainerType;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -24,45 +25,55 @@ public final class ReinstantiatedMacroType extends MacroType_c {
 		this.fi = fi;
 	}
 
+    public TypeParamSubst typeParamSubst() {
+        ContainerType ct = fi.container();
+        if (ct != null && ct.isClass()) {
+            TypeParamSubst dsubst = ct.toClass().def().subst();
+            if (dsubst != null) {
+                return dsubst.reinstantiate(typeParamSubst);
+            }
+        }
+        return typeParamSubst;
+    }
 	@Override
 	public Ref<? extends Type> returnTypeRef() {
 		if (definedType == null)
-			return this.typeParamSubst.reinstantiate(fi.returnTypeRef());
+			return this.typeParamSubst().reinstantiate(fi.returnTypeRef());
 		return definedType;
 	}
 
 	@Override
 	public Type returnType() {
 		if (definedType == null)
-			return this.typeParamSubst.reinstantiate(fi.returnType());
+			return this.typeParamSubst().reinstantiate(fi.returnType());
 		return definedType.get();
 	}
 
 	@Override
 	public Ref<? extends Type> definedTypeRef() {
 		if (definedType == null)
-			return this.typeParamSubst.reinstantiate(fi.definedTypeRef());
+			return this.typeParamSubst().reinstantiate(fi.definedTypeRef());
 		return definedType;
 	}
 
 	@Override
 	public Type definedType() {
 		if (definedType == null)
-			return this.typeParamSubst.reinstantiate(fi.definedType());
+			return this.typeParamSubst().reinstantiate(fi.definedType());
 		return definedType.get();
 	}
 
 	@Override
 	public List<Type> formalTypes() {
 		if (formalTypes == null)
-			return this.typeParamSubst.reinstantiate(fi.formalTypes());
+			return this.typeParamSubst().reinstantiate(fi.formalTypes());
 		return formalTypes;
 	}
 
 	@Override
 	public CConstraint guard() {
 		if (guard == null)
-			return this.typeParamSubst.reinstantiate(fi.guard());
+			return this.typeParamSubst().reinstantiate(fi.guard());
 		return guard;
 	}
 }

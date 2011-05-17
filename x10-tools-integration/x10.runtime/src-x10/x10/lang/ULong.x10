@@ -261,37 +261,37 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x3f before the shift is applied.
      * @param count the shift count
      * @return this ULong shifted left by count.
      */
-    // @Native("java", "((#this) << (#count))")
-    @Native("c++",  "((x10_ulong) ((#0) << (#1)))")
+    // @Native("java", "((#this) << (#count))")  // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_ulong) ((#0) << (0x3f & (#1))))")
     public operator this << (count:Int): ULong = ULong(longVal << count);
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x3f before the shift is applied.
      * @param count the shift count
      * @return this ULong shifted right by count.
      */
-    // @Native("java", "((#this) >>> (#count))")
-    @Native("c++",  "((x10_ulong) ((#0) >> (#1)))")
+    // @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_ulong) ((#0) >> (0x3f & (#1))))")
     public operator this >> (count:Int): ULong = ULong(longVal >>> count);
 
     /**
      * A bitwise logical right shift operator (zero-fill).
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x3f before the shift is applied.
      * @deprecated use the right-shift operator.
      * @param count the shift count
      * @return this ULong shifted right by count with high bits zero-filled.
      */
-    // @Native("java", "((#this) >>> (#count))")
-    @Native("c++",  "((x10_ulong) ((#0) >> (#1)))")
+    // @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_ulong) ((#0) >> (0x3f & (#1))))")
     public operator this >>> (count:Int): ULong = ULong(longVal >>> count);
 
     /**
@@ -392,14 +392,14 @@ public struct ULong implements Comparable[ULong] /*TODO implements Arithmetic[UL
      */
     // @Native("java", "0L")
     @Native("c++", "((x10_ulong)0LLU)")
-    public static MIN_VALUE = 0UL;
+    public static MIN_VALUE: ULong{self==0ul} = 0UL;
 
     /**
      * A constant holding the maximum value a ULong can have, 2<sup>64</sup>-1.
      */
     // @Native("java", "0xffffffffffffffffL")
     @Native("c++", "0xffffffffffffffffLLU")
-    public static MAX_VALUE = 0xffffffffffffffffUL;
+    public static MAX_VALUE: ULong{self==0xffffffffffffffffUL} = 0xffffffffffffffffUL;
 
 
     /**

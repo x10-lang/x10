@@ -88,7 +88,11 @@ public class CheckEscapingThis extends NodeVisitor
             if (node instanceof ProcedureDecl) {
                 List<Item> filtered = filterItemsNonException(items, itemKeys);
                 if (filtered.isEmpty()) {
-                    return init;
+                    // see XTENLANG-1851
+                    DataFlowItem res = new DataFlowItem();
+                    for (FieldDef d : init.initStatus.keySet())
+                        res.initStatus.put(d, MinMaxInitCount.ONE);
+                    return res;
                 }
                 else if (filtered.size() == 1) {
                     return (Item)filtered.get(0);

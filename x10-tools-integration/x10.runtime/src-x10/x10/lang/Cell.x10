@@ -80,17 +80,6 @@ public final class Cell[T] {
      */
     public static def make[T](x:T)= new Cell[T](x);
 
-
-    /**
-     * Return the value stored in the given Cell.
-     * Will work even if the Cell reference is remote.
-     *
-     * @param T the value type of the Cell
-     * @param x the given Cell
-     * @return the value stored in the given Cell.
-     */
-    public static operator[V](x:Cell[V]) = x();
-
     /**
      * Create a new Cell with the given value stored in it.
      *

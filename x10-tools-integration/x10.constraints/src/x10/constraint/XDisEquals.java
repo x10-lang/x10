@@ -33,14 +33,15 @@ public class XDisEquals extends XFormula<String> {
 	    if (q == null)
 	        return null;
 
-	    if (p instanceof XLit && q instanceof XLit) {
-	        if (p.equals(q))
+	    XTerm pTerm = p.term(), qTerm = q.term();
+	    if (pTerm instanceof XLit && qTerm instanceof XLit) {
+	        if (pTerm.equals(qTerm))
 	            return c.intern(XTerms.FALSE);
 	        else
 	            return c.intern(XTerms.TRUE);
 	    }
 	    else {
-	        if (p != q || ! p.term().equals(q.term()))
+	        if (p != q || ! pTerm.equals(qTerm))
 	            // Handle x==x also
 	            return c.intern(XTerms.TRUE);
 	        else

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Block;
+import polyglot.ast.Branch;
 import polyglot.ast.Conditional;
 import polyglot.ast.Empty;
 import polyglot.ast.Expr;
@@ -42,6 +43,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.StmtExpr;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -97,7 +99,7 @@ public class ConstantPropagator extends ContextVisitor {
             Local l = (Local) n;
             if (l.localInstance().def().isConstant()) {
                 Object o = l.localInstance().def().constantValue();
-                Expr result = toExpr(o, n.position());
+                Expr result = toExpr(o, Types.baseType(l.type()), n.position());
                 if (result != null)
                     return result;
                 
@@ -108,7 +110,7 @@ public class ConstantPropagator extends ContextVisitor {
             Expr e = (Expr) n;
             if (isConstant(e)) {
                 Object o = constantValue(e);
-                Expr result = toExpr(o, e.position());
+                Expr result = toExpr(o, Types.baseType(e.type()), e.position());
                 if (result != null)
                     return result;
             }
@@ -120,9 +122,9 @@ public class ConstantPropagator extends ContextVisitor {
             if (isConstant(cond)) {
                 boolean b = (boolean) (Boolean) constantValue(cond);
                 if (b)
-                    return insulate(c.consequent());
+                    return c.consequent();
                 else
-                    return insulate(c.alternative());
+                    return c.alternative();
             }
         }
 
@@ -134,25 +136,30 @@ public class ConstantPropagator extends ContextVisitor {
                 if (o instanceof Boolean) {
                     boolean b = (boolean) (Boolean) o;
                     if (b)
-                        return insulate(c.consequent());
+                        return c.consequent();
                     else
-                        return c.alternative() != null ? insulate(c.alternative()) : nf.Empty(pos);
+                        return c.alternative() != null ? c.alternative() : nf.Empty(pos);
                 }
             }
         }
 
-        if (n instanceof Block) {
+        if (n instanceof Block){
             Block b = (Block) n;
-            List<Stmt> ss = new ArrayList<Stmt>();
+            List<Stmt> stmts = new ArrayList<Stmt>();
             for (Stmt s : b.statements()) {
-                if (s instanceof Empty) {
-                }
-                else {
-                    ss.add(s);
+                if (!(s instanceof Empty)) {
+                    stmts.add(s);
+                    if (divertsFlow(s)) {
+                        if (b instanceof StmtExpr) { // ExpressionFlattener will have eliminated these for the Java back-end
+                            b = ((StmtExpr) b).result(null); // result can't be reached, throw it away
+                        }
+                        return b.statements(stmts);
+                    }
                 }
             }
-            if (ss.size() != b.statements().size())
-                return b.statements(ss);
+            if (stmts.size() < b.statements().size())
+                return b.statements(stmts);
+            return b;
         }
 
         return n;
@@ -239,7 +246,7 @@ public class ConstantPropagator extends ContextVisitor {
         return false;
     }
 
-    public Expr toExpr(Object o, Position pos) {
+    public Expr toExpr(Object o, Type desiredType, Position pos) {
         NodeFactory nf = (NodeFactory) this.nf;
 
         Expr e = null;
@@ -247,10 +254,26 @@ public class ConstantPropagator extends ContextVisitor {
             e = nf.NullLit(pos);
         } else
         if (o instanceof Integer) {
-            e = nf.IntLit(pos, IntLit.INT, (long) (int) (Integer) o);
+            IntLit.Kind kind;
+            if (ts.isInt(desiredType)) {
+                kind = IntLit.INT;
+            } else if (ts.isUInt(desiredType)) {
+                kind = IntLit.UINT;
+            } else if (ts.isShort(desiredType)) {
+                kind = IntLit.SHORT;
+            } else if (ts.isUShort(desiredType)) {
+                kind = IntLit.USHORT;
+            } else if (ts.isByte(desiredType)) {
+                kind = IntLit.BYTE;
+            } else if (ts.isUByte(desiredType)) {
+                kind = IntLit.UBYTE;
+            } else {
+                throw new InternalCompilerError("desiredType "+desiredType+" does not match Int constant "+o);
+            }
+            e = nf.IntLit(pos, kind, (long) (int) (Integer) o);
         } else
         if (o instanceof Long) {
-            e = nf.IntLit(pos, IntLit.LONG, (long) (Long) o);
+            e = nf.IntLit(pos, ts.isULong(desiredType) ? IntLit.ULONG : IntLit.LONG, (long) (Long) o);
         } else
         if (o instanceof Float) {
             e = nf.FloatLit(pos, FloatLit.FLOAT, (double) (float) (Float) o);
@@ -270,8 +293,9 @@ public class ConstantPropagator extends ContextVisitor {
         if (o instanceof Object[]) {
             Object[] a = (Object[]) o;
             List<Expr> args = new ArrayList<Expr>(a.length);
+            Type elemType = Types.baseType(Types.getParameterType(desiredType, 0));
             for (Object ai : a) {
-                Expr ei = toExpr(ai, pos);
+                Expr ei = toExpr(ai, elemType, pos);
                 if (ei == null)
                     return null;
                 args.add(ei);
@@ -287,68 +311,20 @@ public class ConstantPropagator extends ContextVisitor {
     }
 
     /**
-     * Prevent the Java compiler from complaining about unreachable code.
-     * s;  ->  if (true) s;
+     * Would a statement prevent control flow from reaching the sequentially next statement in a Block?
      * 
-     * @param stmt a statement that might not have normal code flow
-     * @return a statement, semantically the same as stmt, that will look to a Java compiler as if it might have normal code flow
-     * 
-     * TODO: implement dead code elimination and throw this code away
+     * @param s the Stmt that might divert the flow of control
+     * @return true iff s changes normal control flow
      */
-    static Stmt protect(Stmt stmt, TypeSystem ts){
-        Expr cond;
-        try { // if possible, create a true that wouldn't be recognized by (another pass of) the ConstantPropagator
-            QName qname = QName.make("x10.compiler.CompilerFlags");
-            Type container = ts.forName(qname);
-            Name name = Name.make("TRUE"); 
-            cond = syn.createStaticCall(stmt.position(), container, name);
-        } catch (Exception e) {
-            cond = syn.createTrue(stmt.position());
+    private boolean divertsFlow(Stmt s) {
+        if (s instanceof Block) {
+            List<Stmt> statements = ((Block) s).statements();
+            int size = statements.size();
+            if (0 == size) return false;
+            return divertsFlow(statements.get(size-1));
         }
-        return syn.createIf(stmt.position(), cond, stmt, null);
+        return s instanceof Return || s instanceof Throw || s instanceof Branch;
     }
-
-    /**
-     * @param alternative
-     * @return
-     */
-    private Node insulate(Node node) {
-        return node.visit(new HideControlFlow(job(), typeSystem(), nodeFactory()));
-    }
-
-    /**
-     * Rewrite an AST so it will look to a Java compiler as if it might have normal control flow.
-     * 
-     * @author Bowen Alpern
-     * 
-     * TODO: implement dead code elimination and throw this code away
-     */
-    class HideControlFlow extends ErrorHandlingVisitor {
-
-        /**
-         * @param job
-         * @param ts
-         * @param nf
-         */
-        public HideControlFlow(Job job, TypeSystem ts, NodeFactory nf) {
-            super(job, ts, nf);
-        }
-        /* (non-Javadoc)
-         * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node)
-         */
-        @Override
-        /**
-         * Rewrite and AST so it will look to a Java compiler as if it might have normal control flow.
-         */
-        protected Node leaveCall(Node n) throws SemanticException {
-            if (n instanceof Return)
-                return protect((Return) n, typeSystem());
-            if (n instanceof Throw)
-                return protect((Throw) n, typeSystem());
-            return super.leaveCall(n);
-        }
-    }
-    
 
     private static final QName NATIVE_ANNOTATION = QName.make("x10.compiler.Native");
     /**

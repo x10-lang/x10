@@ -38,8 +38,8 @@ public class XEQV extends XRoot  {
     @Override
     public XTermKind kind() { return XTermKind.LOCAL;}
     @Override
-    public boolean prefersBeingBound() {
-        return true;
+    public int prefersBeingBound() {
+        return XTerm.TERM_PREFERS_BEING_BOUND;
     }
 
     public boolean hasVar(XVar v) {

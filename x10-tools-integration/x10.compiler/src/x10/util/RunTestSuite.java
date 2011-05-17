@@ -355,6 +355,7 @@ public class RunTestSuite {
         X10CompilerOptions opts = (X10CompilerOptions) COMPILER.sourceExtension().getOptions();
         opts.x10_config.STATIC_CHECKS = STATIC_CHECKS;
         opts.x10_config.VERBOSE_CHECKS = !STATIC_CHECKS;
+        opts.x10_config.VERBOSE = true;
         long start = System.currentTimeMillis();
         Throwable err = null;
         try {

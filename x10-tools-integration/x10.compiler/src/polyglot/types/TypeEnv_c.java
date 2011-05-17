@@ -518,7 +518,7 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
      * Requires: all type arguments are canonical. Returns the least common
      * ancestor of Type1 and Type2
      **/
-    public Type leastCommonAncestor(Type type1, Type type2) throws SemanticException {
+    public Type leastCommonAncestor(Type type1, Type type2)  {
 	if (typeEquals(type1, type2))
 	    return type1;
 
@@ -585,7 +585,8 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	    return ts.Object();
 	}
 
-	throw new SemanticException("No least common ancestor found for types \"" + type1 + "\" and \"" + type2 + "\".");
+	return ts.Any(); 
+	//throw new SemanticException("No least common ancestor found for types \"" + type1 + "\" and \"" + type2 + "\".");
     }
 
     /** Return true if t overrides mi */

@@ -122,16 +122,6 @@ public abstract class AbstractExtFactory_c implements ExtFactory
         return postExtAmbPrefix(e);
     }
 
-    public final Ext extAmbQualifierNode() {
-        Ext e = extAmbQualifierNodeImpl();
-
-        if (nextExtFactory != null) {
-            Ext e2 = nextExtFactory.extAmbQualifierNode();
-            e = composeExts(e, e2);
-        }
-        return postExtAmbQualifierNode(e);
-    }
-
     public final Ext extAmbReceiver() {
         Ext e = extAmbReceiverImpl();
 
@@ -917,14 +907,6 @@ public abstract class AbstractExtFactory_c implements ExtFactory
     }
 
     /**
-     * Create the <code>Ext</code> object for a <code>AmbQualifierNode</code> AST node.
-     * @return the <code>Ext</code> object for a <code>AmbQualifierNode</code> AST node.
-     */
-    protected Ext extAmbQualifierNodeImpl() {
-        return extNodeImpl();
-    }
-
-    /**
      * Create the <code>Ext</code> object for a <code>AmbReceiver</code> AST node.
      * @return the <code>Ext</code> object for a <code>AmbReceiver</code> AST node.
      */
@@ -1539,10 +1521,6 @@ public abstract class AbstractExtFactory_c implements ExtFactory
     }
 
     protected Ext postExtAmbPrefix(Ext ext) {
-        return postExtNode(ext);
-    }
-
-    protected Ext postExtAmbQualifierNode(Ext ext) {
         return postExtNode(ext);
     }
 

@@ -328,7 +328,7 @@ public class XConstraint implements Cloneable {
     /**
      * Add t1=t2 to the constraint, unless it is inconsistent. 
      * Note: constraint is modified in place.
-     * @param var -- t1
+     * @param nodeLabel -- t1
      * @param val -- t2
      */
     public void addBinding(XTerm left, XTerm right)  {
@@ -363,7 +363,7 @@ public class XConstraint implements Cloneable {
     /**
 	 * Add t1 != t2 to the constraint.
 	 * Note: Constraint is updated in place.
-	 * @param var
+	 * @param nodeLabel
 	 * @param t
 	 */
     public void addDisBinding(XTerm left, XTerm right)  {
@@ -900,32 +900,15 @@ public class XConstraint implements Cloneable {
      */
     XPromise intern(XTerm term, XPromise last)  {
     	assert term != null;
-        if (term instanceof XPromise) {
-            XPromise q = (XPromise) term;
-            
-            // this is the case for literals, for here
-            if (last != null) {
-                try {
-                    last.bind(q, this);
-                }
-                catch (XFailure f) {
-                    return null;
-                }
-            }
-            return q;
-        }
-
-        // let the term figure out what to do for itself.
-      
         return term.internIntoConstraint(this, last);
     }
 
     XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last)  {
         if (roots == null)
             roots = CollectionFactory.<XTerm,XPromise> newHashMap();
-        XPromise p = (XPromise) roots.get(baseVar);
+        XPromise p =  roots.get(baseVar);
         if (p == null) {
-            p = (replaceP && last != null) ? last : new XPromise_c(baseVar);
+            p = (replaceP && last != null) ? last : new XPromise(baseVar);
             roots.put(baseVar, p);
         }
         return p;

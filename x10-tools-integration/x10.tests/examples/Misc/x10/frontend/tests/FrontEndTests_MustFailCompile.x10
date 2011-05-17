@@ -1392,7 +1392,7 @@ class SimpleUserDefinedStructTest {
 	static struct S2 {
 		val x:Int = 1;
 	}
-	static struct S3 {x==1} {
+	static struct S3 {x==1} { // ERR
 		val x:Int = 1;
 	}
 	static struct S4 {
@@ -1412,7 +1412,7 @@ class SimpleUserDefinedStructTest {
 	static class C {
 	  var s:S; 
 	  var x:S2; 
-	  var y:S3; // ShouldBeErr (because class invariant are not treated correctly: X10ClassDecl_c.classInvariant is fine, but  X10ClassDef_c.classInvariant is wrong)
+	  var y:S3; // ERR
 	  var z1:S4; // ERR
 	  var z2:S5[Int];
 	  var z3:S6; // ERR
@@ -2263,7 +2263,7 @@ class TestMethodResolution { // see XTENLANG-1915
 
 class TestHereInGenericTypes { // see also XTENLANG-1922
 	static class R {
-	  val x:Place{self==here} = here;
+	  val x:Place{self==here} = here; // ERR: Cannot use "here" in this context
 	}
 	static def foo(y:Place{self==here}) {
 		assert y==here; // will fail at runtime! but according to the static type it should succeed!
@@ -2663,7 +2663,7 @@ final class ConstraintsInClosures {
   def f(x:Int) {x!=0} = 1/x;
   def f2(x:Int{self!=0}) = 1/x;
   def test() {
-	  val bar: (Int)=>Int = (x:Int)=>this.f(x);  // ERR: should we dynamically generate a new closure that checks the guard?
+	  val bar: (Int)=>Int = (x:Int)=>this.f(x);  // ERR ERR: should we dynamically generate a new closure that checks the guard?
 	  val bar2: (Int)=>Int = (x:Int{self!=0})=>this.f2(x); // ERR
   }
 }
@@ -3258,7 +3258,7 @@ class A[T] { T <: Object } {
 }
 class Test[T]  {
 	def m1(GlobalRef[T]{self.home==here}) {} // ERR
-	def m2(GlobalRef[T]{self.home==here}) {T<:Object} {}
+	def m2(GlobalRef[T]{self.home==here}) {T<:Object} {}  // ShouldNotBeERR
 }
 static class TestStatic[T]{T<:Object} {
 	public static def m1[T]():TestStatic[T]  = null; // ERR
@@ -3325,8 +3325,8 @@ class D[V] { V == Int{self!=0} } {
 
 class Test2[W] { W haszero } {	
 	var a1:A[W];
-	class Inner {	
-		var i1:A[W];
+	class Inner { // ShouldNotBeERR
+		var i1:A[W]; // ShouldNotBeERR
 	} 
     def test1() {
         var x:A[W];
@@ -3514,10 +3514,10 @@ class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
 	def this(Boolean) {
 		property(1,2);
 	}  
-	def this(String):XTENLANG_685{self.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+	def this(String):XTENLANG_685{self.a == 1} {
 		property(2,1); // ERR
 	}  
-	def this(Float):XTENLANG_685{this.a == 1} {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
+	def this(Float):XTENLANG_685{this.a == 1} {
 		property(2,1); // ERR
 	}  
 	def this(Double) {// ShouldNotBeERR (Semantic Error: Invalid type; the real clause of XTENLANG_685{self.a==2, self.b==1} is inconsistent.)
@@ -3536,7 +3536,7 @@ class hasZeroTests {
 		var t:T; // ERR
 	}
 	class Q0[T] {T haszero} {
-	  var t:T;
+	  var t:T; // ShouldNotBeERR
 	}
 	class Q1[T] {T haszero} {
 	  val t:T; // ERR
@@ -3574,7 +3574,7 @@ class hasZeroTests {
 	  }
 	}
 	class haszeroExamples0[T] {T haszero} {
-		var t:T;
+		var t:T; // ShouldNotBeERR
 
 	  def m0() {
 		  m1(); // ok
@@ -3657,7 +3657,7 @@ class RuntimeTestsOfHaszero {
 	def foo(Double)=4;
 
 	static class A[T] {T haszero} {
-		var t:T;
+		var t:T; // ShouldNotBeERR
 	}
 }
 
@@ -3857,7 +3857,7 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		// implicit_as
 		@ERR public static operator (p:Int):Foo = null;
 		public static operator (p:Long):A = null;
-		public static operator (x:A):String = null;
+		@ERR public static operator (x:A):String = null;
 
 		// explicit_as
 		@ERR public static operator (x:Double) as Foo = null;
@@ -3871,7 +3871,7 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		// implicit_as
 		@ERR public static operator (p:Int):Foo = null;
 		public static operator (p:Long):St = St();
-		public static operator (x:St):String = null;
+		@ERR public static operator (x:St):String = null;
 
 		// explicit_as
 		@ERR public static operator (x:Double) as Foo = null;
@@ -3904,8 +3904,8 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 	// what happens if we have two possible implicit/explicit coercions?
 	// We give priority to coercions found in the target type (over the single one that can be found in the source type).
 	static class Y(j:Int) {
-		public static operator (p:Y):X{i==2} = null;
-		public static operator (p:Y) as ? :X{i==3} = null;
+		@ERR public static operator (p:Y):X{i==2} = null;
+		@ERR public static operator (p:Y) as ? :X{i==3} = null;
 	}
 	static class X(i:Int) {
 		public static operator (p:Y):X{i==1} = null;
@@ -4473,7 +4473,7 @@ class TestSetAndApplyOperators {
 		a(2) += 3; // ERR ERR
 		sa(2) += 5; 
 		val i1:Int{self==5} = sa(2) = 5; 
-		val i2:Int{self==5} = sa(2) += 5; // ShouldBeErr (XTENLANG_2277)
+		val i2:Int{self==5} = sa(2) += 5; // ERR
 		val i3:Int{self==4} = sa(2) += 5; // ERR
 	}
 }
@@ -4572,7 +4572,7 @@ class DynamicGuardCheck {
 			super(j); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
 		}
 		def this(i1:Int) {
-			this(i1,4); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
+			this(i1,4); // ERR ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
 		}
 
 		def test(q:Int) {
@@ -4609,7 +4609,7 @@ class XTENLANG_2376 {
 	  }
 	  def this(i:Int, j:Int) {i==j} {}
 	  def this(i:Int) {
-		this(i*i, i*2); // ERR: The constructor guard was not satisfied.
+		this(i*i, i*2); // ERR ERR: The constructor guard was not satisfied.
 	  }
 	}
 	class B extends A {
@@ -5181,6 +5181,25 @@ class ResolutionAndInference {
 }
 
 // resolution should ignore constraints and method guards
+class TestCtorResolutionAndConstraints(p:Int) {
+	def this(Int{self!=0}) {
+		property(1);
+	}
+	def this(Double) {
+		property(2);
+	}
+	def test() {
+		val x22 = new TestCtorResolutionAndConstraints(0); // ERR
+		val x1:TestCtorResolutionAndConstraints{self.p==1} = new TestCtorResolutionAndConstraints(1);
+		val x3:TestCtorResolutionAndConstraints{self.p==2} = new TestCtorResolutionAndConstraints(1.1);
+	}
+}
+class TestCtorOverloadingAndConstraints {
+	def this(Int{self!=0}) {
+	}
+	def this(Int) { // ERR
+	}
+}
 class TestMethodResolutionAndConstraints_instance {
 	def m(Int{self!=0}) = 1;
 	def m(Double) = "1";
@@ -5545,7 +5564,7 @@ class InterfaceSuperPropertyMethodResolution {
 	}
 	abstract class C5 
 			{a()==1} // ERR: Cannot create the default constructor because the class invariant uses property methods self or super. Please define a constructor explicitly.
-		implements B {
+		implements B { // ERR
 	}
 	abstract class C6 
 			{self.a()==1} // ERR ERR ERR: Cannot create the default constructor because the class invariant uses property methods self or super. Please define a constructor explicitly.
@@ -5553,7 +5572,7 @@ class InterfaceSuperPropertyMethodResolution {
 	}
 	abstract class C7 
 			{this.a()==1} // ERR: Cannot create the default constructor because the class invariant uses property methods self or super. Please define a constructor explicitly.
-		implements B {
+		implements B { // ERR
 	}
 }
 
@@ -5670,10 +5689,10 @@ class SimplerPropertyTest {
 }
 
 class XTENLANG_2535[T](x:Array[T]) {
-	def this() { // ShouldNotBeERR: Invalid type; the real clause of type is inconsistent.
+	def this() {
 		property(null);
 	}
-	def this(Int):XTENLANG_2535[T] { // ShouldNotBeERR: Invalid type; the real clause of type is inconsistent.
+	def this(Int):XTENLANG_2535[T] {
 		property(null);
 	}
 }
@@ -6310,7 +6329,7 @@ class DefaultCtorTests2 {
 		property a()=1;
 		def this(x:Int) {1!=x} { property(x); }
 	}
-	abstract class C6(x:Int) {this.a()!=x} implements B { // ERR
+	abstract class C6(x:Int) {this.a()!=x} implements B { // ERR ERR
 		property a()=1;
 	}
 }
@@ -6321,14 +6340,14 @@ class TestCheckingClassInvariant {
 	class C2 
 		{this.b==4} 
 		extends B {
-		def this() { // ERR ERR see XTENLANG-2628
+		def this() { // ERR see XTENLANG-2628
 			super();
 		}	
 	}
 	class C3 
 		{this.b==4} 
 		extends B {
-		def this() { // ERR ERR see XTENLANG-2628
+		def this() { // ERR see XTENLANG-2628
 		}	
 	}
 	// correct way of writing C2 is:
@@ -6340,7 +6359,7 @@ class TestCheckingClassInvariant {
 	}
 	class C4 
 		extends B{self.b==4} {
-		def this() {  // ERR ERR
+		def this() {  // ERR
 			super(); 
 		}	
 	}
@@ -6386,7 +6405,7 @@ class XTENLANG_1636 {
 		def this() {
 			property(1);
 		}
-		def this(Double) {
+		def this(Double) { // ERR
 			property(2); // ERR
 		}
 	} 
@@ -6434,7 +6453,7 @@ class StructLCATest { // see XTENLANG-2635
 	static struct A implements Op {}
 	static struct B implements Op {}
 	class Test {
-		val x:Array[Op] = [A(), B()]; // ShouldNotBeERR (Found type: x10.array.Array[x10.lang.Any])
+		val x:Array[Op] = [A(), B()]; 
 		val y:Array[Op] = [A() as Op, B()];
 		val z:Array[Op] = [A() as Op, B() as Op];
 	}
@@ -6445,12 +6464,80 @@ class ClassLCATest {
 	static class B implements Op {}
 	class Test {
 		// LCA of A and B should be Op or Object ?
-		val w:Array[Object{self!=null}] = [new A(), new B()];
-		val x:Array[Op] = [new A(), new B()]; // ERR (Found type: x10.array.Array[x10.lang.Object{self!=null}]{...})
+		val w:Array[Object{self!=null}] = [new A(), new B()]; // ERR
+		val x:Array[Op{self!=null}] = [new A(), new B()]; 
 		val y:Array[Op] = [new A() as Op, new B()];
 		val z:Array[Op] = [new A() as Op, new B() as Op];
 	}
 }
+class LCATests { // see XTENLANG-2635
+	static interface Op {}
+	static interface I1 {}
+	static interface I2 {}
+	static interface I3 {}
+
+	static class StructTests {
+		static struct S1 implements Op,I1 {}
+		static struct S2 implements Op,I2 {}
+		static struct S3 implements Op,I3 {}
+		static struct S13 implements Op,I1,I3 {}
+		static struct S23 implements Op,I2,I3 {}
+		static struct S123 implements Op,I1,I2,I3 {}
+		def test() {
+			val x1:Array[Op] = [new S1(), new S2()]; 
+			val x2:Array[Op] = [new S1(), new S2(), new S3()]; 
+			val x3:Array[Any] = [new S1(), new S13()]; 
+			val x4:Array[Op] = [new S1(), new S23()]; 
+			val x5:Array[Any] = [new S1(), new S123()]; 
+			val x6:Array[Any] = [new S123(), new S2()]; 
+			val x7:Array[Any] = [new S23(), new S2()]; 
+			val x8:Array[Op] = [new S13(), new S2()];
+		}
+	}
+	static class ClassTests {
+		static class S1 implements Op,I1 {}
+		static class S2 implements Op,I2 {}
+		static class S3 implements Op,I3 {}
+		static class S13 implements Op,I1,I3 {}
+		static class S23 implements Op,I2,I3 {}
+		static class S123 implements Op,I1,I2,I3 {}
+		def test() {
+			val x1:Array[Op{self!=null}] = [new S1(), new S2()]; 
+			val x2:Array[Op{self!=null}] = [new S1(), new S2(), new S3()]; 
+			val x3:Array[Object{self!=null}] = [new S1(), new S13()];
+			val x4:Array[Op{self!=null}] = [new S1(), new S23()]; 
+			val x5:Array[Object{self!=null}] = [new S1(), new S123()];
+			val x6:Array[Object{self!=null}] = [new S123(), new S2()];
+			val x7:Array[Object{self!=null}] = [new S23(), new S2()]; 
+			val x8:Array[Op{self!=null}] = [new S13(), new S2()];
+		}
+	}
+	static class ClassTests2 {
+		static class A {}
+
+		static class S1 extends A implements Op {}
+		static class S2 extends A implements Op {}
+		def test() {
+			val x1:Array[A{self!=null}] = [new S1(), new S2()]; 
+			val x2:Array[A{self!=null}] = [new S1(), new A()]; 
+		}
+	}
+	
+	static interface GI[T] {}
+	static class ClassTests3 {
+		static class A {}
+
+		static class S1 implements GI[Int] {}
+		static class S2 implements GI[S1] {}
+		static class S3 implements GI[S1] {}
+		def test() {
+			val x1:Array[Object{self!=null}] = [new S1(), new S2()]; 
+			val x2:Array[GI[S1]{self!=null}] = [new S2(), new S3()]; 
+		}
+	}
+
+}
+
 
 class TestClassConformance { // XTENLANG-2509
 
@@ -6547,5 +6634,219 @@ class DifferentResolutionInDynamicAndStatic {
 	def m(Double):Int = 2;
 	def test(x:Int) {
 		val z1:Int = m(x); // ERR
+	}
+}
+
+class XTENLANG_1772_test {
+       static def test() {
+               val i1:Int{self==0s};// ERR
+               val i2:Float{self==0};// ERR
+               val i3:Double{self==0};// ERR
+               val i4:UInt{self==0us};// ERR
+               val i5:Long{self==0};// ERR
+               val i6:ULong{self==0u};// ERR
+               val i7:Char{self==0};   // ERR            
+               val i8:Byte{self==0};// ERR
+               val i9:UByte{self==0u};// ERR
+       }
+}
+
+class XTENLANG_1448 {
+	class X(p:Place) {p==here} { // ERR: Cannot use "here" in this context
+		def this() {
+			property(here);
+		}
+		def test(y:X) {
+			val py:Place{self==here} = y.p; // this is wrong!
+			val x = new X();
+			val px:Place{self==here} = x.p;
+		}
+	}
+	class X2(p:Place{self==here}) { // ERR: Cannot use "here" in this context
+		def this() {
+			property(here); // ERR
+		}
+		def test(y:X2) {
+			val py:Place{self==here} = y.p; // this is wrong!
+			val x = new X2();
+			val px:Place{self==here} = x.p;
+		}
+	}
+	class HereAndGenerics {
+		def test(l:Box[Place{self==here}]) {
+			val p1:Place{self==here} = l.value;
+			at (here.next()) {
+				val p2:Place{self==here} = l.value; // ERR
+			}
+		}
+	}
+	interface Test[T] {
+		def add(t:T):void;
+	}
+	class Impl(p:Place) implements Test[Impl{self.p==here}] { // ERR: Cannot use "here" in this context
+		public def add(t:Impl{self.p==here}):void {}
+	}
+}
+class LegalOverloading1[U] {	
+	def foo(x:Any) {}
+	def foo(x:U) {}
+}
+class LegalOverloading2[U] {	
+	def foo(x:Int) {}
+	def foo(x:U) {}
+}
+class LegalOverloading3[S,U] {
+	def foo(x:S) {}
+	def foo(x:U) {}
+}
+class LegalOverloading4[S] {
+	def foo(x:S) {}
+	def foo[T](x:T) {}
+}
+
+class PropertyMethodThatIsBothTopLevelAndNested {
+	interface BI {
+	  property m():Boolean;
+	}
+	class A(p:Int) {}
+	class B(a:A,b:Int) implements BI {
+	  property m() = a.p==2 && b==5;
+	}
+	class Test {
+		def x(b:BI) {
+			val t1 = b instanceof BI{self.m()};
+			val t2 = b instanceof BI{self.m()==false};
+		}
+	}
+}
+class XTENLANG_1729 {
+    var comparator:Int;
+	static class A {
+		class B {
+			class AscendingSubMapEntrySet {
+				def test() {
+					val x = comparator();
+				}
+				public def comparator():Int = 5;
+			}
+		}
+	}
+}
+
+class XTENLANG_2525 {
+	static class X1 { // choosing system-as over user-defined-as
+		static class A(p:Int) {
+			static operator (x:B) as A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B extends A {}
+		static def test(b:B) {
+			val c1 = b as A; // ERR: warning: choosing system-as over user-defined-as
+			val c2:A{p==1} = (// ERR(return-type)
+				b as A); // ERR(warning)
+		}
+	}
+	static class X2 { // Now A extends B (instead of B extends A)
+		static class A(p:Int) extends B {
+			static operator (x:B) as A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B  {}
+		static def test(b:B) {
+			val c1 = b as A; // ERR: warning: choosing system-as over user-defined-as
+			val c2:A{p==1} = (// ERR(return-type)
+				b as A); // ERR(warning)
+		}
+	}
+	static class X3 { // Now A and B are not related - so we choose the user-defined-as
+		static class A(p:Int) {
+			static operator (x:B) as A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B {} // not: extends A
+		static def test(b:B) {
+			val c1 = b as A; // ok
+			val c2:A{p==1} = b as A; // ok
+		}
+	}
+	// Now with implicit casts (not explicit)	
+	static class X1_implicit { // choosing system-as over user-defined-as
+		static class A(p:Int) {
+			static operator (x:B) : A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B extends A {}
+		static def test(b:B) {
+			val c1 = b as A; // ERR: warning: choosing system-as over user-defined-as
+			val c2:A{p==1} = (// ERR(return-type)
+				b as A); // ERR(warning)
+		}
+	}
+	static class X2_implicit { // Now A extends B (instead of B extends A)
+		static class A(p:Int) extends B {
+			static operator (x:B) : A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B  {}
+		static def test(b:B) {
+			val c1 = b as A; // ERR: warning: choosing system-as over user-defined-as
+			val c2:A{p==1} = (// not an err(return-type) because we can (implicitly) coerce the result of the cast (A) into A{p==1}
+				b as A); // ERR(warning)
+		}
+	}
+	static class X3_implicit { // Now A and B are not related - so we choose the user-defined-as
+		static class A(p:Int) {
+			static operator (x:B) : A{p==1} = null;
+			def this() { property(2); }
+		}
+		static class B {} // not: extends A
+		static def test(b:B) {
+			val c1 = b as A; // ok
+			val c2:A{p==1} = b as A; // ok
+		}
+	}
+}
+class XTENLANG_1851 {
+	val f:Int;
+	var b:Boolean;
+	def this(Double) {
+		throw new RuntimeException();
+	}
+	def this(Char) { // ERR
+		try {
+			throw new RuntimeException();
+		} catch (e:Error) {}
+	}
+	def this(Float) { // ERR
+		async throw new RuntimeException();
+	}
+	def this(String) { // ERR
+		finish async throw new RuntimeException();
+	}
+	def this(Int) { // ERR
+	}
+	def this(Any) {
+		if (b)
+			throw new RuntimeException();
+		else
+			f = 1;
+	}
+	def this(Long) {
+		try {
+			throw new RuntimeException();
+		} catch (e:Error) {}
+		f = 1;
+	}
+	def this(Byte) {
+		try {
+			throw new RuntimeException();
+		} catch (e:Error) {}
+		throw new Exception();
+	}
+	def this(UByte) {// ERR
+		try {
+			throw new RuntimeException();
+		} catch (e:Error) {}
+		if (b) throw new Exception();
 	}
 }

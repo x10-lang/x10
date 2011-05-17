@@ -97,13 +97,6 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	    return n;
 	}
 
-	public X10AmbQualifierNode AmbQualifierNode(Position pos, Prefix prefix, Id name) {
-		X10AmbQualifierNode_c n = new X10AmbQualifierNode_c(pos, prefix, name);
-		n = (X10AmbQualifierNode_c) n.ext(extFactory().extAmbQualifierNode());
-		n = (X10AmbQualifierNode_c) n.del(delFactory().delAmbQualifierNode());
-		return n;
-	}
-
 	public UnknownTypeNode UnknownTypeNode(Position pos) {
 		UnknownTypeNode_c n = new UnknownTypeNode_c(pos);
 		n = (UnknownTypeNode_c)n.ext(extFactory().extTypeNode());

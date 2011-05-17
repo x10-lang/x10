@@ -396,7 +396,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		}
 		
 		@Override
-		public ClassType toClass() {
+		public X10ClassType toClass() {
 			Type base = baseType.get();
 			return base.toClass();
 		}

@@ -34,9 +34,9 @@ public class StructObscuringExample extends x10Test {
 }
 
 
-struct eg { // ShouldNotBeERR
+struct eg {
    static def ow()= 1;
-   static struct Bite { // ShouldNotBeERR ShouldNotBeERR ShouldNotBeERR
+   static struct Bite {
       def ow() = 2;
    }
    def example() {

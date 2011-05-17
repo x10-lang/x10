@@ -107,7 +107,7 @@ public final class RemoteArray[T](
      * @see #set(T, Int)
      */
     @Native("cuda", "(#this).raw[#1]")
-    public operator this(i:Int) {here==array.home, rank==1} = this()(i);
+    public operator this(i:Int) {here==array.home, rank==1}:T = this()(i);
 
     /**
      * Return the element of this array corresponding to the given point.
@@ -135,7 +135,7 @@ public final class RemoteArray[T](
      * @see #set(T, Point)
      */
     @Native("cuda", "(#this).raw[#i] = (#v)")
-    public operator this(i:Int)=(v:T) {here==array.home, rank==1} = this()(i)=v;
+    public operator this(i:Int)=(v:T) {here==array.home, rank==1}:T{self==v} = this()(i)=v;
 
     /**
      * Set the element of this array corresponding to the given point to the given value.

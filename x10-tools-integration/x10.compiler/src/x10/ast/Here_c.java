@@ -21,6 +21,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
@@ -32,6 +33,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -80,6 +82,16 @@ public class Here_c extends Expr_c
 
 		Type tt = ts.Place();
 		XConstrainedTerm h = xc.currentPlaceTerm();
+		if (h == null) {
+		    Errors.issue(tc.job(), new Errors.CannotUseHereInThisContext(position()));
+		    try {
+		        CConstraint d = new CConstraint();
+		        XTerm term = PlaceChecker.makePlace();
+		        h = XConstrainedTerm.instantiate(d, term);
+		    } catch (XFailure e) {
+		        throw new InternalCompilerError("Cannot construct a place term", position());
+		    }
+		}
 		if (h != null) {
 			CConstraint cc = new CConstraint();
 			cc.addSelfBinding(h);

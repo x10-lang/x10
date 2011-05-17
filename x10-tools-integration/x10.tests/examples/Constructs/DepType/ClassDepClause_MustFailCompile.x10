@@ -22,7 +22,7 @@ import harness.x10Test;
   public def this(i: int, j: int): ClassDepClause_MustFailCompile(i,j) = { property(i,j);} // ERR
   public def run(): boolean = { 
 	  var x: ClassDepClause_MustFailCompile(2,3) =  // ERR: Semantic Error: Invalid type; the real clause of ClassDepClause_MustFailCompile{self.i==2, self.j==3} is inconsistent.
-	    new ClassDepClause_MustFailCompile(2,3);  // ERR: Semantic Error: Cannot assign expression to target.
+	    new ClassDepClause_MustFailCompile(2,3); 
       return true;
     }
     

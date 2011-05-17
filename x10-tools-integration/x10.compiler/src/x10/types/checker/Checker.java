@@ -127,7 +127,7 @@ public class Checker {
 	            n = n.right(e);
 	        } else {
 	            // Don't try to extract the LHS expression, this is called by X10FieldAssign_c as well.
-	            Errors.issue(tc.job(), new Errors.CannotAssign(right, t, n.position()));
+	            Errors.issue(tc.job(), Errors.CannotAssign.make(right, t, tc, n.position()));
 	        }
 	    }
 
@@ -144,7 +144,7 @@ public class Checker {
                 Warnings.checkErrorAndGuard(tc,mi,n);
 	            t = c.type();
 	        } else {
-	            Errors.issue(tc.job(), new Errors.CannotAssign(right, t, n.position()));
+	            Errors.issue(tc.job(), Errors.CannotAssign.make(right, t, tc, n.position()));
 	        }
 	    }
 	    return n.type(t);
@@ -290,7 +290,7 @@ public class Checker {
 			// be a variable. hence the type information wont be in the context.
 			CConstraint ttc = Types.xclause(target.type());
 			ttc = ttc == null ? new CConstraint() : ttc.copy();
-			ttc = ttc.substitute(receiver, ttc.self());
+			ttc = ttc.instantiateSelf(receiver);
 			if (! Types.contextKnowsType(target))
 				x.addIn(ttc);
 			if (body != null)
@@ -314,7 +314,7 @@ public class Checker {
 		CConstraint xc = Types.xclause(target.type());
 		if (xc == null || xc.valid())
 			return type;
-		xc = xc.copy();
+		//xc = xc.copy();
 		x = x.copy();
 		try {
 			XVar receiver = Types.selfVarBinding(target.type());
@@ -322,7 +322,7 @@ public class Checker {
 			if (receiver == null) {
 				receiver = root = XTerms.makeUQV();
 			}
-			xc = xc.substitute(receiver, xc.self());
+			xc = xc.instantiateSelf(receiver);
 			if (! Types.contextKnowsType(target))
 				x.addIn(xc);
 			x=x.substitute(receiver, fi.thisVar());

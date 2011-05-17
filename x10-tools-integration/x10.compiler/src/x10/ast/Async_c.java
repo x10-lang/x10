@@ -35,7 +35,6 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
@@ -46,7 +45,6 @@ import polyglot.visit.TypeBuilder;
 import x10.errors.Errors;
 import x10.types.AsyncDef;
 import x10.types.X10ClassDef;
-import x10.types.X10Context_c;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 
@@ -203,7 +201,7 @@ public class Async_c extends Stmt_c implements Async {
 	        reporter.report(5, "enter async scope");
 	    if (child == this.body) {
 	        c = c.pushAsync(asyncDef);
-	        ((X10Context_c)c).x10Kind = X10Context_c.X10Kind.Async;
+	        c.x10Kind = Context.X10Kind.Async;
 	        return c;
 	    }
 	    return c;
@@ -236,11 +234,6 @@ public class Async_c extends Stmt_c implements Async {
 	}
 
 	
-	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		TypeSystem ts = (TypeSystem) av.typeSystem();
-		return child.type();
-	}
-
 	public String toString() {
 		return "async  { ... }";
 	}

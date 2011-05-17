@@ -41,7 +41,6 @@ import polyglot.types.Context;
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import polyglot.types.TypeSystem;
-import x10.types.X10Context_c;
 import x10.types.X10LocalDef_c;
 import x10.types.X10LocalDef;
 import x10.types.constraints.CConstraint;
@@ -54,7 +53,7 @@ public class X10Local_c extends Local_c {
 		
 	}
     public void checkLocalAccess(LocalInstance li, ContextVisitor tc) {
-	    X10Context_c context = (X10Context_c) tc.context();
+	    Context context = tc.context();
         final Name liName = name.id();
         // if the local is defined in an outer class, then it must be final
         // shared was removed from the language: you cannot access var in a closure
@@ -103,7 +102,7 @@ public class X10Local_c extends Local_c {
 
     }
 	public Node typeCheck(ContextVisitor tc) {
-	    X10Context_c context = (X10Context_c) tc.context();
+	    Context context =  tc.context();
         final Name liName = name.id();
 	    LocalInstance li = localInstance();
 	    if (!((X10LocalInstance) li).isValid()) {

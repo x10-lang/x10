@@ -43,27 +43,27 @@ public class RewriteAtomicMethodVisitor extends ContextVisitor {
 	}
 
 	@Override
-	public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+	public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
 		n = super.leaveCall(old, n, v);
 
-		if (n instanceof X10MethodDecl) {
-			X10MethodDecl md = (X10MethodDecl) n;
+		if (parent instanceof X10MethodDecl && n == ((X10MethodDecl) parent).body()) {
+			X10MethodDecl md = (X10MethodDecl) parent;
 			Flags flags = md.flags().flags();
 			if (flags.isAtomic()) {
-				Block b = md.body();
-				NodeFactory nf = (NodeFactory) this.nf;
+				Block b = (Block) n;
 				Position pos = b.position();
 
 				Expr here = nf.Here(pos);
-				here = check(here);
+				RewriteAtomicMethodVisitor ramw = (RewriteAtomicMethodVisitor) v;
+				here = ramw.check(here);
 
 				Stmt atomic = nf.Atomic(pos, here, b);
-				atomic = check(atomic);
+				atomic = ramw.check(atomic);
 
 				b = nf.Block(pos, Collections.singletonList(atomic));
-				b = check(b);
-				
-				return md.body(b);
+				b = ramw.check(b);
+
+				return b;
 			}
 		}
 

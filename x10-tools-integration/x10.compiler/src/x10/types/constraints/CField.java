@@ -59,10 +59,11 @@ public class CField extends XField<Def> {
      * (In particular the new CField has the same Def information as the old CField.)
      */
     @Override
-    public CField copy(XVar newReceiver) {
+    public CField copyReceiver(XVar newReceiver) {
         return field instanceof MethodDef ? new CField(newReceiver, (MethodDef) field)
         : new CField(newReceiver, (FieldDef) field);
     }
+    
     /**
      * Return the Def associated with this field.
      * @return

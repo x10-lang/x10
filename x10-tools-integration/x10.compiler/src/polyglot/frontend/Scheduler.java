@@ -23,7 +23,8 @@ import polyglot.main.Reporter;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Option;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import x10.types.X10ClassDef;
+import x10.util.CollectionFactory;
 import polyglot.visit.PostCompiled;
 
 
@@ -578,8 +579,8 @@ public abstract class Scheduler {
     public abstract Goal CodeGenerated(Job job);
 
     public abstract Goal LookupGlobalType(LazyRef<Type> sym);
-    public abstract Goal LookupGlobalTypeDef(LazyRef<ClassDef> sym, QName name);
-    public abstract Goal LookupGlobalTypeDefAndSetFlags(LazyRef<ClassDef> sym, QName name, Flags flags);
+    public abstract Goal LookupGlobalTypeDef(LazyRef<X10ClassDef> sym, QName name);
+    public abstract Goal LookupGlobalTypeDefAndSetFlags(LazyRef<X10ClassDef> sym, QName name, Flags flags);
 }
 
 

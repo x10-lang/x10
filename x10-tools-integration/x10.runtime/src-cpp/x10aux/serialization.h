@@ -192,6 +192,10 @@ namespace x10aux {
         char *borrow() { return buffer; }
 
         static void serialize_reference(serialization_buffer &buf, ref<x10::lang::Reference>);
+
+        template <class T> void manually_record_reference(ref<T> val) {
+            map.previous_position(val);
+        }
         
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;

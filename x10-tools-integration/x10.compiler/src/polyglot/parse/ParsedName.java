@@ -62,15 +62,6 @@ public class ParsedName {
         return nf.AmbPrefix(pos, prefix.toPrefix(), name);
     }
 
-    // type or package
-    public QualifierNode toQualifier() {
-        if (prefix == null) {
-            return nf.AmbQualifierNode(pos, name);
-        }
-
-        return nf.AmbQualifierNode(pos, prefix.toQualifier(), name);
-    }
-
     // package
     public PackageNode toPackage() {
         if (prefix == null) {
@@ -87,7 +78,7 @@ public class ParsedName {
             return nf.AmbTypeNode(pos, name);
         }
 
-        return nf.AmbTypeNode(pos, prefix.toQualifier(), name);
+        return nf.AmbTypeNode(pos, prefix.toPrefix(), name);
     }
 
     public String toString() {

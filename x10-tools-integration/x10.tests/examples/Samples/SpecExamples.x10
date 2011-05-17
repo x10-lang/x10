@@ -36,7 +36,7 @@ class TypeInferenceBugs {
 	def m(intSet: Set[Int], intList: List[Int]) {
 		val y = choose(intSet, intList);
 		val y1:Set[Int] = choose(intSet, intList); // ERR
-		val y2:Collection[Int] = choose(intSet, intList); // ShouldNotBeERR: Cannot assign expression to target.	 Expression: choose(intSet, intList)	 Expected type: x10.util.Collection[x10.lang.Int]	 Found type: x10.lang.Any{}
+		val y2:Collection[Int] = choose(intSet, intList);
 		val y3:Collection[Int] = choose[Collection[Int]](intSet, intList);
 	}
 }

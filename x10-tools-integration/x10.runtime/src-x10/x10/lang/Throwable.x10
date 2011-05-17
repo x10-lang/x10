@@ -43,7 +43,7 @@ public class Throwable {
     
     @Native("java", "#this.getMessage()")
     @Native("c++", "(#this)->getMessage()")
-    public def getMessage() = message;
+    public def getMessage():String = message;
     
     @Native("java", "#this.getCause()")
     @Native("c++", "(#this)->getCause()")
@@ -51,7 +51,7 @@ public class Throwable {
     
     @Native("java", "#this.toString()")
     @Native("c++", "x10aux::to_string(#this)")
-    public def toString() {
+    public def toString():String {
         val m = getMessage();
         return m == null ? typeName() : typeName() + ": " + getMessage();
     }

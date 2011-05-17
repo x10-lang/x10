@@ -179,37 +179,37 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
     /**
      * A bitwise left shift operator.
      * Computes the value of the left-hand operand shifted left by the value of the right-hand operand.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x3f before the shift is applied.
      * @param count the shift count
      * @return this Long shifted left by count.
      */
-    @Native("java", "((#this) << (#count))")
-    @Native("c++",  "((x10_long) ((#0) << (#1)))")
+    @Native("java", "((#this) << (#count))")  // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_long) ((#0) << (0x3f & (#1))))")
     public native operator this << (count:Int): Long;
 
     /**
      * A bitwise right shift operator.
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * replicating the sign bit into the high bits.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x3f before the shift is applied.
      * @param count the shift count
      * @return this Long shifted right by count.
      */
-    @Native("java", "((#this) >> (#count))")
-    @Native("c++",  "((x10_long) ((#0) >> (#1)))")
+    @Native("java", "((#this) >> (#count))")  // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_long) ((#0) >> (0x3f & (#1))))")
     public native operator this >> (count:Int): Long;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
      * Computes the value of the left-hand operand shifted right by the value of the right-hand operand,
      * filling the high bits with zeros.
-     * If the right-hand operand is negative, the results are undefined.
+     * The shift count will be masked with 0x3f before the shift is applied.
      * @deprecated use the right-shift operator and unsigned conversions instead.
      * @param count the shift count
      * @return this Long shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((#this) >>> (#count))")
-    @Native("c++",  "((x10_long) ((x10_ulong) (#0) >> (#1)))")
+    @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_long) ((x10_ulong) (#0) >> (0x3f & (#1))))")
     public native operator this >>> (count:Int): Long;
 
     /**
@@ -282,14 +282,14 @@ public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long
      */
     @Native("java", "java.lang.Long.MIN_VALUE")
     @Native("c++", "(x10_long)0x8000000000000000LL")
-    public static MIN_VALUE = 0x8000000000000000L;
+    public static MIN_VALUE: Long{self==0x8000000000000000L} = 0x8000000000000000L;
 
     /**
      * A constant holding the maximum value a Long can have, 2<sup>63</sup>-1.
      */
     @Native("java", "java.lang.Long.MAX_VALUE")
     @Native("c++", "(x10_long)0x7fffffffffffffffLL")
-    public static MAX_VALUE = 0x7fffffffffffffffL;
+    public static MAX_VALUE: Long{self==0x7fffffffffffffffL} = 0x7fffffffffffffffL;
 
 
     /**

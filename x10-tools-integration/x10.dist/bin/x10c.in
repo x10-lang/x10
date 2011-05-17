@@ -7,10 +7,11 @@ rtdev=""
 java_args=""
 args=""
 optimize=""
-x10rt_impl="sockets"
 
-if [[ "$UNAME" = AIX* ]]; then 
-  x10rt_impl="pgas_lapi"
+if [ "$CROSS_COMPILE_BGP" = "true" ]; then
+    x10rt_impl="pgas_bgp"
+else
+    x10rt_impl="sockets"
 fi
 
 parse=true

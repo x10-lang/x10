@@ -36,15 +36,6 @@ public abstract class AbstractNodeFactory_c implements NodeFactory
         return AmbPrefix(pos, PrefixFromQualifiedName(pos2, qualifiedName.qualifier()), Id(pos, qualifiedName.name()));
     }
     
-    public TypeNode TypeNodeFromQualifiedName(Position pos, QName qualifiedName) {
-	if (qualifiedName.qualifier() == null)
-            return AmbTypeNode(pos, null, Id(pos, qualifiedName.name()));
-        
-        Position pos2 = pos.truncateEnd(qualifiedName.name().toString().length()+1);
-        
-        return AmbTypeNode(pos, QualifierNodeFromQualifiedName(pos2, qualifiedName.qualifier()), Id(pos, qualifiedName.name()));
-    }
-    
     public Receiver ReceiverFromQualifiedName(Position pos, QName qualifiedName) {
 	if (qualifiedName.qualifier() == null)
 	    return AmbReceiver(pos, null, Id(pos, qualifiedName.name()));
@@ -64,15 +55,6 @@ public abstract class AbstractNodeFactory_c implements NodeFactory
         return Field(pos, ReceiverFromQualifiedName(pos2, qualifiedName.qualifier()), Id(pos, qualifiedName.name()));
     }
     
-    public QualifierNode QualifierNodeFromQualifiedName(Position pos, QName qualifiedName) {
-	if (qualifiedName.qualifier() == null)
-	    return AmbQualifierNode(pos, null, Id(pos, qualifiedName.name()));
-        
-	Position pos2 = pos.truncateEnd(qualifiedName.name().toString().length()+1);
-        
-        return AmbQualifierNode(pos, QualifierNodeFromQualifiedName(pos2, qualifiedName.qualifier()), Id(pos, qualifiedName.name()));
-    }
-    
     public CanonicalTypeNode CanonicalTypeNode(Position pos, Type type) {
         return CanonicalTypeNode(pos, Types.<Type>ref(type));
     }
@@ -83,10 +65,6 @@ public abstract class AbstractNodeFactory_c implements NodeFactory
 
     public final AmbReceiver AmbReceiver(Position pos, Id name) {
         return AmbReceiver(pos, null, name);
-    }
-
-    public final AmbQualifierNode AmbQualifierNode(Position pos, Id name) {
-        return AmbQualifierNode(pos, null, name);
     }
 
     public final AmbTypeNode AmbTypeNode(Position pos, Id name) {

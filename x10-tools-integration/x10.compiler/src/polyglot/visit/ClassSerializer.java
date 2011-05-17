@@ -15,6 +15,8 @@ import polyglot.main.Reporter;
 import polyglot.main.Version;
 import polyglot.types.*;
 import polyglot.util.*;
+import x10.ast.X10ClassDecl;
+import x10.types.X10ClassDef;
 import x10.types.X10ParsedClassType_c;
 
 /**
@@ -61,7 +63,7 @@ public class ClassSerializer extends NodeVisitor
 	    return n;
 	}
 
-        ClassDecl cd = (ClassDecl) n;
+        X10ClassDecl cd = (X10ClassDecl) n;
         ClassBody body = cd.body();
 
         List<ClassMember> l = createSerializationMembers(cd);
@@ -73,11 +75,11 @@ public class ClassSerializer extends NodeVisitor
         return cd.body(body);
     }
 
-    public List<ClassMember> createSerializationMembers(ClassDecl cd) {
+    public List<ClassMember> createSerializationMembers(X10ClassDecl cd) {
         return createSerializationMembers(cd.classDef());
     }
     
-    public List<ClassMember> createSerializationMembers(ClassDef cd) {
+    public List<ClassMember> createSerializationMembers(X10ClassDef cd) {
 	try {
 	    byte[] b;
             List<ClassMember> newMembers = new ArrayList<ClassMember>(3);

@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 
 import polyglot.main.Reporter;
 import polyglot.types.ClassType;
@@ -863,7 +864,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		//                    newEnv = env;
     		//                    newEnv = Collections.EMPTY_LIST;
 
-    		Context xc2 = ((X10Context_c) xcontext).pushTypeConstraint(newEnv);
+    		Context xc2 = xcontext.pushBlock();
+    		//Context xc2 = ((X10Context_c) xcontext).pushTypeConstraint(newEnv);
+    		xc2.setTypeConstraint(newEnv);
     		X10TypeEnv_c tenv = shallowCopy();
     		tenv.context = xc2;
 
@@ -1168,7 +1171,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             //                    newEnv = env;
             newEnv = Collections.<SubtypeConstraint>emptyList();
 
-            Context xc2 = ((X10Context_c) xc).pushTypeConstraint(newEnv);
+            Context xc2 = xc.pushBlock();
+            xc2.setTypeConstraint(newEnv);
+            	//((X10Context_c) xc).pushTypeConstraint(newEnv);
 
             if (term.isEqualityConstraint()) {
                 SubtypeConstraint eq = term;
@@ -1609,13 +1614,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
     }
 
+    /**
+     * Return the least common ancestor of the two types. This must always exist.
+     */
     @Override
     public Type leastCommonAncestor(Type type1, Type type2)
-    throws SemanticException
+  
     {
 
         Type t;
-        if (type1.isNull() || type2.isNull()) {
+        IF: if (type1.isNull() || type2.isNull()) {
             t = type1.isNull() ? type2 : type1;
             if (Types.permitsNull(context, t))
                 return t;
@@ -1626,9 +1634,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             // The lub should be:  Test{self.home==here}
 
             Type baseType = Types.baseType(t);
-            if (!Types.permitsNull(context, baseType))
-                throw new SemanticException("No least common ancestor found for types \"" + type1 +
-    								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
+            if (!Types.permitsNull(context, baseType)) {
+                // ok, so climb and find the least common ancestor via interfaces.
+                break IF; // return ts.Any();
+              /*  throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");*/
+            }
             // we need to keep all the constraints except the one that says the type is not null
             Type res = baseType;
             // todo: this is an attempt to keep as many constraints as possible:
@@ -1639,9 +1650,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             assert Types.consistent(res);
             assert Types.permitsNull(context, res);
             return res;
-        } else {
-            t = leastCommonAncestorBase(Types.baseType(type1), Types.baseType(type2));
-        }
+        } 
+            
+        t = leastCommonAncestorBase(Types.baseType(type1), Types.baseType(type2));
+        
     	
     	CConstraint c1 = Types.realX(type1), c2 = Types.realX(type2);
     	CConstraint c = c1.leastUpperBound(c2);
@@ -1668,12 +1680,67 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     // Assumes type1 and type2 are base types, no constraint clauses.
-    private Type leastCommonAncestorBase(Type type1, Type type2) throws SemanticException {
+    private Type leastCommonAncestorBase(Type type1, Type type2)  {
+        Type res = leastCommonAncestorBaseOld(type1, type2);
+        // try to find something better with interfaces:
+        // let's intersect all the interfaces type1 and type2 implement,
+        // then let's return the one that is a subtype of all those in the intersection.
+        // see XTENLANG-2635
+        if (ts.Any()!=res && ts.Object()!=res)
+            return res;
+        if (ts.isAny(type1) || ts.isAny(type2)) // optimization
+            return res;
+        if (type1 instanceof X10ParsedClassType_c && type2 instanceof X10ParsedClassType_c) {
+            X10ParsedClassType_c ct1 = (X10ParsedClassType_c) type1;
+            X10ParsedClassType_c ct2 = (X10ParsedClassType_c) type2;
+            Set<Type> in1 = getStrippedInterfaces(ct1);
+            Set<Type> in2 = getStrippedInterfaces(ct2);
+            Set<Type> intersection = new HashSet<Type>();
+            Context empty = ts.emptyContext();
+            for (Type t1 : in1) {
+                for (Type t2 : in2) {
+                    if (ts.typeEquals(t1,t2, empty))
+                        intersection.add(t1);
+                }
+            }
+            int size = intersection.size();
+            // Note that Object doesn't implement Any (a bug in our compiler)
+            if (size>1) {
+                // let's find the most specific one
+                Type mostSpecific = null;
+                for (Type candidate : intersection) {
+                    boolean ok = true;
+                    for (Type t : intersection)
+                        if (t!=candidate && !ts.isSubtype(candidate, t,empty)) {
+                            ok = false;
+                            break;
+                        }
+                    if (!ok) continue;
+                    mostSpecific = candidate;
+                    break;
+                }
+                if (mostSpecific!=null)
+                    return mostSpecific;
+            }
+        }
+        return res;
+    }
+    // returns all the interfaces implemented by ct, without any constraint info
+    private Set<Type> getStrippedInterfaces(X10ParsedClassType_c ct) {
+        Set<X10ParsedClassType_c> supertypes = ct.allSuperTypes(true);
+        Set<Type> res = new HashSet<Type>();
+        for (X10ParsedClassType_c s : supertypes) {
+            if (s.def().flags().isInterface())
+                res.add(Types.stripConstraints(s));
+        }
+        return res;
+    }
+    private Type leastCommonAncestorBaseOld(Type type1, Type type2)  {
     	if (typeEquals(type1, type2)) {
     		return type1;
     	}
 
-    	if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
+    	IF: if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
     	    if (type1 instanceof FunctionType && type2 instanceof FunctionType) {
     	        FunctionType ft1 = (FunctionType) type1;
     	        FunctionType ft2 = (FunctionType) type2;
@@ -1713,8 +1780,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					if (typeEquals(a1, a2))
     						newArgs.add(a1);
     					else
-    						throw new SemanticException("No least common ancestor found for types \"" + type1 +
-    								"\" and \"" + type2 + "\".");
+    					    // OK, so you have no chance of returning an LCA based 
+    					    // on analyzing the type arguments.Return to climbing
+    					    // the hierarchy.
+    					    break IF; // return ts.Object();
+    						/*throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\".");*/
     					break;
     				case COVARIANT:
     					newArgs.add(leastCommonAncestor(a1, a2));
@@ -1725,8 +1796,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					else if (isSubtype(a2, a1))
     						newArgs.add(a2);
     					else
-    						throw new SemanticException("No least common ancestor found for types \"" + type1 +
-    								"\" and \"" + type2 + "\".");
+    					    break IF; 
+    						/*throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\".");*/
     					break;
     				}
     			}
@@ -2008,11 +2080,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
 
         if (! entails) {
-            throw new SemanticException(mi.signature() + " in " + mi.container()
-                                        +" cannot override " +mj.signature() 
-                                        + " in " + mj.container() 
-                                        +"; method guard is not entailed.",
-                                        mi.position());
+            throw new SemanticException(mi.name() + " in " + mi.container()
+             +" cannot override method in " + mj.container() 
+             +"; overriding method guard is not entailed."
+             + "\n\t Overiding Method in " + mi.container() + ":" + mi.signature()
+             + "\n\t Method in " + mj.container()+":" + mj.signature()
+             ,
+             mi.position());
         }
 
         if (mi.flags().moreRestrictiveThan(mj.flags())) {
@@ -2155,7 +2229,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 	List<ConstructorInstance> list = containerClass.constructors();
 	if (error != null) list = Collections.<ConstructorInstance>emptyList();
-	for (ConstructorInstance ci : list) {
+    //When we write:  new A[T](...)
+    // then matcher.typeArgs is [T]
+    // but the ctor instance is not like a generic method (it already has the right substitution)
+    List<Type> typeArgs = Collections.EMPTY_LIST; //matcher.typeArgs;
+        boolean isDumb = matcher.isDumbMatcher;
+    boolean shouldTryCoercions = !isDumb && typeArgs.size() == 0 && container != null && (container instanceof X10ParsedClassType) && ((X10ParsedClassType) container).def().typeParameters().size() > 0;
+    List<ConstructorInstance> resolved =
+        TypeSystem_c.resolveProcedure(container, context, list, typeArgs, matcher.argTypes, isDumb);
+	for (ConstructorInstance ci : resolved) {
 	    if (reporter.should_report(Reporter.types, 3))
 		reporter.report(3, "Trying " + ci);
 
@@ -2174,7 +2256,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    	}
 	    	else {
 	    		if (error == null) {
-	    			error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() + "\n is inaccessible.");
+	    			error = new NoMemberException(NoMemberException.CONSTRUCTOR,
+	    			                              "Constructor " + ci.signature() + "\n is inaccessible.");
 	    		}
 	    	}
 
@@ -2182,13 +2265,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    }
 	    catch (SemanticException e) {
 	    	// Treat any instantiation errors as call invalid errors.
-	        int i = 1; // for debug breakpoints
+	        if (!shouldTryCoercions) error = e;
 	    }
 
 	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() 
-				+ "\n cannot be invoked with arguments \n"
-			+ matcher.argumentString() + ".");
+		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor cannot be invoked with given arguments."
+		        + "\n Signature:" + ci.signature()
+				+ "\n Arguments:" + matcher.argumentString() + ".");
 
 	    }
 	}

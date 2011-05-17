@@ -54,7 +54,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
-import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ExceptionChecker;
 import x10.constraint.XVar;
@@ -76,6 +75,7 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.ContainerType;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
 import x10.visit.X10TypeChecker;
@@ -173,27 +173,6 @@ public class X10Call_c extends Call_c implements X10Call {
     protected Type findContainer(TypeSystem ts, MethodInstance mi) {
         return mi.container();
     }
-
-  public Type childExpectedType(Expr child, AscriptionVisitor av)
-  {
-      if (child == target) {
-          return mi.container();
-      }
-
-      Iterator<Expr> i = this.arguments.iterator();
-      Iterator<Type> j = mi.formalTypes().iterator();
-
-      while (i.hasNext() && j.hasNext()) {
-          Expr e = (Expr) i.next();
-          Type t = (Type) j.next();
-
-          if (e == child) {
-              return t;
-          }
-      }
-
-      return child.type();
-  }
 
   /** Dumps the AST. */
   public void dump(CodeWriter w) {
@@ -553,6 +532,19 @@ public class X10Call_c extends Call_c implements X10Call {
 			        fi = (X10FieldInstance) c.findVariableSilent(name); // we didn't find a local, so it must be a field
 		            if (fi != null && isStatic && !fi.flags().isStatic())
 		                fi = null;
+                    // it might be a field of an outer class, so we must check all inner classes in between are non-static
+                    if (fi!=null && !fi.flags().isStatic()) {
+                        X10ClassType containerType = (X10ClassType) fi.container();
+                        X10ClassType currentClass = c.currentClass();
+                        while (containerType.def()!=currentClass.def()) {
+                            if (currentClass.flags().isStatic()) {
+                                fi = null;
+                                break;
+                            }
+                            currentClass = (X10ClassType) currentClass.outer();
+                            if (currentClass==null) break;
+                        }
+                    }
 			    }
 			    if (fi == null) {
 			        Type targetType = target() == null ? c.currentClass() : target().type();

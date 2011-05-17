@@ -35,8 +35,6 @@ public interface ExtFactory
     
     Ext extAmbPrefix();
     
-    Ext extAmbQualifierNode();
-    
     Ext extAmbReceiver();
     
     Ext extAmbTypeNode();

@@ -139,14 +139,6 @@ public class NewArray_c extends Expr_c implements NewArray
 	return type(type);
     }
 
-    public Type childExpectedType(Expr child, AscriptionVisitor av) {
-        if (child == init) {
-            return this.type();
-        }
-
-        return child.type();
-    }
-
     public String toString() {
 	return "new " + baseType + "[...]";
     }

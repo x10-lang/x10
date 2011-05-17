@@ -166,19 +166,20 @@ public class Struct {
 
         final Flags flags = Flags.PUBLIC.Final();
         final NodeFactory nf = tb.nodeFactory();
-        final TypeNode intTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Int"));
-        final TypeNode boolTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Boolean"));
-        final TypeNode placeTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Place"));
-        final TypeNode objectTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Object"));
-        final TypeNode stringTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","String"));
-        final TypeNode anyTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Any"));
+        final TypeSystem ts = tb.typeSystem();
+        final TypeNode intTypeNode = nf.CanonicalTypeNode(pos, ts.Int());
+        final TypeNode boolTypeNode = nf.CanonicalTypeNode(pos, ts.Boolean());
+        final TypeNode placeTypeNode = nf.CanonicalTypeNode(pos, ts.Place());
+        final TypeNode objectTypeNode = nf.CanonicalTypeNode(pos, ts.Object());
+        final TypeNode stringTypeNode = nf.CanonicalTypeNode(pos, ts.String());
+        final TypeNode anyTypeNode = nf.CanonicalTypeNode(pos, ts.Any());
         final List<TypeParamNode> typeParamNodeList = n.typeParameters();
         List<TypeNode> params = new ArrayList<TypeNode>();
         for (TypeParamNode p : typeParamNodeList)
-            params.add(nf.TypeNodeFromQualifiedName(pos,QName.make(null,p.name().id())));
-        final TypeNode structTypeNode = typeParamNodeList.isEmpty() ? nf.TypeNodeFromQualifiedName(pos,fullName) :
+            params.add(nf.CanonicalTypeNode(pos, p.type()));
+        final TypeNode structTypeNode = typeParamNodeList.isEmpty() ? nf.CanonicalTypeNode(pos, cd.asType()) :
                 nf.AmbDepTypeNode(pos, null,
-                        nf.Id(pos,fullName.name()), params, Collections.<Expr>emptyList(), null);
+                        nf.Id(pos, fullName.name()), params, Collections.<Expr>emptyList(), null);
         ArrayList<Stmt> bodyStmts;
         Expr expr;
         Block block;

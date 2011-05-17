@@ -47,6 +47,7 @@ import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
+import x10.constraint.XPromise;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
@@ -282,29 +283,61 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	}
 	
 	/**
-	 * Substitute ys for xs in this, returning a new constraint.
-	 * // Redeclare with the right return type
-	 */
-	@Override
-	public CConstraint substitute(XTerm[] ys, XVar[] xs, boolean propagate) throws XFailure {
-		return substitute(ys, xs);
-	}
-	/**
 	 * Return a new constraint obtained from the current one by substituting
-	 * newSelf for this.self(). Note, the resulting constraint may be marked inconsistent.
+	 * newSelf for this.self(). 
+	 * 
+	 * Consequently, the self variable of the returned constraint does not
+	 * occur in it.
+	 * 
+	 * Note, the resulting constraint may be marked inconsistent.
+	 * 
 	 * FIXME: Yoav, this should also take a term to substitute for this, and return an XConstraint
 	 * @param newSelf
 	 * @return
 	 */
 	public CConstraint instantiateSelf(XTerm newSelf) {
-		try {
-			return substitute(newSelf, self());
-		} catch (XFailure z) {
-			CConstraint False = new CConstraint();
-			False.setInconsistent();
-			return False;
-		}
+        CConstraint result = new CConstraint();
+        List<XTerm> terms = constraints();
+        for (XTerm term : terms) {
+            XTerm t = term.subst(newSelf,self);
+            try {
+            result.addTerm(t);
+            } catch (XFailure z) {
+                result.setInconsistent();
+                return result;
+            }
+        }
+        return result;
 	}
+
+    /**
+     * Return those subset of constraints in the base set of other that are 
+     * <em>not</em> implied by this. That is, return the residue
+     * r such that (r and this) implies other.
+     * @param other -- must be checked for consistency before call is made
+     * @return
+     */
+
+    public CConstraint residue(CConstraint other) {
+        other = other.instantiateSelf(self());
+        assert other.consistent();
+        
+        CConstraint result = new CConstraint();
+        if (! consistent)
+            return result;
+
+        for (XTerm term : other.constraints()) {
+            try {
+                if (! entails(term)) {
+                    result.addTerm(term);
+                }
+            } catch (XFailure z) {
+                // since other is consistent, result must be.
+                result.setInconsistent();
+            }
+        }
+        return result;
+    }
 
 	public static XVar getThisVar(CConstraint t1, CConstraint t2) throws XFailure {
 		XVar thisVar = t1 == null ? null : t1.thisVar();
@@ -316,6 +349,11 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		return thisVar;
 	}
 	/**
+	 * Return the result of substituting each yi for xi in this.
+	 * 
+	 * The self var of the resulting constraint is guaranteed different from
+	 * the self var of this.
+	 * 
 	 * TODO: Use an XGraphVisitor instead of constraints().
 	 * Note: The only vars that need to be changed are in roots!
 	 * So doing constraints() and iterating over its terms is really bad.
@@ -323,6 +361,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	public CConstraint substitute(XTerm[] ys, XVar[] xs) throws XFailure {
 		assert (ys != null && xs != null);
 		assert xs.length == ys.length;
+		//for (XVar x : xs)
+		//    assert x != self;
 
 		boolean eq = true;
 		for (int i = 0; i < ys.length; i++) {
@@ -371,9 +411,6 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				throw z;
 			}
 		}
-		//		XConstraint_c result = clone();
-		//		result.valid = true;
-		//		result.applySubstitution(y,x);
 		return result;
 	}
 	
@@ -459,6 +496,21 @@ public class CConstraint extends XConstraint  implements ThisVar {
         return ev.result();
         }
         */
+	@Override
+	 protected XTerm bindingForRootField(XVar root, Object field) {
+	    XTerm term;
+	    if (field instanceof FieldDef)
+	        term = new CField(root, (FieldDef) field);
+	    else if (field instanceof MethodDef)
+	        term = new CField(root, (MethodDef) field);
+	    else {
+	        assert false;
+	        term = null;
+	    }
+	    XPromise p = term.nfp(this);
+	    if (p == null) return null;
+	    return p.term();
+	    }
 	public XTerm bindingForSelfField(FieldDef fd)  {
 		return bindingForRootField(self(), fd);
 	}
@@ -550,8 +602,10 @@ public class CConstraint extends XConstraint  implements ThisVar {
 */
 	/**
 	 * Return the constraint obtained by existentially quantifying out the 
-	 * Svariable v.
+	 * variable v.
 	 * 
+	 * The self var of the resulting constraint is guaranteed different from
+	 * the self var of this.
 	 * @param v
 	 * @return
 	 */
@@ -569,6 +623,17 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		return result;
 	}
 
+	/**
+	 * Return exists self.this. Guaranteed that the self var of the
+	 *  returned constrained does not occur in the constraint.
+	 *  
+	 * The self var of the resulting constraint is guaranteed different from
+     * the self var of this.
+	 * @return
+	 */
+	public CConstraint exists() {
+	    return instantiateSelf(XTerms.makeEQV());
+	}
 	/**
 	 * Add in the constraint c, and all the constraints associated with the
 	 * types of the terms referenced in t.
@@ -659,13 +724,12 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ld.placeTerm());
 				CConstraint ci = Types.realX(ty);
 			    r = new CConstraint();
-				try {
-				ci = ci.substitute(v, ci.self());
-				} catch (XFailure z) {
-				    r.setInconsistent();
-				    return r;
-				}
+			
+				ci = ci.instantiateSelf(v);
+				
 				r.addIn(ci);
+				if (! r.consistent())
+				    return r;
 				// Recursively perform a constraintProjection on the new constraint ci
 				// only if one of the ancestor terms does not occur in it.
 			// if (! contains(ancestors, ci.terms()))
@@ -699,14 +763,11 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				        return r;
 				    }
 				}
-				try {
-				    ci = ci.substitute(f, ci.self());
-				} catch (XFailure z) {
-				    r.setInconsistent();
-				    return r;
-				}
 				
+				ci = ci.instantiateSelf(f);
 				r.addIn(ci);
+				if (! r.consistent())
+				    return r;
 				
 				// Recursively perform a constraintProjection on the new constraint ci
 				// only if one of the ancestor terms does not occur in it.
@@ -748,20 +809,15 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		CConstraint c1 = this;
 		CConstraint result = c1.leastUpperBound0(c2);
 		CConstraint c1a = null, c2a = null;
-		try {
-			XVar x = c1.selfVarBinding();
-			if (x instanceof XVar)
-				c1a = c1.substitute(XTerms.makeEQV(), (XVar) x);
-		} catch (XFailure z) {
-			// should not happen.
-		}
-		try {
+
+		XVar x0 = c1.selfVarBinding();
+		if (x0 instanceof XVar)
+		    c1a = c1.project((XVar) x0);
+
 			XVar x =  c2.selfVarBinding();
 			if (x instanceof XVar)
-				c2a = c2.substitute(XTerms.makeEQV(), (XVar) x);
-		} catch (XFailure z) {
-			// should not happen.
-		}
+				c2a = c2.project((XVar) x);
+		
 		if (c1a != null) {
 			CConstraint d = c1a.leastUpperBound0(c2);
 			if (d.entails(result))

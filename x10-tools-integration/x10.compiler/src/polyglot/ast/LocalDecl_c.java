@@ -198,8 +198,6 @@ public abstract class LocalDecl_c extends Stmt_c implements LocalDecl {
         return this;
     }
 
-    public abstract Type childExpectedType(Expr child, AscriptionVisitor av);
-
     public abstract String toString();
 
     public abstract void prettyPrint(CodeWriter w, PrettyPrinter tr);

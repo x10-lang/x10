@@ -49,6 +49,7 @@ import polyglot.frontend.SetResolverGoal;
 import polyglot.main.Reporter;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
@@ -114,7 +115,6 @@ import x10.types.X10TypeEnv_c;
 
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
-import x10.types.X10Context_c;
 import x10.types.X10ParsedClassType;
 import x10.types.X10MethodDef_c;
 import x10.types.checker.Checker;
@@ -259,7 +259,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 		mi.setFormalNames(formalNames);
 
-		if (n.returnType() instanceof UnknownTypeNode && n.body() == null) {
+		if (n.returnType() instanceof UnknownTypeNode && n.body() == null && X10FieldDecl_c.shouldInferType(this, ts)) {
 			Errors.issue(tb.job(),
 			             new Errors.CannotInferMethodReturnType(position()));
 			NodeFactory nf = tb.nodeFactory();
@@ -390,7 +390,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	public Context enterChildScope(Node child, Context c) {
 		// We should have entered the method scope already.
 		assert c.currentCode() == this.methodDef();
-
+		Context oldC=c;
 		if (child != body()) {
 			// Push formals so they're in scope in the types of the other formals.
 			c = c.pushBlock();
@@ -407,44 +407,65 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 
 		// Ensure that the place constraint is set appropriately when
-		// entering the body of the method, the return type and the throw type.
+		// entering the appropriate children
 		if (child == body || child == returnType || child == hasType || child == offerType || child == guard
 				|| (formals != null && formals.contains(child))) {
+			if (c == oldC)
+				c = c.pushBlock();
+			PlaceChecker.setHereTerm(methodDef(), placeTerm, c);
 			if (placeTerm != null) {
-				c = c.pushPlace(XConstrainedTerm.make(placeTerm));
+				c.setPlace(XConstrainedTerm.make(placeTerm));
 			} else {
-			    c = PlaceChecker.pushHereTerm(methodDef(), c);
+			   PlaceChecker.setHereTerm(methodDef(), c);
 			}
 		}
 
 		if (child == body && offerType != null && offerType.typeRef().known()) {
-		    c = c.pushCollectingFinishScope(offerType.type());
+			if (oldC==c)
+				c = c.pushBlock();
+		    c.setCollectingFinishScope(offerType.type());
 		}
 
 		// Add the method guard into the environment.
 		if (guard != null) {
-			Ref<CConstraint> vc = guard.valueConstraint();
-			Ref<TypeConstraint> tc = guard.typeConstraint();
+		    if (child == body || child == offerType ||  child == hasType || child == returnType) {
+		        Ref<CConstraint> vc = guard.valueConstraint();
+		        Ref<TypeConstraint> tc = guard.typeConstraint();
 
-			if (vc != null || tc != null) {
-				c = c.pushBlock();
-				try {
-					if (vc.known())
-						c = c.pushAdditionalConstraint(vc.get(), position());
-					if (tc.known())
-						c = ((X10Context_c) c).pushTypeConstraintWithContextTerms(tc.get());
-
-				} catch (SemanticException z) {
-					// inconsistent guard -- ignore
-				}
-				//        ((X10Context) c).setCurrentConstraint(vc.get());
-				//        ((X10Context) c).setCurrentTypeConstraint(tc.get());
-			}            
+		        if (vc != null || tc != null) {
+		            if (oldC==c) {
+		                c = c.pushBlock();
+		            }
+		            c.setName(" MethodGuard for |" + mi.name() + "| ");
+		            if (vc != null)
+		                c.addConstraint(vc);
+		            if (tc != null) {
+		                c.setTypeConstraintWithContextTerms(tc);
+		            }
+		        }            
+		    }
 		}
-		c.addInClassInvariantIfNeeded(false);
+		addInClassInvariantIfNeeded(c, false);
 		return super.enterChildScope(child, c);
 	}
-
+	public void addInClassInvariantIfNeeded(Context c, boolean force) {
+	    if (!mi.flags().isStatic()) {
+	        // this call occurs in the body of an instance method for T.
+	        // Pick up the real clause for T -- that information is known 
+	        // statically about "this"
+	        Ref<? extends ContainerType> container = mi.container();
+	        if (container.known()) { 
+	            X10ClassType type = (X10ClassType) Types.get(container);
+	            
+	            Ref<CConstraint> rc = type.x10Def().realClauseWithThis();
+	            c.addConstraint(rc);
+	            Ref<TypeConstraint> tc = type.x10Def().typeBounds();
+	            if (tc != null) {
+	                c.setTypeConstraintWithContextTerms(tc);
+	            }
+	        }
+	    }
+	}
 	public void translate(CodeWriter w, Translator tr) {
 		Context c = tr.context();
 		Flags flags = flags().flags();
@@ -594,9 +615,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             //class B[U] {
             //    public static operator[T](x:T):B[T] = null;
             //}
+            // We only search in the target type (not the source type), so
+            // public static operator (x:Bar) as Any = null; // ERR
             assert container instanceof X10ParsedClassType : container;
             boolean isReturnWrong = !(returnT   instanceof X10ParsedClassType) || ((X10ParsedClassType)returnT  ).def()!=((X10ParsedClassType)container).def();
-            boolean isFormalWrong = !(argumentT instanceof X10ParsedClassType) || ((X10ParsedClassType)argumentT).def()!=((X10ParsedClassType)container).def();
+            boolean isFormalWrong = SEARCH_CASTS_ONLY_IN_TARGET ||  !(argumentT instanceof X10ParsedClassType) || ((X10ParsedClassType)argumentT).def()!=((X10ParsedClassType)container).def();
             if (isReturnWrong && isFormalWrong) {
                 Errors.issue(tc.job(),
 				        new Errors.MustHaveSameClassAsContainer(n.position()));
@@ -604,6 +627,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         }
 		return n;
 	}
+    private static boolean SEARCH_CASTS_ONLY_IN_TARGET = true; // see XTENLANG_2667
 
 
 
@@ -663,7 +687,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// Note that the guard should not be added, since we need to check that the
 		// guard is entailed by any method that is overridden by this method.
 		Context childtc = tc.context().pushBlock(); 
-		childtc.addInClassInvariantIfNeeded(true);
+		addInClassInvariantIfNeeded(childtc, true);
 		ContextVisitor childVisitor = tc.context(childtc);
 		return super.conformanceCheck(childVisitor);
 	}
@@ -892,16 +916,21 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 
+        // Step 0.  Process annotations.
+        TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
+        nn = (X10MethodDecl) X10Del_c.visitAnnotations(nn, childtc);
+
+        // Do not infer types of native fields
+        if (nn.returnType() instanceof UnknownTypeNode && ! X10FieldDecl_c.shouldInferType(this, xts))
+            Errors.issue(tc.job(), new Errors.CannotInferNativeMethodReturnType(position()));
+        
 		// Step I.a.  Check the formals.
-		TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
 
 		// First, record the final status of each of the type params and formals.
 		List<TypeParamNode> processedTypeParams = nn.visitList(nn.typeParameters(), childtc);
 		nn = (X10MethodDecl) nn.typeParameters(processedTypeParams);
 		List<Formal> processedFormals = nn.visitList(nn.formals(), childtc);
 		nn = (X10MethodDecl) nn.formals(processedFormals);
-
-		nn = (X10MethodDecl) X10Del_c.visitAnnotations(nn, childtc);
 
 		// [NN]: Don't do this here, do it on lookup of the formal.  We don't want spurious self constraints in the signature.
 		//            for (Formal n : processedFormals) {
@@ -1019,7 +1048,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		nn.visitList(nn.formals(),childtc1);
 		
 		Context childCxt = childtc1.context();
-		childCxt.addInClassInvariantIfNeeded(true);
+		addInClassInvariantIfNeeded(childCxt, true);
 		childCxt.setVarWhoseTypeIsBeingElaborated(null);
 		{ 
 			final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
@@ -1062,14 +1091,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		nn.visitList(nn.typeParameters(),childtc2);
 		nn.visitList(nn.formals(),childtc2);
 		
-		Context childCxt2 = childtc2.context();
-		childCxt2.addInClassInvariantIfNeeded(true);
+		addInClassInvariantIfNeeded(childtc2.context(), true);
 		//reporter.report(1, "X10MethodDecl_c: after visiting formals " + childtc2.context());
 		// Now process the body.
 		nn = (X10MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
 		nn = (X10MethodDecl) childtc2.leave(parent, old, nn, childtc2);
 
-		if (nn.returnType() instanceof UnknownTypeNode) {
+		if (nn.returnType() instanceof UnknownTypeNode && X10FieldDecl_c.shouldInferType(this, tc.typeSystem())) {
 			NodeFactory nf = tc.nodeFactory();
 			TypeSystem ts = (TypeSystem) tc.typeSystem();
 			// Body had no return statement.  Set to void.

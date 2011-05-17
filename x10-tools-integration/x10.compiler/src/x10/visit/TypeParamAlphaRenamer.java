@@ -181,6 +181,7 @@ public class TypeParamAlphaRenamer extends NodeTransformingVisitor {
             adjustClassDef(def, subst);
             List<ParameterType> tps = def.typeParameters();
             List<TypeParamNode> tpns = ((ClassDecl) n).typeParameters();
+            boolean changed = false;
             for (int i = 0; i < tps.size(); i++) {
                 ParameterType p = tps.get(i);
                 ParameterType.Variance z = def.variances().get(i);
@@ -189,7 +190,11 @@ public class TypeParamAlphaRenamer extends NodeTransformingVisitor {
                 if (np != null) {
                     assert (tpn.type().typeEquals(np, context));
                     def.replaceTypeParameter(i, np, z);
+                    changed = true;
                 }
+            }
+            if (changed) {
+                def.setSubst(subst);
             }
             return n;
         }

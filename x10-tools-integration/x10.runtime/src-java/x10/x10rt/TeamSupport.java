@@ -11,6 +11,7 @@
 package x10.x10rt;
 
 import x10.core.IndexedMemoryChunk;
+import x10.core.ThrowableUtilities;
 import x10.lang.FinishState;
 import x10.lang.Place;
 
@@ -28,7 +29,7 @@ public class TeamSupport {
     
     private static int getTypeCode(IndexedMemoryChunk<?> chunk) {
         Object chunkRaw = chunk.getBackingArray();
-        int typeCode;
+        int typeCode = 0;
         if (chunkRaw instanceof byte[]) {
             typeCode = RED_TYPE_BYTE;
         } else if (chunkRaw instanceof short[]) {
@@ -42,7 +43,7 @@ public class TeamSupport {
         } else if (chunkRaw instanceof float[]) {
             typeCode = RED_TYPE_FLOAT;
         } else {
-            throw new x10.lang.UnsupportedOperationException("Unsupported type of src array "+chunk.type.typeName()+" in nativeAllReduce");
+        	ThrowableUtilities.UnsupportedOperationException("Unsupported type of src array "+chunk.type.typeName()+" in nativeAllReduce");
         }
         return typeCode;
     }
@@ -74,19 +75,19 @@ public class TeamSupport {
     public static void nativeScatter(int id, int role, int root, IndexedMemoryChunk<?> src, int src_off, 
 	                                 IndexedMemoryChunk<?> dst, int dst_off, int count) {
         System.err.println("About to die in nativeScatter");
-		throw new UnsupportedOperationException("nativeScatter");
+        ThrowableUtilities.UnsupportedOperationException("nativeScatter");
 	}
 	
     public static void nativeBcast(int id, int role, int root, IndexedMemoryChunk<?> src, int src_off, 
                                    IndexedMemoryChunk<?> dst, int dst_off, int count) {
         System.err.println("About to die in nativeBcast");
-        throw new UnsupportedOperationException("nativeBcast");
+        ThrowableUtilities.UnsupportedOperationException("nativeBcast");
     }
     
     public static void nativeAllToAll(int id, int role, IndexedMemoryChunk<?> src, int src_off, 
                                       IndexedMemoryChunk<?> dst, int dst_off, int count) {
         System.err.println("About to die in nativeAllToAll");
-        throw new UnsupportedOperationException("nativeAllToAll");
+        ThrowableUtilities.UnsupportedOperationException("nativeAllToAll");
     }
     
     public static void nativeAllReduce(int id, int role, IndexedMemoryChunk<?> src, int src_off, 
@@ -105,18 +106,18 @@ public class TeamSupport {
     public static void nativeIndexOfMax(int id, int role, IndexedMemoryChunk<?> src,
                                         IndexedMemoryChunk<?> dst) {
         System.err.println("About to die in nativeIndexOfMax");
-        throw new UnsupportedOperationException("nativeIndexOfMax");
+        ThrowableUtilities.UnsupportedOperationException("nativeIndexOfMax");
     }
 
     public static void nativeIndexOfMin(int id, int role, IndexedMemoryChunk<?> src,
                                         IndexedMemoryChunk<?> dst) {
         System.err.println("About to die in nativeIndexOfMin");
-        throw new UnsupportedOperationException("nativeIndexOfMin");
+        ThrowableUtilities.UnsupportedOperationException("nativeIndexOfMin");
     }
 
     public static void nativeSplit(int id, int role, int color, int new_role, IndexedMemoryChunk<Integer> result) {
         System.err.println("About to die in nativeSplit");
-       throw new UnsupportedOperationException("nativeSplit");
+        ThrowableUtilities.UnsupportedOperationException("nativeSplit");
     }
     
     public static void nativeDel(int id, int role) {

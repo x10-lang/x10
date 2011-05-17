@@ -113,7 +113,7 @@ public interface NodeOps
      *
      * @param ar The visitor which disambiguates.
      */
-    Node disambiguate(ContextVisitor ar) throws SemanticException;
+    Node disambiguate(ContextVisitor ar);
 
     Node setResolverOverride(Node parent, TypeCheckPreparer v);
     void setResolver(Node parent, TypeCheckPreparer v);

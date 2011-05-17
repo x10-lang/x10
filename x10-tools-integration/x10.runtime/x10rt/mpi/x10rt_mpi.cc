@@ -1103,6 +1103,11 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
     abort();
 }
 
+void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
+{
+	abort();
+}
+
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
                          x10rt_completion_handler2 *ch, void *arg)
 {

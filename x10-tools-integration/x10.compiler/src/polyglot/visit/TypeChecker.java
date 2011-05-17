@@ -51,7 +51,7 @@ public class TypeChecker extends ContextVisitor
         return v;
     }
     
-    protected Node leaveCall(Node old, final Node n, NodeVisitor v) throws SemanticException {
+    protected Node leaveCall(Node old, final Node n, NodeVisitor v) {
         final TypeChecker tc = (TypeChecker) v;
 
         // Check for expressions with unknown type.  This avoids reporting too many type errors.

@@ -63,6 +63,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -647,7 +648,7 @@ public class Synthesizer {
 		
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeArgsN) typeArgs.add(t.type());
-        ClassType container = receiver.toClass();
+        X10ClassType container = receiver.toClass();
         MethodInstance mi = xts.findMethod(receiver,
                 xts.MethodMatcher(receiver, name, typeArgs, argTypes, xc.pushClass(container.def(), container)));
         Call result= (Call) xnf.X10Call(pos, 
@@ -703,7 +704,7 @@ public class Synthesizer {
 		
         List<Type> typeArgs = new ArrayList<Type>();
         for (TypeNode t : typeArgsN) typeArgs.add(t.type());
-        ClassType container = receiver.type().toClass();
+        X10ClassType container = receiver.type().toClass();
         MethodInstance mi = xts.findMethod(container,
                 xts.MethodMatcher(container, name, typeArgs, argTypes, xc.pushClass(container.def(), container)));
         Call result= (Call) xnf.X10Call(pos, 
@@ -1483,7 +1484,11 @@ public class Synthesizer {
         Object val = ((XLit) receiver).val();
         if (!(val instanceof QName))
             return null;
-        return xnf.TypeNodeFromQualifiedName(pos, (QName) val);
+        try {
+            return xnf.CanonicalTypeNode(pos, xts.forName((QName) val));
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Invalid type encountered in a constraint: "+val, e);
+        }
     }
 
     Expr makeExpr(CField t, Position pos) {
@@ -1515,7 +1520,7 @@ public class Synthesizer {
         TypeNode tn = null;
         Type type = ct.type();
         if (type != null) {
-            tn = xnf.TypeNodeFromQualifiedName(pos,QName.make(type.toString()));
+            tn = xnf.CanonicalTypeNode(pos, type);
         }
         return tn == null ? xnf.Special(pos, X10Special.THIS)
                 : xnf.Special(pos, X10Special.THIS, tn);

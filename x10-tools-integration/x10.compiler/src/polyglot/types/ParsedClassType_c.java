@@ -12,6 +12,7 @@ import java.util.*;
 import polyglot.frontend.*;
 import polyglot.util.*;
 import x10.types.MethodInstance;
+import x10.types.X10ClassDef;
 
 /**
  * ParsedClassType
@@ -57,11 +58,11 @@ public abstract class ParsedClassType_c extends ClassType_c implements ParsedCla
         return def().job();
     }
     
-    public ParsedClassType_c(ClassDef def) {
+    public ParsedClassType_c(X10ClassDef def) {
         this(def.typeSystem(), def.position(), Types.ref(def));
     }
 
-    public ParsedClassType_c(TypeSystem ts, Position pos, Ref<? extends ClassDef> def) {
+    public ParsedClassType_c(TypeSystem ts, Position pos, Ref<? extends X10ClassDef> def) {
         super(ts, pos, def);
     }
     

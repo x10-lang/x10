@@ -9,6 +9,7 @@ package polyglot.types;
 
 import polyglot.util.CodeWriter;
 import x10.types.Annotated;
+import x10.types.X10ClassType;
 
 /**
  * A <code>Type</code> is the base type of all classes which represent
@@ -38,7 +39,7 @@ public interface Type extends Qualifier, Annotated, Named
     /**
      * Cast the type to a class type, or null.
      */
-    ClassType toClass();
+    X10ClassType toClass();
 
     /**
      * Cast the type to a null type, or null.

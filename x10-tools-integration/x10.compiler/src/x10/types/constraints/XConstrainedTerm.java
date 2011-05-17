@@ -113,15 +113,10 @@ public class XConstrainedTerm  {
 	 * @return
 	 */
 	public CConstraint xconstraint() {
-		CConstraint s = constraint();
-		s = s == null ? new CConstraint() : s.copy();
-		try {
-			s = s.substitute(term(), s.self());
-		} catch (XFailure z) {
-			s.setInconsistent();
-		}
-		return s;
-		
+	    CConstraint s = constraint();
+	    s = s == null ? new CConstraint() : s.copy();
+	    s = s.instantiateSelf(term());
+	    return s;
 	}
 	
 	public String toString() { return term.toString() + constraint.toString();}

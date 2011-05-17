@@ -64,7 +64,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     protected Flags flags;
     protected Kind kind;
     protected Name name;
-    protected Ref<ClassDef> outer;
+    protected Ref<X10ClassDef> outer;
     protected List<Ref<? extends ClassType>> memberClasses;
     protected transient ClassType asType;
     
@@ -131,11 +131,6 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     }
     
     // END ANNOTATION MIXIN
-    
- 
-
-   
-  
 
     Ref<TypeConstraint> typeBounds;
     
@@ -146,8 +141,6 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public void setTypeBounds(Ref<TypeConstraint> c) {
         this.typeBounds = c;
     }
-
-   
 
     protected Ref<CConstraint> classInvariant; 
 
@@ -174,6 +167,23 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     
     // Cached realClause of the root type.
     Ref<CConstraint> realClause = setRealClause();
+    Ref<CConstraint> realClauseWithThis = setRealClauseWithThis();
+    
+    private Ref<CConstraint> setRealClauseWithThis() {
+        final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(new CConstraint());
+        final Runnable runnable = new Runnable() {
+            public void run() {
+                CConstraint c = X10ClassDef_c.this.realClause.get();
+                c = c.instantiateSelf(thisVar());
+                ref.update(c);
+            }
+            public String toString() {
+                return "realClauseWithThis for " + X10ClassDef_c.this;
+            }
+        };
+        ref.setResolver(runnable);
+        return ref;
+    }
     
     /**
      * Set the realClause for this type. The realClause is the conjunction of the
@@ -236,11 +246,11 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     					    if (rs != null) {
     						    // Given: f:C{c}
     						    // Add in: c[self.f/self,self/this]
-    						    XTerm newSelf = ts.xtypeTranslator().translate(rs.self(), fi.asInstance());
-    						    CConstraint rs1 = rs.substitute(newSelf, rs.self());
+    						    XTerm newSelf = ts.xtypeTranslator().translate(result.self(), fi.asInstance());
+    						    CConstraint rs1 = rs.instantiateSelf(newSelf);
     						    CConstraint rs2;
     						    if (fiThis != null)
-    						        rs2 = rs1.substitute(rs1.self(), fiThis);
+    						        rs2 = rs1.substitute(result.self(), fiThis);
     						    else
     						        rs2 = rs1;
     						    result.addIn(rs2);
@@ -302,6 +312,9 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     			    this.computing = false;
     		    }
     		}
+    		public String toString() {
+    		    return "realClause for " + X10ClassDef_c.this;
+    		}
     	};
     	ref.setResolver(runnable);
     	return ref;
@@ -309,6 +322,9 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
   
     public Ref<CConstraint> realClause() {
     	return realClause;
+    }
+    public Ref<CConstraint> realClauseWithThis() {
+        return realClauseWithThis;
     }
     public CConstraint getRealClause() {
     	return realClause.get();
@@ -362,6 +378,10 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 	variances.set(i, v);
     }
     
+    TypeParamSubst subst = null;
+    public TypeParamSubst subst() { return this.subst; }
+    public void setSubst(TypeParamSubst subst) { this.subst = subst; }
+
     List<TypeDef> typeMembers;
 
     // TODO:
@@ -532,7 +552,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         return inStaticContext;
     }
 
-    public Ref<? extends ClassDef> outer() {
+    public Ref<? extends X10ClassDef> outer() {
         if (kind() == TOP_LEVEL)
             return null;
         if (outer == null)
@@ -570,7 +590,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         this.kind = kind;
     }
 
-    public void outer(Ref<ClassDef> outer) {
+    public void outer(Ref<X10ClassDef> outer) {
         if (outer != null && kind() == TOP_LEVEL)
             throw new InternalCompilerError("Top-level classes cannot have outer classes.");
         this.outer = outer;

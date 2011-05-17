@@ -78,10 +78,7 @@ int Launcher::setPort(uint32_t place, char* port)
 		#endif
 	}
 	else
-	{
-		_singleton->_runtimePort = (char*)malloc(strlen(port)+1);
 		strcpy(_singleton->_runtimePort, port);
-	}
 	return 1;
 }
 
@@ -441,7 +438,6 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 
 	// free up allocated memory (not really needed, since we're about to exit)
 	free(_hostlist);
-	free(_runtimePort);
 	#ifdef DEBUG
 		fprintf(stderr, "Launcher %u: cleanup complete.  Goodbye!\n", _myproc);
 	#endif
@@ -580,7 +576,6 @@ void Launcher::handleNewChildConnection(void)
 			_childControlLinks[_numchildren] = fd;
 			if (m.datalen > 0)
 			{
-				_runtimePort = (char*)malloc(m.datalen+1);
 				_runtimePort[m.datalen] = '\0';
 				size = TCP::read(_childControlLinks[_numchildren], _runtimePort, m.datalen);
 				if (size < m.datalen)
@@ -726,7 +721,7 @@ int Launcher::handleControlMessage(int fd)
 		{
 			case PORT_REQUEST:
 			{
-				while (_runtimePort == NULL)
+				while (_runtimePort[0] == '\0')
 				{
 					sched_yield();
 					handleRequestsLoop(true);
@@ -906,12 +901,8 @@ void Launcher::cb_sighandler_cld(int signo)
 					fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _singleton->_myproc, pid, WEXITSTATUS(status), WEXITSTATUS(_singleton->_returncode));
 				#endif
 				_singleton->_returncode = WEXITSTATUS(status);
-				if (_singleton->_runtimePort)
-				{
-					free(_singleton->_runtimePort);
-					_singleton->_runtimePort = (char*)malloc(64);
+				if (_singleton->_runtimePort[0] != '\0')
 					sprintf(_singleton->_runtimePort, "PLACE_%u_IS_DEAD", _singleton->_myproc);
-				}
 			}
 			#ifdef DEBUG
 			else

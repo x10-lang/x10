@@ -23,7 +23,7 @@ import x10.compiler.CompilerFlags;
  * is PlaceGroup.WORLD, then each Place p will be assigned
  * the region p.id..p.id.
  */
-final class UniqueDist extends Dist(1) {
+final class UniqueDist extends Dist/*(1)*/ {
 
    /**
     * The place group for this distribution
@@ -110,7 +110,7 @@ final class UniqueDist extends Dist(1) {
     // replicated from superclass to workaround xlC bug with using & itables
     // This code is completely unreachable
     public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
-        throw new UnsupportedOperationException("operator(i0:int,i1:int,i2:int,i3:int)");
+       throw new UnsupportedOperationException("operator(i0:int,i1:int,i2:int,i3:int)");
     }
 
     public def maxOffset():int = 0;
@@ -120,7 +120,7 @@ final class UniqueDist extends Dist(1) {
     }
 
     public def restriction(p:Place):Dist(rank) {
-	return new WrappedDistPlaceRestricted(this, p);// as Dist(rank); // TODO: cast should not be needed
+	return new WrappedDistPlaceRestricted(this, p) as Dist(rank);  
     }
 
     public def equals(thatObj:Any):boolean {

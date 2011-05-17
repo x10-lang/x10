@@ -28,7 +28,7 @@ public class X10TypeBuilder extends TypeBuilder {
     }
 
     @Override
-    protected ClassDef createAnonClass(Position pos) {
+    protected X10ClassDef createAnonClass(Position pos) {
         X10ClassDef def = (X10ClassDef) super.createAnonClass(pos);
 
         TypeSystem ts = typeSystem();

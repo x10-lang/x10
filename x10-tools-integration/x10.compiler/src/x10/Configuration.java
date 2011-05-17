@@ -115,6 +115,11 @@ public final class Configuration extends x10.config.Configuration {
     public boolean STATIC_CHECKS = false;
     private static final String STATIC_CHECKS_desc = "Treat dynamic constraint checks as errors.";
 
+
+    public boolean VERBOSE = false;
+    private static final String VERBOSE_desc = "Print details for various warnings that might be interested to the programmer.";
+
+
     public boolean FINISH_ASYNCS = false;
     private static final String FINISH_ASYNCS_desc = "finish-async analysis.";
 

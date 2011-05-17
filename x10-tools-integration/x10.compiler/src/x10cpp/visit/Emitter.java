@@ -55,7 +55,6 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 
-import polyglot.types.Context_c;
 import polyglot.types.Def;
 import polyglot.types.Name;
 import polyglot.types.QName;
@@ -87,7 +86,6 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
-import x10.types.X10Context_c;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
 
@@ -233,7 +231,7 @@ public class Emitter {
 	void printType(Type type, CodeWriter w) {
 		printType(type,w,null);
 	}	
-	void printType(Type type, CodeWriter w, X10Context_c ctx) {
+	void printType(Type type, CodeWriter w, Context ctx) {
 		w.write(translateType(type, true, ctx));
 	}
 
@@ -265,7 +263,7 @@ public class Emitter {
 	    return full;
 	}
 
-	private static HashMap<String,String> exploreConstraints(X10Context_c context, ConstrainedType type) {
+	private static HashMap<String,String> exploreConstraints(Context context, ConstrainedType type) {
 		HashMap<String,String> r = new HashMap<String,String>();
 		CConstraint cc = type.getRealXClause();
 		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
@@ -314,7 +312,7 @@ public class Emitter {
 	public static String translateType(Type type, boolean asRef) {
 		return translateType(type, asRef, null);
 	}
-	public static String translateType(Type type_, boolean asRef, X10Context_c ctx) {
+	public static String translateType(Type type_, boolean asRef, Context ctx) {
 		assert (type_ != null);
 		TypeSystem xts = type_.typeSystem();
 		Type type = xts.expandMacros(type_);
@@ -490,7 +488,9 @@ public class Emitter {
 	                                             MethodInstance mi, Context context) {
 	    try {
 	        List<Type> params = ((MethodInstance) mi).typeParameters();
-	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
+	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, 
+	        		xts.MethodMatcher(localClass, mi.name(), 
+	        				((MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
 	        for (MethodInstance smi : overrides) {
 	            if (CollectionUtil.allElementwise(mi.formalTypes(), smi.formalTypes(), new BaseTypeEquals(context))) {
 	                List<Type> sparams =  smi.typeParameters();
@@ -659,7 +659,7 @@ public class Emitter {
 		h.begin(0);
 //		if (flags.isFinal())
 //		h.write("const ");
-		printType(n.type().type(), h, (X10Context_c)tr.context());
+		printType(n.type().type(), h, tr.context());
 		h.write(" ");
 		TypeSystem xts = (TypeSystem) tr.typeSystem();
 		Type param_type = n.type().type();
@@ -905,7 +905,7 @@ public class Emitter {
 			assert (n != null);
 			assert (n.type() != null);
 			assert (n.type().type() != null);
-			printType(n.type().type(), h, (X10Context_c)tr.context());
+			printType(n.type().type(), h, tr.context());
 			h.write(" ");
 		}
 		h.write(mangled_non_method_name(n.name().id().toString()));
