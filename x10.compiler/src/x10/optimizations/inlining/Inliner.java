@@ -11,7 +11,6 @@
 
 package x10.optimizations.inlining;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -19,32 +18,27 @@ import java.util.Stack;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
-import polyglot.ast.ClassMember;
 import polyglot.ast.CodeBlock;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.ProcedureCall;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Return;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Variable;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
-import polyglot.types.ContainerType;
-import polyglot.types.Def;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
@@ -81,26 +75,18 @@ import x10.config.OptionError;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
-import x10.optimizations.ForLoopOptimizer;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
-import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Def;
 import x10.types.X10LocalDef;
 import x10.types.X10MemberDef;
-import x10.types.X10ParsedClassType;
 import x10.types.checker.Converter;
 import x10.types.constraints.CTerms;
 import x10.util.AltSynthesizer;
 import x10.visit.ConstantPropagator;
-import x10.visit.ConstructorSplitterVisitor;
-import x10.visit.Desugarer;
 import x10.visit.ExpressionFlattener;
-import x10.visit.IfdefVisitor;
 import x10.visit.NodeTransformingVisitor;
-import x10.visit.X10DelegatingVisitor;
-import x10.visit.X10TypeChecker;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -119,52 +105,16 @@ import x10.visit.X10TypeChecker;
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
     
-    static private final boolean ALLOW_NON_VIRTUAL_CALLS = false;
-
-    private final boolean INLINE_CONSTANTS;
-    private final boolean INLINE_METHODS;
-    private final boolean INLINE_CLOSURES;
-    private final boolean INLINE_IMPLICIT;
-    private final boolean INLINE_CONSTRUCTORS;
-    private final boolean INLINE_STRUCT_CONSTRUCTORS;
-    private final boolean INLINE_GENERIC_CONSTRUCTORS;
-    private final boolean EXPERIMENTAL;
-    
     static final boolean DEBUG = false;
-//  private static final boolean DEBUG = true;
-
+//  static final boolean DEBUG = true;
+    
     private static final int VERBOSITY = 0;
+    
+    private static final int INITIAL_RECURSION_DEPTH =  0;
+    private static final int RECURSION_DEPTH_LIMIT   =  2; // max number of calls to the same procedure to be inlined at once
+    private static final int INLINE_DEPTH_LIMIT      = 10; // max number of calls to be inlined at once
 
-    /**
-     * The size of the largest method to be considered small enough to be inlined implicitly, if
-     * implicit inlining is enabled.
-     */
-    private final int implicitMax;
-
-    /**
-     * 
-     */
-    private AltSynthesizer syn;
-    private InlineCostEstimator ice;
-    private polyglot.frontend.Compiler compiler;
-
-    public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
-        super(job, ts, nf);
-        ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
-        compiler = extInfo.compiler();
-        Configuration config = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
-        EXPERIMENTAL     = config.EXPERIMENTAL;
-        INLINE_CONSTANTS = config.OPTIMIZE && config.INLINE_CONSTANTS;
-        INLINE_METHODS   = config.OPTIMIZE && config.INLINE_METHODS;
-        INLINE_CLOSURES  = config.OPTIMIZE && config.INLINE_CLOSURES;
-        INLINE_CONSTRUCTORS         = x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
-        INLINE_STRUCT_CONSTRUCTORS  = config.INLINE_STRUCT_CONSTRUCTORS; // pretend the constructor for a struct is annotated @INLINE
-        INLINE_GENERIC_CONSTRUCTORS = true;
-        INLINE_IMPLICIT    = EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
-        INLINE_DEPTH_LIMIT = INLINE_IMPLICIT ? 100 : 100;
- //     implicitMax        = EXPERIMENTAL ? 1 : 0;
-        implicitMax        = 0;
-    }
+    private boolean inliningRequired; // Should the current call be inlined no matter how big it is?
 
     /**
      * Explicit inlining (via annotations) and inlining of small methods (if
@@ -175,97 +125,35 @@ public class Inliner extends ContextVisitor {
      * TODO: implement a space budget based policy mechanism for controling inlining. 
      */
     private final Stack<String> inlineInstances = new Stack<String>();
-    private final int recursionDepth[] = new int[1];
-    private final int INLINE_DEPTH_LIMIT;
-    private static final int INITIAL_RECURSION_DEPTH = 0;
-    private static final int RECURSION_DEPTH_LIMIT = 2;
+    private final int recursionDepth[] = new int[1]; // number of calls to the same procedure currently being inlined
+    private final AltSynthesizer syn;
+    private final DeclStore repository;
 
-    private List<String> reasons = new ArrayList<String>();
-    private boolean inliningRequired; // move these (DEBUG)
+    private final boolean INLINE_CONSTANTS;
+    private final boolean INLINE_METHODS;
+    private final boolean INLINE_CLOSURES;
+    private final boolean INLINE_CONSTRUCTORS;
 
-    private long lastTime;
-    private long timer () {
-        long time = System.currentTimeMillis();
-        long delta = time - lastTime;
-        lastTime = time;
-        return delta;
+    public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
+        super(job, ts, nf);
+        syn                   = new AltSynthesizer(ts, nf);
+        repository            = new DeclStore(this);
+        ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
+        Configuration config  = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
+        INLINE_CONSTANTS      = config.OPTIMIZE && config.INLINE_CONSTANTS;
+        INLINE_METHODS        = config.OPTIMIZE && config.INLINE_METHODS;
+        INLINE_CLOSURES       = config.OPTIMIZE && config.INLINE_CLOSURES;
+        INLINE_CONSTRUCTORS   = x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
     }
-
-    /**
-     * @param msg
-     * @return
-     */
-    private String report(String msg, Node n) {
-        reasons.add(msg);
-        if (DEBUG) debug("not inlining because " + msg, n);
-        return msg;
-    }
-
-    static void debug (String msg, Node node) {
-        debug(0L, msg, node);
-    }
-    
-    
-    private static void debug(long time, String msg, Node node) {
-        try {
-            Thread.sleep(1);
-            System.out.print("DEBUG ");
-            if (null != node)
-                System.out.print(node.position() + ":  ");
-            System.out.print(msg);
-            if (0 < time) {
-                System.out.print(" (" +time+ ")");
-            }
-            System.out.println();
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            // Ignore exception (we are just trying to avoid stepping on writes to STDERR
-        }
-    }
-
-    /**
-     * Annotation types.
-     */
-    private Type ConstantType;
-    private Type InlineType;
-    private Type InlineOnlyType;
-    private Type NoInlineType;
-    private Type NativeType;
-    private Type NativeRepType;
-    private Type NativeClassType;
-
-    /**
-     * Names of the annotation types that pertain to inlining.
-     */
-    private static final QName CONSTANT_ANNOTATION     = QName.make("x10.compiler.CompileTimeConstant");
-    private static final QName INLINE_ANNOTATION       = QName.make("x10.compiler.Inline");
-    private static final QName INLINE_ONLY_ANNOTATION  = QName.make("x10.compiler.InlineOnly");
-    private static final QName NO_INLINE_ANNOTATION    = QName.make("x10.compiler.NoInline");
-    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
 
     @Override
     public NodeVisitor begin() {
-        syn = new AltSynthesizer(ts, nf);
-        ice = new InlineCostEstimator(job, ts, nf);
         if (!x10.optimizations.Optimizer.INLINING((ExtensionInfo) job.extensionInfo())) {
             throw new InternalCompilerError("INLINING should not be being performed!");
         }
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
-        try {
-            ConstantType = ts.systemResolver().findOne(CONSTANT_ANNOTATION);
-            InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
-            InlineOnlyType = ts.systemResolver().findOne(INLINE_ONLY_ANNOTATION);
-            NoInlineType = ts.systemResolver().findOne(NO_INLINE_ANNOTATION);
-            NativeType = ts.NativeType();
-            NativeRepType = ts.NativeRep();
-            NativeClassType = ts.systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
-        } catch (SemanticException e) {
-            InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type");
-            SemanticException se = new SemanticException(ice);		//TODO: internal compiler error, should be removed
-            Errors.issue(job, se);
-            InlineType = null;
-            throw ice; // annotation types are required!
-        }
+        if (null == NativeClassType)
+            initializeAnnotationTypes();
         timer();
         return super.begin();
     }
@@ -313,11 +201,6 @@ public class Inliner extends ContextVisitor {
         }
         return null;
     }
-    
-    // returns true if @NoInline given on the node
-    boolean hasNoInlineAnnotation (Node n) {
-    	return !((X10Ext) n.ext()).annotationMatching(NoInlineType).isEmpty();
-    }
 
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         Position pos = n.position();
@@ -334,7 +217,7 @@ public class Inliner extends ContextVisitor {
                 if (null != result) 
                     return result;
             }
-            if (INLINE_METHODS && !hasNoInlineAnnotation(n)) {
+            if (INLINE_METHODS && !annotationsPreventInlining(n)) {
                 if (4 <= VERBOSITY)
                     Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
                 result = wrappedInlineMethodCall((InlinableCall) n);
@@ -409,8 +292,66 @@ public class Inliner extends ContextVisitor {
         }
     }
 
+    private Node wrappedInlineMethodCall(InlinableCall call) {
+        beginSpeculativeCompile();
+        Node node = inlineCall(call);
+        if (endSpeculativeCompileWithErrors(call)) {
+            report("speculative compilation errors", call);
+            return null;
+        }
+        return node;
+    }
+    
+    private Goal.Status savedState;
+    private ErrorQueue savedQueue;
+
+    /**
+     * Don't let fatal Errors in speculative compilation terminate the containing compile. 
+     * Speculative compilation ends with a call to endSpeculativeCompileWithErrors(). 
+     * If that method is not called, mayhem will insue!
+     */
+    private void beginSpeculativeCompile() {
+        savedState = job.extensionInfo().scheduler().currentGoal().state();
+        // savedQueue = job.compiler().swapErrorQueue(new SimpleErrorQueue());
+        savedQueue = job.compiler().swapErrorQueue(new SilentErrorQueue(1024, null));
+    }
+
+    /**
+     * Terminate a speculative compilation initiated by beginSpeculativeCompile().
+     * @param call 
+     *
+     * @return true is the speculative compilation produced what would have been fatal Errors
+     */
+    private boolean endSpeculativeCompileWithErrors(InlinableCall call) {
+        ErrorQueue speculativeQueue = job.compiler().swapErrorQueue(savedQueue);
+        if (0 < speculativeQueue.errorCount()) {
+            job.extensionInfo().scheduler().clearFailed();
+            job.extensionInfo().scheduler().currentGoal().update(savedState);
+            reportSpeculativeErrors(speculativeQueue, call);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param speculativeQueue
+     * @param call 
+     */
+    private void reportSpeculativeErrors(ErrorQueue speculativeQueue, InlinableCall call) {
+        if (1 <= VERBOSITY && speculativeQueue instanceof SilentErrorQueue) {
+            Position pos = call.position();
+            List<ErrorInfo> errors = ((SilentErrorQueue) speculativeQueue).getErrors();
+            String msg = errors.size()+ " speculative compilation error(s) prevent inlining of " + call;
+            for (ErrorInfo error : errors) {
+                msg += "\n" +pos+ "\t " +error.getPosition()+ ": " +error;
+            }
+            Warnings.issue(job, msg, pos);
+        }
+        speculativeQueue.flush();
+    }
+
     private Expr inlineClosureCall(ClosureCall c) {
-        Closure lit = getInlineClosure(c);
+        Closure lit = getClosure(c.target());
         if (null == lit) {
             report("of non literal closure call target " +c.target(), c);
             return null;
@@ -444,6 +385,19 @@ public class Inliner extends ContextVisitor {
         result = (Expr) result.visit(this);
         result = (Expr) propagateConstants(result);
         return result;
+    }
+
+    private Closure getClosure(Expr target) {
+        if (target instanceof Closure)
+            return (Closure) target;
+        if (target instanceof ParExpr)
+            return getClosure(((ParExpr) target).expr());
+        // TODO Inline Locals (and field instances?) that have literal closure values
+        // that is, recognize the value final Closure Variables as constants
+        if (target instanceof Variable && ((Variable) target).isConstant()) {
+            return (Closure) ((Variable) target).constantValue();
+        }
+        return null;
     }
 
     private Expr inlineCall(InlinableCall call) {
@@ -516,62 +470,59 @@ public class Inliner extends ContextVisitor {
         return result;
     }
 
-    private Node wrappedInlineMethodCall(InlinableCall call) {
-        beginSpeculativeCompile();
-        Node node = inlineCall(call);
-        if (endSpeculativeCompileWithErrors(call)) {
-            report("speculative compilation errors", call);
+    /**
+     * Get the declaration corresponding to a call to be inlined.
+     * 
+     * @param call
+     * @return the declaration of the method invoked by call, or null if the
+     *         declaration cannot be found, or the call should not be inlined
+     */
+    private ProcedureDecl getInlineDecl(InlinableCall call) {
+        if (DEBUG) debug("Should " + call + " be inlined?", call);
+        Position pos = call.position(); // DEBUG
+        if (annotationsPreventInlining(call)) {
+            report("of annotation at call site", call);
             return null;
         }
-        return node;
-    }
-    
-    private Goal.Status savedState;
-    private ErrorQueue savedQueue;
-
-    /**
-     * Don't let fatal Errors in speculative compilation terminate the containing compile. 
-     * Speculative compilation ends with a call to endSpeculativeCompileWithErrors(). 
-     * If that method is not called, mayhem will insue!
-     */
-    private void beginSpeculativeCompile() {
-        savedState = job.extensionInfo().scheduler().currentGoal().state();
-        // savedQueue = job.compiler().swapErrorQueue(new SimpleErrorQueue());
-        savedQueue = job.compiler().swapErrorQueue(new SilentErrorQueue(1024, null));
-    }
-
-    /**
-     * Terminate a speculative compilation initiated by beginSpeculativeCompile().
-     * @param call 
-     *
-     * @return true is the speculative compilation produced what would have been fatal Errors
-     */
-    private boolean endSpeculativeCompileWithErrors(InlinableCall call) {
-        ErrorQueue speculativeQueue = job.compiler().swapErrorQueue(savedQueue);
-        if (0 < speculativeQueue.errorCount()) {
-            job.extensionInfo().scheduler().clearFailed();
-            job.extensionInfo().scheduler().currentGoal().update(savedState);
-            reportSpeculativeErrors(speculativeQueue, call);
-            return true;
+        // get inline candidate
+        MemberDef candidate = getDef(call);
+        // require inlining if either the call of the candidate are so annotated
+        inliningRequired = annotationsRequireInlining(call, (X10MemberDef) candidate);
+        // short-circuit if inlining is not required and there is no implicit inlining
+        if (!inliningRequired && !repository.INLINE_IMPLICIT) {
+            report("inlining not required for candidate: " +candidate, call);
+            return null;
         }
-        return false;
+        // unless required, skip candidates previously found to be uninlinable
+        if (!inliningRequired && repository.getCache().uninlineable(candidate)) {
+            report("of previous decision for candidate: " +candidate, call);
+            return null;
+        }
+        // unless required, don't inline if the candidate annotations prevent it
+        if (!inliningRequired && annotationsPreventInlining((X10MemberDef) candidate)) {
+            report("of annotation on candidate: " + candidate, call);
+            repository.getCache().notInlinable(candidate);
+            return null;
+        }
+        return repository.findDecl(call, candidate, inliningRequired);
     }
 
+
     /**
-     * @param speculativeQueue
-     * @param call 
+     * @param call
+     * @return
      */
-    private void reportSpeculativeErrors(ErrorQueue speculativeQueue, InlinableCall call) {
-        if (1 <= VERBOSITY && speculativeQueue instanceof SilentErrorQueue) {
-            Position pos = call.position();
-            List<ErrorInfo> errors = ((SilentErrorQueue) speculativeQueue).getErrors();
-            String msg = errors.size()+ " speculative compilation error(s) prevent inlining of " + call;
-            for (ErrorInfo error : errors) {
-                msg += "\n" +pos+ "\t " +error.getPosition()+ ": " +error;
-            }
-            Warnings.issue(job, msg, pos);
+    MemberDef getDef(InlinableCall call) {
+        if (call instanceof Call) {
+            return ((Call) call).methodInstance().def();
+        } 
+        if (call instanceof ConstructorCall) {
+            return ((ConstructorCall) call).constructorInstance().def();
         }
-        speculativeQueue.flush();
+        if (call instanceof ClosureCall) {
+            return ((ClosureCall) call).closureInstance().def();
+        }
+        return null;
     }
 
     /**
@@ -594,162 +545,12 @@ public class Inliner extends ContextVisitor {
         return id;
     }
 
-    /**
-     * Get the declaration corresponding to a call to be inlined.
-     * 
-     * @param call
-     * @return the declaration of the method invoked by call, or null if the
-     *         declaration cannot be found, or the call should not be inlined
-     */
-    private ProcedureDecl getInlineDecl(InlinableCall call) {
-        if (DEBUG) debug("Should " + call + " be inlined?", call);
-        Position pos = call.position(); // DEBUG
-        if (annotationsPreventInlining(call)) {
-            report("of annotation at call site", call);
-            return null;
-        }
-        // get inline candidate
-        MemberDef candidate = getDef(call);
-        // require inlining if either the call of the candidate are so annotated
-        inliningRequired = annotationsRequireInlining(call, (X10MemberDef) candidate);
-        if (call instanceof ConstructorCall) {
-            if (!INLINE_GENERIC_CONSTRUCTORS && !((ConstructorCall) call).typeArguments().isEmpty()) {
-                report("inlining not implemented for constructors with type args: " + ((ConstructorCall) call).typeArguments(), call);
-                return null;
-            }
-            if (ts.isStructType(candidate.container().get())) {
-                if (INLINE_STRUCT_CONSTRUCTORS)
-                    inliningRequired = true;
-            }
-        }
-        // short-circuit if inlining is not required and there is no implicit inlining
-        if (!inliningRequired && !INLINE_IMPLICIT) {
-            report("inlining not required for candidate: " +candidate, call);
-            return null;
-        }
-        // unless required, skip candidates previously found to be uninlinable
-        if (!inliningRequired && getCache().uninlineable(candidate)) {
-            report("of previous decision for candidate: " +candidate, call);
-            return null;
-        }
-        // unless required, don't inline if the candidate annotations prevent it
-        if (!inliningRequired && annotationsPreventInlining((X10MemberDef) candidate)) {
-            report("of annotation on candidate: " + candidate, call);
-            getCache().notInlinable(candidate);
-            return null;
-        }
-        // see if the declaration for this candidate has already been cached
-        ProcedureDecl decl = getCache().getDecl(candidate);
-        if (null != decl) {
-            return decl;
-        }
-        // get container and declaration for inline candidate
-        ClassDef container = getContainer(candidate);
-        if (null == container) {
-            report("unable to find container for candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
-            return null;
-        }
-        if (isVirtualOrNative(candidate, container)) {
-            report("call is virtual or native on candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
-            return null;
-        }
-        if (annotationsPreventInlining((X10ClassDef) container)) {
-            report("of Native Class/Rep annotation of container: " +container, call);
-            getCache().notInlinable(candidate);
-            return null;
-        }
-        Job candidateJob = container.job();
-        if (null == candidateJob) {
-            // TODO: reconstruct job from position
-            report("unable to find job for candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
-            return null;
-        }
-        if (candidateJob.reportedErrors()) {
-            Warnings.issue(candidateJob, "Has reported compilation errors", call.position());
-        }
-        Node ast = getAST(candidateJob);
-        if (null == ast) {
-            report("unable to find valid ast for candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
-            getCache().badJob(candidateJob);
-            return null;
-        }
-        if (this.job.compiler().errorQueue().hasErrors()) { // This may be overly conservative
-            report("there were errors compiling candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
-            getCache().badJob(candidateJob);
-            return null;
-        }
-        decl = getDeclaration(candidate, ast);
-        if (null == decl) {
-            report("unable to find declaration for candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
-            return null;
-        }
-        if (annotationsPreventInlining(decl) || annotationsPreventInlining(decl.procedureInstance())) {
-            report("candidate declaration annotated to prevent inlining: " +candidate, call);
-            getCache().notInlinable(candidate);
-            return null;
-        }
-        if (ExpressionFlattener.javaBackend(job) && hasSuper(decl)) {
-            report("candidate body contains super (not yet supported by Java backend): " +candidate, call);
-            getCache().notInlinable(candidate);
-            return null;
-        }
-        if (!inliningRequired) { // decide whether to inline candidate
-            if (INLINE_IMPLICIT) {
-                int cost = getCost(decl, candidateJob);
-                if (implicitMax < cost) {
-                    report("of excessive cost, " + cost, call);
-                    getCache().notInlinable(candidate);
-                    return null;
-                }
-            } else {
-                report("inlining not explicitly required", call);
-                getCache().notInlinable(candidate);
-                return null;
-            }
-        }
-        // remember what to inline this candidate with if we ever see it again
-        getCache().putDecl(candidate, decl);
-        return decl;
-    }
-
-    /**
-     * @param node
-     * @return
-     */
-    private boolean hasSuper(Node node) {
-        SuperFinderVisitor visitor = new SuperFinderVisitor();
-        node.visit(visitor);
-        return visitor.hasSuper;
-    }
-
-    /**
-     * @param call
-     * @return
-     */
-    private MemberDef getDef(InlinableCall call) {
-        if (call instanceof Call) {
-            return ((Call) call).methodInstance().def();
-        } 
-        if (call instanceof ConstructorCall) {
-            return ((ConstructorCall) call).constructorInstance().def();
-        }
-        if (call instanceof ClosureCall) {
-            return ((ClosureCall) call).closureInstance().def();
-        }
-        return null;
-    }
 
     /**
      * @param def
      * @return
      */
-    private boolean annotationsPreventInlining(X10Def def) {
+    static boolean annotationsPreventInlining(X10Def def) {
         if (!def.annotationsMatching(NoInlineType).isEmpty())
             return true;
         if (!def.annotationsMatching(NativeRepType).isEmpty())
@@ -763,8 +564,19 @@ public class Inliner extends ContextVisitor {
      * @param node
      * @return
      */
-    private boolean annotationsPreventInlining(Node node) {
-        if (!((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty())
+    static boolean annotationsPreventInlining(Node node) {
+        return !((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty();
+    }
+
+    /**
+     * @param call
+     * @param candidate
+     * @return
+     */
+    static boolean annotationsRequireInlining(InlinableCall call, X10MemberDef candidate) {
+        if (!((X10Ext) call.ext()).annotationMatching(InlineType).isEmpty())
+            return true;
+        if (!candidate.annotationsMatching(InlineType).isEmpty())
             return true;
         return false;
     }
@@ -786,160 +598,6 @@ public class Inliner extends ContextVisitor {
         return "";
     }
 
-    /**
-     * @param call
-     * @param candidate
-     * @return
-     */
-    private boolean annotationsRequireInlining(InlinableCall call, X10MemberDef candidate) {
-        if (!INLINE_METHODS) return false;
-        if (!((X10Ext) call.ext()).annotationMatching(InlineType).isEmpty())
-            return true;
-        if (!candidate.annotationsMatching(InlineType).isEmpty())
-            return true;
-        return false;
-    }
-
-    /**
-     * Get the definition of the Class that implements a given method.
-     * 
-     * @param candidate the method definition whose container is desired
-     * @return the definition of the Class containing md
-     */
-    private ClassDef getContainer(MemberDef candidate) {
-        Ref<? extends ContainerType> containerRef = candidate.container();
-        ContainerType containerType = Types.get(containerRef);
-        Type containerBase = Types.baseType(containerType); 
-        assert (containerBase instanceof X10ClassType);
-        ClassDef container = ((ClassType) containerBase).def();
-        return container;
-    }
-
-    /**
-     * Check that a candidate method is eligible to be inlined.
-     * 
-     * @param candidate the method conside red for inlining
-     * @param container the class containing the candidate
-     * @return true, if the method obviously should not be inlined; false, otherwise
-     */
-    private boolean isVirtualOrNative(MemberDef candidate, ClassDef container) {
-        Flags mf = candidate.flags();
-        Flags cf = container.flags();
-        if (mf.isNative() || cf.isNative())
-            return true;
-        if (!mf.isFinal() && !mf.isPrivate() && !mf.isStatic() && !cf.isFinal() && !container.isStruct() && !(candidate instanceof ConstructorDef))
-            return true;
-        return false;
-    }
-
-    /**
-     * @param job
-     * @return
-     */
-    private Node getAST(Job job) {
-        String source = job.source().toString().intern();
-        InlinerCache cache = getCache();
-        Node ast = cache.getAST(source);
-        if (null == ast) {
-            try {
-                if (job == this.job) {
-                    ast = job.ast();
-                } else {
-                    ast = processAST(job);
-                }
-                assert null != ast;
-            } catch (Exception x) {
-                report("unable to process " + job, job.ast());
-                cache.badJob(job);
-                return null;
-            }
-            cache.putAST(source, ast);
-        }
-        return ast;
-    }
-
-    /**
-     * @param job
-     * @return
-     */
-    private Node processAST(Job job) {
-        Node ast = job.ast();
-        ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
-        ast = ast.visit(new IfdefVisitor(job, ts, nf).begin());
-        ast = ast.visit(new Desugarer(job, ts, nf).begin());
-        ast = ast.visit(new ForLoopOptimizer(job, ts, nf).begin());
-        if (x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(job.extensionInfo()))
-            ast = ast.visit(new ConstructorSplitterVisitor(job, ts, nf).begin());
-        return ast;
-    }
-
-    /**
-     * Walk an AST looking for the declaration of a given method.
-     * 
-     * @param candidate the method whose declaration is desired
-     * @param ast the abstract syntax tree containing the declaration
-     * @return the declaration for the indicated method, or 
-     *         null if no declaration can be found or it has an empty body.
-     */
-    private ProcedureDecl getDeclaration(final Def candidate, final Node ast) {
-        final Position pos = candidate.position();
-        final ProcedureDecl[] decl = new ProcedureDecl[1];
-        ast.visit(new NodeVisitor() { // find the declaration of md
-                    public Node override(Node n) {
-                        if (null != decl[0])
-                            return n; // we've already found the decl, short-circuit search
-                        if (n instanceof TypeNode)
-                            return n; // TypeNodes don't contain decls, short-circuit search
-                        if (!pos.isCompilerGenerated()&& !contains(n.position(), pos))
-                            return n; // definition of md isn't inside n, short-circuit search
-                        if (n instanceof ProcedureDecl && candidate == ((ProcedureDecl) n).procedureInstance()) {
-                            decl[0] = (ProcedureDecl) n;
-                            return n; // we found the decl for the candidate, short-circuit search
-                        }
-                        return null; // look for the decl inside n
-                    }
-                });
-        if (null == decl[0]) {
-            if (DEBUG) debug(report("declaration not found for " +candidate, null), null);
-            return null;
-        }
-        if (null == decl[0].body()) {
-            if (DEBUG) debug(report("no declaration body for " +decl[0]+ " (" +candidate+ ")", null), null);
-            return null;
-        }
-        if (ExpressionFlattener.cannotFlatten(decl[0], job)) {
-            if (DEBUG) debug(report("unflattenable declaration body for " +decl[0]+ "  (" +candidate+ ")", null), null);
-            return null;
-        }
-        return decl[0];
-    }
-
-    /**
-     * @param decl
-     * @param job
-     * @return
-     */
-    private int getCost(ProcedureDecl decl, Job job) {
-        int cost = ice.getCost(decl, job);
-        return cost;
-    }
-
-    /**
-     * @param c
-     * @return
-     */
-    private Closure getInlineClosure(ClosureCall c) {
-        return getClosureLiteral(c.target());
-    }
-
-    private Closure getClosureLiteral(Expr target) {
-        if (target instanceof Closure)
-            return (Closure) target;
-        if (target instanceof ParExpr)
-            return getClosureLiteral(((ParExpr) target).expr());
-        // TODO Inline Locals (and field instances?) that have literal closure values
-        return null;
-    }
 
     private Node propagateConstants(Node n) {
         x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
@@ -1006,15 +664,6 @@ public class Inliner extends ContextVisitor {
         Expr expr = null == init ? null : createCast(init.position(), syn.createLocal(init.position(), init), thisType);
         LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.makeFresh("this"), expr);
         return thisDecl;
-    }
-
-    // TODO: move this to Position
-    private static boolean contains(Position outer, Position inner) {
-        if (!outer.file().equals(inner.file()))
-            return false;
-        if (!outer.path().equals(inner.path()))
-            return false;
-        return (outer.offset() <= inner.offset() && inner.endOffset() <= inner.endOffset());
     }
 
     private CodeBlock instantiate(final CodeBlock code, InlinableCall call) {
@@ -1107,6 +756,14 @@ public class Inliner extends ContextVisitor {
         if (thisArg != null) { // declare temporary for "this" arg, if call isn't static
             declarations.add(thisArg);
         }
+        
+        if (args.size() != formals.size()) {
+            System.out.println("ERROR: parameter mismatch at " + pos);
+            System.out.println("\tformals:\t" +formals);
+            System.out.println("\targs:   \t" +args);
+            assert false;
+        }
+        
         // initialize temporaries to args
         LocalDecl[] temps = new LocalDecl[args.size()];
         for (int i = 0; i < temps.length; i++) {
@@ -1146,8 +803,86 @@ public class Inliner extends ContextVisitor {
         ((Ref<Type>) d.type()).update(type);
     }
 
-    final InlinerCache getCache() {
-        return compiler.getInlinerCache();
+    /**
+     * Annotation types.
+     */
+    private static Type ConstantType;
+    private static Type InlineType;
+    private static Type InlineOnlyType;
+    private static Type NoInlineType;
+    private static Type NativeType;
+    private static Type NativeRepType;
+    private static Type NativeClassType;
+
+    /**
+     * Names of the annotation types that pertain to inlining.
+     */
+    private static final QName CONSTANT_ANNOTATION     = QName.make("x10.compiler.CompileTimeConstant");
+    private static final QName INLINE_ANNOTATION       = QName.make("x10.compiler.Inline");
+    private static final QName INLINE_ONLY_ANNOTATION  = QName.make("x10.compiler.InlineOnly");
+    private static final QName NO_INLINE_ANNOTATION    = QName.make("x10.compiler.NoInline");
+    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
+    
+    /**
+     * @throws InternalCompilerError
+     */
+    private void initializeAnnotationTypes() throws InternalCompilerError {
+        try {
+            ConstantType = ts.systemResolver().findOne(CONSTANT_ANNOTATION);
+            InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
+            InlineOnlyType = ts.systemResolver().findOne(INLINE_ONLY_ANNOTATION);
+            NoInlineType = ts.systemResolver().findOne(NO_INLINE_ANNOTATION);
+            NativeType = ts.NativeType();
+            NativeRepType = ts.NativeRep();
+            NativeClassType = ts.systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
+        } catch (SemanticException e) {
+            InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type", e);
+            SemanticException se = new SemanticException(e);        //TODO: internal compiler error, should be removed
+            Errors.issue(job, se);
+            InlineType = null;
+            throw ice; // annotation types are required!
+        }
+    }
+
+    private long lastTime;
+    private long timer () {
+        long time = System.currentTimeMillis();
+        long delta = time - lastTime;
+        lastTime = time;
+        return delta;
+    }
+    
+    static void debug (String msg, Node node) {
+        debug(0L, msg, node);
+    }
+    
+    private static void debug(long time, String msg, Node node) {
+        try {
+            Thread.sleep(1);
+            System.out.print("DEBUG ");
+            if (null != node)
+                System.out.print(node.position() + ":  ");
+            System.out.print(msg);
+            if (0 < time) {
+                System.out.print(" (" +time+ ")");
+            }
+            System.out.println();
+            Thread.sleep(1);
+        } catch (InterruptedException e) {
+            // Ignore exception (we are just trying to avoid stepping on writes to STDERR
+        }
+    }
+
+    private List<String> reasons = new ArrayList<String>();
+
+    /**
+     * @param msg
+     * @return
+     */
+    String report(String msg, Node n) {
+        reasons.add(msg);
+        if (DEBUG) debug("not inlining because " + msg, n);
+        return msg;
     }
 
 }
