@@ -1466,17 +1466,44 @@ public class Types {
 	    // If the formal types are all equal, check the containers; otherwise p1 is more specific.
 	    XVar[] ys = toVarArray(toLocalDefList(xp2.formalNames()));
 	    XVar[] xs = toVarArray(toLocalDefList(xp1.formalNames()));
+	    // Need to substitute the same variable for the thisVars of the two methods
+	    // since they could be different. e.g. if pi is defined on Ci, then the
+	    // thisVars will be C1#this and C2#this.Neeed 
+	    XVar thisVar = XTerms.makeUQV();
+	    xp1 = orig(xp1);
+	    xp2 = orig(xp2);
+	    boolean descends2 = descends 
+	       || (t1 != null && t2 != null && ts.descendsFrom(ts.classDefOf(t2), ts.classDefOf(t1)));
+	    
+	    XVar p1This = descends2 ? xp1.def().thisVar(): null;
+	    XVar p2This = descends2 ? xp2.def().thisVar() : null;
 	    for (int i = 0; i < xp1.formalTypes().size(); i++) {
 	    	// Need to use original type information. The current type
 	    	// information may have call specific uqv's in the constraints
 	    	// rather than the declared formals.
-	        Type f1 = orig(xp1).formalTypes().get(i);
+	        Type f1 = xp1.formalTypes().get(i);
 	        try {
-	            f1 = Subst.subst(f1, ys, xs, new Type[]{}, new ParameterType[]{});
+	            f1 = Subst.subst(f1, ys, xs); // , new Type[]{}, new ParameterType[]{});
+	            if (descends2) {
+	                // Substitute for both p1This and p2This, since only one of them
+	                // might occur in both.
+	                f1 = Subst.subst(f1, thisVar, p1This);
+	                f1 = Subst.subst(f1, thisVar, p2This);
+	            }
 	        } catch (SemanticException e) {
 	            throw new InternalCompilerError("Unexpected exception while comparing methods", e);
 	        }
-	        Type f2 = orig(xp2).formalTypes().get(i);
+	        Type f2 = xp2.formalTypes().get(i);
+	        if (descends2)try { 
+	            
+	                // Substitute for both p1This and p2This, since only one of them
+                    // might occur in both.
+	                f2 = Subst.subst(f2, thisVar, p2This);
+	                f2 = Subst.subst(f2, thisVar, p1This);
+	            
+	        } catch (SemanticException e) {
+	            throw new InternalCompilerError("Unexpected exception while comparing methods", e);
+	        }
 	        if (! ts.typeEquals(f1, f2, context)) {
 	        	return true;
 	        }

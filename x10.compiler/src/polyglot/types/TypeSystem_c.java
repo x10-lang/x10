@@ -1377,7 +1377,8 @@ public class TypeSystem_c implements TypeSystem
 		}
 	    }
 
-	    throw new Errors.MultipleMethodDefsMatch(maximal, matcher.toString(), Position.COMPILER_GENERATED);
+	    throw Errors.MultipleMethodDefsMatch.make(maximal, matcher.toString(),
+	                                              Position.COMPILER_GENERATED);
 	}
 
 	MethodInstance mi = maximal.iterator().next();
@@ -1436,11 +1437,11 @@ public class TypeSystem_c implements TypeSystem
 	while (i.hasNext()) {
 	    T p = i.next();
 
-	    if (msc.compare(first, p) == 0) {
-		maximal.add(p);
+	    if (msc.compare(first, p) == X10MostSpecificComparator.NEITHER_MORE_SPECIFIC) {
+	        maximal.add(p);
 	    }
-	    if (msc.compare(p,first) == -1) {
-	    	maximal.add(p);
+	    if (msc.compare(p,first) == X10MostSpecificComparator.FIRST_MOST_SPECIFIC) {
+	        maximal.add(p);
 	    }
 	}
 
@@ -1553,12 +1554,16 @@ public class TypeSystem_c implements TypeSystem
             this.container=container;
         }
 
+        public static int FIRST_MOST_SPECIFIC=-1;
+        public static int SECOND_MOST_SPECIFIC=1;
+        public static int NEITHER_MORE_SPECIFIC=0;
+        
         public int compare(T p1, T p2) {
             if (p1.moreSpecific(container, p2, context))
-            return -1;
+            return FIRST_MOST_SPECIFIC;
             if (p2.moreSpecific(container, p1, context))
-            return 1;
-            return 0;
+            return SECOND_MOST_SPECIFIC;
+            return NEITHER_MORE_SPECIFIC;
         }
 
         public Type container() {
