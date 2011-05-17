@@ -281,8 +281,12 @@ public class X10Translator extends Translator {
                     if (main_class != null) {
                         // add Main-Class attribute for executable jar
                         out.println("Main-Class: " + main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
-                        // TODO Cannot add x10.jar in Class-Path attribute because it will be loaded by system class loader and static initialization will fail
-                        //out.println("Class-Path: x10.jar commons-math-2.2.jar");
+                        // N.B. Following jar files should be same as the ones used in X10CCompilerOptions.setDefaultValues()
+                        String x10_jar = "x10.jar";
+                        String math_jar = System.getProperty("x10c.math.jar", "commons-math-2.2.jar");
+                        // XTENLANG-2722
+                        // need a new preloading mechanism which does not use classloader to determine system classes
+                        out.println("Class-Path: " + x10_jar + " " + math_jar);
                     }
                     out.println("Created-By: " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     out.close();
