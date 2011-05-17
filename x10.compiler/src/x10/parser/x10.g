@@ -508,10 +508,6 @@
 
     ConstrainedType ::=  NamedType
            | AnnotatedType
-           | ( Type )
-        /.$BeginJava
-			r.rule_ConstrainedType2(Type);
-        $EndJava./
 
     VoidType ::= void
         /.$BeginJava
