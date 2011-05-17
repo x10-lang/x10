@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.visit.Translator;
 import x10.types.ConstrainedType;
@@ -24,13 +25,14 @@ import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10FieldInstance;
 import polyglot.types.TypeSystem;
 import x10.visit.X10PrettyPrinterVisitor;
 
 final public class RuntimeTypeExpander extends Expander {
 
-	// WIP XTENLANG-2488
-    public static final boolean useReflectionToGetRTT = false;
+	// XTENLANG-2488
+    public static final boolean useReflectionToGetRTT = true;
 
     private final Type at;
 
@@ -60,9 +62,28 @@ final public class RuntimeTypeExpander extends Expander {
                 ", " + at.toString() + "}";
     }
     
-    public static String getRTT(String qualifiedClassName) {
+    public static boolean hasConflictingField(X10ClassType ct, Translator tr) {
+    	if (!useReflectionToGetRTT) {
+    		return false;
+    	}
+        TypeSystem xts = tr.typeSystem();
+        boolean hasConflictingField = false;
+        try {
+        	// container is available only if ct is a member
+        	if (ct.isMember()) {
+        		X10ClassType container = ct.container();
+        		X10FieldInstance fi = xts.findField(container, container, ct.name(), tr.context());
+        		hasConflictingField = fi != null;
+        	}
+        } catch (SemanticException e) {
+        	// exception means no such field
+        }
+        return hasConflictingField;
+    }
+
+    public static String getRTT(String qualifiedClassName, boolean hasConflictingField) {
     	String rttString = null;
-    	if (useReflectionToGetRTT) {
+    	if (useReflectionToGetRTT && hasConflictingField) {
     		rttString = X10PrettyPrinterVisitor.X10_RTT_TYPES + ".<" + qualifiedClassName + "> $RTT(" + qualifiedClassName + ".class)";
     	} else {
     		rttString = qualifiedClassName + "." + X10PrettyPrinterVisitor.RTT_NAME;
@@ -126,7 +147,7 @@ final public class RuntimeTypeExpander extends Expander {
             List<Type> classTypeArgs = ct.typeArguments();
             if (classTypeArgs == null) classTypeArgs = Collections.<Type>emptyList();
             if (pat == null) {
-            	String rttString = getRTT(Emitter.mangleQName(cd.fullName()).toString());
+            	String rttString = getRTT(Emitter.mangleQName(cd.fullName()).toString(), hasConflictingField(ct, tr));
                 // XTENLANG-1102
                 if (ct.isGloballyAccessible() && classTypeArgs.size() == 0) {
                     er.w.write(rttString);

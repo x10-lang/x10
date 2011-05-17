@@ -2024,7 +2024,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     //  -> Types.<#0>castConversion(#1,#2)   #0=type #1=expr #2=runtime type
                     w.write(X10_RTT_TYPES + ".<");
                     er.prettyPrint(castTE, tr);
-                    w.write(">cast" + (xts.isParameterType(exprType) || xts.isParameterType(castType) || isString(castType, tr.context()) ? "Conversion" : "") + "(");
+                    w.write("> cast" + (xts.isParameterType(exprType) || xts.isParameterType(castType) || isString(castType, tr.context()) ? "Conversion" : "") + "(");
                     er.prettyPrint(expr, tr);
                     w.write(",");
                     er.prettyPrint(castRE, tr);
@@ -2119,12 +2119,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10Instanceof_c c) {
-        TypeNode tn = c.compareType();
-
         // Note: constraint checking should be desugared when compiling without
         // NO_CHECKS flag
 
-        Type t = tn.type();
+        Type t = c.compareType().type();
 
         // Now x10.lang.Object is @NativeRep'ed to x10.core.RefI.
         // Therefore x10.rtt.Types.OBJECT.instanceof$(o) works as designed.
@@ -2163,7 +2161,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
             } else if (pat == null && Emitter.getJavaRep(cd) == null && ct.isGloballyAccessible()
                     && cd.typeParameters().size() != 0) {
-            	String rttString = RuntimeTypeExpander.getRTT(Emitter.mangleQName(cd.fullName()).toString());
+            	String rttString = RuntimeTypeExpander.getRTT(Emitter.mangleQName(cd.fullName()).toString(), RuntimeTypeExpander.hasConflictingField(ct, tr));
             	w.write(rttString);
             } else {
                 new RuntimeTypeExpander(er, t).expand(tr);
