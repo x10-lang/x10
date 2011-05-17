@@ -116,6 +116,8 @@ fi
 
 java_args="${java_args} ${defs}"
 
+# skip loading test in case of executable jar
+if [ -n "$main" ]; then
 command="\"$JAVA\" $java_args -ea x10.runtime.impl.java.TestClassLoading '$main\$$MAIN_CLASS'"
 [ -n "$verbose" ] && echo "$command"
 (
@@ -126,6 +128,7 @@ if [ "$?" -ne "0" ]; then
   exit 1
 fi
 )
+fi
 
 # HACK: enforce normal compilation in preloading phase
 IBMJ9VM=`"$JAVA" -version 2>&1 | grep 'IBM J9 VM'`
