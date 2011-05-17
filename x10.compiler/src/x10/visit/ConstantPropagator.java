@@ -255,7 +255,7 @@ public class ConstantPropagator extends ContextVisitor {
         } else
         if (o instanceof Integer) {
             IntLit.Kind kind;
-            if (ts.isInt(desiredType)) {
+            if (ts.isInt(desiredType) || ts.isInterfaceType(desiredType)) {
                 kind = IntLit.INT;
             } else if (ts.isUInt(desiredType)) {
                 kind = IntLit.UINT;
