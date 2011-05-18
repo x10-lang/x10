@@ -612,7 +612,7 @@ public class LineNumberMap extends StringTable {
 		localVariables.add(v);
 	}
 	
-	public void addClassMemberVariable(String name, String type, String containingClass, boolean isStruct)
+	public void addClassMemberVariable(String name, String type, String containingClass, boolean isStruct, boolean isConstructorArg)
 	{
 		if (memberVariables == null)
 			memberVariables = new LinkedHashMap<Integer, ClassMapInfo>();
@@ -626,16 +626,6 @@ public class LineNumberMap extends StringTable {
 			else
 				cm._type = 101;
 			memberVariables.put(stringId(containingClass), cm);
-			if (memberVariables.size() > 1 && containingClass.lastIndexOf("__") > 0)
-			{
-				MemberVariableMapInfo v2 = new MemberVariableMapInfo();
-				v2._x10type = 101;
-				v2._x10typeIndex = stringId(containingClass.substring(0, containingClass.lastIndexOf("__")));
-				v2._x10memberName = stringId("{...}");
-				v2._cppMemberName = stringId("x10__out__");
-				v2._cppClass = stringId(containingClass);
-				cm._members.add(v2);
-			}
 		}
 		if (name == null) return; // special case for classes without members
 		
@@ -657,7 +647,10 @@ public class LineNumberMap extends StringTable {
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else 
 			v._x10typeIndex = -1;
-		v._x10memberName = stringId(name);
+		if (isConstructorArg)
+			v._x10memberName = stringId("{...}");
+		else
+			v._x10memberName = stringId(name);
 		v._cppMemberName = stringId("x10__"+Emitter.mangled_non_method_name(name));
 		v._cppClass = stringId(containingClass);
 		cm._members.add(v);
@@ -1374,7 +1367,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B05110F, // 2011-05-17, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B051211, // 2011-05-18, 17:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
