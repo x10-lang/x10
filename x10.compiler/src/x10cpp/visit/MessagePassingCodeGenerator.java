@@ -585,6 +585,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         ClassifiedStream save_generic_cls = context.genericFunctionClosures;
         ClassifiedStream save_closures = context.closures;
         ClassifiedStream save_static_defs = context.staticDefinitions;
+        ClassifiedStream save_static_closure_defs = context.staticClosureDefinitions;
+
         // Header stream
         ClassifiedStream h = sw.getNewStream(StreamWrapper.Header, false);
         // Stream for closures that are within generic functions (always in the header, may be empty)
@@ -603,6 +605,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         ClassifiedStream w_body = sw.getNewStream(inTemplate ? StreamWrapper.Header : StreamWrapper.CC, false);
         ClassifiedStream stat_defs = sw.getNewStream(StreamWrapper.CC, false);
         context.staticDefinitions = stat_defs;
+        ClassifiedStream stat_cls_defs = sw.getNewStream(StreamWrapper.CC, false);
+        context.staticClosureDefinitions = stat_cls_defs;
+
         ClassifiedStream w_footer = sw.getNewStream(inTemplate ? StreamWrapper.Header : StreamWrapper.CC, false);
         // Dependences guard closing stream (comes at the end of the header)
         ClassifiedStream z = sw.getNewStream(StreamWrapper.Header, false);
@@ -895,6 +900,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         context.genericFunctionClosures = save_generic_cls;
         context.closures = save_closures;
         context.staticDefinitions = save_static_defs;
+        context.staticClosureDefinitions = save_static_closure_defs;
+
         sw.set(save_header, save_body);
 	}
 
@@ -3404,7 +3411,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // A stream to put definitions of static variables.
         // If the def is templatized, it has to go in the inc stream.
         // If the def is not templatized, it has to go in the CC stream (even if sw is the Header stream).
-        ClassifiedStream defn_s =  in_template_closure ? inc.currentStream() : c.staticDefinitions;
+        ClassifiedStream defn_s =  in_template_closure ? inc.currentStream() : c.staticClosureDefinitions;
 
         String headerGuard = getHeaderGuard(cname);
         inc.write("#ifndef "+headerGuard+"_CLOSURE"); inc.newline();
