@@ -10,8 +10,6 @@
  */
 package x10.visit;
 
-//import java.util.*;
-//import polyglot.ast.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -304,7 +302,7 @@ public class CodeCleanUp extends ContextVisitor {
             if (stmt instanceof Block) {
                 boolean innerIsStmtSeq = stmt instanceof StmtSeq;
                 Block inner = (Block) stmt;
-                if (!bIsStmtSeq || innerIsStmtSeq && ((X10Ext) inner.ext()).annotations().isEmpty()) {
+                if ((!bIsStmtSeq || innerIsStmtSeq) && ((X10Ext) inner.ext()).annotations().isEmpty()) {
                     // Alpha-rename local decls in the block that we're
                     // flattening.
                     if (report) System.out.println("Cleaning up a block" + inner.position());
