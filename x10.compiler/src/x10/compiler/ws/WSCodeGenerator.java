@@ -52,6 +52,7 @@ import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
+import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.WSUtil;
 import x10.compiler.ws.util.WSTransformationContent;
 import x10.compiler.ws.WSTransformState.MethodType;
@@ -172,6 +173,10 @@ public class WSCodeGenerator extends ContextVisitor {
                 cDecl = Synthesizer.addNestedClasses(cDecl, classes);
                 cDecl = Synthesizer.addMethods(cDecl, methods);
                 
+                ClosureDefReinstantiator closureProcessor = new ClosureDefReinstantiator(job, ts, nf);
+                closureProcessor.begin();
+                closureProcessor.context(context());
+                
                 Desugarer desugarer = ((x10.ExtensionInfo) job.extensionInfo()).makeDesugarer(job);
                 desugarer.begin();
                 desugarer.context(context()); //copy current context
@@ -180,6 +185,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 innerclassRemover.begin();
                 innerclassRemover.context(context()); //copy current context
                 
+                cDecl = (X10ClassDecl) cDecl.visit(closureProcessor);
                 cDecl = (X10ClassDecl) cDecl.visit(desugarer);
                 cDecl = (X10ClassDecl) cDecl.visit(innerclassRemover);
                 

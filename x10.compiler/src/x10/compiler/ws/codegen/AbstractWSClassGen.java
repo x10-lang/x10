@@ -331,10 +331,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
         
-        // Processing closure's def: create different clsoureDef for fast&resume path's closure
-        fastBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct, this.getClassDef(), fastMSynth.getDef()));
-        resumeBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct, this.getClassDef(), resumeMSynth.getDef()));
-
         // add change locals to fields
         fastBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
         resumeBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));

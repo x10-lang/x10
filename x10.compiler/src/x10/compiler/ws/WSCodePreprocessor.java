@@ -536,27 +536,34 @@ public class WSCodePreprocessor extends ContextVisitor {
      * @throws SemanticException 
      */
     private Node visitForLoop(ForLoop n) throws SemanticException {
+        //Only process concurrent for
+        if(! WSUtil.isComplexCodeNode(n, wts)){
+            return n; 
+        }
+        
         //Step 1: translate the forloop by forloopoptimizer
         ForLoopOptimizer flo = new ForLoopOptimizer(job, ts, nf);
         flo.begin();
+        flo.context(context());
         Node floOut = n.visit(flo); //floOut could be a block or a for statement
         // there are two cases from ForLoopOptimizer
         // 1. only for; 2. some local declarations and for
         // for cases 2, we need add these local declarations into for's init
 
         For forStmt = null;
-        if (floOut instanceof Block) { // case 2
-            List<ForInit> forInits = new ArrayList<ForInit>();
-            for (Stmt s : ((Block) floOut).statements()) {
+        List<Stmt> forBlockStmts = new ArrayList<Stmt>();
+        int forStmtLoc = -1; //the place the for stmt in the block
+        if (floOut instanceof Block) { // case 2, re-wrap it into a stmtseq
+            forBlockStmts.addAll(((Block)floOut).statements());
+            for (int i = 0; i < forBlockStmts.size(); i++) {
+                Stmt s = forBlockStmts.get(i);
                 if (s instanceof For) {
                     forStmt = (For) s;
-                } else {
-                    assert (s instanceof ForInit);// otherwise the ForLoopOptimizer is wrong
-                    forInits.add((ForInit) s);
+                    forStmtLoc = i;
+                    break;
                 }
             }
-            forInits.addAll(forStmt.inits());
-            forStmt = forStmt.inits(forInits); // replace inits
+            assert(forStmtLoc >= 0);
         } else {
             forStmt = (For) floOut;
         }
@@ -582,7 +589,13 @@ public class WSCodePreprocessor extends ContextVisitor {
             forStmt = forStmt.body(nf.Block(forStmt.position(), stmts));
         }
         //Final step: still need check the for loop
-        return visitFor(forStmt);
+        Stmt newStmt = (Stmt) visitFor(forStmt);
+        if(forStmtLoc >= 0){
+            forBlockStmts.set(forStmtLoc, newStmt);
+            newStmt = nf.StmtSeq(n.position(), forBlockStmts);
+        }
+        
+        return newStmt;
     }
 
     /**
@@ -593,6 +606,11 @@ public class WSCodePreprocessor extends ContextVisitor {
      * @throws SemanticException 
      */
     public Node visitFor(For n) throws SemanticException {
+        //Only process concurrent for
+        if(! WSUtil.isComplexCodeNode(n, wts)){
+            return n; 
+        }
+        
         //Detect the init/iterator/condition
         List<Term> condTerms = new ArrayList<Term>();
         condTerms.addAll(n.inits());
