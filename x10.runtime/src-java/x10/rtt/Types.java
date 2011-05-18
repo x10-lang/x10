@@ -330,46 +330,46 @@ public class Types {
         throw new ClassCastException("x10.lang.Boolean");
     }
     
+    public static char aschar(Object typeParamOrAny) {
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
+        if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
+        throw new ClassCastException("x10.lang.Char");
+    }
+
     public static byte asbyte(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Byte");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).byteValue();}
+        if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Byte");
     }
     
     public static short asshort(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Short");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).shortValue();}
+        if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Short");
     }
     
     public static int asint(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Int");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).intValue();}
+        if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Int");
     }
 
     public static long aslong(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Long");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).longValue();}
+        if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Long");
     }
 
     public static float asfloat(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Float");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).floatValue();}
+        if (typeParamOrAny instanceof java.lang.Float) {return (java.lang.Float) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Float");
     }
 
     public static double asdouble(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Double");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).doubleValue();}
+        if (typeParamOrAny instanceof java.lang.Double) {return (java.lang.Double) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Double");
-    }
-
-    public static char aschar(Object typeParamOrAny) {
-        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
-        if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
-        throw new ClassCastException("x10.lang.Char");
     }
 
     public static Object asStruct(Type<?> rtt, Object typeParamOrAny) {
@@ -377,9 +377,6 @@ public class Types {
 
         if (rtt == UBYTE) {
             if (UBYTE_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
-//            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
-//            if (UINT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
-//            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
         }
         else if (rtt == USHORT) {
             if (USHORT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
@@ -407,34 +404,36 @@ public class Types {
             }
         }
         
+        if (rtt == BOOLEAN) {
+            if (primOrTypeParam instanceof java.lang.Boolean) return primOrTypeParam;
+            return primOrTypeParam;
+        }
+        if (rtt == CHAR) {
+            if (primOrTypeParam instanceof java.lang.Character) return primOrTypeParam;
+            return primOrTypeParam;
+        }
         if (rtt == BYTE) {
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();
             return primOrTypeParam;
         }
         if (rtt == SHORT) {
             if (primOrTypeParam instanceof java.lang.Short) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).shortValue();
             return primOrTypeParam;
         }
         if (rtt == INT) {
             if (primOrTypeParam instanceof java.lang.Integer) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).intValue();
             return primOrTypeParam;
         }
         if (rtt == LONG) {
             if (primOrTypeParam instanceof java.lang.Long) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).longValue();
             return primOrTypeParam;
         }
         if (rtt == FLOAT) {
             if (primOrTypeParam instanceof java.lang.Float) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).floatValue();
             return primOrTypeParam;
         }
         if (rtt == DOUBLE) {
             if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
             return primOrTypeParam;
         }
         if (rtt == STRING) {
