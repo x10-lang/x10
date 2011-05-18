@@ -345,20 +345,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         return n;
     }
     
-	    private static boolean computing = false;
 	    public static boolean shouldInferType(Node n, TypeSystem ts) {
-	        if (computing)
-	            throw new NullPointerException();
 	        try {
-	            computing = true;
 	            Type at = ts.systemResolver().findOne(QName.make("x10.compiler.NoInferType"));
 	            boolean res = ((X10Ext)n.ext()).annotationMatching(at).isEmpty();
 	            if (res == true) return true;
                 return res;
 	        } catch (SemanticException e) {
 	            return false;
-	        } finally {
-	            computing = false;
 	        }
 	    }
 
