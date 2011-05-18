@@ -53,7 +53,6 @@ public class X10CPPContext_c extends Context {
 
     public void advanceClosureId() { g.closureId++; }
     public int closureId() { return g.closureId; }
-    protected void resetClosureId() { g.closureId = -1; }
 
     /**
      * Every context has some arbitrary data, associated with string keys.
@@ -91,7 +90,6 @@ public class X10CPPContext_c extends Context {
         assert kind == SOURCE;
         pendingStaticDecls = new ArrayList<ClassMember>();
         classProperties = new ArrayList<PropertyDecl>(props);
-        resetClosureId();
     }
 
     /**
