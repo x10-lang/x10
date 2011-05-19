@@ -48,12 +48,14 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.MacroType;
 import polyglot.types.TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 import x10.X10CompilerOptions;
 
 
@@ -217,11 +219,16 @@ public class Matcher {
 				xthis = CTerms.makeThis(); 
 		}
 
+		final XVar codePlace = Types.getPlaceTerm(me);
+		XConstrainedTerm currentPlaceTerm = context.currentPlaceTerm();
+		final XTerm currentPlace = currentPlaceTerm != null ? currentPlaceTerm.term() : XTerms.makeEQV();
+
 		final ParameterType[] X = new ParameterType[typeFormals.size()];
 		final Type[] Y = new Type[typeFormals.size()];
 		for (int i = 0; i < typeFormals.size(); i++) {
 	            Type xtype = xts.expandMacros(typeFormals.get(i));
 	            Y[i] = xts.expandMacros(typeActuals.get(i));
+	            Y[i] = Subst.subst(Y[i], currentPlace, codePlace);
 	           
 	            // TODO: should enforce this statically
 	            assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " 
@@ -249,11 +256,7 @@ public class Matcher {
 	        		public void run() {
 	        			try {
 	        				Type rt = me.returnType(); // may be a macrotype
-	        				// Do not replace here by placeTerm. The return type may be used
-	        				// to compute the type of a closure, e.g. () => m(...)
-	        				// The type of the closure has to use here, so that 
-	        			    // here can get bound to the place at the point of invocation
-	        				// (rather than the point of definition). 
+	        				rt = Subst.subst(rt, currentPlace, codePlace);
 	        			
 	        				Type newReturnType = Subst.subst(rt, y2eqv, x2, Y, X);
 	        				// Replace all outer#this variables in the constraint
@@ -317,6 +320,7 @@ public class Matcher {
 			if (checkActuals) {
 				for (Type t : formals) {
 					t = Subst.subst(t, y2eqv, x2, Y, X); 
+					t = Subst.subst(t, currentPlace, codePlace);
 					newFormalTypes.add(t);
 				}
 			} else 	{
@@ -329,6 +333,7 @@ public class Matcher {
 				}
 				for (Type t : formals) {
 					t = Subst.subst(t, y2eqv, x2, Y, X); 
+					t = Subst.subst(t, currentPlace, codePlace);
 					if (! (env == null || env.valid())) {
 						try {
 							if (! isStatic)
@@ -359,10 +364,12 @@ public class Matcher {
 		}
 		{ // set up the guard.
 	        	CConstraint newWhere = Subst.subst(me.guard(), y2eqv, x2, Y, X); 
+	        	newWhere = Subst.subst(newWhere, currentPlace, codePlace);
 	        	newMe = newMe.guard(newWhere);
 		}
 		{   // set up the type guard.
 	        	TypeConstraint newTWhere = Subst.subst(me.typeGuard(), y2eqv, x2, Y, X);
+	        	newTWhere = Subst.subst(newTWhere, currentPlace, codePlace);
 	        	newMe = newMe.typeGuard(newTWhere);
 		}
 		if (! checkActuals) {

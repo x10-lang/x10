@@ -47,7 +47,7 @@ public class ThisChecker extends NodeVisitor {
         // Permit this.here to occur in types without tripping the This checker.
         if (n instanceof X10Field_c) {
         	X10Field_c f = (X10Field_c) n;
-        	if (f.name().toString().equals("here"))
+        	if (f.name().toString().equals(PlaceChecker.HOME_NAME))
         		return n;
         	return null;
         }

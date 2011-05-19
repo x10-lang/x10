@@ -1239,7 +1239,7 @@ public interface TypeSystem {
                                     SemanticException error);
     List<LocalDef> dummyLocalDefs(List<Ref<? extends Type>> types);
     List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, 
-                                 XVar thisVar, Context context);
+                                 XVar thisVar, XVar placeTerm, Context context);
     boolean equalsStruct(Type a, Type b);
     X10ClassType AtomicInteger();
     boolean isRemoteArray(Type t);

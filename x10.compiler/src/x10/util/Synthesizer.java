@@ -1532,7 +1532,7 @@ public class Synthesizer {
     }
     Expr makeExpr(XUQV t, Position pos) {
         String str = t.toString();
-        if (str.equals("here"))
+        if (t == PlaceChecker.here())
             return xnf.Here(pos);
         return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
     }
@@ -1540,8 +1540,6 @@ public class Synthesizer {
     // FIXME: merge with makeExpr(XEQV, Position)
     Expr makeExpr(CLocal t, Position pos) {
         String str = t.name().toString();
-        if (str.equals("here"))
-            return xnf.Here(pos);
         return xnf.AmbExpr(pos, xnf.Id(pos,t.name().name()));
     }
 

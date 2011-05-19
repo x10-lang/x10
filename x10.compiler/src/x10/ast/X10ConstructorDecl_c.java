@@ -187,6 +187,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 offerType == null ? null : offerType.typeRef());
         
         ci.setThisDef(((X10ClassDef) ct).thisDef());
+        ci.setPlaceTerm(PlaceChecker.constructorPlaceTerm(ci));
         return ci;
     }
 

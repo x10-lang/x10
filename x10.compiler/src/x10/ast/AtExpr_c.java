@@ -34,6 +34,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
+import polyglot.visit.TypeBuilder;
 import x10.constraint.XTerm;
 import x10.constraint.XFailure;
 import x10.types.ClosureDef;
@@ -109,6 +110,14 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     }
 
     @Override
+    public Node buildTypesOverride(TypeBuilder tb) {
+        AtExpr_c n = (AtExpr_c) super.buildTypesOverride(tb);
+        ClosureDef cd = n.closureDef();
+        cd.setPlaceTerm(null); // will be overwritten during typechecking
+        return n;
+    }
+
+    @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	TypeSystem ts = (TypeSystem) tc.typeSystem();
     	NodeVisitor v = tc.enter(parent, this);
@@ -131,18 +140,18 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	ClosureDef def = (ClosureDef) this.codeDef();
     	if (def.placeTerm() == null) {
     	    XConstrainedTerm placeTerm;
-    		try {
-    		    placeTerm = PlaceChecker.computePlaceTerm(place, tc.context(), ts);
-    		} catch (SemanticException se) {
-    		    CConstraint d = new CConstraint();
-    		    XTerm term = PlaceChecker.makePlace();
-    		    try {
-    		        placeTerm = XConstrainedTerm.instantiate(d, term);
-    		    } catch (XFailure z) {
-    		        throw new InternalCompilerError("Cannot construct placeTerm from term  and constraint.");
-    		    }
-    		}
-    		def.setPlaceTerm(placeTerm);
+    	    CConstraint d = new CConstraint();
+    	    XTerm term = PlaceChecker.makePlace();
+    	    try {
+    	        placeTerm = XConstrainedTerm.instantiate(d, term);
+    	    } catch (XFailure z) {
+    	        throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
+    	    }
+    	    try {
+    	        XConstrainedTerm realPlaceTerm = PlaceChecker.computePlaceTerm(place, tc.context(), ts);
+    	        d.addBinding(placeTerm, realPlaceTerm);
+    	    } catch (SemanticException se) { }
+    	    def.setPlaceTerm(placeTerm);
     	}
 
     	// now that placeTerm is computed for this node, install it in the context

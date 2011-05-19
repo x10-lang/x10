@@ -64,6 +64,7 @@ import x10.types.X10MemberDef;
 import polyglot.types.LazyRef_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
+import x10.types.constraints.XConstrainedTerm;
 import x10.util.ClosureSynthesizer;
 
 /**
@@ -277,6 +278,7 @@ public class Closure_c extends Expr_c implements Closure {
 				
 				offerType == null ? null : offerType.typeRef());
 		mi.setStaticContext(code.staticContext());
+		mi.setPlaceTerm(PlaceChecker.closurePlaceTerm(mi));
 		
 		if (returnType() instanceof UnknownTypeNode) {
 			mi.inferReturnType(true);
@@ -353,9 +355,23 @@ public class Closure_c extends Expr_c implements Closure {
             }
 		}
 
+		// Ensure that the place constraint is set appropriately when
+		// entering the appropriate children
+		if (child == body || child == returnType || child == hasType || child == offerType || child == guard
+		        || (formals != null && formals.contains(child))) {
+		    ClosureDef cd = closureDef();
+		    XConstrainedTerm placeTerm = cd == null ? null : cd.placeTerm();
+		    if (placeTerm == null) {
+		        placeTerm = PlaceChecker.closurePlaceTerm(cd);
+		    }
+		    if (c == oldC)
+		        c = c.pushBlock();
+		    c.setPlace(placeTerm);
+		}
+
 		if (child == body && offerType != null && offerType.typeRef().known()) {
-			if (oldC==c)
-				c=c.pushBlock();
+		    if (oldC == c)
+		        c = c.pushBlock();
 		    c.setCollectingFinishScope(offerType.type());
 		}
 
