@@ -34,6 +34,10 @@ public abstract class ConstantValue {
         return value;
     }
     
+    public Type type() {
+    	return type;
+    }
+    
     public boolean equals(Object o) {
         if (null == o) return false;
         if (o instanceof ConstantValue) 

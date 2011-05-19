@@ -25,8 +25,13 @@ public final class NullValue extends ConstantValue {
      * @param v
      * @param ts
      */
-    NullValue(TypeSystem ts) {
+    public NullValue(TypeSystem ts) {
         super(null, ts.Null());
     }
+
+	@Override
+	public Object value() {
+		return null;
+	}
 
 }

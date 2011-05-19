@@ -20,12 +20,12 @@ import polyglot.types.TypeSystem;
  *
  */
 public class TupleValue extends ConstantValue {
-    
-    TupleValue (Type type, Object... values) throws SemanticException {
+
+    public TupleValue (Type type, Object... values) throws SemanticException {
         super(values, type.typeSystem().arrayOf(type));
         // TODO: check that each value in values has type type
     }
-    
+
     public String toString() {
         String result = "";
         String cont = "[";
@@ -36,5 +36,5 @@ public class TupleValue extends ConstantValue {
         result += "]";
         return result;
     }
-    
+
 }

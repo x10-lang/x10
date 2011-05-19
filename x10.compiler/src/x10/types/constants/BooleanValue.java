@@ -18,9 +18,13 @@ import polyglot.types.TypeSystem;
  */
 public final class BooleanValue extends ConstantValue {
     
-    BooleanValue(TypeSystem ts, boolean b) {
+    public BooleanValue(TypeSystem ts, boolean b) {
         super(b, ts.Boolean());
     }
-    
+
+	@Override
+	public Boolean value() {
+		return (Boolean) value;
+	}
 
 }

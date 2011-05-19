@@ -18,8 +18,13 @@ import polyglot.types.TypeSystem;
  */
 public class StringValue extends ConstantValue {
     
-    StringValue(TypeSystem ts, String s) {
+    public StringValue(TypeSystem ts, String s) {
         super(s, ts.String());
     }
-    
+
+	@Override
+	public String value() {
+		return (String) value;
+	}
+
 }

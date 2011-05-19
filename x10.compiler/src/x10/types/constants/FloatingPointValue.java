@@ -18,11 +18,31 @@ import polyglot.types.TypeSystem;
  */
 public final class FloatingPointValue extends ConstantValue {
     
-    FloatingPointValue(TypeSystem ts, float f) {
+    public FloatingPointValue(TypeSystem ts, float f) {
         super(f, ts.Float());
     }
     
-    FloatingPointValue(TypeSystem ts, double d) {
+    public FloatingPointValue(TypeSystem ts, double d) {
         super(d, ts.Double());
     }
+
+	@Override
+	public Double value() {
+		if (value instanceof Float)
+			return (double) (float) (Float) value;
+		return (Double) value;
+	}
+    
+    public float asFloat() {
+    	if (value instanceof Float)
+    		return (float) (Float) value;
+    	return (float) (double) (Double) value;
+    }
+    
+    public double asDouble() {
+    	if (value instanceof Float)
+    		return (double) (float) (Float) value;
+    	return (double) (Double) value;
+    }
+    
 }

@@ -18,36 +18,61 @@ import polyglot.types.TypeSystem;
  */
 public final class IntegralValue extends ConstantValue {
     
-    IntegralValue(TypeSystem ts, long n, boolean unsigned) {
+    public IntegralValue(TypeSystem ts, long n, boolean unsigned) {
         super(n, unsigned ? ts.ULong() : ts.Long());
     }
     
-    IntegralValue(TypeSystem ts, long n) {
+    public IntegralValue(TypeSystem ts, long n) {
         this(ts, n, false);
     }
     
-    IntegralValue(TypeSystem ts, int n, boolean unsigned) {
-        super(n, unsigned ? ts.UInt() : ts.Int());
+    public IntegralValue(TypeSystem ts, int n, boolean unsigned) {
+        super(unsigned ? 0xFFFFFFFF & (long) n : (long) n, unsigned ? ts.UInt() : ts.Int());
     }
 
-    IntegralValue(TypeSystem ts, int n) {
+    public IntegralValue(TypeSystem ts, int n) {
         this(ts, n, false);
     }
 
-    IntegralValue(TypeSystem ts, short n, boolean unsigned) {
-        super(n, unsigned ? ts.UShort() : ts.Short());
+    public IntegralValue(TypeSystem ts, short n, boolean unsigned) {
+        super(unsigned ? 0xFFFF & (long) n : (long) n, unsigned ? ts.UShort() : ts.Short());
     }
     
-    IntegralValue(TypeSystem ts, short n) {
+    public IntegralValue(TypeSystem ts, short n) {
         this(ts, n, false);
     }
     
-    IntegralValue(TypeSystem ts, byte n, boolean unsigned) {
-        super(n, unsigned ? ts.UByte() : ts.Byte());
+    public IntegralValue(TypeSystem ts, byte n, boolean unsigned) {
+        super(unsigned ? 0xFF & (long) n : (long) n, unsigned ? ts.UByte() : ts.Byte());
     }
 
-    IntegralValue(TypeSystem ts, byte n) {
+    public IntegralValue(TypeSystem ts, byte n) {
         this(ts, n, false);
     }
-    
+
+	@Override
+	public Long value() {
+		return (Long) value;
+	}
+
+    public byte asByte() {
+    	return (byte) (long) (Long) value;
+    }
+
+    public short asShort() {
+    	return (short) (long) (Long) value;
+    }
+
+    public char asChar() {
+    	return (char) (long) (Long) value;
+    }
+
+    public int asInt() {
+    	return (int) (long) (Long) value;
+    }
+
+    public long asLong() {
+    	return (long) (Long) value;
+    }
+
 }
