@@ -31,6 +31,8 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.OptimalCodeWriter;
 import polyglot.util.SimpleCodeWriter;
 import polyglot.util.StdErrorQueue;
+import x10.optimizations.inlining.DeclStore;
+import x10.optimizations.inlining.Inliner;
 import x10.optimizations.inlining.InlinerCache;
 import x10.util.CollectionFactory;
 
@@ -51,20 +53,16 @@ public class Compiler
     /** The error queue handles outputting error messages. */
     private ErrorQueue eq;
 
-    /** A cache to be used by the Inliner */
-    private SoftReference<InlinerCache>  inlinerCacheReference;
-
-    public InlinerCache getInlinerCache() {
-        InlinerCache cache = (null == inlinerCacheReference) ? null : inlinerCacheReference.get();
-        if (null == cache) {
-            cache = new InlinerCache();
-            inlinerCacheReference = new SoftReference<InlinerCache>(cache);
+    /** Information cached for use by the Inliner */
+    private SoftReference<DeclStore> inlinerDataRef = new SoftReference<DeclStore>(null);
+    
+    public DeclStore getInlinerData(Inliner inliner) {
+        DeclStore data = inlinerDataRef.get();
+        if (null == data) {
+            data = new DeclStore(inliner);
+            inlinerDataRef = new SoftReference<DeclStore>(data);
         }
-        return inlinerCacheReference.get();
-    }
-
-    public void invalidateInlinerCache() {
-        inlinerCacheReference = null;
+        return data;
     }
 
     /** FIXME: TEMPRORARY Inliner hack: Errors in speculative compilation for inlining should not be fatal

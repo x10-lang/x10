@@ -58,6 +58,7 @@ public class DeclStore {
     private final InlineCostEstimator ice;
     private final ExtensionInfo extInfo;
     private final Compiler compiler;
+            final InlinerCache cache;
             final boolean INLINE_IMPLICIT;
     private final boolean INLINE_STRUCT_CONSTRUCTORS;
     private final int implicitMax;
@@ -69,6 +70,7 @@ public class DeclStore {
         ts                         = in.typeSystem();
         nf                         = in.nodeFactory();
         ice                        = new InlineCostEstimator(job, ts, nf);
+        cache                      = new InlinerCache();
         extInfo                    = job.extensionInfo();
         compiler                   = extInfo.compiler();
         Configuration config       = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
@@ -85,7 +87,7 @@ public class DeclStore {
      */
     ProcedureDecl findDecl(InlinableCall call, MemberDef candidate, boolean required) {
         // see if the declaration for this candidate has already been cached
-        ProcedureDecl decl = getCache().getDecl(candidate);
+        ProcedureDecl decl = cache.getDecl(candidate);
         if (null != decl) {
             return decl;
         }
@@ -93,24 +95,24 @@ public class DeclStore {
         ClassDef container = getContainer(candidate);
         if (null == container) {
             report("unable to find container for candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
+            cache.notInlinable(candidate);
             return null;
         }
         if (isVirtualOrNative(candidate, container)) {
             report("call is virtual or native on candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
+            cache.notInlinable(candidate);
             return null;
         }
         if (Inliner.annotationsPreventInlining((X10ClassDef) container)) {
             report("of Native Class/Rep annotation of container: " +container, call);
-            getCache().notInlinable(candidate);
+            cache.notInlinable(candidate);
             return null;
         }
         Job candidateJob = container.job();
         if (null == candidateJob) {
             // reconstruct job from position
             report("unable to find job for candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
+            cache.notInlinable(candidate);
             return null;
         }
         if (candidateJob.reportedErrors()) {
@@ -119,46 +121,46 @@ public class DeclStore {
         Node ast = getAST(candidateJob);
         if (null == ast) {
             report("unable to find valid ast for candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
-            getCache().badJob(candidateJob);
+            cache.notInlinable(candidate);
+            cache.badJob(candidateJob);
             return null;
         }
         if (this.job.compiler().errorQueue().hasErrors()) { // This may be overly conservative
             report("there were errors compiling candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
-            getCache().badJob(candidateJob);
+            cache.notInlinable(candidate);
+            cache.badJob(candidateJob);
             return null;
         }
         decl = getDeclaration(candidate, ast);
         if (null == decl) {
             report("unable to find declaration for candidate: " +candidate, call);
-            getCache().notInlinable(candidate);
+            cache.notInlinable(candidate);
             return null;
         }
         if (Inliner.annotationsPreventInlining(decl) || Inliner.annotationsPreventInlining(decl.procedureInstance())) {
             report("candidate declaration annotated to prevent inlining: " +candidate, call);
-            getCache().notInlinable(candidate);
+            cache.notInlinable(candidate);
             return null;
         }
         if (ExpressionFlattener.javaBackend(job) && hasSuper(decl)) {
             report("candidate body contains super (not yet supported by Java backend): " +candidate, call);
-            getCache().notInlinable(candidate);
+            cache.notInlinable(candidate);
             return null;
         }
         if (!required && (INLINE_IMPLICIT || (call instanceof ConstructorCall && ts.isStruct(((ConstructorCall) call).constructorInstance().returnType()) && INLINE_STRUCT_CONSTRUCTORS))) {
             int cost = getCost(decl, candidateJob);
             if (implicitMax < cost) {
                 report("of excessive cost, " + cost, call);
-                getCache().notInlinable(candidate);
+                cache.notInlinable(candidate);
                 return null;
             }
         } else if (!required) {
             report("inlining not explicitly required", call);
-            getCache().notInlinable(candidate);
+            cache.notInlinable(candidate);
             return null;
         }
         // remember what to inline this candidate with if we ever see it again
-        getCache().putDecl(candidate, decl);
+        cache.putDecl(candidate, decl);
         return decl;
     }
 
@@ -200,7 +202,6 @@ public class DeclStore {
      */
     private Node getAST(Job job) {
         String source = job.source().toString().intern();
-        InlinerCache cache = getCache();
         Node ast = cache.getAST(source);
         if (null == ast) {
             try {
@@ -307,11 +308,11 @@ public class DeclStore {
         int cost = ice.getCost(decl, job);
         return cost;
     }
-
+/*
     final InlinerCache getCache() {
-        return compiler.getInlinerCache();
+        return cache;
     }
-
+*/
     /**
      * @param report
      * @param object

@@ -35,6 +35,7 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
+import polyglot.frontend.Compiler;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
@@ -137,8 +138,8 @@ public class Inliner extends ContextVisitor {
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         syn                   = new AltSynthesizer(ts, nf);
-        repository            = new DeclStore(this);
         ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
+        repository            = extInfo.compiler().getInlinerData(this); // make soft reference hard for duration of this visitor
         Configuration config  = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
         INLINE_CONSTANTS      = config.OPTIMIZE && config.INLINE_CONSTANTS;
         INLINE_METHODS        = config.OPTIMIZE && config.INLINE_METHODS;
@@ -494,14 +495,14 @@ public class Inliner extends ContextVisitor {
             return null;
         }
         // unless required, skip candidates previously found to be uninlinable
-        if (!inliningRequired && repository.getCache().uninlineable(candidate)) {
+        if (!inliningRequired && repository.cache.uninlineable(candidate)) {
             report("of previous decision for candidate: " +candidate, call);
             return null;
         }
         // unless required, don't inline if the candidate annotations prevent it
         if (!inliningRequired && annotationsPreventInlining((X10MemberDef) candidate)) {
             report("of annotation on candidate: " + candidate, call);
-            repository.getCache().notInlinable(candidate);
+            repository.cache.notInlinable(candidate);
             return null;
         }
         return repository.findDecl(call, candidate, inliningRequired);
