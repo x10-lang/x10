@@ -713,7 +713,9 @@ void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
 void x10rt_lgl_remote_ops (x10rt_remote_op_params *opv, size_t opc)
 {
     if (has_remote_op) {
-        #ifdef NDEBUG
+        // currently build system does not define NDEBUG in optimised mode
+        #if 0
+        #ifndef NDEBUG
             for (size_t i=0 ; i<opc ; ++i) {
                 x10rt_place d = opv[i].dest;
                 assert(d < x10rt_lgl_nplaces());
@@ -741,6 +743,7 @@ void x10rt_lgl_remote_ops (x10rt_remote_op_params *opv, size_t opc)
                     abort();
                 }
             }
+        #endif
         #endif
         x10rt_net_remote_ops(opv, opc);
     } else {
