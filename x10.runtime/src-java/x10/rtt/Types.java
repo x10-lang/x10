@@ -394,7 +394,7 @@ public class Types {
     }
     
     // FIXME this should be replaced by virtual method for user defined conversion
-    public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
+    private static Object conversion(Type<?> rtt, Object primOrTypeParam, boolean cast) {
         if (primOrTypeParam == null) {
             if (isStructType(rtt)) {
                 nullIsCastToStruct(rtt);
@@ -414,26 +414,32 @@ public class Types {
         }
         if (rtt == BYTE) {
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
+            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).byteValue();}
             return primOrTypeParam;
         }
         if (rtt == SHORT) {
             if (primOrTypeParam instanceof java.lang.Short) return primOrTypeParam;
+            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).shortValue();}
             return primOrTypeParam;
         }
         if (rtt == INT) {
             if (primOrTypeParam instanceof java.lang.Integer) return primOrTypeParam;
+            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).intValue();}
             return primOrTypeParam;
         }
         if (rtt == LONG) {
             if (primOrTypeParam instanceof java.lang.Long) return primOrTypeParam;
+            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).longValue();}
             return primOrTypeParam;
         }
         if (rtt == FLOAT) {
             if (primOrTypeParam instanceof java.lang.Float) return primOrTypeParam;
+            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).floatValue();}
             return primOrTypeParam;
         }
         if (rtt == DOUBLE) {
             if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
+            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).doubleValue();}
             return primOrTypeParam;
         }
         if (rtt == STRING) {
@@ -445,6 +451,10 @@ public class Types {
         }
         
         return primOrTypeParam;
+    }
+
+    public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
+    	return conversion(rtt, primOrTypeParam, false);
     }
 
     private static void nullIsCastToStruct(Type<?> rtt) {throw new java.lang.ClassCastException(rtt.typeName());}
@@ -466,7 +476,7 @@ public class Types {
     
     public static <T> T castConversion(final java.lang.Object self, x10.rtt.Type<?> rtt) {
         if (self == null) return null;
-        T ret = (T) conversion(rtt, self);
+        T ret = (T) conversion(rtt, self, true);
         if (rtt != null && !rtt.instanceof$(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
         return ret;
     }
