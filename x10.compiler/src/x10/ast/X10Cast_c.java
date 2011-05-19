@@ -173,10 +173,15 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                     !position.file().contains("Runtime.x10")&& 
                     !position.file().contains("HashSet.x10")) {
                 Type base = Types.baseType(type);
-                if (base instanceof X10ParsedClassType) {
-                    X10ParsedClassType classType = (X10ParsedClassType) base;
-                    final List<Type> args = classType.typeArguments();
-                    if (args!=null && args.size()>0) {
+                boolean isClassType = base instanceof X10ParsedClassType;
+                boolean isParamType = base instanceof ParameterType;
+                if (isClassType || isParamType) {
+                    List<Type> args = null;
+                    if (isClassType) {
+                        X10ParsedClassType classType = (X10ParsedClassType) base;
+                        args = classType.typeArguments();
+                    }
+                    if (isParamType || (args!=null && args.size()>0)) {
                         boolean isOk = false;
                         if (e instanceof X10Cast) {
                             // ok, e.g., x:Array[Int],   x as Array[Int](3)
