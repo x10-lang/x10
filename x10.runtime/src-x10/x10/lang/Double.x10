@@ -207,7 +207,7 @@ public struct Double implements Comparable[Double] /*TODO implements Arithmetic[
      * @param x the given UInt
      * @return the given UInt converted to a Double.
      */
-    @Native("java", "((double)(int)(#x.intVal))")
+    @Native("java", "((double)(#x))")
     @Native("c++",  "((x10_double) (#1))")
     public native static operator (x:UInt): Double;
 

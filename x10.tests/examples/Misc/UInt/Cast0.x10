@@ -18,9 +18,29 @@ import harness.x10Test;
  */
 public class Cast0 extends x10Test {
     public def run(): boolean = {
-	val u = 1u;
-	val i = u as Int;
-	return (i == 1);
+	val u1 = 1u;
+	val i1 = 1;
+	val l1 = 1l;
+	val b1 = 1y;
+	if (!(u1 as Int == i1)) return false;
+	if (u1 != i1 as UInt) return false;
+	if (!((u1 as Int) as Long == l1)) return false;
+	if (u1 != l1 as UInt) return false;
+	if (!((u1 as Int) as Byte == b1)) return false;
+	if (u1 != b1 as UInt) return false;
+
+	val u2 = 0xFFFFffffU;
+	val i2 = -1;
+	val l2 = -1l;
+	val b2 = -1y;
+	if (!(u2 as Int == i2)) return false;
+	if (u2 != i2 as UInt) return false;
+	if (!((u2 as Int) as Long == l2)) return false;
+	if (u2 != l2 as UInt) return false;
+	if (!((u2 as Int) as Byte == b2)) return false;
+	if (u2 != b2 as UInt) return false;
+
+	return true;
     }
 
     public static def main(Array[String]) {

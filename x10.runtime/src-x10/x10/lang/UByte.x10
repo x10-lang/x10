@@ -296,7 +296,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      */
     // @Native("java", "((byte)(int)(#x))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static operator (x:UInt) as UByte = UByte(x.intVal as Byte);
+    public static operator (x:UInt) as UByte = UByte((x as Int) as Byte);
 
     /**
      * Convert a given ULong to a UByte.

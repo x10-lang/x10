@@ -297,7 +297,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      */
     // @Native("java", "((short) (#x))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static operator (x:UInt) as UShort = UShort(x.intVal as Short);
+    public static operator (x:UInt) as UShort = UShort((x as Int) as Short);
 
     /**
      * Convert a given ULong to a UShort.

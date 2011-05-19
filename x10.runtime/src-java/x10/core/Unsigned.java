@@ -31,7 +31,6 @@ public abstract class Unsigned {
         return a;
     }
 
-    /*
     public static int inject(int a) {
         return (a + java.lang.Integer.MIN_VALUE);
     }
@@ -45,7 +44,6 @@ public abstract class Unsigned {
         return (a - java.lang.Long.MIN_VALUE);
     }
 
-    // followings are correct but not used
     public static boolean le(int a, int b) {
         return inject(a) <= inject(b);
     }
@@ -70,7 +68,6 @@ public abstract class Unsigned {
     public static boolean lt(long a, long b) {
         return inject(a) < inject(b);
     }
-    */
     
     public static int div(int a, int b) {
 //        return (int) div(toULong(a), toULong(b));

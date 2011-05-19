@@ -14,6 +14,7 @@ import polyglot.ast.Node;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.visit.Translator;
+import x10.visit.X10PrettyPrinterVisitor;
 
 public class CastExpander extends Expander {
 
@@ -21,6 +22,7 @@ public class CastExpander extends Expander {
 	private final TypeExpander typeExpander;
 	private final Expander child;
 	private final Node node;
+	private boolean boxConversion;     // flag requesting explicit boxing conversion
 
 	public CastExpander(CodeWriter w, Emitter er, TypeExpander typeExpander, Expander child) {
 		super(er);
@@ -36,6 +38,11 @@ public class CastExpander extends Expander {
 		this.typeExpander = null;
 		this.child = null;
 		this.node = node;
+	}
+	
+	private CastExpander setBoxConversion(boolean b) {
+	    boxConversion = b;
+	    return this;
 	}
 
 	// not used
@@ -53,6 +60,11 @@ public class CastExpander extends Expander {
 
 	public CastExpander castTo(Type castType, int flags) {
 		return new CastExpander(w, er, new TypeExpander(er, castType, flags), this);
+	}
+	
+	public CastExpander boxTo(Type castType) {
+	    return new CastExpander(w, er, new TypeExpander(er, castType, X10PrettyPrinterVisitor.BOX_PRIMITIVES), this)
+	        .setBoxConversion(true);
 	}
 
 	@Override
@@ -85,11 +97,20 @@ public class CastExpander extends Expander {
 		if (typeExpander == null) {
 			expandChild(tr);
 		} else {
-			w.write("((");
-			typeExpander.expand(tr);
-			w.write(")(");
-			expandChild(tr);
-			w.write("))");
+		    Type type = typeExpander.type();
+		    if (type.isAny() || type.isParameterType() || boxConversion) {
+		        w.write("(");
+		        er.printBoxConversion(type);
+		        w.write("(");         // required by printBoxConversion
+		        expandChild(tr);
+		        w.write("))");
+		    } else {
+		        w.write("((");
+		        typeExpander.expand(tr);
+		        w.write(")(");
+    			expandChild(tr);
+    			w.write("))");
+		    }
 		}
 	}
 

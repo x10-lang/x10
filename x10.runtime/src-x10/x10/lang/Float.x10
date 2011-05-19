@@ -206,7 +206,7 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
      * @param x the given UInt
      * @return the given UInt converted to a Float.
      */
-    @Native("java", "((float)(int)(#x.intVal))")
+    @Native("java", "((float)(#x))")
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:UInt): Float;
 

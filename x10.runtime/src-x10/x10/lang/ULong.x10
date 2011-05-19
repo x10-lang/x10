@@ -329,7 +329,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     // @Native("java", "((long) ((#x) & 0xffffffffL))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public static operator (x:UInt): ULong = ULong(x.intVal & 0xffffffffL);
+    public static operator (x:UInt): ULong = ULong(0xffffffffL & (x as Int));
 
 
     /**

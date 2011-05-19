@@ -12,15 +12,35 @@
 import harness.x10Test;
 
 /**
- * Test casting of Int to UInt
+ * Test casting of UInt to ULong, UByte
  *
  * @author Salikh Zakirov 5/2011
  */
 public class Cast1 extends x10Test {
     public def run(): boolean = {
-	val u = 0xFFFFffffU;
-	val i = u as Int;
-	return (i == -1);
+	val u1 = 1u;
+	val b1 = 1uy;
+	val l1 = 1ul;
+	if (!(u1 == b1 as UInt)) return false;
+	if (u1 != b1 as UInt) return false;
+	if (!(u1 as UByte == b1)) return false;
+	if (u1 as UByte != b1) return false;
+	if (!(u1 == l1 as UInt)) return false;
+	if (u1 != l1 as UInt) return false;
+	if (!(u1 as ULong == l1)) return false;
+	if (u1 as ULong != l1) return false;
+
+	val u2 = 0xFFFFffffU;
+	val b2 = 0xffYU;
+	val l2 = 0xFFFFffffLU;
+	if (!(u2 as UByte == b2)) return false;
+	if (u2 as UByte != b2) return false;
+	if (!(u2 as ULong == l2)) return false;
+	if (u2 as ULong != l2) return false;
+	if (!(u2 == 0xFFFFffffFFFFffffLU as UInt)) return false;
+	if (u2 != 0xFFFFffffFFFFffffLU as UInt) return false;
+
+	return true;
     }
 
     public static def main(Array[String]) {

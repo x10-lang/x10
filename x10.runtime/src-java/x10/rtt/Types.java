@@ -237,6 +237,14 @@ public class Types {
             return "x10.lang.String";
         }
     };
+    
+    public static final RuntimeType<x10.core.UInt> UINT = new RuntimeType<x10.core.UInt>(
+            x10.core.UInt.class) {
+        @Override
+        public String typeName() {
+            return "x10.lang.UInt";
+        }
+    };
 
     public static Class<?> UBYTE_CLASS;
     public static Class<?> USHORT_CLASS;
@@ -244,7 +252,6 @@ public class Types {
     public static Class<?> ULONG_CLASS;
     public static RuntimeType<?> UBYTE;
     public static RuntimeType<?> USHORT;
-    public static RuntimeType<?> UINT;
     public static RuntimeType<?> ULONG;
     public static Object UBYTE_ZERO;
     public static Object USHORT_ZERO;
@@ -262,9 +269,7 @@ public class Types {
             f = c.getDeclaredField("$RTT");
             USHORT = (RuntimeType<?>) f.get(null);
             USHORT_ZERO = c.getConstructor(new Class[]{short.class}).newInstance(new Object[]{(short)0});
-            UINT_CLASS = c = Class.forName("x10.lang.UInt");
-            f = c.getDeclaredField("$RTT");
-            UINT = (RuntimeType<?>) f.get(null);
+            UINT_CLASS = c = Class.forName("x10.core.UInt");
             UINT_ZERO = c.getConstructor(new Class[]{int.class}).newInstance(new Object[]{0});
             ULONG_CLASS = c = Class.forName("x10.lang.ULong");
             f = c.getDeclaredField("$RTT");

@@ -576,23 +576,25 @@ public class Emitter {
 	*/
 
 	private static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
-		String pat = getJavaRep(def);
-		if (pat != null && boxPrimitives) {
-			String[] s = new String[] { "boolean", "byte", "char",
-					"short", "int", "long", "float", "double" };
-			String[] w = new String[] { "java.lang.Boolean",
-					"java.lang.Byte", "java.lang.Character",
-					"java.lang.Short", "java.lang.Integer",
-					"java.lang.Long", "java.lang.Float",
-					"java.lang.Double" };
-			for (int i = 0; i < s.length; i++) {
-				if (pat.equals(s[i])) {
-					pat = w[i];
-					break;
-				}
-			}
-		}
-		return pat;
+	    String pat = getJavaRep(def);
+	    if (pat != null && boxPrimitives) {
+	        String orig = def.fullName().toString();
+	        String[] s = new String[] { "x10.lang.Boolean", "x10.lang.Byte", "x10.lang.Char",
+	                "x10.lang.Short", "x10.lang.Int", "x10.lang.Long",
+	                "x10.lang.Float", "x10.lang.Double", "x10.lang.UInt" };
+	        String[] w = new String[] { "java.lang.Boolean",
+	                "java.lang.Byte", "java.lang.Character",
+	                "java.lang.Short", "java.lang.Integer",
+	                "java.lang.Long", "java.lang.Float",
+	                "java.lang.Double", "x10.core.UInt" };
+	        for (int i = 0; i < s.length; i++) {
+	            if (orig.equals(s[i])) {
+	                pat = w[i];
+	                break;
+	            }
+	        }
+	    }
+	    return pat;
 	}
 	
 	public static String getJavaRep(X10ClassDef def) {
@@ -732,6 +734,37 @@ public class Emitter {
 		}
 
 		return false;
+	}
+	
+	public void printBoxConversion(Type type) {
+	    // treat unsigned types specially
+	    if (type.isUInt()) {
+	        w.write("x10.core.UInt.make");
+	        // it requires parentheses to be printed after
+	    } else {
+	        w.write("(");
+	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write(")");
+	    }
+	}
+	
+	/**
+	 * @param type - a type to print
+	 * @return Returns true if an additional closing parenthesis needs to be printed after expression
+	 */
+	public boolean printUnboxConversion(Type type) {
+	    if (type.isUInt()) {
+	        w.write("x10.core.UInt.getValue((x10.core.UInt)");
+	        return true;
+	    } else {
+	        w.write("(");
+	        printType(type, 0);
+	        w.write(")");
+	        w.write("(");
+	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write(")");
+	        return false;
+	    }
 	}
 
 	public void printType(Type type, int flags) {
@@ -1336,6 +1369,9 @@ public class Emitter {
     }
 
     private static void buildMangledMethodName(ClassType ct, StringBuilder sb, int i, Type type, boolean printIncludingGeneric) {
+        if (type.isUInt()) {
+            sb.append("$u" + i);
+        }
         Type t = Types.baseType(type);
         if (t instanceof X10ClassType && (printIncludingGeneric || (!printIncludingGeneric && !containsTypeParam(t)))) {
             X10ClassType x10t = (X10ClassType) t;
@@ -1787,10 +1823,15 @@ public class Emitter {
 	        w.write("return ");
 	    }
 
-	    boolean boxString = boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context());
-	    if (boxString) {
+        boolean closeParen = false;
+        if (boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
             w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
             w.write(".box(");
+            closeParen = true;
+        }
+        if (impl.returnType().isUInt()) {
+            w.write("x10.core.UInt.make(");
+            closeParen = true;
 	    }
 
 	    TypeSystem xts = tr.typeSystem();
@@ -1828,19 +1869,17 @@ public class Emitter {
 	            w.write(",");
 	            w.allowBreak(0, " ");
 	        }
-	        if (isPrimitive(f)) {
-	            w.write("(");
-	            printType(f, 0);
-	            w.write(")");
-	        }
-	        w.write(" ");
-
 	        Name name = Name.make("a" + (i + 1));
+	        boolean closeParenArg = false;
+	        if (isPrimitive(f)) {
+	            closeParenArg = printUnboxConversion(f);
+	        }
 	        w.write(name.toString());
+	        if (closeParenArg) w.write(")");
 	    }
 	    w.write(")");
 
-	    if (boxString) {
+	    if (closeParen) {
 	        w.write(")");
 	    }
 	    w.write(";");
@@ -1904,6 +1943,12 @@ public class Emitter {
     	    if (!mi.returnType().isVoid()) {
     	        w.write("return ");
     	    }
+    	    
+    	    boolean closeParen = false;
+    	    if (mi.returnType().isUInt() && mi.def().returnType().get().isParameterType()) {
+    	        // handle unboxing of the UInt values
+    	        closeParen = printUnboxConversion(mi.returnType());
+    	    }
     
     	    w.write("super.");
     	    
@@ -1919,16 +1964,15 @@ public class Emitter {
     	            w.allowBreak(0, " ");
     	        }
     	        if (isPrimitive(f) && isInstantiated(def.formalTypes().get(i).get(), f)) {
-    	            w.write("(");
-    	            printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-    	            w.write(")");
+    	            printBoxConversion(f);
     	        }
-    	        w.write(" ");
-    
+    	        w.write("(");
     	        Name name = Name.make("a" + (i + 1));
     	        w.write(name.toString());
+    	        w.write(")");
     	    }
     	    w.write(")");
+    	    if (closeParen) w.write(")");
     
     	    w.write(";");
     	    w.write("}");
@@ -2391,9 +2435,16 @@ public class Emitter {
                         w.write(",");
                         w.allowBreak(0, " ");
                     }
+                    boolean closeParen = false;
                     if (def.formalTypes().get(i).get() instanceof ParameterType) {
                         Type bf = Types.baseType(f);
-                        if (f.isBoolean() || f.isNumeric()) {
+                        if (f.isUInt()) {
+                            closeParen = true;
+                            w.write("x10.core.UInt.getValue("); // unbalanced parenthesis
+                            w.write("(");
+                            printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                            w.write(")");
+                        } else if (f.isBoolean() || f.isNumeric()) {
                             // TODO:CAST
                             w.write("(");
                             printType(f, 0);
@@ -2411,6 +2462,8 @@ public class Emitter {
                     
                     Name name = Name.make("a" + (i + 1));
                     w.write(name.toString());
+                    if (closeParen)
+                        w.write(")");
                 }
                 w.write(")");
                 w.write(";");
@@ -3345,7 +3398,7 @@ public class Emitter {
     		    Type ft = mi.def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
     		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
-    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
+    		        args.add(new CastExpander(w, this, arguments.get(i)).boxTo(at));
     		    }
     		    else if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));

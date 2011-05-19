@@ -1533,20 +1533,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Binary.Operator op = n.operator();
 
         boolean asPrimitive = false;
-        boolean asUnsignedPrimitive = false;
+        boolean boxedEquals = false;
         if (op == Binary.EQ || op == Binary.NE) {
             if (l.isNumeric() && r.isNumeric() || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
                 asPrimitive = true;
 
+                TypeSystem ts = tr.typeSystem();
                 if (l.isNumeric()
-                        && !(l.isByte() || l.isShort() || l.isInt() || l.isLong() || l.isFloat() || l.isDouble())) {
-                    asUnsignedPrimitive = true;
+                        && !(l.isByte() || l.isShort() || l.isInt() || l.isLong() || l.isFloat() || l.isDouble())
+                        && !(ts.isUInt(l) && ts.isUInt(r))) {
+                    boxedEquals = true;
                 }
             }
         }
 
         if (asPrimitive) {
-            if (asUnsignedPrimitive && (op == Binary.NE)) w.write("!");
+            if (boxedEquals && (op == Binary.NE)) w.write("!");
             // TODO:CAST
             w.write("((");
             er.printType(l, 0);
@@ -1554,7 +1556,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         n.printSubExpr(left, true, w, tr);
         if (asPrimitive) w.write(")");
-        if (asUnsignedPrimitive) {
+        if (boxedEquals) {
             w.write(".equals(");
         } else {
             w.write(" ");
@@ -1569,7 +1571,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         n.printSubExpr(right, false, w, tr);
         if (asPrimitive) w.write(")");
-        if (asUnsignedPrimitive) w.write(")");
+        if (boxedEquals) w.write(")");
     }
 
     private static boolean allMethodsFinal(X10ClassDef def) {
@@ -1758,11 +1760,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             else {
                 if (isPrimitiveRepedJava(e.type())) {
                     // e.g) m((Integer) a) for m(T a)
-                    if (xts.isParameterType(defType)) {
-                        // TODO:CAST
-                        w.write("(");
-                        er.printType(e.type(), BOX_PRIMITIVES);
-                        w.write(")");
+                    if (xts.isParameterType(defType) || xts.isAny(defType)) {
+                        // this can print something like '(int)' or 'UInt.make' depending on the type
+                        // we require the parentheses to be printed below 
+                        er.printBoxConversion(e.type());
                         // e.g) m((int) a) for m(int a)
                     } else {
                         // TODO:CAST
@@ -1770,10 +1771,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         er.printType(e.type(), 0);
                         w.write(")");
                         if (e instanceof X10Call) {
-                            // TODO:CAST
-                            w.write("(");
-                            er.printType(e.type(), BOX_PRIMITIVES);
-                            w.write(")");
                         } else if (e instanceof ClosureCall) {
                             ClosureCall cl = (ClosureCall) e;
                             Expr expr = cl.target();
@@ -1789,7 +1786,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             }
                         }
                     }
-                    w.write("(");
+                    w.write("("); // it is important to add parentheses here, as some call may have been issued above
                     c.print(e, w, tr);
                     w.write(")");
                     if (isMutableStruct(e.type())) {
@@ -1922,14 +1919,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     // returns Object.
                     // e.g. (Boolean) m(a)
                     if (castType.typeEquals(Types.baseType(exprType), tr.context())) {
+                        boolean needParen = false;
                         if (expr instanceof X10Call || expr instanceof ClosureCall) {
-                            w.write("(");
-                            w.write("(");
-                            er.printType(exprType, BOX_PRIMITIVES);
-                            w.write(")");
+                            needParen = er.printUnboxConversion(castType);
                         }
                         c.printSubExpr(expr, w, tr);
-                        if (expr instanceof X10Call || expr instanceof ClosureCall) w.write(")");
+                        if (needParen) w.write(")");
                     } else {
                         w.write("("); // put "(Type) expr" in parentheses.
                         w.write("(");
@@ -1993,6 +1988,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                     w.allowBreak(2, " ");
 
+                    boolean closeParen = false; // provide extra closing parenthesis
                     if (isString(exprType, tr.context()) && !isString(castType, tr.context())) {
                         if (xts.isParameterType(castType)) {
                             w.write(X10_RTT_TYPES);
@@ -2003,8 +1999,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write(X10_CORE_STRING);
                             w.write(".box(");
                         }
+                        closeParen = true;
+                    } else if (exprType.isUInt() && (castType.isAny() || castType.isParameterType())) {
+                        w.write("x10.core.UInt.make(");
+                        closeParen = true;
                     }
-
+                        
                     boolean needParen = expr instanceof Unary
                             || expr instanceof Lit
                             || expr instanceof Conditional_c;
@@ -2012,9 +2012,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     c.printSubExpr(expr, w, tr);
                     if (needParen) w.write(")");
 
-                    if (isString(exprType, tr.context()) && !isString(castType, tr.context())) {
+                    if (closeParen)
                         w.write(")");
-                    }
 
                     w.write(")");
                     w.end();
@@ -2095,6 +2094,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(Emitter.mangleToJava(n.name().id()));
         } else {
             assert target instanceof Expr;
+            boolean closeParen = false;
+            if (xts.isStruct(target.type()) && n.type().isNumeric()) {
+                closeParen = er.printUnboxConversion(n.type());
+            }
             w.begin(0);
             if (!n.isTargetImplicit()) {
                 if (!(target instanceof Special || target instanceof New)
@@ -2113,6 +2116,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.allowBreak(2, 3, "", 0);
             }
             tr.print(n, n.name(), w);
+            if (closeParen) w.write(")");
             w.end();
         }
     }
@@ -2207,7 +2211,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             break;
         case UINT:
             val = Integer.toString((int) n.value());
-            val = "x10.lang.UInt." + CREATION_METHOD_NAME + "(" + val + ")";
             break;
         case INT:
             val = Integer.toString((int) n.value());
@@ -3306,6 +3309,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Expr e = l.get(i);
             if (i < mi.formalTypes().size()) { // FIXME This is a workaround
                 Type castType = mi.formalTypes().get(i);
+                Type defType = mi.def().formalTypes().get(i).get();
                 TypeSystem xts = tr.typeSystem();
                 if (isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
 
@@ -3325,17 +3329,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     c.print(e, w, tr);
                     w.write(")");
                 } else if (isSelfDispatch && !castType.typeEquals(e.type(), tr.context())) {
-                    // TODO:CAST
                     w.write("(");
-                    w.write("(");
-                    er.printType(castType, PRINT_TYPE_PARAMS);
-                    w.write(")");
-                    w.write("(");
+                    if (castType.isNumeric() && defType.isParameterType()) {
+                        er.printBoxConversion(castType);
+                    } else {
+                        // TODO:CAST
+                        w.write("(");
+                        er.printType(castType, PRINT_TYPE_PARAMS);
+                        w.write(")");
+                    }
+                    w.write("(");       // printBoxConvesion assumes parentheses around expression
                     c.print(e, w, tr);
                     w.write(")");
                     w.write(")");
                 } else {
-                    c.print(e, w, tr);
+                    if (castType.isNumeric() && defType.isParameterType()) {
+                        er.printBoxConversion(castType);
+                        w.write("(");
+                        c.print(e, w, tr);
+                        w.write(")");
+                    } else {
+                        c.print(e, w, tr);
+                    }
                 }
             } else {
                 c.print(e, w, tr);
@@ -3464,7 +3479,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             if (xts.isBoolean(type)) {
                 w.write(" false");
-            } else if (!xts.isParameterType(type) && !xts.isUnsigned(type) && (xts.isChar(type) || xts.isNumeric(type))) {
+            } else if (!xts.isParameterType(type) &&
+                    (!xts.isUnsigned(type) || xts.isUInt(type)) &&    // UInt is unboxed now, but UShort, ULong are not
+                    (xts.isChar(type) || xts.isNumeric(type))) {
                 w.write(" 0");
             } else {
                 w.write(" null");
@@ -3725,7 +3742,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public static boolean isPrimitiveRepedJava(Type t) {
         return t.isBoolean() || t.isByte() || t.isShort() || t.isInt() || t.isLong() || t.isFloat() || t.isDouble()
-                || t.isChar();
+                || t.isChar() || t.isUInt();
     }
 
     public static boolean hasParams(Type t) {
