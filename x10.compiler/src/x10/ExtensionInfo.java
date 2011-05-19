@@ -488,36 +488,16 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(CheckASTForErrors(job));
            //goals.add(TypeCheckBarrier());
        }
-       private void addPositionCheckGoal(Job job, List<Goal> goals) {
-           addPositionCheckGoal("PositionInvariantChecker", job, goals);
-       }
-       private void addPositionCheckGoal(String name, Job job, List<Goal> goals) {
-    	   String current = "";
-    	   if (goals.size() > 0)
-    		   current = goals.get(goals.size() - 1).name();
-           addPositionCheckGoal(name, current, job, goals);
-       }
-       private void addPositionCheckGoal(String name, String previous, Job job, List<Goal> goals) {
-    	   goals.add(new ForgivingVisitorGoal(name, job, new PositionInvariantChecker(job, previous)).intern(this));
-       }
-       private void addInvariantCheckGoal(Job job, List<Goal> goals) {
-    	   goals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)).intern(this));
-       }
 
-       public List<Goal> goals(Job job) {
-           X10CompilerOptions opts = extensionInfo().getOptions();
-           List<Goal> goals = new ArrayList<Goal>();
-
-           addSemanticCheckSourceGoals(job, goals);
-
-           if (!opts.x10_config.ONLY_TYPE_CHECKING) {
-
+       private Goal addPreOptimizationGoals(Job job, List<Goal> goals) {
+           final Goal typeCheckBarrierGoal = TypeCheckBarrier();
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
+           desugarerGoal.addPrereq(typeCheckBarrierGoal);
 
+           X10CompilerOptions opts = extensionInfo().getOptions();
            Goal walaBarrier = null;
-           final Goal typeCheckBarrierGoal = TypeCheckBarrier();
-               if (opts.x10_config.WALA || opts.x10_config.WALADEBUG || opts.x10_config.FINISH_ASYNCS) {
+           if (opts.x10_config.WALA || opts.x10_config.WALADEBUG || opts.x10_config.FINISH_ASYNCS) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("x10.wala.translator.X102IRGoal");
@@ -545,7 +525,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    e.printStackTrace();
                }
            }
-           
+
            goals.add(MoveFieldInitializers(job));
            goals.add(X10Expanded(job));
            goals.add(X10RewriteAtomicMethods(job));
@@ -576,26 +556,54 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                goals.add(wsCodeGenGoal);
                wsCodeGenGoal.addPrereq(wsCodePreprocessorGoal);
            }
-           
-           goals.add(Preoptimization(job));
-           goals.addAll(Optimizer.goals(this, job));
-           goals.add(Postoptimization(job));
+           return typeCheckBarrierGoal;
+       }
 
-           final Goal lowererGoal = Lowerer(job);
-           goals.add(lowererGoal);
-           final Goal codeGeneratedGoal = CodeGenerated(job);
-           goals.add(codeGeneratedGoal);
-           
-           // the barrier will handle prereqs on its own
-           desugarerGoal.addPrereq(typeCheckBarrierGoal);
-           codeGeneratedGoal.addPrereq(CodeGenBarrier());
-           lowererGoal.addPrereq(typeCheckBarrierGoal);
-           codeGeneratedGoal.addPrereq(lowererGoal);
-           List<Goal> optimizations = Optimizer.goals(this, job);
-           for (Goal goal : optimizations) {
-               goal.addPrereq(typeCheckBarrierGoal);
-               codeGeneratedGoal.addPrereq(goal);
-           }
+       private void addPositionCheckGoal(Job job, List<Goal> goals) {
+           addPositionCheckGoal("PositionInvariantChecker", job, goals);
+       }
+       private void addPositionCheckGoal(String name, Job job, List<Goal> goals) {
+    	   String current = "";
+    	   if (goals.size() > 0)
+    		   current = goals.get(goals.size() - 1).name();
+           addPositionCheckGoal(name, current, job, goals);
+       }
+       private void addPositionCheckGoal(String name, String previous, Job job, List<Goal> goals) {
+    	   goals.add(new ForgivingVisitorGoal(name, job, new PositionInvariantChecker(job, previous)).intern(this));
+       }
+       private void addInvariantCheckGoal(Job job, List<Goal> goals) {
+    	   goals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)).intern(this));
+       }
+
+       public List<Goal> goals(Job job) {
+           List<Goal> goals = new ArrayList<Goal>();
+
+           addSemanticCheckSourceGoals(job, goals);
+
+
+           X10CompilerOptions opts = extensionInfo().getOptions();
+           if (!opts.x10_config.ONLY_TYPE_CHECKING) {
+
+               final Goal typeCheckBarrierGoal = addPreOptimizationGoals(job, goals);
+
+               goals.add(Preoptimization(job));
+               goals.addAll(Optimizer.goals(this, job));
+               goals.add(Postoptimization(job));
+
+               final Goal lowererGoal = Lowerer(job);
+               goals.add(lowererGoal);
+               final Goal codeGeneratedGoal = CodeGenerated(job);
+               goals.add(codeGeneratedGoal);
+
+               // the barrier will handle prereqs on its own
+               codeGeneratedGoal.addPrereq(CodeGenBarrier());
+               lowererGoal.addPrereq(typeCheckBarrierGoal);
+               codeGeneratedGoal.addPrereq(lowererGoal);
+               List<Goal> optimizations = Optimizer.goals(this, job);
+               for (Goal goal : optimizations) {
+                   goal.addPrereq(typeCheckBarrierGoal);
+                   codeGeneratedGoal.addPrereq(goal);
+               }
 
            }
 

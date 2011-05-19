@@ -61,6 +61,7 @@ public class Optimizer {
     private final Scheduler     scheduler;
     private final Job           job;
     private final ExtensionInfo extInfo;
+    private final Configuration config;
     private final TypeSystem    ts;
     private final NodeFactory   nf;
 
@@ -68,17 +69,21 @@ public class Optimizer {
         scheduler = s;
         job       = j;
         extInfo   = (ExtensionInfo) j.extensionInfo();
+        config    = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
         ts        = extInfo.typeSystem();
         nf        = extInfo.nodeFactory();
+    }
+
+    public static List<Goal> preInlinerGoals(Scheduler scheduler, Job job) {
+        return new Optimizer(scheduler, job).preInlinerGoals();
     }
 
     public static List<Goal> goals(Scheduler scheduler, Job job) {
         return new Optimizer(scheduler, job).goals();
     }
 
-    private List<Goal> goals() {
+    private List<Goal> preInlinerGoals() {
         List<Goal> goals = new ArrayList<Goal>();
-        Configuration config = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
         if (CONSTRUCTOR_SPLITTING(extInfo)) {
             goals.add(ConstructorSplitter());
         }
@@ -86,6 +91,11 @@ public class Optimizer {
             goals.add(LoopUnrolling());
             goals.add(ForLoopOptimizations());
         }
+        return goals;
+    }
+
+    private List<Goal> goals() {
+        List<Goal> goals = preInlinerGoals();
         if (INLINING(extInfo)) {
             goals.add(Inliner());
         }
