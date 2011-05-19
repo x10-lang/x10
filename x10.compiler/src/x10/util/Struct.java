@@ -123,6 +123,7 @@ public class Struct {
 
         boolean isPrim = (qualifier!=null && qualifier.toString().equals("x10.lang") && ignoreTypes.contains(strName));
         boolean seenToString = isPrim;
+        boolean seenTypeName = false;   // some unsigned types are still boxed, so do a honest check
         boolean seenHashCode = isPrim;
         boolean seenEqualsAny = isPrim;
         boolean seenEqualsSelf = isPrim;
@@ -139,6 +140,10 @@ public class Struct {
                 if (mdecl.name().id().toString().equals("toString") &&
                     mdecl.formals().isEmpty()) {
                     seenToString = true;
+                }
+                if (mdecl.name().id().toString().equals("typeName") &&
+                        mdecl.formals().isEmpty()) {
+                    seenTypeName = true;
                 }
                 if (mdecl.name().id().toString().equals("hashCode") &&
                     mdecl.formals().isEmpty()) {
@@ -198,7 +203,7 @@ public class Struct {
         n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         */
 
-        {
+        if (!seenTypeName) {
             Flags nativeFlags = Flags.PUBLIC.Native().Final();
             ArrayList<AnnotationNode> natives;
             Formal formal;
