@@ -370,6 +370,10 @@ public class LineNumberMap extends StringTable {
 			return 209;
 		if (type.startsWith("x10.lang.GlobalRef"))
 			return 210;
+		if (type.startsWith("x10.lang.IntRange"))
+			return 212;
+		if (type.startsWith("x10.lang.LongRange"))
+			return 213;
 		if (type.startsWith("x10.array.Region"))
 			return 300;
 		if (type.contains("_closure_"))
@@ -1379,7 +1383,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B05130E, // 2011-05-19, 14:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B05130E, // 2011-05-19, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
