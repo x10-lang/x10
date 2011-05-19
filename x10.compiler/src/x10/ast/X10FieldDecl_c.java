@@ -510,7 +510,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             if (needsInit || isTransient) {
                 final boolean hasZero = Types.isHaszero(type, xc);
                 // creating an init.
-	    		Expr e = Types.getZeroVal(typeNode,position().markCompilerGenerated(),tc);
+                ContextVisitor tcWithNewContext = tc.context(xc);
+	    		Expr e = Types.getZeroVal(typeNode,position().markCompilerGenerated(),tcWithNewContext);
                 if (needsInit) {
                     if (e != null) {
                         n = (X10FieldDecl_c) n.init(e);
