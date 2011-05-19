@@ -139,6 +139,11 @@ public interface Type extends Qualifier, Annotated, Named
     boolean isInt();
 
     /**
+     * Return true if UInt
+     */
+    boolean isUInt();
+    
+    /**
      * Return true if long.
      */
     boolean isLong();
@@ -208,6 +213,16 @@ public interface Type extends Qualifier, Annotated, Named
      * the same type system.
      */
     boolean isComparable(Type t);
+    
+    /**
+     * Return true if the type is Any
+     */
+    boolean isAny();
+    
+    /**
+     * Return true if the type is a type parameter
+     */
+    boolean isParameterType();
     
 
     /**
