@@ -225,6 +225,7 @@ public class X10CPPContext_c extends Context {
 
     private void addVar(String name) {
 		VarInstance<?> vi = lookup(name, this);
+		if (vi==null) { System.out.println("Internal compiler error: this variable name could not be looked up: "+name); }
         assert vi != null : name.toString();
 		boolean contains = false;
         for (VarInstance<?> vi2 : variables) {
