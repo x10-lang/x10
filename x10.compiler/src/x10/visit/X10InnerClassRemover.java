@@ -438,7 +438,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
         X10ClassDecl cd = (X10ClassDecl) n;
         Flags flags = cd.flags().flags();
         X10ClassDef def = cd.classDef();
-        if (isInner(def)) {
+        if (def.isMember() && !cd.flags().flags().isStatic()) {
             def.flags(def.flags().clearStatic()); // temporarily turn off the "static" flag
             // The def should already have all of the necessary type parameters
             List<ParameterType> typeParameters = def.typeParameters();
@@ -513,7 +513,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
             def.flags(def.flags().Static()); // set the "static" flag back on
         }
         cd = (X10ClassDecl) super.fixClassDecl(cd);
-        if (isInner(def)) {
+        if (def.isMember() && !cd.flags().flags().isStatic()) {
             cd = cd.flags(cd.flags().flags(flags.Static()));
         }
         return cd;
