@@ -1001,7 +1001,7 @@ public class LineNumberMap extends StringTable {
 	
 	//	    // A cross reference of X10 statements to the first C++ statement.
 	//	    // Sorted by X10 file index and X10 source file line.
-/*		    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
+		    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
 		    for (Key p : m.map.keySet()) {
 		        Entry e = m.map.get(p);
 		        x10toCPPlist.add(
@@ -1054,7 +1054,7 @@ public class LineNumberMap extends StringTable {
 		    }
 		    w.writeln("};");
 		    w.forceNewline();
-*/	
+	
 		    // A list of the X10 method names.
 		    // Sorted by X10 method name.
 		    ArrayList<CPPMethodInfo> x10MethodList = new ArrayList<CPPMethodInfo>(m.methods.size());
@@ -1383,11 +1383,11 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B05130F, // 2011-05-19, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B051408, // 2011-05-20, 8:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
-            w.writeln("0, // _X10toCPPlist removed"); //w.writeln("sizeof(_X10toCPPlist),"); 
+            w.writeln("sizeof(_X10toCPPlist),"); 
             w.writeln("sizeof(_CPPtoX10xrefList),");
         } else {
             w.writeln("0,");
@@ -1423,7 +1423,7 @@ public class LineNumberMap extends StringTable {
         w.writeln("_X10strings,");
         if (!m.isEmpty()) {
             w.writeln("_X10sourceList,");
-            w.writeln("NULL,"); // w.writeln("_X10toCPPlist,");
+            w.writeln("_X10toCPPlist,");
             w.writeln("_CPPtoX10xrefList,");
         } else {
             w.writeln("NULL,");
