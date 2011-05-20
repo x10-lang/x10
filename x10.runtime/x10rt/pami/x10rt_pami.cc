@@ -1749,9 +1749,8 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
-	// NOTE: I've had issues with "I0:Pairwise:P2P:P2P" (alg[0]) in the past, on x86_64 RH6.  This caused me to use "I0:M2MComposite:P2P:P2P" (alg[1]) instead.
-	// But on power, I see errors when calling I0:M2MComposite:P2P:P2P with only 1 place, and I0:Pairwise:P2P:P2P with more than 32 places.
-	int chosenAlg = (state.teams[team].size > 32) ? 1 : 0;
+	// NOTE: I've had lots of issues with these algorithms, bouncing between "I0:Pairwise:P2P:P2P" (alg[0]) and I0:M2MComposite:P2P:P2P (alg[1])
+	int chosenAlg = 0; // (state.teams[team].size > 32) ? 1 : 0;
 	tcb->operation.algorithm = always_works_alg[chosenAlg];
 	tcb->operation.cmd.xfer_alltoall.rcvbuf = (char*)dbuf;
 	tcb->operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_BYTE;
