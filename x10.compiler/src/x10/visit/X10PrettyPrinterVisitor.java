@@ -2095,7 +2095,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             assert target instanceof Expr;
             boolean closeParen = false;
-            if (xts.isStruct(target.type()) && n.type().isNumeric()) {
+            Type fieldType = n.fieldInstance().type();
+            if (xts.isStruct(target.type()) && n.type().isNumeric() && (fieldType.isParameterType() || fieldType.isAny())) {
                 closeParen = er.printUnboxConversion(n.type());
             }
             w.begin(0);
