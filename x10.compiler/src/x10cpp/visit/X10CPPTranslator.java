@@ -90,6 +90,7 @@ import polyglot.visit.Translator;
 import x10.ast.Closure;
 import x10.ast.ForLoop;
 import x10.ast.X10ClassDecl;
+import x10.ast.X10ConstructorDecl;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -253,7 +254,7 @@ public class X10CPPTranslator extends Translator {
 		            		lineNumberMap.rememberLoopVariable(((LocalDecl)t).name().toString(), ((LocalDecl)n).name().toString(), line, lastX10Line);
 		            }
 		            if (n instanceof FieldDecl && !c.inTemplate() && !((FieldDecl)n).flags().flags().isStatic() && !n.position().isCompilerGenerated()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
-		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
+		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct(), false);
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
 		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false, -1, false);
 		            else if (def != null)
@@ -261,7 +262,23 @@ public class X10CPPTranslator extends Translator {
 		            	// include method arguments in the local variable tables
 		            	ProcedureDecl defSource;
 		            	if (n instanceof ConstructorDecl)
+		            	{
 		            		defSource = (ProcedureDecl)n;
+		            		
+		            		// add the hack reference to the outer class
+		            		if (n instanceof X10ConstructorDecl && ((X10ConstructorDecl)n).returnType().toString().contains("$"))
+		            		{
+		            			String thisClass = ((X10ConstructorDecl)n).returnType().toString();
+		            			String parentClass = thisClass.substring(0, thisClass.lastIndexOf('$'));
+		            			List<Formal> args = defSource.formals();
+				            	if (args.size() == 1)
+				            	{
+				            		Formal arg = args.get(0);
+				            		if (arg.type().toString().equals(parentClass))
+				            			lineNumberMap.addClassMemberVariable(arg.name().toString(), parentClass, Emitter.mangled_non_method_name(thisClass), false, true);
+				            	}
+		            		}		            		
+		            	}
 		            	else
 		            		defSource = (ProcedureDecl)parent;
 		            	List<Formal> args = defSource.formals();
@@ -273,7 +290,7 @@ public class X10CPPTranslator extends Translator {
 		            		boolean isStruct = context.currentClass().isX10Struct();
 		            		if (!defSource.position().isCompilerGenerated())
 		            			lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true, -1, isStruct);
-		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct);
+		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct, false);
 		            	}
 		            }
 		        }
