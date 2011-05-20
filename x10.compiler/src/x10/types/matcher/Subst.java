@@ -287,6 +287,7 @@ public class Subst {
         return subst(t, new XTerm[] { y }, new XVar[] { x }, new Type[0], new ParameterType[0]);
     }
 
+    // FIXME: this is wrong, because types may appear in the constraint
     public static CConstraint subst(CConstraint t, Type Y, ParameterType X) throws SemanticException {
         return t;
     }
