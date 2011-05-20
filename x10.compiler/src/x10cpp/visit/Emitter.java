@@ -578,7 +578,7 @@ public class Emitter {
 	void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean inlineDirective) {
 		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify, inlineDirective);
 	}
-	void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
+	public void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
 	                 boolean qualify, boolean inlineDirective) {
 		Flags flags = n.flags().flags();
 		X10MethodDef def = (X10MethodDef) n.methodDef();
