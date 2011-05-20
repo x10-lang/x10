@@ -1218,22 +1218,34 @@ public class LineNumberMap extends StringTable {
 	        		String classname = m.lookupString(classId);
 			        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 			        ClassMapInfo cmi = memberVariables.get(classId);
-			        for (MemberVariableMapInfo v : cmi._members)
+			        for (int j=0; j<cmi._members.size();)
 			        {
+			        	MemberVariableMapInfo v = cmi._members.get(j);
+			        	boolean skip = false;
 			        	if (v._x10type == 101 || v._x10type == 102)
 			        	{
 				        	int index = 0;
 				            for (Integer memberId : memberVariables.keySet())
 				            {
 				            	if (memberId == v._x10typeIndex)
-				            	{
-				            		v._x10typeIndex = index;
+				            	{				            							            		
+				            		if ("{...}".equals(m.lookupString(v._x10memberName)) && (memberVariables.get(memberId)._members.size() == 0))
+				            		{
+				            			skip = true;
+				            			cmi._members.remove(j);
+				            		}
+				            		else
+				            			v._x10typeIndex = index;
 				            		break;
 				            	}
 				            	index++;
 				            }
 			        	}
-			        	w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+			        	if (!skip)
+			        	{
+			        		w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
+			        		j++;
+			        	}
 			        }
 				    w.writeln("};");
 				    w.forceNewline();
@@ -1367,7 +1379,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B051211, // 2011-05-18, 17:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B05130E, // 2011-05-19, 14:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
