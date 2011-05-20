@@ -131,6 +131,44 @@ public class CUDAKernelTest {
         CUDAUtilities.deleteRemoteArray(remote);
     }
 
+     @CUDA static def function (x:Int) : Int = x * x - 22;
+
+    static def doTest4 (p:Place) {
+
+        val blocks = 30;
+        val threads = 64;
+        val tids = blocks * threads;
+
+        val recv = new Array[Float](tids,(i:Int)=>0.0f);
+
+        val remote = CUDAUtilities.makeRemoteArray[Float](p,tids,(Int)=>0.0 as Float); // allocate 
+
+        finish async at (p) @CUDA @CUDADirectParams {
+            finish for (block in 0..(blocks-1)) async {
+                clocked finish for (thread in 0..(threads-1)) clocked async {
+                    val r = function(5);
+                    remote(threads*block + thread) = r;
+                }
+            }
+        }
+
+        finish Array.asyncCopy(remote, 0, recv, 0, recv.size); // dma back
+
+        // validate
+        var success:Boolean = true;
+        for ([i] in recv.region) {
+            val oracle = 3;
+            if (Math.abs(oracle - recv(i)) > 1E-6f) {
+                Console.ERR.println("recv("+i+"): "+recv(i)+" not "+oracle);
+                success = false;
+            }
+        }
+        Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
+
+        CUDAUtilities.deleteRemoteArray(remote);
+    }
+
+
     public static def main (args:Array[String](1)) {
         val len = args.size==1 ? Int.parse(args(0)) : 1000;
 
@@ -146,6 +184,7 @@ public class CUDAKernelTest {
                 doTest1(init, recv, gpu, len);
                 doTest2(gpu);
                 doTest3(gpu);
+                doTest4(gpu);
                 done_work = true;
             }
 
@@ -155,6 +194,7 @@ public class CUDAKernelTest {
                 doTest1(init, recv, here, len);
                 doTest2(here);
                 doTest3(here);
+                doTest4(here);
             }
         }
     }

@@ -11,7 +11,7 @@
 
 package x10.compiler;
 
-import x10.lang.annotations.StatementAnnotation;
+import x10.lang.annotations.*;
 
 /**
  * An annotation that instructs the C++ backend to compile the block as a CUDA
@@ -19,4 +19,4 @@ import x10.lang.annotations.StatementAnnotation;
  * which means restrictions on what language features are allowed.
  * @author Dave Cunningham
  */
-public interface CUDA extends StatementAnnotation { }
+public interface CUDA extends StatementAnnotation, MethodAnnotation { }
