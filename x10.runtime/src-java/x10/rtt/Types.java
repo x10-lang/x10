@@ -607,7 +607,8 @@ public class Types {
     public static boolean hasNaturalZero(Type<?> rtt) {
         if (rtt.isSubtype(OBJECT) ||
             rtt == BYTE || rtt == SHORT || rtt == INT || rtt == LONG ||
-            /*rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||*/
+            rtt == UINT ||
+            /*rtt == UBYTE || rtt == USHORT || rtt == ULONG ||*/
             rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) return true;
         return false;
     }
