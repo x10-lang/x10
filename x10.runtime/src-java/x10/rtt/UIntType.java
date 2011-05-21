@@ -52,7 +52,7 @@ public class UIntType extends RuntimeType<x10.core.UInt> {
     
     @Override
     public x10.core.UInt getArray(Object array, int i) {
-        return x10.core.UInt.make(((int[]) array)[i]);
+        return x10.core.UInt.$make(((int[]) array)[i]);
     }
     
 //    @Override

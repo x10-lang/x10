@@ -1761,7 +1761,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 if (isPrimitiveRepedJava(e.type())) {
                     // e.g) m((Integer) a) for m(T a)
                     if (xts.isParameterType(defType) || xts.isAny(defType)) {
-                        // this can print something like '(int)' or 'UInt.make' depending on the type
+                        // this can print something like '(int)' or 'UInt.$make' depending on the type
                         // we require the parentheses to be printed below 
                         er.printBoxConversion(e.type());
                         // e.g) m((int) a) for m(int a)
@@ -1896,7 +1896,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 // e.g. any as Int (any:Any), t as Int (t:T)
                 if ((xts.isParameterType(exprType) || xts.isAny(Types.baseType(exprType))) && xts.isStruct(castType)) {
-                    if (isPrimitiveRepedJava(castType)) {
+                    if (castType.isUnsignedNumeric()) {
+                        w.write(X10_RTT_TYPES + ".as" + castType.name().toString());
+                        w.write("(");
+                        c.printSubExpr(expr, w, tr);
+                        w.write(",");
+                        if (xts.isParameterType(exprType)) {
+                        	exprRE.expand();
+                        } else {
+                        	// conversion from Any is not allowed
+                        	w.write("null");
+                        }
+                        w.write(")");
+                    }
+                    else if (isPrimitiveRepedJava(castType)) {
                         w.write(X10_RTT_TYPES + ".as");
                         er.printType(castType, NO_QUALIFIER);
                         w.write("(");
@@ -1909,7 +1922,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         	w.write("null");
                         }
                         w.write(")");
-                    } else {
+                    }
+                    else {
                         w.write("(");
                         w.write("(");
                         er.printType(castType, 0);
@@ -2009,7 +2023,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         }
                         closeParen = true;
                     } else if (exprType.isUInt() && (castType.isAny() || castType.isParameterType())) {
-                        w.write("x10.core.UInt.make(");
+                        w.write("x10.core.UInt." + CREATION_METHOD_NAME + "(");
                         closeParen = true;
                     }
                         

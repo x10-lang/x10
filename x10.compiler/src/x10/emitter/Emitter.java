@@ -739,7 +739,7 @@ public class Emitter {
 	public void printBoxConversion(Type type) {
 	    // treat unsigned types specially
 	    if (type.isUInt()) {
-	        w.write("x10.core.UInt.make");
+	        w.write("x10.core.UInt." + X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
 	        // it requires parentheses to be printed after
 	    } else {
 	        w.write("(");
@@ -1830,7 +1830,7 @@ public class Emitter {
             closeParen = true;
         }
         if (impl.returnType().isUInt()) {
-            w.write("x10.core.UInt.make(");
+            w.write("x10.core.UInt." + X10PrettyPrinterVisitor.CREATION_METHOD_NAME + "(");
             closeParen = true;
 	    }
 

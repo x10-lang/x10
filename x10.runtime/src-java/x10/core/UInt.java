@@ -25,7 +25,7 @@ final public class UInt extends x10.core.Struct
         this.value = value;
     }
 
-    public static UInt make(int value) {
+    public static UInt $make(int value) {
         return new UInt(value);
     }
 
