@@ -1887,6 +1887,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 Type castType = Types.baseType(castTN.type());
                 Expander castTE = new TypeExpander(er, castType, PRINT_TYPE_PARAMS);
                 Expander castRE = new RuntimeTypeExpander(er, castType);
+                Expander exprRE = new RuntimeTypeExpander(er, exprType);
 
                 TypeSystem xts = exprType.typeSystem();
 
@@ -1900,6 +1901,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         er.printType(castType, NO_QUALIFIER);
                         w.write("(");
                         c.printSubExpr(expr, w, tr);
+                        w.write(",");
+                        if (xts.isParameterType(exprType)) {
+                        	exprRE.expand();
+                        } else {
+                        	// conversion from Any is not allowed
+                        	w.write("null");
+                        }
                         w.write(")");
                     } else {
                         w.write("(");
@@ -2023,7 +2031,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     //  -> Types.<#0>castConversion(#1,#2)   #0=type #1=expr #2=runtime type
                     w.write(X10_RTT_TYPES + ".<");
                     er.prettyPrint(castTE, tr);
-                    w.write("> cast" + (xts.isParameterType(exprType) || xts.isParameterType(castType) || isString(castType, tr.context()) ? "Conversion" : "") + "(");
+                    boolean convert = xts.isParameterType(exprType) || !xts.isAny(Types.baseType(exprType)) && xts.isParameterType(castType) || isString(castType, tr.context());
+                    w.write("> cast" + (convert ? "Conversion" : "") + "(");
                     er.prettyPrint(expr, tr);
                     w.write(",");
                     er.prettyPrint(castRE, tr);

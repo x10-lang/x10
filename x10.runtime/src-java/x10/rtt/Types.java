@@ -291,8 +291,8 @@ public class Types {
     // TODO haszero
     /*
     private static boolean isPrimitiveStructType(Type<?> rtt) {
-        if (rtt == BYTE  || rtt == SHORT  || rtt == INT   || rtt == LONG ||
-            rtt == UBYTE  || rtt == USHORT  || rtt == UINT || rtt == ULONG ||
+        if (rtt == BYTE  || rtt == SHORT  || rtt == INT  || rtt == LONG  ||
+            rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||
             rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
             return true;
         }
@@ -302,9 +302,17 @@ public class Types {
         return rtt.isSubtype(STRUCT) || isPrimitiveStructType(rtt);
     }
     */
+    static boolean isNumericType(Type<?> rtt) {
+        if (rtt == BYTE  || rtt == SHORT  || rtt == INT  || rtt == LONG  ||
+            rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||
+            rtt == FLOAT || rtt == DOUBLE) {
+            return true;
+        }
+        return false;
+    }
     static boolean isStructType(Type<?> rtt) {
-        if (rtt == BYTE  || rtt == SHORT  || rtt == INT   || rtt == LONG ||
-            /*rtt == UBYTE  || rtt == USHORT  || rtt == UINT || rtt == ULONG ||*/
+        if (rtt == BYTE  || rtt == SHORT  || rtt == INT  || rtt == LONG  ||
+            /*rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||*/
             rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
             return true;
         }
@@ -326,51 +334,105 @@ public class Types {
         FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
     }
 
-    public static boolean asboolean(Object typeParamOrAny) {
+    public static boolean asboolean(Object typeParamOrAny, Type<?> fromRTT) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Boolean");}
         if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Boolean");
     }
     
-    public static char aschar(Object typeParamOrAny) {
+    public static char aschar(Object typeParamOrAny, Type<?> fromRTT) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
         if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Char");
     }
 
-    public static byte asbyte(Object typeParamOrAny){
+    public static byte asbyte(Object typeParamOrAny, Type<?> fromRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Byte");}
-        if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte) typeParamOrAny;}
+        if (fromRTT != null && isNumericType(fromRTT)) {
+        	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).byteValue();}        	
+        	else if (UBYTE.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.UByte) typeParamOrAny).byteVal;}
+        	else if (USHORT.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.UShort) typeParamOrAny).shortVal;}
+        	//else if (UINT.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.UInt) typeParamOrAny).intVal;}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (byte)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (ULONG.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.ULong) typeParamOrAny).longVal;}
+        } else {
+        	if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Byte");
     }
     
-    public static short asshort(Object typeParamOrAny){
+    public static short asshort(Object typeParamOrAny, Type<?> fromRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Short");}
-        if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short) typeParamOrAny;}
+        if (fromRTT != null && isNumericType(fromRTT)) {
+        	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).shortValue();}        	
+        	else if (UBYTE.instanceof$(typeParamOrAny)) {return (short)((x10.lang.UByte) typeParamOrAny).byteVal;}
+        	else if (USHORT.instanceof$(typeParamOrAny)) {return (short)((x10.lang.UShort) typeParamOrAny).shortVal;}
+        	//else if (UINT.instanceof$(typeParamOrAny)) {return (short)((x10.lang.UInt) typeParamOrAny).intVal;}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (short)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (ULONG.instanceof$(typeParamOrAny)) {return (short)((x10.lang.ULong) typeParamOrAny).longVal;}
+        } else {
+        	if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Short");
     }
     
-    public static int asint(Object typeParamOrAny){
+    public static int asint(Object typeParamOrAny, Type<?> fromRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Int");}
-        if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer) typeParamOrAny;}
+        if (fromRTT != null && isNumericType(fromRTT)) {
+        	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).intValue();}
+        	else if (UBYTE.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UByte) typeParamOrAny).byteVal;}
+        	else if (USHORT.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UShort) typeParamOrAny).shortVal;}
+        	//else if (UINT.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UInt) typeParamOrAny).intVal;}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (int)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (ULONG.instanceof$(typeParamOrAny)) {return (int)((x10.lang.ULong) typeParamOrAny).longVal;}
+        } else {
+        	if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Int");
     }
 
-    public static long aslong(Object typeParamOrAny){
+    public static long aslong(Object typeParamOrAny, Type<?> fromRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Long");}
-        if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long) typeParamOrAny;}
+        if (fromRTT != null && isNumericType(fromRTT)) {
+        	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).longValue();}        	
+        	else if (UBYTE.instanceof$(typeParamOrAny)) {return (long)((x10.lang.UByte) typeParamOrAny).byteVal;}
+        	else if (USHORT.instanceof$(typeParamOrAny)) {return (long)((x10.lang.UShort) typeParamOrAny).shortVal;}
+        	//else if (UINT.instanceof$(typeParamOrAny)) {return (long)((x10.lang.UInt) typeParamOrAny).intVal;}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (long)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (ULONG.instanceof$(typeParamOrAny)) {return (long)((x10.lang.ULong) typeParamOrAny).longVal;}
+        } else {
+        	if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Long");
     }
 
-    public static float asfloat(Object typeParamOrAny){
+    public static float asfloat(Object typeParamOrAny, Type<?> fromRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Float");}
-        if (typeParamOrAny instanceof java.lang.Float) {return (java.lang.Float) typeParamOrAny;}
+        if (fromRTT != null && isNumericType(fromRTT)) {
+        	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).floatValue();}        	
+        	else if (UBYTE.instanceof$(typeParamOrAny)) {return (float)((x10.lang.UByte) typeParamOrAny).byteVal;}
+        	else if (USHORT.instanceof$(typeParamOrAny)) {return (float)((x10.lang.UShort) typeParamOrAny).shortVal;}
+        	//else if (UINT.instanceof$(typeParamOrAny)) {return (float)((x10.lang.UInt) typeParamOrAny).intVal;}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (float)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (ULONG.instanceof$(typeParamOrAny)) {return (float)((x10.lang.ULong) typeParamOrAny).longVal;}
+        } else {
+        	if (typeParamOrAny instanceof java.lang.Float) {return (java.lang.Float) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Float");
     }
 
-    public static double asdouble(Object typeParamOrAny){
+    public static double asdouble(Object typeParamOrAny, Type<?> fromRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Double");}
-        if (typeParamOrAny instanceof java.lang.Double) {return (java.lang.Double) typeParamOrAny;}
+        if (fromRTT != null && isNumericType(fromRTT)) {
+        	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).doubleValue();}        	
+        	else if (UBYTE.instanceof$(typeParamOrAny)) {return (double)((x10.lang.UByte) typeParamOrAny).byteVal;}
+        	else if (USHORT.instanceof$(typeParamOrAny)) {return (double)((x10.lang.UShort) typeParamOrAny).shortVal;}
+        	//else if (UINT.instanceof$(typeParamOrAny)) {return (double)((x10.lang.UInt) typeParamOrAny).intVal;}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (double)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (ULONG.instanceof$(typeParamOrAny)) {return (double)((x10.lang.ULong) typeParamOrAny).longVal;}
+        } else {
+        	if (typeParamOrAny instanceof java.lang.Double) {return (java.lang.Double) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Double");
     }
 
@@ -396,7 +458,7 @@ public class Types {
     }
     
     // FIXME this should be replaced by virtual method for user defined conversion
-    private static Object conversion(Type<?> rtt, Object primOrTypeParam, boolean cast) {
+    private static Object conversion(Type<?> rtt, Object primOrTypeParam, boolean convert) {
         if (primOrTypeParam == null) {
             if (isStructType(rtt)) {
                 nullIsCastToStruct(rtt);
@@ -416,32 +478,32 @@ public class Types {
         }
         if (rtt == BYTE) {
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
-            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).byteValue();}
+            if (convert && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).byteValue();}
             return primOrTypeParam;
         }
         if (rtt == SHORT) {
             if (primOrTypeParam instanceof java.lang.Short) return primOrTypeParam;
-            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).shortValue();}
+            if (convert && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).shortValue();}
             return primOrTypeParam;
         }
         if (rtt == INT) {
             if (primOrTypeParam instanceof java.lang.Integer) return primOrTypeParam;
-            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).intValue();}
+            if (convert && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).intValue();}
             return primOrTypeParam;
         }
         if (rtt == LONG) {
             if (primOrTypeParam instanceof java.lang.Long) return primOrTypeParam;
-            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).longValue();}
+            if (convert && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).longValue();}
             return primOrTypeParam;
         }
         if (rtt == FLOAT) {
             if (primOrTypeParam instanceof java.lang.Float) return primOrTypeParam;
-            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).floatValue();}
+            if (convert && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).floatValue();}
             return primOrTypeParam;
         }
         if (rtt == DOUBLE) {
             if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
-            if (cast && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).doubleValue();}
+            if (convert && primOrTypeParam instanceof java.lang.Number) {return ((java.lang.Number)primOrTypeParam).doubleValue();}
             return primOrTypeParam;
         }
         if (rtt == STRING) {
