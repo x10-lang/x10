@@ -21,6 +21,9 @@ public class UIntType extends RuntimeType<x10.core.UInt> {
         super(x10.core.UInt.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+        		new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+        		new ParameterizedType(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
+        		new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                 Types.STRUCT
             });
     }

@@ -17,7 +17,7 @@ import x10.rtt.Types;
  * Represents a boxed UInt value. Boxed representation is used when casting
  * a UInt value into type Any or parameter type T.
  */
-final public class UInt extends x10.core.Struct
+final public class UInt extends x10.core.Struct /*TODO implements java.lang.Comparable<UInt>, x10.lang.Arithmetic, x10.lang.Bitwise, x10.util.Ordered*/
 {
     final int value;
 
