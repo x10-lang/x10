@@ -19,41 +19,42 @@ import x10.rtt.Types;
  */
 final public class UInt extends x10.core.Struct /*TODO implements java.lang.Comparable<UInt>, x10.lang.Arithmetic, x10.lang.Bitwise, x10.util.Ordered*/
 {
-    final int value;
-
-    private UInt(int value) {
-        this.value = value;
-    }
-
-    public static UInt box(int value) {
-        return new UInt(value);
-    }
-
-    public static int unbox(UInt o) {
-        return o.value;
-    }
-    
-    public boolean equals(Object o) {
-        if (o instanceof UInt && ((UInt)o).value == value)
-            return true;
-        return false;
-    }
-    
     private static final long serialVersionUID = 5575376732671214307L;
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.UINT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     public x10.rtt.Type<?> $getParam(int i) {return null;}
 
+    final int $value;
+
+    private UInt(int value) {
+        this.$value = value;
+    }
+
+    public static UInt $box(int value) {
+        return new UInt(value);
+    }
+
+    public static int $unbox(UInt o) {
+        return o.$value;
+    }
+    
     public boolean _struct_equals$O(Object o) {
-        return equals(o);
+        if (o instanceof UInt && ((UInt)o).$value == $value)
+            return true;
+        return false;
     }
     
     @Override
+	public int hashCode() {
+    	return $value;
+	}
+
+	@Override
     public java.lang.String toString() {
-        if (value >= 0)
-            return java.lang.Integer.toString(value);
+        if ($value >= 0)
+            return java.lang.Integer.toString($value);
         else
-            return java.lang.Long.toString((long)value & 0xFFFFffffL);
+            return java.lang.Long.toString((long)$value & 0xFFFFffffL);
     }
 }

@@ -219,8 +219,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String GETPARAM_NAME = "$getParam";
     public static final String CONSTRUCTOR_METHOD_NAME = "$init";
     public static final String CREATION_METHOD_NAME = "$make";
-    public static final String BOX_METHOD_NAME = "box";
-    public static final String UNBOX_METHOD_NAME = "unbox";
+    public static final String BOX_METHOD_NAME = "$box";
+    public static final String UNBOX_METHOD_NAME = "$unbox";
 
     private static int nextId_;
 
@@ -1763,7 +1763,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 if (isPrimitiveRepedJava(e.type())) {
                     // e.g) m((Integer) a) for m(T a)
                     if (xts.isParameterType(defType) || xts.isAny(defType)) {
-                        // this can print something like '(int)' or 'UInt.box' depending on the type
+                        // this can print something like '(int)' or 'UInt.$box' depending on the type
                         // we require the parentheses to be printed below 
                         er.printBoxConversion(e.type());
                         // e.g) m((int) a) for m(int a)
