@@ -1907,6 +1907,9 @@ public class Types {
         }
         return baseType==null ? null : baseType.toClass();
     }
+    public static ClassType getClassType(Type t, TypeSystem ts) {
+        return getClassType(t, ts, null);
+    }
     
     public static Type projectOutLocalVariables(Context cxt, Type t) {
     	CConstraint c0 = xclause(t);

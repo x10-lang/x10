@@ -721,7 +721,8 @@ public class X10Call_c extends Call_c implements X10Call {
 			// check if this is a property call, and if so adjust the return type
 			if (mi.flags().isProperty()) {
 				if (c.inDepType()) {
-					rt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
+				    // vj TODO: Why is this being repeated? 
+					// rt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
 				} else {
 					try {
 						rt =  Checker.expandCall(mi.rightType(), methodCall, c);

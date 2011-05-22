@@ -230,15 +230,20 @@ public class Checker {
 	    }
 	}
 */
+	/**
+	 * Substitute the XTerm obtained by translating target (and an EQV if there is 
+	 * no such term) for fi.thisVar() in t.
+	 */
 	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c)  {
-		CConstraint x = Types.xclause(t);
-		if (x==null || fi.thisVar()==null || (! (target instanceof Expr)))
+		//CConstraint x = Types.xclause(t);
+		// Do this even if x.valid()
+		if (fi.thisVar()==null || (! (target instanceof Expr)))
 			return t;
 		XVar receiver = null;
 
 		TypeSystem ts = (TypeSystem) t.typeSystem();
 		try {
-			XTerm r=ts.xtypeTranslator().translate(new CConstraint(), target, (Context) c);
+			XTerm r=ts.xtypeTranslator().translate(new CConstraint(), target,  c);
 			if (r instanceof XVar) {
 				receiver = (XVar) r;
 			}

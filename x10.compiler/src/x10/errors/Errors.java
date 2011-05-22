@@ -34,6 +34,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.ContainerType;
+import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -312,11 +313,42 @@ public class Errors {
 
 	public static class InvalidParameter extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -1351185257724314440L;
-		public InvalidParameter(Type from, Type to, Position pos) {
-			super("Invalid Parameter." +
-					"\n\t Expected type: " + to + 
-					"\n\t Found type: " + from, pos);
+		public InvalidParameter(int i, X10ProcedureInstance<?> me, Type from, Type to, Context c, Position pos) {
+		    super("Parameter " + i + " does not have the right type." +
+		          "\n\t Expected type: " + to + 
+		          "\n\t Found type: " + from
+		          +"\n\t (" + me + ")", pos);
 		}
+
+
+		InvalidParameter(int i, Type actual, Type formal, X10ProcedureInstance<?> me, Position pos) {
+		    super("Parameter " + i + " does not have the expected base type."
+		          + "\n\t Formal base type: " + formal
+		          + "\n\t Actual base type: " + actual
+		          +"\n\t (" + me + ")"
+		          , pos);
+		}
+		InvalidParameter(int i, Type formal, XConstraint con, X10ProcedureInstance<?> me, Position pos) {
+		    super("Parameter " + i + " does not have the expected constraints."
+		          + "\n\t Formal type: " + formal
+		          + "\n\t Unsatisfied constraints: " + con
+		          +"\n\t (" + me + ")"
+		          , pos);
+		}
+		public static InvalidParameter make(int i, X10ProcedureInstance<?> me, Type actual, Type formal, Context cxt, Position pos) {
+		    Type actualBase = Types.baseType(actual), formalBase = Types.baseType(formal);
+		    TypeSystem ts = cxt.typeSystem();
+		    if (! ts.isSubtype(actualBase, formalBase,  cxt))
+		        return new InvalidParameter(i, actual, formal, me, pos);
+		    // base types are compatible, constraints are not.
+		    CConstraint 
+		    c = Types.xclause(actual), 
+		    d = Types.xclause(formal);
+		    c.addIn(cxt.currentConstraint());
+		    XConstraint residue = c.residue(d);
+		    return new InvalidParameter(i, formal, residue, me, pos);
+		}
+
 	}
 
 	public static class NoAssignmentInDepType extends EqualByTypeAndPosException implements DepTypeException {
@@ -763,7 +795,7 @@ public class Errors {
                     , pos);
         }
 	    CannotReturnExpr(Expr expr, Type type, XConstraint con, Position pos) {
-            super("Cannot return expression; constrants not satisfied."
+            super("Cannot return expression; constraints not satisfied."
                     + "\n\t Expression: " + expr
                     + "\n\t Type: " + type
                     + "\n\t Unsatisfied constraints: " + con

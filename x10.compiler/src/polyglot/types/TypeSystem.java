@@ -978,6 +978,14 @@ public interface TypeSystem {
             Ref<? extends ClassType> typeContainer, boolean isStatic);
 
     ThisDef thisDef(Position pos, Ref<? extends ClassType> type);
+    /**
+     * To be called to generate qType.this, where this:baseType.
+     * @param pos
+     * @param qType
+     * @param baseType
+     * @return
+     */
+    ThisDef thisDef(Position pos, Ref<? extends ClassType> qType, Ref<? extends ClassType> baseType);
 
     /**
      * Create a closure instance.

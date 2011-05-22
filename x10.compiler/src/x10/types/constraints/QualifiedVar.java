@@ -7,6 +7,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import x10.constraint.XField;
+import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.X10ClassDef;
 import x10.types.X10FieldDef;
@@ -36,11 +37,32 @@ public class QualifiedVar extends XField<Type> {
         return new QualifiedVar(field, newReceiver);
     }
     /**
-     * Return the qualifier associated with this field.
+     * Return the type of this term. The type of a qualified term
+     * is the type carried by the qualifier. i.e. the type of A.this
+     * is A.
      * @return
      */
-    public Type qualifier() {
-        return field;
+    public Type type() {
+      return field;
+    }
+    public XVar var() {
+        return receiver;
+    }
+    
+    @Override
+    public XTerm subst(XTerm y, XVar x, boolean propagate) {
+        return equals(x) ? y : 
+            receiver.equals(x) 
+            ? copyReceiver((XVar) y)
+                    : super.subst(y, x, propagate);
+    }
+    
+    public boolean equals(Object x) {
+        if (! (x instanceof QualifiedVar)) {
+            return false;
+        }
+        QualifiedVar o = (QualifiedVar) x;
+        return receiver.equals(o.receiver) && field == o.field;
     }
   /*  public XVar thisVar() {
         if (field instanceof X10FieldDef) {

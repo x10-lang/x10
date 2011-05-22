@@ -3,6 +3,7 @@
  */
 package x10.types.constraints;
 
+import polyglot.ast.Typed;
 import polyglot.types.Def;
 import polyglot.types.FieldDef;
 import polyglot.types.LocalDef;
@@ -23,7 +24,7 @@ import x10.types.X10MethodDef;
  * 
  * @author vj
  */
-public class CField extends XField<Def> {
+public class CField extends XField<Def> implements Typed {
     // lazily initialized
     private String string;
     private String getString() {

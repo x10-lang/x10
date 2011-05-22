@@ -25,20 +25,28 @@ public class CTerms {
 
     public static final String SELF_VAR_PREFIX="self";
     public static final String THIS_VAR_PREFIX="this";
-    public static final CThis THIS_THIS = new CThis(0);
+    public static final CThis THIS_THIS = makeThis();
 	
 	
 	static int selfId=0;
 	public static final CSelf makeSelf() {
 	    return new CSelf(selfId++);
 	}
+	
 	static int thisId=1;
-    public static final CThis makeThis() {
-        return new CThis(thisId++);
-    }
+	 public static final CThis makeThis() {
+	        return makeThis(null);
+	    }
+	 
     public static final CThis makeThis(Type t) {
-        return new CThis(t, thisId++);
+        return new CThis(thisId++, t);
     }
+    public static final XVar makeQualifiedThis(Type qualifier, Type base) {
+        return makeQualifiedVar(qualifier, makeThis(base)); 
+     }
+    public static final XVar makeQualifiedVar(Type qualifier, XVar var) {
+        return new QualifiedVar(qualifier, var); 
+     }
     
     public static final CField makeField(XVar var, MethodDef mi) {
         return new CField(var, mi);

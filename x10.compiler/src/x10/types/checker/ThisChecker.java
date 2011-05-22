@@ -16,6 +16,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Field_c;
 import x10.ast.X10Special;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import x10.types.constraints.CConstraint;
@@ -52,8 +53,9 @@ public class ThisChecker extends NodeVisitor {
         	return null;
         }
         if (n instanceof X10CanonicalTypeNode) {
-            CConstraint rc = Types.xclause(((X10CanonicalTypeNode) n).type());
-            List<Expr> clauses = new Synthesizer(nf, ts).makeExpr(rc, n.position());
+            Type type = ((X10CanonicalTypeNode) n).type();
+            CConstraint rc = Types.xclause(type);
+            List<Expr> clauses = new Synthesizer(nf, ts).makeExpr(rc, Types.baseType(type), n.position());
             for (Expr c : clauses) {
                 c.visit(this);
             }
