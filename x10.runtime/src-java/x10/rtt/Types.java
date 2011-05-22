@@ -617,7 +617,7 @@ public class Types {
         if (rtt == ULONG) {return asBoxedULong(primOrTypeParam, convert ? ULONG : null);}
         
         if (rtt == STRING) {
-            if (primOrTypeParam instanceof x10.core.String) return x10.core.String.$unbox(primOrTypeParam);
+            if (primOrTypeParam instanceof x10.core.String) return x10.core.String.$unbox((x10.core.String) primOrTypeParam);
             return primOrTypeParam;
         }
         else if (primOrTypeParam instanceof java.lang.String) { // i.e. rtt==Any|Object|Fun

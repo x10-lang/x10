@@ -1539,24 +1539,29 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (op == Binary.EQ || op == Binary.NE) {
             if (l.isNumeric() && r.isNumeric() || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
                 asPrimitive = true;
-
-                TypeSystem ts = tr.typeSystem();
-                if (l.isNumeric()
-                        && !(l.isByte() || l.isShort() || l.isInt() || l.isLong() || l.isFloat() || l.isDouble())
-                        && !(ts.isUInt(l) && ts.isUInt(r))) {
+                if (l.isUnsignedNumeric() || r.isUnsignedNumeric()) { 
                     boxedEquals = true;
                 }
             }
         }
 
+        boolean needParenl = false;
         if (asPrimitive) {
             if (boxedEquals && (op == Binary.NE)) w.write("!");
             // TODO:CAST
-            w.write("((");
-            er.printType(l, 0);
-            w.write(") ");
+            w.write("(");
+            if (boxedEquals) {
+            	er.printBoxConversion(l);
+            	w.write("(");
+            	needParenl = true;
+            } else {
+            	w.write("(");
+            	er.printType(l, 0);
+            	w.write(") ");
+            }
         }
         n.printSubExpr(left, true, w, tr);
+        if (needParenl) w.write(")");
         if (asPrimitive) w.write(")");
         if (boxedEquals) {
             w.write(".equals(");
@@ -1565,13 +1570,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(op.toString());
             w.allowBreak(n.type() == null || n.type().isJavaPrimitive() ? 2 : 0, " ");
         }
+        boolean needParenr = false;
         if (asPrimitive) {
             // TODO:CAST
-            w.write("((");
-            er.printType(r, 0);
-            w.write(") ");
+            w.write("(");
+            if (boxedEquals) {
+            	er.printBoxConversion(r);
+            	w.write("(");
+            	needParenr = true;
+            } else {
+            	w.write("(");
+            	er.printType(r, 0);
+            	w.write(") ");
+            }
         }
         n.printSubExpr(right, false, w, tr);
+        if (needParenr) w.write(")");
         if (asPrimitive) w.write(")");
         if (boxedEquals) w.write(")");
     }

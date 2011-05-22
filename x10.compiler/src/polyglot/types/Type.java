@@ -139,11 +139,6 @@ public interface Type extends Qualifier, Annotated, Named
     boolean isInt();
 
     /**
-     * Return true if UInt
-     */
-    boolean isUInt();
-    
-    /**
      * Return true if long.
      */
     boolean isLong();
@@ -157,6 +152,26 @@ public interface Type extends Qualifier, Annotated, Named
      * Return true if double.
      */
     boolean isDouble();
+
+    /**
+     * Return true if UByte
+     */
+    boolean isUByte();
+
+    /**
+     * Return true if UShort
+     */
+    boolean isUShort();
+
+    /**
+     * Return true if UInt
+     */
+    boolean isUInt();
+
+    /**
+     * Return true if ULong
+     */
+    boolean isULong();
 
     /**
      * Return true if int, short, byte, or char.

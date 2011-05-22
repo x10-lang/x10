@@ -764,9 +764,10 @@ public class Emitter {
 	public boolean printUnboxConversion(Type type) {
 	    if (type.isUInt()) {
 	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "((");
-	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-	        w.write(")");
+	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
+//	        w.write("(");
+//	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+//	        w.write(")");
 	        return true;
 	    }
 	    else if (X10PrettyPrinterVisitor.isString(type, tr.context())) {
@@ -2466,6 +2467,9 @@ public class Emitter {
                         Type bf = Types.baseType(f);
                         if (f.isUInt()) {
                             closeParen = printUnboxConversion(f);
+                	        w.write("(");
+                	    	printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                	        w.write(")");
                         } else if (f.isBoolean() || f.isNumeric()) {
                             // TODO:CAST
                             w.write("(");

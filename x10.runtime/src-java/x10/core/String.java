@@ -57,12 +57,16 @@ final public class String extends x10.core.Ref implements
 
     public java.lang.String $value;
 
+    public String(java.lang.String value) {
+        $value = value;
+    }
+
     public String(java.lang.System[] $dummy) {
         super($dummy);
     }
 
-    public String $init() {
-        $value = "";
+    public String $init(java.lang.String value) {
+        $value = value;
         return this;
     }
     
@@ -70,19 +74,26 @@ final public class String extends x10.core.Ref implements
         $value = "";
     }
 
-    public static String $box(java.lang.String str) {
-        return str == null ? null : new String(str);
-    }
-    public static java.lang.String $unbox(Object obj) {
-        return obj instanceof x10.core.String ? ((x10.core.String) obj).$value : (java.lang.String) obj;
-    }
-    public String $init(final java.lang.String str) {
-        $value = str;
+    public String $init() {
+        $value = "";
         return this;
     }
     
-    public String(final java.lang.String str) {
-        $value = str;
+    public static String $box(java.lang.String value) {
+        return value == null ? null : new String(value);
+    }
+    
+    public static java.lang.String $unbox(String obj) {
+        return obj.$value;
+    }
+
+    // make $box/$unbox idempotent
+    public static String $box(String obj) {
+    	return obj;
+    }
+    
+    public static java.lang.String $unbox(java.lang.String value) {
+    	return value;
     }
 
 //    public String(final x10.core.String id$1) {

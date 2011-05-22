@@ -76,10 +76,13 @@ public abstract class Type_c extends TypeObject_c implements Type
     public final boolean isByte() { return ts.isByte(this); }
     public final boolean isShort() { return ts.isShort(this); }
     public final boolean isInt() { return ts.isInt(this); }
-    public final boolean isUInt() { return ts.isUInt(this); }
     public final boolean isLong() { return ts.isLong(this); }
     public final boolean isFloat() { return ts.isFloat(this); }
     public final boolean isDouble() { return ts.isDouble(this); }
+    public final boolean isUByte() { return ts.isUByte(this); }
+    public final boolean isUShort() { return ts.isUShort(this); }
+    public final boolean isUInt() { return ts.isUInt(this); }
+    public final boolean isULong() { return ts.isULong(this); }
 
     public Name name() { return null; }
     public QName fullName() {

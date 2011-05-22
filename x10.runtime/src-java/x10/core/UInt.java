@@ -35,12 +35,21 @@ final public class UInt extends x10.core.Struct /*TODO implements java.lang.Comp
         return new UInt(value);
     }
 
-    public static int $unbox(UInt o) {
-        return o.$value;
+    public static int $unbox(UInt obj) {
+        return obj.$value;
     }
     
-    public boolean _struct_equals$O(Object o) {
-        if (o instanceof UInt && ((UInt)o).$value == $value)
+    // make $box/$unbox idempotent
+    public static UInt $box(UInt obj) {
+        return obj;
+    }
+
+    public static int $unbox(int value) {
+        return value;
+    }
+    
+    public boolean _struct_equals$O(Object obj) {
+        if (obj instanceof UInt && ((UInt) obj).$value == $value)
             return true;
         return false;
     }
