@@ -1896,17 +1896,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 // e.g. any as Int (any:Any), t as Int (t:T)
                 if ((xts.isParameterType(exprType) || xts.isAny(Types.baseType(exprType))) && xts.isStruct(castType)) {
-                    if (castType.isUnsignedNumeric()) {
+                	// N.B. castType.isUnsignedNumeric() must be before isPrimitiveRepedJava(castType)
+                	// since Int and UInt are @NativeRep'ed to the same Java primive int.
+                	if (castType.isUnsignedNumeric()) {
                         w.write(X10_RTT_TYPES + ".as" + castType.name().toString());
                         w.write("(");
                         c.printSubExpr(expr, w, tr);
                         w.write(",");
-                        if (xts.isParameterType(exprType)) {
-                        	exprRE.expand();
-                        } else {
-                        	// conversion from Any is not allowed
-                        	w.write("null");
-                        }
+                    	exprRE.expand();
                         w.write(")");
                     }
                     else if (isPrimitiveRepedJava(castType)) {
@@ -1915,12 +1912,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write("(");
                         c.printSubExpr(expr, w, tr);
                         w.write(",");
-                        if (xts.isParameterType(exprType)) {
-                        	exprRE.expand();
-                        } else {
-                        	// conversion from Any is not allowed
-                        	w.write("null");
-                        }
+                    	exprRE.expand();
                         w.write(")");
                     }
                     else {

@@ -334,21 +334,21 @@ public class Types {
         FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
     }
 
-    public static boolean asboolean(Object typeParamOrAny, Type<?> fromRTT) {
+    public static boolean asboolean(Object typeParamOrAny, Type<?> origRTT) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Boolean");}
         if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Boolean");
     }
     
-    public static char aschar(Object typeParamOrAny, Type<?> fromRTT) {
+    public static char aschar(Object typeParamOrAny, Type<?> origRTT) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
         if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Char");
     }
 
-    public static byte asbyte(Object typeParamOrAny, Type<?> fromRTT){
+    public static byte asbyte(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Byte");}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).byteValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.UShort) typeParamOrAny).shortVal;}
@@ -361,9 +361,9 @@ public class Types {
         throw new ClassCastException("x10.lang.Byte");
     }
     
-    public static short asshort(Object typeParamOrAny, Type<?> fromRTT){
+    public static short asshort(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Short");}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).shortValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (short)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (short)((x10.lang.UShort) typeParamOrAny).shortVal;}
@@ -376,9 +376,9 @@ public class Types {
         throw new ClassCastException("x10.lang.Short");
     }
     
-    public static int asint(Object typeParamOrAny, Type<?> fromRTT){
+    public static int asint(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Int");}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).intValue();}
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UShort) typeParamOrAny).shortVal;}
@@ -391,9 +391,9 @@ public class Types {
         throw new ClassCastException("x10.lang.Int");
     }
 
-    public static long aslong(Object typeParamOrAny, Type<?> fromRTT){
+    public static long aslong(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Long");}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).longValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (long)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (long)((x10.lang.UShort) typeParamOrAny).shortVal;}
@@ -406,9 +406,9 @@ public class Types {
         throw new ClassCastException("x10.lang.Long");
     }
 
-    public static float asfloat(Object typeParamOrAny, Type<?> fromRTT){
+    public static float asfloat(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Float");}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).floatValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (float)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (float)((x10.lang.UShort) typeParamOrAny).shortVal;}
@@ -421,9 +421,9 @@ public class Types {
         throw new ClassCastException("x10.lang.Float");
     }
 
-    public static double asdouble(Object typeParamOrAny, Type<?> fromRTT){
+    public static double asdouble(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Double");}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).doubleValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (double)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (double)((x10.lang.UShort) typeParamOrAny).shortVal;}
@@ -436,10 +436,10 @@ public class Types {
         throw new ClassCastException("x10.lang.Double");
     }
 
-    public static x10.lang.UByte asUByte(Object typeParamOrAny, Type<?> fromRTT){
+    public static x10.lang.UByte asUByte(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UByte");}
     	if (UBYTE.instanceof$(typeParamOrAny)) {return (x10.lang.UByte) typeParamOrAny;}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	byte byteValue = 0;
         	if (typeParamOrAny instanceof java.lang.Number) {byteValue = ((java.lang.Number) typeParamOrAny).byteValue();}        	
         	else if (USHORT.instanceof$(typeParamOrAny)) {byteValue = (byte)((x10.lang.UShort) typeParamOrAny).shortVal;}
@@ -451,10 +451,10 @@ public class Types {
         throw new ClassCastException("x10.lang.UByte");
     }
 
-    public static x10.lang.UShort asUShort(Object typeParamOrAny, Type<?> fromRTT){
+    public static x10.lang.UShort asUShort(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UShort");}
     	if (USHORT.instanceof$(typeParamOrAny)) {return (x10.lang.UShort) typeParamOrAny;}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	short shortValue = 0;
         	if (typeParamOrAny instanceof java.lang.Number) {shortValue = ((java.lang.Number) typeParamOrAny).shortValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {shortValue = (short)((x10.lang.UByte) typeParamOrAny).byteVal;}
@@ -467,12 +467,12 @@ public class Types {
     }
 
     /*
-//    public static x10.lang.UInt asUInt(Object typeParamOrAny, Type<?> fromRTT){
-    public static x10.core.UInt asUInt(Object typeParamOrAny, Type<?> fromRTT){
+//    public static x10.lang.UInt asUInt(Object typeParamOrAny, Type<?> origRTT){
+    public static x10.core.UInt asUInt(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UInt");}
 //    	if (UINT.instanceof$(typeParamOrAny)) {return (x10.lang.UInt) typeParamOrAny;}
     	if (UINT.instanceof$(typeParamOrAny)) {return (x10.core.UInt) typeParamOrAny;}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	int intValue = 0;
         	if (typeParamOrAny instanceof java.lang.Number) {intValue = ((java.lang.Number) typeParamOrAny).intValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {intValue = (int)((x10.lang.UByte) typeParamOrAny).byteVal;}
@@ -484,9 +484,9 @@ public class Types {
         throw new ClassCastException("x10.lang.UInt");
     }
     */
-    public static int asUInt(Object typeParamOrAny, Type<?> fromRTT){
+    public static int asUInt(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UInt");}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	if (typeParamOrAny instanceof java.lang.Number) {return ((java.lang.Number) typeParamOrAny).intValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UShort) typeParamOrAny).shortVal;}
@@ -499,10 +499,10 @@ public class Types {
         throw new ClassCastException("x10.lang.UInt");
     }
 
-    public static x10.lang.ULong asULong(Object typeParamOrAny, Type<?> fromRTT){
+    public static x10.lang.ULong asULong(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.ULong");}
     	if (ULONG.instanceof$(typeParamOrAny)) {return (x10.lang.ULong) typeParamOrAny;}
-        if (fromRTT != null && isNumericType(fromRTT)) {
+        if (isNumericType(origRTT)) {
         	long longValue = 0;
         	if (typeParamOrAny instanceof java.lang.Number) {longValue = ((java.lang.Number) typeParamOrAny).longValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {longValue = (long)((x10.lang.UByte) typeParamOrAny).byteVal;}
@@ -516,24 +516,7 @@ public class Types {
 
     public static Object asStruct(Type<?> rtt, Object typeParamOrAny) {
         if (typeParamOrAny == null) {nullIsCastToStruct(rtt);}
-        /*
-        if (rtt == UBYTE) {
-            if (UBYTE_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
-        }
-        else if (rtt == USHORT) {
-            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
-        }
-        else if (rtt == UINT) {
-            if (UINT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
-        }
-        else if (rtt == ULONG) {
-            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
-        }
-        else {
-            return typeParamOrAny;
-        }
-        throw new ClassCastException(rtt.typeName());
-        */
+        // N.B. ClassCastException is not explicitly checked here since it will be checked by a Java cast of the return value
         return typeParamOrAny;
     }
     
