@@ -484,12 +484,12 @@ public class Emitter {
 		return b.toString();
 	}
 
-	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType localClass, 
-	                                             MethodInstance mi, Context context) {
+	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType thisClass, ClassType localClass, 
+            MethodInstance mi, Context context) {
 	    try {
 	        List<Type> params = ((MethodInstance) mi).typeParameters();
 	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, 
-	        		xts.MethodMatcher(localClass, mi.name(), 
+	        		xts.MethodMatcher(thisClass, mi.name(), 
 	        				((MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
 	        for (MethodInstance smi : overrides) {
 	            if (CollectionUtil.allElementwise(mi.formalTypes(), smi.formalTypes(), new BaseTypeEquals(context))) {
@@ -544,7 +544,7 @@ public class Emitter {
 		Type returnType = null;
 
 		if (superClass != null) {
-			MethodInstance superMeth = getOverridingMethod(xts,superClass,from,context);
+			MethodInstance superMeth = getOverridingMethod(xts,classType,superClass, from,context);
 			if (superMeth != null) {
 				//System.out.println(from+" overrides "+superMeth);
 				returnType = findRootMethodReturnType(n, pos, superMeth);
@@ -554,7 +554,7 @@ public class Emitter {
 		for (Type itf : interfaces) {
 			X10ClassType itf_ = (X10ClassType) Types.baseType(itf);
 			// same thing again for interfaces
-			MethodInstance superMeth = getOverridingMethod(xts,itf_,from,context);
+			MethodInstance superMeth = getOverridingMethod(xts,itf_, itf_,from,context);
 			if (superMeth != null) {
 				//System.out.println(from+" implements "+superMeth);
 				Type newReturnType = findRootMethodReturnType(n, pos, superMeth);
