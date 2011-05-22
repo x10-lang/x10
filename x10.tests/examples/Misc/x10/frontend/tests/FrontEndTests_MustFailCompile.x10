@@ -4692,7 +4692,7 @@ class XTENLANG_2379 {
        		}
        		def test3(a1:A, b2:B{self.bar()==a1}) {}
        		def test4(a:A, b:B{A.this==a}) {
-       			@Err { test3(a,b); }
+       			@ERR { test3(a,b); }
        		}
        	}
 }
