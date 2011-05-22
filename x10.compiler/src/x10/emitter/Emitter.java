@@ -575,23 +575,25 @@ public class Emitter {
 	}
 	*/
 
+	private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
+	static {
+		boxedPrimitives.put("x10.lang.Boolean", "java.lang.Boolean");
+		boxedPrimitives.put("x10.lang.Char", "java.lang.Character");
+		boxedPrimitives.put("x10.lang.Byte", "java.lang.Byte");
+		boxedPrimitives.put("x10.lang.Short", "java.lang.Short");
+		boxedPrimitives.put("x10.lang.Int", "java.lang.Integer");
+		boxedPrimitives.put("x10.lang.Long", "java.lang.Long");
+		boxedPrimitives.put("x10.lang.Float", "java.lang.Float");
+		boxedPrimitives.put("x10.lang.Double", "java.lang.Double");
+		boxedPrimitives.put("x10.lang.UInt", "x10.core.UInt");
+	}
 	private static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
 	    String pat = getJavaRep(def);
 	    if (pat != null && boxPrimitives) {
 	        String orig = def.fullName().toString();
-	        String[] s = new String[] { "x10.lang.Boolean", "x10.lang.Byte", "x10.lang.Char",
-	                "x10.lang.Short", "x10.lang.Int", "x10.lang.Long",
-	                "x10.lang.Float", "x10.lang.Double", "x10.lang.UInt" };
-	        String[] w = new String[] { "java.lang.Boolean",
-	                "java.lang.Byte", "java.lang.Character",
-	                "java.lang.Short", "java.lang.Integer",
-	                "java.lang.Long", "java.lang.Float",
-	                "java.lang.Double", "x10.core.UInt" };
-	        for (int i = 0; i < s.length; i++) {
-	            if (orig.equals(s[i])) {
-	                pat = w[i];
-	                break;
-	            }
+	        String boxed = boxedPrimitives.get(orig);
+	        if (boxed != null) {
+	        	pat = boxedPrimitives.get(orig);
 	        }
 	    }
 	    return pat;
@@ -739,9 +741,16 @@ public class Emitter {
 	public void printBoxConversion(Type type) {
 	    // treat unsigned types specially
 	    if (type.isUInt()) {
-	        w.write("x10.core.UInt." + X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
-	    } else {
+	    }
+	    else if (X10PrettyPrinterVisitor.isString(type, tr.context())) {
+	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
+	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
+	        // it requires parentheses to be printed after
+	    }
+	    else {
 	        w.write("(");
 	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write(")");
@@ -754,9 +763,18 @@ public class Emitter {
 	 */
 	public boolean printUnboxConversion(Type type) {
 	    if (type.isUInt()) {
-	        w.write("x10.core.UInt.getValue((x10.core.UInt)");
+	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "((");
+	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write(")");
 	        return true;
-	    } else {
+	    }
+	    else if (X10PrettyPrinterVisitor.isString(type, tr.context())) {
+	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
+	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
+	        return true;
+	    }
+	    else {
 	        w.write("(");
 	        printType(type, 0);
 	        w.write(")");
@@ -1825,13 +1843,14 @@ public class Emitter {
 
         boolean closeParen = false;
         if (boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
-            w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
-            w.write(".box(");
+        	printBoxConversion(impl.returnType());
+        	w.write("(");
             closeParen = true;
         }
         if (impl.returnType().isUInt()) {
-            w.write("x10.core.UInt." + X10PrettyPrinterVisitor.CREATION_METHOD_NAME + "(");
-            closeParen = true;
+        	printBoxConversion(impl.returnType());
+        	w.write("(");
+        	closeParen = true;
 	    }
 
 	    TypeSystem xts = tr.typeSystem();
@@ -2410,6 +2429,13 @@ public class Emitter {
                 if (!mi.returnType().isVoid()) {
                     w.write("return ");
                 }
+                
+                boolean needParen = false;
+                if (mi.returnType().isUInt()) {
+                	printBoxConversion(mi.returnType());
+                	w.write("(");
+                	needParen = true;
+                }
 
                 // call
                 printMethodName(mi.def(), false, false);
@@ -2439,11 +2465,7 @@ public class Emitter {
                     if (def.formalTypes().get(i).get() instanceof ParameterType) {
                         Type bf = Types.baseType(f);
                         if (f.isUInt()) {
-                            closeParen = true;
-                            w.write("x10.core.UInt.getValue("); // unbalanced parenthesis
-                            w.write("(");
-                            printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                            w.write(")");
+                            closeParen = printUnboxConversion(f);
                         } else if (f.isBoolean() || f.isNumeric()) {
                             // TODO:CAST
                             w.write("(");
@@ -2466,6 +2488,9 @@ public class Emitter {
                         w.write(")");
                 }
                 w.write(")");
+                if (needParen) {
+                    w.write(")");
+                }
                 w.write(";");
                 if (mi.returnType().isVoid()) {
                     w.write("return null;");
@@ -3508,7 +3533,7 @@ public class Emitter {
     		}
     		
     		w.write("{");
-    		//@@@ahoaho
+    		// always same?
     		if (!n.returnType().type().isVoid()) {
 //    		if (!mi.returnType().isVoid()) {
     			w.write("return ");

@@ -250,7 +250,7 @@ public class Types {
     public static RuntimeType<?> ULONG;
     public static Object UBYTE_ZERO;
     public static Object USHORT_ZERO;
-    public static final Object UINT_ZERO = x10.core.UInt.$make(0);
+    public static final Object UINT_ZERO = x10.core.UInt.box(0);
     public static Object ULONG_ZERO;
     static {
         try {
@@ -353,7 +353,7 @@ public class Types {
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.UShort) typeParamOrAny).shortVal;}
         	//else if (UINT.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {return (byte)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (byte)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	else if (ULONG.instanceof$(typeParamOrAny)) {return (byte)((x10.lang.ULong) typeParamOrAny).longVal;}
         } else {
         	if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte) typeParamOrAny;}
@@ -368,7 +368,7 @@ public class Types {
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (short)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (short)((x10.lang.UShort) typeParamOrAny).shortVal;}
         	//else if (UINT.instanceof$(typeParamOrAny)) {return (short)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {return (short)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (short)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	else if (ULONG.instanceof$(typeParamOrAny)) {return (short)((x10.lang.ULong) typeParamOrAny).longVal;}
         } else {
         	if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short) typeParamOrAny;}
@@ -383,7 +383,7 @@ public class Types {
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UShort) typeParamOrAny).shortVal;}
         	//else if (UINT.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {return (int)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (int)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	else if (ULONG.instanceof$(typeParamOrAny)) {return (int)((x10.lang.ULong) typeParamOrAny).longVal;}
         } else {
         	if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer) typeParamOrAny;}
@@ -398,7 +398,7 @@ public class Types {
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (long)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (long)((x10.lang.UShort) typeParamOrAny).shortVal;}
         	//else if (UINT.instanceof$(typeParamOrAny)) {return (long)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {return (long)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (long)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	else if (ULONG.instanceof$(typeParamOrAny)) {return (long)((x10.lang.ULong) typeParamOrAny).longVal;}
         } else {
         	if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long) typeParamOrAny;}
@@ -413,7 +413,7 @@ public class Types {
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (float)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (float)((x10.lang.UShort) typeParamOrAny).shortVal;}
         	//else if (UINT.instanceof$(typeParamOrAny)) {return (float)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {return (float)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (float)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	else if (ULONG.instanceof$(typeParamOrAny)) {return (float)((x10.lang.ULong) typeParamOrAny).longVal;}
         } else {
         	if (typeParamOrAny instanceof java.lang.Float) {return (java.lang.Float) typeParamOrAny;}
@@ -428,7 +428,7 @@ public class Types {
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (double)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (double)((x10.lang.UShort) typeParamOrAny).shortVal;}
         	//else if (UINT.instanceof$(typeParamOrAny)) {return (double)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {return (double)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (double)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	else if (ULONG.instanceof$(typeParamOrAny)) {return (double)((x10.lang.ULong) typeParamOrAny).longVal;}
         } else {
         	if (typeParamOrAny instanceof java.lang.Double) {return (java.lang.Double) typeParamOrAny;}
@@ -444,7 +444,7 @@ public class Types {
         	if (typeParamOrAny instanceof java.lang.Number) {byteValue = ((java.lang.Number) typeParamOrAny).byteValue();}        	
         	else if (USHORT.instanceof$(typeParamOrAny)) {byteValue = (byte)((x10.lang.UShort) typeParamOrAny).shortVal;}
 //        	else if (UINT.instanceof$(typeParamOrAny)) {byteValue = (byte)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {byteValue = (byte)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {byteValue = (byte)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	else if (ULONG.instanceof$(typeParamOrAny)) {byteValue = (byte)((x10.lang.ULong) typeParamOrAny).longVal;}
         	return x10.lang.UByte.$make(byteValue);
         }
@@ -462,7 +462,7 @@ public class Types {
         	if (typeParamOrAny instanceof java.lang.Number) {shortValue = ((java.lang.Number) typeParamOrAny).shortValue();}        	
         	else if (UBYTE.instanceof$(typeParamOrAny)) {shortValue = (short)((x10.lang.UByte) typeParamOrAny).byteVal;}
 //        	else if (UINT.instanceof$(typeParamOrAny)) {shortValue = (short)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {shortValue = (short)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {shortValue = (short)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	else if (ULONG.instanceof$(typeParamOrAny)) {shortValue = (short)((x10.lang.ULong) typeParamOrAny).longVal;}
         	return x10.lang.UShort.$make(shortValue);
         }
@@ -485,7 +485,7 @@ public class Types {
         	else if (USHORT.instanceof$(typeParamOrAny)) {intValue = (int)((x10.lang.UShort) typeParamOrAny).shortVal;}
         	else if (ULONG.instanceof$(typeParamOrAny)) {intValue = (int)((x10.lang.ULong) typeParamOrAny).longVal;}
 //        	return x10.lang.UInt.$make(intValue);
-        	return x10.core.UInt.$make(intValue);
+        	return x10.core.UInt.box(intValue);
         }
         throw new ClassCastException("x10.lang.UInt");
     }
@@ -500,7 +500,7 @@ public class Types {
         	else if (UBYTE.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UShort) typeParamOrAny).shortVal;}
 //        	else if (UINT.instanceof$(typeParamOrAny)) {return (int)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {return (int)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {return (int)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	else if (ULONG.instanceof$(typeParamOrAny)) {return (int)((x10.lang.ULong) typeParamOrAny).longVal;}
         } else {
         	if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer)typeParamOrAny;}
@@ -508,7 +508,7 @@ public class Types {
         throw new ClassCastException("x10.lang.UInt");
     }
     public static Object asBoxedUInt(Object typeParamOrAny, Type<?> origRTT){
-    	return x10.core.UInt.$make(asUInt(typeParamOrAny, origRTT));
+    	return x10.core.UInt.box(asUInt(typeParamOrAny, origRTT));
     }
 
     public static x10.lang.ULong asULong(Object typeParamOrAny, Type<?> origRTT){
@@ -520,7 +520,7 @@ public class Types {
         	else if (UBYTE.instanceof$(typeParamOrAny)) {longValue = (long)((x10.lang.UByte) typeParamOrAny).byteVal;}
         	else if (USHORT.instanceof$(typeParamOrAny)) {longValue = (long)((x10.lang.UShort) typeParamOrAny).shortVal;}
 //        	else if (UINT.instanceof$(typeParamOrAny)) {longValue = (long)((x10.lang.UInt) typeParamOrAny).intVal;}
-        	else if (UINT.instanceof$(typeParamOrAny)) {longValue = (long)x10.core.UInt.getValue((x10.core.UInt) typeParamOrAny);}
+        	else if (UINT.instanceof$(typeParamOrAny)) {longValue = (long)x10.core.UInt.unbox((x10.core.UInt) typeParamOrAny);}
         	return x10.lang.ULong.$make(longValue);
         }
         throw new ClassCastException("x10.lang.ULong");

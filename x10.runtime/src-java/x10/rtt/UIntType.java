@@ -52,18 +52,18 @@ public class UIntType extends RuntimeType<x10.core.UInt> {
     
     @Override
     public x10.core.UInt getArray(Object array, int i) {
-        return x10.core.UInt.$make(((int[]) array)[i]);
+        return x10.core.UInt.box(((int[]) array)[i]);
     }
     
 //    @Override
 //    public x10.core.UInt setArray(Object array, int i, x10.core.UInt v) {
 //        // avoid boxing again
-//        ((int[]) array)[i] = x10.core.UInt.getValue(v);
+//        ((int[]) array)[i] = x10.core.UInt.unbox(v);
 //        return v;
 //    }
     @Override
     public void setArray(Object array, int i, x10.core.UInt v) {
-        ((int[]) array)[i] = x10.core.UInt.getValue(v);
+        ((int[]) array)[i] = x10.core.UInt.unbox(v);
     }
     
     @Override

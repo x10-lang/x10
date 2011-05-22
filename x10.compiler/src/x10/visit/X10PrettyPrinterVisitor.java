@@ -219,6 +219,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String GETPARAM_NAME = "$getParam";
     public static final String CONSTRUCTOR_METHOD_NAME = "$init";
     public static final String CREATION_METHOD_NAME = "$make";
+    public static final String BOX_METHOD_NAME = "box";
+    public static final String UNBOX_METHOD_NAME = "unbox";
 
     private static int nextId_;
 
@@ -1761,7 +1763,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 if (isPrimitiveRepedJava(e.type())) {
                     // e.g) m((Integer) a) for m(T a)
                     if (xts.isParameterType(defType) || xts.isAny(defType)) {
-                        // this can print something like '(int)' or 'UInt.$make' depending on the type
+                        // this can print something like '(int)' or 'UInt.box' depending on the type
                         // we require the parentheses to be printed below 
                         er.printBoxConversion(e.type());
                         // e.g) m((int) a) for m(int a)
@@ -1810,8 +1812,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                             w.write(",");
                         } else {
-                            w.write(X10_CORE_STRING);
-                            w.write(".box");
+                        	er.printBoxConversion(e.type());
                         }
                     }
 
@@ -2010,12 +2011,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             castRE.expand();
                             w.write(",");
                         } else {
-                            w.write(X10_CORE_STRING);
-                            w.write(".box(");
+                        	er.printBoxConversion(exprType);
+                            w.write("(");
                         }
                         closeParen = true;
                     } else if (exprType.isUInt() && (castType.isAny() || castType.isParameterType())) {
-                        w.write("x10.core.UInt." + CREATION_METHOD_NAME + "(");
+                    	er.printBoxConversion(exprType);
+                    	w.write("(");
                         closeParen = true;
                     }
                         
@@ -2985,8 +2987,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                     w.write(",");
                 } else {
-                    w.write(X10_CORE_STRING);
-                    w.write(".box(");
+                	er.printBoxConversion(e.type());
+                    w.write("(");
                 }
             }
 
@@ -3339,8 +3341,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                         w.write(",");
                     } else {
-                        w.write(X10_CORE_STRING);
-                        w.write(".box(");
+                    	er.printBoxConversion(e.type());
+                        w.write("(");
                     }
                     c.print(e, w, tr);
                     w.write(")");

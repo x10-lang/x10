@@ -25,11 +25,11 @@ final public class UInt extends x10.core.Struct
         this.value = value;
     }
 
-    public static UInt $make(int value) {
+    public static UInt box(int value) {
         return new UInt(value);
     }
 
-    public static int getValue(UInt o) {
+    public static int unbox(UInt o) {
         return o.value;
     }
     
