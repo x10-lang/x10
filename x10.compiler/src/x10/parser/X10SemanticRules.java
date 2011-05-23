@@ -63,7 +63,6 @@ import x10.ast.AmbMacroTypeNode;
 import x10.ast.AnnotationNode;
 import x10.ast.ClosureCall;
 import x10.ast.SettableAssign;
-import x10.ast.Here;
 import x10.ast.DepParameterExpr;
 import x10.ast.Tuple;
 import x10.ast.X10Formal;
@@ -2894,10 +2893,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             AmbExpr f = (AmbExpr) Primary;
             setResult(nf.X10Call(pos(), null, f.name(), TypeArgumentsopt, ArgumentListopt));
         }
-        else if (Primary instanceof Here) {
-            Here f = (Here) Primary;
-            setResult(nf.X10Call(pos(), null, nf.Id(Primary.position(), Name.make("here")), TypeArgumentsopt, ArgumentListopt));
-        }
         else {
             setResult(nf.ClosureCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
         }
@@ -2941,11 +2936,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: PrefixOp ::= '%'
     void rule_PrefixOp9() {
         setResult(Unary.PERCENT);
-    }
-    // Production: ConstrainedType ::= '(' Type ')'
-    void rule_ConstrainedType2(Object _Type) {
-        TypeNode Type = (TypeNode) _Type;
-        setResult(Type);
     }
     // Production: PreDecrementExpression ::= '--' UnaryExpressionNotPlusMinus
     void rule_PreDecrementExpression0(Object _UnaryExpressionNotPlusMinus) {

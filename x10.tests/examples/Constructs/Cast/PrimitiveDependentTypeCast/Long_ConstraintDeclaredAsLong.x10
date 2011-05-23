@@ -23,7 +23,7 @@ public class Long_ConstraintDeclaredAsLong extends x10Test {
 		var j: long = 2147493646L;
 		// the constraint is represented as a long
 		var i: long{self == 2147493647L} = 2147493647L;
-		i = (++j) as (long{self == 2147493647L});
+		i = (++j) as long{self == 2147493647L};
 		return ((j == 2147493647L) && (i==2147493647L));
 	}
 
