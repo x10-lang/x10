@@ -873,10 +873,6 @@ public class Desugarer extends ContextVisitor {
         Expr xl = nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(t);
         List<Expr> condition = depClause.condition();
         Expr cond = nf.Unary(pos, conjunction(depClause.position(), condition, xl), Unary.NOT).type(ts.Boolean());
-        if (ts.isSubtype(t, ts.Object(), context())) {
-            Expr nonnull = nf.Binary(pos, xl, Binary.NE, nf.NullLit(pos).type(ts.Null())).type(ts.Boolean());
-            cond = nf.Binary(pos, nonnull, Binary.COND_AND, cond).type(ts.Boolean());
-        }
         Type ccet = ts.ClassCastException();
         CanonicalTypeNode CCE = nf.CanonicalTypeNode(pos, ccet);
         Expr msg = nf.StringLit(pos, ot.toString()).type(ts.String());
