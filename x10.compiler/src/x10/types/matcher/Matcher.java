@@ -35,8 +35,11 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+
+import x10.types.constraints.QualifiedVar;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
+import x10.types.X10ClassDef;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalDef_c;
 import x10.types.X10LocalInstance;
@@ -139,7 +142,7 @@ public class Matcher {
 	private static <PI extends X10ProcedureInstance<?>> PI instantiate(
 			final Context context, 
 			final PI me, 
-			/*inout*/ Type[] thisTypeArray,  
+			final /*inout*/ Type[] thisTypeArray,  
 			List<Type> typeActuals, 
 			final List<Type> actualsIn, 
 			boolean checkActuals) throws SemanticException
@@ -176,6 +179,7 @@ public class Matcher {
 			if (st == null)
 				thisType = Types.instantiateSelf(ythiseqv, thisType);
 		}
+		final Type thisTypeFinal = thisType;
 		thisTypeArray[0] = thisType;
 
 		XVar[] x = getSymbolicNames(me.formalNames(), xts); 
@@ -252,24 +256,38 @@ public class Matcher {
 	        				// (rather than the point of definition). 
 	        			
 	        				Type newReturnType = Subst.subst(rt, y2eqv, x2, Y, X);
+	        				// Replace all outer#this variables in the constraint
+	        				// (if any) by QualifiedVar's.
+	        				if (newReturnType instanceof ConstrainedType) {
+	        				    if (! isStatic) {
+	        				        List<X10ClassDef> outers = Types.outerTypes(thisTypeFinal);
+	        				        // Do not replace the lowest level this by qvar's -- only outer this.
+	        				        // That will be taken care of by existing code. 
+	        				        if (outers != null && outers.size() > 1) {
+	        				            XVar[] outerThis = new XVar[outers.size()-1];
+	        				            XVar[] outerYs = new XVar[outers.size()-1];
+	        				            for (int i=1; i < outers.size(); ++i) {
+	        				                outerYs[i-1] = new QualifiedVar(outers.get(i).asType(), (XVar) y2eqv[0]);
+	        				                outerThis[i-1]= outers.get(i).thisVar();
+	        				            }
+	        				            newReturnType = Subst.subst(newReturnType, outerYs, outerThis);
+	        				        } 
+	        				    }
+	        				}
 	        				if (! newReturnType.isVoid() && ! xts.isUnknown(newReturnType)) {
 	        					try {
-	        						
+	        					    
 	        						newReturnType = Subst.addIn(newReturnType, returnEnv2);
 	        						if ((! isStatic) && (! yeqvIsSymbol) ) {
 	        							newReturnType = Subst.project(newReturnType, ythiseqv);
 	        						}
 	        						for (int i= 1; i < actuals.size()+1; ++i) {
 	        						    newReturnType = Subst.project(newReturnType, (XVar) ys[i]);  
-	        						    
-	        						    
 	        						    Type t = actualsIn.get(i-1);
 	        						    XVar self = t instanceof ConstrainedType 
 	        						    ? Types.selfVar((ConstrainedType) t) : null;
 	        						    if (self != null) 
-	        						        newReturnType = Subst.project(newReturnType, self);
-	        						        
-	        								
+	        						        newReturnType = Subst.project(newReturnType, self);	
 	        						}
 	        					} catch (XFailure z) {
 	        						throw new Errors.InconsistentReturnType(newReturnType, me);

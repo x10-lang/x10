@@ -71,6 +71,7 @@ import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
+import x10.types.constraints.QualifiedVar;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -456,6 +457,9 @@ public class Types {
 	public static boolean isClass(Type t) {
 	    return (t instanceof X10ClassType);
 	}
+	public static boolean isConstrainedType(Type t) {
+        return (t instanceof ConstrainedType);
+    }
 
 	public static Type instantiateSelf(XTerm t, Type type) {
 	 	//assert (! (t instanceof UnknownType));
@@ -1878,5 +1882,48 @@ public class Types {
     		}
     	}
     	return constrainedType(baseType(t), c);
+    }
+    public static Type addInOuterClauses(Type type, Type outer) {
+        CConstraint xclause = Types.xclause(outer);
+        if (xclause != null && ! xclause.valid()) {
+            // there is some information to transfer.
+            CConstraint result = new CConstraint();
+            XVar qvar = new QualifiedVar(Types.baseType(outer), result.self());
+            xclause = xclause.instantiateSelf(qvar);
+            result.addIn(xclause);
+            type = Types.addConstraint(type, result);
+        }
+        return type;
+    }
+    public static Type container(Type type, ClassType newContainer) {
+        if (type instanceof ClassType) 
+            return ((ClassType) type).container(newContainer);
+        if (type instanceof ConstrainedType) {
+            ConstrainedType ct = ((ConstrainedType) type).copy();
+            Type newBase = container(ct.baseType().get(), newContainer);
+            ((Ref<Type>) ct.baseType()).update(newBase);
+            return ct;
+        }
+       //return type;
+        assert false;
+        return null;
+    }
+    /** The list of outer types for a type. That is if a type is A.B.C.D, 
+     * return {A.B.C.D, A.B.C, A.B, A}.
+     * 
+     * @param type
+     * @return
+     */
+    public static List<X10ClassDef> outerTypes(Type type) {
+        List<X10ClassDef> result = new ArrayList<X10ClassDef>();
+        Type base = Types.baseType(type);
+        if (base instanceof ClassType) {
+            ClassType outer = (ClassType) base;
+            while (outer != null) {
+                result.add(outer.def());
+                outer = outer.outer();
+            }
+        }
+        return result;
     }
 }

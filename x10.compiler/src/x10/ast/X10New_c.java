@@ -54,6 +54,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XTerms;
+import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Del;
@@ -79,6 +80,7 @@ import polyglot.types.NoMemberException;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.QualifiedVar;
 import x10.types.constraints.TypeConstraint;
 import x10.visit.X10TypeChecker;
 
@@ -515,7 +517,7 @@ public class X10New_c extends New_c implements X10New {
         // Copy the method instance so we can modify it.
         //tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
         ci = ci.returnType(tp);
-        ci = result.adjustCI(ci, tc);
+        ci = result.adjustCI(ci, tc, qualifier());
 
         try {
             checkWhereClause(ci, pos, context);
@@ -687,10 +689,13 @@ public class X10New_c extends New_c implements X10New {
      * 
      * Also add the self.home==here clause.
      */
-    private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc) {
+    private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc, Expr outer) {
         if (xci == null)
             return (X10ConstructorInstance) this.ci;
         Type type = xci.returnType();
+        if (outer != null) {
+            type = Types.addInOuterClauses(type, outer.type());
+        }
         TypeSystem ts = (TypeSystem) tc.typeSystem();
 
         if (ts.isStructType(type)) 

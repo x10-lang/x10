@@ -1319,7 +1319,7 @@ public class TypeSystem_c implements TypeSystem
         }
 
         public String signature() {
-            return container.fullName() + "." + name;
+            return container/*.fullName()*/ + "." + name;
         }
 
         public Object key() {

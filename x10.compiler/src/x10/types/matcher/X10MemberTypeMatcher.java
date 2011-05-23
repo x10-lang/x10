@@ -16,6 +16,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem_c.MemberTypeMatcher;
+import polyglot.types.Types;
 import x10.types.MacroType;
 
 public class X10MemberTypeMatcher extends MemberTypeMatcher {
@@ -34,6 +35,10 @@ public class X10MemberTypeMatcher extends MemberTypeMatcher {
             if (mt.typeParameters().size() != 0)
                 return null;
         }
+        // Need to replace the outer type of n with container.
+        // container may have clauses that need to be part of n.
+        // e.g. A{self.i==3}.Inner will return A.Inner{A.self.i==3}.
+        n = Types.addInOuterClauses(n, container);
         return n;
     }
 }
