@@ -354,7 +354,7 @@ public class Context implements Resolver, Cloneable
             return false;
         }
 
-        return outer.isLocal(name);
+        return outer.isLocalExcludingAsyncAt(name);
     }
     public boolean isValInScopeInClass(Name name) {
         if (isClass()) {

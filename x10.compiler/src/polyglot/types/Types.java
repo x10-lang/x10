@@ -1833,7 +1833,7 @@ public class Types {
 	                    if (root instanceof CLocal) {
 	                        CLocal rootL = (CLocal) root;
 	                        X10LocalDef name = rootL.localDef();
-	                        if (! cxt.isFormalParameter(name)) {
+	                        if (! cxt.isFormalParameter(name) && cxt.isLocalExcludingAsyncAt(name.name())) {
 	                            // This is a local variable. Eliminate!
 	                            c = c.project(rootL);
 	                        }
