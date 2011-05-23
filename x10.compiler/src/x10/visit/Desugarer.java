@@ -838,10 +838,9 @@ public class Desugarer extends ContextVisitor {
                 nf.CanonicalTypeNode(pos, xDef.type()), nf.Id(pos, xn)).localDef(xDef);
         Expr xl = nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(t);
         List<Expr> condition = depClause.condition();
-        List<Expr> condWithNullChecks = insertNullChecks(condition);
-        Expr cond = nf.Unary(pos, conjunction(depClause.position(), condWithNullChecks, xl), Unary.NOT).type(ts.Boolean());
-        Expr nonnull = nullCheck(xl);
-        if (nonnull != null) {
+        Expr cond = nf.Unary(pos, conjunction(depClause.position(), condition, xl), Unary.NOT).type(ts.Boolean());
+        if (ts.isSubtype(t, ts.Object(), context())) {
+            Expr nonnull = nf.Binary(pos, xl, Binary.NE, nf.NullLit(pos).type(ts.Null())).type(ts.Boolean());
             cond = nf.Binary(pos, nonnull, Binary.COND_AND, cond).type(ts.Boolean());
         }
         Type ccet = ts.ClassCastException();
@@ -866,7 +865,7 @@ public class Desugarer extends ContextVisitor {
         return nf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
     }
 
-    // e instanceof T{c} -> ((x:F)=>{if (!(x instanceof T)) return false; val z:T=x as T; return c[self/z];})(e)
+    // e instanceof T{c} -> ((x:F)=>x instanceof T && c[self/x as T])(e)
     private Expr visitInstanceof(X10Instanceof n) {
         Position pos = n.position();
         Expr e = n.expr();
@@ -881,79 +880,18 @@ public class Desugarer extends ContextVisitor {
         Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
                 nf.CanonicalTypeNode(pos, xDef.type()), nf.Id(pos, xn)).localDef(xDef);
         Expr xl = nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(et);
-        Type Boolean = ts.Boolean();
-        Expr iof = nf.Instanceof(pos, xl, tn).type(Boolean);
-        Stmt first = nf.If(pos, nf.Unary(pos, Unary.NOT, iof).type(Boolean), nf.Return(pos, getLiteral(pos, Boolean, false)));
-        Type ct = tn.type();
-        Expr cast = nf.X10Cast(pos, tn, xl, Converter.ConversionType.CHECKED).type(ct);
-        Name sn = getTmp();
-        LocalDef sDef = ts.localDef(pos, ts.Final(), Types.ref(ct), sn);
-        LocalDecl selfD = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, ct), nf.Id(pos, sn), cast).localDef(sDef);
-        Expr self = nf.Local(pos, nf.Id(pos, sn)).localInstance(sDef.asInstance()).type(ct);
+        Expr iof = nf.Instanceof(pos, xl, tn).type(ts.Boolean());
+        Expr cast = nf.X10Cast(pos, tn, xl, Converter.ConversionType.CHECKED).type(tn.type());
         List<Expr> condition = depClause.condition();
-        List<Expr> condWithNullChecks = insertNullChecks(condition);
-        Expr cond = conjunction(depClause.position(), condWithNullChecks, self);
-        Block body = nf.Block(pos, first, selfD, nf.Return(pos, cond));
-        Closure c = closure(pos, Boolean, Collections.singletonList(x), body);
+        Expr cond = conjunction(depClause.position(), condition, cast);
+        Expr rval = nf.Binary(pos, iof, Binary.COND_AND, cond).type(ts.Boolean());
+        Block body = nf.Block(pos, nf.Return(pos, rval));
+        Closure c = closure(pos, ts.Boolean(), Collections.singletonList(x), body);
         c.visit(new ClosureCaptureVisitor(this.context(), c.closureDef()));
         //if (!c.closureDef().capturedEnvironment().isEmpty())
         //    System.out.println(c+" at "+c.position()+" captures "+c.closureDef().capturedEnvironment());
         MethodInstance ci = c.closureDef().asType().applyMethod();
-        return nf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(Boolean);
-    }
-
-    private List<Expr> insertNullChecks(List<Expr> condition) {
-        List<Expr> res = new ArrayList<Expr>();
-        for (Expr c : condition) {
-            generateNullChecks(c, res);
-            res.add(c);
-        }
-        return res;
-    }
-
-    private static Receiver getTarget(Expr c) {
-        if (c instanceof Field) return ((Field) c).target();
-        if (c instanceof X10Call) return ((X10Call) c).target();
-        return null;
-    }
-
-    private boolean generateNullChecks(Expr c, List<Expr> res) {
-        if (c instanceof Field || c instanceof X10Call) {
-            return generateNullChecksForTarget(getTarget(c), res);
-        }
-        if (c instanceof Unary) {
-            return generateNullChecks(((Unary) c).expr(), res);
-        }
-        if (c instanceof Binary) {
-            return generateNullChecks(((Binary) c).left(), res) | generateNullChecks(((Binary) c).right(), res);
-        }
-        return false;
-    }
-
-    private boolean generateNullChecksForTarget(Receiver r, List<Expr> res) {
-        if (!(r instanceof Expr)) return false;
-        if (r instanceof X10Special) {
-            return ((X10Special) r).isSelf(); // no null check for the "self" itself, but it causes others
-        }
-        if (r instanceof Field || r instanceof X10Call) {
-            Expr c = (Expr) r;
-            boolean gen = generateNullChecksForTarget(getTarget(c), res);
-            Expr nc;
-            if (gen && (nc = nullCheck(c)) != null) {
-                res.add(nc);
-            }
-            return gen;
-        }
-        return false;
-    }
-
-    private Expr nullCheck(Expr c) {
-        if (Types.permitsNull(context, c.type())) {
-            Position pos = c.position();
-            return nf.Binary(pos, c, Binary.NE, nf.NullLit(pos).type(ts.Null())).type(ts.Boolean());
-        }
-        return null;
+        return nf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(ts.Boolean());
     }
 
     public static class Substitution<T extends Node> extends NodeVisitor {
