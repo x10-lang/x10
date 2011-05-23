@@ -19,7 +19,7 @@ import x10.rtt.Types;
  */
 final public class UInt extends x10.core.Struct /*TODO implements java.lang.Comparable<UInt>, x10.lang.Arithmetic, x10.lang.Bitwise, x10.util.Ordered*/
 {
-    private static final long serialVersionUID = 5575376732671214307L;
+    private static final long serialVersionUID = 1L;
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.UINT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
