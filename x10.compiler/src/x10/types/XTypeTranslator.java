@@ -125,7 +125,7 @@ public class XTypeTranslator {
         if (term instanceof Lit)
             return translate((Lit) term);
         if (term instanceof Here)
-            return transHere();
+            return transHere(xc);
         if (term instanceof Variable)
             return trans(c, (Variable) term, xc, tl);
         if (term instanceof X10Special)
@@ -539,7 +539,11 @@ public class XTypeTranslator {
     
     // *********************************************************************************************
     // *********************************** private help routines for translation********************
-    private XTerm transHere() {
+    private XTerm transHere(Context c) {
+        // TODO
+        //XConstrainedTerm placeTerm = c.currentPlaceTerm();
+        //if (placeTerm == null) return XTerms.makeEQV();
+        //return placeTerm.term();
         return PlaceChecker.here();
     }
     private XLocal trans(Local t) {

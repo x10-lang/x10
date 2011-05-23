@@ -155,15 +155,13 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		return this;
 	}
 
-    protected XConstrainedTerm placeTerm;
-  
-    protected XConstrainedTerm finishPlaceTerm;
     public boolean isFinishPlace() {
         boolean isFinishPlace = false;
-        if (null != finishPlaceTerm) {
+        AtDef def = atDef();
+        if (null != def.finishPlaceTerm()) {
             XConstraint constraint = new XConstraint();
-            constraint.addBinding(finishPlaceTerm.term(),placeTerm.term());
-            if (placeTerm.constraint().entails(constraint)) {
+            constraint.addBinding(def.finishPlaceTerm().term(),def.placeTerm().term());
+            if (def.placeTerm().constraint().entails(constraint)) {
                 isFinishPlace = true;
             }    
         }
@@ -227,19 +225,24 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	}
 
     	Context c = tc.context();
-    	XConstrainedTerm placeTerm;
-    	XConstrainedTerm finishPlaceTerm = null;
-    	try {
-    	    placeTerm = PlaceChecker.computePlaceTerm(place, c, ts);
-    	    finishPlaceTerm = c.currentFinishPlaceTerm();
-    	} catch (SemanticException e) {
-    	    CConstraint d = new CConstraint();
-    	    XTerm term = PlaceChecker.makePlace();
-    	    try {
-    	        placeTerm = XConstrainedTerm.instantiate(d, term);
-    	    } catch (XFailure z) {
-    	        throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
-    	    }
+    	AtDef def = this.atDef();
+    	if (def.placeTerm() == null) {
+            XConstrainedTerm placeTerm;
+            XConstrainedTerm finishPlaceTerm = null;
+            try {
+                placeTerm = PlaceChecker.computePlaceTerm(place, c, ts);
+                finishPlaceTerm = c.currentFinishPlaceTerm();
+            } catch (SemanticException e) {
+                CConstraint d = new CConstraint();
+                XTerm term = PlaceChecker.makePlace();
+                try {
+                    placeTerm = XConstrainedTerm.instantiate(d, term);
+                } catch (XFailure z) {
+                    throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
+                }
+            }
+            def.setPlaceTerm(placeTerm);
+            def.setFinishPlaceTerm(finishPlaceTerm);
     	}
 
     	// now that placeTerm is computed for this node, install it in the context
@@ -247,20 +250,14 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
     	Context oldC = c;
         c = super.enterChildScope(body, childtc.context());
-        if (placeTerm != null) {
+        XConstrainedTerm pt = def.placeTerm();
+        if (pt != null) {
         	if (c == oldC)
-        		c=c.pushBlock();
-            c.setPlace(placeTerm);
+        		c = c.pushBlock();
+            c.setPlace(pt);
         }
         Stmt body = (Stmt) visitChild(this.body, childtc.context(c));
         AtStmt_c n = this.reconstruct(place, body);
-        if (placeTerm != n.placeTerm || finishPlaceTerm != n.finishPlaceTerm) {
-            if (n == this) {
-                n = (AtStmt_c) n.copy();
-            }
-            n.placeTerm = placeTerm;
-            n.finishPlaceTerm = finishPlaceTerm;
-        }
         return tc.leave(parent, this, n, childtc);
     }
 

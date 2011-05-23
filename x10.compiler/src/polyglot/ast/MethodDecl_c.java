@@ -17,6 +17,7 @@ import polyglot.visit.*;
 import x10.errors.Errors;
 import x10.errors.Errors.InterfaceMethodsMustBePublic;
 import x10.types.MethodInstance;
+import x10.types.X10ClassDef;
 import x10.types.X10TypeEnv_c;
 import x10.visit.Desugarer;
 import x10.ast.X10ClassDecl_c;
@@ -162,7 +163,7 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
 
     public abstract Node buildTypesOverride(TypeBuilder tb);
 
-    protected abstract MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags);
+    protected abstract MethodDef createMethodDef(TypeSystem ts, X10ClassDef ct, Flags flags);
 
     public Context enterScope(Context c) {
         Reporter reporter = c.typeSystem().extensionInfo().getOptions().reporter;

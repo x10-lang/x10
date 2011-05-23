@@ -42,11 +42,6 @@ public interface AtDef extends X10MethodDef, EnvironmentCapture {
     
     boolean staticContext();
 
-    /**
-     * Set the term (symbolic name) standing for the place at which the body of this closure is intended to execute.
-     * @param t
-     */
-    void setPlaceTerm(XConstrainedTerm t);
-
-    XConstrainedTerm placeTerm();
+    XConstrainedTerm finishPlaceTerm();
+    void setFinishPlaceTerm(XConstrainedTerm t);
 }

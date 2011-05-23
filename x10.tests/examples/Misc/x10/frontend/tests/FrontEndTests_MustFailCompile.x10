@@ -2144,7 +2144,7 @@ class TestGlobalRefHomeAt2 {
 	 private val root = GlobalRef(this); 
 	 def test1() {
 		 val x = (new TestGlobalRefHomeAt2()).root; 
-		 return @ShouldNotBeERR x();
+		 return x();
 	 }
 	 def test2() {
 		 val x = (at (here.next()) new TestGlobalRefHomeAt2()).root; 
@@ -2156,7 +2156,7 @@ class TestGlobalRefHomeAt2 {
 	 }
 	 def test4() {
 		 val x = this.root; 
-		 return @ShouldBeErr x();
+		 return @ERR x();
 	 }
 	 def test5(y:TestGlobalRefHomeAt2) {
 		 val x = y.root; 

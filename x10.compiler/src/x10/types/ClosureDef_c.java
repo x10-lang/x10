@@ -52,7 +52,6 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     //protected Ref<TypeConstraint> typeGuard;
     protected CodeInstance<?> asInstance;
     
-    protected XConstrainedTerm placeTerm;
     protected Ref<? extends Type> offerType;
     
     protected List<VarInstance<? extends VarDef>> capturedEnvironment;
@@ -180,12 +179,13 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.thisDef = thisDef;
     }
     
-    public void setPlaceTerm(XConstrainedTerm p) {
-    	this.placeTerm = p;
+    protected XConstrainedTerm placeTerm;
+    public XConstrainedTerm placeTerm() { return placeTerm; }
+    public void setPlaceTerm(XConstrainedTerm pt) {
+        if (placeTerm != null)
+            assert (placeTerm == null);
+        placeTerm = pt;
     }
-    
-    public XConstrainedTerm placeTerm() { return placeTerm;}
-    
     
     public List<LocalDef> formalNames() {
 	return Collections.unmodifiableList(formalNames);
