@@ -1290,8 +1290,8 @@ public class Types {
 			ProcedureInstance<?> xp1, ProcedureInstance<?> xp2,
 			Context context, TypeSystem ts, Type ct1, Type t1, Type t2,
 			boolean descends) {
-	    XVar[] ys = toVarArray(toLocalDefList(xp2.formalNames()));
-	    XVar[] xs = toVarArray(toLocalDefList(xp1.formalNames()));
+	    XVar[] ys = toVarArray(toLocalDefList(xp2.formalNames()), getPlaceTerm(xp2));
+	    XVar[] xs = toVarArray(toLocalDefList(xp1.formalNames()), getPlaceTerm(xp1));
 	    // if the formal params of p1 can be used to call p2, p1 is more specific
 	    if (xp1.formalTypes().size() == xp2.formalTypes().size() ) {
 	        for (int i = 0; i < xp1.formalTypes().size(); i++) {
@@ -1384,8 +1384,8 @@ public class Types {
 	    			// Now determine that a call can be made to thisMI2 using the
 	    			// argument list obtained from thisMI1. If not, return false.
 	    			List<Type> argTypes = new ArrayList<Type>(origMI1.formalTypes());
-	    			XVar[] ys = toVarArray(toLocalDefList(origMI2.formalNames()));
-	    			XVar[] xs = toVarArray(toLocalDefList(origMI1.formalNames()));
+	    			XVar[] ys = toVarArray(toLocalDefList(origMI2.formalNames()), getPlaceTerm(origMI2));
+	    			XVar[] xs = toVarArray(toLocalDefList(origMI1.formalNames()), getPlaceTerm(origMI1));
 	    			try {
 	    			    argTypes = Subst.subst(argTypes, ys, xs);
 	    			} catch (SemanticException e) {
@@ -1524,6 +1524,11 @@ public class Types {
 	    }
 	
 	    return true;
+	}
+
+	public static XVar getPlaceTerm(ProcedureInstance<?> mi) {
+	    XConstrainedTerm pt = ((ProcedureDef) mi.def()).placeTerm();
+	    return pt != null && pt.term() instanceof XVar ? (XVar) pt.term() : XTerms.makeUQV();
 	}
 
 	public static boolean isTypeConstraintExpression(Expr e) {
@@ -1846,16 +1851,39 @@ public class Types {
 	}
 
 	public static XVar[] toVarArray(List<? extends VarDef> formalNames) {
-	    XVar[] oldFNs = new XVar[formalNames.size()];
-	    for (int i = 0; i < oldFNs.length; i++) {
+	    int size = formalNames.size();
+	    XVar[] oldFNs = new XVar[size];
+	    toVarArray(oldFNs, 0, formalNames);
+	    return oldFNs;
+	}
+
+	public static XVar[] toVarArray(List<? extends VarDef> formalNames, XVar v) {
+	    int size = formalNames.size();
+	    XVar[] oldFNs = new XVar[size+1];
+	    toVarArray(oldFNs, 0, formalNames);
+	    oldFNs[size] = v;
+	    return oldFNs;
+	}
+
+	public static XVar[] toVarArray(List<? extends VarDef> formalNames, XVar v, XVar w) {
+	    int size = formalNames.size();
+	    XVar[] oldFNs = new XVar[size+2];
+	    toVarArray(oldFNs, 0, formalNames);
+	    oldFNs[size] = v;
+	    oldFNs[size+1] = w;
+	    return oldFNs;
+	}
+
+	private static void toVarArray(XVar[] oldFNs, int offset, List<? extends VarDef> formalNames) {
+	    int sz = formalNames.size();
+	    for (int i = 0; i < sz; i++) {
 	        VarDef f = formalNames.get(i);
 	        if (f instanceof X10LocalDef) {
-	            oldFNs[i] = CTerms.makeLocal((X10LocalDef) f);
+	            oldFNs[offset+i] = CTerms.makeLocal((X10LocalDef) f);
 	        } else if (f instanceof ThisDef) {
-	            oldFNs[i] = ((ThisDef) f).thisVar();
+	            oldFNs[offset+i] = ((ThisDef) f).thisVar();
 	        }
 	    }
-	    return oldFNs;
 	}
 
 	public static List<LocalDef> toLocalDefList(List<LocalInstance> lis) {

@@ -3505,8 +3505,8 @@ public class TypeSystem_c implements TypeSystem
             return ts.typeEquals(Types.baseType(o), Types.baseType(p), context);
         }
     }
-    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, XVar thisVar, Context context) {
-        XVar[] xvars = Types.toVarArray(Types.toLocalDefList(formalNames));
+    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, XVar thisVar, XVar placeTerm, Context context) {
+        XVar[] xvars = Types.toVarArray(Types.toLocalDefList(formalNames), placeTerm);
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         for (MethodInstance mi : t.methodsNamed(name)) {
             List<XVar> ys = new ArrayList<XVar>(2);
@@ -3544,7 +3544,8 @@ public class TypeSystem_c implements TypeSystem
                 formalTypes.add(li.type());
             }
             try {
-                XVar[] yvars = Types.toVarArray(Types.toLocalDefList(mi.formalNames()));
+                XVar pt = Types.getPlaceTerm(mi);
+                XVar[] yvars = Types.toVarArray(Types.toLocalDefList(mi.formalNames()), pt);
                 formalTypes = Subst.subst(formalTypes, yvars, xvars);
             } catch (SemanticException e) {
                 throw new InternalCompilerError("Unexpected exception while translating a method instance", e);
@@ -3568,15 +3569,16 @@ public class TypeSystem_c implements TypeSystem
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
-        
         mi = new X10TypeEnv_c(context).fixThis( mi, y, x);
+        XVar placeTerm = Types.getPlaceTerm(mi);
+
         context = context.pushBlock();
         CConstraint cc = context.currentConstraint();
         cc.addIn(thisVar, Types.realX(ct));
         context.setCurrentConstraint(cc);
         ContainerType curr = ct;
         while (curr != null) {
-            List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context);
+            List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, placeTerm, context);
             for (MethodInstance mj : possible) {
                 if ((includeAbstract || !mj.flags().isAbstract()) 
                         && ((isAccessible(mi, context) && isAccessible(mj, context)) 

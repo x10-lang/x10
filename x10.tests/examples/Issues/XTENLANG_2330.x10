@@ -247,7 +247,7 @@ class Box77[T] {
 class ABC23 { 
   def test(b:Box77[Place{self==here}]) {
 	at (here.next()) {
-		val p2:Place{self==here} = b.t; // ERR ShouldNotBeERR ShouldNotBeERR
+		val p2:Place{self==here} = b.t; // ERR
 	}
   }
 }

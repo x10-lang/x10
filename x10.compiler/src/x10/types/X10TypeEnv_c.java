@@ -1927,9 +1927,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         mi = fixThis(mi, y, x);
 
+        XVar placeTerm = Types.getPlaceTerm(mi);
+
         while (rt != null) {
             // add any method with the same name and formalTypes from rt
-            l.addAll(ts.methods(rt, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context));
+            l.addAll(ts.methods(rt, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, placeTerm, context));
 
             ContainerType sup = null;
 
@@ -1970,9 +1972,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         mi = fixThis((MethodInstance) mi, y, x);
 
+        XVar placeTerm = Types.getPlaceTerm(mi);
 
         List<MethodInstance> l = new LinkedList<MethodInstance>();
-        l.addAll(ts.methods(st, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context));
+        l.addAll(ts.methods(st, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, placeTerm, context));
 
         if (st instanceof ObjectType) {
             ObjectType rt = (ObjectType) st;
@@ -2026,12 +2029,18 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                         + "; different number of type parameters",mi.position());
         }
 
-        List<LocalInstance> miFormals = mi.formalNames();
-        
-        XVar[] newSymbols = genSymbolicVars(mj.formalNames().size());
+        XVar[] newSymbols = genSymbolicVars(mj.formalNames().size()+1);
         TypeSystem xts = (TypeSystem) mi.typeSystem();
-        XVar[] miSymbols = Matcher.getSymbolicNames(mi.formalNames(),xts);
-        XVar[] mjSymbols = Matcher.getSymbolicNames(mj.formalNames(),xts);
+        XVar[] miFormals = Matcher.getSymbolicNames(mi.formalNames(),xts);
+        XVar mipt = Types.getPlaceTerm(mi);
+        XVar[] mjFormals = Matcher.getSymbolicNames(mj.formalNames(),xts);
+        XVar mjpt = Types.getPlaceTerm(mj);
+        XVar[] miSymbols = new XVar[miFormals.length+1];
+        miSymbols[0] = mipt;
+        System.arraycopy(miFormals, 0, miSymbols, 1, miFormals.length);
+        XVar[] mjSymbols = new XVar[mjFormals.length+1];
+        mjSymbols[0] = mjpt;
+        System.arraycopy(mjFormals, 0, mjSymbols, 1, mjFormals.length);
         
         TypeParamSubst tps = new TypeParamSubst(xts, mi.typeParameters(), mj.x10Def().typeParameters());
         assert (mi.typeParameters().size() == mj.typeParameters().size() &&

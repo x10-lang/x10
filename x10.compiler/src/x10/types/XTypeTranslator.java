@@ -114,18 +114,18 @@ public class XTypeTranslator {
      * @return null if the translation is not possible. Caller must always check.
      * FIX: Remove the need for the constraint to be passed into translate.
      * 
-     * If tolevel is true, then boolean connectives, && are permitted.
+     * If toplevel is true, then boolean connectives, && are permitted.
      */
     public XTerm translate(CConstraint c, Receiver term, Context xc)  throws IllegalConstraint {
     	return translate(c, term, xc, false);
     }
-   public XTerm translate(CConstraint c, Receiver term, Context xc, boolean tl)  throws IllegalConstraint {
+    public XTerm translate(CConstraint c, Receiver term, Context xc, boolean tl) throws IllegalConstraint {
         if (term == null)
             return null;
         if (term instanceof Lit)
             return translate((Lit) term);
         if (term instanceof Here)
-            return transHere(xc);
+            return trans(c, (Here) term, xc, tl);
         if (term instanceof Variable)
             return trans(c, (Variable) term, xc, tl);
         if (term instanceof X10Special)
@@ -539,12 +539,12 @@ public class XTypeTranslator {
     
     // *********************************************************************************************
     // *********************************** private help routines for translation********************
-    private XTerm transHere(Context c) {
-        // TODO
-        //XConstrainedTerm placeTerm = c.currentPlaceTerm();
-        //if (placeTerm == null) return XTerms.makeEQV();
-        //return placeTerm.term();
-        return PlaceChecker.here();
+    private XTerm trans(CConstraint c, Here h, Context xc, boolean tl) {
+        XConstrainedTerm placeTerm = xc.currentPlaceTerm();
+        //XConstrainedTerm placeTerm = h.placeTerm();
+        if (placeTerm == null) return XTerms.makeEQV();
+        return placeTerm.term();
+        //return PlaceChecker.here();
     }
     private XLocal trans(Local t) {
         return translate(t.localInstance());

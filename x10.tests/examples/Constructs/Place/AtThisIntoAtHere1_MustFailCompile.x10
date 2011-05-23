@@ -59,7 +59,7 @@ public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
             at (x) {
                 at (p) {
                     // this is not ok because of the place shift.
-                    y(); // ShouldBeErr
+                    y(); // ERR
                 }
             }
         }

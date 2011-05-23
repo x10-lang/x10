@@ -182,8 +182,8 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected XConstrainedTerm placeTerm;
     public XConstrainedTerm placeTerm() { return placeTerm; }
     public void setPlaceTerm(XConstrainedTerm pt) {
-        if (placeTerm != null)
-            assert (placeTerm == null);
+        if (placeTerm != null && pt != null)
+            assert (placeTerm == null || pt == null);
         placeTerm = pt;
     }
     

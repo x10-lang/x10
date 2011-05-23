@@ -193,7 +193,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         CodeDef code = (CodeDef) def;
 
         AtDef mi = (AtDef) createDummyAsync(position(), ts, ct.asType(), code, code.staticContext(), false);
-        
+
         // Unlike methods and constructors, do not create new goals for resolving the signature and body separately;
         // since closures don't have names, we'll never have to resolve the signature.  Just push the code context.
         TypeBuilder tb2 = tb.pushCode(mi);
@@ -228,19 +228,18 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	AtDef def = this.atDef();
     	if (def.placeTerm() == null) {
             XConstrainedTerm placeTerm;
-            XConstrainedTerm finishPlaceTerm = null;
+            XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
+            CConstraint d = new CConstraint();
+            XTerm term = PlaceChecker.makePlace();
             try {
-                placeTerm = PlaceChecker.computePlaceTerm(place, c, ts);
-                finishPlaceTerm = c.currentFinishPlaceTerm();
-            } catch (SemanticException e) {
-                CConstraint d = new CConstraint();
-                XTerm term = PlaceChecker.makePlace();
-                try {
-                    placeTerm = XConstrainedTerm.instantiate(d, term);
-                } catch (XFailure z) {
-                    throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
-                }
+                placeTerm = XConstrainedTerm.instantiate(d, term);
+            } catch (XFailure z) {
+                throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
             }
+            try {
+                XConstrainedTerm realPlaceTerm = PlaceChecker.computePlaceTerm(place, c, ts);
+                d.addBinding(placeTerm, realPlaceTerm);
+            } catch (SemanticException e) { }
             def.setPlaceTerm(placeTerm);
             def.setFinishPlaceTerm(finishPlaceTerm);
     	}
@@ -276,7 +275,12 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     @Override
     public Context enterChildScope(Node child, Context c) {
         if (child != this.body) return c.pop();
-        return super.enterChildScope(child, c);
+        Context oldC = c;
+        c = super.enterChildScope(child, c);
+        if (c == oldC)
+            c = c.pushBlock();
+        c.setPlace(atDef.placeTerm());
+        return c;
     }
 
 	/** Visit the children of the statement. */

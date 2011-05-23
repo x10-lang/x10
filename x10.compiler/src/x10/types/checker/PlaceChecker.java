@@ -7,6 +7,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Receiver;
 import polyglot.types.ClassDef;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -38,6 +39,7 @@ import x10.errors.Errors;
 import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.types.FunctionType_c;
 import polyglot.types.Context;
+import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.X10FieldInstance;
 
@@ -58,7 +60,7 @@ import x10.util.Synthesizer;
  */
 public class PlaceChecker {
 
-	static final XVar HERE = XTerms.makeUQV("here");
+	static final XVar HERE = XTerms.makeUQV("synthetic here");
 	//public static final XLit GLOBAL_PLACE = new XLit_c("globalPlace");
 
 	public static XVar here() {
@@ -85,13 +87,16 @@ public class PlaceChecker {
 	static FieldInstance GlobalRefHome(TypeSystem xts) {
 		return ((ContainerType) xts.GlobalRef()).fieldNamed(xts.homeName());
 	}
+
+	public static final String HOME_NAME = "$$here";
+
 	/**
 	 * The key  move in adapting the 2.0 place checking system to 2.1 is to continue
 	 * to pretend that for each object (other than instances of GlobalRef -- 
 	 * for that we have globalRefHomeVar(..)) we track the place where it was created in a fake
-	 * field called "here". This field does not exist in the object, but it serves as a way
+	 * field called "$$here". This field does not exist in the object, but it serves as a way
 	 * to record the place at which an object was created so that fields that may be initialized 
-	 * with the indexical constant "here" can still be tracked through the fake field "this.here".
+	 * with the indexical constant "here" can still be tracked through the fake field "this.$$here".
 	 * For instance this lets us infer that the following is place safe
 	 * class C {
 	 *   private val root = GlobalRef[C](this); 
@@ -113,7 +118,7 @@ public class PlaceChecker {
 	 * @return
 	 */
 	static XTerm homeVar(XTerm target, TypeSystem xts)  {
-		return xts.xtypeTranslator().translateFakeField(target, "$$here");
+		return xts.xtypeTranslator().translateFakeField(target, HOME_NAME);
 	}
 	static XTerm globalRefHomeVar(XTerm target, TypeSystem xts)  {
 		return xts.xtypeTranslator().translate(target, GlobalRefHome(xts));
@@ -277,6 +282,26 @@ public class PlaceChecker {
 	    // XTENLANG-2725: in X10 2.2, all methods are "global"
 	    boolean isGlobal = true; // || md.flags().isStatic() || Types.isX10Struct(ct.asType());
 	    XTerm term = isGlobal ? makePlace() : homeVar(md.thisVar(), md.typeSystem());
+	    try {
+	        return XConstrainedTerm.instantiate(d, term);
+	    } catch (XFailure z) {
+	        throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
+	    }
+	}
+
+	public static XConstrainedTerm constructorPlaceTerm(ConstructorDef cd) {
+	    CConstraint d = new CConstraint();
+	    XTerm term = homeVar(cd.thisVar(), cd.typeSystem());
+	    try {
+	        return XConstrainedTerm.instantiate(d, term);
+	    } catch (XFailure z) {
+	        throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
+	    }
+	}
+	
+	public static XConstrainedTerm closurePlaceTerm(ClosureDef cd) {
+	    CConstraint d = new CConstraint();
+	    XTerm term = makePlace();
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
 	    } catch (XFailure z) {

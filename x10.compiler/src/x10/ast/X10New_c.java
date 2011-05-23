@@ -702,7 +702,7 @@ public class X10New_c extends New_c implements X10New {
             return xci;
         // Add self.home == here to the return type.
         // Add this even in 2.1 -- the place where this object is created
-        // is tracked in the type through a fake field "here".
+        // is tracked in the type through a fake field "$$here".
         // This field does not exist at runtime in the object -- but that does not
         // prevent the compiler from imagining that it exists.
         ConstrainedType type1 = Types.toConstrainedType(type);

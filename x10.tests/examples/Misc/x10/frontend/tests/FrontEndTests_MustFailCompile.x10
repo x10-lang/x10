@@ -2103,17 +2103,17 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 
 		at (r.home()) {
 			use(r()); 
-			use(r2()); // ShouldNotBeERR
-			use(r3()); // ShouldNotBeERR
+			use(r2());
+			use(r3());
 		}
 		at (r2.home()) {
-			use(r()); // ShouldNotBeERR
+			use(r());
 			use(r2()); 
-			use(r3());// ShouldNotBeERR
+			use(r3());
 		}
 		at (r3.home()) {
-			use(r()); // ShouldNotBeERR
-			use(r2()); // ShouldNotBeERR
+			use(r());
+			use(r2());
 			use(r3());
 		}
 		at (here.next()) {
@@ -2123,17 +2123,17 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 			
 			at (r.home()) {
 				use(r()); 
-				use(r2()); // ShouldNotBeERR
-				use(r3()); // ShouldNotBeERR
+				use(r2());
+				use(r3());
 			}
 			at (r2.home()) {
-				use(r()); // ShouldNotBeERR
+				use(r());
 				use(r2()); 
-				use(r3());// ShouldNotBeERR
+				use(r3());
 			}
 			at (r3.home()) {
-				use(r()); // ShouldNotBeERR
-				use(r2()); // ShouldNotBeERR
+				use(r());
+				use(r2());
 				use(r3());
 			}
 		}
@@ -2278,7 +2278,7 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 	val r = new R();
 	at (here.next()) {
 	  val r2:R = r; // This is the only "hole" in my proof: you can say that the type of "r" changed when it crossed the "at" boundary. But that will puzzle programmers...
-	  foo(r2.x); // we didn't cross any "at", so from claim 3, the type of "r2.x" didn't change.
+	  foo(r2.x); // ERR: we didn't cross any "at", so from claim 3, the type of "r2.x" didn't change.
 	}
   }
 
@@ -2310,7 +2310,7 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 	static def test2(p:Place) {p==here} {
 		m(p); // OK
 		at (here.next()) {
-			m(p); // ShouldBeErr (XTENLANG-1929)
+			m(p); // ERR (XTENLANG-1929)
 		}
 	}
 }
@@ -6659,17 +6659,17 @@ class XTENLANG_1448 {
 			property(here);
 		}
 		def test(y:X) {
-			val py:Place{self==here} = y.p; // this is wrong!
+			val py:Place{self==here} = y.p; // ERR: Cannot assign expression to target; constraints not satisfied
 			val x = new X();
 			val px:Place{self==here} = x.p;
 		}
 	}
 	class X2(p:Place{self==here}) { // ERR: Cannot use "here" in this context
 		def this() {
-			property(here); // ERR
+			property(here);
 		}
 		def test(y:X2) {
-			val py:Place{self==here} = y.p; // this is wrong!
+			val py:Place{self==here} = y.p; // ERR: Cannot assign expression to target; constraints not satisfied
 			val x = new X2();
 			val px:Place{self==here} = x.p;
 		}
@@ -6685,7 +6685,7 @@ class XTENLANG_1448 {
 	interface Test[T] {
 		def add(t:T):void;
 	}
-	class Impl(p:Place) implements Test[Impl{self.p==here}] { // ERR: Cannot use "here" in this context
+	class Impl(p:Place) implements Test[Impl{self.p==here}] { // ERR: Cannot use "here" in this context ERR ERR
 		public def add(t:Impl{self.p==here}):void {}
 	}
 }

@@ -96,20 +96,22 @@ public class X10Field_c extends Field_c {
         Context c = (Context) tc.context();
         X10FieldInstance fi = null;
         try {
-            // vj: Hack to work around the design decision to represent "here" as this.home for
-            // instance methods. This decision creates a problem for non-final variables that are 
-            // located in the current place. "this" is going to get quantified out by the FieldMatcher.
-            // therefore we temporarily replace this.home with a new UQV, currentPlace, and then on
-            // return from the matcher, substitute it back in.
-            XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
-            XVar currentPlace = XTerms.makeUQV("place");
-            Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
-            fi = (X10FieldInstance) ts.findField(targetType, tType2, name, c, receiverInContext);
+            //// vj: Hack to work around the design decision to represent "here" as this.home for
+            //// instance methods. This decision creates a problem for non-final variables that are 
+            //// located in the current place. "this" is going to get quantified out by the FieldMatcher.
+            //// therefore we temporarily replace this.home with a new UQV, currentPlace, and then on
+            //// return from the matcher, substitute it back in.
+            //XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
+            //XVar currentPlace = XTerms.makeUQV("place");
+            //Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
+            //fi = (X10FieldInstance) ts.findField(targetType, tType2, name, c, receiverInContext);
+            // IP: we may still need the above hack because "here" is this.home in field initializers
+            fi = (X10FieldInstance) ts.findField(targetType, targetType, name, c, receiverInContext);
             if (isStatic && !fi.flags().isStatic())
                 throw new Errors.CannotAccessNonStaticFromStaticContext(fi, pos);
             assert (fi != null);
-            // substitute currentPlace back in.
-            fi = placeTerm == null ? fi : Subst.subst(fi, placeTerm, currentPlace);
+            //// substitute currentPlace back in.
+            //fi = placeTerm == null ? fi : Subst.subst(fi, placeTerm, currentPlace);
         } catch (SemanticException e) {
             fi = findAppropriateField(tc, targetType, name, isStatic, e);
         }
