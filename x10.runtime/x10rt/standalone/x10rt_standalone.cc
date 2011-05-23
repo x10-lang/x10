@@ -30,6 +30,17 @@
 #include <x10rt_net.h>
 
 //#define DEBUG // uncomment to turn on debug messages
+#define X10_NPLACES "X10_NPLACES" // environment variable
+#define X10RT_DATABUFFERSIZE 524300 // the size, in bytes, of the shared memory segment used for communications, per place
+
+
+// mechanisms for the callback functions used in the register and probe methods
+typedef void (*handlerCallback)(const x10rt_msg_params *);
+typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
+typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
+
+enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
+enum MSGSTATUS {COMPLETED, NEW, INPROCESS, WRAPPED};
 
 #if defined(__APPLE__)
 // Mac OS X doesn't support cross-process pthread mutexes, or pthread barriers,
@@ -314,17 +325,6 @@ int barrier_wait(pthread_barrier_t *barrier)
 }
 #endif // end platform-specific overrides of standard pthread stuff
 
-#define X10_NPLACES "X10_NPLACES" // environment variable
-#define X10RT_DATABUFFERSIZE 524300 // the size, in bytes, of the shared memory segment used for communications, per place
-
-
-// mechanisms for the callback functions used in the register and probe methods
-typedef void (*handlerCallback)(const x10rt_msg_params *);
-typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
-typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
-
-enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
-enum MSGSTATUS {COMPLETED, NEW, INPROCESS, WRAPPED};
 
 struct x10StandaloneMessageQueueEntry
 {
@@ -394,7 +394,7 @@ x10rt_copy_sz getTotalLength(x10StandaloneMessageQueueEntry* entry)
 }
 
 // adds a new entry into the buffer of the receiving end.
-void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy_sz dataLen, void* origGetDataPtr)
+void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy_sz dataLen, void* remoteDataPtr)
 {
 	x10StandalonePlaceState *dest = state.perPlaceState[p->dest_place]; // pointer to make this more readable
 	x10StandaloneMessageQueueEntry *entry = NULL;
@@ -477,8 +477,8 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len, &dataPtr, sizeof(void *));
 	else if (mt == GET_COMPLETED)
 	{
-		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len, origGetDataPtr, sizeof(void *));
-		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len+sizeof(void *), &dataPtr, dataLen);
+		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len, &remoteDataPtr, sizeof(void *));
+		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len+sizeof(void *), dataPtr, dataLen);
 	}
 	else if (dataLen > 0)
 		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len, dataPtr, dataLen);
@@ -784,13 +784,17 @@ void x10rt_net_probe (void)
 
 				// send the data to the other side
 				mp.dest_place = entry->from;
-				insertNewMessage(GET_COMPLETED, &mp, src, entry->payloadLen, (char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen);
+				void* dest;
+				memcpy(&dest, ((char*)entry)+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen, sizeof(void*));
+				insertNewMessage(GET_COMPLETED, &mp, src, entry->payloadLen, dest);
 			}
 			break;
 			case GET_COMPLETED:
 			{
 				// copy over the contents of the shared memory
-				memcpy((void *)((char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen), (char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen+sizeof(void *), entry->payloadLen);
+				void * dest;
+				memcpy(&dest, (char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen, sizeof(void*));
+				memcpy(dest, (void*)((char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen+sizeof(void *)), entry->payloadLen);
 
 				notifierCallback ncb = state.callBackTable[mp.type].notifier;
 				ncb(&mp, entry->payloadLen);
