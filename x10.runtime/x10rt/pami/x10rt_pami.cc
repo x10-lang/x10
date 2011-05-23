@@ -596,13 +596,19 @@ static void team_creation_complete (pami_context_t   context,
 	if (result != PAMI_SUCCESS)
 		error("Error detected in team_creation_complete");
 
-
-	x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
+	if (cookie)
+	{
+		x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
+		#ifdef DEBUG
+			fprintf(stderr, "New team %u created at place %u\n", team->teamIndex, state.myPlaceId);
+		#endif
+		team->cb2(team->teamIndex, team->arg);
+		free(team);
+	}
 	#ifdef DEBUG
-		fprintf(stderr, "New team %u created at place %u\n", team->teamIndex, state.myPlaceId);
+	else
+		fprintf(stderr, "New team created at place %u\n", state.myPlaceId);
 	#endif
-	team->cb2(team->teamIndex, team->arg);
-	free(team);
 }
 
 /*
@@ -1197,7 +1203,7 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 	{
 		// use HFI remote operations
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u executing a remote %u operations %u on %p at place %u using HFI\n", numOps, state.myPlaceId, type, (void*)victim, place);
+			fprintf(stderr, "Place %u executing a remote %u operations using HFI\n", numOps, state.myPlaceId);
 		#endif
 		if (state.numParallelContexts)
 			status = state.hfi_update (getConcurrentContext(), numOps, (hfi_remote_update_info_t*)ops);
@@ -1224,6 +1230,9 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 			PAMI_Context_lock(context);
 		}
 
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u executing a remote operations\n", state.myPlaceId);
+		#endif
 		for (size_t i=0; i<numOps; i++)
 		{
 			if ((status = PAMI_Endpoint_create(state.client, ops[i].dest, 0, &operation.dest)) != PAMI_SUCCESS)
@@ -1231,9 +1240,6 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 			operation.remote = (void*)ops[i].dest_buf;
 			operation.value = &ops[i].value;
 			operation.operation = (pami_atomic_t)ops[i].op;
-			#ifdef DEBUG
-				fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
-			#endif
 			status = PAMI_Rmw(context, &operation);
 		}
 		if (!state.numParallelContexts)
