@@ -2073,9 +2073,16 @@ public class Errors {
 
 		private static final long serialVersionUID = -3288674805766816121L;
 
-		public MultipleMethodDefsMatch(Collection<MethodInstance> mis, String name, Position p) {
-            super("Multiple methods match " + name + " " + mis, p);
+		private MultipleMethodDefsMatch(String str, Position p) {
+            super(str, p);
         }
+		public static SemanticException make(Collection<MethodInstance> mis, String name, Position p) {
+		    String str = "Multiple methods match " + name + ": ";
+		    for (MethodInstance mi : mis) {
+		        str += "\n\t" + mi;
+		    }
+		    return new MultipleMethodDefsMatch(str, p);
+		}
     }
     
     public static class SuperCallCannotEstablishSuperType extends SemanticException {
