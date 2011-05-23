@@ -2609,7 +2609,8 @@ public class Emitter {
 	        actual = ((ConstrainedType) actual).baseType().get();
 	    }
 	    CastExpander expander = new CastExpander(w, this, e);
-	    if (actual.isNull() || e.isConstant() && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
+	    if (actual.isNull() || e.isConstant() && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)
+	            && (!expectedBase.isAny())) {
 	        prettyPrint(e, tr);
 	    }
 	    // for primitive
@@ -2628,6 +2629,11 @@ public class Emitter {
 	            if (!isNoArgumentType(e) || expected instanceof ConstrainedType) {
 	                expander = expander.castTo(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	                expander = expander.castTo(actual).castTo(expectedBase).castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	                expander.expand(tr);
+	            }
+	            else if (expectedBase.isAny() || expectedBase.isParameterType()) {
+	                // when expected type is T or Any, include an explicit boxing transformation
+	                expander = expander.boxTo(actual).castTo(expectedBase);
 	                expander.expand(tr);
 	            }
 	            else {
