@@ -228,7 +228,7 @@ public abstract class InnerClassRemover extends ContextVisitor {
     }
 
     protected ClassDecl fixClassDecl(ClassDecl cd) {
-        if (isInner(cd.classDef())) {
+        if (cd.classDef().isMember() && !cd.flags().flags().isStatic()) {
             cd.classDef().setWasInner(true);
             cd.classDef().flags(cd.classDef().flags().Static());
             Flags f = cd.classDef().flags();
