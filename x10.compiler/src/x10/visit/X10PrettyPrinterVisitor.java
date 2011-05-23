@@ -2208,7 +2208,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write(".");
         w.write("instanceof$(");
+
+        Type exprType = Types.baseType(c.expr().type());
+        boolean needParen = false;
+        if (exprType.isUInt()) {
+        	er.printBoxConversion(exprType);
+        	w.write("(");
+        	needParen = true;
+        }
+
         tr.print(c, c.expr(), w);
+
+        if (needParen) {
+        	w.write(")");
+        }
 
         if (t instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) t;
