@@ -1023,7 +1023,7 @@ public class LineNumberMap extends StringTable {
 		    	CPPLineInfo cppDebugInfo = x10toCPPlist.get(i);
 		    	if (cppDebugInfo.x10line == previousLine)
 		    	{
-		    		if (cppDebugInfo.x10column >= previousColumn)
+		    		if (cppDebugInfo.x10column > previousColumn)
 			    		x10toCPPlist.remove(i); // keep the previous one, delete this one
 		    		else
 		    		{
@@ -1383,7 +1383,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B051710, // 2011-05-23, 16:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B051711, // 2011-05-23, 17:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
