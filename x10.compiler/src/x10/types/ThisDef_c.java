@@ -36,13 +36,14 @@ import x10.types.constraints.TypeConstraint;
 public class ThisDef_c extends VarDef_c implements ThisDef {
     private static final long serialVersionUID = 8939235355633300017L;
 
-    public ThisDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> type) {
-        super(ts, pos, Flags.FINAL, type, ThisDef.THIS);
-        ClassType t = Types.get(type);
-       // String fullNameWithThis = t.def().fullName() + "#this";
-       // XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        // TODO: Check -- do we really mean t here?
-        thisVar = CTerms.makeThis(t); // CTerms.makeThis(fullNameWithThis); //XTerms.makeLocal(thisName);
+    public ThisDef_c(TypeSystem ts, Position pos, 
+                     Ref<? extends ClassType> qType,
+                     Ref<? extends ClassType> baseType) {
+        super(ts, pos, Flags.FINAL, baseType, ThisDef.THIS);
+        ClassType bt = Types.get(baseType);
+        XVar baseVar = CTerms.makeThis(bt);  
+        thisVar =  qType==null?  baseVar
+                : CTerms.makeQualifiedVar(qType.get(), baseVar);
     }
 
     public String toString() {

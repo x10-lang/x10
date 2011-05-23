@@ -28,10 +28,12 @@ import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.FloatLit;
 import polyglot.ast.Formal;
+import polyglot.ast.Id_c;
 import polyglot.ast.IntLit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.Local_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
@@ -68,6 +70,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.X10CompilerOptions;
+import x10.errors.Errors.IllegalConstraint;
 import x10.errors.Warnings;
 import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
@@ -78,6 +81,7 @@ import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast;
 import x10.ast.X10Instanceof;
+import x10.ast.X10Local_c;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
 import x10.ast.X10ClassDecl_c;
@@ -395,9 +399,23 @@ public class Desugarer extends ContextVisitor {
     private static Expr desugarNew(final New new_c, ContextVisitor v) {
         return desugarCall(new_c, null, new_c, null, v);
     }
-    private static void addCheck(ArrayList<Expr> booleanGuard, CConstraint constraint, final Name selfName, final NodeFactory nf, final TypeSystem ts, final Position pos) {
+    /**
+     * 
+     * @param booleanGuard
+     * @param constraint
+     * @param selfName
+     * @param baseType -- for use in generating code from any occurrence of self in constraint
+     * @param nf
+     * @param ts
+     * @param pos
+     */
+    private static void addCheck(ArrayList<Expr> booleanGuard, CConstraint constraint, 
+                                 final Name selfName, final Type baseType, 
+                                 final NodeFactory nf, 
+                                 final TypeSystem ts, final Position pos) {
         if (constraint==null) return;
-        final List<Expr> guardExpr = new Synthesizer(nf, ts).makeExpr(constraint, pos);  // note: this doesn't typecheck the expression, so we're missing type info.
+        final List<Expr> guardExpr 
+        = new Synthesizer(nf, ts).makeExpr(constraint, baseType, pos);  // note: this doesn't typecheck the expression, so we're missing type info.
         for (Expr e : guardExpr) {
             e = (Expr) e.visit( new NodeVisitor() {
                 @Override
@@ -418,7 +436,8 @@ public class Desugarer extends ContextVisitor {
     private static <T> T reinstantiate(TypeParamSubst typeParamSubst, T t) {
         return typeParamSubst==null ? t : typeParamSubst.reinstantiate(t);
     }
-    private static Expr desugarCall(final Expr n, final Call call_c, final New new_c, final Binary binary_c, ContextVisitor v) {
+    private static Expr desugarCall(final Expr n, final Call call_c, 
+                                    final New new_c, final Binary binary_c, ContextVisitor v) {
         final NodeFactory nf = v.nodeFactory();
         final TypeSystem ts = v.typeSystem();
         final Job job = v.job();
@@ -544,12 +563,25 @@ public class Desugarer extends ContextVisitor {
         ArrayList<Expr> booleanGuard = new ArrayList<Expr>();
         if (guardRefConstraint!=null) {
             final CConstraint guard = reinstantiate(typeParamSubst, guardRefConstraint.get());
-            addCheck(booleanGuard,guard, null, nf, ts, pos);
+            // self cannot occur in the constraint, hence null can be passed as the type.
+            addCheck(booleanGuard,guard, null, null, nf, ts, pos);
         }
         // add the constraints of the formals
         for (LocalDef localDef : procDef.formalNames()) {
-            CConstraint constraint = Types.xclause(reinstantiate(typeParamSubst, Types.get(localDef.type())));
-            addCheck(booleanGuard,constraint, localDef.name(), nf, ts, pos);
+            Type type = reinstantiate(typeParamSubst, Types.get(localDef.type()));
+            CConstraint constraint = Types.xclause(type);
+            LocalInstance li = localDef.asInstance();
+            Receiver r = new X10Local_c(pos, new Id_c(pos, localDef.name())).localInstance(li);
+            r = ((X10Local_c) r).type(li.type());
+            XVar selfVar=null;
+            try {
+                selfVar = (XVar) localDef.typeSystem().xtypeTranslator().translate(constraint, r, context);
+            } catch (IllegalConstraint z) {
+                /// what do we do?
+            }
+            if (selfVar != null)
+                constraint = constraint.instantiateSelf(selfVar);
+            addCheck(booleanGuard,constraint, localDef.name(), type, nf, ts, pos);
         }
 
         // replace old formals in depExpr with the new locals
@@ -794,7 +826,9 @@ public class Desugarer extends ContextVisitor {
                     c = c.substitute(PlaceChecker.here(), (XVar) here.term());
                 } catch (XFailure e) { }
             }
-            DepParameterExpr res = nf.DepParameterExpr(tn.position(), new Synthesizer(nf, ts).makeExpr(c, tn.position()));
+            DepParameterExpr res 
+            = nf.DepParameterExpr(tn.position(), 
+                          new Synthesizer(nf, ts).makeExpr(c, t, tn.position()));
             res = (DepParameterExpr) res.visit(new X10TypeBuilder(job, ts, nf)).visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(context().pushDepType(tn.typeRef())));
             return res;
         }

@@ -257,7 +257,6 @@ public class Matcher {
 	        			try {
 	        				Type rt = me.returnType(); // may be a macrotype
 	        				rt = Subst.subst(rt, currentPlace, codePlace);
-	        			
 	        				Type newReturnType = Subst.subst(rt, y2eqv, x2, Y, X);
 	        				// Replace all outer#this variables in the constraint
 	        				// (if any) by QualifiedVar's.
@@ -447,7 +446,7 @@ public class Matcher {
 						Types.baseType(xtype), context2))
 					newMe = newMe.checkConstraintsAtRuntime(true);
 				else
-					throw new Errors.InvalidParameter(ytype, xtype, me.position());
+					throw Errors.InvalidParameter.make(i, newMe, ytype, xtype, context2, me.position());
 			}
 		}
 		// Update the types to reflect the newly computed formalTypes.

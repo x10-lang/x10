@@ -3,6 +3,7 @@
  */
 package x10.types.constraints;
 
+import polyglot.ast.Typed;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import x10.constraint.XLocal;
@@ -15,7 +16,7 @@ import x10.types.X10LocalDef;
  * @author vj
  *
  */
-public class CLocal extends XLocal<X10LocalDef> {
+public class CLocal extends XLocal<X10LocalDef> implements Typed {
     
     String s; // just for documentation
     public CLocal(X10LocalDef ld) {
@@ -30,6 +31,9 @@ public class CLocal extends XLocal<X10LocalDef> {
     public X10LocalDef localDef() {
         return name;
     }
+    /** Return the type of this variable.
+     * 
+     */
     public Type type() {
         return Types.get(name.type());
     }

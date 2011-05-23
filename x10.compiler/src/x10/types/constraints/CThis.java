@@ -4,6 +4,7 @@ package x10.types.constraints;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.Typed;
 import polyglot.types.Type;
 
 import x10.constraint.XEQV;
@@ -15,7 +16,7 @@ import x10.constraint.XVar;
 
 /**
  * An optimized representation of this variables.
- * Keeps only an int index. Equality involves only
+ * Keeps an int index and a type. Equality involves only
  * int equality.
  * 
  * <p>Code is essentially a copy of CSelf. Do not want to
@@ -24,19 +25,16 @@ import x10.constraint.XVar;
  * @author vj
  *
  */
-public class CThis extends XRoot {
+public class CThis extends XRoot  implements Typed {
     
     public final int num;
-    // The name may contain outer this qualifier information.
-    // This will be used by the synthesizer to generate code
-    // for constrained type casts.
+    //CHECK: The outer qualifier information is now carried in an
+    // enclosing QualifiedVar.
     public final Type type;
-    public CThis(int n) {
-       this(null, n);
-    }
-    public CThis(Type type, int n) {
+ 
+    public CThis(int n, Type type) {
         this.num=n;
-        this.type=type;
+        this.type = type;
     }
     
     @Override
@@ -44,13 +42,28 @@ public class CThis extends XRoot {
         return num;
     }
     
-
+    /**
+     * Return the type of this.
+     * Note: A Qualified this, A.this, is represented as a CThis (this) wrapped inside
+     * a QualifiedVar (with qualifier A). A.this's type is the type of the QualifiedVar,
+     * namely, A.
+     */
+    public Type type() {
+        return type;
+    }
+    @Override
+    public XTerm subst(XTerm y, XVar x, boolean propagate) {
+        XTerm r = super.subst(y, x, propagate);
+            return r;
+    }
     public boolean okAsNestedTerm() {
     	return true;
     }
     public boolean hasVar(XVar v) {
         return equals(v);
     }
+    
+  
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -61,12 +74,9 @@ public class CThis extends XRoot {
         return false;
     }
 
-    public Type type() {
-        return type;
-    }
     @Override
     public String toString() {
-        return type == null ? CTerms.THIS_VAR_PREFIX : type.toString()+"#this";
+        return  CTerms.THIS_VAR_PREFIX + (type != null ? "(:" + type + ")" : "");
       
     }
 }

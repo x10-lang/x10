@@ -203,6 +203,8 @@ public class Context implements Resolver, Cloneable
     protected Type switchType=null;
     protected Stack<Ref<CConstraint>> cStack=null;
     
+    protected boolean specialAsQualifiedVar=false;
+    
     public Context(TypeSystem ts) {
         this.ts = ts;
         this.outer = null;
@@ -291,6 +293,10 @@ public class Context implements Resolver, Cloneable
      * invocation statement. (Java Language Spec, 2nd Edition, 8.1.2)
      */
     public boolean inStaticContext() { return skipDepType().staticContext; }
+    
+    public boolean specialAsQualifiedVar() {
+        return specialAsQualifiedVar || inDepType();
+    }
 
     /**
      * Returns whether the particular symbol is defined locally.  If it isn't
@@ -659,7 +665,7 @@ public class Context implements Resolver, Cloneable
     }
 
     /**
-     * Gets a field of a particular name. The lookupComtext is the context in 
+     * Gets a field of a particular name. The lookupContext is the context in 
      * which the field is being looked up, this is typically a lower context 
      * than the class context in which the field is defined. This lower context
      * may have additional constraints, such as the type bounds for the 
@@ -1067,6 +1073,18 @@ public class Context implements Resolver, Cloneable
         return v;
     }
     
+    /**
+     * In a context marked as SpecialAsQualifiedVar a qualified this, 
+     * A.this is returned as a 
+     * QualifiedVar instead of the this var in the appropriate outer 
+     * context.
+     */
+    
+    public Context pushSpecialAsQualifiedVar() {
+        Context c = pushBlock();
+        c.specialAsQualifiedVar=true;
+        return c;
+    }
     public Context pushFinishScope(boolean isClocked) {
         if (reporter.should_report(TOPICS, 4))
             reporter.report(4, "push finish scope");

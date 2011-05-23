@@ -25,6 +25,7 @@ import polyglot.ast.Local;
 import polyglot.ast.Receiver;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Typed;
 import polyglot.ast.Unary;
 import polyglot.ast.Variable;
 import polyglot.ast.Binary.Operator;
@@ -71,6 +72,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
+import x10.types.constraints.QualifiedVar;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -753,7 +755,13 @@ public class XTypeTranslator {
         return null;
     }
 
-    private XTerm trans(CConstraint c, X10Special t, Context xc0, boolean tl) {
+    private XTerm trans(CConstraint c, X10Special term, Context xc, boolean tl) {
+        return trans(c, term, xc);
+    }
+    public XTerm trans(CConstraint c, X10Special t, Context xc0) {
+        if (xc0.specialAsQualifiedVar()) {
+            return translateSpecialAsQualified(c,t,xc0);
+        }
         Context xc = xc0;
         if (t.kind() == X10Special.SELF) {
             if (c == null) {
@@ -761,6 +769,12 @@ public class XTypeTranslator {
                 return null;
             }
             XVar v = (XVar) c.self().clone();
+         // Need to deal with qualified guy as well.
+            TypeNode tn = t.qualifier();
+            if (tn != null) {
+                Type q = Types.baseType(tn.type());
+                v = CTerms.makeQualifiedVar(q, v);
+            }
             return v;
         }
         else {
@@ -781,7 +795,6 @@ public class XTypeTranslator {
                     }
                 }
             }
-            // why is this code not in X10Context_c.thisVar()?
             XVar thisVar = null;
             for (Context outer = xc; outer != null && thisVar == null; outer = outer.pop()) {
                 thisVar = outer.thisVar();
@@ -790,10 +803,61 @@ public class XTypeTranslator {
                 SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
                 return null;
             }
-            // vj: Need to set the thisVar for the constraint.
             if (c != null)
                 c.setThisVar(thisVar);
             return thisVar;
+        }
+    }
+    public XTerm translateSpecialAsQualified(CConstraint c, X10Special t, Context xc0) {
+        Context xc = xc0;
+        if (t.kind() == X10Special.SELF) {
+            if (c == null) {
+                //throw new SemanticException("Cannot refer to self outside a dependent clause.");
+                return null;
+            }
+            XVar v = (XVar) c.self().clone();
+            // Need to deal with qualified guy as well.
+            TypeNode tn = t.qualifier();
+            if (tn != null) {
+                Type q = Types.baseType(tn.type());
+                v = CTerms.makeQualifiedVar(q, v);
+            }
+            return v;
+        }
+        // this. why are we doing nothing about super..?
+        XVar baseThisVar = null;
+        for (Context outer = xc; outer != null && baseThisVar == null; outer = outer.pop()) {
+            baseThisVar = outer.thisVar();
+        }
+        if (baseThisVar == null) {
+            SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
+            return null;
+        }
+        if (baseThisVar instanceof QualifiedVar) {
+            QualifiedVar qVar = (QualifiedVar) baseThisVar;
+            if (qVar.type() == ((Typed) qVar.receiver()).type())
+                baseThisVar = qVar.receiver();
+        }
+        assert (baseThisVar instanceof CThis);
+        XVar thisVar = baseThisVar;
+        try {
+            TypeNode tn = t.qualifier();
+            if (tn == null) {
+                return thisVar;
+            }
+            Type q = Types.baseType(tn.type());
+            // So we need to translate A.this in a deptype.
+            // The result should not be the this-associated-with-
+            // the-outer-A in the context.
+            // Rather it needs to be a QualifiedVar capturing
+            // A as a qualifier. 
+            // Return the qualified version of the base this.
+            thisVar = (((CThis)baseThisVar).type()==q)
+            ? baseThisVar : CTerms.makeQualifiedVar(q, baseThisVar);
+            return thisVar;
+        } finally {
+            if (c != null)
+                c.setThisVar(baseThisVar);
         }
     }
     private XTerm trans(CConstraint c, Field t, Context xc, boolean tl)  throws IllegalConstraint {

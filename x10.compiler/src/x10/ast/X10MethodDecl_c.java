@@ -554,13 +554,17 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                             // while expanding this expression we might recursively type check the same method
                             XTerm v = null;
                             try {
-                               v = ts.xtypeTranslator().translate((CConstraint) null, r.expr(), tc.context(), true);
-                               ok = true;
-                               X10MethodDef mi = (X10MethodDef) this.mi;
-                               if (mi.body() instanceof LazyRef<?>) {
-                                   LazyRef<XTerm> bodyRef = (LazyRef<XTerm>) mi.body();
-                                   bodyRef.update(v);
-                               }
+                                Context cxt = tc.context();
+                                // Translate the body with the SpecialAsQualifiedVar 
+                                // bit turned on. 
+                                cxt = cxt.pushSpecialAsQualifiedVar();
+                                v = ts.xtypeTranslator().translate((CConstraint) null, r.expr(), cxt, true);
+                                ok = true;
+                                X10MethodDef mi = (X10MethodDef) this.mi;
+                                if (mi.body() instanceof LazyRef<?>) {
+                                    LazyRef<XTerm> bodyRef = (LazyRef<XTerm>) mi.body();
+                                    bodyRef.update(v);
+                                }
                             } catch (IllegalConstraint z) {
                             	Errors.issue(tc.job(),z);
                             }
@@ -1096,7 +1100,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		if (nn.returnType() instanceof UnknownTypeNode && X10FieldDecl_c.shouldInferType(this, tc.typeSystem())) {
 			NodeFactory nf = tc.nodeFactory();
-			TypeSystem ts = (TypeSystem) tc.typeSystem();
+			TypeSystem ts = tc.typeSystem();
 			// Body had no return statement.  Set to void.
 			Type t;
 			if (!ts.isUnknown(nn.returnType().typeRef().getCached())) {

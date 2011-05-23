@@ -1916,7 +1916,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = CTerms.makeThis(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+            thisVar = CTerms.makeThis();  
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
@@ -1953,7 +1953,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         MethodInstance mi = (MethodInstance) jmi;
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = CTerms.makeThis(); //XTerms.makeLocal(XTerms.makeFreshName("this"));
+            thisVar = CTerms.makeThis();  
         return implemented(mi, mi.container(), thisVar);
     }
 

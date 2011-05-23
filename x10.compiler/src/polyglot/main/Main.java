@@ -194,7 +194,7 @@ public class Main
       }
   }
 
-  static ExtensionInfo loadExtension(String ext) throws TerminationException {
+  public static ExtensionInfo loadExtension(String ext) throws TerminationException {
     if (ext != null && ! ext.equals("")) {
       Class<?> extClass = null;
 

@@ -3042,9 +3042,14 @@ public class TypeSystem_c implements TypeSystem
         return new ThisInstance_c(this, pos, def);
     }
 
-    public ThisDef thisDef(Position pos, Ref<? extends ClassType> type) {
-        assert_(type);
-        return new ThisDef_c(this, pos, type);
+    public ThisDef thisDef(Position pos, Ref<? extends ClassType> baseType) {
+        assert_(baseType);
+        return new ThisDef_c(this, pos, null, baseType);
+    }
+    public ThisDef thisDef(Position pos, Ref<? extends ClassType> qType, 
+                           Ref<? extends ClassType> baseType) {
+        assert_(baseType);
+        return new ThisDef_c(this, pos, qType, baseType);
     }
     
     public InitializerInstance createInitializerInstance(Position pos, Ref<? extends InitializerDef> def) {
@@ -3433,11 +3438,14 @@ public class TypeSystem_c implements TypeSystem
 					newFields.add(fi);
 				}
 
-
+				
 			}
 			fields = newFields;
 		}
 		if (fields.size() == 0) {
+		    if (matcher.name().toString().equals("rank")) {
+		        int q =1;
+		    }
 		    throw new NoMemberException(NoMemberException.FIELD,
 		                                "Field " + matcher.signature() +
 		                                " not found in type \"" +

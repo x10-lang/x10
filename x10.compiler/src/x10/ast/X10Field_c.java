@@ -276,16 +276,17 @@ public class X10Field_c extends Field_c {
                 // Now try 0-ary property methods.
                 try {
                     MethodInstance mi = ts.findMethod(target.type(), 
-                                                      ts.MethodMatcher(target.type(), name.id(), Collections.<Type>emptyList(), c));
+                           ts.MethodMatcher(target.type(), name.id(), 
+                                            Collections.<Type>emptyList(), c));
                     if (mi.flags().isProperty()) {
                         Call call = nf.Call(pos, target, this.name);
                         call = call.methodInstance(mi);
                         Type nt = mi.rightType();
                         if (c.inDepType()) {
-                                nt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
+                                nt = Checker.rightType(nt, mi.x10Def(), target, c);
                         } else {
                         	try {
-                             nt =  Checker.expandCall(mi.rightType(), call, c);
+                             nt =  Checker.expandCall(nt, call, c);
                         	} catch (IllegalConstraint z) {
                         		// ignore, we will go with mi.rightType.
                         	}
