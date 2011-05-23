@@ -1474,12 +1474,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 er.prettyPrint(right, tr);
                 w.write("))");
             } else {
-            	// x10.rtt.Equality.equalsequals(#0,#1)
-            	w.write("x10.rtt.Equality.equalsequals(");
+                // x10.rtt.Equality.equalsequals(#0,#1)
+                w.write("x10.rtt.Equality.equalsequals(");
+                if (l.isUnsignedNumeric()) {
+                    er.printBoxConversion(l);
+                }
+                w.write("("); // required for printBoxConversion
                 er.prettyPrint(left, tr);
-            	w.write(",");
+                w.write(")");
+                w.write(",");
+                if (r.isUnsignedNumeric()) {
+                    er.printBoxConversion(r);
+                }
+                w.write("("); // required for printBoxConversion
                 er.prettyPrint(right, tr);
-            	w.write(")");
+            	w.write("))");
             }
             return;
         }
@@ -1497,10 +1506,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else {
             	// (!x10.rtt.Equality.equalsequals(#0,#1))
             	w.write("(!x10.rtt.Equality.equalsequals(");
+                if (l.isUnsignedNumeric()) {
+                    er.printBoxConversion(l);
+                }
+                w.write("(");
                 er.prettyPrint(left, tr);
+                w.write(")");
             	w.write(",");
+                if (r.isUnsignedNumeric()) {
+                    er.printBoxConversion(r);
+                }
+                w.write("(");
                 er.prettyPrint(right, tr);
-            	w.write("))");
+            	w.write(")))");
             }
             return;
         }
