@@ -67,18 +67,20 @@ public class PlaceChecker {
 		return HERE;
 	}
 
+	private static final String PLACE_HAME = "here"; // temporary XTENLANG-2674 hack
+
 	/**
 	 * 
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
 	public static XTerm makePlace() {
-		XTerm place = XTerms.makeUQV("_place");
+		XTerm place = XTerms.makeUQV(PLACE_HAME);
 
 		return place;
 	}
 
 	public static boolean isGlobalPlace(XTerm term) {
-		return (term instanceof XEQV && term.toString().startsWith("_place"));
+		return (term instanceof XEQV && term.toString().startsWith(PLACE_HAME));
 	}
 
 	static XTerm thisHomeVar(Context xc) {
