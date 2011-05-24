@@ -84,7 +84,7 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
     public UInt $plus(UInt a, Type t) { return UInt.$box($value + a.$value); }
     public UInt $minus(UInt a, Type t) { return UInt.$box($value - a.$value); }
     public UInt $times(UInt a, Type t) { return UInt.$box($value * a.$value); }
-    public UInt $over(UInt a, Type t) { return UInt.$box($value / a.$value); }
+    public UInt $over(UInt a, Type t) { return UInt.$box(Unsigned.div($value,a.$value)); }
     
     // implements Bitwise<UInt>
     public UInt $tilde$G() { return UInt.$box(~$value); }
@@ -92,12 +92,12 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
     public UInt $bar(UInt a, Type t) { return UInt.$box($value | a.$value); }
     public UInt $caret(UInt a, Type t) { return UInt.$box($value ^ a.$value); }
     public UInt $left$G(final int count) { return UInt.$box($value << count); }
-    public UInt $right$G(final int count) { return UInt.$box($value >> count); }
+    public UInt $right$G(final int count) { return UInt.$box($value >>> count); } // UInt is always unsigned
     public UInt $unsigned_right$G(final int count) { return UInt.$box($value >>> count); }        
     
     // implements Ordered<UInt>. Rely on autoboxing of booleans
-    public Object $lt(UInt a, Type t) { return $value < a.$value; }
-    public Object $gt(UInt a, Type t) { return $value > a.$value; }
-    public Object $le(UInt a, Type t) { return $value <= a.$value; }
-    public Object $ge(UInt a, Type t) { return $value >= a.$value; }
+    public Object $lt(UInt a, Type t) { return Unsigned.lt($value,a.$value); }
+    public Object $gt(UInt a, Type t) { return Unsigned.gt($value,a.$value); }
+    public Object $le(UInt a, Type t) { return Unsigned.le($value,a.$value); }
+    public Object $ge(UInt a, Type t) { return Unsigned.ge($value,a.$value); }
 }
