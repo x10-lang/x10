@@ -15,16 +15,16 @@ import x10.compiler.tests.*; // err markers
 import harness.x10Test;
 
 /**
- * See XTENLANG_2329 (Method guards are not type checked on calls to unary operators or closures.)
+ * See XTENLANG-2329 (Method guards are not type checked on calls to unary operators or closures.)
  * @author bdlucas 10/2008
  */
-public class XTENLANG_2329(x:Int) extends x10Test {
+public class XTENLANG_2329_MustFailCompile(x:Int) extends x10Test {
     public operator - this{x==0} : Int = 1; 
-    public operator this * (g:XTENLANG_2329){x==0} = 2;
+    public operator this * (g:XTENLANG_2329_MustFailCompile){x==0} = 2;
     public operator this(i:Int){x==0} = 3;
     public operator this(i:Int) = (j:Int){x==0}  = 4;
 
-    def test(g1:XTENLANG_2329, g2:XTENLANG_2329) {
+    def test(g1:XTENLANG_2329_MustFailCompile, g2:XTENLANG_2329_MustFailCompile) {
         @ERR val a = -g1;
         @ERR val b = g1*g2;
         @ERR val c = g1(42);
@@ -38,6 +38,6 @@ public class XTENLANG_2329(x:Int) extends x10Test {
     public def run() = true;
 
     public static def main(Array[String](1)) {
-        new XTENLANG_2329(5).execute();
+        new XTENLANG_2329_MustFailCompile(5).execute();
     }
 }

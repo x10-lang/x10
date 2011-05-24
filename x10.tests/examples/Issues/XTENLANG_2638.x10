@@ -14,9 +14,9 @@ import harness.x10Test;
 import x10.compiler.tests.*; // err markers
 import x10.util.*;
 
-class XTENLANG_2638
+class XTENLANG_2638 extends x10Test
 {
-    public static def main (arg:Array[String](1)) : void
+    public def run () : Boolean
     {
         val mShape = ((1..100) * (1..200)) as Region(2);
         val mDist:Dist(2) = Dist.makeBlock(mShape);
@@ -35,6 +35,12 @@ class XTENLANG_2638
                 }
             }
         }
+        return true;
+    }
+
+    public static def main (arg:Array[String](1)) : void
+    {
+        new XTENLANG_2638().execute();
     }
 }
 
