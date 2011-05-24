@@ -275,7 +275,7 @@ public class Errors {
         public static NewIncompatibleType make(Expr expr, Type targetType, ContextVisitor tc, Position pos) {
             Type type = expr.type(), bType = Types.baseType(type), bTargetType = Types.baseType(targetType);
             TypeSystem ts = tc.typeSystem();
-            assert (ts.isSubtype(bType, bTargetType, tc.context()));
+           // assert (ts.isSubtype(bType, bTargetType, tc.context()));
            //     return new NewIncompatibleType(expr, bType, bTargetType, pos);
             // base types are compatible, constraints are not.
             CConstraint 
