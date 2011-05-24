@@ -2312,20 +2312,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	        public void run() {
 	            try {
 	                Type newRetType = Subst.subst(zmj.returnType(), y, x, new Type[] { }, new ParameterType[] { });
-	              newRetType = PlaceChecker.ReplaceHereByPlaceTerm(newRetType, (Context) context);
+	                newRetType = PlaceChecker.ReplaceHereByPlaceTerm(newRetType, (Context) context);
 	                final boolean isStatic =  zmj.flags().isStatic();
 	                // add in this.home=here clause.
 	                if (! isStatic  && ! Types.isX10Struct(mi.container())) {
-	                	try {
-	                		if ( y.length > 0 && y[0] instanceof XEQV)
-	                		newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
-
-	                	} catch (XFailure z) {
-	                		throw new InternalCompilerError("Unexpectedly inconsistent place constraint.");
-	                	}
+	                    if (y.length > 0 && y[0] instanceof XEQV)
+	                        newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
 	                }
-	                if ( y.length > 0 && y[0] instanceof XEQV) // this is a synthetic variable
-	                	newRetType = Subst.project(newRetType, (XVar) y[0]);  			
+	                if (y.length > 0 && y[0] instanceof XEQV) // this is a synthetic variable
+	                    newRetType = Subst.project(newRetType, (XVar) y[0]);  			
 	                tref.update(newRetType);
 	            }
 	            catch (SemanticException e) {

@@ -277,26 +277,29 @@ public class Matcher {
 	        				    }
 	        				}
 	        				if (! newReturnType.isVoid() && ! xts.isUnknown(newReturnType)) {
-	        					try {
-	        					    
-	        						newReturnType = Subst.addIn(newReturnType, returnEnv2);
-	        						if ((! isStatic) && (! yeqvIsSymbol) ) {
-	        							newReturnType = Subst.project(newReturnType, ythiseqv);
-	        						}
-	        						for (int i= 1; i < actuals.size()+1; ++i) {
-	        						    newReturnType = Subst.project(newReturnType, (XVar) ys[i]);  
-	        						    Type t = actualsIn.get(i-1);
-	        						    XVar self = t instanceof ConstrainedType 
-	        						    ? Types.selfVar((ConstrainedType) t) : null;
-	        						    if (self != null) 
-	        						        newReturnType = Subst.project(newReturnType, self);	
-	        						}
-	        					} catch (XFailure z) {
-	        						throw new Errors.InconsistentReturnType(newReturnType, me);
-	        					}
+	        				    Type nrt = Subst.addIn(newReturnType, returnEnv2);
+	        				    if (xts.consistent(nrt, context))
+	        				        newReturnType = nrt;
+	        				    if ((! isStatic) && (! yeqvIsSymbol) ) {
+	        				        nrt = Subst.project(newReturnType, ythiseqv);
+	        				        if (xts.consistent(nrt, context))
+	        				            newReturnType = nrt;
+	        				    }
+	        				    for (int i= 1; i < actuals.size()+1; ++i) {
+	        				        nrt = Subst.project(newReturnType, (XVar) ys[i]);  
+	        				        if (xts.consistent(nrt, context))
+	        				            newReturnType = nrt;
+	        				        Type t = actualsIn.get(i-1);
+	        				        XVar self = t instanceof ConstrainedType ? Types.selfVar((ConstrainedType) t) : null;
+	        				        if (self != null) {
+	        				            nrt = Subst.project(newReturnType, self);
+	        				            if (xts.consistent(nrt, context))
+	        				                newReturnType = nrt;
+	        				        }
+	        				    }
 	        				}
 	        				if (! xts.consistent(newReturnType, context)) {
-	        					throw  new Errors.InconsistentReturnType(newReturnType, me);
+	        				    throw new Errors.InconsistentReturnType(newReturnType, me);
 	        				}
 	        				newReturnTypeRef.update(newReturnType);
 	        			}
@@ -334,12 +337,8 @@ public class Matcher {
 					t = Subst.subst(t, y2eqv, x2, Y, X); 
 					t = Subst.subst(t, currentPlace, codePlace);
 					if (! (env == null || env.valid())) {
-						try {
-							if (! isStatic)
-								t = Subst.addIn(t, env); 
-						} catch (XFailure z) {
-							t = xts.unknownType(me.position());
-						}
+						if (! isStatic)
+							t = Subst.addIn(t, env); 
 					}
 					if (! isStatic && ! yeqvIsSymbol) {
 						t = Subst.project(t, (XVar) ys[0]);

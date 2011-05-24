@@ -61,7 +61,7 @@ public class Subst {
      * @return -- The type t, with c added to each component (recursively).
      * @throws XFailure -- If one of the component types is inconsistent.
      */
-    public static Type addIn(Type t, CConstraint in) throws XFailure {
+    public static Type addIn(Type t, CConstraint in) {
         if (t == null)
             return null;
 
