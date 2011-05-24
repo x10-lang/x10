@@ -90,7 +90,10 @@ public class OuterThisTests(i:Int) extends x10Test {
         val x = o.new X("x");
         x.m(o.i);
         x.m(3);
-        @ERR { x.m(4);  }
+        try {
+            @ERR { x.m(4); }
+            return false;
+        } catch (FailedDynamicCheckException) { }
 
         return true;
     }
