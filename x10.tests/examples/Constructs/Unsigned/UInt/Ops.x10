@@ -31,10 +31,26 @@ public class Ops extends x10Test {
 	if (3u * 4u != 12u) return false;
 	if (4u / 3u != 1u) return false;
 	if (4u % 3u != 1u) return false;
+
+	if (3u.compareTo(3u) != 0) 			{ p(" (3u.compareTo(3u) != 0) 		    "); return false; }
+	if (4u.compareTo(0xFFFFffffU) != -1)		{ p(" (4u.compareTo(0xFFFFffffU) != -1)	    "); return false; }
+	if (0xF0000001u.compareTo(0xF0000000u) != 1)    { p(" (0xF0000001u.compareTo(0xF0000000u) != 1 "); return false; }
+
+	val u3 = 3u as Comparable[UInt];
+	val uf = 0xFFFFffffU as Comparable[UInt];
+	val u4 = 4u as Comparable[UInt];
+	if (u3.compareTo(3u) != 0) 			{ p(" (u3.compareTo(3u) != 0) 		    "); return false; }
+	if (u4.compareTo(0xFFFFffffU) != -1)		{ p(" (u4.compareTo(0xFFFFffffU) != -1)	    "); return false; }
+	if (uf.compareTo(0xF0000000u) != 1)    		{ p(" (uf.compareTo(0xF0000000u) != 1 "); return false; }
+
 	return true;
     }
 
     public static def main(Array[String]) {
         new Ops().execute();
+    }
+
+    public static def p(msg:Any) {
+	Console.OUT.println(msg);
     }
 }
