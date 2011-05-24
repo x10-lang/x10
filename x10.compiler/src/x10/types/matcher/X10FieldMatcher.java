@@ -59,13 +59,9 @@ public class X10FieldMatcher {
        
             if (! contextKnowsReceiver) {
             	tconst.addIn(v, c);
-            	try {
-            		//CConstraint tc2 = tconst.copy().project(tconst.self());
-            	    CConstraint tc2 = tconst.exists();
-            		t = Subst.addIn(t, tc2);
-            	} catch (XFailure z) {
-            		Types.setInconsistent(t);
-            	}
+            	//CConstraint tc2 = tconst.copy().project(tconst.self());
+            	CConstraint tc2 = tconst.exists();
+            	t = Subst.addIn(t, tc2);
             }
             t = Types.constrainedType(Types.baseType(t), tconst);
             
