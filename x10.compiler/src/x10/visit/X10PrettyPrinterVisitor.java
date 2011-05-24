@@ -1620,6 +1620,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private static boolean canBeNonVirtual(X10ClassDef def) {
     	return allMethodsFinal(def) || doesNotHaveMethodBody(def);
     }
+    
+    public static boolean isBoxedType(Type t) {
+        return t.isAny() || t.isParameterType();
+    }
 
     @Override
     public void visit(X10Call_c c) {
@@ -1794,7 +1798,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             else {
                 if (isPrimitiveRepedJava(e.type())) {
                     // e.g) m((Integer) a) for m(T a)
-                    if (xts.isParameterType(defType) || xts.isAny(defType)) {
+                    if (isBoxedType(defType)) {
                         // this can print something like '(int)' or 'UInt.$box' depending on the type
                         // we require the parentheses to be printed below 
                         er.printBoxConversion(e.type());
@@ -1928,7 +1932,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 // without NO_CHECKS flag
 
                 // e.g. any as Int (any:Any), t as Int (t:T)
-                if ((xts.isParameterType(exprType) || xts.isAny(Types.baseType(exprType))) && xts.isStruct(castType)) {
+                if (isBoxedType(exprType) && xts.isStruct(castType)) {
                 	// N.B. castType.isUnsignedNumeric() must be before isPrimitiveRepedJava(castType)
                 	// since Int and UInt are @NativeRep'ed to the same Java primive int.
                 	if (castType.isUnsignedNumeric()) {
@@ -2047,7 +2051,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write("(");
                         }
                         closeParen = true;
-                    } else if (exprType.isUInt() && (castType.isAny() || castType.isParameterType())) {
+                    } else if (exprType.isUnsignedNumeric() && isBoxedType(castType)) {
                     	er.printBoxConversion(exprType);
                     	w.write("(");
                         closeParen = true;
@@ -2144,8 +2148,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             assert target instanceof Expr;
             boolean closeParen = false;
-            Type fieldType = n.fieldInstance().type();
-            if (xts.isStruct(target.type()) && n.type().isNumeric() && (fieldType.isParameterType() || fieldType.isAny())) {
+            Type fieldType = n.fieldInstance().def().type().get();
+            if (xts.isStruct(target.type()) && n.type().isNumeric() && isBoxedType(fieldType)) {
                 closeParen = er.printUnboxConversion(n.type());
             }
             w.begin(0);

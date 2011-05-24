@@ -2610,7 +2610,7 @@ public class Emitter {
 	    }
 	    CastExpander expander = new CastExpander(w, this, e);
 	    if (actual.isNull() || e.isConstant() && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)
-	            && (!expectedBase.isAny())) {
+	            && isBoxedType(expectedBase)) {
 	        prettyPrint(e, tr);
 	    }
 	    // for primitive
@@ -2631,7 +2631,7 @@ public class Emitter {
 	                expander = expander.castTo(actual).castTo(expectedBase).castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	                expander.expand(tr);
 	            }
-	            else if (expectedBase.isAny() || expectedBase.isParameterType()) {
+	            else if (isBoxedType(expectedBase)) {
 	                // when expected type is T or Any, include an explicit boxing transformation
 	                expander = expander.boxTo(actual).castTo(expectedBase);
 	                expander.expand(tr);
@@ -3605,5 +3605,8 @@ public class Emitter {
         }
         return false;
     }
-
+    
+    public static boolean isBoxedType(Type t) {
+        return X10PrettyPrinterVisitor.isBoxedType(t);
+    }
 }
