@@ -21,9 +21,9 @@ import harness.x10Test;
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.compiler.tests.*; // err markers
 
-public class StructObscuringExample extends x10Test { 
+public class StructObscuringExample_MustFailCompile extends x10Test { 
   public static def main(Array[String](1)){
-     val p = new StructObscuringExample();
+     val p = new StructObscuringExample_MustFailCompile();
      p.execute();
   }
   public def run():Boolean {
@@ -42,6 +42,6 @@ struct eg {
    def example() {
        val eg = Bite();
        assert eg.ow() == 2;
-       assert eg.eg.ow() == 1; // ShouldNotBeERR
-     }
+       assert eg.eg.ow() == 1; // ERR: Field eg not found in type "eg.eg.Bite{self==eg}"
+   }
 }
