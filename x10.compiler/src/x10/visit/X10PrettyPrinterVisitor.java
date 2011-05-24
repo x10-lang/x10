@@ -1622,7 +1622,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
     
     public static boolean isBoxedType(Type t) {
-        return t.isAny() || t.isParameterType();
+        if (t.isBoolean() || t.isChar() ||
+                (t.isNumeric() && (t.isUInt() || !t.isUnsignedNumeric())))
+            return false;
+        else
+            return true;
     }
 
     @Override
