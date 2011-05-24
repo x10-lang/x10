@@ -23,31 +23,26 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-class X {}
-class Y {}
-
-class A[C] {
-    def this() = {};
-    def this(i:int):A[C]{C<:X} = {};
-}
-
-
 public class TypedefNew08 extends TypedefTest {
+    static class X {}
+    static class Y {}
 
-	static type T[C] = A[C];
-	static type TX = A[X];
-	static type TY = A[Y];
+    static class A[C] {
+        def this() = {};
+        def this(i:int):A[C]{C<:X} = {};
+    }
+
+    static type T[C] = A[C];
+    static type TX = A[X];
+    static type TY = A[Y];
     public def run(): boolean = {
-        
-      
-
         // sanity check
         val a1 = new A[X]();
         val a2 = new A[X](0);
 
         // allowed
         val t1:A[X] = new TX();   // A[X] <: A[X]
-        val t3:A[X] = new TX(0);  // A[X] <: A[X}{X<:X}
+        val t3:A[X] = new TX(0);  // A[X] <: A[X]{X<:X}
         val t2:A[Y] = new TY();   // A[Y] <: A[Y]
 
         return result;

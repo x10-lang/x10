@@ -13,31 +13,26 @@ import harness.x10Test;
 import x10.compiler.tests.*;
 
 /**
-
  * See XTENLANG-2389.
- * 
+ *
  * @author vj 5/2011
  */
-
-
 public class DynamicOuterTests extends x10Test {
     static class A (i:Int) {
         class X(j:String) {
             def m(Int{self==A.this.i}){}
             def n(a:A, x:A{self.i==a.i}.X{self.j=="x"}){}
         }
-
     }
 
     public def run(): boolean = {
-            val a = new A(3);
-            val x = a.new X("x");
-            x.m(a.i);
-            x.m(3);
-         //   @ERR { x.m(4);  }
-            var b:A=a;
-            x.n(b, x);
-            
+        val a = new A(3);
+        val x = a.new X("x");
+        x.m(a.i);
+        x.m(3);
+        // @ERR { x.m(4);  }
+        var b:A=a;
+        x.n(b, x);
         return true;
     }
 
