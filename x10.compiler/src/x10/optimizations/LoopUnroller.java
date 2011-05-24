@@ -723,7 +723,7 @@ public class LoopUnroller extends ContextVisitor {
             Expr remainderLoopMinIdx= local(loopMaxDecl.localDef());
             LocalDecl remainderLoopInit= localDecl(loopVarName, intTypeNode(), remainderLoopMinIdx);
             Expr remainderCond= le(local(remainderLoopInit.localDef()), local(maxDecl.localDef()));
-            ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(newLoopVarInit.localDef())));
+            ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(remainderLoopInit.localDef())));
             Stmt remainderLoop= xnf.For(PCG, Arrays.<ForInit>asList(remainderLoopInit), remainderCond, Arrays.asList(remainderUpdate), (Stmt) fLoop.body().copy());
 
             unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, newForStmt, remainderLoop);
