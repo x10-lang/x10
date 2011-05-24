@@ -745,7 +745,7 @@ public class Emitter {
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
 	    }
-	    else if (X10PrettyPrinterVisitor.isString(type, tr.context())) {
+	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type, tr.context())) {
 	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
@@ -770,7 +770,7 @@ public class Emitter {
 //	        w.write(")");
 	        return true;
 	    }
-	    else if (X10PrettyPrinterVisitor.isString(type, tr.context())) {
+	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type, tr.context())) {
 	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
 	        return true;
