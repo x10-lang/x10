@@ -271,7 +271,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @param x the given UShort
      * @return the given UShort converted to a Short.
      */
-    @Native("java", "((short)(#x.shortVal))")
+    @Native("java", "((short)(#x))")
     @Native("c++",  "((x10_short) (#1))")
     public native static operator (x:UShort) as Short;
 
@@ -296,7 +296,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * @param radix the radix to use in the String representation
      * @return a String representation of this Short in the specified radix.
      */
-    @Native("java", "x10.core.Signed.toString(#this, #radix)")
+    @Native("java", "x10.core.Signed.toString((short)#this, #radix)")
     @Native("c++", "x10aux::short_utils::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
@@ -304,7 +304,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * Returns a String representation of this Short as a hexadecimal number.
      * @return a String representation of this Short as a hexadecimal number.
      */
-    @Native("java", "x10.core.Signed.toString(#this, 16)")
+    @Native("java", "x10.core.Signed.toString((short)#this, 16)")
     @Native("c++", "x10aux::short_utils::toHexString(#0)")
     public native def toHexString(): String;
 
@@ -312,7 +312,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * Returns a String representation of this Short as an octal number.
      * @return a String representation of this Short as an octal number.
      */
-    @Native("java", "x10.core.Signed.toString(#this, 8)")
+    @Native("java", "x10.core.Signed.toString((short)#this, 8)")
     @Native("c++", "x10aux::short_utils::toOctalString(#0)")
     public native def toOctalString(): String;
 
@@ -320,7 +320,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * Returns a String representation of this Short as a binary number.
      * @return a String representation of this Short as a binary number.
      */
-    @Native("java", "x10.core.Signed.toString(#this, 2)")
+    @Native("java", "x10.core.Signed.toString((short)#this, 2)")
     @Native("c++", "x10aux::short_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;
 
@@ -328,7 +328,7 @@ public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Sh
      * Returns a String representation of this Short as a decimal number.
      * @return a String representation of this Short as a decimal number.
      */
-    @Native("java", "java.lang.Short.toString(#this)")
+    @Native("java", "java.lang.Short.toString((short)#this)")
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
 

@@ -272,7 +272,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param x the given UByte
      * @return the given UByte converted to a Byte.
      */
-    @Native("java", "((byte)(#x.byteVal))")
+    @Native("java", "((byte)(#x))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static operator (x:UByte) as Byte;
 
@@ -296,7 +296,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * @param radix the radix to use in the String representation
      * @return a String representation of this Byte in the specified radix.
      */
-    @Native("java", "x10.core.Signed.toString(#this, #radix)")
+    @Native("java", "x10.core.Signed.toString((byte)#this, #radix)")
     @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
@@ -304,7 +304,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Returns a String representation of this Byte as a hexadecimal number.
      * @return a String representation of this Byte as a hexadecimal number.
      */
-    @Native("java", "x10.core.Signed.toString(#this, 16)")
+    @Native("java", "x10.core.Signed.toString((byte)#this, 16)")
     @Native("c++", "x10aux::byte_utils::toHexString(#0)")
     public native def toHexString(): String;
 
@@ -312,7 +312,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Returns a String representation of this Byte as an octal number.
      * @return a String representation of this Byte as an octal number.
      */
-    @Native("java", "x10.core.Signed.toString(#this, 8)")
+    @Native("java", "x10.core.Signed.toString((byte)#this, 8)")
     @Native("c++", "x10aux::byte_utils::toOctalString(#0)")
     public native def toOctalString(): String;
 
@@ -320,7 +320,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Returns a String representation of this Byte as a binary number.
      * @return a String representation of this Byte as a binary number.
      */
-    @Native("java", "x10.core.Signed.toString(#this, 2)")
+    @Native("java", "x10.core.Signed.toString((byte)#this, 2)")
     @Native("c++", "x10aux::byte_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;
 
@@ -328,7 +328,7 @@ public struct Byte implements Comparable[Byte] /*TODO implements Arithmetic[Byte
      * Returns a String representation of this Byte as a decimal number.
      * @return a String representation of this Byte as a decimal number.
      */
-    @Native("java", "java.lang.Byte.toString(#this)")
+    @Native("java", "java.lang.Byte.toString((byte)#this)")
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
 

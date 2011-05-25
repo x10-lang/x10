@@ -585,7 +585,10 @@ public class Emitter {
 		boxedPrimitives.put("x10.lang.Long", "java.lang.Long");
 		boxedPrimitives.put("x10.lang.Float", "java.lang.Float");
 		boxedPrimitives.put("x10.lang.Double", "java.lang.Double");
+		boxedPrimitives.put("x10.lang.UByte", "x10.core.UByte");
+		boxedPrimitives.put("x10.lang.UShort", "x10.core.UShort");
 		boxedPrimitives.put("x10.lang.UInt", "x10.core.UInt");
+		boxedPrimitives.put("x10.lang.ULong", "x10.core.ULong");
 	}
 	private static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
 	    String pat = getJavaRep(def);
@@ -740,7 +743,7 @@ public class Emitter {
 	
 	public void printBoxConversion(Type type) {
 	    // treat unsigned types specially
-	    if (type.isUInt()) {
+	    if (type.isUnsignedNumeric()) {
 	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
@@ -766,7 +769,7 @@ public class Emitter {
 	 * @return Returns true if an additional closing parenthesis needs to be printed after expression
 	 */
 	public boolean printUnboxConversion(Type type) {
-	    if (type.isUInt()) {
+	    if (type.isUnsignedNumeric()) {
 	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
 	        w.write("(");
@@ -1392,7 +1395,7 @@ public class Emitter {
     }
 
     private static void buildMangledMethodName(ClassType ct, StringBuilder sb, int i, Type type, boolean printIncludingGeneric) {
-        if (type.isUInt()) {
+        if (type.isUnsignedNumeric()) {
             sb.append("$u" + i);
         }
         Type t = Types.baseType(type);
@@ -1852,7 +1855,7 @@ public class Emitter {
         	w.write("(");
             closeParen = true;
         }
-        if (impl.returnType().isUInt()) {
+        if (impl.returnType().isUnsignedNumeric()) {
         	printBoxConversion(impl.returnType());
         	w.write("(");
         	closeParen = true;
@@ -1969,7 +1972,7 @@ public class Emitter {
     	    }
     	    
     	    boolean closeParen = false;
-    	    if (mi.returnType().isUInt() && mi.def().returnType().get().isParameterType()) {
+    	    if (mi.returnType().isUnsignedNumeric() && mi.def().returnType().get().isParameterType()) {
     	        // handle unboxing of the UInt values
     	        closeParen = printUnboxConversion(mi.returnType());
     	    }
@@ -1990,7 +1993,7 @@ public class Emitter {
     	        if (isPrimitive(f) && isInstantiated(def.formalTypes().get(i).get(), f)) {
     	            printBoxConversion(f);
     	        }
-    	        w.write("(");
+    	        w.write("("); // required by printBoxConversion()
     	        Name name = Name.make("a" + (i + 1));
     	        w.write(name.toString());
     	        w.write(")");
@@ -2436,7 +2439,7 @@ public class Emitter {
                 }
                 
                 boolean needParen = false;
-                if (mi.returnType().isUInt()) {
+                if (mi.returnType().isUnsignedNumeric()) {
                 	printBoxConversion(mi.returnType());
                 	w.write("(");
                 	needParen = true;
@@ -2469,7 +2472,7 @@ public class Emitter {
                     boolean closeParen = false;
                     if (def.formalTypes().get(i).get() instanceof ParameterType) {
                         Type bf = Types.baseType(f);
-                        if (f.isUInt()) {
+                        if (f.isUnsignedNumeric()) {
                             closeParen = printUnboxConversion(f);
                 	        w.write("(");
                 	    	printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
@@ -3287,13 +3290,13 @@ public class Emitter {
 //            } else
             if (xts.isStruct(type)) {
                 if (xts.isUByte(type)) {
-                    zero = "(x10.lang.UByte) x10.rtt.Types.UBYTE_ZERO";
+                    zero = "(x10.core.UByte) x10.rtt.Types.UBYTE_ZERO";
                 } else if (xts.isUShort(type)) {
-                    zero = "(x10.lang.UShort) x10.rtt.Types.USHORT_ZERO";
+                    zero = "(x10.core.UShort) x10.rtt.Types.USHORT_ZERO";
                 } else if (xts.isUInt(type)) {
-                    zero = "(x10.lang.UInt) x10.rtt.Types.UINT_ZERO";
+                    zero = "(x10.core.UInt) x10.rtt.Types.UINT_ZERO";
                 } else if (xts.isULong(type)) {
-                    zero = "(x10.lang.ULong) x10.rtt.Types.ULONG_ZERO";
+                    zero = "(x10.core.ULong) x10.rtt.Types.ULONG_ZERO";
                 } else if (xts.isByte(type)) {
                     zero = "(byte) 0";
                 } else if (xts.isShort(type)) {

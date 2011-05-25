@@ -23,16 +23,18 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some ULong constants.
  */
-// @NativeRep("java", "long", null, "x10.rtt.Types.ULONG")
+@NativeRep("java", "long", null, "x10.rtt.Types.ULONG")
 @NativeRep("c++", "x10_ulong", "x10_ulong", null)
 public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULong], Ordered[ULong] {
 
 
     /** The actual number with Long representation */
+    /* disabled, because unboxed representation is used instead
     public val longVal:Long;
     public def this(value:Long) {
         this.longVal = value;
     }
+    */
 
     /**
      * A less-than operator.
@@ -41,11 +43,11 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is strictly less than the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.lt(#this, #1)")
+    @Native("java", "x10.core.Unsigned.lt(#this, #1)")
     @Native("c++",  "((#0) < (#1))")
-    public operator this < (x:ULong): Boolean {
+    public native operator this < (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) < (x.longVal + Long.MIN_VALUE);
-    }
+    } */
 
     /**
      * A greater-than operator.
@@ -54,11 +56,11 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is strictly greater than the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.gt(#this, #1)")
+    @Native("java", "x10.core.Unsigned.gt(#this, #1)")
     @Native("c++",  "((#0) > (#1))")
-    public operator this > (x:ULong): Boolean {
+    public native operator this > (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) > (x.longVal + Long.MIN_VALUE);
-    }
+    } */
 
     /**
      * A less-than-or-equal-to operator.
@@ -67,11 +69,11 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is less than or equal to the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.le(#this, #1)")
+    @Native("java", "x10.core.Unsigned.le(#this, #1)")
     @Native("c++",  "((#0) <= (#1))")
-    public operator this <= (x:ULong): Boolean {
+    public native operator this <= (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) <= (x.longVal + Long.MIN_VALUE);
-    }
+    } */
 
     /**
      * A greater-than-or-equal-to operator.
@@ -80,11 +82,11 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is greater than or equal to the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.ge(#this, #1)")
+    @Native("java", "x10.core.Unsigned.ge(#this, #1)")
     @Native("c++",  "((#0) >= (#1))")
-    public operator this >= (x:ULong): Boolean {
+    public native operator this >= (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) >= (x.longVal + Long.MIN_VALUE);
-    }
+    } */
 
 
     /**
@@ -94,9 +96,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the sum of this ULong and the other ULong.
      */
-    // @Native("java", "((#this) + (#1))")
+    @Native("java", "((#this) + (#1))")
     @Native("c++",  "((x10_ulong) ((#0) + (#1)))")
-    public operator this + (x:ULong): ULong = ULong(longVal + x.longVal);
+    public native operator this + (x:ULong): ULong; /* = ULong(longVal + x.longVal); */
 
     /**
      * A binary minus operator.
@@ -105,9 +107,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the difference of this ULong and the other ULong.
      */
-    // @Native("java", "((#this) - (#1))")
+    @Native("java", "((#this) - (#1))")
     @Native("c++",  "((x10_ulong) ((#0) - (#1)))")
-    public operator this - (x:ULong): ULong  = ULong(longVal - x.longVal);
+    public native operator this - (x:ULong): ULong; /* = ULong(longVal - x.longVal) */
 
     /**
      * A binary multiply operator.
@@ -116,9 +118,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the product of this ULong and the other ULong.
      */
-    // @Native("java", "((#this) * (#1))")
+    @Native("java", "((#this) * (#1))")
     @Native("c++",  "((x10_ulong) ((#0) * (#1)))")
-    public operator this * (x:ULong): ULong = ULong(longVal * x.longVal);
+    public native operator this * (x:ULong): ULong; /* = ULong(longVal * x.longVal) */
 
     /**
      * A binary divide operator.
@@ -126,22 +128,14 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the quotient of this ULong and the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.div(#this, #x)")
-    @Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.div(#this.longVal, #x.longVal))")
+    @Native("java", "x10.core.Unsigned.div(#this, #x)")
+    //@Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.div(#this.longVal, #x.longVal))") // boxed
     @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator this / (x:ULong): ULong {
+    public native operator this / (x:ULong): ULong; /*{
     	// TODO implement in X10
     	return 0UL;
-    	/*
-        if (longVal > 0 && x.longVal > 0)
-            return ULong(longVal / x.longVal);
-        // TODO
-        else if (longVal < x.longVal)
-            return 0L as ULong;
-        else
-            return 1L as ULong;
-    	*/
     }
+    */
 
     /**
      * A binary remainder operator.
@@ -149,31 +143,22 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the remainder from dividing this ULong by the other ULong.
      */
-    // @Native("java", "x10.core.Unsigned.rem(#this, #x)")
-    @Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.rem(#this.longVal, #x.longVal))")
+    @Native("java", "x10.core.Unsigned.rem(#this, #x)")
+    //@Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.rem(#this.longVal, #x.longVal))") // boxed
     @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator this % (x:ULong): ULong {
+    public native operator this % (x:ULong): ULong; /* {
     	// TODO implement in X10
     	return 0UL;
-    	/*
-        if (longVal > 0 && x.longVal > 0)
-            return ULong(longVal % x.longVal);
-        // TODO need check
-        else if (longVal < x.longVal)
-            return this;
-        else
-            return ULong(longVal - x.longVal);
-    	*/
-    }
+    } */
 
     /**
      * A unary plus operator.
      * A no-op.
      * @return the value of this ULong.
      */
-    // @Native("java", "((long) +(#this))")
+    @Native("java", "((long) +(#this))")
     @Native("c++",  "((x10_ulong) +(#0))")
-    public operator + this: ULong = this;
+    public native operator + this: ULong; /* = this; */
 
     /**
      * A unary minus operator.
@@ -181,9 +166,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * Overflows result in truncating the high bits.
      * @return the two's complement of this ULong.
      */
-    // @Native("java", "((long) -(#this))")
+    @Native("java", "((long) -(#this))")
     @Native("c++",  "((x10_ulong) -(#0))")
-    public operator - this: ULong = ULong(-(longVal));
+    public native operator - this: ULong; /* = ULong(-(longVal)); */
 
 
     /**
@@ -192,23 +177,23 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the bitwise AND of this ULong and the other ULong.
      */
-    // @Native("java", "((#this) & (#x))")
+    @Native("java", "((#this) & (#x))")
     @Native("c++",  "((x10_ulong) ((#0) & (#1)))")
-    public operator this & (x:ULong): ULong = ULong(longVal & x.longVal);
+    public native operator this & (x:ULong): ULong; /* = ULong(longVal & x.longVal); */
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(ULong)&(ULong)
      */
-    // @Native("java", "((#this) & (#x))")
+    @Native("java", "((#this) & (#x))")
     @Native("c++",  "((x10_ulong) ((#0) & (#1)))")
-    public operator (x:Long) & this: ULong = ULong(x & longVal);
+    public native operator (x:Long) & this: ULong; /* = ULong(x & longVal); */
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(ULong)&(ULong)
      */
-    // @Native("java", "((#this) & (#x))")
+    @Native("java", "((#this) & (#x))")
     @Native("c++",  "((x10_ulong) ((#0) & (#1)))")
-    public operator this & (x:Long): ULong = ULong(longVal & x);
+    public native operator this & (x:Long): ULong; /* = ULong(longVal & x); */
 
     /**
      * A bitwise or operator.
@@ -216,23 +201,23 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the bitwise OR of this ULong and the other ULong.
      */
-    // @Native("java", "((#this) | (#x))")
+    @Native("java", "((#this) | (#x))")
     @Native("c++",  "((x10_ulong) ((#0) | (#1)))")
-    public operator this | (x:ULong): ULong = ULong(longVal | x.longVal);
+    public native operator this | (x:ULong): ULong; /* = ULong(longVal | x.longVal); */
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(ULong)|(ULong)
      */
-    // @Native("java", "((#this) | (#x))")
+    @Native("java", "((#this) | (#x))")
     @Native("c++",  "((x10_ulong) ((#0) | (#1)))")
-    public operator (x:Long) | this: ULong = ULong(x | longVal);
+    public native operator (x:Long) | this: ULong; /* = ULong(x | longVal); */
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(ULong)|(ULong)
      */
-    // @Native("java", "((#this) | (#x))")
+    @Native("java", "((#this) | (#x))")
     @Native("c++",  "((x10_ulong) ((#0) | (#1)))")
-    public operator this | (x:Long): ULong = ULong(longVal | x);
+    public native operator this | (x:Long): ULong; /* = ULong(longVal | x); */
 
     /**
      * A bitwise xor operator.
@@ -240,23 +225,23 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the bitwise XOR of this ULong and the other ULong.
      */
-    // @Native("java", "((#this) ^ (#x))")
+    @Native("java", "((#this) ^ (#x))")
     @Native("c++",  "((x10_ulong) ((#0) ^ (#1)))")
-    public operator this ^ (x:ULong): ULong = ULong(longVal ^ x.longVal);
+    public native operator this ^ (x:ULong): ULong; /* = ULong(longVal ^ x.longVal); */
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(ULong)^(ULong)
      */
-    // @Native("java", "((#this) ^ (#x))")
+    @Native("java", "((#this) ^ (#x))")
     @Native("c++",  "((x10_ulong) ((#0) ^ (#1)))")
-    public operator (x:Long) ^ this: ULong = ULong(x ^ longVal);
+    public native operator (x:Long) ^ this: ULong; /* = ULong(x ^ longVal); */
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(ULong)^(ULong)
      */
-    // @Native("java", "((#this) ^ (#x))")
+    @Native("java", "((#this) ^ (#x))")
     @Native("c++",  "((x10_ulong) ((#0) ^ (#1)))")
-    public operator this ^ (x:Long): ULong = ULong(longVal ^ x);
+    public native operator this ^ (x:Long): ULong; /* = ULong(longVal ^ x); */
 
     /**
      * A bitwise left shift operator.
@@ -265,9 +250,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param count the shift count
      * @return this ULong shifted left by count.
      */
-    // @Native("java", "((#this) << (#count))")  // no mask. Java defines shift as masked.
+    @Native("java", "((#this) << (#count))")  // no mask. Java defines shift as masked.
     @Native("c++",  "((x10_ulong) ((#0) << (0x3f & (#1))))")
-    public operator this << (count:Int): ULong = ULong(longVal << count);
+    public native operator this << (count:Int): ULong; /* = ULong(longVal << count); */
 
     /**
      * A bitwise right shift operator.
@@ -277,9 +262,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param count the shift count
      * @return this ULong shifted right by count.
      */
-    // @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
+    @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
     @Native("c++",  "((x10_ulong) ((#0) >> (0x3f & (#1))))")
-    public operator this >> (count:Int): ULong = ULong(longVal >>> count);
+    public native operator this >> (count:Int): ULong; /* = ULong(longVal >>> count); */
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -290,18 +275,18 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param count the shift count
      * @return this ULong shifted right by count with high bits zero-filled.
      */
-    // @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
+    @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
     @Native("c++",  "((x10_ulong) ((#0) >> (0x3f & (#1))))")
-    public operator this >>> (count:Int): ULong = ULong(longVal >>> count);
+    public native operator this >>> (count:Int): ULong; /* = ULong(longVal >>> count); */
 
     /**
      * A bitwise complement operator.
      * Computes a bitwise complement (NOT) of the operand.
      * @return the bitwise complement of this ULong.
      */
-    // @Native("java", "((long) ~(#this))")
+    @Native("java", "((long) ~(#this))")
     @Native("c++",  "((x10_ulong) ~(#0))")
-    public operator ~ this: ULong = ULong(~(longVal));
+    public native operator ~ this: ULong; /* = ULong(~(longVal)); */
 
 
     /**
@@ -309,27 +294,27 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the given UByte
      * @return the given UByte converted to a ULong.
      */
-    // @Native("java", "((long) ((#x) & 0xffL))")
+    @Native("java", "((long) ((#x) & 0xffL))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public static operator (x:UByte): ULong = ULong(x.byteVal & 0xffL);
+    public static native operator (x:UByte): ULong; /* = ULong(x.byteVal & 0xffL); */
 
     /**
      * Coerce a given UShort to a ULong.
      * @param x the given UShort
      * @return the given UShort converted to a ULong.
      */
-    // @Native("java", "((long) ((#x) & 0xffffL))")
+    @Native("java", "((long) ((#x) & 0xffffL))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public static operator (x:UShort): ULong = ULong(x.shortVal & 0xffffL);
+    public static native operator (x:UShort): ULong; /* = ULong(x.shortVal & 0xffffL); */
 
     /**
      * Coerce a given UInt to a ULong.
      * @param x the given UInt
      * @return the given UInt converted to a ULong.
      */
-    // @Native("java", "((long) ((#x) & 0xffffffffL))")
+    @Native("java", "((long) ((#x) & 0xffffffffL))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public static operator (x:UInt): ULong = ULong(0xffffffffL & (x as Int));
+    public static native operator (x:UInt): ULong; /* = ULong(0xffffffffL & (x as Int)); */
 
 
     /**
@@ -337,67 +322,67 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the given Byte
      * @return the given Byte converted to a ULong.
      */
-    // @Native("java", "((long)(byte)(#x))")
+    @Native("java", "((long)(byte)(#x))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public static operator (x:Byte): ULong = ULong(x);
+    public static native operator (x:Byte): ULong; /* = ULong(x); */
 
     /**
      * Coerce a given Short to a ULong.
      * @param x the given Short
      * @return the given Short converted to a ULong.
      */
-    // @Native("java", "((long)(short)(#x))")
+    @Native("java", "((long)(short)(#x))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public static operator (x:Short): ULong = ULong(x);
+    public static native operator (x:Short): ULong; /* = ULong(x); */
 
     /**
      * Coerce a given Int to a ULong.
      * @param x the given Int
      * @return the given Int converted to a ULong.
      */
-    // @Native("java", "((long)(int)(#x))")
+    @Native("java", "((long)(int)(#x))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public static operator (x:Int): ULong = ULong(x);
+    public static native operator (x:Int): ULong; /* = ULong(x); */
 
     /**
      * Convert a given Float to a ULong.
      * @param x the given Float
      * @return the given Float converted to a ULong.
      */
-    // @Native("java", "((long)(float)(#x))")
+    @Native("java", "((long)(float)(#x))")
     @Native("c++",  "x10aux::float_utils::toULong(#1)")
-    public static operator (x:Float) as ULong = ULong(x as Long);
+    public static native operator (x:Float) as ULong; /* = ULong(x as Long); */
 
     /**
      * Convert a given Double to a ULong.
      * @param x the given Double
      * @return the given Double converted to a ULong.
      */
-    // @Native("java", "((long)(double)(#x))")
+    @Native("java", "((long)(double)(#x))")
     @Native("c++",  "x10aux::double_utils::toULong(#1)")
-    public static operator (x:Double) as ULong = ULong(x as Long);
+    public static native operator (x:Double) as ULong; /* = ULong(x as Long); */
 
     /**
      * Coerce a given Long to a ULong.
      * @param x the given Long
      * @return the given Long converted to a ULong.
      */
-    // @Native("java", "((long)(long)(#x))")
+    @Native("java", "((long)(#x))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public static operator (x:Long) as ULong = ULong(x);
+    public static native operator (x:Long) as ULong; /* = ULong(x); */
 
 
     /**
      * A constant holding the minimum value a ULong can have, 0.
      */
-    // @Native("java", "0L")
+    @Native("java", "0L")
     @Native("c++", "((x10_ulong)0LLU)")
     public static MIN_VALUE: ULong{self==0ul} = 0UL;
 
     /**
      * A constant holding the maximum value a ULong can have, 2<sup>64</sup>-1.
      */
-    // @Native("java", "0xffffffffffffffffL")
+    @Native("java", "0xffffffffffffffffL")
     @Native("c++", "0xffffffffffffffffLLU")
     public static MAX_VALUE: ULong{self==0xffffffffffffffffUL} = 0xffffffffffffffffUL;
 
@@ -407,48 +392,50 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param radix the radix to use in the String representation
      * @return a String representation of this ULong in the specified radix.
      */
+    @Native("java", "x10.core.Unsigned.toString(#this, #radix)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
-    public def toString(radix:Int): String {
+    public native def toString(radix:Int): String; /*  {
         val realRadix = (radix < 2 || 36 < radix) ? 10 : radix; 
         val hi:ULong = this/realRadix;
         val lo:ULong = this%realRadix;
         return hi == 0ul ? lo.longVal.toString(realRadix) :
                hi.longVal.toString(realRadix) + lo.longVal.toString(realRadix);
-    }
+    } */
 
     /**
      * Returns a String representation of this ULong as a hexadecimal number.
      * @return a String representation of this ULong as a hexadecimal number.
      */
     // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
-    @Native("java", "java.lang.Long.toHexString((#this).longVal)")
+    @Native("java", "java.lang.Long.toHexString(#this)")
     @Native("c++", "x10aux::long_utils::toHexString(#0)")
-    public def toHexString(): String = this.toString(16);
+    public native def toHexString(): String; /*  = this.toString(16); */
 
     /**
      * Returns a String representation of this ULong as an octal number.
      * @return a String representation of this ULong as an octal number.
      */
     // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
-    @Native("java", "java.lang.Long.toOctalString((#this).longVal)")
+    @Native("java", "java.lang.Long.toOctalString(#this)")
     @Native("c++", "x10aux::long_utils::toOctalString(#0)")
-    public def toOctalString(): String = this.toString(8);
+    public native def toOctalString(): String; /*  = this.toString(8); */
 
     /**
      * Returns a String representation of this ULong as a binary number.
      * @return a String representation of this ULong as a binary number.
      */
     // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
-    @Native("java", "java.lang.Long.toBinaryString((#this).longVal)")
+    @Native("java", "java.lang.Long.toBinaryString(#this)")
     @Native("c++", "x10aux::long_utils::toBinaryString(#0)")
-    public def toBinaryString(): String = this.toString(2);
+    public native def toBinaryString(): String; /*  = this.toString(2); */
 
     /**
      * Returns a String representation of this ULong as a decimal number.
      * @return a String representation of this ULong as a decimal number.
      */
+    @Native("java", "x10.core.Unsigned.toString(#this)")
     @Native("c++", "x10aux::to_string(#0)")
-    public def toString(): String = this.toString(10);
+    public native def toString(): String; /* = this.toString(10); */
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -475,13 +462,13 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the ULong represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable ULong.
      */
-    @Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.parseULong(#s, #radix))")
+    @Native("java", "x10.core.Unsigned.parseULong(#s, #radix)")
     @Native("c++", "x10aux::long_utils::parseULong(#1, #2)")
-    public static def parse(s:String, radix:Int): ULong //throws NumberFormatException 
+    public static native def parse(s:String, radix:Int): ULong; /*  //throws NumberFormatException 
     {
     	// TODO implement in X10
     	return 0UL;
-    }
+    } */
 
     /**
      * Parses the String argument as a decimal ULong.
@@ -503,9 +490,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * binary representation, that is, if it is equal to zero.
      * @return a ULong value with a single one-bit, in the position of the highest-order one-bit in this ULong, or zero if this ULong is itself equal to zero.
      */
-    // @Native("java", "java.lang.Long.highestOneBit(#this)")
+    @Native("java", "java.lang.Long.highestOneBit(#this)")
     @Native("c++", "((x10_ulong) x10aux::long_utils::highestOneBit(#0))")
-    public def highestOneBit(): ULong = ULong(this.longVal.highestOneBit());
+    public native def highestOneBit(): ULong; /*  = ULong(this.longVal.highestOneBit()); */
 
     /**
      * Returns a ULong value with at most a single one-bit, in the position
@@ -514,9 +501,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * binary representation, that is, if it is equal to zero.
      * @return a ULong value with a single one-bit, in the position of the lowest-order one-bit in this ULong, or zero if this ULong is itself equal to zero.
      */
-    // @Native("java", "java.lang.Long.lowestOneBit(#this)")
+    @Native("java", "java.lang.Long.lowestOneBit(#this)")
     @Native("c++", "((x10_ulong) x10aux::long_utils::lowestOneBit(#0))")
-    public def lowestOneBit(): ULong = ULong(this.longVal.lowestOneBit());
+    public native def lowestOneBit(): ULong; /*  = ULong(this.longVal.lowestOneBit()); */
 
     /**
      * Returns the number of zero bits preceding the highest-order ("leftmost")
@@ -525,9 +512,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * in other words if it is equal to zero.
      * @return the number of zero bits preceding the highest-order one-bit in the binary representation of this ULong, or 64 if this ULong is equal to zero.
      */
-    // @Native("java", "java.lang.Long.numberOfLeadingZeros(#this)")
+    @Native("java", "java.lang.Long.numberOfLeadingZeros(#this)")
     @Native("c++", "x10aux::long_utils::numberOfLeadingZeros(#0)")
-    public def numberOfLeadingZeros(): Int = this.longVal.numberOfLeadingZeros();
+    public native def numberOfLeadingZeros(): Int; /*  = this.longVal.numberOfLeadingZeros(); */
 
     /**
      * Returns the number of zero bits following the lowest-order ("rightmost")
@@ -536,9 +523,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * in other words if it is equal to zero.
      * @return the number of zero bits following the lowest-order one-bit in the binary representation of this ULong, or 64 if this ULong is equal to zero.
      */
-    // @Native("java", "java.lang.Long.numberOfTrailingZeros(#this)")
+    @Native("java", "java.lang.Long.numberOfTrailingZeros(#this)")
     @Native("c++", "x10aux::long_utils::numberOfTrailingZeros(#0)")
-    public def numberOfTrailingZeros(): Int = this.longVal.numberOfTrailingZeros();
+    public native def numberOfTrailingZeros(): Int; /*  = this.longVal.numberOfTrailingZeros(); */
 
     /**
      * Returns the number of one-bits in the binary representation
@@ -546,9 +533,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * to as the <i>population count</i>.
      * @return the number of one-bits in the binary representation of this ULong.
      */
-    // @Native("java", "java.lang.Long.bitCount(#this)")
+    @Native("java", "java.lang.Long.bitCount(#this)")
     @Native("c++", "x10aux::long_utils::bitCount(#0)")
-    public def bitCount(): Int = this.longVal.bitCount();
+    public native def bitCount(): Int; /*  = this.longVal.bitCount(); */
 
     /**
      * Returns the value obtained by rotating the binary representation
@@ -566,9 +553,9 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the value obtained by rotating the binary representation of this ULong left by the specified number of bits.
      * @see #rotateRight(Int)
      */
-    // @Native("java", "java.lang.Long.rotateLeft(#this, #distance)")
+    @Native("java", "java.lang.Long.rotateLeft(#this, #distance)")
     @Native("c++", "x10aux::long_utils::rotateLeft(#0, #1)")
-    public def rotateLeft(distance:Int): ULong = ULong(this.longVal.rotateLeft(distance));
+    public native def rotateLeft(distance:Int): ULong; /*  = ULong(this.longVal.rotateLeft(distance)); */
 
     /**
      * Returns the value obtained by rotating the binary representation
@@ -586,36 +573,36 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the value obtained by rotating the binary representation of this ULong right by the specified number of bits.
      * @see #rotateLeft(Int)
      */
-    // @Native("java", "java.lang.Long.rotateRight(#this, #distance)")
+    @Native("java", "java.lang.Long.rotateRight(#this, #distance)")
     @Native("c++", "x10aux::long_utils::rotateRight(#0, #1)")
-    public def rotateRight(distance:Int): ULong = ULong(this.longVal.rotateRight(distance));
+    public native def rotateRight(distance:Int): ULong; /*  = ULong(this.longVal.rotateRight(distance)); */
 
     /**
      * Returns the value obtained by reversing the order of the bits in the
      * binary representation of this ULong.
      * @return the value obtained by reversing order of the bits in this ULong.
      */
-    // @Native("java", "java.lang.Long.reverse(#this)")
+    @Native("java", "java.lang.Long.reverse(#this)")
     @Native("c++", "x10aux::long_utils::reverse(#0)")
-    public def reverse(): ULong = ULong(this.longVal.reverse());
+    public native def reverse(): ULong; /*  = ULong(this.longVal.reverse()); */
 
     /**
      * Returns the signum function of this ULong.  The return value is 0 if
      * this ULong is zero and 1 if this ULong is non-zero.
      * @return the signum function of this ULong.
      */
-    // @Native("java", "(((#this)==0L) ? 0 : 1)")
+    @Native("java", "(((#this)==0L) ? 0 : 1)")
     @Native("c++",  "(((#0)==0LLU) ? 0 : 1)")
-    public def signum(): Int = (this.longVal == 0L) ? 0 : 1;
+    public native def signum(): Int; /*  = (this.longVal == 0L) ? 0 : 1; */
 
     /**
      * Returns the value obtained by reversing the order of the bytes in the
      * representation of this ULong.
      * @return the value obtained by reversing the bytes in this ULong.
      */
-    // @Native("java", "java.lang.Long.reverseBytes(#this)")
+    @Native("java", "java.lang.Long.reverseBytes(#this)")
     @Native("c++", "((x10_ulong) x10aux::long_utils::reverseBytes((x10_long) #0))")
-    public def reverseBytes(): ULong = ULong(this.longVal.reverseBytes());
+    public native def reverseBytes(): ULong; /*  = ULong(this.longVal.reverseBytes()); */
 
 
     /**
@@ -624,18 +611,18 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the given entity
      * @return true if this ULong is equal to the given entity.
      */
-    // @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:Any):Boolean = x instanceof ULong && (x as ULong).longVal == this.longVal;
+    public native def equals(x:Any):Boolean; /*  = x instanceof ULong && (x as ULong).longVal == this.longVal; */
 
     /**
      * Returns true if this ULong is equal to the given ULong.
      * @param x the given ULong
      * @return true if this ULong is equal to the given ULong.
      */
-    // @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:ULong):Boolean = this.longVal == x.longVal;
+    public native def equals(x:ULong):Boolean; /*  = this.longVal == x.longVal; */
 
     /**
     * Returns a negative Int, zero, or a positive Int if this ULong is less than, equal
@@ -644,7 +631,12 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
     * @return a negative Int, zero, or a positive Int if this ULong is less than, equal
     * to, or greater than the given ULong.
     */
-    // @Native("java", "x10.rtt.Equality.compareTo(#this.longVal + java.lang.Long.MIN_VALUE, #x.longVal + java.lang.Long.MIN_VALUE)")
+    @Native("java", "x10.rtt.Equality.compareTo(#this + java.lang.Long.MIN_VALUE, #x + java.lang.Long.MIN_VALUE)")
     @Native("c++", "x10aux::long_utils::compareTo(#0, #1)")
-    public def compareTo(x:ULong): Int = (this.longVal + Long.MIN_VALUE).compareTo(x.longVal + Long.MIN_VALUE);
+    public native def compareTo(x:ULong): Int; /*  = (this.longVal + Long.MIN_VALUE).compareTo(x.longVal + Long.MIN_VALUE); */
+
+    @Native("java", "\"x10.lang.ULong\"")
+    public def typeName():String {
+        return "x10.lang.ULong";
+    }
 }

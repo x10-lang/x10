@@ -206,29 +206,29 @@ public abstract class Unsigned {
     }
     */
     
-    /*
-    // followings are correct but not used
-    public static String toString(byte a, int radix) {
+    public static java.lang.String toString(byte a, int radix) {
         return Integer.toString(toUInt(a), radix);
     }
-    public static String toString(byte a) {
+    public static java.lang.String toString(byte a) {
         return toString(a, 10);
     }
-    public static String toString(short a, int radix) {
+    public static java.lang.String toString(short a, int radix) {
         return Integer.toString(toUInt(a), radix);
     }
-    public static String toString(short a) {
+    public static java.lang.String toString(short a) {
         return toString(a, 10);
     }
-    public static String toString(int a, int radix) {
+    public static java.lang.String toString(int a, int radix) {
         return Long.toString(toULong(a), radix);
     }
-    public static String toString(int a) {
+    public static java.lang.String toString(int a) {
         return toString(a, 10);
     }
-    */
     public static java.lang.String toString(long a, int radix) {
         return toULONG(a).toString(radix);
+    }
+    public static java.lang.String toString(long a) {
+        return toULONG(a).toString();
     }
     /*
     // followings are correct but not used

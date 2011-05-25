@@ -1553,59 +1553,35 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Binary.Operator op = n.operator();
 
         boolean asPrimitive = false;
-        boolean boxedEquals = false;
         if (op == Binary.EQ || op == Binary.NE) {
             if (l.isNumeric() && r.isNumeric() || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
                 asPrimitive = true;
-                if (l.isUnsignedNumeric() || r.isUnsignedNumeric()) { 
-                    boxedEquals = true;
-                }
             }
         }
 
         boolean needParenl = false;
         if (asPrimitive) {
-            if (boxedEquals && (op == Binary.NE)) w.write("!");
             // TODO:CAST
             w.write("(");
-            if (boxedEquals) {
-            	er.printBoxConversion(l);
-            	w.write("(");
-            	needParenl = true;
-            } else {
-            	w.write("(");
-            	er.printType(l, 0);
-            	w.write(") ");
-            }
+        	w.write("(");
+        	er.printType(l, 0);
+        	w.write(") ");
         }
         n.printSubExpr(left, true, w, tr);
         if (needParenl) w.write(")");
         if (asPrimitive) w.write(")");
-        if (boxedEquals) {
-            w.write(".equals(");
-        } else {
-            w.write(" ");
-            w.write(op.toString());
-            w.allowBreak(n.type() == null || n.type().isJavaPrimitive() ? 2 : 0, " ");
-        }
-        boolean needParenr = false;
+        w.write(" ");
+        w.write(op.toString());
+        w.allowBreak(n.type() == null || n.type().isJavaPrimitive() ? 2 : 0, " ");
         if (asPrimitive) {
             // TODO:CAST
             w.write("(");
-            if (boxedEquals) {
-            	er.printBoxConversion(r);
-            	w.write("(");
-            	needParenr = true;
-            } else {
-            	w.write("(");
-            	er.printType(r, 0);
-            	w.write(") ");
-            }
+        	w.write("(");
+        	er.printType(r, 0);
+        	w.write(") ");
         }
         n.printSubExpr(right, false, w, tr);
-        if (needParenr) w.write(")");
         if (asPrimitive) w.write(")");
-        if (boxedEquals) w.write(")");
     }
 
     private static boolean allMethodsFinal(X10ClassDef def) {
@@ -1622,8 +1598,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
     
     public static boolean isBoxedType(Type t) {
-        if (t.isBoolean() || t.isChar() ||
-                (t.isNumeric() && (t.isUInt() || !t.isUnsignedNumeric())))
+        if (t.isBoolean() || t.isChar() || t.isNumeric())
             return false;
         else
             return true;
@@ -1974,12 +1949,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     // returns Object.
                     // e.g. (Boolean) m(a)
                     if (castType.typeEquals(Types.baseType(exprType), tr.context())) {
-                        boolean needParen = false;
+                        boolean closeParen = false;
                         if (expr instanceof X10Call || expr instanceof ClosureCall) {
-                            needParen = er.printUnboxConversion(castType);
+                            closeParen = er.printUnboxConversion(castType);
                         }
                         c.printSubExpr(expr, w, tr);
-                        if (needParen) w.write(")");
+                        if (closeParen) w.write(")");
                     } else {
                         w.write("("); // put "(Type) expr" in parentheses.
                         w.write("(");
@@ -2237,7 +2212,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         Type exprType = Types.baseType(c.expr().type());
         boolean needParen = false;
-        if (exprType.isUInt()) {
+        if (exprType.isUnsignedNumeric()) {
         	er.printBoxConversion(exprType);
         	w.write("(");
         	needParen = true;
@@ -2275,7 +2250,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         switch (n.kind()) {
         case ULONG:
             val = Long.toString(n.value()) + "L";
-            val = "x10.lang.ULong." + CREATION_METHOD_NAME + "(" + val + ")";
             break;
         case LONG:
             val = Long.toString(n.value()) + "L";
@@ -2288,14 +2262,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             break;
         case USHORT:
             val = Short.toString((short) n.value());
-            val = "x10.lang.UShort." + CREATION_METHOD_NAME + "((short) " + val + ")";
             break;
         case SHORT:
             val = Short.toString((short) n.value());
             break;
         case UBYTE:
             val = Byte.toString((byte) n.value());
-            val = "x10.lang.UByte." + CREATION_METHOD_NAME + "((byte) " + val + ")";
             break;
         case BYTE:
             val = Byte.toString((byte) n.value());
@@ -3551,7 +3523,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (xts.isBoolean(type)) {
                 w.write(" false");
             } else if (!xts.isParameterType(type) &&
-                    (!xts.isUnsigned(type) || xts.isUInt(type)) &&    // UInt is unboxed now, but UShort, ULong are not
                     (xts.isChar(type) || xts.isNumeric(type))) {
                 w.write(" 0");
             } else {
@@ -3812,8 +3783,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     public static boolean isPrimitiveRepedJava(Type t) {
-        return t.isBoolean() || t.isByte() || t.isShort() || t.isInt() || t.isLong() || t.isFloat() || t.isDouble()
-                || t.isChar() || t.isUInt();
+        return t.isBoolean() || t.isChar()  || t.isNumeric();
     }
 
     public static boolean hasParams(Type t) {

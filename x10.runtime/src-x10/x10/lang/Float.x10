@@ -188,7 +188,7 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
      * @param x the given UByte
      * @return the given UByte converted to a Float.
      */
-    @Native("java", "((float)(byte)(#x.byteVal))")
+    @Native("java", "((float)(byte)(#x))")
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:UByte): Float;
 
@@ -197,7 +197,7 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
      * @param x the given UShort
      * @return the given UShort converted to a Float.
      */
-    @Native("java", "((float)(short)(#x.shortVal))")
+    @Native("java", "((float)(short)(#x))")
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:UShort): Float;
 
@@ -215,7 +215,7 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
      * @param x the given ULong
      * @return the given ULong converted to a Float.
      */
-    @Native("java", "((float)(long)(#x.longVal))")
+    @Native("java", "((float)(long)(#x))")	// FIXME:incorrect conversion
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:ULong): Float;
 

@@ -30,7 +30,6 @@ import polyglot.frontend.Job;
 import polyglot.types.CodeDef;
 import polyglot.types.FunctionDef;
 import polyglot.types.FunctionInstance;
-import polyglot.types.MethodDef;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -47,7 +46,6 @@ import x10.emitter.Emitter;
 import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
-import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType_c;
 import x10.types.constraints.SubtypeConstraint;
@@ -85,7 +83,7 @@ public class JavaCaster extends ContextVisitor {
         n = typeBoundsReturnCast(parent, old, n);
         n = covReturnCast(parent, n);
         n = stringReturnCast(parent, n);
-        n = uintTCast(parent, n);
+        n = unsignedTCast(parent, n);
         if (X10PrettyPrinterVisitor.isSelfDispatch) {
             n = typeParamCast(parent, n);
         }
@@ -171,16 +169,16 @@ public class JavaCaster extends ContextVisitor {
         return n;
     }
     
-    private Node uintTCast(Node parent, Node n) throws SemanticException {
-        // Generic methods (return type T) can return boxed UInts (x10.core.UInt)
+    private Node unsignedTCast(Node parent, Node n) throws SemanticException {
+        // Generic methods (return type T) can return boxed unsigned number (e.g., x10.core.UInt)
         // but in the [UInt] subclass UInt is treated as unboxed int.
-        // We need to find all calls to T-typed methods and insert explicit cast to UInt,
-        // so that proper conversion method call is inserted later.
+        // We need to find all calls to T-typed methods and insert explicit cast to
+        // a concrete unsigned numeric type,  so that proper conversion method call is inserted later.
         if (n instanceof X10Call && !(parent instanceof Eval)) {
             X10Call call = (X10Call)n;
             Receiver target = call.target();
             MethodInstance mi = call.methodInstance();
-            if (!call.type().isUInt()) return n;
+            if (!call.type().isUnsignedNumeric()) return n;
             Type expectedReturnType = call.type();
             if (mi.def().returnType().get().isParameterType()) {
                 return cast(call, expectedReturnType);

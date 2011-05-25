@@ -21,7 +21,7 @@ public class Equality0 extends x10Test {
 	var r:Boolean = true;
         val u1 = 1u;
 	val u1any = u1 as Any;
-	val u2 = 0xFFFFffffU;
+	val u2 = 0xFFFFffffu;
 	val u2any = u2 as Any;
 	val v1any = (2u-1u) as Any;
 	val v2any = (0u-1u) as Any;
