@@ -759,7 +759,7 @@ public class XTypeTranslator {
         return trans(c, term, xc);
     }
     public XTerm trans(CConstraint c, X10Special t, Context xc0) {
-        if (xc0.specialAsQualifiedVar()) {
+        if (true || xc0.specialAsQualifiedVar()) {
             return translateSpecialAsQualified(c,t,xc0);
         }
         Context xc = xc0;

@@ -161,14 +161,14 @@ public class X10Special_c extends Special_c implements X10Special {
                 // variable
                 XTypeTranslator xt = xts.xtypeTranslator();
                 XVar var = (XVar)  xt.translate(cc, this, c);
-                XVar qualifiedVar = (XVar)  xt.translateSpecialAsQualified(cc, this, c);
+              /*  XVar qualifiedVar = (XVar)  xt.translateSpecialAsQualified(cc, this, c);
                 if (qualifiedVar != null && qualifiedVar != var
                         && qualifiedVar instanceof QualifiedVar) {
                     QualifiedVar qVar = (QualifiedVar) qualifiedVar;
                     if (qVar.receiver() != var) {
                         cc.addSelfBinding(qVar);
                     }
-                }
+                }*/
                 if (var != null)  {
                     cc.addSelfBinding(var);
                 }

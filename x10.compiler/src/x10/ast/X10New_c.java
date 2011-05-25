@@ -687,7 +687,8 @@ public class X10New_c extends New_c implements X10New {
      * variables whose types are determined by the static type of the receiver
      * and the actual arguments to the call.
      * 
-     * Also add the self.home==here clause.
+     * Also self.$$here==here.
+     * Add self!=null.
      */
     private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc, Expr outer) {
         if (xci == null)
@@ -695,7 +696,25 @@ public class X10New_c extends New_c implements X10New {
         Type type = xci.returnType();
         if (outer != null) {
             type = Types.addInOuterClauses(type, outer.type());
+        } else {
+            // this could still be a local class, and the outer this has to be captured.
+            Type baseType = Types.baseType(type);
+            if (baseType instanceof X10ClassType) {
+                X10ClassType ct = (X10ClassType) baseType;
+                if (ct.isLocal()) {
+                    Type outerT = ct.outer();
+                    CConstraint c = new CConstraint();
+                    Type outerTB = Types.baseType(outerT);
+                    if (outerTB instanceof X10ClassType) {
+                        X10ClassType outerct = (X10ClassType) outerTB;
+                        c.addSelfBinding(outerct.def().thisVar());
+                        outerT = Types.xclause(outerT, c);
+                        type = Types.addInOuterClauses(type, outerT);
+                    }
+                }
+            }
         }
+        
         TypeSystem ts = (TypeSystem) tc.typeSystem();
 
         if (ts.isStructType(type)) 
