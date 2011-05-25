@@ -16,8 +16,11 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Compiler;
+import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
+import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
+import polyglot.frontend.Scheduler;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -36,6 +39,7 @@ import x10.X10CompilerOptions;
 import x10.ast.InlinableCall;
 import x10.errors.Warnings;
 import x10.optimizations.ForLoopOptimizer;
+import x10.optimizations.Optimizer;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.visit.ConstructorSplitterVisitor;
@@ -51,8 +55,7 @@ public class DeclStore {
 
     private static final boolean DEBUG = false;
 
-    private Inliner inliner;
-    private Job job;
+    public  Job job;
     private final TypeSystem ts;
     private final NodeFactory nf;
     private final InlineCostEstimator ice;
@@ -64,11 +67,10 @@ public class DeclStore {
     private final int implicitMax;
 
 
-    public DeclStore(Inliner in) {
-        inliner                    = in;
-        job                        = in.job();
-        ts                         = in.typeSystem();
-        nf                         = in.nodeFactory();
+    public DeclStore(Job job, TypeSystem ts, NodeFactory nf) {
+        this.job                   = job;
+        this.ts                    = ts;
+        this.nf                    = nf;
         ice                        = new InlineCostEstimator(job, ts, nf);
         cache                      = new InlinerCache();
         extInfo                    = job.extensionInfo();
@@ -203,25 +205,23 @@ public class DeclStore {
     private Node getAST(Job job) {
         String source = job.source().toString().intern();
         Node ast = cache.getAST(source);
-        if (null == ast) {
-            try {
-                if (job == this.job) {
-                    ast = job.ast();
-                } else {
-                    ast = processAST(job);
-                }
-                assert null != ast;
-            } catch (Exception x) {
-                report("unable to process " + job, job.ast());
-                cache.badJob(job);
-                return null;
+        if (null != ast)
+            return ast;
+        Scheduler scheduler = extInfo.scheduler();
+        Optimizer opt = new Optimizer(scheduler, job);
+        Goal harvester = opt.Harvester();
+        try {
+            if (scheduler.attempt(harvester)) {
+                ast = cache.getAST(source);
+                return ast;
             }
-            cache.putAST(source, ast);
+            report("unable to process " + job, job.ast());
+        } catch (CyclicDependencyException e) {
+            report("unable to process " + job + "  exception: " + e, job.ast());
         }
-        return ast;
+        cache.badJob(job);
+        return null;
     }
-
-
 
     /**
      * @param job
@@ -326,7 +326,8 @@ public class DeclStore {
      * @param ast
      */
     private String report(String string, Node ast) {
-        return inliner.report(string, ast);
+//      return inliner.report(string, ast);
+        return string;
     }
 
 }

@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode;
 import polyglot.ast.SourceFile;
 import polyglot.types.QName;
+import polyglot.types.TypeSystem;
 import polyglot.types.reflect.ClassFileLoader;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -53,20 +55,25 @@ public class Compiler
     /** The error queue handles outputting error messages. */
     private ErrorQueue eq;
 
-    /** Information cached for use by the Inliner */
-    private SoftReference<DeclStore> inlinerDataRef = new SoftReference<DeclStore>(null);
+    /** AST information retained for use by the Inliner.
+     *
+     *  This needs to be preserved until all Job's have been inlined.
+     *  It may be blown away after the code-gen barrier.
+     *
+     */
+    private DeclStore inlinerData;
     
-    public DeclStore getInlinerData(Inliner inliner) {
-        DeclStore data = inlinerDataRef.get();
-        if (null == data) {
-            data = new DeclStore(inliner);
-            inlinerDataRef = new SoftReference<DeclStore>(data);
-        }
-        return data;
+    public DeclStore getInlinerData(Job job, TypeSystem ts, NodeFactory nf) {
+        if (null == inlinerData) 
+            inlinerData = new DeclStore(job, ts, nf);
+        else
+            inlinerData.job = job;
+        return inlinerData;
     }
 
     /** FIXME: TEMPRORARY Inliner hack: Errors in speculative compilation for inlining should not be fatal
      * @depricated DO NOT USE
+     * TODO remove this, if inlining results in an error, compilation should fail!
      */
     public ErrorQueue swapErrorQueue (ErrorQueue newEq) {
         ErrorQueue oldEq = eq;

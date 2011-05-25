@@ -139,7 +139,7 @@ public class Inliner extends ContextVisitor {
         super(job, ts, nf);
         syn                   = new AltSynthesizer(ts, nf);
         ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
-        repository            = extInfo.compiler().getInlinerData(this); // make soft reference hard for duration of this visitor
+        repository            = extInfo.compiler().getInlinerData(job, ts, nf);
         Configuration config  = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
         INLINE_CONSTANTS      = config.OPTIMIZE && config.INLINE_CONSTANTS;
         INLINE_METHODS        = config.OPTIMIZE && config.INLINE_METHODS;

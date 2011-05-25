@@ -22,8 +22,9 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
-import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
+import x10.X10CompilerOptions;
+import x10.optimizations.inlining.InlineDeclHarvester;
 import x10.optimizations.inlining.Inliner;
 import x10.visit.CodeCleanUp;
 import x10.visit.ConstantPropagator;
@@ -65,7 +66,7 @@ public class Optimizer {
     private final TypeSystem    ts;
     private final NodeFactory   nf;
 
-    private Optimizer(Scheduler s, Job j) {
+    public Optimizer(Scheduler s, Job j) {
         scheduler = s;
         job       = j;
         extInfo   = (ExtensionInfo) j.extensionInfo();
@@ -97,6 +98,7 @@ public class Optimizer {
     private List<Goal> goals() {
         List<Goal> goals = preInlinerGoals();
         if (INLINING(extInfo)) {
+            goals.add(Harvester());
             goals.add(Inliner());
         }
         if (FLATTENING(extInfo)) {
@@ -126,6 +128,12 @@ public class Optimizer {
     public Goal ForLoopOptimizations() {
         NodeVisitor visitor = new ForLoopOptimizer(job, ts, nf);
         Goal goal = new ValidatingVisitorGoal("For Loop Optimizations", job, visitor);
+        return goal.intern(scheduler);
+    }
+
+    public Goal Harvester() {
+        NodeVisitor visitor = new InlineDeclHarvester(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("Harvested", job, visitor);
         return goal.intern(scheduler);
     }
 
