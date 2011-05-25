@@ -579,7 +579,7 @@ public class Desugarer extends ContextVisitor {
             } catch (IllegalConstraint z) {
                 /// what do we do?
             }
-            if (selfVar != null)
+            if (selfVar != null && constraint != null)
                 constraint = constraint.instantiateSelf(selfVar);
             addCheck(booleanGuard,constraint, localDef.name(), type, nf, ts, pos);
         }

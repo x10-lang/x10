@@ -63,6 +63,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.QualifiedVar;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -430,6 +431,21 @@ public class Context implements Resolver, Cloneable
     /**
      * Gets current class scope
      */ 
+    
+
+    CConstraint outerThisEquivalences() {
+        CConstraint result = new CConstraint();
+        Type curr = currentClass();
+        List<X10ClassDef> outers = Types.outerTypes(curr); 
+        for (int i=0; i < outers.size(); i++) {
+            XVar base = outers.get(i).thisVar();
+            for (int j=i+1; j < outers.size(); j++ ) {
+                X10ClassDef y = outers.get(j);
+                result.addBinding(y.thisVar(), new QualifiedVar(y.asType(), base));
+        }
+        }
+        return result;
+    }
     public X10ClassDef currentClassDef() { return skipDepType().scope; }
     public XConstrainedTerm currentFinishPlaceTerm() { return currentFinishPlaceTerm;}
     public XConstrainedTerm currentPlaceTerm() { return currentPlaceTerm; }
@@ -439,6 +455,8 @@ public class Context implements Resolver, Cloneable
             result = new CConstraint();
             if (! inStaticContext()) {
                 result.setThisVar(thisVar());
+                CConstraint d = outerThisEquivalences();
+               result.addIn(d);
             }
         }
         if (! cStackUsedUp) {
