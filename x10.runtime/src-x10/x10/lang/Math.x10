@@ -59,7 +59,7 @@ public final class Math {
    @Native("java", "(float)java.lang.Math.exp(#a)")
    @Native("c++", "(x10_float)x10aux::math_utils::exp(#a)")
    @Native("cuda", "__expf(#a)")
-   public static native def exp(a:Float):Float;
+   public static native def expf(a:Float):Float;
 
     /**
      * @return the exponential function <code>e^a</code>
@@ -276,7 +276,7 @@ public final class Math {
    @Native("java", "(float)java.lang.Math.sqrt(#a)")
    @Native("c++", "(x10_float)x10aux::math_utils::sqrt(#a)")
    @Native("cuda", "sqrtf(#a)")
-   public static native def sqrt(a:Float):Float;
+   public static native def sqrtf(a:Float):Float;
 
    @Native("java", "java.lang.Math.cbrt(#a)")
    @Native("c++", "x10aux::math_utils::cbrt(#a)")
@@ -302,7 +302,7 @@ public final class Math {
    @Native("java", "(float)java.lang.Math.log(#a)")
    @Native("c++", "(x10_float)x10aux::math_utils::log(#a)")
    @Native("cuda", "__logf(#a)")
-   public static native def log(a:Float):Float;
+   public static native def logf(a:Float):Float;
 
     /**
      * Returns the principal value of the natural logarithm of <code>z</code>.

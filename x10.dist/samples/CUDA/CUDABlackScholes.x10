@@ -56,22 +56,22 @@ public class CUDABlackScholes {
                         val T = optionYears(opt);
                         val S = stockPrice(opt);
                         val X = optionStrike(opt);
-                        val sqrtT = Math.sqrt(T);
-                        val d1 = (Math.log(S/X) + (R + 0.5f * V * V) * T) / (V * sqrtT); 
+                        val sqrtT = Math.sqrtf(T);
+                        val d1 = (Math.logf(S/X) + (R + 0.5f * V * V) * T) / (V * sqrtT); 
                         val d2 = d1 - V * sqrtT;
 
                         val K1 = 1.0f / (1.0f + 0.2316419f * Math.abs(d1));
                         val K2 = 1.0f / (1.0f + 0.2316419f * Math.abs(d2));
-                        var CNDD1:Float = RSQRT2PI * Math.exp(- 0.5f * d1 * d1) * 
+                        var CNDD1:Float = RSQRT2PI * Math.expf(- 0.5f * d1 * d1) * 
                             (K1 * (A1 + K1 * (A2 + K1 * (A3 + K1 * (A4 + K1 * A5)))));
-                        var CNDD2:Float = RSQRT2PI * Math.exp(- 0.5f * d2 * d2) * 
+                        var CNDD2:Float = RSQRT2PI * Math.expf(- 0.5f * d2 * d2) * 
                             (K2 * (A1 + K2 * (A2 + K2 * (A3 + K2 * (A4 + K2 * A5)))));
 
                         if(d1 > 0) CNDD1 = 1.0f - CNDD1;
                         if(d2 > 0) CNDD2 = 1.0f - CNDD2;
 
                         //Calculate Call and Put simultaneously
-                        val expRT = Math.exp(- R * T); 
+                        val expRT = Math.expf(- R * T); 
                         callResult(opt) = S * CNDD1 - X * expRT * CNDD2;
                         putResult(opt)  = X * expRT * (1.0f - CNDD2) - S * (1.0f - CNDD1); 
                     }

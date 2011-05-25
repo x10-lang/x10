@@ -28,7 +28,7 @@ public class CUDAKernelTest {
                     val tid = block*64 + thread;
                     val tids = 8*64;
                     for (var i:Int=tid ; i<len ; i+=tids) {
-                        remote(i) = Math.sqrt(@NoInline init(i));
+                        remote(i) = Math.sqrtf(@NoInline init(i));
                     }
                 }
             }
