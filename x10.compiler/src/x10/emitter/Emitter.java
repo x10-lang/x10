@@ -2610,7 +2610,7 @@ public class Emitter {
 	    }
 	    CastExpander expander = new CastExpander(w, this, e);
 	    if (actual.isNull() || e.isConstant() && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)
-	            && isBoxedType(expectedBase)) {
+	            && (!isBoxedType(expectedBase))) {
 	        prettyPrint(e, tr);
 	    }
 	    // for primitive
