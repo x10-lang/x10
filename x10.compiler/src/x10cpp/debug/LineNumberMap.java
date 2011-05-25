@@ -479,7 +479,12 @@ public class LineNumberMap extends StringTable {
 				{
 					nameStart+=6;
 					int nameEnd = type.indexOf(',', nameStart);
-					v._x10memberName = stringId(type.substring(nameStart, nameEnd));
+					if (nameEnd == -1) 
+						nameEnd = type.indexOf('}', nameStart);
+					if (nameEnd == -1)
+						v._x10memberName = id;
+					else
+						v._x10memberName = stringId(type.substring(nameStart, nameEnd));
 				}
 				v._cppMemberName = v._x10memberName;
 			}
