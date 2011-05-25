@@ -28,6 +28,16 @@ public class GenericOverloading13_MustFailCompile extends GenericTest {
     class B[T] extends A[T] {
         def m(int) = 1;
     }
+	def test1(a:B[String]) {
+		val x:Int{self==0} = a.m("a");
+		val y:Int{self==1} = a.m(1);
+	}
+	def test2(a:B[Int]) {
+		a.m(0); // one overrides the other
+	}
+	def test3(a:B[Int{self==1}]) {
+		a.m(1); // ERR
+	}
 
     public def run(): boolean = true;
 
