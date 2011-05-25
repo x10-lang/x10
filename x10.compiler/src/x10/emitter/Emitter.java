@@ -754,6 +754,10 @@ public class Emitter {
 	        w.write("(");
 	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write(")");
+	        // double type cast is needed, e.g. for ((Byte)(byte)1)
+	        w.write("(");
+	        printType(type, 0);
+	        w.write(")");
 	    }
 	}
 	
