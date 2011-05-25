@@ -25,8 +25,8 @@ class XTENLANG_2384 extends x10Test {
        throw new SubExn(4);
     }
     catch (e : SubExn{n==1}) { assert false; }
+    catch (e : SubExn{n==2}) { assert false; }
     catch (e : Exn)          { correct = true; }
-    catch (e : SubExn)       { assert false; }
     catch (e : Throwable)    { assert false; }
     assert correct;
   }

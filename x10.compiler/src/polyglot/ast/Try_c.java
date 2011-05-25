@@ -91,8 +91,29 @@ public class Try_c extends Stmt_c implements Try
 	return reconstruct(tryBlock, catchBlocks, finallyBlock);
     }
 
-    
-    
+
+    @Override
+    public Node typeCheck(ContextVisitor tc) {
+        TypeSystem ts = tc.typeSystem();
+        SubtypeSet caught = new SubtypeSet(ts.Throwable());
+
+        // Walk through our catch blocks, making sure that they each can
+        // catch something.
+        for (Catch cb : this.catchBlocks) {
+            Type catchType = cb.catchType();
+
+            // Check if the exception has already been caught.
+            if (caught.contains(catchType)) {
+                Errors.issue(tc.job(),
+                        new SemanticException("The exception \"" +catchType + "\" has been caught by an earlier catch block.",cb.position()),
+                        this);
+            } else {
+                caught.add(catchType);
+            }
+        }
+        return super.typeCheck(tc);
+    }
+
     /**
      * Bypass all children when peforming an exception check.
      * exceptionCheck(), called from ExceptionChecker.leave(),

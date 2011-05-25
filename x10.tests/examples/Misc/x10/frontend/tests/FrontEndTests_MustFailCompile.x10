@@ -6852,3 +6852,13 @@ class XTENLANG_1851 {
 		if (b) throw new Exception();
 	}
 }
+
+class XTENLANG_2745 {
+	class Exn extends Throwable{}
+	static def example() {
+		try {
+		}
+		catch (e : Throwable) {}
+		catch (e : Exn) {}// ERR
+	}
+}
