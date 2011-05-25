@@ -104,7 +104,7 @@ public class Optimizer {
         if (FLATTENING(extInfo)) {
             goals.add(ExpressionFlattener());
         }
-        if (config.CODE_CLEAN_UP) {
+        if (config.CODE_CLEAN_UP && !config.DEBUG) {
             goals.add(CodeCleanUp());
         }
         // workaround for XTENLANG-2705
