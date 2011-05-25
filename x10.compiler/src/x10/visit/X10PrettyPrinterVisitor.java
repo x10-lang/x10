@@ -538,7 +538,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else {
-            if (!def.flags().isInterface() && !config.NO_TRACES) {
+            if (!def.flags().isInterface() && !config.NO_TRACES && !config.OPTIMIZE) {
                 // override to trace serialization
                 w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
                 w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");

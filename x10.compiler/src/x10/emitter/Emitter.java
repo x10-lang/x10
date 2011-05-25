@@ -3109,13 +3109,13 @@ public class Emitter {
         w.write("private transient x10.io.SerialData " + fieldName + ";");
         w.newline();
         w.write("private Object writeReplace() { ");
-        if (!opts.x10_config.NO_TRACES) {
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" calling\"); ");
             w.write("} ");
         }
         w.write(fieldName + " = serialize(); ");
-        if (!opts.x10_config.NO_TRACES) {
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" returned \" + " + fieldName + "); ");
             w.write("} ");
