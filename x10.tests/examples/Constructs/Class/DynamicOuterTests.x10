@@ -32,7 +32,7 @@ public class DynamicOuterTests extends x10Test {
         x.m(3);
         // @ERR { x.m(4);  }
         var b:A=a;
-        x.n(b, x);
+        x.n(b, x); // ERR: Warning: Generated a dynamic check for the method call.
         return true;
     }
 

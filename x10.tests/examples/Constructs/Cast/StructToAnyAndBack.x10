@@ -27,10 +27,10 @@ class StructToAnyAndBack extends x10Test {
     }
 
     static def testAStruct[S,T](v:Any):boolean {
-        val x = v as S;             // should succeed.
-        val y = v as Comparable[S]; // should succeed
+        val x = v as S;             // ERR: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+        val y = v as Comparable[S]; // ERR: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         try {
-            val z = v as T; // should fail
+            val z = v as T;  // ERR: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
             Console.OUT.println("Did not raise exception "+v.typeName());
             return false;
         } catch (e:ClassCastException) {

@@ -2341,7 +2341,7 @@ class OuterThisConstraint(i:Int) { // see XTENLANG-1932
 	static def test(a:OuterThisConstraint{i==3}) {
 		val inner:OuterThisConstraint{self.i==3}.Inner = a.new Inner();
 		val x1:OuterThisConstraint{i==3} = a.m1();
-		@ShouldNotBeERR val x2:OuterThisConstraint{i==3} = inner.m2();
+		val x2:OuterThisConstraint{i==3} = inner.m2();
 		@ERR val x3:OuterThisConstraint{i==4} = inner.m2();
 	}
 }
@@ -3496,8 +3496,8 @@ class XTENLANG_686(a:Int) {
 }
 
 class CastToTypeParam[T] { 
-	val f1:T = 0 as T;
-	val f2:T = 1 as T;
+	val f1:T = 0 as T; // ERR: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+	val f2:T = 1 as T; // ERR: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 	def test(a:CastToTypeParam[String]) {
 		val f:String = a.f1;
 		val s = 0 as String; // ERR: Cannot cast expression to type
@@ -3536,7 +3536,7 @@ class hasZeroTests {
 		var t:T; // ERR
 	}
 	class Q0[T] {T haszero} {
-	  var t:T; // ShouldNotBeERR
+	  var t:T;
 	}
 	class Q1[T] {T haszero} {
 	  val t:T; // ERR
@@ -3574,7 +3574,7 @@ class hasZeroTests {
 	  }
 	}
 	class haszeroExamples0[T] {T haszero} {
-		var t:T; // ShouldNotBeERR
+		var t:T;
 
 	  def m0() {
 		  m1(); // ok
@@ -3657,7 +3657,7 @@ class RuntimeTestsOfHaszero {
 	def foo(Double)=4;
 
 	static class A[T] {T haszero} {
-		var t:T; // ShouldNotBeERR
+		var t:T;
 	}
 }
 
