@@ -175,7 +175,6 @@ public class RunTestSuite {
     };
     private static final String[] EXCLUDE_DIRS = {
             "LangSpec", // Bard has too many errors...
-            "UByte","UShort","ULong", // Somebody duplicated all the files (without package names), so I only test those in UInt
             "WorkStealing", // it has copies of existing tests
             "AutoGen", // it takes too long to compile these files
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
