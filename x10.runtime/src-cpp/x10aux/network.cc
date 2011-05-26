@@ -483,12 +483,13 @@ void x10aux::coll_handler2(x10rt_team id, void *arg) {
     fs->notifyActivityTermination();
 }
 
+#ifndef __MACH__
+    extern char **environ;
+#endif
 
 x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > x10aux::loadenv() {
 #ifdef __MACH__
     char** environ = *_NSGetEnviron();
-#else
-    extern char **environ;
 #endif
     x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > map = x10::util::HashMap<x10aux::ref<x10::lang::String>, x10aux::ref<x10::lang::String> >::_make();
     for (unsigned i=0 ; environ[i]!=NULL ; ++i) {
