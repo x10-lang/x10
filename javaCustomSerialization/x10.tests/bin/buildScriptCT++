@@ -1,0 +1,156 @@
+#!/bin/bash
+
+#
+# (c) Copyright IBM Coporation 2007-09
+#
+# $Id$
+# Script that sources and builds all components required for regression.
+
+svnUpdate2() {
+	if [[ ! -d $1 ]]; then
+		( \
+			cd $(dirname $1); \
+			printf "\n## [$prog]: checking out module $(basename $1)...\n"; \
+			svn co "${2}/$(basename $1)"; \
+			exit $?; \
+		)
+		if (( $? != 0 )); then
+			printf "\n[$prog: err]: checkout failed for module $(basename $1)\n"
+			return 1
+		else
+			printf "\n## done.\n"
+			return 0
+		fi
+	else
+		( \
+			cd $1; \
+			printf "\n## [$prog]: updating module $(basename $1)...\n"; \
+			svn update; \
+			exit $?; \
+		)
+		if (( $? != 0 )); then
+			printf "\n[$prog: err]: update failed for module $(basename $1)\n"
+			return 1
+		else
+			printf "\n## done.\n"
+			return 0
+		fi
+	fi
+}
+
+X10_MAX_RETRIES=10
+svnUpdate() {
+    num_retries=1
+    if [[ -d $1 ]]; then
+        rm -rf $1
+    fi
+    while (( $num_retries <= $X10_MAX_RETRIES )); do
+        printf "\n## svn checkout of $1 -- attempt $num_retries .....\n"
+        svnUpdate2 $1 $2
+        if (( $? == 0 )); then
+            return 0
+        fi
+        let 'num_retries = num_retries + 1'
+    done
+    return 1
+}
+            
+main() {
+    # source all the relevant modules -- do fresh checkout each time
+	declare -i status;
+	X10_COMMON=$X10_HOME/x10.common
+	svnUpdate $X10_COMMON $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+
+	X10_COMPILER=$X10_HOME/x10.compiler
+	svnUpdate $X10_COMPILER $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+
+	X10_RUNTIME=$X10_HOME/x10.runtime
+	svnUpdate $X10_RUNTIME $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+
+	X10_CONSTRAINTS=$X10_HOME/x10.constraints
+	svnUpdate $X10_CONSTRAINTS $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+
+	X10_WALA=$X10_HOME/x10.wala
+	svnUpdate $X10_WALA $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+
+	X10_XDOC=$X10_HOME/x10.doc
+	svnUpdate $X10_XDOC $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+
+	X10_DIST=$X10_HOME/x10.dist
+	svnUpdate $X10_DIST $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+    # post-checkout patch -- required on some platforms during batch compilation of xrx classes
+	(cd $X10_DIST/bin; \
+	mv x10c.in x10c.in.orig; \
+	sed -e 's/-Xmx512m/-Xmx1024m/g' x10c.in.orig > x10c.in; \
+	)
+
+	X10_TESTS=$X10_HOME/x10.tests
+	svnUpdate $X10_TESTS $X10_SVNROOT
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+
+    # build modules in the listed order -- some builds may be redundant
+	printf "\n##### [$prog]: building X10 #####\n"
+	if [[ "$(uname -s)" == "AIX" ]]; then
+	    (cd $X10_DIST; ant dist);
+	elif [[ "$(uname -s)" == CYGWIN* ]]; then
+	    (cd $X10_DIST; export DEFAULT_X10RT_LIB=sockets; ant -Doptimize=true dist);
+	else
+	    if [[ -z "$X10_EXPERIMENTAL" ]]; then
+		(cd $X10_DIST; ant -Doptimize=true dist);
+	    else
+		(cd $X10_DIST; ant -Doptimize=true -DEXPERIMENTAL=true dist);
+	    fi
+	fi
+	
+	return $?
+}
+
+prog=$(basename $0)
+MYDIR=$(dirname $0)
+
+if [[ -z "$X10_HOME" ]]; then
+	export X10_HOME=$(cd $MYDIR/../..; pwd)
+fi
+
+if [[ -z "$CVS_RSH" ]]; then
+	export CVS_RSH=ssh
+fi
+
+if [[ -z "$X10_SVNROOT" ]]; then
+	export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+fi
+
+main
+
+# vim:tabstop=4:shiftwidth=4:expandtab

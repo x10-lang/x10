@@ -1,0 +1,108 @@
+testFailed() {
+  rc=$?
+
+  echo ""
+  echo ""
+  echo "FAILURE!!!"
+  exit $rc
+}
+
+echo "Running precommit tests for X10"
+
+ROOT="$TOP/.."
+
+echo "Rebuilding X10"
+
+cd "$ROOT/x10.dist"
+target=dist
+[ "$1" = "cpp" -o "$1" = "-cpp" -o "$1" = "-c++" ] && target=dist-cpp && shift
+[ "$1" = "java" -o "$1" = "-java" ] && target=dist-java && shift
+nice ant "$@" squeakyclean || testFailed
+nice ant -Doptimize=true "$@" $target || testFailed
+
+echo "Making temp dir"
+if [ -z "$TMP_DIR" ]; then
+  export TMP_DIR=/tmp/precommit-$USER
+fi
+if [[ "$UNAME" = CYGWIN* ]]; then TMP_DIR="$(cygpath -am "$TMP_DIR")"; fi
+
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
+
+echo "Testing"
+
+if [ "$target" != "dist-java" ]; then
+
+echo "Compiling PreCommit.x10 with x10c++"
+
+cd "$ROOT/x10.tests/tests/Misc"
+
+nice "$ROOT/x10.dist/bin/x10c++" -O -DEBUG \
+ -sourcepath "$ROOT/x10.dist/samples/tutorial" \
+ -sourcepath "$ROOT/x10.tests/examples/x10lib" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Async" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/At" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Atomic" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Call" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Cast" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Clock" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Closures" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/DepType" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Distribution" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/For" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Generics" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Import" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Instanceof" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Place" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Region" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Structs" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Typedefs" \
+-d "$TMP_DIR" -o "$TMP_DIR/PreCommit" PreCommit.x10 || testFailed
+
+echo "Running"
+
+X10_NPLACES=2 X10_HOSTLIST=localhost "$ROOT/x10.dist/bin/runx10" "$TMP_DIR/PreCommit" || testFailed
+
+fi
+
+if [ "$target" != "dist-cpp" ]; then
+
+echo "Compiling PreCommit.x10 with x10c"
+
+# create temp dir for classes
+rm -rf "${TMP_DIR}.tmp"
+mkdir -p "${TMP_DIR}.tmp"
+
+cd "$ROOT/x10.tests/tests/Misc"
+
+nice "$ROOT/x10.dist/bin/x10c" -O \
+ -sourcepath "$ROOT/x10.dist/samples/tutorial" \
+ -sourcepath "$ROOT/x10.tests/examples/x10lib" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Async" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/At" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Atomic" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Call" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Cast" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Clock" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Closures" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/DepType" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Distribution" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/For" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Generics" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Import" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Instanceof" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Place" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Region" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Structs" \
+ -sourcepath "$ROOT/x10.tests/examples/Constructs/Typedefs" \
+-d "${TMP_DIR}.tmp" -o "$TMP_DIR/PreCommit.jar" PreCommit.x10 || testFailed
+
+echo "Running"
+
+"$ROOT/x10.dist/bin/x10" -classpath "$TMP_DIR/PreCommit.jar" PreCommit || testFailed
+
+fi
+
+echo ""
+echo ""
+echo "SUCCESS"
