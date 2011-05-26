@@ -163,31 +163,10 @@ public abstract class LocalClassRemover extends ContextVisitor {
             super(LocalClassRemover.this.job, LocalClassRemover.this.ts, LocalClassRemover.this.nf);
         }
 
-        private boolean inConstructorCall;
-
-        public NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
-            LocalBoxer v = (LocalBoxer) super.enterCall(parent, n);
-            if (n instanceof ConstructorCall) {
-                if (! inConstructorCall) {
-                    v = (LocalBoxer) v.shallowCopy();
-                    v.inConstructorCall = true;
-                    return v;
-                }
-            }
-            if (n instanceof ClassBody || n instanceof CodeNode) {
-                if (v.inConstructorCall) {
-                    v = (LocalBoxer) v.shallowCopy();
-                    v.inConstructorCall = false;
-                    return v;
-                }
-            }
-            return v;
-        }
-
         protected Node leaveCall(Node old, Node n, NodeVisitor v) {
             Context context = this.context();
             Position pos = n.position();
-            if (n instanceof Local && ! inConstructorCall) {
+            if (n instanceof Local) {
                 Local l = (Local) n;
                 if (!isLocal(context, l.name().id())) {
                     FieldDef fi = boxLocal(l.localInstance().def());
