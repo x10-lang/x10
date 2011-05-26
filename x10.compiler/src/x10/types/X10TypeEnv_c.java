@@ -1556,7 +1556,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     
             // Check if adding self==value makes the constraint on t inconsistent.
             
-            XLit val = XTerms.makeLit(value);
+            XLit val = CTerms.makeLit(value, base);
 
             CConstraint c = new CConstraint();
             c.addSelfBinding(val);

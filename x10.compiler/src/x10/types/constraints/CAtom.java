@@ -17,18 +17,19 @@ import x10.constraint.XTerm;
  * @author vj
  *
  */
-public class CAtom extends XFormula<MemberDef>{
-
-    public CAtom(MethodDef op, MethodDef opAsExpr, List<XTerm> args) {
-        super(op, opAsExpr, args, true);
+public class CAtom extends XFormula<MemberDef> {
+  private static final long serialVersionUID = -1734428949188126121L;
+  
+  public CAtom(MethodDef op, MethodDef opAsExpr, List<XTerm> args) {
+      super(op, opAsExpr, args, true);
   }
-  public CAtom(MethodDef op, MethodDef opAsExpr,  XTerm... args) {
+  public CAtom(MethodDef op, MethodDef opAsExpr, XTerm... args) {
       super(op, opAsExpr, true, args);
   }
   public CAtom(FieldDef op, FieldDef opAsExpr, List<XTerm> args) {
       super(op, opAsExpr, args, true);
   }
-  public CAtom(FieldDef op, FieldDef opAsExpr,  XTerm... args) {
+  public CAtom(FieldDef op, FieldDef opAsExpr, XTerm... args) {
       super(op, opAsExpr, true, args);
   }
   
@@ -43,5 +44,4 @@ public class CAtom extends XFormula<MemberDef>{
   public MemberDef exprDef() {
       return asExprOp;
   }
-  
 }

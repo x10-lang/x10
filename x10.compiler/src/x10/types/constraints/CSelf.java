@@ -19,9 +19,10 @@ import x10.constraint.XVar;
  *
  */
 public class CSelf extends XRoot {
+    private static final long serialVersionUID = 7709199402803815649L;
+    
     public final int num;
     
-
     public CSelf(int n) {
         this.num=n;
     }
@@ -47,7 +48,5 @@ public class CSelf extends XRoot {
 
     public String toString() {
         return CTerms.SELF_VAR_PREFIX;// + num;
-      
     }
-    
 }

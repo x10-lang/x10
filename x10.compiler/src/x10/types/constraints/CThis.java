@@ -25,7 +25,8 @@ import x10.constraint.XVar;
  * @author vj
  *
  */
-public class CThis extends XRoot  implements Typed {
+public class CThis extends XRoot implements Typed {
+    private static final long serialVersionUID = -2033423584924662939L;
     
     public final int num;
     //CHECK: The outer qualifier information is now carried in an
@@ -33,7 +34,7 @@ public class CThis extends XRoot  implements Typed {
     public final Type type;
  
     public CThis(int n, Type type) {
-        this.num=n;
+        this.num = n;
         this.type = type;
     }
     
@@ -76,7 +77,6 @@ public class CThis extends XRoot  implements Typed {
 
     @Override
     public String toString() {
-        return  CTerms.THIS_VAR_PREFIX + (type != null ? "(:" + type + ")" : "");
-      
+        return CTerms.THIS_VAR_PREFIX + (type != null ? "(:" + type + ")" : "");
     }
 }

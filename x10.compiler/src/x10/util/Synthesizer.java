@@ -102,6 +102,7 @@ import x10.types.X10FieldDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
+import x10.types.constraints.CLit;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CSelf;
 import x10.types.constraints.CTerms;
@@ -342,7 +343,7 @@ public class Synthesizer {
         // has been converted to a variable reference.
         final Type type = initializer.type();
         if (!xts.typeEquals(type, xts.Void(), context)) {
-            final Name varName = context.getNewVarName();
+            final Name varName = Context.getNewVarName();
             final TypeNode tn = xnf.CanonicalTypeNode(pos, type);
             final LocalDef li = xts.localDef(pos, flags, Types.ref(type), varName);
             final Id varId = xnf.Id(pos, varName);
@@ -371,8 +372,7 @@ public class Synthesizer {
 	 * @param xc
 	 * @return
 	 */
-	public Expr makeLocalVar(Position pos, Flags flags, Expr  e, List<Stmt> stmtList,
-			 Context xc) {
+	public Expr makeLocalVar(Position pos, Flags flags, Expr e, List<Stmt> stmtList, Context xc) {
 		Expr result = null;
 		if (flags == null) {
 			flags = Flags.NONE;
@@ -380,7 +380,7 @@ public class Synthesizer {
 		// has been converted to a variable reference.
 		final Type type = e.type();
 		if (! xts.typeEquals(type, xts.Void(), xc)) {
-			final Name varName = xc.getNewVarName();
+			final Name varName = Context.getNewVarName();
 			final TypeNode tn = xnf.CanonicalTypeNode(pos,type);
 			final LocalDef li = xts.localDef(pos, flags, Types.ref(type), varName);
 			final Id varId = xnf.Id(pos, varName);
@@ -763,7 +763,7 @@ public class Synthesizer {
 		CConstraint c = new CConstraint();
 		XTerm id = makeProperty(xts.Int(), c.self(), "id");
 		try {
-			c.addBinding(id, XTerms.makeLit(0));
+			c.addBinding(id, CTerms.makeLit(0, xts.Int()));
 			Type type = Types.xclause(xts.Place(), c);
 			assert Types.consistent(type);
 			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
@@ -1441,7 +1441,7 @@ public class Synthesizer {
         } else if (t instanceof CLocal) {
             CLocal local = (CLocal) t;
             res.add(local.localDef());
-        } else if (t instanceof XFormula) {
+        } else if (t instanceof XFormula<?>) {
             final XFormula<?> xFormula = (XFormula<?>) t;
             for (XTerm tt: xFormula.arguments())
                 res.addAll(getLocals(tt));
@@ -1603,15 +1603,22 @@ public class Synthesizer {
     }
 
     Expr makeExpr(XLit t, Type baseType, Position pos) {
+        if (t instanceof CLit) {
+            CLit l = (CLit) t;
+            if (baseType != null && !xts.isSubtype(l.type(), baseType)) {
+                throw new InternalCompilerError("Invalid expected literal type: "+baseType+" for "+l.type());
+            }
+            baseType = l.type();
+        }
         Object val = t.val();
         if (val == null)
             return xnf.NullLit(pos);
         if (val instanceof String)
             return xnf.StringLit(pos, (String) val);
         if (val instanceof Integer)
-            return xnf.IntLit(pos, IntLit.INT, ((Integer) val).intValue());
+            return xnf.IntLit(pos, CLit.getIntLitKind(baseType), ((Integer) val).intValue());
         if (val instanceof Long)
-            return xnf.IntLit(pos, IntLit.LONG, ((Long) val).longValue());
+            return xnf.IntLit(pos, CLit.getIntLitKind(baseType), ((Long) val).longValue());
         if (val instanceof Boolean)
             return xnf.BooleanLit(pos, ((Boolean) val).booleanValue());
         if (val instanceof Character)
@@ -1675,12 +1682,12 @@ public class Synthesizer {
 
     public List<Expr> makeExpr(CConstraint c, Type baseType, Position pos) {
         List<Expr> es = new ArrayList<Expr>();
-        if (c==null)
+        if (c == null)
             return es;
-        List<XTerm> terms  = c.extConstraints();
+        List<XTerm> terms = c.extConstraints();
 
         for (XTerm term : terms) {
-            Expr e = makeExpr(term, baseType, pos);
+            Expr e = makeExpr(term, null, pos);
             if (e != null)
                 es.add(e);
         }

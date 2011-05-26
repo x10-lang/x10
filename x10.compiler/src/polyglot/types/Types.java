@@ -69,6 +69,7 @@ import x10.types.X10ProcedureInstance;
 import x10.types.X10ThisVar;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLit;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.QualifiedVar;
@@ -591,19 +592,9 @@ public class Types {
 	// this is an under-approximation (it is always safe to return false, i.e., the user will just get more errors). In the future we will improve the precision so more types will have zero.
 	public static boolean isHaszero(Type t, Context xc) {
 	    TypeSystem ts = xc.typeSystem();
-	    XLit zeroLit = null;  // see Lit_c.constantValue() in its decendants
-	    if (t.isBoolean()) {
-	        zeroLit = XTerms.FALSE;
-	    } else if (ts.isChar(t)) {
-	        zeroLit = XTerms.ZERO_CHAR;
-	    } else if (ts.isInt(t) || ts.isByte(t) || ts.isUByte(t) || ts.isShort(t) || ts.isUShort(t)) {
-	        zeroLit = XTerms.ZERO_INT;
-	    } else if (ts.isUInt(t) || ts.isULong(t) || ts.isLong(t)) {
-	        zeroLit = XTerms.ZERO_LONG;
-	    } else if (ts.isFloat(t)) {
-	        zeroLit = XTerms.ZERO_FLOAT;
-	    } else if (ts.isDouble(t)) {
-	        zeroLit = XTerms.ZERO_DOUBLE;
+	    XLit zeroLit = null;
+	    if (ts.isLongOrLess(t) || ts.isFloat(t) || ts.isDouble(t) || ts.isBoolean(t) || ts.isChar(t)) {
+	        zeroLit = CTerms.makeZero(t);  // see Lit_c.constantValue() in its descendants
 	    } else if (ts.isObjectOrInterfaceType(t, xc)) {
 	        if (Types.permitsNull(xc, t)) return true;
 	        //zeroLit = XTerms.NULL;
@@ -712,7 +703,7 @@ public class Types {
 	            }
 	        }
 	    }
-	    if (zeroLit==null) return false;
+	    if (zeroLit == null) return false;
 	    if (!isConstrained(t)) return true;
 	    final CConstraint constraint = Types.xclause(t);
 	    final CConstraint zeroCons = new CConstraint(constraint.self());
@@ -732,26 +723,10 @@ public class Types {
 	        Expr e = null;
 	        if (t.isBoolean()) {
 	            e = nf.BooleanLit(p, false);
-	
-	        } else if (ts.isShort(t)) {
-	            e = nf.IntLit(p, IntLit.SHORT, 0L);
-	        } else if (ts.isUShort(t)) {
-	            e = nf.IntLit(p, IntLit.USHORT, 0L);
-	        } else if (ts.isByte(t)) {
-	            e = nf.IntLit(p, IntLit.BYTE, 0L);
-	        } else if (ts.isUByte(t)) {
-	            e = nf.IntLit(p, IntLit.UBYTE, 0L);
-	            
+	        } else if (ts.isLongOrLess(t)) {
+	            e = nf.IntLit(p, CLit.getIntLitKind(t), 0L);
 	        } else if (ts.isChar(t)) {
 	            e = nf.CharLit(p, '\0');
-	        } else if (ts.isInt(t)) {
-	            e = nf.IntLit(p, IntLit.INT, 0L);
-	        } else if (ts.isUInt(t)) {
-	            e = nf.IntLit(p, IntLit.UINT, 0L);
-	        } else if (ts.isLong(t)) {
-	            e = nf.IntLit(p, IntLit.LONG, 0L);
-	        } else if (ts.isULong(t)) {
-	            e = nf.IntLit(p, IntLit.ULONG, 0L);
 	        } else if (ts.isFloat(t)) {
 	            e = nf.FloatLit(p, FloatLit.FLOAT, 0.0);
 	        } else if (ts.isDouble(t)) {
@@ -860,7 +835,7 @@ public class Types {
 	        throw new InternalCompilerError("Could not find size field of " + t, pos);
 	    try {
 	        XTerm selfSize = ts.xtypeTranslator().translate(c.self(), sizeField);
-	        XLit sizeLiteral = XTypeTranslator.translate(size);
+	        XLit sizeLiteral = CTerms.makeLit(size, ts.Int());
 	        c.addBinding(selfSize, sizeLiteral);
 	        Type result = Types.xclause(t, c);
 	        return result;
@@ -902,7 +877,7 @@ public class Types {
 	    XTerm selfZeroBased = xt.translate(self, zeroBasedField);
 	    XTerm selfRail = xt.translate(self, railField);
 
-	    XLit rankLiteral = XTerms.makeLit(1);
+	    XLit rankLiteral = CTerms.makeLit(1, ts.Int());
 	    c.addBinding(selfRank, rankLiteral);
 	    c.addBinding(selfRect, XTerms.TRUE);
 	    c.addBinding(selfZeroBased, XTerms.TRUE);

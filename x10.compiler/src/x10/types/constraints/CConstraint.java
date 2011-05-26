@@ -781,7 +781,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 			} else {
 				r = rt;
 			}
-		} else if (t instanceof XFormula) {
+		} else if (t instanceof XFormula<?>) {
 			XFormula<?> f = (XFormula<?>) t;
 			for (XTerm a : f.arguments()) {
 				CConstraint ca = constraintProjection(a, m, depth+1); //ancestors);
@@ -795,7 +795,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 					r.addIn(ca);
 				}
 			}
-		} else if (t instanceof XField) {
+		} else if (t instanceof XField<?>) {
 		    
 		}
 		else {

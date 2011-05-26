@@ -16,6 +16,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.XConstrainedTerm;
 
@@ -428,36 +429,32 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		}
 		// Methods below this have been moved from polyglot.type.Types
 		/**
-		 * Add the constraint self.rank==x to t unless
-		 * that causes an inconsistency.
-		 * @param t
+		 * Add the constraint self.rank==x to this unless that causes an inconsistency.
 		 * @param x
 		 * @return
 		 */
-		public  ConstrainedType addRank(int x) {
-		    return addRank(XTerms.makeLit(new Integer(x)));
+		public ConstrainedType addRank(int x) {
+		    return addRank(CTerms.makeLit(new Integer(x), ts.Int()));
 		}
-		public  ConstrainedType addSize(int x) {
-		    return addProperty(x, Name.make("size"));
+		public ConstrainedType addSize(int x) {
+		    return addIntProperty(x, Name.make("size"));
 		}
-		public  ConstrainedType addProperty(int x, Name name) {
-		    return addProperty(XTerms.makeLit(new Integer(x)), name);
+		public ConstrainedType addIntProperty(int x, Name name) {
+		    return addProperty(CTerms.makeLit(new Integer(x), ts.Int()), name);
+		}
 
-        }
-		 /** Add the constraint self.rank==x to t unless
-		 * that causes an inconsistency.
-		 * @param t
+		/**
+		 * Add the constraint self.rank==x to this unless that causes an inconsistency.
 		 * @param x
 		 * @return
 		 */
-		public  ConstrainedType addRank(XTerm x) {
+		public ConstrainedType addRank(XTerm x) {
             return addProperty(x, Name.make("rank"));
 		}
-		public  ConstrainedType addProperty(XTerm x, Name name) {
+		public ConstrainedType addProperty(XTerm x, Name name) {
 		    XTerm xt = findOrSynthesize(name);
-		    if (xt==null) {
-		    	throw new InternalCompilerError("*******(" 
-		    			+ this + ") Could not find property " + name);
+		    if (xt == null) {
+		    	throw new InternalCompilerError("*******(" + this + ") Could not find property " + name);
 		    }
 		    return addBinding(xt, x);
 		}
@@ -465,10 +462,11 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		public XTerm findOrSynthesize(Name n) { // todo: why do we have both findOrSynthesize and find if they do the same thing?
 		    return find(n);
 		}
-		/** Find the term t, if any, such that t entails {self.propName==t}.
-		 * 
+		
+		/**
+		 * Find the term t, if any, such that t entails {self.propName==t}.
 		 */
-		public  XTerm findProperty(Name name) {
+		public XTerm findProperty(Name name) {
 			CConstraint c = Types.realX(this);
 			if (c == null || ! c.consistent()) 
 			    return null;
@@ -485,14 +483,13 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			
 			return null;
 		}
+		
 		/**
-		 * Ensure that t is ConstrainedType, so it has a self. The term returned may 
-		 * contain self as receiver.
-		 * @param t
-		 * @param propName
+		 * Find a property in self with a given name. The term returned may contain self as receiver.
+		 * @param name
 		 * @return
 		 */
-		public  XTerm find(Name name) {
+		public XTerm find(Name name) {
 		    XTerm val = findProperty(name);
 		
 		    if (val == null) {
@@ -522,12 +519,10 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
             }
 		    return val; // todo: val can be null! if we build a synthetic term, then why not always build it???
 		}
-
+		
 		public XVar selfVar() {
 			return Types.get(constraint()).self();
 		}
-		
-		
 		
 		public ConstrainedType addBinding(XTerm t1, XTerm t2) {
 		    CConstraint c = Types.xclause(this);
@@ -562,7 +557,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		 * @param t2
 		 * @return
 
-		public  ConstrainedType addDisBinding(Type t, XTerm t1, XTerm t2) {
+		public ConstrainedType addDisBinding(Type t, XTerm t1, XTerm t2) {
 		    assert (! (t instanceof UnknownType));
 		    CConstraint c = Types.xclause(t);
 		    c = c == null ? new CConstraint() :c.copy();
@@ -634,9 +629,9 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    assert tx != null;
 		    return new ConstrainedType((TypeSystem) tx.typeSystem(), tx.position(), t.known()? t: tref, cref);
 		}
+		
 		/**
-		 * Returns a copy of t's constraint, if it has one, null otherwise.
-		 * @param t
+		 * Returns a copy of this's constraint, if it has one, null otherwise.
 		 * @return
 		 */
 		public  CConstraint xclause() {
@@ -651,7 +646,6 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			return xclause(Types.ref(t), Types.ref(c));
 		}
 		
-
 		public  ConstrainedType addRect() {
 		    ConstrainedType result=this;
 		    XTerm xt = findOrSynthesize(Name.make("rect"));
@@ -660,7 +654,6 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    return result;
 		}
 		
-
 		/**
 		 * Add the constraint self.zeroBased==true;
 		 * @return
@@ -675,12 +668,16 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		public ConstrainedType addNonNull() {
 		    return addSelfDisBinding(XTerms.NULL);
 		}
+		
 		/**
-		 * Return the term self.rank, where self is the selfvar for t.
+		 * Return the term self.rank, where self is the selfvar for this.
 		 */
 		public XTerm rank(Context context) {
             return findOrSynthesize(Name.make("rank"));
         }
+        /**
+         * Return the term self.size, where self is the selfvar for this.
+         */
 		public XTerm size(Context context) {
             return findOrSynthesize(Name.make("size"));
         }
@@ -742,7 +739,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
          * from the context if necessary.
          */
 		public boolean amIProperty(Name propName, Context context) {
-		    return hasPropertyValue(propName, XTypeTranslator.translate(true), context);
+		    return hasPropertyValue(propName, XTypeTranslator.translate(true, ts), context);
 		}
 		
 		/**

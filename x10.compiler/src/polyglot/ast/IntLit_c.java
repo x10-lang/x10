@@ -8,6 +8,8 @@
 
 package polyglot.ast;
 
+import java.math.BigInteger;
+
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.Type;
@@ -153,12 +155,12 @@ public class IntLit_c extends NumLit_c implements IntLit
             long a = value;
             if (a >= 0)
                 return Long.toString(a);
-            while (a != 0) {
-                char ch = (char) ('0' + a % 10);
-                sb.append(ch);
-                a /= 10;
+            byte[] bytes = new byte[9];
+            for (int i = 0; i < 8; i++) {
+                bytes[8-i] = (byte) (a & 0xff);
+                a >>>= 8;
             }
-            return sb.reverse().toString() + "UL";
+            return new BigInteger(bytes).toString() + "UL";
         }
         else {
             return Long.toString((int) value);
