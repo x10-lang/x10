@@ -17,7 +17,6 @@ public class LongType extends RuntimeType<Long> {
 	private static final long serialVersionUID = 1L;
 
     public LongType() {
-//        super(long.class,
         super(Long.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

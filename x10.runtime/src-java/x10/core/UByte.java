@@ -18,8 +18,8 @@ import x10.rtt.Types;
  * Represents a boxed UByte value. Boxed representation is used when casting
  * a UByte value into type Any or parameter type T.
  */
-final public class UByte extends x10.core.Struct implements java.lang.Comparable<x10.core.UByte>,
-    x10.lang.Arithmetic<x10.core.UByte>, x10.lang.Bitwise<x10.core.UByte>, x10.util.Ordered<x10.core.UByte>
+final public class UByte extends x10.core.Struct implements java.lang.Comparable<UByte>,
+    x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>
 {
     private static final long serialVersionUID = 1L;
     
@@ -50,7 +50,7 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
         return obj;
     }
 
-    public static int $unbox(byte value) {
+    public static byte $unbox(byte value) {
         return value;
     }
     

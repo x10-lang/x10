@@ -17,7 +17,6 @@ public class ByteType extends RuntimeType<Byte> {
 	private static final long serialVersionUID = 1L;
 
     public ByteType() {
-//        super(byte.class,
         super(Byte.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

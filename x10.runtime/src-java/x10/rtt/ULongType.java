@@ -17,7 +17,6 @@ public class ULongType extends RuntimeType<x10.core.ULong> {
 	private static final long serialVersionUID = 1L;
 
     public ULongType() {
-//        super(int.class,
         super(x10.core.ULong.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

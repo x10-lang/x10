@@ -17,7 +17,6 @@ public class CharType extends RuntimeType<Character> {
 	private static final long serialVersionUID = 1L;
 
     public CharType() {
-//        super(char.class,
         super(Character.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

@@ -17,7 +17,6 @@ public class DoubleType extends RuntimeType<Double> {
 	private static final long serialVersionUID = 1L;
 
     public DoubleType() {
-//        super(double.class,
         super(Double.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

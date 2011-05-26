@@ -17,7 +17,6 @@ public class IntType extends RuntimeType<Integer> {
 	private static final long serialVersionUID = 1L;
 
     public IntType() {
-//        super(int.class,
         super(Integer.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

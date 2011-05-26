@@ -17,7 +17,6 @@ public class UIntType extends RuntimeType<x10.core.UInt> {
 	private static final long serialVersionUID = 1L;
 
     public UIntType() {
-//        super(int.class,
         super(x10.core.UInt.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

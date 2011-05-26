@@ -17,7 +17,6 @@ public class UShortType extends RuntimeType<x10.core.UShort> {
 	private static final long serialVersionUID = 1L;
 
     public UShortType() {
-//        super(int.class,
         super(x10.core.UShort.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

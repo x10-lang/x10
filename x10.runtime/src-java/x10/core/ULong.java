@@ -18,10 +18,10 @@ import x10.rtt.Types;
  * Represents a boxed ULong value. Boxed representation is used when casting
  * a ULong value into type Any or parameter type T.
  */
-final public class ULong extends x10.core.Struct implements java.lang.Comparable<x10.core.ULong>,
-    x10.lang.Arithmetic<x10.core.ULong>, x10.lang.Bitwise<x10.core.ULong>, x10.util.Ordered<x10.core.ULong>
+final public class ULong extends x10.core.Struct implements java.lang.Comparable<ULong>,
+    x10.lang.Arithmetic<ULong>, x10.lang.Bitwise<ULong>, x10.util.Ordered<ULong>
 {
-    private static final long serialVersionUID = 5575376732671214307L;
+    private static final long serialVersionUID = 1L;
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.ULONG;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}

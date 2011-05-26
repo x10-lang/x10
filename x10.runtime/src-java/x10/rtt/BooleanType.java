@@ -17,7 +17,6 @@ public class BooleanType extends RuntimeType<Boolean> {
 	private static final long serialVersionUID = 1L;
 
     public BooleanType() {
-//        super(boolean.class,
         super(Boolean.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

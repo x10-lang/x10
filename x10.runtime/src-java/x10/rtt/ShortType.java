@@ -17,7 +17,6 @@ public class ShortType extends RuntimeType<Short> {
 	private static final long serialVersionUID = 1L;
 
     public ShortType() {
-//        super(short.class,
         super(Short.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

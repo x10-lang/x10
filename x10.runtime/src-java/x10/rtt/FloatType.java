@@ -17,7 +17,6 @@ public class FloatType extends RuntimeType<Float> {
 	private static final long serialVersionUID = 1L;
 
     public FloatType() {
-//        super(float.class,
         super(Float.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),

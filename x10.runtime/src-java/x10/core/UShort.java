@@ -18,10 +18,10 @@ import x10.rtt.Types;
  * Represents a boxed UShort value. Boxed representation is used when casting
  * a UShort value into type Any or parameter type T.
  */
-final public class UShort extends x10.core.Struct implements java.lang.Comparable<x10.core.UShort>,
-    x10.lang.Arithmetic<x10.core.UShort>, x10.lang.Bitwise<x10.core.UShort>, x10.util.Ordered<x10.core.UShort>
+final public class UShort extends x10.core.Struct implements java.lang.Comparable<UShort>,
+    x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
 {
-    private static final long serialVersionUID = 5575376732671214307L;
+    private static final long serialVersionUID = 1L;
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.USHORT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
@@ -50,7 +50,7 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
         return obj;
     }
 
-    public static int $unbox(short value) {
+    public static short $unbox(short value) {
         return value;
     }
     

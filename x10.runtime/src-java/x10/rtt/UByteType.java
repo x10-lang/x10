@@ -17,7 +17,6 @@ public class UByteType extends RuntimeType<x10.core.UByte> {
 	private static final long serialVersionUID = 1L;
 
     public UByteType() {
-//        super(int.class,
         super(x10.core.UByte.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
