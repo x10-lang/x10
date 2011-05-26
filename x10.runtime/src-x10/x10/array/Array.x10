@@ -377,23 +377,16 @@ public final class Array[T] (
     	};
     };
     
-    // TODO Inliner should remove the local class from the body of the constructor before instantiation
-    public @TempNoInline_0 def sequence(){this.rank==1}:Sequence[T] = {
-    		// once XTENLANG-2699 is fixed, replace
-    		// with anonymous class.
-    	class MySequence implements Sequence[T] {
-        	public def iterator() = new Iterator[T]() {
-        		val regIt = Array.this.iterator();
-        		public def next() = Array.this(regIt.next());
-        		public def hasNext() = regIt.hasNext();
-        	};
-        	// The :T below should not be needed, see XTENLANG-2700.
-        	public operator this(i:Int):T=Array.this(i); 
-        	public def size()=Array.this.size;
-        }
-    	@TempNoInline_0 new MySequence()
-    }
-
+    public @TempNoInline_0 def sequence(){this.rank==1}:Sequence[T] = new Sequence[T]() {
+    	public def iterator() = new Iterator[T]() {
+    		val regIt = Array.this.iterator();
+    		public def next() = Array.this(regIt.next());
+    		public def hasNext() = regIt.hasNext();
+    	};
+    	// The :T below should not be needed, see XTENLANG-2700.
+    	public operator this(i:Int):T=Array.this(i); 
+    	public def size()=Array.this.size;
+    };
     
     /**
      * Return the element of this array corresponding to the given index.

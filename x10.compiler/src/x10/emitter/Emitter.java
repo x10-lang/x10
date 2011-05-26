@@ -2195,17 +2195,19 @@ public class Emitter {
                 }
                 if (!isContainsTypeParams) continue;
                 
-                // only implements by itself not super class's
-                List<Type> allInterfaces = new ArrayList<Type>();
-                getAllInterfaces(ct.interfaces(), allInterfaces);
-                boolean isContainInterfaces = false;
-                for (Type type : allInterfaces) {
-                    if (type.typeEquals(implemented.container(), tr.context())) {
-                        isContainInterfaces = true;
-                        break;
-                    }
-                }
-                if (!isContainInterfaces) continue;
+                // TODO remove the following code when it is confirmed
+                // XTENLANG-2756
+//                // only implements by itself not super class's
+//                List<Type> allInterfaces = new ArrayList<Type>();
+//                getAllInterfaces(ct.interfaces(), allInterfaces);
+//                boolean isContainInterfaces = false;
+//                for (Type type : allInterfaces) {
+//                    if (type.typeEquals(implemented.container(), tr.context())) {
+//                        isContainInterfaces = true;
+//                        break;
+//                    }
+//                }
+//                if (!isContainInterfaces) continue;
                 
                 if (!isContainSameSignature(targets, implemented)) {
                     targets.add(implemented);
