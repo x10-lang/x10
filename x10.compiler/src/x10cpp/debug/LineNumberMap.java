@@ -312,13 +312,13 @@ public class LineNumberMap extends StringTable {
 		int endLine;
 	}
 	
-	private static LinkedHashMap<String, ArrayList<LoopVariable>> loopVariables;
-	private static ArrayList<Integer> arrayMap = new ArrayList<Integer>();
-	//private static ArrayList<Integer> refMap = new ArrayList<Integer>();
-	private static ArrayList<LocalVariableMapInfo> localVariables;
-	private static LinkedHashMap<Integer, ClassMapInfo> memberVariables;
-	private static LinkedHashMap<Integer, ClassMapInfo> referenceMembers;
-	private static LinkedHashMap<Integer, ClassMapInfo> closureMembers;	
+	private LinkedHashMap<String, ArrayList<LoopVariable>> loopVariables;
+	private ArrayList<Integer> arrayMap = new ArrayList<Integer>();
+	//private ArrayList<Integer> refMap = new ArrayList<Integer>();
+	private ArrayList<LocalVariableMapInfo> localVariables;
+	private LinkedHashMap<Integer, ClassMapInfo> memberVariables;
+	private LinkedHashMap<Integer, ClassMapInfo> referenceMembers;
+	private LinkedHashMap<Integer, ClassMapInfo> closureMembers;	
 	
 	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
@@ -974,7 +974,7 @@ public class LineNumberMap extends StringTable {
 	 * @param w the output stream
 	 * @param m the map to export
 	 */
-	public static void exportForCPPDebugger(ClassifiedStream w, LineNumberMap m) {
+	public void exportForCPPDebugger(ClassifiedStream w, LineNumberMap m) {
 	    String debugSectionAttr = "__attribute__((_X10_DEBUG_SECTION))";
 	    String debugDataSectionAttr = "__attribute__((_X10_DEBUG_DATA_SECTION))";
 	    int size = m.size();
