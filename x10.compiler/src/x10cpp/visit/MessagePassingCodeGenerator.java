@@ -2926,8 +2926,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Local_c n) {
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 		LocalInstance var = n.localInstance();
+		// Make sure there is no mismatch betweeen n.name() and var.name()
+		if (var.name() != n.name().id()) {
+		    assert var.name() == n.name().id();
+		}
 		if (c.isInsideClosure())
-			c.saveEnvVariableInfo(n.name().toString());
+			c.saveEnvVariableInfo(var.name().toString());
 		sw.write(mangled_non_method_name(var.name().toString()));
 	}
 

@@ -77,12 +77,16 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.optimizations.inlining.InliningTypeTransformer;
 import x10.types.ConstrainedType;
 import x10.types.MethodInstance;
+import x10.types.TypeParamSubst;
 
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.visit.Desugarer;
+import x10.visit.NodeTransformingVisitor;
+import x10.visit.TypeTransformer;
 
 /**
  * Unrolls loops annotated with @Unroll(n).
@@ -660,7 +664,9 @@ public class LoopUnroller extends ContextVisitor {
         Expr domainMax= (fLoopParams.fMaxSymbolic != null) ? fLoopParams.fMaxSymbolic : xnf.Call(PCG, domain, id("max"), intLit(0));
         LocalDecl minDecl= finalLocalDecl(makeFreshInContext("min"), intTypeNode(), domainMin);
         LocalDecl maxDecl= finalLocalDecl(makeFreshInContext("max"), intTypeNode(), domainMax);
+        ContextVisitor desugarer= new Desugarer(job, xts, xnf).context(this.context());
         Expr loopMax= plus(mul(div(plus(sub(local(maxDecl.localDef()), local(minDecl.localDef())), intLit(1)), intLit(fUnrollFactor)), intLit(fUnrollFactor)), local(minDecl.localDef()));
+        loopMax= (Expr) loopMax.visit(desugarer);
         LocalDecl loopMaxDecl= finalLocalDecl(makeFreshInContext("loopMax"), intTypeNode(), loopMax);
 
         //Formal firstDimVar= ((X10Formal) fLoopParams.fLoopVar).vars().get(0);
@@ -668,51 +674,64 @@ public class LoopUnroller extends ContextVisitor {
         Name loopVarName= makeFreshInContext(firstDimVar.name().toString());
         LocalDecl newLoopVarInit= localDecl(loopVarName, intTypeNode(), local(minDecl.localDef()));
         Expr loopCond= lt(local(newLoopVarInit.localDef()), local(loopMaxDecl.localDef()));
+        loopCond= (Expr) loopCond.visit(desugarer);
         ForUpdate loopUpdate= (ForUpdate) eval(addAssign(local(newLoopVarInit.localDef()), intLit(fUnrollFactor)));
+        loopUpdate= (ForUpdate) loopUpdate.visit(desugarer);
         List<ForInit> newLoopInits= Arrays.<ForInit>asList(newLoopVarInit);
         List<ForUpdate> newLoopUpdates= Arrays.asList(loopUpdate);
         List<Stmt> newLoopBodyStmts= new ArrayList<Stmt>(fUnrollFactor);
         X10Formal loopVar= (X10Formal) fLoopParams.fLoopVar;
 
-        for(int i= 0; i < fUnrollFactor; i++) {
-            if (loopVar.vars().size() > 0) {
-                final Map<VarInstance<? extends VarDef>, Expr> subs= CollectionFactory.newHashMap(1);
-                Expr varValue= intLit(i);
-                subs.put((VarInstance<? extends VarDef>) firstDimVar.localDef().asInstance(), plus(local(newLoopVarInit.localDef()), varValue));
-                final Context outer = context();
-                Desugarer.Substitution<Expr> subPerformer= new Desugarer.Substitution<Expr>(Expr.class, null) {
-                    protected Expr subst(Expr n) {
-                        if (n instanceof Local) {
-                            Local l = (Local) n;
-                            Context ctx =  context();
-                            while (ctx != outer) {
-                                if (ctx.findVariableInThisScope(l.name().id()) != null) {
-                                    // TODO Do something more sensible than just throwing an exception
-                                    // This info needs to get back to the user in consumable form
-                                    throw new IllegalStateException("Inlining failed: unintended name capture for " + l.name().id());
-                                }
-                            }
-                            LocalInstance li = l.localInstance();
-                            if (subs.containsKey(li)) {
-                                return subs.get(li);
-                            }
-                        }
-                        return n;
-                    }
-                };
-                Stmt subbedBody = (Stmt) fLoop.body().visit(subPerformer);
-
-                newLoopBodyStmts.add(subbedBody);
-            } else {
-                newLoopBodyStmts.add((Stmt) fLoop.body().copy());
+        final Map<VarInstance<? extends VarDef>, Expr> subs= CollectionFactory.newHashMap(1);
+        final Context outer= context();
+        class ReplaceLoopVar extends Desugarer.Substitution<Expr> {
+            public ReplaceLoopVar() {
+                super(Expr.class, null);
             }
+            protected Expr subst(Expr n) {
+                if (n instanceof Local) {
+                    Local l = (Local) n;
+                    Context ctx =  context();
+                    while (ctx != outer) {
+                        if (ctx.findVariableInThisScope(l.name().id()) != null) {
+                            // TODO Do something more sensible than just throwing an exception
+                            // This info needs to get back to the user in consumable form
+                            throw new IllegalStateException("Inlining failed: unintended name capture for " + l.name().id());
+                        }
+                    }
+                    LocalInstance li = l.localInstance();
+                    if (subs.containsKey(li)) {
+                        return subs.get(li);
+                    }
+                }
+                return n;
+            }
+        }
+        for(int i= 0; i < fUnrollFactor; i++) {
+            Stmt subbedBody= fLoop.body();
+            if (loopVar.type().type().isInt() || loopVar.vars().size() > 0) {
+                Expr varValue= intLit(i);
+                Expr newInit= plus(local(newLoopVarInit.localDef()), varValue);
+                newInit= (Expr) newInit.visit(desugarer);
+                subs.put((VarInstance<? extends VarDef>) firstDimVar.localDef().asInstance(), newInit);
+                Desugarer.Substitution<Expr> subPerformer= new ReplaceLoopVar();
+                subbedBody= (Stmt) subbedBody.visit(subPerformer);
+            } else {
+                subbedBody= (Stmt) subbedBody.copy();
+            }
+            InliningTypeTransformer transformer= new InliningTypeTransformer(TypeParamSubst.IDENTITY);
+            ContextVisitor visitor= new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
+            subbedBody= (Stmt) subbedBody.visit(visitor); // reinstantiate locals in the body
+            newLoopBodyStmts.add(subbedBody);
         }
         Block newLoopBody= xnf.Block(PCG, newLoopBodyStmts);
         For newForStmt= xnf.For(PCG, newLoopInits, loopCond, newLoopUpdates, newLoopBody);
         List<Stmt> unrollBlockStmts;
 
         if (fHandleLoopLeftovers == LoopLeftoverHandling.GENERATE_ASSERT) {
-            Stmt assertStmt= xnf.Assert(PCG, eq(mod(plus(sub(local(maxDecl.localDef()), local(minDecl.localDef())), intLit(1)), intLit(fUnrollFactor)), intLit(0)));
+            Expr aexpr= eq(mod(plus(sub(local(maxDecl.localDef()), local(minDecl.localDef())), intLit(1)), intLit(fUnrollFactor)), intLit(0));
+            aexpr= (Expr) aexpr.visit(desugarer);
+            Stmt assertStmt= xnf.Assert(PCG, aexpr);
 
             unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, assertStmt, newForStmt);
         } else {
@@ -723,8 +742,19 @@ public class LoopUnroller extends ContextVisitor {
             Expr remainderLoopMinIdx= local(loopMaxDecl.localDef());
             LocalDecl remainderLoopInit= localDecl(loopVarName, intTypeNode(), remainderLoopMinIdx);
             Expr remainderCond= le(local(remainderLoopInit.localDef()), local(maxDecl.localDef()));
+            remainderCond= (Expr) remainderCond.visit(desugarer);
             ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(remainderLoopInit.localDef())));
-            Stmt remainderLoop= xnf.For(PCG, Arrays.<ForInit>asList(remainderLoopInit), remainderCond, Arrays.asList(remainderUpdate), (Stmt) fLoop.body().copy());
+            remainderUpdate= (ForUpdate) remainderUpdate.visit(desugarer);
+            Stmt subbedBody= fLoop.body();
+            if (loopVar.type().type().isInt() || loopVar.vars().size() > 0) {
+                Expr newInit= local(remainderLoopInit.localDef());
+                subs.put((VarInstance<? extends VarDef>) firstDimVar.localDef().asInstance(), newInit);
+                Desugarer.Substitution<Expr> subPerformer= new ReplaceLoopVar();
+                subbedBody= (Stmt) subbedBody.visit(subPerformer);
+            } else {
+                subbedBody= (Stmt) subbedBody.copy();
+            }
+            Stmt remainderLoop= xnf.For(PCG, Arrays.<ForInit>asList(remainderLoopInit), remainderCond, Arrays.asList(remainderUpdate), subbedBody);
 
             unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, newForStmt, remainderLoop);
         }

@@ -44,6 +44,7 @@ import x10.types.constraints.TypeConstraint;
  *
  */
 public class TypeParamSubst {
+	public static final TypeParamSubst IDENTITY = new TypeParamSubst();
 	private final List<? extends Type> typeArguments;
 	private final List<ParameterType> typeParameters;
 	private final TypeSystem ts;
@@ -65,6 +66,10 @@ public class TypeParamSubst {
 		this.ts = ts;
 		this.typeArguments = tas == null ? Collections.<Type>emptyList() : tas;
 		this.typeParameters = tps == null ? Collections.<ParameterType>emptyList() : tps;
+	}
+
+	private TypeParamSubst() {
+	    this(null, null, null, false);
 	}
 
     public ArrayList<Type> copyTypeArguments() {
@@ -231,7 +236,7 @@ public class TypeParamSubst {
 		return new ReinstantiatedLocalDef(this, ld.typeSystem(), ld.position(), Types.ref(ld.x10Def()), ld);
 	}
 	*/
-	public ClosureInstance reinstantiateClosure(ClosureInstance t) {
+	private ClosureInstance reinstantiateClosure(ClosureInstance t) {
 		if (eager) {
 		    final ClosureInstance fi = t;
 		    ClosureInstance res = new ClosureInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.def()));

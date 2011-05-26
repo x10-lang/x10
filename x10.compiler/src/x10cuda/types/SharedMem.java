@@ -21,6 +21,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
+import polyglot.types.Context;
 import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
@@ -44,15 +45,22 @@ public class SharedMem implements Cloneable {
     	return decls.toString();
     }
     
+    public void addDecls(Context c) {
+    	for (Decl decl : decls) {
+            decl.addDecls(c);
+        }
+    }
+    
     private abstract static class Decl {
         public final LocalDecl ast;
         public Decl (LocalDecl ast) { this.ast = ast; }
         abstract public void visitChildren(Node parent, NodeVisitor v);
-		abstract public String generateDef(StreamWrapper out, String offset, Translator tr);
+        abstract public String generateDef(StreamWrapper out, String offset, Translator tr);
         abstract public String generateInit(StreamWrapper out, String offset, Translator tr);
         abstract public void generateSize(StreamWrapper inc, Translator tr);
-		abstract public void generateCMemPop(StreamWrapper out, Translator tr);
-		abstract public String toString();
+        abstract public void generateCMemPop(StreamWrapper out, Translator tr);
+        abstract public void addDecls(Context c);
+        abstract public String toString();
     }
     
     private static class Array extends Decl {
@@ -142,7 +150,6 @@ public class SharedMem implements Cloneable {
             }
             // FIXME: x10_float is baked in here
             inc.write("*sizeof("+elementType+")");
-
         }
 		@Override
 		public void generateCMemPop(StreamWrapper out, Translator tr) {
@@ -155,6 +162,9 @@ public class SharedMem implements Cloneable {
 		public void visitChildren(Node parent, NodeVisitor v) {
         	numElements = (Expr) parent.visitChild(numElements, v);
 	        if (init!=null) init = (Expr) parent.visitChild(init, v);
+		}
+		public void addDecls(Context c) {
+		    ast.addDecls(c);
 		}
     }
     private static class Var extends Decl {
@@ -179,12 +189,14 @@ public class SharedMem implements Cloneable {
 		@Override
 		public void generateCMemPop(StreamWrapper out, Translator tr) {
 			// TODO Auto-generated method stub
-			
 		}
 		@Override
 		public void visitChildren(Node parent, NodeVisitor v) {
 			// TODO Auto-generated method stub
-			
+		}
+		public void addDecls(Context c) {
+		    // TODO: not implemented
+		    assert false: "not implemented";
 		}
     }
     

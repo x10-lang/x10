@@ -149,6 +149,7 @@ import x10cuda.types.SharedMem;
 import x10cuda.types.X10CUDAContext_c;
 import polyglot.main.Options;
 import polyglot.main.Report;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.QName;
@@ -387,6 +388,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		// body
 		sw.pushCurrentStream(out);
         try {
+        	Context context = tr.context();
+        	cuda_kernel.blocksVar.addDecls(context);
+        	if (cuda_kernel.autoBlocks != null)  cuda_kernel.autoBlocks.addDecls(context);
+        	if (cuda_kernel.autoThreads != null) cuda_kernel.autoThreads.addDecls(context);
+        	cuda_kernel.cmem.addDecls(context);
+        	cuda_kernel.shm.addDecls(context);
         	super.visitAppropriate(b);
         } finally {
         	sw.popCurrentStream();
@@ -756,11 +763,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (generatingCUDACode() && !inCUDAFunction()) {
 			ClassifiedStream out = cudaKernelStream();
 			Name ln = n.name().id();
-			if (ln == cuda_kernel.blocksVar.name().id()) {
+			// HACK: Use localDef().name(), rather than name().id(), because the vars will have been renamed
+			if (ln == cuda_kernel.blocksVar.localDef().name()) {
 				out.write("blockIdx.x");
-			} else if (ln == cuda_kernel.threadsVar.name().id()) {
+			} else if (ln == cuda_kernel.threadsVar.localDef().name()) {
 				out.write("threadIdx.x");
-			} else if (context().shmIterationVar()!=null && ln == context().shmIterationVar().name().id()) {
+			} else if (context().shmIterationVar()!=null && ln == context().shmIterationVar().localDef().name()) {
 				out.write("__i");
 			} else if (cuda_kernel.shm.has(ln)) {
 				out.write(ln.toString());

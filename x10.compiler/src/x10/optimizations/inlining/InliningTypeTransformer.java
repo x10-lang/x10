@@ -50,7 +50,7 @@ import x10.types.matcher.Subst;
 import x10.visit.TypeParamSubstTransformer;
 
 public class InliningTypeTransformer extends TypeParamSubstTransformer {
-        protected InliningTypeTransformer(TypeParamSubst subst) {
+        public InliningTypeTransformer(TypeParamSubst subst) {
             super(subst);
         }
 
@@ -193,27 +193,27 @@ public class InliningTypeTransformer extends TypeParamSubstTransformer {
 
         @Override
         protected LocalDecl transform(LocalDecl d, LocalDecl old) {
-//            X10LocalDef ld = (X10LocalDef) d.localDef();
-//            X10LocalDef newld = vars.get(ld);
-//            if (newld == null) {
-//                newld = copyLocalDef(ld); // force reinstantiation
-//                newld.setType(d.type().typeRef());
-//                mapLocal(newld, newld);
-//            }
-//            mapLocal(ld, newld);
+            X10LocalDef ld = (X10LocalDef) d.localDef();
+            X10LocalDef newld = vars.get(ld);
+            if (newld == null) {
+                newld = copyLocalDef(ld); // force reinstantiation
+                newld.setType(d.type().typeRef());
+                mapLocal(newld, newld);
+            }
+            mapLocal(ld, newld);
             return super.transform(d, old);
         }
         
         @Override
         protected X10Formal transform(X10Formal f, X10Formal old) {
-//            X10LocalDef ld = (X10LocalDef) f.localDef();
-//            X10LocalDef newld = vars.get(ld);
-//            if (newld == null) {
-//                newld = copyLocalDef(ld); // force reinstantiation
-//                newld.setType(f.type().typeRef());
-//                mapLocal(newld, newld);
-//            }
-//            mapLocal(ld, newld);
+            X10LocalDef ld = (X10LocalDef) f.localDef();
+            X10LocalDef newld = vars.get(ld);
+            if (newld == null) {
+                newld = copyLocalDef(ld); // force reinstantiation
+                newld.setType(f.type().typeRef());
+                mapLocal(newld, newld);
+            }
+            mapLocal(ld, newld);
             return super.transform(f, old);
         }
         

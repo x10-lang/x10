@@ -150,7 +150,7 @@ public class VarsBoxer extends ContextVisitor {
                     
                     newBody.add(body);
                     
-                    atEx = (AtExpr) atEx.body(xnf.StmtSeq(Position.COMPILER_GENERATED, newBody));
+                    atEx = (AtExpr) atEx.body(xnf.Block(Position.COMPILER_GENERATED, newBody));
                     
                     Stmt at = ld.init(atEx);
                     

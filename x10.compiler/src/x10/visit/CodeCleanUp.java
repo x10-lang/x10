@@ -41,6 +41,7 @@ import x10.ast.AtStmt;
 import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
 import x10.extension.X10Ext;
+import x10.optimizations.inlining.X10AlphaRenamer;
 import x10.util.CollectionFactory;
 
 /**
@@ -51,7 +52,6 @@ public class CodeCleanUp extends ContextVisitor {
 
     private TypeSystem xts;
     private NodeFactory xnf;
-    protected OneScopeRenamer oneScopeRen;
     protected boolean report;
     protected boolean reportStats;
     static protected long blockCount;
@@ -66,7 +66,6 @@ public class CodeCleanUp extends ContextVisitor {
         super(job, ts, nf);
         xts = ts;
         xnf = nf;
-        this.oneScopeRen = new OneScopeRenamer();
         this.report = reporter.should_report("CodeCleanUp", 1);
         this.reportStats = reporter.should_report("CodeCleanUpStats", 1);
     }
@@ -307,6 +306,7 @@ public class CodeCleanUp extends ContextVisitor {
                     // flattening.
                     if (report) System.out.println("Cleaning up a block" + inner.position());
                     if (reportStats) blockCount++;
+                    X10AlphaRenamer oneScopeRen = new X10AlphaRenamer(this);
                     if (!innerIsStmtSeq) inner = (Block) inner.visit(oneScopeRen);
                     // Could add a check here that scopeLevel is back to 0???
                     stmtList.addAll(inner.statements());

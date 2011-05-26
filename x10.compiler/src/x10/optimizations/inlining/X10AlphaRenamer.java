@@ -24,13 +24,13 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.util.CollectionFactory;
 
-class X10AlphaRenamer extends AlphaRenamer {
+public class X10AlphaRenamer extends AlphaRenamer {
 
     protected Map<Name, LocalDef> localDefMap = CollectionFactory.newHashMap();
     protected TypeRewriter rewriter = new TypeRewriter(renamingMap, localDefMap);
     private ContextVisitor cv;
     
-    X10AlphaRenamer(ContextVisitor visitor) {
+    public X10AlphaRenamer(ContextVisitor visitor) {
         cv = visitor;
     }
 
@@ -50,12 +50,12 @@ class X10AlphaRenamer extends AlphaRenamer {
     @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         Set<Name> s = null;
-        if (n instanceof Block) {
+        if (isNewScope(n)) {
             s = setStack.peek();
         }
         Node res = rewriter.transform(n, old, cv);
         res = super.leave(old, res, v);
-        if (res instanceof Block) {
+        if (isNewScope(res)) {
             localDefMap.keySet().removeAll(s);
         }
         return res;

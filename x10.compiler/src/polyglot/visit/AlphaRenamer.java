@@ -14,7 +14,10 @@ import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.UniqueID;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.ast.ForLoop;
+import x10.ast.StmtSeq;
+import x10.util.CollectionFactory;
 
 /**
  * The <code>AlphaRenamer</code> runs over the AST and alpha-renames any local
@@ -59,7 +62,7 @@ public class AlphaRenamer extends NodeVisitor {
   public static final String LABEL_PREFIX = "label ";
 
   public NodeVisitor enter( Node n ) {
-    if ( n instanceof Block ) {
+    if ( isNewScope(n) ) {
       // Push a new, empty set onto the stack.
       setStack.push( CollectionFactory.<Name>newHashSet() );
     }
@@ -112,7 +115,7 @@ public class AlphaRenamer extends NodeVisitor {
   }
 
   public Node leave( Node old, Node n, NodeVisitor v ) {
-    if ( n instanceof Block ) {
+    if ( isNewScope(n) ) {
       // Pop the current name set off the stack and remove the corresponding
       // entries from the renaming map.
       Set<Name> s = setStack.pop();
@@ -222,5 +225,12 @@ public class AlphaRenamer extends NodeVisitor {
     }
 
     return n;
+  }
+
+  /**
+   * Does this node define a new scope with its own locals?
+   */
+  protected static boolean isNewScope(Node n) {
+    return (n instanceof Block && !(n instanceof StmtSeq)) || n instanceof For || n instanceof ForLoop;
   }
 }
