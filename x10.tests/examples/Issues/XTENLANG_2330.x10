@@ -23,6 +23,7 @@ public class XTENLANG_2330 extends x10Test
 		TestArrayMap.test();
 		XTENLANG_2370.test();
         new Helper2330(50).run(0);
+        XTENLANG_2712.test();
         new DynamicCallsTest().run();
         new MethodInstanceArgTest().test();
         if (!new NestedArray_73().run()) return false;
@@ -252,6 +253,22 @@ class ABC23 {
   }
 }
 
+class XTENLANG_2712[T](a:Int) {
+	static type D=XTENLANG_2712[Int]{self.a==3};
+
+	def this(a:Int) {
+		property(a);
+	}
+	static def m(i:Int) {
+		val v =
+			new D(i); // ERR: Warning: Expression 'new C[x10.lang.Int]{self.a==3}(...)' was cast to type C[x10.lang.Int]{self.a==3}.
+	}
+	static def test() {
+		m(3); // ok
+		try { m(2);  fail(); } catch (e:FailedDynamicCheckException) {}
+	}
+	static def fail():void { throw new RuntimeException("test failed!"); }
+}
 class Helper2330(p:Int) {
 	// test inner classes (both instance & nested), inheritance, overriding, generics (for generics I just checked codegen below, not runtime behaviour)
 	// new & call (with and without target/qualifier), operators

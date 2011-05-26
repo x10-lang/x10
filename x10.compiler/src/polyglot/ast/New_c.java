@@ -199,9 +199,7 @@ public abstract class New_c extends Expr_c implements X10New
         ClassBody body = (ClassBody) n.visitChild(n.body, childtc);
 
         n = (New_c) n.body(body);
-        n = (New_c) tc.leave(parent, this, n, childtc);
-
-        return n;
+        return tc.leave(parent, this, n, childtc);
     }
 
     protected New_c typeCheckHeader(TypeChecker childtc) {
