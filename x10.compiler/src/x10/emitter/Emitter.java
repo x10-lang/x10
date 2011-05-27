@@ -2288,6 +2288,7 @@ public class Emitter {
     private static void getAllInterfaces(List<Type> interfaces, List<Type> allInterfaces) {
         allInterfaces.addAll(interfaces);
         for (Type type : interfaces) {
+        	type = Types.baseType(type);
             if (type instanceof X10ClassType) {
                 List<Type> interfaces1 = ((X10ClassType) type).interfaces();
                 getAllInterfaces(interfaces1, allInterfaces);
