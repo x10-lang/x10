@@ -183,13 +183,15 @@ public class ClosureRemover extends ContextVisitor {
                         List<TypeNode> tns = new ArrayList<TypeNode>();
                         List<TypeParamNode> tps = new ArrayList<TypeParamNode>();
     
-                        List<ParameterType> mtps = getCurrentCodeParameterType(context);
-                        if (mtps != null) {
-                            for (ParameterType t : mtps) {
-                                ParameterType pt = (ParameterType) t;
-                                rts.add(pt);
-                                tns.add(xnf.X10CanonicalTypeNode(pos, pt));
-                                tps.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name())).type(pt));
+                        if (!context.currentCode().staticContext()) {
+                            List<ParameterType> mtps = context.currentClassDef().typeParameters();
+                            if (mtps != null) {
+                                for (ParameterType t : mtps) {
+                                    ParameterType pt = (ParameterType) t;
+                                    rts.add(pt);
+                                    tns.add(xnf.X10CanonicalTypeNode(pos, pt));
+                                    tps.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name())).type(pt));
+                                }
                             }
                         }
                         
