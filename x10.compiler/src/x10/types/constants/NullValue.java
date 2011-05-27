@@ -11,27 +11,42 @@
 package x10.types.constants;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Lit;
+import polyglot.ast.NodeFactory;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 
 /**
- * @author Bowen Alpern
- *
+ * A constant value the represents the constant null.
  */
 public final class NullValue extends ConstantValue {
 
-    /**
-     * @param v
-     * @param ts
-     */
-    public NullValue(TypeSystem ts) {
-        super(null, ts.Null());
+    NullValue() { }
+    
+    public Object toJavaObject() { return null; }
+    
+    @Override
+    public Lit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
+        return nf.NullLit(pos);
     }
 
-	@Override
-	public Object value() {
-		return null;
-	}
+    public Lit toUntypedLit(NodeFactory nf, Position pos) {
+        return nf.NullLit(pos);
+    }
 
+    @Override
+    public boolean equals(Object that) {
+        return that instanceof NullValue;
+    }
+    
+    @Override 
+    public int hashCode() {
+        return 2112;
+    }
+    
+    @Override
+    public String toString() {
+        return "null";
+    }
 }

@@ -10,69 +10,147 @@
  */
 package x10.types.constants;
 
+import polyglot.ast.IntLit;
+import polyglot.ast.IntLit_c;
+import polyglot.ast.Lit;
+import polyglot.ast.NodeFactory;
 import polyglot.types.TypeSystem;
+import polyglot.util.Position;
 
 /**
- * @author Bowen Alpern
- *
+ * A class to represent that various kinds of Integral constants.
  */
 public final class IntegralValue extends ConstantValue {
+    private final long val;
+    private final IntLit.Kind kind;
     
-    public IntegralValue(TypeSystem ts, long n, boolean unsigned) {
-        super(n, unsigned ? ts.ULong() : ts.Long());
-    }
-    
-    public IntegralValue(TypeSystem ts, long n) {
-        this(ts, n, false);
-    }
-    
-    public IntegralValue(TypeSystem ts, int n, boolean unsigned) {
-        super(unsigned ? 0xFFFFFFFF & (long) n : (long) n, unsigned ? ts.UInt() : ts.Int());
-    }
-
-    public IntegralValue(TypeSystem ts, int n) {
-        this(ts, n, false);
-    }
-
-    public IntegralValue(TypeSystem ts, short n, boolean unsigned) {
-        super(unsigned ? 0xFFFF & (long) n : (long) n, unsigned ? ts.UShort() : ts.Short());
+    IntegralValue(long v, IntLit.Kind k) {
+        val = v;
+        kind = k;
     }
     
-    public IntegralValue(TypeSystem ts, short n) {
-        this(ts, n, false);
+    public byte byteValue() { 
+        return (byte)val;
     }
     
-    public IntegralValue(TypeSystem ts, byte n, boolean unsigned) {
-        super(unsigned ? 0xFF & (long) n : (long) n, unsigned ? ts.UByte() : ts.Byte());
+    public short shortValue() {
+        return (short)val;
+    }
+    
+    public int intValue() {
+        return (int)val;
+    }
+    
+    public long longValue() {
+        return val;
+    }
+    
+    public IntLit.Kind kind() {
+        return kind;
+    }
+    
+    public boolean isByte() {
+        return kind.equals(IntLit.Kind.BYTE);
+    }
+    
+    public boolean isUByte() {
+        return kind.equals(IntLit.Kind.UBYTE);
+    }
+    
+    public boolean isShort() {
+        return kind.equals(IntLit.Kind.SHORT);
+    }
+    
+    public boolean isUShort() {
+        return kind.equals(IntLit.Kind.USHORT);
+    }
+    
+    public boolean isInt() {
+        return kind.equals(IntLit.Kind.INT);
+    }
+    
+    public boolean isUInt() {
+        return kind.equals(IntLit.Kind.UINT);
+    }
+    
+    public boolean isLong() {
+        return kind.equals(IntLit.Kind.LONG);
+    }
+    
+    public boolean isULong() {
+        return kind.equals(IntLit.Kind.ULONG);
+    }
+    
+    public Object toJavaObject() {
+        if (isByte() || isUByte()) {
+            return Integer.valueOf((byte)val);
+        } else if (isShort() || isUShort()) {
+            return Integer.valueOf((short)val);
+        } else if (isInt() || isUInt()) {
+            return Integer.valueOf((int)val);
+        } else {
+            return Long.valueOf(val);
+        }
+    }
+    
+    @Override
+    public Lit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
+        IntLit lit = nf.IntLit(pos, kind, val);
+        if (isULong()) {
+            return (Lit) lit.type(ts.ULong());
+        } else if (isLong()) {
+            return (Lit)lit.type(ts.Long());
+        } else if (isUInt()) {
+            return (Lit)lit.type(ts.UInt());
+        } else if (isInt()) {
+            return (Lit)lit.type(ts.Int());
+        } else if (isUShort()) {
+            return (Lit)lit.type(ts.UShort());
+        } else if (isShort()) {
+            return (Lit)lit.type(ts.Short());
+        } else if (isUByte()) {
+            return (Lit)lit.type(ts.UByte());
+        } else {
+            return (Lit)lit.type(ts.Byte());
+        }
+    }
+    
+    public IntLit toUntypedLit(NodeFactory nf, Position pos) {
+        return nf.IntLit(pos, kind, val);
     }
 
-    public IntegralValue(TypeSystem ts, byte n) {
-        this(ts, n, false);
+    @Override
+    public boolean equals(Object that) {
+        if (that instanceof IntegralValue) {
+            IntegralValue iv = (IntegralValue)that;
+            return kind.equals(iv.kind) && val == iv.val;
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
+    public int hashCode() {
+        return Long.valueOf(val).hashCode();
     }
 
-	@Override
-	public Long value() {
-		return (Long) value;
-	}
-
-    public byte asByte() {
-    	return (byte) (long) (Long) value;
+    @Override
+    public String toString() {
+        return Long.toString(val);
     }
-
-    public short asShort() {
-    	return (short) (long) (Long) value;
+    
+    @Override
+    public long integralValue() {
+        return (long)val;
     }
-
-    public char asChar() {
-    	return (char) (long) (Long) value;
+   
+    @Override
+    public double doubleValue() {
+        return (double)val;
     }
-
-    public int asInt() {
-    	return (int) (long) (Long) value;
+    
+    @Override
+    public float floatValue() {
+        return (float)val;
     }
-
-    public long asLong() {
-    	return (long) (Long) value;
-    }
-
 }

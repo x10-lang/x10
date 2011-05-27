@@ -10,21 +10,52 @@
  */
 package x10.types.constants;
 
+import polyglot.ast.BooleanLit;
+import polyglot.ast.NodeFactory;
 import polyglot.types.TypeSystem;
+import polyglot.util.Position;
 
 /**
- * @author Bowen Alpern
- *
+ * A boolean constant value (true or false)
  */
 public final class BooleanValue extends ConstantValue {
+    private final boolean val;
     
-    public BooleanValue(TypeSystem ts, boolean b) {
-        super(b, ts.Boolean());
+    BooleanValue(boolean b) {
+        val = b;
     }
 
+	public boolean value() {
+		return val;
+	}
+	
+	public Boolean toJavaObject() { return Boolean.valueOf(val); }
+	
+	public BooleanLit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
+	    return (BooleanLit) nf.BooleanLit(pos, val).type(ts.Boolean());
+	}
+
+	public BooleanLit toUntypedLit(NodeFactory nf, Position pos) {
+	    return (BooleanLit) nf.BooleanLit(pos, val);
+	}
+
 	@Override
-	public Boolean value() {
-		return (Boolean) value;
+	public boolean equals(Object that) {
+	    if (that instanceof BooleanValue) {
+	        return (((BooleanValue) that).val) == val;
+	    } else {
+	        return false;
+	    }
+	}
+	
+	@Override
+	public int hashCode() {
+	    return Boolean.valueOf(val).hashCode();
+	}
+	
+	@Override
+	public String toString() {
+	    return val ? "true" : "false";
 	}
 
 }
