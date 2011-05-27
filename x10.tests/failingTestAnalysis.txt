@@ -40,8 +40,7 @@ Issues/XTENLANG_2384.x10:
 	  Broken catch blocks - XTENLANG-2745.
 
 Constructs/IndexedMemoryChunk/Congruent.x10:
-	  C++ timeout; Java OOM.
-          Dave G:  I thing the test parameters are too big for the size of machines we are running on.
+          Java: x10rt remote ops not implemented for Managed X10.
 
 Samples/CUDABlackScholesTest.x10:
 	  Java OOM.
