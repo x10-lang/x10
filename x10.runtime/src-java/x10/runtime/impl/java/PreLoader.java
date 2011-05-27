@@ -26,7 +26,7 @@ import java.util.*;
 public class PreLoader {
 	
 	// WIP XTENLANG-2722
-	public static final boolean supportExecutableJar = true;
+	public static final boolean supportExecutableJar = false;
 	
 	public static void main(String[] args) {
 //		try {
