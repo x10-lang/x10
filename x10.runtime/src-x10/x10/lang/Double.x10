@@ -189,7 +189,7 @@ public struct Double implements Comparable[Double] /*TODO implements Arithmetic[
      * @param x the given UByte
      * @return the given UByte converted to a Double.
      */
-    @Native("java", "((double)(byte)(#x))")
+    @Native("java", "((double)((int)(#x)&0xff))")
     @Native("c++",  "((x10_double) (#1))")
     public native static operator (x:UByte): Double;
 
@@ -198,7 +198,7 @@ public struct Double implements Comparable[Double] /*TODO implements Arithmetic[
      * @param x the given UShort
      * @return the given UShort converted to a Double.
      */
-    @Native("java", "((double)(short)(#x))")
+    @Native("java", "((double)((int)(#x)&0xffff))")
     @Native("c++",  "((x10_double) (#1))")
     public native static operator (x:UShort): Double;
 
@@ -207,7 +207,7 @@ public struct Double implements Comparable[Double] /*TODO implements Arithmetic[
      * @param x the given UInt
      * @return the given UInt converted to a Double.
      */
-    @Native("java", "((double)(#x))")
+    @Native("java", "((double)(((long)#x)&0xffffffffL))")
     @Native("c++",  "((x10_double) (#1))")
     public native static operator (x:UInt): Double;
 
@@ -216,7 +216,7 @@ public struct Double implements Comparable[Double] /*TODO implements Arithmetic[
      * @param x the given ULong
      * @return the given ULong converted to a Double.
      */
-    @Native("java", "((double)((#x)+java.lang.Long.MIN_VALUE)-(double)java.lang.Long.MIN_VALUE)")	// FIXME:incorrect conversion
+    @Native("java", "(x10.core.Unsigned.toDouble(#x))")
     @Native("c++",  "((x10_double) (#1))")
     public native static operator (x:ULong): Double;
 

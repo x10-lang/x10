@@ -188,7 +188,7 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
      * @param x the given UByte
      * @return the given UByte converted to a Float.
      */
-    @Native("java", "((float)(byte)(#x))")
+    @Native("java", "((float)((int)(#x)&0xff))")
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:UByte): Float;
 
@@ -197,7 +197,7 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
      * @param x the given UShort
      * @return the given UShort converted to a Float.
      */
-    @Native("java", "((float)(short)(#x))")
+    @Native("java", "((float)((int)(#x)&0xffff))")
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:UShort): Float;
 
@@ -206,7 +206,7 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
      * @param x the given UInt
      * @return the given UInt converted to a Float.
      */
-    @Native("java", "((float)(#x))")
+    @Native("java", "((float)(((long)#x)&0xffffffffL))")
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:UInt): Float;
 
@@ -215,7 +215,7 @@ public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Fl
      * @param x the given ULong
      * @return the given ULong converted to a Float.
      */
-    @Native("java", "((float)(long)(#x))")	// FIXME:incorrect conversion
+    @Native("java", "(x10.core.Unsigned.toFloat(#x))")
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:ULong): Float;
 
