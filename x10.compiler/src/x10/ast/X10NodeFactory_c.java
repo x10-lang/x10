@@ -805,10 +805,10 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return n;
 	}
 
-	public CUDAKernel CUDAKernel(Position position, List<Stmt> statements) {
-        CUDAKernel n = new CUDAKernel(position, CollectionUtil.nonNullList(statements));
-        n = (CUDAKernel)n.ext(extFactory().extBlock());
-        n = (CUDAKernel)n.del(delFactory().delBlock());
-        return n;
+	public CUDAKernel CUDAKernel(Position position, List<Stmt> statements, Block body) {
+		CUDAKernel n = new CUDAKernel(position, CollectionUtil.nonNullList(statements), body);
+		n = (CUDAKernel)n.ext(extFactory().extBlock());
+		n = (CUDAKernel)n.del(delFactory().delBlock());
+		return n;
 	}
 }

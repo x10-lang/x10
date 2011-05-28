@@ -38,13 +38,16 @@ public class AlphaRenamer extends NodeVisitor {
 
   protected Map<Name,Name> labelMap;
 
+  protected boolean clearMaps;
 
   /**
    * Creates a visitor for alpha-renaming locals.
-   *
-   * @param nf  The node factory to be used when generating new nodes.
-   **/
+   */
   public AlphaRenamer() {
+    this(true);
+  }
+
+  public AlphaRenamer(boolean clearOutOfScopeMaps) {
     this.setStack = new Stack<Set<Name>>();
     this.setStack.push( CollectionFactory.<Name>newHashSet() );
 
@@ -52,6 +55,7 @@ public class AlphaRenamer extends NodeVisitor {
     this.renamingMap = CollectionFactory.newHashMap();
     this.labelMap = CollectionFactory.newHashMap();
     this.freshVars = CollectionFactory.newHashSet();
+    this.clearMaps = clearOutOfScopeMaps;
   }
 
   /** Map from local def to old names. */
@@ -119,8 +123,10 @@ public class AlphaRenamer extends NodeVisitor {
       // Pop the current name set off the stack and remove the corresponding
       // entries from the renaming map.
       Set<Name> s = setStack.pop();
-      renamingMap.keySet().removeAll(s);
-      labelMap.keySet().removeAll(s);
+      if (clearMaps) {
+        renamingMap.keySet().removeAll(s);
+        labelMap.keySet().removeAll(s);
+      }
       return n;
     }
 

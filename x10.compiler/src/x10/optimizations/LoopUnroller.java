@@ -58,8 +58,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.VarDef;
-import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import x10.util.Synthesizer;
@@ -682,7 +680,7 @@ public class LoopUnroller extends ContextVisitor {
         List<Stmt> newLoopBodyStmts= new ArrayList<Stmt>(fUnrollFactor);
         X10Formal loopVar= (X10Formal) fLoopParams.fLoopVar;
 
-        final Map<VarInstance<? extends VarDef>, Expr> subs= CollectionFactory.newHashMap(1);
+        final Map<LocalDef, Expr> subs= CollectionFactory.newHashMap(1);
         final Context outer= context();
         class ReplaceLoopVar extends Desugarer.Substitution<Expr> {
             public ReplaceLoopVar() {
@@ -699,9 +697,9 @@ public class LoopUnroller extends ContextVisitor {
                             throw new IllegalStateException("Inlining failed: unintended name capture for " + l.name().id());
                         }
                     }
-                    LocalInstance li = l.localInstance();
-                    if (subs.containsKey(li)) {
-                        return subs.get(li);
+                    LocalDef ld = l.localInstance().def();
+                    if (subs.containsKey(ld)) {
+                        return subs.get(ld);
                     }
                 }
                 return n;
@@ -713,7 +711,7 @@ public class LoopUnroller extends ContextVisitor {
                 Expr varValue= intLit(i);
                 Expr newInit= plus(local(newLoopVarInit.localDef()), varValue);
                 newInit= (Expr) newInit.visit(desugarer);
-                subs.put((VarInstance<? extends VarDef>) firstDimVar.localDef().asInstance(), newInit);
+                subs.put(firstDimVar.localDef(), newInit);
                 Desugarer.Substitution<Expr> subPerformer= new ReplaceLoopVar();
                 subbedBody= (Stmt) subbedBody.visit(subPerformer);
             } else {
@@ -748,7 +746,7 @@ public class LoopUnroller extends ContextVisitor {
             Stmt subbedBody= fLoop.body();
             if (loopVar.type().type().isInt() || loopVar.vars().size() > 0) {
                 Expr newInit= local(remainderLoopInit.localDef());
-                subs.put((VarInstance<? extends VarDef>) firstDimVar.localDef().asInstance(), newInit);
+                subs.put(firstDimVar.localDef(), newInit);
                 Desugarer.Substitution<Expr> subPerformer= new ReplaceLoopVar();
                 subbedBody= (Stmt) subbedBody.visit(subPerformer);
             } else {

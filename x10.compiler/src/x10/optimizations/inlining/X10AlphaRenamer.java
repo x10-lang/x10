@@ -31,9 +31,14 @@ public class X10AlphaRenamer extends AlphaRenamer {
     private ContextVisitor cv;
     
     public X10AlphaRenamer(ContextVisitor visitor) {
+        this(visitor, true);
+    }
+    
+    public X10AlphaRenamer(ContextVisitor visitor, boolean clearOutOfScopeMaps) {
+        super(clearOutOfScopeMaps);
         cv = visitor;
     }
-
+    
     @Override
     public NodeVisitor enter(Node n) {
         if (n instanceof LocalDecl) {
@@ -55,7 +60,7 @@ public class X10AlphaRenamer extends AlphaRenamer {
         }
         Node res = rewriter.transform(n, old, cv);
         res = super.leave(old, res, v);
-        if (isNewScope(res)) {
+        if (clearMaps && isNewScope(res)) {
             localDefMap.keySet().removeAll(s);
         }
         return res;

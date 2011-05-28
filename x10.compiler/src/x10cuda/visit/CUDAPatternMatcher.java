@@ -3,7 +3,6 @@ package x10cuda.visit;
 import java.util.List;
 
 import polyglot.ast.Block;
-import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Eval;
@@ -42,25 +41,23 @@ import x10.ast.X10Loop;
 import x10.ast.X10Loop_c;
 import x10.ast.X10New_c;
 import x10.extension.X10Ext;
+import x10.optimizations.inlining.InliningTypeTransformer;
 import x10.types.MethodInstance;
+import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
+import x10.visit.NodeTransformingVisitor;
 import x10cpp.visit.Emitter;
 import x10cuda.ast.CUDAKernel;
 import x10cuda.types.CUDAData;
 import x10cuda.types.SharedMem;
 
-public class CUDAPatternMatcher extends NodeVisitor {
+public class CUDAPatternMatcher extends ContextVisitor {
 	
 	private static final String ANN_KERNEL = "x10.compiler.CUDA";
 	private static final String ANN_DIRECT_PARAMS = "x10.compiler.CUDADirectParams";
-	private Job job;
-	private TypeSystem ts;
-	private NodeFactory nf;
 	
 	public CUDAPatternMatcher(Job job, TypeSystem ts, NodeFactory nf) {
-		this.job = job;
-		this.ts = ts;
-		this.nf = nf;
+		super(job, ts, nf);
 	}
 
 	private TypeSystem xts() {
@@ -227,25 +224,27 @@ public class CUDAPatternMatcher extends NodeVisitor {
 		}
 	}
 
-	public static Block_c checkAsync(Stmt s, boolean clocked) {
+	public static Block checkAsync(Stmt s, boolean clocked) {
 		try {
 			Async s1 = (Async) s;
 			if (s1.clocked() != clocked) return null;
-			return (Block_c)s1.body();
+			return (Block) s1.body();
 		} catch (ClassCastException e) {
 			return null;
 		}
 	}
 	
-	public Node leave(Node parent, Node old, Node child, NodeVisitor visitor) {
+	public Node leaveCall(Node parent, Node old, Node child, NodeVisitor visitor) {
 		if (child instanceof Block) {
-			if (blockIsKernel(child)) {
+			Block b = (Block) child;
+			if (blockIsKernel(b)) {
 				try {
 					//System.out.println("Got kernel: ");
 					//parent.prettyPrint(System.out);
 					//System.out.println();
-					Block_c kernel_block = (Block_c) child;
-					boolean direct = kernelWantsDirectParams(child);
+					InliningTypeTransformer transformer = new InliningTypeTransformer(TypeParamSubst.IDENTITY);
+					Block kernel_block = (Block) b.visit(new NodeTransformingVisitor(job, ts, nf, transformer).context(context()));
+					boolean direct = kernelWantsDirectParams(b);
 					complainIfNot2(parent instanceof AtStmt, "@CUDA annotation must be on an at body", kernel_block);
 					
 	
@@ -291,7 +290,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 								Local arr = (Local) arr_;
 								complainIfNot(init_call.name().id().toString().equals("sequence"), "constant cache definition to call 'sequence'", init_expr);
 								Type cargo = arrayCargo(arr.type());
-								cmem.addArrayInitArray((LocalDecl)setReachable(ld), arr,  Emitter.translateType(cargo, true));
+								cmem.addArrayInitArray((LocalDecl) setReachable(ld), arr,  Emitter.translateType(cargo, true));
 							} else {
 								complainIfNot(
 										false,
@@ -346,9 +345,9 @@ public class CUDAPatternMatcher extends NodeVisitor {
 							"A single loop at the root of the CUDA kernel", finish_body_block);
 	
 					MultipleValues outer = processLoop(finish_body_block);
-					Block outer_b = (Block_c) outer.body;
+					Block outer_b = (Block) outer.body;
 	
-					outer_b = (Block_c) checkAsync(outer_b.statements().get(0), false);
+					outer_b = (Block) checkAsync(outer_b.statements().get(0), false);
 					complainIfNot(outer_b != null, "An async for the block", outer.body);
 	
 					Stmt last = outer_b.statements().get(outer_b.statements().size() - 1);
@@ -379,8 +378,8 @@ public class CUDAPatternMatcher extends NodeVisitor {
 						if (init_new.arguments().size() == 2) {
 							Expr num_elements = init_new.arguments().get(0);
 							Expr rail_init_closure = init_new.arguments().get(1);
-							shm.addArrayInitClosure((LocalDecl)setReachable(ld), (Expr)setReachable(num_elements),
-									(Expr)setReachable(rail_init_closure), rail_type_arg_);
+							shm.addArrayInitClosure((LocalDecl) setReachable(ld), (Expr) setReachable(num_elements),
+									(Expr) setReachable(rail_init_closure), rail_type_arg_);
 						} else {
 							complainIfNot(init_new.arguments().size() == 1,
 									"val <var> = new Array[T](other_array)",
@@ -391,7 +390,7 @@ public class CUDAPatternMatcher extends NodeVisitor {
 											|| xts().isRemoteArray(src_array.type()),
 									"SHM to be initialised from array or remote array type",
 									src_array);
-							shm.addArrayInitArray((LocalDecl)setReachable(ld), (Expr)setReachable(src_array), rail_type_arg_);
+							shm.addArrayInitArray((LocalDecl) setReachable(ld), (Expr) setReachable(src_array), rail_type_arg_);
 						}
 					}
 	
@@ -402,29 +401,24 @@ public class CUDAPatternMatcher extends NodeVisitor {
 							"A loop over CUDA threads", for_block2_);
 					Block for_block2 = (Block) for_block2_;
 					MultipleValues inner = processLoop(for_block2);
-					Block inner_b = (Block_c) inner.body;
+					Block inner_b = inner.body;
 	
 					complainIfNot(inner_b.statements().size() == 1,
 							"A block with a single statement", inner_b);
 					Stmt async = inner_b.statements().get(0);
-					Block_c async_body = checkAsync(async, true);
+					Block async_body = (Block) checkAsync(async, true);
 	
-					int tag = CUDAKernel.fresh();
-					async_body.cudaTag(tag);
-
-					CUDAKernel ck = nf.CUDAKernel(kernel_block.position(), kernel_block.statements()); 
-					ck.autoBlocks = (LocalDecl)setReachable(autoBlocks);
-					ck.autoThreads = (LocalDecl)setReachable(autoThreads);
-					ck.blocks = (Expr)setReachable(outer.max);
-					ck.blocksVar = (Formal)setReachable(outer.var);
-					ck.threads = (Expr)setReachable(inner.max);
-					ck.threadsVar = (Formal)setReachable(inner.var);
+					CUDAKernel ck = nf.CUDAKernel(b.position(), b.statements(), (Block) setReachable(async_body));
+					ck.autoBlocks = (LocalDecl) setReachable(autoBlocks);
+					ck.autoThreads = (LocalDecl) setReachable(autoThreads);
+					ck.blocks = (Expr) setReachable(outer.max);
+					ck.blocksVar = (Formal) setReachable(outer.var);
+					ck.threads = (Expr) setReachable(inner.max);
+					ck.threadsVar = (Formal) setReachable(inner.var);
 					ck.shm = shm;
 					ck.cmem = cmem;
 					ck.directParams = direct;
-					ck.innerStatementTag = tag;
 					return ck;
-					
 				} catch (Complaint e) {
 					e.printStackTrace();
 				}

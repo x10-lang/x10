@@ -38,9 +38,4 @@ public class Block_c extends AbstractBlock_c implements Block
 	w.unifiedBreak(0, 1, " ", 1);
 	w.write("}");
     }
-    
-    private int cudaTag;
-    public int cudaTag() { return cudaTag; }
-    public void cudaTag(int cudaTag) { this.cudaTag = cudaTag; }
-
 }

@@ -357,5 +357,5 @@ public interface NodeFactory
     Offer Offer(Position pos, Expr e);
     FinishExpr FinishExpr(Position p, Expr e, Stmt s);
 
-	CUDAKernel CUDAKernel(Position position, List<Stmt> statements);
+	CUDAKernel CUDAKernel(Position position, List<Stmt> statements, Block body);
 }
