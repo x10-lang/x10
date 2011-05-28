@@ -34,17 +34,10 @@ Constructs/IndexedMemoryChunk/Congruent.x10:
 	Java: x10rt remote ops not implemented for Managed X10.
 
 Samples/CUDABlackScholesTest.x10:
-	Java OOM.
-	Dave G:  I thing the test parameters are too big for the size of machines we are running on.
-
 Samples/CUDA3DFDTest.x10:
 Samples/CUDAMatMulTest.x10:
-	C++ NPE in codegen; Java OOM.
+	Java OOM.
 	Dave G:  I thing the test parameters are too big for the size of machines we are running on.
-
-Samples/KMeansCUDATest.x10:
-Samples/CUDAKernelTestTest.x10:
-	C++ NPE in codegen.
 
 Samples/WalaFibTest.x10:
 	NPE in WALA.
@@ -54,22 +47,6 @@ WorkStealing/Constructs/CollectingFinish2.x10:
 
 Samples/WorkStealingQuickSortTest.x10:
 	Bad WS codegen (C++).
-
-Constructs/Unsigned/UInt/UIntOps2.x10:
-	C++ post-compilation error, looks like a signed/unsigned comparison.
-
-Constructs/Unsigned/UByte/UByteOps.x10:
-	C++ codegen typo.
-
-Constructs/Unsigned/UInt/UIntTypename.x10:
-Constructs/Unsigned/UByte/UByteTypename.x10:
-Constructs/Unsigned/ULong/ULongTypename.x10:
-Constructs/Unsigned/UShort/UShortTypename.x10:
-Issues/XTENLANG_2301.x10:
-	C++ post-compilation error, looks like an interface codegen problem.
-
-Issues/XTENLANG_585.x10:
-	Problem with C++ codegen for non-ASCII characters.
 
 LangSpec/Classes/Classes4d5e.x10:
 	C++ overloading error, may be a frontend problem.
@@ -81,9 +58,17 @@ LIMITATION: Constructs/Lit/IntLitOctBad_MustFailCompile.x10:
 Constructs/Instanceof/ConstrainedTypeTests.x10:
 Issues/XTENLANG_2388.x10:
 	Limitation - constraint erasure.
+Issues/XTENLANG_2301.x10:
+	C++ limitation - generic virtual methods.
 
 Issues/XTENLANG_2330.x10:
 	Test script error - looking for B.x10.
 
 Constructs/DepType/DepTypeInMethodRet1_MustFailCompile.x10:
 	Need to check for var in constraints.
+
+Constructs/Unsigned/UInt/UIntTypename.x10:
+Constructs/Unsigned/UByte/UByteTypename.x10:
+Constructs/Unsigned/ULong/ULongTypename.x10:
+Constructs/Unsigned/UShort/UShortTypename.x10:
+	Fixed in r21998.
