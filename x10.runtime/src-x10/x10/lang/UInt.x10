@@ -162,7 +162,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @return the two's complement of this UInt.
      */
     @Native("java", "((int) -(#this))")
-    @Native("c++",  "((x10_int) -(#0))")
+    @Native("c++",  "((x10_uint) -(#0))")
     public native operator - this: UInt; /*  = UInt(-(intVal)); */
 
 
