@@ -532,7 +532,6 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
     public native def compareTo(x:UByte): Int; /*  = (this.byteVal + Byte.MIN_VALUE).compareTo(x.byteVal + Byte.MIN_VALUE); */
 
     @Native("java", "\"x10.lang.UByte\"")
-    public def typeName():String {
-        return "x10.lang.UByte";
-    }
+    @Native("c++", "x10aux::type_name(#this)")
+    public native def typeName():String; /*  = "x10.lang.UByte"; */
 }
