@@ -69,6 +69,7 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10MethodDecl_c;
@@ -145,9 +146,10 @@ public class Emitter {
     }
     private static String mangle_to_cpp(String str) {
         str = x10.emitter.Emitter.mangleIdentifier(str);
+        str = StringUtil.escape(str, true);
         if (isCPPKeyword(str))
             str = "_kwd__" + str;
-        return str.replace("$", "__");
+        return str.replace("$", "__").replace("\\", "__");
     }
     public static String mangled_method_name(String str) {
         return mangle_to_cpp(str);
