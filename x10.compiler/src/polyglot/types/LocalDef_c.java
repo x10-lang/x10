@@ -42,7 +42,7 @@ public class LocalDef_c extends VarDef_c implements LocalDef
     }
 
     @Override
-    public void setConstantValue(Object constantValue) {
+    public void setConstantValue(x10.types.constants.ConstantValue constantValue) {
         super.setConstantValue(constantValue);
         this.asInstance = null;
     }

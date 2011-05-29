@@ -15,6 +15,7 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.constants.ConstantValue;
 
 /**
  * An <code>ArrayInit</code> is an immutable representation of
@@ -110,7 +111,7 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
 
             if (! ts.isImplicitCastValid(s, t, tc.context()) &&
                 ! ts.typeEquals(s, t, tc.context()) &&
-                ! ts.numericConversionValid(t, e.constantValue(), tc.context())) {
+                ! ts.numericConversionValid(t, ConstantValue.toJavaObject(e.constantValue()), tc.context())) {
                 Errors.issue(tc.job(),
                         new SemanticException("Cannot assign " + s + " to " + t + ".", e.position()),
                         this);

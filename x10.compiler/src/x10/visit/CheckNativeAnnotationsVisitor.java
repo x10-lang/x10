@@ -37,6 +37,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Def;
 import x10.types.X10MethodDef;
+import x10.types.constants.StringValue;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 
@@ -88,8 +89,8 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
             X10ClassType act = (X10ClassType) at;
             if (index < act.propertyInitializers().size()) {
                 Expr e = act.propertyInitializer(index);
-                if (e.isConstant() && e.constantValue() instanceof String) {
-                    return (String) e.constantValue();
+                if (e.isConstant() && e.constantValue() instanceof StringValue) {
+                    return ((StringValue)e.constantValue()).value();
                 }
                 else {
                     throw new SemanticException("Property initializer for @" + at + " must be a string literal.");

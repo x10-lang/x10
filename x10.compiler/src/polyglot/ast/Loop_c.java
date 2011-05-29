@@ -8,6 +8,8 @@
 package polyglot.ast;
 
 import polyglot.util.Position;
+import x10.types.constants.BooleanValue;
+import x10.types.constants.ConstantValue;
 
 /**
  * An immutable representation of a Java language <code>while</code>
@@ -25,6 +27,11 @@ public abstract class Loop_c extends Stmt_c implements Loop
     }
 
     public boolean condIsConstantTrue() {
-        return Boolean.TRUE.equals(cond().constantValue());
+        ConstantValue cv = cond().constantValue();
+        if (cv instanceof BooleanValue) {
+            return ((BooleanValue) cv).value();
+        } else {
+            return false;
+        }
     }
 }

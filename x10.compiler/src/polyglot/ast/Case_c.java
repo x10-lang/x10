@@ -15,6 +15,9 @@ import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.constants.CharValue;
+import x10.types.constants.ConstantValue;
+import x10.types.constants.IntegralValue;
 
 /**
  * A <code>Case</code> is a representation of a Java <code>case</code>
@@ -111,15 +114,11 @@ public class Case_c extends Stmt_c implements Case
         }
         
         if (expr.isConstant()) {
-            Object o = expr.constantValue();
-            
-            if (o instanceof Number && ! (o instanceof Long) &&
-                    ! (o instanceof Float) && ! (o instanceof Double)) {
-                
-                return value(((Number) o).longValue());
-            }
-            else if (o instanceof Character) {
-                return value(((Character) o).charValue());
+            ConstantValue o = expr.constantValue();
+            if (o instanceof IntegralValue) {
+                return value(((IntegralValue) o).longValue());
+            } else if (o instanceof CharValue) {
+                return value(((CharValue) o).value());
             }
         }
         

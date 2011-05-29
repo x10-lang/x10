@@ -110,6 +110,7 @@ import x10.types.constraints.CThis;
 import x10.types.constraints.QualifiedVar;
 import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
+import x10.types.constants.StringValue;
 
 /**
  * A utility to help synthesize fragments of ASTs. Most of the methods on this class are intended to
@@ -824,8 +825,8 @@ public class Synthesizer {
 				X10ClassType act = (X10ClassType) bt; 
 				if (index < act.propertyInitializers().size()) {
 					Expr e = act.propertyInitializer(index);
-					if (e.isConstant() && e.constantValue() instanceof String) {
-						return (String) e.constantValue();
+					if (e.isConstant() && e.constantValue() instanceof StringValue) {
+						return ((StringValue) e.constantValue()).value();
 					}   
 				}   
 			}   

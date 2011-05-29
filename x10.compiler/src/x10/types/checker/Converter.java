@@ -88,6 +88,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import polyglot.types.TypeSystem;
 
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
@@ -134,7 +135,7 @@ public class Converter {
 		if (ts.isSubtype(t1, toType, tc.context())) 
 			return e;
 		
-		ConversionType ct = ts.numericConversionValid(toType, e.type(), e.constantValue(), tc.context()) 
+		ConversionType ct = ts.numericConversionValid(toType, e.type(), ConstantValue.toJavaObject(e.constantValue()), tc.context()) 
 		? ConversionType.UNKNOWN_CONVERSION
 		: ConversionType.CALL_CONVERSION; // ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
 		

@@ -1,6 +1,7 @@
 package polyglot.types;
 
 import polyglot.util.Position;
+import x10.types.constants.ConstantValue;
 
 public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInstance<T> {
     private static final long serialVersionUID = 1662108421276493195L;
@@ -11,9 +12,9 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
 
     boolean constantValueSet;
     boolean isConstant;
-    Object constantValue;
+    ConstantValue constantValue;
 
-    public Object constantValue() {
+    public ConstantValue constantValue() {
         if (!constantValueSet && def.known()) {
             isConstant = def().isConstant();
             constantValue = def().constantValue();
@@ -31,7 +32,7 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
         return isConstant;
     }
 
-    public VarInstance<T> constantValue(Object o) {
+    public VarInstance<T> constantValue(ConstantValue o) {
         VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
         v.constantValueSet = true;
         v.isConstant = true;

@@ -64,6 +64,8 @@ import x10.types.X10ClassType;
 import x10.types.X10Def;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
+import x10.types.constants.ConstantValue;
+import x10.types.constants.StringValue;
 import polyglot.types.TypeSystem;
 
 import x10.util.HierarchyUtils;
@@ -272,10 +274,13 @@ public class ASTQuery {
 
 	public static String getStringPropertyInit(Type at, int index) {
 	    Object v = getPropertyInit(at, index);
-	    if (v instanceof String)
+	    if (v instanceof String) {
 	        return (String) v;
-	    else if (v != null)
+	    } else if (v instanceof StringValue) {
+	        return ((StringValue) v).value();
+	    } else if (v != null) {
 	        return v.toString();
+	    }
 	    return null;
 	}
 
@@ -286,7 +291,7 @@ public class ASTQuery {
 	        if (index < act.propertyInitializers().size()) {
 	            Expr e = act.propertyInitializer(index);
 	            if (e.isConstant()) {
-	                return e.constantValue();
+	                return ConstantValue.toJavaObject(e.constantValue());
 	            }
 	        }
 	    }

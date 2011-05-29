@@ -81,6 +81,7 @@ import x10.types.MethodInstance;
 import x10.types.TypeParamSubst;
 
 import polyglot.types.TypeSystem;
+import x10.types.constants.IntegralValue;
 import x10.types.constraints.CConstraint;
 import x10.visit.Desugarer;
 import x10.visit.NodeTransformingVisitor;
@@ -400,8 +401,8 @@ public class LoopUnroller extends ContextVisitor {
 
     private int getConstantValueOf(Expr e) {
         // TODO Need to produce the literal value here, but elsewhere need the symbolic value (e.g. when rewriting the region bounds)
-        if (e.constantValue() != null && e.constantValue() instanceof Integer) {
-            return ((Integer) e.constantValue()).intValue();
+        if (e.constantValue() != null && e.constantValue() instanceof IntegralValue) {
+            return ((IntegralValue) e.constantValue()).intValue();
         }
         return -1; // TOTALLY BOGUS - probably need to return a RefactoringStatus to abort the refactoring
     }

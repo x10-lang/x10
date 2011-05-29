@@ -14,6 +14,12 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.constants.BooleanValue;
+import x10.types.constants.CharValue;
+import x10.types.constants.ConstantValue;
+import x10.types.constants.DoubleValue;
+import x10.types.constants.FloatValue;
+import x10.types.constants.IntegralValue;
 
 /**
  * A <code>Unary</code> represents a Java unary expression, an
@@ -125,64 +131,63 @@ public abstract class Unary_c extends Expr_c implements Unary
 	    op == PRE_INC || op == PRE_DEC) {
             return false;
         }
-	return !expr.type().isUnsignedNumeric() && expr.isConstant();
+	return expr.isConstant();
     }
 
-    public Object constantValue() {
+    public ConstantValue constantValue() {
         if (! isConstant()) {
-	    return null;
-	}
-	
-	Object v = expr.constantValue();
+            return null;
+        }
 
-        if (v instanceof Boolean) {
-            boolean vv = ((Boolean) v).booleanValue();
-            if (op == NOT) return Boolean.valueOf(!vv);
+        ConstantValue v = expr.constantValue();
+
+        if (v instanceof BooleanValue) {
+            boolean vv = ((BooleanValue) v).value();
+            if (op == NOT) return ConstantValue.makeBoolean(!vv);
         }
-        if (v instanceof Double) {
-            double vv = ((Double) v).doubleValue();
-            if (op == POS) return Double.valueOf(+vv);
-            if (op == NEG) return Double.valueOf(-vv);
+        
+        if (v instanceof DoubleValue) {
+            double vv = ((DoubleValue) v).value();
+            if (op == POS) return v;
+            if (op == NEG) return ConstantValue.makeDouble(-vv);
         }
-        if (v instanceof Float) {
-            float vv = ((Float) v).floatValue();
-            if (op == POS) return Float.valueOf(+vv);
-            if (op == NEG) return Float.valueOf(-vv);
+        
+        if (v instanceof FloatValue) {
+            float vv = ((FloatValue) v).value();
+            if (op == POS) return v;
+            if (op == NEG) return ConstantValue.makeFloat(-vv);
         }
-        if (v instanceof Long) {
-            long vv = ((Long) v).longValue();
-            if (op == BIT_NOT) return Long.valueOf(~vv);
-            if (op == POS) return Long.valueOf(+vv);
-            if (op == NEG) return Long.valueOf(-vv);
+        
+        if (v instanceof IntegralValue) {
+            IntegralValue iv = ((IntegralValue)v);
+            if (iv.isULong() || iv.isLong()) {
+                if (op == BIT_NOT) return ConstantValue.makeIntegral(~iv.longValue(), iv.kind());
+                if (op == POS) return v;
+                if (op == NEG) return ConstantValue.makeIntegral(-iv.longValue(), iv.kind());
+            } else if (iv.isInt() || iv.isUInt()) {
+                if (op == BIT_NOT) return ConstantValue.makeIntegral(~iv.intValue(), iv.kind());
+                if (op == POS) return v;
+                if (op == NEG) return ConstantValue.makeIntegral(-iv.intValue(), iv.kind());
+            } else if (iv.isShort() || iv.isUShort()) {
+                if (op == BIT_NOT) return ConstantValue.makeIntegral(~iv.shortValue(), iv.kind());
+                if (op == POS) return v;
+                if (op == NEG) return ConstantValue.makeIntegral(-iv.shortValue(), iv.kind());
+            } else {
+                if (op == BIT_NOT) return ConstantValue.makeIntegral(~iv.byteValue(), iv.kind());
+                if (op == POS) return v;
+                if (op == NEG) return ConstantValue.makeIntegral(-iv.byteValue(), iv.kind());
+            }
         }
-        if (v instanceof Integer) {
-            int vv = ((Integer) v).intValue();
-            if (op == BIT_NOT) return Integer.valueOf(~vv);
-            if (op == POS) return Integer.valueOf(+vv);
-            if (op == NEG) return Integer.valueOf(-vv);
-        }
-        if (v instanceof Character) {
-            char vv = ((Character) v).charValue();
-            if (op == BIT_NOT) return Integer.valueOf(~vv);
-            if (op == POS) return Integer.valueOf(+vv);
-            if (op == NEG) return Integer.valueOf(-vv);
-        }
-        if (v instanceof Short) {
-            short vv = ((Short) v).shortValue();
-            if (op == BIT_NOT) return Integer.valueOf(~vv);
-            if (op == POS) return Integer.valueOf(+vv);
-            if (op == NEG) return Integer.valueOf(-vv);
-        }
-        if (v instanceof Byte) {
-            byte vv = ((Byte) v).byteValue();
-            if (op == BIT_NOT) return Integer.valueOf(~vv);
-            if (op == POS) return Integer.valueOf(+vv);
-            if (op == NEG) return Integer.valueOf(-vv);
+        
+        if (v instanceof CharValue) {
+            CharValue cv = (CharValue)v;
+            if (op == BIT_NOT) return ConstantValue.makeChar((char)(~cv.value()));
+            if (op == POS) return v;
+            if (op == NEG) return ConstantValue.makeChar((char)(-cv.value()));
+            
         }
 
         // not a constant
         return null;
     }
-    
-
 }

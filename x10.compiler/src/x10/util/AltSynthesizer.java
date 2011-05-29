@@ -75,6 +75,7 @@ import x10.types.MethodInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.checker.Converter;
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.visit.ConstantPropagator;
 import x10.visit.Desugarer;
@@ -1000,7 +1001,7 @@ public class AltSynthesizer {
         if (null == propertyFI) return null;
         Expr propertyExpr = createFieldRef(expr.position(), expr, propertyFI);
         if (null == propertyExpr) return null;
-        return ConstantPropagator.constantValue(propertyExpr);
+        return ConstantValue.toJavaObject(ConstantPropagator.constantValue(propertyExpr));
     }
 
 

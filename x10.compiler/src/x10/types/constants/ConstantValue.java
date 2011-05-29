@@ -28,6 +28,10 @@ public abstract class ConstantValue {
     public abstract Lit toUntypedLit(NodeFactory nf, Position pos);
     
     public abstract Object toJavaObject();
+    
+    public static Object toJavaObject(ConstantValue v) {
+        return v == null ? v : v.toJavaObject();
+    }
 
     public static NullValue makeNull() {
         return new NullValue();

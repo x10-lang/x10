@@ -21,7 +21,7 @@ import java.io.*;
  * @author Nate Nystrom
  *         (<a href="mailto:nystrom@cs.purdue.edu">nystrom@cs.purdue.edu</a>)
  */
-public class ConstantValue extends Attribute
+public class ConstantValueAttr extends Attribute
 {
   private int index;
 
@@ -37,7 +37,7 @@ public class ConstantValue extends Attribute
    * @exception IOException
    *        If an error occurs while reading.
    */
-  ConstantValue(DataInputStream in, int nameIndex, int length)
+  ConstantValueAttr(DataInputStream in, int nameIndex, int length)
     throws IOException
   {
     super(nameIndex, length);

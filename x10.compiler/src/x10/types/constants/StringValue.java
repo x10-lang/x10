@@ -58,7 +58,7 @@ public class StringValue extends ConstantValue {
     
     @Override
     public String toString() {
-        return "\""+val+"\"";
+        return val;
     }
 
 }

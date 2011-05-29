@@ -50,6 +50,7 @@ import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
+import x10.types.constants.ConstantValue;
 
 /**
  * An immutable representation of a unary operation op Expr.
@@ -68,8 +69,7 @@ public class X10Unary_c extends Unary_c {
         super(pos, op, expr);
     }
 
-    // TODO: take care of constant points.
-    public Object constantValue() {
+    public ConstantValue constantValue() {
         return super.constantValue();
     }
 

@@ -17,6 +17,7 @@ import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.types.XTypeTranslator;
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.constraint.XTerm;
 import x10.constraint.XFailure;
@@ -72,8 +73,8 @@ public class CharLit_c extends NumLit_c implements CharLit
         w.write("'");
     }
 
-    public Object constantValue() {
-      return Character.valueOf((char) value);
+    public ConstantValue constantValue() {
+      return ConstantValue.makeChar((char)value);
     }
 
 }

@@ -2102,7 +2102,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write("*"+"/");
 			} else if (n.expr() instanceof CharLit_c) {
 			    CharLit_c lit = (CharLit_c)n.expr();
-			    sw.write("'"+StringUtil.escape(lit.charValue())+"'");
+			    sw.write("'"+StringUtil.escape(lit.value())+"'");
 			} else {
 				n.print(n.expr(), sw, tr);
 			}
@@ -3068,17 +3068,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (nativeString) {
             sw.write("\"");
-            sw.write(StringUtil.escape(n.stringValue()));
+            sw.write(StringUtil.escape(n.value()));
             sw.write("\"");
         } else {
             sw.write("x10aux::string_utils::lit(\"");
-            sw.write(StringUtil.escape(n.stringValue()));
+            sw.write(StringUtil.escape(n.value()));
             sw.write("\")");
         }
 	}
 
 	public void visit(CharLit_c lit) {
-		sw.write("((x10_char)'"+StringUtil.escape(lit.charValue())+"')");
+		sw.write("((x10_char)'"+StringUtil.escape(lit.value())+"')");
 	}
 
 	public void visit(BooleanLit_c lit) {

@@ -83,6 +83,8 @@ import x10.types.X10Def;
 import x10.types.X10LocalDef;
 import x10.types.X10MemberDef;
 import x10.types.checker.Converter;
+import x10.types.constants.ConstantValue;
+import x10.types.constants.StringValue;
 import x10.types.constraints.CTerms;
 import x10.util.AltSynthesizer;
 import x10.visit.ConstantPropagator;
@@ -274,14 +276,14 @@ public class Inliner extends ContextVisitor {
             Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
             if (!arg.isConstant() || !arg.type().typeEquals(ts.String(), context)) 
                 return null;
-            String name = (String) arg.constantValue();
+            String name = ((StringValue) arg.constantValue()).value();
             Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
             if (negate) name = name.substring(1);
             X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
-            Object value = opts.x10_config.get(name);
+            Boolean value = (Boolean)opts.x10_config.get(name);
             if (negate) 
                 value = (Boolean) value ? false : true;
-            Expr literal = new ConstantPropagator(job, ts, nf).toExpr(value, ts.Boolean(), call.position());
+            Expr literal = ConstantValue.makeBoolean(value.booleanValue()).toLit(nf, ts, call.position());
             return literal;
         } catch (ConfigurationError e) {
             return null;

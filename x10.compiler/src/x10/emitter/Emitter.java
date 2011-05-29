@@ -103,11 +103,13 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
+import x10.types.constants.StringValue;
 
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.checker.Converter;
+import x10.types.constants.ConstantValue;
 import x10.visit.ChangePositionVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
@@ -669,9 +671,9 @@ public class Emitter {
 			if (index < act.propertyInitializers().size()) {
 				Expr e = act.propertyInitializer(index);
 				if (e != null && e.isConstant()) {
-					Object v = e.constantValue();
-					if (v instanceof String) {
-						return (String) v;
+					ConstantValue v = e.constantValue();
+					if (v instanceof StringValue) {
+						return ((StringValue) v).value();
 					}
 				}
 			}

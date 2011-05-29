@@ -15,6 +15,7 @@ import polyglot.types.*;
 import polyglot.types.reflect.InnerClasses.Info;
 import polyglot.util.*;
 import x10.types.X10ClassDef;
+import x10.types.constants.ConstantValue;
 
 /**
  * A lazy initializer for classes loaded from a .class file.
@@ -573,15 +574,15 @@ public class ClassFileLazyClassInitializer {
       if (field.isConstant()) {
         Constant c = field.constantValue();
     
-        Object o = null;
+        ConstantValue o = null;
     
         try {
           switch (c.tag()) {
-            case Constant.STRING: o = field.getString(); break;
-            case Constant.INTEGER: o = Integer.valueOf(field.getInt()); break;
-            case Constant.LONG: o = Long.valueOf(field.getLong()); break;
-            case Constant.FLOAT: o = Float.valueOf(field.getFloat()); break;
-            case Constant.DOUBLE: o = Double.valueOf(field.getDouble()); break;
+            case Constant.STRING: o = ConstantValue.makeString(field.getString()); break;
+            case Constant.INTEGER: o = ConstantValue.makeInt(field.getInt()); break;
+            case Constant.LONG: o = ConstantValue.makeLong(field.getLong()); break;
+            case Constant.FLOAT: o = ConstantValue.makeFloat(field.getFloat()); break;
+            case Constant.DOUBLE: o = ConstantValue.makeDouble(field.getDouble()); break;
           }
         }
         catch (SemanticException e) {

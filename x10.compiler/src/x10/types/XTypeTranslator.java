@@ -67,6 +67,7 @@ import x10.constraint.XField;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
 import x10.types.checker.PlaceChecker;
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
@@ -135,7 +136,7 @@ public class XTypeTranslator {
         if (term instanceof Expr) {
             Expr e = (Expr) term;
             if (e.isConstant())
-                return CTerms.makeLit(e.constantValue(), e.type());
+                return CTerms.makeLit(ConstantValue.toJavaObject(e.constantValue()), e.type());
         }
         if (term instanceof X10Cast) {
             X10Cast cast = ((X10Cast) term);
@@ -335,7 +336,7 @@ public class XTypeTranslator {
       * @return
       */
     public XLit translate(Lit t) {
-        return CTerms.makeLit(t.constantValue(), t.type());
+        return CTerms.makeLit(ConstantValue.toJavaObject(t.constantValue()), t.type());
     }
     
     /**

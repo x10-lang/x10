@@ -11,6 +11,7 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.constants.ConstantValue;
 
 /**
  * An <code>Expr</code> represents any Java expression.  All expressions
@@ -61,44 +62,8 @@ public abstract class Expr_c extends Term_c implements Expr
         return false;
     }
 
-    public Object constantValue() {
+    public ConstantValue constantValue() {
         return null;
-    }
-
-    public String stringValue() {
-        return (String) constantValue();
-    }
-
-    public boolean booleanValue() {
-        return ((Boolean) constantValue()).booleanValue();
-    }
-
-    public byte byteValue() {
-        return ((Byte) constantValue()).byteValue();
-    }
-
-    public short shortValue() {
-        return ((Short) constantValue()).shortValue();
-    }
-
-    public char charValue() {
-        return ((Character) constantValue()).charValue();
-    }
-
-    public int intValue() {
-        return ((Integer) constantValue()).intValue();
-    }
-
-    public long longValue() {
-        return ((Long) constantValue()).longValue();
-    }
-
-    public float floatValue() {
-        return ((Float) constantValue()).floatValue();
-    }
-
-    public double doubleValue() {
-        return ((Double) constantValue()).doubleValue();
     }
 
     public Node buildTypes(TypeBuilder tb) {

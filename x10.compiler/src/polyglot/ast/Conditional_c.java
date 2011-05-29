@@ -14,6 +14,8 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.constants.BooleanValue;
+import x10.types.constants.ConstantValue;
 
 /**
  * A <code>Conditional</code> is a representation of a Java ternary
@@ -131,13 +133,13 @@ public abstract class Conditional_c extends Expr_c implements Conditional
 	return cond.isConstant() && consequent.isConstant() && alternative.isConstant();
     }
 
-    public Object constantValue() {
-        Object cond_ = cond.constantValue();
-        Object then_ = consequent.constantValue();
-        Object else_ = alternative.constantValue();
+    public ConstantValue constantValue() {
+        ConstantValue cond_ = cond.constantValue();
+        ConstantValue then_ = consequent.constantValue();
+        ConstantValue else_ = alternative.constantValue();
 
-        if (cond_ instanceof Boolean && then_ != null && else_ != null) {
-            boolean c = ((Boolean) cond_).booleanValue();
+        if (cond_ instanceof BooleanValue && then_ != null && else_ != null) {
+            boolean c = ((BooleanValue)cond_).value();
             if (c) {
                 return then_;
             }

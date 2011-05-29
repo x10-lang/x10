@@ -2284,7 +2284,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     @Override
     public void visit(StringLit_c n) {
         w.write("\"");
-        w.write(StringUtil.escape(n.stringValue()));
+        w.write(StringUtil.escape(n.value()));
         w.write("\"");
         // removed it since now we pass captured environment explicitly,
         // therefore the workaround is no longer needed.

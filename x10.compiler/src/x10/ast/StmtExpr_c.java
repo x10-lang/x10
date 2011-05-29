@@ -30,7 +30,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import x10.types.constants.ConstantValue;
+import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
@@ -203,7 +204,7 @@ public class StmtExpr_c extends Expr_c implements StmtExpr {
 	    return sb.toString();
 	}
 
-    public Object constantValue() {
+    public ConstantValue constantValue() {
         return result == null ? null : result.constantValue();
     }
 

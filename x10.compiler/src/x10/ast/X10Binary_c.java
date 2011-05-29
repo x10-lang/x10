@@ -25,6 +25,8 @@ import polyglot.ast.BooleanLit;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.IntLit;
+import polyglot.ast.IntLit.Kind;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
@@ -45,7 +47,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; 
+import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -66,6 +69,7 @@ import x10.types.X10Use;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
+import x10.types.constants.*;
 import x10.types.constraints.BuiltInTypeRules;
 
 /**
@@ -163,9 +167,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
 	public boolean isConstant() {
-	    // Polyglot doesn't understand how to constant fold unsigned types.
-	    if (left.type().isUnsignedNumeric() || right.type().isUnsignedNumeric()) return false;
-	    
 		if (left.isConstant() && right.isConstant() && isPureOperation(left.type(), op, right.type())) {
 		    if (op == EQ || op == NE) {
 		        // Additional checks for type equality because conversions not applied for ==
@@ -189,9 +190,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		return false;
 	}
 
-    // TODO: take care of the base cases for regions, distributions, points and places.
-    public Object constantValue() {
-        Object result = superConstantValue();
+    public ConstantValue constantValue() {
+        ConstantValue result = superConstantValue();
         if (result != null)
             return result;
         if (!isConstant())
@@ -202,176 +202,172 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         TypeSystem xts = (TypeSystem) lt.typeSystem();
 		Context context = (Context) xts.emptyContext();
 		
-		// [IP] An optimization: an value and null can never be equal
-	
-	 if (op == EQ) {
-		    if (xts.isStructType(lt) && xts.isObjectOrInterfaceType(rt, context))
-			return Boolean.FALSE;
-		    if (xts.isObjectOrInterfaceType(lt, context) && xts.isStructType(rt))
-			return Boolean.FALSE;
-		    if ( xts.isStructType(lt) && rt.isNull())
-			return Boolean.FALSE;
-		    if ( xts.isStructType(rt) && lt.isNull())
-			return Boolean.FALSE;
+		// [IP] An optimization: a struct and null can never be equal
+		if (op == EQ) {
+		    if (xts.isStructType(lt) && rt.isNull())
+		        return ConstantValue.makeBoolean(false);
+		    if (xts.isStructType(rt) && lt.isNull())
+		        return ConstantValue.makeBoolean(false);
 		}
 		if (op == NE) {
-		    if (xts.isStructType(lt) && xts.isObjectOrInterfaceType(rt, context))
-			return Boolean.TRUE;
-		    if (xts.isObjectOrInterfaceType(lt, context) && xts.isStructType(rt))
-			return Boolean.TRUE;
 		    if (xts.isStructType(lt) && rt.isNull())
-			return Boolean.TRUE;
+		        return ConstantValue.makeBoolean(true);
 		    if (xts.isStructType(rt) && lt.isNull())
-			return Boolean.TRUE;
+                return ConstantValue.makeBoolean(true);
 		    return null;
 		}
-		
-        return null;
+
+		return null;
     }
     
-    private Object superConstantValue() {
-    	if (! isConstant()) {
+    private ConstantValue superConstantValue() {
+    	if (!isConstant()) {
     		return null;
     	}
 
-	    if (left.type().isUnsignedNumeric() || right.type().isUnsignedNumeric()) {
-	    	return null;
-	    }
-
-	    Object lv = left.constantValue();
-        Object rv = right.constantValue();
-
-        if (op == ADD && (lv instanceof String || rv instanceof String)) {
-            // toString() does what we want for String, Number, and Boolean
-        	if (lv == null) lv = "null";
-        	if (rv == null) rv = "null";
-        	return lv.toString() + rv.toString();       
+	    ConstantValue lv = left.constantValue();
+        ConstantValue rv = right.constantValue();
+        
+        if (lv == null || rv == null) {
+            System.out.println("AJA "+this+" ::: "+lv+" ::: "+rv);
+            System.out.println(left+" "+left.getClass());
         }
 
-        if (op == EQ && (lv instanceof String && rv instanceof String)) {
-            return Boolean.valueOf(((String) lv).intern() == ((String) rv).intern());
+        if (op == ADD && (lv instanceof StringValue || rv instanceof StringValue)) {
+            // toString() on a ConstantValue gives the same String as toString on the value itself.
+        	return ConstantValue.makeString(lv.toString() + rv.toString());       
         }
 
-        if (op == NE && (lv instanceof String && rv instanceof String)) {
-            return Boolean.valueOf(((String) lv).intern() != ((String) rv).intern());
+        if (op == EQ && (lv instanceof StringValue && rv instanceof StringValue)) {
+            return ConstantValue.makeBoolean(((StringValue) lv).value().equals(((StringValue)rv).value()));
         }
 
-        // promote chars to ints.
-        if (lv instanceof Character) {
-            lv = Integer.valueOf(((Character) lv).charValue());
+        if (op == NE && (lv instanceof StringValue && rv instanceof StringValue)) {
+            return ConstantValue.makeBoolean(!((StringValue) lv).value().equals(((StringValue)rv).value()));
         }
-
-        if (rv instanceof Character) {
-            rv = Integer.valueOf(((Character) rv).charValue());
+        
+        if (lv instanceof BooleanValue && rv instanceof BooleanValue) {
+            boolean l = ((BooleanValue) lv).value();
+            boolean r = ((BooleanValue)rv).value();
+            if (op == EQ) return ConstantValue.makeBoolean(l == r);
+            if (op == NE) return ConstantValue.makeBoolean(l != r);
+            if (op == BIT_AND) return ConstantValue.makeBoolean(l & r);
+            if (op == BIT_OR) return ConstantValue.makeBoolean(l | r);
+            if (op == BIT_XOR) return ConstantValue.makeBoolean(l ^ r);
+            if (op == COND_AND) return ConstantValue.makeBoolean(l && r);
+            if (op == COND_OR) return ConstantValue.makeBoolean(l || r);
         }
-
+        
         try {
-            if (lv instanceof Number && rv instanceof Number) {
-                if (lv instanceof Double || rv instanceof Double) {
-                    double l = ((Number) lv).doubleValue();
-                    double r = ((Number) rv).doubleValue();
-                    if (op == ADD) return Double.valueOf(l + r);
-                    if (op == SUB) return Double.valueOf(l - r);
-                    if (op == MUL) return Double.valueOf(l * r);
-                    if (op == DIV) return Double.valueOf(l / r);
-                    if (op == MOD) return Double.valueOf(l % r);
-                    if (op == EQ) return Boolean.valueOf(l == r);
-                    if (op == NE) return Boolean.valueOf(l != r);
-                    if (op == LT) return Boolean.valueOf(l < r);
-                    if (op == LE) return Boolean.valueOf(l <= r);
-                    if (op == GE) return Boolean.valueOf(l >= r);
-                    if (op == GT) return Boolean.valueOf(l > r);
-                    return null;
-                }
-
-                if (lv instanceof Float || rv instanceof Float) {
-                    float l = ((Number) lv).floatValue();
-                    float r = ((Number) rv).floatValue();
-                    if (op == ADD) return Float.valueOf(l + r);
-                    if (op == SUB) return Float.valueOf(l - r);
-                    if (op == MUL) return Float.valueOf(l * r);
-                    if (op == DIV) return Float.valueOf(l / r);
-                    if (op == MOD) return Float.valueOf(l % r);
-                    if (op == EQ) return Boolean.valueOf(l == r);
-                    if (op == NE) return Boolean.valueOf(l != r);
-                    if (op == LT) return Boolean.valueOf(l < r);
-                    if (op == LE) return Boolean.valueOf(l <= r);
-                    if (op == GE) return Boolean.valueOf(l >= r);
-                    if (op == GT) return Boolean.valueOf(l > r);
-                    return null;
-                }
-
-                if (lv instanceof Long && rv instanceof Number) {
-                    long l = ((Long) lv).longValue();
-                    long r = ((Number) rv).longValue();
-                    if (op == SHL) return Long.valueOf(l << r);
-                    if (op == SHR) return Long.valueOf(l >> r);
-                    if (op == USHR) return Long.valueOf(l >>> r);
-                }
-
-                if (lv instanceof Long || rv instanceof Long) {
-                    long l = ((Number) lv).longValue();
-                    long r = ((Number) rv).longValue();
-                    if (op == ADD) return Long.valueOf(l + r);
-                    if (op == SUB) return Long.valueOf(l - r);
-                    if (op == MUL) return Long.valueOf(l * r);
-                    if (op == DIV) return Long.valueOf(l / r);
-                    if (op == MOD) return Long.valueOf(l % r);
-                    if (op == EQ) return Boolean.valueOf(l == r);
-                    if (op == NE) return Boolean.valueOf(l != r);
-                    if (op == LT) return Boolean.valueOf(l < r);
-                    if (op == LE) return Boolean.valueOf(l <= r);
-                    if (op == GE) return Boolean.valueOf(l >= r);
-                    if (op == GT) return Boolean.valueOf(l > r);
-                    if (op == BIT_AND) return Long.valueOf(l & r);
-                    if (op == BIT_OR) return Long.valueOf(l | r);
-                    if (op == BIT_XOR) return Long.valueOf(l ^ r);
-                    return null;
-                }
-
-                // At this point, both lv and rv must be ints.
-                int l = ((Number) lv).intValue();
-                int r = ((Number) rv).intValue();
-
-                if (op == ADD) return Integer.valueOf(l + r);
-                if (op == SUB) return Integer.valueOf(l - r);
-                if (op == MUL) return Integer.valueOf(l * r);
-                if (op == DIV) return Integer.valueOf(l / r);
-                if (op == MOD) return Integer.valueOf(l % r);
-                if (op == EQ) return Boolean.valueOf(l == r);
-                if (op == NE) return Boolean.valueOf(l != r);
-                if (op == LT) return Boolean.valueOf(l < r);
-                if (op == LE) return Boolean.valueOf(l <= r);
-                if (op == GE) return Boolean.valueOf(l >= r);
-                if (op == GT) return Boolean.valueOf(l > r);
-                if (op == BIT_AND) return Integer.valueOf(l & r);
-                if (op == BIT_OR) return Integer.valueOf(l | r);
-                if (op == BIT_XOR) return Integer.valueOf(l ^ r);
-                if (op == SHL) return Integer.valueOf(l << r);
-                if (op == SHR) return Integer.valueOf(l >> r);
-                if (op == USHR) return Integer.valueOf(l >>> r);
-                return null;
+            if (lv instanceof DoubleValue || rv instanceof DoubleValue) {
+                // args promoted to double if needed and result will be a double
+                double l = lv.doubleValue();
+                double r = rv.doubleValue();
+                if (op == ADD) return ConstantValue.makeDouble(l + r);
+                if (op == SUB) return ConstantValue.makeDouble(l - r);
+                if (op == MUL) return ConstantValue.makeDouble(l * r);
+                if (op == DIV) return ConstantValue.makeDouble(l / r);
+                if (op == MOD) return ConstantValue.makeDouble(l % r);
+                if (op == EQ) return ConstantValue.makeBoolean(l == r);
+                if (op == NE) return ConstantValue.makeBoolean(l != r);
+                if (op == LT) return ConstantValue.makeBoolean(l < r);
+                if (op == LE) return ConstantValue.makeBoolean(l <= r);
+                if (op == GE) return ConstantValue.makeBoolean(l >= r);
+                if (op == GT) return ConstantValue.makeBoolean(l > r);
             }
-        }
-        catch (ArithmeticException e) {
-            // ignore div by 0
-            return null;
-        }
+            
+            if (lv instanceof FloatValue || rv instanceof FloatValue) {
+                // args promoted to float if needed and result will be a float
+                float l = lv.floatValue();
+                float r = rv.floatValue();
+                if (op == ADD) return ConstantValue.makeFloat(l + r);
+                if (op == SUB) return ConstantValue.makeFloat(l - r);
+                if (op == MUL) return ConstantValue.makeFloat(l * r);
+                if (op == DIV) return ConstantValue.makeFloat(l / r);
+                if (op == MOD) return ConstantValue.makeFloat(l % r);
+                if (op == EQ) return ConstantValue.makeBoolean(l == r);
+                if (op == NE) return ConstantValue.makeBoolean(l != r);
+                if (op == LT) return ConstantValue.makeBoolean(l < r);
+                if (op == LE) return ConstantValue.makeBoolean(l <= r);
+                if (op == GE) return ConstantValue.makeBoolean(l >= r);
+                if (op == GT) return ConstantValue.makeBoolean(l > r);
+            }
+            
+            if (lv instanceof CharValue || rv instanceof CharValue) {
+                long l = lv.integralValue();
+                long r = rv.integralValue();
 
-        if (lv instanceof Boolean && rv instanceof Boolean) {
-            boolean l = ((Boolean) lv).booleanValue();
-            boolean r = ((Boolean) rv).booleanValue();
+                if (op == ADD) return ConstantValue.makeChar((char)(l + r));
+                if (op == SUB) return ConstantValue.makeChar((char)(l -r));
+                if (op == EQ) return ConstantValue.makeBoolean(l == r);
+                if (op == NE) return ConstantValue.makeBoolean(l != r);
+                if (op == LT) return ConstantValue.makeBoolean(l < r);
+                if (op == LE) return ConstantValue.makeBoolean(l <= r);
+                if (op == GE) return ConstantValue.makeBoolean(l >= r);
+                if (op == GT) return ConstantValue.makeBoolean(l > r);
+            }
+            
+            if (lv instanceof IntegralValue || rv instanceof IntegralValue) {
+                long l = lv.integralValue();
+                long r = rv.integralValue();
+                IntLit.Kind lk = null;
+                IntLit.Kind rk = null;
+                if (lv instanceof IntegralValue) {
+                    lk = ((IntegralValue)lv).kind();
+                }
+                if (rv instanceof IntegralValue) {
+                    rk = ((IntegralValue)rv).kind();
+                }
+                IntLit.Kind resultKind = lk == rk ? lk : meet(lk, rk);
 
-            if (op == EQ) return Boolean.valueOf(l == r);
-            if (op == NE) return Boolean.valueOf(l != r);
-            if (op == BIT_AND) return Boolean.valueOf(l & r);
-            if (op == BIT_OR) return Boolean.valueOf(l | r);
-            if (op == BIT_XOR) return Boolean.valueOf(l ^ r);
-            if (op == COND_AND) return Boolean.valueOf(l && r);
-            if (op == COND_OR) return Boolean.valueOf(l || r);
+                if (op == ADD) return ConstantValue.makeIntegral(l + r, resultKind);
+                if (op == SUB) return ConstantValue.makeIntegral(l -r, resultKind);
+                if (op == MUL) return ConstantValue.makeIntegral(l * r, resultKind);
+                if (op == DIV) return ConstantValue.makeIntegral(l / r, resultKind);;
+                if (op == MOD) return ConstantValue.makeIntegral(l % r, resultKind);;
+                if (op == EQ) return ConstantValue.makeBoolean(l == r);
+                if (op == NE) return ConstantValue.makeBoolean(l != r);
+                if (op == BIT_AND) return ConstantValue.makeIntegral(l & r, resultKind);;
+                if (op == BIT_OR) return ConstantValue.makeIntegral(l | r, resultKind);
+                if (op == BIT_XOR) return ConstantValue.makeIntegral(l ^ r, resultKind);
+                if (op == SHL) return ConstantValue.makeIntegral(l << r, resultKind);
+                if (op == SHR) return ConstantValue.makeIntegral(l >> r, resultKind);
+                if (op == USHR) return ConstantValue.makeIntegral(l >>> r, resultKind);
+                if (resultKind == IntLit.Kind.LONG || resultKind == IntLit.Kind.INT ||
+                        resultKind == IntLit.Kind.SHORT || resultKind == IntLit.Kind.BYTE) {
+                    if (op == LT) return ConstantValue.makeBoolean(l < r);
+                    if (op == LE) return ConstantValue.makeBoolean(l <= r);
+                    if (op == GE) return ConstantValue.makeBoolean(l >= r);
+                    if (op == GT) return ConstantValue.makeBoolean(l > r);
+                } else {
+                    long lAdj = l + Long.MIN_VALUE;
+                    long rAdj = r + Long.MIN_VALUE;
+                    if (op == LT) return ConstantValue.makeBoolean(lAdj < rAdj);
+                    if (op == LE) return ConstantValue.makeBoolean(lAdj <= rAdj);
+                    if (op == GE) return ConstantValue.makeBoolean(lAdj >= rAdj);
+                    if (op == GT) return ConstantValue.makeBoolean(lAdj > rAdj);
+                }
+            }
+        } catch (ArithmeticException e) {
+            // Actually unreachable because MOD/DIV are not pure.
+            // Therefore isConstant will return false.
+            // However, leave in place for future in case we remove the isPure check in isConstant
+            return null; 
         }
 
         return null;
+    }
+
+    private Kind meet(Kind lk, Kind rk) {
+        if (lk == IntLit.Kind.ULONG || rk == IntLit.Kind.ULONG) return IntLit.Kind.ULONG;
+        if (lk == IntLit.Kind.LONG || rk == IntLit.Kind.LONG) return IntLit.Kind.LONG;
+        if (lk == IntLit.Kind.UINT || rk == IntLit.Kind.UINT) return IntLit.Kind.UINT;
+        if (lk == IntLit.Kind.INT || rk == IntLit.Kind.INT) return IntLit.Kind.INT;
+        if (lk == IntLit.Kind.USHORT || rk == IntLit.Kind.USHORT) return IntLit.Kind.USHORT;
+        if (lk == IntLit.Kind.SHORT || rk == IntLit.Kind.SHORT) return IntLit.Kind.SHORT;
+        if (lk == IntLit.Kind.UBYTE || rk == IntLit.Kind.UBYTE) return IntLit.Kind.UBYTE;
+        if (lk == IntLit.Kind.BYTE || rk == IntLit.Kind.BYTE) return IntLit.Kind.BYTE;
+        throw new InternalCompilerError("Unknown meet of kinds "+lk+" "+rk);
     }
 
     /** If the expression was parsed as an ambiguous expression, return a Receiver that would have parsed the same way.  Otherwise, return null. */

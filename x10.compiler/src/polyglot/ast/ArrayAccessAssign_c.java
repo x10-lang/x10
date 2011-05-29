@@ -18,6 +18,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.constants.ConstantValue;
 
 /**
  * A <code>ArrayAccessAssign_c</code> represents a Java assignment expression
@@ -92,7 +93,7 @@ public class ArrayAccessAssign_c extends Assign_c implements ArrayAccessAssign
     if (op == ASSIGN) {
       if (! ts.isImplicitCastValid(s, t, context) &&
           ! ts.typeEquals(s, t, context) &&
-          ! ts.numericConversionValid(t, right.constantValue(), context)) {
+          ! ts.numericConversionValid(t, ConstantValue.toJavaObject(right.constantValue()), context)) {
 
         Errors.issue(tc.job(),
                 new SemanticException("Cannot assign " + s + " to " + t + ".", position()));
