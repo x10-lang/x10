@@ -53,8 +53,6 @@ LangSpec/Classes/Classes4d5e.x10:
 
 LIMITATION: Constructs/DepType/DepTypeVariableVisibility_MustFailCompile.x10:
 	Limitation - visibility checks.
-LIMITATION: Constructs/Lit/IntLitOctBad_MustFailCompile.x10:
-	Limitation - oct literals.
 Constructs/Instanceof/ConstrainedTypeTests.x10:
 Issues/XTENLANG_2388.x10:
 	Limitation - constraint erasure.
@@ -67,8 +65,5 @@ Issues/XTENLANG_2330.x10:
 Constructs/DepType/DepTypeInMethodRet1_MustFailCompile.x10:
 	Need to check for var in constraints.
 
-Constructs/Unsigned/UInt/UIntTypename.x10:
-Constructs/Unsigned/UByte/UByteTypename.x10:
-Constructs/Unsigned/ULong/ULongTypename.x10:
-Constructs/Unsigned/UShort/UShortTypename.x10:
-	Fixed in r21998.
+Constructs/Lit/IntLitOctBad_MustFailCompile.x10:
+	Fixed in r22012.
