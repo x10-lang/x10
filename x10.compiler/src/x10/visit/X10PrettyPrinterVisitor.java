@@ -192,6 +192,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String JAVA_IO_SERIALIZABLE = "java.io.Serializable";
     public static final String JAVA_LANG_SYSTEM = "java.lang.System";
     public static final String X10_CORE_REF = "x10.core.Ref";
+    public static final String X10_CORE_STRUCT = "x10.core.Struct";
+    public static final String X10_CORE_ANY = "x10.core.Any";
 
     public static final int PRINT_TYPE_PARAMS = 1;
     public static final int BOX_PRIMITIVES = 2;
@@ -441,7 +443,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("extends ");
             if (flags.isStruct()) {
                 assert superClassNode == null : superClassNode;
-                w.write("x10.core.Struct");
+                w.write(X10_CORE_STRUCT);
             } else {
                 assert superClassNode != null;
                 Type superType = superClassNode.type();
@@ -461,6 +463,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 interfaces.add(tn);
             }
         }
+    	// N.B. We cannot represent it with Type node since x10.core.Any is @NativeRep'ed to java.lang.Object instead of to x10.core.Any
         /*
          * Interfaces automatically extend Any if
          * (n.flags().flags().isInterface() && interfaces.isEmpty()) {
@@ -493,6 +496,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
             w.end();
+        }
+        else {
+        	// make all interfaces extend x10.core.Any
+        	// N.B. We cannot represent it with Type node since x10.core.Any is @NativeRep'ed to java.lang.Object instead of to x10.core.Any
+        	if (flags.isInterface() && !xts.isAny(def.asType())) {
+        		w.allowBreak(0);
+        		w.write("extends " + X10_CORE_ANY);
+        	}
         }
         w.unifiedBreak(0);
         w.end();
