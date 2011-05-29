@@ -406,14 +406,6 @@ public class TypeSystem_c implements TypeSystem
     {
         assert_(container);
         assert_(argTypes);
-
-        Type t = (Type) Types.get(returnType);
-        assert t != null : "Cannot set return type of constructor to " + t;
-        if (t==null)
-            throw new InternalCompilerError("Cannot set return type of constructor to " + t);
-        //t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
-        ((Ref<Type>)returnType).update(t);
-        //returnType = new Ref_c<X10ClassType>(t);
         return new X10ConstructorDef_c(this, pos, container, flags, returnType, argTypes, thisDef, formalNames, guard, typeGuard,  offerType);
     }
     

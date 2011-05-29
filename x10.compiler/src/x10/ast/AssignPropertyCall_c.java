@@ -297,16 +297,18 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                                 
                 X10ConstructorCall_c.checkSuperType(tc,supType, position);
 
-                // Set the return type of the enclosing constructor to be this inferred type.
-                Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
-                inferredResultType = Types.removeLocals( tc.context(), inferredResultType);
-                if (! Types.consistent(inferredResultType)) {
-                    Errors.issue(tc.job(), 
-                                 new Errors.InconsistentType(inferredResultType, pos));
-                }
-                Ref <? extends Type> r = thisConstructor.returnType();
-               if (! r.known())  // update only if the return type not specified in the source program.
+                if (thisConstructor.inferReturnType()) {
+                    // Set the return type of the enclosing constructor to be this inferred type.
+                    Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
+                    inferredResultType = Types.removeLocals( tc.context(), inferredResultType);
+                    if (! Types.consistent(inferredResultType)) {
+                        Errors.issue(tc.job(), 
+                                     new Errors.InconsistentType(inferredResultType, pos));
+                    }
+                    Ref <? extends Type> r = thisConstructor.returnType();
                     ((Ref<Type>) r).update(inferredResultType);
+                }
+               
                 // bind this==self; sup clause may constrain this.
                 if (thisVar != null) {
                     known = known.instantiateSelf(thisVar);
