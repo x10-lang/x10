@@ -16,9 +16,6 @@ Constructs/Generics/GenericOverriding11_MustFailCompile.x10:
 Constructs/Inheritance/InheritedProperty3_MustFailCompile.x10:
 	Need to check method override flags.
 
-Constructs/Inference/Inference7a.x10:
-	Constraint problem.
-
 Constructs/Typedefs/TypedefNew11_MustFailCompile.x10:
 	Constructor guard not checked.
 
@@ -67,3 +64,6 @@ LangSpec/Expressions/Expressions7s3n.x10:
 LangSpec/MethodResolution/MethodResolution10.x10:
 LangSpec/ObjectInitialization/ObjectInitialization60.x10:
 	Fixed in r22016.
+
+Constructs/Inference/Inference7a.x10:
+	Fixed in r22011.
