@@ -14,10 +14,9 @@ import harness.x10Test;
 
 /**
  * @author yoav (yzibin) 1/2011
- */ 
+ */
 
-public class XTENLANG_2330 extends x10Test
-{ 
+public class XTENLANG_2330 extends x10Test {
     public def run() {
 		new XTENLANG_2603().test();
 		TestArrayMap.test();
@@ -245,7 +244,7 @@ class Box77[T] {
 	 val t:T;
 	 def this(t:T) { this.t = t; }
 }
-class ABC23 { 
+class ABC23 {
   def test(b:Box77[Place{self==here}]) {
 	at (here.next()) {
 		val p2:Place{self==here} = b.t; // ERR
@@ -274,7 +273,7 @@ class Helper2330(p:Int) {
 	// new & call (with and without target/qualifier), operators
 
 	def fail():void { throw new RuntimeException("test failed!"); }
-	
+
 	def test() {
 		test(1);
 		try { test(0); fail(); } catch (e:FailedDynamicCheckException) {}
@@ -285,7 +284,7 @@ class Helper2330(p:Int) {
 
 	def run(z:Int) { // z is 0 at runtime (I use it to make sure the guard cannot be statically resolved)
         test();
-		
+
         AAA7(1, [0 as Int]);
 		try { AAA7(1, [0 as Int, 0]); fail(); } catch (e:ClassCastException) {}
 		try { AAA7(2, [0 as Int, 0]); fail(); } catch (e:ClassCastException) {} // ERR
@@ -309,12 +308,12 @@ class Helper2330(p:Int) {
 		try { r.m1(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		r.m2(z+2); // ERR
 		try { r.m2(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
-		
+
 		m3(z+50); // ERR
 		try { m3(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		r.m3(z+51); // ERR
 		try { r.m3(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
-		// test non-void method		
+		// test non-void method
 		m33(z+50); // ERR
 		try { m33(z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		r.m33(z+51); // ERR
@@ -395,8 +394,8 @@ class Helper2330(p:Int) {
 		try { c2.new D(z+51,z+51); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		/////////////////////////////////////////////////////////////
-		// test binary operators	
-		/////////////////////////////////////////////////////////////	
+		// test binary operators
+		/////////////////////////////////////////////////////////////
 		use(this+(z+50)); // ERR
 		try { use(this+(z+42)); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		use(r+(z+51)); // ERR
@@ -406,7 +405,7 @@ class Helper2330(p:Int) {
 		use(r*(z+51)); // ERR
 		try { use(r*(z+42)); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
-		// test unary operators	
+		// test unary operators
 		use(+this); // ERR
 		use(-this); // ERR
 		try { use(+r); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
@@ -423,7 +422,7 @@ class Helper2330(p:Int) {
 		r(z+51); // ERR
 		this(z+50) = z+50; // ERR
 		r(z+51) = z+51; // ERR
-		
+
 		this(z+50) += z+0; // ERR
 
 		try { this(z+51); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
@@ -433,11 +432,11 @@ class Helper2330(p:Int) {
 		try { r(z+51) = z+52; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		try { r(z+52) = z+51; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		try { this(z+50) += z+1; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
-		try { this(z+51) += z+0; fail(); } catch (e:FailedDynamicCheckException) {} // ERR	
+		try { this(z+51) += z+0; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		// We already handle: Call, New, Binary, Unary, SettableAssign, Cast
 		// We still need to handle in the desugarer: ConstructorCall (XTENLANG_2376) , ClosureCall (XTENLANG_2329)
-		// far to do: after XTENLANG_2376 is resolved, we should check runtime checks for guards for ctor calls (super&this)	
+		// far to do: after XTENLANG_2376 is resolved, we should check runtime checks for guards for ctor calls (super&this)
 		// todo: After XTENLANG_2329 is resolved, we could check guards for closure calls
 
 		Console.OUT.println("Test succeeded!");
@@ -468,14 +467,14 @@ class Helper2330(p:Int) {
 	static operator (x:Double) {x==5.5} : Helper2330= null;
 	// explicit as
 	static operator (x:Char) as ? {x=='a'} : Helper2330 = null;
-	
+
 	// apply
 	operator this(i:Int) {i==p} :Int = i;
 	// settable assign
 	operator this(i:Int)=(v: Int) {p==i, i==v} : void {}
 
 
-	static class A(a:Int) {		
+	static class A(a:Int) {
 		def this(i:Int) {
 			property(i);
 		}
@@ -486,7 +485,7 @@ class Helper2330(p:Int) {
 		static def m4(x:Int) {x==4} {}
 		def m5(x:Int) {x==A.this.a} {}
 	}
-	class B(b:Int) {					
+	class B(b:Int) {
 		def this(i:Int) {
 			property(i);
 		}
@@ -498,7 +497,7 @@ class Helper2330(p:Int) {
 	}
 	class C(c:Int) extends B {
 		def m6(x:Int) {x==Helper2330.this.p} {} // testing overriding
-	
+
 		def this(i:Int) {
 			super(i);
 			property(i);
