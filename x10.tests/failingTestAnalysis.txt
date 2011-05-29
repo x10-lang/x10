@@ -19,11 +19,6 @@ Constructs/Inheritance/InheritedProperty3_MustFailCompile.x10:
 Constructs/Inference/Inference7a.x10:
 	Constraint problem.
 
-LangSpec/Expressions/Expressions7s3n.x10:
-LangSpec/MethodResolution/MethodResolution10.x10:
-LangSpec/ObjectInitialization/ObjectInitialization60.x10:
-	Need to fix test in spec.
-
 Constructs/Typedefs/TypedefNew11_MustFailCompile.x10:
 	Constructor guard not checked.
 
@@ -59,11 +54,16 @@ Issues/XTENLANG_2388.x10:
 Issues/XTENLANG_2301.x10:
 	C++ limitation - generic virtual methods.
 
-Issues/XTENLANG_2330.x10:
-	Test script error - looking for B.x10.
-
 Constructs/DepType/DepTypeInMethodRet1_MustFailCompile.x10:
 	Need to check for var in constraints.
 
 Constructs/Lit/IntLitOctBad_MustFailCompile.x10:
 	Fixed in r22012.
+
+Issues/XTENLANG_2330.x10:
+	Fixed in r22014.
+
+LangSpec/Expressions/Expressions7s3n.x10:
+LangSpec/MethodResolution/MethodResolution10.x10:
+LangSpec/ObjectInitialization/ObjectInitialization60.x10:
+	Fixed in r22016.
