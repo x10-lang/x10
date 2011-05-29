@@ -752,12 +752,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     /* Roll our own integer parser.  We can't use Long.parseLong because
      * it doesn't handle numbers greater than 0x7fffffffffffffff correctly.
      */
-    private long parseLong(String s, int radix)
+    private long parseLong(String s, int radix, Position pos)
     {
         long x = 0L;
 
         s = s.toLowerCase();
 
+        boolean reportedError = false;
         for (int i = 0; i < s.length(); i++) {
             int c = s.charAt(i);
 
@@ -768,6 +769,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 c = c - '0';
             }
 
+            if (c > radix) {
+                if (!reportedError) {
+                    syntaxError("Invalid digit: '"+s.charAt(i)+"'",pos);
+                    reportedError = true;
+                }
+            }
+
             x *= radix;
             x += c;
         }
@@ -775,7 +783,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         return x;
     }
 
-    private long parseLong(String s)
+    private long parseLong(String s, Position pos)
     {
         int radix;
         int start_index;
@@ -818,7 +826,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             start_index = 0;
         }
 
-        final long res = parseLong(s.substring(start_index, end_index), radix);
+        final long res = parseLong(s.substring(start_index, end_index), radix, pos);
         if (!isUnsigned && radix!=10 && res>=max) {
             // need to make this value negative
             // e.g., 0xffUY == 255, 0xffY== 255-256 = -1  , 0xfeYU==254, 0xfeY== 254-256 = -2
@@ -829,7 +837,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
 
     private void setIntLit(IntLit.Kind k)
     {
-        setResult(nf.IntLit(pos(), k, parseLong(prsStream.getName(getRhsFirstTokenIndex(1)))));
+        setResult(nf.IntLit(pos(), k, parseLong(prsStream.getName(getRhsFirstTokenIndex(1)), pos())));
     }
 
     private polyglot.lex.FloatLiteral float_lit(int i)
@@ -868,14 +876,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         }
     }
 
-    private polyglot.lex.CharacterLiteral char_lit(int i)
+    private polyglot.lex.CharacterLiteral char_lit(int i, Position pos)
     {
         char x;
         String s = prsStream.getName(i);
         if (s.charAt(1) == '\\') {
             switch(s.charAt(2)) {
                 case 'u':
-                    x = (char) parseLong(s.substring(3, s.length() - 1), 16);
+                    x = (char) parseLong(s.substring(3, s.length() - 1), 16, pos);
                     break;
                 case 'b':
                     x = '\b';
@@ -902,7 +910,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                     x = '\\';
                     break;
                 default:
-                    x = (char) parseLong(s.substring(2, s.length() - 1), 8);
+                    x = (char) parseLong(s.substring(2, s.length() - 1), 8, pos);
                     if (x > 255) {
                         unrecoverableSyntaxError = true;
                         eq.enqueue(ErrorInfo.LEXICAL_ERROR,
@@ -923,7 +931,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         return new BooleanLiteral(pos(i), prsStream.getKind(i) == X10Parsersym.TK_true, prsStream.getKind(i));
     }
 
-    private polyglot.lex.StringLiteral string_lit(int i)
+    private polyglot.lex.StringLiteral string_lit(int i, Position pos)
     {
         String s = prsStream.getName(i);
         char x[] = new char[s.length()];
@@ -935,7 +943,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             else {
                 switch(s.charAt(j + 1)) {
                     case 'u':
-                        x[k++] = (char) parseLong(s.substring(j + 2, j + 6), 16);
+                        x[k++] = (char) parseLong(s.substring(j + 2, j + 6), 16, pos);
                         j += 6;
                         break;
                     case 'b':
@@ -979,7 +987,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                         int n = j + 1;
                         for (int l = 0; l < 3 && Character.isDigit(s.charAt(n)); l++)
                             n++;
-                        char c = (char) parseLong(s.substring(j + 1, n), 8);
+                        char c = (char) parseLong(s.substring(j + 1, n), 8, pos);
                         if (c > 255) {
                             unrecoverableSyntaxError = true;
                             eq.enqueue(ErrorInfo.LEXICAL_ERROR,
@@ -2509,12 +2517,12 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: Literal ::= CharacterLiteral
     void rule_Literal7() {
-        polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
+        polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1), pos());
         setResult(nf.CharLit(pos(), a.getValue().charValue()));
     }
     // Production: Literal ::= StringLiteral
     void rule_Literal8() {
-        polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
+        polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1), pos());
         setResult(nf.StringLit(pos(), a.getValue()));
     }
     // Production: Literal ::= null
