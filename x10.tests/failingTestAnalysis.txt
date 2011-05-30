@@ -3,7 +3,7 @@ Constructs/Call/ConConstructor2Arg_DYNAMIC_CHECKS.x10:
 	Need constructor invocation dynamic check support.
 
 Constructs/Cast/PrimitiveDependentTypeCast/Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile.x10:
-	Need to teach compiler about ranges of integral types.
+	Invalid test case (XTENLANG-2766).
 
 Constructs/DepType/InconsistentInterfaceInvariants_MustFailCompile.x10:
 	Interface properties not equated properly.
@@ -20,16 +20,13 @@ Constructs/Typedefs/TypedefNew11_MustFailCompile.x10:
 	Constructor guard not checked.
 
 Issues/XTENLANG_2384.x10:
-	Broken catch blocks - XTENLANG-2745.
-
-Constructs/IndexedMemoryChunk/Congruent.x10:
-	Java: x10rt remote ops not implemented for Managed X10.
+	Java: Broken catch blocks (XTENLANG-2745); C++: fail at runtime.
 
 Samples/CUDABlackScholesTest.x10:
 Samples/CUDA3DFDTest.x10:
 Samples/CUDAMatMulTest.x10:
 	Java OOM.
-	Dave G:  I thing the test parameters are too big for the size of machines we are running on.
+	Dave G: I thing the test parameters are too big for the size of machines we are running on.
 
 Samples/WalaFibTest.x10:
 	NPE in WALA.
@@ -41,7 +38,13 @@ Samples/WorkStealingQuickSortTest.x10:
 	Bad WS codegen (C++).
 
 LangSpec/Classes/Classes4d5e.x10:
-	C++ overloading error, may be a frontend problem.
+	C++ overloading error (XTENLANG-2764).
+
+Constructs/DepType/DepTypeInMethodRet1_MustFailCompile.x10:
+	Need to check for var in constraints.
+
+Issues/XTENLANG_2330.x10:
+	Java compilation error related to generic type parameters (XTENLANG-2767).
 
 LIMITATION: Constructs/DepType/DepTypeVariableVisibility_MustFailCompile.x10:
 	Limitation - visibility checks.
@@ -50,20 +53,5 @@ Issues/XTENLANG_2388.x10:
 	Limitation - constraint erasure.
 Issues/XTENLANG_2301.x10:
 	C++ limitation - generic virtual methods.
-
-Constructs/DepType/DepTypeInMethodRet1_MustFailCompile.x10:
-	Need to check for var in constraints.
-
-Constructs/Lit/IntLitOctBad_MustFailCompile.x10:
-	Fixed in r22012.
-
-Issues/XTENLANG_2330.x10:
-	Fixed in r22014.
-
-LangSpec/Expressions/Expressions7s3n.x10:
-LangSpec/MethodResolution/MethodResolution10.x10:
-LangSpec/ObjectInitialization/ObjectInitialization60.x10:
-	Fixed in r22016.
-
-Constructs/Inference/Inference7a.x10:
-	Fixed in r22011.
+Constructs/IndexedMemoryChunk/Congruent.x10:
+	Java limitation - x10rt remote ops not implemented for Managed X10.
