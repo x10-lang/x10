@@ -1623,15 +1623,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (c.isConstant()) {
             Type t = Types.baseType(c.type());
-            if (t.isNumeric() || t.isBoolean() || t.isChar() || t.isNull()) {
-                er.prettyPrint(c.constantValue(), tr);
+            if (t.isNumeric() || t.isBoolean() || t.isChar() || t.isNull() || isString(t, tr.context())) {
+                er.prettyPrint(c.constantValue().toLit(tr.nodeFactory(), tr.typeSystem(), Position.COMPILER_GENERATED), tr);
                 return;
             }
-//            if (isString(t, tr.context())) {
-//                // TODO printing StringLit need escape
-//                er.prettyPrint(c.constantValue(), tr);
-//                return;
-//            }
         }
 
         // XTENLANG-2680 invoke final methods as non-virtual call for optimization
