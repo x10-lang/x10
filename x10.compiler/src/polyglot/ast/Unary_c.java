@@ -89,10 +89,12 @@ public abstract class Unary_c extends Expr_c implements Unary
             return op.toString() + ((IntLit) expr).positiveToString();
         }
         else if (op.isPrefix()) {
-	    return op.toString() + expr.toString();
+        	boolean needParen = op != PRE_INC && op != PRE_DEC;
+        	return op.toString() + (needParen ? "(" : "") + expr.toString() + (needParen ? ")" : "");
 	}
 	else {
-	    return expr.toString() + op.toString();
+    	boolean needParen = op != POST_INC && op != POST_DEC;
+	    return (needParen ? "(" : "") + expr.toString() + (needParen ? ")" : "") + op.toString();
 	}
     }
 
