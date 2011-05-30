@@ -1209,6 +1209,10 @@ public class StaticInitializer extends ContextVisitor {
             }
             return isConstantExpression(cc.target());
         }
+        if (e instanceof Call) {
+            Call c = (Call) e;
+            return c.isConstant();
+        }
         return false;
     }
 

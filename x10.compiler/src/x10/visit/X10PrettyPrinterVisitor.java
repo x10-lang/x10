@@ -1621,6 +1621,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             return;
         }
 
+        if (c.isConstant()) {
+            Type t = Types.baseType(c.type());
+            if (t.isNumeric() || t.isBoolean() || t.isChar() || t.isNull()) {
+                er.prettyPrint(c.constantValue(), tr);
+                return;
+            }
+//            if (isString(t, tr.context())) {
+//                // TODO printing StringLit need escape
+//                er.prettyPrint(c.constantValue(), tr);
+//                return;
+//            }
+        }
+
         // XTENLANG-2680 invoke final methods as non-virtual call for optimization
         MethodInstance mi = c.methodInstance();
         Receiver target = c.target();
