@@ -20,7 +20,7 @@ Constructs/Typedefs/TypedefNew11_MustFailCompile.x10:
 	Constructor guard not checked.
 
 Issues/XTENLANG_2384.x10:
-	Java: Broken catch blocks (XTENLANG-2745); C++: fail at runtime.
+	Java: Broken catch blocks (XTENLANG-2384); C++: fail at runtime.
 
 Samples/CUDABlackScholesTest.x10:
 Samples/CUDA3DFDTest.x10:
