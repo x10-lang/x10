@@ -50,6 +50,7 @@ import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MemberInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -510,21 +511,27 @@ public class Desugarer extends ContextVisitor {
         for (Expr arg : args) {
             Name pn = Name.make("p$"+i);
             Type pType = arg.type();
-            LocalDef pDef = ts.localDef(pos, ts.Final(), Types.ref(pType), pn);
-            Formal pd = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                    nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pn)).localDef(pDef);
-            params.add(pd);
-            Local p = (Local) nf.Local(pos, nf.Id(pos, pn)).localInstance(pDef.asInstance()).type(pType);
             // The argument might be null, e.g., def m(b:Z) {b.x!=null}  = 1; ... m(null);
             final LocalDef oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
-            Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shadow an existing field
-            Type type = Types.baseType(oldFormal!=null ? reinstantiate(typeParamSubst, Types.get(oldFormal.type())) : arg.type());
+            Type type = Types.baseType(oldFormal!=null ? reinstantiate(typeParamSubst, Types.get(oldFormal.type())) : pType);
+            if (type.isNull() && procInst instanceof MemberInstance<?>) {
+                type = reinstantiate(typeParamSubst, ((MemberInstance<?>) procInst).container());
+            }
             Type tType;
             try {
                 tType = Subst.subst(type, Types.toVarArray(Ys), Types.toVarArray(Xs), new Type[0], new ParameterType[0]);
             } catch (SemanticException z) {
                 throw new InternalCompilerError("Unexpected exception while inserting a dynamic check", z);
             }
+            if (pType.isNull()) {
+                pType = type;
+            }
+            LocalDef pDef = ts.localDef(pos, ts.Final(), Types.ref(pType), pn);
+            Formal pd = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
+                    nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pn)).localDef(pDef);
+            params.add(pd);
+            Local p = (Local) nf.Local(pos, nf.Id(pos, pn)).localInstance(pDef.asInstance()).type(pType);
+            Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shadow an existing field
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(tType), xn);
             Expr c = Converter.attemptCoercion(v.context(closureContext), p, tType);
             c = (Expr) c.visit(v.context(closureContext));
