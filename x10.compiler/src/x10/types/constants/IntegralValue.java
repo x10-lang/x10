@@ -15,6 +15,7 @@ import polyglot.ast.IntLit_c;
 import polyglot.ast.Lit;
 import polyglot.ast.NodeFactory;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
 /**
@@ -25,8 +26,23 @@ public final class IntegralValue extends ConstantValue {
     private final IntLit.Kind kind;
     
     IntegralValue(long v, IntLit.Kind k) {
-        val = v;
+        val = extend(v, k);
         kind = k;
+    }
+    
+    private static long extend(long v, IntLit.Kind k) {
+        switch (k) {
+        case BYTE: return (long)(byte)v;
+        case UBYTE: return ((long)(byte)v) & 0xFFL;
+        case SHORT: return (long)(short)v;
+        case USHORT: return ((long)(short)v) & 0xFFFFL;
+        case INT: return (long)(int)v;
+        case UINT: return ((long)(int)v) & 0xFFFFFFFFL;
+        case LONG: return v;
+        case ULONG: return v;
+        default:
+            throw new InternalCompilerError("Unknown kind of literal "+k);
+        }
     }
     
     public byte byteValue() { 
