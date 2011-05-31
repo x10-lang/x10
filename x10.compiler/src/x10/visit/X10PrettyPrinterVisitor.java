@@ -1969,8 +1969,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     // e.g. (Boolean) m(a)
                     if (castType.typeEquals(Types.baseType(exprType), tr.context())) {
                         boolean closeParen = false;
-                        if (expr instanceof X10Call || expr instanceof ClosureCall) {
-                            closeParen = er.printUnboxConversion(castType);
+                        if (expr instanceof X10Call) {
+                            X10Call call = (X10Call)expr;
+                            if ((isBoxedType(call.methodInstance().def().returnType().get()) && !er.isInlinedCall(call))
+                                    || er.isDispatcher(call.methodInstance()))
+                                closeParen = er.printUnboxConversion(castType);
+                        } else if (expr instanceof ClosureCall) {
+                            ClosureCall call = (ClosureCall)expr;
+                            if (isBoxedType(call.closureInstance().def().returnType().get()))
+                                closeParen = er.printUnboxConversion(castType);
                         }
                         c.printSubExpr(expr, w, tr);
                         if (closeParen) w.write(")");

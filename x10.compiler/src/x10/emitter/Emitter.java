@@ -1249,7 +1249,16 @@ public class Emitter {
         }
     }
 
-    private static boolean isDispatcher(X10MethodDecl_c n) {
+    public static boolean isDispatcher(MethodInstance mi) {
+        for (Type type : mi.formalTypes()) {
+            if (containsTypeParam(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static boolean isDispatcher(X10MethodDecl_c n) {
         for (int i = 0; i < n.formals().size(); i++) {
             Type type = n.formals().get(i).type().type();
             if (containsTypeParam(type)) {
@@ -3346,6 +3355,15 @@ public class Emitter {
 
         w.write("}");
         w.newline();
+	}
+	
+	// N.B. these conditions are cut&pasted from printInlinedCode()
+	public boolean isInlinedCall(X10Call c) {
+	    TypeSystem xts = tr.typeSystem();
+	    if (!isMethodInlineTarget(xts, Types.baseType(c.target().type()))) return false;
+	    MethodInstance mi = c.methodInstance();
+	    if (mi.name() == SettableAssign.SET || mi.name() == ClosureCall.APPLY) return true;
+	    return false;
 	}
 
     public boolean printInlinedCode(X10Call_c c) {
