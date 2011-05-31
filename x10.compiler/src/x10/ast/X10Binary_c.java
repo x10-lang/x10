@@ -331,10 +331,15 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 if (op == BIT_OR) return ConstantValue.makeIntegral(l | r, resultKind);
                 if (op == BIT_XOR) return ConstantValue.makeIntegral(l ^ r, resultKind);
                 if (op == SHL) return ConstantValue.makeIntegral(l << r, resultKind);
-                if (op == SHR) return ConstantValue.makeIntegral(l >> r, resultKind);
+                if (op == SHR) {
+                    if (lk.isSigned()) {
+                        return ConstantValue.makeIntegral(l >> r, resultKind);                        
+                    } else {
+                        return ConstantValue.makeIntegral(l >>> r, resultKind);
+                    }
+                }
                 if (op == USHR) return ConstantValue.makeIntegral(l >>> r, resultKind);
-                if (resultKind == IntLit.Kind.LONG || resultKind == IntLit.Kind.INT ||
-                        resultKind == IntLit.Kind.SHORT || resultKind == IntLit.Kind.BYTE) {
+                if (resultKind.isSigned()) {
                     if (op == LT) return ConstantValue.makeBoolean(l < r);
                     if (op == LE) return ConstantValue.makeBoolean(l <= r);
                     if (op == GE) return ConstantValue.makeBoolean(l >= r);
