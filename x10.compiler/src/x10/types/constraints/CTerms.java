@@ -102,7 +102,7 @@ public class CTerms {
         if (type.isChar()) {
             return new CLit(Character.valueOf('\0'), type);
         } else
-        if (type.isIntOrLess()) {
+        if (type.isIntOrLess() || type.isUInt()) {
             return new CLit(0, type);
         } else
         if (type.isLongOrLess()) {
