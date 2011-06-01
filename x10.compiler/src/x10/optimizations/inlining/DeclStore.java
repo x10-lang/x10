@@ -86,6 +86,7 @@ public class DeclStore {
     public DeclStore(TypeSystem ts, NodeFactory nf) {
         this.ts      = ts;
         this.nf      = nf;
+        ice          = new InlineCostEstimator();
         cannotInline = CollectionFactory.newHashSet();
         def2decl     = CollectionFactory.newHashMap();
         firstTime    = true;
@@ -93,16 +94,14 @@ public class DeclStore {
 
     public void startJob (Job j) {
         job = j;
-        ice = new InlineCostEstimator(j, ts, nf);
         if (firstTime) {
             firstTime                  = false;
             extInfo                    = j.extensionInfo();
             compiler                   = extInfo.compiler();
             Configuration config       = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
-            INLINE_IMPLICIT            = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
             INLINE_STRUCT_CONSTRUCTORS = config.INLINE_STRUCT_CONSTRUCTORS;
-         // implicitMax                = config.EXPERIMENTAL ? 1 : 0;
-            implicitMax                = 0;
+            INLINE_IMPLICIT            = config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
+            implicitMax                = config.EXPERIMENTAL ? 1 : 0;
         }
     }
 
