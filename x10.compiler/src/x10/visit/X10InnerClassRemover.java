@@ -533,6 +533,34 @@ public class X10InnerClassRemover extends InnerClassRemover {
         return constraint;
     }
 
+    protected Type fixTypeArguments(Type t) {
+        if (t instanceof ConstrainedType) {
+            ConstrainedType ct = (ConstrainedType) t;
+            Type bt = Types.get(ct.baseType());
+            Type ibt = fixType(bt);
+            if (ibt != bt)
+                ct = ct.baseType(Types.ref(ibt));
+            return ct;
+        } else
+        if (t instanceof X10ParsedClassType) {
+            X10ParsedClassType pct = (X10ParsedClassType) t;
+            List<Type> typeArguments = pct.typeArguments();
+            List<Type> newTypeArguments = typeArguments;
+            if (typeArguments != null) {
+                List<Type> res = new ArrayList<Type>();
+                for (Type a : typeArguments) {
+                    Type ia = fixType(a);
+                    if (ia != a)
+                        newTypeArguments = res;
+                    res.add(ia);
+                }
+            }
+            pct = pct.typeArguments(newTypeArguments);
+            return pct;
+        } else {
+            return t;
+        }
+    }
     protected Type fixType(Type t) {
         if (t == null)
             return null;
@@ -554,8 +582,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             def.flags(def.flags().Static());
         }
         t = Types.instantiateTypeParametersExplicitly(t);
+        t = fixTypeArguments(t);
         t = propagateTypeArgumentsToInnermostType(t);
-        // FIXME: also fix the type arguments; TODO: test this
         CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
         if (constraint != null) {
             CConstraint newConstraint = fixConstraint(constraint);
