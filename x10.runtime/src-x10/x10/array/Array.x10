@@ -369,7 +369,7 @@ public final class Array[T] (
      * over this array.<p>
      * @return an Iterable[T] over this array.
      */
-    public def values():Iterable[T] = new Iterable[T]() {
+    public @TempNoInline_0 def values():Iterable[T] = new Iterable[T]() {
     	public def iterator() = new Iterator[T]() {
     		val regIt = Array.this.iterator();
     		public def next() = Array.this(regIt.next());
