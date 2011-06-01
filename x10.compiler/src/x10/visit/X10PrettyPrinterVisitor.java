@@ -2056,7 +2056,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write("(");
                         }
                         closeParen = true;
-                    } else if (exprType.isUnsignedNumeric() && isBoxedType(castType)) {
+                    } else if (exprType.isNumeric() && isBoxedType(castType)) {
                     	er.printBoxConversion(exprType);
                     	w.write("(");
                         closeParen = true;
