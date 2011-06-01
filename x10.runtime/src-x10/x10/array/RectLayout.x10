@@ -13,6 +13,7 @@ package x10.array;
 
 import x10.compiler.Header;
 import x10.compiler.Inline;
+import x10.compiler.TempNoInline_0;
 
 /**
  * A RectLayout represents a rectangular memory layout for a
@@ -35,7 +36,7 @@ struct RectLayout(rank:int) {
     val delta2:int;
     val delta3:int;
     
-    def this(reg:Region):RectLayout{this.rank==reg.rank} {
+    @TempNoInline_0 def this(reg:Region):RectLayout{this.rank==reg.rank} {
         property(reg.rank);
         
         if (reg.isEmpty()) {
