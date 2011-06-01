@@ -34,22 +34,18 @@ import x10.visit.X10DelegatingVisitor;
  */
 class InlineCostEstimator extends NodeVisitor {
 
-    private static final int          NATIVE_CODE_COST  = 0x1000;
+            static final int          NATIVE_CODE_COST  = 0x1000;
     private static final List<String> javaNativeStrings = Arrays.asList("java");
     private static final List<String> cppNativeStrings  = Arrays.asList("c++", "cuda");
 
-    private final InlineCostDelegate delegate;
-
+    InlineCostDelegate delegate;
     int cost[] = new int[1];;
-    
-    InlineCostEstimator (){
-        delegate = new InlineCostDelegate(this);
-    }
     
     synchronized int getCost(Node n, Job job) {
         if (null == n) return 0;
         if (isNativeCode(n, job)) return NATIVE_CODE_COST;
         cost[0] = 0;
+        delegate = new InlineCostDelegate(this, job);
         n.visit(this);
         return cost[0];
     }
@@ -63,7 +59,7 @@ class InlineCostEstimator extends NodeVisitor {
         return n;
     }
 
-    private boolean isNativeCode(Node n, Job job) {
+    boolean isNativeCode(Node n, Job job) {
         return !getApplicableNativeAnnotations(n, job).isEmpty();
     }
 
@@ -89,23 +85,46 @@ class InlineCostEstimator extends NodeVisitor {
 final class InlineCostDelegate extends X10DelegatingVisitor{
 
     final InlineCostEstimator ice;
+    final Job job;
 
     /**
      * @param ce
      */
-    InlineCostDelegate(InlineCostEstimator ce) {
+    InlineCostDelegate(InlineCostEstimator ce, Job j) {
         ice = ce;
+        job = j;
     }
 
+    /**
+     * Property calls are not charged
+     */
     public final void visit(AssignPropertyCall_c c) {
+        visit((Node) c);
     }
 
+    /**
+     * Method calls are charged 1
+     */
     public final void visit(Call_c c) {
         ice.cost[0]++;
+        visit((Node) c);
     }
 
+    /**
+     * Constructor calls are charged 1
+     */
     public final void visit(ConstructorCall_c c) {
         ice.cost[0]++;
+        visit((Node) c);
     }
 
+    /**
+     * Parameters in native call strings are not alpha renamed.
+     * So, methods containing native code cannot be inlined.
+     */
+    public final void visit(Node n) {
+        if (ice.isNativeCode(n, job)) {
+            ice.cost[0] |= ice.NATIVE_CODE_COST;
+        }
+    }
 }
