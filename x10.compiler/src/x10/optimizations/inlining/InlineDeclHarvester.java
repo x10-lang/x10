@@ -12,10 +12,15 @@ package x10.optimizations.inlining;
 
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureDecl;
 import polyglot.ast.SourceFile;
 import polyglot.frontend.Job;
+import polyglot.types.ProcedureDef;
+import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.NodeVisitor;
+import x10.visit.ExpressionFlattener;
 
 /**
  * @author Bowen Alpern
@@ -36,18 +41,26 @@ public class InlineDeclHarvester extends ContextVisitor {
     }
 
     /* (non-Javadoc)
-     * @see polyglot.visit.NodeVisitor#override(polyglot.ast.Node)
+     * @see polyglot.visit.ErrorHandlingVisitor#enterCall(polyglot.ast.Node)
      */
     @Override
-    public Node override(Node n) {
-        if (n instanceof SourceFile) {
-            String source = ((SourceFile) n).source().toString().intern();
-            if (null == repository.cache.getAST(source))
-                repository.cache.putAST(source, n);
-            return n;
+    protected NodeVisitor enterCall(Node n) throws SemanticException {
+        if (n instanceof ProcedureDecl) {
+//          return new InlineCostVisitor(job, ts, nf, new InlineCostEstimator(job, ts, nf));
         }
-        assert false;
-        return null;
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
+     */
+    @Override
+    protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+        if (n instanceof ProcedureDecl) {
+            ProcedureDecl pd = (ProcedureDecl) n;
+            repository.putDecl(pd.procedureInstance(), pd);
+        }
+        return n;
     }
 
 }

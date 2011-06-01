@@ -21,7 +21,6 @@ import polyglot.ast.ClassDecl;
 import polyglot.ast.CodeBlock;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
-import polyglot.ast.Field;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -35,7 +34,6 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
-import polyglot.frontend.Compiler;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
@@ -69,6 +67,7 @@ import x10.ast.ClosureCall;
 import x10.ast.InlinableCall;
 import x10.ast.ParExpr;
 import x10.ast.StmtExpr;
+import x10.ast.X10Call;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.config.ConfigurationError;
@@ -82,6 +81,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Def;
 import x10.types.X10LocalDef;
 import x10.types.X10MemberDef;
+import x10.types.X10ProcedureDef;
 import x10.types.checker.Converter;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.StringValue;
@@ -177,7 +177,7 @@ public class Inliner extends ContextVisitor {
             Source s = ((SourceFile) node).source();
             Warnings.issue(this.job, "(begin inlining)", pos);
         }
-        if (ExpressionFlattener.cannotFlatten(node, job)) { // TODO: check that flattening is actually required
+        if (ExpressionFlattener.cannotFlatten(node)) { // TODO: check that flattening is actually required
             if (DEBUG) debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
             return node; // don't inline inside Nodes that cannot be Flattened
         }
@@ -270,13 +270,14 @@ public class Inliner extends ContextVisitor {
         x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
         x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
         try {
-            X10Def def = (X10Def) getDef(call);
+            X10ProcedureDef def = repository.getDef(call);
             List<Type> annotations = def.annotationsMatching(ConstantType);
             if (annotations.isEmpty()) return null;
             Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
             if (!arg.isConstant() || !arg.type().typeEquals(ts.String(), context)) 
                 return null;
             String name = ((StringValue) arg.constantValue()).value();
+            // ASK what about non boolean constants?
             Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
             if (negate) name = name.substring(1);
             X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
@@ -408,13 +409,12 @@ public class Inliner extends ContextVisitor {
             report("inlining disabled (no InlineType)", call);
             return null;
         }
-        ProcedureDecl decl = getInlineDecl(call);
-        if (null == decl) return null;
-        List<AnnotationNode> annotations = ((X10Ext) decl.ext()).annotations();
-        String sig = call.procedureInstance().signature();
-        if (annotationsPreventInlining(decl) || annotationsPreventInlining(decl.procedureInstance())) {
+        if (annotationsPreventInlining(call)) {
+            report("of annotation at call site", call);
             return null;
         }
+        ProcedureDecl decl = repository.findDecl(call);
+        if (null == decl) return null;;
         String signature = makeSignatureString(decl);
         decl = (ProcedureDecl) instantiate(decl, call);
         if (null == decl) {
@@ -474,61 +474,6 @@ public class Inliner extends ContextVisitor {
     }
 
     /**
-     * Get the declaration corresponding to a call to be inlined.
-     * 
-     * @param call
-     * @return the declaration of the method invoked by call, or null if the
-     *         declaration cannot be found, or the call should not be inlined
-     */
-    private ProcedureDecl getInlineDecl(InlinableCall call) {
-        if (DEBUG) debug("Should " + call + " be inlined?", call);
-        Position pos = call.position(); // DEBUG
-        if (annotationsPreventInlining(call)) {
-            report("of annotation at call site", call);
-            return null;
-        }
-        // get inline candidate
-        MemberDef candidate = getDef(call);
-        // require inlining if either the call of the candidate are so annotated
-        inliningRequired = annotationsRequireInlining(call, (X10MemberDef) candidate);
-        // short-circuit if inlining is not required and there is no implicit inlining
-        if (!inliningRequired && !repository.INLINE_IMPLICIT) {
-            report("inlining not required for candidate: " +candidate, call);
-            return null;
-        }
-        // unless required, skip candidates previously found to be uninlinable
-        if (!inliningRequired && repository.cache.uninlineable(candidate)) {
-            report("of previous decision for candidate: " +candidate, call);
-            return null;
-        }
-        // unless required, don't inline if the candidate annotations prevent it
-        if (!inliningRequired && annotationsPreventInlining((X10MemberDef) candidate)) {
-            report("of annotation on candidate: " + candidate, call);
-            repository.cache.notInlinable(candidate);
-            return null;
-        }
-        return repository.findDecl(call, candidate, inliningRequired);
-    }
-
-
-    /**
-     * @param call
-     * @return
-     */
-    MemberDef getDef(InlinableCall call) {
-        if (call instanceof Call) {
-            return ((Call) call).methodInstance().def();
-        } 
-        if (call instanceof ConstructorCall) {
-            return ((ConstructorCall) call).constructorInstance().def();
-        }
-        if (call instanceof ClosureCall) {
-            return ((ClosureCall) call).closureInstance().def();
-        }
-        return null;
-    }
-
-    /**
      * @param decl
      * @return
      */
@@ -550,17 +495,11 @@ public class Inliner extends ContextVisitor {
 
 
     /**
-     * @param def
+     * @param node
      * @return
      */
-    static boolean annotationsPreventInlining(X10Def def) {
-        if (!def.annotationsMatching(NoInlineType).isEmpty())
-            return true;
-        if (!def.annotationsMatching(NativeRepType).isEmpty())
-            return true;
-        if (!def.annotationsMatching(NativeClassType).isEmpty())
-            return true;
-        return false;
+    public static boolean annotationsRequireInlining(Node node) {
+        return !((X10Ext) node.ext()).annotationMatching(InlineType).isEmpty();
     }
 
     /**
@@ -569,19 +508,6 @@ public class Inliner extends ContextVisitor {
      */
     static boolean annotationsPreventInlining(Node node) {
         return !((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty();
-    }
-
-    /**
-     * @param call
-     * @param candidate
-     * @return
-     */
-    static boolean annotationsRequireInlining(InlinableCall call, X10MemberDef candidate) {
-        if (!((X10Ext) call.ext()).annotationMatching(InlineType).isEmpty())
-            return true;
-        if (!candidate.annotationsMatching(InlineType).isEmpty())
-            return true;
-        return false;
     }
 
     private String backend;
@@ -830,6 +756,7 @@ public class Inliner extends ContextVisitor {
      * @throws InternalCompilerError
      */
     private void initializeAnnotationTypes() throws InternalCompilerError {
+        repository.initializeAnnotationTypes();
         try {
             ConstantType = ts.systemResolver().findOne(CONSTANT_ANNOTATION);
             InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
