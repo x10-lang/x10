@@ -2632,8 +2632,8 @@ public class Emitter {
 	            && (!isBoxedType(expectedBase))) {
 	        prettyPrint(e, tr);
 	    }
-	    // for primitive
-	    else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()) {
+	    // for primitive and string
+	    else if (actual.isBoolean() || actual.isNumeric() || actual.isByte() || X10PrettyPrinterVisitor.isString(actual, tr.context())) {
 	        if (actual.typeEquals(expectedBase, tr.context())) {
 	            if (e instanceof X10Call && Types.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType) {
 	                expander = expander.castTo(expectedBase);
