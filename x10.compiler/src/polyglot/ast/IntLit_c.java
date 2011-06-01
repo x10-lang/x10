@@ -164,7 +164,17 @@ public class IntLit_c extends NumLit_c implements IntLit
             return new BigInteger(bytes).toString() + "UL";
         }
         else {
-            return Long.toString((int) value);
+            String s = Long.toString((int) value);
+            if (kind() == BYTE) {
+            	s += "Y";
+            } else if (kind() == UBYTE) {
+            	s += "UY";
+            } else if (kind() == SHORT) {
+            	s += "S";
+            } else if (kind() == USHORT) {
+            	s += "US";
+            }
+            return s;
         }
     }
 
