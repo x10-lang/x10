@@ -1250,7 +1250,8 @@ public class Emitter {
     }
 
     public static boolean isDispatcher(MethodInstance mi) {
-        for (Type type : mi.formalTypes()) {
+        for (Ref<? extends Type> ref: mi.def().formalTypes()) {
+            Type type = ref.get();
             if (containsTypeParam(type)) {
                 return true;
             }
