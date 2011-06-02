@@ -257,7 +257,7 @@ public class Inliner extends ContextVisitor {
     }
 
     /**
-     * @param n
+     * @param call
      * @return
      */
     private Node getCompileTimeConstant(InlinableCall call) {
@@ -270,15 +270,17 @@ public class Inliner extends ContextVisitor {
             Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
             if (!arg.isConstant() || !arg.type().typeEquals(ts.String(), context)) 
                 return null;
-            String name = ((StringValue) arg.constantValue()).value();
-            // ASK what about non boolean constants?
-            Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
-            if (negate) name = name.substring(1);
+            Type type = def.returnType().get();
             X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
-            Boolean value = (Boolean)opts.x10_config.get(name);
-            if (negate) 
-                value = (Boolean) value ? false : true;
-            Expr literal = ConstantValue.makeBoolean(value.booleanValue()).toLit(nf, ts, call.position());
+            String name = ((StringValue) arg.constantValue()).value();
+            Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
+            if (negate) {
+                assert ts.isBoolean(type);
+                name = name.substring(1);
+            }
+            Object value = opts.x10_config.get(name);
+            ConstantValue cv = ConstantValue.make(type, negate ? ! (Boolean) value : value);
+            Expr literal = cv.toLit(nf, ts, call.position());
             return literal;
         } catch (ConfigurationError e) {
             return null;
