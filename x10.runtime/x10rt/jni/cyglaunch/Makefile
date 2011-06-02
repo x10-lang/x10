@@ -9,8 +9,14 @@
 #  (C) Copyright IBM Corporation 2006-2010.
 #
 
-CC=gcc $(CCEXTRA)
-CXX=g++ $(CCEXTRA)
+include ../../../Make.rules
+
+ifneq ($(CYGLAUNCH_CC),)
+  override CC:=$(CYGLAUNCH_CC)
+endif
+ifneq ($(CYGLAUNCH_CXX),)
+  override CXX:=$(CYGLAUNCH_CXX)
+endif
 override CFLAGS+=-I"${JAVA_HOME}/include" -I"${JAVA_HOME}/include/win32" $(CFLAGSEXTRA) -g -I"$(X10_HOME)/x10.runtime/x10rt/include"
 override CXXFLAGS+=-I"${JAVA_HOME}/include" -I"${JAVA_HOME}/include/win32" $(CFLAGSEXTRA) -g -I"$(X10_HOME)/x10.runtime/x10rt/include"
 override LDFLAGS+="-L$(X10_HOME)/x10.runtime/x10rt/lib" -Wl,--add-stdcall-alias
