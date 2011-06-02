@@ -155,8 +155,7 @@ public class Inliner extends ContextVisitor {
             throw new InternalCompilerError("INLINING should not be being performed!");
         }
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
-        if (null == NativeClassType)
-            initializeAnnotationTypes();
+        AnnotationUtils.initialize(ts);
         timer();
         return super.begin();
     }
@@ -170,9 +169,6 @@ public class Inliner extends ContextVisitor {
      */
     public Node override(Node node) {
         Position pos = node.position(); // DEBUG
-        if (null == InlineType) { // don't inline anything
-            throw new InternalCompilerError("Inliner invoked without begin()");
-        }
         if (2 <= VERBOSITY && node instanceof SourceFile) {
             Source s = ((SourceFile) node).source();
             Warnings.issue(this.job, "(begin inlining)", pos);
@@ -191,16 +187,14 @@ public class Inliner extends ContextVisitor {
             return null; // will handle @NoInline annotation seperately
         }
         if (node instanceof ClassDecl) { // Don't try to inline native classes
-            if (!((X10Ext) node.ext()).annotationMatching(NativeClassType).isEmpty() || 
-                !((X10Ext) node.ext()).annotationMatching(NativeRepType).isEmpty() ) {
+            if ( !AnnotationUtils.hasAnnotation(node, AnnotationUtils.NativeClassType) ||
+                 !AnnotationUtils.hasAnnotation(node, AnnotationUtils.NativeRepType) ) {
                 return node;
             }
         }
-        if (node.ext() instanceof X10Ext) { // TODO: DEBUG only (remove this)
-            if (!((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty()) { // short-circuit inlining decisions
-                if (DEBUG) debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
-                return node;
-            }
+        if (AnnotationUtils.hasAnnotation(node, AnnotationUtils.NoInlineType)) { // TODO: DEBUG only (remove this)
+            if (DEBUG) debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
+            return node;
         }
         return null;
     }
@@ -220,13 +214,13 @@ public class Inliner extends ContextVisitor {
                 if (null != result) 
                     return result;
             }
-            if (INLINE_METHODS && !annotationsPreventInlining(n)) {
+            if (INLINE_METHODS && !AnnotationUtils.inliningProhibited(n)) {
                 if (4 <= VERBOSITY)
                     Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
                 result = wrappedInlineMethodCall((InlinableCall) n);
             }
         } else if (n instanceof X10MethodDecl) {
-            if (!((X10MethodDecl) n).methodDef().annotationsMatching(InlineOnlyType).isEmpty())
+            if (!AnnotationUtils.hasAnnotation((X10Def) ((X10MethodDecl) n).memberDef(), AnnotationUtils.InlineOnlyType))
                 return null; // ASK: is this the right way to remove a method decl from the ast?
             return n;
         } else {
@@ -271,7 +265,7 @@ public class Inliner extends ContextVisitor {
         x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
         try {
             X10ProcedureDef def = repository.getDef(call);
-            List<Type> annotations = def.annotationsMatching(ConstantType);
+            List<Type> annotations = AnnotationUtils.getAnnotations(def, AnnotationUtils.ConstantType);
             if (annotations.isEmpty()) return null;
             Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
             if (!arg.isConstant() || !arg.type().typeEquals(ts.String(), context)) 
@@ -405,11 +399,7 @@ public class Inliner extends ContextVisitor {
     }
 
     private Expr inlineCall(InlinableCall call) {
-        if (null == InlineType) {
-            report("inlining disabled (no InlineType)", call);
-            return null;
-        }
-        if (annotationsPreventInlining(call)) {
+        if (AnnotationUtils.inliningProhibited(call)) {
             report("of annotation at call site", call);
             return null;
         }
@@ -493,22 +483,6 @@ public class Inliner extends ContextVisitor {
         return id;
     }
 
-
-    /**
-     * @param node
-     * @return
-     */
-    public static boolean annotationsRequireInlining(Node node) {
-        return !((X10Ext) node.ext()).annotationMatching(InlineType).isEmpty();
-    }
-
-    /**
-     * @param node
-     * @return
-     */
-    static boolean annotationsPreventInlining(Node node) {
-        return !((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty();
-    }
 
     private String backend;
 
@@ -730,48 +704,6 @@ public class Inliner extends ContextVisitor {
         Type type = Types.get(d.type());
         type = Types.addSelfBinding(type, CTerms.makeLocal((X10LocalDef) o));
         ((Ref<Type>) d.type()).update(type);
-    }
-
-    /**
-     * Annotation types.
-     */
-    private static Type ConstantType;
-    private static Type InlineType;
-    private static Type InlineOnlyType;
-    private static Type NoInlineType;
-    private static Type NativeType;
-    private static Type NativeRepType;
-    private static Type NativeClassType;
-
-    /**
-     * Names of the annotation types that pertain to inlining.
-     */
-    private static final QName CONSTANT_ANNOTATION     = QName.make("x10.compiler.CompileTimeConstant");
-    private static final QName INLINE_ANNOTATION       = QName.make("x10.compiler.Inline");
-    private static final QName INLINE_ONLY_ANNOTATION  = QName.make("x10.compiler.InlineOnly");
-    private static final QName NO_INLINE_ANNOTATION    = QName.make("x10.compiler.NoInline");
-    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
-    
-    /**
-     * @throws InternalCompilerError
-     */
-    private void initializeAnnotationTypes() throws InternalCompilerError {
-        repository.initializeAnnotationTypes();
-        try {
-            ConstantType = ts.systemResolver().findOne(CONSTANT_ANNOTATION);
-            InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
-            InlineOnlyType = ts.systemResolver().findOne(INLINE_ONLY_ANNOTATION);
-            NoInlineType = ts.systemResolver().findOne(NO_INLINE_ANNOTATION);
-            NativeType = ts.NativeType();
-            NativeRepType = ts.NativeRep();
-            NativeClassType = ts.systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
-        } catch (SemanticException e) {
-            InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type", e);
-            SemanticException se = new SemanticException(e);        //TODO: internal compiler error, should be removed
-            Errors.issue(job, se);
-            InlineType = null;
-            throw ice; // annotation types are required!
-        }
     }
 
     private long lastTime;

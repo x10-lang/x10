@@ -10,10 +10,7 @@
  */
 package x10.optimizations.inlining;
 
-import static x10cpp.visit.ASTQuery.assertNumberOfInitializers;
-import static x10cpp.visit.ASTQuery.getStringPropertyInit;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,9 +20,6 @@ import polyglot.ast.Node;
 import polyglot.frontend.Job;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall_c;
-import x10.extension.X10Ext;
-import x10.types.X10ClassType;
-import x10.visit.ExpressionFlattener;
 import x10.visit.X10DelegatingVisitor;
 
 /**
@@ -34,9 +28,7 @@ import x10.visit.X10DelegatingVisitor;
  */
 class InlineCostEstimator extends NodeVisitor {
 
-            static final int          NATIVE_CODE_COST  = 0x1000;
-    private static final List<String> javaNativeStrings = Arrays.asList("java");
-    private static final List<String> cppNativeStrings  = Arrays.asList("c++", "cuda");
+    static final int NATIVE_CODE_COST = 0x1000;
 
     InlineCostDelegate delegate;
     int cost[] = new int[1];
@@ -67,24 +59,7 @@ class InlineCostEstimator extends NodeVisitor {
     }
 
     boolean isNativeCode(Node n) {
-        return !getApplicableNativeAnnotations(n, job).isEmpty();
-    }
-
-    public static List<X10ClassType> getApplicableNativeAnnotations (Node node, Job job) {
-        List<X10ClassType> result = new ArrayList<X10ClassType>();
-        assert node.ext() instanceof X10Ext;
-        List<X10ClassType> annotations = ((X10Ext) node.ext()).annotationMatching(job.extensionInfo().typeSystem().NativeType());
-        for (X10ClassType annotation : annotations) {
-            assertNumberOfInitializers(annotation, 2);
-            String platform = getStringPropertyInit(annotation, 0);
-            List<String> nativeStrings = (ExpressionFlattener.javaBackend(job) ? javaNativeStrings : cppNativeStrings);
-            for (String ns : nativeStrings) {
-                if (platform != null && platform.equals(ns)) {
-                    result.add(annotation);
-                }
-            }
-        }
-        return result;
+        return !AnnotationUtils.getNativeAnnotations(n, job).isEmpty();
     }
 
 }

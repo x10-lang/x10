@@ -111,13 +111,13 @@ public class DeclStore {
             report("candidate known to be uninlinable: " +def, call);
             return null;
         }
-        boolean required = Inliner.annotationsRequireInlining(call) || annotationsRequireInlining(def);
+        boolean required = AnnotationUtils.inliningRequired(call) || AnnotationUtils.inliningRequired(def);
         if (!required && !implicit) {
             report("inlining not required for candidate: " +def, call);
             return null;
         }
         // unless required, don't inline if the candidate annotations prevent it
-        if (annotationsPreventInlining(def)) {
+        if (AnnotationUtils.inliningProhibited(def)) {
             report("annotation prohibits inlining candidate: " + def, call);
             cannotInline(def);
             return null;
@@ -129,7 +129,7 @@ public class DeclStore {
             cannotInline(def);
             return null;
         }
-        if (annotationsPreventInlining(container)) {
+        if (AnnotationUtils.inliningProhibited(container)) {
             report("annotations prohibit inlining from container: " +container, call);
             cannotInline(def);
             return null;
@@ -299,64 +299,6 @@ public class DeclStore {
      */
     private int getCost(X10ProcedureDef def) {
         return def2cost.get(def);
-    }
-
-    /**
-     * Annotation types.
-     */
-    private static Type InlineType;
-    private static Type NoInlineType;
-    private static Type NativeType;
-    private static Type NativeRepType;
-    private static Type NativeClassType;
-
-    /**
-     * Names of the annotation types that pertain to inlining.
-     */
-    private static final QName INLINE_ANNOTATION       = QName.make("x10.compiler.Inline");
-    private static final QName NO_INLINE_ANNOTATION    = QName.make("x10.compiler.NoInline");
-    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
-    
-    /**
-     * @throws InternalCompilerError
-     */
-    void initializeAnnotationTypes() throws InternalCompilerError {
-        try {
-            InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
-            NoInlineType = ts.systemResolver().findOne(NO_INLINE_ANNOTATION);
-            NativeType = ts.NativeType();
-            NativeClassType = ts.systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
-            NativeRepType = ts.NativeRep();
-        } catch (SemanticException e) {
-            InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type", e);
-            Errors.issue(job, new SemanticException(ice));
-            throw ice; // annotation types are required!
-        }
-    }
-
-    /**
-     * @param call
-     * @param candidate
-     * @return
-     */
-    static boolean annotationsRequireInlining(X10ProcedureDef candidate) {
-        if (!candidate.annotationsMatching(InlineType).isEmpty())
-            return true;
-        return false;
-    }
-
-    /**
-     * @param def
-     * @return
-     */
-    static boolean annotationsPreventInlining(X10Def def) {
-        if (!def.annotationsMatching(NoInlineType).isEmpty())
-            return true;
-        if (!def.annotationsMatching(NativeRepType).isEmpty())
-            return true;
-        if (!def.annotationsMatching(NativeClassType).isEmpty())
-            return true;
-        return false;
     }
 
     /**
