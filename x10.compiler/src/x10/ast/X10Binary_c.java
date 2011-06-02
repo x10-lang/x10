@@ -318,28 +318,27 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 if (rv instanceof IntegralValue) {
                     rk = ((IntegralValue)rv).kind();
                 }
-                IntLit.Kind resultKind = lk == rk ? lk : meet(lk, rk);
-
-                if (op == ADD) return ConstantValue.makeIntegral(l + r, resultKind);
-                if (op == SUB) return ConstantValue.makeIntegral(l -r, resultKind);
-                if (op == MUL) return ConstantValue.makeIntegral(l * r, resultKind);
-                if (op == DIV) return ConstantValue.makeIntegral(l / r, resultKind);;
-                if (op == MOD) return ConstantValue.makeIntegral(l % r, resultKind);;
+                
+                if (op == ADD) return ConstantValue.makeIntegral(l + r, meet(lk, rk));
+                if (op == SUB) return ConstantValue.makeIntegral(l -r, meet(lk, rk));
+                if (op == MUL) return ConstantValue.makeIntegral(l * r, meet(lk, rk));
+                if (op == DIV) return ConstantValue.makeIntegral(l / r, meet(lk, rk));;
+                if (op == MOD) return ConstantValue.makeIntegral(l % r, meet(lk, rk));;
                 if (op == EQ) return ConstantValue.makeBoolean(l == r);
                 if (op == NE) return ConstantValue.makeBoolean(l != r);
-                if (op == BIT_AND) return ConstantValue.makeIntegral(l & r, resultKind);;
-                if (op == BIT_OR) return ConstantValue.makeIntegral(l | r, resultKind);
-                if (op == BIT_XOR) return ConstantValue.makeIntegral(l ^ r, resultKind);
-                if (op == SHL) return ConstantValue.makeIntegral(l << r, resultKind);
+                if (op == BIT_AND) return ConstantValue.makeIntegral(l & r, meet(lk, rk));;
+                if (op == BIT_OR) return ConstantValue.makeIntegral(l | r, meet(lk, rk));
+                if (op == BIT_XOR) return ConstantValue.makeIntegral(l ^ r, meet(lk, rk));
+                if (op == SHL) return ConstantValue.makeIntegral(l << r, lk);
                 if (op == SHR) {
                     if (lk.isSigned()) {
-                        return ConstantValue.makeIntegral(l >> r, resultKind);                        
+                        return ConstantValue.makeIntegral(l >> r, lk);                        
                     } else {
-                        return ConstantValue.makeIntegral(l >>> r, resultKind);
+                        return ConstantValue.makeIntegral(l >>> r, lk);
                     }
                 }
-                if (op == USHR) return ConstantValue.makeIntegral(l >>> r, resultKind);
-                if (resultKind.isSigned()) {
+                if (op == USHR) return ConstantValue.makeIntegral(l >>> r, lk);
+                if (meet(lk, rk).isSigned()) {
                     if (op == LT) return ConstantValue.makeBoolean(l < r);
                     if (op == LE) return ConstantValue.makeBoolean(l <= r);
                     if (op == GE) return ConstantValue.makeBoolean(l >= r);
@@ -364,6 +363,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
     private Kind meet(Kind lk, Kind rk) {
+        if (lk == rk) return lk;
         if (lk == IntLit.Kind.ULONG || rk == IntLit.Kind.ULONG) return IntLit.Kind.ULONG;
         if (lk == IntLit.Kind.LONG || rk == IntLit.Kind.LONG) return IntLit.Kind.LONG;
         if (lk == IntLit.Kind.UINT || rk == IntLit.Kind.UINT) return IntLit.Kind.UINT;
