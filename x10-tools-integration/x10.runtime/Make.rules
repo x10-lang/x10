@@ -234,7 +234,7 @@ else
       endif
       ifdef USE_64BIT
         override CXXFLAGS += -arch x86_64
-        override  += -arch x86_64
+        override XRX_PROPS_CXXFLAGS += -arch x86_64
       endif
       override XRX_PROPS_CXXFLAGS += -msse2 -mfpmath=sse
       AR = libtool
