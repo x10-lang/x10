@@ -71,37 +71,32 @@ public class DeclStore {
 
     private final TypeSystem ts;
     private final NodeFactory nf;
+    private final Set<ProcedureDef> cannotInline ;
+    private final Map<ProcedureDef, ProcedureDecl> def2decl;
+    private final Map<ProcedureDef, Integer>       def2cost;
 
     private Job job;
-    private InlineCostEstimator ice;
-    private ExtensionInfo extInfo;
-    private Compiler compiler;
-    private boolean INLINE_IMPLICIT;
-    private boolean INLINE_STRUCT_CONSTRUCTORS;
+    private boolean implicit;
     private int implicitMax;
-    private Set<ProcedureDef> cannotInline ;
-    private Map<ProcedureDef, ProcedureDecl> def2decl;
-    private boolean firstTime = false;
+    private boolean initialized;
 
     public DeclStore(TypeSystem ts, NodeFactory nf) {
         this.ts      = ts;
         this.nf      = nf;
-        ice          = new InlineCostEstimator();
         cannotInline = CollectionFactory.newHashSet();
         def2decl     = CollectionFactory.newHashMap();
-        firstTime    = true;
+        def2cost     = CollectionFactory.newHashMap();
+        initialized  = false;
     }
 
     public void startJob (Job j) {
         job = j;
-        if (firstTime) {
-            firstTime                  = false;
-            extInfo                    = j.extensionInfo();
-            compiler                   = extInfo.compiler();
-            Configuration config       = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
-            INLINE_STRUCT_CONSTRUCTORS = config.INLINE_STRUCT_CONSTRUCTORS;
-            INLINE_IMPLICIT            = config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
-            implicitMax                = config.EXPERIMENTAL ? 1 : 0;
+        if (initialized) { // this stuff needs a Job to initialize but is otherwise final
+            initialized     = true;
+            Configuration c = ((X10CompilerOptions) job.extensionInfo().getOptions()).x10_config;
+            implicit        = c.INLINE_METHODS_IMPLICIT;
+            implicitMax     = c.EXPERIMENTAL ? 1 : 0;
+            assert c.OPTIMIZE;
         }
     }
 
@@ -117,7 +112,7 @@ public class DeclStore {
             return null;
         }
         boolean required = Inliner.annotationsRequireInlining(call) || annotationsRequireInlining(def);
-        if (!required && !INLINE_IMPLICIT && !(INLINE_STRUCT_CONSTRUCTORS && isStructConstructor(call))) {
+        if (!required && !implicit) {
             report("inlining not required for candidate: " +def, call);
             return null;
         }
@@ -154,7 +149,7 @@ public class DeclStore {
         if (null == decl) {
             try {
                 String source = candidateJob.source().toString().intern();
-                Scheduler scheduler = extInfo.scheduler();
+                Scheduler scheduler = job.extensionInfo().scheduler();
                 Optimizer opt = new Optimizer(scheduler, candidateJob);
                 Goal harvester = opt.Harvester();
                 if (!scheduler.attempt(harvester)) { // throw ICE ??
@@ -196,16 +191,12 @@ public class DeclStore {
             cannotInline(def);
             return null;
         }
-        if (!required && (INLINE_IMPLICIT || (INLINE_STRUCT_CONSTRUCTORS && isStructConstructor(call)))) {
-            int cost = getCost(decl, candidateJob);
-            if (implicitMax < cost) {
-                report("of excessive cost, " + cost, call);
-                cannotInline(def);
+        if (implicit) {
+            int cost = getCost(def);
+            if (implicitMax < cost && !required) {
+                report("too expensive, cost = " + cost, call);
                 return null;
             }
-        } else if (!required) {
-            report("inlining not explicitly required", call);
-            return null;
         }
         return decl;
     }
@@ -278,16 +269,6 @@ public class DeclStore {
         return visitor.hasSuper;
     }
 
-    /**
-     * @param decl
-     * @param job
-     * @return
-     */
-    private int getCost(ProcedureDecl decl, Job job) {
-        int cost = ice.getCost(decl, job);
-        return cost;
-    }
-
     private boolean inlineable(ProcedureDef def) {
         return !cannotInline.contains(def);
     }
@@ -302,6 +283,22 @@ public class DeclStore {
 
     public void putDecl(ProcedureDef def, ProcedureDecl decl) {
         def2decl.put(def, decl);
+    }
+
+    /**
+     * @param def
+     * @param cost
+     */
+    public void putCost(ProcedureDef def, int cost) {
+        def2cost.put(def, cost);
+    }
+
+    /**
+     * @param def
+     * @return
+     */
+    private int getCost(X10ProcedureDef def) {
+        return def2cost.get(def);
     }
 
     /**

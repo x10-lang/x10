@@ -39,14 +39,17 @@ class InlineCostEstimator extends NodeVisitor {
     private static final List<String> cppNativeStrings  = Arrays.asList("c++", "cuda");
 
     InlineCostDelegate delegate;
-    int cost[] = new int[1];;
+    int cost[] = new int[1];
+    Job job;
     
-    synchronized int getCost(Node n, Job job) {
-        if (null == n) return 0;
-        if (isNativeCode(n, job)) return NATIVE_CODE_COST;
-        cost[0] = 0;
-        delegate = new InlineCostDelegate(this, job);
-        n.visit(this);
+    InlineCostEstimator(Job j) {
+        job = j;
+        if (null == delegate) {
+            delegate = new InlineCostDelegate(this);
+        }
+    }
+
+    int getCost() {
         return cost[0];
     }
 
@@ -55,11 +58,15 @@ class InlineCostEstimator extends NodeVisitor {
      */
     @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
-        delegate.visitAppropriate(n);
+        if (isNativeCode(n)) {
+            cost[0] |= NATIVE_CODE_COST;
+        } else {
+            delegate.visitAppropriate(n);
+        }
         return n;
     }
 
-    boolean isNativeCode(Node n, Job job) {
+    boolean isNativeCode(Node n) {
         return !getApplicableNativeAnnotations(n, job).isEmpty();
     }
 
@@ -85,21 +92,18 @@ class InlineCostEstimator extends NodeVisitor {
 final class InlineCostDelegate extends X10DelegatingVisitor{
 
     final InlineCostEstimator ice;
-    final Job job;
 
     /**
      * @param ce
      */
-    InlineCostDelegate(InlineCostEstimator ce, Job j) {
+    InlineCostDelegate(InlineCostEstimator ce) {
         ice = ce;
-        job = j;
     }
 
     /**
      * Property calls are not charged
      */
     public final void visit(AssignPropertyCall_c c) {
-        visit((Node) c);
     }
 
     /**
@@ -107,7 +111,6 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
      */
     public final void visit(Call_c c) {
         ice.cost[0]++;
-        visit((Node) c);
     }
 
     /**
@@ -115,16 +118,6 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
      */
     public final void visit(ConstructorCall_c c) {
         ice.cost[0]++;
-        visit((Node) c);
     }
 
-    /**
-     * Parameters in native call strings are not alpha renamed.
-     * So, methods containing native code cannot be inlined.
-     */
-    public final void visit(Node n) {
-        if (ice.isNativeCode(n, job)) {
-            ice.cost[0] |= ice.NATIVE_CODE_COST;
-        }
-    }
 }

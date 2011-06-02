@@ -46,7 +46,7 @@ public class InlineDeclHarvester extends ContextVisitor {
     @Override
     protected NodeVisitor enterCall(Node n) throws SemanticException {
         if (n instanceof ProcedureDecl) {
-//          return new InlineCostVisitor(job, ts, nf, new InlineCostEstimator(job, ts, nf));
+            return new InlineCostEstimator(job);
         }
         return this;
     }
@@ -57,8 +57,8 @@ public class InlineDeclHarvester extends ContextVisitor {
     @Override
     protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof ProcedureDecl) {
-            ProcedureDecl pd = (ProcedureDecl) n;
-            repository.putDecl(pd.procedureInstance(), pd);
+            repository.putDecl(((ProcedureDecl) n).procedureInstance(), (ProcedureDecl) n);
+            repository.putCost(((ProcedureDecl) n).procedureInstance(), ((InlineCostEstimator) v).getCost());
         }
         return n;
     }
