@@ -277,10 +277,10 @@ public class CUDAPatternMatcher extends ContextVisitor {
 			
 								if (classname.equals("CUDAUtilities") && targs == 0 && args == 0 && methodname.equals("autoBlocks")) {
 									complainIfNot2(autoBlocks == null, "@CUDA: Already have autoBlocks", init_call);
-									autoBlocks = ld;
+									autoBlocks = ld.init(null);
 								} else if (classname.equals("CUDAUtilities") && targs == 0 && args == 0 && methodname.equals("autoThreads")) {
 									complainIfNot2(autoThreads == null, "@CUDA: Already have autoThreads", init_call);
-									autoThreads = ld;
+									autoThreads = ld.init(null);
 								} else {
 									complainIfNot(false, "A call to CUDAUtilities.autoBlocks/autoThreads", init_call);
 								}
