@@ -5,17 +5,6 @@ Constructs/Call/ConConstructor2Arg_DYNAMIC_CHECKS.x10:
 Constructs/Cast/PrimitiveDependentTypeCast/Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile.x10:
 	Invalid test case (XTENLANG-2766).
 
-Constructs/DepType/InconsistentInterfaceInvariants_MustFailCompile.x10:
-	Interface properties not equated properly.
-
-Constructs/Generics/GenericOverriding08_MustFailCompile.x10:
-Constructs/Generics/GenericOverriding10_MustFailCompile.x10:
-Constructs/Generics/GenericOverriding11_MustFailCompile.x10:
-	Need to check method override guard.
-
-Constructs/Inheritance/InheritedProperty3_MustFailCompile.x10:
-	Need to check method override flags.
-
 Constructs/Typedefs/TypedefNew11_MustFailCompile.x10:
 	Constructor guard not checked.
 
@@ -40,12 +29,6 @@ Samples/WorkStealingQuickSortTest.x10:
 LangSpec/Classes/Classes4d5e.x10:
 	C++ overloading error (XTENLANG-2764).
 
-Constructs/DepType/DepTypeInMethodRet1_MustFailCompile.x10:
-	Need to check for var in constraints.
-
-Issues/XTENLANG_2330.x10:
-	Java compilation error related to generic type parameters (XTENLANG-2767).
-
 LIMITATION: Constructs/DepType/DepTypeVariableVisibility_MustFailCompile.x10:
 	Limitation - visibility checks.
 Constructs/Instanceof/ConstrainedTypeTests.x10:
@@ -55,3 +38,21 @@ Issues/XTENLANG_2301.x10:
 	C++ limitation - generic virtual methods.
 Constructs/IndexedMemoryChunk/Congruent.x10:
 	Java limitation - x10rt remote ops not implemented for Managed X10.
+
+Issues/XTENLANG_2330.x10:
+	Fixed in r22028.
+
+Constructs/DepType/DepTypeInMethodRet1_MustFailCompile.x10:
+	Fixed in r22068.
+
+Constructs/Generics/GenericOverriding08_MustFailCompile.x10:
+Constructs/Generics/GenericOverriding10_MustFailCompile.x10:
+Constructs/Generics/GenericOverriding11_MustFailCompile.x10:
+	Fixed in r22089.
+
+Constructs/Inheritance/InheritedProperty3_MustFailCompile.x10:
+	Fixed in r22090.
+
+Constructs/DepType/InconsistentInterfaceInvariants_MustFailCompile.x10:
+	Fixed in r22091.
+
