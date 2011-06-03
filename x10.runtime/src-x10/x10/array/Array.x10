@@ -385,7 +385,7 @@ public final class Array[T] (
     	};
     	// The :T below should not be needed, see XTENLANG-2700.
     	public operator this(i:Int):T=Array.this(i);
-    	public def size()=Array.this.size;
+    	public property def size()=Array.this.size;
     };
 
     
