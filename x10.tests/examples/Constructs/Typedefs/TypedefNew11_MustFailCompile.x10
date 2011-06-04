@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+
 /**
  * An instance of a defined type with no type parameters and no value
  * parameters may be used to instantiate an instance of a type. The type
@@ -31,15 +32,15 @@ public class TypedefNew11_MustFailCompile extends TypedefTest {
 
         class A[C] {
             def this() = {};
-            def this(i:int):A[C]{C<:X} = {};
+            def this(i:int){C<:X}:A[C] = {};
         }
         
         type T[C] = A[C];
         type TX = A[X];
         type TY = A[Y];
 
-        // not allowed
-        val t6 = new TY(0);  // A[Y] !<: A[Y]{Y<:X}
+        // not allowed - Y !<: X
+        val t6 = new TY(0); // ERR
 
         return result;
     }

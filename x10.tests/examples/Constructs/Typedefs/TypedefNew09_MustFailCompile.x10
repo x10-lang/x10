@@ -32,7 +32,7 @@ public class TypedefNew09_MustFailCompile extends TypedefTest {
 
         class A[C] {
             def this() = {};
-            def this(i:int):A[C]{C<:X} = {};
+            def this(i:int):A[C] = {};
         }
         
         type T[C] = A[C];
