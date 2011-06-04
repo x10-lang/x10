@@ -17,9 +17,11 @@ import java.util.List;
 import polyglot.ast.Call_c;
 import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.Node;
+import polyglot.ast.Special;
 import polyglot.frontend.Job;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall_c;
+import x10.visit.ExpressionFlattener;
 import x10.visit.X10DelegatingVisitor;
 
 /**
@@ -28,17 +30,20 @@ import x10.visit.X10DelegatingVisitor;
  */
 class InlineCostEstimator extends NodeVisitor {
 
-    static final int NATIVE_CODE_COST = 0x1000;
+    static final int MAX_ACTUAL_COST   = 0x0FFFF;
+    static final int NATIVE_CODE_COST  = 0x10000;
+    static final int JAVA_SPECIAL_COST = 0x20000;
 
     InlineCostDelegate delegate;
     int cost[] = new int[1];
     Job job;
+    boolean hasSuper = false;
+    InlineAnnotationUtils annotations;
     
     InlineCostEstimator(Job j) {
         job = j;
-        if (null == delegate) {
-            delegate = new InlineCostDelegate(this);
-        }
+        annotations = new InlineAnnotationUtils(job);
+        delegate = new InlineCostDelegate(this);
     }
 
     int getCost() {
@@ -50,16 +55,15 @@ class InlineCostEstimator extends NodeVisitor {
      */
     @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
-        if (isNativeCode(n)) {
+        if (n instanceof Special && ((Special) n).kind() == Special.SUPER && ExpressionFlattener.javaBackend(job)) {
+            cost[0] |= JAVA_SPECIAL_COST; // Java back-end cannot handle inlined super targets
+        }
+        if (annotations.isNativeCode(n)) {
             cost[0] |= NATIVE_CODE_COST;
         } else {
             delegate.visitAppropriate(n);
         }
         return n;
-    }
-
-    boolean isNativeCode(Node n) {
-        return !AnnotationUtils.getNativeAnnotations(n, job).isEmpty();
     }
 
 }
@@ -68,9 +72,6 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
 
     final InlineCostEstimator ice;
 
-    /**
-     * @param ce
-     */
     InlineCostDelegate(InlineCostEstimator ce) {
         ice = ce;
     }

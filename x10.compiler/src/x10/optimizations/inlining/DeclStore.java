@@ -76,6 +76,7 @@ public class DeclStore {
     private final Map<ProcedureDef, Integer>       def2cost;
 
     private Job job;
+    private InlineAnnotationUtils annotations;
     private boolean implicit;
     private int implicitMax;
     private boolean initialized;
@@ -91,8 +92,9 @@ public class DeclStore {
 
     public void startJob (Job j) {
         job = j;
-        if (initialized) { // this stuff needs a Job to initialize but is otherwise final
+        if (!initialized) { // this stuff needs a Job (any Job) to initialize but is otherwise final
             initialized     = true;
+            annotations     = new InlineAnnotationUtils(job);
             Configuration c = ((X10CompilerOptions) job.extensionInfo().getOptions()).x10_config;
             implicit        = c.INLINE_METHODS_IMPLICIT;
             implicitMax     = c.EXPERIMENTAL ? 1 : 0;
@@ -104,93 +106,20 @@ public class DeclStore {
      * @param call
      * @return
      */
-    ProcedureDecl findDecl(InlinableCall call) {
-        Position pos = call.position();
+    ProcedureDecl retrieveDecl(InlinableCall call) {
         X10ProcedureDef def = getDef(call);
         if (!inlineable(def)) { 
             report("candidate known to be uninlinable: " +def, call);
             return null;
         }
-        boolean required = AnnotationUtils.inliningRequired(call) || AnnotationUtils.inliningRequired(def);
+        boolean required = annotations.inliningRequired(call) || annotations.inliningRequired(def);
         if (!required && !implicit) {
             report("inlining not required for candidate: " +def, call);
             return null;
         }
-        // unless required, don't inline if the candidate annotations prevent it
-        if (AnnotationUtils.inliningProhibited(def)) {
-            report("annotation prohibits inlining candidate: " + def, call);
-            cannotInline(def);
+        ProcedureDecl decl = getDecl(call, def);
+        if (null == decl) 
             return null;
-        }
-        // get container and declaration for inline candidate
-        X10ClassDef container = getContainer(def);
-        if (null == container) {
-            report("no container found for candidate: " +def, call);
-            cannotInline(def);
-            return null;
-        }
-        if (AnnotationUtils.inliningProhibited(container)) {
-            report("annotations prohibit inlining from container: " +container, call);
-            cannotInline(def);
-            return null;
-        }
-        if (isVirtualOrNative(def, container)) {
-            report("call is virtual or native on candidate: " +def, call);
-            cannotInline(def);
-            return null;
-        }
-        Job candidateJob = container.job();
-        if (null == candidateJob) {
-            report("no job found for candidate: " +def, call);
-            cannotInline(def);
-            return null;
-        }
-        ProcedureDecl decl = getDecl(def);
-        if (null == decl) {
-            try {
-                String source = candidateJob.source().toString().intern();
-                Scheduler scheduler = job.extensionInfo().scheduler();
-                Optimizer opt = new Optimizer(scheduler, candidateJob);
-                Goal harvester = opt.Harvester();
-                if (!scheduler.attempt(harvester)) { // throw ICE ??
-                    report("job for candidate does not compile: " +def, call);
-                    cannotInline(def);
-                    return null;
-                }
-            } catch (CyclicDependencyException e) {
-                report("job for candidate does not compile: " +def, call);
-                cannotInline(def);
-                throw new InternalCompilerError("If A ->* B, then A is at Harvester and ? -> A would break any cycle", pos, e);
-            }
-            decl = getDecl(def);
-            if (null == decl) {
-                report("no decl found for candidate: " +def, call);
-                cannotInline(def);
-                return null;
-            }
-        }
-        /* these tests are redundant
-        if (Inliner.annotationsPreventInlining(decl) || annotationsPreventInlining(decl.procedureInstance())) {
-            report("candidate declaration annotated to prevent inlining: " +candidate, call);
-            notInlinable(candidate);
-            return null;
-        }
-        */
-        if (null == decl.body()) {
-            report("candidate has empty body: " +def, call);
-            cannotInline(def);
-            return null;
-        }
-        if (ExpressionFlattener.cannotFlatten(decl)){
-            report("candidate cannot be flattened: " +def, call);
-            cannotInline(def);
-            return null;
-        }
-        if (ExpressionFlattener.javaBackend(job) && hasSuperTarget(decl)) {
-            report("candidate body contains super (not yet supported by Java backend): " +def, call);
-            cannotInline(def);
-            return null;
-        }
         if (implicit) {
             int cost = getCost(def);
             if (implicitMax < cost && !required) {
@@ -203,11 +132,28 @@ public class DeclStore {
 
     /**
      * @param call
+     * @param def
      * @return
      */
-    private boolean isStructConstructor(InlinableCall call) {
-        if (!(call instanceof ConstructorCall)) return false;
-        return ts.isStruct(((ConstructorCall) call).constructorInstance().returnType());
+    public ProcedureDecl getDecl(InlinableCall call, X10ProcedureDef def) {
+        ProcedureDecl decl = getDecl(def);
+        if (null == decl) {
+            try {
+                Job job = ((ClassType) Types.baseType(((MemberDef) def).container().get())).def().job();
+                Scheduler scheduler = job.extensionInfo().scheduler();
+                if (!scheduler.attempt(new Optimizer(scheduler, job).Harvester())) { // throw ICE ??
+                    report("job for candidate does not compile: " +def, call);
+                    cannotInline(def);
+                    return null;
+                }
+            } catch (CyclicDependencyException e) { // this should never happen
+                report("job for candidate does not compile: " +def, call);
+                cannotInline(def);
+                throw new InternalCompilerError("If A ->* B, A is at Harvester & ? -> A would break any cycle", call.position(), e);
+            }
+            decl = getDecl(def);
+        }
+        return decl;
     }
 
     /**
@@ -228,46 +174,12 @@ public class DeclStore {
     }
 
     /**
-     * Get the definition of the Class that implements a given method.
-     * 
-     * @param candidate the method definition whose container is desired
-     * @return the definition of the Class containing md
-     */
-    private X10ClassDef getContainer(ProcedureDef candidate) {
-        Ref<? extends ContainerType> containerRef = ((MemberDef) candidate).container();
-        ContainerType containerType = Types.get(containerRef);
-        Type containerBase = Types.baseType(containerType); 
-        assert (containerBase instanceof X10ClassType);
-        X10ClassDef container = ((ClassType) containerBase).def();
-        return container;
-    }
-
-    /**
      * Check that a candidate method is eligible to be inlined.
      * 
      * @param candidate the method conside red for inlining
      * @param container the class containing the candidate
      * @return true, if the method obviously should not be inlined; false, otherwise
      */
-    private boolean isVirtualOrNative(X10ProcedureDef candidate, ClassDef container) {
-        Flags mf = ((MemberDef) candidate).flags();
-        Flags cf = container.flags();
-        if (mf.isNative() || cf.isNative())
-            return true;
-        if (!mf.isFinal() && !mf.isPrivate() && !mf.isStatic() && !cf.isFinal() && !container.isStruct() && !(candidate instanceof ConstructorDef))
-            return true;
-        return false;
-    }
-
-    /**
-     * @param node
-     * @return
-     */
-    private boolean hasSuperTarget(Node node) {
-        SuperFinderVisitor visitor = new SuperFinderVisitor();
-        node.visit(visitor);
-        return visitor.hasSuper;
-    }
 
     private boolean inlineable(ProcedureDef def) {
         return !cannotInline.contains(def);
@@ -299,14 +211,6 @@ public class DeclStore {
      */
     private int getCost(X10ProcedureDef def) {
         return def2cost.get(def);
-    }
-
-    /**
-     * @param report
-     * @param object
-     */
-    private void debug(String report, Node node) {
-        Inliner.debug(report, node);
     }
 
     /**

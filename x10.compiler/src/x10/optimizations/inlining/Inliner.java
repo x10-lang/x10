@@ -45,7 +45,6 @@ import polyglot.types.MemberInstance;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
-import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -61,26 +60,22 @@ import polyglot.visit.NodeVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
-import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.InlinableCall;
 import x10.ast.ParExpr;
 import x10.ast.StmtExpr;
-import x10.ast.X10Call;
+import x10.ast.X10ClassDecl;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
-import x10.errors.Errors;
 import x10.errors.Warnings;
-import x10.extension.X10Ext;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.types.X10Def;
 import x10.types.X10LocalDef;
-import x10.types.X10MemberDef;
 import x10.types.X10ProcedureDef;
 import x10.types.checker.Converter;
 import x10.types.constants.ConstantValue;
@@ -130,7 +125,8 @@ public class Inliner extends ContextVisitor {
     private final Stack<String> inlineInstances = new Stack<String>();
     private final int recursionDepth[] = new int[1]; // number of calls to the same procedure currently being inlined
     private final AltSynthesizer syn;
-    private final DeclStore repository;
+    private DeclStore repository;
+    private InlineAnnotationUtils annotations;
 
     private final boolean INLINE_CONSTANTS;
     private final boolean INLINE_METHODS;
@@ -141,7 +137,6 @@ public class Inliner extends ContextVisitor {
         super(job, ts, nf);
         syn                   = new AltSynthesizer(ts, nf);
         ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
-        repository            = extInfo.compiler().getInlinerData(job, ts, nf);
         Configuration config  = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
         INLINE_CONSTANTS      = config.OPTIMIZE && config.INLINE_CONSTANTS;
         INLINE_METHODS        = config.OPTIMIZE && config.INLINE_METHODS;
@@ -151,11 +146,9 @@ public class Inliner extends ContextVisitor {
 
     @Override
     public NodeVisitor begin() {
-        if (!x10.optimizations.Optimizer.INLINING((ExtensionInfo) job.extensionInfo())) {
-            throw new InternalCompilerError("INLINING should not be being performed!");
-        }
+        repository        = job.compiler().getInlinerData(job, ts, nf);
+        annotations       = new InlineAnnotationUtils(job);
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
-        AnnotationUtils.initialize(ts);
         timer();
         return super.begin();
     }
@@ -187,12 +180,11 @@ public class Inliner extends ContextVisitor {
             return null; // will handle @NoInline annotation seperately
         }
         if (node instanceof ClassDecl) { // Don't try to inline native classes
-            if ( !AnnotationUtils.hasAnnotation(node, AnnotationUtils.NativeClassType) ||
-                 !AnnotationUtils.hasAnnotation(node, AnnotationUtils.NativeRepType) ) {
+            if (annotations.inliningProhibited(((X10ClassDecl) node).classDef())) {
                 return node;
             }
         }
-        if (AnnotationUtils.hasAnnotation(node, AnnotationUtils.NoInlineType)) { // TODO: DEBUG only (remove this)
+        if (annotations.inliningProhibited(node)) { // allows whole AST's to be ignored TODO: DEBUG only (remove this)
             if (DEBUG) debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
             return node;
         }
@@ -214,13 +206,13 @@ public class Inliner extends ContextVisitor {
                 if (null != result) 
                     return result;
             }
-            if (INLINE_METHODS && !AnnotationUtils.inliningProhibited(n)) {
+            if (INLINE_METHODS && !annotations.inliningProhibited(n)) {
                 if (4 <= VERBOSITY)
                     Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
                 result = wrappedInlineMethodCall((InlinableCall) n);
             }
         } else if (n instanceof X10MethodDecl) {
-            if (!AnnotationUtils.hasAnnotation((X10Def) ((X10MethodDecl) n).memberDef(), AnnotationUtils.InlineOnlyType))
+            if (AnnotationUtils.hasAnnotation(((X10MethodDecl) n).methodDef(), annotations.InlineOnlyType))
                 return null; // ASK: is this the right way to remove a method decl from the ast?
             return n;
         } else {
@@ -265,9 +257,9 @@ public class Inliner extends ContextVisitor {
         x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
         try {
             X10ProcedureDef def = repository.getDef(call);
-            List<Type> annotations = AnnotationUtils.getAnnotations(def, AnnotationUtils.ConstantType);
-            if (annotations.isEmpty()) return null;
-            Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
+            List<Type> a = AnnotationUtils.getAnnotations(def, annotations.ConstantType);
+            if (a.isEmpty()) return null;
+            Expr arg = ((X10ClassType) a.get(0)).propertyInitializer(0);
             if (!arg.isConstant() || !arg.type().typeEquals(ts.String(), context)) 
                 return null;
             Type type = def.returnType().get();
@@ -401,12 +393,12 @@ public class Inliner extends ContextVisitor {
     }
 
     private Expr inlineCall(InlinableCall call) {
-        if (AnnotationUtils.inliningProhibited(call)) {
+        if (annotations.inliningProhibited(call)) {
             report("of annotation at call site", call);
             return null;
         }
-        ProcedureDecl decl = repository.findDecl(call);
-        if (null == decl) return null;;
+        ProcedureDecl decl = repository.retrieveDecl(call);
+        if (null == decl) return null;
         String signature = makeSignatureString(decl);
         decl = (ProcedureDecl) instantiate(decl, call);
         if (null == decl) {

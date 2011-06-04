@@ -73,14 +73,11 @@ public final class Configuration extends x10.config.Configuration {
     public boolean INLINE_CLOSURES = true;
     private static final String INLINE_CLOSURES_desc = "Enable inlining of closure literal calls";
 
-    public boolean INLINE_METHODS_IMPLICIT = true;
+    public boolean INLINE_METHODS_IMPLICIT = false;
     private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
 
     public boolean INLINE_CONSTRUCTORS = true;
     private static final String INLINE_CONSTRUCTORS_desc = "Inline constructor calls";
-    
-    public boolean INLINE_STRUCT_CONSTRUCTORS = true;
-    private static final String INLINE_STRUCT_CONSTRUCTORS_desc = "Implicitly inline calls to small struct constructors";
 
     public boolean ALLOW_STATEMENT_EXPRESSIONS = true;
     private static final String ALLOW_STATEMENT_EXPRESSIONS_desc = "Allow statement expressions in generated code";
