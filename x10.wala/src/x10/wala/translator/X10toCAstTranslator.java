@@ -297,8 +297,8 @@ public class X10toCAstTranslator implements TranslatorToCAst {
       return null;
     }
 
-    protected CAstNode translateConstant(Object constant) {
-      return fFactory.makeConstant(constant);
+    protected CAstNode translateConstant(x10.types.constants.ConstantValue constant) {
+      return fFactory.makeConstant(constant.toJavaObject());
     }
 
     protected class JavaTranslatingVisitorImpl {
@@ -3450,6 +3450,8 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	}
 
 	public CAstNode visit(Closure closure, WalkContext wc) {
+	    fIdentityMapper.mapLocalAnonTypeToMethod(closure.closureDef().asType(), wc.getEnclosingMethod());
+
 	    CAstEntity bodyEntity= walkClosureEntity(closure, closure.body(), wc);
 	    CAstNode closureNode= makeNode(wc, closure.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
 
@@ -3459,14 +3461,16 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 
 	public CAstNode visit(ClosureCall closureCall, WalkContext wc) {
         MethodInstance instance = closureCall.closureInstance();
+
+        CAstNode[] children = new CAstNode[2 + instance.formalTypes().size()];
+        int i = 0;
+        children[i++] = walkNodes(closureCall.target(), wc);
+
         MethodReference methodRef = fIdentityMapper.getMethodRef(instance);
 
         int dummyPC = 0;
         CallSiteReference callSiteRef = CallSiteReference.make(dummyPC, methodRef, IInvokeInstruction.Dispatch.VIRTUAL);
 
-        CAstNode[] children = new CAstNode[2 + instance.formalTypes().size()];
-        int i = 0;
-        children[i++] = walkNodes(closureCall.target(), wc);
         children[i++] = fFactory.makeConstant(callSiteRef);
 
         for (final Expr arg : closureCall.arguments()) {
