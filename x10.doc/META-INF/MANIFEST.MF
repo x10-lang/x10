@@ -4,11 +4,8 @@ Bundle-Name: x10.doc
 Bundle-SymbolicName: x10.doc
 Bundle-Version: 2.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: x10.common,
- x10.compiler;visibility:=reexport,
- x10.constraints;visibility:=reexport,
- x10.runtime;resolution:=optional,
- lpg.runtime.java;bundle-version="2.0.18"
+Require-Bundle: x10.common;visibility:=reexport,
+ x10.compiler;visibility:=reexport
 Export-Package: x10doc,
  x10doc.doc,
  x10doc.goals,
