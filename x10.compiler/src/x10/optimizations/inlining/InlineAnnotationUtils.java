@@ -106,7 +106,6 @@ public class InlineAnnotationUtils extends AnnotationUtils {
 
     /**
      * @param n
-     * @param job
      * @return
      */
     boolean isNativeCode(Node n) {

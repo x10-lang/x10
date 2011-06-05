@@ -2926,7 +2926,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Local_c n) {
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 		LocalInstance var = n.localInstance();
-		// Make sure there is no mismatch betweeen n.name() and var.name()
+		// Make sure there is no mismatch between n.name() and var.name()
 		if (var.name() != n.name().id()) {
 		    assert var.name() == n.name().id();
 		}
