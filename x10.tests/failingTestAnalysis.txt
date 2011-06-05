@@ -2,12 +2,6 @@ Constructs/Call/ConConstructor2Arg_2_DYNAMIC_CHECKS.x10:
 Constructs/Call/ConConstructor2Arg_DYNAMIC_CHECKS.x10:
 	Need constructor invocation dynamic check support.
 
-Constructs/Cast/PrimitiveDependentTypeCast/Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile.x10:
-	Invalid test case (XTENLANG-2766).
-
-Constructs/Typedefs/TypedefNew11_MustFailCompile.x10:
-	Constructor guard not checked.
-
 Issues/XTENLANG_2384.x10:
 	Java: Broken catch blocks (XTENLANG-2384); C++: fail at runtime.
 
@@ -55,4 +49,10 @@ Constructs/Inheritance/InheritedProperty3_MustFailCompile.x10:
 
 Constructs/DepType/InconsistentInterfaceInvariants_MustFailCompile.x10:
 	Fixed in r22091.
+
+Constructs/Typedefs/TypedefNew11_MustFailCompile.x10:
+	Fixed in r22094 (fixed test).
+
+Constructs/Cast/PrimitiveDependentTypeCast/Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile.x10:
+	Fixed in r22095 (fixed test).
 
