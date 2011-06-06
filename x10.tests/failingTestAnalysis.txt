@@ -14,12 +14,6 @@ Samples/CUDAMatMulTest.x10:
 Samples/WalaFibTest.x10:
 	NPE in WALA.
 
-WorkStealing/Constructs/CollectingFinish2.x10:
-	Bad WS codegen (Java).
-
-Samples/WorkStealingQuickSortTest.x10:
-	Bad WS codegen (C++).
-
 LangSpec/Classes/Classes4d5e.x10:
 	C++ overloading error (XTENLANG-2764).
 
@@ -55,4 +49,10 @@ Constructs/Typedefs/TypedefNew11_MustFailCompile.x10:
 
 Constructs/Cast/PrimitiveDependentTypeCast/Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile.x10:
 	Fixed in r22095 (fixed test).
+
+Samples/WorkStealingQuickSortTest.x10:
+	Fixed in r22106.
+
+WorkStealing/Constructs/CollectingFinish2.x10:
+	Fixed in r22111.
 
