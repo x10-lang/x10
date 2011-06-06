@@ -814,7 +814,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         MethodReference ctorRef = fIdentityMapper.getMethodRef(ctorInst);
 
         if (n.body() != null) {
-          fIdentityMapper.mapLocalAnonTypeToMethod((ClassType) n.type(), wc.getEnclosingMethod());
+          fIdentityMapper.mapLocalAnonTypeToMethod(n.type().toClass(), wc.getEnclosingMethod());
 
           anonClass = walkEntity(n, wc);
 
