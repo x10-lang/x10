@@ -797,6 +797,8 @@ public class Emitter {
     private boolean isPointerless(X10ClassType ct) {
         assert ct.isX10Struct() : "Only structs should be checked to see if they are pointerless";
         
+        if (ASTQuery.getCppRep(ct.x10Def()) != null) return false; // be conservative on @NativeRep
+
         for (FieldInstance fi : ct.fields()) {
             if (fi.flags().isStatic()) continue; // ignore static fields; only care about instance fields
             if (!fi.type().isNumeric()) {
