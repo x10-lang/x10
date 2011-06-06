@@ -20,7 +20,7 @@ import x10.types.MethodInstance;
 public interface ClosureCall extends Expr, InlinableCall {
 
     /** The name of the method to use for closure invocations */
-    public static final Name APPLY = Name.make("operator()");
+    public static final Name APPLY = OperatorNames.APPLY;
 
     /**
      * @return the target of this closure invocation, which should be an expression

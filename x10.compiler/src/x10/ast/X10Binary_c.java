@@ -35,7 +35,6 @@ import polyglot.ast.Receiver;
 import polyglot.ast.StringLit;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Binary.Operator;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -440,53 +439,49 @@ public class X10Binary_c extends Binary_c {
         return null;
     }
 
-    public static Name binaryMethodName(Binary.Operator op) {
-        Map<Binary.Operator,String> methodNameMap = CollectionFactory.newHashMap();
-        methodNameMap.put(ADD, "operator+");
-        methodNameMap.put(SUB, "operator-");
-        methodNameMap.put(MUL, "operator*");
-        methodNameMap.put(DIV, "operator/");
-        methodNameMap.put(MOD, "operator%");
-        methodNameMap.put(BIT_AND, "operator&");
-        methodNameMap.put(BIT_OR, "operator|");
-        methodNameMap.put(BIT_XOR, "operator^");
-        methodNameMap.put(COND_OR, "operator||");
-        methodNameMap.put(COND_AND, "operator&&");
-        methodNameMap.put(SHL, "operator<<");
-        methodNameMap.put(SHR, "operator>>");
-        methodNameMap.put(USHR, "operator>>>");
-        methodNameMap.put(LT, "operator<");
-        methodNameMap.put(GT, "operator>");
-        methodNameMap.put(LE, "operator<=");
-        methodNameMap.put(GE, "operator>=");
-        methodNameMap.put(DOT_DOT, "operator..");
-        methodNameMap.put(ARROW, "operator->");
-        methodNameMap.put(LARROW, "operator<-");
-        methodNameMap.put(FUNNEL, "operator-<");
-        methodNameMap.put(LFUNNEL, "operator>-");
-        methodNameMap.put(STARSTAR, "operator**");
-        methodNameMap.put(TWIDDLE, "operator~");
-        methodNameMap.put(NTWIDDLE, "operator!~");
-        methodNameMap.put(BANG, "operator!");
-
-        String methodName = methodNameMap.get(op);
-        if (methodName == null)
-            return null;
-        return Name.makeUnchecked(methodName);
+    private static final Map<Operator,Name> OPERATOR_NAMES = CollectionFactory.newHashMap();
+    static {
+        Map<Operator,Name> methodNameMap = OPERATOR_NAMES;
+        methodNameMap.put(ADD,      OperatorNames.PLUS);
+        methodNameMap.put(SUB,      OperatorNames.MINUS);
+        methodNameMap.put(MUL,      OperatorNames.STAR);
+        methodNameMap.put(DIV,      OperatorNames.SLASH);
+        methodNameMap.put(MOD,      OperatorNames.PERCENT);
+        methodNameMap.put(BIT_AND,  OperatorNames.AMPERSAND);
+        methodNameMap.put(BIT_OR,   OperatorNames.BAR);
+        methodNameMap.put(BIT_XOR,  OperatorNames.CARET);
+        methodNameMap.put(COND_OR,  OperatorNames.OR);
+        methodNameMap.put(COND_AND, OperatorNames.AND);
+        methodNameMap.put(SHL,      OperatorNames.LEFT);
+        methodNameMap.put(SHR,      OperatorNames.RIGHT);
+        methodNameMap.put(USHR,     OperatorNames.RRIGHT);
+        methodNameMap.put(LT,       OperatorNames.LT);
+        methodNameMap.put(GT,       OperatorNames.GT);
+        methodNameMap.put(LE,       OperatorNames.LE);
+        methodNameMap.put(GE,       OperatorNames.GE);
+        methodNameMap.put(DOT_DOT,  OperatorNames.RANGE);
+        methodNameMap.put(ARROW,    OperatorNames.ARROW);
+        methodNameMap.put(LARROW,   OperatorNames.LARROW);
+        methodNameMap.put(FUNNEL,   OperatorNames.FUNNEL);
+        methodNameMap.put(LFUNNEL,  OperatorNames.LFUNNEL);
+        methodNameMap.put(STARSTAR, OperatorNames.STARSTAR);
+        methodNameMap.put(TWIDDLE,  OperatorNames.TILDE);
+        methodNameMap.put(NTWIDDLE, OperatorNames.NTILDE);
+        methodNameMap.put(BANG,     OperatorNames.BANG);
     }
 
-    public static final String INVERSE_OPERATOR_PREFIX = "inverse_";
-    public static Name invBinaryMethodName(Binary.Operator op) {
-        Name n = binaryMethodName(op);
-        if (n == null)
-            return null;
-        return Name.makeUnchecked(INVERSE_OPERATOR_PREFIX + n.toString());
+    public static Name binaryMethodName(Operator op) {
+        return OPERATOR_NAMES.get(op);
+    }
+
+    public static Name invBinaryMethodName(Operator op) {
+        return OperatorNames.inverse(binaryMethodName(op));
     }
 
     public static boolean isInv(Name name) {
-        return name.toString().startsWith(INVERSE_OPERATOR_PREFIX);
+        return OperatorNames.is_inverse(name);
     }
-    
+
     private static Type promote(TypeSystem ts, Type t1, Type t2) {
         if (ts.isByte(t1)) {
             return t2;
@@ -718,7 +713,7 @@ public class X10Binary_c extends Binary_c {
     public static X10Call_c desugarBinaryOp(Binary n, ContextVisitor tc) {
         Expr left = n.left();
         Expr right = n.right();
-        Binary.Operator op = n.operator();
+        Operator op = n.operator();
         Position pos = n.position();
         TypeSystem xts = tc.typeSystem();
 
