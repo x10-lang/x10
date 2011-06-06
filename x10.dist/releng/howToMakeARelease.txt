@@ -64,6 +64,8 @@ When all necessary fixes have been propagated to the release branch, one can bui
 
    4. ssh into shell.sf.net and create a subdirectory of /home/frs/project/x/x1/x10 to hold the downloads. 
       Use sftp to move all of the release artifacts from orquesta to sf.
+      Rename RELEASE_NOTES.txt to README.txt in the sf download area
+      Use SF web admin API to set the default downloads for each OS platform to the new files
    5. Make sure language manual has the right version, date, etc. 
       Tag the language manual
 
