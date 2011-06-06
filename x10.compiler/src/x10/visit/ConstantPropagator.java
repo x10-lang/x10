@@ -52,6 +52,7 @@ import x10.optimizations.ForLoopOptimizer;
 import x10.types.checker.Converter;
 import x10.types.constants.BooleanValue;
 import x10.types.constants.ConstantValue;
+import x10.types.constants.StringValue;
 import x10.types.constraints.CConstraint;
 import x10.util.AltSynthesizer;
 
@@ -62,8 +63,8 @@ import x10.util.AltSynthesizer;
  * <p> Replace branches on constants with the consequent or alternative as appropriate. 
  * 
  * <p> TODO: Handle constant rails and conversions.
- * <p> TODO: Propagate through rails A(0) = v; ... A(0) --> v. TODO: Dead code
- * elimination. visitor.
+ * <p> TODO: Propagate through rails A(0) = v; ... A(0) --> v. 
+ * <p> TODO: Dead code elimination. visitor.
  * 
  * FIXME: [IP] propagate closure literals
  * 
@@ -101,7 +102,7 @@ public class ConstantPropagator extends ContextVisitor {
             Local l = (Local) n;
             if (l.localInstance().def().isConstant()) {
                 ConstantValue o = l.localInstance().def().constantValue();
-                if (null != o) {
+                if (null != o && !(o instanceof StringValue)) {
                     return o.toLit(nf, xts, n.position());      
                 }
             }
