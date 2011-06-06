@@ -1469,7 +1469,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         TypeSystem xts = tr.typeSystem();
         Binary.Operator op = n.operator();
 
-        if (l.isNumeric() && r.isNumeric() || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
+        if (l.isNumeric() && r.isNumeric() && xts.typeEquals(Types.baseType(l), Types.baseType(r), tr.context()) || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
             prettyPrint(n);
             return;
         }
@@ -1487,14 +1487,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else {
                 // x10.rtt.Equality.equalsequals(#0,#1)
                 w.write("x10.rtt.Equality.equalsequals(");
-                if (l.isUnsignedNumeric()) {
+                if (l.isNumeric()) {
                     er.printBoxConversion(l);
                 }
                 w.write("("); // required for printBoxConversion
                 er.prettyPrint(left, tr);
                 w.write(")");
                 w.write(",");
-                if (r.isUnsignedNumeric()) {
+                if (r.isNumeric()) {
                     er.printBoxConversion(r);
                 }
                 w.write("("); // required for printBoxConversion
@@ -1517,14 +1517,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else {
             	// (!x10.rtt.Equality.equalsequals(#0,#1))
             	w.write("(!x10.rtt.Equality.equalsequals(");
-                if (l.isUnsignedNumeric()) {
+                if (l.isNumeric()) {
                     er.printBoxConversion(l);
                 }
                 w.write("(");
                 er.prettyPrint(left, tr);
                 w.write(")");
             	w.write(",");
-                if (r.isUnsignedNumeric()) {
+                if (r.isNumeric()) {
                     er.printBoxConversion(r);
                 }
                 w.write("(");
