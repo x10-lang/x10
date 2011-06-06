@@ -79,7 +79,7 @@ import x10.types.constraints.BuiltInTypeRules;
  *
  * @author vj Jan 21, 2005
  */
-public class X10Binary_c extends Binary_c implements X10Binary {
+public class X10Binary_c extends Binary_c {
 
     protected Expr left;
     protected Operator op;
