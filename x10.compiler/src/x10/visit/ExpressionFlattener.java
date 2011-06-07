@@ -165,7 +165,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             if (DEBUG) System.out.println("DEBUG: flattening: " +((X10ClassDecl) n).classDef()+ " (@" +((X10ClassDecl) n).position()+ ")");
             return null;
         }
-        if (cannotFlatten(n, job)) return n;
+        if (cannotFlatten(n)) return n;
         return null;
     }
 
@@ -182,7 +182,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param n an AST node that might be flattened
      * @return true if the node cannot be flattened, false otherwise
      */
-    public static boolean cannotFlatten(Node n, Job job) {
+    public static boolean cannotFlatten(Node n) {
         Position pos = n.position(); // for DEBUGGING
         if (n instanceof SourceFile){
             Source s = ((SourceFile) n).source();

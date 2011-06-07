@@ -26,7 +26,7 @@ public class Places_implicit_copy_from_at_example_1 extends x10Test {
     }
 
 
-// file Places line 730
+// file Places line 734
  static  class Example {
  static def example() {
 

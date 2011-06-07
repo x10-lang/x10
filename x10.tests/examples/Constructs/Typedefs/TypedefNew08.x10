@@ -29,7 +29,7 @@ public class TypedefNew08 extends TypedefTest {
 
     static class A[C] {
         def this() = {};
-        def this(i:int):A[C]{C<:X} = {};
+        def this(i:int):A[C] = {};
     }
 
     static type T[C] = A[C];
@@ -42,7 +42,7 @@ public class TypedefNew08 extends TypedefTest {
 
         // allowed
         val t1:A[X] = new TX();   // A[X] <: A[X]
-        val t3:A[X] = new TX(0);  // A[X] <: A[X]{X<:X}
+        val t3:A[X] = new TX(0);  // A[X] <: A[X]
         val t2:A[Y] = new TY();   // A[Y] <: A[Y]
 
         return result;

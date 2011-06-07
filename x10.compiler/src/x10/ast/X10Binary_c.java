@@ -25,6 +25,8 @@ import polyglot.ast.BooleanLit;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.IntLit;
+import polyglot.ast.IntLit.Kind;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
@@ -33,7 +35,6 @@ import polyglot.ast.Receiver;
 import polyglot.ast.StringLit;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Binary.Operator;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -45,7 +46,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; 
+import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -66,6 +68,7 @@ import x10.types.X10Use;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
+import x10.types.constants.*;
 import x10.types.constraints.BuiltInTypeRules;
 
 /**
@@ -75,7 +78,7 @@ import x10.types.constraints.BuiltInTypeRules;
  *
  * @author vj Jan 21, 2005
  */
-public class X10Binary_c extends Binary_c implements X10Binary {
+public class X10Binary_c extends Binary_c {
 
     protected Expr left;
     protected Operator op;
@@ -163,9 +166,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
 	public boolean isConstant() {
-	    // Polyglot doesn't understand how to constant fold unsigned types.
-	    if (left.type().isUnsignedNumeric() || right.type().isUnsignedNumeric()) return false;
-	    
 		if (left.isConstant() && right.isConstant() && isPureOperation(left.type(), op, right.type())) {
 		    if (op == EQ || op == NE) {
 		        // Additional checks for type equality because conversions not applied for ==
@@ -189,9 +189,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		return false;
 	}
 
-    // TODO: take care of the base cases for regions, distributions, points and places.
-    public Object constantValue() {
-        Object result = superConstantValue();
+    public ConstantValue constantValue() {
+        ConstantValue result = superConstantValue();
         if (result != null)
             return result;
         if (!isConstant())
@@ -202,176 +201,177 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         TypeSystem xts = (TypeSystem) lt.typeSystem();
 		Context context = (Context) xts.emptyContext();
 		
-		// [IP] An optimization: an value and null can never be equal
-	
-	 if (op == EQ) {
-		    if (xts.isStructType(lt) && xts.isObjectOrInterfaceType(rt, context))
-			return Boolean.FALSE;
-		    if (xts.isObjectOrInterfaceType(lt, context) && xts.isStructType(rt))
-			return Boolean.FALSE;
-		    if ( xts.isStructType(lt) && rt.isNull())
-			return Boolean.FALSE;
-		    if ( xts.isStructType(rt) && lt.isNull())
-			return Boolean.FALSE;
+		// [IP] An optimization: a struct and null can never be equal
+		if (op == EQ) {
+		    if (xts.isStructType(lt) && rt.isNull())
+		        return ConstantValue.makeBoolean(false);
+		    if (xts.isStructType(rt) && lt.isNull())
+		        return ConstantValue.makeBoolean(false);
 		}
 		if (op == NE) {
-		    if (xts.isStructType(lt) && xts.isObjectOrInterfaceType(rt, context))
-			return Boolean.TRUE;
-		    if (xts.isObjectOrInterfaceType(lt, context) && xts.isStructType(rt))
-			return Boolean.TRUE;
 		    if (xts.isStructType(lt) && rt.isNull())
-			return Boolean.TRUE;
+		        return ConstantValue.makeBoolean(true);
 		    if (xts.isStructType(rt) && lt.isNull())
-			return Boolean.TRUE;
+                return ConstantValue.makeBoolean(true);
 		    return null;
 		}
-		
-        return null;
+
+		return null;
     }
     
-    private Object superConstantValue() {
-    	if (! isConstant()) {
+    private ConstantValue superConstantValue() {
+    	if (!isConstant()) {
     		return null;
     	}
 
-	    if (left.type().isUnsignedNumeric() || right.type().isUnsignedNumeric()) {
-	    	return null;
-	    }
-
-	    Object lv = left.constantValue();
-        Object rv = right.constantValue();
-
-        if (op == ADD && (lv instanceof String || rv instanceof String)) {
-            // toString() does what we want for String, Number, and Boolean
-        	if (lv == null) lv = "null";
-        	if (rv == null) rv = "null";
-        	return lv.toString() + rv.toString();       
+	    ConstantValue lv = left.constantValue();
+        ConstantValue rv = right.constantValue();
+        
+        if (lv == null || rv == null) {
+            System.out.println("AJA "+this+" ::: "+lv+" ::: "+rv);
+            System.out.println(left+" "+left.getClass());
         }
 
-        if (op == EQ && (lv instanceof String && rv instanceof String)) {
-            return Boolean.valueOf(((String) lv).intern() == ((String) rv).intern());
+        if (op == ADD && (lv instanceof StringValue || rv instanceof StringValue)) {
+            // toString() on a ConstantValue gives the same String as toString on the value itself.
+        	return ConstantValue.makeString(lv.toString() + rv.toString());       
         }
 
-        if (op == NE && (lv instanceof String && rv instanceof String)) {
-            return Boolean.valueOf(((String) lv).intern() != ((String) rv).intern());
+        if (op == EQ && (lv instanceof StringValue && rv instanceof StringValue)) {
+            return ConstantValue.makeBoolean(((StringValue) lv).value().equals(((StringValue)rv).value()));
         }
 
-        // promote chars to ints.
-        if (lv instanceof Character) {
-            lv = Integer.valueOf(((Character) lv).charValue());
+        if (op == NE && (lv instanceof StringValue && rv instanceof StringValue)) {
+            return ConstantValue.makeBoolean(!((StringValue) lv).value().equals(((StringValue)rv).value()));
         }
-
-        if (rv instanceof Character) {
-            rv = Integer.valueOf(((Character) rv).charValue());
+        
+        if (lv instanceof BooleanValue && rv instanceof BooleanValue) {
+            boolean l = ((BooleanValue) lv).value();
+            boolean r = ((BooleanValue)rv).value();
+            if (op == EQ) return ConstantValue.makeBoolean(l == r);
+            if (op == NE) return ConstantValue.makeBoolean(l != r);
+            if (op == BIT_AND) return ConstantValue.makeBoolean(l & r);
+            if (op == BIT_OR) return ConstantValue.makeBoolean(l | r);
+            if (op == BIT_XOR) return ConstantValue.makeBoolean(l ^ r);
+            if (op == COND_AND) return ConstantValue.makeBoolean(l && r);
+            if (op == COND_OR) return ConstantValue.makeBoolean(l || r);
         }
-
+        
         try {
-            if (lv instanceof Number && rv instanceof Number) {
-                if (lv instanceof Double || rv instanceof Double) {
-                    double l = ((Number) lv).doubleValue();
-                    double r = ((Number) rv).doubleValue();
-                    if (op == ADD) return Double.valueOf(l + r);
-                    if (op == SUB) return Double.valueOf(l - r);
-                    if (op == MUL) return Double.valueOf(l * r);
-                    if (op == DIV) return Double.valueOf(l / r);
-                    if (op == MOD) return Double.valueOf(l % r);
-                    if (op == EQ) return Boolean.valueOf(l == r);
-                    if (op == NE) return Boolean.valueOf(l != r);
-                    if (op == LT) return Boolean.valueOf(l < r);
-                    if (op == LE) return Boolean.valueOf(l <= r);
-                    if (op == GE) return Boolean.valueOf(l >= r);
-                    if (op == GT) return Boolean.valueOf(l > r);
-                    return null;
-                }
-
-                if (lv instanceof Float || rv instanceof Float) {
-                    float l = ((Number) lv).floatValue();
-                    float r = ((Number) rv).floatValue();
-                    if (op == ADD) return Float.valueOf(l + r);
-                    if (op == SUB) return Float.valueOf(l - r);
-                    if (op == MUL) return Float.valueOf(l * r);
-                    if (op == DIV) return Float.valueOf(l / r);
-                    if (op == MOD) return Float.valueOf(l % r);
-                    if (op == EQ) return Boolean.valueOf(l == r);
-                    if (op == NE) return Boolean.valueOf(l != r);
-                    if (op == LT) return Boolean.valueOf(l < r);
-                    if (op == LE) return Boolean.valueOf(l <= r);
-                    if (op == GE) return Boolean.valueOf(l >= r);
-                    if (op == GT) return Boolean.valueOf(l > r);
-                    return null;
-                }
-
-                if (lv instanceof Long && rv instanceof Number) {
-                    long l = ((Long) lv).longValue();
-                    long r = ((Number) rv).longValue();
-                    if (op == SHL) return Long.valueOf(l << r);
-                    if (op == SHR) return Long.valueOf(l >> r);
-                    if (op == USHR) return Long.valueOf(l >>> r);
-                }
-
-                if (lv instanceof Long || rv instanceof Long) {
-                    long l = ((Number) lv).longValue();
-                    long r = ((Number) rv).longValue();
-                    if (op == ADD) return Long.valueOf(l + r);
-                    if (op == SUB) return Long.valueOf(l - r);
-                    if (op == MUL) return Long.valueOf(l * r);
-                    if (op == DIV) return Long.valueOf(l / r);
-                    if (op == MOD) return Long.valueOf(l % r);
-                    if (op == EQ) return Boolean.valueOf(l == r);
-                    if (op == NE) return Boolean.valueOf(l != r);
-                    if (op == LT) return Boolean.valueOf(l < r);
-                    if (op == LE) return Boolean.valueOf(l <= r);
-                    if (op == GE) return Boolean.valueOf(l >= r);
-                    if (op == GT) return Boolean.valueOf(l > r);
-                    if (op == BIT_AND) return Long.valueOf(l & r);
-                    if (op == BIT_OR) return Long.valueOf(l | r);
-                    if (op == BIT_XOR) return Long.valueOf(l ^ r);
-                    return null;
-                }
-
-                // At this point, both lv and rv must be ints.
-                int l = ((Number) lv).intValue();
-                int r = ((Number) rv).intValue();
-
-                if (op == ADD) return Integer.valueOf(l + r);
-                if (op == SUB) return Integer.valueOf(l - r);
-                if (op == MUL) return Integer.valueOf(l * r);
-                if (op == DIV) return Integer.valueOf(l / r);
-                if (op == MOD) return Integer.valueOf(l % r);
-                if (op == EQ) return Boolean.valueOf(l == r);
-                if (op == NE) return Boolean.valueOf(l != r);
-                if (op == LT) return Boolean.valueOf(l < r);
-                if (op == LE) return Boolean.valueOf(l <= r);
-                if (op == GE) return Boolean.valueOf(l >= r);
-                if (op == GT) return Boolean.valueOf(l > r);
-                if (op == BIT_AND) return Integer.valueOf(l & r);
-                if (op == BIT_OR) return Integer.valueOf(l | r);
-                if (op == BIT_XOR) return Integer.valueOf(l ^ r);
-                if (op == SHL) return Integer.valueOf(l << r);
-                if (op == SHR) return Integer.valueOf(l >> r);
-                if (op == USHR) return Integer.valueOf(l >>> r);
-                return null;
+            if (lv instanceof DoubleValue || rv instanceof DoubleValue) {
+                // args promoted to double if needed and result will be a double
+                double l = lv.doubleValue();
+                double r = rv.doubleValue();
+                if (op == ADD) return ConstantValue.makeDouble(l + r);
+                if (op == SUB) return ConstantValue.makeDouble(l - r);
+                if (op == MUL) return ConstantValue.makeDouble(l * r);
+                if (op == DIV) return ConstantValue.makeDouble(l / r);
+                if (op == MOD) return ConstantValue.makeDouble(l % r);
+                if (op == EQ) return ConstantValue.makeBoolean(l == r);
+                if (op == NE) return ConstantValue.makeBoolean(l != r);
+                if (op == LT) return ConstantValue.makeBoolean(l < r);
+                if (op == LE) return ConstantValue.makeBoolean(l <= r);
+                if (op == GE) return ConstantValue.makeBoolean(l >= r);
+                if (op == GT) return ConstantValue.makeBoolean(l > r);
             }
-        }
-        catch (ArithmeticException e) {
-            // ignore div by 0
-            return null;
-        }
+            
+            if (lv instanceof FloatValue || rv instanceof FloatValue) {
+                // args promoted to float if needed and result will be a float
+                float l = lv.floatValue();
+                float r = rv.floatValue();
+                if (op == ADD) return ConstantValue.makeFloat(l + r);
+                if (op == SUB) return ConstantValue.makeFloat(l - r);
+                if (op == MUL) return ConstantValue.makeFloat(l * r);
+                if (op == DIV) return ConstantValue.makeFloat(l / r);
+                if (op == MOD) return ConstantValue.makeFloat(l % r);
+                if (op == EQ) return ConstantValue.makeBoolean(l == r);
+                if (op == NE) return ConstantValue.makeBoolean(l != r);
+                if (op == LT) return ConstantValue.makeBoolean(l < r);
+                if (op == LE) return ConstantValue.makeBoolean(l <= r);
+                if (op == GE) return ConstantValue.makeBoolean(l >= r);
+                if (op == GT) return ConstantValue.makeBoolean(l > r);
+            }
+            
+            if (lv instanceof CharValue || rv instanceof CharValue) {
+                long l = lv.integralValue();
+                long r = rv.integralValue();
 
-        if (lv instanceof Boolean && rv instanceof Boolean) {
-            boolean l = ((Boolean) lv).booleanValue();
-            boolean r = ((Boolean) rv).booleanValue();
-
-            if (op == EQ) return Boolean.valueOf(l == r);
-            if (op == NE) return Boolean.valueOf(l != r);
-            if (op == BIT_AND) return Boolean.valueOf(l & r);
-            if (op == BIT_OR) return Boolean.valueOf(l | r);
-            if (op == BIT_XOR) return Boolean.valueOf(l ^ r);
-            if (op == COND_AND) return Boolean.valueOf(l && r);
-            if (op == COND_OR) return Boolean.valueOf(l || r);
+                if (op == ADD) return ConstantValue.makeChar((char)(l + r));
+                if (op == SUB) return ConstantValue.makeChar((char)(l -r));
+                if (op == EQ) return ConstantValue.makeBoolean(l == r);
+                if (op == NE) return ConstantValue.makeBoolean(l != r);
+                if (op == LT) return ConstantValue.makeBoolean(l < r);
+                if (op == LE) return ConstantValue.makeBoolean(l <= r);
+                if (op == GE) return ConstantValue.makeBoolean(l >= r);
+                if (op == GT) return ConstantValue.makeBoolean(l > r);
+            }
+            
+            if (lv instanceof IntegralValue || rv instanceof IntegralValue) {
+                long l = lv.integralValue();
+                long r = rv.integralValue();
+                IntLit.Kind lk = null;
+                IntLit.Kind rk = null;
+                if (lv instanceof IntegralValue) {
+                    lk = ((IntegralValue)lv).kind();
+                }
+                if (rv instanceof IntegralValue) {
+                    rk = ((IntegralValue)rv).kind();
+                }
+                
+                if (op == ADD) return ConstantValue.makeIntegral(l + r, meet(lk, rk));
+                if (op == SUB) return ConstantValue.makeIntegral(l -r, meet(lk, rk));
+                if (op == MUL) return ConstantValue.makeIntegral(l * r, meet(lk, rk));
+                if (op == DIV) return ConstantValue.makeIntegral(l / r, meet(lk, rk));;
+                if (op == MOD) return ConstantValue.makeIntegral(l % r, meet(lk, rk));;
+                if (op == EQ) return ConstantValue.makeBoolean(lk == rk && l == r);
+                if (op == NE) return ConstantValue.makeBoolean(lk != rk || l != r);
+                if (op == BIT_AND) return ConstantValue.makeIntegral(l & r, meet(lk, rk));;
+                if (op == BIT_OR) return ConstantValue.makeIntegral(l | r, meet(lk, rk));
+                if (op == BIT_XOR) return ConstantValue.makeIntegral(l ^ r, meet(lk, rk));
+                if (op == SHL) return ConstantValue.makeIntegral(l << r, lk);
+                if (op == SHR) {
+                    if (lk.isSigned()) {
+                        return ConstantValue.makeIntegral(l >> r, lk);                        
+                    } else {
+                        return ConstantValue.makeIntegral(l >>> r, lk);
+                    }
+                }
+                if (op == USHR) return ConstantValue.makeIntegral(l >>> r, lk);
+                if (meet(lk, rk).isSigned()) {
+                    if (op == LT) return ConstantValue.makeBoolean(l < r);
+                    if (op == LE) return ConstantValue.makeBoolean(l <= r);
+                    if (op == GE) return ConstantValue.makeBoolean(l >= r);
+                    if (op == GT) return ConstantValue.makeBoolean(l > r);
+                } else {
+                    long lAdj = l + Long.MIN_VALUE;
+                    long rAdj = r + Long.MIN_VALUE;
+                    if (op == LT) return ConstantValue.makeBoolean(lAdj < rAdj);
+                    if (op == LE) return ConstantValue.makeBoolean(lAdj <= rAdj);
+                    if (op == GE) return ConstantValue.makeBoolean(lAdj >= rAdj);
+                    if (op == GT) return ConstantValue.makeBoolean(lAdj > rAdj);
+                }
+            }
+        } catch (ArithmeticException e) {
+            // Actually unreachable because MOD/DIV are not pure.
+            // Therefore isConstant will return false.
+            // However, leave in place for future in case we remove the isPure check in isConstant
+            return null; 
         }
 
         return null;
+    }
+
+    private Kind meet(Kind lk, Kind rk) {
+        if (lk == rk) return lk;
+        if (lk == IntLit.Kind.ULONG || rk == IntLit.Kind.ULONG) return IntLit.Kind.ULONG;
+        if (lk == IntLit.Kind.LONG || rk == IntLit.Kind.LONG) return IntLit.Kind.LONG;
+        if (lk == IntLit.Kind.UINT || rk == IntLit.Kind.UINT) return IntLit.Kind.UINT;
+        if (lk == IntLit.Kind.INT || rk == IntLit.Kind.INT) return IntLit.Kind.INT;
+        if (lk == IntLit.Kind.USHORT || rk == IntLit.Kind.USHORT) return IntLit.Kind.USHORT;
+        if (lk == IntLit.Kind.SHORT || rk == IntLit.Kind.SHORT) return IntLit.Kind.SHORT;
+        if (lk == IntLit.Kind.UBYTE || rk == IntLit.Kind.UBYTE) return IntLit.Kind.UBYTE;
+        if (lk == IntLit.Kind.BYTE || rk == IntLit.Kind.BYTE) return IntLit.Kind.BYTE;
+        throw new InternalCompilerError("Unknown meet of kinds "+lk+" "+rk);
     }
 
     /** If the expression was parsed as an ambiguous expression, return a Receiver that would have parsed the same way.  Otherwise, return null. */
@@ -439,53 +439,49 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         return null;
     }
 
-    public static Name binaryMethodName(Binary.Operator op) {
-        Map<Binary.Operator,String> methodNameMap = CollectionFactory.newHashMap();
-        methodNameMap.put(ADD, "operator+");
-        methodNameMap.put(SUB, "operator-");
-        methodNameMap.put(MUL, "operator*");
-        methodNameMap.put(DIV, "operator/");
-        methodNameMap.put(MOD, "operator%");
-        methodNameMap.put(BIT_AND, "operator&");
-        methodNameMap.put(BIT_OR, "operator|");
-        methodNameMap.put(BIT_XOR, "operator^");
-        methodNameMap.put(COND_OR, "operator||");
-        methodNameMap.put(COND_AND, "operator&&");
-        methodNameMap.put(SHL, "operator<<");
-        methodNameMap.put(SHR, "operator>>");
-        methodNameMap.put(USHR, "operator>>>");
-        methodNameMap.put(LT, "operator<");
-        methodNameMap.put(GT, "operator>");
-        methodNameMap.put(LE, "operator<=");
-        methodNameMap.put(GE, "operator>=");
-        methodNameMap.put(DOT_DOT, "operator..");
-        methodNameMap.put(ARROW, "operator->");
-        methodNameMap.put(LARROW, "operator<-");
-        methodNameMap.put(FUNNEL, "operator-<");
-        methodNameMap.put(LFUNNEL, "operator>-");
-        methodNameMap.put(STARSTAR, "operator**");
-        methodNameMap.put(TWIDDLE, "operator~");
-        methodNameMap.put(NTWIDDLE, "operator!~");
-        methodNameMap.put(BANG, "operator!");
-
-        String methodName = methodNameMap.get(op);
-        if (methodName == null)
-            return null;
-        return Name.makeUnchecked(methodName);
+    private static final Map<Operator,Name> OPERATOR_NAMES = CollectionFactory.newHashMap();
+    static {
+        Map<Operator,Name> methodNameMap = OPERATOR_NAMES;
+        methodNameMap.put(ADD,      OperatorNames.PLUS);
+        methodNameMap.put(SUB,      OperatorNames.MINUS);
+        methodNameMap.put(MUL,      OperatorNames.STAR);
+        methodNameMap.put(DIV,      OperatorNames.SLASH);
+        methodNameMap.put(MOD,      OperatorNames.PERCENT);
+        methodNameMap.put(BIT_AND,  OperatorNames.AMPERSAND);
+        methodNameMap.put(BIT_OR,   OperatorNames.BAR);
+        methodNameMap.put(BIT_XOR,  OperatorNames.CARET);
+        methodNameMap.put(COND_OR,  OperatorNames.OR);
+        methodNameMap.put(COND_AND, OperatorNames.AND);
+        methodNameMap.put(SHL,      OperatorNames.LEFT);
+        methodNameMap.put(SHR,      OperatorNames.RIGHT);
+        methodNameMap.put(USHR,     OperatorNames.RRIGHT);
+        methodNameMap.put(LT,       OperatorNames.LT);
+        methodNameMap.put(GT,       OperatorNames.GT);
+        methodNameMap.put(LE,       OperatorNames.LE);
+        methodNameMap.put(GE,       OperatorNames.GE);
+        methodNameMap.put(DOT_DOT,  OperatorNames.RANGE);
+        methodNameMap.put(ARROW,    OperatorNames.ARROW);
+        methodNameMap.put(LARROW,   OperatorNames.LARROW);
+        methodNameMap.put(FUNNEL,   OperatorNames.FUNNEL);
+        methodNameMap.put(LFUNNEL,  OperatorNames.LFUNNEL);
+        methodNameMap.put(STARSTAR, OperatorNames.STARSTAR);
+        methodNameMap.put(TWIDDLE,  OperatorNames.TILDE);
+        methodNameMap.put(NTWIDDLE, OperatorNames.NTILDE);
+        methodNameMap.put(BANG,     OperatorNames.BANG);
     }
 
-    public static final String INVERSE_OPERATOR_PREFIX = "inverse_";
-    public static Name invBinaryMethodName(Binary.Operator op) {
-        Name n = binaryMethodName(op);
-        if (n == null)
-            return null;
-        return Name.makeUnchecked(INVERSE_OPERATOR_PREFIX + n.toString());
+    public static Name binaryMethodName(Operator op) {
+        return OPERATOR_NAMES.get(op);
+    }
+
+    public static Name invBinaryMethodName(Operator op) {
+        return OperatorNames.inverse(binaryMethodName(op));
     }
 
     public static boolean isInv(Name name) {
-        return name.toString().startsWith(INVERSE_OPERATOR_PREFIX);
+        return OperatorNames.is_inverse(name);
     }
-    
+
     private static Type promote(TypeSystem ts, Type t1, Type t2) {
         if (ts.isByte(t1)) {
             return t2;
@@ -717,7 +713,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     public static X10Call_c desugarBinaryOp(Binary n, ContextVisitor tc) {
         Expr left = n.left();
         Expr right = n.right();
-        Binary.Operator op = n.operator();
+        Operator op = n.operator();
         Position pos = n.position();
         TypeSystem xts = tc.typeSystem();
 

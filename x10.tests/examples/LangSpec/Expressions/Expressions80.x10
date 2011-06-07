@@ -26,13 +26,15 @@ public class Expressions80 extends x10Test {
     }
 
 
-// file Expressions line 481
+// file Expressions line 485
  static  class Example {
  def example(A:()=>Rail[Int], I: () => Int, B: () => Int ) {
 {
+  // The order of these evaluations is not specified
   val aa = A();  // Evaluate A() once
   val ii = I();  // Evaluate I() once
   val bb = B();  // Evaluate B() once
+  // But they happen before this:
   val tmp = aa(ii) + bb; // read aa(ii)
   aa(ii) = tmp;  // write sum back to aa(ii)
 }

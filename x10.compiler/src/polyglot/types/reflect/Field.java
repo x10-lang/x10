@@ -31,7 +31,7 @@ public class Field {
     protected int name;
     protected int type;
     protected Attribute[] attrs;
-    protected ConstantValue constantValue;
+    protected ConstantValueAttr constantValue;
     protected boolean synthetic;
 
     /**
@@ -69,7 +69,7 @@ public class Field {
             
             if (name != null) {
                 if ("ConstantValue".equals(name.value())) {
-                    constantValue = new ConstantValue(in, nameIndex, length);
+                    constantValue = new ConstantValueAttr(in, nameIndex, length);
                     attrs[i] = constantValue;
                 }
                 if ("Synthetic".equals(name.value())) {
@@ -185,7 +185,7 @@ public class Field {
     public ClassFile getClazz() {
         return clazz;
     }
-    public ConstantValue getConstantValue() {
+    public ConstantValueAttr getConstantValue() {
         return constantValue;
     }
     public int getModifiers() {

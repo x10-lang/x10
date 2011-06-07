@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Expressions7s3n;
+/* Current test harness gets confused by packages, but it would be in package Expressions2p4c;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,24 +19,28 @@ import harness.x10Test;
 
 
 
-public class Expressions7s3n extends x10Test {
+public class Expressions2p4c extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Expressions7s3n().execute();
+        new Expressions2p4c().execute();
     }
 
 
-// file Expressions line 1311
- static class Thing {
-  public static operator (x:Thing) as Object = "different";
+// file Expressions line 1293
+ static class Knot(s:String){
+  public def is(t:String):Boolean = s.equals(t);
+  // explicit conversion
+  public static operator (n:Int) as Knot = new Knot("knot-" + n);
+  // implicit coercion
+  public static operator (s:String):Knot = new Knot(s);
+  // using them
   public static def example() {
-    val t = new Thing();
-    val o = t as Object;
-    assert o instanceof Thing;
+     val a : Knot = 1 as Knot;
+     val b : Knot = "frayed";
+     val c : Knot = "three" as Knot;
+     assert a.is("knot-1") && b.is("frayed") && c.is("three");
   }
 }
- //    val p = Thing.operator as[Object](t);
- //    assert p.equals("very different");
- static  class Hook{ def run() { Thing.example(); return true; } }
+ static  class Hook{ def run() {Knot.example(); return true;}}
 
 }

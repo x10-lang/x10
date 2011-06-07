@@ -26,7 +26,7 @@ public class Classes7h2f extends x10Test {
     }
 
 
-// file Classes line 387
+// file Classes line 376
  static class Proper(a:Int, b:String) {
   def this(a:Int, b:String) {
       property(a, b);

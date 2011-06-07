@@ -610,7 +610,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         final LazyRef<TypeConstraint> tc = new LazyRef_c<TypeConstraint>(new TypeConstraint());
 
         // Set the type bounds for the def.
-       tc.setResolver(new Runnable() {
+        tc.setResolver(new Runnable() {
         	public void run() {	
         		if (ci != null) {
         			TypeConstraint ti = ci.typeConstraint().get();
@@ -968,11 +968,17 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	X10ClassDecl_c result = (X10ClassDecl_c) superConformanceCheck(tc);
     	Context context = (Context) tc.context();
     	
-    	X10ClassDef cd = (X10ClassDef) classDef();
+    	X10ClassDef cd = classDef();
     	{ 
-    		CConstraint c =  cd.classInvariant().get();
+    		CConstraint c = cd.classInvariant().get();
     		if (c != null && ! c.consistent()) {
     			Errors.issue(tc.job(), new Errors.InconsistentInvariant(cd, position()));
+    		}
+    		if (c != null && ! c.valid()) {
+    		    c = cd.getRealClause();
+    		    if (c != null && ! c.consistent()) {
+    		        Errors.issue(tc.job(), new Errors.InconsistentInvariant(cd, position()));
+    		    }
     		}
     	}
         

@@ -50,6 +50,9 @@ import x10.constraint.XVar;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.checker.Converter;
+import x10.types.constants.BooleanValue;
+import x10.types.constants.ConstantValue;
+import x10.types.constants.StringValue;
 import x10.types.constraints.CConstraint;
 import x10.util.AltSynthesizer;
 
@@ -60,8 +63,8 @@ import x10.util.AltSynthesizer;
  * <p> Replace branches on constants with the consequent or alternative as appropriate. 
  * 
  * <p> TODO: Handle constant rails and conversions.
- * <p> TODO: Propagate through rails A(0) = v; ... A(0) --> v. TODO: Dead code
- * elimination. visitor.
+ * <p> TODO: Propagate through rails A(0) = v; ... A(0) --> v. 
+ * <p> TODO: Dead code elimination. visitor.
  * 
  * FIXME: [IP] propagate closure literals
  * 
@@ -98,21 +101,20 @@ public class ConstantPropagator extends ContextVisitor {
         if (n instanceof Local) {
             Local l = (Local) n;
             if (l.localInstance().def().isConstant()) {
-                Object o = l.localInstance().def().constantValue();
-                Expr result = toExpr(o, Types.baseType(l.type()), n.position());
-                if (result != null)
-                    return result;
-                
+                ConstantValue o = l.localInstance().def().constantValue();
+                if (null != o && !(o instanceof StringValue)) {
+                    return o.toLit(nf, xts, l.type(), n.position());      
+                }
             }
         }
         
         if (n instanceof Expr) {
             Expr e = (Expr) n;
             if (isConstant(e)) {
-                Object o = constantValue(e);
-                Expr result = toExpr(o, Types.baseType(e.type()), e.position());
-                if (result != null)
-                    return result;
+                ConstantValue o = constantValue(e);
+                if (null != o) {
+                    return o.toLit(nf, xts, e.type(), e.position());
+                }
             }
         }
 
@@ -120,7 +122,7 @@ public class ConstantPropagator extends ContextVisitor {
             Conditional c = (Conditional) n;
             Expr cond = c.cond();
             if (isConstant(cond)) {
-                boolean b = (boolean) (Boolean) constantValue(cond);
+                boolean b = ((BooleanValue) constantValue(cond)).value();
                 if (b)
                     return c.consequent();
                 else
@@ -165,7 +167,7 @@ public class ConstantPropagator extends ContextVisitor {
         return n;
     }
 
-    public static Object constantValue(Expr e) {
+    public static ConstantValue constantValue(Expr e) {
         if (e.isConstant())
             return e.constantValue();
         
@@ -182,7 +184,7 @@ public class ConstantPropagator extends ContextVisitor {
         			XTerm val = c.bindingForSelfField(f);
         			if (val instanceof XLit) {
         				XLit l = (XLit) val;
-        				return l.val();
+        				return ConstantValue.make(f.type(), l.val());
         			}
         		}
         	}
@@ -194,7 +196,7 @@ public class ConstantPropagator extends ContextVisitor {
             XVar r = c.self();
             if (r instanceof XLit) {
                 XLit l = (XLit) r;
-                return l.val();
+                return ConstantValue.make(t, l.val());
             }
         }
         return null;
@@ -244,70 +246,6 @@ public class ConstantPropagator extends ContextVisitor {
             }
         }
         return false;
-    }
-
-    public Expr toExpr(Object o, Type desiredType, Position pos) {
-        NodeFactory nf = (NodeFactory) this.nf;
-
-        Expr e = null;
-        if (o == null) {
-            e = nf.NullLit(pos);
-        } else
-        if (o instanceof Integer) {
-            IntLit.Kind kind;
-            if (ts.isInt(desiredType) || ts.isInterfaceType(desiredType)) {
-                kind = IntLit.INT;
-            } else if (ts.isUInt(desiredType)) {
-                kind = IntLit.UINT;
-            } else if (ts.isShort(desiredType)) {
-                kind = IntLit.SHORT;
-            } else if (ts.isUShort(desiredType)) {
-                kind = IntLit.USHORT;
-            } else if (ts.isByte(desiredType)) {
-                kind = IntLit.BYTE;
-            } else if (ts.isUByte(desiredType)) {
-                kind = IntLit.UBYTE;
-            } else {
-                throw new InternalCompilerError("desiredType "+desiredType+" does not match Int constant "+o);
-            }
-            e = nf.IntLit(pos, kind, (long) (int) (Integer) o);
-        } else
-        if (o instanceof Long) {
-            e = nf.IntLit(pos, ts.isULong(desiredType) ? IntLit.ULONG : IntLit.LONG, (long) (Long) o);
-        } else
-        if (o instanceof Float) {
-            e = nf.FloatLit(pos, FloatLit.FLOAT, (double) (float) (Float) o);
-        } else
-        if (o instanceof Double) {
-            e = nf.FloatLit(pos, FloatLit.DOUBLE, (double) (Double) o);
-        } else
-        if (o instanceof Character) {
-            e = nf.CharLit(pos, (char) (Character) o);
-        } else
-        if (o instanceof Boolean) {
-            e = nf.BooleanLit(pos, (boolean) (Boolean) o);
-        } else
-        if (o instanceof String) {
-            e = null; // strings have reference semantics
-        } else
-        if (o instanceof Object[]) {
-            Object[] a = (Object[]) o;
-            List<Expr> args = new ArrayList<Expr>(a.length);
-            Type elemType = Types.baseType(Types.getParameterType(desiredType, 0));
-            for (Object ai : a) {
-                Expr ei = toExpr(ai, elemType, pos);
-                if (ei == null)
-                    return null;
-                args.add(ei);
-            }
-            e = nf.Tuple(pos, args);
-        }
-        try {
-            if (e != null) e = Converter.check(e, this);
-        } catch (SemanticException cause) {
-            throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
-        }
-        return e;
     }
 
     /**

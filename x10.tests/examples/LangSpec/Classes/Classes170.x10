@@ -26,7 +26,7 @@ public class Classes170 extends x10Test {
     }
 
 
-// file Classes line 1313
+// file Classes line 1380
 
  // Integer-coefficient polynomials of one variable.
  static  class UglyPoly {

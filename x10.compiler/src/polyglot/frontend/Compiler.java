@@ -35,7 +35,6 @@ import polyglot.util.SimpleCodeWriter;
 import polyglot.util.StdErrorQueue;
 import x10.optimizations.inlining.DeclStore;
 import x10.optimizations.inlining.Inliner;
-import x10.optimizations.inlining.InlinerCache;
 import x10.util.CollectionFactory;
 
 /**
@@ -65,10 +64,16 @@ public class Compiler
     
     public DeclStore getInlinerData(Job job, TypeSystem ts, NodeFactory nf) {
         if (null == inlinerData) 
-            inlinerData = new DeclStore(job, ts, nf);
-        else
-            inlinerData.job = job;
+            inlinerData = new DeclStore(ts, nf);
+        inlinerData.startJob(job);
         return inlinerData;
+    }
+
+    /**
+     * Do this only after all inlining is over (i.e. after the code-gen barrier)!
+     */
+    public void purgeInlinerData() {
+        inlinerData = null;
     }
 
     /** FIXME: TEMPRORARY Inliner hack: Errors in speculative compilation for inlining should not be fatal

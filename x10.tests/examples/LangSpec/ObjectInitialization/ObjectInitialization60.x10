@@ -26,7 +26,7 @@ public class ObjectInitialization60 extends x10Test {
     }
 
 
-// file ObjectInitialization line 597
+// file ObjectInitialization line 669
  static  class Supertype[T]{}
  static  interface SuperInterface[T]{}
  static class Example (
@@ -59,7 +59,7 @@ public class ObjectInitialization60 extends x10Test {
    }
 
    def someMethod() =
-        prop + staticField + instanceField;     // (P)
+        prop + staticField() + instanceField;     // (P)
 }
 
  static class Hook {

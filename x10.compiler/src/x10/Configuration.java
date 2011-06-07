@@ -78,9 +78,6 @@ public final class Configuration extends x10.config.Configuration {
 
     public boolean INLINE_CONSTRUCTORS = true;
     private static final String INLINE_CONSTRUCTORS_desc = "Inline constructor calls";
-    
-    public boolean INLINE_STRUCT_CONSTRUCTORS = true;
-    private static final String INLINE_STRUCT_CONSTRUCTORS_desc = "Implicitly inline calls to small struct constructors";
 
     public boolean ALLOW_STATEMENT_EXPRESSIONS = true;
     private static final String ALLOW_STATEMENT_EXPRESSIONS_desc = "Allow statement expressions in generated code";

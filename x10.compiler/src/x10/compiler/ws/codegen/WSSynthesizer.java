@@ -47,6 +47,7 @@ import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import x10.ast.AnnotationNode;
+import x10.ast.ClosureCall;
 import x10.ast.X10Call;
 import x10.ast.X10MethodDecl;
 import x10.compiler.ws.util.WSUtil;
@@ -101,7 +102,7 @@ public class WSSynthesizer {
     static final protected Name REDIRECT = Name.make("redirect");
     static final protected Name CONTINUE_LATER = Name.make("continueLater");
     static final protected Name CONTINUE_NOW = Name.make("continueNow");
-    static final protected Name OPERATOR = Name.make("operator()");
+    static final protected Name OPERATOR = ClosureCall.APPLY;
     static final protected Name ENTER_ATOMIC = Name.make("enterAtomic");
     static final protected Name EXIT_WHEN = Name.make("exitWSWhen");
     static final protected Name ACCEPT = Name.make("accept");    

@@ -276,6 +276,13 @@ public class TypeTransformer extends NodeTransformer {
             }
             X10ClassType ct = (X10ClassType) qt.outer();
             X10ClassType nct = ct == null ? null : (X10ClassType) transformType(ct);
+            if (ct != null && !qt.isInnerClass()) {
+                nct = nct.typeArguments(null);
+                TypeSystem ts = ct.typeSystem();
+                if (ts.typeEquals(nct, ct, ts.emptyContext())) {
+                    nct = ct;
+                }
+            }
             if (nct != ct) {
                 qt = qt.container(nct);
             }

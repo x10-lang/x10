@@ -2,7 +2,7 @@ Release 2.2.0
 
 MAJOR CHANGES
 
-We have been extremely busy since the 2.2.1 release of X10.
+We have been extremely busy since the 2.1.2 release of X10.
 In all, 462 JIRA issues were resolved for the 2.2.0 release.
 A number of changes, clarifications, and improvements have
 been made to the language and its implementation.  Some of the

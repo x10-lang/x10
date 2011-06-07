@@ -27,7 +27,7 @@ public class InheritedProperty3_MustFailCompile extends x10Test {
     // fail here
     class Tester  /*(l:int)*/ implements Test {
       public def this(arg:int):Tester {  }
-      public /*property*/ def l():int = 0; // ShouldBeErr
+      public /*property*/ def l():int = 0; // ERR: attempting to assign weaker access privileges
       public def put()=0;
     }
  

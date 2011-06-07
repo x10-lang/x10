@@ -50,6 +50,14 @@ import x10.types.X10ParsedClassType;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
+import x10.types.constants.BooleanValue;
+import x10.types.constants.CharValue;
+import x10.types.constants.ConstantValue;
+import x10.types.constants.DoubleValue;
+import x10.types.constants.FloatValue;
+import x10.types.constants.IntegralValue;
+import x10.types.constants.NullValue;
+import x10.types.constants.StringValue;
 
 /**
  * Represent java cast operation.
@@ -254,15 +262,27 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     	Expr expr = (Expr) visitChild(this.expr, v);
     	return reconstruct(castType, expr);
     }
-    
+
     public boolean isConstant() {
         if (!expr.isConstant()) return false;
-        if (castType.type().isNumeric()) return true;
+
+        boolean ctIntrinsic = castType.type().isNumeric() || castType.type().isUnsignedNumeric() || castType.type().isChar();
+        boolean etIntrinsic = expr.type().isNumeric() || expr.type().isUnsignedNumeric() || expr.type().isChar();
+        if (ctIntrinsic && etIntrinsic) return true;
+        
+        TypeSystem ts = expr.type().typeSystem();
+        if (expr.constantValue() instanceof NullValue && ts.isObjectOrInterfaceType(castType.type(), ts.emptyContext())) return true;
+        
+        if (expr.constantValue() instanceof StringValue && ts.String().isSubtype(castType.type(), ts.emptyContext())) return true;
+
+        if (expr.constantValue() instanceof BooleanValue && ts.Boolean().isSubtype(castType.type(), ts.emptyContext())) return true;
+
+        // NOTE: The cast might still be statically removable, but that is different than having a constant value.
         return false;
     }
         
-    public Object constantValue() {
-    	Object v = expr.constantValue();
+    public ConstantValue constantValue() {
+    	ConstantValue v = expr.constantValue();
 
     	if (v == null) {
     	    return null;
@@ -270,67 +290,37 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     	
     	Type cType = castType.type();
     	
-    	if (v instanceof Boolean) {
-    		if (cType.isBoolean()) return v;
+        if (v instanceof IntegralValue) {
+            return ConstantValue.make(cType, ((IntegralValue) v).longValue());
+        }
+        
+    	if (v instanceof DoubleValue) {
+    	    return ConstantValue.make(cType, ((DoubleValue) v).value());
     	}
     	
-    	if (v instanceof Double) {
-    		double vv = ((Double) v).doubleValue();
-    		
-    		if (cType.isDouble()) return Double.valueOf((double) vv);
-    		if (cType.isFloat()) return Float.valueOf((float) vv);
-    		if (cType.isLong()) return Long.valueOf((long) vv);
-    		if (cType.isInt()) return Integer.valueOf((int) vv);
-    		if (cType.isChar()) return Character.valueOf((char) vv);
-    		if (cType.isShort()) return Short.valueOf((short) vv);
-    		if (cType.isByte()) return Byte.valueOf((byte) vv);
-    	}
-    	
-    	if (v instanceof Float) {
-    		float vv = ((Float) v).floatValue();
-    		
-    		if (cType.isDouble()) return Double.valueOf((double) vv);
-    		if (cType.isFloat()) return Float.valueOf((float) vv);
-    		if (cType.isLong()) return Long.valueOf((long) vv);
-    		if (cType.isInt()) return Integer.valueOf((int) vv);
-    		if (cType.isChar()) return Character.valueOf((char) vv);
-    		if (cType.isShort()) return Short.valueOf((short) vv);
-    		if (cType.isByte()) return Byte.valueOf((byte) vv);
+    	if (v instanceof FloatValue) {
+            return ConstantValue.make(cType, ((FloatValue) v).value());
     	}
 
-    	if (v instanceof Number) {
-    		long vv = ((Number) v).longValue();
-    		
-    		if (cType.isDouble()) return Double.valueOf((double) vv);
-    		if (cType.isFloat()) return Float.valueOf((float) vv);
-    		if (cType.isLong()) return Long.valueOf((long) vv);
-    		if (cType.isInt()) return Integer.valueOf((int) vv);
-    		if (cType.isChar()) return Character.valueOf((char) vv);
-    		if (cType.isShort()) return Short.valueOf((short) vv);
-    		if (cType.isByte()) return Byte.valueOf((byte) vv);
+    	if (v instanceof CharValue) {
+    	    return ConstantValue.make(cType, (long)((CharValue)v).value());
     	}
     	
     	TypeSystem ts = cType.typeSystem();
     	Context emptyContext = ts.emptyContext();
     	
-    	if (v instanceof String) {
+    	if (v instanceof StringValue) {
     	    if (ts.String().isSubtype(cType, emptyContext)) return v;
     	}
     	
-    	if (v instanceof Character) {
-    		char vv = ((Character) v).charValue();
-    		
-    		if (cType.isDouble()) return Double.valueOf((double) vv);
-    		if (cType.isFloat()) return Float.valueOf((float) vv);
-    		if (cType.isLong()) return Long.valueOf((long) vv);
-    		if (cType.isInt()) return Integer.valueOf((int) vv);
-    		if (cType.isChar()) return Character.valueOf((char) vv);
-    		if (cType.isShort()) return Short.valueOf((short) vv);
-    		if (cType.isByte()) return Byte.valueOf((byte) vv);
-    	}
-
-    	// Not null, but we can't figure out what to do with it.
-    	// Compiler is hosed because of a mismatch between constantValue and isConstant
-    	throw new InternalCompilerError("Can't process constant value "+v+" (type == "+v.getClass()+")");
+        if (v instanceof BooleanValue) {
+            if (ts.Boolean().isSubtype(cType, emptyContext)) return v;
+        }
+                
+        if (v instanceof NullValue) {
+            if (ts.isObjectOrInterfaceType(cType, emptyContext)) return v;
+        }
+    	
+    	return null;
     }
 }

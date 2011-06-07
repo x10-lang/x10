@@ -60,10 +60,10 @@ public abstract class VarDef_c extends Def_c implements VarDef
 		}
     }
 
-    public Object constantValue() {
+    public x10.types.constants.ConstantValue constantValue() {
     	ConstantValue cv = constantRef.get();
-    	if (cv == null) return null;
-    	return cv.value();
+    	if (cv == null || !cv.isConstant()) return null;
+    	return x10.types.constants.ConstantValue.make(type().get(), cv.value());
     }
     
     public boolean isConstant() {
@@ -97,7 +97,7 @@ public abstract class VarDef_c extends Def_c implements VarDef
     }
     
     /** Destructive update of constant value. */
-    public void setConstantValue(Object constantValue) {
+    public void setConstantValue(x10.types.constants.ConstantValue constantValue) {
 //        if (! (constantValue == null) &&
 //                ! (constantValue instanceof Boolean) &&
 //                ! (constantValue instanceof Number) &&

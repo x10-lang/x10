@@ -26,7 +26,7 @@ public class Functions9u3u_Bad40_MustFailCompile extends x10Test {
     }
 
 
-// file Functions line 407
+// file Functions line 405
 
  // OK, we want to do the negative tests, but they don't work properly.
  static  class Lambda {

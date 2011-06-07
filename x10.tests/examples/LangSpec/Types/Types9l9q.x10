@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Expressions31;
+/* Current test harness gets confused by packages, but it would be in package Types9l9q;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,21 +19,20 @@ import harness.x10Test;
 
 
 
-public class Expressions160 extends x10Test {
+public class Types9l9q extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Expressions160().execute();
+        new Types9l9q().execute();
     }
 
 
-// file Expressions line 1530
-
- static class Expressions31TypeTest{
-  def check()  { 
-     var checkycheck : Array[Int{self==0}](1);  }}
-
- static class Hook {
-   def run():Boolean = true;
+// file Types line 1136
+ static  class Example {
+ static class Thing(p:Int){}
+static def example(){
+   var x : Thing{x.p==3} = null;
 }
+}
+ static  class Hook{ def run() {Example.example(); return true;}}
 
 }

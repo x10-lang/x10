@@ -21,7 +21,6 @@ import polyglot.ast.ClassDecl;
 import polyglot.ast.CodeBlock;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
-import polyglot.ast.Field;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -35,7 +34,6 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
-import polyglot.frontend.Compiler;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
@@ -47,7 +45,6 @@ import polyglot.types.MemberInstance;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
-import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -63,26 +60,26 @@ import polyglot.visit.NodeVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
-import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.InlinableCall;
 import x10.ast.ParExpr;
 import x10.ast.StmtExpr;
+import x10.ast.X10ClassDecl;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
-import x10.errors.Errors;
 import x10.errors.Warnings;
-import x10.extension.X10Ext;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.types.X10Def;
 import x10.types.X10LocalDef;
-import x10.types.X10MemberDef;
+import x10.types.X10ProcedureDef;
 import x10.types.checker.Converter;
+import x10.types.constants.ConstantValue;
+import x10.types.constants.StringValue;
 import x10.types.constraints.CTerms;
 import x10.util.AltSynthesizer;
 import x10.visit.ConstantPropagator;
@@ -128,7 +125,8 @@ public class Inliner extends ContextVisitor {
     private final Stack<String> inlineInstances = new Stack<String>();
     private final int recursionDepth[] = new int[1]; // number of calls to the same procedure currently being inlined
     private final AltSynthesizer syn;
-    private final DeclStore repository;
+    private DeclStore repository;
+    private InlineAnnotationUtils annotations;
 
     private final boolean INLINE_CONSTANTS;
     private final boolean INLINE_METHODS;
@@ -139,7 +137,6 @@ public class Inliner extends ContextVisitor {
         super(job, ts, nf);
         syn                   = new AltSynthesizer(ts, nf);
         ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
-        repository            = extInfo.compiler().getInlinerData(job, ts, nf);
         Configuration config  = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
         INLINE_CONSTANTS      = config.OPTIMIZE && config.INLINE_CONSTANTS;
         INLINE_METHODS        = config.OPTIMIZE && config.INLINE_METHODS;
@@ -149,12 +146,9 @@ public class Inliner extends ContextVisitor {
 
     @Override
     public NodeVisitor begin() {
-        if (!x10.optimizations.Optimizer.INLINING((ExtensionInfo) job.extensionInfo())) {
-            throw new InternalCompilerError("INLINING should not be being performed!");
-        }
+        repository        = job.compiler().getInlinerData(job, ts, nf);
+        annotations       = new InlineAnnotationUtils(job);
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
-        if (null == NativeClassType)
-            initializeAnnotationTypes();
         timer();
         return super.begin();
     }
@@ -168,14 +162,11 @@ public class Inliner extends ContextVisitor {
      */
     public Node override(Node node) {
         Position pos = node.position(); // DEBUG
-        if (null == InlineType) { // don't inline anything
-            throw new InternalCompilerError("Inliner invoked without begin()");
-        }
         if (2 <= VERBOSITY && node instanceof SourceFile) {
             Source s = ((SourceFile) node).source();
             Warnings.issue(this.job, "(begin inlining)", pos);
         }
-        if (ExpressionFlattener.cannotFlatten(node, job)) { // TODO: check that flattening is actually required
+        if (ExpressionFlattener.cannotFlatten(node)) { // TODO: check that flattening is actually required
             if (DEBUG) debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
             return node; // don't inline inside Nodes that cannot be Flattened
         }
@@ -189,16 +180,13 @@ public class Inliner extends ContextVisitor {
             return null; // will handle @NoInline annotation seperately
         }
         if (node instanceof ClassDecl) { // Don't try to inline native classes
-            if (!((X10Ext) node.ext()).annotationMatching(NativeClassType).isEmpty() || 
-                !((X10Ext) node.ext()).annotationMatching(NativeRepType).isEmpty() ) {
+            if (annotations.inliningProhibited(((X10ClassDecl) node).classDef())) {
                 return node;
             }
         }
-        if (node.ext() instanceof X10Ext) { // TODO: DEBUG only (remove this)
-            if (!((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty()) { // short-circuit inlining decisions
-                if (DEBUG) debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
-                return node;
-            }
+        if (annotations.inliningProhibited(node)) { // allows whole AST's to be ignored TODO: DEBUG only (remove this)
+            if (DEBUG) debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
+            return node;
         }
         return null;
     }
@@ -214,17 +202,17 @@ public class Inliner extends ContextVisitor {
             result = inlineClosureCall((ClosureCall) n);
         } else if (n instanceof InlinableCall) {
             if (INLINE_CONSTANTS) {
-                result = getCompileTimeConstant((InlinableCall) n);
+                result = inlineConstant((InlinableCall) n);
                 if (null != result) 
                     return result;
             }
-            if (INLINE_METHODS && !annotationsPreventInlining(n)) {
+            if (INLINE_METHODS) {
                 if (4 <= VERBOSITY)
                     Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
-                result = wrappedInlineMethodCall((InlinableCall) n);
+                result = inlineCall((InlinableCall) n);
             }
         } else if (n instanceof X10MethodDecl) {
-            if (!((X10MethodDecl) n).methodDef().annotationsMatching(InlineOnlyType).isEmpty())
+            if (AnnotationUtils.hasAnnotation(((X10MethodDecl) n).methodDef(), annotations.InlineOnlyType))
                 return null; // ASK: is this the right way to remove a method decl from the ast?
             return n;
         } else {
@@ -261,27 +249,30 @@ public class Inliner extends ContextVisitor {
     }
 
     /**
-     * @param n
+     * @param call
      * @return
      */
-    private Node getCompileTimeConstant(InlinableCall call) {
+    private Node inlineConstant(InlinableCall call) {
         x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
         x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
         try {
-            X10Def def = (X10Def) getDef(call);
-            List<Type> annotations = def.annotationsMatching(ConstantType);
-            if (annotations.isEmpty()) return null;
-            Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
+            X10ProcedureDef def = repository.getDef(call);
+            List<Type> a = AnnotationUtils.getAnnotations(def, annotations.ConstantType);
+            if (a.isEmpty()) return null;
+            Expr arg = ((X10ClassType) a.get(0)).propertyInitializer(0);
             if (!arg.isConstant() || !arg.type().typeEquals(ts.String(), context)) 
                 return null;
-            String name = (String) arg.constantValue();
-            Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
-            if (negate) name = name.substring(1);
+            Type type = def.returnType().get();
             X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+            String name = ((StringValue) arg.constantValue()).value();
+            Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
+            if (negate) {
+                assert ts.isBoolean(type);
+                name = name.substring(1);
+            }
             Object value = opts.x10_config.get(name);
-            if (negate) 
-                value = (Boolean) value ? false : true;
-            Expr literal = new ConstantPropagator(job, ts, nf).toExpr(value, ts.Boolean(), call.position());
+            ConstantValue cv = ConstantValue.make(type, negate ? ! (Boolean) value : value);
+            Expr literal = cv.toLit(nf, ts, type, call.position());
             return literal;
         } catch (ConfigurationError e) {
             return null;
@@ -291,64 +282,6 @@ public class Inliner extends ContextVisitor {
         finally {
             x10Info.stats.stopTiming();
         }
-    }
-
-    private Node wrappedInlineMethodCall(InlinableCall call) {
-        beginSpeculativeCompile();
-        Node node = inlineCall(call);
-        if (endSpeculativeCompileWithErrors(call)) {
-            report("speculative compilation errors", call);
-            return null;
-        }
-        return node;
-    }
-    
-    private Goal.Status savedState;
-    private ErrorQueue savedQueue;
-
-    /**
-     * Don't let fatal Errors in speculative compilation terminate the containing compile. 
-     * Speculative compilation ends with a call to endSpeculativeCompileWithErrors(). 
-     * If that method is not called, mayhem will insue!
-     */
-    private void beginSpeculativeCompile() {
-        savedState = job.extensionInfo().scheduler().currentGoal().state();
-        // savedQueue = job.compiler().swapErrorQueue(new SimpleErrorQueue());
-        savedQueue = job.compiler().swapErrorQueue(new SilentErrorQueue(1024, null));
-    }
-
-    /**
-     * Terminate a speculative compilation initiated by beginSpeculativeCompile().
-     * @param call 
-     *
-     * @return true is the speculative compilation produced what would have been fatal Errors
-     */
-    private boolean endSpeculativeCompileWithErrors(InlinableCall call) {
-        ErrorQueue speculativeQueue = job.compiler().swapErrorQueue(savedQueue);
-        if (0 < speculativeQueue.errorCount()) {
-            job.extensionInfo().scheduler().clearFailed();
-            job.extensionInfo().scheduler().currentGoal().update(savedState);
-            reportSpeculativeErrors(speculativeQueue, call);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @param speculativeQueue
-     * @param call 
-     */
-    private void reportSpeculativeErrors(ErrorQueue speculativeQueue, InlinableCall call) {
-        if (1 <= VERBOSITY && speculativeQueue instanceof SilentErrorQueue) {
-            Position pos = call.position();
-            List<ErrorInfo> errors = ((SilentErrorQueue) speculativeQueue).getErrors();
-            String msg = errors.size()+ " speculative compilation error(s) prevent inlining of " + call;
-            for (ErrorInfo error : errors) {
-                msg += "\n" +pos+ "\t " +error.getPosition()+ ": " +error;
-            }
-            Warnings.issue(job, msg, pos);
-        }
-        speculativeQueue.flush();
     }
 
     private Expr inlineClosureCall(ClosureCall c) {
@@ -402,17 +335,12 @@ public class Inliner extends ContextVisitor {
     }
 
     private Expr inlineCall(InlinableCall call) {
-        if (null == InlineType) {
-            report("inlining disabled (no InlineType)", call);
+        if (annotations.inliningProhibited(call)) {
+            report("of annotation at call site", call);
             return null;
         }
-        ProcedureDecl decl = getInlineDecl(call);
+        ProcedureDecl decl = repository.retrieveDecl(call);
         if (null == decl) return null;
-        List<AnnotationNode> annotations = ((X10Ext) decl.ext()).annotations();
-        String sig = call.procedureInstance().signature();
-        if (annotationsPreventInlining(decl) || annotationsPreventInlining(decl.procedureInstance())) {
-            return null;
-        }
         String signature = makeSignatureString(decl);
         decl = (ProcedureDecl) instantiate(decl, call);
         if (null == decl) {
@@ -472,61 +400,6 @@ public class Inliner extends ContextVisitor {
     }
 
     /**
-     * Get the declaration corresponding to a call to be inlined.
-     * 
-     * @param call
-     * @return the declaration of the method invoked by call, or null if the
-     *         declaration cannot be found, or the call should not be inlined
-     */
-    private ProcedureDecl getInlineDecl(InlinableCall call) {
-        if (DEBUG) debug("Should " + call + " be inlined?", call);
-        Position pos = call.position(); // DEBUG
-        if (annotationsPreventInlining(call)) {
-            report("of annotation at call site", call);
-            return null;
-        }
-        // get inline candidate
-        MemberDef candidate = getDef(call);
-        // require inlining if either the call of the candidate are so annotated
-        inliningRequired = annotationsRequireInlining(call, (X10MemberDef) candidate);
-        // short-circuit if inlining is not required and there is no implicit inlining
-        if (!inliningRequired && !repository.INLINE_IMPLICIT) {
-            report("inlining not required for candidate: " +candidate, call);
-            return null;
-        }
-        // unless required, skip candidates previously found to be uninlinable
-        if (!inliningRequired && repository.cache.uninlineable(candidate)) {
-            report("of previous decision for candidate: " +candidate, call);
-            return null;
-        }
-        // unless required, don't inline if the candidate annotations prevent it
-        if (!inliningRequired && annotationsPreventInlining((X10MemberDef) candidate)) {
-            report("of annotation on candidate: " + candidate, call);
-            repository.cache.notInlinable(candidate);
-            return null;
-        }
-        return repository.findDecl(call, candidate, inliningRequired);
-    }
-
-
-    /**
-     * @param call
-     * @return
-     */
-    MemberDef getDef(InlinableCall call) {
-        if (call instanceof Call) {
-            return ((Call) call).methodInstance().def();
-        } 
-        if (call instanceof ConstructorCall) {
-            return ((ConstructorCall) call).constructorInstance().def();
-        }
-        if (call instanceof ClosureCall) {
-            return ((ClosureCall) call).closureInstance().def();
-        }
-        return null;
-    }
-
-    /**
      * @param decl
      * @return
      */
@@ -546,41 +419,6 @@ public class Inliner extends ContextVisitor {
         return id;
     }
 
-
-    /**
-     * @param def
-     * @return
-     */
-    static boolean annotationsPreventInlining(X10Def def) {
-        if (!def.annotationsMatching(NoInlineType).isEmpty())
-            return true;
-        if (!def.annotationsMatching(NativeRepType).isEmpty())
-            return true;
-        if (!def.annotationsMatching(NativeClassType).isEmpty())
-            return true;
-        return false;
-    }
-
-    /**
-     * @param node
-     * @return
-     */
-    static boolean annotationsPreventInlining(Node node) {
-        return !((X10Ext) node.ext()).annotationMatching(NoInlineType).isEmpty();
-    }
-
-    /**
-     * @param call
-     * @param candidate
-     * @return
-     */
-    static boolean annotationsRequireInlining(InlinableCall call, X10MemberDef candidate) {
-        if (!((X10Ext) call.ext()).annotationMatching(InlineType).isEmpty())
-            return true;
-        if (!candidate.annotationsMatching(InlineType).isEmpty())
-            return true;
-        return false;
-    }
 
     private String backend;
 
@@ -802,47 +640,6 @@ public class Inliner extends ContextVisitor {
         Type type = Types.get(d.type());
         type = Types.addSelfBinding(type, CTerms.makeLocal((X10LocalDef) o));
         ((Ref<Type>) d.type()).update(type);
-    }
-
-    /**
-     * Annotation types.
-     */
-    private static Type ConstantType;
-    private static Type InlineType;
-    private static Type InlineOnlyType;
-    private static Type NoInlineType;
-    private static Type NativeType;
-    private static Type NativeRepType;
-    private static Type NativeClassType;
-
-    /**
-     * Names of the annotation types that pertain to inlining.
-     */
-    private static final QName CONSTANT_ANNOTATION     = QName.make("x10.compiler.CompileTimeConstant");
-    private static final QName INLINE_ANNOTATION       = QName.make("x10.compiler.Inline");
-    private static final QName INLINE_ONLY_ANNOTATION  = QName.make("x10.compiler.InlineOnly");
-    private static final QName NO_INLINE_ANNOTATION    = QName.make("x10.compiler.NoInline");
-    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
-    
-    /**
-     * @throws InternalCompilerError
-     */
-    private void initializeAnnotationTypes() throws InternalCompilerError {
-        try {
-            ConstantType = ts.systemResolver().findOne(CONSTANT_ANNOTATION);
-            InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
-            InlineOnlyType = ts.systemResolver().findOne(INLINE_ONLY_ANNOTATION);
-            NoInlineType = ts.systemResolver().findOne(NO_INLINE_ANNOTATION);
-            NativeType = ts.NativeType();
-            NativeRepType = ts.NativeRep();
-            NativeClassType = ts.systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
-        } catch (SemanticException e) {
-            InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type", e);
-            SemanticException se = new SemanticException(e);        //TODO: internal compiler error, should be removed
-            Errors.issue(job, se);
-            InlineType = null;
-            throw ice; // annotation types are required!
-        }
     }
 
     private long lastTime;

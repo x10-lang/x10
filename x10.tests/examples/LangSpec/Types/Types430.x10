@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Types50;
+/* Current test harness gets confused by packages, but it would be in package expsome_Types52;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Types430 extends x10Test {
     }
 
 
-// file Types line 1872
+// file Types line 2019
 
- static class Types50TestExp{
+ static class Types52TestExp{
   def check()  = [0, "non-zero"];  }
 
  static class Hook {

@@ -28,8 +28,8 @@ public class Arrays250 extends x10Test {
 
 // file Arrays line 407
  static class Example{
-static def example(A:Array[Double]) {
-for (p in A) A(p) = Math.log(A(p));
+static def example(a:Array[Double]) {
+for (p in a) a(p) = Math.log(a(p));
 }}
  static  class Hook{ def run() { val a = [1.0,2.0]; Example.example(a); return a(0)==Math.log(1.0) && a(1)==Math.log(2.0); }}
 

@@ -390,6 +390,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         try {
         	Context context = tr.context();
         	cuda_kernel.blocksVar.addDecls(context);
+        	cuda_kernel.threadsVar.addDecls(context);
         	if (cuda_kernel.autoBlocks != null)  cuda_kernel.autoBlocks.addDecls(context);
         	if (cuda_kernel.autoThreads != null) cuda_kernel.autoThreads.addDecls(context);
         	cuda_kernel.cmem.addDecls(context);
@@ -439,24 +440,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 				complainIfNot2(!generatingCUDACode(), "@CUDA kernels may not be nested.", b);
 				
-				final Block_c[] cell = new Block_c[1];
-				cuda_kernel.visit(new NodeVisitor() {
-					boolean found = false;
-					public Node override(Node parent, Node child) {
-						if (child instanceof Block_c) {
-							Block_c child_block = (Block_c) child;
-							if (child_block.cudaTag() == cuda_kernel.innerStatementTag) {
-								cell[0] = child_block;
-								found = true;
-							}
-						}
-						if (found) {
-							return child;
-						}
-						return null;
-					}
-				});
-
 				context().cudaKernel(cuda_kernel);
 				context().initKernelParams();
 				context().established().cudaKernel(cuda_kernel);
@@ -464,7 +447,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				
 				generatingCUDACode(true);
 				try {
-					handleKernel(cell[0]);
+					handleKernel(cuda_kernel.body());
 				} finally {
 					generatingCUDACode(false);
 				}

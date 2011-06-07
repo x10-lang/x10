@@ -26,7 +26,7 @@ public class Activities130 extends x10Test {
     }
 
 
-// file Activities line 625
+// file Activities line 628
  static class OneBuffer[T] {
   var datum: T;
   def this(t:T) { this.datum = t; this.filled = true; }

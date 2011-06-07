@@ -26,7 +26,7 @@ public class Expressions3e9h extends x10Test {
     }
 
 
-// file Expressions line 1162
+// file Expressions line 1181
  static  class Example { static def example() {
    val ob : Object = "a String" as Object; // upcast
    val st : String = ob as String;         // downcast

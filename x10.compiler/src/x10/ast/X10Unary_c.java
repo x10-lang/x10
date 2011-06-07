@@ -50,6 +50,7 @@ import polyglot.types.TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
+import x10.types.constants.ConstantValue;
 
 /**
  * An immutable representation of a unary operation op Expr.
@@ -68,12 +69,11 @@ public class X10Unary_c extends Unary_c {
         super(pos, op, expr);
     }
 
-    // TODO: take care of constant points.
-    public Object constantValue() {
+    public ConstantValue constantValue() {
         return super.constantValue();
     }
 
-    public static Binary.Operator getBinaryOp(Unary.Operator op) {
+    public static Binary.Operator getBinaryOp(Operator op) {
         if (op == PRE_INC || op == POST_INC) {
             return Binary.ADD;
         } else if (op == PRE_DEC || op == POST_DEC) {
@@ -91,7 +91,7 @@ public class X10Unary_c extends Unary_c {
     public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = (TypeSystem) tc.typeSystem();
         NodeFactory nf = (NodeFactory) tc.nodeFactory();
-        Unary.Operator op = this.operator();
+        Operator op = this.operator();
 
         if (op == NEG && expr instanceof IntLit) {
             final IntLit intLit = (IntLit) expr;
@@ -229,7 +229,7 @@ public class X10Unary_c extends Unary_c {
 
     public static X10Call_c desugarUnaryOp(Unary n, ContextVisitor tc) {
         Expr left = n.expr();
-        Unary.Operator op = n.operator();
+        Operator op = n.operator();
         Position pos = n.position();
 
         Type l = left.type();
@@ -388,23 +388,23 @@ public class X10Unary_c extends Unary_c {
         return result;
     }
 
-    public static Name unaryMethodName(Unary.Operator op) {
-        Map<Unary.Operator,String> methodNameMap = CollectionFactory.newHashMap();
-        methodNameMap.put(NEG, "operator-");
-        methodNameMap.put(POS, "operator+");
-        methodNameMap.put(NOT, "operator!");
-        methodNameMap.put(BIT_NOT, "operator~");
-        methodNameMap.put(CARET, "operator^");
-        methodNameMap.put(BAR, "operator|");
-        methodNameMap.put(AMPERSAND, "operator&");
-        methodNameMap.put(STAR, "operator*");
-        methodNameMap.put(SLASH, "operator/");
-        methodNameMap.put(PERCENT, "operator%");
+    private static final Map<Operator,Name> OPERATOR_NAMES = CollectionFactory.newHashMap();
+    static {
+        Map<Operator,Name> methodNameMap = OPERATOR_NAMES;
+        methodNameMap.put(NEG,       OperatorNames.MINUS);
+        methodNameMap.put(POS,       OperatorNames.PLUS);
+        methodNameMap.put(NOT,       OperatorNames.BANG);
+        methodNameMap.put(BIT_NOT,   OperatorNames.TILDE);
+        methodNameMap.put(CARET,     OperatorNames.CARET);
+        methodNameMap.put(BAR,       OperatorNames.BAR);
+        methodNameMap.put(AMPERSAND, OperatorNames.AMPERSAND);
+        methodNameMap.put(STAR,      OperatorNames.STAR);
+        methodNameMap.put(SLASH,     OperatorNames.SLASH);
+        methodNameMap.put(PERCENT,   OperatorNames.PERCENT);
+    }
 
-        String methodName = methodNameMap.get(op);
-        if (methodName == null)
-            return null;
-        return Name.make(methodName);
+    public static Name unaryMethodName(Operator op) {
+        return OPERATOR_NAMES.get(op);
     }
 }
 

@@ -242,7 +242,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         }
         
         //final processing 
-        moveBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
+        moveBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(job, this.getRefToDeclMap()).context(xct));
     }
 
     protected void genClassConstructor() throws SemanticException {        

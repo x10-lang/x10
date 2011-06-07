@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Expressions30;
+/* Current test harness gets confused by packages, but it would be in package Classes5l3r_Bad33_MustFailCompile;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,18 +19,27 @@ import harness.x10Test;
 
 
 
-public class Expressions150 extends x10Test {
+public class Classes5l3r_Bad33_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Expressions150().execute();
+        new Classes5l3r_Bad33_MustFailCompile().execute();
     }
 
 
-// file Expressions line 1528
-
- static class Expressions30TypeTest{
-  def check()  { 
-     var checkycheck : Array[Int](1);  }}
+// file Classes line 999
+ static class Super {
+  def recip(n:Int){n != 0} = 1.0/n;
+}
+ static class Sub extends Super{
+ def recip(n:Int){n != 0, n != 3} = 1.0/(n * (n-3)); // ERR
+  def recip(n:Int){true} = 1.0/n;
+}
+ static class Example{
+  static def example() {
+     val s : Super = new Sub();
+     s.recip(3);
+  }
+}
 
  static class Hook {
    def run():Boolean = true;

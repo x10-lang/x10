@@ -17,12 +17,14 @@ import polyglot.types.JavaArrayType;
 import polyglot.types.JavaPrimitiveType;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
+import polyglot.types.QName;
 import x10.types.MethodInstance;
 
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import x10.types.ClosureInstance;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -170,6 +172,10 @@ class X10IdentityMapper {
 
       Type retType= 
         (procInstance instanceof MethodInstance) ? ((MethodInstance) procInstance).returnType() : procInstance.typeSystem().Void();
+      if (retType.isClass() && retType.toClass().isAnonymous()) {
+        // WALA is not prepared to deal with an anonymous class as a method return type.  Fudge it.
+        retType= retType.typeSystem().createFakeClass(QName.make("<anonymous class>"), null);
+      }
       TypeName retTypeName= TypeName.string2TypeName(typeToTypeID(retType));
 
       Descriptor desc= Descriptor.findOrCreate(argTypeNames, retTypeName);
@@ -188,6 +194,9 @@ class X10IdentityMapper {
      */
     public MethodReference referenceForMethod(CodeInstance procInstance) {
       // Handles both ConstructorInstance's and MethodInstance's
+      while (procInstance instanceof ClosureInstance) {
+        procInstance= ((ClosureInstance) procInstance).methodContainer();
+      }
       TypeName ownerType= TypeName.string2TypeName(typeToTypeID(((MemberDef) procInstance.def()).container().get()));
       TypeReference ownerTypeRef= TypeReference.findOrCreate(fClassLoaderRef, ownerType);
       MethodReference methodRef= MethodReference.findOrCreate(ownerTypeRef, selectorForMethod(procInstance));

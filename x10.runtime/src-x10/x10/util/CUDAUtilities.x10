@@ -69,6 +69,12 @@ public class CUDAUtilities {
         }
     }
 
+    public static def makeRemoteArray[T] (place:Place, numElements:Int) { T haszero }
+        : RemoteArray[T]{self.rank==1, self.home==place}
+    {
+        return makeRemoteArray[T](place, numElements, Zero.get[T]());
+    }
+
     public static def makeRemoteArray[T] (place:Place, numElements:Int, init: T)
         : RemoteArray[T]{self.rank==1, self.home==place}
     { @TempNoInline_0

@@ -14,9 +14,9 @@ import x10.types.X10LocalDef;
  * A representation of a local variable, with its associated type information.
  * <p>In essence, a CLocal is a serializable representation of an X10LocalInstance.
  * @author vj
- *
  */
 public class CLocal extends XLocal<X10LocalDef> implements Typed {
+    private static final long serialVersionUID = 127892741748021961L;
     
     String s; // just for documentation
     public CLocal(X10LocalDef ld) {

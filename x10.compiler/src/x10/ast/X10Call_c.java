@@ -78,6 +78,7 @@ import polyglot.types.ErrorRef_c;
 import polyglot.types.ContainerType;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
+import x10.types.constants.ConstantValue;
 import x10.visit.X10TypeChecker;
 import x10.X10CompilerOptions;
 import x10.ExtensionInfo;
@@ -752,11 +753,11 @@ public class X10Call_c extends Call_c implements X10Call {
 	}
 
 
-	Object constantValue;
-	public Object constantValue() { return constantValue; }
+	ConstantValue constantValue;
+	public ConstantValue constantValue() { return constantValue; }
 	public boolean isConstant() { return constantValue != null; }
 
-	public X10Call_c constantValue(Object value) {
+	public X10Call_c constantValue(ConstantValue value) {
 		X10Call_c n = (X10Call_c) copy();
 		n.constantValue = value;
 		return n;

@@ -174,25 +174,26 @@ public class RunTestSuite {
             //"_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_DIRS = {
-            "LangSpec", // Bard has too many errors...
-            "UByte","UShort","ULong", // Somebody duplicated all the files (without package names), so I only test those in UInt
+            //"LangSpec", // Bard has too many errors...
             "WorkStealing", // it has copies of existing tests
             "AutoGen", // it takes too long to compile these files
             "NOT_WORKING", // to exclude some benchmarks: https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk
     };
     private static final String[] EXCLUDE_FILES = {
             // difference on MAC and PC (on PC the compiler crashes on AssertionError, on MAC it outputs this error: Semantic Error: Type definition type static TypedefOverloading06_MustFailCompile.A = x10.lang.String has the same name as member class TypedefOverloading06_MustFailCompile.A.
-            "TypedefOverloading04_MustFailCompile.x10",
-            "TypedefOverloading06_MustFailCompile.x10",
-            "TypedefOverloading08_MustFailCompile.x10",
-            "TypedefOverloading10_MustFailCompile.x10",
-            "TypedefNew11_MustFailCompile.x10",
+            //"TypedefOverloading04_MustFailCompile.x10",
+            //"TypedefOverloading06_MustFailCompile.x10",
+            //"TypedefOverloading08_MustFailCompile.x10",
+            //"TypedefOverloading10_MustFailCompile.x10",
+            //"TypedefNew11_MustFailCompile.x10",
             "TypedefBasic2.x10",
 
             // LangSpec is auto-generated, so I can't fix those files to make a clean test suite
-            "Classes250.x10","Classes160.x10","Classes170.x10",
-            "Interfaces3l4a.x10", "Interfaces_static_val.x10", "Types2y3i.x10", "Types6a9m.x10",
-            "InnerClasses5p9v.x10","Packages5t5g.x10","Stimulus.x10","Statements51.x10", "ClassCtor30_MustFailCompile.x10", "ThisEscapingViaAt_MustFailCompile.x10",
+            //"Classes250.x10","Classes160.x10","Classes170.x10",
+            //"Interfaces3l4a.x10", "Interfaces_static_val.x10", "Types6a9m.x10",
+            //"Stimulus.x10",
+            "ClassCtor30_MustFailCompile.x10",
+            "ThisEscapingViaAt_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES_WITH = {
     };

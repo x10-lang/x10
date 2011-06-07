@@ -26,7 +26,7 @@ public class Types510 extends x10Test {
     }
 
 
-// file Types line 2107
+// file Types line 2254
  static class Spot(x:Int) {
   def this() {property(0);}
   def this(xx: Int) { property(xx); }

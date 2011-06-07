@@ -10,49 +10,169 @@
  */
 package x10.types.constants;
 
+import polyglot.ast.IntLit;
+import polyglot.ast.Lit;
+import polyglot.ast.NodeFactory;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
 
 /**
- * @author Bowen Alpern
- *
+ * Simple class hierarchy to represent constant values.
  */
 public abstract class ConstantValue {
     
-    protected Object value = null;
-    protected Type   type  = null;
+    public abstract Lit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos);
+
+    public abstract Lit toUntypedLit(NodeFactory nf, Position pos);
     
-    ConstantValue(Object v, Type t) {
-        value = v;
-        type  = t;
-    }
+    public abstract Object toJavaObject();
     
-    public String toString() {
-        return value.toString();
-    }
-    
-    public Object value() {
-        return value;
-    }
-    
-    public Type type() {
-    	return type;
-    }
-    
-    public boolean equals(Object o) {
-        if (null == o) return false;
-        if (o instanceof ConstantValue) 
-            return ((ConstantValue) o).value.equals(value)
-                && type.typeSystem().typeEquals(type, ((ConstantValue) o).type, type.typeSystem().emptyContext());
-        return value.equals(o);
+    public static Object toJavaObject(ConstantValue v) {
+        return v == null ? v : v.toJavaObject();
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        if (null == value) return 0;
-        return (value.hashCode());
+    public static NullValue makeNull() {
+        return new NullValue();
     }
     
+    public static BooleanValue makeBoolean(boolean v) {
+        return new BooleanValue(v);
+    }
+    
+    public static CharValue makeChar(char c) {
+        return new CharValue(c);
+    }
+    
+    public static IntegralValue makeByte(byte v) {
+        return new IntegralValue(v, IntLit.Kind.BYTE);
+    }
+    
+    public static IntegralValue makeUByte(byte v) {
+        return new IntegralValue(v, IntLit.Kind.UBYTE);
+    }
+    
+    public static IntegralValue makeShort(short v) {
+        return new IntegralValue(v, IntLit.Kind.SHORT);
+    }
+    
+    public static IntegralValue makeUShort(short v) {
+        return new IntegralValue(v, IntLit.Kind.USHORT);
+    }
+    
+    public static IntegralValue makeInt(int v) {
+        return new IntegralValue(v, IntLit.Kind.INT);
+    }
+    
+    public static IntegralValue makeUInt(int v) {
+        return new IntegralValue(v, IntLit.Kind.UINT);
+    }
+    
+    public static IntegralValue makeLong(long v) {
+        return new IntegralValue(v, IntLit.Kind.LONG);
+    }
+    
+    public static IntegralValue makeULong(long v) {
+        return new IntegralValue(v, IntLit.Kind.ULONG);
+    }
+    
+    public static IntegralValue makeIntegral(long v, IntLit.Kind k) {
+        return new IntegralValue(v, k);
+    }
+    
+    public static FloatValue makeFloat(float f) {
+        return new FloatValue(f);
+    }
+    
+    public static DoubleValue makeDouble(double d) {
+        return new DoubleValue(d);
+    }
+    
+    public static StringValue makeString(String v) {
+        return new StringValue(v);
+    }
+    
+    public static ConstantValue make(Type type, double v) {
+        if (type.isDouble()) return ConstantValue.makeDouble(v);
+        if (type.isFloat()) return ConstantValue.makeFloat((float) v);
+        if (type.isLong()) return  ConstantValue.makeLong((long) v);
+        if (type.isULong()) return ConstantValue.makeULong((long)v);
+        if (type.isInt()) return ConstantValue.makeInt((int) v);
+        if (type.isUInt()) return ConstantValue.makeUInt((int) v);
+        if (type.isChar()) return ConstantValue.makeChar((char) v);
+        if (type.isShort()) return ConstantValue.makeShort((short) v);
+        if (type.isUShort()) return ConstantValue.makeUShort((short) v);
+        if (type.isByte()) return ConstantValue.makeByte((byte) v);
+        if (type.isUByte()) return ConstantValue.makeUByte((byte) v);
+
+        throw new InternalCompilerError("Unexpected type "+type);
+    }
+ 
+    public static ConstantValue make(Type type, float v) {
+        if (type.isDouble()) return ConstantValue.makeDouble((double)v);
+        if (type.isFloat()) return ConstantValue.makeFloat((float) v);
+        if (type.isLong()) return  ConstantValue.makeLong((long) v);
+        if (type.isULong()) return ConstantValue.makeULong((long)v);
+        if (type.isInt()) return ConstantValue.makeInt((int) v);
+        if (type.isUInt()) return ConstantValue.makeUInt((int) v);
+        if (type.isChar()) return ConstantValue.makeChar((char) v);
+        if (type.isShort()) return ConstantValue.makeShort((short) v);
+        if (type.isUShort()) return ConstantValue.makeUShort((short) v);
+        if (type.isByte()) return ConstantValue.makeByte((byte) v);
+        if (type.isUByte()) return ConstantValue.makeUByte((byte) v);
+
+        throw new InternalCompilerError("Unexpected type "+type);
+    }
+
+    public static ConstantValue make(Type type, long v) {
+        if (type.isDouble()) return ConstantValue.makeDouble((double)v);
+        if (type.isFloat()) return ConstantValue.makeFloat((float) v);
+        if (type.isLong()) return  ConstantValue.makeLong((long) v);
+        if (type.isULong()) return ConstantValue.makeULong((long)v);
+        if (type.isInt()) return ConstantValue.makeInt((int) v);
+        if (type.isUInt()) return ConstantValue.makeUInt((int) v);
+        if (type.isChar()) return ConstantValue.makeChar((char) v);
+        if (type.isShort()) return ConstantValue.makeShort((short) v);
+        if (type.isUShort()) return ConstantValue.makeUShort((short) v);
+        if (type.isByte()) return ConstantValue.makeByte((byte) v);
+        if (type.isUByte()) return ConstantValue.makeUByte((byte) v);
+
+        throw new InternalCompilerError("Unexpected type "+type);
+    }
+    
+    public static ConstantValue make(Type type, Object v) {
+        if (v instanceof ConstantValue) {
+            return (ConstantValue)v;
+        }
+        
+        if (type.isBoolean()) return ConstantValue.makeBoolean(((Boolean)v).booleanValue());
+        if (type.isDouble()) return ConstantValue.makeDouble(((Number)v).doubleValue());
+        if (type.isFloat()) return ConstantValue.makeFloat(((Number)v).floatValue());
+        if (type.isLong()) return  ConstantValue.makeLong((long) ((Number)v).longValue());
+        if (type.isULong()) return ConstantValue.makeULong((long) ((Number)v).longValue());
+        if (type.isInt()) return ConstantValue.makeInt((int) ((Number)v).longValue());
+        if (type.isUInt()) return ConstantValue.makeUInt((int) ((Number)v).longValue());
+        if (type.isChar()) return ConstantValue.makeChar((char) ((Number)v).longValue());
+        if (type.isShort()) return ConstantValue.makeShort((short) ((Number)v).longValue());
+        if (type.isUShort()) return ConstantValue.makeUShort((short) ((Number)v).longValue());
+        if (type.isByte()) return ConstantValue.makeByte((byte) ((Number)v).longValue());
+        if (type.isUByte()) return ConstantValue.makeUByte((byte) ((Number)v).longValue());
+
+        throw new InternalCompilerError("Unexpected type "+type+" v = "+v+" (of type "+v.getClass()+")");
+    }
+
+    
+    public long integralValue() {
+        throw new InternalCompilerError("This constant value does not have an integral value "+this);
+    }
+   
+    public double doubleValue() {
+        throw new InternalCompilerError("This constant value does not have an double value "+this);
+    }
+    
+    public float floatValue() {
+        throw new InternalCompilerError("This constant value does not have an float value "+this);
+    }
+
 }

@@ -2326,7 +2326,7 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 		}
 	}
 	@ERR interface I2 extends I{self.p()==2} {}
-	@ERR interface I3 {this.p()==3} extends I2 {}
+	@ERR @ERR interface I3 {this.p()==3} extends I2 {}
 	static def test(i:I) {
 		@ERR @ERR var i1:I{self.p()==5} = i;
 		var i2:I{self.p()==1} = i;
@@ -4925,7 +4925,7 @@ class TestInterfaceInvariants_1930 { // XTENLANG-1930
 	interface I2a extends I{self.p()==1} {}
 	interface I3a {this.p()==1} extends I {}
 	interface I2 extends I{self.p()==2} {} // ERR [Invalid type; the real clause of x10.frontend.tests.TestInterfaceInvariants_1930.I{self.x10.frontend.tests.TestInterfaceInvariants_1930.I#p()==2} is inconsistent.]
-	interface I3 {this.p()==3} extends I {} // ShouldBeErr
+	interface I3 {this.p()==3} extends I {} // ERR Semantic Error: Class invariant is inconsistent.
 	static def test(i:I) {
 		var i2:I{self.p()==1} = i;
 		var i3:I{self.p()==4} = i; // ERR ERR

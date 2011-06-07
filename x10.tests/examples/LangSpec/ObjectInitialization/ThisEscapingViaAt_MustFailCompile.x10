@@ -28,6 +28,8 @@ public class ThisEscapingViaAt_MustFailCompile extends x10Test {
 
 // file ObjectInitialization line 82
  
+// This code violates this chapter's constraints
+// and thus will not compile in X10.
  static class Example {
   val a: Int;
   def this() {

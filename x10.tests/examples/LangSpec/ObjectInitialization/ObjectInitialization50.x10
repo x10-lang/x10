@@ -26,7 +26,7 @@ public class ObjectInitialization50 extends x10Test {
     }
 
 
-// file ObjectInitialization line 398
+// file ObjectInitialization line 470
  static class Score {
   public var currently : Int;
 }

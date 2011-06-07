@@ -26,7 +26,7 @@ public class Classes4d5e_Bad40_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 868
+// file Classes line 899
  static class Two[T,U]{
   def m(x:T)=1;
   def m(x:Int)=2;
