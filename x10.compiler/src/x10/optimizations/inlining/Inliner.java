@@ -202,14 +202,14 @@ public class Inliner extends ContextVisitor {
             result = inlineClosureCall((ClosureCall) n);
         } else if (n instanceof InlinableCall) {
             if (INLINE_CONSTANTS) {
-                result = getCompileTimeConstant((InlinableCall) n);
+                result = inlineConstant((InlinableCall) n);
                 if (null != result) 
                     return result;
             }
-            if (INLINE_METHODS && !annotations.inliningProhibited(n)) {
+            if (INLINE_METHODS) {
                 if (4 <= VERBOSITY)
                     Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
-                result = wrappedInlineMethodCall((InlinableCall) n);
+                result = inlineCall((InlinableCall) n);
             }
         } else if (n instanceof X10MethodDecl) {
             if (AnnotationUtils.hasAnnotation(((X10MethodDecl) n).methodDef(), annotations.InlineOnlyType))
@@ -252,7 +252,7 @@ public class Inliner extends ContextVisitor {
      * @param call
      * @return
      */
-    private Node getCompileTimeConstant(InlinableCall call) {
+    private Node inlineConstant(InlinableCall call) {
         x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
         x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
         try {
@@ -282,64 +282,6 @@ public class Inliner extends ContextVisitor {
         finally {
             x10Info.stats.stopTiming();
         }
-    }
-
-    private Node wrappedInlineMethodCall(InlinableCall call) {
-        beginSpeculativeCompile();
-        Node node = inlineCall(call);
-        if (endSpeculativeCompileWithErrors(call)) {
-            report("speculative compilation errors", call);
-            return null;
-        }
-        return node;
-    }
-    
-    private Goal.Status savedState;
-    private ErrorQueue savedQueue;
-
-    /**
-     * Don't let fatal Errors in speculative compilation terminate the containing compile. 
-     * Speculative compilation ends with a call to endSpeculativeCompileWithErrors(). 
-     * If that method is not called, mayhem will insue!
-     */
-    private void beginSpeculativeCompile() {
-        savedState = job.extensionInfo().scheduler().currentGoal().state();
-        // savedQueue = job.compiler().swapErrorQueue(new SimpleErrorQueue());
-        savedQueue = job.compiler().swapErrorQueue(new SilentErrorQueue(1024, null));
-    }
-
-    /**
-     * Terminate a speculative compilation initiated by beginSpeculativeCompile().
-     * @param call 
-     *
-     * @return true is the speculative compilation produced what would have been fatal Errors
-     */
-    private boolean endSpeculativeCompileWithErrors(InlinableCall call) {
-        ErrorQueue speculativeQueue = job.compiler().swapErrorQueue(savedQueue);
-        if (0 < speculativeQueue.errorCount()) {
-            job.extensionInfo().scheduler().clearFailed();
-            job.extensionInfo().scheduler().currentGoal().update(savedState);
-            reportSpeculativeErrors(speculativeQueue, call);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @param speculativeQueue
-     * @param call 
-     */
-    private void reportSpeculativeErrors(ErrorQueue speculativeQueue, InlinableCall call) {
-        if (1 <= VERBOSITY && speculativeQueue instanceof SilentErrorQueue) {
-            Position pos = call.position();
-            List<ErrorInfo> errors = ((SilentErrorQueue) speculativeQueue).getErrors();
-            String msg = errors.size()+ " speculative compilation error(s) prevent inlining of " + call;
-            for (ErrorInfo error : errors) {
-                msg += "\n" +pos+ "\t " +error.getPosition()+ ": " +error;
-            }
-            Warnings.issue(job, msg, pos);
-        }
-        speculativeQueue.flush();
     }
 
     private Expr inlineClosureCall(ClosureCall c) {
