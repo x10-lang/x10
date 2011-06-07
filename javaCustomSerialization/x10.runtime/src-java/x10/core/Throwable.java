@@ -15,6 +15,9 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 public class Throwable extends java.lang.RuntimeException implements RefI {
 
@@ -105,6 +108,14 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
     @Override
     public java.lang.String toString() {
         return Types.typeName(this) + ": " + this.getMessage();
+    }
+
+    //TODO Keith Do we need to serialize this?
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    }
+
+    public int _get_serialization_id() {
+        return 0;
     }
 
 }

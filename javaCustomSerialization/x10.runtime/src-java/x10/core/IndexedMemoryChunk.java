@@ -11,19 +11,32 @@
 
 package x10.core;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.Place;
 import x10.lang.UnsupportedOperationException;
+import x10.rtt.BooleanType;
+import x10.rtt.ByteType;
+import x10.rtt.CharType;
+import x10.rtt.DoubleType;
+import x10.rtt.FloatType;
+import x10.rtt.IntType;
+import x10.rtt.LongType;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
+import x10.rtt.ShortType;
 import x10.rtt.Type;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public final class IndexedMemoryChunk<T> extends x10.core.Struct {
+public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+	private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
 
     public int length;
     public Object value;
@@ -356,6 +369,130 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public float[] getFloatArray() { return (float[]) value; }
     public double[] getDoubleArray() { return (double[]) value; }
     public Object[] getObjectArray() { return (Object[]) value; }
+
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write(length);
+        serializer.write(type);
+
+        if (type instanceof FloatType) {
+            float[] castValue = (float[]) value;
+            for (float v : castValue) {
+                serializer.write(v);
+            }
+        } else if (type instanceof IntType) {
+            int[] castValue = (int[]) value;
+            for (int v : castValue) {
+                serializer.write(v);
+            }
+        } else if (type instanceof ByteType) {
+            byte[] castValue = (byte[]) value;
+            for (byte v : castValue) {
+                serializer.write(v);
+            }
+        } else if (type instanceof DoubleType) {
+            double[] castValue = (double[]) value;
+            for (double v : castValue) {
+                serializer.write(v);
+            }
+        } else if (type instanceof LongType) {
+            long[] castValue = (long[]) value;
+            for (long v : castValue) {
+                serializer.write(v);
+            }
+        } else if (type instanceof CharType) {
+            char[] castValue = (char[]) value;
+            for (char v : castValue) {
+                serializer.write(v);
+            }
+        } else if (type instanceof ShortType) {
+            short[] castValue = (short[]) value;
+            for (short v : castValue) {
+                serializer.write(v);
+            }
+        } else if (type instanceof BooleanType) {
+            boolean [] castValue = (boolean[]) value;
+            for (boolean v : castValue) {
+                serializer.write(v);
+            }
+        } else {
+            Object [] castValue = (Object[]) value;
+            for (Object v : castValue) {
+                serializer.write((X10JavaSerializable)v);
+            }
+        }
+	}
+
+	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        IndexedMemoryChunk imc = new IndexedMemoryChunk((java.lang.System[]) null);
+        return _deSerialize_body(imc, deserializer);
+	}
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable _deSerialize_body(IndexedMemoryChunk imc, X10JavaDeserializer deserializer) throws IOException {
+        int length = deserializer.readInt();
+        imc.length = length;
+        imc.type = (Type) deserializer.readRef();
+
+        if (imc.type instanceof FloatType) {
+            float[] values = (float[]) imc.type.makeArray(length);
+            for (int i = 0; i < length; i++) {
+                   values[i] = deserializer.readFloat();
+            }
+            imc.value = values;
+        } else if (imc.type instanceof IntType) {
+            int[] values = (int[]) imc.type.makeArray(length);
+            for (int i = 0; i < length; i++) {
+                   values[i] = deserializer.readInt();
+            }
+            imc.value = values;
+        } else if (imc.type instanceof BooleanType) {
+            boolean[] values = (boolean[]) imc.type.makeArray(length);
+            for (int i = 0; i < length; i++) {
+                   values[i] = deserializer.readBoolean();
+            }
+            imc.value = values;
+        } else if (imc.type instanceof CharType) {
+            char[] values = (char[]) imc.type.makeArray(length);
+            for (int i = 0; i < length; i++) {
+                   values[i] = deserializer.readChar();
+            }
+            imc.value = values;
+        } else if (imc.type instanceof DoubleType) {
+            double[] values = (double[]) imc.type.makeArray(length);
+            for (int i = 0; i < length; i++) {
+                   values[i] = deserializer.readDouble();
+            }
+            imc.value = values;
+        }  else if (imc.type instanceof ShortType) {
+            short[] values = (short[]) imc.type.makeArray(length);
+            for (int i = 0; i < length; i++) {
+                   values[i] = deserializer.readShort();
+            }
+            imc.value = values;
+        } else if (imc.type instanceof LongType) {
+            long[] values = (long[]) imc.type.makeArray(length);
+            for (int i = 0; i < length; i++) {
+                   values[i] = deserializer.readLong();
+            }
+            imc.value = values;
+        } else if (imc.type instanceof ByteType) {
+            byte[] values = (byte[]) imc.type.makeArray(length);
+            for (int i = 0; i < length; i++) {
+                   values[i] = deserializer.readByte();
+            }
+            imc.value = values;
+        } else  {
+            Object[] values = new Object[length];
+            for (int i = 0; i < length; i++) {
+                   values[i] = deserializer.readRef();
+            }
+            imc.value = values;
+        }
+        return imc;
+    }
 
     // this is broken
     /*

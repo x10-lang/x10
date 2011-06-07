@@ -11,16 +11,6 @@
 
 package x10.visit;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import polyglot.ast.Allocation_c;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign;
@@ -82,9 +72,9 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.JavaArrayType;
-import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
@@ -110,7 +100,6 @@ import x10.ast.AssignPropertyCall_c;
 import x10.ast.ClosureCall;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
-import x10.ast.ForLoop_c;
 import x10.ast.HasZeroTest_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.ParExpr;
@@ -134,7 +123,6 @@ import x10.ast.X10ClassBody_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
-import x10.ast.X10Formal;
 import x10.ast.X10Initializer_c;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10LocalDecl_c;
@@ -146,11 +134,8 @@ import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
 import x10.emitter.Emitter;
 import x10.emitter.Expander;
-import x10.emitter.Inline;
 import x10.emitter.Join;
-import x10.emitter.Loop;
 import x10.emitter.RuntimeTypeExpander;
-import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
 import x10.types.ConstrainedType;
@@ -174,6 +159,17 @@ import x10c.ast.X10CBackingArrayNewArray_c;
 import x10c.ast.X10CBackingArray_c;
 import x10c.types.X10CContext_c;
 import x10c.visit.ClosureRemover;
+import x10cpp.visit.ASTQuery;
+
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template based
@@ -495,9 +491,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             | NO_VARIANCE);
                 }
             }
+
+            //TODO Keith, This is a ugly hack, should rather get this into the AST at some point
+            if (!subtypeOfCustomSerializer(def)) {
+                if (alreadyPrintedTypes.size() != 0) {
+                    w.write(",");
+                    w.allowBreak(0);
+                }
+                w.write(" x10.x10rt.X10JavaSerializable ");
+            }
+
             w.end();
-        }
-        else {
+        } else if (!def.flags().isInterface() && !(def.asType().toString().equals(CUSTOM_SERIALIZATION))) {
+            w.write(" implements x10.x10rt.X10JavaSerializable ");
+        } else {
         	// make all interfaces extend x10.core.Any
         	// N.B. We cannot represent it with Type node since x10.core.Any is @NativeRep'ed to java.lang.Object instead of to x10.core.Any
         	if (flags.isInterface() && !xts.isAny(def.asType())) {
@@ -550,12 +557,179 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             er.generateCustomSerializer(def, n);
         } else {
             if (!def.flags().isInterface() && !config.NO_TRACES && !config.OPTIMIZE) {
+
+                X10ClassType ct = def.asType();
+                ASTQuery query = new ASTQuery(tr);
+
                 // override to trace serialization
                 w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
                 w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
                 w.write("java.lang.System.out.println(\"Serializer: writeObject(ObjectOutputStream) of \" + this + \" calling\"); ");
                 w.write("} ");
                 w.write("oos.defaultWriteObject(); }");
+                w.newline();
+
+                //_deserialize_body method
+                w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
+                w.writeln(Emitter.mangleToJava(def.name()) + " obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+                w.newline(4);
+                w.begin(0);
+
+                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+                w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                w.writeln("} ");
+
+                // Check whether we need to deserialize the super class
+                if (superClassNode != null && superClassNode.type().isClass()) {
+                    if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
+                            superClassNode.type().toString().equals("x10.lang.Throwable") ||
+                            superClassNode.type().toString().equals("x10.lang.Object") ||
+                            superClassNode.type().toString().equals("x10.lang.Any"))) {
+                        w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
+                        w.write("java.lang.System.out.println( \"Deserialiazing super class " + superClassNode.type().toString() + " \");");
+                        w.writeln("}");
+                        er.printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        w.writeln("._deserialize_body(obj, deserializer);");
+                    }
+                }
+
+                List<ParameterType> parameterTypes = ct.x10Def().typeParameters();
+
+                    for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
+                        final Type at = i.next();
+                        w.write("obj.");
+                        er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        w.write(" = ( " + X10_RUNTIME_TYPE_CLASS + " ) ");
+                        w.write("deserializer.readRef();");
+                    }
+
+                    for (int i = 0; i < ct.fields().size(); i++) {
+                        FieldInstance f = ct.fields().get(i);
+                        if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
+                        if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                            continue;
+                        if (f.flags().isTransient()) // don't serialize transient fields
+                            continue;
+                        if (f.type().isParameterType()) {
+                            w.writeln("obj." + Emitter.mangleToJava(f.name()) + " = deserializer.readRef();");
+                        } else if (f.type().isInt() || f.type().isDouble() || f.type().isFloat() || f.type().isByte() || f.type().isChar() || f.type().isShort() || f.type().isLong() || f.type().isBoolean()) {
+
+                            // Want these to be readInteger and so on.....
+                            String str = f.type().name().toString();
+                            w.writeln("obj." + Emitter.mangleToJava(f.name()) + " = deserializer.read" + str.substring(str.lastIndexOf(".") + 1) + "();");
+                        } else {
+                            er.printType(f.type(), BOX_PRIMITIVES);
+                            w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
+                            er.printType(f.type(), BOX_PRIMITIVES);
+                            w.writeln(") deserializer.readRef();");
+                            w.writeln("obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
+                        }
+                    }
+
+                w.writeln("return obj;");
+                w.end();
+                w.newline();
+                w.writeln("}");
+                w.newline();
+
+                // _deserializer  method
+                w.writeln("public static x10.x10rt.X10JavaSerializable _deserializer( x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+                w.newline(4);
+                w.begin(0);
+
+                if (def.constructors().size() == 0) {
+                    w.writeln("return null;");
+                } else {
+                    if (def.isStruct()) {
+                        //TODO Keith get rid of this
+                        if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
+                            w.writeln(Emitter.mangleToJava(def.name()) + " obj = new  " + Emitter.mangleToJava(def.name()) + "( (java.lang.System[]) null);");
+                        } else {
+                            w.writeln(Emitter.mangleToJava(def.name()) + " obj = new  " + Emitter.mangleToJava(def.name()) + "( null, (java.lang.System) null);");
+                        }
+                    } else {
+                        if (def.flags().isAbstract()) {
+                            w.writeln(Emitter.mangleToJava(def.name()) + " obj = ( " + Emitter.mangleToJava(def.name()) + "  )" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
+                        } else {
+                            w.write(Emitter.mangleToJava(def.name()) + " obj = new " + Emitter.mangleToJava(def.name()) + " ( ");
+                            if (supportConstructorSplitting
+                                    && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
+                                    && !def.flags().isInterface()) {
+                                w.writeln(" (java.lang.System[]) null); ");
+                            } else {
+                                w.writeln(" );");
+                            }
+                        }
+                    }
+                    w.writeln("return _deserialize_body(obj, deserializer);");
+                }
+                w.end();
+                w.newline();
+                w.writeln("}");
+                w.newline();
+
+                // _serialization_id
+                w.write("private final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+                w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());");
+                w.newline();
+                w.forceNewline();
+
+                // _serialize_id()
+                w.writeln("public int " + Emitter.SERIALIZE_ID_METHOD + "() {");
+                w.newline(4);
+                w.begin(0);
+                w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
+                w.end();
+                w.newline();
+                w.writeln("}");
+                w.newline();
+
+                // _serialize()
+                w.writeln("public void " + Emitter.SERIALIZE_BODY_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
+                w.newline(4);
+                w.begin(0);
+                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+                w.write("java.lang.System.out.println(\"" + Emitter.SERIALIZE_BODY_METHOD + " of \" + this + \" calling\"); ");
+                w.writeln("} ");
+                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
+                w.write("java.lang.System.out.println(\" Gonna serialize " + ct.toString() + " \");");
+                w.writeln("}");
+
+                er.serializeSuperClass(superClassNode);
+
+                for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
+                    final Type at = i.next();
+
+                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
+                    w.write("java.lang.System.out.println(\" Gonna serialize field parameter type \" + ");
+                    er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.write(" );");
+                    w.writeln("} ");
+                    w.write("serializer.write( (x10.x10rt.X10JavaSerializable) this.");
+                    er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.writeln(");");
+                }
+
+                for (int i = 0; i < ct.fields().size(); i++) {
+                    FieldInstance f = ct.fields().get(i);
+                    if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
+                    if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                        continue;
+                    if (f.flags().isTransient()) // don't serialize transient fields
+                        continue;
+                    String fieldName = Emitter.mangleToJava(f.name());
+                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
+                    w.write("java.lang.System.out.println(\" Gonna serialize field " + fieldName + " of type " + f.type().toString() + " in class " + ct.toString() + "\");");
+                    w.writeln("} ");
+                    w.write("serializer.write(");
+                    if (!isPrimitiveRepedJava(f.type()) && !isString(f.type(), context)) {
+                        w.write("(x10.x10rt.X10JavaSerializable) ");
+                    }
+                    w.writeln("this." + fieldName + ");");
+                }
+                w.end();
+                w.newline();
+                w.writeln("}");
                 w.newline();
             }
         }

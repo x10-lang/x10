@@ -15,10 +15,16 @@ import x10.core.RefI;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteger implements RefI {
+import java.io.IOException;
+
+public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteger implements RefI, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+	private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
 
 	public AtomicInteger(java.lang.System[] $dummy) {
 	    super();
@@ -51,5 +57,21 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
     public Type<?> $getParam(int i) {
         return null;
     }
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+		serializer.write(this.get());
+	}
 
+	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return _deserialize_body(null, deserializer);
+	}
+
+	public static X10JavaSerializable _deserialize_body(AtomicInteger atomicInteger, X10JavaDeserializer deserializer) throws IOException {
+        int i = deserializer.readInt();
+        AtomicInteger ai = new AtomicInteger(i);
+        return ai;
+	}
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
 }

@@ -30,6 +30,7 @@ public class MessageHandlers {
     private static native void runClosureAtSendImpl(int place, int arraylen, byte[] rawBytes);
     
     // Invoked from native code at receiving place
+    // This function gets called by the callback thats registered to handle messages with the X10 RT implementation
     private static void runClosureAtReceive(byte[] args) {
     	try{
     		if (X10RT.VERBOSE) System.out.println("@MultiVM : runClosureAtReceive is called");

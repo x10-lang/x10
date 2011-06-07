@@ -14,9 +14,10 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaSerializable;
 
 // Base interface of all X10 entities.
-public interface Any extends java.io.Serializable {
+public interface Any extends java.io.Serializable, X10JavaSerializable {
 	public static final RuntimeType<Object> $RTT = Types.ANY;
     public RuntimeType<?> $getRTT();
     public Type<?> $getParam(int i);

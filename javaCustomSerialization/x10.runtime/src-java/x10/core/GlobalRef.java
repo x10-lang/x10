@@ -20,10 +20,17 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import x10.lang.Place;
 import x10.lang.Runtime.Mortal;
+import x10.rtt.Type;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
 public final class GlobalRef<T> extends x10.core.Struct implements
-        Externalizable {
+        Externalizable, X10JavaSerializable {
+	
+	private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
 
     public static final x10.rtt.RuntimeType<GlobalRef<?>> $RTT = new x10.rtt.NamedType<GlobalRef<?>>(
         "x10.lang.GlobalRef",
@@ -290,6 +297,49 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         //System.out.println("GlobalRef is deserialized. home="
         //        + x10.lang.Runtime.home().id + ", ref.home=" + id + ", tgt="
         //        + t);
+    }
+
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+        globalize();
+        serializer.write(T);
+        serializer.write(home);
+        serializer.write(id);
+	}
+
+	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+       GlobalRef gr = new GlobalRef();
+        return _deserialize_body(gr, deserializer);
+	}
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable _deserialize_body(GlobalRef gr, X10JavaDeserializer deserializer) throws IOException {
+        x10.rtt.Type<?> T = (Type<?>) deserializer.readRef();
+        Place home = (Place) deserializer.readRef();
+        long id = deserializer.readLong();
+        gr.home = home;
+        gr.id = id;
+        gr.T = T;
+        if (gr.home.id == x10.lang.Runtime.home().id) {
+            gr.t = GlobalRef.id2Object.get(id);
+            if (gr.t instanceof WeakGlobalRefEntry) {
+                gr.t = ((WeakGlobalRefEntry) gr.t).get();
+            }
+            if (gr.t == null) {
+                throw new IllegalStateException(
+                        "referenced object doesn't exist. id=" + gr.id
+                                + ", mortal="
+                                + (gr.t instanceof WeakGlobalRefEntry));
+            }
+
+            gr.t = decodeNull(gr.t);
+
+        } else {
+            gr.t = null;
+        }
+        return gr;
     }
 
 }

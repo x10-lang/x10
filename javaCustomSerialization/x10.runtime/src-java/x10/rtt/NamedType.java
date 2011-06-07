@@ -11,9 +11,16 @@
 
 package x10.rtt;
 
-public class NamedType<T> extends RuntimeType<T> {
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
+
+public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+    private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
     
     private final String typeName;
 
@@ -40,6 +47,30 @@ public class NamedType<T> extends RuntimeType<T> {
     @Override
     public String typeName() {
         return typeName;
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write(typeName);
+        serializer.write(super.getImpl().getName());
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return _deserialize_body(null, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(NamedType ft, X10JavaDeserializer deserializer) throws IOException {
+        String name = deserializer.readString();
+        try {
+            Class<?> aClass = Class.forName(deserializer.readString());
+            return new NamedType(name, aClass);
+        } catch (ClassNotFoundException e) {
+            // This should not happen though
+            throw new RuntimeException(e);
+        }
     }
 
 }

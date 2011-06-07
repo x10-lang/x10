@@ -16,10 +16,16 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements RefI {
+import java.io.IOException;
+
+public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements RefI, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+    private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
 
 	public AtomicReference(java.lang.System[] $dummy) {
 	    super();
@@ -61,4 +67,22 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
         return i == 0 ? T : null;
     }
     private Type<T> T;
+
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+		serializer.javaSerialize(this);
+	}
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return _deserialize_body(null, deserializer);
+	}
+
+	public static X10JavaSerializable _deserialize_body(AtomicReference atomicReference, X10JavaDeserializer deserializer) throws IOException {
+        Type T = (Type) deserializer.readRef();
+        AtomicReference ar = new AtomicReference(T);
+        return ar;
+	}
 }

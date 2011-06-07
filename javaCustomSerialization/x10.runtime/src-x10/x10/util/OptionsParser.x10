@@ -22,6 +22,7 @@ public final class OptionsParser {
     public static final class Err extends Exception {
         private val msg:String;
         public def this (m:String) { this.msg = m; }
+        public def this () {this.msg = null;}
          public def toString() = "Commandline error: "+msg;
     }
 
