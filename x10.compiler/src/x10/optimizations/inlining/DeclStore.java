@@ -140,6 +140,8 @@ public class DeclStore {
         if (null == decl) {
             try {
                 Job job = ((ClassType) Types.baseType(((MemberDef) def).container().get())).def().job();
+                if (null == job || null == job.extensionInfo() || null == job.extensionInfo().scheduler())
+                    return null;
                 Scheduler scheduler = job.extensionInfo().scheduler();
                 if (!scheduler.attempt(new Optimizer(scheduler, job).Harvester())) { // throw ICE ??
                     report("job for candidate does not compile: " +def, call);
