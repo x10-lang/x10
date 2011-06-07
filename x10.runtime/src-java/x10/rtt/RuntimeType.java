@@ -11,13 +11,18 @@
 
 package x10.rtt;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 
 import x10.core.Any;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public class RuntimeType<T> implements Type<T> {
+public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+    private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
 
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
     
@@ -498,5 +503,34 @@ public class RuntimeType<T> implements Type<T> {
         else {
             return false;
         }
+    }
+
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+        String name = impl.getName();
+        serializer.write(name);
+	}
+
+	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return _deserialize_body(null, deserializer);
+	}
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable _deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
+
+        String className = deserializer.readString();
+        if (className == null) {
+            return null;
+        }
+        try {
+            Class<?> aClass = Class.forName(className);
+            rt = new RuntimeType(aClass);
+        } catch (ClassNotFoundException e) {
+            // This should not happen though
+            throw new RuntimeException(e);
+        }
+        return rt;
     }
 }

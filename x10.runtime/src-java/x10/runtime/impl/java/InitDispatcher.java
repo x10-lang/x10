@@ -11,12 +11,14 @@
 
 package x10.runtime.impl.java;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import x10.core.ThrowableUtilities;
+import x10.x10rt.X10JavaSerializer;
 
 public abstract class InitDispatcher {
 
@@ -56,6 +58,14 @@ public abstract class InitDispatcher {
         }
         public x10.rtt.Type<?> $getParam(int i) {
             return null;
+        }
+
+        public void _serialize(X10JavaSerializer serializer) throws IOException {
+            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        }
+
+        public int _get_serialization_id() {
+            throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
     }
     public static void runInitializer() {
@@ -121,6 +131,14 @@ public abstract class InitDispatcher {
         }
         public x10.rtt.Type<?> $getParam(int i) {
             return null;
+        }
+
+        public void _serialize(X10JavaSerializer serializer) throws IOException {
+            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        }
+
+        public int _get_serialization_id() {
+            throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
     }
     public static void broadcastStaticField(final Object fieldValue, final int fieldId) {

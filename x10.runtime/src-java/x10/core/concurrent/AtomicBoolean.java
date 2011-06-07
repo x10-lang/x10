@@ -15,10 +15,16 @@ import x10.core.RefI;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoolean implements RefI {
+import java.io.IOException;
+
+public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoolean implements RefI, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+	private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
 
     public AtomicBoolean(java.lang.System[] $dummy) {
         super();
@@ -51,5 +57,23 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     public Type<?> $getParam(int i) {
         return null;
     }
+
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+		serializer.write(this.get());
+	}
+
+	public static X10JavaSerializable _deserializer(X10JavaSerializable s, X10JavaDeserializer deserializer) throws IOException {
+		return _deserialize_body(null, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(AtomicBoolean atomicBoolean, X10JavaDeserializer deserializer) throws IOException {
+        boolean b = deserializer.readBoolean();
+        AtomicBoolean ab = new AtomicBoolean(b);
+        return ab;
+    }
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
 
 }

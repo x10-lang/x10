@@ -12,6 +12,11 @@
 package x10.core;
 
 import x10.rtt.Types;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 final public class String extends x10.core.Ref implements
     x10.core.fun.Fun_0_1<java.lang.Integer, java.lang.Character>,
@@ -19,6 +24,7 @@ final public class String extends x10.core.Ref implements
 {
 
 	private static final long serialVersionUID = 1L;
+    private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
 
     public static final x10.rtt.RuntimeType<java.lang.String> $RTT = Types.STRING;
     
@@ -294,4 +300,22 @@ final public class String extends x10.core.Ref implements
 //    {
 //        return new x10.core.String(x + y.$value);
 //    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write($value);
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+    }
+
+    public static X10JavaSerializable _deserialize_body(x10.core.String string, X10JavaDeserializer deserializer) throws IOException {
+        java.lang.String str  = deserializer.readString();
+        string = new x10.core.String(str);
+        return string;
+    }
+
+    public int _get_serialization_id() {
+		return _serialization_id;
+	}
 }

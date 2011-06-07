@@ -15,6 +15,9 @@ import x10.core.RefI;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 public class NativeFile extends java.io.File implements RefI {
 
@@ -105,5 +108,13 @@ public class NativeFile extends java.io.File implements RefI {
     );
     public RuntimeType<NativeFile> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        throw new UnsupportedOperationException("Cannot serialize " + getClass());
+    }
+
+    public int _get_serialization_id() {
+        throw new UnsupportedOperationException("Cannot serialize " + getClass());
+    }
 
 }

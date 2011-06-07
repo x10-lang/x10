@@ -1,11 +1,17 @@
 package x10.rtt;
 
 import x10.core.Any;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 
-public final class ParameterizedType<T> implements Type<T>{
+public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
+    private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
 
     private final RuntimeType<T> rtt;
     private final Type<?>[] params;
@@ -170,4 +176,25 @@ public final class ParameterizedType<T> implements Type<T>{
         return str;
     }
 
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+		serializer.write(rtt);
+        serializer.write(params);
+	}
+
+	public static X10JavaSerializable _deserializer( X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(ParameterizedType pt, X10JavaDeserializer deserializer) throws IOException {
+		RuntimeType rt = (RuntimeType) deserializer.deSerialize();
+        int length = deserializer.readInt();
+        Type[] ps = new Type[length];
+        deserializer.readArray(ps);
+        pt = new ParameterizedType(rt, ps);
+        return pt;
+    }
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
 }

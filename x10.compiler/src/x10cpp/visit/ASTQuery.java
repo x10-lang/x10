@@ -86,7 +86,7 @@ public class ASTQuery {
 		this.tr = tr;
 	}
 
-    boolean isSyntheticField(String name) {
+    public boolean isSyntheticField(String name) {
 		if (name.startsWith("jlc$")) return true;
 		return false;
 	}

@@ -13,6 +13,11 @@ package x10.core;
 
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 /**
  * Represents a boxed ULong value. Boxed representation is used when casting
@@ -22,6 +27,7 @@ final public class ULong extends x10.core.Struct implements java.lang.Comparable
     x10.lang.Arithmetic<ULong>, x10.lang.Bitwise<ULong>, x10.util.Ordered<ULong>
 {
     private static final long serialVersionUID = 1L;
+    private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.ULONG;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
@@ -85,6 +91,24 @@ final public class ULong extends x10.core.Struct implements java.lang.Comparable
         if (a > b) return 1;
         else if (a < b) return -1;
         return 0;
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write($value);
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+    }
+
+    public static X10JavaSerializable _deserialize_body(ULong ul, X10JavaDeserializer deserializer) throws IOException {
+        long value  = deserializer.readLong();
+        ul = new ULong(value);
+        return ul;
     }
     
     // implements Arithmetic<ULong>

@@ -11,15 +11,21 @@
 
 package x10.runtime.impl.java;
 
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 import java.util.HashMap;
 
 
 /**
  * Implementation of PlaceLocalHandle service for Java-based runtime.
  */
-public final class PlaceLocalHandle<T> implements java.io.Serializable {
+public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+    private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
 
     private static final HashMap<Integer,Object> data = new HashMap<Integer,Object>();
     
@@ -92,5 +98,23 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable {
     public String toString() {
         return "PlaceLocalHandle(" + this.id + ")";
     }
+
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+		serializer.write(id);
+	}
+
+	public static X10JavaSerializable _deserialize_body(PlaceLocalHandle placeLocalHandle, X10JavaDeserializer deserializer) throws IOException {
+        placeLocalHandle.id = deserializer.readInt();
+        return placeLocalHandle;
+	}
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        PlaceLocalHandle placeLocalHandle = new PlaceLocalHandle((java.lang.System[]) null);
+		return _deserialize_body(placeLocalHandle, deserializer);
+	}
 
 }
